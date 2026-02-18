@@ -1,14 +1,11 @@
 from fastapi import FastAPI, Request, Form, Depends, HTTPException
 from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from .database import SessionLocal, User
-from .crud import create_user, create_subscription
-import os
+from .crud import create_user
 
 app = FastAPI(title="SuperAdPro")
 templates = Jinja2Templates(directory="templates")
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 def get_db():
     db = SessionLocal()
@@ -35,7 +32,3 @@ def register(request: Request, username: str = Form(), email: str = Form(), pass
         if sponsor: sponsor_id = sponsor.id
     user = create_user(db, username, email, password, sponsor_id)
     return templates.TemplateResponse("dashboard.html", {"request": request, "user": user})
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
