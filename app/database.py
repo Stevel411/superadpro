@@ -16,6 +16,8 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     email = Column(String, index=True)
     password = Column(String)
+    first_name = Column(String, nullable=True)
+    last_name = Column(String, nullable=True)
     sponsor_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     wallet_address = Column(String, nullable=True)
     is_admin = Column(Boolean, default=False)
