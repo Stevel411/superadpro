@@ -3,47 +3,495 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Legal Disclaimer - SuperAdPro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Legal — SuperAdPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        .neon { text-shadow: 0 0 25px #10b981; }
-        .glass { background: rgba(16, 185, 129, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.3); }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#020e08; color:#e0ead8; font-family:'Rethink Sans',sans-serif; min-height:100vh; }
+        .bg { position:fixed; inset:0; z-index:0;
+            background: radial-gradient(ellipse 100% 60% at 50% 0%, rgba(0,100,70,0.35) 0%, transparent 65%),
+                        linear-gradient(180deg,#010f09 0%,#021a10 30%,#010a05 100%);
+        }
+        .grid { position:fixed; inset:0; z-index:1; pointer-events:none;
+            background-image:linear-gradient(rgba(0,180,120,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,120,0.03) 1px,transparent 1px);
+            background-size:55px 55px;
+        }
+
+        nav { position:relative; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 36px; height:60px; background:rgba(1,10,5,0.85); backdrop-filter:blur(18px); border-bottom:1px solid rgba(0,180,120,0.12); }
+        .nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; }
+        .nav-brand { font-weight:800; font-size:15px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#ffe89a,#c9a84c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .nav-links { display:flex; align-items:center; gap:6px; list-style:none; }
+        .nav-links a { font-size:13px; font-weight:500; color:rgba(220,242,230,0.65); text-decoration:none; padding:4px 10px; transition:color 0.2s; }
+        .nav-links a:hover { color:#fff; }
+        .nav-cta { font-weight:700; font-size:13px; color:#020e08; background:linear-gradient(135deg,#ffe89a,#d4a840); padding:8px 22px; border-radius:5px; text-decoration:none; transition:all 0.3s; }
+        .nav-cta:hover { box-shadow:0 4px 24px rgba(201,168,76,0.4); transform:translateY(-1px); }
+
+        .page { position:relative; z-index:10; max-width:1100px; margin:0 auto; padding:60px 32px 80px; }
+
+        /* Hero */
+        .hero { text-align:center; margin-bottom:48px; }
+        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(0,220,150,0.75); border:1px solid rgba(0,220,150,0.2); border-radius:50px; padding:5px 16px; margin-bottom:20px; }
+        .hero h1 { font-weight:800; font-size:clamp(26px,3.5vw,46px); color:#fff; line-height:1.1; margin-bottom:12px; }
+        .hero h1 .gold { color:#c9a84c; }
+        .hero p { font-size:15px; color:rgba(220,242,230,0.65); max-width:560px; margin:0 auto; line-height:1.7; }
+        .last-updated { display:inline-block; font-size:12px; color:rgba(220,242,230,0.4); background:rgba(0,0,0,0.2); border:1px solid rgba(0,180,120,0.12); border-radius:4px; padding:4px 12px; margin-top:14px; }
+
+        /* Layout */
+        .legal-wrap { display:grid; grid-template-columns:220px 1fr; gap:32px; align-items:start; }
+
+        /* Sticky nav */
+        .legal-nav { position:sticky; top:24px; background:rgba(2,16,9,0.92); border:1px solid rgba(0,180,120,0.15); border-radius:10px; padding:20px 0; }
+        .legal-nav-title { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(220,242,230,0.4); padding:0 18px 10px; border-bottom:1px solid rgba(0,180,120,0.1); margin-bottom:8px; }
+        .legal-nav a { display:block; font-size:13px; font-weight:500; color:rgba(220,242,230,0.6); text-decoration:none; padding:8px 18px; border-left:2px solid transparent; transition:all 0.2s; }
+        .legal-nav a:hover { color:#fff; background:rgba(0,180,120,0.05); }
+        .legal-nav a.active { color:#00dc96; border-left-color:#00dc96; background:rgba(0,200,140,0.06); }
+        .legal-nav-sep { height:1px; background:rgba(0,180,120,0.1); margin:8px 0; }
+        .legal-nav-label { font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(220,242,230,0.3); padding:6px 18px 4px; }
+
+        /* Doc tabs */
+        .doc-tabs { display:flex; gap:0; border:1px solid rgba(0,180,120,0.2); border-radius:6px; overflow:hidden; margin-bottom:32px; }
+        .doc-tab { flex:1; padding:12px 20px; text-align:center; font-size:13px; font-weight:600; color:rgba(220,242,230,0.55); cursor:pointer; border-right:1px solid rgba(0,180,120,0.15); transition:all 0.25s; background:rgba(2,16,9,0.8); }
+        .doc-tab:last-child { border-right:none; }
+        .doc-tab.active { background:rgba(0,180,120,0.1); color:#00dc96; }
+        .doc-tab:hover:not(.active) { color:rgba(220,242,230,0.85); }
+
+        /* Document */
+        .doc-panel { display:none; }
+        .doc-panel.active { display:block; }
+
+        .legal-section { background:rgba(2,16,9,0.9); border:1px solid rgba(0,180,120,0.13); border-radius:10px; padding:32px 36px; margin-bottom:16px; scroll-margin-top:24px; }
+        .legal-section:hover { border-color:rgba(0,180,120,0.22); }
+        .section-num { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(0,220,150,0.55); margin-bottom:8px; }
+        .section-heading { font-size:19px; font-weight:800; color:#fff; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid rgba(0,180,120,0.1); }
+        .legal-text { font-size:14px; color:rgba(220,242,230,0.75); line-height:1.85; margin-bottom:14px; }
+        .legal-text:last-child { margin-bottom:0; }
+        .legal-text strong { color:#fff; }
+        .legal-text a { color:#c9a84c; text-decoration:none; }
+        .legal-text a:hover { text-decoration:underline; }
+        .legal-list { list-style:none; margin:12px 0; display:flex; flex-direction:column; gap:8px; }
+        .legal-list li { font-size:14px; color:rgba(220,242,230,0.72); line-height:1.65; padding-left:20px; position:relative; }
+        .legal-list li::before { content:'→'; position:absolute; left:0; color:#00dc96; font-weight:700; font-size:12px; }
+        .legal-highlight { background:rgba(201,168,76,0.06); border:1px solid rgba(201,168,76,0.18); border-radius:6px; padding:14px 18px; margin:14px 0; font-size:13px; color:rgba(220,242,230,0.78); line-height:1.7; }
+        .legal-highlight strong { color:#c9a84c; }
+        .legal-warning { background:rgba(255,100,80,0.06); border:1px solid rgba(255,100,80,0.18); border-radius:6px; padding:14px 18px; margin:14px 0; font-size:13px; color:rgba(255,180,160,0.85); line-height:1.7; }
+
+        @media(max-width:800px) { .legal-wrap{grid-template-columns:1fr} .legal-nav{position:relative;top:0} }
     </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100">
-    <div class="max-w-4xl mx-auto px-6 py-16">
-        <div class="text-center mb-12">
-            <div class="inline-flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl neon">SA</div>
-                <span class="text-3xl font-bold tracking-tighter neon">SuperAdPro</span>
+<body>
+<div class="bg"></div>
+<div class="grid"></div>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffe89a"/><stop offset="30%" stop-color="#c9a84c"/><stop offset="70%" stop-color="#7a5c10"/><stop offset="100%" stop-color="#c9a84c"/></linearGradient>
+    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1a3520"/><stop offset="40%" stop-color="#0d2018"/><stop offset="100%" stop-color="#050e08"/></linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7a5c10"/><stop offset="50%" stop-color="#c9a84c"/><stop offset="100%" stop-color="#7a5c10"/></linearGradient>
+    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
+    <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="sc"><path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z"/></clipPath>
+    <symbol id="shield" viewBox="0 0 130 122">
+      <path d="M17 10 L117 10 L127 48 L67 118 L7 48 Z" fill="rgba(0,0,0,0.5)" transform="translate(3,4)"/>
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#sf)" stroke="url(#ob)" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M22 15 L108 15 L116 46 L65 105 L14 46 Z" fill="none" stroke="url(#ob)" stroke-width="1.5" stroke-linejoin="round" opacity="0.5"/>
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#hl)" clip-path="url(#sc)"/>
+      <path d="M23 31 L65 37 L107 31" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M29 49 L65 54 L101 49" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M37 67 L65 71 L93 67" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M47 84 L65 87 L83 84" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+    </symbol>
+  </defs>
+</svg>
+
+<nav>
+    <a href="/" class="nav-logo">
+        <svg width="26" height="26"><use href="#shield"/></svg>
+        <span class="nav-brand">SuperAdPro</span>
+    </a>
+    <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/faq">FAQ</a></li>
+        <li><a href="/support">Support</a></li>
+        <li><a href="/legal" style="color:#00dc96">Legal</a></li>
+    </ul>
+    <a href="/register" class="nav-cta">Join Free</a>
+</nav>
+
+<div class="page">
+
+    <div class="hero">
+        <div class="eyebrow">Legal Documents</div>
+        <h1>Terms, Privacy &amp;<br><span class="gold">Legal Information.</span></h1>
+        <p>Please read these documents carefully before using SuperAdPro. By registering or using the platform, you agree to the terms outlined below.</p>
+        <span class="last-updated">Last updated: February 2026</span>
+    </div>
+
+    <!-- DOC TABS -->
+    <div class="doc-tabs">
+        <div class="doc-tab active" onclick="showDoc('tos', this)">📋 Terms of Service</div>
+        <div class="doc-tab" onclick="showDoc('privacy', this)">🔒 Privacy Policy</div>
+        <div class="doc-tab" onclick="showDoc('disclaimer', this)">⚠️ Risk Disclaimer</div>
+    </div>
+
+    <!-- ===== TERMS OF SERVICE ===== -->
+    <div class="doc-panel active" id="doc-tos">
+        <div class="legal-wrap">
+            <div class="legal-nav">
+                <div class="legal-nav-title">Contents</div>
+                <a href="#tos-1" class="active">1. Acceptance</a>
+                <a href="#tos-2">2. Platform Description</a>
+                <a href="#tos-3">3. Eligibility</a>
+                <a href="#tos-4">4. Account Registration</a>
+                <a href="#tos-5">5. Advertising Packages</a>
+                <a href="#tos-6">6. Affiliate Programme</a>
+                <a href="#tos-7">7. Payments & USDT</a>
+                <a href="#tos-8">8. Prohibited Conduct</a>
+                <a href="#tos-9">9. Intellectual Property</a>
+                <a href="#tos-10">10. Limitation of Liability</a>
+                <a href="#tos-11">11. Termination</a>
+                <a href="#tos-12">12. Changes to Terms</a>
+                <a href="#tos-13">13. Contact</a>
             </div>
-            <h1 class="text-5xl font-bold tracking-tighter neon">Legal Disclaimer</h1>
-        </div>
+            <div>
+                <div class="legal-section" id="tos-1">
+                    <div class="section-num">Section 1</div>
+                    <div class="section-heading">Acceptance of Terms</div>
+                    <p class="legal-text">By accessing or using the SuperAdPro platform ("the Platform"), registering an account, or activating any advertising package, you ("the User") agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you must not use the Platform.</p>
+                    <p class="legal-text">These Terms constitute a legally binding agreement between you and SuperAdPro ("the Company", "we", "us"). Your continued use of the Platform following any updates to these Terms constitutes acceptance of the revised Terms.</p>
+                </div>
 
-        <div class="glass rounded-3xl p-12 text-zinc-300 leading-relaxed">
-            <p><strong>Legal Disclaimer & Risk Warning</strong></p>
-            <p class="mt-4">
-                SuperAdPro provides access to educational marketing and video training content. 
-                Subscriptions are for video library access only. Affiliate commissions on subscriptions are 100% passed to the referring sponsor. 
-                No income, earnings, or results are guaranteed. Past performance is not indicative of future results. 
-                Matrix earnings depend on active participation, daily video watching, and team building.
-            </p>
-            <p class="mt-4">
-                Cryptocurrency (USDT on Base) payments involve significant risk of loss. Prices are volatile. 
-                You should only participate if you can afford to lose your entire investment. 
-                This is not financial, investment, or legal advice. Consult your own qualified advisor.
-            </p>
-            <p class="mt-4">
-                SuperAdPro Ltd is a UK company. We comply with all applicable UK laws. 
-                The platform is not a pyramid scheme — video content has real educational value and affiliate rewards are optional and performance-based. 
-                Company revenue comes from matrix fees (5%) and advertiser placements only.
-            </p>
-            <p class="mt-8 text-center text-xs">© 2026 SuperAdPro Ltd. All rights reserved. Use at your own risk.</p>
-        </div>
+                <div class="legal-section" id="tos-2">
+                    <div class="section-num">Section 2</div>
+                    <div class="section-heading">Platform Description</div>
+                    <p class="legal-text">SuperAdPro is a video advertising platform that enables:</p>
+                    <ul class="legal-list">
+                        <li>Advertisers to purchase guaranteed video views for their content through advertising packages</li>
+                        <li>Marketers to launch and manage AI-optimised video campaigns</li>
+                        <li>Affiliates to earn commissions by referring new members to the platform</li>
+                    </ul>
+                    <p class="legal-text">All financial transactions on the Platform are conducted in USDT (Tether) on the Base blockchain network. SuperAdPro does not offer investment products, securities, or guaranteed financial returns.</p>
+                    <div class="legal-highlight"><strong>Important:</strong> Advertising packages provide a guaranteed number of video views. They do not guarantee any specific financial return, business outcome, or profit from advertising.</div>
+                </div>
 
-        <div class="text-center mt-12">
-            <a href="/" class="inline-block bg-emerald-500 hover:bg-emerald-600 px-12 py-4 rounded-3xl text-lg font-semibold">← Back to Home</a>
+                <div class="legal-section" id="tos-3">
+                    <div class="section-num">Section 3</div>
+                    <div class="section-heading">Eligibility</div>
+                    <p class="legal-text">To use SuperAdPro you must:</p>
+                    <ul class="legal-list">
+                        <li>Be at least 18 years of age</li>
+                        <li>Have the legal capacity to enter into a binding agreement</li>
+                        <li>Not be located in a jurisdiction where use of the Platform is prohibited by law</li>
+                        <li>Not be a citizen or resident of any country subject to comprehensive sanctions</li>
+                        <li>Hold a valid Base Chain compatible cryptocurrency wallet</li>
+                    </ul>
+                    <p class="legal-text">It is your responsibility to ensure that your use of the Platform complies with all laws applicable in your jurisdiction. SuperAdPro makes no representation that the Platform is appropriate or available for use in all locations.</p>
+                </div>
+
+                <div class="legal-section" id="tos-4">
+                    <div class="section-num">Section 4</div>
+                    <div class="section-heading">Account Registration</div>
+                    <p class="legal-text">Each individual may hold only one account on SuperAdPro. You agree to provide accurate, current and complete information during registration and to keep your account information updated.</p>
+                    <p class="legal-text">You are responsible for maintaining the confidentiality of your login credentials and for all activity that occurs under your account. You must notify us immediately of any unauthorised use of your account.</p>
+                    <div class="legal-warning">Creating multiple accounts, using false identities, or misrepresenting your identity during registration may result in immediate account suspension and forfeiture of any earned commissions.</div>
+                </div>
+
+                <div class="legal-section" id="tos-5">
+                    <div class="section-num">Section 5</div>
+                    <div class="section-heading">Advertising Packages</div>
+                    <p class="legal-text">By activating an advertising package, you agree that:</p>
+                    <ul class="legal-list">
+                        <li>Package payments are non-refundable once the payment has been confirmed on-chain</li>
+                        <li>The number of views stated in each package refers to views delivered through the SuperAdPro network</li>
+                        <li>SuperAdPro does not guarantee any specific business result, sales conversion, or revenue from advertising campaigns</li>
+                        <li>Video content submitted must comply with our content guidelines and must not contain illegal, harmful, or misleading material</li>
+                        <li>SuperAdPro reserves the right to reject or remove any video content that violates these guidelines</li>
+                    </ul>
+                    <p class="legal-text">All package prices are denominated in USDT. You are responsible for any network gas fees associated with your transactions.</p>
+                </div>
+
+                <div class="legal-section" id="tos-6">
+                    <div class="section-num">Section 6</div>
+                    <div class="section-heading">Affiliate Programme</div>
+                    <p class="legal-text">Participation in the SuperAdPro affiliate programme is voluntary and subject to the following conditions:</p>
+                    <ul class="legal-list">
+                        <li>You must have an active advertising package to participate in the affiliate programme</li>
+                        <li>Commissions are earned only when a referred member activates a qualifying advertising package</li>
+                        <li>Affiliate commissions are paid at the rates specified in the Compensation Plan, which may be updated at the Company's discretion with notice</li>
+                        <li>Commissions earned through fraudulent referrals, self-referrals, or manipulation of the matrix system will be reversed and may result in account termination</li>
+                        <li>You may not make income claims, earnings guarantees, or misleading representations when promoting SuperAdPro</li>
+                    </ul>
+                    <div class="legal-highlight"><strong>No income guarantee:</strong> Affiliate earnings are entirely dependent on your own efforts and network growth. Past performance of other members does not indicate your likely results.</div>
+                </div>
+
+                <div class="legal-section" id="tos-7">
+                    <div class="section-num">Section 7</div>
+                    <div class="section-heading">Payments &amp; USDT</div>
+                    <p class="legal-text">All transactions on SuperAdPro are conducted in USDT on the Base blockchain. By making payments on the Platform, you acknowledge:</p>
+                    <ul class="legal-list">
+                        <li>Cryptocurrency transactions are irreversible once confirmed on-chain</li>
+                        <li>You are solely responsible for sending funds to the correct wallet address on the correct network (Base Chain)</li>
+                        <li>SuperAdPro cannot recover funds sent to incorrect addresses or on incorrect networks</li>
+                        <li>The value of USDT is subject to the stability of the Tether peg and general cryptocurrency market conditions</li>
+                        <li>SuperAdPro is not responsible for delays or failures caused by blockchain network congestion</li>
+                    </ul>
+                    <div class="legal-warning">⚠ Always verify the platform wallet address before sending funds. Only send USDT on the Base network. Funds sent on other networks cannot be recovered.</div>
+                </div>
+
+                <div class="legal-section" id="tos-8">
+                    <div class="section-num">Section 8</div>
+                    <div class="section-heading">Prohibited Conduct</div>
+                    <p class="legal-text">You agree not to engage in any of the following:</p>
+                    <ul class="legal-list">
+                        <li>Creating multiple accounts or using false identities</li>
+                        <li>Uploading video content that is illegal, defamatory, harmful, or infringes third-party rights</li>
+                        <li>Attempting to manipulate the matrix system, commission structures, or platform analytics</li>
+                        <li>Using automated bots or scripts to generate artificial views or referrals</li>
+                        <li>Making false or misleading income claims when promoting the platform</li>
+                        <li>Engaging in any activity that violates applicable laws or regulations in your jurisdiction</li>
+                        <li>Attempting to hack, reverse-engineer, or disrupt the Platform or its infrastructure</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section" id="tos-9">
+                    <div class="section-num">Section 9</div>
+                    <div class="section-heading">Intellectual Property</div>
+                    <p class="legal-text">All content on the SuperAdPro Platform — including but not limited to the logo, design, text, graphics, and software — is the property of SuperAdPro and is protected by applicable intellectual property laws.</p>
+                    <p class="legal-text">By uploading video content to the Platform, you grant SuperAdPro a non-exclusive, royalty-free licence to display, distribute, and deliver that content as part of your advertising campaign. You retain ownership of your content and represent that you have all necessary rights to upload and distribute it.</p>
+                </div>
+
+                <div class="legal-section" id="tos-10">
+                    <div class="section-num">Section 10</div>
+                    <div class="section-heading">Limitation of Liability</div>
+                    <p class="legal-text">To the fullest extent permitted by applicable law, SuperAdPro shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Platform, including but not limited to loss of profits, loss of data, or business interruption.</p>
+                    <p class="legal-text">SuperAdPro's total liability to you for any claim arising out of or relating to these Terms or the Platform shall not exceed the total amount paid by you to SuperAdPro in the twelve months preceding the claim.</p>
+                </div>
+
+                <div class="legal-section" id="tos-11">
+                    <div class="section-num">Section 11</div>
+                    <div class="section-heading">Termination</div>
+                    <p class="legal-text">SuperAdPro reserves the right to suspend or terminate your account at any time, with or without notice, if you violate these Terms or engage in conduct that is harmful to the Platform, other users, or the Company.</p>
+                    <p class="legal-text">Upon termination, any pending commissions that have been legitimately earned will be paid to your registered wallet address. Commissions earned through fraudulent or prohibited activity will be forfeited. Package fees already paid are non-refundable.</p>
+                </div>
+
+                <div class="legal-section" id="tos-12">
+                    <div class="section-num">Section 12</div>
+                    <div class="section-heading">Changes to Terms</div>
+                    <p class="legal-text">SuperAdPro reserves the right to update these Terms at any time. We will notify registered users of material changes via email or a prominent notice on the Platform. Continued use of the Platform following notification of changes constitutes acceptance of the updated Terms.</p>
+                </div>
+
+                <div class="legal-section" id="tos-13">
+                    <div class="section-num">Section 13</div>
+                    <div class="section-heading">Contact</div>
+                    <p class="legal-text">For any questions regarding these Terms of Service, please contact us at <a href="mailto:legal@superadpro.com">legal@superadpro.com</a> or via our <a href="/support">Support page</a>.</p>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- ===== PRIVACY POLICY ===== -->
+    <div class="doc-panel" id="doc-privacy">
+        <div class="legal-wrap">
+            <div class="legal-nav">
+                <div class="legal-nav-title">Contents</div>
+                <a href="#pp-1" class="active">1. Information We Collect</a>
+                <a href="#pp-2">2. How We Use Your Data</a>
+                <a href="#pp-3">3. Data Storage & Security</a>
+                <a href="#pp-4">4. Sharing of Data</a>
+                <a href="#pp-5">5. Cookies</a>
+                <a href="#pp-6">6. Your Rights</a>
+                <a href="#pp-7">7. Blockchain Data</a>
+                <a href="#pp-8">8. Retention</a>
+                <a href="#pp-9">9. Contact</a>
+            </div>
+            <div>
+                <div class="legal-section" id="pp-1">
+                    <div class="section-num">Section 1</div>
+                    <div class="section-heading">Information We Collect</div>
+                    <p class="legal-text">When you register and use SuperAdPro, we collect the following information:</p>
+                    <ul class="legal-list">
+                        <li><strong>Registration data:</strong> Name, email address, username, and password (stored as a bcrypt hash — never in plain text)</li>
+                        <li><strong>Wallet data:</strong> Your Base Chain USDT wallet address</li>
+                        <li><strong>Campaign data:</strong> Video content uploaded, campaign settings, targeting preferences, and performance metrics</li>
+                        <li><strong>Transaction data:</strong> Package activations, commission payments, and withdrawal history</li>
+                        <li><strong>Usage data:</strong> IP address, browser type, pages visited, and session duration collected automatically</li>
+                        <li><strong>Communications:</strong> Messages sent to our support team</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section" id="pp-2">
+                    <div class="section-num">Section 2</div>
+                    <div class="section-heading">How We Use Your Data</div>
+                    <p class="legal-text">We use your data to:</p>
+                    <ul class="legal-list">
+                        <li>Operate and provide the SuperAdPro platform and its features</li>
+                        <li>Process package activations and distribute commission payments</li>
+                        <li>Deliver and optimise your advertising campaigns</li>
+                        <li>Send transactional emails (account confirmation, payment notifications)</li>
+                        <li>Respond to support enquiries</li>
+                        <li>Detect and prevent fraud, abuse, and Terms of Service violations</li>
+                        <li>Improve platform performance and user experience</li>
+                    </ul>
+                    <p class="legal-text">We do not use your data for unsolicited marketing without your consent.</p>
+                </div>
+
+                <div class="legal-section" id="pp-3">
+                    <div class="section-num">Section 3</div>
+                    <div class="section-heading">Data Storage &amp; Security</div>
+                    <p class="legal-text">Your data is stored on secure servers hosted via Railway. We implement the following security measures:</p>
+                    <ul class="legal-list">
+                        <li>All passwords are hashed using bcrypt with appropriate salt rounds — never stored in plain text</li>
+                        <li>All data in transit is encrypted via HTTPS/TLS</li>
+                        <li>Rate limiting is applied to authentication endpoints to prevent brute-force attacks</li>
+                        <li>Database access is restricted to authorised personnel only</li>
+                    </ul>
+                    <p class="legal-text">While we take reasonable steps to protect your data, no system is completely secure. We encourage you to use a strong, unique password for your SuperAdPro account.</p>
+                </div>
+
+                <div class="legal-section" id="pp-4">
+                    <div class="section-num">Section 4</div>
+                    <div class="section-heading">Sharing of Data</div>
+                    <p class="legal-text">We do not sell, rent, or share your personal data with third parties for marketing purposes. We may share data with:</p>
+                    <ul class="legal-list">
+                        <li><strong>Service providers:</strong> Infrastructure and hosting providers necessary to operate the platform (e.g. Railway, database services)</li>
+                        <li><strong>Legal requirements:</strong> Where required to comply with applicable law, court order, or government authority</li>
+                        <li><strong>Business transfers:</strong> In the event of a merger, acquisition, or sale of assets, user data may be transferred as part of that transaction</li>
+                    </ul>
+                    <div class="legal-highlight">Your wallet address is used solely for processing payments and distributing commissions. It is never shared with third-party advertisers or data brokers.</div>
+                </div>
+
+                <div class="legal-section" id="pp-5">
+                    <div class="section-num">Section 5</div>
+                    <div class="section-heading">Cookies</div>
+                    <p class="legal-text">SuperAdPro uses session cookies to maintain your login state and provide a functional user experience. We do not use third-party advertising cookies or tracking pixels. You can disable cookies in your browser settings, though this may affect platform functionality.</p>
+                </div>
+
+                <div class="legal-section" id="pp-6">
+                    <div class="section-num">Section 6</div>
+                    <div class="section-heading">Your Rights</div>
+                    <p class="legal-text">Depending on your jurisdiction, you may have the following rights regarding your personal data:</p>
+                    <ul class="legal-list">
+                        <li><strong>Access:</strong> Request a copy of the personal data we hold about you</li>
+                        <li><strong>Correction:</strong> Request correction of inaccurate or incomplete data</li>
+                        <li><strong>Deletion:</strong> Request deletion of your personal data, subject to our legal obligations</li>
+                        <li><strong>Portability:</strong> Request your data in a structured, machine-readable format</li>
+                        <li><strong>Objection:</strong> Object to certain processing of your data</li>
+                    </ul>
+                    <p class="legal-text">To exercise any of these rights, contact us at <a href="mailto:privacy@superadpro.com">privacy@superadpro.com</a>.</p>
+                </div>
+
+                <div class="legal-section" id="pp-7">
+                    <div class="section-num">Section 7</div>
+                    <div class="section-heading">Blockchain Data</div>
+                    <p class="legal-text">All on-chain transactions — including package activations, commission payments, and withdrawals — are recorded on the Base blockchain and are publicly visible by nature of the technology. SuperAdPro cannot modify or delete on-chain transaction records. Your wallet address associated with these transactions is considered pseudonymous public data.</p>
+                </div>
+
+                <div class="legal-section" id="pp-8">
+                    <div class="section-num">Section 8</div>
+                    <div class="section-heading">Data Retention</div>
+                    <p class="legal-text">We retain your personal data for as long as your account is active or as required to provide our services. If you close your account, we will delete your personal data within 90 days, except where retention is required by law or for legitimate business purposes such as fraud prevention and financial record-keeping.</p>
+                </div>
+
+                <div class="legal-section" id="pp-9">
+                    <div class="section-num">Section 9</div>
+                    <div class="section-heading">Contact</div>
+                    <p class="legal-text">For privacy-related enquiries or to exercise your data rights, contact us at <a href="mailto:privacy@superadpro.com">privacy@superadpro.com</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== RISK DISCLAIMER ===== -->
+    <div class="doc-panel" id="doc-disclaimer">
+        <div class="legal-wrap">
+            <div class="legal-nav">
+                <div class="legal-nav-title">Contents</div>
+                <a href="#rd-1" class="active">1. Not Financial Advice</a>
+                <a href="#rd-2">2. Cryptocurrency Risk</a>
+                <a href="#rd-3">3. Affiliate Earnings Risk</a>
+                <a href="#rd-4">4. Advertising Results</a>
+                <a href="#rd-5">5. Regulatory Risk</a>
+                <a href="#rd-6">6. Technology Risk</a>
+            </div>
+            <div>
+                <div class="legal-section" id="rd-1">
+                    <div class="section-num">Section 1</div>
+                    <div class="section-heading">Not Financial Advice</div>
+                    <div class="legal-warning">Nothing on the SuperAdPro platform constitutes financial, investment, legal, or tax advice. All information is provided for informational and educational purposes only.</div>
+                    <p class="legal-text">SuperAdPro is an advertising platform. Any earnings potential described relates to the affiliate commission structure and is not a guarantee of income. You should consult a qualified financial adviser before making any financial decisions.</p>
+                </div>
+
+                <div class="legal-section" id="rd-2">
+                    <div class="section-num">Section 2</div>
+                    <div class="section-heading">Cryptocurrency Risk</div>
+                    <p class="legal-text">All transactions on SuperAdPro are conducted in USDT on the Base blockchain. You acknowledge and accept the following risks:</p>
+                    <ul class="legal-list">
+                        <li>Cryptocurrency transactions are irreversible — errors cannot be undone</li>
+                        <li>USDT is a stablecoin pegged to the US Dollar, but this peg is not guaranteed and may deviate under extreme market conditions</li>
+                        <li>Blockchain networks may experience congestion, downtime, or technical failures outside our control</li>
+                        <li>Regulatory changes in your jurisdiction may affect your ability to use cryptocurrency</li>
+                        <li>You are solely responsible for the security of your private keys and wallet</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section" id="rd-3">
+                    <div class="section-num">Section 3</div>
+                    <div class="section-heading">Affiliate Earnings Risk</div>
+                    <p class="legal-text">Affiliate commissions on SuperAdPro are earned only when referred members activate advertising packages. There is no guarantee that you will earn any specific amount, or any amount at all, from the affiliate programme.</p>
+                    <p class="legal-text">Earnings described in marketing materials or by other members represent their individual results and are not typical. Your results will depend entirely on your own efforts, network, and market conditions.</p>
+                    <div class="legal-highlight"><strong>No income guarantee:</strong> SuperAdPro does not guarantee any level of income from the affiliate programme. Participation involves real financial risk and results will vary.</div>
+                </div>
+
+                <div class="legal-section" id="rd-4">
+                    <div class="section-num">Section 4</div>
+                    <div class="section-heading">Advertising Results</div>
+                    <p class="legal-text">While SuperAdPro guarantees the delivery of the number of video views specified in each advertising package, we do not guarantee any specific business outcome from those views. Results such as sales conversions, website traffic, brand awareness, or revenue are dependent on many factors outside our control, including the quality of your video content, your offer, and your target market.</p>
+                </div>
+
+                <div class="legal-section" id="rd-5">
+                    <div class="section-num">Section 5</div>
+                    <div class="section-heading">Regulatory Risk</div>
+                    <p class="legal-text">The regulatory environment for cryptocurrency-based platforms is evolving rapidly. Changes in laws or regulations in your jurisdiction may affect your ability to use SuperAdPro, receive payments, or participate in the affiliate programme. It is your responsibility to ensure your use of the platform is compliant with applicable laws in your location.</p>
+                </div>
+
+                <div class="legal-section" id="rd-6">
+                    <div class="section-num">Section 6</div>
+                    <div class="section-heading">Technology Risk</div>
+                    <p class="legal-text">SuperAdPro operates on internet and blockchain infrastructure that may be subject to technical failures, cyberattacks, or downtime. While we take reasonable steps to ensure platform availability and security, we cannot guarantee uninterrupted service. In the event of a technical failure, we will work to restore service as quickly as possible and will communicate with affected users via registered email.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function showDoc(id, btn) {
+    document.querySelectorAll('.doc-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.doc-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('doc-' + id).classList.add('active');
+    // Set first nav link active
+    const firstLink = document.querySelector('#doc-' + id + ' .legal-nav a');
+    if (firstLink) {
+        document.querySelectorAll('#doc-' + id + ' .legal-nav a').forEach(a => a.classList.remove('active'));
+        firstLink.classList.add('active');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Highlight active nav section on scroll
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const id = entry.target.id;
+            document.querySelectorAll('.legal-nav a').forEach(a => {
+                a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+            });
+        }
+    });
+}, { threshold: 0.4, rootMargin: '-20% 0px -60% 0px' });
+
+document.querySelectorAll('.legal-section').forEach(s => observer.observe(s));
+</script>
 </body>
 </html>
