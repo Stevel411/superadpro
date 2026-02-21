@@ -3,55 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SuperAdPro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Sign In — SuperAdPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        .neon { text-shadow: 0 0 25px #10b981; }
-        .glass { background: rgba(16, 185, 129, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.3); }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#020e08; color:#e0ead8; font-family:'Rethink Sans',sans-serif; min-height:100vh; display:flex; flex-direction:column; }
+        .bg { position:fixed; inset:0; z-index:0;
+            background: radial-gradient(ellipse 100% 60% at 70% 20%, rgba(0,100,70,0.35) 0%, transparent 60%),
+                        radial-gradient(ellipse 80% 60% at 20% 80%, rgba(0,80,100,0.12) 0%, transparent 60%),
+                        linear-gradient(180deg,#010f09 0%,#021a10 40%,#010a05 100%);
+        }
+        .grid { position:fixed; inset:0; z-index:1; pointer-events:none;
+            background-image: linear-gradient(rgba(0,180,120,0.03) 1px,transparent 1px), linear-gradient(90deg,rgba(0,180,120,0.03) 1px,transparent 1px);
+            background-size:55px 55px;
+        }
+        nav { position:relative; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 36px; height:60px; background:rgba(1,10,5,0.8); backdrop-filter:blur(18px); border-bottom:1px solid rgba(0,180,120,0.12); }
+        .nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; }
+        .nav-brand { font-weight:800; font-size:15px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#ffe89a,#c9a84c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .nav-register { font-size:13px; color:rgba(215,238,225,0.80); text-decoration:none; transition:color 0.2s; }
+        .nav-register:hover { color:#c9a84c; }
+
+        .main { flex:1; display:flex; align-items:center; justify-content:center; padding:40px 20px; position:relative; z-index:10; }
+
+        .login-wrap { display:grid; grid-template-columns:1fr 1fr; gap:0; max-width:1380px; width:100%; border:1px solid rgba(0,180,120,0.2); border-radius:12px; overflow:hidden; }
+
+        /* Left: form */
+        .left-panel { background:rgba(1,12,6,0.98); padding:80px 72px; }
+        .form-eyebrow { font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(0,220,150,0.6); margin-bottom:12px; }
+        .form-title { font-weight:800; font-size:36px; color:#fff; margin-bottom:6px; }
+        .form-sub { font-size:16px; color:rgba(220,242,230,0.75); margin-bottom:36px; }
+
+        .form-group { margin-bottom:24px; }
+        label { display:block; font-size:12px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:rgba(210,235,220,0.75); margin-bottom:6px; }
+        input { width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(0,180,120,0.2); border-radius:5px; padding:15px 18px; font-family:'Rethink Sans',sans-serif; font-size:16px; color:#e0ead8; transition:all 0.3s; outline:none; }
+        input::placeholder { color:rgba(210,235,220,0.55); }
+        input:focus { border-color:rgba(0,220,150,0.5); background:rgba(0,0,0,0.4); box-shadow:0 0 0 3px rgba(0,200,140,0.08); }
+
+        .pw-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+        .forgot { font-size:13px; color:rgba(201,168,76,0.6); text-decoration:none; letter-spacing:0.5px; }
+        .forgot:hover { color:#c9a84c; text-decoration:underline; }
+
+        .submit-btn { width:100%; font-weight:700; font-size:17px; color:#020e08; background:linear-gradient(135deg,#ffe89a,#c9a84c); padding:17px; border-radius:5px; border:none; cursor:pointer; font-family:'Rethink Sans',sans-serif; box-shadow:0 0 28px rgba(201,168,76,0.2); transition:all 0.3s; margin-top:8px; }
+        .submit-btn:hover { box-shadow:0 0 50px rgba(201,168,76,0.45); transform:translateY(-1px); }
+
+        .register-link { text-align:center; margin-top:22px; font-size:15px; color:rgba(210,235,220,0.65); }
+        .register-link a { color:#c9a84c; text-decoration:none; font-weight:600; }
+        .register-link a:hover { text-decoration:underline; }
+
+        .error-msg { background:rgba(255,60,60,0.08); border:1px solid rgba(255,60,60,0.2); border-radius:5px; padding:10px 14px; font-size:13px; color:rgba(255,120,120,0.8); margin-bottom:16px; display:none; }
+
+        .divider-or { display:flex; align-items:center; gap:12px; margin:22px 0; }
+        .or-line { flex:1; height:1px; background:rgba(0,180,120,0.12); }
+        .or-text { font-size:11px; color:rgba(210,235,220,0.55); letter-spacing:2px; }
+
+        /* Right: info panel */
+        .right-panel { background:rgba(2,18,10,0.95); padding:80px 68px; border-left:1px solid rgba(0,180,120,0.15); display:flex; flex-direction:column; justify-content:center; }
+
+        .welcome-back { font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(0,220,150,0.5); margin-bottom:16px; }
+        .right-title { font-weight:800; font-size:30px; color:#fff; line-height:1.3; margin-bottom:14px; }
+        .right-title .gold { color:#c9a84c; }
+        .right-sub { font-size:15px; color:rgba(210,235,220,0.75); line-height:1.65; margin-bottom:28px; }
+
+        .stats-mini { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:28px; }
+        .stat-mini { background:rgba(0,0,0,0.25); border:1px solid rgba(0,180,120,0.15); border-radius:5px; padding:18px; text-align:center; }
+        .stat-mini-val { font-family:'Orbitron',monospace; font-size:24px; color:#c9a84c; font-weight:700; }
+        .stat-mini-label { font-size:11px; color:rgba(220,242,230,0.72); text-transform:uppercase; letter-spacing:1px; margin-top:3px; }
+
+        .member-perks { list-style:none; display:flex; flex-direction:column; gap:10px; }
+        .mp { display:flex; align-items:center; gap:11px; font-size:15px; color:rgba(215,238,225,0.78); }
+        .mp::before { content:'✓'; color:#00dc96; font-weight:700; font-size:12px; flex-shrink:0; }
+
+        @media(max-width:800px) { .login-wrap{grid-template-columns:1fr} .right-panel{display:none} }
     </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100">
+<body>
+<div class="bg"></div>
+<div class="grid"></div>
 
-    <nav class="glass border-b border-emerald-500/30">
-        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl neon">SA</div>
-                <span class="text-3xl font-bold tracking-tighter neon">SuperAdPro</span>
-            </div>
-            <div class="flex gap-4">
-                <a href="/" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-sm font-semibold rounded-3xl transition">Home</a>
-            </div>
-        </div>
-    </nav>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffe89a"/><stop offset="30%" stop-color="#c9a84c"/><stop offset="70%" stop-color="#7a5c10"/><stop offset="100%" stop-color="#c9a84c"/></linearGradient>
+    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1a3520"/><stop offset="40%" stop-color="#0d2018"/><stop offset="100%" stop-color="#050e08"/></linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7a5c10"/><stop offset="50%" stop-color="#c9a84c"/><stop offset="100%" stop-color="#7a5c10"/></linearGradient>
+    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
+    <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="sc"><path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z"/></clipPath>
+    <symbol id="shield" viewBox="0 0 130 122">
+      <path d="M17 10 L117 10 L127 48 L67 118 L7 48 Z" fill="rgba(0,0,0,0.5)" transform="translate(3,4)"/>
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#sf)" stroke="url(#ob)" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M22 15 L108 15 L116 46 L65 105 L14 46 Z" fill="none" stroke="url(#ob)" stroke-width="1.5" stroke-linejoin="round" opacity="0.5"/>
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#hl)" clip-path="url(#sc)"/>
+      <path d="M23 31 L65 37 L107 31" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M29 49 L65 54 L101 49" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M37 67 L65 71 L93 67" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M47 84 L65 87 L83 84" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+    </symbol>
+  </defs>
+</svg>
 
-    <div class="max-w-md mx-auto py-20 px-6">
-        <div class="glass rounded-3xl p-12">
-            <h1 class="text-4xl font-bold text-center mb-8 neon">Welcome Back</h1>
-            
-            {% if error %}
-            <p class="text-red-400 text-center mb-6">{{ error }}</p>
-            {% endif %}
+<nav>
+    <a href="/" class="nav-logo">
+        <svg width="26" height="26"><use href="#shield"/></svg>
+        <span class="nav-brand">Super Ad Pro</span>
+    </a>
+    <a href="/register" class="nav-register">New here? <strong>Create an account →</strong></a>
+</nav>
 
-            <form method="post" action="/login">
-                <div class="mb-6">
-                    <label class="block text-sm text-zinc-400 mb-2">Username or Email</label>
-                    <input type="text" name="username" required class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl px-6 py-4 text-lg focus:border-emerald-500 outline-none">
+<div class="main">
+    <div class="login-wrap">
+
+        <!-- LEFT: Login form -->
+        <div class="left-panel">
+            <div class="form-eyebrow">⬡ Member Access</div>
+            <div class="form-title">Welcome Back</div>
+            <div class="form-sub">Sign in to your SuperAdPro dashboard</div>
+
+            <div class="error-msg" id="errorMsg">Invalid username or password. Please try again.</div>
+
+            <form action="/login" method="POST">
+                <div class="form-group">
+                    <label>Username or Email</label>
+                    <input type="text" name="username" placeholder="Enter your username or email" required autofocus>
                 </div>
 
-                <div class="mb-8">
-                    <label class="block text-sm text-zinc-400 mb-2">Password</label>
-                    <input type="password" name="password" required class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl px-6 py-4 text-lg focus:border-emerald-500 outline-none">
+                <div class="form-group">
+                    <div class="pw-row">
+                        <label style="margin-bottom:0">Password</label>
+                        <a href="/forgot-password" class="forgot">Forgot password?</a>
+                    </div>
+                    <input type="password" name="password" placeholder="Your password" required style="margin-top:6px">
                 </div>
 
-                <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 py-5 rounded-3xl text-xl font-semibold transition">
-                    Login
-                </button>
+                <button type="submit" class="submit-btn">Sign In to Dashboard →</button>
             </form>
 
-            <p class="text-center text-sm text-zinc-400 mt-8">
-                Don't have an account? <a href="/register" class="text-emerald-400 hover:text-emerald-500">Create one here</a>
-            </p>
+            <div class="divider-or">
+                <div class="or-line"></div>
+                <div class="or-text">OR</div>
+                <div class="or-line"></div>
+            </div>
+
+            <div class="register-link">Don't have an account? <a href="/register">Join SuperAdPro free</a></div>
         </div>
+
+        <!-- RIGHT: Info panel -->
+        <div class="right-panel">
+            <div class="welcome-back">⬡ SuperAdPro Members</div>
+            <div class="right-title">Your Dashboard<br><span class="gold">Awaits You.</span></div>
+            <div class="right-sub">Track your campaigns, monitor your matrix earnings, manage your wallet and launch new advertising packages — all from one place.</div>
+
+            <div class="stats-mini">
+                <div class="stat-mini"><div class="stat-mini-val">2.4M+</div><div class="stat-mini-label">Monthly Views</div></div>
+                <div class="stat-mini"><div class="stat-mini-val">+320%</div><div class="stat-mini-label">Avg. ROI</div></div>
+                <div class="stat-mini"><div class="stat-mini-val">12.8K</div><div class="stat-mini-label">Members</div></div>
+                <div class="stat-mini"><div class="stat-mini-val">28%</div><div class="stat-mini-label">Commission</div></div>
+            </div>
+
+            <ul class="member-perks">
+                <li class="mp">Campaign performance dashboard</li>
+                <li class="mp">Live matrix position & downline tracker</li>
+                <li class="mp">USDT wallet balance & history</li>
+                <li class="mp">Affiliate link & referral tools</li>
+                <li class="mp">Activate & upgrade ad packages</li>
+            </ul>
+        </div>
+
     </div>
+</div>
 </body>
 </html>
