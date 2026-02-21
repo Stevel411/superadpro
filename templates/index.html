@@ -2,9 +2,224 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SuperAdPro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SuperAdPro — Affiliate Success. Powered by AGI.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root{--gold:#c9a84c;--gold-light:#ffe89a;--gold-dark:#7a5c10;--green-dark:#0a1a0f;--green-mid:#0d2415;--black:#050a07;--text-light:#e8d5a0;--text-muted:#6b7c6b;--glass:rgba(10,30,15,0.7);--border-gold:rgba(201,168,76,0.3)}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:var(--black);color:var(--text-light);font-family:'Rajdhani',sans-serif;overflow-x:hidden}
+        .bg-layer{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(20,80,30,0.4) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(201,168,76,0.08) 0%,transparent 50%),linear-gradient(180deg,#050a07 0%,#071510 40%,#050a07 100%)}
+        .grid-overlay{position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(20,80,30,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(20,80,30,0.06) 1px,transparent 1px);background-size:60px 60px;animation:gridMove 20s linear infinite}
+        @keyframes gridMove{0%{transform:translateY(0)}100%{transform:translateY(60px)}}
+        .particles{position:fixed;inset:0;z-index:0;overflow:hidden}
+        .particle{position:absolute;border-radius:50%;background:var(--gold);animation:floatUp linear infinite;opacity:0}
+        @keyframes floatUp{0%{transform:translateY(100vh);opacity:0}10%{opacity:0.5}90%{opacity:0.5}100%{transform:translateY(-100px);opacity:0}}
+        .logo-text{font-family:'Russo One',sans-serif;background:linear-gradient(135deg,#ffe89a 0%,#c9a84c 40%,#7a5c10 70%,#c9a84c 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.6));line-height:1}
+        nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 48px;height:70px;display:flex;align-items:center;justify-content:space-between;background:rgba(5,10,7,0.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-gold)}
+        .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+        .nav-links{display:flex;align-items:center;gap:32px;list-style:none}
+        .nav-links a{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color 0.3s}
+        .nav-links a:hover{color:var(--gold)}
+        .nav-cta{font-family:'Russo One',sans-serif;font-size:13px;letter-spacing:1px;color:var(--black);background:linear-gradient(135deg,var(--gold-light),var(--gold));padding:10px 26px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);text-decoration:none;transition:all 0.3s;box-shadow:0 0 20px rgba(201,168,76,0.3)}
+        .nav-cta:hover{box-shadow:0 0 40px rgba(201,168,76,0.6);transform:translateY(-1px)}
+        .ticker-bar{position:relative;z-index:1;margin-top:70px;border-top:1px solid var(--border-gold);border-bottom:1px solid var(--border-gold);background:rgba(5,10,7,0.8);padding:12px 0;overflow:hidden}
+        .ticker-inner{display:flex;gap:80px;animation:ticker 30s linear infinite;white-space:nowrap}
+        .ticker-item{font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;color:var(--gold);flex-shrink:0}
+        .ticker-item span{color:var(--text-muted);margin-right:10px}
+        @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+        .hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 40px 60px}
+        .hero-eyebrow{font-family:'Orbitron',monospace;font-size:11px;letter-spacing:6px;text-transform:uppercase;color:var(--gold);margin-bottom:28px;opacity:0;animation:fadeUp 0.8s ease forwards 0.3s}
+        .hero-title{font-family:'Russo One',sans-serif;font-size:clamp(40px,7vw,86px);line-height:1.05;margin-bottom:16px;opacity:0;animation:fadeUp 0.8s ease forwards 0.5s}
+        .hero-title .line1{color:#ffffff;display:block}
+        .hero-title .line2{display:block;background:linear-gradient(135deg,var(--gold-light),var(--gold),var(--gold-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .hero-subtitle{font-size:18px;font-weight:400;letter-spacing:3px;color:var(--text-muted);margin-bottom:50px;opacity:0;animation:fadeUp 0.8s ease forwards 0.7s}
+        .brain-container{position:relative;width:300px;height:300px;margin:0 auto 50px;opacity:0;animation:fadeUp 1s ease forwards 0.6s}
+        .brain-ring{position:absolute;border-radius:50%;border:1px solid;animation:spin linear infinite}
+        .brain-ring-1{inset:0;border-color:rgba(201,168,76,0.2);animation-duration:20s}
+        .brain-ring-2{inset:20px;border-color:rgba(20,180,60,0.15);animation-duration:15s;animation-direction:reverse}
+        .brain-ring-3{inset:40px;border-color:rgba(201,168,76,0.1);animation-duration:25s}
+        .brain-glow{position:absolute;inset:60px;border-radius:50%;background:radial-gradient(circle,rgba(20,180,60,0.15) 0%,rgba(201,168,76,0.05) 50%,transparent 70%);animation:pulse 3s ease-in-out infinite}
+        .brain-core{position:absolute;inset:90px;border-radius:50%;background:radial-gradient(circle at 40% 40%,rgba(30,200,80,0.3),rgba(201,168,76,0.1),transparent);border:1px solid rgba(201,168,76,0.4);display:flex;align-items:center;justify-content:center}
+        .brain-icon{font-size:58px;animation:pulse 2s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(201,168,76,0.6))}
+        @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        @keyframes pulse{0%,100%{opacity:0.7;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        .hero-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp 0.8s ease forwards 0.9s}
+        .btn-primary{font-family:'Russo One',sans-serif;font-size:14px;letter-spacing:1px;color:var(--black);background:linear-gradient(135deg,var(--gold-light),var(--gold));padding:16px 42px;clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);text-decoration:none;transition:all 0.3s;box-shadow:0 0 30px rgba(201,168,76,0.4)}
+        .btn-primary:hover{box-shadow:0 0 60px rgba(201,168,76,0.7);transform:translateY(-2px)}
+        .btn-secondary{font-family:'Russo One',sans-serif;font-size:14px;letter-spacing:1px;color:var(--gold);background:transparent;padding:15px 42px;border:1px solid var(--border-gold);clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);text-decoration:none;transition:all 0.3s}
+        .btn-secondary:hover{background:rgba(201,168,76,0.08);border-color:var(--gold)}
+        .stats-bar{position:relative;z-index:1;display:flex;justify-content:center;padding:0 40px;margin-bottom:80px;opacity:0;animation:fadeUp 0.8s ease forwards 1.1s}
+        .stat-item{padding:24px 48px;text-align:center;border:1px solid var(--border-gold);border-right:none;background:var(--glass);backdrop-filter:blur(10px)}
+        .stat-item:last-child{border-right:1px solid var(--border-gold)}
+        .stat-value{font-family:'Orbitron',monospace;font-size:28px;font-weight:700;color:var(--gold-light);text-shadow:0 0 20px rgba(201,168,76,0.4)}
+        .stat-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-top:4px}
+        .section-divider{position:relative;z-index:1;display:flex;align-items:center;gap:20px;padding:0 80px;margin-bottom:60px}
+        .divider-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border-gold),transparent)}
+        .divider-text{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:4px;color:var(--gold);white-space:nowrap}
+        .features{position:relative;z-index:1;padding:0 40px 80px}
+        .section-title{font-family:'Russo One',sans-serif;font-size:clamp(26px,4vw,46px);text-align:center;margin-bottom:8px;color:white}
+        .section-subtitle{text-align:center;color:var(--text-muted);font-size:16px;letter-spacing:2px;margin-bottom:60px}
+        .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;max-width:1100px;margin:0 auto}
+        .feature-card{background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--border-gold);padding:40px 32px;position:relative;overflow:hidden;transition:all 0.4s}
+        .feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity 0.4s}
+        .feature-card:hover::before{opacity:1}
+        .feature-card:hover{background:rgba(15,40,20,0.8);transform:translateY(-4px)}
+        .feature-icon{font-size:36px;margin-bottom:20px;display:block}
+        .feature-title{font-family:'Russo One',sans-serif;font-size:15px;color:var(--gold-light);margin-bottom:12px;letter-spacing:1px}
+        .feature-value{font-family:'Orbitron',monospace;font-size:22px;color:var(--gold);font-weight:700;margin-bottom:8px}
+        .feature-desc{font-size:14px;color:var(--text-muted);line-height:1.6}
+        .how-it-works{position:relative;z-index:1;padding:80px 40px;background:rgba(5,10,7,0.5);border-top:1px solid var(--border-gold);border-bottom:1px solid var(--border-gold)}
+        .steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;max-width:1100px;margin:0 auto;position:relative}
+        .steps-grid::before{content:'';position:absolute;top:32px;left:12.5%;right:12.5%;height:1px;background:linear-gradient(90deg,var(--gold-dark),var(--gold),var(--gold-dark))}
+        .step{text-align:center;padding:0 20px}
+        .step-num{width:64px;height:64px;border:2px solid var(--gold);background:var(--black);clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-family:'Orbitron',monospace;font-size:20px;font-weight:700;color:var(--gold);box-shadow:0 0 20px rgba(201,168,76,0.2)}
+        .step-title{font-family:'Russo One',sans-serif;font-size:13px;color:var(--gold-light);margin-bottom:8px}
+        .step-desc{font-size:13px;color:var(--text-muted);line-height:1.6}
+        .cta-section{position:relative;z-index:1;padding:100px 40px;text-align:center}
+        .cta-badge{display:inline-block;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:4px;color:var(--gold);border:1px solid var(--border-gold);padding:8px 20px;margin-bottom:32px}
+        footer{position:relative;z-index:1;border-top:1px solid var(--border-gold);padding:40px 48px;display:flex;justify-content:space-between;align-items:center}
+        .footer-links{display:flex;gap:24px}
+        .footer-links a{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color 0.3s}
+        .footer-links a:hover{color:var(--gold)}
+        .footer-copy{font-family:'Rajdhani',sans-serif;font-size:13px;color:var(--text-muted)}
+        @media(max-width:768px){nav{padding:0 20px}.nav-links{display:none}.features-grid{grid-template-columns:1fr}.steps-grid{grid-template-columns:1fr 1fr}.steps-grid::before{display:none}.stats-bar{flex-wrap:wrap}.stat-item{border-right:1px solid var(--border-gold)}footer{flex-direction:column;gap:20px;text-align:center}}
+    </style>
 </head>
 <body>
-    <h1>SuperAdPro Test</h1>
+<div class="bg-layer"></div>
+<div class="grid-overlay"></div>
+<div class="particles" id="particles"></div>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffe89a"/><stop offset="30%" stop-color="#c9a84c"/><stop offset="70%" stop-color="#7a5c10"/><stop offset="100%" stop-color="#c9a84c"/></linearGradient>
+    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1a3520"/><stop offset="40%" stop-color="#0d2018"/><stop offset="100%" stop-color="#050e08"/></linearGradient>
+    <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7a5c10"/><stop offset="25%" stop-color="#ffe89a"/><stop offset="50%" stop-color="#c9a84c"/><stop offset="75%" stop-color="#ffe89a"/><stop offset="100%" stop-color="#7a5c10"/></linearGradient>
+    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="sclip"><path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z"/></clipPath>
+    <symbol id="shield" viewBox="0 0 130 122">
+      <path d="M17 10 L117 10 L127 48 L67 118 L7 48 Z" fill="rgba(0,0,0,0.5)" transform="translate(3,4)"/>
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#sf)" stroke="url(#ob)" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M22 15 L108 15 L116 46 L65 105 L14 46 Z" fill="none" stroke="url(#ob)" stroke-width="1.5" stroke-linejoin="round" opacity="0.5"/>
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#hl)" clip-path="url(#sclip)"/>
+      <path d="M23 31 L65 37 L107 31" fill="none" stroke="url(#lg)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sclip)" filter="url(#glow)"/>
+      <path d="M29 49 L65 54 L101 49" fill="none" stroke="url(#lg)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sclip)" filter="url(#glow)"/>
+      <path d="M37 67 L65 71 L93 67" fill="none" stroke="url(#lg)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sclip)" filter="url(#glow)"/>
+      <path d="M47 84 L65 87 L83 84" fill="none" stroke="url(#lg)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sclip)" filter="url(#glow)"/>
+    </symbol>
+  </defs>
+</svg>
+<nav>
+    <a href="/" class="nav-logo">
+        <svg width="30" height="30"><use href="#shield"/></svg>
+        <span class="logo-text" style="font-size:20px;">SuperAdPro</span>
+    </a>
+    <ul class="nav-links">
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/compensation-plan">Earnings</a></li>
+        <li><a href="/how-it-works">How It Works</a></li>
+        <li><a href="/support">Support</a></li>
+    </ul>
+    <a href="/register" class="nav-cta">Join Now</a>
+</nav>
+<div class="ticker-bar">
+    <div class="ticker-inner">
+        <div class="ticker-item"><span>●</span>MATRIX 1 — $10 USDT</div>
+        <div class="ticker-item"><span>●</span>MATRIX 2 — $25 USDT</div>
+        <div class="ticker-item"><span>●</span>MATRIX 3 — $50 USDT</div>
+        <div class="ticker-item"><span>●</span>MATRIX 4 — $100 USDT</div>
+        <div class="ticker-item"><span>●</span>MATRIX 5 — $250 USDT</div>
+        <div class="ticker-item"><span>●</span>MATRIX 6 — $500 USDT</div>
+        <div class="ticker-item"><span>●</span>MATRIX 7 — $750 USDT</div>
+        <div class="ticker-item"><span>●</span>MATRIX 8 — $1,000 USDT</div>
+        <div class="ticker-item"><span>●</span>POWERED BY BASE CHAIN</div>
+        <div class="ticker-item"><span>●</span>INSTANT USDT PAYMENTS</div>
+        <div class="ticker-item"><span>●</span>MATRIX 1 — $10 USDT</div>
+        <div class="ticker-item"><span>●</span>MATRIX 2 — $25 USDT</div>
+        <div class="ticker-item"><span>●</span>MATRIX 3 — $50 USDT</div>
+        <div class="ticker-item"><span>●</span>MATRIX 4 — $100 USDT</div>
+        <div class="ticker-item"><span>●</span>MATRIX 5 — $250 USDT</div>
+        <div class="ticker-item"><span>●</span>MATRIX 6 — $500 USDT</div>
+        <div class="ticker-item"><span>●</span>MATRIX 7 — $750 USDT</div>
+        <div class="ticker-item"><span>●</span>MATRIX 8 — $1,000 USDT</div>
+        <div class="ticker-item"><span>●</span>POWERED BY BASE CHAIN</div>
+        <div class="ticker-item"><span>●</span>INSTANT USDT PAYMENTS</div>
+    </div>
+</div>
+<section class="hero">
+    <p class="hero-eyebrow">⬡ Affiliate Success · Powered by AGI ⬡</p>
+    <h1 class="hero-title">
+        <span class="line1">AFFILIATE SUCCESS.</span>
+        <span class="line2">POWERED BY AGI.</span>
+    </h1>
+    <p class="hero-subtitle">Predict · Automate · Scale · The Future of Earnings Starts Here</p>
+    <div class="brain-container">
+        <div class="brain-ring brain-ring-1"></div>
+        <div class="brain-ring brain-ring-2"></div>
+        <div class="brain-ring brain-ring-3"></div>
+        <div class="brain-glow"></div>
+        <div class="brain-core"><div class="brain-icon">🧠</div></div>
+    </div>
+    <div class="hero-buttons">
+        <a href="/register" class="btn-primary">Join SuperAdPro</a>
+        <a href="/how-it-works" class="btn-secondary">See AGI In Action</a>
+    </div>
+</section>
+<div class="stats-bar">
+    <div class="stat-item"><div class="stat-value">$27,450</div><div class="stat-label">Daily Earnings Paid</div></div>
+    <div class="stat-item"><div class="stat-value">+320%</div><div class="stat-label">Avg ROI</div></div>
+    <div class="stat-item"><div class="stat-value">8</div><div class="stat-label">Matrix Levels</div></div>
+    <div class="stat-item"><div class="stat-value">100%</div><div class="stat-label">USDT On-Chain</div></div>
+</div>
+<div class="section-divider"><div class="divider-line"></div><div class="divider-text">⬡ AGI-DRIVEN FEATURES ⬡</div><div class="divider-line"></div></div>
+<section class="features">
+    <h2 class="section-title">Stay Ahead of the Curve</h2>
+    <p class="section-subtitle">AGI-Driven Strategies That Maximise Your Earnings</p>
+    <div class="features-grid">
+        <div class="feature-card"><span class="feature-icon">📈</span><div class="feature-title">AI Trend Predictor</div><div class="feature-value">$12,500/wk</div><div class="feature-desc">Spot profitable niches before they boom. Real-time market intelligence powered by AGI analysis.</div></div>
+        <div class="feature-card"><span class="feature-icon">⚡</span><div class="feature-title">Auto-Optimised Campaigns</div><div class="feature-value">CTR +28%</div><div class="feature-desc">Smart ads with real-time results. AI generates and optimises your campaigns automatically.</div></div>
+        <div class="feature-card"><span class="feature-icon">🌐</span><div class="feature-title">Global Profit Insights</div><div class="feature-value">$27,450/day</div><div class="feature-desc">Real-time analytics and maximum ROI tracking across all your matrix positions worldwide.</div></div>
+        <div class="feature-card"><span class="feature-icon">💎</span><div class="feature-title">3x10 Forced Matrix</div><div class="feature-value">8 Levels</div><div class="feature-desc">Automated spillover fills your matrix. Earn from positions you didn't personally recruit.</div></div>
+        <div class="feature-card"><span class="feature-icon">🔗</span><div class="feature-title">On-Chain USDT Payments</div><div class="feature-value">Instant</div><div class="feature-desc">All payments verified on Base Chain. Automatic distribution direct to your wallet — no delays.</div></div>
+        <div class="feature-card"><span class="feature-icon">🏆</span><div class="feature-title">28% Sponsor Commission</div><div class="feature-value">+ 8% Match</div><div class="feature-desc">Earn direct commissions plus matching bonuses on every affiliate you personally sponsor.</div></div>
+    </div>
+</section>
+<section class="how-it-works">
+    <h2 class="section-title" style="margin-bottom:60px;">How It Works</h2>
+    <div class="steps-grid">
+        <div class="step"><div class="step-num">01</div><div class="step-title">Register & Activate</div><div class="step-desc">Join with your $10 USDT membership fee. Your sponsor receives 100% instantly on-chain.</div></div>
+        <div class="step"><div class="step-num">02</div><div class="step-title">Choose Your Matrix</div><div class="step-desc">Select from 8 matrix levels ranging from $10 to $1,000 USDT to unlock earnings.</div></div>
+        <div class="step"><div class="step-num">03</div><div class="step-title">Build Your Team</div><div class="step-desc">Refer affiliates using your unique link. Earn 28% direct commission on every purchase.</div></div>
+        <div class="step"><div class="step-num">04</div><div class="step-title">Earn Automatically</div><div class="step-desc">Matrix spillover fills your positions automatically. Earn from 10 levels of activity.</div></div>
+    </div>
+</section>
+<section class="cta-section">
+    <div class="cta-badge">LIMITED BETA ACCESS</div>
+    <h2 class="section-title" style="margin-bottom:16px;">Scale Faster. Earn Smarter.</h2>
+    <p class="section-subtitle">Join the Future of Affiliate Marketing</p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:40px;">
+        <a href="/register" class="btn-primary">Get Started Today</a>
+        <a href="/compensation-plan" class="btn-secondary">View Compensation Plan</a>
+    </div>
+</section>
+<footer>
+    <a href="/" class="nav-logo">
+        <svg width="26" height="26"><use href="#shield"/></svg>
+        <span class="logo-text" style="font-size:16px;">SuperAdPro</span>
+    </a>
+    <div class="footer-links">
+        <a href="/legal">Legal</a>
+        <a href="/faq">FAQ</a>
+        <a href="/support">Support</a>
+        <a href="/contact">Contact</a>
+    </div>
+    <div class="footer-copy">© 2026 SuperAdPro · All Rights Reserved</div>
+</footer>
+<script>
+    const container=document.getElementById('particles');
+    for(let i=0;i<30;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.animationDuration=(8+Math.random()*15)+'s';p.style.animationDelay=(Math.random()*15)+'s';p.style.width=p.style.height=(1+Math.random()*3)+'px';container.appendChild(p)}
+</script>
 </body>
 </html>
