@@ -3,223 +3,558 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SuperAdPro — Affiliate Success. Powered by AGI.</title>
-    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>SuperAdPro — Where Advertisers, Marketers & Affiliates Win</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root{--gold:#c9a84c;--gold-light:#ffe89a;--gold-dark:#7a5c10;--green-dark:#0a1a0f;--green-mid:#0d2415;--black:#050a07;--text-light:#e8d5a0;--text-muted:#6b7c6b;--glass:rgba(10,30,15,0.7);--border-gold:rgba(201,168,76,0.3)}
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{background:var(--black);color:var(--text-light);font-family:'Rajdhani',sans-serif;overflow-x:hidden}
-        .bg-layer{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(20,80,30,0.4) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(201,168,76,0.08) 0%,transparent 50%),linear-gradient(180deg,#050a07 0%,#071510 40%,#050a07 100%)}
-        .grid-overlay{position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(20,80,30,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(20,80,30,0.06) 1px,transparent 1px);background-size:60px 60px;animation:gridMove 20s linear infinite}
-        @keyframes gridMove{0%{transform:translateY(0)}100%{transform:translateY(60px)}}
-        .particles{position:fixed;inset:0;z-index:0;overflow:hidden}
-        .particle{position:absolute;border-radius:50%;background:var(--gold);animation:floatUp linear infinite;opacity:0}
-        @keyframes floatUp{0%{transform:translateY(100vh);opacity:0}10%{opacity:0.5}90%{opacity:0.5}100%{transform:translateY(-100px);opacity:0}}
-        .logo-text{font-family:'Russo One',sans-serif;background:linear-gradient(135deg,#ffe89a 0%,#c9a84c 40%,#7a5c10 70%,#c9a84c 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.6));line-height:1}
-        nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 48px;height:70px;display:flex;align-items:center;justify-content:space-between;background:rgba(5,10,7,0.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-gold)}
-        .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-        .nav-links{display:flex;align-items:center;gap:32px;list-style:none}
-        .nav-links a{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color 0.3s}
-        .nav-links a:hover{color:var(--gold)}
-        .nav-cta{font-family:'Russo One',sans-serif;font-size:13px;letter-spacing:1px;color:var(--black);background:linear-gradient(135deg,var(--gold-light),var(--gold));padding:10px 26px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);text-decoration:none;transition:all 0.3s;box-shadow:0 0 20px rgba(201,168,76,0.3)}
-        .nav-cta:hover{box-shadow:0 0 40px rgba(201,168,76,0.6);transform:translateY(-1px)}
-        .ticker-bar{position:relative;z-index:1;margin-top:70px;border-top:1px solid var(--border-gold);border-bottom:1px solid var(--border-gold);background:rgba(5,10,7,0.8);padding:12px 0;overflow:hidden}
-        .ticker-inner{display:flex;gap:80px;animation:ticker 30s linear infinite;white-space:nowrap}
-        .ticker-item{font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;color:var(--gold);flex-shrink:0}
-        .ticker-item span{color:var(--text-muted);margin-right:10px}
-        @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-        .hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 40px 60px}
-        .hero-eyebrow{font-family:'Orbitron',monospace;font-size:11px;letter-spacing:6px;text-transform:uppercase;color:var(--gold);margin-bottom:28px;opacity:0;animation:fadeUp 0.8s ease forwards 0.3s}
-        .hero-title{font-family:'Russo One',sans-serif;font-size:clamp(40px,7vw,86px);line-height:1.05;margin-bottom:16px;opacity:0;animation:fadeUp 0.8s ease forwards 0.5s}
-        .hero-title .line1{color:#ffffff;display:block}
-        .hero-title .line2{display:block;background:linear-gradient(135deg,var(--gold-light),var(--gold),var(--gold-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-        .hero-subtitle{font-size:18px;font-weight:400;letter-spacing:3px;color:var(--text-muted);margin-bottom:50px;opacity:0;animation:fadeUp 0.8s ease forwards 0.7s}
-        .brain-container{position:relative;width:300px;height:300px;margin:0 auto 50px;opacity:0;animation:fadeUp 1s ease forwards 0.6s}
-        .brain-ring{position:absolute;border-radius:50%;border:1px solid;animation:spin linear infinite}
-        .brain-ring-1{inset:0;border-color:rgba(201,168,76,0.2);animation-duration:20s}
-        .brain-ring-2{inset:20px;border-color:rgba(20,180,60,0.15);animation-duration:15s;animation-direction:reverse}
-        .brain-ring-3{inset:40px;border-color:rgba(201,168,76,0.1);animation-duration:25s}
-        .brain-glow{position:absolute;inset:60px;border-radius:50%;background:radial-gradient(circle,rgba(20,180,60,0.15) 0%,rgba(201,168,76,0.05) 50%,transparent 70%);animation:pulse 3s ease-in-out infinite}
-        .brain-core{position:absolute;inset:90px;border-radius:50%;background:radial-gradient(circle at 40% 40%,rgba(30,200,80,0.3),rgba(201,168,76,0.1),transparent);border:1px solid rgba(201,168,76,0.4);display:flex;align-items:center;justify-content:center}
-        .brain-icon{font-size:58px;animation:pulse 2s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(201,168,76,0.6))}
-        @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-        @keyframes pulse{0%,100%{opacity:0.7;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
-        @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-        .hero-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp 0.8s ease forwards 0.9s}
-        .btn-primary{font-family:'Russo One',sans-serif;font-size:14px;letter-spacing:1px;color:var(--black);background:linear-gradient(135deg,var(--gold-light),var(--gold));padding:16px 42px;clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);text-decoration:none;transition:all 0.3s;box-shadow:0 0 30px rgba(201,168,76,0.4)}
-        .btn-primary:hover{box-shadow:0 0 60px rgba(201,168,76,0.7);transform:translateY(-2px)}
-        .btn-secondary{font-family:'Russo One',sans-serif;font-size:14px;letter-spacing:1px;color:var(--gold);background:transparent;padding:15px 42px;border:1px solid var(--border-gold);clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);text-decoration:none;transition:all 0.3s}
-        .btn-secondary:hover{background:rgba(201,168,76,0.08);border-color:var(--gold)}
-        .stats-bar{position:relative;z-index:1;display:flex;justify-content:center;padding:0 40px;margin-bottom:80px;opacity:0;animation:fadeUp 0.8s ease forwards 1.1s}
-        .stat-item{padding:24px 48px;text-align:center;border:1px solid var(--border-gold);border-right:none;background:var(--glass);backdrop-filter:blur(10px)}
-        .stat-item:last-child{border-right:1px solid var(--border-gold)}
-        .stat-value{font-family:'Orbitron',monospace;font-size:28px;font-weight:700;color:var(--gold-light);text-shadow:0 0 20px rgba(201,168,76,0.4)}
-        .stat-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-top:4px}
-        .section-divider{position:relative;z-index:1;display:flex;align-items:center;gap:20px;padding:0 80px;margin-bottom:60px}
-        .divider-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border-gold),transparent)}
-        .divider-text{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:4px;color:var(--gold);white-space:nowrap}
-        .features{position:relative;z-index:1;padding:0 40px 80px}
-        .section-title{font-family:'Russo One',sans-serif;font-size:clamp(26px,4vw,46px);text-align:center;margin-bottom:8px;color:white}
-        .section-subtitle{text-align:center;color:var(--text-muted);font-size:16px;letter-spacing:2px;margin-bottom:60px}
-        .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;max-width:1100px;margin:0 auto}
-        .feature-card{background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--border-gold);padding:40px 32px;position:relative;overflow:hidden;transition:all 0.4s}
-        .feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity 0.4s}
-        .feature-card:hover::before{opacity:1}
-        .feature-card:hover{background:rgba(15,40,20,0.8);transform:translateY(-4px)}
-        .feature-icon{font-size:36px;margin-bottom:20px;display:block}
-        .feature-title{font-family:'Russo One',sans-serif;font-size:15px;color:var(--gold-light);margin-bottom:12px;letter-spacing:1px}
-        .feature-value{font-family:'Orbitron',monospace;font-size:22px;color:var(--gold);font-weight:700;margin-bottom:8px}
-        .feature-desc{font-size:14px;color:var(--text-muted);line-height:1.6}
-        .how-it-works{position:relative;z-index:1;padding:80px 40px;background:rgba(5,10,7,0.5);border-top:1px solid var(--border-gold);border-bottom:1px solid var(--border-gold)}
-        .steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;max-width:1100px;margin:0 auto;position:relative}
-        .steps-grid::before{content:'';position:absolute;top:32px;left:12.5%;right:12.5%;height:1px;background:linear-gradient(90deg,var(--gold-dark),var(--gold),var(--gold-dark))}
-        .step{text-align:center;padding:0 20px}
-        .step-num{width:64px;height:64px;border:2px solid var(--gold);background:var(--black);clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-family:'Orbitron',monospace;font-size:20px;font-weight:700;color:var(--gold);box-shadow:0 0 20px rgba(201,168,76,0.2)}
-        .step-title{font-family:'Russo One',sans-serif;font-size:13px;color:var(--gold-light);margin-bottom:8px}
-        .step-desc{font-size:13px;color:var(--text-muted);line-height:1.6}
-        .cta-section{position:relative;z-index:1;padding:100px 40px;text-align:center}
-        .cta-badge{display:inline-block;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:4px;color:var(--gold);border:1px solid var(--border-gold);padding:8px 20px;margin-bottom:32px}
-        footer{position:relative;z-index:1;border-top:1px solid var(--border-gold);padding:40px 48px;display:flex;justify-content:space-between;align-items:center}
-        .footer-links{display:flex;gap:24px}
-        .footer-links a{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color 0.3s}
-        .footer-links a:hover{color:var(--gold)}
-        .footer-copy{font-family:'Rajdhani',sans-serif;font-size:13px;color:var(--text-muted)}
-        @media(max-width:768px){nav{padding:0 20px}.nav-links{display:none}.features-grid{grid-template-columns:1fr}.steps-grid{grid-template-columns:1fr 1fr}.steps-grid::before{display:none}.stats-bar{flex-wrap:wrap}.stat-item{border-right:1px solid var(--border-gold)}footer{flex-direction:column;gap:20px;text-align:center}}
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#020e08; color:#e0ead8; font-family:'Rethink Sans',sans-serif; overflow-x:hidden; }
+
+        /* Background */
+        .bg { position:fixed; inset:0; z-index:0;
+            background: radial-gradient(ellipse 120% 70% at 50% 0%, rgba(0,100,80,0.45) 0%, rgba(0,60,40,0.2) 40%, transparent 70%),
+                        radial-gradient(ellipse 80% 60% at 80% 60%, rgba(0,80,120,0.12) 0%, transparent 60%),
+                        radial-gradient(ellipse 60% 50% at 20% 70%, rgba(0,100,60,0.1) 0%, transparent 60%),
+                        linear-gradient(180deg,#010f09 0%,#021a10 25%,#021f16 50%,#021208 80%,#010a05 100%);
+        }
+        .grid { position:fixed; inset:0; z-index:1; pointer-events:none;
+            background-image: linear-gradient(rgba(0,180,120,0.04) 1px,transparent 1px),
+                              linear-gradient(90deg,rgba(0,180,120,0.04) 1px,transparent 1px);
+            background-size:55px 55px;
+        }
+        .particle { position:fixed; border-radius:50%; pointer-events:none; z-index:2; opacity:0; animation:floatUp linear infinite; }
+        @keyframes floatUp { 0%{transform:translateY(100vh);opacity:0} 10%{opacity:0.8} 85%{opacity:0.4} 100%{transform:translateY(-5vh);opacity:0} }
+
+        /* Nav */
+        nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 36px; height:60px; background:rgba(1,10,5,0.8); backdrop-filter:blur(18px); border-bottom:1px solid rgba(0,180,120,0.12); }
+        .nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; }
+        .nav-brand { font-weight:800; font-size:15px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#ffe89a,#c9a84c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .nav-links { display:flex; align-items:center; gap:6px; list-style:none; }
+        .nav-links a { font-size:13px; font-weight:500; color:rgba(200,230,210,0.55); text-decoration:none; padding:4px 10px; transition:color 0.2s; }
+        .nav-links a:hover { color:rgba(200,230,210,0.9); }
+        .nav-sep { color:rgba(0,180,100,0.3); font-size:11px; }
+        .nav-cta { font-weight:700; font-size:13px; color:#020e08; background:linear-gradient(135deg,#ffe89a,#d4a840); padding:8px 22px; border-radius:5px; text-decoration:none; box-shadow:0 2px 20px rgba(201,168,76,0.3); transition:all 0.3s; }
+        .nav-cta:hover { box-shadow:0 4px 30px rgba(201,168,76,0.5); transform:translateY(-1px); }
+
+        /* Page */
+        .page { position:relative; z-index:10; }
+
+        /* Hero */
+        .hero { padding:88px 40px 0; text-align:center; }
+
+        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:rgba(0,220,150,0.75); border:1px solid rgba(0,220,150,0.2); border-radius:50px; padding:5px 16px; margin-bottom:22px; opacity:0; animation:fadeUp 0.8s ease forwards 0.1s; }
+        .dot { width:6px; height:6px; border-radius:50%; background:#00dc96; animation:blink 2s ease-in-out infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+        .hero-title { font-weight:800; font-size:clamp(28px,4.2vw,56px); color:#fff; line-height:1.1; margin-bottom:14px; opacity:0; animation:fadeUp 0.8s ease forwards 0.2s; }
+        .hero-title .gold { color:#c9a84c; }
+
+        .hero-sub { font-size:clamp(13px,1.4vw,16px); color:rgba(200,225,210,0.6); line-height:1.65; max-width:580px; margin:0 auto 30px; opacity:0; animation:fadeUp 0.8s ease forwards 0.3s; }
+
+        .hero-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:50px; opacity:0; animation:fadeUp 0.8s ease forwards 0.4s; }
+        .btn-gold { font-weight:700; font-size:14px; color:#020e08; background:linear-gradient(135deg,#ffe89a,#c9a84c); padding:13px 34px; border-radius:5px; text-decoration:none; box-shadow:0 0 28px rgba(201,168,76,0.25); transition:all 0.3s; }
+        .btn-gold:hover { box-shadow:0 0 50px rgba(201,168,76,0.5); transform:translateY(-2px); }
+        .btn-outline { font-weight:600; font-size:14px; color:rgba(200,225,210,0.7); background:transparent; padding:12px 34px; border-radius:5px; border:1px solid rgba(0,180,120,0.3); text-decoration:none; transition:all 0.3s; }
+        .btn-outline:hover { border-color:rgba(0,220,150,0.6); color:#fff; }
+
+        @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+
+        /* ===== VIDEO AD PLAYER CENTREPIECE ===== */
+        .ad-stage { position:relative; max-width:820px; margin:0 auto 0; opacity:0; animation:fadeUp 1s ease forwards 0.4s; }
+
+        /* Main screen */
+        .ad-screen {
+            position:relative; margin:0 auto;
+            width:520px; height:300px;
+            background:linear-gradient(135deg,#051a10,#082818,#051a10);
+            border:2px solid rgba(0,200,140,0.4);
+            border-radius:12px;
+            box-shadow: 0 0 40px rgba(0,200,140,0.2), 0 0 80px rgba(0,200,140,0.1), inset 0 0 40px rgba(0,0,0,0.5);
+            overflow:hidden;
+        }
+        /* Screen scanlines */
+        .ad-screen::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.08) 3px,rgba(0,0,0,0.08) 4px); z-index:3; pointer-events:none; }
+        /* Screen glow overlay */
+        .ad-screen::after { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 70% 60% at 50% 40%,rgba(0,200,140,0.06),transparent 70%); z-index:2; pointer-events:none; }
+
+        /* Video content playing */
+        .screen-content { position:absolute; inset:0; z-index:1; display:flex; align-items:center; justify-content:center; }
+        .scene-bg { position:absolute; inset:0; background:linear-gradient(135deg,#0a2518 0%,#051a0e 40%,#0d2a18 70%,#081e10 100%); }
+        /* Animated city silhouette */
+        .city-sil { position:absolute; bottom:0; left:0; right:0; height:55%; opacity:0.4; }
+        /* Product showcase area */
+        .product-glow { position:absolute; bottom:20%; left:50%; transform:translateX(-50%); width:160px; height:80px; background:radial-gradient(ellipse,rgba(0,220,160,0.25),transparent 70%); animation:productPulse 3s ease-in-out infinite; }
+        @keyframes productPulse { 0%,100%{opacity:0.6;transform:translateX(-50%) scale(1)} 50%{opacity:1;transform:translateX(-50%) scale(1.08)} }
+
+        /* Play button */
+        .play-btn { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:4;
+            width:56px; height:56px; border-radius:50%;
+            background:rgba(0,200,140,0.15); border:2px solid rgba(0,220,160,0.5);
+            display:flex; align-items:center; justify-content:center;
+            backdrop-filter:blur(4px);
+            box-shadow:0 0 30px rgba(0,220,160,0.3);
+            animation:playPulse 2.5s ease-in-out infinite;
+        }
+        @keyframes playPulse { 0%,100%{box-shadow:0 0 20px rgba(0,220,160,0.3)} 50%{box-shadow:0 0 50px rgba(0,220,160,0.6)} }
+        .play-tri { width:0; height:0; border-top:10px solid transparent; border-bottom:10px solid transparent; border-left:18px solid rgba(0,240,180,0.9); margin-left:4px; }
+
+        /* Screen UI overlays */
+        .screen-bar { position:absolute; top:0; left:0; right:0; z-index:4; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; background:linear-gradient(180deg,rgba(0,0,0,0.5),transparent); }
+        .screen-tag { font-size:9px; font-weight:700; letter-spacing:2px; color:rgba(0,220,160,0.9); background:rgba(0,0,0,0.4); border:1px solid rgba(0,220,160,0.3); padding:2px 8px; border-radius:2px; }
+        .screen-live { display:flex; align-items:center; gap:5px; font-size:9px; color:rgba(255,80,80,0.9); font-weight:700; letter-spacing:1px; }
+        .live-dot { width:5px; height:5px; border-radius:50%; background:#ff5050; animation:blink 1s ease-in-out infinite; }
+
+        .screen-bottom { position:absolute; bottom:0; left:0; right:0; z-index:4; padding:10px 14px; background:linear-gradient(0deg,rgba(0,0,0,0.6),transparent); }
+        .progress-bar { height:3px; background:rgba(255,255,255,0.15); border-radius:2px; margin-bottom:8px; }
+        .progress-fill { height:100%; width:62%; background:linear-gradient(90deg,#00dc96,#c9a84c); border-radius:2px; animation:progressAnim 8s linear infinite; }
+        @keyframes progressAnim { 0%{width:5%} 100%{width:98%} }
+        .screen-info { display:flex; align-items:center; justify-content:space-between; }
+        .screen-title { font-size:10px; font-weight:600; color:rgba(255,255,255,0.8); }
+        .screen-views { font-size:9px; color:rgba(0,220,160,0.8); font-family:'Orbitron',monospace; }
+
+        /* Monitor stand */
+        .monitor-stand { width:60px; height:16px; background:linear-gradient(180deg,rgba(0,180,120,0.3),rgba(0,100,70,0.2)); margin:0 auto; border-radius:0 0 4px 4px; }
+        .monitor-base { width:140px; height:8px; background:linear-gradient(90deg,transparent,rgba(0,180,120,0.25),rgba(201,168,76,0.15),rgba(0,180,120,0.25),transparent); margin:0 auto; border-radius:4px; }
+
+        /* ===== FLOATING METRIC CARDS ===== */
+        .metric { position:absolute; background:rgba(2,18,10,0.92); backdrop-filter:blur(12px); border:1px solid rgba(0,180,120,0.3); border-radius:8px; padding:10px 14px; animation:cardFloat ease-in-out infinite; }
+        @keyframes cardFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+        .metric-label { font-size:9px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:rgba(0,200,140,0.6); margin-bottom:3px; }
+        .metric-value { font-family:'Orbitron',monospace; font-size:20px; font-weight:700; color:#c9a84c; line-height:1; }
+        .metric-sub { font-size:9px; color:rgba(200,225,210,0.35); margin-top:2px; }
+        .metric-badge { display:inline-block; font-size:8px; font-weight:700; letter-spacing:1px; padding:1px 6px; border-radius:2px; margin-top:4px; }
+        .badge-up { background:rgba(0,200,100,0.15); color:#00dc96; border:1px solid rgba(0,200,100,0.25); }
+        .badge-hot { background:rgba(201,168,76,0.15); color:#c9a84c; border:1px solid rgba(201,168,76,0.25); }
+
+        /* Positions */
+        .m-views    { left:0; top:20px; animation-duration:5s; }
+        .m-ctr      { left:0; top:155px; animation-duration:6.5s; animation-delay:0.8s; }
+        .m-roi      { right:0; top:20px; animation-duration:5.8s; animation-delay:0.4s; }
+        .m-members  { right:0; top:155px; animation-duration:7s; animation-delay:1.2s; }
+
+        /* Mini sparkline */
+        .sparkline { margin-top:6px; }
+
+        /* ===== STATS STRIP ===== */
+        .stats-strip { display:flex; justify-content:center; max-width:900px; margin:24px auto 0; opacity:0; animation:fadeUp 0.8s ease forwards 1s; }
+        .stat { padding:18px 40px; text-align:center; border:1px solid rgba(0,180,120,0.15); border-right:none; background:rgba(2,15,8,0.6); backdrop-filter:blur(8px); flex:1; }
+        .stat:last-child { border-right:1px solid rgba(0,180,120,0.15); }
+        .stat-val { font-family:'Orbitron',monospace; font-size:24px; color:#c9a84c; font-weight:700; margin-bottom:4px; }
+        .stat-label { font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(200,225,210,0.35); }
+
+        /* ===== SECTION DIVIDER ===== */
+        .divider { display:flex; align-items:center; gap:14px; padding:40px 40px 20px; max-width:1100px; margin:0 auto; }
+        .div-line { flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(0,180,120,0.2),transparent); }
+        .div-text { font-size:11px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:rgba(200,225,210,0.35); white-space:nowrap; }
+
+        /* ===== WHO IS THIS FOR ===== */
+        .for-section { padding:0 24px 0; max-width:1100px; margin:0 auto; }
+        .for-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0; border:1px solid rgba(0,180,120,0.15); border-radius:8px; overflow:hidden; }
+        .for-card { padding:28px 24px; border-right:1px solid rgba(0,180,120,0.12); background:rgba(2,14,8,0.8); transition:all 0.3s; position:relative; overflow:hidden; }
+        .for-card:last-child { border-right:none; }
+        .for-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,rgba(0,220,150,0.5),transparent); opacity:0; transition:opacity 0.3s; }
+        .for-card:hover::before { opacity:1; }
+        .for-card:hover { background:rgba(3,22,12,0.95); }
+        .for-icon { font-size:32px; margin-bottom:14px; display:block; }
+        .for-who { font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(0,220,150,0.6); margin-bottom:8px; }
+        .for-title { font-weight:700; font-size:18px; color:#fff; margin-bottom:10px; line-height:1.2; }
+        .for-desc { font-size:13px; color:rgba(200,225,210,0.5); line-height:1.65; margin-bottom:16px; }
+        .for-points { list-style:none; }
+        .for-points li { font-size:12px; color:rgba(200,225,210,0.5); padding:4px 0; display:flex; gap:8px; align-items:flex-start; }
+        .for-points li::before { content:'→'; color:#00dc96; font-size:11px; flex-shrink:0; margin-top:1px; }
+
+        /* ===== FEATURE PILLS ===== */
+        .pills-row { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; padding:28px 40px 0; }
+        .pill { display:flex; align-items:center; gap:7px; background:rgba(2,14,8,0.8); border:1px solid rgba(0,180,120,0.18); border-radius:50px; padding:7px 16px; font-size:12px; font-weight:500; color:rgba(200,225,210,0.55); transition:all 0.3s; }
+        .pill:hover { border-color:rgba(0,220,150,0.4); color:rgba(200,225,210,0.9); }
+
+        /* ===== HOW IT WORKS ===== */
+        .how-section { padding:40px 40px 0; max-width:1100px; margin:0 auto; }
+        .section-title { font-weight:800; font-size:clamp(22px,3vw,38px); color:#fff; text-align:center; margin-bottom:6px; }
+        .section-sub { font-size:14px; color:rgba(200,225,210,0.4); text-align:center; letter-spacing:1px; margin-bottom:36px; }
+        .steps { display:grid; grid-template-columns:repeat(4,1fr); gap:0; position:relative; }
+        .steps::before { content:''; position:absolute; top:28px; left:12.5%; right:12.5%; height:1px; background:linear-gradient(90deg,rgba(0,180,120,0.3),rgba(201,168,76,0.4),rgba(0,180,120,0.3)); }
+        .step { text-align:center; padding:0 16px; }
+        .step-num { width:56px; height:56px; border-radius:50%; background:rgba(2,14,8,0.9); border:2px solid rgba(0,200,140,0.4); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; font-family:'Orbitron',monospace; font-size:18px; font-weight:700; color:#00dc96; box-shadow:0 0 20px rgba(0,200,140,0.15); }
+        .step-title { font-weight:700; font-size:13px; color:#c9a84c; margin-bottom:8px; letter-spacing:0.5px; }
+        .step-desc { font-size:12px; color:rgba(200,225,210,0.45); line-height:1.6; }
+
+        /* ===== MATRIX PACKAGES ===== */
+        .matrix-section { padding:40px 24px 0; max-width:1100px; margin:0 auto; }
+        .matrix-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+        .matrix-card { background:rgba(2,14,8,0.85); border:1px solid rgba(0,180,120,0.15); border-radius:6px; padding:16px 14px; text-align:center; transition:all 0.3s; cursor:pointer; position:relative; overflow:hidden; }
+        .matrix-card:hover { border-color:rgba(0,220,150,0.4); transform:translateY(-3px); background:rgba(3,22,12,0.95); }
+        .matrix-card.featured { border-color:rgba(201,168,76,0.4); }
+        .matrix-card.featured::before { content:'POPULAR'; position:absolute; top:8px; right:8px; font-size:7px; font-weight:700; letter-spacing:2px; color:#c9a84c; background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.3); padding:2px 6px; border-radius:2px; }
+        .matrix-tier { font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(0,200,140,0.6); margin-bottom:6px; }
+        .matrix-price { font-family:'Orbitron',monospace; font-size:22px; font-weight:700; color:#c9a84c; margin-bottom:4px; }
+        .matrix-views { font-size:11px; color:rgba(200,225,210,0.5); margin-bottom:10px; }
+        .matrix-join { font-size:11px; font-weight:600; color:#020e08; background:linear-gradient(135deg,#ffe89a,#c9a84c); padding:6px 16px; border-radius:3px; display:inline-block; text-decoration:none; transition:all 0.2s; }
+        .matrix-join:hover { box-shadow:0 0 20px rgba(201,168,76,0.4); }
+
+        /* ===== CTA ===== */
+        .cta-section { text-align:center; padding:48px 40px 30px; }
+        .cta-title { font-weight:800; font-size:clamp(24px,3.5vw,44px); color:#fff; margin-bottom:8px; }
+        .cta-title .gold { color:#c9a84c; }
+        .cta-sub { font-size:14px; color:rgba(200,225,210,0.4); margin-bottom:28px; }
+        .trust-badges { display:flex; justify-content:center; gap:32px; flex-wrap:wrap; margin-top:24px; }
+        .trust-badge { display:flex; align-items:center; gap:7px; font-size:12px; color:rgba(200,225,210,0.3); }
+
+        footer { border-top:1px solid rgba(0,180,120,0.1); padding:20px 36px; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:10; }
+        .footer-logo { display:flex; align-items:center; gap:8px; text-decoration:none; }
+        .footer-brand { font-weight:800; font-size:12px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#ffe89a,#c9a84c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .footer-links { display:flex; gap:20px; }
+        .footer-links a { font-size:11px; letter-spacing:1px; text-transform:uppercase; color:rgba(200,225,210,0.22); text-decoration:none; transition:color 0.2s; }
+        .footer-links a:hover { color:rgba(201,168,76,0.7); }
+        .footer-copy { font-size:11px; color:rgba(200,225,210,0.15); }
+
+        @media(max-width:900px){
+            .nav-links{display:none}
+            .for-grid,.steps,.matrix-grid{grid-template-columns:1fr 1fr}
+            .for-card,.matrix-card{border-right:1px solid rgba(0,180,120,0.12)}
+            .ad-stage{padding:0 16px}
+            .ad-screen{width:100%;height:auto;aspect-ratio:16/9}
+            .m-views,.m-ctr,.m-roi,.m-members{display:none}
+            footer{flex-direction:column;gap:14px;text-align:center}
+        }
+        @media(max-width:600px){
+            .for-grid,.steps,.matrix-grid{grid-template-columns:1fr}
+        }
     </style>
 </head>
 <body>
-<div class="bg-layer"></div>
-<div class="grid-overlay"></div>
-<div class="particles" id="particles"></div>
+
+<div class="bg"></div>
+<div class="grid"></div>
+<div id="particles"></div>
+
+<!-- SVG shield -->
 <svg width="0" height="0" style="position:absolute">
   <defs>
     <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffe89a"/><stop offset="30%" stop-color="#c9a84c"/><stop offset="70%" stop-color="#7a5c10"/><stop offset="100%" stop-color="#c9a84c"/></linearGradient>
     <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1a3520"/><stop offset="40%" stop-color="#0d2018"/><stop offset="100%" stop-color="#050e08"/></linearGradient>
-    <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7a5c10"/><stop offset="25%" stop-color="#ffe89a"/><stop offset="50%" stop-color="#c9a84c"/><stop offset="75%" stop-color="#ffe89a"/><stop offset="100%" stop-color="#7a5c10"/></linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7a5c10"/><stop offset="25%" stop-color="#ffe89a"/><stop offset="50%" stop-color="#c9a84c"/><stop offset="75%" stop-color="#ffe89a"/><stop offset="100%" stop-color="#7a5c10"/></linearGradient>
     <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
-    <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <clipPath id="sclip"><path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z"/></clipPath>
+    <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="sc"><path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z"/></clipPath>
     <symbol id="shield" viewBox="0 0 130 122">
       <path d="M17 10 L117 10 L127 48 L67 118 L7 48 Z" fill="rgba(0,0,0,0.5)" transform="translate(3,4)"/>
       <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#sf)" stroke="url(#ob)" stroke-width="4" stroke-linejoin="round"/>
       <path d="M22 15 L108 15 L116 46 L65 105 L14 46 Z" fill="none" stroke="url(#ob)" stroke-width="1.5" stroke-linejoin="round" opacity="0.5"/>
-      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#hl)" clip-path="url(#sclip)"/>
-      <path d="M23 31 L65 37 L107 31" fill="none" stroke="url(#lg)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sclip)" filter="url(#glow)"/>
-      <path d="M29 49 L65 54 L101 49" fill="none" stroke="url(#lg)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sclip)" filter="url(#glow)"/>
-      <path d="M37 67 L65 71 L93 67" fill="none" stroke="url(#lg)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sclip)" filter="url(#glow)"/>
-      <path d="M47 84 L65 87 L83 84" fill="none" stroke="url(#lg)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sclip)" filter="url(#glow)"/>
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#hl)" clip-path="url(#sc)"/>
+      <path d="M23 31 L65 37 L107 31" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M29 49 L65 54 L101 49" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M37 67 L65 71 L93 67" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M47 84 L65 87 L83 84" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
     </symbol>
   </defs>
 </svg>
+
 <nav>
     <a href="/" class="nav-logo">
-        <svg width="30" height="30"><use href="#shield"/></svg>
-        <span class="logo-text" style="font-size:20px;">SuperAdPro</span>
+        <svg width="26" height="26"><use href="#shield"/></svg>
+        <span class="nav-brand">Super Ad Pro</span>
     </a>
     <ul class="nav-links">
-        <li><a href="/dashboard">Dashboard</a></li>
-        <li><a href="/compensation-plan">Earnings</a></li>
-        <li><a href="/how-it-works">How It Works</a></li>
+        <li><a href="/how-it-works">Advertise</a></li>
+        <li><span class="nav-sep">·</span></li>
+        <li><a href="/compensation-plan">Affiliates</a></li>
+        <li><span class="nav-sep">·</span></li>
+        <li><a href="/matrix-mechanics">Packages</a></li>
+        <li><span class="nav-sep">·</span></li>
         <li><a href="/support">Support</a></li>
     </ul>
-    <a href="/register" class="nav-cta">Join Now</a>
+    <a href="/register" class="nav-cta">Start Advertising</a>
 </nav>
-<div class="ticker-bar">
-    <div class="ticker-inner">
-        <div class="ticker-item"><span>●</span>MATRIX 1 — $10 USDT</div>
-        <div class="ticker-item"><span>●</span>MATRIX 2 — $25 USDT</div>
-        <div class="ticker-item"><span>●</span>MATRIX 3 — $50 USDT</div>
-        <div class="ticker-item"><span>●</span>MATRIX 4 — $100 USDT</div>
-        <div class="ticker-item"><span>●</span>MATRIX 5 — $250 USDT</div>
-        <div class="ticker-item"><span>●</span>MATRIX 6 — $500 USDT</div>
-        <div class="ticker-item"><span>●</span>MATRIX 7 — $750 USDT</div>
-        <div class="ticker-item"><span>●</span>MATRIX 8 — $1,000 USDT</div>
-        <div class="ticker-item"><span>●</span>POWERED BY BASE CHAIN</div>
-        <div class="ticker-item"><span>●</span>INSTANT USDT PAYMENTS</div>
-        <div class="ticker-item"><span>●</span>MATRIX 1 — $10 USDT</div>
-        <div class="ticker-item"><span>●</span>MATRIX 2 — $25 USDT</div>
-        <div class="ticker-item"><span>●</span>MATRIX 3 — $50 USDT</div>
-        <div class="ticker-item"><span>●</span>MATRIX 4 — $100 USDT</div>
-        <div class="ticker-item"><span>●</span>MATRIX 5 — $250 USDT</div>
-        <div class="ticker-item"><span>●</span>MATRIX 6 — $500 USDT</div>
-        <div class="ticker-item"><span>●</span>MATRIX 7 — $750 USDT</div>
-        <div class="ticker-item"><span>●</span>MATRIX 8 — $1,000 USDT</div>
-        <div class="ticker-item"><span>●</span>POWERED BY BASE CHAIN</div>
-        <div class="ticker-item"><span>●</span>INSTANT USDT PAYMENTS</div>
-    </div>
-</div>
+
+<div class="page">
+
+<!-- HERO -->
 <section class="hero">
-    <p class="hero-eyebrow">⬡ Affiliate Success · Powered by AGI ⬡</p>
-    <h1 class="hero-title">
-        <span class="line1">AFFILIATE SUCCESS.</span>
-        <span class="line2">POWERED BY AGI.</span>
-    </h1>
-    <p class="hero-subtitle">Predict · Automate · Scale · The Future of Earnings Starts Here</p>
-    <div class="brain-container">
-        <div class="brain-ring brain-ring-1"></div>
-        <div class="brain-ring brain-ring-2"></div>
-        <div class="brain-ring brain-ring-3"></div>
-        <div class="brain-glow"></div>
-        <div class="brain-core"><div class="brain-icon">🧠</div></div>
+    <div class="eyebrow"><div class="dot"></div>Video Advertising Platform · Powered by AI</div>
+    <h1 class="hero-title">Advertisers. Marketers. Affiliates.<br><span class="gold">Powered by SuperAdPro.</span></h1>
+    <p class="hero-sub">Get your video content in front of real, engaged audiences. Buy guaranteed views, launch AI-optimised campaigns, and earn as an affiliate — all from one powerful platform.</p>
+    <div class="hero-btns">
+        <a href="/register" class="btn-gold">Start Advertising Today</a>
+        <a href="/how-it-works" class="btn-outline">See How It Works</a>
     </div>
-    <div class="hero-buttons">
-        <a href="/register" class="btn-primary">Join SuperAdPro</a>
-        <a href="/how-it-works" class="btn-secondary">See AGI In Action</a>
+
+    <!-- VIDEO AD PLAYER CENTREPIECE -->
+    <div class="ad-stage">
+
+        <!-- Floating metric: Views -->
+        <div class="metric m-views">
+            <div class="metric-label">Views Delivered</div>
+            <div class="metric-value">2.4M</div>
+            <div class="metric-sub">This month</div>
+            <svg class="sparkline" width="110" height="28" viewBox="0 0 110 28">
+                <defs><linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00dc96" stop-opacity="0.3"/><stop offset="100%" stop-color="#00dc96" stop-opacity="0"/></linearGradient></defs>
+                <polygon points="0,24 18,18 32,20 50,10 65,14 82,5 95,8 110,2 110,28 0,28" fill="url(#sg1)"/>
+                <polyline points="0,24 18,18 32,20 50,10 65,14 82,5 95,8 110,2" fill="none" stroke="#00dc96" stroke-width="1.5"/>
+            </svg>
+            <span class="metric-badge badge-up">▲ +38% this week</span>
+        </div>
+
+        <!-- Floating metric: CTR -->
+        <div class="metric m-ctr">
+            <div class="metric-label">Click-Through Rate</div>
+            <div class="metric-value">28%</div>
+            <div class="metric-sub">Avg. across campaigns</div>
+            <span class="metric-badge badge-up">▲ Above industry avg</span>
+        </div>
+
+        <!-- Floating metric: ROI -->
+        <div class="metric m-roi">
+            <div class="metric-label">Avg. Campaign ROI</div>
+            <div class="metric-value">320%</div>
+            <div class="metric-sub">AI-optimised targeting</div>
+            <span class="metric-badge badge-hot">★ Top performer</span>
+        </div>
+
+        <!-- Floating metric: Members -->
+        <div class="metric m-members">
+            <div class="metric-label">Active Members</div>
+            <div class="metric-value">12.8K</div>
+            <div class="metric-sub">Advertisers & affiliates</div>
+            <span class="metric-badge badge-up">▲ Growing daily</span>
+        </div>
+
+        <!-- Main video screen -->
+        <div class="ad-screen">
+            <div class="screen-content">
+                <div class="scene-bg"></div>
+
+                <!-- SVG city silhouette -->
+                <svg class="city-sil" viewBox="0 0 520 180" preserveAspectRatio="none">
+                    <path d="M0,180 L0,120 L20,120 L20,90 L30,90 L30,70 L40,70 L40,90 L55,90 L55,60 L65,60 L65,40 L75,40 L75,60 L85,60 L85,100 L100,100 L100,80 L108,80 L108,55 L118,55 L118,45 L128,45 L128,55 L138,55 L138,80 L155,80 L155,95 L165,95 L165,75 L175,75 L175,55 L185,55 L185,75 L195,75 L195,95 L210,95 L210,110 L220,110 L220,85 L232,85 L232,60 L242,60 L242,50 L252,50 L252,60 L262,60 L262,85 L280,85 L280,100 L295,100 L295,75 L305,75 L305,55 L315,55 L315,45 L325,45 L325,55 L335,55 L335,75 L350,75 L350,90 L365,90 L365,65 L375,65 L375,45 L385,45 L385,65 L395,65 L395,90 L410,90 L410,105 L420,105 L420,80 L430,80 L430,60 L440,60 L440,80 L455,80 L455,100 L470,100 L470,120 L485,120 L485,100 L495,100 L495,90 L505,90 L505,100 L520,100 L520,180 Z" fill="rgba(0,40,25,0.8)"/>
+                    <!-- Window lights -->
+                    <rect x="67" y="45" width="4" height="4" fill="rgba(201,168,76,0.5)"/>
+                    <rect x="120" y="50" width="4" height="4" fill="rgba(201,168,76,0.4)"/>
+                    <rect x="177" y="60" width="4" height="4" fill="rgba(0,220,160,0.4)"/>
+                    <rect x="244" y="55" width="4" height="4" fill="rgba(201,168,76,0.5)"/>
+                    <rect x="307" y="50" width="4" height="4" fill="rgba(0,220,160,0.35)"/>
+                    <rect x="377" y="50" width="4" height="4" fill="rgba(201,168,76,0.4)"/>
+                    <rect x="432" y="65" width="4" height="4" fill="rgba(0,220,160,0.4)"/>
+                </svg>
+
+                <!-- Ground glow -->
+                <div style="position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(0deg,rgba(0,200,140,0.12),transparent);"></div>
+
+                <div class="product-glow"></div>
+
+                <!-- Play button -->
+                <div class="play-btn"><div class="play-tri"></div></div>
+
+                <!-- Ad badge top -->
+                <div class="screen-bar">
+                    <span class="screen-tag">AD</span>
+                    <span class="screen-tag" style="color:rgba(201,168,76,0.9);border-color:rgba(201,168,76,0.3)">SUPERADPRO CAMPAIGN</span>
+                    <div class="screen-live"><div class="live-dot"></div>LIVE</div>
+                </div>
+
+                <!-- Progress bar bottom -->
+                <div class="screen-bottom">
+                    <div class="progress-bar"><div class="progress-fill"></div></div>
+                    <div class="screen-info">
+                        <span class="screen-title">EcoTech Product Launch 2026</span>
+                        <span class="screen-views">👁 128,450 views</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="monitor-stand"></div>
+        <div class="monitor-base"></div>
     </div>
 </section>
-<div class="stats-bar">
-    <div class="stat-item"><div class="stat-value">$27,450</div><div class="stat-label">Daily Earnings Paid</div></div>
-    <div class="stat-item"><div class="stat-value">+320%</div><div class="stat-label">Avg ROI</div></div>
-    <div class="stat-item"><div class="stat-value">8</div><div class="stat-label">Matrix Levels</div></div>
-    <div class="stat-item"><div class="stat-value">100%</div><div class="stat-label">USDT On-Chain</div></div>
+
+<!-- STATS STRIP -->
+<div class="stats-strip">
+    <div class="stat"><div class="stat-val">2.4M+</div><div class="stat-label">Monthly Views</div></div>
+    <div class="stat"><div class="stat-val">+320%</div><div class="stat-label">Avg. ROI</div></div>
+    <div class="stat"><div class="stat-val">8</div><div class="stat-label">Ad Packages</div></div>
+    <div class="stat"><div class="stat-val">28%</div><div class="stat-label">Affiliate Commission</div></div>
+    <div class="stat"><div class="stat-val">100%</div><div class="stat-label">USDT On-Chain</div></div>
 </div>
-<div class="section-divider"><div class="divider-line"></div><div class="divider-text">⬡ AGI-DRIVEN FEATURES ⬡</div><div class="divider-line"></div></div>
-<section class="features">
-    <h2 class="section-title">Stay Ahead of the Curve</h2>
-    <p class="section-subtitle">AGI-Driven Strategies That Maximise Your Earnings</p>
-    <div class="features-grid">
-        <div class="feature-card"><span class="feature-icon">📈</span><div class="feature-title">AI Trend Predictor</div><div class="feature-value">$12,500/wk</div><div class="feature-desc">Spot profitable niches before they boom. Real-time market intelligence powered by AGI analysis.</div></div>
-        <div class="feature-card"><span class="feature-icon">⚡</span><div class="feature-title">Auto-Optimised Campaigns</div><div class="feature-value">CTR +28%</div><div class="feature-desc">Smart ads with real-time results. AI generates and optimises your campaigns automatically.</div></div>
-        <div class="feature-card"><span class="feature-icon">🌐</span><div class="feature-title">Global Profit Insights</div><div class="feature-value">$27,450/day</div><div class="feature-desc">Real-time analytics and maximum ROI tracking across all your matrix positions worldwide.</div></div>
-        <div class="feature-card"><span class="feature-icon">💎</span><div class="feature-title">3x10 Forced Matrix</div><div class="feature-value">8 Levels</div><div class="feature-desc">Automated spillover fills your matrix. Earn from positions you didn't personally recruit.</div></div>
-        <div class="feature-card"><span class="feature-icon">🔗</span><div class="feature-title">On-Chain USDT Payments</div><div class="feature-value">Instant</div><div class="feature-desc">All payments verified on Base Chain. Automatic distribution direct to your wallet — no delays.</div></div>
-        <div class="feature-card"><span class="feature-icon">🏆</span><div class="feature-title">28% Sponsor Commission</div><div class="feature-value">+ 8% Match</div><div class="feature-desc">Earn direct commissions plus matching bonuses on every affiliate you personally sponsor.</div></div>
+
+<!-- WHO IS THIS FOR -->
+<div class="divider"><div class="div-line"></div><div class="div-text">Who Is SuperAdPro For?</div><div class="div-line"></div></div>
+
+<div class="for-section">
+    <div class="for-grid">
+        <div class="for-card">
+            <span class="for-icon">🎬</span>
+            <div class="for-who">For Advertisers</div>
+            <div class="for-title">Get Your Video Seen by Thousands</div>
+            <div class="for-desc">Buy guaranteed video views for your brand, product, or content. Choose an advertising package that fits your budget and watch your reach grow.</div>
+            <ul class="for-points">
+                <li>Guaranteed real video views</li>
+                <li>Choose from 8 advertising packages</li>
+                <li>AI-targeted audience delivery</li>
+                <li>Real-time campaign analytics</li>
+            </ul>
+        </div>
+        <div class="for-card">
+            <span class="for-icon">📊</span>
+            <div class="for-who">For Marketers</div>
+            <div class="for-title">Launch Smarter Campaigns with AI</div>
+            <div class="for-desc">Our AI engine optimises your video campaigns in real time — maximising click-through rates, engagement, and ROI across every audience segment.</div>
+            <ul class="for-points">
+                <li>AI-generated ad creative</li>
+                <li>Auto-optimised targeting</li>
+                <li>CTR and engagement analytics</li>
+                <li>Multi-campaign management</li>
+            </ul>
+        </div>
+        <div class="for-card">
+            <span class="for-icon">🤝</span>
+            <div class="for-who">For Affiliates</div>
+            <div class="for-title">Earn by Referring Advertisers</div>
+            <div class="for-desc">Join our affiliate programme and earn every time someone you refer activates an advertising package. The more you grow your network, the more you earn.</div>
+            <ul class="for-points">
+                <li>28% direct referral commission</li>
+                <li>8% matching bonus</li>
+                <li>8-level deep matrix earnings</li>
+                <li>Instant USDT payments on-chain</li>
+            </ul>
+        </div>
     </div>
-</section>
-<section class="how-it-works">
-    <h2 class="section-title" style="margin-bottom:60px;">How It Works</h2>
-    <div class="steps-grid">
-        <div class="step"><div class="step-num">01</div><div class="step-title">Register & Activate</div><div class="step-desc">Join with your $10 USDT membership fee. Your sponsor receives 100% instantly on-chain.</div></div>
-        <div class="step"><div class="step-num">02</div><div class="step-title">Choose Your Matrix</div><div class="step-desc">Select from 8 matrix levels ranging from $10 to $1,000 USDT to unlock earnings.</div></div>
-        <div class="step"><div class="step-num">03</div><div class="step-title">Build Your Team</div><div class="step-desc">Refer affiliates using your unique link. Earn 28% direct commission on every purchase.</div></div>
-        <div class="step"><div class="step-num">04</div><div class="step-title">Earn Automatically</div><div class="step-desc">Matrix spillover fills your positions automatically. Earn from 10 levels of activity.</div></div>
+</div>
+
+<!-- FEATURE PILLS -->
+<div class="pills-row">
+    <div class="pill">🎯 Guaranteed Video Views</div>
+    <div class="pill">🤖 AI-Optimised Campaigns</div>
+    <div class="pill">🔗 On-Chain USDT Payments</div>
+    <div class="pill">📈 Real-Time Analytics</div>
+    <div class="pill">🌍 Global Audience Network</div>
+    <div class="pill">⭐ Elite Affiliate Programme</div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="divider" style="padding-top:40px;"><div class="div-line"></div><div class="div-text">How It Works</div><div class="div-line"></div></div>
+<div class="how-section">
+    <div class="steps">
+        <div class="step">
+            <div class="step-num">01</div>
+            <div class="step-title">Register Free</div>
+            <div class="step-desc">Create your account and join the SuperAdPro platform as an advertiser, marketer, or affiliate.</div>
+        </div>
+        <div class="step">
+            <div class="step-num">02</div>
+            <div class="step-title">Choose a Package</div>
+            <div class="step-desc">Select one of 8 advertising packages from $10 to $1,000 USDT to unlock views and affiliate earnings.</div>
+        </div>
+        <div class="step">
+            <div class="step-num">03</div>
+            <div class="step-title">Launch Your Campaign</div>
+            <div class="step-desc">Upload your video, set your audience, and let our AI engine optimise delivery for maximum reach.</div>
+        </div>
+        <div class="step">
+            <div class="step-num">04</div>
+            <div class="step-title">Grow & Earn</div>
+            <div class="step-desc">Refer others to the platform and earn affiliate commissions automatically — paid instantly in USDT.</div>
+        </div>
     </div>
-</section>
+</div>
+
+<!-- ADVERTISING PACKAGES -->
+<div class="divider" style="padding-top:40px;"><div class="div-line"></div><div class="div-text">Advertising Packages</div><div class="div-line"></div></div>
+<div class="matrix-section">
+    <div class="matrix-grid">
+        <div class="matrix-card">
+            <div class="matrix-tier">Starter</div>
+            <div class="matrix-price">$10</div>
+            <div class="matrix-views">5,000 guaranteed views</div>
+            <a href="/register" class="matrix-join">Get Started</a>
+        </div>
+        <div class="matrix-card">
+            <div class="matrix-tier">Basic</div>
+            <div class="matrix-price">$25</div>
+            <div class="matrix-views">15,000 guaranteed views</div>
+            <a href="/register" class="matrix-join">Get Started</a>
+        </div>
+        <div class="matrix-card">
+            <div class="matrix-tier">Growth</div>
+            <div class="matrix-price">$50</div>
+            <div class="matrix-views">35,000 guaranteed views</div>
+            <a href="/register" class="matrix-join">Get Started</a>
+        </div>
+        <div class="matrix-card featured">
+            <div class="matrix-tier">Pro</div>
+            <div class="matrix-price">$100</div>
+            <div class="matrix-views">80,000 guaranteed views</div>
+            <a href="/register" class="matrix-join">Get Started</a>
+        </div>
+        <div class="matrix-card">
+            <div class="matrix-tier">Advanced</div>
+            <div class="matrix-price">$250</div>
+            <div class="matrix-views">220,000 guaranteed views</div>
+            <a href="/register" class="matrix-join">Get Started</a>
+        </div>
+        <div class="matrix-card">
+            <div class="matrix-tier">Elite</div>
+            <div class="matrix-price">$500</div>
+            <div class="matrix-views">500,000 guaranteed views</div>
+            <a href="/register" class="matrix-join">Get Started</a>
+        </div>
+        <div class="matrix-card">
+            <div class="matrix-tier">Premium</div>
+            <div class="matrix-price">$750</div>
+            <div class="matrix-views">800,000 guaranteed views</div>
+            <a href="/register" class="matrix-join">Get Started</a>
+        </div>
+        <div class="matrix-card featured">
+            <div class="matrix-tier">Ultimate</div>
+            <div class="matrix-price">$1,000</div>
+            <div class="matrix-views">1,200,000 guaranteed views</div>
+            <a href="/register" class="matrix-join">Get Started</a>
+        </div>
+    </div>
+</div>
+
+<!-- CTA -->
 <section class="cta-section">
-    <div class="cta-badge">LIMITED BETA ACCESS</div>
-    <h2 class="section-title" style="margin-bottom:16px;">Scale Faster. Earn Smarter.</h2>
-    <p class="section-subtitle">Join the Future of Affiliate Marketing</p>
-    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:40px;">
-        <a href="/register" class="btn-primary">Get Started Today</a>
-        <a href="/compensation-plan" class="btn-secondary">View Compensation Plan</a>
+    <h2 class="cta-title"><span class="gold">Advertise Smarter.</span> Grow Faster.</h2>
+    <p class="cta-sub">Join thousands of advertisers, marketers and affiliates already growing on SuperAdPro.</p>
+    <div class="hero-btns">
+        <a href="/register" class="btn-gold">Create Your Free Account</a>
+        <a href="/compensation-plan" class="btn-outline">View Affiliate Plan</a>
+    </div>
+    <div class="trust-badges">
+        <div class="trust-badge">🎬 Guaranteed Video Views</div>
+        <div class="trust-badge">🔗 USDT On Base Chain</div>
+        <div class="trust-badge">🤖 AI-Powered Optimisation</div>
+        <div class="trust-badge">🌍 Global Reach</div>
     </div>
 </section>
+
 <footer>
-    <a href="/" class="nav-logo">
-        <svg width="26" height="26"><use href="#shield"/></svg>
-        <span class="logo-text" style="font-size:16px;">SuperAdPro</span>
+    <a href="/" class="footer-logo">
+        <svg width="22" height="22"><use href="#shield"/></svg>
+        <span class="footer-brand">Super Ad Pro</span>
     </a>
     <div class="footer-links">
         <a href="/legal">Legal</a>
         <a href="/faq">FAQ</a>
+        <a href="/how-it-works">How It Works</a>
         <a href="/support">Support</a>
         <a href="/contact">Contact</a>
     </div>
     <div class="footer-copy">© 2026 SuperAdPro · All Rights Reserved</div>
 </footer>
+
+</div>
+
 <script>
-    const container=document.getElementById('particles');
-    for(let i=0;i<30;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.animationDuration=(8+Math.random()*15)+'s';p.style.animationDelay=(Math.random()*15)+'s';p.style.width=p.style.height=(1+Math.random()*3)+'px';container.appendChild(p)}
+// Particles
+const pc = document.getElementById('particles');
+for(let i=0;i<28;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    const s=Math.random()*2.5+0.8;
+    p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;background:${Math.random()>0.6?'#c9a84c':'#00dc96'};animation-duration:${12+Math.random()*14}s;animation-delay:${Math.random()*14}s;`;
+    pc.appendChild(p);
+}
 </script>
 </body>
 </html>
