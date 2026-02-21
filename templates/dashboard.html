@@ -1,14 +1,143 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - SuperAdPro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .neon { text-shadow: 0 0 25px #10b981; }
+        .glass { background: rgba(16, 185, 129, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.3); }
+    </style>
 </head>
-<body class="bg-zinc-950 text-white">
-    <div class="max-w-4xl mx-auto py-20 text-center">
-        <h1 class="text-4xl font-bold text-emerald-400">Welcome to SuperAdPro, {{ user.username }}!</h1>
-        <p class="text-xl mt-6">Your $10/month subscription is active</p>
-        <p class="mt-8">Share your link: <strong>https://superadpro.com/ref/{{ user.username }}</strong></p>
+<body class="bg-zinc-950 text-zinc-100">
+
+    <!-- Navigation -->
+    <nav class="glass border-b border-emerald-500/30">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl neon">SA</div>
+                <span class="text-3xl font-bold tracking-tighter neon">SuperAdPro</span>
+            </div>
+            <div class="flex gap-4">
+                <a href="/logout" class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-sm font-semibold rounded-3xl transition">Logout</a>
+                <a href="/" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-sm font-semibold rounded-3xl transition">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-12">
+        <h1 class="text-4xl font-bold tracking-tighter neon">Your Affiliate Dashboard</h1>
+        <p class="text-emerald-400 text-lg">Welcome back, {{ user.username }}</p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
+
+            <!-- Left Column -->
+            <div class="space-y-6">
+                <div class="glass rounded-3xl p-10">
+                    <p class="text-emerald-400 text-sm">TOTAL REVENUE</p>
+                    <p class="text-6xl font-bold mt-4 text-emerald-400">${{ "%.2f"|format(user.total_revenue or 0) }}</p>
+                </div>
+                <div class="glass rounded-3xl p-10">
+                    <p class="text-emerald-400 text-sm">MONTHLY AFFILIATE COMMISSION</p>
+                    <p class="text-5xl font-bold mt-4 text-emerald-400">${{ "%.2f"|format(user.monthly_commission or 0) }}</p>
+                </div>
+                <div class="glass rounded-3xl p-10">
+                    <p class="text-emerald-400 text-sm">MATRIX EARNINGS</p>
+                    <p class="text-5xl font-bold mt-4 text-emerald-400">${{ "%.2f"|format(user.matrix_earnings or 0) }}</p>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="space-y-8">
+                <!-- Affiliate Link -->
+                <div class="glass rounded-3xl p-8">
+                    <p class="text-emerald-400 text-sm mb-3">AFFILIATE LINK</p>
+                    <div class="bg-zinc-900 rounded-2xl p-5 flex items-center gap-4">
+                        <input id="masterLink" type="text" value="https://superadpro.com/ref/{{ user.username }}" 
+                               class="bg-transparent flex-1 text-lg font-medium outline-none">
+                        <button onclick="copyMasterLink()" class="bg-emerald-500 hover:bg-emerald-600 px-8 py-3 rounded-2xl font-semibold text-sm">Copy</button>
+                    </div>
+                </div>
+
+                <!-- Wallet Address -->
+                <div class="glass rounded-3xl p-8">
+                    <p class="text-emerald-400 text-sm mb-3">Your USDT Wallet Address (Base Chain)</p>
+                    <form method="post" action="/save-wallet">
+                        <div class="bg-zinc-900 rounded-2xl p-5 flex items-center gap-4">
+                            <input id="walletAddress" name="wallet_address" type="text" value="{{ user.wallet_address or '' }}" placeholder="0x..." 
+                                   class="bg-transparent flex-1 text-lg font-medium outline-none">
+                            <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 px-8 py-3 rounded-2xl font-semibold text-sm">Save</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Tiers -->
+                <div class="glass rounded-3xl p-8">
+                    <h2 class="text-xl font-semibold mb-6">Your Active Tiers</h2>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="glass rounded-3xl p-6 text-center">
+                            <p class="text-emerald-400 text-sm">Starter</p>
+                            <p class="text-3xl font-bold text-zinc-500">🔒</p>
+                        </div>
+                        <div class="glass rounded-3xl p-6 text-center">
+                            <p class="text-emerald-400 text-sm">Basic</p>
+                            <p class="text-3xl font-bold text-zinc-500">🔒</p>
+                        </div>
+                        <div class="glass rounded-3xl p-6 text-center">
+                            <p class="text-emerald-400 text-sm">Pro</p>
+                            <p class="text-3xl font-bold text-zinc-500">🔒</p>
+                        </div>
+                        <div class="glass rounded-3xl p-6 text-center">
+                            <p class="text-emerald-400 text-sm">Advanced</p>
+                            <p class="text-3xl font-bold text-zinc-500">🔒</p>
+                        </div>
+                        <div class="glass rounded-3xl p-6 text-center">
+                            <p class="text-emerald-400 text-sm">Elite</p>
+                            <p class="text-3xl font-bold text-zinc-500">🔒</p>
+                        </div>
+                        <div class="glass rounded-3xl p-6 text-center">
+                            <p class="text-emerald-400 text-sm">VIP</p>
+                            <p class="text-3xl font-bold text-zinc-500">🔒</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6">
+            <a href="/video-library" class="glass rounded-3xl p-8 text-center hover:bg-emerald-500/10 transition">
+                <div class="text-3xl mb-3">📺</div>
+                <p class="font-semibold text-sm">Video Library</p>
+            </a>
+            <a href="/compensation-plan" class="glass rounded-3xl p-8 text-center hover:bg-emerald-500/10 transition">
+                <div class="text-3xl mb-3">💰</div>
+                <p class="font-semibold text-sm">Compensation Plan</p>
+            </a>
+            <a href="/activate-tiers" class="glass rounded-3xl p-8 text-center hover:bg-emerald-500/10 transition">
+                <div class="text-3xl mb-3">🌳</div>
+                <p class="font-semibold text-sm">Activate Tiers</p>
+            </a>
+            <a href="/for-advertisers" class="glass rounded-3xl p-8 text-center hover:bg-emerald-500/10 transition">
+                <div class="text-3xl mb-3">📣</div>
+                <p class="font-semibold text-sm">For Advertisers</p>
+            </a>
+        </div>
     </div>
+
+    <!-- Legal Disclaimer -->
+    <div class="text-center py-8 border-t border-zinc-800">
+        <a href="/legal" class="text-sm text-zinc-400 hover:text-emerald-400 transition">Legal Disclaimer</a>
+    </div>
+
+    <script>
+        function copyMasterLink() {
+            const link = document.getElementById('masterLink');
+            navigator.clipboard.writeText(link.value).then(() => {
+                alert('✅ Master Affiliate Link copied!');
+            });
+        }
+    </script>
 </body>
 </html>

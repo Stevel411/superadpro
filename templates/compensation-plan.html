@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compensation Plan - SuperAdPro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .neon { text-shadow: 0 0 25px #10b981; }
+        .glass { background: rgba(16, 185, 129, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.3); }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100">
+
+    <!-- Navigation -->
+    <nav class="glass border-b border-emerald-500/30">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl neon">SA</div>
+                <span class="text-3xl font-bold tracking-tighter neon">SuperAdPro</span>
+            </div>
+            <div class="flex gap-4">
+                <a href="/dashboard" class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-sm font-semibold rounded-3xl transition flex items-center gap-2">
+                    ← Back to Dashboard
+                </a>
+                <a href="/" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-sm font-semibold rounded-3xl transition">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-16">
+        <h1 class="text-6xl font-bold tracking-tighter neon text-center">Compensation Plan</h1>
+        <p class="text-center text-emerald-400 text-2xl mt-4">8 Tiers • 3×10 Forced Matrix • 40% Matching Bonus</p>
+
+        <div class="glass rounded-3xl p-12 mt-16">
+            <h2 class="text-3xl font-semibold mb-8">How It Works</h2>
+            <p class="text-zinc-300 leading-relaxed">
+                5% of every tier activation goes to the company as management fees. 
+                The remaining 95% is allocated to the matrix:
+            </p>
+            <ul class="list-disc list-inside text-zinc-300 mt-6 space-y-3">
+                <li><strong>20% of the 95%</strong> goes directly to the sponsor as a direct referral bonus.</li>
+                <li><strong>75% of the 95%</strong> is split equally across the 10 levels of the matrix.</li>
+                <li>You also receive a <strong>40% matching bonus</strong> on all commissions earned by your personally sponsored affiliates.</li>
+            </ul>
+        </div>
+
+        <!-- Full 8-Tier Payout Table -->
+        <div class="mt-16">
+            <h2 class="text-3xl font-semibold mb-8 text-center">Full Payout Table (All 8 Tiers)</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left glass rounded-3xl overflow-hidden">
+                    <thead>
+                        <tr class="bg-emerald-500/20">
+                            <th class="py-6 px-8">Tier</th>
+                            <th class="py-6 px-8">Price</th>
+                            <th class="py-6 px-8">Company (5%)</th>
+                            <th class="py-6 px-8">Direct Sponsor (19%)</th>
+                            <th class="py-6 px-8">Per Level (7.5%)</th>
+                            <th class="py-6 px-8">Total from 10 Levels</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-700">
+                        <tr>
+                            <td class="py-6 px-8 font-semibold">Starter</td>
+                            <td class="py-6 px-8">$10</td>
+                            <td class="py-6 px-8">$0.50</td>
+                            <td class="py-6 px-8">$1.90</td>
+                            <td class="py-6 px-8">$0.75</td>
+                            <td class="py-6 px-8">$7.50</td>
+                        </tr>
+                        <tr>
+                            <td class="py-6 px-8 font-semibold">Basic</td>
+                            <td class="py-6 px-8">$25</td>
+                            <td class="py-6 px-8">$1.25</td>
+                            <td class="py-6 px-8">$4.75</td>
+                            <td class="py-6 px-8">$1.875</td>
+                            <td class="py-6 px-8">$18.75</td>
+                        </tr>
+                        <tr>
+                            <td class="py-6 px-8 font-semibold">Pro</td>
+                            <td class="py-6 px-8">$50</td>
+                            <td class="py-6 px-8">$2.50</td>
+                            <td class="py-6 px-8">$9.50</td>
+                            <td class="py-6 px-8">$3.75</td>
+                            <td class="py-6 px-8">$37.50</td>
+                        </tr>
+                        <tr>
+                            <td class="py-6 px-8 font-semibold">Advanced</td>
+                            <td class="py-6 px-8">$100</td>
+                            <td class="py-6 px-8">$5.00</td>
+                            <td class="py-6 px-8">$19.00</td>
+                            <td class="py-6 px-8">$7.50</td>
+                            <td class="py-6 px-8">$75.00</td>
+                        </tr>
+                        <tr>
+                            <td class="py-6 px-8 font-semibold">Elite</td>
+                            <td class="py-6 px-8">$250</td>
+                            <td class="py-6 px-8">$12.50</td>
+                            <td class="py-6 px-8">$47.50</td>
+                            <td class="py-6 px-8">$18.75</td>
+                            <td class="py-6 px-8">$187.50</td>
+                        </tr>
+                        <tr>
+                            <td class="py-6 px-8 font-semibold">VIP</td>
+                            <td class="py-6 px-8">$500</td>
+                            <td class="py-6 px-8">$25.00</td>
+                            <td class="py-6 px-8">$95.00</td>
+                            <td class="py-6 px-8">$37.50</td>
+                            <td class="py-6 px-8">$375.00</td>
+                        </tr>
+                        <tr>
+                            <td class="py-6 px-8 font-semibold">Premium</td>
+                            <td class="py-6 px-8">$750</td>
+                            <td class="py-6 px-8">$37.50</td>
+                            <td class="py-6 px-8">$142.50</td>
+                            <td class="py-6 px-8">$56.25</td>
+                            <td class="py-6 px-8">$562.50</td>
+                        </tr>
+                        <tr>
+                            <td class="py-6 px-8 font-semibold">Ultimate</td>
+                            <td class="py-6 px-8">$1000</td>
+                            <td class="py-6 px-8">$50.00</td>
+                            <td class="py-6 px-8">$190.00</td>
+                            <td class="py-6 px-8">$75.00</td>
+                            <td class="py-6 px-8">$750.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-16 text-center text-zinc-400 text-sm max-w-2xl mx-auto">
+            You also earn a 40% matching bonus on all commissions earned by your personally sponsored affiliates across the entire matrix.
+        </div>
+    </div>
+
+    <!-- Legal Disclaimer Button -->
+    <div class="text-center py-8 border-t border-zinc-800">
+        <a href="/legal" class="text-sm text-zinc-400 hover:text-emerald-400 transition">Legal Disclaimer</a>
+    </div>
+</body>
+</html>

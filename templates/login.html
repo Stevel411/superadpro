@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SuperAdPro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .neon { text-shadow: 0 0 25px #10b981; }
+        .glass { background: rgba(16, 185, 129, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.3); }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100">
+
+    <nav class="glass border-b border-emerald-500/30">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl neon">SA</div>
+                <span class="text-3xl font-bold tracking-tighter neon">SuperAdPro</span>
+            </div>
+            <div class="flex gap-4">
+                <a href="/" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-sm font-semibold rounded-3xl transition">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-md mx-auto py-20 px-6">
+        <div class="glass rounded-3xl p-12">
+            <h1 class="text-4xl font-bold text-center mb-8 neon">Welcome Back</h1>
+            
+            {% if error %}
+            <p class="text-red-400 text-center mb-6">{{ error }}</p>
+            {% endif %}
+
+            <form method="post" action="/login">
+                <div class="mb-6">
+                    <label class="block text-sm text-zinc-400 mb-2">Username or Email</label>
+                    <input type="text" name="username" required class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl px-6 py-4 text-lg focus:border-emerald-500 outline-none">
+                </div>
+
+                <div class="mb-8">
+                    <label class="block text-sm text-zinc-400 mb-2">Password</label>
+                    <input type="password" name="password" required class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl px-6 py-4 text-lg focus:border-emerald-500 outline-none">
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 py-5 rounded-3xl text-xl font-semibold transition">
+                    Login
+                </button>
+            </form>
+
+            <p class="text-center text-sm text-zinc-400 mt-8">
+                Don't have an account? <a href="/register" class="text-emerald-400 hover:text-emerald-500">Create one here</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

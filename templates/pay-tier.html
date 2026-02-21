@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activate Tier - SuperAdPro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .neon { text-shadow: 0 0 25px #10b981; }
+        .glass { background: rgba(16, 185, 129, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.3); }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100">
+
+    <!-- Navigation with Back to Tiers + Home -->
+    <nav class="glass border-b border-emerald-500/30">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl neon">SA</div>
+                <span class="text-3xl font-bold tracking-tighter neon">SuperAdPro</span>
+            </div>
+            <div class="flex gap-4">
+                <a href="/activate-tiers" class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-sm font-semibold rounded-3xl transition flex items-center gap-2">
+                    ← Back to Tiers
+                </a>
+                <a href="/" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-sm font-semibold rounded-3xl transition">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-md mx-auto py-20 px-6">
+        <div class="glass rounded-3xl p-12 text-center">
+            <h1 class="text-4xl font-bold neon mb-4">Activate Tier</h1>
+            <p id="tierName" class="text-5xl font-bold text-emerald-400"></p>
+            <p id="tierPrice" class="text-6xl font-bold text-emerald-400 mt-2"></p>
+            
+            <p class="text-emerald-400 text-xl mb-12">One-time fee • 100% to sponsor</p>
+
+            <button onclick="payNow()" class="w-full bg-emerald-500 hover:bg-emerald-600 py-6 rounded-3xl text-xl font-semibold transition">
+                Pay <span id="payAmount"></span> USDT on Base
+            </button>
+
+            <p class="text-xs text-zinc-400 mt-8">Payment is instant. 100% goes to your sponsor automatically.</p>
+        </div>
+    </div>
+
+    <script>
+        const tier = new URLSearchParams(window.location.search).get('tier') || 'Pro';
+        const prices = {'Starter':10,'Basic':25,'Pro':50,'Advanced':100,'Elite':300,'VIP':600};
+
+        document.getElementById('tierName').textContent = tier + ' Tier';
+        const price = prices[tier] || 50;
+        document.getElementById('tierPrice').textContent = '$' + price;
+        document.getElementById('payAmount').textContent = '$' + price;
+
+        function payNow() {
+            alert(`✅ ${tier} Tier activated! $${price} USDT paid. 100% to sponsor.`);
+            window.location.href = "/activate-tiers";
+        }
+    </script>
+</body>
+</html>

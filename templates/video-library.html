@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Library - SuperAdPro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .neon { text-shadow: 0 0 25px #10b981; }
+        .glass { background: rgba(16, 185, 129, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .timer { font-family: monospace; font-size: 2.5rem; color: #10b981; }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100">
+
+    <!-- Navigation with Back + Home -->
+    <nav class="glass border-b border-emerald-500/30">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl neon">SA</div>
+                <span class="text-3xl font-bold tracking-tighter neon">SuperAdPro</span>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="history.back()" class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-sm font-semibold rounded-3xl transition flex items-center gap-2">
+                    ← Back
+                </button>
+                <a href="/" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-sm font-semibold rounded-3xl transition">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-16">
+        <div class="flex justify-between items-center mb-12">
+            <h1 class="text-6xl font-bold tracking-tighter neon">Video Library</h1>
+        </div>
+        <p class="text-center text-emerald-400 text-xl mb-12">Unlimited access • Watch daily to stay qualified</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="videoGrid"></div>
+    </div>
+
+    <!-- Legal Disclaimer Button -->
+    <div class="text-center py-8 border-t border-zinc-800">
+        <a href="/legal" class="text-sm text-zinc-400 hover:text-emerald-400 transition">Legal Disclaimer</a>
+    </div>
+
+    <script>
+        let videos = [
+            {id:1, title:"Marketing Mastery 1", url:"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4"},
+            {id:2, title:"Lead Generation Secrets", url:"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4"},
+            {id:3, title:"Sales Closing Techniques", url:"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4"},
+            {id:4, title:"Brand Building Basics", url:"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4"},
+            {id:5, title:"Conversion Rate Mastery", url:"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4"},
+            {id:6, title:"Team Leadership & Motivation", url:"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4"}
+        ];
+
+        if (localStorage.getItem('newVideoTitle')) {
+            videos.unshift({
+                id: Date.now(),
+                title: localStorage.getItem('newVideoTitle'),
+                url: localStorage.getItem('newVideoUrl')
+            });
+            localStorage.removeItem('newVideoTitle');
+            localStorage.removeItem('newVideoUrl');
+        }
+
+        function getThumbnail(url) {
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                let videoId = '';
+                if (url.includes('v=')) videoId = url.split('v=')[1].split('&')[0];
+                else if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
+                return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+            }
+            return 'https://picsum.photos/400/225';
+        }
+
+        function loadVideos() {
+            const grid = document.getElementById('videoGrid');
+            grid.innerHTML = videos.map(v => `
+                <div onclick="playVideo(${v.id})" class="glass rounded-3xl overflow-hidden cursor-pointer hover:scale-105 transition">
+                    <div class="aspect-video relative">
+                        <img src="${getThumbnail(v.url)}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 flex items-center justify-center text-6xl text-white drop-shadow-lg">▶️</div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="font-semibold">${v.title}</h4>
+                        <p class="text-sm text-emerald-400">5 min • 30s minimum</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        let currentVideo = null;
+        let timerInterval = null;
+
+        function playVideo(id) {
+            currentVideo = videos.find(v => v.id === id);
+            document.getElementById('videoModal').classList.remove('hidden');
+            document.getElementById('videoTitle').textContent = currentVideo.title;
+
+            const container = document.getElementById('playerContainer');
+            container.innerHTML = '';
+
+            if (currentVideo.url.includes('youtube.com') || currentVideo.url.includes('youtu.be')) {
+                let videoId = '';
+                if (currentVideo.url.includes('v=')) videoId = currentVideo.url.split('v=')[1].split('&')[0];
+                else if (currentVideo.url.includes('youtu.be/')) videoId = currentVideo.url.split('youtu.be/')[1].split('?')[0];
+                container.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&mute=0" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
+            } else {
+                container.innerHTML = `<video id="player" class="w-full rounded-2xl" controls autoplay></video>`;
+                const player = document.getElementById('player');
+                player.src = currentVideo.url;
+                player.play();
+            }
+
+            start30SecondTimer();
+        }
+
+        function start30SecondTimer() {
+            let timeLeft = 30;
+            const timerEl = document.getElementById('timer');
+            const markBtn = document.getElementById('markBtn');
+            markBtn.disabled = true;
+
+            if (timerInterval) clearInterval(timerInterval);
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    markBtn.disabled = false;
+                    const iframe = document.querySelector('iframe');
+                    if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                    const player = document.getElementById('player');
+                    if (player) player.pause();
+                }
+            }, 1000);
+        }
+
+        function markAsWatched() {
+            alert("✅ Video marked as watched!");
+            closeModal();
+        }
+
+        function closeModal() {
+            document.getElementById('videoModal').classList.add('hidden');
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        loadVideos();
+    </script>
+</body>
+</html>

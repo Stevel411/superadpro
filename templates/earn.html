@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earn - SuperAdPro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .neon { text-shadow: 0 0 25px #10b981; }
+        .glass { background: rgba(16, 185, 129, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.3); }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100">
+
+    <!-- Navigation with only Home button (no Back) -->
+    <nav class="glass border-b border-emerald-500/30">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl neon">SA</div>
+                <span class="text-3xl font-bold tracking-tighter neon">SuperAdPro</span>
+            </div>
+            <div class="flex gap-4">
+                <a href="/" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-sm font-semibold rounded-3xl transition">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-16">
+        <h1 class="text-6xl font-bold tracking-tighter neon text-center">Earn</h1>
+        <p class="text-center text-emerald-400 text-2xl mt-4">Build real income with 100% commissions and the matrix</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+            <a href="/dashboard" class="glass rounded-3xl p-8 text-center hover:bg-emerald-500/10 transition">
+                <div class="text-5xl mb-6">📊</div>
+                <h3 class="text-2xl font-semibold">Dashboard</h3>
+            </a>
+            <a href="/activate-tiers" class="glass rounded-3xl p-8 text-center hover:bg-emerald-500/10 transition">
+                <div class="text-5xl mb-6">🌳</div>
+                <h3 class="text-2xl font-semibold">Activate Matrix Tiers</h3>
+            </a>
+            <a href="/video-library" class="glass rounded-3xl p-8 text-center hover:bg-emerald-500/10 transition">
+                <div class="text-5xl mb-6">📺</div>
+                <h3 class="text-2xl font-semibold">Daily Videos</h3>
+            </a>
+        </div>
+    </div>
+
+    <!-- Legal Disclaimer Button -->
+    <div class="text-center py-8 border-t border-zinc-800">
+        <a href="/legal" class="text-sm text-zinc-400 hover:text-emerald-400 transition">Legal Disclaimer</a>
+    </div>
+</body>
+</html>

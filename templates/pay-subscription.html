@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscribe - SuperAdPro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .neon { text-shadow: 0 0 25px #10b981; }
+        .glass { background: rgba(16, 185, 129, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.3); }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100">
+    <div class="max-w-md mx-auto py-20 px-6">
+        <div class="glass rounded-3xl p-12 text-center">
+            <h1 class="text-4xl font-bold neon mb-8">Monthly Subscription</h1>
+            <p class="text-6xl font-bold text-emerald-400 mb-2">$10</p>
+            <p class="text-emerald-400 text-xl mb-12">Unlimited Video Access</p>
+
+            <div class="glass rounded-2xl p-8 mb-12">
+                <p class="text-emerald-400 font-semibold">100% Commission</p>
+                <p class="text-zinc-400">The full $10 goes straight to your sponsor's wallet automatically</p>
+            </div>
+
+            <button onclick="paySubscription()" class="w-full bg-emerald-500 hover:bg-emerald-600 py-6 rounded-3xl text-xl font-semibold transition">
+                Pay $10 USDT on Base
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function paySubscription() {
+            alert("✅ Subscription paid! $10 sent — 100% to your sponsor.");
+            window.location.href = "/dashboard";
+        }
+    </script>
+</body>
+</html>

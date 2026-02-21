@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activate Tiers - SuperAdPro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .neon { text-shadow: 0 0 25px #10b981; }
+        .glass { background: rgba(16, 185, 129, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.3); }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100">
+
+    <!-- Navigation -->
+    <nav class="glass border-b border-emerald-500/30">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl neon">SA</div>
+                <span class="text-3xl font-bold tracking-tighter neon">SuperAdPro</span>
+            </div>
+            <div class="flex gap-4">
+                <a href="/dashboard" class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-sm font-semibold rounded-3xl transition flex items-center gap-2">
+                    ← Back to Dashboard
+                </a>
+                <a href="/" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-sm font-semibold rounded-3xl transition">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-6 py-16">
+        <h1 class="text-6xl font-bold tracking-tighter neon text-center">Activate Matrix Tiers</h1>
+        <p class="text-center text-emerald-400 text-xl mt-4">Choose your tier to unlock higher earnings</p>
+
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
+            <div class="glass rounded-3xl p-8 text-center">
+                <h3 class="text-2xl font-bold text-emerald-400">Starter</h3>
+                <p class="text-6xl font-bold text-emerald-400 mt-6">$10</p>
+                <a href="/pay-tier?tier=Starter" class="mt-12 block w-full bg-emerald-500 hover:bg-emerald-600 py-5 rounded-3xl font-semibold">Activate</a>
+            </div>
+
+            <div class="glass rounded-3xl p-8 text-center">
+                <h3 class="text-2xl font-bold text-emerald-400">Basic</h3>
+                <p class="text-6xl font-bold text-emerald-400 mt-6">$25</p>
+                <a href="/pay-tier?tier=Basic" class="mt-12 block w-full bg-emerald-500 hover:bg-emerald-600 py-5 rounded-3xl font-semibold">Activate</a>
+            </div>
+
+            <div class="glass rounded-3xl p-8 text-center">
+                <h3 class="text-2xl font-bold text-emerald-400">Pro</h3>
+                <p class="text-6xl font-bold text-emerald-400 mt-6">$50</p>
+                <a href="/pay-tier?tier=Pro" class="mt-12 block w-full bg-emerald-500 hover:bg-emerald-600 py-5 rounded-3xl font-semibold">Activate</a>
+            </div>
+
+            <div class="glass rounded-3xl p-8 text-center">
+                <h3 class="text-2xl font-bold text-emerald-400">Advanced</h3>
+                <p class="text-6xl font-bold text-emerald-400 mt-6">$100</p>
+                <a href="/pay-tier?tier=Advanced" class="mt-12 block w-full bg-emerald-500 hover:bg-emerald-600 py-5 rounded-3xl font-semibold">Activate</a>
+            </div>
+
+            <div class="glass rounded-3xl p-8 text-center">
+                <h3 class="text-2xl font-bold text-emerald-400">Elite</h3>
+                <p class="text-6xl font-bold text-emerald-400 mt-6">$250</p>
+                <a href="/pay-tier?tier=Elite" class="mt-12 block w-full bg-emerald-500 hover:bg-emerald-600 py-5 rounded-3xl font-semibold">Activate</a>
+            </div>
+
+            <div class="glass rounded-3xl p-8 text-center">
+                <h3 class="text-2xl font-bold text-emerald-400">VIP</h3>
+                <p class="text-6xl font-bold text-emerald-400 mt-6">$500</p>
+                <a href="/pay-tier?tier=VIP" class="mt-12 block w-full bg-emerald-500 hover:bg-emerald-600 py-5 rounded-3xl font-semibold">Activate</a>
+            </div>
+
+            <div class="glass rounded-3xl p-8 text-center">
+                <h3 class="text-2xl font-bold text-emerald-400">Premium</h3>
+                <p class="text-6xl font-bold text-emerald-400 mt-6">$750</p>
+                <a href="/pay-tier?tier=Premium" class="mt-12 block w-full bg-emerald-500 hover:bg-emerald-600 py-5 rounded-3xl font-semibold">Activate</a>
+            </div>
+
+            <div class="glass rounded-3xl p-8 text-center border-2 border-emerald-400">
+                <h3 class="text-2xl font-bold text-emerald-400">Ultimate</h3>
+                <p class="text-6xl font-bold text-emerald-400 mt-6">$1000</p>
+                <a href="/pay-tier?tier=Ultimate" class="mt-12 block w-full bg-emerald-500 hover:bg-emerald-600 py-5 rounded-3xl font-semibold">Activate</a>
+                <p class="text-xs text-emerald-400 mt-6">Top Tier</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legal Disclaimer Button -->
+    <div class="text-center py-8 border-t border-zinc-800">
+        <a href="/legal" class="text-sm text-zinc-400 hover:text-emerald-400 transition">Legal Disclaimer</a>
+    </div>
+</body>
+</html>

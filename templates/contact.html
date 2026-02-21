@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - SuperAdPro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .neon { text-shadow: 0 0 25px #10b981; }
+        .glass { background: rgba(16, 185, 129, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.3); }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100">
+
+    <!-- Navigation with Back to Support + Home -->
+    <nav class="glass border-b border-emerald-500/30">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl neon">SA</div>
+                <span class="text-3xl font-bold tracking-tighter neon">SuperAdPro</span>
+            </div>
+            <div class="flex gap-4">
+                <a href="/support" class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-sm font-semibold rounded-3xl transition flex items-center gap-2">
+                    ← Back to Support
+                </a>
+                <a href="/" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-sm font-semibold rounded-3xl transition">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto px-6 py-16">
+        <h1 class="text-6xl font-bold tracking-tighter neon text-center mb-8">Contact Us</h1>
+        <p class="text-center text-emerald-400 text-xl">We reply within 24 hours</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mt-16">
+            <!-- Email Form -->
+            <div class="glass rounded-3xl p-10">
+                <h2 class="text-2xl font-semibold mb-8">Send us a message</h2>
+                <form>
+                    <div class="mb-6">
+                        <label class="block text-sm text-zinc-400 mb-2">Your Name</label>
+                        <input type="text" class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl px-6 py-4 outline-none focus:border-emerald-500">
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm text-zinc-400 mb-2">Email Address</label>
+                        <input type="email" class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl px-6 py-4 outline-none focus:border-emerald-500">
+                    </div>
+                    <div class="mb-8">
+                        <label class="block text-sm text-zinc-400 mb-2">Message</label>
+                        <textarea rows="6" class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl px-6 py-4 outline-none focus:border-emerald-500"></textarea>
+                    </div>
+                    <button type="button" onclick="sendMessage()" class="w-full bg-emerald-500 hover:bg-emerald-600 py-6 rounded-3xl text-xl font-semibold transition">
+                        Send Message
+                    </button>
+                </form>
+            </div>
+
+            <!-- AI Chat Bot -->
+            <div class="glass rounded-3xl p-10">
+                <h2 class="text-2xl font-semibold mb-8">Ask our AI Assistant</h2>
+                <div class="h-96 bg-zinc-900 rounded-3xl p-6 mb-6 overflow-y-auto" id="chatWindow">
+                    <p class="text-emerald-400 text-sm">Hi! I'm SuperBot. How can I help you today?</p>
+                </div>
+                <div class="flex gap-3">
+                    <input id="chatInput" type="text" placeholder="Type your question..." class="flex-1 bg-zinc-900 border border-zinc-700 rounded-3xl px-6 py-4 outline-none focus:border-emerald-500">
+                    <button onclick="sendChat()" class="bg-emerald-500 hover:bg-emerald-600 px-8 py-4 rounded-3xl font-semibold">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legal Disclaimer Button -->
+    <div class="text-center py-8 border-t border-zinc-800">
+        <a href="/legal" class="text-sm text-zinc-400 hover:text-emerald-400 transition">Legal Disclaimer</a>
+    </div>
+
+    <script>
+        function sendMessage() {
+            alert("✅ Message sent! We will reply within 24 hours.");
+        }
+        function sendChat() {
+            const input = document.getElementById('chatInput');
+            if (input.value.trim() === '') return;
+            const chat = document.getElementById('chatWindow');
+            chat.innerHTML += `<p class="text-right mt-4 text-emerald-400">${input.value}</p>`;
+            chat.innerHTML += `<p class="text-emerald-400 text-sm mt-3">SuperBot: Thank you for your question. Our team will assist you shortly.</p>`;
+            chat.scrollTop = chat.scrollHeight;
+            input.value = '';
+        }
+    </script>
+</body>
+</html>
