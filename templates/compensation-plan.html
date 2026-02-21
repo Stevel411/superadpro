@@ -3,141 +3,448 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compensation Plan - SuperAdPro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Compensation Plan — SuperAdPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        .neon { text-shadow: 0 0 25px #10b981; }
-        .glass { background: rgba(16, 185, 129, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.3); }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#020e08; color:#e0ead8; font-family:'Rethink Sans',sans-serif; min-height:100vh; }
+
+        .bg { position:fixed; inset:0; z-index:0;
+            background: radial-gradient(ellipse 100% 60% at 50% 0%, rgba(0,100,70,0.4) 0%, transparent 65%),
+                        radial-gradient(ellipse 70% 50% at 90% 60%, rgba(0,80,120,0.1) 0%, transparent 60%),
+                        linear-gradient(180deg,#010f09 0%,#021a10 30%,#010a05 100%);
+        }
+        .grid { position:fixed; inset:0; z-index:1; pointer-events:none;
+            background-image:linear-gradient(rgba(0,180,120,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,120,0.03) 1px,transparent 1px);
+            background-size:55px 55px;
+        }
+
+        /* Nav */
+        nav { position:relative; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 36px; height:60px; background:rgba(1,10,5,0.85); backdrop-filter:blur(18px); border-bottom:1px solid rgba(0,180,120,0.12); }
+        .nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; }
+        .nav-brand { font-weight:800; font-size:15px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#ffe89a,#c9a84c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .nav-links { display:flex; align-items:center; gap:6px; list-style:none; }
+        .nav-links a { font-size:13px; font-weight:500; color:rgba(220,242,230,0.65); text-decoration:none; padding:4px 10px; transition:color 0.2s; }
+        .nav-links a:hover { color:#fff; }
+        .nav-cta { font-weight:700; font-size:13px; color:#020e08; background:linear-gradient(135deg,#ffe89a,#d4a840); padding:8px 22px; border-radius:5px; text-decoration:none; transition:all 0.3s; }
+        .nav-cta:hover { box-shadow:0 4px 24px rgba(201,168,76,0.4); transform:translateY(-1px); }
+
+        /* Page */
+        .page { position:relative; z-index:10; max-width:1200px; margin:0 auto; padding:60px 32px 80px; }
+
+        /* Hero */
+        .hero { text-align:center; margin-bottom:64px; }
+        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(0,220,150,0.75); border:1px solid rgba(0,220,150,0.2); border-radius:50px; padding:5px 16px; margin-bottom:20px; }
+        .dot { width:6px; height:6px; border-radius:50%; background:#00dc96; animation:blink 2s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+        .hero h1 { font-weight:800; font-size:clamp(28px,4vw,52px); color:#fff; line-height:1.1; margin-bottom:14px; }
+        .hero h1 .gold { color:#c9a84c; }
+        .hero p { font-size:16px; color:rgba(220,242,230,0.72); max-width:620px; margin:0 auto; line-height:1.7; }
+
+        /* Section titles */
+        .section-title { font-weight:800; font-size:26px; color:#fff; margin-bottom:6px; }
+        .section-sub { font-size:14px; color:rgba(220,242,230,0.65); margin-bottom:32px; }
+        .divider { display:flex; align-items:center; gap:14px; margin:56px 0 32px; }
+        .div-line { flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(0,180,120,0.25),transparent); }
+        .div-text { font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(220,242,230,0.4); white-space:nowrap; }
+
+        /* ===== COMMISSION OVERVIEW CARDS ===== */
+        .overview-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:56px; }
+        .ov-card { background:rgba(2,16,9,0.92); border:1px solid rgba(0,180,120,0.18); border-radius:10px; padding:28px 22px; text-align:center; position:relative; overflow:hidden; transition:all 0.3s; }
+        .ov-card:hover { transform:translateY(-4px); border-color:rgba(0,220,150,0.35); }
+        .ov-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+        .ov-card.c1::before { background:linear-gradient(90deg,transparent,#00dc96,transparent); }
+        .ov-card.c2::before { background:linear-gradient(90deg,transparent,#c9a84c,transparent); }
+        .ov-card.c3::before { background:linear-gradient(90deg,transparent,#00c8d4,transparent); }
+        .ov-card.c4::before { background:linear-gradient(90deg,transparent,#a070ff,transparent); }
+        .ov-icon { font-size:32px; margin-bottom:14px; display:block; }
+        .ov-pct { font-size:52px; font-weight:800; color:#ffffff; line-height:1; margin-bottom:6px; }
+        .ov-label { font-size:14px; font-weight:700; color:#fff; margin-bottom:8px; }
+        .ov-desc { font-size:12px; color:rgba(220,242,230,0.65); line-height:1.6; }
+
+        /* ===== SPLIT BREAKDOWN ===== */
+        .split-section { margin-bottom:56px; }
+        .split-visual { background:rgba(2,16,9,0.9); border:1px solid rgba(0,180,120,0.18); border-radius:10px; padding:32px; }
+        .split-title { font-size:16px; font-weight:700; color:#fff; margin-bottom:6px; }
+        .split-sub { font-size:13px; color:rgba(220,242,230,0.6); margin-bottom:24px; }
+        .split-bar { height:52px; border-radius:8px; overflow:hidden; display:flex; margin-bottom:20px; box-shadow:0 4px 20px rgba(0,0,0,0.3); }
+        .sb-company { background:rgba(255,100,80,0.7); display:flex; align-items:center; justify-content:center; flex-direction:column; width:5%; }
+        .sb-sponsor  { background:rgba(201,168,76,0.8); display:flex; align-items:center; justify-content:center; flex-direction:column; width:20%; }
+        .sb-matching { background:rgba(0,200,210,0.7); display:flex; align-items:center; justify-content:center; flex-direction:column; width:8%; }
+        .sb-matrix   { background:linear-gradient(90deg,rgba(0,200,140,0.8),rgba(0,160,110,0.9)); display:flex; align-items:center; justify-content:center; flex-direction:column; width:67%; }
+        .sb-label { font-size:11px; font-weight:800; color:#fff; letter-spacing:1px; white-space:nowrap; }
+        .sb-pct { font-size:15px; font-weight:800; color:#fff; }
+        .split-legend { display:flex; gap:20px; flex-wrap:wrap; }
+        .leg-item { display:flex; align-items:center; gap:8px; font-size:13px; color:rgba(220,242,230,0.78); }
+        .leg-dot { width:12px; height:12px; border-radius:2px; flex-shrink:0; }
+
+        /* ===== MATRIX LEVELS TABLE ===== */
+        .matrix-section { margin-bottom:56px; }
+        .levels-table { width:100%; border-collapse:collapse; }
+        .levels-table th { padding:12px 16px; text-align:left; font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(220,242,230,0.5); border-bottom:1px solid rgba(0,180,120,0.15); background:rgba(0,0,0,0.2); }
+        .levels-table td { padding:14px 16px; font-size:14px; border-bottom:1px solid rgba(0,180,120,0.08); }
+        .levels-table tr:last-child td { border-bottom:none; }
+        .levels-table tr:hover td { background:rgba(0,180,120,0.04); }
+        .levels-table tbody tr:nth-child(even) td { background:rgba(0,0,0,0.12); }
+        .level-num { font-weight:800; font-size:16px; color:#ffffff; }
+        .level-slots { color:rgba(220,242,230,0.78); }
+        .level-pct { font-weight:700; font-size:15px; color:#00dc96; }
+        .level-earn { font-weight:700; color:#ffffff; }
+        .level-note { font-size:12px; color:rgba(220,242,230,0.55); }
+        .level-bar-wrap { width:160px; }
+        .level-bar { height:6px; background:rgba(0,0,0,0.3); border-radius:3px; overflow:hidden; }
+        .level-bar-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,#00dc96,#c9a84c); }
+        .you-badge { display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:700; color:#00dc96; background:rgba(0,200,140,0.1); border:1px solid rgba(0,200,140,0.2); border-radius:3px; padding:2px 8px; margin-left:8px; }
+
+        /* ===== PACKAGES + EARNINGS ===== */
+        .pkg-section { margin-bottom:56px; }
+        .pkg-table { width:100%; border-collapse:collapse; }
+        .pkg-table th { padding:12px 16px; text-align:left; font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(220,242,230,0.5); border-bottom:1px solid rgba(0,180,120,0.15); background:rgba(0,0,0,0.2); }
+        .pkg-table td { padding:14px 16px; font-size:14px; border-bottom:1px solid rgba(0,180,120,0.08); color:rgba(220,242,230,0.85); }
+        .pkg-table tr:last-child td { border-bottom:none; }
+        .pkg-table tr:hover td { background:rgba(0,180,120,0.04); }
+        .pkg-table tbody tr:nth-child(even) td { background:rgba(0,0,0,0.12); }
+        .pkg-name { font-weight:700; color:#fff; }
+        .pkg-price-cell { font-weight:800; font-size:16px; color:#ffffff; }
+        .pkg-views-cell { color:#00dc96; font-weight:600; }
+        .pkg-comm { font-weight:700; color:#c9a84c; }
+        .pkg-popular { display:inline-flex; align-items:center; font-size:9px; font-weight:700; letter-spacing:1px; color:#c9a84c; background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.25); padding:2px 8px; border-radius:3px; margin-left:8px; }
+
+        /* ===== HOW EARNINGS FLOW ===== */
+        .flow-section { margin-bottom:56px; }
+        .flow-steps { display:grid; grid-template-columns:repeat(5,1fr); gap:0; position:relative; }
+        .flow-steps::before { content:''; position:absolute; top:30px; left:10%; right:10%; height:2px; background:linear-gradient(90deg,rgba(0,180,120,0.3),rgba(201,168,76,0.5),rgba(0,180,120,0.3)); z-index:0; }
+        .flow-step { text-align:center; padding:0 12px; position:relative; z-index:1; }
+        .flow-num { width:60px; height:60px; border-radius:50%; background:rgba(2,16,9,0.95); border:2px solid rgba(0,200,140,0.4); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:22px; font-weight:800; color:#00dc96; box-shadow:0 0 20px rgba(0,200,140,0.15); }
+        .flow-title { font-size:13px; font-weight:700; color:#c9a84c; margin-bottom:6px; }
+        .flow-desc { font-size:12px; color:rgba(220,242,230,0.65); line-height:1.6; }
+
+        /* ===== FAQ ===== */
+        .faq-section { margin-bottom:56px; }
+        .faq-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+        .faq-item { background:rgba(2,16,9,0.9); border:1px solid rgba(0,180,120,0.15); border-radius:8px; padding:22px; }
+        .faq-q { font-size:14px; font-weight:700; color:#fff; margin-bottom:8px; display:flex; align-items:flex-start; gap:10px; }
+        .faq-q::before { content:'Q'; font-size:11px; font-weight:800; color:#00dc96; background:rgba(0,200,140,0.1); border:1px solid rgba(0,200,140,0.2); border-radius:3px; padding:1px 7px; flex-shrink:0; margin-top:1px; }
+        .faq-a { font-size:13px; color:rgba(220,242,230,0.7); line-height:1.65; padding-left:30px; }
+
+        /* ===== CTA ===== */
+        .cta { text-align:center; padding:56px 32px; background:rgba(2,16,9,0.9); border:1px solid rgba(0,180,120,0.18); border-radius:12px; }
+        .cta h2 { font-weight:800; font-size:clamp(24px,3.5vw,42px); color:#fff; margin-bottom:10px; }
+        .cta h2 .gold { color:#c9a84c; }
+        .cta p { font-size:15px; color:rgba(220,242,230,0.65); margin-bottom:28px; }
+        .cta-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+        .btn-gold { font-weight:700; font-size:15px; color:#020e08; background:linear-gradient(135deg,#ffe89a,#c9a84c); padding:14px 36px; border-radius:5px; text-decoration:none; box-shadow:0 0 28px rgba(201,168,76,0.2); transition:all 0.3s; }
+        .btn-gold:hover { box-shadow:0 0 50px rgba(201,168,76,0.45); transform:translateY(-2px); }
+        .btn-outline { font-weight:600; font-size:15px; color:rgba(220,242,230,0.8); background:transparent; padding:13px 36px; border-radius:5px; border:1px solid rgba(0,180,120,0.3); text-decoration:none; transition:all 0.3s; }
+        .btn-outline:hover { border-color:rgba(0,220,150,0.6); color:#fff; }
+
+        .panel-wrap { background:rgba(2,16,9,0.9); border:1px solid rgba(0,180,120,0.15); border-radius:10px; overflow:hidden; }
+
+        @media(max-width:900px){ .overview-grid{grid-template-columns:1fr 1fr} .flow-steps{grid-template-columns:1fr 1fr;gap:24px} .flow-steps::before{display:none} .faq-grid{grid-template-columns:1fr} }
+        @media(max-width:600px){ .overview-grid{grid-template-columns:1fr} .split-legend{gap:12px} }
     </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100">
+<body>
+<div class="bg"></div>
+<div class="grid"></div>
 
-    <!-- Navigation -->
-    <nav class="glass border-b border-emerald-500/30">
-        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl neon">SA</div>
-                <span class="text-3xl font-bold tracking-tighter neon">SuperAdPro</span>
-            </div>
-            <div class="flex gap-4">
-                <a href="/dashboard" class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-sm font-semibold rounded-3xl transition flex items-center gap-2">
-                    ← Back to Dashboard
-                </a>
-                <a href="/" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-sm font-semibold rounded-3xl transition">Home</a>
-            </div>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffe89a"/><stop offset="30%" stop-color="#c9a84c"/><stop offset="70%" stop-color="#7a5c10"/><stop offset="100%" stop-color="#c9a84c"/></linearGradient>
+    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1a3520"/><stop offset="40%" stop-color="#0d2018"/><stop offset="100%" stop-color="#050e08"/></linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7a5c10"/><stop offset="50%" stop-color="#c9a84c"/><stop offset="100%" stop-color="#7a5c10"/></linearGradient>
+    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
+    <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="sc"><path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z"/></clipPath>
+    <symbol id="shield" viewBox="0 0 130 122">
+      <path d="M17 10 L117 10 L127 48 L67 118 L7 48 Z" fill="rgba(0,0,0,0.5)" transform="translate(3,4)"/>
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#sf)" stroke="url(#ob)" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M22 15 L108 15 L116 46 L65 105 L14 46 Z" fill="none" stroke="url(#ob)" stroke-width="1.5" stroke-linejoin="round" opacity="0.5"/>
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#hl)" clip-path="url(#sc)"/>
+      <path d="M23 31 L65 37 L107 31" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M29 49 L65 54 L101 49" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M37 67 L65 71 L93 67" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M47 84 L65 87 L83 84" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+    </symbol>
+  </defs>
+</svg>
+
+<nav>
+    <a href="/" class="nav-logo">
+        <svg width="26" height="26"><use href="#shield"/></svg>
+        <span class="nav-brand">SuperAdPro</span>
+    </a>
+    <ul class="nav-links">
+        <li><a href="/how-it-works">Advertise</a></li>
+        <li><a href="/compensation-plan" style="color:#00dc96">Affiliates</a></li>
+        <li><a href="/packages">Packages</a></li>
+        <li><a href="/support">Support</a></li>
+    </ul>
+    <a href="/register" class="nav-cta">Join Free</a>
+</nav>
+
+<div class="page">
+
+    <!-- HERO -->
+    <div class="hero">
+        <div class="eyebrow"><div class="dot"></div> Affiliate Programme · Compensation Plan</div>
+        <h1>Earn Every Time Someone<br><span class="gold">Advertises on SuperAdPro.</span></h1>
+        <p>Our compensation plan rewards affiliates who grow the platform. Refer advertisers, build your network, and earn commissions across 10 matrix levels — paid instantly in USDT on Base Chain.</p>
+    </div>
+
+    <!-- OVERVIEW CARDS -->
+    <div class="overview-grid">
+        <div class="ov-card c1">
+            <span class="ov-icon">🤝</span>
+            <div class="ov-pct">20%</div>
+            <div class="ov-label">Direct Referral</div>
+            <div class="ov-desc">Earn 20% every time someone you refer directly activates an advertising package.</div>
         </div>
-    </nav>
-
-    <div class="max-w-7xl mx-auto px-6 py-16">
-        <h1 class="text-6xl font-bold tracking-tighter neon text-center">Compensation Plan</h1>
-        <p class="text-center text-emerald-400 text-2xl mt-4">8 Tiers • 3×10 Forced Matrix • 40% Matching Bonus</p>
-
-        <div class="glass rounded-3xl p-12 mt-16">
-            <h2 class="text-3xl font-semibold mb-8">How It Works</h2>
-            <p class="text-zinc-300 leading-relaxed">
-                5% of every tier activation goes to the company as management fees. 
-                The remaining 95% is allocated to the matrix:
-            </p>
-            <ul class="list-disc list-inside text-zinc-300 mt-6 space-y-3">
-                <li><strong>20% of the 95%</strong> goes directly to the sponsor as a direct referral bonus.</li>
-                <li><strong>75% of the 95%</strong> is split equally across the 10 levels of the matrix.</li>
-                <li>You also receive a <strong>40% matching bonus</strong> on all commissions earned by your personally sponsored affiliates.</li>
-            </ul>
+        <div class="ov-card c2">
+            <span class="ov-icon">🔁</span>
+            <div class="ov-pct">8%</div>
+            <div class="ov-label">Matching Bonus</div>
+            <div class="ov-desc">Earn 8% matching bonus on every commission your direct referrals earn.</div>
         </div>
-
-        <!-- Full 8-Tier Payout Table -->
-        <div class="mt-16">
-            <h2 class="text-3xl font-semibold mb-8 text-center">Full Payout Table (All 8 Tiers)</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left glass rounded-3xl overflow-hidden">
-                    <thead>
-                        <tr class="bg-emerald-500/20">
-                            <th class="py-6 px-8">Tier</th>
-                            <th class="py-6 px-8">Price</th>
-                            <th class="py-6 px-8">Company (5%)</th>
-                            <th class="py-6 px-8">Direct Sponsor (19%)</th>
-                            <th class="py-6 px-8">Per Level (7.5%)</th>
-                            <th class="py-6 px-8">Total from 10 Levels</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-zinc-700">
-                        <tr>
-                            <td class="py-6 px-8 font-semibold">Starter</td>
-                            <td class="py-6 px-8">$10</td>
-                            <td class="py-6 px-8">$0.50</td>
-                            <td class="py-6 px-8">$1.90</td>
-                            <td class="py-6 px-8">$0.75</td>
-                            <td class="py-6 px-8">$7.50</td>
-                        </tr>
-                        <tr>
-                            <td class="py-6 px-8 font-semibold">Basic</td>
-                            <td class="py-6 px-8">$25</td>
-                            <td class="py-6 px-8">$1.25</td>
-                            <td class="py-6 px-8">$4.75</td>
-                            <td class="py-6 px-8">$1.875</td>
-                            <td class="py-6 px-8">$18.75</td>
-                        </tr>
-                        <tr>
-                            <td class="py-6 px-8 font-semibold">Pro</td>
-                            <td class="py-6 px-8">$50</td>
-                            <td class="py-6 px-8">$2.50</td>
-                            <td class="py-6 px-8">$9.50</td>
-                            <td class="py-6 px-8">$3.75</td>
-                            <td class="py-6 px-8">$37.50</td>
-                        </tr>
-                        <tr>
-                            <td class="py-6 px-8 font-semibold">Advanced</td>
-                            <td class="py-6 px-8">$100</td>
-                            <td class="py-6 px-8">$5.00</td>
-                            <td class="py-6 px-8">$19.00</td>
-                            <td class="py-6 px-8">$7.50</td>
-                            <td class="py-6 px-8">$75.00</td>
-                        </tr>
-                        <tr>
-                            <td class="py-6 px-8 font-semibold">Elite</td>
-                            <td class="py-6 px-8">$250</td>
-                            <td class="py-6 px-8">$12.50</td>
-                            <td class="py-6 px-8">$47.50</td>
-                            <td class="py-6 px-8">$18.75</td>
-                            <td class="py-6 px-8">$187.50</td>
-                        </tr>
-                        <tr>
-                            <td class="py-6 px-8 font-semibold">VIP</td>
-                            <td class="py-6 px-8">$500</td>
-                            <td class="py-6 px-8">$25.00</td>
-                            <td class="py-6 px-8">$95.00</td>
-                            <td class="py-6 px-8">$37.50</td>
-                            <td class="py-6 px-8">$375.00</td>
-                        </tr>
-                        <tr>
-                            <td class="py-6 px-8 font-semibold">Premium</td>
-                            <td class="py-6 px-8">$750</td>
-                            <td class="py-6 px-8">$37.50</td>
-                            <td class="py-6 px-8">$142.50</td>
-                            <td class="py-6 px-8">$56.25</td>
-                            <td class="py-6 px-8">$562.50</td>
-                        </tr>
-                        <tr>
-                            <td class="py-6 px-8 font-semibold">Ultimate</td>
-                            <td class="py-6 px-8">$1000</td>
-                            <td class="py-6 px-8">$50.00</td>
-                            <td class="py-6 px-8">$190.00</td>
-                            <td class="py-6 px-8">$75.00</td>
-                            <td class="py-6 px-8">$750.00</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="ov-card c3">
+            <span class="ov-icon">◈</span>
+            <div class="ov-pct">67%</div>
+            <div class="ov-label">Matrix Earnings</div>
+            <div class="ov-desc">67% of every package is distributed across 10 levels of your forced matrix.</div>
         </div>
-
-        <div class="mt-16 text-center text-zinc-400 text-sm max-w-2xl mx-auto">
-            You also earn a 40% matching bonus on all commissions earned by your personally sponsored affiliates across the entire matrix.
+        <div class="ov-card c4">
+            <span class="ov-icon">🏢</span>
+            <div class="ov-pct">5%</div>
+            <div class="ov-label">Company Reserve</div>
+            <div class="ov-desc">5% is retained by SuperAdPro to fund platform operations and the reserve pool.</div>
         </div>
     </div>
 
-    <!-- Legal Disclaimer Button -->
-    <div class="text-center py-8 border-t border-zinc-800">
-        <a href="/legal" class="text-sm text-zinc-400 hover:text-emerald-400 transition">Legal Disclaimer</a>
+    <!-- SPLIT BAR -->
+    <div class="split-section">
+        <div class="split-visual">
+            <div class="split-title">How Every Package Payment is Split</div>
+            <div class="split-sub">Every time a member activates an advertising package, the payment is distributed as follows:</div>
+            <div class="split-bar">
+                <div class="sb-company"><div class="sb-pct">5%</div><div class="sb-label">CO.</div></div>
+                <div class="sb-sponsor"><div class="sb-pct">20%</div><div class="sb-label">DIRECT</div></div>
+                <div class="sb-matching"><div class="sb-pct">8%</div><div class="sb-label">MATCH</div></div>
+                <div class="sb-matrix"><div class="sb-pct">67%</div><div class="sb-label">MATRIX · 10 LEVELS</div></div>
+            </div>
+            <div class="split-legend">
+                <div class="leg-item"><div class="leg-dot" style="background:rgba(255,100,80,0.7)"></div> 5% Company Reserve</div>
+                <div class="leg-item"><div class="leg-dot" style="background:rgba(201,168,76,0.8)"></div> 20% Direct Sponsor Commission</div>
+                <div class="leg-item"><div class="leg-dot" style="background:rgba(0,200,210,0.7)"></div> 8% Matching Bonus</div>
+                <div class="leg-item"><div class="leg-dot" style="background:rgba(0,200,140,0.8)"></div> 67% Matrix Distribution (10 Levels)</div>
+            </div>
+        </div>
     </div>
+
+    <!-- MATRIX LEVELS -->
+    <div class="divider"><div class="div-line"></div><div class="div-text">3×10 Forced Matrix · Level Breakdown</div><div class="div-line"></div></div>
+    <div class="matrix-section">
+        <div class="section-sub" style="margin-bottom:20px;">Your matrix fills 3 positions wide across 10 levels deep. As your network grows, every level earns you a share of the 67% matrix pool.</div>
+        <div class="panel-wrap">
+            <table class="levels-table">
+                <thead>
+                    <tr>
+                        <th>Level</th>
+                        <th>Positions</th>
+                        <th>Total Slots</th>
+                        <th>% of Pool</th>
+                        <th>Example Earn · $100 Pkg</th>
+                        <th>Distribution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="level-num">1</span><span class="you-badge">● Direct</span></td>
+                        <td class="level-slots">3 × 1</td>
+                        <td class="level-slots">3</td>
+                        <td class="level-pct">6.7%</td>
+                        <td class="level-earn">$4.47 per member</td>
+                        <td><div class="level-bar-wrap"><div class="level-bar"><div class="level-bar-fill" style="width:100%"></div></div></div></td>
+                    </tr>
+                    <tr>
+                        <td><span class="level-num">2</span></td>
+                        <td class="level-slots">3 × 3</td>
+                        <td class="level-slots">9</td>
+                        <td class="level-pct">6.7%</td>
+                        <td class="level-earn">$1.49 per member</td>
+                        <td><div class="level-bar-wrap"><div class="level-bar"><div class="level-bar-fill" style="width:95%"></div></div></div></td>
+                    </tr>
+                    <tr>
+                        <td><span class="level-num">3</span></td>
+                        <td class="level-slots">3 × 9</td>
+                        <td class="level-slots">27</td>
+                        <td class="level-pct">6.7%</td>
+                        <td class="level-earn">$0.50 per member</td>
+                        <td><div class="level-bar-wrap"><div class="level-bar"><div class="level-bar-fill" style="width:88%"></div></div></div></td>
+                    </tr>
+                    <tr>
+                        <td><span class="level-num">4</span></td>
+                        <td class="level-slots">3 × 27</td>
+                        <td class="level-slots">81</td>
+                        <td class="level-pct">6.7%</td>
+                        <td class="level-earn">$0.17 per member</td>
+                        <td><div class="level-bar-wrap"><div class="level-bar"><div class="level-bar-fill" style="width:78%"></div></div></div></td>
+                    </tr>
+                    <tr>
+                        <td><span class="level-num">5</span></td>
+                        <td class="level-slots">3 × 81</td>
+                        <td class="level-slots">243</td>
+                        <td class="level-pct">6.7%</td>
+                        <td class="level-earn">$0.06 per member</td>
+                        <td><div class="level-bar-wrap"><div class="level-bar"><div class="level-bar-fill" style="width:68%"></div></div></div></td>
+                    </tr>
+                    <tr>
+                        <td><span class="level-num">6</span></td>
+                        <td class="level-slots">3 × 243</td>
+                        <td class="level-slots">729</td>
+                        <td class="level-pct">6.7%</td>
+                        <td class="level-earn">$0.02 per member</td>
+                        <td><div class="level-bar-wrap"><div class="level-bar"><div class="level-bar-fill" style="width:58%"></div></div></div></td>
+                    </tr>
+                    <tr>
+                        <td><span class="level-num">7</span></td>
+                        <td class="level-slots">3 × 729</td>
+                        <td class="level-slots">2,187</td>
+                        <td class="level-pct">6.7%</td>
+                        <td class="level-earn">Compounding</td>
+                        <td><div class="level-bar-wrap"><div class="level-bar"><div class="level-bar-fill" style="width:48%"></div></div></div></td>
+                    </tr>
+                    <tr>
+                        <td><span class="level-num">8</span></td>
+                        <td class="level-slots">3 × 2,187</td>
+                        <td class="level-slots">6,561</td>
+                        <td class="level-pct">6.7%</td>
+                        <td class="level-earn">Compounding</td>
+                        <td><div class="level-bar-wrap"><div class="level-bar"><div class="level-bar-fill" style="width:38%"></div></div></div></td>
+                    </tr>
+                    <tr>
+                        <td><span class="level-num">9</span></td>
+                        <td class="level-slots">3 × 6,561</td>
+                        <td class="level-slots">19,683</td>
+                        <td class="level-pct">6.7%</td>
+                        <td class="level-earn">Compounding</td>
+                        <td><div class="level-bar-wrap"><div class="level-bar"><div class="level-bar-fill" style="width:28%"></div></div></div></td>
+                    </tr>
+                    <tr>
+                        <td><span class="level-num">10</span></td>
+                        <td class="level-slots">3 × 19,683</td>
+                        <td class="level-slots">59,049</td>
+                        <td class="level-pct">6.7%</td>
+                        <td class="level-earn">Compounding</td>
+                        <td><div class="level-bar-wrap"><div class="level-bar"><div class="level-bar-fill" style="width:18%"></div></div></div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PACKAGES TABLE -->
+    <div class="divider"><div class="div-line"></div><div class="div-text">Advertising Packages · Earnings Per Activation</div><div class="div-line"></div></div>
+    <div class="pkg-section">
+        <div class="section-sub" style="margin-bottom:20px;">Each package unlocks guaranteed video views for advertisers and generates commissions for affiliates when activated through your referral link.</div>
+        <div class="panel-wrap">
+            <table class="pkg-table">
+                <thead>
+                    <tr>
+                        <th>Package</th>
+                        <th>Price</th>
+                        <th>Views Delivered</th>
+                        <th>Your Direct Comm (20%)</th>
+                        <th>Matching Bonus (8%)</th>
+                        <th>Matrix Pool (67%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="pkg-name">Starter</td><td class="pkg-price-cell">$10</td><td class="pkg-views-cell">5,000</td><td class="pkg-comm">$2.00</td><td class="pkg-comm">$0.80</td><td class="pkg-comm">$6.70</td></tr>
+                    <tr><td class="pkg-name">Basic</td><td class="pkg-price-cell">$25</td><td class="pkg-views-cell">15,000</td><td class="pkg-comm">$5.00</td><td class="pkg-comm">$2.00</td><td class="pkg-comm">$16.75</td></tr>
+                    <tr><td class="pkg-name">Growth</td><td class="pkg-price-cell">$50</td><td class="pkg-views-cell">35,000</td><td class="pkg-comm">$10.00</td><td class="pkg-comm">$4.00</td><td class="pkg-comm">$33.50</td></tr>
+                    <tr><td class="pkg-name">Pro <span class="pkg-popular">★ POPULAR</span></td><td class="pkg-price-cell">$100</td><td class="pkg-views-cell">80,000</td><td class="pkg-comm">$20.00</td><td class="pkg-comm">$8.00</td><td class="pkg-comm">$67.00</td></tr>
+                    <tr><td class="pkg-name">Advanced</td><td class="pkg-price-cell">$250</td><td class="pkg-views-cell">220,000</td><td class="pkg-comm">$50.00</td><td class="pkg-comm">$20.00</td><td class="pkg-comm">$167.50</td></tr>
+                    <tr><td class="pkg-name">Elite</td><td class="pkg-price-cell">$500</td><td class="pkg-views-cell">500,000</td><td class="pkg-comm">$100.00</td><td class="pkg-comm">$40.00</td><td class="pkg-comm">$335.00</td></tr>
+                    <tr><td class="pkg-name">Premium</td><td class="pkg-price-cell">$750</td><td class="pkg-views-cell">800,000</td><td class="pkg-comm">$150.00</td><td class="pkg-comm">$60.00</td><td class="pkg-comm">$502.50</td></tr>
+                    <tr><td class="pkg-name">Ultimate</td><td class="pkg-price-cell">$1,000</td><td class="pkg-views-cell">1,200,000</td><td class="pkg-comm">$200.00</td><td class="pkg-comm">$80.00</td><td class="pkg-comm">$670.00</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- HOW EARNINGS FLOW -->
+    <div class="divider"><div class="div-line"></div><div class="div-text">How Your Earnings Flow</div><div class="div-line"></div></div>
+    <div class="flow-section">
+        <div class="flow-steps">
+            <div class="flow-step">
+                <div class="flow-num">01</div>
+                <div class="flow-title">You Join Free</div>
+                <div class="flow-desc">Register and get your unique affiliate referral link.</div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-num">02</div>
+                <div class="flow-title">Share Your Link</div>
+                <div class="flow-desc">Share with advertisers, marketers, content creators.</div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-num">03</div>
+                <div class="flow-title">They Activate</div>
+                <div class="flow-desc">Your referral joins and activates an advertising package.</div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-num">04</div>
+                <div class="flow-title">You Earn</div>
+                <div class="flow-desc">20% direct + 8% matching paid instantly to your wallet.</div>
+            </div>
+            <div class="flow-step">
+                <div class="flow-num">05</div>
+                <div class="flow-title">Matrix Grows</div>
+                <div class="flow-desc">Your downline deepens and matrix earnings compound across 10 levels.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="divider"><div class="div-line"></div><div class="div-text">Common Questions</div><div class="div-line"></div></div>
+    <div class="faq-section">
+        <div class="faq-grid">
+            <div class="faq-item">
+                <div class="faq-q">When do I get paid?</div>
+                <div class="faq-a">Commissions are paid instantly in USDT to your Base Chain wallet the moment a qualifying activation occurs. There are no delays or minimum thresholds.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">Do I need to activate a package to earn?</div>
+                <div class="faq-a">Yes — you must have an active advertising package to participate in the affiliate plan and receive matrix earnings. The minimum package is just $10.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">What is a forced matrix?</div>
+                <div class="faq-a">A 3×10 forced matrix means your first level has 3 positions. Each of those 3 can have 3 more, and so on down 10 levels deep — creating exponential growth potential.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">What is the matching bonus?</div>
+                <div class="faq-a">When one of your direct referrals earns a commission, you automatically receive 8% of what they earned as a matching bonus — on top of your own commissions.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">How is the matrix filled?</div>
+                <div class="faq-a">The matrix is forced, meaning spillover from your upline can fill positions in your matrix automatically — even if you haven't personally referred anyone to that level.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">Is there a limit to how much I can earn?</div>
+                <div class="faq-a">There is no cap. Earnings grow with your network. As your downline grows across all 10 levels, your passive matrix income compounds every time any member activates a package.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta">
+        <h2>Ready to Start <span class="gold">Earning?</span></h2>
+        <p>Join SuperAdPro free, activate your first package, and start building your affiliate network today.</p>
+        <div class="cta-btns">
+            <a href="/register" class="btn-gold">Join SuperAdPro Free →</a>
+            <a href="/packages" class="btn-outline">View All Packages</a>
+        </div>
+    </div>
+
+</div>
 </body>
 </html>

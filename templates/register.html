@@ -32,7 +32,7 @@
         .register-wrap { display:grid; grid-template-columns:1fr 1.2fr; gap:0; max-width:1400px; width:100%; border:1px solid rgba(0,180,120,0.2); border-radius:12px; overflow:hidden; }
 
         /* Left panel */
-        .left-panel { background:rgba(2,18,10,0.95); padding:72px 64px; border-right:1px solid rgba(0,180,120,0.15); display:flex; flex-direction:column; justify-content:center; }
+        .left-panel { background:rgba(2,18,10,0.95); padding:72px 64px; border-right:1px solid rgba(0,180,120,0.15); display:flex; flex-direction:column; justify-content:flex-start; }
         .left-eyebrow { font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(0,220,150,0.6); margin-bottom:16px; }
         .left-title { font-weight:800; font-size:38px; color:#fff; line-height:1.2; margin-bottom:12px; }
         .left-title .gold { color:#c9a84c; }
@@ -162,26 +162,26 @@
             <div class="error-msg" id="errorMsg"></div>
             <div class="success-msg" id="successMsg"></div>
 
-            <form id="registerForm" action="/register" method="POST">
+            <form id="registerForm" action="/register" method="POST" action="/register" method="POST">
                 <div class="form-row">
                     <div class="form-group">
                         <label>First Name</label>
-                        <input type="text" name="first_name" placeholder="John" required>
+                        <input type="text" name="first_name" placeholder="John" value="{{ prefill.first_name if prefill else '' }}" required>
                     </div>
                     <div class="form-group">
                         <label>Last Name</label>
-                        <input type="text" name="last_name" placeholder="Smith" required>
+                        <input type="text" name="last_name" placeholder="Smith" value="{{ prefill.last_name if prefill else '' }}" required>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Username</label>
-                    <input type="text" name="username" placeholder="johnsmith99" required autocomplete="off">
+                    <input type="text" name="username" placeholder="johnsmith99" value="{{ prefill.username if prefill else '' }}" required autocomplete="off">
                 </div>
 
                 <div class="form-group">
                     <label>Email Address</label>
-                    <input type="email" name="email" placeholder="john@example.com" required>
+                    <input type="email" name="email" placeholder="john@example.com" value="{{ prefill.email if prefill else '' }}" required>
                 </div>
 
                 <div class="form-row">
@@ -197,13 +197,13 @@
 
                 <div class="form-group">
                     <label>USDT Wallet Address (Base Chain)</label>
-                    <input type="text" name="wallet_address" placeholder="0x..." required>
+                    <input type="text" name="wallet_address" placeholder="0x..." value="{{ prefill.wallet_address if prefill else '' }}" required>
                     <div class="wallet-hint">🔗 Your Base Chain wallet for receiving USDT payments</div>
                 </div>
 
                 <div class="form-group">
                     <label>Sponsor Username <span style="color:rgba(210,235,220,0.60);font-size:10px;">(optional)</span></label>
-                    <input type="text" name="sponsor" placeholder="Who referred you?">
+                    <input type="text" name="ref" placeholder="Who referred you?" value="{{ sponsor or (prefill.ref if prefill else '') }}">
                 </div>
 
                 <div class="form-group">

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SuperAdPro — Where Advertisers, Marketers & Affiliates Win</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body { background:#020e08; color:#e0ead8; font-family:'Rethink Sans',sans-serif; overflow-x:hidden; }
@@ -109,7 +109,7 @@
         @keyframes progressAnim { 0%{width:5%} 100%{width:98%} }
         .screen-info { display:flex; align-items:center; justify-content:space-between; }
         .screen-title { font-size:10px; font-weight:600; color:rgba(255,255,255,0.8); }
-        .screen-views { font-size:9px; color:rgba(0,220,160,0.8); font-family:'Orbitron',monospace; }
+        .screen-views { font-size:9px; color:rgba(0,220,160,0.8); font-family:'Rethink Sans',sans-serif; }
 
         /* Monitor stand */
         .monitor-stand { width:60px; height:16px; background:linear-gradient(180deg,rgba(0,180,120,0.3),rgba(0,100,70,0.2)); margin:0 auto; border-radius:0 0 4px 4px; }
@@ -120,7 +120,7 @@
         @keyframes cardFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 
         .metric-label { font-size:9px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:rgba(0,200,140,0.6); margin-bottom:3px; }
-        .metric-value { font-family:'Orbitron',monospace; font-size:20px; font-weight:700; color:#c9a84c; line-height:1; }
+        .metric-value { font-family:'Rethink Sans',sans-serif; font-size:20px; font-weight:700; color:#ffffff; line-height:1; }
         .metric-sub { font-size:9px; color:rgba(200,225,210,0.35); margin-top:2px; }
         .metric-badge { display:inline-block; font-size:8px; font-weight:700; letter-spacing:1px; padding:1px 6px; border-radius:2px; margin-top:4px; }
         .badge-up { background:rgba(0,200,100,0.15); color:#00dc96; border:1px solid rgba(0,200,100,0.25); }
@@ -139,7 +139,7 @@
         .stats-strip { display:flex; justify-content:center; max-width:900px; margin:24px auto 0; opacity:0; animation:fadeUp 0.8s ease forwards 1s; }
         .stat { padding:18px 40px; text-align:center; border:1px solid rgba(0,180,120,0.15); border-right:none; background:rgba(2,15,8,0.6); backdrop-filter:blur(8px); flex:1; }
         .stat:last-child { border-right:1px solid rgba(0,180,120,0.15); }
-        .stat-val { font-family:'Orbitron',monospace; font-size:24px; color:#c9a84c; font-weight:700; margin-bottom:4px; }
+        .stat-val { font-family:'Rethink Sans',sans-serif; font-size:24px; color:#ffffff; font-weight:700; margin-bottom:4px; }
         .stat-label { font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(200,225,210,0.35); }
 
         /* ===== SECTION DIVIDER ===== */
@@ -175,7 +175,7 @@
         .steps { display:grid; grid-template-columns:repeat(4,1fr); gap:0; position:relative; }
         .steps::before { content:''; position:absolute; top:28px; left:12.5%; right:12.5%; height:1px; background:linear-gradient(90deg,rgba(0,180,120,0.3),rgba(201,168,76,0.4),rgba(0,180,120,0.3)); }
         .step { text-align:center; padding:0 16px; }
-        .step-num { width:56px; height:56px; border-radius:50%; background:rgba(2,14,8,0.9); border:2px solid rgba(0,200,140,0.4); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; font-family:'Orbitron',monospace; font-size:18px; font-weight:700; color:#00dc96; box-shadow:0 0 20px rgba(0,200,140,0.15); }
+        .step-num { width:56px; height:56px; border-radius:50%; background:rgba(2,14,8,0.9); border:2px solid rgba(0,200,140,0.4); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; font-family:'Rethink Sans',sans-serif; font-size:18px; font-weight:700; color:#00dc96; box-shadow:0 0 20px rgba(0,200,140,0.15); }
         .step-title { font-weight:700; font-size:13px; color:#c9a84c; margin-bottom:8px; letter-spacing:0.5px; }
         .step-desc { font-size:12px; color:rgba(200,225,210,0.45); line-height:1.6; }
 
@@ -187,7 +187,7 @@
         .matrix-card.featured { border-color:rgba(201,168,76,0.4); }
         .matrix-card.featured::before { content:'POPULAR'; position:absolute; top:8px; right:8px; font-size:7px; font-weight:700; letter-spacing:2px; color:#c9a84c; background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.3); padding:2px 6px; border-radius:2px; }
         .matrix-tier { font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(0,200,140,0.6); margin-bottom:6px; }
-        .matrix-price { font-family:'Orbitron',monospace; font-size:22px; font-weight:700; color:#c9a84c; margin-bottom:4px; }
+        .matrix-price { font-family:'Rethink Sans',sans-serif; font-size:22px; font-weight:700; color:#ffffff; margin-bottom:4px; }
         .matrix-views { font-size:11px; color:rgba(200,225,210,0.5); margin-bottom:10px; }
         .matrix-join { font-size:11px; font-weight:600; color:#020e08; background:linear-gradient(135deg,#ffe89a,#c9a84c); padding:6px 16px; border-radius:3px; display:inline-block; text-decoration:none; transition:all 0.2s; }
         .matrix-join:hover { box-shadow:0 0 20px rgba(201,168,76,0.4); }
@@ -253,7 +253,7 @@
 <nav>
     <a href="/" class="nav-logo">
         <svg width="26" height="26"><use href="#shield"/></svg>
-        <span class="nav-brand">Super Ad Pro</span>
+        <span class="nav-brand">SuperAdPro</span>
     </a>
     <ul class="nav-links">
         <li><a href="/how-it-works">Advertise</a></li>
@@ -531,7 +531,7 @@
 <footer>
     <a href="/" class="footer-logo">
         <svg width="22" height="22"><use href="#shield"/></svg>
-        <span class="footer-brand">Super Ad Pro</span>
+        <span class="footer-brand">SuperAdPro</span>
     </a>
     <div class="footer-links">
         <a href="/legal">Legal</a>

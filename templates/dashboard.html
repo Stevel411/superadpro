@@ -245,7 +245,7 @@
         <div class="user-mini">
             <div class="user-avatar">SL</div>
             <div>
-                <div class="user-name">Steve L.</div>
+                <div class="user-name">{{ display_name }}</div>
                 <div class="user-role">Pro Member</div>
             </div>
         </div>
@@ -257,9 +257,15 @@
 <div class="main">
 
     <!-- TOP BAR -->
-    <div class="topbar">
+    {% if not is_active %}
+<div style="position:relative;z-index:50;background:rgba(201,168,76,0.12);border-bottom:1px solid rgba(201,168,76,0.3);padding:10px 24px;font-size:13px;color:rgba(255,220,100,0.9);display:flex;align-items:center;justify-content:space-between;">
+    <span>⚡ Your account is not yet activated. Activate a package to start advertising and earning.</span>
+    <a href="/packages" style="font-weight:700;color:#c9a84c;text-decoration:none;white-space:nowrap;margin-left:20px;">View Packages →</a>
+</div>
+{% endif %}
+<div class="topbar">
         <div class="topbar-left">
-            <h1>Welcome back, Steve 👋</h1>
+            <h1>Welcome back, {{ display_name }} 👋</h1>
             <p>Here's what's happening with your campaigns today</p>
         </div>
         <div class="topbar-right">
@@ -280,7 +286,7 @@
             <div class="stat-card green">
                 <span class="sc-icon">🎬</span>
                 <div class="sc-label">Total Views Delivered</div>
-                <div class="sc-value">128,450</div>
+                <div class="sc-value">{{ "{:,}".format(matrix_positions * 1000) if matrix_positions else "0" }}</div>
                 <div class="sc-change">▲ +12,300 this week</div>
                 <div class="sc-bg">👁</div>
             </div>
@@ -294,14 +300,14 @@
             <div class="stat-card teal">
                 <span class="sc-icon">💰</span>
                 <div class="sc-label">Total Affiliate Earned</div>
-                <div class="sc-value">$247.50</div>
+                <div class="sc-value">${{ "%.2f"|format(total_earned) }}</div>
                 <div class="sc-change">▲ +$42.00 this week</div>
                 <div class="sc-bg">💎</div>
             </div>
             <div class="stat-card purple">
                 <span class="sc-icon">◈</span>
                 <div class="sc-label">Matrix Referrals</div>
-                <div class="sc-value">7</div>
+                <div class="sc-value">{{ personal_referrals }}</div>
                 <div class="sc-change">▲ 2 new this week</div>
                 <div class="sc-bg">🌐</div>
             </div>
@@ -427,7 +433,7 @@
                         </div>
 
                         <div class="matrix-stats">
-                            <div class="ms"><div class="ms-val">7</div><div class="ms-label">Total Refs</div></div>
+                            <div class="ms"><div class="ms-val">{{ personal_referrals }}</div><div class="ms-label">Total Refs</div></div>
                             <div class="ms"><div class="ms-val">2</div><div class="ms-label">This Week</div></div>
                             <div class="ms"><div class="ms-val">$84</div><div class="ms-label">Earned</div></div>
                         </div>
@@ -449,7 +455,7 @@
                     <div class="wallet-balance-big">
                         <div class="wb-label">Available Balance</div>
                         <div class="wb-amount">247.50 <span class="wb-currency">USDT</span></div>
-                        <div class="wb-address">0xF5D7...E1483 · Base Chain</div>
+                        <div class="wb-address">{{ wallet_address[:6] }}...{{ wallet_address[-4:] if wallet_address else "Not set" }} · Base Chain</div>
                     </div>
                     <div class="wallet-actions">
                         <button class="wallet-btn wbtn-gold">⬇ Withdraw USDT</button>
@@ -502,7 +508,7 @@
                     </div>
 
                     <div class="aff-stats">
-                        <div class="aff-s"><div class="aff-s-val">7</div><div class="aff-s-label">Referrals</div></div>
+                        <div class="aff-s"><div class="aff-s-val">{{ personal_referrals }}</div><div class="aff-s-label">Referrals</div></div>
                         <div class="aff-s"><div class="aff-s-val">$84</div><div class="aff-s-label">Earned</div></div>
                         <div class="aff-s"><div class="aff-s-val">28%</div><div class="aff-s-label">Commission</div></div>
                     </div>
