@@ -3,56 +3,554 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>How It Works - SuperAdPro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>How It Works — SuperAdPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        .neon { text-shadow: 0 0 25px #10b981; }
-        .glass { background: rgba(16, 185, 129, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.3); }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#020e08; color:#e0ead8; font-family:'Rethink Sans',sans-serif; min-height:100vh; }
+
+        .bg { position:fixed; inset:0; z-index:0;
+            background: radial-gradient(ellipse 100% 60% at 50% 0%, rgba(0,100,70,0.4) 0%, transparent 65%),
+                        radial-gradient(ellipse 60% 50% at 85% 60%, rgba(0,80,120,0.1) 0%, transparent 60%),
+                        linear-gradient(180deg,#010f09 0%,#021a10 30%,#010a05 100%);
+        }
+        .grid { position:fixed; inset:0; z-index:1; pointer-events:none;
+            background-image:linear-gradient(rgba(0,180,120,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,120,0.03) 1px,transparent 1px);
+            background-size:55px 55px;
+        }
+
+        nav { position:relative; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 36px; height:60px; background:rgba(1,10,5,0.85); backdrop-filter:blur(18px); border-bottom:1px solid rgba(0,180,120,0.12); }
+        .nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; }
+        .nav-brand { font-weight:800; font-size:15px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#ffe89a,#c9a84c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .nav-links { display:flex; align-items:center; gap:6px; list-style:none; }
+        .nav-links a { font-size:13px; font-weight:500; color:rgba(220,242,230,0.65); text-decoration:none; padding:4px 10px; transition:color 0.2s; }
+        .nav-links a:hover { color:#fff; }
+        .nav-cta { font-weight:700; font-size:13px; color:#020e08; background:linear-gradient(135deg,#ffe89a,#d4a840); padding:8px 22px; border-radius:5px; text-decoration:none; transition:all 0.3s; }
+        .nav-cta:hover { box-shadow:0 4px 24px rgba(201,168,76,0.4); transform:translateY(-1px); }
+
+        .page { position:relative; z-index:10; max-width:1100px; margin:0 auto; padding:60px 32px 80px; }
+
+        /* Hero */
+        .hero { text-align:center; margin-bottom:72px; }
+        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(0,220,150,0.75); border:1px solid rgba(0,220,150,0.2); border-radius:50px; padding:5px 16px; margin-bottom:20px; }
+        .dot { width:6px; height:6px; border-radius:50%; background:#00dc96; animation:blink 2s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+        h1 { font-weight:800; font-size:clamp(28px,4vw,54px); color:#fff; line-height:1.1; margin-bottom:16px; }
+        h1 .gold { color:#c9a84c; }
+        .hero-sub { font-size:17px; color:rgba(220,242,230,0.72); max-width:620px; margin:0 auto; line-height:1.75; }
+
+        /* Divider */
+        .divider { display:flex; align-items:center; gap:14px; margin:64px 0 36px; }
+        .div-line { flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(0,180,120,0.25),transparent); }
+        .div-text { font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(220,242,230,0.4); white-space:nowrap; }
+
+        /* ===== AUDIENCE TABS ===== */
+        .tabs { display:flex; gap:0; border:1px solid rgba(0,180,120,0.2); border-radius:8px; overflow:hidden; margin-bottom:48px; }
+        .tab { flex:1; padding:18px 24px; text-align:center; cursor:pointer; border-right:1px solid rgba(0,180,120,0.15); transition:all 0.25s; background:rgba(2,16,9,0.8); }
+        .tab:last-child { border-right:none; }
+        .tab:hover { background:rgba(3,22,12,0.9); }
+        .tab.active { background:rgba(0,180,120,0.1); border-bottom:2px solid #00dc96; }
+        .tab-icon { font-size:24px; display:block; margin-bottom:6px; }
+        .tab-label { font-size:14px; font-weight:700; color:#fff; margin-bottom:3px; }
+        .tab-sub { font-size:12px; color:rgba(220,242,230,0.5); }
+        .tab.active .tab-sub { color:rgba(0,220,150,0.7); }
+
+        /* ===== STEPS ===== */
+        .steps-panel { display:none; }
+        .steps-panel.active { display:block; }
+
+        .step-row { display:grid; grid-template-columns:80px 1fr; gap:0; margin-bottom:0; }
+        .step-row:last-child .step-line { display:none; }
+
+        .step-left { display:flex; flex-direction:column; align-items:center; }
+        .step-circle { width:60px; height:60px; border-radius:50%; background:rgba(2,16,9,0.95); border:2px solid rgba(0,200,140,0.4); display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800; color:#00dc96; flex-shrink:0; box-shadow:0 0 20px rgba(0,200,140,0.12); position:relative; z-index:1; }
+        .step-line { width:2px; flex:1; background:linear-gradient(180deg,rgba(0,200,140,0.3),rgba(0,200,140,0.05)); min-height:40px; margin:6px 0; }
+
+        .step-right { padding:0 0 48px 28px; }
+        .step-tag { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(0,220,150,0.6); margin-bottom:6px; }
+        .step-title { font-size:22px; font-weight:800; color:#fff; margin-bottom:10px; line-height:1.2; }
+        .step-desc { font-size:15px; color:rgba(220,242,230,0.72); line-height:1.75; margin-bottom:16px; }
+        .step-points { list-style:none; display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+        .step-points li { display:flex; align-items:flex-start; gap:10px; font-size:14px; color:rgba(220,242,230,0.75); line-height:1.5; }
+        .step-points li::before { content:'→'; color:#00dc96; font-weight:700; flex-shrink:0; margin-top:1px; }
+        .step-card { display:inline-flex; align-items:center; gap:8px; background:rgba(0,0,0,0.3); border:1px solid rgba(0,180,120,0.2); border-radius:6px; padding:10px 16px; font-size:13px; color:rgba(220,242,230,0.75); }
+        .step-card strong { color:#c9a84c; }
+
+        /* ===== HOW PAYMENT FLOWS ===== */
+        .payment-flow { background:rgba(2,16,9,0.92); border:1px solid rgba(0,180,120,0.18); border-radius:10px; padding:36px; margin-bottom:56px; }
+        .pf-title { font-size:18px; font-weight:800; color:#fff; margin-bottom:6px; }
+        .pf-sub { font-size:14px; color:rgba(220,242,230,0.6); margin-bottom:28px; }
+        .pf-flow { display:flex; align-items:center; gap:0; flex-wrap:wrap; }
+        .pf-node { text-align:center; flex:1; min-width:120px; }
+        .pf-icon-wrap { width:64px; height:64px; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:26px; border:2px solid; }
+        .pf-node-label { font-size:12px; font-weight:700; color:#fff; margin-bottom:3px; }
+        .pf-node-sub { font-size:11px; color:rgba(220,242,230,0.5); }
+        .pf-arrow { font-size:22px; color:rgba(0,200,140,0.4); flex-shrink:0; padding:0 8px; margin-bottom:24px; }
+        .pf-pct { font-size:13px; font-weight:800; color:#00dc96; margin-top:4px; }
+
+        /* ===== MATRIX EXPLAINER ===== */
+        .matrix-explainer { background:rgba(2,16,9,0.92); border:1px solid rgba(0,180,120,0.18); border-radius:10px; padding:36px; margin-bottom:56px; }
+        .me-grid { display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start; }
+        .me-title { font-size:18px; font-weight:800; color:#fff; margin-bottom:6px; }
+        .me-sub { font-size:14px; color:rgba(220,242,230,0.6); margin-bottom:20px; }
+        .me-points { list-style:none; display:flex; flex-direction:column; gap:12px; }
+        .me-point { display:flex; align-items:flex-start; gap:12px; font-size:14px; color:rgba(220,242,230,0.78); line-height:1.55; }
+        .me-num { width:26px; height:26px; border-radius:50%; background:rgba(0,200,140,0.1); border:1px solid rgba(0,200,140,0.25); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#00dc96; flex-shrink:0; margin-top:1px; }
+
+        /* Matrix tree visual */
+        .matrix-tree { text-align:center; }
+        .mt-row { display:flex; justify-content:center; gap:8px; margin-bottom:4px; }
+        .mt-node { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; border:2px solid; }
+        .mt-you { background:rgba(0,200,140,0.15); border-color:#00dc96; box-shadow:0 0 16px rgba(0,200,140,0.2); }
+        .mt-filled { background:rgba(201,168,76,0.1); border-color:rgba(201,168,76,0.4); }
+        .mt-open { background:rgba(0,0,0,0.3); border-color:rgba(0,180,120,0.2); border-style:dashed; color:rgba(220,242,230,0.3); font-size:16px; }
+        .mt-connector { display:flex; justify-content:center; margin-bottom:4px; }
+        .mt-line { width:1px; height:14px; background:rgba(0,200,140,0.25); }
+        .mt-label { font-size:10px; color:rgba(220,242,230,0.45); text-transform:uppercase; letter-spacing:1px; margin-top:4px; margin-bottom:16px; }
+        .mt-level-label { font-size:10px; color:rgba(0,220,150,0.5); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+
+        /* ===== USDT / BLOCKCHAIN SECTION ===== */
+        .blockchain-section { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:56px; }
+        .bc-card { background:rgba(2,16,9,0.92); border:1px solid rgba(0,180,120,0.18); border-radius:10px; padding:28px; }
+        .bc-icon { font-size:36px; margin-bottom:14px; display:block; }
+        .bc-title { font-size:17px; font-weight:800; color:#fff; margin-bottom:8px; }
+        .bc-desc { font-size:14px; color:rgba(220,242,230,0.68); line-height:1.7; margin-bottom:16px; }
+        .bc-points { list-style:none; display:flex; flex-direction:column; gap:8px; }
+        .bc-point { display:flex; align-items:flex-start; gap:9px; font-size:13px; color:rgba(220,242,230,0.72); }
+        .bc-point::before { content:'✓'; color:#00dc96; font-weight:700; flex-shrink:0; }
+
+        /* ===== FAQ MINI ===== */
+        .faq-mini { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:56px; }
+        .faq-item { background:rgba(2,16,9,0.9); border:1px solid rgba(0,180,120,0.15); border-radius:8px; padding:20px 22px; }
+        .faq-q { font-size:14px; font-weight:700; color:#fff; margin-bottom:8px; display:flex; align-items:flex-start; gap:10px; }
+        .faq-q::before { content:'Q'; font-size:10px; font-weight:800; color:#00dc96; background:rgba(0,200,140,0.1); border:1px solid rgba(0,200,140,0.2); border-radius:3px; padding:1px 7px; flex-shrink:0; margin-top:2px; }
+        .faq-a { font-size:13px; color:rgba(220,242,230,0.68); line-height:1.65; padding-left:30px; }
+
+        /* CTA */
+        .cta { text-align:center; padding:56px 32px; background:rgba(2,16,9,0.9); border:1px solid rgba(0,180,120,0.18); border-radius:12px; }
+        .cta h2 { font-weight:800; font-size:clamp(24px,3vw,40px); color:#fff; margin-bottom:10px; }
+        .cta h2 .gold { color:#c9a84c; }
+        .cta p { font-size:15px; color:rgba(220,242,230,0.65); margin-bottom:28px; }
+        .cta-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+        .btn-gold { font-weight:700; font-size:15px; color:#020e08; background:linear-gradient(135deg,#ffe89a,#c9a84c); padding:14px 36px; border-radius:5px; text-decoration:none; transition:all 0.3s; }
+        .btn-gold:hover { box-shadow:0 0 40px rgba(201,168,76,0.45); transform:translateY(-2px); }
+        .btn-outline { font-weight:600; font-size:15px; color:rgba(220,242,230,0.8); padding:13px 36px; border-radius:5px; border:1px solid rgba(0,180,120,0.3); text-decoration:none; transition:all 0.3s; }
+        .btn-outline:hover { border-color:rgba(0,220,150,0.6); color:#fff; }
+
+        @media(max-width:800px) {
+            .tabs { flex-direction:column; }
+            .tab { border-right:none; border-bottom:1px solid rgba(0,180,120,0.15); }
+            .me-grid { grid-template-columns:1fr; }
+            .blockchain-section { grid-template-columns:1fr; }
+            .faq-mini { grid-template-columns:1fr; }
+            .pf-flow { justify-content:center; }
+        }
     </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100">
+<body>
+<div class="bg"></div>
+<div class="grid"></div>
 
-    <!-- New Navigation with Back + Home -->
-    <nav class="glass border-b border-emerald-500/30">
-        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl neon">SA</div>
-                <span class="text-3xl font-bold tracking-tighter neon">SuperAdPro</span>
-            </div>
-            <div class="flex gap-4">
-                <button onclick="history.back()" class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-sm font-semibold rounded-3xl transition flex items-center gap-2">
-                    ← Back
-                </button>
-                <a href="/" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-sm font-semibold rounded-3xl transition">Home</a>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffe89a"/><stop offset="30%" stop-color="#c9a84c"/><stop offset="70%" stop-color="#7a5c10"/><stop offset="100%" stop-color="#c9a84c"/></linearGradient>
+    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1a3520"/><stop offset="40%" stop-color="#0d2018"/><stop offset="100%" stop-color="#050e08"/></linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7a5c10"/><stop offset="50%" stop-color="#c9a84c"/><stop offset="100%" stop-color="#7a5c10"/></linearGradient>
+    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
+    <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="sc"><path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z"/></clipPath>
+    <symbol id="shield" viewBox="0 0 130 122">
+      <path d="M17 10 L117 10 L127 48 L67 118 L7 48 Z" fill="rgba(0,0,0,0.5)" transform="translate(3,4)"/>
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#sf)" stroke="url(#ob)" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M22 15 L108 15 L116 46 L65 105 L14 46 Z" fill="none" stroke="url(#ob)" stroke-width="1.5" stroke-linejoin="round" opacity="0.5"/>
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#hl)" clip-path="url(#sc)"/>
+      <path d="M23 31 L65 37 L107 31" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M29 49 L65 54 L101 49" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M37 67 L65 71 L93 67" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M47 84 L65 87 L83 84" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+    </symbol>
+  </defs>
+</svg>
+
+<nav>
+    <a href="/" class="nav-logo">
+        <svg width="26" height="26"><use href="#shield"/></svg>
+        <span class="nav-brand">SuperAdPro</span>
+    </a>
+    <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/how-it-works" style="color:#00dc96">How It Works</a></li>
+        <li><a href="/compensation-plan">Affiliates</a></li>
+        <li><a href="/packages">Packages</a></li>
+    </ul>
+    <a href="/register" class="nav-cta">Join Free</a>
+</nav>
+
+<div class="page">
+
+    <!-- HERO -->
+    <div class="hero">
+        <div class="eyebrow"><div class="dot"></div>Simple · Transparent · Powerful</div>
+        <h1>Everything You Need to Know<br><span class="gold">About SuperAdPro.</span></h1>
+        <p class="hero-sub">Whether you're an advertiser looking for guaranteed video views, a marketer wanting smarter campaigns, or an affiliate building passive income — here's exactly how SuperAdPro works for you.</p>
+    </div>
+
+    <!-- AUDIENCE TABS -->
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('advertiser', this)">
+            <span class="tab-icon">🎬</span>
+            <div class="tab-label">For Advertisers</div>
+            <div class="tab-sub">Get your video seen</div>
+        </div>
+        <div class="tab" onclick="showTab('marketer', this)">
+            <span class="tab-icon">📊</span>
+            <div class="tab-label">For Marketers</div>
+            <div class="tab-sub">Launch smarter campaigns</div>
+        </div>
+        <div class="tab" onclick="showTab('affiliate', this)">
+            <span class="tab-icon">🤝</span>
+            <div class="tab-label">For Affiliates</div>
+            <div class="tab-sub">Build passive income</div>
+        </div>
+    </div>
+
+    <!-- ADVERTISER STEPS -->
+    <div class="steps-panel active" id="panel-advertiser">
+        <div class="step-row">
+            <div class="step-left"><div class="step-circle">01</div><div class="step-line"></div></div>
+            <div class="step-right">
+                <div class="step-tag">Step One</div>
+                <div class="step-title">Create Your Free Account</div>
+                <div class="step-desc">Registration takes under 60 seconds. Enter your details, connect your Base Chain USDT wallet, and you're in. No subscription, no hidden fees.</div>
+                <ul class="step-points">
+                    <li>Enter your name, email and username</li>
+                    <li>Connect your Base Chain wallet address for payments</li>
+                    <li>Enter your beta access code if you have one</li>
+                </ul>
+                <div class="step-card">🔗 Wallet required: <strong>Base Chain (USDT)</strong></div>
             </div>
         </div>
-    </nav>
-
-    <div class="max-w-7xl mx-auto px-6 py-16">
-        <h1 class="text-6xl font-bold tracking-tighter neon text-center mb-16">How SuperAdPro Works</h1>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="glass rounded-3xl p-10 text-center">
-                <div class="text-6xl mb-6">1️⃣</div>
-                <h3 class="text-2xl font-semibold mb-4">Join for $10/month</h3>
-                <p class="text-zinc-400">Unlimited access to private 5-minute marketing & sales training videos.</p>
+        <div class="step-row">
+            <div class="step-left"><div class="step-circle">02</div><div class="step-line"></div></div>
+            <div class="step-right">
+                <div class="step-tag">Step Two</div>
+                <div class="step-title">Choose an Advertising Package</div>
+                <div class="step-desc">Select from 8 advertising packages ranging from $10 to $1,000 USDT. Each package unlocks a set number of guaranteed video views delivered to real, engaged audiences.</div>
+                <ul class="step-points">
+                    <li>Starter ($10) — 5,000 guaranteed views</li>
+                    <li>Pro ($100) — 80,000 guaranteed views — most popular</li>
+                    <li>Ultimate ($1,000) — 1,200,000 guaranteed views</li>
+                </ul>
+                <div class="step-card">📦 All packages include: <strong>AI optimisation + analytics dashboard</strong></div>
             </div>
-            <div class="glass rounded-3xl p-10 text-center">
-                <div class="text-6xl mb-6">2️⃣</div>
-                <h3 class="text-2xl font-semibold mb-4">Share Your Link</h3>
-                <p class="text-zinc-400">You receive <strong class="text-emerald-400">100% of the $10 monthly renewal</strong> automatically.</p>
+        </div>
+        <div class="step-row">
+            <div class="step-left"><div class="step-circle">03</div><div class="step-line"></div></div>
+            <div class="step-right">
+                <div class="step-tag">Step Three</div>
+                <div class="step-title">Pay Securely in USDT</div>
+                <div class="step-desc">Activate your chosen package by sending USDT on the Base Chain to our platform wallet. Payments are verified on-chain and your campaign is activated instantly once confirmed.</div>
+                <ul class="step-points">
+                    <li>Send USDT from your wallet to the SuperAdPro platform address</li>
+                    <li>On-chain verification — no intermediaries</li>
+                    <li>Campaign activates automatically on confirmation</li>
+                </ul>
+                <div class="step-card">⚡ Average confirmation time: <strong>Under 30 seconds</strong></div>
             </div>
-            <div class="glass rounded-3xl p-10 text-center">
-                <div class="text-6xl mb-6">3️⃣</div>
-                <h3 class="text-2xl font-semibold mb-4">Activate Matrix</h3>
-                <p class="text-zinc-400">Optional one-time fees unlock the 3×10 forced matrix with matching bonuses.</p>
+        </div>
+        <div class="step-row">
+            <div class="step-left"><div class="step-circle">04</div><div class="step-line"></div></div>
+            <div class="step-right">
+                <div class="step-tag">Step Four</div>
+                <div class="step-title">Upload Your Video & Set Your Audience</div>
+                <div class="step-desc">Upload your video ad directly to the SuperAdPro platform. Set your target audience preferences and our AI engine takes over — optimising delivery for maximum reach and engagement.</div>
+                <ul class="step-points">
+                    <li>Upload MP4 video directly to your dashboard</li>
+                    <li>Set audience targeting — interests, geography, demographics</li>
+                    <li>AI continuously optimises delivery throughout the campaign</li>
+                </ul>
+                <div class="step-card">🤖 AI optimisation runs: <strong>24/7 automatically</strong></div>
+            </div>
+        </div>
+        <div class="step-row">
+            <div class="step-left"><div class="step-circle">05</div></div>
+            <div class="step-right">
+                <div class="step-tag">Step Five</div>
+                <div class="step-title">Track Performance in Real Time</div>
+                <div class="step-desc">Your dashboard shows every view, click and engagement as it happens. Watch your view count climb in real time and download campaign reports whenever you need them.</div>
+                <ul class="step-points">
+                    <li>Live view counter and engagement metrics</li>
+                    <li>Click-through rate and audience breakdown</li>
+                    <li>Full campaign history and downloadable reports</li>
+                </ul>
+                <div class="step-card">📊 Dashboard updates: <strong>Every 60 seconds</strong></div>
             </div>
         </div>
     </div>
 
-    <!-- Legal Disclaimer Button -->
-    <div class="text-center py-8 border-t border-zinc-800">
-        <a href="/legal" class="text-sm text-zinc-400 hover:text-emerald-400 transition">Legal Disclaimer</a>
+    <!-- MARKETER STEPS -->
+    <div class="steps-panel" id="panel-marketer">
+        <div class="step-row">
+            <div class="step-left"><div class="step-circle">01</div><div class="step-line"></div></div>
+            <div class="step-right">
+                <div class="step-tag">Step One</div>
+                <div class="step-title">Register & Activate a Package</div>
+                <div class="step-desc">Create your account and activate an advertising package. From the Pro tier upwards, you unlock advanced audience targeting and multi-campaign management tools.</div>
+                <ul class="step-points">
+                    <li>Register free — takes under 60 seconds</li>
+                    <li>Activate any package to unlock the campaign tools</li>
+                    <li>Pro ($100) and above unlock advanced targeting</li>
+                </ul>
+            </div>
+        </div>
+        <div class="step-row">
+            <div class="step-left"><div class="step-circle">02</div><div class="step-line"></div></div>
+            <div class="step-right">
+                <div class="step-tag">Step Two</div>
+                <div class="step-title">Build Your Campaign with AI</div>
+                <div class="step-desc">Upload your video creative, define your objectives, and let the AI engine generate optimised targeting parameters. The system analyses your content and matches it to the most relevant audience segments.</div>
+                <ul class="step-points">
+                    <li>AI analyses your video and auto-suggests audience segments</li>
+                    <li>Set campaign goals: views, clicks, or engagement</li>
+                    <li>Run multiple campaigns simultaneously from one dashboard</li>
+                </ul>
+                <div class="step-card">🤖 AI generates: <strong>Audience segments + delivery schedule</strong></div>
+            </div>
+        </div>
+        <div class="step-row">
+            <div class="step-left"><div class="step-circle">03</div><div class="step-line"></div></div>
+            <div class="step-right">
+                <div class="step-tag">Step Three</div>
+                <div class="step-title">Monitor, Optimise & Scale</div>
+                <div class="step-desc">Real-time analytics show exactly how each campaign is performing. Pause, adjust or scale campaigns at any time. Activate additional packages to increase reach as your campaigns succeed.</div>
+                <ul class="step-points">
+                    <li>Live CTR, view depth and audience retention metrics</li>
+                    <li>A/B test different creative versions</li>
+                    <li>Scale winning campaigns with one click</li>
+                </ul>
+                <div class="step-card">📈 Average CTR across platform: <strong>28%</strong></div>
+            </div>
+        </div>
     </div>
+
+    <!-- AFFILIATE STEPS -->
+    <div class="steps-panel" id="panel-affiliate">
+        <div class="step-row">
+            <div class="step-left"><div class="step-circle">01</div><div class="step-line"></div></div>
+            <div class="step-right">
+                <div class="step-tag">Step One</div>
+                <div class="step-title">Register & Activate Your First Package</div>
+                <div class="step-desc">To participate in the affiliate programme, you must be an active member with at least one advertising package activated. The minimum entry is just $10 USDT.</div>
+                <ul class="step-points">
+                    <li>Register free and connect your USDT wallet</li>
+                    <li>Activate any package from $10 to unlock affiliate earnings</li>
+                    <li>Your matrix position is created instantly on activation</li>
+                </ul>
+                <div class="step-card">💡 Minimum to earn: <strong>$10 Starter Package</strong></div>
+            </div>
+        </div>
+        <div class="step-row">
+            <div class="step-left"><div class="step-circle">02</div><div class="step-line"></div></div>
+            <div class="step-right">
+                <div class="step-tag">Step Two</div>
+                <div class="step-title">Share Your Unique Referral Link</div>
+                <div class="step-desc">Every member receives a unique referral link. Share it with advertisers, content creators, marketers and anyone who could benefit from the platform. Every time someone registers and activates through your link, you earn.</div>
+                <ul class="step-points">
+                    <li>Find your referral link in the Affiliate Tools section of your dashboard</li>
+                    <li>Share via email, social media, messaging apps or your website</li>
+                    <li>Track all clicks and conversions in real time</li>
+                </ul>
+                <div class="step-card">🔗 Your link: <strong>superadpro.com/ref/yourusername</strong></div>
+            </div>
+        </div>
+        <div class="step-row">
+            <div class="step-left"><div class="step-circle">03</div><div class="step-line"></div></div>
+            <div class="step-right">
+                <div class="step-tag">Step Three</div>
+                <div class="step-title">Earn Direct & Matching Commissions</div>
+                <div class="step-desc">When someone you referred activates a package, you instantly receive 20% of the package value as a direct commission. You also earn an 8% matching bonus on every commission your direct referrals earn.</div>
+                <ul class="step-points">
+                    <li>20% direct commission — paid instantly to your USDT wallet</li>
+                    <li>8% matching bonus on your referrals' earnings</li>
+                    <li>No caps, no delays, no minimums</li>
+                </ul>
+                <div class="step-card">💰 Example: Referral activates $100 Pro → <strong>You earn $20.00 instantly</strong></div>
+            </div>
+        </div>
+        <div class="step-row">
+            <div class="step-left"><div class="step-circle">04</div></div>
+            <div class="step-right">
+                <div class="step-tag">Step Four</div>
+                <div class="step-title">Grow Your Matrix & Earn Passively</div>
+                <div class="step-desc">As your network grows, your 3×10 forced matrix fills up across 10 levels. Every activation anywhere in your matrix generates earnings for you — even from members you never personally referred.</div>
+                <ul class="step-points">
+                    <li>67% of every package activation goes to the matrix pool</li>
+                    <li>Distributed across 10 levels — 6.7% per level</li>
+                    <li>Spillover from your upline fills your matrix automatically</li>
+                </ul>
+                <div class="step-card">◈ Full matrix (10 levels): <strong>Up to 88,573 positions</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAYMENT FLOW -->
+    <div class="divider"><div class="div-line"></div><div class="div-text">How Every Payment Is Distributed</div><div class="div-line"></div></div>
+    <div class="payment-flow">
+        <div class="pf-title">Where Your Package Payment Goes</div>
+        <div class="pf-sub">Every time a member activates an advertising package, the USDT payment is split and distributed automatically on-chain.</div>
+        <div class="pf-flow">
+            <div class="pf-node">
+                <div class="pf-icon-wrap" style="background:rgba(0,200,140,0.1);border-color:rgba(0,200,140,0.3)">💳</div>
+                <div class="pf-node-label">Member Pays</div>
+                <div class="pf-node-sub">e.g. $100 USDT</div>
+            </div>
+            <div class="pf-arrow">→</div>
+            <div class="pf-node">
+                <div class="pf-icon-wrap" style="background:rgba(255,100,80,0.1);border-color:rgba(255,100,80,0.3)">🏢</div>
+                <div class="pf-node-label">Company</div>
+                <div class="pf-node-sub">Operations</div>
+                <div class="pf-pct">5%</div>
+            </div>
+            <div class="pf-arrow">→</div>
+            <div class="pf-node">
+                <div class="pf-icon-wrap" style="background:rgba(201,168,76,0.1);border-color:rgba(201,168,76,0.3)">🤝</div>
+                <div class="pf-node-label">Your Sponsor</div>
+                <div class="pf-node-sub">Direct commission</div>
+                <div class="pf-pct">20%</div>
+            </div>
+            <div class="pf-arrow">→</div>
+            <div class="pf-node">
+                <div class="pf-icon-wrap" style="background:rgba(0,200,210,0.1);border-color:rgba(0,200,210,0.3)">🔁</div>
+                <div class="pf-node-label">Matching Bonus</div>
+                <div class="pf-node-sub">Sponsor's sponsor</div>
+                <div class="pf-pct">8%</div>
+            </div>
+            <div class="pf-arrow">→</div>
+            <div class="pf-node">
+                <div class="pf-icon-wrap" style="background:rgba(0,200,140,0.1);border-color:rgba(0,200,140,0.3)">◈</div>
+                <div class="pf-node-label">Matrix Pool</div>
+                <div class="pf-node-sub">10 levels deep</div>
+                <div class="pf-pct">67%</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MATRIX EXPLAINER -->
+    <div class="divider"><div class="div-line"></div><div class="div-text">Understanding the 3×10 Forced Matrix</div><div class="div-line"></div></div>
+    <div class="matrix-explainer">
+        <div class="me-grid">
+            <div>
+                <div class="me-title">How the Matrix Works</div>
+                <div class="me-sub">The 3×10 forced matrix is the engine behind your passive income on SuperAdPro.</div>
+                <ul class="me-points">
+                    <li class="me-point"><div class="me-num">1</div>When you activate a package, a position is created for you in the matrix under your sponsor.</li>
+                    <li class="me-point"><div class="me-num">2</div>Your matrix is 3 wide — meaning you can have 3 people directly below you at Level 1.</li>
+                    <li class="me-point"><div class="me-num">3</div>Each of those 3 can have 3 more, creating 9 at Level 2, 27 at Level 3, and so on down 10 levels.</li>
+                    <li class="me-point"><div class="me-num">4</div>It's <strong>forced</strong> — meaning spillover from your upline can automatically fill positions in your matrix, even without your own referrals.</li>
+                    <li class="me-point"><div class="me-num">5</div>Every time anyone in your matrix activates a package, 6.7% of that payment flows to you for that level.</li>
+                    <li class="me-point"><div class="me-num">6</div>A full 10-level matrix contains up to 88,573 positions — all generating passive income for you.</li>
+                </ul>
+            </div>
+            <div class="matrix-tree">
+                <div class="mt-level-label">You</div>
+                <div class="mt-row"><div class="mt-node mt-you">👤</div></div>
+                <div class="mt-connector"><div class="mt-line"></div></div>
+                <div class="mt-level-label">Level 1 · 3 slots</div>
+                <div class="mt-row">
+                    <div class="mt-node mt-filled">👤</div>
+                    <div class="mt-node mt-filled">👤</div>
+                    <div class="mt-node mt-open">+</div>
+                </div>
+                <div class="mt-connector"><div class="mt-line"></div></div>
+                <div class="mt-level-label">Level 2 · 9 slots</div>
+                <div class="mt-row">
+                    <div class="mt-node mt-filled" style="width:34px;height:34px;font-size:11px">👤</div>
+                    <div class="mt-node mt-filled" style="width:34px;height:34px;font-size:11px">👤</div>
+                    <div class="mt-node mt-open" style="width:34px;height:34px;font-size:14px">+</div>
+                    <div class="mt-node mt-filled" style="width:34px;height:34px;font-size:11px">👤</div>
+                    <div class="mt-node mt-open" style="width:34px;height:34px;font-size:14px">+</div>
+                    <div class="mt-node mt-open" style="width:34px;height:34px;font-size:14px">+</div>
+                </div>
+                <div class="mt-connector"><div class="mt-line"></div></div>
+                <div class="mt-level-label" style="color:rgba(220,242,230,0.3)">Levels 3–10 continue below…</div>
+                <div style="margin-top:20px;background:rgba(0,0,0,0.2);border:1px solid rgba(0,180,120,0.12);border-radius:6px;padding:14px;">
+                    <div style="font-size:13px;color:rgba(220,242,230,0.55);margin-bottom:8px;">Maximum matrix capacity:</div>
+                    <div style="font-size:28px;font-weight:800;color:#fff;">88,573</div>
+                    <div style="font-size:11px;color:rgba(0,220,150,0.6);text-transform:uppercase;letter-spacing:1px;">Total positions across 10 levels</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- USDT & BLOCKCHAIN -->
+    <div class="divider"><div class="div-line"></div><div class="div-text">Payments & Blockchain</div><div class="div-line"></div></div>
+    <div class="blockchain-section">
+        <div class="bc-card">
+            <span class="bc-icon">🔗</span>
+            <div class="bc-title">Why USDT on Base Chain?</div>
+            <div class="bc-desc">SuperAdPro runs entirely on USDT (USD Tether) on the Base blockchain — a fast, low-cost Layer 2 network built on Ethereum. All payments are transparent, verifiable, and instant.</div>
+            <ul class="bc-points">
+                <li>USDT is stable — 1 USDT = $1 USD, always</li>
+                <li>Base Chain transactions cost pennies in gas fees</li>
+                <li>All payments are publicly verifiable on-chain</li>
+                <li>No banks, no delays, no chargebacks</li>
+                <li>Receive earnings directly to your own wallet</li>
+            </ul>
+        </div>
+        <div class="bc-card">
+            <span class="bc-icon">⚡</span>
+            <div class="bc-title">How Payments Work</div>
+            <div class="bc-desc">When you activate a package or earn a commission, all USDT flows directly on-chain. You always control your own wallet — SuperAdPro never holds your funds longer than necessary.</div>
+            <ul class="bc-points">
+                <li>You need a Base Chain compatible wallet (e.g. MetaMask, Coinbase Wallet)</li>
+                <li>Send USDT to the SuperAdPro platform address to activate packages</li>
+                <li>Commissions and matrix earnings are sent to your wallet automatically</li>
+                <li>Withdrawals are processed on-chain — usually within minutes</li>
+                <li>Your wallet address is set at registration and can be updated in your profile</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- FAQ MINI -->
+    <div class="divider"><div class="div-line"></div><div class="div-text">Quick Questions</div><div class="div-line"></div></div>
+    <div class="faq-mini">
+        <div class="faq-item">
+            <div class="faq-q">Do I need crypto experience?</div>
+            <div class="faq-a">Basic knowledge of sending USDT from a wallet is all you need. If you can send a crypto transaction, you can use SuperAdPro. We provide wallet setup guidance in our support section.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q">Can I activate more than one package?</div>
+            <div class="faq-a">Yes — you can activate multiple packages to increase your view count and matrix earnings potential. Each activation creates a new position in the matrix and unlocks additional ad views.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q">How quickly are views delivered?</div>
+            <div class="faq-a">Campaign delivery begins within 24 hours of activation. Views are spread over the campaign period to ensure natural engagement. AI optimisation runs continuously to maximise results.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q">What if I don't have a referral?</div>
+            <div class="faq-a">No problem — you can register without a sponsor. You'll still be placed in the matrix and benefit from spillover. Having a sponsor simply means someone gets credit for referring you.</div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta">
+        <h2>Ready to Get <span class="gold">Started?</span></h2>
+        <p>Join thousands of advertisers, marketers and affiliates already using SuperAdPro.</p>
+        <div class="cta-btns">
+            <a href="/register" class="btn-gold">Create Free Account →</a>
+            <a href="/packages" class="btn-outline">View Packages</a>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function showTab(id, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.steps-panel').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('panel-' + id).classList.add('active');
+}
+</script>
 </body>
 </html>
