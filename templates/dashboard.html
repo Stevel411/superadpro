@@ -3,141 +3,568 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - SuperAdPro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Dashboard — SuperAdPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        .neon { text-shadow: 0 0 25px #10b981; }
-        .glass { background: rgba(16, 185, 129, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.3); }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#020e08; color:#e0ead8; font-family:'Rethink Sans',sans-serif; min-height:100vh; }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar { width:240px; min-height:100vh; background:rgba(1,10,5,0.95); border-right:1px solid rgba(0,180,120,0.12); display:flex; flex-direction:column; position:fixed; top:0; left:0; z-index:50; }
+        .sidebar-logo { display:flex; align-items:center; gap:10px; padding:24px 20px; border-bottom:1px solid rgba(0,180,120,0.1); text-decoration:none; }
+        .sidebar-brand { font-weight:800; font-size:14px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#ffe89a,#c9a84c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+        .sidebar-section { padding:20px 14px 8px; font-size:9px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(0,220,160,0.65); }
+
+        .nav-item { display:flex; align-items:center; gap:12px; padding:11px 20px; font-size:13px; font-weight:500; color:rgba(220,242,230,0.78); text-decoration:none; transition:all 0.2s; border-left:2px solid transparent; cursor:pointer; }
+        .nav-item:hover { color:rgba(220,242,230,0.9); background:rgba(0,180,120,0.06); }
+        .nav-item.active { color:#00dc96; background:rgba(0,200,140,0.08); border-left-color:#00dc96; }
+        .nav-icon { font-size:15px; width:20px; text-align:center; flex-shrink:0; }
+        .nav-badge { margin-left:auto; font-size:9px; font-weight:700; background:rgba(201,168,76,0.15); color:#c9a84c; border:1px solid rgba(201,168,76,0.25); padding:2px 7px; border-radius:10px; }
+
+        .sidebar-footer { margin-top:auto; padding:16px 14px; border-top:1px solid rgba(0,180,120,0.1); }
+        .user-mini { display:flex; align-items:center; gap:10px; padding:10px; background:rgba(0,0,0,0.2); border-radius:6px; border:1px solid rgba(0,180,120,0.1); }
+        .user-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#021a10,#042a18); border:1px solid rgba(0,200,140,0.3); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#ffffff; flex-shrink:0; }
+        .user-name { font-size:13px; font-weight:600; color:#ffffff; }
+        .user-role { font-size:10px; color:rgba(0,200,140,0.6); letter-spacing:1px; text-transform:uppercase; }
+        .logout-btn { display:flex; align-items:center; gap:8px; margin-top:10px; padding:9px 20px; font-size:12px; color:rgba(220,242,230,0.72); text-decoration:none; transition:color 0.2s; }
+        .logout-btn:hover { color:rgba(255,100,100,0.7); }
+
+        /* ===== MAIN CONTENT ===== */
+        .main { margin-left:240px; display:flex; flex-direction:column; min-height:100vh; position:relative; z-index:10; }
+
+        /* Top bar */
+        .topbar { display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:64px; background:rgba(1,10,5,0.85); backdrop-filter:blur(18px); border-bottom:1px solid rgba(0,180,120,0.1); position:sticky; top:0; z-index:20; }
+        .topbar-left h1 { font-size:20px; font-weight:800; color:#fff; }
+        .topbar-left p { font-size:12px; color:rgba(220,242,230,0.78); margin-top:1px; }
+        .topbar-right { display:flex; align-items:center; gap:16px; }
+        .wallet-pill { display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.3); border:1px solid rgba(201,168,76,0.25); border-radius:6px; padding:8px 14px; }
+        .wallet-label { font-size:10px; color:rgba(220,242,230,0.72); text-transform:uppercase; letter-spacing:1px; }
+        .wallet-bal { font-family:'Rethink Sans',sans-serif; font-size:16px; color:#ffffff; font-weight:700; }
+        .wallet-currency { font-size:10px; color:rgba(255,255,255,0.5); }
+        .notif-btn { width:36px; height:36px; border-radius:6px; background:rgba(0,0,0,0.25); border:1px solid rgba(0,180,120,0.15); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; position:relative; }
+        .notif-dot { position:absolute; top:6px; right:6px; width:7px; height:7px; border-radius:50%; background:#c9a84c; }
+
+        /* Page content */
+        .content { padding:28px 32px; flex:1; position:relative; z-index:10; }
+
+        /* ===== STAT CARDS ===== */
+        .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+        .stat-card { background:rgba(2,16,9,0.9); border:1px solid rgba(0,180,120,0.15); border-radius:8px; padding:20px 22px; position:relative; overflow:hidden; transition:all 0.3s; z-index:10; }
+        .stat-card:hover { border-color:rgba(0,220,150,0.3); transform:translateY(-2px); }
+        .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; opacity:0.6; }
+        .stat-card.green::before { background:linear-gradient(90deg,transparent,#00dc96,transparent); }
+        .stat-card.gold::before { background:linear-gradient(90deg,transparent,#c9a84c,transparent); }
+        .stat-card.teal::before { background:linear-gradient(90deg,transparent,#00c8d4,transparent); }
+        .stat-card.purple::before { background:linear-gradient(90deg,transparent,#a070ff,transparent); }
+        .sc-icon { font-size:22px; margin-bottom:12px; display:block; }
+        .sc-label { font-size:11px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:rgba(220,242,230,0.78); margin-bottom:6px; }
+        .sc-value { font-family:'Rethink Sans',sans-serif; font-size:26px; font-weight:700; color:#ffffff; line-height:1; margin-bottom:6px; }
+        .sc-change { font-size:11px; color:#00dc96; font-weight:600; }
+        .sc-change.down { color:rgba(255,100,100,0.8); }
+        .sc-bg { position:absolute; right:16px; top:50%; transform:translateY(-50%); font-size:52px; opacity:0.04; }
+
+        /* ===== GRID LAYOUT ===== */
+        .grid-2 { display:grid; grid-template-columns:1.4fr 1fr; gap:16px; margin-bottom:24px; }
+        .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:24px; }
+
+        /* Panel base */
+        .panel { background:rgba(2,16,9,0.9); border:1px solid rgba(0,180,120,0.15); border-radius:8px; overflow:hidden; position:relative; z-index:10; }
+        .panel-head { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid rgba(0,180,120,0.1); }
+        .panel-title { font-size:14px; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px; }
+        .panel-title-icon { font-size:14px; }
+        .panel-action { font-size:12px; color:rgba(201,168,76,0.9); text-decoration:none; font-weight:600; cursor:pointer; transition:color 0.2s; }
+        .panel-action:hover { color:#c9a84c; }
+        .panel-body { padding:20px; }
+
+        /* ===== CAMPAIGNS ===== */
+        .campaign { padding:14px 0; border-bottom:1px solid rgba(0,180,120,0.08); }
+        .campaign:last-child { border-bottom:none; padding-bottom:0; }
+        .camp-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+        .camp-name { font-size:14px; font-weight:600; color:#ffffff; }
+        .camp-status { font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:3px 8px; border-radius:3px; }
+        .status-live { background:rgba(0,200,100,0.12); color:#00dc96; border:1px solid rgba(0,200,100,0.2); }
+        .status-pending { background:rgba(201,168,76,0.12); color:#c9a84c; border:1px solid rgba(201,168,76,0.2); }
+        .status-complete { background:rgba(100,100,100,0.12); color:rgba(220,242,230,0.72); border:1px solid rgba(100,100,100,0.2); }
+        .camp-meta { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+        .camp-views { font-size:11px; color:rgba(220,242,230,0.78); }
+        .camp-views strong { color:#ffffff; font-family:'Rethink Sans',sans-serif; font-size:12px; }
+        .prog-bar { height:5px; background:rgba(0,0,0,0.4); border-radius:3px; overflow:hidden; }
+        .prog-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,#00dc96,#c9a84c); }
+        .camp-pkg { font-size:10px; color:rgba(0,200,140,0.6); letter-spacing:1px; }
+
+        /* ===== MATRIX VISUALISER ===== */
+        .matrix-vis { text-align:center; }
+        .matrix-you { display:inline-flex; flex-direction:column; align-items:center; margin-bottom:12px; }
+        .matrix-node { width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; border:2px solid; position:relative; }
+        .node-you { background:rgba(0,200,140,0.15); border-color:#00dc96; box-shadow:0 0 20px rgba(0,200,140,0.25); }
+        .node-filled { background:rgba(201,168,76,0.12); border-color:rgba(201,168,76,0.4); }
+        .node-empty { background:rgba(0,0,0,0.3); border-color:rgba(0,180,120,0.2); border-style:dashed; }
+        .node-label { font-size:10px; color:rgba(220,242,230,0.75); margin-top:5px; letter-spacing:1px; text-transform:uppercase; }
+        .matrix-connector { width:1px; height:16px; background:rgba(0,200,140,0.3); margin:0 auto; }
+        .matrix-row { display:flex; justify-content:center; gap:10px; margin-bottom:6px; }
+        .matrix-row-connector { display:flex; justify-content:center; gap:0; margin-bottom:4px; position:relative; height:16px; }
+        .matrix-tier-label { font-size:10px; color:rgba(220,242,230,0.70); letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; text-align:left; }
+        .tier-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(0,200,140,0.08); border:1px solid rgba(0,200,140,0.2); border-radius:4px; padding:6px 12px; margin-bottom:14px; }
+        .tier-badge-val { font-family:'Rethink Sans',sans-serif; font-size:14px; color:#ffffff; font-weight:700; }
+        .tier-badge-label { font-size:10px; color:rgba(220,242,230,0.78); }
+        .matrix-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:14px; }
+        .ms { background:rgba(0,0,0,0.2); border-radius:4px; padding:8px; text-align:center; border:1px solid rgba(0,180,120,0.1); }
+        .ms-val { font-family:'Rethink Sans',sans-serif; font-size:14px; color:#ffffff; font-weight:700; }
+        .ms-label { font-size:9px; color:rgba(220,242,230,0.72); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
+
+        /* ===== WALLET ===== */
+        .wallet-balance-big { text-align:center; padding:20px 0 16px; border-bottom:1px solid rgba(0,180,120,0.1); margin-bottom:16px; }
+        .wb-label { font-size:11px; color:rgba(220,242,230,0.5); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
+        .wb-amount { font-family:'Rethink Sans',sans-serif; font-size:36px; font-weight:700; color:#ffffff; line-height:1; }
+        .wb-currency { font-size:14px; color:rgba(255,255,255,0.5); margin-left:6px; }
+        .wb-address { font-size:10px; color:rgba(0,200,140,0.55); margin-top:8px; font-family:monospace; }
+
+        .wallet-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+        .wallet-btn { padding:10px; border-radius:5px; font-weight:700; font-size:12px; text-align:center; cursor:pointer; transition:all 0.2s; border:1px solid transparent; font-family:'Rethink Sans',sans-serif; }
+        .wbtn-gold { background:linear-gradient(135deg,#ffe89a,#c9a84c); color:#020e08; }
+        .wbtn-gold:hover { box-shadow:0 0 20px rgba(201,168,76,0.4); }
+        .wbtn-outline { background:transparent; color:rgba(220,242,230,0.7); border:1px solid rgba(0,180,120,0.25) !important; }
+        .wbtn-outline:hover { border-color:rgba(0,220,150,0.4) !important; color:#fff; }
+
+        .tx-list { display:flex; flex-direction:column; gap:0; }
+        .tx { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(0,180,120,0.07); }
+        .tx:last-child { border-bottom:none; }
+        .tx-left { display:flex; align-items:center; gap:10px; }
+        .tx-icon { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; }
+        .tx-in { background:rgba(0,200,100,0.1); border:1px solid rgba(0,200,100,0.2); }
+        .tx-out { background:rgba(255,100,80,0.1); border:1px solid rgba(255,100,80,0.2); }
+        .tx-desc { font-size:13px; color:rgba(220,242,230,0.90); font-weight:500; }
+        .tx-date { font-size:10px; color:rgba(220,242,230,0.65); margin-top:1px; }
+        .tx-amount { font-family:'Rethink Sans',sans-serif; font-size:13px; font-weight:700; color:#ffffff; }
+        .tx-amount.pos { color:#00dc96; }
+        .tx-amount.neg { color:rgba(255,120,100,0.8); }
+
+        /* ===== AFFILIATE ===== */
+        .ref-link-box { background:rgba(0,0,0,0.3); border:1px solid rgba(0,180,120,0.2); border-radius:5px; padding:12px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:16px; }
+        .ref-link-text { font-size:12px; color:rgba(0,200,140,0.8); font-family:monospace; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .copy-btn { font-size:11px; font-weight:700; color:#020e08; background:linear-gradient(135deg,#ffe89a,#c9a84c); padding:7px 14px; border-radius:4px; border:none; cursor:pointer; font-family:'Rethink Sans',sans-serif; white-space:nowrap; transition:all 0.2s; flex-shrink:0; }
+        .copy-btn:hover { box-shadow:0 0 16px rgba(201,168,76,0.4); }
+        .copy-btn.copied { background:rgba(0,200,140,0.2); color:#00dc96; border:1px solid rgba(0,200,140,0.3); }
+
+        .aff-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
+        .aff-s { background:rgba(0,0,0,0.2); border:1px solid rgba(0,180,120,0.1); border-radius:5px; padding:12px; text-align:center; }
+        .aff-s-val { font-family:'Rethink Sans',sans-serif; font-size:18px; color:#ffffff; font-weight:700; }
+        .aff-s-label { font-size:9px; color:rgba(220,242,230,0.5); text-transform:uppercase; letter-spacing:1px; margin-top:3px; }
+
+        .share-btns { display:flex; gap:8px; }
+        .share-btn { flex:1; padding:9px; border-radius:4px; font-size:11px; font-weight:700; text-align:center; cursor:pointer; border:1px solid; transition:all 0.2s; font-family:'Rethink Sans',sans-serif; }
+        .sb-email { background:rgba(0,180,120,0.08); color:rgba(0,220,150,0.8); border-color:rgba(0,180,120,0.2); }
+        .sb-copy { background:rgba(201,168,76,0.08); color:rgba(201,168,76,0.8); border-color:rgba(201,168,76,0.2); }
+        .sb-email:hover { background:rgba(0,180,120,0.15); }
+        .sb-copy:hover { background:rgba(201,168,76,0.15); }
+
+        /* ===== QUICK ACTIONS ===== */
+        .quick-actions { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px; }
+        .qa { background:rgba(2,16,9,0.9); border:1px solid rgba(0,180,120,0.15); border-radius:8px; padding:18px 16px; text-align:center; cursor:pointer; transition:all 0.3s; text-decoration:none; display:block; position:relative; z-index:10; }
+        .qa:hover { border-color:rgba(0,220,150,0.4); transform:translateY(-3px); background:rgba(3,22,12,0.95); }
+        .qa-icon { font-size:26px; display:block; margin-bottom:10px; }
+        .qa-label { font-size:12px; font-weight:700; color:rgba(220,242,230,0.8); }
+        .qa-sub { font-size:10px; color:rgba(220,242,230,0.70); margin-top:3px; }
+
+        /* ===== PACKAGES UPGRADE ===== */
+        .pkg-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+        .pkg-card { background:rgba(0,0,0,0.25); border:1px solid rgba(0,180,120,0.12); border-radius:5px; padding:12px; text-align:center; transition:all 0.2s; cursor:pointer; position:relative; }
+        .pkg-card:hover { border-color:rgba(0,220,150,0.35); }
+        .pkg-card.active-pkg { border-color:rgba(201,168,76,0.4); background:rgba(201,168,76,0.05); }
+        .pkg-card.active-pkg::after { content:'ACTIVE'; position:absolute; top:-1px; left:50%; transform:translateX(-50%); font-size:7px; font-weight:700; letter-spacing:2px; color:#c9a84c; background:rgba(201,168,76,0.15); border:1px solid rgba(201,168,76,0.3); padding:2px 8px; border-radius:0 0 4px 4px; white-space:nowrap; }
+        .pkg-tier { font-size:9px; color:rgba(220,242,230,0.72); text-transform:uppercase; letter-spacing:1px; }
+        .pkg-amt { font-family:'Rethink Sans',sans-serif; font-size:16px; color:#ffffff; font-weight:700; margin:4px 0; }
+        .pkg-views { font-size:9px; color:rgba(220,242,230,0.72); }
+
+        /* Background effect */
+        .bg-fx { position:fixed; inset:0; z-index:0; pointer-events:none;
+            background: radial-gradient(ellipse 80% 60% at 60% 20%, rgba(0,100,70,0.2) 0%, transparent 60%),
+                        linear-gradient(180deg,#010f09 0%,#021208 100%);
+        }
+        .grid-fx { position:fixed; inset:0; z-index:0; pointer-events:none;
+            background-image: linear-gradient(rgba(0,180,120,0.025) 1px,transparent 1px), linear-gradient(90deg,rgba(0,180,120,0.025) 1px,transparent 1px);
+            background-size:55px 55px;
+        }
+
+        @media(max-width:1100px){ .stats-row{grid-template-columns:1fr 1fr} .grid-2{grid-template-columns:1fr} .quick-actions{grid-template-columns:repeat(2,1fr)} }
+        @media(max-width:768px){ .sidebar{display:none} .main{margin-left:0} .pkg-row{grid-template-columns:repeat(2,1fr)} .aff-stats{grid-template-columns:1fr 1fr} }
     </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100">
+<body>
 
-    <!-- Navigation -->
-    <nav class="glass border-b border-emerald-500/30">
-        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl neon">SA</div>
-                <span class="text-3xl font-bold tracking-tighter neon">SuperAdPro</span>
-            </div>
-            <div class="flex gap-4">
-                <a href="/logout" class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-sm font-semibold rounded-3xl transition">Logout</a>
-                <a href="/" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-sm font-semibold rounded-3xl transition">Home</a>
-            </div>
-        </div>
-    </nav>
+<div class="bg-fx"></div>
+<div class="grid-fx"></div>
 
-    <div class="max-w-7xl mx-auto px-6 py-12">
-        <h1 class="text-4xl font-bold tracking-tighter neon">Your Affiliate Dashboard</h1>
-        <p class="text-emerald-400 text-lg">Welcome back, {{ user.username }}</p>
+<!-- SVG defs -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffe89a"/><stop offset="30%" stop-color="#c9a84c"/><stop offset="70%" stop-color="#7a5c10"/><stop offset="100%" stop-color="#c9a84c"/></linearGradient>
+    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1a3520"/><stop offset="40%" stop-color="#0d2018"/><stop offset="100%" stop-color="#050e08"/></linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7a5c10"/><stop offset="50%" stop-color="#c9a84c"/><stop offset="100%" stop-color="#7a5c10"/></linearGradient>
+    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
+    <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="sc"><path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z"/></clipPath>
+    <symbol id="shield" viewBox="0 0 130 122">
+      <path d="M17 10 L117 10 L127 48 L67 118 L7 48 Z" fill="rgba(0,0,0,0.5)" transform="translate(3,4)"/>
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#sf)" stroke="url(#ob)" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M22 15 L108 15 L116 46 L65 105 L14 46 Z" fill="none" stroke="url(#ob)" stroke-width="1.5" stroke-linejoin="round" opacity="0.5"/>
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#hl)" clip-path="url(#sc)"/>
+      <path d="M23 31 L65 37 L107 31" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M29 49 L65 54 L101 49" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M37 67 L65 71 L93 67" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M47 84 L65 87 L83 84" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+    </symbol>
+  </defs>
+</svg>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <a href="/" class="sidebar-logo">
+        <svg width="26" height="26"><use href="#shield"/></svg>
+        <span class="sidebar-brand">SuperAdPro</span>
+    </a>
 
-            <!-- Left Column -->
-            <div class="space-y-6">
-                <div class="glass rounded-3xl p-10">
-                    <p class="text-emerald-400 text-sm">TOTAL REVENUE</p>
-                    <p class="text-6xl font-bold mt-4 text-emerald-400">${{ "%.2f"|format(user.total_revenue or 0) }}</p>
-                </div>
-                <div class="glass rounded-3xl p-10">
-                    <p class="text-emerald-400 text-sm">MONTHLY AFFILIATE COMMISSION</p>
-                    <p class="text-5xl font-bold mt-4 text-emerald-400">${{ "%.2f"|format(user.monthly_commission or 0) }}</p>
-                </div>
-                <div class="glass rounded-3xl p-10">
-                    <p class="text-emerald-400 text-sm">MATRIX EARNINGS</p>
-                    <p class="text-5xl font-bold mt-4 text-emerald-400">${{ "%.2f"|format(user.matrix_earnings or 0) }}</p>
-                </div>
-            </div>
+    <div class="sidebar-section">Main</div>
+    <a href="/dashboard" class="nav-item active"><span class="nav-icon">⊞</span> Dashboard</a>
+    <a href="/campaigns" class="nav-item"><span class="nav-icon">🎬</span> My Campaigns <span class="nav-badge">3</span></a>
+    <a href="/packages" class="nav-item"><span class="nav-icon">📦</span> Ad Packages</a>
+    <a href="/upload" class="nav-item"><span class="nav-icon">⬆</span> Upload Video</a>
 
-            <!-- Right Column -->
-            <div class="space-y-8">
-                <!-- Affiliate Link -->
-                <div class="glass rounded-3xl p-8">
-                    <p class="text-emerald-400 text-sm mb-3">AFFILIATE LINK</p>
-                    <div class="bg-zinc-900 rounded-2xl p-5 flex items-center gap-4">
-                        <input id="masterLink" type="text" value="https://superadpro.com/ref/{{ user.username }}" 
-                               class="bg-transparent flex-1 text-lg font-medium outline-none">
-                        <button onclick="copyMasterLink()" class="bg-emerald-500 hover:bg-emerald-600 px-8 py-3 rounded-2xl font-semibold text-sm">Copy</button>
-                    </div>
-                </div>
+    <div class="sidebar-section">Earnings</div>
+    <a href="/matrix" class="nav-item"><span class="nav-icon">◈</span> Matrix Position</a>
+    <a href="/wallet" class="nav-item"><span class="nav-icon">◎</span> Wallet</a>
+    <a href="/affiliate" class="nav-item"><span class="nav-icon">🤝</span> Affiliate Tools</a>
+    <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span> Comp Plan</a>
 
-                <!-- Wallet Address -->
-                <div class="glass rounded-3xl p-8">
-                    <p class="text-emerald-400 text-sm mb-3">Your USDT Wallet Address (Base Chain)</p>
-                    <form method="post" action="/save-wallet">
-                        <div class="bg-zinc-900 rounded-2xl p-5 flex items-center gap-4">
-                            <input id="walletAddress" name="wallet_address" type="text" value="{{ user.wallet_address or '' }}" placeholder="0x..." 
-                                   class="bg-transparent flex-1 text-lg font-medium outline-none">
-                            <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 px-8 py-3 rounded-2xl font-semibold text-sm">Save</button>
-                        </div>
-                    </form>
-                </div>
+    <div class="sidebar-section">Account</div>
+    <a href="/profile" class="nav-item"><span class="nav-icon">◉</span> Profile</a>
+    <a href="/support" class="nav-item"><span class="nav-icon">◌</span> Support</a>
 
-                <!-- Tiers -->
-                <div class="glass rounded-3xl p-8">
-                    <h2 class="text-xl font-semibold mb-6">Your Active Tiers</h2>
-                    <div class="grid grid-cols-3 gap-4">
-                        <div class="glass rounded-3xl p-6 text-center">
-                            <p class="text-emerald-400 text-sm">Starter</p>
-                            <p class="text-3xl font-bold text-zinc-500">🔒</p>
-                        </div>
-                        <div class="glass rounded-3xl p-6 text-center">
-                            <p class="text-emerald-400 text-sm">Basic</p>
-                            <p class="text-3xl font-bold text-zinc-500">🔒</p>
-                        </div>
-                        <div class="glass rounded-3xl p-6 text-center">
-                            <p class="text-emerald-400 text-sm">Pro</p>
-                            <p class="text-3xl font-bold text-zinc-500">🔒</p>
-                        </div>
-                        <div class="glass rounded-3xl p-6 text-center">
-                            <p class="text-emerald-400 text-sm">Advanced</p>
-                            <p class="text-3xl font-bold text-zinc-500">🔒</p>
-                        </div>
-                        <div class="glass rounded-3xl p-6 text-center">
-                            <p class="text-emerald-400 text-sm">Elite</p>
-                            <p class="text-3xl font-bold text-zinc-500">🔒</p>
-                        </div>
-                        <div class="glass rounded-3xl p-6 text-center">
-                            <p class="text-emerald-400 text-sm">VIP</p>
-                            <p class="text-3xl font-bold text-zinc-500">🔒</p>
-                        </div>
-                    </div>
-                </div>
+    <div class="sidebar-footer">
+        <div class="user-mini">
+            <div class="user-avatar">SL</div>
+            <div>
+                <div class="user-name">Steve L.</div>
+                <div class="user-role">Pro Member</div>
             </div>
         </div>
+        <a href="/logout" class="logout-btn">⎋ Sign Out</a>
+    </div>
+</aside>
 
-        <!-- Quick Links -->
-        <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6">
-            <a href="/video-library" class="glass rounded-3xl p-8 text-center hover:bg-emerald-500/10 transition">
-                <div class="text-3xl mb-3">📺</div>
-                <p class="font-semibold text-sm">Video Library</p>
-            </a>
-            <a href="/compensation-plan" class="glass rounded-3xl p-8 text-center hover:bg-emerald-500/10 transition">
-                <div class="text-3xl mb-3">💰</div>
-                <p class="font-semibold text-sm">Compensation Plan</p>
-            </a>
-            <a href="/activate-tiers" class="glass rounded-3xl p-8 text-center hover:bg-emerald-500/10 transition">
-                <div class="text-3xl mb-3">🌳</div>
-                <p class="font-semibold text-sm">Activate Tiers</p>
-            </a>
-            <a href="/for-advertisers" class="glass rounded-3xl p-8 text-center hover:bg-emerald-500/10 transition">
-                <div class="text-3xl mb-3">📣</div>
-                <p class="font-semibold text-sm">For Advertisers</p>
-            </a>
+<!-- MAIN -->
+<div class="main">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <h1>Welcome back, Steve 👋</h1>
+            <p>Here's what's happening with your campaigns today</p>
+        </div>
+        <div class="topbar-right">
+            <div class="wallet-pill">
+                <div>
+                    <div class="wallet-label">Wallet Balance</div>
+                    <div><span class="wallet-bal">247.50</span> <span class="wallet-currency">USDT</span></div>
+                </div>
+            </div>
+            <div class="notif-btn">🔔<div class="notif-dot"></div></div>
         </div>
     </div>
 
-    <!-- Legal Disclaimer -->
-    <div class="text-center py-8 border-t border-zinc-800">
-        <a href="/legal" class="text-sm text-zinc-400 hover:text-emerald-400 transition">Legal Disclaimer</a>
-    </div>
+    <div class="content">
 
-    <script>
-        function copyMasterLink() {
-            const link = document.getElementById('masterLink');
-            navigator.clipboard.writeText(link.value).then(() => {
-                alert('✅ Master Affiliate Link copied!');
-            });
-        }
-    </script>
+        <!-- STAT CARDS -->
+        <div class="stats-row">
+            <div class="stat-card green">
+                <span class="sc-icon">🎬</span>
+                <div class="sc-label">Total Views Delivered</div>
+                <div class="sc-value">128,450</div>
+                <div class="sc-change">▲ +12,300 this week</div>
+                <div class="sc-bg">👁</div>
+            </div>
+            <div class="stat-card gold">
+                <span class="sc-icon">📦</span>
+                <div class="sc-label">Active Campaigns</div>
+                <div class="sc-value">3</div>
+                <div class="sc-change">2 live · 1 pending</div>
+                <div class="sc-bg">📋</div>
+            </div>
+            <div class="stat-card teal">
+                <span class="sc-icon">💰</span>
+                <div class="sc-label">Total Affiliate Earned</div>
+                <div class="sc-value">$247.50</div>
+                <div class="sc-change">▲ +$42.00 this week</div>
+                <div class="sc-bg">💎</div>
+            </div>
+            <div class="stat-card purple">
+                <span class="sc-icon">◈</span>
+                <div class="sc-label">Matrix Referrals</div>
+                <div class="sc-value">7</div>
+                <div class="sc-change">▲ 2 new this week</div>
+                <div class="sc-bg">🌐</div>
+            </div>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="quick-actions">
+            <a href="/packages" class="qa">
+                <span class="qa-icon">📦</span>
+                <div class="qa-label">Activate Package</div>
+                <div class="qa-sub">Unlock more views</div>
+            </a>
+            <a href="/upload" class="qa">
+                <span class="qa-icon">🎬</span>
+                <div class="qa-label">Upload Video</div>
+                <div class="qa-sub">Start a new campaign</div>
+            </a>
+            <a href="/affiliate" class="qa">
+                <span class="qa-icon">🔗</span>
+                <div class="qa-label">Share Referral Link</div>
+                <div class="qa-sub">Earn 28% commission</div>
+            </a>
+            <a href="/wallet" class="qa">
+                <span class="qa-icon">💸</span>
+                <div class="qa-label">Withdraw USDT</div>
+                <div class="qa-sub">Send to your wallet</div>
+            </a>
+        </div>
+
+        <!-- CAMPAIGNS + MATRIX -->
+        <div class="grid-2">
+
+            <!-- Active Campaigns -->
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><span class="panel-title-icon">🎬</span> Active Campaigns</div>
+                    <a class="panel-action" href="/campaigns">View All →</a>
+                </div>
+                <div class="panel-body">
+                    <div class="campaign">
+                        <div class="camp-top">
+                            <div class="camp-name">EcoTech Product Launch 2026</div>
+                            <span class="camp-status status-live">● LIVE</span>
+                        </div>
+                        <div class="camp-meta">
+                            <span class="camp-views"><strong>84,200</strong> / 80,000 views</span>
+                            <span class="camp-pkg">PRO · $100</span>
+                        </div>
+                        <div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+                    </div>
+                    <div class="campaign">
+                        <div class="camp-top">
+                            <div class="camp-name">FitLife Supplement Brand</div>
+                            <span class="camp-status status-live">● LIVE</span>
+                        </div>
+                        <div class="camp-meta">
+                            <span class="camp-views"><strong>32,150</strong> / 80,000 views</span>
+                            <span class="camp-pkg">PRO · $100</span>
+                        </div>
+                        <div class="prog-bar"><div class="prog-fill" style="width:40%"></div></div>
+                    </div>
+                    <div class="campaign">
+                        <div class="camp-top">
+                            <div class="camp-name">Digital Course Promo</div>
+                            <span class="camp-status status-pending">⏳ PENDING</span>
+                        </div>
+                        <div class="camp-meta">
+                            <span class="camp-views"><strong>0</strong> / 35,000 views</span>
+                            <span class="camp-pkg">GROWTH · $50</span>
+                        </div>
+                        <div class="prog-bar"><div class="prog-fill" style="width:2%"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Matrix Position -->
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><span class="panel-title-icon">◈</span> Matrix Position</div>
+                    <a class="panel-action" href="/matrix">Full View →</a>
+                </div>
+                <div class="panel-body">
+                    <div class="matrix-vis">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                            <div class="tier-badge">
+                                <span class="tier-badge-val">TIER 3</span>
+                                <span class="tier-badge-label">Pro · $100</span>
+                            </div>
+                            <div style="font-size:11px;color:rgba(220,242,230,0.72);">3×10 Forced Matrix</div>
+                        </div>
+
+                        <!-- You -->
+                        <div class="matrix-you">
+                            <div class="matrix-node node-you">👤</div>
+                            <div class="node-label">You</div>
+                        </div>
+                        <div class="matrix-connector"></div>
+
+                        <!-- Level 1: 3 nodes (L1) -->
+                        <div class="matrix-row">
+                            <div style="text-align:center">
+                                <div class="matrix-node node-filled">👤</div>
+                                <div class="node-label">L1</div>
+                            </div>
+                            <div style="text-align:center">
+                                <div class="matrix-node node-filled">👤</div>
+                                <div class="node-label">L1</div>
+                            </div>
+                            <div style="text-align:center">
+                                <div class="matrix-node node-empty">+</div>
+                                <div class="node-label">Open</div>
+                            </div>
+                        </div>
+                        <div class="matrix-connector"></div>
+
+                        <!-- Level 2: 5 nodes (sample) -->
+                        <div class="matrix-row">
+                            <div style="text-align:center"><div class="matrix-node node-filled" style="width:36px;height:36px;font-size:13px;">👤</div><div class="node-label" style="font-size:8px">L2</div></div>
+                            <div style="text-align:center"><div class="matrix-node node-filled" style="width:36px;height:36px;font-size:13px;">👤</div><div class="node-label" style="font-size:8px">L2</div></div>
+                            <div style="text-align:center"><div class="matrix-node node-empty" style="width:36px;height:36px;font-size:13px;">+</div><div class="node-label" style="font-size:8px">Open</div></div>
+                            <div style="text-align:center"><div class="matrix-node node-filled" style="width:36px;height:36px;font-size:13px;">👤</div><div class="node-label" style="font-size:8px">L2</div></div>
+                            <div style="text-align:center"><div class="matrix-node node-empty" style="width:36px;height:36px;font-size:13px;">+</div><div class="node-label" style="font-size:8px">Open</div></div>
+                        </div>
+
+                        <div class="matrix-stats">
+                            <div class="ms"><div class="ms-val">7</div><div class="ms-label">Total Refs</div></div>
+                            <div class="ms"><div class="ms-val">2</div><div class="ms-label">This Week</div></div>
+                            <div class="ms"><div class="ms-val">$84</div><div class="ms-label">Earned</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WALLET + AFFILIATE -->
+        <div class="grid-2">
+
+            <!-- Wallet -->
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><span class="panel-title-icon">◎</span> USDT Wallet</div>
+                    <a class="panel-action" href="/wallet">Full History →</a>
+                </div>
+                <div class="panel-body">
+                    <div class="wallet-balance-big">
+                        <div class="wb-label">Available Balance</div>
+                        <div class="wb-amount">247.50 <span class="wb-currency">USDT</span></div>
+                        <div class="wb-address">0xF5D7...E1483 · Base Chain</div>
+                    </div>
+                    <div class="wallet-actions">
+                        <button class="wallet-btn wbtn-gold">⬇ Withdraw USDT</button>
+                        <button class="wallet-btn wbtn-outline">⬆ Activate Package</button>
+                    </div>
+                    <div class="tx-list">
+                        <div class="tx">
+                            <div class="tx-left">
+                                <div class="tx-icon tx-in">↓</div>
+                                <div><div class="tx-desc">Affiliate Commission</div><div class="tx-date">Today, 14:32</div></div>
+                            </div>
+                            <div class="tx-amount pos">+$28.00</div>
+                        </div>
+                        <div class="tx">
+                            <div class="tx-left">
+                                <div class="tx-icon tx-in">↓</div>
+                                <div><div class="tx-desc">Matrix Level 2 Earning</div><div class="tx-date">Yesterday, 09:15</div></div>
+                            </div>
+                            <div class="tx-amount pos">+$14.00</div>
+                        </div>
+                        <div class="tx">
+                            <div class="tx-left">
+                                <div class="tx-icon tx-out">↑</div>
+                                <div><div class="tx-desc">Package Activation · Pro</div><div class="tx-date">Feb 18, 11:40</div></div>
+                            </div>
+                            <div class="tx-amount neg">-$100.00</div>
+                        </div>
+                        <div class="tx">
+                            <div class="tx-left">
+                                <div class="tx-icon tx-in">↓</div>
+                                <div><div class="tx-desc">Matching Bonus</div><div class="tx-date">Feb 17, 18:22</div></div>
+                            </div>
+                            <div class="tx-amount pos">+$8.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Affiliate Tools -->
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title"><span class="panel-title-icon">🤝</span> Affiliate Tools</div>
+                    <a class="panel-action" href="/affiliate">Full Tools →</a>
+                </div>
+                <div class="panel-body">
+                    <div style="font-size:11px;color:rgba(220,242,230,0.78);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase;font-weight:600;">Your Referral Link</div>
+                    <div class="ref-link-box">
+                        <span class="ref-link-text" id="refLink">superadpro.com/ref/stevelawson</span>
+                        <button class="copy-btn" id="copyBtn" onclick="copyRef()">Copy</button>
+                    </div>
+
+                    <div class="aff-stats">
+                        <div class="aff-s"><div class="aff-s-val">7</div><div class="aff-s-label">Referrals</div></div>
+                        <div class="aff-s"><div class="aff-s-val">$84</div><div class="aff-s-label">Earned</div></div>
+                        <div class="aff-s"><div class="aff-s-val">28%</div><div class="aff-s-label">Commission</div></div>
+                    </div>
+
+                    <div style="font-size:11px;color:rgba(220,242,230,0.78);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase;font-weight:600;">Commission Structure</div>
+                    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(0,0,0,0.2);border-radius:4px;border:1px solid rgba(0,180,120,0.1);">
+                            <span style="font-size:12px;color:rgba(220,242,230,0.7);">Direct Referral</span>
+                            <span style="font-family:'Rethink Sans',sans-serif;font-size:13px;color:#ffffff;font-weight:700;">20%</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(0,0,0,0.2);border-radius:4px;border:1px solid rgba(0,180,120,0.1);">
+                            <span style="font-size:12px;color:rgba(220,242,230,0.7);">Matching Bonus</span>
+                            <span style="font-family:'Rethink Sans',sans-serif;font-size:13px;color:#ffffff;font-weight:700;">8%</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(0,0,0,0.2);border-radius:4px;border:1px solid rgba(0,180,120,0.1);">
+                            <span style="font-size:12px;color:rgba(220,242,230,0.7);">Matrix Levels 1–10</span>
+                            <span style="font-family:'Rethink Sans',sans-serif;font-size:13px;color:#ffffff;font-weight:700;">67%</span>
+                        </div>
+                    </div>
+
+                    <div class="share-btns">
+                        <button class="share-btn sb-email">✉ Share via Email</button>
+                        <button class="share-btn sb-copy" onclick="copyRef()">🔗 Copy Link</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- UPGRADE PACKAGES -->
+        <div class="panel" style="margin-bottom:24px;">
+            <div class="panel-head">
+                <div class="panel-title"><span class="panel-title-icon">📦</span> Advertising Packages</div>
+                <a class="panel-action" href="/packages">View All Packages →</a>
+            </div>
+            <div class="panel-body">
+                <div style="font-size:13px;color:rgba(220,242,230,0.6);margin-bottom:14px;">Activate additional packages to unlock more views and increase your matrix earnings potential.</div>
+                <div class="pkg-row">
+                    <div class="pkg-card"><div class="pkg-tier">Starter</div><div class="pkg-amt">$10</div><div class="pkg-views">5K views</div></div>
+                    <div class="pkg-card"><div class="pkg-tier">Basic</div><div class="pkg-amt">$25</div><div class="pkg-views">15K views</div></div>
+                    <div class="pkg-card"><div class="pkg-tier">Growth</div><div class="pkg-amt">$50</div><div class="pkg-views">35K views</div></div>
+                    <div class="pkg-card active-pkg"><div class="pkg-tier">Pro</div><div class="pkg-amt">$100</div><div class="pkg-views">80K views</div></div>
+                    <div class="pkg-card"><div class="pkg-tier">Advanced</div><div class="pkg-amt">$250</div><div class="pkg-views">220K views</div></div>
+                    <div class="pkg-card"><div class="pkg-tier">Elite</div><div class="pkg-amt">$500</div><div class="pkg-views">500K views</div></div>
+                    <div class="pkg-card"><div class="pkg-tier">Premium</div><div class="pkg-amt">$750</div><div class="pkg-views">800K views</div></div>
+                    <div class="pkg-card"><div class="pkg-tier">Ultimate</div><div class="pkg-amt">$1,000</div><div class="pkg-views">1.2M views</div></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function copyRef() {
+    const link = document.getElementById('refLink').textContent;
+    navigator.clipboard.writeText('https://' + link).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = '✓ Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    });
+}
+</script>
 </body>
 </html>
