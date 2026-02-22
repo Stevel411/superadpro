@@ -1,153 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Library - SuperAdPro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .neon { text-shadow: 0 0 25px #10b981; }
-        .glass { background: rgba(16, 185, 129, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.3); }
-        .timer { font-family: monospace; font-size: 2.5rem; color: #10b981; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My Campaigns — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:220px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,240,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.sidebar-brand{font-weight:800;font-size:13px;letter-spacing:2.5px;text-transform:uppercase;background:linear-gradient(135deg,#00f0ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-section{padding:18px 14px 6px;font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
+.nav-item:hover{color:rgba(200,220,255,0.9);background:rgba(255,255,255,0.03)}
+.nav-item.active{color:#00f0ff;background:rgba(0,240,255,0.07);border-left-color:#00f0ff}
+.nav-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,240,255,0.05);border:1px solid rgba(0,240,255,0.1);border-radius:8px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00f0ff);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#fff;border-bottom:1px solid #e2e6f0;position:sticky;top:0;z-index:50;box-shadow:0 1px 8px rgba(0,0,0,0.06)}
+.content{padding:24px 28px;flex:1}
+.card{background:#fff;border:1px solid #e2e6f0;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e2e6f0}
+.card-title{font-size:13px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
+.card-dot{width:7px;height:7px;border-radius:50%;background:#00b4d8;flex-shrink:0}
+.card-body{padding:20px}
+.btn-primary{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:10px 20px;border-radius:7px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:inline-block}
+.btn-outline{font-size:13px;font-weight:600;color:#475569;background:#fff;padding:9px 18px;border-radius:7px;border:1px solid #e2e6f0;text-decoration:none;cursor:pointer;font-family:inherit;display:inline-block}
+.form-group{margin-bottom:16px}
+.form-label{font-size:12px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
+.form-input{width:100%;padding:10px 14px;border:1px solid #e2e6f0;border-radius:7px;font-size:14px;color:#0f172a;font-family:inherit;background:#f8faff;transition:border-color 0.2s}
+.form-input:focus{outline:none;border-color:#00b4d8;background:#fff}
+.badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px}
+.badge-green{background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0}
+.badge-amber{background:#fef9c3;color:#92400e;border:1px solid #fde68a}
+.badge-cyan{background:#dbeafe;color:#0077a8;border:1px solid #bfdbfe}
+.row{display:grid;gap:20px}
+.row-2{grid-template-columns:1fr 1fr}
+.row-3{grid-template-columns:1fr 1fr 1fr}
+.stat-pill{background:#f8faff;border:1px solid #e2e6f0;border-radius:10px;padding:16px;text-align:center}
+.stat-pill-val{font-size:24px;font-weight:800;color:#0f172a}
+.stat-pill-lbl{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border-bottom:2px solid #e2e6f0;text-align:left}
+td{padding:12px;border-bottom:1px solid #f0f2f8;font-size:13px;color:#0f172a;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.empty-state{text-align:center;padding:48px 20px}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-title{font-size:15px;font-weight:700;color:#475569;margin-bottom:6px}
+.empty-sub{font-size:13px;color:#94a3b8;margin-bottom:20px}
+</style>
 </head>
-<body class="bg-zinc-950 text-zinc-100">
+<body>
+<div class="layout">
 
-    <!-- Navigation with Back + Home -->
-    <nav class="glass border-b border-emerald-500/30">
-        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl neon">SA</div>
-                <span class="text-3xl font-bold tracking-tighter neon">SuperAdPro</span>
-            </div>
-            <div class="flex gap-4">
-                <button onclick="history.back()" class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-sm font-semibold rounded-3xl transition flex items-center gap-2">
-                    ← Back
-                </button>
-                <a href="/" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-sm font-semibold rounded-3xl transition">Home</a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="max-w-7xl mx-auto px-6 py-16">
-        <div class="flex justify-between items-center mb-12">
-            <h1 class="text-6xl font-bold tracking-tighter neon">Video Library</h1>
-        </div>
-        <p class="text-center text-emerald-400 text-xl mb-12">Unlimited access • Watch daily to stay qualified</p>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="videoGrid"></div>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#00b4d8"/></linearGradient>
+    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a0a2e"/><stop offset="100%" stop-color="#03031a"/></linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#00b4d8"/></linearGradient>
+    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="#000000" stop-opacity="0.1"/></linearGradient>
+    <filter id="sg"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="sc"><path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z"/></clipPath>
+    <symbol id="shield" viewBox="0 0 130 122">
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#sf)" stroke="url(#ob)" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#hl)" clip-path="url(#sc)"/>
+      <path d="M23 31 L65 37 L107 31" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M29 49 L65 54 L101 49" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M37 67 L65 71 L93 67" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M47 84 L65 87 L83 84" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+    </symbol>
+  </defs>
+</svg>
+<aside class="sidebar">
+  <a href="/dashboard" class="sidebar-logo">
+    <svg width="26" height="26"><use href="#shield"/></svg>
+    <span class="sidebar-brand">SuperAdPro</span>
+  </a>
+  <div class="nav-section">Main</div>
+  <a href="/dashboard" class="nav-item "><span class="nav-icon">⊞</span>Dashboard</a>
+  <a href="/video-library" class="nav-item active"><span class="nav-icon">🎬</span>My Campaigns</a>
+  <a href="/packages" class="nav-item"><span class="nav-icon">📦</span>Ad Packages</a>
+  <div class="nav-section">Earnings</div>
+  <a href="/income-grid" class="nav-item "><span class="nav-icon">◈</span>Income Grid</a>
+  <a href="/wallet" class="nav-item "><span class="nav-icon">◎</span>Wallet</a>
+  <a href="/affiliate" class="nav-item "><span class="nav-icon">🤝</span>Affiliate Tools</a>
+  <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span>Comp Plan</a>
+  <div class="nav-section">Account</div>
+  <a href="/account" class="nav-item "><span class="nav-icon">◉</span>Profile</a>
+  <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
+  <div class="sidebar-footer">
+    <div class="user-mini">
+      <div class="user-avatar">{{ user.username[:2].upper() }}</div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#fff">{{ user.first_name }} {{ user.last_name }}</div>
+        <div style="font-size:9px;color:#00f0ff;letter-spacing:1px;text-transform:uppercase;margin-top:1px">{% if is_active %}Active{% else %}Inactive{% endif %}</div>
+      </div>
     </div>
+    <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;color:rgba(200,220,255,0.5);text-decoration:none;margin-top:6px">⎋ Sign Out</a>
+  </div>
+</aside>
 
-    <!-- Legal Disclaimer Button -->
-    <div class="text-center py-8 border-t border-zinc-800">
-        <a href="/legal" class="text-sm text-zinc-400 hover:text-emerald-400 transition">Legal Disclaimer</a>
+<div class="main">
+<div class="topbar">
+  <div>
+    <div style="font-size:17px;font-weight:800;color:#0f172a">🎬 My Campaigns</div>
+    <div style="font-size:11px;color:#94a3b8;margin-top:1px">Your uploaded video campaigns</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div style="background:#f8faff;border:1px solid #e2e6f0;border-radius:8px;padding:8px 16px">
+      <div style="font-size:9px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase">Balance</div>
+      <div><span style="font-size:16px;font-weight:800;color:#16a34a">${ '%.2f'|format(balance) }</span><span style="font-size:10px;color:#94a3b8;margin-left:3px">USDT</span></div>
     </div>
+    <a href="/upload" class="btn-primary">+ Upload Video</a>
+  </div>
+</div>
+<div class="content">
 
-    <script>
-        let videos = [
-            {id:1, title:"Marketing Mastery 1", url:"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4"},
-            {id:2, title:"Lead Generation Secrets", url:"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4"},
-            {id:3, title:"Sales Closing Techniques", url:"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4"},
-            {id:4, title:"Brand Building Basics", url:"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4"},
-            {id:5, title:"Conversion Rate Mastery", url:"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4"},
-            {id:6, title:"Team Leadership & Motivation", url:"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4"}
-        ];
+<div class="empty-state" style="margin-top:40px">
+  <div class="empty-icon">🎬</div>
+  <div class="empty-title">No campaigns yet</div>
+  <div class="empty-sub">Upload your first video to launch a campaign on SuperAdPro. Your video will be shown to real audiences across the network.</div>
+  <a href="/upload" class="btn-primary">Upload Your First Video</a>
+</div>
 
-        if (localStorage.getItem('newVideoTitle')) {
-            videos.unshift({
-                id: Date.now(),
-                title: localStorage.getItem('newVideoTitle'),
-                url: localStorage.getItem('newVideoUrl')
-            });
-            localStorage.removeItem('newVideoTitle');
-            localStorage.removeItem('newVideoUrl');
-        }
-
-        function getThumbnail(url) {
-            if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                let videoId = '';
-                if (url.includes('v=')) videoId = url.split('v=')[1].split('&')[0];
-                else if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
-                return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-            }
-            return 'https://picsum.photos/400/225';
-        }
-
-        function loadVideos() {
-            const grid = document.getElementById('videoGrid');
-            grid.innerHTML = videos.map(v => `
-                <div onclick="playVideo(${v.id})" class="glass rounded-3xl overflow-hidden cursor-pointer hover:scale-105 transition">
-                    <div class="aspect-video relative">
-                        <img src="${getThumbnail(v.url)}" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 flex items-center justify-center text-6xl text-white drop-shadow-lg">▶️</div>
-                    </div>
-                    <div class="p-6">
-                        <h4 class="font-semibold">${v.title}</h4>
-                        <p class="text-sm text-emerald-400">5 min • 30s minimum</p>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        let currentVideo = null;
-        let timerInterval = null;
-
-        function playVideo(id) {
-            currentVideo = videos.find(v => v.id === id);
-            document.getElementById('videoModal').classList.remove('hidden');
-            document.getElementById('videoTitle').textContent = currentVideo.title;
-
-            const container = document.getElementById('playerContainer');
-            container.innerHTML = '';
-
-            if (currentVideo.url.includes('youtube.com') || currentVideo.url.includes('youtu.be')) {
-                let videoId = '';
-                if (currentVideo.url.includes('v=')) videoId = currentVideo.url.split('v=')[1].split('&')[0];
-                else if (currentVideo.url.includes('youtu.be/')) videoId = currentVideo.url.split('youtu.be/')[1].split('?')[0];
-                container.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&mute=0" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
-            } else {
-                container.innerHTML = `<video id="player" class="w-full rounded-2xl" controls autoplay></video>`;
-                const player = document.getElementById('player');
-                player.src = currentVideo.url;
-                player.play();
-            }
-
-            start30SecondTimer();
-        }
-
-        function start30SecondTimer() {
-            let timeLeft = 30;
-            const timerEl = document.getElementById('timer');
-            const markBtn = document.getElementById('markBtn');
-            markBtn.disabled = true;
-
-            if (timerInterval) clearInterval(timerInterval);
-
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                timerEl.textContent = `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    markBtn.disabled = false;
-                    const iframe = document.querySelector('iframe');
-                    if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-                    const player = document.getElementById('player');
-                    if (player) player.pause();
-                }
-            }, 1000);
-        }
-
-        function markAsWatched() {
-            alert("✅ Video marked as watched!");
-            closeModal();
-        }
-
-        function closeModal() {
-            document.getElementById('videoModal').classList.add('hidden');
-            if (timerInterval) clearInterval(timerInterval);
-        }
-
-        loadVideos();
-    </script>
-</body>
-</html>
+</div></div></div></body></html>

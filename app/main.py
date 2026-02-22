@@ -143,6 +143,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "recent_commissions":commissions,
         "sponsor_username":  sponsor_username,
         "wallet_address":    user.wallet_address or "",
+        "total_withdrawn":    round(user.total_withdrawn or 0, 2),
         "is_active":         user.is_active,
         "GRID_PACKAGES":     GRID_PACKAGES,
         "GRID_TOTAL":        GRID_TOTAL,

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Profile — SuperAdPro</title>
+<title>Wallet — SuperAdPro</title>
 <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -86,11 +86,11 @@ tr:last-child td{border-bottom:none}
   <a href="/packages" class="nav-item"><span class="nav-icon">📦</span>Ad Packages</a>
   <div class="nav-section">Earnings</div>
   <a href="/income-grid" class="nav-item "><span class="nav-icon">◈</span>Income Grid</a>
-  <a href="/wallet" class="nav-item "><span class="nav-icon">◎</span>Wallet</a>
+  <a href="/wallet" class="nav-item active"><span class="nav-icon">◎</span>Wallet</a>
   <a href="/affiliate" class="nav-item "><span class="nav-icon">🤝</span>Affiliate Tools</a>
   <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span>Comp Plan</a>
   <div class="nav-section">Account</div>
-  <a href="/account" class="nav-item active"><span class="nav-icon">◉</span>Profile</a>
+  <a href="/account" class="nav-item "><span class="nav-icon">◉</span>Profile</a>
   <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
   <div class="sidebar-footer">
     <div class="user-mini">
@@ -107,109 +107,131 @@ tr:last-child td{border-bottom:none}
 <div class="main">
 <div class="topbar">
   <div>
-    <div style="font-size:17px;font-weight:800;color:#0f172a">◉ My Profile</div>
-    <div style="font-size:11px;color:#94a3b8;margin-top:1px">Manage your account details and wallet address</div>
+    <div style="font-size:17px;font-weight:800;color:#0f172a">◎ Wallet</div>
+    <div style="font-size:11px;color:#94a3b8;margin-top:1px">Your USDT balance, commissions & withdrawals</div>
   </div>
   <div style="display:flex;align-items:center;gap:12px">
     <div style="background:#f8faff;border:1px solid #e2e6f0;border-radius:8px;padding:8px 16px">
       <div style="font-size:9px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase">Balance</div>
       <div><span style="font-size:16px;font-weight:800;color:#16a34a">${ '%.2f'|format(balance) }</span><span style="font-size:10px;color:#94a3b8;margin-left:3px">USDT</span></div>
     </div>
-    
+    <a href="/income-grid" class="btn-primary">+ Activate Grid</a>
   </div>
 </div>
 <div class="content">
 
-<div class="row row-2">
-
-  <!-- Profile Details -->
-  <div class="card">
-    <div class="card-head">
-      <div class="card-title"><div class="card-dot"></div>Personal Details</div>
-    </div>
-    <div class="card-body">
-      <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid #f0f2f8">
-        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00b4d8);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0">{{ user.username[:2].upper() }}</div>
-        <div>
-          <div style="font-size:18px;font-weight:800;color:#0f172a">{{ user.first_name }} {{ user.last_name }}</div>
-          <div style="font-size:13px;color:#64748b">@{{ user.username }}</div>
-          <span class="badge {% if is_active %}badge-green{% else %}badge-amber{% endif %}" style="margin-top:4px;display:inline-block">{% if is_active %}Active Member{% else %}Inactive{% endif %}</span>
-        </div>
-      </div>
-      <div style="display:grid;gap:12px">
-        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f2f8">
-          <span style="font-size:12px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px">Email</span>
-          <span style="font-size:13px;font-weight:600;color:#0f172a">{{ user.email }}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f2f8">
-          <span style="font-size:12px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px">Username</span>
-          <span style="font-size:13px;font-weight:600;color:#0f172a">{{ user.username }}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f2f8">
-          <span style="font-size:12px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px">Member Since</span>
-          <span style="font-size:13px;font-weight:600;color:#0f172a">{{ user.created_at.strftime('%d %b %Y') if user.created_at else '—' }}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:10px 0">
-          <span style="font-size:12px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px">Sponsor</span>
-          <span style="font-size:13px;font-weight:600;color:#0f172a">{% if user.sponsor_id %}Member #{{ user.sponsor_id }}{% else %}Direct{% endif %}</span>
-        </div>
-      </div>
-    </div>
+<div class="row row-3" style="margin-bottom:20px">
+  <div class="stat-pill">
+    <div class="stat-pill-val" style="color:#16a34a">${{ '%.2f'|format(balance) }}</div>
+    <div class="stat-pill-lbl">Available Balance</div>
   </div>
-
-  <!-- Wallet Address -->
-  <div>
-    <div class="card">
-      <div class="card-head">
-        <div class="card-title"><div class="card-dot" style="background:#16a34a"></div>USDT Withdrawal Wallet</div>
-      </div>
-      <div class="card-body">
-        <p style="font-size:12px;color:#64748b;margin-bottom:16px;line-height:1.6">Set your Base Chain wallet address for USDT withdrawals. This is where your earnings will be sent when you request a withdrawal.</p>
-        <form method="POST" action="/save-wallet">
-          <div class="form-group">
-            <label class="form-label">Base Chain Wallet Address</label>
-            <input class="form-input" type="text" name="wallet_address" value="{{ user.wallet_address or '' }}" placeholder="0x...">
-          </div>
-          {% if request.query_params.get('error') == 'invalid_wallet' %}
-          <div style="padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:7px;font-size:12px;color:#dc2626;margin-bottom:12px">⚠ Invalid wallet address. Please enter a valid Base Chain (0x...) address.</div>
-          {% endif %}
-          {% if request.query_params.get('saved') %}
-          <div style="padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:7px;font-size:12px;color:#16a34a;margin-bottom:12px">✓ Wallet address saved successfully.</div>
-          {% endif %}
-          <button type="submit" class="btn-primary">Save Wallet Address</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Earnings Summary -->
-    <div class="card">
-      <div class="card-head">
-        <div class="card-title"><div class="card-dot" style="background:#6d28d9"></div>Earnings Summary</div>
-      </div>
-      <div class="card-body">
-        <div style="display:grid;gap:10px">
-          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f2f8">
-            <span style="font-size:12px;color:#64748b">Total Earned</span>
-            <span style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(total_earned) }}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f2f8">
-            <span style="font-size:12px;color:#64748b">Available Balance</span>
-            <span style="font-size:14px;font-weight:800;color:#00b4d8">${{ '%.2f'|format(balance) }}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f2f8">
-            <span style="font-size:12px;color:#64748b">Grid Earnings</span>
-            <span style="font-size:14px;font-weight:800;color:#0f172a">${{ '%.2f'|format(grid_earnings) }}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;padding:8px 0">
-            <span style="font-size:12px;color:#64748b">Upline Residual</span>
-            <span style="font-size:14px;font-weight:800;color:#6d28d9">${{ '%.2f'|format(upline_earnings) }}</span>
-          </div>
-        </div>
-        <a href="/wallet" style="display:block;text-align:center;margin-top:14px;padding:10px;background:#f8faff;border:1px solid #e2e6f0;border-radius:7px;font-size:12px;font-weight:700;color:#0077a8;text-decoration:none">View Full Wallet →</a>
-      </div>
-    </div>
+  <div class="stat-pill">
+    <div class="stat-pill-val" style="color:#00b4d8">${{ '%.2f'|format(total_earned) }}</div>
+    <div class="stat-pill-lbl">Total Earned</div>
   </div>
+  <div class="stat-pill">
+    <div class="stat-pill-val" style="color:#6d28d9">${{ '%.2f'|format(total_withdrawn) }}</div>
+    <div class="stat-pill-lbl">Total Withdrawn</div>
+  </div>
+</div>
 
+<!-- WITHDRAW -->
+<div class="card">
+  <div class="card-head">
+    <div class="card-title"><div class="card-dot" style="background:#16a34a"></div>Withdraw USDT</div>
+  </div>
+  <div class="card-body">
+    {% if balance >= 5 %}
+    <form method="POST" action="/withdraw" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+      <div class="form-group" style="flex:1;min-width:200px;margin:0">
+        <label class="form-label">Amount (min $5 USDT)</label>
+        <input class="form-input" type="number" name="amount" min="5" max="{{ balance }}" step="0.01" placeholder="0.00" required>
+      </div>
+      <div class="form-group" style="flex:2;min-width:280px;margin:0">
+        <label class="form-label">Your Base Chain Wallet Address</label>
+        <input class="form-input" type="text" name="wallet_address" value="{{ user.wallet_address or '' }}" placeholder="0x..." required>
+      </div>
+      <button type="submit" class="btn-primary">Request Withdrawal</button>
+    </form>
+    <div style="margin-top:12px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:7px;font-size:12px;color:#16a34a">
+      ◎ Withdrawals are processed manually within 24–48 hours to your Base Chain wallet.
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">◎</div>
+      <div class="empty-title">Minimum $5 USDT to withdraw</div>
+      <div class="empty-sub">Your current balance is ${{ '%.2f'|format(balance) }} USDT. Keep earning through your Income Grid!</div>
+      <a href="/income-grid" class="btn-primary">View Income Grid</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- COMMISSION HISTORY -->
+<div class="card">
+  <div class="card-head">
+    <div class="card-title"><div class="card-dot" style="background:#6d28d9"></div>Commission History</div>
+  </div>
+  <div class="card-body" style="padding:0">
+    {% if commissions %}
+    <table>
+      <thead><tr>
+        <th>Type</th><th>Tier</th><th>Amount</th><th>Status</th><th>Date</th>
+      </tr></thead>
+      <tbody>
+      {% for c in commissions %}
+      <tr>
+        <td>
+          {% if c.commission_type == 'grid_owner' %}🏆 Grid Owner
+          {% elif c.commission_type == 'level_pool' %}◈ Level Pool
+          {% elif c.commission_type == 'upline' %}🔗 Upline
+          {% else %}{{ c.commission_type|replace('_',' ')|title }}{% endif %}
+        </td>
+        <td><span class="badge badge-cyan">Tier {{ c.package_tier }}</span></td>
+        <td style="font-weight:800;color:#16a34a">+${{ '%.2f'|format(c.amount_usdt) }}</td>
+        <td><span class="badge {% if c.status == 'paid' %}badge-green{% else %}badge-amber{% endif %}">{{ c.status|title }}</span></td>
+        <td style="color:#94a3b8">{{ c.created_at.strftime('%d %b %Y') if c.created_at else '—' }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📊</div>
+      <div class="empty-title">No commissions yet</div>
+      <div class="empty-sub">Activate your Income Grid to start earning commissions on every seat filled.</div>
+      <a href="/activate-grid" class="btn-primary">Activate Grid</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- WITHDRAWAL HISTORY -->
+<div class="card">
+  <div class="card-head">
+    <div class="card-title"><div class="card-dot" style="background:#f59e0b"></div>Withdrawal History</div>
+  </div>
+  <div class="card-body" style="padding:0">
+    {% if withdrawals %}
+    <table>
+      <thead><tr><th>Amount</th><th>Wallet</th><th>Status</th><th>Requested</th></tr></thead>
+      <tbody>
+      {% for w in withdrawals %}
+      <tr>
+        <td style="font-weight:800;color:#0f172a">${{ '%.2f'|format(w.amount_usdt) }}</td>
+        <td style="font-family:monospace;font-size:11px;color:#64748b">{{ w.wallet_address[:16] }}…</td>
+        <td><span class="badge {% if w.status == 'paid' %}badge-green{% elif w.status == 'pending' %}badge-amber{% else %}badge-cyan{% endif %}">{{ w.status|title }}</span></td>
+        <td style="color:#94a3b8">{{ w.requested_at.strftime('%d %b %Y') if w.requested_at else '—' }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state" style="padding:28px">
+      <div style="font-size:13px;color:#94a3b8">No withdrawals yet.</div>
+    </div>
+    {% endif %}
+  </div>
 </div>
 
 </div></div></div></body></html>
