@@ -66,43 +66,33 @@ body { display:flex; flex-direction:column; }
 
 <svg width="0" height="0" style="position:absolute">
   <defs>
-    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00b4d8"/>
-      <stop offset="50%" stop-color="#6d28d9"/>
-      <stop offset="100%" stop-color="#00b4d8"/>
-    </linearGradient>
-    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0a0a2e"/>
-      <stop offset="100%" stop-color="#03031a"/>
-    </linearGradient>
-    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#00b4d8"/>
-      <stop offset="50%" stop-color="#a78bfa"/>
-      <stop offset="100%" stop-color="#00b4d8"/>
-    </linearGradient>
-    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.1"/>
-      <stop offset="100%" stop-color="#000000" stop-opacity="0.1"/>
-    </linearGradient>
-    <filter id="sg"><feGaussianBlur stdDeviation="2" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <clipPath id="sc"><path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z"/></clipPath>
-    <symbol id="shield" viewBox="0 0 130 122">
-      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#sf)" stroke="url(#ob)" stroke-width="4" stroke-linejoin="round"/>
-      <path d="M22 15 L108 15 L116 46 L65 105 L14 46 Z" fill="none" stroke="url(#ob)" stroke-width="1.5" stroke-linejoin="round" opacity="0.4"/>
-      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#hl)" clip-path="url(#sc)"/>
-      <path d="M23 31 L65 37 L107 31" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
-      <path d="M29 49 L65 54 L101 49" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
-      <path d="M37 67 L65 71 L93 67" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
-      <path d="M47 84 L65 87 L83 84" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="30%" stop-color="#6d28d9"/><stop offset="70%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient>
+    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a0a2e"/><stop offset="40%" stop-color="#06061a"/><stop offset="100%" stop-color="#03031a"/></linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="25%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="75%" stop-color="#00b4d8"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
+    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
+    <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <symbol id="shield" viewBox="0 0 100 100">
+      <defs>
+        <linearGradient id="hexgrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4f8ef7"/>
+          <stop offset="50%" stop-color="#6d28d9"/>
+          <stop offset="100%" stop-color="#00b4d8"/>
+        </linearGradient>
+        <linearGradient id="hexinner" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#1a3a8f"/>
+          <stop offset="100%" stop-color="#0d1a5c"/>
+        </linearGradient>
+      </defs>
+      <polygon points="50,3 93,27 93,73 50,97 7,73 7,27" fill="url(#hexgrad)" />
+      <polygon points="50,12 84,31 84,69 50,88 16,69 16,31" fill="url(#hexinner)" />
+      <text x="50" y="63" text-anchor="middle" font-family="Arial Black,sans-serif" font-weight="900" font-size="38" fill="#00d4ff" letter-spacing="-2">S</text>
     </symbol>
   </defs>
 </svg>
 
 <nav style="position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:62px;background:rgba(10,18,40,0.9);border-bottom:1px solid rgba(0,180,216,0.12);box-shadow:0 1px 8px rgba(0,0,0,0.06)">
   <a href="/" style="display:flex;align-items:center;gap:9px;text-decoration:none">
-    <svg width="26" height="26"><use href="#shield"/></svg>
+    <svg width="32" height="32"><use href="#shield"/></svg>
     <span style="font-weight:800;font-size:14px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00b4d8,#6d28d9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">SuperAdPro</span>
   </a>
   <ul style="display:flex;align-items:center;gap:4px;list-style:none"><li><a href="/how-it-works" style="font-size:13px;font-weight:500;color:rgba(200,220,255,0.7);text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">How It Works</a></li><li><a href="/packages" style="font-size:13px;font-weight:500;color:rgba(200,220,255,0.7);text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">Packages</a></li><li><a href="/compensation-plan" style="font-size:13px;font-weight:500;color:rgba(200,220,255,0.7);text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">Compensation</a></li><li><a href="/for-advertisers" style="font-size:13px;font-weight:500;color:rgba(200,220,255,0.7);text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">For Advertisers</a></li><li><a href="/faq" style="font-size:13px;font-weight:500;color:rgba(200,220,255,0.7);text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">FAQ</a></li></ul>
