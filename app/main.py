@@ -298,8 +298,8 @@ def register_process(
         sponsor = db.query(User).filter(User.username == ref).first()
         if sponsor:
             sponsor_id = sponsor.id
-            sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
             sponsor.total_team = (sponsor.total_team or 0) + 1
+            # personal_referrals tracked on membership activation, not registration
 
     user = create_user(
         db, username, email, password,

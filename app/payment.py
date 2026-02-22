@@ -245,6 +245,7 @@ def request_withdrawal(db: Session, user_id: int, amount: float) -> dict:
 
     # Deduct from balance
     user.balance -= amount
+    user.total_withdrawn = (user.total_withdrawn or 0) + amount
 
     withdrawal = Withdrawal(
         user_id        = user_id,
