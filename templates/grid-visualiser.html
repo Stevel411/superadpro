@@ -6,34 +6,12 @@
 <title>Profit Engine Grid Visualiser — SuperAdPro</title>
 <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root {
-  --cyan: #00d4ff;
-  --cyan2: #00b4d8;
-  --purple: #7c3aed;
-  --green: #10b981;
-  --gold: #f59e0b;
-  --bg: #020818;
-  --card: rgba(255,255,255,0.03);
-  --border: rgba(0,212,255,0.12);
-}
+:root{--cyan:#00d4ff;--cyan2:#00b4d8;--green:#10b981;--gold:#f59e0b;--bg:#020818;--border:rgba(0,212,255,0.12)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Rethink Sans',sans-serif;background:var(--bg);color:#e8f0fe;min-height:100vh;overflow-x:hidden}
-
-/* Animated background grid */
-body::before{
-  content:'';position:fixed;inset:0;
-  background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);
-  background-size:48px 48px;pointer-events:none;z-index:0;
-  animation:gridDrift 30s linear infinite;
-}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;animation:gridDrift 30s linear infinite}
 @keyframes gridDrift{from{background-position:0 0}to{background-position:48px 48px}}
-
-/* Glow orbs */
-body::after{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse 60% 40% at 20% 30%,rgba(0,180,216,0.07),transparent),
-             radial-gradient(ellipse 50% 40% at 80% 70%,rgba(124,58,237,0.07),transparent);
-}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 40% at 20% 30%,rgba(0,180,216,0.07),transparent),radial-gradient(ellipse 50% 40% at 80% 70%,rgba(124,58,237,0.07),transparent)}
 
 nav{background:rgba(2,8,24,0.95);border-bottom:1px solid var(--border);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
 .nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
@@ -43,137 +21,136 @@ nav{background:rgba(2,8,24,0.95);border-bottom:1px solid var(--border);padding:0
 .nav-links a:hover{color:var(--cyan)}
 .btn-nav{background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff!important;padding:8px 20px;border-radius:7px;font-weight:700!important}
 
-/* Hero */
-.hero{text-align:center;padding:60px 40px 40px;position:relative;z-index:1}
+.hero{text-align:center;padding:50px 40px 30px;position:relative;z-index:1}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:999px;padding:6px 18px;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:20px}
 .hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:blink 1.5s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
-.hero h1{font-family:'Rethink Sans',sans-serif;font-size:clamp(22px,4vw,42px);font-weight:800;line-height:1.1;margin-bottom:12px}
+.hero h1{font-size:clamp(22px,4vw,40px);font-weight:800;line-height:1.1;margin-bottom:10px}
 .hero h1 span{background:linear-gradient(135deg,#00d4ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero p{font-size:15px;color:rgba(200,220,255,0.5);max-width:540px;margin:0 auto;line-height:1.7}
+.hero p{font-size:15px;color:rgba(200,220,255,0.5);max-width:560px;margin:0 auto;line-height:1.7}
 
-/* Package selector */
-.pkg-bar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:20px 40px;position:relative;z-index:1}
-.pkg-btn{padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.45);font-family:'Rethink Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.5px}
+.pkg-bar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:16px 40px 20px;position:relative;z-index:1}
+.pkg-btn{padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.45);font-family:'Rethink Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s}
 .pkg-btn:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,255,0.05)}
 .pkg-btn.active{background:rgba(0,212,255,0.1);border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 20px rgba(0,212,255,0.15)}
 
-/* Main layout */
-.main{display:grid;grid-template-columns:1fr 360px;gap:20px;max-width:1200px;margin:0 auto;padding:0 24px 80px;position:relative;z-index:1}
+.main{display:grid;grid-template-columns:1fr 340px;gap:20px;max-width:1200px;margin:0 auto;padding:0 24px 80px;position:relative;z-index:1}
 @media(max-width:900px){.main{grid-template-columns:1fr}}
 
-/* ── LEFT: Grid panel ── */
-.grid-panel{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:16px;padding:28px;backdrop-filter:blur(8px)}
-.panel-eyebrow{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:6px;font-family:'Rethink Sans',sans-serif}
-.panel-title{font-family:'Rethink Sans',sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:20px}
+.grid-panel{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:16px;padding:24px;backdrop-filter:blur(8px)}
+.panel-eyebrow{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:4px}
+.panel-title{font-size:15px;font-weight:800;color:#fff;margin-bottom:16px}
 
-/* Level labels */
-.level-labels{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-bottom:5px}
-.level-label{text-align:center;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:'Rethink Sans',sans-serif;color:rgba(0,212,255,0.3);padding:2px 0}
+.level-labels{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-bottom:4px}
+.level-label{text-align:center;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 0}
 
-/* The grid */
-.grid-wrap{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-bottom:18px}
+/* GRID */
+.grid-wrap{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-bottom:16px}
 .cell{
-  aspect-ratio:1;border-radius:6px;
+  aspect-ratio:1;min-height:64px;border-radius:6px;
   display:flex;align-items:center;justify-content:center;
-  font-family:'Rethink Sans',sans-serif;font-size:clamp(11px,1.4vw,16px);font-weight:800;
-  line-height:1.2;text-align:center;
+  font-size:clamp(10px,1.3vw,15px);font-weight:800;line-height:1.2;text-align:center;
   transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.05);
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.05);
   color:transparent;cursor:default;position:relative;overflow:hidden;
   -webkit-font-smoothing:antialiased;will-change:transform;
-  min-height:60px;
 }
-.cell::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.08),transparent);opacity:0;transition:opacity 0.3s}
-.cell.owner{background:var(--cyan)!important;border-color:var(--cyan)!important;color:#fff!important;font-size:14px!important;font-weight:800!important;box-shadow:0 0 20px rgba(0,212,255,0.5),0 0 40px rgba(0,212,255,0.2)}
+.cell::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.1),transparent);opacity:0;transition:opacity 0.3s}
+/* Owner cell */
+.cell.owner{background:linear-gradient(135deg,#00b4d8,#0e7490)!important;border:2px solid var(--cyan)!important;color:#fff!important;box-shadow:0 0 24px rgba(0,212,255,0.5),0 0 48px rgba(0,212,255,0.15)!important}
 .cell.owner::before{opacity:1}
-.cell.filled{color:#10b981;border-color:transparent}
-.cell.filled::before{opacity:1}
+/* Direct referral — bright green glow */
+.cell.direct{color:#fff!important;border:2px solid rgba(52,211,153,0.7)!important;box-shadow:0 0 18px rgba(16,185,129,0.55),0 0 36px rgba(16,185,129,0.2)!important}
+/* Overspill — level colour, subtler */
+.cell.overspill{color:rgba(255,255,255,0.9)!important}
 .cell.pop{animation:cellPop 0.45s cubic-bezier(0.34,1.56,0.64,1)}
-@keyframes cellPop{0%{transform:scale(0.3);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes cellPop{0%{transform:scale(0.25);opacity:0}65%{transform:scale(1.12)}100%{transform:scale(1)}}
 
 /* Controls */
-.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
-.btn{padding:10px 20px;border-radius:8px;border:none;font-family:'Rethink Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:0.5px}
+.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.btn{padding:10px 20px;border-radius:8px;border:none;font-family:'Rethink Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s}
 .btn-play{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#020818;box-shadow:0 4px 16px rgba(0,212,255,0.25)}
 .btn-play:hover{box-shadow:0 6px 24px rgba(0,212,255,0.4);transform:translateY(-1px)}
 .btn-reset{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.1)}
 .btn-reset:hover{background:rgba(255,255,255,0.1);color:#fff}
 .speed-wrap{display:flex;align-items:center;gap:8px;margin-left:auto}
-.speed-label{font-size:10px;color:rgba(255,255,255,0.35);font-family:'Rethink Sans',sans-serif;letter-spacing:1px;text-transform:uppercase}
+.speed-label{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase}
 input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 
+/* Direct-count slider panel */
+.direct-panel{background:rgba(0,0,0,0.2);border:1px solid rgba(16,185,129,0.15);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.direct-panel-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.direct-panel-label{font-size:12px;font-weight:700;color:#fff}
+.direct-panel-sub{font-size:10px;color:rgba(200,220,255,0.4);margin-top:2px}
+.direct-count-big{font-size:24px;font-weight:800;color:var(--green);line-height:1}
+.direct-count-caption{font-size:9px;color:rgba(255,255,255,0.3)}
+.legend-row{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:10px;color:rgba(200,220,255,0.5)}
+.legend-swatch{width:14px;height:14px;border-radius:3px;flex-shrink:0}
+
 /* Progress */
-.progress-wrap{margin-bottom:16px}
+.progress-wrap{margin-bottom:14px}
 .progress-row{display:flex;justify-content:space-between;margin-bottom:6px}
-.progress-label{font-size:10px;font-family:'Rethink Sans',sans-serif;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase}
-.progress-value{font-size:10px;font-family:'Rethink Sans',sans-serif;color:var(--cyan)}
+.progress-label{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase}
+.progress-value{font-size:10px;color:var(--cyan)}
 .progress-bar{height:3px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden}
 .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),#a78bfa);border-radius:99px;transition:width 0.3s;box-shadow:0 0 8px rgba(0,212,255,0.4)}
 
-/* Recurring note */
-.recurring-note{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.15);border-radius:8px;margin-bottom:14px}
-.rn-icon{font-size:18px;flex-shrink:0;margin-top:1px}
-.rn-title{font-size:11px;font-weight:700;color:#a78bfa;margin-bottom:3px}
-.rn-text{font-size:11px;color:rgba(200,220,255,0.45);line-height:1.6}
+/* Cycle note */
+.cycle-note{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.15);border-radius:8px;margin-bottom:12px}
+.cycle-note-text{font-size:11px;color:rgba(200,220,255,0.45);line-height:1.6}
+.cycle-note-title{font-size:11px;font-weight:700;color:#a78bfa;margin-bottom:3px}
 
 /* Cycle banner */
-.cycle-banner{display:none;text-align:center;padding:16px;background:linear-gradient(135deg,rgba(0,212,255,0.1),rgba(124,58,237,0.1));border:1px solid rgba(0,212,255,0.25);border-radius:10px;animation:fadeUp 0.4s ease}
-.cycle-banner.show{display:block}
+.cycle-banner{display:none;text-align:center;padding:16px;background:linear-gradient(135deg,rgba(0,212,255,0.1),rgba(124,58,237,0.1));border:1px solid rgba(0,212,255,0.25);border-radius:10px}
+.cycle-banner.show{display:block;animation:fadeUp 0.4s ease}
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.cycle-title{font-family:'Rethink Sans',sans-serif;font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:4px;letter-spacing:1px}
+.cycle-title{font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:4px}
 .cycle-sub{font-size:11px;color:rgba(255,255,255,0.45)}
 
-/* ── RIGHT: Stats panel ── */
-.right-col{display:flex;flex-direction:column;gap:16px}
-
-.stat-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:20px;backdrop-filter:blur(8px)}
-.stat-eyebrow{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:14px;font-family:'Rethink Sans',sans-serif}
-
-/* Live earnings */
-.earn-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+/* RIGHT col */
+.right-col{display:flex;flex-direction:column;gap:14px}
+.stat-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:18px;backdrop-filter:blur(8px)}
+.eyebrow{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:12px}
+.earn-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
 .earn-row:last-child{border-bottom:none;padding-bottom:0}
 .earn-left{display:flex;align-items:center;gap:10px}
 .earn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .earn-label{font-size:12px;color:rgba(200,220,255,0.6)}
-.earn-pct{font-size:10px;color:rgba(200,220,255,0.3);margin-top:2px;font-family:'Rethink Sans',sans-serif}
-.earn-amount{font-family:'Rethink Sans',sans-serif;font-size:14px;font-weight:700;transition:all 0.25s;text-align:right}
+.earn-sub{font-size:10px;color:rgba(200,220,255,0.3);margin-top:2px}
+.earn-amount{font-size:14px;font-weight:700;transition:all 0.25s;text-align:right}
 .earn-amount.bump{animation:numBump 0.25s ease}
-@keyframes numBump{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+@keyframes numBump{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
 
-/* Total */
-.total-card{background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(124,58,237,0.06));border:1px solid rgba(0,212,255,0.2);border-radius:12px;padding:20px;text-align:center;backdrop-filter:blur(8px)}
-.total-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:8px;font-family:'Rethink Sans',sans-serif}
-.total-amount{font-family:'Rethink Sans',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,var(--cyan),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;transition:all 0.3s}
+.total-card{background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(124,58,237,0.06));border:1px solid rgba(0,212,255,0.2);border-radius:12px;padding:18px;text-align:center}
+.total-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:6px}
+.total-amount{font-size:30px;font-weight:800;background:linear-gradient(135deg,var(--cyan),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;transition:all 0.3s}
 .total-sub{font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px}
 
-/* Split bar */
-.split-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:20px;backdrop-filter:blur(8px)}
-.split-bar-wrap{display:flex;height:8px;border-radius:99px;overflow:hidden;gap:2px;margin:10px 0 14px}
+.split-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:18px;backdrop-filter:blur(8px)}
+.split-bar-wrap{display:flex;height:8px;border-radius:99px;overflow:hidden;gap:2px;margin:10px 0 12px}
 .split-seg{border-radius:3px}
 .split-legend{display:flex;flex-direction:column;gap:7px}
 .split-item{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(200,220,255,0.55)}
 .split-swatch{width:8px;height:8px;border-radius:2px;flex-shrink:0}
-.split-pct{margin-left:auto;font-family:'Rethink Sans',sans-serif;font-size:11px;font-weight:700}
+.split-pct{margin-left:auto;font-size:11px;font-weight:700}
 
-/* Log */
-.log-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:20px;backdrop-filter:blur(8px)}
-.log-list{display:flex;flex-direction:column;gap:5px;max-height:180px;overflow:hidden}
-.log-item{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:rgba(255,255,255,0.4);font-family:'Rethink Sans',sans-serif;animation:slideIn 0.25s ease;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
-.log-item:last-child{border-bottom:none}
-@keyframes slideIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
-.log-amt{font-weight:700}
-
-/* Stream info strip */
-.info-strip{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:20px;backdrop-filter:blur(8px)}
-.info-title{font-size:11px;font-weight:700;color:#fff;margin-bottom:12px}
-.info-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px}
+.info-strip{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:18px;backdrop-filter:blur(8px)}
+.info-title{font-size:11px;font-weight:700;color:#fff;margin-bottom:10px}
+.info-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px}
 .info-row:last-child{border-bottom:none}
 .info-key{color:rgba(200,220,255,0.4)}
-.info-val{font-family:'Rethink Sans',sans-serif;font-weight:700}
+.info-val{font-weight:700}
 
-@media(max-width:600px){.pkg-bar{padding:16px 20px}.hero{padding:40px 20px 24px}.main{padding:0 16px 60px}}
+.log-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:18px;backdrop-filter:blur(8px)}
+.log-list{display:flex;flex-direction:column;gap:4px;max-height:200px;overflow:hidden}
+.log-item{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:rgba(255,255,255,0.4);animation:slideIn 0.22s ease;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.log-item:last-child{border-bottom:none}
+@keyframes slideIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+.log-tag{font-size:9px;padding:1px 6px;border-radius:3px;margin-left:5px;font-weight:700}
+.log-tag.direct{color:#10b981;border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.08)}
+.log-tag.overspill{color:rgba(0,212,255,0.6);border:1px solid rgba(0,212,255,0.2);background:rgba(0,212,255,0.05)}
+.log-amt{font-weight:700}
 </style>
 </head>
 <body>
@@ -212,45 +189,69 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
   </div>
 </nav>
 
-<!-- HERO -->
 <div class="hero">
   <div class="hero-badge">Live Interactive Demo</div>
   <h1>Profit Engine Grid<br><span>Visualiser</span></h1>
-  <p>Select a package, press Play and watch exactly how commissions distribute instantly across every level of your network as each seat fills.</p>
+  <p>Watch your grid fill with a realistic mix of your own <strong style="color:#10b981">direct referrals</strong> and <strong style="color:#00d4ff">upline overspill</strong> — scattered randomly across every level, just like the real thing.</p>
 </div>
 
-<!-- Package selector -->
 <div class="pkg-bar" id="pkgBar">
-  <button class="pkg-btn" data-price="10" onclick="selectPkg(this)">$10</button>
-  <button class="pkg-btn" data-price="25" onclick="selectPkg(this)">$25</button>
-  <button class="pkg-btn" data-price="50" onclick="selectPkg(this)">$50</button>
-  <button class="pkg-btn active" data-price="100" onclick="selectPkg(this)">$100</button>
-  <button class="pkg-btn" data-price="250" onclick="selectPkg(this)">$250</button>
-  <button class="pkg-btn" data-price="500" onclick="selectPkg(this)">$500</button>
-  <button class="pkg-btn" data-price="750" onclick="selectPkg(this)">$750</button>
+  <button class="pkg-btn" data-price="10"   onclick="selectPkg(this)">$10</button>
+  <button class="pkg-btn" data-price="25"   onclick="selectPkg(this)">$25</button>
+  <button class="pkg-btn" data-price="50"   onclick="selectPkg(this)">$50</button>
+  <button class="pkg-btn active" data-price="100"  onclick="selectPkg(this)">$100</button>
+  <button class="pkg-btn" data-price="250"  onclick="selectPkg(this)">$250</button>
+  <button class="pkg-btn" data-price="500"  onclick="selectPkg(this)">$500</button>
+  <button class="pkg-btn" data-price="750"  onclick="selectPkg(this)">$750</button>
   <button class="pkg-btn" data-price="1000" onclick="selectPkg(this)">$1,000</button>
 </div>
 
 <div class="main">
 
-  <!-- LEFT: Grid -->
+  <!-- LEFT -->
   <div class="grid-panel">
     <div class="panel-eyebrow">Stream 02 — Profit Engine Grid</div>
     <div class="panel-title" id="panelTitle">8×8 GRID — $100 PACKAGE</div>
 
-    <!-- Level labels -->
     <div class="level-labels" id="levelLabels"></div>
-
-    <!-- Grid cells -->
-    <div class="grid-wrap" id="gridWrap"></div>
+    <div class="grid-wrap"   id="gridWrap"></div>
 
     <!-- Controls -->
     <div class="controls">
-      <button class="btn btn-play" id="playBtn" onclick="togglePlay()">▶ PLAY</button>
+      <button class="btn btn-play"  id="playBtn" onclick="togglePlay()">▶ PLAY</button>
       <button class="btn btn-reset" onclick="resetGrid()">↺ RESET</button>
       <div class="speed-wrap">
         <span class="speed-label">Speed</span>
         <input type="range" min="1" max="5" value="3" id="speedSlider">
+      </div>
+    </div>
+
+    <!-- Direct count slider -->
+    <div class="direct-panel">
+      <div class="direct-panel-top">
+        <div>
+          <div class="direct-panel-label">Your Personal Direct Referrals</div>
+          <div class="direct-panel-sub">Randomly placed across all 8 levels — the rest is upline overspill</div>
+        </div>
+        <div style="text-align:right">
+          <div class="direct-count-big" id="directCountDisplay">15</div>
+          <div class="direct-count-caption">of 63 seats</div>
+        </div>
+      </div>
+      <input type="range" min="0" max="63" value="15" id="directSlider"
+             style="width:100%;accent-color:#10b981" oninput="updateDirectCount(this.value)">
+      <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:rgba(255,255,255,0.2)">
+        <span>0 directs</span><span>~30 directs</span><span>All 63</span>
+      </div>
+      <div class="legend-row">
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:linear-gradient(135deg,#10b981,#059669);border:1px solid rgba(52,211,153,0.5)"></div>
+          Direct referral · you earn $<span id="legendDirect">33.75</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch" style="background:#3b82f6;opacity:0.8"></div>
+          Upline overspill · you earn $<span id="legendOverspill">8.75</span>
+        </div>
       </div>
     </div>
 
@@ -263,63 +264,59 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
       <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
     </div>
 
-    <!-- Recurring note -->
-    <div class="recurring-note">
-      <div class="rn-icon">♾️</div>
+    <!-- Cycle note -->
+    <div class="cycle-note">
+      <div style="font-size:18px;flex-shrink:0">♾️</div>
       <div>
-        <div class="rn-title">Recurring Income Engine</div>
-        <div class="rn-text">Your first grid begins when you activate your package (seat 0). Once all 63 remaining seats are filled, a brand new 64-seat grid is created automatically — this time all 64 seats are filled by your growing network. Your income engine never stops.</div>
+        <div class="cycle-note-title">Recurring Income Engine</div>
+        <div class="cycle-note-text">Once all 63 seats fill, your grid auto-resets with a fresh random pattern — directs and overspill redistributed — and the commissions start flowing again immediately.</div>
       </div>
     </div>
 
-    <!-- Cycle complete banner -->
     <div class="cycle-banner" id="cycleBanner">
-      <div class="cycle-title">⚡ GRID COMPLETE — NEW CYCLE CREATED</div>
-      <div class="cycle-sub" id="cycleSubText">New 64-seat grid starts automatically in 3 seconds...</div>
+      <div class="cycle-title">⚡ GRID COMPLETE — NEW CYCLE STARTING</div>
+      <div class="cycle-sub" id="cycleSubText"></div>
     </div>
   </div>
 
-  <!-- RIGHT: Stats -->
+  <!-- RIGHT -->
   <div class="right-col">
 
-    <!-- Live earnings tracker -->
+    <!-- Tracker -->
     <div class="stat-card">
-      <div class="stat-eyebrow">Live Earnings Tracker — What YOU Earn</div>
+      <div class="eyebrow">Live Earnings Tracker</div>
+
       <div class="earn-row">
         <div class="earn-left">
           <div class="earn-dot" style="background:#10b981"></div>
           <div>
             <div class="earn-label">Direct Sponsor (25%)</div>
-            <div class="earn-pct">L1 personal referrals only · $<span id="directPerSeat">25.00</span> per seat</div>
+            <div class="earn-sub">$<span id="directPerSeat">25.00</span> · your personal referrals only</div>
           </div>
         </div>
-        <div style="text-align:right">
-          <div class="earn-amount" id="sponsorAmt" style="color:#10b981">$0.00</div>
-        </div>
+        <div class="earn-amount" id="sponsorAmt" style="color:#10b981">$0.00</div>
       </div>
+
       <div class="earn-row">
         <div class="earn-left">
           <div class="earn-dot" style="background:#a78bfa"></div>
           <div>
-            <div class="earn-label">Uni-Level (8.75% × 1 position)</div>
-            <div class="earn-pct">$<span id="uniPerSeat">8.75</span> from every seat in your grid</div>
+            <div class="earn-label">Uni-Level (8.75%)</div>
+            <div class="earn-sub">$<span id="uniPerSeat">8.75</span> · every seat, direct or overspill</div>
           </div>
         </div>
-        <div style="text-align:right">
-          <div class="earn-amount" id="l1Amt" style="color:#a78bfa">$0.00</div>
-        </div>
+        <div class="earn-amount" id="uniAmt" style="color:#a78bfa">$0.00</div>
       </div>
+
       <div class="earn-row">
         <div class="earn-left">
           <div class="earn-dot" style="background:rgba(255,255,255,0.15)"></div>
           <div>
             <div class="earn-label">Platform Fee (5%)</div>
-            <div class="earn-pct">Deducted from every entry</div>
+            <div class="earn-sub">Deducted from every entry</div>
           </div>
         </div>
-        <div style="text-align:right">
-          <div class="earn-amount" id="platformAmt" style="color:rgba(255,255,255,0.25)">$0.00</div>
-        </div>
+        <div class="earn-amount" id="platformAmt" style="color:rgba(255,255,255,0.25)">$0.00</div>
       </div>
     </div>
 
@@ -327,12 +324,12 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
     <div class="total-card">
       <div class="total-label">Your Total This Cycle</div>
       <div class="total-amount" id="totalAmt">$0.00</div>
-      <div class="total-sub" id="totalSub">Direct Sponsor + All Uni-Level earnings</div>
+      <div class="total-sub">Direct Sponsor + Uni-Level · <span id="directFilled">0</span> directs / <span id="overspillFilled">0</span> overspill so far</div>
     </div>
 
-    <!-- Per entry split -->
+    <!-- Split bar -->
     <div class="split-card">
-      <div class="stat-eyebrow">Per Entry Distribution — $<span id="splitPrice">100</span></div>
+      <div class="eyebrow">Per Entry Distribution — $<span id="splitPrice">100</span></div>
       <div class="split-bar-wrap">
         <div class="split-seg" style="width:25%;background:#10b981"></div>
         <div class="split-seg" style="width:70%;background:linear-gradient(90deg,#3b82f6,#a78bfa)"></div>
@@ -357,7 +354,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
       </div>
     </div>
 
-    <!-- Package info -->
+    <!-- Package summary -->
     <div class="info-strip">
       <div class="info-title">Package Summary</div>
       <div class="info-row">
@@ -365,25 +362,22 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
         <span class="info-val" id="infoPkg" style="color:var(--cyan)">$100</span>
       </div>
       <div class="info-row">
-        <span class="info-key">Grid seats</span>
-        <span class="info-val" style="color:#fff">64 (63 entrants)</span>
+        <span class="info-key">Your directs this cycle</span>
+        <span class="info-val" id="infoDirectCount" style="color:#10b981">15 seats</span>
       </div>
       <div class="info-row">
-        <span class="info-key">Direct sponsor (25%)</span>
-        <span class="info-val" id="infoDirect" style="color:#10b981">$25.00</span>
+        <span class="info-key">Overspill seats</span>
+        <span class="info-val" id="infoOverspillCount" style="color:#a78bfa">48 seats</span>
       </div>
       <div class="info-row">
-        <span class="info-key">Per uni-level (8.75%)</span>
-        <span class="info-val" id="infoUni" style="color:#a78bfa">$8.75</span>
-      </div>
-      <div class="info-row">
-        <span class="info-key">Your earnings (full cycle)*</span>
-        <span class="info-val" id="infoMax" style="color:var(--gold)">$4,610.00</span>
+        <span class="info-key">Estimated full-cycle earnings</span>
+        <span class="info-val" id="infoMax" style="color:var(--gold)">$926.25</span>
       </div>
     </div>
-    <p style="font-size:10px;color:rgba(200,220,255,0.25);margin-top:8px;line-height:1.6">*Demo assumes you personally referred all 8 Level 1 members (direct sponsor commission) and occupy all 8 uni-level positions above every entrant. Actual earnings depend on network position.</p>
+
+    <!-- Log -->
     <div class="log-card">
-      <div class="stat-eyebrow">Activity Log</div>
+      <div class="eyebrow">Activity Log</div>
       <div class="log-list" id="logList">
         <div class="log-item"><span style="color:rgba(255,255,255,0.2)">Waiting for grid to start...</span><span></span></div>
       </div>
@@ -393,64 +387,88 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 </div>
 
 <script>
-// ── State ─────────────────────────────────────────────────────────────────
-let pkg = 100;
-let cells = [];
-let filled = 0;
-let playing = false;
-let timer = null;
+// ── State ──────────────────────────────────────────────────────────────────
+let pkg         = 100;
+let cells       = [];
+let filled      = 0;
+let directFilled = 0;
+let playing     = false;
+let timer       = null;
+let directCount = 15;       // how many of the 63 seats are your personal referrals
+let directSeats = new Set(); // which seat indices (1–63) are directs — randomised each reset
 
 // Running totals
-let tSponsor = 0, tUniLevel = 0, tPlatform = 0;
+let tSponsor = 0, tUni = 0, tPlatform = 0;
 
 const LEVEL_COLOURS = [
   '#00d4ff','#3b82f6','#6366f1','#7c3aed',
   '#8b5cf6','#a78bfa','#b197fc','#c4b5fd'
 ];
 
-// ── Package selection ──────────────────────────────────────────────────────
+// ── Randomise which seats are personal directs ─────────────────────────────
+function randomiseDirects() {
+  directSeats.clear();
+  // Fisher-Yates shuffle of seats 1–63, pick first directCount
+  const pool = Array.from({length:63}, (_,i) => i+1);
+  for (let i = 62; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  for (let i = 0; i < directCount; i++) directSeats.add(pool[i]);
+}
+
+// ── Package / direct-count controls ───────────────────────────────────────
 function selectPkg(btn) {
   document.querySelectorAll('.pkg-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   pkg = parseFloat(btn.dataset.price);
-  resetGrid();
   updateSplitDisplay();
+  resetGrid();
+}
+
+function updateDirectCount(val) {
+  directCount = parseInt(val);
+  document.getElementById('directCountDisplay').textContent = directCount;
+  updateSplitDisplay();
+  resetGrid();
 }
 
 function updateSplitDisplay() {
-  const direct = pkg * 0.25;
+  const direct   = pkg * 0.25;
   const perLevel = pkg * 0.70 / 8;
   const uniTotal = pkg * 0.70;
   const platform = pkg * 0.05;
-  // YOUR full-cycle earnings: 8 L1 seats × (direct + uni) + 55 L2-L8 seats × uni
-  const personalEarnings = (8 * (direct + perLevel)) + (55 * perLevel);
+  const overspill = 63 - directCount;
+  // Your earnings: each direct = direct+perLevel, each overspill = perLevel
+  const est = (directCount * (direct + perLevel)) + (overspill * perLevel);
 
-  document.getElementById('splitPrice').textContent = pkg.toLocaleString();
-  document.getElementById('sp1').textContent = '$' + direct.toFixed(2);
-  document.getElementById('sp2lvl').textContent = perLevel.toFixed(2);
-  document.getElementById('sp2').textContent = '$' + uniTotal.toFixed(2);
-  document.getElementById('sp3').textContent = '$' + platform.toFixed(2);
-  document.getElementById('infoPkg').textContent = '$' + pkg.toLocaleString();
-  document.getElementById('infoDirect').textContent = '$' + direct.toFixed(2);
-  document.getElementById('infoUni').textContent = '$' + perLevel.toFixed(2);
-  document.getElementById('infoMax').textContent = '$' + personalEarnings.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2});
-  document.getElementById('panelTitle').textContent = `8×8 GRID — $${pkg.toLocaleString()} PACKAGE`;
-  // Update per-seat labels in tracker
+  document.getElementById('splitPrice').textContent   = pkg.toLocaleString();
+  document.getElementById('sp1').textContent          = '$' + direct.toFixed(2);
+  document.getElementById('sp2lvl').textContent       = perLevel.toFixed(2);
+  document.getElementById('sp2').textContent          = '$' + uniTotal.toFixed(2);
+  document.getElementById('sp3').textContent          = '$' + platform.toFixed(2);
+  document.getElementById('infoPkg').textContent      = '$' + pkg.toLocaleString();
+  document.getElementById('infoDirectCount').textContent  = directCount + ' seats';
+  document.getElementById('infoOverspillCount').textContent = overspill + ' seats';
+  document.getElementById('infoMax').textContent      = '$' + est.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('panelTitle').textContent   = `8×8 GRID — $${pkg.toLocaleString()} PACKAGE`;
   document.getElementById('directPerSeat').textContent = direct.toFixed(2);
-  document.getElementById('uniPerSeat').textContent = perLevel.toFixed(2);
+  document.getElementById('uniPerSeat').textContent   = perLevel.toFixed(2);
+  document.getElementById('legendDirect').textContent = (direct + perLevel).toFixed(2);
+  document.getElementById('legendOverspill').textContent = perLevel.toFixed(2);
 }
 
 // ── Build grid ─────────────────────────────────────────────────────────────
 function buildGrid() {
-  const wrap = document.getElementById('gridWrap');
+  const wrap   = document.getElementById('gridWrap');
   const labels = document.getElementById('levelLabels');
   wrap.innerHTML = ''; labels.innerHTML = ''; cells = [];
 
   for (let l = 0; l < 8; l++) {
     const lbl = document.createElement('div');
-    lbl.className = 'level-label';
-    lbl.textContent = 'L' + (l + 1);
-    lbl.style.color = LEVEL_COLOURS[l] + '60';
+    lbl.className  = 'level-label';
+    lbl.textContent = 'L' + (l+1);
+    lbl.style.color = LEVEL_COLOURS[l] + '70';
     labels.appendChild(lbl);
   }
 
@@ -459,17 +477,15 @@ function buildGrid() {
     c.className = 'cell';
     if (i === 0) {
       c.classList.add('owner');
-      c.innerHTML = '<span style="font-size:clamp(13px,1.5vw,18px);font-weight:800;line-height:1.3;color:#fff">YOU<br>OWNER</span>';
+      c.innerHTML = '<span style="font-size:clamp(12px,1.4vw,17px);font-weight:800;line-height:1.3;color:#fff">YOU<br>OWNER</span>';
     }
     wrap.appendChild(c);
     cells.push(c);
   }
 }
 
-// ── Play / Pause ───────────────────────────────────────────────────────────
-function togglePlay() {
-  playing ? pause() : play();
-}
+// ── Playback ───────────────────────────────────────────────────────────────
+function togglePlay() { playing ? pause() : play(); }
 
 function play() {
   playing = true;
@@ -485,7 +501,7 @@ function pause() {
 
 function getDelay() {
   const v = parseInt(document.getElementById('speedSlider').value);
-  return Math.round(700 - (v - 1) * 150); // 700ms → 100ms
+  return Math.round(700 - (v-1) * 150); // 700ms (slow) → 100ms (fast)
 }
 
 function tick() {
@@ -495,60 +511,62 @@ function tick() {
   timer = setTimeout(tick, getDelay());
 }
 
-// ── Fill a seat ────────────────────────────────────────────────────────────
+// ── Fill one seat ──────────────────────────────────────────────────────────
 function fillNext() {
   filled++;
-  const cell = cells[filled];
-  // level 0 = L1 (seats 1-8), level 1 = L2 (seats 9-16), etc.
-  const level = Math.floor((filled - 1) / 8);
-  const col = LEVEL_COLOURS[level];
+  const cell     = cells[filled];
+  const level    = Math.floor((filled - 1) / 8);  // 0 = L1 … 7 = L8
+  const isDirect = directSeats.has(filled);
+  const perLevel = pkg * 0.70 / 8;   // $8.75 on $100
+  const platform = pkg * 0.05;
 
-  // ── CORRECT COMMISSION MATH ──────────────────────────────────────────
-  // Per $100 entry: 25% direct sponsor + 70% uni-level (8.75% × 8 levels) + 5% platform
-  //
-  // YOU earn from this seat:
-  //   • If L1 (level=0): you ARE the direct sponsor → $25 PLUS uni-level $8.75 = $33.75
-  //   • If L2-L8 (level>0): you receive ONE uni-level commission of $8.75
-  //     (you sit at a specific depth in the entrant's upline chain)
-  //
-  // You do NOT earn $8.75 × 8 per entry — that would be all 8 uni-levels combined,
-  // which go to 8 DIFFERENT people above the entrant, not all to you.
-  const perLevel = pkg * 0.70 / 8;  // $8.75 on $100
-  const platform  = pkg * 0.05;
-
-  let youEarnThisSeat = perLevel; // you always earn 1 uni-level position ($8.75)
-  if (level === 0) {
-    tSponsor += pkg * 0.25;        // direct sponsor bonus for L1 personal referrals
-    youEarnThisSeat += pkg * 0.25; // cell display: direct + uni combined
-  }
-  tUniLevel += perLevel;           // 1 × $8.75 per seat, every seat
-  tPlatform += platform;
+  // ── COMMISSION LOGIC ──────────────────────────────────────────────────
+  // Every seat pays you ONE uni-level position ($8.75 on $100).
+  // If this seat is YOUR personal direct referral, you also receive
+  // the 25% direct sponsor commission ($25 on $100).
   // ─────────────────────────────────────────────────────────────────────
+  let youEarn = perLevel;
+  if (isDirect) {
+    tSponsor += pkg * 0.25;
+    youEarn  += pkg * 0.25;
+    directFilled++;
+  }
+  tUni      += perLevel;
+  tPlatform += platform;
 
-  // Style cell
-  cell.classList.add('filled', 'pop');
-  cell.style.background = col;
-  cell.style.boxShadow = `0 0 12px ${col}50`;
-  cell.style.borderColor = col + '40';
-  cell.innerHTML = `+$${youEarnThisSeat.toFixed(2)}`;
+  // Visual style
+  const col = LEVEL_COLOURS[level];
+  cell.classList.add('filled', isDirect ? 'direct' : 'overspill', 'pop');
+  if (isDirect) {
+    cell.style.background  = 'linear-gradient(135deg,#10b981,#059669)';
+    cell.style.borderColor = 'rgba(52,211,153,0.7)';
+    cell.style.boxShadow   = '0 0 18px rgba(16,185,129,0.55),0 0 36px rgba(16,185,129,0.18)';
+    cell.style.color       = '#fff';
+  } else {
+    cell.style.background  = col;
+    cell.style.borderColor = col + '40';
+    cell.style.boxShadow   = `0 0 10px ${col}45`;
+    cell.style.color       = 'rgba(255,255,255,0.9)';
+  }
+  cell.innerHTML = `+$${youEarn.toFixed(2)}`;
   setTimeout(() => cell.classList.remove('pop'), 450);
 
-  // Update counters
+  // Update panels
   bump('sponsorAmt', tSponsor);
-  bump('l1Amt', tUniLevel);
-  bump('platformAmt', tPlatform);
-  const total = tSponsor + tUniLevel;
-  document.getElementById('totalAmt').textContent = '$' + total.toFixed(2);
+  bump('uniAmt',     tUni);
+  bump('platformAmt',tPlatform);
+  document.getElementById('totalAmt').textContent = '$' + (tSponsor + tUni).toFixed(2);
+  document.getElementById('directFilled').textContent   = directFilled;
+  document.getElementById('overspillFilled').textContent = filled - directFilled;
 
-  // Progress
   const pct = Math.round((filled / 63) * 100);
   document.getElementById('progressVal').textContent = `${filled} / 63 seats filled`;
   document.getElementById('progressFill').style.width = pct + '%';
 
-  // Log
-  addLog(filled, level + 1, col, youEarnThisSeat);
+  addLog(filled, level+1, isDirect, youEarn, isDirect ? '#10b981' : col);
 }
 
+// ── Helpers ────────────────────────────────────────────────────────────────
 function bump(id, val) {
   const el = document.getElementById(id);
   el.textContent = '$' + val.toFixed(2);
@@ -557,52 +575,58 @@ function bump(id, val) {
   el.classList.add('bump');
 }
 
-function addLog(seat, level, col, amt) {
+function addLog(seat, level, isDirect, amt, col) {
   const list = document.getElementById('logList');
-  // Clear placeholder
   if (list.querySelector('[style*="0.2"]')) list.innerHTML = '';
-  const item = document.createElement('div');
+  const tag   = isDirect
+    ? '<span class="log-tag direct">DIRECT</span>'
+    : '<span class="log-tag overspill">OVERSPILL</span>';
+  const item  = document.createElement('div');
   item.className = 'log-item';
-  item.innerHTML = `<span>Seat #${String(seat).padStart(2,'0')} · L${level}</span><span class="log-amt" style="color:${col}">+$${amt.toFixed(2)}</span>`;
+  item.innerHTML = `<span>Seat #${String(seat).padStart(2,'0')} · L${level} ${tag}</span><span class="log-amt" style="color:${col}">+$${amt.toFixed(2)}</span>`;
   list.insertBefore(item, list.firstChild);
-  while (list.children.length > 10) list.removeChild(list.lastChild);
+  while (list.children.length > 12) list.removeChild(list.lastChild);
 }
 
 // ── Cycle complete ─────────────────────────────────────────────────────────
 function cycleComplete() {
   pause();
-  const banner = document.getElementById('cycleBanner');
-  const totalRev = 63 * pkg;
+  const earned = (tSponsor + tUni).toFixed(2);
   document.getElementById('cycleSubText').textContent =
-    `Total distributed this cycle: $${(totalRev * 0.95).toLocaleString('en',{minimumFractionDigits:2})}. New 64-seat grid starts in 3 seconds...`;
-  banner.classList.add('show');
+    `You earned $${earned} — ${directFilled} directs + ${63 - directFilled} overspill. New cycle in 3 seconds with a fresh random mix...`;
+  document.getElementById('cycleBanner').classList.add('show');
   setTimeout(() => {
-    banner.classList.remove('show');
+    document.getElementById('cycleBanner').classList.remove('show');
     resetGrid();
-    setTimeout(play, 600);
-  }, 3000);
+    setTimeout(play, 500);
+  }, 3500);
 }
 
 // ── Reset ──────────────────────────────────────────────────────────────────
 function resetGrid() {
   pause();
-  filled = 0; tSponsor = 0; tUniLevel = 0; tPlatform = 0;
+  filled = 0; directFilled = 0;
+  tSponsor = 0; tUni = 0; tPlatform = 0;
+  randomiseDirects();
   buildGrid();
-  ['sponsorAmt','l1Amt','platformAmt'].forEach(id => {
-    document.getElementById(id).textContent = '$0.00';
-  });
-  document.getElementById('totalAmt').textContent = '$0.00';
-  document.getElementById('progressVal').textContent = '0 / 63 seats filled';
-  document.getElementById('progressFill').style.width = '0%';
-  document.getElementById('logList').innerHTML = '<div class="log-item"><span style="color:rgba(255,255,255,0.2)">Waiting for grid to start...</span><span></span></div>';
+  ['sponsorAmt','uniAmt','platformAmt'].forEach(id =>
+    document.getElementById(id).textContent = '$0.00'
+  );
+  document.getElementById('totalAmt').textContent         = '$0.00';
+  document.getElementById('progressVal').textContent      = '0 / 63 seats filled';
+  document.getElementById('progressFill').style.width     = '0%';
+  document.getElementById('directFilled').textContent     = '0';
+  document.getElementById('overspillFilled').textContent  = '0';
+  document.getElementById('logList').innerHTML            =
+    '<div class="log-item"><span style="color:rgba(255,255,255,0.2)">Waiting for grid to start...</span><span></span></div>';
   document.getElementById('cycleBanner').classList.remove('show');
-  document.getElementById('playBtn').textContent = '▶ PLAY';
+  document.getElementById('playBtn').textContent          = '▶ PLAY';
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────
-buildGrid();
 updateSplitDisplay();
+randomiseDirects();
+buildGrid();
 </script>
-
 </body>
 </html>
