@@ -441,7 +441,7 @@
                     <li class="me-point"><div class="me-num">2</div>Every time someone enters a seat in your grid, commissions are distributed immediately — you earn on every grid entry, not just at completion.</li>
                     <li class="me-point"><div class="me-num">3</div>Your Level Pool commission (25%) is split across all 8 levels and paid on each seat entry — so every new member filling any seat earns you instantly.</li>
                     <li class="me-point"><div class="me-num">4</div>Spillover from your upline automatically fills positions in your grid — you can earn even without your own referrals.</li>
-                    <li class="me-point"><div class="me-num">5</div>When all 64 seats are filled, the Grid Owner receives 45% of total grid revenue and your upline receives 25% Upline Residual — then your grid resets and starts again.</li>
+                    <li class="me-point"><div class="me-num">5</div>Your upline earns their 25% Upline Residual instantly on every seat entry — just like you earn Level Pool on your downline's grids. When all 64 seats are filled, the Grid Owner receives 45% of total revenue, then your grid resets and starts again.</li>
                     <li class="me-point"><div class="me-num">6</div>Every cycle is recurring — your grid resets automatically, meaning your income engine never stops.</li>
                 </ul>
             </div>
@@ -457,9 +457,15 @@
                         <span style="color:rgba(0,212,255,0.7)">■ Filled</span>
                         <span style="color:rgba(255,255,255,0.2)">□ Open</span>
                     </div>
-                    <div style="display:flex;justify-content:space-between;background:rgba(0,0,0,0.2);border-radius:6px;padding:8px 12px;font-size:11px;max-width:320px;margin:0 auto">
-                        <span style="color:rgba(200,220,255,0.5)">Your Level Pool earned:</span>
-                        <span id="poolEarned" style="color:#00d4ff;font-weight:700">$0.00</span>
+                    <div style="background:rgba(0,0,0,0.2);border-radius:6px;padding:8px 12px;font-size:11px;max-width:320px;margin:0 auto;display:flex;flex-direction:column;gap:5px">
+                        <div style="display:flex;justify-content:space-between">
+                            <span style="color:rgba(200,220,255,0.5)">Your Level Pool earned:</span>
+                            <span id="poolEarned" style="color:#00d4ff;font-weight:700">$0.00</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between">
+                            <span style="color:rgba(200,220,255,0.5)">Your Upline earned:</span>
+                            <span id="uplineEarned" style="color:#7c9fff;font-weight:700">$0.00</span>
+                        </div>
                     </div>
                 </div>
                 <!-- Commission breakdown -->
@@ -476,7 +482,7 @@
                         </div>
                         <div style="display:flex;justify-content:space-between;align-items:center">
                             <span style="font-size:13px;color:rgba(200,220,255,0.7)">Upline Residual (25%)</span>
-                            <span style="font-size:14px;font-weight:800;color:#7c9fff">On cycle reset</span>
+                            <span style="font-size:14px;font-weight:800;color:#7c9fff">Instant ✓</span>
                         </div>
                     </div>
                 </div>
@@ -536,6 +542,8 @@
                     filled = 1;
                     poolTotal = 0;
                     if(poolEl) poolEl.textContent = '$0.00';
+                    const upEl = document.getElementById('uplineEarned');
+                    if(upEl) upEl.textContent = '$0.00';
                     setTimeout(tick, 1000);
                 }, 2500);
                 return;
@@ -546,6 +554,8 @@
             cells[filled].innerHTML = `<span style="font-size:7px;font-weight:800;color:rgba(255,255,255,0.9);line-height:1;text-align:center">+$${perSeat.toFixed(2)}</span>`;
             poolTotal += perSeat;
             if(poolEl) poolEl.textContent = '$' + poolTotal.toFixed(2);
+            const uplineEl = document.getElementById('uplineEarned');
+            if(uplineEl) uplineEl.textContent = '$' + poolTotal.toFixed(2);
             filled++;
             setTimeout(tick, 150);
         }
