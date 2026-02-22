@@ -189,8 +189,8 @@ tr:last-child td{border-bottom:none}
       {% for c in commissions %}
       <tr>
         <td>
-          {% if c.commission_type == 'grid_owner' %}🏆 Grid Owner
-          {% elif c.commission_type == 'level_pool' %}◈ Level Pool
+          {% if c.commission_type == 'direct_sponsor' %}💚 Direct Sponsor
+          {% elif c.commission_type == 'uni_level' %}⚡ Uni-Level
           {% elif c.commission_type == 'upline' %}🔗 Upline
           {% else %}{{ c.commission_type|replace('_',' ')|title }}{% endif %}
         </td>
