@@ -7,60 +7,60 @@
     <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { background:#020e08; color:#e0ead8; font-family:'Rethink Sans',sans-serif; min-height:100vh; }
+        body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif; min-height:100vh; }
 
         /* ===== SIDEBAR ===== */
-        .sidebar { width:240px; min-height:100vh; background:rgba(1,10,5,0.95); border-right:1px solid rgba(0,180,120,0.12); display:flex; flex-direction:column; position:fixed; top:0; left:0; z-index:50; }
-        .sidebar-logo { display:flex; align-items:center; gap:10px; padding:24px 20px; border-bottom:1px solid rgba(0,180,120,0.1); text-decoration:none; }
-        .sidebar-brand { font-weight:800; font-size:14px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#ffe89a,#c9a84c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .sidebar { width:240px; min-height:100vh; background:rgba(1,10,5,0.95); border-right:1px solid #e2e6f0; display:flex; flex-direction:column; position:fixed; top:0; left:0; z-index:50; }
+        .sidebar-logo { display:flex; align-items:center; gap:10px; padding:24px 20px; border-bottom:1px solid #e2e6f0; text-decoration:none; }
+        .sidebar-brand { font-weight:800; font-size:14px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#00b4d8,#6d28d9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
 
         .sidebar-section { padding:20px 14px 8px; font-size:9px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(0,220,160,0.65); }
 
         .nav-item { display:flex; align-items:center; gap:12px; padding:11px 20px; font-size:13px; font-weight:500; color:rgba(220,242,230,0.78); text-decoration:none; transition:all 0.2s; border-left:2px solid transparent; cursor:pointer; }
-        .nav-item:hover { color:rgba(220,242,230,0.9); background:rgba(0,180,120,0.06); }
-        .nav-item.active { color:#00dc96; background:rgba(0,200,140,0.08); border-left-color:#00dc96; }
+        .nav-item:hover { color:rgba(220,242,230,0.9); background:#f8faff; }
+        .nav-item.active { color:#00b4d8; background:#eff6ff; border-left-color:#00b4d8; }
         .nav-icon { font-size:15px; width:20px; text-align:center; flex-shrink:0; }
-        .nav-badge { margin-left:auto; font-size:9px; font-weight:700; background:rgba(201,168,76,0.15); color:#c9a84c; border:1px solid rgba(201,168,76,0.25); padding:2px 7px; border-radius:10px; }
+        .nav-badge { margin-left:auto; font-size:9px; font-weight:700; background:rgba(0,180,216,0.1); color:#6d28d9; border:1px solid rgba(0,180,216,0.2); padding:2px 7px; border-radius:10px; }
 
-        .sidebar-footer { margin-top:auto; padding:16px 14px; border-top:1px solid rgba(0,180,120,0.1); }
-        .user-mini { display:flex; align-items:center; gap:10px; padding:10px; background:rgba(0,0,0,0.2); border-radius:6px; border:1px solid rgba(0,180,120,0.1); }
-        .user-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#021a10,#042a18); border:1px solid rgba(0,200,140,0.3); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#ffffff; flex-shrink:0; }
-        .user-name { font-size:13px; font-weight:600; color:#ffffff; }
+        .sidebar-footer { margin-top:auto; padding:16px 14px; border-top:1px solid #e2e6f0; }
+        .user-mini { display:flex; align-items:center; gap:10px; padding:10px; background:rgba(0,0,0,0.2); border-radius:6px; border:1px solid #e2e6f0; }
+        .user-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#ffffff,#042a18); border:1px solid rgba(0,200,140,0.3); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#0f172a; flex-shrink:0; }
+        .user-name { font-size:13px; font-weight:600; color:#0f172a; }
         .user-role { font-size:10px; color:rgba(0,200,140,0.6); letter-spacing:1px; text-transform:uppercase; }
         .logout-btn { display:flex; align-items:center; gap:8px; margin-top:10px; padding:9px 20px; font-size:12px; color:rgba(220,242,230,0.72); text-decoration:none; transition:color 0.2s; }
         .logout-btn:hover { color:rgba(255,100,100,0.7); }
 
         /* ===== MAIN CONTENT ===== */
-        .main { margin-left:240px; display:flex; flex-direction:column; min-height:100vh; position:relative; z-index:10; }
+        .main { margin-left:220px; display:flex; flex-direction:column; min-height:100vh; background:#f0f2f8; }
 
         /* Top bar */
-        .topbar { display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:64px; background:rgba(1,10,5,0.85); backdrop-filter:blur(18px); border-bottom:1px solid rgba(0,180,120,0.1); position:sticky; top:0; z-index:20; }
-        .topbar-left h1 { font-size:20px; font-weight:800; color:#fff; }
-        .topbar-left p { font-size:12px; color:rgba(220,242,230,0.78); margin-top:1px; }
+        .topbar { display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:64px; background:#ffffff; border-bottom:1px solid #e2e6f0; box-shadow:0 1px 8px rgba(0,0,0,0.06); position:sticky; top:0; z-index:20; }
+        .topbar-left h1 { font-size:19px; font-weight:800; color:#0f172a; }
+        .topbar-left p { font-size:11px; color:#94a3b8; margin-top:1px; }
         .topbar-right { display:flex; align-items:center; gap:16px; }
-        .wallet-pill { display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.3); border:1px solid rgba(201,168,76,0.25); border-radius:6px; padding:8px 14px; }
-        .wallet-label { font-size:10px; color:rgba(220,242,230,0.72); text-transform:uppercase; letter-spacing:1px; }
-        .wallet-bal { font-family:'Rethink Sans',sans-serif; font-size:16px; color:#ffffff; font-weight:700; }
+        .wallet-pill { display:flex; align-items:center; gap:8px; background:#f8faff; border:1px solid #e2e6f0; border-radius:6px; padding:8px 14px; }
+        .wallet-label { font-size:10px; color:#94a3b8; text-transform:uppercase; letter-spacing:1px; }
+        .wallet-bal { font-family:'Rethink Sans',sans-serif; font-size:16px; color:#16a34a; font-weight:800; }
         .wallet-currency { font-size:10px; color:rgba(255,255,255,0.5); }
-        .notif-btn { width:36px; height:36px; border-radius:6px; background:rgba(0,0,0,0.25); border:1px solid rgba(0,180,120,0.15); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; position:relative; }
-        .notif-dot { position:absolute; top:6px; right:6px; width:7px; height:7px; border-radius:50%; background:#c9a84c; }
+        .notif-btn { width:36px; height:36px; border-radius:6px; background:rgba(0,0,0,0.25); border:1px solid #e2e6f0; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; position:relative; }
+        .notif-dot { position:absolute; top:6px; right:6px; width:7px; height:7px; border-radius:50%; background:#6d28d9; }
 
         /* Page content */
         .content { padding:28px 32px; flex:1; position:relative; z-index:10; }
 
         /* ===== STAT CARDS ===== */
         .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
-        .stat-card { background:rgba(2,16,9,0.9); border:1px solid rgba(0,180,120,0.15); border-radius:8px; padding:20px 22px; position:relative; overflow:hidden; transition:all 0.3s; z-index:10; }
-        .stat-card:hover { border-color:rgba(0,220,150,0.3); transform:translateY(-2px); }
+        .stat-card { background:rgba(2,16,9,0.9); border:1px solid #e2e6f0; border-radius:8px; padding:20px 22px; position:relative; overflow:hidden; transition:all 0.3s; z-index:10; }
+        .stat-card:hover { border-color:#00b4d8; transform:translateY(-2px); }
         .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; opacity:0.6; }
-        .stat-card.green::before { background:linear-gradient(90deg,transparent,#00dc96,transparent); }
-        .stat-card.gold::before { background:linear-gradient(90deg,transparent,#c9a84c,transparent); }
-        .stat-card.teal::before { background:linear-gradient(90deg,transparent,#00c8d4,transparent); }
-        .stat-card.purple::before { background:linear-gradient(90deg,transparent,#a070ff,transparent); }
+        .stat-card.green::before { background:linear-gradient(90deg,transparent,#00b4d8,transparent); }
+        .stat-card.gold::before { background:linear-gradient(90deg,transparent,#6d28d9,transparent); }
+        .stat-card.teal::before { background:linear-gradient(90deg,transparent,#00b4d8,transparent); }
+        .stat-card.purple::before { background:linear-gradient(90deg,transparent,#6d28d9,transparent); }
         .sc-icon { font-size:22px; margin-bottom:12px; display:block; }
         .sc-label { font-size:11px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:rgba(220,242,230,0.78); margin-bottom:6px; }
-        .sc-value { font-family:'Rethink Sans',sans-serif; font-size:26px; font-weight:700; color:#ffffff; line-height:1; margin-bottom:6px; }
-        .sc-change { font-size:11px; color:#00dc96; font-weight:600; }
+        .sc-value { font-family:'Rethink Sans',sans-serif; font-size:26px; font-weight:700; color:#0f172a; line-height:1; margin-bottom:6px; }
+        .sc-change { font-size:11px; color:#00b4d8; font-weight:600; }
         .sc-change.down { color:rgba(255,100,100,0.8); }
         .sc-bg { position:absolute; right:16px; top:50%; transform:translateY(-50%); font-size:52px; opacity:0.04; }
 
@@ -69,66 +69,66 @@
         .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:24px; }
 
         /* Panel base */
-        .panel { background:rgba(2,16,9,0.9); border:1px solid rgba(0,180,120,0.15); border-radius:8px; overflow:hidden; position:relative; z-index:10; }
-        .panel-head { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid rgba(0,180,120,0.1); }
-        .panel-title { font-size:14px; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px; }
+        .panel { background:rgba(2,16,9,0.9); border:1px solid #e2e6f0; border-radius:8px; overflow:hidden; position:relative; z-index:10; }
+        .panel-head { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid #e2e6f0; }
+        .panel-title { font-size:13px; font-weight:700; color:#0f172a; display:flex; align-items:center; gap:8px; }
         .panel-title-icon { font-size:14px; }
         .panel-action { font-size:12px; color:rgba(201,168,76,0.9); text-decoration:none; font-weight:600; cursor:pointer; transition:color 0.2s; }
-        .panel-action:hover { color:#c9a84c; }
+        .panel-action:hover { color:#6d28d9; }
         .panel-body { padding:20px; }
 
         /* ===== CAMPAIGNS ===== */
-        .campaign { padding:14px 0; border-bottom:1px solid rgba(0,180,120,0.08); }
+        .campaign { padding:14px 0; border-bottom:1px solid #e2e6f0; }
         .campaign:last-child { border-bottom:none; padding-bottom:0; }
         .camp-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-        .camp-name { font-size:14px; font-weight:600; color:#ffffff; }
+        .camp-name { font-size:14px; font-weight:600; color:#0f172a; }
         .camp-status { font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:3px 8px; border-radius:3px; }
-        .status-live { background:rgba(0,200,100,0.12); color:#00dc96; border:1px solid rgba(0,200,100,0.2); }
-        .status-pending { background:rgba(201,168,76,0.12); color:#c9a84c; border:1px solid rgba(201,168,76,0.2); }
+        .status-live { background:rgba(0,200,100,0.12); color:#00b4d8; border:1px solid rgba(0,200,100,0.2); }
+        .status-pending { background:rgba(0,180,216,0.08); color:#6d28d9; border:1px solid rgba(0,180,216,0.15); }
         .status-complete { background:rgba(100,100,100,0.12); color:rgba(220,242,230,0.72); border:1px solid rgba(100,100,100,0.2); }
         .camp-meta { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
         .camp-views { font-size:11px; color:rgba(220,242,230,0.78); }
-        .camp-views strong { color:#ffffff; font-family:'Rethink Sans',sans-serif; font-size:12px; }
+        .camp-views strong { color:#0f172a; font-family:'Rethink Sans',sans-serif; font-size:12px; }
         .prog-bar { height:5px; background:rgba(0,0,0,0.4); border-radius:3px; overflow:hidden; }
-        .prog-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,#00dc96,#c9a84c); }
+        .prog-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,#00b4d8,#6d28d9); }
         .camp-pkg { font-size:10px; color:rgba(0,200,140,0.6); letter-spacing:1px; }
 
         /* ===== MATRIX VISUALISER ===== */
         .matrix-vis { text-align:center; }
         .matrix-you { display:inline-flex; flex-direction:column; align-items:center; margin-bottom:12px; }
         .matrix-node { width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; border:2px solid; position:relative; }
-        .node-you { background:rgba(0,200,140,0.15); border-color:#00dc96; box-shadow:0 0 20px rgba(0,200,140,0.25); }
-        .node-filled { background:rgba(201,168,76,0.12); border-color:rgba(201,168,76,0.4); }
-        .node-empty { background:rgba(0,0,0,0.3); border-color:rgba(0,180,120,0.2); border-style:dashed; }
+        .node-you { background:rgba(0,200,140,0.15); border-color:#00b4d8; box-shadow:0 0 20px #bfdbfe; }
+        .node-filled { background:rgba(0,180,216,0.08); border-color:rgba(0,180,216,0.3); }
+        .node-empty { background:rgba(0,0,0,0.3); border-color:#e2e6f0; border-style:dashed; }
         .node-label { font-size:10px; color:rgba(220,242,230,0.75); margin-top:5px; letter-spacing:1px; text-transform:uppercase; }
         .matrix-connector { width:1px; height:16px; background:rgba(0,200,140,0.3); margin:0 auto; }
         .matrix-row { display:flex; justify-content:center; gap:10px; margin-bottom:6px; }
         .matrix-row-connector { display:flex; justify-content:center; gap:0; margin-bottom:4px; position:relative; height:16px; }
         .matrix-tier-label { font-size:10px; color:rgba(220,242,230,0.70); letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; text-align:left; }
-        .tier-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(0,200,140,0.08); border:1px solid rgba(0,200,140,0.2); border-radius:4px; padding:6px 12px; margin-bottom:14px; }
-        .tier-badge-val { font-family:'Rethink Sans',sans-serif; font-size:14px; color:#ffffff; font-weight:700; }
+        .tier-badge { display:inline-flex; align-items:center; gap:6px; background:#eff6ff; border:1px solid rgba(0,200,140,0.2); border-radius:4px; padding:6px 12px; margin-bottom:14px; }
+        .tier-badge-val { font-family:'Rethink Sans',sans-serif; font-size:14px; color:#0f172a; font-weight:700; }
         .tier-badge-label { font-size:10px; color:rgba(220,242,230,0.78); }
         .matrix-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:14px; }
-        .ms { background:rgba(0,0,0,0.2); border-radius:4px; padding:8px; text-align:center; border:1px solid rgba(0,180,120,0.1); }
-        .ms-val { font-family:'Rethink Sans',sans-serif; font-size:14px; color:#ffffff; font-weight:700; }
+        .ms { background:rgba(0,0,0,0.2); border-radius:4px; padding:8px; text-align:center; border:1px solid #e2e6f0; }
+        .ms-val { font-family:'Rethink Sans',sans-serif; font-size:14px; color:#0f172a; font-weight:700; }
         .ms-label { font-size:9px; color:rgba(220,242,230,0.72); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
 
         /* ===== WALLET ===== */
-        .wallet-balance-big { text-align:center; padding:20px 0 16px; border-bottom:1px solid rgba(0,180,120,0.1); margin-bottom:16px; }
+        .wallet-balance-big { text-align:center; padding:20px 0 16px; border-bottom:1px solid #e2e6f0; margin-bottom:16px; }
         .wb-label { font-size:11px; color:rgba(220,242,230,0.5); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
-        .wb-amount { font-family:'Rethink Sans',sans-serif; font-size:36px; font-weight:700; color:#ffffff; line-height:1; }
+        .wb-amount { font-family:'Rethink Sans',sans-serif; font-size:36px; font-weight:700; color:#0f172a; line-height:1; }
         .wb-currency { font-size:14px; color:rgba(255,255,255,0.5); margin-left:6px; }
         .wb-address { font-size:10px; color:rgba(0,200,140,0.55); margin-top:8px; font-family:monospace; }
 
         .wallet-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
         .wallet-btn { padding:10px; border-radius:5px; font-weight:700; font-size:12px; text-align:center; cursor:pointer; transition:all 0.2s; border:1px solid transparent; font-family:'Rethink Sans',sans-serif; }
-        .wbtn-gold { background:linear-gradient(135deg,#ffe89a,#c9a84c); color:#020e08; }
-        .wbtn-gold:hover { box-shadow:0 0 20px rgba(201,168,76,0.4); }
-        .wbtn-outline { background:transparent; color:rgba(220,242,230,0.7); border:1px solid rgba(0,180,120,0.25) !important; }
-        .wbtn-outline:hover { border-color:rgba(0,220,150,0.4) !important; color:#fff; }
+        .wbtn-gold { background:linear-gradient(135deg,#00b4d8,#6d28d9); color:#f0f2f8; }
+        .wbtn-gold:hover { box-shadow:0 0 20px rgba(0,180,216,0.3); }
+        .wbtn-outline { background:transparent; color:rgba(220,242,230,0.7); border:1px solid #e2e6f0 !important; }
+        .wbtn-outline:hover { border-color:rgba(0,220,150,0.4) !important; color:#0f172a; }
 
         .tx-list { display:flex; flex-direction:column; gap:0; }
-        .tx { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(0,180,120,0.07); }
+        .tx { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f8faff; }
         .tx:last-child { border-bottom:none; }
         .tx-left { display:flex; align-items:center; gap:10px; }
         .tx-icon { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; }
@@ -136,32 +136,32 @@
         .tx-out { background:rgba(255,100,80,0.1); border:1px solid rgba(255,100,80,0.2); }
         .tx-desc { font-size:13px; color:rgba(220,242,230,0.90); font-weight:500; }
         .tx-date { font-size:10px; color:rgba(220,242,230,0.65); margin-top:1px; }
-        .tx-amount { font-family:'Rethink Sans',sans-serif; font-size:13px; font-weight:700; color:#ffffff; }
-        .tx-amount.pos { color:#00dc96; }
+        .tx-amount { font-family:'Rethink Sans',sans-serif; font-size:13px; font-weight:700; color:#0f172a; }
+        .tx-amount.pos { color:#00b4d8; }
         .tx-amount.neg { color:rgba(255,120,100,0.8); }
 
         /* ===== AFFILIATE ===== */
-        .ref-link-box { background:rgba(0,0,0,0.3); border:1px solid rgba(0,180,120,0.2); border-radius:5px; padding:12px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:16px; }
+        .ref-link-box { background:rgba(0,0,0,0.3); border:1px solid #e2e6f0; border-radius:5px; padding:12px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:16px; }
         .ref-link-text { font-size:12px; color:rgba(0,200,140,0.8); font-family:monospace; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .copy-btn { font-size:11px; font-weight:700; color:#020e08; background:linear-gradient(135deg,#ffe89a,#c9a84c); padding:7px 14px; border-radius:4px; border:none; cursor:pointer; font-family:'Rethink Sans',sans-serif; white-space:nowrap; transition:all 0.2s; flex-shrink:0; }
-        .copy-btn:hover { box-shadow:0 0 16px rgba(201,168,76,0.4); }
-        .copy-btn.copied { background:rgba(0,200,140,0.2); color:#00dc96; border:1px solid rgba(0,200,140,0.3); }
+        .copy-btn { font-size:11px; font-weight:700; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:7px 14px; border-radius:4px; border:none; cursor:pointer; font-family:'Rethink Sans',sans-serif; white-space:nowrap; transition:all 0.2s; flex-shrink:0; }
+        .copy-btn:hover { box-shadow:0 0 16px rgba(0,180,216,0.3); }
+        .copy-btn.copied { background:rgba(0,200,140,0.2); color:#00b4d8; border:1px solid rgba(0,200,140,0.3); }
 
         .aff-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
-        .aff-s { background:rgba(0,0,0,0.2); border:1px solid rgba(0,180,120,0.1); border-radius:5px; padding:12px; text-align:center; }
-        .aff-s-val { font-family:'Rethink Sans',sans-serif; font-size:18px; color:#ffffff; font-weight:700; }
+        .aff-s { background:rgba(0,0,0,0.2); border:1px solid #e2e6f0; border-radius:5px; padding:12px; text-align:center; }
+        .aff-s-val { font-family:'Rethink Sans',sans-serif; font-size:18px; color:#0f172a; font-weight:700; }
         .aff-s-label { font-size:9px; color:rgba(220,242,230,0.5); text-transform:uppercase; letter-spacing:1px; margin-top:3px; }
 
         .share-btns { display:flex; gap:8px; }
         .share-btn { flex:1; padding:9px; border-radius:4px; font-size:11px; font-weight:700; text-align:center; cursor:pointer; border:1px solid; transition:all 0.2s; font-family:'Rethink Sans',sans-serif; }
-        .sb-email { background:rgba(0,180,120,0.08); color:rgba(0,220,150,0.8); border-color:rgba(0,180,120,0.2); }
-        .sb-copy { background:rgba(201,168,76,0.08); color:rgba(201,168,76,0.8); border-color:rgba(201,168,76,0.2); }
-        .sb-email:hover { background:rgba(0,180,120,0.15); }
-        .sb-copy:hover { background:rgba(201,168,76,0.15); }
+        .sb-email { background:#f8faff; color:rgba(0,220,150,0.8); border-color:#e2e6f0; }
+        .sb-copy { background:rgba(201,168,76,0.08); color:rgba(201,168,76,0.8); border-color:rgba(0,180,216,0.15); }
+        .sb-email:hover { background:#e2e6f0; }
+        .sb-copy:hover { background:rgba(0,180,216,0.1); }
 
         /* ===== QUICK ACTIONS ===== */
         .quick-actions { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px; }
-        .qa { background:rgba(2,16,9,0.9); border:1px solid rgba(0,180,120,0.15); border-radius:8px; padding:18px 16px; text-align:center; cursor:pointer; transition:all 0.3s; text-decoration:none; display:block; position:relative; z-index:10; }
+        .qa { background:rgba(2,16,9,0.9); border:1px solid #e2e6f0; border-radius:8px; padding:18px 16px; text-align:center; cursor:pointer; transition:all 0.3s; text-decoration:none; display:block; position:relative; z-index:10; }
         .qa:hover { border-color:rgba(0,220,150,0.4); transform:translateY(-3px); background:rgba(3,22,12,0.95); }
         .qa-icon { font-size:26px; display:block; margin-bottom:10px; }
         .qa-label { font-size:12px; font-weight:700; color:rgba(220,242,230,0.8); }
@@ -169,18 +169,18 @@
 
         /* ===== PACKAGES UPGRADE ===== */
         .pkg-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
-        .pkg-card { background:rgba(0,0,0,0.25); border:1px solid rgba(0,180,120,0.12); border-radius:5px; padding:12px; text-align:center; transition:all 0.2s; cursor:pointer; position:relative; }
+        .pkg-card { background:rgba(0,0,0,0.25); border:1px solid #e2e6f0; border-radius:5px; padding:12px; text-align:center; transition:all 0.2s; cursor:pointer; position:relative; }
         .pkg-card:hover { border-color:rgba(0,220,150,0.35); }
-        .pkg-card.active-pkg { border-color:rgba(201,168,76,0.4); background:rgba(201,168,76,0.05); }
-        .pkg-card.active-pkg::after { content:'ACTIVE'; position:absolute; top:-1px; left:50%; transform:translateX(-50%); font-size:7px; font-weight:700; letter-spacing:2px; color:#c9a84c; background:rgba(201,168,76,0.15); border:1px solid rgba(201,168,76,0.3); padding:2px 8px; border-radius:0 0 4px 4px; white-space:nowrap; }
+        .pkg-card.active-pkg { border-color:rgba(0,180,216,0.3); background:rgba(201,168,76,0.05); }
+        .pkg-card.active-pkg::after { content:'ACTIVE'; position:absolute; top:-1px; left:50%; transform:translateX(-50%); font-size:7px; font-weight:700; letter-spacing:2px; color:#6d28d9; background:rgba(0,180,216,0.1); border:1px solid rgba(0,180,216,0.25); padding:2px 8px; border-radius:0 0 4px 4px; white-space:nowrap; }
         .pkg-tier { font-size:9px; color:rgba(220,242,230,0.72); text-transform:uppercase; letter-spacing:1px; }
-        .pkg-amt { font-family:'Rethink Sans',sans-serif; font-size:16px; color:#ffffff; font-weight:700; margin:4px 0; }
+        .pkg-amt { font-family:'Rethink Sans',sans-serif; font-size:16px; color:#0f172a; font-weight:700; margin:4px 0; }
         .pkg-views { font-size:9px; color:rgba(220,242,230,0.72); }
 
         /* Background effect */
         .bg-fx { position:fixed; inset:0; z-index:0; pointer-events:none;
             background: radial-gradient(ellipse 80% 60% at 60% 20%, rgba(0,100,70,0.2) 0%, transparent 60%),
-                        linear-gradient(180deg,#010f09 0%,#021208 100%);
+                        linear-gradient(180deg,#f0f2f8 0%,#021208 100%);
         }
         .grid-fx { position:fixed; inset:0; z-index:0; pointer-events:none;
             background-image: linear-gradient(rgba(0,180,120,0.025) 1px,transparent 1px), linear-gradient(90deg,rgba(0,180,120,0.025) 1px,transparent 1px);
@@ -193,15 +193,15 @@
 </head>
 <body>
 
-<div class="bg-fx"></div>
-<div class="grid-fx"></div>
+
+
 
 <!-- SVG defs -->
 <svg width="0" height="0" style="position:absolute">
   <defs>
-    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffe89a"/><stop offset="30%" stop-color="#c9a84c"/><stop offset="70%" stop-color="#7a5c10"/><stop offset="100%" stop-color="#c9a84c"/></linearGradient>
-    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1a3520"/><stop offset="40%" stop-color="#0d2018"/><stop offset="100%" stop-color="#050e08"/></linearGradient>
-    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7a5c10"/><stop offset="50%" stop-color="#c9a84c"/><stop offset="100%" stop-color="#7a5c10"/></linearGradient>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="30%" stop-color="#6d28d9"/><stop offset="70%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient>
+    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a0a2e"/><stop offset="40%" stop-color="#06061a"/><stop offset="100%" stop-color="#03031a"/></linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
     <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
     <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     <clipPath id="sc"><path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z"/></clipPath>
@@ -232,7 +232,7 @@
     <a href="/upload" class="nav-item"><span class="nav-icon">⬆</span> Upload Video</a>
 
     <div class="sidebar-section">Earnings</div>
-    <a href="/matrix" class="nav-item"><span class="nav-icon">◈</span> Matrix Position</a>
+    <a href="/income-grid" class="nav-item"><span class="nav-icon">◈</span> Income Grid</a>
     <a href="/wallet" class="nav-item"><span class="nav-icon">◎</span> Wallet</a>
     <a href="/affiliate" class="nav-item"><span class="nav-icon">🤝</span> Affiliate Tools</a>
     <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span> Comp Plan</a>
@@ -258,9 +258,9 @@
 
     <!-- TOP BAR -->
     {% if not is_active %}
-<div style="position:relative;z-index:50;background:rgba(201,168,76,0.12);border-bottom:1px solid rgba(201,168,76,0.3);padding:10px 24px;font-size:13px;color:rgba(255,220,100,0.9);display:flex;align-items:center;justify-content:space-between;">
+<div style="position:relative;z-index:50;background:rgba(0,180,216,0.08);border-bottom:1px solid rgba(0,180,216,0.25);padding:10px 24px;font-size:13px;color:rgba(255,220,100,0.9);display:flex;align-items:center;justify-content:space-between;">
     <span>⚡ Your account is not yet activated. Activate a package to start advertising and earning.</span>
-    <a href="/packages" style="font-weight:700;color:#c9a84c;text-decoration:none;white-space:nowrap;margin-left:20px;">View Packages →</a>
+    <a href="/packages" style="font-weight:700;color:#6d28d9;text-decoration:none;white-space:nowrap;margin-left:20px;">View Packages →</a>
 </div>
 {% endif %}
 <div class="topbar">
@@ -306,7 +306,7 @@
             </div>
             <div class="stat-card purple">
                 <span class="sc-icon">◈</span>
-                <div class="sc-label">Matrix Referrals</div>
+                <div class="sc-label">Grid Referrals</div>
                 <div class="sc-value">{{ personal_referrals }}</div>
                 <div class="sc-change">▲ 2 new this week</div>
                 <div class="sc-bg">🌐</div>
@@ -383,11 +383,11 @@
                 </div>
             </div>
 
-            <!-- Matrix Position -->
+            <!-- Income Grid -->
             <div class="panel">
                 <div class="panel-head">
-                    <div class="panel-title"><span class="panel-title-icon">◈</span> Matrix Position</div>
-                    <a class="panel-action" href="/matrix">Full View →</a>
+                    <div class="panel-title"><span class="panel-title-icon">◈</span> Income Grid</div>
+                    <a class="panel-action" href="/income-grid">Full View →</a>
                 </div>
                 <div class="panel-body">
                     <div class="matrix-vis">
@@ -472,7 +472,7 @@
                         <div class="tx">
                             <div class="tx-left">
                                 <div class="tx-icon tx-in">↓</div>
-                                <div><div class="tx-desc">Matrix Level 2 Earning</div><div class="tx-date">Yesterday, 09:15</div></div>
+                                <div><div class="tx-desc">Grid Level 2 Earning</div><div class="tx-date">Yesterday, 09:15</div></div>
                             </div>
                             <div class="tx-amount pos">+$14.00</div>
                         </div>
@@ -515,17 +515,17 @@
 
                     <div style="font-size:11px;color:rgba(220,242,230,0.78);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase;font-weight:600;">Commission Structure</div>
                     <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(0,0,0,0.2);border-radius:4px;border:1px solid rgba(0,180,120,0.1);">
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(0,0,0,0.2);border-radius:4px;border:1px solid #e2e6f0;">
                             <span style="font-size:12px;color:rgba(220,242,230,0.7);">Direct Referral</span>
-                            <span style="font-family:'Rethink Sans',sans-serif;font-size:13px;color:#ffffff;font-weight:700;">20%</span>
+                            <span style="font-family:'Rethink Sans',sans-serif;font-size:13px;color:#0f172a;font-weight:700;">20%</span>
                         </div>
-                        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(0,0,0,0.2);border-radius:4px;border:1px solid rgba(0,180,120,0.1);">
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(0,0,0,0.2);border-radius:4px;border:1px solid #e2e6f0;">
                             <span style="font-size:12px;color:rgba(220,242,230,0.7);">Matching Bonus</span>
-                            <span style="font-family:'Rethink Sans',sans-serif;font-size:13px;color:#ffffff;font-weight:700;">8%</span>
+                            <span style="font-family:'Rethink Sans',sans-serif;font-size:13px;color:#0f172a;font-weight:700;">8%</span>
                         </div>
-                        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(0,0,0,0.2);border-radius:4px;border:1px solid rgba(0,180,120,0.1);">
-                            <span style="font-size:12px;color:rgba(220,242,230,0.7);">Matrix Levels 1–10</span>
-                            <span style="font-family:'Rethink Sans',sans-serif;font-size:13px;color:#ffffff;font-weight:700;">67%</span>
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(0,0,0,0.2);border-radius:4px;border:1px solid #e2e6f0;">
+                            <span style="font-size:12px;color:rgba(220,242,230,0.7);">Grid Levels 1–10</span>
+                            <span style="font-family:'Rethink Sans',sans-serif;font-size:13px;color:#0f172a;font-weight:700;">67%</span>
                         </div>
                     </div>
 

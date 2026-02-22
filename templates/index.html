@@ -7,32 +7,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { background:#020e08; color:#e0ead8; font-family:'Rethink Sans',sans-serif; overflow-x:hidden; }
+        body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif; overflow-x:hidden; }
 
         /* Background */
-        .bg { position:fixed; inset:0; z-index:0;
-            background: radial-gradient(ellipse 120% 70% at 50% 0%, rgba(0,100,80,0.45) 0%, rgba(0,60,40,0.2) 40%, transparent 70%),
-                        radial-gradient(ellipse 80% 60% at 80% 60%, rgba(0,80,120,0.12) 0%, transparent 60%),
-                        radial-gradient(ellipse 60% 50% at 20% 70%, rgba(0,100,60,0.1) 0%, transparent 60%),
-                        linear-gradient(180deg,#010f09 0%,#021a10 25%,#021f16 50%,#021208 80%,#010a05 100%);
-        }
-        .grid { position:fixed; inset:0; z-index:1; pointer-events:none;
-            background-image: linear-gradient(rgba(0,180,120,0.04) 1px,transparent 1px),
-                              linear-gradient(90deg,rgba(0,180,120,0.04) 1px,transparent 1px);
-            background-size:55px 55px;
-        }
+        .bg{display:none}
+        .grid{display:none}
         .particle { position:fixed; border-radius:50%; pointer-events:none; z-index:2; opacity:0; animation:floatUp linear infinite; }
         @keyframes floatUp { 0%{transform:translateY(100vh);opacity:0} 10%{opacity:0.8} 85%{opacity:0.4} 100%{transform:translateY(-5vh);opacity:0} }
 
         /* Nav */
-        nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 36px; height:60px; background:rgba(1,10,5,0.8); backdrop-filter:blur(18px); border-bottom:1px solid rgba(0,180,120,0.12); }
+        nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 36px; height:60px; background:rgba(1,10,5,0.8); backdrop-filter:blur(18px); border-bottom:1px solid #e2e6f0; }
         .nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; }
-        .nav-brand { font-weight:800; font-size:15px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#ffe89a,#c9a84c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .nav-brand { font-weight:800; font-size:15px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#00b4d8,#6d28d9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
         .nav-links { display:flex; align-items:center; gap:6px; list-style:none; }
         .nav-links a { font-size:13px; font-weight:500; color:rgba(200,230,210,0.55); text-decoration:none; padding:4px 10px; transition:color 0.2s; }
         .nav-links a:hover { color:rgba(200,230,210,0.9); }
         .nav-sep { color:rgba(0,180,100,0.3); font-size:11px; }
-        .nav-cta { font-weight:700; font-size:13px; color:#020e08; background:linear-gradient(135deg,#ffe89a,#d4a840); padding:8px 22px; border-radius:5px; text-decoration:none; box-shadow:0 2px 20px rgba(201,168,76,0.3); transition:all 0.3s; }
+        .nav-cta { font-weight:700; font-size:13px; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#d4a840); padding:8px 22px; border-radius:5px; text-decoration:none; box-shadow:0 2px 20px rgba(0,180,216,0.25); transition:all 0.3s; }
         .nav-cta:hover { box-shadow:0 4px 30px rgba(201,168,76,0.5); transform:translateY(-1px); }
 
         /* Page */
@@ -41,20 +32,20 @@
         /* Hero */
         .hero { padding:88px 40px 0; text-align:center; }
 
-        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:rgba(0,220,150,0.75); border:1px solid rgba(0,220,150,0.2); border-radius:50px; padding:5px 16px; margin-bottom:22px; opacity:0; animation:fadeUp 0.8s ease forwards 0.1s; }
-        .dot { width:6px; height:6px; border-radius:50%; background:#00dc96; animation:blink 2s ease-in-out infinite; }
+        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#00b4d8; border:1px solid rgba(0,220,150,0.2); border-radius:50px; padding:5px 16px; margin-bottom:22px; opacity:0; animation:fadeUp 0.8s ease forwards 0.1s; }
+        .dot { width:6px; height:6px; border-radius:50%; background:#00b4d8; animation:blink 2s ease-in-out infinite; }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
-        .hero-title { font-weight:800; font-size:clamp(28px,4.2vw,56px); color:#fff; line-height:1.1; margin-bottom:14px; opacity:0; animation:fadeUp 0.8s ease forwards 0.2s; }
-        .hero-title .gold { color:#c9a84c; }
+        .hero-title { font-weight:800; font-size:clamp(28px,4.2vw,56px); color:#0f172a; line-height:1.1; margin-bottom:14px; opacity:0; animation:fadeUp 0.8s ease forwards 0.2s; }
+        .hero-title .gold { color:#6d28d9; }
 
         .hero-sub { font-size:clamp(13px,1.4vw,16px); color:rgba(200,225,210,0.6); line-height:1.65; max-width:580px; margin:0 auto 30px; opacity:0; animation:fadeUp 0.8s ease forwards 0.3s; }
 
         .hero-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:50px; opacity:0; animation:fadeUp 0.8s ease forwards 0.4s; }
-        .btn-gold { font-weight:700; font-size:14px; color:#020e08; background:linear-gradient(135deg,#ffe89a,#c9a84c); padding:13px 34px; border-radius:5px; text-decoration:none; box-shadow:0 0 28px rgba(201,168,76,0.25); transition:all 0.3s; }
+        .btn-gold { font-weight:700; font-size:14px; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:13px 34px; border-radius:5px; text-decoration:none; box-shadow:0 0 28px rgba(0,180,216,0.2); transition:all 0.3s; }
         .btn-gold:hover { box-shadow:0 0 50px rgba(201,168,76,0.5); transform:translateY(-2px); }
-        .btn-outline { font-weight:600; font-size:14px; color:rgba(200,225,210,0.7); background:transparent; padding:12px 34px; border-radius:5px; border:1px solid rgba(0,180,120,0.3); text-decoration:none; transition:all 0.3s; }
-        .btn-outline:hover { border-color:rgba(0,220,150,0.6); color:#fff; }
+        .btn-outline { font-weight:600; font-size:14px; color:rgba(200,225,210,0.7); background:transparent; padding:12px 34px; border-radius:5px; border:1px solid #bfdbfe; text-decoration:none; transition:all 0.3s; }
+        .btn-outline:hover { border-color:#00b4d8; color:#0f172a; }
 
         @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
 
@@ -105,26 +96,26 @@
 
         .screen-bottom { position:absolute; bottom:0; left:0; right:0; z-index:4; padding:10px 14px; background:linear-gradient(0deg,rgba(0,0,0,0.6),transparent); }
         .progress-bar { height:3px; background:rgba(255,255,255,0.15); border-radius:2px; margin-bottom:8px; }
-        .progress-fill { height:100%; width:62%; background:linear-gradient(90deg,#00dc96,#c9a84c); border-radius:2px; animation:progressAnim 8s linear infinite; }
+        .progress-fill { height:100%; width:62%; background:linear-gradient(90deg,#00b4d8,#6d28d9); border-radius:2px; animation:progressAnim 8s linear infinite; }
         @keyframes progressAnim { 0%{width:5%} 100%{width:98%} }
         .screen-info { display:flex; align-items:center; justify-content:space-between; }
         .screen-title { font-size:10px; font-weight:600; color:rgba(255,255,255,0.8); }
         .screen-views { font-size:9px; color:rgba(0,220,160,0.8); font-family:'Rethink Sans',sans-serif; }
 
         /* Monitor stand */
-        .monitor-stand { width:60px; height:16px; background:linear-gradient(180deg,rgba(0,180,120,0.3),rgba(0,100,70,0.2)); margin:0 auto; border-radius:0 0 4px 4px; }
-        .monitor-base { width:140px; height:8px; background:linear-gradient(90deg,transparent,rgba(0,180,120,0.25),rgba(201,168,76,0.15),rgba(0,180,120,0.25),transparent); margin:0 auto; border-radius:4px; }
+        .monitor-stand { width:60px; height:16px; background:linear-gradient(180deg,#bfdbfe,rgba(0,100,70,0.2)); margin:0 auto; border-radius:0 0 4px 4px; }
+        .monitor-base { width:140px; height:8px; background:linear-gradient(90deg,transparent,#e2e6f0,rgba(0,180,216,0.1),#e2e6f0,transparent); margin:0 auto; border-radius:4px; }
 
         /* ===== FLOATING METRIC CARDS ===== */
-        .metric { position:absolute; background:rgba(2,18,10,0.92); backdrop-filter:blur(12px); border:1px solid rgba(0,180,120,0.3); border-radius:8px; padding:10px 14px; animation:cardFloat ease-in-out infinite; }
+        .metric { position:absolute; background:rgba(2,18,10,0.92); backdrop-filter:blur(12px); border:1px solid #bfdbfe; border-radius:8px; padding:10px 14px; animation:cardFloat ease-in-out infinite; }
         @keyframes cardFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 
         .metric-label { font-size:9px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:rgba(0,200,140,0.6); margin-bottom:3px; }
-        .metric-value { font-family:'Rethink Sans',sans-serif; font-size:20px; font-weight:700; color:#ffffff; line-height:1; }
+        .metric-value { font-family:'Rethink Sans',sans-serif; font-size:20px; font-weight:700; color:#0f172a; line-height:1; }
         .metric-sub { font-size:9px; color:rgba(200,225,210,0.35); margin-top:2px; }
         .metric-badge { display:inline-block; font-size:8px; font-weight:700; letter-spacing:1px; padding:1px 6px; border-radius:2px; margin-top:4px; }
-        .badge-up { background:rgba(0,200,100,0.15); color:#00dc96; border:1px solid rgba(0,200,100,0.25); }
-        .badge-hot { background:rgba(201,168,76,0.15); color:#c9a84c; border:1px solid rgba(201,168,76,0.25); }
+        .badge-up { background:rgba(0,200,100,0.15); color:#00b4d8; border:1px solid rgba(0,200,100,0.25); }
+        .badge-hot { background:rgba(0,180,216,0.1); color:#6d28d9; border:1px solid rgba(0,180,216,0.2); }
 
         /* Positions */
         .m-views    { left:0; top:20px; animation-duration:5s; }
@@ -137,72 +128,72 @@
 
         /* ===== STATS STRIP ===== */
         .stats-strip { display:flex; justify-content:center; max-width:900px; margin:24px auto 0; opacity:0; animation:fadeUp 0.8s ease forwards 1s; }
-        .stat { padding:18px 40px; text-align:center; border:1px solid rgba(0,180,120,0.15); border-right:none; background:rgba(2,15,8,0.6); backdrop-filter:blur(8px); flex:1; }
-        .stat:last-child { border-right:1px solid rgba(0,180,120,0.15); }
-        .stat-val { font-family:'Rethink Sans',sans-serif; font-size:24px; color:#ffffff; font-weight:700; margin-bottom:4px; }
+        .stat { padding:18px 40px; text-align:center; border:1px solid #e2e6f0; border-right:none; background:rgba(2,15,8,0.6); backdrop-filter:blur(8px); flex:1; }
+        .stat:last-child { border-right:1px solid #e2e6f0; }
+        .stat-val { font-family:'Rethink Sans',sans-serif; font-size:24px; color:#0f172a; font-weight:700; margin-bottom:4px; }
         .stat-label { font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(200,225,210,0.35); }
 
         /* ===== SECTION DIVIDER ===== */
         .divider { display:flex; align-items:center; gap:14px; padding:40px 40px 20px; max-width:1100px; margin:0 auto; }
-        .div-line { flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(0,180,120,0.2),transparent); }
+        .div-line { flex:1; height:1px; background:linear-gradient(90deg,transparent,#e2e6f0,transparent); }
         .div-text { font-size:11px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:rgba(200,225,210,0.35); white-space:nowrap; }
 
         /* ===== WHO IS THIS FOR ===== */
         .for-section { padding:0 24px 0; max-width:1100px; margin:0 auto; }
-        .for-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0; border:1px solid rgba(0,180,120,0.15); border-radius:8px; overflow:hidden; }
-        .for-card { padding:28px 24px; border-right:1px solid rgba(0,180,120,0.12); background:rgba(2,14,8,0.8); transition:all 0.3s; position:relative; overflow:hidden; }
+        .for-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0; border:1px solid #e2e6f0; border-radius:8px; overflow:hidden; }
+        .for-card { padding:28px 24px; border-right:1px solid #e2e6f0; background:rgba(2,14,8,0.8); transition:all 0.3s; position:relative; overflow:hidden; }
         .for-card:last-child { border-right:none; }
         .for-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,rgba(0,220,150,0.5),transparent); opacity:0; transition:opacity 0.3s; }
         .for-card:hover::before { opacity:1; }
         .for-card:hover { background:rgba(3,22,12,0.95); }
         .for-icon { font-size:32px; margin-bottom:14px; display:block; }
-        .for-who { font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(0,220,150,0.6); margin-bottom:8px; }
-        .for-title { font-weight:700; font-size:18px; color:#fff; margin-bottom:10px; line-height:1.2; }
+        .for-who { font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#00b4d8; margin-bottom:8px; }
+        .for-title { font-weight:700; font-size:18px; color:#0f172a; margin-bottom:10px; line-height:1.2; }
         .for-desc { font-size:13px; color:rgba(200,225,210,0.5); line-height:1.65; margin-bottom:16px; }
         .for-points { list-style:none; }
         .for-points li { font-size:12px; color:rgba(200,225,210,0.5); padding:4px 0; display:flex; gap:8px; align-items:flex-start; }
-        .for-points li::before { content:'→'; color:#00dc96; font-size:11px; flex-shrink:0; margin-top:1px; }
+        .for-points li::before { content:'→'; color:#00b4d8; font-size:11px; flex-shrink:0; margin-top:1px; }
 
         /* ===== FEATURE PILLS ===== */
         .pills-row { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; padding:28px 40px 0; }
-        .pill { display:flex; align-items:center; gap:7px; background:rgba(2,14,8,0.8); border:1px solid rgba(0,180,120,0.18); border-radius:50px; padding:7px 16px; font-size:12px; font-weight:500; color:rgba(200,225,210,0.55); transition:all 0.3s; }
+        .pill { display:flex; align-items:center; gap:7px; background:rgba(2,14,8,0.8); border:1px solid #e2e6f0; border-radius:50px; padding:7px 16px; font-size:12px; font-weight:500; color:rgba(200,225,210,0.55); transition:all 0.3s; }
         .pill:hover { border-color:rgba(0,220,150,0.4); color:rgba(200,225,210,0.9); }
 
         /* ===== HOW IT WORKS ===== */
         .how-section { padding:40px 40px 0; max-width:1100px; margin:0 auto; }
-        .section-title { font-weight:800; font-size:clamp(22px,3vw,38px); color:#fff; text-align:center; margin-bottom:6px; }
+        .section-title { font-weight:800; font-size:clamp(22px,3vw,38px); color:#0f172a; text-align:center; margin-bottom:6px; }
         .section-sub { font-size:14px; color:rgba(200,225,210,0.4); text-align:center; letter-spacing:1px; margin-bottom:36px; }
         .steps { display:grid; grid-template-columns:repeat(4,1fr); gap:0; position:relative; }
-        .steps::before { content:''; position:absolute; top:28px; left:12.5%; right:12.5%; height:1px; background:linear-gradient(90deg,rgba(0,180,120,0.3),rgba(201,168,76,0.4),rgba(0,180,120,0.3)); }
+        .steps::before { content:''; position:absolute; top:28px; left:12.5%; right:12.5%; height:1px; background:linear-gradient(90deg,#bfdbfe,rgba(0,180,216,0.3),#bfdbfe); }
         .step { text-align:center; padding:0 16px; }
-        .step-num { width:56px; height:56px; border-radius:50%; background:rgba(2,14,8,0.9); border:2px solid rgba(0,200,140,0.4); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; font-family:'Rethink Sans',sans-serif; font-size:18px; font-weight:700; color:#00dc96; box-shadow:0 0 20px rgba(0,200,140,0.15); }
-        .step-title { font-weight:700; font-size:13px; color:#c9a84c; margin-bottom:8px; letter-spacing:0.5px; }
+        .step-num { width:56px; height:56px; border-radius:50%; background:rgba(2,14,8,0.9); border:2px solid rgba(0,200,140,0.4); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; font-family:'Rethink Sans',sans-serif; font-size:18px; font-weight:700; color:#00b4d8; box-shadow:0 0 20px rgba(0,200,140,0.15); }
+        .step-title { font-weight:700; font-size:13px; color:#6d28d9; margin-bottom:8px; letter-spacing:0.5px; }
         .step-desc { font-size:12px; color:rgba(200,225,210,0.45); line-height:1.6; }
 
         /* ===== MATRIX PACKAGES ===== */
         .matrix-section { padding:40px 24px 0; max-width:1100px; margin:0 auto; }
         .matrix-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
-        .matrix-card { background:rgba(2,14,8,0.85); border:1px solid rgba(0,180,120,0.15); border-radius:6px; padding:16px 14px; text-align:center; transition:all 0.3s; cursor:pointer; position:relative; overflow:hidden; }
+        .matrix-card { background:rgba(2,14,8,0.85); border:1px solid #e2e6f0; border-radius:6px; padding:16px 14px; text-align:center; transition:all 0.3s; cursor:pointer; position:relative; overflow:hidden; }
         .matrix-card:hover { border-color:rgba(0,220,150,0.4); transform:translateY(-3px); background:rgba(3,22,12,0.95); }
-        .matrix-card.featured { border-color:rgba(201,168,76,0.4); }
-        .matrix-card.featured::before { content:'POPULAR'; position:absolute; top:8px; right:8px; font-size:7px; font-weight:700; letter-spacing:2px; color:#c9a84c; background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.3); padding:2px 6px; border-radius:2px; }
+        .matrix-card.featured { border-color:rgba(0,180,216,0.3); }
+        .matrix-card.featured::before { content:'POPULAR'; position:absolute; top:8px; right:8px; font-size:7px; font-weight:700; letter-spacing:2px; color:#6d28d9; background:rgba(0,180,216,0.08); border:1px solid rgba(0,180,216,0.25); padding:2px 6px; border-radius:2px; }
         .matrix-tier { font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(0,200,140,0.6); margin-bottom:6px; }
-        .matrix-price { font-family:'Rethink Sans',sans-serif; font-size:22px; font-weight:700; color:#ffffff; margin-bottom:4px; }
+        .matrix-price { font-family:'Rethink Sans',sans-serif; font-size:22px; font-weight:700; color:#0f172a; margin-bottom:4px; }
         .matrix-views { font-size:11px; color:rgba(200,225,210,0.5); margin-bottom:10px; }
-        .matrix-join { font-size:11px; font-weight:600; color:#020e08; background:linear-gradient(135deg,#ffe89a,#c9a84c); padding:6px 16px; border-radius:3px; display:inline-block; text-decoration:none; transition:all 0.2s; }
-        .matrix-join:hover { box-shadow:0 0 20px rgba(201,168,76,0.4); }
+        .matrix-join { font-size:11px; font-weight:600; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:6px 16px; border-radius:3px; display:inline-block; text-decoration:none; transition:all 0.2s; }
+        .matrix-join:hover { box-shadow:0 0 20px rgba(0,180,216,0.3); }
 
         /* ===== CTA ===== */
         .cta-section { text-align:center; padding:48px 40px 30px; }
-        .cta-title { font-weight:800; font-size:clamp(24px,3.5vw,44px); color:#fff; margin-bottom:8px; }
-        .cta-title .gold { color:#c9a84c; }
+        .cta-title { font-weight:800; font-size:clamp(24px,3.5vw,44px); color:#0f172a; margin-bottom:8px; }
+        .cta-title .gold { color:#6d28d9; }
         .cta-sub { font-size:14px; color:rgba(200,225,210,0.4); margin-bottom:28px; }
         .trust-badges { display:flex; justify-content:center; gap:32px; flex-wrap:wrap; margin-top:24px; }
         .trust-badge { display:flex; align-items:center; gap:7px; font-size:12px; color:rgba(200,225,210,0.3); }
 
-        footer { border-top:1px solid rgba(0,180,120,0.1); padding:20px 36px; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:10; }
+        footer { border-top:1px solid #e2e6f0; padding:20px 36px; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:10; }
         .footer-logo { display:flex; align-items:center; gap:8px; text-decoration:none; }
-        .footer-brand { font-weight:800; font-size:12px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#ffe89a,#c9a84c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .footer-brand { font-weight:800; font-size:12px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#00b4d8,#6d28d9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
         .footer-links { display:flex; gap:20px; }
         .footer-links a { font-size:11px; letter-spacing:1px; text-transform:uppercase; color:rgba(200,225,210,0.22); text-decoration:none; transition:color 0.2s; }
         .footer-links a:hover { color:rgba(201,168,76,0.7); }
@@ -211,7 +202,7 @@
         @media(max-width:900px){
             .nav-links{display:none}
             .for-grid,.steps,.matrix-grid{grid-template-columns:1fr 1fr}
-            .for-card,.matrix-card{border-right:1px solid rgba(0,180,120,0.12)}
+            .for-card,.matrix-card{border-right:1px solid #e2e6f0}
             .ad-stage{padding:0 16px}
             .ad-screen{width:100%;height:auto;aspect-ratio:16/9}
             .m-views,.m-ctr,.m-roi,.m-members{display:none}
@@ -224,16 +215,16 @@
 </head>
 <body>
 
-<div class="bg"></div>
-<div class="grid"></div>
+
+
 <div id="particles"></div>
 
 <!-- SVG shield -->
 <svg width="0" height="0" style="position:absolute">
   <defs>
-    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffe89a"/><stop offset="30%" stop-color="#c9a84c"/><stop offset="70%" stop-color="#7a5c10"/><stop offset="100%" stop-color="#c9a84c"/></linearGradient>
-    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1a3520"/><stop offset="40%" stop-color="#0d2018"/><stop offset="100%" stop-color="#050e08"/></linearGradient>
-    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7a5c10"/><stop offset="25%" stop-color="#ffe89a"/><stop offset="50%" stop-color="#c9a84c"/><stop offset="75%" stop-color="#ffe89a"/><stop offset="100%" stop-color="#7a5c10"/></linearGradient>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="30%" stop-color="#6d28d9"/><stop offset="70%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient>
+    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a0a2e"/><stop offset="40%" stop-color="#06061a"/><stop offset="100%" stop-color="#03031a"/></linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="25%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="75%" stop-color="#00b4d8"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
     <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
     <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     <clipPath id="sc"><path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z"/></clipPath>
@@ -288,9 +279,9 @@
             <div class="metric-value">2.4M</div>
             <div class="metric-sub">This month</div>
             <svg class="sparkline" width="110" height="28" viewBox="0 0 110 28">
-                <defs><linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00dc96" stop-opacity="0.3"/><stop offset="100%" stop-color="#00dc96" stop-opacity="0"/></linearGradient></defs>
+                <defs><linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00b4d8" stop-opacity="0.3"/><stop offset="100%" stop-color="#00b4d8" stop-opacity="0"/></linearGradient></defs>
                 <polygon points="0,24 18,18 32,20 50,10 65,14 82,5 95,8 110,2 110,28 0,28" fill="url(#sg1)"/>
-                <polyline points="0,24 18,18 32,20 50,10 65,14 82,5 95,8 110,2" fill="none" stroke="#00dc96" stroke-width="1.5"/>
+                <polyline points="0,24 18,18 32,20 50,10 65,14 82,5 95,8 110,2" fill="none" stroke="#00b4d8" stroke-width="1.5"/>
             </svg>
             <span class="metric-badge badge-up">▲ +38% this week</span>
         </div>
@@ -329,16 +320,16 @@
                     <path d="M0,180 L0,120 L20,120 L20,90 L30,90 L30,70 L40,70 L40,90 L55,90 L55,60 L65,60 L65,40 L75,40 L75,60 L85,60 L85,100 L100,100 L100,80 L108,80 L108,55 L118,55 L118,45 L128,45 L128,55 L138,55 L138,80 L155,80 L155,95 L165,95 L165,75 L175,75 L175,55 L185,55 L185,75 L195,75 L195,95 L210,95 L210,110 L220,110 L220,85 L232,85 L232,60 L242,60 L242,50 L252,50 L252,60 L262,60 L262,85 L280,85 L280,100 L295,100 L295,75 L305,75 L305,55 L315,55 L315,45 L325,45 L325,55 L335,55 L335,75 L350,75 L350,90 L365,90 L365,65 L375,65 L375,45 L385,45 L385,65 L395,65 L395,90 L410,90 L410,105 L420,105 L420,80 L430,80 L430,60 L440,60 L440,80 L455,80 L455,100 L470,100 L470,120 L485,120 L485,100 L495,100 L495,90 L505,90 L505,100 L520,100 L520,180 Z" fill="rgba(0,40,25,0.8)"/>
                     <!-- Window lights -->
                     <rect x="67" y="45" width="4" height="4" fill="rgba(201,168,76,0.5)"/>
-                    <rect x="120" y="50" width="4" height="4" fill="rgba(201,168,76,0.4)"/>
+                    <rect x="120" y="50" width="4" height="4" fill="rgba(0,180,216,0.3)"/>
                     <rect x="177" y="60" width="4" height="4" fill="rgba(0,220,160,0.4)"/>
                     <rect x="244" y="55" width="4" height="4" fill="rgba(201,168,76,0.5)"/>
                     <rect x="307" y="50" width="4" height="4" fill="rgba(0,220,160,0.35)"/>
-                    <rect x="377" y="50" width="4" height="4" fill="rgba(201,168,76,0.4)"/>
+                    <rect x="377" y="50" width="4" height="4" fill="rgba(0,180,216,0.3)"/>
                     <rect x="432" y="65" width="4" height="4" fill="rgba(0,220,160,0.4)"/>
                 </svg>
 
                 <!-- Ground glow -->
-                <div style="position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(0deg,rgba(0,200,140,0.12),transparent);"></div>
+                <div style="position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(0deg,#eff6ff,transparent);"></div>
 
                 <div class="product-glow"></div>
 
@@ -348,7 +339,7 @@
                 <!-- Ad badge top -->
                 <div class="screen-bar">
                     <span class="screen-tag">AD</span>
-                    <span class="screen-tag" style="color:rgba(201,168,76,0.9);border-color:rgba(201,168,76,0.3)">SUPERADPRO CAMPAIGN</span>
+                    <span class="screen-tag" style="color:rgba(201,168,76,0.9);border-color:rgba(0,180,216,0.25)">SUPERADPRO CAMPAIGN</span>
                     <div class="screen-live"><div class="live-dot"></div>LIVE</div>
                 </div>
 
@@ -413,7 +404,7 @@
             <ul class="for-points">
                 <li>28% direct referral commission</li>
                 <li>8% matching bonus</li>
-                <li>8-level deep matrix earnings</li>
+                <li>8-level deep Income Grid earnings</li>
                 <li>Instant USDT payments on-chain</li>
             </ul>
         </div>
@@ -552,7 +543,7 @@ for(let i=0;i<28;i++){
     const p=document.createElement('div');
     p.className='particle';
     const s=Math.random()*2.5+0.8;
-    p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;background:${Math.random()>0.6?'#c9a84c':'#00dc96'};animation-duration:${12+Math.random()*14}s;animation-delay:${Math.random()*14}s;`;
+    p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;background:${Math.random()>0.6?'#6d28d9':'#00b4d8'};animation-duration:${12+Math.random()*14}s;animation-delay:${Math.random()*14}s;`;
     pc.appendChild(p);
 }
 </script>

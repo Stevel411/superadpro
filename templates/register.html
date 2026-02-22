@@ -1,244 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register — SuperAdPro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { background:#020e08; color:#e0ead8; font-family:'Rethink Sans',sans-serif; min-height:100vh; display:flex; flex-direction:column; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Register — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
 
-        .bg { position:fixed; inset:0; z-index:0;
-            background: radial-gradient(ellipse 100% 60% at 30% 20%, rgba(0,100,70,0.35) 0%, transparent 60%),
-                        radial-gradient(ellipse 80% 60% at 80% 80%, rgba(0,80,100,0.12) 0%, transparent 60%),
-                        linear-gradient(180deg,#010f09 0%,#021a10 40%,#010a05 100%);
-        }
-        .grid { position:fixed; inset:0; z-index:1; pointer-events:none;
-            background-image: linear-gradient(rgba(0,180,120,0.03) 1px,transparent 1px), linear-gradient(90deg,rgba(0,180,120,0.03) 1px,transparent 1px);
-            background-size:55px 55px;
-        }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif; min-height:100vh; }
+a { color:#0077a8; }
+input, select, textarea { font-family:'Rethink Sans',sans-serif; }
 
-        /* Nav */
-        nav { position:relative; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 36px; height:60px; background:rgba(1,10,5,0.8); backdrop-filter:blur(18px); border-bottom:1px solid rgba(0,180,120,0.12); }
-        .nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; }
-        .nav-brand { font-weight:800; font-size:15px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#ffe89a,#c9a84c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-        .nav-login { font-size:13px; color:rgba(215,238,225,0.80); text-decoration:none; transition:color 0.2s; }
-        .nav-login:hover { color:#c9a84c; }
+.form-group { margin-bottom:22px; }
+label { display:block; font-size:12px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:#475569; margin-bottom:6px; }
+input[type=text], input[type=email], input[type=password], input[type=tel], select, textarea {
+  width:100%; background:#f8faff; border:1px solid #e2e6f0; border-radius:7px;
+  padding:13px 16px; font-size:15px; color:#0f172a; transition:all 0.25s; outline:none;
+}
+input::placeholder, textarea::placeholder { color:#94a3b8; }
+input:focus, select:focus, textarea:focus {
+  border-color:#00b4d8; background:#fff; box-shadow:0 0 0 3px rgba(0,180,216,0.1);
+}
+.submit-btn {
+  width:100%; font-weight:700; font-size:16px; color:#fff;
+  background:linear-gradient(135deg,#00b4d8,#6d28d9);
+  padding:15px; border-radius:7px; border:none; cursor:pointer;
+  font-family:'Rethink Sans',sans-serif; transition:all 0.25s;
+  box-shadow:0 4px 14px rgba(0,180,216,0.3);
+}
+.submit-btn:hover { box-shadow:0 6px 24px rgba(0,180,216,0.45); transform:translateY(-1px); }
+.error-msg { background:#fee2e2; border:1px solid #fecaca; border-radius:7px; padding:10px 14px; font-size:13px; color:#dc2626; margin-bottom:16px; display:none; }
+.success-msg { background:#dcfce7; border:1px solid #bbf7d0; border-radius:7px; padding:10px 14px; font-size:13px; color:#16a34a; margin-bottom:16px; display:none; }
+.divider-or { display:flex; align-items:center; gap:12px; margin:20px 0; }
+.or-line { flex:1; height:1px; background:#e2e6f0; }
+.or-text { font-size:11px; color:#94a3b8; letter-spacing:2px; }
 
-        /* Main */
-        .main { flex:1; display:flex; align-items:center; justify-content:center; padding:40px 20px; position:relative; z-index:10; }
-
-        .register-wrap { display:grid; grid-template-columns:1fr 1.2fr; gap:0; max-width:1400px; width:100%; border:1px solid rgba(0,180,120,0.2); border-radius:12px; overflow:hidden; }
-
-        /* Left panel */
-        .left-panel { background:rgba(2,18,10,0.95); padding:72px 64px; border-right:1px solid rgba(0,180,120,0.15); display:flex; flex-direction:column; justify-content:flex-start; }
-        .left-eyebrow { font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(0,220,150,0.6); margin-bottom:16px; }
-        .left-title { font-weight:800; font-size:38px; color:#fff; line-height:1.2; margin-bottom:12px; }
-        .left-title .gold { color:#c9a84c; }
-        .left-sub { font-size:16px; color:rgba(215,238,225,0.78); line-height:1.65; margin-bottom:28px; }
-
-        .perks { list-style:none; display:flex; flex-direction:column; gap:12px; margin-bottom:28px; }
-        .perk { display:flex; align-items:flex-start; gap:12px; font-size:15px; color:rgba(220,242,230,0.85); line-height:1.5; }
-        .perk-icon { width:28px; height:28px; border-radius:50%; background:rgba(0,200,140,0.12); border:1px solid rgba(0,200,140,0.25); display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; margin-top:1px; }
-
-        .packages-mini { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
-        .pkg { background:rgba(0,0,0,0.3); border:1px solid rgba(0,180,120,0.15); border-radius:4px; padding:12px 8px; text-align:center; }
-        .pkg-price { font-family:'Rethink Sans',sans-serif; font-size:15px; color:#ffffff; font-weight:700; }
-        .pkg-label { font-size:10px; color:rgba(220,242,230,0.70); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
-
-        /* Right panel - form */
-        .right-panel { background:rgba(1,12,6,0.98); padding:72px 64px; }
-        .form-title { font-weight:700; font-size:26px; color:#fff; margin-bottom:6px; }
-        .form-sub { font-size:16px; color:rgba(220,242,230,0.75); margin-bottom:32px; }
-
-        .form-group { margin-bottom:22px; }
-        .form-row { display:grid; grid-template-columns:1fr 1.2fr; gap:14px; }
-        label { display:block; font-size:12px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:rgba(210,235,220,0.75); margin-bottom:6px; }
-        input, select { width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(0,180,120,0.2); border-radius:5px; padding:14px 16px; font-family:'Rethink Sans',sans-serif; font-size:15px; color:#e0ead8; transition:all 0.3s; outline:none; }
-        input::placeholder { color:rgba(210,235,220,0.55); }
-        input:focus, select:focus { border-color:rgba(0,220,150,0.5); background:rgba(0,0,0,0.4); box-shadow:0 0 0 3px rgba(0,200,140,0.08); }
-        select option { background:#021a10; }
-
-        .beta-field { position:relative; }
-        .beta-field input { border-color:rgba(201,168,76,0.3); }
-        .beta-field input:focus { border-color:rgba(201,168,76,0.6); box-shadow:0 0 0 3px rgba(201,168,76,0.08); }
-        .beta-badge { position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:9px; font-weight:700; letter-spacing:1px; color:#c9a84c; background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.25); padding:2px 7px; border-radius:2px; }
-
-        .wallet-hint { font-size:13px; color:rgba(0,220,160,0.8); margin-top:5px; }
-
-        .terms { display:flex; align-items:flex-start; gap:10px; margin-bottom:22px; }
-        .terms input[type=checkbox] { width:16px; height:16px; flex-shrink:0; margin-top:2px; accent-color:#00dc96; }
-        .terms-text { font-size:14px; color:rgba(210,235,220,0.72); line-height:1.5; }
-        .terms-text a { color:#c9a84c; text-decoration:none; }
-        .terms-text a:hover { text-decoration:underline; }
-
-        .submit-btn { width:100%; font-weight:700; font-size:17px; color:#020e08; background:linear-gradient(135deg,#ffe89a,#c9a84c); padding:16px; border-radius:5px; border:none; cursor:pointer; font-family:'Rethink Sans',sans-serif; box-shadow:0 0 28px rgba(201,168,76,0.2); transition:all 0.3s; }
-        .submit-btn:hover { box-shadow:0 0 50px rgba(201,168,76,0.45); transform:translateY(-1px); }
-
-        .login-link { text-align:center; margin-top:20px; font-size:15px; color:rgba(210,235,220,0.65); }
-        .login-link a { color:#c9a84c; text-decoration:none; font-weight:600; }
-        .login-link a:hover { text-decoration:underline; }
-
-        .divider-or { display:flex; align-items:center; gap:12px; margin:20px 0; }
-        .or-line { flex:1; height:1px; background:rgba(0,180,120,0.12); }
-        .or-text { font-size:11px; color:rgba(210,235,220,0.55); letter-spacing:2px; }
-
-        .error-msg { background:rgba(255,60,60,0.08); border:1px solid rgba(255,60,60,0.2); border-radius:5px; padding:10px 14px; font-size:13px; color:rgba(255,120,120,0.8); margin-bottom:16px; display:none; }
-        .success-msg { background:rgba(0,200,140,0.08); border:1px solid rgba(0,200,140,0.2); border-radius:5px; padding:10px 14px; font-size:13px; color:rgba(0,220,150,0.8); margin-bottom:16px; display:none; }
-
-        @media(max-width:800px){ .register-wrap{grid-template-columns:1fr} .left-panel{display:none} .form-row{grid-template-columns:1fr} }
-    </style>
+body { display:flex; flex-direction:column; }
+.wrap { flex:1; display:flex; align-items:flex-start; justify-content:center; padding:40px 20px; }
+.box { display:grid; grid-template-columns:1fr 1.2fr; max-width:1200px; width:100%; border:1px solid #e2e6f0; border-radius:14px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,0.09); }
+.left { background:#0f172a; padding:52px 48px; display:flex; flex-direction:column; justify-content:flex-start; }
+.right { background:#ffffff; padding:52px 56px; }
+.l-eyebrow { font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(0,240,255,0.5); margin-bottom:16px; }
+.l-title { font-weight:800; font-size:34px; color:#fff; line-height:1.2; margin-bottom:12px; }
+.l-sub { font-size:14px; color:rgba(255,255,255,0.6); line-height:1.65; margin-bottom:28px; }
+.perk { display:flex; align-items:flex-start; gap:11px; font-size:14px; color:rgba(255,255,255,0.75); margin-bottom:12px; line-height:1.5; }
+.perk-icon { width:26px; height:26px; border-radius:50%; background:rgba(0,180,216,0.12); border:1px solid rgba(0,180,216,0.25); display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; margin-top:1px; }
+.pkgs-mini { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-top:24px; }
+.pkg-m { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:5px; padding:10px 6px; text-align:center; }
+.pkg-m-price { font-size:14px; color:#16a34a; font-weight:800; }
+.pkg-m-label { font-size:9px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
+.form-title { font-weight:800; font-size:24px; color:#0f172a; margin-bottom:4px; }
+.form-sub { font-size:14px; color:#475569; margin-bottom:28px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.beta-field { position:relative; }
+.beta-badge { position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:9px; font-weight:700; letter-spacing:1px; color:#0077a8; background:rgba(0,180,216,0.08); border:1px solid rgba(0,180,216,0.2); padding:2px 7px; border-radius:3px; }
+.wallet-hint { font-size:12px; color:#0077a8; margin-top:5px; }
+.terms { display:flex; align-items:flex-start; gap:10px; margin-bottom:20px; }
+.terms input[type=checkbox] { width:16px; height:16px; flex-shrink:0; margin-top:2px; accent-color:#00b4d8; }
+.terms-text { font-size:13px; color:#475569; line-height:1.5; }
+.terms-text a { color:#0077a8; text-decoration:none; }
+.login-link { text-align:center; margin-top:18px; font-size:14px; color:#475569; }
+.login-link a { color:#0077a8; font-weight:700; text-decoration:none; }
+@media(max-width:800px){ .box{grid-template-columns:1fr} .left{display:none} .form-row{grid-template-columns:1fr} }
+</style>
 </head>
 <body>
-<div class="bg"></div>
-<div class="grid"></div>
 
-<!-- SVG shield -->
 <svg width="0" height="0" style="position:absolute">
   <defs>
-    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffe89a"/><stop offset="30%" stop-color="#c9a84c"/><stop offset="70%" stop-color="#7a5c10"/><stop offset="100%" stop-color="#c9a84c"/></linearGradient>
-    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1a3520"/><stop offset="40%" stop-color="#0d2018"/><stop offset="100%" stop-color="#050e08"/></linearGradient>
-    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7a5c10"/><stop offset="50%" stop-color="#c9a84c"/><stop offset="100%" stop-color="#7a5c10"/></linearGradient>
-    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
-    <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00b4d8"/>
+      <stop offset="50%" stop-color="#6d28d9"/>
+      <stop offset="100%" stop-color="#00b4d8"/>
+    </linearGradient>
+    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0a2e"/>
+      <stop offset="100%" stop-color="#03031a"/>
+    </linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00b4d8"/>
+      <stop offset="50%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#00b4d8"/>
+    </linearGradient>
+    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.1"/>
+    </linearGradient>
+    <filter id="sg"><feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
     <clipPath id="sc"><path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z"/></clipPath>
     <symbol id="shield" viewBox="0 0 130 122">
-      <path d="M17 10 L117 10 L127 48 L67 118 L7 48 Z" fill="rgba(0,0,0,0.5)" transform="translate(3,4)"/>
       <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#sf)" stroke="url(#ob)" stroke-width="4" stroke-linejoin="round"/>
-      <path d="M22 15 L108 15 L116 46 L65 105 L14 46 Z" fill="none" stroke="url(#ob)" stroke-width="1.5" stroke-linejoin="round" opacity="0.5"/>
+      <path d="M22 15 L108 15 L116 46 L65 105 L14 46 Z" fill="none" stroke="url(#ob)" stroke-width="1.5" stroke-linejoin="round" opacity="0.4"/>
       <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#hl)" clip-path="url(#sc)"/>
-      <path d="M23 31 L65 37 L107 31" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
-      <path d="M29 49 L65 54 L101 49" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
-      <path d="M37 67 L65 71 L93 67" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
-      <path d="M47 84 L65 87 L83 84" fill="none" stroke="url(#lg2)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M23 31 L65 37 L107 31" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M29 49 L65 54 L101 49" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M37 67 L65 71 L93 67" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M47 84 L65 87 L83 84" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
     </symbol>
   </defs>
 </svg>
 
-<nav>
-    <a href="/" class="nav-logo">
-        <svg width="26" height="26"><use href="#shield"/></svg>
-        <span class="nav-brand">SuperAdPro</span>
-    </a>
-    <a href="/login" class="nav-login">Already a member? <strong>Sign In →</strong></a>
+<nav style="position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:62px;background:#fff;border-bottom:1px solid #e2e6f0;box-shadow:0 1px 8px rgba(0,0,0,0.06)">
+  <a href="/" style="display:flex;align-items:center;gap:9px;text-decoration:none">
+    <svg width="26" height="26"><use href="#shield"/></svg>
+    <span style="font-weight:800;font-size:14px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00b4d8,#6d28d9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">SuperAdPro</span>
+  </a>
+  <ul style="display:flex;align-items:center;gap:4px;list-style:none"><li><a href="/how-it-works" style="font-size:13px;font-weight:500;color:#475569;text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">How It Works</a></li><li><a href="/packages" style="font-size:13px;font-weight:500;color:#475569;text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">Packages</a></li><li><a href="/compensation-plan" style="font-size:13px;font-weight:500;color:#475569;text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">Compensation</a></li><li><a href="/for-advertisers" style="font-size:13px;font-weight:500;color:#475569;text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">For Advertisers</a></li><li><a href="/faq" style="font-size:13px;font-weight:500;color:#475569;text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">FAQ</a></li></ul>
+  <div style="display:flex;align-items:center;gap:10px">
+    <a href="/login" style="font-size:13px;font-weight:600;color:#475569;text-decoration:none;padding:8px 16px">Sign In</a>
+    <a href="/login" style="font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:9px 22px;border-radius:7px;text-decoration:none;transition:all 0.2s;box-shadow:0 2px 10px rgba(0,180,216,0.25)">Sign In →</a>
+  </div>
 </nav>
-
-<div class="main">
-    <div class="register-wrap">
-
-        <!-- LEFT: Benefits panel -->
-        <div class="left-panel">
-            <div class="left-eyebrow">⬡ Join SuperAdPro</div>
-            <h2 class="left-title">Start Advertising.<br><span class="gold">Start Earning.</span></h2>
-            <p class="left-sub">Join the platform built for advertisers, marketers and affiliates. Get real video views, launch AI-powered campaigns, and earn commissions by growing your network.</p>
-
-            <ul class="perks">
-                <li class="perk"><div class="perk-icon">🎬</div>Buy guaranteed video views for your content</li>
-                <li class="perk"><div class="perk-icon">🤖</div>AI-optimised campaigns with real-time analytics</li>
-                <li class="perk"><div class="perk-icon">🤝</div>Earn 28% affiliate commission on every referral</li>
-                <li class="perk"><div class="perk-icon">🔗</div>Instant USDT payments on Base Chain</li>
-                <li class="perk"><div class="perk-icon">📊</div>Dashboard with full matrix and earnings tracking</li>
-            </ul>
-
-            <div style="margin-bottom:10px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(210,235,220,0.60);">Advertising Packages</div>
-            <div class="packages-mini">
-                <div class="pkg"><div class="pkg-price">$10</div><div class="pkg-label">Starter</div></div>
-                <div class="pkg"><div class="pkg-price">$25</div><div class="pkg-label">Basic</div></div>
-                <div class="pkg"><div class="pkg-price">$50</div><div class="pkg-label">Growth</div></div>
-                <div class="pkg"><div class="pkg-price">$100</div><div class="pkg-label">Pro</div></div>
-                <div class="pkg"><div class="pkg-price">$250</div><div class="pkg-label">Advanced</div></div>
-                <div class="pkg"><div class="pkg-price">$500</div><div class="pkg-label">Elite</div></div>
-                <div class="pkg"><div class="pkg-price">$750</div><div class="pkg-label">Premium</div></div>
-                <div class="pkg"><div class="pkg-price">$1000</div><div class="pkg-label">Ultimate</div></div>
-            </div>
-        </div>
-
-        <!-- RIGHT: Registration form -->
-        <div class="right-panel">
-            <div class="form-title">Create Your Account</div>
-            <div class="form-sub">Free to join · Takes 60 seconds</div>
-
-            <div class="error-msg" id="errorMsg"></div>
-            <div class="success-msg" id="successMsg"></div>
-
-            <form id="registerForm" action="/register" method="POST" action="/register" method="POST">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>First Name</label>
-                        <input type="text" name="first_name" placeholder="John" value="{{ prefill.first_name if prefill else '' }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Last Name</label>
-                        <input type="text" name="last_name" placeholder="Smith" value="{{ prefill.last_name if prefill else '' }}" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" name="username" placeholder="johnsmith99" value="{{ prefill.username if prefill else '' }}" required autocomplete="off">
-                </div>
-
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" name="email" placeholder="john@example.com" value="{{ prefill.email if prefill else '' }}" required>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" name="password" placeholder="Min. 8 characters" required minlength="8">
-                    </div>
-                    <div class="form-group">
-                        <label>Confirm Password</label>
-                        <input type="password" name="confirm_password" placeholder="Repeat password" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>USDT Wallet Address (Base Chain)</label>
-                    <input type="text" name="wallet_address" placeholder="0x..." value="{{ prefill.wallet_address if prefill else '' }}" required>
-                    <div class="wallet-hint">🔗 Your Base Chain wallet for receiving USDT payments</div>
-                </div>
-
-                <div class="form-group">
-                    <label>Sponsor Username <span style="color:rgba(210,235,220,0.60);font-size:10px;">(optional)</span></label>
-                    <input type="text" name="ref" placeholder="Who referred you?" value="{{ sponsor or (prefill.ref if prefill else '') }}">
-                </div>
-
-                <div class="form-group">
-                    <label>Beta Access Code</label>
-                    <div class="beta-field">
-                        <input type="text" name="beta_code" placeholder="Enter your beta code" required>
-                        <span class="beta-badge">BETA</span>
-                    </div>
-                </div>
-
-                <div class="terms">
-                    <input type="checkbox" id="terms" name="terms" required>
-                    <div class="terms-text">I agree to the <a href="/legal">Terms of Service</a> and <a href="/legal">Privacy Policy</a>. I understand this is a video advertising platform and membership grants access to advertising packages.</div>
-                </div>
-
-                <button type="submit" class="submit-btn">Create My Account →</button>
-            </form>
-
-            <div class="login-link">Already have an account? <a href="/login">Sign in here</a></div>
-        </div>
-
+<div class="wrap">
+  <div class="box">
+    <div class="left">
+      <div class="l-eyebrow">⬡ Join SuperAdPro</div>
+      <div class="l-title">Start Advertising.<br><span style="background:linear-gradient(135deg,#00b4d8,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Start Earning.</span></div>
+      <div class="l-sub">Join the platform built for advertisers, marketers and affiliates. Get real video views, earn commissions and grow your income grid.</div>
+      <div class="perk"><div class="perk-icon">🎬</div>Buy guaranteed video views for your content</div>
+      <div class="perk"><div class="perk-icon">🤝</div>Earn 28% affiliate commission on every referral</div>
+      <div class="perk"><div class="perk-icon">🔗</div>Instant USDT payments on Base Chain</div>
+      <div class="perk"><div class="perk-icon">◈</div>Income Grid with 10-level earning structure</div>
+      <div class="perk"><div class="perk-icon">📊</div>Full dashboard with earnings tracking</div>
+      <div style="margin-top:24px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:8px">Advertising Packages</div>
+      <div class="pkgs-mini">
+        <div class="pkg-m"><div class="pkg-m-price">$10</div><div class="pkg-m-label">Starter</div></div>
+        <div class="pkg-m"><div class="pkg-m-price">$25</div><div class="pkg-m-label">Basic</div></div>
+        <div class="pkg-m"><div class="pkg-m-price">$50</div><div class="pkg-m-label">Growth</div></div>
+        <div class="pkg-m"><div class="pkg-m-price">$100</div><div class="pkg-m-label">Pro</div></div>
+        <div class="pkg-m"><div class="pkg-m-price">$250</div><div class="pkg-m-label">Advanced</div></div>
+        <div class="pkg-m"><div class="pkg-m-price">$500</div><div class="pkg-m-label">Elite</div></div>
+        <div class="pkg-m"><div class="pkg-m-price">$750</div><div class="pkg-m-label">Premium</div></div>
+        <div class="pkg-m"><div class="pkg-m-price">$1,000</div><div class="pkg-m-label">Ultimate</div></div>
+      </div>
     </div>
+    <div class="right">
+      <div class="form-title">Create Your Account</div>
+      <div class="form-sub">Free to join · Takes 60 seconds</div>
+      <div class="error-msg" id="errorMsg"></div>
+      <div class="success-msg" id="successMsg"></div>
+      <form id="registerForm" action="/register" method="POST">
+        <div class="form-row">
+          <div class="form-group"><label>First Name</label><input type="text" name="first_name" placeholder="John" value="{{ prefill.first_name if prefill else '' }}" required></div>
+          <div class="form-group"><label>Last Name</label><input type="text" name="last_name" placeholder="Smith" value="{{ prefill.last_name if prefill else '' }}" required></div>
+        </div>
+        <div class="form-group"><label>Username</label><input type="text" name="username" placeholder="johnsmith99" value="{{ prefill.username if prefill else '' }}" required autocomplete="off"></div>
+        <div class="form-group"><label>Email Address</label><input type="email" name="email" placeholder="john@example.com" value="{{ prefill.email if prefill else '' }}" required></div>
+        <div class="form-row">
+          <div class="form-group"><label>Password</label><input type="password" name="password" placeholder="Min. 8 characters" required minlength="8"></div>
+          <div class="form-group"><label>Confirm Password</label><input type="password" name="confirm_password" placeholder="Repeat password" required></div>
+        </div>
+        <div class="form-group">
+          <label>USDT Wallet Address (Base Chain)</label>
+          <input type="text" name="wallet_address" placeholder="0x..." value="{{ prefill.wallet_address if prefill else '' }}" required>
+          <div class="wallet-hint">🔗 Your Base Chain wallet for receiving USDT payments</div>
+        </div>
+        <div class="form-group"><label>Sponsor Username <span style="color:#94a3b8;font-size:10px">(optional)</span></label><input type="text" name="ref" placeholder="Who referred you?" value="{{ sponsor or (prefill.ref if prefill else '') }}"></div>
+        <div class="form-group">
+          <label>Beta Access Code</label>
+          <div class="beta-field"><input type="text" name="beta_code" placeholder="Enter your beta code" required><span class="beta-badge">BETA</span></div>
+        </div>
+        <div class="terms">
+          <input type="checkbox" id="terms" name="terms" required>
+          <div class="terms-text">I agree to the <a href="/legal">Terms of Service</a> and <a href="/legal">Privacy Policy</a>. I understand this is a video advertising platform and membership grants access to advertising packages.</div>
+        </div>
+        <button type="submit" class="submit-btn">Create My Account →</button>
+      </form>
+      <div class="login-link">Already have an account? <a href="/login">Sign in here →</a></div>
+    </div>
+  </div>
 </div>
-
 <script>
 document.getElementById('registerForm').addEventListener('submit', function(e) {
-    const pw = this.password.value;
-    const cpw = this.confirm_password.value;
-    if (pw !== cpw) {
-        e.preventDefault();
-        const err = document.getElementById('errorMsg');
-        err.textContent = 'Passwords do not match. Please try again.';
-        err.style.display = 'block';
-        setTimeout(() => err.style.display = 'none', 4000);
-    }
+  const pw = this.password.value, cpw = this.confirm_password.value;
+  if (pw !== cpw) {
+    e.preventDefault();
+    const err = document.getElementById('errorMsg');
+    err.textContent = 'Passwords do not match. Please try again.';
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 4000);
+  }
 });
 </script>
 </body>

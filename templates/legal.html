@@ -7,86 +7,80 @@
     <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { background:#020e08; color:#e0ead8; font-family:'Rethink Sans',sans-serif; min-height:100vh; }
-        .bg { position:fixed; inset:0; z-index:0;
-            background: radial-gradient(ellipse 100% 60% at 50% 0%, rgba(0,100,70,0.35) 0%, transparent 65%),
-                        linear-gradient(180deg,#010f09 0%,#021a10 30%,#010a05 100%);
-        }
-        .grid { position:fixed; inset:0; z-index:1; pointer-events:none;
-            background-image:linear-gradient(rgba(0,180,120,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,120,0.03) 1px,transparent 1px);
-            background-size:55px 55px;
-        }
+        body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif; min-height:100vh; }
+        .bg { display:none; }
+        .grid { display:none; }
 
-        nav { position:relative; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 36px; height:60px; background:rgba(1,10,5,0.85); backdrop-filter:blur(18px); border-bottom:1px solid rgba(0,180,120,0.12); }
+        nav { position:relative; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 36px; height:60px; background:#ffffff; border-bottom:1px solid #e2e6f0; box-shadow:0 1px 8px rgba(0,0,0,0.06); }
         .nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; }
-        .nav-brand { font-weight:800; font-size:15px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#ffe89a,#c9a84c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .nav-brand { font-weight:800; font-size:15px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#00b4d8,#6d28d9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
         .nav-links { display:flex; align-items:center; gap:6px; list-style:none; }
-        .nav-links a { font-size:13px; font-weight:500; color:rgba(220,242,230,0.65); text-decoration:none; padding:4px 10px; transition:color 0.2s; }
-        .nav-links a:hover { color:#fff; }
-        .nav-cta { font-weight:700; font-size:13px; color:#020e08; background:linear-gradient(135deg,#ffe89a,#d4a840); padding:8px 22px; border-radius:5px; text-decoration:none; transition:all 0.3s; }
-        .nav-cta:hover { box-shadow:0 4px 24px rgba(201,168,76,0.4); transform:translateY(-1px); }
+        .nav-links a { font-size:13px; font-weight:500; color:#475569; text-decoration:none; padding:4px 10px; transition:color 0.2s; }
+        .nav-links a:hover { color:#0f172a; }
+        .nav-cta { font-weight:700; font-size:13px; color:#0f172a; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:8px 22px; border-radius:5px; text-decoration:none; transition:all 0.3s; }
+        .nav-cta:hover { box-shadow:0 4px 24px rgba(0,180,216,0.35); transform:translateY(-1px); }
 
         .page { position:relative; z-index:10; max-width:1100px; margin:0 auto; padding:60px 32px 80px; }
 
         /* Hero */
         .hero { text-align:center; margin-bottom:48px; }
-        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(0,220,150,0.75); border:1px solid rgba(0,220,150,0.2); border-radius:50px; padding:5px 16px; margin-bottom:20px; }
-        .hero h1 { font-weight:800; font-size:clamp(26px,3.5vw,46px); color:#fff; line-height:1.1; margin-bottom:12px; }
-        .hero h1 .gold { color:#c9a84c; }
+        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#00b4d8; border:1px solid rgba(0,180,216,0.25); border-radius:50px; background:#eff6ff; padding:5px 16px; margin-bottom:20px; }
+        .hero h1 { font-weight:800; font-size:clamp(26px,3.5vw,46px); color:#0f172a; line-height:1.1; margin-bottom:12px; }
+        .hero h1 .gold { color:#6d28d9; }
         .hero p { font-size:15px; color:rgba(220,242,230,0.65); max-width:560px; margin:0 auto; line-height:1.7; }
-        .last-updated { display:inline-block; font-size:12px; color:rgba(220,242,230,0.4); background:rgba(0,0,0,0.2); border:1px solid rgba(0,180,120,0.12); border-radius:4px; padding:4px 12px; margin-top:14px; }
+        .last-updated { display:inline-block; font-size:12px; color:rgba(220,242,230,0.4); background:rgba(0,0,0,0.2); border:1px solid #e2e6f0; border-radius:4px; padding:4px 12px; margin-top:14px; }
 
         /* Layout */
         .legal-wrap { display:grid; grid-template-columns:220px 1fr; gap:32px; align-items:start; }
 
         /* Sticky nav */
-        .legal-nav { position:sticky; top:24px; background:rgba(2,16,9,0.92); border:1px solid rgba(0,180,120,0.15); border-radius:10px; padding:20px 0; }
-        .legal-nav-title { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(220,242,230,0.4); padding:0 18px 10px; border-bottom:1px solid rgba(0,180,120,0.1); margin-bottom:8px; }
+        .legal-nav { position:sticky; top:24px; background:#ffffff; border:1px solid #e2e6f0; border-radius:10px; padding:20px 0; }
+        .legal-nav-title { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(220,242,230,0.4); padding:0 18px 10px; border-bottom:1px solid #e2e6f0; margin-bottom:8px; }
         .legal-nav a { display:block; font-size:13px; font-weight:500; color:rgba(220,242,230,0.6); text-decoration:none; padding:8px 18px; border-left:2px solid transparent; transition:all 0.2s; }
-        .legal-nav a:hover { color:#fff; background:rgba(0,180,120,0.05); }
-        .legal-nav a.active { color:#00dc96; border-left-color:#00dc96; background:rgba(0,200,140,0.06); }
-        .legal-nav-sep { height:1px; background:rgba(0,180,120,0.1); margin:8px 0; }
+        .legal-nav a:hover { color:#0f172a; background:rgba(0,180,120,0.05); }
+        .legal-nav a.active { color:#00b4d8; border-left-color:#00b4d8; background:rgba(0,200,140,0.06); }
+        .legal-nav-sep { height:1px; background:#e2e6f0; margin:8px 0; }
         .legal-nav-label { font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(220,242,230,0.3); padding:6px 18px 4px; }
 
         /* Doc tabs */
-        .doc-tabs { display:flex; gap:0; border:1px solid rgba(0,180,120,0.2); border-radius:6px; overflow:hidden; margin-bottom:32px; }
-        .doc-tab { flex:1; padding:12px 20px; text-align:center; font-size:13px; font-weight:600; color:rgba(220,242,230,0.55); cursor:pointer; border-right:1px solid rgba(0,180,120,0.15); transition:all 0.25s; background:rgba(2,16,9,0.8); }
+        .doc-tabs { display:flex; gap:0; border:1px solid #e2e6f0; border-radius:6px; overflow:hidden; margin-bottom:32px; }
+        .doc-tab { flex:1; padding:12px 20px; text-align:center; font-size:13px; font-weight:600; color:rgba(220,242,230,0.55); cursor:pointer; border-right:1px solid #e2e6f0; transition:all 0.25s; background:rgba(2,16,9,0.8); }
         .doc-tab:last-child { border-right:none; }
-        .doc-tab.active { background:rgba(0,180,120,0.1); color:#00dc96; }
+        .doc-tab.active { background:#e2e6f0; color:#00b4d8; }
         .doc-tab:hover:not(.active) { color:rgba(220,242,230,0.85); }
 
         /* Document */
         .doc-panel { display:none; }
         .doc-panel.active { display:block; }
 
-        .legal-section { background:rgba(2,16,9,0.9); border:1px solid rgba(0,180,120,0.13); border-radius:10px; padding:32px 36px; margin-bottom:16px; scroll-margin-top:24px; }
+        .legal-section { background:#ffffff; border:1px solid rgba(0,180,120,0.13); border-radius:10px; padding:32px 36px; margin-bottom:16px; scroll-margin-top:24px; }
         .legal-section:hover { border-color:rgba(0,180,120,0.22); }
         .section-num { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(0,220,150,0.55); margin-bottom:8px; }
-        .section-heading { font-size:19px; font-weight:800; color:#fff; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid rgba(0,180,120,0.1); }
+        .section-heading { font-size:19px; font-weight:800; color:#0f172a; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid #e2e6f0; }
         .legal-text { font-size:14px; color:rgba(220,242,230,0.75); line-height:1.85; margin-bottom:14px; }
         .legal-text:last-child { margin-bottom:0; }
-        .legal-text strong { color:#fff; }
-        .legal-text a { color:#c9a84c; text-decoration:none; }
+        .legal-text strong { color:#0f172a; }
+        .legal-text a { color:#6d28d9; text-decoration:none; }
         .legal-text a:hover { text-decoration:underline; }
         .legal-list { list-style:none; margin:12px 0; display:flex; flex-direction:column; gap:8px; }
-        .legal-list li { font-size:14px; color:rgba(220,242,230,0.72); line-height:1.65; padding-left:20px; position:relative; }
-        .legal-list li::before { content:'→'; position:absolute; left:0; color:#00dc96; font-weight:700; font-size:12px; }
-        .legal-highlight { background:rgba(201,168,76,0.06); border:1px solid rgba(201,168,76,0.18); border-radius:6px; padding:14px 18px; margin:14px 0; font-size:13px; color:rgba(220,242,230,0.78); line-height:1.7; }
-        .legal-highlight strong { color:#c9a84c; }
+        .legal-list li { font-size:14px; color:#475569; line-height:1.65; padding-left:20px; position:relative; }
+        .legal-list li::before { content:'→'; position:absolute; left:0; color:#00b4d8; font-weight:700; font-size:12px; }
+        .legal-highlight { background:rgba(201,168,76,0.06); border:1px solid rgba(201,168,76,0.18); border-radius:6px; padding:14px 18px; margin:14px 0; font-size:13px; color:#475569; line-height:1.7; }
+        .legal-highlight strong { color:#6d28d9; }
         .legal-warning { background:rgba(255,100,80,0.06); border:1px solid rgba(255,100,80,0.18); border-radius:6px; padding:14px 18px; margin:14px 0; font-size:13px; color:rgba(255,180,160,0.85); line-height:1.7; }
 
         @media(max-width:800px) { .legal-wrap{grid-template-columns:1fr} .legal-nav{position:relative;top:0} }
     </style>
 </head>
 <body>
-<div class="bg"></div>
-<div class="grid"></div>
+
+
 
 <svg width="0" height="0" style="position:absolute">
   <defs>
-    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffe89a"/><stop offset="30%" stop-color="#c9a84c"/><stop offset="70%" stop-color="#7a5c10"/><stop offset="100%" stop-color="#c9a84c"/></linearGradient>
-    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1a3520"/><stop offset="40%" stop-color="#0d2018"/><stop offset="100%" stop-color="#050e08"/></linearGradient>
-    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7a5c10"/><stop offset="50%" stop-color="#c9a84c"/><stop offset="100%" stop-color="#7a5c10"/></linearGradient>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="30%" stop-color="#6d28d9"/><stop offset="70%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient>
+    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a0a2e"/><stop offset="40%" stop-color="#06061a"/><stop offset="100%" stop-color="#03031a"/></linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
     <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
     <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     <clipPath id="sc"><path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z"/></clipPath>
@@ -112,7 +106,7 @@
         <li><a href="/">Home</a></li>
         <li><a href="/faq">FAQ</a></li>
         <li><a href="/support">Support</a></li>
-        <li><a href="/legal" style="color:#00dc96">Legal</a></li>
+        <li><a href="/legal" style="color:#00b4d8">Legal</a></li>
     </ul>
     <a href="/register" class="nav-cta">Join Free</a>
 </nav>
