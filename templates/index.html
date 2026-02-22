@@ -50,9 +50,9 @@
         @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
 
         /* ===== VIDEO AD PLAYER CENTREPIECE ===== */
-        .ad-stage { display:flex; align-items:center; justify-content:center; gap:14px; max-width:900px; margin:0 auto; opacity:0; animation:fadeUp 1s ease forwards 0.4s; }
-        .metric-col { display:flex; flex-direction:column; gap:12px; width:160px; flex-shrink:0; }
-        .ad-screen-wrap { flex-shrink:0; }
+        .ad-stage { display:flex; align-items:center; justify-content:center; gap:14px; width:868px; max-width:100%; margin:0 auto; opacity:0; animation:fadeUp 1s ease forwards 0.4s; }
+        .metric-col { display:flex; flex-direction:column; gap:12px; width:160px; min-width:160px; max-width:160px; flex:0 0 160px; }
+        .ad-screen-wrap { flex:0 0 520px; min-width:520px; }
 
         /* Main screen */
         .ad-screen {
@@ -127,7 +127,7 @@
         .monitor-base { width:140px; height:8px; background:linear-gradient(90deg,transparent,#e2e6f0,rgba(0,180,216,0.1),#e2e6f0,transparent); margin:0 auto; border-radius:4px; }
 
         /* ===== FLOATING METRIC CARDS ===== */
-        .metric { width:160px; background:rgba(5,15,35,0.92); backdrop-filter:blur(14px); border:1px solid rgba(0,180,216,0.3); border-radius:10px; padding:12px 14px; animation:cardFloat ease-in-out infinite; box-shadow:0 4px 24px rgba(0,0,0,0.4); }
+        .metric { width:100%; background:rgba(5,15,35,0.92); backdrop-filter:blur(14px); border:1px solid rgba(0,180,216,0.3); border-radius:10px; padding:12px 14px; animation:cardFloat ease-in-out infinite; box-shadow:0 4px 24px rgba(0,0,0,0.4); box-sizing:border-box; }
         @keyframes cardFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 
         .metric-label { font-size:9px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:rgba(0,200,140,0.6); margin-bottom:3px; }
@@ -309,7 +309,7 @@
                 <div class="metric-label">Views Delivered</div>
                 <div class="metric-value">2.4M</div>
                 <div class="metric-sub">This month</div>
-                <svg class="sparkline" width="110" height="28" viewBox="0 0 110 28">
+                <svg class="sparkline" width="100%" height="28" viewBox="0 0 110 28">
                     <defs><linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00b4d8" stop-opacity="0.3"/><stop offset="100%" stop-color="#00b4d8" stop-opacity="0"/></linearGradient></defs>
                     <polygon points="0,24 18,18 32,20 50,10 65,14 82,5 95,8 110,2 110,28 0,28" fill="url(#sg1)"/>
                     <polyline points="0,24 18,18 32,20 50,10 65,14 82,5 95,8 110,2" fill="none" stroke="#00b4d8" stroke-width="1.5"/>
