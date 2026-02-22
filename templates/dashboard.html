@@ -52,7 +52,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 
 /* ── STAT CARDS ── */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.stat-card{background:#fff;border:1px solid #e2e6f0;border-radius:12px;padding:20px 22px;position:relative;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.04);transition:transform 0.2s,box-shadow 0.2s}
+.stat-card{background:#050d1a;border:1px solid rgba(0,180,216,0.12);border-radius:12px;padding:20px 22px;position:relative;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.04);transition:transform 0.2s,box-shadow 0.2s}
 .stat-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.08)}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
 .stat-card.c1::before{background:linear-gradient(90deg,transparent,#16a34a,transparent)}
@@ -65,9 +65,9 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 .stat-bg{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:46px;opacity:0.05}
 
 /* ── CARDS ── */
-.card{background:#fff;border:1px solid #e2e6f0;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.04);overflow:hidden;transition:box-shadow 0.2s}
+.card{background:#050d1a;border:1px solid rgba(0,180,216,0.12);border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.04);overflow:hidden;transition:box-shadow 0.2s}
 .card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.08)}
-.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e2e6f0}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(0,180,216,0.12)}
 .card-title{font-size:13px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
 .card-dot{width:7px;height:7px;border-radius:50%;background:#00b4d8;flex-shrink:0}
 .card-link{font-size:11px;color:#0077a8;font-weight:700;text-decoration:none}
@@ -334,11 +334,11 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
             <div style="height:1px;background:#f0f2f8;margin:18px 0"></div>
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
-              <div style="background:#f8faff;border-radius:8px;padding:12px;border:1px solid #e2e6f0;text-align:center">
+              <div style="background:rgba(0,180,216,0.04);border-radius:8px;padding:12px;border:1px solid rgba(0,180,216,0.12);text-align:center">
                 <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Directs</div>
                 <div style="font-size:22px;font-weight:800;color:#0f172a">{{ personal_referrals }}</div>
               </div>
-              <div style="background:#f8faff;border-radius:8px;padding:12px;border:1px solid #e2e6f0;text-align:center">
+              <div style="background:rgba(0,180,216,0.04);border-radius:8px;padding:12px;border:1px solid rgba(0,180,216,0.12);text-align:center">
                 <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Cycles</div>
                 <div style="font-size:22px;font-weight:800;color:#0f172a">{{ grid_stats.completed_cycles }}</div>
               </div>
@@ -405,7 +405,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
           </div>
           <div class="card-body">
             <p style="font-size:12px;color:#64748b;margin-bottom:14px;line-height:1.6">Share your link. Each person who joins under you pays $10/month — <strong style="color:#16a34a">100% goes to you</strong> as their direct sponsor.</p>
-            <div style="background:#f8faff;border:1px solid #e2e6f0;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:10px">
+            <div style="background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:10px">
               <span style="font-size:11px;color:#0077a8;font-family:monospace;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">superadpro.com/ref/{{ user.username }}</span>
               <button onclick="copyRef()" style="font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:6px;padding:7px 14px;cursor:pointer;white-space:nowrap;font-family:inherit" id="copyBtn">Copy</button>
             </div>
@@ -437,7 +437,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
             {% set direct_earn = price * 0.3375 * 15 %}
             {% set overspill_earn = price * 0.0875 * 48 %}
             {% set total_earn = direct_earn + overspill_earn %}
-            <div style="background:#f8faff;border:1px solid #e2e6f0;border-radius:10px;padding:12px 8px;text-align:center">
+            <div style="background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:10px;padding:12px 8px;text-align:center">
               <div style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">{{ name }}</div>
               <div style="font-size:15px;font-weight:800;color:#0077a8">${{ price }}</div>
               <div style="font-size:9px;color:#94a3b8;margin:3px 0">→</div>

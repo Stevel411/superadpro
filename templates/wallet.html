@@ -21,31 +21,31 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 .user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,240,255,0.05);border:1px solid rgba(0,240,255,0.1);border-radius:8px}
 .user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00f0ff);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
 .main{margin-left:220px;flex:1;display:flex;flex-direction:column}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#fff;border-bottom:1px solid #e2e6f0;position:sticky;top:0;z-index:50;box-shadow:0 1px 8px rgba(0,0,0,0.06)}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#050d1a;border-bottom:1px solid rgba(0,180,216,0.12);position:sticky;top:0;z-index:50;box-shadow:0 1px 8px rgba(0,0,0,0.06)}
 .content{padding:24px 28px;flex:1}
-.card{background:#fff;border:1px solid #e2e6f0;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
-.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e2e6f0}
+.card{background:#050d1a;border:1px solid rgba(0,180,216,0.12);border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(0,180,216,0.12)}
 .card-title{font-size:13px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
 .card-dot{width:7px;height:7px;border-radius:50%;background:#00b4d8;flex-shrink:0}
 .card-body{padding:20px}
 .btn-primary{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:10px 20px;border-radius:7px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:inline-block}
-.btn-outline{font-size:13px;font-weight:600;color:#475569;background:#fff;padding:9px 18px;border-radius:7px;border:1px solid #e2e6f0;text-decoration:none;cursor:pointer;font-family:inherit;display:inline-block}
+.btn-outline{font-size:13px;font-weight:600;color:#475569;background:#050d1a;padding:9px 18px;border-radius:7px;border:1px solid rgba(0,180,216,0.12);text-decoration:none;cursor:pointer;font-family:inherit;display:inline-block}
 .form-group{margin-bottom:16px}
 .form-label{font-size:12px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
-.form-input{width:100%;padding:10px 14px;border:1px solid #e2e6f0;border-radius:7px;font-size:14px;color:#0f172a;font-family:inherit;background:#f8faff;transition:border-color 0.2s}
-.form-input:focus{outline:none;border-color:#00b4d8;background:#fff}
+.form-input{width:100%;padding:10px 14px;border:1px solid rgba(0,180,216,0.12);border-radius:7px;font-size:14px;color:#0f172a;font-family:inherit;background:rgba(0,180,216,0.04);transition:border-color 0.2s}
+.form-input:focus{outline:none;border-color:#00b4d8;background:#050d1a}
 .badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px}
 .badge-green{background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0}
 .badge-amber{background:#fef9c3;color:#92400e;border:1px solid #fde68a}
-.badge-cyan{background:#dbeafe;color:#0077a8;border:1px solid #bfdbfe}
+.badge-cyan{background:#dbeafe;color:#0077a8;border:1px solid rgba(0,180,216,0.2)}
 .row{display:grid;gap:20px}
 .row-2{grid-template-columns:1fr 1fr}
 .row-3{grid-template-columns:1fr 1fr 1fr}
-.stat-pill{background:#f8faff;border:1px solid #e2e6f0;border-radius:10px;padding:16px;text-align:center}
+.stat-pill{background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:10px;padding:16px;text-align:center}
 .stat-pill-val{font-size:24px;font-weight:800;color:#0f172a}
 .stat-pill-lbl{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-top:3px}
 table{width:100%;border-collapse:collapse}
-th{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border-bottom:2px solid #e2e6f0;text-align:left}
+th{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border-bottom:2px solid rgba(0,180,216,0.15);text-align:left}
 td{padding:12px;border-bottom:1px solid #f0f2f8;font-size:13px;color:#0f172a;vertical-align:middle}
 tr:last-child td{border-bottom:none}
 .empty-state{text-align:center;padding:48px 20px}
@@ -120,7 +120,7 @@ tr:last-child td{border-bottom:none}
     <div style="font-size:11px;color:#94a3b8;margin-top:1px">Your USDT balance, commissions & withdrawals</div>
   </div>
   <div style="display:flex;align-items:center;gap:12px">
-    <div style="background:#f8faff;border:1px solid #e2e6f0;border-radius:8px;padding:8px 16px">
+    <div style="background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:8px 16px">
       <div style="font-size:9px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase">Balance</div>
       <div><span style="font-size:16px;font-weight:800;color:#16a34a">${ '%.2f'|format(balance) }</span><span style="font-size:10px;color:#94a3b8;margin-left:3px">USDT</span></div>
     </div>

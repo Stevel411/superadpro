@@ -13,8 +13,8 @@ body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif;
 .content { padding:24px 28px; flex:1; }
 
 /* Cards */
-.card { background:#fff; border:1px solid #e2e6f0; border-radius:12px; box-shadow:0 1px 6px rgba(0,0,0,0.05); overflow:hidden; }
-.card-head { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid #e2e6f0; }
+.card { background:#050d1a; border:1px solid rgba(0,180,216,0.12); border-radius:12px; box-shadow:0 1px 6px rgba(0,0,0,0.05); overflow:hidden; }
+.card-head { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid rgba(0,180,216,0.12); }
 .card-title { font-size:13px; font-weight:700; color:#0f172a; display:flex; align-items:center; gap:8px; }
 .dot { width:7px; height:7px; border-radius:50%; background:#00b4d8; flex-shrink:0; }
 .card-action { font-size:11px; color:#0077a8; font-weight:700; text-decoration:none; }
@@ -22,7 +22,7 @@ body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif;
 
 /* Hero stats */
 .hero-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
-.hero-card { background:#fff; border:1px solid #e2e6f0; border-radius:12px; padding:20px; position:relative; overflow:hidden; box-shadow:0 1px 6px rgba(0,0,0,0.05); }
+.hero-card { background:#050d1a; border:1px solid rgba(0,180,216,0.12); border-radius:12px; padding:20px; position:relative; overflow:hidden; box-shadow:0 1px 6px rgba(0,0,0,0.05); }
 .hero-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
 .hero-card.cyan::before  { background:linear-gradient(90deg,transparent,#00b4d8,transparent); }
 .hero-card.violet::before{ background:linear-gradient(90deg,transparent,#6d28d9,transparent); }
@@ -37,7 +37,7 @@ body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif;
 
 /* Package grid selector */
 .pkg-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px; }
-.pkg-tab { padding:8px 16px; border-radius:7px; border:1px solid #e2e6f0; background:#fff; font-size:12px; font-weight:700; color:#475569; cursor:pointer; transition:all 0.2s; text-decoration:none; }
+.pkg-tab { padding:8px 16px; border-radius:7px; border:1px solid rgba(0,180,216,0.12); background:#050d1a; font-size:12px; font-weight:700; color:#475569; cursor:pointer; transition:all 0.2s; text-decoration:none; }
 .pkg-tab:hover { border-color:#00b4d8; color:#00b4d8; }
 .pkg-tab.active { background:linear-gradient(135deg,#00b4d8,#6d28d9); color:#fff; border-color:transparent; }
 
@@ -63,7 +63,7 @@ body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif;
 
 /* Level breakdown */
 .level-rows { display:flex; flex-direction:column; gap:8px; }
-.level-row { display:grid; grid-template-columns:60px 1fr 80px 100px; align-items:center; gap:12px; padding:10px 14px; background:#f8faff; border-radius:8px; border:1px solid #e2e6f0; }
+.level-row { display:grid; grid-template-columns:60px 1fr 80px 100px; align-items:center; gap:12px; padding:10px 14px; background:rgba(0,180,216,0.04); border-radius:8px; border:1px solid rgba(0,180,216,0.12); }
 .level-label { font-size:12px; font-weight:700; color:#0f172a; }
 .level-bar-wrap { background:#e8ecf4; border-radius:999px; height:6px; overflow:hidden; }
 .level-bar { height:100%; background:linear-gradient(90deg,#00b4d8,#6d28d9); border-radius:999px; }
@@ -72,7 +72,7 @@ body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif;
 
 /* Earnings projection */
 .projection { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
-.proj-card { background:#fff; border:1px solid #e2e6f0; border-radius:12px; padding:20px; box-shadow:0 1px 6px rgba(0,0,0,0.05); }
+.proj-card { background:#050d1a; border:1px solid rgba(0,180,216,0.12); border-radius:12px; padding:20px; box-shadow:0 1px 6px rgba(0,0,0,0.05); }
 .proj-title { font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:1px; margin-bottom:14px; }
 .proj-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f0f2f8; }
 .proj-row:last-child { border-bottom:none; padding-top:10px; }
@@ -165,13 +165,13 @@ body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif;
 
   <div class="main">
     <!-- TOPBAR -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#fff;border-bottom:1px solid #e2e6f0;position:sticky;top:0;z-index:50;box-shadow:0 1px 8px rgba(0,0,0,0.06)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#050d1a;border-bottom:1px solid rgba(0,180,216,0.12);position:sticky;top:0;z-index:50;box-shadow:0 1px 8px rgba(0,0,0,0.06)">
       <div>
         <div style="font-size:19px;font-weight:800;color:#0f172a">◈ Income Grid</div>
         <div style="font-size:11px;color:#94a3b8;margin-top:1px">8×8 Recurring Grid — 64 positions per cycle</div>
       </div>
       <div style="display:flex;align-items:center;gap:14px">
-        <div style="display:flex;align-items:center;gap:10px;background:#f8faff;border:1px solid #e2e6f0;border-radius:8px;padding:8px 14px">
+        <div style="display:flex;align-items:center;gap:10px;background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:8px 14px">
           <div>
             <div style="font-size:9px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase">Balance</div>
             <div><span style="font-size:17px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:10px;color:#94a3b8;margin-left:3px">USDT</span></div>
