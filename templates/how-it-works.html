@@ -25,7 +25,7 @@
 
         /* Hero */
         .hero { text-align:center; margin-bottom:72px; }
-        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#00b4d8; border:1px solid rgba(0,180,216,0.25); border-radius:50px; background:#eff6ff; padding:5px 16px; margin-bottom:20px; }
+        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#00b4d8; border:1px solid rgba(0,180,216,0.25); border-radius:50px; background:rgba(0,180,216,0.08); padding:5px 16px; margin-bottom:20px; }
         .dot { width:6px; height:6px; border-radius:50%; background:#00b4d8; animation:blink 2s infinite; }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
         h1 { font-weight:800; font-size:clamp(28px,4vw,54px); color:#ffffff; line-height:1.1; margin-bottom:16px; }
@@ -39,7 +39,7 @@
 
         /* ===== AUDIENCE TABS ===== */
         .tabs { display:flex; gap:0; border:1px solid rgba(0,180,216,0.15); border-radius:8px; overflow:hidden; margin-bottom:48px; }
-        .tab { flex:1; padding:18px 24px; text-align:center; cursor:pointer; border-right:1px solid #e2e6f0; transition:all 0.25s; background:rgba(2,16,9,0.8); }
+        .tab { flex:1; padding:18px 24px; text-align:center; cursor:pointer; border-right:1px solid rgba(0,180,216,0.12); transition:all 0.25s; background:rgba(2,16,9,0.8); }
         .tab:last-child { border-right:none; }
         .tab:hover { background:rgba(3,22,12,0.9); }
         .tab.active { background:rgba(0,212,255,0.10); border-bottom:2px solid #00d4ff; border-bottom-width:2px; }
@@ -56,7 +56,7 @@
         .step-row:last-child .step-line { display:none; }
 
         .step-left { display:flex; flex-direction:column; align-items:center; }
-        .step-circle { width:60px; height:60px; border-radius:50%; background:rgba(2,16,9,0.95); border:2px solid rgba(0,200,140,0.4); display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800; color:#00b4d8; flex-shrink:0; box-shadow:0 0 20px #eff6ff; position:relative; z-index:1; }
+        .step-circle { width:60px; height:60px; border-radius:50%; background:rgba(2,16,9,0.95); border:2px solid rgba(0,200,140,0.4); display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800; color:#00b4d8; flex-shrink:0; box-shadow:0 0 20px rgba(0,200,140,0.2); position:relative; z-index:1; }
         .step-line { width:2px; flex:1; background:linear-gradient(180deg,rgba(0,200,140,0.3),rgba(0,200,140,0.05)); min-height:40px; margin:6px 0; }
 
         .step-right { padding:0 0 48px 28px; }
@@ -88,7 +88,7 @@
         .me-sub { font-size:14px; color:rgba(220,242,230,0.6); margin-bottom:20px; }
         .me-points { list-style:none; display:flex; flex-direction:column; gap:12px; }
         .me-point { display:flex; align-items:flex-start; gap:12px; font-size:14px; color:rgba(200,220,255,0.7); line-height:1.55; }
-        .me-num { width:26px; height:26px; border-radius:50%; background:rgba(0,200,140,0.1); border:1px solid #bfdbfe; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#00b4d8; flex-shrink:0; margin-top:1px; }
+        .me-num { width:26px; height:26px; border-radius:50%; background:rgba(0,200,140,0.1); border:1px solid rgba(0,180,216,0.3); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#00b4d8; flex-shrink:0; margin-top:1px; }
 
         /* Grid tree visual */
         .grid-tree { text-align:center; }
@@ -127,7 +127,7 @@
         .cta-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
         .btn-gold { font-weight:700; font-size:15px; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:14px 36px; border-radius:5px; text-decoration:none; transition:all 0.3s; }
         .btn-gold:hover { box-shadow:0 0 40px rgba(0,180,216,0.4); transform:translateY(-2px); }
-        .btn-outline { font-weight:600; font-size:15px; color:rgba(220,242,230,0.8); padding:13px 36px; border-radius:5px; border:1px solid #bfdbfe; text-decoration:none; transition:all 0.3s; }
+        .btn-outline { font-weight:600; font-size:15px; color:rgba(220,242,230,0.8); padding:13px 36px; border-radius:5px; border:1px solid rgba(0,180,216,0.25); text-decoration:none; transition:all 0.3s; }
         .btn-outline:hover { border-color:#00b4d8; color:#ffffff; }
 
         @media(max-width:800px) {
@@ -190,7 +190,7 @@
     <div class="hero">
         <div class="eyebrow"><div class="dot"></div>Simple · Transparent · Powerful</div>
         <h1>Everything You Need to Know<br><span class="gold">About SuperAdPro.</span></h1>
-        <p class="hero-sub">Whether you're an advertiser looking for guaranteed video views, a marketer wanting smarter campaigns, or an affiliate building passive income — here's exactly how SuperAdPro works for you.</p>
+        <p class="hero-sub">Whether you're an advertiser looking for estimated video views, a marketer wanting smarter campaigns, or an affiliate building passive income — here's exactly how SuperAdPro works for you.</p>
     </div>
 
     <!-- AUDIENCE TABS -->
@@ -233,11 +233,11 @@
             <div class="step-right">
                 <div class="step-tag">Step Two</div>
                 <div class="step-title">Choose an Advertising Package</div>
-                <div class="step-desc">Select from 8 advertising packages ranging from $10 to $1,000 USDT. Each package unlocks a set number of guaranteed video views delivered to real, engaged audiences.</div>
+                <div class="step-desc">Select from 8 advertising packages ranging from $10 to $1,000 USDT. Each package unlocks a set number of estimated video views delivered to real, engaged audiences.</div>
                 <ul class="step-points">
-                    <li>Starter ($10) — 5,000 guaranteed views</li>
-                    <li>Pro ($100) — 80,000 guaranteed views — most popular</li>
-                    <li>Ultimate ($1,000) — 1,200,000 guaranteed views</li>
+                    <li>Starter ($10) — up to 5,000 estimated views</li>
+                    <li>Pro ($100) — up to 80,000 estimated views — most popular</li>
+                    <li>Ultimate ($1,000) — up to 1,200,000 estimated views</li>
                 </ul>
                 <div class="step-card">📦 All packages include: <strong>AI optimisation + analytics dashboard</strong></div>
             </div>
@@ -326,7 +326,7 @@
                     <li>A/B test different creative versions</li>
                     <li>Scale winning campaigns with one click</li>
                 </ul>
-                <div class="step-card">📈 Average CTR across platform: <strong>28%</strong></div>
+                <div class="step-card">📈 Projected CTR target: <strong>28%</strong></div>
             </div>
         </div>
     </div>
@@ -414,21 +414,21 @@
                 <div class="pf-icon-wrap" style="background:rgba(0,180,216,0.08);border-color:rgba(0,180,216,0.25)">🤝</div>
                 <div class="pf-node-label">Direct Sponsor</div>
                 <div class="pf-node-sub">On grid completion</div>
-                <div class="pf-pct">25%+70%</div>
+                <div class="pf-pct">25%</div>
             </div>
             <div class="pf-arrow">→</div>
             <div class="pf-node">
                 <div class="pf-icon-wrap" style="background:rgba(0,200,210,0.1);border-color:rgba(0,200,210,0.3)">🔁</div>
-                <div class="pf-node-label">Uni-Level</div>
-                <div class="pf-node-sub">8 levels distributed</div>
-                <div class="pf-pct">25%</div>
+                <div class="pf-node-label">Uni-Level Pool</div>
+                <div class="pf-node-sub">8 levels deep</div>
+                <div class="pf-pct">70%</div>
             </div>
             <div class="pf-arrow">→</div>
             <div class="pf-node">
                 <div class="pf-icon-wrap" style="background:rgba(0,200,140,0.1);border-color:rgba(0,200,140,0.3)">◈</div>
-                <div class="pf-node-label">Uni-Level Income</div>
-                <div class="pf-node-sub">On grid completion</div>
-                <div class="pf-pct">25%</div>
+                <div class="pf-node-label">Platform Fee</div>
+                <div class="pf-node-sub">Operations</div>
+                <div class="pf-pct">5%</div>
             </div>
         </div>
     </div>
@@ -468,7 +468,7 @@
                             <span id="poolEarned" style="color:#00d4ff;font-weight:700">$0.00</span>
                         </div>
                         <div style="display:flex;justify-content:space-between">
-                            <span style="color:rgba(200,220,255,0.5)">Your Upline earned:</span>
+                            <span style="color:rgba(200,220,255,0.5)">Uni-Level Income earned (upline):</span>
                             <span id="uplineEarned" style="color:#7c9fff;font-weight:700">$0.00</span>
                         </div>
                     </div>
@@ -482,11 +482,11 @@
                             <span style="font-size:14px;font-weight:800;color:#00d4ff">Instant ✓</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;align-items:center">
-                            <span style="font-size:13px;color:rgba(200,220,255,0.7)">Direct + Uni-Level (95%)</span>
+                            <span style="font-size:13px;color:rgba(200,220,255,0.7)">Direct Sponsor (25%) + Uni-Level (70%)</span>
                             <span style="font-size:14px;font-weight:800;color:#a78bfa">On cycle reset</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;align-items:center">
-                            <span style="font-size:13px;color:rgba(200,220,255,0.7)">Uni-Level Income (25%)</span>
+                            <span style="font-size:13px;color:rgba(200,220,255,0.7)">Uni-Level Income (8.75%/level)</span>
                             <span style="font-size:14px;font-weight:800;color:#7c9fff">Instant ✓</span>
                         </div>
                     </div>
@@ -515,7 +515,7 @@
         const SEATS_PER_LEVEL = 8;
         // $1,575 / 8 levels = $196.88 per level / 8 seats = $24.61 per seat
         const perSeat = TOTAL * PER_LEVEL;
-        const ownerPayout = TOTAL * 0.45;  // $2,835
+        const ownerPayout = TOTAL * 0.25;  // $1,575 (25% direct sponsor)
 
         const cells = [];
         for(let i=0;i<64;i++){
@@ -525,9 +525,9 @@
             g.appendChild(c); cells.push(c);
         }
 
-        // Cell 0 = you (grid owner)
+        // Cell 0 = you (direct sponsor)
         cells[0].style.background = '#00d4ff';
-        cells[0].innerHTML = '<span style="font-size:7px;font-weight:800;color:#050d1a;line-height:1.2;text-align:center">YOU<br>$2,835</span>';
+        cells[0].innerHTML = '<span style="font-size:7px;font-weight:800;color:#050d1a;line-height:1.2;text-align:center">YOU<br>$1,575</span>';
 
         let filled = 1;
         let poolTotal = 0;
@@ -538,7 +538,7 @@
                     cells.forEach((c,i)=>{
                         if(i === 0){
                             c.style.background = '#00d4ff';
-                            c.innerHTML = '<span style="font-size:7px;font-weight:800;color:#050d1a;line-height:1.2;text-align:center">YOU<br>$2,835</span>';
+                            c.innerHTML = '<span style="font-size:7px;font-weight:800;color:#050d1a;line-height:1.2;text-align:center">YOU<br>$1,575</span>';
                         } else {
                             c.style.background = 'rgba(255,255,255,0.07)';
                             c.innerHTML = '';
@@ -621,7 +621,7 @@
     <!-- CTA -->
     <div class="cta">
         <h2>Ready to Get <span class="gold">Started?</span></h2>
-        <p>Join thousands of advertisers, marketers and affiliates already using SuperAdPro.</p>
+        <p>Join advertisers, marketers and affiliates already signing up for SuperAdPro.</p>
         <div class="cta-btns">
             <a href="/register" class="btn-gold">Create Free Account →</a>
             <a href="/packages" class="btn-outline">View Packages</a>
