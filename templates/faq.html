@@ -24,7 +24,7 @@
 
         /* Hero */
         .hero { text-align:center; margin-bottom:56px; }
-        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#00b4d8; border:1px solid rgba(0,180,216,0.25); border-radius:50px; background:#eff6ff; padding:5px 16px; margin-bottom:20px; }
+        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#00b4d8; border:1px solid rgba(0,180,216,0.25); border-radius:50px; background:rgba(0,180,216,0.08); padding:5px 16px; margin-bottom:20px; }
         .dot { width:6px; height:6px; border-radius:50%; background:#00b4d8; animation:blink 2s infinite; }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
         .hero h1 { font-weight:800; font-size:clamp(28px,4vw,52px); color:#ffffff; line-height:1.1; margin-bottom:14px; }
@@ -35,7 +35,7 @@
         .search-wrap { max-width:520px; margin:0 auto 52px; position:relative; }
         .search-input { width:100%; background:rgba(0,0,0,0.35); border:1px solid rgba(0,180,216,0.2); border-radius:8px; padding:14px 48px 14px 18px; font-family:'Rethink Sans',sans-serif; font-size:15px; color:#ffffff; outline:none; transition:all 0.3s; }
         .search-input::placeholder { color:rgba(220,242,230,0.35); }
-        .search-input:focus { border-color:#00b4d8; box-shadow:0 0 0 3px #eff6ff; }
+        .search-input:focus { border-color:#00b4d8; box-shadow:0 0 0 3px rgba(0,180,216,0.12); }
         .search-icon { position:absolute; right:16px; top:50%; transform:translateY(-50%); font-size:18px; opacity:0.4; }
 
         /* Category tabs */
@@ -59,7 +59,7 @@
         .faq-item.open .faq-chevron { transform:rotate(180deg); color:#00b4d8; }
         .faq-a { max-height:0; overflow:hidden; transition:max-height 0.35s ease, padding 0.3s; }
         .faq-item.open .faq-a { max-height:400px; }
-        .faq-a-inner { padding:0 22px 20px; font-size:14px; color:rgba(220,242,230,0.75); line-height:1.75; border-top:1px solid #f8faff; padding-top:16px; }
+        .faq-a-inner { padding:0 22px 20px; font-size:14px; color:rgba(220,242,230,0.75); line-height:1.75; border-top:1px solid rgba(0,180,216,0.1); padding-top:16px; }
         .faq-a-inner a { color:#6d28d9; text-decoration:none; }
         .faq-a-inner a:hover { text-decoration:underline; }
         .faq-a-inner strong { color:#ffffff; }
@@ -85,7 +85,7 @@
         .cta-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
         .btn-gold { font-weight:700; font-size:15px; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:14px 36px; border-radius:5px; text-decoration:none; transition:all 0.3s; }
         .btn-gold:hover { box-shadow:0 0 40px rgba(0,180,216,0.4); transform:translateY(-2px); }
-        .btn-outline { font-weight:600; font-size:15px; color:rgba(220,242,230,0.8); padding:13px 36px; border-radius:5px; border:1px solid #bfdbfe; text-decoration:none; transition:all 0.3s; }
+        .btn-outline { font-weight:600; font-size:15px; color:rgba(220,242,230,0.8); padding:13px 36px; border-radius:5px; border:1px solid rgba(0,180,216,0.25); text-decoration:none; transition:all 0.3s; }
         .btn-outline:hover { border-color:#00b4d8; color:#ffffff; }
 
         @media(max-width:640px) { .help-strip{grid-template-columns:1fr} .cat-tabs{gap:6px} }
@@ -170,7 +170,7 @@
                     <span class="faq-q-text">What is SuperAdPro?</span>
                     <span class="faq-chevron">⌄</span>
                 </div>
-                <div class="faq-a"><div class="faq-a-inner">SuperAdPro is a video advertising platform where advertisers buy guaranteed video views, marketers launch AI-optimised campaigns, and affiliates earn commissions by growing the network. All payments are made in USDT on the Base blockchain.</div></div>
+                <div class="faq-a"><div class="faq-a-inner">SuperAdPro is a video advertising platform where advertisers buy real video views, marketers launch AI-optimised campaigns, and affiliates earn commissions by growing the network. All payments are made in USDT on the Base blockchain.</div></div>
             </div>
 
             <div class="faq-item" data-cat="getting-started">
@@ -178,7 +178,7 @@
                     <span class="faq-q-text">Is it free to register?</span>
                     <span class="faq-chevron">⌄</span>
                 </div>
-                <div class="faq-a"><div class="faq-a-inner">Yes — registration is completely free. You only pay when you choose to activate an advertising package, starting from just $10 USDT. There are no monthly fees or subscriptions.</div></div>
+                <div class="faq-a"><div class="faq-a-inner">Yes — registration is completely free. You only pay when you choose to activate an advertising package, starting from just $10 USDT. Note: to unlock affiliate earnings, you will also activate a $10/month Stream 1 membership — but this is optional if you are using the platform purely for advertising.</div></div>
             </div>
 
             <div class="faq-item" data-cat="getting-started">
@@ -289,10 +289,10 @@
 
             <div class="faq-item" data-cat="affiliate">
                 <div class="faq-q" onclick="toggleFAQ(this)">
-                    <span class="faq-q-text">What is the matching bonus?</span>
+                    <span class="faq-q-text">What is the difference between direct sponsor commission and uni-level commission?</span>
                     <span class="faq-chevron">⌄</span>
                 </div>
-                <div class="faq-a"><div class="faq-a-inner">When your direct referral earns a commission, you automatically earn 8% of whatever they earned — on top of your own commissions. For example, if your referral earns $20 from their own referral, you receive an additional $1.60 matching bonus, paid instantly.</div></div>
+                <div class="faq-a"><div class="faq-a-inner"><strong>Direct sponsor commission (25%)</strong> is paid to the person who personally referred the new member. <strong>Uni-level commission (8.75% per level)</strong> is paid to each of the 8 sponsors above the new member in the chain — whether they referred them directly or not. Together these make up the full 95% distributed to the affiliate network, with 5% retained as a platform fee.</div></div>
             </div>
 
             <div class="faq-item" data-cat="affiliate">
@@ -433,7 +433,7 @@
     <!-- CTA -->
     <div class="cta">
         <h2>Ready to <span class="gold">Get Started?</span></h2>
-        <p>Join SuperAdPro free and launch your first campaign today.</p>
+        <p>Register free and launch your first campaign today.</p>
         <div class="cta-btns">
             <a href="/register" class="btn-gold">Create Free Account →</a>
             <a href="/packages" class="btn-outline">View Packages</a>
