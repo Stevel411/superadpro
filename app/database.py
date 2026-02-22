@@ -14,13 +14,20 @@ Base = declarative_base()
 # ── Grid constants ────────────────────────────────────────────
 GRID_WIDTH    = 8      # positions per level
 GRID_LEVELS   = 8      # levels deep
-GRID_TOTAL    = 64     # 8 × 8 = total positions per grid
+GRID_TOTAL    = 63     # seats 1-63 (seat 0 = owner, not an entrant)
 
-# Commission split
-OWNER_PCT     = 0.45   # grid owner earns 45% of grid revenue
-UPLINE_PCT    = 0.25   # upline earns 25% per grid completion
-LEVEL_PCT     = 0.25   # 25% split equally across 8 levels
-COMPANY_PCT   = 0.05   # platform management fee
+# ── Commission split (Stream 2 — Profit Engine Grid) ─────────
+# Per entry: 25% direct sponsor + 70% uni-level + 5% platform
+DIRECT_PCT    = 0.25   # 25% → to the person who personally referred the entrant
+UNILEVEL_PCT  = 0.70   # 70% → split across 8 uni-level positions (8.75% each)
+PER_LEVEL_PCT = 0.0875 # 8.75% → each of 8 levels in the upline chain
+PLATFORM_PCT  = 0.05   # 5%  → SuperAdPro platform fee
+
+# Legacy aliases (kept for any old references — map to correct values)
+OWNER_PCT     = DIRECT_PCT    # 0.25
+UPLINE_PCT    = UNILEVEL_PCT  # 0.70
+LEVEL_PCT     = PER_LEVEL_PCT # 0.0875
+COMPANY_PCT   = PLATFORM_PCT  # 0.05
 
 # Package prices
 GRID_PACKAGES = {
@@ -90,7 +97,7 @@ class Commission(Base):
     to_user_id      = Column(Integer, ForeignKey("users.id"))
     grid_id         = Column(Integer, ForeignKey("grids.id"), nullable=True)
     amount_usdt     = Column(Float)
-    commission_type = Column(String)   # 'grid_owner','level_pool','upline','company'
+    commission_type = Column(String)   # 'direct_sponsor','uni_level','platform','membership'
     package_tier    = Column(Integer)
     status          = Column(String, default="pending")  # pending/paid/failed
     tx_hash         = Column(String, nullable=True)
