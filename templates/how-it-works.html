@@ -450,11 +450,16 @@
                 <!-- Grid visual: 8x8 -->
                 <div style="text-align:center;margin-bottom:12px">
                     <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:8px">YOUR 8×8 GRID</div>
-                    <div id="gridViz" style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px;max-width:300px;margin:0 auto 16px"></div>
-                    <div style="display:flex;justify-content:center;gap:16px;font-size:10px;color:rgba(200,220,255,0.5)">
-                        <span>🟦 You</span>
+                    <div style="font-size:10px;color:rgba(200,220,255,0.4);margin-bottom:6px;text-align:center">Example: $100 USDT package</div>
+                    <div id="gridViz" style="display:grid;grid-template-columns:repeat(8,1fr);gap:3px;max-width:320px;margin:0 auto 10px"></div>
+                    <div style="display:flex;justify-content:center;gap:16px;font-size:10px;color:rgba(200,220,255,0.5);margin-bottom:8px">
+                        <span style="color:#00d4ff">■ You (owner)</span>
                         <span style="color:rgba(0,212,255,0.7)">■ Filled</span>
                         <span style="color:rgba(255,255,255,0.2)">□ Open</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;background:rgba(0,0,0,0.2);border-radius:6px;padding:8px 12px;font-size:11px;max-width:320px;margin:0 auto">
+                        <span style="color:rgba(200,220,255,0.5)">Level Pool earned:</span>
+                        <span id="poolEarned" style="color:#00d4ff;font-weight:700">$0.00</span>
                     </div>
                 </div>
                 <!-- Commission breakdown -->
@@ -485,33 +490,61 @@
     </div>
 
     <script>
-    // Animated 8x8 grid visualiser
+    // Animated 8x8 grid visualiser with commission display
     (function(){
         const g = document.getElementById('gridViz');
+        const poolEl = document.getElementById('poolEarned');
         if(!g) return;
+
+        const PKG = 100;           // $100 USDT package
+        const LEVEL_POOL = 0.25;   // 25% to level pool
+        const SEATS = 64;
+        const perSeat = (PKG * LEVEL_POOL) / SEATS; // $0.39 per seat to level pool (your share of 25%)
+
         const cells = [];
         for(let i=0;i<64;i++){
             const c = document.createElement('div');
-            c.style.cssText = 'padding-bottom:100%;border-radius:2px;transition:background 0.3s;background:rgba(255,255,255,0.07)';
+            // Make cells show text — use position:relative wrapper
+            c.style.cssText = 'position:relative;border-radius:3px;transition:background 0.4s;background:rgba(255,255,255,0.07);aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden';
             g.appendChild(c); cells.push(c);
         }
-        // Row 0 = you (owner)
+
+        // Cell 0 = you (grid owner)
         cells[0].style.background = '#00d4ff';
+        cells[0].innerHTML = '<span style="font-size:8px;font-weight:800;color:#050d1a;line-height:1;text-align:center">YOU<br>OWNER</span>';
+
         let filled = 1;
+        let poolTotal = 0;
+
         function tick(){
             if(filled >= 64){
                 setTimeout(()=>{
-                    cells.forEach((c,i)=>{ c.style.background = i===0?'#00d4ff':'rgba(255,255,255,0.07)'; });
+                    cells.forEach((c,i)=>{
+                        if(i === 0){
+                            c.style.background = '#00d4ff';
+                            c.innerHTML = '<span style="font-size:8px;font-weight:800;color:#050d1a;line-height:1;text-align:center">YOU<br>OWNER</span>';
+                        } else {
+                            c.style.background = 'rgba(255,255,255,0.07)';
+                            c.innerHTML = '';
+                        }
+                    });
                     filled = 1;
-                    setTimeout(tick, 800);
-                }, 2000);
+                    poolTotal = 0;
+                    if(poolEl) poolEl.textContent = '$0.00';
+                    setTimeout(tick, 1000);
+                }, 2500);
                 return;
             }
-            cells[filled].style.background = `rgba(0,212,255,${0.15 + filled/90})`;
+            const opacity = 0.25 + (filled / 80);
+            cells[filled].style.background = `rgba(0,212,255,${Math.min(opacity,0.85)})`;
+            // Show commission amount in cell
+            cells[filled].innerHTML = `<span style="font-size:7px;font-weight:800;color:rgba(255,255,255,0.9);line-height:1;text-align:center">+$${perSeat.toFixed(2)}</span>`;
+            poolTotal += perSeat;
+            if(poolEl) poolEl.textContent = '$' + poolTotal.toFixed(2);
             filled++;
-            setTimeout(tick, 120);
+            setTimeout(tick, 150);
         }
-        setTimeout(tick, 600);
+        setTimeout(tick, 800);
     })();
     </script>
 
