@@ -129,12 +129,24 @@ class Withdrawal(Base):
     requested_at    = Column(DateTime, default=datetime.utcnow)
     processed_at    = Column(DateTime, nullable=True)
 
+
+class PasswordResetToken(Base):
+    """One-time password reset tokens — expire after 1 hour."""
+    __tablename__ = "password_reset_tokens"
+    id         = Column(Integer, primary_key=True, index=True)
+    user_id    = Column(Integer, ForeignKey("users.id"), index=True)
+    token      = Column(String, unique=True, index=True)
+    expires_at = Column(DateTime)
+    used       = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
 Base.metadata.create_all(bind=engine)
 
 # ── Auto-migration: add missing columns if they don't exist ──────────────
 def run_migrations():
     """Add any new columns that don't exist yet in the live DB."""
     migrations = [
+        "CREATE TABLE IF NOT EXISTS password_reset_tokens (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), token VARCHAR UNIQUE NOT NULL, expires_at TIMESTAMP NOT NULL, used BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS wallet_address VARCHAR",

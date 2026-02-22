@@ -13,7 +13,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from .database import (
     SessionLocal, User, Payment, Commission, Withdrawal,
-    Grid, GridPosition, GRID_PACKAGES, GRID_TOTAL,
+    Grid, GridPosition, PasswordResetToken, GRID_PACKAGES, GRID_TOTAL,
     DIRECT_PCT, UNILEVEL_PCT, PER_LEVEL_PCT, PLATFORM_PCT,
     OWNER_PCT, UPLINE_PCT, LEVEL_PCT, COMPANY_PCT
 )
@@ -22,6 +22,10 @@ from .grid import (
     get_grid_stats, get_user_grids, get_grid_positions,
     get_user_commission_history
 )
+from .email_utils import send_password_reset_email
+from .database import PasswordResetToken
+import secrets
+from datetime import timedelta
 from .payment import (
     process_membership_payment, process_grid_payment,
     request_withdrawal, get_user_balance, MEMBERSHIP_FEE, COMPANY_WALLET
@@ -566,6 +570,147 @@ def withdraw(
     result = request_withdrawal(db, user.id, amount)
     redirect_url = "/wallet?withdrawn=true" if result["success"] else f"/wallet?error={result['error']}"
     return RedirectResponse(url=redirect_url, status_code=303)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  PASSWORD RESET ROUTES
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/forgot-password")
+def forgot_password_form(request: Request):
+    return templates.TemplateResponse("forgot-password.html", {"request": request})
+
+
+@app.post("/forgot-password")
+@limiter.limit("3/minute")
+def forgot_password_process(
+    request: Request,
+    email: str = Form(),
+    db: Session = Depends(get_db)
+):
+    email = sanitize(email).lower()
+
+    # Always show success — prevents email enumeration attacks
+    def success_response():
+        return templates.TemplateResponse("forgot-password.html", {
+            "request": request, "sent": True, "email": email
+        })
+
+    if not validate_email(email):
+        return templates.TemplateResponse("forgot-password.html", {
+            "request": request,
+            "error": "Please enter a valid email address.",
+            "email": email
+        })
+
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        # Don't reveal whether the email exists
+        return success_response()
+
+    # Expire any existing unused tokens for this user
+    db.query(PasswordResetToken).filter(
+        PasswordResetToken.user_id == user.id,
+        PasswordResetToken.used    == False
+    ).delete()
+
+    # Create new token — 32 bytes = 64 hex chars
+    token = secrets.token_hex(32)
+    reset_token = PasswordResetToken(
+        user_id    = user.id,
+        token      = token,
+        expires_at = datetime.utcnow() + timedelta(hours=1),
+    )
+    db.add(reset_token)
+    db.commit()
+
+    # Send email (fails silently if SMTP not configured)
+    send_password_reset_email(
+        to_email   = user.email,
+        first_name = user.first_name or user.username,
+        reset_token = token,
+    )
+    logger.warning(f"Password reset requested for: {email}")
+    return success_response()
+
+
+@app.get("/reset-password")
+def reset_password_form(request: Request, token: str = "", db: Session = Depends(get_db)):
+    if not token:
+        return templates.TemplateResponse("forgot-password.html", {
+            "request": request,
+            "error": "Invalid reset link. Please request a new one."
+        })
+
+    reset = db.query(PasswordResetToken).filter(
+        PasswordResetToken.token == token,
+        PasswordResetToken.used  == False
+    ).first()
+
+    if not reset or reset.expires_at < datetime.utcnow():
+        return templates.TemplateResponse("reset-password.html", {
+            "request": request, "expired": True
+        })
+
+    return templates.TemplateResponse("reset-password.html", {
+        "request": request, "token": token
+    })
+
+
+@app.post("/reset-password")
+@limiter.limit("5/minute")
+def reset_password_process(
+    request: Request,
+    token: str = Form(),
+    password: str = Form(),
+    confirm_password: str = Form(),
+    db: Session = Depends(get_db)
+):
+    def form_error(msg):
+        return templates.TemplateResponse("reset-password.html", {
+            "request": request, "token": token, "error": msg
+        })
+
+    if not token:
+        return form_error("Invalid reset link.")
+
+    reset = db.query(PasswordResetToken).filter(
+        PasswordResetToken.token == token,
+        PasswordResetToken.used  == False
+    ).first()
+
+    if not reset or reset.expires_at < datetime.utcnow():
+        return templates.TemplateResponse("reset-password.html", {
+            "request": request, "expired": True
+        })
+
+    if len(password) < 8:
+        return form_error("Password must be at least 8 characters.")
+    if len(password.encode("utf-8")) > 72:
+        return form_error("Password must be 72 characters or less.")
+    if password != confirm_password:
+        return form_error("Passwords do not match.")
+
+    # Update password
+    import bcrypt
+    user = db.query(User).filter(User.id == reset.user_id).first()
+    if not user:
+        return form_error("Account not found.")
+
+    user.password = bcrypt.hashpw(
+        password.encode("utf-8"), bcrypt.gensalt()
+    ).decode("utf-8")
+
+    # Mark token as used
+    reset.used = True
+    db.commit()
+
+    # Invalidate any active session
+    logger.warning(f"Password reset completed for user_id: {user.id}")
+
+    return templates.TemplateResponse("reset-password.html", {
+        "request": request, "success": True
+    })
 
 # ═══════════════════════════════════════════════════════════════
 #  ADMIN ROUTES
