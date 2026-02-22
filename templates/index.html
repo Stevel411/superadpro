@@ -331,9 +331,42 @@
         <!-- Main video screen -->
         <div class="ad-screen">
             <div class="screen-content">
-                <div class="scene-bg"></div>
+                <!-- Dubai night photo background -->
+                <div style="position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=900&q=80&fit=crop');background-size:cover;background-position:center 60%;z-index:0"></div>
+                <!-- Colour grade overlay: deep blue/purple tint -->
+                <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,20,80,0.55) 0%,rgba(60,0,120,0.45) 50%,rgba(0,40,100,0.5) 100%);z-index:1"></div>
+                <!-- Cyan HUD targeting grid lines -->
+                <svg style="position:absolute;inset:0;width:100%;height:100%;z-index:2;opacity:0.7" viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Corner brackets top-left -->
+                  <path d="M30 40 L30 20 L50 20" fill="none" stroke="#00f0ff" stroke-width="2" opacity="0.8"/>
+                  <!-- Corner brackets top-right -->
+                  <path d="M490 40 L490 20 L470 20" fill="none" stroke="#00f0ff" stroke-width="2" opacity="0.8"/>
+                  <!-- Corner brackets bottom-left -->
+                  <path d="M30 260 L30 280 L50 280" fill="none" stroke="#00f0ff" stroke-width="2" opacity="0.8"/>
+                  <!-- Corner brackets bottom-right -->
+                  <path d="M490 260 L490 280 L470 280" fill="none" stroke="#00f0ff" stroke-width="2" opacity="0.8"/>
+                  <!-- AI targeting bracket centre-left -->
+                  <rect x="120" y="90" width="60" height="40" fill="none" stroke="#00f0ff" stroke-width="1.2" stroke-dasharray="6,4" opacity="0.6"/>
+                  <text x="122" y="86" font-size="7" fill="#00f0ff" font-family="monospace" opacity="0.8">AD REACH</text>
+                  <!-- AI targeting bracket centre -->
+                  <rect x="240" y="70" width="50" height="35" fill="none" stroke="#00f0ff" stroke-width="1.2" stroke-dasharray="6,4" opacity="0.6"/>
+                  <text x="255" y="66" font-size="7" fill="#00f0ff" font-family="monospace" opacity="0.8">CTR</text>
+                  <!-- AI targeting bracket right -->
+                  <rect x="360" y="80" width="55" height="38" fill="none" stroke="#a78bfa" stroke-width="1.2" stroke-dasharray="6,4" opacity="0.6"/>
+                  <text x="362" y="76" font-size="7" fill="#a78bfa" font-family="monospace" opacity="0.8">ENGAGE</text>
+                  <!-- Scan line animation -->
+                  <line x1="0" y1="150" x2="520" y2="150" stroke="#00f0ff" stroke-width="0.5" opacity="0.2">
+                    <animate attributeName="y1" values="0;300;0" dur="4s" repeatCount="indefinite"/>
+                    <animate attributeName="y2" values="0;300;0" dur="4s" repeatCount="indefinite"/>
+                  </line>
+                  <!-- Data stream text (watermark style) -->
+                  <text x="20" y="110" font-size="7" fill="rgba(0,240,255,0.18)" font-family="monospace">Impression • Impression • Impression • Impression • Impression • Impression</text>
+                  <text x="20" y="125" font-size="7" fill="rgba(0,240,255,0.18)" font-family="monospace">ClickRate • ClickRate • ClickRate • ClickRate • ClickRate • ClickRate</text>
+                  <text x="20" y="195" font-size="7" fill="rgba(0,240,255,0.18)" font-family="monospace">Impression • Impression • Impression • Impression • Impression • Impression</text>
+                  <text x="20" y="210" font-size="7" fill="rgba(0,240,255,0.18)" font-family="monospace">ClickRate • ClickRate • ClickRate • ClickRate • ClickRate • ClickRate</text>
+                </svg>
 
-                <!-- Dubai night skyline SVG v2 -->
+                <!-- IGNORE OLD SVG below (replaced) --><div style="display:none"><!-- Dubai night skyline SVG v2 -->
                 <svg class="city-sil" viewBox="0 0 520 300" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
                   <defs>
                     <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
@@ -598,10 +631,7 @@
                   <rect class="win" x="402" y="118" width="3" height="2" fill="rgba(255,220,100,0.75)" style="animation-duration:2.4s;animation-delay:0.8s"/>
                 </svg>
 
-                <div class="haze"></div>
-                <div class="city-reflection"></div>
-                <div class="road-glow"></div>
-                <div class="product-glow"></div>
+                </div><!-- /hidden old SVG -->
 
                 <!-- Play button -->
                 <div class="play-btn"><div class="play-tri"></div></div>
