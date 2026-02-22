@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Income Grid — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif; min-height:100vh; }
+.layout { display:flex; min-height:100vh; }
+.main { margin-left:220px; flex:1; display:flex; flex-direction:column; }
+.content { padding:24px 28px; flex:1; }
+
+/* Cards */
+.card { background:#fff; border:1px solid #e2e6f0; border-radius:12px; box-shadow:0 1px 6px rgba(0,0,0,0.05); overflow:hidden; }
+.card-head { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid #e2e6f0; }
+.card-title { font-size:13px; font-weight:700; color:#0f172a; display:flex; align-items:center; gap:8px; }
+.dot { width:7px; height:7px; border-radius:50%; background:#00b4d8; flex-shrink:0; }
+.card-action { font-size:11px; color:#0077a8; font-weight:700; text-decoration:none; }
+.card-body { padding:20px; }
+
+/* Hero stats */
+.hero-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+.hero-card { background:#fff; border:1px solid #e2e6f0; border-radius:12px; padding:20px; position:relative; overflow:hidden; box-shadow:0 1px 6px rgba(0,0,0,0.05); }
+.hero-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+.hero-card.cyan::before  { background:linear-gradient(90deg,transparent,#00b4d8,transparent); }
+.hero-card.violet::before{ background:linear-gradient(90deg,transparent,#6d28d9,transparent); }
+.hero-card.green::before { background:linear-gradient(90deg,transparent,#16a34a,transparent); }
+.hero-card.amber::before { background:linear-gradient(90deg,transparent,#f59e0b,transparent); }
+.hero-label { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#94a3b8; margin-bottom:8px; }
+.hero-value { font-size:28px; font-weight:800; color:#0f172a; line-height:1; }
+.hero-value.green  { color:#16a34a; }
+.hero-value.cyan   { color:#00b4d8; }
+.hero-value.violet { color:#6d28d9; }
+.hero-sub { font-size:11px; color:#94a3b8; margin-top:4px; }
+
+/* Package grid selector */
+.pkg-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px; }
+.pkg-tab { padding:8px 16px; border-radius:7px; border:1px solid #e2e6f0; background:#fff; font-size:12px; font-weight:700; color:#475569; cursor:pointer; transition:all 0.2s; text-decoration:none; }
+.pkg-tab:hover { border-color:#00b4d8; color:#00b4d8; }
+.pkg-tab.active { background:linear-gradient(135deg,#00b4d8,#6d28d9); color:#fff; border-color:transparent; }
+
+/* Grid visualisation */
+.grid-wrap { margin-bottom:24px; }
+.grid-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.grid-title { font-size:16px; font-weight:800; color:#0f172a; }
+.grid-meta { font-size:12px; color:#94a3b8; }
+.grid-progress { background:#e8ecf4; border-radius:999px; height:8px; margin-bottom:6px; overflow:hidden; }
+.grid-progress-fill { height:100%; background:linear-gradient(90deg,#00b4d8,#6d28d9); border-radius:999px; transition:width 0.5s; }
+.grid-pct { font-size:11px; color:#475569; text-align:right; }
+
+/* 8×8 grid visual */
+.grid-visual { display:grid; grid-template-columns:repeat(8,1fr); gap:6px; margin-bottom:8px; }
+.grid-cell { aspect-ratio:1; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; transition:all 0.2s; }
+.grid-cell.filled   { background:linear-gradient(135deg,#00b4d8,#6d28d9); color:#fff; }
+.grid-cell.owner    { background:linear-gradient(135deg,#16a34a,#059669); color:#fff; box-shadow:0 0 0 2px #fff,0 0 0 4px #16a34a; }
+.grid-cell.empty    { background:#f0f2f8; border:1px dashed #cbd5e1; color:#94a3b8; }
+.grid-cell.overspill{ background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#92400e; }
+.grid-legend { display:flex; gap:16px; font-size:10px; color:#64748b; }
+.legend-item { display:flex; align-items:center; gap:5px; }
+.legend-dot { width:10px; height:10px; border-radius:3px; }
+
+/* Level breakdown */
+.level-rows { display:flex; flex-direction:column; gap:8px; }
+.level-row { display:grid; grid-template-columns:60px 1fr 80px 100px; align-items:center; gap:12px; padding:10px 14px; background:#f8faff; border-radius:8px; border:1px solid #e2e6f0; }
+.level-label { font-size:12px; font-weight:700; color:#0f172a; }
+.level-bar-wrap { background:#e8ecf4; border-radius:999px; height:6px; overflow:hidden; }
+.level-bar { height:100%; background:linear-gradient(90deg,#00b4d8,#6d28d9); border-radius:999px; }
+.level-count { font-size:11px; color:#475569; text-align:center; }
+.level-earn { font-size:12px; font-weight:800; color:#16a34a; text-align:right; }
+
+/* Earnings projection */
+.projection { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+.proj-card { background:#fff; border:1px solid #e2e6f0; border-radius:12px; padding:20px; box-shadow:0 1px 6px rgba(0,0,0,0.05); }
+.proj-title { font-size:12px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:1px; margin-bottom:14px; }
+.proj-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f0f2f8; }
+.proj-row:last-child { border-bottom:none; padding-top:10px; }
+.proj-label { font-size:13px; color:#475569; }
+.proj-value { font-size:13px; font-weight:800; color:#16a34a; }
+.proj-value.total { font-size:18px; color:#0f172a; }
+
+/* No grids state */
+.empty-state { text-align:center; padding:60px 20px; }
+.empty-icon { font-size:48px; margin-bottom:16px; }
+.empty-title { font-size:20px; font-weight:800; color:#0f172a; margin-bottom:8px; }
+.empty-sub { font-size:14px; color:#64748b; margin-bottom:24px; }
+.cta-btn { display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:14px; color:#fff; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:12px 28px; border-radius:8px; text-decoration:none; box-shadow:0 4px 14px rgba(0,180,216,0.3); }
+
+@media(max-width:768px){ .hero-stats{grid-template-columns:1fr 1fr} .projection{grid-template-columns:1fr} .main{margin-left:0} }
+</style>
+</head>
+<body>
+
+<!-- SVG Shield -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#00b4d8"/></linearGradient>
+    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a0a2e"/><stop offset="100%" stop-color="#03031a"/></linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#00b4d8"/></linearGradient>
+    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="#000000" stop-opacity="0.1"/></linearGradient>
+    <filter id="sg"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="sc"><path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z"/></clipPath>
+    <symbol id="shield" viewBox="0 0 130 122">
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#sf)" stroke="url(#ob)" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#hl)" clip-path="url(#sc)"/>
+      <path d="M23 31 L65 37 L107 31" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M29 49 L65 54 L101 49" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M37 67 L65 71 L93 67" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M47 84 L65 87 L83 84" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside style="width:220px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,240,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column">
+    <a href="/dashboard" style="display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none">
+      <svg width="26" height="26"><use href="#shield"/></svg>
+      <span style="font-weight:800;font-size:13px;letter-spacing:2.5px;text-transform:uppercase;background:linear-gradient(135deg,#00f0ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">SuperAdPro</span>
+    </a>
+    <div style="padding:18px 14px 6px;font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)">Main</div>
+    {% set nav = [('Dashboard','/dashboard','⊞'),('My Campaigns','/campaigns','🎬'),('Ad Packages','/packages','📦'),('Upload Video','/upload','⬆')] %}
+    {% for label,href,icon in nav %}
+    <a href="{{ href }}" style="display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s">
+      <span style="font-size:14px;width:18px;text-align:center">{{ icon }}</span>{{ label }}
+    </a>
+    {% endfor %}
+    <div style="padding:18px 14px 6px;font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)">Earnings</div>
+    <a href="/income-grid" style="display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:13px;font-weight:500;color:#00f0ff;text-decoration:none;border-left:2px solid #00f0ff;background:rgba(0,240,255,0.07)">
+      <span style="font-size:14px;width:18px;text-align:center">◈</span>Income Grid
+    </a>
+    {% set enav = [('Wallet','/wallet','◎'),('Affiliate Tools','/affiliate','🤝'),('Comp Plan','/compensation-plan','📊')] %}
+    {% for label,href,icon in enav %}
+    <a href="{{ href }}" style="display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s">
+      <span style="font-size:14px;width:18px;text-align:center">{{ icon }}</span>{{ label }}
+    </a>
+    {% endfor %}
+    <div style="padding:18px 14px 6px;font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)">Account</div>
+    {% set anav = [('Profile','/account','◉'),('Support','/support','◌')] %}
+    {% for label,href,icon in anav %}
+    <a href="{{ href }}" style="display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent">
+      <span style="font-size:14px;width:18px;text-align:center">{{ icon }}</span>{{ label }}
+    </a>
+    {% endfor %}
+    <div style="margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,240,255,0.05);border:1px solid rgba(0,240,255,0.1);border-radius:8px">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00f0ff);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0">{{ user.username[:2].upper() }}</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#fff">{{ user.first_name }} {{ user.last_name }}</div>
+          <div style="font-size:9px;color:#00f0ff;letter-spacing:1px;text-transform:uppercase;margin-top:1px">Pro Member</div>
+        </div>
+      </div>
+      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;color:rgba(200,220,255,0.5);text-decoration:none;margin-top:6px">⎋ Sign Out</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <!-- TOPBAR -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#fff;border-bottom:1px solid #e2e6f0;position:sticky;top:0;z-index:50;box-shadow:0 1px 8px rgba(0,0,0,0.06)">
+      <div>
+        <div style="font-size:19px;font-weight:800;color:#0f172a">◈ Income Grid</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:1px">8×8 Recurring Grid — 64 positions per cycle</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px;background:#f8faff;border:1px solid #e2e6f0;border-radius:8px;padding:8px 14px">
+          <div>
+            <div style="font-size:9px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase">Balance</div>
+            <div><span style="font-size:17px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:10px;color:#94a3b8;margin-left:3px">USDT</span></div>
+          </div>
+        </div>
+        <a href="/activate-grid" style="font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:9px 20px;border-radius:7px;text-decoration:none">+ Activate Grid</a>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- HERO STATS -->
+      <div class="hero-stats">
+        <div class="hero-card cyan">
+          <div class="hero-label">Total Cycles</div>
+          <div class="hero-value cyan">{{ grid_stats.completed_cycles }}</div>
+          <div class="hero-sub">Completed grids</div>
+        </div>
+        <div class="hero-card violet">
+          <div class="hero-label">Active Grids</div>
+          <div class="hero-value violet">{{ grid_stats.active_grids }}</div>
+          <div class="hero-sub">Currently filling</div>
+        </div>
+        <div class="hero-card green">
+          <div class="hero-label">Total Earned</div>
+          <div class="hero-value green">${{ '%.2f'|format(grid_stats.total_earned) }}</div>
+          <div class="hero-sub">All time USDT</div>
+        </div>
+        <div class="hero-card amber">
+          <div class="hero-label">Network Size</div>
+          <div class="hero-value">{{ grid_stats.total_members }}</div>
+          <div class="hero-sub">Members across all grids</div>
+        </div>
+      </div>
+
+      {% if grid_stats.active_grids == 0 and grid_stats.completed_cycles == 0 %}
+      <!-- EMPTY STATE -->
+      <div class="card">
+        <div class="card-body">
+          <div class="empty-state">
+            <div class="empty-icon">◈</div>
+            <div class="empty-title">No Active Grids Yet</div>
+            <div class="empty-sub">Activate your first grid package to start building your 8×8 income network.<br>Fill 64 positions and earn 45% of total grid revenue — then it resets automatically.</div>
+            <a href="/activate-grid" class="cta-btn">🚀 Activate Your First Grid →</a>
+          </div>
+        </div>
+      </div>
+
+      {% else %}
+
+      <!-- PACKAGE TABS -->
+      <div class="pkg-tabs">
+        {% for tier, price in grid_packages.items() %}
+        <a href="?tier={{ tier }}" class="pkg-tab {% if selected_tier == tier %}active{% endif %}">
+          Tier {{ tier }} — ${{ price|int }}
+        </a>
+        {% endfor %}
+      </div>
+
+      <!-- ACTIVE GRIDS -->
+      {% for grid_info in grid_stats.active_grids_detail %}
+      <div class="card grid-wrap" style="margin-bottom:24px">
+        <div class="card-head">
+          <div class="card-title">
+            <div class="dot"></div>
+            Tier {{ grid_info.tier }} Grid — ${{ grid_info.price|int }}/member — Cycle #{{ grid_info.cycle }}
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:12px;font-weight:700;color:#16a34a">{{ grid_info.filled }}/64 filled</span>
+            <span style="font-size:11px;background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;padding:3px 10px;border-radius:999px;font-weight:700">ACTIVE</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- Progress -->
+          <div style="margin-bottom:20px">
+            <div class="grid-progress"><div class="grid-progress-fill" style="width:{{ grid_info.pct }}%"></div></div>
+            <div class="grid-pct">{{ grid_info.pct }}% complete — ${{ '%.2f'|format(grid_info.owner_potential) }} earned so far</div>
+          </div>
+
+          <!-- 8×8 Visual Grid -->
+          <div style="margin-bottom:20px">
+            <div style="font-size:11px;font-weight:700;color:#475569;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Grid Visualisation</div>
+            <div class="grid-visual" id="gridVisual_{{ grid_info.tier }}">
+              <!-- Rendered by JS below -->
+            </div>
+            <div class="grid-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,#16a34a,#059669)"></div>You (Grid Owner)</div>
+              <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,#00b4d8,#6d28d9)"></div>Filled</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#f0f2f8;border:1px dashed #cbd5e1"></div>Empty</div>
+            </div>
+          </div>
+
+          <!-- Level breakdown -->
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#475569;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Level Earnings Breakdown</div>
+            <div class="level-rows">
+              {% for lvl in range(1,9) %}
+              {% set per_level_earn = (grid_info.price * 0.25 / 8) %}
+              {% set seats_filled = [grid_info.filled - (lvl-1)*8, 0]|max %}
+              {% set seats_this_level = [seats_filled, 8]|min %}
+              <div class="level-row">
+                <div class="level-label">Level {{ lvl }}</div>
+                <div class="level-bar-wrap"><div class="level-bar" style="width:{{ (seats_this_level/8*100)|int }}%"></div></div>
+                <div class="level-count">{{ seats_this_level }}/8 seats</div>
+                <div class="level-earn">+${{ '%.2f'|format(per_level_earn * seats_this_level) }}</div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+      <!-- EARNINGS PROJECTION -->
+      <div class="projection">
+        <div class="proj-card">
+          <div class="proj-title">📊 Earnings Breakdown</div>
+          <div class="proj-row"><span class="proj-label">Grid Owner (45%)</span><span class="proj-value">${{ '%.2f'|format(grid_stats.grid_earnings) }}</span></div>
+          <div class="proj-row"><span class="proj-label">Level Pool (25%)</span><span class="proj-value">${{ '%.2f'|format(grid_stats.level_earnings) }}</span></div>
+          <div class="proj-row"><span class="proj-label">Upline Residual</span><span class="proj-value">${{ '%.2f'|format(grid_stats.upline_earnings) }}</span></div>
+          <div class="proj-row"><span class="proj-label" style="font-weight:800;color:#0f172a">Total Earned</span><span class="proj-value total">${{ '%.2f'|format(grid_stats.total_earned) }}</span></div>
+        </div>
+        <div class="proj-card">
+          <div class="proj-title">🔄 Cycle Potential — Pro $100</div>
+          {% set pro_price = 100 %}
+          {% set pro_owner = pro_price * 64 * 0.95 * 0.45 %}
+          <div class="proj-row"><span class="proj-label">1 cycle</span><span class="proj-value">${{ '%.0f'|format(pro_owner) }}</span></div>
+          <div class="proj-row"><span class="proj-label">3 cycles</span><span class="proj-value">${{ '%.0f'|format(pro_owner*3) }}</span></div>
+          <div class="proj-row"><span class="proj-label">5 cycles</span><span class="proj-value">${{ '%.0f'|format(pro_owner*5) }}</span></div>
+          <div class="proj-row"><span class="proj-label" style="font-weight:800;color:#0f172a">10 cycles</span><span class="proj-value total">${{ '%.0f'|format(pro_owner*10) }}</span></div>
+        </div>
+      </div>
+
+      {% endif %}
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+// Render 8×8 grid cells
+document.querySelectorAll('[id^="gridVisual_"]').forEach(el => {
+  const tier = el.id.split('_')[1];
+  // Get filled count from data (simplified — full version uses real position data)
+  const filled = parseInt(el.closest('.card-body').querySelector('.grid-pct').textContent) || 0;
+  for (let i = 0; i < 64; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'grid-cell';
+    if (i === 0) {
+      cell.className += ' owner';
+      cell.textContent = 'YOU';
+    } else if (i < filled) {
+      cell.className += ' filled';
+    } else {
+      cell.className += ' empty';
+      cell.textContent = i + 1;
+    }
+    el.appendChild(cell);
+  }
+});
+</script>
+</body>
+</html>

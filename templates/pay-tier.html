@@ -1,62 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activate Tier - SuperAdPro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .neon { text-shadow: 0 0 25px #10b981; }
-        .glass { background: rgba(16, 185, 129, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.3); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Activate Grid — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.wrap{width:100%;max-width:520px}
+.logo-row{text-align:center;margin-bottom:32px}
+.logo-row a{display:inline-flex;align-items:center;gap:10px;text-decoration:none}
+.logo-row span{font-weight:800;font-size:14px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00b4d8,#6d28d9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.card{background:#fff;border-radius:16px;border:1px solid #e2e6f0;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)}
+.card-top{background:linear-gradient(135deg,#0a0a1a,#0d0a2e);padding:28px 28px 24px;position:relative;overflow:hidden}
+.card-top::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(0,180,216,0.12),transparent)}
+.tier-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:999px;background:rgba(0,180,216,0.15);border:1px solid rgba(0,180,216,0.3);font-size:11px;font-weight:700;color:#00b4d8;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
+.card-title{font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
+.card-sub{font-size:13px;color:rgba(200,220,255,0.6)}
+.price-row{display:flex;align-items:flex-end;gap:6px;margin-top:16px}
+.price-big{font-size:42px;font-weight:800;color:#fff;line-height:1}
+.price-unit{font-size:14px;color:rgba(200,220,255,0.5);padding-bottom:6px}
+.card-body{padding:28px}
+.earn-preview{background:linear-gradient(135deg,rgba(22,163,74,0.08),rgba(0,180,216,0.05));border:1px solid rgba(22,163,74,0.15);border-radius:10px;padding:16px 18px;margin-bottom:24px}
+.earn-preview-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#16a34a;margin-bottom:12px}
+.earn-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(22,163,74,0.1)}
+.earn-row:last-child{border-bottom:none;padding-top:8px}
+.earn-label{font-size:12px;color:#475569}
+.earn-val{font-size:13px;font-weight:800;color:#16a34a}
+.earn-val.total{font-size:16px;color:#0f172a}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:7px;letter-spacing:0.5px}
+.field input,.field select{width:100%;padding:11px 14px;background:#f8faff;border:1px solid #e2e6f0;border-radius:8px;font-size:14px;color:#0f172a;font-family:inherit;transition:border-color 0.2s}
+.field input:focus,.field select:focus{outline:none;border-color:#00b4d8;background:#fff}
+.wallet-row{background:#f8faff;border:1px solid #e2e6f0;border-radius:8px;padding:12px 14px;font-size:12px;color:#475569;margin-bottom:18px}
+.wallet-addr{font-size:11px;font-family:monospace;color:#0077a8;margin-top:3px;word-break:break-all}
+.pkg-selector{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+.pkg-opt{padding:8px 6px;border:1px solid #e2e6f0;border-radius:8px;text-align:center;cursor:pointer;transition:all 0.2s;background:#fff}
+.pkg-opt:hover{border-color:#00b4d8}
+.pkg-opt.selected{border-color:#00b4d8;background:rgba(0,180,216,0.06)}
+.pkg-opt .p-name{font-size:10px;font-weight:700;color:#475569;text-transform:uppercase}
+.pkg-opt .p-price{font-size:15px;font-weight:800;color:#0f172a}
+.pkg-opt.selected .p-price{color:#00b4d8}
+.submit-btn{width:100%;padding:14px;background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 6px 20px rgba(0,180,216,0.3);transition:opacity 0.2s}
+.submit-btn:hover{opacity:0.9}
+.error-msg{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;font-size:13px;color:#dc2626;margin-bottom:18px}
+.info-strip{display:flex;gap:8px;align-items:flex-start;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:12px 14px;margin-bottom:20px}
+.info-strip-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.info-strip-text{font-size:12px;color:#0369a1;line-height:1.5}
+.back-link{text-align:center;margin-top:16px;font-size:13px;color:#64748b}
+.back-link a{color:#00b4d8;text-decoration:none;font-weight:600}
+</style>
 </head>
-<body class="bg-zinc-950 text-zinc-100">
+<body>
 
-    <!-- Navigation with Back to Tiers + Home -->
-    <nav class="glass border-b border-emerald-500/30">
-        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl neon">SA</div>
-                <span class="text-3xl font-bold tracking-tighter neon">SuperAdPro</span>
-            </div>
-            <div class="flex gap-4">
-                <a href="/activate-tiers" class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-sm font-semibold rounded-3xl transition flex items-center gap-2">
-                    ← Back to Tiers
-                </a>
-                <a href="/" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-sm font-semibold rounded-3xl transition">Home</a>
-            </div>
-        </div>
-    </nav>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#00b4d8"/></linearGradient>
+    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a0a2e"/><stop offset="100%" stop-color="#03031a"/></linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#00b4d8"/></linearGradient>
+    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="#000000" stop-opacity="0.1"/></linearGradient>
+    <filter id="sg"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="sc"><path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z"/></clipPath>
+    <symbol id="shield" viewBox="0 0 130 122">
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#sf)" stroke="url(#ob)" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#hl)" clip-path="url(#sc)"/>
+      <path d="M23 31 L65 37 L107 31" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M29 49 L65 54 L101 49" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M37 67 L65 71 L93 67" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M47 84 L65 87 L83 84" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+    </symbol>
+  </defs>
+</svg>
 
-    <div class="max-w-md mx-auto py-20 px-6">
-        <div class="glass rounded-3xl p-12 text-center">
-            <h1 class="text-4xl font-bold neon mb-4">Activate Tier</h1>
-            <p id="tierName" class="text-5xl font-bold text-emerald-400"></p>
-            <p id="tierPrice" class="text-6xl font-bold text-emerald-400 mt-2"></p>
-            
-            <p class="text-emerald-400 text-xl mb-12">One-time fee • 100% to sponsor</p>
+<div class="wrap">
+  <div class="logo-row">
+    <a href="/dashboard">
+      <svg width="28" height="28"><use href="#shield"/></svg>
+      <span>SuperAdPro</span>
+    </a>
+  </div>
 
-            <button onclick="payNow()" class="w-full bg-emerald-500 hover:bg-emerald-600 py-6 rounded-3xl text-xl font-semibold transition">
-                Pay <span id="payAmount"></span> USDT on Base
-            </button>
-
-            <p class="text-xs text-zinc-400 mt-8">Payment is instant. 100% goes to your sponsor automatically.</p>
-        </div>
+  <div class="card">
+    <div class="card-top">
+      <div class="tier-badge">◈ Grid Activation</div>
+      <div class="card-title" id="cardTitle">Activate Tier {{ tier or 1 }} Grid</div>
+      <div class="card-sub">8×8 Recurring Income Grid — 64 positions per cycle</div>
+      <div class="price-row">
+        <div class="price-big" id="priceDisplay">${{ price or 10 }}</div>
+        <div class="price-unit">USDT one-time</div>
+      </div>
     </div>
 
-    <script>
-        const tier = new URLSearchParams(window.location.search).get('tier') || 'Pro';
-        const prices = {'Starter':10,'Basic':25,'Pro':50,'Advanced':100,'Elite':300,'VIP':600};
+    <div class="card-body">
 
-        document.getElementById('tierName').textContent = tier + ' Tier';
-        const price = prices[tier] || 50;
-        document.getElementById('tierPrice').textContent = '$' + price;
-        document.getElementById('payAmount').textContent = '$' + price;
+      {% if error %}
+      <div class="error-msg">⚠ {{ error }}</div>
+      {% endif %}
 
-        function payNow() {
-            alert(`✅ ${tier} Tier activated! $${price} USDT paid. 100% to sponsor.`);
-            window.location.href = "/activate-tiers";
-        }
-    </script>
+      <!-- Earnings preview -->
+      <div class="earn-preview">
+        <div class="earn-preview-title">📊 Your Earning Potential</div>
+        {% set p = price or 10 %}
+        {% set grid_rev = p * 64 %}
+        {% set pool = grid_rev * 0.95 %}
+        <div class="earn-row"><span class="earn-label">Grid revenue (64 × ${{ p }})</span><span class="earn-val" style="color:#475569">${{ '{:,.0f}'.format(grid_rev) }}</span></div>
+        <div class="earn-row"><span class="earn-label">Your owner payout (45%)</span><span class="earn-val">${{ '{:,.2f}'.format(pool * 0.45) }}</span></div>
+        <div class="earn-row"><span class="earn-label">Level pool as grid fills (25%)</span><span class="earn-val">${{ '{:,.2f}'.format(pool * 0.25) }}</span></div>
+        <div class="earn-row"><span class="earn-label" style="font-weight:700;color:#0f172a">Total grid completion</span><span class="earn-val total">${{ '{:,.2f}'.format(pool * 0.45 + pool * 0.25) }}</span></div>
+      </div>
+
+      <!-- Package selector -->
+      <div style="font-size:12px;font-weight:700;color:#475569;margin-bottom:8px;letter-spacing:0.5px">SELECT PACKAGE TIER</div>
+      <div class="pkg-selector">
+        {% set pkgs = [(1,'Starter',10),(2,'Basic',25),(3,'Growth',50),(4,'Pro',100),(5,'Advanced',250),(6,'Elite',500),(7,'Premium',750),(8,'Ultimate',1000)] %}
+        {% for t, name, p in pkgs %}
+        <div class="pkg-opt {% if (tier or 1)|int == t %}selected{% endif %}" onclick="selectPkg({{ t }}, '{{ name }}', {{ p }})">
+          <div class="p-name">{{ name }}</div>
+          <div class="p-price">${{ p }}</div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Payment instruction -->
+      <div class="info-strip">
+        <span class="info-strip-icon">ℹ</span>
+        <div class="info-strip-text">
+          Send exactly <strong id="sendAmount">${{ price or 10 }} USDT</strong> on <strong>Base Chain</strong> to the company wallet below, then paste your transaction hash to verify.
+        </div>
+      </div>
+
+      <!-- Company wallet -->
+      <div class="wallet-row">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#64748b">Send Payment To</div>
+        <div class="wallet-addr" id="companyWallet">{{ company_wallet or '0xF5D76f3dB286F23A8Aee26AaFBD46C9DE9bE1483' }}</div>
+        <div style="font-size:10px;color:#94a3b8;margin-top:4px">superadpro.base.eth • Base Chain USDT only</div>
+      </div>
+
+      <form action="/verify-grid-payment" method="post">
+        <input type="hidden" name="package_tier" id="tierInput" value="{{ tier or 1 }}">
+
+        <div class="field">
+          <label>Transaction Hash</label>
+          <input type="text" name="tx_hash" placeholder="0x..." required>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+          ◈ Verify & Activate Grid →
+        </button>
+      </form>
+
+      <div class="back-link">
+        <a href="/income-grid">← Back to Income Grid</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const packages = {
+  1:{name:'Starter',price:10},2:{name:'Basic',price:25},3:{name:'Growth',price:50},
+  4:{name:'Pro',price:100},5:{name:'Advanced',price:250},6:{name:'Elite',price:500},
+  7:{name:'Premium',price:750},8:{name:'Ultimate',price:1000}
+};
+
+function selectPkg(tier, name, price) {
+  document.querySelectorAll('.pkg-opt').forEach(el => el.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  document.getElementById('tierInput').value = tier;
+  document.getElementById('priceDisplay').textContent = '$' + price;
+  document.getElementById('cardTitle').textContent = 'Activate Tier ' + tier + ' Grid';
+  document.getElementById('sendAmount').textContent = '$' + price + ' USDT';
+  const gridRev = price * 64;
+  const pool = gridRev * 0.95;
+  document.getElementById('submitBtn').textContent = '◈ Verify & Activate $' + price + ' Grid →';
+  // Update earnings preview
+  const rows = document.querySelectorAll('.earn-row');
+  const fmt = n => '$' + n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  rows[0].querySelector('.earn-val').textContent = '$' + gridRev.toLocaleString();
+  rows[1].querySelector('.earn-val').textContent = fmt(pool * 0.45);
+  rows[2].querySelector('.earn-val').textContent = fmt(pool * 0.25);
+  rows[3].querySelector('.earn-val').textContent = fmt(pool * 0.45 + pool * 0.25);
+}
+</script>
+
 </body>
 </html>
