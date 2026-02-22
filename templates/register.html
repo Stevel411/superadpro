@@ -8,19 +8,19 @@
 <style>
 
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif; min-height:100vh; }
+body { background:#050d1a; color:#e8f0fe; font-family:'Rethink Sans',sans-serif; min-height:100vh; }
 a { color:#0077a8; }
 input, select, textarea { font-family:'Rethink Sans',sans-serif; }
 
 .form-group { margin-bottom:22px; }
-label { display:block; font-size:12px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:#475569; margin-bottom:6px; }
+label { display:block; font-size:12px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:rgba(200,220,255,0.7); margin-bottom:6px; }
 input[type=text], input[type=email], input[type=password], input[type=tel], select, textarea {
-  width:100%; background:#f8faff; border:1px solid #e2e6f0; border-radius:7px;
-  padding:13px 16px; font-size:15px; color:#0f172a; transition:all 0.25s; outline:none;
+  width:100%; background:rgba(5,13,26,0.8); border:1px solid rgba(0,180,216,0.15); border-radius:7px;
+  padding:13px 16px; font-size:15px; color:#ffffff; transition:all 0.25s; outline:none;
 }
-input::placeholder, textarea::placeholder { color:#94a3b8; }
+input::placeholder, textarea::placeholder { color:rgba(200,220,255,0.45); }
 input:focus, select:focus, textarea:focus {
-  border-color:#00b4d8; background:#fff; box-shadow:0 0 0 3px rgba(0,180,216,0.1);
+  border-color:#00b4d8; background:rgba(10,18,40,0.9); box-shadow:0 0 0 3px rgba(0,180,216,0.1);
 }
 .submit-btn {
   width:100%; font-weight:700; font-size:16px; color:#fff;
@@ -34,13 +34,13 @@ input:focus, select:focus, textarea:focus {
 .success-msg { background:#dcfce7; border:1px solid #bbf7d0; border-radius:7px; padding:10px 14px; font-size:13px; color:#16a34a; margin-bottom:16px; display:none; }
 .divider-or { display:flex; align-items:center; gap:12px; margin:20px 0; }
 .or-line { flex:1; height:1px; background:#e2e6f0; }
-.or-text { font-size:11px; color:#94a3b8; letter-spacing:2px; }
+.or-text { font-size:11px; color:rgba(200,220,255,0.45); letter-spacing:2px; }
 
 body { display:flex; flex-direction:column; }
 .wrap { flex:1; display:flex; align-items:flex-start; justify-content:center; padding:40px 20px; }
-.box { display:grid; grid-template-columns:1fr 1.2fr; max-width:1200px; width:100%; border:1px solid #e2e6f0; border-radius:14px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,0.09); }
+.box { display:grid; grid-template-columns:1fr 1.2fr; max-width:1200px; width:100%; border:1px solid rgba(0,180,216,0.15); border-radius:14px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,0.09); }
 .left { background:#0f172a; padding:52px 48px; display:flex; flex-direction:column; justify-content:flex-start; }
-.right { background:#ffffff; padding:52px 56px; }
+.right { background:rgba(10,18,40,0.9); padding:52px 56px; }
 .l-eyebrow { font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(0,240,255,0.5); margin-bottom:16px; }
 .l-title { font-weight:800; font-size:34px; color:#fff; line-height:1.2; margin-bottom:12px; }
 .l-sub { font-size:14px; color:rgba(255,255,255,0.6); line-height:1.65; margin-bottom:28px; }
@@ -50,17 +50,17 @@ body { display:flex; flex-direction:column; }
 .pkg-m { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:5px; padding:10px 6px; text-align:center; }
 .pkg-m-price { font-size:14px; color:#16a34a; font-weight:800; }
 .pkg-m-label { font-size:9px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
-.form-title { font-weight:800; font-size:24px; color:#0f172a; margin-bottom:4px; }
-.form-sub { font-size:14px; color:#475569; margin-bottom:28px; }
+.form-title { font-weight:800; font-size:24px; color:#ffffff; margin-bottom:4px; }
+.form-sub { font-size:14px; color:rgba(200,220,255,0.7); margin-bottom:28px; }
 .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 .beta-field { position:relative; }
 .beta-badge { position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:9px; font-weight:700; letter-spacing:1px; color:#0077a8; background:rgba(0,180,216,0.08); border:1px solid rgba(0,180,216,0.2); padding:2px 7px; border-radius:3px; }
 .wallet-hint { font-size:12px; color:#0077a8; margin-top:5px; }
 .terms { display:flex; align-items:flex-start; gap:10px; margin-bottom:20px; }
 .terms input[type=checkbox] { width:16px; height:16px; flex-shrink:0; margin-top:2px; accent-color:#00b4d8; }
-.terms-text { font-size:13px; color:#475569; line-height:1.5; }
+.terms-text { font-size:13px; color:rgba(200,220,255,0.7); line-height:1.5; }
 .terms-text a { color:#0077a8; text-decoration:none; }
-.login-link { text-align:center; margin-top:18px; font-size:14px; color:#475569; }
+.login-link { text-align:center; margin-top:18px; font-size:14px; color:rgba(200,220,255,0.7); }
 .login-link a { color:#0077a8; font-weight:700; text-decoration:none; }
 @media(max-width:800px){ .box{grid-template-columns:1fr} .left{display:none} .form-row{grid-template-columns:1fr} }
 </style>
@@ -103,14 +103,14 @@ body { display:flex; flex-direction:column; }
   </defs>
 </svg>
 
-<nav style="position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:62px;background:#fff;border-bottom:1px solid #e2e6f0;box-shadow:0 1px 8px rgba(0,0,0,0.06)">
+<nav style="position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:62px;background:rgba(10,18,40,0.9);border-bottom:1px solid rgba(0,180,216,0.12);box-shadow:0 1px 8px rgba(0,0,0,0.06)">
   <a href="/" style="display:flex;align-items:center;gap:9px;text-decoration:none">
     <svg width="26" height="26"><use href="#shield"/></svg>
     <span style="font-weight:800;font-size:14px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00b4d8,#6d28d9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">SuperAdPro</span>
   </a>
-  <ul style="display:flex;align-items:center;gap:4px;list-style:none"><li><a href="/how-it-works" style="font-size:13px;font-weight:500;color:#475569;text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">How It Works</a></li><li><a href="/packages" style="font-size:13px;font-weight:500;color:#475569;text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">Packages</a></li><li><a href="/compensation-plan" style="font-size:13px;font-weight:500;color:#475569;text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">Compensation</a></li><li><a href="/for-advertisers" style="font-size:13px;font-weight:500;color:#475569;text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">For Advertisers</a></li><li><a href="/faq" style="font-size:13px;font-weight:500;color:#475569;text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">FAQ</a></li></ul>
+  <ul style="display:flex;align-items:center;gap:4px;list-style:none"><li><a href="/how-it-works" style="font-size:13px;font-weight:500;color:rgba(200,220,255,0.7);text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">How It Works</a></li><li><a href="/packages" style="font-size:13px;font-weight:500;color:rgba(200,220,255,0.7);text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">Packages</a></li><li><a href="/compensation-plan" style="font-size:13px;font-weight:500;color:rgba(200,220,255,0.7);text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">Compensation</a></li><li><a href="/for-advertisers" style="font-size:13px;font-weight:500;color:rgba(200,220,255,0.7);text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">For Advertisers</a></li><li><a href="/faq" style="font-size:13px;font-weight:500;color:rgba(200,220,255,0.7);text-decoration:none;padding:4px 10px;transition:color 0.2s" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#475569'">FAQ</a></li></ul>
   <div style="display:flex;align-items:center;gap:10px">
-    <a href="/login" style="font-size:13px;font-weight:600;color:#475569;text-decoration:none;padding:8px 16px">Sign In</a>
+    <a href="/login" style="font-size:13px;font-weight:600;color:rgba(200,220,255,0.7);text-decoration:none;padding:8px 16px">Sign In</a>
     <a href="/login" style="font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:9px 22px;border-radius:7px;text-decoration:none;transition:all 0.2s;box-shadow:0 2px 10px rgba(0,180,216,0.25)">Sign In →</a>
   </div>
 </nav>
@@ -158,7 +158,7 @@ body { display:flex; flex-direction:column; }
           <input type="text" name="wallet_address" placeholder="0x..." value="{{ prefill.wallet_address if prefill else '' }}" required>
           <div class="wallet-hint">🔗 Your Base Chain wallet for receiving USDT payments</div>
         </div>
-        <div class="form-group"><label>Sponsor Username <span style="color:#94a3b8;font-size:10px">(optional)</span></label><input type="text" name="ref" placeholder="Who referred you?" value="{{ sponsor or (prefill.ref if prefill else '') }}"></div>
+        <div class="form-group"><label>Sponsor Username <span style="color:rgba(200,220,255,0.45);font-size:10px">(optional)</span></label><input type="text" name="ref" placeholder="Who referred you?" value="{{ sponsor or (prefill.ref if prefill else '') }}"></div>
         <div class="form-group">
           <label>Beta Access Code</label>
           <div class="beta-field"><input type="text" name="beta_code" placeholder="Enter your beta code" required><span class="beta-badge">BETA</span></div>

@@ -7,12 +7,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a}
-nav{background:#fff;border-bottom:1px solid #e2e6f0;padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,0.06)}
+body {font-family:'Rethink Sans',sans-serif;background:#050d1a;color:#e8f0fe}
+nav{background:rgba(10,18,40,0.9);border-bottom:1px solid rgba(0,180,216,0.12);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,0.06)}
 .nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
 .nav-brand span{font-weight:800;font-size:14px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00b4d8,#6d28d9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .nav-links{display:flex;align-items:center;gap:28px}
-.nav-links a{font-size:13px;font-weight:500;color:#475569;text-decoration:none}
+.nav-links a{font-size:13px;font-weight:500;color:rgba(200,220,255,0.7);text-decoration:none}
 .nav-links a:hover{color:#00b4d8}
 .btn-primary{background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff!important;padding:9px 22px;border-radius:7px;font-weight:700!important;box-shadow:0 4px 14px rgba(0,180,216,0.25)}
 
@@ -30,17 +30,17 @@ nav{background:#fff;border-bottom:1px solid #e2e6f0;padding:0 40px;height:64px;d
 .badge-cyan{background:rgba(0,180,216,0.1);color:#0077a8;border:1px solid rgba(0,180,216,0.2)}
 .section-label{text-align:center;margin-bottom:10px}
 .section-title{font-size:30px;font-weight:800;text-align:center;margin-bottom:8px}
-.section-sub{text-align:center;color:#64748b;font-size:15px;max-width:560px;margin:0 auto 48px}
+.section-sub{text-align:center;color:rgba(200,220,255,0.55);font-size:15px;max-width:560px;margin:0 auto 48px}
 
 /* Split cards */
 .split{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:48px}
 
 /* The 95/5 card */
-.split-card{background:#fff;border-radius:16px;padding:32px;border:1px solid #e2e6f0;box-shadow:0 2px 12px rgba(0,0,0,0.06)}
-.split-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:12px}
+.split-card{background:rgba(10,18,40,0.9);border-radius:16px;padding:32px;border:1px solid rgba(0,180,216,0.15);box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.split-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(200,220,255,0.45);margin-bottom:12px}
 .split-value{font-size:52px;font-weight:800;line-height:1}
 .split-value.cyan{background:linear-gradient(135deg,#00b4d8,#6d28d9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.split-desc{font-size:14px;color:#475569;margin-top:10px;line-height:1.6}
+.split-desc{font-size:14px;color:rgba(200,220,255,0.7);margin-top:10px;line-height:1.6}
 
 /* Grid structure diagram */
 .grid-diagram{background:linear-gradient(135deg,#0a0a1a,#0d0a2e);border-radius:16px;padding:36px;margin-bottom:48px;text-align:center}
@@ -63,10 +63,10 @@ nav{background:#fff;border-bottom:1px solid #e2e6f0;padding:0 40px;height:64px;d
 
 /* Commission flow */
 .flow-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:48px}
-.flow-card{background:#fff;border-radius:12px;padding:24px;border:1px solid #e2e6f0;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,0.05)}
+.flow-card{background:rgba(10,18,40,0.9);border-radius:12px;padding:24px;border:1px solid rgba(0,180,216,0.15);text-align:center;box-shadow:0 1px 12px rgba(0,0,0,0.3)}
 .flow-pct{font-size:38px;font-weight:800;background:linear-gradient(135deg,#00b4d8,#6d28d9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
-.flow-who{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:6px}
-.flow-desc{font-size:12px;color:#64748b;line-height:1.5}
+.flow-who{font-size:14px;font-weight:700;color:#ffffff;margin-bottom:6px}
+.flow-desc{font-size:12px;color:rgba(200,220,255,0.55);line-height:1.5}
 .flow-example{font-size:13px;font-weight:800;color:#16a34a;margin-top:10px}
 
 /* Package table */
@@ -74,33 +74,33 @@ nav{background:#fff;border-bottom:1px solid #e2e6f0;padding:0 40px;height:64px;d
 .pkg-table thead tr{background:linear-gradient(135deg,#00b4d8,#6d28d9)}
 .pkg-table th{padding:14px 18px;text-align:left;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#fff}
 .pkg-table th:not(:first-child){text-align:right}
-.pkg-table tbody tr{border-bottom:1px solid #e2e6f0;transition:background 0.15s}
-.pkg-table tbody tr:hover{background:#f8faff}
+.pkg-table tbody tr{border-bottom:1px solid rgba(0,180,216,0.12);transition:background 0.15s}
+.pkg-table tbody tr:hover{background:rgba(5,13,26,0.8)}
 .pkg-table td{padding:14px 18px;font-size:13px}
 .pkg-table td:not(:first-child){text-align:right;font-weight:700}
-.pkg-name{font-weight:700;color:#0f172a}
+.pkg-name{font-weight:700;color:#ffffff}
 .pkg-price{color:#0077a8}
 .pkg-owner{color:#16a34a}
 .pkg-upline{color:#6d28d9}
-.pkg-per-level{color:#475569}
+.pkg-per-level{color:rgba(200,220,255,0.7)}
 .highlight-row{background:rgba(0,180,216,0.04)!important}
 .highlight-row td{font-size:14px!important}
 
 /* Cycle power */
 .cycle-table{width:100%;border-collapse:collapse;margin-bottom:48px}
-.cycle-table th,.cycle-table td{padding:12px 18px;border-bottom:1px solid #e2e6f0;font-size:13px}
-.cycle-table th{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#94a3b8;text-align:right}
+.cycle-table th,.cycle-table td{padding:12px 18px;border-bottom:1px solid rgba(0,180,216,0.12);font-size:13px}
+.cycle-table th{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(200,220,255,0.45);text-align:right}
 .cycle-table th:first-child,.cycle-table td:first-child{text-align:left}
 .cycle-table td:not(:first-child){text-align:right;font-weight:700;color:#16a34a}
-.cycle-table td:first-child{color:#0f172a;font-weight:600}
-.cycle-table tbody tr:hover{background:#f8faff}
+.cycle-table td:first-child{color:#ffffff;font-weight:600}
+.cycle-table tbody tr:hover{background:rgba(5,13,26,0.8)}
 
 /* How it works steps */
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:48px}
-.step-card{background:#fff;border-radius:12px;padding:24px 20px;border:1px solid #e2e6f0;box-shadow:0 1px 6px rgba(0,0,0,0.05);position:relative}
+.step-card{background:rgba(10,18,40,0.9);border-radius:12px;padding:24px 20px;border:1px solid rgba(0,180,216,0.15);box-shadow:0 1px 12px rgba(0,0,0,0.3);position:relative}
 .step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
-.step-title{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:6px}
-.step-desc{font-size:12px;color:#64748b;line-height:1.6}
+.step-title{font-size:14px;font-weight:700;color:#ffffff;margin-bottom:6px}
+.step-desc{font-size:12px;color:rgba(200,220,255,0.55);line-height:1.6}
 
 /* CTA */
 .cta-band{background:linear-gradient(135deg,#0a0a1a,#0d0a2e);border-radius:20px;padding:60px 40px;text-align:center;margin-bottom:60px;position:relative;overflow:hidden}
@@ -174,7 +174,7 @@ footer{background:#0a0a1a;color:rgba(200,220,255,0.4);text-align:center;padding:
       </div>
       <div class="split-card" style="border-top:4px solid #e2e6f0">
         <div class="split-label">Platform Management</div>
-        <div class="split-value" style="color:#94a3b8">5%</div>
+        <div class="split-value" style="color:rgba(200,220,255,0.45)">5%</div>
         <div class="split-desc">Five percent covers platform infrastructure, blockchain fees, security, support, and ongoing development. That's it. No other deductions.</div>
       </div>
     </div>
@@ -269,7 +269,7 @@ footer{background:#0a0a1a;color:rgba(200,220,255,0.4);text-align:center;padding:
     <div class="section-title">Choose Your Income Level</div>
     <div class="section-sub">Every package uses the same 95/5 split. Higher packages = larger grids = larger payouts.</div>
 
-    <div class="card" style="background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e2e6f0;margin-bottom:48px">
+    <div class="card" style="background:rgba(10,18,40,0.9);border-radius:16px;overflow:hidden;border:1px solid rgba(0,180,216,0.15);margin-bottom:48px">
       <table class="pkg-table">
         <thead>
           <tr>
@@ -292,7 +292,7 @@ footer{background:#0a0a1a;color:rgba(200,220,255,0.4);text-align:center;padding:
           <tr {% if tier == 4 %}class="highlight-row"{% endif %}>
             <td><span class="pkg-name">{{ name }}</span></td>
             <td><span class="pkg-price">${{ price }}</span></td>
-            <td style="color:#475569">${{ '{:,.0f}'.format(grid_rev) }}</td>
+            <td style="color:rgba(200,220,255,0.7)">${{ '{:,.0f}'.format(grid_rev) }}</td>
             <td><span class="pkg-owner">${{ '{:,.2f}'.format(owner) }}</span></td>
             <td><span class="pkg-upline">${{ '{:,.2f}'.format(upline) }}</span></td>
             <td><span class="pkg-per-level">${{ '{:,.2f}'.format(per_level) }}</span></td>
@@ -309,7 +309,7 @@ footer{background:#0a0a1a;color:rgba(200,220,255,0.4);text-align:center;padding:
     <div class="section-title">The Power of Grid Cycles</div>
     <div class="section-sub">Every completed grid auto-resets. Stack your cycles and watch your earnings compound — Pro package example.</div>
 
-    <div class="card" style="background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e2e6f0;margin-bottom:48px">
+    <div class="card" style="background:rgba(10,18,40,0.9);border-radius:16px;overflow:hidden;border:1px solid rgba(0,180,216,0.15);margin-bottom:48px">
       <table class="cycle-table">
         <thead>
           <tr>
@@ -330,7 +330,7 @@ footer{background:#0a0a1a;color:rgba(200,220,255,0.4);text-align:center;padding:
             <td>{{ '{:,}'.format(people) }} members</td>
             <td style="color:#16a34a">${{ '{:,.0f}'.format(owner) }}</td>
             <td style="color:#6d28d9">${{ '{:,.0f}'.format(levels) }}</td>
-            <td style="color:#0f172a;font-size:15px">${{ '{:,.0f}'.format(owner+levels) }}</td>
+            <td style="color:#ffffff;font-size:15px">${{ '{:,.0f}'.format(owner+levels) }}</td>
           </tr>
           {% endfor %}
         </tbody>
