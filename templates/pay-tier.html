@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+body{font-family:'Rethink Sans',sans-serif;background:#050d1a;color:#ffffff;min-height:100vh}
 .layout{display:flex;min-height:100vh}
 .sidebar{width:220px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,240,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
@@ -25,32 +25,32 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 .content{padding:24px 28px;flex:1}
 .card{background:#050d1a;border:1px solid rgba(0,180,216,0.12);border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
 .card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(0,180,216,0.12)}
-.card-title{font-size:13px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
+.card-title{font-size:13px;font-weight:700;color:#ffffff;display:flex;align-items:center;gap:8px}
 .card-dot{width:7px;height:7px;border-radius:50%;background:#00b4d8;flex-shrink:0}
 .card-body{padding:20px}
 .btn-primary{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:10px 20px;border-radius:7px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:inline-block}
-.btn-outline{font-size:13px;font-weight:600;color:#475569;background:#050d1a;padding:9px 18px;border-radius:7px;border:1px solid rgba(0,180,216,0.12);text-decoration:none;cursor:pointer;font-family:inherit;display:inline-block}
+.btn-outline{font-size:13px;font-weight:600;color:rgba(200,220,255,0.65);background:#050d1a;padding:9px 18px;border-radius:7px;border:1px solid rgba(0,180,216,0.12);text-decoration:none;cursor:pointer;font-family:inherit;display:inline-block}
 .form-group{margin-bottom:16px}
-.form-label{font-size:12px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
-.form-input{width:100%;padding:10px 14px;border:1px solid rgba(0,180,216,0.12);border-radius:7px;font-size:14px;color:#0f172a;font-family:inherit;background:rgba(0,180,216,0.04);transition:border-color 0.2s}
+.form-label{font-size:12px;font-weight:700;color:rgba(200,220,255,0.65);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
+.form-input{width:100%;padding:10px 14px;border:1px solid rgba(0,180,216,0.12);border-radius:7px;font-size:14px;color:#ffffff;font-family:inherit;background:rgba(0,180,216,0.04);transition:border-color 0.2s}
 .form-input:focus{outline:none;border-color:#00b4d8;background:#050d1a}
 .badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px}
-.badge-green{background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0}
-.badge-amber{background:#fef9c3;color:#92400e;border:1px solid #fde68a}
-.badge-cyan{background:#dbeafe;color:#0077a8;border:1px solid rgba(0,180,216,0.2)}
+.badge-green{background:rgba(22,163,74,0.12);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
+.badge-amber{background:rgba(245,158,11,0.08);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)}
+.badge-cyan{background:rgba(0,180,216,0.12);color:#0077a8;border:1px solid rgba(0,180,216,0.2)}
 .row{display:grid;gap:20px}
 .row-2{grid-template-columns:1fr 1fr}
 .row-3{grid-template-columns:1fr 1fr 1fr}
 .stat-pill{background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:10px;padding:16px;text-align:center}
-.stat-pill-val{font-size:24px;font-weight:800;color:#0f172a}
+.stat-pill-val{font-size:24px;font-weight:800;color:#ffffff}
 .stat-pill-lbl{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-top:3px}
 table{width:100%;border-collapse:collapse}
 th{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border-bottom:2px solid rgba(0,180,216,0.15);text-align:left}
-td{padding:12px;border-bottom:1px solid #f0f2f8;font-size:13px;color:#0f172a;vertical-align:middle}
+td{padding:12px;border-bottom:1px solid rgba(0,180,216,0.08);font-size:13px;color:#ffffff;vertical-align:middle}
 tr:last-child td{border-bottom:none}
 .empty-state{text-align:center;padding:48px 20px}
 .empty-icon{font-size:40px;margin-bottom:12px}
-.empty-title{font-size:15px;font-weight:700;color:#475569;margin-bottom:6px}
+.empty-title{font-size:15px;font-weight:700;color:rgba(200,220,255,0.65);margin-bottom:6px}
 .empty-sub{font-size:13px;color:#94a3b8;margin-bottom:20px}
 </style>
 </head>
@@ -114,7 +114,7 @@ tr:last-child td{border-bottom:none}
 <div class="main">
 <div class="topbar">
   <div>
-    <div style="font-size:17px;font-weight:800;color:#0f172a">◈ Activate Income Grid</div>
+    <div style="font-size:17px;font-weight:800;color:#ffffff">◈ Activate Income Grid</div>
     <div style="font-size:11px;color:#94a3b8;margin-top:1px">Choose your package and activate your 8×8 grid</div>
   </div>
   <div style="display:flex;align-items:center;gap:12px">
@@ -140,7 +140,7 @@ tr:last-child td{border-bottom:none}
           <div onclick="selectPkg({{ tier }}, {{ price }}, {{ earn }})" id="pkg{{ tier }}"
                style="border:2px solid rgba(0,180,216,0.2);border-radius:10px;padding:14px;cursor:pointer;transition:all 0.2s;text-align:center">
             <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">{{ name }}</div>
-            <div style="font-size:22px;font-weight:800;color:#0f172a">${{ price }}</div>
+            <div style="font-size:22px;font-weight:800;color:#ffffff">${{ price }}</div>
             <div style="font-size:11px;color:#16a34a;font-weight:700;margin-top:2px">→ ${{ '{:,}'.format(earn) }} potential</div>
           </div>
           {% endfor %}
@@ -174,7 +174,7 @@ tr:last-child td{border-bottom:none}
           </div>
           <button type="submit" class="btn-primary" style="width:100%" id="submitBtn" disabled>Verify Payment & Activate Grid</button>
         </form>
-        <div style="margin-top:12px;padding:10px 14px;background:#fef9c3;border:1px solid #fde68a;border-radius:7px;font-size:11px;color:#92400e">
+        <div style="margin-top:12px;padding:10px 14px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:7px;font-size:11px;color:#fbbf24">
           ⚠ Only send USDT on the Base Chain network. Sending on other networks will result in lost funds.
         </div>
       </div>
@@ -199,7 +199,7 @@ function selectPkg(tier, price, earn) {
   document.getElementById('submitBtn').disabled = false;
   document.getElementById('pkgSummary').innerHTML = `
     <div style="font-size:11px;color:#94a3b8;margin-bottom:4px">SEND EXACTLY</div>
-    <div style="font-size:32px;font-weight:800;color:#0f172a">$${price} <span style="font-size:16px;color:#64748b">USDT</span></div>
+    <div style="font-size:32px;font-weight:800;color:#ffffff">$${price} <span style="font-size:16px;color:rgba(200,220,255,0.5)">USDT</span></div>
     <div style="font-size:12px;color:#16a34a;margin-top:4px">Full grid potential: $${earn.toLocaleString()}</div>
   `;
 }
