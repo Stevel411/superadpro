@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Profit Engine Grid Visualiser — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rethink+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cyan: #00d4ff;
+  --cyan2: #00b4d8;
+  --purple: #7c3aed;
+  --green: #10b981;
+  --gold: #f59e0b;
+  --bg: #020818;
+  --card: rgba(255,255,255,0.03);
+  --border: rgba(0,212,255,0.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Rethink Sans',sans-serif;background:var(--bg);color:#e8f0fe;min-height:100vh;overflow-x:hidden}
+
+/* Animated background grid */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none;z-index:0;
+  animation:gridDrift 30s linear infinite;
+}
+@keyframes gridDrift{from{background-position:0 0}to{background-position:48px 48px}}
+
+/* Glow orbs */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 60% 40% at 20% 30%,rgba(0,180,216,0.07),transparent),
+             radial-gradient(ellipse 50% 40% at 80% 70%,rgba(124,58,237,0.07),transparent);
+}
+
+nav{background:rgba(2,8,24,0.95);border-bottom:1px solid var(--border);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-brand span{font-weight:800;font-size:14px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00b4d8,#6d28d9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-links{display:flex;align-items:center;gap:24px}
+.nav-links a{font-size:13px;font-weight:500;color:rgba(200,220,255,0.6);text-decoration:none;transition:color 0.2s}
+.nav-links a:hover{color:var(--cyan)}
+.btn-nav{background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff!important;padding:8px 20px;border-radius:7px;font-weight:700!important}
+
+/* Hero */
+.hero{text-align:center;padding:60px 40px 40px;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:999px;padding:6px 18px;font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:20px}
+.hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+.hero h1{font-family:'Orbitron',monospace;font-size:clamp(22px,4vw,42px);font-weight:900;line-height:1.1;margin-bottom:12px;letter-spacing:2px}
+.hero h1 span{background:linear-gradient(135deg,#00d4ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:15px;color:rgba(200,220,255,0.5);max-width:540px;margin:0 auto;line-height:1.7}
+
+/* Package selector */
+.pkg-bar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:20px 40px;position:relative;z-index:1}
+.pkg-btn{padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.45);font-family:'Rethink Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.5px}
+.pkg-btn:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,255,0.05)}
+.pkg-btn.active{background:rgba(0,212,255,0.1);border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 20px rgba(0,212,255,0.15)}
+
+/* Main layout */
+.main{display:grid;grid-template-columns:1fr 360px;gap:20px;max-width:1200px;margin:0 auto;padding:0 24px 80px;position:relative;z-index:1}
+@media(max-width:900px){.main{grid-template-columns:1fr}}
+
+/* ── LEFT: Grid panel ── */
+.grid-panel{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:16px;padding:28px;backdrop-filter:blur(8px)}
+.panel-eyebrow{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:6px;font-family:'JetBrains Mono',monospace}
+.panel-title{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;color:#fff;margin-bottom:20px;letter-spacing:1px}
+
+/* Level labels */
+.level-labels{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-bottom:5px}
+.level-label{text-align:center;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;color:rgba(0,212,255,0.3);padding:2px 0}
+
+/* The grid */
+.grid-wrap{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-bottom:18px}
+.cell{
+  aspect-ratio:1;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:6.5px;font-weight:700;
+  line-height:1.2;text-align:center;
+  transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.05);
+  color:transparent;cursor:default;
+  position:relative;overflow:hidden;
+}
+.cell::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.06),transparent);opacity:0;transition:opacity 0.3s}
+.cell.owner{background:var(--cyan)!important;border-color:var(--cyan)!important;color:#020818!important;box-shadow:0 0 20px rgba(0,212,255,0.5),0 0 40px rgba(0,212,255,0.2)}
+.cell.owner::before{opacity:1}
+.cell.filled{color:rgba(255,255,255,0.9);border-color:transparent}
+.cell.filled::before{opacity:1}
+.cell.pop{animation:cellPop 0.45s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes cellPop{0%{transform:scale(0.3);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+
+/* Controls */
+.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.btn{padding:10px 20px;border-radius:8px;border:none;font-family:'Rethink Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:0.5px}
+.btn-play{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#020818;box-shadow:0 4px 16px rgba(0,212,255,0.25)}
+.btn-play:hover{box-shadow:0 6px 24px rgba(0,212,255,0.4);transform:translateY(-1px)}
+.btn-reset{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.1)}
+.btn-reset:hover{background:rgba(255,255,255,0.1);color:#fff}
+.speed-wrap{display:flex;align-items:center;gap:8px;margin-left:auto}
+.speed-label{font-size:10px;color:rgba(255,255,255,0.35);font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
+
+/* Progress */
+.progress-wrap{margin-bottom:16px}
+.progress-row{display:flex;justify-content:space-between;margin-bottom:6px}
+.progress-label{font-size:10px;font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase}
+.progress-value{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--cyan)}
+.progress-bar{height:3px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),#a78bfa);border-radius:99px;transition:width 0.3s;box-shadow:0 0 8px rgba(0,212,255,0.4)}
+
+/* Recurring note */
+.recurring-note{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.15);border-radius:8px;margin-bottom:14px}
+.rn-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.rn-title{font-size:11px;font-weight:700;color:#a78bfa;margin-bottom:3px}
+.rn-text{font-size:11px;color:rgba(200,220,255,0.45);line-height:1.6}
+
+/* Cycle banner */
+.cycle-banner{display:none;text-align:center;padding:16px;background:linear-gradient(135deg,rgba(0,212,255,0.1),rgba(124,58,237,0.1));border:1px solid rgba(0,212,255,0.25);border-radius:10px;animation:fadeUp 0.4s ease}
+.cycle-banner.show{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.cycle-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:4px;letter-spacing:1px}
+.cycle-sub{font-size:11px;color:rgba(255,255,255,0.45)}
+
+/* ── RIGHT: Stats panel ── */
+.right-col{display:flex;flex-direction:column;gap:16px}
+
+.stat-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:20px;backdrop-filter:blur(8px)}
+.stat-eyebrow{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:14px;font-family:'JetBrains Mono',monospace}
+
+/* Live earnings */
+.earn-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.earn-row:last-child{border-bottom:none;padding-bottom:0}
+.earn-left{display:flex;align-items:center;gap:10px}
+.earn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.earn-label{font-size:12px;color:rgba(200,220,255,0.6)}
+.earn-pct{font-size:10px;color:rgba(200,220,255,0.3);margin-top:2px;font-family:'JetBrains Mono',monospace}
+.earn-amount{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;transition:all 0.25s;text-align:right}
+.earn-amount.bump{animation:numBump 0.25s ease}
+@keyframes numBump{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+
+/* Total */
+.total-card{background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(124,58,237,0.06));border:1px solid rgba(0,212,255,0.2);border-radius:12px;padding:20px;text-align:center;backdrop-filter:blur(8px)}
+.total-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:8px;font-family:'JetBrains Mono',monospace}
+.total-amount{font-family:'Orbitron',monospace;font-size:28px;font-weight:900;background:linear-gradient(135deg,var(--cyan),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;transition:all 0.3s;letter-spacing:1px}
+.total-sub{font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px}
+
+/* Split bar */
+.split-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:20px;backdrop-filter:blur(8px)}
+.split-bar-wrap{display:flex;height:8px;border-radius:99px;overflow:hidden;gap:2px;margin:10px 0 14px}
+.split-seg{border-radius:3px}
+.split-legend{display:flex;flex-direction:column;gap:7px}
+.split-item{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(200,220,255,0.55)}
+.split-swatch{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.split-pct{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700}
+
+/* Log */
+.log-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:20px;backdrop-filter:blur(8px)}
+.log-list{display:flex;flex-direction:column;gap:5px;max-height:180px;overflow:hidden}
+.log-item{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;animation:slideIn 0.25s ease;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.log-item:last-child{border-bottom:none}
+@keyframes slideIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+.log-amt{font-weight:700}
+
+/* Stream info strip */
+.info-strip{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:20px;backdrop-filter:blur(8px)}
+.info-title{font-size:11px;font-weight:700;color:#fff;margin-bottom:12px}
+.info-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:11px}
+.info-row:last-child{border-bottom:none}
+.info-key{color:rgba(200,220,255,0.4)}
+.info-val{font-family:'JetBrains Mono',monospace;font-weight:700}
+
+@media(max-width:600px){.pkg-bar{padding:16px 20px}.hero{padding:40px 20px 24px}.main{padding:0 16px 60px}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#00b4d8"/></linearGradient>
+    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a0a2e"/><stop offset="100%" stop-color="#03031a"/></linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#00b4d8"/></linearGradient>
+    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="#000000" stop-opacity="0.1"/></linearGradient>
+    <filter id="sg"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="sc"><path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z"/></clipPath>
+    <symbol id="shield" viewBox="0 0 130 122">
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#sf)" stroke="url(#ob)" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M15 8 L115 8 L125 46 L65 116 L5 46 Z" fill="url(#hl)" clip-path="url(#sc)"/>
+      <path d="M23 31 L65 37 L107 31" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M29 49 L65 54 L101 49" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M37 67 L65 71 L93 67" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+      <path d="M47 84 L65 87 L83 84" fill="none" stroke="url(#lg2)" stroke-width="4" stroke-linecap="round" clip-path="url(#sc)" filter="url(#sg)"/>
+    </symbol>
+  </defs>
+</svg>
+
+<nav>
+  <a href="/" class="nav-brand">
+    <svg width="28" height="28"><use href="#shield"/></svg>
+    <span>SuperAdPro</span>
+  </a>
+  <div class="nav-links">
+    <a href="/how-it-works">How It Works</a>
+    <a href="/packages">Packages</a>
+    <a href="/compensation-plan">Comp Plan</a>
+    <a href="/support">Support</a>
+    <a href="/login">Login</a>
+    <a href="/register" class="btn-nav">Get Started</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Live Interactive Demo</div>
+  <h1>Profit Engine Grid<br><span>Visualiser</span></h1>
+  <p>Select a package, press Play and watch exactly how commissions distribute instantly across every level of your network as each seat fills.</p>
+</div>
+
+<!-- Package selector -->
+<div class="pkg-bar" id="pkgBar">
+  <button class="pkg-btn" data-price="10" onclick="selectPkg(this)">$10</button>
+  <button class="pkg-btn" data-price="25" onclick="selectPkg(this)">$25</button>
+  <button class="pkg-btn" data-price="50" onclick="selectPkg(this)">$50</button>
+  <button class="pkg-btn active" data-price="100" onclick="selectPkg(this)">$100</button>
+  <button class="pkg-btn" data-price="250" onclick="selectPkg(this)">$250</button>
+  <button class="pkg-btn" data-price="500" onclick="selectPkg(this)">$500</button>
+  <button class="pkg-btn" data-price="750" onclick="selectPkg(this)">$750</button>
+  <button class="pkg-btn" data-price="1000" onclick="selectPkg(this)">$1,000</button>
+</div>
+
+<div class="main">
+
+  <!-- LEFT: Grid -->
+  <div class="grid-panel">
+    <div class="panel-eyebrow">Stream 02 — Profit Engine Grid</div>
+    <div class="panel-title" id="panelTitle">8×8 GRID — $100 PACKAGE</div>
+
+    <!-- Level labels -->
+    <div class="level-labels" id="levelLabels"></div>
+
+    <!-- Grid cells -->
+    <div class="grid-wrap" id="gridWrap"></div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button class="btn btn-play" id="playBtn" onclick="togglePlay()">▶ PLAY</button>
+      <button class="btn btn-reset" onclick="resetGrid()">↺ RESET</button>
+      <div class="speed-wrap">
+        <span class="speed-label">Speed</span>
+        <input type="range" min="1" max="5" value="3" id="speedSlider">
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-wrap">
+      <div class="progress-row">
+        <span class="progress-label">Grid Progress</span>
+        <span class="progress-value" id="progressVal">0 / 63 seats filled</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <!-- Recurring note -->
+    <div class="recurring-note">
+      <div class="rn-icon">♾️</div>
+      <div>
+        <div class="rn-title">Recurring Income Engine</div>
+        <div class="rn-text">Your first grid begins when you activate your package (seat 0). Once all 63 remaining seats are filled, a brand new 64-seat grid is created automatically — this time all 64 seats are filled by your growing network. Your income engine never stops.</div>
+      </div>
+    </div>
+
+    <!-- Cycle complete banner -->
+    <div class="cycle-banner" id="cycleBanner">
+      <div class="cycle-title">⚡ GRID COMPLETE — NEW CYCLE CREATED</div>
+      <div class="cycle-sub" id="cycleSubText">New 64-seat grid starts automatically in 3 seconds...</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Stats -->
+  <div class="right-col">
+
+    <!-- Live earnings tracker -->
+    <div class="stat-card">
+      <div class="stat-eyebrow">Live Earnings Tracker</div>
+      <div class="earn-row">
+        <div class="earn-left">
+          <div class="earn-dot" style="background:#10b981"></div>
+          <div>
+            <div class="earn-label">Direct Sponsor (25%)</div>
+            <div class="earn-pct">On personal referrals</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="earn-amount" id="sponsorAmt" style="color:#10b981">$0.00</div>
+        </div>
+      </div>
+      <div class="earn-row">
+        <div class="earn-left">
+          <div class="earn-dot" style="background:#3b82f6"></div>
+          <div>
+            <div class="earn-label">Level 1 Uni-Level</div>
+            <div class="earn-pct">8.75% per entry</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="earn-amount" id="l1Amt" style="color:#3b82f6">$0.00</div>
+        </div>
+      </div>
+      <div class="earn-row">
+        <div class="earn-left">
+          <div class="earn-dot" style="background:#6366f1"></div>
+          <div>
+            <div class="earn-label">Level 2 Uni-Level</div>
+            <div class="earn-pct">8.75% per entry</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="earn-amount" id="l2Amt" style="color:#6366f1">$0.00</div>
+        </div>
+      </div>
+      <div class="earn-row">
+        <div class="earn-left">
+          <div class="earn-dot" style="background:#a78bfa"></div>
+          <div>
+            <div class="earn-label">Levels 3–8 Uni-Level</div>
+            <div class="earn-pct">$8.75 × 6 levels per entry</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="earn-amount" id="l3to8Amt" style="color:#a78bfa">$0.00</div>
+        </div>
+      </div>
+      <div class="earn-row">
+        <div class="earn-left">
+          <div class="earn-dot" style="background:rgba(255,255,255,0.15)"></div>
+          <div>
+            <div class="earn-label">Platform Fee (5%)</div>
+            <div class="earn-pct">Infrastructure & ops</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="earn-amount" id="platformAmt" style="color:rgba(255,255,255,0.25)">$0.00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total -->
+    <div class="total-card">
+      <div class="total-label">Your Total This Cycle</div>
+      <div class="total-amount" id="totalAmt">$0.00</div>
+      <div class="total-sub" id="totalSub">Direct Sponsor + All Uni-Level earnings</div>
+    </div>
+
+    <!-- Per entry split -->
+    <div class="split-card">
+      <div class="stat-eyebrow">Per Entry Distribution — $<span id="splitPrice">100</span></div>
+      <div class="split-bar-wrap">
+        <div class="split-seg" style="width:25%;background:#10b981"></div>
+        <div class="split-seg" style="width:70%;background:linear-gradient(90deg,#3b82f6,#a78bfa)"></div>
+        <div class="split-seg" style="width:5%;background:rgba(255,255,255,0.12)"></div>
+      </div>
+      <div class="split-legend">
+        <div class="split-item">
+          <div class="split-swatch" style="background:#10b981"></div>
+          Direct Sponsor
+          <span class="split-pct" id="sp1" style="color:#10b981">$25.00</span>
+        </div>
+        <div class="split-item">
+          <div class="split-swatch" style="background:linear-gradient(135deg,#3b82f6,#a78bfa)"></div>
+          Uni-Level (8 levels × $<span id="sp2lvl">8.75</span>)
+          <span class="split-pct" id="sp2" style="color:#a78bfa">$70.00</span>
+        </div>
+        <div class="split-item">
+          <div class="split-swatch" style="background:rgba(255,255,255,0.15)"></div>
+          Platform Fee
+          <span class="split-pct" id="sp3" style="color:rgba(255,255,255,0.3)">$5.00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Package info -->
+    <div class="info-strip">
+      <div class="info-title">Package Summary</div>
+      <div class="info-row">
+        <span class="info-key">Package price</span>
+        <span class="info-val" id="infoPkg" style="color:var(--cyan)">$100</span>
+      </div>
+      <div class="info-row">
+        <span class="info-key">Grid seats</span>
+        <span class="info-val" style="color:#fff">64 (63 entrants)</span>
+      </div>
+      <div class="info-row">
+        <span class="info-key">Direct sponsor (25%)</span>
+        <span class="info-val" id="infoDirect" style="color:#10b981">$25.00</span>
+      </div>
+      <div class="info-row">
+        <span class="info-key">Per uni-level (8.75%)</span>
+        <span class="info-val" id="infoUni" style="color:#a78bfa">$8.75</span>
+      </div>
+      <div class="info-row">
+        <span class="info-key">Max per cycle*</span>
+        <span class="info-val" id="infoMax" style="color:var(--gold)">$6,300.00</span>
+      </div>
+    </div>
+
+    <!-- Activity log -->
+    <div class="log-card">
+      <div class="stat-eyebrow">Activity Log</div>
+      <div class="log-list" id="logList">
+        <div class="log-item"><span style="color:rgba(255,255,255,0.2)">Waiting for grid to start...</span><span></span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────
+let pkg = 100;
+let cells = [];
+let filled = 0;
+let playing = false;
+let timer = null;
+
+// Running totals
+let tSponsor = 0, tL1 = 0, tL2 = 0, tL3to8 = 0, tPlatform = 0;
+
+const LEVEL_COLOURS = [
+  '#00d4ff','#3b82f6','#6366f1','#7c3aed',
+  '#8b5cf6','#a78bfa','#b197fc','#c4b5fd'
+];
+
+// ── Package selection ──────────────────────────────────────────────────────
+function selectPkg(btn) {
+  document.querySelectorAll('.pkg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  pkg = parseFloat(btn.dataset.price);
+  resetGrid();
+  updateSplitDisplay();
+}
+
+function updateSplitDisplay() {
+  const direct = pkg * 0.25;
+  const perLevel = pkg * 0.70 / 8;
+  const uniTotal = pkg * 0.70;
+  const platform = pkg * 0.05;
+  const maxCycle = pkg * 63 * 0.95; // 95% of 63 entries
+
+  document.getElementById('splitPrice').textContent = pkg.toLocaleString();
+  document.getElementById('sp1').textContent = '$' + direct.toFixed(2);
+  document.getElementById('sp2lvl').textContent = perLevel.toFixed(2);
+  document.getElementById('sp2').textContent = '$' + uniTotal.toFixed(2);
+  document.getElementById('sp3').textContent = '$' + platform.toFixed(2);
+  document.getElementById('infoPkg').textContent = '$' + pkg.toLocaleString();
+  document.getElementById('infoDirect').textContent = '$' + direct.toFixed(2);
+  document.getElementById('infoUni').textContent = '$' + perLevel.toFixed(2);
+  document.getElementById('infoMax').textContent = '$' + maxCycle.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('panelTitle').textContent = `8×8 GRID — $${pkg.toLocaleString()} PACKAGE`;
+}
+
+// ── Build grid ─────────────────────────────────────────────────────────────
+function buildGrid() {
+  const wrap = document.getElementById('gridWrap');
+  const labels = document.getElementById('levelLabels');
+  wrap.innerHTML = ''; labels.innerHTML = ''; cells = [];
+
+  for (let l = 0; l < 8; l++) {
+    const lbl = document.createElement('div');
+    lbl.className = 'level-label';
+    lbl.textContent = 'L' + (l + 1);
+    lbl.style.color = LEVEL_COLOURS[l] + '60';
+    labels.appendChild(lbl);
+  }
+
+  for (let i = 0; i < 64; i++) {
+    const c = document.createElement('div');
+    c.className = 'cell';
+    if (i === 0) {
+      c.classList.add('owner');
+      c.innerHTML = 'YOU<br>OWNER';
+    }
+    wrap.appendChild(c);
+    cells.push(c);
+  }
+}
+
+// ── Play / Pause ───────────────────────────────────────────────────────────
+function togglePlay() {
+  playing ? pause() : play();
+}
+
+function play() {
+  playing = true;
+  document.getElementById('playBtn').textContent = '⏸ PAUSE';
+  tick();
+}
+
+function pause() {
+  playing = false;
+  clearTimeout(timer);
+  document.getElementById('playBtn').textContent = '▶ PLAY';
+}
+
+function getDelay() {
+  const v = parseInt(document.getElementById('speedSlider').value);
+  return Math.round(700 - (v - 1) * 150); // 700ms → 100ms
+}
+
+function tick() {
+  if (!playing) return;
+  if (filled >= 63) { cycleComplete(); return; }
+  fillNext();
+  timer = setTimeout(tick, getDelay());
+}
+
+// ── Fill a seat ────────────────────────────────────────────────────────────
+function fillNext() {
+  filled++;
+  const cell = cells[filled];
+  const level = Math.floor((filled - 1) / 8); // 0–7
+  const col = LEVEL_COLOURS[level];
+
+  // Commission math
+  const direct = pkg * 0.25;
+  const perLevel = pkg * 0.70 / 8;
+  const platform = pkg * 0.05;
+
+  tSponsor  += direct;
+  tL1       += perLevel;
+  tL2       += perLevel;
+  tL3to8    += perLevel * 6;
+  tPlatform += platform;
+
+  // Style cell
+  const opacity = 0.3 + (filled / 80);
+  cell.classList.remove('open');
+  cell.classList.add('filled', 'pop');
+  cell.style.background = col;
+  cell.style.boxShadow = `0 0 12px ${col}50`;
+  cell.style.borderColor = col + '40';
+  cell.innerHTML = `+$${perLevel.toFixed(2)}`;
+  setTimeout(() => cell.classList.remove('pop'), 450);
+
+  // Update counters
+  bump('sponsorAmt', tSponsor);
+  bump('l1Amt', tL1);
+  bump('l2Amt', tL2);
+  bump('l3to8Amt', tL3to8);
+  bump('platformAmt', tPlatform);
+  document.getElementById('totalAmt').textContent = '$' + (tSponsor + tL1 + tL2 + tL3to8).toFixed(2);
+
+  // Progress
+  const pct = Math.round((filled / 63) * 100);
+  document.getElementById('progressVal').textContent = `${filled} / 63 seats filled`;
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  // Log
+  addLog(filled, level + 1, col, perLevel);
+}
+
+function bump(id, val) {
+  const el = document.getElementById(id);
+  el.textContent = '$' + val.toFixed(2);
+  el.classList.remove('bump');
+  void el.offsetWidth;
+  el.classList.add('bump');
+}
+
+function addLog(seat, level, col, amt) {
+  const list = document.getElementById('logList');
+  // Clear placeholder
+  if (list.querySelector('[style*="0.2"]')) list.innerHTML = '';
+  const item = document.createElement('div');
+  item.className = 'log-item';
+  item.innerHTML = `<span>Seat #${String(seat).padStart(2,'0')} · L${level}</span><span class="log-amt" style="color:${col}">+$${amt.toFixed(2)}</span>`;
+  list.insertBefore(item, list.firstChild);
+  while (list.children.length > 10) list.removeChild(list.lastChild);
+}
+
+// ── Cycle complete ─────────────────────────────────────────────────────────
+function cycleComplete() {
+  pause();
+  const banner = document.getElementById('cycleBanner');
+  const totalRev = 63 * pkg;
+  document.getElementById('cycleSubText').textContent =
+    `Total distributed this cycle: $${(totalRev * 0.95).toLocaleString('en',{minimumFractionDigits:2})}. New 64-seat grid starts in 3 seconds...`;
+  banner.classList.add('show');
+  setTimeout(() => {
+    banner.classList.remove('show');
+    resetGrid();
+    setTimeout(play, 600);
+  }, 3000);
+}
+
+// ── Reset ──────────────────────────────────────────────────────────────────
+function resetGrid() {
+  pause();
+  filled = 0; tSponsor = 0; tL1 = 0; tL2 = 0; tL3to8 = 0; tPlatform = 0;
+  buildGrid();
+  ['sponsorAmt','l1Amt','l2Amt','l3to8Amt','platformAmt'].forEach(id => {
+    document.getElementById(id).textContent = '$0.00';
+  });
+  document.getElementById('totalAmt').textContent = '$0.00';
+  document.getElementById('progressVal').textContent = '0 / 63 seats filled';
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('logList').innerHTML = '<div class="log-item"><span style="color:rgba(255,255,255,0.2)">Waiting for grid to start...</span><span></span></div>';
+  document.getElementById('cycleBanner').classList.remove('show');
+  document.getElementById('playBtn').textContent = '▶ PLAY';
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+buildGrid();
+updateSplitDisplay();
+</script>
+
+</body>
+</html>

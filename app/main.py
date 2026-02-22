@@ -176,6 +176,10 @@ def compensation_plan(request: Request):
         "COMPANY_PCT": COMPANY_PCT,
     })
 
+@app.get("/grid-visualiser")
+def grid_visualiser(request: Request):
+    return templates.TemplateResponse("grid-visualiser.html", {"request": request})
+
 @app.get("/packages")
 def packages(request: Request):
     return templates.TemplateResponse("packages.html", {
