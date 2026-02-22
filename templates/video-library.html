@@ -7,133 +7,225 @@
 <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Rethink Sans',sans-serif;background:#050d1a;color:#ffffff;min-height:100vh}
-.layout{display:flex;min-height:100vh}
-.sidebar{width:220px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,240,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.sidebar-brand{font-weight:800;font-size:13px;letter-spacing:2.5px;text-transform:uppercase;background:linear-gradient(135deg,#00f0ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.nav-section{padding:18px 14px 6px;font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)}
-.nav-item{display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
+body{font-family:'Rethink Sans',sans-serif;background:#050d1a;color:#e8f0fe;min-height:100vh;display:flex}
+.sidebar{width:224px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.sidebar-brand{font-weight:800;font-size:13px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-section{padding:18px 16px 5px;font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.3)}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(200,220,255,0.5);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
 .nav-item:hover{color:rgba(200,220,255,0.9);background:rgba(255,255,255,0.03)}
-.nav-item.active{color:#00f0ff;background:rgba(0,240,255,0.07);border-left-color:#00f0ff}
+.nav-item.active{color:#00d4ff;background:rgba(0,212,255,0.07);border-left-color:#00d4ff}
 .nav-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0}
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,240,255,0.05);border:1px solid rgba(0,240,255,0.1);border-radius:8px}
-.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00f0ff);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
-.main{margin-left:220px;flex:1;display:flex;flex-direction:column}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#050d1a;border-bottom:1px solid rgba(0,180,216,0.12);position:sticky;top:0;z-index:50;box-shadow:0 1px 8px rgba(0,0,0,0.06)}
+.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00d4ff);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(0,212,255,0.1);position:sticky;top:0;z-index:50}
+.topbar-title{font-size:18px;font-weight:800;color:#fff}
+.topbar-sub{font-size:11px;color:rgba(0,212,255,0.5);margin-top:2px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.balance-pill{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:8px;padding:8px 16px}
+.balance-label{font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:1.5px;text-transform:uppercase}
+.balance-val{font-size:16px;font-weight:800;color:#16a34a;line-height:1}
 .content{padding:24px 28px;flex:1}
-.card{background:#050d1a;border:1px solid rgba(0,180,216,0.12);border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
-.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(0,180,216,0.12)}
-.card-title{font-size:13px;font-weight:700;color:#ffffff;display:flex;align-items:center;gap:8px}
-.card-dot{width:7px;height:7px;border-radius:50%;background:#00b4d8;flex-shrink:0}
-.card-body{padding:20px}
-.btn-primary{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:10px 20px;border-radius:7px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:inline-block}
-.btn-outline{font-size:13px;font-weight:600;color:rgba(200,220,255,0.65);background:#050d1a;padding:9px 18px;border-radius:7px;border:1px solid rgba(0,180,216,0.12);text-decoration:none;cursor:pointer;font-family:inherit;display:inline-block}
-.form-group{margin-bottom:16px}
-.form-label{font-size:12px;font-weight:700;color:rgba(200,220,255,0.65);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
-.form-input{width:100%;padding:10px 14px;border:1px solid rgba(0,180,216,0.12);border-radius:7px;font-size:14px;color:#ffffff;font-family:inherit;background:rgba(0,180,216,0.04);transition:border-color 0.2s}
-.form-input:focus{outline:none;border-color:#00b4d8;background:#050d1a}
-.badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px}
-.badge-green{background:rgba(22,163,74,0.12);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
-.badge-amber{background:rgba(245,158,11,0.08);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)}
-.badge-cyan{background:rgba(0,180,216,0.12);color:#0077a8;border:1px solid rgba(0,180,216,0.2)}
-.row{display:grid;gap:20px}
-.row-2{grid-template-columns:1fr 1fr}
-.row-3{grid-template-columns:1fr 1fr 1fr}
-.stat-pill{background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:10px;padding:16px;text-align:center}
-.stat-pill-val{font-size:24px;font-weight:800;color:#ffffff}
-.stat-pill-lbl{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-top:3px}
-table{width:100%;border-collapse:collapse}
-th{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border-bottom:2px solid rgba(0,180,216,0.15);text-align:left}
-td{padding:12px;border-bottom:1px solid rgba(0,180,216,0.08);font-size:13px;color:#ffffff;vertical-align:middle}
-tr:last-child td{border-bottom:none}
-.empty-state{text-align:center;padding:48px 20px}
-.empty-icon{font-size:40px;margin-bottom:12px}
-.empty-title{font-size:15px;font-weight:700;color:rgba(200,220,255,0.65);margin-bottom:6px}
-.empty-sub{font-size:13px;color:#94a3b8;margin-bottom:20px}
+.btn-primary{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:10px 22px;border-radius:7px;text-decoration:none;white-space:nowrap;transition:all 0.3s}
+.btn-primary:hover{box-shadow:0 4px 20px rgba(0,180,216,0.35);transform:translateY(-1px)}
+
+/* ── success banner ── */
+.success-banner{background:rgba(22,163,74,0.1);border:1px solid rgba(22,163,74,0.25);border-radius:10px;padding:14px 20px;margin-bottom:20px;font-size:14px;color:#4ade80;display:flex;align-items:center;gap:10px}
+
+/* ── Campaign grid ── */
+.campaigns-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px;margin-top:4px}
+.campaign-card{background:#0a1628;border:1px solid rgba(0,180,216,0.12);border-radius:12px;overflow:hidden;transition:all 0.25s}
+.campaign-card:hover{border-color:rgba(0,180,216,0.3);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+.video-wrap{position:relative;aspect-ratio:16/9;background:#000}
+.video-wrap iframe{width:100%;height:100%;border:none;display:block}
+.campaign-body{padding:16px 18px}
+.campaign-meta{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.platform-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:50px;border:1px solid}
+.status-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:50px}
+.status-active{background:rgba(22,163,74,0.12);color:#4ade80;border:1px solid rgba(22,163,74,0.3)}
+.status-paused{background:rgba(245,158,11,0.1);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)}
+.campaign-title{font-size:15px;font-weight:700;color:#ffffff;margin-bottom:4px;line-height:1.3}
+.campaign-cat{font-size:11px;color:rgba(200,220,255,0.45);margin-bottom:12px;text-transform:capitalize}
+.campaign-desc{font-size:13px;color:rgba(200,220,255,0.6);line-height:1.6;margin-bottom:14px}
+.campaign-footer{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid rgba(0,180,216,0.08)}
+.campaign-date{font-size:11px;color:rgba(200,220,255,0.35)}
+.delete-btn{font-size:11px;font-weight:600;color:rgba(239,68,68,0.6);background:none;border:none;cursor:pointer;font-family:inherit;padding:4px 8px;border-radius:4px;transition:all 0.2s}
+.delete-btn:hover{color:#f87171;background:rgba(239,68,68,0.08)}
+
+/* ── Empty state ── */
+.empty-state{text-align:center;padding:80px 20px}
+.empty-icon{font-size:48px;margin-bottom:16px}
+.empty-title{font-size:18px;font-weight:700;color:rgba(200,220,255,0.7);margin-bottom:8px}
+.empty-sub{font-size:14px;color:rgba(200,220,255,0.45);margin-bottom:24px;line-height:1.6;max-width:400px;margin-left:auto;margin-right:auto}
+
+/* ── Confirm modal ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#0a1628;border:1px solid rgba(0,180,216,0.2);border-radius:14px;padding:36px;max-width:400px;width:90%;text-align:center}
+.modal h3{font-size:18px;font-weight:800;color:#fff;margin-bottom:10px}
+.modal p{font-size:14px;color:rgba(200,220,255,0.65);margin-bottom:28px;line-height:1.6}
+.modal-btns{display:flex;gap:12px;justify-content:center}
+.modal-cancel{font-size:14px;font-weight:600;color:rgba(200,220,255,0.65);background:rgba(255,255,255,0.05);border:1px solid rgba(0,180,216,0.15);border-radius:7px;padding:10px 24px;cursor:pointer;font-family:inherit}
+.modal-confirm{font-size:14px;font-weight:700;color:#fff;background:rgba(239,68,68,0.8);border:none;border-radius:7px;padding:10px 24px;cursor:pointer;font-family:inherit}
+.modal-confirm:hover{background:rgba(239,68,68,1)}
+
+@media(max-width:768px){.main{margin-left:0}.campaigns-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div class="layout">
 
 <svg width="0" height="0" style="position:absolute">
   <defs>
-    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="30%" stop-color="#6d28d9"/><stop offset="70%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient>
-    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a0a2e"/><stop offset="40%" stop-color="#06061a"/><stop offset="100%" stop-color="#03031a"/></linearGradient>
-    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="25%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="75%" stop-color="#00b4d8"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
-    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
-    <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     <symbol id="shield" viewBox="0 0 100 100">
       <defs>
-        <linearGradient id="hexgrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#4f8ef7"/>
-          <stop offset="50%" stop-color="#6d28d9"/>
-          <stop offset="100%" stop-color="#00b4d8"/>
-        </linearGradient>
-        <linearGradient id="hexinner" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#1a3a8f"/>
-          <stop offset="100%" stop-color="#0d1a5c"/>
-        </linearGradient>
+        <linearGradient id="hexgrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4f8ef7"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#00b4d8"/></linearGradient>
+        <linearGradient id="hexinner" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1a3a8f"/><stop offset="100%" stop-color="#0d1a5c"/></linearGradient>
       </defs>
-      <polygon points="50,3 93,27 93,73 50,97 7,73 7,27" fill="url(#hexgrad)" />
-      <polygon points="50,12 84,31 84,69 50,88 16,69 16,31" fill="url(#hexinner)" />
+      <polygon points="50,3 93,27 93,73 50,97 7,73 7,27" fill="url(#hexgrad)"/>
+      <polygon points="50,12 84,31 84,69 50,88 16,69 16,31" fill="url(#hexinner)"/>
       <text x="50" y="63" text-anchor="middle" font-family="Arial Black,sans-serif" font-weight="900" font-size="38" fill="#00d4ff" letter-spacing="-2">S</text>
     </symbol>
   </defs>
 </svg>
+
 <aside class="sidebar">
   <a href="/dashboard" class="sidebar-logo">
-    <svg width="26" height="26"><use href="#shield"/></svg>
+    <svg width="30" height="30"><use href="#shield"/></svg>
     <span class="sidebar-brand">SuperAdPro</span>
   </a>
   <div class="nav-section">Main</div>
-  <a href="/dashboard" class="nav-item "><span class="nav-icon">⊞</span>Dashboard</a>
+  <a href="/dashboard"     class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
+  <a href="/packages"      class="nav-item"><span class="nav-icon">📦</span>Ad Packages</a>
   <a href="/video-library" class="nav-item active"><span class="nav-icon">🎬</span>My Campaigns</a>
-  <a href="/packages" class="nav-item"><span class="nav-icon">📦</span>Ad Packages</a>
-      <div class="nav-section">Income Streams</div>
-    <a href="/income-grid"       class="nav-item"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
-    <a href="/wallet"            class="nav-item"><span class="nav-icon">◎</span>Wallet</a>
-    <a href="/affiliate"         class="nav-item"><span class="nav-icon">🤝</span>Affiliate Tools</a>
-    <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span>Comp Plan</a>
-    <a href="/grid-visualiser"   class="nav-item"><span class="nav-icon">◈</span>Grid Visualiser</a>
-
-<div class="nav-section">Account</div>
-  <a href="/account" class="nav-item "><span class="nav-icon">◉</span>Profile</a>
+  <div class="nav-section">Income Streams</div>
+  <a href="/income-grid"       class="nav-item"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
+  <a href="/wallet"            class="nav-item"><span class="nav-icon">◎</span>Wallet</a>
+  <a href="/affiliate"         class="nav-item"><span class="nav-icon">🤝</span>Affiliate Tools</a>
+  <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span>Comp Plan</a>
+  <a href="/grid-visualiser"   class="nav-item"><span class="nav-icon">◈</span>Grid Visualiser</a>
+  <div class="nav-section">Account</div>
+  <a href="/account" class="nav-item"><span class="nav-icon">◉</span>Profile</a>
   <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
   <div class="sidebar-footer">
     <div class="user-mini">
       <div class="user-avatar">{{ user.username[:2].upper() }}</div>
       <div>
         <div style="font-size:13px;font-weight:700;color:#fff">{{ user.first_name }} {{ user.last_name }}</div>
-        <div style="font-size:9px;color:#00f0ff;letter-spacing:1px;text-transform:uppercase;margin-top:1px">{% if is_active %}Active{% else %}Inactive{% endif %}</div>
+        <div style="font-size:9px;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:1px">
+          {% if is_active %}● Active{% else %}○ Inactive{% endif %}
+        </div>
       </div>
     </div>
-    <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;color:rgba(200,220,255,0.5);text-decoration:none;margin-top:6px">⎋ Sign Out</a>
+    <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;color:rgba(200,220,255,0.4);text-decoration:none;margin-top:6px">⎋ Sign Out</a>
   </div>
 </aside>
 
 <div class="main">
-<div class="topbar">
-  <div>
-    <div style="font-size:17px;font-weight:800;color:#ffffff">🎬 My Campaigns</div>
-    <div style="font-size:11px;color:#94a3b8;margin-top:1px">Your uploaded video campaigns</div>
-  </div>
-  <div style="display:flex;align-items:center;gap:12px">
-    <div style="background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:8px 16px">
-      <div style="font-size:9px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase">Balance</div>
-      <div><span style="font-size:16px;font-weight:800;color:#16a34a">${ '%.2f'|format(balance) }</span><span style="font-size:10px;color:#94a3b8;margin-left:3px">USDT</span></div>
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">🎬 My Campaigns</div>
+      <div class="topbar-sub">{{ campaigns|length }} campaign{{ 's' if campaigns|length != 1 else '' }} · YouTube, Rumble &amp; Vimeo supported</div>
     </div>
-    <a href="/upload" class="btn-primary">+ Upload Video</a>
+    <div class="topbar-right">
+      <div class="balance-pill">
+        <div>
+          <div class="balance-label">Balance</div>
+          <div><span class="balance-val">${{ '%.2f'|format(balance) }}</span><span style="font-size:10px;color:rgba(200,220,255,0.4);margin-left:3px">USDT</span></div>
+        </div>
+      </div>
+      <a href="/upload" class="btn-primary">+ Add Video</a>
+    </div>
+  </div>
+
+  <div class="content">
+
+    {% if added %}
+    <div class="success-banner">✅ <strong>Video added!</strong> Your campaign is now live in your library.</div>
+    {% endif %}
+
+    {% if campaigns %}
+    <div class="campaigns-grid">
+      {% for c in campaigns %}
+      <div class="campaign-card">
+
+        <!-- Embedded video -->
+        <div class="video-wrap">
+          <iframe src="{{ c.embed_url }}"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen loading="lazy"></iframe>
+        </div>
+
+        <div class="campaign-body">
+          <div class="campaign-meta">
+            <span class="platform-badge" style="color:{{ platform_colour(c.platform) }};border-color:{{ platform_colour(c.platform) }}33;background:{{ platform_colour(c.platform) }}11">
+              {{ platform_label(c.platform) }}
+            </span>
+            <span class="status-badge {% if c.status == 'active' %}status-active{% else %}status-paused{% endif %}">
+              {{ c.status|title }}
+            </span>
+          </div>
+
+          <div class="campaign-title">{{ c.title }}</div>
+          {% if c.category %}
+          <div class="campaign-cat">{{ c.category|replace('_',' ')|title }}</div>
+          {% endif %}
+          {% if c.description %}
+          <div class="campaign-desc">{{ c.description }}</div>
+          {% endif %}
+
+          <div class="campaign-footer">
+            <span class="campaign-date">Added {{ c.created_at.strftime('%d %b %Y') }}</span>
+            <button class="delete-btn" onclick="confirmDelete({{ c.id }}, '{{ c.title|replace("'","\\'")|truncate(30) }}')">
+              🗑 Remove
+            </button>
+          </div>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🎬</div>
+      <div class="empty-title">No campaigns yet</div>
+      <div class="empty-sub">Add your first video from YouTube, Rumble or Vimeo. Paste the link and it appears in your library instantly — no file uploads needed.</div>
+      <a href="/upload" class="btn-primary">Add Your First Video →</a>
+    </div>
+    {% endif %}
+
   </div>
 </div>
-<div class="content">
 
-<div class="empty-state" style="margin-top:40px">
-  <div class="empty-icon">🎬</div>
-  <div class="empty-title">No campaigns yet</div>
-  <div class="empty-sub">Upload your first video to launch a campaign on SuperAdPro. Your video will be shown to real audiences across the network.</div>
-  <a href="/upload" class="btn-primary">Upload Your First Video</a>
+<!-- Delete confirm modal -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <h3>Remove Campaign?</h3>
+    <p id="deleteMsg">This will remove the video from your campaign library.</p>
+    <form method="POST" action="/delete-campaign" id="deleteForm">
+      <input type="hidden" name="campaign_id" id="deleteCampaignId">
+      <div class="modal-btns">
+        <button type="button" class="modal-cancel" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="modal-confirm">Remove</button>
+      </div>
+    </form>
+  </div>
 </div>
 
-</div></div></div></body></html>
+<script>
+function confirmDelete(id, title) {
+  document.getElementById('deleteCampaignId').value = id;
+  document.getElementById('deleteMsg').textContent = `Remove "${title}" from your campaign library?`;
+  document.getElementById('deleteModal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('deleteModal').classList.remove('open');
+}
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>

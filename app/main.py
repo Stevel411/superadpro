@@ -23,6 +23,8 @@ from .grid import (
     get_user_commission_history
 )
 from .email_utils import send_password_reset_email
+from .video_utils import parse_video_url, platform_label, platform_colour
+from .database import VideoCampaign
 from .database import PasswordResetToken
 import secrets
 from datetime import timedelta
@@ -473,14 +475,94 @@ def save_wallet(
     return RedirectResponse(url="/account?saved=true", status_code=303)
 
 @app.get("/video-library")
-def video_library(request: Request, user: User = Depends(get_current_user)):
+def video_library(request: Request, user: User = Depends(get_current_user),
+                  db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/login")
-    return templates.TemplateResponse("video-library.html", {"request": request, "user": user})
+    ctx = get_dashboard_context(request, user, db)
+    campaigns = db.query(VideoCampaign).filter(
+        VideoCampaign.user_id == user.id,
+        VideoCampaign.status  != "deleted"
+    ).order_by(VideoCampaign.created_at.desc()).all()
+    ctx.update({
+        "campaigns": campaigns,
+        "platform_label": platform_label,
+        "platform_colour": platform_colour,
+        "added": request.query_params.get("added", ""),
+    })
+    return templates.TemplateResponse("video-library.html", ctx)
+
+
+@app.post("/delete-campaign")
+def delete_campaign(
+    request: Request,
+    campaign_id: int = Form(),
+    db: Session = Depends(get_db),
+    user: User  = Depends(get_current_user)
+):
+    if not user: return RedirectResponse(url="/login", status_code=303)
+    campaign = db.query(VideoCampaign).filter(
+        VideoCampaign.id      == campaign_id,
+        VideoCampaign.user_id == user.id  # ownership check
+    ).first()
+    if campaign:
+        campaign.status = "deleted"
+        db.commit()
+    return RedirectResponse(url="/video-library", status_code=303)
 
 @app.get("/upload")
 def upload_video(request: Request, user: User = Depends(get_current_user)):
     if not user: return RedirectResponse(url="/login")
-    return templates.TemplateResponse("upload-video.html", {"request": request, "user": user})
+    ctx = get_dashboard_context(request, user, db=next(get_db()))
+    return templates.TemplateResponse("upload-video.html", ctx)
+
+
+@app.post("/upload")
+def upload_video_post(
+    request: Request,
+    title:       str = Form(),
+    video_url:   str = Form(),
+    category:    str = Form(""),
+    description: str = Form(""),
+    db: Session = Depends(get_db),
+    user: User  = Depends(get_current_user)
+):
+    if not user: return RedirectResponse(url="/login", status_code=303)
+
+    title       = sanitize(title)[:120]
+    description = sanitize(description)[:500]
+    category    = sanitize(category)[:50]
+    video_url   = video_url.strip()
+
+    def err(msg):
+        ctx = get_dashboard_context(request, user, db)
+        ctx.update({"error": msg, "prefill": {
+            "title": title, "video_url": video_url,
+            "category": category, "description": description
+        }})
+        return templates.TemplateResponse("upload-video.html", ctx)
+
+    if not title:
+        return err("Please enter a campaign title.")
+
+    parsed = parse_video_url(video_url)
+    if not parsed:
+        return err("Unsupported video URL. Please paste a YouTube, Rumble, or Vimeo link.")
+
+    campaign = VideoCampaign(
+        user_id     = user.id,
+        title       = title,
+        description = description,
+        category    = category,
+        platform    = parsed["platform"],
+        video_url   = video_url,
+        embed_url   = parsed["embed_url"],
+        video_id    = parsed["video_id"],
+        status      = "active",
+    )
+    db.add(campaign)
+    db.commit()
+
+    return RedirectResponse(url="/video-library?added=1", status_code=303)
 
 # ═══════════════════════════════════════════════════════════════
 #  PAYMENT ROUTES

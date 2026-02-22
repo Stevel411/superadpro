@@ -140,13 +140,33 @@ class PasswordResetToken(Base):
     used       = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+
+class VideoCampaign(Base):
+    """An advertiser's video campaign — URL-based, iframe embedded."""
+    __tablename__ = "video_campaigns"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), index=True)
+    title           = Column(String, nullable=False)
+    description     = Column(Text, nullable=True)
+    category        = Column(String, nullable=True)
+    platform        = Column(String, nullable=False)   # youtube/rumble/vimeo
+    video_url       = Column(String, nullable=False)   # original URL pasted
+    embed_url       = Column(String, nullable=False)   # cleaned iframe src
+    video_id        = Column(String, nullable=True)    # platform video ID
+    status          = Column(String, default="active") # active/paused/deleted
+    views_target    = Column(Integer, default=0)       # from package tier
+    views_delivered = Column(Integer, default=0)       # simulated/tracked
+    created_at      = Column(DateTime, default=datetime.utcnow)
+    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 Base.metadata.create_all(bind=engine)
 
 # ── Auto-migration: add missing columns if they don't exist ──────────────
 def run_migrations():
     """Add any new columns that don't exist yet in the live DB."""
     migrations = [
-        "CREATE TABLE IF NOT EXISTS password_reset_tokens (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), token VARCHAR UNIQUE NOT NULL, expires_at TIMESTAMP NOT NULL, used BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS video_campaigns (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), title VARCHAR NOT NULL, description TEXT, category VARCHAR, platform VARCHAR NOT NULL, video_url VARCHAR NOT NULL, embed_url VARCHAR NOT NULL, video_id VARCHAR, status VARCHAR DEFAULT 'active', views_target INTEGER DEFAULT 0, views_delivered INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
+                "CREATE TABLE IF NOT EXISTS password_reset_tokens (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), token VARCHAR UNIQUE NOT NULL, expires_at TIMESTAMP NOT NULL, used BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS wallet_address VARCHAR",

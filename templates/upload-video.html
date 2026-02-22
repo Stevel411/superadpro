@@ -1,62 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Video — SuperAdPro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{background:#050d1a;color:#ffffff;font-family:'Rethink Sans',sans-serif;min-height:100vh;display:flex}
-
-        /* ── Sidebar ── */
-        .sidebar{width:220px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,240,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
-        .sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-        .sidebar-brand{font-weight:800;font-size:13px;letter-spacing:2.5px;text-transform:uppercase;background:linear-gradient(135deg,#00f0ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-        .nav-section{padding:18px 14px 6px;font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)}
-        .nav-item{display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
-        .nav-item:hover{color:rgba(200,220,255,0.9);background:rgba(255,255,255,0.03)}
-        .nav-item.active{color:#00f0ff;background:rgba(0,240,255,0.07);border-left-color:#00f0ff}
-        .nav-icon{font-size:14px;width:18px;text-align:center}
-        .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-
-        /* ── Main ── */
-        .main{margin-left:220px;flex:1;display:flex;flex-direction:column}
-        .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(0,212,255,0.1);position:sticky;top:0;z-index:50}
-        .topbar-title{font-size:18px;font-weight:800;color:#fff}
-        .topbar-sub{font-size:11px;color:rgba(0,212,255,0.5);margin-top:2px}
-        .content{padding:32px;max-width:680px;margin:0 auto;width:100%}
-
-        /* ── Card ── */
-        .card{background:#050d1a;border:1px solid rgba(0,180,216,0.12);border-radius:12px;padding:36px;box-shadow:0 1px 6px rgba(0,0,0,0.04)}
-        .card-title{font-size:20px;font-weight:800;color:#ffffff;margin-bottom:6px}
-        .card-sub{font-size:13px;color:rgba(200,220,255,0.5);margin-bottom:28px}
-
-        /* ── Form ── */
-        .field{margin-bottom:22px}
-        .field label{display:block;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(200,220,255,0.65);margin-bottom:8px}
-        .field input, .field select, .field textarea{width:100%;background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:12px 16px;font-size:14px;font-family:'Rethink Sans',sans-serif;color:#ffffff;outline:none;transition:border-color 0.2s}
-        .field input:focus, .field select:focus, .field textarea:focus{border-color:#00b4d8;box-shadow:0 0 0 3px rgba(0,180,216,0.08)}
-        .field textarea{resize:vertical;min-height:90px;line-height:1.6}
-        .field .hint{font-size:11px;color:#94a3b8;margin-top:5px}
-
-        /* ── Divider ── */
-        .divider{height:1px;background:rgba(0,180,216,0.12);margin:24px 0}
-
-        /* ── Info box ── */
-        .info-box{background:rgba(0,180,216,0.06);border:1px solid rgba(0,180,216,0.25);border-radius:8px;padding:14px 18px;margin-bottom:24px;font-size:13px;color:#0369a1;line-height:1.6}
-        .info-box strong{color:#0284c7}
-
-        /* ── Buttons ── */
-        .submit-btn{display:block;width:100%;text-align:center;font-weight:700;font-size:15px;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:15px;border-radius:8px;border:none;cursor:pointer;font-family:'Rethink Sans',sans-serif;transition:all 0.3s}
-        .submit-btn:hover{box-shadow:0 0 28px rgba(0,180,216,0.4);transform:translateY(-1px)}
-        .cancel-link{display:block;text-align:center;font-size:13px;color:#94a3b8;margin-top:12px;text-decoration:none;transition:color 0.2s}
-        .cancel-link:hover{color:rgba(200,220,255,0.65)}
-
-        /* ── Back link ── */
-        .back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:rgba(200,220,255,0.5);text-decoration:none;margin-bottom:24px;transition:color 0.2s}
-        .back-link:hover{color:#0077a8}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Add Campaign Video — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Rethink Sans',sans-serif;background:#050d1a;color:#e8f0fe;min-height:100vh;display:flex}
+.sidebar{width:224px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.sidebar-brand{font-weight:800;font-size:13px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-section{padding:18px 16px 5px;font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.3)}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(200,220,255,0.5);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
+.nav-item:hover{color:rgba(200,220,255,0.9);background:rgba(255,255,255,0.03)}
+.nav-item.active{color:#00d4ff;background:rgba(0,212,255,0.07);border-left-color:#00d4ff}
+.nav-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(0,212,255,0.1);position:sticky;top:0;z-index:50}
+.topbar-title{font-size:18px;font-weight:800;color:#fff}
+.topbar-sub{font-size:11px;color:rgba(0,212,255,0.5);margin-top:2px}
+.content{padding:32px;max-width:680px;margin:0 auto;width:100%}
+.card{background:#0a1628;border:1px solid rgba(0,180,216,0.15);border-radius:12px;padding:36px}
+.card-title{font-size:20px;font-weight:800;color:#ffffff;margin-bottom:6px}
+.card-sub{font-size:13px;color:rgba(200,220,255,0.5);margin-bottom:28px;line-height:1.6}
+.platforms-row{display:flex;gap:10px;margin-bottom:24px}
+.platform-pill{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:50px;border:1px solid rgba(0,180,216,0.2);font-size:12px;font-weight:600;color:rgba(200,220,255,0.65);background:rgba(0,180,216,0.05)}
+.platform-pill .dot{width:8px;height:8px;border-radius:50%}
+.field{margin-bottom:22px}
+.field label{display:block;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(200,220,255,0.65);margin-bottom:8px}
+.field input,.field select,.field textarea{width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(0,180,216,0.15);border-radius:8px;padding:12px 16px;font-size:14px;font-family:'Rethink Sans',sans-serif;color:#ffffff;outline:none;transition:all 0.2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#00b4d8;box-shadow:0 0 0 3px rgba(0,180,216,0.1)}
+.field input::placeholder,.field textarea::placeholder{color:rgba(200,220,255,0.2)}
+.field select option{background:#0a1628}
+.field .hint{font-size:11px;color:rgba(200,220,255,0.4);margin-top:5px}
+.field textarea{resize:vertical;min-height:90px;line-height:1.6}
+.preview-wrap{display:none;margin-top:12px;border-radius:8px;overflow:hidden;aspect-ratio:16/9;border:1px solid rgba(0,180,216,0.2)}
+.preview-wrap iframe{width:100%;height:100%;border:none}
+.preview-label{font-size:11px;color:#00b4d8;margin-top:6px;display:none}
+.alert-error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:13px 16px;font-size:13px;color:#fca5a5;margin-bottom:20px;line-height:1.5}
+.divider{height:1px;background:rgba(0,180,216,0.1);margin:24px 0}
+.submit-btn{display:block;width:100%;text-align:center;font-weight:700;font-size:15px;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:15px;border-radius:8px;border:none;cursor:pointer;font-family:'Rethink Sans',sans-serif;transition:all 0.3s}
+.submit-btn:hover{box-shadow:0 0 28px rgba(0,180,216,0.4);transform:translateY(-1px)}
+.cancel-link{display:block;text-align:center;font-size:13px;color:rgba(200,220,255,0.45);margin-top:12px;text-decoration:none;transition:color 0.2s}
+.cancel-link:hover{color:rgba(200,220,255,0.7)}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:rgba(200,220,255,0.5);text-decoration:none;margin-bottom:24px;transition:color 0.2s}
+.back-link:hover{color:#00b4d8}
+</style>
 </head>
 <body>
 
@@ -64,33 +55,25 @@
   <defs>
     <symbol id="shield" viewBox="0 0 100 100">
       <defs>
-        <linearGradient id="hexgrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#4f8ef7"/>
-          <stop offset="50%" stop-color="#6d28d9"/>
-          <stop offset="100%" stop-color="#00b4d8"/>
-        </linearGradient>
-        <linearGradient id="hexinner" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#1a3a8f"/>
-          <stop offset="100%" stop-color="#0d1a5c"/>
-        </linearGradient>
+        <linearGradient id="hexgrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4f8ef7"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#00b4d8"/></linearGradient>
+        <linearGradient id="hexinner" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1a3a8f"/><stop offset="100%" stop-color="#0d1a5c"/></linearGradient>
       </defs>
-      <polygon points="50,3 93,27 93,73 50,97 7,73 7,27" fill="url(#hexgrad)" />
-      <polygon points="50,12 84,31 84,69 50,88 16,69 16,31" fill="url(#hexinner)" />
+      <polygon points="50,3 93,27 93,73 50,97 7,73 7,27" fill="url(#hexgrad)"/>
+      <polygon points="50,12 84,31 84,69 50,88 16,69 16,31" fill="url(#hexinner)"/>
       <text x="50" y="63" text-anchor="middle" font-family="Arial Black,sans-serif" font-weight="900" font-size="38" fill="#00d4ff" letter-spacing="-2">S</text>
     </symbol>
   </defs>
 </svg>
 
-<!-- Sidebar -->
 <aside class="sidebar">
   <a href="/dashboard" class="sidebar-logo">
-    <svg width="28" height="28"><use href="#shield"/></svg>
+    <svg width="30" height="30"><use href="#shield"/></svg>
     <span class="sidebar-brand">SuperAdPro</span>
   </a>
   <div class="nav-section">Main</div>
   <a href="/dashboard"     class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
-  <a href="/video-library" class="nav-item active"><span class="nav-icon">🎬</span>My Campaigns</a>
   <a href="/packages"      class="nav-item"><span class="nav-icon">📦</span>Ad Packages</a>
+  <a href="/video-library" class="nav-item active"><span class="nav-icon">🎬</span>My Campaigns</a>
   <div class="nav-section">Income Streams</div>
   <a href="/income-grid"       class="nav-item"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
   <a href="/wallet"            class="nav-item"><span class="nav-icon">◎</span>Wallet</a>
@@ -101,16 +84,15 @@
   <a href="/account" class="nav-item"><span class="nav-icon">◉</span>Profile</a>
   <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
   <div class="sidebar-footer">
-    <a href="/logout" class="nav-item" style="padding:9px 12px;font-size:12px">⎋ Sign Out</a>
+    <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;color:rgba(200,220,255,0.4);text-decoration:none">⎋ Sign Out</a>
   </div>
 </aside>
 
-<!-- Main -->
 <div class="main">
   <div class="topbar">
     <div>
-      <div class="topbar-title">Upload Video</div>
-      <div class="topbar-sub">Add a new video to your campaign library</div>
+      <div class="topbar-title">Add Campaign Video</div>
+      <div class="topbar-sub">Paste a video URL from YouTube, Rumble or Vimeo</div>
     </div>
   </div>
 
@@ -119,65 +101,107 @@
 
     <div class="card">
       <div class="card-title">Add New Campaign Video</div>
-      <div class="card-sub">Paste a YouTube link and set your campaign details — your video will appear in the library immediately</div>
+      <div class="card-sub">Paste your video link below. We support YouTube, Rumble and Vimeo — no file uploads required.</div>
 
-      <div class="info-box">
-        <strong>ⓘ YouTube links only.</strong> Videos must be publicly accessible on YouTube. Paste the full URL from your browser address bar or the YouTube share button.
+      <div class="platforms-row">
+        <div class="platform-pill"><div class="dot" style="background:#ff0000"></div>YouTube</div>
+        <div class="platform-pill"><div class="dot" style="background:#85c742"></div>Rumble</div>
+        <div class="platform-pill"><div class="dot" style="background:#1ab7ea"></div>Vimeo</div>
       </div>
 
-      <div class="field">
-        <label>Video Title</label>
-        <input type="text" id="title" placeholder="e.g. SuperAdPro Platform Overview">
-        <div class="hint">Keep it clear and descriptive — this is what members will see in the library</div>
-      </div>
+      {% if error %}
+      <div class="alert-error">⚠ {{ error }}</div>
+      {% endif %}
 
-      <div class="field">
-        <label>YouTube URL</label>
-        <input type="text" id="url" placeholder="https://www.youtube.com/watch?v=...">
-        <div class="hint">Must be a public YouTube video link</div>
-      </div>
+      <form method="POST" action="/upload">
 
-      <div class="field">
-        <label>Category</label>
-        <select id="category">
-          <option value="">Select a category...</option>
-          <option value="training">Training &amp; Education</option>
-          <option value="promo">Platform Promotion</option>
-          <option value="testimonial">Member Testimonial</option>
-          <option value="product">Product Demo</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
+        <div class="field">
+          <label>Campaign Title</label>
+          <input type="text" name="title" placeholder="e.g. SuperAdPro Platform Overview"
+                 value="{{ prefill.title if prefill else '' }}" required maxlength="120">
+          <div class="hint">This appears in your campaign library — keep it clear and descriptive</div>
+        </div>
 
-      <div class="field">
-        <label>Description <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#94a3b8">(optional)</span></label>
-        <textarea id="description" placeholder="Brief description of what this video covers..."></textarea>
-      </div>
+        <div class="field">
+          <label>Video URL</label>
+          <input type="url" name="video_url" id="videoUrl"
+                 placeholder="https://www.youtube.com/watch?v=..."
+                 value="{{ prefill.video_url if prefill else '' }}"
+                 required oninput="previewVideo(this.value)">
+          <div class="hint">Paste the full URL from your browser or the video's share button</div>
+          <div class="preview-wrap" id="previewWrap">
+            <iframe id="previewFrame" allowfullscreen></iframe>
+          </div>
+          <div class="preview-label" id="previewLabel">↑ Preview — this is how your video will appear</div>
+        </div>
 
-      <div class="divider"></div>
+        <div class="field">
+          <label>Category</label>
+          <select name="category">
+            <option value="">Select a category...</option>
+            <option value="training" {% if prefill and prefill.category == 'training' %}selected{% endif %}>Training &amp; Education</option>
+            <option value="promo" {% if prefill and prefill.category == 'promo' %}selected{% endif %}>Platform Promotion</option>
+            <option value="testimonial" {% if prefill and prefill.category == 'testimonial' %}selected{% endif %}>Member Testimonial</option>
+            <option value="product" {% if prefill and prefill.category == 'product' %}selected{% endif %}>Product Demo</option>
+            <option value="other" {% if prefill and prefill.category == 'other' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
 
-      <button class="submit-btn" onclick="uploadVideo()">Upload Video to Library →</button>
-      <a href="/video-library" class="cancel-link">Cancel</a>
+        <div class="field">
+          <label>Description <span style="font-weight:400;text-transform:none;letter-spacing:0;color:rgba(200,220,255,0.3)">(optional)</span></label>
+          <textarea name="description" placeholder="Brief description of what this video covers..." maxlength="500">{{ prefill.description if prefill else '' }}</textarea>
+        </div>
+
+        <div class="divider"></div>
+        <button type="submit" class="submit-btn">Add to Campaign Library →</button>
+        <a href="/video-library" class="cancel-link">Cancel</a>
+      </form>
     </div>
   </div>
 </div>
 
 <script>
-function uploadVideo() {
-    const title    = document.getElementById('title').value.trim();
-    const url      = document.getElementById('url').value.trim();
-    const category = document.getElementById('category').value;
+// Detect platform and show live preview
+const ytRegex = /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+const rmRegex = /rumble\.com\/(?:embed\/)?([a-zA-Z0-9]+)(?:[/-]|\.html|$)/;
+const viRegex = /vimeo\.com\/(?:video\/)?(\d+)/;
 
-    if (!title) { alert("Please enter a video title."); return; }
-    if (!url)   { alert("Please enter a YouTube URL."); return; }
-    if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
-        alert("Please enter a valid YouTube URL."); return;
-    }
-    if (!category) { alert("Please select a category."); return; }
+function previewVideo(url) {
+  const wrap  = document.getElementById('previewWrap');
+  const frame = document.getElementById('previewFrame');
+  const label = document.getElementById('previewLabel');
 
-    alert(`✅ "${title}" has been added to your campaign library.`);
-    window.location.href = "/video-library";
+  let embedUrl = null;
+
+  let m = url.match(ytRegex);
+  if (m) { embedUrl = `https://www.youtube.com/embed/${m[1]}?rel=0&modestbranding=1`; }
+
+  if (!embedUrl) {
+    m = url.match(rmRegex);
+    if (m && url.includes('rumble.com')) { embedUrl = `https://rumble.com/embed/${m[1]}/`; }
+  }
+
+  if (!embedUrl) {
+    m = url.match(viRegex);
+    if (m) { embedUrl = `https://player.vimeo.com/video/${m[1]}?title=0&byline=0`; }
+  }
+
+  if (embedUrl) {
+    frame.src = embedUrl;
+    wrap.style.display = 'block';
+    label.style.display = 'block';
+  } else {
+    frame.src = '';
+    wrap.style.display = 'none';
+    label.style.display = 'none';
+  }
 }
+
+// Trigger preview on load if prefill value present
+window.addEventListener('load', () => {
+  const urlInput = document.getElementById('videoUrl');
+  if (urlInput.value) previewVideo(urlInput.value);
+});
 </script>
 </body>
 </html>
