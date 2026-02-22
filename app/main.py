@@ -307,6 +307,34 @@ def register_process(
     return response
 
 
+@app.get("/dev-login")
+def dev_login(request: Request, db: Session = Depends(get_db)):
+    """Dev preview — auto-creates a demo account and logs in."""
+    demo_username = "demo_preview"
+    user = db.query(User).filter(User.username == demo_username).first()
+    if not user:
+        user = create_user(
+            db, username=demo_username, email="demo@superadpro.dev",
+            password="SuperAdPro2026!", sponsor_id=None,
+            first_name="Demo", last_name="Preview",
+            wallet_address="0x0000000000000000000000000000000000000000"
+        )
+    # Always refresh demo stats
+    user.balance         = 247.50
+    user.total_earned    = 892.00
+    user.grid_earnings   = 547.20
+    user.level_earnings  = 213.80
+    user.upline_earnings = 131.00
+    user.total_withdrawn = 644.50
+    user.personal_referrals = 7
+    user.total_team      = 34
+    user.is_active       = True
+    db.commit()
+    response = RedirectResponse(url="/dashboard", status_code=303)
+    set_secure_cookie(response, user.id)
+    return response
+
+
 @app.get("/login")
 def login_form(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
