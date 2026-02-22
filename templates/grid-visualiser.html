@@ -72,17 +72,18 @@ nav{background:rgba(2,8,24,0.95);border-bottom:1px solid var(--border);padding:0
 .level-label{text-align:center;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:'Rethink Sans',sans-serif;color:rgba(0,212,255,0.3);padding:2px 0}
 
 /* The grid */
-.grid-wrap{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-bottom:18px}
+.grid-wrap{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-bottom:18px}
 .cell{
-  aspect-ratio:1;border-radius:4px;
+  aspect-ratio:1;border-radius:6px;
   display:flex;align-items:center;justify-content:center;
-  font-family:'Rethink Sans',sans-serif;font-size:13px;font-weight:800;
+  font-family:'Rethink Sans',sans-serif;font-size:clamp(11px,1.4vw,16px);font-weight:800;
   line-height:1.2;text-align:center;
   transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);
   background:rgba(255,255,255,0.04);
   border:1px solid rgba(255,255,255,0.05);
   color:transparent;cursor:default;position:relative;overflow:hidden;
   -webkit-font-smoothing:antialiased;will-change:transform;
+  min-height:60px;
 }
 .cell::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.08),transparent);opacity:0;transition:opacity 0.3s}
 .cell.owner{background:var(--cyan)!important;border-color:var(--cyan)!important;color:#fff!important;font-size:14px!important;font-weight:800!important;box-shadow:0 0 20px rgba(0,212,255,0.5),0 0 40px rgba(0,212,255,0.2)}
@@ -400,12 +401,11 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
         <span class="info-val" id="infoUni" style="color:#a78bfa">$8.75</span>
       </div>
       <div class="info-row">
-        <span class="info-key">Max per cycle*</span>
-        <span class="info-val" id="infoMax" style="color:var(--gold)">$6,300.00</span>
+        <span class="info-key">Your earnings (full cycle)*</span>
+        <span class="info-val" id="infoMax" style="color:var(--gold)">$4,610.00</span>
       </div>
     </div>
-
-    <!-- Activity log -->
+    <p style="font-size:10px;color:rgba(200,220,255,0.25);margin-top:8px;line-height:1.6">*Demo assumes you personally referred all 8 Level 1 members (direct sponsor commission) and occupy all 8 uni-level positions above every entrant. Actual earnings depend on network position.</p>
     <div class="log-card">
       <div class="stat-eyebrow">Activity Log</div>
       <div class="log-list" id="logList">
@@ -446,7 +446,8 @@ function updateSplitDisplay() {
   const perLevel = pkg * 0.70 / 8;
   const uniTotal = pkg * 0.70;
   const platform = pkg * 0.05;
-  const maxCycle = pkg * 63 * 0.95; // 95% of 63 entries
+  // Personal earnings: 8 direct sponsor + (63 × uni per level × 8 levels)
+  const personalEarnings = (8 * direct) + (63 * perLevel * 8);
 
   document.getElementById('splitPrice').textContent = pkg.toLocaleString();
   document.getElementById('sp1').textContent = '$' + direct.toFixed(2);
@@ -456,7 +457,7 @@ function updateSplitDisplay() {
   document.getElementById('infoPkg').textContent = '$' + pkg.toLocaleString();
   document.getElementById('infoDirect').textContent = '$' + direct.toFixed(2);
   document.getElementById('infoUni').textContent = '$' + perLevel.toFixed(2);
-  document.getElementById('infoMax').textContent = '$' + maxCycle.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('infoMax').textContent = '$' + personalEarnings.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2});
   document.getElementById('panelTitle').textContent = `8×8 GRID — $${pkg.toLocaleString()} PACKAGE`;
 }
 
@@ -479,7 +480,7 @@ function buildGrid() {
     c.className = 'cell';
     if (i === 0) {
       c.classList.add('owner');
-      c.innerHTML = '<span style="font-size:15px;font-weight:800;line-height:1.3;color:#fff">YOU<br>OWNER</span>';
+      c.innerHTML = '<span style="font-size:clamp(13px,1.5vw,18px);font-weight:800;line-height:1.3;color:#fff">YOU<br>OWNER</span>';
     }
     wrap.appendChild(c);
     cells.push(c);
@@ -519,28 +520,34 @@ function tick() {
 function fillNext() {
   filled++;
   const cell = cells[filled];
-  const level = Math.floor((filled - 1) / 8); // 0–7
+  const level = Math.floor((filled - 1) / 8); // 0–7  (level index, 0=L1)
   const col = LEVEL_COLOURS[level];
 
-  // Commission math
-  const direct = pkg * 0.25;
-  const perLevel = pkg * 0.70 / 8;
+  // Commission math — correct per-entry distribution
+  // Direct Sponsor (25%): only when YOU personally referred them = L1 seats (level 0)
+  // Uni-level (8.75% per level): you receive this from ALL 8 levels
+  // Platform (5%): deducted from every entry
+  const perLevel = pkg * 0.70 / 8;   // $8.75 on $100
   const platform = pkg * 0.05;
 
-  tSponsor  += direct;
+  // You earn direct sponsor only on L1 (your personal referrals, seats 1-8)
+  if (level === 0) {
+    tSponsor += pkg * 0.25;
+  }
+  // You earn uni-level commission from all 8 levels
   tL1       += perLevel;
   tL2       += perLevel;
   tL3to8    += perLevel * 6;
   tPlatform += platform;
 
-  // Style cell
-  const opacity = 0.3 + (filled / 80);
+  // Style cell — L1 shows direct+uni total, others show uni-level
+  const cellAmt = level === 0 ? (pkg * 0.25 + perLevel) : perLevel;
   cell.classList.remove('open');
   cell.classList.add('filled', 'pop');
   cell.style.background = col;
   cell.style.boxShadow = `0 0 12px ${col}50`;
   cell.style.borderColor = col + '40';
-  cell.innerHTML = `+$${perLevel.toFixed(2)}`;
+  cell.innerHTML = `+$${cellAmt.toFixed(2)}`;
   setTimeout(() => cell.classList.remove('pop'), 450);
 
   // Update counters
@@ -557,7 +564,7 @@ function fillNext() {
   document.getElementById('progressFill').style.width = pct + '%';
 
   // Log
-  addLog(filled, level + 1, col, perLevel);
+  addLog(filled, level + 1, col, cellAmt);
 }
 
 function bump(id, val) {
