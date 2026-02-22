@@ -432,48 +432,88 @@
     <div class="divider"><div class="div-line"></div><div class="div-text">Understanding the 8×8 Income Grid</div><div class="div-line"></div></div>
     <div class="matrix-explainer">
         <div class="me-grid">
+            <!-- Left: How the Grid Works -->
             <div>
-                <div class="me-title">How the Matrix Works</div>
-                <div class="me-sub">The 8×8 Income Grid is the engine behind your passive income on SuperAdPro.</div>
+                <div class="me-title">How the 8×8 Income Grid Works</div>
+                <div class="me-sub">The 8×8 Income Grid is your personal recurring commission engine on SuperAdPro.</div>
                 <ul class="me-points">
-                    <li class="me-point"><div class="me-num">1</div>When you activate a package, your personal 8×8 grid opens — 8 positions wide across 8 levels deep.</li>
-                    <li class="me-point"><div class="me-num">2</div>Your grid is 8 wide — meaning 8 people fill Level 1, then 8 more on each of those, and so on.</li>
-                    <li class="me-point"><div class="me-num">3</div>Each level multiplies: 64 total positions fill across 8 levels, generating a full cycle payout.</li>
-                    <li class="me-point"><div class="me-num">4</div>It's <strong>forced</strong> — meaning spillover from your upline can automatically fill positions in your matrix, even without your own referrals.</li>
-                    <li class="me-point"><div class="me-num">5</div>Every seat filled earns you Level Pool commissions (25% split across all 8 levels of active grids).</li>
-                    <li class="me-point"><div class="me-num">6</div>On grid completion: 45% pays the Grid Owner, 25% to the Level Pool, 25% Upline Residual — automatically on-chain.</li>
+                    <li class="me-point"><div class="me-num">1</div>When you activate a package, your personal 8×8 grid opens — 8 positions wide, 8 levels deep, totalling 64 seats.</li>
+                    <li class="me-point"><div class="me-num">2</div>Every time someone enters a seat in your grid, commissions are distributed immediately — you earn on every grid entry, not just at completion.</li>
+                    <li class="me-point"><div class="me-num">3</div>Your Level Pool commission (25%) is split across all 8 levels and paid on each seat entry — so every new member filling any seat earns you instantly.</li>
+                    <li class="me-point"><div class="me-num">4</div>Spillover from your upline automatically fills positions in your grid — you can earn even without your own referrals.</li>
+                    <li class="me-point"><div class="me-num">5</div>When all 64 seats are filled, the Grid Owner receives 45% of total grid revenue and your upline receives 25% Upline Residual — then your grid resets and starts again.</li>
+                    <li class="me-point"><div class="me-num">6</div>Every cycle is recurring — your grid resets automatically, meaning your income engine never stops.</li>
                 </ul>
             </div>
-            <div class="matrix-tree">
-                <div class="mt-level-label">You</div>
-                <div class="mt-row"><div class="mt-node mt-you">👤</div></div>
-                <div class="mt-connector"><div class="mt-line"></div></div>
-                <div class="mt-level-label">Level 1 · 3 slots</div>
-                <div class="mt-row">
-                    <div class="mt-node mt-filled">👤</div>
-                    <div class="mt-node mt-filled">👤</div>
-                    <div class="mt-node mt-open">+</div>
+            <!-- Right: Visual grid diagram -->
+            <div>
+                <!-- Grid visual: 8x8 -->
+                <div style="text-align:center;margin-bottom:12px">
+                    <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:8px">YOUR 8×8 GRID</div>
+                    <div id="gridViz" style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px;max-width:300px;margin:0 auto 16px"></div>
+                    <div style="display:flex;justify-content:center;gap:16px;font-size:10px;color:rgba(200,220,255,0.5)">
+                        <span>🟦 You</span>
+                        <span style="color:rgba(0,212,255,0.7)">■ Filled</span>
+                        <span style="color:rgba(255,255,255,0.2)">□ Open</span>
+                    </div>
                 </div>
-                <div class="mt-connector"><div class="mt-line"></div></div>
-                <div class="mt-level-label">Level 2 · 9 slots</div>
-                <div class="mt-row">
-                    <div class="mt-node mt-filled" style="width:34px;height:34px;font-size:11px">👤</div>
-                    <div class="mt-node mt-filled" style="width:34px;height:34px;font-size:11px">👤</div>
-                    <div class="mt-node mt-open" style="width:34px;height:34px;font-size:14px">+</div>
-                    <div class="mt-node mt-filled" style="width:34px;height:34px;font-size:11px">👤</div>
-                    <div class="mt-node mt-open" style="width:34px;height:34px;font-size:14px">+</div>
-                    <div class="mt-node mt-open" style="width:34px;height:34px;font-size:14px">+</div>
+                <!-- Commission breakdown -->
+                <div style="background:rgba(0,0,0,0.2);border:1px solid rgba(0,180,216,0.15);border-radius:8px;padding:16px;margin-top:12px">
+                    <div style="font-size:11px;color:rgba(200,220,255,0.5);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">On Each Grid Entry</div>
+                    <div style="display:flex;flex-direction:column;gap:8px">
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <span style="font-size:13px;color:rgba(200,220,255,0.7)">Level Pool (your share)</span>
+                            <span style="font-size:14px;font-weight:800;color:#00d4ff">Instant ✓</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <span style="font-size:13px;color:rgba(200,220,255,0.7)">Grid Owner (45%)</span>
+                            <span style="font-size:14px;font-weight:800;color:#a78bfa">On cycle reset</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <span style="font-size:13px;color:rgba(200,220,255,0.7)">Upline Residual (25%)</span>
+                            <span style="font-size:14px;font-weight:800;color:#7c9fff">On cycle reset</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="mt-connector"><div class="mt-line"></div></div>
-                <div class="mt-level-label" style="color:rgba(220,242,230,0.3)">Levels 3–10 continue below…</div>
-                <div style="margin-top:20px;background:rgba(0,0,0,0.2);border:1px solid rgba(0,180,216,0.15);border-radius:6px;padding:14px;">
-                    <div style="font-size:13px;color:rgba(220,242,230,0.55);margin-bottom:8px;">Positions per grid:</div>
-                    <div style="font-size:28px;font-weight:800;color:#ffffff;">64</div>
-                    <div style="font-size:11px;color:#00b4d8;text-transform:uppercase;letter-spacing:1px;">Total positions across 10 levels</div>
+                <div style="margin-top:12px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:14px;text-align:center">
+                    <div style="font-size:12px;color:rgba(200,220,255,0.5);margin-bottom:4px">Positions per grid cycle</div>
+                    <div style="font-size:32px;font-weight:800;color:#fff">64</div>
+                    <div style="font-size:10px;color:#00d4ff;text-transform:uppercase;letter-spacing:1px;margin-top:2px">8 levels × 8 positions — recurring</div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+    // Animated 8x8 grid visualiser
+    (function(){
+        const g = document.getElementById('gridViz');
+        if(!g) return;
+        const cells = [];
+        for(let i=0;i<64;i++){
+            const c = document.createElement('div');
+            c.style.cssText = 'padding-bottom:100%;border-radius:2px;transition:background 0.3s;background:rgba(255,255,255,0.07)';
+            g.appendChild(c); cells.push(c);
+        }
+        // Row 0 = you (owner)
+        cells[0].style.background = '#00d4ff';
+        let filled = 1;
+        function tick(){
+            if(filled >= 64){
+                setTimeout(()=>{
+                    cells.forEach((c,i)=>{ c.style.background = i===0?'#00d4ff':'rgba(255,255,255,0.07)'; });
+                    filled = 1;
+                    setTimeout(tick, 800);
+                }, 2000);
+                return;
+            }
+            cells[filled].style.background = `rgba(0,212,255,${0.15 + filled/90})`;
+            filled++;
+            setTimeout(tick, 120);
+        }
+        setTimeout(tick, 600);
+    })();
+    </script>
 
     <!-- USDT & BLOCKCHAIN -->
     <div class="divider"><div class="div-line"></div><div class="div-text">Payments & Blockchain</div><div class="div-line"></div></div>
