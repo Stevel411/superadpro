@@ -15,116 +15,130 @@ nav{background:rgba(10,18,40,0.95);border-bottom:1px solid rgba(0,180,216,0.12);
 .nav-links a{font-size:13px;font-weight:500;color:rgba(200,220,255,0.7);text-decoration:none}
 .nav-links a:hover{color:#00b4d8}
 .btn-nav{background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff!important;padding:9px 22px;border-radius:7px;font-weight:700!important}
+
 .hero{background:linear-gradient(135deg,#020818 0%,#0d0a2e 50%,#020818 100%);padding:80px 40px;text-align:center;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(0,180,216,0.1),transparent)}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:999px;padding:6px 18px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#00d4ff;margin-bottom:24px}
-.hero h1{font-size:clamp(32px,5vw,52px);font-weight:800;color:#fff;margin-bottom:16px;line-height:1.1}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:999px;padding:6px 18px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#00d4ff;margin-bottom:24px;position:relative}
+.hero h1{font-size:clamp(32px,5vw,52px);font-weight:800;color:#fff;margin-bottom:16px;line-height:1.1;position:relative}
 .hero h1 span{background:linear-gradient(135deg,#00f0ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero p{font-size:16px;color:rgba(200,220,255,0.6);max-width:580px;margin:0 auto;line-height:1.7}
+.hero p{font-size:16px;color:rgba(200,220,255,0.6);max-width:600px;margin:0 auto;line-height:1.7;position:relative}
+
 .container{max-width:1100px;margin:0 auto;padding:0 40px}
 .section{padding:64px 0}
 .sec-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.6);text-align:center;margin-bottom:10px}
 .sec-title{font-size:clamp(24px,3vw,34px);font-weight:800;text-align:center;margin-bottom:10px;color:#fff}
-.sec-sub{text-align:center;color:rgba(200,220,255,0.5);font-size:15px;max-width:580px;margin:0 auto 48px;line-height:1.7}
+.sec-sub{text-align:center;color:rgba(200,220,255,0.5);font-size:15px;max-width:600px;margin:0 auto 48px;line-height:1.7}
+
+/* ── Stream overview cards ── */
 .streams{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:64px}
 .stream-card{border-radius:16px;padding:32px;border:1px solid;position:relative;overflow:hidden}
-.stream-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.stream-1{background:rgba(0,180,216,0.06);border-color:rgba(0,180,216,0.2)}
-.stream-1::before{background:linear-gradient(90deg,#00b4d8,#00d4ff)}
-.stream-2{background:rgba(124,58,237,0.06);border-color:rgba(124,58,237,0.2)}
-.stream-2::before{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
-.stream-3{background:rgba(255,255,255,0.02);border-color:rgba(255,255,255,0.07)}
-.stream-3::before{background:rgba(255,255,255,0.1)}
-.stream-num{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:12px}
-.stream-icon{font-size:32px;margin-bottom:14px;display:block}
-.stream-title{font-size:20px;font-weight:800;color:#fff;margin-bottom:8px}
-.stream-desc{font-size:13px;color:rgba(200,220,255,0.55);line-height:1.7;margin-bottom:16px}
-.tag-live{display:inline-block;padding:4px 12px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(16,185,129,0.12);color:#10b981;border:1px solid rgba(16,185,129,0.25)}
-.tag-soon{display:inline-block;padding:4px 12px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.08)}
-.soon-overlay{position:absolute;top:14px;right:14px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.25)}
+.stream-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.s1{background:rgba(16,185,129,0.06);border-color:rgba(16,185,129,0.2)}
+.s1::before{background:linear-gradient(90deg,#10b981,#34d399)}
+.s2{background:rgba(0,180,216,0.06);border-color:rgba(0,180,216,0.2)}
+.s2::before{background:linear-gradient(90deg,#00b4d8,#00d4ff)}
+.s3{background:rgba(124,58,237,0.06);border-color:rgba(124,58,237,0.2)}
+.s3::before{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
+.s3-soon{opacity:0.65}
+.stream-num{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:12px}
+.stream-icon{font-size:34px;margin-bottom:14px;display:block}
+.stream-title{font-size:19px;font-weight:800;color:#fff;margin-bottom:8px}
+.stream-desc{font-size:13px;color:rgba(200,220,255,0.55);line-height:1.7;margin-bottom:18px}
+.stream-highlight{font-size:13px;font-weight:700;padding:8px 14px;border-radius:8px;display:inline-block}
+.sh-green{background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.2)}
+.sh-cyan{background:rgba(0,212,255,0.08);color:#00d4ff;border:1px solid rgba(0,212,255,0.15)}
+.sh-purple{background:rgba(167,139,250,0.08);color:#a78bfa;border:1px solid rgba(167,139,250,0.15)}
+.tag-live{display:inline-block;margin-top:10px;padding:3px 12px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(16,185,129,0.12);color:#10b981;border:1px solid rgba(16,185,129,0.2)}
+.tag-soon{display:inline-block;margin-top:10px;padding:3px 12px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.1)}
+.soon-chip{position:absolute;top:14px;right:14px;padding:3px 10px;border-radius:6px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(0,0,0,0.3);color:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.07)}
 
-/* Stream 1 detail */
-.split-visual{background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.15);border-radius:16px;padding:36px;margin-bottom:32px}
-.split-bar{display:flex;height:10px;border-radius:99px;overflow:hidden;gap:2px;margin:16px 0 24px}
-.commission-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+/* ── Gateway notice ── */
+.gateway-banner{background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(0,180,216,0.08));border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:22px 28px;margin-bottom:48px;display:flex;align-items:flex-start;gap:16px}
+.gateway-icon{font-size:28px;flex-shrink:0}
+.gateway-title{font-size:14px;font-weight:800;color:#10b981;margin-bottom:5px}
+.gateway-text{font-size:13px;color:rgba(200,220,255,0.6);line-height:1.7}
+
+/* ── Stream 1 detail ── */
+.s1-card{background:rgba(10,24,20,0.9);border:1px solid rgba(16,185,129,0.2);border-radius:16px;padding:36px;margin-bottom:32px}
+.s1-split{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px}
+.s1-box{background:rgba(0,0,0,0.2);border-radius:10px;padding:20px;border:1px solid rgba(255,255,255,0.06)}
+.s1-amount{font-size:38px;font-weight:800;color:#10b981;line-height:1}
+.s1-label{font-size:12px;font-weight:700;color:rgba(200,220,255,0.5);margin-top:6px;margin-bottom:4px}
+.s1-detail{font-size:12px;color:rgba(200,220,255,0.4);line-height:1.6}
+.s1-table{width:100%;border-collapse:collapse;margin-top:24px}
+.s1-table th{padding:10px 14px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(200,220,255,0.35);text-align:left;border-bottom:1px solid rgba(255,255,255,0.06)}
+.s1-table th:not(:first-child){text-align:right}
+.s1-table td{padding:11px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.s1-table tr:last-child td{border-bottom:none}
+.s1-table td:not(:first-child){text-align:right;font-weight:700;color:#10b981}
+
+/* ── Stream 2 detail ── */
+.s2-split-bar{display:flex;height:10px;border-radius:99px;overflow:hidden;gap:2px;margin:16px 0 24px}
+.commission-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
 .comm-item{background:rgba(255,255,255,0.03);border-radius:10px;padding:20px;border:1px solid rgba(255,255,255,0.06);text-align:center}
-.comm-pct{font-size:36px;font-weight:800;margin-bottom:4px}
-.comm-who{font-size:13px;font-weight:700;color:#fff;margin-bottom:6px}
-.comm-when{font-size:11px;color:rgba(200,220,255,0.45);line-height:1.5}
-.comm-example{font-size:12px;font-weight:700;margin-top:10px;padding:6px 10px;border-radius:6px;display:inline-block}
+.comm-pct{font-size:34px;font-weight:800;margin-bottom:4px}
+.comm-who{font-size:13px;font-weight:700;color:#fff;margin-bottom:5px}
+.comm-when{font-size:11px;color:rgba(200,220,255,0.4);line-height:1.5}
+.comm-eg{font-size:12px;font-weight:700;margin-top:10px;padding:5px 10px;border-radius:6px;display:inline-block}
 
-/* Entry breakdown */
-.entry-card{background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.15);border-radius:16px;padding:32px;margin-bottom:32px}
-.entry-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.entry-card{background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.15);border-radius:16px;padding:32px;margin-bottom:28px}
+.entry-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
 .entry-row:last-child{border-bottom:none;padding-bottom:0}
 .entry-left{display:flex;align-items:center;gap:12px}
 .entry-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .entry-label{font-size:13px;color:rgba(200,220,255,0.7)}
 .entry-detail{font-size:11px;color:rgba(200,220,255,0.35);margin-top:2px}
-.entry-amount{font-size:18px;font-weight:800}
+.entry-amount{font-size:17px;font-weight:800}
 .entry-timing{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(16,185,129,0.8);margin-top:2px;text-align:right}
 
-/* Uni table */
-.uni-card{background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.15);border-radius:16px;overflow:hidden;margin-bottom:32px}
-.uni-header{padding:24px 28px;border-bottom:1px solid rgba(0,180,216,0.1)}
-.uni-header h3{font-size:16px;font-weight:800;color:#fff;margin-bottom:4px}
+.uni-card{background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.15);border-radius:16px;overflow:hidden;margin-bottom:28px}
+.uni-header{padding:22px 28px;border-bottom:1px solid rgba(0,180,216,0.08)}
+.uni-header h3{font-size:15px;font-weight:800;color:#fff;margin-bottom:4px}
 .uni-header p{font-size:12px;color:rgba(200,220,255,0.4)}
 .uni-table{width:100%;border-collapse:collapse}
-.uni-table th{padding:11px 16px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(200,220,255,0.35);text-align:left;border-bottom:1px solid rgba(255,255,255,0.06)}
+.uni-table th{padding:10px 14px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(200,220,255,0.3);text-align:left;border-bottom:1px solid rgba(255,255,255,0.05)}
 .uni-table th:not(:first-child){text-align:right}
-.uni-table td{padding:11px 16px;font-size:12px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.uni-table td{padding:10px 14px;font-size:12px;border-bottom:1px solid rgba(255,255,255,0.04)}
 .uni-table tr:last-child td{border-bottom:none}
 .uni-table td:not(:first-child){text-align:right;font-weight:700}
 
-/* Grid note */
-.grid-note{background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(124,58,237,0.05));border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:24px 28px;margin-bottom:48px;display:flex;align-items:flex-start;gap:16px}
-.grid-note-title{font-size:14px;font-weight:800;color:#00d4ff;margin-bottom:6px}
-.grid-note-text{font-size:13px;color:rgba(200,220,255,0.6);line-height:1.7}
+.grid-note{background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(124,58,237,0.05));border:1px solid rgba(0,212,255,0.12);border-radius:12px;padding:22px 28px;margin-bottom:48px;display:flex;align-items:flex-start;gap:16px}
+.grid-note-title{font-size:14px;font-weight:800;color:#00d4ff;margin-bottom:5px}
+.grid-note-text{font-size:13px;color:rgba(200,220,255,0.55);line-height:1.7}
 
-/* Package table */
-.pkg-card{background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.15);border-radius:16px;overflow:hidden;margin-bottom:16px}
-.pkg-table{width:100%;border-collapse:collapse}
-.pkg-table thead tr{background:rgba(0,180,216,0.06)}
-.pkg-table th{padding:13px 16px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(200,220,255,0.4);text-align:left}
-.pkg-table th:not(:first-child){text-align:right}
-.pkg-table td{padding:13px 16px;font-size:12px;border-bottom:1px solid rgba(255,255,255,0.04)}
-.pkg-table tr:last-child td{border-bottom:none}
-.pkg-table td:not(:first-child){text-align:right;font-weight:700}
-
-/* Pass-up section */
-.passup-card{background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.2);border-radius:16px;padding:36px;margin-bottom:32px}
-.passup-title{font-size:18px;font-weight:800;color:#fff;margin-bottom:8px}
-.passup-sub{font-size:13px;color:rgba(200,220,255,0.5);margin-bottom:28px;line-height:1.6}
-.passup-flow{display:flex;gap:4px;margin-bottom:28px;flex-wrap:wrap}
-.pf-step{flex:1;min-width:80px;text-align:center;padding:14px 8px;background:rgba(0,0,0,0.2);border-radius:8px;border:1px solid rgba(255,255,255,0.06)}
+/* ── Stream 3 detail ── */
+.passup-card{background:rgba(20,10,40,0.9);border:1px solid rgba(124,58,237,0.2);border-radius:16px;padding:36px;margin-bottom:32px}
+.passup-flow{display:flex;gap:4px;margin:20px 0 28px;flex-wrap:wrap}
+.pf-step{flex:1;min-width:80px;text-align:center;padding:14px 8px;background:rgba(0,0,0,0.2);border-radius:8px;border:1px solid rgba(255,255,255,0.05)}
+.pf-keep{border-color:rgba(16,185,129,0.2);background:rgba(16,185,129,0.05)}
+.pf-pass{border-color:rgba(167,139,250,0.2);background:rgba(124,58,237,0.08)}
 .pf-num{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(200,220,255,0.3);margin-bottom:6px}
-.pf-amt{font-size:16px;font-weight:800;margin-bottom:4px}
-.pf-who{font-size:10px;color:rgba(200,220,255,0.4)}
-.keep{color:#10b981}
-.passup-c{color:#a78bfa}
-.passup-rules{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pf-amt-keep{font-size:16px;font-weight:800;color:#10b981;margin-bottom:4px}
+.pf-amt-pass{font-size:16px;font-weight:800;color:#a78bfa;margin-bottom:4px}
+.pf-who{font-size:10px;color:rgba(200,220,255,0.35)}
+.passup-rules{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
 .rule-item{background:rgba(0,0,0,0.2);border-radius:8px;padding:16px;display:flex;gap:12px;align-items:flex-start}
 .rule-icon{font-size:20px;flex-shrink:0}
 .rule-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px}
-.rule-desc{font-size:12px;color:rgba(200,220,255,0.5);line-height:1.6}
+.rule-desc{font-size:12px;color:rgba(200,220,255,0.45);line-height:1.6}
 
-/* Stream 3 */
-.coming-card{background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.08);border-radius:16px;padding:48px 36px;text-align:center;margin-bottom:64px}
-.coming-features{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:18px}
+.coming-card{background:rgba(255,255,255,0.015);border:1px dashed rgba(255,255,255,0.08);border-radius:16px;padding:48px 36px;text-align:center;margin-bottom:64px}
+.coming-features{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:16px}
 .coming-feature{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.06)}
 
-/* CTA */
+/* ── CTA ── */
 .cta-band{background:linear-gradient(135deg,#0a0a1a,#0d0a2e);border-radius:20px;padding:64px 40px;text-align:center;margin-bottom:60px;position:relative;overflow:hidden}
 .cta-band::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 50% 50%,rgba(0,180,216,0.1),transparent)}
 .cta-band h2{font-size:32px;font-weight:800;color:#fff;margin-bottom:12px;position:relative}
 .cta-band h2 span{background:linear-gradient(135deg,#00f0ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .cta-band p{color:rgba(200,220,255,0.6);font-size:15px;margin-bottom:28px;position:relative}
 .cta-btns{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;position:relative}
-.btn-glow{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:14px 32px;border-radius:10px;text-decoration:none;box-shadow:0 6px 24px rgba(0,180,216,0.35)}
+.btn-glow{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:14px 32px;border-radius:10px;text-decoration:none;box-shadow:0 6px 24px rgba(0,180,216,0.3)}
 .btn-outline{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:#fff;border:1px solid rgba(255,255,255,0.2);padding:14px 32px;border-radius:10px;text-decoration:none}
-footer{background:#020818;color:rgba(200,220,255,0.35);text-align:center;padding:30px;font-size:12px;border-top:1px solid rgba(0,180,216,0.08)}
+
+footer{background:#020818;color:rgba(200,220,255,0.35);text-align:center;padding:30px;font-size:12px;border-top:1px solid rgba(0,180,216,0.07)}
 footer a{color:rgba(200,220,255,0.4);text-decoration:none}
-@media(max-width:768px){.streams,.commission-grid,.passup-rules{grid-template-columns:1fr}.container{padding:0 20px}nav{padding:0 20px}.nav-links{display:none}}
+@media(max-width:768px){.streams,.commission-grid,.s1-split,.passup-rules{grid-template-columns:1fr}.container{padding:0 20px}nav{padding:0 20px}.nav-links{display:none}}
 </style>
 </head>
 <body>
@@ -163,86 +177,148 @@ footer a{color:rgba(200,220,255,0.4);text-decoration:none}
   </div>
 </nav>
 
+<!-- HERO -->
 <div class="hero">
   <div class="hero-badge">Compensation Plan</div>
-  <h1>Three Ways to <span>Earn on SuperAdPro</span></h1>
-  <p>No pools. No holdbacks. No complexity. Every dollar distributed instantly — across three powerful income streams built on transparent, verifiable on-chain payments.</p>
+  <h1>Three Income Streams.<br><span>One Platform.</span></h1>
+  <p>SuperAdPro is built around three distinct, stackable income streams. Every dollar is distributed instantly and transparently — no pools, no holdbacks, no complexity.</p>
 </div>
 
 <div class="container">
 
-  <!-- 3 STREAMS OVERVIEW -->
+  <!-- OVERVIEW -->
   <div class="section">
-    <div class="sec-label">Income Streams</div>
-    <div class="sec-title">Your Three Earning Opportunities</div>
-    <div class="sec-sub">Stream 1 is live now. Stream 2 launches with course content. Stream 3 is in development — members who join now secure early access.</div>
+    <div class="sec-label">The Three Streams</div>
+    <div class="sec-title">Your Complete Earning Opportunity</div>
+    <div class="sec-sub">Start with Stream 1 to unlock everything. Stack Streams 2 and 3 to multiply your income potential.</div>
 
     <div class="streams">
-      <div class="stream-card stream-1">
+      <!-- Stream 1 -->
+      <div class="stream-card s1">
         <div class="stream-num">Stream 01</div>
-        <span class="stream-icon">📺</span>
-        <div class="stream-title">Video Advertising Packages</div>
-        <div class="stream-desc">Activate a package ($10–$1,000 USDT) and earn instantly through a direct sponsor bonus and an 8-level uni-level commission chain — every time anyone in your network activates a package.</div>
-        <span class="tag-live">● Live Now</span>
+        <span class="stream-icon">🔑</span>
+        <div class="stream-title">Monthly Membership</div>
+        <div class="stream-desc">A $10/month subscription that unlocks access to all income opportunities on SuperAdPro. Your referring sponsor earns 100% of your subscription fee — every single month you remain active.</div>
+        <div class="stream-highlight sh-green">$10/month — 100% to your sponsor</div>
+        <br><span class="tag-live">● Live Now</span>
       </div>
-      <div class="stream-card stream-2">
+      <!-- Stream 2 -->
+      <div class="stream-card s2">
         <div class="stream-num">Stream 02</div>
-        <span class="stream-icon">♾️</span>
-        <div class="stream-title">Infinite Pass-Up Course Sales</div>
-        <div class="stream-desc">Sell SuperAdPro courses and keep 100% on every sale. Every 2nd sale passes up to your sponsor and cascades infinitely up the chain — creating powerful residual income from your entire downline's course sales forever.</div>
-        <span class="tag-soon">Coming Soon</span>
+        <span class="stream-icon">⚡</span>
+        <div class="stream-title">Profit Engine Grid</div>
+        <div class="stream-desc">Activate an advertising package ($10–$1,000 USDT) and earn through a direct sponsor commission plus an 8-level uni-level chain — paid instantly every time anyone in your network activates a package.</div>
+        <div class="stream-highlight sh-cyan">25% direct + 70% uni-level (8 levels)</div>
+        <br><span class="tag-live">● Live Now</span>
       </div>
-      <div class="stream-card stream-3">
-        <div class="soon-overlay">Announced Soon</div>
+      <!-- Stream 3 -->
+      <div class="stream-card s3 s3-soon">
+        <div class="soon-chip">Coming Soon</div>
         <div class="stream-num">Stream 03</div>
-        <span class="stream-icon" style="filter:grayscale(1);opacity:0.35">🎓</span>
-        <div class="stream-title" style="color:rgba(255,255,255,0.35)">Marketing Sales Mastery Course</div>
-        <div class="stream-desc" style="color:rgba(200,220,255,0.25)">An in-depth professional marketing and sales course developed exclusively for SuperAdPro members. Full details and pricing to be announced.</div>
-        <span class="tag-soon">In Development</span>
+        <span class="stream-icon">🎓</span>
+        <div class="stream-title">Marketing Mastery Course</div>
+        <div class="stream-desc">Sell the SuperAdPro Marketing Mastery Course and keep 100% commission on every sale. Every 2nd sale passes up to your sponsor — cascading infinitely up the network above you.</div>
+        <div class="stream-highlight sh-purple">100% commission + infinite pass-up</div>
+        <br><span class="tag-soon">In Development</span>
+      </div>
+    </div>
+
+    <!-- Gateway notice -->
+    <div class="gateway-banner">
+      <div class="gateway-icon">🔑</div>
+      <div>
+        <div class="gateway-title">Stream 1 is the Gateway to Everything</div>
+        <div class="gateway-text">The $10 monthly subscription is not just an income stream — it is the key that unlocks Streams 2 and 3. If a member's subscription lapses, their access to the Profit Engine Grid and course sales is suspended until they renew. This keeps the network active, committed and earning — and ensures your monthly residual income is backed by genuine, paying members.</div>
       </div>
     </div>
   </div>
 
-  <!-- STREAM 1 -->
+  <!-- STREAM 1 DETAIL -->
   <div class="section" style="padding-top:0">
     <div class="sec-label">Stream 01 — Full Detail</div>
-    <div class="sec-title">Advertising Package Commission Structure</div>
-    <div class="sec-sub">Every package activation distributes in full and instantly. No accumulation. No pools. Zero holdbacks.</div>
+    <div class="sec-title">Monthly Membership Residual Income</div>
+    <div class="sec-sub">The simplest income stream on SuperAdPro. Refer a member — earn $10 every single month they stay active. No levels. No splits. 100% straight to you.</div>
 
-    <div class="split-visual">
-      <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(200,220,255,0.4)">How Every Package Entry Distributes</div>
-      <div class="split-bar">
+    <div class="s1-card">
+      <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:6px">How Stream 1 Works</div>
+      <div style="font-size:13px;color:rgba(200,220,255,0.5);line-height:1.7;margin-bottom:24px">Every active SuperAdPro member pays $10 per month. That $10 goes 100% directly to the person who referred them — every month, for as long as they remain a member. No uni-level chain. No platform cut. Straight to your sponsor.</div>
+
+      <div class="s1-split">
+        <div class="s1-box" style="border-color:rgba(16,185,129,0.2)">
+          <div class="s1-amount">$10</div>
+          <div class="s1-label">Monthly Subscription Fee</div>
+          <div class="s1-detail">Paid by every active member each month to maintain full access to all SuperAdPro income opportunities</div>
+        </div>
+        <div class="s1-box" style="border-color:rgba(16,185,129,0.2)">
+          <div class="s1-amount" style="background:linear-gradient(135deg,#10b981,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">100%</div>
+          <div class="s1-label">Direct to Your Sponsor</div>
+          <div class="s1-detail">The full $10 paid instantly to the referring sponsor. No deductions, no platform fee, no level splits.</div>
+        </div>
+      </div>
+
+      <!-- Residual income table -->
+      <div style="font-size:13px;font-weight:700;color:rgba(200,220,255,0.6);margin:28px 0 12px">Your Residual Income Potential — Stream 1</div>
+      <table class="s1-table">
+        <thead>
+          <tr>
+            <th>Active Members You Referred</th>
+            <th>Monthly Income</th>
+            <th>Annual Income</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for n in [5,10,25,50,100,250,500] %}
+          <tr {% if n == 50 %}style="background:rgba(16,185,129,0.04)"{% endif %}>
+            <td style="color:#fff;font-weight:600">{{ n }} members</td>
+            <td>${{ '{:,.0f}'.format(n * 10) }}/month</td>
+            <td>${{ '{:,.0f}'.format(n * 10 * 12) }}/year</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p style="font-size:11px;color:rgba(200,220,255,0.3);margin-top:12px">*Figures based on all referred members maintaining active subscriptions. Actual income depends on member retention.</p>
+    </div>
+  </div>
+
+  <!-- STREAM 2 DETAIL -->
+  <div class="section" style="padding-top:0">
+    <div class="sec-label">Stream 02 — Full Detail</div>
+    <div class="sec-title">Profit Engine Grid Commission Structure</div>
+    <div class="sec-sub">Activate an advertising package and earn instantly through two commission layers every time anyone in your 8-level network activates a package.</div>
+
+    <div style="background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.15);border-radius:16px;padding:36px;margin-bottom:28px">
+      <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(200,220,255,0.35);margin-bottom:4px">How Every Package Entry Distributes — Instantly & In Full</div>
+      <div class="s2-split-bar">
         <div style="width:25%;background:#00d4ff;border-radius:3px"></div>
         <div style="width:70%;background:linear-gradient(90deg,#3b82f6,#7c3aed,#a78bfa);border-radius:3px"></div>
-        <div style="width:5%;background:rgba(255,255,255,0.12);border-radius:3px"></div>
+        <div style="width:5%;background:rgba(255,255,255,0.1);border-radius:3px"></div>
       </div>
       <div class="commission-grid">
         <div class="comm-item" style="border-color:rgba(0,212,255,0.15)">
-          <div class="comm-pct" style="background:linear-gradient(135deg,#00d4ff,#00b4d8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">25%</div>
+          <div class="comm-pct" style="background:linear-gradient(135deg,#00d4ff,#0099bb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">25%</div>
           <div class="comm-who">Direct Sponsor</div>
           <div class="comm-when">Paid instantly to the person who personally referred the new member</div>
-          <div class="comm-example" style="background:rgba(0,212,255,0.08);color:#00d4ff">$25.00 on $100 package</div>
+          <div class="comm-eg" style="background:rgba(0,212,255,0.08);color:#00d4ff">$25.00 on $100 package</div>
         </div>
         <div class="comm-item" style="border-color:rgba(124,58,237,0.15)">
           <div class="comm-pct" style="background:linear-gradient(135deg,#3b82f6,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">70%</div>
           <div class="comm-who">Uni-Level Chain (8 Levels)</div>
           <div class="comm-when">$8.75 paid instantly to each of the 8 sponsors above the new member</div>
-          <div class="comm-example" style="background:rgba(124,58,237,0.08);color:#a78bfa">$8.75 per level on $100</div>
+          <div class="comm-eg" style="background:rgba(124,58,237,0.08);color:#a78bfa">$8.75 per level on $100</div>
         </div>
         <div class="comm-item" style="border-color:rgba(255,255,255,0.05)">
           <div class="comm-pct" style="color:rgba(255,255,255,0.2)">5%</div>
           <div class="comm-who">Platform Fee</div>
           <div class="comm-when">Covers infrastructure, blockchain fees, security and ongoing development</div>
-          <div class="comm-example" style="background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.25)">$5.00 on $100 package</div>
+          <div class="comm-eg" style="background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.2)">$5.00 on $100 package</div>
         </div>
       </div>
     </div>
 
     <!-- Entry breakdown -->
     <div class="entry-card">
-      <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:4px">Exact Distribution — $100 Package</div>
-      <div style="font-size:12px;color:rgba(200,220,255,0.4);margin-bottom:20px">Every dollar accounted for. Every payment instant.</div>
-
+      <div style="font-size:15px;font-weight:800;color:#fff;margin-bottom:4px">Exact Distribution — $100 Package Entry</div>
+      <div style="font-size:12px;color:rgba(200,220,255,0.4);margin-bottom:20px">Every dollar accounted for. Every payment instant. Nothing held back.</div>
       <div class="entry-row">
         <div class="entry-left">
           <div class="entry-dot" style="background:#10b981"></div>
@@ -251,49 +327,37 @@ footer a{color:rgba(200,220,255,0.4);text-decoration:none}
             <div class="entry-detail">Paid to the person who personally referred the new member</div>
           </div>
         </div>
-        <div style="text-align:right">
-          <div class="entry-amount" style="color:#10b981">$25.00</div>
-          <div class="entry-timing">Instant ✓</div>
-        </div>
+        <div style="text-align:right"><div class="entry-amount" style="color:#10b981">$25.00</div><div class="entry-timing">Instant ✓</div></div>
       </div>
       <div class="entry-row">
         <div class="entry-left">
           <div class="entry-dot" style="background:#3b82f6"></div>
           <div>
-            <div class="entry-label">Level 1 Uni-Level</div>
-            <div class="entry-detail">Sponsor's direct upline</div>
+            <div class="entry-label">Level 1 Uni-Level (8.75%)</div>
+            <div class="entry-detail">Direct upline of the sponsor</div>
           </div>
         </div>
-        <div style="text-align:right">
-          <div class="entry-amount" style="color:#3b82f6">$8.75</div>
-          <div class="entry-timing">Instant ✓</div>
-        </div>
+        <div style="text-align:right"><div class="entry-amount" style="color:#3b82f6">$8.75</div><div class="entry-timing">Instant ✓</div></div>
       </div>
       <div class="entry-row">
         <div class="entry-left">
           <div class="entry-dot" style="background:#6366f1"></div>
           <div>
-            <div class="entry-label">Level 2 Uni-Level</div>
-            <div class="entry-detail">2 levels above new member</div>
+            <div class="entry-label">Level 2 Uni-Level (8.75%)</div>
+            <div class="entry-detail">2 levels above the new member</div>
           </div>
         </div>
-        <div style="text-align:right">
-          <div class="entry-amount" style="color:#6366f1">$8.75</div>
-          <div class="entry-timing">Instant ✓</div>
-        </div>
+        <div style="text-align:right"><div class="entry-amount" style="color:#6366f1">$8.75</div><div class="entry-timing">Instant ✓</div></div>
       </div>
       <div class="entry-row">
         <div class="entry-left">
           <div class="entry-dot" style="background:#a78bfa"></div>
           <div>
-            <div class="entry-label">Levels 3 – 8 Uni-Level</div>
+            <div class="entry-label">Levels 3 – 8 Uni-Level (8.75% each)</div>
             <div class="entry-detail">Each of the remaining 6 upline levels receives $8.75 instantly</div>
           </div>
         </div>
-        <div style="text-align:right">
-          <div class="entry-amount" style="color:#a78bfa">$8.75 × 6</div>
-          <div class="entry-timing">Instant ✓</div>
-        </div>
+        <div style="text-align:right"><div class="entry-amount" style="color:#a78bfa">$8.75 × 6</div><div class="entry-timing">Instant ✓</div></div>
       </div>
       <div class="entry-row">
         <div class="entry-left">
@@ -303,12 +367,9 @@ footer a{color:rgba(200,220,255,0.4);text-decoration:none}
             <div class="entry-detail">Operations, infrastructure, blockchain</div>
           </div>
         </div>
-        <div style="text-align:right">
-          <div class="entry-amount" style="color:rgba(255,255,255,0.25)">$5.00</div>
-          <div class="entry-timing" style="color:rgba(255,255,255,0.2)">Instant</div>
-        </div>
+        <div style="text-align:right"><div class="entry-amount" style="color:rgba(255,255,255,0.25)">$5.00</div><div class="entry-timing" style="color:rgba(255,255,255,0.2)">Instant</div></div>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid rgba(0,212,255,0.15)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid rgba(0,212,255,0.12)">
         <div style="font-size:13px;font-weight:700;color:rgba(200,220,255,0.5)">Total Distributed</div>
         <div style="font-size:22px;font-weight:800;color:#00d4ff">$100.00 ✓</div>
       </div>
@@ -318,7 +379,7 @@ footer a{color:rgba(200,220,255,0.4);text-decoration:none}
     <div class="uni-card">
       <div class="uni-header">
         <h3>Uni-Level Earnings Per Entry — All 8 Levels & All Packages</h3>
-        <p>What you earn per activation at each level of your network</p>
+        <p>What you earn per activation at each level of your network across all package tiers</p>
       </div>
       <table class="uni-table">
         <thead>
@@ -336,7 +397,7 @@ footer a{color:rgba(200,220,255,0.4);text-decoration:none}
             {% for p in pkgs %}<td style="color:{{ lvl_colours[lvl-1] }}">${{ '%.2f'|format(p * 0.70 / 8) }}</td>{% endfor %}
           </tr>
           {% endfor %}
-          <tr style="background:rgba(0,212,255,0.04);border-top:1px solid rgba(0,212,255,0.1)">
+          <tr style="background:rgba(0,212,255,0.03);border-top:1px solid rgba(0,212,255,0.1)">
             <td style="color:#00d4ff;font-weight:700">Direct (25%)</td>
             {% for p in pkgs %}<td style="color:#00d4ff">${{ '%.2f'|format(p * 0.25) }}</td>{% endfor %}
           </tr>
@@ -346,68 +407,33 @@ footer a{color:rgba(200,220,255,0.4);text-decoration:none}
 
     <!-- Grid tracker note -->
     <div class="grid-note">
-      <div style="font-size:28px;flex-shrink:0;margin-top:2px">📊</div>
+      <div style="font-size:26px;flex-shrink:0;margin-top:2px">📊</div>
       <div>
-        <div class="grid-note-title">About the 8×8 Income Grid Visual</div>
-        <div class="grid-note-text">The 8×8 grid in your member dashboard is a <strong>visual tracker</strong> of your uni-level network activity — not a separate commission mechanism. As members join across all 8 levels below you, their positions fill your grid in real time. Your first grid begins when you personally activate your package. When all 64 positions are filled by your growing network, a new 64-seat grid cycle begins automatically — this time entirely network-powered, with all 64 seats filled by recruited members.</div>
+        <div class="grid-note-title">About the 8×8 Profit Engine Grid</div>
+        <div class="grid-note-text">The 8×8 grid displayed in your member dashboard is a <strong>visual tracker</strong> of your uni-level network growing in real time. As members join across all 8 levels below you, their positions fill your grid — giving you a clear view of your network depth and activity. Your first grid begins when you activate your package. When all 64 positions are filled, a new 64-seat grid cycle starts automatically — this time entirely network-powered, with all 64 seats filled by recruited members.</div>
       </div>
     </div>
-
-    <!-- Package table -->
-    <div class="sec-label" style="margin-bottom:8px">All Packages</div>
-    <div class="sec-title" style="margin-bottom:8px">Earnings Across All Package Tiers</div>
-    <div class="sec-sub">Per activation earnings at each commission level</div>
-
-    <div class="pkg-card">
-      <table class="pkg-table">
-        <thead>
-          <tr>
-            <th>Package</th>
-            <th>Price</th>
-            <th>Direct Sponsor (25%)</th>
-            <th>Per Uni-Level Entry (8.75%)</th>
-            <th>Total if Direct + All 8 Levels</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% set packages = [('Starter',10),('Basic',25),('Growth',50),('Pro',100),('Advanced',250),('Elite',500),('Premium',750),('Ultimate',1000)] %}
-          {% for name, price in packages %}
-          {% set direct = price * 0.25 %}
-          {% set per_level = price * 0.70 / 8 %}
-          {% set total = direct + (per_level * 8) %}
-          <tr {% if price == 100 %}style="background:rgba(0,212,255,0.03)"{% endif %}>
-            <td style="font-weight:700;color:#fff">{{ name }}</td>
-            <td style="color:#00d4ff">${{ price }}</td>
-            <td style="color:#10b981">${{ '%.2f'|format(direct) }}</td>
-            <td style="color:#a78bfa">${{ '%.2f'|format(per_level) }}</td>
-            <td style="color:#fff;font-size:14px">${{ '%.2f'|format(total) }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    <p style="font-size:11px;color:rgba(200,220,255,0.3);text-align:center;margin-bottom:48px;margin-top:8px">*Maximum per activation assumes you are the direct sponsor AND occupy all 8 uni-level positions above the new member. Actual earnings depend on your network position.</p>
   </div>
 
-  <!-- STREAM 2 -->
+  <!-- STREAM 3 DETAIL -->
   <div class="section" style="padding-top:0">
-    <div class="sec-label">Stream 02 — Coming Soon</div>
-    <div class="sec-title">Infinite Pass-Up Course Sales</div>
-    <div class="sec-sub">Keep 100% on every sale. Pass up every 2nd sale to your sponsor — and watch that pass-up cascade infinitely up the network above you.</div>
+    <div class="sec-label">Stream 03 — Coming Soon</div>
+    <div class="sec-title">Marketing Mastery Course — Infinite Pass-Up</div>
+    <div class="sec-sub">Keep 100% on every sale you make. Every 2nd sale passes up to your sponsor — and cascades infinitely through the network above you, forever.</div>
 
     <div class="passup-card">
-      <div class="passup-title">How the Infinite Pass-Up Works</div>
-      <div class="passup-sub">You sell a course and keep 100% on every odd-numbered sale. Every even-numbered sale (2nd, 4th, 6th...) passes up to your sponsor in full. That pass-up then counts as one of their sales — meaning it can pass up again to their sponsor, cascading infinitely up the chain.</div>
+      <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:6px">How the Infinite Pass-Up Works</div>
+      <div style="font-size:13px;color:rgba(200,220,255,0.5);line-height:1.7;margin-bottom:4px">You sell the Marketing Mastery Course and keep 100% commission on every odd-numbered sale. Every even-numbered sale (2nd, 4th, 6th...) passes up to your sponsor in full — and that pass-up counts as one of their sales, meaning it can cascade up to their sponsor, and so on infinitely up the chain.</div>
 
-      <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(200,220,255,0.3);margin-bottom:12px">Your First 7 Sales</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(200,220,255,0.3);margin:20px 0 10px">Your First 7 Sales</div>
       <div class="passup-flow">
-        <div class="pf-step"><div class="pf-num">Sale 1</div><div class="pf-amt keep">100%</div><div class="pf-who">You keep</div></div>
-        <div class="pf-step" style="border-color:rgba(167,139,250,0.2);background:rgba(124,58,237,0.1)"><div class="pf-num">Sale 2</div><div class="pf-amt passup-c">↑ Pass-up</div><div class="pf-who" style="color:#a78bfa">To sponsor</div></div>
-        <div class="pf-step"><div class="pf-num">Sale 3</div><div class="pf-amt keep">100%</div><div class="pf-who">You keep</div></div>
-        <div class="pf-step" style="border-color:rgba(167,139,250,0.2);background:rgba(124,58,237,0.1)"><div class="pf-num">Sale 4</div><div class="pf-amt passup-c">↑ Pass-up</div><div class="pf-who" style="color:#a78bfa">To sponsor</div></div>
-        <div class="pf-step"><div class="pf-num">Sale 5</div><div class="pf-amt keep">100%</div><div class="pf-who">You keep</div></div>
-        <div class="pf-step" style="border-color:rgba(167,139,250,0.2);background:rgba(124,58,237,0.1)"><div class="pf-num">Sale 6</div><div class="pf-amt passup-c">↑ Pass-up</div><div class="pf-who" style="color:#a78bfa">To sponsor</div></div>
-        <div class="pf-step"><div class="pf-num">Sale 7+</div><div class="pf-amt keep">Repeats</div><div class="pf-who">Forever</div></div>
+        <div class="pf-step pf-keep"><div class="pf-num">Sale 1</div><div class="pf-amt-keep">100%</div><div class="pf-who">You keep</div></div>
+        <div class="pf-step pf-pass"><div class="pf-num">Sale 2</div><div class="pf-amt-pass">↑ Pass-up</div><div class="pf-who" style="color:#a78bfa">To sponsor</div></div>
+        <div class="pf-step pf-keep"><div class="pf-num">Sale 3</div><div class="pf-amt-keep">100%</div><div class="pf-who">You keep</div></div>
+        <div class="pf-step pf-pass"><div class="pf-num">Sale 4</div><div class="pf-amt-pass">↑ Pass-up</div><div class="pf-who" style="color:#a78bfa">To sponsor</div></div>
+        <div class="pf-step pf-keep"><div class="pf-num">Sale 5</div><div class="pf-amt-keep">100%</div><div class="pf-who">You keep</div></div>
+        <div class="pf-step pf-pass"><div class="pf-num">Sale 6</div><div class="pf-amt-pass">↑ Pass-up</div><div class="pf-who" style="color:#a78bfa">To sponsor</div></div>
+        <div class="pf-step pf-keep"><div class="pf-num">Sale 7+</div><div class="pf-amt-keep">Repeats</div><div class="pf-who">Forever</div></div>
       </div>
 
       <div class="passup-rules">
@@ -422,7 +448,7 @@ footer a{color:rgba(200,220,255,0.4);text-decoration:none}
           <div class="rule-icon">♾️</div>
           <div>
             <div class="rule-title">Truly Infinite Depth</div>
-            <div class="rule-desc">Pass-ups cascade up the entire sponsor chain with no level cap. The deeper and more active your network, the more pass-ups flow back to you.</div>
+            <div class="rule-desc">Pass-ups cascade up the entire sponsor chain with no level cap. The deeper and more active your network, the more pass-ups flow back to you permanently.</div>
           </div>
         </div>
         <div class="rule-item">
@@ -433,44 +459,38 @@ footer a{color:rgba(200,220,255,0.4);text-decoration:none}
           </div>
         </div>
         <div class="rule-item">
-          <div class="rule-icon">📈</div>
+          <div class="rule-icon">🔑</div>
           <div>
-            <div class="rule-title">Grows With Your Network</div>
-            <div class="rule-desc">The more active course sellers in your downline, the more pass-ups flow back to you from an unlimited number of people — permanently and automatically.</div>
+            <div class="rule-title">Active Subscription Required</div>
+            <div class="rule-desc">Stream 3 is only available to active Stream 1 subscribers. Letting your $10 monthly subscription lapse suspends access to course sales until renewed.</div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- STREAM 3 -->
-  <div class="section" style="padding-top:0">
-    <div class="sec-label">Stream 03 — In Development</div>
-    <div class="sec-title">Marketing Sales Mastery Course</div>
-    <div class="sec-sub">A world-class professional course built exclusively for SuperAdPro members — the foundation of Stream 3 income.</div>
-
+    <!-- Course coming soon card -->
     <div class="coming-card">
-      <span style="font-size:52px;display:block;margin-bottom:18px;filter:grayscale(0.3)">🎓</span>
-      <div style="font-size:22px;font-weight:800;color:rgba(255,255,255,0.45);margin-bottom:12px">SuperAdPro Marketing Mastery Course</div>
-      <div style="font-size:14px;color:rgba(200,220,255,0.3);max-width:500px;margin:0 auto 20px;line-height:1.7">We are developing a comprehensive, in-depth marketing and sales course designed exclusively for SuperAdPro members. This course will form the content foundation of Stream 3 — combining professional sales training, digital marketing strategy and affiliate mastery. Full details, pricing and launch date to be announced. Members who join SuperAdPro now will receive early access.</div>
-      <span style="display:inline-block;padding:6px 18px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.07)">Launching Soon</span>
+      <span style="font-size:48px;display:block;margin-bottom:16px">🎓</span>
+      <div style="font-size:20px;font-weight:800;color:rgba(255,255,255,0.45);margin-bottom:10px">SuperAdPro Marketing Mastery Course</div>
+      <div style="font-size:13px;color:rgba(200,220,255,0.3);max-width:500px;margin:0 auto 18px;line-height:1.7">A comprehensive, in-depth marketing and sales course developed exclusively for SuperAdPro members — combining professional sales training, digital marketing strategy and affiliate mastery. Members who join SuperAdPro now will receive early access when the course launches.</div>
+      <span style="display:inline-block;padding:5px 16px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.07)">In Development — Launching Soon</span>
       <div class="coming-features">
         <div class="coming-feature">Professional Sales Training</div>
         <div class="coming-feature">Digital Marketing Strategy</div>
         <div class="coming-feature">Affiliate Mastery</div>
         <div class="coming-feature">Early Access for Existing Members</div>
-        <div class="coming-feature">Included in Stream 02 Pass-Up System</div>
+        <div class="coming-feature">Included in Infinite Pass-Up System</div>
       </div>
     </div>
   </div>
 
   <!-- CTA -->
   <div class="cta-band">
-    <h2>Start Building Across <span>All Three Streams</span></h2>
-    <p>Join SuperAdPro today. Activate your first package and your uni-level chain starts earning from day one — while you secure your early-access position for Streams 2 and 3.</p>
+    <h2>One Subscription.<br><span>Three Income Streams.</span></h2>
+    <p>Start with your $10 monthly membership today. Unlock the Profit Engine Grid, secure your place in the course pass-up system, and start building residual income from day one.</p>
     <div class="cta-btns">
-      <a href="/register" class="btn-glow">🚀 Get Started Free →</a>
-      <a href="/packages" class="btn-outline">View All Packages</a>
+      <a href="/register" class="btn-glow">🚀 Get Started — $10/month →</a>
+      <a href="/packages" class="btn-outline">View Ad Packages</a>
     </div>
   </div>
 
@@ -478,7 +498,7 @@ footer a{color:rgba(200,220,255,0.4);text-decoration:none}
 
 <footer>
   <p>© 2025 SuperAdPro. All rights reserved. | <a href="/legal">Terms & Legal</a></p>
-  <p style="margin-top:8px;font-size:10px;opacity:0.6;max-width:700px;margin-left:auto;margin-right:auto;line-height:1.6">Income figures are mathematical illustrations only. Actual earnings depend entirely on individual effort, network activity and market conditions. SuperAdPro is not a guaranteed income programme. Results will vary.</p>
+  <p style="margin-top:8px;font-size:10px;opacity:0.6;max-width:700px;margin-left:auto;margin-right:auto;line-height:1.6">Income figures are mathematical illustrations only. Actual earnings depend entirely on individual effort, network activity and member retention. SuperAdPro is not a guaranteed income programme. Results will vary.</p>
 </footer>
 
 </body>
