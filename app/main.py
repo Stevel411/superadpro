@@ -309,38 +309,37 @@ def register_process(
 
 @app.get("/dev-login")
 def dev_login(request: Request, db: Session = Depends(get_db)):
-    """Dev preview — auto-creates a demo account and logs in."""
-    from .crud import get_password_hash
+    """Dev preview — instant demo login, no password needed."""
+    import bcrypt
     demo_username = "demo_preview"
-    user = db.query(User).filter(User.username == demo_username).first()
-    if not user:
-        user = User(
-            username      = demo_username,
-            email         = "demo@superadpro.dev",
-            password      = get_password_hash("SuperAdPro2026!"),
-            first_name    = "Demo",
-            last_name     = "Preview",
-            wallet_address= "0xDEAD000000000000000000000000000000000000",
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-
-    # Refresh demo stats every visit
-    user.balance          = 247.50
-    user.total_earned     = 892.00
-    user.grid_earnings    = 547.20
-    user.level_earnings   = 213.80
-    user.upline_earnings  = 131.00
-    user.total_withdrawn  = 644.50
-    user.personal_referrals = 7
-    user.total_team       = 34
-    user.is_active        = True
-    db.commit()
-
-    response = RedirectResponse(url="/dashboard", status_code=303)
-    set_secure_cookie(response, user.id)
-    return response
+    try:
+        user = db.query(User).filter(User.username == demo_username).first()
+        if not user:
+            hashed = bcrypt.hashpw(b"DevPass2026!", bcrypt.gensalt()).decode()
+            user = User(
+                username="demo_preview", email="demo@superadpro.dev",
+                password=hashed, first_name="Demo", last_name="Preview",
+                wallet_address="0xDEAD000000000000000000000000000000000001",
+                is_active=True, balance=247.50, total_earned=892.00,
+                grid_earnings=547.20, level_earnings=213.80,
+                upline_earnings=131.00, total_withdrawn=644.50,
+                personal_referrals=7, total_team=34,
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        else:
+            user.balance=247.50; user.total_earned=892.00
+            user.grid_earnings=547.20; user.level_earnings=213.80
+            user.upline_earnings=131.00; user.total_withdrawn=644.50
+            user.personal_referrals=7; user.total_team=34
+            user.is_active=True
+            db.commit()
+        response = RedirectResponse(url="/dashboard", status_code=303)
+        set_secure_cookie(response, user.id)
+        return response
+    except Exception as e:
+        return HTMLResponse(f"<h2>Dev login error: {e}</h2><p>Check Railway logs.</p>", status_code=500)
 
 
 @app.get("/login")
