@@ -284,13 +284,13 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 
     <!-- Live earnings tracker -->
     <div class="stat-card">
-      <div class="stat-eyebrow">Live Earnings Tracker</div>
+      <div class="stat-eyebrow">Live Earnings Tracker — What YOU Earn</div>
       <div class="earn-row">
         <div class="earn-left">
           <div class="earn-dot" style="background:#10b981"></div>
           <div>
             <div class="earn-label">Direct Sponsor (25%)</div>
-            <div class="earn-pct">On personal referrals</div>
+            <div class="earn-pct">L1 personal referrals only · $<span id="directPerSeat">25.00</span> per seat</div>
           </div>
         </div>
         <div style="text-align:right">
@@ -299,38 +299,14 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
       </div>
       <div class="earn-row">
         <div class="earn-left">
-          <div class="earn-dot" style="background:#3b82f6"></div>
-          <div>
-            <div class="earn-label">Level 1 Uni-Level</div>
-            <div class="earn-pct">8.75% per entry</div>
-          </div>
-        </div>
-        <div style="text-align:right">
-          <div class="earn-amount" id="l1Amt" style="color:#3b82f6">$0.00</div>
-        </div>
-      </div>
-      <div class="earn-row">
-        <div class="earn-left">
-          <div class="earn-dot" style="background:#6366f1"></div>
-          <div>
-            <div class="earn-label">Level 2 Uni-Level</div>
-            <div class="earn-pct">8.75% per entry</div>
-          </div>
-        </div>
-        <div style="text-align:right">
-          <div class="earn-amount" id="l2Amt" style="color:#6366f1">$0.00</div>
-        </div>
-      </div>
-      <div class="earn-row">
-        <div class="earn-left">
           <div class="earn-dot" style="background:#a78bfa"></div>
           <div>
-            <div class="earn-label">Levels 3–8 Uni-Level</div>
-            <div class="earn-pct">$8.75 × 6 levels per entry</div>
+            <div class="earn-label">Uni-Level (8.75% × 1 position)</div>
+            <div class="earn-pct">$<span id="uniPerSeat">8.75</span> from every seat in your grid</div>
           </div>
         </div>
         <div style="text-align:right">
-          <div class="earn-amount" id="l3to8Amt" style="color:#a78bfa">$0.00</div>
+          <div class="earn-amount" id="l1Amt" style="color:#a78bfa">$0.00</div>
         </div>
       </div>
       <div class="earn-row">
@@ -338,7 +314,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
           <div class="earn-dot" style="background:rgba(255,255,255,0.15)"></div>
           <div>
             <div class="earn-label">Platform Fee (5%)</div>
-            <div class="earn-pct">Infrastructure & ops</div>
+            <div class="earn-pct">Deducted from every entry</div>
           </div>
         </div>
         <div style="text-align:right">
@@ -425,7 +401,7 @@ let playing = false;
 let timer = null;
 
 // Running totals
-let tSponsor = 0, tL1 = 0, tL2 = 0, tL3to8 = 0, tPlatform = 0;
+let tSponsor = 0, tUniLevel = 0, tPlatform = 0;
 
 const LEVEL_COLOURS = [
   '#00d4ff','#3b82f6','#6366f1','#7c3aed',
@@ -446,8 +422,8 @@ function updateSplitDisplay() {
   const perLevel = pkg * 0.70 / 8;
   const uniTotal = pkg * 0.70;
   const platform = pkg * 0.05;
-  // Personal earnings: 8 direct sponsor + (63 × uni per level × 8 levels)
-  const personalEarnings = (8 * direct) + (63 * perLevel * 8);
+  // YOUR full-cycle earnings: 8 L1 seats × (direct + uni) + 55 L2-L8 seats × uni
+  const personalEarnings = (8 * (direct + perLevel)) + (55 * perLevel);
 
   document.getElementById('splitPrice').textContent = pkg.toLocaleString();
   document.getElementById('sp1').textContent = '$' + direct.toFixed(2);
@@ -459,6 +435,9 @@ function updateSplitDisplay() {
   document.getElementById('infoUni').textContent = '$' + perLevel.toFixed(2);
   document.getElementById('infoMax').textContent = '$' + personalEarnings.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2});
   document.getElementById('panelTitle').textContent = `8×8 GRID — $${pkg.toLocaleString()} PACKAGE`;
+  // Update per-seat labels in tracker
+  document.getElementById('directPerSeat').textContent = direct.toFixed(2);
+  document.getElementById('uniPerSeat').textContent = perLevel.toFixed(2);
 }
 
 // ── Build grid ─────────────────────────────────────────────────────────────
@@ -520,43 +499,46 @@ function tick() {
 function fillNext() {
   filled++;
   const cell = cells[filled];
-  const level = Math.floor((filled - 1) / 8); // 0–7  (level index, 0=L1)
+  // level 0 = L1 (seats 1-8), level 1 = L2 (seats 9-16), etc.
+  const level = Math.floor((filled - 1) / 8);
   const col = LEVEL_COLOURS[level];
 
-  // Commission math — correct per-entry distribution
-  // Direct Sponsor (25%): only when YOU personally referred them = L1 seats (level 0)
-  // Uni-level (8.75% per level): you receive this from ALL 8 levels
-  // Platform (5%): deducted from every entry
-  const perLevel = pkg * 0.70 / 8;   // $8.75 on $100
-  const platform = pkg * 0.05;
+  // ── CORRECT COMMISSION MATH ──────────────────────────────────────────
+  // Per $100 entry: 25% direct sponsor + 70% uni-level (8.75% × 8 levels) + 5% platform
+  //
+  // YOU earn from this seat:
+  //   • If L1 (level=0): you ARE the direct sponsor → $25 PLUS uni-level $8.75 = $33.75
+  //   • If L2-L8 (level>0): you receive ONE uni-level commission of $8.75
+  //     (you sit at a specific depth in the entrant's upline chain)
+  //
+  // You do NOT earn $8.75 × 8 per entry — that would be all 8 uni-levels combined,
+  // which go to 8 DIFFERENT people above the entrant, not all to you.
+  const perLevel = pkg * 0.70 / 8;  // $8.75 on $100
+  const platform  = pkg * 0.05;
 
-  // You earn direct sponsor only on L1 (your personal referrals, seats 1-8)
+  let youEarnThisSeat = perLevel; // you always earn 1 uni-level position ($8.75)
   if (level === 0) {
-    tSponsor += pkg * 0.25;
+    tSponsor += pkg * 0.25;        // direct sponsor bonus for L1 personal referrals
+    youEarnThisSeat += pkg * 0.25; // cell display: direct + uni combined
   }
-  // You earn uni-level commission from all 8 levels
-  tL1       += perLevel;
-  tL2       += perLevel;
-  tL3to8    += perLevel * 6;
+  tUniLevel += perLevel;           // 1 × $8.75 per seat, every seat
   tPlatform += platform;
+  // ─────────────────────────────────────────────────────────────────────
 
-  // Style cell — L1 shows direct+uni total, others show uni-level
-  const cellAmt = level === 0 ? (pkg * 0.25 + perLevel) : perLevel;
-  cell.classList.remove('open');
+  // Style cell
   cell.classList.add('filled', 'pop');
   cell.style.background = col;
   cell.style.boxShadow = `0 0 12px ${col}50`;
   cell.style.borderColor = col + '40';
-  cell.innerHTML = `+$${cellAmt.toFixed(2)}`;
+  cell.innerHTML = `+$${youEarnThisSeat.toFixed(2)}`;
   setTimeout(() => cell.classList.remove('pop'), 450);
 
   // Update counters
   bump('sponsorAmt', tSponsor);
-  bump('l1Amt', tL1);
-  bump('l2Amt', tL2);
-  bump('l3to8Amt', tL3to8);
+  bump('l1Amt', tUniLevel);
   bump('platformAmt', tPlatform);
-  document.getElementById('totalAmt').textContent = '$' + (tSponsor + tL1 + tL2 + tL3to8).toFixed(2);
+  const total = tSponsor + tUniLevel;
+  document.getElementById('totalAmt').textContent = '$' + total.toFixed(2);
 
   // Progress
   const pct = Math.round((filled / 63) * 100);
@@ -564,7 +546,7 @@ function fillNext() {
   document.getElementById('progressFill').style.width = pct + '%';
 
   // Log
-  addLog(filled, level + 1, col, cellAmt);
+  addLog(filled, level + 1, col, youEarnThisSeat);
 }
 
 function bump(id, val) {
@@ -604,9 +586,9 @@ function cycleComplete() {
 // ── Reset ──────────────────────────────────────────────────────────────────
 function resetGrid() {
   pause();
-  filled = 0; tSponsor = 0; tL1 = 0; tL2 = 0; tL3to8 = 0; tPlatform = 0;
+  filled = 0; tSponsor = 0; tUniLevel = 0; tPlatform = 0;
   buildGrid();
-  ['sponsorAmt','l1Amt','l2Amt','l3to8Amt','platformAmt'].forEach(id => {
+  ['sponsorAmt','l1Amt','platformAmt'].forEach(id => {
     document.getElementById(id).textContent = '$0.00';
   });
   document.getElementById('totalAmt').textContent = '$0.00';
