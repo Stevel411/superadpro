@@ -21,36 +21,45 @@ SuperAdPro — A video advertising platform with an 8×8 recurring grid affiliat
 - Seats 1–63 = entrants
 - Grid auto-resets on completion (recurring)
 
-## IMMEDIATE FIXES NEEDED (Priority Order)
+## COMPLETED (all done as of 2026-02-22)
+- [x] Backend constants — database.py: DIRECT_PCT=0.25, UNILEVEL_PCT=0.70, PER_LEVEL_PCT=0.0875, PLATFORM_PCT=0.05
+- [x] Grid engine — grid.py: correct commission distribution, direct sponsor + uni-level chain + platform fee
+- [x] All 10 public pages — full conformity audit, light colours, banned terms, commission accuracy
+- [x] All 9 member pages — light colour audit (121 replacements), dark theme consistent
+- [x] admin.html — already clean
+- [x] Logo standardised across all templates
+- [x] Dev-login working end to end
+- [x] Dead /for-advertisers links replaced with /how-it-works
+- [x] Footer year 2025 → 2026
 
-### [ ] 1. Backend constants — database.py
-Update OWNER_PCT, UPLINE_PCT, LEVEL_PCT, COMPANY_PCT to correct values
-Add DIRECT_PCT, UNILEVEL_PCT, PLATFORM_PCT, PER_LEVEL_PCT
-GRID_TOTAL should be 63 (entrants), not 64
+## NEXT UP (priority order)
 
-### [ ] 2. Grid engine — grid.py
-Rewrite commission distribution to use correct percentages
-Direct sponsor gets 25% if they personally referred the entrant
-Each of 8 uni-level positions above entrant gets 8.75%
-Platform gets 5%
+### [ ] 1. Member page content audit
+Pages are colour-clean but content hasn't been reviewed yet:
+- dashboard.html — verify all template variables render correctly with live data
+- income-grid.html — verify grid display logic, level labels, progress
+- affiliate.html — verify referral link display, commission table
+- wallet.html — verify commission history, withdrawal flow
+- account.html — verify wallet save, profile fields
 
-### [ ] 3. Dashboard — verify live after backend fix
-Check all variable references match context dict
-Confirm template renders without errors
+### [ ] 2. Payment flow end-to-end test
+- /pay-membership → /verify-membership → dashboard?activated=true
+- /activate-grid → /verify-grid-payment → income-grid?activated=tier
+- /withdraw → /wallet?withdrawn=true
+- Test via dev-login on Railway
 
-### [ ] 4. Login — verify dev-login works end to end
+### [ ] 3. /forgot-password route
+- Route exists in templates (linked from login) but no handler in main.py
+- Build: GET shows form, POST sends reset email, token-based reset
 
-### [ ] 5. All pages — verify logo consistent (done 2026-02-22)
+### [ ] 4. pay-subscription.html
+- Template exists but no route in main.py (/pay-subscription not mapped)
+- Decide: is this a duplicate of pay-membership? Remove or wire up.
 
-## COMPLETED TODAY
-- [x] Homepage dark space theme with Dubai video
-- [x] Grid visualiser — random direct/overspill, all levels, correct math
-- [x] Compensation plan — 3-stream architecture written correctly
-- [x] Logo standardised across all 26 templates
-- [x] Dashboard — dark topbar, 3-stream layout, correct labels
-- [x] Dev-login button added to login page
+### [ ] 5. for-advertisers.html audit
+- Template exists, route exists (/for-advertisers)
+- Content not yet audited (not in the recent public page sweep)
 
-## KNOWN ISSUES
-- Backend commission constants still use old percentages (root cause)
-- sponsor_earnings mapped to level_earnings as workaround (temporary)
-- Some routes reference old terminology (grid_owner, level_pool, upline)
+## KNOWN ISSUES (minor)
+- sponsor_earnings in dashboard context maps to level_earnings (acceptable workaround)
+- pay-subscription.html orphaned (no route)
