@@ -458,7 +458,7 @@
                         <span style="color:rgba(255,255,255,0.2)">□ Open</span>
                     </div>
                     <div style="display:flex;justify-content:space-between;background:rgba(0,0,0,0.2);border-radius:6px;padding:8px 12px;font-size:11px;max-width:320px;margin:0 auto">
-                        <span style="color:rgba(200,220,255,0.5)">Level Pool earned:</span>
+                        <span style="color:rgba(200,220,255,0.5)">Your Level Pool earned:</span>
                         <span id="poolEarned" style="color:#00d4ff;font-weight:700">$0.00</span>
                     </div>
                 </div>
@@ -497,9 +497,14 @@
         if(!g) return;
 
         const PKG = 100;           // $100 USDT package
-        const LEVEL_POOL = 0.25;   // 25% to level pool
-        const SEATS = 64;
-        const perSeat = (PKG * LEVEL_POOL) / SEATS; // $0.39 per seat to level pool (your share of 25%)
+        const ENTRANTS = 63;       // 63 people fill the 64 seats (owner holds seat 0)
+        const TOTAL = PKG * ENTRANTS;  // $6,300 total grid revenue
+        const LEVEL_POOL = 0.25;   // 25% to level pool = $1,575
+        const LEVELS = 8;
+        const SEATS_PER_LEVEL = 8;
+        // $1,575 / 8 levels = $196.88 per level / 8 seats = $24.61 per seat
+        const perSeat = (TOTAL * LEVEL_POOL) / (LEVELS * SEATS_PER_LEVEL);
+        const ownerPayout = TOTAL * 0.45;  // $2,835
 
         const cells = [];
         for(let i=0;i<64;i++){
@@ -511,7 +516,7 @@
 
         // Cell 0 = you (grid owner)
         cells[0].style.background = '#00d4ff';
-        cells[0].innerHTML = '<span style="font-size:8px;font-weight:800;color:#050d1a;line-height:1;text-align:center">YOU<br>OWNER</span>';
+        cells[0].innerHTML = '<span style="font-size:7px;font-weight:800;color:#050d1a;line-height:1.2;text-align:center">YOU<br>$2,835</span>';
 
         let filled = 1;
         let poolTotal = 0;
@@ -522,7 +527,7 @@
                     cells.forEach((c,i)=>{
                         if(i === 0){
                             c.style.background = '#00d4ff';
-                            c.innerHTML = '<span style="font-size:8px;font-weight:800;color:#050d1a;line-height:1;text-align:center">YOU<br>OWNER</span>';
+                            c.innerHTML = '<span style="font-size:7px;font-weight:800;color:#050d1a;line-height:1.2;text-align:center">YOU<br>$2,835</span>';
                         } else {
                             c.style.background = 'rgba(255,255,255,0.07)';
                             c.innerHTML = '';
