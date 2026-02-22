@@ -491,17 +491,14 @@ def verify_matrix_payment(
     position = matrix_result["position"]
     upline = get_upline_members(db, position, matrix_level)
     distribution = calculate_matrix_distribution(matrix_level, sponsor_wallet, upline)
-
     company_amount = distribution["company"][1]
     sponsor_amount = distribution["sponsor"][1]
-
     record_payment(db, user.id, None, company_amount, f"matrix_{matrix_level}_company_fee", tx_hash + "_company")
     if sponsor:
         sponsor.total_revenue += sponsor_amount
         sponsor.matrix_earnings += sponsor_amount
         sponsor.monthly_commission += sponsor_amount
         record_payment(db, user.id, sponsor.id, sponsor_amount, f"matrix_{matrix_level}_sponsor", tx_hash + "_sponsor")
-
     for level_num, level_data in distribution["levels"].items():
         if level_data["members"]:
             per_person = level_data["per_person"]
@@ -513,8 +510,6 @@ def verify_matrix_payment(
                     record_payment(db, user.id, member.id, per_person, f"matrix_{matrix_level}_level_{level_num}", tx_hash + f"_level_{level_num}_{wallet}")
         else:
             add_to_reserve(db, matrix_level, level_num, level_data["total"])
-
     user.total_revenue += price
     db.commit()
-
     return RedirectResponse(url="/dashboard?matrix_activated=true", status_code=303)
