@@ -1414,3 +1414,15 @@ IMPORTANT:
         logging.error(f"Niche finder error: {e}")
         return JSONResponse({"error": "AI generation failed — please try again"}, status_code=500)
 
+
+# ═══════════════════════════════════════════════════════════════
+#  SWIPE FILE
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/swipe-file")
+def swipe_file(request: Request, user: User = Depends(get_current_user),
+               db: Session = Depends(get_db)):
+    if not user: return RedirectResponse(url="/login")
+    ctx = get_dashboard_context(request, user, db)
+    return templates.TemplateResponse("swipe-file.html", ctx)
+

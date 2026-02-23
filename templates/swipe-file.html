@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Swipe File — SuperAdPro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+.layout{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{width:220px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,240,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:18px 16px 14px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.05)}
+.sidebar-brand{font-size:15px;font-weight:800;color:#fff;letter-spacing:0.5px}
+.nav-section{padding:18px 14px 6px;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
+.nav-item:hover{color:rgba(200,220,255,0.9);background:rgba(255,255,255,0.03)}
+.nav-item.active{color:#00f0ff;border-left-color:#00f0ff;background:rgba(0,240,255,0.06)}
+.nav-icon{font-size:14px;width:18px;text-align:center}
+.user-mini{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00f0ff);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+.sidebar-footer{margin-top:auto;border-top:1px solid rgba(255,255,255,0.05)}
+
+/* ── MAIN ── */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.1);position:sticky;top:0;z-index:50}
+.topbar-title{font-size:15px;font-weight:800;color:#ffffff}
+.topbar-sub{font-size:11px;color:#94a3b8;margin-top:1px}
+.balance-pill{background:rgba(0,180,216,0.06);border:1px solid rgba(0,180,216,0.15);border-radius:8px;padding:6px 14px;display:flex;align-items:center;gap:10px}
+.balance-label{font-size:9px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase}
+.balance-val{font-size:15px;font-weight:800;color:#16a34a}
+.balance-unit{font-size:11px;color:#94a3b8;margin-left:3px}
+
+/* ── CONTENT ── */
+.content{padding:28px;flex:1}
+.swipe-wrap{max-width:960px;margin:0 auto}
+
+/* ── HERO ── */
+.swipe-hero{background:linear-gradient(135deg,#eff6ff 0%,#f5f3ff 50%,#ecfdf5 100%);border:1px solid #bfdbfe;border-radius:20px;padding:36px 40px;margin-bottom:28px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.swipe-hero::before{content:'';position:absolute;top:-50px;right:-50px;width:220px;height:220px;background:radial-gradient(circle,rgba(99,102,241,0.08),transparent 70%);pointer-events:none}
+.hero-left{position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);border-radius:999px;padding:5px 14px;font-size:11px;font-weight:700;color:#4338ca;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
+.hero-title{font-size:26px;font-weight:800;color:#0f172a;line-height:1.2;margin-bottom:8px}
+.hero-title span{background:linear-gradient(135deg,#6366f1,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:13px;color:#475569;line-height:1.7;max-width:500px}
+.hero-stats{display:flex;gap:16px;flex-shrink:0;flex-wrap:wrap}
+.hero-stat{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 20px;text-align:center;min-width:90px}
+.hero-stat-val{font-size:22px;font-weight:800;color:#0f172a}
+.hero-stat-lbl{font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+
+/* ── FILTER BAR ── */
+.filter-bar{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,0.03)}
+.filter-label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;flex-shrink:0}
+.filter-pills{display:flex;gap:7px;flex-wrap:wrap;flex:1}
+.filter-pill{padding:6px 14px;border-radius:999px;font-size:12px;font-weight:600;border:1.5px solid #e2e8f0;background:#f8fafc;color:#64748b;cursor:pointer;transition:all 0.15s}
+.filter-pill:hover{border-color:#6366f1;color:#4338ca;background:#eef2ff}
+.filter-pill.active{border-color:#6366f1;background:#eef2ff;color:#4338ca}
+.search-input{padding:8px 14px;border:1.5px solid #e2e8f0;border-radius:999px;font-size:13px;color:#0f172a;font-family:'Rethink Sans',sans-serif;background:#f8fafc;outline:none;width:220px;transition:all 0.2s}
+.search-input:focus{border-color:#6366f1;background:#fff}
+
+/* ── SWIPE GRID ── */
+.swipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:16px}
+
+/* ── SWIPE CARD ── */
+.swipe-card{background:#ffffff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.03);transition:all 0.2s;display:flex;flex-direction:column}
+.swipe-card:hover{border-color:#c7d2fe;box-shadow:0 4px 16px rgba(99,102,241,0.1);transform:translateY(-1px)}
+.swipe-card.hidden{display:none}
+.card-top{padding:14px 16px 0}
+.card-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.card-category{padding:3px 10px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
+.cat-hooks{background:#fef3c7;color:#b45309;border:1px solid #fde68a}
+.cat-email{background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe}
+.cat-social{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+.cat-video{background:#fce7f3;color:#be185d;border:1px solid #fbcfe8}
+.cat-whatsapp{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.cat-headline{background:#ede9fe;color:#6d28d9;border:1px solid #ddd6fe}
+.card-platform{font-size:10px;color:#94a3b8;font-weight:600}
+.card-body{padding:0 16px 14px;flex:1}
+.card-text{font-size:13px;color:#334155;line-height:1.75;border-left:3px solid #e2e8f0;padding-left:12px;margin:8px 0 12px;font-style:italic}
+.swipe-card:hover .card-text{border-left-color:#6366f1}
+.card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.card-tag{padding:2px 8px;background:#f8fafc;border:1px solid #f1f5f9;border-radius:4px;font-size:10px;color:#64748b;font-weight:600}
+.card-footer{padding:10px 16px;border-top:1px solid #f8fafc;display:flex;align-items:center;justify-content:space-between;background:#fafbfc}
+.card-niche{font-size:10px;color:#94a3b8;font-weight:600}
+.copy-swipe-btn{padding:5px 14px;background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:6px;font-size:11px;font-weight:700;color:#475569;cursor:pointer;font-family:'Rethink Sans',sans-serif;transition:all 0.15s}
+.copy-swipe-btn:hover{background:#eef2ff;border-color:#c7d2fe;color:#4338ca}
+.copy-swipe-btn.copied{background:#dcfce7;border-color:#86efac;color:#16a34a}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:60px 20px;display:none}
+.empty-state.active{display:block}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-title{font-size:16px;font-weight:700;color:#475569;margin-bottom:6px}
+.empty-sub{font-size:13px;color:#94a3b8}
+
+/* ── SECTION HEADER ── */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin:28px 0 14px}
+.section-title{font-size:16px;font-weight:800;color:#0f172a}
+.section-count{font-size:12px;color:#94a3b8;font-weight:600}
+
+@media(max-width:900px){.swipe-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:16px}.hero-stats{display:none}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="shield" viewBox="0 0 100 100">
+      <defs>
+        <linearGradient id="hexgrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4f8ef7"/>
+          <stop offset="50%" stop-color="#6d28d9"/>
+          <stop offset="100%" stop-color="#00b4d8"/>
+        </linearGradient>
+        <linearGradient id="hexinner" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#1a3a8f"/>
+          <stop offset="100%" stop-color="#0d1a5c"/>
+        </linearGradient>
+      </defs>
+      <polygon points="50,3 93,27 93,73 50,97 7,73 7,27" fill="url(#hexgrad)"/>
+      <polygon points="50,12 84,31 84,69 50,88 16,69 16,31" fill="url(#hexinner)"/>
+      <text x="50" y="63" text-anchor="middle" font-family="Arial Black,sans-serif" font-weight="900" font-size="38" fill="#00d4ff" letter-spacing="-2">S</text>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="layout">
+  <aside class="sidebar">
+    <a href="/dashboard" class="sidebar-logo">
+      <svg width="30" height="30"><use href="#shield"/></svg>
+      <span class="sidebar-brand">SuperAdPro</span>
+    </a>
+    <div class="nav-section">Main</div>
+    <a href="/dashboard"     class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
+    <a href="/packages"      class="nav-item"><span class="nav-icon">📦</span>Campaign Tiers</a>
+    <a href="/watch"         class="nav-item"><span class="nav-icon">▶</span>Watch &amp; Earn</a>
+    <a href="/video-library" class="nav-item"><span class="nav-icon">🎬</span>My Campaigns</a>
+    <div class="nav-section">Marketing Suite</div>
+    <a href="/campaign-studio" class="nav-item"><span class="nav-icon">🤖</span>AI Campaign Studio</a>
+    <a href="/niche-finder"    class="nav-item"><span class="nav-icon">💡</span>Niche Finder</a>
+    <a href="/swipe-file"      class="nav-item active"><span class="nav-icon">📋</span>Swipe File</a>
+    <div class="nav-section">Income Streams</div>
+    <a href="/income-grid"       class="nav-item"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
+    <a href="/wallet"            class="nav-item"><span class="nav-icon">◎</span>Wallet</a>
+    <a href="/affiliate"         class="nav-item"><span class="nav-icon">🤝</span>Affiliate Tools</a>
+    <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span>Comp Plan</a>
+    <a href="/grid-visualiser"   class="nav-item"><span class="nav-icon">◈</span>Grid Visualiser</a>
+    <div class="nav-section">Account</div>
+    <a href="/account" class="nav-item"><span class="nav-icon">◉</span>Profile</a>
+    <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
+    <div class="sidebar-footer">
+      <div class="user-mini">
+        <div class="user-avatar">{{ user.username[:2].upper() }}</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#fff">{{ user.first_name or user.username }}</div>
+          <div style="font-size:9px;color:#10b981;letter-spacing:1px;text-transform:uppercase;margin-top:1px">● Active</div>
+        </div>
+      </div>
+      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:11px;color:#64748b;text-decoration:none;margin-top:6px">⎋ Sign Out</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">📋 Swipe File</div>
+        <div class="topbar-sub">Proven hooks, scripts & captions — copy, paste, launch</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="balance-pill">
+          <div>
+            <div class="balance-label">Balance</div>
+            <div><span class="balance-val">${{ '%.2f'|format(balance) }}</span><span class="balance-unit">USDT</span></div>
+          </div>
+        </div>
+        <a href="/packages" style="font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:10px 20px;border-radius:7px;text-decoration:none">+ Activate Tier</a>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="swipe-wrap">
+
+        <!-- HERO -->
+        <div class="swipe-hero">
+          <div class="hero-left">
+            <div class="hero-badge">✨ Members Only · Updated Monthly</div>
+            <h1 class="hero-title">Steal These.<br><span>They Already Work.</span></h1>
+            <p class="hero-sub">A hand-curated library of the highest-converting hooks, email subjects, video openers, social captions and WhatsApp scripts. Written by marketers. Tested on real audiences. Yours to copy.</p>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat"><div class="hero-stat-val">60+</div><div class="hero-stat-lbl">Swipes</div></div>
+            <div class="hero-stat"><div class="hero-stat-val">6</div><div class="hero-stat-lbl">Categories</div></div>
+            <div class="hero-stat"><div class="hero-stat-val">Monthly</div><div class="hero-stat-lbl">Updates</div></div>
+          </div>
+        </div>
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar">
+          <span class="filter-label">Filter:</span>
+          <div class="filter-pills">
+            <span class="filter-pill active" data-filter="all" onclick="filterCards('all',this)">All</span>
+            <span class="filter-pill" data-filter="hooks" onclick="filterCards('hooks',this)">🎣 Hooks</span>
+            <span class="filter-pill" data-filter="email" onclick="filterCards('email',this)">📧 Email</span>
+            <span class="filter-pill" data-filter="social" onclick="filterCards('social',this)">📱 Social</span>
+            <span class="filter-pill" data-filter="video" onclick="filterCards('video',this)">🎬 Video</span>
+            <span class="filter-pill" data-filter="whatsapp" onclick="filterCards('whatsapp',this)">💬 WhatsApp</span>
+            <span class="filter-pill" data-filter="headline" onclick="filterCards('headline',this)">💥 Headlines</span>
+          </div>
+          <input class="search-input" type="text" placeholder="🔍 Search swipes..." oninput="searchCards(this.value)">
+        </div>
+
+        <!-- CARDS CONTAINER -->
+        <div id="swipeGrid" class="swipe-grid"></div>
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">🔍</div>
+          <div class="empty-title">No swipes match that filter</div>
+          <div class="empty-sub">Try a different category or clear your search</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SWIPES = [
+  // ── HOOKS ──
+  { cat:'hooks', platform:'All Platforms', niche:'Make Money Online', tags:['curiosity','income'],
+    text:"What if I told you there's a platform that pays you just to watch videos? I've been a member for 30 days and here's exactly what happened to my bank account..." },
+  { cat:'hooks', platform:'YouTube / TikTok', niche:'Passive Income', tags:['shock','result'],
+    text:"I made $47 last Tuesday. I wasn't at work. I wasn't doing a side hustle. I was literally watching videos on my laptop. Here's the platform that made it happen." },
+  { cat:'hooks', platform:'All Platforms', niche:'Affiliate Marketing', tags:['curiosity','question'],
+    text:"Nobody talks about this $10/month membership — probably because the people making money from it don't want competition. Let me break down exactly how it works." },
+  { cat:'hooks', platform:'YouTube / Facebook', niche:'Side Hustle', tags:['relatable','pain'],
+    text:"Sick of side hustles that promise everything and deliver nothing? I was too — until I found one that paid me the same week I signed up." },
+  { cat:'hooks', platform:'TikTok / Instagram', niche:'Financial Freedom', tags:['bold','statement'],
+    text:"Your phone is worth money. Not to sell — to USE. Let me show you the three apps I use to turn screen time into actual income." },
+  { cat:'hooks', platform:'All Platforms', niche:'Online Income', tags:['contrarian','curiosity'],
+    text:"Stop selling. Stop creating content. Stop building funnels. There's a simpler way to earn online that most gurus will never tell you about." },
+  { cat:'hooks', platform:'YouTube', niche:'Make Money Online', tags:['personal','story'],
+    text:"I spent 3 years trying to make money online. Dropshipping, Amazon FBA, crypto, MLM — all of it. Then I found something that actually worked in week one." },
+  { cat:'hooks', platform:'Facebook / WhatsApp', niche:'Membership Sites', tags:['scarcity','fomo'],
+    text:"This membership is $10/month right now. The founder told me personally he's raising the price once they hit 10,000 members. They're at 8,400. Just saying." },
+
+  // ── EMAIL SUBJECTS ──
+  { cat:'email', platform:'Email', niche:'Make Money Online', tags:['curiosity','open rate'],
+    text:"Re: The $10 thing I signed up for last month..." },
+  { cat:'email', platform:'Email', niche:'Passive Income', tags:['result','proof'],
+    text:"I made $213 watching YouTube videos (seriously)" },
+  { cat:'email', platform:'Email', niche:'Side Hustle', tags:['question','pain'],
+    text:"How many hours did you waste scrolling today?" },
+  { cat:'email', platform:'Email', niche:'Affiliate Marketing', tags:['curiosity','exclusive'],
+    text:"[Members only] Something you won't find on Google" },
+  { cat:'email', platform:'Email', niche:'Make Money Online', tags:['bold','direct'],
+    text:"This replaces your side hustle (and it's $10)" },
+  { cat:'email', platform:'Email', niche:'Online Income', tags:['personal','story'],
+    text:"The embarrassing thing I tried before this worked" },
+  { cat:'email', platform:'Email', niche:'Financial Freedom', tags:['urgency','fomo'],
+    text:"He said the price goes up at 10,000 members..." },
+  { cat:'email', platform:'Email', niche:'Passive Income', tags:['simple','clear'],
+    text:"Watch videos → earn commissions → rinse & repeat" },
+
+  // ── EMAIL BODIES ──
+  { cat:'email', platform:'Email', niche:'Make Money Online', tags:['welcome','sequence'],
+    text:"Hey [name],\n\nI want to be straight with you — I was sceptical too.\n\nA membership that pays you to watch videos AND gives you access to an AI marketing course AND a 8x8 income grid system... for $10/month?\n\nSounded too good. But I signed up anyway.\n\nHere's what happened in the first 7 days:\n\n✅ Watched my daily video quota — took about 25 minutes\n✅ Earned my first $8.40 in Watch-to-Earn commissions\n✅ Referred two people from WhatsApp — earned $20\n✅ Started the AI marketing course on day 3\n\nThe $10 was paid back on day 2.\n\nIf you want in, hit reply and I'll send you my referral link with a quick walkthrough of what to do first.\n\n[Your name]" },
+  { cat:'email', platform:'Email', niche:'Affiliate Marketing', tags:['follow-up','objection'],
+    text:"Hey [name],\n\nI know what you're thinking — 'sounds like another MLM.'\n\nFair. I thought the same thing. So let me be clear about what SuperAdPro actually is:\n\n❌ You don't have to recruit anyone\n❌ There are no pressure tactics\n❌ The product is real (the AI tools alone are worth $49/month)\n\n✅ You earn by watching videos (daily quota, takes 20-30 mins)\n✅ You earn when people you refer join (that's just affiliate marketing)\n✅ You get a full AI marketing course included\n\nThe $10 membership pays for itself the first time you refer someone.\n\nWant me to walk you through the platform on a quick call?\n\n[Your name]" },
+
+  // ── SOCIAL CAPTIONS ──
+  { cat:'social', platform:'Facebook / Instagram', niche:'Make Money Online', tags:['result','story'],
+    text:"30 days ago I signed up for a $10 membership on a whim.\n\nI didn't expect much.\n\nThis month I've earned:\n💰 $87 in Watch-to-Earn commissions\n💰 $60 from two referrals\n💰 $40 grid commission\n\nTotal: $187 from a $10 investment.\n\nThe membership also includes an AI marketing course and a suite of AI tools I use for my business every day.\n\nLink in bio if you want the full breakdown 👇\n\n#sidehustle #passiveincome #makemoneyonline #workfromhome" },
+  { cat:'social', platform:'Facebook', niche:'Side Hustle', tags:['question','engagement'],
+    text:"Genuine question for my Facebook family:\n\nIf you could earn $5-15 per day just by watching 20-30 minutes of videos — would you do it?\n\nBecause that's literally what I've been doing for the past 6 weeks.\n\nNot a scam. Not MLM. Just a private video platform that pays members to watch content from advertisers who pay to be seen.\n\nComment 'INFO' below and I'll send you everything you need to know 👇" },
+  { cat:'social', platform:'Instagram / TikTok', niche:'Passive Income', tags:['lifestyle','aspirational'],
+    text:"Morning routine:\n☕ Coffee\n📱 Watch 4 videos (25 mins)\n💰 $6.40 earned before 9am\n\nNot life-changing on its own. But combined with my referral commissions and the AI marketing tools I use for my other businesses?\n\nThe $10/month membership pays for itself 10x over every single month.\n\nSave this post if you want me to do a full breakdown next week 🔖" },
+  { cat:'social', platform:'LinkedIn', niche:'Digital Marketing', tags:['professional','value'],
+    text:"The best $10 I spend every month isn't on a coffee subscription.\n\nIt's on a marketing membership that includes:\n\n→ An AI campaign studio that writes my video scripts, emails and social content\n→ A niche finder tool that identified my most profitable angle\n→ A Watch-to-Earn system that generates passive income while I test my own campaigns\n→ A full AI & Marketing course\n\nFor context: I was paying $97/month for separate AI tools that didn't even talk to each other.\n\nThe platform is called SuperAdPro. Happy to share more in the comments." },
+  { cat:'social', platform:'TikTok / Instagram', niche:'Make Money Online', tags:['tutorial','how-to'],
+    text:"How I earn passive income in 3 steps:\n\nStep 1️⃣ Log into SuperAdPro (takes 30 seconds)\nStep 2️⃣ Watch my daily video quota (20-25 mins, usually over breakfast)\nStep 3️⃣ Close the app and get on with my day\n\nMy earnings hit my wallet automatically.\n\nThen once a week I share my referral link and earn $10 for every person who joins.\n\nThis month that's been an extra $80 on top of my watch commissions.\n\n$10/month membership. Comment 'HOW' and I'll DM you the link." },
+
+  // ── VIDEO SCRIPTS ──
+  { cat:'video', platform:'YouTube', niche:'Make Money Online', tags:['hook','opener'],
+    text:"[HOOK] Before we start — I want to show you my earnings dashboard right now, live on screen. This is real money, from a real platform, and I'm going to show you exactly how I earned it in the last 30 days.\n\n[BRIDGE] Most 'make money online' videos are either vague or they're selling you a course. I'm not doing either. I'm going to show you a $10/month membership I joined, how it actually works, and what I earned — including the things that didn't go perfectly.\n\n[BODY] The platform is called SuperAdPro. There are three ways to earn..." },
+  { cat:'video', platform:'YouTube / Facebook', niche:'Passive Income', tags:['review','honest'],
+    text:"[OPENER] I've tried a lot of side hustles. Most of them either didn't pay enough to bother, needed skills I didn't have, or took so long to see results I gave up. So when I found SuperAdPro, I was ready to be disappointed again.\n\n[HOOK] I wasn't.\n\n[WHAT IT IS] SuperAdPro is a private video platform where advertisers pay to get their videos in front of an engaged, motivated audience — and that audience is the members, who get paid commissions to watch.\n\n[THE NUMBERS] In my first month I watched..." },
+  { cat:'video', platform:'TikTok / Instagram Reels', niche:'Side Hustle', tags:['short-form','punchy'],
+    text:"POV: You find out people are getting paid to watch YouTube videos.\n\n[Beat drop]\n\nYeah. It's real. It's called SuperAdPro.\n\n$10/month membership.\nWatch videos in your niche.\nEarn commissions per completed watch.\n\nAlso comes with an AI marketing course and a team commission grid.\n\nI earned $47 in my first two weeks and I barely tried.\n\nLink in bio. Thank me later." },
+
+  // ── WHATSAPP / TELEGRAM ──
+  { cat:'whatsapp', platform:'WhatsApp / Telegram', niche:'Make Money Online', tags:['opener','natural'],
+    text:"Hey [name]! Hope you're good 😊\n\nRandom question — are you still looking for ways to earn a bit extra online? I joined something a few weeks ago and it's actually been decent so far.\n\nNot anything crazy, just a $10/month membership that pays you to watch videos and has some really useful AI marketing tools included.\n\nHappy to send you the details if you're curious? No pressure at all, just thought of you 👍" },
+  { cat:'whatsapp', platform:'WhatsApp / Telegram', niche:'Side Hustle', tags:['follow-up','soft'],
+    text:"Hey! Did you get a chance to look at that link I sent?\n\nNo worries if not — just wanted to say the AI campaign studio they just added is actually really impressive. I used it to write a full email sequence yesterday in about 3 minutes.\n\nIf you want a proper walkthrough of the platform before you decide, I'm happy to jump on a quick voice note or call. It takes about 10 mins to explain the whole thing 😊" },
+  { cat:'whatsapp', platform:'WhatsApp', niche:'Affiliate Marketing', tags:['broadcast','group'],
+    text:"📢 Quick update for anyone who asked about SuperAdPro:\n\nI've now been a member for 6 weeks. Here's my honest numbers:\n\n💰 Watch-to-Earn: $124 total\n💰 Referral commissions: $80 (8 people joined through my link)\n💰 AI tools value: saved me ~$60 in other subscriptions\n\nTotal value from a £40 investment: ~$264\n\nThe membership is still $10/month and they've just added a Swipe File and Niche Finder tool to the back office.\n\nDM me 'JOIN' if you want my referral link with a quick explainer 👇" },
+  { cat:'whatsapp', platform:'WhatsApp / Telegram', niche:'Make Money Online', tags:['objection','reassurance'],
+    text:"I get why you're sceptical — honestly I was too.\n\nHere's what made me comfortable enough to try it:\n\n✅ It's only $10 — worst case I lose a tenner\n✅ The Watch-to-Earn system is genuinely simple (20 mins of videos per day)\n✅ The AI marketing tools in the back office are worth the $10 alone\n✅ I got my first commission within 48 hours of joining\n\nI'm not going to pretend it's going to make you rich. But for $10/month it's genuinely one of the better things I've tried online.\n\nWant me to forward you a proper intro video?" },
+
+  // ── HEADLINES ──
+  { cat:'headline', platform:'Ad Copy / Landing Page', niche:'Make Money Online', tags:['benefit','direct'],
+    text:"Get Paid to Watch Videos — $10/Month Membership With 3 Built-In Income Streams" },
+  { cat:'headline', platform:'Ad Copy / Landing Page', niche:'Passive Income', tags:['curiosity','exclusive'],
+    text:"The Private Video Platform That Pays Its Own Members (Most People Have Never Heard of This)" },
+  { cat:'headline', platform:'YouTube Thumbnail', niche:'Side Hustle', tags:['result','number'],
+    text:"I Made $187 From a $10 Membership — Here's Exactly How" },
+  { cat:'headline', platform:'Email Subject / Ad', niche:'Make Money Online', tags:['contrast','value'],
+    text:"$10/Month Gets You: AI Marketing Tools + Video Commissions + A Full Course. This Can't Last." },
+  { cat:'headline', platform:'Facebook Ad', niche:'Affiliate Marketing', tags:['question','pain'],
+    text:"Still Guessing What to Post and Who to Target? This $10 AI Tool Tells You Exactly What Works." },
+  { cat:'headline', platform:'Landing Page', niche:'Financial Freedom', tags:['transformation','story'],
+    text:"From Scrolling to Earning: How Regular People Are Turning Screen Time Into Side Income" },
+  { cat:'headline', platform:'YouTube Thumbnail / Ad', niche:'Online Income', tags:['contrarian','bold'],
+    text:"Stop Building Funnels. Stop Running Ads. There's a Simpler Way — and It Costs $10." },
+  { cat:'headline', platform:'Email Subject', niche:'Make Money Online', tags:['personal','curiosity'],
+    text:"The Embarrassing Reason I Almost Didn't Try This..." },
+];
+
+// Render all cards
+function renderCards(filtered) {
+  const grid = document.getElementById('swipeGrid');
+  const empty = document.getElementById('emptyState');
+  grid.innerHTML = '';
+  const visible = filtered || SWIPES;
+  if (visible.length === 0) {
+    empty.classList.add('active');
+    return;
+  }
+  empty.classList.remove('active');
+  visible.forEach((s, i) => {
+    const realIdx = SWIPES.indexOf(s);
+    const catClass = {hooks:'cat-hooks',email:'cat-email',social:'cat-social',video:'cat-video',whatsapp:'cat-whatsapp',headline:'cat-headline'}[s.cat];
+    const catLabel = {hooks:'🎣 Hook',email:'📧 Email',social:'📱 Social',video:'🎬 Video',whatsapp:'💬 WhatsApp',headline:'💥 Headline'}[s.cat];
+    const tags = s.tags.map(t => `<span class="card-tag">${t}</span>`).join('');
+    const previewText = s.text.length > 200 ? s.text.slice(0,200)+'…' : s.text;
+    const div = document.createElement('div');
+    div.className = 'swipe-card';
+    div.dataset.cat = s.cat;
+    div.dataset.text = s.text.toLowerCase();
+    div.innerHTML = `
+      <div class="card-top">
+        <div class="card-meta">
+          <span class="card-category ${catClass}">${catLabel}</span>
+          <span class="card-platform">${s.platform}</span>
+        </div>
+        <div class="card-text">${previewText.replace(/\n/g,'<br>')}</div>
+        <div class="card-tags">${tags}</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-niche">📌 ${s.niche}</span>
+        <button class="copy-swipe-btn" onclick="copySwipe(this, ${realIdx})">Copy</button>
+      </div>`;
+    grid.appendChild(div);
+  });
+}
+
+let activeFilter = 'all';
+let activeSearch = '';
+
+function filterCards(filter, el) {
+  activeFilter = filter;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+
+function searchCards(val) {
+  activeSearch = val.toLowerCase();
+  applyFilters();
+}
+
+function applyFilters() {
+  let result = SWIPES;
+  if (activeFilter !== 'all') result = result.filter(s => s.cat === activeFilter);
+  if (activeSearch) result = result.filter(s =>
+    s.text.toLowerCase().includes(activeSearch) ||
+    s.niche.toLowerCase().includes(activeSearch) ||
+    s.tags.some(t => t.includes(activeSearch))
+  );
+  renderCards(result);
+}
+
+function copySwipe(btn, idx) {
+  navigator.clipboard.writeText(SWIPES[idx].text).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// Initial render
+renderCards();
+</script>
+</body>
+</html>
