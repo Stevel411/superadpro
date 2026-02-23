@@ -912,7 +912,7 @@
 
 <!-- ── Social Proof Notification Widget ── -->
 <div id="joiner-toast" style="
-    position:fixed;top:24px;right:24px;z-index:9999;
+    position:fixed;bottom:32px;right:24px;z-index:9999;
     background:rgba(10,10,26,0.97);
     border:1px solid rgba(0,180,216,0.25);
     border-radius:12px;
@@ -965,8 +965,8 @@
         // Slide in
         toast.style.transform = 'translateX(0)';
         // Slide out after 4s, next after 6s
-        setTimeout(() => { toast.style.transform = 'translateX(120%)'; }, 4000);
-        setTimeout(showNext, 6500);
+        setTimeout(() => { toast.style.transform = 'translateX(120%)'; }, 5000);
+        setTimeout(showNext, 25000);
     }
 
     async function loadJoiners() {
@@ -978,7 +978,7 @@
             pool.sort(() => Math.random() - 0.5);
         } catch(e) {}
         // Start after 3s delay so page loads first
-        setTimeout(showNext, 3000);
+        setTimeout(showNext, 8000);
     }
 
     // Reload pool every 5 minutes to pick up new real signups
