@@ -128,7 +128,7 @@ body { background:#050d1a; color:#ffffff; font-family:'Rethink Sans',sans-serif;
       <span style="font-weight:800;font-size:17px;letter-spacing:2.5px;text-transform:uppercase;background:linear-gradient(135deg,#00f0ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">SuperAdPro</span>
     </a>
     <div style="padding:18px 14px 6px;font-size:18px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)">Main</div>
-    {% set nav = [('Dashboard','/dashboard','⊞'),('Ad Packages','/packages','📦'),('My Campaigns','/video-library','🎬'),('Upload Video','/upload','⬆')] %}
+    {% set nav = [('Dashboard','/dashboard','⊞'),('Campaign Tiers','/packages','📦'),('My Campaigns','/video-library','🎬'),('Upload Video','/upload','⬆')] %}
     {% for label,href,icon in nav %}
     <a href="{{ href }}" style="display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:17px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s">
       <span style="font-size:18px;width:18px;text-align:center">{{ icon }}</span>{{ label }}
@@ -177,7 +177,7 @@ body { background:#050d1a; color:#ffffff; font-family:'Rethink Sans',sans-serif;
             <div><span style="font-size:17px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:18px;color:#94a3b8;margin-left:3px">USDT</span></div>
           </div>
         </div>
-        <a href="/packages" style="font-size:17px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:9px 20px;border-radius:7px;text-decoration:none">+ Activate Package</a>
+        <a href="/packages" style="font-size:17px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:9px 20px;border-radius:7px;text-decoration:none">+ Activate Campaign Tier</a>
       </div>
     </div>
 

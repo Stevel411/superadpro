@@ -155,7 +155,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 
     <div class="nav-section">Main</div>
     <a href="/dashboard"      class="nav-item active"><span class="nav-icon">⊞</span>Dashboard</a>
-    <a href="/packages"       class="nav-item"><span class="nav-icon">📦</span>Ad Packages</a>
+    <a href="/packages"       class="nav-item"><span class="nav-icon">📦</span>Campaign Tiers</a>
     <a href="/video-library"  class="nav-item"><span class="nav-icon">🎬</span>My Campaigns</a>
 
     <div class="nav-section">Income Streams</div>
@@ -199,7 +199,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
             <div><span class="balance-val">${{ '%.2f'|format(balance) }}</span><span class="balance-unit">USDT</span></div>
           </div>
         </div>
-        <a href="/packages" style="font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:10px 22px;border-radius:7px;text-decoration:none;box-shadow:0 4px 14px rgba(0,180,216,0.25)">+ Activate Package</a>
+        <a href="/packages" style="font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:10px 22px;border-radius:7px;text-decoration:none;box-shadow:0 4px 14px rgba(0,180,216,0.25)">+ Activate Campaign Tier</a>
       </div>
     </div>
 
@@ -279,7 +279,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
               {% for g in grid_stats.active_grids_detail %}
               <div class="active-grid-item">
                 <div class="agi-row">
-                  <span class="agi-name">${{ g.price|int }} Package · Cycle #{{ g.cycle }}</span>
+                  <span class="agi-name">${{ g.price|int }} Campaign Tier · Cycle #{{ g.cycle }}</span>
                   <span class="agi-badge">ACTIVE</span>
                 </div>
                 <div class="mini-grid">
@@ -301,7 +301,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
                 <div class="empty-icon">⚡</div>
                 <div class="empty-title">No Active Grids Yet</div>
                 <div class="empty-sub">Activate an advertising package to launch your 8×8 Profit Engine Grid</div>
-                <a href="/packages" class="empty-cta">Browse Packages →</a>
+                <a href="/packages" class="empty-cta">Browse Campaign Tiers →</a>
               </div>
             {% endif %}
           </div>
@@ -381,7 +381,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
                       {% elif c.commission_type == 'membership' %}Membership Residual
                       {% else %}{{ c.commission_type|replace('_',' ')|title }}{% endif %}
                     </div>
-                    <div style="font-size:12px;color:#94a3b8;margin-top:2px">${{ c.package_tier }} Package · {{ c.created_at.strftime('%d %b %Y') if c.created_at else '' }}</div>
+                    <div style="font-size:12px;color:#94a3b8;margin-top:2px">${{ c.package_tier }} Campaign Tier · {{ c.created_at.strftime('%d %b %Y') if c.created_at else '' }}</div>
                   </div>
                 </div>
                 <div style="font-size:16px;font-weight:800;color:{% if c.status == 'paid' %}#16a34a{% else %}#f59e0b{% endif %}">+${{ '%.2f'|format(c.amount_usdt) }}</div>

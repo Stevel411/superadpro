@@ -188,7 +188,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
   </a>
   <div class="nav-links">
     <a href="/how-it-works">How It Works</a>
-    <a href="/packages">Packages</a>
+    <a href="/packages">Campaign Tiers</a>
     <a href="/compensation-plan">Comp Plan</a>
     <a href="/support">Support</a>
     <a href="/login">Login</a>
@@ -363,9 +363,9 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 
     <!-- Package summary -->
     <div class="info-strip">
-      <div class="info-title">Package Summary</div>
+      <div class="info-title">Campaign Tier Summary</div>
       <div class="info-row">
-        <span class="info-key">Package price</span>
+        <span class="info-key">Tier price</span>
         <span class="info-val" id="infoPkg" style="color:var(--cyan)">$100</span>
       </div>
       <div class="info-row">
@@ -424,7 +424,7 @@ function randomiseDirects() {
   for (let i = 0; i < directCount; i++) directSeats.add(pool[i]);
 }
 
-// ── Package / direct-count controls ───────────────────────────────────────
+// ── Tier / direct-count controls ───────────────────────────────────────
 function selectPkg(btn) {
   document.querySelectorAll('.pkg-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
