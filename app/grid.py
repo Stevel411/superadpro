@@ -211,11 +211,14 @@ def get_grid_stats(db: Session, user_id: int) -> dict:
     completed = [g for g in grids if g.is_complete]
     active    = [g for g in grids if not g.is_complete]
 
+    total_earned = sum(g.revenue_total or 0 for g in grids) * PER_LEVEL_PCT
+
     return {
         "total_grids":      len(grids),
         "completed_cycles": len(completed),
         "active_grids":     len(active),
         "total_members":    sum(g.positions_filled for g in grids),
+        "total_earned":     round(total_earned, 2),
         "active_grids_detail": [
             {
                 "tier":            g.package_tier,

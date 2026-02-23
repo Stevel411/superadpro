@@ -44,6 +44,11 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="SuperAdPro")
+
+@app.on_event("startup")
+async def startup_event():
+    from .database import run_migrations
+    run_migrations()
 templates = Jinja2Templates(directory="templates")
 
 limiter = Limiter(key_func=get_remote_address)
