@@ -224,7 +224,7 @@ body { background:#050d1a; color:#ffffff; font-family:'Rethink Sans',sans-serif;
 
       <!-- PACKAGE TABS -->
       <div class="pkg-tabs">
-        {% for tier, price in grid_packages.items() %}
+        {% for tier, price in GRID_PACKAGES.items() %}
         <a href="?tier={{ tier }}" class="pkg-tab {% if selected_tier == tier %}active{% endif %}">
           Tier {{ tier }} — ${{ price|int }}
         </a>
