@@ -589,7 +589,11 @@ def verify_membership(
     if not user: return RedirectResponse(url="/login", status_code=303)
     result = process_membership_payment(db, user.id, tx_hash)
     if result["success"]:
-        return RedirectResponse(url="/dashboard?activated=true", status_code=303)
+        # Check if sponsor was auto-activated by this payment
+        redirect_url = "/dashboard?activated=true"
+        if result.get("sponsor_auto_activated"):
+            redirect_url = "/dashboard?auto_activated=true"
+        return RedirectResponse(url=redirect_url, status_code=303)
     return templates.TemplateResponse("pay-membership.html", {
         "request": request, "user": user,
         "amount": MEMBERSHIP_FEE, "error": result["error"],

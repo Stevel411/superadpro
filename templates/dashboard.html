@@ -206,12 +206,62 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
     <div class="content">
 
       {% if not is_active %}
-      <div class="activation-banner">
-        <div>
-          <h3 style="font-size:17px;font-weight:800;color:#92400e">⚡ Activate Your Membership — Stream 1</h3>
-          <p style="font-size:14px;color:#78350f;margin-top:3px;line-height:1.6">Pay the $10/month membership fee to unlock your Profit Engine Grid and all three income streams.</p>
+      <!-- Free member banner — explains self-funding mechanic -->
+      <div style="background:linear-gradient(135deg,#0f2a1a,#0a1f2e);border:1px solid rgba(22,163,74,0.3);border-radius:14px;padding:22px 24px;margin-bottom:24px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <div style="flex:1;min-width:240px">
+            <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#16a34a;margin-bottom:6px">🎯 Free Member — Here's How To Get Activated For Free</div>
+            <h3 style="font-size:18px;font-weight:800;color:#ffffff;margin-bottom:10px;line-height:1.4">Refer just <span style="color:#00d4ff">one person</span> and your membership activates itself</h3>
+            <p style="font-size:14px;color:rgba(200,220,255,0.75);line-height:1.7;margin-bottom:14px">
+              As a free member you earn <strong style="color:#ffffff">$10 for every person you refer</strong> who pays their membership. 
+              The moment that $10 hits your wallet, it <strong style="color:#00d4ff">automatically pays for your own membership</strong> — 
+              no manual payment needed. You'll get full access to all 3 income streams instantly.
+            </p>
+            <!-- Step breakdown -->
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+              <div style="background:rgba(0,180,216,0.08);border:1px solid rgba(0,180,216,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#e8f0fe;flex:1;min-width:120px">
+                <div style="font-size:18px;margin-bottom:4px">1️⃣</div>
+                <strong>Share your link</strong><br>
+                <span style="color:#94a3b8;font-size:12px">Send your referral link to anyone interested</span>
+              </div>
+              <div style="background:rgba(0,180,216,0.08);border:1px solid rgba(0,180,216,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#e8f0fe;flex:1;min-width:120px">
+                <div style="font-size:18px;margin-bottom:4px">2️⃣</div>
+                <strong>They pay $10</strong><br>
+                <span style="color:#94a3b8;font-size:12px">Your referral activates their membership</span>
+              </div>
+              <div style="background:rgba(22,163,74,0.1);border:1px solid rgba(22,163,74,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#e8f0fe;flex:1;min-width:120px">
+                <div style="font-size:18px;margin-bottom:4px">3️⃣</div>
+                <strong>You auto-activate</strong><br>
+                <span style="color:#94a3b8;font-size:12px">Your $10 commission pays your membership instantly</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;flex-shrink:0">
+            <a href="/activate-grid" style="font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:12px 24px;border-radius:8px;text-decoration:none;white-space:nowrap;box-shadow:0 4px 14px rgba(0,180,216,0.3)">Activate Now — $10 →</a>
+            <a href="/affiliate" style="font-size:13px;font-weight:600;color:#00d4ff;text-decoration:none;text-align:center">Get my referral link →</a>
+          </div>
         </div>
-        <a href="/pay-membership" style="font-size:11px;font-weight:700;color:#fff;background:#f59e0b;padding:9px 22px;border-radius:7px;text-decoration:none;white-space:nowrap;box-shadow:0 4px 12px rgba(245,158,11,0.3)">Activate Now →</a>
+      </div>
+
+      <!-- Auto-activated success flash -->
+      {% if request.query_params.get("auto_activated") %}
+      <div style="background:linear-gradient(135deg,#052e16,#0f2a1a);border:1px solid rgba(22,163,74,0.4);border-radius:12px;padding:18px 22px;margin-bottom:24px;display:flex;align-items:center;gap:14px">
+        <div style="font-size:28px">🎉</div>
+        <div>
+          <div style="font-size:16px;font-weight:800;color:#4ade80;margin-bottom:4px">Your membership activated automatically!</div>
+          <div style="font-size:13px;color:rgba(200,220,255,0.7);line-height:1.6">Your referral commission paid for your membership. You now have full access to all 3 income streams. Welcome to the full platform!</div>
+        </div>
+      </div>
+      {% endif %}
+      {% endif %}
+
+      {% if is_active and request.query_params.get("auto_activated") %}
+      <div style="background:linear-gradient(135deg,#052e16,#0f2a1a);border:1px solid rgba(22,163,74,0.4);border-radius:12px;padding:18px 22px;margin-bottom:24px;display:flex;align-items:center;gap:14px">
+        <div style="font-size:28px">🎉</div>
+        <div>
+          <div style="font-size:16px;font-weight:800;color:#4ade80;margin-bottom:4px">Your membership activated automatically!</div>
+          <div style="font-size:13px;color:rgba(200,220,255,0.7);line-height:1.6">Your referral commission paid for your membership. You now have full access to all 3 income streams. Welcome to the full platform!</div>
+        </div>
       </div>
       {% endif %}
 

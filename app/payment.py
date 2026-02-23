@@ -117,14 +117,89 @@ def process_membership_payment(db: Session, user_id: int, tx_hash: str) -> dict:
     )
     db.add(payment)
 
+    sponsor_was_auto_activated = False
+
     # Credit sponsor
     if sponsor:
         sponsor.balance       += MEMBERSHIP_FEE
         sponsor.total_earned  += MEMBERSHIP_FEE
         sponsor.personal_referrals += 1
 
+        # ── Auto-activation: if sponsor is a free member and now has $10 ──
+        # Their referral commission immediately pays for their own membership.
+        # The $10 is deducted from their wallet and paid to their sponsor (or company).
+        if not sponsor.is_active and sponsor.balance >= MEMBERSHIP_FEE:
+            sponsor.balance  -= MEMBERSHIP_FEE
+            sponsor.is_active = True
+
+            # Find sponsor's sponsor to receive the auto-activation payment
+            grandparent = None
+            if sponsor.sponsor_id:
+                grandparent = db.query(User).filter(User.id == sponsor.sponsor_id).first()
+
+            # Credit grandparent (sponsor's sponsor)
+            if grandparent:
+                grandparent.balance      += MEMBERSHIP_FEE
+                grandparent.total_earned += MEMBERSHIP_FEE
+                grandparent.personal_referrals += 1
+
+            sponsor_was_auto_activated = True
+
+            # Record the auto-activation payment
+            auto_payment = Payment(
+                from_user_id = sponsor.id,
+                to_user_id   = grandparent.id if grandparent else None,
+                amount_usdt  = MEMBERSHIP_FEE,
+                payment_type = "membership_auto",
+                tx_hash      = tx_hash + "_auto",
+                status       = "confirmed",
+            )
+            db.add(auto_payment)
+
+            # Queue notification email for sponsor
+            try:
+                from app.email_utils import send_email
+                send_email(
+                    to_email  = sponsor.email,
+                    subject   = "🎉 You've been automatically activated on SuperAdPro!",
+                    html_body = f"""
+                    <div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#0a0a1a;color:#e8f0fe;border-radius:12px;padding:32px">
+                        <div style="font-size:28px;font-weight:800;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px">SuperAdPro</div>
+                        <h2 style="color:#ffffff;margin-bottom:16px">Your membership just activated itself! 🚀</h2>
+                        <p style="color:rgba(200,220,255,0.8);line-height:1.7">
+                            Hi {sponsor.first_name or sponsor.username},<br><br>
+                            Great news — someone you referred just paid their $10 membership fee, 
+                            and your $10 referral commission has <strong style="color:#00d4ff">automatically activated your full SuperAdPro membership.</strong>
+                        </p>
+                        <div style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:10px;padding:20px;margin:24px 0">
+                            <div style="font-size:13px;color:#94a3b8;margin-bottom:4px">What just happened</div>
+                            <div style="color:#ffffff;line-height:1.8">
+                                ✅ Your referral paid $10 membership<br>
+                                ✅ $10 commission credited to your wallet<br>
+                                ✅ $10 auto-deducted to activate your membership<br>
+                                ✅ You now have <strong style="color:#00d4ff">full access</strong> to all income streams
+                            </div>
+                        </div>
+                        <p style="color:rgba(200,220,255,0.8);line-height:1.7">
+                            You can now access the Profit Engine Grid and start earning from all 3 income streams. 
+                            Your next referral commission goes straight to your wallet.
+                        </p>
+                        <a href="https://superadpro.com/dashboard" style="display:inline-block;background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff;font-weight:700;padding:14px 28px;border-radius:8px;text-decoration:none;margin-top:8px">
+                            Go to My Dashboard →
+                        </a>
+                    </div>
+                    """,
+                    text_body = f"Hi {sponsor.first_name or sponsor.username}, your referral just activated your SuperAdPro membership automatically! Log in to access all income streams."
+                )
+            except Exception:
+                pass  # Email failure should never block the transaction
+
     db.commit()
-    return {"success": True, "message": "Membership activated successfully"}
+    return {
+        "success": True,
+        "message": "Membership activated successfully",
+        "sponsor_auto_activated": sponsor_was_auto_activated
+    }
 
 
 # ── Grid package payment ──────────────────────────────────────
