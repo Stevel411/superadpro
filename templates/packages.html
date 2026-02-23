@@ -14,27 +14,27 @@
 
         nav { position:relative; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 36px; height:60px; background:rgba(10,18,40,0.9); border-bottom:1px solid rgba(0,180,216,0.12); box-shadow:0 1px 8px rgba(0,0,0,0.06); }
         .nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; }
-        .nav-brand { font-weight:800; font-size:19px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#00b4d8,#6d28d9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .nav-brand { font-weight:800; font-size:18px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#00b4d8,#6d28d9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
         .nav-links { display:flex; align-items:center; gap:6px; list-style:none; }
-        .nav-links a { font-size:19px; font-weight:500; color:rgba(200,220,255,0.7); text-decoration:none; padding:4px 10px; transition:color 0.2s; }
+        .nav-links a { font-size:18px; font-weight:500; color:rgba(200,220,255,0.7); text-decoration:none; padding:4px 10px; transition:color 0.2s; }
         .nav-links a:hover { color:#ffffff; }
-        .nav-cta { font-weight:700; font-size:19px; color:#ffffff; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:8px 22px; border-radius:5px; text-decoration:none; transition:all 0.3s; }
+        .nav-cta { font-weight:700; font-size:18px; color:#ffffff; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:8px 22px; border-radius:5px; text-decoration:none; transition:all 0.3s; }
         .nav-cta:hover { box-shadow:0 4px 24px rgba(0,180,216,0.35); transform:translateY(-1px); }
 
         .page { position:relative; z-index:10; max-width:1200px; margin:0 auto; padding:60px 32px 80px; }
 
         /* Hero */
         .hero { text-align:center; margin-bottom:56px; }
-        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:19px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#00b4d8; border:1px solid rgba(0,180,216,0.25); border-radius:50px; background:rgba(0,180,216,0.08); padding:5px 16px; margin-bottom:20px; }
+        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:18px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#00b4d8; border:1px solid rgba(0,180,216,0.25); border-radius:50px; background:rgba(0,180,216,0.08); padding:5px 16px; margin-bottom:20px; }
         .dot { width:6px; height:6px; border-radius:50%; background:#00b4d8; animation:blink 2s infinite; }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
         .hero h1 { font-weight:800; font-size:clamp(28px,4vw,52px); color:#ffffff; line-height:1.1; margin-bottom:14px; }
         .hero h1 .gold { color:#6d28d9; }
-        .hero p { font-size:21px; color:rgba(200,220,255,0.7); max-width:600px; margin:0 auto 28px; line-height:1.7; }
+        .hero p { font-size:19px; color:rgba(200,220,255,0.7); max-width:600px; margin:0 auto 28px; line-height:1.7; }
 
         /* Toggle */
         .toggle-wrap { display:flex; align-items:center; justify-content:center; gap:0; background:rgba(5,13,26,0.8); border:1px solid rgba(0,180,216,0.15); border-radius:6px; padding:4px; width:fit-content; margin:0 auto 48px; }
-        .toggle-btn { font-size:19px; font-weight:600; padding:9px 24px; border-radius:4px; cursor:pointer; transition:all 0.25s; border:none; background:transparent; color:rgba(220,242,230,0.55); font-family:'Rethink Sans',sans-serif; }
+        .toggle-btn { font-size:18px; font-weight:600; padding:9px 24px; border-radius:4px; cursor:pointer; transition:all 0.25s; border:none; background:transparent; color:rgba(220,242,230,0.55); font-family:'Rethink Sans',sans-serif; }
         .toggle-btn.active { background:linear-gradient(135deg,#00b4d8,#6d28d9); color:#f0f2f8; }
 
         /* ===== PACKAGES GRID ===== */
@@ -46,49 +46,49 @@
         .pkg-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,rgba(0,180,120,0.4),transparent); }
         .pkg-card.popular::before { background:linear-gradient(90deg,transparent,#6d28d9,transparent); }
 
-        .popular-badge { position:absolute; top:14px; right:14px; font-size:19px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:4px 10px; border-radius:3px; }
+        .popular-badge { position:absolute; top:14px; right:14px; font-size:18px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:4px 10px; border-radius:3px; }
 
-        .pkg-tier-label { font-size:19px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#00b4d8; margin-bottom:12px; }
+        .pkg-tier-label { font-size:18px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#00b4d8; margin-bottom:12px; }
         .pkg-price-big { font-size:52px; font-weight:800; color:#ffffff; line-height:1; margin-bottom:4px; }
-        .pkg-price-big span { font-size:26px; font-weight:600; color:rgba(220,242,230,0.6); vertical-align:top; margin-top:8px; display:inline-block; }
-        .pkg-usdt { font-size:21px; color:rgba(200,220,255,0.45); margin-bottom:20px; letter-spacing:1px; }
+        .pkg-price-big span { font-size:24px; font-weight:600; color:rgba(220,242,230,0.6); vertical-align:top; margin-top:8px; display:inline-block; }
+        .pkg-usdt { font-size:19px; color:rgba(200,220,255,0.45); margin-bottom:20px; letter-spacing:1px; }
 
         .pkg-divider { height:1px; background:rgba(255,255,255,0.08); margin-bottom:20px; }
 
-        .pkg-feature { display:flex; align-items:flex-start; gap:10px; font-size:19px; color:rgba(200,220,255,0.7); margin-bottom:10px; line-height:1.4; }
-        .pkg-feature-icon { color:#00b4d8; font-size:19px; flex-shrink:0; margin-top:1px; font-weight:700; }
+        .pkg-feature { display:flex; align-items:flex-start; gap:10px; font-size:18px; color:rgba(200,220,255,0.7); margin-bottom:10px; line-height:1.4; }
+        .pkg-feature-icon { color:#00b4d8; font-size:18px; flex-shrink:0; margin-top:1px; font-weight:700; }
         .pkg-feature strong { color:#ffffff; }
 
         .pkg-views-highlight { background:rgba(0,180,216,0.08); border:1px solid rgba(0,180,216,0.3); border-radius:6px; padding:12px 14px; margin-bottom:20px; text-align:center; }
-        .pkg-views-num { font-size:36px; font-weight:800; color:#00d4ff; }
-        .pkg-views-label { font-size:19px; color:#00b4d8; letter-spacing:1px; text-transform:uppercase; margin-top:2px; }
+        .pkg-views-num { font-size:34px; font-weight:800; color:#00d4ff; }
+        .pkg-views-label { font-size:18px; color:#00b4d8; letter-spacing:1px; text-transform:uppercase; margin-top:2px; }
 
         .pkg-spacer { flex:1; }
 
-        .pkg-btn { display:block; width:100%; text-align:center; font-weight:700; font-size:21px; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:13px; border-radius:5px; text-decoration:none; border:none; cursor:pointer; font-family:'Rethink Sans',sans-serif; transition:all 0.3s; margin-top:20px; }
+        .pkg-btn { display:block; width:100%; text-align:center; font-weight:700; font-size:19px; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:13px; border-radius:5px; text-decoration:none; border:none; cursor:pointer; font-family:'Rethink Sans',sans-serif; transition:all 0.3s; margin-top:20px; }
         .pkg-btn:hover { box-shadow:0 0 28px rgba(0,180,216,0.4); transform:translateY(-1px); }
         .pkg-btn-outline { background:transparent; color:rgba(220,242,230,0.75); border:1px solid rgba(0,180,216,0.3); }
         .pkg-btn-outline:hover { border-color:#00b4d8; color:#ffffff; box-shadow:none; transform:translateY(-1px); }
 
         .pkg-affiliate-earn { display:flex; justify-content:space-between; margin-top:12px; padding:10px 0 0; border-top:1px solid rgba(0,180,216,0.12); }
         .pae-item { text-align:center; }
-        .pae-val { font-size:21px; font-weight:800; color:#00b4d8; }
-        .pae-label { font-size:19px; color:rgba(200,220,255,0.45); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
+        .pae-val { font-size:19px; font-weight:800; color:#00b4d8; }
+        .pae-label { font-size:18px; color:rgba(200,220,255,0.45); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
 
         /* ===== COMPARISON TABLE ===== */
         .divider { display:flex; align-items:center; gap:14px; margin:56px 0 32px; }
         .div-line { flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(0,180,216,0.2),transparent); }
-        .div-text { font-size:19px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(220,242,230,0.4); white-space:nowrap; }
+        .div-text { font-size:18px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(220,242,230,0.4); white-space:nowrap; }
 
         .compare-table { width:100%; border-collapse:collapse; margin-bottom:56px; }
-        .compare-table th { padding:14px 18px; text-align:left; font-size:19px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(200,220,255,0.45); border-bottom:2px solid rgba(0,180,216,0.2); background:rgba(10,18,40,0.9); }
+        .compare-table th { padding:14px 18px; text-align:left; font-size:18px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(200,220,255,0.45); border-bottom:2px solid rgba(0,180,216,0.2); background:rgba(10,18,40,0.9); }
         .compare-table th:first-child { width:180px; }
-        .compare-table td { padding:13px 18px; font-size:21px; border-bottom:1px solid rgba(255,255,255,0.05); color:rgba(200,220,255,0.7); text-align:left; }
+        .compare-table td { padding:13px 18px; font-size:19px; border-bottom:1px solid rgba(255,255,255,0.05); color:rgba(200,220,255,0.7); text-align:left; }
         .compare-table tr:last-child td { border-bottom:none; }
         .compare-table tr:hover td { background:rgba(5,13,26,0.8); }
         .compare-table tbody tr:nth-child(even) td { background:rgba(5,13,26,0.8); }
         .ct-feature { font-weight:600; color:#ffffff; }
-        .ct-check { color:#00b4d8; font-size:21px; font-weight:700; }
+        .ct-check { color:#00b4d8; font-size:19px; font-weight:700; }
         .ct-dash { color:rgba(200,220,255,0.45); }
         .ct-val { font-weight:700; color:#ffffff; }
         .ct-highlight { color:#6d28d9; font-weight:700; }
@@ -98,25 +98,25 @@
         .how-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:0; background:rgba(10,18,40,0.9); border:1px solid rgba(0,180,216,0.15); border-radius:10px; overflow:hidden; margin-bottom:56px; }
         .how-step { padding:28px 24px; border-right:1px solid rgba(0,180,216,0.1); }
         .how-step:last-child { border-right:none; }
-        .how-num { font-size:36px; font-weight:800; color:rgba(0,220,150,0.15); line-height:1; margin-bottom:10px; }
-        .how-title { font-size:21px; font-weight:700; color:#ffffff; margin-bottom:6px; }
-        .how-desc { font-size:19px; color:rgba(220,242,230,0.65); line-height:1.6; }
+        .how-num { font-size:34px; font-weight:800; color:rgba(0,220,150,0.15); line-height:1; margin-bottom:10px; }
+        .how-title { font-size:19px; font-weight:700; color:#ffffff; margin-bottom:6px; }
+        .how-desc { font-size:18px; color:rgba(220,242,230,0.65); line-height:1.6; }
 
         /* ===== TRUST STRIP ===== */
         .trust-strip { display:flex; justify-content:center; gap:40px; flex-wrap:wrap; padding:32px; background:rgba(10,18,40,0.9); border:1px solid rgba(0,180,216,0.15); border-radius:10px; margin-bottom:56px; }
         .trust-item { display:flex; align-items:center; gap:10px; }
-        .trust-icon { font-size:26px; }
-        .trust-text { font-size:19px; font-weight:600; color:rgba(220,242,230,0.75); }
+        .trust-icon { font-size:24px; }
+        .trust-text { font-size:18px; font-weight:600; color:rgba(220,242,230,0.75); }
 
         /* CTA */
         .cta { text-align:center; padding:56px 32px; background:rgba(10,18,40,0.9); border:1px solid rgba(0,180,216,0.15); border-radius:12px; }
         .cta h2 { font-weight:800; font-size:clamp(24px,3vw,40px); color:#ffffff; margin-bottom:10px; }
         .cta h2 .gold { color:#6d28d9; }
-        .cta p { font-size:19px; color:rgba(220,242,230,0.65); margin-bottom:28px; }
+        .cta p { font-size:18px; color:rgba(220,242,230,0.65); margin-bottom:28px; }
         .cta-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
-        .btn-gold { font-weight:700; font-size:19px; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:14px 36px; border-radius:5px; text-decoration:none; transition:all 0.3s; }
+        .btn-gold { font-weight:700; font-size:18px; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:14px 36px; border-radius:5px; text-decoration:none; transition:all 0.3s; }
         .btn-gold:hover { box-shadow:0 0 40px rgba(0,180,216,0.4); transform:translateY(-2px); }
-        .btn-outline { font-weight:600; font-size:19px; color:rgba(220,242,230,0.8); background:transparent; padding:13px 36px; border-radius:5px; border:1px solid rgba(0,180,216,0.3); text-decoration:none; transition:all 0.3s; }
+        .btn-outline { font-weight:600; font-size:18px; color:rgba(220,242,230,0.8); background:transparent; padding:13px 36px; border-radius:5px; border:1px solid rgba(0,180,216,0.3); text-decoration:none; transition:all 0.3s; }
         .btn-outline:hover { border-color:#00b4d8; color:#ffffff; }
 
         @media(max-width:1000px) { .packages-grid { grid-template-columns:repeat(2,1fr); } }
@@ -388,7 +388,7 @@
 
     <!-- VIEWS DISCLAIMER -->
     <div style="text-align:center;margin:-36px auto 48px;max-width:680px;padding:14px 20px;background:rgba(0,180,216,0.05);border:1px solid rgba(0,180,216,0.15);border-radius:8px;">
-        <p style="font-size:21px;color:rgba(200,220,255,0.55);line-height:1.7;margin:0">
+        <p style="font-size:19px;color:rgba(200,220,255,0.55);line-height:1.7;margin:0">
             <strong style="color:rgba(0,212,255,0.7)">ⓘ View Delivery Notice:</strong>
             Guaranteed views are delivered as the SuperAdPro network grows. 
             View counts scale proportionally with active membership — early members receive views first as the platform reaches full capacity. 
@@ -426,14 +426,14 @@
         <thead>
             <tr>
                 <th>Feature</th>
-                <th>Starter<br><span style="color:#ffffff;font-size:19px;font-weight:800">$10</span></th>
-                <th>Basic<br><span style="color:#ffffff;font-size:19px;font-weight:800">$25</span></th>
-                <th>Growth<br><span style="color:#ffffff;font-size:19px;font-weight:800">$50</span></th>
-                <th class="col-popular">Pro ★<br><span style="color:#6d28d9;font-size:19px;font-weight:800">$100</span></th>
-                <th>Advanced<br><span style="color:#ffffff;font-size:19px;font-weight:800">$250</span></th>
-                <th>Elite<br><span style="color:#ffffff;font-size:19px;font-weight:800">$500</span></th>
-                <th>Premium<br><span style="color:#ffffff;font-size:19px;font-weight:800">$750</span></th>
-                <th>Ultimate<br><span style="color:#ffffff;font-size:19px;font-weight:800">$1,000</span></th>
+                <th>Starter<br><span style="color:#ffffff;font-size:18px;font-weight:800">$10</span></th>
+                <th>Basic<br><span style="color:#ffffff;font-size:18px;font-weight:800">$25</span></th>
+                <th>Growth<br><span style="color:#ffffff;font-size:18px;font-weight:800">$50</span></th>
+                <th class="col-popular">Pro ★<br><span style="color:#6d28d9;font-size:18px;font-weight:800">$100</span></th>
+                <th>Advanced<br><span style="color:#ffffff;font-size:18px;font-weight:800">$250</span></th>
+                <th>Elite<br><span style="color:#ffffff;font-size:18px;font-weight:800">$500</span></th>
+                <th>Premium<br><span style="color:#ffffff;font-size:18px;font-weight:800">$750</span></th>
+                <th>Ultimate<br><span style="color:#ffffff;font-size:18px;font-weight:800">$1,000</span></th>
             </tr>
         </thead>
         <tbody>

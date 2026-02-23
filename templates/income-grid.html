@@ -15,9 +15,9 @@ body { background:#050d1a; color:#ffffff; font-family:'Rethink Sans',sans-serif;
 /* Cards */
 .card { background:#050d1a; border:1px solid rgba(0,180,216,0.12); border-radius:12px; box-shadow:0 1px 6px rgba(0,0,0,0.05); overflow:hidden; }
 .card-head { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid rgba(0,180,216,0.12); }
-.card-title { font-size:19px; font-weight:700; color:#ffffff; display:flex; align-items:center; gap:8px; }
+.card-title { font-size:18px; font-weight:700; color:#ffffff; display:flex; align-items:center; gap:8px; }
 .dot { width:7px; height:7px; border-radius:50%; background:#00b4d8; flex-shrink:0; }
-.card-action { font-size:19px; color:#0077a8; font-weight:700; text-decoration:none; }
+.card-action { font-size:18px; color:#0077a8; font-weight:700; text-decoration:none; }
 .card-body { padding:20px; }
 
 /* Hero stats */
@@ -28,64 +28,64 @@ body { background:#050d1a; color:#ffffff; font-family:'Rethink Sans',sans-serif;
 .hero-card.violet::before{ background:linear-gradient(90deg,transparent,#6d28d9,transparent); }
 .hero-card.green::before { background:linear-gradient(90deg,transparent,#16a34a,transparent); }
 .hero-card.amber::before { background:linear-gradient(90deg,transparent,#f59e0b,transparent); }
-.hero-label { font-size:21px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#94a3b8; margin-bottom:8px; }
-.hero-value { font-size:36px; font-weight:800; color:#ffffff; line-height:1; }
+.hero-label { font-size:19px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#94a3b8; margin-bottom:8px; }
+.hero-value { font-size:34px; font-weight:800; color:#ffffff; line-height:1; }
 .hero-value.green  { color:#16a34a; }
 .hero-value.cyan   { color:#00b4d8; }
 .hero-value.violet { color:#6d28d9; }
-.hero-sub { font-size:19px; color:#94a3b8; margin-top:4px; }
+.hero-sub { font-size:18px; color:#94a3b8; margin-top:4px; }
 
 /* Package grid selector */
 .pkg-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px; }
-.pkg-tab { padding:8px 16px; border-radius:7px; border:1px solid rgba(0,180,216,0.12); background:#050d1a; font-size:21px; font-weight:700; color:rgba(200,220,255,0.65); cursor:pointer; transition:all 0.2s; text-decoration:none; }
+.pkg-tab { padding:8px 16px; border-radius:7px; border:1px solid rgba(0,180,216,0.12); background:#050d1a; font-size:19px; font-weight:700; color:rgba(200,220,255,0.65); cursor:pointer; transition:all 0.2s; text-decoration:none; }
 .pkg-tab:hover { border-color:#00b4d8; color:#00b4d8; }
 .pkg-tab.active { background:linear-gradient(135deg,#00b4d8,#6d28d9); color:#fff; border-color:transparent; }
 
 /* Grid visualisation */
 .grid-wrap { margin-bottom:24px; }
 .grid-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
-.grid-title { font-size:21px; font-weight:800; color:#ffffff; }
-.grid-meta { font-size:21px; color:#94a3b8; }
+.grid-title { font-size:19px; font-weight:800; color:#ffffff; }
+.grid-meta { font-size:19px; color:#94a3b8; }
 .grid-progress { background:rgba(255,255,255,0.08); border-radius:999px; height:8px; margin-bottom:6px; overflow:hidden; }
 .grid-progress-fill { height:100%; background:linear-gradient(90deg,#00b4d8,#6d28d9); border-radius:999px; transition:width 0.5s; }
-.grid-pct { font-size:19px; color:rgba(200,220,255,0.65); text-align:right; }
+.grid-pct { font-size:18px; color:rgba(200,220,255,0.65); text-align:right; }
 
 /* 8×8 grid visual */
 .grid-visual { display:grid; grid-template-columns:repeat(8,1fr); gap:6px; margin-bottom:8px; }
-.grid-cell { aspect-ratio:1; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:19px; font-weight:700; transition:all 0.2s; }
+.grid-cell { aspect-ratio:1; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700; transition:all 0.2s; }
 .grid-cell.filled   { background:linear-gradient(135deg,#00b4d8,#6d28d9); color:#fff; }
 .grid-cell.owner    { background:linear-gradient(135deg,#16a34a,#059669); color:#fff; box-shadow:0 0 0 2px #fff,0 0 0 4px #16a34a; }
 .grid-cell.empty    { background:#050d1a; border:1px dashed #cbd5e1; color:#94a3b8; }
 .grid-cell.overspill{ background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#fbbf24; }
-.grid-legend { display:flex; gap:16px; font-size:21px; color:rgba(200,220,255,0.5); }
+.grid-legend { display:flex; gap:16px; font-size:19px; color:rgba(200,220,255,0.5); }
 .legend-item { display:flex; align-items:center; gap:5px; }
 .legend-dot { width:10px; height:10px; border-radius:3px; }
 
 /* Level breakdown */
 .level-rows { display:flex; flex-direction:column; gap:8px; }
 .level-row { display:grid; grid-template-columns:60px 1fr 80px 100px; align-items:center; gap:12px; padding:10px 14px; background:rgba(0,180,216,0.04); border-radius:8px; border:1px solid rgba(0,180,216,0.12); }
-.level-label { font-size:21px; font-weight:700; color:#ffffff; }
+.level-label { font-size:19px; font-weight:700; color:#ffffff; }
 .level-bar-wrap { background:rgba(255,255,255,0.08); border-radius:999px; height:6px; overflow:hidden; }
 .level-bar { height:100%; background:linear-gradient(90deg,#00b4d8,#6d28d9); border-radius:999px; }
-.level-count { font-size:19px; color:rgba(200,220,255,0.65); text-align:center; }
-.level-earn { font-size:21px; font-weight:800; color:#16a34a; text-align:right; }
+.level-count { font-size:18px; color:rgba(200,220,255,0.65); text-align:center; }
+.level-earn { font-size:19px; font-weight:800; color:#16a34a; text-align:right; }
 
 /* Earnings projection */
 .projection { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
 .proj-card { background:#050d1a; border:1px solid rgba(0,180,216,0.12); border-radius:12px; padding:20px; box-shadow:0 1px 6px rgba(0,0,0,0.05); }
-.proj-title { font-size:21px; font-weight:700; color:rgba(200,220,255,0.65); text-transform:uppercase; letter-spacing:1px; margin-bottom:14px; }
+.proj-title { font-size:19px; font-weight:700; color:rgba(200,220,255,0.65); text-transform:uppercase; letter-spacing:1px; margin-bottom:14px; }
 .proj-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(0,180,216,0.08); }
 .proj-row:last-child { border-bottom:none; padding-top:10px; }
-.proj-label { font-size:19px; color:rgba(200,220,255,0.65); }
-.proj-value { font-size:19px; font-weight:800; color:#16a34a; }
-.proj-value.total { font-size:21px; color:#ffffff; }
+.proj-label { font-size:18px; color:rgba(200,220,255,0.65); }
+.proj-value { font-size:18px; font-weight:800; color:#16a34a; }
+.proj-value.total { font-size:19px; color:#ffffff; }
 
 /* No grids state */
 .empty-state { text-align:center; padding:60px 20px; }
 .empty-icon { font-size:48px; margin-bottom:16px; }
-.empty-title { font-size:23px; font-weight:800; color:#ffffff; margin-bottom:8px; }
-.empty-sub { font-size:21px; color:rgba(200,220,255,0.5); margin-bottom:24px; }
-.cta-btn { display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:21px; color:#fff; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:12px 28px; border-radius:8px; text-decoration:none; box-shadow:0 4px 14px rgba(0,180,216,0.3); }
+.empty-title { font-size:21px; font-weight:800; color:#ffffff; margin-bottom:8px; }
+.empty-sub { font-size:19px; color:rgba(200,220,255,0.5); margin-bottom:24px; }
+.cta-btn { display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:19px; color:#fff; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:12px 28px; border-radius:8px; text-decoration:none; box-shadow:0 4px 14px rgba(0,180,216,0.3); }
 
 @media(max-width:768px){ .hero-stats{grid-template-columns:1fr 1fr} .projection{grid-template-columns:1fr} .main{margin-left:0} }
 </style>
@@ -125,41 +125,41 @@ body { background:#050d1a; color:#ffffff; font-family:'Rethink Sans',sans-serif;
   <aside style="width:220px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,240,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column">
     <a href="/dashboard" style="display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none">
       <svg width="26" height="26"><use href="#shield"/></svg>
-      <span style="font-weight:800;font-size:19px;letter-spacing:2.5px;text-transform:uppercase;background:linear-gradient(135deg,#00f0ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">SuperAdPro</span>
+      <span style="font-weight:800;font-size:18px;letter-spacing:2.5px;text-transform:uppercase;background:linear-gradient(135deg,#00f0ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">SuperAdPro</span>
     </a>
-    <div style="padding:18px 14px 6px;font-size:21px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)">Main</div>
+    <div style="padding:18px 14px 6px;font-size:19px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)">Main</div>
     {% set nav = [('Dashboard','/dashboard','⊞'),('Ad Packages','/packages','📦'),('My Campaigns','/video-library','🎬'),('Upload Video','/upload','⬆')] %}
     {% for label,href,icon in nav %}
-    <a href="{{ href }}" style="display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:19px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s">
-      <span style="font-size:21px;width:18px;text-align:center">{{ icon }}</span>{{ label }}
+    <a href="{{ href }}" style="display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:18px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s">
+      <span style="font-size:19px;width:18px;text-align:center">{{ icon }}</span>{{ label }}
     </a>
     {% endfor %}
-    <div style="padding:18px 14px 6px;font-size:21px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)">Earnings</div>
-    <a href="/income-grid" style="display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:19px;font-weight:500;color:#00f0ff;text-decoration:none;border-left:2px solid #00f0ff;background:rgba(0,240,255,0.07)">
-      <span style="font-size:21px;width:18px;text-align:center">◈</span>Income Grid
+    <div style="padding:18px 14px 6px;font-size:19px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)">Earnings</div>
+    <a href="/income-grid" style="display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:18px;font-weight:500;color:#00f0ff;text-decoration:none;border-left:2px solid #00f0ff;background:rgba(0,240,255,0.07)">
+      <span style="font-size:19px;width:18px;text-align:center">◈</span>Income Grid
     </a>
     {% set enav = [('Wallet','/wallet','◎'),('Affiliate Tools','/affiliate','🤝'),('Comp Plan','/compensation-plan','📊'),('Grid Visualiser','/grid-visualiser','◈')] %}
     {% for label,href,icon in enav %}
-    <a href="{{ href }}" style="display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:19px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s">
-      <span style="font-size:21px;width:18px;text-align:center">{{ icon }}</span>{{ label }}
+    <a href="{{ href }}" style="display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:18px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s">
+      <span style="font-size:19px;width:18px;text-align:center">{{ icon }}</span>{{ label }}
     </a>
     {% endfor %}
-    <div style="padding:18px 14px 6px;font-size:21px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)">Account</div>
+    <div style="padding:18px 14px 6px;font-size:19px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)">Account</div>
     {% set anav = [('Profile','/account','◉'),('Support','/support','◌')] %}
     {% for label,href,icon in anav %}
-    <a href="{{ href }}" style="display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:19px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent">
-      <span style="font-size:21px;width:18px;text-align:center">{{ icon }}</span>{{ label }}
+    <a href="{{ href }}" style="display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:18px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent">
+      <span style="font-size:19px;width:18px;text-align:center">{{ icon }}</span>{{ label }}
     </a>
     {% endfor %}
     <div style="margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)">
       <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,240,255,0.05);border:1px solid rgba(0,240,255,0.1);border-radius:8px">
-        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00f0ff);display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:800;color:#fff;flex-shrink:0">{{ user.username[:2].upper() }}</div>
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00f0ff);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;color:#fff;flex-shrink:0">{{ user.username[:2].upper() }}</div>
         <div>
-          <div style="font-size:19px;font-weight:700;color:#fff">{{ user.first_name }} {{ user.last_name }}</div>
-          <div style="font-size:19px;color:#00f0ff;letter-spacing:1px;text-transform:uppercase;margin-top:1px">Pro Member</div>
+          <div style="font-size:18px;font-weight:700;color:#fff">{{ user.first_name }} {{ user.last_name }}</div>
+          <div style="font-size:18px;color:#00f0ff;letter-spacing:1px;text-transform:uppercase;margin-top:1px">Pro Member</div>
         </div>
       </div>
-      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:21px;color:rgba(200,220,255,0.5);text-decoration:none;margin-top:6px">⎋ Sign Out</a>
+      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:19px;color:rgba(200,220,255,0.5);text-decoration:none;margin-top:6px">⎋ Sign Out</a>
     </div>
   </aside>
 
@@ -167,17 +167,17 @@ body { background:#050d1a; color:#ffffff; font-family:'Rethink Sans',sans-serif;
     <!-- TOPBAR -->
     <div style="display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#050d1a;border-bottom:1px solid rgba(0,180,216,0.12);position:sticky;top:0;z-index:50;box-shadow:0 1px 8px rgba(0,0,0,0.06)">
       <div>
-        <div style="font-size:19px;font-weight:800;color:#ffffff">◈ Income Grid</div>
-        <div style="font-size:19px;color:#94a3b8;margin-top:1px">8×8 Recurring Grid — 64 positions per cycle</div>
+        <div style="font-size:18px;font-weight:800;color:#ffffff">◈ Income Grid</div>
+        <div style="font-size:18px;color:#94a3b8;margin-top:1px">8×8 Recurring Grid — 64 positions per cycle</div>
       </div>
       <div style="display:flex;align-items:center;gap:14px">
         <div style="display:flex;align-items:center;gap:10px;background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:8px 14px">
           <div>
-            <div style="font-size:19px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase">Balance</div>
-            <div><span style="font-size:19px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:21px;color:#94a3b8;margin-left:3px">USDT</span></div>
+            <div style="font-size:18px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase">Balance</div>
+            <div><span style="font-size:18px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:19px;color:#94a3b8;margin-left:3px">USDT</span></div>
           </div>
         </div>
-        <a href="/packages" style="font-size:19px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:9px 20px;border-radius:7px;text-decoration:none">+ Activate Package</a>
+        <a href="/packages" style="font-size:18px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:9px 20px;border-radius:7px;text-decoration:none">+ Activate Package</a>
       </div>
     </div>
 
@@ -240,8 +240,8 @@ body { background:#050d1a; color:#ffffff; font-family:'Rethink Sans',sans-serif;
             Tier {{ grid_info.tier }} Grid — ${{ grid_info.price|int }}/member — Cycle #{{ grid_info.cycle }}
           </div>
           <div style="display:flex;align-items:center;gap:12px">
-            <span style="font-size:21px;font-weight:700;color:#16a34a">{{ grid_info.filled }}/64 filled</span>
-            <span style="font-size:19px;background:rgba(22,163,74,0.12);color:#16a34a;border:1px solid rgba(22,163,74,0.25);padding:3px 10px;border-radius:999px;font-weight:700">ACTIVE</span>
+            <span style="font-size:19px;font-weight:700;color:#16a34a">{{ grid_info.filled }}/64 filled</span>
+            <span style="font-size:18px;background:rgba(22,163,74,0.12);color:#16a34a;border:1px solid rgba(22,163,74,0.25);padding:3px 10px;border-radius:999px;font-weight:700">ACTIVE</span>
           </div>
         </div>
         <div class="card-body">
@@ -253,7 +253,7 @@ body { background:#050d1a; color:#ffffff; font-family:'Rethink Sans',sans-serif;
 
           <!-- 8×8 Visual Grid -->
           <div style="margin-bottom:20px">
-            <div style="font-size:19px;font-weight:700;color:rgba(200,220,255,0.65);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Grid Visualisation</div>
+            <div style="font-size:18px;font-weight:700;color:rgba(200,220,255,0.65);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Grid Visualisation</div>
             <div class="grid-visual" id="gridVisual_{{ grid_info.tier }}">
               <!-- Rendered by JS below -->
             </div>
@@ -266,7 +266,7 @@ body { background:#050d1a; color:#ffffff; font-family:'Rethink Sans',sans-serif;
 
           <!-- Level breakdown -->
           <div>
-            <div style="font-size:19px;font-weight:700;color:rgba(200,220,255,0.65);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Level Earnings Breakdown</div>
+            <div style="font-size:18px;font-weight:700;color:rgba(200,220,255,0.65);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Level Earnings Breakdown</div>
             <div class="level-rows">
               {% for lvl in range(1,9) %}
               {% set per_level_earn = (grid_info.price * 0.25 / 8) %}
