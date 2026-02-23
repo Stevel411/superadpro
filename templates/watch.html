@@ -29,7 +29,8 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 .topbar{background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.08);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0}
 .topbar-title{font-size:22px;font-weight:800;color:#ffffff}
 .topbar-sub{font-size:13px;color:#94a3b8;margin-top:1px}
-.content{padding:20px 24px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+.content{padding:20px 24px;flex:1;overflow-y:auto}
+.watch-container{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
 
 /* ── Quota bar ── */
 .quota-bar-wrap{background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 20px;flex-shrink:0;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:0 1px 3px rgba(0,0,0,0.05);width:100%}
@@ -152,6 +153,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
   </div>
 
   <div class="content">
+  <div class="watch-container">
 
     <!-- Warning banner -->
     {% if warning %}
@@ -162,7 +164,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
     {% endif %}
 
     <!-- Quota progress -->
-    <div class="quota-bar-wrap" style="max-width:900px;margin-left:auto;margin-right:auto;margin-bottom:20px">
+    <div class="quota-bar-wrap">
       <div>
         <div class="quota-label">Today's Progress</div>
         <div class="quota-count" id="watchedCount">{{ quota.today_watched }}</div>
@@ -255,7 +257,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 
       <div class="video-wrap">
         <iframe id="videoFrame"
-          src="{{ campaign.embed_url }}{% if '?' in campaign.embed_url %}&{% else %}?{% endif %}autoplay=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&disablekb=1"
+          src="{{ campaign.embed_url }}{% if '?' in campaign.embed_url %}&{% else %}?{% endif %}autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen>
         </iframe>
@@ -290,6 +292,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
     </div>
     {% endif %}
 
+  </div><!-- /watch-container -->
   </div>
 </div>
 
@@ -398,7 +401,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
       campaign.platform.charAt(0).toUpperCase() + campaign.platform.slice(1) +
       ' · Campaign #' + campaign.id;
     const sep = campaign.embed_url.includes('?') ? '&' : '?';
-    document.getElementById('videoFrame').src = campaign.embed_url + sep + 'autoplay=1&mute=1&auto_play=1';
+    document.getElementById('videoFrame').src = campaign.embed_url + sep + 'autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1';
 
     // Reset timer for next video
     secondsLeft = DURATION;
