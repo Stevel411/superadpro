@@ -134,7 +134,7 @@ tr:last-child td{border-bottom:none}
         <div class="card-title"><div class="card-dot"></div>Select Your Campaign Tier</div>
       </div>
       <div class="card-body" style="padding:12px">
-        {% set packages = [(1,'Starter',10,274),(2,'Basic',25,684),(3,'Growth',50,1368),(4,'Pro',100,2736),(5,'Advanced',250,6840),(6,'Elite',500,13680),(7,'Premium',750,20520),(8,'Ultimate',1000,27360)] %}
+        {% set packages = [(1,'Starter',20,548),(2,'Builder',50,1370),(3,'Pro',100,2740),(4,'Advanced',200,5480),(5,'Elite',400,10960),(6,'Premium',600,16440),(7,'Executive',800,21920),(8,'Ultimate',1000,27400)] %}
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           {% for tier, name, price, earn in packages %}
           <div onclick="selectPkg({{ tier }}, {{ price }}, {{ earn }})" id="pkg{{ tier }}"

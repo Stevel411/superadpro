@@ -1411,12 +1411,12 @@ IMPORTANT:
                 "competition": "Medium",
                 "income_speed": "2-4 weeks",
                 "content_ideas": [
-                    "How I earn passive income watching videos for $10/month",
+                    "How I earn passive income watching videos for $20/month",
                     "5 membership sites that actually pay you to be a member",
                     "My honest SuperAdPro income report — month 1",
                     "How the 8x8 grid system works and why it's genius"
                 ],
-                "starter_hook": "What if I told you there's a $10/month membership where you literally get paid to watch videos? I've been a member for 30 days and here's exactly what happened..."
+                "starter_hook": "What if I told you there's a $20/month membership where you literally get paid to watch videos? I've been a member for 30 days and here's exactly what happened..."
             },
             {
                 "name": "AI Tools for Everyday Business Owners",

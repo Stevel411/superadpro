@@ -31,14 +31,25 @@ COMPANY_PCT   = PLATFORM_PCT  # 0.05
 
 # Package prices
 GRID_PACKAGES = {
-    1: 10.0,
-    2: 25.0,
-    3: 50.0,
-    4: 100.0,
-    5: 250.0,
-    6: 500.0,
-    7: 750.0,
+    1: 20.0,
+    2: 50.0,
+    3: 100.0,
+    4: 200.0,
+    5: 400.0,
+    6: 600.0,
+    7: 800.0,
     8: 1000.0
+}
+
+GRID_TIER_NAMES = {
+    1: "Starter",
+    2: "Builder",
+    3: "Pro",
+    4: "Advanced",
+    5: "Elite",
+    6: "Premium",
+    7: "Executive",
+    8: "Ultimate",
 }
 
 class User(Base):
