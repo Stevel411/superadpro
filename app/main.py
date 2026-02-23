@@ -256,7 +256,7 @@ def register_process(
     username: str = Form(), email: str = Form(),
     password: str = Form(), confirm_password: str = Form(),
     wallet_address: str = Form(), ref: str = Form(""),
-    beta_code: str = Form(),
+    beta_code: str = Form(), country: str = Form(""),
     db: Session = Depends(get_db)
 ):
     username       = sanitize(username)
@@ -265,6 +265,7 @@ def register_process(
     last_name      = sanitize(last_name)
     wallet_address = sanitize(wallet_address)
     ref            = sanitize(ref)
+    country        = sanitize(country)
 
     def err(msg):
         return templates.TemplateResponse("register.html", {
@@ -310,7 +311,8 @@ def register_process(
     user = create_user(
         db, username, email, password,
         sponsor_id=sponsor_id, first_name=first_name,
-        last_name=last_name, wallet_address=wallet_address
+        last_name=last_name, wallet_address=wallet_address,
+        country=country
     )
 
     response = RedirectResponse(url="/dashboard", status_code=303)
@@ -795,6 +797,53 @@ def reset_password_process(
     })
 
 # ═══════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════
+#  SOCIAL PROOF API — recent joiners notification feed
+# ═══════════════════════════════════════════════════════════════
+
+# Simulated fallback pool — used when no real recent signups
+SIMULATED_JOINERS = [
+    ("James", "United Kingdom"), ("Sarah", "United States"), ("Mohammed", "UAE"),
+    ("Emma", "Australia"), ("Carlos", "Canada"), ("Priya", "India"),
+    ("Luke", "Germany"), ("Fatima", "South Africa"), ("Ryan", "Ireland"),
+    ("Aisha", "Nigeria"), ("Tom", "New Zealand"), ("Elena", "Netherlands"),
+    ("David", "Singapore"), ("Maria", "Brazil"), ("John", "United States"),
+    ("Amara", "Ghana"), ("Chris", "United Kingdom"), ("Layla", "UAE"),
+    ("Michael", "Canada"), ("Sophie", "France"), ("Kwame", "Ghana"),
+    ("Jessica", "Australia"), ("Ali", "Pakistan"), ("Hannah", "Sweden"),
+    ("Daniel", "Philippines"), ("Nadia", "Morocco"), ("Sam", "United States"),
+    ("Yuki", "Japan"), ("Grace", "Kenya"), ("Oliver", "United Kingdom"),
+]
+
+@app.get("/api/recent-joiners")
+def recent_joiners(db: Session = Depends(get_db)):
+    from datetime import timedelta
+    import random
+    cutoff = datetime.utcnow() - timedelta(hours=48)
+    real = db.query(User).filter(
+        User.created_at >= cutoff,
+        User.username != "demo_preview",
+        User.first_name != None
+    ).order_by(User.created_at.desc()).limit(20).all()
+
+    pool = []
+    for u in real:
+        pool.append({
+            "name": u.first_name,
+            "country": u.country or "Worldwide",
+            "real": True
+        })
+
+    # Pad with simulated if fewer than 8 real
+    if len(pool) < 8:
+        sim = random.sample(SIMULATED_JOINERS, min(15, len(SIMULATED_JOINERS)))
+        for name, country in sim:
+            pool.append({"name": name, "country": country, "real": False})
+
+    random.shuffle(pool)
+    return {"joiners": pool}
+
+
 #  ADMIN ROUTES
 # ═══════════════════════════════════════════════════════════════
 

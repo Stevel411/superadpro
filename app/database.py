@@ -61,6 +61,7 @@ class User(Base):
     upline_earnings     = Column(Float, default=0.0)      # earnings as upline on others' grids
     personal_referrals  = Column(Integer, default=0)      # direct recruits
     total_team          = Column(Integer, default=0)      # entire network size
+    country             = Column(String, nullable=True)
     created_at          = Column(DateTime, default=datetime.utcnow)
 
 class Grid(Base):
@@ -182,6 +183,7 @@ def run_migrations():
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS total_team INTEGER DEFAULT 0",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS sponsor_id INTEGER",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS country VARCHAR",
     ]
     with engine.connect() as conn:
         for sql in migrations:
