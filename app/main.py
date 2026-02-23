@@ -1266,3 +1266,151 @@ IMPORTANT RULES:
         logging.error(f"Campaign studio error: {e}")
         return JSONResponse({"error": "AI generation failed — please try again"}, status_code=500)
 
+
+# ═══════════════════════════════════════════════════════════════
+#  NICHE FINDER
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/niche-finder")
+def niche_finder(request: Request, user: User = Depends(get_current_user),
+                 db: Session = Depends(get_db)):
+    if not user: return RedirectResponse(url="/login")
+    ctx = get_dashboard_context(request, user, db)
+    return templates.TemplateResponse("niche-finder.html", ctx)
+
+
+@app.post("/api/niche-finder/generate")
+async def generate_niches(request: Request, user: User = Depends(get_current_user)):
+    if not user:
+        from fastapi.responses import JSONResponse
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from fastapi.responses import JSONResponse
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    interests  = body.get("q1", [])
+    experience = body.get("q2", "beginner")
+    hours      = body.get("q3", "7 hours per week")
+    goal       = body.get("q4", "side income")
+    platform   = body.get("q5", "YouTube")
+
+    prompt = f"""You are an expert digital marketing strategist helping someone find their perfect niche to promote online.
+
+MEMBER PROFILE:
+- Interests: {", ".join(interests) if interests else "general online business"}
+- Experience level: {experience}
+- Time available: {hours}
+- Main goal: {goal}
+- Preferred platform: {platform}
+- Platform context: They are a member of SuperAdPro — a $10/month video marketing membership with Watch-to-Earn commissions, an AI & Marketing course, and AI marketing tools.
+
+YOUR TASK:
+Recommend exactly 3 niches perfectly matched to this person's profile. Return ONLY valid JSON in this exact format with no other text:
+
+{{
+  "niches": [
+    {{
+      "name": "Niche Name (specific, not generic)",
+      "tagline": "One punchy line describing the opportunity",
+      "why": "2-3 sentences explaining exactly why this niche fits THIS person's specific interests, experience level, time commitment and goal. Be personal and specific.",
+      "audience_size": "e.g. 50M+",
+      "competition": "Low / Medium / High",
+      "income_speed": "e.g. 2-4 weeks",
+      "content_ideas": [
+        "Specific video/post idea 1 for {platform.split(' — ')[0] if ' — ' in platform else platform}",
+        "Specific video/post idea 2",
+        "Specific video/post idea 3",
+        "Specific video/post idea 4"
+      ],
+      "starter_hook": "A compelling 2-3 sentence opening hook they can use TODAY on {platform.split(' — ')[0] if ' — ' in platform else platform} to attract their audience. Make it specific, punchy and immediately usable."
+    }}
+  ]
+}}
+
+IMPORTANT:
+- Niche 1 = best overall match, Niche 2 = strong alternative, Niche 3 = unexpected but smart choice
+- All content ideas must be specific to {platform.split(' — ')[0] if ' — ' in platform else platform}
+- income_speed must be realistic for someone with {hours}
+- If their goal is quick income, prioritise niches with faster monetisation
+- If they are a beginner, avoid complex niches like day trading or technical SaaS
+- The starter hook must sound human and natural, not like AI wrote it
+- Return ONLY the JSON object, no markdown, no explanation"""
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        demo_niches = [
+            {
+                "name": "Make Money Online with Membership Sites",
+                "tagline": "Show people how to earn recurring income — just like you're doing",
+                "why": "You're already a SuperAdPro member earning through the Watch-to-Earn system. Your real experience is your credibility. People trust someone who is actively doing what they teach.",
+                "audience_size": "100M+",
+                "competition": "Medium",
+                "income_speed": "2-4 weeks",
+                "content_ideas": [
+                    "How I earn passive income watching videos for $10/month",
+                    "5 membership sites that actually pay you to be a member",
+                    "My honest SuperAdPro income report — month 1",
+                    "How the 8x8 grid system works and why it's genius"
+                ],
+                "starter_hook": "What if I told you there's a $10/month membership where you literally get paid to watch videos? I've been a member for 30 days and here's exactly what happened..."
+            },
+            {
+                "name": "AI Tools for Everyday Business Owners",
+                "tagline": "Help non-techies use AI to save time and make more money",
+                "why": "AI tools are the hottest topic of 2025 and most tutorials are too technical. You have access to SuperAdPro's AI marketing suite which gives you real examples to share.",
+                "audience_size": "200M+",
+                "competition": "Medium",
+                "income_speed": "3-6 weeks",
+                "content_ideas": [
+                    "5 free AI tools that replaced my $500/month software",
+                    "How I wrote a week of social content in 10 minutes with AI",
+                    "AI vs human copywriting — I tested both, here's what happened",
+                    "The AI marketing dashboard inside my membership site"
+                ],
+                "starter_hook": "I used to spend 3 hours writing one email. Last week I wrote a full 5-email sequence in 8 minutes using AI — and it converted better. Here's the exact tool I used..."
+            },
+            {
+                "name": "Side Hustles for Night Shift Workers",
+                "tagline": "A completely untapped audience who desperately need flexible income",
+                "why": "With your night shift schedule, you understand the unique challenges of earning income around unusual hours. This is an underserved audience with high engagement and low competition.",
+                "audience_size": "30M+",
+                "competition": "Low",
+                "income_speed": "4-8 weeks",
+                "content_ideas": [
+                    "5 side hustles you can do at 3am in between shifts",
+                    "How I earn $200/month online working night shifts",
+                    "The best passive income streams for people with no fixed schedule",
+                    "Night shift to financial freedom — my 90-day plan"
+                ],
+                "starter_hook": "Working nights and tired of being broke when you get home? I found 3 ways to earn money online that fit perfectly around a night shift schedule — no alarm clocks, no fixed hours, no boss..."
+            }
+        ]
+        return JSONResponse({"niches": demo_niches, "demo": True})
+
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+        message = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=2000,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        raw = message.content[0].text.strip()
+        # Strip markdown code fences if present
+        import re
+        raw = re.sub(r'^```json\s*', '', raw)
+        raw = re.sub(r'^```\s*', '', raw)
+        raw = re.sub(r'\s*```$', '', raw)
+        data = json.loads(raw.strip())
+        return JSONResponse(data)
+
+    except json.JSONDecodeError as e:
+        logging.error(f"Niche finder JSON parse error: {e}\nRaw: {raw[:500]}")
+        return JSONResponse({"error": "AI response format error — please try again"}, status_code=500)
+    except Exception as e:
+        logging.error(f"Niche finder error: {e}")
+        return JSONResponse({"error": "AI generation failed — please try again"}, status_code=500)
+

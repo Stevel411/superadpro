@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Niche Finder — SuperAdPro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+.layout{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{width:220px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,240,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:18px 16px 14px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.05)}
+.sidebar-brand{font-size:15px;font-weight:800;color:#fff;letter-spacing:0.5px}
+.nav-section{padding:18px 14px 6px;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
+.nav-item:hover{color:rgba(200,220,255,0.9);background:rgba(255,255,255,0.03)}
+.nav-item.active{color:#00f0ff;border-left-color:#00f0ff;background:rgba(0,240,255,0.06)}
+.nav-icon{font-size:14px;width:18px;text-align:center}
+.user-mini{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00f0ff);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+.sidebar-footer{margin-top:auto;border-top:1px solid rgba(255,255,255,0.05)}
+
+/* ── MAIN ── */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.1);position:sticky;top:0;z-index:50}
+.topbar-title{font-size:15px;font-weight:800;color:#ffffff}
+.topbar-sub{font-size:11px;color:#94a3b8;margin-top:1px}
+.balance-pill{background:rgba(0,180,216,0.06);border:1px solid rgba(0,180,216,0.15);border-radius:8px;padding:6px 14px;display:flex;align-items:center;gap:10px}
+.balance-label{font-size:9px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase}
+.balance-val{font-size:15px;font-weight:800;color:#16a34a}
+.balance-unit{font-size:11px;color:#94a3b8;margin-left:3px}
+
+/* ── CONTENT ── */
+.content{padding:28px;flex:1}
+.finder-wrap{max-width:860px;margin:0 auto}
+
+/* ── HERO ── */
+.finder-hero{background:linear-gradient(135deg,#fefce8 0%,#f0fdf4 50%,#fef9c3 100%);border:1px solid #fde68a;border-radius:20px;padding:36px 40px;margin-bottom:28px;position:relative;overflow:hidden}
+.finder-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:260px;height:260px;background:radial-gradient(circle,rgba(234,179,8,0.1),transparent 70%);pointer-events:none}
+.finder-hero::after{content:'';position:absolute;bottom:-40px;left:30%;width:180px;height:180px;background:radial-gradient(circle,rgba(16,185,129,0.08),transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.3);border-radius:999px;padding:5px 14px;font-size:11px;font-weight:700;color:#b45309;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px}
+.hero-dot{width:6px;height:6px;border-radius:50%;background:#f59e0b;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+.hero-title{font-size:28px;font-weight:800;color:#0f172a;line-height:1.2;margin-bottom:10px}
+.hero-title span{background:linear-gradient(135deg,#f59e0b,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:14px;color:#64748b;line-height:1.7;max-width:560px}
+
+/* ── QUIZ CARD ── */
+.quiz-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.quiz-card-head{padding:16px 24px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:10px}
+.quiz-card-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.quiz-card-title{font-size:14px;font-weight:700;color:#0f172a}
+.quiz-card-sub{font-size:12px;color:#94a3b8;margin-top:1px}
+.quiz-card-body{padding:24px}
+
+/* ── PROGRESS BAR ── */
+.progress-bar-wrap{background:#f1f5f9;border-radius:999px;height:6px;margin-bottom:24px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#f59e0b,#10b981);transition:width 0.4s ease}
+
+/* ── OPTION BUTTONS ── */
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.option-btn{padding:14px 16px;background:#fafbfc;border:1.5px solid #e2e8f0;border-radius:11px;cursor:pointer;transition:all 0.2s;text-align:left;font-family:'Rethink Sans',sans-serif;display:flex;align-items:flex-start;gap:10px}
+.option-btn:hover{border-color:#f59e0b;background:#fffbeb;transform:translateY(-1px)}
+.option-btn.selected{border-color:#10b981;background:#f0fdf4}
+.option-btn.selected .option-tick{background:#10b981;color:#fff;border-color:#10b981}
+.option-emoji{font-size:20px;flex-shrink:0;margin-top:1px}
+.option-text{font-size:13px;font-weight:600;color:#0f172a;line-height:1.4}
+.option-sub{font-size:11px;color:#94a3b8;margin-top:2px;font-weight:400}
+.option-tick{width:18px;height:18px;border-radius:50%;border:1.5px solid #e2e8f0;flex-shrink:0;margin-left:auto;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s}
+
+/* ── SLIDER ── */
+.slider-wrap{padding:8px 0}
+.slider-labels{display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:10px}
+.range-input{width:100%;-webkit-appearance:none;height:6px;border-radius:999px;background:linear-gradient(90deg,#f59e0b 0%,#e2e8f0 0%);outline:none;cursor:pointer}
+.range-input::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#10b981);cursor:pointer;box-shadow:0 2px 6px rgba(245,158,11,0.4)}
+.slider-val{text-align:center;font-size:16px;font-weight:800;color:#0f172a;margin-top:10px}
+
+/* ── NAVIGATION BUTTONS ── */
+.quiz-nav{display:flex;justify-content:space-between;align-items:center;margin-top:24px}
+.btn-back{padding:11px 22px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;font-family:'Rethink Sans',sans-serif;transition:all 0.2s}
+.btn-back:hover{background:#e2e8f0}
+.btn-next{padding:11px 28px;background:linear-gradient(135deg,#f59e0b,#10b981);border:none;border-radius:9px;font-size:13px;font-weight:800;color:#fff;cursor:pointer;font-family:'Rethink Sans',sans-serif;transition:all 0.2s;box-shadow:0 3px 12px rgba(245,158,11,0.3)}
+.btn-next:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(245,158,11,0.4)}
+.btn-next:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.step-indicator{font-size:12px;font-weight:700;color:#94a3b8}
+
+/* ── LOADING ── */
+.loading-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:56px 24px;text-align:center;display:none;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.loading-card.active{display:block}
+.loading-orb{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#fef3c7,#d1fae5);border:3px solid transparent;background-clip:padding-box;margin:0 auto 20px;position:relative;animation:spin 1.2s linear infinite}
+.loading-orb::before{content:'💡';font-size:24px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-title{font-size:17px;font-weight:700;color:#0f172a;margin-bottom:6px}
+.loading-sub{font-size:13px;color:#94a3b8}
+
+/* ── RESULTS ── */
+.results-section{display:none}
+.results-section.active{display:block}
+.results-title{font-size:22px;font-weight:800;color:#0f172a;margin-bottom:6px}
+.results-sub{font-size:14px;color:#64748b;margin-bottom:24px}
+
+/* ── NICHE RESULT CARD ── */
+.niche-card{background:#ffffff;border:1.5px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);transition:all 0.2s}
+.niche-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.08);transform:translateY(-1px)}
+.niche-card-head{padding:18px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f1f5f9}
+.niche-card-left{display:flex;align-items:center;gap:14px}
+.niche-rank{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+.rank-1{background:linear-gradient(135deg,#fef3c7,#fde68a);color:#b45309}
+.rank-2{background:linear-gradient(135deg,#f1f5f9,#e2e8f0);color:#475569}
+.rank-3{background:linear-gradient(135deg,#fef3c7,#d1fae5);color:#065f46}
+.niche-name{font-size:16px;font-weight:800;color:#0f172a}
+.niche-tagline{font-size:12px;color:#64748b;margin-top:2px}
+.niche-badge{padding:4px 12px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:0.5px}
+.badge-hot{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.badge-growing{background:#f0fdf4;color:#16a34a;border:1px solid #86efac}
+.badge-solid{background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe}
+.niche-card-body{padding:20px 22px}
+.niche-section-title{font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.niche-why{font-size:13px;color:#334155;line-height:1.7;margin-bottom:16px}
+.niche-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.niche-stat{background:#f8fafc;border:1px solid #f1f5f9;border-radius:9px;padding:10px;text-align:center}
+.niche-stat-val{font-size:15px;font-weight:800;color:#0f172a}
+.niche-stat-lbl{font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+.content-ideas{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.content-idea{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#334155;line-height:1.5}
+.idea-bullet{width:18px;height:18px;border-radius:5px;background:#f0fdf4;border:1px solid #86efac;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;margin-top:1px;color:#16a34a;font-weight:700}
+.starter-script{background:linear-gradient(135deg,#fefce8,#f0fdf4);border:1px solid #fde68a;border-radius:10px;padding:14px 16px;font-size:13px;color:#334155;line-height:1.7;position:relative}
+.starter-script-label{font-size:10px;font-weight:700;color:#b45309;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.copy-script-btn{position:absolute;top:12px;right:12px;padding:4px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:6px;font-size:10px;font-weight:700;color:#64748b;cursor:pointer;font-family:'Rethink Sans',sans-serif;transition:all 0.15s}
+.copy-script-btn:hover{background:#f8fafc}
+.copy-script-btn.copied{background:#dcfce7;border-color:#86efac;color:#16a34a}
+
+/* ── ACTIONS ── */
+.results-actions{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.btn-studio{padding:12px 24px;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:9px;font-size:13px;font-weight:800;color:#fff;cursor:pointer;font-family:'Rethink Sans',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:7px}
+.btn-restart{padding:12px 20px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-weight:700;color:#475569;cursor:pointer;font-family:'Rethink Sans',sans-serif}
+.btn-restart:hover{background:#e2e8f0}
+
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:16px}.options-grid{grid-template-columns:1fr}.niche-stats{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="shield" viewBox="0 0 100 100">
+      <defs>
+        <linearGradient id="hexgrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4f8ef7"/>
+          <stop offset="50%" stop-color="#6d28d9"/>
+          <stop offset="100%" stop-color="#00b4d8"/>
+        </linearGradient>
+        <linearGradient id="hexinner" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#1a3a8f"/>
+          <stop offset="100%" stop-color="#0d1a5c"/>
+        </linearGradient>
+      </defs>
+      <polygon points="50,3 93,27 93,73 50,97 7,73 7,27" fill="url(#hexgrad)"/>
+      <polygon points="50,12 84,31 84,69 50,88 16,69 16,31" fill="url(#hexinner)"/>
+      <text x="50" y="63" text-anchor="middle" font-family="Arial Black,sans-serif" font-weight="900" font-size="38" fill="#00d4ff" letter-spacing="-2">S</text>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="layout">
+  <aside class="sidebar">
+    <a href="/dashboard" class="sidebar-logo">
+      <svg width="30" height="30"><use href="#shield"/></svg>
+      <span class="sidebar-brand">SuperAdPro</span>
+    </a>
+    <div class="nav-section">Main</div>
+    <a href="/dashboard"     class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
+    <a href="/packages"      class="nav-item"><span class="nav-icon">📦</span>Campaign Tiers</a>
+    <a href="/watch"         class="nav-item"><span class="nav-icon">▶</span>Watch &amp; Earn</a>
+    <a href="/video-library" class="nav-item"><span class="nav-icon">🎬</span>My Campaigns</a>
+    <div class="nav-section">Marketing Suite</div>
+    <a href="/campaign-studio" class="nav-item"><span class="nav-icon">🤖</span>AI Campaign Studio</a>
+    <a href="/niche-finder"    class="nav-item active"><span class="nav-icon">💡</span>Niche Finder</a>
+    <div class="nav-section">Income Streams</div>
+    <a href="/income-grid"       class="nav-item"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
+    <a href="/wallet"            class="nav-item"><span class="nav-icon">◎</span>Wallet</a>
+    <a href="/affiliate"         class="nav-item"><span class="nav-icon">🤝</span>Affiliate Tools</a>
+    <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span>Comp Plan</a>
+    <a href="/grid-visualiser"   class="nav-item"><span class="nav-icon">◈</span>Grid Visualiser</a>
+    <div class="nav-section">Account</div>
+    <a href="/account" class="nav-item"><span class="nav-icon">◉</span>Profile</a>
+    <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
+    <div class="sidebar-footer">
+      <div class="user-mini">
+        <div class="user-avatar">{{ user.username[:2].upper() }}</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#fff">{{ user.first_name or user.username }}</div>
+          <div style="font-size:9px;color:#10b981;letter-spacing:1px;text-transform:uppercase;margin-top:1px">● Active</div>
+        </div>
+      </div>
+      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:11px;color:#64748b;text-decoration:none;margin-top:6px">⎋ Sign Out</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">💡 Niche Finder</div>
+        <div class="topbar-sub">Answer 5 quick questions — get your perfect niche in 60 seconds</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="balance-pill">
+          <div>
+            <div class="balance-label">Balance</div>
+            <div><span class="balance-val">${{ '%.2f'|format(balance) }}</span><span class="balance-unit">USDT</span></div>
+          </div>
+        </div>
+        <a href="/packages" style="font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:10px 20px;border-radius:7px;text-decoration:none">+ Activate Tier</a>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="finder-wrap">
+
+        <!-- HERO -->
+        <div class="finder-hero">
+          <div class="hero-badge"><span class="hero-dot"></span>5 Questions · 60 Seconds · Your Perfect Niche</div>
+          <h1 class="hero-title">Find Your <span>Winning Niche</span></h1>
+          <p class="hero-sub">Not sure what to promote? Answer 5 simple questions and the AI matches you to the 3 best niches for your situation — complete with content ideas and a starter script.</p>
+        </div>
+
+        <!-- QUIZ -->
+        <div id="quizSection">
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="progressBar" style="width:20%"></div>
+          </div>
+
+          <!-- Q1: Interests -->
+          <div class="quiz-card" id="q1" style="display:block">
+            <div class="quiz-card-head">
+              <div class="quiz-card-icon" style="background:#fef3c7">🎯</div>
+              <div>
+                <div class="quiz-card-title">What topics genuinely interest you?</div>
+                <div class="quiz-card-sub">Pick up to 3 — the AI matches niches to what you actually enjoy</div>
+              </div>
+            </div>
+            <div class="quiz-card-body">
+              <div class="options-grid" id="q1-options">
+                <button class="option-btn" onclick="toggleOption(this,'q1')" data-val="Making money online & passive income">
+                  <span class="option-emoji">💰</span>
+                  <div><div class="option-text">Making Money Online</div><div class="option-sub">Side hustles, passive income, financial freedom</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="toggleOption(this,'q1')" data-val="Health, fitness & wellness">
+                  <span class="option-emoji">💪</span>
+                  <div><div class="option-text">Health & Fitness</div><div class="option-sub">Workouts, nutrition, weight loss, mindset</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="toggleOption(this,'q1')" data-val="Crypto, investing & trading">
+                  <span class="option-emoji">₿</span>
+                  <div><div class="option-text">Crypto & Investing</div><div class="option-sub">Bitcoin, DeFi, trading strategies, staking</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="toggleOption(this,'q1')" data-val="Personal development & mindset">
+                  <span class="option-emoji">🧠</span>
+                  <div><div class="option-text">Personal Development</div><div class="option-sub">Productivity, motivation, self-improvement</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="toggleOption(this,'q1')" data-val="Digital marketing & social media">
+                  <span class="option-emoji">📱</span>
+                  <div><div class="option-text">Digital Marketing</div><div class="option-sub">Social media, content creation, funnels</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="toggleOption(this,'q1')" data-val="E-commerce, dropshipping & products">
+                  <span class="option-emoji">🛒</span>
+                  <div><div class="option-text">E-commerce & Products</div><div class="option-sub">Dropshipping, Amazon FBA, print-on-demand</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="toggleOption(this,'q1')" data-val="Coaching, consulting & services">
+                  <span class="option-emoji">🎓</span>
+                  <div><div class="option-text">Coaching & Consulting</div><div class="option-sub">Teaching skills, running programs, helping clients</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="toggleOption(this,'q1')" data-val="Technology, AI & software">
+                  <span class="option-emoji">🤖</span>
+                  <div><div class="option-text">Tech & AI</div><div class="option-sub">AI tools, software reviews, automation</div></div>
+                  <span class="option-tick"></span>
+                </button>
+              </div>
+              <div class="quiz-nav">
+                <span class="step-indicator">Step 1 of 5</span>
+                <button class="btn-next" id="q1-next" onclick="nextQ(1,2)" disabled>Next →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q2: Experience -->
+          <div class="quiz-card" id="q2" style="display:none">
+            <div class="quiz-card-head">
+              <div class="quiz-card-icon" style="background:#dcfce7">📊</div>
+              <div>
+                <div class="quiz-card-title">How would you describe your online marketing experience?</div>
+                <div class="quiz-card-sub">Be honest — there's no wrong answer, it just helps pick the right niche depth</div>
+              </div>
+            </div>
+            <div class="quiz-card-body">
+              <div class="options-grid" id="q2-options">
+                <button class="option-btn" onclick="selectOne(this,'q2')" data-val="Complete beginner — never promoted anything online">
+                  <span class="option-emoji">🌱</span>
+                  <div><div class="option-text">Complete Beginner</div><div class="option-sub">Never promoted anything online before</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="selectOne(this,'q2')" data-val="Some experience — tried a few things but nothing consistent">
+                  <span class="option-emoji">📈</span>
+                  <div><div class="option-text">Some Experience</div><div class="option-sub">Tried a few things, nothing consistent yet</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="selectOne(this,'q2')" data-val="Intermediate — earning some money online, want to scale">
+                  <span class="option-emoji">🚀</span>
+                  <div><div class="option-text">Intermediate</div><div class="option-sub">Earning some money online, ready to scale</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="selectOne(this,'q2')" data-val="Experienced marketer looking for a fresh niche">
+                  <span class="option-emoji">⚡</span>
+                  <div><div class="option-text">Experienced</div><div class="option-sub">Solid background, looking for a fresh angle</div></div>
+                  <span class="option-tick"></span>
+                </button>
+              </div>
+              <div class="quiz-nav">
+                <button class="btn-back" onclick="prevQ(2,1)">← Back</button>
+                <span class="step-indicator">Step 2 of 5</span>
+                <button class="btn-next" id="q2-next" onclick="nextQ(2,3)" disabled>Next →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q3: Time -->
+          <div class="quiz-card" id="q3" style="display:none">
+            <div class="quiz-card-head">
+              <div class="quiz-card-icon" style="background:#ede9fe">⏱️</div>
+              <div>
+                <div class="quiz-card-title">How many hours per week can you dedicate to this?</div>
+                <div class="quiz-card-sub">This helps match you to niches that fit your schedule</div>
+              </div>
+            </div>
+            <div class="quiz-card-body">
+              <div class="slider-wrap">
+                <div class="slider-labels">
+                  <span>1 hr</span><span>5 hrs</span><span>10 hrs</span><span>20 hrs</span><span>30+ hrs</span>
+                </div>
+                <input type="range" class="range-input" id="timeSlider" min="1" max="30" value="7" oninput="updateSlider(this)">
+                <div class="slider-val" id="sliderVal">7 hours / week</div>
+              </div>
+              <div class="quiz-nav">
+                <button class="btn-back" onclick="prevQ(3,2)">← Back</button>
+                <span class="step-indicator">Step 3 of 5</span>
+                <button class="btn-next" onclick="nextQ(3,4)">Next →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q4: Goal -->
+          <div class="quiz-card" id="q4" style="display:none">
+            <div class="quiz-card-head">
+              <div class="quiz-card-icon" style="background:#cffafe">🎯</div>
+              <div>
+                <div class="quiz-card-title">What's your main goal with this?</div>
+                <div class="quiz-card-sub">Pick the one that resonates most right now</div>
+              </div>
+            </div>
+            <div class="quiz-card-body">
+              <div class="options-grid" id="q4-options">
+                <button class="option-btn" onclick="selectOne(this,'q4')" data-val="Quick side income — I want to start earning within 30 days">
+                  <span class="option-emoji">⚡</span>
+                  <div><div class="option-text">Quick Side Income</div><div class="option-sub">Start earning within 30 days</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="selectOne(this,'q4')" data-val="Build a long-term personal brand that grows over time">
+                  <span class="option-emoji">🏗️</span>
+                  <div><div class="option-text">Long-term Brand</div><div class="option-sub">Build something that compounds over time</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="selectOne(this,'q4')" data-val="Grow my existing business or add a new income stream">
+                  <span class="option-emoji">📈</span>
+                  <div><div class="option-text">Grow Existing Business</div><div class="option-sub">Add income streams to what I already have</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="selectOne(this,'q4')" data-val="Replace my job income — I want full-time online income">
+                  <span class="option-emoji">🎯</span>
+                  <div><div class="option-text">Replace Job Income</div><div class="option-sub">Go full-time online — financial independence</div></div>
+                  <span class="option-tick"></span>
+                </button>
+              </div>
+              <div class="quiz-nav">
+                <button class="btn-back" onclick="prevQ(4,3)">← Back</button>
+                <span class="step-indicator">Step 4 of 5</span>
+                <button class="btn-next" id="q4-next" onclick="nextQ(4,5)" disabled>Next →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q5: Platform -->
+          <div class="quiz-card" id="q5" style="display:none">
+            <div class="quiz-card-head">
+              <div class="quiz-card-icon" style="background:#dcfce7">📣</div>
+              <div>
+                <div class="quiz-card-title">Where do you feel most comfortable creating content?</div>
+                <div class="quiz-card-sub">Pick your preferred platform — or the one you want to master</div>
+              </div>
+            </div>
+            <div class="quiz-card-body">
+              <div class="options-grid" id="q5-options">
+                <button class="option-btn" onclick="selectOne(this,'q5')" data-val="YouTube — long-form video content">
+                  <span class="option-emoji">▶️</span>
+                  <div><div class="option-text">YouTube</div><div class="option-sub">Long-form video, tutorials, reviews</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="selectOne(this,'q5')" data-val="TikTok or Instagram Reels — short video">
+                  <span class="option-emoji">📱</span>
+                  <div><div class="option-text">TikTok / Instagram Reels</div><div class="option-sub">Short-form video, trends, quick tips</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="selectOne(this,'q5')" data-val="Facebook — posts, groups and ads">
+                  <span class="option-emoji">👥</span>
+                  <div><div class="option-text">Facebook</div><div class="option-sub">Posts, groups, community building</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="selectOne(this,'q5')" data-val="WhatsApp or Telegram — direct messaging">
+                  <span class="option-emoji">💬</span>
+                  <div><div class="option-text">WhatsApp / Telegram</div><div class="option-sub">Direct messaging, group broadcasts</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="selectOne(this,'q5')" data-val="Email marketing — building a list">
+                  <span class="option-emoji">📧</span>
+                  <div><div class="option-text">Email Marketing</div><div class="option-sub">Building a list, nurture sequences</div></div>
+                  <span class="option-tick"></span>
+                </button>
+                <button class="option-btn" onclick="selectOne(this,'q5')" data-val="Blog or written content — SEO and articles">
+                  <span class="option-emoji">✍️</span>
+                  <div><div class="option-text">Blog / Written Content</div><div class="option-sub">SEO articles, long-form writing</div></div>
+                  <span class="option-tick"></span>
+                </button>
+              </div>
+              <div class="quiz-nav">
+                <button class="btn-back" onclick="prevQ(5,4)">← Back</button>
+                <span class="step-indicator">Step 5 of 5</span>
+                <button class="btn-next" id="q5-next" onclick="generateNiches()" disabled>Find My Niches ✨</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LOADING -->
+        <div class="loading-card" id="loadingCard">
+          <div class="loading-orb"></div>
+          <div class="loading-title">Analysing your profile...</div>
+          <div class="loading-sub">The AI is matching you to your 3 best niches</div>
+        </div>
+
+        <!-- RESULTS -->
+        <div class="results-section" id="resultsSection">
+          <div class="results-title">Your 3 Best Niches 🎯</div>
+          <div class="results-sub" id="resultsMeta">Based on your interests, experience and goals</div>
+          <div id="nichesContainer"></div>
+          <div class="results-actions">
+            <a href="/campaign-studio" class="btn-studio">🤖 Build a Campaign for my Niche</a>
+            <button class="btn-restart" onclick="restartQuiz()">↺ Start Over</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const answers = { q1:[], q2:'', q3:'7 hours per week', q4:'', q5:'' };
+
+function toggleOption(btn, q) {
+  const max = 3;
+  const selected = document.querySelectorAll(`#${q}-options .option-btn.selected`);
+  if (btn.classList.contains('selected')) {
+    btn.classList.remove('selected');
+    btn.querySelector('.option-tick').textContent = '';
+  } else {
+    if (selected.length >= max) return;
+    btn.classList.add('selected');
+    btn.querySelector('.option-tick').textContent = '✓';
+  }
+  answers[q] = Array.from(document.querySelectorAll(`#${q}-options .option-btn.selected`)).map(b => b.dataset.val);
+  const next = document.getElementById(`${q}-next`);
+  if (next) next.disabled = answers[q].length === 0;
+}
+
+function selectOne(btn, q) {
+  document.querySelectorAll(`#${q}-options .option-btn`).forEach(b => {
+    b.classList.remove('selected');
+    b.querySelector('.option-tick').textContent = '';
+  });
+  btn.classList.add('selected');
+  btn.querySelector('.option-tick').textContent = '✓';
+  answers[q] = btn.dataset.val;
+  const next = document.getElementById(`${q}-next`);
+  if (next) next.disabled = false;
+}
+
+function updateSlider(el) {
+  const v = el.value;
+  answers.q3 = `${v} hours per week`;
+  document.getElementById('sliderVal').textContent = `${v} hour${v==1?'':'s'} / week`;
+  const pct = ((v-1)/29)*100;
+  el.style.background = `linear-gradient(90deg,#f59e0b ${pct}%,#e2e8f0 ${pct}%)`;
+}
+
+function nextQ(from, to) {
+  document.getElementById(`q${from}`).style.display = 'none';
+  document.getElementById(`q${to}`).style.display = 'block';
+  document.getElementById('progressBar').style.width = `${(to/5)*100}%`;
+  window.scrollTo(0,0);
+}
+function prevQ(from, to) { nextQ(from, to); }
+
+async function generateNiches() {
+  document.getElementById('quizSection').style.display = 'none';
+  document.getElementById('loadingCard').classList.add('active');
+
+  try {
+    const resp = await fetch('/api/niche-finder/generate', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(answers)
+    });
+    const data = await resp.json();
+    await new Promise(r => setTimeout(r, 800));
+    showResults(data);
+  } catch(e) {
+    alert('Something went wrong — please try again.');
+    restartQuiz();
+  }
+}
+
+function showResults(data) {
+  document.getElementById('loadingCard').classList.remove('active');
+  document.getElementById('resultsSection').classList.add('active');
+  document.getElementById('resultsMeta').textContent = `Based on your interests in ${(answers.q1||[]).join(', ')||'your selected topics'} · ${answers.q3}`;
+
+  const container = document.getElementById('nichesContainer');
+  container.innerHTML = '';
+  const rankClasses = ['rank-1','rank-2','rank-3'];
+  const rankLabels  = ['🥇','🥈','🥉'];
+  const badgeClasses = ['badge-hot','badge-growing','badge-solid'];
+  const badgeLabels  = ['🔥 Hot Right Now','📈 Fast Growing','💎 Solid & Proven'];
+
+  (data.niches || []).forEach((niche, i) => {
+    const card = document.createElement('div');
+    card.className = 'niche-card';
+    const ideas = (niche.content_ideas||[]).map(idea =>
+      `<div class="content-idea"><span class="idea-bullet">✓</span>${idea}</div>`
+    ).join('');
+    card.innerHTML = `
+      <div class="niche-card-head">
+        <div class="niche-card-left">
+          <div class="niche-rank ${rankClasses[i]}">${rankLabels[i]}</div>
+          <div>
+            <div class="niche-name">${niche.name}</div>
+            <div class="niche-tagline">${niche.tagline||''}</div>
+          </div>
+        </div>
+        <span class="niche-badge ${badgeClasses[i]}">${badgeLabels[i]}</span>
+      </div>
+      <div class="niche-card-body">
+        <div class="niche-section-title">Why this works for you</div>
+        <div class="niche-why">${niche.why||''}</div>
+        <div class="niche-stats">
+          <div class="niche-stat"><div class="niche-stat-val">${niche.audience_size||'Large'}</div><div class="niche-stat-lbl">Audience Size</div></div>
+          <div class="niche-stat"><div class="niche-stat-val">${niche.competition||'Medium'}</div><div class="niche-stat-lbl">Competition</div></div>
+          <div class="niche-stat"><div class="niche-stat-val">${niche.income_speed||'30-60 days'}</div><div class="niche-stat-lbl">Income Speed</div></div>
+        </div>
+        <div class="niche-section-title">Content ideas to start with</div>
+        <div class="content-ideas">${ideas}</div>
+        <div class="starter-script">
+          <div class="starter-script-label">⚡ Starter Hook — copy and use today</div>
+          <button class="copy-script-btn" onclick="copyScript(this, ${i})">Copy</button>
+          <div id="script-${i}">${niche.starter_hook||''}</div>
+        </div>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+function copyScript(btn, i) {
+  const text = document.getElementById(`script-${i}`).innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function restartQuiz() {
+  document.getElementById('resultsSection').classList.remove('active');
+  document.getElementById('loadingCard').classList.remove('active');
+  document.getElementById('quizSection').style.display = 'block';
+  document.getElementById('q1').style.display = 'block';
+  [2,3,4,5].forEach(n => document.getElementById(`q${n}`).style.display = 'none');
+  document.getElementById('progressBar').style.width = '20%';
+  document.querySelectorAll('.option-btn').forEach(b => {
+    b.classList.remove('selected');
+    b.querySelector('.option-tick').textContent = '';
+  });
+  Object.assign(answers, {q1:[],q2:'',q3:'7 hours per week',q4:'',q5:''});
+  document.querySelectorAll('.btn-next').forEach(b => b.disabled = true);
+  document.getElementById('q1-next').disabled = true;
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
