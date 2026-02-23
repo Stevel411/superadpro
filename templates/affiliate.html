@@ -157,7 +157,7 @@ tr:last-child td{border-bottom:none}
     <div class="card-title"><div class="card-dot" style="background:#16a34a"></div>Your Referral Link</div>
   </div>
   <div class="card-body">
-    <p style="font-size:17px;color:#64748b;margin-bottom:16px;line-height:1.6">Share this link to recruit new members. Every person who joins through your link is placed into your Income Grid — earning you level pool commissions from their first payment.</p>
+    <p style="font-size:17px;color:#64748b;margin-bottom:16px;line-height:1.6">Share this link to refer new members. Every person who joins through your link is placed into your Income Grid — earning you level commissions from their first payment.</p>
     <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px">
       <span style="font-size:17px;color:#0077a8;font-family:monospace;flex:1" id="refUrl">{{ ref_link }}</span>
       <button onclick="copyRef()" id="copyBtn" style="font-size:18px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-family:inherit;white-space:nowrap">Copy Link</button>
@@ -219,8 +219,8 @@ tr:last-child td{border-bottom:none}
     {% else %}
     <div class="empty-state">
       <div class="empty-icon">🤝</div>
-      <div class="empty-title">No recruits yet</div>
-      <div class="empty-sub">Share your referral link above to start building your team and earning level pool commissions.</div>
+      <div class="empty-title">No referrals yet</div>
+      <div class="empty-sub">Share your referral link above to start building your team and earning level commissions.</div>
     </div>
     {% endif %}
   </div>
