@@ -308,9 +308,9 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
           <div class="stat-bg">◎</div>
         </div>
         <div class="stat-card c3">
-          <div class="stat-label">Grid Cycles Done</div>
-          <div class="stat-value" style="color:#7c3aed">{{ grid_stats.completed_cycles }}</div>
-          <div class="stat-sub">Completed cycles</div>
+          <div class="stat-label">Grid Advances</div>
+          <div class="stat-value" style="color:#7c3aed">{{ grid_stats.completed_advances }}</div>
+          <div class="stat-sub">Completed advances</div>
           <div class="stat-bg">◈</div>
         </div>
         <div class="stat-card c4">
@@ -335,7 +335,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
               {% for g in grid_stats.active_grids_detail %}
               <div class="active-grid-item">
                 <div class="agi-row">
-                  <span class="agi-name">${{ g.price|int }} Campaign Tier · Cycle #{{ g.cycle }}</span>
+                  <span class="agi-name">${{ g.price|int }} Campaign Tier · Advance #{{ g.advance }}</span>
                   <span class="agi-badge">ACTIVE</span>
                 </div>
                 <div class="mini-grid">
@@ -395,8 +395,8 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
                 <div style="font-size:28px;font-weight:800;color:#0f172a">{{ personal_referrals }}</div>
               </div>
               <div style="background:#f8fafc;border-radius:8px;padding:12px;border:1px solid #e2e8f0;text-align:center">
-                <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Cycles</div>
-                <div style="font-size:28px;font-weight:800;color:#0f172a">{{ grid_stats.completed_cycles }}</div>
+                <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Advances</div>
+                <div style="font-size:28px;font-weight:800;color:#0f172a">{{ grid_stats.completed_advances }}</div>
               </div>
             </div>
 
@@ -483,7 +483,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
       <!-- INCOME POTENTIAL TABLE -->
       <div class="card">
         <div class="card-head">
-          <div class="card-title"><div class="card-dot" style="background:#7c3aed"></div>Stream 2 — Profit Engine Grid Potential Per Full Cycle</div>
+          <div class="card-title"><div class="card-dot" style="background:#7c3aed"></div>Stream 2 — Profit Engine Grid Potential Per Full Advance</div>
           <a href="/grid-visualiser" class="card-link">Live Demo →</a>
         </div>
         <div class="card-body">

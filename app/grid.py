@@ -30,7 +30,7 @@ def get_or_create_active_grid(db: Session, owner_id: int, package_tier: int) -> 
             owner_id      = owner_id,
             package_tier  = package_tier,
             package_price = GRID_PACKAGES[package_tier],
-            cycle_number  = _next_cycle_number(db, owner_id, package_tier),
+            advance_number  = _next_advance_number(db, owner_id, package_tier),
         )
         db.add(grid)
         db.commit()
@@ -38,7 +38,7 @@ def get_or_create_active_grid(db: Session, owner_id: int, package_tier: int) -> 
     return grid
 
 
-def _next_cycle_number(db: Session, owner_id: int, package_tier: int) -> int:
+def _next_advance_number(db: Session, owner_id: int, package_tier: int) -> int:
     completed = db.query(Grid).filter(
         Grid.owner_id     == owner_id,
         Grid.package_tier == package_tier,
@@ -97,7 +97,7 @@ def place_member_in_grid(
         "grid_id":    grid.id,
         "grid_level": level,
         "position":   position,
-        "cycle":      grid.cycle_number,
+        "advance":      grid.advance_number,
         "filled":     grid.positions_filled,
         "complete":   complete,
     }
@@ -156,7 +156,7 @@ def _record_platform_fee(db: Session, grid: Grid, price: float):
 
 
 def _complete_grid(db: Session, grid: Grid):
-    """Mark complete and auto-spawn next cycle. All money already paid per-entry."""
+    """Mark complete and auto-spawn next advance. All money already paid per-entry."""
     grid.is_complete  = True
     grid.completed_at = datetime.utcnow()
     grid.owner_paid   = True
@@ -165,7 +165,7 @@ def _complete_grid(db: Session, grid: Grid):
         owner_id      = grid.owner_id,
         package_tier  = grid.package_tier,
         package_price = grid.package_price,
-        cycle_number  = grid.cycle_number + 1,
+        advance_number  = grid.advance_number + 1,
     )
     db.add(new_grid)
     db.flush()
@@ -202,7 +202,7 @@ def _record_commission(db: Session, grid: Grid, to_user_id: Optional[int],
 def get_user_grids(db: Session, user_id: int) -> list:
     return db.query(Grid).filter(
         Grid.owner_id == user_id
-    ).order_by(Grid.package_tier, Grid.cycle_number.desc()).all()
+    ).order_by(Grid.package_tier, Grid.advance_number.desc()).all()
 
 
 def get_grid_stats(db: Session, user_id: int) -> dict:
@@ -215,7 +215,7 @@ def get_grid_stats(db: Session, user_id: int) -> dict:
 
     return {
         "total_grids":      len(grids),
-        "completed_cycles": len(completed),
+        "completed_advances": len(completed),
         "active_grids":     len(active),
         "total_members":    sum(g.positions_filled for g in grids),
         "total_earned":     round(total_earned, 2),
@@ -223,7 +223,7 @@ def get_grid_stats(db: Session, user_id: int) -> dict:
             {
                 "tier":            g.package_tier,
                 "price":           g.package_price,
-                "cycle":           g.cycle_number,
+                "advance":           g.advance_number,
                 "filled":          g.positions_filled,
                 "pct":             round((g.positions_filled / GRID_TOTAL) * 100),
                 "revenue":         g.revenue_total,

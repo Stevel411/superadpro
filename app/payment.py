@@ -328,7 +328,7 @@ def process_grid_payment(
     if result["success"]:
         return {
             "success":     True,
-            "message":     f"Placed in Grid #{result['cycle']} at Level {result['grid_level']}",
+            "message":     f"Placed in Grid #{result['advance']} at Level {result['grid_level']}",
             "grid_level":  result["grid_level"],
             "positions":   result["filled"],
             "complete":    result["complete"],

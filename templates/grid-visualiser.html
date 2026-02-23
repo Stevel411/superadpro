@@ -96,17 +96,17 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 .progress-bar{height:3px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden}
 .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),#a78bfa);border-radius:99px;transition:width 0.3s;box-shadow:0 0 8px rgba(0,212,255,0.4)}
 
-/* Cycle note */
-.cycle-note{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.15);border-radius:8px;margin-bottom:12px}
-.cycle-note-text{font-size:17px;color:#64748b;line-height:1.6}
-.cycle-note-title{font-size:17px;font-weight:700;color:#a78bfa;margin-bottom:3px}
+/* Advance note */
+.advance-note{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.15);border-radius:8px;margin-bottom:12px}
+.advance-note-text{font-size:17px;color:#64748b;line-height:1.6}
+.advance-note-title{font-size:17px;font-weight:700;color:#a78bfa;margin-bottom:3px}
 
-/* Cycle banner */
-.cycle-banner{display:none;text-align:center;padding:16px;background:linear-gradient(135deg,rgba(0,212,255,0.1),rgba(124,58,237,0.1));border:1px solid rgba(0,212,255,0.25);border-radius:10px}
-.cycle-banner.show{display:block;animation:fadeUp 0.4s ease}
+/* Advance banner */
+.advance-banner{display:none;text-align:center;padding:16px;background:linear-gradient(135deg,rgba(0,212,255,0.1),rgba(124,58,237,0.1));border:1px solid rgba(0,212,255,0.25);border-radius:10px}
+.advance-banner.show{display:block;animation:fadeUp 0.4s ease}
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.cycle-title{font-size:17px;font-weight:700;color:var(--cyan);margin-bottom:4px}
-.cycle-sub{font-size:17px;color:rgba(255,255,255,0.45)}
+.advance-title{font-size:17px;font-weight:700;color:var(--cyan);margin-bottom:4px}
+.advance-sub{font-size:17px;color:rgba(255,255,255,0.45)}
 
 /* RIGHT col */
 .right-col{display:flex;flex-direction:column;gap:14px}
@@ -272,18 +272,18 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
       <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
     </div>
 
-    <!-- Cycle note -->
-    <div class="cycle-note">
+    <!-- Advance note -->
+    <div class="advance-note">
       <div style="font-size:18px;flex-shrink:0">♾️</div>
       <div>
-        <div class="cycle-note-title">Recurring Income Engine</div>
-        <div class="cycle-note-text">Once all 63 seats fill, your grid auto-resets with a fresh random pattern — directs and overspill redistributed — and the commissions start flowing again immediately.</div>
+        <div class="advance-note-title">Recurring Income Engine</div>
+        <div class="advance-note-text">Once all 63 seats fill, your grid auto-advances with a fresh random pattern — directs and overspill redistributed — and the commissions start flowing again immediately.</div>
       </div>
     </div>
 
-    <div class="cycle-banner" id="cycleBanner">
-      <div class="cycle-title">⚡ GRID COMPLETE — NEW CYCLE STARTING</div>
-      <div class="cycle-sub" id="cycleSubText"></div>
+    <div class="advance-banner" id="advanceBanner">
+      <div class="advance-title">⚡ GRID COMPLETE — NEW ADVANCE STARTING</div>
+      <div class="advance-sub" id="advanceSubText"></div>
     </div>
   </div>
 
@@ -330,7 +330,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 
     <!-- Total -->
     <div class="total-card">
-      <div class="total-label">Your Total This Cycle</div>
+      <div class="total-label">Your Total This Advance</div>
       <div class="total-amount" id="totalAmt">$0.00</div>
       <div class="total-sub">Direct Sponsor + Uni-Level · <span id="directFilled">0</span> directs / <span id="overspillFilled">0</span> overspill so far</div>
     </div>
@@ -370,7 +370,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
         <span class="info-val" id="infoPkg" style="color:var(--cyan)">$100</span>
       </div>
       <div class="info-row">
-        <span class="info-key">Your directs this cycle</span>
+        <span class="info-key">Your directs this advance</span>
         <span class="info-val" id="infoDirectCount" style="color:#10b981">15 seats</span>
       </div>
       <div class="info-row">
@@ -378,7 +378,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
         <span class="info-val" id="infoOverspillCount" style="color:#a78bfa">48 seats</span>
       </div>
       <div class="info-row">
-        <span class="info-key">Estimated full-cycle earnings</span>
+        <span class="info-key">Estimated full advance earnings</span>
         <span class="info-val" id="infoMax" style="color:var(--gold)">$926.25</span>
       </div>
     </div>
@@ -514,7 +514,7 @@ function getDelay() {
 
 function tick() {
   if (!playing) return;
-  if (filled >= 63) { cycleComplete(); return; }
+  if (filled >= 63) { gridAdvance(); return; }
   fillNext();
   timer = setTimeout(tick, getDelay());
 }
@@ -596,15 +596,15 @@ function addLog(seat, level, isDirect, amt, col) {
   while (list.children.length > 12) list.removeChild(list.lastChild);
 }
 
-// ── Cycle complete ─────────────────────────────────────────────────────────
-function cycleComplete() {
+// ── Advance complete ─────────────────────────────────────────────────────────
+function gridAdvance() {
   pause();
   const earned = (tSponsor + tUni).toFixed(2);
-  document.getElementById('cycleSubText').textContent =
-    `You earned $${earned} — ${directFilled} directs + ${63 - directFilled} overspill. New cycle in 3 seconds with a fresh random mix...`;
-  document.getElementById('cycleBanner').classList.add('show');
+  document.getElementById('advanceSubText').textContent =
+    `You earned $${earned} — ${directFilled} directs + ${63 - directFilled} overspill. New advance in 3 seconds with a fresh random mix...`;
+  document.getElementById('advanceBanner').classList.add('show');
   setTimeout(() => {
-    document.getElementById('cycleBanner').classList.remove('show');
+    document.getElementById('advanceBanner').classList.remove('show');
     resetGrid();
     setTimeout(play, 500);
   }, 3500);
@@ -627,7 +627,7 @@ function resetGrid() {
   document.getElementById('overspillFilled').textContent  = '0';
   document.getElementById('logList').innerHTML            =
     '<div class="log-item"><span style="color:rgba(255,255,255,0.2)">Waiting for grid to start...</span><span></span></div>';
-  document.getElementById('cycleBanner').classList.remove('show');
+  document.getElementById('advanceBanner').classList.remove('show');
   document.getElementById('playBtn').textContent          = '▶ PLAY';
 }
 

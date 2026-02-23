@@ -71,7 +71,7 @@ class Grid(Base):
     owner_id        = Column(Integer, ForeignKey("users.id"), index=True)
     package_tier    = Column(Integer)                      # 1-8
     package_price   = Column(Float)                        # $10-$1000
-    cycle_number    = Column(Integer, default=1)           # which cycle (1,2,3...)
+    advance_number    = Column(Integer, default=1)           # which advance (1,2,3...)
     positions_filled = Column(Integer, default=0)          # 0-64
     is_complete     = Column(Boolean, default=False)       # True when 64 filled
     owner_paid      = Column(Boolean, default=False)       # owner payout sent

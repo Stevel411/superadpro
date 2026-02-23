@@ -173,7 +173,7 @@ body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif;
     <div style="display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.1);position:sticky;top:0;z-index:50">
       <div>
         <div style="font-size:17px;font-weight:800;color:#ffffff">◈ Income Grid</div>
-        <div style="font-size:17px;color:#94a3b8;margin-top:1px">8×8 Recurring Grid — 64 positions per cycle</div>
+        <div style="font-size:17px;color:#94a3b8;margin-top:1px">8×8 Recurring Grid — 64 positions per advance</div>
       </div>
       <div style="display:flex;align-items:center;gap:14px">
         <div style="display:flex;align-items:center;gap:10px;background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:8px 14px">
@@ -191,8 +191,8 @@ body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif;
       <!-- HERO STATS -->
       <div class="hero-stats">
         <div class="hero-card cyan">
-          <div class="hero-label">Total Cycles</div>
-          <div class="hero-value cyan">{{ grid_stats.completed_cycles }}</div>
+          <div class="hero-label">Total Advances</div>
+          <div class="hero-value cyan">{{ grid_stats.completed_advances }}</div>
           <div class="hero-sub">Completed grids</div>
         </div>
         <div class="hero-card violet">
@@ -212,7 +212,7 @@ body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif;
         </div>
       </div>
 
-      {% if grid_stats.active_grids == 0 and grid_stats.completed_cycles == 0 %}
+      {% if grid_stats.active_grids == 0 and grid_stats.completed_advances == 0 %}
       <!-- EMPTY STATE -->
       <div class="card">
         <div class="card-body">
@@ -242,7 +242,7 @@ body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif;
         <div class="card-head">
           <div class="card-title">
             <div class="dot"></div>
-            Tier {{ grid_info.tier }} Grid — ${{ grid_info.price|int }}/member — Cycle #{{ grid_info.cycle }}
+            Tier {{ grid_info.tier }} Grid — ${{ grid_info.price|int }}/member — Advance #{{ grid_info.advance }}
           </div>
           <div style="display:flex;align-items:center;gap:12px">
             <span style="font-size:18px;font-weight:700;color:#16a34a">{{ grid_info.filled }}/64 filled</span>
@@ -300,13 +300,13 @@ body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif;
           <div class="proj-row"><span class="proj-label" style="font-weight:800;color:#ffffff">Total Earned</span><span class="proj-value total">${{ '%.2f'|format(grid_stats.total_earned) }}</span></div>
         </div>
         <div class="proj-card">
-          <div class="proj-title">🔄 Cycle Potential — Pro $100</div>
+          <div class="proj-title">🔄 Advance Potential — Pro $100</div>
           {% set pro_price = 100 %}
           {% set pro_owner = pro_price * 64 * 0.95 * 0.45 %}
-          <div class="proj-row"><span class="proj-label">1 cycle</span><span class="proj-value">${{ '%.0f'|format(pro_owner) }}</span></div>
-          <div class="proj-row"><span class="proj-label">3 cycles</span><span class="proj-value">${{ '%.0f'|format(pro_owner*3) }}</span></div>
-          <div class="proj-row"><span class="proj-label">5 cycles</span><span class="proj-value">${{ '%.0f'|format(pro_owner*5) }}</span></div>
-          <div class="proj-row"><span class="proj-label" style="font-weight:800;color:#ffffff">10 cycles</span><span class="proj-value total">${{ '%.0f'|format(pro_owner*10) }}</span></div>
+          <div class="proj-row"><span class="proj-label">1 advance</span><span class="proj-value">${{ '%.0f'|format(pro_owner) }}</span></div>
+          <div class="proj-row"><span class="proj-label">3 advances</span><span class="proj-value">${{ '%.0f'|format(pro_owner*3) }}</span></div>
+          <div class="proj-row"><span class="proj-label">5 advances</span><span class="proj-value">${{ '%.0f'|format(pro_owner*5) }}</span></div>
+          <div class="proj-row"><span class="proj-label" style="font-weight:800;color:#ffffff">10 advances</span><span class="proj-value total">${{ '%.0f'|format(pro_owner*10) }}</span></div>
         </div>
       </div>
 
