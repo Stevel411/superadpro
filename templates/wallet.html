@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Rethink Sans',sans-serif;background:#050d1a;color:#0f172a;min-height:100vh}
+body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
 .layout{display:flex;min-height:100vh}
 .sidebar{width:220px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,240,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
@@ -24,7 +24,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#050d1a;color:#0f172a;min-
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.1);position:sticky;top:0;z-index:50}
 .topbar-title{color:#ffffff !important}.topbar-sub{color:#94a3b8 !important}
 .content{padding:24px 28px;flex:1}
-.card{background:#ffffff;border:1px solid rgba(0,180,216,0.12);border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
+.card{background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
 .card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(0,180,216,0.12)}
 .card-title{font-size:17px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
 .card-dot{width:7px;height:7px;border-radius:50%;background:#00b4d8;flex-shrink:0}
@@ -123,7 +123,7 @@ tr:last-child td{border-bottom:none}
   <div style="display:flex;align-items:center;gap:12px">
     <div style="background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:8px 16px">
       <div style="font-size:17px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase">Balance</div>
-      <div><span style="font-size:18px;font-weight:800;color:#16a34a">${ '%.2f'|format(balance) }</span><span style="font-size:18px;color:#94a3b8;margin-left:3px">USDT</span></div>
+      <div><span style="font-size:18px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:18px;color:#94a3b8;margin-left:3px">USDT</span></div>
     </div>
     <a href="/income-grid" class="btn-primary">+ Activate Campaign Tier</a>
   </div>
