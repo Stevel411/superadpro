@@ -160,6 +160,32 @@ class VideoCampaign(Base):
     created_at      = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+
+class VideoWatch(Base):
+    """Records every completed video watch (30s minimum met)."""
+    __tablename__ = "video_watches"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), index=True)
+    campaign_id     = Column(Integer, ForeignKey("video_campaigns.id"), index=True)
+    watched_at      = Column(DateTime, default=datetime.utcnow)
+    watch_date      = Column(String, index=True)   # YYYY-MM-DD for daily quota checks
+    duration_secs   = Column(Integer, default=30)  # seconds watched
+
+
+class WatchQuota(Base):
+    """Daily quota tracking per member — updated each day."""
+    __tablename__ = "watch_quotas"
+    id                  = Column(Integer, primary_key=True, index=True)
+    user_id             = Column(Integer, ForeignKey("users.id"), unique=True, index=True)
+    package_tier        = Column(Integer, default=1)      # 1-8, synced from active grid
+    daily_required      = Column(Integer, default=1)      # videos required per day
+    today_watched       = Column(Integer, default=0)      # reset daily
+    today_date          = Column(String, nullable=True)   # YYYY-MM-DD of today's count
+    consecutive_missed  = Column(Integer, default=0)      # days in a row below quota
+    last_quota_met      = Column(String, nullable=True)   # YYYY-MM-DD last day quota met
+    commissions_paused  = Column(Boolean, default=False)  # True after 5 missed days
+    updated_at          = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 Base.metadata.create_all(bind=engine)
 
 # ── Auto-migration: add missing columns if they don't exist ──────────────
@@ -184,6 +210,11 @@ def run_migrations():
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS sponsor_id INTEGER",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS country VARCHAR",
+        # Video watch system
+        "CREATE TABLE IF NOT EXISTS video_watches (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), campaign_id INTEGER REFERENCES video_campaigns(id), watched_at TIMESTAMP DEFAULT NOW(), watch_date VARCHAR, duration_secs INTEGER DEFAULT 30)",
+        "CREATE TABLE IF NOT EXISTS watch_quotas (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, package_tier INTEGER DEFAULT 1, daily_required INTEGER DEFAULT 1, today_watched INTEGER DEFAULT 0, today_date VARCHAR, consecutive_missed INTEGER DEFAULT 0, last_quota_met VARCHAR, commissions_paused BOOLEAN DEFAULT FALSE, updated_at TIMESTAMP DEFAULT NOW())",
+        "CREATE INDEX IF NOT EXISTS idx_video_watches_user_date ON video_watches(user_id, watch_date)",
+        "CREATE INDEX IF NOT EXISTS idx_video_watches_campaign ON video_watches(campaign_id)",
     ]
     with engine.connect() as conn:
         for sql in migrations:

@@ -24,7 +24,7 @@ from .grid import (
 )
 from .email_utils import send_password_reset_email
 from .video_utils import parse_video_url, platform_label, platform_colour
-from .database import VideoCampaign
+from .database import VideoCampaign, VideoWatch, WatchQuota
 from .database import PasswordResetToken
 import secrets
 from datetime import timedelta
@@ -801,6 +801,181 @@ def reset_password_process(
     })
 
 # ═══════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════
+#  WATCH & EARN — Video viewing system
+# ═══════════════════════════════════════════════════════════════
+
+# Videos required per day by campaign tier
+DAILY_VIDEO_QUOTA = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8}
+WATCH_DURATION    = 30   # seconds minimum
+GRACE_DAYS        = 5    # days before commissions paused
+
+
+def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
+    """Get or create watch quota record for user, syncing tier from active grid."""
+    from datetime import date
+    quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
+
+    # Determine tier from user's highest active grid
+    active_grid = db.query(Grid).filter(
+        Grid.owner_id == user.id,
+        Grid.is_complete == False
+    ).order_by(Grid.package_tier.desc()).first()
+    tier     = active_grid.package_tier if active_grid else 1
+    required = DAILY_VIDEO_QUOTA.get(tier, 1)
+
+    if not quota:
+        quota = WatchQuota(
+            user_id        = user.id,
+            package_tier   = tier,
+            daily_required = required,
+            today_date     = str(date.today()),
+        )
+        db.add(quota)
+        db.flush()
+
+    # Reset daily count if it's a new day
+    today_str = str(date.today())
+    if quota.today_date != today_str:
+        # Check if yesterday's quota was missed
+        if quota.today_date and quota.today_watched < quota.daily_required:
+            quota.consecutive_missed = (quota.consecutive_missed or 0) + 1
+            if quota.consecutive_missed >= GRACE_DAYS:
+                quota.commissions_paused = True
+        else:
+            quota.consecutive_missed = 0
+            quota.commissions_paused = False
+            quota.last_quota_met = quota.today_date
+
+        quota.today_watched = 0
+        quota.today_date    = today_str
+
+    # Sync tier in case user upgraded
+    quota.package_tier   = tier
+    quota.daily_required = required
+    return quota
+
+
+def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
+    """Pick next unwatched active campaign for user today, rotating fairly."""
+    from datetime import date
+    today_str = str(date.today())
+
+    # Campaigns watched today by this user
+    watched_today = db.query(VideoWatch.campaign_id).filter(
+        VideoWatch.user_id   == user_id,
+        VideoWatch.watch_date == today_str
+    ).all()
+    watched_ids = [w[0] for w in watched_today]
+
+    # Try to find an unwatched active campaign
+    campaign = db.query(VideoCampaign).filter(
+        VideoCampaign.status == "active",
+        ~VideoCampaign.id.in_(watched_ids) if watched_ids else True
+    ).order_by(VideoCampaign.views_delivered.asc()).first()
+
+    # If all campaigns watched today, loop back from least viewed
+    if not campaign:
+        campaign = db.query(VideoCampaign).filter(
+            VideoCampaign.status == "active"
+        ).order_by(VideoCampaign.views_delivered.asc()).first()
+
+    return campaign
+
+
+@app.get("/watch")
+def watch_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:     return RedirectResponse(url="/login")
+    if not user.is_active: return RedirectResponse(url="/pay-membership")
+
+    quota    = get_or_create_quota(db, user)
+    campaign = get_next_campaign(db, user.id)
+    db.commit()
+
+    # Warning level for grace period
+    warning = None
+    if quota.consecutive_missed >= 3:
+        days_left = GRACE_DAYS - quota.consecutive_missed
+        warning = f"⚠️ You've missed your quota for {quota.consecutive_missed} days. {max(0,days_left)} day(s) remaining before commissions are paused."
+    if quota.commissions_paused:
+        warning = "🔴 Your commissions are currently paused. Complete today's video quota to reactivate."
+
+    return templates.TemplateResponse("watch.html", {
+        "request":       request,
+        "user":          user,
+        "quota":         quota,
+        "campaign":      campaign,
+        "watch_duration": WATCH_DURATION,
+        "warning":       warning,
+        "grace_days":    GRACE_DAYS,
+    })
+
+
+@app.post("/api/record-watch")
+def record_watch(
+    request:     Request,
+    campaign_id: int = Form(),
+    db:          Session = Depends(get_db),
+    user:        User = Depends(get_current_user)
+):
+    """Called by front-end after 30s timer completes. Records the view."""
+    from datetime import date
+    if not user or not user.is_active:
+        return {"success": False, "error": "Not authorised"}
+
+    today_str = str(date.today())
+    quota     = get_or_create_quota(db, user)
+    campaign  = db.query(VideoCampaign).filter(
+        VideoCampaign.id     == campaign_id,
+        VideoCampaign.status == "active"
+    ).first()
+
+    if not campaign:
+        return {"success": False, "error": "Campaign not found"}
+
+    # Check quota not already met today
+    if quota.today_watched >= quota.daily_required:
+        return {"success": False, "error": "Daily quota already completed", "quota_met": True}
+
+    # Record the watch
+    watch = VideoWatch(
+        user_id     = user.id,
+        campaign_id = campaign_id,
+        watch_date  = today_str,
+        duration_secs = WATCH_DURATION,
+    )
+    db.add(watch)
+
+    # Update quota counter
+    quota.today_watched += 1
+    if quota.today_watched >= quota.daily_required:
+        quota.last_quota_met     = today_str
+        quota.consecutive_missed = 0
+        quota.commissions_paused = False
+
+    # Increment campaign views delivered
+    campaign.views_delivered = (campaign.views_delivered or 0) + 1
+
+    db.commit()
+
+    # Get next campaign
+    next_campaign = get_next_campaign(db, user.id)
+    quota_met     = quota.today_watched >= quota.daily_required
+
+    return {
+        "success":       True,
+        "watched_today": quota.today_watched,
+        "required":      quota.daily_required,
+        "quota_met":     quota_met,
+        "next_campaign": {
+            "id":        next_campaign.id,
+            "title":     next_campaign.title,
+            "embed_url": next_campaign.embed_url,
+            "platform":  next_campaign.platform,
+        } if next_campaign and not quota_met else None,
+    }
+
 # ═══════════════════════════════════════════════════════════════
 #  SOCIAL PROOF API — recent joiners notification feed
 # ═══════════════════════════════════════════════════════════════
