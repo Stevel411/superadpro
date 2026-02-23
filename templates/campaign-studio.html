@@ -497,8 +497,15 @@ async function generateCampaign() {
     });
     const data = await resp.json();
     clearInterval(stepTimer);
-    stepLabels.forEach(s => document.getElementById(s).className = 'step-chip done');
 
+    if (resp.status === 429 || data.rate_limited) {
+      document.getElementById('loadingCard').classList.remove('active');
+      document.getElementById('formSection').style.display = 'block';
+      showRateLimit(data.resets_in || 'midnight', 'Campaign Studio', 10);
+      return;
+    }
+
+    stepLabels.forEach(s => document.getElementById(s).className = 'step-chip done');
     await new Promise(r => setTimeout(r, 600));
     showResults(data, niche, platform);
   } catch(e) {
@@ -567,6 +574,24 @@ function resetForm() {
   document.getElementById('loadingCard').classList.remove('active');
   document.getElementById('formSection').style.display = 'block';
   window.scrollTo(0,0);
+}
+
+function showRateLimit(resetsIn, tool, limit) {
+  const container = document.getElementById('resultsContainer');
+  if (container) {
+    document.getElementById('resultsSection').classList.add('active');
+    container.innerHTML = `
+      <div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:14px;padding:32px;text-align:center">
+        <div style="font-size:36px;margin-bottom:12px">⏱️</div>
+        <div style="font-size:18px;font-weight:800;color:#c2410c;margin-bottom:8px">Daily Limit Reached</div>
+        <div style="font-size:14px;color:#64748b;line-height:1.7;margin-bottom:16px">
+          You've used all ${limit} ${tool} generations for today.<br>
+          Your limit resets in <strong style="color:#c2410c">${resetsIn}</strong>.
+        </div>
+        <div style="font-size:13px;color:#94a3b8">This keeps the AI tools fast and available for all members.</div>
+        <button onclick="resetForm()" style="margin-top:20px;padding:10px 24px;background:#0f172a;border:none;border-radius:8px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit">← Back to Studio</button>
+      </div>`;
+  }
 }
 </script>
 </body>

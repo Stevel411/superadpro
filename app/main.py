@@ -26,7 +26,7 @@ from .grid import (
 )
 from .email_utils import send_password_reset_email
 from .video_utils import parse_video_url, platform_label, platform_colour
-from .database import VideoCampaign, VideoWatch, WatchQuota
+from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota
 from .database import PasswordResetToken
 import secrets
 from datetime import timedelta
@@ -1079,6 +1079,54 @@ def admin_panel(request: Request, user: User = Depends(get_current_user),
 
 
 # ═══════════════════════════════════════════════════════════════
+#  AI USAGE RATE LIMITING
+# ═══════════════════════════════════════════════════════════════
+
+DAILY_LIMITS = {
+    "campaign_studio": 10,
+    "niche_finder":    10,
+}
+
+def check_and_increment_ai_quota(db: Session, user_id: int, tool: str) -> dict:
+    """Check daily limit. If within limit, increment and return allowed=True."""
+    from datetime import date
+    today = date.today().isoformat()
+    limit = DAILY_LIMITS.get(tool, 10)
+
+    quota = db.query(AIUsageQuota).filter(AIUsageQuota.user_id == user_id).first()
+    if not quota:
+        quota = AIUsageQuota(user_id=user_id, quota_date=today)
+        db.add(quota)
+        db.commit()
+        db.refresh(quota)
+
+    if quota.quota_date != today:
+        quota.quota_date = today
+        quota.campaign_studio_uses = 0
+        quota.niche_finder_uses = 0
+        db.commit()
+
+    field = f"{tool}_uses"
+    current = getattr(quota, field, 0)
+
+    if current >= limit:
+        from datetime import datetime, timedelta
+        now = datetime.utcnow()
+        tomorrow = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+        diff = tomorrow - now
+        hours = diff.seconds // 3600
+        mins  = (diff.seconds % 3600) // 60
+        resets_in = f"{hours}h {mins}m" if hours > 0 else f"{mins}m"
+        return {"allowed": False, "used": current, "limit": limit, "resets_in": resets_in}
+
+    setattr(quota, field, current + 1)
+    total_field = f"{tool}_total"
+    setattr(quota, total_field, getattr(quota, total_field, 0) + 1)
+    db.commit()
+    return {"allowed": True, "used": current + 1, "limit": limit, "resets_in": ""}
+
+
+# ═══════════════════════════════════════════════════════════════
 #  AI CAMPAIGN STUDIO
 # ═══════════════════════════════════════════════════════════════
 
@@ -1102,6 +1150,12 @@ async def generate_campaign(request: Request, user: User = Depends(get_current_u
         body = await request.json()
     except Exception:
         return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    # ── Rate limit ──
+    db_rl = next(get_db())
+    rl = check_and_increment_ai_quota(db_rl, user.id, "campaign_studio")
+    if not rl["allowed"]:
+        return JSONResponse({"error": f"Daily limit reached — {rl['limit']} generations per day. Resets in {rl['resets_in']}.", "rate_limited": True, "resets_in": rl["resets_in"]}, status_code=429)
 
     niche    = body.get("niche", "")
     offer    = body.get("offer", "")
@@ -1291,6 +1345,12 @@ async def generate_niches(request: Request, user: User = Depends(get_current_use
         body = await request.json()
     except Exception:
         return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    # ── Rate limit ──
+    db_rl = next(get_db())
+    rl = check_and_increment_ai_quota(db_rl, user.id, "niche_finder")
+    if not rl["allowed"]:
+        return JSONResponse({"error": f"Daily limit reached — {rl['limit']} runs per day. Resets in {rl['resets_in']}.", "rate_limited": True, "resets_in": rl["resets_in"]}, status_code=429)
 
     interests  = body.get("q1", [])
     experience = body.get("q2", "beginner")

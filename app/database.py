@@ -186,6 +186,19 @@ class WatchQuota(Base):
     commissions_paused  = Column(Boolean, default=False)  # True after 5 missed days
     updated_at          = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+
+class AIUsageQuota(Base):
+    """Daily AI tool usage tracking per member."""
+    __tablename__ = "ai_usage_quotas"
+    id                  = Column(Integer, primary_key=True, index=True)
+    user_id             = Column(Integer, ForeignKey("users.id"), unique=True, index=True)
+    quota_date          = Column(String, nullable=True)       # YYYY-MM-DD of current day
+    campaign_studio_uses = Column(Integer, default=0)         # resets daily
+    niche_finder_uses   = Column(Integer, default=0)          # resets daily
+    campaign_studio_total = Column(Integer, default=0)        # lifetime total
+    niche_finder_total  = Column(Integer, default=0)          # lifetime total
+    updated_at          = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 Base.metadata.create_all(bind=engine)
 
 # ── Auto-migration: add missing columns if they don't exist ──────────────
@@ -194,6 +207,7 @@ def run_migrations():
     migrations = [
         "CREATE TABLE IF NOT EXISTS video_campaigns (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), title VARCHAR NOT NULL, description TEXT, category VARCHAR, platform VARCHAR NOT NULL, video_url VARCHAR NOT NULL, embed_url VARCHAR NOT NULL, video_id VARCHAR, status VARCHAR DEFAULT 'active', views_target INTEGER DEFAULT 0, views_delivered INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
                 "CREATE TABLE IF NOT EXISTS password_reset_tokens (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), token VARCHAR UNIQUE NOT NULL, expires_at TIMESTAMP NOT NULL, used BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS ai_usage_quotas (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, quota_date VARCHAR, campaign_studio_uses INTEGER DEFAULT 0, niche_finder_uses INTEGER DEFAULT 0, campaign_studio_total INTEGER DEFAULT 0, niche_finder_total INTEGER DEFAULT 0, updated_at TIMESTAMP DEFAULT NOW())",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS wallet_address VARCHAR",

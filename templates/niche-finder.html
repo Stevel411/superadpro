@@ -532,6 +532,13 @@ async function generateNiches() {
       body: JSON.stringify(answers)
     });
     const data = await resp.json();
+
+    if (resp.status === 429 || data.rate_limited) {
+      document.getElementById('loadingCard').classList.remove('active');
+      showNicheRateLimit(data.resets_in || 'midnight');
+      return;
+    }
+
     await new Promise(r => setTimeout(r, 800));
     showResults(data);
   } catch(e) {
@@ -613,6 +620,24 @@ function restartQuiz() {
   document.querySelectorAll('.btn-next').forEach(b => b.disabled = true);
   document.getElementById('q1-next').disabled = true;
   window.scrollTo(0,0);
+}
+
+function showNicheRateLimit(resetsIn) {
+  document.getElementById('resultsSection').classList.add('active');
+  document.getElementById('nichesContainer').innerHTML = '';
+  document.getElementById('resultsMeta').textContent = '';
+  document.querySelector('.results-title').textContent = '';
+  document.getElementById('nichesContainer').innerHTML = `
+    <div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:14px;padding:32px;text-align:center;margin-bottom:20px">
+      <div style="font-size:36px;margin-bottom:12px">⏱️</div>
+      <div style="font-size:18px;font-weight:800;color:#c2410c;margin-bottom:8px">Daily Limit Reached</div>
+      <div style="font-size:14px;color:#64748b;line-height:1.7;margin-bottom:16px">
+        You've used all 10 Niche Finder runs for today.<br>
+        Your limit resets in <strong style="color:#c2410c">${resetsIn}</strong>.
+      </div>
+      <div style="font-size:13px;color:#94a3b8">This keeps the AI tools fast and available for all members.</div>
+      <button onclick="restartQuiz()" style="margin-top:20px;padding:10px 24px;background:#0f172a;border:none;border-radius:8px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit">← Start Over</button>
+    </div>`;
 }
 </script>
 </body>
