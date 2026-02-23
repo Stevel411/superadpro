@@ -29,7 +29,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 .topbar{background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.08);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0}
 .topbar-title{font-size:22px;font-weight:800;color:#ffffff}
 .topbar-sub{font-size:13px;color:#94a3b8;margin-top:1px}
-.content{padding:16px 20px;flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;gap:12px}
+.content{padding:20px 24px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
 
 /* ── Quota bar ── */
 .quota-bar-wrap{background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 20px;flex-shrink:0;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
@@ -51,25 +51,22 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 .warning-red{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171}
 
 /* ── Video player card ── */
-.player-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;width:100%;flex:1;min-height:0;display:flex;flex-direction:column;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.player-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;width:100%;display:flex;flex-direction:column;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
 .player-header{padding:12px 20px;border-bottom:1px solid #f1f5f9;flex-shrink:0}
 .campaign-title{font-size:16px;font-weight:800;color:#0f172a;margin-bottom:2px}
 .campaign-meta{font-size:13px;color:#64748b}
-.video-wrap{position:relative;flex:1;min-height:300px;background:#000;overflow:hidden}
+.video-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#000;overflow:hidden;border-radius:0}
 .video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;display:block}
 
-/* ── Timer overlay ── */
-.timer-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(5,13,26,0.8);display:flex;align-items:center;justify-content:center;z-index:10;transition:opacity 0.4s}
-.timer-overlay.hidden{opacity:0;pointer-events:none}
-.timer-circle{width:110px;height:110px;position:relative;display:flex;align-items:center;justify-content:center}
+/* ── Timer (below video in footer) ── */
+.timer-circle{width:56px;height:56px;position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .timer-svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
-.timer-bg{fill:none;stroke:rgba(255,255,255,0.1);stroke-width:6}
-.timer-arc{fill:none;stroke:url(#timerGrad);stroke-width:6;stroke-linecap:round;stroke-dasharray:283;stroke-dashoffset:283;transition:stroke-dashoffset 1s linear}
-.timer-num{font-size:34px;font-weight:800;color:#ffffff;z-index:1}
-.timer-label{font-size:11px;color:#475569;margin-top:4px;letter-spacing:1px;text-transform:uppercase;text-align:center}
+.timer-bg{fill:none;stroke:#e2e8f0;stroke-width:5}
+.timer-arc{fill:none;stroke:url(#timerGrad);stroke-width:5;stroke-linecap:round;stroke-dasharray:150.8;stroke-dashoffset:150.8;transition:stroke-dashoffset 1s linear}
+.timer-num{font-size:18px;font-weight:800;color:#0f172a;z-index:1}
 
 /* ── Player footer ── */
-.player-footer{padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#f8fafc;border-top:1px solid #e8ecf4;flex-shrink:0}
+.player-footer{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#f8fafc;border-top:1px solid #e8ecf4}
 .watch-status{font-size:14px;color:#64748b}
 .watch-status.counting{color:#00d4ff;font-weight:700}
 .watch-status.complete{color:#22c55e;font-weight:700}
@@ -246,44 +243,38 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
         </div>
       </div>
 
-      <div class="video-wrap">
-        <!-- SVG gradient for timer arc -->
-        <svg width="0" height="0" style="position:absolute">
-          <defs>
-            <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#00b4d8"/>
-              <stop offset="100%" stop-color="#7c3aed"/>
-            </linearGradient>
-          </defs>
-        </svg>
+      <!-- SVG gradient for timer arc -->
+      <svg width="0" height="0" style="position:absolute">
+        <defs>
+          <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#00b4d8"/>
+            <stop offset="100%" stop-color="#7c3aed"/>
+          </linearGradient>
+        </defs>
+      </svg>
 
+      <div class="video-wrap">
         <iframe id="videoFrame"
-          src="{{ campaign.embed_url }}{% if '?' in campaign.embed_url %}&{% else %}?{% endif %}autoplay=1&mute=1&auto_play=1"
+          src="{{ campaign.embed_url }}{% if '?' in campaign.embed_url %}&{% else %}?{% endif %}autoplay=1&mute=0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen>
         </iframe>
-
-        <!-- 30 second timer overlay -->
-        <div class="timer-overlay" id="timerOverlay">
-          <div style="text-align:center">
-            <div class="timer-circle">
-              <svg class="timer-svg" width="110" height="110" viewBox="0 0 110 110">
-                <circle class="timer-bg" cx="55" cy="55" r="45"/>
-                <circle class="timer-arc" id="timerArc" cx="55" cy="55" r="45"/>
-              </svg>
-              <div>
-                <div class="timer-num" id="timerNum">{{ watch_duration }}</div>
-              </div>
-            </div>
-            <div class="timer-label">seconds to qualify</div>
-            <div style="margin-top:16px;font-size:13px;color:#64748b">Watch the video while the timer counts down</div>
-          </div>
-        </div>
       </div>
 
+      <!-- Timer bar — below the video, not overlaid -->
       <div class="player-footer">
-        <div class="watch-status counting" id="watchStatus">
-          ⏱ Watching... timer counting down
+        <div style="display:flex;align-items:center;gap:14px">
+          <div class="timer-circle">
+            <svg class="timer-svg" width="56" height="56" viewBox="0 0 56 56">
+              <circle class="timer-bg" cx="28" cy="28" r="24"/>
+              <circle class="timer-arc" id="timerArc" cx="28" cy="28" r="24"/>
+            </svg>
+            <div class="timer-num" id="timerNum">{{ watch_duration }}</div>
+          </div>
+          <div>
+            <div class="watch-status counting" id="watchStatus">⏱ Watching — timer counting down</div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:2px">Must watch {{ watch_duration }}s to qualify</div>
+          </div>
         </div>
         <button class="btn-next" id="btnNext" onclick="submitWatch()">
           ✓ Mark as Watched →
@@ -312,32 +303,31 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 
   const timerArc    = document.getElementById('timerArc');
   const timerNum    = document.getElementById('timerNum');
-  const timerOverlay= document.getElementById('timerOverlay');
   const watchStatus = document.getElementById('watchStatus');
   const btnNext     = document.getElementById('btnNext');
   const quotaFill   = document.getElementById('quotaFill');
   const watchedCount= document.getElementById('watchedCount');
   const pctLabel    = document.getElementById('pctLabel');
 
-  const circumference = 2 * Math.PI * 45; // 282.7
+  const circumference = 2 * Math.PI * 24; // r=24 → 150.8
   let secondsLeft = DURATION;
   let timerDone   = false;
   let submitted   = false;
 
-  // Start timer
+  // Start timer immediately — video plays freely, timer counts alongside
   const interval = setInterval(() => {
     secondsLeft--;
     timerNum.textContent = secondsLeft;
 
-    // Update arc
+    // Update arc progress
     const progress = (DURATION - secondsLeft) / DURATION;
     timerArc.style.strokeDashoffset = circumference * (1 - progress);
 
     if (secondsLeft <= 0) {
       clearInterval(interval);
       timerDone = true;
-      timerOverlay.classList.add('hidden');
-      watchStatus.textContent = '✅ 30 seconds complete — click to record your view';
+      timerArc.style.strokeDashoffset = 0;
+      watchStatus.textContent = '✅ Qualified — click to record your view';
       watchStatus.className   = 'watch-status complete';
       btnNext.classList.add('ready');
     }
@@ -410,14 +400,13 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
     const sep = campaign.embed_url.includes('?') ? '&' : '?';
     document.getElementById('videoFrame').src = campaign.embed_url + sep + 'autoplay=1&mute=1&auto_play=1';
 
-    // Reset timer
+    // Reset timer for next video
     secondsLeft = DURATION;
     timerDone   = false;
     submitted   = false;
     timerArc.style.strokeDashoffset = circumference;
     timerNum.textContent            = DURATION;
-    timerOverlay.classList.remove('hidden');
-    watchStatus.textContent = '⏱ Watching... timer counting down';
+    watchStatus.textContent = '⏱ Watching — timer counting down';
     watchStatus.className   = 'watch-status counting';
     btnNext.classList.remove('ready');
     btnNext.textContent = '✓ Mark as Watched →';
@@ -432,8 +421,8 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
       if (secondsLeft <= 0) {
         clearInterval(newInterval);
         timerDone = true;
-        timerOverlay.classList.add('hidden');
-        watchStatus.textContent = '✅ 30 seconds complete — click to record your view';
+        timerArc.style.strokeDashoffset = 0;
+        watchStatus.textContent = '✅ Qualified — click to record your view';
         watchStatus.className   = 'watch-status complete';
         btnNext.classList.add('ready');
       }
