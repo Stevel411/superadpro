@@ -68,6 +68,12 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 
 /* ── Player footer ── */
 .player-footer{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#f8fafc;border-top:1px solid #e8ecf4}
+/* ── Unmute overlay ── */
+.unmute-overlay{position:absolute;top:12px;right:12px;z-index:20;background:rgba(5,13,26,0.75);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all 0.2s;backdrop-filter:blur(4px)}
+.unmute-overlay:hover{background:rgba(0,180,216,0.8);border-color:rgba(0,180,216,0.5)}
+.unmute-overlay.hidden{display:none}
+.unmute-icon{font-size:16px}
+.unmute-text{font-size:13px;font-weight:700;color:#ffffff;letter-spacing:0.3px}
 .watch-status{font-size:14px;color:#64748b}
 .watch-status.counting{color:#00d4ff;font-weight:700}
 .watch-status.complete{color:#22c55e;font-weight:700}
@@ -261,6 +267,11 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen>
         </iframe>
+        <!-- Unmute prompt — top right corner of video -->
+        <div class="unmute-overlay" id="unmuteOverlay" onclick="unmuteVideo()">
+          <span class="unmute-icon">🔇</span>
+          <span class="unmute-text">Click to unmute</span>
+        </div>
       </div>
 
       <!-- Timer bar — below the video, not overlaid -->
@@ -336,6 +347,17 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
     }
   }, 1000);
 
+  window.unmuteVideo = function() {
+    // Reload iframe src without mute=1 — browser allows this after user gesture
+    const frame = document.getElementById('videoFrame');
+    const overlay = document.getElementById('unmuteOverlay');
+    frame.src = frame.src
+      .replace('&mute=1', '')
+      .replace('mute=1&', '')
+      .replace('?mute=1', '?');
+    overlay.classList.add('hidden');
+  };
+
   window.submitWatch = async function() {
     if (!timerDone || submitted) return;
     submitted = true;
@@ -402,6 +424,9 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
       ' · Campaign #' + campaign.id;
     const sep = campaign.embed_url.includes('?') ? '&' : '?';
     document.getElementById('videoFrame').src = campaign.embed_url + sep + 'autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1';
+    // Show unmute overlay again for new video
+    const uo = document.getElementById('unmuteOverlay');
+    if (uo) uo.classList.remove('hidden');
 
     // Reset timer for next video
     secondsLeft = DURATION;
