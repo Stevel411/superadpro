@@ -1,4 +1,6 @@
 import os
+import anthropic
+import json
 import logging
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
@@ -1074,3 +1076,193 @@ def admin_panel(request: Request, user: User = Depends(get_current_user),
         "revenue_sum":     round(revenue_sum, 2),
         "pending_withdrawals": pending_w,
     })
+
+
+# ═══════════════════════════════════════════════════════════════
+#  AI CAMPAIGN STUDIO
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/campaign-studio")
+def campaign_studio(request: Request, user: User = Depends(get_current_user),
+                    db: Session = Depends(get_db)):
+    if not user: return RedirectResponse(url="/login")
+    ctx = get_dashboard_context(request, user, db)
+    return templates.TemplateResponse("campaign-studio.html", ctx)
+
+
+@app.post("/api/campaign-studio/generate")
+async def generate_campaign(request: Request, user: User = Depends(get_current_user)):
+    if not user:
+        from fastapi.responses import JSONResponse
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from fastapi.responses import JSONResponse
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    niche    = body.get("niche", "")
+    offer    = body.get("offer", "")
+    audience = body.get("audience", "")
+    platform = body.get("platform", "YouTube")
+    tone     = body.get("tone", "Energetic & Motivational")
+    usp      = body.get("usp", "")
+    outputs  = body.get("outputs", ["🎬 Video Script", "📧 Email Sequence", "📱 Social Captions", "🖼️ Thumbnail Concepts"])
+
+    # Build what to generate
+    output_instructions = []
+    sections_to_build = []
+
+    if any("Video Script" in o for o in outputs):
+        output_instructions.append("""
+### 🎬 VIDEO SCRIPT
+Write a complete, engaging video script optimised for {platform}.
+Format with clearly labelled sections: HOOK (first 8 seconds), INTRO (15 seconds), MAIN CONTENT, CALL TO ACTION.
+The hook must be irresistible and create immediate curiosity or shock. Make it specific to {niche}.
+Aim for a 4-6 minute video (approximately 600-800 words of script).
+""")
+        sections_to_build.append(("🎬", "Video Script"))
+
+    if any("Email" in o for o in outputs):
+        output_instructions.append("""
+### 📧 EMAIL SEQUENCE
+Write a 3-email sequence for someone who just discovered this offer.
+Email 1: Welcome / curiosity hook (subject line + body, 150 words)
+Email 2: Social proof + overcome objections (subject line + body, 200 words)
+Email 3: Urgency + clear CTA (subject line + body, 150 words)
+""")
+        sections_to_build.append(("📧", "Email Sequence (3 Emails)"))
+
+    if any("Social" in o for o in outputs):
+        output_instructions.append("""
+### 📱 SOCIAL CAPTIONS
+Write 5 social media captions for {platform}, each with a different angle:
+1. Curiosity / Question hook
+2. Income/results focused
+3. Lifestyle / transformation
+4. Behind the scenes / authenticity
+5. Direct call to action
+Each caption should be 3-5 sentences + 5 relevant hashtags.
+""")
+        sections_to_build.append(("📱", "Social Media Captions"))
+
+    if any("Thumbnail" in o for o in outputs):
+        output_instructions.append("""
+### 🖼️ THUMBNAIL CONCEPTS
+Provide 4 thumbnail concepts with:
+- Visual description (what's in the image)
+- Text overlay (max 5 words, high contrast)
+- Canva/Midjourney prompt to create it
+- Why this will get clicks (psychology behind it)
+""")
+        sections_to_build.append(("🖼️", "Thumbnail Concepts"))
+
+    if any("Headlines" in o for o in outputs):
+        output_instructions.append("""
+### 💥 HEADLINES & HOOKS
+Write 10 headline/hook variations:
+- 3 curiosity-based
+- 3 result/benefit-based
+- 2 fear of missing out
+- 2 contrarian / surprising
+""")
+        sections_to_build.append(("💥", "Headlines & Hooks"))
+
+    if any("WhatsApp" in o or "DM" in o for o in outputs):
+        output_instructions.append("""
+### 💬 WHATSAPP / DM SCRIPT
+Write a natural-sounding WhatsApp or direct message script to share with contacts.
+Include: opening message (not salesy), follow-up if no reply, response to "what is it?", and closing CTA.
+Keep it conversational — like a real person texting a friend.
+""")
+        sections_to_build.append(("💬", "WhatsApp / DM Script"))
+
+    outputs_text = "\n".join(o.format(platform=platform, niche=niche) for o in output_instructions)
+
+    prompt = f"""You are an elite digital marketing strategist helping a member of SuperAdPro — a video marketing membership platform — create their campaign assets.
+
+MEMBER'S BRIEF:
+- Niche: {niche}
+- Offer: {offer}
+- Target audience: {audience if audience else "general online income seekers"}
+- Primary platform: {platform}
+- Tone of voice: {tone}
+- Unique selling point: {usp if usp else "exclusive membership with multiple income streams"}
+
+CONTEXT: SuperAdPro is a $10/month membership that includes a Watch-to-Earn commission system, an AI & Marketing video course, and a suite of AI marketing tools. Members are typically people looking to earn online income, learn digital marketing, or build a side hustle.
+
+YOUR TASK:
+Generate all of the following marketing assets. Each section should be complete, specific, and immediately usable — not generic templates. Use the member's exact niche, tone and offer throughout.
+
+{outputs_text}
+
+IMPORTANT RULES:
+- Be specific to their niche — never write generic content that could apply to anything
+- Use the tone of voice they specified throughout
+- Every script, caption and email should feel written by a human expert, not an AI
+- Include specific numbers, claims and hooks that make the content compelling
+- Format clearly with the section headers exactly as shown above"""
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        # Return a demo response if no API key configured
+        demo_sections = []
+        for emoji, title in sections_to_build:
+            demo_sections.append({
+                "icon": emoji,
+                "title": title,
+                "content": f"**{title} — Demo Mode**\n\nTo activate the AI Campaign Studio, add your ANTHROPIC_API_KEY to your Railway environment variables.\n\nOnce configured, the AI will generate complete, personalised {title.lower()} content for your {niche} campaign targeting {audience or 'your audience'} on {platform}."
+            })
+        return JSONResponse({"sections": demo_sections, "demo": True})
+
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+        message = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=4000,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        full_text = message.content[0].text
+
+        # Parse into sections
+        sections = []
+        for emoji, title in sections_to_build:
+            # Find section in response
+            markers = [f"### {emoji}", f"# {emoji}", f"## {emoji}",
+                      f"### {title.split('(')[0].strip()}", f"**{title}"]
+            start_idx = -1
+            for marker in markers:
+                idx = full_text.find(marker)
+                if idx >= 0:
+                    start_idx = idx
+                    break
+
+            if start_idx >= 0:
+                # Find next section
+                next_idx = len(full_text)
+                for _, next_title in sections_to_build:
+                    if next_title == title:
+                        continue
+                    for m in [f"### ", f"## "]:
+                        ni = full_text.find(m, start_idx + 50)
+                        if 0 < ni < next_idx:
+                            next_idx = ni
+                section_text = full_text[start_idx:next_idx].strip()
+                # Remove the header line
+                lines = section_text.split("\n")
+                section_text = "\n".join(lines[1:]).strip()
+            else:
+                section_text = f"Content generated for your {title.lower()}. Please try regenerating if this appears incomplete."
+
+            sections.append({"icon": emoji, "title": title, "content": section_text})
+
+        return JSONResponse({"sections": sections})
+
+    except anthropic.AuthenticationError:
+        return JSONResponse({"error": "Invalid API key — check your ANTHROPIC_API_KEY"}, status_code=500)
+    except Exception as e:
+        logging.error(f"Campaign studio error: {e}")
+        return JSONResponse({"error": "AI generation failed — please try again"}, status_code=500)
+

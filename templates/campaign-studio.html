@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI Campaign Studio — SuperAdPro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+.layout{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{width:220px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,240,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:18px 16px 14px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.05)}
+.sidebar-brand{font-size:15px;font-weight:800;color:#fff;letter-spacing:0.5px}
+.nav-section{padding:18px 14px 6px;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:13px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
+.nav-item:hover{color:rgba(200,220,255,0.9);background:rgba(255,255,255,0.03)}
+.nav-item.active{color:#00f0ff;border-left-color:#00f0ff;background:rgba(0,240,255,0.06)}
+.nav-icon{font-size:14px;width:18px;text-align:center}
+.user-mini{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00f0ff);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+.sidebar-footer{margin-top:auto;border-top:1px solid rgba(255,255,255,0.05)}
+
+/* ── MAIN ── */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.1);position:sticky;top:0;z-index:50}
+.topbar-title{font-size:15px;font-weight:800;color:#ffffff}
+.topbar-sub{font-size:11px;color:#94a3b8;margin-top:1px}
+.balance-pill{background:rgba(0,180,216,0.06);border:1px solid rgba(0,180,216,0.15);border-radius:8px;padding:6px 14px;display:flex;align-items:center;gap:10px}
+.balance-label{font-size:9px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase}
+.balance-val{font-size:15px;font-weight:800;color:#16a34a}
+.balance-unit{font-size:11px;color:#94a3b8;margin-left:3px}
+
+/* ── CONTENT ── */
+.content{padding:28px;flex:1}
+.studio-wrap{max-width:860px;margin:0 auto}
+
+/* ── HERO ── */
+.studio-hero{background:linear-gradient(135deg,#0a0a1a 0%,#0d1230 50%,#0a0a1a 100%);border:1px solid rgba(0,180,216,0.15);border-radius:20px;padding:36px 40px;margin-bottom:28px;position:relative;overflow:hidden}
+.studio-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:280px;height:280px;background:radial-gradient(circle,rgba(0,180,216,0.12),transparent 70%);pointer-events:none}
+.studio-hero::after{content:'';position:absolute;bottom:-40px;left:40%;width:200px;height:200px;background:radial-gradient(circle,rgba(109,40,217,0.1),transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(0,180,216,0.1);border:1px solid rgba(0,180,216,0.2);border-radius:999px;padding:5px 14px;font-size:11px;font-weight:700;color:#00b4d8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px}
+.hero-dot{width:6px;height:6px;border-radius:50%;background:#00b4d8;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+.hero-title{font-size:28px;font-weight:800;color:#ffffff;line-height:1.2;margin-bottom:10px}
+.hero-title span{background:linear-gradient(135deg,#00f0ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:14px;color:rgba(200,220,255,0.65);line-height:1.7;max-width:560px}
+
+/* ── FORM CARD ── */
+.form-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.form-card-head{padding:16px 24px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:10px}
+.form-card-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.form-card-title{font-size:14px;font-weight:700;color:#0f172a}
+.form-card-sub{font-size:12px;color:#94a3b8;margin-top:1px}
+.form-card-body{padding:24px}
+
+/* ── INPUTS ── */
+.field-group{margin-bottom:20px}
+.field-group:last-child{margin-bottom:0}
+.field-label{font-size:11px;font-weight:700;color:#475569;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;display:block}
+.field-input,.field-select,.field-textarea{width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;color:#0f172a;font-family:'Rethink Sans',sans-serif;background:#fafbfc;transition:all 0.2s;outline:none}
+.field-input:focus,.field-select:focus,.field-textarea:focus{border-color:#00b4d8;background:#fff;box-shadow:0 0 0 3px rgba(0,180,216,0.08)}
+.field-textarea{resize:vertical;min-height:90px;line-height:1.6}
+.field-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer}
+.field-hint{font-size:11px;color:#94a3b8;margin-top:5px;line-height:1.5}
+
+/* ── OUTPUT TYPES ── */
+.output-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.output-check{display:none}
+.output-label{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:9px;cursor:pointer;transition:all 0.2s;background:#fafbfc;font-size:13px;font-weight:600;color:#475569}
+.output-label:hover{border-color:#00b4d8;background:#f0f9ff}
+.output-check:checked + .output-label{border-color:#00b4d8;background:#f0f9ff;color:#0f172a}
+.output-check:checked + .output-label .output-tick{background:#00b4d8;border-color:#00b4d8;color:#fff}
+.output-tick{width:18px;height:18px;border-radius:5px;border:1.5px solid #cbd5e1;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s;flex-shrink:0}
+.output-emoji{font-size:16px}
+
+/* ── GENERATE BUTTON ── */
+.generate-btn{width:100%;padding:16px;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:12px;font-size:15px;font-weight:800;color:#fff;cursor:pointer;font-family:'Rethink Sans',sans-serif;letter-spacing:0.3px;transition:all 0.2s;box-shadow:0 4px 20px rgba(0,180,216,0.3);position:relative;overflow:hidden}
+.generate-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(0,180,216,0.4)}
+.generate-btn:active{transform:translateY(0)}
+.generate-btn:disabled{opacity:0.7;cursor:not-allowed;transform:none}
+.generate-btn .btn-shine{position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transition:left 0.5s}
+.generate-btn:hover .btn-shine{left:100%}
+
+/* ── LOADING ── */
+.loading-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:48px 24px;text-align:center;display:none}
+.loading-card.active{display:block}
+.loading-spinner{width:48px;height:48px;border:3px solid #e2e8f0;border-top-color:#00b4d8;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-title{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:6px}
+.loading-sub{font-size:13px;color:#94a3b8}
+.loading-steps{display:flex;justify-content:center;gap:6px;margin-top:20px;flex-wrap:wrap}
+.step-chip{padding:4px 12px;border-radius:999px;font-size:11px;font-weight:600;background:#f1f5f9;color:#94a3b8;transition:all 0.3s}
+.step-chip.active{background:#e0f9fe;color:#00b4d8;border:1px solid #bae6fd}
+.step-chip.done{background:#dcfce7;color:#16a34a;border:1px solid #86efac}
+
+/* ── RESULTS ── */
+.results-section{display:none}
+.results-section.active{display:block}
+.result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.result-title{font-size:20px;font-weight:800;color:#0f172a}
+.result-meta{font-size:12px;color:#94a3b8}
+.result-actions{display:flex;gap:8px}
+.btn-copy-all{padding:9px 18px;background:#0f172a;border:none;border-radius:8px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:'Rethink Sans',sans-serif;transition:all 0.2s}
+.btn-regenerate{padding:9px 18px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-weight:700;color:#475569;cursor:pointer;font-family:'Rethink Sans',sans-serif;transition:all 0.2s}
+.btn-regenerate:hover{background:#e2e8f0}
+
+/* ── OUTPUT BLOCKS ── */
+.output-block{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;margin-bottom:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.03)}
+.output-block-head{padding:14px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between}
+.output-block-label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:1px}
+.output-block-icon{font-size:16px}
+.copy-btn{padding:5px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;font-weight:700;color:#64748b;cursor:pointer;font-family:'Rethink Sans',sans-serif;transition:all 0.15s}
+.copy-btn:hover{background:#e2e8f0;color:#0f172a}
+.copy-btn.copied{background:#dcfce7;border-color:#86efac;color:#16a34a}
+.output-block-body{padding:20px;font-size:14px;line-height:1.8;color:#334155;white-space:pre-wrap}
+.output-block-body h4{font-size:13px;font-weight:700;color:#0f172a;margin:14px 0 6px;text-transform:uppercase;letter-spacing:0.5px}
+.output-block-body h4:first-child{margin-top:0}
+.output-block-body strong{color:#0f172a;font-weight:700}
+.output-block-body em{color:#6d28d9;font-style:normal;font-weight:600}
+
+/* ── NICHE PILLS ── */
+.niche-suggestions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.niche-pill{padding:5px 12px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:999px;font-size:11px;font-weight:600;color:#475569;cursor:pointer;transition:all 0.15s}
+.niche-pill:hover{background:#e0f9fe;border-color:#bae6fd;color:#0077a8}
+
+/* ── TIER BADGE ── */
+.tier-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.tier-1{background:#dcfce7;color:#16a34a;border:1px solid #86efac}
+
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:16px}.output-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="shield" viewBox="0 0 100 100">
+      <defs>
+        <linearGradient id="hexgrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4f8ef7"/>
+          <stop offset="50%" stop-color="#6d28d9"/>
+          <stop offset="100%" stop-color="#00b4d8"/>
+        </linearGradient>
+        <linearGradient id="hexinner" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#1a3a8f"/>
+          <stop offset="100%" stop-color="#0d1a5c"/>
+        </linearGradient>
+      </defs>
+      <polygon points="50,3 93,27 93,73 50,97 7,73 7,27" fill="url(#hexgrad)"/>
+      <polygon points="50,12 84,31 84,69 50,88 16,69 16,31" fill="url(#hexinner)"/>
+      <text x="50" y="63" text-anchor="middle" font-family="Arial Black,sans-serif" font-weight="900" font-size="38" fill="#00d4ff" letter-spacing="-2">S</text>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a href="/dashboard" class="sidebar-logo">
+      <svg width="30" height="30"><use href="#shield"/></svg>
+      <span class="sidebar-brand">SuperAdPro</span>
+    </a>
+
+    <div class="nav-section">Main</div>
+    <a href="/dashboard"     class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
+    <a href="/packages"      class="nav-item"><span class="nav-icon">📦</span>Campaign Tiers</a>
+    <a href="/watch"         class="nav-item"><span class="nav-icon">▶</span>Watch &amp; Earn</a>
+    <a href="/video-library" class="nav-item"><span class="nav-icon">🎬</span>My Campaigns</a>
+
+    <div class="nav-section">Marketing Suite</div>
+    <a href="/campaign-studio" class="nav-item active"><span class="nav-icon">🤖</span>AI Campaign Studio</a>
+    <a href="/campaign-studio" class="nav-item"><span class="nav-icon">💡</span>Niche Finder</a>
+    <a href="/campaign-studio" class="nav-item"><span class="nav-icon">📋</span>Swipe File</a>
+    <a href="/affiliate"       class="nav-item"><span class="nav-icon">🔗</span>Referral Hub</a>
+
+    <div class="nav-section">Income Streams</div>
+    <a href="/income-grid"       class="nav-item"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
+    <a href="/wallet"            class="nav-item"><span class="nav-icon">◎</span>Wallet</a>
+    <a href="/affiliate"         class="nav-item"><span class="nav-icon">🤝</span>Affiliate Tools</a>
+    <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span>Comp Plan</a>
+    <a href="/grid-visualiser"   class="nav-item"><span class="nav-icon">◈</span>Grid Visualiser</a>
+
+    <div class="nav-section">Account</div>
+    <a href="/account" class="nav-item"><span class="nav-icon">◉</span>Profile</a>
+    <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
+
+    <div class="sidebar-footer">
+      <div class="user-mini">
+        <div class="user-avatar">{{ user.username[:2].upper() }}</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#fff">{{ user.first_name or user.username }}</div>
+          <div style="font-size:9px;color:#10b981;letter-spacing:1px;text-transform:uppercase;margin-top:1px">● Active</div>
+        </div>
+      </div>
+      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:11px;color:#64748b;text-decoration:none;margin-top:6px">⎋ Sign Out</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">🤖 AI Campaign Studio</div>
+        <div class="topbar-sub">Your personal AI marketing co-pilot — powered by SuperAdPro</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="balance-pill">
+          <div>
+            <div class="balance-label">Balance</div>
+            <div><span class="balance-val">${{ '%.2f'|format(balance) }}</span><span class="balance-unit">USDT</span></div>
+          </div>
+        </div>
+        <a href="/packages" style="font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:10px 20px;border-radius:7px;text-decoration:none">+ Activate Tier</a>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="studio-wrap">
+
+        <!-- HERO -->
+        <div class="studio-hero">
+          <div class="hero-badge"><span class="hero-dot"></span>Members Only · SuperAdPro Exclusive</div>
+          <h1 class="hero-title">Your AI Campaign<br><span>Co-Pilot is Ready</span></h1>
+          <p class="hero-sub">Tell the AI what you're promoting and it builds your complete campaign — video script, email sequence, social captions, thumbnail concepts and more. No guesswork. No blank page.</p>
+        </div>
+
+        <!-- FORM -->
+        <div id="formSection">
+
+          <!-- Step 1: What are you promoting -->
+          <div class="form-card">
+            <div class="form-card-head">
+              <div class="form-card-icon" style="background:#e0f9fe">🎯</div>
+              <div>
+                <div class="form-card-title">What are you promoting?</div>
+                <div class="form-card-sub">Tell the AI about your offer or business</div>
+              </div>
+            </div>
+            <div class="form-card-body">
+              <div class="field-group">
+                <label class="field-label">Your Niche / Industry</label>
+                <select class="field-select" id="nicheSelect" onchange="syncNiche()">
+                  <option value="">— Select your niche —</option>
+                  <option>Affiliate Marketing</option>
+                  <option>Crypto & Passive Income</option>
+                  <option>Health & Fitness</option>
+                  <option>Make Money Online</option>
+                  <option>Digital Products & Courses</option>
+                  <option>E-commerce & Dropshipping</option>
+                  <option>Coaching & Consulting</option>
+                  <option>Real Estate & Investing</option>
+                  <option>Software & SaaS</option>
+                  <option>Network Marketing / MLM</option>
+                  <option>Personal Development</option>
+                  <option>Beauty & Lifestyle</option>
+                  <option>Other</option>
+                </select>
+                <div class="niche-suggestions">
+                  <span class="niche-pill" onclick="setNiche('Affiliate Marketing')">Affiliate Marketing</span>
+                  <span class="niche-pill" onclick="setNiche('Crypto & Passive Income')">Crypto</span>
+                  <span class="niche-pill" onclick="setNiche('Make Money Online')">Make Money Online</span>
+                  <span class="niche-pill" onclick="setNiche('Health & Fitness')">Health & Fitness</span>
+                  <span class="niche-pill" onclick="setNiche('Coaching & Consulting')">Coaching</span>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Describe your offer in one or two sentences</label>
+                <textarea class="field-textarea" id="offerDesc" placeholder="e.g. A $10/month membership that gives people access to a Watch-to-Earn income system, an AI marketing course and powerful marketing tools..."></textarea>
+                <div class="field-hint">The more specific you are, the better the AI can tailor your campaign</div>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Target Audience</label>
+                <input class="field-input" id="targetAudience" type="text" placeholder="e.g. Side-hustle seekers aged 25-45, beginners to online income...">
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Platform & Tone -->
+          <div class="form-card">
+            <div class="form-card-head">
+              <div class="form-card-icon" style="background:#ede9fe">📣</div>
+              <div>
+                <div class="form-card-title">Platform & Tone</div>
+                <div class="form-card-sub">Where will you be promoting?</div>
+              </div>
+            </div>
+            <div class="form-card-body">
+              <div class="field-group">
+                <label class="field-label">Primary Platform</label>
+                <select class="field-select" id="platform">
+                  <option>YouTube</option>
+                  <option>Facebook / Meta</option>
+                  <option>TikTok</option>
+                  <option>Instagram</option>
+                  <option>Email Marketing</option>
+                  <option>WhatsApp / Telegram</option>
+                  <option>Twitter / X</option>
+                  <option>LinkedIn</option>
+                  <option>Blog / SEO</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Tone of Voice</label>
+                <select class="field-select" id="tone">
+                  <option>Energetic & Motivational</option>
+                  <option>Professional & Trustworthy</option>
+                  <option>Friendly & Conversational</option>
+                  <option>Bold & Direct</option>
+                  <option>Educational & Informative</option>
+                  <option>Urgent & Scarcity-driven</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Unique Selling Point (optional)</label>
+                <input class="field-input" id="usp" type="text" placeholder="e.g. Only $10/month, earn while you learn, no experience needed...">
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Choose outputs -->
+          <div class="form-card">
+            <div class="form-card-head">
+              <div class="form-card-icon" style="background:#dcfce7">✨</div>
+              <div>
+                <div class="form-card-title">What do you want the AI to build?</div>
+                <div class="form-card-sub">Select all that apply — the AI builds everything in one go</div>
+              </div>
+            </div>
+            <div class="form-card-body">
+              <div class="output-grid">
+                <div>
+                  <input type="checkbox" class="output-check" id="out-script" checked>
+                  <label class="output-label" for="out-script">
+                    <span class="output-tick">✓</span>
+                    <span class="output-emoji">🎬</span>
+                    Video Script
+                  </label>
+                </div>
+                <div>
+                  <input type="checkbox" class="output-check" id="out-email" checked>
+                  <label class="output-label" for="out-email">
+                    <span class="output-tick">✓</span>
+                    <span class="output-emoji">📧</span>
+                    Email Sequence
+                  </label>
+                </div>
+                <div>
+                  <input type="checkbox" class="output-check" id="out-social" checked>
+                  <label class="output-label" for="out-social">
+                    <span class="output-tick">✓</span>
+                    <span class="output-emoji">📱</span>
+                    Social Captions
+                  </label>
+                </div>
+                <div>
+                  <input type="checkbox" class="output-check" id="out-thumbnail" checked>
+                  <label class="output-label" for="out-thumbnail">
+                    <span class="output-tick">✓</span>
+                    <span class="output-emoji">🖼️</span>
+                    Thumbnail Concepts
+                  </label>
+                </div>
+                <div>
+                  <input type="checkbox" class="output-check" id="out-headlines">
+                  <label class="output-label" for="out-headlines">
+                    <span class="output-tick"></span>
+                    <span class="output-emoji">💥</span>
+                    Headlines & Hooks
+                  </label>
+                </div>
+                <div>
+                  <input type="checkbox" class="output-check" id="out-whatsapp">
+                  <label class="output-label" for="out-whatsapp">
+                    <span class="output-tick"></span>
+                    <span class="output-emoji">💬</span>
+                    WhatsApp / DM Script
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Generate Button -->
+          <button class="generate-btn" onclick="generateCampaign()">
+            <span class="btn-shine"></span>
+            ⚡ Build My Campaign — Generate Now
+          </button>
+
+        </div><!-- /formSection -->
+
+        <!-- LOADING -->
+        <div class="loading-card" id="loadingCard">
+          <div class="loading-spinner"></div>
+          <div class="loading-title">Building your campaign...</div>
+          <div class="loading-sub">The AI is crafting your personalised marketing assets</div>
+          <div class="loading-steps">
+            <span class="step-chip" id="step1">Analysing niche</span>
+            <span class="step-chip" id="step2">Writing scripts</span>
+            <span class="step-chip" id="step3">Crafting emails</span>
+            <span class="step-chip" id="step4">Social content</span>
+            <span class="step-chip" id="step5">Finalising</span>
+          </div>
+        </div>
+
+        <!-- RESULTS -->
+        <div class="results-section" id="resultsSection">
+          <div class="result-header">
+            <div>
+              <div class="result-title">Your Campaign Is Ready 🎉</div>
+              <div class="result-meta" id="resultMeta">Generated just now</div>
+            </div>
+            <div class="result-actions">
+              <button class="btn-regenerate" onclick="resetForm()">← Start Over</button>
+              <button class="btn-copy-all" onclick="copyAll()">Copy All</button>
+            </div>
+          </div>
+          <div id="resultsContainer"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function setNiche(val) {
+  document.getElementById('nicheSelect').value = val;
+  document.getElementById('offerDesc').placeholder = `e.g. Promoting ${val} products/services...`;
+}
+function syncNiche() {
+  const v = document.getElementById('nicheSelect').value;
+  if (v) setNiche(v);
+}
+
+const stepLabels = ['step1','step2','step3','step4','step5'];
+let stepTimer;
+
+function animateSteps() {
+  let i = 0;
+  stepTimer = setInterval(() => {
+    if (i > 0) document.getElementById(stepLabels[i-1]).className = 'step-chip done';
+    if (i < stepLabels.length) {
+      document.getElementById(stepLabels[i]).className = 'step-chip active';
+      i++;
+    }
+  }, 1200);
+}
+
+function resetSteps() {
+  clearInterval(stepTimer);
+  stepLabels.forEach(s => document.getElementById(s).className = 'step-chip');
+}
+
+function getChecked() {
+  const map = {
+    'out-script':    '🎬 Video Script',
+    'out-email':     '📧 Email Sequence',
+    'out-social':    '📱 Social Captions',
+    'out-thumbnail': '🖼️ Thumbnail Concepts',
+    'out-headlines': '💥 Headlines & Hooks',
+    'out-whatsapp':  '💬 WhatsApp / DM Script',
+  };
+  return Object.entries(map).filter(([id]) => document.getElementById(id).checked).map(([,label]) => label);
+}
+
+async function generateCampaign() {
+  const niche = document.getElementById('nicheSelect').value;
+  const offer = document.getElementById('offerDesc').value.trim();
+  const audience = document.getElementById('targetAudience').value.trim();
+  const platform = document.getElementById('platform').value;
+  const tone = document.getElementById('tone').value;
+  const usp = document.getElementById('usp').value.trim();
+  const outputs = getChecked();
+
+  if (!niche) { alert('Please select your niche first.'); return; }
+  if (!offer) { alert('Please describe your offer.'); return; }
+  if (outputs.length === 0) { alert('Please select at least one output type.'); return; }
+
+  // Show loading
+  document.getElementById('formSection').style.display = 'none';
+  document.getElementById('loadingCard').classList.add('active');
+  document.getElementById('resultsSection').classList.remove('active');
+  resetSteps();
+  animateSteps();
+
+  try {
+    const resp = await fetch('/api/campaign-studio/generate', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ niche, offer, audience, platform, tone, usp, outputs })
+    });
+    const data = await resp.json();
+    clearInterval(stepTimer);
+    stepLabels.forEach(s => document.getElementById(s).className = 'step-chip done');
+
+    await new Promise(r => setTimeout(r, 600));
+    showResults(data, niche, platform);
+  } catch(e) {
+    clearInterval(stepTimer);
+    alert('Something went wrong — please try again.');
+    resetForm();
+  }
+}
+
+function showResults(data, niche, platform) {
+  document.getElementById('loadingCard').classList.remove('active');
+  document.getElementById('resultsSection').classList.add('active');
+
+  const meta = `${niche} · ${platform} · ${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;
+  document.getElementById('resultMeta').textContent = meta;
+
+  const container = document.getElementById('resultsContainer');
+  container.innerHTML = '';
+
+  const sections = data.sections || [];
+  sections.forEach((sec, idx) => {
+    const block = document.createElement('div');
+    block.className = 'output-block';
+    block.innerHTML = `
+      <div class="output-block-head">
+        <div class="output-block-label">
+          <span class="output-block-icon">${sec.icon}</span>
+          ${sec.title}
+        </div>
+        <button class="copy-btn" onclick="copyBlock(this, ${idx})">Copy</button>
+      </div>
+      <div class="output-block-body" id="block-${idx}">${formatContent(sec.content)}</div>
+    `;
+    container.appendChild(block);
+  });
+}
+
+function formatContent(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^#{1,3}\s+(.+)$/gm, '<h4>$1</h4>')
+    .replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid #f1f5f9;margin:12px 0">')
+    .replace(/\n/g, '<br>');
+}
+
+function copyBlock(btn, idx) {
+  const text = document.getElementById(`block-${idx}`).innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyAll() {
+  const all = Array.from(document.querySelectorAll('.output-block-body')).map(el => el.innerText).join('\n\n---\n\n');
+  navigator.clipboard.writeText(all).then(() => {
+    const btn = event.target;
+    btn.textContent = '✓ All Copied!';
+    setTimeout(() => btn.textContent = 'Copy All', 2000);
+  });
+}
+
+function resetForm() {
+  document.getElementById('resultsSection').classList.remove('active');
+  document.getElementById('loadingCard').classList.remove('active');
+  document.getElementById('formSection').style.display = 'block';
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
