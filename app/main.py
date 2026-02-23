@@ -1026,6 +1026,24 @@ def recent_joiners(db: Session = Depends(get_db)):
 #  ADMIN ROUTES
 # ═══════════════════════════════════════════════════════════════
 
+
+@app.get("/dev/reset-watch")
+def dev_reset_watch(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """TEMPORARY — reset today's watch quota for testing. Remove before launch."""
+    from datetime import date
+    if not user: return RedirectResponse(url="/login")
+    today = str(date.today())
+    quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
+    if quota:
+        quota.today_watched = 0
+        quota.today_date = today
+    db.query(VideoWatch).filter(
+        VideoWatch.user_id == user.id,
+        VideoWatch.watch_date == today
+    ).delete()
+    db.commit()
+    return RedirectResponse(url="/watch", status_code=303)
+
 @app.get("/admin")
 def admin_panel(request: Request, user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
