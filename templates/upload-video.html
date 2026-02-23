@@ -7,12 +7,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Rethink Sans',sans-serif;background:#050d1a;color:#e8f0fe;min-height:100vh;display:flex}
+body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh;display:flex}
 .sidebar{width:224px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
 .sidebar-brand{font-weight:800;font-size:17px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .nav-section{padding:18px 16px 5px;font-size:18px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.3)}
-.nav-item{display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:17px;font-weight:500;color:rgba(200,220,255,0.5);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:17px;font-weight:500;color:#64748b;text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
 .nav-item:hover{color:rgba(200,220,255,0.9);background:rgba(255,255,255,0.03)}
 .nav-item.active{color:#00d4ff;background:rgba(0,212,255,0.07);border-left-color:#00d4ff}
 .nav-icon{font-size:18px;width:18px;text-align:center;flex-shrink:0}
@@ -24,7 +24,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#050d1a;color:#e8f0fe;min-
 .content{padding:32px;max-width:680px;margin:0 auto;width:100%}
 .card{background:#0a1628;border:1px solid rgba(0,180,216,0.15);border-radius:12px;padding:36px}
 .card-title{font-size:20px;font-weight:800;color:#ffffff;margin-bottom:6px}
-.card-sub{font-size:17px;color:rgba(200,220,255,0.5);margin-bottom:28px;line-height:1.6}
+.card-sub{font-size:17px;color:#64748b;margin-bottom:28px;line-height:1.6}
 .platforms-row{display:flex;gap:10px;margin-bottom:24px}
 .platform-pill{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:50px;border:1px solid rgba(0,180,216,0.2);font-size:18px;font-weight:600;color:rgba(200,220,255,0.65);background:rgba(0,180,216,0.05)}
 .platform-pill .dot{width:8px;height:8px;border-radius:50%}
@@ -34,7 +34,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#050d1a;color:#e8f0fe;min-
 .field input:focus,.field select:focus,.field textarea:focus{border-color:#00b4d8;box-shadow:0 0 0 3px rgba(0,180,216,0.1)}
 .field input::placeholder,.field textarea::placeholder{color:rgba(200,220,255,0.2)}
 .field select option{background:#0a1628}
-.field .hint{font-size:17px;color:rgba(200,220,255,0.4);margin-top:5px}
+.field .hint{font-size:17px;color:#94a3b8;margin-top:5px}
 .field textarea{resize:vertical;min-height:90px;line-height:1.6}
 .preview-wrap{display:none;margin-top:12px;border-radius:8px;overflow:hidden;aspect-ratio:16/9;border:1px solid rgba(0,180,216,0.2)}
 .preview-wrap iframe{width:100%;height:100%;border:none}
@@ -43,9 +43,9 @@ body{font-family:'Rethink Sans',sans-serif;background:#050d1a;color:#e8f0fe;min-
 .divider{height:1px;background:rgba(0,180,216,0.1);margin:24px 0}
 .submit-btn{display:block;width:100%;text-align:center;font-weight:700;font-size:17px;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:15px;border-radius:8px;border:none;cursor:pointer;font-family:'Rethink Sans',sans-serif;transition:all 0.3s}
 .submit-btn:hover{box-shadow:0 0 28px rgba(0,180,216,0.4);transform:translateY(-1px)}
-.cancel-link{display:block;text-align:center;font-size:17px;color:rgba(200,220,255,0.45);margin-top:12px;text-decoration:none;transition:color 0.2s}
-.cancel-link:hover{color:rgba(200,220,255,0.7)}
-.back-link{display:inline-flex;align-items:center;gap:6px;font-size:17px;color:rgba(200,220,255,0.5);text-decoration:none;margin-bottom:24px;transition:color 0.2s}
+.cancel-link{display:block;text-align:center;font-size:17px;color:#64748b;margin-top:12px;text-decoration:none;transition:color 0.2s}
+.cancel-link:hover{color:#334155}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:17px;color:#64748b;text-decoration:none;margin-bottom:24px;transition:color 0.2s}
 .back-link:hover{color:#00b4d8}
 </style>
 </head>
@@ -84,7 +84,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#050d1a;color:#e8f0fe;min-
   <a href="/account" class="nav-item"><span class="nav-icon">◉</span>Profile</a>
   <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
   <div class="sidebar-footer">
-    <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:18px;color:rgba(200,220,255,0.4);text-decoration:none">⎋ Sign Out</a>
+    <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:18px;color:#94a3b8;text-decoration:none">⎋ Sign Out</a>
   </div>
 </aside>
 
@@ -148,7 +148,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#050d1a;color:#e8f0fe;min-
         </div>
 
         <div class="field">
-          <label>Description <span style="font-weight:400;text-transform:none;letter-spacing:0;color:rgba(200,220,255,0.3)">(optional)</span></label>
+          <label>Description <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#94a3b8">(optional)</span></label>
           <textarea name="description" placeholder="Brief description of what this video covers..." maxlength="500">{{ prefill.description if prefill else '' }}</textarea>
         </div>
 

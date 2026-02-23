@@ -7,12 +7,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Rethink Sans',sans-serif;background:#050d1a;color:#e8f0fe}
+body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a}
 nav{background:rgba(10,18,40,0.95);border-bottom:1px solid rgba(0,180,216,0.12);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
 .nav-brand span{font-weight:800;font-size:18px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00b4d8,#6d28d9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .nav-links{display:flex;align-items:center;gap:28px}
-.nav-links a{font-size:17px;font-weight:500;color:rgba(200,220,255,0.7);text-decoration:none}
+.nav-links a{font-size:17px;font-weight:500;color:#334155;text-decoration:none}
 .nav-links a:hover{color:#00b4d8}
 .btn-nav{background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff!important;padding:9px 22px;border-radius:7px;font-weight:700!important}
 
@@ -21,13 +21,13 @@ nav{background:rgba(10,18,40,0.95);border-bottom:1px solid rgba(0,180,216,0.12);
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:999px;padding:6px 18px;font-size:17px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#00d4ff;margin-bottom:24px;position:relative}
 .hero h1{font-size:clamp(32px,5vw,52px);font-weight:800;color:#fff;margin-bottom:16px;line-height:1.1;position:relative}
 .hero h1 span{background:linear-gradient(135deg,#00f0ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero p{font-size:18px;color:rgba(200,220,255,0.6);max-width:600px;margin:0 auto;line-height:1.7;position:relative}
+.hero p{font-size:18px;color:#475569;max-width:600px;margin:0 auto;line-height:1.7;position:relative}
 
 .container{max-width:1100px;margin:0 auto;padding:0 40px}
 .section{padding:64px 0}
 .sec-label{font-size:18px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.6);text-align:center;margin-bottom:10px}
 .sec-title{font-size:clamp(24px,3vw,34px);font-weight:800;text-align:center;margin-bottom:10px;color:#fff}
-.sec-sub{text-align:center;color:rgba(200,220,255,0.5);font-size:17px;max-width:600px;margin:0 auto 48px;line-height:1.7}
+.sec-sub{text-align:center;color:#64748b;font-size:17px;max-width:600px;margin:0 auto 48px;line-height:1.7}
 
 /* ── Stream overview cards ── */
 .streams{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:64px}
@@ -56,15 +56,15 @@ nav{background:rgba(10,18,40,0.95);border-bottom:1px solid rgba(0,180,216,0.12);
 .gateway-banner{background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(0,180,216,0.08));border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:22px 28px;margin-bottom:48px;display:flex;align-items:flex-start;gap:16px}
 .gateway-icon{font-size:32px;flex-shrink:0}
 .gateway-title{font-size:18px;font-weight:800;color:#10b981;margin-bottom:5px}
-.gateway-text{font-size:17px;color:rgba(200,220,255,0.6);line-height:1.7}
+.gateway-text{font-size:17px;color:#475569;line-height:1.7}
 
 /* ── Stream 1 detail ── */
 .s1-card{background:rgba(10,24,20,0.9);border:1px solid rgba(16,185,129,0.2);border-radius:16px;padding:36px;margin-bottom:32px}
 .s1-split{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px}
 .s1-box{background:rgba(0,0,0,0.2);border-radius:10px;padding:20px;border:1px solid rgba(255,255,255,0.06)}
 .s1-amount{font-size:38px;font-weight:800;color:#10b981;line-height:1}
-.s1-label{font-size:18px;font-weight:700;color:rgba(200,220,255,0.5);margin-top:6px;margin-bottom:4px}
-.s1-detail{font-size:18px;color:rgba(200,220,255,0.4);line-height:1.6}
+.s1-label{font-size:18px;font-weight:700;color:#64748b;margin-top:6px;margin-bottom:4px}
+.s1-detail{font-size:18px;color:#94a3b8;line-height:1.6}
 .s1-table{width:100%;border-collapse:collapse;margin-top:24px}
 .s1-table th{padding:10px 14px;font-size:17px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(200,220,255,0.35);text-align:left;border-bottom:1px solid rgba(255,255,255,0.06)}
 .s1-table th:not(:first-child){text-align:right}
@@ -78,7 +78,7 @@ nav{background:rgba(10,18,40,0.95);border-bottom:1px solid rgba(0,180,216,0.12);
 .comm-item{background:rgba(255,255,255,0.03);border-radius:10px;padding:20px;border:1px solid rgba(255,255,255,0.06);text-align:center}
 .comm-pct{font-size:30px;font-weight:800;margin-bottom:4px}
 .comm-who{font-size:17px;font-weight:700;color:#fff;margin-bottom:5px}
-.comm-when{font-size:17px;color:rgba(200,220,255,0.4);line-height:1.5}
+.comm-when{font-size:17px;color:#94a3b8;line-height:1.5}
 .comm-eg{font-size:18px;font-weight:700;margin-top:10px;padding:5px 10px;border-radius:6px;display:inline-block}
 
 .entry-card{background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.15);border-radius:16px;padding:32px;margin-bottom:28px}
@@ -86,7 +86,7 @@ nav{background:rgba(10,18,40,0.95);border-bottom:1px solid rgba(0,180,216,0.12);
 .entry-row:last-child{border-bottom:none;padding-bottom:0}
 .entry-left{display:flex;align-items:center;gap:12px}
 .entry-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.entry-label{font-size:17px;color:rgba(200,220,255,0.7)}
+.entry-label{font-size:17px;color:#334155}
 .entry-detail{font-size:17px;color:rgba(200,220,255,0.35);margin-top:2px}
 .entry-amount{font-size:17px;font-weight:800}
 .entry-timing{font-size:18px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(16,185,129,0.8);margin-top:2px;text-align:right}
@@ -94,9 +94,9 @@ nav{background:rgba(10,18,40,0.95);border-bottom:1px solid rgba(0,180,216,0.12);
 .uni-card{background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.15);border-radius:16px;overflow:hidden;margin-bottom:28px}
 .uni-header{padding:22px 28px;border-bottom:1px solid rgba(0,180,216,0.08)}
 .uni-header h3{font-size:17px;font-weight:800;color:#fff;margin-bottom:4px}
-.uni-header p{font-size:18px;color:rgba(200,220,255,0.4)}
+.uni-header p{font-size:18px;color:#94a3b8}
 .uni-table{width:100%;border-collapse:collapse}
-.uni-table th{padding:10px 14px;font-size:17px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(200,220,255,0.3);text-align:left;border-bottom:1px solid rgba(255,255,255,0.05)}
+.uni-table th{padding:10px 14px;font-size:17px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05)}
 .uni-table th:not(:first-child){text-align:right}
 .uni-table td{padding:10px 14px;font-size:18px;border-bottom:1px solid rgba(255,255,255,0.04)}
 .uni-table tr:last-child td{border-bottom:none}
@@ -112,7 +112,7 @@ nav{background:rgba(10,18,40,0.95);border-bottom:1px solid rgba(0,180,216,0.12);
 .pf-step{flex:1;min-width:80px;text-align:center;padding:14px 8px;background:rgba(0,0,0,0.2);border-radius:8px;border:1px solid rgba(255,255,255,0.05)}
 .pf-keep{border-color:rgba(16,185,129,0.2);background:rgba(16,185,129,0.05)}
 .pf-pass{border-color:rgba(167,139,250,0.2);background:rgba(124,58,237,0.08)}
-.pf-num{font-size:17px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(200,220,255,0.3);margin-bottom:6px}
+.pf-num{font-size:17px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#94a3b8;margin-bottom:6px}
 .pf-amt-keep{font-size:18px;font-weight:800;color:#10b981;margin-bottom:4px}
 .pf-amt-pass{font-size:18px;font-weight:800;color:#a78bfa;margin-bottom:4px}
 .pf-who{font-size:18px;color:rgba(200,220,255,0.35)}
@@ -120,7 +120,7 @@ nav{background:rgba(10,18,40,0.95);border-bottom:1px solid rgba(0,180,216,0.12);
 .rule-item{background:rgba(0,0,0,0.2);border-radius:8px;padding:16px;display:flex;gap:12px;align-items:flex-start}
 .rule-icon{font-size:20px;flex-shrink:0}
 .rule-title{font-size:17px;font-weight:700;color:#fff;margin-bottom:4px}
-.rule-desc{font-size:18px;color:rgba(200,220,255,0.45);line-height:1.6}
+.rule-desc{font-size:18px;color:#64748b;line-height:1.6}
 
 .coming-card{background:rgba(255,255,255,0.015);border:1px dashed rgba(255,255,255,0.08);border-radius:16px;padding:48px 36px;text-align:center;margin-bottom:64px}
 .coming-features{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:16px}
@@ -131,13 +131,13 @@ nav{background:rgba(10,18,40,0.95);border-bottom:1px solid rgba(0,180,216,0.12);
 .cta-band::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 50% 50%,rgba(0,180,216,0.1),transparent)}
 .cta-band h2{font-size:32px;font-weight:800;color:#fff;margin-bottom:12px;position:relative}
 .cta-band h2 span{background:linear-gradient(135deg,#00f0ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.cta-band p{color:rgba(200,220,255,0.6);font-size:17px;margin-bottom:28px;position:relative}
+.cta-band p{color:#475569;font-size:17px;margin-bottom:28px;position:relative}
 .cta-btns{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;position:relative}
 .btn-glow{display:inline-flex;align-items:center;gap:8px;font-size:17px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:14px 32px;border-radius:10px;text-decoration:none;box-shadow:0 6px 24px rgba(0,180,216,0.3)}
 .btn-outline{display:inline-flex;align-items:center;gap:8px;font-size:17px;font-weight:700;color:#fff;border:1px solid rgba(255,255,255,0.2);padding:14px 32px;border-radius:10px;text-decoration:none}
 
 footer{background:#020818;color:rgba(200,220,255,0.35);text-align:center;padding:30px;font-size:18px;border-top:1px solid rgba(0,180,216,0.07)}
-footer a{color:rgba(200,220,255,0.4);text-decoration:none}
+footer a{color:#94a3b8;text-decoration:none}
 @media(max-width:768px){.streams,.commission-grid,.s1-split,.passup-rules{grid-template-columns:1fr}.container{padding:0 20px}nav{padding:0 20px}.nav-links{display:none}}
 </style>
 </head>
@@ -248,7 +248,7 @@ footer a{color:rgba(200,220,255,0.4);text-decoration:none}
 
     <div class="s1-card">
       <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:6px">How Stream 1 Works</div>
-      <div style="font-size:17px;color:rgba(200,220,255,0.5);line-height:1.7;margin-bottom:24px">Every active SuperAdPro member pays $10 per month. That $10 goes 100% directly to the person who referred them — every month, for as long as they remain a member. No uni-level chain. No platform cut. Straight to your sponsor.</div>
+      <div style="font-size:17px;color:#64748b;line-height:1.7;margin-bottom:24px">Every active SuperAdPro member pays $10 per month. That $10 goes 100% directly to the person who referred them — every month, for as long as they remain a member. No uni-level chain. No platform cut. Straight to your sponsor.</div>
 
       <div class="s1-split">
         <div class="s1-box" style="border-color:rgba(16,185,129,0.2)">
@@ -264,7 +264,7 @@ footer a{color:rgba(200,220,255,0.4);text-decoration:none}
       </div>
 
       <!-- Residual income table -->
-      <div style="font-size:17px;font-weight:700;color:rgba(200,220,255,0.6);margin:28px 0 12px">Your Residual Income Potential — Stream 1</div>
+      <div style="font-size:17px;font-weight:700;color:#475569;margin:28px 0 12px">Your Residual Income Potential — Stream 1</div>
       <table class="s1-table">
         <thead>
           <tr>
@@ -283,7 +283,7 @@ footer a{color:rgba(200,220,255,0.4);text-decoration:none}
           {% endfor %}
         </tbody>
       </table>
-      <p style="font-size:17px;color:rgba(200,220,255,0.3);margin-top:12px">*Figures based on all referred members maintaining active subscriptions. Actual income depends on member retention.</p>
+      <p style="font-size:17px;color:#94a3b8;margin-top:12px">*Figures based on all referred members maintaining active subscriptions. Actual income depends on member retention.</p>
     </div>
   </div>
 
@@ -325,7 +325,7 @@ footer a{color:rgba(200,220,255,0.4);text-decoration:none}
     <!-- Entry breakdown -->
     <div class="entry-card">
       <div style="font-size:17px;font-weight:800;color:#fff;margin-bottom:4px">Exact Distribution — $100 Package Entry</div>
-      <div style="font-size:18px;color:rgba(200,220,255,0.4);margin-bottom:20px">Every dollar accounted for. Every payment instant. Nothing held back.</div>
+      <div style="font-size:18px;color:#94a3b8;margin-bottom:20px">Every dollar accounted for. Every payment instant. Nothing held back.</div>
       <div class="entry-row">
         <div class="entry-left">
           <div class="entry-dot" style="background:#10b981"></div>
@@ -377,7 +377,7 @@ footer a{color:rgba(200,220,255,0.4);text-decoration:none}
         <div style="text-align:right"><div class="entry-amount" style="color:rgba(255,255,255,0.25)">$5.00</div><div class="entry-timing" style="color:rgba(255,255,255,0.2)">Instant</div></div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid rgba(0,212,255,0.12)">
-        <div style="font-size:17px;font-weight:700;color:rgba(200,220,255,0.5)">Total Distributed</div>
+        <div style="font-size:17px;font-weight:700;color:#64748b">Total Distributed</div>
         <div style="font-size:22px;font-weight:800;color:#00d4ff">$100.00 ✓</div>
       </div>
     </div>
@@ -387,7 +387,7 @@ footer a{color:rgba(200,220,255,0.4);text-decoration:none}
       <div>
         <div style="font-size:17px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.6);margin-bottom:5px">Interactive Demo</div>
         <div style="font-size:17px;font-weight:800;color:#fff;margin-bottom:4px">⚡ Profit Engine Grid Visualiser</div>
-        <div style="font-size:17px;color:rgba(200,220,255,0.5);line-height:1.5">Select any package, press Play and watch commissions distribute across your entire network in real time — seat by seat, level by level.</div>
+        <div style="font-size:17px;color:#64748b;line-height:1.5">Select any package, press Play and watch commissions distribute across your entire network in real time — seat by seat, level by level.</div>
       </div>
       <div style="flex-shrink:0;padding:10px 20px;background:linear-gradient(135deg,#00b4d8,#6d28d9);border-radius:8px;font-size:17px;font-weight:700;color:#fff;white-space:nowrap">Launch →</div>
     </a>
@@ -440,9 +440,9 @@ footer a{color:rgba(200,220,255,0.4);text-decoration:none}
 
     <div class="passup-card">
       <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:6px">How the Infinite Pass-Up Works</div>
-      <div style="font-size:17px;color:rgba(200,220,255,0.5);line-height:1.7;margin-bottom:4px">You sell the Marketing Mastery Course and keep 100% commission on every odd-numbered sale. Every even-numbered sale (2nd, 4th, 6th...) passes up to your sponsor in full — and that pass-up counts as one of their sales, meaning it can cascade up to their sponsor, and so on infinitely up the chain.</div>
+      <div style="font-size:17px;color:#64748b;line-height:1.7;margin-bottom:4px">You sell the Marketing Mastery Course and keep 100% commission on every odd-numbered sale. Every even-numbered sale (2nd, 4th, 6th...) passes up to your sponsor in full — and that pass-up counts as one of their sales, meaning it can cascade up to their sponsor, and so on infinitely up the chain.</div>
 
-      <div style="font-size:18px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(200,220,255,0.3);margin:20px 0 10px">Your First 7 Sales</div>
+      <div style="font-size:18px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#94a3b8;margin:20px 0 10px">Your First 7 Sales</div>
       <div class="passup-flow">
         <div class="pf-step pf-keep"><div class="pf-num">Sale 1</div><div class="pf-amt-keep">100%</div><div class="pf-who">You keep</div></div>
         <div class="pf-step pf-pass"><div class="pf-num">Sale 2</div><div class="pf-amt-pass">↑ Pass-up</div><div class="pf-who" style="color:#a78bfa">To sponsor</div></div>
@@ -489,7 +489,7 @@ footer a{color:rgba(200,220,255,0.4);text-decoration:none}
     <div class="coming-card">
       <span style="font-size:48px;display:block;margin-bottom:16px">🎓</span>
       <div style="font-size:20px;font-weight:800;color:rgba(255,255,255,0.45);margin-bottom:10px">SuperAdPro Marketing Mastery Course</div>
-      <div style="font-size:17px;color:rgba(200,220,255,0.3);max-width:500px;margin:0 auto 18px;line-height:1.7">A comprehensive, in-depth marketing and sales course developed exclusively for SuperAdPro members — combining professional sales training, digital marketing strategy and affiliate mastery. Members who join SuperAdPro now will receive early access when the course launches.</div>
+      <div style="font-size:17px;color:#94a3b8;max-width:500px;margin:0 auto 18px;line-height:1.7">A comprehensive, in-depth marketing and sales course developed exclusively for SuperAdPro members — combining professional sales training, digital marketing strategy and affiliate mastery. Members who join SuperAdPro now will receive early access when the course launches.</div>
       <span style="display:inline-block;padding:5px 16px;border-radius:999px;font-size:18px;font-weight:700;letter-spacing:2px;text-transform:uppercase;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.07)">In Development — Launching Soon</span>
       <div class="coming-features">
         <div class="coming-feature">Professional Sales Training</div>

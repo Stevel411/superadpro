@@ -21,9 +21,9 @@ body{font-family:'Rethink Sans',sans-serif;background:#050d1a;color:#ffffff;min-
 .user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,240,255,0.05);border:1px solid rgba(0,240,255,0.1);border-radius:8px}
 .user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00f0ff);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0}
 .main{margin-left:220px;flex:1;display:flex;flex-direction:column}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#050d1a;border-bottom:1px solid rgba(0,180,216,0.12);position:sticky;top:0;z-index:50;box-shadow:0 1px 8px rgba(0,0,0,0.06)}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#ffffff;border-bottom:1px solid rgba(0,180,216,0.12);position:sticky;top:0;z-index:50;box-shadow:0 1px 8px rgba(0,0,0,0.06)}
 .content{padding:24px 28px;flex:1}
-.card{background:#050d1a;border:1px solid rgba(0,180,216,0.12);border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
+.card{background:#ffffff;border:1px solid rgba(0,180,216,0.12);border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
 .card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(0,180,216,0.12)}
 .card-title{font-size:17px;font-weight:700;color:#ffffff;display:flex;align-items:center;gap:8px}
 .card-dot{width:7px;height:7px;border-radius:50%;background:#00b4d8;flex-shrink:0}
@@ -109,7 +109,7 @@ tr:last-child td{border-bottom:none}
         <div style="font-size:17px;color:#00f0ff;letter-spacing:1px;text-transform:uppercase;margin-top:1px">{% if is_active %}Active{% else %}Inactive{% endif %}</div>
       </div>
     </div>
-    <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:18px;color:rgba(200,220,255,0.5);text-decoration:none;margin-top:6px">⎋ Sign Out</a>
+    <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:18px;color:#64748b;text-decoration:none;margin-top:6px">⎋ Sign Out</a>
   </div>
 </aside>
 
@@ -150,7 +150,7 @@ tr:last-child td{border-bottom:none}
     <div class="card-title"><div class="card-dot" style="background:#16a34a"></div>Your Referral Link</div>
   </div>
   <div class="card-body">
-    <p style="font-size:17px;color:rgba(200,220,255,0.5);margin-bottom:16px;line-height:1.6">Share this link to recruit new members. Every person who joins through your link is placed into your Income Grid — earning you level pool commissions from their first payment.</p>
+    <p style="font-size:17px;color:#64748b;margin-bottom:16px;line-height:1.6">Share this link to recruit new members. Every person who joins through your link is placed into your Income Grid — earning you level pool commissions from their first payment.</p>
     <div style="background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px">
       <span style="font-size:17px;color:#0077a8;font-family:monospace;flex:1" id="refUrl">{{ ref_link }}</span>
       <button onclick="copyRef()" id="copyBtn" style="font-size:18px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-family:inherit;white-space:nowrap">Copy Link</button>
@@ -173,17 +173,17 @@ tr:last-child td{border-bottom:none}
       <div style="background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.25);border-radius:10px;padding:16px;text-align:center">
         <div style="font-size:22px;font-weight:800;color:#16a34a;margin-bottom:4px">25%+<br>70%</div>
         <div style="font-size:18px;font-weight:700;color:#ffffff;margin-bottom:4px">Direct Sponsor</div>
-        <div style="font-size:17px;color:rgba(200,220,255,0.5)">When your 64-seat grid fills completely</div>
+        <div style="font-size:17px;color:#64748b">When your 64-seat grid fills completely</div>
       </div>
       <div style="background:rgba(0,180,216,0.08);border:1px solid rgba(0,180,216,0.2);border-radius:10px;padding:16px;text-align:center">
         <div style="font-size:22px;font-weight:800;color:#00b4d8;margin-bottom:4px">25%</div>
         <div style="font-size:18px;font-weight:700;color:#ffffff;margin-bottom:4px">Uni-Level</div>
-        <div style="font-size:17px;color:rgba(200,220,255,0.5)">Paid instantly as each seat fills across 8 levels</div>
+        <div style="font-size:17px;color:#64748b">Paid instantly as each seat fills across 8 levels</div>
       </div>
       <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:10px;padding:16px;text-align:center">
         <div style="font-size:22px;font-weight:800;color:#6d28d9;margin-bottom:4px">25%</div>
         <div style="font-size:18px;font-weight:700;color:#ffffff;margin-bottom:4px">Uni-Level Income</div>
-        <div style="font-size:17px;color:rgba(200,220,255,0.5)">Your upline earns this when your grid completes</div>
+        <div style="font-size:17px;color:#64748b">Your upline earns this when your grid completes</div>
       </div>
     </div>
   </div>
@@ -202,7 +202,7 @@ tr:last-child td{border-bottom:none}
       {% for r in referrals %}
       <tr>
         <td style="font-weight:700">{{ r.first_name }} {{ r.last_name }}</td>
-        <td style="color:rgba(200,220,255,0.5);font-family:monospace">@{{ r.username }}</td>
+        <td style="color:#64748b;font-family:monospace">@{{ r.username }}</td>
         <td style="color:#94a3b8">{{ r.created_at.strftime('%d %b %Y') if r.created_at else '—' }}</td>
         <td><span class="badge {% if r.is_active %}badge-green{% else %}badge-amber{% endif %}">{% if r.is_active %}Active{% else %}Inactive{% endif %}</span></td>
       </tr>

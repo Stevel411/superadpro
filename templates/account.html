@@ -21,9 +21,9 @@ body{font-family:'Rethink Sans',sans-serif;background:#050d1a;color:#ffffff;min-
 .user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,240,255,0.05);border:1px solid rgba(0,240,255,0.1);border-radius:8px}
 .user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00f0ff);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0}
 .main{margin-left:220px;flex:1;display:flex;flex-direction:column}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#050d1a;border-bottom:1px solid rgba(0,180,216,0.12);position:sticky;top:0;z-index:50;box-shadow:0 1px 8px rgba(0,0,0,0.06)}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#ffffff;border-bottom:1px solid rgba(0,180,216,0.12);position:sticky;top:0;z-index:50;box-shadow:0 1px 8px rgba(0,0,0,0.06)}
 .content{padding:24px 28px;flex:1}
-.card{background:#050d1a;border:1px solid rgba(0,180,216,0.12);border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
+.card{background:#ffffff;border:1px solid rgba(0,180,216,0.12);border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
 .card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(0,180,216,0.12)}
 .card-title{font-size:17px;font-weight:700;color:#ffffff;display:flex;align-items:center;gap:8px}
 .card-dot{width:7px;height:7px;border-radius:50%;background:#00b4d8;flex-shrink:0}
@@ -109,7 +109,7 @@ tr:last-child td{border-bottom:none}
         <div style="font-size:17px;color:#00f0ff;letter-spacing:1px;text-transform:uppercase;margin-top:1px">{% if is_active %}Active{% else %}Inactive{% endif %}</div>
       </div>
     </div>
-    <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:18px;color:rgba(200,220,255,0.5);text-decoration:none;margin-top:6px">⎋ Sign Out</a>
+    <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:18px;color:#64748b;text-decoration:none;margin-top:6px">⎋ Sign Out</a>
   </div>
 </aside>
 
@@ -141,7 +141,7 @@ tr:last-child td{border-bottom:none}
         <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00b4d8);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0">{{ user.username[:2].upper() }}</div>
         <div>
           <div style="font-size:18px;font-weight:800;color:#ffffff">{{ user.first_name }} {{ user.last_name }}</div>
-          <div style="font-size:17px;color:rgba(200,220,255,0.5)">@{{ user.username }}</div>
+          <div style="font-size:17px;color:#64748b">@{{ user.username }}</div>
           <span class="badge {% if is_active %}badge-green{% else %}badge-amber{% endif %}" style="margin-top:4px;display:inline-block">{% if is_active %}Active Member{% else %}Inactive{% endif %}</span>
         </div>
       </div>
@@ -173,7 +173,7 @@ tr:last-child td{border-bottom:none}
         <div class="card-title"><div class="card-dot" style="background:#16a34a"></div>USDT Withdrawal Wallet</div>
       </div>
       <div class="card-body">
-        <p style="font-size:18px;color:rgba(200,220,255,0.5);margin-bottom:16px;line-height:1.6">Set your Base Chain wallet address for USDT withdrawals. This is where your earnings will be sent when you request a withdrawal.</p>
+        <p style="font-size:18px;color:#64748b;margin-bottom:16px;line-height:1.6">Set your Base Chain wallet address for USDT withdrawals. This is where your earnings will be sent when you request a withdrawal.</p>
         <form method="POST" action="/save-wallet">
           <div class="form-group">
             <label class="form-label">Base Chain Wallet Address</label>
@@ -198,19 +198,19 @@ tr:last-child td{border-bottom:none}
       <div class="card-body">
         <div style="display:grid;gap:10px">
           <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(0,180,216,0.08)">
-            <span style="font-size:18px;color:rgba(200,220,255,0.5)">Total Earned</span>
+            <span style="font-size:18px;color:#64748b">Total Earned</span>
             <span style="font-size:18px;font-weight:800;color:#16a34a">${{ '%.2f'|format(total_earned) }}</span>
           </div>
           <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(0,180,216,0.08)">
-            <span style="font-size:18px;color:rgba(200,220,255,0.5)">Available Balance</span>
+            <span style="font-size:18px;color:#64748b">Available Balance</span>
             <span style="font-size:18px;font-weight:800;color:#00b4d8">${{ '%.2f'|format(balance) }}</span>
           </div>
           <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(0,180,216,0.08)">
-            <span style="font-size:18px;color:rgba(200,220,255,0.5)">Grid Earnings</span>
+            <span style="font-size:18px;color:#64748b">Grid Earnings</span>
             <span style="font-size:18px;font-weight:800;color:#ffffff">${{ '%.2f'|format(grid_earnings) }}</span>
           </div>
           <div style="display:flex;justify-content:space-between;padding:8px 0">
-            <span style="font-size:18px;color:rgba(200,220,255,0.5)">Uni-Level Income</span>
+            <span style="font-size:18px;color:#64748b">Uni-Level Income</span>
             <span style="font-size:18px;font-weight:800;color:#6d28d9">${{ '%.2f'|format(level_earnings) }}</span>
           </div>
         </div>
