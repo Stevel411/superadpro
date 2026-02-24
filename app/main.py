@@ -1879,6 +1879,32 @@ def activate_owner(secret: str, username: str, db: Session = Depends(get_db)):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 # ── TEMP: Account reset utility (remove after use) ────────────
+@app.get("/admin/test-register")
+def test_register(secret: str, db: Session = Depends(get_db)):
+    """Test user creation and return exact error."""
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import text as sqtext
+    if secret != "superadpro-migrate-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    import traceback
+    try:
+        # Check columns exist
+        cols = db.execute(sqtext("SELECT column_name FROM information_schema.columns WHERE table_name='users'")).fetchall()
+        col_names = [c[0] for c in cols]
+        
+        # Try creating a test user
+        user = create_user(db, "testuser123", "test123@test.com", "password123",
+                          first_name="Test", last_name="", wallet_address="", country="")
+        user_id = user.id
+        # Delete test user
+        db.execute(sqtext(f"DELETE FROM users WHERE id={user_id}"))
+        db.commit()
+        return JSONResponse({"success": True, "columns": col_names, "test_user_created": True})
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({"error": str(e), "trace": traceback.format_exc()}, status_code=500)
+
+
 @app.get("/admin/run-migrations")
 def admin_run_migrations(secret: str = "", db: Session = Depends(get_db)):
     """Force-run DB migrations — use once after deploy."""
