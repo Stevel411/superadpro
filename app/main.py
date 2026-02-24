@@ -450,6 +450,7 @@ def logout():
 @app.get("/dashboard")
 def dashboard(request: Request, user: User = Depends(get_current_user),
               db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
     if not user: return RedirectResponse(url="/?login=1")
     try:
         ctx = get_dashboard_context(request, user, db)
