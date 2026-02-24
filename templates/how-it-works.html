@@ -139,7 +139,7 @@
             .pf-flow { justify-content:center; }
         }
     
-/* ── Registration Modal ───────────────────────────── */
+
 .reg-overlay{position:fixed;inset:0;background:rgba(1,8,20,0.85);backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity 0.25s}
 .reg-overlay.open{opacity:1;pointer-events:all}
 .reg-modal{background:#0d1117;border:1px solid rgba(0,212,255,0.15);border-radius:18px;padding:36px 38px;width:100%;max-width:460px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);transform:translateY(20px);transition:transform 0.25s}
@@ -165,7 +165,7 @@
 .reg-login a{color:rgba(0,212,255,0.7);text-decoration:none;font-weight:600}
 @media(max-width:500px){.reg-modal{padding:28px 22px}.reg-row{grid-template-columns:1fr}}
 
-/* ── Login Modal ── */
+
 .login-overlay{position:fixed;inset:0;background:rgba(1,8,20,0.85);backdrop-filter:blur(6px);z-index:1001;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity 0.25s}
 .login-overlay.open{opacity:1;pointer-events:all}
 .login-modal{background:#0d1117;border:1px solid rgba(0,212,255,0.15);border-radius:18px;padding:36px 38px;width:100%;max-width:400px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);transform:translateY(20px);transition:transform 0.25s}
@@ -222,10 +222,11 @@
         <li><a href="/support">Support</a></li>
     </ul>
     <div style="display:flex;align-items:center;gap:10px">
-        <a href="#" onclick="openLoginModal();return false;" style="font-size:13px;font-weight:600;color:rgba(200,230,210,0.6);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:7px;transition:all 0.2s" onmouseover="this.style.color='rgba(200,230,210,0.9)'" onmouseout="this.style.color='rgba(200,230,210,0.6)'">Log In</a>
+        <a href="#" onclick="openLoginModal();return false;" onclick="openLoginModal();return false;" style="font-size:13px;font-weight:600;color:rgba(200,230,210,0.6);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:7px;transition:all 0.2s" onmouseover="this.style.color='rgba(200,230,210,0.9)'" onmouseout="this.style.color='rgba(200,230,210,0.6)'">Log In</a>
         <a href="#" class="nav-cta" onclick="openRegModal();return false;">Register Here</a>
     </div>
 </nav>
+
 <!-- ── Login Modal ── -->
 <div class="login-overlay" id="loginOverlay" onclick="if(event.target===this)closeLoginModal()">
   <div class="login-modal">
@@ -247,7 +248,7 @@
       </div>
       <button type="submit" class="reg-submit" id="loginBtn">Log In →</button>
     </form>
-    <div class="reg-login" style="margin-top:16px">Don’t have an account? <a href="#" onclick="closeLoginModal();openRegModal();return false;">Register here →</a></div>
+    <div class="reg-login">Don’t have an account? <a href="#" onclick="closeLoginModal();openRegModal();return false;">Register here →</a></div>
   </div>
 </div>
 
@@ -256,6 +257,48 @@
   <div class="reg-modal">
     <button class="reg-close" onclick="closeRegModal()" aria-label="Close">✕</button>
     <div class="reg-title">Create Your Free Account</div>
+    <div class="reg-sub">Takes 60 seconds · No credit card required</div>
+    <div id="regErr" class="reg-err"></div>
+    <form id="regModalForm">
+      <input type="hidden" id="regRef" name="ref" value="">
+      <div class="reg-field">
+        <label class="reg-label">First Name</label>
+        <input class="reg-input" type="text" id="regFirstName" placeholder="John" required autocomplete="given-name">
+      </div>
+      <div class="reg-field">
+        <label class="reg-label">Email Address</label>
+        <input class="reg-input" type="email" id="regEmail" placeholder="john@example.com" required autocomplete="email">
+      </div>
+      <div class="reg-field">
+        <label class="reg-label">Username <span style="font-weight:400;letter-spacing:0;text-transform:none;color:rgba(200,220,255,0.3)">— becomes your referral ID</span></label>
+        <input class="reg-input" type="text" id="regUsername" placeholder="johnsmith99" required autocomplete="off" pattern="[a-zA-Z0-9_]{3,30}">
+      </div>
+      <div class="reg-row">
+        <div class="reg-field">
+          <label class="reg-label">Password</label>
+          <input class="reg-input" type="password" id="regPw" placeholder="Min. 8 chars" required minlength="8" autocomplete="new-password">
+        </div>
+        <div class="reg-field">
+          <label class="reg-label">Confirm</label>
+          <input class="reg-input" type="password" id="regPwC" placeholder="Repeat" required autocomplete="new-password">
+        </div>
+      </div>
+      <div class="reg-field" id="regSponsorField" style="display:none">
+        <label class="reg-label">Referred by</label>
+        <input class="reg-input" type="text" id="regSponsor" placeholder="Sponsor username" autocomplete="off" readonly style="opacity:0.6">
+      </div>
+      <div class="reg-terms">
+        <input type="checkbox" id="regTerms" required>
+        <div>I agree to the <a href="/legal" target="_blank">Terms of Service</a> and <a href="/legal" target="_blank">Privacy Policy</a>.</div>
+      </div>
+      <button type="submit" class="reg-submit" id="regBtn">Register Here →</button>
+    </form>
+    <div class="reg-login">Already have an account? <a href="#" onclick="closeRegModal();openLoginModal();return false;">Log in here →</a></div>
+  </div>
+</div>
+
+
+
     <div class="reg-sub">Takes 60 seconds · No credit card required</div>
     <div id="regErr" class="reg-err"></div>
     <form id="regModalForm">
@@ -292,7 +335,7 @@
       </div>
       <button type="submit" class="reg-submit" id="regBtn">Register Here →</button>
     </form>
-    <div class="reg-login">Already have an account? <a href="/login">Sign in here →</a></div>
+    <div class="reg-login">Already have an account? <a href="#" onclick="openLoginModal();return false;">Sign in here →</a></div>
   </div>
 </div>
 
@@ -750,93 +793,9 @@ function showTab(id, el) {
     document.getElementById('panel-' + id).classList.add('active');
 }
 </script>
-<script>
-/* ── Registration Modal JS ── */
-function openRegModal(sponsor) {
-  var overlay = document.getElementById('regOverlay');
-  if (!overlay) return;
-  if (sponsor) {
-    document.getElementById('regRef').value = sponsor;
-    document.getElementById('regSponsor').value = sponsor;
-    document.getElementById('regSponsorField').style.display = 'block';
-  }
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  setTimeout(function(){ var f=document.getElementById('regFirstName'); if(f) f.focus(); }, 300);
-}
-function closeRegModal() {
-  var overlay = document.getElementById('regOverlay');
-  if (overlay) overlay.classList.remove('open');
-  document.body.style.overflow = '';
-}
-document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeRegModal(); });
 
-document.addEventListener('DOMContentLoaded', function() {
-  var form = document.getElementById('regModalForm');
-  if (!form) return;
-  form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    var err = document.getElementById('regErr');
-    var btn = document.getElementById('regBtn');
-    err.style.display = 'none';
-    if (document.getElementById('regPw').value !== document.getElementById('regPwC').value) {
-      err.textContent = 'Passwords do not match.';
-      err.style.display = 'block';
-      return;
-    }
-    if (!document.getElementById('regTerms').checked) {
-      err.textContent = 'Please agree to the Terms of Service.';
-      err.style.display = 'block';
-      return;
-    }
-    btn.disabled = true;
-    btn.textContent = 'Creating account…';
-    try {
-      var res = await fetch('/api/register', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          first_name:       document.getElementById('regFirstName').value,
-          email:            document.getElementById('regEmail').value,
-          username:         document.getElementById('regUsername').value,
-          password:         document.getElementById('regPw').value,
-          confirm_password: document.getElementById('regPwC').value,
-          ref:              document.getElementById('regRef').value,
-          beta_code:        ''
-        })
-      });
-      var data = await res.json();
-      if (data.success) {
-        window.location.href = data.redirect || '/dashboard?new=1';
-        return;
-      }
-      err.textContent = data.error || 'Something went wrong. Please try again.';
-      err.style.display = 'block';
-      btn.disabled = false;
-      btn.textContent = 'Register Here →';
-    } catch(ex) {
-      err.textContent = 'Network error. Please try again.';
-      err.style.display = 'block';
-      btn.disabled = false;
-      btn.textContent = 'Register Here →';
-    }
-  });
-});
-
-/* Auto-open modals from URL params */
-(function(){
-  var p = new URLSearchParams(window.location.search);
-  var sponsor = p.get('join') || p.get('ref') || '';
-  var reg = p.get('register');
-  var login = p.get('login');
-  document.addEventListener('DOMContentLoaded', function(){
-    if (login === '1') { openLoginModal(); }
-    else if (sponsor || reg === '1') { openRegModal(sponsor || ''); }
-  });
-})();
-</script>
 <script>
-/* ── Login Modal JS ── */
+
 function openLoginModal() {
   var overlay = document.getElementById('loginOverlay');
   if (!overlay) return;
@@ -889,5 +848,196 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });</script>
+<script>
+/* ── Modal JS ── */
+function openRegModal(sponsor) {
+  var o=document.getElementById('regOverlay'); if(!o)return;
+  if(sponsor){document.getElementById('regRef').value=sponsor;document.getElementById('regSponsor').value=sponsor;document.getElementById('regSponsorField').style.display='block';}
+  o.classList.add('open'); document.body.style.overflow='hidden';
+  setTimeout(function(){var f=document.getElementById('regFirstName');if(f)f.focus();},300);
+}
+function closeRegModal(){var o=document.getElementById('regOverlay');if(o)o.classList.remove('open');document.body.style.overflow='';}
+function openLoginModal(){
+  var o=document.getElementById('loginOverlay'); if(!o)return;
+  o.classList.add('open'); document.body.style.overflow='hidden';
+  setTimeout(function(){var f=document.getElementById('loginUser');if(f)f.focus();},300);
+}
+function closeLoginModal(){var o=document.getElementById('loginOverlay');if(o)o.classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeLoginModal();closeRegModal();}});
+
+document.addEventListener('DOMContentLoaded',function(){
+  /* Register form */
+  var rf=document.getElementById('regModalForm');
+  if(rf) rf.addEventListener('submit',async function(e){
+    e.preventDefault();
+    var err=document.getElementById('regErr'),btn=document.getElementById('regBtn');
+    err.style.display='none';
+    if(document.getElementById('regPw').value!==document.getElementById('regPwC').value){err.textContent='Passwords do not match.';err.style.display='block';return;}
+    if(!document.getElementById('regTerms').checked){err.textContent='Please agree to the Terms of Service.';err.style.display='block';return;}
+    btn.disabled=true; btn.textContent='Creating account…';
+    try{
+      var res=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        first_name:document.getElementById('regFirstName').value,
+        email:document.getElementById('regEmail').value,
+        username:document.getElementById('regUsername').value,
+        password:document.getElementById('regPw').value,
+        confirm_password:document.getElementById('regPwC').value,
+        ref:document.getElementById('regRef').value,
+        beta_code:''
+      })});
+      var d=await res.json();
+      if(d.success){window.location.href=d.redirect||'/dashboard?new=1';return;}
+      err.textContent=d.error||'Something went wrong.';err.style.display='block';
+      btn.disabled=false;btn.textContent='Register Here →';
+    }catch(ex){err.textContent='Network error. Please try again.';err.style.display='block';btn.disabled=false;btn.textContent='Register Here →';}
+  });
+
+  /* Login form */
+  var lf=document.getElementById('loginModalForm');
+  if(lf) lf.addEventListener('submit',async function(e){
+    e.preventDefault();
+    var err=document.getElementById('loginErr'),btn=document.getElementById('loginBtn');
+    err.style.display='none'; btn.disabled=true; btn.textContent='Logging in…';
+    try{
+      var res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        username:document.getElementById('loginUser').value,
+        password:document.getElementById('loginPw').value
+      })});
+      var d=await res.json();
+      if(d.success){window.location.href=d.redirect||'/dashboard';return;}
+      err.textContent=d.error||'Login failed.';err.style.display='block';
+      btn.disabled=false;btn.textContent='Log In →';
+    }catch(ex){err.textContent='Network error. Please try again.';err.style.display='block';btn.disabled=false;btn.textContent='Log In →';}
+  });
+
+  /* Auto-open from URL params */
+  var p=new URLSearchParams(window.location.search);
+  var sponsor=p.get('join')||p.get('ref')||'';
+  if(p.get('login')==='1'){openLoginModal();}
+  else if(sponsor||p.get('register')==='1'){openRegModal(sponsor);}
+});
+</script>
+<script>
+/* ── Register Modal ── */
+function openRegModal(sponsor) {
+  var o = document.getElementById('regOverlay');
+  if (!o) return;
+  if (sponsor) {
+    document.getElementById('regRef').value = sponsor;
+    document.getElementById('regSponsor').value = sponsor;
+    document.getElementById('regSponsorField').style.display = 'block';
+  }
+  o.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(function(){ var f=document.getElementById('regFirstName'); if(f) f.focus(); }, 300);
+}
+function closeRegModal() {
+  var o = document.getElementById('regOverlay');
+  if (o) o.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ── Login Modal ── */
+function openLoginModal() {
+  var o = document.getElementById('loginOverlay');
+  if (!o) return;
+  o.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(function(){ var f=document.getElementById('loginUser'); if(f) f.focus(); }, 300);
+}
+function closeLoginModal() {
+  var o = document.getElementById('loginOverlay');
+  if (o) o.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ── Keyboard close ── */
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') { closeRegModal(); closeLoginModal(); }
+});
+
+/* ── Register form submit ── */
+document.addEventListener('DOMContentLoaded', function() {
+  var rForm = document.getElementById('regModalForm');
+  if (rForm) {
+    rForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var err = document.getElementById('regErr');
+      var btn = document.getElementById('regBtn');
+      err.style.display = 'none';
+      if (document.getElementById('regPw').value !== document.getElementById('regPwC').value) {
+        err.textContent = 'Passwords do not match.';
+        err.style.display = 'block'; return;
+      }
+      if (!document.getElementById('regTerms').checked) {
+        err.textContent = 'Please agree to the Terms of Service.';
+        err.style.display = 'block'; return;
+      }
+      btn.disabled = true; btn.textContent = 'Creating account\u2026';
+      try {
+        var res = await fetch('/api/register', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            first_name:       document.getElementById('regFirstName').value,
+            email:            document.getElementById('regEmail').value,
+            username:         document.getElementById('regUsername').value,
+            password:         document.getElementById('regPw').value,
+            confirm_password: document.getElementById('regPwC').value,
+            ref:              document.getElementById('regRef').value,
+            beta_code:        ''
+          })
+        });
+        var data = await res.json();
+        if (data.success) { window.location.href = data.redirect || '/dashboard?new=1'; return; }
+        err.textContent = data.error || 'Something went wrong. Please try again.';
+        err.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Register Here \u2192';
+      } catch(ex) {
+        err.textContent = 'Network error. Please try again.';
+        err.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Register Here \u2192';
+      }
+    });
+  }
+
+  /* ── Login form submit ── */
+  var lForm = document.getElementById('loginModalForm');
+  if (lForm) {
+    lForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var err = document.getElementById('loginErr');
+      var btn = document.getElementById('loginBtn');
+      err.style.display = 'none';
+      btn.disabled = true; btn.textContent = 'Logging in\u2026';
+      try {
+        var res = await fetch('/api/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            username: document.getElementById('loginUser').value,
+            password: document.getElementById('loginPw').value
+          })
+        });
+        var data = await res.json();
+        if (data.success) { window.location.href = data.redirect || '/dashboard'; return; }
+        err.textContent = data.error || 'Login failed. Please try again.';
+        err.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Log In \u2192';
+      } catch(ex) {
+        err.textContent = 'Network error. Please try again.';
+        err.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Log In \u2192';
+      }
+    });
+  }
+
+  /* ── Auto-open from URL params ── */
+  var p = new URLSearchParams(window.location.search);
+  var sponsor = p.get('join') || p.get('ref') || '';
+  if (p.get('login') === '1')  { openLoginModal(); }
+  else if (sponsor || p.get('register') === '1') { openRegModal(sponsor); }
+});
+</script>
 </body>
 </html>

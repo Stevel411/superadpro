@@ -257,11 +257,10 @@ def referral_link(username: str, request: Request):
 
 @app.get("/register")
 def register_form(request: Request, ref: str = ""):
+    """Registration is now handled by modal — redirect to home."""
     sponsor = ref or request.cookies.get("ref", "")
-    return templates.TemplateResponse("register.html", {
-        "request": request, "sponsor": sponsor,
-        "beta_required": bool(BETA_CODE),
-    })
+    url = f"/?join={sponsor}" if sponsor else "/?register=1"
+    return RedirectResponse(url=url, status_code=302)
 
 @app.post("/register")
 @limiter.limit("5/minute")
@@ -529,7 +528,7 @@ def save_wallet(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
-    if not user: return RedirectResponse(url="/login", status_code=303)
+    if not user: return RedirectResponse(url="/?login=1", status_code=302)
     if wallet_address and not validate_wallet(wallet_address):
         return RedirectResponse(url="/account?error=invalid_wallet", status_code=303)
     user.wallet_address = wallet_address
@@ -561,7 +560,7 @@ def delete_campaign(
     db: Session = Depends(get_db),
     user: User  = Depends(get_current_user)
 ):
-    if not user: return RedirectResponse(url="/login", status_code=303)
+    if not user: return RedirectResponse(url="/?login=1", status_code=302)
     campaign = db.query(VideoCampaign).filter(
         VideoCampaign.id      == campaign_id,
         VideoCampaign.user_id == user.id  # ownership check
@@ -588,7 +587,7 @@ def upload_video_post(
     db: Session = Depends(get_db),
     user: User  = Depends(get_current_user)
 ):
-    if not user: return RedirectResponse(url="/login", status_code=303)
+    if not user: return RedirectResponse(url="/?login=1", status_code=302)
 
     title       = sanitize(title)[:120]
     description = sanitize(description)[:500]
@@ -646,7 +645,7 @@ def verify_membership(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
-    if not user: return RedirectResponse(url="/login", status_code=303)
+    if not user: return RedirectResponse(url="/?login=1", status_code=302)
     result = process_membership_payment(db, user.id, tx_hash)
     if result.get("success"):
         initialise_renewal_record(db, user.id, source="referral")
@@ -689,7 +688,7 @@ def verify_grid_payment(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
-    if not user: return RedirectResponse(url="/login", status_code=303)
+    if not user: return RedirectResponse(url="/?login=1", status_code=302)
     if not user.is_active: return RedirectResponse(url="/pay-membership", status_code=303)
 
     result = process_grid_payment(db, user.id, package_tier, tx_hash)
@@ -716,7 +715,7 @@ def withdraw(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
-    if not user: return RedirectResponse(url="/login", status_code=303)
+    if not user: return RedirectResponse(url="/?login=1", status_code=302)
     result = request_withdrawal(db, user.id, amount)
     redirect_url = "/wallet?withdrawn=true" if result["success"] else f"/wallet?error={result['error']}"
     return RedirectResponse(url=redirect_url, status_code=303)
@@ -1548,7 +1547,7 @@ def account_change_password(
 ):
     import bcrypt
     from fastapi.responses import RedirectResponse as RR
-    if not user: return RR(url="/login")
+    if not user: return RR(url="/?login=1")
 
     def fail(msg):
         return RR(url=f"/account?error={msg.replace(' ','_')}", status_code=303)
