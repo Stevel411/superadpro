@@ -147,6 +147,13 @@
 .reg-login{text-align:center;margin-top:16px;font-size:12px;color:rgba(200,220,255,0.4)}
 .reg-login a{color:rgba(0,212,255,0.7);text-decoration:none;font-weight:600}
 @media(max-width:500px){.reg-modal{padding:28px 22px}.reg-row{grid-template-columns:1fr}}
+
+/* ── Login Modal ── */
+.login-overlay{position:fixed;inset:0;background:rgba(1,8,20,0.85);backdrop-filter:blur(6px);z-index:1001;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.login-overlay.open{opacity:1;pointer-events:all}
+.login-modal{background:#0d1117;border:1px solid rgba(0,212,255,0.15);border-radius:18px;padding:36px 38px;width:100%;max-width:400px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);transform:translateY(20px);transition:transform 0.25s}
+.login-overlay.open .login-modal{transform:translateY(0)}
+@media(max-width:500px){.login-modal{padding:28px 22px}}
 </style>
   <link rel="stylesheet" href="/static/mobile.css">
   <link rel="manifest" href="/static/manifest.json">
@@ -227,10 +234,35 @@
         <li><a href="/support">Support</a></li>
     </ul>
     <div style="display:flex;align-items:center;gap:10px">
-        <a href="/login" style="font-size:13px;font-weight:600;color:rgba(200,230,210,0.6);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:7px;transition:all 0.2s" onmouseover="this.style.color='rgba(200,230,210,0.9)'" onmouseout="this.style.color='rgba(200,230,210,0.6)'">Sign In</a>
+        <a href="#" onclick="openLoginModal();return false;" style="font-size:13px;font-weight:600;color:rgba(200,230,210,0.6);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:7px;transition:all 0.2s" onmouseover="this.style.color='rgba(200,230,210,0.9)'" onmouseout="this.style.color='rgba(200,230,210,0.6)'">Log In</a>
         <a href="#" class="nav-cta" onclick="openRegModal();return false;">Register Here</a>
     </div>
 </nav>
+<!-- ── Login Modal ── -->
+<div class="login-overlay" id="loginOverlay" onclick="if(event.target===this)closeLoginModal()">
+  <div class="login-modal">
+    <button class="reg-close" onclick="closeLoginModal()" aria-label="Close">✕</button>
+    <div class="reg-title">Log In</div>
+    <div class="reg-sub">Welcome back · Enter your details below</div>
+    <div id="loginErr" class="reg-err"></div>
+    <form id="loginModalForm">
+      <div class="reg-field">
+        <label class="reg-label">Username or Email</label>
+        <input class="reg-input" type="text" id="loginUser" placeholder="username or email" required autocomplete="username">
+      </div>
+      <div class="reg-field" style="margin-bottom:8px">
+        <label class="reg-label">Password</label>
+        <input class="reg-input" type="password" id="loginPw" placeholder="Your password" required autocomplete="current-password">
+      </div>
+      <div style="text-align:right;margin-bottom:20px">
+        <a href="/forgot-password" style="font-size:11px;color:rgba(0,212,255,0.6);text-decoration:none">Forgot password?</a>
+      </div>
+      <button type="submit" class="reg-submit" id="loginBtn">Log In →</button>
+    </form>
+    <div class="reg-login" style="margin-top:16px">Don’t have an account? <a href="#" onclick="closeLoginModal();openRegModal();return false;">Register here →</a></div>
+  </div>
+</div>
+
 <!-- ── Registration Modal ── -->
 <div class="reg-overlay" id="regOverlay" onclick="if(event.target===this)closeRegModal()">
   <div class="reg-modal">

@@ -373,7 +373,8 @@ def dev_login(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/login")
 def login_form(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    """Redirect to home page — login is now handled by modal."""
+    return RedirectResponse(url="/?login=1", status_code=302)
 
 @app.post("/login")
 @limiter.limit("10/minute")
@@ -401,6 +402,42 @@ def login_process(
         "request": request, "error": "Invalid username or password."
     })
 
+
+@app.post("/api/login")
+@limiter.limit("10/minute")
+async def api_login(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """JSON login endpoint for the modal — returns JSON instead of redirect."""
+    from fastapi.responses import JSONResponse
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    username = sanitize(body.get("username", "").strip())
+    password = body.get("password", "")
+
+    if is_locked_out(username):
+        return JSONResponse({
+            "error": f"Account locked — too many failed attempts. Try again in {LOCKOUT_MINUTES} minutes."
+        }, status_code=429)
+
+    user = db.query(User).filter(
+        (User.username == username) | (User.email == username)
+    ).first()
+
+    if user and verify_password(password, user.password):
+        clear_failed_attempts(username)
+        response = JSONResponse({"success": True, "redirect": "/dashboard"})
+        set_secure_cookie(response, user.id)
+        return response
+
+    record_failed_attempt(username)
+    return JSONResponse({"error": "Invalid username or password."}, status_code=401)
+
+
 @app.get("/logout")
 def logout():
     response = RedirectResponse(url="/")
@@ -414,14 +451,14 @@ def logout():
 @app.get("/dashboard")
 def dashboard(request: Request, user: User = Depends(get_current_user),
               db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/login")
+    if not user: return RedirectResponse(url="/?login=1")
     ctx = get_dashboard_context(request, user, db)
     return templates.TemplateResponse("dashboard.html", ctx)
 
 @app.get("/income-grid")
 def income_grid(request: Request, user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/login")
+    if not user: return RedirectResponse(url="/?login=1")
     ctx = get_dashboard_context(request, user, db)
     grids = get_user_grids(db, user.id)
     ctx.update({
@@ -434,7 +471,7 @@ def income_grid(request: Request, user: User = Depends(get_current_user),
 def grid_detail(grid_id: int, request: Request,
                 user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/login")
+    if not user: return RedirectResponse(url="/?login=1")
     grid = db.query(Grid).filter(Grid.id == grid_id, Grid.owner_id == user.id).first()
     if not grid: raise HTTPException(status_code=404, detail="Grid not found")
     positions = get_grid_positions(db, grid_id)
@@ -445,7 +482,7 @@ def grid_detail(grid_id: int, request: Request,
 @app.get("/wallet")
 def wallet(request: Request, user: User = Depends(get_current_user),
            db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/login")
+    if not user: return RedirectResponse(url="/?login=1")
     ctx = get_dashboard_context(request, user, db)
     commissions = get_user_commission_history(db, user.id, limit=50)
     withdrawals = db.query(Withdrawal).filter(
@@ -468,7 +505,7 @@ def wallet(request: Request, user: User = Depends(get_current_user),
 @app.get("/affiliate")
 def affiliate(request: Request, user: User = Depends(get_current_user),
               db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/login")
+    if not user: return RedirectResponse(url="/?login=1")
     ctx = get_dashboard_context(request, user, db)
     # Direct referrals list
     referrals = db.query(User).filter(User.sponsor_id == user.id).all()
@@ -481,7 +518,7 @@ def affiliate(request: Request, user: User = Depends(get_current_user),
 @app.get("/account")
 def account(request: Request, user: User = Depends(get_current_user),
             db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/login")
+    if not user: return RedirectResponse(url="/?login=1")
     ctx = get_dashboard_context(request, user, db)
     return templates.TemplateResponse("account.html", ctx)
 
@@ -502,7 +539,7 @@ def save_wallet(
 @app.get("/video-library")
 def video_library(request: Request, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/login")
+    if not user: return RedirectResponse(url="/?login=1")
     ctx = get_dashboard_context(request, user, db)
     campaigns = db.query(VideoCampaign).filter(
         VideoCampaign.user_id == user.id,
@@ -536,7 +573,7 @@ def delete_campaign(
 
 @app.get("/upload")
 def upload_video(request: Request, user: User = Depends(get_current_user)):
-    if not user: return RedirectResponse(url="/login")
+    if not user: return RedirectResponse(url="/?login=1")
     ctx = get_dashboard_context(request, user, db=next(get_db()))
     return templates.TemplateResponse("upload-video.html", ctx)
 
@@ -595,7 +632,7 @@ def upload_video_post(
 
 @app.get("/pay-membership")
 def pay_membership_form(request: Request, user: User = Depends(get_current_user)):
-    if not user: return RedirectResponse(url="/login")
+    if not user: return RedirectResponse(url="/?login=1")
     if user.is_active: return RedirectResponse(url="/dashboard")
     return templates.TemplateResponse("pay-membership.html", {
         "request": request, "user": user, "amount": MEMBERSHIP_FEE,
@@ -632,7 +669,7 @@ def activate_grid_form(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    if not user: return RedirectResponse(url="/login")
+    if not user: return RedirectResponse(url="/?login=1")
     if not user.is_active: return RedirectResponse(url="/pay-membership")
     price = GRID_PACKAGES.get(tier, 10)
     ctx = get_dashboard_context(request, user, db)
@@ -911,7 +948,7 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
 
 @app.get("/watch")
 def watch_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if not user:     return RedirectResponse(url="/login")
+    if not user:     return RedirectResponse(url="/?login=1")
     if not user.is_active: return RedirectResponse(url="/pay-membership")
 
     quota    = get_or_create_quota(db, user)
@@ -1056,7 +1093,7 @@ def recent_joiners(db: Session = Depends(get_db)):
 def dev_reset_watch(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     """TEMPORARY — reset today's watch quota for testing. Remove before launch."""
     from datetime import date
-    if not user: return RedirectResponse(url="/login")
+    if not user: return RedirectResponse(url="/?login=1")
     today = str(date.today())
     quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
     if quota:
@@ -1151,7 +1188,7 @@ def check_and_increment_ai_quota(db: Session, user_id: int, tool: str) -> dict:
 @app.get("/campaign-studio")
 def campaign_studio(request: Request, user: User = Depends(get_current_user),
                     db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/login")
+    if not user: return RedirectResponse(url="/?login=1")
     ctx = get_dashboard_context(request, user, db)
     return templates.TemplateResponse("campaign-studio.html", ctx)
 
@@ -1428,7 +1465,7 @@ def account_update_profile(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    if not user: return RedirectResponse(url="/login")
+    if not user: return RedirectResponse(url="/?login=1")
     user.first_name = sanitize(first_name).strip() or user.first_name
     user.last_name  = sanitize(last_name).strip()
     user.country    = sanitize(country).strip()
@@ -1544,7 +1581,7 @@ def cron_process_renewals_ping(request: Request):
 @app.get("/niche-finder")
 def niche_finder(request: Request, user: User = Depends(get_current_user),
                  db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/login")
+    if not user: return RedirectResponse(url="/?login=1")
     ctx = get_dashboard_context(request, user, db)
     return templates.TemplateResponse("niche-finder.html", ctx)
 
@@ -1698,7 +1735,7 @@ IMPORTANT:
 @app.get("/swipe-file")
 def swipe_file(request: Request, user: User = Depends(get_current_user),
                db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/login")
+    if not user: return RedirectResponse(url="/?login=1")
     ctx = get_dashboard_context(request, user, db)
     return templates.TemplateResponse("swipe-file.html", ctx)
 
