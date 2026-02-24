@@ -1,0 +1,16 @@
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/"
+restartPolicyType = "ON_FAILURE"
+
+[[crons]]
+name = "membership-auto-renewal"
+schedule = "5 0 * * *"
+command = """curl -s -X POST https://$RAILWAY_PUBLIC_DOMAIN/cron/process-renewals \
+  -H "Authorization: Bearer $CRON_SECRET" \
+  -H "Content-Type: application/json" \
+  --max-time 60 \
+  --retry 2"""

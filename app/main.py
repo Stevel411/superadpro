@@ -1408,6 +1408,78 @@ def admin_process_renewals(
     return JSONResponse({"success": True, "results": results})
 
 
+
+# ═══════════════════════════════════════════════════════════════
+#  DAILY CRON — MEMBERSHIP AUTO-RENEWAL
+#  Called by Railway cron job daily at 00:05 UTC
+#  Protected by CRON_SECRET env var
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/cron/process-renewals")
+def cron_process_renewals(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    from fastapi.responses import JSONResponse
+    from datetime import datetime
+
+    # Verify cron secret — must match CRON_SECRET env var
+    cron_secret = os.environ.get("CRON_SECRET", "")
+    auth_header = request.headers.get("Authorization", "")
+    provided    = auth_header.replace("Bearer ", "").strip()
+
+    if not cron_secret or provided != cron_secret:
+        logging.warning(f"Cron renewal: unauthorised attempt from {request.client.host if request.client else 'unknown'}")
+        return JSONResponse({"error": "Unauthorised"}, status_code=401)
+
+    started_at = datetime.utcnow()
+    logging.info(f"[CRON] process-renewals started at {started_at.isoformat()}")
+
+    try:
+        results = process_auto_renewals(db)
+        finished_at = datetime.utcnow()
+        duration_ms = int((finished_at - started_at).total_seconds() * 1000)
+
+        logging.info(
+            f"[CRON] process-renewals complete — "
+            f"renewed={len(results.get('renewed', []))}, "
+            f"warned={len(results.get('warned', []))}, "
+            f"grace={len(results.get('grace_extended', []))}, "
+            f"lapsed={len(results.get('lapsed', []))}, "
+            f"duration={duration_ms}ms"
+        )
+
+        return JSONResponse({
+            "success":       True,
+            "run_at":        started_at.strftime("%Y-%m-%d %H:%M:%S UTC"),
+            "duration_ms":   duration_ms,
+            "renewed":       len(results.get("renewed", [])),
+            "warned":        len(results.get("warned", [])),
+            "grace_started": len(results.get("grace_extended", [])),
+            "lapsed":        len(results.get("lapsed", [])),
+        })
+
+    except Exception as e:
+        logging.error(f"[CRON] process-renewals FAILED: {e}")
+        return JSONResponse({
+            "success": False,
+            "error":   str(e),
+            "run_at":  started_at.strftime("%Y-%m-%d %H:%M:%S UTC"),
+        }, status_code=500)
+
+
+@app.get("/cron/process-renewals")
+def cron_process_renewals_ping(request: Request):
+    """Health check — confirm cron endpoint is reachable."""
+    from fastapi.responses import JSONResponse
+    return JSONResponse({
+        "status":    "ready",
+        "endpoint":  "POST /cron/process-renewals",
+        "auth":      "Bearer token required (CRON_SECRET env var)",
+        "schedule":  "Daily at 00:05 UTC",
+    })
+
+
 # ═══════════════════════════════════════════════════════════════
 #  NICHE FINDER
 # ═══════════════════════════════════════════════════════════════
