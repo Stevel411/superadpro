@@ -451,8 +451,12 @@ def logout():
 def dashboard(request: Request, user: User = Depends(get_current_user),
               db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
-    ctx = get_dashboard_context(request, user, db)
-    return templates.TemplateResponse("dashboard.html", ctx)
+    try:
+        ctx = get_dashboard_context(request, user, db)
+        return templates.TemplateResponse("dashboard.html", ctx)
+    except Exception as exc:
+        logger.error(f"Dashboard error for user {user.id}: {exc}", exc_info=True)
+        return JSONResponse({"error": f"Dashboard error: {exc}"}, status_code=500)
 
 @app.get("/income-grid")
 def income_grid(request: Request, user: User = Depends(get_current_user),
