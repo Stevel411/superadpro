@@ -1523,7 +1523,7 @@ async def api_register(
     except Exception as exc:
         logger.error(f"api_register error: {exc}", exc_info=True)
         db.rollback()
-        return JSONResponse({"error": "Registration failed — please try again."}, status_code=500)
+        return JSONResponse({"error": f"Registration failed: {exc}"}, status_code=500)
 
 
 # ═══════════════════════════════════════════════════════════════
