@@ -322,6 +322,59 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
         </div>
       </div>
 
+
+      <!-- MEMBERSHIP RENEWAL NOTICE -->
+      {% if renewal and renewal.has_renewal %}
+      <div style="margin-bottom:16px;border-radius:14px;overflow:hidden;border:1px solid
+        {% if renewal.in_grace_period %}#fecaca
+        {% elif renewal.status == 'warning' %}#fde68a
+        {% else %}#d1fae5{% endif %};
+        background:{% if renewal.in_grace_period %}#fff5f5
+        {% elif renewal.status == 'warning' %}#fefce8
+        {% else %}#f0fdf4{% endif %}">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;gap:12px;flex-wrap:wrap">
+
+          <!-- Icon + message -->
+          <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
+            <div style="font-size:22px;flex-shrink:0">
+              {% if renewal.in_grace_period %}⚠️
+              {% elif renewal.status == 'warning' %}⏱️
+              {% else %}✅{% endif %}
+            </div>
+            <div>
+              {% if renewal.in_grace_period %}
+                <div style="font-size:14px;font-weight:800;color:#dc2626;margin-bottom:2px">Membership in Grace Period</div>
+                <div style="font-size:12px;color:#7f1d1d;line-height:1.5">Your wallet balance was insufficient at renewal. Top up your wallet with at least $20 USDT within the grace period to reactivate your membership automatically.</div>
+              {% elif renewal.status == 'warning' %}
+                <div style="font-size:14px;font-weight:800;color:#92400e;margin-bottom:2px">Renewal in {{ renewal.days_remaining }} day{{ 's' if renewal.days_remaining != 1 }} — {% if renewal.can_afford %}You're covered ✓{% else %}Top up needed{% endif %}</div>
+                <div style="font-size:12px;color:#78350f;line-height:1.5">
+                  {% if renewal.can_afford %}Your $20 renewal will be deducted automatically from your wallet balance. No action needed.
+                  {% else %}Your current balance of ${{ renewal.balance }} is below the $20 required. Add funds to your wallet before your renewal date to avoid a grace period.{% endif %}
+                </div>
+              {% else %}
+                <div style="font-size:14px;font-weight:800;color:#15803d;margin-bottom:2px">Membership Active — renews in {{ renewal.days_remaining }} day{{ 's' if renewal.days_remaining != 1 }}</div>
+                <div style="font-size:12px;color:#166534;line-height:1.5">Your $20 membership fee is deducted automatically from your wallet balance on your renewal date. As long as your wallet has funds from Watch-to-Earn, grid commissions and Stream 1 income, your membership stays active with no manual action required.</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Right side: balance chip + wallet link -->
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+            <div style="font-size:13px;font-weight:800;color:
+              {% if renewal.in_grace_period %}#dc2626
+              {% elif not renewal.can_afford and renewal.status == 'warning' %}#b45309
+              {% else %}#15803d{% endif %}">
+              ${{ renewal.balance }} balance
+            </div>
+            <a href="/wallet" style="font-size:11px;font-weight:700;color:#6366f1;text-decoration:none;border:1px solid rgba(99,102,241,0.3);border-radius:6px;padding:4px 10px;background:rgba(99,102,241,0.06)">
+              View Wallet →
+            </a>
+          </div>
+
+        </div>
+      </div>
+      {% endif %}
+
       <!-- HERO STATS -->
       <div class="stats-row">
         <div class="stat-card c1">

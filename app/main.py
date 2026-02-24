@@ -143,6 +143,8 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         Grid.is_complete == False
     ).all()
 
+    renewal = get_renewal_status(db, user.id)
+
     return {
         "request":           request,
         "user":              user,
@@ -168,6 +170,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "OWNER_PCT":         OWNER_PCT,
         "UPLINE_PCT":        UPLINE_PCT,
         "LEVEL_PCT":         LEVEL_PCT,
+        "renewal":           renewal,
     }
 
 # ═══════════════════════════════════════════════════════════════
