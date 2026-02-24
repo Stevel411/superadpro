@@ -273,6 +273,10 @@ def run_migrations():
         "CREATE TABLE IF NOT EXISTS watch_quotas (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, package_tier INTEGER DEFAULT 1, daily_required INTEGER DEFAULT 1, today_watched INTEGER DEFAULT 0, today_date VARCHAR, consecutive_missed INTEGER DEFAULT 0, last_quota_met VARCHAR, commissions_paused BOOLEAN DEFAULT FALSE, updated_at TIMESTAMP DEFAULT NOW())",
         "CREATE INDEX IF NOT EXISTS idx_video_watches_user_date ON video_watches(user_id, watch_date)",
         "CREATE INDEX IF NOT EXISTS idx_video_watches_campaign ON video_watches(campaign_id)",
+        # Rename cycle_number → advance_number if old column exists
+        "ALTER TABLE grids RENAME COLUMN cycle_number TO advance_number",
+        # If column doesn't exist at all, add it
+        "ALTER TABLE grids ADD COLUMN IF NOT EXISTS advance_number INTEGER DEFAULT 1",
     ]
     results = []
     with engine.connect() as conn:
