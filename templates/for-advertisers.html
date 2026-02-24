@@ -509,28 +509,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     btn.disabled = true;
     btn.textContent = 'Creating account…';
-    var fd = new FormData();
-    fd.append('first_name',       document.getElementById('regFirstName').value);
-    fd.append('email',            document.getElementById('regEmail').value);
-    fd.append('username',         document.getElementById('regUsername').value);
-    fd.append('password',         document.getElementById('regPw').value);
-    fd.append('confirm_password', document.getElementById('regPwC').value);
-    fd.append('ref',              document.getElementById('regRef').value);
-    fd.append('beta_code',        '');
     try {
-      var res = await fetch('/register', { method: 'POST', body: fd, redirect: 'manual' });
-      if (res.status === 0 || res.type === 'opaqueredirect') {
-        window.location.href = '/dashboard?new=1';
+      var res = await fetch('/api/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          first_name:       document.getElementById('regFirstName').value,
+          email:            document.getElementById('regEmail').value,
+          username:         document.getElementById('regUsername').value,
+          password:         document.getElementById('regPw').value,
+          confirm_password: document.getElementById('regPwC').value,
+          ref:              document.getElementById('regRef').value,
+          beta_code:        ''
+        })
+      });
+      var data = await res.json();
+      if (data.success) {
+        window.location.href = data.redirect || '/dashboard?new=1';
         return;
       }
-      if (res.url && res.url.includes('/dashboard')) {
-        window.location.href = '/dashboard?new=1';
-        return;
-      }
-      var html = await res.text();
-      var match = html.match(/class="error-msg[^"]*"[^>]*>([^<]+)/);
-      var msg = match ? match[1].trim() : 'Something went wrong. Please try again.';
-      err.textContent = msg;
+      err.textContent = data.error || 'Something went wrong. Please try again.';
       err.style.display = 'block';
       btn.disabled = false;
       btn.textContent = 'Register Here →';

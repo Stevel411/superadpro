@@ -1452,6 +1452,70 @@ def admin_process_renewals(
 
 
 
+
+@app.post("/api/register")
+@limiter.limit("5/minute")
+async def api_register(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """JSON register endpoint for the modal."""
+    from fastapi.responses import JSONResponse
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    first_name       = sanitize(body.get("first_name", "").strip())
+    username         = sanitize(body.get("username", "").strip())
+    email            = sanitize(body.get("email", "").strip())
+    password         = body.get("password", "")
+    confirm_password = body.get("confirm_password", "")
+    ref              = sanitize(body.get("ref", "").strip())
+    beta_code        = body.get("beta_code", "").strip()
+
+    if BETA_CODE and beta_code != BETA_CODE:
+        return JSONResponse({"error": "Invalid beta access code."}, status_code=400)
+    if not first_name:
+        return JSONResponse({"error": "Please enter your first name."}, status_code=400)
+    if not validate_username(username):
+        return JSONResponse({"error": "Username must be 3–30 characters, letters, numbers and underscores only."}, status_code=400)
+    if not validate_email(email):
+        return JSONResponse({"error": "Please enter a valid email address."}, status_code=400)
+    if len(password) < 8:
+        return JSONResponse({"error": "Password must be at least 8 characters."}, status_code=400)
+    if len(password.encode("utf-8")) > 72:
+        return JSONResponse({"error": "Password must be 72 characters or less."}, status_code=400)
+    if password != confirm_password:
+        return JSONResponse({"error": "Passwords do not match."}, status_code=400)
+
+    existing = db.query(User).filter(
+        (User.username == username) | (User.email == email)
+    ).first()
+    if existing:
+        return JSONResponse({"error": "Username or email already registered."}, status_code=400)
+
+    sponsor_id = None
+    if ref:
+        sponsor = db.query(User).filter(User.username == ref).first()
+        if sponsor:
+            sponsor_id = sponsor.id
+            sponsor.total_team = (sponsor.total_team or 0) + 1
+
+    user = create_user(
+        db, username, email, password,
+        sponsor_id=sponsor_id,
+        first_name=first_name,
+        last_name="",
+        wallet_address="",
+        country="",
+    )
+
+    response = JSONResponse({"success": True, "redirect": "/dashboard?new=1"})
+    set_secure_cookie(response, user.id)
+    return response
+
+
 # ═══════════════════════════════════════════════════════════════
 #  ACCOUNT — PROFILE UPDATE + PASSWORD CHANGE
 # ═══════════════════════════════════════════════════════════════
