@@ -244,7 +244,7 @@ footer a{color:#94a3b8;text-decoration:none}
     </ul>
     <div style="display:flex;align-items:center;gap:10px">
         <a href="/login" style="font-size:13px;font-weight:600;color:rgba(200,230,210,0.6);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:7px;transition:all 0.2s" onmouseover="this.style.color='rgba(200,230,210,0.9)'" onmouseout="this.style.color='rgba(200,230,210,0.6)'">Sign In</a>
-        <a href="#" class="nav-cta" onclick="openRegModal();return false;">Join Free</a>
+        <a href="#" class="nav-cta" onclick="openRegModal();return false;">Register Here</a>
     </div>
 </nav>
 <!-- ── Registration Modal ── -->
@@ -286,7 +286,7 @@ footer a{color:#94a3b8;text-decoration:none}
         <input type="checkbox" id="regTerms" required>
         <div>I agree to the <a href="/legal" target="_blank">Terms of Service</a> and <a href="/legal" target="_blank">Privacy Policy</a>.</div>
       </div>
-      <button type="submit" class="reg-submit" id="regBtn">Create My Free Account →</button>
+      <button type="submit" class="reg-submit" id="regBtn">Register Here →</button>
     </form>
     <div class="reg-login">Already have an account? <a href="/login">Sign in here →</a></div>
   </div>
@@ -667,6 +667,93 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/static/sw.js').catch(() => {});
   });
 }
+</script>
+<script>
+/* ── Registration Modal JS ── */
+function openRegModal(sponsor) {
+  var overlay = document.getElementById('regOverlay');
+  if (!overlay) return;
+  if (sponsor) {
+    document.getElementById('regRef').value = sponsor;
+    document.getElementById('regSponsor').value = sponsor;
+    document.getElementById('regSponsorField').style.display = 'block';
+  }
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(function(){ var f=document.getElementById('regFirstName'); if(f) f.focus(); }, 300);
+}
+function closeRegModal() {
+  var overlay = document.getElementById('regOverlay');
+  if (overlay) overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeRegModal(); });
+
+document.addEventListener('DOMContentLoaded', function() {
+  var form = document.getElementById('regModalForm');
+  if (!form) return;
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    var err = document.getElementById('regErr');
+    var btn = document.getElementById('regBtn');
+    err.style.display = 'none';
+    if (document.getElementById('regPw').value !== document.getElementById('regPwC').value) {
+      err.textContent = 'Passwords do not match.';
+      err.style.display = 'block';
+      return;
+    }
+    if (!document.getElementById('regTerms').checked) {
+      err.textContent = 'Please agree to the Terms of Service.';
+      err.style.display = 'block';
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Creating account…';
+    var fd = new FormData();
+    fd.append('first_name',       document.getElementById('regFirstName').value);
+    fd.append('email',            document.getElementById('regEmail').value);
+    fd.append('username',         document.getElementById('regUsername').value);
+    fd.append('password',         document.getElementById('regPw').value);
+    fd.append('confirm_password', document.getElementById('regPwC').value);
+    fd.append('ref',              document.getElementById('regRef').value);
+    fd.append('beta_code',        '');
+    try {
+      var res = await fetch('/register', { method: 'POST', body: fd, redirect: 'manual' });
+      if (res.status === 0 || res.type === 'opaqueredirect') {
+        window.location.href = '/dashboard?new=1';
+        return;
+      }
+      if (res.url && res.url.includes('/dashboard')) {
+        window.location.href = '/dashboard?new=1';
+        return;
+      }
+      var html = await res.text();
+      var match = html.match(/class="error-msg[^"]*"[^>]*>([^<]+)/);
+      var msg = match ? match[1].trim() : 'Something went wrong. Please try again.';
+      err.textContent = msg;
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Register Here →';
+    } catch(ex) {
+      err.textContent = 'Network error. Please try again.';
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Register Here →';
+    }
+  });
+});
+
+/* Auto-open modal if ?join= or ?register= param present */
+(function(){
+  var p = new URLSearchParams(window.location.search);
+  var sponsor = p.get('join') || p.get('ref') || '';
+  var reg = p.get('register');
+  if (sponsor || reg === '1') {
+    document.addEventListener('DOMContentLoaded', function(){
+      openRegModal(sponsor || '');
+    });
+  }
+})();
 </script>
 </body>
 </html>
