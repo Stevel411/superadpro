@@ -463,6 +463,7 @@ def income_grid(request: Request, user: User = Depends(get_current_user),
     ctx.update({
         "all_grids": grids,
         "grid_packages": GRID_PACKAGES,
+        "selected_tier": int(request.query_params.get("tier", 1)),
     })
     return templates.TemplateResponse("income-grid.html", ctx)
 
@@ -963,13 +964,17 @@ def watch_page(request: Request, user: User = Depends(get_current_user), db: Ses
         warning = "🔴 Your commissions are currently paused. Complete today's video quota to reactivate."
 
     return templates.TemplateResponse("watch.html", {
-        "request":       request,
-        "user":          user,
-        "quota":         quota,
-        "campaign":      campaign,
+        "request":        request,
+        "user":           user,
+        "quota":          quota,
+        "campaign":       campaign,
         "watch_duration": WATCH_DURATION,
-        "warning":       warning,
-        "grace_days":    GRACE_DAYS,
+        "warning":        warning,
+        "grace_days":     GRACE_DAYS,
+        "balance":        round(user.balance or 0, 2),
+        "display_name":   user.first_name or user.username,
+        "member_id":      format_member_id(user.id),
+        "is_active":      user.is_active,
     })
 
 

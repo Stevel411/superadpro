@@ -201,7 +201,7 @@ footer a{color:#94a3b8;text-decoration:none}
       <div class="mobile-topbar-page">Income Grid</div>
     </div>
   </a>
-  <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
+  {%- if balance is defined %}<div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>{%- endif %}
 </div>
 
 

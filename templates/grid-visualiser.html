@@ -212,7 +212,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
       <div class="mobile-topbar-page">Income Grid</div>
     </div>
   </a>
-  <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
+  {%- if balance is defined %}<div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>{%- endif %}
 </div>
 
 
