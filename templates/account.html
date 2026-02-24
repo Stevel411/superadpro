@@ -111,41 +111,42 @@ tr:last-child td{border-bottom:none}
     </symbol>
   </defs>
 </svg>
-<aside class="sidebar">
-  <a href="/dashboard" class="sidebar-logo">
-    <svg width="26" height="26"><use href="#shield"/></svg>
-    <span class="sidebar-brand">SuperAdPro</span>
-  </a>
-  <div class="nav-section">Main</div>
-  <a href="/dashboard" class="nav-item "><span class="nav-icon">⊞</span>Dashboard</a>
-  <a href="/video-library" class="nav-item "><span class="nav-icon">🎬</span>My Campaigns</a>
-  <a href="/packages" class="nav-item"><span class="nav-icon">📦</span>Campaign Tiers</a>
-      <div class="nav-section">Marketing Suite</div>
+    <aside class="sidebar">
+    <a href="/dashboard" class="sidebar-logo">
+      <svg width="30" height="30"><use href="#shield"/></svg>
+      <span class="sidebar-brand">SuperAdPro</span>
+    </a>
+    <div class="nav-section">Main</div>
+    <a href="/dashboard" class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
+    <a href="/packages" class="nav-item"><span class="nav-icon">📦</span>Campaign Tiers</a>
+    <a href="/watch" class="nav-item"><span class="nav-icon">▶</span>Watch &amp; Earn</a>
+    <a href="/video-library" class="nav-item"><span class="nav-icon">🎬</span>My Campaigns</a>
+    <div class="nav-section">Marketing Suite</div>
     <a href="/campaign-studio" class="nav-item"><span class="nav-icon">🤖</span>AI Campaign Studio</a>
-    <a href="/niche-finder"    class="nav-item"><span class="nav-icon">💡</span>Niche Finder</a>
-    <a href="/swipe-file"      class="nav-item"><span class="nav-icon">📋</span>Swipe File</a>
-
+    <a href="/niche-finder" class="nav-item"><span class="nav-icon">💡</span>Niche Finder</a>
+    <a href="/swipe-file" class="nav-item"><span class="nav-icon">📋</span>Swipe File</a>
     <div class="nav-section">Income Streams</div>
-    <a href="/income-grid"       class="nav-item"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
-    <a href="/wallet"            class="nav-item"><span class="nav-icon">◎</span>Wallet</a>
-    <a href="/affiliate"         class="nav-item"><span class="nav-icon">🤝</span>Affiliate Tools</a>
+    <a href="/income-grid" class="nav-item"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
+    <a href="/wallet" class="nav-item"><span class="nav-icon">◎</span>Wallet</a>
+    <a href="/affiliate" class="nav-item"><span class="nav-icon">🤝</span>Affiliate Tools</a>
     <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span>Comp Plan</a>
-    <a href="/grid-visualiser"   class="nav-item"><span class="nav-icon">◈</span>Grid Visualiser</a>
-
-<div class="nav-section">Account</div>
-  <a href="/account" class="nav-item active"><span class="nav-icon">◉</span>Profile</a>
-  <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
-  <div class="sidebar-footer">
-    <div class="user-mini">
-      <div class="user-avatar">{{ user.username[:2].upper() }}</div>
-      <div>
-        <div style="font-size:17px;font-weight:700;color:#fff">{{ user.first_name }} {{ user.last_name }}</div>
-        <div style="font-size:17px;color:#00f0ff;letter-spacing:1px;text-transform:uppercase;margin-top:1px">{% if is_active %}Active{% else %}Inactive{% endif %}</div>
+    <a href="/grid-visualiser" class="nav-item"><span class="nav-icon">◈</span>Grid Visualiser</a>
+    <div class="nav-section">Account</div>
+    <a href="/account" class="nav-item active"><span class="nav-icon">◉</span>My Profile</a>
+    <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
+    <div class="sidebar-footer">
+      <div class="user-mini">
+        <div class="user-avatar">{{ user.username[:2].upper() }}</div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#fff">{{ user.first_name or user.username }}</div>
+          <div style="font-size:9px;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:1px">
+            {% if is_active %}● Active{% else %}○ Inactive{% endif %}
+          </div>
+        </div>
       </div>
+      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;color:#64748b;text-decoration:none;margin-top:4px;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">⎋ Sign Out</a>
     </div>
-    <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:18px;color:#64748b;text-decoration:none;margin-top:6px">⎋ Sign Out</a>
-  </div>
-</aside>
+  </aside>
 
 <div class="main">
 <div class="topbar">
@@ -163,96 +164,141 @@ tr:last-child td{border-bottom:none}
 </div>
 <div class="content">
 
+<!-- SUCCESS / ERROR BANNERS -->
+{% if request.query_params.get('saved') %}
+<div style="background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.25);border-radius:10px;padding:12px 18px;margin-bottom:18px;font-size:13px;color:#16a34a;font-weight:600">✓ {{ request.query_params.get('saved')|replace('_',' ')|title }} saved successfully.</div>
+{% endif %}
+{% if request.query_params.get('error') %}
+<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px 18px;margin-bottom:18px;font-size:13px;color:#dc2626;font-weight:600">⚠ {{ request.query_params.get('error')|replace('_',' ')|title }}.</div>
+{% endif %}
+
 <div class="row row-2">
 
-  <!-- Profile Details -->
-  <div class="card">
-    <div class="card-head">
-      <div class="card-title"><div class="card-dot"></div>Personal Details</div>
-    </div>
-    <div class="card-body">
-      <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid rgba(0,180,216,0.08)">
-        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00b4d8);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0">{{ user.username[:2].upper() }}</div>
-        <div>
-          <div style="font-size:18px;font-weight:800;color:#ffffff">{{ user.first_name }} {{ user.last_name }}</div>
-          <div style="font-size:17px;color:#64748b">@{{ user.username }}</div>
-          <span class="badge {% if is_active %}badge-green{% else %}badge-amber{% endif %}" style="margin-top:4px;display:inline-block">{% if is_active %}Active Member{% else %}Inactive{% endif %}</span>
+  <!-- LEFT: Profile avatar + read-only info -->
+  <div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-head">
+        <div class="card-title"><div class="card-dot"></div>Account Overview</div>
+        <span class="badge {% if is_active %}badge-green{% else %}badge-amber{% endif %}">{% if is_active %}Active{% else %}Inactive{% endif %}</span>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid #f1f5f9">
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00b4d8);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0">{{ (user.first_name[:1] + (user.last_name[:1] if user.last_name else user.username[1:2])).upper() }}</div>
+          <div>
+            <div style="font-size:17px;font-weight:800;color:#0f172a">{{ user.first_name }} {{ user.last_name }}</div>
+            <div style="font-size:12px;color:#64748b">@{{ user.username }}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:2px">Member since {{ user.created_at.strftime('%d %b %Y') if user.created_at else '—' }}</div>
+          </div>
+        </div>
+        <div style="display:grid;gap:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9">
+            <span style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px">Member ID</span>
+            <span style="font-size:13px;font-weight:700;color:#6366f1;font-family:monospace">{{ member_id }}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9">
+            <span style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px">Email</span>
+            <span style="font-size:13px;font-weight:600;color:#0f172a">{{ user.email }}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9">
+            <span style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px">Country</span>
+            <span style="font-size:13px;font-weight:600;color:#0f172a">{{ user.country or '—' }}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
+            <span style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px">Sponsor</span>
+            <span style="font-size:13px;font-weight:600;color:#0f172a">{{ sponsor_username or 'Direct' }}</span>
+          </div>
         </div>
       </div>
-      <div style="display:grid;gap:12px">
-        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(0,180,216,0.08)">
-          <span style="font-size:18px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px">Email</span>
-          <span style="font-size:17px;font-weight:600;color:#ffffff">{{ user.email }}</span>
+    </div>
+
+    <!-- Earnings summary -->
+    <div class="card">
+      <div class="card-head"><div class="card-title"><div class="card-dot" style="background:#6d28d9"></div>Earnings Summary</div></div>
+      <div class="card-body">
+        <div style="display:grid;gap:8px">
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:12px;color:#64748b">Total Earned</span><span style="font-size:13px;font-weight:800;color:#16a34a">${{ '%.2f'|format(total_earned) }}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:12px;color:#64748b">Available Balance</span><span style="font-size:13px;font-weight:800;color:#00b4d8">${{ '%.2f'|format(balance) }}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:12px;color:#64748b">Grid Earnings</span><span style="font-size:13px;font-weight:700;color:#0f172a">${{ '%.2f'|format(grid_earnings) }}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0"><span style="font-size:12px;color:#64748b">Uni-Level Income</span><span style="font-size:13px;font-weight:700;color:#6d28d9">${{ '%.2f'|format(level_earnings) }}</span></div>
         </div>
-        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(0,180,216,0.08)">
-          <span style="font-size:18px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px">Username</span>
-          <span style="font-size:17px;font-weight:600;color:#ffffff">{{ user.username }}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(0,180,216,0.08)">
-          <span style="font-size:18px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px">Member Since</span>
-          <span style="font-size:17px;font-weight:600;color:#ffffff">{{ user.created_at.strftime('%d %b %Y') if user.created_at else '—' }}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:10px 0">
-          <span style="font-size:18px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px">Sponsor</span>
-          <span style="font-size:17px;font-weight:600;color:#ffffff">{% if user.sponsor_id %}Member #{{ user.sponsor_id }}{% else %}Direct{% endif %}</span>
-        </div>
+        <a href="/wallet" style="display:block;text-align:center;margin-top:14px;padding:9px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;font-size:12px;font-weight:700;color:#475569;text-decoration:none">View Full Wallet →</a>
       </div>
     </div>
   </div>
 
-  <!-- Wallet Address -->
+  <!-- RIGHT: Editable forms -->
   <div>
-    <div class="card">
-      <div class="card-head">
-        <div class="card-title"><div class="card-dot" style="background:#16a34a"></div>USDT Withdrawal Wallet</div>
-      </div>
+
+    <!-- Personal Info -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-head"><div class="card-title"><div class="card-dot" style="background:#00b4d8"></div>Personal Information</div></div>
       <div class="card-body">
-        <p style="font-size:18px;color:#64748b;margin-bottom:16px;line-height:1.6">Set your Base Chain wallet address for USDT withdrawals. This is where your earnings will be sent when you request a withdrawal.</p>
-        <form method="POST" action="/save-wallet">
-          <div class="form-group">
-            <label class="form-label">Base Chain Wallet Address</label>
-            <input class="form-input" type="text" name="wallet_address" value="{{ user.wallet_address or '' }}" placeholder="0x...">
+        <form method="POST" action="/account/update-profile">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              <input class="form-input" type="text" name="first_name" value="{{ user.first_name or '' }}" placeholder="First name" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              <input class="form-input" type="text" name="last_name" value="{{ user.last_name or '' }}" placeholder="Last name">
+            </div>
           </div>
-          {% if request.query_params.get('error') == 'invalid_wallet' %}
-          <div style="padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:7px;font-size:18px;color:#dc2626;margin-bottom:12px">⚠ Invalid wallet address. Please enter a valid Base Chain (0x...) address.</div>
-          {% endif %}
-          {% if request.query_params.get('saved') %}
-          <div style="padding:10px 14px;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.25);border-radius:7px;font-size:18px;color:#16a34a;margin-bottom:12px">✓ Wallet address saved successfully.</div>
-          {% endif %}
-          <button type="submit" class="btn-primary">Save Wallet Address</button>
+          <div class="form-group" style="margin-bottom:14px">
+            <label class="form-label">Country</label>
+            <select name="country" style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;font-family:inherit;color:#0f172a;background:#f8fafc">
+              <option value="">Select country...</option>
+              {% for c in ['Afghanistan','Albania','Algeria','Angola','Argentina','Armenia','Australia','Austria','Azerbaijan','Bahrain','Bangladesh','Belarus','Belgium','Bolivia','Bosnia and Herzegovina','Brazil','Bulgaria','Cambodia','Cameroon','Canada','Chile','China','Colombia','Congo','Costa Rica','Croatia','Cyprus','Czech Republic','Denmark','Dominican Republic','Ecuador','Egypt','El Salvador','Estonia','Ethiopia','Finland','France','Georgia','Germany','Ghana','Greece','Guatemala','Honduras','Hong Kong','Hungary','India','Indonesia','Iraq','Ireland','Israel','Italy','Jamaica','Japan','Jordan','Kazakhstan','Kenya','Kuwait','Latvia','Lebanon','Libya','Lithuania','Luxembourg','Malaysia','Mali','Malta','Mexico','Moldova','Morocco','Myanmar','Nepal','Netherlands','New Zealand','Nicaragua','Nigeria','Norway','Oman','Pakistan','Panama','Paraguay','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Rwanda','Saudi Arabia','Senegal','Serbia','Singapore','Slovakia','Slovenia','South Africa','South Korea','Spain','Sri Lanka','Sudan','Sweden','Switzerland','Syria','Taiwan','Tanzania','Thailand','Tunisia','Turkey','UAE','Uganda','Ukraine','United Kingdom','United States','Uruguay','Uzbekistan','Venezuela','Vietnam','Yemen','Zambia','Zimbabwe'] %}
+              <option {% if user.country == c %}selected{% endif %}>{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn-primary" style="font-size:12px;padding:9px 20px">Save Profile</button>
         </form>
       </div>
     </div>
 
-    <!-- Earnings Summary -->
-    <div class="card">
-      <div class="card-head">
-        <div class="card-title"><div class="card-dot" style="background:#6d28d9"></div>Earnings Summary</div>
-      </div>
+    <!-- USDT Wallet -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-head"><div class="card-title"><div class="card-dot" style="background:#16a34a"></div>USDT Withdrawal Wallet</div></div>
       <div class="card-body">
-        <div style="display:grid;gap:10px">
-          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(0,180,216,0.08)">
-            <span style="font-size:18px;color:#64748b">Total Earned</span>
-            <span style="font-size:18px;font-weight:800;color:#16a34a">${{ '%.2f'|format(total_earned) }}</span>
+        <p style="font-size:12px;color:#64748b;margin-bottom:14px;line-height:1.6">Enter your Base Chain wallet address to receive USDT withdrawals. Make sure this is correct — payments go directly to this address.</p>
+        <form method="POST" action="/save-wallet">
+          <div class="form-group">
+            <label class="form-label">Base Chain Address (0x...)</label>
+            <input class="form-input" type="text" name="wallet_address" value="{{ user.wallet_address or '' }}" placeholder="0x...">
           </div>
-          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(0,180,216,0.08)">
-            <span style="font-size:18px;color:#64748b">Available Balance</span>
-            <span style="font-size:18px;font-weight:800;color:#00b4d8">${{ '%.2f'|format(balance) }}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(0,180,216,0.08)">
-            <span style="font-size:18px;color:#64748b">Grid Earnings</span>
-            <span style="font-size:18px;font-weight:800;color:#ffffff">${{ '%.2f'|format(grid_earnings) }}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;padding:8px 0">
-            <span style="font-size:18px;color:#64748b">Uni-Level Income</span>
-            <span style="font-size:18px;font-weight:800;color:#6d28d9">${{ '%.2f'|format(level_earnings) }}</span>
-          </div>
-        </div>
-        <a href="/wallet" style="display:block;text-align:center;margin-top:14px;padding:10px;background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:7px;font-size:18px;font-weight:700;color:#0077a8;text-decoration:none">View Full Wallet →</a>
+          <button type="submit" class="btn-primary" style="font-size:12px;padding:9px 20px">Save Wallet Address</button>
+        </form>
       </div>
     </div>
-  </div>
 
+    <!-- Password Change -->
+    <div class="card">
+      <div class="card-head"><div class="card-title"><div class="card-dot" style="background:#f59e0b"></div>Change Password</div></div>
+      <div class="card-body">
+        <form method="POST" action="/account/change-password" id="pwForm">
+          <div class="form-group" style="margin-bottom:14px">
+            <label class="form-label">Current Password</label>
+            <input class="form-input" type="password" name="current_password" placeholder="Enter current password" required autocomplete="current-password">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <input class="form-input" type="password" name="new_password" id="newPw" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm New Password</label>
+              <input class="form-input" type="password" name="confirm_password" id="confirmPw" placeholder="Repeat new password" required autocomplete="new-password">
+            </div>
+          </div>
+          <div id="pwError" style="display:none;font-size:12px;color:#dc2626;margin-bottom:10px;padding:8px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px"></div>
+          <button type="submit" class="btn-primary" style="font-size:12px;padding:9px 20px;background:linear-gradient(135deg,#f59e0b,#ef4444)">Update Password</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 </div></div></div>
@@ -268,10 +314,25 @@ tr:last-child td{border-bottom:none}
 </div>
 
 <script>
+document.getElementById('pwForm').addEventListener('submit', function(e) {
+  const np = document.getElementById('newPw').value;
+  const cp = document.getElementById('confirmPw').value;
+  const err = document.getElementById('pwError');
+  if (np !== cp) {
+    e.preventDefault();
+    err.textContent = 'New passwords do not match.';
+    err.style.display = 'block';
+  } else {
+    err.style.display = 'none';
+  }
+});
+</script>
+<script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/static/sw.js').catch(() => {});
   });
 }
 </script>
-</body></html>
+</body>
+</html>

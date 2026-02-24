@@ -258,54 +258,54 @@ def referral_link(username: str, request: Request):
 def register_form(request: Request, ref: str = ""):
     sponsor = ref or request.cookies.get("ref", "")
     return templates.TemplateResponse("register.html", {
-        "request": request, "sponsor": sponsor
+        "request": request, "sponsor": sponsor,
+        "beta_required": bool(BETA_CODE),
     })
 
 @app.post("/register")
 @limiter.limit("5/minute")
 def register_process(
     request: Request,
-    first_name: str = Form(), last_name: str = Form(),
-    username: str = Form(), email: str = Form(),
-    password: str = Form(), confirm_password: str = Form(),
-    wallet_address: str = Form(), ref: str = Form(""),
-    beta_code: str = Form(), country: str = Form(""),
+    first_name:       str  = Form(),
+    username:         str  = Form(),
+    email:            str  = Form(),
+    password:         str  = Form(),
+    confirm_password: str  = Form(),
+    ref:              str  = Form(""),
+    beta_code:        str  = Form(""),
     db: Session = Depends(get_db)
 ):
-    username       = sanitize(username)
-    email          = sanitize(email)
-    first_name     = sanitize(first_name)
-    last_name      = sanitize(last_name)
-    wallet_address = sanitize(wallet_address)
-    ref            = sanitize(ref)
-    country        = sanitize(country)
+    username   = sanitize(username)
+    email      = sanitize(email)
+    first_name = sanitize(first_name)
+    ref        = sanitize(ref)
 
     def err(msg):
         return templates.TemplateResponse("register.html", {
             "request": request, "error": msg, "sponsor": ref,
+            "beta_required": bool(BETA_CODE),
             "prefill": {
-                "first_name": first_name, "last_name": last_name,
-                "username": username, "email": email,
-                "wallet_address": wallet_address, "ref": ref
+                "first_name": first_name,
+                "username":   username,
+                "email":      email,
+                "ref":        ref,
             }
         })
 
     if BETA_CODE and beta_code != BETA_CODE:
         return err("Invalid beta access code.")
-    if not first_name or not last_name:
-        return err("Please enter your first and last name.")
+    if not first_name.strip():
+        return err("Please enter your first name.")
     if not validate_username(username):
         return err("Username must be 3–30 characters, letters, numbers and underscores only.")
     if not validate_email(email):
         return err("Please enter a valid email address.")
     if len(password) < 8:
         return err("Password must be at least 8 characters.")
-    if len(password.encode('utf-8')) > 72:
+    if len(password.encode("utf-8")) > 72:
         return err("Password must be 72 characters or less.")
     if password != confirm_password:
         return err("Passwords do not match.")
-    if not validate_wallet(wallet_address):
-        return err("Please enter a valid Base Chain wallet address (0x...).")
 
     existing = db.query(User).filter(
         (User.username == username) | (User.email == email)
@@ -319,13 +319,14 @@ def register_process(
         if sponsor:
             sponsor_id = sponsor.id
             sponsor.total_team = (sponsor.total_team or 0) + 1
-            # personal_referrals tracked on membership activation, not registration
 
     user = create_user(
         db, username, email, password,
-        sponsor_id=sponsor_id, first_name=first_name,
-        last_name=last_name, wallet_address=wallet_address,
-        country=country
+        sponsor_id=sponsor_id,
+        first_name=first_name,
+        last_name="",
+        wallet_address="",
+        country="",
     )
 
     response = RedirectResponse(url="/dashboard", status_code=303)
@@ -1410,6 +1411,58 @@ def admin_process_renewals(
     results = process_auto_renewals(db)
     return JSONResponse({"success": True, "results": results})
 
+
+
+
+# ═══════════════════════════════════════════════════════════════
+#  ACCOUNT — PROFILE UPDATE + PASSWORD CHANGE
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/account/update-profile")
+def account_update_profile(
+    request: Request,
+    first_name: str = Form(""),
+    last_name:  str = Form(""),
+    country:    str = Form(""),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not user: return RedirectResponse(url="/login")
+    user.first_name = sanitize(first_name).strip() or user.first_name
+    user.last_name  = sanitize(last_name).strip()
+    user.country    = sanitize(country).strip()
+    db.commit()
+    return RedirectResponse(url="/account?saved=profile", status_code=303)
+
+
+@app.post("/account/change-password")
+def account_change_password(
+    request: Request,
+    current_password: str = Form(),
+    new_password:     str = Form(),
+    confirm_password: str = Form(),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    import bcrypt
+    from fastapi.responses import RedirectResponse as RR
+    if not user: return RR(url="/login")
+
+    def fail(msg):
+        return RR(url=f"/account?error={msg.replace(' ','_')}", status_code=303)
+
+    if not bcrypt.checkpw(current_password.encode(), user.password.encode()):
+        return fail("Current password is incorrect")
+    if len(new_password) < 8:
+        return fail("New password must be at least 8 characters")
+    if len(new_password.encode()) > 72:
+        return fail("Password too long")
+    if new_password != confirm_password:
+        return fail("New passwords do not match")
+
+    user.password = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
+    db.commit()
+    return RR(url="/account?saved=password", status_code=303)
 
 
 # ═══════════════════════════════════════════════════════════════

@@ -122,41 +122,42 @@ tr:last-child td{border-bottom:none}
     </symbol>
   </defs>
 </svg>
-<aside class="sidebar">
-  <a href="/dashboard" class="sidebar-logo">
-    <svg width="26" height="26"><use href="#shield"/></svg>
-    <span class="sidebar-brand">SuperAdPro</span>
-  </a>
-  <div class="nav-section">Main</div>
-  <a href="/dashboard" class="nav-item "><span class="nav-icon">⊞</span>Dashboard</a>
-  <a href="/video-library" class="nav-item "><span class="nav-icon">🎬</span>My Campaigns</a>
-  <a href="/packages" class="nav-item"><span class="nav-icon">📦</span>Campaign Tiers</a>
-      <div class="nav-section">Marketing Suite</div>
+    <aside class="sidebar">
+    <a href="/dashboard" class="sidebar-logo">
+      <svg width="30" height="30"><use href="#shield"/></svg>
+      <span class="sidebar-brand">SuperAdPro</span>
+    </a>
+    <div class="nav-section">Main</div>
+    <a href="/dashboard" class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
+    <a href="/packages" class="nav-item"><span class="nav-icon">📦</span>Campaign Tiers</a>
+    <a href="/watch" class="nav-item"><span class="nav-icon">▶</span>Watch &amp; Earn</a>
+    <a href="/video-library" class="nav-item"><span class="nav-icon">🎬</span>My Campaigns</a>
+    <div class="nav-section">Marketing Suite</div>
     <a href="/campaign-studio" class="nav-item"><span class="nav-icon">🤖</span>AI Campaign Studio</a>
-    <a href="/niche-finder"    class="nav-item"><span class="nav-icon">💡</span>Niche Finder</a>
-    <a href="/swipe-file"      class="nav-item"><span class="nav-icon">📋</span>Swipe File</a>
-
+    <a href="/niche-finder" class="nav-item"><span class="nav-icon">💡</span>Niche Finder</a>
+    <a href="/swipe-file" class="nav-item"><span class="nav-icon">📋</span>Swipe File</a>
     <div class="nav-section">Income Streams</div>
-    <a href="/income-grid"       class="nav-item"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
-    <a href="/wallet"            class="nav-item active"><span class="nav-icon">◎</span>Wallet</a>
-    <a href="/affiliate"         class="nav-item"><span class="nav-icon">🤝</span>Affiliate Tools</a>
+    <a href="/income-grid" class="nav-item"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
+    <a href="/wallet" class="nav-item active"><span class="nav-icon">◎</span>Wallet</a>
+    <a href="/affiliate" class="nav-item"><span class="nav-icon">🤝</span>Affiliate Tools</a>
     <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span>Comp Plan</a>
-    <a href="/grid-visualiser"   class="nav-item"><span class="nav-icon">◈</span>Grid Visualiser</a>
-
-<div class="nav-section">Account</div>
-  <a href="/account" class="nav-item "><span class="nav-icon">◉</span>Profile</a>
-  <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
-  <div class="sidebar-footer">
-    <div class="user-mini">
-      <div class="user-avatar">{{ user.username[:2].upper() }}</div>
-      <div>
-        <div style="font-size:17px;font-weight:700;color:#fff">{{ user.first_name }} {{ user.last_name }}</div>
-        <div style="font-size:17px;color:#00f0ff;letter-spacing:1px;text-transform:uppercase;margin-top:1px">{% if is_active %}Active{% else %}Inactive{% endif %}</div>
+    <a href="/grid-visualiser" class="nav-item"><span class="nav-icon">◈</span>Grid Visualiser</a>
+    <div class="nav-section">Account</div>
+    <a href="/account" class="nav-item"><span class="nav-icon">◉</span>My Profile</a>
+    <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
+    <div class="sidebar-footer">
+      <div class="user-mini">
+        <div class="user-avatar">{{ user.username[:2].upper() }}</div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#fff">{{ user.first_name or user.username }}</div>
+          <div style="font-size:9px;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:1px">
+            {% if is_active %}● Active{% else %}○ Inactive{% endif %}
+          </div>
+        </div>
       </div>
+      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;color:#64748b;text-decoration:none;margin-top:4px;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">⎋ Sign Out</a>
     </div>
-    <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:18px;color:#64748b;text-decoration:none;margin-top:6px">⎋ Sign Out</a>
-  </div>
-</aside>
+  </aside>
 
 <div class="main">
 <div class="topbar">
@@ -423,8 +424,12 @@ tr:last-child td{border-bottom:none}
 <!-- ── Mobile Bottom Nav ── -->
 <div class="mobile-nav">
   <div class="mobile-nav-inner">
-    <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
+        <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
     <a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">▶</span><span class="mob-nav-label">Watch</span></a>
+    <a href="/income-grid" class="mob-nav-item"><span class="mob-nav-icon">⚡</span><span class="mob-nav-label">Grid</span></a>
+    <a href="/wallet" class="mob-nav-item active"><span class="mob-nav-icon">◎</span><span class="mob-nav-label">Wallet</span></a>
+    <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">◉</span><span class="mob-nav-label">Account</span></a>
+<a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">▶</span><span class="mob-nav-label">Watch</span></a>
     <a href="/income-grid" class="mob-nav-item"><span class="mob-nav-icon">⚡</span><span class="mob-nav-label">Grid</span></a>
     <a href="/wallet" class="mob-nav-item active"><span class="mob-nav-icon">◎</span><span class="mob-nav-label">Wallet</span></a>
     <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">◉</span><span class="mob-nav-label">Account</span></a>

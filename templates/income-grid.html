@@ -151,49 +151,40 @@ body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif;
 
 
   <!-- SIDEBAR -->
-  <aside style="width:220px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,240,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column">
-    <a href="/dashboard" style="display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none">
-      <svg width="26" height="26"><use href="#shield"/></svg>
-      <span style="font-weight:800;font-size:17px;letter-spacing:2.5px;text-transform:uppercase;background:linear-gradient(135deg,#00f0ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">SuperAdPro</span>
+    <aside class="sidebar">
+    <a href="/dashboard" class="sidebar-logo">
+      <svg width="30" height="30"><use href="#shield"/></svg>
+      <span class="sidebar-brand">SuperAdPro</span>
     </a>
-    <div style="padding:18px 14px 6px;font-size:18px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)">Main</div>
-    {% set nav = [('Dashboard','/dashboard','⊞'),('Campaign Tiers','/packages','📦'),('My Campaigns','/video-library','🎬'),('Upload Video','/upload','⬆')] %}
-    {% for label,href,icon in nav %}
-    <a href="{{ href }}" style="display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:17px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s">
-      <span style="font-size:18px;width:18px;text-align:center">{{ icon }}</span>{{ label }}
-    </a>
-    {% endfor %}
-    <div style="padding:18px 14px 6px;font-size:18px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)">Earnings</div>
+    <div class="nav-section">Main</div>
+    <a href="/dashboard" class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
+    <a href="/packages" class="nav-item"><span class="nav-icon">📦</span>Campaign Tiers</a>
+    <a href="/watch" class="nav-item"><span class="nav-icon">▶</span>Watch &amp; Earn</a>
+    <a href="/video-library" class="nav-item"><span class="nav-icon">🎬</span>My Campaigns</a>
     <div class="nav-section">Marketing Suite</div>
     <a href="/campaign-studio" class="nav-item"><span class="nav-icon">🤖</span>AI Campaign Studio</a>
-    <a href="/niche-finder"    class="nav-item"><span class="nav-icon">💡</span>Niche Finder</a>
-    <a href="/swipe-file"      class="nav-item"><span class="nav-icon">📋</span>Swipe File</a>
-
-    <a href="/income-grid" style="display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:17px;font-weight:500;color:#00f0ff;text-decoration:none;border-left:2px solid #00f0ff;background:rgba(0,240,255,0.07)">
-      <span style="font-size:18px;width:18px;text-align:center">◈</span>Income Grid
-    </a>
-    {% set enav = [('Wallet','/wallet','◎'),('Affiliate Tools','/affiliate','🤝'),('Comp Plan','/compensation-plan','📊'),('Grid Visualiser','/grid-visualiser','◈')] %}
-    {% for label,href,icon in enav %}
-    <a href="{{ href }}" style="display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:17px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s">
-      <span style="font-size:18px;width:18px;text-align:center">{{ icon }}</span>{{ label }}
-    </a>
-    {% endfor %}
-    <div style="padding:18px 14px 6px;font-size:18px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)">Account</div>
-    {% set anav = [('Profile','/account','◉'),('Support','/support','◌')] %}
-    {% for label,href,icon in anav %}
-    <a href="{{ href }}" style="display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:17px;font-weight:500;color:rgba(200,220,255,0.55);text-decoration:none;border-left:2px solid transparent">
-      <span style="font-size:18px;width:18px;text-align:center">{{ icon }}</span>{{ label }}
-    </a>
-    {% endfor %}
-    <div style="margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)">
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,240,255,0.05);border:1px solid rgba(0,240,255,0.1);border-radius:8px">
-        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00f0ff);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0">{{ user.username[:2].upper() }}</div>
+    <a href="/niche-finder" class="nav-item"><span class="nav-icon">💡</span>Niche Finder</a>
+    <a href="/swipe-file" class="nav-item"><span class="nav-icon">📋</span>Swipe File</a>
+    <div class="nav-section">Income Streams</div>
+    <a href="/income-grid" class="nav-item active"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
+    <a href="/wallet" class="nav-item"><span class="nav-icon">◎</span>Wallet</a>
+    <a href="/affiliate" class="nav-item"><span class="nav-icon">🤝</span>Affiliate Tools</a>
+    <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span>Comp Plan</a>
+    <a href="/grid-visualiser" class="nav-item"><span class="nav-icon">◈</span>Grid Visualiser</a>
+    <div class="nav-section">Account</div>
+    <a href="/account" class="nav-item"><span class="nav-icon">◉</span>My Profile</a>
+    <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
+    <div class="sidebar-footer">
+      <div class="user-mini">
+        <div class="user-avatar">{{ user.username[:2].upper() }}</div>
         <div>
-          <div style="font-size:17px;font-weight:700;color:#fff">{{ user.first_name }} {{ user.last_name }}</div>
-          <div style="font-size:17px;color:#00f0ff;letter-spacing:1px;text-transform:uppercase;margin-top:1px">Pro Member</div>
+          <div style="font-size:12px;font-weight:700;color:#fff">{{ user.first_name or user.username }}</div>
+          <div style="font-size:9px;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:1px">
+            {% if is_active %}● Active{% else %}○ Inactive{% endif %}
+          </div>
         </div>
       </div>
-      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:18px;color:#64748b;text-decoration:none;margin-top:6px">⎋ Sign Out</a>
+      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;color:#64748b;text-decoration:none;margin-top:4px;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">⎋ Sign Out</a>
     </div>
   </aside>
 
@@ -371,8 +362,12 @@ document.querySelectorAll('[id^="gridVisual_"]').forEach(el => {
 <!-- ── Mobile Bottom Nav ── -->
 <div class="mobile-nav">
   <div class="mobile-nav-inner">
-    <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
+        <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
     <a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">▶</span><span class="mob-nav-label">Watch</span></a>
+    <a href="/income-grid" class="mob-nav-item active"><span class="mob-nav-icon">⚡</span><span class="mob-nav-label">Grid</span></a>
+    <a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">◎</span><span class="mob-nav-label">Wallet</span></a>
+    <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">◉</span><span class="mob-nav-label">Account</span></a>
+<a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">▶</span><span class="mob-nav-label">Watch</span></a>
     <a href="/income-grid" class="mob-nav-item active"><span class="mob-nav-icon">⚡</span><span class="mob-nav-label">Grid</span></a>
     <a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">◎</span><span class="mob-nav-label">Wallet</span></a>
     <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">◉</span><span class="mob-nav-label">Account</span></a>
