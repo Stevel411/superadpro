@@ -1910,6 +1910,7 @@ def db_check(secret: str, db: Session = Depends(get_db)):
 @app.get("/admin/force-wipe")
 def force_wipe(secret: str, db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
+    from sqlalchemy import text as sqtext
     if secret != "superadpro-reset-2026":
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     results = {}
@@ -1919,20 +1920,18 @@ def force_wipe(secret: str, db: Session = Depends(get_db)):
         "password_reset_tokens","membership_renewals","p2p_transfers","users"
     ]
     try:
-        # Use TRUNCATE CASCADE to force remove everything including FK dependencies
         for table in tables:
             try:
-                db.execute(text(f"TRUNCATE TABLE {table} CASCADE"))
+                db.execute(sqtext(f"TRUNCATE TABLE {table} CASCADE"))
                 results[table] = "truncated"
             except Exception as e1:
                 try:
-                    db.execute(text(f"DELETE FROM {table}"))
+                    db.execute(sqtext(f"DELETE FROM {table}"))
                     results[table] = "deleted"
                 except Exception as e2:
                     results[table] = f"failed: {e2}"
         db.commit()
-        # Verify
-        count = db.execute(text("SELECT COUNT(*) FROM users")).scalar()
+        count = db.execute(sqtext("SELECT COUNT(*) FROM users")).scalar()
         results["users_remaining"] = count
         return JSONResponse({"status": "done", "results": results})
     except Exception as e:
@@ -1946,6 +1945,7 @@ def reset_account(secret: str, db: Session = Depends(get_db)):
     if secret != "superadpro-reset-2026":
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     try:
+        from sqlalchemy import text as sqtext
         tables = [
             "commissions","grid_positions","grids","payments","withdrawals",
             "watch_quotas","video_watches","ai_usage_quotas",
@@ -1954,12 +1954,17 @@ def reset_account(secret: str, db: Session = Depends(get_db)):
         cleared = []
         for table in tables:
             try:
-                db.execute(text(f"DELETE FROM {table}"))
+                db.execute(sqtext(f"TRUNCATE TABLE {table} CASCADE"))
                 cleared.append(table)
-            except Exception as e:
-                cleared.append(f"{table}(skipped:{e})")
+            except Exception:
+                try:
+                    db.execute(sqtext(f"DELETE FROM {table}"))
+                    cleared.append(table)
+                except Exception as e:
+                    cleared.append(f"{table}(skipped:{e})")
         db.commit()
-        return JSONResponse({"status": "Full reset complete — all users, emails, passwords cleared.", "tables": cleared})
+        count = db.execute(sqtext("SELECT COUNT(*) FROM users")).scalar()
+        return JSONResponse({"status": "Full reset complete — all users, emails, passwords cleared.", "users_remaining": count, "tables": cleared})
     except Exception as e:
         db.rollback()
         return JSONResponse({"error": str(e)}, status_code=500)
