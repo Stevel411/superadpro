@@ -141,7 +141,13 @@ nav{background:rgba(10,18,40,0.95);border-bottom:1px solid rgba(0,180,216,0.12);
 
 footer{background:#020818;color:rgba(200,220,255,0.35);text-align:center;padding:30px;font-size:14px;border-top:1px solid rgba(0,180,216,0.07);max-width:1100px;margin:0 auto}
 footer a{color:#94a3b8;text-decoration:none}
-@media(max-width:768px){.streams,.commission-grid,.s1-split,.passup-rules{grid-template-columns:1fr}.container{padding:0 20px}nav{padding:0 20px}.nav-links{display:none}}
+@media(max-width:768px){.streams,.commission-grid,.s1-split,.passup-rules{grid-template-columns:1fr}.container{padding:0 20px}nav{padding:0 20px}.nav-links{display:none}
+#calcWrap{padding:20px 16px}
+#calcWrap [style*="display:flex"][style*="justify-content:space-between"]{flex-wrap:wrap;gap:8px}
+#tierToggles{gap:6px!important}
+#tierToggles button{padding:6px 10px!important;font-size:11px!important}
+#tierBreakdown{grid-template-columns:repeat(2,1fr)!important}
+}
 
 
 @media(max-width:500px){}
@@ -713,6 +719,97 @@ footer a{color:#94a3b8;text-decoration:none}
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════════════════════════════
+       EARNINGS CALCULATOR
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="section" style="padding-top:48px">
+    <div class="sec-label">Earnings Calculator</div>
+    <div class="sec-title">Estimate Your Income Potential</div>
+    <div class="sec-sub">Select which tiers you want to activate, set the number of grid advances, and see your projected earnings across all three income streams.</div>
+
+    <div id="calcWrap" style="background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.15);border-radius:16px;padding:32px;margin-top:32px">
+
+      <!-- Tier toggles -->
+      <div style="margin-bottom:28px">
+        <div style="font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:14px">Select Active Tiers</div>
+        <div id="tierToggles" style="display:flex;flex-wrap:wrap;gap:8px">
+        </div>
+      </div>
+
+      <!-- Advances slider -->
+      <div style="margin-bottom:28px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.5)">Grid Advances Per Tier</div>
+          <div style="font-size:22px;font-weight:800;color:#00d4ff" id="advancesVal">10</div>
+        </div>
+        <input type="range" id="advancesSlider" min="1" max="50" value="10" style="width:100%;accent-color:#00b4d8;height:6px;cursor:pointer">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#475569;margin-top:4px"><span>1</span><span>10</span><span>25</span><span>50</span></div>
+      </div>
+
+      <!-- Direct referrals slider -->
+      <div style="margin-bottom:28px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.5)">Your Direct Referrals</div>
+          <div style="font-size:22px;font-weight:800;color:#00d4ff" id="referralsVal">15</div>
+        </div>
+        <input type="range" id="referralsSlider" min="0" max="100" value="15" style="width:100%;accent-color:#00b4d8;height:6px;cursor:pointer">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#475569;margin-top:4px"><span>0</span><span>25</span><span>50</span><span>100</span></div>
+      </div>
+
+      <!-- Results -->
+      <div style="border-top:1px solid rgba(0,180,216,0.15);padding-top:28px">
+        <div style="font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:18px">Projected Earnings</div>
+
+        <!-- Stream 1 -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:#fff">Stream 1 — Membership Income</div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px">$20/month × direct referrals × 12 months</div>
+          </div>
+          <div style="font-size:20px;font-weight:800;color:#16a34a" id="s1Result">$0</div>
+        </div>
+
+        <!-- Stream 2 Grid Owner -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:#fff">Stream 2 — Grid Owner (Uni-Level 70%)</div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px">63 seats × tier price × 70% × advances</div>
+          </div>
+          <div style="font-size:20px;font-weight:800;color:#00b4d8" id="s2OwnerResult">$0</div>
+        </div>
+
+        <!-- Stream 2 Direct Sponsor -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:#fff">Stream 2 — Direct Sponsor (25%)</div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px">25% of each entry from your personal referrals</div>
+          </div>
+          <div style="font-size:20px;font-weight:800;color:#7c3aed" id="s2DirectResult">$0</div>
+        </div>
+
+        <!-- Totals -->
+        <div style="margin-top:20px;background:linear-gradient(135deg,rgba(0,180,216,0.08),rgba(109,40,217,0.08));border:1px solid rgba(0,180,216,0.2);border-radius:12px;padding:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+          <div>
+            <div style="font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:4px">Total Projected Earnings</div>
+            <div style="font-size:11px;color:#64748b">Across all selected tiers and advances</div>
+          </div>
+          <div style="font-size:32px;font-weight:800;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text" id="totalResult">$0</div>
+        </div>
+
+        <!-- Tier breakdown -->
+        <div style="margin-top:20px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.3);margin-bottom:12px">Per-Tier Breakdown</div>
+          <div id="tierBreakdown" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px"></div>
+        </div>
+      </div>
+
+      <!-- Disclaimer -->
+      <div style="margin-top:20px;padding:12px 16px;background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.1);border-radius:8px;font-size:12px;color:#64748b;line-height:1.6;text-align:center">
+        ⚠️ These figures are <strong>mathematical projections only</strong> based on full grid completion. Actual earnings depend on personal effort, team activity, network growth and member retention. SuperAdPro does not guarantee any income.
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <footer>
@@ -1071,6 +1168,109 @@ async function doRegister(e) {
   else if (sponsor)                   { mOpen('mReg', sponsor); }
 })();
 /* === END MODAL JS === */</script>
+
+<script>
+/* ═══════════════════════════════════════════
+   EARNINGS CALCULATOR
+   ═══════════════════════════════════════════ */
+(function(){
+  var TIERS = [
+    {name:'Starter',  price:20,   color:'#16a34a'},
+    {name:'Builder',  price:50,   color:'#0ea5e9'},
+    {name:'Pro',      price:100,  color:'#7c3aed'},
+    {name:'Advanced', price:200,  color:'#f59e0b'},
+    {name:'Elite',    price:400,  color:'#ef4444'},
+    {name:'Master',   price:600,  color:'#ec4899'},
+    {name:'Epic',     price:800,  color:'#06b6d4'},
+    {name:'Legend',   price:1000, color:'#f97316'}
+  ];
+  var SEATS = 63;
+  var UNI_LEVEL_PCT = 0.70;
+  var DIRECT_PCT = 0.25;
+  var MEMBERSHIP = 20;
+  var activeTiers = [true,true,true,true,true,false,false,false]; // first 5 on by default
+
+  // Build tier toggle buttons
+  var togglesWrap = document.getElementById('tierToggles');
+  TIERS.forEach(function(t, i){
+    var btn = document.createElement('button');
+    btn.textContent = t.name + ' $' + t.price;
+    btn.dataset.idx = i;
+    btn.style.cssText = 'padding:8px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;border:2px solid ' + t.color + ';';
+    setToggleStyle(btn, activeTiers[i], t.color);
+    btn.addEventListener('click', function(){
+      activeTiers[i] = !activeTiers[i];
+      setToggleStyle(btn, activeTiers[i], t.color);
+      calc();
+    });
+    togglesWrap.appendChild(btn);
+  });
+
+  function setToggleStyle(btn, active, color){
+    if(active){
+      btn.style.background = color;
+      btn.style.color = '#fff';
+    } else {
+      btn.style.background = 'transparent';
+      btn.style.color = color;
+    }
+  }
+
+  var advSlider = document.getElementById('advancesSlider');
+  var advVal = document.getElementById('advancesVal');
+  var refSlider = document.getElementById('referralsSlider');
+  var refVal = document.getElementById('referralsVal');
+
+  advSlider.addEventListener('input', function(){ advVal.textContent = this.value; calc(); });
+  refSlider.addEventListener('input', function(){ refVal.textContent = this.value; calc(); });
+
+  function fmt(n){
+    if(n >= 1000000) return '$' + (n/1000000).toFixed(2) + 'M';
+    return '$' + n.toLocaleString('en-US', {maximumFractionDigits:0});
+  }
+
+  function calc(){
+    var advances = parseInt(advSlider.value);
+    var referrals = parseInt(refSlider.value);
+
+    // Stream 1: membership residual (annual)
+    var s1 = referrals * MEMBERSHIP * 12;
+
+    // Stream 2: Grid owner uni-level
+    var s2Owner = 0;
+    var s2Direct = 0;
+    var breakdownHTML = '';
+
+    TIERS.forEach(function(t, i){
+      if(!activeTiers[i]) return;
+      var ownerEarnings = SEATS * t.price * UNI_LEVEL_PCT * advances;
+      // Direct sponsor: assume each referral enters each active tier once per advance
+      // Conservative: referrals fill seats across advances. Estimate: referrals * price * 25% * advances (capped at 63 per advance)
+      var directEntries = Math.min(referrals, SEATS) * advances;
+      var directEarnings = directEntries * t.price * DIRECT_PCT;
+
+      s2Owner += ownerEarnings;
+      s2Direct += directEarnings;
+
+      breakdownHTML += '<div style="background:rgba(255,255,255,0.03);border:1px solid ' + t.color + '33;border-radius:8px;padding:12px;text-align:center">' +
+        '<div style="font-size:11px;font-weight:700;color:' + t.color + ';margin-bottom:4px">' + t.name + '</div>' +
+        '<div style="font-size:16px;font-weight:800;color:#fff">' + fmt(ownerEarnings) + '</div>' +
+        '<div style="font-size:10px;color:#64748b;margin-top:2px">' + advances + ' advances × $' + t.price + '</div>' +
+      '</div>';
+    });
+
+    document.getElementById('s1Result').textContent = fmt(s1);
+    document.getElementById('s2OwnerResult').textContent = fmt(s2Owner);
+    document.getElementById('s2DirectResult').textContent = fmt(s2Direct);
+    document.getElementById('totalResult').textContent = fmt(s1 + s2Owner + s2Direct);
+    document.getElementById('tierBreakdown').innerHTML = breakdownHTML;
+  }
+
+  // Initial calculation
+  calc();
+})();
+</script>
+
 </body>
 
 <script>function toggleMobileMenu(){var m=document.getElementById('mobileMenu');if(m)m.classList.toggle('open');}</script>
