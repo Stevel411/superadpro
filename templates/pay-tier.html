@@ -53,9 +53,38 @@ tr:last-child td{border-bottom:none}
 .empty-title{font-size:17px;font-weight:700;color:rgba(200,220,255,0.65);margin-bottom:6px}
 .empty-sub{font-size:17px;color:#94a3b8;margin-bottom:20px}
 </style>
+  <link rel="stylesheet" href="/static/mobile.css">
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SuperAdPro">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 </head>
 <body>
 <div class="layout">
+<!-- ── Mobile Topbar ── -->
+<div class="mobile-topbar">
+  <a class="mobile-topbar-left" href="/dashboard">
+    <svg width="26" height="26" viewBox="0 0 100 100">
+      <defs>
+        <linearGradient id="mhg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4f8ef7"/>
+          <stop offset="50%" stop-color="#6d28d9"/>
+          <stop offset="100%" stop-color="#00b4d8"/>
+        </linearGradient>
+      </defs>
+      <polygon points="50,3 93,27 93,73 50,97 7,73 7,27" fill="url(#mhg)"/>
+      <text x="50" y="63" text-anchor="middle" font-family="Arial Black" font-weight="900" font-size="42" fill="#00d4ff">S</text>
+    </svg>
+    <div>
+      <div class="mobile-topbar-name">SuperAdPro</div>
+      <div class="mobile-topbar-page">Income Grid</div>
+    </div>
+  </a>
+  <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
+</div>
+
 
 <svg width="0" height="0" style="position:absolute">
   <defs>
@@ -212,4 +241,23 @@ function copyWallet() {
 }
 </script>
 
-</div></div></div></body></html>
+</div></div></div>
+<!-- ── Mobile Bottom Nav ── -->
+<div class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
+    <a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">▶</span><span class="mob-nav-label">Watch</span></a>
+    <a href="/income-grid" class="mob-nav-item active"><span class="mob-nav-icon">⚡</span><span class="mob-nav-label">Grid</span></a>
+    <a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">◎</span><span class="mob-nav-label">Wallet</span></a>
+    <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">◉</span><span class="mob-nav-label">Account</span></a>
+  </div>
+</div>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+  });
+}
+</script>
+</body></html>

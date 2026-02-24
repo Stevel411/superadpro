@@ -64,6 +64,12 @@ body { display:flex; flex-direction:column; }
 .login-link a { color:#0077a8; font-weight:700; text-decoration:none; }
 @media(max-width:800px){ .box{grid-template-columns:1fr} .left{display:none} .form-row{grid-template-columns:1fr} }
 </style>
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SuperAdPro">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 </head>
 <body>
 
@@ -181,6 +187,14 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
     setTimeout(() => err.style.display = 'none', 4000);
   }
 });
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>

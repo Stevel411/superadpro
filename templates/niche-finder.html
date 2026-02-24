@@ -144,6 +144,13 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 
 @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:16px}.options-grid{grid-template-columns:1fr}.niche-stats{grid-template-columns:1fr 1fr}}
 </style>
+  <link rel="stylesheet" href="/static/mobile.css">
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SuperAdPro">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 </head>
 <body>
 
@@ -169,6 +176,28 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 </svg>
 
 <div class="layout">
+<!-- ── Mobile Topbar ── -->
+<div class="mobile-topbar">
+  <a class="mobile-topbar-left" href="/dashboard">
+    <svg width="26" height="26" viewBox="0 0 100 100">
+      <defs>
+        <linearGradient id="mhg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4f8ef7"/>
+          <stop offset="50%" stop-color="#6d28d9"/>
+          <stop offset="100%" stop-color="#00b4d8"/>
+        </linearGradient>
+      </defs>
+      <polygon points="50,3 93,27 93,73 50,97 7,73 7,27" fill="url(#mhg)"/>
+      <text x="50" y="63" text-anchor="middle" font-family="Arial Black" font-weight="900" font-size="42" fill="#00d4ff">S</text>
+    </svg>
+    <div>
+      <div class="mobile-topbar-name">SuperAdPro</div>
+      <div class="mobile-topbar-page">Marketing Suite</div>
+    </div>
+  </a>
+  <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
+</div>
+
   <aside class="sidebar">
     <a href="/dashboard" class="sidebar-logo">
       <svg width="30" height="30"><use href="#shield"/></svg>
@@ -638,6 +667,25 @@ function showNicheRateLimit(resetsIn) {
       <div style="font-size:13px;color:#94a3b8">This keeps the AI tools fast and available for all members.</div>
       <button onclick="restartQuiz()" style="margin-top:20px;padding:10px 24px;background:#0f172a;border:none;border-radius:8px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit">← Start Over</button>
     </div>`;
+}
+</script>
+
+<!-- ── Mobile Bottom Nav ── -->
+<div class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
+    <a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">▶</span><span class="mob-nav-label">Watch</span></a>
+    <a href="/income-grid" class="mob-nav-item"><span class="mob-nav-icon">⚡</span><span class="mob-nav-label">Grid</span></a>
+    <a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">◎</span><span class="mob-nav-label">Wallet</span></a>
+    <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">◉</span><span class="mob-nav-label">Account</span></a>
+  </div>
+</div>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+  });
 }
 </script>
 </body>

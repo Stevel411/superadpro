@@ -61,6 +61,12 @@ body { display:flex; flex-direction:column; }
 .perk::before { content:'✓'; color:#00b4d8; font-weight:700; font-size:17px; flex-shrink:0; }
 @media(max-width:800px){ .box{grid-template-columns:1fr} .right{display:none} }
 </style>
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SuperAdPro">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 </head>
 <body>
 
@@ -144,5 +150,13 @@ body { display:flex; flex-direction:column; }
     </div>
   </div>
 </div>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+  });
+}
+</script>
 </body>
 </html>

@@ -1,0 +1,198 @@
+/* ═══════════════════════════════════════════════════════════════
+   SuperAdPro — Shared Mobile CSS
+   Applied to all member pages via <link rel="stylesheet" href="/static/mobile.css">
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Bottom Navigation Bar ────────────────────────────────────── */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #0a0a1a;
+  border-top: 1px solid rgba(0,240,255,0.12);
+  z-index: 300;
+}
+.mobile-nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 60px;
+  padding: 0 4px;
+}
+.mob-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 10px;
+  transition: background 0.2s;
+  flex: 1;
+}
+.mob-nav-item.active,
+.mob-nav-item:hover { background: rgba(0,240,255,0.07); }
+.mob-nav-icon { font-size: 19px; line-height: 1; }
+.mob-nav-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(200,220,255,0.4);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  font-family: 'Rethink Sans', sans-serif;
+  white-space: nowrap;
+}
+.mob-nav-item.active .mob-nav-label,
+.mob-nav-item.active .mob-nav-icon { color: #00f0ff; filter: drop-shadow(0 0 4px rgba(0,240,255,0.5)); }
+
+/* ── Mobile Topbar ────────────────────────────────────────────── */
+.mobile-topbar {
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: #0a0a1a;
+  border-bottom: 1px solid rgba(0,180,216,0.12);
+  padding: 0 16px;
+  height: 54px;
+  align-items: center;
+  justify-content: space-between;
+}
+.mobile-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.mobile-topbar-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  font-family: 'Rethink Sans', sans-serif;
+}
+.mobile-topbar-page {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(200,220,255,0.5);
+  font-family: 'Rethink Sans', sans-serif;
+}
+.mobile-balance-chip {
+  background: rgba(22,163,74,0.1);
+  border: 1px solid rgba(22,163,74,0.25);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #4ade80;
+  font-family: 'Rethink Sans', sans-serif;
+}
+
+/* ── PWA Safe Areas (iPhone notch / home bar) ─────────────────── */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .mobile-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .mobile-nav-inner { height: 60px; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* ── Show/hide elements ── */
+  .sidebar  { display: none !important; }
+  .topbar   { display: none !important; }
+  .mobile-nav    { display: block !important; }
+  .mobile-topbar { display: flex !important; }
+
+  /* ── Layout ── */
+  .main    { margin-left: 0 !important; }
+  .layout  { display: block !important; }
+  .content { padding: 12px 12px 76px 12px !important; }
+
+  /* ── Grids → single column ── */
+  .stats-row,
+  .dash-grid,
+  .dash-grid-3,
+  .stream-strip,
+  .projection,
+  .hero-stats,
+  .options-grid,
+  .swipe-grid,
+  .niche-stats,
+  .packages-grid,
+  .wallet-actions,
+  .share-btns,
+  .results-actions { grid-template-columns: 1fr !important; }
+
+  /* ── Flex rows → columns ── */
+  .filter-bar,
+  .player-footer,
+  .complete-stats,
+  .quiz-nav { flex-wrap: wrap !important; }
+
+  /* ── Hero sections ── */
+  .swipe-hero,
+  .finder-hero,
+  .studio-hero { padding: 20px 16px !important; flex-direction: column !important; }
+  .hero-stats  { display: none !important; }
+  .hero-title  { font-size: 22px !important; }
+
+  /* ── Search full width ── */
+  .search-input { width: 100% !important; }
+
+  /* ── Buttons ── */
+  .btn-next, .btn-back { flex: 1 1 120px; }
+  .btn-studio, .btn-restart,
+  .btn-next.ready { width: 100%; text-align: center; justify-content: center; }
+
+  /* ── Watch & Earn ── */
+  .watch-container { gap: 10px !important; }
+  .quota-dots      { flex-wrap: wrap !important; }
+  .quota-dot       { width: 24px; height: 24px; font-size: 11px; }
+  .btn-next        { width: 100%; }
+  .complete-stats  { flex-direction: column; align-items: stretch; }
+  .complete-stat   { min-width: unset !important; }
+
+  /* ── Tables horizontal scroll ── */
+  .table-scroll-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 10px;
+  }
+
+  /* ── Affiliate ── */
+  .share-btn { width: 100%; justify-content: center; }
+  .stat-pills { flex-direction: column; gap: 8px; }
+
+  /* ── Prevent iOS input zoom (must be 16px) ── */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  select,
+  textarea { font-size: 16px !important; }
+
+  /* ── Card touch targets ── */
+  .option-btn  { padding: 14px 12px !important; }
+  .filter-pill { padding: 8px 14px !important; font-size: 13px !important; }
+
+  /* ── Income grid ── */
+  .grid-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* ── Niche finder ── */
+  .quiz-card-body { padding: 16px !important; }
+  .quiz-nav { justify-content: space-between; gap: 8px; }
+
+  /* ── Swipe file ── */
+  .swipe-grid { grid-template-columns: 1fr !important; }
+
+  /* ── Hide non-essential decorative elements ── */
+  .swipe-hero::before,
+  .swipe-hero::after,
+  .finder-hero::before,
+  .finder-hero::after,
+  .studio-hero::before,
+  .studio-hero::after { display: none !important; }
+}
