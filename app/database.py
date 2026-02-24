@@ -274,12 +274,15 @@ def run_migrations():
         "CREATE INDEX IF NOT EXISTS idx_video_watches_user_date ON video_watches(user_id, watch_date)",
         "CREATE INDEX IF NOT EXISTS idx_video_watches_campaign ON video_watches(campaign_id)",
     ]
+    results = []
     with engine.connect() as conn:
         for sql in migrations:
             try:
                 conn.execute(text(sql))
-            except Exception:
-                pass
+                results.append(("ok", sql[:60]))
+            except Exception as e:
+                results.append(("skip", f"{sql[:50]} — {e}"))
         conn.commit()
+    return results
 
 run_migrations()

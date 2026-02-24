@@ -1465,54 +1465,60 @@ async def api_register(
     except Exception:
         return JSONResponse({"error": "Invalid request"}, status_code=400)
 
-    first_name       = sanitize(body.get("first_name", "").strip())
-    username         = sanitize(body.get("username", "").strip())
-    email            = sanitize(body.get("email", "").strip())
-    password         = body.get("password", "")
-    confirm_password = body.get("confirm_password", "")
-    ref              = sanitize(body.get("ref", "").strip())
-    beta_code        = body.get("beta_code", "").strip()
+    try:
+        first_name       = sanitize(body.get("first_name", "").strip())
+        username         = sanitize(body.get("username", "").strip())
+        email            = sanitize(body.get("email", "").strip())
+        password         = body.get("password", "")
+        confirm_password = body.get("confirm_password", "")
+        ref              = sanitize(body.get("ref", "").strip())
+        beta_code        = body.get("beta_code", "").strip()
 
-    if BETA_CODE and beta_code != BETA_CODE:
-        return JSONResponse({"error": "Invalid beta access code."}, status_code=400)
-    if not first_name:
-        return JSONResponse({"error": "Please enter your first name."}, status_code=400)
-    if not validate_username(username):
-        return JSONResponse({"error": "Username must be 3–30 characters, letters, numbers and underscores only."}, status_code=400)
-    if not validate_email(email):
-        return JSONResponse({"error": "Please enter a valid email address."}, status_code=400)
-    if len(password) < 8:
-        return JSONResponse({"error": "Password must be at least 8 characters."}, status_code=400)
-    if len(password.encode("utf-8")) > 72:
-        return JSONResponse({"error": "Password must be 72 characters or less."}, status_code=400)
-    if password != confirm_password:
-        return JSONResponse({"error": "Passwords do not match."}, status_code=400)
+        if BETA_CODE and beta_code != BETA_CODE:
+            return JSONResponse({"error": "Invalid beta access code."}, status_code=400)
+        if not first_name:
+            return JSONResponse({"error": "Please enter your first name."}, status_code=400)
+        if not validate_username(username):
+            return JSONResponse({"error": "Username must be 3-30 characters, letters, numbers and underscores only."}, status_code=400)
+        if not validate_email(email):
+            return JSONResponse({"error": "Please enter a valid email address."}, status_code=400)
+        if len(password) < 8:
+            return JSONResponse({"error": "Password must be at least 8 characters."}, status_code=400)
+        if len(password.encode("utf-8")) > 72:
+            return JSONResponse({"error": "Password must be 72 characters or less."}, status_code=400)
+        if password != confirm_password:
+            return JSONResponse({"error": "Passwords do not match."}, status_code=400)
 
-    existing = db.query(User).filter(
-        (User.username == username) | (User.email == email)
-    ).first()
-    if existing:
-        return JSONResponse({"error": "Username or email already registered."}, status_code=400)
+        existing = db.query(User).filter(
+            (User.username == username) | (User.email == email)
+        ).first()
+        if existing:
+            return JSONResponse({"error": "Username or email already registered."}, status_code=400)
 
-    sponsor_id = None
-    if ref:
-        sponsor = db.query(User).filter(User.username == ref).first()
-        if sponsor:
-            sponsor_id = sponsor.id
-            sponsor.total_team = (sponsor.total_team or 0) + 1
+        sponsor_id = None
+        if ref:
+            sponsor = db.query(User).filter(User.username == ref).first()
+            if sponsor:
+                sponsor_id = sponsor.id
+                sponsor.total_team = (sponsor.total_team or 0) + 1
 
-    user = create_user(
-        db, username, email, password,
-        sponsor_id=sponsor_id,
-        first_name=first_name,
-        last_name="",
-        wallet_address="",
-        country="",
-    )
+        user = create_user(
+            db, username, email, password,
+            sponsor_id=sponsor_id,
+            first_name=first_name,
+            last_name="",
+            wallet_address="",
+            country="",
+        )
 
-    response = JSONResponse({"success": True, "redirect": "/dashboard?new=1"})
-    set_secure_cookie(response, user.id)
-    return response
+        response = JSONResponse({"success": True, "redirect": "/dashboard?new=1"})
+        set_secure_cookie(response, user.id)
+        return response
+
+    except Exception as exc:
+        logger.error(f"api_register error: {exc}", exc_info=True)
+        db.rollback()
+        return JSONResponse({"error": "Registration failed — please try again."}, status_code=500)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -1873,6 +1879,20 @@ def activate_owner(secret: str, username: str, db: Session = Depends(get_db)):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 # ── TEMP: Account reset utility (remove after use) ────────────
+@app.get("/admin/run-migrations")
+def admin_run_migrations(secret: str = "", db: Session = Depends(get_db)):
+    """Force-run DB migrations — use once after deploy."""
+    from fastapi.responses import JSONResponse
+    if secret != "superadpro-migrate-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    from app.database import run_migrations
+    try:
+        run_migrations()
+        return JSONResponse({"success": True, "message": "Migrations complete"})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
 @app.get("/admin/reset-account")
 def reset_account(secret: str, db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
