@@ -1879,6 +1879,58 @@ def activate_owner(secret: str, username: str, db: Session = Depends(get_db)):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 # ── TEMP: Account reset utility (remove after use) ────────────
+@app.get("/admin/test-dashboard")
+def test_dashboard(secret: str, db: Session = Depends(get_db)):
+    """Test full dashboard context creation for a new user."""
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import text as sqtext
+    if secret != "superadpro-migrate-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    import traceback
+    user = None
+    try:
+        # Create temp user
+        user = create_user(db, "dashtest999", "dashtest999@test.com", "password123",
+                          first_name="Dash", last_name="", wallet_address="", country="")
+        
+        # Test each function separately
+        results = {}
+        
+        from app.grid import get_grid_stats, get_user_commission_history
+        try:
+            results["grid_stats"] = str(get_grid_stats(db, user.id))
+        except Exception as e:
+            results["grid_stats_error"] = str(e)
+            
+        try:
+            results["commissions"] = str(get_user_commission_history(db, user.id))
+        except Exception as e:
+            results["commissions_error"] = str(e)
+            
+        try:
+            from app.payment import get_renewal_status
+            results["renewal"] = str(get_renewal_status(db, user.id))
+        except Exception as e:
+            results["renewal_error"] = str(e)
+
+        try:
+            results["format_member_id"] = format_member_id(user.id)
+        except Exception as e:
+            results["format_member_id_error"] = str(e)
+
+        # Clean up
+        db.execute(sqtext(f"DELETE FROM users WHERE id={user.id}"))
+        db.commit()
+        return JSONResponse({"all_ok": not any("error" in k for k in results), "results": results})
+    except Exception as e:
+        if user:
+            try:
+                db.execute(sqtext(f"DELETE FROM users WHERE id={user.id}"))
+                db.commit()
+            except: pass
+        return JSONResponse({"error": str(e), "trace": traceback.format_exc()}, status_code=500)
+
+
 @app.get("/admin/test-register")
 def test_register(secret: str, db: Session = Depends(get_db)):
     """Test user creation and return exact error."""
