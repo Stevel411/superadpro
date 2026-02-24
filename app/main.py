@@ -1487,6 +1487,75 @@ def swipe_file(request: Request, user: User = Depends(get_current_user),
     return templates.TemplateResponse("swipe-file.html", ctx)
 
 
+
+# ── Owner full activation (master affiliate setup) ────────────
+@app.get("/admin/activate-owner")
+def activate_owner(secret: str, username: str, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    from app.grid import get_or_create_active_grid
+    import uuid
+
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        return JSONResponse({"error": f"User not found"}, status_code=404)
+
+    results = []
+    try:
+        # 1. Activate membership (Stream 1)
+        user.is_active  = True
+        user.is_admin   = True
+        user.sponsor_id = None  # owner sits at root
+
+        dummy_tx_m = f"owner-membership-{uuid.uuid4().hex[:12]}"
+        if not db.query(Payment).filter(Payment.tx_hash == dummy_tx_m).first():
+            db.add(Payment(
+                from_user_id=user.id, to_user_id=None,
+                amount_usdt=MEMBERSHIP_FEE, payment_type="membership",
+                tx_hash=dummy_tx_m, status="confirmed",
+            ))
+        results.append("Membership activated (Stream 1)")
+
+        # 2. Activate all 8 grid tiers (Stream 2)
+        for tier, price in GRID_PACKAGES.items():
+            dummy_tx = f"owner-t{tier}-{uuid.uuid4().hex[:10]}"
+            get_or_create_active_grid(db, user.id, tier)
+            if not db.query(Payment).filter(Payment.tx_hash == dummy_tx).first():
+                db.add(Payment(
+                    from_user_id=user.id, to_user_id=None,
+                    amount_usdt=price, payment_type="grid_package",
+                    tx_hash=dummy_tx, status="confirmed",
+                ))
+            results.append(f"Tier {tier} grid activated (${int(price)})")
+
+        # 3. Set watch quota to Tier 8
+        from datetime import date
+        quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
+        if not quota:
+            quota = WatchQuota(user_id=user.id, package_tier=8,
+                               daily_required=8, today_watched=0,
+                               today_date=date.today().isoformat(),
+                               consecutive_missed=0, commissions_paused=False)
+            db.add(quota)
+        else:
+            quota.package_tier=8; quota.daily_required=8; quota.commissions_paused=False
+        results.append("Watch quota set to Tier 8 (8 videos/day)")
+
+        user.balance = 0.00
+        user.total_earned = 0.00
+        db.commit()
+
+        return JSONResponse({
+            "status": "Owner fully activated",
+            "user": username,
+            "activations": results,
+        })
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({"error": str(e)}, status_code=500)
+
 # ── TEMP: Account reset utility (remove after use) ────────────
 @app.get("/admin/reset-account")
 def reset_account(secret: str, db: Session = Depends(get_db)):
