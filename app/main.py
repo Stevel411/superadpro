@@ -1899,15 +1899,20 @@ def reset_account(secret: str, db: Session = Depends(get_db)):
     if secret != "superadpro-reset-2026":
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     try:
-        for table in ["commissions","grid_positions","grids","payments",
-                      "withdrawals","watch_quotas","video_watches",
-                      "ai_usage_quotas","password_reset_tokens","users"]:
+        tables = [
+            "commissions","grid_positions","grids","payments","withdrawals",
+            "watch_quotas","video_watches","ai_usage_quotas",
+            "password_reset_tokens","membership_renewals","p2p_transfers","users"
+        ]
+        cleared = []
+        for table in tables:
             try:
                 db.execute(text(f"DELETE FROM {table}"))
-            except Exception:
-                pass
+                cleared.append(table)
+            except Exception as e:
+                cleared.append(f"{table}(skipped:{e})")
         db.commit()
-        return JSONResponse({"status": "All accounts cleared. Register fresh at /register"})
+        return JSONResponse({"status": "Full reset complete — all users, emails, passwords cleared.", "tables": cleared})
     except Exception as e:
         db.rollback()
         return JSONResponse({"error": str(e)}, status_code=500)
