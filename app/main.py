@@ -2008,23 +2008,28 @@ def force_wipe(secret: str, db: Session = Depends(get_db)):
         "password_reset_tokens","membership_renewals","p2p_transfers","users"
     ]
     try:
-        for table in tables:
-            try:
-                db.execute(sqtext(f"TRUNCATE TABLE {table} CASCADE"))
-                results[table] = "truncated"
-            except Exception as e1:
-                try:
-                    db.execute(sqtext(f"DELETE FROM {table}"))
-                    results[table] = "deleted"
-                except Exception as e2:
-                    results[table] = f"failed: {e2}"
+        # TRUNCATE all tables with CASCADE + RESTART IDENTITY resets sequences
+        db.execute(sqtext(
+            "TRUNCATE TABLE " + ", ".join(tables) + " RESTART IDENTITY CASCADE"
+        ))
         db.commit()
         count = db.execute(sqtext("SELECT COUNT(*) FROM users")).scalar()
         results["users_remaining"] = count
+        results["sequences_reset"] = True
         return JSONResponse({"status": "done", "results": results})
     except Exception as e:
         db.rollback()
-        return JSONResponse({"error": str(e), "partial": results}, status_code=500)
+        # Fallback: truncate one by one
+        for table in tables:
+            try:
+                db.execute(sqtext(f"TRUNCATE TABLE {table} RESTART IDENTITY CASCADE"))
+                results[table] = "ok"
+            except Exception as e2:
+                results[table] = str(e2)
+        try:
+            db.commit()
+        except: db.rollback()
+        return JSONResponse({"status": "done_fallback", "error": str(e), "results": results})
 
 
 @app.get("/admin/reset-account")
