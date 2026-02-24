@@ -1893,6 +1893,53 @@ def admin_run_migrations(secret: str = "", db: Session = Depends(get_db)):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
+@app.get("/admin/db-check")
+def db_check(secret: str, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    if secret != "superadpro-migrate-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    try:
+        users = db.execute(text("SELECT id, username, email FROM users")).fetchall()
+        return JSONResponse({
+            "user_count": len(users),
+            "users": [{"id": r[0], "username": r[1], "email": r[2]} for r in users]
+        })
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+@app.get("/admin/force-wipe")
+def force_wipe(secret: str, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    if secret != "superadpro-reset-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    results = {}
+    tables = [
+        "commissions","grid_positions","grids","payments","withdrawals",
+        "watch_quotas","video_watches","ai_usage_quotas",
+        "password_reset_tokens","membership_renewals","p2p_transfers","users"
+    ]
+    try:
+        # Use TRUNCATE CASCADE to force remove everything including FK dependencies
+        for table in tables:
+            try:
+                db.execute(text(f"TRUNCATE TABLE {table} CASCADE"))
+                results[table] = "truncated"
+            except Exception as e1:
+                try:
+                    db.execute(text(f"DELETE FROM {table}"))
+                    results[table] = "deleted"
+                except Exception as e2:
+                    results[table] = f"failed: {e2}"
+        db.commit()
+        # Verify
+        count = db.execute(text("SELECT COUNT(*) FROM users")).scalar()
+        results["users_remaining"] = count
+        return JSONResponse({"status": "done", "results": results})
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({"error": str(e), "partial": results}, status_code=500)
+
+
 @app.get("/admin/reset-account")
 def reset_account(secret: str, db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
