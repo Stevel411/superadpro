@@ -74,6 +74,8 @@ class User(Base):
     total_team          = Column(Integer, default=0)      # entire network size
     country             = Column(String, nullable=True)
     created_at          = Column(DateTime, default=datetime.utcnow)
+    membership_activated_by_referral = Column(Boolean, default=False)  # first month gifted
+    low_balance_warned  = Column(Boolean, default=False)               # 3-day warning sent
 
 class Grid(Base):
     """One grid instance per user per package tier."""
@@ -198,6 +200,33 @@ class WatchQuota(Base):
     updated_at          = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+
+class MembershipRenewal(Base):
+    """Tracks monthly membership renewal status per member."""
+    __tablename__ = "membership_renewals"
+    id                  = Column(Integer, primary_key=True, index=True)
+    user_id             = Column(Integer, ForeignKey("users.id"), unique=True, index=True)
+    activated_at        = Column(DateTime, nullable=True)       # first activation date
+    next_renewal_date   = Column(DateTime, nullable=True)       # when next $20 is due
+    last_renewed_at     = Column(DateTime, nullable=True)       # last successful renewal
+    renewal_source      = Column(String, default="wallet")      # wallet/referral/manual
+    grace_period_start  = Column(DateTime, nullable=True)       # when grace period began
+    in_grace_period     = Column(Boolean, default=False)
+    total_renewals      = Column(Integer, default=0)
+    updated_at          = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class P2PTransfer(Base):
+    """Peer-to-peer wallet transfers between members."""
+    __tablename__ = "p2p_transfers"
+    id              = Column(Integer, primary_key=True, index=True)
+    from_user_id    = Column(Integer, ForeignKey("users.id"), index=True)
+    to_user_id      = Column(Integer, ForeignKey("users.id"), index=True)
+    amount_usdt     = Column(Float)
+    note            = Column(String, nullable=True)             # optional message
+    status          = Column(String, default="completed")       # completed/reversed
+    created_at      = Column(DateTime, default=datetime.utcnow)
+
 class AIUsageQuota(Base):
     """Daily AI tool usage tracking per member."""
     __tablename__ = "ai_usage_quotas"
@@ -218,6 +247,10 @@ def run_migrations():
     migrations = [
         "CREATE TABLE IF NOT EXISTS video_campaigns (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), title VARCHAR NOT NULL, description TEXT, category VARCHAR, platform VARCHAR NOT NULL, video_url VARCHAR NOT NULL, embed_url VARCHAR NOT NULL, video_id VARCHAR, status VARCHAR DEFAULT 'active', views_target INTEGER DEFAULT 0, views_delivered INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
                 "CREATE TABLE IF NOT EXISTS password_reset_tokens (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), token VARCHAR UNIQUE NOT NULL, expires_at TIMESTAMP NOT NULL, used BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS membership_renewals (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, activated_at TIMESTAMP, next_renewal_date TIMESTAMP, last_renewed_at TIMESTAMP, renewal_source VARCHAR DEFAULT 'wallet', grace_period_start TIMESTAMP, in_grace_period BOOLEAN DEFAULT FALSE, total_renewals INTEGER DEFAULT 0, updated_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS p2p_transfers (id SERIAL PRIMARY KEY, from_user_id INTEGER REFERENCES users(id), to_user_id INTEGER REFERENCES users(id), amount_usdt FLOAT, note VARCHAR, status VARCHAR DEFAULT 'completed', created_at TIMESTAMP DEFAULT NOW())",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_activated_by_referral BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS low_balance_warned BOOLEAN DEFAULT FALSE",
         "CREATE TABLE IF NOT EXISTS ai_usage_quotas (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, quota_date VARCHAR, campaign_studio_uses INTEGER DEFAULT 0, niche_finder_uses INTEGER DEFAULT 0, campaign_studio_total INTEGER DEFAULT 0, niche_finder_total INTEGER DEFAULT 0, updated_at TIMESTAMP DEFAULT NOW())",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name VARCHAR",

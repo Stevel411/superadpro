@@ -26,13 +26,15 @@ from .grid import (
 )
 from .email_utils import send_password_reset_email
 from .video_utils import parse_video_url, platform_label, platform_colour
-from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota
+from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, MembershipRenewal, P2PTransfer
 from .database import PasswordResetToken
 import secrets
 from datetime import timedelta
 from .payment import (
     process_membership_payment, process_grid_payment,
-    request_withdrawal, get_user_balance, MEMBERSHIP_FEE, COMPANY_WALLET
+    request_withdrawal, get_user_balance, MEMBERSHIP_FEE, COMPANY_WALLET,
+    process_p2p_transfer, get_p2p_history, get_renewal_status,
+    initialise_renewal_record, process_auto_renewals
 )
 import re
 import bleach
@@ -160,6 +162,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "wallet_address":    user.wallet_address or "",
         "total_withdrawn":    round(user.total_withdrawn or 0, 2),
         "is_active":         user.is_active,
+        "member_id":         format_member_id(user.id),
         "GRID_PACKAGES":     GRID_PACKAGES,
         "GRID_TOTAL":        GRID_TOTAL,
         "OWNER_PCT":         OWNER_PCT,
@@ -443,9 +446,17 @@ def wallet(request: Request, user: User = Depends(get_current_user),
     withdrawals = db.query(Withdrawal).filter(
         Withdrawal.user_id == user.id
     ).order_by(Withdrawal.requested_at.desc()).limit(20).all()
+    renewal     = get_renewal_status(db, user.id)
+    p2p_history = get_p2p_history(db, user.id, limit=20)
+    # Serialise datetimes for template
+    for t in p2p_history:
+        if t.get("created_at"):
+            t["created_at"] = t["created_at"].strftime("%d %b %Y %H:%M")
     ctx.update({
         "commissions": commissions,
         "withdrawals": withdrawals,
+        "renewal":     renewal,
+        "p2p_history": p2p_history,
     })
     return templates.TemplateResponse("wallet.html", ctx)
 
@@ -595,6 +606,8 @@ def verify_membership(
 ):
     if not user: return RedirectResponse(url="/login", status_code=303)
     result = process_membership_payment(db, user.id, tx_hash)
+    if result.get("success"):
+        initialise_renewal_record(db, user.id, source="referral")
     if result["success"]:
         # Check if sponsor was auto-activated by this payment
         redirect_url = "/dashboard?activated=true"
@@ -1319,6 +1332,80 @@ IMPORTANT RULES:
     except Exception as e:
         logging.error(f"Campaign studio error: {e}")
         return JSONResponse({"error": "AI generation failed — please try again"}, status_code=500)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  MEMBER ID HELPER
+# ═══════════════════════════════════════════════════════════════
+
+def format_member_id(user_id: int) -> str:
+    return f"SAP-{user_id:05d}"
+
+
+# ═══════════════════════════════════════════════════════════════
+#  P2P TRANSFER ROUTES
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/p2p-transfer")
+async def api_p2p_transfer(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not user.is_active:
+        return JSONResponse({"error": "Active membership required"}, status_code=403)
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    to_member_id = body.get("to_member_id", "").strip()
+    note         = body.get("note", "").strip()
+    try:
+        amount = float(body.get("amount", 0))
+    except (ValueError, TypeError):
+        return JSONResponse({"error": "Invalid amount"}, status_code=400)
+
+    result = process_p2p_transfer(db, user.id, to_member_id, amount, note)
+    status_code = 200 if result["success"] else 400
+    return JSONResponse(result, status_code=status_code)
+
+
+@app.get("/api/p2p-history")
+def api_p2p_history(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    history = get_p2p_history(db, user.id)
+    # Serialise datetimes
+    for item in history:
+        if item.get("created_at"):
+            item["created_at"] = item["created_at"].strftime("%d %b %Y %H:%M")
+    return JSONResponse({"transfers": history})
+
+
+# ═══════════════════════════════════════════════════════════════
+#  MEMBERSHIP AUTO-RENEWAL ADMIN ENDPOINT
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/admin/process-renewals")
+def admin_process_renewals(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    from fastapi.responses import JSONResponse
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    results = process_auto_renewals(db)
+    return JSONResponse({"success": True, "results": results})
 
 
 # ═══════════════════════════════════════════════════════════════

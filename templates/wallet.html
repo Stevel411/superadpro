@@ -53,6 +53,16 @@ tr:last-child td{border-bottom:none}
 .empty-icon{font-size:40px;margin-bottom:12px}
 .empty-title{font-size:17px;font-weight:700;color:rgba(200,220,255,0.65);margin-bottom:6px}
 .empty-sub{font-size:17px;color:#94a3b8;margin-bottom:20px}
+
+.renewal-bar{height:6px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin:10px 0}
+.renewal-bar-fill{height:100%;border-radius:999px;transition:width 0.4s}
+.p2p-form input{padding:9px 13px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;color:#0f172a;background:#f8fafc;width:100%;box-sizing:border-box}
+.p2p-form input:focus{border-color:#6366f1;outline:none;background:#fff}
+.p2p-btn{padding:10px 22px;background:linear-gradient(135deg,#6366f1,#10b981);border:none;border-radius:8px;font-size:14px;font-weight:800;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap}
+.p2p-dir-sent{color:#dc2626;font-weight:700}
+.p2p-dir-recv{color:#16a34a;font-weight:700}
+.member-id-chip{display:inline-flex;align-items:center;gap:8px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:8px 16px;font-size:14px;font-weight:700;color:#15803d;cursor:pointer;transition:all 0.15s}
+.member-id-chip:hover{background:#dcfce7}
 </style>
   <link rel="stylesheet" href="/static/mobile.css">
   <link rel="manifest" href="/static/manifest.json">
@@ -278,6 +288,137 @@ tr:last-child td{border-bottom:none}
   </div>
 </div>
 
+
+<!-- MEMBER ID CARD -->
+<div class="card">
+  <div class="card-head">
+    <div class="card-title"><div class="card-dot" style="background:#6366f1"></div>Your Member ID</div>
+  </div>
+  <div class="card-body">
+    <p style="font-size:13px;color:#64748b;margin-bottom:12px">Share this ID so other members can send you funds via the P2P transfer system.</p>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div class="member-id-chip" onclick="copyMemberId()" id="memberIdChip">
+        <span>🪪</span>
+        <span id="memberIdText">{{ member_id }}</span>
+        <span style="font-size:11px;color:#86efac">Copy</span>
+      </div>
+      <span style="font-size:12px;color:#94a3b8">Click to copy your ID</span>
+    </div>
+  </div>
+</div>
+
+<!-- MEMBERSHIP RENEWAL STATUS -->
+{% if renewal and renewal.has_renewal %}
+<div class="card">
+  <div class="card-head">
+    <div class="card-title">
+      <div class="card-dot" style="background:{% if renewal.status == 'warning' %}#f59e0b{% elif renewal.in_grace_period %}#dc2626{% else %}#10b981{% endif %}"></div>
+      Membership Renewal
+    </div>
+    <span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;
+      {% if renewal.in_grace_period %}background:#fef2f2;color:#dc2626;border:1px solid #fecaca
+      {% elif renewal.status == 'warning' %}background:#fefce8;color:#b45309;border:1px solid #fde68a
+      {% else %}background:#f0fdf4;color:#16a34a;border:1px solid #86efac{% endif %}">
+      {% if renewal.in_grace_period %}⚠ Grace Period
+      {% elif renewal.status == 'warning' %}⏱ Renews Soon
+      {% else %}✓ Active{% endif %}
+    </span>
+  </div>
+  <div class="card-body">
+    {% if renewal.in_grace_period %}
+    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:14px 16px;margin-bottom:14px">
+      <div style="font-size:14px;font-weight:700;color:#dc2626;margin-bottom:4px">⚠ Membership in Grace Period</div>
+      <div style="font-size:13px;color:#64748b">Your wallet balance was insufficient at renewal. Please ensure your balance reaches $20 USDT within the grace period to avoid your membership lapsing.</div>
+    </div>
+    {% elif renewal.status == 'warning' %}
+    <div style="background:#fefce8;border:1px solid #fde68a;border-radius:10px;padding:14px 16px;margin-bottom:14px">
+      <div style="font-size:14px;font-weight:700;color:#b45309;margin-bottom:4px">⏱ Renewal in {{ renewal.days_remaining }} day{{ 's' if renewal.days_remaining != 1 }}</div>
+      <div style="font-size:13px;color:#64748b">Your $20 membership renewal is coming up. {% if not renewal.can_afford %}Your current balance of ${{ renewal.balance }} is below the $20 required — top up your wallet to ensure smooth renewal.{% else %}Your wallet balance is sufficient to cover the renewal automatically.{% endif %}</div>
+    </div>
+    {% endif %}
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
+      <div style="background:#f8fafc;border:1px solid #f1f5f9;border-radius:9px;padding:12px;text-align:center">
+        <div style="font-size:16px;font-weight:800;color:#0f172a">{{ renewal.days_remaining }}d</div>
+        <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Until Renewal</div>
+      </div>
+      <div style="background:#f8fafc;border:1px solid #f1f5f9;border-radius:9px;padding:12px;text-align:center">
+        <div style="font-size:16px;font-weight:800;color:#0f172a">${{ renewal.balance }}</div>
+        <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Wallet Balance</div>
+      </div>
+      <div style="background:#f8fafc;border:1px solid #f1f5f9;border-radius:9px;padding:12px;text-align:center">
+        <div style="font-size:16px;font-weight:800;color:#0f172a">{{ renewal.total_renewals }}</div>
+        <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Total Renewals</div>
+      </div>
+    </div>
+    <div class="renewal-bar">
+      <div class="renewal-bar-fill" style="width:{{ [100 - ((renewal.days_remaining / 30) * 100)|int, 5]|max }}%;background:{% if renewal.in_grace_period %}#dc2626{% elif renewal.status == 'warning' %}#f59e0b{% else %}#10b981{% endif %}"></div>
+    </div>
+    <div style="font-size:12px;color:#94a3b8;text-align:right">Next renewal: {{ renewal.next_renewal_date.strftime('%d %b %Y') if renewal.next_renewal_date else 'N/A' }}</div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid #f1f5f9;font-size:12px;color:#94a3b8">
+      💡 Your $20 renewal is deducted automatically from your wallet. As long as your wallet has funds from Watch-to-Earn, grid commissions and Stream 1 referral income, your membership stays active without any manual action.
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- P2P TRANSFER CARD -->
+<div class="card">
+  <div class="card-head">
+    <div class="card-title"><div class="card-dot" style="background:#00b4d8"></div>Send Funds to a Member</div>
+  </div>
+  <div class="card-body">
+    <p style="font-size:13px;color:#64748b;margin-bottom:16px">Transfer USDT to any active member using their member ID (e.g. SAP-00042). Instant and fee-free.</p>
+    <div class="p2p-form" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div>
+        <label style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:5px">Recipient Member ID</label>
+        <input type="text" id="p2pRecipient" placeholder="e.g. SAP-00042" autocomplete="off">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:5px">Amount (USDT)</label>
+        <input type="number" id="p2pAmount" placeholder="e.g. 20.00" min="1" max="500" step="0.01">
+      </div>
+    </div>
+    <div class="p2p-form" style="margin-bottom:14px">
+      <label style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:5px">Note (optional)</label>
+      <input type="text" id="p2pNote" placeholder="e.g. Membership gift, commission split..." maxlength="200">
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <button class="p2p-btn" onclick="sendP2P()">Send Funds →</button>
+      <span style="font-size:12px;color:#94a3b8">Min $1 · Max $500 per transfer · Active members only</span>
+    </div>
+    <div id="p2pResult" style="margin-top:12px;display:none"></div>
+  </div>
+</div>
+
+<!-- P2P TRANSFER HISTORY -->
+{% if p2p_history %}
+<div class="card">
+  <div class="card-head">
+    <div class="card-title"><div class="card-dot" style="background:#6366f1"></div>Transfer History</div>
+  </div>
+  <div class="card-body" style="padding:0">
+    <table>
+      <thead><tr>
+        <th>Date</th><th>Direction</th><th>Member</th><th>Note</th><th style="text-align:right">Amount</th>
+      </tr></thead>
+      <tbody>
+      {% for t in p2p_history %}
+      <tr>
+        <td style="font-size:12px;color:#94a3b8">{{ t.created_at }}</td>
+        <td>{% if t.direction == 'sent' %}<span class="p2p-dir-sent">↑ Sent</span>{% else %}<span class="p2p-dir-recv">↓ Received</span>{% endif %}</td>
+        <td style="font-size:13px;font-weight:600">{{ t.other_party }}<br><span style="font-size:11px;color:#94a3b8">{{ t.other_id }}</span></td>
+        <td style="font-size:12px;color:#64748b">{{ t.note or '—' }}</td>
+        <td style="text-align:right;font-weight:700;{% if t.direction == 'sent' %}color:#dc2626{% else %}color:#16a34a{% endif %}">
+          {% if t.direction == 'sent' %}-{% else %}+{% endif %}${{ '%.2f'|format(t.amount) }}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
 </div></div></div>
 <!-- ── Mobile Bottom Nav ── -->
 <div class="mobile-nav">
@@ -297,4 +438,62 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+
+<script>
+async function sendP2P() {
+  const recipient = document.getElementById('p2pRecipient').value.trim();
+  const amount    = parseFloat(document.getElementById('p2pAmount').value);
+  const note      = document.getElementById('p2pNote').value.trim();
+  const resultEl  = document.getElementById('p2pResult');
+
+  if (!recipient) { showP2PResult('error', 'Please enter a member ID'); return; }
+  if (!amount || amount < 1) { showP2PResult('error', 'Please enter a valid amount (min $1)'); return; }
+
+  const btn = document.querySelector('.p2p-btn');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+
+  try {
+    const resp = await fetch('/api/p2p-transfer', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ to_member_id: recipient, amount, note })
+    });
+    const data = await resp.json();
+    if (data.success) {
+      showP2PResult('success', `✓ $${amount.toFixed(2)} sent to ${data.recipient_name} (${data.recipient_id}). Your new balance: $${data.new_balance.toFixed(2)}`);
+      document.getElementById('p2pRecipient').value = '';
+      document.getElementById('p2pAmount').value    = '';
+      document.getElementById('p2pNote').value      = '';
+      setTimeout(() => location.reload(), 2500);
+    } else {
+      showP2PResult('error', data.error || 'Transfer failed — please try again');
+    }
+  } catch(e) {
+    showP2PResult('error', 'Network error — please try again');
+  } finally {
+    btn.textContent = 'Send Funds →';
+    btn.disabled = false;
+  }
+}
+
+function showP2PResult(type, msg) {
+  const el = document.getElementById('p2pResult');
+  el.style.display = 'block';
+  el.innerHTML = `<div style="padding:11px 14px;border-radius:8px;font-size:13px;font-weight:600;
+    ${type === 'success' ? 'background:#f0fdf4;border:1px solid #86efac;color:#15803d' : 'background:#fef2f2;border:1px solid #fecaca;color:#dc2626'}">
+    ${msg}</div>`;
+}
+
+function copyMemberId() {
+  const id = document.getElementById('memberIdText').textContent;
+  navigator.clipboard.writeText(id).then(() => {
+    const chip = document.getElementById('memberIdChip');
+    chip.style.background = '#dcfce7';
+    chip.querySelector('span:last-child').textContent = '✓ Copied!';
+    setTimeout(() => { chip.style.background = ''; chip.querySelector('span:last-child').textContent = 'Copy'; }, 2000);
+  });
+}
+</script>
+
 </body></html>

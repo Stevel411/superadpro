@@ -6,7 +6,7 @@ import os
 from web3 import Web3
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
-from .database import User, Payment, Commission, Withdrawal, GRID_PACKAGES
+from .database import User, Payment, Commission, Withdrawal, GRID_PACKAGES, MembershipRenewal, P2PTransfer
 from .grid import place_member_in_grid, get_or_create_active_grid
 from datetime import datetime
 
@@ -45,7 +45,7 @@ USDT_ABI = [
     }
 ]
 
-MEMBERSHIP_FEE = 10.0
+MEMBERSHIP_FEE = 20.0
 
 
 def get_usdt_contract():
@@ -396,6 +396,233 @@ def request_withdrawal(db: Session, user_id: int, amount: float) -> dict:
         "message":   f"Withdrawal of ${amount:.2f} USDT queued for processing",
         "remaining": user.balance,
     }
+
+
+
+
+# ═══════════════════════════════════════════════════════════════
+#  MEMBERSHIP AUTO-RENEWAL
+# ═══════════════════════════════════════════════════════════════
+
+def initialise_renewal_record(db: Session, user_id: int, source: str = "referral") -> None:
+    """Create or update MembershipRenewal when a member first activates."""
+    from datetime import timedelta
+    existing = db.query(MembershipRenewal).filter(MembershipRenewal.user_id == user_id).first()
+    now = datetime.utcnow()
+    next_renewal = now + timedelta(days=30)
+
+    if not existing:
+        db.add(MembershipRenewal(
+            user_id           = user_id,
+            activated_at      = now,
+            next_renewal_date = next_renewal,
+            last_renewed_at   = now,
+            renewal_source    = source,
+            total_renewals    = 1,
+        ))
+    else:
+        existing.activated_at      = existing.activated_at or now
+        existing.last_renewed_at   = now
+        existing.next_renewal_date = next_renewal
+        existing.in_grace_period   = False
+        existing.grace_period_start = None
+        existing.total_renewals    = (existing.total_renewals or 0) + 1
+    db.commit()
+
+
+def process_auto_renewals(db: Session) -> dict:
+    """
+    Called daily (via scheduler or admin endpoint).
+    Deducts $20 from wallet for members due renewal.
+    Issues 3-day warnings. Lapses after 5-day grace period.
+    """
+    from datetime import timedelta
+    now       = datetime.utcnow()
+    results   = {"renewed": [], "warned": [], "lapsed": [], "grace_extended": []}
+
+    renewals = db.query(MembershipRenewal).all()
+
+    for renewal in renewals:
+        user = db.query(User).filter(User.id == renewal.user_id).first()
+        if not user or not user.is_active:
+            continue
+
+        # ── 3-day low balance warning ──────────────────────────
+        warning_threshold = renewal.next_renewal_date - timedelta(days=3)
+        if now >= warning_threshold and not renewal.in_grace_period:
+            if user.balance < MEMBERSHIP_FEE and not user.low_balance_warned:
+                user.low_balance_warned = True
+                results["warned"].append(user.id)
+
+        # ── Renewal due ─────────────────────────────────────────
+        if now >= renewal.next_renewal_date and not renewal.in_grace_period:
+            if user.balance >= MEMBERSHIP_FEE:
+                # Sufficient balance — auto-renew
+                sponsor = db.query(User).filter(User.id == user.sponsor_id).first() if user.sponsor_id else None
+
+                user.balance      -= MEMBERSHIP_FEE
+                user.low_balance_warned = False
+
+                if sponsor:
+                    sponsor.balance      += MEMBERSHIP_FEE
+                    sponsor.total_earned += MEMBERSHIP_FEE
+
+                db.add(Commission(
+                    from_user_id    = user.id,
+                    to_user_id      = sponsor.id if sponsor else None,
+                    amount_usdt     = MEMBERSHIP_FEE,
+                    commission_type = "membership_renewal",
+                    package_tier    = 0,
+                    status          = "paid",
+                    paid_at         = now,
+                    notes           = f"Monthly membership auto-renewal",
+                ))
+
+                renewal.last_renewed_at   = now
+                renewal.next_renewal_date = now + timedelta(days=30)
+                renewal.renewal_source    = "wallet"
+                renewal.total_renewals    = (renewal.total_renewals or 0) + 1
+                results["renewed"].append(user.id)
+
+            else:
+                # Insufficient — start grace period
+                renewal.in_grace_period    = True
+                renewal.grace_period_start = now
+                results["grace_extended"].append(user.id)
+
+        # ── Grace period expired (5 days) ───────────────────────
+        elif renewal.in_grace_period and renewal.grace_period_start:
+            grace_expired = renewal.grace_period_start + timedelta(days=5)
+            if now >= grace_expired:
+                user.is_active          = False
+                renewal.in_grace_period = False
+                results["lapsed"].append(user.id)
+
+    db.commit()
+    return results
+
+
+def get_renewal_status(db: Session, user_id: int) -> dict:
+    """Return membership renewal info for display in wallet/dashboard."""
+    from datetime import timedelta
+    renewal = db.query(MembershipRenewal).filter(MembershipRenewal.user_id == user_id).first()
+    user    = db.query(User).filter(User.id == user_id).first()
+
+    if not renewal or not user:
+        return {"has_renewal": False}
+
+    now  = datetime.utcnow()
+    diff = (renewal.next_renewal_date - now).total_seconds() if renewal.next_renewal_date else 0
+    days_remaining = max(0, int(diff / 86400))
+
+    status = "active"
+    if renewal.in_grace_period:
+        grace_diff = (renewal.grace_period_start + timedelta(days=5) - now).total_seconds() if renewal.grace_period_start else 0
+        grace_days = max(0, int(grace_diff / 86400))
+        status = f"grace_{grace_days}d"
+    elif days_remaining <= 3:
+        status = "warning"
+
+    return {
+        "has_renewal":        True,
+        "next_renewal_date":  renewal.next_renewal_date,
+        "days_remaining":     days_remaining,
+        "last_renewed_at":    renewal.last_renewed_at,
+        "total_renewals":     renewal.total_renewals,
+        "in_grace_period":    renewal.in_grace_period,
+        "status":             status,
+        "can_afford":         (user.balance or 0) >= MEMBERSHIP_FEE,
+        "balance":            round(user.balance or 0, 2),
+    }
+
+
+# ═══════════════════════════════════════════════════════════════
+#  PEER-TO-PEER TRANSFERS
+# ═══════════════════════════════════════════════════════════════
+
+MIN_P2P_AMOUNT  = 1.0
+MAX_P2P_AMOUNT  = 500.0
+
+def process_p2p_transfer(db: Session, from_user_id: int, to_member_id: str, amount: float, note: str = "") -> dict:
+    """
+    Transfer funds between members using member ID.
+    to_member_id is the string member ID shown on their profile (e.g. 'SAP-00042').
+    """
+    if amount < MIN_P2P_AMOUNT:
+        return {"success": False, "error": f"Minimum transfer is ${MIN_P2P_AMOUNT:.0f} USDT"}
+    if amount > MAX_P2P_AMOUNT:
+        return {"success": False, "error": f"Maximum single transfer is ${MAX_P2P_AMOUNT:.0f} USDT"}
+
+    sender = db.query(User).filter(User.id == from_user_id).first()
+    if not sender:
+        return {"success": False, "error": "Sender not found"}
+    if not sender.is_active:
+        return {"success": False, "error": "Active membership required to transfer funds"}
+    if (sender.balance or 0) < amount:
+        return {"success": False, "error": f"Insufficient balance. Available: ${sender.balance:.2f}"}
+
+    # Resolve recipient by member ID (format SAP-XXXXX or raw numeric id)
+    recipient = None
+    clean_id = to_member_id.strip().upper().replace("SAP-", "")
+    if clean_id.isdigit():
+        recipient = db.query(User).filter(User.id == int(clean_id)).first()
+    if not recipient:
+        # Try username search as fallback
+        recipient = db.query(User).filter(User.username == to_member_id.strip()).first()
+
+    if not recipient:
+        return {"success": False, "error": f"Member '{to_member_id}' not found. Check the ID and try again."}
+    if recipient.id == from_user_id:
+        return {"success": False, "error": "You cannot transfer funds to yourself"}
+    if not recipient.is_active:
+        return {"success": False, "error": "Recipient does not have an active membership"}
+
+    # Execute transfer
+    sender.balance    = round((sender.balance or 0) - amount, 6)
+    recipient.balance = round((recipient.balance or 0) + amount, 6)
+    recipient.total_earned = round((recipient.total_earned or 0) + amount, 6)
+
+    transfer = P2PTransfer(
+        from_user_id = from_user_id,
+        to_user_id   = recipient.id,
+        amount_usdt  = amount,
+        note         = note[:200] if note else None,
+        status       = "completed",
+    )
+    db.add(transfer)
+    db.commit()
+
+    return {
+        "success":          True,
+        "message":          f"${amount:.2f} USDT sent to {recipient.first_name or recipient.username}",
+        "recipient_name":   recipient.first_name or recipient.username,
+        "recipient_id":     f"SAP-{recipient.id:05d}",
+        "new_balance":      round(sender.balance, 2),
+        "amount":           amount,
+    }
+
+
+def get_p2p_history(db: Session, user_id: int, limit: int = 20) -> list:
+    """Return recent P2P transfers for a member (sent and received)."""
+    transfers = db.query(P2PTransfer).filter(
+        (P2PTransfer.from_user_id == user_id) | (P2PTransfer.to_user_id == user_id)
+    ).order_by(P2PTransfer.created_at.desc()).limit(limit).all()
+
+    result = []
+    for t in transfers:
+        sender    = db.query(User).filter(User.id == t.from_user_id).first()
+        recipient = db.query(User).filter(User.id == t.to_user_id).first()
+        result.append({
+            "id":             t.id,
+            "direction":      "sent" if t.from_user_id == user_id else "received",
+            "amount":         t.amount_usdt,
+            "note":           t.note,
+            "status":         t.status,
+            "created_at":     t.created_at,
+            "other_party":    (recipient.first_name or recipient.username) if t.from_user_id == user_id else (sender.first_name or sender.username),
+            "other_id":       f"SAP-{t.to_user_id:05d}" if t.from_user_id == user_id else f"SAP-{t.from_user_id:05d}",
+        })
+    return result
 
 
 # ── Balance helpers ───────────────────────────────────────────
