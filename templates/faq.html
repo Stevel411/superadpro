@@ -8,6 +8,7 @@
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body { background:#050d1a; color:#e8f0fe; font-family:'Rethink Sans',sans-serif; min-height:100vh; }
+        body > div:not(.m-overlay), body > section { max-width:1000px; margin-left:auto; margin-right:auto; padding-left:32px; padding-right:32px; }
         .bg { display:none; }
         .grid { display:none; }
 
@@ -248,7 +249,6 @@
   </div>
 </div>
 
-<div class="page">
 <!-- SEARCH -->
     <div class="search-wrap">
         <input type="text" class="search-input" id="faqSearch" placeholder="Search questions..." oninput="searchFAQ(this.value)">
@@ -547,7 +547,6 @@
     </div>
 
 </div>
-</div><!-- /.page -->
 
 <script>
 function toggleFAQ(el) {
