@@ -587,31 +587,18 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 
       </div><!-- /dash-grid-3 -->
 
-      <!-- INCOME POTENTIAL TABLE -->
+      <!-- QUICK LINKS -->
       <div class="card">
         <div class="card-head">
-          <div class="card-title"><div class="card-dot" style="background:#7c3aed"></div>Stream 2 — Profit Engine Grid Potential Per Full Advance</div>
-          <a href="/grid-visualiser" class="card-link">Live Demo →</a>
+          <div class="card-title"><div class="card-dot" style="background:#7c3aed"></div>Explore the Income Grid</div>
         </div>
-        <div class="card-body">
-          <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:10px">
-            {% set packages = [('Starter',10),('Basic',25),('Growth',50),('Pro',100),('Advanced',250),('Elite',500),('Premium',750),('Ultimate',1000)] %}
-            {% for name, price in packages %}
-            {% set direct_earn = price * 0.3375 * 15 %}
-            {% set overspill_earn = price * 0.0875 * 48 %}
-            {% set total_earn = direct_earn + overspill_earn %}
-            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 8px;text-align:center">
-              <div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">{{ name }}</div>
-              <div style="font-size:16px;font-weight:800;color:#0077a8">${{ price }}</div>
-              <div style="font-size:8px;color:#94a3b8;margin:3px 0">→</div>
-              <div style="font-size:16px;font-weight:800;color:#16a34a">${{ '{:,.0f}'.format(total_earn) }}</div>
-            </div>
-            {% endfor %}
-          </div>
-          <div style="margin-top:14px;padding:11px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;color:#475569;text-align:center;line-height:1.7">
-            💡 Based on <strong>15 personal directs</strong> (25% direct + 8.75% uni-level) + <strong>48 overspill</strong> (8.75% uni-level only).
-            Use the <a href="/grid-visualiser" style="color:#0077a8;font-weight:700">Grid Visualiser</a> to explore any scenario.
-          </div>
+        <div class="card-body" style="display:flex;gap:12px;flex-wrap:wrap">
+          <a href="/packages" style="flex:1;min-width:200px;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 24px;background:linear-gradient(135deg,#00b4d8,#0077a8);color:#fff;font-size:15px;font-weight:700;border-radius:10px;text-decoration:none;box-shadow:0 4px 14px rgba(0,180,216,0.25);transition:all 0.2s">
+            🎬 View Campaign Tiers
+          </a>
+          <a href="/grid-visualiser" style="flex:1;min-width:200px;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 24px;background:linear-gradient(135deg,#6d28d9,#7c3aed);color:#fff;font-size:15px;font-weight:700;border-radius:10px;text-decoration:none;box-shadow:0 4px 14px rgba(109,40,217,0.25);transition:all 0.2s">
+            ⚡ Grid Engine Demo
+          </a>
         </div>
       </div>
 
