@@ -1486,3 +1486,24 @@ def swipe_file(request: Request, user: User = Depends(get_current_user),
     ctx = get_dashboard_context(request, user, db)
     return templates.TemplateResponse("swipe-file.html", ctx)
 
+
+# ── TEMP: Account reset utility (remove after use) ────────────
+@app.get("/admin/reset-account")
+def reset_account(secret: str, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    if secret != "superadpro-reset-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    try:
+        for table in ["commissions","grid_positions","grids","payments",
+                      "withdrawals","watch_quotas","video_watches",
+                      "ai_usage_quotas","password_reset_tokens","users"]:
+            try:
+                db.execute(text(f"DELETE FROM {table}"))
+            except Exception:
+                pass
+        db.commit()
+        return JSONResponse({"status": "All accounts cleared. Register fresh at /register"})
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({"error": str(e)}, status_code=500)
+
