@@ -1887,48 +1887,58 @@ def test_dashboard(secret: str, db: Session = Depends(get_db)):
     if secret != "superadpro-migrate-2026":
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     import traceback
-    user = None
+    results = {}
+
+    # Create temp user
     try:
-        # Create temp user
         user = create_user(db, "dashtest999", "dashtest999@test.com", "password123",
                           first_name="Dash", last_name="", wallet_address="", country="")
-        
-        # Test each function separately
-        results = {}
-        
-        from app.grid import get_grid_stats, get_user_commission_history
-        try:
-            results["grid_stats"] = str(get_grid_stats(db, user.id))
-        except Exception as e:
-            results["grid_stats_error"] = str(e)
-            
-        try:
-            results["commissions"] = str(get_user_commission_history(db, user.id))
-        except Exception as e:
-            results["commissions_error"] = str(e)
-            
-        try:
-            from app.payment import get_renewal_status
-            results["renewal"] = str(get_renewal_status(db, user.id))
-        except Exception as e:
-            results["renewal_error"] = str(e)
-
-        try:
-            results["format_member_id"] = format_member_id(user.id)
-        except Exception as e:
-            results["format_member_id_error"] = str(e)
-
-        # Clean up
-        db.execute(sqtext(f"DELETE FROM users WHERE id={user.id}"))
-        db.commit()
-        return JSONResponse({"all_ok": not any("error" in k for k in results), "results": results})
+        uid = user.id
+        results["create_user"] = f"ok id={uid}"
     except Exception as e:
-        if user:
-            try:
-                db.execute(sqtext(f"DELETE FROM users WHERE id={user.id}"))
-                db.commit()
-            except: pass
-        return JSONResponse({"error": str(e), "trace": traceback.format_exc()}, status_code=500)
+        db.rollback()
+        return JSONResponse({"failed_at": "create_user", "error": str(e), "trace": traceback.format_exc()})
+
+    from app.grid import get_grid_stats, get_user_commission_history
+    from app.payment import get_renewal_status
+
+    try:
+        get_grid_stats(db, uid)
+        results["get_grid_stats"] = "ok"
+    except Exception as e:
+        db.rollback()
+        results["get_grid_stats"] = "FAILED: " + str(e) + " | " + traceback.format_exc()
+
+    try:
+        get_user_commission_history(db, uid)
+        results["get_commission_history"] = "ok"
+    except Exception as e:
+        db.rollback()
+        results["get_commission_history"] = "FAILED: " + str(e) + " | " + traceback.format_exc()
+
+    try:
+        get_renewal_status(db, uid)
+        results["get_renewal_status"] = "ok"
+    except Exception as e:
+        db.rollback()
+        results["get_renewal_status"] = "FAILED: " + str(e) + " | " + traceback.format_exc()
+
+    try:
+        format_member_id(uid)
+        results["format_member_id"] = "ok"
+    except Exception as e:
+        results["format_member_id"] = f"FAILED: {e}"
+
+    # Clean up
+    try:
+        db.rollback()
+        db.execute(sqtext(f"DELETE FROM users WHERE id={uid}"))
+        db.commit()
+        results["cleanup"] = "ok"
+    except Exception as e:
+        results["cleanup"] = f"FAILED: {e}"
+
+    return JSONResponse(results)
 
 
 @app.get("/admin/test-register")
