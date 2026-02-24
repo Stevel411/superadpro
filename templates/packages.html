@@ -180,7 +180,7 @@
     </svg>
     <div>
       <div class="mobile-topbar-name">SuperAdPro</div>
-      <div class="mobile-topbar-page">Income Grid</div>
+      <div class="mobile-topbar-page">Campaign Tiers</div>
     </div>
   </a>
   {%- if balance is defined %}<div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>{%- endif %}
@@ -326,13 +326,204 @@
 
         <!-- Starter -->
         <div class="pkg-card">
-            <div class="pkg-tier-label">Starter</div>
-            <div class="pkg-price-big"><span>$</span>10</div>
-            <div class="pkg-usdt">10 USDT · Base Chain</div>
+            <div class="pkg-tier-label" >Starter</div>
+            <div class="pkg-price-big"><span>$</span>20</div>
+            <div class="pkg-usdt">20 USDT · Base Chain</div>
             <div class="pkg-views-highlight">
                 <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:2px">Up To</div><div class="pkg-views-num">5,000</div>
                 <div class="pkg-views-label">Engaged Video Views</div>
             </div>
+            <div class="pkg-divider"></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Real, engaged video views</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>AI-optimised delivery</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Campaign analytics dashboard</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Affiliate programme access</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Grid position activated</span></div>
+            <div class="pkg-spacer"></div>
+            <a href="#" class="pkg-btn pkg-btn-outline" onclick="openRegModal();return false;">Activate Campaign Tier</a>
+            <div class="pkg-affiliate-earn">
+                <div class="pae-item"><div class="pae-val">$5.00</div><div class="pae-label">Direct Comm</div></div>
+                <div class="pae-item"><div class="pae-val">$1.75</div><div class="pae-label">Per Level</div></div>
+                <div class="pae-item"><div class="pae-val">$14.70</div><div class="pae-label">Uni-Level</div></div>
+            </div>
+        </div>
+
+        <!-- Builder -->
+        <div class="pkg-card">
+            <div class="pkg-tier-label" >Builder</div>
+            <div class="pkg-price-big"><span>$</span>50</div>
+            <div class="pkg-usdt">50 USDT · Base Chain</div>
+            <div class="pkg-views-highlight">
+                <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:2px">Up To</div><div class="pkg-views-num">15,000</div>
+                <div class="pkg-views-label">Engaged Video Views</div>
+            </div>
+            <div class="pkg-divider"></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Real, engaged video views</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>AI-optimised delivery</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Campaign analytics dashboard</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Affiliate programme access</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Priority queue placement</span></div>
+            <div class="pkg-spacer"></div>
+            <a href="#" class="pkg-btn pkg-btn-outline" onclick="openRegModal();return false;">Activate Campaign Tier</a>
+            <div class="pkg-affiliate-earn">
+                <div class="pae-item"><div class="pae-val">$12.50</div><div class="pae-label">Direct Comm</div></div>
+                <div class="pae-item"><div class="pae-val">$4.38</div><div class="pae-label">Per Level</div></div>
+                <div class="pae-item"><div class="pae-val">$36.75</div><div class="pae-label">Uni-Level</div></div>
+            </div>
+        </div>
+
+        <!-- Pro -->
+        <div class="pkg-card">
+            <div class="pkg-tier-label" >Pro</div>
+            <div class="pkg-price-big"><span>$</span>100</div>
+            <div class="pkg-usdt">100 USDT · Base Chain</div>
+            <div class="pkg-views-highlight">
+                <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:2px">Up To</div><div class="pkg-views-num">35,000</div>
+                <div class="pkg-views-label">Engaged Video Views</div>
+            </div>
+            <div class="pkg-divider"></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Real, engaged video views</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>AI-optimised delivery</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Advanced campaign analytics</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Affiliate programme access</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Multi-campaign support</span></div>
+            <div class="pkg-spacer"></div>
+            <a href="#" class="pkg-btn pkg-btn-outline" onclick="openRegModal();return false;">Activate Campaign Tier</a>
+            <div class="pkg-affiliate-earn">
+                <div class="pae-item"><div class="pae-val">$25.00</div><div class="pae-label">Direct Comm</div></div>
+                <div class="pae-item"><div class="pae-val">$8.75</div><div class="pae-label">Per Level</div></div>
+                <div class="pae-item"><div class="pae-val">$73.50</div><div class="pae-label">Uni-Level</div></div>
+            </div>
+        </div>
+
+        <!-- Advanced -->
+        <div class="pkg-card popular">
+            <div class="popular-badge">★ Most Popular</div>
+            <div class="pkg-tier-label" style="color:#6d28d9">Advanced</div>
+            <div class="pkg-price-big"><span>$</span>200</div>
+            <div class="pkg-usdt">200 USDT · Base Chain</div>
+            <div class="pkg-views-highlight" style="border-color:rgba(0,180,216,0.3);background:rgba(0,180,216,0.08)">
+                <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:2px">Up To</div><div class="pkg-views-num">80,000</div>
+                <div class="pkg-views-label">Engaged Video Views</div>
+            </div>
+            <div class="pkg-divider"></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Real, engaged video views</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>AI-optimised delivery</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Full campaign analytics suite</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Affiliate programme access</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Multi-campaign support</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span><strong>Pro audience targeting</strong></span></div>
+            <div class="pkg-spacer"></div>
+            <a href="#" class="pkg-btn pkg-btn" onclick="openRegModal();return false;">Activate Advanced Tier</a>
+            <div class="pkg-affiliate-earn">
+                <div class="pae-item"><div class="pae-val">$50.00</div><div class="pae-label">Direct Comm</div></div>
+                <div class="pae-item"><div class="pae-val">$17.50</div><div class="pae-label">Per Level</div></div>
+                <div class="pae-item"><div class="pae-val">$147.00</div><div class="pae-label">Uni-Level</div></div>
+            </div>
+        </div>
+
+        <!-- Elite -->
+        <div class="pkg-card">
+            <div class="pkg-tier-label" >Elite</div>
+            <div class="pkg-price-big"><span>$</span>400</div>
+            <div class="pkg-usdt">400 USDT · Base Chain</div>
+            <div class="pkg-views-highlight">
+                <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:2px">Up To</div><div class="pkg-views-num">220,000</div>
+                <div class="pkg-views-label">Engaged Video Views</div>
+            </div>
+            <div class="pkg-divider"></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Real, engaged video views</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>AI-optimised delivery</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Full campaign analytics suite</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Affiliate programme access</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Elite audience targeting</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span><strong>Priority campaign delivery</strong></span></div>
+            <div class="pkg-spacer"></div>
+            <a href="#" class="pkg-btn pkg-btn-outline" onclick="openRegModal();return false;">Activate Campaign Tier</a>
+            <div class="pkg-affiliate-earn">
+                <div class="pae-item"><div class="pae-val">$100.00</div><div class="pae-label">Direct Comm</div></div>
+                <div class="pae-item"><div class="pae-val">$35.00</div><div class="pae-label">Per Level</div></div>
+                <div class="pae-item"><div class="pae-val">$294.00</div><div class="pae-label">Uni-Level</div></div>
+            </div>
+        </div>
+
+        <!-- Premium -->
+        <div class="pkg-card">
+            <div class="pkg-tier-label" >Premium</div>
+            <div class="pkg-price-big"><span>$</span>600</div>
+            <div class="pkg-usdt">600 USDT · Base Chain</div>
+            <div class="pkg-views-highlight">
+                <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:2px">Up To</div><div class="pkg-views-num">500,000</div>
+                <div class="pkg-views-label">Engaged Video Views</div>
+            </div>
+            <div class="pkg-divider"></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Real, engaged video views</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>AI-optimised delivery</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Full campaign analytics suite</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Affiliate programme access</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Premium audience targeting</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span><strong>Dedicated campaign manager</strong></span></div>
+            <div class="pkg-spacer"></div>
+            <a href="#" class="pkg-btn pkg-btn-outline" onclick="openRegModal();return false;">Activate Campaign Tier</a>
+            <div class="pkg-affiliate-earn">
+                <div class="pae-item"><div class="pae-val">$150.00</div><div class="pae-label">Direct Comm</div></div>
+                <div class="pae-item"><div class="pae-val">$52.50</div><div class="pae-label">Per Level</div></div>
+                <div class="pae-item"><div class="pae-val">$441.00</div><div class="pae-label">Uni-Level</div></div>
+            </div>
+        </div>
+
+        <!-- Executive -->
+        <div class="pkg-card">
+            <div class="pkg-tier-label" >Executive</div>
+            <div class="pkg-price-big"><span>$</span>800</div>
+            <div class="pkg-usdt">800 USDT · Base Chain</div>
+            <div class="pkg-views-highlight">
+                <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:2px">Up To</div><div class="pkg-views-num">800,000</div>
+                <div class="pkg-views-label">Engaged Video Views</div>
+            </div>
+            <div class="pkg-divider"></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Real, engaged video views</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>AI-optimised delivery</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Full campaign analytics suite</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Affiliate programme access</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Executive audience targeting</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span><strong>White-glove campaign setup</strong></span></div>
+            <div class="pkg-spacer"></div>
+            <a href="#" class="pkg-btn pkg-btn-outline" onclick="openRegModal();return false;">Activate Campaign Tier</a>
+            <div class="pkg-affiliate-earn">
+                <div class="pae-item"><div class="pae-val">$200.00</div><div class="pae-label">Direct Comm</div></div>
+                <div class="pae-item"><div class="pae-val">$70.00</div><div class="pae-label">Per Level</div></div>
+                <div class="pae-item"><div class="pae-val">$588.00</div><div class="pae-label">Uni-Level</div></div>
+            </div>
+        </div>
+
+        <!-- Ultimate -->
+        <div class="pkg-card">
+            <div class="pkg-tier-label" style="color:#6d28d9">Ultimate</div>
+            <div class="pkg-price-big"><span>$</span>1,000</div>
+            <div class="pkg-usdt">1,000 USDT · Base Chain</div>
+            <div class="pkg-views-highlight">
+                <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:2px">Up To</div><div class="pkg-views-num">1,200,000</div>
+                <div class="pkg-views-label">Engaged Video Views</div>
+            </div>
+            <div class="pkg-divider"></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Real, engaged video views</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>AI-optimised delivery</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Full campaign analytics suite</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Affiliate programme access</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Ultimate audience targeting</span></div>
+            <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span><strong>VIP support + onboarding</strong></span></div>
+            <div class="pkg-spacer"></div>
+            <a href="#" class="pkg-btn pkg-btn" onclick="openRegModal();return false;">Activate Ultimate</a>
+            <div class="pkg-affiliate-earn">
+                <div class="pae-item"><div class="pae-val">$250.00</div><div class="pae-label">Direct Comm</div></div>
+                <div class="pae-item"><div class="pae-val">$87.50</div><div class="pae-label">Per Level</div></div>
+                <div class="pae-item"><div class="pae-val">$735.00</div><div class="pae-label">Uni-Level</div></div>
+            </div>
+        </div>
+
+    
+    </div>
             <div class="pkg-divider"></div>
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Real, engaged video views</span></div>
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>AI-optimised delivery</span></div>
@@ -351,8 +542,8 @@
         <!-- Basic -->
         <div class="pkg-card">
             <div class="pkg-tier-label">Builder</div>
-            <div class="pkg-price-big"><span>$</span>25</div>
-            <div class="pkg-usdt">25 USDT · Base Chain</div>
+            <div class="pkg-price-big"><span>$</span>50</div>
+            <div class="pkg-usdt">50 USDT · Base Chain</div>
             <div class="pkg-views-highlight">
                 <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:2px">Up To</div><div class="pkg-views-num">15,000</div>
                 <div class="pkg-views-label">Engaged Video Views</div>
@@ -375,8 +566,8 @@
         <!-- Growth -->
         <div class="pkg-card">
             <div class="pkg-tier-label">Pro</div>
-            <div class="pkg-price-big"><span>$</span>50</div>
-            <div class="pkg-usdt">50 USDT · Base Chain</div>
+            <div class="pkg-price-big"><span>$</span>100</div>
+            <div class="pkg-usdt">100 USDT · Base Chain</div>
             <div class="pkg-views-highlight">
                 <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:2px">Up To</div><div class="pkg-views-num">35,000</div>
                 <div class="pkg-views-label">Engaged Video Views</div>
@@ -399,9 +590,9 @@
         <!-- Pro - POPULAR -->
         <div class="pkg-card popular">
             <div class="popular-badge">★ Most Popular</div>
-            <div class="pkg-tier-label" style="color:#6d28d9">Pro</div>
-            <div class="pkg-price-big"><span>$</span>100</div>
-            <div class="pkg-usdt">100 USDT · Base Chain</div>
+            <div class="pkg-tier-label" style="color:#6d28d9">Advanced</div>
+            <div class="pkg-price-big"><span>$</span>200</div>
+            <div class="pkg-usdt">200 USDT · Base Chain</div>
             <div class="pkg-views-highlight" style="border-color:rgba(0,180,216,0.3);background:rgba(0,180,216,0.08)">
                 <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:2px">Up To</div><div class="pkg-views-num">80,000</div>
                 <div class="pkg-views-label">Engaged Video Views</div>
@@ -424,9 +615,9 @@
 
         <!-- Advanced -->
         <div class="pkg-card">
-            <div class="pkg-tier-label">Advanced</div>
-            <div class="pkg-price-big"><span>$</span>250</div>
-            <div class="pkg-usdt">250 USDT · Base Chain</div>
+            <div class="pkg-tier-label">Elite</div>
+            <div class="pkg-price-big"><span>$</span>400</div>
+            <div class="pkg-usdt">400 USDT · Base Chain</div>
             <div class="pkg-views-highlight">
                 <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:2px">Up To</div><div class="pkg-views-num">220,000</div>
                 <div class="pkg-views-label">Engaged Video Views</div>
@@ -449,9 +640,9 @@
 
         <!-- Elite -->
         <div class="pkg-card">
-            <div class="pkg-tier-label">Elite</div>
-            <div class="pkg-price-big"><span>$</span>500</div>
-            <div class="pkg-usdt">500 USDT · Base Chain</div>
+            <div class="pkg-tier-label">Premium</div>
+            <div class="pkg-price-big"><span>$</span>600</div>
+            <div class="pkg-usdt">600 USDT · Base Chain</div>
             <div class="pkg-views-highlight">
                 <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:2px">Up To</div><div class="pkg-views-num">500,000</div>
                 <div class="pkg-views-label">Engaged Video Views</div>
@@ -474,9 +665,9 @@
 
         <!-- Premium -->
         <div class="pkg-card">
-            <div class="pkg-tier-label">Premium</div>
-            <div class="pkg-price-big"><span>$</span>750</div>
-            <div class="pkg-usdt">750 USDT · Base Chain</div>
+            <div class="pkg-tier-label">Executive</div>
+            <div class="pkg-price-big"><span>$</span>800</div>
+            <div class="pkg-usdt">800 USDT · Base Chain</div>
             <div class="pkg-views-highlight">
                 <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:2px">Up To</div><div class="pkg-views-num">800,000</div>
                 <div class="pkg-views-label">Engaged Video Views</div>
