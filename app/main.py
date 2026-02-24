@@ -245,7 +245,8 @@ def for_advertisers(request: Request):
 # ── Referral link ─────────────────────────────────────────────
 @app.get("/ref/{username}")
 def referral_link(username: str, request: Request):
-    response = RedirectResponse(url=f"/register?ref={username}", status_code=302)
+    # Redirect to home page — modal opens automatically via ?join= param
+    response = RedirectResponse(url=f"/?join={username}", status_code=302)
     response.set_cookie(key="ref", value=username, max_age=60*60*24*30,
                         httponly=False, samesite="lax")
     return response

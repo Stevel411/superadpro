@@ -121,7 +121,33 @@
 
         @media(max-width:1000px) { .packages-grid { grid-template-columns:repeat(2,1fr); } }
         @media(max-width:600px) { .packages-grid { grid-template-columns:1fr; } .how-strip { grid-template-columns:1fr 1fr; } .trust-strip { gap:20px; } }
-    </style>
+    
+/* ── Registration Modal ───────────────────────────── */
+.reg-overlay{position:fixed;inset:0;background:rgba(1,8,20,0.85);backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.reg-overlay.open{opacity:1;pointer-events:all}
+.reg-modal{background:#0d1117;border:1px solid rgba(0,212,255,0.15);border-radius:18px;padding:36px 38px;width:100%;max-width:460px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);transform:translateY(20px);transition:transform 0.25s}
+.reg-overlay.open .reg-modal{transform:translateY(0)}
+.reg-close{position:absolute;top:14px;right:18px;background:none;border:none;color:rgba(200,220,255,0.4);font-size:22px;cursor:pointer;line-height:1;padding:4px 8px;border-radius:6px;transition:color 0.2s}
+.reg-close:hover{color:rgba(200,220,255,0.9)}
+.reg-title{font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
+.reg-sub{font-size:13px;color:rgba(200,220,255,0.5);margin-bottom:24px}
+.reg-field{margin-bottom:16px}
+.reg-label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(200,220,255,0.5);margin-bottom:6px}
+.reg-input{width:100%;padding:11px 14px;border:1.5px solid rgba(0,212,255,0.12);border-radius:9px;background:rgba(0,212,255,0.04);color:#fff;font-size:14px;font-family:inherit;box-sizing:border-box;transition:border-color 0.2s}
+.reg-input:focus{outline:none;border-color:#00d4ff;background:rgba(0,212,255,0.07)}
+.reg-input::placeholder{color:rgba(200,220,255,0.25)}
+.reg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.reg-terms{display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;font-size:12px;color:rgba(200,220,255,0.45);line-height:1.5}
+.reg-terms input{width:15px;height:15px;flex-shrink:0;margin-top:1px;accent-color:#00d4ff}
+.reg-terms a{color:rgba(0,212,255,0.7);text-decoration:none}
+.reg-submit{width:100%;padding:13px;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;transition:opacity 0.2s;letter-spacing:0.3px}
+.reg-submit:hover{opacity:0.9}
+.reg-submit:disabled{opacity:0.5;cursor:not-allowed}
+.reg-err{display:none;margin-bottom:14px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:12px;color:#dc2626;font-weight:600}
+.reg-login{text-align:center;margin-top:16px;font-size:12px;color:rgba(200,220,255,0.4)}
+.reg-login a{color:rgba(0,212,255,0.7);text-decoration:none;font-weight:600}
+@media(max-width:500px){.reg-modal{padding:28px 22px}.reg-row{grid-template-columns:1fr}}
+</style>
   <link rel="stylesheet" href="/static/mobile.css">
   <link rel="manifest" href="/static/manifest.json">
   <meta name="theme-color" content="#0a0a1a">
@@ -202,9 +228,53 @@
     </ul>
     <div style="display:flex;align-items:center;gap:10px">
         <a href="/login" style="font-size:13px;font-weight:600;color:rgba(200,230,210,0.6);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:7px;transition:all 0.2s" onmouseover="this.style.color='rgba(200,230,210,0.9)'" onmouseout="this.style.color='rgba(200,230,210,0.6)'">Sign In</a>
-        <a href="/register" class="nav-cta">Join Free</a>
+        <a href="#" class="nav-cta" onclick="openRegModal();return false;">Join Free</a>
     </div>
 </nav>
+<!-- ── Registration Modal ── -->
+<div class="reg-overlay" id="regOverlay" onclick="if(event.target===this)closeRegModal()">
+  <div class="reg-modal">
+    <button class="reg-close" onclick="closeRegModal()" aria-label="Close">✕</button>
+    <div class="reg-title">Create Your Free Account</div>
+    <div class="reg-sub">Takes 60 seconds · No credit card required</div>
+    <div id="regErr" class="reg-err"></div>
+    <form id="regModalForm">
+      <input type="hidden" id="regRef" name="ref" value="">
+      <div class="reg-field">
+        <label class="reg-label">First Name</label>
+        <input class="reg-input" type="text" id="regFirstName" name="first_name" placeholder="John" required autocomplete="given-name">
+      </div>
+      <div class="reg-field">
+        <label class="reg-label">Email Address</label>
+        <input class="reg-input" type="email" id="regEmail" name="email" placeholder="john@example.com" required autocomplete="email">
+      </div>
+      <div class="reg-field">
+        <label class="reg-label">Username <span style="font-weight:400;letter-spacing:0;text-transform:none;color:rgba(200,220,255,0.3)">&#8212; becomes your referral ID</span></label>
+        <input class="reg-input" type="text" id="regUsername" name="username" placeholder="johnsmith99" required autocomplete="off" pattern="[a-zA-Z0-9_]{3,30}">
+      </div>
+      <div class="reg-row">
+        <div class="reg-field">
+          <label class="reg-label">Password</label>
+          <input class="reg-input" type="password" id="regPw" name="password" placeholder="Min. 8 chars" required minlength="8" autocomplete="new-password">
+        </div>
+        <div class="reg-field">
+          <label class="reg-label">Confirm</label>
+          <input class="reg-input" type="password" id="regPwC" name="confirm_password" placeholder="Repeat" required autocomplete="new-password">
+        </div>
+      </div>
+      <div class="reg-field" id="regSponsorField" style="display:none">
+        <label class="reg-label">Referred by</label>
+        <input class="reg-input" type="text" id="regSponsor" placeholder="Sponsor username" autocomplete="off" readonly style="opacity:0.6">
+      </div>
+      <div class="reg-terms">
+        <input type="checkbox" id="regTerms" required>
+        <div>I agree to the <a href="/legal" target="_blank">Terms of Service</a> and <a href="/legal" target="_blank">Privacy Policy</a>.</div>
+      </div>
+      <button type="submit" class="reg-submit" id="regBtn">Create My Free Account →</button>
+    </form>
+    <div class="reg-login">Already have an account? <a href="/login">Sign in here →</a></div>
+  </div>
+</div>
 <div style="padding:20px 40px 0"><a href="/dashboard" style="display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:rgba(200,220,255,0.6);text-decoration:none;border:1px solid rgba(200,220,255,0.15);border-radius:8px;padding:8px 18px">← Back to Dashboard</a></div>
 
 <div class="page">
@@ -240,7 +310,7 @@
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Affiliate programme access</span></div>
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Grid position activated</span></div>
             <div class="pkg-spacer"></div>
-            <a href="/register" class="pkg-btn pkg-btn-outline">Activate Campaign Tier</a>
+            <a href="#" class="pkg-btn pkg-btn-outline" onclick="openRegModal();return false;">Activate Campaign Tier</a>
             <div class="pkg-affiliate-earn">
                 <div class="pae-item"><div class="pae-val">$2.00</div><div class="pae-label">Direct Comm</div></div>
                 <div class="pae-item"><div class="pae-val">$0.80</div><div class="pae-label">Per Level</div></div>
@@ -264,7 +334,7 @@
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Affiliate programme access</span></div>
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Priority queue placement</span></div>
             <div class="pkg-spacer"></div>
-            <a href="/register" class="pkg-btn pkg-btn-outline">Activate Campaign Tier</a>
+            <a href="#" class="pkg-btn pkg-btn-outline" onclick="openRegModal();return false;">Activate Campaign Tier</a>
             <div class="pkg-affiliate-earn">
                 <div class="pae-item"><div class="pae-val">$5.00</div><div class="pae-label">Direct Comm</div></div>
                 <div class="pae-item"><div class="pae-val">$2.00</div><div class="pae-label">Per Level</div></div>
@@ -288,7 +358,7 @@
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Affiliate programme access</span></div>
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Multi-campaign support</span></div>
             <div class="pkg-spacer"></div>
-            <a href="/register" class="pkg-btn pkg-btn-outline">Activate Campaign Tier</a>
+            <a href="#" class="pkg-btn pkg-btn-outline" onclick="openRegModal();return false;">Activate Campaign Tier</a>
             <div class="pkg-affiliate-earn">
                 <div class="pae-item"><div class="pae-val">$5.00</div><div class="pae-label">Direct Comm</div></div>
                 <div class="pae-item"><div class="pae-val">$4.00</div><div class="pae-label">Per Level</div></div>
@@ -314,7 +384,7 @@
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Multi-campaign support</span></div>
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span><strong>Pro audience targeting</strong></span></div>
             <div class="pkg-spacer"></div>
-            <a href="/register" class="pkg-btn">Activate Pro Campaign Tier</a>
+            <a href="#" class="pkg-btn" onclick="openRegModal();return false;">Activate Pro Campaign Tier</a>
             <div class="pkg-affiliate-earn">
                 <div class="pae-item"><div class="pae-val">$20.00</div><div class="pae-label">Direct Comm</div></div>
                 <div class="pae-item"><div class="pae-val">$8.00</div><div class="pae-label">Per Level</div></div>
@@ -339,7 +409,7 @@
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Advanced audience targeting</span></div>
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span><strong>Priority campaign delivery</strong></span></div>
             <div class="pkg-spacer"></div>
-            <a href="/register" class="pkg-btn pkg-btn-outline">Activate Campaign Tier</a>
+            <a href="#" class="pkg-btn pkg-btn-outline" onclick="openRegModal();return false;">Activate Campaign Tier</a>
             <div class="pkg-affiliate-earn">
                 <div class="pae-item"><div class="pae-val">$50.00</div><div class="pae-label">Direct Comm</div></div>
                 <div class="pae-item"><div class="pae-val">$20.00</div><div class="pae-label">Per Level</div></div>
@@ -364,7 +434,7 @@
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Elite audience targeting</span></div>
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span><strong>Dedicated campaign manager</strong></span></div>
             <div class="pkg-spacer"></div>
-            <a href="/register" class="pkg-btn pkg-btn-outline">Activate Campaign Tier</a>
+            <a href="#" class="pkg-btn pkg-btn-outline" onclick="openRegModal();return false;">Activate Campaign Tier</a>
             <div class="pkg-affiliate-earn">
                 <div class="pae-item"><div class="pae-val">$100.00</div><div class="pae-label">Direct Comm</div></div>
                 <div class="pae-item"><div class="pae-val">$40.00</div><div class="pae-label">Per Level</div></div>
@@ -389,7 +459,7 @@
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Premium audience targeting</span></div>
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span><strong>White-glove campaign setup</strong></span></div>
             <div class="pkg-spacer"></div>
-            <a href="/register" class="pkg-btn pkg-btn-outline">Activate Campaign Tier</a>
+            <a href="#" class="pkg-btn pkg-btn-outline" onclick="openRegModal();return false;">Activate Campaign Tier</a>
             <div class="pkg-affiliate-earn">
                 <div class="pae-item"><div class="pae-val">$150.00</div><div class="pae-label">Direct Comm</div></div>
                 <div class="pae-item"><div class="pae-val">$60.00</div><div class="pae-label">Per Level</div></div>
@@ -414,7 +484,7 @@
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span>Ultimate audience targeting</span></div>
             <div class="pkg-feature"><span class="pkg-feature-icon">✓</span> <span><strong>VIP support + onboarding</strong></span></div>
             <div class="pkg-spacer"></div>
-            <a href="/register" class="pkg-btn">Activate Ultimate</a>
+            <a href="#" class="pkg-btn" onclick="openRegModal();return false;">Activate Ultimate</a>
             <div class="pkg-affiliate-earn">
                 <div class="pae-item"><div class="pae-val">$200.00</div><div class="pae-label">Direct Comm</div></div>
                 <div class="pae-item"><div class="pae-val">$80.00</div><div class="pae-label">Per Level</div></div>
@@ -553,7 +623,7 @@
         <h2>Ready to <span class="gold">Get Started?</span></h2>
         <p>Register free, choose your campaign tier, and launch your first campaign today.</p>
         <div class="cta-btns">
-            <a href="/register" class="btn-gold">Create Free Account →</a>
+            <a href="#" class="btn-gold" onclick="openRegModal();return false;">Create Free Account →</a>
             <a href="/compensation-plan" class="btn-outline">View Affiliate Plan</a>
         </div>
     </div>
