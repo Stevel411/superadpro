@@ -15,6 +15,16 @@
         .particle { position:fixed; border-radius:50%; pointer-events:none; z-index:2; opacity:0; animation:floatUp linear infinite; }
         @keyframes floatUp { 0%{transform:translateY(100vh);opacity:0} 10%{opacity:0.8} 85%{opacity:0.4} 100%{transform:translateY(-5vh);opacity:0} }
 
+        /* Hamburger + Mobile Menu */
+        .hamburger{display:none;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:4px 8px}
+        .mobile-menu{display:none;position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(5,13,26,0.98);backdrop-filter:blur(12px);z-index:99;overflow-y:auto}
+        .mobile-menu.open{display:block}
+        .mobile-menu-inner{padding:24px;display:flex;flex-direction:column;gap:4px}
+        .mobile-menu-inner a{display:block;padding:14px 16px;font-size:16px;font-weight:600;color:rgba(200,220,255,0.8);text-decoration:none;border-radius:8px;transition:background 0.2s}
+        .mobile-menu-inner a:hover{background:rgba(0,180,216,0.1);color:#fff}
+        @media(max-width:900px){.hamburger{display:block}}
+        @media(min-width:901px){.mobile-menu{display:none!important}}
+
         /* Nav */
         nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 36px; height:60px; background:rgba(1,10,5,0.8); backdrop-filter:blur(18px); border-bottom:1px solid rgba(0,180,216,0.12); }
         .nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; }
@@ -227,9 +237,22 @@
             .ad-screen{width:100%;height:auto;aspect-ratio:16/9}
             .metric-col{display:none}
             footer{flex-direction:column;gap:14px;text-align:center}
+            nav{padding:0 16px}
+            .hero-title{font-size:clamp(24px,6vw,44px)!important}
+            .hero-sub{font-size:15px!important;padding:0 8px}
+            .hero-btns{flex-direction:column;align-items:center;gap:10px}
+            .hero-btns a{width:100%;max-width:280px;text-align:center}
+            .nav-cta{font-size:13px;padding:7px 16px}
         }
         @media(max-width:600px){
             .for-grid,.steps,.packages-grid{grid-template-columns:1fr}
+            nav{height:52px}
+            .nav-brand{font-size:14px}
+            .section-padding,.page > *{padding-left:16px!important;padding-right:16px!important}
+            .hero{padding:80px 16px 40px!important}
+            [style*="grid-template-columns:repeat(3"]{grid-template-columns:1fr!important}
+            [style*="grid-template-columns:repeat(4"]{grid-template-columns:1fr 1fr!important}
+            [style*="grid-template-columns:1fr 1fr;gap:40px"]{grid-template-columns:1fr!important;gap:24px!important}
         }
     
 
@@ -324,10 +347,27 @@
         <li><a href="/support">Support</a></li>
     </ul>
     <div style="display:flex;align-items:center;gap:10px">
-        <a href="#" onclick="mOpen('mLogin');return false;" onclick="openLoginModal();return false;" onclick="openLoginModal();return false;" style="font-size:13px;font-weight:600;color:rgba(200,230,210,0.6);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:7px;transition:all 0.2s" onmouseover="this.style.color='rgba(200,230,210,0.9)'" onmouseout="this.style.color='rgba(200,230,210,0.6)'">Log In</a>
+        <a href="#" onclick="mOpen('mLogin');return false;" style="font-size:13px;font-weight:600;color:rgba(200,230,210,0.6);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:7px;transition:all 0.2s" onmouseover="this.style.color='rgba(200,230,210,0.9)'" onmouseout="this.style.color='rgba(200,230,210,0.6)'">Log In</a>
         <a href="#" class="nav-cta" onclick="mOpen('mReg');return false;">Register Here</a>
+        <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">☰</button>
     </div>
 </nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-inner">
+        <a href="/how-it-works">How It Works</a>
+        <a href="/for-advertisers">Advertisers</a>
+        <a href="/compensation-plan">Affiliates</a>
+        <a href="/packages">Pricing</a>
+        <a href="/faq">FAQ</a>
+        <a href="/support">Support</a>
+        <div style="border-top:1px solid rgba(0,180,216,0.15);margin:12px 0;padding-top:12px;display:flex;flex-direction:column;gap:10px">
+            <a href="#" onclick="mOpen('mLogin');toggleMobileMenu();return false;" style="color:#00d4ff">Log In</a>
+            <a href="#" onclick="mOpen('mReg');toggleMobileMenu();return false;" class="nav-cta" style="text-align:center;display:block">Register Here</a>
+        </div>
+    </div>
+</div>
 
 <!-- LOGIN MODAL -->
 <div class="m-overlay" id="mLogin" onclick="if(event.target===this)mClose('mLogin')">
@@ -1484,6 +1524,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
+/* === MOBILE MENU === */
+function toggleMobileMenu(){
+  var m=document.getElementById('mobileMenu');
+  if(m) m.classList.toggle('open');
+}
+
 /* === MODAL JS === */
 function mOpen(id, sponsor) {
   var el = document.getElementById(id);

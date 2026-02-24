@@ -131,6 +131,25 @@
 .reg-login{text-align:center;margin-top:16px;font-size:12px;color:rgba(200,220,255,0.4)}
 .reg-login a{color:rgba(0,212,255,0.7);text-decoration:none;font-weight:600}
 @media(max-width:500px){.reg-modal,.login-modal{padding:28px 22px}.reg-row{grid-template-columns:1fr}}
+
+/* Hamburger + Mobile Menu */
+.hamburger{display:none;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:4px 8px}
+.mobile-menu{display:none;position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(5,13,26,0.98);backdrop-filter:blur(12px);z-index:99;overflow-y:auto}
+.mobile-menu.open{display:block}
+.mobile-menu-inner{padding:24px;display:flex;flex-direction:column;gap:4px}
+.mobile-menu-inner a{display:block;padding:14px 16px;font-size:16px;font-weight:600;color:rgba(200,220,255,0.8);text-decoration:none;border-radius:8px;transition:background 0.2s}
+.mobile-menu-inner a:hover{background:rgba(0,180,216,0.1);color:#fff}
+@media(max-width:900px){
+  .hamburger{display:block}
+  .nav-links{display:none!important}
+  nav{padding:0 16px}
+}
+@media(min-width:901px){.mobile-menu{display:none!important}}
+@media(max-width:600px){
+  nav{height:52px}
+  .nav-brand{font-size:14px!important}
+}
+
 </style>
 </head>
 <body>
@@ -184,6 +203,7 @@
     <div style="display:flex;align-items:center;gap:10px">
         <a href="#" onclick="openLoginModal();return false;" style="font-size:13px;font-weight:600;color:rgba(200,230,210,0.6);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:7px;transition:all 0.2s" onmouseover="this.style.color='rgba(200,230,210,0.9)'" onmouseout="this.style.color='rgba(200,230,210,0.6)'">Log In</a>
         <a href="#" class="nav-cta" onclick="openRegModal();return false;">Register Here</a>
+        <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">☰</button>
     </div>
 </nav>
 
@@ -537,4 +557,6 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 </body>
+
+<script>function toggleMobileMenu(){var m=document.getElementById('mobileMenu');if(m)m.classList.toggle('open');}</script>
 </html>

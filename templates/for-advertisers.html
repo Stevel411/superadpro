@@ -136,6 +136,25 @@
 .m-foot a{color:rgba(0,212,255,0.8);text-decoration:none;font-weight:600}
 @media(max-width:520px){.m-box{padding:26px 20px}.m-row{grid-template-columns:1fr}}
 /* === END MODAL STYLES === */
+
+/* Hamburger + Mobile Menu */
+.hamburger{display:none;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:4px 8px}
+.mobile-menu{display:none;position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(5,13,26,0.98);backdrop-filter:blur(12px);z-index:99;overflow-y:auto}
+.mobile-menu.open{display:block}
+.mobile-menu-inner{padding:24px;display:flex;flex-direction:column;gap:4px}
+.mobile-menu-inner a{display:block;padding:14px 16px;font-size:16px;font-weight:600;color:rgba(200,220,255,0.8);text-decoration:none;border-radius:8px;transition:background 0.2s}
+.mobile-menu-inner a:hover{background:rgba(0,180,216,0.1);color:#fff}
+@media(max-width:900px){
+  .hamburger{display:block}
+  .nav-links{display:none!important}
+  nav{padding:0 16px}
+}
+@media(min-width:901px){.mobile-menu{display:none!important}}
+@media(max-width:600px){
+  nav{height:52px}
+  .nav-brand{font-size:14px!important}
+}
+
 </style>
 </head>
 <body>
@@ -179,8 +198,25 @@
     <div style="display:flex;align-items:center;gap:10px">
         <a href="#" onclick="mOpen('mLogin');return false;" onclick="openLoginModal();return false;" onclick="openLoginModal();return false;" style="font-size:13px;font-weight:600;color:rgba(200,230,210,0.6);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:7px;transition:all 0.2s" onmouseover="this.style.color='rgba(200,230,210,0.9)'" onmouseout="this.style.color='rgba(200,230,210,0.6)'">Log In</a>
         <a href="#" class="nav-cta" onclick="mOpen('mReg');return false;">Register Here</a>
+        <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">☰</button>
     </div>
 </nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-inner">
+        <a href="/how-it-works">How It Works</a>
+        <a href="/for-advertisers">Advertisers</a>
+        <a href="/compensation-plan">Affiliates</a>
+        <a href="/packages">Pricing</a>
+        <a href="/faq">FAQ</a>
+        <a href="/support">Support</a>
+        <div style="border-top:1px solid rgba(0,180,216,0.15);margin:12px 0;padding-top:12px;display:flex;flex-direction:column;gap:10px">
+            <a href="#" onclick="mOpen('mLogin');toggleMobileMenu();return false;" style="color:#00d4ff">Log In</a>
+            <a href="#" onclick="mOpen('mReg');toggleMobileMenu();return false;" style="text-align:center;display:block;background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff;padding:12px;border-radius:8px;font-weight:700">Register Here</a>
+        </div>
+    </div>
+</div>
 
 <!-- LOGIN MODAL -->
 <div class="m-overlay" id="mLogin" onclick="if(event.target===this)mClose('mLogin')">
@@ -811,4 +847,6 @@ async function doRegister(e) {
 })();
 /* === END MODAL JS === */</script>
 </body>
+
+<script>function toggleMobileMenu(){var m=document.getElementById('mobileMenu');if(m)m.classList.toggle('open');}</script>
 </html>
