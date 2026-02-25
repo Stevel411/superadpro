@@ -1842,7 +1842,7 @@ def test_email(secret: str, email: str):
     try:
         from app.email_utils import send_commission_email, send_welcome_email
         r1 = send_welcome_email(email, "Steve", "SuperAdPro")
-        r2 = send_commission_email(email, "Steve", 25.00, "Direct Sponsor", "testuser123")
+        r2 = send_commission_email(email, "Steve", "Direct Sponsor", "testuser123")
         return JSONResponse({"welcome_sent": r1, "commission_sent": r2})
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)

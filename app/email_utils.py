@@ -184,7 +184,8 @@ def send_password_reset_email(to_email: str, first_name: str, reset_token: str) 
 # ═══════════════════════════════════════════════════════════════
 # Commission Notification Email
 # ═══════════════════════════════════════════════════════════════
-def send_commission_email(to_email: str, first_name: str, amount: float, commission_type: str, from_username: str) -> bool:
+def send_commission_email(to_email: str, first_name: str, commission_type: str = "Affiliate", from_username: str = "") -> bool:
+    from_line = f" from <strong>{from_username}</strong>" if from_username else ""
     html_body = f"""<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
@@ -195,18 +196,20 @@ def send_commission_email(to_email: str, first_name: str, amount: float, commiss
 
   <tr><td style="background:linear-gradient(135deg,#16a34a,#059669);padding:28px 32px;text-align:center">
     <div style="font-size:22px;font-weight:900;color:#fff;letter-spacing:3px;text-transform:uppercase">SuperAdPro</div>
-    <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px;letter-spacing:1px">Cha-Ching! You Received a Commission!</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px;letter-spacing:1px">Commission Received!</div>
   </td></tr>
 
   <tr><td style="padding:36px 32px;text-align:center">
-    <p style="margin:0 0 8px;font-size:14px;color:#64748b">Cha-Ching!</p>
-    <p style="margin:0 0 8px;font-size:42px;font-weight:900;color:#16a34a">${amount:.2f}</p>
-    <p style="margin:0 0 24px;font-size:14px;color:rgba(200,220,255,0.6)">{commission_type} commission from {from_username}</p>
+    <p style="margin:0 0 12px;font-size:42px">&#127881;</p>
+    <p style="margin:0 0 8px;font-size:22px;font-weight:800;color:#16a34a">Cha-Ching!</p>
+    <p style="margin:0 0 8px;font-size:16px;color:#e2e8f0">Hey {first_name}, you just received a commission!</p>
+    <p style="margin:0 0 24px;font-size:14px;color:rgba(200,220,255,0.5)">{commission_type} commission{from_line}</p>
+    <p style="margin:0 0 28px;font-size:13px;color:rgba(200,220,255,0.4)">Log in to your dashboard to see the full details and your updated balance.</p>
 
     <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:10px 0">
-      <a href="{SITE_URL}/wallet"
+      <a href="{SITE_URL}/dashboard"
          style="display:inline-block;background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff;font-size:15px;font-weight:700;text-decoration:none;padding:14px 36px;border-radius:6px">
-        View My Wallet
+        View My Dashboard
       </a>
     </td></tr></table>
   </td></tr>
@@ -226,7 +229,7 @@ def send_commission_email(to_email: str, first_name: str, amount: float, commiss
 
     return send_email(
         to_email  = to_email,
-        subject   = f"Cha-Ching! You earned ${amount:.2f} on SuperAdPro!",
+        subject   = "Cha-Ching! You received a commission on SuperAdPro!",
         html_body = html_body,
     )
 
