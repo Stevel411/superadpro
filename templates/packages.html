@@ -80,10 +80,11 @@
         .div-line { flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(0,180,216,0.2),transparent); }
         .div-text { font-size:17px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(220,242,230,0.4); white-space:nowrap; }
 
-        .compare-table { width:100%; border-collapse:collapse; margin:0 auto 56px; max-width:1100px; }
-        .compare-table th { padding:14px 18px; text-align:left; font-size:17px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(200,220,255,0.45); border-bottom:2px solid rgba(0,180,216,0.2); background:rgba(10,18,40,0.9); }
-        .compare-table th:first-child { width:180px; }
-        .compare-table td { padding:13px 18px; font-size:18px; border-bottom:1px solid rgba(255,255,255,0.05); color:rgba(200,220,255,0.7); text-align:left; }
+        .compare-table-wrap { max-width:1100px; margin:0 auto 56px; padding:0 32px; box-sizing:border-box; overflow-x:auto; }
+        .compare-table { width:100%; border-collapse:collapse; min-width:800px; }
+        .compare-table th { padding:12px 14px; text-align:left; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(200,220,255,0.45); border-bottom:2px solid rgba(0,180,216,0.2); background:rgba(10,18,40,0.9); }
+        .compare-table th:first-child { width:140px; }
+        .compare-table td { padding:11px 14px; font-size:14px; border-bottom:1px solid rgba(255,255,255,0.05); color:rgba(200,220,255,0.7); text-align:left; }
         .compare-table tr:last-child td { border-bottom:none; }
         .compare-table tr:hover td { background:rgba(5,13,26,0.8); }
         .compare-table tbody tr:nth-child(even) td { background:rgba(5,13,26,0.8); }
@@ -596,6 +597,7 @@
 
     <!-- COMPARISON TABLE -->
     <div class="divider"><div class="div-line"></div><div class="div-text">Full Campaign Tier Comparison</div><div class="div-line"></div></div>
+    <div class="compare-table-wrap">
     <table class="compare-table">
         <thead>
             <tr>
@@ -673,6 +675,7 @@
             </tr>
         </tbody>
     </table>
+    </div>
 
     <!-- TRUST STRIP -->
     <div class="trust-strip">
