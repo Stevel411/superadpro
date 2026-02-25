@@ -1527,6 +1527,13 @@ async def api_register(
             country="",
         )
 
+        # Send welcome email (fails silently if not configured)
+        try:
+            from app.email_utils import send_welcome_email
+            send_welcome_email(email, first_name, username)
+        except Exception as e:
+            logger.warning(f"Welcome email failed for {email}: {e}")
+
         response = JSONResponse({"success": True, "redirect": "/dashboard?new=1"})
         set_secure_cookie(response, user.id)
         return response
