@@ -546,17 +546,22 @@
                     <div id="gridViz" style="display:grid;grid-template-columns:repeat(8,1fr);gap:3px;max-width:320px;margin:0 auto 10px"></div>
                     <div style="display:flex;justify-content:center;gap:16px;font-size:18px;color:rgba(200,220,255,0.5);margin-bottom:8px">
                         <span style="color:#00d4ff">■ You (owner)</span>
-                        <span style="color:rgba(0,212,255,0.7)">■ Filled</span>
+                        <span style="color:#10b981">■ Your referral (+$25)</span>
+                        <span style="color:rgba(0,212,255,0.7)">■ Overspill (+$8.75)</span>
                         <span style="color:rgba(255,255,255,0.2)">□ Open</span>
                     </div>
                     <div style="background:rgba(0,0,0,0.2);border-radius:6px;padding:8px 12px;font-size:17px;max-width:320px;margin:0 auto;display:flex;flex-direction:column;gap:5px">
                         <div style="display:flex;justify-content:space-between">
-                            <span style="color:rgba(200,220,255,0.5)">Your Uni-Level earned:</span>
-                            <span id="poolEarned" style="color:#00d4ff;font-weight:700">$0.00</span>
+                            <span style="color:rgba(200,220,255,0.5)">Direct Sponsor (25%):</span>
+                            <span id="sponsorEarned" style="color:#10b981;font-weight:700">$0.00</span>
                         </div>
                         <div style="display:flex;justify-content:space-between">
-                            <span style="color:rgba(200,220,255,0.5)">Uni-Level Income earned (upline):</span>
-                            <span id="uplineEarned" style="color:#7c9fff;font-weight:700">$0.00</span>
+                            <span style="color:rgba(200,220,255,0.5)">Uni-Level (8.75%):</span>
+                            <span id="poolEarned" style="color:#00d4ff;font-weight:700">$0.00</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.1);padding-top:5px;margin-top:2px">
+                            <span style="color:rgba(200,220,255,0.7);font-weight:700">Total earned:</span>
+                            <span id="totalEarned" style="color:#fff;font-weight:800">$0.00</span>
                         </div>
                     </div>
                 </div>
@@ -587,13 +592,16 @@
     (function(){
         const g = document.getElementById('gridViz');
         const poolEl = document.getElementById('poolEarned');
+        const sponsorEl = document.getElementById('sponsorEarned');
+        const totalEl = document.getElementById('totalEarned');
         if(!g) return;
 
-        const PKG = 100;           // $100 USDT tier
-        const ENTRANTS = 63;       // 63 people fill the grid (owner holds seat 0)
-        const PER_SEAT = PKG * 0.0875; // $8.75 — your uni-level per seat fill
-        const LEVELS = 8;
-        const SEATS_PER_LEVEL = 8;
+        const PKG = 100;
+        const UNI_PER_SEAT = PKG * 0.0875;   // $8.75
+        const DIRECT_BONUS = PKG * 0.25;      // $25.00
+
+        // 8 personal referrals scattered across the grid (realistic mix)
+        const DIRECT_SEATS = new Set([1, 5, 10, 18, 25, 33, 42, 55]);
 
         const cells = [];
         for(let i=0;i<64;i++){
@@ -602,12 +610,13 @@
             g.appendChild(c); cells.push(c);
         }
 
-        // Cell 0 = you (grid owner)
+        // Cell 0 = you (grid owner) — show direct sponsor commission you earn
         cells[0].style.background = '#00d4ff';
-        cells[0].innerHTML = '<span style="font-size:7px;font-weight:800;color:#050d1a;line-height:1.2;text-align:center">YOU<br>$' + PKG + '</span>';
+        cells[0].innerHTML = '<span style="font-size:7px;font-weight:800;color:#050d1a;line-height:1.2;text-align:center">YOU</span>';
 
         let filled = 1;
-        let poolTotal = 0;
+        let uniTotal = 0;
+        let sponsorTotal = 0;
 
         function tick(){
             if(filled >= 64){
@@ -615,29 +624,44 @@
                     cells.forEach((c,i)=>{
                         if(i === 0){
                             c.style.background = '#00d4ff';
-                            c.innerHTML = '<span style="font-size:7px;font-weight:800;color:#050d1a;line-height:1.2;text-align:center">YOU<br>$' + PKG + '</span>';
+                            c.innerHTML = '<span style="font-size:7px;font-weight:800;color:#050d1a;line-height:1.2;text-align:center">YOU</span>';
                         } else {
                             c.style.background = 'rgba(255,255,255,0.07)';
                             c.innerHTML = '';
                         }
                     });
                     filled = 1;
-                    poolTotal = 0;
+                    uniTotal = 0;
+                    sponsorTotal = 0;
                     if(poolEl) poolEl.textContent = '$0.00';
-                    const upEl = document.getElementById('uplineEarned');
-                    if(upEl) upEl.textContent = '$0.00';
+                    if(sponsorEl) sponsorEl.textContent = '$0.00';
+                    if(totalEl) totalEl.textContent = '$0.00';
                     setTimeout(tick, 1000);
                 }, 2500);
                 return;
             }
-            const opacity = 0.25 + (filled / 80);
-            cells[filled].style.background = `rgba(0,212,255,${Math.min(opacity,0.85)})`;
-            // Show per-seat commission in cell
-            cells[filled].innerHTML = `<span style="font-size:7px;font-weight:800;color:rgba(255,255,255,0.9);line-height:1;text-align:center">+$${PER_SEAT.toFixed(2)}</span>`;
-            poolTotal += PER_SEAT;
-            if(poolEl) poolEl.textContent = '$' + poolTotal.toFixed(2);
-            const uplineEl = document.getElementById('uplineEarned');
-            if(uplineEl) uplineEl.textContent = '$' + poolTotal.toFixed(2);
+
+            const isDirect = DIRECT_SEATS.has(filled);
+
+            // Everyone earns you uni-level
+            uniTotal += UNI_PER_SEAT;
+
+            if(isDirect){
+                // Personal referral — green, shows +$25 direct sponsor bonus
+                sponsorTotal += DIRECT_BONUS;
+                cells[filled].style.background = 'linear-gradient(135deg,#10b981,#059669)';
+                cells[filled].style.boxShadow = '0 0 8px rgba(16,185,129,0.4)';
+                cells[filled].innerHTML = '<span style="font-size:7px;font-weight:800;color:#fff;line-height:1;text-align:center">+$' + DIRECT_BONUS.toFixed(0) + '</span>';
+            } else {
+                // Overspill — cyan, shows +$8.75 uni-level
+                const opacity = 0.3 + (filled / 80);
+                cells[filled].style.background = 'rgba(0,212,255,' + Math.min(opacity,0.85) + ')';
+                cells[filled].innerHTML = '<span style="font-size:7px;font-weight:800;color:rgba(255,255,255,0.9);line-height:1;text-align:center">+$' + UNI_PER_SEAT.toFixed(2) + '</span>';
+            }
+
+            if(poolEl) poolEl.textContent = '$' + uniTotal.toFixed(2);
+            if(sponsorEl) sponsorEl.textContent = '$' + sponsorTotal.toFixed(2);
+            if(totalEl) totalEl.textContent = '$' + (uniTotal + sponsorTotal).toFixed(2);
             filled++;
             setTimeout(tick, 150);
         }
