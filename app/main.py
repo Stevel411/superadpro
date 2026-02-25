@@ -2036,7 +2036,7 @@ def activate_owner(secret: str, username: str, db: Session = Depends(get_db)):
             results.append(f"Tier {tier} grid activated (${int(price)})")
 
         # 3. Set watch quota to Tier 8
-        from datetime import date
+        from datetime import date, timedelta
         quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
         if not quota:
             quota = WatchQuota(user_id=user.id, package_tier=8,
@@ -2047,6 +2047,26 @@ def activate_owner(secret: str, username: str, db: Session = Depends(get_db)):
         else:
             quota.package_tier=8; quota.daily_required=8; quota.commissions_paused=False
         results.append("Watch quota set to Tier 8 (8 videos/day)")
+
+        # 4. Set up membership renewal (no expiry for owner)
+        renewal = db.query(MembershipRenewal).filter(MembershipRenewal.user_id == user.id).first()
+        now = datetime.utcnow()
+        if not renewal:
+            renewal = MembershipRenewal(
+                user_id=user.id,
+                activated_at=now,
+                next_renewal_date=now + timedelta(days=36500),  # 100 years — owner never expires
+                last_renewed_at=now,
+                renewal_source="manual",
+                total_renewals=0,
+            )
+            db.add(renewal)
+        else:
+            renewal.activated_at = renewal.activated_at or now
+            renewal.next_renewal_date = now + timedelta(days=36500)
+            renewal.last_renewed_at = now
+            renewal.in_grace_period = False
+        results.append("Membership renewal set (owner — never expires)")
 
         user.balance = 0.00
         user.total_earned = 0.00
