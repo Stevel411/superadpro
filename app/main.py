@@ -26,7 +26,7 @@ from .grid import (
 )
 from .email_utils import send_password_reset_email
 from .video_utils import parse_video_url, platform_label, platform_colour
-from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, MembershipRenewal, P2PTransfer
+from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, MembershipRenewal, P2PTransfer, FunnelPage
 from .database import PasswordResetToken
 import secrets
 from datetime import timedelta
@@ -1194,6 +1194,234 @@ def check_and_increment_ai_quota(db: Session, user_id: int, tool: str) -> dict:
     setattr(quota, total_field, getattr(quota, total_field, 0) + 1)
     db.commit()
     return {"allowed": True, "used": current + 1, "limit": limit, "resets_in": ""}
+
+
+# ═══════════════════════════════════════════════════════════════
+#  FUNNEL PAGE BUILDER
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/funnels")
+def funnels_page(request: Request, user: User = Depends(get_current_user),
+                 db: Session = Depends(get_db)):
+    if not user: return RedirectResponse(url="/?login=1")
+    if not user.is_active: return RedirectResponse(url="/pay-membership")
+    ctx = get_dashboard_context(request, user, db)
+    pages = db.query(FunnelPage).filter(FunnelPage.user_id == user.id).order_by(FunnelPage.created_at.desc()).all()
+    ctx["pages"] = pages
+    return templates.TemplateResponse("funnels.html", ctx)
+
+
+@app.get("/funnels/new")
+def funnel_new(request: Request, user: User = Depends(get_current_user),
+               db: Session = Depends(get_db)):
+    if not user: return RedirectResponse(url="/?login=1")
+    if not user.is_active: return RedirectResponse(url="/pay-membership")
+    ctx = get_dashboard_context(request, user, db)
+    ctx["page"] = None  # new page
+    ctx["edit_mode"] = True
+    return templates.TemplateResponse("funnel-editor.html", ctx)
+
+
+@app.get("/funnels/edit/{page_id}")
+def funnel_edit(page_id: int, request: Request, user: User = Depends(get_current_user),
+                db: Session = Depends(get_db)):
+    if not user: return RedirectResponse(url="/?login=1")
+    page = db.query(FunnelPage).filter(FunnelPage.id == page_id, FunnelPage.user_id == user.id).first()
+    if not page: raise HTTPException(status_code=404, detail="Page not found")
+    ctx = get_dashboard_context(request, user, db)
+    ctx["page"] = page
+    ctx["edit_mode"] = True
+    return templates.TemplateResponse("funnel-editor.html", ctx)
+
+
+@app.post("/api/funnels/save")
+async def funnel_save(request: Request, user: User = Depends(get_current_user),
+                      db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    page_id = body.get("id")
+    if page_id:
+        page = db.query(FunnelPage).filter(FunnelPage.id == page_id, FunnelPage.user_id == user.id).first()
+        if not page:
+            return JSONResponse({"error": "Page not found"}, status_code=404)
+    else:
+        page = FunnelPage(user_id=user.id)
+        db.add(page)
+
+    # Generate slug from title + username
+    import re
+    title = body.get("title", "My Page").strip()
+    raw_slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
+    slug = f"{user.username.lower()}/{raw_slug}"
+
+    # Ensure unique slug
+    existing = db.query(FunnelPage).filter(FunnelPage.slug == slug, FunnelPage.id != (page.id if page.id else -1)).first()
+    if existing:
+        slug = f"{slug}-{page.id or 'new'}"
+
+    page.title = title
+    page.slug = slug
+    page.template_type = body.get("template_type", "opportunity")
+    page.headline = body.get("headline", "")
+    page.subheadline = body.get("subheadline", "")
+    page.body_copy = body.get("body_copy", "")
+    page.cta_text = body.get("cta_text", "Get Started Now")
+    page.cta_url = body.get("cta_url", "")
+    page.video_url = body.get("video_url", "")
+    page.image_url = body.get("image_url", "")
+    page.color_scheme = body.get("color_scheme", "dark")
+    page.accent_color = body.get("accent_color", "#00d4ff")
+    page.status = body.get("status", "draft")
+    page.funnel_name = body.get("funnel_name", "")
+
+    db.commit()
+    db.refresh(page)
+
+    return JSONResponse({
+        "success": True,
+        "id": page.id,
+        "slug": page.slug,
+        "status": page.status,
+        "preview_url": f"/p/{page.slug}",
+    })
+
+
+@app.post("/api/funnels/generate-copy")
+async def funnel_generate_copy(request: Request, user: User = Depends(get_current_user),
+                                db: Session = Depends(get_db)):
+    """AI generates landing page copy based on member's brief."""
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    rl = check_and_increment_ai_quota(db, user.id, "campaign_studio")
+    if not rl["allowed"]:
+        return JSONResponse({"error": f"Daily AI limit reached. Resets in {rl['resets_in']}."}, status_code=429)
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    template_type = body.get("template_type", "opportunity")
+    niche = body.get("niche", "online income")
+    offer = body.get("offer", "")
+    audience = body.get("audience", "")
+    tone = body.get("tone", "professional and exciting")
+
+    type_prompts = {
+        "opportunity": "an opportunity/income presentation landing page. The visitor should feel excited about a real opportunity and want to learn more. Include social proof elements and urgency.",
+        "optin": "a lead capture / opt-in page. The visitor should want to enter their email to receive something valuable. Focus on the free value proposition and what they'll learn.",
+        "bridge": "a bridge page. This is a personal story/recommendation page that builds trust before sending the visitor to the main offer. Write in first person, be authentic and relatable.",
+        "webinar": "a webinar/event registration page. Create urgency around a live event, highlight what they'll learn, and emphasise limited spots or time-sensitivity.",
+        "thankyou": "a thank you / confirmation page. Confirm their action, build excitement for what's coming next, and include a secondary CTA or next step.",
+    }
+
+    page_context = type_prompts.get(template_type, type_prompts["opportunity"])
+
+    prompt = f"""You are an expert direct-response copywriter specialising in affiliate marketing and network marketing landing pages.
+
+Create compelling copy for {page_context}
+
+BRIEF:
+- Niche: {niche}
+- Offer: {offer if offer else "an online income opportunity"}
+- Target audience: {audience if audience else "people looking to earn extra income online"}
+- Tone: {tone}
+
+Respond ONLY with a JSON object (no markdown, no backticks) containing:
+{{
+  "headline": "A powerful, attention-grabbing headline (max 12 words)",
+  "subheadline": "A supporting line that builds on the headline (max 25 words)",
+  "body_copy": "3-5 bullet points separated by newlines, each starting with ✓. Focus on benefits and outcomes, not features.",
+  "cta_text": "Action-oriented button text (3-5 words)"
+}}
+
+Make every word count. Use power words. Create genuine curiosity and desire. Avoid hype — be compelling but believable."""
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return JSONResponse({
+            "headline": f"Discover the {niche.title()} System That's Changing Everything",
+            "subheadline": f"Join thousands who are building real income with a proven step-by-step system",
+            "body_copy": f"✓ Learn the exact strategy top earners use in {niche}\n✓ No experience needed — full training included\n✓ Start seeing results in your first week\n✓ Access a community of like-minded entrepreneurs\n✓ Limited spots available at this price",
+            "cta_text": "Get Started Now",
+            "demo": True,
+        })
+
+    try:
+        import anthropic, json
+        client = anthropic.Anthropic(api_key=api_key)
+        message = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=800,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        text = message.content[0].text.strip()
+        # Strip markdown fences if present
+        if text.startswith("```"):
+            text = text.split("\n", 1)[1] if "\n" in text else text[3:]
+        if text.endswith("```"):
+            text = text[:-3]
+        data = json.loads(text)
+        return JSONResponse(data)
+    except Exception as e:
+        logger.error(f"Funnel AI copy error: {e}")
+        return JSONResponse({
+            "headline": f"Your {niche.title()} Success Starts Here",
+            "subheadline": "The proven system for building real income online",
+            "body_copy": "✓ Step-by-step training included\n✓ No experience required\n✓ Proven results from real people\n✓ Full support and community\n✓ Start today risk-free",
+            "cta_text": "Get Started Now",
+        })
+
+
+@app.post("/api/funnels/delete/{page_id}")
+def funnel_delete(page_id: int, user: User = Depends(get_current_user),
+                  db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    page = db.query(FunnelPage).filter(FunnelPage.id == page_id, FunnelPage.user_id == user.id).first()
+    if not page:
+        return JSONResponse({"error": "Page not found"}, status_code=404)
+    db.delete(page)
+    db.commit()
+    return JSONResponse({"success": True})
+
+
+# ── Public page renderer (no auth required) ──────────────────
+@app.get("/p/{username}/{page_slug:path}")
+def render_funnel_page(username: str, page_slug: str, request: Request,
+                       db: Session = Depends(get_db)):
+    slug = f"{username}/{page_slug}"
+    page = db.query(FunnelPage).filter(FunnelPage.slug == slug).first()
+    if not page or page.status != "published":
+        raise HTTPException(status_code=404, detail="Page not found")
+
+    # Track view
+    page.views = (page.views or 0) + 1
+    db.commit()
+
+    return templates.TemplateResponse("funnel-render.html", {
+        "request": request,
+        "page": page,
+    })
+
+
+@app.get("/api/funnels/track-click/{page_id}")
+def track_click(page_id: int, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    page = db.query(FunnelPage).filter(FunnelPage.id == page_id).first()
+    if page:
+        page.clicks = (page.clicks or 0) + 1
+        db.commit()
+    return JSONResponse({"ok": True})
 
 
 # ═══════════════════════════════════════════════════════════════

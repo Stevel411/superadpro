@@ -242,6 +242,37 @@ class AIUsageQuota(Base):
     niche_finder_total  = Column(Integer, default=0)          # lifetime total
     updated_at          = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+class FunnelPage(Base):
+    """Member-created landing pages and funnel steps."""
+    __tablename__ = "funnel_pages"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), index=True)
+    slug            = Column(String, index=True)           # unique URL slug: username/page-name
+    title           = Column(String, nullable=False)       # page title
+    template_type   = Column(String, default="opportunity") # opportunity/optin/bridge/webinar/thankyou
+    status          = Column(String, default="draft")      # draft/published
+    # Content fields (JSON-like storage as text)
+    headline        = Column(Text, nullable=True)
+    subheadline     = Column(Text, nullable=True)
+    body_copy       = Column(Text, nullable=True)          # main body / bullet points
+    cta_text        = Column(String, nullable=True)        # button text
+    cta_url         = Column(String, nullable=True)        # button destination URL
+    video_url       = Column(String, nullable=True)        # optional video embed
+    image_url       = Column(String, nullable=True)        # optional hero image URL
+    # Style
+    color_scheme    = Column(String, default="dark")       # dark/light/gradient/ocean/fire
+    accent_color    = Column(String, default="#00d4ff")     # primary accent
+    # Funnel linking
+    funnel_name     = Column(String, nullable=True)        # group pages into a funnel
+    funnel_order    = Column(Integer, default=0)           # order within funnel
+    next_page_id    = Column(Integer, ForeignKey("funnel_pages.id"), nullable=True)
+    # Tracking
+    views           = Column(Integer, default=0)
+    clicks          = Column(Integer, default=0)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
 Base.metadata.create_all(bind=engine)
 
 # ── Auto-migration: add missing columns if they don't exist ──────────────
@@ -280,6 +311,10 @@ def run_migrations():
         "ALTER TABLE grids RENAME COLUMN cycle_number TO advance_number",
         # If column doesn't exist at all, add it
         "ALTER TABLE grids ADD COLUMN IF NOT EXISTS advance_number INTEGER DEFAULT 1",
+        # Funnel page builder
+        "CREATE TABLE IF NOT EXISTS funnel_pages (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), slug VARCHAR, title VARCHAR NOT NULL, template_type VARCHAR DEFAULT 'opportunity', status VARCHAR DEFAULT 'draft', headline TEXT, subheadline TEXT, body_copy TEXT, cta_text VARCHAR, cta_url VARCHAR, video_url VARCHAR, image_url VARCHAR, color_scheme VARCHAR DEFAULT 'dark', accent_color VARCHAR DEFAULT '#00d4ff', funnel_name VARCHAR, funnel_order INTEGER DEFAULT 0, next_page_id INTEGER REFERENCES funnel_pages(id), views INTEGER DEFAULT 0, clicks INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
+        "CREATE INDEX IF NOT EXISTS idx_funnel_pages_slug ON funnel_pages(slug)",
+        "CREATE INDEX IF NOT EXISTS idx_funnel_pages_user ON funnel_pages(user_id)",
     ]
     results = []
     with engine.connect() as conn:
