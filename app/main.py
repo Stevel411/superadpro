@@ -1833,6 +1833,21 @@ def swipe_file(request: Request, user: User = Depends(get_current_user),
 
 
 
+# ── Test email sending ────────────
+@app.get("/admin/test-email")
+def test_email(secret: str, email: str):
+    from fastapi.responses import JSONResponse
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    try:
+        from app.email_utils import send_commission_email, send_welcome_email
+        r1 = send_welcome_email(email, "Steve", "SuperAdPro")
+        r2 = send_commission_email(email, "Steve", 25.00, "Direct Sponsor", "testuser123")
+        return JSONResponse({"welcome_sent": r1, "commission_sent": r2})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
 # ── Owner full activation (master affiliate setup) ────────────
 @app.get("/admin/activate-owner")
 def activate_owner(secret: str, username: str, db: Session = Depends(get_db)):
