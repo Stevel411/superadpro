@@ -755,8 +755,8 @@ footer a{color:#94a3b8;text-decoration:none}
         <!-- Stream 2 Grid Owner -->
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
           <div>
-            <div style="font-size:15px;font-weight:700;color:#fff">Stream 2 — Grid Owner (Uni-Level 70%)</div>
-            <div style="font-size:12px;color:#64748b;margin-top:2px">63 seats × tier price × 70% × advances</div>
+            <div style="font-size:15px;font-weight:700;color:#fff">Stream 2 — Uni-Level Income (8.75% per seat)</div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px">63 seats × tier price × 8.75% × advances</div>
           </div>
           <div style="font-size:20px;font-weight:800;color:#00b4d8" id="s2OwnerResult">$0</div>
         </div>
@@ -1168,7 +1168,7 @@ async function doRegister(e) {
     {name:'Legend',   price:1000, color:'#f97316'}
   ];
   var SEATS = 63;
-  var UNI_LEVEL_PCT = 0.70;
+  var PER_LEVEL_PCT = 0.0875;  // 8.75% — what you earn per seat as one level in the chain
   var DIRECT_PCT = 0.25;
   var MEMBERSHIP = 20;
   var activeTiers = [true,true,true,true,true,false,false,false]; // first 5 on by default
@@ -1216,36 +1216,42 @@ async function doRegister(e) {
     var advances = parseInt(advSlider.value);
     var referrals = parseInt(refSlider.value);
 
-    // Stream 1: membership residual (annual)
+    // Stream 1: membership residual (annual) — $20/month per direct referral
     var s1 = referrals * MEMBERSHIP * 12;
 
-    // Stream 2: Grid owner uni-level
-    var s2Owner = 0;
+    // Stream 2 calculations per tier
+    var s2UniLevel = 0;
     var s2Direct = 0;
     var breakdownHTML = '';
 
     TIERS.forEach(function(t, i){
       if(!activeTiers[i]) return;
-      var ownerEarnings = SEATS * t.price * UNI_LEVEL_PCT * advances;
-      // Direct sponsor: assume each referral enters each active tier once per advance
-      // Conservative: referrals fill seats across advances. Estimate: referrals * price * 25% * advances (capped at 63 per advance)
-      var directEntries = Math.min(referrals, SEATS) * advances;
-      var directEarnings = directEntries * t.price * DIRECT_PCT;
 
-      s2Owner += ownerEarnings;
-      s2Direct += directEarnings;
+      // Uni-level: you earn 8.75% on each seat fill (your position in the chain)
+      // Per advance: 63 seats × price × 8.75%
+      var uniLevelPerAdvance = SEATS * t.price * PER_LEVEL_PCT;
+      var uniLevelTotal = uniLevelPerAdvance * advances;
 
+      // Direct sponsor: 25% on people YOU personally referred
+      // Capped at 63 per advance (can't have more referrals than seats)
+      var directPerAdvance = Math.min(referrals, SEATS) * t.price * DIRECT_PCT;
+      var directTotal = directPerAdvance * advances;
+
+      s2UniLevel += uniLevelTotal;
+      s2Direct += directTotal;
+
+      var tierTotal = uniLevelTotal + directTotal;
       breakdownHTML += '<div style="background:rgba(255,255,255,0.03);border:1px solid ' + t.color + '33;border-radius:8px;padding:12px;text-align:center">' +
         '<div style="font-size:11px;font-weight:700;color:' + t.color + ';margin-bottom:4px">' + t.name + '</div>' +
-        '<div style="font-size:16px;font-weight:800;color:#fff">' + fmt(ownerEarnings) + '</div>' +
-        '<div style="font-size:10px;color:#64748b;margin-top:2px">' + advances + ' advances × $' + t.price + '</div>' +
+        '<div style="font-size:16px;font-weight:800;color:#fff">' + fmt(tierTotal) + '</div>' +
+        '<div style="font-size:10px;color:#64748b;margin-top:2px">' + advances + ' adv × $' + t.price + '</div>' +
       '</div>';
     });
 
     document.getElementById('s1Result').textContent = fmt(s1);
-    document.getElementById('s2OwnerResult').textContent = fmt(s2Owner);
+    document.getElementById('s2OwnerResult').textContent = fmt(s2UniLevel);
     document.getElementById('s2DirectResult').textContent = fmt(s2Direct);
-    document.getElementById('totalResult').textContent = fmt(s1 + s2Owner + s2Direct);
+    document.getElementById('totalResult').textContent = fmt(s1 + s2UniLevel + s2Direct);
     document.getElementById('tierBreakdown').innerHTML = breakdownHTML;
   }
 
