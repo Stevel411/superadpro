@@ -463,15 +463,20 @@ def dashboard(request: Request, user: User = Depends(get_current_user),
 @app.get("/income-grid")
 def income_grid(request: Request, user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
     if not user: return RedirectResponse(url="/?login=1")
-    ctx = get_dashboard_context(request, user, db)
-    grids = get_user_grids(db, user.id)
-    ctx.update({
-        "all_grids": grids,
-        "grid_packages": GRID_PACKAGES,
-        "selected_tier": int(request.query_params.get("tier", 1)),
-    })
-    return templates.TemplateResponse("income-grid.html", ctx)
+    try:
+        ctx = get_dashboard_context(request, user, db)
+        grids = get_user_grids(db, user.id)
+        ctx.update({
+            "all_grids": grids,
+            "grid_packages": GRID_PACKAGES,
+            "selected_tier": int(request.query_params.get("tier", 1)),
+        })
+        return templates.TemplateResponse("income-grid.html", ctx)
+    except Exception as exc:
+        logger.error(f"Income grid error for user {user.id}: {exc}", exc_info=True)
+        return JSONResponse({"error": f"Income grid error: {exc}"}, status_code=500)
 
 @app.get("/income-grid/{grid_id}")
 def grid_detail(grid_id: int, request: Request,
