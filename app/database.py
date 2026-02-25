@@ -251,20 +251,27 @@ class FunnelPage(Base):
     title           = Column(String, nullable=False)       # page title
     template_type   = Column(String, default="opportunity") # opportunity/optin/bridge/webinar/thankyou
     status          = Column(String, default="draft")      # draft/published
-    # Content fields (JSON-like storage as text)
+    # Content fields (legacy single-section)
     headline        = Column(Text, nullable=True)
     subheadline     = Column(Text, nullable=True)
-    body_copy       = Column(Text, nullable=True)          # main body / bullet points
-    cta_text        = Column(String, nullable=True)        # button text
-    cta_url         = Column(String, nullable=True)        # button destination URL
-    video_url       = Column(String, nullable=True)        # optional video embed
-    image_url       = Column(String, nullable=True)        # optional hero image URL
+    body_copy       = Column(Text, nullable=True)
+    cta_text        = Column(String, nullable=True)
+    cta_url         = Column(String, nullable=True)
+    video_url       = Column(String, nullable=True)
+    image_url       = Column(String, nullable=True)
+    # Section-based content (JSON array of section objects)
+    sections_json   = Column(Text, nullable=True)          # JSON: [{type,data,style}]
     # Style
-    color_scheme    = Column(String, default="dark")       # dark/light/gradient/ocean/fire
-    accent_color    = Column(String, default="#00d4ff")     # primary accent
+    color_scheme    = Column(String, default="dark")
+    accent_color    = Column(String, default="#00d4ff")
+    font_family     = Column(String, default="Rethink Sans")
+    custom_css      = Column(Text, nullable=True)
+    # SEO
+    meta_description = Column(Text, nullable=True)
+    og_image_url    = Column(String, nullable=True)
     # Funnel linking
-    funnel_name     = Column(String, nullable=True)        # group pages into a funnel
-    funnel_order    = Column(Integer, default=0)           # order within funnel
+    funnel_name     = Column(String, nullable=True)
+    funnel_order    = Column(Integer, default=0)
     next_page_id    = Column(Integer, ForeignKey("funnel_pages.id"), nullable=True)
     # Tracking
     views           = Column(Integer, default=0)
@@ -312,9 +319,14 @@ def run_migrations():
         # If column doesn't exist at all, add it
         "ALTER TABLE grids ADD COLUMN IF NOT EXISTS advance_number INTEGER DEFAULT 1",
         # Funnel page builder
-        "CREATE TABLE IF NOT EXISTS funnel_pages (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), slug VARCHAR, title VARCHAR NOT NULL, template_type VARCHAR DEFAULT 'opportunity', status VARCHAR DEFAULT 'draft', headline TEXT, subheadline TEXT, body_copy TEXT, cta_text VARCHAR, cta_url VARCHAR, video_url VARCHAR, image_url VARCHAR, color_scheme VARCHAR DEFAULT 'dark', accent_color VARCHAR DEFAULT '#00d4ff', funnel_name VARCHAR, funnel_order INTEGER DEFAULT 0, next_page_id INTEGER REFERENCES funnel_pages(id), views INTEGER DEFAULT 0, clicks INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS funnel_pages (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), slug VARCHAR, title VARCHAR NOT NULL, template_type VARCHAR DEFAULT 'opportunity', status VARCHAR DEFAULT 'draft', headline TEXT, subheadline TEXT, body_copy TEXT, cta_text VARCHAR, cta_url VARCHAR, video_url VARCHAR, image_url VARCHAR, sections_json TEXT, color_scheme VARCHAR DEFAULT 'dark', accent_color VARCHAR DEFAULT '#00d4ff', font_family VARCHAR DEFAULT 'Rethink Sans', custom_css TEXT, meta_description TEXT, og_image_url VARCHAR, funnel_name VARCHAR, funnel_order INTEGER DEFAULT 0, next_page_id INTEGER REFERENCES funnel_pages(id), views INTEGER DEFAULT 0, clicks INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
         "CREATE INDEX IF NOT EXISTS idx_funnel_pages_slug ON funnel_pages(slug)",
         "CREATE INDEX IF NOT EXISTS idx_funnel_pages_user ON funnel_pages(user_id)",
+        "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS sections_json TEXT",
+        "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS font_family VARCHAR DEFAULT 'Rethink Sans'",
+        "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS custom_css TEXT",
+        "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS meta_description TEXT",
+        "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS og_image_url VARCHAR",
     ]
     results = []
     with engine.connect() as conn:

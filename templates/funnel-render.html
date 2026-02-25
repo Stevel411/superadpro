@@ -8,128 +8,52 @@
 <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Rethink Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+body{font-family:'Rethink Sans',sans-serif;min-height:100vh}
 
-{% set scheme = page.color_scheme or 'dark' %}
-{% set accent = page.accent_color or '#00d4ff' %}
+{% set sc = page.color_scheme or 'dark' %}
+{% if sc == 'light' %}body{background:#f8fafc;color:#0f172a}
+{% elif sc == 'gradient' %}body{background:linear-gradient(160deg,#0a0a1a,#1a1a4a,#0a0a2a);color:#e2e8f0}
+{% elif sc == 'ocean' %}body{background:linear-gradient(160deg,#0a1628,#0a2840,#061420);color:#e2e8f0}
+{% elif sc == 'fire' %}body{background:linear-gradient(160deg,#1a0a0a,#2a1a0a,#1a0a05);color:#e2e8f0}
+{% else %}body{background:#0a0a1a;color:#e2e8f0}{% endif %}
 
-{% if scheme == 'light' %}
-body{background:#f8fafc;color:#0f172a}
-.hero-sub{color:#64748b}
-.bullet-text{color:#1e293b}
-.footer-text{color:#94a3b8}
-{% elif scheme == 'gradient' %}
-body{background:linear-gradient(160deg,#0a0a1a 0%,#1a1a4a 50%,#0a0a2a 100%);color:#e2e8f0}
-.hero-sub{color:rgba(226,232,240,0.6)}
-.bullet-text{color:rgba(226,232,240,0.85)}
-.footer-text{color:rgba(226,232,240,0.25)}
-{% elif scheme == 'ocean' %}
-body{background:linear-gradient(160deg,#0a1628 0%,#0a2840 50%,#061420 100%);color:#e2e8f0}
-.hero-sub{color:rgba(226,232,240,0.6)}
-.bullet-text{color:rgba(226,232,240,0.85)}
-.footer-text{color:rgba(226,232,240,0.25)}
-{% elif scheme == 'fire' %}
-body{background:linear-gradient(160deg,#1a0a0a 0%,#2a1a0a 50%,#1a0a05 100%);color:#e2e8f0}
-.hero-sub{color:rgba(226,232,240,0.6)}
-.bullet-text{color:rgba(226,232,240,0.85)}
-.footer-text{color:rgba(226,232,240,0.25)}
-{% else %}
-body{background:#0a0a1a;color:#e2e8f0}
-.hero-sub{color:rgba(226,232,240,0.6)}
-.bullet-text{color:rgba(226,232,240,0.85)}
-.footer-text{color:rgba(226,232,240,0.25)}
-{% endif %}
-
-.page-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 24px;min-height:100vh}
-.page-inner{max-width:680px;width:100%;text-align:center}
-
-.hero-headline{font-size:clamp(28px,5vw,44px);font-weight:800;line-height:1.15;margin-bottom:16px;letter-spacing:-0.5px}
-.hero-sub{font-size:clamp(16px,2.5vw,20px);line-height:1.5;margin-bottom:32px}
-
-.video-wrap{position:relative;width:100%;max-width:640px;margin:0 auto 32px;border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.4)}
-.video-wrap .aspect{padding-top:56.25%}
-.video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
-
-.bullets{text-align:left;max-width:520px;margin:0 auto 36px}
-.bullet-row{display:flex;align-items:start;gap:12px;margin-bottom:14px;font-size:17px;line-height:1.6}
-.bullet-icon{color:{{ accent }};flex-shrink:0;font-size:18px;margin-top:2px}
-
-.cta-btn{display:inline-block;padding:18px 48px;background:{{ accent }};color:#fff;font-size:20px;font-weight:800;border-radius:12px;text-decoration:none;box-shadow:0 6px 28px {{ accent }}55;transition:all 0.25s;cursor:pointer;border:none;font-family:inherit;letter-spacing:0.3px}
-.cta-btn:hover{transform:translateY(-2px);box-shadow:0 10px 40px {{ accent }}66}
-
-.page-footer{text-align:center;padding:20px;font-size:11px}
-.page-footer a{color:{{ accent }};text-decoration:none}
-
-@media(max-width:600px){
-  .page-wrap{padding:32px 16px}
-  .cta-btn{padding:16px 32px;font-size:17px;width:100%;max-width:360px}
-  .bullet-row{font-size:15px}
-}
+.page-footer{text-align:center;padding:24px;font-size:11px;color:{% if sc == 'light' %}#94a3b8{% else %}rgba(255,255,255,0.2){% endif %}}
+.page-footer a{color:{{ page.accent_color or '#00d4ff' }};text-decoration:none}
+@media(max-width:768px){[style*="grid-template-columns: 1fr 1fr"],[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important}}
 </style>
 </head>
 <body>
 
-<div class="page-wrap">
-  <div class="page-inner">
+<div id="pageContent"></div>
+<div class="page-footer">Powered by <a href="/">SuperAdPro</a></div>
 
-    {% if page.headline %}
-    <h1 class="hero-headline">{{ page.headline }}</h1>
-    {% endif %}
-
-    {% if page.subheadline %}
-    <p class="hero-sub">{{ page.subheadline }}</p>
-    {% endif %}
-
-    {% if page.video_url %}
-    {% set vid = page.video_url %}
-    <div class="video-wrap">
-      <div class="aspect">
-        {% if 'youtube.com' in vid or 'youtu.be' in vid %}
-          {% if 'youtu.be/' in vid %}
-            {% set yt_id = vid.split('youtu.be/')[1].split('?')[0] %}
-          {% else %}
-            {% set yt_id = vid.split('v=')[1].split('&')[0] if 'v=' in vid else '' %}
-          {% endif %}
-          <iframe src="https://www.youtube.com/embed/{{ yt_id }}" allowfullscreen></iframe>
-        {% elif 'vimeo.com' in vid %}
-          {% set vm_id = vid.split('vimeo.com/')[1].split('?')[0] %}
-          <iframe src="https://player.vimeo.com/video/{{ vm_id }}" allowfullscreen></iframe>
-        {% elif 'rumble.com' in vid %}
-          {% set rb_url = vid.replace('/v/', '/embed/') %}
-          <iframe src="{{ rb_url }}" allowfullscreen></iframe>
-        {% endif %}
-      </div>
-    </div>
-    {% endif %}
-
-    {% if page.body_copy %}
-    <div class="bullets">
-      {% for line in page.body_copy.split('\n') %}
-        {% if line.strip() %}
-        <div class="bullet-row">
-          <span class="bullet-icon">✓</span>
-          <span class="bullet-text">{{ line.strip().lstrip('✓✔•- ') }}</span>
-        </div>
-        {% endif %}
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    {% if page.cta_text %}
-    <a href="{{ page.cta_url or '#' }}" class="cta-btn" id="ctaBtn" onclick="trackClick()">{{ page.cta_text }}</a>
-    {% endif %}
-
-  </div>
-</div>
-
-<div class="page-footer">
-  <span class="footer-text">Powered by <a href="/">SuperAdPro</a></span>
-</div>
-
+<script src="/static/js/section-templates.js"></script>
 <script>
-function trackClick() {
-  fetch('/api/funnels/track-click/{{ page.id }}').catch(() => {});
+const sections = {{ page.body_copy | safe if page.body_copy and page.body_copy.startswith('[') else '[]' }};
+const accent = '{{ page.accent_color or "#00d4ff" }}';
+const scheme = '{{ page.color_scheme or "dark" }}';
+
+const el = document.getElementById('pageContent');
+if (sections.length > 0) {
+  let html = '';
+  sections.forEach(sec => {
+    const tpl = SECTION_TEMPLATES.find(t => t.id === sec.templateId);
+    if (tpl) html += tpl.render(sec.data, accent, scheme);
+  });
+  el.innerHTML = html;
+} else {
+  // Fallback for old-format pages (non-section based)
+  const h = '{{ page.headline | default("", true) }}';
+  const sub = '{{ page.subheadline | default("", true) }}';
+  const cta = '{{ page.cta_text | default("", true) }}';
+  const url = '{{ page.cta_url | default("#", true) }}';
+  const tc = scheme==='light'?'#0f172a':'#fff';
+  const sc = scheme==='light'?'#475569':'rgba(255,255,255,0.65)';
+  el.innerHTML = `<div style="text-align:center;padding:72px 32px;max-width:720px;margin:0 auto"><h1 style="font-size:clamp(32px,5vw,48px);font-weight:800;color:${tc};margin-bottom:16px">${h}</h1><p style="font-size:18px;color:${sc};margin-bottom:36px">${sub}</p>${cta?`<a href="${url}" style="display:inline-block;padding:18px 48px;background:${accent};color:#fff;font-size:19px;font-weight:800;border-radius:12px;text-decoration:none">${cta}</a>`:''}</div>`;
 }
+
+// Track page view
+fetch('/api/funnels/track-click/{{ page.id }}').catch(()=>{});
 </script>
 </body>
 </html>

@@ -1219,6 +1219,7 @@ def funnel_new(request: Request, user: User = Depends(get_current_user),
     ctx = get_dashboard_context(request, user, db)
     ctx["page"] = None  # new page
     ctx["edit_mode"] = True
+    ctx["page_sections"] = []
     return templates.TemplateResponse("funnel-editor.html", ctx)
 
 
@@ -1231,6 +1232,8 @@ def funnel_edit(page_id: int, request: Request, user: User = Depends(get_current
     ctx = get_dashboard_context(request, user, db)
     ctx["page"] = page
     ctx["edit_mode"] = True
+    import json
+    ctx["page_sections"] = json.loads(page.sections_json) if page.sections_json else []
     return templates.TemplateResponse("funnel-editor.html", ctx)
 
 
@@ -1279,6 +1282,14 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
     page.accent_color = body.get("accent_color", "#00d4ff")
     page.status = body.get("status", "draft")
     page.funnel_name = body.get("funnel_name", "")
+    page.font_family = body.get("font_family", "Rethink Sans")
+    page.meta_description = body.get("meta_description", "")
+
+    # Section-based content
+    import json
+    sections = body.get("sections")
+    if sections is not None:
+        page.sections_json = json.dumps(sections)
 
     db.commit()
     db.refresh(page)
@@ -1408,9 +1419,13 @@ def render_funnel_page(username: str, page_slug: str, request: Request,
     page.views = (page.views or 0) + 1
     db.commit()
 
+    import json
+    sections = json.loads(page.sections_json) if page.sections_json else []
+
     return templates.TemplateResponse("funnel-render.html", {
         "request": request,
         "page": page,
+        "sections": sections,
     })
 
 
