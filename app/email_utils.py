@@ -195,11 +195,11 @@ def send_commission_email(to_email: str, first_name: str, amount: float, commiss
 
   <tr><td style="background:linear-gradient(135deg,#16a34a,#059669);padding:28px 32px;text-align:center">
     <div style="font-size:22px;font-weight:900;color:#fff;letter-spacing:3px;text-transform:uppercase">SuperAdPro</div>
-    <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px;letter-spacing:1px">Commission Earned!</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px;letter-spacing:1px">Cha-Ching! You Received a Commission!</div>
   </td></tr>
 
   <tr><td style="padding:36px 32px;text-align:center">
-    <p style="margin:0 0 8px;font-size:14px;color:#64748b">You just earned</p>
+    <p style="margin:0 0 8px;font-size:14px;color:#64748b">Cha-Ching!</p>
     <p style="margin:0 0 8px;font-size:42px;font-weight:900;color:#16a34a">${amount:.2f}</p>
     <p style="margin:0 0 24px;font-size:14px;color:rgba(200,220,255,0.6)">{commission_type} commission from {from_username}</p>
 
@@ -226,7 +226,7 @@ def send_commission_email(to_email: str, first_name: str, amount: float, commiss
 
     return send_email(
         to_email  = to_email,
-        subject   = f"You earned ${amount:.2f} on SuperAdPro!",
+        subject   = f"Cha-Ching! You earned ${amount:.2f} on SuperAdPro!",
         html_body = html_body,
     )
 
