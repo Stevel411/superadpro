@@ -19,7 +19,12 @@ body{background:#060b18;color:#e2e8f0;font-family:'Rethink Sans',sans-serif;min-
 .balance-chip{background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:8px;padding:6px 14px;font-size:13px;font-weight:700;color:#16a34a}
 
 /* ── Container ── */
-.container{max-width:1100px;margin:0 auto;padding:32px 32px 80px}
+.container{max-width:900px;margin:0 auto;padding:32px 32px 80px}
+
+/* ── Page headline ── */
+.page-headline{text-align:center;margin-bottom:32px}
+.page-headline h1{font-size:clamp(26px,4vw,38px);font-weight:800;color:#fff;margin-bottom:6px;background:linear-gradient(135deg,#ffffff,#00d4ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.page-headline p{font-size:15px;color:#64748b;letter-spacing:0.5px}
 
 /* ── Hero stats ── */
 .hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px}
@@ -64,12 +69,16 @@ body{background:#060b18;color:#e2e8f0;font-family:'Rethink Sans',sans-serif;min-
 
 /* ── 8×8 Grid visual ── */
 .section-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.4);margin-bottom:12px}
-.grid-8x8{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-bottom:12px}
+.grid-container{max-width:420px;margin:0 auto 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+.grid-container::-webkit-scrollbar{height:6px}
+.grid-container::-webkit-scrollbar-track{background:rgba(255,255,255,0.03);border-radius:3px}
+.grid-container::-webkit-scrollbar-thumb{background:rgba(0,180,216,0.2);border-radius:3px}
+.grid-8x8{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;min-width:320px;max-width:420px;margin:0 auto}
 .g-cell{aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:all 0.3s}
 .g-cell.owner{background:linear-gradient(135deg,#16a34a,#059669);color:#fff;font-size:10px;font-weight:800;box-shadow:0 2px 12px rgba(22,163,74,0.4)}
 .g-cell.filled{background:linear-gradient(135deg,rgba(0,180,216,0.2),rgba(109,40,217,0.15));border:1px solid rgba(0,180,216,0.25);color:#00d4ff}
 .g-cell.empty{background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.08);color:#334155}
-.legend{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.legend{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap;justify-content:center}
 .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#64748b}
 .legend-dot{width:12px;height:12px;border-radius:4px}
 
@@ -103,9 +112,9 @@ body{background:#060b18;color:#e2e8f0;font-family:'Rethink Sans',sans-serif;min-
 /* ── Responsive ── */
 @media(max-width:768px){
   .topbar{padding:0 16px;height:54px}
-  .topbar-title{font-size:15px}
   .topbar-right-btn{display:none}
   .container{padding:20px 16px 80px}
+  .page-headline h1{font-size:24px}
   .hero-grid{grid-template-columns:repeat(2,1fr);gap:10px}
   .hero-card{padding:16px}
   .hero-val{font-size:24px}
@@ -113,7 +122,8 @@ body{background:#060b18;color:#e2e8f0;font-family:'Rethink Sans',sans-serif;min-
   .tier-tab{padding:7px 12px;font-size:12px}
   .grid-card-head{padding:14px 16px}
   .grid-card-body{padding:16px}
-  .grid-8x8{gap:3px}
+  .grid-container{max-width:100%}
+  .grid-8x8{gap:3px;min-width:280px}
   .g-cell{font-size:9px;border-radius:4px}
   .earnings-grid{grid-template-columns:1fr}
   .level-row{gap:8px}
@@ -134,10 +144,6 @@ body{background:#060b18;color:#e2e8f0;font-family:'Rethink Sans',sans-serif;min-
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
       <span>Dashboard</span>
     </a>
-    <div>
-      <div class="topbar-title">Profit Engine Grids</div>
-      <div class="topbar-sub">8×8 Recurring Grid · 63 seats per advance</div>
-    </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px">
     <div class="balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
@@ -146,6 +152,12 @@ body{background:#060b18;color:#e2e8f0;font-family:'Rethink Sans',sans-serif;min-
 </div>
 
 <div class="container">
+
+  <!-- ── Page Headline ── -->
+  <div class="page-headline">
+    <h1>Profit Engine Grids</h1>
+    <p>8×8 Recurring Grid · 63 seats per advance</p>
+  </div>
 
   <!-- ── Hero Stats ── -->
   <div class="hero-grid">
@@ -220,8 +232,9 @@ body{background:#060b18;color:#e2e8f0;font-family:'Rethink Sans',sans-serif;min-
         </div>
 
         <!-- 8×8 Grid Visual -->
-        <div class="section-label">Grid Visualisation</div>
-        <div class="grid-8x8">
+        <div class="section-label" style="text-align:center">Grid Visualisation</div>
+        <div class="grid-container">
+          <div class="grid-8x8">
           {% for i in range(64) %}
             {% if i == 0 %}
               <div class="g-cell owner">YOU</div>
@@ -231,6 +244,7 @@ body{background:#060b18;color:#e2e8f0;font-family:'Rethink Sans',sans-serif;min-
               <div class="g-cell empty">{{ i }}</div>
             {% endif %}
           {% endfor %}
+        </div>
         </div>
         <div class="legend">
           <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,#16a34a,#059669)"></div>You (Owner)</div>
