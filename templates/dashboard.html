@@ -342,33 +342,24 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 
 
 
-      <!-- NEW MEMBER PROFILE COMPLETION BANNER (shows on ?new=1, dismisses after 20s) -->
-      {% if request.query_params.get('new') == '1' %}
+      <!-- PROFILE COMPLETION BANNER (persists until wallet address and country are set) -->
+      {% if not user.wallet_address or not user.country %}
       <div id="profileBanner" style="margin-bottom:16px;border-radius:12px;background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(16,185,129,0.08));border:1px solid rgba(99,102,241,0.25);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;position:relative;overflow:hidden">
-        <div id="profileBannerProgress" style="position:absolute;bottom:0;left:0;height:3px;background:linear-gradient(90deg,#6366f1,#10b981);width:100%;transform-origin:left;animation:bannerCountdown 20s linear forwards"></div>
+        <div style="position:absolute;bottom:0;left:0;height:3px;background:linear-gradient(90deg,#6366f1,#10b981);width:100%"></div>
         <div style="display:flex;align-items:center;gap:12px">
           <div style="font-size:22px">🎉</div>
           <div>
             <div style="font-size:14px;font-weight:800;color:#0f172a">Welcome to SuperAdPro, {{ display_name }}!</div>
-            <div style="font-size:12px;color:#475569;margin-top:2px">Complete your profile to unlock withdrawals — add your wallet address and country in Account settings.</div>
+            <div style="font-size:12px;color:#475569;margin-top:2px">Complete your profile to unlock withdrawals — add your
+              {% if not user.wallet_address and not user.country %}wallet address and country
+              {% elif not user.wallet_address %}wallet address
+              {% else %}country{% endif %} in Account settings.</div>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
           <a href="/account" style="font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#6366f1,#10b981);padding:8px 16px;border-radius:7px;text-decoration:none;white-space:nowrap">Complete Profile →</a>
-          <button onclick="dismissProfileBanner()" style="background:none;border:none;font-size:18px;color:#94a3b8;cursor:pointer;padding:2px 6px;border-radius:4px" title="Dismiss">×</button>
         </div>
       </div>
-      <style>
-        @keyframes bannerCountdown { from{width:100%} to{width:0%} }
-      </style>
-      <script>
-        var _bannerTimer = setTimeout(dismissProfileBanner, 20000);
-        function dismissProfileBanner() {
-          clearTimeout(_bannerTimer);
-          var b = document.getElementById('profileBanner');
-          if (b) { b.style.transition='opacity 0.5s'; b.style.opacity='0'; setTimeout(function(){ b.remove(); }, 500); }
-        }
-      </script>
       {% endif %}
 
       <!-- MEMBERSHIP RENEWAL NOTICE -->
