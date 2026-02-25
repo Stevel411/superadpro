@@ -610,25 +610,25 @@
                 </div>
                 <!-- Commission breakdown -->
                 <div style="background:rgba(0,0,0,0.2);border:1px solid rgba(0,180,216,0.15);border-radius:8px;padding:16px;margin-top:12px">
-                    <div style="font-size:17px;color:rgba(200,220,255,0.5);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">On Each Grid Entry</div>
+                    <div style="font-size:17px;color:rgba(200,220,255,0.5);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">On Each Seat Fill ($100 tier)</div>
                     <div style="display:flex;flex-direction:column;gap:8px">
                         <div style="display:flex;justify-content:space-between;align-items:center">
-                            <span style="font-size:17px;color:rgba(200,220,255,0.7)">Uni-Level (your share)</span>
-                            <span style="font-size:18px;font-weight:800;color:#00d4ff">Instant ✓</span>
+                            <span style="font-size:17px;color:rgba(200,220,255,0.7)">Direct Sponsor (25%)</span>
+                            <span style="font-size:18px;font-weight:800;color:#10b981">$25.00 Instant ✓</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;align-items:center">
-                            <span style="font-size:17px;color:rgba(200,220,255,0.7)">Direct Sponsor (25%) + Uni-Level (70%)</span>
-                            <span style="font-size:18px;font-weight:800;color:#a78bfa">On grid advance</span>
+                            <span style="font-size:17px;color:rgba(200,220,255,0.7)">Uni-Level per level (8.75%)</span>
+                            <span style="font-size:18px;font-weight:800;color:#00d4ff">$8.75 Instant ✓</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;align-items:center">
-                            <span style="font-size:17px;color:rgba(200,220,255,0.7)">Uni-Level Income (8.75%/level)</span>
-                            <span style="font-size:18px;font-weight:800;color:#7c9fff">Instant ✓</span>
+                            <span style="font-size:17px;color:rgba(200,220,255,0.7)">Total Uni-Level (8 levels)</span>
+                            <span style="font-size:18px;font-weight:800;color:#a78bfa">$70.00 per entry</span>
                         </div>
                     </div>
                 </div>
                 <div style="margin-top:12px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:14px;text-align:center">
-                    <div style="font-size:18px;color:rgba(200,220,255,0.5);margin-bottom:4px">Positions per grid advance</div>
-                    <div style="font-size:32px;font-weight:800;color:#fff">64</div>
+                    <div style="font-size:18px;color:rgba(200,220,255,0.5);margin-bottom:4px">Seats per grid advance</div>
+                    <div style="font-size:32px;font-weight:800;color:#fff">63</div>
                     <div style="font-size:18px;color:#00d4ff;text-transform:uppercase;letter-spacing:1px;margin-top:2px">8 levels × 8 positions — recurring</div>
                 </div>
             </div>
@@ -641,27 +641,22 @@
         const poolEl = document.getElementById('poolEarned');
         if(!g) return;
 
-        const PKG = 100;           // $100 USDT package
-        const ENTRANTS = 63;       // 63 people fill the 64 seats (owner holds seat 0)
-        const TOTAL = PKG * ENTRANTS;  // $6,300 total grid revenue
-        const PER_LEVEL = 0.0875; // 8.75% uni-level per position
+        const PKG = 100;           // $100 USDT tier
+        const ENTRANTS = 63;       // 63 people fill the grid (owner holds seat 0)
+        const PER_SEAT = PKG * 0.0875; // $8.75 — your uni-level per seat fill
         const LEVELS = 8;
         const SEATS_PER_LEVEL = 8;
-        // $1,575 / 8 levels = $196.88 per level / 8 seats = $24.61 per seat
-        const perSeat = TOTAL * PER_LEVEL;
-        const ownerPayout = TOTAL * 0.25;  // $1,575 (25% direct sponsor)
 
         const cells = [];
         for(let i=0;i<64;i++){
             const c = document.createElement('div');
-            // Make cells show text — use position:relative wrapper
             c.style.cssText = 'position:relative;border-radius:3px;transition:background 0.4s;background:rgba(255,255,255,0.07);aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden';
             g.appendChild(c); cells.push(c);
         }
 
-        // Cell 0 = you (direct sponsor)
+        // Cell 0 = you (grid owner)
         cells[0].style.background = '#00d4ff';
-        cells[0].innerHTML = '<span style="font-size:7px;font-weight:800;color:#050d1a;line-height:1.2;text-align:center">YOU<br>$1,575</span>';
+        cells[0].innerHTML = '<span style="font-size:7px;font-weight:800;color:#050d1a;line-height:1.2;text-align:center">YOU<br>$' + PKG + '</span>';
 
         let filled = 1;
         let poolTotal = 0;
@@ -672,7 +667,7 @@
                     cells.forEach((c,i)=>{
                         if(i === 0){
                             c.style.background = '#00d4ff';
-                            c.innerHTML = '<span style="font-size:7px;font-weight:800;color:#050d1a;line-height:1.2;text-align:center">YOU<br>$1,575</span>';
+                            c.innerHTML = '<span style="font-size:7px;font-weight:800;color:#050d1a;line-height:1.2;text-align:center">YOU<br>$' + PKG + '</span>';
                         } else {
                             c.style.background = 'rgba(255,255,255,0.07)';
                             c.innerHTML = '';
@@ -689,9 +684,9 @@
             }
             const opacity = 0.25 + (filled / 80);
             cells[filled].style.background = `rgba(0,212,255,${Math.min(opacity,0.85)})`;
-            // Show commission amount in cell
-            cells[filled].innerHTML = `<span style="font-size:7px;font-weight:800;color:rgba(255,255,255,0.9);line-height:1;text-align:center">+$${perSeat.toFixed(2)}</span>`;
-            poolTotal += perSeat;
+            // Show per-seat commission in cell
+            cells[filled].innerHTML = `<span style="font-size:7px;font-weight:800;color:rgba(255,255,255,0.9);line-height:1;text-align:center">+$${PER_SEAT.toFixed(2)}</span>`;
+            poolTotal += PER_SEAT;
             if(poolEl) poolEl.textContent = '$' + poolTotal.toFixed(2);
             const uplineEl = document.getElementById('uplineEarned');
             if(uplineEl) uplineEl.textContent = '$' + poolTotal.toFixed(2);
