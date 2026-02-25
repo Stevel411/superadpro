@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Campaign Analytics — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+.layout{display:flex;min-height:100vh}
+
+/* ── SIDEBAR (dark) ── */
+.sidebar{width:224px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.sidebar-brand{font-weight:800;font-size:12px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-section{padding:18px 16px 5px;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.3)}
+.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:15px;font-weight:500;color:#64748b;text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
+.nav-item:hover{color:rgba(200,220,255,0.9);background:rgba(255,255,255,0.03)}
+.nav-item.active{color:#00d4ff;background:rgba(0,212,255,0.07);border-left-color:#00d4ff}
+.nav-icon{font-size:12px;width:18px;text-align:center;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00d4ff);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
+
+/* ── MAIN ── */
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(0,212,255,0.1);position:sticky;top:0;z-index:50}
+.topbar-title{font-size:22px;font-weight:800;color:#fff}
+.topbar-sub{font-size:12px;color:rgba(0,212,255,0.5);margin-top:2px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.balance-pill{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:8px;padding:8px 16px}
+.balance-label{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1.5px;text-transform:uppercase}
+.balance-val{font-size:18px;font-weight:800;color:#16a34a;line-height:1}
+
+/* ── CONTENT ── */
+.content{padding:24px 28px;flex:1}
+
+/* ── OVERVIEW CARDS ── */
+.overview-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.ov-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px 22px;position:relative;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.ov-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.ov-card.c1::before{background:linear-gradient(90deg,transparent,#00b4d8,transparent)}
+.ov-card.c2::before{background:linear-gradient(90deg,transparent,#16a34a,transparent)}
+.ov-card.c3::before{background:linear-gradient(90deg,transparent,#7c3aed,transparent)}
+.ov-card.c4::before{background:linear-gradient(90deg,transparent,#f59e0b,transparent)}
+.ov-label{font-size:11px;font-weight:600;color:#64748b;letter-spacing:1px;text-transform:uppercase}
+.ov-val{font-size:28px;font-weight:800;margin-top:6px;line-height:1}
+.ov-sub{font-size:12px;color:#94a3b8;margin-top:4px}
+
+/* ── CARDS ── */
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.card-title{font-size:16px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title span{font-size:14px}
+
+/* ── CHART ── */
+.chart-container{width:100%;height:240px;position:relative}
+.chart-bar-row{display:flex;align-items:end;gap:3px;height:200px;padding:0 4px}
+.chart-bar{flex:1;background:linear-gradient(180deg,#00b4d8,#0077b6);border-radius:4px 4px 0 0;min-width:8px;position:relative;transition:all 0.3s;cursor:pointer}
+.chart-bar:hover{opacity:0.8}
+.chart-bar .tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;white-space:nowrap;z-index:10}
+.chart-bar:hover .tooltip{display:block}
+.chart-labels{display:flex;gap:3px;padding:6px 4px 0;overflow:hidden}
+.chart-labels span{flex:1;text-align:center;font-size:9px;color:#94a3b8;min-width:8px;overflow:hidden}
+.no-data{text-align:center;padding:40px 20px;color:#94a3b8;font-size:14px}
+
+/* ── CAMPAIGN TABLE ── */
+.camp-table{width:100%;border-collapse:collapse}
+.camp-table th{text-align:left;padding:10px 14px;font-size:11px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid #e2e8f0}
+.camp-table td{padding:12px 14px;border-bottom:1px solid #f1f5f9;font-size:14px}
+.camp-table tr:hover{background:#f8fafc}
+.prog-bar{width:100%;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;transition:width 0.5s}
+.status-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;text-transform:uppercase}
+.status-active{background:#dcfce7;color:#16a34a}
+.status-paused{background:#fef9c3;color:#ca8a04}
+
+/* ── GEO BARS ── */
+.geo-row{display:flex;align-items:center;gap:12px;padding:8px 0}
+.geo-country{width:120px;font-size:13px;font-weight:600;flex-shrink:0}
+.geo-bar{flex:1;height:22px;background:#e2e8f0;border-radius:4px;overflow:hidden}
+.geo-fill{height:100%;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:4px;display:flex;align-items:center;padding:0 8px}
+.geo-count{font-size:11px;font-weight:700;color:#fff;white-space:nowrap}
+
+/* ── AI PANEL ── */
+.ai-panel{background:linear-gradient(135deg,#f0f9ff,#faf5ff);border:1px solid #e0e7ff;border-radius:12px;padding:24px;margin-bottom:20px}
+.ai-panel-title{font-size:16px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.ai-panel-sub{font-size:13px;color:#64748b;margin-bottom:16px}
+.ai-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit}
+.ai-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(124,58,237,0.3)}
+.ai-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+.ai-result{margin-top:16px;font-size:14px;line-height:1.7;color:#1e293b}
+.ai-result strong{color:#7c3aed}
+
+/* ── GRID LAYOUT ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+/* ── MOBILE ── */
+@media(max-width:900px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .overview-row{grid-template-columns:repeat(2,1fr)}
+  .two-col{grid-template-columns:1fr}
+  .topbar{padding:0 16px}
+  .content{padding:16px}
+}
+@media(max-width:500px){
+  .overview-row{grid-template-columns:1fr}
+  .camp-table{font-size:12px}
+  .camp-table th,.camp-table td{padding:8px 10px}
+}
+</style>
+</head>
+<body>
+<svg style="display:none"><symbol id="shield" viewBox="0 0 30 30"><path d="M15 2L3 7v7c0 7.73 5.12 14.95 12 17 6.88-2.05 12-9.27 12-17V7L15 2z" fill="url(#sg)"/><defs><linearGradient id="sg" x1="0" y1="0" x2="30" y2="30"><stop offset="0%" stop-color="#00d4ff"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs></symbol></svg>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a href="/dashboard" class="sidebar-logo">
+      <svg width="30" height="30"><use href="#shield"/></svg>
+      <span class="sidebar-brand">SuperAdPro</span>
+    </a>
+    <div class="nav-section">Main</div>
+    <a href="/dashboard" class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
+    <a href="/packages" class="nav-item"><span class="nav-icon">📦</span>Campaign Tiers</a>
+    <a href="/watch" class="nav-item"><span class="nav-icon">▶</span>Watch &amp; Earn</a>
+    <a href="/video-library" class="nav-item"><span class="nav-icon">🎬</span>My Campaigns</a>
+    <a href="/analytics" class="nav-item active"><span class="nav-icon">📈</span>Analytics</a>
+    <div class="nav-section">Marketing Suite</div>
+    <a href="/campaign-studio" class="nav-item"><span class="nav-icon">🤖</span>AI Campaign Studio</a>
+    <a href="/niche-finder" class="nav-item"><span class="nav-icon">💡</span>Niche Finder</a>
+    <a href="/swipe-file" class="nav-item"><span class="nav-icon">📋</span>Swipe File</a>
+    <div class="nav-section">Income Streams</div>
+    <a href="/income-grid" class="nav-item"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
+    <a href="/wallet" class="nav-item"><span class="nav-icon">◎</span>Wallet</a>
+    <a href="/affiliate" class="nav-item"><span class="nav-icon">🤝</span>Affiliate Tools</a>
+    <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span>Comp Plan</a>
+    <a href="/grid-visualiser" class="nav-item"><span class="nav-icon">◈</span>Grid Visualiser</a>
+    <div class="nav-section">Account</div>
+    <a href="/account" class="nav-item"><span class="nav-icon">◉</span>My Profile</a>
+    <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
+    <div class="sidebar-footer">
+      <div class="user-mini">
+        <div class="user-avatar">{{ user.username[:2].upper() }}</div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#fff">{{ user.first_name or user.username }}</div>
+          <div style="font-size:9px;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:1px">
+            {% if is_active %}● Active{% else %}○ Inactive{% endif %}
+          </div>
+        </div>
+      </div>
+      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;color:#64748b;text-decoration:none;margin-top:4px;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">⎋ Sign Out</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Campaign Analytics</div>
+        <div class="topbar-sub">Track performance &amp; get AI recommendations</div>
+      </div>
+      <div class="topbar-right">
+        <div class="balance-pill">
+          <div>
+            <div class="balance-label">Balance</div>
+            <div class="balance-val">${{ '%.2f'|format(balance) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- OVERVIEW CARDS -->
+      <div class="overview-row">
+        <div class="ov-card c1">
+          <div class="ov-label">Total Campaigns</div>
+          <div class="ov-val">{{ campaigns|length }}</div>
+          <div class="ov-sub">Active video campaigns</div>
+        </div>
+        <div class="ov-card c2">
+          <div class="ov-label">Views Delivered</div>
+          <div class="ov-val">{{ "{:,}".format(total_views) }}</div>
+          <div class="ov-sub">of {{ "{:,}".format(total_target) }} target</div>
+        </div>
+        <div class="ov-card c3">
+          <div class="ov-label">Delivery Rate</div>
+          <div class="ov-val">{{ overall_pct }}%</div>
+          <div class="ov-sub">Overall completion</div>
+        </div>
+        <div class="ov-card c4">
+          <div class="ov-label">Avg Views / Day</div>
+          <div class="ov-val" id="avgDaily">—</div>
+          <div class="ov-sub">Last 30 days</div>
+        </div>
+      </div>
+
+      <!-- AI RECOMMENDATIONS -->
+      <div class="ai-panel">
+        <div class="ai-panel-title">🤖 AI Content Recommendations</div>
+        <div class="ai-panel-sub">Get personalised suggestions to improve your campaign performance based on your data.</div>
+        <button class="ai-btn" id="aiBtn" onclick="getRecommendations()">
+          ✨ Get AI Recommendations
+        </button>
+        <div class="ai-result" id="aiResult" style="display:none"></div>
+      </div>
+
+      <!-- VIEWS CHART + GEO -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title"><span>📊</span> Daily Views (Last 30 Days)</div>
+          {% if daily_views %}
+          <div class="chart-container">
+            <div class="chart-bar-row" id="chartBars"></div>
+            <div class="chart-labels" id="chartLabels"></div>
+          </div>
+          {% else %}
+          <div class="no-data">No view data yet. Views will appear here once your campaigns start receiving traffic.</div>
+          {% endif %}
+        </div>
+        <div class="card">
+          <div class="card-title"><span>🌍</span> Viewer Geography</div>
+          {% if geo_breakdown %}
+          {% for country, count in geo_breakdown.items() %}
+          <div class="geo-row">
+            <div class="geo-country">{{ country }}</div>
+            <div class="geo-bar">
+              <div class="geo-fill" style="width:{{ (count / geo_breakdown.values()|list|first * 100)|round }}%">
+                <span class="geo-count">{{ count }}</span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="no-data">Geographic data will appear here as viewers watch your campaigns.</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- CAMPAIGN TABLE -->
+      <div class="card">
+        <div class="card-title"><span>🎬</span> Campaign Performance</div>
+        {% if campaigns %}
+        <div style="overflow-x:auto">
+        <table class="camp-table">
+          <thead>
+            <tr>
+              <th>Campaign</th>
+              <th>Platform</th>
+              <th>Views</th>
+              <th>Progress</th>
+              <th>Status</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in campaigns %}
+            <tr>
+              <td style="font-weight:600">{{ c.title }}</td>
+              <td>{{ c.platform|capitalize }}</td>
+              <td>{{ "{:,}".format(c.views_delivered) }} / {{ "{:,}".format(c.views_target) }}</td>
+              <td style="min-width:140px">
+                <div class="prog-bar">
+                  <div class="prog-fill" style="width:{{ c.pct }}%;background:{% if c.pct >= 75 %}linear-gradient(90deg,#16a34a,#22c55e){% elif c.pct >= 40 %}linear-gradient(90deg,#f59e0b,#fbbf24){% else %}linear-gradient(90deg,#00b4d8,#38bdf8){% endif %}"></div>
+                </div>
+                <div style="font-size:11px;color:#64748b;margin-top:3px">{{ c.pct }}%</div>
+              </td>
+              <td><span class="status-badge status-{{ c.status }}">{{ c.status }}</span></td>
+              <td style="color:#94a3b8;font-size:13px">{{ c.created }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        </div>
+        {% else %}
+        <div class="no-data">
+          You haven't created any campaigns yet.<br>
+          <a href="/video-library" style="color:#7c3aed;font-weight:600;text-decoration:none">Create your first campaign →</a>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// Daily views chart
+const dailyData = {{ daily_views|tojson }};
+
+if(dailyData.length > 0) {
+  const maxViews = Math.max(...dailyData.map(d => d.views), 1);
+  const barsEl = document.getElementById('chartBars');
+  const labelsEl = document.getElementById('chartLabels');
+
+  // Calculate avg
+  const totalDayViews = dailyData.reduce((s, d) => s + d.views, 0);
+  const avgEl = document.getElementById('avgDaily');
+  if(avgEl) avgEl.textContent = Math.round(totalDayViews / dailyData.length);
+
+  dailyData.forEach((d, i) => {
+    const pct = (d.views / maxViews * 100);
+    const bar = document.createElement('div');
+    bar.className = 'chart-bar';
+    bar.style.height = Math.max(pct, 2) + '%';
+    bar.innerHTML = `<div class="tooltip">${d.date}: ${d.views} views</div>`;
+    barsEl.appendChild(bar);
+
+    const label = document.createElement('span');
+    // Show every nth label to avoid crowding
+    if(dailyData.length <= 15 || i % Math.ceil(dailyData.length / 10) === 0) {
+      label.textContent = d.date.slice(5); // MM-DD
+    }
+    labelsEl.appendChild(label);
+  });
+} else {
+  const avgEl = document.getElementById('avgDaily');
+  if(avgEl) avgEl.textContent = '0';
+}
+
+// AI Recommendations
+async function getRecommendations() {
+  const btn = document.getElementById('aiBtn');
+  const result = document.getElementById('aiResult');
+  btn.disabled = true;
+  btn.textContent = '⏳ Analysing your campaigns...';
+  result.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/analytics/ai-recommendations', {method:'POST'});
+    const data = await res.json();
+    if(data.error) {
+      result.innerHTML = '<div style="color:#dc2626">' + data.error + '</div>';
+    } else {
+      // Convert markdown bold to HTML
+      let html = data.recommendations
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n\n/g, '<br><br>')
+        .replace(/\n/g, '<br>');
+      result.innerHTML = html;
+    }
+    result.style.display = 'block';
+    btn.textContent = '✨ Refresh Recommendations';
+    btn.disabled = false;
+  } catch(e) {
+    result.innerHTML = '<div style="color:#dc2626">Something went wrong. Please try again.</div>';
+    result.style.display = 'block';
+    btn.textContent = '✨ Get AI Recommendations';
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>

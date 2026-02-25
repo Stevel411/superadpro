@@ -1197,6 +1197,151 @@ def check_and_increment_ai_quota(db: Session, user_id: int, tool: str) -> dict:
 
 
 # ═══════════════════════════════════════════════════════════════
+#  CAMPAIGN ANALYTICS
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/analytics")
+def analytics_page(request: Request, user: User = Depends(get_current_user),
+                   db: Session = Depends(get_db)):
+    if not user: return RedirectResponse(url="/?login=1")
+    if not user.is_active: return RedirectResponse(url="/pay-membership")
+    ctx = get_dashboard_context(request, user, db)
+
+    # Get user's campaigns
+    campaigns = db.query(VideoCampaign).filter(
+        VideoCampaign.user_id == user.id,
+        VideoCampaign.status != "deleted"
+    ).order_by(VideoCampaign.created_at.desc()).all()
+
+    # Get watch data for user's campaigns (last 30 days)
+    from datetime import date, timedelta
+    thirty_days_ago = str(date.today() - timedelta(days=30))
+    campaign_ids = [c.id for c in campaigns]
+
+    daily_views = []
+    geo_breakdown = {}
+    total_views = 0
+    total_target = 0
+
+    if campaign_ids:
+        # Daily views for chart
+        from sqlalchemy import func
+        daily_raw = db.query(
+            VideoWatch.watch_date,
+            func.count(VideoWatch.id)
+        ).filter(
+            VideoWatch.campaign_id.in_(campaign_ids),
+            VideoWatch.watch_date >= thirty_days_ago
+        ).group_by(VideoWatch.watch_date).order_by(VideoWatch.watch_date).all()
+        daily_views = [{"date": d[0], "views": d[1]} for d in daily_raw]
+
+        # Geo breakdown — join watch → user → country
+        geo_raw = db.query(
+            User.country,
+            func.count(VideoWatch.id)
+        ).join(User, VideoWatch.user_id == User.id).filter(
+            VideoWatch.campaign_id.in_(campaign_ids)
+        ).group_by(User.country).order_by(func.count(VideoWatch.id).desc()).limit(10).all()
+        geo_breakdown = {(g[0] or "Unknown"): g[1] for g in geo_raw}
+
+    # Campaign summaries
+    campaign_data = []
+    for c in campaigns:
+        pct = round((c.views_delivered / c.views_target * 100), 1) if c.views_target > 0 else 0
+        total_views += c.views_delivered or 0
+        total_target += c.views_target or 0
+        campaign_data.append({
+            "id": c.id,
+            "title": c.title,
+            "platform": c.platform,
+            "status": c.status,
+            "views_delivered": c.views_delivered or 0,
+            "views_target": c.views_target or 0,
+            "pct": min(pct, 100),
+            "created": c.created_at.strftime("%d %b %Y") if c.created_at else "",
+        })
+
+    overall_pct = round((total_views / total_target * 100), 1) if total_target > 0 else 0
+
+    ctx.update({
+        "campaigns": campaign_data,
+        "daily_views": daily_views,
+        "geo_breakdown": geo_breakdown,
+        "total_views": total_views,
+        "total_target": total_target,
+        "overall_pct": min(overall_pct, 100),
+    })
+    return templates.TemplateResponse("analytics.html", ctx)
+
+
+@app.post("/api/analytics/ai-recommendations")
+async def ai_recommendations(request: Request, user: User = Depends(get_current_user),
+                              db: Session = Depends(get_db)):
+    """AI analyses campaign performance and returns actionable recommendations."""
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # Rate limit: reuse campaign_studio quota
+    rl = check_and_increment_ai_quota(db, user.id, "campaign_studio")
+    if not rl["allowed"]:
+        return JSONResponse({"error": f"Daily AI limit reached. Resets in {rl['resets_in']}.", "rate_limited": True}, status_code=429)
+
+    # Gather campaign data
+    campaigns = db.query(VideoCampaign).filter(
+        VideoCampaign.user_id == user.id,
+        VideoCampaign.status != "deleted"
+    ).all()
+
+    if not campaigns:
+        return JSONResponse({"recommendations": "You don't have any campaigns yet. Create your first campaign in My Campaigns, then come back here for AI-powered recommendations on how to improve your results."})
+
+    # Build context for AI
+    campaign_summary = []
+    for c in campaigns:
+        pct = round((c.views_delivered / c.views_target * 100), 1) if c.views_target > 0 else 0
+        campaign_summary.append(f"- '{c.title}' ({c.platform}): {c.views_delivered}/{c.views_target} views ({pct}% delivered), status: {c.status}, category: {c.category or 'uncategorised'}")
+
+    from sqlalchemy import func
+    # Top viewing times
+    from datetime import date, timedelta
+    seven_days_ago = str(date.today() - timedelta(days=7))
+    campaign_ids = [c.id for c in campaigns]
+
+    prompt = f"""You are a video marketing strategist analysing campaign performance data for a SuperAdPro member.
+
+THEIR CAMPAIGNS:
+{chr(10).join(campaign_summary)}
+
+Based on this data, provide 3-5 specific, actionable recommendations to improve their campaign performance. Focus on:
+1. Which campaigns are performing well and why
+2. What they could do to increase engagement
+3. Content strategy suggestions based on their niche/category
+4. Timing and frequency advice
+5. Any red flags or issues to address
+
+Keep recommendations concise, specific and immediately actionable. Use a friendly, encouraging tone. Format each recommendation with a short bold title followed by 1-2 sentences of advice. Do not use numbered lists — use clear paragraph breaks between recommendations."""
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return JSONResponse({"recommendations": "**Great start!** You've got campaigns running — that puts you ahead of most. Focus on consistency: keep your content fresh and post regularly.\n\n**Optimise your titles** — Make sure each video has a compelling, curiosity-driven title. This is the #1 factor in whether someone clicks.\n\n**Check your completion rates** — If viewers aren't watching to the end, try shorter videos or stronger hooks in the first 8 seconds.\n\n*Note: Add your ANTHROPIC_API_KEY to Railway for personalised AI recommendations.*"})
+
+    try:
+        import anthropic
+        client = anthropic.Anthropic(api_key=api_key)
+        message = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=1000,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        text = message.content[0].text
+        return JSONResponse({"recommendations": text})
+    except Exception as e:
+        logger.error(f"AI recommendations error: {e}")
+        return JSONResponse({"recommendations": "Unable to generate AI recommendations right now. Please try again in a moment."})
+
+
+# ═══════════════════════════════════════════════════════════════
 #  AI CAMPAIGN STUDIO
 # ═══════════════════════════════════════════════════════════════
 
