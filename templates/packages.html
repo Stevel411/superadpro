@@ -704,6 +704,11 @@ function setView(type, btn) {
     btn.classList.add('active');
     const earns = document.querySelectorAll('.pkg-affiliate-earn');
     earns.forEach(e => e.style.display = type === 'affiliate' ? 'flex' : 'none');
+    // Update heading to reflect view
+    const h = document.querySelector('.hero h1');
+    if(h) h.innerHTML = type === 'affiliate'
+        ? 'Earn With Every <span class="gold">Campaign Tier.</span>'
+        : 'Choose Your <span class="gold">Campaign Tier.</span>';
 }
 // Default: advertiser view hides affiliate earnings row
 document.addEventListener('DOMContentLoaded', () => {
