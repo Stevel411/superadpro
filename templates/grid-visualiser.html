@@ -457,16 +457,6 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
         <div class="earn-amount" id="uniAmt" style="color:#a78bfa">$0.00</div>
       </div>
 
-      <div class="earn-row">
-        <div class="earn-left">
-          <div class="earn-dot" style="background:rgba(255,255,255,0.15)"></div>
-          <div>
-            <div class="earn-label">Platform Fee (5%)</div>
-            <div class="earn-sub">Deducted from every entry</div>
-          </div>
-        </div>
-        <div class="earn-amount" id="platformAmt" style="color:rgba(255,255,255,0.25)">$0.00</div>
-      </div>
     </div>
 
     <!-- Total -->
@@ -480,9 +470,8 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
     <div class="split-card">
       <div class="eyebrow">Per Entry Distribution — $<span id="splitPrice">100</span></div>
       <div class="split-bar-wrap">
-        <div class="split-seg" style="width:25%;background:#10b981"></div>
-        <div class="split-seg" style="width:70%;background:linear-gradient(90deg,#3b82f6,#a78bfa)"></div>
-        <div class="split-seg" style="width:5%;background:rgba(255,255,255,0.12)"></div>
+        <div class="split-seg" style="width:26.3%;background:#10b981"></div>
+        <div class="split-seg" style="width:73.7%;background:linear-gradient(90deg,#3b82f6,#a78bfa)"></div>
       </div>
       <div class="split-legend">
         <div class="split-item">
@@ -494,11 +483,6 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
           <div class="split-swatch" style="background:linear-gradient(135deg,#3b82f6,#a78bfa)"></div>
           Uni-Level (8 levels × $<span id="sp2lvl">8.75</span>)
           <span class="split-pct" id="sp2" style="color:#a78bfa">$70.00</span>
-        </div>
-        <div class="split-item">
-          <div class="split-swatch" style="background:rgba(255,255,255,0.15)"></div>
-          Platform Fee
-          <span class="split-pct" id="sp3" style="color:rgba(255,255,255,0.3)">$5.00</span>
         </div>
       </div>
     </div>
@@ -547,7 +531,7 @@ let directCount = 15;       // how many of the 63 seats are your personal referr
 let directSeats = new Set(); // which seat indices (1–63) are directs — randomised each reset
 
 // Running totals
-let tSponsor = 0, tUni = 0, tPlatform = 0;
+let tSponsor = 0, tUni = 0;
 
 const LEVEL_COLOURS = [
   '#00d4ff','#3b82f6','#6366f1','#7c3aed',
@@ -586,7 +570,6 @@ function updateSplitDisplay() {
   const direct   = pkg * 0.25;
   const perLevel = pkg * 0.70 / 8;
   const uniTotal = pkg * 0.70;
-  const platform = pkg * 0.05;
   const overspill = 63 - directCount;
   // Your earnings: each direct = direct+perLevel, each overspill = perLevel
   const est = (directCount * (direct + perLevel)) + (overspill * perLevel);
@@ -595,7 +578,6 @@ function updateSplitDisplay() {
   document.getElementById('sp1').textContent          = '$' + direct.toFixed(2);
   document.getElementById('sp2lvl').textContent       = perLevel.toFixed(2);
   document.getElementById('sp2').textContent          = '$' + uniTotal.toFixed(2);
-  document.getElementById('sp3').textContent          = '$' + platform.toFixed(2);
   document.getElementById('infoPkg').textContent      = '$' + pkg.toLocaleString();
   document.getElementById('infoDirectCount').textContent  = directCount + ' seats';
   document.getElementById('infoOverspillCount').textContent = overspill + ' seats';
@@ -667,7 +649,6 @@ function fillNext() {
   const level    = Math.floor((filled - 1) / 8);  // 0 = L1 … 7 = L8
   const isDirect = directSeats.has(filled);
   const perLevel = pkg * 0.70 / 8;   // $8.75 on $100
-  const platform = pkg * 0.05;
 
   // ── COMMISSION LOGIC ──────────────────────────────────────────────────
   // Every seat pays you ONE uni-level position ($8.75 on $100).
@@ -681,7 +662,6 @@ function fillNext() {
     directFilled++;
   }
   tUni      += perLevel;
-  tPlatform += platform;
 
   // Visual style
   const col = LEVEL_COLOURS[level];
@@ -703,7 +683,6 @@ function fillNext() {
   // Update panels
   bump('sponsorAmt', tSponsor);
   bump('uniAmt',     tUni);
-  bump('platformAmt',tPlatform);
   document.getElementById('totalAmt').textContent = '$' + (tSponsor + tUni).toFixed(2);
   document.getElementById('directFilled').textContent   = directFilled;
   document.getElementById('overspillFilled').textContent = filled - directFilled;
@@ -755,10 +734,10 @@ function gridAdvance() {
 function resetGrid() {
   pause();
   filled = 0; directFilled = 0;
-  tSponsor = 0; tUni = 0; tPlatform = 0;
+  tSponsor = 0; tUni = 0;
   randomiseDirects();
   buildGrid();
-  ['sponsorAmt','uniAmt','platformAmt'].forEach(id =>
+  ['sponsorAmt','uniAmt'].forEach(id =>
     document.getElementById(id).textContent = '$0.00'
   );
   document.getElementById('totalAmt').textContent         = '$0.00';
