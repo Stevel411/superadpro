@@ -3,383 +3,296 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Income Grid — SuperAdPro</title>
+<title>Profit Engine Grids — SuperAdPro</title>
 <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif; min-height:100vh; }
-.layout { display:flex; min-height:100vh; }
-.main { margin-left:220px; flex:1; display:flex; flex-direction:column; }
-.content { padding:24px 28px; flex:1; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060b18;color:#e2e8f0;font-family:'Rethink Sans',sans-serif;min-height:100vh}
 
-/* Cards */
-.card { background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; box-shadow:0 1px 6px rgba(0,0,0,0.05); overflow:hidden; }
-.card-head { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid #f1f5f9; }
-.card-title { font-size:17px; font-weight:700; color:#0f172a; display:flex; align-items:center; gap:8px; }
-.dot { width:7px; height:7px; border-radius:50%; background:#00b4d8; flex-shrink:0; }
-.card-action { font-size:17px; color:#0077a8; font-weight:700; text-decoration:none; }
-.card-body { padding:20px; }
+/* ── Top bar ── */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(6,11,24,0.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,180,216,0.1);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.back-btn{display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:14px;font-weight:600;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
+.back-btn:hover{color:#00d4ff;border-color:rgba(0,180,216,0.3);background:rgba(0,180,216,0.05)}
+.topbar-title{font-size:18px;font-weight:800;color:#fff}
+.topbar-sub{font-size:12px;color:#64748b}
+.balance-chip{background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:8px;padding:6px 14px;font-size:13px;font-weight:700;color:#16a34a}
 
-/* Hero stats */
-.hero-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
-.hero-card { background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:20px; position:relative; overflow:hidden; box-shadow:0 1px 6px rgba(0,0,0,0.05); }
-.hero-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
-.hero-card.cyan::before  { background:linear-gradient(90deg,transparent,#00b4d8,transparent); }
-.hero-card.violet::before{ background:linear-gradient(90deg,transparent,#6d28d9,transparent); }
-.hero-card.green::before { background:linear-gradient(90deg,transparent,#16a34a,transparent); }
-.hero-card.amber::before { background:linear-gradient(90deg,transparent,#f59e0b,transparent); }
-.hero-label { font-size:18px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#64748b; margin-bottom:8px; }
-.hero-value { font-size:32px; font-weight:800; color:#0f172a; line-height:1; }
-.hero-value.green  { color:#16a34a; }
-.hero-value.cyan   { color:#00b4d8; }
-.hero-value.violet { color:#6d28d9; }
-.hero-sub { font-size:15px; color:#64748b; margin-top:4px; }
+/* ── Container ── */
+.container{max-width:1100px;margin:0 auto;padding:32px 32px 80px}
 
-/* Package grid selector */
-.pkg-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px; }
-.pkg-tab { padding:8px 16px; border-radius:7px; border:1px solid #e2e8f0; background:#ffffff; font-size:18px; font-weight:700; color:#475569; cursor:pointer; transition:all 0.2s; text-decoration:none; }
-.pkg-tab:hover { border-color:#00b4d8; color:#00b4d8; }
-.pkg-tab.active { background:linear-gradient(135deg,#00b4d8,#6d28d9); color:#fff; border-color:transparent; }
+/* ── Hero stats ── */
+.hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px}
+.hero-card{background:rgba(15,23,42,0.8);border:1px solid rgba(0,180,216,0.1);border-radius:14px;padding:22px;position:relative;overflow:hidden;transition:all 0.3s}
+.hero-card:hover{border-color:rgba(0,180,216,0.25);transform:translateY(-2px)}
+.hero-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.hero-card.c1::before{background:linear-gradient(90deg,#00b4d8,#0077a8)}
+.hero-card.c2::before{background:linear-gradient(90deg,#6d28d9,#a78bfa)}
+.hero-card.c3::before{background:linear-gradient(90deg,#16a34a,#059669)}
+.hero-card.c4::before{background:linear-gradient(90deg,#f59e0b,#d97706)}
+.hero-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#64748b;margin-bottom:8px}
+.hero-val{font-size:30px;font-weight:800;line-height:1}
+.hero-val.cyan{color:#00d4ff}
+.hero-val.violet{color:#a78bfa}
+.hero-val.green{color:#16a34a}
+.hero-val.amber{color:#f59e0b}
+.hero-desc{font-size:12px;color:#475569;margin-top:6px}
 
-/* Grid visualisation */
-.grid-wrap { margin-bottom:24px; }
-.grid-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
-.grid-title { font-size:18px; font-weight:800; color:#0f172a; }
-.grid-meta { font-size:18px; color:#94a3b8; }
-.grid-progress { background:#e8ecf4; border-radius:999px; height:8px; margin-bottom:6px; overflow:hidden; }
-.grid-progress-fill { height:100%; background:linear-gradient(90deg,#00b4d8,#6d28d9); border-radius:999px; transition:width 0.5s; }
-.grid-pct { font-size:17px; color:#64748b; text-align:right; }
+/* ── Tier tabs ── */
+.tier-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
+.tier-tab{padding:9px 18px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(15,23,42,0.6);font-size:13px;font-weight:700;color:#94a3b8;cursor:pointer;transition:all 0.2s;text-decoration:none}
+.tier-tab:hover{border-color:rgba(0,180,216,0.3);color:#00d4ff}
+.tier-tab.active{background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff;border-color:transparent;box-shadow:0 4px 20px rgba(0,180,216,0.25)}
 
-/* 8×8 grid visual */
-.grid-visual { display:grid; grid-template-columns:repeat(8,1fr); gap:6px; margin-bottom:8px; }
-.grid-cell { aspect-ratio:1; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:700; transition:all 0.2s; }
-.grid-cell.filled   { background:linear-gradient(135deg,#00b4d8,#6d28d9); color:#fff; }
-.grid-cell.owner    { background:linear-gradient(135deg,#16a34a,#059669); color:#fff; box-shadow:0 0 0 2px #fff,0 0 0 4px #16a34a; }
-.grid-cell.empty    { background:#f8fafc; border:1px dashed #cbd5e1; color:#94a3b8; }
-.grid-cell.overspill{ background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#fbbf24; }
-.grid-legend { display:flex; gap:16px; font-size:18px; color:#64748b; }
-.legend-item { display:flex; align-items:center; gap:5px; }
-.legend-dot { width:10px; height:10px; border-radius:3px; }
+/* ── Grid card ── */
+.grid-card{background:rgba(15,23,42,0.8);border:1px solid rgba(0,180,216,0.1);border-radius:16px;overflow:hidden;margin-bottom:24px;transition:all 0.3s}
+.grid-card:hover{border-color:rgba(0,180,216,0.2)}
+.grid-card-head{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid rgba(0,180,216,0.08);flex-wrap:wrap;gap:10px}
+.grid-card-title{font-size:16px;font-weight:800;color:#fff;display:flex;align-items:center;gap:10px}
+.grid-card-title .dot{width:8px;height:8px;border-radius:50%;background:#16a34a;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.grid-card-meta{display:flex;align-items:center;gap:12px}
+.filled-badge{font-size:14px;font-weight:800;color:#00d4ff}
+.status-badge{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:rgba(22,163,74,0.1);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
+.grid-card-body{padding:24px}
 
-/* Level breakdown */
-.level-rows { display:flex; flex-direction:column; gap:8px; }
-.level-row { display:grid; grid-template-columns:60px 1fr 80px 100px; align-items:center; gap:12px; padding:10px 14px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0; }
-.level-label { font-size:18px; font-weight:700; color:#0f172a; }
-.level-bar-wrap { background:#e8ecf4; border-radius:999px; height:6px; overflow:hidden; }
-.level-bar { height:100%; background:linear-gradient(90deg,#00b4d8,#6d28d9); border-radius:999px; }
-.level-count { font-size:17px; color:#64748b; text-align:center; }
-.level-earn { font-size:18px; font-weight:800; color:#16a34a; text-align:right; }
+/* ── Progress bar ── */
+.progress-wrap{margin-bottom:24px}
+.progress-bar{height:8px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;margin-bottom:6px}
+.progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#00b4d8,#6d28d9);transition:width 0.8s ease}
+.progress-text{font-size:12px;color:#64748b;display:flex;justify-content:space-between}
 
-/* Earnings projection */
-.projection { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
-.proj-card { background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:20px; box-shadow:0 1px 6px rgba(0,0,0,0.05); }
-.proj-title { font-size:18px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:1px; margin-bottom:14px; }
-.proj-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f1f5f9; }
-.proj-row:last-child { border-bottom:none; padding-top:10px; }
-.proj-label { font-size:17px; color:#64748b; }
-.proj-value { font-size:17px; font-weight:800; color:#16a34a; }
-.proj-value.total { font-size:18px; color:#0f172a; }
+/* ── 8×8 Grid visual ── */
+.section-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.4);margin-bottom:12px}
+.grid-8x8{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-bottom:12px}
+.g-cell{aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:all 0.3s}
+.g-cell.owner{background:linear-gradient(135deg,#16a34a,#059669);color:#fff;font-size:10px;font-weight:800;box-shadow:0 2px 12px rgba(22,163,74,0.4)}
+.g-cell.filled{background:linear-gradient(135deg,rgba(0,180,216,0.2),rgba(109,40,217,0.15));border:1px solid rgba(0,180,216,0.25);color:#00d4ff}
+.g-cell.empty{background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.08);color:#334155}
+.legend{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#64748b}
+.legend-dot{width:12px;height:12px;border-radius:4px}
 
-/* No grids state */
-.empty-state { text-align:center; padding:60px 20px; }
-.empty-icon { font-size:48px; margin-bottom:16px; }
-.empty-title { font-size:20px; font-weight:800; color:#0f172a; margin-bottom:8px; }
-.empty-sub { font-size:18px; color:#64748b; margin-bottom:24px; }
-.cta-btn { display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:18px; color:#fff; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:12px 28px; border-radius:8px; text-decoration:none; box-shadow:0 4px 14px rgba(0,180,216,0.3); }
+/* ── Level breakdown ── */
+.level-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.level-row:last-child{border-bottom:none}
+.level-label{font-size:12px;font-weight:700;color:#94a3b8;width:60px;flex-shrink:0}
+.level-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden}
+.level-bar{height:100%;border-radius:999px;background:linear-gradient(90deg,#00b4d8,#6d28d9);transition:width 0.5s}
+.level-seats{font-size:11px;color:#475569;width:50px;text-align:right;flex-shrink:0}
+.level-earn{font-size:12px;font-weight:800;color:#16a34a;width:70px;text-align:right;flex-shrink:0}
 
-@media(max-width:768px){ .hero-stats{grid-template-columns:1fr 1fr} .projection{grid-template-columns:1fr} .main{margin-left:0} }
+/* ── Earnings summary ── */
+.earnings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:32px}
+.earn-card{background:rgba(15,23,42,0.8);border:1px solid rgba(0,180,216,0.1);border-radius:14px;padding:22px}
+.earn-card-title{font-size:14px;font-weight:800;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.earn-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.earn-row:last-child{border-bottom:none}
+.earn-label{font-size:13px;color:#94a3b8}
+.earn-val{font-size:13px;font-weight:700;color:#00d4ff}
+.earn-val.total{font-size:16px;color:#16a34a}
+
+/* ── Empty state ── */
+.empty{text-align:center;padding:60px 32px}
+.empty-icon{font-size:48px;margin-bottom:16px}
+.empty-title{font-size:22px;font-weight:800;color:#fff;margin-bottom:8px}
+.empty-sub{font-size:14px;color:#64748b;line-height:1.7;max-width:500px;margin:0 auto 24px}
+.empty-cta{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff;font-size:14px;font-weight:700;border-radius:8px;text-decoration:none;transition:all 0.2s}
+.empty-cta:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,180,216,0.3)}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .topbar{padding:0 16px;height:54px}
+  .topbar-title{font-size:15px}
+  .topbar-right-btn{display:none}
+  .container{padding:20px 16px 80px}
+  .hero-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .hero-card{padding:16px}
+  .hero-val{font-size:24px}
+  .tier-tabs{gap:6px}
+  .tier-tab{padding:7px 12px;font-size:12px}
+  .grid-card-head{padding:14px 16px}
+  .grid-card-body{padding:16px}
+  .grid-8x8{gap:3px}
+  .g-cell{font-size:9px;border-radius:4px}
+  .earnings-grid{grid-template-columns:1fr}
+  .level-row{gap:8px}
+}
+@media(max-width:480px){
+  .hero-val{font-size:22px}
+  .grid-card-meta{flex-wrap:wrap}
+  .back-btn span{display:none}
+}
 </style>
-  <link rel="stylesheet" href="/static/mobile.css">
-  <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#0a0a1a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="SuperAdPro">
-  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 </head>
 <body>
 
-<!-- SVG Shield -->
-<svg width="0" height="0" style="position:absolute">
-  <defs>
-    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="30%" stop-color="#6d28d9"/><stop offset="70%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient>
-    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a0a2e"/><stop offset="40%" stop-color="#06061a"/><stop offset="100%" stop-color="#03031a"/></linearGradient>
-    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="25%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="75%" stop-color="#00b4d8"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
-    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
-    <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <symbol id="shield" viewBox="0 0 100 100">
-      <defs>
-        <linearGradient id="hexgrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#4f8ef7"/>
-          <stop offset="50%" stop-color="#6d28d9"/>
-          <stop offset="100%" stop-color="#00b4d8"/>
-        </linearGradient>
-        <linearGradient id="hexinner" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#1a3a8f"/>
-          <stop offset="100%" stop-color="#0d1a5c"/>
-        </linearGradient>
-      </defs>
-      <polygon points="50,3 93,27 93,73 50,97 7,73 7,27" fill="url(#hexgrad)" />
-      <polygon points="50,12 84,31 84,69 50,88 16,69 16,31" fill="url(#hexinner)" />
-      <text x="50" y="63" text-anchor="middle" font-family="Arial Black,sans-serif" font-weight="900" font-size="38" fill="#00d4ff" letter-spacing="-2">S</text>
-    </symbol>
-  </defs>
-</svg>
-
-<div class="layout">
-<!-- ── Mobile Topbar ── -->
-<div class="mobile-topbar">
-  <a class="mobile-topbar-left" href="/dashboard">
-    <svg width="26" height="26" viewBox="0 0 100 100">
-      <defs>
-        <linearGradient id="mhg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#4f8ef7"/>
-          <stop offset="50%" stop-color="#6d28d9"/>
-          <stop offset="100%" stop-color="#00b4d8"/>
-        </linearGradient>
-      </defs>
-      <polygon points="50,3 93,27 93,73 50,97 7,73 7,27" fill="url(#mhg)"/>
-      <text x="50" y="63" text-anchor="middle" font-family="Arial Black" font-weight="900" font-size="42" fill="#00d4ff">S</text>
-    </svg>
-    <div>
-      <div class="mobile-topbar-name">SuperAdPro</div>
-      <div class="mobile-topbar-page">Income Grid</div>
-    </div>
-  </a>
-  <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
-</div>
-
-
-  <!-- SIDEBAR -->
-    <aside class="sidebar">
-    <a href="/dashboard" class="sidebar-logo">
-      <svg width="30" height="30"><use href="#shield"/></svg>
-      <span class="sidebar-brand">SuperAdPro</span>
+<!-- ── Top Bar ── -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/dashboard" class="back-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+      <span>Dashboard</span>
     </a>
-    <div class="nav-section">Main</div>
-    <a href="/dashboard" class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
-    <a href="/packages" class="nav-item"><span class="nav-icon">📦</span>Campaign Tiers</a>
-    <a href="/watch" class="nav-item"><span class="nav-icon">▶</span>Watch &amp; Earn</a>
-    <a href="/video-library" class="nav-item"><span class="nav-icon">🎬</span>My Campaigns</a>
-    <div class="nav-section">Marketing Suite</div>
-    <a href="/campaign-studio" class="nav-item"><span class="nav-icon">🤖</span>AI Campaign Studio</a>
-    <a href="/niche-finder" class="nav-item"><span class="nav-icon">💡</span>Niche Finder</a>
-    <a href="/swipe-file" class="nav-item"><span class="nav-icon">📋</span>Swipe File</a>
-    <div class="nav-section">Income Streams</div>
-    <a href="/income-grid" class="nav-item active"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
-    <a href="/wallet" class="nav-item"><span class="nav-icon">◎</span>Wallet</a>
-    <a href="/affiliate" class="nav-item"><span class="nav-icon">🤝</span>Affiliate Tools</a>
-    <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span>Comp Plan</a>
-    <a href="/grid-visualiser" class="nav-item"><span class="nav-icon">◈</span>Grid Visualiser</a>
-    <div class="nav-section">Account</div>
-    <a href="/account" class="nav-item"><span class="nav-icon">◉</span>My Profile</a>
-    <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
-    <div class="sidebar-footer">
-      <div class="user-mini">
-        <div class="user-avatar">{{ user.username[:2].upper() }}</div>
-        <div>
-          <div style="font-size:12px;font-weight:700;color:#fff">{{ user.first_name or user.username }}</div>
-          <div style="font-size:9px;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:1px">
-            {% if is_active %}● Active{% else %}○ Inactive{% endif %}
-          </div>
-        </div>
-      </div>
-      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;color:#64748b;text-decoration:none;margin-top:4px;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">⎋ Sign Out</a>
+    <div>
+      <div class="topbar-title">Profit Engine Grids</div>
+      <div class="topbar-sub">8×8 Recurring Grid · 63 seats per advance</div>
     </div>
-  </aside>
-
-  <div class="main">
-    <!-- TOPBAR -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:62px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.1);position:sticky;top:0;z-index:50">
-      <div>
-        <div style="font-size:17px;font-weight:800;color:#ffffff">◈ Income Grid</div>
-        <div style="font-size:17px;color:#94a3b8;margin-top:1px">8×8 Recurring Grid — 64 positions per advance</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:14px">
-        <div style="display:flex;align-items:center;gap:10px;background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:8px 14px">
-          <div>
-            <div style="font-size:17px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase">Balance</div>
-            <div><span style="font-size:17px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:18px;color:#94a3b8;margin-left:3px">USDT</span></div>
-          </div>
-        </div>
-        <a href="/packages" style="font-size:17px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:9px 20px;border-radius:7px;text-decoration:none">+ Activate Campaign Tier</a>
-      </div>
-    </div>
-
-    <div class="content">
-
-      <!-- HERO STATS -->
-      <div class="hero-stats">
-        <div class="hero-card cyan">
-          <div class="hero-label">Total Advances</div>
-          <div class="hero-value cyan">{{ grid_stats.completed_advances }}</div>
-          <div class="hero-sub">Completed grids</div>
-        </div>
-        <div class="hero-card violet">
-          <div class="hero-label">Active Grids</div>
-          <div class="hero-value violet">{{ grid_stats.active_grids }}</div>
-          <div class="hero-sub">Currently filling</div>
-        </div>
-        <div class="hero-card green">
-          <div class="hero-label">Total Earned</div>
-          <div class="hero-value green">${{ '%.2f'|format(grid_stats.total_earned) }}</div>
-          <div class="hero-sub">All time USDT</div>
-        </div>
-        <div class="hero-card amber">
-          <div class="hero-label">Network Size</div>
-          <div class="hero-value">{{ grid_stats.total_members }}</div>
-          <div class="hero-sub">Members across all grids</div>
-        </div>
-      </div>
-
-      {% if grid_stats.active_grids == 0 and grid_stats.completed_advances == 0 %}
-      <!-- EMPTY STATE -->
-      <div class="card">
-        <div class="card-body">
-          <div class="empty-state">
-            <div class="empty-icon">◈</div>
-            <div class="empty-title">No Active Grids Yet</div>
-            <div class="empty-sub">Activate your first grid package to start building your 8×8 income network.<br>Fill 63 seats — earn 25% direct sponsor + 8.75% uni-level per entry — then it resets automatically.</div>
-            <a href="/packages" class="cta-btn">🚀 Activate Your First Grid →</a>
-          </div>
-        </div>
-      </div>
-
-      {% else %}
-
-      <!-- PACKAGE TABS -->
-      <div class="pkg-tabs">
-        {% for tier, price in GRID_PACKAGES.items() %}
-        <a href="?tier={{ tier }}" class="pkg-tab {% if selected_tier == tier %}active{% endif %}">
-          Tier {{ tier }} — ${{ price|int }}
-        </a>
-        {% endfor %}
-      </div>
-
-      <!-- ACTIVE GRIDS -->
-      {% for grid_info in grid_stats.active_grids_detail %}
-      <div class="card grid-wrap" style="margin-bottom:24px">
-        <div class="card-head">
-          <div class="card-title">
-            <div class="dot"></div>
-            Tier {{ grid_info.tier }} Grid — ${{ grid_info.price|int }}/member — Advance #{{ grid_info.advance }}
-          </div>
-          <div style="display:flex;align-items:center;gap:12px">
-            <span style="font-size:18px;font-weight:700;color:#16a34a">{{ grid_info.filled }}/64 filled</span>
-            <span style="font-size:17px;background:rgba(22,163,74,0.12);color:#16a34a;border:1px solid rgba(22,163,74,0.25);padding:3px 10px;border-radius:999px;font-weight:700">ACTIVE</span>
-          </div>
-        </div>
-        <div class="card-body">
-          <!-- Progress -->
-          <div style="margin-bottom:20px">
-            <div class="grid-progress"><div class="grid-progress-fill" style="width:{{ grid_info.pct }}%"></div></div>
-            <div class="grid-pct">{{ grid_info.pct }}% complete — ${{ '%.2f'|format(grid_info.owner_potential) }} earned so far</div>
-          </div>
-
-          <!-- 8×8 Visual Grid -->
-          <div style="margin-bottom:20px">
-            <div style="font-size:17px;font-weight:700;color:rgba(200,220,255,0.65);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Grid Visualisation</div>
-            <div class="grid-visual" id="gridVisual_{{ grid_info.tier }}">
-              <!-- Rendered by JS below -->
-            </div>
-            <div class="grid-legend">
-              <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,#16a34a,#059669)"></div>You (Direct Sponsor)</div>
-              <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,#00b4d8,#6d28d9)"></div>Filled</div>
-              <div class="legend-item"><div class="legend-dot" style="background:#ffffff;border:1px dashed #cbd5e1"></div>Empty</div>
-            </div>
-          </div>
-
-          <!-- Level breakdown -->
-          <div>
-            <div style="font-size:17px;font-weight:700;color:rgba(200,220,255,0.65);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Level Earnings Breakdown</div>
-            <div class="level-rows">
-              {% for lvl in range(1,9) %}
-              {% set per_level_earn = (grid_info.price * 0.25 / 8) %}
-              {% set seats_filled = [grid_info.filled - (lvl-1)*8, 0]|max %}
-              {% set seats_this_level = [seats_filled, 8]|min %}
-              <div class="level-row">
-                <div class="level-label">Level {{ lvl }}</div>
-                <div class="level-bar-wrap"><div class="level-bar" style="width:{{ (seats_this_level/8*100)|int }}%"></div></div>
-                <div class="level-count">{{ seats_this_level }}/8 seats</div>
-                <div class="level-earn">+${{ '%.2f'|format(per_level_earn * seats_this_level) }}</div>
-              </div>
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-
-      <!-- EARNINGS PROJECTION -->
-      <div class="projection">
-        <div class="proj-card">
-          <div class="proj-title">📊 Earnings Breakdown</div>
-          <div class="proj-row"><span class="proj-label">Grid Owner Commission</span><span class="proj-value">${{ '%.2f'|format(grid_earnings) }}</span></div>
-          <div class="proj-row"><span class="proj-label">Uni-Level Commission</span><span class="proj-value">${{ '%.2f'|format(level_earnings) }}</span></div>
-          <div class="proj-row"><span class="proj-label">Upline Earnings</span><span class="proj-value">${{ '%.2f'|format(upline_earnings) }}</span></div>
-          <div class="proj-row"><span class="proj-label" style="font-weight:800;color:#ffffff">Total Earned</span><span class="proj-value total">${{ '%.2f'|format(total_earned) }}</span></div>
-        </div>
-        <div class="proj-card">
-          <div class="proj-title">🔄 Advance Potential — Pro $100</div>
-          {% set pro_price = 100 %}
-          {% set pro_owner = pro_price * 64 * 0.95 * 0.45 %}
-          <div class="proj-row"><span class="proj-label">1 advance</span><span class="proj-value">${{ '%.0f'|format(pro_owner) }}</span></div>
-          <div class="proj-row"><span class="proj-label">3 advances</span><span class="proj-value">${{ '%.0f'|format(pro_owner*3) }}</span></div>
-          <div class="proj-row"><span class="proj-label">5 advances</span><span class="proj-value">${{ '%.0f'|format(pro_owner*5) }}</span></div>
-          <div class="proj-row"><span class="proj-label" style="font-weight:800;color:#ffffff">10 advances</span><span class="proj-value total">${{ '%.0f'|format(pro_owner*10) }}</span></div>
-        </div>
-      </div>
-
-      {% endif %}
-
-    </div><!-- /content -->
-  </div><!-- /main -->
-</div><!-- /layout -->
-
-<script>
-// Render 8×8 grid cells
-document.querySelectorAll('[id^="gridVisual_"]').forEach(el => {
-  const tier = el.id.split('_')[1];
-  // Get filled count from data (simplified — full version uses real position data)
-  const filled = parseInt(el.closest('.card-body').querySelector('.grid-pct').textContent) || 0;
-  for (let i = 0; i < 64; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'grid-cell';
-    if (i === 0) {
-      cell.className += ' owner';
-      cell.textContent = 'YOU';
-    } else if (i < filled) {
-      cell.className += ' filled';
-    } else {
-      cell.className += ' empty';
-      cell.textContent = i + 1;
-    }
-    el.appendChild(cell);
-  }
-});
-</script>
-
-<!-- ── Mobile Bottom Nav ── -->
-<div class="mobile-nav">
-  <div class="mobile-nav-inner">
-        <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
-    <a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">▶</span><span class="mob-nav-label">Watch</span></a>
-    <a href="/income-grid" class="mob-nav-item active"><span class="mob-nav-icon">⚡</span><span class="mob-nav-label">Grid</span></a>
-    <a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">◎</span><span class="mob-nav-label">Wallet</span></a>
-    <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">◉</span><span class="mob-nav-label">Account</span></a>
-<a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">▶</span><span class="mob-nav-label">Watch</span></a>
-    <a href="/income-grid" class="mob-nav-item active"><span class="mob-nav-icon">⚡</span><span class="mob-nav-label">Grid</span></a>
-    <a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">◎</span><span class="mob-nav-label">Wallet</span></a>
-    <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">◉</span><span class="mob-nav-label">Account</span></a>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
+    <a href="/packages" class="topbar-right-btn" style="font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:8px 18px;border-radius:8px;text-decoration:none;white-space:nowrap;transition:all 0.2s">+ Activate Tier</a>
   </div>
 </div>
 
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/static/sw.js').catch(() => {});
-  });
-}
-</script>
+<div class="container">
+
+  <!-- ── Hero Stats ── -->
+  <div class="hero-grid">
+    <div class="hero-card c1">
+      <div class="hero-label">Completed Advances</div>
+      <div class="hero-val cyan">{{ grid_stats.completed_advances }}</div>
+      <div class="hero-desc">Fully filled grids</div>
+    </div>
+    <div class="hero-card c2">
+      <div class="hero-label">Active Grids</div>
+      <div class="hero-val violet">{{ grid_stats.active_grids }}</div>
+      <div class="hero-desc">Currently filling</div>
+    </div>
+    <div class="hero-card c3">
+      <div class="hero-label">Total Earned</div>
+      <div class="hero-val green">${{ '%.2f'|format(grid_stats.total_earned) }}</div>
+      <div class="hero-desc">All-time grid income</div>
+    </div>
+    <div class="hero-card c4">
+      <div class="hero-label">Network Size</div>
+      <div class="hero-val amber">{{ grid_stats.total_members }}</div>
+      <div class="hero-desc">Members across grids</div>
+    </div>
+  </div>
+
+  {% if grid_stats.active_grids == 0 and grid_stats.completed_advances == 0 %}
+  <!-- ── Empty State ── -->
+  <div class="grid-card">
+    <div class="empty">
+      <div class="empty-icon">◈</div>
+      <div class="empty-title">No Active Grids Yet</div>
+      <div class="empty-sub">Activate your first campaign tier to launch your 8×8 Profit Engine Grid. Fill 63 seats, earn 25% direct sponsor + 8.75% uni-level per entry, then it resets and you earn again.</div>
+      <a href="/packages" class="empty-cta">🚀 Activate Your First Grid →</a>
+    </div>
+  </div>
+
+  {% else %}
+
+  <!-- ── Tier Tabs ── -->
+  <div class="tier-tabs">
+    {% for tier, price in GRID_PACKAGES.items() %}
+    <a href="?tier={{ tier }}" class="tier-tab {% if selected_tier == tier %}active{% endif %}">
+      Tier {{ tier }} · ${{ price|int }}
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- ── Grid Cards for selected tier ── -->
+  {% set tier_grids = grid_stats.active_grids_detail|selectattr('tier','equalto',selected_tier)|list %}
+  {% if tier_grids|length > 0 %}
+    {% for g in tier_grids %}
+    <div class="grid-card">
+      <div class="grid-card-head">
+        <div class="grid-card-title">
+          <div class="dot"></div>
+          ${{ g.price|int }} Campaign Tier · Advance #{{ g.advance }}
+        </div>
+        <div class="grid-card-meta">
+          <span class="filled-badge">{{ g.filled }}/63 filled</span>
+          <span class="status-badge">Active</span>
+        </div>
+      </div>
+      <div class="grid-card-body">
+
+        <!-- Progress -->
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill" style="width:{{ g.pct }}%"></div></div>
+          <div class="progress-text">
+            <span>{{ g.pct }}% complete</span>
+            <span style="color:#16a34a;font-weight:700">${{ '%.2f'|format(g.owner_potential) }} earned</span>
+          </div>
+        </div>
+
+        <!-- 8×8 Grid Visual -->
+        <div class="section-label">Grid Visualisation</div>
+        <div class="grid-8x8">
+          {% for i in range(64) %}
+            {% if i == 0 %}
+              <div class="g-cell owner">YOU</div>
+            {% elif i <= g.filled %}
+              <div class="g-cell filled">{{ i }}</div>
+            {% else %}
+              <div class="g-cell empty">{{ i }}</div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,#16a34a,#059669)"></div>You (Owner)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,rgba(0,180,216,0.4),rgba(109,40,217,0.3));border:1px solid rgba(0,180,216,0.4)"></div>Filled</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.15)"></div>Empty</div>
+        </div>
+
+        <!-- Level Breakdown -->
+        <div class="section-label">Level Earnings Breakdown</div>
+        <div>
+          {% for lvl in range(1,9) %}
+          {% set per_seat = g.price * 0.0875 %}
+          {% set seats_before = (lvl-1)*8 %}
+          {% set seats_filled_raw = g.filled - seats_before %}
+          {% set seats_this = [seats_filled_raw, 0]|max %}
+          {% set seats_this_level = [seats_this, 8]|min %}
+          <div class="level-row">
+            <div class="level-label">Level {{ lvl }}</div>
+            <div class="level-bar-wrap"><div class="level-bar" style="width:{{ (seats_this_level/8*100)|int }}%"></div></div>
+            <div class="level-seats">{{ seats_this_level }}/8</div>
+            <div class="level-earn">${{ '%.2f'|format(per_seat * seats_this_level) }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+  {% else %}
+  <!-- No grid for this tier -->
+  <div class="grid-card">
+    <div class="empty" style="padding:40px 24px">
+      <div class="empty-icon">⚡</div>
+      <div class="empty-title">Tier {{ selected_tier }} Not Activated</div>
+      <div class="empty-sub">Activate this campaign tier to start filling your grid and earning commissions.</div>
+      <a href="/packages" class="empty-cta">Activate Tier {{ selected_tier }} →</a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── Earnings Summary ── -->
+  <div class="earnings-grid">
+    <div class="earn-card">
+      <div class="earn-card-title">📊 Your Earnings</div>
+      <div class="earn-row"><span class="earn-label">Direct Sponsor (25%)</span><span class="earn-val">${{ '%.2f'|format(grid_earnings) }}</span></div>
+      <div class="earn-row"><span class="earn-label">Uni-Level (8.75% × 8)</span><span class="earn-val">${{ '%.2f'|format(level_earnings) }}</span></div>
+      <div class="earn-row"><span class="earn-label">Upline Placements</span><span class="earn-val">${{ '%.2f'|format(upline_earnings) }}</span></div>
+      <div class="earn-row"><span class="earn-label" style="color:#fff;font-weight:700">Total Earned</span><span class="earn-val total">${{ '%.2f'|format(total_earned) }}</span></div>
+    </div>
+    <div class="earn-card">
+      <div class="earn-card-title">🔮 Per-Advance Potential</div>
+      {% set tier_data = [(20,'Starter'),(50,'Builder'),(100,'Pro'),(200,'Advanced'),(400,'Elite'),(600,'Premium'),(800,'Executive'),(1000,'Legend')] %}
+      {% for price, name in tier_data %}
+      {% set earn = price * 63 * 0.70 %}
+      <div class="earn-row"><span class="earn-label">{{ name }} · ${{ price }}</span><span class="earn-val">${{ '%.0f'|format(earn) }}</span></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% endif %}
+
+</div>
+
 </body>
 </html>
