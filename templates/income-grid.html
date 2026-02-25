@@ -314,10 +314,10 @@ body { background:#f0f2f8; color:#0f172a; font-family:'Rethink Sans',sans-serif;
       <div class="projection">
         <div class="proj-card">
           <div class="proj-title">📊 Earnings Breakdown</div>
-          <div class="proj-row"><span class="proj-label">Direct + Uni-Level (95%)</span><span class="proj-value">${{ '%.2f'|format(grid_stats.grid_earnings) }}</span></div>
-          <div class="proj-row"><span class="proj-label">Uni-Level (25%)</span><span class="proj-value">${{ '%.2f'|format(grid_stats.level_earnings) }}</span></div>
-          <div class="proj-row"><span class="proj-label">Uni-Level Income</span><span class="proj-value">${{ '%.2f'|format(grid_stats.level_earnings) }}</span></div>
-          <div class="proj-row"><span class="proj-label" style="font-weight:800;color:#ffffff">Total Earned</span><span class="proj-value total">${{ '%.2f'|format(grid_stats.total_earned) }}</span></div>
+          <div class="proj-row"><span class="proj-label">Grid Owner Commission</span><span class="proj-value">${{ '%.2f'|format(grid_earnings) }}</span></div>
+          <div class="proj-row"><span class="proj-label">Uni-Level Commission</span><span class="proj-value">${{ '%.2f'|format(level_earnings) }}</span></div>
+          <div class="proj-row"><span class="proj-label">Upline Earnings</span><span class="proj-value">${{ '%.2f'|format(upline_earnings) }}</span></div>
+          <div class="proj-row"><span class="proj-label" style="font-weight:800;color:#ffffff">Total Earned</span><span class="proj-value total">${{ '%.2f'|format(total_earned) }}</span></div>
         </div>
         <div class="proj-card">
           <div class="proj-title">🔄 Advance Potential — Pro $100</div>
