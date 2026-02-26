@@ -271,6 +271,7 @@ class FunnelPage(Base):
     # Style
     color_scheme    = Column(String, default="dark")
     accent_color    = Column(String, default="#00d4ff")
+    custom_bg       = Column(String, default="")
     font_family     = Column(String, default="Rethink Sans")
     custom_css      = Column(Text, nullable=True)
     # SEO
@@ -341,6 +342,7 @@ def run_migrations():
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS custom_css TEXT",
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS meta_description TEXT",
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS og_image_url VARCHAR",
+        "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS custom_bg VARCHAR DEFAULT ''",
     ]
     results = []
     with engine.connect() as conn:

@@ -1396,6 +1396,7 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
     page.image_url = body.get("image_url", "")
     page.color_scheme = body.get("color_scheme", "dark")
     page.accent_color = body.get("accent_color", "#00d4ff")
+    page.custom_bg = body.get("custom_bg", "")
     page.status = body.get("status", "draft")
     page.funnel_name = body.get("funnel_name", "")
     page.font_family = body.get("font_family", "Rethink Sans")

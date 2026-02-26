@@ -11,7 +11,8 @@
 body{font-family:'DM Sans','Rethink Sans',sans-serif;min-height:100vh}
 
 {% set sc = page.color_scheme or 'dark' %}
-{% if sc == 'light' %}body{background:#f5f7fb;color:#0f172a}
+{% if sc == 'custom' and page.custom_bg %}body{background:{{ page.custom_bg }};color:#e2e8f0}
+{% elif sc == 'light' %}body{background:#f5f7fb;color:#0f172a}
 {% elif sc == 'gradient' %}body{background:linear-gradient(160deg,#0a0a1a,#1a1a4a,#0a0a2a);color:#e2e8f0}
 {% elif sc == 'ocean' %}body{background:linear-gradient(160deg,#0a1628,#0a2840,#061420);color:#e2e8f0}
 {% elif sc == 'fire' %}body{background:linear-gradient(160deg,#1a0a0a,#2a1a0a,#1a0a05);color:#e2e8f0}

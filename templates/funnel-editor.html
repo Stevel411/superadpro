@@ -131,13 +131,22 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
   <div class="set-section">
     <div class="set-row">
       <div class="set-label">Background Theme</div>
-      <div class="scheme-grid">
-        <div class="scheme-opt active" data-scheme="dark" style="background:#0a0a1a" onclick="setScheme(this)"></div>
-        <div class="scheme-opt" data-scheme="light" style="background:#f0f2f8" onclick="setScheme(this)"></div>
-        <div class="scheme-opt" data-scheme="gradient" style="background:linear-gradient(135deg,#0a0a1a,#1a1a4a)" onclick="setScheme(this)"></div>
-        <div class="scheme-opt" data-scheme="ocean" style="background:linear-gradient(135deg,#0a1628,#0a2840)" onclick="setScheme(this)"></div>
-        <div class="scheme-opt" data-scheme="fire" style="background:linear-gradient(135deg,#1a0a0a,#2a1a0a)" onclick="setScheme(this)"></div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <div class="scheme-grid">
+          <div class="scheme-opt active" data-scheme="dark" style="background:#0a0a1a" onclick="setScheme(this)"></div>
+          <div class="scheme-opt" data-scheme="light" style="background:#f0f2f8" onclick="setScheme(this)"></div>
+          <div class="scheme-opt" data-scheme="gradient" style="background:linear-gradient(135deg,#0a0a1a,#1a1a4a)" onclick="setScheme(this)"></div>
+          <div class="scheme-opt" data-scheme="ocean" style="background:linear-gradient(135deg,#0a1628,#0a2840)" onclick="setScheme(this)"></div>
+          <div class="scheme-opt" data-scheme="fire" style="background:linear-gradient(135deg,#1a0a0a,#2a1a0a)" onclick="setScheme(this)"></div>
+        </div>
+        <div style="position:relative">
+          <input type="color" id="customBgPicker" value="#0a0a1a" style="position:absolute;opacity:0;width:32px;height:32px;cursor:pointer" oninput="setCustomBg(this.value)">
+          <div id="customBgSwatch" onclick="document.getElementById('customBgPicker').click()" style="width:32px;height:32px;border-radius:6px;background:conic-gradient(#0a0a1a,#1a0a2e,#0a1628,#1a0a0a,#2a1a0a,#0a0a1a);cursor:pointer;border:2px solid transparent;transition:all 0.15s;display:flex;align-items:center;justify-content:center" title="Custom background">
+            <div style="width:12px;height:12px;background:rgba(255,255,255,0.15);border-radius:3px"></div>
+          </div>
+        </div>
       </div>
+      <div id="customBgHex" style="display:none;margin-top:4px;font-size:11px;color:#6b7d94;font-family:monospace"></div>
     </div>
     <div class="set-row">
       <div class="set-label">Accent Color</div>
@@ -193,6 +202,7 @@ let sections = [];
 let selectedIdx = -1;
 let scheme = '{{ page.color_scheme if page else "dark" }}';
 let accent = '{{ page.accent_color if page else "#00d4ff" }}';
+let customBg = '{{ page.custom_bg if page and page.custom_bg else "" }}';
 
 // Load saved sections if editing
 {% if page and page.body_copy %}
@@ -218,6 +228,7 @@ function initLibrary() {
 //  CANVAS RENDERING
 // ═══════════════════════════════════════════════════
 function getBg() {
+  if (scheme === 'custom' && customBg) return `background:${customBg}`;
   const bgs = {dark:'background:#0a0a1a',light:'background:#f5f7fb',gradient:'background:linear-gradient(160deg,#0a0a1a,#1a1a4a,#0a0a2a)',ocean:'background:linear-gradient(160deg,#0a1628,#0a2840,#061420)',fire:'background:linear-gradient(160deg,#1a0a0a,#2a1a0a,#1a0a05)'};
   return bgs[scheme] || bgs.dark;
 }
@@ -398,6 +409,20 @@ function setScheme(el) {
   document.querySelectorAll('.scheme-opt').forEach(e => e.classList.remove('active'));
   el.classList.add('active');
   scheme = el.dataset.scheme;
+  customBg = '';
+  document.getElementById('customBgHex').style.display = 'none';
+  document.getElementById('customBgSwatch').style.borderColor = 'transparent';
+  renderCanvas();
+}
+
+function setCustomBg(color) {
+  document.querySelectorAll('.scheme-opt').forEach(e => e.classList.remove('active'));
+  scheme = 'custom';
+  customBg = color;
+  const hexEl = document.getElementById('customBgHex');
+  hexEl.textContent = color.toUpperCase();
+  hexEl.style.display = 'block';
+  document.getElementById('customBgSwatch').style.borderColor = '#00d4ff';
   renderCanvas();
 }
 
@@ -463,6 +488,7 @@ async function savePage(status, openPreview) {
         body_copy: JSON.stringify(sections),
         color_scheme: scheme,
         accent_color: accent,
+        custom_bg: customBg,
         headline: sections[0]?.data?.headline || title,
         subheadline: sections[0]?.data?.subheadline || '',
         cta_text: sections.find(s=>s.data.cta_text)?.data?.cta_text || '',
@@ -534,6 +560,13 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.scheme-opt').forEach(e => e.classList.toggle('active', e.dataset.scheme === scheme));
   document.querySelectorAll('.accent-opt').forEach(e => e.classList.toggle('active', e.dataset.color === accent));
   document.getElementById('customAccentPicker').value = accent;
+  // Restore custom bg if saved
+  if (scheme === 'custom' && customBg) {
+    document.getElementById('customBgPicker').value = customBg;
+    document.getElementById('customBgHex').textContent = customBg.toUpperCase();
+    document.getElementById('customBgHex').style.display = 'block';
+    document.getElementById('customBgSwatch').style.borderColor = '#00d4ff';
+  }
   initLibrary();
   renderCanvas();
 });
