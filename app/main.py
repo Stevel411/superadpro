@@ -2038,6 +2038,7 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
     rand = ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))
     slug = f"{user.username}/{slug_base}-{rand}"
 
+    sections_data = json.dumps(sections)
     page = FunnelPage(
         user_id=user.id,
         slug=slug,
@@ -2046,7 +2047,8 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
         template_type="landing",
         color_scheme=tpl.get("bg", "dark"),
         accent_color=tpl.get("accent", "#00d4ff"),
-        sections_json=json.dumps(sections),
+        sections_json=sections_data,
+        body_copy=sections_data,
         status="draft"
     )
     db.add(page)
