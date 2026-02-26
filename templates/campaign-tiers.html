@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Campaign Tiers — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:224px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,180,216,0.25);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.sidebar-brand{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-section{padding:18px 16px 5px;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#00d4ff}
+.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:15px;font-weight:500;color:#64748b;text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
+.nav-item:hover{color:rgba(200,220,255,0.9);background:rgba(255,255,255,0.03)}
+.nav-item.active{color:#00d4ff;background:rgba(0,212,255,0.07);border-left-color:#00d4ff}
+.nav-icon{font-size:16px;width:22px;text-align:center}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
+.user-avatar{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#00b4d8,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
+
+.main{margin-left:224px;flex:1}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.25);position:sticky;top:0;z-index:50}
+.topbar-title{font-size:19px;font-weight:800;color:#fff}
+.topbar-sub{font-size:13px;color:rgba(200,220,255,0.5);margin-top:2px}
+.balance-chip{background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:8px;padding:6px 14px;font-size:15px;font-weight:700;color:#16a34a}
+
+.content{padding:28px;max-width:1200px;margin:0 auto}
+.page-title{font-size:26px;font-weight:800;color:#0f172a;margin-bottom:4px}
+.page-sub{font-size:15px;color:#5a6a7e;margin-bottom:28px}
+
+.tiers-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.tier-card{background:#ffffff;border:1px solid #d0d8e4;border-radius:16px;padding:24px;position:relative;overflow:hidden;box-shadow:0 1px 4px rgba(0,40,100,0.06);transition:all 0.25s}
+.tier-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,40,100,0.1)}
+.tier-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.tier-card.t1::before{background:linear-gradient(90deg,#00b4d8,#0077a8)}
+.tier-card.t2::before{background:linear-gradient(90deg,#6d28d9,#a78bfa)}
+.tier-card.t3::before{background:linear-gradient(90deg,#16a34a,#059669)}
+.tier-card.t4::before{background:linear-gradient(90deg,#f59e0b,#d97706)}
+.tier-card.t5::before{background:linear-gradient(90deg,#ef4444,#dc2626)}
+.tier-card.t6::before{background:linear-gradient(90deg,#ec4899,#be185d)}
+.tier-card.t7::before{background:linear-gradient(90deg,#8b5cf6,#6d28d9)}
+.tier-card.t8::before{background:linear-gradient(90deg,#00b4d8,#6d28d9)}
+.tier-card.popular{border-color:#6d28d9;box-shadow:0 0 0 2px rgba(109,40,217,0.2),0 1px 4px rgba(0,40,100,0.06)}
+.popular-badge{position:absolute;top:12px;right:12px;background:linear-gradient(135deg,#6d28d9,#a78bfa);color:#fff;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:20px}
+.tier-name{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#5a6a7e;margin-bottom:10px}
+.tier-price{font-size:38px;font-weight:800;color:#0f172a;line-height:1;margin-bottom:4px}
+.tier-price span{font-size:18px;font-weight:600;vertical-align:super}
+.tier-currency{font-size:13px;color:#5a6a7e;margin-bottom:18px}
+.tier-views{background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #b8d4f8;border-radius:10px;padding:14px;text-align:center;margin-bottom:18px}
+.tier-views-num{font-size:22px;font-weight:800;color:#0284c7}
+.tier-views-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#5a6a7e;margin-top:2px}
+.tier-features{list-style:none;margin-bottom:20px}
+.tier-features li{font-size:14px;color:#2d3b4e;padding:6px 0;display:flex;align-items:flex-start;gap:8px}
+.tier-features li::before{content:'✓';color:#059669;font-weight:800;font-size:13px;flex-shrink:0;margin-top:1px}
+.tier-btn{display:block;width:100%;padding:12px;border:none;border-radius:10px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;transition:all 0.2s}
+.tier-btn.activate{background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff;box-shadow:0 4px 14px rgba(0,180,216,0.25)}
+.tier-btn.activate:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,180,216,0.35)}
+.tier-btn.active-badge{background:#f0fdf4;color:#059669;border:1px solid #bbf7d0;cursor:default}
+
+.info-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.info-card{background:#ffffff;border:1px solid #d0d8e4;border-radius:14px;padding:22px;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
+.info-card-title{font-size:16px;font-weight:800;color:#0f172a;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e4e9f1;font-size:14px}
+.info-row:last-child{border-bottom:none}
+.info-row .label{color:#5a6a7e}
+.info-row .val{font-weight:700;color:#0284c7}
+
+@media(max-width:1100px){.tiers-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .tiers-grid{grid-template-columns:1fr}
+  .info-cards{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <a href="/dashboard" class="sidebar-logo">
+      <svg width="30" height="30" viewBox="0 0 100 100"><polygon points="50,3 93,27 93,73 50,97 7,73 7,27" fill="url(#sg)"/><polygon points="50,12 84,31 84,69 50,88 16,69 16,31" fill="#0d1a5c"/><text x="50" y="63" text-anchor="middle" font-family="Arial Black" font-weight="900" font-size="38" fill="#00d4ff">S</text><defs><linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4f8ef7"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#00b4d8"/></linearGradient></defs></svg>
+      <span class="sidebar-brand">SuperAdPro</span>
+    </a>
+    <div class="nav-section">Main</div>
+    <a href="/dashboard" class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
+    <a href="/campaign-tiers" class="nav-item active"><span class="nav-icon">📦</span>Campaign Tiers</a>
+    <a href="/watch" class="nav-item"><span class="nav-icon">▶</span>Watch &amp; Earn</a>
+    <a href="/video-library" class="nav-item"><span class="nav-icon">🎬</span>My Campaigns</a>
+    <a href="/analytics" class="nav-item"><span class="nav-icon">📈</span>Analytics</a>
+    <div class="nav-section">Marketing Suite</div>
+    <a href="/campaign-studio" class="nav-item"><span class="nav-icon">🤖</span>AI Campaign Studio</a>
+    <a href="/funnels" class="nav-item"><span class="nav-icon">🚀</span>Funnel Builder</a>
+    <a href="/niche-finder" class="nav-item"><span class="nav-icon">💡</span>Niche Finder</a>
+    <a href="/swipe-file" class="nav-item"><span class="nav-icon">📋</span>Swipe File</a>
+    <div class="nav-section">Income Streams</div>
+    <a href="/income-grid" class="nav-item"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
+    <a href="/wallet" class="nav-item"><span class="nav-icon">◎</span>Wallet</a>
+    <a href="/affiliate" class="nav-item"><span class="nav-icon">🤝</span>Affiliate Tools</a>
+    <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span>Comp Plan</a>
+    <a href="/grid-visualiser" class="nav-item"><span class="nav-icon">◈</span>Grid Visualiser</a>
+    <div class="nav-section">Account</div>
+    <a href="/account" class="nav-item"><span class="nav-icon">◉</span>My Profile</a>
+    <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
+    <div class="sidebar-footer">
+      <div class="user-mini">
+        <div class="user-avatar">{{ user.username[:2].upper() }}</div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#fff">{{ user.first_name or user.username }}</div>
+          <div style="font-size:9px;color:{% if user.is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:1px">
+            {% if user.is_active %}● Active{% else %}○ Inactive{% endif %}
+          </div>
+        </div>
+      </div>
+      <a href="/logout" style="display:block;margin-top:10px;font-size:13px;color:#64748b;text-decoration:none">⏻ Sign Out</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">📦 Campaign Tiers</div>
+        <div class="topbar-sub">Activate tiers to unlock advertising + earn affiliate commissions</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="page-title">Choose Your Campaign Tier</div>
+      <div class="page-sub">Each tier activates a grid position and unlocks video advertising. Higher tiers get more views and earn bigger commissions.</div>
+
+      {% set tiers = [
+        (1, 'Starter', 20, '5,000', 't1', false),
+        (2, 'Builder', 50, '15,000', 't2', false),
+        (3, 'Pro', 100, '35,000', 't3', false),
+        (4, 'Advanced', 200, '80,000', 't4', true),
+        (5, 'Elite', 400, '150,000', 't5', false),
+        (6, 'Premium', 600, '250,000', 't6', false),
+        (7, 'Executive', 800, '400,000', 't7', false),
+        (8, 'Ultimate', 1000, '600,000', 't8', false),
+      ] %}
+
+      <div class="tiers-grid">
+        {% for num, name, price, views, cls, popular in tiers %}
+        <div class="tier-card {{ cls }}{% if popular %} popular{% endif %}">
+          {% if popular %}<div class="popular-badge">★ Most Popular</div>{% endif %}
+          <div class="tier-name">{{ name }}</div>
+          <div class="tier-price"><span>$</span>{{ price }}</div>
+          <div class="tier-currency">{{ price }} USDT · Base Chain</div>
+          <div class="tier-views">
+            <div class="tier-views-label">Up To</div>
+            <div class="tier-views-num">{{ views }}</div>
+            <div class="tier-views-label">Engaged Video Views</div>
+          </div>
+          <ul class="tier-features">
+            <li>Grid position activated</li>
+            <li>Upload &amp; promote videos</li>
+            {% if num >= 4 %}<li>Geo &amp; interest targeting</li>{% endif %}
+            {% if num >= 5 %}<li>Priority delivery queue</li>{% endif %}
+            <li>Earn 25% direct commission</li>
+            <li>8-level uni-level commissions</li>
+          </ul>
+          {% if num in active_tiers %}
+            <div class="tier-btn active-badge">✓ Active</div>
+          {% else %}
+            <a href="/activate-grid?tier={{ num }}" class="tier-btn activate">Activate — ${{ price }} USDT</a>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="info-cards">
+        <div class="info-card">
+          <div class="info-card-title">💰 Per-Advance Earnings</div>
+          {% for num, name, price, views, cls, popular in tiers %}
+          <div class="info-row">
+            <span class="label">{{ name }} · ${{ price }}</span>
+            <span class="val">${{ '%.0f'|format(price * 63 * 0.70) }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">📊 How It Works</div>
+          <div style="font-size:14px;color:#2d3b4e;line-height:1.7">
+            <p style="margin-bottom:10px">Each tier activates an <strong>8×8 grid position</strong> with 63 seats. As your network grows, seats fill and you earn commissions on every level.</p>
+            <p style="margin-bottom:10px"><strong>25% direct commission</strong> on every personal referral who activates the same tier.</p>
+            <p style="margin-bottom:10px"><strong>8.75% uni-level commission</strong> across 8 levels deep — that's 70% total payout per grid.</p>
+            <p>Grids are <strong>recurring</strong> — when one fills, a new advance starts automatically. Your income compounds.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
