@@ -186,12 +186,14 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 
 
 /* Internal layout */
-.int-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.25);position:sticky;top:0;z-index:200}
+.int-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#111827;border-bottom:2px solid rgba(0,212,255,0.3);position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,0.4)}
 .int-topbar-left{display:flex;align-items:center;gap:16px}
-.int-topbar-title{font-size:19px;font-weight:800;color:#fff}
-.int-topbar-sub{font-size:13px;color:rgba(200,220,255,0.5);margin-top:2px}
-.int-back{display:flex;align-items:center;gap:6px;color:#64748b;text-decoration:none;font-size:14px;font-weight:600;padding:6px 12px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;transition:all 0.2s}
-.int-back:hover{border-color:rgba(0,212,255,0.3);color:#00d4ff}
+.int-topbar-title{font-size:18px;font-weight:800;color:#fff}
+.int-topbar-sub{font-size:12px;color:rgba(200,220,255,0.5);margin-top:1px}
+.int-back{display:flex;align-items:center;gap:6px;color:#94a3b8;text-decoration:none;font-size:14px;font-weight:600;padding:8px 16px;border:1px solid rgba(255,255,255,0.15);border-radius:8px;background:rgba(255,255,255,0.05);transition:all 0.2s}
+.int-back:hover{border-color:rgba(0,212,255,0.4);color:#00d4ff;background:rgba(0,212,255,0.08)}
+.int-topbar-user{display:flex;align-items:center;gap:10px;color:rgba(200,220,255,0.6);font-size:13px;font-weight:500}
+.int-topbar-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
 </style>
 </head>
 <body>
@@ -206,6 +208,10 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
       <div class="int-topbar-title">◈ Grid Visualiser</div>
       <div class="int-topbar-sub">See how the 8×8 Profit Engine Grid works</div>
     </div>
+  </div>
+  <div class="int-topbar-user">
+    <span>{{ user.username if user else "" }}</span>
+    <div class="int-topbar-avatar">{{ (user.username[0]|upper) if user else "U" }}</div>
   </div>
 </div>
 
