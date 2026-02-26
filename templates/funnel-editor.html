@@ -230,9 +230,8 @@ let customBg = '{{ page.custom_bg if page and page.custom_bg else "" }}';
 
 // Load saved sections if editing
 {% if page and page.body_copy %}
-try { sections = JSON.parse('{{ page.body_copy | replace("'", "\\'") | replace("\\n", "\\\\n") }}'); } catch(e) { sections = []; }
+try { sections = JSON.parse({{ page.body_copy | tojson }}); } catch(e) { console.error('Parse err:', e); sections = []; }
 {% endif %}
-
 // ═══════════════════════════════════════════════════
 //  INIT: Build section library
 // ═══════════════════════════════════════════════════

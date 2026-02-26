@@ -18,8 +18,9 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;min-height:100vh}
 {% elif sc == 'fire' %}body{background:linear-gradient(160deg,#1a0a0a,#2a1a0a,#1a0a05);color:#e2e8f0}
 {% else %}body{background:#0a0a1a;color:#e2e8f0}{% endif %}
 
-.page-footer{text-align:center;padding:24px;font-size:16px;color:{% if sc == 'light' %}#6b7d94{% else %}rgba(255,255,255,0.2){% endif %}}
-.page-footer a{color:{{ page.accent_color or '#00d4ff' }};text-decoration:none}
+.page-footer{text-align:center;padding:32px 24px 16px;font-size:11px;color:{% if sc == 'light' %}#b0bec5{% else %}rgba(255,255,255,0.12){% endif %};letter-spacing:0.5px}
+.page-footer a{color:{% if sc == 'light' %}#90a4ae{% else %}rgba(255,255,255,0.2){% endif %};text-decoration:none}
+.page-footer a:hover{color:{{ page.accent_color or '#00d4ff' }}}
 @media(max-width:768px){[style*="grid-template-columns: 1fr 1fr"],[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important}}
 </style>
 </head>
@@ -235,7 +236,7 @@ setTimeout(() => {
 
 <script src="/static/js/section-templates.js"></script>
 <script>
-const sections = {{ page.body_copy | safe if page.body_copy and page.body_copy.startswith('[') else '[]' }};
+const sections = (() => { try { return JSON.parse({{ page.body_copy | tojson }}); } catch(e) { return []; } })();
 const accent = '{{ page.accent_color or "#00d4ff" }}';
 const scheme = '{{ page.color_scheme or "dark" }}';
 
