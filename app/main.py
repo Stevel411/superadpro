@@ -26,7 +26,7 @@ from .grid import (
 )
 from .email_utils import send_password_reset_email
 from .video_utils import parse_video_url, platform_label, platform_colour
-from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, MembershipRenewal, P2PTransfer, FunnelPage
+from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator
 from .database import PasswordResetToken
 import secrets
 from datetime import timedelta
@@ -55,6 +55,8 @@ async def startup_event():
     from .database import run_migrations
     run_migrations()
 templates = Jinja2Templates(directory="templates")
+import json as _json
+templates.env.filters["from_json"] = lambda s: _json.loads(s) if s else []
 
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
@@ -2112,6 +2114,193 @@ def track_click(page_id: int, db: Session = Depends(get_db)):
 
 
 # ═══════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════
+#  LINK TOOLS (Bitly-style shortener + rotator)
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/link-tools")
+def link_tools_page(request: Request, user: User = Depends(get_current_user),
+                     db: Session = Depends(get_db)):
+    if not user: return RedirectResponse(url="/?login=1")
+    if not user.is_active: return RedirectResponse(url="/pay-membership")
+    links = db.query(ShortLink).filter(ShortLink.user_id == user.id, ShortLink.is_rotator == False).order_by(ShortLink.created_at.desc()).all()
+    rotators = db.query(LinkRotator).filter(LinkRotator.user_id == user.id).order_by(LinkRotator.created_at.desc()).all()
+    ctx = get_dashboard_context(request, user, db)
+    base_url = f"{request.url.scheme}://{request.url.hostname}"
+    if request.url.port and request.url.port not in (80, 443):
+        base_url += f":{request.url.port}"
+    ctx["links"] = links
+    ctx["rotators"] = rotators
+    ctx["base_url"] = base_url
+    return templates.TemplateResponse("link-tools.html", ctx)
+
+
+@app.post("/api/links/create")
+async def create_short_link(request: Request, user: User = Depends(get_current_user),
+                             db: Session = Depends(get_db)):
+    if not user: return {"error": "Not logged in"}
+    body = await request.json()
+    dest = body.get("destination_url", "").strip()
+    custom_slug = body.get("slug", "").strip() if body.get("slug") else None
+    title = body.get("title", "").strip() if body.get("title") else None
+
+    if not dest or not dest.startswith("http"):
+        return {"error": "Please enter a valid URL starting with http:// or https://"}
+
+    import string, random
+    if custom_slug:
+        # Sanitise: allow letters, numbers, hyphens, underscores
+        import re
+        custom_slug = re.sub(r'[^a-zA-Z0-9\-_]', '', custom_slug).lower()
+        if len(custom_slug) < 2:
+            return {"error": "Custom slug must be at least 2 characters"}
+        if len(custom_slug) > 50:
+            return {"error": "Custom slug too long (max 50 characters)"}
+        # Check uniqueness
+        existing = db.query(ShortLink).filter(ShortLink.slug == custom_slug).first()
+        if existing:
+            return {"error": f"Slug '{custom_slug}' is already taken. Try another."}
+        existing_rot = db.query(LinkRotator).filter(LinkRotator.slug == custom_slug).first()
+        if existing_rot:
+            return {"error": f"Slug '{custom_slug}' is already taken by a rotator. Try another."}
+        slug = custom_slug
+    else:
+        # Auto-generate 6-char slug
+        for _ in range(20):
+            slug = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
+            if not db.query(ShortLink).filter(ShortLink.slug == slug).first() and \
+               not db.query(LinkRotator).filter(LinkRotator.slug == slug).first():
+                break
+
+    link = ShortLink(
+        user_id=user.id,
+        slug=slug,
+        destination_url=dest,
+        title=title
+    )
+    db.add(link)
+    db.commit()
+    return {"success": True, "slug": slug}
+
+
+@app.post("/api/links/delete/{link_id}")
+def delete_short_link(link_id: int, user: User = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    if not user: return {"error": "Not logged in"}
+    link = db.query(ShortLink).filter(ShortLink.id == link_id, ShortLink.user_id == user.id).first()
+    if link:
+        db.delete(link)
+        db.commit()
+    return {"success": True}
+
+
+@app.post("/api/rotators/create")
+async def create_rotator(request: Request, user: User = Depends(get_current_user),
+                          db: Session = Depends(get_db)):
+    if not user: return {"error": "Not logged in"}
+    body = await request.json()
+    title = body.get("title", "").strip()
+    custom_slug = body.get("slug", "").strip() if body.get("slug") else None
+    mode = body.get("mode", "equal")
+    destinations = body.get("destinations", [])
+
+    if not title:
+        return {"error": "Please enter a rotator name"}
+    if len(destinations) < 2:
+        return {"error": "Add at least 2 destination URLs"}
+
+    import string, random, re, json
+    if custom_slug:
+        custom_slug = re.sub(r'[^a-zA-Z0-9\-_]', '', custom_slug).lower()
+        if len(custom_slug) < 2:
+            return {"error": "Custom slug must be at least 2 characters"}
+        existing = db.query(ShortLink).filter(ShortLink.slug == custom_slug).first()
+        existing_rot = db.query(LinkRotator).filter(LinkRotator.slug == custom_slug).first()
+        if existing or existing_rot:
+            return {"error": f"Slug '{custom_slug}' is already taken. Try another."}
+        slug = custom_slug
+    else:
+        for _ in range(20):
+            slug = 'rot-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=5))
+            if not db.query(ShortLink).filter(ShortLink.slug == slug).first() and \
+               not db.query(LinkRotator).filter(LinkRotator.slug == slug).first():
+                break
+
+    # Build destinations with click counts
+    dests = [{"url": d["url"], "weight": d.get("weight", 50), "clicks": 0} for d in destinations if d.get("url")]
+
+    rotator = LinkRotator(
+        user_id=user.id,
+        slug=slug,
+        title=title,
+        mode=mode,
+        destinations_json=json.dumps(dests)
+    )
+    db.add(rotator)
+    db.commit()
+    return {"success": True, "slug": slug}
+
+
+@app.post("/api/rotators/delete/{rotator_id}")
+def delete_rotator(rotator_id: int, user: User = Depends(get_current_user),
+                    db: Session = Depends(get_db)):
+    if not user: return {"error": "Not logged in"}
+    rot = db.query(LinkRotator).filter(LinkRotator.id == rotator_id, LinkRotator.user_id == user.id).first()
+    if rot:
+        db.delete(rot)
+        db.commit()
+    return {"success": True}
+
+
+@app.get("/go/{slug}")
+def go_redirect(slug: str, db: Session = Depends(get_db)):
+    """Redirect /go/slug to destination URL with click tracking."""
+    from datetime import datetime
+    import json, random
+
+    # Check short links first
+    link = db.query(ShortLink).filter(ShortLink.slug == slug).first()
+    if link:
+        link.clicks = (link.clicks or 0) + 1
+        link.last_clicked = datetime.utcnow()
+        db.commit()
+        return RedirectResponse(url=link.destination_url, status_code=302)
+
+    # Check rotators
+    rotator = db.query(LinkRotator).filter(LinkRotator.slug == slug).first()
+    if rotator and rotator.destinations_json:
+        dests = json.loads(rotator.destinations_json)
+        if not dests:
+            raise HTTPException(status_code=404, detail="No destinations configured")
+
+        if rotator.mode == "weighted":
+            # Weighted random selection
+            total_weight = sum(d.get("weight", 50) for d in dests)
+            r = random.uniform(0, total_weight)
+            cumulative = 0
+            chosen = dests[0]
+            for d in dests:
+                cumulative += d.get("weight", 50)
+                if r <= cumulative:
+                    chosen = d
+                    break
+        else:
+            # Equal round-robin
+            idx = (rotator.current_index or 0) % len(dests)
+            chosen = dests[idx]
+            rotator.current_index = idx + 1
+
+        # Track clicks
+        chosen["clicks"] = chosen.get("clicks", 0) + 1
+        rotator.destinations_json = json.dumps(dests)
+        rotator.total_clicks = (rotator.total_clicks or 0) + 1
+        rotator.last_clicked = datetime.utcnow()
+        db.commit()
+        return RedirectResponse(url=chosen["url"], status_code=302)
+
+    raise HTTPException(status_code=404, detail="Link not found")
+
+
 #  AI SALES CHATBOT (on funnel pages)
 # ═══════════════════════════════════════════════════════════════
 

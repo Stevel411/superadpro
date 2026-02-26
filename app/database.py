@@ -289,6 +289,37 @@ class FunnelPage(Base):
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+class ShortLink(Base):
+    """Bitly-style short links: superadpro.com/go/slug"""
+    __tablename__ = "short_links"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), index=True)
+    slug            = Column(String, unique=True, index=True)    # the /go/slug part
+    destination_url = Column(Text, nullable=False)                # long URL
+    title           = Column(String, nullable=True)               # optional label
+    clicks          = Column(Integer, default=0)
+    last_clicked    = Column(DateTime, nullable=True)
+    is_rotator      = Column(Boolean, default=False)              # if True, this is a rotator entry
+    rotator_id      = Column(Integer, ForeignKey("link_rotators.id"), nullable=True)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class LinkRotator(Base):
+    """Rotates traffic across multiple destination URLs."""
+    __tablename__ = "link_rotators"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), index=True)
+    slug            = Column(String, unique=True, index=True)    # the /go/slug for the rotator
+    title           = Column(String, nullable=False)
+    mode            = Column(String, default="equal")            # equal / weighted
+    destinations_json = Column(Text, nullable=True)              # JSON: [{url, weight, clicks}]
+    total_clicks    = Column(Integer, default=0)
+    last_clicked    = Column(DateTime, nullable=True)
+    current_index   = Column(Integer, default=0)                 # for round-robin
+    created_at      = Column(DateTime, default=datetime.utcnow)
+    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 Base.metadata.create_all(bind=engine)
 
 # ── Auto-migration: add missing columns if they don't exist ──────────────
@@ -345,6 +376,8 @@ def run_migrations():
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS meta_description TEXT",
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS og_image_url VARCHAR",
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS custom_bg VARCHAR DEFAULT ''",
+        "CREATE TABLE IF NOT EXISTS link_rotators (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), slug VARCHAR UNIQUE, title VARCHAR NOT NULL, mode VARCHAR DEFAULT 'equal', destinations_json TEXT, total_clicks INTEGER DEFAULT 0, last_clicked TIMESTAMP, current_index INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS short_links (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), slug VARCHAR UNIQUE, destination_url TEXT NOT NULL, title VARCHAR, clicks INTEGER DEFAULT 0, last_clicked TIMESTAMP, is_rotator BOOLEAN DEFAULT FALSE, rotator_id INTEGER REFERENCES link_rotators(id), created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
     ]
     results = []
     with engine.connect() as conn:

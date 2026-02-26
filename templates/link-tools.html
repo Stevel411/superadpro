@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Link Tools — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.sidebar-brand{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-section{padding:18px 16px 5px;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#00d4ff}
+.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:#64748b;text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
+.nav-item:hover{color:rgba(200,220,255,0.9);background:rgba(255,255,255,0.03)}
+.nav-item.active{color:#00d4ff;background:rgba(0,212,255,0.07);border-left-color:#00d4ff}
+.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00d4ff);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(0,212,255,0.1);position:sticky;top:0;z-index:50}
+.topbar-title{font-size:22px;font-weight:800;color:#fff}
+.topbar-sub{font-size:16px;color:rgba(0,212,255,0.5);margin-top:2px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.balance-pill{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:8px;padding:8px 16px}
+.balance-label{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1.5px;text-transform:uppercase}
+.balance-val{font-size:19px;font-weight:800;color:#16a34a;line-height:1}
+.content{padding:24px 28px;flex:1}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:4px;margin-bottom:24px;background:#fff;border:1px solid #d0d8e4;border-radius:10px;padding:4px;width:fit-content}
+.tab{padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;color:#64748b;border:none;background:none;font-family:inherit}
+.tab.active{background:#0f172a;color:#fff;box-shadow:0 2px 8px rgba(0,40,100,0.15)}
+.tab:hover:not(.active){background:#f0f2f8}
+
+/* ── Create link box ── */
+.create-box{background:#fff;border:1px solid #d0d8e4;border-radius:14px;padding:24px;margin-bottom:24px;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
+.create-box h3{font-size:16px;font-weight:700;margin-bottom:14px}
+.create-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.field{flex:1;min-width:200px}
+.field label{display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#64748b;margin-bottom:6px}
+.field input,.field select{width:100%;padding:10px 14px;border:1px solid #d0d8e4;border-radius:8px;font-size:14px;font-family:inherit;background:#f8fafc;transition:border-color 0.15s}
+.field input:focus,.field select:focus{outline:none;border-color:#00b4d8;background:#fff}
+.field-sm{flex:0 0 180px}
+.btn{padding:10px 24px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all 0.15s;white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff;box-shadow:0 2px 8px rgba(0,180,216,0.25)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,180,216,0.3)}
+.btn-sm{padding:6px 14px;font-size:12px}
+.btn-outline{background:#fff;color:#0f172a;border:1px solid #d0d8e4}
+.btn-outline:hover{background:#f0f2f8}
+.btn-danger{background:#fff;color:#dc2626;border:1px solid #fecaca}
+.btn-danger:hover{background:#fef2f2}
+.slug-preview{font-size:12px;color:#64748b;margin-top:6px}
+.slug-preview strong{color:#0f172a;font-weight:600}
+
+/* ── Links table ── */
+.links-table{width:100%;border-collapse:separate;border-spacing:0}
+.links-table th{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#64748b;text-align:left;padding:10px 14px;border-bottom:2px solid #d0d8e4}
+.links-table td{padding:14px;border-bottom:1px solid #eef2f7;font-size:14px;vertical-align:middle}
+.links-table tr:hover td{background:rgba(0,180,216,0.03)}
+.link-url{font-family:'DM Sans',monospace;font-weight:600;color:#0284c7;word-break:break-all;font-size:13px}
+.link-dest{color:#64748b;font-size:12px;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.link-title{font-weight:700;margin-bottom:2px}
+.link-clicks{font-size:18px;font-weight:800;color:#0f172a}
+.link-last{font-size:11px;color:#94a3b8}
+.td-actions{display:flex;gap:6px}
+.copy-btn{background:#eef9ff;color:#0284c7;border:1px solid #b6e6ff;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.copy-btn:hover{background:#daf0ff}
+.copy-btn.copied{background:#d1fae5;color:#059669;border-color:#a7f3d0}
+
+/* ── Empty state ── */
+.empty{text-align:center;padding:48px 20px;background:#fff;border:1px solid #d0d8e4;border-radius:14px}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty h3{font-size:18px;font-weight:700;margin-bottom:6px}
+.empty p{color:#64748b;font-size:14px}
+
+/* ── Rotator specific ── */
+.dest-list{margin-top:12px}
+.dest-row{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.dest-row input{flex:1}
+.dest-row .weight-input{width:70px;text-align:center}
+.dest-row .remove-dest{background:none;border:none;color:#dc2626;font-size:18px;cursor:pointer;padding:4px 8px}
+.add-dest-btn{font-size:13px;color:#0284c7;cursor:pointer;background:none;border:none;font-weight:600;padding:6px 0;font-family:inherit}
+.add-dest-btn:hover{text-decoration:underline}
+.mode-toggle{display:flex;gap:8px;margin:12px 0}
+.mode-opt{padding:6px 16px;border:1px solid #d0d8e4;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:#64748b;font-family:inherit;transition:all 0.15s}
+.mode-opt.active{background:#0f172a;color:#fff;border-color:#0f172a}
+
+@media(max-width:900px){.sidebar{display:none}.main{margin-left:0}.topbar{padding:0 16px}.content{padding:16px}.create-row{flex-direction:column}}
+</style>
+</head>
+<body>
+<svg style="display:none"><symbol id="shield" viewBox="0 0 30 30"><path d="M15 2L3 7v7c0 7.73 5.12 14.95 12 17 6.88-2.05 12-9.27 12-17V7L15 2z" fill="url(#sg)"/><defs><linearGradient id="sg" x1="0" y1="0" x2="30" y2="30"><stop offset="0%" stop-color="#00d4ff"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs></symbol></svg>
+
+<div class="layout">
+  <aside class="sidebar">
+    <a href="/dashboard" class="sidebar-logo"><svg width="30" height="30"><use href="#shield"/></svg><span class="sidebar-brand">SuperAdPro</span></a>
+    <div class="nav-section">Main</div>
+    <a href="/dashboard" class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
+    <a href="/campaign-tiers" class="nav-item"><span class="nav-icon">📦</span>Campaign Tiers</a>
+    <a href="/watch" class="nav-item"><span class="nav-icon">▶</span>Watch &amp; Earn</a>
+    <a href="/video-library" class="nav-item"><span class="nav-icon">🎬</span>My Campaigns</a>
+    <a href="/analytics" class="nav-item"><span class="nav-icon">📈</span>Analytics</a>
+    <div class="nav-section">Marketing Suite</div>
+    <a href="/campaign-studio" class="nav-item"><span class="nav-icon">🤖</span>AI Campaign Studio</a>
+    <a href="/funnels" class="nav-item"><span class="nav-icon">🚀</span>Funnel Builder</a>
+    <a href="/link-tools" class="nav-item active"><span class="nav-icon">🔗</span>Link Tools</a>
+    <a href="/niche-finder" class="nav-item"><span class="nav-icon">💡</span>Niche Finder</a>
+    <a href="/swipe-file" class="nav-item"><span class="nav-icon">📋</span>Swipe File</a>
+    <div class="nav-section">Income Streams</div>
+    <a href="/income-grid" class="nav-item"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
+    <a href="/wallet" class="nav-item"><span class="nav-icon">◎</span>Wallet</a>
+    <a href="/affiliate" class="nav-item"><span class="nav-icon">🤝</span>Affiliate Tools</a>
+    <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span>Comp Plan</a>
+    <a href="/grid-visualiser" class="nav-item"><span class="nav-icon">◈</span>Grid Visualiser</a>
+    <div class="nav-section">Account</div>
+    <a href="/account" class="nav-item"><span class="nav-icon">⚙</span>Settings</a>
+    <a href="/support" class="nav-item"><span class="nav-icon">💬</span>Support</a>
+    <div class="sidebar-footer">
+      <div class="user-mini">
+        <div class="user-avatar">{{ user.first_name[0]|upper if user.first_name else user.username[0]|upper }}</div>
+        <div><div style="font-size:13px;font-weight:700;color:#fff">{{ user.first_name or user.username }}</div><div style="font-size:10px;color:#64748b">@{{ user.username }}</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Link Tools</div>
+        <div class="topbar-sub">Shorten, track &amp; rotate your links</div>
+      </div>
+      <div class="topbar-right">
+        <div class="balance-pill">
+          <div><div class="balance-label">Balance</div><div class="balance-val">${{ '%.2f'|format(user.balance or 0) }}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('links')">🔗 Short Links</button>
+        <button class="tab" onclick="switchTab('rotators')">🔄 Link Rotators</button>
+      </div>
+
+      <!-- ═══ SHORT LINKS TAB ═══ -->
+      <div id="tab-links">
+        <div class="create-box">
+          <h3>Create Short Link</h3>
+          <div class="create-row">
+            <div class="field">
+              <label>Destination URL</label>
+              <input type="url" id="link-dest" placeholder="https://example.com/your-long-affiliate-link">
+            </div>
+            <div class="field field-sm">
+              <label>Custom Back-Half (optional)</label>
+              <input type="text" id="link-slug" placeholder="my-link">
+            </div>
+            <div class="field field-sm">
+              <label>Label (optional)</label>
+              <input type="text" id="link-title" placeholder="Forex offer">
+            </div>
+            <button class="btn btn-primary" onclick="createLink()">Shorten →</button>
+          </div>
+          <div class="slug-preview" id="slug-preview" style="display:none">
+            Your link: <strong id="preview-url"></strong>
+          </div>
+        </div>
+
+        {% if links %}
+        <table class="links-table">
+          <thead>
+            <tr><th>Link</th><th>Destination</th><th>Clicks</th><th>Created</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            {% for l in links %}
+            <tr id="link-row-{{ l.id }}">
+              <td>
+                {% if l.title %}<div class="link-title">{{ l.title }}</div>{% endif %}
+                <div class="link-url">{{ base_url }}/go/{{ l.slug }}</div>
+              </td>
+              <td><div class="link-dest" title="{{ l.destination_url }}">{{ l.destination_url }}</div></td>
+              <td>
+                <div class="link-clicks">{{ l.clicks or 0 }}</div>
+                {% if l.last_clicked %}<div class="link-last">Last: {{ l.last_clicked.strftime('%d %b %H:%M') }}</div>{% endif %}
+              </td>
+              <td style="font-size:12px;color:#64748b">{{ l.created_at.strftime('%d %b %Y') if l.created_at else '' }}</td>
+              <td>
+                <div class="td-actions">
+                  <button class="copy-btn" onclick="copyLink(this, '{{ base_url }}/go/{{ l.slug }}')">Copy</button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteLink({{ l.id }})">Delete</button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty">
+          <div class="empty-icon">🔗</div>
+          <h3>No Short Links Yet</h3>
+          <p>Paste a long URL above to create your first branded short link.</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- ═══ ROTATORS TAB ═══ -->
+      <div id="tab-rotators" style="display:none">
+        <div class="create-box">
+          <h3>Create Link Rotator</h3>
+          <div class="create-row" style="margin-bottom:12px">
+            <div class="field field-sm">
+              <label>Rotator Name</label>
+              <input type="text" id="rot-title" placeholder="Team Builder Rotator">
+            </div>
+            <div class="field field-sm">
+              <label>Custom Slug (optional)</label>
+              <input type="text" id="rot-slug" placeholder="my-team">
+            </div>
+          </div>
+          <label style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#64748b;margin-bottom:6px;display:block">Distribution Mode</label>
+          <div class="mode-toggle">
+            <button class="mode-opt active" onclick="setMode('equal',this)">Equal (Round Robin)</button>
+            <button class="mode-opt" onclick="setMode('weighted',this)">Weighted %</button>
+          </div>
+          <label style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#64748b;margin:12px 0 6px;display:block">Destination URLs</label>
+          <div class="dest-list" id="dest-list">
+            <div class="dest-row">
+              <input type="url" class="dest-url" placeholder="https://link1.com" style="padding:10px 14px;border:1px solid #d0d8e4;border-radius:8px;font-size:14px;font-family:inherit;background:#f8fafc">
+              <input type="number" class="weight-input" value="50" min="1" max="100" style="padding:10px;border:1px solid #d0d8e4;border-radius:8px;font-size:14px;font-family:inherit;text-align:center;display:none" placeholder="%">
+              <button class="remove-dest" onclick="this.closest('.dest-row').remove()">✕</button>
+            </div>
+            <div class="dest-row">
+              <input type="url" class="dest-url" placeholder="https://link2.com" style="padding:10px 14px;border:1px solid #d0d8e4;border-radius:8px;font-size:14px;font-family:inherit;background:#f8fafc">
+              <input type="number" class="weight-input" value="50" min="1" max="100" style="padding:10px;border:1px solid #d0d8e4;border-radius:8px;font-size:14px;font-family:inherit;text-align:center;display:none" placeholder="%">
+              <button class="remove-dest" onclick="this.closest('.dest-row').remove()">✕</button>
+            </div>
+          </div>
+          <button class="add-dest-btn" onclick="addDest()">+ Add another URL</button>
+          <div style="margin-top:16px"><button class="btn btn-primary" onclick="createRotator()">Create Rotator →</button></div>
+        </div>
+
+        {% if rotators %}
+        <table class="links-table">
+          <thead>
+            <tr><th>Rotator</th><th>Link</th><th>URLs</th><th>Mode</th><th>Clicks</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            {% for r in rotators %}
+            <tr id="rot-row-{{ r.id }}">
+              <td><div class="link-title">{{ r.title }}</div></td>
+              <td><div class="link-url">{{ base_url }}/go/{{ r.slug }}</div></td>
+              <td style="font-size:13px;font-weight:700">{{ (r.destinations_json | from_json | length) if r.destinations_json else 0 }}</td>
+              <td><span style="padding:3px 10px;border-radius:10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;{% if r.mode == 'equal' %}background:#ecfdf5;color:#059669{% else %}background:#fef3c7;color:#d97706{% endif %}">{{ r.mode }}</span></td>
+              <td>
+                <div class="link-clicks">{{ r.total_clicks or 0 }}</div>
+                {% if r.last_clicked %}<div class="link-last">Last: {{ r.last_clicked.strftime('%d %b %H:%M') }}</div>{% endif %}
+              </td>
+              <td>
+                <div class="td-actions">
+                  <button class="copy-btn" onclick="copyLink(this, '{{ base_url }}/go/{{ r.slug }}')">Copy</button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteRotator({{ r.id }})">Delete</button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty">
+          <div class="empty-icon">🔄</div>
+          <h3>No Link Rotators Yet</h3>
+          <p>Create a rotator to split traffic across multiple URLs — perfect for team building.</p>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+let rotatorMode = 'equal';
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('tab-links').style.display = tab === 'links' ? '' : 'none';
+  document.getElementById('tab-rotators').style.display = tab === 'rotators' ? '' : 'none';
+}
+
+function setMode(mode, el) {
+  rotatorMode = mode;
+  document.querySelectorAll('.mode-opt').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.weight-input').forEach(w => {
+    w.style.display = mode === 'weighted' ? '' : 'none';
+  });
+}
+
+function addDest() {
+  const list = document.getElementById('dest-list');
+  const row = document.createElement('div');
+  row.className = 'dest-row';
+  row.innerHTML = `<input type="url" class="dest-url" placeholder="https://link.com" style="padding:10px 14px;border:1px solid #d0d8e4;border-radius:8px;font-size:14px;font-family:inherit;background:#f8fafc;flex:1"><input type="number" class="weight-input" value="25" min="1" max="100" style="padding:10px;border:1px solid #d0d8e4;border-radius:8px;font-size:14px;font-family:inherit;text-align:center;width:70px;display:${rotatorMode==='weighted'?'':'none'}" placeholder="%"><button class="remove-dest" onclick="this.closest('.dest-row').remove()">✕</button>`;
+  list.appendChild(row);
+}
+
+// ── Slug preview ──
+document.getElementById('link-slug').addEventListener('input', function() {
+  const slug = this.value.trim();
+  const preview = document.getElementById('slug-preview');
+  const url = document.getElementById('preview-url');
+  if (slug) {
+    preview.style.display = '';
+    url.textContent = '{{ base_url }}/go/' + slug.replace(/[^a-zA-Z0-9\-_]/g, '');
+  } else {
+    preview.style.display = 'none';
+  }
+});
+
+async function createLink() {
+  const dest = document.getElementById('link-dest').value.trim();
+  const slug = document.getElementById('link-slug').value.trim();
+  const title = document.getElementById('link-title').value.trim();
+  if (!dest) return alert('Please enter a destination URL');
+  if (!dest.startsWith('http')) return alert('URL must start with http:// or https://');
+
+  const res = await fetch('/api/links/create', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({destination_url: dest, slug: slug || null, title: title || null})
+  });
+  const data = await res.json();
+  if (data.success) {
+    location.reload();
+  } else {
+    alert(data.error || 'Error creating link');
+  }
+}
+
+async function createRotator() {
+  const title = document.getElementById('rot-title').value.trim();
+  const slug = document.getElementById('rot-slug').value.trim();
+  if (!title) return alert('Please enter a rotator name');
+
+  const urls = [];
+  document.querySelectorAll('.dest-row').forEach(row => {
+    const url = row.querySelector('.dest-url').value.trim();
+    const weight = parseInt(row.querySelector('.weight-input').value) || 50;
+    if (url) urls.push({url, weight});
+  });
+  if (urls.length < 2) return alert('Add at least 2 destination URLs');
+
+  const res = await fetch('/api/rotators/create', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({title, slug: slug || null, mode: rotatorMode, destinations: urls})
+  });
+  const data = await res.json();
+  if (data.success) {
+    location.reload();
+  } else {
+    alert(data.error || 'Error creating rotator');
+  }
+}
+
+function copyLink(btn, url) {
+  navigator.clipboard.writeText(url).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+async function deleteLink(id) {
+  if (!confirm('Delete this short link?')) return;
+  const res = await fetch('/api/links/delete/' + id, {method: 'POST'});
+  if (res.ok) document.getElementById('link-row-' + id).remove();
+}
+
+async function deleteRotator(id) {
+  if (!confirm('Delete this rotator?')) return;
+  const res = await fetch('/api/rotators/delete/' + id, {method: 'POST'});
+  if (res.ok) document.getElementById('rot-row-' + id).remove();
+}
+</script>
+</body>
+</html>
