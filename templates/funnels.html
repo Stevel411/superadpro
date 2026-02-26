@@ -58,6 +58,37 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .status-published{background:#16a34a}
 .status-draft{background:#f59e0b}
 
+/* ── Template Gallery ── */
+.gallery-section{margin-bottom:32px}
+.gallery-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.gallery-title{font-size:20px;font-weight:800;color:#0f172a}
+.gallery-sub{font-size:13px;color:#64748b;margin-top:2px}
+.templates-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.tpl-card{background:#fff;border:1px solid #d0d8e4;border-radius:14px;overflow:hidden;cursor:pointer;transition:all 0.25s;position:relative}
+.tpl-card:hover{transform:translateY(-4px);box-shadow:0 8px 28px rgba(0,40,100,0.12)}
+.tpl-preview{height:130px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.tpl-preview-icon{font-size:36px;margin-bottom:6px}
+.tpl-preview-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s}
+.tpl-card:hover .tpl-preview-overlay{opacity:1}
+.tpl-use-btn{background:#fff;color:#0f172a;padding:8px 20px;border-radius:8px;font-weight:700;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+.tpl-info{padding:14px 16px}
+.tpl-name{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:2px}
+.tpl-desc{font-size:11px;color:#64748b;line-height:1.4}
+.tpl-niche-tag{position:absolute;top:10px;right:10px;background:rgba(255,255,255,0.9);padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#334155}
+
+/* Build your own card */
+.tpl-card.build-own{border:2px dashed #0284c7;background:linear-gradient(135deg,#f0f9ff,#ecfeff)}
+.tpl-card.build-own:hover{border-color:#0077a8;background:linear-gradient(135deg,#e0f2fe,#cffafe)}
+.build-own-content{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.build-own-icon{font-size:32px;margin-bottom:8px;color:#0284c7}
+.build-own-title{font-size:16px;font-weight:800;color:#0284c7;margin-bottom:4px}
+.build-own-desc{font-size:12px;color:#64748b}
+
+/* Section divider */
+.section-divider{display:flex;align-items:center;gap:14px;margin:28px 0 16px}
+.section-divider .line{flex:1;height:1px;background:#d0d8e4}
+.section-divider .label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#0284c7;white-space:nowrap}
+
 .empty-state{text-align:center;padding:60px 20px}
 .empty-icon{font-size:48px;margin-bottom:16px}
 .empty-title{font-size:22px;font-weight:800;margin-bottom:8px}
@@ -122,7 +153,158 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
     </div>
 
     <div class="content">
+
+      <!-- ═══ TEMPLATE GALLERY ═══ -->
+      <div class="gallery-section">
+        <div class="gallery-header">
+          <div>
+            <div class="gallery-title">Start With a Template</div>
+            <div class="gallery-sub">Pick a niche, get a complete page — then customise everything in the editor</div>
+          </div>
+        </div>
+        <div class="templates-grid">
+          <!-- Build Your Own -->
+          <a href="/funnels/new" class="tpl-card build-own" style="text-decoration:none">
+            <div class="build-own-content">
+              <div class="build-own-icon">✦</div>
+              <div class="build-own-title">Build Your Own</div>
+              <div class="build-own-desc">Start from scratch with a blank canvas</div>
+            </div>
+          </a>
+
+          <!-- Forex -->
+          <div class="tpl-card" onclick="useTemplate('forex')">
+            <div class="tpl-preview" style="background:linear-gradient(135deg,#0a1628,#0d2847)">
+              <div style="text-align:center;color:#fff">
+                <div class="tpl-preview-icon">📈</div>
+                <div style="font-size:13px;font-weight:700;opacity:0.8">Forex Trading</div>
+              </div>
+              <span class="tpl-niche-tag">Forex</span>
+              <div class="tpl-preview-overlay"><span class="tpl-use-btn">Use Template →</span></div>
+            </div>
+            <div class="tpl-info">
+              <div class="tpl-name">Forex Trading Opportunity</div>
+              <div class="tpl-desc">Learn to trade the world's largest market with proven strategies and expert guidance.</div>
+            </div>
+          </div>
+
+          <!-- Crypto -->
+          <div class="tpl-card" onclick="useTemplate('crypto')">
+            <div class="tpl-preview" style="background:linear-gradient(135deg,#1a0a2e,#2d1b69)">
+              <div style="text-align:center;color:#fff">
+                <div class="tpl-preview-icon">₿</div>
+                <div style="font-size:13px;font-weight:700;opacity:0.8">Cryptocurrency</div>
+              </div>
+              <span class="tpl-niche-tag">Crypto</span>
+              <div class="tpl-preview-overlay"><span class="tpl-use-btn">Use Template →</span></div>
+            </div>
+            <div class="tpl-info">
+              <div class="tpl-name">Crypto Income Blueprint</div>
+              <div class="tpl-desc">Discover how to build wealth in the digital currency revolution.</div>
+            </div>
+          </div>
+
+          <!-- Affiliate Marketing -->
+          <div class="tpl-card" onclick="useTemplate('affiliate-marketing')">
+            <div class="tpl-preview" style="background:linear-gradient(135deg,#0a2818,#0d4a2a)">
+              <div style="text-align:center;color:#fff">
+                <div class="tpl-preview-icon">🔗</div>
+                <div style="font-size:13px;font-weight:700;opacity:0.8">Affiliate Marketing</div>
+              </div>
+              <span class="tpl-niche-tag">Affiliate</span>
+              <div class="tpl-preview-overlay"><span class="tpl-use-btn">Use Template →</span></div>
+            </div>
+            <div class="tpl-info">
+              <div class="tpl-name">Affiliate Income Machine</div>
+              <div class="tpl-desc">Earn commissions promoting products you believe in — no inventory needed.</div>
+            </div>
+          </div>
+
+          <!-- E-Commerce -->
+          <div class="tpl-card" onclick="useTemplate('ecommerce')">
+            <div class="tpl-preview" style="background:linear-gradient(135deg,#2a1a0a,#4a2d0a)">
+              <div style="text-align:center;color:#fff">
+                <div class="tpl-preview-icon">🛒</div>
+                <div style="font-size:13px;font-weight:700;opacity:0.8">E-Commerce</div>
+              </div>
+              <span class="tpl-niche-tag">E-Comm</span>
+              <div class="tpl-preview-overlay"><span class="tpl-use-btn">Use Template →</span></div>
+            </div>
+            <div class="tpl-info">
+              <div class="tpl-name">E-Commerce Success System</div>
+              <div class="tpl-desc">Build a profitable online store and sell products worldwide from day one.</div>
+            </div>
+          </div>
+
+          <!-- AI & Tech -->
+          <div class="tpl-card" onclick="useTemplate('ai-tech')">
+            <div class="tpl-preview" style="background:linear-gradient(135deg,#0a0a2e,#1a1a5c)">
+              <div style="text-align:center;color:#fff">
+                <div class="tpl-preview-icon">🤖</div>
+                <div style="font-size:13px;font-weight:700;opacity:0.8">AI & Technology</div>
+              </div>
+              <span class="tpl-niche-tag">AI & Tech</span>
+              <div class="tpl-preview-overlay"><span class="tpl-use-btn">Use Template →</span></div>
+            </div>
+            <div class="tpl-info">
+              <div class="tpl-name">AI-Powered Income</div>
+              <div class="tpl-desc">Leverage artificial intelligence to automate your business and multiply your earnings.</div>
+            </div>
+          </div>
+
+          <!-- Health & Fitness -->
+          <div class="tpl-card" onclick="useTemplate('health-fitness')">
+            <div class="tpl-preview" style="background:linear-gradient(135deg,#0a2a1a,#0d4a26)">
+              <div style="text-align:center;color:#fff">
+                <div class="tpl-preview-icon">💪</div>
+                <div style="font-size:13px;font-weight:700;opacity:0.8">Health & Fitness</div>
+              </div>
+              <span class="tpl-niche-tag">Health</span>
+              <div class="tpl-preview-overlay"><span class="tpl-use-btn">Use Template →</span></div>
+            </div>
+            <div class="tpl-info">
+              <div class="tpl-name">Fitness & Wellness Partner</div>
+              <div class="tpl-desc">Help others transform their health while building a rewarding income stream.</div>
+            </div>
+          </div>
+
+          <!-- Real Estate -->
+          <div class="tpl-card" onclick="useTemplate('real-estate')">
+            <div class="tpl-preview" style="background:linear-gradient(135deg,#1a1a0a,#3a3a0d)">
+              <div style="text-align:center;color:#fff">
+                <div class="tpl-preview-icon">🏠</div>
+                <div style="font-size:13px;font-weight:700;opacity:0.8">Real Estate</div>
+              </div>
+              <span class="tpl-niche-tag">Property</span>
+              <div class="tpl-preview-overlay"><span class="tpl-use-btn">Use Template →</span></div>
+            </div>
+            <div class="tpl-info">
+              <div class="tpl-name">Real Estate Wealth Builder</div>
+              <div class="tpl-desc">Generate passive income through property investing strategies and digital tools.</div>
+            </div>
+          </div>
+
+          <!-- Personal Finance -->
+          <div class="tpl-card" onclick="useTemplate('personal-finance')">
+            <div class="tpl-preview" style="background:linear-gradient(135deg,#0a1a2a,#0d2a4a)">
+              <div style="text-align:center;color:#fff">
+                <div class="tpl-preview-icon">💰</div>
+                <div style="font-size:13px;font-weight:700;opacity:0.8">Personal Finance</div>
+              </div>
+              <span class="tpl-niche-tag">Finance</span>
+              <div class="tpl-preview-overlay"><span class="tpl-use-btn">Use Template →</span></div>
+            </div>
+            <div class="tpl-info">
+              <div class="tpl-name">Financial Freedom Blueprint</div>
+              <div class="tpl-desc">Take control of your money and build multiple income streams for lasting wealth.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ MY PAGES ═══ -->
       {% if pages %}
+      <div class="section-divider"><div class="line"></div><div class="label">My Pages ({{ pages|length }})</div><div class="line"></div></div>
       <div class="pages-grid">
         {% for p in pages %}
         <div class="page-card">
@@ -190,6 +372,32 @@ async function deletePage(id, title) {
   const res = await fetch('/api/funnels/delete/' + id, {method:'POST'});
   if(res.ok) location.reload();
   else alert('Error deleting page');
+}
+
+async function useTemplate(niche) {
+  // Show loading
+  const card = event.currentTarget;
+  const overlay = card.querySelector('.tpl-preview-overlay');
+  if (overlay) overlay.innerHTML = '<span class="tpl-use-btn" style="opacity:0.7">Creating page...</span>';
+  overlay.style.opacity = '1';
+  
+  try {
+    const res = await fetch('/api/funnels/from-template', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({niche: niche})
+    });
+    const data = await res.json();
+    if (data.edit_url) {
+      window.location.href = data.edit_url;
+    } else {
+      alert(data.error || 'Error creating page');
+      if (overlay) overlay.innerHTML = '<span class="tpl-use-btn">Use Template →</span>';
+    }
+  } catch(e) {
+    alert('Network error — please try again');
+    if (overlay) overlay.innerHTML = '<span class="tpl-use-btn">Use Template →</span>';
+  }
 }
 </script>
 </body>

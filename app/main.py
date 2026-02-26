@@ -1693,6 +1693,220 @@ Make every word count. Use power words. Create genuine curiosity and desire. Avo
         })
 
 
+@app.post("/api/funnels/from-template")
+async def funnel_from_template(request: Request, user: User = Depends(get_current_user),
+                                db: Session = Depends(get_db)):
+    """Create a funnel page from a pre-built niche template."""
+    if not user: return {"error": "Not logged in"}
+    body = await request.json()
+    niche = body.get("niche", "affiliate-marketing")
+    import json, random, string
+
+    NICHE_TEMPLATES = {
+        "forex": {
+            "title": "Forex Trading Opportunity",
+            "headline": "Unlock the World's Largest Financial Market",
+            "subheadline": "Learn proven forex trading strategies that generate consistent income — whether you're a complete beginner or experienced trader.",
+            "benefits_title": "Why Forex with SuperAdPro?",
+            "benefits": [
+                {"icon": "📊", "title": "Proven Strategies", "desc": "Battle-tested trading systems that work in any market condition."},
+                {"icon": "🕐", "title": "Trade on Your Schedule", "desc": "The forex market runs 24/5 — trade when it suits your lifestyle."},
+                {"icon": "🎓", "title": "Expert Training", "desc": "Step-by-step education from beginner basics to advanced techniques."},
+                {"icon": "💰", "title": "Multiple Income Streams", "desc": "Earn from trading, referrals, and team building simultaneously."},
+                {"icon": "🤖", "title": "AI-Powered Tools", "desc": "Smart indicators and analysis tools that give you an edge."},
+                {"icon": "🌍", "title": "Global Community", "desc": "Join thousands of traders sharing strategies and support."}
+            ],
+            "cta_headline": "Start Your Forex Journey Today",
+            "cta_sub": "Join now and access everything you need to start trading profitably.",
+            "bg": "dark", "accent": "#00d4ff"
+        },
+        "crypto": {
+            "title": "Crypto Income Blueprint",
+            "headline": "Your Gateway to the Digital Currency Revolution",
+            "subheadline": "Discover how everyday people are building real wealth with cryptocurrency — no technical expertise required.",
+            "benefits_title": "Why Crypto with SuperAdPro?",
+            "benefits": [
+                {"icon": "₿", "title": "Crypto Made Simple", "desc": "We break down blockchain and crypto into plain English anyone can follow."},
+                {"icon": "🔒", "title": "Security First", "desc": "Learn proper wallet setup, security practices, and risk management."},
+                {"icon": "📈", "title": "Growth Potential", "desc": "Position yourself in the fastest-growing asset class in history."},
+                {"icon": "💎", "title": "Multiple Strategies", "desc": "From HODLing to DeFi yield farming — explore what works for you."},
+                {"icon": "🤝", "title": "Community Support", "desc": "Never trade alone — get guidance from experienced crypto investors."},
+                {"icon": "🚀", "title": "Early Advantage", "desc": "Get in early on emerging opportunities before the mainstream catches on."}
+            ],
+            "cta_headline": "Claim Your Spot in the Crypto Economy",
+            "cta_sub": "Limited early access — join now and start building your crypto portfolio.",
+            "bg": "gradient", "accent": "#a78bfa"
+        },
+        "affiliate-marketing": {
+            "title": "Affiliate Income Machine",
+            "headline": "Earn Commissions Promoting Products You Believe In",
+            "subheadline": "Build a profitable online business with zero inventory, zero shipping, and unlimited earning potential.",
+            "benefits_title": "Why Affiliate Marketing Works",
+            "benefits": [
+                {"icon": "🔗", "title": "No Products Needed", "desc": "Promote other people's products and earn a commission on every sale."},
+                {"icon": "🏠", "title": "Work From Anywhere", "desc": "All you need is a phone and internet connection to start earning."},
+                {"icon": "📱", "title": "Ready-Made Funnels", "desc": "We give you professional marketing pages — just share your link."},
+                {"icon": "💸", "title": "Recurring Income", "desc": "Earn month after month from the same referrals."},
+                {"icon": "🎯", "title": "Proven System", "desc": "Follow a step-by-step blueprint that thousands have used successfully."},
+                {"icon": "⚡", "title": "Instant Commissions", "desc": "Get paid the moment your referral takes action — no waiting."}
+            ],
+            "cta_headline": "Start Earning Affiliate Commissions Today",
+            "cta_sub": "Join thousands of affiliates who are building real passive income.",
+            "bg": "dark", "accent": "#10b981"
+        },
+        "ecommerce": {
+            "title": "E-Commerce Success System",
+            "headline": "Build a Profitable Online Store from Scratch",
+            "subheadline": "Sell physical or digital products worldwide — with AI-powered tools that handle the heavy lifting.",
+            "benefits_title": "Your E-Commerce Advantage",
+            "benefits": [
+                {"icon": "🛒", "title": "Ready-Made Store", "desc": "Launch your online store in minutes with professional templates."},
+                {"icon": "🌍", "title": "Sell Worldwide", "desc": "Reach customers in every country — no geographical limits."},
+                {"icon": "📦", "title": "No Inventory", "desc": "Use dropshipping and digital products — zero stock required."},
+                {"icon": "🤖", "title": "AI Marketing", "desc": "Let AI write your product descriptions, ads, and email campaigns."},
+                {"icon": "📊", "title": "Analytics Dashboard", "desc": "Track every sale, click, and conversion in real time."},
+                {"icon": "💰", "title": "Multiple Revenue", "desc": "Combine product sales with affiliate commissions and ad revenue."}
+            ],
+            "cta_headline": "Launch Your Online Store Today",
+            "cta_sub": "Everything you need to start selling online — included.",
+            "bg": "fire", "accent": "#f59e0b"
+        },
+        "ai-tech": {
+            "title": "AI-Powered Income",
+            "headline": "Use Artificial Intelligence to Build Your Business",
+            "subheadline": "Leverage the most powerful technology in history to automate your income and stay ahead of the curve.",
+            "benefits_title": "The AI Advantage",
+            "benefits": [
+                {"icon": "🤖", "title": "AI Does the Work", "desc": "Automate content creation, marketing, and customer engagement."},
+                {"icon": "⚡", "title": "10x Productivity", "desc": "Accomplish in minutes what used to take hours or days."},
+                {"icon": "🧠", "title": "Smart Strategies", "desc": "AI analyses data and recommends your best moves in real time."},
+                {"icon": "💻", "title": "No Coding Needed", "desc": "Use powerful AI tools without any technical background."},
+                {"icon": "📈", "title": "Scale Fast", "desc": "AI lets you scale your business without scaling your workload."},
+                {"icon": "🔮", "title": "Future-Proof", "desc": "Build skills and income in the fastest-growing industry on earth."}
+            ],
+            "cta_headline": "Harness the Power of AI Today",
+            "cta_sub": "Join the AI revolution and start building automated income streams.",
+            "bg": "gradient", "accent": "#6366f1"
+        },
+        "health-fitness": {
+            "title": "Fitness & Wellness Partner",
+            "headline": "Transform Lives While Building a Rewarding Income",
+            "subheadline": "Help others achieve their health goals and earn generous commissions in the booming wellness industry.",
+            "benefits_title": "Why Health & Fitness",
+            "benefits": [
+                {"icon": "💪", "title": "Growing Industry", "desc": "The global wellness market is worth $4.4 trillion — and growing."},
+                {"icon": "❤️", "title": "Make a Difference", "desc": "Help real people transform their health and confidence."},
+                {"icon": "🏃", "title": "Flexible Schedule", "desc": "Work around your own fitness routine and lifestyle."},
+                {"icon": "📱", "title": "Digital Tools", "desc": "Professional funnels, content, and marketing — ready to go."},
+                {"icon": "🤝", "title": "Community", "desc": "Join a network of health-minded entrepreneurs supporting each other."},
+                {"icon": "💰", "title": "Recurring Revenue", "desc": "Earn monthly commissions from memberships and subscriptions."}
+            ],
+            "cta_headline": "Start Your Wellness Business Today",
+            "cta_sub": "Join a community passionate about health and financial freedom.",
+            "bg": "ocean", "accent": "#10b981"
+        },
+        "real-estate": {
+            "title": "Real Estate Wealth Builder",
+            "headline": "Build Wealth Through Property — Without Millions to Start",
+            "subheadline": "Discover digital real estate strategies and investment tools that create passive income from property markets.",
+            "benefits_title": "Your Property Advantage",
+            "benefits": [
+                {"icon": "🏠", "title": "Digital Real Estate", "desc": "Build online assets that generate income like physical property."},
+                {"icon": "📊", "title": "Market Intelligence", "desc": "AI-powered analysis of property trends and opportunities."},
+                {"icon": "💰", "title": "Passive Income", "desc": "Create income streams that pay you month after month."},
+                {"icon": "🎓", "title": "Expert Training", "desc": "Learn from successful property investors and digital entrepreneurs."},
+                {"icon": "🤝", "title": "Network Effect", "desc": "Connect with investors and grow your portfolio together."},
+                {"icon": "🔑", "title": "Low Entry Cost", "desc": "Start with a fraction of what traditional property investing requires."}
+            ],
+            "cta_headline": "Start Building Real Estate Wealth",
+            "cta_sub": "Join smart investors who are building wealth through property.",
+            "bg": "dark", "accent": "#f59e0b"
+        },
+        "personal-finance": {
+            "title": "Financial Freedom Blueprint",
+            "headline": "Take Control of Your Money and Build Lasting Wealth",
+            "subheadline": "Learn to manage, grow, and multiply your income with proven financial strategies and digital tools.",
+            "benefits_title": "Your Path to Financial Freedom",
+            "benefits": [
+                {"icon": "💰", "title": "Multiple Streams", "desc": "Build diverse income sources that protect and grow your wealth."},
+                {"icon": "📊", "title": "Smart Budgeting", "desc": "Tools and training to take control of every dollar you earn."},
+                {"icon": "🎯", "title": "Goal Setting", "desc": "Clear milestones and tracking to keep you on the path to freedom."},
+                {"icon": "🧠", "title": "Financial Education", "desc": "Understand investing, compound growth, and wealth building."},
+                {"icon": "🤖", "title": "AI Assistance", "desc": "Let AI help you optimise your financial strategy and marketing."},
+                {"icon": "🔒", "title": "Security First", "desc": "Build a financial safety net while growing your income."}
+            ],
+            "cta_headline": "Start Your Journey to Financial Freedom",
+            "cta_sub": "Join thousands who are taking control of their financial future.",
+            "bg": "ocean", "accent": "#0284c7"
+        }
+    }
+
+    tpl = NICHE_TEMPLATES.get(niche, NICHE_TEMPLATES["affiliate-marketing"])
+
+    sections = [
+        {"templateId": "hero-video", "data": {
+            "headline": tpl["headline"],
+            "subheadline": tpl["subheadline"],
+            "video_url": "", "cta_text": "Get Started Now →", "cta_url": f"/ref/{user.username}"
+        }},
+        {"templateId": "stats-bar", "data": {
+            "items": [
+                {"value": "10,000+", "label": "Active Members"},
+                {"value": "$2.5M+", "label": "Paid Out"},
+                {"value": "150+", "label": "Countries"},
+                {"value": "4.9/5", "label": "Rating"}
+            ]
+        }},
+        {"templateId": "benefits-grid", "data": {
+            "title": tpl["benefits_title"],
+            "items": tpl["benefits"]
+        }},
+        {"templateId": "steps-section", "data": {
+            "title": "How It Works",
+            "steps": [
+                {"num": "01", "title": "Create Your Account", "desc": "Sign up in under 60 seconds — completely free."},
+                {"num": "02", "title": "Follow the Training", "desc": "Watch quick-start videos and set up your first campaign."},
+                {"num": "03", "title": "Start Earning", "desc": "Share your link and watch your income grow."}
+            ]
+        }},
+        {"templateId": "testimonials", "data": {
+            "title": "What Members Are Saying",
+            "items": [
+                {"name": "Sarah M.", "role": "Member", "text": "Within my first month I made back my investment and then some.", "stars": 5},
+                {"name": "James K.", "role": "Affiliate", "text": "The AI tools save me hours every single week.", "stars": 5},
+                {"name": "Maria L.", "role": "Entrepreneur", "text": "Finally something that actually works. Highly recommended.", "stars": 5}
+            ]
+        }},
+        {"templateId": "cta-banner", "data": {
+            "headline": tpl["cta_headline"],
+            "subheadline": tpl["cta_sub"],
+            "cta_text": "Claim Your Spot →",
+            "cta_url": f"/ref/{user.username}"
+        }}
+    ]
+
+    slug_base = niche.lower().replace(' ', '-').replace('&', 'and')
+    rand = ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))
+    slug = f"{user.username}/{slug_base}-{rand}"
+
+    page = FunnelPage(
+        user_id=user.id,
+        slug=slug,
+        title=tpl["title"],
+        headline=tpl["headline"],
+        template_type="landing",
+        color_scheme=tpl.get("bg", "dark"),
+        accent_color=tpl.get("accent", "#00d4ff"),
+        sections_json=json.dumps(sections),
+        status="draft"
+    )
+    db.add(page)
+    db.commit()
+    db.refresh(page)
+
+    return {"success": True, "edit_url": f"/funnels/edit/{page.id}"}
+
+
 @app.post("/api/funnels/delete/{page_id}")
 def funnel_delete(page_id: int, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
