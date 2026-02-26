@@ -71,6 +71,20 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
 
 /* AI Generate button */
 .ai-gen-section{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.04);background:rgba(124,58,237,0.06)}
+
+/* Item list editors */
+.item-list{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.item-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px}
+.item-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.item-num{font-size:10px;font-weight:700;color:#00d4ff;letter-spacing:1px}
+.item-del{background:none;border:none;color:#64748b;cursor:pointer;font-size:12px;padding:2px 6px;border-radius:4px;transition:all 0.15s}
+.item-del:hover{color:#ef4444;background:rgba(239,68,68,0.1)}
+.item-field{margin-bottom:6px}
+.item-field:last-child{margin-bottom:0}
+.item-field-label{font-size:9px;font-weight:600;color:#4a5a6e;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:2px}
+.item-field .set-input,.item-field .set-textarea{font-size:12px;padding:6px 8px}
+.item-add-btn{width:100%;padding:8px;margin-top:6px;background:transparent;border:1px dashed rgba(0,212,255,0.25);border-radius:6px;color:#00d4ff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.item-add-btn:hover{background:rgba(0,212,255,0.06);border-color:rgba(0,212,255,0.4)}
 .ai-btn{width:100%;padding:10px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s}
 .ai-btn:hover{opacity:0.9}.ai-btn:disabled{opacity:0.5;cursor:wait}
 
@@ -299,8 +313,31 @@ function renderSectionSettings() {
     } else if (typeof val === 'number') {
       html += `<div class="set-row"><div class="set-label">${label}</div><input class="set-input" type="number" value="${val}" onchange="updateField(${selectedIdx},'${key}',Number(this.value))" oninput="updateField(${selectedIdx},'${key}',Number(this.value))"></div>`;
     } else if (Array.isArray(val)) {
-      // For arrays (items, steps, etc.) show a simplified editor
-      html += `<div class="set-row"><div class="set-label">${label} (${val.length} items)</div><textarea class="set-textarea" rows="6" onchange="updateArrayField(${selectedIdx},'${key}',this.value)">${JSON.stringify(val, null, 1)}</textarea><div style="font-size:10px;color:#4a5a6e;margin-top:2px">Edit JSON directly — be careful with formatting</div></div>`;
+      html += `<div class="set-row"><div class="set-label">${label} (${val.length} items)</div>`;
+      html += `<div class="item-list" id="items_${key}">`;
+      val.forEach((item, itemIdx) => {
+        html += `<div class="item-card">`;
+        html += `<div class="item-card-header"><span class="item-num">#${itemIdx+1}</span><button class="item-del" onclick="removeArrayItem(${selectedIdx},'${key}',${itemIdx})" title="Remove">✕</button></div>`;
+        if (typeof item === 'object' && item !== null) {
+          for (const [fk, fv] of Object.entries(item)) {
+            const fLabel = fk.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            if (typeof fv === 'string') {
+              if (fv.length > 60 || fk === 'text' || fk === 'desc' || fk === 'a') {
+                html += `<div class="item-field"><div class="item-field-label">${fLabel}</div><textarea class="set-textarea" rows="2" oninput="updateArrayItemField(${selectedIdx},'${key}',${itemIdx},'${fk}',this.value)">${fv}</textarea></div>`;
+              } else {
+                html += `<div class="item-field"><div class="item-field-label">${fLabel}</div><input class="set-input" value="${String(fv).replace(/"/g,'&quot;')}" oninput="updateArrayItemField(${selectedIdx},'${key}',${itemIdx},'${fk}',this.value)"></div>`;
+              }
+            } else if (typeof fv === 'number') {
+              html += `<div class="item-field"><div class="item-field-label">${fLabel}</div><input class="set-input" type="number" value="${fv}" oninput="updateArrayItemField(${selectedIdx},'${key}',${itemIdx},'${fk}',Number(this.value))"></div>`;
+            }
+          }
+        }
+        html += `</div>`;
+      });
+      html += `</div>`;
+      // Add item button
+      html += `<button class="item-add-btn" onclick="addArrayItem(${selectedIdx},'${key}')">+ Add Item</button>`;
+      html += `</div>`;
     }
   }
   html += '</div>';
@@ -319,6 +356,39 @@ function updateArrayField(idx, key, val) {
     sections[idx].data[key] = JSON.parse(val);
     renderCanvas();
   } catch(e) { /* ignore parse errors while typing */ }
+}
+
+function updateArrayItemField(idx, key, itemIdx, fieldKey, val) {
+  if (idx >= 0 && idx < sections.length) {
+    sections[idx].data[key][itemIdx][fieldKey] = val;
+    renderCanvas();
+  }
+}
+
+function removeArrayItem(idx, key, itemIdx) {
+  if (idx >= 0 && idx < sections.length) {
+    sections[idx].data[key].splice(itemIdx, 1);
+    renderCanvas();
+    renderSectionSettings();
+  }
+}
+
+function addArrayItem(idx, key) {
+  if (idx >= 0 && idx < sections.length) {
+    const arr = sections[idx].data[key];
+    if (arr.length === 0) return;
+    // Clone the first item as a template, clear string values
+    const template = JSON.parse(JSON.stringify(arr[0]));
+    for (const k of Object.keys(template)) {
+      if (typeof template[k] === 'string') template[k] = '';
+    }
+    arr.push(template);
+    renderCanvas();
+    renderSectionSettings();
+    // Scroll to bottom of settings
+    const el = document.getElementById('sectionSettings');
+    setTimeout(() => el.scrollTop = el.scrollHeight, 50);
+  }
 }
 
 // ═══════════════════════════════════════════════════
