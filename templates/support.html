@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { background:#050d1a; color:#e8f0fe; font-family:'Rethink Sans',sans-serif; min-height:100vh; }
+        body { background:#080f1e; color:#e8f0fe; font-family:'Rethink Sans',sans-serif; min-height:100vh; }
         .bg { display:none; }
         .grid { display:none; }
 
@@ -15,7 +15,7 @@
         .nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; }
         .nav-brand { font-weight:800; font-size:17px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#00b4d8,#6d28d9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
         .nav-links { display:flex; align-items:center; gap:6px; list-style:none; }
-        .nav-links a { font-size:17px; font-weight:500; color:#334155; text-decoration:none; padding:4px 10px; transition:color 0.2s; }
+        .nav-links a { font-size:17px; font-weight:500; color:#c8daf0; text-decoration:none; padding:4px 10px; transition:color 0.2s; }
         .nav-links a:hover { color:#ffffff; }
         .nav-cta { font-weight:700; font-size:17px; color:#ffffff; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:8px 22px; border-radius:5px; text-decoration:none; transition:all 0.3s; }
         .nav-cta:hover { box-shadow:0 4px 24px rgba(0,180,216,0.35); transform:translateY(-1px); }
@@ -29,7 +29,7 @@
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
         .hero h1 { font-weight:800; font-size:clamp(28px,4vw,52px); color:#ffffff; line-height:1.1; margin-bottom:14px; }
         .hero h1 .gold { color:#6d28d9; }
-        .hero p { font-size:18px; color:#334155; max-width:540px; margin:0 auto; line-height:1.7; }
+        .hero p { font-size:18px; color:#c8daf0; max-width:540px; margin:0 auto; line-height:1.7; }
 
         /* Divider */
         .divider { display:flex; align-items:center; gap:14px; margin:52px 0 32px; }
@@ -46,7 +46,7 @@
         .channel-title { font-size:17px; font-weight:800; color:#ffffff; margin-bottom:6px; }
         .channel-desc { font-size:17px; color:rgba(220,242,230,0.65); line-height:1.65; margin-bottom:18px; }
         .channel-detail { font-size:17px; font-weight:600; color:#00b4d8; margin-bottom:4px; }
-        .channel-hours { font-size:17px; color:#64748b; letter-spacing:1px; margin-bottom:18px; }
+        .channel-hours { font-size:17px; color:#8aa4c0; letter-spacing:1px; margin-bottom:18px; }
         .channel-btn { display:inline-block; font-weight:700; font-size:17px; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:10px 24px; border-radius:5px; text-decoration:none; transition:all 0.3s; }
         .channel-btn:hover { box-shadow:0 0 24px rgba(0,180,216,0.3); transform:translateY(-1px); }
         .channel-btn-outline { background:transparent; color:rgba(220,242,230,0.75); border:1px solid rgba(0,180,216,0.3); }
@@ -76,13 +76,13 @@
         .info-card { background:rgba(10,18,40,0.9); border:1px solid rgba(0,180,216,0.15); border-radius:10px; padding:22px; }
         .info-card-title { font-size:18px; font-weight:700; color:#ffffff; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
         .info-card-icon { font-size:18px; }
-        .info-item { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; font-size:17px; color:#334155; line-height:1.5; }
+        .info-item { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; font-size:17px; color:#c8daf0; line-height:1.5; }
         .info-item:last-child { margin-bottom:0; }
         .info-bullet { color:#00b4d8; font-weight:700; flex-shrink:0; margin-top:1px; }
 
         .response-times { display:flex; flex-direction:column; gap:10px; }
         .rt-item { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:rgba(0,0,0,0.2); border-radius:5px; border:1px solid rgba(0,180,216,0.15); }
-        .rt-type { font-size:18px; font-weight:600; color:#334155; }
+        .rt-type { font-size:18px; font-weight:600; color:#c8daf0; }
         .rt-time { font-size:17px; font-weight:700; color:#00b4d8; }
 
         .wallet-info { background:rgba(10,18,40,0.9); border:1px solid rgba(0,180,216,0.15); border-radius:6px; padding:12px 14px; }
@@ -127,7 +127,7 @@
 .reg-submit{width:100%;padding:13px;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;transition:opacity 0.2s}
 .reg-submit:hover{opacity:0.9}
 .reg-submit:disabled{opacity:0.5;cursor:not-allowed}
-.reg-err{display:none;margin-bottom:14px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:12px;color:#dc2626;font-weight:600}
+.reg-err{display:none;margin-bottom:14px;padding:10px 14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;color:#dc2626;font-weight:600}
 .reg-login{text-align:center;margin-top:16px;font-size:12px;color:rgba(200,220,255,0.4)}
 .reg-login a{color:rgba(0,212,255,0.7);text-decoration:none;font-weight:600}
 @media(max-width:500px){.reg-modal,.login-modal{padding:28px 22px}.reg-row{grid-template-columns:1fr}}

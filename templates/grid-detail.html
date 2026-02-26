@@ -6,21 +6,21 @@
   <title>Grid Detail — SuperAdPro</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:"Inter",sans-serif;background:#f0f4f8;color:#0f172a;min-height:100vh}
+    body{font-family:"Inter",sans-serif;background:#f0f4f8;color:#e8f0fe;min-height:100vh}
     .page{max-width:900px;margin:0 auto;padding:32px 20px}
-    .back-btn{display:inline-flex;align-items:center;gap:6px;color:#64748b;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:20px;padding:6px 12px;border:1px solid #e2e8f0;border-radius:7px;background:#fff}
-    .back-btn:hover{background:#f8fafc}
-    .card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
-    h1{font-size:22px;font-weight:800;color:#0f172a;margin-bottom:4px}
-    .meta{font-size:13px;color:#64748b;margin-bottom:20px}
+    .back-btn{display:inline-flex;align-items:center;gap:6px;color:#8aa4c0;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:20px;padding:6px 12px;border:1px solid rgba(0,170,220,0.26);border-radius:7px;background:#1a2c44}
+    .back-btn:hover{background:#283d5a}
+    .card{background:#283d5a;border:1px solid rgba(0,170,220,0.26);border-radius:16px;padding:28px;margin-bottom:20px;box-shadow:0 3px 14px rgba(0,0,0,0.3)}
+    h1{font-size:22px;font-weight:800;color:#ffffff;margin-bottom:4px}
+    .meta{font-size:13px;color:#8aa4c0;margin-bottom:20px}
     .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
-    .stat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;text-align:center}
-    .stat-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:4px}
-    .stat-value{font-size:26px;font-weight:900;color:#0f172a}
+    .stat{background:#283d5a;border:1px solid rgba(0,170,220,0.26);border-radius:12px;padding:16px;text-align:center}
+    .stat-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#7a96b4;margin-bottom:4px}
+    .stat-value{font-size:26px;font-weight:900;color:#ffffff}
     .grid-visual{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:16px}
     .pos{width:100%;aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:2px solid transparent}
     .pos.filled{background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff;border-color:transparent}
-    .pos.empty{background:#f1f5f9;color:#cbd5e1;border-color:#e2e8f0}
+    .pos.empty{background:#253a54;color:#cbd5e1;border-color:rgba(0,170,220,0.15)}
     .pos.owner{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-color:transparent}
   </style>
 </head>
@@ -47,7 +47,7 @@
       </div>
     </div>
 
-    <h2 style="font-size:15px;font-weight:800;margin-bottom:12px;color:#374151">Grid Positions</h2>
+    <h2 style="font-size:15px;font-weight:800;margin-bottom:12px;color:#c8daf0">Grid Positions</h2>
     <div class="grid-visual">
       {% for pos in range(1, 65) %}
         {% set found = namespace(member=none) %}
