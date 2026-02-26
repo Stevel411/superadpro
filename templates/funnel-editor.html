@@ -39,14 +39,18 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
 .canvas-empty .ce-title{font-size:19px;font-weight:700;margin-bottom:6px}
 
 /* Section wrapper on canvas */
-.section-wrap{position:relative;border:2px solid transparent;transition:border-color 0.15s;cursor:pointer}
+.section-wrap{position:relative;border:2px solid transparent;transition:border-color 0.15s,transform 0.15s,opacity 0.15s;cursor:pointer}
 .section-wrap:hover{border-color:rgba(0,212,255,0.3)}
 .section-wrap.selected{border-color:#00d4ff}
+.section-wrap.dragging{opacity:0.4;border-color:#00d4ff;transform:scale(0.98)}
+.section-wrap.drag-over-top{border-top:3px solid #00d4ff}
+.section-wrap.drag-over-bottom{border-bottom:3px solid #00d4ff}
 .section-controls{position:absolute;top:8px;right:8px;display:none;gap:4px;z-index:10}
 .section-wrap:hover .section-controls,.section-wrap.selected .section-controls{display:flex}
 .sc-btn{width:28px;height:28px;border-radius:6px;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
 .sc-move{background:rgba(0,0,0,0.6);color:#fff}.sc-move:hover{background:rgba(0,0,0,0.8)}
 .sc-del{background:rgba(220,38,38,0.8);color:#fff}.sc-del:hover{background:#dc2626}
+.sc-drag{background:rgba(0,0,0,0.6);color:#fff;cursor:grab;font-size:12px;letter-spacing:1px}.sc-drag:hover{background:rgba(0,0,0,0.8)}.sc-drag:active{cursor:grabbing}
 
 /* RIGHT: Settings Panel */
 .settings-panel{background:#0a0a1a;border-left:1px solid rgba(0,212,255,0.1);overflow-y:auto;padding:0}
@@ -119,7 +123,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
     </div>
   </div>
   <div class="canvas-scroll">
-    <div class="canvas-inner" id="canvas"></div>
+    <div class="canvas-inner" id="canvas" ondragover="onCanvasDragOver(event)" ondrop="onCanvasDrop(event)"></div>
   </div>
 </div>
 
@@ -218,7 +222,7 @@ function initLibrary() {
   SECTION_CATEGORIES.forEach(cat => {
     html += `<div class="lib-cat">${cat.icon} ${cat.name}</div>`;
     SECTION_TEMPLATES.filter(s => s.category === cat.id).forEach(s => {
-      html += `<div class="lib-item" onclick="addSection('${s.id}')"><span class="li-icon">${s.icon}</span>${s.name}</div>`;
+      html += `<div class="lib-item" onclick="addSection('${s.id}')" draggable="true" ondragstart="onLibDragStart(event,'${s.id}')"><span class="li-icon">${s.icon}</span>${s.name}</div>`;
     });
   });
   el.innerHTML = html;
@@ -247,8 +251,9 @@ function renderCanvas() {
     const tpl = SECTION_TEMPLATES.find(t => t.id === sec.templateId);
     if (!tpl) return;
     const rendered = tpl.render(sec.data, accent, scheme);
-    html += `<div class="section-wrap${i===selectedIdx?' selected':''}" onclick="selectSection(${i})" data-idx="${i}">
+    html += `<div class="section-wrap${i===selectedIdx?' selected':''}" onclick="selectSection(${i})" data-idx="${i}" draggable="true" ondragstart="onDragStart(event,${i})" ondragend="onDragEnd(event)" ondragover="onDragOver(event,${i})" ondragleave="onDragLeave(event)" ondrop="onDrop(event,${i})">
       <div class="section-controls">
+        <button class="sc-btn sc-drag" draggable="false" title="Drag to reorder">⠿</button>
         ${i > 0 ? `<button class="sc-btn sc-move" onclick="event.stopPropagation();moveSection(${i},-1)" title="Move up">↑</button>` : ''}
         ${i < sections.length-1 ? `<button class="sc-btn sc-move" onclick="event.stopPropagation();moveSection(${i},1)" title="Move down">↓</button>` : ''}
         <button class="sc-btn sc-del" onclick="event.stopPropagation();removeSection(${i})" title="Delete">✕</button>
@@ -291,6 +296,112 @@ function moveSection(idx, dir) {
   selectedIdx = newIdx;
   renderCanvas();
   renderSectionSettings();
+}
+
+// ═══════════════════════════════════════════════════
+//  DRAG & DROP REORDERING
+// ═══════════════════════════════════════════════════
+let dragIdx = -1;
+
+function onDragStart(e, idx) {
+  dragIdx = idx;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', idx);
+  // Delay adding class so the drag image captures properly
+  setTimeout(() => {
+    const el = document.querySelector(`.section-wrap[data-idx="${idx}"]`);
+    if (el) el.classList.add('dragging');
+  }, 0);
+}
+
+function onDragEnd(e) {
+  dragIdx = -1;
+  document.querySelectorAll('.section-wrap').forEach(el => {
+    el.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom');
+  });
+}
+
+function onDragOver(e, idx) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  if (dragIdx === idx) return;
+  
+  const wrap = e.currentTarget;
+  const rect = wrap.getBoundingClientRect();
+  const midY = rect.top + rect.height / 2;
+  
+  // Clear all indicators
+  document.querySelectorAll('.section-wrap').forEach(el => {
+    el.classList.remove('drag-over-top', 'drag-over-bottom');
+  });
+  
+  // Show indicator based on mouse position
+  if (e.clientY < midY) {
+    wrap.classList.add('drag-over-top');
+  } else {
+    wrap.classList.add('drag-over-bottom');
+  }
+}
+
+function onDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over-top', 'drag-over-bottom');
+}
+
+function onDrop(e, dropIdx) {
+  e.preventDefault();
+  document.querySelectorAll('.section-wrap').forEach(el => {
+    el.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom');
+  });
+  
+  if (dragIdx < 0 || dragIdx === dropIdx) return;
+  
+  // Determine if dropping above or below
+  const rect = e.currentTarget.getBoundingClientRect();
+  const midY = rect.top + rect.height / 2;
+  let targetIdx = e.clientY < midY ? dropIdx : dropIdx + 1;
+  if (dragIdx < targetIdx) targetIdx--;
+  
+  // Move the section
+  const [moved] = sections.splice(dragIdx, 1);
+  sections.splice(targetIdx, 0, moved);
+  
+  // Update selected
+  if (selectedIdx === dragIdx) {
+    selectedIdx = targetIdx;
+  } else if (dragIdx < selectedIdx && targetIdx >= selectedIdx) {
+    selectedIdx--;
+  } else if (dragIdx > selectedIdx && targetIdx <= selectedIdx) {
+    selectedIdx++;
+  }
+  
+  dragIdx = -1;
+  renderCanvas();
+  renderSectionSettings();
+}
+
+// Library item drag onto canvas
+let libDragTemplateId = null;
+
+function onLibDragStart(e, templateId) {
+  libDragTemplateId = templateId;
+  dragIdx = -1; // Not a reorder drag
+  e.dataTransfer.effectAllowed = 'copy';
+  e.dataTransfer.setData('text/template', templateId);
+}
+
+function onCanvasDragOver(e) {
+  if (libDragTemplateId) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  }
+}
+
+function onCanvasDrop(e) {
+  if (libDragTemplateId) {
+    e.preventDefault();
+    addSection(libDragTemplateId);
+    libDragTemplateId = null;
+  }
 }
 
 // ═══════════════════════════════════════════════════
