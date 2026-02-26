@@ -214,8 +214,8 @@ def campaign_tiers(request: Request, user: User = Depends(get_current_user),
                    db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/login", status_code=302)
     # Get user's active grids to show which tiers they already have
-    user_grids = db.query(Grid).filter(Grid.user_id == user.id).all()
-    active_tiers = set(g.package_tier for g in user_grids if g.status in ('active', 'filling'))
+    user_grids = db.query(Grid).filter(Grid.owner_id == user.id).all()
+    active_tiers = set(g.package_tier for g in user_grids if not g.is_complete)
     return templates.TemplateResponse("campaign-tiers.html", {
         "request": request,
         "user": user,
