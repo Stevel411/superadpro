@@ -127,15 +127,24 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
     </div>
     <div class="set-row">
       <div class="set-label">Accent Color</div>
-      <div class="accent-grid">
-        <div class="accent-opt active" style="background:#00d4ff" data-color="#00d4ff" onclick="setAccent(this)"></div>
-        <div class="accent-opt" style="background:#7c3aed" data-color="#7c3aed" onclick="setAccent(this)"></div>
-        <div class="accent-opt" style="background:#16a34a" data-color="#16a34a" onclick="setAccent(this)"></div>
-        <div class="accent-opt" style="background:#f59e0b" data-color="#f59e0b" onclick="setAccent(this)"></div>
-        <div class="accent-opt" style="background:#ef4444" data-color="#ef4444" onclick="setAccent(this)"></div>
-        <div class="accent-opt" style="background:#ec4899" data-color="#ec4899" onclick="setAccent(this)"></div>
-        <div class="accent-opt" style="background:#f97316" data-color="#f97316" onclick="setAccent(this)"></div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div class="accent-grid">
+          <div class="accent-opt active" style="background:#00d4ff" data-color="#00d4ff" onclick="setAccent(this)"></div>
+          <div class="accent-opt" style="background:#7c3aed" data-color="#7c3aed" onclick="setAccent(this)"></div>
+          <div class="accent-opt" style="background:#16a34a" data-color="#16a34a" onclick="setAccent(this)"></div>
+          <div class="accent-opt" style="background:#f59e0b" data-color="#f59e0b" onclick="setAccent(this)"></div>
+          <div class="accent-opt" style="background:#ef4444" data-color="#ef4444" onclick="setAccent(this)"></div>
+          <div class="accent-opt" style="background:#ec4899" data-color="#ec4899" onclick="setAccent(this)"></div>
+          <div class="accent-opt" style="background:#f97316" data-color="#f97316" onclick="setAccent(this)"></div>
+        </div>
+        <div style="position:relative;margin-left:4px">
+          <input type="color" id="customAccentPicker" value="#00d4ff" style="position:absolute;opacity:0;width:28px;height:28px;cursor:pointer" oninput="setCustomAccent(this.value)">
+          <div id="customAccentSwatch" onclick="document.getElementById('customAccentPicker').click()" style="width:26px;height:26px;border-radius:50%;background:conic-gradient(red,yellow,lime,aqua,blue,magenta,red);cursor:pointer;border:2px solid rgba(255,255,255,0.2);transition:all 0.15s;display:flex;align-items:center;justify-content:center" title="Custom colour">
+            <div style="width:10px;height:10px;background:#1e293b;border-radius:50%"></div>
+          </div>
+        </div>
       </div>
+      <div id="customColorHex" style="display:none;margin-top:6px;font-size:11px;color:#6b7d94;font-family:monospace"></div>
     </div>
   </div>
 
@@ -326,6 +335,17 @@ function setAccent(el) {
   document.querySelectorAll('.accent-opt').forEach(e => e.classList.remove('active'));
   el.classList.add('active');
   accent = el.dataset.color;
+  document.getElementById('customAccentPicker').value = accent;
+  document.getElementById('customColorHex').style.display = 'none';
+  renderCanvas();
+}
+
+function setCustomAccent(color) {
+  document.querySelectorAll('.accent-opt').forEach(e => e.classList.remove('active'));
+  accent = color;
+  const hexEl = document.getElementById('customColorHex');
+  hexEl.textContent = color.toUpperCase();
+  hexEl.style.display = 'block';
   renderCanvas();
 }
 
@@ -443,6 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Set initial scheme/accent from saved data
   document.querySelectorAll('.scheme-opt').forEach(e => e.classList.toggle('active', e.dataset.scheme === scheme));
   document.querySelectorAll('.accent-opt').forEach(e => e.classList.toggle('active', e.dataset.color === accent));
+  document.getElementById('customAccentPicker').value = accent;
   initLibrary();
   renderCanvas();
 });
