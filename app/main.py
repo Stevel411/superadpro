@@ -187,8 +187,8 @@ def how_it_works(request: Request):
     return templates.TemplateResponse("how-it-works.html", {"request": request})
 
 @app.get("/compensation-plan")
-def compensation_plan(request: Request):
-    return templates.TemplateResponse("compensation-plan.html", {
+def compensation_plan(request: Request, user: User = Depends(get_current_user)):
+    ctx = {
         "request": request,
         "GRID_PACKAGES": GRID_PACKAGES,
         "GRID_TOTAL": GRID_TOTAL,
@@ -196,7 +196,11 @@ def compensation_plan(request: Request):
         "UPLINE_PCT": UPLINE_PCT,
         "LEVEL_PCT": LEVEL_PCT,
         "COMPANY_PCT": COMPANY_PCT,
-    })
+    }
+    if user:
+        ctx["user"] = user
+        return templates.TemplateResponse("compensation-plan-internal.html", ctx)
+    return templates.TemplateResponse("compensation-plan.html", ctx)
 
 @app.get("/grid-visualiser")
 def grid_visualiser(request: Request):
