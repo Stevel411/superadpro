@@ -1542,13 +1542,18 @@ def render_funnel_page(username: str, page_slug: str, request: Request,
 
     db.commit()
 
-    return templates.TemplateResponse("funnel-render.html", {
+    response = templates.TemplateResponse("funnel-render.html", {
         "request": request,
         "page": page,
         "owner_name": owner_name,
         "owner_username": owner.username if owner else username,
         "owner_ref_link": owner_ref_link,
     })
+    # Auto-cookie visitor to page owner's referral (only if no existing ref cookie)
+    if not request.cookies.get("ref"):
+        response.set_cookie(key="ref", value=owner.username if owner else username,
+                            max_age=60*60*24*30, httponly=False, samesite="lax")
+    return response
 
 
 @app.get("/api/funnels/track-click/{page_id}")
