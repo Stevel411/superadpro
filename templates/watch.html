@@ -11,9 +11,8 @@
 body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh;display:flex}
 
 /* ── Sidebar ── */
-.sidebar{width:224px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,180,216,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
-.sidebar-brand{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px 16px}
+.sidebar{display:none}
+.main{margin-left:0;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
 .logo-shield{width:32px;height:32px}
 .nav-section{padding:18px 16px 5px;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(200,220,255,0.25)}
 .nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:19px;font-weight:600;color:rgba(200,220,255,0.6);text-decoration:none;transition:all 0.15s;border-left:2px solid transparent}
@@ -243,9 +242,15 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 <!-- Main -->
 <div class="main">
   <div class="topbar">
-    <div>
-      <div class="topbar-title">▶ Watch & Earn</div>
-      <div class="topbar-sub">Watch videos · Qualify for daily commissions</div>
+    <div style="display:flex;align-items:center;gap:20px">
+      <a href="/dashboard" style="display:flex;align-items:center;gap:10px;text-decoration:none;padding:8px 16px;background:rgba(0,180,216,0.08);border:1px solid rgba(0,180,216,0.2);border-radius:8px;transition:all 0.2s">
+        <span style="font-size:16px">←</span>
+        <span style="font-weight:800;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent">SuperAdPro</span>
+      </a>
+      <div>
+        <div class="topbar-title">▶ Watch & Earn</div>
+        <div class="topbar-sub">Watch videos · Qualify for daily commissions</div>
+      </div>
     </div>
     <div style="font-size:16px;color:#6b7d94;text-align:right">
       <div style="color:#00d4ff;font-weight:700;font-size:16px">Tier {{ quota.package_tier }}</div>
