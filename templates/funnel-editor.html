@@ -89,6 +89,26 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
 .item-field .set-input,.item-field .set-textarea{font-size:12px;padding:6px 8px}
 .item-add-btn{width:100%;padding:8px;margin-top:6px;background:transparent;border:1px dashed rgba(0,212,255,0.25);border-radius:6px;color:#00d4ff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s}
 .item-add-btn:hover{background:rgba(0,212,255,0.06);border-color:rgba(0,212,255,0.4)}
+
+/* Element layout controls */
+.el-layout-list{display:flex;flex-direction:column;gap:4px}
+.el-layout-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px 10px;transition:all 0.15s}
+.el-layout-card.el-hidden{opacity:0.4}
+.el-layout-card.el-drag-over{border-color:#00d4ff;background:rgba(0,212,255,0.08)}
+.el-layout-row{display:flex;align-items:center;gap:6px}
+.el-grip{cursor:grab;color:#4a5a6e;font-size:11px;user-select:none}.el-grip:active{cursor:grabbing}
+.el-name{flex:1;font-size:12px;font-weight:600;color:#b0bec5}
+.el-vis-btn{background:none;border:none;cursor:pointer;font-size:12px;padding:2px 4px;border-radius:4px;transition:all 0.15s;opacity:0.5}
+.el-vis-btn.active{opacity:1}
+.el-vis-btn:hover{background:rgba(255,255,255,0.06)}
+.el-controls-row{display:flex;align-items:center;gap:10px;margin-top:6px;padding-left:20px}
+.el-align-group{display:flex;gap:2px}
+.el-align-btn{width:22px;height:20px;border:1px solid rgba(255,255,255,0.1);border-radius:3px;background:transparent;color:#4a5a6e;cursor:pointer;font-size:8px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.el-align-btn.active{background:rgba(0,212,255,0.15);border-color:#00d4ff;color:#00d4ff}
+.el-align-btn:hover{border-color:rgba(0,212,255,0.3)}
+.el-spacing-group{display:flex;align-items:center;gap:4px;flex:1}
+.el-spacing-slider{flex:1;height:3px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,0.1);border-radius:2px;outline:none}
+.el-spacing-slider::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:#00d4ff;cursor:pointer}
 .ai-btn{width:100%;padding:10px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s}
 .ai-btn:hover{opacity:0.9}.ai-btn:disabled{opacity:0.5;cursor:wait}
 
@@ -423,6 +443,7 @@ function renderSectionSettings() {
   html += '<div class="set-section">';
   const data = sec.data;
   for (const [key, val] of Object.entries(data)) {
+    if (key.startsWith('_')) continue; // Skip internal layout keys
     const label = key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     if (typeof val === 'string') {
       if (val.length > 80 || key === 'text' || key === 'bullets' || key === 'body_copy') {
@@ -463,6 +484,46 @@ function renderSectionSettings() {
     }
   }
   html += '</div>';
+
+  // ── ELEMENT LAYOUT CONTROLS ──
+  if (tpl.elements && tpl.elements.length > 1) {
+    const order = sec.data._elementOrder || tpl.elements;
+    if (!sec.data._elementStyles) sec.data._elementStyles = {};
+
+    html += '<div class="set-section">';
+    html += '<div class="set-label" style="margin-bottom:8px;color:#00d4ff;font-weight:700">⚙ Element Layout</div>';
+    html += '<div class="set-label" style="font-size:9px;color:#4a5a6e;margin-bottom:8px">Drag to reorder · Toggle visibility · Set alignment</div>';
+    html += '<div class="el-layout-list" id="elLayoutList">';
+
+    order.forEach((elName, elIdx) => {
+      const s = elStyle(sec.data, elName);
+      const label = elName.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      html += `<div class="el-layout-card${s.visible?'':' el-hidden'}" draggable="true" data-el="${elName}" ondragstart="onElDragStart(event,'${elName}')" ondragend="onElDragEnd(event)" ondragover="onElDragOver(event,'${elName}')" ondragleave="onElDragLeave(event)" ondrop="onElDrop(event,'${elName}')">`;
+      html += `<div class="el-layout-row">`;
+      html += `<span class="el-grip" title="Drag to reorder">⠿</span>`;
+      html += `<span class="el-name">${label}</span>`;
+      html += `<button class="el-vis-btn${s.visible?' active':''}" onclick="toggleElVisibility(${selectedIdx},'${elName}')" title="${s.visible?'Hide':'Show'}">${s.visible?'👁':'👁‍🗨'}</button>`;
+      html += `</div>`;
+      if (s.visible) {
+        html += `<div class="el-controls-row">`;
+        html += `<div class="el-align-group">`;
+        html += `<button class="el-align-btn${s.align==='left'?' active':''}" onclick="setElAlign(${selectedIdx},'${elName}','left')" title="Left">◀</button>`;
+        html += `<button class="el-align-btn${s.align==='center'?' active':''}" onclick="setElAlign(${selectedIdx},'${elName}','center')" title="Center">●</button>`;
+        html += `<button class="el-align-btn${s.align==='right'?' active':''}" onclick="setElAlign(${selectedIdx},'${elName}','right')" title="Right">▶</button>`;
+        html += `</div>`;
+        html += `<div class="el-spacing-group">`;
+        html += `<span style="font-size:9px;color:#4a5a6e">Gap</span>`;
+        html += `<input type="range" min="0" max="64" value="${s.spacing}" class="el-spacing-slider" oninput="setElSpacing(${selectedIdx},'${elName}',Number(this.value))">`;
+        html += `<span style="font-size:10px;color:#6b7d94;width:24px;text-align:right">${s.spacing}</span>`;
+        html += `</div>`;
+        html += `</div>`;
+      }
+      html += `</div>`;
+    });
+
+    html += '</div></div>';
+  }
+
   el.innerHTML = html;
 }
 
@@ -471,6 +532,87 @@ function updateField(idx, key, val) {
     sections[idx].data[key] = val;
     renderCanvas();
   }
+}
+
+// ═══════════════════════════════════════════════════
+//  ELEMENT LAYOUT CONTROLS
+// ═══════════════════════════════════════════════════
+function ensureElStyles(idx) {
+  if (!sections[idx].data._elementStyles) sections[idx].data._elementStyles = {};
+}
+
+function toggleElVisibility(idx, elName) {
+  ensureElStyles(idx);
+  const styles = sections[idx].data._elementStyles;
+  if (!styles[elName]) styles[elName] = {};
+  styles[elName].visible = styles[elName].visible === false ? true : false;
+  renderCanvas();
+  renderSectionSettings();
+}
+
+function setElAlign(idx, elName, align) {
+  ensureElStyles(idx);
+  const styles = sections[idx].data._elementStyles;
+  if (!styles[elName]) styles[elName] = {};
+  styles[elName].align = align;
+  renderCanvas();
+  renderSectionSettings();
+}
+
+function setElSpacing(idx, elName, px) {
+  ensureElStyles(idx);
+  const styles = sections[idx].data._elementStyles;
+  if (!styles[elName]) styles[elName] = {};
+  styles[elName].spacing = px;
+  renderCanvas();
+}
+
+// Element drag reorder within section
+let elDragName = null;
+
+function onElDragStart(e, elName) {
+  elDragName = elName;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/element', elName);
+}
+
+function onElDragEnd(e) {
+  elDragName = null;
+  document.querySelectorAll('.el-layout-card').forEach(c => c.classList.remove('el-drag-over'));
+}
+
+function onElDragOver(e, elName) {
+  if (!elDragName || elDragName === elName) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.el-layout-card').forEach(c => c.classList.remove('el-drag-over'));
+  e.currentTarget.classList.add('el-drag-over');
+}
+
+function onElDragLeave(e) {
+  e.currentTarget.classList.remove('el-drag-over');
+}
+
+function onElDrop(e, targetElName) {
+  e.preventDefault();
+  document.querySelectorAll('.el-layout-card').forEach(c => c.classList.remove('el-drag-over'));
+  if (!elDragName || elDragName === targetElName || selectedIdx < 0) return;
+
+  const sec = sections[selectedIdx];
+  const tpl = SECTION_TEMPLATES.find(t => t.id === sec.templateId);
+  const order = sec.data._elementOrder || [...tpl.elements];
+  
+  const fromIdx = order.indexOf(elDragName);
+  const toIdx = order.indexOf(targetElName);
+  if (fromIdx < 0 || toIdx < 0) return;
+  
+  order.splice(fromIdx, 1);
+  order.splice(toIdx, 0, elDragName);
+  sec.data._elementOrder = order;
+  
+  elDragName = null;
+  renderCanvas();
+  renderSectionSettings();
 }
 
 function updateArrayField(idx, key, val) {
