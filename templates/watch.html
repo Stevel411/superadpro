@@ -24,7 +24,6 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .user-mini-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#00b4d8,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0}
 
 /* ── Main ── */
-.main{margin-left:224px;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
 .topbar{background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.08);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0}
 .topbar-left{display:flex;align-items:center;gap:14px}
 .back-btn{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:15px;font-weight:600;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
@@ -194,54 +193,6 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 
 
 <!-- Sidebar -->
-<nav class="sidebar">
-  <div class="sidebar-logo">
-    <svg class="logo-shield" viewBox="0 0 40 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M20 2L4 9V22C4 31.4 11.1 40.2 20 43C28.9 40.2 36 31.4 36 22V9L20 2Z" fill="url(#sg)" stroke="rgba(0,212,255,0.3)" stroke-width="1"/>
-      <path d="M14 22L18 26L26 18" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <defs><linearGradient id="sg" x1="4" y1="2" x2="36" y2="43" gradientUnits="userSpaceOnUse"><stop stop-color="#0a0a2a"/><stop offset="1" stop-color="#1a1a4a"/></linearGradient></defs>
-    </svg>
-    <span class="sidebar-brand">SuperAdPro</span>
-  </div>
-
-  <div class="nav-section">Main</div>
-  <a href="/dashboard"    class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
-  <a href="/watch"        class="nav-item active"><span class="nav-icon">▶</span>Watch & Earn</a>
-  <a href="/packages"     class="nav-item"><span class="nav-icon">📦</span>Campaign Tiers</a>
-  <a href="/video-library" class="nav-item"><span class="nav-icon">🎬</span>My Campaigns</a>
-    <a href="/analytics" class="nav-item"><span class="nav-icon">📈</span>Analytics</a>
-
-    <div class="nav-section">Marketing Suite</div>
-    <a href="/campaign-studio" class="nav-item"><span class="nav-icon">🤖</span>AI Campaign Studio</a>
-    <a href="/funnels" class="nav-item"><span class="nav-icon">🚀</span>Funnel Builder</a>
-    <a href="/niche-finder"    class="nav-item"><span class="nav-icon">💡</span>Niche Finder</a>
-    <a href="/swipe-file"      class="nav-item"><span class="nav-icon">📋</span>Swipe File</a>
-
-  <div class="nav-section">Income Streams</div>
-  <a href="/income-grid"  class="nav-item"><span class="nav-icon">◈</span>Profit Engine Grid</a>
-  <a href="/wallet"       class="nav-item"><span class="nav-icon">◎</span>Wallet</a>
-  <a href="/affiliate"    class="nav-item"><span class="nav-icon">⬡</span>Affiliate Tools</a>
-  <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span>Comp Plan</a>
-  <a href="/grid-visualiser"   class="nav-item"><span class="nav-icon">◉</span>Grid Visualiser</a>
-
-  <div class="nav-section">Account</div>
-  <a href="/account"      class="nav-item"><span class="nav-icon">◯</span>Profile</a>
-  <a href="/support"      class="nav-item"><span class="nav-icon">◯</span>Support</a>
-
-  <div class="sidebar-footer">
-    <div class="user-mini">
-      <div class="user-mini-avatar">{{ (user.first_name or user.username)[0]|upper }}</div>
-      <div>
-        <div style="font-size:16px;font-weight:700;color:#fff">{{ user.first_name or user.username }}</div>
-        <div style="font-size:16px;color:{% if user.is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:1px">
-          {% if user.is_active %}● Active{% else %}○ Inactive{% endif %}
-        </div>
-      </div>
-    </div>
-    <a href="/logout" style="display:block;margin-top:12px;font-size:16px;color:#6b7d94;text-decoration:none">⏻ Sign Out</a>
-  </div>
-</nav>
-
 <!-- Main -->
 <div class="main">
   <div class="topbar">
