@@ -1843,45 +1843,192 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
 
     tpl = NICHE_TEMPLATES.get(niche, NICHE_TEMPLATES["affiliate-marketing"])
 
+    # Build niche-specific stats
+    NICHE_STATS = {
+        "forex": [{"value":"$6.6T","label":"Daily Forex Volume"},{"value":"24/5","label":"Market Hours"},{"value":"10,000+","label":"Active Traders"},{"value":"180+","label":"Currency Pairs"}],
+        "crypto": [{"value":"$2.1T","label":"Crypto Market Cap"},{"value":"24/7","label":"Never Closes"},{"value":"300M+","label":"Crypto Users"},{"value":"10,000+","label":"Digital Assets"}],
+        "affiliate-marketing": [{"value":"$17B+","label":"Affiliate Industry"},{"value":"10,000+","label":"Active Members"},{"value":"$2.5M+","label":"Commissions Paid"},{"value":"150+","label":"Countries"}],
+        "ecommerce": [{"value":"$5.7T","label":"Global E-Commerce"},{"value":"2.14B","label":"Online Shoppers"},{"value":"27%","label":"Annual Growth"},{"value":"10,000+","label":"Active Sellers"}],
+        "ai-tech": [{"value":"$190B","label":"AI Market Size"},{"value":"40%","label":"YoY Growth"},{"value":"10x","label":"Productivity Boost"},{"value":"10,000+","label":"AI-Powered Members"}],
+        "health-fitness": [{"value":"$4.4T","label":"Wellness Industry"},{"value":"73%","label":"Want Better Health"},{"value":"10,000+","label":"Active Members"},{"value":"150+","label":"Countries"}],
+        "real-estate": [{"value":"$326T","label":"Global Property"},{"value":"10.6%","label":"Avg Annual Return"},{"value":"10,000+","label":"Active Investors"},{"value":"$2.5M+","label":"Commissions Paid"}],
+        "personal-finance": [{"value":"78%","label":"Live Paycheck to Paycheck"},{"value":"$1.2M","label":"Avg Needed to Retire"},{"value":"10,000+","label":"Active Members"},{"value":"3","label":"Income Streams"}],
+    }
+    NICHE_STEPS = {
+        "forex": [{"num":"01","title":"Open Your Account","desc":"Register in 60 seconds and access your member dashboard with all trading tools."},{"num":"02","title":"Learn the System","desc":"Follow our structured forex training — from candlestick basics to advanced Smart Money Concepts."},{"num":"03","title":"Trade & Earn","desc":"Apply proven strategies on your own schedule. Plus earn referral income by sharing with others."}],
+        "crypto": [{"num":"01","title":"Create Your Wallet","desc":"We walk you through secure wallet setup and buying your first crypto step by step."},{"num":"02","title":"Master the Fundamentals","desc":"Learn blockchain, DeFi, altcoins, and how to spot opportunities before the crowd."},{"num":"03","title":"Build Your Portfolio","desc":"Start investing with confidence and earn referral commissions as you grow."}],
+        "affiliate-marketing": [{"num":"01","title":"Grab Your Link","desc":"Get your unique referral link the moment you sign up — ready to share anywhere."},{"num":"02","title":"Share & Promote","desc":"Use our AI-built funnels, social media templates, and swipe copy to drive traffic."},{"num":"03","title":"Earn Commissions","desc":"Get paid instantly every time someone joins through your link. Recurring monthly income."}],
+        "ecommerce": [{"num":"01","title":"Pick Your Niche","desc":"Use our AI niche finder to identify profitable product categories with high demand."},{"num":"02","title":"Launch Your Store","desc":"Build professional product pages with our drag-and-drop builder in minutes."},{"num":"03","title":"Scale with AI","desc":"Let AI write your ads, email campaigns, and product descriptions while you focus on growth."}],
+        "ai-tech": [{"num":"01","title":"Access AI Tools","desc":"Get instant access to our suite of AI-powered marketing and business automation tools."},{"num":"02","title":"Automate Everything","desc":"Let AI create your content, build your funnels, write your emails, and manage your campaigns."},{"num":"03","title":"Scale & Earn","desc":"10x your output without 10x the work. Plus earn by referring others to the platform."}],
+        "health-fitness": [{"num":"01","title":"Choose Your Focus","desc":"Whether it's weight loss, muscle building, or holistic wellness — pick your passion."},{"num":"02","title":"Get Your Toolkit","desc":"Access ready-made fitness funnels, content templates, and marketing materials."},{"num":"03","title":"Help Others & Earn","desc":"Share wellness solutions, build your audience, and earn recurring commissions."}],
+        "real-estate": [{"num":"01","title":"Learn the Strategies","desc":"Access training on digital real estate, property investment, and passive income methods."},{"num":"02","title":"Build Your Presence","desc":"Use our AI tools to create professional property funnels and investor content."},{"num":"03","title":"Generate Income","desc":"Earn through referrals, property leads, and team building in the real estate niche."}],
+        "personal-finance": [{"num":"01","title":"Get Your Blueprint","desc":"Access our complete financial freedom roadmap — budgeting, investing, and income building."},{"num":"02","title":"Build Income Streams","desc":"Set up multiple revenue sources using our proven system and AI-powered tools."},{"num":"03","title":"Achieve Freedom","desc":"Watch your income grow while helping others do the same. Earn monthly recurring commissions."}],
+    }
+    NICHE_TESTIMONIALS = {
+        "forex": [{"name":"David R.","role":"Part-Time Trader","text":"I was losing money before I found this system. Now I'm consistently profitable trading just 2 hours a day around my day job. The Smart Money training was a game changer.","stars":5},{"name":"Emma T.","role":"Full-Time Trader","text":"The combination of forex education plus the affiliate income is brilliant. I earn from my trades AND from sharing the platform with other traders.","stars":5},{"name":"Marcus W.","role":"Beginner Trader","text":"Started with zero trading experience 3 months ago. The step-by-step training made it so clear. Already seeing consistent results on my demo account.","stars":5}],
+        "crypto": [{"name":"Alex P.","role":"Crypto Investor","text":"I was overwhelmed by crypto until I joined. The structured education helped me understand DeFi, staking, and how to actually evaluate projects properly.","stars":5},{"name":"Rachel K.","role":"Portfolio Builder","text":"Built a diversified crypto portfolio following the training. The community support is incredible — always someone to answer my questions.","stars":5},{"name":"Tom H.","role":"Early Adopter","text":"The referral system is what sets this apart. I earn from crypto gains AND from helping friends get started. Double income stream.","stars":5}],
+        "affiliate-marketing": [{"name":"Sarah M.","role":"Affiliate Marketer","text":"Made my first commission within 48 hours of joining. The ready-made funnels and swipe copy made it so easy to start promoting immediately.","stars":5},{"name":"James K.","role":"Side Hustler","text":"I promote during my lunch break and after work. The AI tools write my social media posts. Last month I earned more from affiliates than my overtime pay.","stars":5},{"name":"Maria L.","role":"Full-Time Affiliate","text":"Quit my 9-to-5 after 6 months. Between direct commissions and my growing team, I'm earning more than I ever did in my corporate job.","stars":5}],
+        "ecommerce": [{"name":"Chen W.","role":"Store Owner","text":"Launched my first online store in a weekend. The AI product descriptions are incredible — my conversion rate jumped 40% compared to what I wrote myself.","stars":5},{"name":"Lisa M.","role":"Dropshipper","text":"No inventory, no shipping headaches. I find trending products, the platform handles the marketing, and the commissions roll in. Simple.","stars":5},{"name":"Ryan B.","role":"Digital Seller","text":"Selling digital courses through the funnel builder has been life-changing. The templates made it look professional from day one.","stars":5}],
+        "ai-tech": [{"name":"Priya S.","role":"Tech Entrepreneur","text":"The AI tools here are genuinely impressive. I create a week's worth of content in about 20 minutes. My social media engagement tripled.","stars":5},{"name":"Mike D.","role":"Automation Expert","text":"I've tried every AI tool out there. This platform bundles the best ones together with a business model attached. That's the difference.","stars":5},{"name":"Jordan L.","role":"AI Creator","text":"Used the AI funnel builder to launch three different niche pages in one afternoon. Each one is generating leads and commissions on autopilot.","stars":5}],
+        "health-fitness": [{"name":"Kate R.","role":"Fitness Coach","text":"I was already a personal trainer but the online income was life-changing. Now I earn from clients AND from building a team of wellness promoters.","stars":5},{"name":"Brandon J.","role":"Wellness Advocate","text":"Passionate about health and now I get paid to share that passion. The ready-made fitness funnels made it easy even though I'm not tech-savvy.","stars":5},{"name":"Nina M.","role":"Nutrition Enthusiast","text":"Helping people improve their health while building real income. The community is so supportive and the training covers everything from day one.","stars":5}],
+        "real-estate": [{"name":"Robert C.","role":"Property Investor","text":"The digital real estate strategies opened my eyes. You don't need millions to start building property-related income anymore.","stars":5},{"name":"Amanda S.","role":"Real Estate Agent","text":"Added a completely new income stream alongside my traditional property business. The funnel builder generates qualified leads on autopilot.","stars":5},{"name":"Kevin T.","role":"Passive Income Seeker","text":"Always wanted to earn from property but couldn't afford to invest. This platform showed me digital alternatives that actually work.","stars":5}],
+        "personal-finance": [{"name":"Diana F.","role":"Financial Planner","text":"Went from living paycheck to paycheck to three separate income streams in under a year. The financial education here is genuinely excellent.","stars":5},{"name":"Steven L.","role":"Side Hustler","text":"The budgeting tools helped me save, and the affiliate income helped me earn. I'm finally building the emergency fund I always needed.","stars":5},{"name":"Grace H.","role":"Wealth Builder","text":"Teaching my kids about money now because this platform showed me what financial literacy really looks like in practice. Life-changing.","stars":5}],
+    }
+    NICHE_FAQ = {
+        "forex": [{"q":"Do I need trading experience?","a":"Not at all. Our training starts from absolute basics — candlestick patterns, risk management, and position sizing — all the way to advanced strategies."},{"q":"How much capital do I need to start trading?","a":"You can practise on a free demo account with zero risk. When ready, start live trading with as little as $50–100."},{"q":"Can I trade around a full-time job?","a":"Absolutely. The forex market runs 24 hours, 5 days a week. Many members trade before or after work."},{"q":"What about the affiliate income?","a":"Share the platform with other traders and earn commissions on every referral — monthly recurring income on top of your trading."}],
+        "crypto": [{"q":"Is crypto investing risky?","a":"All investing carries risk. Our training focuses heavily on risk management, diversification, and only investing what you can afford to lose."},{"q":"Do I need to understand blockchain?","a":"Our training covers everything from scratch. You'll understand blockchain, wallets, and DeFi step by step."},{"q":"How do I earn beyond just crypto gains?","a":"Our affiliate system pays you commissions every time someone you refer joins the platform — recurring monthly income."},{"q":"Is it too late to invest in crypto?","a":"The crypto market is still in its early growth phase. New opportunities emerge every month with emerging projects and protocols."}],
+    }
+    default_faq = [{"q":"How quickly can I start earning?","a":"Most members see their first results within the first week. The system is designed for fast implementation."},{"q":"Do I need any experience?","a":"None at all. Full step-by-step training, AI tools, and ready-made templates are included from day one."},{"q":"Is there a money-back guarantee?","a":"Yes. If you're not satisfied within 30 days, you can request a full refund."},{"q":"How much does it cost to get started?","a":"Membership starts at just $20/month with full access to all tools, training, and income opportunities."}]
+
+    niche_key = niche
+    stats = NICHE_STATS.get(niche_key, NICHE_STATS["affiliate-marketing"])
+    steps = NICHE_STEPS.get(niche_key, NICHE_STEPS["affiliate-marketing"])
+    testimonials = NICHE_TESTIMONIALS.get(niche_key, NICHE_TESTIMONIALS["affiliate-marketing"])
+    faq = NICHE_FAQ.get(niche_key, default_faq)
+
+    # Niche-specific hero images (Unsplash — free to use)
+    NICHE_HERO_IMAGES = {
+        "forex": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1400&q=80",
+        "crypto": "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1400&q=80",
+        "affiliate-marketing": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1400&q=80",
+        "ecommerce": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&q=80",
+        "ai-tech": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1400&q=80",
+        "health-fitness": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1400&q=80",
+        "real-estate": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1400&q=80",
+        "personal-finance": "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1400&q=80",
+    }
+    # Niche-specific feature images
+    NICHE_FEATURE_IMAGES = {
+        "forex": [
+            {"image": "https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=500&q=80", "title": "Professional Charts & Analysis", "desc": "Access institutional-grade charting tools with Smart Money Concepts, liquidity pools, and order flow analysis built right in."},
+            {"image": "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=500&q=80", "title": "Risk Management System", "desc": "Never risk more than you should. Our built-in position size calculator and risk management tools keep your capital protected."},
+            {"image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500&q=80", "title": "Live Trading Community", "desc": "Trade alongside experienced traders who share setups, analysis, and real-time market commentary daily."},
+        ],
+        "crypto": [
+            {"image": "https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=500&q=80", "title": "Portfolio Tracking", "desc": "Monitor all your crypto holdings across multiple wallets and exchanges in one clean, real-time dashboard."},
+            {"image": "https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=500&q=80", "title": "DeFi Strategies", "desc": "Learn yield farming, liquidity pools, staking, and other DeFi strategies that generate passive crypto income."},
+            {"image": "https://images.unsplash.com/photo-1639762681057-408e52192e55?w=500&q=80", "title": "Research & Alerts", "desc": "Stay ahead of the market with AI-powered project analysis, on-chain data, and price alerts."},
+        ],
+        "affiliate-marketing": [
+            {"image": "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=500&q=80", "title": "AI-Built Sales Funnels", "desc": "Professional landing pages created by AI in minutes. Just pick your niche, add your link, and start driving traffic."},
+            {"image": "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=500&q=80", "title": "Marketing Automation", "desc": "Email sequences, social media posts, and ad copy — all generated by AI and ready to deploy instantly."},
+            {"image": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=500&q=80", "title": "Team Building Tools", "desc": "Track your referrals, manage your growing team, and watch your passive income scale month over month."},
+        ],
+        "ecommerce": [
+            {"image": "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=500&q=80", "title": "Beautiful Storefront", "desc": "Launch a professional online store with our drag-and-drop builder. No coding or design experience needed."},
+            {"image": "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=500&q=80", "title": "Product Research", "desc": "AI-powered niche finder identifies trending products with high margins and proven demand."},
+            {"image": "https://images.unsplash.com/photo-1580828343064-fde4fc206bc6?w=500&q=80", "title": "Automated Marketing", "desc": "Product descriptions, email campaigns, and social ads — all written by AI and optimised for conversions."},
+        ],
+        "ai-tech": [
+            {"image": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=500&q=80", "title": "AI Content Engine", "desc": "Generate blog posts, social media content, email sequences, and ad copy in seconds — not hours."},
+            {"image": "https://images.unsplash.com/photo-1555255707-c07966088b7b?w=500&q=80", "title": "Smart Automation", "desc": "Set up marketing workflows that run 24/7. AI handles lead nurturing, follow-ups, and campaign optimisation."},
+            {"image": "https://images.unsplash.com/photo-1531746790095-e5cb157f3b50?w=500&q=80", "title": "Analytics & Insights", "desc": "AI analyses your data and recommends actions to maximise conversions and revenue."},
+        ],
+        "health-fitness": [
+            {"image": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&q=80", "title": "Wellness Content Library", "desc": "Ready-made fitness guides, nutrition plans, and wellness content you can share with your audience immediately."},
+            {"image": "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=500&q=80", "title": "Nutrition Resources", "desc": "Professionally designed meal plans, recipe books, and supplement guides to help your community thrive."},
+            {"image": "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=500&q=80", "title": "Fitness Community", "desc": "Connect with health-minded entrepreneurs who share tips, motivation, and support daily."},
+        ],
+        "real-estate": [
+            {"image": "https://images.unsplash.com/photo-1560520031-3a4dc4e9de0c?w=500&q=80", "title": "Property Analysis Tools", "desc": "Evaluate deals, estimate ROI, and identify investment opportunities with AI-powered property analysis."},
+            {"image": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=500&q=80", "title": "Digital Real Estate", "desc": "Build online assets — websites, funnels, and content — that generate income like physical property rentals."},
+            {"image": "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=500&q=80", "title": "Investor Network", "desc": "Connect with property investors, share deal flow, and grow your portfolio through our active community."},
+        ],
+        "personal-finance": [
+            {"image": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=500&q=80", "title": "Financial Dashboard", "desc": "Track your income streams, expenses, and net worth growth in one clear, actionable dashboard."},
+            {"image": "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=500&q=80", "title": "Wealth Education", "desc": "Learn investing fundamentals, compound growth strategies, and tax-efficient wealth building methods."},
+            {"image": "https://images.unsplash.com/photo-1553729459-afe8f2e2ed08?w=500&q=80", "title": "Income Multiplier", "desc": "Build multiple revenue streams — affiliate income, team commissions, and digital product sales."},
+        ],
+    }
+    # Niche-specific image-text row content
+    NICHE_IMAGE_TEXT = {
+        "forex": {"title": "Trade Smarter, Not Harder", "text": "Our system combines Smart Money Concepts with institutional order flow analysis to give you a genuine edge in the forex market. No more guessing, no more emotional trading. Follow the rules, manage your risk, and let the probabilities work in your favour. Thousands of traders are already using this exact system to generate consistent daily income — working just 1-2 hours per session.", "image": "https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=700&q=80"},
+        "crypto": {"title": "The Smart Way to Invest in Crypto", "text": "Forget the hype and FOMO. Our structured approach to cryptocurrency investing focuses on fundamentals, risk management, and sustainable growth. Learn to evaluate projects properly, build a diversified portfolio, and generate passive income through DeFi — all while earning referral commissions by sharing the platform with others.", "image": "https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=700&q=80"},
+        "affiliate-marketing": {"title": "Your Link. Your Income. Your Freedom.", "text": "Imagine earning commissions every single month from work you did once. That's the power of affiliate marketing done right. We give you the tools, the funnels, the copy, and the training. All you need to do is share your link with people who want to improve their financial situation — and our system does the rest.", "image": "https://images.unsplash.com/photo-1552581234-26160f608093?w=700&q=80"},
+        "ecommerce": {"title": "Your Store. Global Customers. Zero Limits.", "text": "The e-commerce revolution is happening right now, and there's never been a better time to launch your online store. Our AI-powered tools handle product research, description writing, and marketing automation — leaving you free to focus on scaling your business and maximising profits.", "image": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=700&q=80"},
+        "ai-tech": {"title": "Let AI Do the Heavy Lifting", "text": "While others spend hours writing content, building funnels, and managing campaigns — you'll have AI doing it all in minutes. Our suite of AI tools automates the most time-consuming parts of running an online business, giving you 10x the output with a fraction of the effort. This is the future of entrepreneurship.", "image": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=700&q=80"},
+        "health-fitness": {"title": "Turn Your Passion for Wellness into Profit", "text": "The global wellness industry is worth over $4 trillion and growing fast. If you're passionate about health and fitness, you already have the perfect foundation for building a rewarding online business. Our platform gives you everything — funnels, content, training — so you can focus on what you do best: helping people transform their lives.", "image": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=700&q=80"},
+        "real-estate": {"title": "Build Property Wealth — Digitally", "text": "You don't need millions to start building wealth from property. Digital real estate — websites, content assets, and online funnels — generates recurring income just like rental property, but with a fraction of the startup cost. Learn how to build, manage, and scale digital property assets that pay you month after month.", "image": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=700&q=80"},
+        "personal-finance": {"title": "Your Money. Your Rules. Your Future.", "text": "78% of people live paycheck to paycheck. The difference between financial stress and financial freedom isn't luck — it's education and action. Our platform gives you both: comprehensive financial literacy training AND a proven system to build multiple income streams. Stop worrying about money and start building wealth.", "image": "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=700&q=80"},
+    }
+    # CTA background images
+    NICHE_CTA_IMAGES = {
+        "forex": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1400&q=80",
+        "crypto": "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1400&q=80",
+        "affiliate-marketing": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1400&q=80",
+        "ecommerce": "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1400&q=80",
+        "ai-tech": "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=1400&q=80",
+        "health-fitness": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1400&q=80",
+        "real-estate": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1400&q=80",
+        "personal-finance": "https://images.unsplash.com/photo-1518458028785-8fbcd101ebb9?w=1400&q=80",
+    }
+
+    hero_img = NICHE_HERO_IMAGES.get(niche_key, NICHE_HERO_IMAGES["affiliate-marketing"])
+    feat_imgs = NICHE_FEATURE_IMAGES.get(niche_key, NICHE_FEATURE_IMAGES["affiliate-marketing"])
+    img_text = NICHE_IMAGE_TEXT.get(niche_key, NICHE_IMAGE_TEXT["affiliate-marketing"])
+    cta_img = NICHE_CTA_IMAGES.get(niche_key, NICHE_CTA_IMAGES["affiliate-marketing"])
+
+    ref_url = f"/ref/{user.username}"
+
     sections = [
-        {"templateId": "hero-video", "data": {
+        # 1 — Full-width image hero
+        {"templateId": "hero-image", "data": {
             "headline": tpl["headline"],
             "subheadline": tpl["subheadline"],
-            "video_url": "", "cta_text": "Get Started Now →", "cta_url": f"/ref/{user.username}"
+            "cta_text": "Get Started Now →", "cta_url": ref_url,
+            "bg_image": hero_img, "overlay_opacity": "0.55"
         }},
-        {"templateId": "stats-bar", "data": {
-            "items": [
-                {"value": "10,000+", "label": "Active Members"},
-                {"value": "$2.5M+", "label": "Paid Out"},
-                {"value": "150+", "label": "Countries"},
-                {"value": "4.9/5", "label": "Rating"}
-            ]
+        # 2 — Niche-specific stats bar
+        {"templateId": "stats-bar", "data": {"items": stats}},
+        # 3 — Image + text story section
+        {"templateId": "image-text-row", "data": {
+            "title": img_text["title"],
+            "text": img_text["text"],
+            "image_url": img_text["image"],
+            "image_side": "left",
+            "cta_text": "Learn More →", "cta_url": ref_url
         }},
-        {"templateId": "benefits-grid", "data": {
+        # 4 — Visual feature cards with photos
+        {"templateId": "features-visual", "data": {
             "title": tpl["benefits_title"],
-            "items": tpl["benefits"]
+            "items": feat_imgs
         }},
-        {"templateId": "steps-section", "data": {
-            "title": "How It Works",
-            "steps": [
-                {"num": "01", "title": "Create Your Account", "desc": "Sign up in under 60 seconds — completely free."},
-                {"num": "02", "title": "Follow the Training", "desc": "Watch quick-start videos and set up your first campaign."},
-                {"num": "03", "title": "Start Earning", "desc": "Share your link and watch your income grow."}
-            ]
-        }},
-        {"templateId": "testimonials", "data": {
-            "title": "What Members Are Saying",
+        # 5 — Coloured icon benefits
+        {"templateId": "icon-features-coloured", "data": {
+            "title": "Everything You Get",
             "items": [
-                {"name": "Sarah M.", "role": "Member", "text": "Within my first month I made back my investment and then some.", "stars": 5},
-                {"name": "James K.", "role": "Affiliate", "text": "The AI tools save me hours every single week.", "stars": 5},
-                {"name": "Maria L.", "role": "Entrepreneur", "text": "Finally something that actually works. Highly recommended.", "stars": 5}
+                {"icon": b["icon"], "title": b["title"], "desc": b["desc"],
+                 "color": ["#ef4444","#6366f1","#10b981","#f59e0b","#0ea5e9","#8b5cf6"][i%6]}
+                for i, b in enumerate(tpl["benefits"])
             ]
         }},
-        {"templateId": "cta-banner", "data": {
+        # 6 — How it works
+        {"templateId": "steps-section", "data": {
+            "title": "How It Works — 3 Simple Steps",
+            "steps": steps
+        }},
+        # 7 — Testimonials
+        {"templateId": "testimonials", "data": {
+            "title": "Real Results from Real Members",
+            "items": testimonials
+        }},
+        # 8 — Guarantee
+        {"templateId": "guarantee", "data": {
+            "title": "100% Satisfaction Guaranteed",
+            "text": "We're so confident you'll love this system that we offer a full 30-day money-back guarantee. Try everything risk-free — if it's not for you, just let us know and we'll refund every penny. No questions asked."
+        }},
+        # 9 — FAQ
+        {"templateId": "faq-section", "data": {
+            "title": "Frequently Asked Questions",
+            "items": faq
+        }},
+        # 10 — Image background CTA
+        {"templateId": "cta-image", "data": {
             "headline": tpl["cta_headline"],
             "subheadline": tpl["cta_sub"],
-            "cta_text": "Claim Your Spot →",
-            "cta_url": f"/ref/{user.username}"
+            "cta_text": "Claim Your Spot Now →",
+            "cta_url": ref_url,
+            "bg_image": cta_img
         }}
     ]
 
