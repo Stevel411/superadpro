@@ -53,6 +53,15 @@ tr:last-child td{border-bottom:none}
 .empty-icon{font-size:40px;margin-bottom:12px}
 .empty-title{font-size:17px;font-weight:700;color:#475569;margin-bottom:6px}
 .empty-sub{font-size:17px;color:#94a3b8;margin-bottom:20px}
+@media(max-width:768px){
+  .layout{display:block!important}
+  .sidebar{display:none!important}
+  .main{margin-left:0!important}
+  .topbar{display:none!important}
+  .content{padding:10px 12px 80px!important}
+  .row-2,.row-3,.stats-row,.two-col{grid-template-columns:1fr!important}
+  body{overflow-x:hidden}
+}
 </style>
   <link rel="stylesheet" href="/static/mobile.css">
   <link rel="manifest" href="/static/manifest.json">
