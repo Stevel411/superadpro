@@ -19,7 +19,8 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
 .user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
 .user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00d4ff);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;color:#fff;flex-shrink:0}
-.main{margin-left:224px;flex:1;display:flex;flex-direction:column}
+.sidebar{display:none}
+.main{margin-left:0;flex:1;display:flex;flex-direction:column}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(0,212,255,0.1);position:sticky;top:0;z-index:50}
 .topbar-title{font-size:19px;font-weight:800;color:#fff}
 .topbar-sub{font-size:19px;color:rgba(0,212,255,0.5);margin-top:2px}
@@ -119,49 +120,17 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
   </defs>
 </svg>
 
-    <aside class="sidebar">
-    <a href="/dashboard" class="sidebar-logo">
-      <svg width="30" height="30"><use href="#shield"/></svg>
-      <span class="sidebar-brand">SuperAdPro</span>
-    </a>
-    <div class="nav-section">Main</div>
-    <a href="/dashboard" class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
-    <a href="/campaign-tiers" class="nav-item"><span class="nav-icon">📦</span>Campaign Tiers</a>
-    <a href="/watch" class="nav-item"><span class="nav-icon">▶</span>Watch &amp; Earn</a>
-    <a href="/video-library" class="nav-item active"><span class="nav-icon">🎬</span>My Campaigns</a>
-    <div class="nav-section">Marketing Suite</div>
-    <a href="/campaign-studio" class="nav-item"><span class="nav-icon">🤖</span>AI Campaign Studio</a>
-    <a href="/funnels" class="nav-item"><span class="nav-icon">🚀</span>Funnel Builder</a>
-    <a href="/niche-finder" class="nav-item"><span class="nav-icon">💡</span>Niche Finder</a>
-    <a href="/swipe-file" class="nav-item"><span class="nav-icon">📋</span>Swipe File</a>
-    <div class="nav-section">Income Streams</div>
-    <a href="/income-grid" class="nav-item"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
-    <a href="/wallet" class="nav-item"><span class="nav-icon">◎</span>Wallet</a>
-    <a href="/affiliate" class="nav-item"><span class="nav-icon">🤝</span>Affiliate Tools</a>
-    <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span>Comp Plan</a>
-    <a href="/grid-visualiser" class="nav-item"><span class="nav-icon">◈</span>Grid Visualiser</a>
-    <div class="nav-section">Account</div>
-    <a href="/account" class="nav-item"><span class="nav-icon">◉</span>My Profile</a>
-    <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
-    <div class="sidebar-footer">
-      <div class="user-mini">
-        <div class="user-avatar">{{ user.username[:2].upper() }}</div>
-        <div>
-          <div style="font-size:16px;font-weight:700;color:#fff">{{ user.first_name or user.username }}</div>
-          <div style="font-size:9px;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:1px">
-            {% if is_active %}● Active{% else %}○ Inactive{% endif %}
-          </div>
-        </div>
-      </div>
-      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:16px;color:#64748b;text-decoration:none;margin-top:4px;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">⎋ Sign Out</a>
-    </div>
-  </aside>
-
 <div class="main">
   <div class="topbar">
-    <div>
-      <div class="topbar-title">🎬 My Campaigns</div>
-      <div class="topbar-sub">{{ campaigns|length }} campaign{{ 's' if campaigns|length != 1 else '' }} · YouTube, Rumble &amp; Vimeo supported</div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <a href="/dashboard" style="display:flex;align-items:center;gap:6px;color:#64748b;text-decoration:none;font-size:14px;font-weight:600;padding:6px 12px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(0,212,255,0.3)';this.style.color='#00d4ff'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='#64748b'">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 1L3 7l7 6"/></svg>
+        Dashboard
+      </a>
+      <div>
+        <div class="topbar-title">🎬 My Campaigns</div>
+        <div class="topbar-sub">{{ campaigns|length }} campaign{{ 's' if campaigns|length != 1 else '' }} · YouTube, Rumble &amp; Vimeo supported</div>
+      </div>
     </div>
     <div class="topbar-right">
       <div class="balance-pill">
