@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Niche Finder — SuperAdPro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
 .layout{display:flex;min-height:100vh}
 
 /* ── SIDEBAR ── */
@@ -30,11 +30,11 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 /* ── TOPBAR ── */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.1);position:sticky;top:0;z-index:50}
 .topbar-title{font-size:15px;font-weight:800;color:#ffffff}
-.topbar-sub{font-size:11px;color:#94a3b8;margin-top:1px}
+.topbar-sub{font-size:11px;color:#6b7d94;margin-top:1px}
 .balance-pill{background:rgba(0,180,216,0.06);border:1px solid rgba(0,180,216,0.15);border-radius:8px;padding:6px 14px;display:flex;align-items:center;gap:10px}
-.balance-label{font-size:9px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase}
+.balance-label{font-size:9px;color:#6b7d94;letter-spacing:1.5px;text-transform:uppercase}
 .balance-val{font-size:15px;font-weight:800;color:#16a34a}
-.balance-unit{font-size:11px;color:#94a3b8;margin-left:3px}
+.balance-unit{font-size:11px;color:#6b7d94;margin-left:3px}
 
 /* ── CONTENT ── */
 .content{padding:28px;flex:1}
@@ -52,52 +52,52 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 .hero-sub{font-size:14px;color:#64748b;line-height:1.7;max-width:560px}
 
 /* ── QUIZ CARD ── */
-.quiz-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
-.quiz-card-head{padding:16px 24px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:10px}
+.quiz-card{background:#ffffff;border:1px solid #d0d8e4;border-radius:16px;overflow:hidden;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.quiz-card-head{padding:16px 24px;border-bottom:1px solid #e4e9f1;display:flex;align-items:center;gap:10px}
 .quiz-card-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .quiz-card-title{font-size:14px;font-weight:700;color:#0f172a}
-.quiz-card-sub{font-size:12px;color:#94a3b8;margin-top:1px}
+.quiz-card-sub{font-size:12px;color:#6b7d94;margin-top:1px}
 .quiz-card-body{padding:24px}
 
 /* ── PROGRESS BAR ── */
-.progress-bar-wrap{background:#f1f5f9;border-radius:999px;height:6px;margin-bottom:24px;overflow:hidden}
+.progress-bar-wrap{background:#eef2f7;border-radius:999px;height:6px;margin-bottom:24px;overflow:hidden}
 .progress-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#f59e0b,#10b981);transition:width 0.4s ease}
 
 /* ── OPTION BUTTONS ── */
 .options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.option-btn{padding:14px 16px;background:#fafbfc;border:1.5px solid #e2e8f0;border-radius:11px;cursor:pointer;transition:all 0.2s;text-align:left;font-family:'Rethink Sans',sans-serif;display:flex;align-items:flex-start;gap:10px}
+.option-btn{padding:14px 16px;background:#fafbfc;border:1.5px solid #e2e8f0;border-radius:11px;cursor:pointer;transition:all 0.2s;text-align:left;font-family:'DM Sans','Rethink Sans',sans-serif;display:flex;align-items:flex-start;gap:10px}
 .option-btn:hover{border-color:#f59e0b;background:#fffbeb;transform:translateY(-1px)}
 .option-btn.selected{border-color:#10b981;background:#f0fdf4}
 .option-btn.selected .option-tick{background:#10b981;color:#fff;border-color:#10b981}
 .option-emoji{font-size:20px;flex-shrink:0;margin-top:1px}
 .option-text{font-size:13px;font-weight:600;color:#0f172a;line-height:1.4}
-.option-sub{font-size:11px;color:#94a3b8;margin-top:2px;font-weight:400}
+.option-sub{font-size:11px;color:#6b7d94;margin-top:2px;font-weight:400}
 .option-tick{width:18px;height:18px;border-radius:50%;border:1.5px solid #e2e8f0;flex-shrink:0;margin-left:auto;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s}
 
 /* ── SLIDER ── */
 .slider-wrap{padding:8px 0}
-.slider-labels{display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:10px}
+.slider-labels{display:flex;justify-content:space-between;font-size:11px;color:#6b7d94;font-weight:600;margin-bottom:10px}
 .range-input{width:100%;-webkit-appearance:none;height:6px;border-radius:999px;background:linear-gradient(90deg,#f59e0b 0%,#e2e8f0 0%);outline:none;cursor:pointer}
 .range-input::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#10b981);cursor:pointer;box-shadow:0 2px 6px rgba(245,158,11,0.4)}
 .slider-val{text-align:center;font-size:16px;font-weight:800;color:#0f172a;margin-top:10px}
 
 /* ── NAVIGATION BUTTONS ── */
 .quiz-nav{display:flex;justify-content:space-between;align-items:center;margin-top:24px}
-.btn-back{padding:11px 22px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;font-family:'Rethink Sans',sans-serif;transition:all 0.2s}
+.btn-back{padding:11px 22px;background:#f5f7fb;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;font-family:'DM Sans','Rethink Sans',sans-serif;transition:all 0.2s}
 .btn-back:hover{background:#e2e8f0}
-.btn-next{padding:11px 28px;background:linear-gradient(135deg,#f59e0b,#10b981);border:none;border-radius:9px;font-size:13px;font-weight:800;color:#fff;cursor:pointer;font-family:'Rethink Sans',sans-serif;transition:all 0.2s;box-shadow:0 3px 12px rgba(245,158,11,0.3)}
+.btn-next{padding:11px 28px;background:linear-gradient(135deg,#f59e0b,#10b981);border:none;border-radius:9px;font-size:13px;font-weight:800;color:#fff;cursor:pointer;font-family:'DM Sans','Rethink Sans',sans-serif;transition:all 0.2s;box-shadow:0 3px 12px rgba(245,158,11,0.3)}
 .btn-next:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(245,158,11,0.4)}
 .btn-next:disabled{opacity:0.4;cursor:not-allowed;transform:none}
-.step-indicator{font-size:12px;font-weight:700;color:#94a3b8}
+.step-indicator{font-size:12px;font-weight:700;color:#6b7d94}
 
 /* ── LOADING ── */
-.loading-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:56px 24px;text-align:center;display:none;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.loading-card{background:#ffffff;border:1px solid #d0d8e4;border-radius:16px;padding:56px 24px;text-align:center;display:none;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
 .loading-card.active{display:block}
 .loading-orb{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#fef3c7,#d1fae5);border:3px solid transparent;background-clip:padding-box;margin:0 auto 20px;position:relative;animation:spin 1.2s linear infinite}
 .loading-orb::before{content:'💡';font-size:24px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-title{font-size:17px;font-weight:700;color:#0f172a;margin-bottom:6px}
-.loading-sub{font-size:13px;color:#94a3b8}
+.loading-sub{font-size:13px;color:#6b7d94}
 
 /* ── RESULTS ── */
 .results-section{display:none}
@@ -108,11 +108,11 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 /* ── NICHE RESULT CARD ── */
 .niche-card{background:#ffffff;border:1.5px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04);transition:all 0.2s}
 .niche-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.08);transform:translateY(-1px)}
-.niche-card-head{padding:18px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f1f5f9}
+.niche-card-head{padding:18px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e4e9f1}
 .niche-card-left{display:flex;align-items:center;gap:14px}
 .niche-rank{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
 .rank-1{background:linear-gradient(135deg,#fef3c7,#fde68a);color:#b45309}
-.rank-2{background:linear-gradient(135deg,#f1f5f9,#e2e8f0);color:#475569}
+.rank-2{background:linear-gradient(135deg,#f1f5f9,#e2e8f0);color:#4a5a6e}
 .rank-3{background:linear-gradient(135deg,#fef3c7,#d1fae5);color:#065f46}
 .niche-name{font-size:16px;font-weight:800;color:#0f172a}
 .niche-tagline{font-size:12px;color:#64748b;margin-top:2px}
@@ -121,25 +121,25 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 .badge-growing{background:#f0fdf4;color:#16a34a;border:1px solid #86efac}
 .badge-solid{background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe}
 .niche-card-body{padding:20px 22px}
-.niche-section-title{font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
-.niche-why{font-size:13px;color:#334155;line-height:1.7;margin-bottom:16px}
+.niche-section-title{font-size:10px;font-weight:700;color:#6b7d94;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.niche-why{font-size:13px;color:#2d3b4e;line-height:1.7;margin-bottom:16px}
 .niche-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.niche-stat{background:#f8fafc;border:1px solid #f1f5f9;border-radius:9px;padding:10px;text-align:center}
+.niche-stat{background:#f5f7fb;border:1px solid #f1f5f9;border-radius:9px;padding:10px;text-align:center}
 .niche-stat-val{font-size:15px;font-weight:800;color:#0f172a}
-.niche-stat-lbl{font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+.niche-stat-lbl{font-size:10px;color:#6b7d94;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
 .content-ideas{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
-.content-idea{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#334155;line-height:1.5}
+.content-idea{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#2d3b4e;line-height:1.5}
 .idea-bullet{width:18px;height:18px;border-radius:5px;background:#f0fdf4;border:1px solid #86efac;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;margin-top:1px;color:#16a34a;font-weight:700}
-.starter-script{background:linear-gradient(135deg,#fefce8,#f0fdf4);border:1px solid #fde68a;border-radius:10px;padding:14px 16px;font-size:13px;color:#334155;line-height:1.7;position:relative}
+.starter-script{background:linear-gradient(135deg,#fefce8,#f0fdf4);border:1px solid #fde68a;border-radius:10px;padding:14px 16px;font-size:13px;color:#2d3b4e;line-height:1.7;position:relative}
 .starter-script-label{font-size:10px;font-weight:700;color:#b45309;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
-.copy-script-btn{position:absolute;top:12px;right:12px;padding:4px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:6px;font-size:10px;font-weight:700;color:#64748b;cursor:pointer;font-family:'Rethink Sans',sans-serif;transition:all 0.15s}
-.copy-script-btn:hover{background:#f8fafc}
+.copy-script-btn{position:absolute;top:12px;right:12px;padding:4px 10px;background:#fff;border:1px solid #d0d8e4;border-radius:6px;font-size:10px;font-weight:700;color:#64748b;cursor:pointer;font-family:'DM Sans','Rethink Sans',sans-serif;transition:all 0.15s}
+.copy-script-btn:hover{background:#f5f7fb}
 .copy-script-btn.copied{background:#dcfce7;border-color:#86efac;color:#16a34a}
 
 /* ── ACTIONS ── */
 .results-actions{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
-.btn-studio{padding:12px 24px;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:9px;font-size:13px;font-weight:800;color:#fff;cursor:pointer;font-family:'Rethink Sans',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:7px}
-.btn-restart{padding:12px 20px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-weight:700;color:#475569;cursor:pointer;font-family:'Rethink Sans',sans-serif}
+.btn-studio{padding:12px 24px;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:9px;font-size:13px;font-weight:800;color:#fff;cursor:pointer;font-family:'DM Sans','Rethink Sans',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:7px}
+.btn-restart{padding:12px 20px;background:#f5f7fb;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-weight:700;color:#4a5a6e;cursor:pointer;font-family:'DM Sans','Rethink Sans',sans-serif}
 .btn-restart:hover{background:#e2e8f0}
 
 @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:16px}.options-grid{grid-template-columns:1fr}.niche-stats{grid-template-columns:1fr 1fr}}
@@ -669,7 +669,7 @@ function showNicheRateLimit(resetsIn) {
         You've used all 10 Niche Finder runs for today.<br>
         Your limit resets in <strong style="color:#c2410c">${resetsIn}</strong>.
       </div>
-      <div style="font-size:13px;color:#94a3b8">This keeps the AI tools fast and available for all members.</div>
+      <div style="font-size:13px;color:#6b7d94">This keeps the AI tools fast and available for all members.</div>
       <button onclick="restartQuiz()" style="margin-top:20px;padding:10px 24px;background:#0f172a;border:none;border-radius:8px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit">← Start Over</button>
     </div>`;
 }
