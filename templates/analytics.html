@@ -56,14 +56,15 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .card-title span{font-size:16px}
 
 /* ── CHART ── */
-.chart-container{width:100%;height:240px;position:relative}
-.chart-bar-row{display:flex;align-items:end;gap:3px;height:200px;padding:0 4px}
-.chart-bar{flex:1;background:linear-gradient(180deg,#00b4d8,#0077b6);border-radius:4px 4px 0 0;min-width:8px;position:relative;transition:all 0.3s;cursor:pointer}
-.chart-bar:hover{opacity:0.8}
-.chart-bar .tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:4px 8px;border-radius:4px;font-size:16px;white-space:nowrap;z-index:10}
+.chart-container{width:100%;position:relative;padding:10px 0}
+.chart-bar-row{display:flex;align-items:end;justify-content:center;gap:12px;height:200px;padding:0 20px}
+.chart-bar{background:linear-gradient(180deg,#00b4d8,#0077b6);border-radius:6px 6px 0 0;max-width:60px;min-width:16px;flex:1;position:relative;transition:all 0.3s;cursor:pointer}
+.chart-bar:hover{opacity:0.85}
+.chart-bar .tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;white-space:nowrap;z-index:10}
 .chart-bar:hover .tooltip{display:block}
-.chart-labels{display:flex;gap:3px;padding:6px 4px 0;overflow:hidden}
-.chart-labels span{flex:1;text-align:center;font-size:9px;color:#6b7d94;min-width:8px;overflow:hidden}
+.chart-bar .bar-val{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:700;color:#0284c7;white-space:nowrap}
+.chart-labels{display:flex;justify-content:center;gap:12px;padding:6px 20px 0}
+.chart-labels span{max-width:60px;min-width:16px;flex:1;text-align:center;font-size:10px;color:#6b7d94}
 .no-data{text-align:center;padding:40px 20px;color:#6b7d94;font-size:16px}
 
 /* ── CAMPAIGN TABLE ── */
@@ -314,8 +315,8 @@ if(dailyData.length > 0) {
     const pct = (d.views / maxViews * 100);
     const bar = document.createElement('div');
     bar.className = 'chart-bar';
-    bar.style.height = Math.max(pct, 2) + '%';
-    bar.innerHTML = `<div class="tooltip">${d.date}: ${d.views} views</div>`;
+    bar.style.height = Math.max(pct, 4) + '%';
+    bar.innerHTML = `<div class="bar-val">${d.views}</div><div class="tooltip">${d.date}: ${d.views} views</div>`;
     barsEl.appendChild(bar);
 
     const label = document.createElement('span');
