@@ -114,30 +114,49 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 .mob-nav-label{font-weight:600;letter-spacing:0.3px}
 
 @media(max-width:768px){
-  .sidebar{display:none}
-  .main{margin-left:0;height:auto;overflow:visible}
+  body{display:block!important;overflow-x:hidden}
+  .sidebar{display:none!important}
+  .main{margin-left:0!important;height:auto;overflow:visible}
   .mobile-topbar{display:flex!important}
   .mobile-nav{display:block}
   body{padding-bottom:70px}
   .topbar{display:none}
-  .content{padding:12px}
-  .watch-container{gap:12px}
-  .quota-bar-wrap{padding:12px 14px;gap:12px;flex-direction:column;align-items:stretch}
-  .quota-count{font-size:22px}
-  .quota-track{min-width:0}
-  .quota-dots{flex-wrap:wrap}
-  .video-wrap{aspect-ratio:16/9}
-  .player-footer{padding:12px 14px;gap:10px;flex-direction:column;align-items:stretch}
-  .timer-circle{align-self:center}
-  .watch-status{text-align:center}
-  .btn-next{width:100%;text-align:center;padding:14px;font-size:16px}
+  .content{padding:10px 12px}
+  .watch-container{gap:10px}
+
+  /* Quota bar — full vertical stack */
+  .quota-bar-wrap{padding:14px 16px;gap:10px;flex-direction:column;align-items:stretch}
+  .quota-count{font-size:24px}
+  .quota-track{min-width:0;width:100%}
+  .quota-dots{flex-wrap:wrap;gap:6px;justify-content:center}
+  .quota-dot{width:30px;height:30px;font-size:12px}
+
+  /* Video player */
+  .player-card{border-radius:10px!important}
+  .video-wrap{aspect-ratio:16/9;border-radius:0!important}
+  .video-wrap iframe{border-radius:0!important}
   .player-header{padding:10px 14px}
-  .campaign-title{font-size:14px}
-  .complete-card{padding:32px 20px}
-  .complete-title{font-size:20px}
-  .complete-stats{gap:10px}
-  .complete-stat{min-width:100px;padding:12px 14px}
-  .terms-note{padding:0 8px}
+  .campaign-title{font-size:14px!important}
+  .campaign-meta{font-size:11px!important}
+
+  /* Timer footer — stack vertically */
+  .player-footer{padding:12px 14px;gap:12px;flex-direction:column;align-items:center}
+  .timer-circle{align-self:center}
+  .watch-status{text-align:center;font-size:13px!important}
+  .btn-next{width:100%;text-align:center;padding:14px;font-size:15px}
+
+  /* Unmute overlay */
+  .unmute-overlay{font-size:12px!important;padding:6px 12px!important}
+
+  /* Complete card */
+  .complete-card{padding:28px 16px}
+  .complete-title{font-size:18px}
+  .complete-stats{gap:8px;flex-wrap:wrap}
+  .complete-stat{min-width:90px;padding:10px 12px}
+  .terms-note{padding:0 4px;font-size:11px!important}
+
+  /* Warning banner */
+  .warning-banner{flex-direction:column;text-align:center;gap:6px;padding:12px 14px;font-size:13px}
 }
 </style>
   <link rel="stylesheet" href="/static/mobile.css">
