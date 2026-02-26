@@ -25,7 +25,10 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 
 /* ── Main ── */
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
-.topbar{background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.08);padding:0 28px;height:80px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0}
+.topbar{background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.08);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.back-btn{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:15px;font-weight:600;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
+.back-btn:hover{color:#00d4ff;border-color:rgba(0,180,216,0.3);background:rgba(0,180,216,0.05)}
 .topbar-title{font-size:22px;font-weight:800;color:#ffffff}
 .topbar-sub{font-size:16px;color:#6b7d94;margin-top:1px}
 .content{padding:20px 24px;flex:1;overflow-y:auto}
@@ -242,17 +245,19 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 <!-- Main -->
 <div class="main">
   <div class="topbar">
-    <div style="display:flex;align-items:center;gap:20px">
-      <a href="/dashboard" style="display:flex;align-items:center;gap:10px;text-decoration:none;padding:8px 16px;background:rgba(0,180,216,0.08);border:1px solid rgba(0,180,216,0.2);border-radius:8px;transition:all 0.2s">
-        <span style="font-size:16px">←</span>
-        <span style="font-weight:800;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent">SuperAdPro</span>
+    <div class="topbar-left">
+      <a href="/dashboard" class="back-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        <span>Dashboard</span>
       </a>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
       <div>
         <div class="topbar-title">▶ Watch & Earn</div>
         <div class="topbar-sub">Watch videos · Qualify for daily commissions</div>
       </div>
     </div>
-    <div style="font-size:16px;color:#6b7d94;text-align:right">
+    <div style="font-size:15px;color:#6b7d94;text-align:right">
       <div style="color:#00d4ff;font-weight:700;font-size:16px">Tier {{ quota.package_tier }}</div>
       <div>{{ quota.daily_required }} video{{ 's' if quota.daily_required != 1 else '' }} required today</div>
     </div>
