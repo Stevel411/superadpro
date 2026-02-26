@@ -14,9 +14,9 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
 .lib-panel{background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.1);overflow-y:auto;display:flex;flex-direction:column}
 .lib-header{padding:16px 18px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:10px}
 .lib-header a{text-decoration:none;display:flex;align-items:center;gap:8px}
-.lib-brand{font-weight:800;font-size:11px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.lib-brand{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .lib-title{padding:14px 18px 8px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#00d4ff}
-.lib-item{display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;transition:all 0.15s;border-left:2px solid transparent;font-size:13px;color:#6b7d94}
+.lib-item{display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;transition:all 0.15s;border-left:2px solid transparent;font-size:16px;color:#6b7d94}
 .lib-item:hover{background:rgba(255,255,255,0.04);color:#fff;border-left-color:rgba(0,212,255,0.3)}
 .lib-item .li-icon{font-size:16px;width:22px;text-align:center}
 .lib-cat{padding:14px 18px 6px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.4);margin-top:6px}
@@ -26,7 +26,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
 .canvas-toolbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:#0f172a;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;height:52px}
 .canvas-toolbar .tb-left{display:flex;align-items:center;gap:10px}
 .canvas-toolbar .tb-right{display:flex;align-items:center;gap:8px}
-.tb-btn{padding:7px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all 0.15s;font-family:inherit}
+.tb-btn{padding:7px 16px;border-radius:6px;font-size:16px;font-weight:700;cursor:pointer;border:none;transition:all 0.15s;font-family:inherit}
 .tb-save{background:#16a34a;color:#fff}.tb-save:hover{background:#15803d}
 .tb-pub{background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff}.tb-pub:hover{opacity:0.9}
 .tb-back{background:transparent;border:1px solid rgba(255,255,255,0.15);color:#6b7d94}.tb-back:hover{color:#fff}
@@ -36,7 +36,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
 .canvas-inner{max-width:820px;margin:0 auto;min-height:400px;border-radius:12px;overflow:hidden;position:relative}
 .canvas-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;color:#64748b;text-align:center;padding:40px}
 .canvas-empty .ce-icon{font-size:48px;margin-bottom:12px}
-.canvas-empty .ce-title{font-size:18px;font-weight:700;margin-bottom:6px}
+.canvas-empty .ce-title{font-size:19px;font-weight:700;margin-bottom:6px}
 
 /* Section wrapper on canvas */
 .section-wrap{position:relative;border:2px solid transparent;transition:border-color 0.15s;cursor:pointer}
@@ -44,16 +44,16 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
 .section-wrap.selected{border-color:#00d4ff}
 .section-controls{position:absolute;top:8px;right:8px;display:none;gap:4px;z-index:10}
 .section-wrap:hover .section-controls,.section-wrap.selected .section-controls{display:flex}
-.sc-btn{width:28px;height:28px;border-radius:6px;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.sc-btn{width:28px;height:28px;border-radius:6px;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
 .sc-move{background:rgba(0,0,0,0.6);color:#fff}.sc-move:hover{background:rgba(0,0,0,0.8)}
 .sc-del{background:rgba(220,38,38,0.8);color:#fff}.sc-del:hover{background:#dc2626}
 
 /* RIGHT: Settings Panel */
 .settings-panel{background:#0a0a1a;border-left:1px solid rgba(0,212,255,0.1);overflow-y:auto;padding:0}
-.set-header{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:14px;font-weight:700;color:#fff}
+.set-header{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:16px;font-weight:700;color:#fff}
 .set-section{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.04)}
-.set-label{font-size:11px;font-weight:600;color:#64748b;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
-.set-input,.set-textarea,.set-select{width:100%;padding:8px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#e2e8f0;font-size:13px;font-family:inherit;transition:border-color 0.2s}
+.set-label{font-size:16px;font-weight:600;color:#64748b;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+.set-input,.set-textarea,.set-select{width:100%;padding:8px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#e2e8f0;font-size:16px;font-family:inherit;transition:border-color 0.2s}
 .set-input:focus,.set-textarea:focus,.set-select:focus{outline:none;border-color:#00d4ff}
 .set-textarea{resize:vertical;min-height:60px}
 .set-select{appearance:auto}
@@ -71,11 +71,11 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
 
 /* AI Generate button */
 .ai-gen-section{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.04);background:rgba(124,58,237,0.06)}
-.ai-btn{width:100%;padding:10px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.ai-btn{width:100%;padding:10px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s}
 .ai-btn:hover{opacity:0.9}.ai-btn:disabled{opacity:0.5;cursor:wait}
 
 /* Toast */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(10px);background:#16a34a;color:#fff;padding:10px 24px;border-radius:8px;font-weight:700;font-size:13px;opacity:0;transition:all 0.3s;z-index:999;pointer-events:none}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(10px);background:#16a34a;color:#fff;padding:10px 24px;border-radius:8px;font-weight:700;font-size:16px;opacity:0;transition:all 0.3s;z-index:999;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 @media(max-width:1000px){.editor-layout{grid-template-columns:1fr}.lib-panel,.settings-panel{display:none}}
@@ -151,7 +151,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
   <div id="sectionSettings">
     <div class="set-section" style="text-align:center;padding:40px 18px;color:#4a5a6e">
       <div style="font-size:24px;margin-bottom:8px">👈</div>
-      <div style="font-size:13px">Click a section on the canvas to edit its content</div>
+      <div style="font-size:16px">Click a section on the canvas to edit its content</div>
     </div>
   </div>
 </div>
@@ -265,14 +265,14 @@ function moveSection(idx, dir) {
 function renderSectionSettings() {
   const el = document.getElementById('sectionSettings');
   if (selectedIdx < 0 || selectedIdx >= sections.length) {
-    el.innerHTML = '<div class="set-section" style="text-align:center;padding:40px 18px;color:#4a5a6e"><div style="font-size:24px;margin-bottom:8px">👈</div><div style="font-size:13px">Click a section to edit</div></div>';
+    el.innerHTML = '<div class="set-section" style="text-align:center;padding:40px 18px;color:#4a5a6e"><div style="font-size:24px;margin-bottom:8px">👈</div><div style="font-size:16px">Click a section to edit</div></div>';
     return;
   }
   const sec = sections[selectedIdx];
   const tpl = SECTION_TEMPLATES.find(t => t.id === sec.templateId);
   if (!tpl) return;
 
-  let html = `<div class="set-section"><div style="font-size:13px;font-weight:700;color:#00d4ff;margin-bottom:4px">${tpl.icon} ${tpl.name}</div></div>`;
+  let html = `<div class="set-section"><div style="font-size:16px;font-weight:700;color:#00d4ff;margin-bottom:4px">${tpl.icon} ${tpl.name}</div></div>`;
 
   // Generate form fields based on data keys
   html += '<div class="set-section">';
@@ -286,7 +286,7 @@ function renderSectionSettings() {
         html += `<div class="set-row"><div class="set-label">${label}</div><input class="set-input" value="${val.replace(/"/g,'&quot;')}" onchange="updateField(${selectedIdx},'${key}',this.value)" oninput="updateField(${selectedIdx},'${key}',this.value)"></div>`;
       }
     } else if (typeof val === 'boolean') {
-      html += `<div class="set-row"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#6b7d94"><input type="checkbox" ${val?'checked':''} onchange="updateField(${selectedIdx},'${key}',this.checked)"> ${label}</label></div>`;
+      html += `<div class="set-row"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:16px;color:#6b7d94"><input type="checkbox" ${val?'checked':''} onchange="updateField(${selectedIdx},'${key}',this.checked)"> ${label}</label></div>`;
     } else if (typeof val === 'number') {
       html += `<div class="set-row"><div class="set-label">${label}</div><input class="set-input" type="number" value="${val}" onchange="updateField(${selectedIdx},'${key}',Number(this.value))" oninput="updateField(${selectedIdx},'${key}',Number(this.value))"></div>`;
     } else if (Array.isArray(val)) {
@@ -405,12 +405,12 @@ function showUrlBanner(slug) {
     document.body.appendChild(banner);
   }
   banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:10000;background:linear-gradient(135deg,#059669,#10b981);padding:14px 24px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;box-shadow:0 4px 20px rgba(0,0,0,0.3);animation:slideDown .3s ease';
-  banner.innerHTML = '<span style="color:#fff;font-weight:700;font-size:15px">🚀 Your page is LIVE!</span>'
+  banner.innerHTML = '<span style="color:#fff;font-weight:700;font-size:16px">🚀 Your page is LIVE!</span>'
     + '<div style="display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.2);border-radius:8px;padding:6px 12px">'
-    + '<input id="urlCopyInput" readonly value="'+fullUrl+'" style="background:none;border:none;color:#fff;font-size:14px;font-family:monospace;width:'+Math.min(fullUrl.length*8.5,400)+'px;outline:none">'
-    + '<button onclick="copyPageUrl()" style="background:#fff;color:#059669;border:none;border-radius:6px;padding:6px 14px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap">📋 Copy URL</button>'
+    + '<input id="urlCopyInput" readonly value="'+fullUrl+'" style="background:none;border:none;color:#fff;font-size:16px;font-family:monospace;width:'+Math.min(fullUrl.length*8.5,400)+'px;outline:none">'
+    + '<button onclick="copyPageUrl()" style="background:#fff;color:#059669;border:none;border-radius:6px;padding:6px 14px;font-weight:700;font-size:16px;cursor:pointer;font-family:inherit;white-space:nowrap">📋 Copy URL</button>'
     + '</div>'
-    + '<a href="/p/'+slug+'" target="_blank" style="color:#fff;font-size:13px;text-decoration:underline;white-space:nowrap">Open page →</a>'
+    + '<a href="/p/'+slug+'" target="_blank" style="color:#fff;font-size:16px;text-decoration:underline;white-space:nowrap">Open page →</a>'
     + '<button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:20px;cursor:pointer;margin-left:8px">×</button>';
 }
 

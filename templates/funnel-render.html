@@ -17,7 +17,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;min-height:100vh}
 {% elif sc == 'fire' %}body{background:linear-gradient(160deg,#1a0a0a,#2a1a0a,#1a0a05);color:#e2e8f0}
 {% else %}body{background:#0a0a1a;color:#e2e8f0}{% endif %}
 
-.page-footer{text-align:center;padding:24px;font-size:11px;color:{% if sc == 'light' %}#6b7d94{% else %}rgba(255,255,255,0.2){% endif %}}
+.page-footer{text-align:center;padding:24px;font-size:16px;color:{% if sc == 'light' %}#6b7d94{% else %}rgba(255,255,255,0.2){% endif %}}
 .page-footer a{color:{{ page.accent_color or '#00d4ff' }};text-decoration:none}
 @media(max-width:768px){[style*="grid-template-columns: 1fr 1fr"],[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important}}
 </style>
@@ -79,9 +79,9 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;min-height:100vh}
 /* Header */
 #chatHeader{background:{{ page.accent_color or '#00d4ff' }};padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
 #chatHeaderInfo{display:flex;align-items:center;gap:12px}
-#chatAvatar{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff}
-#chatHeaderName{font-weight:700;color:#fff;font-size:15px}
-#chatHeaderStatus{font-size:12px;color:rgba(255,255,255,0.8);display:flex;align-items:center;gap:6px}
+#chatAvatar{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff}
+#chatHeaderName{font-weight:700;color:#fff;font-size:16px}
+#chatHeaderStatus{font-size:16px;color:rgba(255,255,255,0.8);display:flex;align-items:center;gap:6px}
 #chatDot{width:8px;height:8px;border-radius:50%;background:#4ade80;display:inline-block;animation:dotPulse 1.5s infinite}
 @keyframes dotPulse{0%,100%{opacity:1}50%{opacity:.4}}
 #chatCloseBtn{background:none;border:none;color:#fff;font-size:28px;cursor:pointer;line-height:1;padding:0 4px}
@@ -94,7 +94,7 @@ min-height:280px;max-height:340px}
 .chat-msg{display:flex;gap:8px;max-width:88%}
 .chat-msg.bot{align-self:flex-start}
 .chat-msg.user{align-self:flex-end;flex-direction:row-reverse}
-.chat-msg-bubble{padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.5}
+.chat-msg-bubble{padding:12px 16px;border-radius:16px;font-size:16px;line-height:1.5}
 .chat-msg.bot .chat-msg-bubble{
 {% if (page.color_scheme or 'dark') == 'light' %}background:#fff;color:#1e293b;box-shadow:0 1px 4px rgba(0,40,100,0.06){% else %}background:#1e293b;color:#e2e8f0{% endif %};
 border-bottom-left-radius:4px}
@@ -111,7 +111,7 @@ border-bottom-left-radius:4px}
 /* Input Area */
 #chatInput{display:flex;gap:8px;padding:12px 16px;
 {% if (page.color_scheme or 'dark') == 'light' %}background:#fff;border-top:1px solid #e2e8f0{% else %}background:#1e293b;border-top:1px solid #2d3b4e{% endif %}}
-#chatMsgInput{flex:1;border:none;outline:none;font-size:14px;font-family:inherit;padding:10px 14px;border-radius:24px;
+#chatMsgInput{flex:1;border:none;outline:none;font-size:16px;font-family:inherit;padding:10px 14px;border-radius:24px;
 {% if (page.color_scheme or 'dark') == 'light' %}background:#eef2f7;color:#0f172a{% else %}background:#0f172a;color:#e2e8f0{% endif %}}
 #chatMsgInput::placeholder{color:#64748b}
 #chatSendBtn{width:40px;height:40px;border:none;border-radius:50%;background:{{ page.accent_color or '#00d4ff' }};color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s}
@@ -221,7 +221,7 @@ setTimeout(() => {
     // Show a teaser message above the bubble
     const teaser = document.createElement('div');
     teaser.id = 'chatTeaser';
-    teaser.style.cssText = 'position:fixed;bottom:96px;right:24px;z-index:9998;padding:12px 18px;border-radius:12px;border-bottom-right-radius:4px;font-size:14px;font-family:Rethink Sans,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,0.2);cursor:pointer;max-width:260px;animation:chatSlideUp .3s ease;'
+    teaser.style.cssText = 'position:fixed;bottom:96px;right:24px;z-index:9998;padding:12px 18px;border-radius:12px;border-bottom-right-radius:4px;font-size:16px;font-family:Rethink Sans,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,0.2);cursor:pointer;max-width:260px;animation:chatSlideUp .3s ease;'
       + '{% if (page.color_scheme or "dark") == "light" %}background:#fff;color:#1e293b{% else %}background:#1e293b;color:#e2e8f0{% endif %}';
     teaser.innerHTML = 'Got questions? I\'m here to help! 👋';
     teaser.onclick = () => { teaser.remove(); toggleChat(); };
@@ -254,7 +254,7 @@ if (sections.length > 0) {
   const url = '{{ page.cta_url | default("#", true) }}';
   const tc = scheme==='light'?'#0f172a':'#fff';
   const sc = scheme==='light'?'#4a5a6e':'rgba(255,255,255,0.65)';
-  el.innerHTML = `<div style="text-align:center;padding:72px 32px;max-width:720px;margin:0 auto"><h1 style="font-size:clamp(32px,5vw,48px);font-weight:800;color:${tc};margin-bottom:16px">${h}</h1><p style="font-size:18px;color:${sc};margin-bottom:36px">${sub}</p>${cta?`<a href="${url}" style="display:inline-block;padding:18px 48px;background:${accent};color:#fff;font-size:19px;font-weight:800;border-radius:12px;text-decoration:none">${cta}</a>`:''}</div>`;
+  el.innerHTML = `<div style="text-align:center;padding:72px 32px;max-width:720px;margin:0 auto"><h1 style="font-size:clamp(32px,5vw,48px);font-weight:800;color:${tc};margin-bottom:16px">${h}</h1><p style="font-size:19px;color:${sc};margin-bottom:36px">${sub}</p>${cta?`<a href="${url}" style="display:inline-block;padding:18px 48px;background:${accent};color:#fff;font-size:19px;font-weight:800;border-radius:12px;text-decoration:none">${cta}</a>`:''}</div>`;
 }
 
 // Track page view

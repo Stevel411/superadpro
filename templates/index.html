@@ -28,12 +28,12 @@
         /* Nav */
         nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 36px; height:80px; background:rgba(1,10,5,0.8); backdrop-filter:blur(18px); border-bottom:1px solid rgba(0,180,216,0.12); }
         .nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; }
-        .nav-brand { font-weight:800; font-size:17px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#00b4d8,#6d28d9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .nav-brand { font-weight:800; font-size:19px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#00b4d8,#6d28d9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
         .nav-links { display:flex; align-items:center; gap:6px; list-style:none; }
-        .nav-links a { font-size:17px; font-weight:500; color:rgba(200,230,210,0.55); text-decoration:none; padding:4px 10px; transition:color 0.2s; }
+        .nav-links a { font-size:19px; font-weight:500; color:rgba(200,230,210,0.55); text-decoration:none; padding:4px 10px; transition:color 0.2s; }
         .nav-links a:hover { color:rgba(200,230,210,0.9); }
-        .nav-sep { color:rgba(0,180,100,0.3); font-size:17px; }
-        .nav-cta { font-weight:700; font-size:17px; color:#050d1a; background:#00d4ff; padding:9px 22px; border-radius:8px; text-decoration:none; box-shadow:0 2px 20px rgba(0,212,255,0.35); transition:all 0.3s; }
+        .nav-sep { color:rgba(0,180,100,0.3); font-size:19px; }
+        .nav-cta { font-weight:700; font-size:19px; color:#050d1a; background:#00d4ff; padding:9px 22px; border-radius:8px; text-decoration:none; box-shadow:0 2px 20px rgba(0,212,255,0.35); transition:all 0.3s; }
         .nav-cta:hover { background:#00e5ff; box-shadow:0 4px 28px rgba(0,212,255,0.5); transform:translateY(-1px); }
 
         /* Page */
@@ -42,7 +42,7 @@
         /* Hero */
         .hero { padding:108px 40px 0; text-align:center; }
 
-        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:17px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#00b4d8; border:1px solid rgba(0,180,216,0.3); border-radius:50px; padding:5px 16px; margin-bottom:22px; opacity:0; animation:fadeUp 0.8s ease forwards 0.1s; }
+        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:19px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#00b4d8; border:1px solid rgba(0,180,216,0.3); border-radius:50px; padding:5px 16px; margin-bottom:22px; opacity:0; animation:fadeUp 0.8s ease forwards 0.1s; }
         .dot { width:6px; height:6px; border-radius:50%; background:#00b4d8; animation:blink 2s ease-in-out infinite; }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
@@ -52,9 +52,9 @@
         .hero-sub { font-size:clamp(13px,1.4vw,16px); color:rgba(200,225,210,0.6); line-height:1.65; max-width:580px; margin:0 auto 48px; opacity:0; animation:fadeUp 0.8s ease forwards 0.3s; }
 
         .hero-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:72px; opacity:0; animation:fadeUp 0.8s ease forwards 0.4s; }
-        .btn-gold { font-weight:700; font-size:18px; color:#050d1a; background:#00d4ff; padding:13px 34px; border-radius:8px; text-decoration:none; box-shadow:0 0 32px rgba(0,212,255,0.4); transition:all 0.3s; }
+        .btn-gold { font-weight:700; font-size:19px; color:#050d1a; background:#00d4ff; padding:13px 34px; border-radius:8px; text-decoration:none; box-shadow:0 0 32px rgba(0,212,255,0.4); transition:all 0.3s; }
         .btn-gold:hover { background:#00e5ff; box-shadow:0 0 50px rgba(0,212,255,0.6); transform:translateY(-2px); }
-        .btn-outline { font-weight:600; font-size:18px; color:#fff; background:rgba(255,255,255,0.06); padding:12px 34px; border-radius:8px; border:1px solid rgba(255,255,255,0.2); text-decoration:none; transition:all 0.3s; }
+        .btn-outline { font-weight:600; font-size:19px; color:#fff; background:rgba(255,255,255,0.06); padding:12px 34px; border-radius:8px; border:1px solid rgba(255,255,255,0.2); text-decoration:none; transition:all 0.3s; }
         .btn-outline:hover { border-color:#00d4ff; color:#00d4ff; background:rgba(0,212,255,0.06); }
 
         @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
@@ -120,8 +120,8 @@
 
         /* Screen UI overlays */
         .screen-bar { position:absolute; top:0; left:0; right:0; z-index:4; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; background:linear-gradient(180deg,rgba(0,0,0,0.5),transparent); }
-        .screen-tag { font-size:17px; font-weight:700; letter-spacing:2px; color:rgba(0,220,160,0.9); background:rgba(0,0,0,0.4); border:1px solid rgba(0,220,160,0.3); padding:2px 8px; border-radius:2px; }
-        .screen-live { display:flex; align-items:center; gap:5px; font-size:17px; color:rgba(255,80,80,0.9); font-weight:700; letter-spacing:1px; }
+        .screen-tag { font-size:19px; font-weight:700; letter-spacing:2px; color:rgba(0,220,160,0.9); background:rgba(0,0,0,0.4); border:1px solid rgba(0,220,160,0.3); padding:2px 8px; border-radius:2px; }
+        .screen-live { display:flex; align-items:center; gap:5px; font-size:19px; color:rgba(255,80,80,0.9); font-weight:700; letter-spacing:1px; }
         .live-dot { width:5px; height:5px; border-radius:50%; background:#ff5050; animation:blink 1s ease-in-out infinite; }
 
         .screen-bottom { position:absolute; bottom:0; left:0; right:0; z-index:4; padding:10px 14px; background:linear-gradient(0deg,rgba(0,0,0,0.6),transparent); }
@@ -129,8 +129,8 @@
         .progress-fill { height:100%; width:62%; background:linear-gradient(90deg,#00b4d8,#6d28d9); border-radius:2px; animation:progressAnim 8s linear infinite; }
         @keyframes progressAnim { 0%{width:5%} 100%{width:98%} }
         .screen-info { display:flex; align-items:center; justify-content:space-between; }
-        .screen-title { font-size:18px; font-weight:600; color:rgba(255,255,255,0.8); }
-        .screen-views { font-size:17px; color:rgba(0,220,160,0.8); font-family:'DM Sans','Rethink Sans',sans-serif; }
+        .screen-title { font-size:19px; font-weight:600; color:rgba(255,255,255,0.8); }
+        .screen-views { font-size:19px; color:rgba(0,220,160,0.8); font-family:'DM Sans','Rethink Sans',sans-serif; }
 
         /* Monitor stand */
         .monitor-stand { width:60px; height:16px; background:linear-gradient(180deg,rgba(0,180,216,0.3),rgba(0,100,70,0.2)); margin:0 auto; border-radius:0 0 4px 4px; }
@@ -140,10 +140,10 @@
         .metric { width:100%; background:rgba(5,15,35,0.92); backdrop-filter:blur(14px); border:1px solid rgba(0,180,216,0.3); border-radius:10px; padding:12px 14px; animation:cardFloat ease-in-out infinite; box-shadow:0 4px 24px rgba(0,0,0,0.4); box-sizing:border-box; }
         @keyframes cardFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 
-        .metric-label { font-size:17px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:rgba(0,200,140,0.6); margin-bottom:3px; }
+        .metric-label { font-size:19px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:rgba(0,200,140,0.6); margin-bottom:3px; }
         .metric-value { font-family:'DM Sans','Rethink Sans',sans-serif; font-size:20px; font-weight:700; color:#ffffff; line-height:1; }
-        .metric-sub { font-size:17px; color:rgba(200,225,210,0.35); margin-top:2px; }
-        .metric-badge { display:inline-block; font-size:18px; font-weight:700; letter-spacing:1px; padding:1px 6px; border-radius:2px; margin-top:4px; }
+        .metric-sub { font-size:19px; color:rgba(200,225,210,0.35); margin-top:2px; }
+        .metric-badge { display:inline-block; font-size:19px; font-weight:700; letter-spacing:1px; padding:1px 6px; border-radius:2px; margin-top:4px; }
         .badge-up { background:rgba(0,200,100,0.15); color:#00b4d8; border:1px solid rgba(0,200,100,0.25); }
         .badge-hot { background:rgba(0,180,216,0.1); color:#6d28d9; border:1px solid rgba(0,180,216,0.2); }
 
@@ -161,12 +161,12 @@
         .stat { padding:18px 40px; text-align:center; border:1px solid rgba(0,180,216,0.15); border-right:none; background:rgba(2,15,8,0.6); backdrop-filter:blur(8px); flex:1; }
         .stat:last-child { border-right:1px solid rgba(0,180,216,0.15); }
         .stat-val { font-family:'DM Sans','Rethink Sans',sans-serif; font-size:32px; color:#ffffff; font-weight:700; margin-bottom:4px; }
-        .stat-label { font-size:17px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(200,225,210,0.35); }
+        .stat-label { font-size:19px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(200,225,210,0.35); }
 
         /* ===== SECTION DIVIDER ===== */
         .divider { display:flex; align-items:center; gap:14px; padding:40px 40px 20px; max-width:1100px; margin:0 auto; }
         .div-line { flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(0,180,216,0.2),transparent); }
-        .div-text { font-size:17px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:rgba(200,225,210,0.35); white-space:nowrap; }
+        .div-text { font-size:19px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:rgba(200,225,210,0.35); white-space:nowrap; }
 
         /* ===== WHO IS THIS FOR ===== */
         .for-section { padding:0 24px 0; max-width:1100px; margin:0 auto; }
@@ -177,28 +177,28 @@
         .for-card:hover::before { opacity:1; }
         .for-card:hover { background:rgba(3,22,12,0.95); }
         .for-icon { font-size:32px; margin-bottom:14px; display:block; }
-        .for-who { font-size:17px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#00b4d8; margin-bottom:8px; }
-        .for-title { font-weight:700; font-size:18px; color:#ffffff; margin-bottom:10px; line-height:1.2; }
-        .for-desc { font-size:17px; color:rgba(200,225,210,0.5); line-height:1.65; margin-bottom:16px; }
+        .for-who { font-size:19px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#00b4d8; margin-bottom:8px; }
+        .for-title { font-weight:700; font-size:19px; color:#ffffff; margin-bottom:10px; line-height:1.2; }
+        .for-desc { font-size:19px; color:rgba(200,225,210,0.5); line-height:1.65; margin-bottom:16px; }
         .for-points { list-style:none; }
-        .for-points li { font-size:18px; color:rgba(200,225,210,0.5); padding:4px 0; display:flex; gap:8px; align-items:flex-start; }
-        .for-points li::before { content:'→'; color:#00b4d8; font-size:17px; flex-shrink:0; margin-top:1px; }
+        .for-points li { font-size:19px; color:rgba(200,225,210,0.5); padding:4px 0; display:flex; gap:8px; align-items:flex-start; }
+        .for-points li::before { content:'→'; color:#00b4d8; font-size:19px; flex-shrink:0; margin-top:1px; }
 
         /* ===== FEATURE PILLS ===== */
         .pills-row { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; padding:28px 40px 0; }
-        .pill { display:flex; align-items:center; gap:7px; background:rgba(2,14,8,0.8); border:1px solid rgba(0,180,216,0.15); border-radius:50px; padding:7px 16px; font-size:18px; font-weight:500; color:rgba(200,225,210,0.55); transition:all 0.3s; }
+        .pill { display:flex; align-items:center; gap:7px; background:rgba(2,14,8,0.8); border:1px solid rgba(0,180,216,0.15); border-radius:50px; padding:7px 16px; font-size:19px; font-weight:500; color:rgba(200,225,210,0.55); transition:all 0.3s; }
         .pill:hover { border-color:rgba(0,220,150,0.4); color:rgba(200,225,210,0.9); }
 
         /* ===== HOW IT WORKS ===== */
         .how-section { padding:40px 40px 0; max-width:1100px; margin:0 auto; }
         .section-title { font-weight:800; font-size:clamp(22px,3vw,38px); color:#ffffff; text-align:center; margin-bottom:6px; }
-        .section-sub { font-size:18px; color:rgba(200,225,210,0.4); text-align:center; letter-spacing:1px; margin-bottom:36px; }
+        .section-sub { font-size:19px; color:rgba(200,225,210,0.4); text-align:center; letter-spacing:1px; margin-bottom:36px; }
         .steps { display:grid; grid-template-columns:repeat(4,1fr); gap:0; position:relative; }
         .steps::before { content:''; position:absolute; top:28px; left:12.5%; right:12.5%; height:1px; background:linear-gradient(90deg,rgba(0,180,216,0.15),rgba(0,180,216,0.3),rgba(0,180,216,0.15)); }
         .step { text-align:center; padding:0 16px; }
-        .step-num { width:56px; height:56px; border-radius:50%; background:rgba(2,14,8,0.9); border:2px solid rgba(0,200,140,0.4); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; font-family:'DM Sans','Rethink Sans',sans-serif; font-size:18px; font-weight:700; color:#00b4d8; box-shadow:0 0 20px rgba(0,200,140,0.15); }
-        .step-title { font-weight:700; font-size:17px; color:#6d28d9; margin-bottom:8px; letter-spacing:0.5px; }
-        .step-desc { font-size:18px; color:rgba(200,225,210,0.45); line-height:1.6; }
+        .step-num { width:56px; height:56px; border-radius:50%; background:rgba(2,14,8,0.9); border:2px solid rgba(0,200,140,0.4); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; font-family:'DM Sans','Rethink Sans',sans-serif; font-size:19px; font-weight:700; color:#00b4d8; box-shadow:0 0 20px rgba(0,200,140,0.15); }
+        .step-title { font-weight:700; font-size:19px; color:#6d28d9; margin-bottom:8px; letter-spacing:0.5px; }
+        .step-desc { font-size:19px; color:rgba(200,225,210,0.45); line-height:1.6; }
 
         /* ===== PACKAGES ===== */
         .packages-section { padding:40px 24px 0; max-width:1100px; margin:0 auto; }
@@ -207,27 +207,27 @@
         .packages-card:hover { border-color:rgba(0,220,150,0.4); transform:translateY(-3px); background:rgba(3,22,12,0.95); }
         .packages-card.featured { border-color:rgba(0,180,216,0.3); }
         .packages-card.featured::before { content:'POPULAR'; position:absolute; top:8px; right:8px; font-size:7px; font-weight:700; letter-spacing:2px; color:#6d28d9; background:rgba(0,180,216,0.08); border:1px solid rgba(0,180,216,0.25); padding:2px 6px; border-radius:2px; }
-        .packages-tier { font-size:17px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(0,200,140,0.6); margin-bottom:6px; }
+        .packages-tier { font-size:19px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(0,200,140,0.6); margin-bottom:6px; }
         .packages-price { font-family:'DM Sans','Rethink Sans',sans-serif; font-size:22px; font-weight:700; color:#ffffff; margin-bottom:4px; }
-        .packages-views { font-size:17px; color:rgba(200,225,210,0.5); margin-bottom:10px; }
-        .packages-join { font-size:17px; font-weight:600; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:6px 16px; border-radius:3px; display:inline-block; text-decoration:none; transition:all 0.2s; }
+        .packages-views { font-size:19px; color:rgba(200,225,210,0.5); margin-bottom:10px; }
+        .packages-join { font-size:19px; font-weight:600; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:6px 16px; border-radius:3px; display:inline-block; text-decoration:none; transition:all 0.2s; }
         .packages-join:hover { box-shadow:0 0 20px rgba(0,180,216,0.3); }
 
         /* ===== CTA ===== */
         .cta-section { text-align:center; padding:48px 40px 30px; }
         .cta-title { font-weight:800; font-size:clamp(24px,3.5vw,44px); color:#ffffff; margin-bottom:8px; }
         .cta-title .gold { color:#6d28d9; }
-        .cta-sub { font-size:18px; color:rgba(200,225,210,0.4); margin-bottom:28px; }
+        .cta-sub { font-size:19px; color:rgba(200,225,210,0.4); margin-bottom:28px; }
         .trust-badges { display:flex; justify-content:center; gap:32px; flex-wrap:wrap; margin-top:24px; }
-        .trust-badge { display:flex; align-items:center; gap:7px; font-size:18px; color:rgba(200,225,210,0.3); }
+        .trust-badge { display:flex; align-items:center; gap:7px; font-size:19px; color:rgba(200,225,210,0.3); }
 
         footer { border-top:1px solid rgba(0,180,216,0.12); padding:20px 36px; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:10; }
         .footer-logo { display:flex; align-items:center; gap:8px; text-decoration:none; }
-        .footer-brand { font-weight:800; font-size:18px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#00b4d8,#6d28d9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .footer-brand { font-weight:800; font-size:19px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#00b4d8,#6d28d9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
         .footer-links { display:flex; gap:20px; }
-        .footer-links a { font-size:17px; letter-spacing:1px; text-transform:uppercase; color:rgba(200,225,210,0.22); text-decoration:none; transition:color 0.2s; }
+        .footer-links a { font-size:19px; letter-spacing:1px; text-transform:uppercase; color:rgba(200,225,210,0.22); text-decoration:none; transition:color 0.2s; }
         .footer-links a:hover { color:rgba(201,168,76,0.7); }
-        .footer-copy { font-size:17px; color:rgba(200,225,210,0.15); }
+        .footer-copy { font-size:19px; color:rgba(200,225,210,0.15); }
 
         @media(max-width:900px){
             .nav-links{display:none}
@@ -239,15 +239,15 @@
             footer{flex-direction:column;gap:14px;text-align:center}
             nav{padding:0 16px}
             .hero-title{font-size:clamp(24px,6vw,44px)!important}
-            .hero-sub{font-size:15px!important;padding:0 8px}
+            .hero-sub{font-size:16px!important;padding:0 8px}
             .hero-btns{flex-direction:column;align-items:center;gap:10px}
             .hero-btns a{width:100%;max-width:280px;text-align:center}
-            .nav-cta{font-size:13px;padding:7px 16px}
+            .nav-cta{font-size:16px;padding:7px 16px}
         }
         @media(max-width:600px){
             .for-grid,.steps,.packages-grid{grid-template-columns:1fr}
             nav{height:52px}
-            .nav-brand{font-size:14px}
+            .nav-brand{font-size:16px}
             .section-padding,.page > *{padding-left:16px!important;padding-right:16px!important}
             .hero{padding:80px 16px 40px!important}
             [style*="grid-template-columns:repeat(3"]{grid-template-columns:1fr!important}
@@ -269,21 +269,21 @@
 .m-close{position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(148,163,184,0.6);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:6px;line-height:1;transition:color 0.15s}
 .m-close:hover{color:#fff}
 .m-title{font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
-.m-sub{font-size:13px;color:rgba(148,163,184,0.8);margin-bottom:22px}
-.m-err{display:none;padding:10px 14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:12px;font-weight:600;color:#f87171;margin-bottom:14px}
+.m-sub{font-size:16px;color:rgba(148,163,184,0.8);margin-bottom:22px}
+.m-err{display:none;padding:10px 14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:16px;font-weight:600;color:#f87171;margin-bottom:14px}
 .m-field{margin-bottom:14px}
 .m-label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(148,163,184,0.7);margin-bottom:6px}
-.m-input{width:100%;padding:10px 13px;border:1.5px solid rgba(0,212,255,0.14);border-radius:8px;background:rgba(0,212,255,0.04);color:#f1f5f9;font-size:14px;font-family:inherit;box-sizing:border-box;transition:border-color 0.15s}
+.m-input{width:100%;padding:10px 13px;border:1.5px solid rgba(0,212,255,0.14);border-radius:8px;background:rgba(0,212,255,0.04);color:#f1f5f9;font-size:16px;font-family:inherit;box-sizing:border-box;transition:border-color 0.15s}
 .m-input:focus{outline:none;border-color:rgba(0,212,255,0.5);background:rgba(0,212,255,0.07)}
 .m-input::placeholder{color:rgba(148,163,184,0.35)}
 .m-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.m-terms{display:flex;align-items:flex-start;gap:10px;margin-bottom:18px;font-size:12px;color:rgba(148,163,184,0.6);line-height:1.5}
+.m-terms{display:flex;align-items:flex-start;gap:10px;margin-bottom:18px;font-size:16px;color:rgba(148,163,184,0.6);line-height:1.5}
 .m-terms input{width:14px;height:14px;flex-shrink:0;margin-top:1px;accent-color:#00d4ff;cursor:pointer}
 .m-terms a{color:rgba(0,212,255,0.8);text-decoration:none}
-.m-btn{width:100%;padding:12px;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:9px;color:#fff;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:0.3px;transition:opacity 0.15s}
+.m-btn{width:100%;padding:12px;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:9px;color:#fff;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:0.3px;transition:opacity 0.15s}
 .m-btn:hover{opacity:0.9}
 .m-btn:disabled{opacity:0.5;cursor:not-allowed}
-.m-foot{text-align:center;margin-top:14px;font-size:12px;color:rgba(148,163,184,0.5)}
+.m-foot{text-align:center;margin-top:14px;font-size:16px;color:rgba(148,163,184,0.5)}
 .m-foot a{color:rgba(0,212,255,0.8);text-decoration:none;font-weight:600}
 @media(max-width:520px){.m-box{padding:26px 20px}.m-row{grid-template-columns:1fr}}
 /* === END MODAL STYLES === */
@@ -347,7 +347,7 @@
         <li><a href="/support">Support</a></li>
     </ul>
     <div style="display:flex;align-items:center;gap:10px">
-        <a href="#" onclick="mOpen('mLogin');return false;" style="font-size:13px;font-weight:600;color:rgba(200,230,210,0.6);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:7px;transition:all 0.2s" onmouseover="this.style.color='rgba(200,230,210,0.9)'" onmouseout="this.style.color='rgba(200,230,210,0.6)'">Log In</a>
+        <a href="#" onclick="mOpen('mLogin');return false;" style="font-size:16px;font-weight:600;color:rgba(200,230,210,0.6);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:7px;transition:all 0.2s" onmouseover="this.style.color='rgba(200,230,210,0.9)'" onmouseout="this.style.color='rgba(200,230,210,0.6)'">Log In</a>
         <a href="#" class="nav-cta" onclick="mOpen('mReg');return false;">Register Here</a>
         <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">☰</button>
     </div>
@@ -386,7 +386,7 @@
         <input class="m-input" type="password" id="loginPw" placeholder="Your password" required autocomplete="current-password">
       </div>
       <div style="text-align:right;margin-bottom:18px">
-        <a href="/forgot-password" style="font-size:11px;color:rgba(0,212,255,0.7);text-decoration:none">Forgot password?</a>
+        <a href="/forgot-password" style="font-size:16px;color:rgba(0,212,255,0.7);text-decoration:none">Forgot password?</a>
       </div>
       <button type="submit" class="m-btn" id="loginBtn">Log In &rarr;</button>
     </form>
@@ -827,115 +827,115 @@
 <div class="stats-strip" style="display:flex;justify-content:center;gap:0;max-width:900px;margin:32px auto 0;border:1px solid rgba(0,180,216,0.15);border-radius:10px;overflow:hidden;background:rgba(5,13,26,0.6);backdrop-filter:blur(10px)">
     <div style="flex:1;padding:18px 16px;text-align:center;border-right:1px solid rgba(0,180,216,0.1)">
         <div style="font-size:22px;font-weight:800;color:#fff">2.4M+</div>
-        <div style="font-size:17px;font-weight:700;color:rgba(0,212,255,0.6);letter-spacing:2px;text-transform:uppercase;margin-top:3px">Monthly Views Target</div>
+        <div style="font-size:19px;font-weight:700;color:rgba(0,212,255,0.6);letter-spacing:2px;text-transform:uppercase;margin-top:3px">Monthly Views Target</div>
     </div>
     <div style="flex:1;padding:18px 16px;text-align:center;border-right:1px solid rgba(0,180,216,0.1)">
         <div style="font-size:22px;font-weight:800;color:#fff">+320%</div>
-        <div style="font-size:17px;font-weight:700;color:rgba(0,212,255,0.6);letter-spacing:2px;text-transform:uppercase;margin-top:3px">Projected ROI</div>
+        <div style="font-size:19px;font-weight:700;color:rgba(0,212,255,0.6);letter-spacing:2px;text-transform:uppercase;margin-top:3px">Projected ROI</div>
     </div>
     <div style="flex:1;padding:18px 16px;text-align:center;border-right:1px solid rgba(0,180,216,0.1)">
         <div style="font-size:22px;font-weight:800;color:#fff">8</div>
-        <div style="font-size:17px;font-weight:700;color:rgba(0,212,255,0.6);letter-spacing:2px;text-transform:uppercase;margin-top:3px">Campaign Tiers</div>
+        <div style="font-size:19px;font-weight:700;color:rgba(0,212,255,0.6);letter-spacing:2px;text-transform:uppercase;margin-top:3px">Campaign Tiers</div>
     </div>
     <div style="flex:1;padding:18px 16px;text-align:center;border-right:1px solid rgba(0,180,216,0.1)">
         <div style="font-size:22px;font-weight:800;color:#fff">28%</div>
-        <div style="font-size:17px;font-weight:700;color:rgba(0,212,255,0.6);letter-spacing:2px;text-transform:uppercase;margin-top:3px">Affiliate Commission</div>
+        <div style="font-size:19px;font-weight:700;color:rgba(0,212,255,0.6);letter-spacing:2px;text-transform:uppercase;margin-top:3px">Affiliate Commission</div>
     </div>
     <div style="flex:1;padding:18px 16px;text-align:center">
         <div style="font-size:22px;font-weight:800;color:#fff">100%</div>
-        <div style="font-size:17px;font-weight:700;color:rgba(0,212,255,0.6);letter-spacing:2px;text-transform:uppercase;margin-top:3px">USDT On-Chain</div>
+        <div style="font-size:19px;font-weight:700;color:rgba(0,212,255,0.6);letter-spacing:2px;text-transform:uppercase;margin-top:3px">USDT On-Chain</div>
     </div>
 </div>
 
 <!-- WHO IS SUPERADPRO FOR -->
 <section style="padding:60px 24px 0;max-width:1100px;margin:0 auto">
     <div style="text-align:center;margin-bottom:32px">
-        <div style="font-size:18px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:10px">WHO IS SUPERADPRO FOR?</div>
+        <div style="font-size:19px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:10px">WHO IS SUPERADPRO FOR?</div>
     </div>
     <div class="for-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid rgba(0,180,216,0.15);border-radius:10px;overflow:hidden;background:rgba(5,13,26,0.5)">
         <div style="padding:32px 28px;border-right:1px solid rgba(0,180,216,0.12)">
             <div style="font-size:32px;margin-bottom:14px">🎬</div>
-            <div style="font-size:18px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#00d4ff;margin-bottom:8px">FOR ADVERTISERS</div>
-            <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:12px;line-height:1.3">Get Your Video Seen by Thousands</div>
-            <p style="font-size:17px;color:rgba(200,220,255,0.6);line-height:1.7;margin-bottom:16px">Get your brand, product, or content in front of real, engaged audiences. Choose an campaign tier that fits your budget and grow your reach.</p>
+            <div style="font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#00d4ff;margin-bottom:8px">FOR ADVERTISERS</div>
+            <div style="font-size:19px;font-weight:800;color:#fff;margin-bottom:12px;line-height:1.3">Get Your Video Seen by Thousands</div>
+            <p style="font-size:19px;color:rgba(200,220,255,0.6);line-height:1.7;margin-bottom:16px">Get your brand, product, or content in front of real, engaged audiences. Choose an campaign tier that fits your budget and grow your reach.</p>
             <div style="display:flex;flex-direction:column;gap:8px">
-                <div style="font-size:18px;color:rgba(200,220,255,0.7)">→ Real video campaign reach</div>
-                <div style="font-size:18px;color:rgba(200,220,255,0.7)">→ Choose from 8 campaign tiers</div>
-                <div style="font-size:18px;color:rgba(200,220,255,0.7)">→ AI-targeted audience delivery</div>
-                <div style="font-size:18px;color:rgba(200,220,255,0.7)">→ Real-time campaign analytics</div>
+                <div style="font-size:19px;color:rgba(200,220,255,0.7)">→ Real video campaign reach</div>
+                <div style="font-size:19px;color:rgba(200,220,255,0.7)">→ Choose from 8 campaign tiers</div>
+                <div style="font-size:19px;color:rgba(200,220,255,0.7)">→ AI-targeted audience delivery</div>
+                <div style="font-size:19px;color:rgba(200,220,255,0.7)">→ Real-time campaign analytics</div>
             </div>
         </div>
         <div style="padding:32px 28px;border-right:1px solid rgba(0,180,216,0.12)">
             <div style="font-size:32px;margin-bottom:14px">📊</div>
-            <div style="font-size:18px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#00d4ff;margin-bottom:8px">FOR MARKETERS</div>
-            <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:12px;line-height:1.3">Launch Smarter Campaigns with AI</div>
-            <p style="font-size:17px;color:rgba(200,220,255,0.6);line-height:1.7;margin-bottom:16px">Our AI engine optimises your video campaigns in real time — maximising click-through rates, engagement, and ROI across every audience segment.</p>
+            <div style="font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#00d4ff;margin-bottom:8px">FOR MARKETERS</div>
+            <div style="font-size:19px;font-weight:800;color:#fff;margin-bottom:12px;line-height:1.3">Launch Smarter Campaigns with AI</div>
+            <p style="font-size:19px;color:rgba(200,220,255,0.6);line-height:1.7;margin-bottom:16px">Our AI engine optimises your video campaigns in real time — maximising click-through rates, engagement, and ROI across every audience segment.</p>
             <div style="display:flex;flex-direction:column;gap:8px">
-                <div style="font-size:18px;color:rgba(200,220,255,0.7)">→ AI-generated ad creative</div>
-                <div style="font-size:18px;color:rgba(200,220,255,0.7)">→ Auto-optimised targeting</div>
-                <div style="font-size:18px;color:rgba(200,220,255,0.7)">→ CTR and engagement analytics</div>
-                <div style="font-size:18px;color:rgba(200,220,255,0.7)">→ Multi-campaign management</div>
+                <div style="font-size:19px;color:rgba(200,220,255,0.7)">→ AI-generated ad creative</div>
+                <div style="font-size:19px;color:rgba(200,220,255,0.7)">→ Auto-optimised targeting</div>
+                <div style="font-size:19px;color:rgba(200,220,255,0.7)">→ CTR and engagement analytics</div>
+                <div style="font-size:19px;color:rgba(200,220,255,0.7)">→ Multi-campaign management</div>
             </div>
         </div>
         <div style="padding:32px 28px">
             <div style="font-size:32px;margin-bottom:14px">🤝</div>
-            <div style="font-size:18px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#00d4ff;margin-bottom:8px">FOR AFFILIATES</div>
-            <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:12px;line-height:1.3">Earn by Referring Advertisers</div>
-            <p style="font-size:17px;color:rgba(200,220,255,0.6);line-height:1.7;margin-bottom:16px">Join our affiliate programme and earn every time someone you refer activates an campaign tier. The more you grow your network, the more you earn.</p>
+            <div style="font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#00d4ff;margin-bottom:8px">FOR AFFILIATES</div>
+            <div style="font-size:19px;font-weight:800;color:#fff;margin-bottom:12px;line-height:1.3">Earn by Referring Advertisers</div>
+            <p style="font-size:19px;color:rgba(200,220,255,0.6);line-height:1.7;margin-bottom:16px">Join our affiliate programme and earn every time someone you refer activates an campaign tier. The more you grow your network, the more you earn.</p>
             <div style="display:flex;flex-direction:column;gap:8px">
-                <div style="font-size:18px;color:rgba(200,220,255,0.7)">→ 25% direct commission per referral</div>
-                <div style="font-size:18px;color:rgba(200,220,255,0.7)">→ 70% uni-level pool (8 levels deep)</div>
-                <div style="font-size:18px;color:rgba(200,220,255,0.7)">→ 8×8 Profit Engine Grid earnings</div>
-                <div style="font-size:18px;color:rgba(200,220,255,0.7)">→ Instant USDT payments on-chain</div>
+                <div style="font-size:19px;color:rgba(200,220,255,0.7)">→ 25% direct commission per referral</div>
+                <div style="font-size:19px;color:rgba(200,220,255,0.7)">→ 70% uni-level pool (8 levels deep)</div>
+                <div style="font-size:19px;color:rgba(200,220,255,0.7)">→ 8×8 Profit Engine Grid earnings</div>
+                <div style="font-size:19px;color:rgba(200,220,255,0.7)">→ Instant USDT payments on-chain</div>
             </div>
         </div>
     </div>
 
     <!-- Feature pills -->
     <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:24px">
-        <div style="font-size:17px;font-weight:600;color:rgba(200,220,255,0.5);background:rgba(255,255,255,0.04);border:1px solid rgba(0,180,216,0.12);padding:7px 16px;border-radius:999px">🎯 AI-Targeted Campaigns</div>
-        <div style="font-size:17px;font-weight:600;color:rgba(200,220,255,0.5);background:rgba(255,255,255,0.04);border:1px solid rgba(0,180,216,0.12);padding:7px 16px;border-radius:999px">🔗 On-Chain USDT Payments</div>
-        <div style="font-size:17px;font-weight:600;color:rgba(200,220,255,0.5);background:rgba(255,255,255,0.04);border:1px solid rgba(0,180,216,0.12);padding:7px 16px;border-radius:999px">📈 Real-Time Analytics</div>
-        <div style="font-size:17px;font-weight:600;color:rgba(200,220,255,0.5);background:rgba(255,255,255,0.04);border:1px solid rgba(0,180,216,0.12);padding:7px 16px;border-radius:999px">🌍 Global Audience Network</div>
-        <div style="font-size:17px;font-weight:600;color:rgba(200,220,255,0.5);background:rgba(255,255,255,0.04);border:1px solid rgba(0,180,216,0.12);padding:7px 16px;border-radius:999px">⭐ Elite Affiliate Programme</div>
+        <div style="font-size:19px;font-weight:600;color:rgba(200,220,255,0.5);background:rgba(255,255,255,0.04);border:1px solid rgba(0,180,216,0.12);padding:7px 16px;border-radius:999px">🎯 AI-Targeted Campaigns</div>
+        <div style="font-size:19px;font-weight:600;color:rgba(200,220,255,0.5);background:rgba(255,255,255,0.04);border:1px solid rgba(0,180,216,0.12);padding:7px 16px;border-radius:999px">🔗 On-Chain USDT Payments</div>
+        <div style="font-size:19px;font-weight:600;color:rgba(200,220,255,0.5);background:rgba(255,255,255,0.04);border:1px solid rgba(0,180,216,0.12);padding:7px 16px;border-radius:999px">📈 Real-Time Analytics</div>
+        <div style="font-size:19px;font-weight:600;color:rgba(200,220,255,0.5);background:rgba(255,255,255,0.04);border:1px solid rgba(0,180,216,0.12);padding:7px 16px;border-radius:999px">🌍 Global Audience Network</div>
+        <div style="font-size:19px;font-weight:600;color:rgba(200,220,255,0.5);background:rgba(255,255,255,0.04);border:1px solid rgba(0,180,216,0.12);padding:7px 16px;border-radius:999px">⭐ Elite Affiliate Programme</div>
     </div>
 </section>
 
 <!-- HOW IT WORKS -->
 <section style="padding:60px 40px 0;max-width:1100px;margin:0 auto">
     <div style="text-align:center;margin-bottom:40px">
-        <div style="font-size:18px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.5)">HOW IT WORKS</div>
+        <div style="font-size:19px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.5)">HOW IT WORKS</div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative">
         <!-- Connector line -->
         <div style="position:absolute;top:28px;left:12.5%;right:12.5%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.3),rgba(109,40,217,0.3),transparent)"></div>
         <div style="text-align:center;padding:0 16px">
             <div style="width:56px;height:56px;border-radius:50%;border:1px solid rgba(0,212,255,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;background:rgba(0,212,255,0.06)">
-                <span style="font-size:18px;font-weight:800;color:#00d4ff">01</span>
+                <span style="font-size:19px;font-weight:800;color:#00d4ff">01</span>
             </div>
-            <div style="font-size:18px;font-weight:700;color:#00d4ff;margin-bottom:8px">Register Free</div>
-            <div style="font-size:18px;color:rgba(200,220,255,0.5);line-height:1.6">Create your account and join the SuperAdPro platform as an advertiser, marketer, or affiliate.</div>
+            <div style="font-size:19px;font-weight:700;color:#00d4ff;margin-bottom:8px">Register Free</div>
+            <div style="font-size:19px;color:rgba(200,220,255,0.5);line-height:1.6">Create your account and join the SuperAdPro platform as an advertiser, marketer, or affiliate.</div>
         </div>
         <div style="text-align:center;padding:0 16px">
             <div style="width:56px;height:56px;border-radius:50%;border:1px solid rgba(0,212,255,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;background:rgba(0,212,255,0.06)">
-                <span style="font-size:18px;font-weight:800;color:#00d4ff">02</span>
+                <span style="font-size:19px;font-weight:800;color:#00d4ff">02</span>
             </div>
-            <div style="font-size:18px;font-weight:700;color:#00d4ff;margin-bottom:8px">Choose a Campaign Tier</div>
-            <div style="font-size:18px;color:rgba(200,220,255,0.5);line-height:1.6">Select one of 8 campaign tiers from $20 to $1,000 USDT to unlock views and affiliate earnings.</div>
+            <div style="font-size:19px;font-weight:700;color:#00d4ff;margin-bottom:8px">Choose a Campaign Tier</div>
+            <div style="font-size:19px;color:rgba(200,220,255,0.5);line-height:1.6">Select one of 8 campaign tiers from $20 to $1,000 USDT to unlock views and affiliate earnings.</div>
         </div>
         <div style="text-align:center;padding:0 16px">
             <div style="width:56px;height:56px;border-radius:50%;border:1px solid rgba(0,212,255,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;background:rgba(0,212,255,0.06)">
-                <span style="font-size:18px;font-weight:800;color:#00d4ff">03</span>
+                <span style="font-size:19px;font-weight:800;color:#00d4ff">03</span>
             </div>
-            <div style="font-size:18px;font-weight:700;color:#00d4ff;margin-bottom:8px">Launch Your Campaign</div>
-            <div style="font-size:18px;color:rgba(200,220,255,0.5);line-height:1.6">Upload your video, set your audience, and let our AI engine optimise delivery for maximum reach.</div>
+            <div style="font-size:19px;font-weight:700;color:#00d4ff;margin-bottom:8px">Launch Your Campaign</div>
+            <div style="font-size:19px;color:rgba(200,220,255,0.5);line-height:1.6">Upload your video, set your audience, and let our AI engine optimise delivery for maximum reach.</div>
         </div>
         <div style="text-align:center;padding:0 16px">
             <div style="width:56px;height:56px;border-radius:50%;border:1px solid rgba(0,212,255,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;background:rgba(0,212,255,0.06)">
-                <span style="font-size:18px;font-weight:800;color:#00d4ff">04</span>
+                <span style="font-size:19px;font-weight:800;color:#00d4ff">04</span>
             </div>
-            <div style="font-size:18px;font-weight:700;color:#00d4ff;margin-bottom:8px">Grow &amp; Earn</div>
-            <div style="font-size:18px;color:rgba(200,220,255,0.5);line-height:1.6">Refer others to the platform and earn affiliate commissions automatically — paid instantly in USDT.</div>
+            <div style="font-size:19px;font-weight:700;color:#00d4ff;margin-bottom:8px">Grow &amp; Earn</div>
+            <div style="font-size:19px;color:rgba(200,220,255,0.5);line-height:1.6">Refer others to the platform and earn affiliate commissions automatically — paid instantly in USDT.</div>
         </div>
     </div>
 </section>
@@ -944,32 +944,32 @@
 <section style="padding:60px 40px 0;max-width:1100px;margin:0 auto">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center">
         <div>
-            <div style="font-size:18px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:12px">THE INCOME GRID</div>
+            <div style="font-size:19px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:12px">THE INCOME GRID</div>
             <div style="font-size:32px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:16px">Your 8×8 Recurring<br>Income Engine</div>
-            <p style="font-size:18px;color:rgba(200,220,255,0.6);line-height:1.7;margin-bottom:24px">When you activate a tier, your personal 8×8 grid opens. As the network fills your grid, commissions are distributed automatically on-chain.</p>
+            <p style="font-size:19px;color:rgba(200,220,255,0.6);line-height:1.7;margin-bottom:24px">When you activate a tier, your personal 8×8 grid opens. As the network fills your grid, commissions are distributed automatically on-chain.</p>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
                 <div style="background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.15);border-radius:8px;padding:14px;text-align:center">
                     <div style="font-size:22px;font-weight:800;color:#00d4ff">25%</div>
-                    <div style="font-size:18px;color:rgba(200,220,255,0.5);margin-top:4px">Direct Sponsor</div>
+                    <div style="font-size:19px;color:rgba(200,220,255,0.5);margin-top:4px">Direct Sponsor</div>
                 </div>
                 <div style="background:rgba(109,40,217,0.06);border:1px solid rgba(109,40,217,0.2);border-radius:8px;padding:14px;text-align:center">
                     <div style="font-size:22px;font-weight:800;color:#a78bfa">70%</div>
-                    <div style="font-size:18px;color:rgba(200,220,255,0.5);margin-top:4px">Uni-Level Pool</div>
+                    <div style="font-size:19px;color:rgba(200,220,255,0.5);margin-top:4px">Uni-Level Pool</div>
                 </div>
                 <div style="background:rgba(0,212,255,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:14px;text-align:center">
                     <div style="font-size:22px;font-weight:800;color:#7c9fff">5%</div>
-                    <div style="font-size:18px;color:rgba(200,220,255,0.5);margin-top:4px">Platform Fee</div>
+                    <div style="font-size:19px;color:rgba(200,220,255,0.5);margin-top:4px">Platform Fee</div>
                 </div>
             </div>
-            <a href="/compensation-plan" style="font-size:17px;font-weight:700;color:#00d4ff;text-decoration:none">View Full Compensation Plan →</a>
+            <a href="/compensation-plan" style="font-size:19px;font-weight:700;color:#00d4ff;text-decoration:none">View Full Compensation Plan →</a>
         </div>
         <!-- Live 8x8 grid demo -->
         <div style="background:rgba(5,13,26,0.8);border:1px solid rgba(0,180,216,0.15);border-radius:12px;padding:20px">
-            <div style="font-size:18px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:14px;text-align:center">LIVE GRID DEMO</div>
+            <div style="font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:14px;text-align:center">LIVE GRID DEMO</div>
             <div id="demoGrid" style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-bottom:14px"></div>
             <div style="display:flex;justify-content:space-between;align-items:center">
-                <div id="demoProgress" style="font-size:17px;color:rgba(200,220,255,0.5)">Seats filled: 0 / 64</div>
-                <div id="demoEarnings" style="font-size:18px;font-weight:700;color:#16a34a">+$0.00</div>
+                <div id="demoProgress" style="font-size:19px;color:rgba(200,220,255,0.5)">Seats filled: 0 / 64</div>
+                <div id="demoEarnings" style="font-size:19px;font-weight:700;color:#16a34a">+$0.00</div>
             </div>
             <div style="margin-top:8px;background:rgba(255,255,255,0.05);border-radius:4px;height:4px;overflow:hidden">
                 <div id="demoBar" style="height:100%;width:0%;background:linear-gradient(90deg,#00d4ff,#6d28d9);transition:width 0.3s;border-radius:4px"></div>
@@ -982,13 +982,13 @@
 <!-- MARKETING SUITE SECTION -->
 <section style="padding:80px 40px 0;max-width:1100px;margin:0 auto">
   <div style="text-align:center;margin-bottom:52px">
-    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);border-radius:999px;padding:6px 18px;font-size:11px;font-weight:700;color:#a5b4fc;letter-spacing:2px;text-transform:uppercase;margin-bottom:18px">
+    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);border-radius:999px;padding:6px 18px;font-size:16px;font-weight:700;color:#a5b4fc;letter-spacing:2px;text-transform:uppercase;margin-bottom:18px">
       ✨ Members Only · Included in Every Membership
     </div>
     <h2 style="font-size:clamp(26px,3.5vw,46px);font-weight:800;color:#ffffff;line-height:1.15;margin-bottom:14px">
       Your Personal <span style="background:linear-gradient(135deg,#6366f1,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">AI Marketing Suite</span><br>Comes With Every Membership
     </h2>
-    <p style="font-size:17px;color:rgba(200,220,255,0.5);max-width:600px;margin:0 auto;line-height:1.7">
+    <p style="font-size:19px;color:rgba(200,220,255,0.5);max-width:600px;margin:0 auto;line-height:1.7">
       While other platforms charge $49–$97/month for tools like these, SuperAdPro members get the full AI-powered suite included. Generate campaigns, find your niche, steal proven copy — all in your back office from day one.
     </p>
   </div>
@@ -1001,19 +1001,19 @@
       <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(99,102,241,0.12),transparent 70%);pointer-events:none"></div>
       <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,rgba(99,102,241,0.2),rgba(99,102,241,0.05));border:1px solid rgba(99,102,241,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px">🤖</div>
       <div style="font-size:16px;font-weight:800;color:#ffffff;margin-bottom:6px">AI Campaign Studio</div>
-      <div style="font-size:11px;font-weight:700;color:#6366f1;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">Your AI Marketing Co-Pilot</div>
-      <p style="font-size:13px;color:rgba(200,220,255,0.55);line-height:1.75;margin-bottom:18px">
+      <div style="font-size:16px;font-weight:700;color:#6366f1;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">Your AI Marketing Co-Pilot</div>
+      <p style="font-size:16px;color:rgba(200,220,255,0.55);line-height:1.75;margin-bottom:18px">
         Tell the AI what you're promoting and it generates your complete campaign in seconds — full video script, 3-email nurture sequence, 5 social captions, thumbnail concepts, power headlines and a WhatsApp outreach script. No blank page. No guesswork. No copywriter needed.
       </p>
       <div style="display:flex;flex-direction:column;gap:7px">
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Video scripts with proven hook formulas</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Email sequences that convert cold leads</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Platform-specific social captions</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Thumbnail concepts with Canva prompts</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:16px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Video scripts with proven hook formulas</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:16px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Email sequences that convert cold leads</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:16px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Platform-specific social captions</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:16px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Thumbnail concepts with Canva prompts</div>
       </div>
       <div style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between">
-        <div style="font-size:11px;color:rgba(200,220,255,0.3)">Worth $49/month elsewhere</div>
-        <div style="font-size:12px;font-weight:800;color:#10b981">Included Free ✓</div>
+        <div style="font-size:16px;color:rgba(200,220,255,0.3)">Worth $49/month elsewhere</div>
+        <div style="font-size:16px;font-weight:800;color:#10b981">Included Free ✓</div>
       </div>
     </div>
 
@@ -1022,19 +1022,19 @@
       <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(245,158,11,0.1),transparent 70%);pointer-events:none"></div>
       <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(245,158,11,0.05));border:1px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px">💡</div>
       <div style="font-size:16px;font-weight:800;color:#ffffff;margin-bottom:6px">Niche Finder</div>
-      <div style="font-size:11px;font-weight:700;color:#f59e0b;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">Your Perfect Market in 60 Seconds</div>
-      <p style="font-size:13px;color:rgba(200,220,255,0.55);line-height:1.75;margin-bottom:18px">
+      <div style="font-size:16px;font-weight:700;color:#f59e0b;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">Your Perfect Market in 60 Seconds</div>
+      <p style="font-size:16px;color:rgba(200,220,255,0.55);line-height:1.75;margin-bottom:18px">
         Not sure what to promote? Answer 5 quick questions about your interests, experience, available time and goals — and the AI returns your 3 best-matched niches, each with audience size data, competition analysis, 4 platform-specific content ideas and a ready-to-use hook you can post today.
       </p>
       <div style="display:flex;flex-direction:column;gap:7px">
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Matched to your interests & experience level</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Audience size & competition scoring</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Platform-specific content ideas included</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Starter hook ready to copy and post</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:16px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Matched to your interests & experience level</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:16px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Audience size & competition scoring</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:16px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Platform-specific content ideas included</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:16px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Starter hook ready to copy and post</div>
       </div>
       <div style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between">
-        <div style="font-size:11px;color:rgba(200,220,255,0.3)">Worth $29/month elsewhere</div>
-        <div style="font-size:12px;font-weight:800;color:#10b981">Included Free ✓</div>
+        <div style="font-size:16px;color:rgba(200,220,255,0.3)">Worth $29/month elsewhere</div>
+        <div style="font-size:16px;font-weight:800;color:#10b981">Included Free ✓</div>
       </div>
     </div>
 
@@ -1043,19 +1043,19 @@
       <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(0,180,216,0.1),transparent 70%);pointer-events:none"></div>
       <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,rgba(0,180,216,0.2),rgba(0,180,216,0.05));border:1px solid rgba(0,180,216,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px">📋</div>
       <div style="font-size:16px;font-weight:800;color:#ffffff;margin-bottom:6px">Swipe File Library</div>
-      <div style="font-size:11px;font-weight:700;color:#00b4d8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">Steal What Already Works</div>
-      <p style="font-size:13px;color:rgba(200,220,255,0.55);line-height:1.75;margin-bottom:18px">
+      <div style="font-size:16px;font-weight:700;color:#00b4d8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">Steal What Already Works</div>
+      <p style="font-size:16px;color:rgba(200,220,255,0.55);line-height:1.75;margin-bottom:18px">
         A hand-curated vault of 60+ proven marketing assets — attention-grabbing hooks, high open-rate email subject lines, scroll-stopping social captions, video script openers, WhatsApp outreach scripts and power headlines. Updated monthly with fresh, tested copy. One click to copy. Zero thinking required.
       </p>
       <div style="display:flex;flex-direction:column;gap:7px">
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> 60+ proven hooks, scripts & captions</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Searchable by niche, platform & type</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Updated monthly with new material</div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> One-click copy — use immediately</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:16px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> 60+ proven hooks, scripts & captions</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:16px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Searchable by niche, platform & type</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:16px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> Updated monthly with new material</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:16px;color:rgba(200,220,255,0.6)"><span style="color:#10b981;font-weight:700">✓</span> One-click copy — use immediately</div>
       </div>
       <div style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between">
-        <div style="font-size:11px;color:rgba(200,220,255,0.3)">Worth $19/month elsewhere</div>
-        <div style="font-size:12px;font-weight:800;color:#10b981">Included Free ✓</div>
+        <div style="font-size:16px;color:rgba(200,220,255,0.3)">Worth $19/month elsewhere</div>
+        <div style="font-size:16px;font-weight:800;color:#10b981">Included Free ✓</div>
       </div>
     </div>
 
@@ -1064,10 +1064,10 @@
   <!-- BOTTOM BANNER -->
   <div style="background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(16,185,129,0.06));border:1px solid rgba(99,102,241,0.15);border-radius:16px;padding:28px 36px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap">
     <div>
-      <div style="font-size:18px;font-weight:800;color:#ffffff;margin-bottom:4px">One referral pays your membership. <span style="background:linear-gradient(135deg,#6366f1,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Then every tool unlocks.</span></div>
-      <div style="font-size:13px;color:rgba(200,220,255,0.45);line-height:1.6;max-width:560px">Join free. Refer one person. Your $20 membership covers itself automatically — and the full AI Marketing Suite opens the moment you activate. The tools pay for themselves before you even use them.</div>
+      <div style="font-size:19px;font-weight:800;color:#ffffff;margin-bottom:4px">One referral pays your membership. <span style="background:linear-gradient(135deg,#6366f1,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Then every tool unlocks.</span></div>
+      <div style="font-size:16px;color:rgba(200,220,255,0.45);line-height:1.6;max-width:560px">Join free. Refer one person. Your $20 membership covers itself automatically — and the full AI Marketing Suite opens the moment you activate. The tools pay for themselves before you even use them.</div>
     </div>
-    <a href="#" style="flex-shrink:0;background:linear-gradient(135deg,#6366f1,#10b981);border:none;border-radius:10px;padding:13px 28px;font-size:14px;font-weight:800;color:#fff;text-decoration:none;white-space:nowrap" onclick="openRegModal();return false;">Join Free Today →</a>
+    <a href="#" style="flex-shrink:0;background:linear-gradient(135deg,#6366f1,#10b981);border:none;border-radius:10px;padding:13px 28px;font-size:16px;font-weight:800;color:#fff;text-decoration:none;white-space:nowrap" onclick="openRegModal();return false;">Join Free Today →</a>
   </div>
 
 </section>
@@ -1076,16 +1076,16 @@
 <!-- CTA SECTION -->
 <section style="text-align:center;padding:70px 40px 40px">
     <h2 style="font-size:clamp(28px,4vw,52px);font-weight:800;color:#fff;margin-bottom:12px"><span style="background:linear-gradient(135deg,#00d4ff,#7c9fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Advertise Smarter.</span> Grow Faster.</h2>
-    <p style="font-size:17px;color:rgba(200,220,255,0.55);margin-bottom:32px">Join thousands of advertisers, marketers and affiliates already growing on SuperAdPro.</p>
+    <p style="font-size:19px;color:rgba(200,220,255,0.55);margin-bottom:32px">Join thousands of advertisers, marketers and affiliates already growing on SuperAdPro.</p>
     <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:32px">
         <a href="#" class="btn-gold" onclick="openRegModal();return false;">Create Your Free Account</a>
         <a href="/compensation-plan" class="btn-outline">View Affiliate Plan</a>
     </div>
     <div style="display:flex;justify-content:center;gap:32px;flex-wrap:wrap">
-        <div style="font-size:18px;color:rgba(200,220,255,0.3)">🎬 Real Video Campaigns</div>
-        <div style="font-size:18px;color:rgba(200,220,255,0.3)">🔗 USDT On Base Chain</div>
-        <div style="font-size:18px;color:rgba(200,220,255,0.3)">🤖 AI-Powered Optimisation</div>
-        <div style="font-size:18px;color:rgba(200,220,255,0.3)">🌍 Global Reach</div>
+        <div style="font-size:19px;color:rgba(200,220,255,0.3)">🎬 Real Video Campaigns</div>
+        <div style="font-size:19px;color:rgba(200,220,255,0.3)">🔗 USDT On Base Chain</div>
+        <div style="font-size:19px;color:rgba(200,220,255,0.3)">🤖 AI-Powered Optimisation</div>
+        <div style="font-size:19px;color:rgba(200,220,255,0.3)">🌍 Global Reach</div>
     </div>
 </section>
 
@@ -1181,8 +1181,8 @@
         font-size:24px;flex-shrink:0;
     ">🌍</div>
     <div>
-        <div id="joiner-name" style="font-size:14px;font-weight:700;color:#ffffff;margin-bottom:2px"></div>
-        <div id="joiner-action" style="font-size:12px;color:rgba(200,220,255,0.6)"></div>
+        <div id="joiner-name" style="font-size:16px;font-weight:700;color:#ffffff;margin-bottom:2px"></div>
+        <div id="joiner-action" style="font-size:16px;color:rgba(200,220,255,0.6)"></div>
     </div>
     <div style="
         width:8px;height:8px;border-radius:50%;

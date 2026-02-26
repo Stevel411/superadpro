@@ -22,21 +22,21 @@
 .reg-close{position:absolute;top:14px;right:18px;background:none;border:none;color:rgba(200,220,255,0.4);font-size:22px;cursor:pointer;line-height:1;padding:4px 8px;border-radius:6px;transition:color 0.2s}
 .reg-close:hover{color:rgba(200,220,255,0.9)}
 .reg-title{font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
-.reg-sub{font-size:13px;color:rgba(200,220,255,0.5);margin-bottom:24px}
+.reg-sub{font-size:16px;color:rgba(200,220,255,0.5);margin-bottom:24px}
 .reg-field{margin-bottom:16px}
 .reg-label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(200,220,255,0.5);margin-bottom:6px}
-.reg-input{width:100%;padding:11px 14px;border:1.5px solid rgba(0,212,255,0.12);border-radius:9px;background:rgba(0,212,255,0.04);color:#fff;font-size:14px;font-family:inherit;box-sizing:border-box;transition:border-color 0.2s}
+.reg-input{width:100%;padding:11px 14px;border:1.5px solid rgba(0,212,255,0.12);border-radius:9px;background:rgba(0,212,255,0.04);color:#fff;font-size:16px;font-family:inherit;box-sizing:border-box;transition:border-color 0.2s}
 .reg-input:focus{outline:none;border-color:#00d4ff;background:rgba(0,212,255,0.07)}
 .reg-input::placeholder{color:rgba(200,220,255,0.25)}
 .reg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.reg-terms{display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;font-size:12px;color:rgba(200,220,255,0.45);line-height:1.5}
+.reg-terms{display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;font-size:16px;color:rgba(200,220,255,0.45);line-height:1.5}
 .reg-terms input{width:15px;height:15px;flex-shrink:0;margin-top:1px;accent-color:#00d4ff}
 .reg-terms a{color:rgba(0,212,255,0.7);text-decoration:none}
-.reg-submit{width:100%;padding:13px;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;transition:opacity 0.2s}
+.reg-submit{width:100%;padding:13px;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:10px;color:#fff;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;transition:opacity 0.2s}
 .reg-submit:hover{opacity:0.9}
 .reg-submit:disabled{opacity:0.5;cursor:not-allowed}
-.reg-err{display:none;margin-bottom:14px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:12px;color:#dc2626;font-weight:600}
-.reg-login{text-align:center;margin-top:16px;font-size:12px;color:rgba(200,220,255,0.4)}
+.reg-err{display:none;margin-bottom:14px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:16px;color:#dc2626;font-weight:600}
+.reg-login{text-align:center;margin-top:16px;font-size:16px;color:rgba(200,220,255,0.4)}
 .reg-login a{color:rgba(0,212,255,0.7);text-decoration:none;font-weight:600}
 @media(max-width:500px){.reg-modal,.login-modal{padding:28px 22px}.reg-row{grid-template-columns:1fr}}
 </style>
@@ -102,7 +102,7 @@
         <input class="reg-input" type="password" id="loginPw" placeholder="Your password" required autocomplete="current-password">
       </div>
       <div style="text-align:right;margin-bottom:20px">
-        <a href="/forgot-password" style="font-size:11px;color:rgba(0,212,255,0.6);text-decoration:none">Forgot password?</a>
+        <a href="/forgot-password" style="font-size:16px;color:rgba(0,212,255,0.6);text-decoration:none">Forgot password?</a>
       </div>
       <button type="submit" class="reg-submit" id="loginBtn">Log In →</button>
     </form>

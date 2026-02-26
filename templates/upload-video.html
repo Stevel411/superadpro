@@ -10,42 +10,42 @@
 body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh;display:flex}
 .sidebar{width:224px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.sidebar-brand{font-weight:800;font-size:17px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.nav-section{padding:18px 16px 5px;font-size:18px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.3)}
-.nav-item{display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:17px;font-weight:500;color:#64748b;text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
+.sidebar-brand{font-weight:800;font-size:19px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-section{padding:18px 16px 5px;font-size:19px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.3)}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:19px;font-weight:500;color:#64748b;text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
 .nav-item:hover{color:rgba(200,220,255,0.9);background:rgba(255,255,255,0.03)}
 .nav-item.active{color:#00d4ff;background:rgba(0,212,255,0.07);border-left-color:#00d4ff}
-.nav-icon{font-size:18px;width:18px;text-align:center;flex-shrink:0}
+.nav-icon{font-size:19px;width:18px;text-align:center;flex-shrink:0}
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(0,212,255,0.1);position:sticky;top:0;z-index:50}
-.topbar-title{font-size:18px;font-weight:800;color:#fff}
-.topbar-sub{font-size:17px;color:rgba(0,212,255,0.5);margin-top:2px}
+.topbar-title{font-size:19px;font-weight:800;color:#fff}
+.topbar-sub{font-size:19px;color:rgba(0,212,255,0.5);margin-top:2px}
 .content{padding:32px;max-width:680px;margin:0 auto;width:100%}
 .card{background:#0a1628;border:1px solid rgba(0,180,216,0.15);border-radius:12px;padding:36px}
 .card-title{font-size:20px;font-weight:800;color:#ffffff;margin-bottom:6px}
-.card-sub{font-size:17px;color:#64748b;margin-bottom:28px;line-height:1.6}
+.card-sub{font-size:19px;color:#64748b;margin-bottom:28px;line-height:1.6}
 .platforms-row{display:flex;gap:10px;margin-bottom:24px}
-.platform-pill{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:50px;border:1px solid rgba(0,180,216,0.2);font-size:18px;font-weight:600;color:rgba(200,220,255,0.65);background:rgba(0,180,216,0.05)}
+.platform-pill{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:50px;border:1px solid rgba(0,180,216,0.2);font-size:19px;font-weight:600;color:rgba(200,220,255,0.65);background:rgba(0,180,216,0.05)}
 .platform-pill .dot{width:8px;height:8px;border-radius:50%}
 .field{margin-bottom:22px}
-.field label{display:block;font-size:18px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(200,220,255,0.65);margin-bottom:8px}
-.field input,.field select,.field textarea{width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(0,180,216,0.15);border-radius:8px;padding:12px 16px;font-size:18px;font-family:'DM Sans','Rethink Sans',sans-serif;color:#ffffff;outline:none;transition:all 0.2s}
+.field label{display:block;font-size:19px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(200,220,255,0.65);margin-bottom:8px}
+.field input,.field select,.field textarea{width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(0,180,216,0.15);border-radius:8px;padding:12px 16px;font-size:19px;font-family:'DM Sans','Rethink Sans',sans-serif;color:#ffffff;outline:none;transition:all 0.2s}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:#00b4d8;box-shadow:0 0 0 3px rgba(0,180,216,0.1)}
 .field input::placeholder,.field textarea::placeholder{color:rgba(200,220,255,0.2)}
 .field select option{background:#0a1628}
-.field .hint{font-size:17px;color:#6b7d94;margin-top:5px}
+.field .hint{font-size:19px;color:#6b7d94;margin-top:5px}
 .field textarea{resize:vertical;min-height:90px;line-height:1.6}
 .preview-wrap{display:none;margin-top:12px;border-radius:8px;overflow:hidden;aspect-ratio:16/9;border:1px solid rgba(0,180,216,0.2)}
 .preview-wrap iframe{width:100%;height:100%;border:none}
-.preview-label{font-size:17px;color:#00b4d8;margin-top:6px;display:none}
-.alert-error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:13px 16px;font-size:17px;color:#fca5a5;margin-bottom:20px;line-height:1.5}
+.preview-label{font-size:19px;color:#00b4d8;margin-top:6px;display:none}
+.alert-error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:13px 16px;font-size:19px;color:#fca5a5;margin-bottom:20px;line-height:1.5}
 .divider{height:1px;background:rgba(0,180,216,0.1);margin:24px 0}
-.submit-btn{display:block;width:100%;text-align:center;font-weight:700;font-size:17px;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:15px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans','Rethink Sans',sans-serif;transition:all 0.3s}
+.submit-btn{display:block;width:100%;text-align:center;font-weight:700;font-size:19px;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:15px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans','Rethink Sans',sans-serif;transition:all 0.3s}
 .submit-btn:hover{box-shadow:0 0 28px rgba(0,180,216,0.4);transform:translateY(-1px)}
-.cancel-link{display:block;text-align:center;font-size:17px;color:#64748b;margin-top:12px;text-decoration:none;transition:color 0.2s}
+.cancel-link{display:block;text-align:center;font-size:19px;color:#64748b;margin-top:12px;text-decoration:none;transition:color 0.2s}
 .cancel-link:hover{color:#2d3b4e}
-.back-link{display:inline-flex;align-items:center;gap:6px;font-size:17px;color:#64748b;text-decoration:none;margin-bottom:24px;transition:color 0.2s}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:19px;color:#64748b;text-decoration:none;margin-bottom:24px;transition:color 0.2s}
 .back-link:hover{color:#00b4d8}
 </style>
 </head>
@@ -84,7 +84,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
   <a href="/account" class="nav-item"><span class="nav-icon">◉</span>Profile</a>
   <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
   <div class="sidebar-footer">
-    <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:18px;color:#6b7d94;text-decoration:none">⎋ Sign Out</a>
+    <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:19px;color:#6b7d94;text-decoration:none">⎋ Sign Out</a>
   </div>
 </aside>
 
@@ -155,10 +155,10 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
         {% if user_tier >= 4 %}
         <div class="divider"></div>
         <div style="margin-bottom:20px">
-          <div style="font-size:14px;font-weight:700;color:#00d4ff;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px">🎯 Advanced Targeting
+          <div style="font-size:16px;font-weight:700;color:#00d4ff;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px">🎯 Advanced Targeting
             <span style="font-size:10px;background:rgba(0,180,216,0.15);color:#00d4ff;padding:2px 8px;border-radius:10px;font-weight:600;letter-spacing:0.5px">Tier {{ user_tier }}+</span>
           </div>
-          <div style="font-size:13px;color:#6b7d94;margin-bottom:16px;line-height:1.5">Your campaign tier unlocks audience targeting. Match your content to viewers most likely to engage.</div>
+          <div style="font-size:16px;color:#6b7d94;margin-bottom:16px;line-height:1.5">Your campaign tier unlocks audience targeting. Match your content to viewers most likely to engage.</div>
         </div>
 
         <div class="field">
@@ -174,7 +174,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
         </div>
 
         {% if user_tier >= 5 %}
-        <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:rgba(200,220,255,0.7);display:flex;align-items:center;gap:8px">
+        <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:16px;color:rgba(200,220,255,0.7);display:flex;align-items:center;gap:8px">
           ⚡ <strong style="color:#a78bfa">Priority Queue Active</strong> — Your campaigns are served before standard-tier campaigns.
         </div>
         {% endif %}
