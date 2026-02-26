@@ -185,8 +185,8 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 @media(max-width:500px){.login-modal{padding:28px 22px}}
 
 
-/* Internal layout */
-.int-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#111827;border-bottom:2px solid rgba(0,212,255,0.3);position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,0.4)}
+
+.int-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#111827;border-bottom:2px solid rgba(0,212,255,0.3);position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,0.5)}
 .int-topbar-left{display:flex;align-items:center;gap:16px}
 .int-topbar-title{font-size:18px;font-weight:800;color:#fff}
 .int-topbar-sub{font-size:12px;color:rgba(200,220,255,0.5);margin-top:1px}
@@ -194,25 +194,17 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 .int-back:hover{border-color:rgba(0,212,255,0.4);color:#00d4ff;background:rgba(0,212,255,0.08)}
 .int-topbar-user{display:flex;align-items:center;gap:10px;color:rgba(200,220,255,0.6);font-size:13px;font-weight:500}
 .int-topbar-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
+
 </style>
 </head>
 <body>
 
 <div class="int-topbar">
   <div class="int-topbar-left">
-    <a href="/dashboard" class="int-back">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 1L3 7l7 6"/></svg>
-      Dashboard
-    </a>
-    <div>
-      <div class="int-topbar-title">◈ Grid Visualiser</div>
-      <div class="int-topbar-sub">See how the 8×8 Profit Engine Grid works</div>
-    </div>
+    <a href="/dashboard" class="int-back"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 1L3 7l7 6"/></svg> Dashboard</a>
+    <div><div class="int-topbar-title">◈ Grid Visualiser</div><div class="int-topbar-sub">See how the 8×8 Profit Engine Grid works</div></div>
   </div>
-  <div class="int-topbar-user">
-    <span>{{ user.username if user else "" }}</span>
-    <div class="int-topbar-avatar">{{ (user.username[0]|upper) if user else "U" }}</div>
-  </div>
+  <div class="int-topbar-user"><span>{{ user.username if user else '' }}</span><div class="int-topbar-avatar">{{ (user.username[0]|upper) if user else 'U' }}</div></div>
 </div>
 
 
@@ -726,8 +718,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
-
-
 
 </body>
 </html>

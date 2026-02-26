@@ -6,147 +6,11 @@
 <title>Compensation Plan — SuperAdPro</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-<style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#050d1a;color:#e8f0fe}
+body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
 
-.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
-.nav-brand span{font-weight:800;font-size:19px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00b4d8,#6d28d9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.nav-links{display:flex;align-items:center;gap:6px;list-style:none}
-.nav-links a{font-size:16px;font-weight:500;color:rgba(200,220,255,0.7);text-decoration:none;padding:4px 10px;transition:color 0.2s}
-.nav-links a:hover{color:#ffffff}
-.nav-sep{color:rgba(200,220,255,0.25);font-size:10px}
-.nav-cta{font-weight:700;font-size:16px;color:#ffffff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:8px 22px;border-radius:5px;text-decoration:none;transition:all 0.3s}
-.nav-cta:hover{box-shadow:0 4px 24px rgba(0,180,216,0.35);transform:translateY(-1px)}
-.btn-nav{background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff!important;padding:9px 22px;border-radius:7px;font-weight:700!important}
-
-.hero{background:linear-gradient(135deg,#020818 0%,#0d0a2e 50%,#020818 100%);padding:80px 40px;text-align:center;position:relative;overflow:hidden;max-width:1100px;margin:0 auto}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(0,180,216,0.1),transparent)}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:999px;padding:6px 18px;font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#00d4ff;margin-bottom:24px;position:relative}
-.hero h1{font-size:clamp(32px,5vw,52px);font-weight:800;color:#fff;margin-bottom:16px;line-height:1.1;position:relative}
-.hero h1 span{background:linear-gradient(135deg,#00f0ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero p{font-size:19px;color:#4a5a6e;max-width:600px;margin:0 auto;line-height:1.7;position:relative}
-
-.container{max-width:1100px;margin:0 auto;padding:0 40px}
-.section{padding:64px 0}
-.sec-label{font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.6);text-align:center;margin-bottom:10px}
-.sec-title{font-size:clamp(24px,3vw,34px);font-weight:800;text-align:center;margin-bottom:10px;color:#fff}
-.sec-sub{text-align:center;color:#64748b;font-size:19px;max-width:600px;margin:0 auto 48px;line-height:1.7}
-
-/* ── Stream overview cards ── */
-.streams{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:64px}
-.stream-card{border-radius:16px;padding:32px;border:1px solid;position:relative;overflow:hidden}
-.stream-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
-.s1{background:rgba(16,185,129,0.06);border-color:rgba(16,185,129,0.2)}
-.s1::before{background:linear-gradient(90deg,#10b981,#34d399)}
-.s2{background:rgba(0,180,216,0.06);border-color:rgba(0,180,216,0.2)}
-.s2::before{background:linear-gradient(90deg,#00b4d8,#00d4ff)}
-.s3{background:rgba(124,58,237,0.06);border-color:rgba(124,58,237,0.2)}
-.s3::before{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
-.s3-soon{opacity:0.65}
-.stream-num{font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:12px}
-.stream-icon{font-size:30px;margin-bottom:14px;display:block}
-.stream-title{font-size:19px;font-weight:800;color:#fff;margin-bottom:8px}
-.stream-desc{font-size:19px;color:rgba(200,220,255,0.55);line-height:1.7;margin-bottom:18px}
-.stream-highlight{font-size:19px;font-weight:700;padding:8px 14px;border-radius:8px;display:inline-block}
-.sh-green{background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.2)}
-.sh-cyan{background:rgba(0,212,255,0.08);color:#00d4ff;border:1px solid rgba(0,212,255,0.15)}
-.sh-purple{background:rgba(167,139,250,0.08);color:#a78bfa;border:1px solid rgba(167,139,250,0.15)}
-.tag-live{display:inline-block;margin-top:10px;padding:3px 12px;border-radius:999px;font-size:19px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(16,185,129,0.12);color:#10b981;border:1px solid rgba(16,185,129,0.2)}
-.tag-soon{display:inline-block;margin-top:10px;padding:3px 12px;border-radius:999px;font-size:19px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.1)}
-.soon-chip{position:absolute;top:14px;right:14px;padding:3px 10px;border-radius:6px;font-size:19px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(0,0,0,0.3);color:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.07)}
-
-/* ── Gateway notice ── */
-.gateway-banner{background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(0,180,216,0.08));border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:22px 28px;margin-bottom:48px;display:flex;align-items:flex-start;gap:16px}
-.gateway-icon{font-size:32px;flex-shrink:0}
-.gateway-title{font-size:19px;font-weight:800;color:#10b981;margin-bottom:5px}
-.gateway-text{font-size:19px;color:#4a5a6e;line-height:1.7}
-
-/* ── Stream 1 detail ── */
-.s1-card{background:rgba(10,24,20,0.9);border:1px solid rgba(16,185,129,0.2);border-radius:16px;padding:36px;margin-bottom:32px}
-.s1-split{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px}
-.s1-box{background:rgba(0,0,0,0.2);border-radius:10px;padding:20px;border:1px solid rgba(255,255,255,0.06)}
-.s1-amount{font-size:38px;font-weight:800;color:#10b981;line-height:1}
-.s1-label{font-size:19px;font-weight:700;color:#64748b;margin-top:6px;margin-bottom:4px}
-.s1-detail{font-size:19px;color:#6b7d94;line-height:1.6}
-.s1-table{width:100%;border-collapse:collapse;margin-top:24px}
-.s1-table th{padding:10px 14px;font-size:19px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(200,220,255,0.35);text-align:left;border-bottom:1px solid rgba(255,255,255,0.06)}
-.s1-table th:not(:first-child){text-align:right}
-.s1-table td{padding:11px 14px;font-size:19px;border-bottom:1px solid rgba(255,255,255,0.04)}
-.s1-table tr:last-child td{border-bottom:none}
-.s1-table td:not(:first-child){text-align:right;font-weight:700;color:#10b981}
-
-/* ── Stream 2 detail ── */
-.s2-split-bar{display:flex;height:10px;border-radius:99px;overflow:hidden;gap:2px;margin:16px 0 24px}
-.commission-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
-.comm-item{background:rgba(255,255,255,0.03);border-radius:10px;padding:20px;border:1px solid rgba(255,255,255,0.06);text-align:center}
-.comm-pct{font-size:30px;font-weight:800;margin-bottom:4px}
-.comm-who{font-size:19px;font-weight:700;color:#fff;margin-bottom:5px}
-.comm-when{font-size:19px;color:#6b7d94;line-height:1.5}
-.comm-eg{font-size:19px;font-weight:700;margin-top:10px;padding:5px 10px;border-radius:6px;display:inline-block}
-
-.entry-card{background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.15);border-radius:16px;padding:32px;margin-bottom:28px}
-.entry-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
-.entry-row:last-child{border-bottom:none;padding-bottom:0}
-.entry-left{display:flex;align-items:center;gap:12px}
-.entry-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.entry-label{font-size:19px;color:#2d3b4e}
-.entry-detail{font-size:19px;color:rgba(200,220,255,0.35);margin-top:2px}
-.entry-amount{font-size:19px;font-weight:800}
-.entry-timing{font-size:19px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(16,185,129,0.8);margin-top:2px;text-align:right}
-
-.uni-card{background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.15);border-radius:16px;overflow:hidden;margin-bottom:28px}
-.uni-header{padding:22px 28px;border-bottom:1px solid rgba(0,180,216,0.08)}
-.uni-header h3{font-size:19px;font-weight:800;color:#fff;margin-bottom:4px}
-.uni-header p{font-size:19px;color:#6b7d94}
-.uni-table{width:100%;border-collapse:collapse}
-.uni-table th{padding:10px 14px;font-size:19px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#6b7d94;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05)}
-.uni-table th:not(:first-child){text-align:right}
-.uni-table td{padding:10px 14px;font-size:19px;border-bottom:1px solid rgba(255,255,255,0.04)}
-.uni-table tr:last-child td{border-bottom:none}
-.uni-table td:not(:first-child){text-align:right;font-weight:700}
-
-.grid-note{background:linear-gradient(135deg,rgba(0,212,255,0.05),rgba(124,58,237,0.05));border:1px solid rgba(0,212,255,0.12);border-radius:12px;padding:22px 28px;margin-bottom:48px;display:flex;align-items:flex-start;gap:16px}
-.grid-note-title{font-size:19px;font-weight:800;color:#00d4ff;margin-bottom:5px}
-.grid-note-text{font-size:19px;color:rgba(200,220,255,0.55);line-height:1.7}
-
-/* ── Stream 3 detail ── */
-.passup-card{background:rgba(20,10,40,0.9);border:1px solid rgba(124,58,237,0.2);border-radius:16px;padding:36px;margin-bottom:32px}
-.passup-flow{display:flex;gap:4px;margin:20px 0 28px;flex-wrap:wrap}
-.pf-step{flex:1;min-width:80px;text-align:center;padding:14px 8px;background:rgba(0,0,0,0.2);border-radius:8px;border:1px solid rgba(255,255,255,0.05)}
-.pf-keep{border-color:rgba(16,185,129,0.2);background:rgba(16,185,129,0.05)}
-.pf-pass{border-color:rgba(167,139,250,0.2);background:rgba(124,58,237,0.08)}
-.pf-num{font-size:19px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6b7d94;margin-bottom:6px}
-.pf-amt-keep{font-size:19px;font-weight:800;color:#10b981;margin-bottom:4px}
-.pf-amt-pass{font-size:19px;font-weight:800;color:#a78bfa;margin-bottom:4px}
-.pf-who{font-size:19px;color:rgba(200,220,255,0.35)}
-.passup-rules{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
-.rule-item{background:rgba(0,0,0,0.2);border-radius:8px;padding:16px;display:flex;gap:12px;align-items:flex-start}
-.rule-icon{font-size:20px;flex-shrink:0}
-.rule-title{font-size:19px;font-weight:700;color:#fff;margin-bottom:4px}
-.rule-desc{font-size:19px;color:#64748b;line-height:1.6}
-
-.coming-card{background:rgba(255,255,255,0.015);border:1px dashed rgba(255,255,255,0.08);border-radius:16px;padding:48px 36px;text-align:center;margin-bottom:64px}
-.coming-features{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:16px}
-.coming-feature{padding:5px 12px;border-radius:6px;font-size:19px;font-weight:600;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.06)}
-
-/* ── CTA ── */
-.cta-band{background:linear-gradient(135deg,#0a0a1a,#0d0a2e);border-radius:20px;padding:64px 40px;text-align:center;margin-bottom:60px;position:relative;overflow:hidden}
-.cta-band::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 50% 50%,rgba(0,180,216,0.1),transparent)}
-.cta-band h2{font-size:32px;font-weight:800;color:#fff;margin-bottom:12px;position:relative}
-.cta-band h2 span{background:linear-gradient(135deg,#00f0ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.cta-band p{color:#4a5a6e;font-size:19px;margin-bottom:28px;position:relative}
-.cta-btns{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;position:relative}
-.btn-glow{display:inline-flex;align-items:center;gap:8px;font-size:19px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:14px 32px;border-radius:10px;text-decoration:none;box-shadow:0 6px 24px rgba(0,180,216,0.3)}
-.btn-outline{display:inline-flex;align-items:center;gap:8px;font-size:19px;font-weight:700;color:#fff;border:1px solid rgba(255,255,255,0.2);padding:14px 32px;border-radius:10px;text-decoration:none}
-
-footer{background:#020818;color:rgba(200,220,255,0.35);text-align:center;padding:30px;font-size:16px;border-top:1px solid rgba(0,180,216,0.07);max-width:1100px;margin:0 auto}
-footer a{color:#6b7d94;text-decoration:none}
-@media(max-width:768px){.streams,.commission-grid,.s1-split,.passup-rules{grid-template-columns:1fr}.container{padding:0 20px}nav{padding:0 20px}.nav-links{display:none}
-#calcWrap{padding:20px 16px}
-
-/* Internal layout overrides */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#111827;border-bottom:2px solid rgba(0,212,255,0.3);position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,0.4)}
+/* ── Topbar ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.25);position:sticky;top:0;z-index:200}
 .topbar-left{display:flex;align-items:center;gap:16px}
 .topbar-title{font-size:18px;font-weight:800;color:#fff}
 .topbar-sub{font-size:12px;color:rgba(200,220,255,0.5);margin-top:1px}
@@ -154,920 +18,334 @@ footer a{color:#6b7d94;text-decoration:none}
 .back-btn:hover{border-color:rgba(0,212,255,0.4);color:#00d4ff;background:rgba(0,212,255,0.08)}
 .topbar-user{display:flex;align-items:center;gap:10px;color:rgba(200,220,255,0.6);font-size:13px;font-weight:500}
 .topbar-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
+
+/* ── Content ── */
+.content{max-width:1100px;margin:0 auto;padding:28px}
+.page-title{font-size:28px;font-weight:800;color:#0f172a;margin-bottom:4px}
+.page-sub{font-size:15px;color:#5a6a7e;margin-bottom:28px;line-height:1.6}
+
+/* ── Cards ── */
+.card{background:#ffffff;border:1px solid #d0d8e4;border-radius:16px;padding:28px;box-shadow:0 1px 4px rgba(0,40,100,0.06);margin-bottom:20px}
+.card-title{font-size:18px;font-weight:800;color:#0f172a;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.card-sub{font-size:14px;color:#5a6a7e;margin-bottom:20px;line-height:1.6}
+.section-label{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#0284c7;margin-bottom:8px}
+
+/* ── Stream cards ── */
+.streams-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.stream-card{background:#fff;border:1px solid #d0d8e4;border-radius:16px;padding:24px;position:relative;overflow:hidden;box-shadow:0 1px 4px rgba(0,40,100,0.06);transition:all 0.25s}
+.stream-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,40,100,0.1)}
+.stream-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.stream-card.s1::before{background:linear-gradient(90deg,#10b981,#34d399)}
+.stream-card.s2::before{background:linear-gradient(90deg,#00b4d8,#0077a8)}
+.stream-card.s3::before{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
+.stream-num{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:8px}
+.stream-icon{font-size:28px;margin-bottom:12px;display:block}
+.stream-title{font-size:17px;font-weight:800;color:#0f172a;margin-bottom:6px}
+.stream-desc{font-size:14px;color:#5a6a7e;line-height:1.6;margin-bottom:14px}
+.stream-highlight{font-size:13px;font-weight:700;padding:6px 12px;border-radius:8px;display:inline-block}
+.sh-green{background:#f0fdf4;color:#059669;border:1px solid #bbf7d0}
+.sh-cyan{background:#ecfeff;color:#0284c7;border:1px solid #a5f3fc}
+.sh-purple{background:#faf5ff;color:#7c3aed;border:1px solid #e9d5ff}
+.soon-badge{position:absolute;top:12px;right:12px;background:#f8fafc;color:#94a3b8;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:20px;border:1px solid #d0d8e4}
+
+/* ── Stream 1 detail ── */
+.s1-split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.s1-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:20px;text-align:center}
+.s1-amount{font-size:32px;font-weight:800;color:#059669;margin-bottom:4px}
+.s1-label{font-size:13px;font-weight:700;color:#0f172a;margin-bottom:4px}
+.s1-detail{font-size:12px;color:#64748b;line-height:1.5}
+.s1-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px}
+.s1-table th{text-align:left;padding:10px 14px;background:#f1f5f9;color:#64748b;font-weight:700;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;border-bottom:2px solid #e2e8f0}
+.s1-table td{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:#334155}
+.s1-table .val{font-weight:700;color:#059669}
+
+/* ── Stream 2 detail ── */
+.split-bar{display:flex;height:10px;border-radius:99px;overflow:hidden;gap:2px;margin:14px 0 20px}
+.split-bar .seg{border-radius:99px}
+.commission-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.comm-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:18px;text-align:center}
+.comm-pct{font-size:28px;font-weight:800;margin-bottom:2px}
+.comm-label{font-size:12px;font-weight:600;color:#64748b}
+.comm-detail{font-size:11px;color:#94a3b8;margin-top:4px}
+.level-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.level-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;text-align:center}
+.level-num{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#94a3b8}
+.level-pct{font-size:18px;font-weight:800;color:#0284c7}
+
+/* ── Uni-level table ── */
+.uni-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:16px}
+.uni-table th{padding:8px 10px;background:#f1f5f9;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#64748b;text-align:center;border-bottom:2px solid #e2e8f0}
+.uni-table th:first-child{text-align:left}
+.uni-table td{padding:8px 10px;border-bottom:1px solid #f1f5f9;text-align:center;color:#334155}
+.uni-table td:first-child{text-align:left;font-weight:600;color:#0f172a}
+.uni-table .total-row td{background:#f0fdf4;font-weight:700;color:#059669;border-top:2px solid #bbf7d0}
+
+/* ── Stream 3 ── */
+.passup-flow{display:flex;gap:6px;margin:16px 0 20px;flex-wrap:wrap}
+.pf-step{border-radius:10px;padding:10px 14px;text-align:center;min-width:80px;font-size:12px}
+.pf-keep{background:#f0fdf4;border:1px solid #bbf7d0}
+.pf-pass{background:#faf5ff;border:1px solid #e9d5ff}
+.pf-num{font-weight:700;color:#334155;margin-bottom:2px;font-size:11px}
+.pf-amt-keep{font-size:16px;font-weight:800;color:#059669}
+.pf-amt-pass{font-size:14px;font-weight:700;color:#7c3aed}
+.pf-who{font-size:10px;color:#64748b;margin-top:2px}
+.rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.rule-item{display:flex;gap:12px;padding:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px}
+.rule-icon{font-size:22px;flex-shrink:0}
+.rule-title{font-size:13px;font-weight:700;color:#0f172a;margin-bottom:2px}
+.rule-desc{font-size:12px;color:#64748b;line-height:1.5}
+
+/* ── Course cards ── */
+.courses-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.course-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:22px}
+.course-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.course-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.course-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
+.course-name{font-size:15px;font-weight:800;color:#0f172a;line-height:1.2}
+.course-desc{font-size:13px;color:#64748b;line-height:1.6;margin-bottom:14px}
+.course-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.course-tag{font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px}
+.course-status{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 14px;border-radius:20px;display:inline-block}
+
+/* ── Calculator ── */
+.calc-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#0284c7;margin-bottom:12px}
+.calc-slider{width:100%;accent-color:#0284c7;height:6px;cursor:pointer}
+.calc-val{font-size:22px;font-weight:800;color:#0284c7}
+.tier-toggle{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:1px solid #d0d8e4;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;background:#f8fafc;color:#64748b;font-family:inherit}
+.tier-toggle.active{background:#ecfeff;border-color:#0284c7;color:#0284c7}
+.result-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f1f5f9}
+.result-row:last-child{border-bottom:none}
+.result-label{font-size:14px;font-weight:600;color:#0f172a}
+.result-sub{font-size:12px;color:#64748b;margin-top:2px}
+.result-val{font-size:18px;font-weight:800}
+.total-box{background:linear-gradient(135deg,#ecfeff,#f0f9ff);border:2px solid #0284c7;border-radius:14px;padding:20px;display:flex;align-items:center;justify-content:space-between;margin-top:20px}
+.total-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#0284c7;margin-bottom:2px}
+.total-val{font-size:32px;font-weight:800;color:#0284c7}
+.tier-breakdown{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:12px}
+.tb-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;text-align:center}
+.tb-name{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#94a3b8}
+.tb-val{font-size:16px;font-weight:800;color:#0284c7}
+.disclaimer{margin-top:16px;padding:12px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:12px;color:#92400e;line-height:1.6;text-align:center}
+
+/* ── Grid Visualiser CTA ── */
+.cta-card{background:linear-gradient(135deg,#ecfeff,#eff6ff);border:2px solid #0284c7;border-radius:14px;padding:24px;text-align:center;margin-top:20px}
+.cta-card h3{font-size:18px;font-weight:800;color:#0f172a;margin-bottom:6px}
+.cta-card p{font-size:14px;color:#64748b;margin-bottom:16px}
+.cta-btn{display:inline-block;background:linear-gradient(135deg,#00b4d8,#0077a8);color:#fff;padding:10px 28px;border-radius:10px;font-weight:700;font-size:14px;text-decoration:none;transition:all 0.2s}
+.cta-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,180,216,0.3)}
+
+/* ── Footer ── */
+.int-footer{text-align:center;padding:24px;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;margin-top:12px}
+
+@media(max-width:900px){.streams-grid,.commission-grid,.s1-split,.rules-grid,.courses-grid{grid-template-columns:1fr}.level-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.content{padding:16px}.uni-table{font-size:10px}.tier-breakdown{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 
+<!-- ── Topbar ── -->
 <div class="topbar">
   <div class="topbar-left">
-    <a href="/dashboard" class="back-btn">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 1L3 7l7 6"/></svg>
-      Dashboard
-    </a>
-    <div>
-      <div class="topbar-title">📊 Compensation Plan</div>
-      <div class="topbar-sub">Three income streams · Full breakdown</div>
-    </div>
+    <a href="/dashboard" class="back-btn"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 1L3 7l7 6"/></svg> Dashboard</a>
+    <div><div class="topbar-title">📊 Compensation Plan</div><div class="topbar-sub">Three income streams · Full breakdown</div></div>
   </div>
-  <div class="topbar-user">
-    <span>{{ user.username if user else '' }}</span>
-    <div class="topbar-avatar">{{ (user.username[0]|upper) if user else 'U' }}</div>
-  </div>
+  <div class="topbar-user"><span>{{ user.username if user else '' }}</span><div class="topbar-avatar">{{ (user.username[0]|upper) if user else 'U' }}</div></div>
 </div>
 
-<div class="hero">
-  <div class="hero-badge">Compensation Plan</div>
-  <h1>Three Income Streams.<br><span>One Platform.</span></h1>
-  <p>SuperAdPro is built around three distinct, stackable income streams. Every dollar is distributed instantly and transparently — no pools, no holdbacks, no complexity.</p>
+<div class="content">
+  <div class="page-title">Compensation Plan</div>
+  <div class="page-sub">SuperAdPro is built around three distinct, stackable income streams. Every dollar is distributed instantly and transparently — no pools, no holdbacks, no complexity.</div>
+
+  <!-- ═══ THE THREE STREAMS ═══ -->
+  <div class="section-label">The Three Streams</div>
+  <div class="streams-grid">
+    <div class="stream-card s1">
+      <div class="stream-num">Stream 01</div><span class="stream-icon">🔑</span>
+      <div class="stream-title">Monthly Membership</div>
+      <div class="stream-desc">A $20/month subscription that unlocks access to all income opportunities. Your referring sponsor earns 100% of your subscription fee — every single month you remain active.</div>
+      <div class="stream-highlight sh-green">$20/month — 100% to your sponsor</div>
+    </div>
+    <div class="stream-card s2">
+      <div class="stream-num">Stream 02</div><span class="stream-icon">⚡</span>
+      <div class="stream-title">Profit Engine Grid</div>
+      <div class="stream-desc">Activate a campaign tier ($20–$1,000 USDT) and earn through a direct sponsor commission plus an 8-level uni-level chain — paid instantly every time anyone in your network activates.</div>
+      <div class="stream-highlight sh-cyan">25% direct + 70% uni-level (8 levels)</div>
+    </div>
+    <div class="stream-card s3">
+      <span class="soon-badge">Coming Soon</span>
+      <div class="stream-num">Stream 03</div><span class="stream-icon">🎓</span>
+      <div class="stream-title">Marketing Mastery Course</div>
+      <div class="stream-desc">Sell two exclusive courses — keeping 100% commission on every sale. Every 2nd sale passes up to your sponsor, cascading infinitely up the network.</div>
+      <div class="stream-highlight sh-purple">100% commission + infinite pass-up</div>
+    </div>
+  </div>
+
+  <!-- ═══ STREAM 1 DETAIL ═══ -->
+  <div class="card">
+    <div class="section-label">Stream 01 — Monthly Membership</div>
+    <div class="card-title">🔑 $20/Month — 100% Direct to Sponsor</div>
+    <div class="card-sub">The simplest income stream. Refer a member — earn $20 every single month they stay active. No levels. No splits. 100% straight to you.</div>
+    <div class="s1-split">
+      <div class="s1-box"><div class="s1-amount">$20</div><div class="s1-label">Monthly Subscription Fee</div><div class="s1-detail">Paid by every active member each month to maintain full access to all income opportunities</div></div>
+      <div class="s1-box"><div class="s1-amount" style="color:#059669">100%</div><div class="s1-label">Direct to Your Sponsor</div><div class="s1-detail">The full $20 paid instantly to the referring sponsor. No deductions, no platform fee, no splits.</div></div>
+    </div>
+    <table class="s1-table">
+      <thead><tr><th>Your Referrals</th><th>Monthly Income</th><th>Annual Income</th></tr></thead>
+      <tbody>
+        <tr><td>5 active members</td><td class="val">$100</td><td class="val">$1,200</td></tr>
+        <tr><td>10 active members</td><td class="val">$200</td><td class="val">$2,400</td></tr>
+        <tr><td>25 active members</td><td class="val">$500</td><td class="val">$6,000</td></tr>
+        <tr><td>50 active members</td><td class="val">$1,000</td><td class="val">$12,000</td></tr>
+        <tr><td>100 active members</td><td class="val">$2,000</td><td class="val">$24,000</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══ STREAM 2 DETAIL ═══ -->
+  <div class="card">
+    <div class="section-label">Stream 02 — Profit Engine Grid</div>
+    <div class="card-title">⚡ Two Commission Layers — Paid Instantly</div>
+    <div class="card-sub">Activate a campaign tier and earn instantly through two commission layers every time anyone in your 8-level network activates a tier.</div>
+    <div style="font-size:12px;font-weight:600;color:#64748b;margin-bottom:4px">How each entry is split:</div>
+    <div class="split-bar">
+      <div class="seg" style="width:25%;background:linear-gradient(135deg,#7c3aed,#a78bfa)"></div>
+      <div class="seg" style="width:70%;background:linear-gradient(135deg,#00b4d8,#0077a8)"></div>
+      <div class="seg" style="width:5%;background:#94a3b8"></div>
+    </div>
+    <div class="commission-grid">
+      <div class="comm-card"><div class="comm-pct" style="color:#7c3aed">25%</div><div class="comm-label">Direct Sponsor Commission</div><div class="comm-detail">Paid to whoever directly referred the new entry</div></div>
+      <div class="comm-card"><div class="comm-pct" style="color:#0284c7">70%</div><div class="comm-label">Uni-Level (8 Levels × 8.75%)</div><div class="comm-detail">Distributed across 8 upline levels — 8.75% each</div></div>
+    </div>
+    <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:8px">8-Level Uni-Level Breakdown</div>
+    <div class="level-grid">
+      <div class="level-card"><div class="level-num">Level 1</div><div class="level-pct">8.75%</div></div>
+      <div class="level-card"><div class="level-num">Level 2</div><div class="level-pct">8.75%</div></div>
+      <div class="level-card"><div class="level-num">Level 3</div><div class="level-pct">8.75%</div></div>
+      <div class="level-card"><div class="level-num">Level 4</div><div class="level-pct">8.75%</div></div>
+      <div class="level-card"><div class="level-num">Level 5</div><div class="level-pct">8.75%</div></div>
+      <div class="level-card"><div class="level-num">Level 6</div><div class="level-pct">8.75%</div></div>
+      <div class="level-card"><div class="level-num">Level 7</div><div class="level-pct">8.75%</div></div>
+      <div class="level-card"><div class="level-num">Level 8</div><div class="level-pct">8.75%</div></div>
+    </div>
+    <div style="margin-top:24px;font-size:13px;font-weight:700;color:#0f172a;margin-bottom:4px">Uni-Level Earnings Per Entry — All 8 Levels & All Campaign Tiers</div>
+    <div style="overflow-x:auto">
+    <table class="uni-table">
+      <thead><tr><th>Level</th><th>$20</th><th>$50</th><th>$100</th><th>$200</th><th>$300</th><th>$500</th><th>$700</th><th>$1,000</th></tr></thead>
+      <tbody>
+        <tr><td>Level 1</td><td>$1.75</td><td>$4.38</td><td>$8.75</td><td>$17.50</td><td>$26.25</td><td>$43.75</td><td>$61.25</td><td>$87.50</td></tr>
+        <tr><td>Level 2</td><td>$1.75</td><td>$4.38</td><td>$8.75</td><td>$17.50</td><td>$26.25</td><td>$43.75</td><td>$61.25</td><td>$87.50</td></tr>
+        <tr><td>Level 3</td><td>$1.75</td><td>$4.38</td><td>$8.75</td><td>$17.50</td><td>$26.25</td><td>$43.75</td><td>$61.25</td><td>$87.50</td></tr>
+        <tr><td>Level 4</td><td>$1.75</td><td>$4.38</td><td>$8.75</td><td>$17.50</td><td>$26.25</td><td>$43.75</td><td>$61.25</td><td>$87.50</td></tr>
+        <tr><td>Level 5</td><td>$1.75</td><td>$4.38</td><td>$8.75</td><td>$17.50</td><td>$26.25</td><td>$43.75</td><td>$61.25</td><td>$87.50</td></tr>
+        <tr><td>Level 6</td><td>$1.75</td><td>$4.38</td><td>$8.75</td><td>$17.50</td><td>$26.25</td><td>$43.75</td><td>$61.25</td><td>$87.50</td></tr>
+        <tr><td>Level 7</td><td>$1.75</td><td>$4.38</td><td>$8.75</td><td>$17.50</td><td>$26.25</td><td>$43.75</td><td>$61.25</td><td>$87.50</td></tr>
+        <tr><td>Level 8</td><td>$1.75</td><td>$4.38</td><td>$8.75</td><td>$17.50</td><td>$26.25</td><td>$43.75</td><td>$61.25</td><td>$87.50</td></tr>
+        <tr class="total-row"><td>Total (8 Levels)</td><td>$14.00</td><td>$35.00</td><td>$70.00</td><td>$140.00</td><td>$210.00</td><td>$350.00</td><td>$490.00</td><td>$700.00</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="cta-card">
+      <h3>◈ See It In Action</h3>
+      <p>Select any tier, press Play and watch commissions distribute across your entire network in real time — seat by seat, level by level.</p>
+      <a href="/grid-visualiser" class="cta-btn">Open Grid Visualiser →</a>
+    </div>
+  </div>
+
+  <!-- ═══ STREAM 3 DETAIL ═══ -->
+  <div class="card">
+    <div class="section-label">Stream 03 — Coming Soon</div>
+    <div class="card-title">🎓 Exclusive Courses — Infinite Pass-Up</div>
+    <div class="card-sub">Keep 100% on every sale you make. Every 2nd sale passes up to your sponsor — and cascades infinitely through the network above you, forever.</div>
+    <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:4px">How the Infinite Pass-Up Works</div>
+    <div style="font-size:13px;color:#64748b;line-height:1.6;margin-bottom:16px">You sell SuperAdPro's exclusive courses — keeping 100% commission on every odd-numbered sale. Every even-numbered sale (2nd, 4th, 6th...) passes up to your sponsor in full — and that pass-up counts as one of their sales, cascading infinitely up the chain.</div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:8px">Your First 7 Sales</div>
+    <div class="passup-flow">
+      <div class="pf-step pf-keep"><div class="pf-num">Sale 1</div><div class="pf-amt-keep">100%</div><div class="pf-who">You keep</div></div>
+      <div class="pf-step pf-pass"><div class="pf-num">Sale 2</div><div class="pf-amt-pass">↑ Pass-up</div><div class="pf-who" style="color:#7c3aed">To sponsor</div></div>
+      <div class="pf-step pf-keep"><div class="pf-num">Sale 3</div><div class="pf-amt-keep">100%</div><div class="pf-who">You keep</div></div>
+      <div class="pf-step pf-pass"><div class="pf-num">Sale 4</div><div class="pf-amt-pass">↑ Pass-up</div><div class="pf-who" style="color:#7c3aed">To sponsor</div></div>
+      <div class="pf-step pf-keep"><div class="pf-num">Sale 5</div><div class="pf-amt-keep">100%</div><div class="pf-who">You keep</div></div>
+      <div class="pf-step pf-pass"><div class="pf-num">Sale 6</div><div class="pf-amt-pass">↑ Pass-up</div><div class="pf-who" style="color:#7c3aed">To sponsor</div></div>
+      <div class="pf-step pf-keep"><div class="pf-num">Sale 7+</div><div class="pf-amt-keep">Repeats</div><div class="pf-who">Forever</div></div>
+    </div>
+    <div class="rules-grid">
+      <div class="rule-item"><div class="rule-icon">💰</div><div><div class="rule-title">100% Commission — No Splits</div><div class="rule-desc">On your kept sales you receive the full course price. No percentage deducted, no platform cut.</div></div></div>
+      <div class="rule-item"><div class="rule-icon">♾️</div><div><div class="rule-title">Truly Infinite Depth</div><div class="rule-desc">Pass-ups cascade up the entire sponsor chain with no level cap. The deeper your network, the more pass-ups flow back.</div></div></div>
+      <div class="rule-item"><div class="rule-icon">🔄</div><div><div class="rule-title">Cascading Pass-Ups</div><div class="rule-desc">When your sponsor receives a pass-up, it counts as one of their sales — meaning it can pass up again indefinitely.</div></div></div>
+      <div class="rule-item"><div class="rule-icon">🔑</div><div><div class="rule-title">Active Subscription Required</div><div class="rule-desc">Stream 3 requires an active Stream 1 subscription. Letting your $20/month lapse suspends course sales access.</div></div></div>
+    </div>
+    <div class="courses-grid">
+      <div class="course-card">
+        <div class="course-head">
+          <div class="course-icon" style="background:linear-gradient(135deg,#00b4d8,#0077a8)">🎓</div>
+          <div><div class="course-label" style="color:#0284c7">Stream 3 · Course 1</div><div class="course-name">SuperAdPro Marketing Mastery Course</div></div>
+        </div>
+        <div class="course-desc">A comprehensive marketing and sales course — combining professional sales training, digital marketing strategy and affiliate mastery.</div>
+        <div class="course-tags">
+          <span class="course-tag" style="background:#ecfeff;color:#0284c7;border:1px solid #a5f3fc">Sales Training</span>
+          <span class="course-tag" style="background:#ecfeff;color:#0284c7;border:1px solid #a5f3fc">Digital Marketing</span>
+          <span class="course-tag" style="background:#ecfeff;color:#0284c7;border:1px solid #a5f3fc">Affiliate Mastery</span>
+          <span class="course-tag" style="background:#ecfeff;color:#0284c7;border:1px solid #a5f3fc">Lead Generation</span>
+        </div>
+        <span class="course-status" style="background:#ecfeff;color:#0284c7;border:1px solid #a5f3fc">In Development — Launching Soon</span>
+      </div>
+      <div class="course-card">
+        <div class="course-head">
+          <div class="course-icon" style="background:linear-gradient(135deg,#7c3aed,#ec4899)">🤖</div>
+          <div><div class="course-label" style="color:#7c3aed">Stream 3 · Course 2</div><div class="course-name">SuperAdPro AI Mastery Course</div></div>
+        </div>
+        <div class="course-desc">Master AI tools and automation strategies for business growth — content creation, lead generation and scaling income streams.</div>
+        <div class="course-tags">
+          <span class="course-tag" style="background:#faf5ff;color:#7c3aed;border:1px solid #e9d5ff">AI Automation</span>
+          <span class="course-tag" style="background:#faf5ff;color:#7c3aed;border:1px solid #e9d5ff">Content Creation</span>
+          <span class="course-tag" style="background:#faf5ff;color:#7c3aed;border:1px solid #e9d5ff">Business Automation</span>
+          <span class="course-tag" style="background:#faf5ff;color:#7c3aed;border:1px solid #e9d5ff">AI Copywriting</span>
+        </div>
+        <span class="course-status" style="background:#faf5ff;color:#7c3aed;border:1px solid #e9d5ff">In Development — Launching Soon</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ EARNINGS CALCULATOR ═══ -->
+  <div class="card">
+    <div class="section-label">Earnings Calculator</div>
+    <div class="card-title">🧮 Estimate Your Income Potential</div>
+    <div class="card-sub">Select which tiers to activate, set the number of grid advances, and see your projected earnings across all income streams.</div>
+    <div style="margin-bottom:24px">
+      <div class="calc-label">Select Active Tiers</div>
+      <div id="tierToggles" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    </div>
+    <div style="margin-bottom:24px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div class="calc-label" style="margin-bottom:0">Grid Advances Per Tier</div><div class="calc-val" id="advancesVal">10</div></div>
+      <input type="range" id="advancesSlider" min="1" max="50" value="10" class="calc-slider">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-top:4px"><span>1</span><span>10</span><span>25</span><span>50</span></div>
+    </div>
+    <div style="margin-bottom:24px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div class="calc-label" style="margin-bottom:0">Your Direct Referrals</div><div class="calc-val" id="referralsVal">15</div></div>
+      <input type="range" id="referralsSlider" min="0" max="100" value="15" class="calc-slider">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-top:4px"><span>0</span><span>25</span><span>50</span><span>100</span></div>
+    </div>
+    <div style="border-top:2px solid #e2e8f0;padding-top:20px">
+      <div class="calc-label">Projected Earnings</div>
+      <div class="result-row"><div><div class="result-label">Stream 1 — Membership Income</div><div class="result-sub">$20/month × direct referrals × 12 months</div></div><div class="result-val" style="color:#059669" id="s1Result">$0</div></div>
+      <div class="result-row"><div><div class="result-label">Stream 2 — Uni-Level Income (8.75% per seat)</div><div class="result-sub">63 seats × tier price × 8.75% × advances</div></div><div class="result-val" style="color:#0284c7" id="s2OwnerResult">$0</div></div>
+      <div class="result-row"><div><div class="result-label">Stream 2 — Direct Sponsor (25%)</div><div class="result-sub">25% of each entry from your personal referrals</div></div><div class="result-val" style="color:#7c3aed" id="s2DirectResult">$0</div></div>
+      <div class="total-box"><div><div class="total-label">Total Projected Earnings</div><div style="font-size:12px;color:#64748b">Across all selected tiers and advances</div></div><div class="total-val" id="totalResult">$0</div></div>
+      <div style="margin-top:16px"><div class="calc-label" style="color:#94a3b8">Per-Tier Breakdown</div><div id="tierBreakdown" class="tier-breakdown"></div></div>
+    </div>
+    <div class="disclaimer">⚠️ These figures are <strong>mathematical projections only</strong> based on full grid completion. Actual earnings depend on personal effort, team activity, network growth and member retention. SuperAdPro does not guarantee any income.</div>
+  </div>
+
+  <div class="int-footer">© 2026 SuperAdPro. All rights reserved. · Income figures are mathematical illustrations only.</div>
 </div>
 
-<div class="container">
-
-  <!-- OVERVIEW -->
-  <div class="section">
-    <div class="sec-label">The Three Streams</div>
-    <div class="sec-title">Your Complete Earning Opportunity</div>
-    <div class="sec-sub">Start with Stream 1 to unlock everything. Stack Streams 2 and 3 to multiply your income potential.</div>
-
-    <div class="streams">
-      <!-- Stream 1 -->
-      <div class="stream-card s1">
-        <div class="stream-num">Stream 01</div>
-        <span class="stream-icon">🔑</span>
-        <div class="stream-title">Monthly Membership</div>
-        <div class="stream-desc">A $20/month subscription that unlocks access to all income opportunities on SuperAdPro. Your referring sponsor earns 100% of your subscription fee — every single month you remain active.</div>
-        <div class="stream-highlight sh-green">$20/month — 100% to your sponsor</div>
-        <br><span class="tag-live">● Live Now</span>
-      </div>
-      <!-- Stream 2 -->
-      <div class="stream-card s2">
-        <div class="stream-num">Stream 02</div>
-        <span class="stream-icon">⚡</span>
-        <div class="stream-title">Profit Engine Grid</div>
-        <div class="stream-desc">Activate an campaign tier ($20–$1,000 USDT) and earn through a direct sponsor commission plus an 8-level uni-level chain — paid instantly every time anyone in your network activates a tier.</div>
-        <div class="stream-highlight sh-cyan">25% direct + 70% uni-level (8 levels)</div>
-        <br><span class="tag-live">● Live Now</span>
-      </div>
-      <!-- Stream 3 -->
-      <div class="stream-card s3 s3-soon">
-        <div class="soon-chip">Coming Soon</div>
-        <div class="stream-num">Stream 03</div>
-        <span class="stream-icon">🎓</span>
-        <div class="stream-title">Marketing Mastery Course</div>
-        <div class="stream-desc">Sell two exclusive courses — the SuperAdPro Marketing Mastery Course and the SuperAdPro AI Mastery Course — keeping 100% commission on every sale. Every 2nd sale passes up to your sponsor, cascading infinitely up the network above you.</div>
-        <div class="stream-highlight sh-purple">100% commission + infinite pass-up</div>
-        <br><span class="tag-soon">In Development</span>
-      </div>
-    </div>
-
-    <!-- Gateway notice -->
-    <div class="gateway-banner">
-      <div class="gateway-icon">🔑</div>
-      <div>
-        <div class="gateway-title">Stream 1 is the Gateway to Everything</div>
-        <div class="gateway-text">The $20 monthly subscription is not just an income stream — it is the key that unlocks Streams 2 and 3. If a member's subscription lapses, their access to the Profit Engine Grid and course sales is suspended until they renew. This keeps the network active, committed and earning — and ensures your monthly residual income is backed by genuine, paying members.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- STREAM 1 DETAIL -->
-  <div class="section" style="padding-top:0">
-    <div class="sec-label">Stream 01 — Full Detail</div>
-    <div class="sec-title">Monthly Membership Residual Income</div>
-    <div class="sec-sub">The simplest income stream on SuperAdPro. Refer a member — earn $20 every single month they stay active. No levels. No splits. 100% straight to you.</div>
-
-    <div class="s1-card">
-      <div style="font-size:19px;font-weight:800;color:#fff;margin-bottom:6px">How Stream 1 Works</div>
-      <div style="font-size:19px;color:#64748b;line-height:1.7;margin-bottom:24px">Every active SuperAdPro member pays $20 per month. That $20 goes 100% directly to the person who referred them — every month, for as long as they remain a member. No uni-level chain. No platform cut. Straight to your sponsor.</div>
-
-      <div class="s1-split">
-        <div class="s1-box" style="border-color:rgba(16,185,129,0.2)">
-          <div class="s1-amount">$20</div>
-          <div class="s1-label">Monthly Subscription Fee</div>
-          <div class="s1-detail">Paid by every active member each month to maintain full access to all SuperAdPro income opportunities</div>
-        </div>
-        <div class="s1-box" style="border-color:rgba(16,185,129,0.2)">
-          <div class="s1-amount" style="background:linear-gradient(135deg,#10b981,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">100%</div>
-          <div class="s1-label">Direct to Your Sponsor</div>
-          <div class="s1-detail">The full $20 paid instantly to the referring sponsor. No deductions, no platform fee, no level splits.</div>
-        </div>
-      </div>
-
-      <!-- Residual income table -->
-      <div style="font-size:19px;font-weight:700;color:#4a5a6e;margin:28px 0 12px">Your Residual Income Potential — Stream 1</div>
-      <table class="s1-table">
-        <thead>
-          <tr>
-            <th>Active Members You Referred</th>
-            <th>Monthly Income</th>
-            <th>Annual Income</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for n in [5,10,25,50,100,250,500] %}
-          <tr {% if n == 50 %}style="background:rgba(16,185,129,0.04)"{% endif %}>
-            <td style="color:#fff;font-weight:600">{{ n }} members</td>
-            <td>${{ '{:,.0f}'.format(n * 20) }}/month</td>
-            <td>${{ '{:,.0f}'.format(n * 20 * 12) }}/year</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      <p style="font-size:19px;color:#6b7d94;margin-top:12px">*Figures based on all referred members maintaining active subscriptions. Actual income depends on member retention.</p>
-    </div>
-  </div>
-
-  <!-- STREAM 2 DETAIL -->
-  <div class="section" style="padding-top:0">
-    <div class="sec-label">Stream 02 — Full Detail</div>
-    <div class="sec-title">Profit Engine Grid Commission Structure</div>
-    <div class="sec-sub">Activate a campaign tier and earn instantly through two commission layers every time anyone in your 8-level network activates a tier.</div>
-
-    <div style="background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.15);border-radius:16px;padding:36px;margin-bottom:28px">
-      <div style="font-size:19px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(200,220,255,0.35);margin-bottom:4px">How Every Tier Entry Distributes — Instantly & In Full</div>
-      <div class="s2-split-bar">
-        <div style="width:26.3%;background:#00d4ff;border-radius:3px"></div>
-        <div style="width:73.7%;background:linear-gradient(90deg,#3b82f6,#7c3aed,#a78bfa);border-radius:3px"></div>
-      </div>
-      <div class="commission-grid" style="grid-template-columns:1fr 1fr">
-        <div class="comm-item" style="border-color:rgba(0,212,255,0.15)">
-          <div class="comm-pct" style="background:linear-gradient(135deg,#00d4ff,#0099bb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">25%</div>
-          <div class="comm-who">Direct Sponsor</div>
-          <div class="comm-when">Paid instantly to the person who personally referred the new member</div>
-          <div class="comm-eg" style="background:rgba(0,212,255,0.08);color:#00d4ff">$25.00 on $100 tier</div>
-        </div>
-        <div class="comm-item" style="border-color:rgba(124,58,237,0.15)">
-          <div class="comm-pct" style="background:linear-gradient(135deg,#3b82f6,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">70%</div>
-          <div class="comm-who">Uni-Level Chain (8 Levels)</div>
-          <div class="comm-when">$8.75 paid instantly to each of the 8 sponsors above the new member</div>
-          <div class="comm-eg" style="background:rgba(124,58,237,0.08);color:#a78bfa">$8.75 per level on $100</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Entry breakdown -->
-    <div class="entry-card">
-      <div style="font-size:19px;font-weight:800;color:#fff;margin-bottom:4px">Exact Distribution — $100 Tier Entry</div>
-      <div style="font-size:19px;color:#6b7d94;margin-bottom:20px">Every dollar accounted for. Every payment instant. Nothing held back.</div>
-      <div class="entry-row">
-        <div class="entry-left">
-          <div class="entry-dot" style="background:#10b981"></div>
-          <div>
-            <div class="entry-label">Direct Sponsor Commission (25%)</div>
-            <div class="entry-detail">Paid to the person who personally referred the new member</div>
-          </div>
-        </div>
-        <div style="text-align:right"><div class="entry-amount" style="color:#10b981">$25.00</div><div class="entry-timing">Instant ✓</div></div>
-      </div>
-      <div class="entry-row">
-        <div class="entry-left">
-          <div class="entry-dot" style="background:#3b82f6"></div>
-          <div>
-            <div class="entry-label">Level 1 Uni-Level (8.75%)</div>
-            <div class="entry-detail">One level above the new member's sponsor</div>
-          </div>
-        </div>
-        <div style="text-align:right"><div class="entry-amount" style="color:#3b82f6">$8.75</div><div class="entry-timing">Instant ✓</div></div>
-      </div>
-      <div class="entry-row">
-        <div class="entry-left">
-          <div class="entry-dot" style="background:#6366f1"></div>
-          <div>
-            <div class="entry-label">Level 2 Uni-Level (8.75%)</div>
-            <div class="entry-detail">Two levels above the new member</div>
-          </div>
-        </div>
-        <div style="text-align:right"><div class="entry-amount" style="color:#6366f1">$8.75</div><div class="entry-timing">Instant ✓</div></div>
-      </div>
-      <div class="entry-row">
-        <div class="entry-left">
-          <div class="entry-dot" style="background:#a78bfa"></div>
-          <div>
-            <div class="entry-label">Levels 3 – 8 Uni-Level (8.75% each)</div>
-            <div class="entry-detail">Each of the remaining 6 upline levels receives $8.75 instantly</div>
-          </div>
-        </div>
-        <div style="text-align:right"><div class="entry-amount" style="color:#a78bfa">$8.75 × 6</div><div class="entry-timing">Instant ✓</div></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid rgba(0,212,255,0.12)">
-        <div style="font-size:19px;font-weight:700;color:#64748b">Distributed to Network</div>
-        <div style="font-size:22px;font-weight:800;color:#00d4ff">$95.00 of $100 ✓</div>
-      </div>
-    </div>
-
-    <!-- Grid visualiser CTA -->
-    <a href="/grid-visualiser" style="display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 28px;background:linear-gradient(135deg,rgba(0,212,255,0.07),rgba(124,58,237,0.07));border:1px solid rgba(0,212,255,0.2);border-radius:12px;text-decoration:none;margin-bottom:28px;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(0,212,255,0.4)';this.style.transform='translateY(-1px)'" onmouseout="this.style.borderColor='rgba(0,212,255,0.2)';this.style.transform='none'">
-      <div>
-        <div style="font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.6);margin-bottom:5px">Interactive Demo</div>
-        <div style="font-size:19px;font-weight:800;color:#fff;margin-bottom:4px">⚡ Profit Engine Grid Visualiser</div>
-        <div style="font-size:19px;color:#64748b;line-height:1.5">Select any package, press Play and watch commissions distribute across your entire network in real time — seat by seat, level by level.</div>
-      </div>
-      <div style="flex-shrink:0;padding:10px 20px;background:linear-gradient(135deg,#00b4d8,#6d28d9);border-radius:8px;font-size:19px;font-weight:700;color:#fff;white-space:nowrap">Launch →</div>
-    </a>
-
-    <!-- Uni-level table -->
-    <div class="uni-card">
-      <div class="uni-header">
-        <h3>Uni-Level Earnings Per Entry — All 8 Levels & All Campaign Tiers</h3>
-        <p>What you earn per activation at each level of your network across all campaign tiers</p>
-      </div>
-      <table class="uni-table">
-        <thead>
-          <tr>
-            <th>Level</th>
-            <th>$20</th><th>$50</th><th>$100</th><th>$200</th><th>$400</th><th>$600</th><th>$800</th><th>$1,000</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% set pkgs = [10,25,50,100,250,500,750,1000] %}
-          {% set lvl_colours = ['#3b82f6','#6366f1','#7c3aed','#8b5cf6','#a78bfa','#b197fc','#c4b5fd','#ddd6fe'] %}
-          {% for lvl in range(1,9) %}
-          <tr>
-            <td style="color:{{ lvl_colours[lvl-1] }};font-weight:700">Level {{ lvl }}</td>
-            {% for p in pkgs %}<td style="color:{{ lvl_colours[lvl-1] }}">${{ '%.2f'|format(p * 0.70 / 8) }}</td>{% endfor %}
-          </tr>
-          {% endfor %}
-          <tr style="background:rgba(0,212,255,0.03);border-top:1px solid rgba(0,212,255,0.1)">
-            <td style="color:#00d4ff;font-weight:700">Direct (25%)</td>
-            {% for p in pkgs %}<td style="color:#00d4ff">${{ '%.2f'|format(p * 0.25) }}</td>{% endfor %}
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Grid tracker note -->
-    <div class="grid-note">
-      <div style="font-size:22px;flex-shrink:0;margin-top:2px">📊</div>
-      <div>
-        <div class="grid-note-title">About the 8×8 Profit Engine Grid</div>
-        <div class="grid-note-text">The 8×8 grid displayed in your member dashboard is a <strong>visual tracker</strong> of your uni-level network growing in real time. As members join across all 8 levels below you, their positions fill your grid — giving you a clear view of your network depth and activity. Your first grid begins when you activate your tier. When all 64 positions are filled, a new 64-seat grid advance starts automatically — this time entirely network-powered, with all 64 seats filled by recruited members.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- STREAM 3 DETAIL -->
-  <div class="section" style="padding-top:0">
-    <div class="sec-label">Stream 03 — Coming Soon</div>
-    <div class="sec-title">Exclusive Courses — Infinite Pass-Up</div>
-    <div class="sec-sub">Keep 100% on every sale you make. Every 2nd sale passes up to your sponsor — and cascades infinitely through the network above you, forever.</div>
-
-    <div class="passup-card">
-      <div style="font-size:19px;font-weight:800;color:#fff;margin-bottom:6px">How the Infinite Pass-Up Works</div>
-      <div style="font-size:19px;color:#64748b;line-height:1.7;margin-bottom:4px">You sell SuperAdPro's exclusive courses — the Marketing Mastery Course and the AI Mastery Course — keeping 100% commission on every odd-numbered sale. Every even-numbered sale (2nd, 4th, 6th...) passes up to your sponsor in full — and that pass-up counts as one of their sales, meaning it can cascade up to their sponsor, and so on infinitely up the chain.</div>
-
-      <div style="font-size:19px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6b7d94;margin:20px 0 10px">Your First 7 Sales</div>
-      <div class="passup-flow">
-        <div class="pf-step pf-keep"><div class="pf-num">Sale 1</div><div class="pf-amt-keep">100%</div><div class="pf-who">You keep</div></div>
-        <div class="pf-step pf-pass"><div class="pf-num">Sale 2</div><div class="pf-amt-pass">↑ Pass-up</div><div class="pf-who" style="color:#a78bfa">To sponsor</div></div>
-        <div class="pf-step pf-keep"><div class="pf-num">Sale 3</div><div class="pf-amt-keep">100%</div><div class="pf-who">You keep</div></div>
-        <div class="pf-step pf-pass"><div class="pf-num">Sale 4</div><div class="pf-amt-pass">↑ Pass-up</div><div class="pf-who" style="color:#a78bfa">To sponsor</div></div>
-        <div class="pf-step pf-keep"><div class="pf-num">Sale 5</div><div class="pf-amt-keep">100%</div><div class="pf-who">You keep</div></div>
-        <div class="pf-step pf-pass"><div class="pf-num">Sale 6</div><div class="pf-amt-pass">↑ Pass-up</div><div class="pf-who" style="color:#a78bfa">To sponsor</div></div>
-        <div class="pf-step pf-keep"><div class="pf-num">Sale 7+</div><div class="pf-amt-keep">Repeats</div><div class="pf-who">Forever</div></div>
-      </div>
-
-      <div class="passup-rules">
-        <div class="rule-item">
-          <div class="rule-icon">💰</div>
-          <div>
-            <div class="rule-title">100% Commission — No Splits</div>
-            <div class="rule-desc">On your kept sales you receive the full course price. No percentage deducted, no platform cut on the sales you keep.</div>
-          </div>
-        </div>
-        <div class="rule-item">
-          <div class="rule-icon">♾️</div>
-          <div>
-            <div class="rule-title">Truly Infinite Depth</div>
-            <div class="rule-desc">Pass-ups cascade up the entire sponsor chain with no level cap. The deeper and more active your network, the more pass-ups flow back to you permanently.</div>
-          </div>
-        </div>
-        <div class="rule-item">
-          <div class="rule-icon">🔄</div>
-          <div>
-            <div class="rule-title">Cascading Pass-Ups</div>
-            <div class="rule-desc">When your sponsor receives a pass-up from you, it counts as one of their own sales — meaning it can pass up again to their sponsor. One sale can generate commissions across unlimited levels.</div>
-          </div>
-        </div>
-        <div class="rule-item">
-          <div class="rule-icon">🔑</div>
-          <div>
-            <div class="rule-title">Active Subscription Required</div>
-            <div class="rule-desc">Stream 3 is only available to active Stream 1 subscribers. Letting your $20 monthly subscription lapse suspends access to course sales until renewed.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Course cards grid -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px;margin-top:8px">
-
-      <!-- Marketing Mastery Course -->
-      <div class="coming-card" style="margin-bottom:0;text-align:left">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
-          <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#00b4d8,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">🎓</div>
-          <div>
-            <div style="font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#00b4d8;margin-bottom:3px">Stream 3 · Course 1</div>
-            <div style="font-size:19px;font-weight:800;color:#ffffff;line-height:1.2">SuperAdPro Marketing<br>Mastery Course</div>
-          </div>
-        </div>
-        <p style="font-size:16px;color:#6b7d94;line-height:1.7;margin-bottom:18px">A comprehensive, in-depth marketing and sales course developed exclusively for SuperAdPro members — combining professional sales training, digital marketing strategy and affiliate mastery. Members who join now will receive early access when the course launches.</p>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px">
-          <span class="coming-feature">Professional Sales Training</span>
-          <span class="coming-feature">Digital Marketing Strategy</span>
-          <span class="coming-feature">Affiliate Mastery</span>
-          <span class="coming-feature">Lead Generation</span>
-          <span class="coming-feature">Funnel Building</span>
-          <span class="coming-feature">Early Access for Members</span>
-        </div>
-        <span style="display:inline-block;padding:5px 16px;border-radius:999px;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;background:rgba(0,180,216,0.08);color:#00b4d8;border:1px solid rgba(0,180,216,0.2)">In Development — Launching Soon</span>
-      </div>
-
-      <!-- AI Mastery Course -->
-      <div class="coming-card" style="margin-bottom:0;text-align:left">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
-          <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#7c3aed,#ec4899);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">🤖</div>
-          <div>
-            <div style="font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#a78bfa;margin-bottom:3px">Stream 3 · Course 2</div>
-            <div style="font-size:19px;font-weight:800;color:#ffffff;line-height:1.2">SuperAdPro AI<br>Mastery Course</div>
-          </div>
-        </div>
-        <p style="font-size:16px;color:#6b7d94;line-height:1.7;margin-bottom:18px">Master artificial intelligence tools and automation strategies to accelerate your business growth. Learn how to leverage AI for content creation, lead generation, customer acquisition and scaling your SuperAdPro income streams — built exclusively for our members.</p>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px">
-          <span class="coming-feature" style="background:rgba(124,58,237,0.12);border-color:rgba(124,58,237,0.25);color:#a78bfa">AI Tools & Automation</span>
-          <span class="coming-feature" style="background:rgba(124,58,237,0.12);border-color:rgba(124,58,237,0.25);color:#a78bfa">AI Content Creation</span>
-          <span class="coming-feature" style="background:rgba(124,58,237,0.12);border-color:rgba(124,58,237,0.25);color:#a78bfa">Lead Gen with AI</span>
-          <span class="coming-feature" style="background:rgba(124,58,237,0.12);border-color:rgba(124,58,237,0.25);color:#a78bfa">Business Automation</span>
-          <span class="coming-feature" style="background:rgba(124,58,237,0.12);border-color:rgba(124,58,237,0.25);color:#a78bfa">AI Copywriting</span>
-          <span class="coming-feature" style="background:rgba(124,58,237,0.12);border-color:rgba(124,58,237,0.25);color:#a78bfa">Early Access for Members</span>
-        </div>
-        <span style="display:inline-block;padding:5px 16px;border-radius:999px;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;background:rgba(124,58,237,0.08);color:#a78bfa;border:1px solid rgba(124,58,237,0.2)">In Development — Launching Soon</span>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════════════
-       EARNINGS CALCULATOR
-       ═══════════════════════════════════════════════════════════ -->
-  <div class="section" style="padding-top:48px">
-    <div class="sec-label">Earnings Calculator</div>
-    <div class="sec-title">Estimate Your Income Potential</div>
-    <div class="sec-sub">Select which tiers you want to activate, set the number of grid advances, and see your projected earnings across all three income streams.</div>
-
-    <div id="calcWrap" style="background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.15);border-radius:16px;padding:32px;margin-top:32px">
-
-      <!-- Tier toggles -->
-      <div style="margin-bottom:28px">
-        <div style="font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:14px">Select Active Tiers</div>
-        <div id="tierToggles" style="display:flex;flex-wrap:wrap;gap:8px">
-        </div>
-      </div>
-
-      <!-- Advances slider -->
-      <div style="margin-bottom:28px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.5)">Grid Advances Per Tier</div>
-          <div style="font-size:22px;font-weight:800;color:#00d4ff" id="advancesVal">10</div>
-        </div>
-        <input type="range" id="advancesSlider" min="1" max="50" value="10" style="width:100%;accent-color:#00b4d8;height:6px;cursor:pointer">
-        <div style="display:flex;justify-content:space-between;font-size:16px;color:#4a5a6e;margin-top:4px"><span>1</span><span>10</span><span>25</span><span>50</span></div>
-      </div>
-
-      <!-- Direct referrals slider -->
-      <div style="margin-bottom:28px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.5)">Your Direct Referrals</div>
-          <div style="font-size:22px;font-weight:800;color:#00d4ff" id="referralsVal">15</div>
-        </div>
-        <input type="range" id="referralsSlider" min="0" max="100" value="15" style="width:100%;accent-color:#00b4d8;height:6px;cursor:pointer">
-        <div style="display:flex;justify-content:space-between;font-size:16px;color:#4a5a6e;margin-top:4px"><span>0</span><span>25</span><span>50</span><span>100</span></div>
-      </div>
-
-      <!-- Results -->
-      <div style="border-top:1px solid rgba(0,180,216,0.15);padding-top:28px">
-        <div style="font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:18px">Projected Earnings</div>
-
-        <!-- Stream 1 -->
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
-          <div>
-            <div style="font-size:16px;font-weight:700;color:#fff">Stream 1 — Membership Income</div>
-            <div style="font-size:16px;color:#64748b;margin-top:2px">$20/month × direct referrals × 12 months</div>
-          </div>
-          <div style="font-size:20px;font-weight:800;color:#16a34a" id="s1Result">$0</div>
-        </div>
-
-        <!-- Stream 2 Grid Owner -->
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
-          <div>
-            <div style="font-size:16px;font-weight:700;color:#fff">Stream 2 — Uni-Level Income (8.75% per seat)</div>
-            <div style="font-size:16px;color:#64748b;margin-top:2px">63 seats × tier price × 8.75% × advances</div>
-          </div>
-          <div style="font-size:20px;font-weight:800;color:#00b4d8" id="s2OwnerResult">$0</div>
-        </div>
-
-        <!-- Stream 2 Direct Sponsor -->
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
-          <div>
-            <div style="font-size:16px;font-weight:700;color:#fff">Stream 2 — Direct Sponsor (25%)</div>
-            <div style="font-size:16px;color:#64748b;margin-top:2px">25% of each entry from your personal referrals</div>
-          </div>
-          <div style="font-size:20px;font-weight:800;color:#7c3aed" id="s2DirectResult">$0</div>
-        </div>
-
-        <!-- Totals -->
-        <div style="margin-top:20px;background:linear-gradient(135deg,rgba(0,180,216,0.08),rgba(109,40,217,0.08));border:1px solid rgba(0,180,216,0.2);border-radius:12px;padding:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
-          <div>
-            <div style="font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:4px">Total Projected Earnings</div>
-            <div style="font-size:16px;color:#64748b">Across all selected tiers and advances</div>
-          </div>
-          <div style="font-size:32px;font-weight:800;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text" id="totalResult">$0</div>
-        </div>
-
-        <!-- Tier breakdown -->
-        <div style="margin-top:20px">
-          <div style="font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.3);margin-bottom:12px">Per-Tier Breakdown</div>
-          <div id="tierBreakdown" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px"></div>
-        </div>
-      </div>
-
-      <!-- Disclaimer -->
-      <div style="margin-top:20px;padding:12px 16px;background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.1);border-radius:8px;font-size:16px;color:#64748b;line-height:1.6;text-align:center">
-        ⚠️ These figures are <strong>mathematical projections only</strong> based on full grid completion. Actual earnings depend on personal effort, team activity, network growth and member retention. SuperAdPro does not guarantee any income.
-      </div>
-    </div>
-  </div>
-
-</div>
-
-
-<div style="padding:32px 40px;text-align:center;border-top:1px solid rgba(255,255,255,0.06);margin-top:40px">
-  <p style="font-size:12px;color:rgba(200,220,255,0.35)">Income figures are mathematical illustrations only. Actual earnings depend entirely on individual effort, network activity and member retention.</p>
-</div>
-
-
-
-<!-- ── Mobile Bottom Nav ── -->
-
 <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/static/sw.js').catch(() => {});
-  });
-}
+var TIERS=[{name:'Starter',price:20},{name:'Basic',price:50},{name:'Standard',price:100},{name:'Advanced',price:200},{name:'Pro',price:300},{name:'Premium',price:500},{name:'Elite',price:700},{name:'VIP',price:1000}];
+var SEATS=63,PER_LEVEL_PCT=0.0875,DIRECT_PCT=0.25;
+var activeTiers=new Set([0,1,2,3,4,5,6,7]);
+function initCalc(){var w=document.getElementById('tierToggles');TIERS.forEach(function(t,i){var b=document.createElement('button');b.className='tier-toggle active';b.textContent='$'+t.price;b.onclick=function(){if(activeTiers.has(i)){activeTiers.delete(i);b.classList.remove('active')}else{activeTiers.add(i);b.classList.add('active')}calc()};w.appendChild(b)});document.getElementById('advancesSlider').oninput=function(){document.getElementById('advancesVal').textContent=this.value;calc()};document.getElementById('referralsSlider').oninput=function(){document.getElementById('referralsVal').textContent=this.value;calc()};calc()}
+function calc(){var a=parseInt(document.getElementById('advancesSlider').value),r=parseInt(document.getElementById('referralsSlider').value);var s1=r*20*12,s2O=0,s2D=0,bd=[];activeTiers.forEach(function(i){var t=TIERS[i],u=SEATS*t.price*PER_LEVEL_PCT,oT=u*a,dT=t.price*DIRECT_PCT*r*a;s2O+=oT;s2D+=dT;bd.push({name:t.name,val:oT+dT})});var tot=s1+s2O+s2D;document.getElementById('s1Result').textContent='$'+s1.toLocaleString();document.getElementById('s2OwnerResult').textContent='$'+Math.round(s2O).toLocaleString();document.getElementById('s2DirectResult').textContent='$'+Math.round(s2D).toLocaleString();document.getElementById('totalResult').textContent='$'+Math.round(tot).toLocaleString();var bw=document.getElementById('tierBreakdown');bw.innerHTML='';bd.forEach(function(b){bw.innerHTML+='<div class="tb-card"><div class="tb-name">'+b.name+'</div><div class="tb-val">$'+Math.round(b.val).toLocaleString()+'</div></div>'})}
+initCalc();
 </script>
-
-<script>
-
-function openLoginModal() {
-  var overlay = document.getElementById('loginOverlay');
-  if (!overlay) return;
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  setTimeout(function(){ var f=document.getElementById('loginUser'); if(f) f.focus(); }, 300);
-}
-function closeLoginModal() {
-  var overlay = document.getElementById('loginOverlay');
-  if (overlay) overlay.classList.remove('open');
-  document.body.style.overflow = '';
-}
-document.addEventListener('keydown', function(e){
-  if(e.key==='Escape'){ closeLoginModal(); closeRegModal && closeRegModal(); }
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-  var form = document.getElementById('loginModalForm');
-  if (!form) return;
-  form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    var err = document.getElementById('loginErr');
-    var btn = document.getElementById('loginBtn');
-    err.style.display = 'none';
-    btn.disabled = true;
-    btn.textContent = 'Logging in…';
-    try {
-      var res = await fetch('/api/login', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          username: document.getElementById('loginUser').value,
-          password: document.getElementById('loginPw').value
-        })
-      });
-      var data = await res.json();
-      if (data.success) {
-        window.location.href = data.redirect || '/dashboard';
-        return;
-      }
-      err.textContent = data.error || 'Login failed. Please try again.';
-      err.style.display = 'block';
-      btn.disabled = false;
-      btn.textContent = 'Log In →';
-    } catch(ex) {
-      err.textContent = 'Network error. Please try again.';
-      err.style.display = 'block';
-      btn.disabled = false;
-      btn.textContent = 'Log In →';
-    }
-  });
-});</script>
-<script>
-/* ── Modal JS ── */
-function openRegModal(sponsor) {
-  var o=document.getElementById('regOverlay'); if(!o)return;
-  if(sponsor){document.getElementById('regRef').value=sponsor;document.getElementById('regSponsor').value=sponsor;document.getElementById('regSponsorField').style.display='block';}
-  o.classList.add('open'); document.body.style.overflow='hidden';
-  setTimeout(function(){var f=document.getElementById('regFirstName');if(f)f.focus();},300);
-}
-function closeRegModal(){var o=document.getElementById('regOverlay');if(o)o.classList.remove('open');document.body.style.overflow='';}
-function openLoginModal(){
-  var o=document.getElementById('loginOverlay'); if(!o)return;
-  o.classList.add('open'); document.body.style.overflow='hidden';
-  setTimeout(function(){var f=document.getElementById('loginUser');if(f)f.focus();},300);
-}
-function closeLoginModal(){var o=document.getElementById('loginOverlay');if(o)o.classList.remove('open');document.body.style.overflow='';}
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeLoginModal();closeRegModal();}});
-
-document.addEventListener('DOMContentLoaded',function(){
-  /* Register form */
-  var rf=document.getElementById('regModalForm');
-  if(rf) rf.addEventListener('submit',async function(e){
-    e.preventDefault();
-    var err=document.getElementById('regErr'),btn=document.getElementById('regBtn');
-    err.style.display='none';
-    if(document.getElementById('regPw').value!==document.getElementById('regPwC').value){err.textContent='Passwords do not match.';err.style.display='block';return;}
-    if(!document.getElementById('regTerms').checked){err.textContent='Please agree to the Terms of Service.';err.style.display='block';return;}
-    btn.disabled=true; btn.textContent='Creating account…';
-    try{
-      var res=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        first_name:document.getElementById('regFirstName').value,
-        email:document.getElementById('regEmail').value,
-        username:document.getElementById('regUsername').value,
-        password:document.getElementById('regPw').value,
-        confirm_password:document.getElementById('regPwC').value,
-        ref:document.getElementById('regRef').value,
-        beta_code:''
-      })});
-      var d=await res.json();
-      if(d.success){window.location.href=d.redirect||'/dashboard?new=1';return;}
-      err.textContent=d.error||'Something went wrong.';err.style.display='block';
-      btn.disabled=false;btn.textContent='Register Here →';
-    }catch(ex){err.textContent='Network error. Please try again.';err.style.display='block';btn.disabled=false;btn.textContent='Register Here →';}
-  });
-
-  /* Login form */
-  var lf=document.getElementById('loginModalForm');
-  if(lf) lf.addEventListener('submit',async function(e){
-    e.preventDefault();
-    var err=document.getElementById('loginErr'),btn=document.getElementById('loginBtn');
-    err.style.display='none'; btn.disabled=true; btn.textContent='Logging in…';
-    try{
-      var res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        username:document.getElementById('loginUser').value,
-        password:document.getElementById('loginPw').value
-      })});
-      var d=await res.json();
-      if(d.success){window.location.href=d.redirect||'/dashboard';return;}
-      err.textContent=d.error||'Login failed.';err.style.display='block';
-      btn.disabled=false;btn.textContent='Log In →';
-    }catch(ex){err.textContent='Network error. Please try again.';err.style.display='block';btn.disabled=false;btn.textContent='Log In →';}
-  });
-
-  /* Auto-open from URL params */
-  var p=new URLSearchParams(window.location.search);
-  var sponsor=p.get('join')||p.get('ref')||'';
-  if(p.get('login')==='1'){openLoginModal();}
-  else if(sponsor||p.get('register')==='1'){openRegModal(sponsor);}
-});
-</script>
-<script>
-/* ── Register Modal ── */
-function openRegModal(sponsor) {
-  var o = document.getElementById('regOverlay');
-  if (!o) return;
-  if (sponsor) {
-    document.getElementById('regRef').value = sponsor;
-    document.getElementById('regSponsor').value = sponsor;
-    document.getElementById('regSponsorField').style.display = 'block';
-  }
-  o.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  setTimeout(function(){ var f=document.getElementById('regFirstName'); if(f) f.focus(); }, 300);
-}
-function closeRegModal() {
-  var o = document.getElementById('regOverlay');
-  if (o) o.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-/* ── Login Modal ── */
-function openLoginModal() {
-  var o = document.getElementById('loginOverlay');
-  if (!o) return;
-  o.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  setTimeout(function(){ var f=document.getElementById('loginUser'); if(f) f.focus(); }, 300);
-}
-function closeLoginModal() {
-  var o = document.getElementById('loginOverlay');
-  if (o) o.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-/* ── Keyboard close ── */
-document.addEventListener('keydown', function(e){
-  if (e.key === 'Escape') { closeRegModal(); closeLoginModal(); }
-});
-
-/* ── Register form submit ── */
-document.addEventListener('DOMContentLoaded', function() {
-  var rForm = document.getElementById('regModalForm');
-  if (rForm) {
-    rForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      var err = document.getElementById('regErr');
-      var btn = document.getElementById('regBtn');
-      err.style.display = 'none';
-      if (document.getElementById('regPw').value !== document.getElementById('regPwC').value) {
-        err.textContent = 'Passwords do not match.';
-        err.style.display = 'block'; return;
-      }
-      if (!document.getElementById('regTerms').checked) {
-        err.textContent = 'Please agree to the Terms of Service.';
-        err.style.display = 'block'; return;
-      }
-      btn.disabled = true; btn.textContent = 'Creating account\u2026';
-      try {
-        var res = await fetch('/api/register', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            first_name:       document.getElementById('regFirstName').value,
-            email:            document.getElementById('regEmail').value,
-            username:         document.getElementById('regUsername').value,
-            password:         document.getElementById('regPw').value,
-            confirm_password: document.getElementById('regPwC').value,
-            ref:              document.getElementById('regRef').value,
-            beta_code:        ''
-          })
-        });
-        var data = await res.json();
-        if (data.success) { window.location.href = data.redirect || '/dashboard?new=1'; return; }
-        err.textContent = data.error || 'Something went wrong. Please try again.';
-        err.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Register Here \u2192';
-      } catch(ex) {
-        err.textContent = 'Network error. Please try again.';
-        err.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Register Here \u2192';
-      }
-    });
-  }
-
-  /* ── Login form submit ── */
-  var lForm = document.getElementById('loginModalForm');
-  if (lForm) {
-    lForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      var err = document.getElementById('loginErr');
-      var btn = document.getElementById('loginBtn');
-      err.style.display = 'none';
-      btn.disabled = true; btn.textContent = 'Logging in\u2026';
-      try {
-        var res = await fetch('/api/login', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            username: document.getElementById('loginUser').value,
-            password: document.getElementById('loginPw').value
-          })
-        });
-        var data = await res.json();
-        if (data.success) { window.location.href = data.redirect || '/dashboard'; return; }
-        err.textContent = data.error || 'Login failed. Please try again.';
-        err.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Log In \u2192';
-      } catch(ex) {
-        err.textContent = 'Network error. Please try again.';
-        err.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Log In \u2192';
-      }
-    });
-  }
-
-  /* ── Auto-open from URL params ── */
-  var p = new URLSearchParams(window.location.search);
-  var sponsor = p.get('join') || p.get('ref') || '';
-  if (p.get('login') === '1')  { openLoginModal(); }
-  else if (sponsor || p.get('register') === '1') { openRegModal(sponsor); }
-});
-</script>
-<script>
-/* === MODAL JS === */
-function mOpen(id, sponsor) {
-  var el = document.getElementById(id);
-  if (!el) return;
-  el.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  if (sponsor && id === 'mReg') {
-    document.getElementById('regRef').value = sponsor;
-    document.getElementById('regSponsorShow').value = sponsor;
-    document.getElementById('regSponsorWrap').style.display = 'block';
-  }
-  setTimeout(function() {
-    var f = el.querySelector('input:not([type=hidden])');
-    if (f) f.focus();
-  }, 250);
-}
-function mClose(id) {
-  var el = document.getElementById(id);
-  if (el) el.classList.remove('open');
-  document.body.style.overflow = '';
-}
-function openRegModal(s)  { mOpen('mReg', s); }
-function closeRegModal()  { mClose('mReg'); }
-function openLoginModal() { mOpen('mLogin'); }
-function closeLoginModal(){ mClose('mLogin'); }
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') { mClose('mReg'); mClose('mLogin'); }
-});
-
-async function doLogin(e) {
-  e.preventDefault();
-  var err = document.getElementById('loginErr');
-  var btn = document.getElementById('loginBtn');
-  err.style.display = 'none';
-  btn.disabled = true; btn.textContent = 'Logging in...';
-  try {
-    var r = await fetch('/api/login', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        username: document.getElementById('loginUser').value,
-        password: document.getElementById('loginPw').value
-      })
-    });
-    var d = await r.json();
-    if (d.success) { window.location.href = d.redirect || '/dashboard'; return; }
-    err.textContent = d.error || 'Login failed.';
-    err.style.display = 'block';
-  } catch(x) { err.textContent = 'Network error. Please try again.'; err.style.display = 'block'; }
-  btn.disabled = false; btn.textContent = 'Log In';
-}
-
-async function doRegister(e) {
-  e.preventDefault();
-  var err = document.getElementById('regErr');
-  var btn = document.getElementById('regBtn');
-  err.style.display = 'none';
-  if (document.getElementById('regPw').value !== document.getElementById('regPwC').value) {
-    err.textContent = 'Passwords do not match.'; err.style.display = 'block'; return;
-  }
-  if (!document.getElementById('regTerms').checked) {
-    err.textContent = 'Please tick the Terms checkbox.'; err.style.display = 'block'; return;
-  }
-  btn.disabled = true; btn.textContent = 'Creating account...';
-  try {
-    var r = await fetch('/api/register', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        first_name:       document.getElementById('regFirst').value,
-        email:            document.getElementById('regEmail').value,
-        username:         document.getElementById('regUser').value,
-        password:         document.getElementById('regPw').value,
-        confirm_password: document.getElementById('regPwC').value,
-        ref:              document.getElementById('regRef').value,
-        beta_code:        ''
-      })
-    });
-    var d = await r.json();
-    if (d.success) { window.location.href = d.redirect || '/dashboard?new=1'; return; }
-    err.textContent = d.error || 'Something went wrong.';
-    err.style.display = 'block';
-  } catch(x) { err.textContent = 'Network error. Please try again.'; err.style.display = 'block'; }
-  btn.disabled = false; btn.textContent = 'Register Here';
-}
-
-/* Auto-open from URL params */
-(function() {
-  var p = new URLSearchParams(window.location.search);
-  var sponsor = p.get('join') || '';
-  if (p.get('login') === '1')       { mOpen('mLogin'); }
-  else if (p.get('register') === '1') { mOpen('mReg'); }
-  else if (sponsor)                   { mOpen('mReg', sponsor); }
-})();
-/* === END MODAL JS === */</script>
-
-<script>
-/* ═══════════════════════════════════════════
-   EARNINGS CALCULATOR
-   ═══════════════════════════════════════════ */
-(function(){
-  var TIERS = [
-    {name:'Starter',  price:20,   color:'#16a34a'},
-    {name:'Builder',  price:50,   color:'#0ea5e9'},
-    {name:'Pro',      price:100,  color:'#7c3aed'},
-    {name:'Advanced', price:200,  color:'#f59e0b'},
-    {name:'Elite',    price:400,  color:'#ef4444'},
-    {name:'Master',   price:600,  color:'#ec4899'},
-    {name:'Epic',     price:800,  color:'#06b6d4'},
-    {name:'Legend',   price:1000, color:'#f97316'}
-  ];
-  var SEATS = 63;
-  var PER_LEVEL_PCT = 0.0875;  // 8.75% — what you earn per seat as one level in the chain
-  var DIRECT_PCT = 0.25;
-  var MEMBERSHIP = 20;
-  var activeTiers = [true,true,true,true,true,false,false,false]; // first 5 on by default
-
-  // Build tier toggle buttons
-  var togglesWrap = document.getElementById('tierToggles');
-  TIERS.forEach(function(t, i){
-    var btn = document.createElement('button');
-    btn.textContent = t.name + ' $' + t.price;
-    btn.dataset.idx = i;
-    btn.style.cssText = 'padding:8px 16px;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.2s;border:2px solid ' + t.color + ';';
-    setToggleStyle(btn, activeTiers[i], t.color);
-    btn.addEventListener('click', function(){
-      activeTiers[i] = !activeTiers[i];
-      setToggleStyle(btn, activeTiers[i], t.color);
-      calc();
-    });
-    togglesWrap.appendChild(btn);
-  });
-
-  function setToggleStyle(btn, active, color){
-    if(active){
-      btn.style.background = color;
-      btn.style.color = '#fff';
-    } else {
-      btn.style.background = 'transparent';
-      btn.style.color = color;
-    }
-  }
-
-  var advSlider = document.getElementById('advancesSlider');
-  var advVal = document.getElementById('advancesVal');
-  var refSlider = document.getElementById('referralsSlider');
-  var refVal = document.getElementById('referralsVal');
-
-  advSlider.addEventListener('input', function(){ advVal.textContent = this.value; calc(); });
-  refSlider.addEventListener('input', function(){ refVal.textContent = this.value; calc(); });
-
-  function fmt(n){
-    if(n >= 1000000) return '$' + (n/1000000).toFixed(2) + 'M';
-    return '$' + n.toLocaleString('en-US', {maximumFractionDigits:0});
-  }
-
-  function calc(){
-    var advances = parseInt(advSlider.value);
-    var referrals = parseInt(refSlider.value);
-
-    // Stream 1: membership residual (annual) — $20/month per direct referral
-    var s1 = referrals * MEMBERSHIP * 12;
-
-    // Stream 2 calculations per tier
-    var s2UniLevel = 0;
-    var s2Direct = 0;
-    var breakdownHTML = '';
-
-    TIERS.forEach(function(t, i){
-      if(!activeTiers[i]) return;
-
-      // Uni-level: you earn 8.75% on each seat fill (your position in the chain)
-      // Per advance: 63 seats × price × 8.75%
-      var uniLevelPerAdvance = SEATS * t.price * PER_LEVEL_PCT;
-      var uniLevelTotal = uniLevelPerAdvance * advances;
-
-      // Direct sponsor: 25% on people YOU personally referred
-      // Capped at 63 per advance (can't have more referrals than seats)
-      var directPerAdvance = Math.min(referrals, SEATS) * t.price * DIRECT_PCT;
-      var directTotal = directPerAdvance * advances;
-
-      s2UniLevel += uniLevelTotal;
-      s2Direct += directTotal;
-
-      var tierTotal = uniLevelTotal + directTotal;
-      breakdownHTML += '<div style="background:rgba(255,255,255,0.03);border:1px solid ' + t.color + '33;border-radius:8px;padding:12px;text-align:center">' +
-        '<div style="font-size:16px;font-weight:700;color:' + t.color + ';margin-bottom:4px">' + t.name + '</div>' +
-        '<div style="font-size:16px;font-weight:800;color:#fff">' + fmt(tierTotal) + '</div>' +
-        '<div style="font-size:10px;color:#64748b;margin-top:2px">' + advances + ' adv × $' + t.price + '</div>' +
-      '</div>';
-    });
-
-    document.getElementById('s1Result').textContent = fmt(s1);
-    document.getElementById('s2OwnerResult').textContent = fmt(s2UniLevel);
-    document.getElementById('s2DirectResult').textContent = fmt(s2Direct);
-    document.getElementById('totalResult').textContent = fmt(s1 + s2UniLevel + s2Direct);
-    document.getElementById('tierBreakdown').innerHTML = breakdownHTML;
-  }
-
-  // Initial calculation
-  calc();
-})();
-</script>
-
-</body>
-
-<script>function toggleMobileMenu(){var m=document.getElementById('mobileMenu');if(m)m.classList.toggle('open');}</script>
-</html>
 </body>
 </html>
