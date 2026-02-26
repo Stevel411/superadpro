@@ -15,7 +15,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from .database import (
     SessionLocal, User, Payment, Commission, Withdrawal,
-    Grid, GridPosition, PasswordResetToken, GRID_PACKAGES, GRID_TOTAL,
+    Grid, GridPosition, PasswordResetToken, VIPSignup, GRID_PACKAGES, GRID_TOTAL,
     DIRECT_PCT, UNILEVEL_PCT, PER_LEVEL_PCT, PLATFORM_PCT,
     OWNER_PCT, UPLINE_PCT, LEVEL_PCT, COMPANY_PCT
 )
@@ -2252,6 +2252,44 @@ def delete_rotator(rotator_id: int, user: User = Depends(get_current_user),
         db.delete(rot)
         db.commit()
     return {"success": True}
+
+
+# ═══════════════════════════════════════════════════
+#  VIP WAITING LIST
+# ═══════════════════════════════════════════════════
+@app.get("/vip")
+def vip_page(request: Request):
+    return templates.TemplateResponse("vip-waitlist.html", {"request": request})
+
+@app.post("/api/vip/signup")
+async def vip_signup(request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    body = await request.json()
+    name = (body.get("name") or "").strip()
+    email = (body.get("email") or "").strip().lower()
+    if not name or not email or "@" not in email:
+        return JSONResponse({"error": "Please enter your name and a valid email"}, status_code=400)
+    existing = db.query(VIPSignup).filter(VIPSignup.email == email).first()
+    if existing:
+        return JSONResponse({"error": "You're already on the VIP list!"}, status_code=400)
+    signup = VIPSignup(name=name, email=email)
+    db.add(signup)
+    db.commit()
+    count = db.query(VIPSignup).count()
+    return {"success": True, "message": f"Welcome to the VIP list, {name}!", "count": count}
+
+@app.get("/api/vip/count")
+def vip_count(db: Session = Depends(get_db)):
+    count = db.query(VIPSignup).count()
+    return {"count": count}
+
+@app.get("/api/vip/export")
+def vip_export(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Unauthorized"}, status_code=401)
+    signups = db.query(VIPSignup).order_by(VIPSignup.created_at.desc()).all()
+    return {"signups": [{"id": s.id, "name": s.name, "email": s.email, "joined": s.created_at.isoformat() if s.created_at else ""} for s in signups]}
 
 
 @app.get("/go/{slug}")

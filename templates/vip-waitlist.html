@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>VIP Early Access — SuperAdPro</title>
+<meta name="description" content="Join the SuperAdPro VIP waiting list. Be first in line when we launch — secure your position and get exclusive early access.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#060918;color:#e2e8f0;min-height:100vh;overflow-x:hidden}
+
+/* BG */
+.bg-grid{position:fixed;inset:0;z-index:0;opacity:0.03;background-image:linear-gradient(rgba(56,189,248,0.3) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,0.3) 1px,transparent 1px);background-size:60px 60px}
+.bg-glow1{position:fixed;top:-20%;left:-10%;width:60vw;height:60vw;border-radius:50%;background:radial-gradient(circle,rgba(14,165,233,0.08),transparent 70%);filter:blur(80px);z-index:0;animation:glow1 15s ease-in-out infinite alternate}
+.bg-glow2{position:fixed;bottom:-30%;right:-15%;width:50vw;height:50vw;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,0.06),transparent 70%);filter:blur(80px);z-index:0;animation:glow2 12s ease-in-out infinite alternate}
+@keyframes glow1{0%{transform:translate(0,0)}100%{transform:translate(40px,-30px)}}
+@keyframes glow2{0%{transform:translate(0,0)}100%{transform:translate(-30px,40px)}}
+
+.wrap{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:40px 24px;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+
+/* LOGO */
+.logo-row{text-align:center;margin-bottom:48px}
+.logo{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.logo span{background:linear-gradient(135deg,#38bdf8,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.15);border-radius:24px;padding:8px 20px;font-size:12px;font-weight:700;color:#7dd3fc;margin-bottom:24px}
+.badge .pulse{width:8px;height:8px;border-radius:50%;background:#38bdf8;animation:pls 2s ease-in-out infinite}
+@keyframes pls{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+
+/* HEADLINE */
+.hero-section{text-align:center;margin-bottom:48px}
+h1{font-size:clamp(36px,6vw,52px);font-weight:800;color:#fff;line-height:1.1;margin-bottom:16px}
+h1 .accent{background:linear-gradient(135deg,#38bdf8,#7dd3fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+h1 .gold{background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:18px;color:rgba(186,230,253,0.55);line-height:1.7;max-width:540px;margin:0 auto}
+
+/* COUNTER */
+.counter-row{display:flex;justify-content:center;gap:32px;margin-bottom:48px}
+.counter{text-align:center}
+.counter-val{font-size:36px;font-weight:800;color:#38bdf8}
+.counter-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(186,230,253,0.35);margin-top:4px}
+
+/* FORM */
+.form-card{background:rgba(255,255,255,0.03);backdrop-filter:blur(16px);border:1px solid rgba(56,189,248,0.12);border-radius:24px;padding:40px 36px;margin-bottom:48px;position:relative;overflow:hidden}
+.form-card::before{content:'';position:absolute;top:-50%;right:-30%;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,0.05),transparent 70%)}
+.form-title{font-size:22px;font-weight:800;color:#fff;text-align:center;margin-bottom:6px}
+.form-sub{font-size:14px;color:rgba(186,230,253,0.5);text-align:center;margin-bottom:28px}
+.form-group{margin-bottom:16px}
+.form-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(186,230,253,0.4);margin-bottom:6px;display:block}
+.form-input{width:100%;padding:16px 20px;background:rgba(255,255,255,0.04);border:1px solid rgba(56,189,248,0.12);border-radius:12px;color:#fff;font-size:16px;font-family:inherit;font-weight:500;outline:none;transition:all 0.3s}
+.form-input::placeholder{color:rgba(186,230,253,0.25)}
+.form-input:focus{border-color:rgba(56,189,248,0.4);background:rgba(56,189,248,0.06);box-shadow:0 0 0 3px rgba(56,189,248,0.08)}
+.form-btn{width:100%;padding:18px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:18px;font-weight:800;font-family:inherit;border:none;border-radius:14px;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 24px rgba(14,165,233,0.35);margin-top:8px;position:relative;overflow:hidden}
+.form-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(14,165,233,0.5)}
+.form-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+.form-btn::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transition:left 0.5s}
+.form-btn:hover::after{left:100%}
+.form-msg{text-align:center;margin-top:16px;font-size:14px;font-weight:600;min-height:20px}
+.form-msg.ok{color:#34d399}
+.form-msg.err{color:#f87171}
+.form-note{text-align:center;margin-top:12px;font-size:12px;color:rgba(186,230,253,0.25)}
+
+/* SUCCESS STATE */
+.success-state{display:none;text-align:center;padding:20px 0}
+.success-icon{font-size:56px;margin-bottom:16px}
+.success-title{font-size:24px;font-weight:800;color:#fff;margin-bottom:8px}
+.success-sub{font-size:15px;color:rgba(186,230,253,0.55);line-height:1.6}
+
+/* FEATURES */
+.features{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:48px}
+.feat{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:24px 20px;text-align:center;transition:all 0.3s}
+.feat:hover{background:rgba(56,189,248,0.04);border-color:rgba(56,189,248,0.12);transform:translateY(-2px)}
+.feat-icon{font-size:28px;margin-bottom:10px}
+.feat-name{font-size:15px;font-weight:700;color:#fff;margin-bottom:4px}
+.feat-desc{font-size:13px;color:rgba(186,230,253,0.4);line-height:1.5}
+
+/* SOCIAL PROOF */
+.proof{text-align:center;margin-bottom:48px}
+.proof-title{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(186,230,253,0.3);margin-bottom:16px}
+.proof-stats{display:flex;justify-content:center;gap:40px}
+.ps{text-align:center}
+.ps-val{font-size:24px;font-weight:800;color:#fff}
+.ps-label{font-size:11px;color:rgba(186,230,253,0.35);margin-top:2px}
+
+/* FOOTER */
+.vip-footer{text-align:center;padding:32px 0;font-size:11px;color:rgba(186,230,253,0.15)}
+.vip-footer a{color:rgba(186,230,253,0.25);text-decoration:none}
+
+@media(max-width:600px){.wrap{padding:32px 16px}.form-card{padding:28px 20px}.features{grid-template-columns:1fr}.counter-row{gap:20px}}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-glow1"></div>
+<div class="bg-glow2"></div>
+
+<div class="wrap">
+  <div class="logo-row"><div class="logo">Super<span>AdPro</span></div></div>
+
+  <div class="hero-section">
+    <div class="badge"><span class="pulse"></span> Pre-Launch · VIP Access</div>
+    <h1>Be First in Line.<br>Lock In Your <span class="accent">Position</span>.</h1>
+    <div class="hero-sub">SuperAdPro is launching soon — a video advertising platform with three built-in income streams paying out 95% of every dollar. Join the VIP list to secure your spot before everyone else.</div>
+  </div>
+
+  <div class="counter-row">
+    <div class="counter"><div class="counter-val" id="vipCount">—</div><div class="counter-label">VIP Members</div></div>
+    <div class="counter"><div class="counter-val">3</div><div class="counter-label">Income Streams</div></div>
+    <div class="counter"><div class="counter-val">95%</div><div class="counter-label">Payout Rate</div></div>
+  </div>
+
+  <div class="form-card">
+    <div id="formContent">
+      <div class="form-title">Join the VIP Waiting List</div>
+      <div class="form-sub">Get notified the moment we go live — and be first to activate your position.</div>
+      <div class="form-group"><label class="form-label">Your Name</label><input type="text" class="form-input" id="vipName" placeholder="Enter your name..."></div>
+      <div class="form-group"><label class="form-label">Email Address</label><input type="email" class="form-input" id="vipEmail" placeholder="your@email.com"></div>
+      <button class="form-btn" id="vipBtn" onclick="submitVIP()">🚀 Secure My VIP Spot</button>
+      <div class="form-msg" id="vipMsg"></div>
+      <div class="form-note">🔒 No spam. We'll only email you when we launch.</div>
+    </div>
+    <div class="success-state" id="successState">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">You're In!</div>
+      <div class="success-sub">Welcome to the VIP list. We'll email you the moment SuperAdPro goes live so you can secure your position before anyone else.</div>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feat"><div class="feat-icon">💰</div><div class="feat-name">Three Income Streams</div><div class="feat-desc">Memberships, campaign commissions and course sales — all stacking together.</div></div>
+    <div class="feat"><div class="feat-icon">⚡</div><div class="feat-name">Instant Payouts</div><div class="feat-desc">Every commission is paid the instant it's earned. No waiting, no pools.</div></div>
+    <div class="feat"><div class="feat-icon">🤖</div><div class="feat-name">AI-Powered Tools</div><div class="feat-desc">AI sales chatbot, funnel builder and marketing automation built right in.</div></div>
+    <div class="feat"><div class="feat-icon">🔥</div><div class="feat-name">95% Payout</div><div class="feat-desc">Almost every dollar goes back to the network. Only 5% platform fee.</div></div>
+  </div>
+
+  <div class="proof">
+    <div class="proof-title">What You'll Get Access To</div>
+    <div class="proof-stats">
+      <div class="ps"><div class="ps-val">8</div><div class="ps-label">Campaign Tiers</div></div>
+      <div class="ps"><div class="ps-val">8</div><div class="ps-label">Levels Deep</div></div>
+      <div class="ps"><div class="ps-val">∞</div><div class="ps-label">Pass-Up Depth</div></div>
+      <div class="ps"><div class="ps-val">$20–$1K</div><div class="ps-label">Tier Range</div></div>
+    </div>
+  </div>
+
+  <div class="vip-footer">© 2026 SuperAdPro. All rights reserved.<br><a href="/">Visit SuperAdPro.com</a></div>
+</div>
+
+<script>
+// Load VIP count
+fetch('/api/vip/count').then(r=>r.json()).then(d=>{
+  document.getElementById('vipCount').textContent=d.count||0;
+}).catch(()=>{document.getElementById('vipCount').textContent='0'});
+
+async function submitVIP(){
+  const btn=document.getElementById('vipBtn');
+  const msg=document.getElementById('vipMsg');
+  const name=document.getElementById('vipName').value.trim();
+  const email=document.getElementById('vipEmail').value.trim();
+  if(!name||!email){msg.className='form-msg err';msg.textContent='Please enter your name and email.';return}
+  btn.disabled=true;btn.textContent='Joining...';msg.textContent='';
+  try{
+    const res=await fetch('/api/vip/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email})});
+    const data=await res.json();
+    if(data.success){
+      document.getElementById('formContent').style.display='none';
+      document.getElementById('successState').style.display='block';
+      document.getElementById('vipCount').textContent=data.count||'';
+    }else{
+      msg.className='form-msg err';msg.textContent=data.error||'Something went wrong.';
+      btn.disabled=false;btn.textContent='🚀 Secure My VIP Spot';
+    }
+  }catch(e){
+    msg.className='form-msg err';msg.textContent='Network error. Please try again.';
+    btn.disabled=false;btn.textContent='🚀 Secure My VIP Spot';
+  }
+}
+
+// Enter key support
+document.getElementById('vipEmail').addEventListener('keydown',function(e){if(e.key==='Enter')submitVIP()});
+document.getElementById('vipName').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('vipEmail').focus()});
+</script>
+</body>
+</html>

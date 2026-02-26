@@ -289,6 +289,13 @@ class FunnelPage(Base):
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+class VIPSignup(Base):
+    __tablename__ = "vip_signups"
+    id          = Column(Integer, primary_key=True, index=True)
+    name        = Column(String, nullable=False)
+    email       = Column(String, nullable=False, unique=True)
+    created_at  = Column(DateTime, default=datetime.utcnow)
+
 class ShortLink(Base):
     """Bitly-style short links: superadpro.com/go/slug"""
     __tablename__ = "short_links"
@@ -378,6 +385,7 @@ def run_migrations():
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS custom_bg VARCHAR DEFAULT ''",
         "CREATE TABLE IF NOT EXISTS link_rotators (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), slug VARCHAR UNIQUE, title VARCHAR NOT NULL, mode VARCHAR DEFAULT 'equal', destinations_json TEXT, total_clicks INTEGER DEFAULT 0, last_clicked TIMESTAMP, current_index INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS short_links (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), slug VARCHAR UNIQUE, destination_url TEXT NOT NULL, title VARCHAR, clicks INTEGER DEFAULT 0, last_clicked TIMESTAMP, is_rotator BOOLEAN DEFAULT FALSE, rotator_id INTEGER REFERENCES link_rotators(id), created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS vip_signups (id SERIAL PRIMARY KEY, name VARCHAR NOT NULL, email VARCHAR NOT NULL UNIQUE, created_at TIMESTAMP DEFAULT NOW())",
     ]
     results = []
     with engine.connect() as conn:
