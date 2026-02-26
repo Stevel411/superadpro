@@ -150,6 +150,13 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
               {% endif %}
               <button class="btn-danger" onclick="deletePage({{ p.id }}, '{{ p.title }}')">Delete</button>
             </div>
+            {% if p.status == 'published' and p.slug %}
+            <div class="page-url-row" style="margin-top:10px;display:flex;align-items:center;gap:6px;background:rgba(5,150,105,0.08);border:1px solid rgba(5,150,105,0.2);border-radius:8px;padding:8px 10px">
+              <span style="font-size:12px;color:#059669;font-weight:700;white-space:nowrap">🔗 URL:</span>
+              <input readonly value="{{ request.url.scheme }}://{{ request.url.hostname }}/p/{{ p.slug }}" style="flex:1;border:none;background:none;font-size:12px;font-family:monospace;color:#334155;outline:none;min-width:0" id="url-{{ p.id }}">
+              <button onclick="copyUrl('url-{{ p.id }}')" style="background:#059669;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">Copy</button>
+            </div>
+            {% endif %}
           </div>
         </div>
         {% endfor %}
@@ -167,6 +174,17 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
 </div>
 
 <script>
+function copyUrl(inputId) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    navigator.clipboard.writeText(input.value).then(() => {
+      const btn = input.nextElementSibling;
+      btn.textContent = '✓ Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 2000);
+    }).catch(() => { input.select(); document.execCommand('copy'); });
+  }
+}
+
 async function deletePage(id, title) {
   if(!confirm('Delete "' + title + '"? This cannot be undone.')) return;
   const res = await fetch('/api/funnels/delete/' + id, {method:'POST'});

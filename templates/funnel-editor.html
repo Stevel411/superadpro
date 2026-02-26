@@ -362,7 +362,7 @@ async function aiGenerate() {
 // ═══════════════════════════════════════════════════
 //  SAVE / PUBLISH
 // ═══════════════════════════════════════════════════
-async function savePage(status) {
+async function savePage(status, openPreview) {
   const title = document.getElementById('pageTitleInput').value || 'My Page';
   try {
     const res = await fetch('/api/funnels/save', {
@@ -382,16 +382,53 @@ async function savePage(status) {
     const data = await res.json();
     if (data.success) {
       pageId = data.id;
-      showToast(status==='published' ? 'Published! Live at /p/'+data.slug : 'Draft saved!');
+      pageSlug = data.slug;
       if (!location.pathname.includes('/edit/')) history.replaceState(null,'','/funnels/edit/'+data.id);
+      if (openPreview) {
+        window.open('/p/'+data.slug, '_blank');
+      } else if (status === 'published') {
+        showUrlBanner(data.slug);
+        showToast('Page published!');
+      } else {
+        showToast('Draft saved!');
+      }
     } else showToast(data.error || 'Error saving');
   } catch(e) { showToast('Error saving'); }
 }
 
-function previewPage() {
-  if (pageId) window.open('/p/preview-'+pageId, '_blank');
-  else showToast('Save your page first to preview');
+function showUrlBanner(slug) {
+  const fullUrl = window.location.origin + '/p/' + slug;
+  let banner = document.getElementById('urlBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'urlBanner';
+    document.body.appendChild(banner);
+  }
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:10000;background:linear-gradient(135deg,#059669,#10b981);padding:14px 24px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;box-shadow:0 4px 20px rgba(0,0,0,0.3);animation:slideDown .3s ease';
+  banner.innerHTML = '<span style="color:#fff;font-weight:700;font-size:15px">🚀 Your page is LIVE!</span>'
+    + '<div style="display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.2);border-radius:8px;padding:6px 12px">'
+    + '<input id="urlCopyInput" readonly value="'+fullUrl+'" style="background:none;border:none;color:#fff;font-size:14px;font-family:monospace;width:'+Math.min(fullUrl.length*8.5,400)+'px;outline:none">'
+    + '<button onclick="copyPageUrl()" style="background:#fff;color:#059669;border:none;border-radius:6px;padding:6px 14px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap">📋 Copy URL</button>'
+    + '</div>'
+    + '<a href="/p/'+slug+'" target="_blank" style="color:#fff;font-size:13px;text-decoration:underline;white-space:nowrap">Open page →</a>'
+    + '<button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:20px;cursor:pointer;margin-left:8px">×</button>';
 }
+
+function copyPageUrl() {
+  const input = document.getElementById('urlCopyInput');
+  if (input) {
+    navigator.clipboard.writeText(input.value).then(() => showToast('URL copied to clipboard!')).catch(() => {
+      input.select(); document.execCommand('copy'); showToast('URL copied!');
+    });
+  }
+}
+
+function previewPage() {
+  if (!pageSlug && !pageId) { showToast('Save your page first to preview'); return; }
+  savePage('draft', true);
+}
+
+let pageSlug = '{{ page.slug if page else "" }}';
 
 function showToast(msg) {
   const t = document.getElementById('toast');

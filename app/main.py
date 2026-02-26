@@ -1513,7 +1513,7 @@ def render_funnel_page(username: str, page_slug: str, request: Request,
                        db: Session = Depends(get_db)):
     slug = f"{username}/{page_slug}"
     page = db.query(FunnelPage).filter(FunnelPage.slug == slug).first()
-    if not page or page.status != "published":
+    if not page:
         raise HTTPException(status_code=404, detail="Page not found")
 
     # Track view
