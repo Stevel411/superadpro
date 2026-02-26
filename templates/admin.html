@@ -1,108 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - SuperAdPro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .neon { text-shadow: 0 0 25px #10b981; }
-        .glass { background: rgba(16, 185, 129, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(16, 185, 129, 0.3); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin Dashboard — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#0a0a1a;color:#e2e8f0;min-height:100vh}
+
+/* Topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#06060f;border-bottom:1px solid rgba(56,189,248,0.15);position:sticky;top:0;z-index:200}
+.topbar-left{display:flex;align-items:center;gap:20px}
+.topbar-title{font-size:18px;font-weight:800;color:#fff}
+.topbar-title span{color:#f87171}
+.topbar-sub{font-size:11px;color:rgba(200,220,255,0.4)}
+.tb-btn{display:flex;align-items:center;gap:6px;color:#94a3b8;text-decoration:none;font-size:13px;font-weight:600;padding:8px 16px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:rgba(255,255,255,0.03);transition:all 0.2s}
+.tb-btn:hover{border-color:rgba(56,189,248,0.3);color:#38bdf8;background:rgba(56,189,248,0.06)}
+
+.content{max-width:1200px;margin:0 auto;padding:32px 24px}
+
+/* Stats grid */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.stat{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:24px;position:relative;overflow:hidden;transition:all 0.3s}
+.stat:hover{border-color:rgba(56,189,248,0.2);background:rgba(56,189,248,0.04)}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0}
+.stat.blue::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}
+.stat.green::before{background:linear-gradient(90deg,#10b981,#34d399)}
+.stat.purple::before{background:linear-gradient(90deg,#8b5cf6,#a78bfa)}
+.stat.gold::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.stat-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(186,230,253,0.35);margin-bottom:8px}
+.stat-val{font-size:36px;font-weight:800;color:#fff;margin-bottom:2px}
+.stat-sub{font-size:12px;color:rgba(186,230,253,0.3)}
+.stat-icon{position:absolute;top:20px;right:20px;font-size:28px;opacity:0.3}
+
+/* Secondary stats */
+.stats2{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.stat2{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:18px 20px;display:flex;align-items:center;gap:14px}
+.stat2-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.stat2-val{font-size:22px;font-weight:800;color:#fff}
+.stat2-label{font-size:11px;color:rgba(186,230,253,0.35)}
+
+/* Tables */
+.panel{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:16px;margin-bottom:24px;overflow:hidden}
+.panel-head{padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-size:16px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px}
+.panel-badge{font-size:11px;font-weight:700;background:rgba(56,189,248,0.1);color:#38bdf8;padding:4px 10px;border-radius:12px}
+.panel-action{font-size:12px;font-weight:600;color:#38bdf8;text-decoration:none;padding:6px 14px;border:1px solid rgba(56,189,248,0.2);border-radius:8px;transition:all 0.2s}
+.panel-action:hover{background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.4)}
+
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:12px 20px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(186,230,253,0.3);background:rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.04)}
+td{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:14px;color:rgba(255,255,255,0.7)}
+tr:hover td{background:rgba(56,189,248,0.02)}
+.mono{font-family:monospace;font-size:12px;color:rgba(186,230,253,0.3)}
+.user-badge{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:#fff}
+.user-avatar{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:0.5px}
+.tag-admin{background:rgba(248,113,113,0.15);color:#f87171}
+.tag-active{background:rgba(52,211,153,0.15);color:#34d399}
+.tag-pending{background:rgba(251,191,36,0.15);color:#fbbf24}
+
+/* Two-col layout */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+
+/* Quick actions */
+.actions{display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap}
+.action-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;color:#e2e8f0;font-size:14px;font-weight:600;text-decoration:none;transition:all 0.2s;cursor:pointer;font-family:inherit}
+.action-btn:hover{background:rgba(56,189,248,0.06);border-color:rgba(56,189,248,0.25);color:#38bdf8}
+
+/* Empty state */
+.empty{text-align:center;padding:40px 20px;color:rgba(186,230,253,0.25);font-size:14px}
+
+@media(max-width:900px){.stats,.stats2{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}}
+@media(max-width:600px){.stats,.stats2{grid-template-columns:1fr}.content{padding:16px}}
+</style>
 </head>
-<body class="bg-zinc-950 text-zinc-100">
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/dashboard" class="tb-btn">← Dashboard</a>
+    <div><div class="topbar-title">🛡️ <span>Admin</span> Panel</div><div class="topbar-sub">Platform management · {{ user.username }}</div></div>
+  </div>
+  <div style="display:flex;gap:10px">
+    <a href="/" class="tb-btn">🏠 Home</a>
+    <a href="/api/vip/export" class="tb-btn" target="_blank">📧 Export VIP List</a>
+  </div>
+</div>
 
-    <svg width="0" height="0" style="position:absolute">
-  <defs>
-    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="30%" stop-color="#6d28d9"/><stop offset="70%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient>
-    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a0a2e"/><stop offset="40%" stop-color="#06061a"/><stop offset="100%" stop-color="#03031a"/></linearGradient>
-    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="25%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="75%" stop-color="#00b4d8"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
-    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
-    <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <symbol id="shield" viewBox="0 0 100 100">
-      <defs>
-        <linearGradient id="hexgrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#4f8ef7"/>
-          <stop offset="50%" stop-color="#6d28d9"/>
-          <stop offset="100%" stop-color="#00b4d8"/>
-        </linearGradient>
-        <linearGradient id="hexinner" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#1a3a8f"/>
-          <stop offset="100%" stop-color="#0d1a5c"/>
-        </linearGradient>
-      </defs>
-      <polygon points="50,3 93,27 93,73 50,97 7,73 7,27" fill="url(#hexgrad)" />
-      <polygon points="50,12 84,31 84,69 50,88 16,69 16,31" fill="url(#hexinner)" />
-      <text x="50" y="63" text-anchor="middle" font-family="Arial Black,sans-serif" font-weight="900" font-size="38" fill="#00d4ff" letter-spacing="-2">S</text>
-    </symbol>
-  </defs>
-</svg>
+<div class="content">
 
-<nav class="glass border-b border-emerald-500/30">
-        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl neon">SA</div>
-                <span class="text-3xl font-bold tracking-tighter neon">SuperAdPro</span>
-            </div>
-            <div class="flex gap-4">
-                <a href="/dashboard" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-sm font-semibold rounded-3xl transition">Back to Dashboard</a>
-                <a href="/" class="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-sm font-semibold rounded-3xl transition">Home</a>
-            </div>
-        </div>
-    </nav>
+  <!-- PRIMARY STATS -->
+  <div class="stats">
+    <div class="stat blue"><div class="stat-icon">👥</div><div class="stat-label">Total Users</div><div class="stat-val">{{ total_users }}</div><div class="stat-sub">Registered accounts</div></div>
+    <div class="stat green"><div class="stat-icon">✅</div><div class="stat-label">Active Users</div><div class="stat-val">{{ active_users }}</div><div class="stat-sub">Active subscriptions</div></div>
+    <div class="stat purple"><div class="stat-icon">🚀</div><div class="stat-label">VIP Waitlist</div><div class="stat-val">{{ vip_count }}</div><div class="stat-sub">Pre-launch signups</div></div>
+    <div class="stat gold"><div class="stat-icon">💰</div><div class="stat-label">Total Revenue</div><div class="stat-val">${{ revenue_sum }}</div><div class="stat-sub">Confirmed payments</div></div>
+  </div>
 
-    <div class="max-w-7xl mx-auto px-6 py-16">
-        <h1 class="text-5xl font-bold tracking-tighter neon text-center mb-4">Admin Dashboard</h1>
-        <p class="text-emerald-400 text-center text-xl">Platform Overview & User Management</p>
+  <!-- SECONDARY STATS -->
+  <div class="stats2">
+    <div class="stat2"><div class="stat2-icon" style="background:rgba(14,165,233,0.1)">📊</div><div><div class="stat2-val">{{ total_grids }}</div><div class="stat2-label">Active Grids</div></div></div>
+    <div class="stat2"><div class="stat2-icon" style="background:rgba(16,185,129,0.1)">✅</div><div><div class="stat2-val">{{ completed_grids }}</div><div class="stat2-label">Completed Grids</div></div></div>
+    <div class="stat2"><div class="stat2-icon" style="background:rgba(139,92,246,0.1)">💸</div><div><div class="stat2-val">{{ total_commissions }}</div><div class="stat2-label">Commissions Paid</div></div></div>
+    <div class="stat2"><div class="stat2-icon" style="background:rgba(251,191,36,0.1)">⏳</div><div><div class="stat2-val">{{ pending_withdrawals|length }}</div><div class="stat2-label">Pending Withdrawals</div></div></div>
+  </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-            <div class="glass rounded-3xl p-10 text-center">
-                <p class="text-emerald-400 text-sm">Total Registered Users</p>
-                <p class="text-6xl font-bold mt-4 text-emerald-400">{{ total_users }}</p>
-            </div>
-            <div class="glass rounded-3xl p-10 text-center">
-                <p class="text-emerald-400 text-sm">Active Today</p>
-                <p class="text-6xl font-bold mt-4 text-emerald-400">12</p>
-            </div>
-            <div class="glass rounded-3xl p-10 text-center">
-                <p class="text-emerald-400 text-sm">Total Revenue</p>
-                <p class="text-6xl font-bold mt-4 text-emerald-400">$0</p>
-            </div>
-        </div>
+  <!-- QUICK ACTIONS -->
+  <div class="actions">
+    <a href="/api/vip/export" target="_blank" class="action-btn">📧 Export VIP Emails</a>
+    <button class="action-btn" onclick="processRenewals()">🔄 Process Renewals</button>
+    <a href="/admin/test-email" class="action-btn">📨 Test Email</a>
+    <a href="/vip" target="_blank" class="action-btn">👁️ View VIP Page</a>
+  </div>
 
-        <!-- All Users Table -->
-        <div class="mt-16">
-            <h2 class="text-3xl font-semibold mb-8">All Registered Users</h2>
-            <div class="glass rounded-3xl overflow-hidden">
-                <table class="w-full">
-                    <thead>
-                        <tr class="bg-emerald-500/10">
-                            <th class="py-6 px-8 text-left">Username</th>
-                            <th class="py-6 px-8 text-left">Email</th>
-                            <th class="py-6 px-8 text-left">ID</th>
-                            <th class="py-6 px-8 text-left">Sponsor</th>
-                            <th class="py-6 px-8 text-center">Joined</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-zinc-700">
-                        {% for user in users %}
-                        <tr>
-                            <td class="py-6 px-8">{{ user.username }}</td>
-                            <td class="py-6 px-8">{{ user.email }}</td>
-                            <td class="py-6 px-8 font-mono text-zinc-400">#{{ user.id }}</td>
-                            <td class="py-6 px-8">{{ user.sponsor_id or 'None' }}</td>
-                            <td class="py-6 px-8 text-center text-xs text-zinc-400">Just now</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+  <div class="two-col">
+    <!-- VIP SIGNUPS -->
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">🚀 VIP Waiting List <span class="panel-badge">{{ vip_count }} signups</span></div>
+        <a href="/api/vip/export" target="_blank" class="panel-action">Export JSON</a>
+      </div>
+      {% if vip_signups %}
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Signed Up</th></tr></thead>
+        <tbody>
+          {% for s in vip_signups %}
+          <tr>
+            <td style="font-weight:600;color:#fff">{{ s.name }}</td>
+            <td>{{ s.email }}</td>
+            <td class="mono">{{ s.created_at.strftime('%d %b %Y %H:%M') if s.created_at else '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty">No VIP signups yet. Share <strong>/vip</strong> to start collecting leads.</div>
+      {% endif %}
     </div>
 
-    <!-- Legal Disclaimer Button -->
-    <div class="text-center py-8 border-t border-zinc-800">
-        <a href="/legal" class="text-sm text-zinc-400 hover:text-emerald-400 transition">Legal Disclaimer</a>
+    <!-- PENDING WITHDRAWALS -->
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">⏳ Pending Withdrawals <span class="panel-badge">{{ pending_withdrawals|length }}</span></div>
+      </div>
+      {% if pending_withdrawals %}
+      <table>
+        <thead><tr><th>User</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for w in pending_withdrawals %}
+          <tr>
+            <td style="font-weight:600;color:#fff">User #{{ w.user_id }}</td>
+            <td style="color:#fbbf24;font-weight:700">${{ w.amount_usdt }}</td>
+            <td><span class="tag tag-pending">PENDING</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty">No pending withdrawals.</div>
+      {% endif %}
     </div>
+  </div>
+
+  <!-- ALL USERS -->
+  <div class="panel">
+    <div class="panel-head">
+      <div class="panel-title">👥 All Registered Users <span class="panel-badge">{{ total_users }} total</span></div>
+    </div>
+    <table>
+      <thead><tr><th>User</th><th>Email</th><th>ID</th><th>Sponsor</th><th>Status</th><th>Joined</th></tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            <div class="user-badge">
+              <div class="user-avatar">{{ u.username[0]|upper if u.username else 'U' }}</div>
+              {{ u.username }}
+              {% if u.is_admin %}<span class="tag tag-admin">ADMIN</span>{% endif %}
+            </div>
+          </td>
+          <td>{{ u.email }}</td>
+          <td class="mono">#{{ u.id }}</td>
+          <td>{% if u.sponsor_id %}#{{ u.sponsor_id }}{% else %}<span style="color:rgba(186,230,253,0.2)">—</span>{% endif %}</td>
+          <td>{% if u.is_active %}<span class="tag tag-active">ACTIVE</span>{% else %}<span class="tag" style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3)">INACTIVE</span>{% endif %}</td>
+          <td class="mono">{{ u.created_at.strftime('%d %b %Y') if u.created_at else '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+async function processRenewals(){
+  if(!confirm('Process monthly renewals now?'))return;
+  try{
+    const r=await fetch('/admin/process-renewals',{method:'POST',credentials:'same-origin'});
+    const d=await r.json();
+    alert(d.message||'Done');location.reload();
+  }catch(e){alert('Error: '+e.message)}
+}
+</script>
 </body>
 </html>

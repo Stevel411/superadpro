@@ -1437,6 +1437,10 @@ def admin_panel(request: Request, user: User = Depends(get_current_user),
     total_revenue  = db.query(Payment).filter(Payment.status == "confirmed").all()
     revenue_sum    = sum(p.amount_usdt for p in total_revenue)
     pending_w      = db.query(Withdrawal).filter(Withdrawal.status == "pending").all()
+    vip_count      = db.query(VIPSignup).count()
+    vip_signups    = db.query(VIPSignup).order_by(VIPSignup.created_at.desc()).limit(50).all()
+    users          = db.query(User).order_by(User.id.desc()).limit(100).all()
+    total_commissions = db.query(Commission).count()
 
     return templates.TemplateResponse("admin.html", {
         "request":         request,
@@ -1447,6 +1451,10 @@ def admin_panel(request: Request, user: User = Depends(get_current_user),
         "completed_grids": completed_grids,
         "revenue_sum":     round(revenue_sum, 2),
         "pending_withdrawals": pending_w,
+        "vip_count":       vip_count,
+        "vip_signups":     vip_signups,
+        "users":           users,
+        "total_commissions": total_commissions,
     })
 
 
