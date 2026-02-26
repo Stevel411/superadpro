@@ -347,11 +347,24 @@ def run_migrations():
         for sql in migrations:
             try:
                 conn.execute(text(sql))
+                conn.commit()
                 results.append(("ok", sql[:60]))
             except Exception as e:
+                conn.rollback()
                 results.append(("skip", f"{sql[:50]} — {e}"))
-        conn.commit()
     return results
 
 run_migrations()
-# Migration trigger Thu Feb 26 11:18:19 UTC 2026
+
+# Force critical column additions with direct connection
+try:
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS interests VARCHAR"))
+        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_country VARCHAR"))
+        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_interests VARCHAR"))
+        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS priority_level INTEGER DEFAULT 0"))
+        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS owner_tier INTEGER DEFAULT 1"))
+        conn.commit()
+        print("✅ Force migration: interests + targeting columns confirmed")
+except Exception as e:
+    print(f"⚠️ Force migration note: {e}")
