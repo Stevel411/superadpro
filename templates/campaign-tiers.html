@@ -173,23 +173,15 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
         {% endfor %}
       </div>
 
-      <div class="info-cards">
-        <div class="info-card">
-          <div class="info-card-title">💰 Per-Advance Earnings</div>
-          {% for num, name, price, views, cls, popular in tiers %}
-          <div class="info-row">
-            <span class="label">{{ name }} · ${{ price }}</span>
-            <span class="val">${{ '%.0f'|format(price * 63 * 0.70) }}</span>
-          </div>
-          {% endfor %}
-        </div>
+      <div class="info-cards" style="grid-template-columns:1fr">
         <div class="info-card">
           <div class="info-card-title">📊 How It Works</div>
           <div style="font-size:14px;color:#2d3b4e;line-height:1.7">
             <p style="margin-bottom:10px">Each tier activates an <strong>8×8 grid position</strong> with 63 seats. As your network grows, seats fill and you earn commissions on every level.</p>
             <p style="margin-bottom:10px"><strong>25% direct commission</strong> on every personal referral who activates the same tier.</p>
             <p style="margin-bottom:10px"><strong>8.75% uni-level commission</strong> across 8 levels deep — that's 70% total payout per grid.</p>
-            <p>Grids are <strong>recurring</strong> — when one fills, a new advance starts automatically. Your income compounds.</p>
+            <p style="margin-bottom:16px">Grids are <strong>recurring</strong> — when one fills, a new advance starts automatically. Your income compounds.</p>
+            <a href="/income-grid" style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff;font-size:15px;font-weight:700;border-radius:8px;text-decoration:none;box-shadow:0 4px 14px rgba(0,180,216,0.25);transition:all 0.2s">⚡ View Profit Engine Grid →</a>
           </div>
         </div>
       </div>
