@@ -12,7 +12,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .layout{display:flex;min-height:100vh}
 
 /* ── SIDEBAR ── */
-.sidebar{width:220px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,240,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
+.sidebar{width:220px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,240,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:18px 16px 14px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.05)}
 .sidebar-brand{font-size:16px;font-weight:800;color:#fff;letter-spacing:0.5px}
 .nav-section{padding:18px 14px 6px;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)}
@@ -25,7 +25,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .sidebar-footer{margin-top:auto;border-top:1px solid rgba(255,255,255,0.05)}
 
 /* ── MAIN ── */
-.main{margin-left:220px;flex:1;display:flex;flex-direction:column}
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;overflow-y:auto}
 
 /* ── TOPBAR ── */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.1);position:sticky;top:0;z-index:50}
@@ -67,7 +67,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .swipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:16px}
 
 /* ── SWIPE CARD ── */
-.swipe-card{background:#ffffff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.03);transition:all 0.2s;display:flex;flex-direction:column}
+.swipe-card{background:#ffffff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.03);transition:all 0.2s;display:flex;flex-direction:column;overflow-y:auto}
 .swipe-card:hover{border-color:#c7d2fe;box-shadow:0 4px 16px rgba(99,102,241,0.1);transform:translateY(-1px)}
 .swipe-card.hidden{display:none}
 .card-top{padding:14px 16px 0}
