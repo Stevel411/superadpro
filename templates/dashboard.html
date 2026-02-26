@@ -45,7 +45,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .stream-card.s1{background:#f0fdf4;border-color:#bbf7d0}
 .stream-card.s2{background:#f0f9ff;border-color:#bae6fd}
 .stream-card.s3{background:#faf5ff;border-color:#e9d5ff}
-.stream-num{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.stream-num{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
 .stream-name{font-size:16px;font-weight:800;color:#0f172a;margin-bottom:3px}
 .stream-val{font-size:28px;font-weight:800;line-height:1}
 .stream-sub{font-size:16px;color:#64748b;margin-top:3px}
@@ -335,12 +335,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
           <div class="stream-num" style="color:#0077a8">Stream 2 — Profit Engine Grid</div>
           <div class="stream-name">Uni-Level Income</div>
           <div class="stream-val" style="color:#00b4d8">${{ '%.2f'|format(grid_earnings + level_earnings) }}</div>
-          <div class="stream-sub">Direct (25%) + Uni-Level (8.75%×8) combined</div>
-          <div style="margin-top:10px;padding-top:10px;border-top:1px solid #d0d8e4;display:flex;gap:16px;font-size:13px;font-weight:600;color:#5a6a7e">
-            <span>{{ grid_stats.active_grids }} active grid{% if grid_stats.active_grids != 1 %}s{% endif %}</span>
-            <span>·</span>
-            <span>{{ total_team }} member{% if total_team != 1 %}s{% endif %} in network</span>
-          </div>
+          <div class="stream-sub">Direct + Uni-Level commissions</div>
         </div>
         <div class="stream-card s3">
           <div class="stream-num" style="color:#7c3aed">Stream 3 — Marketing Mastery</div>
@@ -441,13 +436,13 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
         <div class="stat-card c3">
           <div class="stat-label">Grid Advances</div>
           <div class="stat-value" style="color:#7c3aed">{{ grid_stats.completed_advances }}</div>
-          <div class="stat-sub">Completed advances</div>
+          <div class="stat-sub">{{ grid_stats.active_grids }} active grid{% if grid_stats.active_grids != 1 %}s{% endif %}</div>
           <div class="stat-bg">◈</div>
         </div>
         <div class="stat-card c4">
           <div class="stat-label">Your Network</div>
           <div class="stat-value" style="color:#f59e0b">{{ total_team }}</div>
-          <div class="stat-sub">Total members</div>
+          <div class="stat-sub">Members in network</div>
           <div class="stat-bg">🤝</div>
         </div>
       </div>
