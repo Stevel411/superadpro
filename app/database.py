@@ -354,3 +354,4 @@ def run_migrations():
     return results
 
 run_migrations()
+# Migration trigger Thu Feb 26 11:18:19 UTC 2026
