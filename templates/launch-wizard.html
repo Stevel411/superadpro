@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Launch in 30 Minutes — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0a0a1a;color:#e2e8f0;min-height:100vh;overflow-x:hidden}
+
+/* Progress bar */
+.progress-bar{position:fixed;top:0;left:0;right:0;height:4px;background:rgba(255,255,255,0.06);z-index:200}
+.progress-fill{height:100%;background:linear-gradient(90deg,#00d4ff,#7c3aed);transition:width 0.5s ease;width:0%}
+
+/* Header */
+.wiz-header{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.wiz-logo{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.wiz-step-label{font-size:13px;color:#64748b}
+.wiz-skip{font-size:13px;color:#64748b;text-decoration:none;transition:color 0.2s}
+.wiz-skip:hover{color:#00d4ff}
+
+/* Main container */
+.wiz-container{max-width:720px;margin:0 auto;padding:40px 24px 80px}
+
+/* Step screens */
+.wiz-step{display:none;animation:fadeUp 0.4s ease}
+.wiz-step.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.wiz-title{font-size:clamp(28px,4vw,40px);font-weight:800;line-height:1.15;margin-bottom:8px}
+.wiz-title span{background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.wiz-sub{font-size:17px;color:#94a3b8;line-height:1.6;margin-bottom:32px}
+
+/* Cards for selection */
+.option-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:28px}
+.option-card{padding:20px;border:2px solid rgba(255,255,255,0.08);border-radius:14px;cursor:pointer;transition:all 0.2s;text-align:center;background:rgba(255,255,255,0.02)}
+.option-card:hover{border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.04)}
+.option-card.selected{border-color:#00d4ff;background:rgba(0,212,255,0.08);box-shadow:0 0 20px rgba(0,212,255,0.1)}
+.option-card .oc-icon{font-size:32px;margin-bottom:10px}
+.option-card .oc-title{font-size:15px;font-weight:700;margin-bottom:4px}
+.option-card .oc-desc{font-size:12px;color:#64748b;line-height:1.4}
+
+/* Custom input */
+.wiz-input{width:100%;padding:14px 18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#fff;font-size:16px;font-family:inherit;transition:all 0.2s;margin-bottom:16px}
+.wiz-input:focus{outline:none;border-color:#00d4ff;background:rgba(0,212,255,0.04)}
+.wiz-input::placeholder{color:#4a5a6e}
+
+/* Buttons */
+.wiz-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border:none;border-radius:10px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.wiz-btn-primary{background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff;box-shadow:0 4px 20px rgba(0,180,216,0.25)}
+.wiz-btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(0,180,216,0.35)}
+.wiz-btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.wiz-btn-secondary{background:rgba(255,255,255,0.06);color:#94a3b8;border:1px solid rgba(255,255,255,0.1)}
+.wiz-btn-secondary:hover{color:#fff;border-color:rgba(255,255,255,0.2)}
+.wiz-actions{display:flex;justify-content:space-between;align-items:center;margin-top:32px}
+
+/* Loading state */
+.wiz-loading{text-align:center;padding:40px}
+.wiz-spinner{width:48px;height:48px;border:3px solid rgba(0,212,255,0.15);border-top-color:#00d4ff;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.wiz-loading-text{font-size:16px;color:#94a3b8}
+
+/* Result card */
+.result-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;margin-bottom:16px}
+.result-card-title{font-size:13px;font-weight:700;color:#00d4ff;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.result-url{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px 14px;margin-bottom:8px}
+.result-url input{flex:1;background:none;border:none;color:#00d4ff;font-size:14px;font-family:monospace;outline:none}
+.result-url button{padding:6px 14px;background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.3);border-radius:6px;color:#00d4ff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+
+/* Social post cards */
+.social-post{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;margin-bottom:10px}
+.social-post-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.social-post-platform{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
+.social-post-copy{padding:4px 12px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);border-radius:6px;color:#00d4ff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;border:none}
+.social-post-text{font-size:13px;color:#94a3b8;line-height:1.6;white-space:pre-wrap;max-height:120px;overflow-y:auto}
+
+/* Earnings projection */
+.earn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
+.earn-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;text-align:center}
+.earn-card .ec-label{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.earn-card .ec-val{font-size:24px;font-weight:800;color:#00d4ff}
+.earn-card .ec-sub{font-size:11px;color:#94a3b8;margin-top:4px}
+
+/* Confetti */
+.confetti-wrap{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:300;overflow:hidden}
+.confetti{position:absolute;width:8px;height:8px;border-radius:2px;animation:confettiFall 3s ease-in forwards}
+@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+/* Checklist */
+.checklist{margin:20px 0}
+.check-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.check-item:last-child{border-bottom:none}
+.check-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.check-icon.done{background:rgba(16,185,129,0.15);color:#10b981}
+.check-icon.pending{background:rgba(255,255,255,0.06);color:#4a5a6e}
+.check-icon.active{background:rgba(0,212,255,0.15);color:#00d4ff;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,212,255,0.3)}50%{box-shadow:0 0 0 8px rgba(0,212,255,0)}}
+.check-text{font-size:15px;font-weight:500}
+.check-text.done{color:#10b981}
+.check-text.pending{color:#4a5a6e}
+
+@media(max-width:600px){
+  .wiz-container{padding:24px 16px 60px}
+  .option-grid{grid-template-columns:1fr 1fr}
+  .earn-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<div class="wiz-header">
+  <div class="wiz-logo">🚀 SuperAdPro Launch Wizard</div>
+  <div class="wiz-step-label" id="stepLabel">Step 1 of 5</div>
+  <a href="#" class="wiz-skip" onclick="skipWizard()">Skip for now →</a>
+</div>
+
+<div class="wiz-container">
+
+  <!-- ════════════════ STEP 1: WELCOME ════════════════ -->
+  <div class="wiz-step active" id="step1">
+    <div class="wiz-title">Welcome, {{ user.first_name or user.username }}! 🎉</div>
+    <div class="wiz-title">Let's get you <span>live in 30 minutes.</span></div>
+    <div class="wiz-sub">We'll set up everything you need — your niche, your landing page, your campaigns, and your social posts. All powered by AI. All done for you.</div>
+
+    <div class="checklist">
+      <div class="check-item"><div class="check-icon active">1</div><div class="check-text">Choose your niche</div></div>
+      <div class="check-item"><div class="check-icon pending">2</div><div class="check-text pending">AI builds your landing page</div></div>
+      <div class="check-item"><div class="check-icon pending">3</div><div class="check-text pending">Set up your first campaign</div></div>
+      <div class="check-item"><div class="check-icon pending">4</div><div class="check-text pending">Get ready-to-post social content</div></div>
+      <div class="check-item"><div class="check-icon pending">5</div><div class="check-text pending">See your earnings projection</div></div>
+    </div>
+
+    <div class="wiz-actions">
+      <div></div>
+      <button class="wiz-btn wiz-btn-primary" onclick="goStep(2)">Let's Go! 🚀</button>
+    </div>
+  </div>
+
+  <!-- ════════════════ STEP 2: NICHE ════════════════ -->
+  <div class="wiz-step" id="step2">
+    <div class="wiz-title">What's your <span>niche?</span></div>
+    <div class="wiz-sub">Pick the area you want to promote in. This helps our AI create the perfect content for you.</div>
+
+    <div class="option-grid">
+      <div class="option-card" onclick="selectNiche(this,'Forex Trading')"><div class="oc-icon">📈</div><div class="oc-title">Forex Trading</div><div class="oc-desc">Currency markets & trading systems</div></div>
+      <div class="option-card" onclick="selectNiche(this,'Crypto')"><div class="oc-icon">₿</div><div class="oc-title">Crypto</div><div class="oc-desc">Bitcoin, DeFi & blockchain</div></div>
+      <div class="option-card" onclick="selectNiche(this,'Affiliate Marketing')"><div class="oc-icon">🤝</div><div class="oc-title">Affiliate Marketing</div><div class="oc-desc">Promote products & earn commissions</div></div>
+      <div class="option-card" onclick="selectNiche(this,'E-Commerce')"><div class="oc-icon">🛒</div><div class="oc-title">E-Commerce</div><div class="oc-desc">Dropshipping & online stores</div></div>
+      <div class="option-card" onclick="selectNiche(this,'AI & Tech')"><div class="oc-icon">🤖</div><div class="oc-title">AI & Tech</div><div class="oc-desc">AI tools & tech education</div></div>
+      <div class="option-card" onclick="selectNiche(this,'Health & Fitness')"><div class="oc-icon">💪</div><div class="oc-title">Health & Fitness</div><div class="oc-desc">Wellness, fitness & nutrition</div></div>
+      <div class="option-card" onclick="selectNiche(this,'Real Estate')"><div class="oc-icon">🏠</div><div class="oc-title">Real Estate</div><div class="oc-desc">Property investing & rentals</div></div>
+      <div class="option-card" onclick="selectNiche(this,'Personal Finance')"><div class="oc-icon">💰</div><div class="oc-title">Personal Finance</div><div class="oc-desc">Budgeting, saving & investing</div></div>
+    </div>
+
+    <div style="margin-bottom:8px;font-size:13px;color:#64748b">Or enter your own:</div>
+    <input class="wiz-input" id="customNiche" placeholder="e.g. Social Media Marketing, Gaming, Travel..." oninput="onCustomNiche(this.value)">
+
+    <div style="margin-top:12px;font-size:13px;color:#64748b">Who's your target audience?</div>
+    <div class="option-grid" style="margin-top:8px;grid-template-columns:repeat(3,1fr)">
+      <div class="option-card aud-card selected" onclick="selectAudience(this,'beginners')" style="padding:12px"><div class="oc-title">Beginners</div></div>
+      <div class="option-card aud-card" onclick="selectAudience(this,'intermediate')" style="padding:12px"><div class="oc-title">Intermediate</div></div>
+      <div class="option-card aud-card" onclick="selectAudience(this,'advanced')" style="padding:12px"><div class="oc-title">Advanced</div></div>
+    </div>
+
+    <div class="wiz-actions">
+      <button class="wiz-btn wiz-btn-secondary" onclick="goStep(1)">← Back</button>
+      <button class="wiz-btn wiz-btn-primary" id="step2Next" onclick="goStep(3)" disabled>Continue →</button>
+    </div>
+  </div>
+
+  <!-- ════════════════ STEP 3: BUILD FUNNEL ════════════════ -->
+  <div class="wiz-step" id="step3">
+    <div class="wiz-title">Building your <span>landing page...</span></div>
+    <div class="wiz-sub">Our AI is creating a complete, ready-to-publish funnel page tailored to your niche. This takes about 15 seconds.</div>
+
+    <div class="wiz-loading" id="funnelLoading">
+      <div class="wiz-spinner"></div>
+      <div class="wiz-loading-text">🤖 AI is crafting your perfect landing page...</div>
+    </div>
+
+    <div id="funnelResult" style="display:none">
+      <div class="result-card">
+        <div class="result-card-title">✅ Your Landing Page is Ready!</div>
+        <div class="result-url">
+          <input type="text" id="funnelUrl" readonly>
+          <button onclick="copyUrl('funnelUrl')">Copy</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <a id="funnelPreviewLink" href="#" target="_blank" class="wiz-btn wiz-btn-secondary" style="padding:8px 16px;font-size:13px;text-decoration:none">👁 Preview</a>
+          <a id="funnelEditLink" href="#" class="wiz-btn wiz-btn-secondary" style="padding:8px 16px;font-size:13px;text-decoration:none">✏️ Edit in Builder</a>
+        </div>
+      </div>
+      <div style="font-size:13px;color:#64748b;margin-top:8px">💡 You can customise everything later in the Funnel Builder.</div>
+
+      <div class="wiz-actions">
+        <button class="wiz-btn wiz-btn-secondary" onclick="goStep(2)">← Back</button>
+        <button class="wiz-btn wiz-btn-primary" onclick="goStep(4)">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ STEP 4: SOCIAL POSTS ════════════════ -->
+  <div class="wiz-step" id="step4">
+    <div class="wiz-title">Your <span>social media launch kit</span> 📱</div>
+    <div class="wiz-sub">Ready-to-post content for every platform. Just copy, paste, and share your link with the world.</div>
+
+    <div class="wiz-loading" id="postsLoading">
+      <div class="wiz-spinner"></div>
+      <div class="wiz-loading-text">✍️ Writing your launch posts...</div>
+    </div>
+
+    <div id="postsResult" style="display:none"></div>
+
+    <div id="postsActions" style="display:none">
+      <div class="wiz-actions">
+        <button class="wiz-btn wiz-btn-secondary" onclick="goStep(3)">← Back</button>
+        <button class="wiz-btn wiz-btn-primary" onclick="goStep(5)">See My Earnings Projection →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ STEP 5: EARNINGS + LAUNCH ════════════════ -->
+  <div class="wiz-step" id="step5">
+    <div class="wiz-title">Your <span>earnings potential</span> 💰</div>
+    <div class="wiz-sub">Here's what happens when you start sharing your link. These projections are based on the SuperAdPro compensation plan.</div>
+
+    <div style="font-size:14px;color:#94a3b8;margin-bottom:12px">If you refer just <strong style="color:#00d4ff">3 people</strong> this month on the $20 Starter tier:</div>
+
+    <div class="earn-grid">
+      <div class="earn-card"><div class="ec-label">Direct Commissions</div><div class="ec-val">$15</div><div class="ec-sub">25% × 3 referrals</div></div>
+      <div class="earn-card"><div class="ec-label">If They Each Refer 3</div><div class="ec-val">$47</div><div class="ec-sub">8 levels of uni-level</div></div>
+      <div class="earn-card"><div class="ec-label">Full Grid Advance</div><div class="ec-val">$882</div><div class="ec-sub">63 seats filled</div></div>
+    </div>
+
+    <div style="font-size:14px;color:#94a3b8;margin:20px 0 12px">Scale to the $200 Advanced tier:</div>
+
+    <div class="earn-grid">
+      <div class="earn-card"><div class="ec-label">Direct Commissions</div><div class="ec-val">$150</div><div class="ec-sub">25% × 3 referrals</div></div>
+      <div class="earn-card"><div class="ec-label">If They Each Refer 3</div><div class="ec-val">$470</div><div class="ec-sub">Growing network</div></div>
+      <div class="earn-card"><div class="ec-label">Full Grid Advance</div><div class="ec-val">$8,820</div><div class="ec-sub">63 seats filled</div></div>
+    </div>
+
+    <div style="background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:20px;margin:24px 0;text-align:center">
+      <div style="font-size:14px;color:#94a3b8;margin-bottom:6px">Remember: grids are recurring. When one fills, a new advance starts automatically.</div>
+      <div style="font-size:18px;font-weight:800;color:#00d4ff">Your income compounds over time 🔄</div>
+    </div>
+
+    <div class="checklist">
+      <div class="check-item"><div class="check-icon done">✓</div><div class="check-text done">Niche selected</div></div>
+      <div class="check-item"><div class="check-icon done">✓</div><div class="check-text done">Landing page created</div></div>
+      <div class="check-item"><div class="check-icon done">✓</div><div class="check-text done">Social posts ready</div></div>
+      <div class="check-item"><div class="check-icon done">✓</div><div class="check-text done">Earnings projection reviewed</div></div>
+    </div>
+
+    <div style="text-align:center;margin-top:32px">
+      <button class="wiz-btn wiz-btn-primary" onclick="launchComplete()" style="padding:18px 48px;font-size:18px">
+        🚀 Launch My Business!
+      </button>
+      <div style="font-size:12px;color:#4a5a6e;margin-top:10px">You're ready. Let's go.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<script>
+let currentStep = 1;
+let selectedNiche = '';
+let selectedAudience = 'beginners';
+let funnelData = null;
+
+function goStep(n) {
+  document.querySelectorAll('.wiz-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+  currentStep = n;
+  document.getElementById('progressFill').style.width = (n * 20) + '%';
+  document.getElementById('stepLabel').textContent = `Step ${n} of 5`;
+  window.scrollTo(0, 0);
+
+  // Trigger actions for specific steps
+  if (n === 3 && !funnelData) generateFunnel();
+  if (n === 4 && !document.getElementById('postsResult').innerHTML) generatePosts();
+}
+
+function selectNiche(el, niche) {
+  document.querySelectorAll('.option-card:not(.aud-card)').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedNiche = niche;
+  document.getElementById('customNiche').value = '';
+  document.getElementById('step2Next').disabled = false;
+}
+
+function onCustomNiche(val) {
+  if (val.trim().length > 2) {
+    document.querySelectorAll('.option-card:not(.aud-card)').forEach(c => c.classList.remove('selected'));
+    selectedNiche = val.trim();
+    document.getElementById('step2Next').disabled = false;
+  }
+}
+
+function selectAudience(el, aud) {
+  document.querySelectorAll('.aud-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedAudience = aud;
+}
+
+async function generateFunnel() {
+  document.getElementById('funnelLoading').style.display = 'block';
+  document.getElementById('funnelResult').style.display = 'none';
+
+  try {
+    const res = await fetch('/api/launch-wizard/generate-funnel', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({niche: selectedNiche, audience: selectedAudience, tone: 'professional'})
+    });
+    funnelData = await res.json();
+
+    if (funnelData.success) {
+      const baseUrl = window.location.origin;
+      document.getElementById('funnelUrl').value = baseUrl + '/p/' + funnelData.slug;
+      document.getElementById('funnelPreviewLink').href = '/p/' + funnelData.slug;
+      document.getElementById('funnelEditLink').href = '/funnels/edit/' + funnelData.page_id;
+    }
+  } catch(e) {
+    funnelData = {success: false};
+  }
+
+  document.getElementById('funnelLoading').style.display = 'none';
+  document.getElementById('funnelResult').style.display = 'block';
+}
+
+async function generatePosts() {
+  document.getElementById('postsLoading').style.display = 'block';
+  document.getElementById('postsResult').style.display = 'none';
+  document.getElementById('postsActions').style.display = 'none';
+
+  const funnelUrl = funnelData?.slug ? '/p/' + funnelData.slug : '/ref/{{ user.username }}';
+
+  try {
+    const res = await fetch('/api/launch-wizard/generate-posts', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({niche: selectedNiche, funnel_url: funnelUrl})
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      const platforms = [
+        {key:'facebook',name:'Facebook',icon:'📘',color:'#1877f2'},
+        {key:'instagram',name:'Instagram',icon:'📸',color:'#e4405f'},
+        {key:'twitter',name:'X / Twitter',icon:'🐦',color:'#1da1f2'},
+        {key:'tiktok',name:'TikTok',icon:'🎵',color:'#ff0050'},
+        {key:'whatsapp',name:'WhatsApp',icon:'💬',color:'#25d366'}
+      ];
+
+      let html = '';
+      platforms.forEach(p => {
+        if (data.posts[p.key]) {
+          html += `<div class="social-post">
+            <div class="social-post-header">
+              <div class="social-post-platform" style="color:${p.color}">${p.icon} ${p.name}</div>
+              <button class="social-post-copy" onclick="copyPost(this,'${p.key}')">📋 Copy</button>
+            </div>
+            <div class="social-post-text" id="post_${p.key}">${data.posts[p.key]}</div>
+          </div>`;
+        }
+      });
+      document.getElementById('postsResult').innerHTML = html;
+    }
+  } catch(e) {
+    document.getElementById('postsResult').innerHTML = '<div style="color:#ef4444">Failed to generate posts. You can create them manually later.</div>';
+  }
+
+  document.getElementById('postsLoading').style.display = 'none';
+  document.getElementById('postsResult').style.display = 'block';
+  document.getElementById('postsActions').style.display = 'block';
+}
+
+function copyUrl(id) {
+  const input = document.getElementById(id);
+  navigator.clipboard.writeText(input.value);
+  input.parentElement.querySelector('button').textContent = '✓ Copied!';
+  setTimeout(() => input.parentElement.querySelector('button').textContent = 'Copy', 2000);
+}
+
+function copyPost(btn, key) {
+  const text = document.getElementById('post_' + key).textContent;
+  navigator.clipboard.writeText(text);
+  btn.textContent = '✓ Copied!';
+  setTimeout(() => btn.textContent = '📋 Copy', 2000);
+}
+
+async function launchComplete() {
+  // Fire confetti!
+  fireConfetti();
+
+  // Mark onboarding complete
+  await fetch('/api/launch-wizard/complete', {method: 'POST'});
+
+  // Redirect to dashboard after confetti
+  setTimeout(() => { window.location.href = '/dashboard'; }, 3000);
+}
+
+async function skipWizard() {
+  await fetch('/api/launch-wizard/complete', {method: 'POST'});
+  window.location.href = '/dashboard';
+}
+
+function fireConfetti() {
+  const wrap = document.getElementById('confettiWrap');
+  const colors = ['#00d4ff','#7c3aed','#10b981','#f59e0b','#ef4444','#ec4899','#fff'];
+  for (let i = 0; i < 80; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.left = Math.random() * 100 + '%';
+    el.style.top = '-10px';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDelay = Math.random() * 1.5 + 's';
+    el.style.animationDuration = (2 + Math.random() * 2) + 's';
+    el.style.width = (4 + Math.random() * 8) + 'px';
+    el.style.height = (4 + Math.random() * 8) + 'px';
+    wrap.appendChild(el);
+  }
+  setTimeout(() => wrap.innerHTML = '', 5000);
+}
+</script>
+</body>
+</html>

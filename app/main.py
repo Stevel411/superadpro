@@ -468,12 +468,184 @@ def dashboard(request: Request, user: User = Depends(get_current_user),
               db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
     if not user: return RedirectResponse(url="/?login=1")
+    # Redirect new users to launch wizard
+    if not user.onboarding_completed:
+        return RedirectResponse(url="/launch-wizard", status_code=302)
     try:
         ctx = get_dashboard_context(request, user, db)
         return templates.TemplateResponse("dashboard.html", ctx)
     except Exception as exc:
         logger.error(f"Dashboard error for user {user.id}: {exc}", exc_info=True)
         return JSONResponse({"error": f"Dashboard error: {exc}"}, status_code=500)
+
+@app.get("/launch-wizard")
+def launch_wizard(request: Request, user: User = Depends(get_current_user),
+                  db: Session = Depends(get_db)):
+    if not user: return RedirectResponse(url="/?login=1")
+    return templates.TemplateResponse("launch-wizard.html", {
+        "request": request,
+        "user": user,
+    })
+
+@app.post("/api/launch-wizard/complete")
+def complete_launch_wizard(request: Request, user: User = Depends(get_current_user),
+                           db: Session = Depends(get_db)):
+    if not user: return RedirectResponse(url="/?login=1")
+    user.onboarding_completed = True
+    db.commit()
+    return {"success": True}
+
+@app.post("/api/launch-wizard/generate-funnel")
+async def generate_launch_funnel(request: Request, user: User = Depends(get_current_user),
+                                 db: Session = Depends(get_db)):
+    """AI generates a complete funnel page based on wizard answers."""
+    if not user: return {"error": "Not logged in"}
+    body = await request.json()
+    niche = body.get("niche", "online business")
+    audience = body.get("audience", "beginners")
+    tone = body.get("tone", "professional")
+
+    # Build sections for the funnel
+    import json
+    sections = [
+        {"templateId": "hero-video", "data": {
+            "headline": f"Discover How to Build Real Income in {niche}",
+            "subheadline": f"A proven system designed for {audience} — no experience needed.",
+            "video_url": "", "cta_text": "Get Started Now →", "cta_url": f"/ref/{user.username}"
+        }},
+        {"templateId": "stats-bar", "data": {
+            "items": [
+                {"value": "10,000+", "label": "Active Members"},
+                {"value": "$2.5M+", "label": "Paid Out"},
+                {"value": "150+", "label": "Countries"},
+                {"value": "4.9/5", "label": "Rating"}
+            ]
+        }},
+        {"templateId": "benefits-grid", "data": {
+            "title": f"Why {niche} with SuperAdPro?",
+            "items": [
+                {"icon": "🚀", "title": "Quick Start", "desc": "Go from zero to earning in under 30 minutes."},
+                {"icon": "🤖", "title": "AI Does the Work", "desc": "Our AI builds your marketing so you can focus on results."},
+                {"icon": "💰", "title": "Multiple Streams", "desc": "Earn from commissions, referrals, and ad revenue."},
+                {"icon": "📱", "title": "Work Anywhere", "desc": "Just a phone and internet — that's all you need."},
+                {"icon": "🎓", "title": "Full Training", "desc": "Step-by-step video training included with every tier."},
+                {"icon": "🔒", "title": "Proven System", "desc": "Real members seeing real results every day."}
+            ]
+        }},
+        {"templateId": "steps-section", "data": {
+            "title": "How It Works",
+            "steps": [
+                {"num": "01", "title": "Create Your Account", "desc": "Sign up in under 60 seconds."},
+                {"num": "02", "title": "Follow the Training", "desc": "Watch quick-start videos and set up your campaigns."},
+                {"num": "03", "title": "Start Earning", "desc": "Share your link and watch your income grow."}
+            ]
+        }},
+        {"templateId": "testimonials", "data": {
+            "title": "What Members Are Saying",
+            "items": [
+                {"name": "Sarah M.", "role": "Marketer", "text": "Within my first month I made back my investment and then some.", "stars": 5},
+                {"name": "James K.", "role": "Affiliate", "text": "The AI tools save me hours every single week.", "stars": 5},
+                {"name": "Maria L.", "role": "Entrepreneur", "text": "Finally something that actually works. Highly recommended.", "stars": 5}
+            ]
+        }},
+        {"templateId": "cta-banner", "data": {
+            "headline": "Ready to Start?",
+            "subheadline": f"Join now and start building your {niche} income today.",
+            "cta_text": "Claim Your Spot →",
+            "cta_url": f"/ref/{user.username}"
+        }}
+    ]
+
+    # If AI key available, enhance the copy
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if api_key:
+        try:
+            client = anthropic.Anthropic(api_key=api_key)
+            resp = client.messages.create(
+                model="claude-sonnet-4-20250514",
+                max_tokens=500,
+                system="You write punchy marketing copy. Return ONLY valid JSON — no markdown.",
+                messages=[{"role": "user", "content": f"""Generate funnel page copy for someone promoting {niche} to {audience}. Tone: {tone}.
+Return JSON: {{"headline":"...","subheadline":"...","cta_text":"...","benefits_title":"...","benefits":[{{"icon":"emoji","title":"...","desc":"..."}},...6 items],"cta_headline":"...","cta_sub":"..."}}"""}]
+            )
+            ai_text = resp.content[0].text.strip()
+            if ai_text.startswith("```"): ai_text = ai_text.split("\n",1)[1].rsplit("```",1)[0]
+            ai = json.loads(ai_text)
+            sections[0]["data"]["headline"] = ai.get("headline", sections[0]["data"]["headline"])
+            sections[0]["data"]["subheadline"] = ai.get("subheadline", sections[0]["data"]["subheadline"])
+            sections[0]["data"]["cta_text"] = ai.get("cta_text", sections[0]["data"]["cta_text"])
+            if ai.get("benefits_title"): sections[2]["data"]["title"] = ai["benefits_title"]
+            if ai.get("benefits") and len(ai["benefits"]) >= 4: sections[2]["data"]["items"] = ai["benefits"][:6]
+            if ai.get("cta_headline"): sections[5]["data"]["headline"] = ai["cta_headline"]
+            if ai.get("cta_sub"): sections[5]["data"]["subheadline"] = ai["cta_sub"]
+        except Exception as e:
+            logger.warning(f"AI funnel gen failed: {e}")
+
+    # Create the funnel page
+    slug = f"{user.username}/my-{niche.lower().replace(' ', '-')}-page"
+    page = FunnelPage(
+        user_id=user.id,
+        slug=slug,
+        title=f"My {niche} Page",
+        template_type="sections",
+        body_copy=json.dumps(sections),
+        color_scheme="dark",
+        accent_color="#00d4ff",
+        status="draft",
+        headline=sections[0]["data"]["headline"],
+        subheadline=sections[0]["data"]["subheadline"],
+        cta_text=sections[0]["data"]["cta_text"],
+        cta_url=f"/ref/{user.username}",
+    )
+    db.add(page)
+    db.commit()
+    db.refresh(page)
+
+    return {"success": True, "page_id": page.id, "slug": slug,
+            "preview_url": f"/p/{slug}", "edit_url": f"/funnels/edit/{page.id}"}
+
+@app.post("/api/launch-wizard/generate-posts")
+async def generate_social_posts(request: Request, user: User = Depends(get_current_user)):
+    """Generate ready-to-post social media content."""
+    if not user: return {"error": "Not logged in"}
+    body = await request.json()
+    niche = body.get("niche", "online business")
+    funnel_url = body.get("funnel_url", f"/ref/{user.username}")
+    name = user.first_name or user.username
+
+    base_url = str(request.base_url).rstrip("/")
+    full_link = f"{base_url}{funnel_url}"
+
+    # Default posts
+    posts = {
+        "facebook": f"🚀 I just discovered an incredible way to build income in {niche}. The AI does most of the heavy lifting — I'm genuinely impressed.\n\nIf you've been looking for something that actually works, check this out 👇\n{full_link}",
+        "instagram": f"🔥 Building real income in {niche} just got a whole lot easier.\n\n✅ AI-powered tools\n✅ Step-by-step training\n✅ Multiple income streams\n✅ Works from anywhere\n\nLink in bio or DM me \"INFO\" 💬\n\n#OnlineIncome #{niche.replace(' ','')} #WorkFromAnywhere #PassiveIncome #Entrepreneur",
+        "twitter": f"Just started building income in {niche} with an AI-powered platform that actually delivers. Multiple income streams from $20/month. Check it out:\n\n{full_link}",
+        "tiktok": f"POV: You just found a platform that uses AI to help you build real income in {niche} 🤯\n\nNo experience needed. Multiple income streams. From just $20/month.\n\nLink in bio! 👆\n\n#{niche.replace(' ','')} #makemoneyonline #sidehustle #passiveincome #ai",
+        "whatsapp": f"Hey! 👋 I just found something amazing for building income in {niche}. It uses AI to do most of the work and it's only $20/month to get started. I'm already set up — check it out here: {full_link}"
+    }
+
+    # Enhance with AI if available
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if api_key:
+        try:
+            client = anthropic.Anthropic(api_key=api_key)
+            resp = client.messages.create(
+                model="claude-sonnet-4-20250514",
+                max_tokens=600,
+                system="Write social media posts. Return ONLY valid JSON — no markdown.",
+                messages=[{"role": "user", "content": f"""Write 5 social posts for {name} promoting their {niche} funnel page at {full_link}.
+Return JSON: {{"facebook":"...","instagram":"...","twitter":"...","tiktok":"...","whatsapp":"..."}}
+Keep each platform-appropriate. Include the link. Be genuine, not spammy."""}]
+            )
+            ai_text = resp.content[0].text.strip()
+            if ai_text.startswith("```"): ai_text = ai_text.split("\n",1)[1].rsplit("```",1)[0]
+            ai_posts = json.loads(ai_text)
+            posts.update(ai_posts)
+        except Exception as e:
+            logger.warning(f"AI post gen failed: {e}")
+
+    return {"success": True, "posts": posts}
 
 @app.get("/income-grid")
 def income_grid(request: Request, user: User = Depends(get_current_user),

@@ -80,6 +80,7 @@ class User(Base):
     created_at          = Column(DateTime, default=datetime.utcnow)
     membership_activated_by_referral = Column(Boolean, default=False)  # first month gifted
     low_balance_warned  = Column(Boolean, default=False)               # 3-day warning sent
+    onboarding_completed = Column(Boolean, default=False)              # launch wizard done
 
 class Grid(Base):
     """One grid instance per user per package tier."""
@@ -337,6 +338,7 @@ def run_migrations():
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS owner_tier INTEGER DEFAULT 1",
         # User interests
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS interests VARCHAR",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE",
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS sections_json TEXT",
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS font_family VARCHAR DEFAULT 'Rethink Sans'",
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS custom_css TEXT",
@@ -366,7 +368,10 @@ try:
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_interests VARCHAR"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS priority_level INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS owner_tier INTEGER DEFAULT 1"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE"))
+        # Mark existing users as onboarding complete (they don't need the wizard)
+        conn.execute(text("UPDATE users SET onboarding_completed = TRUE WHERE onboarding_completed IS NULL OR (created_at < NOW() - INTERVAL '1 hour')"))
         conn.commit()
-        print("✅ Force migration: interests + targeting columns confirmed")
+        print("✅ Force migration: interests + targeting + onboarding columns confirmed")
 except Exception as e:
     print(f"⚠️ Force migration note: {e}")
