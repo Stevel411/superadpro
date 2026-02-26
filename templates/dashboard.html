@@ -249,7 +249,6 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
     <div class="topbar">
       <div>
         <div class="topbar-title">👋 Welcome back, {{ display_name }}!</div>
-        <div class="topbar-sub">{{ grid_stats.active_grids }} active grid{% if grid_stats.active_grids != 1 %}s{% endif %} · {{ total_team }} members in your network</div>
       </div>
       <div class="topbar-right">
         <div class="balance-pill">
@@ -337,6 +336,11 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
           <div class="stream-name">Uni-Level Income</div>
           <div class="stream-val" style="color:#00b4d8">${{ '%.2f'|format(grid_earnings + level_earnings) }}</div>
           <div class="stream-sub">Direct (25%) + Uni-Level (8.75%×8) combined</div>
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid #d0d8e4;display:flex;gap:16px;font-size:13px;font-weight:600;color:#5a6a7e">
+            <span>{{ grid_stats.active_grids }} active grid{% if grid_stats.active_grids != 1 %}s{% endif %}</span>
+            <span>·</span>
+            <span>{{ total_team }} member{% if total_team != 1 %}s{% endif %} in network</span>
+          </div>
         </div>
         <div class="stream-card s3">
           <div class="stream-num" style="color:#7c3aed">Stream 3 — Marketing Mastery</div>
