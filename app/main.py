@@ -1518,15 +1518,20 @@ def render_funnel_page(username: str, page_slug: str, request: Request,
 
     # Track view
     page.views = (page.views or 0) + 1
-    db.commit()
 
-    import json
-    sections = json.loads(page.sections_json) if page.sections_json else []
+    # Get page owner info for AI chatbot context
+    owner = db.query(User).filter(User.id == page.user_id).first()
+    owner_name = owner.first_name or owner.username if owner else username
+    owner_ref_link = f"/ref/{owner.username}" if owner else f"/ref/{username}"
+
+    db.commit()
 
     return templates.TemplateResponse("funnel-render.html", {
         "request": request,
         "page": page,
-        "sections": sections,
+        "owner_name": owner_name,
+        "owner_username": owner.username if owner else username,
+        "owner_ref_link": owner_ref_link,
     })
 
 
@@ -1538,6 +1543,111 @@ def track_click(page_id: int, db: Session = Depends(get_db)):
         page.clicks = (page.clicks or 0) + 1
         db.commit()
     return JSONResponse({"ok": True})
+
+
+# ═══════════════════════════════════════════════════════════════
+#  AI SALES CHATBOT (on funnel pages)
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/chat/{page_id}")
+async def funnel_chat(page_id: int, request: Request, db: Session = Depends(get_db)):
+    """AI sales assistant that lives on published funnel pages."""
+    from fastapi.responses import JSONResponse
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    message = (body.get("message") or "").strip()
+    history = body.get("history") or []
+    if not message:
+        return JSONResponse({"error": "Empty message"}, status_code=400)
+
+    # Get page and owner context
+    page = db.query(FunnelPage).filter(FunnelPage.id == page_id).first()
+    if not page:
+        return JSONResponse({"error": "Page not found"}, status_code=404)
+
+    owner = db.query(User).filter(User.id == page.user_id).first()
+    owner_name = owner.first_name or owner.username if owner else "our team"
+    ref_link = f"https://superadpro-production.up.railway.app/ref/{owner.username}" if owner else "#"
+
+    # Build page content summary for context
+    page_context = f"Page headline: {page.headline or page.title}"
+    if page.subheadline:
+        page_context += f"\nPage subheadline: {page.subheadline}"
+    if page.cta_text:
+        page_context += f"\nCall to action: {page.cta_text}"
+
+    system_prompt = f"""You are a friendly, knowledgeable AI sales assistant on {owner_name}'s landing page. Your job is to help visitors understand the opportunity, answer their questions honestly, and guide them toward taking action.
+
+ABOUT THE PAGE YOU'RE ON:
+{page_context}
+
+ABOUT SUPERADPRO (the platform):
+- SuperAdPro is a video advertising platform with a built-in affiliate income opportunity
+- Membership costs $20/month in USDT (crypto) on Base Chain
+- Members get: AI Campaign Studio, Funnel Builder with AI chatbot, Niche Finder, Swipe File, Campaign Analytics
+- Members earn by: watching daily videos (Watch & Earn), referring others (25% direct commission), and the 8x8 Profit Engine Grid (uni-level commissions)
+- There are 8 campaign tiers from $20 to $1,000 for advertisers who want engaged video views
+- All payments are in USDT on Base Chain (crypto) — fast, transparent, no chargebacks
+- The platform is real with genuine marketing tools, not just a compensation plan
+
+ABOUT {owner_name.upper()} (the person who shared this page):
+- They are a SuperAdPro member who created this page to share the opportunity
+- Their referral link: {ref_link}
+- When guiding visitors to sign up, direct them to the referral link above
+
+YOUR PERSONALITY & RULES:
+- Be warm, conversational, and genuine — not pushy or salesy
+- Answer questions honestly. If you don't know something, say so
+- Never make specific income promises or guarantees
+- If asked about earnings, say "results vary based on effort, team building, and market conditions"
+- Handle objections with empathy — acknowledge concerns then share relevant facts
+- Keep responses concise (2-4 sentences usually). Be brief and punchy
+- If someone seems interested, naturally mention the next step (visiting the referral link)
+- You can use the occasional emoji but don't overdo it
+- Never pretend to be human — if asked, say you're an AI assistant
+- Never badmouth competitors or other platforms"""
+
+    # Build messages for the API
+    messages = []
+    for h in history[-10:]:  # Keep last 10 exchanges for context
+        messages.append({"role": h["role"], "content": h["content"]})
+    messages.append({"role": "user", "content": message})
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        # Smart fallback responses without API
+        msg_lower = message.lower()
+        if any(w in msg_lower for w in ["cost", "price", "how much", "expensive"]):
+            reply = f"Great question! Membership is $20/month which gives you access to all the AI marketing tools, the funnel builder, and the income opportunity. When you consider that similar tools cost $50-100/month elsewhere, it's genuinely good value. Want me to tell you more about what's included?"
+        elif any(w in msg_lower for w in ["scam", "legit", "real", "trust", "ponzi"]):
+            reply = f"I totally understand the caution — there's a lot of rubbish out there. SuperAdPro is a real platform with genuine marketing tools (AI campaign studio, funnel builder, analytics). The income comes from real video advertising, not just recruitment. The $20 membership gives you tools worth way more than that on their own."
+        elif any(w in msg_lower for w in ["earn", "money", "income", "commission"]):
+            reply = f"There are multiple ways to earn: direct referral commissions (25%), uni-level commissions through the 8x8 grid system, and you can use the marketing tools to promote any affiliate offer you like. Results vary based on effort and team building — I won't make any unrealistic promises."
+        elif any(w in msg_lower for w in ["join", "sign up", "start", "register", "link"]):
+            reply = f"Great to hear you're interested! You can sign up through {owner_name}'s referral link. Membership is $20/month in USDT on Base Chain. You'll get instant access to all the AI tools and can start building straight away. 🚀"
+        elif any(w in msg_lower for w in ["hello", "hi", "hey", "sup"]):
+            reply = f"Hey! 👋 Welcome! I'm the AI assistant on {owner_name}'s page. I'm here to answer any questions you have about SuperAdPro and the opportunity. What would you like to know?"
+        else:
+            reply = f"Thanks for your question! I'm here to help you understand what SuperAdPro offers. We're a video advertising platform with built-in AI marketing tools and an affiliate income opportunity. What specifically would you like to know more about?"
+        return JSONResponse({"reply": reply})
+
+    try:
+        import anthropic
+        client = anthropic.Anthropic(api_key=api_key)
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=300,
+            system=system_prompt,
+            messages=messages,
+        )
+        reply = response.content[0].text
+        return JSONResponse({"reply": reply})
+    except Exception as e:
+        logger.error(f"Chat API error: {e}")
+        return JSONResponse({"reply": f"Thanks for reaching out! I'm having a moment — please try again or reach out to {owner_name} directly for help."})
 
 
 # ═══════════════════════════════════════════════════════════════
