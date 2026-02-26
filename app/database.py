@@ -76,6 +76,7 @@ class User(Base):
     personal_referrals  = Column(Integer, default=0)      # direct recruits
     total_team          = Column(Integer, default=0)      # entire network size
     country             = Column(String, nullable=True)
+    interests           = Column(String, nullable=True)    # comma-separated interest tags
     created_at          = Column(DateTime, default=datetime.utcnow)
     membership_activated_by_referral = Column(Boolean, default=False)  # first month gifted
     low_balance_warned  = Column(Boolean, default=False)               # 3-day warning sent
@@ -173,6 +174,12 @@ class VideoCampaign(Base):
     status          = Column(String, default="active") # active/paused/deleted
     views_target    = Column(Integer, default=0)       # from package tier
     views_delivered = Column(Integer, default=0)       # simulated/tracked
+    # Targeting (Advanced tier and above)
+    target_country  = Column(String, nullable=True)    # ISO country or null=worldwide
+    target_interests = Column(String, nullable=True)   # comma-separated interest tags
+    # Priority (Elite tier and above)
+    priority_level  = Column(Integer, default=0)       # 0=normal, 1-4=priority tiers
+    owner_tier      = Column(Integer, default=1)       # owner's package tier (1-8)
     created_at      = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -322,6 +329,13 @@ def run_migrations():
         "CREATE TABLE IF NOT EXISTS funnel_pages (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), slug VARCHAR, title VARCHAR NOT NULL, template_type VARCHAR DEFAULT 'opportunity', status VARCHAR DEFAULT 'draft', headline TEXT, subheadline TEXT, body_copy TEXT, cta_text VARCHAR, cta_url VARCHAR, video_url VARCHAR, image_url VARCHAR, sections_json TEXT, color_scheme VARCHAR DEFAULT 'dark', accent_color VARCHAR DEFAULT '#00d4ff', font_family VARCHAR DEFAULT 'Rethink Sans', custom_css TEXT, meta_description TEXT, og_image_url VARCHAR, funnel_name VARCHAR, funnel_order INTEGER DEFAULT 0, next_page_id INTEGER REFERENCES funnel_pages(id), views INTEGER DEFAULT 0, clicks INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
         "CREATE INDEX IF NOT EXISTS idx_funnel_pages_slug ON funnel_pages(slug)",
         "CREATE INDEX IF NOT EXISTS idx_funnel_pages_user ON funnel_pages(user_id)",
+        # Targeting & priority columns on video_campaigns
+        "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_country VARCHAR",
+        "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_interests VARCHAR",
+        "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS priority_level INTEGER DEFAULT 0",
+        "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS owner_tier INTEGER DEFAULT 1",
+        # User interests
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS interests VARCHAR",
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS sections_json TEXT",
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS font_family VARCHAR DEFAULT 'Rethink Sans'",
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS custom_css TEXT",

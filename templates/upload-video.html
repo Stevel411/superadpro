@@ -152,6 +152,37 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-
           <textarea name="description" placeholder="Brief description of what this video covers..." maxlength="500">{{ prefill.description if prefill else '' }}</textarea>
         </div>
 
+        {% if user_tier >= 4 %}
+        <div class="divider"></div>
+        <div style="margin-bottom:20px">
+          <div style="font-size:14px;font-weight:700;color:#00d4ff;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px">🎯 Advanced Targeting
+            <span style="font-size:10px;background:rgba(0,180,216,0.15);color:#00d4ff;padding:2px 8px;border-radius:10px;font-weight:600;letter-spacing:0.5px">Tier {{ user_tier }}+</span>
+          </div>
+          <div style="font-size:13px;color:#94a3b8;margin-bottom:16px;line-height:1.5">Your campaign tier unlocks audience targeting. Match your content to viewers most likely to engage.</div>
+        </div>
+
+        <div class="field">
+          <label>Target Countries <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#94a3b8">(optional)</span></label>
+          <input type="text" name="target_country" placeholder="e.g. United Kingdom, United States, Canada" maxlength="200">
+          <div class="hint">Comma-separated. Leave blank for worldwide delivery.</div>
+        </div>
+
+        <div class="field">
+          <label>Target Interests <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#94a3b8">(optional)</span></label>
+          <input type="text" name="target_interests" placeholder="e.g. forex, crypto, affiliate marketing, fitness" maxlength="200">
+          <div class="hint">Comma-separated. Matches against viewer interest profiles.</div>
+        </div>
+
+        {% if user_tier >= 5 %}
+        <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:rgba(200,220,255,0.7);display:flex;align-items:center;gap:8px">
+          ⚡ <strong style="color:#a78bfa">Priority Queue Active</strong> — Your campaigns are served before standard-tier campaigns.
+        </div>
+        {% endif %}
+        {% else %}
+        <input type="hidden" name="target_country" value="">
+        <input type="hidden" name="target_interests" value="">
+        {% endif %}
+
         <div class="divider"></div>
         <button type="submit" class="submit-btn">Add to Campaign Library →</button>
         <a href="/video-library" class="cancel-link">Cancel</a>

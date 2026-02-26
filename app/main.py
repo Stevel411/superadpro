@@ -583,9 +583,15 @@ def delete_campaign(
     return RedirectResponse(url="/video-library", status_code=303)
 
 @app.get("/upload")
-def upload_video(request: Request, user: User = Depends(get_current_user)):
+def upload_video(request: Request, user: User = Depends(get_current_user),
+                 db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
-    ctx = get_dashboard_context(request, user, db=next(get_db()))
+    ctx = get_dashboard_context(request, user, db)
+    # Get user's highest active tier for targeting UI
+    highest_grid = db.query(Grid).filter(
+        Grid.owner_id == user.id, Grid.is_complete == False
+    ).order_by(Grid.package_tier.desc()).first()
+    ctx["user_tier"] = highest_grid.package_tier if highest_grid else 0
     return templates.TemplateResponse("upload-video.html", ctx)
 
 
@@ -596,6 +602,8 @@ def upload_video_post(
     video_url:   str = Form(),
     category:    str = Form(""),
     description: str = Form(""),
+    target_country: str = Form(""),
+    target_interests: str = Form(""),
     db: Session = Depends(get_db),
     user: User  = Depends(get_current_user)
 ):
@@ -632,6 +640,23 @@ def upload_video_post(
         video_id    = parsed["video_id"],
         status      = "active",
     )
+
+    # Set targeting fields based on user's highest active tier
+    highest_grid = db.query(Grid).filter(
+        Grid.owner_id == user.id,
+        Grid.is_complete == False
+    ).order_by(Grid.package_tier.desc()).first()
+
+    if highest_grid:
+        campaign.owner_tier = highest_grid.package_tier
+        # Priority queue: tiers 5-8 (Elite+) get priority levels 1-4
+        if highest_grid.package_tier >= 5:
+            campaign.priority_level = highest_grid.package_tier - 4
+        # Geo & interest targeting: tier 4+ (Advanced+)
+        if highest_grid.package_tier >= 4:
+            campaign.target_country = sanitize(target_country)[:200] if target_country else None
+            campaign.target_interests = sanitize(target_interests)[:200] if target_interests else None
+    
     db.add(campaign)
     db.commit()
 
@@ -931,9 +956,27 @@ def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
 
 
 def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
-    """Pick next unwatched active campaign for user today, rotating fairly."""
+    """
+    Smart campaign selection algorithm:
+      1. Exclude campaigns already watched today by this user
+      2. Exclude the user's own campaigns
+      3. Score remaining campaigns by:
+         a) Priority level (Elite+ tiers get served first)
+         b) Geo & interest match (Advanced+ targeting)
+         c) View deficit (campaigns furthest from their target get priority)
+      4. Return the highest-scored campaign
+    """
     from datetime import date
+    from sqlalchemy import func, case
+
     today_str = str(date.today())
+
+    # Get watcher's profile for targeting
+    watcher = db.query(User).filter(User.id == user_id).first()
+    watcher_country = (watcher.country or "").strip().lower() if watcher else ""
+    watcher_interests = set()
+    if watcher and watcher.interests:
+        watcher_interests = {i.strip().lower() for i in watcher.interests.split(",") if i.strip()}
 
     # Campaigns watched today by this user
     watched_today = db.query(VideoWatch.campaign_id).filter(
@@ -942,19 +985,77 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
     ).all()
     watched_ids = [w[0] for w in watched_today]
 
-    # Try to find an unwatched active campaign
-    campaign = db.query(VideoCampaign).filter(
+    # Get all eligible campaigns (active, not watched today, not own)
+    query = db.query(VideoCampaign).filter(
         VideoCampaign.status == "active",
-        ~VideoCampaign.id.in_(watched_ids) if watched_ids else True
-    ).order_by(VideoCampaign.views_delivered.asc()).first()
+        VideoCampaign.user_id != user_id,  # never show own campaigns
+    )
+    if watched_ids:
+        query = query.filter(~VideoCampaign.id.in_(watched_ids))
 
-    # If all campaigns watched today, loop back from least viewed
-    if not campaign:
-        campaign = db.query(VideoCampaign).filter(
+    candidates = query.all()
+
+    # If no unwatched campaigns, allow re-watches (excluding own)
+    if not candidates:
+        candidates = db.query(VideoCampaign).filter(
+            VideoCampaign.status == "active",
+            VideoCampaign.user_id != user_id,
+        ).all()
+
+    if not candidates:
+        # Last resort: include own campaigns if nothing else exists
+        candidates = db.query(VideoCampaign).filter(
             VideoCampaign.status == "active"
-        ).order_by(VideoCampaign.views_delivered.asc()).first()
+        ).all()
 
-    return campaign
+    if not candidates:
+        return None
+
+    # Score each campaign
+    scored = []
+    for c in candidates:
+        score = 0.0
+
+        # ── Priority boost (Elite tier 5+ gets priority queue placement) ──
+        # priority_level: 0=normal (tiers 1-4), 1=Elite, 2=Premium, 3=Executive, 4=Ultimate
+        priority = c.priority_level or 0
+        score += priority * 100  # strong boost for higher tiers
+
+        # ── View deficit score (campaigns furthest from target get priority) ──
+        target = c.views_target or 1
+        delivered = c.views_delivered or 0
+        pct_remaining = max(0, 1.0 - (delivered / target))
+        score += pct_remaining * 50  # up to 50 points for campaigns with 0% delivered
+
+        # ── Geo targeting match (Advanced tier 4+) ──
+        if c.target_country and watcher_country:
+            target_countries = {t.strip().lower() for t in c.target_country.split(",") if t.strip()}
+            if target_countries and watcher_country in target_countries:
+                score += 30  # geo match bonus
+            elif target_countries:
+                score -= 20  # geo mismatch penalty (still shown, just deprioritised)
+
+        # ── Interest targeting match (Advanced tier 4+) ──
+        if c.target_interests and watcher_interests:
+            campaign_interests = {i.strip().lower() for i in c.target_interests.split(",") if i.strip()}
+            overlap = campaign_interests & watcher_interests
+            if overlap:
+                score += len(overlap) * 15  # bonus per matching interest
+            elif campaign_interests:
+                score -= 10  # slight penalty for no interest match
+
+        # ── Freshness bonus (newer campaigns get a small boost) ──
+        if c.created_at:
+            from datetime import datetime
+            age_days = (datetime.utcnow() - c.created_at).days
+            if age_days < 7:
+                score += (7 - age_days) * 3  # up to 21 points for brand new campaigns
+
+        scored.append((score, c))
+
+    # Sort by score descending, pick the best
+    scored.sort(key=lambda x: x[0], reverse=True)
+    return scored[0][1]
 
 
 @app.get("/watch")
