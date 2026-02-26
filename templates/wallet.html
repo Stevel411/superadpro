@@ -7,9 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-height:100vh}
+body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
 .layout{display:flex;min-height:100vh}
-.sidebar{width:220px;min-height:100vh;background:#080f1e;border-right:1px solid rgba(0,180,216,0.25);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
+.sidebar{width:220px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,240,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
 .sidebar-brand{font-weight:800;font-size:17px;letter-spacing:2.5px;text-transform:uppercase;background:linear-gradient(135deg,#00f0ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .nav-section{padding:18px 14px 6px;font-size:18px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)}
@@ -21,20 +21,20 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
 .user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,240,255,0.05);border:1px solid rgba(0,240,255,0.1);border-radius:8px}
 .user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00f0ff);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0}
 .main{margin-left:220px;flex:1;display:flex;flex-direction:column}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#080f1e;border-bottom:1px solid rgba(0,180,216,0.25);position:sticky;top:0;z-index:50}
-.topbar-title{color:#ffffff !important}.topbar-sub{color:#7a96b4 !important}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.1);position:sticky;top:0;z-index:50}
+.topbar-title{color:#ffffff !important}.topbar-sub{color:#94a3b8 !important}
 .content{padding:24px 28px;flex:1}
-.card{background:#283d5a;border:1px solid rgba(0,170,220,0.26);border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
+.card{background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
 .card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(0,180,216,0.12)}
-.card-title{font-size:17px;font-weight:700;color:#ffffff;display:flex;align-items:center;gap:8px}
+.card-title{font-size:17px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
 .card-dot{width:7px;height:7px;border-radius:50%;background:#00b4d8;flex-shrink:0}
 .card-body{padding:20px}
 .btn-primary{font-size:17px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:10px 20px;border-radius:7px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:inline-block}
-.btn-outline{font-size:17px;font-weight:600;color:rgba(200,220,255,0.65);background:#080f1e;padding:9px 18px;border-radius:7px;border:1px solid rgba(0,180,216,0.12);text-decoration:none;cursor:pointer;font-family:inherit;display:inline-block}
+.btn-outline{font-size:17px;font-weight:600;color:rgba(200,220,255,0.65);background:#050d1a;padding:9px 18px;border-radius:7px;border:1px solid rgba(0,180,216,0.12);text-decoration:none;cursor:pointer;font-family:inherit;display:inline-block}
 .form-group{margin-bottom:16px}
 .form-label{font-size:18px;font-weight:700;color:rgba(200,220,255,0.65);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
-.form-input{width:100%;padding:10px 14px;border:1px solid rgba(0,180,216,0.12);border-radius:7px;font-size:18px;color:#ffffff;font-family:inherit;background:rgba(0,180,216,0.04);transition:border-color 0.2s}
-.form-input:focus{outline:none;border-color:#00b4d8;background:#080f1e}
+.form-input{width:100%;padding:10px 14px;border:1px solid rgba(0,180,216,0.12);border-radius:7px;font-size:18px;color:#0f172a;font-family:inherit;background:rgba(0,180,216,0.04);transition:border-color 0.2s}
+.form-input:focus{outline:none;border-color:#00b4d8;background:#050d1a}
 .badge{font-size:18px;font-weight:700;padding:3px 10px;border-radius:999px}
 .badge-green{background:rgba(22,163,74,0.12);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
 .badge-amber{background:rgba(245,158,11,0.08);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)}
@@ -43,25 +43,25 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
 .row-2{grid-template-columns:1fr 1fr}
 .row-3{grid-template-columns:1fr 1fr 1fr}
 .stat-pill{background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:10px;padding:16px;text-align:center}
-.stat-pill-val{font-size:32px;font-weight:800;color:#ffffff}
-.stat-pill-lbl{font-size:18px;font-weight:700;color:#7a96b4;text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.stat-pill-val{font-size:32px;font-weight:800;color:#0f172a}
+.stat-pill-lbl{font-size:18px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-top:3px}
 table{width:100%;border-collapse:collapse}
-th{font-size:18px;font-weight:700;color:#7a96b4;text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border-bottom:2px solid rgba(0,180,216,0.15);text-align:left}
-td{padding:12px;border-bottom:1px solid rgba(0,180,216,0.08);font-size:17px;color:#ffffff;vertical-align:middle}
+th{font-size:18px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border-bottom:2px solid rgba(0,180,216,0.15);text-align:left}
+td{padding:12px;border-bottom:1px solid rgba(0,180,216,0.08);font-size:17px;color:#0f172a;vertical-align:middle}
 tr:last-child td{border-bottom:none}
 .empty-state{text-align:center;padding:48px 20px}
 .empty-icon{font-size:40px;margin-bottom:12px}
 .empty-title{font-size:17px;font-weight:700;color:rgba(200,220,255,0.65);margin-bottom:6px}
-.empty-sub{font-size:17px;color:#7a96b4;margin-bottom:20px}
+.empty-sub{font-size:17px;color:#94a3b8;margin-bottom:20px}
 
 .renewal-bar{height:6px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin:10px 0}
 .renewal-bar-fill{height:100%;border-radius:999px;transition:width 0.4s}
-.p2p-form input{padding:9px 13px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;color:#ffffff;background:#283d5a;width:100%;box-sizing:border-box}
-.p2p-form input:focus{border-color:#6366f1;outline:none;background:#1a2c44}
+.p2p-form input{padding:9px 13px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;color:#0f172a;background:#f8fafc;width:100%;box-sizing:border-box}
+.p2p-form input:focus{border-color:#6366f1;outline:none;background:#fff}
 .p2p-btn{padding:10px 22px;background:linear-gradient(135deg,#6366f1,#10b981);border:none;border-radius:8px;font-size:14px;font-weight:800;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap}
 .p2p-dir-sent{color:#dc2626;font-weight:700}
 .p2p-dir-recv{color:#16a34a;font-weight:700}
-.member-id-chip{display:inline-flex;align-items:center;gap:8px;background:rgba(16,185,129,0.1);border:1.5px solid #86efac;border-radius:8px;padding:8px 16px;font-size:14px;font-weight:700;color:#15803d;cursor:pointer;transition:all 0.15s}
+.member-id-chip{display:inline-flex;align-items:center;gap:8px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:8px 16px;font-size:14px;font-weight:700;color:#15803d;cursor:pointer;transition:all 0.15s}
 .member-id-chip:hover{background:#dcfce7}
 @media(max-width:768px){
   .layout{display:block!important}
@@ -75,7 +75,7 @@ tr:last-child td{border-bottom:none}
 </style>
   <link rel="stylesheet" href="/static/mobile.css">
   <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#080f1e">
+  <meta name="theme-color" content="#0a0a1a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="SuperAdPro">
@@ -166,7 +166,7 @@ tr:last-child td{border-bottom:none}
           </div>
         </div>
       </div>
-      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;color:#8aa4c0;text-decoration:none;margin-top:4px;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">⎋ Sign Out</a>
+      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;color:#64748b;text-decoration:none;margin-top:4px;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">⎋ Sign Out</a>
     </div>
   </aside>
 
@@ -174,12 +174,12 @@ tr:last-child td{border-bottom:none}
 <div class="topbar">
   <div>
     <div style="font-size:17px;font-weight:800;color:#ffffff">◎ Wallet</div>
-    <div style="font-size:17px;color:#7a96b4;margin-top:1px">Your USDT balance, commissions & withdrawals</div>
+    <div style="font-size:17px;color:#94a3b8;margin-top:1px">Your USDT balance, commissions & withdrawals</div>
   </div>
   <div style="display:flex;align-items:center;gap:12px">
     <div style="background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:8px 16px">
-      <div style="font-size:17px;color:#7a96b4;letter-spacing:1.5px;text-transform:uppercase">Balance</div>
-      <div><span style="font-size:18px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:18px;color:#7a96b4;margin-left:3px">USDT</span></div>
+      <div style="font-size:17px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase">Balance</div>
+      <div><span style="font-size:18px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:18px;color:#94a3b8;margin-left:3px">USDT</span></div>
     </div>
     <a href="/income-grid" class="btn-primary">+ Activate Campaign Tier</a>
   </div>
@@ -256,7 +256,7 @@ tr:last-child td{border-bottom:none}
         <td><span class="badge badge-cyan">Tier {{ c.package_tier }}</span></td>
         <td style="font-weight:800;color:#16a34a">+${{ '%.2f'|format(c.amount_usdt) }}</td>
         <td><span class="badge {% if c.status == 'paid' %}badge-green{% else %}badge-amber{% endif %}">{{ c.status|title }}</span></td>
-        <td style="color:#7a96b4">{{ c.created_at.strftime('%d %b %Y') if c.created_at else '—' }}</td>
+        <td style="color:#94a3b8">{{ c.created_at.strftime('%d %b %Y') if c.created_at else '—' }}</td>
       </tr>
       {% endfor %}
       </tbody>
@@ -285,16 +285,16 @@ tr:last-child td{border-bottom:none}
       {% for w in withdrawals %}
       <tr>
         <td style="font-weight:800;color:#ffffff">${{ '%.2f'|format(w.amount_usdt) }}</td>
-        <td style="font-family:monospace;font-size:17px;color:#8aa4c0">{{ w.wallet_address[:16] }}…</td>
+        <td style="font-family:monospace;font-size:17px;color:#64748b">{{ w.wallet_address[:16] }}…</td>
         <td><span class="badge {% if w.status == 'paid' %}badge-green{% elif w.status == 'pending' %}badge-amber{% else %}badge-cyan{% endif %}">{{ w.status|title }}</span></td>
-        <td style="color:#7a96b4">{{ w.requested_at.strftime('%d %b %Y') if w.requested_at else '—' }}</td>
+        <td style="color:#94a3b8">{{ w.requested_at.strftime('%d %b %Y') if w.requested_at else '—' }}</td>
       </tr>
       {% endfor %}
       </tbody>
     </table>
     {% else %}
     <div class="empty-state" style="padding:28px">
-      <div style="font-size:17px;color:#7a96b4">No withdrawals yet.</div>
+      <div style="font-size:17px;color:#94a3b8">No withdrawals yet.</div>
     </div>
     {% endif %}
   </div>
@@ -307,14 +307,14 @@ tr:last-child td{border-bottom:none}
     <div class="card-title"><div class="card-dot" style="background:#6366f1"></div>Your Member ID</div>
   </div>
   <div class="card-body">
-    <p style="font-size:13px;color:#8aa4c0;margin-bottom:12px">Share this ID so other members can send you funds via the P2P transfer system.</p>
+    <p style="font-size:13px;color:#64748b;margin-bottom:12px">Share this ID so other members can send you funds via the P2P transfer system.</p>
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
       <div class="member-id-chip" onclick="copyMemberId()" id="memberIdChip">
         <span>🪪</span>
         <span id="memberIdText">{{ member_id }}</span>
         <span style="font-size:11px;color:#86efac">Copy</span>
       </div>
-      <span style="font-size:12px;color:#7a96b4">Click to copy your ID</span>
+      <span style="font-size:12px;color:#94a3b8">Click to copy your ID</span>
     </div>
   </div>
 </div>
@@ -328,9 +328,9 @@ tr:last-child td{border-bottom:none}
       Membership Renewal
     </div>
     <span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;
-      {% if renewal.in_grace_period %}background:rgba(239,68,68,0.1);color:#dc2626;border:1px solid rgba(239,68,68,0.3)
-      {% elif renewal.status == 'warning' %}background:#fefce8;color:#b45309;border:1px solid rgba(245,158,11,0.3)
-      {% else %}background:rgba(16,185,129,0.1);color:#16a34a;border:1px solid #86efac{% endif %}">
+      {% if renewal.in_grace_period %}background:#fef2f2;color:#dc2626;border:1px solid #fecaca
+      {% elif renewal.status == 'warning' %}background:#fefce8;color:#b45309;border:1px solid #fde68a
+      {% else %}background:#f0fdf4;color:#16a34a;border:1px solid #86efac{% endif %}">
       {% if renewal.in_grace_period %}⚠ Grace Period
       {% elif renewal.status == 'warning' %}⏱ Renews Soon
       {% else %}✓ Active{% endif %}
@@ -338,35 +338,35 @@ tr:last-child td{border-bottom:none}
   </div>
   <div class="card-body">
     {% if renewal.in_grace_period %}
-    <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:14px 16px;margin-bottom:14px">
+    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:14px 16px;margin-bottom:14px">
       <div style="font-size:14px;font-weight:700;color:#dc2626;margin-bottom:4px">⚠ Membership in Grace Period</div>
-      <div style="font-size:13px;color:#8aa4c0">Your wallet balance was insufficient at renewal. Please ensure your balance reaches $20 USDT within the grace period to avoid your membership lapsing.</div>
+      <div style="font-size:13px;color:#64748b">Your wallet balance was insufficient at renewal. Please ensure your balance reaches $20 USDT within the grace period to avoid your membership lapsing.</div>
     </div>
     {% elif renewal.status == 'warning' %}
-    <div style="background:#fefce8;border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:14px 16px;margin-bottom:14px">
+    <div style="background:#fefce8;border:1px solid #fde68a;border-radius:10px;padding:14px 16px;margin-bottom:14px">
       <div style="font-size:14px;font-weight:700;color:#b45309;margin-bottom:4px">⏱ Renewal in {{ renewal.days_remaining }} day{{ 's' if renewal.days_remaining != 1 }}</div>
-      <div style="font-size:13px;color:#8aa4c0">Your $20 membership renewal is coming up. {% if not renewal.can_afford %}Your current balance of ${{ renewal.balance }} is below the $20 required — top up your wallet to ensure smooth renewal.{% else %}Your wallet balance is sufficient to cover the renewal automatically.{% endif %}</div>
+      <div style="font-size:13px;color:#64748b">Your $20 membership renewal is coming up. {% if not renewal.can_afford %}Your current balance of ${{ renewal.balance }} is below the $20 required — top up your wallet to ensure smooth renewal.{% else %}Your wallet balance is sufficient to cover the renewal automatically.{% endif %}</div>
     </div>
     {% endif %}
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
-      <div style="background:#283d5a;border:1px solid #f1f5f9;border-radius:9px;padding:12px;text-align:center">
-        <div style="font-size:16px;font-weight:800;color:#ffffff">{{ renewal.days_remaining }}d</div>
-        <div style="font-size:10px;color:#7a96b4;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Until Renewal</div>
+      <div style="background:#f8fafc;border:1px solid #f1f5f9;border-radius:9px;padding:12px;text-align:center">
+        <div style="font-size:16px;font-weight:800;color:#0f172a">{{ renewal.days_remaining }}d</div>
+        <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Until Renewal</div>
       </div>
-      <div style="background:#283d5a;border:1px solid #f1f5f9;border-radius:9px;padding:12px;text-align:center">
-        <div style="font-size:16px;font-weight:800;color:#ffffff">${{ renewal.balance }}</div>
-        <div style="font-size:10px;color:#7a96b4;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Wallet Balance</div>
+      <div style="background:#f8fafc;border:1px solid #f1f5f9;border-radius:9px;padding:12px;text-align:center">
+        <div style="font-size:16px;font-weight:800;color:#0f172a">${{ renewal.balance }}</div>
+        <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Wallet Balance</div>
       </div>
-      <div style="background:#283d5a;border:1px solid #f1f5f9;border-radius:9px;padding:12px;text-align:center">
-        <div style="font-size:16px;font-weight:800;color:#ffffff">{{ renewal.total_renewals }}</div>
-        <div style="font-size:10px;color:#7a96b4;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Total Renewals</div>
+      <div style="background:#f8fafc;border:1px solid #f1f5f9;border-radius:9px;padding:12px;text-align:center">
+        <div style="font-size:16px;font-weight:800;color:#0f172a">{{ renewal.total_renewals }}</div>
+        <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">Total Renewals</div>
       </div>
     </div>
     <div class="renewal-bar">
       <div class="renewal-bar-fill" style="width:{{ [100 - ((renewal.days_remaining / 30) * 100)|int, 5]|max }}%;background:{% if renewal.in_grace_period %}#dc2626{% elif renewal.status == 'warning' %}#f59e0b{% else %}#10b981{% endif %}"></div>
     </div>
-    <div style="font-size:12px;color:#7a96b4;text-align:right">Next renewal: {{ renewal.next_renewal_date.strftime('%d %b %Y') if renewal.next_renewal_date else 'N/A' }}</div>
-    <div style="margin-top:12px;padding-top:12px;border-top:1px solid #f1f5f9;font-size:12px;color:#7a96b4">
+    <div style="font-size:12px;color:#94a3b8;text-align:right">Next renewal: {{ renewal.next_renewal_date.strftime('%d %b %Y') if renewal.next_renewal_date else 'N/A' }}</div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid #f1f5f9;font-size:12px;color:#94a3b8">
       💡 Your $20 renewal is deducted automatically from your wallet. As long as your wallet has funds from Watch-to-Earn, grid commissions and Stream 1 referral income, your membership stays active without any manual action.
     </div>
   </div>
@@ -379,24 +379,24 @@ tr:last-child td{border-bottom:none}
     <div class="card-title"><div class="card-dot" style="background:#00b4d8"></div>Send Funds to a Member</div>
   </div>
   <div class="card-body">
-    <p style="font-size:13px;color:#8aa4c0;margin-bottom:16px">Transfer USDT to any active member using their member ID (e.g. SAP-00042). Instant and fee-free.</p>
+    <p style="font-size:13px;color:#64748b;margin-bottom:16px">Transfer USDT to any active member using their member ID (e.g. SAP-00042). Instant and fee-free.</p>
     <div class="p2p-form" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
       <div>
-        <label style="font-size:11px;font-weight:700;color:#8aa4c0;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:5px">Recipient Member ID</label>
+        <label style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:5px">Recipient Member ID</label>
         <input type="text" id="p2pRecipient" placeholder="e.g. SAP-00042" autocomplete="off">
       </div>
       <div>
-        <label style="font-size:11px;font-weight:700;color:#8aa4c0;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:5px">Amount (USDT)</label>
+        <label style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:5px">Amount (USDT)</label>
         <input type="number" id="p2pAmount" placeholder="e.g. 20.00" min="1" max="500" step="0.01">
       </div>
     </div>
     <div class="p2p-form" style="margin-bottom:14px">
-      <label style="font-size:11px;font-weight:700;color:#8aa4c0;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:5px">Note (optional)</label>
+      <label style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:5px">Note (optional)</label>
       <input type="text" id="p2pNote" placeholder="e.g. Membership gift, commission split..." maxlength="200">
     </div>
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
       <button class="p2p-btn" onclick="sendP2P()">Send Funds →</button>
-      <span style="font-size:12px;color:#7a96b4">Min $1 · Max $500 per transfer · Active members only</span>
+      <span style="font-size:12px;color:#94a3b8">Min $1 · Max $500 per transfer · Active members only</span>
     </div>
     <div id="p2pResult" style="margin-top:12px;display:none"></div>
   </div>
@@ -416,10 +416,10 @@ tr:last-child td{border-bottom:none}
       <tbody>
       {% for t in p2p_history %}
       <tr>
-        <td style="font-size:12px;color:#7a96b4">{{ t.created_at }}</td>
+        <td style="font-size:12px;color:#94a3b8">{{ t.created_at }}</td>
         <td>{% if t.direction == 'sent' %}<span class="p2p-dir-sent">↑ Sent</span>{% else %}<span class="p2p-dir-recv">↓ Received</span>{% endif %}</td>
-        <td style="font-size:13px;font-weight:600">{{ t.other_party }}<br><span style="font-size:11px;color:#7a96b4">{{ t.other_id }}</span></td>
-        <td style="font-size:12px;color:#8aa4c0">{{ t.note or '—' }}</td>
+        <td style="font-size:13px;font-weight:600">{{ t.other_party }}<br><span style="font-size:11px;color:#94a3b8">{{ t.other_id }}</span></td>
+        <td style="font-size:12px;color:#64748b">{{ t.note or '—' }}</td>
         <td style="text-align:right;font-weight:700;{% if t.direction == 'sent' %}color:#dc2626{% else %}color:#16a34a{% endif %}">
           {% if t.direction == 'sent' %}-{% else %}+{% endif %}${{ '%.2f'|format(t.amount) }}
         </td>
@@ -497,7 +497,7 @@ function showP2PResult(type, msg) {
   const el = document.getElementById('p2pResult');
   el.style.display = 'block';
   el.innerHTML = `<div style="padding:11px 14px;border-radius:8px;font-size:13px;font-weight:600;
-    ${type === 'success' ? 'background:rgba(16,185,129,0.1);border:1px solid #86efac;color:#15803d' : 'background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#dc2626'}">
+    ${type === 'success' ? 'background:#f0fdf4;border:1px solid #86efac;color:#15803d' : 'background:#fef2f2;border:1px solid #fecaca;color:#dc2626'}">
     ${msg}</div>`;
 }
 

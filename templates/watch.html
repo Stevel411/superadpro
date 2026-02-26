@@ -8,10 +8,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-height:100vh;display:flex}
+body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh;display:flex}
 
 /* ── Sidebar ── */
-.sidebar{width:224px;min-height:100vh;background:#080f1e;border-right:1px solid rgba(0,180,216,0.25);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
+.sidebar{width:224px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,180,216,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
 .sidebar-brand{font-weight:800;font-size:14px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px 16px}
 .logo-shield{width:32px;height:32px}
@@ -26,25 +26,25 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
 
 /* ── Main ── */
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
-.topbar{background:#080f1e;border-bottom:1px solid rgba(0,180,216,0.25);padding:0 28px;height:80px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0}
+.topbar{background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.08);padding:0 28px;height:80px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0}
 .topbar-title{font-size:22px;font-weight:800;color:#ffffff}
-.topbar-sub{font-size:13px;color:#7a96b4;margin-top:1px}
+.topbar-sub{font-size:13px;color:#94a3b8;margin-top:1px}
 .content{padding:20px 24px;flex:1;overflow-y:auto}
 .watch-container{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
 
 /* ── Quota bar ── */
-.quota-bar-wrap{background:#283d5a;border:1px solid rgba(0,170,220,0.26);border-radius:12px;padding:14px 20px;flex-shrink:0;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:0 1px 3px rgba(0,0,0,0.05);width:100%}
-.quota-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8aa4c0;margin-bottom:5px}
+.quota-bar-wrap{background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 20px;flex-shrink:0;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:0 1px 3px rgba(0,0,0,0.05);width:100%}
+.quota-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#64748b;margin-bottom:5px}
 .quota-count{font-size:28px;font-weight:800;color:#00d4ff}
 .quota-track{flex:1;min-width:200px}
 .quota-progress{height:10px;background:#e8ecf4;border-radius:999px;overflow:hidden;margin-top:8px}
 .quota-fill{height:100%;background:linear-gradient(90deg,#00b4d8,#7c3aed);border-radius:999px;transition:width 0.5s ease}
 .quota-complete{background:linear-gradient(90deg,#16a34a,#22c55e) !important}
 .quota-dots{display:flex;gap:8px;margin-top:10px}
-.quota-dot{width:28px;height:28px;border-radius:50%;border:2px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all 0.3s;color:#7a96b4}
+.quota-dot{width:28px;height:28px;border-radius:50%;border:2px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all 0.3s;color:#94a3b8}
 .quota-dot.done{background:linear-gradient(135deg,#16a34a,#22c55e);border-color:#16a34a;color:#fff}
 .quota-dot.current{border-color:#00d4ff;background:rgba(0,180,216,0.1);color:#00d4ff}
-.quota-dot.pending{color:#cbd5e1;border-color:rgba(0,170,220,0.15)}
+.quota-dot.pending{color:#cbd5e1;border-color:#e2e8f0}
 
 /* ── Warning banner ── */
 .warning-banner{border-radius:12px;padding:16px 20px;margin-bottom:0;display:flex;align-items:center;gap:12px;font-size:15px;font-weight:600}
@@ -52,10 +52,10 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
 .warning-red{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171}
 
 /* ── Video player card ── */
-.player-card{background:#283d5a;border:1px solid rgba(0,170,220,0.26);border-radius:14px;overflow:hidden;width:100%;display:flex;flex-direction:column;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.player-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;width:100%;display:flex;flex-direction:column;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
 .player-header{padding:12px 20px;border-bottom:1px solid #f1f5f9;flex-shrink:0}
-.campaign-title{font-size:16px;font-weight:800;color:#ffffff;margin-bottom:2px}
-.campaign-meta{font-size:13px;color:#8aa4c0}
+.campaign-title{font-size:16px;font-weight:800;color:#0f172a;margin-bottom:2px}
+.campaign-meta{font-size:13px;color:#64748b}
 .video-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#000;overflow:hidden;border-radius:0}
 .video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;display:block}
 
@@ -64,17 +64,17 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
 .timer-svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
 .timer-bg{fill:none;stroke:#e2e8f0;stroke-width:5}
 .timer-arc{fill:none;stroke:url(#timerGrad);stroke-width:5;stroke-linecap:round;stroke-dasharray:150.8;stroke-dashoffset:150.8;transition:stroke-dashoffset 1s linear}
-.timer-num{font-size:18px;font-weight:800;color:#ffffff;z-index:1}
+.timer-num{font-size:18px;font-weight:800;color:#0f172a;z-index:1}
 
 /* ── Player footer ── */
-.player-footer{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#283d5a;border-top:1px solid #e8ecf4}
+.player-footer{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#f8fafc;border-top:1px solid #e8ecf4}
 /* ── Unmute overlay ── */
 .unmute-overlay{position:absolute;top:12px;right:12px;z-index:20;background:rgba(5,13,26,0.75);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all 0.2s;backdrop-filter:blur(4px)}
 .unmute-overlay:hover{background:rgba(0,180,216,0.8);border-color:rgba(0,180,216,0.5)}
 .unmute-overlay.hidden{display:none}
 .unmute-icon{font-size:16px}
 .unmute-text{font-size:13px;font-weight:700;color:#ffffff;letter-spacing:0.3px}
-.watch-status{font-size:14px;color:#8aa4c0}
+.watch-status{font-size:14px;color:#64748b}
 .watch-status.counting{color:#00d4ff;font-weight:700}
 .watch-status.complete{color:#22c55e;font-weight:700}
 .btn-next{font-size:15px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:8px;padding:12px 28px;cursor:pointer;opacity:0.4;pointer-events:none;transition:all 0.3s}
@@ -82,33 +82,33 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
 .btn-next.ready:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,180,216,0.4)}
 
 /* ── Quota complete card ── */
-.complete-card{background:#283d5a;border:1px solid rgba(16,185,129,0.3);border-radius:16px;padding:48px 32px;text-align:center;max-width:560px;margin:0 auto;box-shadow:0 3px 14px rgba(0,0,0,0.3)}
+.complete-card{background:#ffffff;border:1px solid #bbf7d0;border-radius:16px;padding:48px 32px;text-align:center;max-width:560px;margin:0 auto;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
 .complete-icon{font-size:56px;margin-bottom:16px}
 .complete-title{font-size:24px;font-weight:800;color:#4ade80;margin-bottom:10px}
-.complete-sub{font-size:15px;color:#a0b8d4;line-height:1.7;margin-bottom:28px}
+.complete-sub{font-size:15px;color:#475569;line-height:1.7;margin-bottom:28px}
 .complete-stats{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:28px}
-.complete-stat{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:14px 20px;min-width:120px}
+.complete-stat{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 20px;min-width:120px}
 .complete-stat-val{font-size:22px;font-weight:800;color:#4ade80}
-.complete-stat-lbl{font-size:11px;color:#8aa4c0;margin-top:2px;text-transform:uppercase;letter-spacing:1px}
+.complete-stat-lbl{font-size:11px;color:#64748b;margin-top:2px;text-transform:uppercase;letter-spacing:1px}
 .btn-dashboard{display:inline-block;font-size:15px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);border-radius:8px;padding:13px 32px;text-decoration:none;box-shadow:0 4px 14px rgba(0,180,216,0.3)}
 
 /* ── No campaigns ── */
-.empty-card{background:#283d5a;border:1px solid rgba(0,170,220,0.26);border-radius:16px;padding:48px 32px;text-align:center;max-width:500px;margin:0 auto;box-shadow:0 3px 14px rgba(0,0,0,0.3)}
+.empty-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:48px 32px;text-align:center;max-width:500px;margin:0 auto;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
 
 /* ── Terms note ── */
-.terms-note{flex-shrink:0;font-size:12px;color:#7a96b4;text-align:center;line-height:1.5}
+.terms-note{flex-shrink:0;font-size:12px;color:#94a3b8;text-align:center;line-height:1.5}
 
 /* ── Mobile topbar ── */
-.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:10px 16px;background:#080f1e;border-bottom:1px solid rgba(0,180,216,0.25);position:sticky;top:0;z-index:101}
+.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:10px 16px;background:#0a0a1a;border-bottom:1px solid rgba(0,212,255,0.1);position:sticky;top:0;z-index:101}
 .mobile-topbar-left{display:flex;align-items:center;gap:10px;text-decoration:none}
 .mobile-topbar-name{font-weight:800;font-size:12px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.mobile-topbar-page{font-size:11px;color:#8aa4c0}
+.mobile-topbar-page{font-size:11px;color:#64748b}
 .mobile-balance-chip{font-size:13px;font-weight:800;color:#16a34a;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:8px;padding:6px 12px}
 
 /* ── Mobile bottom nav ── */
-.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#080f1e;border-top:1px solid rgba(0,180,216,0.25);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#0a0a1a;border-top:1px solid rgba(0,212,255,0.1);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
 .mobile-nav-inner{display:flex;justify-content:space-around;align-items:center}
-.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 8px;font-size:10px;color:#8aa4c0;transition:color 0.15s}
+.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 8px;font-size:10px;color:#64748b;transition:color 0.15s}
 .mob-nav-item.active{color:#00d4ff}
 .mob-nav-icon{font-size:18px}
 .mob-nav-label{font-weight:600;letter-spacing:0.3px}
@@ -161,7 +161,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
 </style>
   <link rel="stylesheet" href="/static/mobile.css">
   <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#080f1e">
+  <meta name="theme-color" content="#0a0a1a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="SuperAdPro">
@@ -236,7 +236,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
         </div>
       </div>
     </div>
-    <a href="/logout" style="display:block;margin-top:12px;font-size:14px;color:#7a96b4;text-decoration:none">⏻ Sign Out</a>
+    <a href="/logout" style="display:block;margin-top:12px;font-size:14px;color:#94a3b8;text-decoration:none">⏻ Sign Out</a>
   </div>
 </nav>
 
@@ -247,7 +247,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
       <div class="topbar-title">▶ Watch & Earn</div>
       <div class="topbar-sub">Watch videos · Qualify for daily commissions</div>
     </div>
-    <div style="font-size:13px;color:#7a96b4;text-align:right">
+    <div style="font-size:13px;color:#94a3b8;text-align:right">
       <div style="color:#00d4ff;font-weight:700;font-size:16px">Tier {{ quota.package_tier }}</div>
       <div>{{ quota.daily_required }} video{{ 's' if quota.daily_required != 1 else '' }} required today</div>
     </div>
@@ -269,10 +269,10 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
       <div>
         <div class="quota-label">Today's Progress</div>
         <div class="quota-count" id="watchedCount">{{ quota.today_watched }}</div>
-        <div style="font-size:13px;color:#7a96b4;margin-top:2px">of {{ quota.daily_required }} video{{ 's' if quota.daily_required != 1 else '' }}</div>
+        <div style="font-size:13px;color:#94a3b8;margin-top:2px">of {{ quota.daily_required }} video{{ 's' if quota.daily_required != 1 else '' }}</div>
       </div>
       <div class="quota-track">
-        <div style="display:flex;justify-content:space-between;font-size:13px;color:#7a96b4;margin-bottom:6px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#94a3b8;margin-bottom:6px">
           <span>Daily Quota</span>
           <span id="pctLabel">{{ ((quota.today_watched / quota.daily_required) * 100)|int }}%</span>
         </div>
@@ -291,7 +291,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
         </div>
       </div>
       {% if quota.consecutive_missed > 0 and not quota.commissions_paused %}
-      <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:12px 16px;font-size:13px;text-align:center">
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;font-size:13px;text-align:center">
         <div style="color:#d97706;font-weight:700;font-size:16px">{{ grace_days - quota.consecutive_missed }}</div>
         <div style="color:#78350f;margin-top:2px">grace days left</div>
       </div>
@@ -328,8 +328,8 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
     {% elif not campaign %}
     <div class="empty-card">
       <div style="font-size:48px;margin-bottom:16px">📭</div>
-      <div style="font-size:18px;font-weight:800;color:#ffffff;margin-bottom:8px">No Active Campaigns Yet</div>
-      <div style="font-size:14px;color:#a0b8d4;line-height:1.7;margin-bottom:20px">
+      <div style="font-size:18px;font-weight:800;color:#0f172a;margin-bottom:8px">No Active Campaigns Yet</div>
+      <div style="font-size:14px;color:#475569;line-height:1.7;margin-bottom:20px">
         There are no active video campaigns in the pool right now. Check back soon — campaigns are added as advertisers activate their campaign tiers.
       </div>
       <a href="/dashboard" style="font-size:14px;font-weight:700;color:#00d4ff;text-decoration:none">← Back to Dashboard</a>
@@ -381,7 +381,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
           </div>
           <div>
             <div class="watch-status counting" id="watchStatus">⏱ Watching — timer counting down</div>
-            <div style="font-size:12px;color:#7a96b4;margin-top:2px">Must watch {{ watch_duration }}s to qualify</div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:2px">Must watch {{ watch_duration }}s to qualify</div>
           </div>
         </div>
         <button class="btn-next" id="btnNext" onclick="submitWatch()">

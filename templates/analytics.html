@@ -7,15 +7,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-height:100vh}
+body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
 .layout{display:flex;min-height:100vh}
 
 /* ── SIDEBAR (dark) ── */
-.sidebar{width:224px;min-height:100vh;background:#080f1e;border-right:1px solid rgba(0,180,216,0.25);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
+.sidebar{width:224px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
 .sidebar-brand{font-weight:800;font-size:12px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .nav-section{padding:18px 16px 5px;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#00d4ff}
-.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:15px;font-weight:500;color:#8aa4c0;text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
+.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:15px;font-weight:500;color:#64748b;text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
 .nav-item:hover{color:rgba(200,220,255,0.9);background:rgba(255,255,255,0.03)}
 .nav-item.active{color:#00d4ff;background:rgba(0,212,255,0.07);border-left-color:#00d4ff}
 .nav-icon{font-size:12px;width:18px;text-align:center;flex-shrink:0}
@@ -27,7 +27,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
 
 /* ── TOPBAR ── */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#080f1e;border-bottom:1px solid rgba(0,180,216,0.25);position:sticky;top:0;z-index:50}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(0,212,255,0.1);position:sticky;top:0;z-index:50}
 .topbar-title{font-size:22px;font-weight:800;color:#fff}
 .topbar-sub{font-size:12px;color:rgba(0,212,255,0.5);margin-top:2px}
 .topbar-right{display:flex;align-items:center;gap:12px}
@@ -40,18 +40,18 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
 
 /* ── OVERVIEW CARDS ── */
 .overview-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.ov-card{background:#283d5a;border:1px solid rgba(0,170,220,0.26);border-radius:12px;padding:20px 22px;position:relative;overflow:hidden;box-shadow:0 3px 14px rgba(0,0,0,0.3)}
+.ov-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px 22px;position:relative;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
 .ov-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
 .ov-card.c1::before{background:linear-gradient(90deg,transparent,#00b4d8,transparent)}
 .ov-card.c2::before{background:linear-gradient(90deg,transparent,#16a34a,transparent)}
 .ov-card.c3::before{background:linear-gradient(90deg,transparent,#7c3aed,transparent)}
 .ov-card.c4::before{background:linear-gradient(90deg,transparent,#f59e0b,transparent)}
-.ov-label{font-size:11px;font-weight:600;color:#8aa4c0;letter-spacing:1px;text-transform:uppercase}
+.ov-label{font-size:11px;font-weight:600;color:#64748b;letter-spacing:1px;text-transform:uppercase}
 .ov-val{font-size:28px;font-weight:800;margin-top:6px;line-height:1}
-.ov-sub{font-size:12px;color:#7a96b4;margin-top:4px}
+.ov-sub{font-size:12px;color:#94a3b8;margin-top:4px}
 
 /* ── CARDS ── */
-.card{background:#283d5a;border:1px solid rgba(0,170,220,0.26);border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 3px 14px rgba(0,0,0,0.3)}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
 .card-title{font-size:16px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .card-title span{font-size:14px}
 
@@ -63,14 +63,14 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
 .chart-bar .tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;white-space:nowrap;z-index:10}
 .chart-bar:hover .tooltip{display:block}
 .chart-labels{display:flex;gap:3px;padding:6px 4px 0;overflow:hidden}
-.chart-labels span{flex:1;text-align:center;font-size:9px;color:#7a96b4;min-width:8px;overflow:hidden}
-.no-data{text-align:center;padding:40px 20px;color:#7a96b4;font-size:14px}
+.chart-labels span{flex:1;text-align:center;font-size:9px;color:#94a3b8;min-width:8px;overflow:hidden}
+.no-data{text-align:center;padding:40px 20px;color:#94a3b8;font-size:14px}
 
 /* ── CAMPAIGN TABLE ── */
 .camp-table{width:100%;border-collapse:collapse}
-.camp-table th{text-align:left;padding:10px 14px;font-size:11px;font-weight:700;color:#8aa4c0;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid #e2e8f0}
+.camp-table th{text-align:left;padding:10px 14px;font-size:11px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid #e2e8f0}
 .camp-table td{padding:12px 14px;border-bottom:1px solid #f1f5f9;font-size:14px}
-.camp-table tr:hover{background:#283d5a}
+.camp-table tr:hover{background:#f8fafc}
 .prog-bar{width:100%;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden}
 .prog-fill{height:100%;border-radius:4px;transition:width 0.5s}
 .status-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;text-transform:uppercase}
@@ -87,11 +87,11 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
 /* ── AI PANEL ── */
 .ai-panel{background:linear-gradient(135deg,#f0f9ff,#faf5ff);border:1px solid #e0e7ff;border-radius:12px;padding:24px;margin-bottom:20px}
 .ai-panel-title{font-size:16px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px}
-.ai-panel-sub{font-size:13px;color:#8aa4c0;margin-bottom:16px}
+.ai-panel-sub{font-size:13px;color:#64748b;margin-bottom:16px}
 .ai-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit}
 .ai-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(124,58,237,0.3)}
 .ai-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
-.ai-result{margin-top:16px;font-size:14px;line-height:1.7;color:#eef2ff}
+.ai-result{margin-top:16px;font-size:14px;line-height:1.7;color:#1e293b}
 .ai-result strong{color:#7c3aed}
 
 /* ── GRID LAYOUT ── */
@@ -153,7 +153,7 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
           </div>
         </div>
       </div>
-      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;color:#8aa4c0;text-decoration:none;margin-top:4px;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">⎋ Sign Out</a>
+      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;color:#64748b;text-decoration:none;margin-top:4px;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">⎋ Sign Out</a>
     </div>
   </aside>
 
@@ -270,10 +270,10 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
                 <div class="prog-bar">
                   <div class="prog-fill" style="width:{{ c.pct }}%;background:{% if c.pct >= 75 %}linear-gradient(90deg,#16a34a,#22c55e){% elif c.pct >= 40 %}linear-gradient(90deg,#f59e0b,#fbbf24){% else %}linear-gradient(90deg,#00b4d8,#38bdf8){% endif %}"></div>
                 </div>
-                <div style="font-size:11px;color:#8aa4c0;margin-top:3px">{{ c.pct }}%</div>
+                <div style="font-size:11px;color:#64748b;margin-top:3px">{{ c.pct }}%</div>
               </td>
               <td><span class="status-badge status-{{ c.status }}">{{ c.status }}</span></td>
-              <td style="color:#7a96b4;font-size:13px">{{ c.created }}</td>
+              <td style="color:#94a3b8;font-size:13px">{{ c.created }}</td>
             </tr>
             {% endfor %}
           </tbody>

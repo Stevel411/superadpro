@@ -7,9 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-height:100vh}
+body{font-family:'Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
 .layout{display:flex;min-height:100vh}
-.sidebar{width:220px;min-height:100vh;background:#080f1e;border-right:1px solid rgba(0,180,216,0.25);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
+.sidebar{width:220px;min-height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,240,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
 .sidebar-brand{font-weight:800;font-size:17px;letter-spacing:2.5px;text-transform:uppercase;background:linear-gradient(135deg,#00f0ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .nav-section{padding:18px 14px 6px;font-size:18px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,240,255,0.35)}
@@ -21,19 +21,19 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
 .user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,240,255,0.05);border:1px solid rgba(0,240,255,0.1);border-radius:8px}
 .user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00f0ff);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0}
 .main{margin-left:220px;flex:1;display:flex;flex-direction:column}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#080f1e;border-bottom:1px solid rgba(0,180,216,0.25);position:sticky;top:0;z-index:50}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.1);position:sticky;top:0;z-index:50}
 .content{padding:24px 28px;flex:1}
-.card{background:#283d5a;border:1px solid rgba(0,170,220,0.26);border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
+.card{background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
 .card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e8ecf4}
-.card-title{font-size:17px;font-weight:700;color:#ffffff;display:flex;align-items:center;gap:8px}
+.card-title{font-size:17px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
 .card-dot{width:7px;height:7px;border-radius:50%;background:#00b4d8;flex-shrink:0}
 .card-body{padding:20px}
 .btn-primary{font-size:17px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:10px 20px;border-radius:7px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:inline-block}
-.btn-outline{font-size:17px;font-weight:600;color:#a0b8d4;background:#283d5a;padding:9px 18px;border-radius:7px;border:1px solid rgba(0,170,220,0.26);text-decoration:none;cursor:pointer;font-family:inherit;display:inline-block}
+.btn-outline{font-size:17px;font-weight:600;color:#475569;background:#ffffff;padding:9px 18px;border-radius:7px;border:1px solid #e2e8f0;text-decoration:none;cursor:pointer;font-family:inherit;display:inline-block}
 .form-group{margin-bottom:16px}
-.form-label{font-size:18px;font-weight:700;color:#a0b8d4;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
-.form-input{width:100%;padding:10px 14px;border:1px solid rgba(0,170,220,0.26);border-radius:7px;font-size:18px;color:#ffffff;font-family:inherit;background:#283d5a;transition:border-color 0.2s}
-.form-input:focus{outline:none;border-color:#00b4d8;background:#283d5a}
+.form-label{font-size:18px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
+.form-input{width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:7px;font-size:18px;color:#0f172a;font-family:inherit;background:#ffffff;transition:border-color 0.2s}
+.form-input:focus{outline:none;border-color:#00b4d8;background:#ffffff}
 .badge{font-size:18px;font-weight:700;padding:3px 10px;border-radius:999px}
 .badge-green{background:rgba(22,163,74,0.12);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
 .badge-amber{background:rgba(245,158,11,0.08);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)}
@@ -41,17 +41,17 @@ body{font-family:'Rethink Sans',sans-serif;background:#1f3049;color:#e8f0fe;min-
 .row{display:grid;gap:20px}
 .row-2{grid-template-columns:1fr 1fr}
 .row-3{grid-template-columns:1fr 1fr 1fr}
-.stat-pill{background:#283d5a;border:1px solid rgba(0,170,220,0.26);border-radius:10px;padding:16px;text-align:center}
-.stat-pill-val{font-size:32px;font-weight:800;color:#ffffff}
-.stat-pill-lbl{font-size:18px;font-weight:700;color:#7a96b4;text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.stat-pill{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;text-align:center}
+.stat-pill-val{font-size:32px;font-weight:800;color:#0f172a}
+.stat-pill-lbl{font-size:18px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-top:3px}
 table{width:100%;border-collapse:collapse}
-th{font-size:18px;font-weight:700;color:#7a96b4;text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border-bottom:2px solid #e2e8f0;text-align:left}
-td{padding:12px;border-bottom:1px solid #f1f5f9;font-size:17px;color:#ffffff;vertical-align:middle}
+th{font-size:18px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border-bottom:2px solid #e2e8f0;text-align:left}
+td{padding:12px;border-bottom:1px solid #f1f5f9;font-size:17px;color:#0f172a;vertical-align:middle}
 tr:last-child td{border-bottom:none}
 .empty-state{text-align:center;padding:48px 20px}
 .empty-icon{font-size:40px;margin-bottom:12px}
-.empty-title{font-size:17px;font-weight:700;color:#a0b8d4;margin-bottom:6px}
-.empty-sub{font-size:17px;color:#7a96b4;margin-bottom:20px}
+.empty-title{font-size:17px;font-weight:700;color:#475569;margin-bottom:6px}
+.empty-sub{font-size:17px;color:#94a3b8;margin-bottom:20px}
 @media(max-width:768px){
   .layout{display:block!important}
   .sidebar{display:none!important}
@@ -65,7 +65,7 @@ tr:last-child td{border-bottom:none}
 </style>
   <link rel="stylesheet" href="/static/mobile.css">
   <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#080f1e">
+  <meta name="theme-color" content="#0a0a1a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="SuperAdPro">
@@ -156,7 +156,7 @@ tr:last-child td{border-bottom:none}
           </div>
         </div>
       </div>
-      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;color:#8aa4c0;text-decoration:none;margin-top:4px;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">⎋ Sign Out</a>
+      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;color:#64748b;text-decoration:none;margin-top:4px;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">⎋ Sign Out</a>
     </div>
   </aside>
 
@@ -164,12 +164,12 @@ tr:last-child td{border-bottom:none}
 <div class="topbar">
   <div>
     <div style="font-size:17px;font-weight:800;color:#ffffff">◉ My Profile</div>
-    <div style="font-size:17px;color:#7a96b4;margin-top:1px">Manage your account details and wallet address</div>
+    <div style="font-size:17px;color:#94a3b8;margin-top:1px">Manage your account details and wallet address</div>
   </div>
   <div style="display:flex;align-items:center;gap:12px">
     <div style="background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:8px 16px">
-      <div style="font-size:17px;color:#7a96b4;letter-spacing:1.5px;text-transform:uppercase">Balance</div>
-      <div><span style="font-size:18px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:18px;color:#7a96b4;margin-left:3px">USDT</span></div>
+      <div style="font-size:17px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase">Balance</div>
+      <div><span style="font-size:18px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:18px;color:#94a3b8;margin-left:3px">USDT</span></div>
     </div>
     
   </div>
@@ -181,7 +181,7 @@ tr:last-child td{border-bottom:none}
 <div style="background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.25);border-radius:10px;padding:12px 18px;margin-bottom:18px;font-size:13px;color:#16a34a;font-weight:600">✓ {{ request.query_params.get('saved')|replace('_',' ')|title }} saved successfully.</div>
 {% endif %}
 {% if request.query_params.get('error') %}
-<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:12px 18px;margin-bottom:18px;font-size:13px;color:#dc2626;font-weight:600">⚠ {{ request.query_params.get('error')|replace('_',' ')|title }}.</div>
+<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px 18px;margin-bottom:18px;font-size:13px;color:#dc2626;font-weight:600">⚠ {{ request.query_params.get('error')|replace('_',' ')|title }}.</div>
 {% endif %}
 
 <div class="row row-2">
@@ -197,27 +197,27 @@ tr:last-child td{border-bottom:none}
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid #f1f5f9">
           <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00b4d8);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0">{{ (user.first_name[:1] + (user.last_name[:1] if user.last_name else user.username[1:2])).upper() }}</div>
           <div>
-            <div style="font-size:17px;font-weight:800;color:#ffffff">{{ user.first_name }} {{ user.last_name }}</div>
-            <div style="font-size:12px;color:#8aa4c0">@{{ user.username }}</div>
-            <div style="font-size:11px;color:#7a96b4;margin-top:2px">Member since {{ user.created_at.strftime('%d %b %Y') if user.created_at else '—' }}</div>
+            <div style="font-size:17px;font-weight:800;color:#0f172a">{{ user.first_name }} {{ user.last_name }}</div>
+            <div style="font-size:12px;color:#64748b">@{{ user.username }}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:2px">Member since {{ user.created_at.strftime('%d %b %Y') if user.created_at else '—' }}</div>
           </div>
         </div>
         <div style="display:grid;gap:8px">
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9">
-            <span style="font-size:11px;font-weight:700;color:#7a96b4;text-transform:uppercase;letter-spacing:1px">Member ID</span>
+            <span style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px">Member ID</span>
             <span style="font-size:13px;font-weight:700;color:#6366f1;font-family:monospace">{{ member_id }}</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9">
-            <span style="font-size:11px;font-weight:700;color:#7a96b4;text-transform:uppercase;letter-spacing:1px">Email</span>
-            <span style="font-size:13px;font-weight:600;color:#ffffff">{{ user.email }}</span>
+            <span style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px">Email</span>
+            <span style="font-size:13px;font-weight:600;color:#0f172a">{{ user.email }}</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9">
-            <span style="font-size:11px;font-weight:700;color:#7a96b4;text-transform:uppercase;letter-spacing:1px">Country</span>
-            <span style="font-size:13px;font-weight:600;color:#ffffff">{{ user.country or '—' }}</span>
+            <span style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px">Country</span>
+            <span style="font-size:13px;font-weight:600;color:#0f172a">{{ user.country or '—' }}</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
-            <span style="font-size:11px;font-weight:700;color:#7a96b4;text-transform:uppercase;letter-spacing:1px">Sponsor</span>
-            <span style="font-size:13px;font-weight:600;color:#ffffff">{{ sponsor_username or 'Direct' }}</span>
+            <span style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px">Sponsor</span>
+            <span style="font-size:13px;font-weight:600;color:#0f172a">{{ sponsor_username or 'Direct' }}</span>
           </div>
         </div>
       </div>
@@ -228,12 +228,12 @@ tr:last-child td{border-bottom:none}
       <div class="card-head"><div class="card-title"><div class="card-dot" style="background:#6d28d9"></div>Earnings Summary</div></div>
       <div class="card-body">
         <div style="display:grid;gap:8px">
-          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:12px;color:#8aa4c0">Total Earned</span><span style="font-size:13px;font-weight:800;color:#16a34a">${{ '%.2f'|format(total_earned) }}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:12px;color:#8aa4c0">Available Balance</span><span style="font-size:13px;font-weight:800;color:#00b4d8">${{ '%.2f'|format(balance) }}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:12px;color:#8aa4c0">Grid Earnings</span><span style="font-size:13px;font-weight:700;color:#ffffff">${{ '%.2f'|format(grid_earnings) }}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:7px 0"><span style="font-size:12px;color:#8aa4c0">Uni-Level Income</span><span style="font-size:13px;font-weight:700;color:#6d28d9">${{ '%.2f'|format(level_earnings) }}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:12px;color:#64748b">Total Earned</span><span style="font-size:13px;font-weight:800;color:#16a34a">${{ '%.2f'|format(total_earned) }}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:12px;color:#64748b">Available Balance</span><span style="font-size:13px;font-weight:800;color:#00b4d8">${{ '%.2f'|format(balance) }}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:12px;color:#64748b">Grid Earnings</span><span style="font-size:13px;font-weight:700;color:#0f172a">${{ '%.2f'|format(grid_earnings) }}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0"><span style="font-size:12px;color:#64748b">Uni-Level Income</span><span style="font-size:13px;font-weight:700;color:#6d28d9">${{ '%.2f'|format(level_earnings) }}</span></div>
         </div>
-        <a href="/wallet" style="display:block;text-align:center;margin-top:14px;padding:9px;background:#283d5a;border:1px solid rgba(0,170,220,0.26);border-radius:7px;font-size:12px;font-weight:700;color:#a0b8d4;text-decoration:none">View Full Wallet →</a>
+        <a href="/wallet" style="display:block;text-align:center;margin-top:14px;padding:9px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;font-size:12px;font-weight:700;color:#475569;text-decoration:none">View Full Wallet →</a>
       </div>
     </div>
   </div>
@@ -258,7 +258,7 @@ tr:last-child td{border-bottom:none}
           </div>
           <div class="form-group" style="margin-bottom:14px">
             <label class="form-label">Country</label>
-            <select name="country" style="width:100%;padding:10px 14px;border:1px solid rgba(0,170,220,0.26);border-radius:7px;font-size:13px;font-family:inherit;color:#ffffff;background:#283d5a">
+            <select name="country" style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;font-family:inherit;color:#0f172a;background:#f8fafc">
               <option value="">Select country...</option>
               {% for c in ['Afghanistan','Albania','Algeria','Angola','Argentina','Armenia','Australia','Austria','Azerbaijan','Bahrain','Bangladesh','Belarus','Belgium','Bolivia','Bosnia and Herzegovina','Brazil','Bulgaria','Cambodia','Cameroon','Canada','Chile','China','Colombia','Congo','Costa Rica','Croatia','Cyprus','Czech Republic','Denmark','Dominican Republic','Ecuador','Egypt','El Salvador','Estonia','Ethiopia','Finland','France','Georgia','Germany','Ghana','Greece','Guatemala','Honduras','Hong Kong','Hungary','India','Indonesia','Iraq','Ireland','Israel','Italy','Jamaica','Japan','Jordan','Kazakhstan','Kenya','Kuwait','Latvia','Lebanon','Libya','Lithuania','Luxembourg','Malaysia','Mali','Malta','Mexico','Moldova','Morocco','Myanmar','Nepal','Netherlands','New Zealand','Nicaragua','Nigeria','Norway','Oman','Pakistan','Panama','Paraguay','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Rwanda','Saudi Arabia','Senegal','Serbia','Singapore','Slovakia','Slovenia','South Africa','South Korea','Spain','Sri Lanka','Sudan','Sweden','Switzerland','Syria','Taiwan','Tanzania','Thailand','Tunisia','Turkey','UAE','Uganda','Ukraine','United Kingdom','United States','Uruguay','Uzbekistan','Venezuela','Vietnam','Yemen','Zambia','Zimbabwe'] %}
               <option {% if user.country == c %}selected{% endif %}>{{ c }}</option>
@@ -274,7 +274,7 @@ tr:last-child td{border-bottom:none}
     <div class="card" style="margin-bottom:20px">
       <div class="card-head"><div class="card-title"><div class="card-dot" style="background:#16a34a"></div>USDT Withdrawal Wallet</div></div>
       <div class="card-body">
-        <p style="font-size:12px;color:#8aa4c0;margin-bottom:14px;line-height:1.6">Enter your Base Chain wallet address to receive USDT withdrawals. Make sure this is correct — payments go directly to this address.</p>
+        <p style="font-size:12px;color:#64748b;margin-bottom:14px;line-height:1.6">Enter your Base Chain wallet address to receive USDT withdrawals. Make sure this is correct — payments go directly to this address.</p>
         <form method="POST" action="/save-wallet">
           <div class="form-group">
             <label class="form-label">Base Chain Address (0x...)</label>
@@ -304,7 +304,7 @@ tr:last-child td{border-bottom:none}
               <input class="form-input" type="password" name="confirm_password" id="confirmPw" placeholder="Repeat new password" required autocomplete="new-password">
             </div>
           </div>
-          <div id="pwError" style="display:none;font-size:12px;color:#dc2626;margin-bottom:10px;padding:8px 12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:6px"></div>
+          <div id="pwError" style="display:none;font-size:12px;color:#dc2626;margin-bottom:10px;padding:8px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px"></div>
           <button type="submit" class="btn-primary" style="font-size:12px;padding:9px 20px;background:linear-gradient(135deg,#f59e0b,#ef4444)">Update Password</button>
         </form>
       </div>
