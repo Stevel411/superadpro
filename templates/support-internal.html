@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Support — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:#050d1a; color:#e8f0fe; font-family:'DM Sans','Rethink Sans',sans-serif; min-height:100vh; }
+        .bg { display:none; }
+        .grid { display:none; }
+
+        nav { position:relative; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 36px; height:80px; background:rgba(10,18,40,0.9); border-bottom:1px solid rgba(0,180,216,0.12); box-shadow:0 1px 8px rgba(0,0,0,0.06); }
+        .nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; }
+        .nav-brand { font-weight:800; font-size:19px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#00b4d8,#6d28d9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .nav-links { display:flex; align-items:center; gap:6px; list-style:none; }
+        .nav-links a { font-size:19px; font-weight:500; color:#2d3b4e; text-decoration:none; padding:4px 10px; transition:color 0.2s; }
+        .nav-links a:hover { color:#ffffff; }
+        .nav-cta { font-weight:700; font-size:19px; color:#ffffff; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:8px 22px; border-radius:5px; text-decoration:none; transition:all 0.3s; }
+        .nav-cta:hover { box-shadow:0 4px 24px rgba(0,180,216,0.35); transform:translateY(-1px); }
+
+        .page { position:relative; z-index:10; max-width:1100px; margin:0 auto; padding:60px 32px 80px; }
+
+        /* Hero */
+        .hero { text-align:center; margin-bottom:56px; }
+        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:19px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#00b4d8; border:1px solid rgba(0,180,216,0.25); border-radius:50px; background:rgba(0,180,216,0.08); padding:5px 16px; margin-bottom:20px; }
+        .dot { width:6px; height:6px; border-radius:50%; background:#00b4d8; animation:blink 2s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+        .hero h1 { font-weight:800; font-size:clamp(28px,4vw,52px); color:#ffffff; line-height:1.1; margin-bottom:14px; }
+        .hero h1 .gold { color:#6d28d9; }
+        .hero p { font-size:19px; color:#2d3b4e; max-width:540px; margin:0 auto; line-height:1.7; }
+
+        /* Divider */
+        .divider { display:flex; align-items:center; gap:14px; margin:52px 0 32px; }
+        .div-line { flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(0,180,216,0.2),transparent); }
+        .div-text { font-size:19px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(220,242,230,0.4); white-space:nowrap; }
+
+        /* ===== CONTACT CHANNELS ===== */
+        .channels-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:56px; }
+        .channel-card { background:rgba(10,18,40,0.9); border:1px solid rgba(0,180,216,0.15); border-radius:10px; padding:30px 26px; text-align:center; transition:all 0.3s; position:relative; overflow:hidden; }
+        .channel-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,rgba(0,180,120,0.4),transparent); }
+        .channel-card.primary::before { background:linear-gradient(90deg,transparent,#6d28d9,transparent); }
+        .channel-card:hover { transform:translateY(-4px); border-color:rgba(0,220,150,0.3); }
+        .channel-icon { font-size:32px; margin-bottom:14px; display:block; }
+        .channel-title { font-size:19px; font-weight:800; color:#ffffff; margin-bottom:6px; }
+        .channel-desc { font-size:19px; color:rgba(220,242,230,0.65); line-height:1.65; margin-bottom:18px; }
+        .channel-detail { font-size:19px; font-weight:600; color:#00b4d8; margin-bottom:4px; }
+        .channel-hours { font-size:19px; color:#64748b; letter-spacing:1px; margin-bottom:18px; }
+        .channel-btn { display:inline-block; font-weight:700; font-size:19px; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:10px 24px; border-radius:5px; text-decoration:none; transition:all 0.3s; }
+        .channel-btn:hover { box-shadow:0 0 24px rgba(0,180,216,0.3); transform:translateY(-1px); }
+        .channel-btn-outline { background:transparent; color:rgba(220,242,230,0.75); border:1px solid rgba(0,180,216,0.3); }
+        .channel-btn-outline:hover { border-color:#00b4d8; color:#ffffff; box-shadow:none; }
+
+        /* ===== CONTACT FORM + SIDEBAR ===== */
+        .contact-wrap { display:grid; grid-template-columns:1.4fr 1fr; gap:24px; margin-bottom:56px; }
+
+        /* Form */
+        .form-panel { background:rgba(10,18,40,0.9); border:1px solid rgba(0,180,216,0.15); border-radius:10px; padding:36px; }
+        .form-panel-title { font-size:19px; font-weight:800; color:#ffffff; margin-bottom:6px; }
+        .form-panel-sub { font-size:19px; color:rgba(220,242,230,0.62); margin-bottom:28px; }
+        .form-group { margin-bottom:20px; }
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+        label { display:block; font-size:19px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:rgba(220,242,230,0.55); margin-bottom:7px; }
+        input, select, textarea { width:100%; background:rgba(5,13,26,0.8); border:1px solid rgba(0,180,216,0.15); border-radius:6px; padding:13px 16px; font-family:'DM Sans','Rethink Sans',sans-serif; font-size:19px; color:#ffffff; transition:all 0.3s; outline:none; resize:vertical; }
+        input::placeholder, textarea::placeholder { color:rgba(220,242,230,0.3); }
+        input:focus, select:focus, textarea:focus { border-color:#00b4d8; background:rgba(0,0,0,0.4); box-shadow:0 0 0 3px rgba(0,200,140,0.07); }
+        select option { background:rgba(10,18,40,0.9); }
+        textarea { min-height:130px; }
+        .submit-btn { width:100%; font-weight:700; font-size:19px; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:15px; border-radius:6px; border:none; cursor:pointer; font-family:'DM Sans','Rethink Sans',sans-serif; box-shadow:0 0 24px rgba(0,180,216,0.15); transition:all 0.3s; }
+        .submit-btn:hover { box-shadow:0 0 44px rgba(0,180,216,0.4); transform:translateY(-1px); }
+        .success-msg { background:rgba(0,180,216,0.08); border:1px solid rgba(0,200,140,0.2); border-radius:6px; padding:14px 18px; font-size:19px; color:rgba(0,220,150,0.9); margin-bottom:20px; display:none; }
+
+        /* Sidebar */
+        .info-sidebar { display:flex; flex-direction:column; gap:16px; }
+        .info-card { background:rgba(10,18,40,0.9); border:1px solid rgba(0,180,216,0.15); border-radius:10px; padding:22px; }
+        .info-card-title { font-size:19px; font-weight:700; color:#ffffff; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+        .info-card-icon { font-size:19px; }
+        .info-item { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; font-size:19px; color:#2d3b4e; line-height:1.5; }
+        .info-item:last-child { margin-bottom:0; }
+        .info-bullet { color:#00b4d8; font-weight:700; flex-shrink:0; margin-top:1px; }
+
+        .response-times { display:flex; flex-direction:column; gap:10px; }
+        .rt-item { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:rgba(0,0,0,0.2); border-radius:5px; border:1px solid rgba(0,180,216,0.15); }
+        .rt-type { font-size:19px; font-weight:600; color:#2d3b4e; }
+        .rt-time { font-size:19px; font-weight:700; color:#00b4d8; }
+
+        .wallet-info { background:rgba(10,18,40,0.9); border:1px solid rgba(0,180,216,0.15); border-radius:6px; padding:12px 14px; }
+        .wi-label { font-size:19px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(201,168,76,0.6); margin-bottom:5px; }
+        .wi-addr { font-size:19px; color:rgba(220,242,230,0.65); font-family:monospace; word-break:break-all; line-height:1.5; }
+
+        /* ===== QUICK HELP TOPICS ===== */
+        .topics-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:56px; }
+        .topic-card { background:rgba(10,18,40,0.9); border:1px solid rgba(0,180,216,0.15); border-radius:8px; padding:20px; text-decoration:none; transition:all 0.3s; display:block; }
+        .topic-card:hover { border-color:#00b4d8; transform:translateY(-2px); background:rgba(3,22,12,0.95); }
+        .topic-icon { font-size:32px; margin-bottom:10px; display:block; }
+        .topic-title { font-size:19px; font-weight:700; color:#ffffff; margin-bottom:5px; }
+        .topic-desc { font-size:19px; color:rgba(220,242,230,0.58); line-height:1.6; }
+        .topic-link { font-size:19px; color:#6d28d9; font-weight:600; margin-top:8px; display:block; }
+
+        @media(max-width:900px) { .channels-grid{grid-template-columns:1fr 1fr} .contact-wrap{grid-template-columns:1fr} .topics-grid{grid-template-columns:1fr 1fr} }
+        @media(max-width:580px) { .channels-grid{grid-template-columns:1fr} .topics-grid{grid-template-columns:1fr} .form-row{grid-template-columns:1fr} }
+    
+/* ── Login Modal ── */
+.login-overlay{position:fixed;inset:0;background:rgba(1,8,20,0.85);backdrop-filter:blur(6px);z-index:1001;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.login-overlay.open{opacity:1;pointer-events:all}
+.login-modal{background:#0d1117;border:1px solid rgba(0,212,255,0.15);border-radius:18px;padding:36px 38px;width:100%;max-width:400px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);transform:translateY(20px);transition:transform 0.25s}
+.login-overlay.open .login-modal{transform:translateY(0)}
+/* ── Registration Modal ── */
+.reg-overlay{position:fixed;inset:0;background:rgba(1,8,20,0.85);backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.reg-overlay.open{opacity:1;pointer-events:all}
+.reg-modal{background:#0d1117;border:1px solid rgba(0,212,255,0.15);border-radius:18px;padding:36px 38px;width:100%;max-width:460px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);transform:translateY(20px);transition:transform 0.25s}
+.reg-overlay.open .reg-modal{transform:translateY(0)}
+.reg-close{position:absolute;top:14px;right:18px;background:none;border:none;color:rgba(200,220,255,0.4);font-size:22px;cursor:pointer;line-height:1;padding:4px 8px;border-radius:6px;transition:color 0.2s}
+.reg-close:hover{color:rgba(200,220,255,0.9)}
+.reg-title{font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
+.reg-sub{font-size:16px;color:rgba(200,220,255,0.5);margin-bottom:24px}
+.reg-field{margin-bottom:16px}
+.reg-label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(200,220,255,0.5);margin-bottom:6px}
+.reg-input{width:100%;padding:11px 14px;border:1.5px solid rgba(0,212,255,0.12);border-radius:9px;background:rgba(0,212,255,0.04);color:#fff;font-size:16px;font-family:inherit;box-sizing:border-box;transition:border-color 0.2s}
+.reg-input:focus{outline:none;border-color:#00d4ff;background:rgba(0,212,255,0.07)}
+.reg-input::placeholder{color:rgba(200,220,255,0.25)}
+.reg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.reg-terms{display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;font-size:16px;color:rgba(200,220,255,0.45);line-height:1.5}
+.reg-terms input{width:15px;height:15px;flex-shrink:0;margin-top:1px;accent-color:#00d4ff}
+.reg-terms a{color:rgba(0,212,255,0.7);text-decoration:none}
+.reg-submit{width:100%;padding:13px;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:10px;color:#fff;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;transition:opacity 0.2s}
+.reg-submit:hover{opacity:0.9}
+.reg-submit:disabled{opacity:0.5;cursor:not-allowed}
+.reg-err{display:none;margin-bottom:14px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:16px;color:#dc2626;font-weight:600}
+.reg-login{text-align:center;margin-top:16px;font-size:16px;color:rgba(200,220,255,0.4)}
+.reg-login a{color:rgba(0,212,255,0.7);text-decoration:none;font-weight:600}
+@media(max-width:500px){.reg-modal,.login-modal{padding:28px 22px}.reg-row{grid-template-columns:1fr}}
+
+/* Hamburger + Mobile Menu */
+.hamburger{display:none;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:4px 8px}
+.mobile-menu{display:none;position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(5,13,26,0.98);backdrop-filter:blur(12px);z-index:99;overflow-y:auto}
+.mobile-menu.open{display:block}
+.mobile-menu-inner{padding:24px;display:flex;flex-direction:column;gap:4px}
+.mobile-menu-inner a{display:block;padding:14px 16px;font-size:16px;font-weight:600;color:rgba(200,220,255,0.8);text-decoration:none;border-radius:8px;transition:background 0.2s}
+.mobile-menu-inner a:hover{background:rgba(0,180,216,0.1);color:#fff}
+@media(max-width:900px){
+  .hamburger{display:block}
+  .nav-links{display:none!important}
+  nav{padding:0 16px}
+}
+@media(min-width:901px){.mobile-menu{display:none!important}}
+@media(max-width:600px){
+  nav{height:64px}
+  .nav-brand{font-size:16px!important}
+}
+
+
+/* Internal layout */
+.int-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.25);position:sticky;top:0;z-index:200}
+.int-topbar-left{display:flex;align-items:center;gap:16px}
+.int-topbar-title{font-size:19px;font-weight:800;color:#fff}
+.int-topbar-sub{font-size:13px;color:rgba(200,220,255,0.5);margin-top:2px}
+.int-back{display:flex;align-items:center;gap:6px;color:#64748b;text-decoration:none;font-size:14px;font-weight:600;padding:6px 12px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;transition:all 0.2s}
+.int-back:hover{border-color:rgba(0,212,255,0.3);color:#00d4ff}
+</style>
+</head>
+<body>
+
+<div class="int-topbar">
+  <div class="int-topbar-left">
+    <a href="/dashboard" class="int-back">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 1L3 7l7 6"/></svg>
+      Dashboard
+    </a>
+    <div>
+      <div class="int-topbar-title">◌ Support</div>
+      <div class="int-topbar-sub">Get help & contact the team</div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ── Login Modal ── -->
+<div class="login-overlay" id="loginOverlay" onclick="if(event.target===this)closeLoginModal()">
+  <div class="login-modal">
+    <button class="reg-close" onclick="closeLoginModal()" aria-label="Close">✕</button>
+    <div class="reg-title">Log In</div>
+    <div class="reg-sub">Welcome back · Enter your details below</div>
+    <div id="loginErr" class="reg-err"></div>
+    <form id="loginModalForm">
+      <div class="reg-field">
+        <label class="reg-label">Username or Email</label>
+        <input class="reg-input" type="text" id="loginUser" placeholder="username or email" required autocomplete="username">
+      </div>
+      <div class="reg-field" style="margin-bottom:8px">
+        <label class="reg-label">Password</label>
+        <input class="reg-input" type="password" id="loginPw" placeholder="Your password" required autocomplete="current-password">
+      </div>
+      <div style="text-align:right;margin-bottom:20px">
+        <a href="/forgot-password" style="font-size:16px;color:rgba(0,212,255,0.6);text-decoration:none">Forgot password?</a>
+      </div>
+      <button type="submit" class="reg-submit" id="loginBtn">Log In →</button>
+    </form>
+    <div class="reg-login">Don’t have an account? <a href="#" onclick="closeLoginModal();openRegModal();return false;">Register here →</a></div>
+  </div>
+</div>
+
+<!-- ── Registration Modal ── -->
+<div class="reg-overlay" id="regOverlay" onclick="if(event.target===this)closeRegModal()">
+  <div class="reg-modal">
+    <button class="reg-close" onclick="closeRegModal()" aria-label="Close">✕</button>
+    <div class="reg-title">Create Your Free Account</div>
+    <div class="reg-sub">Takes 60 seconds · No credit card required</div>
+    <div id="regErr" class="reg-err"></div>
+    <form id="regModalForm">
+      <input type="hidden" id="regRef" name="ref" value="">
+      <div class="reg-field">
+        <label class="reg-label">First Name</label>
+        <input class="reg-input" type="text" id="regFirstName" placeholder="John" required autocomplete="given-name">
+      </div>
+      <div class="reg-field">
+        <label class="reg-label">Email Address</label>
+        <input class="reg-input" type="email" id="regEmail" placeholder="john@example.com" required autocomplete="email">
+      </div>
+      <div class="reg-field">
+        <label class="reg-label">Username <span style="font-weight:400;letter-spacing:0;text-transform:none;color:rgba(200,220,255,0.3)">— becomes your referral ID</span></label>
+        <input class="reg-input" type="text" id="regUsername" placeholder="johnsmith99" required autocomplete="off" pattern="[a-zA-Z0-9_]{3,30}">
+      </div>
+      <div class="reg-row">
+        <div class="reg-field">
+          <label class="reg-label">Password</label>
+          <input class="reg-input" type="password" id="regPw" placeholder="Min. 8 chars" required minlength="8" autocomplete="new-password">
+        </div>
+        <div class="reg-field">
+          <label class="reg-label">Confirm</label>
+          <input class="reg-input" type="password" id="regPwC" placeholder="Repeat" required autocomplete="new-password">
+        </div>
+      </div>
+      <div class="reg-field" id="regSponsorField" style="display:none">
+        <label class="reg-label">Referred by</label>
+        <input class="reg-input" type="text" id="regSponsor" placeholder="Sponsor username" autocomplete="off" readonly style="opacity:0.6">
+      </div>
+      <div class="reg-terms">
+        <input type="checkbox" id="regTerms" required>
+        <div>I agree to the <a href="/legal" target="_blank">Terms of Service</a> and <a href="/legal" target="_blank">Privacy Policy</a>.</div>
+      </div>
+      <button type="submit" class="reg-submit" id="regBtn">Register Here →</button>
+    </form>
+    <div class="reg-login">Already have an account? <a href="#" onclick="closeRegModal();openLoginModal();return false;">Log in here →</a></div>
+  </div>
+</div>
+
+
+
+<div class="page">
+
+    <!-- HERO -->
+    <div class="hero">
+        <div class="eyebrow"><div class="dot"></div>Support Centre</div>
+        <h1>How Can We <span class="gold">Help You?</span></h1>
+        <p>Our support team is here to help with anything — from getting set up to technical issues, payments and your account.</p>
+    </div>
+
+    <!-- CONTACT CHANNELS -->
+    <div class="channels-grid">
+        <div class="channel-card primary">
+            <span class="channel-icon">✉️</span>
+            <div class="channel-title">Email Support</div>
+            <div class="channel-desc">Send us a detailed message and our team will get back to you as quickly as possible.</div>
+            <div class="channel-detail">support@superadpro.com</div>
+            <div class="channel-hours">Response within 24 hours</div>
+            <a href="mailto:support@superadpro.com" class="channel-btn">Send Email →</a>
+        </div>
+        <div class="channel-card">
+            <span class="channel-icon">💬</span>
+            <div class="channel-title">Submit a Ticket</div>
+            <div class="channel-desc">Use the contact form below to submit a support ticket. Include as much detail as possible for a faster resolution.</div>
+            <div class="channel-detail">Ticket system below</div>
+            <div class="channel-hours">Response within 12–24 hours</div>
+            <a href="#contactForm" class="channel-btn channel-btn-outline">Submit Ticket →</a>
+        </div>
+        <div class="channel-card">
+            <span class="channel-icon">📖</span>
+            <div class="channel-title">Self-Service Help</div>
+            <div class="channel-desc">Browse our FAQ and platform guides — most common questions are answered there instantly.</div>
+            <div class="channel-detail">Available 24/7</div>
+            <div class="channel-hours">Instant answers</div>
+            <a href="/faq" class="channel-btn channel-btn-outline">Browse FAQ →</a>
+        </div>
+    </div>
+
+    <!-- QUICK HELP TOPICS -->
+    <div class="divider"><div class="div-line"></div><div class="div-text">Common Support Topics</div><div class="div-line"></div></div>
+    <div class="topics-grid">
+        <a href="/faq#getting-started" class="topic-card">
+            <span class="topic-icon">🚀</span>
+            <div class="topic-title">Getting Started</div>
+            <div class="topic-desc">Registration, beta codes, wallet setup and your first tier activation.</div>
+            <span class="topic-link">View answers →</span>
+        </a>
+        <a href="/faq#payments" class="topic-card">
+            <span class="topic-icon">💰</span>
+            <div class="topic-title">Payments & USDT</div>
+            <div class="topic-desc">How to send USDT, supported wallets, Base Chain setup and transaction issues.</div>
+            <span class="topic-link">View answers →</span>
+        </a>
+        <a href="/faq#advertising" class="topic-card">
+            <span class="topic-icon">🎬</span>
+            <div class="topic-title">Campaigns & Views</div>
+            <div class="topic-desc">Campaign setup, video formats, delivery timelines and analytics dashboard.</div>
+            <span class="topic-link">View answers →</span>
+        </a>
+        <a href="/faq#affiliate" class="topic-card">
+            <span class="topic-icon">◈</span>
+            <div class="topic-title">Affiliate & Grid</div>
+            <div class="topic-desc">Referral links, commission structure, grid positions and earning calculations.</div>
+            <span class="topic-link">View answers →</span>
+        </a>
+        <a href="/faq#account" class="topic-card">
+            <span class="topic-icon">👤</span>
+            <div class="topic-title">Account & Security</div>
+            <div class="topic-desc">Password resets, wallet address changes, account settings and security.</div>
+            <span class="topic-link">View answers →</span>
+        </a>
+        <a href="/how-it-works" class="topic-card">
+            <span class="topic-icon">📊</span>
+            <div class="topic-title">Platform Guide</div>
+            <div class="topic-desc">Full step-by-step walkthrough of how SuperAdPro works for all user types.</div>
+            <span class="topic-link">Read the guide →</span>
+        </a>
+    </div>
+
+    <!-- CONTACT FORM + SIDEBAR -->
+    <div class="divider"><div class="div-line"></div><div class="div-text">Submit a Support Ticket</div><div class="div-line"></div></div>
+    <div class="contact-wrap" id="contactForm">
+
+        <!-- Form -->
+        <div class="form-panel">
+            <div class="form-panel-title">Contact Support</div>
+            <div class="form-panel-sub">Fill in the form below and our team will respond within 24 hours.</div>
+
+            <div class="success-msg" id="successMsg">✓ Your message has been sent! We'll get back to you within 24 hours.</div>
+
+            <form id="supportForm" action="/support" method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" name="first_name" placeholder="John" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" name="last_name" placeholder="Smith" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" placeholder="john@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Username <span style="color:rgba(220,242,230,0.35);font-weight:400">(if registered)</span></label>
+                    <input type="text" name="username" placeholder="Your SuperAdPro username">
+                </div>
+
+                <div class="form-group">
+                    <label>Support Category</label>
+                    <select name="category" required>
+                        <option value="" disabled selected>Select a category...</option>
+                        <option value="getting-started">Getting Started / Registration</option>
+                        <option value="payment">Payment / USDT Issue</option>
+                        <option value="campaign">Campaign / Advertising</option>
+                        <option value="affiliate">Affiliate / Grid / Earnings</option>
+                        <option value="account">Account / Security</option>
+                        <option value="technical">Technical Issue</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" name="subject" placeholder="Brief description of your issue" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea name="message" placeholder="Please describe your issue in as much detail as possible. If it's a payment issue, include your transaction hash and wallet address." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Transaction Hash <span style="color:rgba(220,242,230,0.35);font-weight:400">(if payment related)</span></label>
+                    <input type="text" name="tx_hash" placeholder="0x...">
+                </div>
+
+                <button type="submit" class="submit-btn">Send Support Ticket →</button>
+            </form>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="info-sidebar">
+
+            <div class="info-card">
+                <div class="info-card-title"><span class="info-card-icon">⏱</span>Response Times</div>
+                <div class="response-times">
+                    <div class="rt-item">
+                        <span class="rt-type">Email Support</span>
+                        <span class="rt-time">Within 24hrs</span>
+                    </div>
+                    <div class="rt-item">
+                        <span class="rt-type">Support Ticket</span>
+                        <span class="rt-time">12–24hrs</span>
+                    </div>
+                    <div class="rt-item">
+                        <span class="rt-type">Payment Issues</span>
+                        <span class="rt-time">Priority · 6hrs</span>
+                    </div>
+                    <div class="rt-item">
+                        <span class="rt-type">FAQ / Self-Service</span>
+                        <span class="rt-time">Instant</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-title"><span class="info-card-icon">💡</span>Before You Contact Us</div>
+                <div class="info-item"><span class="info-bullet">→</span>Check the <a href="/faq" style="color:#6d28d9">FAQ page</a> — most questions are answered there.</div>
+                <div class="info-item"><span class="info-bullet">→</span>For payment issues, always include your wallet address and transaction hash.</div>
+                <div class="info-item"><span class="info-bullet">→</span>Make sure you're sending USDT on the <strong style="color:#fff">Base network</strong> — not Ethereum mainnet.</div>
+                <div class="info-item"><span class="info-bullet">→</span>Include your username if you have one — it speeds up our response.</div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-title"><span class="info-card-icon">🔗</span>Platform Wallet Address</div>
+                <div style="font-size:19px;color:rgba(220,242,230,0.58);margin-bottom:10px;">For tier activations, send USDT to:</div>
+                <div class="wallet-info">
+                    <div class="wi-label">SuperAdPro · Base Chain</div>
+                    <div class="wi-addr">0xF5D76f3dB286F23A8Aee26AaFBD46C9DE9bE1483</div>
+                </div>
+                <div style="font-size:19px;color:rgba(255,120,100,0.7);margin-top:10px;line-height:1.5;">⚠ Always verify this address before sending. Base Chain USDT only.</div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-title"><span class="info-card-icon">📧</span>Direct Contact</div>
+                <div class="info-item"><span class="info-bullet">✉</span><a href="mailto:support@superadpro.com" style="color:#6d28d9">support@superadpro.com</a></div>
+                <div class="info-item"><span class="info-bullet">✉</span><a href="mailto:admin@superadpro.com" style="color:rgba(220,242,230,0.55)">admin@superadpro.com</a></div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+document.getElementById('supportForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const msg = document.getElementById('successMsg');
+    msg.style.display = 'block';
+    this.reset();
+    msg.scrollIntoView({ behavior:'smooth', block:'center' });
+    setTimeout(() => msg.style.display = 'none', 6000);
+});
+</script>
+<script>
+/* ── Modal JS ── */
+function openRegModal(sponsor) {
+  var o=document.getElementById('regOverlay'); if(!o)return;
+  if(sponsor){document.getElementById('regRef').value=sponsor;document.getElementById('regSponsor').value=sponsor;document.getElementById('regSponsorField').style.display='block';}
+  o.classList.add('open'); document.body.style.overflow='hidden';
+  setTimeout(function(){var f=document.getElementById('regFirstName');if(f)f.focus();},300);
+}
+function closeRegModal(){var o=document.getElementById('regOverlay');if(o)o.classList.remove('open');document.body.style.overflow='';}
+function openLoginModal(){
+  var o=document.getElementById('loginOverlay'); if(!o)return;
+  o.classList.add('open'); document.body.style.overflow='hidden';
+  setTimeout(function(){var f=document.getElementById('loginUser');if(f)f.focus();},300);
+}
+function closeLoginModal(){var o=document.getElementById('loginOverlay');if(o)o.classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeLoginModal();closeRegModal();}});
+
+document.addEventListener('DOMContentLoaded',function(){
+  /* Register form */
+  var rf=document.getElementById('regModalForm');
+  if(rf) rf.addEventListener('submit',async function(e){
+    e.preventDefault();
+    var err=document.getElementById('regErr'),btn=document.getElementById('regBtn');
+    err.style.display='none';
+    if(document.getElementById('regPw').value!==document.getElementById('regPwC').value){err.textContent='Passwords do not match.';err.style.display='block';return;}
+    if(!document.getElementById('regTerms').checked){err.textContent='Please agree to the Terms of Service.';err.style.display='block';return;}
+    btn.disabled=true; btn.textContent='Creating account…';
+    try{
+      var res=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        first_name:document.getElementById('regFirstName').value,
+        email:document.getElementById('regEmail').value,
+        username:document.getElementById('regUsername').value,
+        password:document.getElementById('regPw').value,
+        confirm_password:document.getElementById('regPwC').value,
+        ref:document.getElementById('regRef').value,
+        beta_code:''
+      })});
+      var d=await res.json();
+      if(d.success){window.location.href=d.redirect||'/dashboard?new=1';return;}
+      err.textContent=d.error||'Something went wrong.';err.style.display='block';
+      btn.disabled=false;btn.textContent='Register Here →';
+    }catch(ex){err.textContent='Network error. Please try again.';err.style.display='block';btn.disabled=false;btn.textContent='Register Here →';}
+  });
+
+  /* Login form */
+  var lf=document.getElementById('loginModalForm');
+  if(lf) lf.addEventListener('submit',async function(e){
+    e.preventDefault();
+    var err=document.getElementById('loginErr'),btn=document.getElementById('loginBtn');
+    err.style.display='none'; btn.disabled=true; btn.textContent='Logging in…';
+    try{
+      var res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        username:document.getElementById('loginUser').value,
+        password:document.getElementById('loginPw').value
+      })});
+      var d=await res.json();
+      if(d.success){window.location.href=d.redirect||'/dashboard';return;}
+      err.textContent=d.error||'Login failed.';err.style.display='block';
+      btn.disabled=false;btn.textContent='Log In →';
+    }catch(ex){err.textContent='Network error. Please try again.';err.style.display='block';btn.disabled=false;btn.textContent='Log In →';}
+  });
+
+  /* Auto-open from URL params */
+  var p=new URLSearchParams(window.location.search);
+  var sponsor=p.get('join')||p.get('ref')||'';
+  if(p.get('login')==='1'){openLoginModal();}
+  else if(sponsor||p.get('register')==='1'){openRegModal(sponsor);}
+});
+</script>
+
+
+
+</body>
+</html>

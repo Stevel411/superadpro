@@ -203,8 +203,12 @@ def compensation_plan(request: Request, user: User = Depends(get_current_user)):
     return templates.TemplateResponse("compensation-plan.html", ctx)
 
 @app.get("/grid-visualiser")
-def grid_visualiser(request: Request):
-    return templates.TemplateResponse("grid-visualiser.html", {"request": request})
+def grid_visualiser(request: Request, user: User = Depends(get_current_user)):
+    ctx = {"request": request}
+    if user:
+        ctx["user"] = user
+        return templates.TemplateResponse("grid-visualiser-internal.html", ctx)
+    return templates.TemplateResponse("grid-visualiser.html", ctx)
 
 @app.get("/packages")
 def packages(request: Request):
@@ -233,8 +237,12 @@ def faq(request: Request):
     return templates.TemplateResponse("faq.html", {"request": request})
 
 @app.get("/support")
-def support_get(request: Request):
-    return templates.TemplateResponse("support.html", {"request": request})
+def support_get(request: Request, user: User = Depends(get_current_user)):
+    ctx = {"request": request}
+    if user:
+        ctx["user"] = user
+        return templates.TemplateResponse("support-internal.html", ctx)
+    return templates.TemplateResponse("support.html", ctx)
 
 @app.post("/support")
 async def support_post(
