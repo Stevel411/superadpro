@@ -56,15 +56,15 @@ body{background:#f0f2f8;color:#0f172a;font-family:'DM Sans',sans-serif;min-heigh
 .progress-fill{height:100%;background:linear-gradient(90deg,#0ea5e9,#38bdf8);border-radius:99px;transition:width 0.6s ease}
 .progress-meta{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:#94a3b8}
 .progress-meta .earned{color:#16a34a;font-weight:700}
-.section-label{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#38bdf8;text-align:center;margin-bottom:16px}
-.grid-container{max-width:580px;margin:0 auto}
-.grid-8x8{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-bottom:20px}
+.section-label{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#38bdf8;text-align:center;margin:28px 0 16px}
+.grid-container{background:rgba(14,165,233,0.04);border:1px solid rgba(14,165,233,0.08);border-radius:16px;padding:24px;margin:0 auto 20px}
+.grid-8x8{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:520px;margin:0 auto 16px}
 .g-cell{aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:all 0.3s}
 .g-cell.owner{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:11px;font-weight:800;box-shadow:0 4px 14px rgba(14,165,233,0.3)}
 .g-cell.filled{background:linear-gradient(135deg,rgba(14,165,233,0.08),rgba(56,189,248,0.12));border:1px solid rgba(14,165,233,0.2);color:#0ea5e9}
 .g-cell.empty{background:#f8fafc;border:1px dashed #e2e8f0;color:#cbd5e1}
 .g-cell.empty:hover{border-color:rgba(14,165,233,0.25);background:rgba(14,165,233,0.03);color:#0ea5e9}
-.legend{display:flex;gap:24px;justify-content:center;margin-bottom:28px}
+.legend{display:flex;gap:24px;justify-content:center;margin:0}
 .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#64748b}
 .legend-dot{width:14px;height:14px;border-radius:4px}
 .level-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f8fafc}
@@ -216,11 +216,11 @@ body{background:#f0f2f8;color:#0f172a;font-family:'DM Sans',sans-serif;min-heigh
             {% endif %}
           {% endfor %}
           </div>
-        </div>
-        <div class="legend">
-          <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)"></div>You (Owner)</div>
-          <div class="legend-item"><div class="legend-dot" style="background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.2)"></div>Filled</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#f8fafc;border:1px dashed #e2e8f0"></div>Empty</div>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)"></div>You (Owner)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.2)"></div>Filled</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#f8fafc;border:1px dashed #e2e8f0"></div>Empty</div>
+          </div>
         </div>
 
         <div class="section-label">Level Earnings Breakdown</div>
