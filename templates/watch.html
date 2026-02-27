@@ -24,7 +24,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .user-mini-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0}
 
 /* ── Main ── */
-.topbar{background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.08);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0}
+.topbar{background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 28px;height:90px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0}
 .topbar-left{display:flex;align-items:center;gap:14px}
 .back-btn{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:15px;font-weight:600;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
 .back-btn:hover{color:#38bdf8;border-color:rgba(0,180,216,0.3);background:rgba(0,180,216,0.05)}
@@ -196,16 +196,25 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
         <span>Dashboard</span>
       </a>
-    </div>
-    <div style="display:flex;align-items:center;gap:16px">
-      <div>
-        <div class="topbar-title">▶ Video Hub</div>
-        <div class="topbar-sub">Watch videos · Qualify for daily commissions</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div>
+          <div style="font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:#fff;line-height:1.1">Video <span style="color:#38bdf8">Hub</span></div>
+          <div style="font-size:12px;color:rgba(186,230,253,0.45);margin-top:2px">Watch videos · Qualify for daily commissions</div>
+        </div>
       </div>
     </div>
-    <div style="font-size:15px;color:#6b7d94;text-align:right">
-      <div style="color:#38bdf8;font-weight:700;font-size:16px">Tier {{ quota.package_tier }}</div>
-      <div>{{ quota.daily_required }} video{{ 's' if quota.daily_required != 1 else '' }} required today</div>
+    <div style="display:flex;align-items:center;gap:20px">
+      <div style="text-align:right">
+        <div style="font-size:13px;font-weight:700;color:#38bdf8">Tier {{ quota.package_tier }}</div>
+        <div style="font-size:12px;color:rgba(186,230,253,0.35)">{{ quota.daily_required }} video{{ 's' if quota.daily_required != 1 else '' }} required today</div>
+      </div>
+      <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+        <svg width="32" height="32" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-tb)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-tb" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
+        <span style="font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
+      </a>
     </div>
   </div>
 
