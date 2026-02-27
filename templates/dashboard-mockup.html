@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Dashboard Mockup — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#f0f4f8;color:#0f172a;min-height:100vh;display:flex}
+
+/* SIDEBAR — deep ocean blue from comp plan */
+.sidebar{width:260px;min-height:100vh;background:linear-gradient(180deg,#0a2540 0%,#0e3a5c 50%,#0a4a6e 100%);padding:0;position:fixed;left:0;top:0;bottom:0;display:flex;flex-direction:column;z-index:100;border-right:1px solid rgba(56,189,248,0.08)}
+
+.sidebar-logo{padding:22px 24px;border-bottom:1px solid rgba(56,189,248,0.08)}
+.sidebar-logo span{font-size:22px;font-weight:800;color:#fff}
+.sidebar-logo span em{font-style:normal;color:#38bdf8}
+
+.sidebar-nav{flex:1;padding:16px 12px;overflow-y:auto}
+.nav-section{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(186,230,253,0.25);padding:16px 14px 6px;margin-top:4px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;font-size:14px;font-weight:500;color:rgba(186,230,253,0.55);cursor:pointer;transition:all 0.2s;text-decoration:none;margin-bottom:2px}
+.nav-item:hover{background:rgba(56,189,248,0.06);color:rgba(186,230,253,0.8)}
+.nav-item.active{background:rgba(56,189,248,0.1);color:#fff;font-weight:600;box-shadow:inset 3px 0 0 #38bdf8}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;font-size:10px;font-weight:700;background:rgba(56,189,248,0.15);color:#38bdf8;padding:2px 8px;border-radius:6px}
+
+.sidebar-user{padding:16px 16px;border-top:1px solid rgba(56,189,248,0.08);display:flex;align-items:center;gap:12px}
+.user-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff}
+.user-name{font-size:14px;font-weight:600;color:#fff}
+.user-plan{font-size:11px;color:rgba(186,230,253,0.35)}
+
+/* TOPBAR — same deep ocean blue */
+.topbar{position:fixed;top:0;left:260px;right:0;height:64px;background:linear-gradient(90deg,#0a2540,#0e3a5c);border-bottom:1px solid rgba(56,189,248,0.08);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:90}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.topbar-title{font-size:18px;font-weight:800;color:#fff}
+.topbar-sub{font-size:12px;color:rgba(186,230,253,0.35)}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.topbar-btn{font-size:13px;font-weight:600;color:rgba(186,230,253,0.5);padding:8px 14px;border-radius:8px;border:1px solid rgba(56,189,248,0.1);background:rgba(56,189,248,0.04);cursor:pointer;transition:all 0.2s;text-decoration:none}
+.topbar-btn:hover{border-color:rgba(56,189,248,0.25);color:#38bdf8}
+.notif{width:36px;height:36px;border-radius:10px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.1);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;position:relative}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:#38bdf8;border:2px solid #0e3a5c}
+
+/* MAIN CONTENT — white/light */
+.main{margin-left:260px;margin-top:64px;padding:28px;flex:1}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:#fff;border:1px solid #e8edf3;border-radius:16px;padding:22px;transition:all 0.2s;position:relative;overflow:hidden}
+.stat-card:hover{box-shadow:0 4px 16px rgba(0,40,100,0.06)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
+.stat-card.blue::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}
+.stat-card.green::before{background:linear-gradient(90deg,#10b981,#34d399)}
+.stat-card.purple::before{background:linear-gradient(90deg,#8b5cf6,#a78bfa)}
+.stat-card.gold::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.stat-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:8px}
+.stat-val{font-size:28px;font-weight:800;color:#0f172a;margin-bottom:2px}
+.stat-change{font-size:12px;font-weight:600;color:#10b981}
+.stat-icon{position:absolute;top:18px;right:18px;font-size:24px;opacity:0.15}
+
+/* Panel */
+.panels{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:28px}
+.panel{background:#fff;border:1px solid #e8edf3;border-radius:16px;padding:24px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.panel-title{font-size:16px;font-weight:800;color:#0f172a}
+.panel-action{font-size:12px;font-weight:600;color:#0ea5e9;cursor:pointer}
+
+/* Activity table */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;text-align:left;padding:10px 14px;border-bottom:1px solid #f1f5f9}
+td{font-size:14px;color:#334155;padding:12px 14px;border-bottom:1px solid #f8fafc}
+tr:last-child td{border-bottom:none}
+.tag{font-size:10px;font-weight:700;padding:3px 10px;border-radius:6px}
+.tag-green{background:#ecfdf5;color:#059669}
+.tag-blue{background:#eff6ff;color:#0ea5e9}
+.tag-purple{background:#f5f3ff;color:#8b5cf6}
+.tag-gold{background:#fffbeb;color:#d97706}
+
+/* Quick actions */
+.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.action{background:#fff;border:1px solid #e8edf3;border-radius:14px;padding:18px;text-align:center;cursor:pointer;transition:all 0.2s;text-decoration:none;color:#0f172a}
+.action:hover{box-shadow:0 4px 16px rgba(0,40,100,0.06);transform:translateY(-2px)}
+.action-icon{font-size:24px;margin-bottom:8px}
+.action-name{font-size:13px;font-weight:700}
+.action-desc{font-size:11px;color:#94a3b8;margin-top:2px}
+
+/* Chart placeholder */
+.chart-placeholder{height:200px;background:linear-gradient(135deg,#f8fafc,#f0f4f8);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;border:1px dashed #e2e8f0}
+
+@media(max-width:1024px){.sidebar{display:none}.main{margin-left:0}.topbar{left:0}.stats{grid-template-columns:1fr 1fr}.panels{grid-template-columns:1fr}.actions{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo"><span>Super<em>AdPro</em></span></div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <a class="nav-item active"><span class="nav-icon">📊</span>Dashboard</a>
+    <a class="nav-item"><span class="nav-icon">💰</span>Wallet<span class="nav-badge">$842</span></a>
+    <a class="nav-item"><span class="nav-icon">👥</span>My Team</a>
+    <a class="nav-item"><span class="nav-icon">📈</span>Analytics</a>
+
+    <div class="nav-section">Marketing Suite</div>
+    <a class="nav-item"><span class="nav-icon">🤖</span>AI Campaign Studio</a>
+    <a class="nav-item"><span class="nav-icon">📱</span>Social Post Generator</a>
+    <a class="nav-item"><span class="nav-icon">🎬</span>Video Script Generator</a>
+    <a class="nav-item"><span class="nav-icon">🚀</span>Funnel Builder</a>
+    <a class="nav-item"><span class="nav-icon">🔗</span>Link Tools</a>
+    <a class="nav-item"><span class="nav-icon">💡</span>Niche Finder</a>
+    <a class="nav-item"><span class="nav-icon">📋</span>Swipe File</a>
+    <a class="nav-item"><span class="nav-icon">📢</span>Ad Board</a>
+    <a class="nav-item"><span class="nav-icon">📧</span>Email Swipes</a>
+
+    <div class="nav-section">Income Streams</div>
+    <a class="nav-item"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
+    <a class="nav-item"><span class="nav-icon">🎯</span>Campaign Tiers</a>
+    <a class="nav-item"><span class="nav-icon">▶</span>Video Hub</a>
+
+    <div class="nav-section">Account</div>
+    <a class="nav-item"><span class="nav-icon">⚙️</span>Settings</a>
+    <a class="nav-item"><span class="nav-icon">❓</span>FAQ</a>
+  </div>
+  <div class="sidebar-user">
+    <div class="user-avatar">S</div>
+    <div><div class="user-name">Steve</div><div class="user-plan">Active Member</div></div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div><div class="topbar-title">Dashboard</div><div class="topbar-sub">Welcome back, Steve</div></div>
+  </div>
+  <div class="topbar-right">
+    <a class="topbar-btn">📊 View Comp Plan</a>
+    <a class="topbar-btn">📢 Post an Ad</a>
+    <div class="notif">🔔<div class="notif-dot"></div></div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card blue"><div class="stat-icon">💰</div><div class="stat-label">Total Earnings</div><div class="stat-val">$4,283</div><div class="stat-change">↑ 12% this month</div></div>
+    <div class="stat-card green"><div class="stat-icon">👥</div><div class="stat-label">Team Size</div><div class="stat-val">47</div><div class="stat-change">↑ 8 this week</div></div>
+    <div class="stat-card purple"><div class="stat-icon">⚡</div><div class="stat-label">Active Grids</div><div class="stat-val">12</div><div class="stat-change">3 completing soon</div></div>
+    <div class="stat-card gold"><div class="stat-icon">📊</div><div class="stat-label">Link Clicks</div><div class="stat-val">1,204</div><div class="stat-change">↑ 23% this week</div></div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="actions">
+    <a class="action"><div class="action-icon">📱</div><div class="action-name">Generate Social Post</div><div class="action-desc">AI-powered content</div></a>
+    <a class="action"><div class="action-icon">🎬</div><div class="action-name">Write Video Script</div><div class="action-desc">TikTok, Reels, YouTube</div></a>
+    <a class="action"><div class="action-icon">🚀</div><div class="action-name">Build a Funnel</div><div class="action-desc">8 niche templates</div></a>
+    <a class="action"><div class="action-icon">📢</div><div class="action-name">Post to Ad Board</div><div class="action-desc">Free traffic</div></a>
+  </div>
+
+  <!-- Panels -->
+  <div class="panels">
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">Recent Commissions</div><div class="panel-action">View All →</div></div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Type</th><th>From</th><th>Amount</th><th>Stream</th></tr>
+          <tr><td>Direct Referral</td><td>@mike_r</td><td style="font-weight:700;color:#059669">+$50.00</td><td><span class="tag tag-green">Stream 1</span></td></tr>
+          <tr><td>Uni-Level L3</td><td>@sarah_k</td><td style="font-weight:700;color:#059669">+$8.75</td><td><span class="tag tag-blue">Stream 2</span></td></tr>
+          <tr><td>Grid Complete</td><td>Grid #47</td><td style="font-weight:700;color:#059669">+$120.00</td><td><span class="tag tag-blue">Stream 2</span></td></tr>
+          <tr><td>Course Sale</td><td>@james_b</td><td style="font-weight:700;color:#059669">+$97.00</td><td><span class="tag tag-purple">Stream 3</span></td></tr>
+          <tr><td>Uni-Level L1</td><td>@anna_w</td><td style="font-weight:700;color:#059669">+$17.50</td><td><span class="tag tag-blue">Stream 2</span></td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">Earnings Overview</div><div class="panel-action">This Month</div></div>
+      <div class="chart-placeholder">📈 Earnings chart</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px">
+        <div style="text-align:center;padding:10px;background:#f8fafc;border-radius:10px"><div style="font-size:10px;font-weight:600;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Stream 1</div><div style="font-size:18px;font-weight:800;color:#10b981">$420</div></div>
+        <div style="text-align:center;padding:10px;background:#f8fafc;border-radius:10px"><div style="font-size:10px;font-weight:600;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Stream 2</div><div style="font-size:18px;font-weight:800;color:#0ea5e9">$2,840</div></div>
+        <div style="text-align:center;padding:10px;background:#f8fafc;border-radius:10px"><div style="font-size:10px;font-weight:600;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Stream 3</div><div style="font-size:18px;font-weight:800;color:#8b5cf6">$1,023</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Second row -->
+  <div class="panels">
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">Your Team (Level 1)</div><div class="panel-action">View Full Tree →</div></div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Member</th><th>Joined</th><th>Status</th><th>Their Team</th></tr>
+          <tr><td style="font-weight:600">@mike_r</td><td style="color:#94a3b8">2 days ago</td><td><span class="tag tag-green">Active</span></td><td>3 referrals</td></tr>
+          <tr><td style="font-weight:600">@sarah_k</td><td style="color:#94a3b8">5 days ago</td><td><span class="tag tag-green">Active</span></td><td>1 referral</td></tr>
+          <tr><td style="font-weight:600">@james_b</td><td style="color:#94a3b8">1 week ago</td><td><span class="tag tag-green">Active</span></td><td>7 referrals</td></tr>
+          <tr><td style="font-weight:600">@lisa_m</td><td style="color:#94a3b8">2 weeks ago</td><td><span class="tag tag-gold">Pending</span></td><td>0 referrals</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">Active Grids</div><div class="panel-action">View All →</div></div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="background:#f8fafc;border-radius:12px;padding:16px;display:flex;align-items:center;justify-content:space-between">
+          <div><div style="font-size:14px;font-weight:700">Pro Grid #47</div><div style="font-size:12px;color:#94a3b8">$100 tier · 6/8 seats filled</div></div>
+          <div style="width:80px;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden"><div style="width:75%;height:100%;background:linear-gradient(90deg,#0ea5e9,#38bdf8);border-radius:3px"></div></div>
+        </div>
+        <div style="background:#f8fafc;border-radius:12px;padding:16px;display:flex;align-items:center;justify-content:space-between">
+          <div><div style="font-size:14px;font-weight:700">Builder Grid #23</div><div style="font-size:12px;color:#94a3b8">$50 tier · 3/8 seats filled</div></div>
+          <div style="width:80px;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden"><div style="width:37%;height:100%;background:linear-gradient(90deg,#0ea5e9,#38bdf8);border-radius:3px"></div></div>
+        </div>
+        <div style="background:#f8fafc;border-radius:12px;padding:16px;display:flex;align-items:center;justify-content:space-between">
+          <div><div style="font-size:14px;font-weight:700">Elite Grid #8</div><div style="font-size:12px;color:#94a3b8">$400 tier · 7/8 seats filled</div></div>
+          <div style="width:80px;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden"><div style="width:88%;height:100%;background:linear-gradient(90deg,#f59e0b,#fbbf24);border-radius:3px"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

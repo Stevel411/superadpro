@@ -2273,6 +2273,10 @@ def delete_rotator(rotator_id: int, user: User = Depends(get_current_user),
 def what_you_get(request: Request):
     return templates.TemplateResponse("what-you-get.html", {"request": request})
 
+@app.get("/dashboard-mockup")
+def dashboard_mockup(request: Request):
+    return templates.TemplateResponse("dashboard-mockup.html", {"request": request})
+
 
 # ═══════════════════════════════════════════════════
 #  PUBLIC AD BOARD
