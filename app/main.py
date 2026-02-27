@@ -618,7 +618,7 @@ Return JSON: {{"headline":"...","subheadline":"...","cta_text":"...","benefits_t
     db.refresh(page)
 
     return {"success": True, "page_id": page.id, "slug": slug,
-            "preview_url": f"/p/{slug}", "edit_url": f"/funnels/edit/{page.id}"}
+            "preview_url": f"/p/{slug}", "edit_url": f"/funnels/visual/{page.id}"}
 
 @app.post("/api/launch-wizard/generate-posts")
 async def generate_social_posts(request: Request, user: User = Depends(get_current_user)):
@@ -1628,27 +1628,15 @@ def funnels_page(request: Request, user: User = Depends(get_current_user),
 @app.get("/funnels/new")
 def funnel_new(request: Request, user: User = Depends(get_current_user),
                db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/?login=1")
-    if not user.is_active: return RedirectResponse(url="/pay-membership")
-    ctx = get_dashboard_context(request, user, db)
-    ctx["page"] = None  # new page
-    ctx["edit_mode"] = True
-    ctx["page_sections"] = []
-    return templates.TemplateResponse("funnel-editor.html", ctx)
+    """Legacy route — redirects to visual builder."""
+    return RedirectResponse(url="/funnels/visual/new", status_code=302)
 
 
 @app.get("/funnels/edit/{page_id}")
 def funnel_edit(page_id: int, request: Request, user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/?login=1")
-    page = db.query(FunnelPage).filter(FunnelPage.id == page_id, FunnelPage.user_id == user.id).first()
-    if not page: raise HTTPException(status_code=404, detail="Page not found")
-    ctx = get_dashboard_context(request, user, db)
-    ctx["page"] = page
-    ctx["edit_mode"] = True
-    import json
-    ctx["page_sections"] = json.loads(page.sections_json) if page.sections_json else []
-    return templates.TemplateResponse("funnel-editor.html", ctx)
+    """Legacy route — redirects to visual builder."""
+    return RedirectResponse(url=f"/funnels/visual/{page_id}", status_code=302)
 
 
 @app.get("/funnels/visual/new")
@@ -2232,7 +2220,7 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
     db.commit()
     db.refresh(page)
 
-    return {"success": True, "edit_url": f"/funnels/edit/{page.id}"}
+    return {"success": True, "edit_url": f"/funnels/visual/{page.id}"}
 
 
 @app.post("/api/funnels/delete/{page_id}")
