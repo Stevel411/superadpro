@@ -1466,6 +1466,7 @@ DAILY_LIMITS = {
     "campaign_studio": 10,
     "niche_finder":    10,
     "social_posts":    15,
+    "video_scripts":   10,
 }
 
 def check_and_increment_ai_quota(db: Session, user_id: int, tool: str) -> dict:
@@ -1486,6 +1487,7 @@ def check_and_increment_ai_quota(db: Session, user_id: int, tool: str) -> dict:
         quota.campaign_studio_uses = 0
         quota.niche_finder_uses = 0
         quota.social_posts_uses = 0
+        quota.video_scripts_uses = 0
         db.commit()
 
     field = f"{tool}_uses"
@@ -3426,6 +3428,118 @@ Return ONLY the posts, no preamble or explanation."""
         return {"success": True, "posts": content, "remaining": rl["limit"] - rl["used"] - 1}
     except Exception as e:
         logger.error(f"Social post generation failed: {e}")
+        return JSONResponse({"error": "AI generation failed. Please try again."}, status_code=500)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  AI VIDEO SCRIPT GENERATOR
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/video-script-generator")
+def video_script_generator_page(request: Request, user: User = Depends(get_current_user),
+                                 db: Session = Depends(get_db)):
+    if not user: return RedirectResponse(url="/?login=1")
+    ctx = get_dashboard_context(request, user, db)
+    return templates.TemplateResponse("video-script-generator.html", ctx)
+
+
+@app.post("/api/video-scripts/generate")
+async def generate_video_script(request: Request, user: User = Depends(get_current_user)):
+    if not user:
+        from fastapi.responses import JSONResponse
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from fastapi.responses import JSONResponse
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    db_rl = next(get_db())
+    rl = check_and_increment_ai_quota(db_rl, user.id, "video_scripts")
+    if not rl["allowed"]:
+        return JSONResponse({"error": f"Daily limit reached — {rl['limit']} generations per day. Resets in {rl['resets_in']}.", "rate_limited": True}, status_code=429)
+
+    topic       = body.get("topic", "")
+    platform    = body.get("platform", "youtube")
+    duration    = body.get("duration", "60")
+    style       = body.get("style", "educational")
+    cta         = body.get("cta", "")
+    audience    = body.get("audience", "")
+
+    if not topic:
+        return JSONResponse({"error": "Please describe what the video is about"}, status_code=400)
+
+    duration_specs = {
+        "15": "15-second video (TikTok/Reel). Maximum 40 words. Extremely punchy — every word must count.",
+        "30": "30-second video (Reel/Short). About 75 words. Fast-paced, high energy.",
+        "60": "60-second video (Reel/Short/TikTok). About 150 words. Strong hook, clear message, direct CTA.",
+        "180": "3-minute video (YouTube Short/TikTok). About 450 words. Can develop one key idea with examples.",
+        "300": "5-minute YouTube video. About 750 words. Full structure: hook, intro, 2-3 main points, CTA.",
+        "600": "10-minute YouTube video. About 1500 words. Deep dive: hook, intro, 4-5 sections with detail, strong close and CTA.",
+    }
+
+    dur_spec = duration_specs.get(duration, duration_specs["60"])
+    audience_line = f"\nTarget audience: {audience}" if audience else ""
+    cta_line = f"\nCall to action: {cta}" if cta else "\nCall to action: Encourage viewers to click the link in bio/description."
+
+    prompt = f"""You are an expert video scriptwriter who creates viral, engaging scripts for social media and YouTube.
+
+Write a complete video script about: {topic}
+
+Platform: {platform}
+Duration: {dur_spec}
+Style: {style}
+{audience_line}
+{cta_line}
+
+FORMAT THE SCRIPT EXACTLY LIKE THIS:
+
+## 🎬 VIDEO SCRIPT
+
+**Platform:** {platform} | **Duration:** ~{duration}s | **Style:** {style}
+
+---
+
+### 🪝 HOOK (First 3 seconds)
+[Write the exact opening line that stops the scroll. This is the most important part.]
+
+### 📖 SCRIPT
+[Write the full script with stage directions in brackets like [look at camera], [show screen], [point up], [cut to B-roll].
+Use line breaks between sentences for pacing.
+Bold key phrases the speaker should emphasize.]
+
+### 📣 CTA (Final seconds)
+[Write the closing call to action]
+
+---
+
+### 🎯 PRODUCTION NOTES
+- **Thumbnail/Cover idea:** [One sentence]
+- **Caption suggestion:** [2-3 sentences + hashtags]
+- **Best time to post:** [Suggestion]
+- **Music mood:** [Suggestion]
+
+RULES:
+- The HOOK must create instant curiosity, shock, or intrigue in under 3 seconds
+- Write conversationally — this is spoken word, not an essay
+- Use short punchy sentences for impact
+- Include visual/action cues in [brackets] throughout
+- The script must feel natural when read aloud
+- Make every second count — no filler"""
+
+    try:
+        client = anthropic.Anthropic()
+        message = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=2500,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        content = message.content[0].text
+        return {"success": True, "script": content, "remaining": rl["limit"] - rl["used"] - 1}
+    except Exception as e:
+        logger.error(f"Video script generation failed: {e}")
         return JSONResponse({"error": "AI generation failed. Please try again."}, status_code=500)
 
 
