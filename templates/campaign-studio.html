@@ -14,14 +14,14 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 /* ── SIDEBAR ── */
 .sidebar{width:220px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,240,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:18px 16px 14px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.05)}
-.sidebar-brand{font-size:16px;font-weight:800;color:#fff;letter-spacing:0.5px}
+.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;letter-spacing:0;text-transform:none;color:#fff;-webkit-text-fill-color:#fff}
 .nav-section{padding:22px 18px 8px;font-size:16px;font-weight:800;letter-spacing:0.5px;text-transform:none;color:#38bdf8;line-height:1.2}
 .nav-item{display:flex;align-items:center;gap:11px;padding:10px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
 .nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
 .nav-item.active{color:#00f0ff;border-left-color:#00f0ff;background:rgba(0,240,255,0.06)}
 .nav-icon{font-size:16px;width:18px;text-align:center}
 .user-mini{display:flex;align-items:center;gap:10px;padding:12px 14px}
-.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0284c7,#00f0ff);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
 .sidebar-footer{margin-top:auto;border-top:1px solid rgba(255,255,255,0.05)}
 
 /* ── MAIN ── */
@@ -180,8 +180,13 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
   <!-- SIDEBAR -->
       <aside class="sidebar">
     <a href="/dashboard" class="sidebar-logo">
-      <svg width="30" height="30"><use href="#shield"/></svg>
-      <span class="sidebar-brand">SuperAdPro</span>
+      <div class="user-avatar">{{ user.username[:2].upper() if user else 'U' }}</div>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#fff;line-height:1.2">{{ user.first_name or user.username if user else 'User' }} {{ user.last_name or '' if user else '' }}</div>
+        <div style="font-size:10px;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:3px;font-weight:700">
+          {% if is_active %}● Active{% else %}○ Inactive{% endif %}
+        </div>
+      </div>
     </a>
     <div class="nav-section">Main</div>
     <a href="/dashboard" class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
@@ -203,15 +208,6 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
     <a href="/account" class="nav-item"><span class="nav-icon">◉</span>My Profile</a>
     <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
     <div class="sidebar-footer">
-      <div class="user-mini">
-        <div class="user-avatar">{{ user.username[:2].upper() }}</div>
-        <div>
-          <div style="font-size:16px;font-weight:700;color:#fff">{{ user.first_name or user.username }}</div>
-          <div style="font-size:9px;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:1px">
-            {% if is_active %}● Active{% else %}○ Inactive{% endif %}
-          </div>
-        </div>
-      </div>
       <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:16px;color:#64748b;text-decoration:none;margin-top:4px;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">⎋ Sign Out</a>
     </div>
   </aside>

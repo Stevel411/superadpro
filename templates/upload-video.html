@@ -66,9 +66,14 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 
 <aside class="sidebar">
   <a href="/dashboard" class="sidebar-logo">
-    <svg width="30" height="30"><use href="#shield"/></svg>
-    <span class="sidebar-brand">SuperAdPro</span>
-  </a>
+      <div class="user-avatar">{{ user.username[:2].upper() if user else 'U' }}</div>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#fff;line-height:1.2">{{ user.first_name or user.username if user else 'User' }} {{ user.last_name or '' if user else '' }}</div>
+        <div style="font-size:10px;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:3px;font-weight:700">
+          {% if is_active %}● Active{% else %}○ Inactive{% endif %}
+        </div>
+      </div>
+    </a>
   <div class="nav-section">Main</div>
   <a href="/dashboard"     class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
   <a href="/packages"      class="nav-item"><span class="nav-icon">📦</span>Campaign Tiers</a>

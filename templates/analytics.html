@@ -123,8 +123,13 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <a href="/dashboard" class="sidebar-logo">
-      <svg width="30" height="30"><use href="#shield"/></svg>
-      <span class="sidebar-brand">SuperAdPro</span>
+      <div class="user-avatar">{{ user.username[:2].upper() if user else 'U' }}</div>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#fff;line-height:1.2">{{ user.first_name or user.username if user else 'User' }} {{ user.last_name or '' if user else '' }}</div>
+        <div style="font-size:10px;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:3px;font-weight:700">
+          {% if is_active %}● Active{% else %}○ Inactive{% endif %}
+        </div>
+      </div>
     </a>
     <div class="nav-section">Main</div>
     <a href="/dashboard" class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
@@ -148,15 +153,6 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
     <a href="/account" class="nav-item"><span class="nav-icon">◉</span>My Profile</a>
     <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
     <div class="sidebar-footer">
-      <div class="user-mini">
-        <div class="user-avatar">{{ user.username[:2].upper() }}</div>
-        <div>
-          <div style="font-size:16px;font-weight:700;color:#fff">{{ user.first_name or user.username }}</div>
-          <div style="font-size:9px;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:1px">
-            {% if is_active %}● Active{% else %}○ Inactive{% endif %}
-          </div>
-        </div>
-      </div>
       <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:16px;color:#64748b;text-decoration:none;margin-top:4px;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">⎋ Sign Out</a>
     </div>
   </aside>

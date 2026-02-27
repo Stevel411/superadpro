@@ -19,7 +19,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .nav-icon{font-size:16px;width:22px;text-align:center}
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
 .user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
-.user-avatar{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
 
 .main{margin-left:224px;flex:1}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.15);position:sticky;top:0;z-index:50}
@@ -81,8 +81,13 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 <div class="layout">
   <aside class="sidebar">
     <a href="/dashboard" class="sidebar-logo">
-      <svg width="32" height="32" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-lg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-lg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
-      <span class="sidebar-brand">Super<span style="color:#38bdf8;-webkit-text-fill-color:#38bdf8">Ad</span>Pro</span>
+      <div class="user-avatar">{{ user.username[:2].upper() if user else 'U' }}</div>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#fff;line-height:1.2">{{ user.first_name or user.username if user else 'User' }} {{ user.last_name or '' if user else '' }}</div>
+        <div style="font-size:10px;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:3px;font-weight:700">
+          {% if is_active %}● Active{% else %}○ Inactive{% endif %}
+        </div>
+      </div>
     </a>
     <div class="nav-section">Main</div>
     <a href="/dashboard" class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
@@ -106,15 +111,6 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
     <a href="/account" class="nav-item"><span class="nav-icon">◉</span>My Profile</a>
     <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
     <div class="sidebar-footer">
-      <div class="user-mini">
-        <div class="user-avatar">{{ user.username[:2].upper() }}</div>
-        <div>
-          <div style="font-size:15px;font-weight:700;color:#fff">{{ user.first_name or user.username }}</div>
-          <div style="font-size:9px;color:{% if user.is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:1px">
-            {% if user.is_active %}● Active{% else %}○ Inactive{% endif %}
-          </div>
-        </div>
-      </div>
       <a href="/logout" style="display:block;margin-top:10px;font-size:13px;color:#64748b;text-decoration:none">⏻ Sign Out</a>
     </div>
   </aside>
