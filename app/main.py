@@ -1467,13 +1467,40 @@ DAILY_LIMITS = {
     "niche_finder":    10,
     "social_posts":    15,
     "video_scripts":   10,
+    "swipe_file":      10,
 }
 
+# Tier-based multipliers — higher tiers get more AI uses per day
+# Returns a multiplied limit based on user's highest active grid tier
+TIER_AI_MULTIPLIERS = {
+    0: 0.2,   # No grid: 2/day (base * 0.2)
+    1: 0.3,   # Starter $20: 3/day
+    2: 0.3,   # Builder $50: 3/day
+    3: 0.5,   # Pro $100: 5/day
+    4: 0.5,   # Advanced $200: 5/day
+    5: 0.8,   # Elite $400: 8/day
+    6: 0.8,   # Premium $600: 8/day
+    7: 1.2,   # Executive $800: 12/day
+    8: 1.2,   # Ultimate $1000: 12/day
+}
+
+def get_user_highest_tier(db: Session, user_id: int) -> int:
+    """Return the user's highest active grid tier (0 if none)."""
+    highest = db.query(Grid).filter(
+        Grid.owner_id == user_id, Grid.is_complete == False
+    ).order_by(Grid.package_tier.desc()).first()
+    return highest.package_tier if highest else 0
+
 def check_and_increment_ai_quota(db: Session, user_id: int, tool: str) -> dict:
-    """Check daily limit. If within limit, increment and return allowed=True."""
+    """Check daily limit based on user's tier. If within limit, increment and return allowed=True."""
     from datetime import date
     today = date.today().isoformat()
-    limit = DAILY_LIMITS.get(tool, 10)
+    
+    # Get tier-based limit
+    user_tier = get_user_highest_tier(db, user_id)
+    base_limit = DAILY_LIMITS.get(tool, 10)
+    multiplier = TIER_AI_MULTIPLIERS.get(user_tier, 0.2)
+    limit = max(2, int(base_limit * multiplier))  # minimum 2/day always
 
     quota = db.query(AIUsageQuota).filter(AIUsageQuota.user_id == user_id).first()
     if not quota:
@@ -1488,6 +1515,7 @@ def check_and_increment_ai_quota(db: Session, user_id: int, tool: str) -> dict:
         quota.niche_finder_uses = 0
         quota.social_posts_uses = 0
         quota.video_scripts_uses = 0
+        quota.swipe_file_uses = 0
         db.commit()
 
     field = f"{tool}_uses"
