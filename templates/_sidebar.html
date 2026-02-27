@@ -34,20 +34,15 @@
     <!-- ── Video ── -->
     <div class="nav-group" data-group="video">
       <div class="nav-header" onclick="toggleNav('video')">
-        <span>Video</span>
+        <span>Video Hub</span>
         <span class="nav-chevron">›</span>
       </div>
       <div class="nav-children">
-        <a href="/watch" class="nav-item{% if active_page=='watch' %} active{% endif %}"><span class="nav-icon">▶</span>Video Hub</a>
+        <a href="/watch" class="nav-item{% if active_page=='watch' %} active{% endif %}"><span class="nav-icon">▶</span>Watch to Earn</a>
         <a href="/video-library" class="nav-item{% if active_page=='video-library' %} active{% endif %}"><span class="nav-icon">🎬</span>My Campaigns</a>
         <a href="/analytics" class="nav-item{% if active_page=='analytics' %} active{% endif %}"><span class="nav-icon">📈</span>Analytics</a>
       </div>
     </div>
-
-    <div class="nav-divider"></div>
-
-    <!-- ── Ad Board ── -->
-    <a href="/ads/my" class="nav-item{% if active_page=='ads' %} active{% endif %}"><span class="nav-icon">📢</span>Ad Board</a>
 
     <div class="nav-divider"></div>
 
@@ -96,6 +91,11 @@
         <a href="/grid-visualiser" class="nav-item{% if active_page=='grid-visualiser' %} active{% endif %}"><span class="nav-icon">◈</span>Grid Visualiser</a>
       </div>
     </div>
+
+    <div class="nav-divider"></div>
+
+    <!-- ── Ad Board ── -->
+    <a href="/ads/my" class="nav-item{% if active_page=='ads' %} active{% endif %}"><span class="nav-icon">📢</span>Ad Board</a>
   </div>
 
   <div class="sidebar-footer">
