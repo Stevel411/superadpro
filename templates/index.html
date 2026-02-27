@@ -34,8 +34,8 @@
         .nav-links a { font-size:19px; font-weight:500; color:rgba(200,230,210,0.55); text-decoration:none; padding:4px 10px; transition:color 0.2s; }
         .nav-links a:hover { color:rgba(200,230,210,0.9); }
         .nav-sep { color:rgba(0,180,100,0.3); font-size:19px; }
-        .nav-cta { font-weight:700; font-size:19px; color:#050d1a; background:#38bdf8; padding:9px 22px; border-radius:8px; text-decoration:none; box-shadow:0 2px 20px rgba(56,189,248,0.35); transition:all 0.3s; }
-        .nav-cta:hover { background:#00e5ff; box-shadow:0 4px 28px rgba(0,212,255,0.5); transform:translateY(-1px); }
+        .nav-cta { font-weight:600; font-size:15px; color:#fff; background:#0ea5e9; padding:9px 22px; border-radius:10px; text-decoration:none; box-shadow:0 2px 12px rgba(14,165,233,0.25); transition:all 0.3s; letter-spacing:0.3px; }
+        .nav-cta:hover { background:#0284c7; box-shadow:0 4px 20px rgba(14,165,233,0.35); transform:translateY(-1px); }
 
         /* Page */
         .page { position:relative; z-index:10; }
@@ -244,7 +244,7 @@
             .hero-sub{font-size:16px!important;padding:0 8px}
             .hero-btns{flex-direction:column;align-items:center;gap:10px}
             .hero-btns a{width:100%;max-width:280px;text-align:center}
-            .nav-cta{font-size:16px;padding:7px 16px}
+            .nav-cta{font-size:14px;padding:8px 18px}
         }
         @media(max-width:600px){
             .for-grid,.steps,.packages-grid{grid-template-columns:1fr}
@@ -342,7 +342,7 @@
     </ul>
     <div style="display:flex;align-items:center;gap:10px">
         <a href="#" onclick="mOpen('mLogin');return false;" style="font-size:16px;font-weight:600;color:rgba(200,230,210,0.6);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:7px;transition:all 0.2s" onmouseover="this.style.color='rgba(200,230,210,0.9)'" onmouseout="this.style.color='rgba(200,230,210,0.6)'">Log In</a>
-        <a href="#" class="nav-cta" onclick="mOpen('mReg');return false;">Register Here</a>
+        <a href="#" class="nav-cta" onclick="mOpen('mReg');return false;">Get started →</a>
         <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">☰</button>
     </div>
 </nav>
@@ -358,7 +358,7 @@
         <a href="/support">Support</a>
         <div style="border-top:1px solid rgba(0,180,216,0.15);margin:12px 0;padding-top:12px;display:flex;flex-direction:column;gap:10px">
             <a href="#" onclick="mOpen('mLogin');toggleMobileMenu();return false;" style="color:#38bdf8">Log In</a>
-            <a href="#" onclick="mOpen('mReg');toggleMobileMenu();return false;" class="nav-cta" style="text-align:center;display:block">Register Here</a>
+            <a href="#" onclick="mOpen('mReg');toggleMobileMenu();return false;" class="nav-cta" style="text-align:center;display:block">Get started →</a>
         </div>
     </div>
 </div>
@@ -427,7 +427,7 @@
         <input type="checkbox" id="regTerms">
         <div>I agree to the <a href="/legal" target="_blank">Terms of Service</a> and <a href="/legal" target="_blank">Privacy Policy</a>.</div>
       </div>
-      <button type="submit" class="m-btn" id="regBtn">Register Here &rarr;</button>
+      <button type="submit" class="m-btn" id="regBtn">Get started →</button>
     </form>
     <div class="m-foot">Already have an account? <a href="#" onclick="mClose('mReg');mOpen('mLogin');return false;">Log in here &rarr;</a></div>
   </div>
@@ -1367,8 +1367,8 @@ document.addEventListener('DOMContentLoaded',function(){
       var d=await res.json();
       if(d.success){window.location.href=d.redirect||'/dashboard?new=1';return;}
       err.textContent=d.error||'Something went wrong.';err.style.display='block';
-      btn.disabled=false;btn.textContent='Register Here →';
-    }catch(ex){err.textContent='Network error. Please try again.';err.style.display='block';btn.disabled=false;btn.textContent='Register Here →';}
+      btn.disabled=false;btn.textContent='Get started →';
+    }catch(ex){err.textContent='Network error. Please try again.';err.style.display='block';btn.disabled=false;btn.textContent='Get started →';}
   });
 
   /* Login form */
@@ -1471,11 +1471,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.success) { window.location.href = data.redirect || '/dashboard?new=1'; return; }
         err.textContent = data.error || 'Something went wrong. Please try again.';
         err.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Register Here \u2192';
+        btn.disabled = false; btn.textContent = 'Get started →';
       } catch(ex) {
         err.textContent = 'Network error. Please try again.';
         err.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Register Here \u2192';
+        btn.disabled = false; btn.textContent = 'Get started →';
       }
     });
   }
@@ -1607,7 +1607,7 @@ async function doRegister(e) {
     err.textContent = d.error || 'Something went wrong.';
     err.style.display = 'block';
   } catch(x) { err.textContent = 'Network error. Please try again.'; err.style.display = 'block'; }
-  btn.disabled = false; btn.textContent = 'Register Here';
+  btn.disabled = false; btn.textContent = 'Get started →';
 }
 
 /* Auto-open from URL params */
