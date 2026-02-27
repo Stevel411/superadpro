@@ -3883,3 +3883,7 @@ def grid_mockup1(request: Request):
 @app.get("/grid-mockup2")
 def grid_mockup2(request: Request):
     return templates.TemplateResponse("grid-mockup2.html", {"request": request})
+
+@app.get("/ad-board-mockup")
+async def ad_board_mockup(request: Request):
+    return templates.TemplateResponse("ad-board-mockup.html", {"request": request})

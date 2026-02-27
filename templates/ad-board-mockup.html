@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ad Board Mockup — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#060918;color:#e2e8f0;min-height:100vh}
+a{text-decoration:none;color:inherit}
+
+/* Topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:200}
+.topbar-left a{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:14px;font-weight:600;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15)}
+.topbar-left a:hover{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
+.topbar-right{display:flex;align-items:center;gap:14px}
+.topbar-right a{display:flex;align-items:center;gap:10px;text-decoration:none}
+
+.wrap{max-width:1200px;margin:0 auto;padding:32px 24px}
+
+/* Hero */
+.hero{text-align:center;margin-bottom:36px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.15);border-radius:24px;padding:8px 18px;font-size:12px;font-weight:700;color:#7dd3fc;margin-bottom:16px}
+.hero h1{font-family:Sora,sans-serif;font-size:clamp(28px,4vw,42px);font-weight:800;color:#fff;margin-bottom:10px}
+.hero h1 span{color:#38bdf8}
+.hero p{font-size:15px;color:rgba(186,230,253,0.45);max-width:560px;margin:0 auto}
+
+/* Stats */
+.stats{display:flex;justify-content:center;gap:40px;margin-bottom:32px}
+.stat{text-align:center}
+.stat-val{font-size:28px;font-weight:800;color:#38bdf8}
+.stat-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(186,230,253,0.3);margin-top:2px}
+
+/* Categories */
+.cats{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:36px}
+.cat{font-size:13px;font-weight:600;padding:8px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:rgba(186,230,253,0.5);transition:all 0.2s;cursor:pointer}
+.cat:hover{border-color:rgba(56,189,248,0.2);color:#38bdf8;background:rgba(56,189,248,0.06)}
+.cat.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-color:#0ea5e9;box-shadow:0 2px 12px rgba(14,165,233,0.25)}
+
+/* Search */
+.search-bar{display:flex;gap:10px;max-width:500px;margin:0 auto 36px}
+.search-input{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 18px;color:#fff;font-family:inherit;font-size:14px;outline:none;transition:border 0.2s}
+.search-input:focus{border-color:rgba(56,189,248,0.3)}
+.search-input::placeholder{color:rgba(186,230,253,0.25)}
+.search-btn{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border:none;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;transition:all 0.2s}
+.search-btn:hover{box-shadow:0 4px 16px rgba(14,165,233,0.3)}
+
+/* Ad grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
+.ad{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow:hidden;transition:all 0.35s cubic-bezier(0.16,1,0.3,1);position:relative}
+.ad:hover{transform:translateY(-4px);border-color:rgba(56,189,248,0.2);box-shadow:0 12px 36px rgba(0,0,0,0.3)}
+.ad.featured{border-color:rgba(251,191,36,0.3);box-shadow:0 0 0 1px rgba(251,191,36,0.1)}
+.featured-tag{position:absolute;top:12px;right:12px;font-size:9px;font-weight:700;letter-spacing:1px;color:#fbbf24;background:rgba(251,191,36,0.12);padding:4px 10px;border-radius:6px;border:1px solid rgba(251,191,36,0.2);z-index:2;text-transform:uppercase}
+.ad-img{width:100%;height:170px;display:flex;align-items:center;justify-content:center;font-size:48px;position:relative;overflow:hidden}
+.ad-img img{width:100%;height:100%;object-fit:cover}
+.ad-body{padding:20px}
+.ad-cat{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#0ea5e9;margin-bottom:6px}
+.ad-title{font-size:17px;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.3}
+.ad-desc{font-size:13px;color:rgba(186,230,253,0.45);line-height:1.55;margin-bottom:14px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.ad-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ad-author{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(186,230,253,0.35)}
+.ad-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.ad-stats{display:flex;gap:12px;font-size:11px;color:rgba(186,230,253,0.25)}
+.ad-stats span{display:flex;align-items:center;gap:4px}
+.ad-cta{display:block;text-align:center;font-size:14px;font-weight:700;color:#fff;padding:10px 16px;border-radius:10px;background:linear-gradient(180deg,#38bdf8 0%,#0ea5e9 100%);box-shadow:0 3px 0 #0284c7,0 4px 12px rgba(14,165,233,0.25);transition:all 0.2s}
+.ad-cta:hover{transform:translateY(-1px);box-shadow:0 5px 0 #0284c7,0 8px 20px rgba(14,165,233,0.3)}
+.ad-cta:active{transform:translateY(2px);box-shadow:0 1px 0 #0284c7}
+.ad-price{font-size:11px;font-weight:700;color:#10b981;background:rgba(16,185,129,0.1);padding:3px 10px;border-radius:6px;border:1px solid rgba(16,185,129,0.2)}
+
+/* CTA banner */
+.cta-banner{background:linear-gradient(135deg,rgba(14,165,233,0.08),rgba(99,102,241,0.06));border:1px solid rgba(56,189,248,0.15);border-radius:18px;padding:40px;text-align:center;margin-top:48px}
+.cta-banner h3{font-family:Sora,sans-serif;font-size:24px;font-weight:800;color:#fff;margin-bottom:8px}
+.cta-banner p{font-size:15px;color:rgba(186,230,253,0.45);margin-bottom:24px;max-width:500px;margin-left:auto;margin-right:auto}
+.cta-post{display:inline-block;background:linear-gradient(180deg,#38bdf8,#0ea5e9);color:#fff;padding:14px 36px;border-radius:12px;font-weight:700;font-size:15px;box-shadow:0 4px 0 #0284c7,0 6px 20px rgba(14,165,233,0.3);transition:all 0.2s}
+.cta-post:hover{transform:translateY(-2px);box-shadow:0 6px 0 #0284c7,0 10px 28px rgba(14,165,233,0.4)}
+
+.footer{text-align:center;padding:32px;font-size:11px;color:rgba(186,230,253,0.15);border-top:1px solid rgba(255,255,255,0.04);margin-top:32px}
+
+/* Mockup badge */
+.mockup-badge{position:fixed;bottom:20px;right:20px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;font-size:12px;font-weight:800;padding:10px 20px;border-radius:10px;z-index:999;letter-spacing:1px;text-transform:uppercase;box-shadow:0 4px 16px rgba(245,158,11,0.3)}
+
+@media(max-width:700px){.grid{grid-template-columns:1fr}.wrap{padding:20px 16px}.stats{gap:20px}.topbar{padding:0 16px}}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/dashboard">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+      Dashboard
+    </a>
+  </div>
+  <div class="topbar-right">
+    <a href="/">
+      <svg width="32" height="32" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-lg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-lg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
+      <span style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
+    </a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">📢 Community Marketplace · 24 Live Ads</div>
+    <h1>SuperAdPro <span>Ad Board</span></h1>
+    <p>Browse offers, services and opportunities from the SuperAdPro community. Find what converts — or post your own ad to get real traffic.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat"><div class="stat-val">24</div><div class="stat-label">Live Ads</div></div>
+    <div class="stat"><div class="stat-val">6</div><div class="stat-label">Categories</div></div>
+    <div class="stat"><div class="stat-val">1,847</div><div class="stat-label">Total Clicks</div></div>
+    <div class="stat"><div class="stat-val">312</div><div class="stat-label">Active Members</div></div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <input type="text" class="search-input" placeholder="Search ads by keyword, niche or category...">
+    <button class="search-btn">Search</button>
+  </div>
+
+  <!-- Categories -->
+  <div class="cats">
+    <div class="cat active">All</div>
+    <div class="cat">💼 Business Opportunity</div>
+    <div class="cat">📣 Digital Marketing</div>
+    <div class="cat">💪 Health & Wellness</div>
+    <div class="cat">💰 Finance & Crypto</div>
+    <div class="cat">🛒 E-Commerce</div>
+    <div class="cat">🎓 Education</div>
+  </div>
+
+  <!-- Ad Grid -->
+  <div class="grid">
+
+    <!-- Ad 1 — Featured -->
+    <div class="ad featured">
+      <div class="featured-tag">⭐ Featured</div>
+      <div class="ad-img" style="background:linear-gradient(135deg,#0c1929,#0a2540)">
+        <div style="text-align:center;padding:20px">
+          <div style="font-size:36px;margin-bottom:8px">🚀</div>
+          <div style="font-size:16px;font-weight:800;color:#fbbf24">Earn $500+/Week</div>
+          <div style="font-size:11px;color:rgba(251,191,36,0.5)">Proven Forex Strategy</div>
+        </div>
+      </div>
+      <div class="ad-body">
+        <div class="ad-cat">💰 Finance & Crypto</div>
+        <div class="ad-title">Copy My Exact Forex Strategy That Makes $500+/Week</div>
+        <div class="ad-desc">Learn the 3-timeframe system I use to trade forex part-time. Includes my exact entries, stop-losses and position sizing rules. No experience needed — just follow the framework.</div>
+        <div class="ad-meta">
+          <div class="ad-author"><div class="ad-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706)">MJ</div>Marcus Jones</div>
+          <div class="ad-stats"><span>👁 342 views</span><span>🔗 89 clicks</span></div>
+        </div>
+        <a href="#" class="ad-cta">Visit Offer →</a>
+      </div>
+    </div>
+
+    <!-- Ad 2 -->
+    <div class="ad">
+      <div class="ad-img" style="background:linear-gradient(135deg,#0f1628,#1a0f28)">
+        <div style="text-align:center;padding:20px">
+          <div style="font-size:36px;margin-bottom:8px">🏋️</div>
+          <div style="font-size:16px;font-weight:800;color:#10b981">90-Day Transformation</div>
+          <div style="font-size:11px;color:rgba(16,185,129,0.5)">Online Coaching Programme</div>
+        </div>
+      </div>
+      <div class="ad-body">
+        <div class="ad-cat">💪 Health & Wellness</div>
+        <div class="ad-title">90-Day Body Transformation Programme — Online Coaching</div>
+        <div class="ad-desc">Personalised meal plans, workout routines and weekly check-ins. Over 200 clients transformed. Beginner-friendly with full video guidance for every exercise.</div>
+        <div class="ad-meta">
+          <div class="ad-author"><div class="ad-avatar" style="background:linear-gradient(135deg,#10b981,#059669)">SK</div>Sarah Kim</div>
+          <div class="ad-stats"><span>👁 218 views</span><span>🔗 64 clicks</span></div>
+        </div>
+        <a href="#" class="ad-cta">Visit Offer →</a>
+      </div>
+    </div>
+
+    <!-- Ad 3 -->
+    <div class="ad">
+      <div class="ad-img" style="background:linear-gradient(135deg,#0f172a,#1e1b4b)">
+        <div style="text-align:center;padding:20px">
+          <div style="font-size:36px;margin-bottom:8px">📱</div>
+          <div style="font-size:16px;font-weight:800;color:#a855f7">Social Media Mastery</div>
+          <div style="font-size:11px;color:rgba(168,85,247,0.5)">Grow to 10K Followers</div>
+        </div>
+      </div>
+      <div class="ad-body">
+        <div class="ad-cat">📣 Digital Marketing</div>
+        <div class="ad-title">Grow to 10K Followers in 90 Days — Social Media Blueprint</div>
+        <div class="ad-desc">The exact content strategy, posting schedule and engagement tactics I used to grow 3 accounts to 10K+. Works for Instagram, TikTok and YouTube Shorts.</div>
+        <div class="ad-meta">
+          <div class="ad-author"><div class="ad-avatar" style="background:linear-gradient(135deg,#a855f7,#7c3aed)">DP</div>Dan Peters</div>
+          <div class="ad-stats"><span>👁 156 views</span><span>🔗 41 clicks</span></div>
+        </div>
+        <a href="#" class="ad-cta">Visit Offer →</a>
+      </div>
+    </div>
+
+    <!-- Ad 4 — Featured -->
+    <div class="ad featured">
+      <div class="featured-tag">⭐ Featured</div>
+      <div class="ad-img" style="background:linear-gradient(135deg,#0c1929,#162032)">
+        <div style="text-align:center;padding:20px">
+          <div style="font-size:36px;margin-bottom:8px">🎯</div>
+          <div style="font-size:16px;font-weight:800;color:#38bdf8">Done-For-You Funnels</div>
+          <div style="font-size:11px;color:rgba(56,189,248,0.5)">Complete Funnel Package</div>
+        </div>
+      </div>
+      <div class="ad-body">
+        <div class="ad-cat">💼 Business Opportunity</div>
+        <div class="ad-title">Done-For-You Sales Funnel — Landing Page + Email Sequence + Ads</div>
+        <div class="ad-desc">I'll build your complete sales funnel: high-converting landing page, 5-email follow-up sequence, and Facebook ad creative. Everything ready to launch in 48 hours.</div>
+        <div class="ad-meta">
+          <div class="ad-author"><div class="ad-avatar" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)">RL</div>Rachel Lee</div>
+          <div class="ad-stats"><span>👁 287 views</span><span>🔗 73 clicks</span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="ad-price">From $197</div>
+          <div style="font-size:11px;color:rgba(186,230,253,0.25)">⚡ 3 spots left</div>
+        </div>
+        <a href="#" class="ad-cta">Visit Offer →</a>
+      </div>
+    </div>
+
+    <!-- Ad 5 -->
+    <div class="ad">
+      <div class="ad-img" style="background:linear-gradient(135deg,#1a0f0a,#2a1a0f)">
+        <div style="text-align:center;padding:20px">
+          <div style="font-size:36px;margin-bottom:8px">🛒</div>
+          <div style="font-size:16px;font-weight:800;color:#f59e0b">Dropshipping Course</div>
+          <div style="font-size:11px;color:rgba(245,158,11,0.5)">Start With Zero Inventory</div>
+        </div>
+      </div>
+      <div class="ad-body">
+        <div class="ad-cat">🛒 E-Commerce</div>
+        <div class="ad-title">Start a Profitable Shopify Store — Zero Inventory Dropshipping</div>
+        <div class="ad-desc">Complete step-by-step guide to launching your first Shopify dropshipping store. Includes product research templates, supplier contacts and ad templates that I used to hit $10K/month.</div>
+        <div class="ad-meta">
+          <div class="ad-author"><div class="ad-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706)">TC</div>Tom Chen</div>
+          <div class="ad-stats"><span>👁 194 views</span><span>🔗 52 clicks</span></div>
+        </div>
+        <a href="#" class="ad-cta">Visit Offer →</a>
+      </div>
+    </div>
+
+    <!-- Ad 6 -->
+    <div class="ad">
+      <div class="ad-img" style="background:linear-gradient(135deg,#0f1a14,#0a1929)">
+        <div style="text-align:center;padding:20px">
+          <div style="font-size:36px;margin-bottom:8px">🎓</div>
+          <div style="font-size:16px;font-weight:800;color:#6366f1">AI Prompt Engineering</div>
+          <div style="font-size:11px;color:rgba(99,102,241,0.5)">Master ChatGPT & Claude</div>
+        </div>
+      </div>
+      <div class="ad-body">
+        <div class="ad-cat">🎓 Education</div>
+        <div class="ad-title">AI Prompt Engineering Masterclass — Turn AI Into Your Business Partner</div>
+        <div class="ad-desc">Learn how to use ChatGPT, Claude and MidJourney to 10x your productivity. 42 video lessons covering copywriting, coding, image generation and business automation.</div>
+        <div class="ad-meta">
+          <div class="ad-author"><div class="ad-avatar" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">AW</div>Amy Wright</div>
+          <div class="ad-stats"><span>👁 311 views</span><span>🔗 97 clicks</span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="ad-price">$47 one-time</div>
+          <div style="font-size:11px;color:rgba(186,230,253,0.25)">⭐ 4.9 rating</div>
+        </div>
+        <a href="#" class="ad-cta">Visit Offer →</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CTA Banner -->
+  <div class="cta-banner">
+    <h3>📢 Got Something to Promote?</h3>
+    <p>SuperAdPro members can post up to 5 free ads. Reach real, engaged members who are actively looking for tools, services and opportunities.</p>
+    <a href="/ads/my" class="cta-post">+ Post Your Ad Free →</a>
+  </div>
+
+</div>
+
+<div class="footer">© 2026 SuperAdPro. All rights reserved.</div>
+
+<div class="mockup-badge">📐 Visual Mockup</div>
+
+</body>
+</html>
