@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Dashboard — SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
@@ -159,21 +159,13 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 
 <svg width="0" height="0" style="position:absolute">
   <defs>
-    <symbol id="shield" viewBox="0 0 100 100">
-      <defs>
-        <linearGradient id="hexgrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#4f8ef7"/>
-          <stop offset="50%" stop-color="#6d28d9"/>
-          <stop offset="100%" stop-color="#00b4d8"/>
-        </linearGradient>
-        <linearGradient id="hexinner" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#1a3a8f"/>
-          <stop offset="100%" stop-color="#0d1a5c"/>
-        </linearGradient>
-      </defs>
-      <polygon points="50,3 93,27 93,73 50,97 7,73 7,27" fill="url(#hexgrad)" />
-      <polygon points="50,12 84,31 84,69 50,88 16,69 16,31" fill="url(#hexinner)" />
-      <text x="50" y="63" text-anchor="middle" font-family="Arial Black,sans-serif" font-weight="900" font-size="38" fill="#00d4ff" letter-spacing="-2">S</text>
+    <linearGradient id="logo-grad" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0ea5e9"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+    <symbol id="sap-logo" viewBox="0 0 44 44">
+      <circle cx="22" cy="22" r="20" fill="url(#logo-grad)"/>
+      <path d="M18 13l14 9-14 9V13z" fill="#fff"/>
     </symbol>
   </defs>
 </svg>
@@ -182,19 +174,9 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 <!-- ── Mobile Topbar ── -->
 <div class="mobile-topbar">
   <a class="mobile-topbar-left" href="/dashboard">
-    <svg width="26" height="26" viewBox="0 0 100 100">
-      <defs>
-        <linearGradient id="mhg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#4f8ef7"/>
-          <stop offset="50%" stop-color="#6d28d9"/>
-          <stop offset="100%" stop-color="#00b4d8"/>
-        </linearGradient>
-      </defs>
-      <polygon points="50,3 93,27 93,73 50,97 7,73 7,27" fill="url(#mhg)"/>
-      <text x="50" y="63" text-anchor="middle" font-family="Arial Black" font-weight="900" font-size="42" fill="#00d4ff">S</text>
-    </svg>
+    <svg width="30" height="30" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#logo-grad)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></svg>
     <div>
-      <div class="mobile-topbar-name">SuperAdPro</div>
+      <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</div>
       <div class="mobile-topbar-page">Dashboard</div>
     </div>
   </a>
@@ -258,9 +240,9 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
             <div><span class="balance-val">${{ '%.2f'|format(balance) }}</span><span class="balance-unit">USDT</span></div>
           </div>
         </div>
-        <a href="/campaign-tiers" style="font-size:16px;font-weight:800;letter-spacing:1.5px;color:#0f172a;text-decoration:none;display:flex;align-items:center;gap:8px">
-          <svg width="24" height="24" viewBox="0 0 40 40" fill="none"><use href="#shield"/></svg>
-          <span>Super<span style="color:#0ea5e9">AdPro</span></span>
+        <a href="/" style="font-size:16px;font-weight:800;color:#0f172a;text-decoration:none;display:flex;align-items:center;gap:10px">
+          <svg width="32" height="32"><use href="#sap-logo"/></svg>
+          <span style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
         </a>
       </div>
     </div>

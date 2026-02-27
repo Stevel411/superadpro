@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SuperAdPro — Where Advertisers, Marketers & Affiliates Win</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Sora:wght@700;800&display=swap" rel="stylesheet">
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body { background:#050d1a; color:#f0f2f8; font-family:'DM Sans','Rethink Sans',sans-serif; overflow-x:hidden; }
@@ -28,7 +28,8 @@
         /* Nav */
         nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 36px; height:80px; background:rgba(1,10,5,0.8); backdrop-filter:blur(18px); border-bottom:1px solid rgba(0,180,216,0.12); }
         .nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; }
-        .nav-brand { font-weight:800; font-size:19px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#00b4d8,#6d28d9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .nav-brand { font-family:'Sora',sans-serif; font-weight:800; font-size:19px; letter-spacing:0; text-transform:none; color:#fff; -webkit-text-fill-color:#fff; }
+        .nav-brand span { color:#38bdf8; -webkit-text-fill-color:#38bdf8; }
         .nav-links { display:flex; align-items:center; gap:6px; list-style:none; }
         .nav-links a { font-size:19px; font-weight:500; color:rgba(200,230,210,0.55); text-decoration:none; padding:4px 10px; transition:color 0.2s; }
         .nav-links a:hover { color:rgba(200,230,210,0.9); }
@@ -223,7 +224,8 @@
 
         footer { border-top:1px solid rgba(0,180,216,0.12); padding:20px 36px; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:10; }
         .footer-logo { display:flex; align-items:center; gap:8px; text-decoration:none; }
-        .footer-brand { font-weight:800; font-size:19px; letter-spacing:2px; text-transform:uppercase; background:linear-gradient(135deg,#00b4d8,#6d28d9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .footer-brand { font-family:'Sora',sans-serif; font-weight:800; font-size:19px; letter-spacing:0; text-transform:none; color:#fff; -webkit-text-fill-color:#fff; }
+        .footer-brand span { color:#38bdf8; -webkit-text-fill-color:#38bdf8; }
         .footer-links { display:flex; gap:20px; }
         .footer-links a { font-size:19px; letter-spacing:1px; text-transform:uppercase; color:rgba(200,225,210,0.22); text-decoration:none; transition:color 0.2s; }
         .footer-links a:hover { color:rgba(201,168,76,0.7); }
@@ -309,29 +311,21 @@
     <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="25%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="75%" stop-color="#00b4d8"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
     <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
     <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <symbol id="shield" viewBox="0 0 100 100">
-      <defs>
-        <linearGradient id="hexgrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#4f8ef7"/>
-          <stop offset="50%" stop-color="#6d28d9"/>
-          <stop offset="100%" stop-color="#00b4d8"/>
-        </linearGradient>
-        <linearGradient id="hexinner" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#1a3a8f"/>
-          <stop offset="100%" stop-color="#0d1a5c"/>
-        </linearGradient>
-      </defs>
-      <polygon points="50,3 93,27 93,73 50,97 7,73 7,27" fill="url(#hexgrad)" />
-      <polygon points="50,12 84,31 84,69 50,88 16,69 16,31" fill="url(#hexinner)" />
-      <text x="50" y="63" text-anchor="middle" font-family="Arial Black,sans-serif" font-weight="900" font-size="38" fill="#00d4ff" letter-spacing="-2">S</text>
+    <symbol id="shield" viewBox="0 0 44 44">
+      <circle cx="22" cy="22" r="20" fill="url(#logo-grad-hp)"/>
+      <path d="M18 13l14 9-14 9V13z" fill="#fff"/>
     </symbol>
+    <linearGradient id="logo-grad-hp" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0ea5e9"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
   </defs>
 </svg>
 
 <nav>
     <a href="/" class="nav-logo">
         <svg width="32" height="32"><use href="#shield"/></svg>
-        <span class="nav-brand">SuperAdPro</span>
+        <span class="nav-brand">Super<span>Ad</span>Pro</span>
     </a>
     <ul class="nav-links">
         <li><a href="/how-it-works">How It Works</a></li>
@@ -1093,7 +1087,7 @@
 <footer>
     <a href="/" class="footer-logo">
         <svg width="32" height="32"><use href="#shield"/></svg>
-        <span class="footer-brand">SuperAdPro</span>
+        <span class="footer-brand">Super<span>Ad</span>Pro</span>
     </a>
     <div class="footer-links">
         <a href="/legal">Legal</a>
