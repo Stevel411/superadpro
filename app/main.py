@@ -3875,3 +3875,11 @@ def reset_account(secret: str, db: Session = Depends(get_db)):
         db.rollback()
         return JSONResponse({"error": str(e)}, status_code=500)
 
+
+@app.get("/grid-mockup1")
+def grid_mockup1(request: Request):
+    return templates.TemplateResponse("grid-mockup1.html", {"request": request})
+
+@app.get("/grid-mockup2")
+def grid_mockup2(request: Request):
+    return templates.TemplateResponse("grid-mockup2.html", {"request": request})
