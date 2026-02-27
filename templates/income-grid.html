@@ -16,7 +16,7 @@ body{background:#f0f2f8;color:#0f172a;font-family:'DM Sans','Rethink Sans',sans-
 .back-btn:hover{color:#0284c7;border-color:#b8d4f8;background:#f0f9ff}
 .topbar-title{font-size:19px;font-weight:800;color:#fff}
 .topbar-sub{font-size:16px;color:#64748b}
-.balance-chip{background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:8px;padding:6px 14px;font-size:16px;font-weight:700;color:#16a34a}
+.balance-chip{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:8px 16px;display:flex;align-items:center;gap:6px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
 
 /* ── Container ── */
 .container{max-width:1100px;margin:0 auto;padding:32px 32px 80px}
@@ -146,7 +146,6 @@ body{background:#f0f2f8;color:#0f172a;font-family:'DM Sans','Rethink Sans',sans-
   </div>
   <div style="display:flex;align-items:center;gap:12px">
     <div class="balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
-    <a href="/campaign-tiers" class="topbar-right-btn" style="font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:8px 18px;border-radius:8px;text-decoration:none;white-space:nowrap;transition:all 0.2s">+ Activate Tier</a>
   </div>
 </div>
 

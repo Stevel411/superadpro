@@ -31,10 +31,10 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.1);position:sticky;top:0;z-index:50}
 .topbar-title{font-size:16px;font-weight:800;color:#ffffff}
 .topbar-sub{font-size:16px;color:#6b7d94;margin-top:1px}
-.balance-pill{background:rgba(0,180,216,0.06);border:1px solid rgba(0,180,216,0.15);border-radius:8px;padding:6px 14px;display:flex;align-items:center;gap:10px}
-.balance-label{font-size:9px;color:#6b7d94;letter-spacing:1.5px;text-transform:uppercase}
+.balance-pill{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:8px 16px;display:flex;align-items:center;gap:6px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.balance-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8}
 .balance-val{font-size:16px;font-weight:800;color:#16a34a}
-.balance-unit{font-size:16px;color:#6b7d94;margin-left:3px}
+.balance-unit{font-size:12px;color:#94a3b8;margin-left:3px}
 
 /* ── CONTENT ── */
 .content{padding:28px;flex:1}
@@ -234,7 +234,6 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
             <div><span class="balance-val">${{ '%.2f'|format(balance) }}</span><span class="balance-unit">USDT</span></div>
           </div>
         </div>
-        <a href="/campaign-tiers" style="font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:10px 20px;border-radius:7px;text-decoration:none">+ Activate Tier</a>
       </div>
     <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
           <svg width="32" height="32" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-tb)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-tb" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
