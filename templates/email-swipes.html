@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Email Swipe Library — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#f4f7fc;color:#0f172a;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.25);position:sticky;top:0;z-index:200}
+.topbar-left{display:flex;align-items:center;gap:20px}
+.topbar-title{font-size:18px;font-weight:800;color:#fff}
+.topbar-sub{font-size:11px;color:rgba(200,220,255,0.4)}
+.tb-btn{display:flex;align-items:center;gap:6px;color:#94a3b8;text-decoration:none;font-size:13px;font-weight:600;padding:8px 16px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:rgba(255,255,255,0.03);transition:all 0.2s}
+.tb-btn:hover{border-color:rgba(56,189,248,0.3);color:#38bdf8}
+.topbar-user{display:flex;align-items:center;gap:10px;color:rgba(200,220,255,0.6);font-size:13px}
+.topbar-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#f97316);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
+.content{max-width:1000px;margin:0 auto;padding:32px 24px}
+.page-hero{background:linear-gradient(135deg,#78350f,#92400e,#b45309);border-radius:20px;padding:36px 32px;margin-bottom:28px;position:relative;overflow:hidden;border:1px solid rgba(251,191,36,0.2)}
+.page-hero::after{content:'';position:absolute;top:-40%;right:-10%;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(251,191,36,0.12),transparent 70%)}
+.page-hero h1{font-size:28px;font-weight:800;color:#fff;margin-bottom:6px;position:relative;z-index:2}
+.page-hero p{font-size:15px;color:rgba(254,243,199,0.5);line-height:1.6;position:relative;z-index:2}
+
+.cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
+.cat{font-size:13px;font-weight:600;padding:8px 16px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;transition:all 0.2s}
+.cat:hover{border-color:#f59e0b;color:#b45309}
+.cat.active{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#fff;border-color:#f59e0b;box-shadow:0 2px 8px rgba(245,158,11,0.2)}
+
+.swipe-grid{display:grid;grid-template-columns:1fr;gap:16px}
+.swipe{background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;transition:all 0.3s}
+.swipe:hover{box-shadow:0 4px 16px rgba(0,40,100,0.06)}
+.swipe-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;cursor:pointer;user-select:none}
+.swipe-left{display:flex;align-items:center;gap:14px;flex:1;min-width:0}
+.swipe-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.swipe-name{font-size:15px;font-weight:700;color:#0f172a}
+.swipe-desc{font-size:12px;color:#94a3b8;margin-top:1px}
+.swipe-tags{display:flex;gap:6px}
+.stag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:6px;background:#f8fafc;color:#64748b;border:1px solid #e2e8f0}
+.swipe-arrow{font-size:18px;color:#94a3b8;transition:transform 0.3s}
+.swipe.open .swipe-arrow{transform:rotate(180deg)}
+.swipe-body{display:none;padding:0 24px 24px;border-top:1px solid #f1f5f9}
+.swipe.open .swipe-body{display:block}
+.email-block{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-top:16px}
+.email-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:6px}
+.email-subject{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:12px}
+.email-text{font-size:14px;color:#334155;line-height:1.7;white-space:pre-wrap}
+.copy-email{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;transition:all 0.2s;margin-top:12px;font-family:inherit}
+.copy-email:hover{border-color:#f59e0b;color:#b45309}
+.tip{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:10px;padding:14px 18px;margin-top:12px;font-size:13px;color:#92400e;line-height:1.55}
+@media(max-width:600px){.swipe-tags{display:none}.content{padding:16px}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/dashboard" class="tb-btn">← Dashboard</a>
+    <div><div class="topbar-title">📧 Email Swipe Library</div><div class="topbar-sub">Ready-to-send templates · Marketing Suite</div></div>
+  </div>
+  <div class="topbar-user"><span>{{ user.username }}</span><div class="topbar-avatar">{{ user.username[0]|upper }}</div></div>
+</div>
+
+<div class="content">
+  <div class="page-hero">
+    <h1>📧 Email Swipe Library</h1>
+    <p>Pre-written email sequences ready to copy, personalise and send. Proven frameworks for cold outreach, warm follow-up, VIP invites and re-engagement — just add your link and hit send.</p>
+  </div>
+
+  <div class="cats">
+    <div class="cat active" onclick="filterSwipes('all')">All Swipes</div>
+    <div class="cat" onclick="filterSwipes('cold')">Cold Outreach</div>
+    <div class="cat" onclick="filterSwipes('warm')">Warm Follow-Up</div>
+    <div class="cat" onclick="filterSwipes('vip')">VIP Launch</div>
+    <div class="cat" onclick="filterSwipes('reengagement')">Re-Engagement</div>
+    <div class="cat" onclick="filterSwipes('social')">Social DM</div>
+  </div>
+
+  <div class="swipe-grid" id="swipeGrid"></div>
+</div>
+
+<script>
+var SWIPES=[
+  {id:1,cat:'cold',icon:'🧊',iconBg:'#e0f2fe',name:'The Curiosity Opener',desc:'Cold email that piques interest without selling hard',tags:['Cold','First Contact'],
+  emails:[
+    {subject:"Quick question about {{niche}}",body:"Hey {{name}},\n\nI came across your profile and noticed you're in the {{niche}} space.\n\nI recently found a platform that's paying out 95% of every dollar back to its members through video advertising. Three income streams, instant payments, no caps.\n\nNot trying to sell you anything — just thought it might be worth a look based on what you're already doing.\n\nHere's a quick overview: {{your_link}}\n\nEither way, keep crushing it.\n\n{{your_name}}"},
+    {subject:"Following up — did you get a chance to look?",body:"Hey {{name}},\n\nJust bumping this to the top of your inbox.\n\nThe platform I mentioned (SuperAdPro) is still in early access, which means anyone getting in now is positioning themselves at the top of the network before the masses arrive.\n\nTakes 2 minutes to see how the comp plan works: {{your_link}}\n\nNo pressure at all — just didn't want you to miss it.\n\n{{your_name}}"}
+  ]},
+
+  {id:2,cat:'cold',icon:'💣',iconBg:'#fce7f3',name:'The Pattern Interrupt',desc:'Breaks through inbox noise with an unexpected opener',tags:['Cold','High Convert'],
+  emails:[
+    {subject:"This isn't another \"opportunity\" email",body:"{{name}},\n\nI know — your inbox is probably full of people pitching the next big thing.\n\nThis isn't that.\n\nSuperAdPro is a video advertising platform where:\n→ Members earn by watching real video ads daily\n→ Affiliates drive genuine views to their offers\n→ 95% of every dollar goes back to the network\n→ Three income streams stack on top of each other\n\nIt's not a pitch. It's maths.\n\nSee the numbers: {{your_link}}\n\n{{your_name}}"}
+  ]},
+
+  {id:3,cat:'warm',icon:'🔥',iconBg:'#fef3c7',name:'The Warm Re-Connect',desc:'For people you already know who might be interested',tags:['Warm','Personal'],
+  emails:[
+    {subject:"Thought of you for this",body:"Hey {{name}},\n\nHope you're doing well! I've been working with a new platform called SuperAdPro and honestly it's the most transparent comp plan I've seen.\n\nHere's what caught my attention:\n→ You earn just by watching video ads daily\n→ 95% payout rate (almost nothing goes to the platform)\n→ Three separate income streams that all stack\n→ Commissions are instant — no waiting for pay day\n\nI genuinely think this could be a great fit based on what you're into. Would love to show you the comp plan — it speaks for itself.\n\n{{your_link}}\n\nLet me know what you think!\n\n{{your_name}}"}
+  ]},
+
+  {id:4,cat:'warm',icon:'🤝',iconBg:'#dcfce7',name:'The Social Proof Email',desc:'Uses results and credibility to build trust',tags:['Warm','Proof'],
+  emails:[
+    {subject:"Here's what I'm seeing with SuperAdPro",body:"Hey {{name}},\n\nQuick update — I've been inside SuperAdPro for a while now and wanted to share what's happening:\n\n✅ The watch-to-earn model means everyone starts earning from day one\n✅ The 8-level uni-level pays 8.75% per seat at every level\n✅ Three income streams (memberships, campaigns, courses)\n✅ AI-powered marketing tools built right into the dashboard\n\nWhat really sets it apart is that advertisers pay for REAL video views from REAL people — it's not fake traffic or bots. That's why the 95% payout is sustainable.\n\nWorth 5 minutes of your time: {{your_link}}\n\nHappy to walk you through it if you have questions.\n\n{{your_name}}"}
+  ]},
+
+  {id:5,cat:'vip',icon:'👑',iconBg:'#fef3c7',name:'VIP Launch Announcement',desc:'The email to send your VIP list on launch day',tags:['VIP','Launch Day'],
+  emails:[
+    {subject:"🚀 We're LIVE — your VIP access is ready",body:"{{name}},\n\nThis is it. SuperAdPro is officially live.\n\nAs a VIP member, you're getting first access before we open to the public. That means you can secure your position at the top of the network right now.\n\nHere's your exclusive link: {{your_link}}\n\nWhat you get when you activate today:\n→ Immediate access to watch & earn daily\n→ Three income streams unlocked from day one\n→ AI marketing suite (social post generator, video scripts, funnel builder)\n→ Your position locked in before the public launch\n\nThe earlier you're in, the stronger your network position becomes. Every person who joins after you could be earning you commissions.\n\nDon't wait on this one.\n\n{{your_name}}\n\nP.S. This VIP window won't last long. Once we open publicly, the early-mover advantage disappears."},
+    {subject:"⏰ Did you activate your VIP position yet?",body:"Hey {{name}},\n\nJust checking — did you get a chance to activate your SuperAdPro account?\n\nThe VIP early access is still open but we're getting close to the public launch. After that, you'll be joining at the same time as everyone else.\n\nRight now you still have the advantage: {{your_link}}\n\nRemember — three income streams, 95% payout, instant commissions, and you earn daily just by watching video ads.\n\nThe maths doesn't lie. The timing doesn't get better.\n\n{{your_name}}"}
+  ]},
+
+  {id:6,cat:'vip',icon:'⏰',iconBg:'#fee2e2',name:'VIP Urgency Follow-Up',desc:'Create FOMO for VIP members who haven\'t activated',tags:['VIP','Urgency'],
+  emails:[
+    {subject:"Your VIP spot expires soon",body:"{{name}},\n\nFinal reminder — your VIP early access to SuperAdPro closes soon.\n\nAfter that, you'll be signing up at the same time as the general public, and the network positions filling up right now will already be taken.\n\nI'm not going to oversell this. Here's what you need to know:\n\n→ Watch real video ads daily = earn daily\n→ Refer others = earn 25% direct + 70% uni-level across 8 levels\n→ 95% of every dollar paid out to the network\n→ Zero caps, instant payments\n\nYour link: {{your_link}}\n\n5 minutes to look. 2 minutes to join. A lifetime of potential earnings.\n\n{{your_name}}"}
+  ]},
+
+  {id:7,cat:'reengagement',icon:'👋',iconBg:'#e0e7ff',name:'The Come-Back Email',desc:'Re-engage leads who went cold',tags:['Re-Engagement'],
+  emails:[
+    {subject:"Still thinking about it?",body:"Hey {{name}},\n\nA while back I shared SuperAdPro with you. No worries if the timing wasn't right — life gets busy.\n\nBut a lot has changed since then:\n→ The platform is growing fast\n→ New AI marketing tools just launched\n→ Members are earning daily from watching video ads\n→ The earlier you join, the more levels build beneath you\n\nIf you've got 5 minutes, take a fresh look: {{your_link}}\n\nThe opportunity hasn't gone anywhere — but the best positions won't last forever.\n\n{{your_name}}"}
+  ]},
+
+  {id:8,cat:'social',icon:'💬',iconBg:'#f0fdf4',name:'Social Media DM Scripts',desc:'Short DM templates for Instagram, Facebook, LinkedIn',tags:['DM','Social'],
+  emails:[
+    {subject:"Instagram DM — Curiosity Hook",body:"Hey {{name}}! 👋\n\nSaw your content about {{niche}} — really solid stuff.\n\nRandom question — are you open to looking at a side income that doesn't take time away from what you're already doing?\n\nI've been earning daily just from watching video ads on a new platform. Sounds wild but the maths is legit.\n\nHappy to share if you're curious! 🙌"},
+    {subject:"Facebook DM — Direct Approach",body:"Hey {{name}}!\n\nHope you're doing well. I've been working with a new video advertising platform called SuperAdPro and thought of you.\n\nBasically: you earn by watching real video ads, plus there's a comp plan paying 95% back to the network across three income streams.\n\nWould you be open to taking a quick look? No pressure either way! 😊\n\n{{your_link}}"},
+    {subject:"LinkedIn DM — Professional",body:"Hi {{name}},\n\nI came across your profile and was impressed by your background in {{niche}}.\n\nI'm working with a video advertising platform that's doing something interesting — 95% payout to the network, three stackable income streams, and AI-powered marketing tools built in.\n\nI think there could be a strong fit here. Would you be open to a brief look at the business model?\n\nHere's an overview: {{your_link}}\n\nBest,\n{{your_name}}"}
+  ]}
+];
+
+function renderSwipes(filter){
+  var grid=document.getElementById('swipeGrid');
+  grid.innerHTML='';
+  var items=filter==='all'?SWIPES:SWIPES.filter(s=>s.cat===filter);
+  items.forEach(function(s){
+    var emailsHtml='';
+    s.emails.forEach(function(e,i){
+      emailsHtml+='<div class="email-block"><div class="email-label">Email '+(i+1)+'</div><div class="email-subject">Subject: '+e.subject+'</div><div class="email-text" id="email-'+s.id+'-'+i+'">'+e.body+'</div><button class="copy-email" onclick="copyEmail('+s.id+','+i+')">📋 Copy Email</button></div>';
+    });
+    var tagsHtml=s.tags.map(t=>'<span class="stag">'+t+'</span>').join('');
+    grid.innerHTML+='<div class="swipe" id="swipe-'+s.id+'"><div class="swipe-head" onclick="toggleSwipe('+s.id+')"><div class="swipe-left"><div class="swipe-icon" style="background:'+s.iconBg+'">'+s.icon+'</div><div><div class="swipe-name">'+s.name+'</div><div class="swipe-desc">'+s.desc+'</div></div></div><div class="swipe-tags">'+tagsHtml+'</div><div class="swipe-arrow">▼</div></div><div class="swipe-body">'+emailsHtml+'<div class="tip">💡 <strong>Tip:</strong> Replace {{name}}, {{niche}}, {{your_link}} and {{your_name}} with your actual details before sending. Personalisation dramatically increases open and reply rates.</div></div></div>';
+  });
+}
+function toggleSwipe(id){document.getElementById('swipe-'+id).classList.toggle('open')}
+function filterSwipes(cat){
+  document.querySelectorAll('.cat').forEach(c=>c.classList.remove('active'));
+  event.target.classList.add('active');
+  renderSwipes(cat);
+}
+function copyEmail(sid,eidx){
+  var el=document.getElementById('email-'+sid+'-'+eidx);
+  var swipe=SWIPES.find(s=>s.id===sid);
+  var text='Subject: '+swipe.emails[eidx].subject+'\n\n'+swipe.emails[eidx].body;
+  navigator.clipboard.writeText(text).then(()=>{
+    var btn=el.parentNode.querySelector('.copy-email');
+    btn.textContent='✅ Copied!';
+    setTimeout(()=>btn.textContent='📋 Copy Email',2000);
+  });
+}
+renderSwipes('all');
+</script>
+</body>
+</html>

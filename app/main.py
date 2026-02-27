@@ -3432,6 +3432,18 @@ Return ONLY the posts, no preamble or explanation."""
 
 
 # ═══════════════════════════════════════════════════════════════
+#  EMAIL SWIPE LIBRARY
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/email-swipes")
+def email_swipes_page(request: Request, user: User = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    if not user: return RedirectResponse(url="/?login=1")
+    ctx = get_dashboard_context(request, user, db)
+    return templates.TemplateResponse("email-swipes.html", ctx)
+
+
+# ═══════════════════════════════════════════════════════════════
 #  AI VIDEO SCRIPT GENERATOR
 # ═══════════════════════════════════════════════════════════════
 
