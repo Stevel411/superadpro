@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>What You Get — SuperAdPro</title>
+<meta name="description" content="See everything inside SuperAdPro — AI marketing tools, three income streams, funnel builder, ad board, video hub and more. All for $20/month.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz@9..40;wght@400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#050510;color:#e2e8f0;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+
+/* Nav */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:rgba(5,5,16,0.9);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.04);position:sticky;top:0;z-index:200}
+.nav-logo{font-size:20px;font-weight:800;color:#fff}.nav-logo span{color:#38bdf8}
+.nav-links{display:flex;gap:12px}
+.n-btn{font-size:13px;font-weight:600;padding:8px 18px;border-radius:8px;transition:all 0.2s}
+.n-outline{color:#94a3b8;border:1px solid rgba(255,255,255,0.08)}.n-outline:hover{border-color:rgba(56,189,248,0.3);color:#38bdf8}
+.n-primary{color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);box-shadow:0 2px 12px rgba(14,165,233,0.25)}.n-primary:hover{box-shadow:0 4px 20px rgba(14,165,233,0.4)}
+
+/* Bg effects */
+.bg-mesh{position:fixed;inset:0;z-index:0;pointer-events:none}
+.bg-mesh::before{content:'';position:absolute;top:-20%;left:10%;width:50vw;height:50vw;border-radius:50%;background:radial-gradient(circle,rgba(14,165,233,0.06),transparent 70%);filter:blur(60px);animation:gm1 20s ease-in-out infinite alternate}
+.bg-mesh::after{content:'';position:absolute;bottom:-10%;right:5%;width:40vw;height:40vw;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,0.05),transparent 70%);filter:blur(60px);animation:gm2 15s ease-in-out infinite alternate}
+@keyframes gm1{0%{transform:translate(0,0)}100%{transform:translate(30px,-40px)}}
+@keyframes gm2{0%{transform:translate(0,0)}100%{transform:translate(-20px,30px)}}
+
+.wrap{position:relative;z-index:1}
+
+/* HERO */
+.hero{text-align:center;padding:80px 32px 60px;max-width:800px;margin:0 auto}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(56,189,248,0.6);margin-bottom:20px}
+.hero-eyebrow .line{width:24px;height:1px;background:rgba(56,189,248,0.3)}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(40px,6vw,68px);font-weight:900;color:#fff;line-height:1.05;margin-bottom:20px}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,#38bdf8,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:18px;color:rgba(186,230,253,0.45);line-height:1.7;max-width:580px;margin:0 auto 32px}
+.hero-price{display:inline-flex;align-items:baseline;gap:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:16px 28px}
+.hero-price .amount{font-size:48px;font-weight:800;color:#fff}
+.hero-price .per{font-size:16px;color:rgba(186,230,253,0.35)}
+.hero-price .note{font-size:13px;color:rgba(56,189,248,0.6);margin-left:12px;padding-left:12px;border-left:1px solid rgba(255,255,255,0.08)}
+
+/* Sections */
+.section{padding:60px 32px;max-width:1100px;margin:0 auto}
+.section-label{display:flex;align-items:center;gap:12px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px}
+.section-label .dot{width:6px;height:6px;border-radius:50%}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,44px);font-weight:800;color:#fff;line-height:1.1;margin-bottom:8px}
+.section-sub{font-size:16px;color:rgba(186,230,253,0.4);line-height:1.6;max-width:600px;margin-bottom:36px}
+
+/* INCOME STREAMS */
+.streams{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;border-radius:20px;overflow:hidden;margin-bottom:40px}
+.stream{padding:36px 28px;position:relative;overflow:hidden}
+.stream::before{content:'';position:absolute;inset:0;opacity:0.04}
+.stream.s1{background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.1)}.stream.s1::before{background:linear-gradient(135deg,#10b981,transparent)}
+.stream.s2{background:rgba(14,165,233,0.06);border:1px solid rgba(14,165,233,0.1)}.stream.s2::before{background:linear-gradient(135deg,#0ea5e9,transparent)}
+.stream.s3{background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.1)}.stream.s3::before{background:linear-gradient(135deg,#8b5cf6,transparent)}
+.stream-num{font-size:48px;font-weight:800;opacity:0.08;position:absolute;top:16px;right:20px;font-family:'Playfair Display',serif}
+.stream-icon{font-size:32px;margin-bottom:14px}
+.stream-name{font-size:20px;font-weight:800;color:#fff;margin-bottom:6px}
+.stream-desc{font-size:14px;color:rgba(186,230,253,0.45);line-height:1.6;margin-bottom:14px}
+.stream-tag{font-size:12px;font-weight:700;padding:6px 12px;border-radius:8px;display:inline-block}
+
+/* TOOL CARDS */
+.tools-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:40px}
+.tool{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:18px;padding:32px 24px;position:relative;overflow:hidden;transition:all 0.4s cubic-bezier(0.16,1,0.3,1)}
+.tool:hover{transform:translateY(-6px);border-color:rgba(56,189,248,0.15);box-shadow:0 16px 40px rgba(0,0,0,0.3)}
+.tool::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity 0.3s}
+.tool:hover::after{opacity:1}
+.tool.t-blue::after{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}
+.tool.t-purple::after{background:linear-gradient(90deg,#8b5cf6,#a78bfa)}
+.tool.t-green::after{background:linear-gradient(90deg,#10b981,#34d399)}
+.tool.t-gold::after{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.tool.t-red::after{background:linear-gradient(90deg,#ef4444,#f97316)}
+.tool.t-pink::after{background:linear-gradient(90deg,#ec4899,#f472b6)}
+.tool-icon{font-size:36px;margin-bottom:16px}
+.tool-name{font-size:17px;font-weight:800;color:#fff;margin-bottom:6px}
+.tool-desc{font-size:13px;color:rgba(186,230,253,0.4);line-height:1.6;margin-bottom:14px}
+.tool-features{list-style:none;padding:0}
+.tool-features li{font-size:12px;color:rgba(186,230,253,0.5);padding:4px 0;padding-left:18px;position:relative}
+.tool-features li::before{content:'→';position:absolute;left:0;color:rgba(56,189,248,0.4)}
+
+/* COMP PLAN HIGHLIGHT */
+.comp-highlight{background:linear-gradient(135deg,#0c1929 0%,#0a2540 50%,#0e3a5c 100%);border:1px solid rgba(56,189,248,0.12);border-radius:24px;padding:48px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;margin-bottom:40px;position:relative;overflow:hidden}
+.comp-highlight::before{content:'';position:absolute;top:-40%;right:-20%;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,0.06),transparent 70%)}
+.comp-left h3{font-family:'Playfair Display',serif;font-size:32px;font-weight:800;color:#fff;margin-bottom:12px;line-height:1.15}
+.comp-left p{font-size:15px;color:rgba(186,230,253,0.5);line-height:1.7;margin-bottom:24px}
+.comp-btn{display:inline-block;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;padding:14px 32px;border-radius:12px;font-weight:700;font-size:15px;transition:all 0.3s;box-shadow:0 4px 20px rgba(14,165,233,0.3)}
+.comp-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(14,165,233,0.4)}
+.comp-stats{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cs{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:20px;text-align:center}
+.cs-val{font-size:32px;font-weight:800;color:#38bdf8;margin-bottom:2px}
+.cs-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(186,230,253,0.3)}
+
+/* VALUE COMPARISON */
+.compare{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:20px;padding:40px;margin-bottom:40px}
+.compare-title{font-size:20px;font-weight:800;color:#fff;text-align:center;margin-bottom:28px}
+.compare-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:24px;align-items:start}
+.compare-col{display:flex;flex-direction:column;gap:10px}
+.compare-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:10px;font-size:14px}
+.compare-col:first-child .compare-item{background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.1);color:rgba(248,113,113,0.7)}
+.compare-col:first-child .compare-item span{color:#f87171;font-weight:700}
+.compare-col:last-child .compare-item{background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.1);color:rgba(186,230,253,0.7)}
+.compare-col:last-child .compare-item span{color:#38bdf8;font-weight:700}
+.compare-vs{display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:rgba(186,230,253,0.2);letter-spacing:2px;padding-top:40px}
+
+/* CTA */
+.final-cta{text-align:center;padding:80px 32px;position:relative}
+.final-cta::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:200px;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,248,0.2),transparent)}
+.final-cta h2{font-family:'Playfair Display',serif;font-size:clamp(32px,5vw,52px);font-weight:900;color:#fff;margin-bottom:12px;line-height:1.1}
+.final-cta h2 em{font-style:normal;color:#38bdf8}
+.final-cta p{font-size:17px;color:rgba(186,230,253,0.4);margin-bottom:32px;max-width:500px;margin-left:auto;margin-right:auto}
+.cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn-big{padding:16px 40px;border-radius:14px;font-size:16px;font-weight:700;transition:all 0.3s}
+.btn-blue{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;box-shadow:0 4px 24px rgba(14,165,233,0.35)}.btn-blue:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(14,165,233,0.5)}
+.btn-ghost{border:1px solid rgba(255,255,255,0.1);color:#94a3b8}.btn-ghost:hover{border-color:rgba(56,189,248,0.3);color:#38bdf8}
+
+.footer{text-align:center;padding:32px;font-size:11px;color:rgba(186,230,253,0.12);border-top:1px solid rgba(255,255,255,0.03)}
+.footer a{color:rgba(56,189,248,0.25)}
+
+@media(max-width:900px){.streams,.tools-grid{grid-template-columns:1fr}.comp-highlight{grid-template-columns:1fr}.compare-grid{grid-template-columns:1fr;gap:12px}.compare-vs{padding:0}}
+@media(max-width:600px){.hero{padding:48px 20px 40px}.section{padding:40px 20px}.comp-highlight{padding:28px 24px}.comp-stats{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+<div class="nav">
+  <a href="/" class="nav-logo">Super<span>AdPro</span></a>
+  <div class="nav-links">
+    <a href="/compensation-plan" class="n-btn n-outline">Comp Plan</a>
+    <a href="/vip" class="n-btn n-primary">Join VIP</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow"><span class="line"></span> Everything Inside SuperAdPro <span class="line"></span></div>
+    <h1>A Complete Marketing<br>Business <em>in a Box</em></h1>
+    <p>Three income streams, AI-powered marketing tools, done-for-you funnels, traffic generation, and a compensation plan that pays out 95% of every dollar. All from one platform.</p>
+    <div class="hero-price">
+      <span class="amount">$20</span>
+      <span class="per">/month</span>
+      <span class="note">Everything included. No upsells.</span>
+    </div>
+  </div>
+
+  <!-- THREE INCOME STREAMS -->
+  <div class="section">
+    <div class="section-label"><div class="dot" style="background:#38bdf8"></div><span style="color:rgba(56,189,248,0.5)">Income Streams</span></div>
+    <div class="section-title">Three Ways to Earn</div>
+    <div class="section-sub">Each stream operates independently. Activate one, two, or all three — every stream you add multiplies your earning potential.</div>
+
+    <div class="streams">
+      <div class="stream s1" style="border-radius:20px 0 0 20px">
+        <div class="stream-num">01</div>
+        <div class="stream-icon">🔑</div>
+        <div class="stream-name">Monthly Membership</div>
+        <div class="stream-desc">Refer someone, earn $20 every month they stay active. 100% goes to you — no platform cut, no deductions.</div>
+        <div class="stream-tag" style="background:rgba(16,185,129,0.1);color:#34d399">$20/mo · 100% to you</div>
+      </div>
+      <div class="stream s2">
+        <div class="stream-num">02</div>
+        <div class="stream-icon">⚡</div>
+        <div class="stream-name">Profit Engine Grid</div>
+        <div class="stream-desc">When anyone in your 8-level network activates a campaign seat ($20–$1,000), you earn from every single activation.</div>
+        <div class="stream-tag" style="background:rgba(14,165,233,0.1);color:#38bdf8">25% direct + 70% uni-level</div>
+      </div>
+      <div class="stream s3" style="border-radius:0 20px 20px 0">
+        <div class="stream-num">03</div>
+        <div class="stream-icon">🎓</div>
+        <div class="stream-name">Marketing Mastery</div>
+        <div class="stream-desc">Sell premium courses and keep 100% commission. Every 2nd sale passes up to your sponsor — cascading infinitely.</div>
+        <div class="stream-tag" style="background:rgba(139,92,246,0.1);color:#a78bfa">100% · Infinite pass-up</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI MARKETING SUITE -->
+  <div class="section">
+    <div class="section-label"><div class="dot" style="background:#a78bfa"></div><span style="color:rgba(167,139,250,0.5)">AI Marketing Suite</span></div>
+    <div class="section-title">Tools That Do the Work</div>
+    <div class="section-sub">Most platforms give you a link and say "go promote." We give you the entire toolkit to generate traffic, create content and close sales.</div>
+
+    <div class="tools-grid">
+      <div class="tool t-blue">
+        <div class="tool-icon">🤖</div>
+        <div class="tool-name">AI Campaign Studio</div>
+        <div class="tool-desc">Generate complete marketing campaigns with video scripts, email sequences, social captions and thumbnail concepts — all tailored to your niche.</div>
+        <ul class="tool-features"><li>Video scripts optimised per platform</li><li>3-email follow-up sequences</li><li>Social captions with hashtags</li><li>Thumbnail concepts</li></ul>
+      </div>
+      <div class="tool t-purple">
+        <div class="tool-icon">📱</div>
+        <div class="tool-name">Social Post Generator</div>
+        <div class="tool-desc">Generate scroll-stopping posts for Facebook, Instagram, X, TikTok and LinkedIn in seconds. Pick your tone, goal and platform — AI writes the rest.</div>
+        <ul class="tool-features"><li>5 platforms supported</li><li>Tone and goal customisation</li><li>Copy-paste ready output</li><li>15 generations per day</li></ul>
+      </div>
+      <div class="tool t-red">
+        <div class="tool-icon">🎬</div>
+        <div class="tool-name">Video Script Generator</div>
+        <div class="tool-desc">Create video scripts from 15-second TikToks to 10-minute YouTube deep dives. Complete with hooks, stage directions and production notes.</div>
+        <ul class="tool-features"><li>6 duration options (15s–10min)</li><li>Hook + script + CTA structure</li><li>Stage directions included</li><li>Thumbnail and caption suggestions</li></ul>
+      </div>
+      <div class="tool t-green">
+        <div class="tool-icon">🚀</div>
+        <div class="tool-name">Funnel Builder</div>
+        <div class="tool-desc">8 professionally designed, niche-specific landing page templates. Just add your link and you have a complete sales funnel ready to drive traffic to.</div>
+        <ul class="tool-features"><li>8 niche templates</li><li>Forex, crypto, health, travel + more</li><li>Mobile responsive</li><li>Custom link integration</li></ul>
+      </div>
+      <div class="tool t-gold">
+        <div class="tool-icon">📧</div>
+        <div class="tool-name">Email Swipe Library</div>
+        <div class="tool-desc">Pre-written email sequences for cold outreach, warm follow-up, VIP launch, re-engagement and social DMs. Copy, personalise, send.</div>
+        <ul class="tool-features"><li>8 proven templates</li><li>5 categories</li><li>Social DM scripts included</li><li>One-click copy</li></ul>
+      </div>
+      <div class="tool t-pink">
+        <div class="tool-icon">💡</div>
+        <div class="tool-name">Niche Finder</div>
+        <div class="tool-desc">AI analyses market opportunities and identifies the most profitable niches for your situation. Stop guessing, start targeting.</div>
+        <ul class="tool-features"><li>AI-powered market analysis</li><li>Profitability scoring</li><li>Audience insights</li><li>Content angle suggestions</li></ul>
+      </div>
+    </div>
+
+    <!-- Second row -->
+    <div class="tools-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="tool t-blue">
+        <div class="tool-icon">🔗</div>
+        <div class="tool-name">Link Tools</div>
+        <div class="tool-desc">Short links, link rotators and click tracking. Manage all your promotion links from one dashboard with full analytics.</div>
+        <ul class="tool-features"><li>Custom short links</li><li>Link rotators for split testing</li><li>Click tracking and analytics</li><li>UTM parameter support</li></ul>
+      </div>
+      <div class="tool t-gold">
+        <div class="tool-icon">📋</div>
+        <div class="tool-name">Swipe File</div>
+        <div class="tool-desc">Ready-made promotional content for every platform. Social posts, video hooks, email templates and ad copy — all written and ready to use.</div>
+        <ul class="tool-features"><li>Platform-specific content</li><li>Multiple content types</li><li>Copy with one click</li><li>Regularly updated</li></ul>
+      </div>
+      <div class="tool t-green">
+        <div class="tool-icon">📢</div>
+        <div class="tool-name">Public Ad Board</div>
+        <div class="tool-desc">Post up to 5 free ads on the public SuperAdPro marketplace. Get your offers in front of real visitors with click tracking built in.</div>
+        <ul class="tool-features"><li>Public-facing marketplace</li><li>8 categories</li><li>Click tracking</li><li>Free for all members</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMP PLAN HIGHLIGHT -->
+  <div class="section">
+    <div class="comp-highlight">
+      <div class="comp-left">
+        <h3>95% of Every Dollar Goes Back to You</h3>
+        <p>One of the most transparent and generous compensation plans in the industry. Members qualify to earn commissions by actively participating — watching real video ads that deliver genuine value to advertisers. That value flows back through three stackable income streams.</p>
+        <a href="/compensation-plan" class="comp-btn">View Full Comp Plan →</a>
+      </div>
+      <div class="comp-stats">
+        <div class="cs"><div class="cs-val">95%</div><div class="cs-label">Payout Rate</div></div>
+        <div class="cs"><div class="cs-val">8</div><div class="cs-label">Levels Deep</div></div>
+        <div class="cs"><div class="cs-val">3</div><div class="cs-label">Income Streams</div></div>
+        <div class="cs"><div class="cs-val">∞</div><div class="cs-label">Pass-Up Depth</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VALUE COMPARISON -->
+  <div class="section">
+    <div class="compare">
+      <div class="compare-title">What You'd Pay Elsewhere vs. What You Get Here</div>
+      <div class="compare-grid">
+        <div class="compare-col">
+          <div class="compare-item">AI copywriting tool<span>$29/mo</span></div>
+          <div class="compare-item">Funnel builder<span>$49/mo</span></div>
+          <div class="compare-item">Link tracking tool<span>$19/mo</span></div>
+          <div class="compare-item">Email templates<span>$15/mo</span></div>
+          <div class="compare-item">Social media scheduler<span>$25/mo</span></div>
+          <div class="compare-item">Video script service<span>$39/mo</span></div>
+          <div class="compare-item" style="font-weight:700;font-size:16px">Total<span style="font-size:18px">$176/mo</span></div>
+        </div>
+        <div class="compare-vs">VS</div>
+        <div class="compare-col">
+          <div class="compare-item">AI Campaign Studio<span>✓</span></div>
+          <div class="compare-item">Funnel Builder (8 templates)<span>✓</span></div>
+          <div class="compare-item">Link Tools + Rotators<span>✓</span></div>
+          <div class="compare-item">Email Swipe Library<span>✓</span></div>
+          <div class="compare-item">Social Post Generator<span>✓</span></div>
+          <div class="compare-item">Video Script Generator<span>✓</span></div>
+          <div class="compare-item" style="font-weight:700;font-size:16px">SuperAdPro<span style="font-size:18px;color:#38bdf8">$20/mo</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINAL CTA -->
+  <div class="final-cta">
+    <h2>Ready to Build<br>Something <em>Real</em>?</h2>
+    <p>Three income streams. A full AI marketing toolkit. A transparent comp plan. All for $20/month.</p>
+    <div class="cta-btns">
+      <a href="/vip" class="btn-big btn-blue">🚀 Join the VIP Waiting List</a>
+      <a href="/compensation-plan" class="btn-big btn-ghost">View Comp Plan</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">© 2026 SuperAdPro. All rights reserved. · <a href="/">superadpro.com</a></div>
+</body>
+</html>

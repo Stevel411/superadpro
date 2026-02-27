@@ -2267,6 +2267,14 @@ def delete_rotator(rotator_id: int, user: User = Depends(get_current_user),
 
 
 # ═══════════════════════════════════════════════════
+#  WHAT YOU GET — SHOWCASE PAGE
+# ═══════════════════════════════════════════════════
+@app.get("/what-you-get")
+def what_you_get(request: Request):
+    return templates.TemplateResponse("what-you-get.html", {"request": request})
+
+
+# ═══════════════════════════════════════════════════
 #  PUBLIC AD BOARD
 # ═══════════════════════════════════════════════════
 AD_CATEGORIES = [
