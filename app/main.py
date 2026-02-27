@@ -26,7 +26,7 @@ from .grid import (
 )
 from .email_utils import send_password_reset_email
 from .video_utils import parse_video_url, platform_label, platform_colour
-from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator
+from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick
 from .database import PasswordResetToken
 import secrets
 from datetime import timedelta
@@ -2306,6 +2306,59 @@ def delete_short_link(link_id: int, user: User = Depends(get_current_user),
     return {"success": True}
 
 
+@app.get("/api/links/analytics/{link_id}")
+def link_analytics(link_id: int, link_type: str = "short",
+                   user: User = Depends(get_current_user),
+                   db: Session = Depends(get_db)):
+    """Return click analytics: sources breakdown + clicks over last 30 days."""
+    if not user:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+    from datetime import date, timedelta
+    from sqlalchemy import func
+
+    # Verify ownership
+    if link_type == "rotator":
+        owner_check = db.query(LinkRotator).filter(LinkRotator.id == link_id, LinkRotator.user_id == user.id).first()
+    else:
+        owner_check = db.query(ShortLink).filter(ShortLink.id == link_id, ShortLink.user_id == user.id).first()
+    if not owner_check:
+        return JSONResponse({"error": "Link not found"}, status_code=404)
+
+    clicks = db.query(LinkClick).filter(
+        LinkClick.link_id == link_id, LinkClick.link_type == link_type
+    ).all()
+
+    # Source breakdown
+    source_counts = {}
+    device_counts = {"mobile": 0, "desktop": 0}
+    for c in clicks:
+        src = c.source or "direct"
+        source_counts[src] = source_counts.get(src, 0) + 1
+        dev = c.device or "desktop"
+        device_counts[dev] = device_counts.get(dev, 0) + 1
+
+    # Clicks per day (last 30 days)
+    today = date.today()
+    daily = {}
+    for c in clicks:
+        if c.clicked_at:
+            day = c.clicked_at.date().isoformat()
+            daily[day] = daily.get(day, 0) + 1
+
+    # Fill in zeros for missing days
+    timeline = []
+    for i in range(29, -1, -1):
+        d = (today - timedelta(days=i)).isoformat()
+        timeline.append({"date": d, "clicks": daily.get(d, 0)})
+
+    return {
+        "total_clicks": len(clicks),
+        "sources": source_counts,
+        "devices": device_counts,
+        "timeline": timeline
+    }
+
+
 @app.post("/api/rotators/create")
 async def create_rotator(request: Request, user: User = Depends(get_current_user),
                           db: Session = Depends(get_db)):
@@ -2532,16 +2585,36 @@ def vip_export(user: User = Depends(get_current_user), db: Session = Depends(get
 
 
 @app.get("/go/{slug}")
-def go_redirect(slug: str, db: Session = Depends(get_db)):
-    """Redirect /go/slug to destination URL with click tracking."""
+def go_redirect(slug: str, request: Request, db: Session = Depends(get_db)):
+    """Redirect /go/slug to destination URL with detailed click tracking."""
     from datetime import datetime
     import json, random
+
+    # Derive source from referrer
+    referrer = request.headers.get("referer", "") or ""
+    source = "direct"
+    ref_lower = referrer.lower()
+    for domain, label in [("facebook.com","facebook"),("fb.com","facebook"),("instagram.com","instagram"),
+                          ("twitter.com","x"),("x.com","x"),("linkedin.com","linkedin"),("reddit.com","reddit"),
+                          ("tiktok.com","tiktok"),("youtube.com","youtube"),("google.com","google"),("bing.com","bing"),
+                          ("pinterest.com","pinterest"),("t.co","x"),("whatsapp.com","whatsapp"),("wa.me","whatsapp")]:
+        if domain in ref_lower:
+            source = label
+            break
+    else:
+        if referrer and "superadpro" not in ref_lower:
+            source = "other"
+
+    # Detect device from user-agent
+    ua = (request.headers.get("user-agent", "") or "").lower()
+    device = "mobile" if any(d in ua for d in ["mobile","android","iphone","ipad"]) else "desktop"
 
     # Check short links first
     link = db.query(ShortLink).filter(ShortLink.slug == slug).first()
     if link:
         link.clicks = (link.clicks or 0) + 1
         link.last_clicked = datetime.utcnow()
+        db.add(LinkClick(link_id=link.id, link_type="short", source=source, referrer=referrer[:500], device=device))
         db.commit()
         return RedirectResponse(url=link.destination_url, status_code=302)
 
@@ -2574,6 +2647,7 @@ def go_redirect(slug: str, db: Session = Depends(get_db)):
         rotator.destinations_json = json.dumps(dests)
         rotator.total_clicks = (rotator.total_clicks or 0) + 1
         rotator.last_clicked = datetime.utcnow()
+        db.add(LinkClick(link_id=rotator.id, link_type="rotator", source=source, referrer=referrer[:500], device=device))
         db.commit()
         return RedirectResponse(url=chosen["url"], status_code=302)
 

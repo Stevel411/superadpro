@@ -362,6 +362,18 @@ class LinkRotator(Base):
     created_at      = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+class LinkClick(Base):
+    """Individual click event for analytics — tracks source, time, and device."""
+    __tablename__ = "link_clicks"
+    id          = Column(Integer, primary_key=True, index=True)
+    link_id     = Column(Integer, index=True)          # ShortLink or LinkRotator ID
+    link_type   = Column(String, default="short")      # "short" or "rotator"
+    source      = Column(String, nullable=True)        # Derived from referrer: facebook, google, direct, etc.
+    referrer    = Column(Text, nullable=True)           # Raw HTTP referer header
+    country     = Column(String, nullable=True)         # Future: GeoIP
+    device      = Column(String, nullable=True)         # mobile / desktop / tablet
+    clicked_at  = Column(DateTime, default=datetime.utcnow, index=True)
+
 Base.metadata.create_all(bind=engine)
 
 # ── Auto-migration: add missing columns if they don't exist ──────────────
@@ -453,6 +465,7 @@ try:
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS swipe_file_uses INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS swipe_file_total INTEGER DEFAULT 0"))
         conn.execute(text("CREATE TABLE IF NOT EXISTS ai_response_cache (id SERIAL PRIMARY KEY, tool VARCHAR, prompt_hash VARCHAR UNIQUE, response TEXT, hit_count INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), expires_at TIMESTAMP)"))
+        conn.execute(text("CREATE TABLE IF NOT EXISTS link_clicks (id SERIAL PRIMARY KEY, link_id INTEGER, link_type VARCHAR DEFAULT 'short', source VARCHAR, referrer TEXT, country VARCHAR, device VARCHAR, clicked_at TIMESTAMP DEFAULT NOW())"))
         # Mark existing users as onboarding complete (they don't need the wizard)
         conn.execute(text("UPDATE users SET onboarding_completed = TRUE WHERE onboarding_completed IS NULL OR (created_at < NOW() - INTERVAL '1 hour')"))
         conn.commit()
