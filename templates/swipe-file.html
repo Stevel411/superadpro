@@ -218,6 +218,25 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
           </div>
         </div>
 
+        <!-- AI FRESH SWIPES GENERATOR -->
+        <div style="background:linear-gradient(135deg,#eff6ff,#f0fdf4);border:1px solid #86efac;border-radius:14px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <div style="font-size:15px;font-weight:800;color:#0f172a;margin-bottom:4px">🤖 Generate Fresh Swipes</div>
+            <div style="font-size:12px;color:#64748b">AI creates unique marketing copy tailored to your niche</div>
+          </div>
+          <select id="aiCategory" style="padding:8px 14px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;background:#fff;color:#0f172a;cursor:pointer">
+            <option value="hooks">🎣 Hooks</option>
+            <option value="email">📧 Email Copy</option>
+            <option value="social">📱 Social Captions</option>
+            <option value="video">🎬 Video Scripts</option>
+            <option value="whatsapp">💬 WhatsApp/DMs</option>
+            <option value="headline">💥 Headlines</option>
+          </select>
+          <input id="aiNiche" type="text" placeholder="Enter niche (e.g. fitness, crypto)" value="make money online" style="padding:8px 14px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;font-family:inherit;width:200px">
+          <button onclick="generateSwipes()" id="aiGenBtn" style="padding:8px 20px;background:linear-gradient(135deg,#10b981,#34d399);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s;white-space:nowrap">⚡ Generate</button>
+          <div id="aiStatus" style="font-size:11px;color:#64748b;width:100%;text-align:right"></div>
+        </div>
+
         <!-- FILTER BAR -->
         <div class="filter-bar">
           <span class="filter-label">Filter:</span>
@@ -354,6 +373,7 @@ function renderCards(filtered) {
     const realIdx = SWIPES.indexOf(s);
     const catClass = {hooks:'cat-hooks',email:'cat-email',social:'cat-social',video:'cat-video',whatsapp:'cat-whatsapp',headline:'cat-headline'}[s.cat];
     const catLabel = {hooks:'🎣 Hook',email:'📧 Email',social:'📱 Social',video:'🎬 Video',whatsapp:'💬 WhatsApp',headline:'💥 Headline'}[s.cat];
+    const aiBadge = s.ai ? '<span style="font-size:10px;font-weight:700;background:linear-gradient(135deg,#10b981,#34d399);color:#fff;padding:2px 8px;border-radius:6px;margin-left:6px">🤖 AI</span>' : '';
     const tags = s.tags.map(t => `<span class="card-tag">${t}</span>`).join('');
     const previewText = s.text.length > 200 ? s.text.slice(0,200)+'…' : s.text;
     const div = document.createElement('div');
@@ -363,7 +383,7 @@ function renderCards(filtered) {
     div.innerHTML = `
       <div class="card-top">
         <div class="card-meta">
-          <span class="card-category ${catClass}">${catLabel}</span>
+          <span class="card-category ${catClass}">${catLabel}</span>${aiBadge}
           <span class="card-platform">${s.platform}</span>
         </div>
         <div class="card-text">${previewText.replace(/\n/g,'<br>')}</div>
@@ -409,6 +429,55 @@ function copySwipe(btn, idx) {
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
   });
+}
+
+// AI Generate Fresh Swipes
+async function generateSwipes() {
+  const btn = document.getElementById('aiGenBtn');
+  const status = document.getElementById('aiStatus');
+  const cat = document.getElementById('aiCategory').value;
+  const niche = document.getElementById('aiNiche').value.trim() || 'make money online';
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating...';
+  btn.style.opacity = '0.6';
+  status.textContent = '';
+
+  try {
+    const res = await fetch('/api/swipe-file/generate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ category: cat, niche: niche })
+    });
+    const data = await res.json();
+
+    if (data.error) {
+      status.textContent = '❌ ' + data.error;
+      status.style.color = '#ef4444';
+      return;
+    }
+
+    // Prepend AI swipes to the SWIPES array
+    if (data.swipes && data.swipes.length > 0) {
+      data.swipes.forEach(s => {
+        s.ai = true; // mark as AI-generated
+        SWIPES.unshift(s);
+      });
+      renderCards();
+      // Scroll to top of grid
+      document.getElementById('swipeGrid').scrollIntoView({ behavior: 'smooth' });
+      status.textContent = `✅ ${data.swipes.length} fresh swipes added! (${data.used}/${data.limit} daily uses)`;
+      status.style.color = '#059669';
+      if (data.cached) status.textContent += ' (from cache)';
+    }
+  } catch(e) {
+    status.textContent = '❌ Network error. Try again.';
+    status.style.color = '#ef4444';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⚡ Generate';
+    btn.style.opacity = '1';
+  }
 }
 
 // Initial render

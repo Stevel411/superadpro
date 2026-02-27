@@ -3759,6 +3759,95 @@ def swipe_file(request: Request, user: User = Depends(get_current_user),
     return templates.TemplateResponse("swipe-file.html", ctx)
 
 
+@app.post("/api/swipe-file/generate")
+async def generate_swipes(request: Request, user: User = Depends(get_current_user),
+                           db: Session = Depends(get_db)):
+    """AI-generate fresh marketing swipes using Haiku (cost-optimised)."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # Quota check
+    rl = check_and_increment_ai_quota(db, user.id, "swipe_file")
+    if not rl["allowed"]:
+        return JSONResponse({"error": f"Daily AI limit reached ({rl['used']}/{rl['limit']}). Resets in {rl['resets_in']}.", "rate_limited": True}, status_code=429)
+
+    body = await request.json()
+    category = body.get("category", "hooks")
+    niche = body.get("niche", "make money online")
+
+    cat_labels = {
+        "hooks": "curiosity hooks / openers",
+        "email": "email subject lines and body copy",
+        "social": "social media captions (Instagram, Facebook, LinkedIn)",
+        "video": "video script openings and CTAs",
+        "whatsapp": "WhatsApp / DM message templates",
+        "headline": "headlines and ad copy"
+    }
+    cat_desc = cat_labels.get(category, "marketing copy")
+
+    prompt = f"""Generate exactly 4 unique {cat_desc} for promoting SuperAdPro in the "{niche}" niche.
+
+SuperAdPro is a video advertising platform with 3 income streams, 95% payouts, an 8×8 Income Grid, and AI marketing tools. Members earn by watching video ads and referring others.
+
+For each swipe, output this exact JSON format (no markdown, no code fences, just raw JSON array):
+[
+  {{"cat":"{category}","platform":"<best platform>","niche":"{niche}","tags":["<tag1>","<tag2>"],"text":"<the full swipe copy>"}},
+  ...
+]
+
+Requirements:
+- Each swipe must be different in angle/approach
+- Use natural, conversational language — not salesy or scammy
+- Include specific details about the platform (3 income streams, 95% payout, video ads)
+- Platform should be one of: All Platforms, YouTube, TikTok, Instagram, Facebook, LinkedIn, Email, WhatsApp
+- Tags should be 2 relevant keywords like: curiosity, income, proof, relatable, urgency, question, bold
+- Keep each swipe between 50-200 words"""
+
+    # Check cache first
+    cached = get_cached_response(db, "swipe_file", prompt)
+    if cached:
+        try:
+            import json
+            swipes = json.loads(cached)
+            return {"swipes": swipes, "cached": True, "used": rl["used"], "limit": rl["limit"]}
+        except:
+            pass
+
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        # Demo mode — return sample swipes
+        demo = [
+            {"cat": category, "platform": "All Platforms", "niche": niche, "tags": ["demo", "sample"],
+             "text": f"🚀 Demo Mode — Add your ANTHROPIC_API_KEY to Railway to unlock AI swipe generation. This would generate fresh {cat_desc} for the {niche} niche."},
+        ]
+        return {"swipes": demo, "demo": True, "used": rl["used"], "limit": rl["limit"]}
+
+    try:
+        import anthropic, json
+        client = anthropic.Anthropic(api_key=api_key)
+        message = client.messages.create(
+            model=AI_MODEL_HAIKU,  # Cost-optimised
+            max_tokens=1500,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        raw = message.content[0].text.strip()
+        # Strip markdown fences if present
+        if raw.startswith("```"):
+            raw = raw.split("\n", 1)[1] if "\n" in raw else raw[3:]
+        if raw.endswith("```"):
+            raw = raw[:-3]
+        raw = raw.strip()
+
+        swipes = json.loads(raw)
+        # Cache the response
+        cache_response(db, "swipe_file", prompt, json.dumps(swipes))
+        return {"swipes": swipes, "cached": False, "used": rl["used"], "limit": rl["limit"]}
+    except json.JSONDecodeError:
+        return JSONResponse({"error": "AI returned invalid format. Try again."}, status_code=500)
+    except Exception as e:
+        return JSONResponse({"error": f"AI generation failed: {str(e)[:100]}"}, status_code=500)
+
+
 
 # ── Test email sending ────────────
 @app.get("/admin/test-email")
