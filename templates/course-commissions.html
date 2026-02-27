@@ -4,146 +4,229 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Course Commissions — SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+body{background:#f0f2f8;color:#0f172a;font-family:'DM Sans',sans-serif;min-height:100vh}
 a{text-decoration:none;color:inherit}
 
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:200}
-.topbar-left{display:flex;align-items:center;gap:12px}
-.topbar-left a{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:14px;font-weight:600;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
-.topbar-left a:hover{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
-.topbar-right .logo{font-family:Sora,sans-serif;font-weight:800;font-size:18px;color:#fff;letter-spacing:-0.5px}
-.topbar-right .logo span{color:#0ea5e9}
+/* ── Topbar ── */
+.topbar{position:sticky;top:0;z-index:50;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 32px;height:70px;display:grid;grid-template-columns:auto 1fr auto;align-items:center}
+.back-btn{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:14px;font-weight:600;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
+.back-btn:hover{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
+.topbar-centre{text-align:center}
+.topbar-title{font-family:Sora,sans-serif;font-size:20px;font-weight:800;color:#fff}
+.topbar-sub{font-size:12px;color:rgba(148,163,184,0.6);margin-top:2px}
+.topbar-right{display:flex;align-items:center;gap:14px;justify-content:flex-end}
+.balance-chip{background:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:6px 14px;text-align:center}
+.balance-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8}
+.balance-val{font-size:15px;font-weight:800;color:#16a34a}
+.balance-unit{font-size:11px;color:#94a3b8;margin-left:3px}
 
-.wrap{max-width:1000px;margin:0 auto;padding:32px 24px}
-h1{font-family:Sora,sans-serif;font-size:28px;font-weight:800;margin-bottom:8px}
-.subtitle{color:#64748b;font-size:15px;margin-bottom:28px}
+/* ── Mobile Topbar ── */
+.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:10px 16px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:101}
+.mobile-topbar-left{display:flex;align-items:center;gap:10px;text-decoration:none}
+.mobile-topbar-name{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff}
+.mobile-balance-chip{font-size:16px;font-weight:800;color:#16a34a;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:8px;padding:6px 12px}
 
-/* Stats Row */
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:32px}
-.stat{background:#fff;border-radius:14px;border:1px solid #e2e8f0;padding:20px;text-align:center}
-.stat .val{font-family:Sora,sans-serif;font-size:26px;font-weight:800;color:#0ea5e9}
-.stat .val.green{color:#059669}
-.stat .lbl{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;margin-top:4px}
+.container{max-width:1140px;margin:0 auto;padding:28px 28px 80px}
 
-/* Owned Tiers */
-.tiers-row{display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap}
-.tier-pill{padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;border:1px solid #e2e8f0;background:#f8fafc;color:#94a3b8}
-.tier-pill.owned{background:#dcfce7;border-color:#86efac;color:#059669}
+/* ── Hero ── */
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;align-items:stretch}
+.hero-main{background:linear-gradient(135deg,#059669 0%,#10b981 40%,#34d399 100%);border-radius:24px;padding:40px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+.hero-main::before{content:'';position:absolute;top:-40%;right:-20%;width:350px;height:350px;border-radius:50%;background:rgba(255,255,255,0.06);filter:blur(60px)}
+.hero-main::after{content:'';position:absolute;bottom:-30%;left:-10%;width:250px;height:250px;border-radius:50%;background:rgba(255,255,255,0.04);filter:blur(40px)}
+.hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:12px;position:relative;z-index:1}
+.hero-h1{font-family:Sora,sans-serif;font-size:36px;font-weight:800;color:#fff;line-height:1.1;margin-bottom:12px;position:relative;z-index:1}
+.hero-h1 span{color:#d1fae5}
+.hero-desc{font-size:15px;color:rgba(255,255,255,0.7);line-height:1.6;max-width:380px;position:relative;z-index:1}
 
-/* Tracker */
-.tracker-section{margin-bottom:32px}
-.tracker-section h2{font-family:Sora,sans-serif;font-size:18px;font-weight:700;margin-bottom:14px}
-.tracker-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
-.tracker-card{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:16px}
-.tracker-card h3{font-size:14px;font-weight:700;margin-bottom:8px}
-.tracker-card .detail{font-size:13px;color:#64748b;line-height:1.6}
-.tracker-card .detail strong{color:#0f172a}
-.badge-passup{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:#fef3c7;color:#b45309;margin-top:4px}
-.badge-earning{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:#dcfce7;color:#059669;margin-top:4px}
+.hero-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;position:relative;overflow:hidden;transition:all 0.3s;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,165,233,0.1)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
+.stat-card.c1::before{background:linear-gradient(90deg,#10b981,#34d399)}
+.stat-card.c2::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}
+.stat-card.c3::before{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
+.stat-card.c4::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.stat-icon{font-size:24px;margin-bottom:10px}
+.stat-val{font-family:Sora,sans-serif;font-size:30px;font-weight:800;line-height:1}
+.stat-val.c1{color:#16a34a}.stat-val.c2{color:#0ea5e9}.stat-val.c3{color:#7c3aed}.stat-val.c4{color:#f59e0b}
+.stat-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#94a3b8;margin-top:4px}
 
-/* Commission Table */
-.table-section h2{font-family:Sora,sans-serif;font-size:18px;font-weight:700;margin-bottom:14px}
-.table-wrap{background:#fff;border-radius:14px;border:1px solid #e2e8f0;overflow-x:auto}
+/* ── Tier Tracker Cards (styled like grid cards) ── */
+.section-title{font-family:Sora,sans-serif;font-size:18px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.tracker-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.tracker-card{background:#fff;border:1px solid #e2e8f0;border-radius:20px;overflow:hidden;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
+.tracker-card-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #f1f5f9}
+.tracker-card-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.tracker-card-title .dot{width:10px;height:10px;border-radius:50%}
+.dot.t1{background:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,0.15)}
+.dot.t2{background:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,0.15)}
+.dot.t3{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,0.15)}
+.tracker-card-body{padding:18px 22px}
+.tracker-stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f8fafc}
+.tracker-stat:last-child{border-bottom:none}
+.tracker-stat .lbl{font-size:13px;color:#64748b}
+.tracker-stat .val{font-size:13px;font-weight:700;color:#0f172a}
+.badge-status{font-size:10px;font-weight:700;padding:3px 10px;border-radius:12px}
+.badge-earning{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:#10b981}
+.badge-waiting{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);color:#f59e0b}
+.badge-locked{background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.2);color:#94a3b8}
+
+/* ── Commission History Table (styled like grid card) ── */
+.table-card{background:#fff;border:1px solid #e2e8f0;border-radius:20px;overflow:hidden;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
+.table-card-head{display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-bottom:1px solid #f1f5f9}
+.table-card-title{font-size:17px;font-weight:700;display:flex;align-items:center;gap:10px}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;padding:12px 16px;border-bottom:2px solid #e2e8f0;font-weight:700;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px}
-td{padding:12px 16px;border-bottom:1px solid #f1f5f9}
+th{text-align:left;padding:12px 20px;border-bottom:2px solid #e2e8f0;font-weight:700;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+td{padding:12px 20px;border-bottom:1px solid #f1f5f9}
 tr:last-child td{border-bottom:none}
-.type-direct{background:#dcfce7;color:#059669;font-weight:700;font-size:11px;padding:3px 10px;border-radius:10px}
-.type-passup{background:#ede9fe;color:#7c3aed;font-weight:700;font-size:11px;padding:3px 10px;border-radius:10px}
-.type-platform{background:#f1f5f9;color:#64748b;font-weight:700;font-size:11px;padding:3px 10px;border-radius:10px}
-.empty-state{text-align:center;padding:40px;color:#94a3b8;font-size:15px}
+tr:hover{background:#f8fafc}
+.type-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;display:inline-block}
+.type-direct{background:rgba(16,185,129,0.08);color:#059669}
+.type-passup{background:rgba(124,58,237,0.08);color:#7c3aed}
+.type-platform{background:rgba(148,163,184,0.08);color:#64748b}
+.empty-state{text-align:center;padding:60px 24px}
+.empty-icon{font-size:48px;margin-bottom:16px}
+.empty-title{font-family:Sora,sans-serif;font-size:22px;font-weight:800;margin-bottom:10px}
+.empty-sub{font-size:15px;color:#64748b;max-width:480px;margin:0 auto 24px;line-height:1.6}
+.empty-cta{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff;font-size:15px;font-weight:700;padding:12px 28px;border-radius:12px;text-decoration:none;box-shadow:0 4px 14px rgba(124,58,237,0.3);transition:all 0.2s}
+.empty-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,58,237,0.35)}
 
 .footer{text-align:center;padding:24px;color:#94a3b8;font-size:12px;border-top:1px solid #e2e8f0;margin-top:24px}
 
+@media(max-width:900px){.hero{grid-template-columns:1fr}.tracker-row{grid-template-columns:1fr}}
 @media(max-width:640px){
-  .topbar{padding:0 16px}
-  .wrap{padding:24px 16px}
-  .stats-row{grid-template-columns:1fr 1fr}
+  .topbar{display:none}.mobile-topbar{display:flex!important}
+  .hero{grid-template-columns:1fr}.hero-main{padding:28px}.hero-h1{font-size:28px}
+  .hero-stats-grid{grid-template-columns:1fr 1fr}.stat-card{padding:16px}.stat-val{font-size:24px}
+  .container{padding:20px 16px 60px}
+  .tracker-row{grid-template-columns:1fr}
+  th,td{padding:10px 14px;font-size:12px}
 }
 </style>
 </head>
 <body>
 
+<!-- ── Mobile Topbar ── -->
+<div class="mobile-topbar">
+  <a class="mobile-topbar-left" href="/dashboard">
+    <svg width="28" height="28" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#mlg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="mlg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#10b981"/><stop offset="1" stop-color="#34d399"/></linearGradient></defs></svg>
+    <span class="mobile-topbar-name">SuperAdPro</span>
+  </a>
+  <div class="mobile-balance-chip">${{ '%.2f'|format(user.balance) }} USDT</div>
+</div>
+
+<!-- ── Desktop Topbar ── -->
 <div class="topbar">
-  <div class="topbar-left">
-    <a href="/dashboard">Dashboard</a>
-    <a href="/courses">📚 Courses</a>
+  <a href="/courses" class="back-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+    Courses
+  </a>
+  <div class="topbar-centre">
+    <div class="topbar-title">💰 Course <span style="color:#34d399">Commissions</span></div>
+    <div class="topbar-sub">Track your sales, pass-ups & earnings</div>
   </div>
   <div class="topbar-right">
-    <div class="logo">Super<span>Ad</span>Pro</div>
+    <a href="/dashboard" class="back-btn">Dashboard</a>
+    <div class="balance-chip">
+      <div class="balance-label">Balance</div>
+      <div><span class="balance-val">${{ '%.2f'|format(user.balance) }}</span><span class="balance-unit">USDT</span></div>
+    </div>
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <svg width="32" height="32" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-tb)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-tb" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#10b981"/><stop offset="1" stop-color="#34d399"/></linearGradient></defs></svg>
+      <span style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff">Super<span style="color:#34d399">Ad</span>Pro</span>
+    </a>
   </div>
 </div>
 
-<div class="wrap">
-  <h1>💰 Course Commissions</h1>
-  <p class="subtitle">Track your course sales, pass-ups and earnings.</p>
+<div class="container">
 
-  <!-- Stats -->
-  <div class="stats-row">
-    <div class="stat">
-      <div class="val green">${{ "%.2f"|format(stats.total_earned) }}</div>
-      <div class="lbl">Total Earned</div>
+  <!-- ── Hero Section ── -->
+  <div class="hero">
+    <div class="hero-main">
+      <div class="hero-eyebrow">Commission Dashboard</div>
+      <div class="hero-h1">Your Course<br><span>Earnings</span> 💰</div>
+      <div class="hero-desc">Track every commission — direct sales and infinite pass-ups flowing from depth you didn't even build.</div>
     </div>
-    <div class="stat">
-      <div class="val">{{ stats.total_sales }}</div>
-      <div class="lbl">Total Sales</div>
-    </div>
-    <div class="stat">
-      <div class="val">{{ stats.direct_commissions }}</div>
-      <div class="lbl">Direct Commissions</div>
-    </div>
-    <div class="stat">
-      <div class="val">{{ stats.passup_commissions }}</div>
-      <div class="lbl">Pass-Up Commissions</div>
+    <div class="hero-stats-grid">
+      <div class="stat-card c1">
+        <div class="stat-icon">💰</div>
+        <div class="stat-val c1">${{ '%.2f'|format(stats.total_earned) }}</div>
+        <div class="stat-label">Total Earned</div>
+      </div>
+      <div class="stat-card c2">
+        <div class="stat-icon">📈</div>
+        <div class="stat-val c2">{{ stats.total_sales }}</div>
+        <div class="stat-label">Total Sales</div>
+      </div>
+      <div class="stat-card c3">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-val c3">{{ stats.direct_commissions }}</div>
+        <div class="stat-label">Direct</div>
+      </div>
+      <div class="stat-card c4">
+        <div class="stat-icon">🔄</div>
+        <div class="stat-val c4">{{ stats.passup_commissions }}</div>
+        <div class="stat-label">Pass-Ups</div>
+      </div>
     </div>
   </div>
 
-  <!-- Owned Tiers -->
-  <div class="tiers-row">
-    <div class="tier-pill {{ 'owned' if 1 in stats.owned_tiers else '' }}">
-      {% if 1 in stats.owned_tiers %}✓{% else %}🔒{% endif %} Tier 1 — $100
-    </div>
-    <div class="tier-pill {{ 'owned' if 2 in stats.owned_tiers else '' }}">
-      {% if 2 in stats.owned_tiers %}✓{% else %}🔒{% endif %} Tier 2 — $300
-    </div>
-    <div class="tier-pill {{ 'owned' if 3 in stats.owned_tiers else '' }}">
-      {% if 3 in stats.owned_tiers %}✓{% else %}🔒{% endif %} Tier 3 — $500
-    </div>
-  </div>
-
-  <!-- Per-Tier Tracker -->
-  <div class="tracker-section">
-    <h2>Sales Tracker by Tier</h2>
-    <div class="tracker-grid">
-      {% for tier_num in [1, 2, 3] %}
-      <div class="tracker-card">
-        <h3>Tier {{ tier_num }}</h3>
-        {% if tier_num in stats.trackers %}
-          {% set t = stats.trackers[tier_num] %}
-          <div class="detail">
-            Sales made: <strong>{{ t.sales }}</strong><br>
-            {% if t.passed_up %}
-              <span class="badge-earning">✓ 1st sale passed up — now earning</span>
-            {% elif t.sales == 0 %}
-              <span class="badge-passup">Awaiting 1st sale (will pass up)</span>
-            {% endif %}
-          </div>
+  <!-- ── Per-Tier Tracker ── -->
+  <div class="section-title">📊 Sales Tracker by Tier</div>
+  <div class="tracker-row">
+    {% for tier_num in [1, 2, 3] %}
+    {% set tier_names = {1: 'Starter · $100', 2: 'Advanced · $300', 3: 'Elite · $500'} %}
+    <div class="tracker-card">
+      <div class="tracker-card-head">
+        <div class="tracker-card-title">
+          <div class="dot t{{ tier_num }}"></div>
+          Tier {{ tier_num }}
+        </div>
+        {% if tier_num in stats.owned_tiers %}
+          {% if tier_num in stats.trackers and stats.trackers[tier_num].passed_up %}
+            <span class="badge-status badge-earning">✓ Earning</span>
+          {% else %}
+            <span class="badge-status badge-waiting">Awaiting 1st Sale</span>
+          {% endif %}
         {% else %}
-          <div class="detail">No sales yet at this tier.</div>
+          <span class="badge-status badge-locked">🔒 Not Owned</span>
         {% endif %}
       </div>
-      {% endfor %}
+      <div class="tracker-card-body">
+        <div class="tracker-stat">
+          <span class="lbl">Course</span>
+          <span class="val">{{ tier_names[tier_num] }}</span>
+        </div>
+        <div class="tracker-stat">
+          <span class="lbl">Owned</span>
+          <span class="val">{{ '✓ Yes' if tier_num in stats.owned_tiers else '✗ No' }}</span>
+        </div>
+        <div class="tracker-stat">
+          <span class="lbl">Sales Made</span>
+          <span class="val">{{ stats.trackers[tier_num].sales if tier_num in stats.trackers else 0 }}</span>
+        </div>
+        <div class="tracker-stat">
+          <span class="lbl">1st Sale Passed Up</span>
+          <span class="val">{{ '✓ Yes' if tier_num in stats.trackers and stats.trackers[tier_num].passed_up else 'Not yet' }}</span>
+        </div>
+      </div>
     </div>
+    {% endfor %}
   </div>
 
-  <!-- Commission History -->
-  <div class="table-section">
-    <h2>Recent Commission History</h2>
-    <div class="table-wrap">
-      {% if commissions %}
+  <!-- ── Commission History ── -->
+  <div class="table-card">
+    <div class="table-card-head">
+      <div class="table-card-title">
+        📋 Recent Commission History
+      </div>
+      <span style="font-size:13px;color:#94a3b8">Last 50 transactions</span>
+    </div>
+    {% if commissions %}
+    <div style="overflow-x:auto">
       <table>
         <thead>
           <tr>
@@ -159,16 +242,16 @@ tr:last-child td{border-bottom:none}
           {% for c in commissions %}
           <tr>
             <td>{{ c.date.strftime('%d %b %Y %H:%M') }}</td>
-            <td>{{ c.buyer }}</td>
+            <td style="font-weight:600">{{ c.buyer }}</td>
             <td>Tier {{ c.tier }}</td>
-            <td><strong>${{ "%.2f"|format(c.amount) }}</strong></td>
+            <td style="font-weight:800;color:#16a34a">${{ '%.2f'|format(c.amount) }}</td>
             <td>
               {% if c.type == 'direct_sale' %}
-                <span class="type-direct">Direct</span>
+                <span class="type-badge type-direct">Direct</span>
               {% elif c.type == 'pass_up' %}
-                <span class="type-passup">Pass-Up</span>
+                <span class="type-badge type-passup">Pass-Up</span>
               {% else %}
-                <span class="type-platform">Platform</span>
+                <span class="type-badge type-platform">Platform</span>
               {% endif %}
             </td>
             <td>{{ c.depth if c.depth > 0 else '—' }}</td>
@@ -176,13 +259,17 @@ tr:last-child td{border-bottom:none}
           {% endfor %}
         </tbody>
       </table>
-      {% else %}
-      <div class="empty-state">
-        <p>No commissions yet. <a href="/courses" style="color:#0ea5e9;font-weight:700">Purchase a course</a> to start earning!</p>
-      </div>
-      {% endif %}
     </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <div class="empty-title">No Commissions Yet</div>
+      <div class="empty-sub">Purchase a course to qualify, then start referring. Your first sale at each tier passes up — then every sale after that is 100% yours.</div>
+      <a href="/courses" class="empty-cta">📚 Browse Courses →</a>
+    </div>
+    {% endif %}
   </div>
+
 </div>
 
 <div class="footer">
