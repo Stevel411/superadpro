@@ -309,7 +309,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
               {% if p.status == 'published' %}
               <a href="/p/{{ p.slug }}" target="_blank">View Live</a>
               {% endif %}
-              <button class="btn-danger" onclick="deletePage({{ p.id }}, '{{ p.title }}')">Delete</button>
+              <button class="btn-danger" onclick="deletePage({{ p.id }})">Delete</button>
             </div>
             {% if p.status == 'published' and p.slug %}
             <div class="page-url-row" style="margin-top:10px;display:flex;align-items:center;gap:6px;background:rgba(5,150,105,0.08);border:1px solid rgba(5,150,105,0.2);border-radius:8px;padding:8px 10px">
@@ -346,11 +346,14 @@ function copyUrl(inputId) {
   }
 }
 
-async function deletePage(id, title) {
-  if(!confirm('Delete "' + title + '"? This cannot be undone.')) return;
-  const res = await fetch('/api/funnels/delete/' + id, {method:'POST'});
-  if(res.ok) location.reload();
-  else alert('Error deleting page');
+async function deletePage(id) {
+  if(!confirm('Delete this page? This cannot be undone.')) return;
+  try {
+    const res = await fetch('/api/funnels/delete/' + id, {method:'POST'});
+    const data = await res.json();
+    if(data.success) location.reload();
+    else alert('Error: ' + (data.error || 'Could not delete'));
+  } catch(e) { alert('Network error'); console.error(e); }
 }
 
 async function useTemplate(niche) {

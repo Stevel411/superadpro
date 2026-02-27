@@ -35,9 +35,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 .sb-title{font-family:Sora,sans-serif;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#38bdf8}
 .sb-subtitle{font-size:11px;color:var(--text-dim)}
 .section-list{padding:0 12px 12px}
-.section-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid transparent;cursor:pointer;transition:all 0.15s;margin-bottom:4px}
+.section-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid transparent;cursor:pointer;transition:all 0.15s;margin-bottom:4px;user-select:none}
 .section-item:hover{background:var(--blue-dim);border-color:var(--border)}
-.section-item.active{background:rgba(14,165,233,0.12);border-color:rgba(14,165,233,0.25)}
+.section-item.active{background:rgba(14,165,233,0.15);border-color:rgba(14,165,233,0.35);box-shadow:0 0 0 1px rgba(14,165,233,0.15)}
 .si-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0}
 .si-name{font-size:13px;font-weight:600;color:var(--text);flex:1}
 .si-toggle{width:36px;height:20px;border-radius:10px;background:#334155;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0}
@@ -409,6 +409,7 @@ async function init(){
   ];
   document.querySelectorAll('#colourSwatches .swatch').forEach(s=>s.classList.toggle('active',s.dataset.theme===currentTheme));
   document.querySelectorAll('#accentSwatches .swatch').forEach(s=>s.classList.toggle('active',s.dataset.accent===currentAccent));
+  activeSection=0;
   renderAll();
 }
 setInterval(()=>savePage(),60000);
