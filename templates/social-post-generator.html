@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Social Post Generator — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#f4f7fc;color:#0f172a;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.25);position:sticky;top:0;z-index:200}
+.topbar-left{display:flex;align-items:center;gap:20px}
+.topbar-title{font-size:18px;font-weight:800;color:#fff}
+.topbar-sub{font-size:11px;color:rgba(200,220,255,0.4)}
+.tb-btn{display:flex;align-items:center;gap:6px;color:#94a3b8;text-decoration:none;font-size:13px;font-weight:600;padding:8px 16px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:rgba(255,255,255,0.03);transition:all 0.2s}
+.tb-btn:hover{border-color:rgba(56,189,248,0.3);color:#38bdf8}
+.topbar-user{display:flex;align-items:center;gap:10px;color:rgba(200,220,255,0.6);font-size:13px}
+.topbar-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
+
+.content{max-width:960px;margin:0 auto;padding:32px 24px}
+.page-hero{background:linear-gradient(135deg,#0c1929,#0a2540,#0e3a5c);border-radius:20px;padding:36px 32px;margin-bottom:28px;position:relative;overflow:hidden;border:1px solid rgba(56,189,248,0.12)}
+.page-hero::after{content:'';position:absolute;top:-40%;right:-10%;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,0.08),transparent 70%)}
+.page-hero h1{font-size:28px;font-weight:800;color:#fff;margin-bottom:6px;position:relative;z-index:2}
+.page-hero p{font-size:15px;color:rgba(186,230,253,0.5);line-height:1.6;position:relative;z-index:2}
+
+/* Two-col layout */
+.layout{display:grid;grid-template-columns:380px 1fr;gap:24px;align-items:start}
+.sidebar{position:sticky;top:88px}
+
+/* Form */
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
+.card-title{font-size:16px;font-weight:800;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#64748b;margin-bottom:5px}
+.fg input,.fg textarea,.fg select{width:100%;padding:11px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;color:#0f172a;outline:none;transition:all 0.2s;background:#fff}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,0.08)}
+.fg textarea{resize:vertical;min-height:70px}
+
+/* Platform pills */
+.plat-pills{display:flex;gap:6px;flex-wrap:wrap}
+.pp{font-size:12px;font-weight:600;padding:8px 14px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;transition:all 0.2s}
+.pp:hover{border-color:#0ea5e9;color:#0ea5e9}
+.pp.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-color:#0ea5e9;box-shadow:0 2px 8px rgba(14,165,233,0.2)}
+.pp input{display:none}
+
+/* Tone pills */
+.tone-pills{display:flex;gap:6px;flex-wrap:wrap}
+.tp{font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;transition:all 0.2s}
+.tp:hover{border-color:#8b5cf6;color:#8b5cf6}
+.tp.active{background:linear-gradient(135deg,#8b5cf6,#a78bfa);color:#fff;border-color:#8b5cf6}
+
+.gen-btn{width:100%;padding:14px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:15px;font-weight:700;font-family:inherit;border:none;border-radius:12px;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 16px rgba(14,165,233,0.25);margin-top:4px}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(14,165,233,0.35)}
+.gen-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+.gen-msg{text-align:center;margin-top:10px;font-size:13px;font-weight:600;min-height:18px}
+.msg-err{color:#ef4444}.msg-ok{color:#059669}
+.remaining{text-align:center;font-size:11px;color:#94a3b8;margin-top:8px}
+
+/* Output */
+.output-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px;box-shadow:0 1px 4px rgba(0,40,100,0.04);min-height:400px}
+.output-title{font-size:16px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.output-empty{text-align:center;padding:80px 20px;color:#94a3b8}
+.output-empty-icon{font-size:48px;margin-bottom:12px}
+.output-empty-text{font-size:14px}
+.output-content{font-size:14px;color:#334155;line-height:1.7;white-space:pre-wrap;word-wrap:break-word}
+.output-content h1,.output-content h2,.output-content h3{font-size:16px;font-weight:800;color:#0f172a;margin:20px 0 8px;padding-top:12px;border-top:1px solid #f1f5f9}
+.output-content strong{color:#0f172a}
+.copy-row{display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9}
+.copy-btn{font-size:13px;font-weight:600;padding:8px 18px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;transition:all 0.2s;font-family:inherit}
+.copy-btn:hover{border-color:#0ea5e9;color:#0ea5e9}
+
+/* Loading */
+.loading{display:none;text-align:center;padding:60px 20px}
+.spinner{width:40px;height:40px;border:3px solid #e2e8f0;border-top:3px solid #0ea5e9;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:#64748b}
+
+@media(max-width:800px){.layout{grid-template-columns:1fr}.sidebar{position:static}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/dashboard" class="tb-btn">← Dashboard</a>
+    <div><div class="topbar-title">📱 Social Post Generator</div><div class="topbar-sub">AI-powered · Marketing Suite</div></div>
+  </div>
+  <div class="topbar-user"><span>{{ user.username }}</span><div class="topbar-avatar">{{ user.username[0]|upper }}</div></div>
+</div>
+
+<div class="content">
+  <div class="page-hero">
+    <h1>📱 AI Social Media Post Generator</h1>
+    <p>Generate scroll-stopping posts for any platform in seconds. Just describe your offer, pick your platform and tone — AI does the rest. Copy, paste, post.</p>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div class="card">
+        <div class="card-title">⚡ Generate Posts</div>
+
+        <div class="fg"><label>What are you promoting?</label><textarea id="topic" placeholder="e.g. Free forex trading guide, SuperAdPro affiliate opportunity, weight loss programme, crypto course..."></textarea></div>
+
+        <div class="fg"><label>Your Niche</label><input type="text" id="niche" placeholder="e.g. forex trading, digital marketing, health" value="affiliate marketing"></div>
+
+        <div class="fg"><label>Platform</label>
+          <div class="plat-pills">
+            <label class="pp active" data-val="all"><input type="radio" name="platform" value="all" checked>📱 All Platforms</label>
+            <label class="pp" data-val="facebook"><input type="radio" name="platform" value="facebook">📘 Facebook</label>
+            <label class="pp" data-val="instagram"><input type="radio" name="platform" value="instagram">📸 Instagram</label>
+            <label class="pp" data-val="x"><input type="radio" name="platform" value="x">𝕏 X / Twitter</label>
+            <label class="pp" data-val="tiktok"><input type="radio" name="platform" value="tiktok">🎵 TikTok</label>
+            <label class="pp" data-val="linkedin"><input type="radio" name="platform" value="linkedin">💼 LinkedIn</label>
+          </div>
+        </div>
+
+        <div class="fg"><label>Tone</label>
+          <div class="tone-pills">
+            <label class="tp active" data-val="professional"><input type="radio" name="tone" value="professional" checked>Professional</label>
+            <label class="tp" data-val="casual"><input type="radio" name="tone" value="casual">Casual</label>
+            <label class="tp" data-val="hype"><input type="radio" name="tone" value="hype">High Energy</label>
+            <label class="tp" data-val="storytelling"><input type="radio" name="tone" value="storytelling">Story</label>
+            <label class="tp" data-val="educational"><input type="radio" name="tone" value="educational">Educational</label>
+          </div>
+        </div>
+
+        <div class="fg"><label>Your Link (optional)</label><input type="url" id="link" placeholder="https://your-link.com"></div>
+
+        <div class="fg"><label>Goal</label>
+          <select id="goal">
+            <option value="drive traffic">Drive Traffic to Link</option>
+            <option value="build engagement">Build Engagement</option>
+            <option value="generate leads">Generate Leads / DMs</option>
+            <option value="build authority">Build Authority</option>
+            <option value="promote product">Promote a Product</option>
+          </select>
+        </div>
+
+        <button class="gen-btn" id="genBtn" onclick="generate()">🚀 Generate Posts</button>
+        <div class="gen-msg" id="genMsg"></div>
+        <div class="remaining" id="remaining"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="output-card">
+        <div class="output-title">📋 Your Generated Posts</div>
+
+        <div id="emptyState" class="output-empty">
+          <div class="output-empty-icon">✍️</div>
+          <div class="output-empty-text">Fill in the form and hit Generate — your posts will appear here ready to copy and paste.</div>
+        </div>
+
+        <div id="loadingState" class="loading">
+          <div class="spinner"></div>
+          <div class="loading-text">Generating your posts...</div>
+        </div>
+
+        <div id="outputContent" class="output-content" style="display:none"></div>
+        <div id="copyRow" class="copy-row" style="display:none">
+          <button class="copy-btn" onclick="copyAll()">📋 Copy All Posts</button>
+          <button class="copy-btn" onclick="generate()">🔄 Regenerate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Platform pills
+document.querySelectorAll('.pp').forEach(p=>{
+  p.addEventListener('click',()=>{
+    document.querySelectorAll('.pp').forEach(x=>x.classList.remove('active'));
+    p.classList.add('active');
+  });
+});
+// Tone pills
+document.querySelectorAll('.tp').forEach(p=>{
+  p.addEventListener('click',()=>{
+    document.querySelectorAll('.tp').forEach(x=>x.classList.remove('active'));
+    p.classList.add('active');
+  });
+});
+
+async function generate(){
+  const btn=document.getElementById('genBtn');
+  const msg=document.getElementById('genMsg');
+  const topic=document.getElementById('topic').value.trim();
+  if(!topic){msg.className='gen-msg msg-err';msg.textContent='Please describe what you want to promote.';return}
+
+  const platform=document.querySelector('.pp.active').dataset.val;
+  const tone=document.querySelector('.tp.active').dataset.val;
+  const niche=document.getElementById('niche').value.trim();
+  const link=document.getElementById('link').value.trim();
+  const goal=document.getElementById('goal').value;
+
+  btn.disabled=true;btn.textContent='Generating...';msg.textContent='';
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('outputContent').style.display='none';
+  document.getElementById('copyRow').style.display='none';
+  document.getElementById('loadingState').style.display='block';
+
+  try{
+    const r=await fetch('/api/social-posts/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,niche,platform,tone,link,goal})});
+    const d=await r.json();
+    document.getElementById('loadingState').style.display='none';
+    if(d.success){
+      // Simple markdown-like rendering
+      let html=d.posts
+        .replace(/^### (.*$)/gm,'<h3>$1</h3>')
+        .replace(/^## (.*$)/gm,'<h2>$1</h2>')
+        .replace(/^# (.*$)/gm,'<h1>$1</h1>')
+        .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+        .replace(/---/g,'<hr style="border:none;border-top:1px solid #e2e8f0;margin:16px 0">');
+      document.getElementById('outputContent').innerHTML=html;
+      document.getElementById('outputContent').style.display='block';
+      document.getElementById('copyRow').style.display='flex';
+      if(d.remaining!==undefined){document.getElementById('remaining').textContent=d.remaining+' generations remaining today'}
+      msg.className='gen-msg msg-ok';msg.textContent='Posts generated!';
+    }else{
+      document.getElementById('emptyState').style.display='block';
+      msg.className='gen-msg msg-err';msg.textContent=d.error||'Generation failed';
+    }
+  }catch(e){
+    document.getElementById('loadingState').style.display='none';
+    document.getElementById('emptyState').style.display='block';
+    msg.className='gen-msg msg-err';msg.textContent='Network error. Try again.';
+  }
+  btn.disabled=false;btn.textContent='🚀 Generate Posts';
+}
+
+function copyAll(){
+  const text=document.getElementById('outputContent').innerText;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.querySelector('.copy-row .copy-btn');
+    btn.textContent='✅ Copied!';
+    setTimeout(()=>btn.textContent='📋 Copy All Posts',2000);
+  });
+}
+</script>
+</body>
+</html>

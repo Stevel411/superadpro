@@ -1465,6 +1465,7 @@ def admin_panel(request: Request, user: User = Depends(get_current_user),
 DAILY_LIMITS = {
     "campaign_studio": 10,
     "niche_finder":    10,
+    "social_posts":    15,
 }
 
 def check_and_increment_ai_quota(db: Session, user_id: int, tool: str) -> dict:
@@ -1484,6 +1485,7 @@ def check_and_increment_ai_quota(db: Session, user_id: int, tool: str) -> dict:
         quota.quota_date = today
         quota.campaign_studio_uses = 0
         quota.niche_finder_uses = 0
+        quota.social_posts_uses = 0
         db.commit()
 
     field = f"{tool}_uses"
@@ -3329,6 +3331,102 @@ IMPORTANT:
     except Exception as e:
         logging.error(f"Niche finder error: {e}")
         return JSONResponse({"error": "AI generation failed — please try again"}, status_code=500)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  AI SOCIAL MEDIA POST GENERATOR
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/social-post-generator")
+def social_post_generator_page(request: Request, user: User = Depends(get_current_user),
+                                db: Session = Depends(get_db)):
+    if not user: return RedirectResponse(url="/?login=1")
+    ctx = get_dashboard_context(request, user, db)
+    return templates.TemplateResponse("social-post-generator.html", ctx)
+
+
+@app.post("/api/social-posts/generate")
+async def generate_social_posts(request: Request, user: User = Depends(get_current_user)):
+    if not user:
+        from fastapi.responses import JSONResponse
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from fastapi.responses import JSONResponse
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    db_rl = next(get_db())
+    rl = check_and_increment_ai_quota(db_rl, user.id, "social_posts")
+    if not rl["allowed"]:
+        return JSONResponse({"error": f"Daily limit reached — {rl['limit']} generations per day. Resets in {rl['resets_in']}.", "rate_limited": True}, status_code=429)
+
+    topic     = body.get("topic", "")
+    niche     = body.get("niche", "affiliate marketing")
+    platform  = body.get("platform", "all")
+    tone      = body.get("tone", "professional")
+    link      = body.get("link", "")
+    goal      = body.get("goal", "drive traffic")
+
+    if not topic:
+        return JSONResponse({"error": "Please enter a topic or offer to promote"}, status_code=400)
+
+    link_instruction = f"\nInclude a call to action pointing to this link: {link}" if link else "\nInclude a generic call to action like 'Link in bio' or 'DM me for details'."
+
+    platform_specs = {
+        "facebook": "Write for Facebook. Longer form is fine (200-300 words). Use line breaks for readability. Include 3-5 relevant hashtags at the end.",
+        "instagram": "Write for Instagram. Keep it engaging and visual-language heavy. 150-200 words. End with 15-20 relevant hashtags on a separate line.",
+        "x": "Write for X (Twitter). Keep each post under 280 characters. Be punchy and direct. Include 2-3 hashtags max.",
+        "tiktok": "Write for TikTok captions. Keep it short, punchy and trendy. 100-150 words max. Use trending-style language. Include 5-8 hashtags.",
+        "linkedin": "Write for LinkedIn. Professional tone, value-driven. 200-300 words. Use line breaks. Minimal hashtags (3-5).",
+    }
+
+    if platform == "all":
+        platform_instruction = """Generate one post for EACH of these 5 platforms, clearly labelled:
+1. FACEBOOK — 200-300 words, conversational, 3-5 hashtags
+2. INSTAGRAM — 150-200 words, visual language, 15-20 hashtags at end
+3. X (TWITTER) — Under 280 characters, punchy, 2-3 hashtags
+4. TIKTOK — 100-150 words, trendy/casual, 5-8 hashtags
+5. LINKEDIN — 200-300 words, professional/value-driven, 3-5 hashtags"""
+    else:
+        platform_instruction = platform_specs.get(platform, platform_specs["facebook"])
+        platform_instruction = f"Generate 3 different post variations for {platform.upper()}:\n{platform_instruction}\nVariation 1: Curiosity/question hook\nVariation 2: Results/transformation angle\nVariation 3: Direct call-to-action"
+
+    prompt = f"""You are an expert social media copywriter specialising in {niche}.
+
+Generate social media posts about: {topic}
+
+Tone: {tone}
+Goal: {goal}
+{link_instruction}
+
+{platform_instruction}
+
+RULES:
+- Every post must have a strong opening hook (first line grabs attention)
+- Use power words and emotional triggers
+- Include clear calls to action
+- Make each post different in angle and approach
+- Write in a way that drives engagement (comments, shares, clicks)
+- Do NOT use generic filler — every sentence must add value
+- Format clearly with the platform name as a header
+
+Return ONLY the posts, no preamble or explanation."""
+
+    try:
+        client = anthropic.Anthropic()
+        message = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=2000,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        content = message.content[0].text
+        return {"success": True, "posts": content, "remaining": rl["limit"] - rl["used"] - 1}
+    except Exception as e:
+        logger.error(f"Social post generation failed: {e}")
+        return JSONResponse({"error": "AI generation failed. Please try again."}, status_code=500)
 
 
 # ═══════════════════════════════════════════════════════════════

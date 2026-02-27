@@ -248,6 +248,8 @@ class AIUsageQuota(Base):
     niche_finder_uses   = Column(Integer, default=0)          # resets daily
     campaign_studio_total = Column(Integer, default=0)        # lifetime total
     niche_finder_total  = Column(Integer, default=0)          # lifetime total
+    social_posts_uses   = Column(Integer, default=0)          # resets daily
+    social_posts_total  = Column(Integer, default=0)          # lifetime total
     updated_at          = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 class FunnelPage(Base):
@@ -429,6 +431,8 @@ try:
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS priority_level INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS owner_tier INTEGER DEFAULT 1"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE"))
+        conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS social_posts_uses INTEGER DEFAULT 0"))
+        conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS social_posts_total INTEGER DEFAULT 0"))
         # Mark existing users as onboarding complete (they don't need the wizard)
         conn.execute(text("UPDATE users SET onboarding_completed = TRUE WHERE onboarding_completed IS NULL OR (created_at < NOW() - INTERVAL '1 hour')"))
         conn.commit()
