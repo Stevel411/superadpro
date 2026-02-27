@@ -205,8 +205,13 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
   <!-- SIDEBAR (dark) -->
       <aside class="sidebar">
     <a href="/dashboard" class="sidebar-logo">
-      <svg width="30" height="30"><use href="#shield"/></svg>
-      <span class="sidebar-brand">SuperAdPro</span>
+      <div class="user-avatar">{{ user.username[:2].upper() }}</div>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#fff;line-height:1.2">{{ user.first_name or user.username }} {{ user.last_name or '' }}</div>
+        <div style="font-size:10px;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:3px;font-weight:700">
+          {% if is_active %}● Active{% else %}○ Inactive{% endif %}
+        </div>
+      </div>
     </a>
     <div class="nav-section">Main</div>
     <a href="/dashboard" class="nav-item active"><span class="nav-icon">⊞</span>Dashboard</a>
@@ -234,15 +239,6 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
     <a href="/account" class="nav-item"><span class="nav-icon">◉</span>My Profile</a>
     <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
     <div class="sidebar-footer">
-      <div class="user-mini">
-        <div class="user-avatar">{{ user.username[:2].upper() }}</div>
-        <div>
-          <div style="font-size:16px;font-weight:700;color:#fff">{{ user.first_name or user.username }}</div>
-          <div style="font-size:9px;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:1px">
-            {% if is_active %}● Active{% else %}○ Inactive{% endif %}
-          </div>
-        </div>
-      </div>
       <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:16px;color:#64748b;text-decoration:none;margin-top:4px;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">⎋ Sign Out</a>
     </div>
   </aside>
@@ -262,7 +258,10 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
             <div><span class="balance-val">${{ '%.2f'|format(balance) }}</span><span class="balance-unit">USDT</span></div>
           </div>
         </div>
-        <a href="/campaign-tiers" style="font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:10px 22px;border-radius:7px;text-decoration:none;box-shadow:0 4px 14px rgba(0,180,216,0.25)">+ Activate Campaign Tier</a>
+        <a href="/campaign-tiers" style="font-size:16px;font-weight:800;letter-spacing:1.5px;color:#0f172a;text-decoration:none;display:flex;align-items:center;gap:8px">
+          <svg width="24" height="24" viewBox="0 0 40 40" fill="none"><use href="#shield"/></svg>
+          <span>Super<span style="color:#0ea5e9">AdPro</span></span>
+        </a>
       </div>
     </div>
 
@@ -477,6 +476,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
                   <div style="font-size:22px;font-weight:800;color:#16a34a">${{ '%.0f'|format(grid_stats.total_earned or 0) }}</div>
                 </div>
               </div>
+              <a href="/campaign-tiers" style="display:block;text-align:center;padding:12px;background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;border-radius:8px;font-size:16px;font-weight:700;text-decoration:none;margin-bottom:8px;box-shadow:0 4px 14px rgba(109,40,217,0.25)">+ Activate Campaign Tier</a>
               <a href="/income-grid" style="display:block;text-align:center;padding:12px;background:linear-gradient(135deg,#00b4d8,#0077a8);color:#fff;border-radius:8px;font-size:16px;font-weight:700;text-decoration:none">View All Grids & Details →</a>
             {% else %}
               <div class="empty-state">
