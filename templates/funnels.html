@@ -111,8 +111,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
       <div style="display:flex;align-items:center;gap:14px">
           <a href="/funnels/analytics" class="btn-new" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)">📊 Analytics</a>
           <a href="/funnels/leads" class="btn-new" style="background:linear-gradient(135deg,#10b981,#34d399)">📧 Leads</a>
-          <a href="/funnels/visual/new" class="btn-new" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">⚡ Visual Builder</a>
-          <a href="/funnels/new" class="btn-new">+ New Page</a>
+          <a href="/funnels/visual/new" class="btn-new" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">⚡ New Page</a>
           <div style="background:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:6px 14px;text-align:center">
             <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8">Balance</div>
             <div><span style="font-size:15px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:11px;color:#94a3b8;margin-left:3px">USDT</span></div>
@@ -136,7 +135,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
         </div>
         <div class="templates-grid">
           <!-- Build Your Own -->
-          <a href="/funnels/new" class="tpl-card build-own" style="text-decoration:none">
+          <a href="/funnels/visual/new" class="tpl-card build-own" style="text-decoration:none">
             <div class="build-own-content">
               <div class="build-own-icon">✦</div>
               <div class="build-own-title">Build Your Own</div>
@@ -306,8 +305,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
               {% endif %}
             </div>
             <div class="page-actions">
-              <a href="/funnels/visual/{{ p.id }}" class="btn-primary" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">⚡ Visual</a>
-              <a href="/funnels/edit/{{ p.id }}" class="btn-primary">Edit</a>
+              <a href="/funnels/visual/{{ p.id }}" class="btn-primary">⚡ Edit</a>
               {% if p.status == 'published' %}
               <a href="/p/{{ p.slug }}" target="_blank">View Live</a>
               {% endif %}
@@ -329,7 +327,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
         <div class="empty-icon">🚀</div>
         <div class="empty-title">Build Your First Funnel Page</div>
         <div class="empty-sub">Create professional landing pages and sales funnels in minutes with AI-generated copy. Perfect for promoting your affiliate offers, capturing leads, or sharing your opportunity.</div>
-        <a href="/funnels/new" class="btn-new" style="font-size:16px;padding:14px 32px">+ Create Your First Page</a>
+        <a href="/funnels/visual/new" class="btn-new" style="font-size:16px;padding:14px 32px">+ Create Your First Page</a>
       </div>
       {% endif %}
     </div>
