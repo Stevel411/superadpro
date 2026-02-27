@@ -4,18 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Compensation Plan — SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f4f7fc;color:#0f172a;min-height:100vh}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.25);position:sticky;top:0;z-index:200}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.15);position:sticky;top:0;z-index:200}
 .topbar-left{display:flex;align-items:center;gap:28px}
 .topbar-title{font-size:18px;font-weight:800;color:#fff}
 .topbar-sub{font-size:12px;color:rgba(200,220,255,0.5);margin-top:1px}
 .back-btn{display:flex;align-items:center;gap:6px;color:#94a3b8;text-decoration:none;font-size:14px;font-weight:600;padding:8px 16px;border:1px solid rgba(255,255,255,0.15);border-radius:8px;background:rgba(255,255,255,0.05);transition:all 0.2s}
-.back-btn:hover{border-color:rgba(0,212,255,0.4);color:#00d4ff;background:rgba(0,212,255,0.08)}
+.back-btn:hover{border-color:rgba(14,165,233,0.4);color:#38bdf8;background:rgba(14,165,233,0.08)}
 .topbar-user{display:flex;align-items:center;gap:10px;color:rgba(200,220,255,0.6);font-size:13px;font-weight:500}
-.topbar-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
+.topbar-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
 .content{max-width:1140px;margin:0 auto;padding:32px}
 
 /* HERO */
@@ -53,34 +53,34 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f4f7fc;color:#0
 .sc-name{font-size:21px;font-weight:800;color:#0f172a;margin-bottom:8px}
 .sc-desc{font-size:15px;color:#64748b;line-height:1.6;margin-bottom:18px}
 .sc-tag{font-size:14px;font-weight:700;padding:10px 16px;border-radius:10px;display:inline-block}
-.sc.s1::before{background:linear-gradient(90deg,#10b981,#34d399)}.sc.s1:hover{border-color:rgba(16,185,129,0.3)}
+.sc.s1::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}.sc.s1:hover{border-color:rgba(14,165,233,0.3)}
 .sc.s2::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}.sc.s2:hover{border-color:rgba(14,165,233,0.3)}
-.sc.s3::before{background:linear-gradient(90deg,#8b5cf6,#a78bfa)}.sc.s3:hover{border-color:rgba(139,92,246,0.3)}
+.sc.s3::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}.sc.s3:hover{border-color:rgba(14,165,233,0.3)}
 .sc-soon{position:absolute;top:14px;right:14px;background:#f1f5f9;color:#94a3b8;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;border:1px solid #e2e8f0}
 
 /* CARDS */
 .card{background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:32px;box-shadow:0 1px 4px rgba(0,40,100,0.04);margin-bottom:24px}
 .ch{padding:24px 32px;margin:-32px -32px 28px;border-radius:20px 20px 0 0;position:relative;overflow:hidden}
 .ch::after{content:'';position:absolute;top:-50%;right:-15%;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,0.06)}
-.ch.s1{background:linear-gradient(135deg,#059669,#10b981)}
+.ch.s1{background:linear-gradient(135deg,#0284c7,#0ea5e9)}
 .ch.s2{background:linear-gradient(135deg,#0284c7,#0ea5e9)}
-.ch.s3{background:linear-gradient(135deg,#7c3aed,#a78bfa)}
+.ch.s3{background:linear-gradient(135deg,#0284c7,#0ea5e9)}
 .ch-label{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:6px}
 .ch-title{font-size:24px;font-weight:800;color:#fff;display:flex;align-items:center;gap:10px;margin-bottom:6px}
 .ch-sub{font-size:16px;color:rgba(255,255,255,0.8);line-height:1.6}
 
 /* S1 */
 .s1-duo{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px}
-.s1-box{background:linear-gradient(135deg,#f0fdf4,#f8fafc);border:1px solid #d1fae5;border-radius:14px;padding:28px;text-align:center;transition:all 0.3s}
-.s1-box:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(5,150,105,0.08)}
-.s1-big{font-size:44px;font-weight:800;color:#059669;margin-bottom:4px}
+.s1-box{background:linear-gradient(135deg,#e0f2fe,#f0f9ff);border:1px solid #bae6fd;border-radius:14px;padding:28px;text-align:center;transition:all 0.3s}
+.s1-box:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,165,233,0.08)}
+.s1-big{font-size:44px;font-weight:800;color:#0ea5e9;margin-bottom:4px}
 .s1-mid{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:4px}
 .s1-sm{font-size:13px;color:#64748b;line-height:1.5}
 .inc-table{width:100%;border-collapse:collapse;font-size:15px}
 .inc-table th{text-align:left;padding:12px 16px;background:#f8fafc;color:#64748b;font-weight:700;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;border-bottom:2px solid #e2e8f0}
 .inc-table td{padding:12px 16px;border-bottom:1px solid #f1f5f9;color:#334155}
-.inc-table .val{font-weight:700;color:#059669;font-size:16px}
-.inc-table tr:hover td{background:#f0fdf4}
+.inc-table .val{font-weight:700;color:#0ea5e9;font-size:16px}
+.inc-table tr:hover td{background:#f0f9ff}
 
 /* S2 */
 .split-viz{display:flex;height:16px;border-radius:99px;overflow:hidden;gap:3px;margin:16px 0 24px;box-shadow:0 2px 10px rgba(0,40,100,0.1)}
@@ -90,8 +90,8 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f4f7fc;color:#0
 .comm-duo{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:28px}
 .comm-box{border-radius:16px;padding:28px;text-align:center;transition:all 0.3s;overflow:hidden}
 .comm-box:hover{transform:translateY(-3px)}
-.comm-box.sponsor{background:linear-gradient(135deg,#faf5ff,#f5f3ff);border:1px solid #e9d5ff}
-.comm-box.sponsor:hover{box-shadow:0 8px 28px rgba(139,92,246,0.1)}
+.comm-box.sponsor{background:linear-gradient(135deg,#e0f2fe,#f0f9ff);border:1px solid #bae6fd}
+.comm-box.sponsor:hover{box-shadow:0 8px 28px rgba(14,165,233,0.1)}
 .comm-box.unilevel{background:linear-gradient(135deg,#e0f2fe,#f0f9ff);border:1px solid #bae6fd}
 .comm-box.unilevel:hover{box-shadow:0 8px 28px rgba(14,165,233,0.1)}
 .comm-big{font-size:52px;font-weight:800;line-height:1;margin-bottom:6px}
@@ -108,9 +108,9 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f4f7fc;color:#0
 .tc-earn{background:rgba(255,255,255,0.7);backdrop-filter:blur(8px);border:1px solid rgba(0,0,0,0.06);border-radius:10px;padding:12px}
 .tc-earn-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:2px}
 .tc-earn-val{font-size:24px;font-weight:800}
-.tc1,.tc2{background:linear-gradient(145deg,#ecfdf5,#d1fae5);border:1px solid #a7f3d0;color:#059669}
+.tc1,.tc2{background:linear-gradient(145deg,#e0f2fe,#bae6fd);border:1px solid #7dd3fc;color:#0284c7}
 .tc3,.tc4{background:linear-gradient(145deg,#e0f2fe,#bae6fd);border:1px solid #7dd3fc;color:#0284c7}
-.tc5,.tc6{background:linear-gradient(145deg,#ede9fe,#ddd6fe);border:1px solid #c4b5fd;color:#7c3aed}
+.tc5,.tc6{background:linear-gradient(145deg,#bae6fd,#7dd3fc);border:1px solid #38bdf8;color:#0369a1}
 .tc7{background:linear-gradient(145deg,#fef3c7,#fde68a);border:1px solid #fcd34d;color:#b45309}
 .tc8{background:linear-gradient(145deg,#fef3c7,#fbbf24);border:2px solid #f59e0b;color:#b45309;box-shadow:0 4px 20px rgba(245,158,11,0.2)}
 
@@ -126,7 +126,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f4f7fc;color:#0
 .uni-table th:first-child{text-align:left}
 .uni-table td{padding:10px;border-bottom:1px solid #f1f5f9;text-align:center;color:#334155}
 .uni-table td:first-child{text-align:left;font-weight:600;color:#0f172a}
-.uni-table .total-row td{background:linear-gradient(90deg,#f0fdf4,#ecfdf5);font-weight:700;color:#059669;border-top:2px solid #bbf7d0;font-size:14px}
+.uni-table .total-row td{background:linear-gradient(90deg,#e0f2fe,#f0f9ff);font-weight:700;color:#0ea5e9;border-top:2px solid #7dd3fc;font-size:14px}
 .uni-table tr:hover td{background:#f8fafc}
 
 .viz-cta{background:linear-gradient(135deg,#0c1929,#0a2540,#0e3a5c);border:1px solid rgba(56,189,248,0.15);border-radius:18px;padding:40px;text-align:center;margin-top:32px;position:relative;overflow:hidden}
@@ -140,11 +140,11 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f4f7fc;color:#0
 .pf-flow{display:flex;gap:8px;margin:20px 0 24px;flex-wrap:wrap;align-items:center}
 .pf{border-radius:14px;padding:14px 18px;text-align:center;min-width:90px;transition:all 0.3s}
 .pf:hover{transform:translateY(-3px)}
-.pf-keep{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:1px solid #86efac}
-.pf-pass{background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #c4b5fd}
+.pf-keep{background:linear-gradient(135deg,#e0f2fe,#f0f9ff);border:1px solid #7dd3fc}
+.pf-pass{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:1px solid #bae6fd}
 .pf-num{font-weight:700;color:#334155;margin-bottom:3px;font-size:12px}
-.pf-vk{font-size:18px;font-weight:800;color:#059669}
-.pf-vp{font-size:16px;font-weight:700;color:#7c3aed}
+.pf-vk{font-size:18px;font-weight:800;color:#0ea5e9}
+.pf-vp{font-size:16px;font-weight:700;color:#0369a1}
 .pf-who{font-size:10px;color:#64748b;margin-top:2px}
 .rules{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
 .rule{display:flex;gap:14px;padding:18px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;transition:all 0.3s}
@@ -165,7 +165,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f4f7fc;color:#0
 /* CALC */
 .calc-label{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#0ea5e9;margin-bottom:12px}
 .calc-slider{width:100%;accent-color:#0ea5e9;height:8px;cursor:pointer;border-radius:4px}
-.calc-val{font-size:30px;font-weight:800;background:linear-gradient(135deg,#0ea5e9,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.calc-val{font-size:30px;font-weight:800;background:linear-gradient(135deg,#0284c7,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .tier-toggle{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:10px;border:1px solid #d0d8e4;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.25s;background:#f8fafc;color:#64748b;font-family:inherit}
 .tier-toggle:hover{border-color:#0ea5e9;color:#0ea5e9;background:#f0f9ff}
 .tier-toggle.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);border-color:#0ea5e9;color:#fff;box-shadow:0 3px 12px rgba(14,165,233,0.3)}
@@ -175,7 +175,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f4f7fc;color:#0
 .total-box{background:linear-gradient(135deg,#0c1929,#0a2540,#0e3a5c);border:2px solid rgba(56,189,248,0.25);border-radius:18px;padding:30px;display:flex;align-items:center;justify-content:space-between;margin-top:24px;position:relative;overflow:visible;flex-wrap:wrap;gap:16px}
 .total-box::before{content:'';position:absolute;top:-50%;right:-25%;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,0.12),transparent 70%);pointer-events:none}
 .total-lbl{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#38bdf8;margin-bottom:3px}
-.total-val{font-size:44px;font-weight:800;background:linear-gradient(135deg,#38bdf8,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative;z-index:2;word-break:break-word}
+.total-val{font-size:44px;font-weight:800;background:linear-gradient(135deg,#0284c7,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative;z-index:2;word-break:break-word}
 .tb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:14px}
 .tb{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center}
 .tb-name{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#94a3b8}
@@ -213,9 +213,9 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f4f7fc;color:#0
   <div class="st">Three Ways to Earn — Stack Them All</div>
   <div class="ss">Each stream operates independently. Activate one, two, or all three — every stream you add multiplies your earning potential.</div>
   <div class="streams">
-    <div class="sc s1"><div class="sc-num">Stream 01</div><span class="sc-icon">🔑</span><div class="sc-name">Monthly Membership</div><div class="sc-desc">Every member pays $20/month. You earn 100% of that — paid directly to you, every month they remain active. Refer once, get paid forever.</div><div class="sc-tag" style="background:#ecfdf5;color:#059669;border:1px solid #bbf7d0">$20/mo — 100% to you</div></div>
+    <div class="sc s1"><div class="sc-num">Stream 01</div><span class="sc-icon">🔑</span><div class="sc-name">Monthly Membership</div><div class="sc-desc">Every member pays $20/month. You earn 100% of that — paid directly to you, every month they remain active. Refer once, get paid forever.</div><div class="sc-tag" style="background:#e0f2fe;color:#0284c7;border:1px solid #7dd3fc">$20/mo — 100% to you</div></div>
     <div class="sc s2"><div class="sc-num">Stream 02</div><span class="sc-icon">⚡</span><div class="sc-name">Profit Engine Grid</div><div class="sc-desc">When anyone in your 8-level network takes a campaign seat ($20–$1,000), you earn from every single activation. Two commission layers — both paid instantly.</div><div class="sc-tag" style="background:#e0f2fe;color:#0284c7;border:1px solid #bae6fd">25% direct + 70% uni-level</div></div>
-    <div class="sc s3"><span class="sc-soon">Coming Soon</span><div class="sc-num">Stream 03</div><span class="sc-icon">🎓</span><div class="sc-name">Marketing Mastery</div><div class="sc-desc">Sell premium courses and keep 100% commission. Every 2nd sale passes up to your sponsor — cascading infinitely through the entire network.</div><div class="sc-tag" style="background:#f5f3ff;color:#7c3aed;border:1px solid #e9d5ff">100% + infinite pass-up</div></div>
+    <div class="sc s3"><span class="sc-soon">Coming Soon</span><div class="sc-num">Stream 03</div><span class="sc-icon">🎓</span><div class="sc-name">Marketing Mastery</div><div class="sc-desc">Sell premium courses and keep 100% commission. Every 2nd sale passes up to your sponsor — cascading infinitely through the entire network.</div><div class="sc-tag" style="background:#e0f2fe;color:#0369a1;border:1px solid #7dd3fc">100% + infinite pass-up</div></div>
   </div>
 
   <div class="card">
@@ -237,22 +237,22 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f4f7fc;color:#0
   <div class="card">
     <div class="ch s2"><div class="ch-label">Stream 02 — Profit Engine Grid</div><div class="ch-title">⚡ Two Commission Layers — Every Seat Pays You</div><div class="ch-sub">When anyone in your network activates a campaign tier, 95% of that payment flows back to the network. You earn from every single seat across 8 levels.</div></div>
     <div style="font-size:14px;font-weight:600;color:#64748b;margin-bottom:6px">How every seat payment is split:</div>
-    <div class="split-viz"><div class="seg" style="width:25%;background:linear-gradient(135deg,#8b5cf6,#a78bfa)"></div><div class="seg" style="width:70%;background:linear-gradient(135deg,#0ea5e9,#38bdf8)"></div><div class="seg" style="width:5%;background:#cbd5e1"></div></div>
+    <div class="split-viz"><div class="seg" style="width:25%;background:linear-gradient(135deg,#0369a1,#0284c7)"></div><div class="seg" style="width:70%;background:linear-gradient(135deg,#0ea5e9,#38bdf8)"></div><div class="seg" style="width:5%;background:#cbd5e1"></div></div>
     <div class="comm-duo">
-      <div class="comm-box sponsor"><div class="comm-big" style="color:#7c3aed">25%</div><div class="comm-mid">Direct Sponsor Commission</div><div class="comm-sm">Paid to the person who directly referred the new seat activation</div></div>
+      <div class="comm-box sponsor"><div class="comm-big" style="color:#0369a1">25%</div><div class="comm-mid">Direct Sponsor Commission</div><div class="comm-sm">Paid to the person who directly referred the new seat activation</div></div>
       <div class="comm-box unilevel"><div class="comm-big" style="color:#0ea5e9">70%</div><div class="comm-mid">Uni-Level · 8 Levels × 8.75%</div><div class="comm-sm">Distributed across your 8 upline levels — 8.75% per seat at each level</div></div>
     </div>
     <div style="font-size:22px;font-weight:800;color:#0f172a;margin-bottom:6px">8 Campaign Tiers — Choose Your Earning Power</div>
     <div style="font-size:15px;color:#64748b;line-height:1.6;margin-bottom:20px">Each tier represents a campaign seat. When someone in your network activates any tier, you earn <strong style="color:#0ea5e9">8.75% per seat</strong> at each of your 8 uni-level positions:</div>
     <div class="tiers-grid" style="margin-bottom:14px">
-      <div class="tc tc1"><div class="tc-name">Starter</div><div class="tc-price">$20</div><div class="tc-per">per seat</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per seat</div><div class="tc-earn-val" style="color:#059669">$1.75</div></div></div>
-      <div class="tc tc2"><div class="tc-name">Builder</div><div class="tc-price">$50</div><div class="tc-per">per seat</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per seat</div><div class="tc-earn-val" style="color:#059669">$4.38</div></div></div>
+      <div class="tc tc1"><div class="tc-name">Starter</div><div class="tc-price">$20</div><div class="tc-per">per seat</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per seat</div><div class="tc-earn-val" style="color:#0ea5e9">$1.75</div></div></div>
+      <div class="tc tc2"><div class="tc-name">Builder</div><div class="tc-price">$50</div><div class="tc-per">per seat</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per seat</div><div class="tc-earn-val" style="color:#0ea5e9">$4.38</div></div></div>
       <div class="tc tc3"><div class="tc-name">Pro</div><div class="tc-price">$100</div><div class="tc-per">per seat</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per seat</div><div class="tc-earn-val" style="color:#0284c7">$8.75</div></div></div>
       <div class="tc tc4"><div class="tc-name">Advanced</div><div class="tc-price">$200</div><div class="tc-per">per seat</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per seat</div><div class="tc-earn-val" style="color:#0284c7">$17.50</div></div></div>
     </div>
     <div class="tiers-grid">
-      <div class="tc tc5"><div class="tc-name">Elite</div><div class="tc-price">$400</div><div class="tc-per">per seat</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per seat</div><div class="tc-earn-val" style="color:#7c3aed">$35.00</div></div></div>
-      <div class="tc tc6"><div class="tc-name">Premium</div><div class="tc-price">$600</div><div class="tc-per">per seat</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per seat</div><div class="tc-earn-val" style="color:#7c3aed">$52.50</div></div></div>
+      <div class="tc tc5"><div class="tc-name">Elite</div><div class="tc-price">$400</div><div class="tc-per">per seat</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per seat</div><div class="tc-earn-val" style="color:#0369a1">$35.00</div></div></div>
+      <div class="tc tc6"><div class="tc-name">Premium</div><div class="tc-price">$600</div><div class="tc-per">per seat</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per seat</div><div class="tc-earn-val" style="color:#0369a1">$52.50</div></div></div>
       <div class="tc tc7"><div class="tc-name">Executive</div><div class="tc-price">$800</div><div class="tc-per">per seat</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per seat</div><div class="tc-earn-val" style="color:#b45309">$70.00</div></div></div>
       <div class="tc tc8"><div class="tc-name">Ultimate 🏆</div><div class="tc-price">$1,000</div><div class="tc-per">per seat</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per seat</div><div class="tc-earn-val" style="color:#b45309">$87.50</div></div></div>
     </div>
@@ -279,11 +279,11 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f4f7fc;color:#0
     <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:10px">Your First 7 Sales — Watch the Pattern</div>
     <div class="pf-flow">
       <div class="pf pf-keep"><div class="pf-num">Sale 1</div><div class="pf-vk">100%</div><div class="pf-who">You keep</div></div>
-      <div class="pf pf-pass"><div class="pf-num">Sale 2</div><div class="pf-vp">↑ Pass-up</div><div class="pf-who" style="color:#7c3aed">To sponsor</div></div>
+      <div class="pf pf-pass"><div class="pf-num">Sale 2</div><div class="pf-vp">↑ Pass-up</div><div class="pf-who" style="color:#0369a1">To sponsor</div></div>
       <div class="pf pf-keep"><div class="pf-num">Sale 3</div><div class="pf-vk">100%</div><div class="pf-who">You keep</div></div>
-      <div class="pf pf-pass"><div class="pf-num">Sale 4</div><div class="pf-vp">↑ Pass-up</div><div class="pf-who" style="color:#7c3aed">To sponsor</div></div>
+      <div class="pf pf-pass"><div class="pf-num">Sale 4</div><div class="pf-vp">↑ Pass-up</div><div class="pf-who" style="color:#0369a1">To sponsor</div></div>
       <div class="pf pf-keep"><div class="pf-num">Sale 5</div><div class="pf-vk">100%</div><div class="pf-who">You keep</div></div>
-      <div class="pf pf-pass"><div class="pf-num">Sale 6</div><div class="pf-vp">↑ Pass-up</div><div class="pf-who" style="color:#7c3aed">To sponsor</div></div>
+      <div class="pf pf-pass"><div class="pf-num">Sale 6</div><div class="pf-vp">↑ Pass-up</div><div class="pf-who" style="color:#0369a1">To sponsor</div></div>
       <div class="pf pf-keep"><div class="pf-num">Sale 7+</div><div class="pf-vk">Repeats ∞</div><div class="pf-who">Forever</div></div>
     </div>
     <div class="rules">
@@ -294,7 +294,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f4f7fc;color:#0
     </div>
     <div class="courses">
       <div class="course"><div class="course-top"><div class="course-badge" style="background:linear-gradient(135deg,#0ea5e9,#0284c7)">🎓</div><div><div class="cml" style="color:#0284c7">Stream 3 · Course 1</div><div class="cmn">Marketing Mastery Course</div></div></div><div class="course-body">Professional sales training, digital marketing strategy and affiliate mastery — all in one comprehensive course.</div><div class="ctags"><span class="ctag" style="background:#e0f2fe;color:#0284c7;border:1px solid #bae6fd">Sales Training</span><span class="ctag" style="background:#e0f2fe;color:#0284c7;border:1px solid #bae6fd">Digital Marketing</span><span class="ctag" style="background:#e0f2fe;color:#0284c7;border:1px solid #bae6fd">Affiliate Mastery</span><span class="ctag" style="background:#e0f2fe;color:#0284c7;border:1px solid #bae6fd">Lead Generation</span></div><span class="cstat" style="background:#e0f2fe;color:#0284c7;border:1px solid #bae6fd">Launching Soon</span></div>
-      <div class="course"><div class="course-top"><div class="course-badge" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">🤖</div><div><div class="cml" style="color:#7c3aed">Stream 3 · Course 2</div><div class="cmn">AI Mastery Course</div></div></div><div class="course-body">Master AI tools and automation for business growth — content creation, lead generation and scaling income with artificial intelligence.</div><div class="ctags"><span class="ctag" style="background:#f5f3ff;color:#7c3aed;border:1px solid #e9d5ff">AI Automation</span><span class="ctag" style="background:#f5f3ff;color:#7c3aed;border:1px solid #e9d5ff">Content Creation</span><span class="ctag" style="background:#f5f3ff;color:#7c3aed;border:1px solid #e9d5ff">Business Scaling</span><span class="ctag" style="background:#f5f3ff;color:#7c3aed;border:1px solid #e9d5ff">AI Copywriting</span></div><span class="cstat" style="background:#f5f3ff;color:#7c3aed;border:1px solid #e9d5ff">Launching Soon</span></div>
+      <div class="course"><div class="course-top"><div class="course-badge" style="background:linear-gradient(135deg,#0284c7,#38bdf8)">🤖</div><div><div class="cml" style="color:#0369a1">Stream 3 · Course 2</div><div class="cmn">AI Mastery Course</div></div></div><div class="course-body">Master AI tools and automation for business growth — content creation, lead generation and scaling income with artificial intelligence.</div><div class="ctags"><span class="ctag" style="background:#e0f2fe;color:#0369a1;border:1px solid #7dd3fc">AI Automation</span><span class="ctag" style="background:#e0f2fe;color:#0369a1;border:1px solid #7dd3fc">Content Creation</span><span class="ctag" style="background:#e0f2fe;color:#0369a1;border:1px solid #7dd3fc">Business Scaling</span><span class="ctag" style="background:#e0f2fe;color:#0369a1;border:1px solid #7dd3fc">AI Copywriting</span></div><span class="cstat" style="background:#e0f2fe;color:#0369a1;border:1px solid #7dd3fc">Launching Soon</span></div>
     </div>
   </div>
 
@@ -305,9 +305,9 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f4f7fc;color:#0
     <div style="margin-bottom:28px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div class="calc-label" style="margin-bottom:0">Your Direct Referrals</div><div class="calc-val" id="referralsVal">15</div></div><input type="range" id="referralsSlider" min="0" max="100" value="15" class="calc-slider"><div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-top:4px"><span>0</span><span>25</span><span>50</span><span>100</span></div></div>
     <div style="border-top:2px solid #e2e8f0;padding-top:24px">
       <div class="calc-label">Projected Earnings</div>
-      <div class="result-row"><div><div class="rl">Stream 1 — Recurring Membership</div><div class="rs">$20/month × direct referrals × 12 months</div></div><div class="rv" style="color:#059669" id="s1Result">$0</div></div>
+      <div class="result-row"><div><div class="rl">Stream 1 — Recurring Membership</div><div class="rs">$20/month × direct referrals × 12 months</div></div><div class="rv" style="color:#0ea5e9" id="s1Result">$0</div></div>
       <div class="result-row"><div><div class="rl">Stream 2 — Uni-Level (8.75% per seat)</div><div class="rs">63 seats × tier price × 8.75% × grid advances</div></div><div class="rv" style="color:#0ea5e9" id="s2OwnerResult">$0</div></div>
-      <div class="result-row"><div><div class="rl">Stream 2 — Direct Sponsor (25%)</div><div class="rs">25% of each seat activation from your personal referrals</div></div><div class="rv" style="color:#7c3aed" id="s2DirectResult">$0</div></div>
+      <div class="result-row"><div><div class="rl">Stream 2 — Direct Sponsor (25%)</div><div class="rs">25% of each seat activation from your personal referrals</div></div><div class="rv" style="color:#0369a1" id="s2DirectResult">$0</div></div>
       <div class="total-box"><div><div class="total-lbl">Total Projected Earnings</div><div style="font-size:12px;color:rgba(186,230,253,0.45)">Across all selected tiers and grid advances</div></div><div class="total-val" id="totalResult">$0</div></div>
       <div style="margin-top:18px"><div class="calc-label" style="color:#94a3b8">Per-Tier Breakdown</div><div id="tierBreakdown" class="tb-grid"></div></div>
     </div>
