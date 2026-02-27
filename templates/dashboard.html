@@ -189,8 +189,12 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
   <!-- MAIN (white) -->
   <div class="main">
 
-    <!-- TOPBAR (white) -->
+    <!-- TOPBAR -->
     <div class="topbar">
+      <a href="/" style="font-size:16px;font-weight:800;color:#0f172a;text-decoration:none;display:flex;align-items:center;gap:8px">
+        <svg style="width:28px;height:28px" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
+        <span style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
+      </a>
       <div>
         <div class="topbar-title">👋 Welcome back, {{ display_name }}!</div>
       </div>
@@ -201,10 +205,10 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
             <div><span class="balance-val">${{ '%.2f'|format(balance) }}</span><span class="balance-unit">USDT</span></div>
           </div>
         </div>
-        <a href="/" style="font-size:16px;font-weight:800;color:#0f172a;text-decoration:none;display:flex;align-items:center;gap:10px">
-          <svg width="32" height="32"><use href="#sap-logo"/></svg>
-          <span style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
-        </a>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:13px;font-weight:600;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %}">{% if is_active %}● Active{% else %}○ Inactive{% endif %}</span>
+          <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff">{{ user.username[:2]|upper }}</div>
+        </div>
       </div>
     </div>
 
