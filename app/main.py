@@ -15,7 +15,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from .database import (
     SessionLocal, User, Payment, Commission, Withdrawal,
-    Grid, GridPosition, PasswordResetToken, VIPSignup, GRID_PACKAGES, GRID_TOTAL,
+    Grid, GridPosition, PasswordResetToken, VIPSignup, AdListing, GRID_PACKAGES, GRID_TOTAL,
     DIRECT_PCT, UNILEVEL_PCT, PER_LEVEL_PCT, PLATFORM_PCT,
     OWNER_PCT, UPLINE_PCT, LEVEL_PCT, COMPANY_PCT
 )
@@ -2259,6 +2259,109 @@ def delete_rotator(rotator_id: int, user: User = Depends(get_current_user),
     if rot:
         db.delete(rot)
         db.commit()
+    return {"success": True}
+
+
+# ═══════════════════════════════════════════════════
+#  PUBLIC AD BOARD
+# ═══════════════════════════════════════════════════
+AD_CATEGORIES = [
+    {"id": "business-opportunity", "name": "Business Opportunity", "icon": "💼"},
+    {"id": "digital-marketing", "name": "Digital Marketing", "icon": "📣"},
+    {"id": "health-wellness", "name": "Health & Wellness", "icon": "💪"},
+    {"id": "finance-crypto", "name": "Finance & Crypto", "icon": "💰"},
+    {"id": "ecommerce", "name": "E-Commerce", "icon": "🛒"},
+    {"id": "education", "name": "Education & Courses", "icon": "🎓"},
+    {"id": "software-saas", "name": "Software & SaaS", "icon": "💻"},
+    {"id": "general", "name": "General", "icon": "📌"},
+]
+
+@app.get("/ads")
+def ad_board_public(request: Request, category: str = None, db: Session = Depends(get_db)):
+    query = db.query(AdListing).filter(AdListing.is_active == True)
+    if category:
+        query = query.filter(AdListing.category == category)
+    # Featured first, then newest
+    listings = query.order_by(AdListing.is_featured.desc(), AdListing.created_at.desc()).limit(60).all()
+    # Attach owner usernames
+    for listing in listings:
+        owner = db.query(User).filter(User.id == listing.user_id).first()
+        listing.owner_name = owner.username if owner else "Member"
+    return templates.TemplateResponse("ad-board.html", {
+        "request": request,
+        "listings": listings,
+        "categories": AD_CATEGORIES,
+        "active_category": category,
+        "total_ads": db.query(AdListing).filter(AdListing.is_active == True).count(),
+    })
+
+@app.get("/ads/click/{ad_id}")
+def ad_click(ad_id: int, db: Session = Depends(get_db)):
+    listing = db.query(AdListing).filter(AdListing.id == ad_id).first()
+    if not listing:
+        raise HTTPException(status_code=404, detail="Ad not found")
+    listing.clicks += 1
+    db.commit()
+    return RedirectResponse(url=listing.link_url, status_code=302)
+
+@app.get("/ads/my")
+def my_ads_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    listings = db.query(AdListing).filter(AdListing.user_id == user.id).order_by(AdListing.created_at.desc()).all()
+    return templates.TemplateResponse("ad-board-manage.html", {
+        "request": request,
+        "user": user,
+        "listings": listings,
+        "categories": AD_CATEGORIES,
+    })
+
+@app.post("/api/ads/create")
+async def create_ad(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Please log in to post an ad"}, status_code=401)
+    body = await request.json()
+    title = (body.get("title") or "").strip()[:120]
+    description = (body.get("description") or "").strip()[:500]
+    category = body.get("category", "general")
+    link_url = (body.get("link_url") or "").strip()
+    image_url = (body.get("image_url") or "").strip() or None
+    if not title or not description or not link_url:
+        return JSONResponse({"error": "Title, description and link are required"}, status_code=400)
+    if not link_url.startswith("http"):
+        link_url = "https://" + link_url
+    # Limit: max 5 active ads per user
+    active_count = db.query(AdListing).filter(AdListing.user_id == user.id, AdListing.is_active == True).count()
+    if active_count >= 5:
+        return JSONResponse({"error": "Maximum 5 active ads. Deactivate one to post another."}, status_code=400)
+    ad = AdListing(user_id=user.id, title=title, description=description, category=category, link_url=link_url, image_url=image_url)
+    db.add(ad)
+    db.commit()
+    return {"success": True, "id": ad.id}
+
+@app.post("/api/ads/{ad_id}/toggle")
+async def toggle_ad(ad_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Unauthorized"}, status_code=401)
+    ad = db.query(AdListing).filter(AdListing.id == ad_id, AdListing.user_id == user.id).first()
+    if not ad:
+        return JSONResponse({"error": "Ad not found"}, status_code=404)
+    ad.is_active = not ad.is_active
+    db.commit()
+    return {"success": True, "is_active": ad.is_active}
+
+@app.post("/api/ads/{ad_id}/delete")
+async def delete_ad(ad_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Unauthorized"}, status_code=401)
+    ad = db.query(AdListing).filter(AdListing.id == ad_id, AdListing.user_id == user.id).first()
+    if not ad:
+        return JSONResponse({"error": "Ad not found"}, status_code=404)
+    db.delete(ad)
+    db.commit()
     return {"success": True}
 
 

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My Ads — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#f4f7fc;color:#0f172a;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.25);position:sticky;top:0;z-index:200}
+.topbar-left{display:flex;align-items:center;gap:20px}
+.topbar-title{font-size:18px;font-weight:800;color:#fff}
+.tb-btn{display:flex;align-items:center;gap:6px;color:#94a3b8;text-decoration:none;font-size:13px;font-weight:600;padding:8px 16px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:rgba(255,255,255,0.03);transition:all 0.2s}
+.tb-btn:hover{border-color:rgba(56,189,248,0.3);color:#38bdf8}
+.content{max-width:900px;margin:0 auto;padding:32px 24px}
+.page-title{font-size:28px;font-weight:800;margin-bottom:6px}
+.page-sub{font-size:15px;color:#64748b;margin-bottom:28px}
+
+/* Form card */
+.form-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px;margin-bottom:24px}
+.form-title{font-size:18px;font-weight:800;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.fg{margin-bottom:16px}
+.fg label{display:block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#64748b;margin-bottom:6px}
+.fg input,.fg textarea,.fg select{width:100%;padding:12px 16px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;color:#0f172a;outline:none;transition:all 0.2s;background:#fff}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,0.08)}
+.fg textarea{resize:vertical;min-height:80px}
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.submit-btn{width:100%;padding:14px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:15px;font-weight:700;font-family:inherit;border:none;border-radius:12px;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 16px rgba(14,165,233,0.25)}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(14,165,233,0.35)}
+.submit-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+.form-msg{text-align:center;margin-top:12px;font-size:14px;font-weight:600;min-height:20px}
+.msg-ok{color:#059669}.msg-err{color:#ef4444}
+
+/* Ad list */
+.ad-list{display:flex;flex-direction:column;gap:14px}
+.ad-item{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;display:flex;align-items:center;gap:18px;transition:all 0.2s}
+.ad-item:hover{box-shadow:0 4px 16px rgba(0,40,100,0.06)}
+.ad-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#e0f2fe,#f0f9ff);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.ad-info{flex:1;min-width:0}
+.ad-name{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ad-meta{font-size:12px;color:#94a3b8}
+.ad-stats{display:flex;gap:16px;margin-right:16px}
+.ad-stat{text-align:center}
+.ad-stat-val{font-size:16px;font-weight:700;color:#0ea5e9}
+.ad-stat-label{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#94a3b8}
+.ad-actions{display:flex;gap:8px}
+.act-btn{font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;transition:all 0.2s;font-family:inherit;color:#64748b}
+.act-btn:hover{border-color:#0ea5e9;color:#0ea5e9}
+.act-btn.danger:hover{border-color:#ef4444;color:#ef4444}
+.tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px}
+.tag-active{background:rgba(52,211,153,0.1);color:#059669}
+.tag-paused{background:rgba(251,191,36,0.1);color:#d97706}
+.empty{text-align:center;padding:40px;color:#94a3b8;font-size:14px}
+
+@media(max-width:600px){.fg-row{grid-template-columns:1fr}.ad-stats{display:none}.ad-item{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/dashboard" class="tb-btn">← Dashboard</a>
+    <div class="topbar-title">📢 My Ads</div>
+  </div>
+  <a href="/ads" class="tb-btn" target="_blank">👁️ View Ad Board</a>
+</div>
+
+<div class="content">
+  <div class="page-title">My Ad Listings</div>
+  <div class="page-sub">Post up to 5 ads on the public SuperAdPro Ad Board. Drive real traffic to your offers, funnels or business.</div>
+
+  <!-- Create new ad -->
+  <div class="form-card">
+    <div class="form-title">📝 Post a New Ad</div>
+    <div class="fg"><label>Ad Title</label><input type="text" id="adTitle" placeholder="e.g. Free Forex Trading Guide" maxlength="120"></div>
+    <div class="fg"><label>Description</label><textarea id="adDesc" placeholder="Describe your offer — what will the visitor get? Keep it compelling..." maxlength="500"></textarea></div>
+    <div class="fg-row">
+      <div class="fg"><label>Category</label>
+        <select id="adCat">
+          {% for c in categories %}
+          <option value="{{ c.id }}">{{ c.icon }} {{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="fg"><label>Link URL</label><input type="url" id="adLink" placeholder="https://your-offer.com"></div>
+    </div>
+    <div class="fg"><label>Image URL (optional)</label><input type="url" id="adImage" placeholder="https://example.com/banner.jpg"></div>
+    <button class="submit-btn" id="postBtn" onclick="postAd()">🚀 Post Ad to Board</button>
+    <div class="form-msg" id="formMsg"></div>
+  </div>
+
+  <!-- Existing ads -->
+  <div style="font-size:16px;font-weight:700;margin-bottom:14px">Your Active Ads ({{ listings|length }}/5)</div>
+  <div class="ad-list">
+    {% if listings %}
+      {% for ad in listings %}
+      <div class="ad-item" id="ad-{{ ad.id }}">
+        <div class="ad-icon">{% set icons = {'business-opportunity':'💼','digital-marketing':'📣','health-wellness':'💪','finance-crypto':'💰','ecommerce':'🛒','education':'🎓','software-saas':'💻','general':'📌'} %}{{ icons.get(ad.category, '📌') }}</div>
+        <div class="ad-info">
+          <div class="ad-name">{{ ad.title }}</div>
+          <div class="ad-meta">{{ ad.category | replace('-', ' ') | title }} · <span class="tag {% if ad.is_active %}tag-active{% else %}tag-paused{% endif %}">{% if ad.is_active %}LIVE{% else %}PAUSED{% endif %}</span></div>
+        </div>
+        <div class="ad-stats">
+          <div class="ad-stat"><div class="ad-stat-val">{{ ad.clicks }}</div><div class="ad-stat-label">Clicks</div></div>
+        </div>
+        <div class="ad-actions">
+          <button class="act-btn" onclick="toggleAd({{ ad.id }})">{% if ad.is_active %}⏸ Pause{% else %}▶ Activate{% endif %}</button>
+          <button class="act-btn danger" onclick="deleteAd({{ ad.id }})">🗑</button>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="empty">You haven't posted any ads yet. Use the form above to create your first listing!</div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+async function postAd(){
+  const btn=document.getElementById('postBtn');
+  const msg=document.getElementById('formMsg');
+  const data={title:document.getElementById('adTitle').value,description:document.getElementById('adDesc').value,category:document.getElementById('adCat').value,link_url:document.getElementById('adLink').value,image_url:document.getElementById('adImage').value};
+  if(!data.title||!data.description||!data.link_url){msg.className='form-msg msg-err';msg.textContent='Please fill in title, description and link.';return}
+  btn.disabled=true;btn.textContent='Posting...';msg.textContent='';
+  try{
+    const r=await fetch('/api/ads/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    const d=await r.json();
+    if(d.success){msg.className='form-msg msg-ok';msg.textContent='Ad posted! Refreshing...';setTimeout(()=>location.reload(),1000)}
+    else{msg.className='form-msg msg-err';msg.textContent=d.error||'Error';btn.disabled=false;btn.textContent='🚀 Post Ad to Board'}
+  }catch(e){msg.className='form-msg msg-err';msg.textContent='Network error';btn.disabled=false;btn.textContent='🚀 Post Ad to Board'}
+}
+async function toggleAd(id){
+  try{const r=await fetch('/api/ads/'+id+'/toggle',{method:'POST'});const d=await r.json();if(d.success)location.reload()}catch(e){alert('Error')}
+}
+async function deleteAd(id){
+  if(!confirm('Delete this ad permanently?'))return;
+  try{const r=await fetch('/api/ads/'+id+'/delete',{method:'POST'});const d=await r.json();if(d.success)document.getElementById('ad-'+id).remove()}catch(e){alert('Error')}
+}
+</script>
+</body>
+</html>

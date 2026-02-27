@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Float, Boolean, DateTime, Text, text
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
 load_dotenv()
 
@@ -296,6 +296,24 @@ class VIPSignup(Base):
     email       = Column(String, nullable=False, unique=True)
     created_at  = Column(DateTime, default=datetime.utcnow)
 
+class AdListing(Base):
+    __tablename__ = "ad_listings"
+    id           = Column(Integer, primary_key=True, index=True)
+    user_id      = Column(Integer, ForeignKey("users.id"), nullable=False)
+    title        = Column(String, nullable=False)
+    description  = Column(String, nullable=False)
+    category     = Column(String, nullable=False, default="general")
+    link_url     = Column(String, nullable=False)
+    image_url    = Column(String, nullable=True)
+    is_active    = Column(Boolean, default=True)
+    is_featured  = Column(Boolean, default=False)
+    clicks       = Column(Integer, default=0)
+    views        = Column(Integer, default=0)
+    created_at   = Column(DateTime, default=datetime.utcnow)
+    updated_at   = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    owner = relationship("User", backref="ad_listings")
+
 class ShortLink(Base):
     """Bitly-style short links: superadpro.com/go/slug"""
     __tablename__ = "short_links"
@@ -386,6 +404,7 @@ def run_migrations():
         "CREATE TABLE IF NOT EXISTS link_rotators (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), slug VARCHAR UNIQUE, title VARCHAR NOT NULL, mode VARCHAR DEFAULT 'equal', destinations_json TEXT, total_clicks INTEGER DEFAULT 0, last_clicked TIMESTAMP, current_index INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS short_links (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), slug VARCHAR UNIQUE, destination_url TEXT NOT NULL, title VARCHAR, clicks INTEGER DEFAULT 0, last_clicked TIMESTAMP, is_rotator BOOLEAN DEFAULT FALSE, rotator_id INTEGER REFERENCES link_rotators(id), created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS vip_signups (id SERIAL PRIMARY KEY, name VARCHAR NOT NULL, email VARCHAR NOT NULL UNIQUE, created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE TABLE IF NOT EXISTS ad_listings (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), title VARCHAR NOT NULL, description VARCHAR NOT NULL, category VARCHAR NOT NULL DEFAULT 'general', link_url VARCHAR NOT NULL, image_url VARCHAR, is_active BOOLEAN DEFAULT TRUE, is_featured BOOLEAN DEFAULT FALSE, clicks INTEGER DEFAULT 0, views INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
     ]
     results = []
     with engine.connect() as conn:
