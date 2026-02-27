@@ -190,9 +190,137 @@ tr:last-child td{border-bottom:none}
       <button onclick="copyRef()" id="copyBtn" style="font-size:19px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-family:inherit;white-space:nowrap">Copy Link</button>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-      <a href="https://wa.me/?text=Join%20SuperAdPro%20—%20earn%20from%20your%208×8%20Income%20Grid!%20{{ ref_link }}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.25);border-radius:8px;font-size:19px;font-weight:700;color:#16a34a;text-decoration:none">📱 WhatsApp</a>
-      <a href="https://t.me/share/url?url={{ ref_link }}&text=Join%20SuperAdPro%20and%20earn%20from%20your%20Income%20Grid!" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:#cffafe;border:1px solid #67e8f9;border-radius:8px;font-size:19px;font-weight:700;color:#0284c7;text-decoration:none">✈️ Telegram</a>
-      <a href="https://twitter.com/intent/tweet?text=I%27m%20building%20my%208×8%20Income%20Grid%20on%20SuperAdPro%20—%20join%20me!%20{{ ref_link }}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:rgba(124,58,237,0.12);border:1px solid #ddd6fe;border-radius:8px;font-size:19px;font-weight:700;color:#0284c7;text-decoration:none">🐦 Twitter</a>
+      <a href="https://wa.me/?text=Join%20SuperAdPro%20—%20earn%20from%20your%208×8%20Income%20Grid!%20{{ ref_link }}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.25);border-radius:8px;font-size:13px;font-weight:700;color:#16a34a;text-decoration:none">📱 WhatsApp</a>
+      <a href="https://t.me/share/url?url={{ ref_link }}&text=Join%20SuperAdPro%20and%20earn%20from%20your%20Income%20Grid!" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:#cffafe;border:1px solid #67e8f9;border-radius:8px;font-size:13px;font-weight:700;color:#0284c7;text-decoration:none">✈️ Telegram</a>
+      <a href="https://twitter.com/intent/tweet?text=I%27m%20building%20my%208×8%20Income%20Grid%20on%20SuperAdPro%20—%20join%20me!%20{{ ref_link }}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:rgba(124,58,237,0.12);border:1px solid #ddd6fe;border-radius:8px;font-size:13px;font-weight:700;color:#0284c7;text-decoration:none">🐦 X / Twitter</a>
+    </div>
+  </div>
+</div>
+
+<!-- SOCIAL SHARING HUB -->
+<div class="card">
+  <div class="card-head">
+    <div class="card-title"><div class="card-dot" style="background:#a855f7"></div>Share Across Social Media</div>
+    <span class="badge badge-cyan">Traffic Flywheel</span>
+  </div>
+  <div class="card-body">
+    <p style="font-size:14px;color:#64748b;margin-bottom:20px;line-height:1.6">Every share drives traffic back to SuperAdPro. When someone signs up through your link, they're tracked as your referral — even if they click weeks later. Share everywhere, share often.</p>
+    
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px">
+      <!-- Facebook -->
+      <a href="https://www.facebook.com/sharer/sharer.php?u={{ ref_link }}" target="_blank" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 10px;background:#f0f4ff;border:1px solid #c7d2fe;border-radius:12px;text-decoration:none;transition:all 0.2s">
+        <div style="width:40px;height:40px;border-radius:10px;background:#1877f2;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;font-weight:800">f</div>
+        <div style="font-size:12px;font-weight:700;color:#1877f2">Facebook</div>
+      </a>
+      <!-- Instagram -->
+      <div onclick="copyForInsta()" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 10px;background:linear-gradient(135deg,#fdf2f8,#fef3c7);border:1px solid #f9a8d4;border-radius:12px;text-decoration:none;transition:all 0.2s">
+        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#f56040,#c13584,#833ab4);display:flex;align-items:center;justify-content:center;font-size:18px">📸</div>
+        <div style="font-size:12px;font-weight:700;color:#c13584" id="instaLabel">Instagram</div>
+      </div>
+      <!-- TikTok -->
+      <div onclick="copyForTikTok()" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 10px;background:#f5f5f5;border:1px solid #d4d4d4;border-radius:12px;text-decoration:none;transition:all 0.2s">
+        <div style="width:40px;height:40px;border-radius:10px;background:#000;display:flex;align-items:center;justify-content:center;font-size:18px">🎵</div>
+        <div style="font-size:12px;font-weight:700;color:#000" id="tiktokLabel">TikTok</div>
+      </div>
+      <!-- Reddit -->
+      <a href="https://www.reddit.com/submit?url={{ ref_link }}&title=SuperAdPro%20—%20Video%20Advertising%20Platform%20with%208×8%20Income%20Grid" target="_blank" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 10px;background:#fff4f0;border:1px solid #fecaca;border-radius:12px;text-decoration:none;transition:all 0.2s">
+        <div style="width:40px;height:40px;border-radius:10px;background:#ff4500;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:800">R</div>
+        <div style="font-size:12px;font-weight:700;color:#ff4500">Reddit</div>
+      </a>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px">
+      <!-- LinkedIn -->
+      <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ ref_link }}" target="_blank" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 10px;background:#f0f7ff;border:1px solid #bfdbfe;border-radius:12px;text-decoration:none;transition:all 0.2s">
+        <div style="width:40px;height:40px;border-radius:10px;background:#0a66c2;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:800">in</div>
+        <div style="font-size:12px;font-weight:700;color:#0a66c2">LinkedIn</div>
+      </a>
+      <!-- YouTube -->
+      <div onclick="copyForYouTube()" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;text-decoration:none;transition:all 0.2s">
+        <div style="width:40px;height:40px;border-radius:10px;background:#ff0000;display:flex;align-items:center;justify-content:center;font-size:18px">▶️</div>
+        <div style="font-size:12px;font-weight:700;color:#ff0000" id="ytLabel">YouTube</div>
+      </div>
+      <!-- Pinterest -->
+      <a href="https://pinterest.com/pin/create/button/?url={{ ref_link }}&description=SuperAdPro%20Video%20Advertising%20Platform" target="_blank" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 10px;background:#fdf2f8;border:1px solid #fbcfe8;border-radius:12px;text-decoration:none;transition:all 0.2s">
+        <div style="width:40px;height:40px;border-radius:10px;background:#e60023;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff">P</div>
+        <div style="font-size:12px;font-weight:700;color:#e60023">Pinterest</div>
+      </a>
+      <!-- Threads -->
+      <div onclick="copyForThreads()" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 10px;background:#f5f5f5;border:1px solid #d4d4d4;border-radius:12px;text-decoration:none;transition:all 0.2s">
+        <div style="width:40px;height:40px;border-radius:10px;background:#000;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff">@</div>
+        <div style="font-size:12px;font-weight:700;color:#000" id="threadsLabel">Threads</div>
+      </div>
+    </div>
+
+    <!-- Pre-written posts -->
+    <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:18px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:700;color:#0284c7;margin-bottom:10px;display:flex;align-items:center;gap:8px">📝 Ready-to-Post Caption <span style="font-size:11px;font-weight:600;color:#64748b">(copy & paste to any platform)</span></div>
+      <div style="font-size:13px;color:#334155;line-height:1.7;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:10px" id="socialCaption">🚀 I just discovered a platform where you earn real commissions by watching video ads and building an 8×8 Income Grid. Three income streams, 95% payouts, AI marketing tools included.
+
+No selling, no guesswork — just real participation that pays.
+
+Check it out 👇
+{{ ref_link }}
+
+#SuperAdPro #PassiveIncome #VideoAds #OnlineIncome #SideHustle #IncomeGrid</div>
+      <div style="display:flex;gap:8px">
+        <button onclick="copySocial()" id="copySocialBtn" style="font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-family:inherit">📋 Copy Caption</button>
+        <button onclick="nextCaption()" style="font-size:12px;font-weight:600;color:#0284c7;background:#e0f2fe;border:1px solid #bae6fd;border-radius:6px;padding:8px 16px;cursor:pointer;font-family:inherit">🔄 Next Caption</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AD BOARD PROMOTION -->
+<div class="card">
+  <div class="card-head">
+    <div class="card-title"><div class="card-dot" style="background:#f59e0b"></div>Promote Your Ad Board Listings</div>
+    <a href="/ads/my" class="btn-primary" style="font-size:12px;padding:7px 14px">+ Post an Ad</a>
+  </div>
+  <div class="card-body">
+    <p style="font-size:14px;color:#64748b;margin-bottom:16px;line-height:1.6">Your Ad Board listings have unique shareable URLs with your referral code baked in. Share your ads across social media — every click drives new visitors to SuperAdPro, and every sign-up is tracked as your referral.</p>
+    
+    <div style="background:linear-gradient(135deg,#eff6ff,#f0f9ff);border:1px solid #bae6fd;border-radius:12px;padding:20px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:12px">🔄 The Traffic Flywheel</div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
+          <div style="font-size:18px;margin-bottom:4px">📢</div>
+          <div style="font-size:11px;font-weight:700;color:#0f172a">Post an Ad</div>
+        </div>
+        <div style="font-size:18px;color:#0ea5e9">→</div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
+          <div style="font-size:18px;margin-bottom:4px">📱</div>
+          <div style="font-size:11px;font-weight:700;color:#0f172a">Share on Socials</div>
+        </div>
+        <div style="font-size:18px;color:#0ea5e9">→</div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
+          <div style="font-size:18px;margin-bottom:4px">👀</div>
+          <div style="font-size:11px;font-weight:700;color:#0f172a">New Visitors Land</div>
+        </div>
+        <div style="font-size:18px;color:#0ea5e9">→</div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
+          <div style="font-size:18px;margin-bottom:4px">🤝</div>
+          <div style="font-size:11px;font-weight:700;color:#0f172a">They Sign Up</div>
+        </div>
+        <div style="font-size:18px;color:#10b981">→</div>
+        <div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
+          <div style="font-size:18px;margin-bottom:4px">💰</div>
+          <div style="font-size:11px;font-weight:700;color:#16a34a">You Earn</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <a href="/ads" style="display:block;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:18px;text-decoration:none;transition:all 0.2s" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='#e2e8f0'">
+        <div style="font-size:22px;margin-bottom:8px">📢</div>
+        <div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px">Browse the Ad Board</div>
+        <div style="font-size:12px;color:#64748b">See what other members are promoting and get inspiration for your own ads.</div>
+      </a>
+      <a href="/ads/my" style="display:block;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:18px;text-decoration:none;transition:all 0.2s" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='#e2e8f0'">
+        <div style="font-size:22px;margin-bottom:8px">✏️</div>
+        <div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px">Manage Your Ads</div>
+        <div style="font-size:12px;color:#64748b">Create, edit and track your Ad Board listings. Up to 5 free ads per member.</div>
+      </a>
     </div>
   </div>
 </div>
@@ -260,6 +388,60 @@ function copyRef() {
     btn.textContent = '✓ Copied!';
     btn.style.background = '#16a34a';
     setTimeout(() => { btn.textContent = 'Copy Link'; btn.style.background = ''; }, 2500);
+  });
+}
+
+const captions = [
+  `🚀 I just discovered a platform where you earn real commissions by watching video ads and building an 8×8 Income Grid. Three income streams, 95% payouts, AI marketing tools included.\n\nNo selling, no guesswork — just real participation that pays.\n\nCheck it out 👇\n{{ ref_link }}\n\n#SuperAdPro #PassiveIncome #VideoAds #OnlineIncome #SideHustle #IncomeGrid`,
+  `💰 What if you could earn just by watching video ads? SuperAdPro pays 95% of every dollar back to members through 3 income streams.\n\nThey even give you a full AI marketing suite to grow your network.\n\nSee for yourself 👇\n{{ ref_link }}\n\n#SuperAdPro #MakeMoneyOnline #VideoMarketing #AffiliateMarketing #DigitalMarketing`,
+  `🔥 Found something interesting — a video ad platform that actually pays YOU to participate. 8×8 recurring grid, 25% direct commissions, 8-level deep earnings.\n\nPlus they give you AI tools to create campaigns, scripts and funnels.\n\nJoin me here 👇\n{{ ref_link }}\n\n#SuperAdPro #OnlineBusiness #Crypto #USDT #WorkFromHome #Entrepreneur`,
+  `📱 Stop scrolling and start earning. SuperAdPro turns video advertising into real income — watch ads, share your link, earn from 3 streams.\n\n✅ 95% payout\n✅ Paid in USDT\n✅ AI marketing tools included\n✅ No experience needed\n\n{{ ref_link }}\n\n#SuperAdPro #FinancialFreedom #CryptoEarnings #SideIncome #AdPlatform`
+];
+let captionIdx = 0;
+
+function copySocial() {
+  const el = document.getElementById('socialCaption');
+  navigator.clipboard.writeText(el.innerText).then(() => {
+    const btn = document.getElementById('copySocialBtn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.textContent = '📋 Copy Caption'; }, 2500);
+  });
+}
+
+function nextCaption() {
+  captionIdx = (captionIdx + 1) % captions.length;
+  document.getElementById('socialCaption').innerText = captions[captionIdx];
+}
+
+function copyForInsta() {
+  navigator.clipboard.writeText(captions[captionIdx]).then(() => {
+    const lbl = document.getElementById('instaLabel');
+    lbl.textContent = '✓ Copied!';
+    setTimeout(() => { lbl.textContent = 'Instagram'; }, 2500);
+  });
+}
+
+function copyForTikTok() {
+  navigator.clipboard.writeText(`Check out SuperAdPro — earn from video ads 🚀 Link in bio!\n\n{{ ref_link }}\n\n#SuperAdPro #MakeMoneyOnline #TikTokBusiness #PassiveIncome`).then(() => {
+    const lbl = document.getElementById('tiktokLabel');
+    lbl.textContent = '✓ Copied!';
+    setTimeout(() => { lbl.textContent = 'TikTok'; }, 2500);
+  });
+}
+
+function copyForYouTube() {
+  navigator.clipboard.writeText(`🚀 SuperAdPro — The Video Ad Platform That Pays YOU\n\nEarn real commissions from 3 income streams. AI marketing tools included.\n\n👉 Join here: {{ ref_link }}\n\n#SuperAdPro #OnlineIncome #VideoAds`).then(() => {
+    const lbl = document.getElementById('ytLabel');
+    lbl.textContent = '✓ Copied!';
+    setTimeout(() => { lbl.textContent = 'YouTube'; }, 2500);
+  });
+}
+
+function copyForThreads() {
+  navigator.clipboard.writeText(captions[captionIdx]).then(() => {
+    const lbl = document.getElementById('threadsLabel');
+    lbl.textContent = '✓ Copied!';
+    setTimeout(() => { lbl.textContent = 'Threads'; }, 2500);
   });
 }
 </script>
