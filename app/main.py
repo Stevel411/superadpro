@@ -2281,6 +2281,10 @@ def dashboard_mockup(request: Request):
 def dashboard_mockup2(request: Request):
     return templates.TemplateResponse("dashboard-mockup2.html", {"request": request})
 
+@app.get("/logo-concepts")
+def logo_concepts(request: Request):
+    return templates.TemplateResponse("logo-concepts.html", {"request": request})
+
 
 # ═══════════════════════════════════════════════════
 #  PUBLIC AD BOARD
