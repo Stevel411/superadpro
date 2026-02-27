@@ -47,6 +47,9 @@ body{font-family:'DM Sans',sans-serif;background:#f4f7fc;color:#0f172a;min-heigh
 .email-text{font-size:14px;color:#334155;line-height:1.7;white-space:pre-wrap}
 .copy-email{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;transition:all 0.2s;margin-top:12px;font-family:inherit}
 .copy-email:hover{border-color:#f59e0b;color:#b45309}
+.editable{background:#e0f2fe;color:#0284c7;font-weight:600;padding:1px 6px;border-radius:4px;border:1px dashed #7dd3fc;cursor:text;outline:none;transition:all 0.2s}
+.editable:focus{background:#bae6fd;border-color:#0ea5e9;box-shadow:0 0 0 2px rgba(14,165,233,0.2)}
+.editable:empty::before{content:attr(data-ph);color:#94a3b8;font-weight:400}
 .tip{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:10px;padding:14px 18px;margin-top:12px;font-size:13px;color:#92400e;line-height:1.55}
 @media(max-width:600px){.swipe-tags{display:none}.content{padding:16px}}
 </style>
@@ -63,10 +66,15 @@ body{font-family:'DM Sans',sans-serif;background:#f4f7fc;color:#0f172a;min-heigh
 <div class="content">
   <div class="page-hero">
     <h1>📧 Email Swipe Library</h1>
-    <p>Pre-written email sequences ready to copy, personalise and send. Proven frameworks for cold outreach, warm follow-up, VIP invites and re-engagement — just add your link and hit send.</p>
+    <p>Pre-written email sequences ready to copy, personalise and send. Your name and referral link are auto-filled — just click the highlighted fields to add your recipient's details, then copy and send.</p>
   </div>
 
   <div class="cats">
+    <div style="width:100%;background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:1px solid #6ee7b7;border-radius:12px;padding:14px 20px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <span style="font-size:13px;font-weight:700;color:#065f46">✅ Auto-personalised:</span>
+      <span style="font-size:13px;color:#047857"><strong>Your name:</strong> {{ user.first_name or user.username }}</span>
+      <span style="font-size:13px;color:#047857"><strong>Your link:</strong> {{ ref_link }}</span>
+    </div>
     <div class="cat active" onclick="filterSwipes('all')">All Swipes</div>
     <div class="cat" onclick="filterSwipes('cold')">Cold Outreach</div>
     <div class="cat" onclick="filterSwipes('warm')">Warm Follow-Up</div>
@@ -79,6 +87,10 @@ body{font-family:'DM Sans',sans-serif;background:#f4f7fc;color:#0f172a;min-heigh
 </div>
 
 <script>
+// Auto-personalise: inject member's actual name and ref link
+var MY_NAME = '{{ user.first_name or user.username }}';
+var MY_LINK = '{{ ref_link }}';
+
 var SWIPES=[
   {id:1,cat:'cold',icon:'🧊',iconBg:'#e0f2fe',name:'The Curiosity Opener',desc:'Cold email that piques interest without selling hard',tags:['Cold','First Contact'],
   emails:[
@@ -125,6 +137,21 @@ var SWIPES=[
   ]}
 ];
 
+function personalise(txt){
+  return txt
+    .replace(/\{\{your_name\}\}/g, MY_NAME)
+    .replace(/\{\{your_link\}\}/g, MY_LINK)
+    .replace(/\{\{name\}\}/g, '<span class="editable" contenteditable="true">[Their Name]</span>')
+    .replace(/\{\{niche\}\}/g, '<span class="editable" contenteditable="true">[Their Niche]</span>');
+}
+function personalisePlain(txt){
+  return txt
+    .replace(/\{\{your_name\}\}/g, MY_NAME)
+    .replace(/\{\{your_link\}\}/g, MY_LINK)
+    .replace(/\{\{name\}\}/g, '[Their Name]')
+    .replace(/\{\{niche\}\}/g, '[Their Niche]');
+}
+
 function renderSwipes(filter){
   var grid=document.getElementById('swipeGrid');
   grid.innerHTML='';
@@ -132,10 +159,12 @@ function renderSwipes(filter){
   items.forEach(function(s){
     var emailsHtml='';
     s.emails.forEach(function(e,i){
-      emailsHtml+='<div class="email-block"><div class="email-label">Email '+(i+1)+'</div><div class="email-subject">Subject: '+e.subject+'</div><div class="email-text" id="email-'+s.id+'-'+i+'">'+e.body+'</div><button class="copy-email" onclick="copyEmail('+s.id+','+i+')">📋 Copy Email</button></div>';
+      var subP = personalise(e.subject);
+      var bodyP = personalise(e.body);
+      emailsHtml+='<div class="email-block"><div class="email-label">Email '+(i+1)+'</div><div class="email-subject">Subject: '+subP+'</div><div class="email-text" id="email-'+s.id+'-'+i+'">'+bodyP+'</div><button class="copy-email" onclick="copyEmail('+s.id+','+i+')">\ud83d\udccb Copy Email</button></div>';
     });
     var tagsHtml=s.tags.map(t=>'<span class="stag">'+t+'</span>').join('');
-    grid.innerHTML+='<div class="swipe" id="swipe-'+s.id+'"><div class="swipe-head" onclick="toggleSwipe('+s.id+')"><div class="swipe-left"><div class="swipe-icon" style="background:'+s.iconBg+'">'+s.icon+'</div><div><div class="swipe-name">'+s.name+'</div><div class="swipe-desc">'+s.desc+'</div></div></div><div class="swipe-tags">'+tagsHtml+'</div><div class="swipe-arrow">▼</div></div><div class="swipe-body">'+emailsHtml+'<div class="tip">💡 <strong>Tip:</strong> Replace {{name}}, {{niche}}, {{your_link}} and {{your_name}} with your actual details before sending. Personalisation dramatically increases open and reply rates.</div></div></div>';
+    grid.innerHTML+='<div class="swipe" id="swipe-'+s.id+'"><div class="swipe-head" onclick="toggleSwipe('+s.id+')"><div class="swipe-left"><div class="swipe-icon" style="background:'+s.iconBg+'">'+s.icon+'</div><div><div class="swipe-name">'+s.name+'</div><div class="swipe-desc">'+s.desc+'</div></div></div><div class="swipe-tags">'+tagsHtml+'</div><div class="swipe-arrow">\u25bc</div></div><div class="swipe-body">'+emailsHtml+'<div class="tip">\ud83d\udca1 <strong>Tip:</strong> Your name and referral link are <strong>auto-filled</strong>. Click the <span style="color:#0ea5e9;font-weight:700">[highlighted fields]</span> to type your recipient\u2019s name and niche, then copy.</div></div></div>';
   });
 }
 function toggleSwipe(id){document.getElementById('swipe-'+id).classList.toggle('open')}
@@ -146,12 +175,18 @@ function filterSwipes(cat){
 }
 function copyEmail(sid,eidx){
   var el=document.getElementById('email-'+sid+'-'+eidx);
+  // Get the live text (including any edits the user made to editable spans)
+  var liveText = el.innerText || el.textContent;
   var swipe=SWIPES.find(s=>s.id===sid);
-  var text='Subject: '+swipe.emails[eidx].subject+'\n\n'+swipe.emails[eidx].body;
+  var subjectText = personalisePlain(swipe.emails[eidx].subject);
+  // Check if user edited the editable fields in the DOM
+  var spans = el.querySelectorAll('.editable');
+  spans.forEach(function(sp){ subjectText = subjectText; }); // subject uses plain version
+  var text='Subject: '+subjectText+'\n\n'+liveText;
   navigator.clipboard.writeText(text).then(()=>{
     var btn=el.parentNode.querySelector('.copy-email');
-    btn.textContent='✅ Copied!';
-    setTimeout(()=>btn.textContent='📋 Copy Email',2000);
+    btn.textContent='\u2705 Copied!';
+    setTimeout(()=>btn.textContent='\ud83d\udccb Copy Email',2000);
   });
 }
 renderSwipes('all');
