@@ -376,10 +376,11 @@ def send_vip_welcome_email(to_email: str, name: str) -> bool:
     <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.12);border-radius:12px;padding:24px;margin-bottom:28px">
       <p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#fff;text-align:center">What's Coming:</p>
       <table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;color:rgba(186,230,253,0.7);line-height:2">
+        <tr><td style="padding:4px 0">🎬 <strong style="color:#38bdf8">Watch &amp; Earn</strong> — get paid daily just for watching real video ads</td></tr>
+        <tr><td style="padding:4px 0">📣 <strong style="color:#38bdf8">Real Views for Your Offers</strong> — drive genuine engaged traffic as an affiliate</td></tr>
         <tr><td style="padding:4px 0">⚡ <strong style="color:#38bdf8">Three Income Streams</strong> — memberships, campaign commissions &amp; course sales</td></tr>
-        <tr><td style="padding:4px 0">💰 <strong style="color:#38bdf8">95% Payout Rate</strong> — almost every dollar goes back to the network</td></tr>
+        <tr><td style="padding:4px 0">💰 <strong style="color:#38bdf8">95% Payout · Instant</strong> — paid the moment it's earned, no waiting</td></tr>
         <tr><td style="padding:4px 0">🤖 <strong style="color:#38bdf8">AI-Powered Tools</strong> — sales chatbot, funnel builder &amp; marketing suite</td></tr>
-        <tr><td style="padding:4px 0">🚀 <strong style="color:#38bdf8">Instant Commissions</strong> — paid the moment they're earned, no waiting</td></tr>
       </table>
     </div>
 
