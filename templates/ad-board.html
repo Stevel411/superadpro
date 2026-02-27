@@ -58,8 +58,12 @@ a{text-decoration:none;color:inherit}
 .ad-footer{display:flex;align-items:center;justify-content:space-between}
 .ad-author{font-size:12px;color:rgba(186,230,253,0.3)}
 .ad-stats{font-size:11px;color:rgba(186,230,253,0.25)}
-.ad-cta{display:inline-block;font-size:13px;font-weight:700;color:#38bdf8;padding:8px 16px;border:1px solid rgba(56,189,248,0.2);border-radius:8px;transition:all 0.2s;margin-top:12px}
-.ad-cta:hover{background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.4)}
+.ad-cta{display:block;text-align:center;font-size:14px;font-weight:700;color:#fff;padding:10px 16px;border-radius:10px;background:linear-gradient(180deg,#38bdf8 0%,#0ea5e9 100%);box-shadow:0 3px 0 #0284c7,0 4px 12px rgba(14,165,233,0.25);transition:all 0.2s;margin-top:12px}
+.ad-cta:hover{transform:translateY(-1px);box-shadow:0 5px 0 #0284c7,0 8px 20px rgba(14,165,233,0.3)}
+.ad-cta:active{transform:translateY(2px);box-shadow:0 1px 0 #0284c7}
+.ad-share{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.ad-share a,.ad-share button{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.04);cursor:pointer;transition:all 0.2s;text-decoration:none;color:#fff;padding:0}
+.ad-share a:hover,.ad-share button:hover{background:rgba(56,189,248,0.12);border-color:rgba(56,189,248,0.25)}
 
 /* Empty */
 .empty{text-align:center;padding:80px 20px;color:rgba(186,230,253,0.25)}
@@ -103,6 +107,12 @@ a{text-decoration:none;color:inherit}
     <div class="stat"><div class="stat-val">{{ categories|length }}</div><div class="stat-label">Categories</div></div>
   </div>
 
+  <!-- Search -->
+  <div style="max-width:480px;margin:0 auto 28px;display:flex;gap:8px">
+    <input type="text" id="adSearch" placeholder="Search ads by keyword..." onkeyup="filterAds()" style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:11px 16px;color:#fff;font-family:inherit;font-size:14px;outline:none">
+    <button onclick="filterAds()" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border:none;padding:11px 20px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">Search</button>
+  </div>
+
   <div class="cats">
     <a href="/ads" class="cat {% if not active_category %}active{% endif %}">All</a>
     {% for c in categories %}
@@ -130,7 +140,30 @@ a{text-decoration:none;color:inherit}
           <div class="ad-author">by {{ ad.owner_name }}</div>
           <div class="ad-stats">{{ ad.clicks }} clicks</div>
         </div>
-        <a href="/ads/click/{{ ad.id }}" target="_blank" class="ad-cta">Visit Offer →</a>
+        <a href="/ads/click/{{ ad.id }}{% if user %}?ref={{ user.username }}{% endif %}" target="_blank" class="ad-cta">Visit Offer →</a>
+        <div class="ad-share">
+          <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url_for('ad_board') }}%23ad-{{ ad.id }}" target="_blank" title="Share on Facebook" style="background:rgba(24,119,242,0.12);border-color:rgba(24,119,242,0.2)">
+            <span style="font-weight:800;font-size:13px;color:#1877f2">f</span>
+          </a>
+          <a href="https://twitter.com/intent/tweet?text={{ ad.title | urlencode }}%20—%20Check%20this%20out%20on%20SuperAdPro!&url={{ request.url_for('ad_board') }}" target="_blank" title="Share on X" style="background:rgba(255,255,255,0.06)">
+            <span style="font-weight:800;font-size:12px">𝕏</span>
+          </a>
+          <a href="https://www.reddit.com/submit?url={{ request.url_for('ad_board') }}&title={{ ad.title | urlencode }}" target="_blank" title="Share on Reddit" style="background:rgba(255,69,0,0.1);border-color:rgba(255,69,0,0.15)">
+            <span style="font-weight:800;font-size:12px;color:#ff4500">R</span>
+          </a>
+          <a href="https://wa.me/?text={{ ad.title | urlencode }}%20—%20{{ request.url_for('ad_board') }}" target="_blank" title="Share on WhatsApp" style="background:rgba(37,211,102,0.1);border-color:rgba(37,211,102,0.15)">
+            <span style="font-size:14px">📱</span>
+          </a>
+          <a href="https://t.me/share/url?url={{ request.url_for('ad_board') }}&text={{ ad.title | urlencode }}" target="_blank" title="Share on Telegram" style="background:rgba(0,136,204,0.1);border-color:rgba(0,136,204,0.15)">
+            <span style="font-size:14px">✈️</span>
+          </a>
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url_for('ad_board') }}" target="_blank" title="Share on LinkedIn" style="background:rgba(10,102,194,0.1);border-color:rgba(10,102,194,0.15)">
+            <span style="font-weight:800;font-size:11px;color:#0a66c2">in</span>
+          </a>
+          <button onclick="navigator.clipboard.writeText('{{ ad.title }} — Check this out on SuperAdPro! {{ request.url_for('ad_board') }}');this.innerHTML='✓';setTimeout(()=>this.innerHTML='📋',2000)" title="Copy link" style="background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.15);font-family:inherit">
+            <span style="font-size:13px">📋</span>
+          </button>
+        </div>
       </div>
     </div>
     {% endfor %}
@@ -149,6 +182,18 @@ a{text-decoration:none;color:inherit}
     <a href="/vip" class="cta-btn">🚀 Join SuperAdPro</a>
   </div>
 </div>
+
+<script>
+function filterAds() {
+  const q = document.getElementById('adSearch').value.toLowerCase();
+  document.querySelectorAll('.ad').forEach(ad => {
+    const title = ad.querySelector('.ad-title')?.textContent.toLowerCase() || '';
+    const desc = ad.querySelector('.ad-desc')?.textContent.toLowerCase() || '';
+    const cat = ad.querySelector('.ad-cat')?.textContent.toLowerCase() || '';
+    ad.style.display = (title.includes(q) || desc.includes(q) || cat.includes(q)) ? '' : 'none';
+  });
+}
+</script>
 
 <div class="footer">© 2026 SuperAdPro. All rights reserved. · <a href="/">superadpro.com</a></div>
 </body>

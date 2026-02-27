@@ -104,6 +104,7 @@ body{font-family:'DM Sans',sans-serif;background:#f4f7fc;color:#0f172a;min-heigh
           <div class="ad-stat"><div class="ad-stat-val">{{ ad.clicks }}</div><div class="ad-stat-label">Clicks</div></div>
         </div>
         <div class="ad-actions">
+          <button class="act-btn" onclick="shareAd('{{ ad.title }}', {{ ad.id }})" style="background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.2);color:#38bdf8">📤 Share</button>
           <button class="act-btn" onclick="toggleAd({{ ad.id }})">{% if ad.is_active %}⏸ Pause{% else %}▶ Activate{% endif %}</button>
           <button class="act-btn danger" onclick="deleteAd({{ ad.id }})">🗑</button>
         </div>
@@ -135,6 +136,15 @@ async function toggleAd(id){
 async function deleteAd(id){
   if(!confirm('Delete this ad permanently?'))return;
   try{const r=await fetch('/api/ads/'+id+'/delete',{method:'POST'});const d=await r.json();if(d.success)document.getElementById('ad-'+id).remove()}catch(e){alert('Error')}
+}
+function shareAd(title, id){
+  const url = window.location.origin + '/ads#ad-' + id;
+  const text = title + ' — Check this out on SuperAdPro! ' + url;
+  if(navigator.share){
+    navigator.share({title:title,text:text,url:url}).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(text).then(()=>alert('Share link copied to clipboard!')).catch(()=>{});
+  }
 }
 </script>
 </body>
