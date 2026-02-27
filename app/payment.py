@@ -46,6 +46,8 @@ USDT_ABI = [
 ]
 
 MEMBERSHIP_FEE = 20.0
+MEMBERSHIP_SPONSOR_SHARE = 10.0   # 50% to sponsor
+MEMBERSHIP_COMPANY_SHARE = 10.0   # 50% to company treasury
 
 
 def get_usdt_contract():
@@ -90,9 +92,9 @@ def _send_auto_activation_email(user, position: int):
         from app.email_utils import send_email
         chain_note = ""
         if position == 1:
-            chain_note = "someone you directly referred just paid their $10 membership fee"
+            chain_note = "someone you directly referred just paid their $20 membership"
         else:
-            chain_note = f"a referral {position} levels down your network just paid their $10 membership fee"
+            chain_note = f"a referral {position} levels down your network just paid their $20 membership"
 
         send_email(
             to_email  = user.email,
@@ -103,16 +105,16 @@ def _send_auto_activation_email(user, position: int):
                 <h2 style="color:#ffffff;margin-bottom:16px">Your membership just activated itself! 🚀</h2>
                 <p style="color:rgba(200,220,255,0.8);line-height:1.7">
                     Hi {user.first_name or user.username},<br><br>
-                    Great news — {chain_note}, and that $10 referral commission has
+                    Great news — {chain_note}, and your $10 referral commission has
                     <strong style="color:#00d4ff">automatically activated your full SuperAdPro membership.</strong>
                 </p>
                 <div style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:10px;padding:20px;margin:24px 0">
                     <div style="font-size:13px;color:#94a3b8;margin-bottom:4px">What just happened</div>
                     <div style="color:#ffffff;line-height:1.8">
                         ✅ Referral commission credited to your wallet<br>
-                        ✅ $10 auto-deducted to activate your membership<br>
+                        ✅ $20 auto-deducted to activate your membership<br>
                         ✅ You now have <strong style="color:#00d4ff">full access</strong> to all 3 income streams<br>
-                        ✅ Your next referral commission goes straight to your wallet
+                        ✅ Your next referral earns you $10 straight to your wallet
                     </div>
                 </div>
                 <p style="color:rgba(200,220,255,0.8);line-height:1.7">
@@ -154,29 +156,29 @@ def _cascade_auto_activation(
     if recipient.is_active:
         return  # Chain stops — this person is already active, they keep the $10
 
-    # Free member with $10 — auto-activate
+    # Free member with enough to activate ($20 membership) — auto-activate
     if recipient.balance >= MEMBERSHIP_FEE:
         recipient.balance   -= MEMBERSHIP_FEE
         recipient.is_active  = True
         activated_users.append((recipient, chain_depth))
 
-        # Find recipient's sponsor to receive the $10
+        # Find recipient's sponsor to receive sponsor share ($10)
         next_recipient = None
         if recipient.sponsor_id:
             next_recipient = db.query(User).filter(User.id == recipient.sponsor_id).first()
 
-        # Credit the next person up the chain
+        # Credit the next person up the chain with sponsor share only
         if next_recipient:
-            next_recipient.balance          += MEMBERSHIP_FEE
-            next_recipient.total_earned     += MEMBERSHIP_FEE
+            next_recipient.balance          += MEMBERSHIP_SPONSOR_SHARE
+            next_recipient.total_earned     += MEMBERSHIP_SPONSOR_SHARE
             next_recipient.personal_referrals += 1
-        # No sponsor → $10 stays consumed (already deducted), company effectively absorbs it
+        # Company share ($10) stays consumed from the cascade payment
 
         # Audit record for this hop in the cascade
         hop_payment = Payment(
             from_user_id = recipient.id,
             to_user_id   = next_recipient.id if next_recipient else None,
-            amount_usdt  = MEMBERSHIP_FEE,
+            amount_usdt  = MEMBERSHIP_SPONSOR_SHARE,
             payment_type = "membership_auto",
             tx_hash      = f"{tx_hash}_cascade_{chain_depth}",
             status       = "confirmed",
@@ -193,7 +195,9 @@ def _cascade_auto_activation(
 
 def process_membership_payment(db: Session, user_id: int, tx_hash: str) -> dict:
     """
-    Activate membership after $10 USDT payment verified on Base Chain.
+    Activate/renew membership after $20 USDC payment on Base Chain.
+    Split: $10 to company treasury, $10 to sponsor wallet.
+    50/50 from day one — no first-month exceptions.
     Triggers recursive auto-activation cascade up the sponsor chain.
     """
     if db.query(Payment).filter(Payment.tx_hash == tx_hash).first():
@@ -207,46 +211,18 @@ def process_membership_payment(db: Session, user_id: int, tx_hash: str) -> dict:
     if user.sponsor_id:
         sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
 
-    # FIRST MONTH → COMPANY: New members' first payment goes to the company
-    # to fund platform operations (AI tools, hosting, support).
-    # From month 2 onwards, renewals pass up to the sponsor as normal.
-    is_first_payment = not user.first_payment_to_company and not user.is_active
-    if is_first_payment:
-        target_wallet = COMPANY_WALLET
-    else:
-        target_wallet = sponsor.wallet_address if sponsor and sponsor.wallet_address else COMPANY_WALLET
-    verified = verify_transaction(tx_hash, target_wallet, MEMBERSHIP_FEE)
-
+    # Payment goes to company wallet — contract/backend splits it
+    verified = verify_transaction(tx_hash, COMPANY_WALLET, MEMBERSHIP_FEE)
     if not verified:
         return {"success": False, "error": "Transaction not verified on Base Chain"}
 
     try:
         # 1. Activate the paying user
         user.is_active = True
-
-        # 2. Record the primary membership payment
-        if is_first_payment:
-            # First month → company. Mark it so renewals go to sponsor from now on.
+        if not user.first_payment_to_company:
             user.first_payment_to_company = True
-            db.add(Payment(
-                from_user_id = user_id,
-                to_user_id   = None,  # Company wallet
-                amount_usdt  = MEMBERSHIP_FEE,
-                payment_type = "membership_first_month",
-                tx_hash      = tx_hash,
-                status       = "confirmed",
-            ))
-            # No sponsor credit, no cascade — company keeps this payment
-            db.commit()
-            return {
-                "success": True,
-                "message": "Membership activated — first month funds platform operations. Sponsor commissions start from your renewal.",
-                "cascade_activations": 0,
-                "sponsor_auto_activated": False,
-                "first_payment_to_company": True,
-            }
 
-        # Normal flow (subsequent activations / reactivations) — sponsor gets paid
+        # 2. Record the membership payment
         db.add(Payment(
             from_user_id = user_id,
             to_user_id   = sponsor.id if sponsor else None,
@@ -256,14 +232,38 @@ def process_membership_payment(db: Session, user_id: int, tx_hash: str) -> dict:
             status       = "confirmed",
         ))
 
-        # 3. Credit sponsor and trigger cascade
-        activated_users = []  # Will collect everyone auto-activated
+        # 3. Credit sponsor their 50% ($10) and trigger cascade
+        activated_users = []
         if sponsor:
-            sponsor.balance          += MEMBERSHIP_FEE
-            sponsor.total_earned     += MEMBERSHIP_FEE
+            sponsor.balance          += MEMBERSHIP_SPONSOR_SHARE
+            sponsor.total_earned     += MEMBERSHIP_SPONSOR_SHARE
             sponsor.personal_referrals += 1
 
-            # Kick off the recursive cascade
+            # Record sponsor commission
+            db.add(Commission(
+                from_user_id    = user_id,
+                to_user_id      = sponsor.id,
+                amount_usdt     = MEMBERSHIP_SPONSOR_SHARE,
+                commission_type = "membership_sponsor",
+                package_tier    = 0,
+                status          = "paid",
+                paid_at         = datetime.utcnow(),
+                notes           = f"Membership 50% sponsor share (${MEMBERSHIP_SPONSOR_SHARE})",
+            ))
+
+            # Record company share
+            db.add(Commission(
+                from_user_id    = user_id,
+                to_user_id      = None,
+                amount_usdt     = MEMBERSHIP_COMPANY_SHARE,
+                commission_type = "membership_company",
+                package_tier    = 0,
+                status          = "platform",
+                paid_at         = datetime.utcnow(),
+                notes           = f"Membership 50% company share (${MEMBERSHIP_COMPANY_SHARE})",
+            ))
+
+            # Kick off the recursive cascade (sponsor may auto-activate)
             _cascade_auto_activation(
                 db          = db,
                 recipient   = sponsor,
@@ -271,8 +271,20 @@ def process_membership_payment(db: Session, user_id: int, tx_hash: str) -> dict:
                 chain_depth = 1,
                 activated_users = activated_users,
             )
+        else:
+            # No sponsor — 100% to company
+            db.add(Commission(
+                from_user_id    = user_id,
+                to_user_id      = None,
+                amount_usdt     = MEMBERSHIP_FEE,
+                commission_type = "membership_company",
+                package_tier    = 0,
+                status          = "platform",
+                paid_at         = datetime.utcnow(),
+                notes           = f"Membership — no sponsor, full ${MEMBERSHIP_FEE} to company",
+            ))
 
-        # 4. Commit everything atomically — all or nothing
+        # 4. Commit everything atomically
         db.commit()
 
         # 5. Send activation emails AFTER commit (non-blocking)
@@ -486,25 +498,25 @@ def process_auto_renewals(db: Session) -> dict:
         # ── Renewal due ─────────────────────────────────────────
         if now >= renewal.next_renewal_date and not renewal.in_grace_period:
             if user.balance >= MEMBERSHIP_FEE:
-                # Sufficient balance — auto-renew
+                # Sufficient balance — auto-renew with 50/50 split
                 sponsor = db.query(User).filter(User.id == user.sponsor_id).first() if user.sponsor_id else None
 
                 user.balance      -= MEMBERSHIP_FEE
                 user.low_balance_warned = False
 
                 if sponsor:
-                    sponsor.balance      += MEMBERSHIP_FEE
-                    sponsor.total_earned += MEMBERSHIP_FEE
+                    sponsor.balance      += MEMBERSHIP_SPONSOR_SHARE
+                    sponsor.total_earned += MEMBERSHIP_SPONSOR_SHARE
 
                 db.add(Commission(
                     from_user_id    = user.id,
                     to_user_id      = sponsor.id if sponsor else None,
-                    amount_usdt     = MEMBERSHIP_FEE,
+                    amount_usdt     = MEMBERSHIP_SPONSOR_SHARE if sponsor else 0,
                     commission_type = "membership_renewal",
                     package_tier    = 0,
                     status          = "paid",
                     paid_at         = now,
-                    notes           = f"Monthly membership auto-renewal",
+                    notes           = f"Monthly renewal — ${MEMBERSHIP_SPONSOR_SHARE} sponsor / ${MEMBERSHIP_COMPANY_SHARE} company",
                 ))
 
                 renewal.last_renewed_at   = now
