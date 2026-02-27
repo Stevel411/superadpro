@@ -1,0 +1,156 @@
+<!-- ═══ SHARED SIDEBAR — collapsible nav sections ═══ -->
+<aside class="sidebar" id="mainSidebar">
+  <a href="/dashboard" class="sidebar-logo">
+    <div class="user-avatar">{{ user.username[:2].upper() }}</div>
+    <div>
+      <div style="font-size:15px;font-weight:700;color:#fff;line-height:1.2">{{ user.first_name or user.username }} {{ user.last_name or '' }}</div>
+      <div style="font-size:10px;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:3px;font-weight:700">
+        {% if is_active %}● Active{% else %}○ Inactive{% endif %}
+      </div>
+    </div>
+  </a>
+
+  <div class="nav-scroll">
+    <!-- ── Dashboard (always visible) ── -->
+    <a href="/dashboard" class="nav-item{% if active_page=='dashboard' %} active{% endif %}"><span class="nav-icon">⊞</span>Dashboard</a>
+
+    <div class="nav-divider"></div>
+
+    <!-- ── Account ── -->
+    <div class="nav-group" data-group="account">
+      <div class="nav-header" onclick="toggleNav('account')">
+        <span>Account</span>
+        <span class="nav-chevron">›</span>
+      </div>
+      <div class="nav-children">
+        <a href="/account" class="nav-item{% if active_page=='account' %} active{% endif %}"><span class="nav-icon">◉</span>My Profile</a>
+        <a href="/support" class="nav-item{% if active_page=='support' %} active{% endif %}"><span class="nav-icon">◌</span>Support</a>
+        <a href="/wallet" class="nav-item{% if active_page=='wallet' %} active{% endif %}"><span class="nav-icon">◎</span>Wallet</a>
+      </div>
+    </div>
+
+    <div class="nav-divider"></div>
+
+    <!-- ── Video ── -->
+    <div class="nav-group" data-group="video">
+      <div class="nav-header" onclick="toggleNav('video')">
+        <span>Video</span>
+        <span class="nav-chevron">›</span>
+      </div>
+      <div class="nav-children">
+        <a href="/watch" class="nav-item{% if active_page=='watch' %} active{% endif %}"><span class="nav-icon">▶</span>Video Hub</a>
+        <a href="/video-library" class="nav-item{% if active_page=='video-library' %} active{% endif %}"><span class="nav-icon">🎬</span>My Campaigns</a>
+        <a href="/analytics" class="nav-item{% if active_page=='analytics' %} active{% endif %}"><span class="nav-icon">📈</span>Analytics</a>
+      </div>
+    </div>
+
+    <div class="nav-divider"></div>
+
+    <!-- ── Ad Board ── -->
+    <a href="/ads/my" class="nav-item{% if active_page=='ads' %} active{% endif %}"><span class="nav-icon">📢</span>Ad Board</a>
+
+    <div class="nav-divider"></div>
+
+    <!-- ── Marketing Suite ── -->
+    <div class="nav-group" data-group="marketing">
+      <div class="nav-header" onclick="toggleNav('marketing')">
+        <span>Marketing Suite</span>
+        <span class="nav-chevron">›</span>
+      </div>
+      <div class="nav-children">
+        <a href="/campaign-studio" class="nav-item{% if active_page=='campaign-studio' %} active{% endif %}"><span class="nav-icon">🤖</span>AI Campaign</a>
+        <a href="/social-post-generator" class="nav-item{% if active_page=='social-post-generator' %} active{% endif %}"><span class="nav-icon">📱</span>Social Post Generator</a>
+        <a href="/video-script-generator" class="nav-item{% if active_page=='video-script-generator' %} active{% endif %}"><span class="nav-icon">🎬</span>Video Script Generator</a>
+        <a href="/niche-finder" class="nav-item{% if active_page=='niche-finder' %} active{% endif %}"><span class="nav-icon">💡</span>Niche Finder</a>
+        <a href="/swipe-file" class="nav-item{% if active_page=='swipe-file' %} active{% endif %}"><span class="nav-icon">📋</span>Swipe File</a>
+        <a href="/email-swipes" class="nav-item{% if active_page=='email-swipes' %} active{% endif %}"><span class="nav-icon">📧</span>Email Swipes</a>
+      </div>
+    </div>
+
+    <div class="nav-divider"></div>
+
+    <!-- ── Tools ── -->
+    <div class="nav-group" data-group="tools">
+      <div class="nav-header" onclick="toggleNav('tools')">
+        <span>Tools</span>
+        <span class="nav-chevron">›</span>
+      </div>
+      <div class="nav-children">
+        <a href="/funnels" class="nav-item{% if active_page=='funnels' %} active{% endif %}"><span class="nav-icon">🚀</span>Page Builder</a>
+        <a href="/link-tools" class="nav-item{% if active_page=='link-tools' %} active{% endif %}"><span class="nav-icon">🔗</span>Link Tools</a>
+        <a href="/affiliate" class="nav-item{% if active_page=='affiliate' %} active{% endif %}"><span class="nav-icon">🤝</span>Social Share</a>
+      </div>
+    </div>
+
+    <div class="nav-divider"></div>
+
+    <!-- ── Affiliate ── -->
+    <div class="nav-group" data-group="affiliate">
+      <div class="nav-header" onclick="toggleNav('affiliate')">
+        <span>Affiliate</span>
+        <span class="nav-chevron">›</span>
+      </div>
+      <div class="nav-children">
+        <a href="/compensation-plan" class="nav-item{% if active_page=='compensation-plan' %} active{% endif %}"><span class="nav-icon">📊</span>Comp Plan</a>
+        <a href="/income-grid" class="nav-item{% if active_page=='income-grid' %} active{% endif %}"><span class="nav-icon">⚡</span>Profit Grid</a>
+        <a href="/grid-visualiser" class="nav-item{% if active_page=='grid-visualiser' %} active{% endif %}"><span class="nav-icon">◈</span>Grid Visualiser</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <a href="/logout" class="nav-item" style="color:#64748b;border:none"><span class="nav-icon">⎋</span>Sign Out</a>
+  </div>
+</aside>
+
+<style>
+/* ── Sidebar Collapsible Nav ── */
+.nav-scroll{flex:1;overflow-y:auto;padding:8px 0}
+.nav-divider{height:1px;background:rgba(255,255,255,0.06);margin:6px 16px}
+.nav-group{overflow:hidden}
+.nav-header{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;font-size:12px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:rgba(56,189,248,0.7);cursor:pointer;user-select:none;transition:all 0.2s}
+.nav-header:hover{color:#38bdf8;background:rgba(56,189,248,0.04)}
+.nav-chevron{font-size:14px;font-weight:800;transition:transform 0.25s ease;color:rgba(56,189,248,0.4)}
+.nav-group.open .nav-chevron{transform:rotate(90deg);color:#38bdf8}
+.nav-children{max-height:0;overflow:hidden;transition:max-height 0.3s ease}
+.nav-group.open .nav-children{max-height:500px}
+</style>
+
+<script>
+function toggleNav(group) {
+  var el = document.querySelector('[data-group="'+group+'"]');
+  if (el) el.classList.toggle('open');
+}
+
+// Auto-open group that contains the active page
+document.addEventListener('DOMContentLoaded', function() {
+  var active = document.querySelector('.nav-children .nav-item.active');
+  if (active) {
+    var group = active.closest('.nav-group');
+    if (group) group.classList.add('open');
+  }
+  // Restore saved open states
+  try {
+    var saved = JSON.parse(localStorage.getItem('navOpen') || '{}');
+    Object.keys(saved).forEach(function(g) {
+      if (saved[g]) {
+        var el = document.querySelector('[data-group="'+g+'"]');
+        if (el) el.classList.add('open');
+      }
+    });
+  } catch(e) {}
+});
+
+// Save open/close state
+document.querySelectorAll('.nav-header').forEach(function(h) {
+  h.addEventListener('click', function() {
+    setTimeout(function() {
+      var state = {};
+      document.querySelectorAll('.nav-group').forEach(function(g) {
+        state[g.dataset.group] = g.classList.contains('open');
+      });
+      try { localStorage.setItem('navOpen', JSON.stringify(state)); } catch(e) {}
+    }, 50);
+  });
+});
+</script>

@@ -12,7 +12,6 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .sidebar{width:220px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
 .sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;letter-spacing:0;text-transform:none;color:#fff;-webkit-text-fill-color:#fff}
-.nav-section{padding:22px 18px 8px;font-size:16px;font-weight:800;letter-spacing:0.5px;text-transform:none;color:#38bdf8;line-height:1.2}
 .nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
 .nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
 .nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
@@ -108,41 +107,7 @@ tr:last-child td{border-bottom:none}
     </symbol>
   </defs>
 </svg>
-    <aside class="sidebar">
-    <a href="/dashboard" class="sidebar-logo">
-      <div class="user-avatar">{{ user.username[:2].upper() if user else 'U' }}</div>
-      <div>
-        <div style="font-size:15px;font-weight:700;color:#fff;line-height:1.2">{{ user.first_name or user.username if user else 'User' }} {{ user.last_name or '' if user else '' }}</div>
-        <div style="font-size:10px;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %};letter-spacing:1px;text-transform:uppercase;margin-top:3px;font-weight:700">
-          {% if is_active %}● Active{% else %}○ Inactive{% endif %}
-        </div>
-      </div>
-    </a>
-    <div class="nav-section">Main</div>
-    <a href="/dashboard" class="nav-item"><span class="nav-icon">⊞</span>Dashboard</a>
-    <a href="/campaign-tiers" class="nav-item"><span class="nav-icon">📦</span>Campaign Tiers</a>
-    <a href="/watch" class="nav-item"><span class="nav-icon">▶</span>Video Hub</a>
-    <a href="/video-library" class="nav-item"><span class="nav-icon">🎬</span>My Campaigns</a>
-    <a href="/analytics" class="nav-item"><span class="nav-icon">📈</span>Analytics</a>
-    <div class="nav-section">Marketing Suite</div>
-    <a href="/campaign-studio" class="nav-item"><span class="nav-icon">🤖</span>AI Campaign Studio</a>
-    <a href="/funnels" class="nav-item"><span class="nav-icon">🚀</span>Funnel Builder</a>
-    <a href="/link-tools" class="nav-item"><span class="nav-icon">🔗</span>Link Tools</a>
-    <a href="/niche-finder" class="nav-item"><span class="nav-icon">💡</span>Niche Finder</a>
-    <a href="/swipe-file" class="nav-item"><span class="nav-icon">📋</span>Swipe File</a>
-    <div class="nav-section">Income Streams</div>
-    <a href="/income-grid" class="nav-item"><span class="nav-icon">⚡</span>Profit Engine Grid</a>
-    <a href="/wallet" class="nav-item"><span class="nav-icon">◎</span>Wallet</a>
-    <a href="/affiliate" class="nav-item"><span class="nav-icon">🤝</span>Affiliate Tools</a>
-    <a href="/compensation-plan" class="nav-item"><span class="nav-icon">📊</span>Comp Plan</a>
-    <a href="/grid-visualiser" class="nav-item"><span class="nav-icon">◈</span>Grid Visualiser</a>
-    <div class="nav-section">Account</div>
-    <a href="/account" class="nav-item active"><span class="nav-icon">◉</span>My Profile</a>
-    <a href="/support" class="nav-item"><span class="nav-icon">◌</span>Support</a>
-    <div class="sidebar-footer">
-      <a href="/logout" style="display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:16px;color:#64748b;text-decoration:none;margin-top:4px;border-radius:6px;transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">⎋ Sign Out</a>
-    </div>
-  </aside>
+    {% include "_sidebar.html" %}
 
 <div class="main">
 <div class="topbar">
