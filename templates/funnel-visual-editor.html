@@ -101,6 +101,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .ed-divider{height:1px;background:var(--border);margin:14px 0}
 .ed-label{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#38bdf8;margin:12px 0 6px}
+.styled-select{width:100%;padding:8px 10px;background:rgba(14,165,233,0.04);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:inherit;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+.styled-select:focus{outline:none;border-color:rgba(14,165,233,0.4)}
+.styled-select option{background:var(--surface);color:var(--text)}
 </style>
 </head>
 <body>
@@ -384,9 +387,19 @@ async function init(){
   try{
     const r=await fetch(`/api/funnels/load/${PAGE_ID}`),d=await r.json();
     document.getElementById('pageName').value=d.title||'';
-    if(Array.isArray(d.gjs_components)&&d.gjs_components.length>0&&d.gjs_components[0]&&d.gjs_components[0].type)pageSections=d.gjs_components;
-    if(d.gjs_styles&&typeof d.gjs_styles==='object'){currentTheme=d.gjs_styles.theme||'dark-blue';currentAccent=d.gjs_styles.accent||'#0ea5e9';}
-  }catch(e){}
+    // Only load if data is in our section format (has .fields property)
+    if(Array.isArray(d.gjs_components)&&d.gjs_components.length>0&&d.gjs_components[0]&&d.gjs_components[0].fields){
+      pageSections=d.gjs_components.map(sec=>{
+        // Ensure style exists with defaults
+        const def=DEFAULTS[sec.type];
+        if(def&&!sec.style)sec.style={...def.style};
+        return sec;
+      });
+    }
+    if(d.gjs_styles&&typeof d.gjs_styles==='object'&&d.gjs_styles.theme){
+      currentTheme=d.gjs_styles.theme;currentAccent=d.gjs_styles.accent||'#0ea5e9';
+    }
+  }catch(e){console.log('Load error or new page',e)}
   if(!pageSections.length)pageSections=[
     {type:'hero',enabled:true,fields:{...DEFAULTS.hero.fields},style:{...DEFAULTS.hero.style}},
     {type:'features',enabled:true,fields:{...DEFAULTS.features.fields},style:{...DEFAULTS.features.style}},
