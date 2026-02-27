@@ -256,6 +256,17 @@ class AIUsageQuota(Base):
     swipe_file_total    = Column(Integer, default=0)          # lifetime total
     updated_at          = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+class AIResponseCache(Base):
+    """Cache AI responses to avoid duplicate API calls for identical prompts."""
+    __tablename__ = "ai_response_cache"
+    id          = Column(Integer, primary_key=True, index=True)
+    tool        = Column(String, index=True)              # e.g. "niche_finder", "social_posts"
+    prompt_hash = Column(String, index=True, unique=True) # SHA256 of the prompt
+    response    = Column(Text)                            # cached JSON response
+    hit_count   = Column(Integer, default=0)              # times served from cache
+    created_at  = Column(DateTime, default=datetime.utcnow)
+    expires_at  = Column(DateTime)                        # cache TTL
+
 class FunnelPage(Base):
     """Member-created landing pages and funnel steps."""
     __tablename__ = "funnel_pages"
@@ -441,6 +452,7 @@ try:
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS video_scripts_total INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS swipe_file_uses INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS swipe_file_total INTEGER DEFAULT 0"))
+        conn.execute(text("CREATE TABLE IF NOT EXISTS ai_response_cache (id SERIAL PRIMARY KEY, tool VARCHAR, prompt_hash VARCHAR UNIQUE, response TEXT, hit_count INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), expires_at TIMESTAMP)"))
         # Mark existing users as onboarding complete (they don't need the wizard)
         conn.execute(text("UPDATE users SET onboarding_completed = TRUE WHERE onboarding_completed IS NULL OR (created_at < NOW() - INTERVAL '1 hour')"))
         conn.commit()

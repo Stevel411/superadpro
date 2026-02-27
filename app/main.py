@@ -26,7 +26,7 @@ from .grid import (
 )
 from .email_utils import send_password_reset_email
 from .video_utils import parse_video_url, platform_label, platform_colour
-from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator
+from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator
 from .database import PasswordResetToken
 import secrets
 from datetime import timedelta
@@ -576,7 +576,7 @@ async def generate_launch_funnel(request: Request, user: User = Depends(get_curr
         try:
             client = anthropic.Anthropic(api_key=api_key)
             resp = client.messages.create(
-                model="claude-sonnet-4-20250514",
+                model=AI_MODEL_HAIKU,  # Cost-optimised,
                 max_tokens=500,
                 system="You write punchy marketing copy. Return ONLY valid JSON — no markdown.",
                 messages=[{"role": "user", "content": f"""Generate funnel page copy for someone promoting {niche} to {audience}. Tone: {tone}.
@@ -645,7 +645,7 @@ async def generate_social_posts(request: Request, user: User = Depends(get_curre
         try:
             client = anthropic.Anthropic(api_key=api_key)
             resp = client.messages.create(
-                model="claude-sonnet-4-20250514",
+                model=AI_MODEL_HAIKU,  # Cost-optimised,
                 max_tokens=600,
                 system="Write social media posts. Return ONLY valid JSON — no markdown.",
                 messages=[{"role": "user", "content": f"""Write 5 social posts for {name} promoting their {niche} funnel page at {full_link}.
@@ -1462,26 +1462,96 @@ def admin_panel(request: Request, user: User = Depends(get_current_user),
 #  AI USAGE RATE LIMITING
 # ═══════════════════════════════════════════════════════════════
 
+# ═══════════════════════════════════════════════════════════════
+#  AI MODEL ROUTING — use Haiku for simple tools, Sonnet for complex
+# ═══════════════════════════════════════════════════════════════
+AI_MODEL_SONNET = "claude-sonnet-4-20250514"
+AI_MODEL_HAIKU  = "claude-haiku-4-5-20251001"
+
+# Which model each tool uses (Haiku is ~10x cheaper)
+AI_TOOL_MODELS = {
+    "campaign_studio":  AI_MODEL_SONNET,   # Complex: full campaign generation
+    "funnel_copy":      AI_MODEL_SONNET,   # Complex: landing page copywriting
+    "ai_recommendations": AI_MODEL_SONNET, # Complex: strategic analysis
+    "niche_finder":     AI_MODEL_HAIKU,    # Simple: structured JSON output
+    "social_posts":     AI_MODEL_HAIKU,    # Simple: short captions
+    "video_scripts":    AI_MODEL_HAIKU,    # Simple: template-based scripts
+    "swipe_file":       AI_MODEL_HAIKU,    # Simple: email templates
+    "launch_wizard":    AI_MODEL_HAIKU,    # Simple: template generation
+    "chat":             AI_MODEL_HAIKU,    # Simple: short responses
+}
+
+def get_ai_model(tool: str) -> str:
+    """Return the appropriate model for a given tool."""
+    return AI_TOOL_MODELS.get(tool, AI_MODEL_HAIKU)
+
+# ═══════════════════════════════════════════════════════════════
+#  AI RESPONSE CACHE — avoid duplicate API calls
+# ═══════════════════════════════════════════════════════════════
+import hashlib
+
+# Cache TTL per tool (hours) — longer for stable outputs
+AI_CACHE_TTL = {
+    "niche_finder":  48,   # Niches don't change often
+    "social_posts":  24,   # Fresh daily
+    "video_scripts": 48,
+    "swipe_file":    24,
+    "campaign_studio": 12, # More personalised, shorter cache
+}
+
+def get_cached_response(db: Session, tool: str, prompt: str):
+    """Check cache for an existing response. Returns response text or None."""
+    prompt_hash = hashlib.sha256(f"{tool}:{prompt}".encode()).hexdigest()
+    cached = db.query(AIResponseCache).filter(
+        AIResponseCache.prompt_hash == prompt_hash,
+        AIResponseCache.expires_at > datetime.utcnow()
+    ).first()
+    if cached:
+        cached.hit_count = (cached.hit_count or 0) + 1
+        db.commit()
+        return cached.response
+    return None
+
+def cache_response(db: Session, tool: str, prompt: str, response: str):
+    """Store an AI response in cache."""
+    prompt_hash = hashlib.sha256(f"{tool}:{prompt}".encode()).hexdigest()
+    ttl_hours = AI_CACHE_TTL.get(tool, 24)
+    expires = datetime.utcnow() + timedelta(hours=ttl_hours)
+    # Upsert
+    existing = db.query(AIResponseCache).filter(AIResponseCache.prompt_hash == prompt_hash).first()
+    if existing:
+        existing.response = response
+        existing.expires_at = expires
+        existing.hit_count = 0
+    else:
+        db.add(AIResponseCache(
+            tool=tool, prompt_hash=prompt_hash,
+            response=response, expires_at=expires
+        ))
+    db.commit()
+
+# ═══════════════════════════════════════════════════════════════
+#  AI DAILY LIMITS — tier-based to control costs
+# ═══════════════════════════════════════════════════════════════
 DAILY_LIMITS = {
-    "campaign_studio": 10,
-    "niche_finder":    10,
-    "social_posts":    15,
-    "video_scripts":   10,
-    "swipe_file":      10,
+    "campaign_studio": 8,
+    "niche_finder":    8,
+    "social_posts":    10,
+    "video_scripts":   8,
+    "swipe_file":      6,
 }
 
 # Tier-based multipliers — higher tiers get more AI uses per day
-# Returns a multiplied limit based on user's highest active grid tier
 TIER_AI_MULTIPLIERS = {
-    0: 0.2,   # No grid: 2/day (base * 0.2)
-    1: 0.3,   # Starter $20: 3/day
-    2: 0.3,   # Builder $50: 3/day
-    3: 0.5,   # Pro $100: 5/day
-    4: 0.5,   # Advanced $200: 5/day
-    5: 0.8,   # Elite $400: 8/day
-    6: 0.8,   # Premium $600: 8/day
-    7: 1.2,   # Executive $800: 12/day
-    8: 1.2,   # Ultimate $1000: 12/day
+    0: 0.25,  # No grid: 2/day per tool
+    1: 0.375, # Starter $20: 3/day
+    2: 0.375, # Builder $50: 3/day
+    3: 0.5,   # Pro $100: 4/day
+    4: 0.5,   # Advanced $200: 4/day
+    5: 0.75,  # Elite $400: 6/day
+    6: 0.75,  # Premium $600: 6/day
+    7: 1.0,   # Executive $800: 8/day
+    8: 1.0,   # Ultimate $1000: 8/day
 }
 
 def get_user_highest_tier(db: Session, user_id: int) -> int:
@@ -1713,7 +1783,7 @@ Make every word count. Use power words. Create genuine curiosity and desire. Avo
         import anthropic, json
         client = anthropic.Anthropic(api_key=api_key)
         message = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=AI_MODEL_SONNET,  # Complex generation,
             max_tokens=800,
             messages=[{"role": "user", "content": prompt}]
         )
@@ -2602,7 +2672,7 @@ YOUR PERSONALITY & RULES:
         import anthropic
         client = anthropic.Anthropic(api_key=api_key)
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=AI_MODEL_HAIKU,  # Cost-optimised,
             max_tokens=300,
             system=system_prompt,
             messages=messages,
@@ -2748,7 +2818,7 @@ Keep recommendations concise, specific and immediately actionable. Use a friendl
         import anthropic
         client = anthropic.Anthropic(api_key=api_key)
         message = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=AI_MODEL_SONNET,  # Complex generation,
             max_tokens=1000,
             messages=[{"role": "user", "content": prompt}]
         )
@@ -2907,7 +2977,7 @@ IMPORTANT RULES:
     try:
         client = anthropic.Anthropic(api_key=api_key)
         message = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=AI_MODEL_SONNET,  # Complex generation,
             max_tokens=4000,
             messages=[{"role": "user", "content": prompt}]
         )
@@ -3362,7 +3432,7 @@ IMPORTANT:
     try:
         client = anthropic.Anthropic(api_key=api_key)
         message = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=AI_MODEL_HAIKU,  # Cost-optimised,
             max_tokens=2000,
             messages=[{"role": "user", "content": prompt}]
         )
@@ -3468,7 +3538,7 @@ Return ONLY the posts, no preamble or explanation."""
     try:
         client = anthropic.Anthropic()
         message = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=AI_MODEL_HAIKU,  # Cost-optimised,
             max_tokens=2000,
             messages=[{"role": "user", "content": prompt}]
         )
@@ -3592,7 +3662,7 @@ RULES:
     try:
         client = anthropic.Anthropic()
         message = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=AI_MODEL_HAIKU,  # Cost-optimised,
             max_tokens=2500,
             messages=[{"role": "user", "content": prompt}]
         )
