@@ -344,6 +344,11 @@ class FunnelPage(Base):
     custom_bg       = Column(String, default="")
     font_family     = Column(String, default="Rethink Sans")
     custom_css      = Column(Text, nullable=True)
+    # GrapesJS visual editor data
+    gjs_components  = Column(Text, nullable=True)          # JSON: GrapesJS components tree
+    gjs_styles      = Column(Text, nullable=True)          # JSON: GrapesJS styles
+    gjs_html        = Column(Text, nullable=True)          # compiled HTML from GrapesJS
+    gjs_css         = Column(Text, nullable=True)          # compiled CSS from GrapesJS
     # SEO
     meta_description = Column(Text, nullable=True)
     og_image_url    = Column(String, nullable=True)
@@ -468,6 +473,10 @@ def run_migrations():
         "CREATE TABLE IF NOT EXISTS funnel_pages (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), slug VARCHAR, title VARCHAR NOT NULL, template_type VARCHAR DEFAULT 'opportunity', status VARCHAR DEFAULT 'draft', headline TEXT, subheadline TEXT, body_copy TEXT, cta_text VARCHAR, cta_url VARCHAR, video_url VARCHAR, image_url VARCHAR, sections_json TEXT, color_scheme VARCHAR DEFAULT 'dark', accent_color VARCHAR DEFAULT '#00d4ff', font_family VARCHAR DEFAULT 'Rethink Sans', custom_css TEXT, meta_description TEXT, og_image_url VARCHAR, funnel_name VARCHAR, funnel_order INTEGER DEFAULT 0, next_page_id INTEGER REFERENCES funnel_pages(id), views INTEGER DEFAULT 0, clicks INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
         "CREATE INDEX IF NOT EXISTS idx_funnel_pages_slug ON funnel_pages(slug)",
         "CREATE INDEX IF NOT EXISTS idx_funnel_pages_user ON funnel_pages(user_id)",
+        "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS gjs_components TEXT",
+        "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS gjs_styles TEXT",
+        "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS gjs_html TEXT",
+        "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS gjs_css TEXT",
         # Targeting & priority columns on video_campaigns
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_country VARCHAR",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_interests VARCHAR",

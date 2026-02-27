@@ -27,6 +27,14 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;min-height:100vh}
 <body>
 
 <div id="pageContent"></div>
+
+{% if page.gjs_html %}
+<!-- GrapesJS Visual Builder Output -->
+<style>{{ page.gjs_css or '' }}</style>
+<div id="gjsContent">{{ page.gjs_html|safe }}</div>
+<script>document.getElementById('pageContent').style.display='none';</script>
+{% endif %}
+
 <div class="page-footer">Powered by <a href="{{ owner_ref_link }}">SuperAdPro</a></div>
 
 <!-- AI SALES CHATBOT WIDGET -->

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Visual Builder — {{ page.title }}</title>
+<link rel="stylesheet" href="https://unpkg.com/grapesjs@0.22.4/dist/css/grapes.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* ── SuperAdPro Topbar ── */
+.sap-topbar{display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 20px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.15);z-index:999;position:relative}
+.sap-topbar-left{display:flex;align-items:center;gap:14px}
+.sap-topbar-left a{color:#6b7d94;font-size:13px;font-weight:600;text-decoration:none;padding:6px 12px;border-radius:6px;border:1px solid rgba(148,163,184,0.15);font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.sap-topbar-left a:hover{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
+.sap-topbar-center{display:flex;align-items:center;gap:12px}
+.sap-topbar-center .logo{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff}
+.sap-topbar-center .logo span{color:#0ea5e9}
+.page-title-input{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#e2e8f0;font-size:13px;font-family:'DM Sans',sans-serif;padding:6px 12px;width:220px;transition:border-color 0.2s}
+.page-title-input:focus{outline:none;border-color:#38bdf8}
+.sap-topbar-right{display:flex;align-items:center;gap:8px}
+.tb-btn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.tb-save{background:#16a34a;color:#fff}.tb-save:hover{background:#15803d}
+.tb-pub{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff}.tb-pub:hover{opacity:0.9}
+.tb-preview{background:rgba(255,255,255,0.06);color:#94a3b8;border:1px solid rgba(255,255,255,0.1)}.tb-preview:hover{color:#fff}
+.save-status{font-size:11px;color:#64748b;font-family:'DM Sans',sans-serif}
+
+/* ── GrapesJS Theme Override ── */
+.gjs-one-bg{background-color:#0f172a}
+.gjs-two-color{color:rgba(255,255,255,0.7)}
+.gjs-three-bg{background-color:#0ea5e9;color:#fff}
+.gjs-four-color,.gjs-four-color-h:hover{color:#0ea5e9}
+
+/* Panels */
+.gjs-pn-panel{padding:0}
+.gjs-pn-views-container{width:280px!important;background:#0a0a1a;border-left:1px solid rgba(14,165,233,0.1)}
+.gjs-pn-views{border-bottom:1px solid rgba(255,255,255,0.06)}
+.gjs-pn-btn{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;border-radius:6px}
+.gjs-pn-btn.gjs-pn-active{background:#0ea5e9;color:#fff;box-shadow:0 2px 8px rgba(14,165,233,0.3)}
+
+/* Blocks */
+.gjs-blocks-cs{padding:8px}
+.gjs-block{border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);padding:12px 8px;min-height:60px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:#94a3b8;transition:all 0.15s}
+.gjs-block:hover{border-color:rgba(14,165,233,0.3);background:rgba(14,165,233,0.05);color:#fff}
+.gjs-block svg{fill:#64748b}
+.gjs-block:hover svg{fill:#38bdf8}
+.gjs-block-label{font-family:'DM Sans',sans-serif}
+
+/* Style Manager */
+.gjs-sm-sector .gjs-sm-sector-title{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;padding:10px 14px;background:rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.04)}
+.gjs-field{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#e2e8f0}
+.gjs-field:focus-within{border-color:#38bdf8}
+.gjs-sm-label{font-family:'DM Sans',sans-serif;font-size:11px;color:#64748b}
+
+/* Layer manager */
+.gjs-layer-name{font-family:'DM Sans',sans-serif;font-size:12px}
+
+/* Canvas */
+.gjs-cv-canvas{background:#1e293b}
+.gjs-frame-wrapper{background:#fff;border-radius:8px;box-shadow:0 4px 24px rgba(0,0,0,0.3)}
+
+/* Toolbar */
+.gjs-toolbar{background:#0a0a1a;border:1px solid rgba(14,165,233,0.2);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.4)}
+.gjs-toolbar-item{color:#94a3b8;font-size:13px}
+.gjs-toolbar-item:hover{color:#38bdf8}
+
+/* Selection highlight */
+.gjs-selected{outline:2px solid #0ea5e9!important;outline-offset:0}
+.gjs-highlighter{outline:2px solid rgba(14,165,233,0.4)!important}
+
+/* RTE */
+.gjs-rte-toolbar{background:#0a0a1a;border:1px solid rgba(14,165,233,0.2);border-radius:6px}
+.gjs-rte-actionbar .gjs-rte-action{color:#94a3b8}
+.gjs-rte-actionbar .gjs-rte-action:hover{color:#38bdf8}
+
+/* Device buttons */
+.gjs-devices-c{padding:4px 8px}
+.gjs-devices-c .gjs-device-label{font-family:'DM Sans',sans-serif;font-size:11px}
+
+#gjs{height:calc(100vh - 56px);width:100%;border:none}
+</style>
+</head>
+<body>
+
+<!-- SuperAdPro Topbar -->
+<div class="sap-topbar">
+  <div class="sap-topbar-left">
+    <a href="/funnels">← Back to Funnels</a>
+  </div>
+  <div class="sap-topbar-center">
+    <div class="logo">Super<span>Ad</span>Pro</div>
+    <input type="text" class="page-title-input" id="pageTitle" value="{{ page.title }}" placeholder="Page title...">
+    <span class="save-status" id="saveStatus"></span>
+  </div>
+  <div class="sap-topbar-right">
+    <button class="tb-btn tb-preview" onclick="previewPage()">👁 Preview</button>
+    <button class="tb-btn tb-save" onclick="savePage()">💾 Save</button>
+    <button class="tb-btn tb-pub" onclick="publishPage()">🚀 Publish</button>
+  </div>
+</div>
+
+<!-- GrapesJS Editor -->
+<div id="gjs"></div>
+
+<script src="https://unpkg.com/grapesjs@0.22.4"></script>
+<script src="https://unpkg.com/grapesjs-blocks-basic@1.0.2"></script>
+<script src="https://unpkg.com/grapesjs-preset-webpage@1.0.3"></script>
+<script src="https://unpkg.com/grapesjs-plugin-forms@2.0.6"></script>
+<script>
+const PAGE_ID = {{ page.id }};
+const PAGE_SLUG = "{{ page.slug }}";
+let currentStatus = "{{ page.status }}";
+
+// ── Initialize GrapesJS ──
+const editor = grapesjs.init({
+  container: '#gjs',
+  height: 'calc(100vh - 56px)',
+  width: 'auto',
+  fromElement: false,
+  storageManager: false, // we handle save ourselves
+  plugins: ['gjs-blocks-basic', 'grapesjs-preset-webpage', 'gjs-plugin-forms'],
+  pluginsOpts: {
+    'gjs-blocks-basic': {
+      flexGrid: true,
+    },
+    'grapesjs-preset-webpage': {
+      modalImportTitle: 'Import HTML',
+      modalImportLabel: '<div style="margin-bottom:10px;font-size:13px;color:#94a3b8">Paste your HTML/CSS code below:</div>',
+      modalImportContent: '',
+    },
+    'gjs-plugin-forms': {
+      blocks: ['form', 'input', 'textarea', 'select', 'button', 'label', 'checkbox', 'radio'],
+    }
+  },
+
+  canvas: {
+    styles: [
+      'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Sora:wght@400;600;700;800&display=swap'
+    ]
+  },
+
+  deviceManager: {
+    devices: [
+      { name: 'Desktop', width: '' },
+      { name: 'Tablet', width: '768px', widthMedia: '992px' },
+      { name: 'Mobile', width: '375px', widthMedia: '480px' },
+    ]
+  },
+
+  styleManager: {
+    sectors: [
+      {
+        name: 'General',
+        properties: [
+          { extend: 'float', type: 'radio', default: 'none', options: [
+            { value: 'none', name: 'None' }, { value: 'left', name: 'Left' }, { value: 'right', name: 'Right' }
+          ]},
+          'display', 'position', 'top', 'right', 'left', 'bottom',
+        ],
+      },
+      {
+        name: 'Dimension',
+        open: false,
+        properties: ['width', 'height', 'max-width', 'min-height', 'margin', 'padding'],
+      },
+      {
+        name: 'Typography',
+        open: false,
+        properties: [
+          'font-family', 'font-size', 'font-weight', 'letter-spacing',
+          'color', 'line-height', 'text-align', 'text-decoration', 'text-shadow',
+        ],
+      },
+      {
+        name: 'Decorations',
+        open: false,
+        properties: ['background-color', 'background', 'border-radius', 'border', 'box-shadow', 'opacity'],
+      },
+    ],
+  },
+});
+
+// ── Add Custom SuperAdPro Blocks ──
+const bm = editor.BlockManager;
+
+// --- Page Sections ---
+bm.add('hero-section', {
+  label: '🚀 Hero Section',
+  category: 'Sections',
+  content: `<section style="padding:80px 24px;text-align:center;background:linear-gradient(135deg,#0a0a1a 0%,#1a1a4a 50%,#0a0a2a 100%);color:#fff;font-family:DM Sans,sans-serif">
+    <h1 style="font-family:Sora,sans-serif;font-size:48px;font-weight:800;margin-bottom:16px;line-height:1.1">Your Headline Goes Here</h1>
+    <p style="font-size:18px;color:rgba(255,255,255,0.7);max-width:600px;margin:0 auto 32px;line-height:1.6">A compelling subheadline that explains the value proposition and gets visitors excited about your offer.</p>
+    <a href="#" style="display:inline-block;padding:16px 40px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-radius:12px;font-weight:700;font-size:16px;text-decoration:none">Get Started Now →</a>
+  </section>`,
+});
+
+bm.add('hero-video', {
+  label: '🎬 Video Hero',
+  category: 'Sections',
+  content: `<section style="padding:60px 24px;text-align:center;background:#0f172a;color:#fff;font-family:DM Sans,sans-serif">
+    <h1 style="font-family:Sora,sans-serif;font-size:42px;font-weight:800;margin-bottom:12px">Watch This Short Video</h1>
+    <p style="font-size:16px;color:rgba(255,255,255,0.6);margin-bottom:28px">See exactly how this system works in under 3 minutes.</p>
+    <div style="max-width:720px;margin:0 auto 32px;aspect-ratio:16/9;background:#1e293b;border-radius:16px;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:48px">▶</div>
+    <a href="#" style="display:inline-block;padding:16px 40px;background:#16a34a;color:#fff;border-radius:12px;font-weight:700;font-size:16px;text-decoration:none">Yes, I Want In →</a>
+  </section>`,
+});
+
+bm.add('optin-section', {
+  label: '📧 Opt-In Form',
+  category: 'Lead Capture',
+  content: `<section style="padding:60px 24px;background:linear-gradient(135deg,#0c4a6e,#0369a1);color:#fff;font-family:DM Sans,sans-serif;text-align:center">
+    <div style="max-width:480px;margin:0 auto">
+      <h2 style="font-family:Sora,sans-serif;font-size:32px;font-weight:800;margin-bottom:8px">Get Instant Access</h2>
+      <p style="font-size:15px;color:rgba(255,255,255,0.7);margin-bottom:24px">Enter your details below to get started right away.</p>
+      <form style="display:flex;flex-direction:column;gap:12px">
+        <input type="text" placeholder="Your Name" style="padding:14px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#fff;font-size:15px;font-family:inherit">
+        <input type="email" placeholder="Your Email" style="padding:14px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#fff;font-size:15px;font-family:inherit">
+        <button type="submit" style="padding:16px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#000;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit">Send Me The Free Guide →</button>
+      </form>
+      <p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:12px">We respect your privacy. Unsubscribe at any time.</p>
+    </div>
+  </section>`,
+});
+
+bm.add('features-grid', {
+  label: '✨ Features Grid',
+  category: 'Sections',
+  content: `<section style="padding:60px 24px;background:#fff;font-family:DM Sans,sans-serif">
+    <div style="max-width:900px;margin:0 auto;text-align:center">
+      <h2 style="font-family:Sora,sans-serif;font-size:32px;font-weight:800;color:#0f172a;margin-bottom:40px">Why Choose Us</h2>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+        <div style="padding:28px;border-radius:16px;border:1px solid #e2e8f0;text-align:center">
+          <div style="font-size:36px;margin-bottom:12px">🚀</div>
+          <h3 style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px">Feature One</h3>
+          <p style="font-size:14px;color:#64748b;line-height:1.6">Brief description of this amazing feature and its benefit.</p>
+        </div>
+        <div style="padding:28px;border-radius:16px;border:1px solid #e2e8f0;text-align:center">
+          <div style="font-size:36px;margin-bottom:12px">💰</div>
+          <h3 style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px">Feature Two</h3>
+          <p style="font-size:14px;color:#64748b;line-height:1.6">Brief description of this amazing feature and its benefit.</p>
+        </div>
+        <div style="padding:28px;border-radius:16px;border:1px solid #e2e8f0;text-align:center">
+          <div style="font-size:36px;margin-bottom:12px">⚡</div>
+          <h3 style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px">Feature Three</h3>
+          <p style="font-size:14px;color:#64748b;line-height:1.6">Brief description of this amazing feature and its benefit.</p>
+        </div>
+      </div>
+    </div>
+  </section>`,
+});
+
+bm.add('testimonials', {
+  label: '⭐ Testimonials',
+  category: 'Sections',
+  content: `<section style="padding:60px 24px;background:#f8fafc;font-family:DM Sans,sans-serif">
+    <div style="max-width:900px;margin:0 auto;text-align:center">
+      <h2 style="font-family:Sora,sans-serif;font-size:28px;font-weight:800;color:#0f172a;margin-bottom:36px">What People Are Saying</h2>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;text-align:left">
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px">
+          <p style="font-size:15px;color:#334155;line-height:1.7;margin-bottom:16px">"This completely changed my approach. Within 30 days I saw real results."</p>
+          <div style="font-size:14px;font-weight:700;color:#0f172a">— Sarah K.</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px">
+          <p style="font-size:15px;color:#334155;line-height:1.7;margin-bottom:16px">"Finally a system that actually delivers what it promises. Highly recommended."</p>
+          <div style="font-size:14px;font-weight:700;color:#0f172a">— Mike R.</div>
+        </div>
+      </div>
+    </div>
+  </section>`,
+});
+
+bm.add('cta-section', {
+  label: '🔥 CTA Banner',
+  category: 'Sections',
+  content: `<section style="padding:60px 24px;background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff;text-align:center;font-family:DM Sans,sans-serif">
+    <h2 style="font-family:Sora,sans-serif;font-size:36px;font-weight:800;margin-bottom:12px">Ready to Get Started?</h2>
+    <p style="font-size:16px;color:rgba(255,255,255,0.8);margin-bottom:28px;max-width:500px;margin-left:auto;margin-right:auto">Join thousands of people who are already building their future with us.</p>
+    <a href="#" style="display:inline-block;padding:18px 48px;background:#fff;color:#7c3aed;border-radius:12px;font-weight:800;font-size:17px;text-decoration:none">Claim Your Spot Now →</a>
+  </section>`,
+});
+
+bm.add('pricing-table', {
+  label: '💲 Pricing Card',
+  category: 'Sales',
+  content: `<section style="padding:60px 24px;background:#fff;font-family:DM Sans,sans-serif;text-align:center">
+    <div style="max-width:400px;margin:0 auto;background:#fff;border:2px solid #0ea5e9;border-radius:20px;overflow:hidden;box-shadow:0 8px 32px rgba(14,165,233,0.15)">
+      <div style="background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:28px;color:#fff">
+        <div style="font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Premium Access</div>
+        <div style="font-family:Sora,sans-serif;font-size:48px;font-weight:800">$97</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.7)">one-time payment</div>
+      </div>
+      <div style="padding:28px">
+        <div style="text-align:left;margin-bottom:24px">
+          <div style="padding:8px 0;font-size:14px;color:#334155">✓ Full course access</div>
+          <div style="padding:8px 0;font-size:14px;color:#334155">✓ Private community</div>
+          <div style="padding:8px 0;font-size:14px;color:#334155">✓ Weekly live calls</div>
+          <div style="padding:8px 0;font-size:14px;color:#334155">✓ Done-for-you templates</div>
+          <div style="padding:8px 0;font-size:14px;color:#334155">✓ Lifetime updates</div>
+        </div>
+        <a href="#" style="display:block;padding:16px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-radius:12px;font-weight:700;font-size:16px;text-decoration:none">Buy Now →</a>
+      </div>
+    </div>
+  </section>`,
+});
+
+bm.add('countdown-urgency', {
+  label: '⏰ Countdown',
+  category: 'Sales',
+  content: `<section style="padding:40px 24px;background:#fef3c7;font-family:DM Sans,sans-serif;text-align:center;border-top:3px solid #f59e0b;border-bottom:3px solid #f59e0b">
+    <div style="font-size:14px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">⚠️ Limited Time Offer</div>
+    <div style="font-family:Sora,sans-serif;font-size:28px;font-weight:800;color:#78350f">This price expires in 24:00:00</div>
+    <p style="font-size:14px;color:#92400e;margin-top:8px">After that, the price goes back to full price. Don't miss out.</p>
+  </section>`,
+});
+
+bm.add('guarantee-box', {
+  label: '🛡 Guarantee',
+  category: 'Sales',
+  content: `<section style="padding:48px 24px;background:#f0fdf4;font-family:DM Sans,sans-serif;text-align:center">
+    <div style="max-width:600px;margin:0 auto">
+      <div style="font-size:48px;margin-bottom:12px">🛡</div>
+      <h2 style="font-family:Sora,sans-serif;font-size:24px;font-weight:800;color:#166534;margin-bottom:12px">30-Day Money-Back Guarantee</h2>
+      <p style="font-size:15px;color:#047857;line-height:1.7">Try everything completely risk-free. If you're not 100% satisfied within 30 days, we'll refund every penny. No questions asked. You have absolutely nothing to lose.</p>
+    </div>
+  </section>`,
+});
+
+bm.add('webinar-reg', {
+  label: '🎥 Webinar Signup',
+  category: 'Lead Capture',
+  content: `<section style="padding:60px 24px;background:linear-gradient(135deg,#1e1b4b,#312e81);color:#fff;font-family:DM Sans,sans-serif;text-align:center">
+    <div style="max-width:520px;margin:0 auto">
+      <div style="font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#a78bfa;margin-bottom:12px">Free Live Training</div>
+      <h2 style="font-family:Sora,sans-serif;font-size:32px;font-weight:800;margin-bottom:8px">How To Build A 6-Figure Business Online</h2>
+      <p style="font-size:15px;color:rgba(255,255,255,0.6);margin-bottom:28px">Register now to save your spot. Limited seats available.</p>
+      <form style="display:flex;flex-direction:column;gap:10px">
+        <input type="text" placeholder="Your Name" style="padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-size:15px;font-family:inherit">
+        <input type="email" placeholder="Your Best Email" style="padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-size:15px;font-family:inherit">
+        <button type="submit" style="padding:16px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#000;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit">Reserve My Seat Now →</button>
+      </form>
+    </div>
+  </section>`,
+});
+
+bm.add('thankyou-section', {
+  label: '✅ Thank You',
+  category: 'Pages',
+  content: `<section style="padding:80px 24px;background:#fff;font-family:DM Sans,sans-serif;text-align:center;min-height:60vh;display:flex;align-items:center;justify-content:center">
+    <div style="max-width:500px">
+      <div style="font-size:64px;margin-bottom:16px">🎉</div>
+      <h1 style="font-family:Sora,sans-serif;font-size:36px;font-weight:800;color:#0f172a;margin-bottom:12px">Thank You!</h1>
+      <p style="font-size:16px;color:#64748b;line-height:1.7;margin-bottom:28px">Your request has been received. Check your email for the next steps.</p>
+      <a href="#" style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-radius:12px;font-weight:700;text-decoration:none">Continue →</a>
+    </div>
+  </section>`,
+});
+
+bm.add('footer-section', {
+  label: '📋 Footer',
+  category: 'Sections',
+  content: `<footer style="padding:32px 24px;background:#0a0a1a;color:rgba(255,255,255,0.4);text-align:center;font-family:DM Sans,sans-serif;font-size:12px">
+    <p>© 2026 Your Company. All rights reserved.</p>
+    <p style="margin-top:8px"><a href="#" style="color:rgba(255,255,255,0.3);text-decoration:none">Privacy Policy</a> · <a href="#" style="color:rgba(255,255,255,0.3);text-decoration:none">Terms of Service</a></p>
+  </footer>`,
+});
+
+
+// ── Load existing content ──
+async function loadPage() {
+  try {
+    const res = await fetch(`/api/funnels/load/${PAGE_ID}`);
+    const data = await res.json();
+    if (data.gjs_components && data.gjs_components.length > 0) {
+      editor.loadProjectData({
+        pages: [{ component: data.gjs_components, style: data.gjs_styles }]
+      });
+    }
+    document.getElementById('pageTitle').value = data.title || '';
+  } catch(e) {
+    console.log('New page — starting fresh');
+  }
+}
+loadPage();
+
+
+// ── Save ──
+async function savePage(publish = false) {
+  const status = document.getElementById('saveStatus');
+  status.textContent = 'Saving...';
+  status.style.color = '#fbbf24';
+
+  const projectData = editor.getProjectData();
+  const html = editor.getHtml();
+  const css = editor.getCss();
+  const components = projectData.pages?.[0]?.frames?.[0]?.component || projectData.pages?.[0]?.component || [];
+  const styles = projectData.styles || [];
+
+  const body = {
+    id: PAGE_ID,
+    title: document.getElementById('pageTitle').value || 'Untitled',
+    status: publish ? 'published' : currentStatus,
+    gjs_components: components,
+    gjs_styles: styles,
+    gjs_html: html,
+    gjs_css: css,
+  };
+
+  try {
+    const res = await fetch('/api/funnels/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const result = await res.json();
+    if (result.success) {
+      currentStatus = result.status;
+      status.textContent = publish ? '✓ Published!' : '✓ Saved';
+      status.style.color = '#16a34a';
+      if (publish) {
+        setTimeout(() => {
+          status.textContent = `Live at /p/${result.slug}`;
+        }, 1500);
+      }
+    } else {
+      status.textContent = '✗ ' + (result.error || 'Save failed');
+      status.style.color = '#ef4444';
+    }
+  } catch(e) {
+    status.textContent = '✗ Network error';
+    status.style.color = '#ef4444';
+  }
+  setTimeout(() => { status.textContent = ''; }, 4000);
+}
+
+async function publishPage() {
+  await savePage(true);
+}
+
+function previewPage() {
+  window.open(`/p/${PAGE_SLUG}`, '_blank');
+}
+
+// ── Auto-save every 60s ──
+setInterval(() => {
+  if (editor.getDirtyCount() > 0) {
+    savePage();
+  }
+}, 60000);
+
+// ── Keyboard shortcuts ──
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    savePage();
+  }
+});
+</script>
+</body>
+</html>

@@ -1651,6 +1651,57 @@ def funnel_edit(page_id: int, request: Request, user: User = Depends(get_current
     return templates.TemplateResponse("funnel-editor.html", ctx)
 
 
+@app.get("/funnels/visual/{page_id}")
+def funnel_visual_editor(page_id: int, request: Request, user: User = Depends(get_current_user),
+                         db: Session = Depends(get_db)):
+    """GrapesJS visual drag-and-drop editor."""
+    if not user: return RedirectResponse(url="/?login=1")
+    page = db.query(FunnelPage).filter(FunnelPage.id == page_id, FunnelPage.user_id == user.id).first()
+    if not page: raise HTTPException(status_code=404, detail="Page not found")
+    return templates.TemplateResponse("funnel-visual-editor.html", {"request": request, "user": user, "page": page})
+
+
+@app.get("/funnels/visual/new")
+def funnel_visual_new(request: Request, template_type: str = "optin",
+                      user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Create a new page and open the visual editor."""
+    if not user: return RedirectResponse(url="/?login=1")
+    page = FunnelPage(
+        user_id=user.id,
+        title="Untitled Page",
+        template_type=template_type,
+        status="draft",
+        slug=f"{user.username.lower()}/untitled-page"
+    )
+    db.add(page)
+    db.commit()
+    db.refresh(page)
+    return RedirectResponse(f"/funnels/visual/{page.id}", status_code=303)
+
+
+@app.get("/api/funnels/load/{page_id}")
+def funnel_load_gjs(page_id: int, request: Request, user: User = Depends(get_current_user),
+                    db: Session = Depends(get_db)):
+    """Load GrapesJS editor data for a page."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    page = db.query(FunnelPage).filter(FunnelPage.id == page_id, FunnelPage.user_id == user.id).first()
+    if not page:
+        return JSONResponse({"error": "Page not found"}, status_code=404)
+    import json
+    return JSONResponse({
+        "id": page.id,
+        "title": page.title,
+        "slug": page.slug,
+        "template_type": page.template_type,
+        "status": page.status,
+        "gjs_components": json.loads(page.gjs_components) if page.gjs_components else [],
+        "gjs_styles": json.loads(page.gjs_styles) if page.gjs_styles else [],
+        "gjs_html": page.gjs_html or "",
+        "gjs_css": page.gjs_css or "",
+    })
+
+
 @app.post("/api/funnels/save")
 async def funnel_save(request: Request, user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
@@ -1705,6 +1756,20 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
     sections = body.get("sections")
     if sections is not None:
         page.sections_json = json.dumps(sections)
+
+    # GrapesJS visual editor data
+    gjs_components = body.get("gjs_components")
+    if gjs_components is not None:
+        page.gjs_components = json.dumps(gjs_components) if isinstance(gjs_components, (list, dict)) else gjs_components
+    gjs_styles = body.get("gjs_styles")
+    if gjs_styles is not None:
+        page.gjs_styles = json.dumps(gjs_styles) if isinstance(gjs_styles, (list, dict)) else gjs_styles
+    gjs_html = body.get("gjs_html")
+    if gjs_html is not None:
+        page.gjs_html = gjs_html
+    gjs_css = body.get("gjs_css")
+    if gjs_css is not None:
+        page.gjs_css = gjs_css
 
     db.commit()
     db.refresh(page)
