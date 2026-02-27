@@ -374,7 +374,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
         </div>
         <div style="text-align:right">
           <div class="direct-count-big" id="directCountDisplay">15</div>
-          <div class="direct-count-caption">of 63 seats</div>
+          <div class="direct-count-caption">of 63 positions</div>
         </div>
       </div>
       <input type="range" min="0" max="63" value="15" id="directSlider"
@@ -398,7 +398,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
     <div class="progress-wrap">
       <div class="progress-row">
         <span class="progress-label">Grid Progress</span>
-        <span class="progress-value" id="progressVal">0 / 63 seats filled</span>
+        <span class="progress-value" id="progressVal">0 / 63 positions filled</span>
       </div>
       <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
     </div>
@@ -408,7 +408,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
       <div style="font-size:19px;flex-shrink:0">♾️</div>
       <div>
         <div class="advance-note-title">Recurring Income Engine</div>
-        <div class="advance-note-text">Once all 63 seats fill, your grid auto-advances with a fresh random pattern — directs and overspill redistributed — and the commissions start flowing again immediately.</div>
+        <div class="advance-note-text">Once all 63 positions fill, your grid auto-advances with a fresh random pattern — directs and overspill redistributed — and the commissions start flowing again immediately.</div>
       </div>
     </div>
 
@@ -489,7 +489,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
         <span class="info-val" id="infoDirectCount" style="color:#10b981">15 seats</span>
       </div>
       <div class="info-row">
-        <span class="info-key">Overspill seats</span>
+        <span class="info-key">Overspill entries</span>
         <span class="info-val" id="infoOverspillCount" style="color:#38bdf8">48 seats</span>
       </div>
       <div class="info-row">
@@ -517,7 +517,7 @@ let filled      = 0;
 let directFilled = 0;
 let playing     = false;
 let timer       = null;
-let directCount = 15;       // how many of the 63 seats are your personal referrals
+let directCount = 15;       // how many of the 63 positions are your personal referrals
 let directSeats = new Set(); // which seat indices (1–63) are directs — randomised each reset
 
 // Running totals
@@ -678,7 +678,7 @@ function fillNext() {
   document.getElementById('overspillFilled').textContent = filled - directFilled;
 
   const pct = Math.round((filled / 63) * 100);
-  document.getElementById('progressVal').textContent = `${filled} / 63 seats filled`;
+  document.getElementById('progressVal').textContent = `${filled} / 63 positions filled`;
   document.getElementById('progressFill').style.width = pct + '%';
 
   addLog(filled, level+1, isDirect, youEarn, isDirect ? '#10b981' : col);
@@ -731,7 +731,7 @@ function resetGrid() {
     document.getElementById(id).textContent = '$0.00'
   );
   document.getElementById('totalAmt').textContent         = '$0.00';
-  document.getElementById('progressVal').textContent      = '0 / 63 seats filled';
+  document.getElementById('progressVal').textContent      = '0 / 63 positions filled';
   document.getElementById('progressFill').style.width     = '0%';
   document.getElementById('directFilled').textContent     = '0';
   document.getElementById('overspillFilled').textContent  = '0';

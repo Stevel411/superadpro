@@ -543,7 +543,7 @@ footer a{color:#6b7d94;text-decoration:none}
       <div>
         <div style="font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.6);margin-bottom:5px">Interactive Demo</div>
         <div style="font-size:19px;font-weight:800;color:#fff;margin-bottom:4px">⚡ Profit Engine Grid Visualiser</div>
-        <div style="font-size:19px;color:#64748b;line-height:1.5">Select any package, press Play and watch commissions distribute across your entire network in real time — seat by seat, level by level.</div>
+        <div style="font-size:19px;color:#64748b;line-height:1.5">Select any package, press Play and watch commissions distribute across your entire network in real time — entry by entry, level by level.</div>
       </div>
       <div style="flex-shrink:0;padding:10px 20px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border-radius:8px;font-size:19px;font-weight:700;color:#fff;white-space:nowrap">Launch →</div>
     </a>
@@ -583,7 +583,7 @@ footer a{color:#6b7d94;text-decoration:none}
       <div style="font-size:22px;flex-shrink:0;margin-top:2px">📊</div>
       <div>
         <div class="grid-note-title">About the 8×8 Profit Engine Grid</div>
-        <div class="grid-note-text">The 8×8 grid displayed in your member dashboard is a <strong>visual tracker</strong> of your uni-level network growing in real time. As members join across all 8 levels below you, their positions fill your grid — giving you a clear view of your network depth and activity. Your first grid begins when you activate your tier. When all 64 positions are filled, a new 64-seat grid advance starts automatically — this time entirely network-powered, with all 64 seats filled by recruited members.</div>
+        <div class="grid-note-text">The 8×8 grid displayed in your member dashboard is a <strong>visual tracker</strong> of your uni-level network growing in real time. As members join across all 8 levels below you, their positions fill your grid — giving you a clear view of your network depth and activity. Your first grid begins when you activate your tier. When all 64 positions are filled, a new 64-position grid advance starts automatically — this time entirely network-powered, with all 64 entries filled by recruited members.</div>
       </div>
     </div>
   </div>
@@ -742,8 +742,8 @@ footer a{color:#6b7d94;text-decoration:none}
         <!-- Stream 2 Grid Owner -->
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
           <div>
-            <div style="font-size:16px;font-weight:700;color:#fff">Stream 2 — Uni-Level Income (8.75% per seat)</div>
-            <div style="font-size:16px;color:#64748b;margin-top:2px">63 seats × tier price × 8.75% × advances</div>
+            <div style="font-size:16px;font-weight:700;color:#fff">Stream 2 — Uni-Level Income (8.75% per entry)</div>
+            <div style="font-size:16px;color:#64748b;margin-top:2px">63 positions × tier price × 8.75% × advances</div>
           </div>
           <div style="font-size:20px;font-weight:800;color:#0ea5e9" id="s2OwnerResult">$0</div>
         </div>
@@ -1155,7 +1155,7 @@ async function doRegister(e) {
     {name:'Legend',   price:1000, color:'#f97316'}
   ];
   var SEATS = 63;
-  var PER_LEVEL_PCT = 0.0875;  // 8.75% — what you earn per seat as one level in the chain
+  var PER_LEVEL_PCT = 0.0875;  // 8.75% — what you earn per entry as one level in the chain
   var DIRECT_PCT = 0.25;
   var MEMBERSHIP = 20;
   var activeTiers = [true,true,true,true,true,false,false,false]; // first 5 on by default
@@ -1214,8 +1214,8 @@ async function doRegister(e) {
     TIERS.forEach(function(t, i){
       if(!activeTiers[i]) return;
 
-      // Uni-level: you earn 8.75% on each seat fill (your position in the chain)
-      // Per advance: 63 seats × price × 8.75%
+      // Uni-level: you earn 8.75% on each grid entry (your position in the chain)
+      // Per advance: 63 positions × price × 8.75%
       var uniLevelPerAdvance = SEATS * t.price * PER_LEVEL_PCT;
       var uniLevelTotal = uniLevelPerAdvance * advances;
 

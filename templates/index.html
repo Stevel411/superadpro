@@ -992,7 +992,7 @@
             <div style="font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:14px;text-align:center">LIVE GRID DEMO</div>
             <div id="demoGrid" style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-bottom:14px"></div>
             <div style="display:flex;justify-content:space-between;align-items:center">
-                <div id="demoProgress" style="font-size:19px;color:rgba(200,220,255,0.5)">Seats filled: 0 / 64</div>
+                <div id="demoProgress" style="font-size:19px;color:rgba(200,220,255,0.5)">Entries filled: 0 / 64</div>
                 <div id="demoEarnings" style="font-size:19px;font-weight:700;color:#16a34a">+$0.00</div>
             </div>
             <div style="margin-top:8px;background:rgba(255,255,255,0.05);border-radius:4px;height:4px;overflow:hidden">
@@ -1163,7 +1163,7 @@
             setTimeout(()=>{
                 cells.forEach((c,i)=>{ c.style.background=i===0?'#38bdf8':'rgba(255,255,255,0.06)'; });
                 filled=1; earnings=0;
-                document.getElementById('demoProgress').textContent='Seats filled: 1 / 64';
+                document.getElementById('demoProgress').textContent='Entries filled: 1 / 64';
                 document.getElementById('demoEarnings').textContent='+$0.00';
                 document.getElementById('demoBar').style.width='0%';
                 setTimeout(fillNext,1000);
@@ -1173,7 +1173,7 @@
         cells[filled].style.background=`rgba(0,212,255,${0.2+filled/80})`;
         filled++;
         earnings=((filled/64)*totalPayout);
-        document.getElementById('demoProgress').textContent=`Seats filled: ${filled} / 64`;
+        document.getElementById('demoProgress').textContent=`Entries filled: ${filled} / 64`;
         document.getElementById('demoEarnings').textContent=`+$${earnings.toFixed(2)}`;
         document.getElementById('demoBar').style.width=`${(filled/64)*100}%`;
         setTimeout(fillNext, 180);
