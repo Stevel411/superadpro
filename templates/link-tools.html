@@ -11,21 +11,21 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .layout{display:flex;min-height:100vh}
 .sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.sidebar-brand{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;letter-spacing:0;text-transform:none;color:#fff;-webkit-text-fill-color:#fff}
 .nav-section{padding:22px 18px 8px;font-size:16px;font-weight:800;letter-spacing:0.5px;text-transform:none;color:#38bdf8;line-height:1.2}
 .nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
 .nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
-.nav-item.active{color:#00d4ff;background:rgba(0,212,255,0.07);border-left-color:#00d4ff}
+.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
 .nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
-.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00d4ff);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
+.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(0,212,255,0.1);position:sticky;top:0;z-index:50}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:50}
 .topbar-title{font-size:22px;font-weight:800;color:#fff}
 .topbar-sub{font-size:16px;color:rgba(0,212,255,0.5);margin-top:2px}
 .topbar-right{display:flex;align-items:center;gap:12px}
-.balance-pill{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:8px;padding:8px 16px}
+.balance-pill{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(56,189,248,0.15);border-radius:8px;padding:8px 16px}
 .balance-label{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1.5px;text-transform:uppercase}
 .balance-val{font-size:19px;font-weight:800;color:#16a34a;line-height:1}
 .content{padding:24px 28px;flex:1}
@@ -43,10 +43,10 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .field{flex:1;min-width:200px}
 .field label{display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#64748b;margin-bottom:6px}
 .field input,.field select{width:100%;padding:10px 14px;border:1px solid #d0d8e4;border-radius:8px;font-size:14px;font-family:inherit;background:#f8fafc;transition:border-color 0.15s}
-.field input:focus,.field select:focus{outline:none;border-color:#00b4d8;background:#fff}
+.field input:focus,.field select:focus{outline:none;border-color:#0ea5e9;background:#fff}
 .field-sm{flex:0 0 180px}
 .btn{padding:10px 24px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all 0.15s;white-space:nowrap}
-.btn-primary{background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff;box-shadow:0 2px 8px rgba(0,180,216,0.25)}
+.btn-primary{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;box-shadow:0 2px 8px rgba(0,180,216,0.25)}
 .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,180,216,0.3)}
 .btn-sm{padding:6px 14px;font-size:12px}
 .btn-outline{background:#fff;color:#0f172a;border:1px solid #d0d8e4}
@@ -93,7 +93,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 </style>
 </head>
 <body>
-<svg style="display:none"><symbol id="shield" viewBox="0 0 30 30"><path d="M15 2L3 7v7c0 7.73 5.12 14.95 12 17 6.88-2.05 12-9.27 12-17V7L15 2z" fill="url(#sg)"/><defs><linearGradient id="sg" x1="0" y1="0" x2="30" y2="30"><stop offset="0%" stop-color="#00d4ff"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs></symbol></svg>
+<svg style="display:none"><symbol id="shield" viewBox="0 0 30 30"><path d="M15 2L3 7v7c0 7.73 5.12 14.95 12 17 6.88-2.05 12-9.27 12-17V7L15 2z" fill="url(#sg)"/><defs><linearGradient id="sg" x1="0" y1="0" x2="30" y2="30"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient></defs></symbol></svg>
 
 <div class="layout">
   <aside class="sidebar">

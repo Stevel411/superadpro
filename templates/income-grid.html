@@ -31,14 +31,14 @@ body{background:#f0f2f8;color:#0f172a;font-family:'DM Sans','Rethink Sans',sans-
 .hero-card{background:#ffffff;border:1px solid #d0d8e4;border-radius:14px;padding:22px;position:relative;overflow:hidden;transition:all 0.3s;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
 .hero-card:hover{border-color:#b8d4f8;transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,40,100,0.1)}
 .hero-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.hero-card.c1::before{background:linear-gradient(90deg,#00b4d8,#0077a8)}
-.hero-card.c2::before{background:linear-gradient(90deg,#6d28d9,#a78bfa)}
+.hero-card.c1::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}
+.hero-card.c2::before{background:linear-gradient(90deg,#0284c7,#0ea5e9)}
 .hero-card.c3::before{background:linear-gradient(90deg,#16a34a,#059669)}
 .hero-card.c4::before{background:linear-gradient(90deg,#f59e0b,#d97706)}
 .hero-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#5a6a7e;margin-bottom:8px}
 .hero-val{font-size:30px;font-weight:800;line-height:1}
-.hero-val.cyan{color:#00d4ff}
-.hero-val.violet{color:#a78bfa}
+.hero-val.cyan{color:#38bdf8}
+.hero-val.violet{color:#38bdf8}
 .hero-val.green{color:#16a34a}
 .hero-val.amber{color:#f59e0b}
 .hero-desc{font-size:16px;color:#5a6a7e;margin-top:6px}
@@ -46,8 +46,8 @@ body{background:#f0f2f8;color:#0f172a;font-family:'DM Sans','Rethink Sans',sans-
 /* ── Tier tabs ── */
 .tier-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
 .tier-tab{padding:9px 18px;border-radius:8px;border:1px solid #d0d8e4;background:#ffffff;font-size:16px;font-weight:700;color:#5a6a7e;cursor:pointer;transition:all 0.2s;text-decoration:none}
-.tier-tab:hover{border-color:#00b4d8;color:#00b4d8;background:#f0f9ff}
-.tier-tab.active{background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff;border-color:transparent;box-shadow:0 4px 20px rgba(0,180,216,0.25)}
+.tier-tab:hover{border-color:#0ea5e9;color:#0ea5e9;background:#f0f9ff}
+.tier-tab.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-color:transparent;box-shadow:0 4px 20px rgba(0,180,216,0.25)}
 
 /* ── Grid card ── */
 .grid-card{background:#ffffff;border:1px solid #d0d8e4;border-radius:16px;box-shadow:0 1px 4px rgba(0,40,100,0.06);overflow:hidden;margin-bottom:24px;transition:all 0.3s}
@@ -57,14 +57,14 @@ body{background:#f0f2f8;color:#0f172a;font-family:'DM Sans','Rethink Sans',sans-
 .grid-card-title .dot{width:8px;height:8px;border-radius:50%;background:#16a34a;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 .grid-card-meta{display:flex;align-items:center;gap:12px}
-.filled-badge{font-size:16px;font-weight:800;color:#00d4ff}
+.filled-badge{font-size:16px;font-weight:800;color:#38bdf8}
 .status-badge{font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:rgba(22,163,74,0.1);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
 .grid-card-body{padding:24px}
 
 /* ── Progress bar ── */
 .progress-wrap{margin-bottom:24px}
 .progress-bar{height:8px;background:#e4e9f1;border-radius:999px;overflow:hidden;margin-bottom:6px}
-.progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#00b4d8,#6d28d9);transition:width 0.8s ease}
+.progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#0284c7,#38bdf8);transition:width 0.8s ease}
 .progress-text{font-size:16px;color:#5a6a7e;display:flex;justify-content:space-between}
 
 /* ── 8×8 Grid visual ── */
@@ -87,7 +87,7 @@ body{background:#f0f2f8;color:#0f172a;font-family:'DM Sans','Rethink Sans',sans-
 .level-row:last-child{border-bottom:none}
 .level-label{font-size:16px;font-weight:700;color:#5a6a7e;width:60px;flex-shrink:0}
 .level-bar-wrap{flex:1;height:6px;background:#e4e9f1;border-radius:999px;overflow:hidden}
-.level-bar{height:100%;border-radius:999px;background:linear-gradient(90deg,#00b4d8,#6d28d9);transition:width 0.5s}
+.level-bar{height:100%;border-radius:999px;background:linear-gradient(90deg,#0284c7,#38bdf8);transition:width 0.5s}
 .level-seats{font-size:16px;color:#5a6a7e;width:50px;text-align:right;flex-shrink:0}
 .level-earn{font-size:16px;font-weight:800;color:#16a34a;width:70px;text-align:right;flex-shrink:0}
 
@@ -98,7 +98,7 @@ body{background:#f0f2f8;color:#0f172a;font-family:'DM Sans','Rethink Sans',sans-
 .earn-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e4e9f1}
 .earn-row:last-child{border-bottom:none}
 .earn-label{font-size:16px;color:#5a6a7e}
-.earn-val{font-size:16px;font-weight:700;color:#00d4ff}
+.earn-val{font-size:16px;font-weight:700;color:#38bdf8}
 .earn-val.total{font-size:16px;color:#16a34a}
 
 /* ── Empty state ── */
@@ -106,7 +106,7 @@ body{background:#f0f2f8;color:#0f172a;font-family:'DM Sans','Rethink Sans',sans-
 .empty-icon{font-size:48px;margin-bottom:16px}
 .empty-title{font-size:22px;font-weight:800;color:#0f172a;margin-bottom:8px}
 .empty-sub{font-size:16px;color:#5a6a7e;line-height:1.7;max-width:500px;margin:0 auto 24px}
-.empty-cta{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff;font-size:16px;font-weight:700;border-radius:8px;text-decoration:none;transition:all 0.2s}
+.empty-cta{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:16px;font-weight:700;border-radius:8px;text-decoration:none;transition:all 0.2s}
 .empty-cta:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,180,216,0.3)}
 
 /* ── Responsive ── */
@@ -146,7 +146,7 @@ body{background:#f0f2f8;color:#0f172a;font-family:'DM Sans','Rethink Sans',sans-
   </div>
   <div style="display:flex;align-items:center;gap:12px">
     <div class="balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
-    <a href="/campaign-tiers" class="topbar-right-btn" style="font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:8px 18px;border-radius:8px;text-decoration:none;white-space:nowrap;transition:all 0.2s">+ Activate Tier</a>
+    <a href="/campaign-tiers" class="topbar-right-btn" style="font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:8px 18px;border-radius:8px;text-decoration:none;white-space:nowrap;transition:all 0.2s">+ Activate Tier</a>
   </div>
 </div>
 

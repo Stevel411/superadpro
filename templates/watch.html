@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Video Hub — SuperAdPro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh;display:flex}
@@ -17,17 +17,17 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .nav-section{padding:22px 18px 8px;font-size:16px;font-weight:800;letter-spacing:0.5px;text-transform:none;color:#38bdf8;line-height:1.2}
 .nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:19px;font-weight:600;color:rgba(200,220,255,0.75);text-decoration:none;transition:all 0.15s;border-left:2px solid transparent}
 .nav-item:hover{color:rgba(200,220,255,0.9);background:rgba(255,255,255,0.03)}
-.nav-item.active{color:#00d4ff;background:rgba(0,212,255,0.07);border-left-color:#00d4ff}
+.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
 .nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
 .sidebar-footer{margin-top:auto;padding:16px;border-top:1px solid rgba(0,180,216,0.08)}
 .user-mini{display:flex;align-items:center;gap:10px}
-.user-mini-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#00b4d8,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0}
+.user-mini-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0}
 
 /* ── Main ── */
 .topbar{background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.08);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0}
 .topbar-left{display:flex;align-items:center;gap:14px}
 .back-btn{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:15px;font-weight:600;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
-.back-btn:hover{color:#00d4ff;border-color:rgba(0,180,216,0.3);background:rgba(0,180,216,0.05)}
+.back-btn:hover{color:#38bdf8;border-color:rgba(0,180,216,0.3);background:rgba(0,180,216,0.05)}
 .topbar-title{font-size:22px;font-weight:800;color:#ffffff}
 .topbar-sub{font-size:16px;color:#6b7d94;margin-top:1px}
 .content{padding:20px 24px;flex:1;overflow-y:auto}
@@ -36,15 +36,15 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 /* ── Quota bar ── */
 .quota-bar-wrap{background:#ffffff;border:1px solid #d0d8e4;border-radius:12px;padding:14px 20px;flex-shrink:0;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:0 1px 3px rgba(0,0,0,0.05);width:100%}
 .quota-label{font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#64748b;margin-bottom:5px}
-.quota-count{font-size:28px;font-weight:800;color:#00d4ff}
+.quota-count{font-size:28px;font-weight:800;color:#38bdf8}
 .quota-track{flex:1;min-width:200px}
 .quota-progress{height:10px;background:#e8ecf4;border-radius:999px;overflow:hidden;margin-top:8px}
-.quota-fill{height:100%;background:linear-gradient(90deg,#00b4d8,#7c3aed);border-radius:999px;transition:width 0.5s ease}
+.quota-fill{height:100%;background:linear-gradient(90deg,#0ea5e9,#0ea5e9);border-radius:999px;transition:width 0.5s ease}
 .quota-complete{background:linear-gradient(90deg,#16a34a,#22c55e) !important}
 .quota-dots{display:flex;gap:8px;margin-top:10px}
 .quota-dot{width:28px;height:28px;border-radius:50%;border:2px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.3s;color:#6b7d94}
 .quota-dot.done{background:linear-gradient(135deg,#16a34a,#22c55e);border-color:#16a34a;color:#fff}
-.quota-dot.current{border-color:#00d4ff;background:rgba(0,180,216,0.1);color:#00d4ff}
+.quota-dot.current{border-color:#38bdf8;background:rgba(0,180,216,0.1);color:#38bdf8}
 .quota-dot.pending{color:#cbd5e1;border-color:#e2e8f0}
 
 /* ── Warning banner ── */
@@ -76,9 +76,9 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .unmute-icon{font-size:16px}
 .unmute-text{font-size:16px;font-weight:700;color:#ffffff;letter-spacing:0.3px}
 .watch-status{font-size:16px;color:#64748b}
-.watch-status.counting{color:#00d4ff;font-weight:700}
+.watch-status.counting{color:#38bdf8;font-weight:700}
 .watch-status.complete{color:#22c55e;font-weight:700}
-.btn-next{font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:8px;padding:12px 28px;cursor:pointer;opacity:0.4;pointer-events:none;transition:all 0.3s}
+.btn-next{font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:8px;padding:12px 28px;cursor:pointer;opacity:0.4;pointer-events:none;transition:all 0.3s}
 .btn-next.ready{opacity:1;pointer-events:all;box-shadow:0 4px 14px rgba(0,180,216,0.3)}
 .btn-next.ready:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,180,216,0.4)}
 
@@ -91,7 +91,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .complete-stat{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 20px;min-width:120px}
 .complete-stat-val{font-size:22px;font-weight:800;color:#4ade80}
 .complete-stat-lbl{font-size:16px;color:#64748b;margin-top:2px;text-transform:uppercase;letter-spacing:1px}
-.btn-dashboard{display:inline-block;font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);border-radius:8px;padding:13px 32px;text-decoration:none;box-shadow:0 4px 14px rgba(0,180,216,0.3)}
+.btn-dashboard{display:inline-block;font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border-radius:8px;padding:13px 32px;text-decoration:none;box-shadow:0 4px 14px rgba(0,180,216,0.3)}
 
 /* ── No campaigns ── */
 .empty-card{background:#ffffff;border:1px solid #d0d8e4;border-radius:16px;padding:48px 32px;text-align:center;max-width:500px;margin:0 auto;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
@@ -100,9 +100,9 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .terms-note{flex-shrink:0;font-size:16px;color:#6b7d94;text-align:center;line-height:1.5}
 
 /* ── Mobile topbar ── */
-.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:10px 16px;background:#0a0a1a;border-bottom:1px solid rgba(0,212,255,0.1);position:sticky;top:0;z-index:101}
+.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:10px 16px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:101}
 .mobile-topbar-left{display:flex;align-items:center;gap:10px;text-decoration:none}
-.mobile-topbar-name{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.mobile-topbar-name{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#0ea5e9,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .mobile-topbar-page{font-size:16px;color:#64748b}
 .mobile-balance-chip{font-size:16px;font-weight:800;color:#16a34a;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:8px;padding:6px 12px}
 
@@ -110,7 +110,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#0a0a1a;border-top:1px solid rgba(0,212,255,0.1);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
 .mobile-nav-inner{display:flex;justify-content:space-around;align-items:center}
 .mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 8px;font-size:10px;color:#64748b;transition:color 0.15s}
-.mob-nav-item.active{color:#00d4ff}
+.mob-nav-item.active{color:#38bdf8}
 .mob-nav-icon{font-size:19px}
 .mob-nav-label{font-weight:600;letter-spacing:0.3px}
 
@@ -204,7 +204,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
       </div>
     </div>
     <div style="font-size:15px;color:#6b7d94;text-align:right">
-      <div style="color:#00d4ff;font-weight:700;font-size:16px">Tier {{ quota.package_tier }}</div>
+      <div style="color:#38bdf8;font-weight:700;font-size:16px">Tier {{ quota.package_tier }}</div>
       <div>{{ quota.daily_required }} video{{ 's' if quota.daily_required != 1 else '' }} required today</div>
     </div>
   </div>
@@ -288,7 +288,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
       <div style="font-size:16px;color:#4a5a6e;line-height:1.7;margin-bottom:20px">
         There are no active video campaigns in the pool right now. Check back soon — campaigns are added as advertisers activate their campaign tiers.
       </div>
-      <a href="/dashboard" style="font-size:16px;font-weight:700;color:#00d4ff;text-decoration:none">← Back to Dashboard</a>
+      <a href="/dashboard" style="font-size:16px;font-weight:700;color:#38bdf8;text-decoration:none">← Back to Dashboard</a>
     </div>
 
     <!-- Video player -->
@@ -306,8 +306,8 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
       <svg width="0" height="0" style="position:absolute">
         <defs>
           <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#00b4d8"/>
-            <stop offset="100%" stop-color="#7c3aed"/>
+            <stop offset="0%" stop-color="#0ea5e9"/>
+            <stop offset="100%" stop-color="#0ea5e9"/>
           </linearGradient>
         </defs>
       </svg>
@@ -350,7 +350,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
       Videos must be watched for a minimum of {{ watch_duration }} seconds to qualify.
       Complete {{ quota.daily_required }} video{{ 's' if quota.daily_required != 1 else '' }} per day to maintain your commission eligibility.
       You have a {{ grace_days }}-day grace period before commissions are paused.
-      <a href="/legal" style="color:#00d4ff;text-decoration:none">Full terms →</a>
+      <a href="/legal" style="color:#38bdf8;text-decoration:none">Full terms →</a>
     </div>
     {% endif %}
 

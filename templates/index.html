@@ -34,7 +34,7 @@
         .nav-links a { font-size:19px; font-weight:500; color:rgba(200,230,210,0.55); text-decoration:none; padding:4px 10px; transition:color 0.2s; }
         .nav-links a:hover { color:rgba(200,230,210,0.9); }
         .nav-sep { color:rgba(0,180,100,0.3); font-size:19px; }
-        .nav-cta { font-weight:700; font-size:19px; color:#050d1a; background:#00d4ff; padding:9px 22px; border-radius:8px; text-decoration:none; box-shadow:0 2px 20px rgba(0,212,255,0.35); transition:all 0.3s; }
+        .nav-cta { font-weight:700; font-size:19px; color:#050d1a; background:#38bdf8; padding:9px 22px; border-radius:8px; text-decoration:none; box-shadow:0 2px 20px rgba(56,189,248,0.35); transition:all 0.3s; }
         .nav-cta:hover { background:#00e5ff; box-shadow:0 4px 28px rgba(0,212,255,0.5); transform:translateY(-1px); }
 
         /* Page */
@@ -43,20 +43,20 @@
         /* Hero */
         .hero { padding:108px 40px 0; text-align:center; }
 
-        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:19px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#00b4d8; border:1px solid rgba(0,180,216,0.3); border-radius:50px; padding:5px 16px; margin-bottom:22px; opacity:0; animation:fadeUp 0.8s ease forwards 0.1s; }
-        .dot { width:6px; height:6px; border-radius:50%; background:#00b4d8; animation:blink 2s ease-in-out infinite; }
+        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:19px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#0ea5e9; border:1px solid rgba(0,180,216,0.3); border-radius:50px; padding:5px 16px; margin-bottom:22px; opacity:0; animation:fadeUp 0.8s ease forwards 0.1s; }
+        .dot { width:6px; height:6px; border-radius:50%; background:#0ea5e9; animation:blink 2s ease-in-out infinite; }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
         .hero-title { font-weight:800; font-size:clamp(28px,4.2vw,56px); color:#ffffff; line-height:1.1; margin-bottom:14px; opacity:0; animation:fadeUp 0.8s ease forwards 0.2s; }
-        .hero-title .gold { background:linear-gradient(135deg,#00d4ff,#7c9fff,#00b4d8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .hero-title .gold { background:linear-gradient(135deg,#38bdf8,#7c9fff,#0ea5e9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
 
         .hero-sub { font-size:clamp(13px,1.4vw,16px); color:rgba(200,225,210,0.6); line-height:1.65; max-width:580px; margin:0 auto 48px; opacity:0; animation:fadeUp 0.8s ease forwards 0.3s; }
 
         .hero-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:72px; opacity:0; animation:fadeUp 0.8s ease forwards 0.4s; }
-        .btn-gold { font-weight:700; font-size:19px; color:#050d1a; background:#00d4ff; padding:13px 34px; border-radius:8px; text-decoration:none; box-shadow:0 0 32px rgba(0,212,255,0.4); transition:all 0.3s; }
+        .btn-gold { font-weight:700; font-size:19px; color:#050d1a; background:#38bdf8; padding:13px 34px; border-radius:8px; text-decoration:none; box-shadow:0 0 32px rgba(0,212,255,0.4); transition:all 0.3s; }
         .btn-gold:hover { background:#00e5ff; box-shadow:0 0 50px rgba(0,212,255,0.6); transform:translateY(-2px); }
         .btn-outline { font-weight:600; font-size:19px; color:#fff; background:rgba(255,255,255,0.06); padding:12px 34px; border-radius:8px; border:1px solid rgba(255,255,255,0.2); text-decoration:none; transition:all 0.3s; }
-        .btn-outline:hover { border-color:#00d4ff; color:#00d4ff; background:rgba(0,212,255,0.06); }
+        .btn-outline:hover { border-color:#38bdf8; color:#38bdf8; background:rgba(0,212,255,0.06); }
 
         @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
 
@@ -127,7 +127,7 @@
 
         .screen-bottom { position:absolute; bottom:0; left:0; right:0; z-index:4; padding:10px 14px; background:linear-gradient(0deg,rgba(0,0,0,0.6),transparent); }
         .progress-bar { height:3px; background:rgba(255,255,255,0.15); border-radius:2px; margin-bottom:8px; }
-        .progress-fill { height:100%; width:62%; background:linear-gradient(90deg,#00b4d8,#6d28d9); border-radius:2px; animation:progressAnim 8s linear infinite; }
+        .progress-fill { height:100%; width:62%; background:linear-gradient(90deg,#0284c7,#38bdf8); border-radius:2px; animation:progressAnim 8s linear infinite; }
         @keyframes progressAnim { 0%{width:5%} 100%{width:98%} }
         .screen-info { display:flex; align-items:center; justify-content:space-between; }
         .screen-title { font-size:19px; font-weight:600; color:rgba(255,255,255,0.8); }
@@ -145,8 +145,8 @@
         .metric-value { font-family:'DM Sans','Rethink Sans',sans-serif; font-size:20px; font-weight:700; color:#ffffff; line-height:1; }
         .metric-sub { font-size:19px; color:rgba(200,225,210,0.35); margin-top:2px; }
         .metric-badge { display:inline-block; font-size:19px; font-weight:700; letter-spacing:1px; padding:1px 6px; border-radius:2px; margin-top:4px; }
-        .badge-up { background:rgba(0,200,100,0.15); color:#00b4d8; border:1px solid rgba(0,200,100,0.25); }
-        .badge-hot { background:rgba(0,180,216,0.1); color:#6d28d9; border:1px solid rgba(0,180,216,0.2); }
+        .badge-up { background:rgba(0,200,100,0.15); color:#0ea5e9; border:1px solid rgba(0,200,100,0.25); }
+        .badge-hot { background:rgba(0,180,216,0.1); color:#0284c7; border:1px solid rgba(0,180,216,0.2); }
 
         /* Positions */
         .m-views    { animation-duration:5s; }
@@ -178,12 +178,12 @@
         .for-card:hover::before { opacity:1; }
         .for-card:hover { background:rgba(3,22,12,0.95); }
         .for-icon { font-size:32px; margin-bottom:14px; display:block; }
-        .for-who { font-size:19px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#00b4d8; margin-bottom:8px; }
+        .for-who { font-size:19px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#0ea5e9; margin-bottom:8px; }
         .for-title { font-weight:700; font-size:19px; color:#ffffff; margin-bottom:10px; line-height:1.2; }
         .for-desc { font-size:19px; color:rgba(200,225,210,0.5); line-height:1.65; margin-bottom:16px; }
         .for-points { list-style:none; }
         .for-points li { font-size:19px; color:rgba(200,225,210,0.5); padding:4px 0; display:flex; gap:8px; align-items:flex-start; }
-        .for-points li::before { content:'→'; color:#00b4d8; font-size:19px; flex-shrink:0; margin-top:1px; }
+        .for-points li::before { content:'→'; color:#0ea5e9; font-size:19px; flex-shrink:0; margin-top:1px; }
 
         /* ===== FEATURE PILLS ===== */
         .pills-row { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; padding:28px 40px 0; }
@@ -197,8 +197,8 @@
         .steps { display:grid; grid-template-columns:repeat(4,1fr); gap:0; position:relative; }
         .steps::before { content:''; position:absolute; top:28px; left:12.5%; right:12.5%; height:1px; background:linear-gradient(90deg,rgba(0,180,216,0.15),rgba(0,180,216,0.3),rgba(0,180,216,0.15)); }
         .step { text-align:center; padding:0 16px; }
-        .step-num { width:56px; height:56px; border-radius:50%; background:rgba(2,14,8,0.9); border:2px solid rgba(0,200,140,0.4); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; font-family:'DM Sans','Rethink Sans',sans-serif; font-size:19px; font-weight:700; color:#00b4d8; box-shadow:0 0 20px rgba(0,200,140,0.15); }
-        .step-title { font-weight:700; font-size:19px; color:#6d28d9; margin-bottom:8px; letter-spacing:0.5px; }
+        .step-num { width:56px; height:56px; border-radius:50%; background:rgba(2,14,8,0.9); border:2px solid rgba(0,200,140,0.4); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; font-family:'DM Sans','Rethink Sans',sans-serif; font-size:19px; font-weight:700; color:#0ea5e9; box-shadow:0 0 20px rgba(0,200,140,0.15); }
+        .step-title { font-weight:700; font-size:19px; color:#0284c7; margin-bottom:8px; letter-spacing:0.5px; }
         .step-desc { font-size:19px; color:rgba(200,225,210,0.45); line-height:1.6; }
 
         /* ===== PACKAGES ===== */
@@ -207,17 +207,17 @@
         .packages-card { background:rgba(2,14,8,0.85); border:1px solid rgba(0,180,216,0.15); border-radius:6px; padding:16px 14px; text-align:center; transition:all 0.3s; cursor:pointer; position:relative; overflow:hidden; }
         .packages-card:hover { border-color:rgba(0,220,150,0.4); transform:translateY(-3px); background:rgba(3,22,12,0.95); }
         .packages-card.featured { border-color:rgba(0,180,216,0.3); }
-        .packages-card.featured::before { content:'POPULAR'; position:absolute; top:8px; right:8px; font-size:7px; font-weight:700; letter-spacing:2px; color:#6d28d9; background:rgba(0,180,216,0.08); border:1px solid rgba(0,180,216,0.25); padding:2px 6px; border-radius:2px; }
+        .packages-card.featured::before { content:'POPULAR'; position:absolute; top:8px; right:8px; font-size:7px; font-weight:700; letter-spacing:2px; color:#0284c7; background:rgba(0,180,216,0.08); border:1px solid rgba(0,180,216,0.25); padding:2px 6px; border-radius:2px; }
         .packages-tier { font-size:19px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(0,200,140,0.6); margin-bottom:6px; }
         .packages-price { font-family:'DM Sans','Rethink Sans',sans-serif; font-size:22px; font-weight:700; color:#ffffff; margin-bottom:4px; }
         .packages-views { font-size:19px; color:rgba(200,225,210,0.5); margin-bottom:10px; }
-        .packages-join { font-size:19px; font-weight:600; color:#f0f2f8; background:linear-gradient(135deg,#00b4d8,#6d28d9); padding:6px 16px; border-radius:3px; display:inline-block; text-decoration:none; transition:all 0.2s; }
+        .packages-join { font-size:19px; font-weight:600; color:#f0f2f8; background:linear-gradient(135deg,#0ea5e9,#38bdf8); padding:6px 16px; border-radius:3px; display:inline-block; text-decoration:none; transition:all 0.2s; }
         .packages-join:hover { box-shadow:0 0 20px rgba(0,180,216,0.3); }
 
         /* ===== CTA ===== */
         .cta-section { text-align:center; padding:48px 40px 30px; }
         .cta-title { font-weight:800; font-size:clamp(24px,3.5vw,44px); color:#ffffff; margin-bottom:8px; }
-        .cta-title .gold { color:#6d28d9; }
+        .cta-title .gold { color:#0284c7; }
         .cta-sub { font-size:19px; color:rgba(200,225,210,0.4); margin-bottom:28px; }
         .trust-badges { display:flex; justify-content:center; gap:32px; flex-wrap:wrap; margin-top:24px; }
         .trust-badge { display:flex; align-items:center; gap:7px; font-size:19px; color:rgba(200,225,210,0.3); }
@@ -276,13 +276,13 @@
 .m-field{margin-bottom:14px}
 .m-label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(148,163,184,0.7);margin-bottom:6px}
 .m-input{width:100%;padding:10px 13px;border:1.5px solid rgba(0,212,255,0.14);border-radius:8px;background:rgba(0,212,255,0.04);color:#f1f5f9;font-size:16px;font-family:inherit;box-sizing:border-box;transition:border-color 0.15s}
-.m-input:focus{outline:none;border-color:rgba(0,212,255,0.5);background:rgba(0,212,255,0.07)}
+.m-input:focus{outline:none;border-color:rgba(0,212,255,0.5);background:rgba(56,189,248,0.07)}
 .m-input::placeholder{color:rgba(148,163,184,0.35)}
 .m-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .m-terms{display:flex;align-items:flex-start;gap:10px;margin-bottom:18px;font-size:16px;color:rgba(148,163,184,0.6);line-height:1.5}
-.m-terms input{width:14px;height:14px;flex-shrink:0;margin-top:1px;accent-color:#00d4ff;cursor:pointer}
+.m-terms input{width:14px;height:14px;flex-shrink:0;margin-top:1px;accent-color:#38bdf8;cursor:pointer}
 .m-terms a{color:rgba(0,212,255,0.8);text-decoration:none}
-.m-btn{width:100%;padding:12px;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:9px;color:#fff;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:0.3px;transition:opacity 0.15s}
+.m-btn{width:100%;padding:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:9px;color:#fff;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:0.3px;transition:opacity 0.15s}
 .m-btn:hover{opacity:0.9}
 .m-btn:disabled{opacity:0.5;cursor:not-allowed}
 .m-foot{text-align:center;margin-top:14px;font-size:16px;color:rgba(148,163,184,0.5)}
@@ -306,9 +306,9 @@
 <!-- SVG shield -->
 <svg width="0" height="0" style="position:absolute">
   <defs>
-    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="30%" stop-color="#6d28d9"/><stop offset="70%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="30%" stop-color="#0284c7"/><stop offset="70%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient>
     <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a0a2e"/><stop offset="40%" stop-color="#06061a"/><stop offset="100%" stop-color="#03031a"/></linearGradient>
-    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="25%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="75%" stop-color="#00b4d8"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="25%" stop-color="#0ea5e9"/><stop offset="50%" stop-color="#0284c7"/><stop offset="75%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
     <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
     <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     <symbol id="shield" viewBox="0 0 44 44">
@@ -357,7 +357,7 @@
         <a href="/faq">FAQ</a>
         <a href="/support">Support</a>
         <div style="border-top:1px solid rgba(0,180,216,0.15);margin:12px 0;padding-top:12px;display:flex;flex-direction:column;gap:10px">
-            <a href="#" onclick="mOpen('mLogin');toggleMobileMenu();return false;" style="color:#00d4ff">Log In</a>
+            <a href="#" onclick="mOpen('mLogin');toggleMobileMenu();return false;" style="color:#38bdf8">Log In</a>
             <a href="#" onclick="mOpen('mReg');toggleMobileMenu();return false;" class="nav-cta" style="text-align:center;display:block">Register Here</a>
         </div>
     </div>
@@ -453,9 +453,9 @@
                 <div class="metric-value">2.4M</div>
                 <div class="metric-sub">Monthly projection</div>
                 <svg class="sparkline" width="100%" height="28" viewBox="0 0 110 28">
-                    <defs><linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00b4d8" stop-opacity="0.3"/><stop offset="100%" stop-color="#00b4d8" stop-opacity="0"/></linearGradient></defs>
+                    <defs><linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.3"/><stop offset="100%" stop-color="#0ea5e9" stop-opacity="0"/></linearGradient></defs>
                     <polygon points="0,24 18,18 32,20 50,10 65,14 82,5 95,8 110,2 110,28 0,28" fill="url(#sg1)"/>
-                    <polyline points="0,24 18,18 32,20 50,10 65,14 82,5 95,8 110,2" fill="none" stroke="#00b4d8" stroke-width="1.5"/>
+                    <polyline points="0,24 18,18 32,20 50,10 65,14 82,5 95,8 110,2" fill="none" stroke="#0ea5e9" stroke-width="1.5"/>
                 </svg>
                 <span class="metric-badge badge-up">▲ +38% this week</span>
             </div>
@@ -492,8 +492,8 @@
                   <rect x="240" y="70" width="50" height="35" fill="none" stroke="#00f0ff" stroke-width="1.2" stroke-dasharray="6,4" opacity="0.6"/>
                   <text x="255" y="66" font-size="7" fill="#00f0ff" font-family="monospace" opacity="0.8">CTR</text>
                   <!-- AI targeting bracket right -->
-                  <rect x="360" y="80" width="55" height="38" fill="none" stroke="#a78bfa" stroke-width="1.2" stroke-dasharray="6,4" opacity="0.6"/>
-                  <text x="362" y="76" font-size="7" fill="#a78bfa" font-family="monospace" opacity="0.8">ENGAGE</text>
+                  <rect x="360" y="80" width="55" height="38" fill="none" stroke="#38bdf8" stroke-width="1.2" stroke-dasharray="6,4" opacity="0.6"/>
+                  <text x="362" y="76" font-size="7" fill="#38bdf8" font-family="monospace" opacity="0.8">ENGAGE</text>
                   <!-- Scan line animation -->
                   <line x1="0" y1="150" x2="520" y2="150" stroke="#00f0ff" stroke-width="0.5" opacity="0.2">
                     <animate attributeName="y1" values="0;300;0" dur="4s" repeatCount="indefinite"/>
@@ -849,7 +849,7 @@
     <div class="for-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid rgba(0,180,216,0.15);border-radius:10px;overflow:hidden;background:rgba(5,13,26,0.5)">
         <div style="padding:32px 28px;border-right:1px solid rgba(0,180,216,0.12)">
             <div style="font-size:32px;margin-bottom:14px">🎬</div>
-            <div style="font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#00d4ff;margin-bottom:8px">FOR ADVERTISERS</div>
+            <div style="font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#38bdf8;margin-bottom:8px">FOR ADVERTISERS</div>
             <div style="font-size:19px;font-weight:800;color:#fff;margin-bottom:12px;line-height:1.3">Get Your Video Seen by Thousands</div>
             <p style="font-size:19px;color:rgba(200,220,255,0.6);line-height:1.7;margin-bottom:16px">Get your brand, product, or content in front of real, engaged audiences. Choose an campaign tier that fits your budget and grow your reach.</p>
             <div style="display:flex;flex-direction:column;gap:8px">
@@ -861,7 +861,7 @@
         </div>
         <div style="padding:32px 28px;border-right:1px solid rgba(0,180,216,0.12)">
             <div style="font-size:32px;margin-bottom:14px">📊</div>
-            <div style="font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#00d4ff;margin-bottom:8px">FOR MARKETERS</div>
+            <div style="font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#38bdf8;margin-bottom:8px">FOR MARKETERS</div>
             <div style="font-size:19px;font-weight:800;color:#fff;margin-bottom:12px;line-height:1.3">Launch Smarter Campaigns with AI</div>
             <p style="font-size:19px;color:rgba(200,220,255,0.6);line-height:1.7;margin-bottom:16px">Our AI engine optimises your video campaigns in real time — maximising click-through rates, engagement, and ROI across every audience segment.</p>
             <div style="display:flex;flex-direction:column;gap:8px">
@@ -873,7 +873,7 @@
         </div>
         <div style="padding:32px 28px">
             <div style="font-size:32px;margin-bottom:14px">🤝</div>
-            <div style="font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#00d4ff;margin-bottom:8px">FOR AFFILIATES</div>
+            <div style="font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#38bdf8;margin-bottom:8px">FOR AFFILIATES</div>
             <div style="font-size:19px;font-weight:800;color:#fff;margin-bottom:12px;line-height:1.3">Active Viewership Drives Real Value</div>
             <p style="font-size:19px;color:rgba(200,220,255,0.6);line-height:1.7;margin-bottom:16px">Your active viewership creates genuine value for advertisers. That value flows back through three commission-based income streams — build your network and earn across all of them.</p>
             <div style="display:flex;flex-direction:column;gap:8px">
@@ -906,30 +906,30 @@
         <div style="position:absolute;top:28px;left:12.5%;right:12.5%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.3),rgba(109,40,217,0.3),transparent)"></div>
         <div style="text-align:center;padding:0 16px">
             <div style="width:56px;height:56px;border-radius:50%;border:1px solid rgba(0,212,255,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;background:rgba(0,212,255,0.06)">
-                <span style="font-size:19px;font-weight:800;color:#00d4ff">01</span>
+                <span style="font-size:19px;font-weight:800;color:#38bdf8">01</span>
             </div>
-            <div style="font-size:19px;font-weight:700;color:#00d4ff;margin-bottom:8px">Register Free</div>
+            <div style="font-size:19px;font-weight:700;color:#38bdf8;margin-bottom:8px">Register Free</div>
             <div style="font-size:19px;color:rgba(200,220,255,0.5);line-height:1.6">Create your account and join the SuperAdPro platform as an advertiser, marketer, or affiliate.</div>
         </div>
         <div style="text-align:center;padding:0 16px">
             <div style="width:56px;height:56px;border-radius:50%;border:1px solid rgba(0,212,255,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;background:rgba(0,212,255,0.06)">
-                <span style="font-size:19px;font-weight:800;color:#00d4ff">02</span>
+                <span style="font-size:19px;font-weight:800;color:#38bdf8">02</span>
             </div>
-            <div style="font-size:19px;font-weight:700;color:#00d4ff;margin-bottom:8px">Choose a Campaign Tier</div>
+            <div style="font-size:19px;font-weight:700;color:#38bdf8;margin-bottom:8px">Choose a Campaign Tier</div>
             <div style="font-size:19px;color:rgba(200,220,255,0.5);line-height:1.6">Select one of 8 campaign tiers from $20 to $1,000 USDT to unlock views and affiliate earnings.</div>
         </div>
         <div style="text-align:center;padding:0 16px">
             <div style="width:56px;height:56px;border-radius:50%;border:1px solid rgba(0,212,255,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;background:rgba(0,212,255,0.06)">
-                <span style="font-size:19px;font-weight:800;color:#00d4ff">03</span>
+                <span style="font-size:19px;font-weight:800;color:#38bdf8">03</span>
             </div>
-            <div style="font-size:19px;font-weight:700;color:#00d4ff;margin-bottom:8px">Launch Your Campaign</div>
+            <div style="font-size:19px;font-weight:700;color:#38bdf8;margin-bottom:8px">Launch Your Campaign</div>
             <div style="font-size:19px;color:rgba(200,220,255,0.5);line-height:1.6">Upload your video, set your audience, and let our AI engine optimise delivery for maximum reach.</div>
         </div>
         <div style="text-align:center;padding:0 16px">
             <div style="width:56px;height:56px;border-radius:50%;border:1px solid rgba(0,212,255,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;background:rgba(0,212,255,0.06)">
-                <span style="font-size:19px;font-weight:800;color:#00d4ff">04</span>
+                <span style="font-size:19px;font-weight:800;color:#38bdf8">04</span>
             </div>
-            <div style="font-size:19px;font-weight:700;color:#00d4ff;margin-bottom:8px">Grow &amp; Earn</div>
+            <div style="font-size:19px;font-weight:700;color:#38bdf8;margin-bottom:8px">Grow &amp; Earn</div>
             <div style="font-size:19px;color:rgba(200,220,255,0.5);line-height:1.6">Refer others to the platform and earn affiliate commissions automatically — paid instantly in USDT.</div>
         </div>
     </div>
@@ -943,12 +943,12 @@
             <div style="font-size:32px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:16px">Your 8×8 Recurring<br>Income Engine</div>
             <p style="font-size:19px;color:rgba(200,220,255,0.6);line-height:1.7;margin-bottom:24px">When you activate a tier, your personal 8×8 grid opens. As the network fills your grid, commissions are distributed automatically on-chain.</p>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
-                <div style="background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.15);border-radius:8px;padding:14px;text-align:center">
-                    <div style="font-size:22px;font-weight:800;color:#00d4ff">25%</div>
+                <div style="background:rgba(0,212,255,0.06);border:1px solid rgba(56,189,248,0.15);border-radius:8px;padding:14px;text-align:center">
+                    <div style="font-size:22px;font-weight:800;color:#38bdf8">25%</div>
                     <div style="font-size:19px;color:rgba(200,220,255,0.5);margin-top:4px">Direct Sponsor</div>
                 </div>
                 <div style="background:rgba(109,40,217,0.06);border:1px solid rgba(109,40,217,0.2);border-radius:8px;padding:14px;text-align:center">
-                    <div style="font-size:22px;font-weight:800;color:#a78bfa">70%</div>
+                    <div style="font-size:22px;font-weight:800;color:#38bdf8">70%</div>
                     <div style="font-size:19px;color:rgba(200,220,255,0.5);margin-top:4px">Uni-Level Pool</div>
                 </div>
                 <div style="background:rgba(0,212,255,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:14px;text-align:center">
@@ -956,7 +956,7 @@
                     <div style="font-size:19px;color:rgba(200,220,255,0.5);margin-top:4px">Platform Fee</div>
                 </div>
             </div>
-            <a href="/compensation-plan" style="font-size:19px;font-weight:700;color:#00d4ff;text-decoration:none">View Full Compensation Plan →</a>
+            <a href="/compensation-plan" style="font-size:19px;font-weight:700;color:#38bdf8;text-decoration:none">View Full Compensation Plan →</a>
         </div>
         <!-- Live 8x8 grid demo -->
         <div style="background:rgba(5,13,26,0.8);border:1px solid rgba(0,180,216,0.15);border-radius:12px;padding:20px">
@@ -967,7 +967,7 @@
                 <div id="demoEarnings" style="font-size:19px;font-weight:700;color:#16a34a">+$0.00</div>
             </div>
             <div style="margin-top:8px;background:rgba(255,255,255,0.05);border-radius:4px;height:4px;overflow:hidden">
-                <div id="demoBar" style="height:100%;width:0%;background:linear-gradient(90deg,#00d4ff,#6d28d9);transition:width 0.3s;border-radius:4px"></div>
+                <div id="demoBar" style="height:100%;width:0%;background:linear-gradient(90deg,#38bdf8,#0284c7);transition:width 0.3s;border-radius:4px"></div>
             </div>
         </div>
     </div>
@@ -1038,7 +1038,7 @@
       <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(0,180,216,0.1),transparent 70%);pointer-events:none"></div>
       <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,rgba(0,180,216,0.2),rgba(0,180,216,0.05));border:1px solid rgba(0,180,216,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px">📋</div>
       <div style="font-size:16px;font-weight:800;color:#ffffff;margin-bottom:6px">Swipe File Library</div>
-      <div style="font-size:16px;font-weight:700;color:#00b4d8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">Steal What Already Works</div>
+      <div style="font-size:16px;font-weight:700;color:#0ea5e9;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px">Steal What Already Works</div>
       <p style="font-size:16px;color:rgba(200,220,255,0.55);line-height:1.75;margin-bottom:18px">
         A hand-curated vault of 60+ proven marketing assets — attention-grabbing hooks, high open-rate email subject lines, scroll-stopping social captions, video script openers, WhatsApp outreach scripts and power headlines. Updated monthly with fresh, tested copy. One click to copy. Zero thinking required.
       </p>
@@ -1070,7 +1070,7 @@
 
 <!-- CTA SECTION -->
 <section style="text-align:center;padding:70px 40px 40px">
-    <h2 style="font-size:clamp(28px,4vw,52px);font-weight:800;color:#fff;margin-bottom:12px"><span style="background:linear-gradient(135deg,#00d4ff,#7c9fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Advertise Smarter.</span> Grow Faster.</h2>
+    <h2 style="font-size:clamp(28px,4vw,52px);font-weight:800;color:#fff;margin-bottom:12px"><span style="background:linear-gradient(135deg,#38bdf8,#7c9fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Advertise Smarter.</span> Grow Faster.</h2>
     <p style="font-size:19px;color:rgba(200,220,255,0.55);margin-bottom:32px">Join thousands of advertisers, marketers and affiliates already growing on SuperAdPro.</p>
     <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:32px">
         <a href="/vip" class="btn-gold">🚀 Join the VIP Waiting List</a>
@@ -1125,14 +1125,14 @@
         grid.appendChild(c);
         cells.push(c);
     }
-    cells[0].style.background='#00d4ff';
+    cells[0].style.background='#38bdf8';
     let filled=1, earnings=0;
     const pkgPrice=100, ownerPct=0.25;
     const totalPayout=pkgPrice*64*ownerPct;
     function fillNext(){
         if(filled>=64){
             setTimeout(()=>{
-                cells.forEach((c,i)=>{ c.style.background=i===0?'#00d4ff':'rgba(255,255,255,0.06)'; });
+                cells.forEach((c,i)=>{ c.style.background=i===0?'#38bdf8':'rgba(255,255,255,0.06)'; });
                 filled=1; earnings=0;
                 document.getElementById('demoProgress').textContent='Seats filled: 1 / 64';
                 document.getElementById('demoEarnings').textContent='+$0.00';

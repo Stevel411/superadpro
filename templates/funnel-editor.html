@@ -14,8 +14,8 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
 .lib-panel{background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.1);overflow-y:auto;display:flex;flex-direction:column}
 .lib-header{padding:16px 18px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:10px}
 .lib-header a{text-decoration:none;display:flex;align-items:center;gap:8px}
-.lib-brand{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.lib-title{padding:14px 18px 8px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#00d4ff}
+.lib-brand{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#0ea5e9,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.lib-title{padding:14px 18px 8px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#38bdf8}
 .lib-item{display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;transition:all 0.15s;border-left:2px solid transparent;font-size:16px;color:#6b7d94}
 .lib-item:hover{background:rgba(255,255,255,0.04);color:#fff;border-left-color:rgba(0,212,255,0.3)}
 .lib-item .li-icon{font-size:16px;width:22px;text-align:center}
@@ -28,7 +28,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
 .canvas-toolbar .tb-right{display:flex;align-items:center;gap:8px}
 .tb-btn{padding:7px 16px;border-radius:6px;font-size:16px;font-weight:700;cursor:pointer;border:none;transition:all 0.15s;font-family:inherit}
 .tb-save{background:#16a34a;color:#fff}.tb-save:hover{background:#15803d}
-.tb-pub{background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff}.tb-pub:hover{opacity:0.9}
+.tb-pub{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff}.tb-pub:hover{opacity:0.9}
 .tb-back{background:transparent;border:1px solid rgba(255,255,255,0.15);color:#6b7d94}.tb-back:hover{color:#fff}
 .tb-preview{background:rgba(255,255,255,0.06);color:#6b7d94;border:1px solid rgba(255,255,255,0.1)}.tb-preview:hover{color:#fff}
 
@@ -41,10 +41,10 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
 /* Section wrapper on canvas */
 .section-wrap{position:relative;border:2px solid transparent;transition:border-color 0.15s,transform 0.15s,opacity 0.15s;cursor:pointer}
 .section-wrap:hover{border-color:rgba(0,212,255,0.3)}
-.section-wrap.selected{border-color:#00d4ff}
-.section-wrap.dragging{opacity:0.4;border-color:#00d4ff;transform:scale(0.98)}
-.section-wrap.drag-over-top{border-top:3px solid #00d4ff}
-.section-wrap.drag-over-bottom{border-bottom:3px solid #00d4ff}
+.section-wrap.selected{border-color:#38bdf8}
+.section-wrap.dragging{opacity:0.4;border-color:#38bdf8;transform:scale(0.98)}
+.section-wrap.drag-over-top{border-top:3px solid #38bdf8}
+.section-wrap.drag-over-bottom{border-bottom:3px solid #38bdf8}
 .section-controls{position:absolute;top:8px;right:8px;display:none;gap:4px;z-index:10}
 .section-wrap:hover .section-controls,.section-wrap.selected .section-controls{display:flex}
 .sc-btn{width:28px;height:28px;border-radius:6px;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
@@ -58,7 +58,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
 .set-section{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.04)}
 .set-label{font-size:16px;font-weight:600;color:#64748b;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
 .set-input,.set-textarea,.set-select{width:100%;padding:8px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#e2e8f0;font-size:16px;font-family:inherit;transition:border-color 0.2s}
-.set-input:focus,.set-textarea:focus,.set-select:focus{outline:none;border-color:#00d4ff}
+.set-input:focus,.set-textarea:focus,.set-select:focus{outline:none;border-color:#38bdf8}
 .set-textarea{resize:vertical;min-height:60px}
 .set-select{appearance:auto}
 .set-row{margin-bottom:10px}
@@ -67,7 +67,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
 .scheme-grid{display:flex;gap:6px}
 .scheme-opt{width:32px;height:32px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all 0.15s}
 .scheme-opt:hover{transform:scale(1.1)}
-.scheme-opt.active{border-color:#00d4ff}
+.scheme-opt.active{border-color:#38bdf8}
 .accent-grid{display:flex;gap:5px;flex-wrap:wrap}
 .accent-opt{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.15s}
 .accent-opt:hover{transform:scale(1.15)}
@@ -80,21 +80,21 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
 .item-list{display:flex;flex-direction:column;gap:8px;margin-top:6px}
 .item-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px}
 .item-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.item-num{font-size:10px;font-weight:700;color:#00d4ff;letter-spacing:1px}
+.item-num{font-size:10px;font-weight:700;color:#38bdf8;letter-spacing:1px}
 .item-del{background:none;border:none;color:#64748b;cursor:pointer;font-size:12px;padding:2px 6px;border-radius:4px;transition:all 0.15s}
 .item-del:hover{color:#ef4444;background:rgba(239,68,68,0.1)}
 .item-field{margin-bottom:6px}
 .item-field:last-child{margin-bottom:0}
 .item-field-label{font-size:9px;font-weight:600;color:#4a5a6e;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:2px}
 .item-field .set-input,.item-field .set-textarea{font-size:12px;padding:6px 8px}
-.item-add-btn{width:100%;padding:8px;margin-top:6px;background:transparent;border:1px dashed rgba(0,212,255,0.25);border-radius:6px;color:#00d4ff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s}
-.item-add-btn:hover{background:rgba(0,212,255,0.06);border-color:rgba(0,212,255,0.4)}
+.item-add-btn{width:100%;padding:8px;margin-top:6px;background:transparent;border:1px dashed rgba(56,189,248,0.25);border-radius:6px;color:#38bdf8;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.item-add-btn:hover{background:rgba(0,212,255,0.06);border-color:rgba(56,189,248,0.4)}
 
 /* Element layout controls */
 .el-layout-list{display:flex;flex-direction:column;gap:4px}
 .el-layout-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px 10px;transition:all 0.15s}
 .el-layout-card.el-hidden{opacity:0.4}
-.el-layout-card.el-drag-over{border-color:#00d4ff;background:rgba(0,212,255,0.08)}
+.el-layout-card.el-drag-over{border-color:#38bdf8;background:rgba(56,189,248,0.08)}
 .el-layout-row{display:flex;align-items:center;gap:6px}
 .el-grip{cursor:grab;color:#4a5a6e;font-size:11px;user-select:none}.el-grip:active{cursor:grabbing}
 .el-name{flex:1;font-size:12px;font-weight:600;color:#b0bec5}
@@ -104,12 +104,12 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
 .el-controls-row{display:flex;align-items:center;gap:10px;margin-top:6px;padding-left:20px}
 .el-align-group{display:flex;gap:2px}
 .el-align-btn{width:22px;height:20px;border:1px solid rgba(255,255,255,0.1);border-radius:3px;background:transparent;color:#4a5a6e;cursor:pointer;font-size:8px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
-.el-align-btn.active{background:rgba(0,212,255,0.15);border-color:#00d4ff;color:#00d4ff}
+.el-align-btn.active{background:rgba(56,189,248,0.15);border-color:#38bdf8;color:#38bdf8}
 .el-align-btn:hover{border-color:rgba(0,212,255,0.3)}
 .el-spacing-group{display:flex;align-items:center;gap:4px;flex:1}
 .el-spacing-slider{flex:1;height:3px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,0.1);border-radius:2px;outline:none}
-.el-spacing-slider::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:#00d4ff;cursor:pointer}
-.ai-btn{width:100%;padding:10px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.el-spacing-slider::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:#38bdf8;cursor:pointer}
+.ai-btn{width:100%;padding:10px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s}
 .ai-btn:hover{opacity:0.9}.ai-btn:disabled{opacity:0.5;cursor:wait}
 
 /* Toast */
@@ -124,7 +124,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
 
 <!-- LEFT: Section Library -->
 <div class="lib-panel">
-  <div class="lib-header"><a href="/funnels"><svg width="24" height="24" viewBox="0 0 30 30"><path d="M15 2L3 7v7c0 7.73 5.12 14.95 12 17 6.88-2.05 12-9.27 12-17V7L15 2z" fill="url(#sg)"/><defs><linearGradient id="sg" x1="0" y1="0" x2="30" y2="30"><stop offset="0%" stop-color="#00d4ff"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs></svg><span class="lib-brand">SuperAdPro</span></a></div>
+  <div class="lib-header"><a href="/funnels"><svg width="24" height="24" viewBox="0 0 30 30"><path d="M15 2L3 7v7c0 7.73 5.12 14.95 12 17 6.88-2.05 12-9.27 12-17V7L15 2z" fill="url(#sg)"/><defs><linearGradient id="sg" x1="0" y1="0" x2="30" y2="30"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient></defs></svg><span class="lib-brand">SuperAdPro</span></a></div>
   <div class="lib-title">Add Sections</div>
   <div id="libSections"></div>
 </div>
@@ -176,8 +176,8 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
       <div class="set-label">Accent Color</div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <div class="accent-grid">
-          <div class="accent-opt active" style="background:#00d4ff" data-color="#00d4ff" onclick="setAccent(this)"></div>
-          <div class="accent-opt" style="background:#7c3aed" data-color="#7c3aed" onclick="setAccent(this)"></div>
+          <div class="accent-opt active" style="background:#38bdf8" data-color="#38bdf8" onclick="setAccent(this)"></div>
+          <div class="accent-opt" style="background:#0ea5e9" data-color="#0ea5e9" onclick="setAccent(this)"></div>
           <div class="accent-opt" style="background:#16a34a" data-color="#16a34a" onclick="setAccent(this)"></div>
           <div class="accent-opt" style="background:#f59e0b" data-color="#f59e0b" onclick="setAccent(this)"></div>
           <div class="accent-opt" style="background:#ef4444" data-color="#ef4444" onclick="setAccent(this)"></div>
@@ -185,7 +185,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
           <div class="accent-opt" style="background:#f97316" data-color="#f97316" onclick="setAccent(this)"></div>
         </div>
         <div style="position:relative;margin-left:4px">
-          <input type="color" id="customAccentPicker" value="#00d4ff" style="position:absolute;opacity:0;width:28px;height:28px;cursor:pointer" oninput="setCustomAccent(this.value)">
+          <input type="color" id="customAccentPicker" value="#38bdf8" style="position:absolute;opacity:0;width:28px;height:28px;cursor:pointer" oninput="setCustomAccent(this.value)">
           <div id="customAccentSwatch" onclick="document.getElementById('customAccentPicker').click()" style="width:26px;height:26px;border-radius:50%;background:conic-gradient(red,yellow,lime,aqua,blue,magenta,red);cursor:pointer;border:2px solid rgba(255,255,255,0.2);transition:all 0.15s;display:flex;align-items:center;justify-content:center" title="Custom colour">
             <div style="width:10px;height:10px;background:#1e293b;border-radius:50%"></div>
           </div>
@@ -197,7 +197,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0f172a;color:#e
 
   <!-- AI Copy Generator -->
   <div class="ai-gen-section">
-    <div class="set-label" style="color:#a78bfa;margin-bottom:8px">✨ AI Copy Generator</div>
+    <div class="set-label" style="color:#38bdf8;margin-bottom:8px">✨ AI Copy Generator</div>
     <div class="set-row"><input class="set-input" id="aiNiche" placeholder="Your niche (e.g. Forex)"></div>
     <div class="set-row"><input class="set-input" id="aiOffer" placeholder="What you're promoting"></div>
     <button class="ai-btn" id="aiGenBtn" onclick="aiGenerate()">🤖 Generate All Copy with AI</button>
@@ -225,7 +225,7 @@ let pageId = {{ page.id if page else 'null' }};
 let sections = [];
 let selectedIdx = -1;
 let scheme = '{{ page.color_scheme if page else "dark" }}';
-let accent = '{{ page.accent_color if page else "#00d4ff" }}';
+let accent = '{{ page.accent_color if page else "#38bdf8" }}';
 let customBg = '{{ page.custom_bg if page and page.custom_bg else "" }}';
 
 // Load saved sections if editing
@@ -436,7 +436,7 @@ function renderSectionSettings() {
   const tpl = SECTION_TEMPLATES.find(t => t.id === sec.templateId);
   if (!tpl) return;
 
-  let html = `<div class="set-section"><div style="font-size:16px;font-weight:700;color:#00d4ff;margin-bottom:4px">${tpl.icon} ${tpl.name}</div></div>`;
+  let html = `<div class="set-section"><div style="font-size:16px;font-weight:700;color:#38bdf8;margin-bottom:4px">${tpl.icon} ${tpl.name}</div></div>`;
 
   // Generate form fields based on data keys
   html += '<div class="set-section">';
@@ -490,7 +490,7 @@ function renderSectionSettings() {
     if (!sec.data._elementStyles) sec.data._elementStyles = {};
 
     html += '<div class="set-section">';
-    html += '<div class="set-label" style="margin-bottom:8px;color:#00d4ff;font-weight:700">⚙ Element Layout</div>';
+    html += '<div class="set-label" style="margin-bottom:8px;color:#38bdf8;font-weight:700">⚙ Element Layout</div>';
     html += '<div class="set-label" style="font-size:9px;color:#4a5a6e;margin-bottom:8px">Drag to reorder · Toggle visibility · Set alignment</div>';
     html += '<div class="el-layout-list" id="elLayoutList">';
 
@@ -674,7 +674,7 @@ function setCustomBg(color) {
   const hexEl = document.getElementById('customBgHex');
   hexEl.textContent = color.toUpperCase();
   hexEl.style.display = 'block';
-  document.getElementById('customBgSwatch').style.borderColor = '#00d4ff';
+  document.getElementById('customBgSwatch').style.borderColor = '#38bdf8';
   renderCanvas();
 }
 
@@ -817,7 +817,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('customBgPicker').value = customBg;
     document.getElementById('customBgHex').textContent = customBg.toUpperCase();
     document.getElementById('customBgHex').style.display = 'block';
-    document.getElementById('customBgSwatch').style.borderColor = '#00d4ff';
+    document.getElementById('customBgSwatch').style.borderColor = '#38bdf8';
   }
   initLibrary();
   renderCanvas();

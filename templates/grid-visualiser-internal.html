@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 
-:root{--cyan:#00d4ff;--cyan2:#00b4d8;--green:#10b981;--gold:#f59e0b;--bg:#020818;--border:rgba(0,212,255,0.12)}
+:root{--cyan:#38bdf8;--cyan2:#0ea5e9;--green:#10b981;--gold:#f59e0b;--bg:#020818;--border:rgba(0,212,255,0.12)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans','Rethink Sans',sans-serif;background:var(--bg);color:#e8f0fe;min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;animation:gridDrift 30s linear infinite}
@@ -16,24 +16,24 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;back
 
 nav{background:rgba(2,8,24,0.95);border-bottom:1px solid var(--border);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
 .nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
-.nav-brand span{font-weight:800;font-size:19px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00b4d8,#6d28d9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-brand span{font-weight:800;font-size:19px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#0ea5e9,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .nav-links{display:flex;align-items:center;gap:24px}
 .nav-links a{font-size:19px;font-weight:500;color:#4a5a6e;text-decoration:none;transition:color 0.2s}
 .nav-links a:hover{color:var(--cyan)}
-.btn-nav{background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff!important;padding:8px 20px;border-radius:7px;font-weight:700!important}
+.btn-nav{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff!important;padding:8px 20px;border-radius:7px;font-weight:700!important}
 
 .hero{text-align:center;padding:50px 40px 30px;position:relative;z-index:1}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:999px;padding:6px 18px;font-size:19px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:20px}
 .hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:blink 1.5s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
 .hero h1{font-size:clamp(22px,4vw,40px);font-weight:800;line-height:1.1;margin-bottom:10px}
-.hero h1 span{background:linear-gradient(135deg,#00d4ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero h1 span{background:linear-gradient(135deg,#38bdf8,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .hero p{font-size:19px;color:#64748b;max-width:560px;margin:0 auto;line-height:1.7}
 
 .pkg-bar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:16px 40px 20px;position:relative;z-index:1}
 .pkg-btn{padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.45);font-family:'DM Sans','Rethink Sans',sans-serif;font-size:19px;font-weight:600;cursor:pointer;transition:all 0.2s}
-.pkg-btn:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,255,0.05)}
-.pkg-btn.active{background:rgba(0,212,255,0.1);border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 20px rgba(0,212,255,0.15)}
+.pkg-btn:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(56,189,248,0.05)}
+.pkg-btn.active{background:rgba(0,212,255,0.1);border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 20px rgba(56,189,248,0.15)}
 
 .main{display:grid;grid-template-columns:1fr 340px;gap:20px;max-width:1200px;margin:0 auto;padding:0 24px 80px;position:relative;z-index:1}
 @media(max-width:900px){.main{grid-template-columns:1fr}}
@@ -58,7 +58,7 @@ nav{background:rgba(2,8,24,0.95);border-bottom:1px solid var(--border);padding:0
 }
 .cell::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.1),transparent);opacity:0;transition:opacity 0.3s}
 /* Owner cell */
-.cell.owner{background:linear-gradient(135deg,#00b4d8,#0e7490)!important;border:2px solid var(--cyan)!important;color:#fff!important;box-shadow:0 0 24px rgba(0,212,255,0.5),0 0 48px rgba(0,212,255,0.15)!important}
+.cell.owner{background:linear-gradient(135deg,#0ea5e9,#0e7490)!important;border:2px solid var(--cyan)!important;color:#fff!important;box-shadow:0 0 24px rgba(0,212,255,0.5),0 0 48px rgba(56,189,248,0.15)!important}
 .cell.owner::before{opacity:1}
 /* Direct referral — bright green glow */
 .cell.direct{color:#fff!important;border:2px solid rgba(52,211,153,0.7)!important;box-shadow:0 0 18px rgba(16,185,129,0.55),0 0 36px rgba(16,185,129,0.2)!important}
@@ -70,7 +70,7 @@ nav{background:rgba(2,8,24,0.95);border-bottom:1px solid var(--border);padding:0
 /* Controls */
 .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
 .btn{padding:10px 20px;border-radius:8px;border:none;font-family:'DM Sans','Rethink Sans',sans-serif;font-size:19px;font-weight:700;cursor:pointer;transition:all 0.2s}
-.btn-play{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#020818;box-shadow:0 4px 16px rgba(0,212,255,0.25)}
+.btn-play{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#020818;box-shadow:0 4px 16px rgba(56,189,248,0.25)}
 .btn-play:hover{box-shadow:0 6px 24px rgba(0,212,255,0.4);transform:translateY(-1px)}
 .btn-reset{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.1)}
 .btn-reset:hover{background:rgba(255,255,255,0.1);color:#fff}
@@ -95,15 +95,15 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 .progress-label{font-size:19px;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase}
 .progress-value{font-size:19px;color:var(--cyan)}
 .progress-bar{height:3px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden}
-.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),#a78bfa);border-radius:99px;transition:width 0.3s;box-shadow:0 0 8px rgba(0,212,255,0.4)}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),#38bdf8);border-radius:99px;transition:width 0.3s;box-shadow:0 0 8px rgba(0,212,255,0.4)}
 
 /* Advance note */
 .advance-note{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.15);border-radius:8px;margin-bottom:12px}
 .advance-note-text{font-size:19px;color:#64748b;line-height:1.6}
-.advance-note-title{font-size:19px;font-weight:700;color:#a78bfa;margin-bottom:3px}
+.advance-note-title{font-size:19px;font-weight:700;color:#38bdf8;margin-bottom:3px}
 
 /* Advance banner */
-.advance-banner{display:none;text-align:center;padding:16px;background:linear-gradient(135deg,rgba(0,212,255,0.1),rgba(124,58,237,0.1));border:1px solid rgba(0,212,255,0.25);border-radius:10px}
+.advance-banner{display:none;text-align:center;padding:16px;background:linear-gradient(135deg,rgba(0,212,255,0.1),rgba(124,58,237,0.1));border:1px solid rgba(56,189,248,0.25);border-radius:10px}
 .advance-banner.show{display:block;animation:fadeUp 0.4s ease}
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .advance-title{font-size:19px;font-weight:700;color:var(--cyan);margin-bottom:4px}
@@ -125,7 +125,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 
 .total-card{background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(124,58,237,0.06));border:1px solid rgba(0,212,255,0.2);border-radius:12px;padding:18px;text-align:center}
 .total-label{font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:6px}
-.total-amount{font-size:30px;font-weight:800;background:linear-gradient(135deg,var(--cyan),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;transition:all 0.3s}
+.total-amount{font-size:30px;font-weight:800;background:linear-gradient(135deg,var(--cyan),#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;transition:all 0.3s}
 .total-sub{font-size:19px;color:rgba(255,255,255,0.3);margin-top:4px}
 
 .split-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:18px;backdrop-filter:blur(8px)}
@@ -153,11 +153,11 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 .log-level{color:rgba(255,255,255,0.3);min-width:22px}
 .log-tag{font-size:9px;padding:2px 6px;border-radius:3px;font-weight:700;letter-spacing:0.5px;white-space:nowrap}
 .log-tag.direct{color:#10b981;border:1px solid rgba(16,185,129,0.35);background:rgba(16,185,129,0.08)}
-.log-tag.overspill{color:rgba(0,180,216,0.6);border:1px solid rgba(0,212,255,0.15);background:rgba(0,212,255,0.04)}
+.log-tag.overspill{color:rgba(0,180,216,0.6);border:1px solid rgba(56,189,248,0.15);background:rgba(0,212,255,0.04)}
 .log-amt{font-weight:700;font-size:12px;white-space:nowrap;margin-left:auto;font-variant-numeric:tabular-nums}
 .reg-overlay{position:fixed;inset:0;background:rgba(1,8,20,0.85);backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity 0.25s}
 .reg-overlay.open{opacity:1;pointer-events:all}
-.reg-modal{background:#0d1117;border:1px solid rgba(0,212,255,0.15);border-radius:18px;padding:36px 38px;width:100%;max-width:460px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);transform:translateY(20px);transition:transform 0.25s}
+.reg-modal{background:#0d1117;border:1px solid rgba(56,189,248,0.15);border-radius:18px;padding:36px 38px;width:100%;max-width:460px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);transform:translateY(20px);transition:transform 0.25s}
 .reg-overlay.open .reg-modal{transform:translateY(0)}
 .reg-close{position:absolute;top:14px;right:18px;background:none;border:none;color:rgba(200,220,255,0.4);font-size:22px;cursor:pointer;line-height:1;padding:4px 8px;border-radius:6px;transition:color 0.2s}
 .reg-close:hover{color:rgba(200,220,255,0.9)}
@@ -166,13 +166,13 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 .reg-field{margin-bottom:16px}
 .reg-label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(200,220,255,0.5);margin-bottom:6px}
 .reg-input{width:100%;padding:11px 14px;border:1.5px solid rgba(0,212,255,0.12);border-radius:9px;background:rgba(0,212,255,0.04);color:#fff;font-size:16px;font-family:inherit;box-sizing:border-box;transition:border-color 0.2s}
-.reg-input:focus{outline:none;border-color:#00d4ff;background:rgba(0,212,255,0.07)}
+.reg-input:focus{outline:none;border-color:#38bdf8;background:rgba(56,189,248,0.07)}
 .reg-input::placeholder{color:rgba(200,220,255,0.25)}
 .reg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .reg-terms{display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;font-size:16px;color:rgba(200,220,255,0.45);line-height:1.5}
-.reg-terms input{width:15px;height:15px;flex-shrink:0;margin-top:1px;accent-color:#00d4ff}
+.reg-terms input{width:15px;height:15px;flex-shrink:0;margin-top:1px;accent-color:#38bdf8}
 .reg-terms a{color:rgba(0,212,255,0.7);text-decoration:none}
-.reg-submit{width:100%;padding:13px;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:10px;color:#fff;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;transition:opacity 0.2s;letter-spacing:0.3px}
+.reg-submit{width:100%;padding:13px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:10px;color:#fff;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;transition:opacity 0.2s;letter-spacing:0.3px}
 .reg-submit:hover{opacity:0.9}
 .reg-submit:disabled{opacity:0.5;cursor:not-allowed}
 .reg-err{display:none;margin-bottom:14px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:16px;color:#dc2626;font-weight:600}
@@ -183,7 +183,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 
 .login-overlay{position:fixed;inset:0;background:rgba(1,8,20,0.85);backdrop-filter:blur(6px);z-index:1001;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity 0.25s}
 .login-overlay.open{opacity:1;pointer-events:all}
-.login-modal{background:#0d1117;border:1px solid rgba(0,212,255,0.15);border-radius:18px;padding:36px 38px;width:100%;max-width:400px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);transform:translateY(20px);transition:transform 0.25s}
+.login-modal{background:#0d1117;border:1px solid rgba(56,189,248,0.15);border-radius:18px;padding:36px 38px;width:100%;max-width:400px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);transform:translateY(20px);transition:transform 0.25s}
 .login-overlay.open .login-modal{transform:translateY(0)}
 @media(max-width:500px){.login-modal{padding:28px 22px}}
 
@@ -194,9 +194,9 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 .int-topbar-title{font-size:18px;font-weight:800;color:#fff}
 .int-topbar-sub{font-size:12px;color:rgba(200,220,255,0.5);margin-top:1px}
 .int-back{display:flex;align-items:center;gap:6px;color:#94a3b8;text-decoration:none;font-size:14px;font-weight:600;padding:8px 16px;border:1px solid rgba(255,255,255,0.15);border-radius:8px;background:rgba(255,255,255,0.05);transition:all 0.2s}
-.int-back:hover{border-color:rgba(0,212,255,0.4);color:#00d4ff;background:rgba(0,212,255,0.08)}
+.int-back:hover{border-color:rgba(56,189,248,0.4);color:#38bdf8;background:rgba(56,189,248,0.08)}
 .int-topbar-user{display:flex;align-items:center;gap:10px;color:rgba(200,220,255,0.6);font-size:13px;font-weight:500}
-.int-topbar-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
+.int-topbar-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
 
 </style>
 </head>
@@ -285,7 +285,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
   <a href="/dashboard" style="display:inline-block;margin-bottom:16px;font-size:16px;font-weight:600;color:rgba(200,220,255,0.6);text-decoration:none;border:1px solid rgba(200,220,255,0.15);border-radius:7px;padding:7px 16px;transition:all 0.2s">← Back to Dashboard</a>
   <div class="hero-badge">Live Interactive Demo</div>
   <h1>Profit Engine Grid<br><span>Visualiser</span></h1>
-  <p>Watch your grid fill with a realistic mix of your own <strong style="color:#10b981">direct referrals</strong> and <strong style="color:#00d4ff">upline overspill</strong> — scattered randomly across every level, just like the real thing.</p>
+  <p>Watch your grid fill with a realistic mix of your own <strong style="color:#10b981">direct referrals</strong> and <strong style="color:#38bdf8">upline overspill</strong> — scattered randomly across every level, just like the real thing.</p>
 </div>
 
 <div class="pkg-bar" id="pkgBar">
@@ -392,13 +392,13 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 
       <div class="earn-row">
         <div class="earn-left">
-          <div class="earn-dot" style="background:#a78bfa"></div>
+          <div class="earn-dot" style="background:#38bdf8"></div>
           <div>
             <div class="earn-label">Uni-Level (8.75%)</div>
             <div class="earn-sub">$<span id="uniPerSeat">8.75</span> · every seat, direct or overspill</div>
           </div>
         </div>
-        <div class="earn-amount" id="uniAmt" style="color:#a78bfa">$0.00</div>
+        <div class="earn-amount" id="uniAmt" style="color:#38bdf8">$0.00</div>
       </div>
 
     </div>
@@ -415,7 +415,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
       <div class="eyebrow">Per Entry Distribution — $<span id="splitPrice">100</span></div>
       <div class="split-bar-wrap">
         <div class="split-seg" style="width:26.3%;background:#10b981"></div>
-        <div class="split-seg" style="width:73.7%;background:linear-gradient(90deg,#3b82f6,#a78bfa)"></div>
+        <div class="split-seg" style="width:73.7%;background:linear-gradient(90deg,#3b82f6,#38bdf8)"></div>
       </div>
       <div class="split-legend">
         <div class="split-item">
@@ -424,9 +424,9 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
           <span class="split-pct" id="sp1" style="color:#10b981">$25.00</span>
         </div>
         <div class="split-item">
-          <div class="split-swatch" style="background:linear-gradient(135deg,#3b82f6,#a78bfa)"></div>
+          <div class="split-swatch" style="background:linear-gradient(135deg,#3b82f6,#38bdf8)"></div>
           Uni-Level (8 levels × $<span id="sp2lvl">8.75</span>)
-          <span class="split-pct" id="sp2" style="color:#a78bfa">$70.00</span>
+          <span class="split-pct" id="sp2" style="color:#38bdf8">$70.00</span>
         </div>
       </div>
     </div>
@@ -444,7 +444,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
       </div>
       <div class="info-row">
         <span class="info-key">Overspill seats</span>
-        <span class="info-val" id="infoOverspillCount" style="color:#a78bfa">48 seats</span>
+        <span class="info-val" id="infoOverspillCount" style="color:#38bdf8">48 seats</span>
       </div>
       <div class="info-row">
         <span class="info-key">Estimated full advance earnings</span>
@@ -478,8 +478,8 @@ let directSeats = new Set(); // which seat indices (1–63) are directs — rand
 let tSponsor = 0, tUni = 0;
 
 const LEVEL_COLOURS = [
-  '#00d4ff','#3b82f6','#6366f1','#7c3aed',
-  '#8b5cf6','#a78bfa','#b197fc','#c4b5fd'
+  '#38bdf8','#3b82f6','#6366f1','#0ea5e9',
+  '#0ea5e9','#38bdf8','#b197fc','#c4b5fd'
 ];
 
 // ── Randomise which seats are personal directs ─────────────────────────────

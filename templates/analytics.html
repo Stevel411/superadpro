@@ -13,25 +13,25 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 /* ── SIDEBAR (dark) ── */
 .sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.sidebar-brand{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;letter-spacing:0;text-transform:none;color:#fff;-webkit-text-fill-color:#fff}
 .nav-section{padding:22px 18px 8px;font-size:16px;font-weight:800;letter-spacing:0.5px;text-transform:none;color:#38bdf8;line-height:1.2}
 .nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
 .nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
-.nav-item.active{color:#00d4ff;background:rgba(0,212,255,0.07);border-left-color:#00d4ff}
+.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
 .nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
-.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00d4ff);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
+.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
 
 /* ── MAIN ── */
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
 
 /* ── TOPBAR ── */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(0,212,255,0.1);position:sticky;top:0;z-index:50}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:50}
 .topbar-title{font-size:22px;font-weight:800;color:#fff}
 .topbar-sub{font-size:16px;color:rgba(0,212,255,0.5);margin-top:2px}
 .topbar-right{display:flex;align-items:center;gap:12px}
-.balance-pill{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:8px;padding:8px 16px}
+.balance-pill{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(56,189,248,0.15);border-radius:8px;padding:8px 16px}
 .balance-label{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1.5px;text-transform:uppercase}
 .balance-val{font-size:19px;font-weight:800;color:#16a34a;line-height:1}
 
@@ -42,9 +42,9 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .overview-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
 .ov-card{background:#fff;border:1px solid #d0d8e4;border-radius:12px;padding:20px 22px;position:relative;overflow:hidden;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
 .ov-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.ov-card.c1::before{background:linear-gradient(90deg,transparent,#00b4d8,transparent)}
+.ov-card.c1::before{background:linear-gradient(90deg,transparent,#0ea5e9,transparent)}
 .ov-card.c2::before{background:linear-gradient(90deg,transparent,#16a34a,transparent)}
-.ov-card.c3::before{background:linear-gradient(90deg,transparent,#7c3aed,transparent)}
+.ov-card.c3::before{background:linear-gradient(90deg,transparent,#0ea5e9,transparent)}
 .ov-card.c4::before{background:linear-gradient(90deg,transparent,#f59e0b,transparent)}
 .ov-label{font-size:16px;font-weight:600;color:#64748b;letter-spacing:1px;text-transform:uppercase}
 .ov-val{font-size:28px;font-weight:800;margin-top:6px;line-height:1}
@@ -58,7 +58,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 /* ── CHART ── */
 .chart-container{width:100%;position:relative;padding:10px 0}
 .chart-bar-row{display:flex;align-items:end;justify-content:center;gap:12px;height:200px;padding:0 20px}
-.chart-bar{background:linear-gradient(180deg,#00b4d8,#0077b6);border-radius:6px 6px 0 0;max-width:60px;min-width:16px;flex:1;position:relative;transition:all 0.3s;cursor:pointer}
+.chart-bar{background:linear-gradient(180deg,#0ea5e9,#0077b6);border-radius:6px 6px 0 0;max-width:60px;min-width:16px;flex:1;position:relative;transition:all 0.3s;cursor:pointer}
 .chart-bar:hover{opacity:0.85}
 .chart-bar .tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;white-space:nowrap;z-index:10}
 .chart-bar:hover .tooltip{display:block}
@@ -82,20 +82,20 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .geo-row{display:flex;align-items:center;gap:12px;padding:8px 0}
 .geo-country{width:120px;font-size:16px;font-weight:600;flex-shrink:0}
 .geo-bar{flex:1;height:22px;background:#e2e8f0;border-radius:4px;overflow:hidden}
-.geo-fill{height:100%;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:4px;display:flex;align-items:center;padding:0 8px}
+.geo-fill{height:100%;background:linear-gradient(90deg,#0ea5e9,#38bdf8);border-radius:4px;display:flex;align-items:center;padding:0 8px}
 .geo-count{font-size:16px;font-weight:700;color:#fff;white-space:nowrap}
 
 /* ── AI PANEL ── */
 .ai-panel{background:linear-gradient(135deg,#f0f9ff,#faf5ff);border:1px solid #e0e7ff;border-radius:12px;padding:24px;margin-bottom:20px}
 .ai-panel-title{font-size:16px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px}
 .ai-panel-sub{font-size:16px;color:#64748b;margin-bottom:16px}
-.ai-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit}
+.ai-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit}
 .ai-btn-clear{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:#fff;color:#64748b;border:1px solid #d0d8e4;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:inherit;margin-left:8px}
 .ai-btn-clear:hover{background:#f1f5f9;color:#dc2626;border-color:#fca5a5}
 .ai-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(124,58,237,0.3)}
 .ai-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
 .ai-result{margin-top:16px;font-size:16px;line-height:1.7;color:#1e293b}
-.ai-result strong{color:#7c3aed}
+.ai-result strong{color:#0ea5e9}
 
 /* ── GRID LAYOUT ── */
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
@@ -117,7 +117,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 </style>
 </head>
 <body>
-<svg style="display:none"><symbol id="shield" viewBox="0 0 30 30"><path d="M15 2L3 7v7c0 7.73 5.12 14.95 12 17 6.88-2.05 12-9.27 12-17V7L15 2z" fill="url(#sg)"/><defs><linearGradient id="sg" x1="0" y1="0" x2="30" y2="30"><stop offset="0%" stop-color="#00d4ff"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs></symbol></svg>
+<svg style="display:none"><symbol id="shield" viewBox="0 0 30 30"><path d="M15 2L3 7v7c0 7.73 5.12 14.95 12 17 6.88-2.05 12-9.27 12-17V7L15 2z" fill="url(#sg)"/><defs><linearGradient id="sg" x1="0" y1="0" x2="30" y2="30"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient></defs></symbol></svg>
 
 <div class="layout">
   <!-- SIDEBAR -->
@@ -275,7 +275,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
               <td>{{ "{:,}".format(c.views_delivered) }} / {{ "{:,}".format(c.views_target) }}</td>
               <td style="min-width:140px">
                 <div class="prog-bar">
-                  <div class="prog-fill" style="width:{{ c.pct }}%;background:{% if c.pct >= 75 %}linear-gradient(90deg,#16a34a,#22c55e){% elif c.pct >= 40 %}linear-gradient(90deg,#f59e0b,#fbbf24){% else %}linear-gradient(90deg,#00b4d8,#38bdf8){% endif %}"></div>
+                  <div class="prog-fill" style="width:{{ c.pct }}%;background:{% if c.pct >= 75 %}linear-gradient(90deg,#16a34a,#22c55e){% elif c.pct >= 40 %}linear-gradient(90deg,#f59e0b,#fbbf24){% else %}linear-gradient(90deg,#0ea5e9,#38bdf8){% endif %}"></div>
                 </div>
                 <div style="font-size:16px;color:#64748b;margin-top:3px">{{ c.pct }}%</div>
               </td>
@@ -289,7 +289,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
         {% else %}
         <div class="no-data">
           You haven't created any campaigns yet.<br>
-          <a href="/video-library" style="color:#7c3aed;font-weight:600;text-decoration:none">Create your first campaign →</a>
+          <a href="/video-library" style="color:#0ea5e9;font-weight:600;text-decoration:none">Create your first campaign →</a>
         </div>
         {% endif %}
       </div>

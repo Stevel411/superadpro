@@ -4,40 +4,40 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Profile — SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
 .layout{display:flex;min-height:100vh}
 .sidebar{width:220px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.sidebar-brand{font-weight:800;font-size:19px;letter-spacing:2.5px;text-transform:uppercase;background:linear-gradient(135deg,#00f0ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sidebar-brand{font-weight:800;font-size:19px;letter-spacing:2.5px;text-transform:uppercase;background:linear-gradient(135deg,#00f0ff,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .nav-section{padding:22px 18px 8px;font-size:16px;font-weight:800;letter-spacing:0.5px;text-transform:none;color:#38bdf8;line-height:1.2}
 .nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
 .nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
-.nav-item.active{color:#00d4ff;background:rgba(0,212,255,0.07);border-left-color:#00d4ff}
+.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
 .nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
-.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00f0ff);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;color:#fff;flex-shrink:0}
+.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0284c7,#00f0ff);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;color:#fff;flex-shrink:0}
 .main{margin-left:220px;flex:1;display:flex;flex-direction:column;overflow-y:auto}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.1);position:sticky;top:0;z-index:50}
 .content{padding:24px 28px;flex:1}
 .card{background:#ffffff;border:1px solid #d0d8e4;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
 .card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e8ecf4}
 .card-title{font-size:19px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
-.card-dot{width:7px;height:7px;border-radius:50%;background:#00b4d8;flex-shrink:0}
+.card-dot{width:7px;height:7px;border-radius:50%;background:#0ea5e9;flex-shrink:0}
 .card-body{padding:20px}
-.btn-primary{font-size:19px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:10px 20px;border-radius:7px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:inline-block}
+.btn-primary{font-size:19px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:10px 20px;border-radius:7px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:inline-block}
 .btn-outline{font-size:19px;font-weight:600;color:#4a5a6e;background:#ffffff;padding:9px 18px;border-radius:7px;border:1px solid #d0d8e4;text-decoration:none;cursor:pointer;font-family:inherit;display:inline-block}
 .form-group{margin-bottom:16px}
 .form-label{font-size:19px;font-weight:700;color:#4a5a6e;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
 .form-input{width:100%;padding:10px 14px;border:1px solid #d0d8e4;border-radius:7px;font-size:19px;color:#0f172a;font-family:inherit;background:#ffffff;transition:border-color 0.2s}
-.form-input:focus{outline:none;border-color:#00b4d8;background:#ffffff}
+.form-input:focus{outline:none;border-color:#0ea5e9;background:#ffffff}
 .badge{font-size:19px;font-weight:700;padding:3px 10px;border-radius:999px}
 .badge-green{background:rgba(22,163,74,0.12);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
 .badge-amber{background:rgba(245,158,11,0.08);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)}
-.badge-cyan{background:rgba(0,180,216,0.08);color:#0077a8;border:1px solid rgba(0,180,216,0.2)}
+.badge-cyan{background:rgba(0,180,216,0.08);color:#0284c7;border:1px solid rgba(0,180,216,0.2)}
 .row{display:grid;gap:20px}
 .row-2{grid-template-columns:1fr 1fr}
 .row-3{grid-template-columns:1fr 1fr 1fr}
@@ -93,9 +93,9 @@ tr:last-child td{border-bottom:none}
 
 <svg width="0" height="0" style="position:absolute">
   <defs>
-    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="30%" stop-color="#6d28d9"/><stop offset="70%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="30%" stop-color="#0284c7"/><stop offset="70%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient>
     <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a0a2e"/><stop offset="40%" stop-color="#06061a"/><stop offset="100%" stop-color="#03031a"/></linearGradient>
-    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="25%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="75%" stop-color="#00b4d8"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="25%" stop-color="#0ea5e9"/><stop offset="50%" stop-color="#0284c7"/><stop offset="75%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
     <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
     <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     <linearGradient id="logo-grad-pg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
@@ -183,7 +183,7 @@ tr:last-child td{border-bottom:none}
       </div>
       <div class="card-body">
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid #e4e9f1">
-          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00b4d8);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0">{{ (user.first_name[:1] + (user.last_name[:1] if user.last_name else user.username[1:2])).upper() }}</div>
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#0284c7,#0ea5e9);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0">{{ (user.first_name[:1] + (user.last_name[:1] if user.last_name else user.username[1:2])).upper() }}</div>
           <div>
             <div style="font-size:19px;font-weight:800;color:#0f172a">{{ user.first_name }} {{ user.last_name }}</div>
             <div style="font-size:16px;color:#64748b">@{{ user.username }}</div>
@@ -213,13 +213,13 @@ tr:last-child td{border-bottom:none}
 
     <!-- Earnings summary -->
     <div class="card">
-      <div class="card-head"><div class="card-title"><div class="card-dot" style="background:#6d28d9"></div>Earnings Summary</div></div>
+      <div class="card-head"><div class="card-title"><div class="card-dot" style="background:#0284c7"></div>Earnings Summary</div></div>
       <div class="card-body">
         <div style="display:grid;gap:8px">
           <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #e4e9f1"><span style="font-size:16px;color:#64748b">Total Earned</span><span style="font-size:16px;font-weight:800;color:#16a34a">${{ '%.2f'|format(total_earned) }}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #e4e9f1"><span style="font-size:16px;color:#64748b">Available Balance</span><span style="font-size:16px;font-weight:800;color:#00b4d8">${{ '%.2f'|format(balance) }}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #e4e9f1"><span style="font-size:16px;color:#64748b">Available Balance</span><span style="font-size:16px;font-weight:800;color:#0ea5e9">${{ '%.2f'|format(balance) }}</span></div>
           <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #e4e9f1"><span style="font-size:16px;color:#64748b">Grid Earnings</span><span style="font-size:16px;font-weight:700;color:#0f172a">${{ '%.2f'|format(grid_earnings) }}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:7px 0"><span style="font-size:16px;color:#64748b">Uni-Level Income</span><span style="font-size:16px;font-weight:700;color:#6d28d9">${{ '%.2f'|format(level_earnings) }}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0"><span style="font-size:16px;color:#64748b">Uni-Level Income</span><span style="font-size:16px;font-weight:700;color:#0284c7">${{ '%.2f'|format(level_earnings) }}</span></div>
         </div>
         <a href="/wallet" style="display:block;text-align:center;margin-top:14px;padding:9px;background:#f5f7fb;border:1px solid #d0d8e4;border-radius:7px;font-size:16px;font-weight:700;color:#4a5a6e;text-decoration:none">View Full Wallet →</a>
       </div>
@@ -231,7 +231,7 @@ tr:last-child td{border-bottom:none}
 
     <!-- Personal Info -->
     <div class="card" style="margin-bottom:20px">
-      <div class="card-head"><div class="card-title"><div class="card-dot" style="background:#00b4d8"></div>Personal Information</div></div>
+      <div class="card-head"><div class="card-title"><div class="card-dot" style="background:#0ea5e9"></div>Personal Information</div></div>
       <div class="card-body">
         <form method="POST" action="/account/update-profile">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">

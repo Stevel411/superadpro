@@ -8,7 +8,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:#f4f7fc;color:#0f172a;min-height:100vh}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.25);position:sticky;top:0;z-index:200}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.15);position:sticky;top:0;z-index:200}
 .topbar-left{display:flex;align-items:center;gap:20px}
 .topbar-title{font-size:18px;font-weight:800;color:#fff}
 .topbar-sub{font-size:11px;color:rgba(200,220,255,0.4)}
@@ -28,13 +28,13 @@ body{font-family:'DM Sans',sans-serif;background:#f4f7fc;color:#0f172a;min-heigh
 .fg{margin-bottom:14px}
 .fg label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#64748b;margin-bottom:5px}
 .fg input,.fg textarea,.fg select{width:100%;padding:11px 14px;border:1px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;color:#0f172a;outline:none;transition:all 0.2s;background:#fff}
-.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:#8b5cf6;box-shadow:0 0 0 3px rgba(139,92,246,0.08)}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(139,92,246,0.08)}
 .fg textarea{resize:vertical;min-height:70px}
 
 .pills{display:flex;gap:6px;flex-wrap:wrap}
 .pill{font-size:12px;font-weight:600;padding:8px 14px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;transition:all 0.2s}
-.pill:hover{border-color:#8b5cf6;color:#8b5cf6}
-.pill.active{background:linear-gradient(135deg,#8b5cf6,#a78bfa);color:#fff;border-color:#8b5cf6;box-shadow:0 2px 8px rgba(139,92,246,0.2)}
+.pill:hover{border-color:#0ea5e9;color:#0ea5e9}
+.pill.active{background:linear-gradient(135deg,#0284c7,#0ea5e9);color:#fff;border-color:#0ea5e9;box-shadow:0 2px 8px rgba(139,92,246,0.2)}
 .pill input{display:none}
 
 /* Duration pills */
@@ -44,7 +44,7 @@ body{font-family:'DM Sans',sans-serif;background:#f4f7fc;color:#0f172a;min-heigh
 .dp.active{background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;border-color:#ef4444;box-shadow:0 2px 8px rgba(239,68,68,0.2)}
 .dp input{display:none}
 
-.gen-btn{width:100%;padding:14px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);color:#fff;font-size:15px;font-weight:700;font-family:inherit;border:none;border-radius:12px;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 16px rgba(139,92,246,0.25);margin-top:4px}
+.gen-btn{width:100%;padding:14px;background:linear-gradient(135deg,#0284c7,#0ea5e9);color:#fff;font-size:15px;font-weight:700;font-family:inherit;border:none;border-radius:12px;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 16px rgba(139,92,246,0.25);margin-top:4px}
 .gen-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(139,92,246,0.35)}
 .gen-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
 .gen-msg{text-align:center;margin-top:10px;font-size:13px;font-weight:600;min-height:18px}
@@ -61,9 +61,9 @@ body{font-family:'DM Sans',sans-serif;background:#f4f7fc;color:#0f172a;min-heigh
 .output-content hr{border:none;border-top:1px solid #e2e8f0;margin:16px 0}
 .copy-row{display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9}
 .copy-btn{font-size:13px;font-weight:600;padding:8px 18px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;transition:all 0.2s;font-family:inherit}
-.copy-btn:hover{border-color:#8b5cf6;color:#8b5cf6}
+.copy-btn:hover{border-color:#0ea5e9;color:#0ea5e9}
 .loading{display:none;text-align:center;padding:60px 20px}
-.spinner{width:40px;height:40px;border:3px solid #e2e8f0;border-top:3px solid #8b5cf6;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px}
+.spinner{width:40px;height:40px;border:3px solid #e2e8f0;border-top:3px solid #0ea5e9;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-size:14px;color:#64748b}
 @media(max-width:800px){.layout{grid-template-columns:1fr}.sidebar{position:static}}
@@ -176,7 +176,7 @@ async function generate(){
     const d=await r.json();
     document.getElementById('loadingState').style.display='none';
     if(d.success){
-      let html=d.script.replace(/^### (.*$)/gm,'<h3>$1</h3>').replace(/^## (.*$)/gm,'<h2>$1</h2>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/---/g,'<hr>').replace(/\[(.*?)\]/g,'<span style="color:#8b5cf6;font-style:italic">[$1]</span>');
+      let html=d.script.replace(/^### (.*$)/gm,'<h3>$1</h3>').replace(/^## (.*$)/gm,'<h2>$1</h2>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/---/g,'<hr>').replace(/\[(.*?)\]/g,'<span style="color:#0ea5e9;font-style:italic">[$1]</span>');
       document.getElementById('outputContent').innerHTML=html;
       document.getElementById('outputContent').style.display='block';
       document.getElementById('copyRow').style.display='flex';

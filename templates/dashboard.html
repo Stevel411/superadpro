@@ -13,25 +13,25 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 /* ── SIDEBAR (dark) ── */
 .sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.sidebar-brand{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;letter-spacing:0;text-transform:none;color:#fff;-webkit-text-fill-color:#fff}
 .nav-section{padding:22px 18px 8px;font-size:16px;font-weight:800;letter-spacing:0.5px;text-transform:none;color:#38bdf8;line-height:1.2}
 .nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
 .nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
-.nav-item.active{color:#00d4ff;background:rgba(0,212,255,0.07);border-left-color:#00d4ff}
+.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
 .nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
-.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#00d4ff);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
+.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
 
 /* ── MAIN (white/light) ── */
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
 
 /* ── TOPBAR (white) ── */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(0,212,255,0.1);position:sticky;top:0;z-index:50}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:50}
 .topbar-title{font-size:18px;font-weight:800;color:#fff;letter-spacing:0.5px}
 .topbar-sub{font-size:16px;color:rgba(0,212,255,0.5);margin-top:2px}
 .topbar-right{display:flex;align-items:center;gap:12px}
-.balance-pill{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:8px;padding:8px 16px}
+.balance-pill{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(56,189,248,0.15);border-radius:8px;padding:8px 16px}
 .balance-label{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1.5px;text-transform:uppercase}
 .balance-val{font-size:19px;font-weight:800;color:#16a34a;line-height:1}
 .balance-unit{font-size:8px;color:#6b7d94;margin-left:3px}
@@ -60,7 +60,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .stat-card.c2{background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #b8d4f8;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
 .stat-card.c2::before{background:linear-gradient(90deg,transparent,#0284c7,transparent)}
 .stat-card.c3{background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #d4bef8;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
-.stat-card.c3::before{background:linear-gradient(90deg,transparent,#7c3aed,transparent)}
+.stat-card.c3::before{background:linear-gradient(90deg,transparent,#0ea5e9,transparent)}
 .stat-card.c4{background:linear-gradient(135deg,#fefce8,#fffbeb);border:1px solid #fcd778;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
 .stat-card.c4::before{background:linear-gradient(90deg,transparent,#d97706,transparent)}
 .stat-label{font-size:16px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#5a6a7e;margin-bottom:8px}
@@ -73,9 +73,9 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .card:hover{box-shadow:0 4px 16px rgba(0,40,100,0.1)}
 .card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e4e9f1}
 .card-title{font-size:16px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
-.card-dot{width:7px;height:7px;border-radius:50%;background:#00b4d8;flex-shrink:0}
-.card-link{font-size:16px;color:#0077a8;font-weight:700;text-decoration:none}
-.card-link:hover{color:#00b4d8}
+.card-dot{width:7px;height:7px;border-radius:50%;background:#0ea5e9;flex-shrink:0}
+.card-link{font-size:16px;color:#0284c7;font-weight:700;text-decoration:none}
+.card-link:hover{color:#0ea5e9}
 .card-body{padding:20px}
 
 /* ── LAYOUTS ── */
@@ -85,7 +85,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 /* ── MINI GRID ── */
 .mini-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin:8px 0 4px}
 .mg-cell{aspect-ratio:1;border-radius:3px}
-.mg-filled{background:linear-gradient(135deg,#00b4d8,#6d28d9)}
+.mg-filled{background:linear-gradient(135deg,#0ea5e9,#38bdf8)}
 .mg-owner{background:linear-gradient(135deg,#16a34a,#059669)}
 .mg-empty{background:#e8ecf4}
 
@@ -94,7 +94,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .agi-name{font-size:16px;font-weight:700;color:#0f172a}
 .agi-badge{font-size:16px;font-weight:700;padding:2px 9px;border-radius:999px;background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0}
 .agi-progress{height:5px;background:#e8ecf4;border-radius:999px;overflow:hidden;margin:8px 0 4px}
-.agi-fill{height:100%;background:linear-gradient(90deg,#00b4d8,#6d28d9);border-radius:999px}
+.agi-fill{height:100%;background:linear-gradient(90deg,#0284c7,#38bdf8);border-radius:999px}
 .agi-meta{display:flex;justify-content:space-between;font-size:16px;color:#6b7d94}
 .active-grid-item{padding:16px 0;border-bottom:1px solid #f0f2f8}
 .active-grid-item:last-child{border-bottom:none;padding-bottom:0}
@@ -116,7 +116,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .empty-icon{font-size:30px;margin-bottom:10px}
 .empty-title{font-size:16px;font-weight:700;color:#4a5a6e;margin-bottom:5px}
 .empty-sub{font-size:16px;color:#6b7d94;margin-bottom:14px}
-.empty-cta{font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:8px 20px;border-radius:7px;text-decoration:none;display:inline-block}
+.empty-cta{font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:8px 20px;border-radius:7px;text-decoration:none;display:inline-block}
 
 /* ── ACTIVATION BANNER ── */
 .activation-banner{background:linear-gradient(135deg,#fffbeb,#fef9c3);border:1px solid #fde68a;border-radius:12px;padding:18px 22px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:14px}
@@ -135,15 +135,15 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
   .topbar-title{font-size:19px}
   .balance-val{font-size:16px}
 }
-.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:#0a0a1a;border-bottom:1px solid rgba(0,212,255,0.1);position:sticky;top:0;z-index:101}
+.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:101}
 .mobile-topbar-left{display:flex;align-items:center;gap:10px;text-decoration:none}
-.mobile-topbar-name{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.mobile-topbar-name{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#0ea5e9,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .mobile-topbar-page{font-size:16px;color:#64748b}
 .mobile-balance-chip{font-size:16px;font-weight:800;color:#16a34a;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:8px;padding:6px 12px}
 .mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#0a0a1a;border-top:1px solid rgba(0,212,255,0.1);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
 .mobile-nav-inner{display:flex;justify-content:space-around;align-items:center}
 .mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 8px;font-size:10px;color:#64748b;transition:color 0.15s}
-.mob-nav-item.active{color:#00d4ff}
+.mob-nav-item.active{color:#38bdf8}
 .mob-nav-icon{font-size:19px}
 .mob-nav-label{font-weight:600;letter-spacing:0.3px}
 </style>
@@ -281,7 +281,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
             </div>
           </div>
           <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;flex-shrink:0">
-            <a href="/activate-grid" style="font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);padding:12px 24px;border-radius:8px;text-decoration:none;white-space:nowrap;box-shadow:0 4px 14px rgba(0,180,216,0.3)">Activate Now — $20 →</a>
+            <a href="/activate-grid" style="font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:12px 24px;border-radius:8px;text-decoration:none;white-space:nowrap;box-shadow:0 4px 14px rgba(0,180,216,0.3)">Activate Now — $20 →</a>
             <a href="/affiliate" style="font-size:16px;font-weight:600;color:#0891b2;text-decoration:none;text-align:center">Get my referral link →</a>
           </div>
         </div>
@@ -318,13 +318,13 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
           <div class="stream-sub">Membership referral commissions</div>
         </div>
         <div class="stream-card s2">
-          <div class="stream-num" style="color:#0077a8">Stream 2 — Profit Engine Grid</div>
+          <div class="stream-num" style="color:#0284c7">Stream 2 — Profit Engine Grid</div>
           <div class="stream-name">Uni-Level Income</div>
-          <div class="stream-val" style="color:#00b4d8">${{ '%.2f'|format(grid_earnings + level_earnings) }}</div>
+          <div class="stream-val" style="color:#0ea5e9">${{ '%.2f'|format(grid_earnings + level_earnings) }}</div>
           <div class="stream-sub">Direct + Uni-Level commissions</div>
         </div>
         <div class="stream-card s3">
-          <div class="stream-num" style="color:#7c3aed">Stream 3 — Marketing Mastery</div>
+          <div class="stream-num" style="color:#0ea5e9">Stream 3 — Marketing Mastery</div>
           <div class="stream-name">Course Sales</div>
           <div class="stream-val" style="color:#c4b5fd">Coming Soon</div>
           <div class="stream-sub">100% commission + infinite pass-up</div>
@@ -415,13 +415,13 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
         </div>
         <div class="stat-card c2">
           <div class="stat-label">Available Balance</div>
-          <div class="stat-value" style="color:#00b4d8">${{ '%.2f'|format(balance) }}</div>
+          <div class="stat-value" style="color:#0ea5e9">${{ '%.2f'|format(balance) }}</div>
           <div class="stat-sub">Ready to withdraw</div>
           <div class="stat-bg">◎</div>
         </div>
         <div class="stat-card c3">
           <div class="stat-label">Grid Advances</div>
-          <div class="stat-value" style="color:#7c3aed">{{ grid_stats.completed_advances }}</div>
+          <div class="stat-value" style="color:#0ea5e9">{{ grid_stats.completed_advances }}</div>
           <div class="stat-sub">{{ grid_stats.active_grids }} active grid{% if grid_stats.active_grids != 1 %}s{% endif %}</div>
           <div class="stat-bg">◈</div>
         </div>
@@ -439,7 +439,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
         <!-- GRID ENGINE SUMMARY -->
         <div class="card">
           <div class="card-head">
-            <div class="card-title"><div class="card-dot" style="background:#00b4d8"></div>Profit Engine Grids</div>
+            <div class="card-title"><div class="card-dot" style="background:#0ea5e9"></div>Profit Engine Grids</div>
             <a href="/income-grid" class="card-link">Manage Grids →</a>
           </div>
           <div class="card-body">
@@ -458,8 +458,8 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
                   <div style="font-size:22px;font-weight:800;color:#16a34a">${{ '%.0f'|format(grid_stats.total_earned or 0) }}</div>
                 </div>
               </div>
-              <a href="/campaign-tiers" style="display:block;text-align:center;padding:12px;background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;border-radius:8px;font-size:16px;font-weight:700;text-decoration:none;margin-bottom:8px;box-shadow:0 4px 14px rgba(109,40,217,0.25)">+ Activate Campaign Tier</a>
-              <a href="/income-grid" style="display:block;text-align:center;padding:12px;background:linear-gradient(135deg,#00b4d8,#0077a8);color:#fff;border-radius:8px;font-size:16px;font-weight:700;text-decoration:none">View All Grids & Details →</a>
+              <a href="/campaign-tiers" style="display:block;text-align:center;padding:12px;background:linear-gradient(135deg,#0284c7,#0ea5e9);color:#fff;border-radius:8px;font-size:16px;font-weight:700;text-decoration:none;margin-bottom:8px;box-shadow:0 4px 14px rgba(109,40,217,0.25)">+ Activate Campaign Tier</a>
+              <a href="/income-grid" style="display:block;text-align:center;padding:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-radius:8px;font-size:16px;font-weight:700;text-decoration:none">View All Grids & Details →</a>
             {% else %}
               <div class="empty-state">
                 <div class="empty-icon">⚡</div>
@@ -474,7 +474,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
         <!-- EARNINGS BREAKDOWN -->
         <div class="card">
           <div class="card-head">
-            <div class="card-title"><div class="card-dot" style="background:#7c3aed"></div>Earnings Breakdown</div>
+            <div class="card-title"><div class="card-dot" style="background:#0ea5e9"></div>Earnings Breakdown</div>
             <a href="/wallet" class="card-link">Details →</a>
           </div>
           <div class="card-body">
@@ -486,13 +486,13 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
             </div>
             <div class="earn-item">
               <span style="font-size:16px;color:#4a5a6e;width:150px;flex-shrink:0">Uni-Level (8.75%×8)</span>
-              <div class="earn-bar-wrap"><div class="earn-bar" style="width:{{ ((level_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#00b4d8,#0077a8)"></div></div>
-              <span style="font-size:16px;font-weight:800;color:#00b4d8;width:76px;text-align:right">${{ '%.2f'|format(level_earnings) }}</span>
+              <div class="earn-bar-wrap"><div class="earn-bar" style="width:{{ ((level_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#0ea5e9,#38bdf8)"></div></div>
+              <span style="font-size:16px;font-weight:800;color:#0ea5e9;width:76px;text-align:right">${{ '%.2f'|format(level_earnings) }}</span>
             </div>
             <div class="earn-item">
               <span style="font-size:16px;color:#4a5a6e;width:150px;flex-shrink:0">Membership (S1)</span>
-              <div class="earn-bar-wrap"><div class="earn-bar" style="width:{{ ((sponsor_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#7c3aed,#a78bfa)"></div></div>
-              <span style="font-size:16px;font-weight:800;color:#7c3aed;width:76px;text-align:right">${{ '%.2f'|format(sponsor_earnings) }}</span>
+              <div class="earn-bar-wrap"><div class="earn-bar" style="width:{{ ((sponsor_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#0ea5e9,#38bdf8)"></div></div>
+              <span style="font-size:16px;font-weight:800;color:#0ea5e9;width:76px;text-align:right">${{ '%.2f'|format(sponsor_earnings) }}</span>
             </div>
 
             <div style="height:1px;background:#f0f2f8;margin:18px 0"></div>
@@ -570,8 +570,8 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
           <div class="card-body">
             <p style="font-size:16px;color:#64748b;margin-bottom:14px;line-height:1.6">Share your link. Each person who joins under you pays $20/month — <strong style="color:#16a34a">100% goes to you</strong> as their direct sponsor.</p>
             <div style="background:#f5f7fb;border:1px solid #d0d8e4;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:10px">
-              <span style="font-size:10px;color:#0077a8;font-family:monospace;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">superadpro.com/ref/{{ user.username }}</span>
-              <button onclick="copyRef()" style="font-size:10px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:6px;padding:7px 14px;cursor:pointer;white-space:nowrap;font-family:inherit" id="copyBtn">Copy</button>
+              <span style="font-size:10px;color:#0284c7;font-family:monospace;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">superadpro.com/ref/{{ user.username }}</span>
+              <button onclick="copyRef()" style="font-size:10px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:6px;padding:7px 14px;cursor:pointer;white-space:nowrap;font-family:inherit" id="copyBtn">Copy</button>
             </div>
             <div style="margin-top:14px">
               <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f2f8">
@@ -591,13 +591,13 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
       <!-- QUICK LINKS -->
       <div class="card">
         <div class="card-head">
-          <div class="card-title"><div class="card-dot" style="background:#7c3aed"></div>Explore the Income Grid</div>
+          <div class="card-title"><div class="card-dot" style="background:#0ea5e9"></div>Explore the Income Grid</div>
         </div>
         <div class="card-body" style="display:flex;gap:12px;flex-wrap:wrap">
-          <a href="/campaign-tiers" style="flex:1;min-width:200px;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 24px;background:linear-gradient(135deg,#00b4d8,#0077a8);color:#fff;font-size:16px;font-weight:700;border-radius:10px;text-decoration:none;box-shadow:0 4px 14px rgba(0,180,216,0.25);transition:all 0.2s">
+          <a href="/campaign-tiers" style="flex:1;min-width:200px;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 24px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:16px;font-weight:700;border-radius:10px;text-decoration:none;box-shadow:0 4px 14px rgba(0,180,216,0.25);transition:all 0.2s">
             🎬 View Campaign Tiers
           </a>
-          <a href="/grid-visualiser" style="flex:1;min-width:200px;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 24px;background:linear-gradient(135deg,#6d28d9,#7c3aed);color:#fff;font-size:16px;font-weight:700;border-radius:10px;text-decoration:none;box-shadow:0 4px 14px rgba(109,40,217,0.25);transition:all 0.2s">
+          <a href="/grid-visualiser" style="flex:1;min-width:200px;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 24px;background:linear-gradient(135deg,#0284c7,#0ea5e9);color:#fff;font-size:16px;font-weight:700;border-radius:10px;text-decoration:none;box-shadow:0 4px 14px rgba(109,40,217,0.25);transition:all 0.2s">
             ⚡ Grid Engine Demo
           </a>
         </div>

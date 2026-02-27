@@ -11,14 +11,14 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0a0a1a;color:#e
 
 /* Progress bar */
 .progress-bar{position:fixed;top:0;left:0;right:0;height:4px;background:rgba(255,255,255,0.06);z-index:200}
-.progress-fill{height:100%;background:linear-gradient(90deg,#00d4ff,#7c3aed);transition:width 0.5s ease;width:0%}
+.progress-fill{height:100%;background:linear-gradient(90deg,#38bdf8,#0ea5e9);transition:width 0.5s ease;width:0%}
 
 /* Header */
 .wiz-header{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;border-bottom:1px solid rgba(255,255,255,0.06)}
-.wiz-logo{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.wiz-logo{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#0ea5e9,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .wiz-step-label{font-size:13px;color:#64748b}
 .wiz-skip{font-size:13px;color:#64748b;text-decoration:none;transition:color 0.2s}
-.wiz-skip:hover{color:#00d4ff}
+.wiz-skip:hover{color:#38bdf8}
 
 /* Main container */
 .wiz-container{max-width:720px;margin:0 auto;padding:40px 24px 80px}
@@ -29,26 +29,26 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0a0a1a;color:#e
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
 .wiz-title{font-size:clamp(28px,4vw,40px);font-weight:800;line-height:1.15;margin-bottom:8px}
-.wiz-title span{background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.wiz-title span{background:linear-gradient(135deg,#0ea5e9,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .wiz-sub{font-size:17px;color:#94a3b8;line-height:1.6;margin-bottom:32px}
 
 /* Cards for selection */
 .option-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:28px}
 .option-card{padding:20px;border:2px solid rgba(255,255,255,0.08);border-radius:14px;cursor:pointer;transition:all 0.2s;text-align:center;background:rgba(255,255,255,0.02)}
 .option-card:hover{border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.04)}
-.option-card.selected{border-color:#00d4ff;background:rgba(0,212,255,0.08);box-shadow:0 0 20px rgba(0,212,255,0.1)}
+.option-card.selected{border-color:#38bdf8;background:rgba(56,189,248,0.08);box-shadow:0 0 20px rgba(0,212,255,0.1)}
 .option-card .oc-icon{font-size:32px;margin-bottom:10px}
 .option-card .oc-title{font-size:15px;font-weight:700;margin-bottom:4px}
 .option-card .oc-desc{font-size:12px;color:#64748b;line-height:1.4}
 
 /* Custom input */
 .wiz-input{width:100%;padding:14px 18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#fff;font-size:16px;font-family:inherit;transition:all 0.2s;margin-bottom:16px}
-.wiz-input:focus{outline:none;border-color:#00d4ff;background:rgba(0,212,255,0.04)}
+.wiz-input:focus{outline:none;border-color:#38bdf8;background:rgba(0,212,255,0.04)}
 .wiz-input::placeholder{color:#4a5a6e}
 
 /* Buttons */
 .wiz-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border:none;border-radius:10px;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.2s}
-.wiz-btn-primary{background:linear-gradient(135deg,#00b4d8,#6d28d9);color:#fff;box-shadow:0 4px 20px rgba(0,180,216,0.25)}
+.wiz-btn-primary{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;box-shadow:0 4px 20px rgba(0,180,216,0.25)}
 .wiz-btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(0,180,216,0.35)}
 .wiz-btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none}
 .wiz-btn-secondary{background:rgba(255,255,255,0.06);color:#94a3b8;border:1px solid rgba(255,255,255,0.1)}
@@ -57,29 +57,29 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0a0a1a;color:#e
 
 /* Loading state */
 .wiz-loading{text-align:center;padding:40px}
-.wiz-spinner{width:48px;height:48px;border:3px solid rgba(0,212,255,0.15);border-top-color:#00d4ff;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 20px}
+.wiz-spinner{width:48px;height:48px;border:3px solid rgba(56,189,248,0.15);border-top-color:#38bdf8;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 20px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .wiz-loading-text{font-size:16px;color:#94a3b8}
 
 /* Result card */
 .result-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;margin-bottom:16px}
-.result-card-title{font-size:13px;font-weight:700;color:#00d4ff;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.result-card-title{font-size:13px;font-weight:700;color:#38bdf8;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .result-url{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px 14px;margin-bottom:8px}
-.result-url input{flex:1;background:none;border:none;color:#00d4ff;font-size:14px;font-family:monospace;outline:none}
-.result-url button{padding:6px 14px;background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.3);border-radius:6px;color:#00d4ff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+.result-url input{flex:1;background:none;border:none;color:#38bdf8;font-size:14px;font-family:monospace;outline:none}
+.result-url button{padding:6px 14px;background:rgba(56,189,248,0.15);border:1px solid rgba(0,212,255,0.3);border-radius:6px;color:#38bdf8;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
 
 /* Social post cards */
 .social-post{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;margin-bottom:10px}
 .social-post-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .social-post-platform{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
-.social-post-copy{padding:4px 12px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);border-radius:6px;color:#00d4ff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;border:none}
+.social-post-copy{padding:4px 12px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);border-radius:6px;color:#38bdf8;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;border:none}
 .social-post-text{font-size:13px;color:#94a3b8;line-height:1.6;white-space:pre-wrap;max-height:120px;overflow-y:auto}
 
 /* Earnings projection */
 .earn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
 .earn-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;text-align:center}
 .earn-card .ec-label{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.earn-card .ec-val{font-size:24px;font-weight:800;color:#00d4ff}
+.earn-card .ec-val{font-size:24px;font-weight:800;color:#38bdf8}
 .earn-card .ec-sub{font-size:11px;color:#94a3b8;margin-top:4px}
 
 /* Confetti */
@@ -94,7 +94,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0a0a1a;color:#e
 .check-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .check-icon.done{background:rgba(16,185,129,0.15);color:#10b981}
 .check-icon.pending{background:rgba(255,255,255,0.06);color:#4a5a6e}
-.check-icon.active{background:rgba(0,212,255,0.15);color:#00d4ff;animation:pulse 1.5s infinite}
+.check-icon.active{background:rgba(56,189,248,0.15);color:#38bdf8;animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,212,255,0.3)}50%{box-shadow:0 0 0 8px rgba(0,212,255,0)}}
 .check-text{font-size:15px;font-weight:500}
 .check-text.done{color:#10b981}
@@ -227,7 +227,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0a0a1a;color:#e
     <div class="wiz-title">Your <span>earnings potential</span> 💰</div>
     <div class="wiz-sub">Here's what happens when you start sharing your link. These projections are based on the SuperAdPro compensation plan.</div>
 
-    <div style="font-size:14px;color:#94a3b8;margin-bottom:12px">If you refer just <strong style="color:#00d4ff">3 people</strong> this month on the $20 Starter tier:</div>
+    <div style="font-size:14px;color:#94a3b8;margin-bottom:12px">If you refer just <strong style="color:#38bdf8">3 people</strong> this month on the $20 Starter tier:</div>
 
     <div class="earn-grid">
       <div class="earn-card"><div class="ec-label">Direct Commissions</div><div class="ec-val">$15</div><div class="ec-sub">25% × 3 referrals</div></div>
@@ -243,9 +243,9 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#0a0a1a;color:#e
       <div class="earn-card"><div class="ec-label">Full Grid Advance</div><div class="ec-val">$8,820</div><div class="ec-sub">63 seats filled</div></div>
     </div>
 
-    <div style="background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:20px;margin:24px 0;text-align:center">
+    <div style="background:rgba(0,212,255,0.06);border:1px solid rgba(56,189,248,0.15);border-radius:12px;padding:20px;margin:24px 0;text-align:center">
       <div style="font-size:14px;color:#94a3b8;margin-bottom:6px">Remember: grids are recurring. When one fills, a new advance starts automatically.</div>
-      <div style="font-size:18px;font-weight:800;color:#00d4ff">Your income compounds over time 🔄</div>
+      <div style="font-size:18px;font-weight:800;color:#38bdf8">Your income compounds over time 🔄</div>
     </div>
 
     <div class="checklist">
@@ -413,7 +413,7 @@ async function skipWizard() {
 
 function fireConfetti() {
   const wrap = document.getElementById('confettiWrap');
-  const colors = ['#00d4ff','#7c3aed','#10b981','#f59e0b','#ef4444','#ec4899','#fff'];
+  const colors = ['#38bdf8','#0ea5e9','#10b981','#f59e0b','#ef4444','#ec4899','#fff'];
   for (let i = 0; i < 80; i++) {
     const el = document.createElement('div');
     el.className = 'confetti';

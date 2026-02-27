@@ -12,12 +12,12 @@
 /* ── Login Modal ── */
 .login-overlay{position:fixed;inset:0;background:rgba(1,8,20,0.85);backdrop-filter:blur(6px);z-index:1001;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity 0.25s}
 .login-overlay.open{opacity:1;pointer-events:all}
-.login-modal{background:#0d1117;border:1px solid rgba(0,212,255,0.15);border-radius:18px;padding:36px 38px;width:100%;max-width:400px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);transform:translateY(20px);transition:transform 0.25s}
+.login-modal{background:#0d1117;border:1px solid rgba(56,189,248,0.15);border-radius:18px;padding:36px 38px;width:100%;max-width:400px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);transform:translateY(20px);transition:transform 0.25s}
 .login-overlay.open .login-modal{transform:translateY(0)}
 /* ── Registration Modal ── */
 .reg-overlay{position:fixed;inset:0;background:rgba(1,8,20,0.85);backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity 0.25s}
 .reg-overlay.open{opacity:1;pointer-events:all}
-.reg-modal{background:#0d1117;border:1px solid rgba(0,212,255,0.15);border-radius:18px;padding:36px 38px;width:100%;max-width:460px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);transform:translateY(20px);transition:transform 0.25s}
+.reg-modal{background:#0d1117;border:1px solid rgba(56,189,248,0.15);border-radius:18px;padding:36px 38px;width:100%;max-width:460px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);transform:translateY(20px);transition:transform 0.25s}
 .reg-overlay.open .reg-modal{transform:translateY(0)}
 .reg-close{position:absolute;top:14px;right:18px;background:none;border:none;color:rgba(200,220,255,0.4);font-size:22px;cursor:pointer;line-height:1;padding:4px 8px;border-radius:6px;transition:color 0.2s}
 .reg-close:hover{color:rgba(200,220,255,0.9)}
@@ -26,13 +26,13 @@
 .reg-field{margin-bottom:16px}
 .reg-label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(200,220,255,0.5);margin-bottom:6px}
 .reg-input{width:100%;padding:11px 14px;border:1.5px solid rgba(0,212,255,0.12);border-radius:9px;background:rgba(0,212,255,0.04);color:#fff;font-size:16px;font-family:inherit;box-sizing:border-box;transition:border-color 0.2s}
-.reg-input:focus{outline:none;border-color:#00d4ff;background:rgba(0,212,255,0.07)}
+.reg-input:focus{outline:none;border-color:#38bdf8;background:rgba(56,189,248,0.07)}
 .reg-input::placeholder{color:rgba(200,220,255,0.25)}
 .reg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .reg-terms{display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;font-size:16px;color:rgba(200,220,255,0.45);line-height:1.5}
-.reg-terms input{width:15px;height:15px;flex-shrink:0;margin-top:1px;accent-color:#00d4ff}
+.reg-terms input{width:15px;height:15px;flex-shrink:0;margin-top:1px;accent-color:#38bdf8}
 .reg-terms a{color:rgba(0,212,255,0.7);text-decoration:none}
-.reg-submit{width:100%;padding:13px;background:linear-gradient(135deg,#00b4d8,#6d28d9);border:none;border-radius:10px;color:#fff;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;transition:opacity 0.2s}
+.reg-submit{width:100%;padding:13px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:10px;color:#fff;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;transition:opacity 0.2s}
 .reg-submit:hover{opacity:0.9}
 .reg-submit:disabled{opacity:0.5;cursor:not-allowed}
 .reg-err{display:none;margin-bottom:14px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:16px;color:#dc2626;font-weight:600}
@@ -46,9 +46,9 @@
     <!-- Navigation with Back to Support + Home -->
     <svg width="0" height="0" style="position:absolute">
   <defs>
-    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00b4d8"/><stop offset="30%" stop-color="#6d28d9"/><stop offset="70%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient>
+    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="30%" stop-color="#0284c7"/><stop offset="70%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient>
     <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a0a2e"/><stop offset="40%" stop-color="#06061a"/><stop offset="100%" stop-color="#03031a"/></linearGradient>
-    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="25%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#6d28d9"/><stop offset="75%" stop-color="#00b4d8"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
+    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="25%" stop-color="#0ea5e9"/><stop offset="50%" stop-color="#0284c7"/><stop offset="75%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
     <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
     <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     <linearGradient id="logo-grad-pg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
