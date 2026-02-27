@@ -431,6 +431,35 @@ class LinkClick(Base):
     device      = Column(String, nullable=True)         # mobile / desktop / tablet
     clicked_at  = Column(DateTime, default=datetime.utcnow, index=True)
 
+
+class FunnelLead(Base):
+    """Captured leads from funnel opt-in forms."""
+    __tablename__ = "funnel_leads"
+    id          = Column(Integer, primary_key=True, index=True)
+    page_id     = Column(Integer, ForeignKey("funnel_pages.id"), index=True)
+    user_id     = Column(Integer, ForeignKey("users.id"), index=True)   # page owner
+    name        = Column(String, nullable=True)
+    email       = Column(String, nullable=False)
+    phone       = Column(String, nullable=True)
+    source      = Column(String, nullable=True)       # direct, facebook, google, etc.
+    ip_address  = Column(String, nullable=True)
+    created_at  = Column(DateTime, default=datetime.utcnow)
+
+
+class FunnelEvent(Base):
+    """Analytics events for funnel pages — views, clicks, conversions."""
+    __tablename__ = "funnel_events"
+    id          = Column(Integer, primary_key=True, index=True)
+    page_id     = Column(Integer, ForeignKey("funnel_pages.id"), index=True)
+    user_id     = Column(Integer, ForeignKey("users.id"), index=True)   # page owner
+    event_type  = Column(String, nullable=False)       # view, click, optin, purchase
+    referrer    = Column(Text, nullable=True)
+    device      = Column(String, nullable=True)
+    ip_address  = Column(String, nullable=True)
+    meta_json   = Column(Text, nullable=True)          # extra data as JSON
+    created_at  = Column(DateTime, default=datetime.utcnow)
+
+
 Base.metadata.create_all(bind=engine)
 
 # ── Auto-migration: add missing columns if they don't exist ──────────────
@@ -477,6 +506,12 @@ def run_migrations():
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS gjs_styles TEXT",
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS gjs_html TEXT",
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS gjs_css TEXT",
+        "CREATE TABLE IF NOT EXISTS funnel_leads (id SERIAL PRIMARY KEY, page_id INTEGER REFERENCES funnel_pages(id), user_id INTEGER REFERENCES users(id), name VARCHAR, email VARCHAR NOT NULL, phone VARCHAR, source VARCHAR, ip_address VARCHAR, created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE INDEX IF NOT EXISTS idx_funnel_leads_page ON funnel_leads(page_id)",
+        "CREATE INDEX IF NOT EXISTS idx_funnel_leads_user ON funnel_leads(user_id)",
+        "CREATE TABLE IF NOT EXISTS funnel_events (id SERIAL PRIMARY KEY, page_id INTEGER REFERENCES funnel_pages(id), user_id INTEGER REFERENCES users(id), event_type VARCHAR NOT NULL, referrer TEXT, device VARCHAR, ip_address VARCHAR, meta_json TEXT, created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE INDEX IF NOT EXISTS idx_funnel_events_page ON funnel_events(page_id)",
+        "CREATE INDEX IF NOT EXISTS idx_funnel_events_user ON funnel_events(user_id)",
         # Targeting & priority columns on video_campaigns
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_country VARCHAR",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_interests VARCHAR",

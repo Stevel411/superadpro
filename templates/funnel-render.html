@@ -33,6 +33,52 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;min-height:100vh}
 <style>{{ page.gjs_css or '' }}</style>
 <div id="gjsContent">{{ page.gjs_html|safe }}</div>
 <script>document.getElementById('pageContent').style.display='none';</script>
+<script>
+// Auto-wire all forms on the page to the lead capture API
+document.querySelectorAll('#gjsContent form').forEach(form => {
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const data = {page_id: {{ page.id }}};
+    for (const [k,v] of fd.entries()) {
+      const key = k.toLowerCase();
+      if (key.includes('email') || key === 'email') data.email = v;
+      else if (key.includes('name') || key === 'name') data.name = v;
+      else if (key.includes('phone') || key === 'phone') data.phone = v;
+    }
+    // Also try input types
+    if (!data.email) {
+      const emailInput = form.querySelector('input[type="email"]');
+      if (emailInput) data.email = emailInput.value;
+    }
+    if (!data.name) {
+      const nameInput = form.querySelector('input[type="text"]');
+      if (nameInput) data.name = nameInput.value;
+    }
+    if (!data.email) { alert('Please enter your email'); return; }
+    const btn = form.querySelector('button[type="submit"]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
+    try {
+      const res = await fetch('/api/leads/capture', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      if (result.success) {
+        if (result.redirect) {
+          window.location.href = result.redirect;
+        } else {
+          if (btn) btn.textContent = '✓ Success!';
+          form.reset();
+        }
+      }
+    } catch(err) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Try Again'; }
+    }
+  });
+});
+</script>
 {% endif %}
 
 <div class="page-footer">Powered by <a href="{{ owner_ref_link }}">SuperAdPro</a></div>

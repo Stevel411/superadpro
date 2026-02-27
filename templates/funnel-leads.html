@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My Leads — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#f0f2f8;color:#0f172a;font-family:'DM Sans',sans-serif;min-height:100vh}
+a{text-decoration:none;color:inherit}
+.topbar{position:sticky;top:0;z-index:50;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 32px;height:70px;display:grid;grid-template-columns:auto 1fr auto;align-items:center}
+.back-btn{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:14px;font-weight:600;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
+.back-btn:hover{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
+.topbar-centre{text-align:center}
+.topbar-title{font-family:Sora,sans-serif;font-size:20px;font-weight:800;color:#fff}
+.topbar-sub{font-size:12px;color:rgba(148,163,184,0.6);margin-top:2px}
+.topbar-right{display:flex;align-items:center;gap:14px;justify-content:flex-end}
+.balance-chip{background:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:6px 14px;text-align:center}
+.balance-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8}
+.balance-val{font-size:15px;font-weight:800;color:#16a34a}
+.balance-unit{font-size:11px;color:#94a3b8;margin-left:3px}
+.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:10px 16px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:101}
+.mobile-topbar-left{display:flex;align-items:center;gap:10px;text-decoration:none}
+.mobile-topbar-name{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff}
+.mobile-balance-chip{font-size:16px;font-weight:800;color:#16a34a;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:8px;padding:6px 12px}
+.container{max-width:1140px;margin:0 auto;padding:28px 28px 80px}
+.header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.header-row h1{font-family:Sora,sans-serif;font-size:28px;font-weight:800}
+.header-row .count{font-size:14px;color:#64748b;margin-left:12px;font-weight:500}
+.export-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#10b981,#34d399);color:#fff;font-size:14px;font-weight:700;padding:10px 20px;border-radius:10px;text-decoration:none;box-shadow:0 4px 14px rgba(16,185,129,0.3);transition:all 0.2s}
+.export-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(16,185,129,0.35)}
+.grid-card{background:#fff;border:1px solid #e2e8f0;border-radius:20px;overflow:hidden;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
+.grid-card-head{display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-bottom:1px solid #f1f5f9}
+.grid-card-title{font-size:17px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:10px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:12px 20px;border-bottom:2px solid #e2e8f0;font-weight:700;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+td{padding:12px 20px;border-bottom:1px solid #f1f5f9}
+tr:last-child td{border-bottom:none}
+tr:hover{background:#f8fafc}
+.source-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;display:inline-block}
+.source-direct{background:rgba(14,165,233,0.08);color:#0ea5e9}
+.source-facebook{background:rgba(59,130,246,0.08);color:#3b82f6}
+.source-google{background:rgba(234,88,12,0.08);color:#ea580c}
+.source-other{background:rgba(148,163,184,0.08);color:#64748b}
+.empty-state{text-align:center;padding:60px 24px}
+.empty-icon{font-size:48px;margin-bottom:16px}
+.empty-title{font-family:Sora,sans-serif;font-size:22px;font-weight:800;margin-bottom:10px}
+.empty-sub{font-size:15px;color:#64748b;max-width:480px;margin:0 auto 24px;line-height:1.6}
+.empty-cta{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:15px;font-weight:700;padding:12px 28px;border-radius:12px;text-decoration:none;box-shadow:0 4px 14px rgba(14,165,233,0.3);transition:all 0.2s}
+.empty-cta:hover{transform:translateY(-2px)}
+.footer{text-align:center;padding:24px;color:#94a3b8;font-size:12px;border-top:1px solid #e2e8f0;margin-top:24px}
+@media(max-width:640px){.topbar{display:none}.mobile-topbar{display:flex!important}.container{padding:20px 16px 60px}.header-row{flex-wrap:wrap;gap:12px}th,td{padding:10px 14px;font-size:12px}}
+</style>
+</head>
+<body>
+<div class="mobile-topbar">
+  <a class="mobile-topbar-left" href="/funnels/analytics"><span class="mobile-topbar-name">← Analytics</span></a>
+  <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
+</div>
+<div class="topbar">
+  <a href="/funnels/analytics" class="back-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Analytics</a>
+  <div class="topbar-centre">
+    <div class="topbar-title">📧 My <span style="color:#34d399">Leads</span></div>
+    <div class="topbar-sub">All captured leads from your funnels</div>
+  </div>
+  <div class="topbar-right">
+    <a href="/funnels" class="back-btn">Funnels</a>
+    <div class="balance-chip"><div class="balance-label">Balance</div><div><span class="balance-val">${{ '%.2f'|format(balance) }}</span><span class="balance-unit">USDT</span></div></div>
+  </div>
+</div>
+<div class="container">
+  <div class="header-row">
+    <div><h1>📧 Lead Database<span class="count">({{ total_leads }} total)</span></h1></div>
+    {% if leads %}
+    <a href="/api/leads/export" class="export-btn">📥 Export CSV</a>
+    {% endif %}
+  </div>
+
+  <div class="grid-card">
+    <div class="grid-card-head">
+      <div class="grid-card-title">All Captured Leads</div>
+      <span style="font-size:13px;color:#94a3b8">Showing latest 200</span>
+    </div>
+    {% if leads %}
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Source</th><th>Funnel Page</th><th>Date</th></tr></thead>
+        <tbody>
+          {% for l in leads %}
+          <tr>
+            <td>{{ l.name or '—' }}</td>
+            <td style="font-weight:600">{{ l.email }}</td>
+            <td>{{ l.phone or '—' }}</td>
+            <td>
+              {% if l.source == 'facebook' %}<span class="source-badge source-facebook">Facebook</span>
+              {% elif l.source == 'google' %}<span class="source-badge source-google">Google</span>
+              {% elif l.source == 'direct' %}<span class="source-badge source-direct">Direct</span>
+              {% else %}<span class="source-badge source-other">{{ l.source or 'Unknown' }}</span>{% endif %}
+            </td>
+            <td style="font-size:12px;color:#64748b">{{ pages_map.get(l.page_id, 'Unknown') }}</td>
+            <td style="font-size:12px;color:#64748b">{{ l.created_at.strftime('%d %b %Y %H:%M') if l.created_at else '' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <div class="empty-title">No Leads Yet</div>
+      <div class="empty-sub">When visitors submit opt-in forms on your funnel pages, their details will appear here. Share your pages to start collecting leads!</div>
+      <a href="/funnels" class="empty-cta">📄 Go to Funnels →</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+<div class="footer">© 2026 SuperAdPro. All rights reserved.</div>
+</body>
+</html>

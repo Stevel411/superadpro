@@ -26,7 +26,7 @@ from .grid import (
 )
 from .email_utils import send_password_reset_email
 from .video_utils import parse_video_url, platform_label, platform_colour
-from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick
+from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent
 from .database import PasswordResetToken
 from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker
 from .course_engine import process_course_purchase, get_user_course_stats
@@ -2249,6 +2249,171 @@ def funnel_delete(page_id: int, user: User = Depends(get_current_user),
     return JSONResponse({"success": True})
 
 
+# ── Phase 2: Lead Capture API ──────────────────────────────
+@app.post("/api/leads/capture")
+async def capture_lead(request: Request, db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+    page_id = body.get("page_id")
+    email = body.get("email", "").strip()
+    if not page_id or not email:
+        return JSONResponse({"error": "page_id and email required"}, status_code=400)
+    page = db.query(FunnelPage).filter(FunnelPage.id == page_id).first()
+    if not page:
+        return JSONResponse({"error": "Page not found"}, status_code=404)
+    referrer = request.headers.get("referer", "")
+    source = "direct"
+    for s in ["facebook", "instagram", "twitter", "youtube", "google", "tiktok", "linkedin"]:
+        if s in referrer.lower():
+            source = s
+            break
+    ua = request.headers.get("user-agent", "").lower()
+    device = "mobile" if any(d in ua for d in ["mobile", "android", "iphone"]) else "desktop"
+    lead = FunnelLead(page_id=page.id, user_id=page.user_id, name=body.get("name", "").strip(),
+        email=email, phone=body.get("phone", "").strip(), source=source,
+        ip_address=request.client.host if request.client else None)
+    db.add(lead)
+    event = FunnelEvent(page_id=page.id, user_id=page.user_id, event_type="optin",
+        referrer=referrer, device=device, ip_address=request.client.host if request.client else None)
+    db.add(event)
+    db.commit()
+    redirect_url = None
+    if page.next_page_id:
+        next_pg = db.query(FunnelPage).filter(FunnelPage.id == page.next_page_id).first()
+        if next_pg:
+            redirect_url = f"/p/{next_pg.slug}"
+    return JSONResponse({"success": True, "redirect": redirect_url})
+
+
+@app.post("/api/funnels/sequence")
+async def funnel_set_sequence(request: Request, user: User = Depends(get_current_user),
+                               db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+    funnel_name = body.get("funnel_name", "").strip()
+    page_ids = body.get("page_ids", [])
+    if not funnel_name or not page_ids:
+        return JSONResponse({"error": "funnel_name and page_ids required"}, status_code=400)
+    pages = db.query(FunnelPage).filter(FunnelPage.id.in_(page_ids), FunnelPage.user_id == user.id).all()
+    page_map = {p.id: p for p in pages}
+    for i, pid in enumerate(page_ids):
+        pg = page_map.get(pid)
+        if not pg:
+            continue
+        pg.funnel_name = funnel_name
+        pg.funnel_order = i
+        pg.next_page_id = page_ids[i + 1] if i + 1 < len(page_ids) else None
+    db.commit()
+    return JSONResponse({"success": True, "funnel_name": funnel_name, "pages": len(page_ids)})
+
+
+@app.get("/api/funnels/sequence/{funnel_name}")
+def funnel_get_sequence(funnel_name: str, user: User = Depends(get_current_user),
+                        db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    pages = db.query(FunnelPage).filter(
+        FunnelPage.user_id == user.id, FunnelPage.funnel_name == funnel_name
+    ).order_by(FunnelPage.funnel_order).all()
+    return JSONResponse({"funnel_name": funnel_name, "pages": [
+        {"id": p.id, "title": p.title, "slug": p.slug, "template_type": p.template_type,
+         "status": p.status, "order": p.funnel_order, "next_page_id": p.next_page_id,
+         "views": p.views or 0, "clicks": p.clicks or 0} for p in pages]})
+
+
+@app.get("/api/funnels/analytics/{page_id}")
+def funnel_page_analytics(page_id: int, user: User = Depends(get_current_user),
+                          db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import func
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    page = db.query(FunnelPage).filter(FunnelPage.id == page_id, FunnelPage.user_id == user.id).first()
+    if not page:
+        return JSONResponse({"error": "Page not found"}, status_code=404)
+    views = db.query(func.count(FunnelEvent.id)).filter(
+        FunnelEvent.page_id == page_id, FunnelEvent.event_type == "view").scalar() or page.views or 0
+    optins = db.query(func.count(FunnelEvent.id)).filter(
+        FunnelEvent.page_id == page_id, FunnelEvent.event_type == "optin").scalar() or 0
+    clicks = db.query(func.count(FunnelEvent.id)).filter(
+        FunnelEvent.page_id == page_id, FunnelEvent.event_type == "click").scalar() or page.clicks or 0
+    total_leads = db.query(func.count(FunnelLead.id)).filter(FunnelLead.page_id == page_id).scalar() or 0
+    conversion_rate = round((optins / views * 100), 1) if views > 0 else 0
+    recent_leads = db.query(FunnelLead).filter(FunnelLead.page_id == page_id).order_by(
+        FunnelLead.created_at.desc()).limit(20).all()
+    return JSONResponse({
+        "page_id": page_id, "title": page.title, "views": views, "optins": optins,
+        "clicks": clicks, "total_leads": total_leads, "conversion_rate": conversion_rate,
+        "recent_leads": [{"name": l.name, "email": l.email, "source": l.source,
+            "date": l.created_at.strftime("%d %b %Y %H:%M") if l.created_at else ""} for l in recent_leads]})
+
+
+@app.get("/funnels/analytics")
+def funnel_analytics_dashboard(request: Request, user: User = Depends(get_current_user),
+                               db: Session = Depends(get_db)):
+    if not user: return RedirectResponse(url="/?login=1")
+    from sqlalchemy import func
+    pages = db.query(FunnelPage).filter(FunnelPage.user_id == user.id).order_by(FunnelPage.views.desc()).all()
+    total_leads = db.query(func.count(FunnelLead.id)).filter(FunnelLead.user_id == user.id).scalar() or 0
+    total_views = int(db.query(func.coalesce(func.sum(FunnelPage.views), 0)).filter(FunnelPage.user_id == user.id).scalar())
+    total_optins = db.query(func.count(FunnelEvent.id)).filter(
+        FunnelEvent.user_id == user.id, FunnelEvent.event_type == "optin").scalar() or 0
+    recent_leads = db.query(FunnelLead).filter(FunnelLead.user_id == user.id).order_by(
+        FunnelLead.created_at.desc()).limit(25).all()
+    balance = getattr(user, 'balance', 0) or 0
+    return templates.TemplateResponse("funnel-analytics.html", {
+        "request": request, "user": user, "pages": pages, "balance": balance,
+        "total_leads": total_leads, "total_views": total_views,
+        "total_optins": total_optins, "recent_leads": recent_leads,
+        "conversion_rate": round((total_optins / total_views * 100), 1) if total_views > 0 else 0})
+
+
+@app.get("/funnels/leads")
+def funnel_leads_page(request: Request, user: User = Depends(get_current_user),
+                      db: Session = Depends(get_db)):
+    if not user: return RedirectResponse(url="/?login=1")
+    leads = db.query(FunnelLead).filter(FunnelLead.user_id == user.id).order_by(
+        FunnelLead.created_at.desc()).limit(200).all()
+    page_ids = list(set(l.page_id for l in leads if l.page_id))
+    pages_map = {}
+    if page_ids:
+        pgs = db.query(FunnelPage).filter(FunnelPage.id.in_(page_ids)).all()
+        pages_map = {p.id: p.title for p in pgs}
+    from sqlalchemy import func
+    total_leads = db.query(func.count(FunnelLead.id)).filter(FunnelLead.user_id == user.id).scalar() or 0
+    balance = getattr(user, 'balance', 0) or 0
+    return templates.TemplateResponse("funnel-leads.html", {
+        "request": request, "user": user, "leads": leads,
+        "pages_map": pages_map, "total_leads": total_leads, "balance": balance})
+
+
+@app.get("/api/leads/export")
+def export_leads_csv(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from fastapi.responses import Response
+    if not user:
+        return Response("Not authenticated", status_code=401)
+    leads = db.query(FunnelLead).filter(FunnelLead.user_id == user.id).order_by(
+        FunnelLead.created_at.desc()).all()
+    import csv, io
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Name", "Email", "Phone", "Source", "Date"])
+    for l in leads:
+        writer.writerow([l.name or "", l.email, l.phone or "", l.source or "",
+            l.created_at.strftime("%Y-%m-%d %H:%M") if l.created_at else ""])
+    return Response(content=output.getvalue(), media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=superadpro-leads.csv"})
+
+
 # ── Public page renderer (no auth required) ──────────────────
 @app.get("/p/{username}/{page_slug:path}")
 def render_funnel_page(username: str, page_slug: str, request: Request,
@@ -2260,6 +2425,13 @@ def render_funnel_page(username: str, page_slug: str, request: Request,
 
     # Track view
     page.views = (page.views or 0) + 1
+    ua = request.headers.get("user-agent", "").lower()
+    device = "mobile" if any(d in ua for d in ["mobile", "android", "iphone"]) else "desktop"
+    view_event = FunnelEvent(
+        page_id=page.id, user_id=page.user_id, event_type="view",
+        referrer=request.headers.get("referer", ""), device=device,
+        ip_address=request.client.host if request.client else None)
+    db.add(view_event)
 
     # Get page owner info for AI chatbot context
     owner = db.query(User).filter(User.id == page.user_id).first()
