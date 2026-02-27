@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>{{ course.title }} — SuperAdPro Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+a{text-decoration:none;color:inherit}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:200}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-left a{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:14px;font-weight:600;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
+.topbar-left a:hover{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
+.topbar-right .logo{font-family:Sora,sans-serif;font-weight:800;font-size:18px;color:#fff;letter-spacing:-0.5px}
+.topbar-right .logo span{color:#0ea5e9}
+
+.wrap{max-width:800px;margin:0 auto;padding:32px 24px}
+
+{% if just_purchased %}
+.success-banner{background:#dcfce7;border:1px solid #86efac;border-radius:14px;padding:20px 24px;margin-bottom:28px;text-align:center}
+.success-banner h2{font-family:Sora,sans-serif;font-size:20px;font-weight:800;color:#059669;margin-bottom:4px}
+.success-banner p{color:#047857;font-size:14px}
+{% endif %}
+
+.course-header{margin-bottom:32px}
+.course-header .tier-badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:12px}
+.tier-1{background:rgba(14,165,233,0.1);color:#0369a1}
+.tier-2{background:rgba(139,92,246,0.1);color:#6d28d9}
+.tier-3{background:rgba(245,158,11,0.1);color:#b45309}
+.course-header h1{font-family:Sora,sans-serif;font-size:32px;font-weight:800;margin-bottom:8px}
+.course-header p{color:#64748b;font-size:15px;line-height:1.6}
+
+/* Module List */
+.modules{display:flex;flex-direction:column;gap:16px}
+.module{background:#fff;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;transition:box-shadow 0.2s}
+.module:hover{box-shadow:0 4px 16px rgba(0,40,100,0.06)}
+.module-header{display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer}
+.module-num{width:36px;height:36px;border-radius:10px;background:#0ea5e9;color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.module-header h3{font-size:15px;font-weight:700;flex:1}
+.module-header .status{font-size:12px;color:#94a3b8;font-weight:600}
+.module-header .arrow{color:#94a3b8;transition:transform 0.2s}
+.module.open .arrow{transform:rotate(180deg)}
+.module-body{display:none;padding:0 20px 18px 70px;font-size:14px;color:#64748b;line-height:1.7}
+.module.open .module-body{display:block}
+
+.coming-soon{text-align:center;padding:40px;background:#fff;border-radius:14px;border:1px solid #e2e8f0;margin-top:20px}
+.coming-soon h3{font-size:18px;font-weight:700;margin-bottom:8px}
+.coming-soon p{color:#64748b;font-size:14px}
+
+.footer{text-align:center;padding:24px;color:#94a3b8;font-size:12px;border-top:1px solid #e2e8f0;margin-top:48px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/courses">📚 All Courses</a>
+    <a href="/courses/commissions">💰 Commissions</a>
+  </div>
+  <div class="topbar-right">
+    <div class="logo">Super<span>Ad</span>Pro</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  {% if just_purchased %}
+  <div class="success-banner">
+    <h2>🎉 Purchase Complete!</h2>
+    <p>You now own {{ course.title }}. Your course commission earnings are now active at Tier {{ course.tier }}.</p>
+  </div>
+  {% endif %}
+
+  <div class="course-header">
+    <div class="tier-badge tier-{{ course.tier }}">Tier {{ course.tier }}</div>
+    <h1>{{ course.title }}</h1>
+    <p>{{ course.description }}</p>
+  </div>
+
+  <!-- Course Modules (placeholder structure) -->
+  <div class="modules">
+    {% if course.tier == 1 %}
+    {% set modules = [
+      ("Introduction to Digital Advertising", "Understanding the landscape, key platforms, and how money flows in digital advertising."),
+      ("Affiliate Marketing Foundations", "How affiliate programs work, choosing the right offers, and tracking your results."),
+      ("Traffic Generation Basics", "Free and paid traffic sources — where to find your audience and how to drive clicks."),
+      ("Social Media Ad Strategies", "Running effective campaigns on Facebook, Instagram, TikTok and YouTube."),
+      ("Email Marketing Essentials", "Building your list, writing sequences that convert, and automation fundamentals.")
+    ] %}
+    {% elif course.tier == 2 %}
+    {% set modules = [
+      ("Advanced Funnel Architecture", "Multi-step funnels, tripwire offers, and maximising customer lifetime value."),
+      ("Conversion Rate Optimisation", "A/B testing, heatmaps, copy tweaks and design changes that double your conversions."),
+      ("Paid Traffic Mastery", "Scaling campaigns profitably across multiple platforms with proper budget allocation."),
+      ("Retargeting & Audience Building", "Pixel strategies, lookalike audiences, and warming cold traffic."),
+      ("Split Testing Frameworks", "Scientific testing methodology — what to test, how to measure, and when to scale."),
+      ("Analytics & Data-Driven Decisions", "Reading your numbers, attribution models, and making decisions based on data not feelings.")
+    ] %}
+    {% elif course.tier == 3 %}
+    {% set modules = [
+      ("High-Ticket Sales System", "Selling premium offers with confidence — scripts, objection handling, and closing techniques."),
+      ("Team Building & Leadership", "Recruiting, training and retaining a high-performing affiliate team."),
+      ("Scaling to Six Figures", "The systems, delegation, and mindset shifts needed to break through income plateaus."),
+      ("Automation & Systems", "Putting your business on autopilot — tools, workflows, and SOPs that run without you."),
+      ("Advanced Strategy Templates", "Done-for-you templates for campaigns, funnels, emails and ad creatives."),
+      ("Business-in-a-Box Masterclass", "Your complete playbook for building a sustainable, scalable online business.")
+    ] %}
+    {% endif %}
+
+    {% for title, desc in modules %}
+    <div class="module" onclick="this.classList.toggle('open')">
+      <div class="module-header">
+        <div class="module-num">{{ loop.index }}</div>
+        <h3>{{ title }}</h3>
+        <span class="status">Coming Soon</span>
+        <span class="arrow">▾</span>
+      </div>
+      <div class="module-body">
+        <p>{{ desc }}</p>
+        <p style="margin-top:10px;color:#0ea5e9;font-weight:600;font-size:13px">Video content is being produced and will be available soon.</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="coming-soon">
+    <h3>🎬 Course Content Coming Soon</h3>
+    <p>Video modules are currently in production. You'll be notified when new content drops. In the meantime, your commission earning ability is fully active — start sharing your referral link!</p>
+  </div>
+
+</div>
+
+<div class="footer">
+  © 2026 SuperAdPro. All rights reserved. · <a href="/">superadpro.com</a>
+</div>
+
+</body>
+</html>

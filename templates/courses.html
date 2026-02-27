@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Courses — SuperAdPro Academy</title>
+<meta name="description" content="SuperAdPro training courses — from beginner to elite. Master digital advertising, affiliate marketing and build your income stream.">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+a{text-decoration:none;color:inherit}
+
+/* Dark Topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:200}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-left a{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:14px;font-weight:600;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
+.topbar-left a:hover{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.logo{font-family:Sora,sans-serif;font-weight:800;font-size:18px;color:#fff;letter-spacing:-0.5px}
+.logo span{color:#0ea5e9}
+
+/* Hero */
+.hero{text-align:center;padding:48px 24px 16px;max-width:640px;margin:0 auto}
+.hero h1{font-family:Sora,sans-serif;font-size:clamp(28px,4vw,42px);font-weight:800;color:#0f172a;margin-bottom:12px}
+.hero p{font-size:16px;color:#64748b;line-height:1.6}
+
+/* Error/Success banners */
+.alert{max-width:700px;margin:16px auto;padding:14px 20px;border-radius:12px;font-weight:600;font-size:14px;text-align:center}
+.alert-error{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+.alert-success{background:#dcfce7;color:#166534;border:1px solid #86efac}
+
+/* Course Cards */
+.courses-grid{max-width:1100px;margin:0 auto;padding:32px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px}
+
+.course-card{background:#fff;border-radius:20px;border:1px solid #e2e8f0;overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s,box-shadow 0.2s}
+.course-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,40,100,0.1)}
+.course-card.owned{border-color:#86efac;background:linear-gradient(180deg,#f0fdf4 0%,#fff 40%)}
+
+/* Card Header - gradient strip */
+.card-header{padding:28px 24px 20px;position:relative}
+.card-header.tier-1{background:linear-gradient(135deg,#e0f2fe 0%,#bae6fd 100%)}
+.card-header.tier-2{background:linear-gradient(135deg,#ddd6fe 0%,#c4b5fd 100%)}
+.card-header.tier-3{background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%)}
+
+.tier-badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:12px}
+.tier-1 .tier-badge{background:rgba(14,165,233,0.15);color:#0369a1}
+.tier-2 .tier-badge{background:rgba(139,92,246,0.15);color:#6d28d9}
+.tier-3 .tier-badge{background:rgba(245,158,11,0.15);color:#b45309}
+
+.card-header h2{font-family:Sora,sans-serif;font-size:22px;font-weight:800;margin-bottom:4px}
+.tier-1 h2{color:#0c4a6e}
+.tier-2 h2{color:#4c1d95}
+.tier-3 h2{color:#78350f}
+
+.card-price{font-family:Sora,sans-serif;font-size:36px;font-weight:800;margin-top:8px}
+.tier-1 .card-price{color:#0284c7}
+.tier-2 .card-price{color:#7c3aed}
+.tier-3 .card-price{color:#d97706}
+.card-price span{font-size:16px;font-weight:600;color:#94a3b8}
+
+/* Card Body */
+.card-body{padding:20px 24px;flex:1;display:flex;flex-direction:column}
+.card-body p{font-size:14px;color:#64748b;line-height:1.7;margin-bottom:16px}
+
+.feature-list{list-style:none;padding:0;margin:0 0 20px}
+.feature-list li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:#334155;padding:6px 0;line-height:1.5}
+.feature-list li::before{content:"✓";color:#10b981;font-weight:800;font-size:14px;flex-shrink:0}
+
+/* Commission callout */
+.commission-callout{background:linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%);border:1px solid #a7f3d0;border-radius:12px;padding:14px 16px;text-align:center;margin-top:auto;margin-bottom:16px}
+.commission-callout .amount{font-family:Sora,sans-serif;font-size:24px;font-weight:800;color:#059669}
+.commission-callout .label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#047857;margin-top:2px}
+
+/* CTA Button */
+.btn-purchase{display:block;width:100%;padding:14px;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;text-align:center}
+.btn-purchase.tier-1{background:#0ea5e9;color:#fff}
+.btn-purchase.tier-1:hover{background:#0284c7}
+.btn-purchase.tier-2{background:#7c3aed;color:#fff}
+.btn-purchase.tier-2:hover{background:#6d28d9}
+.btn-purchase.tier-3{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.btn-purchase.tier-3:hover{background:linear-gradient(135deg,#d97706,#b45309)}
+
+.btn-owned{background:#d1fae5 !important;color:#059669 !important;cursor:default;pointer-events:none;font-size:14px}
+
+.btn-login{background:#1e293b;color:#fff}
+.btn-login:hover{background:#334155}
+
+/* Pass-Up Explainer */
+.passup-section{max-width:900px;margin:48px auto 0;padding:0 24px 48px}
+.passup-card{background:#fff;border-radius:20px;border:1px solid #e2e8f0;padding:36px;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
+.passup-card h2{font-family:Sora,sans-serif;font-size:24px;font-weight:800;text-align:center;margin-bottom:8px}
+.passup-card .subtitle{text-align:center;color:#64748b;font-size:15px;margin-bottom:28px}
+
+.passup-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+.step{text-align:center;padding:20px 16px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0}
+.step-num{width:36px;height:36px;border-radius:50%;background:#0ea5e9;color:#fff;font-weight:800;font-size:14px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px}
+.step h3{font-size:14px;font-weight:700;margin-bottom:6px}
+.step p{font-size:12px;color:#64748b;line-height:1.5}
+
+/* Earnings Potential */
+.earnings-row{display:flex;justify-content:center;gap:16px;margin-top:28px;flex-wrap:wrap}
+.earn-card{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px 24px;text-align:center}
+.earn-card .val{font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:#059669}
+.earn-card .lbl{font-size:11px;color:#047857;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+
+/* Footer */
+.footer{text-align:center;padding:24px;color:#94a3b8;font-size:12px;border-top:1px solid #e2e8f0;margin-top:24px}
+
+@media(max-width:640px){
+  .topbar{padding:0 16px}
+  .hero{padding:32px 16px 8px}
+  .courses-grid{padding:20px 16px;gap:20px;grid-template-columns:1fr}
+  .passup-steps{grid-template-columns:1fr}
+  .earnings-row{flex-direction:column;align-items:center}
+}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/dashboard">Dashboard</a>
+    {% if user %}<a href="/courses/commissions">💰 My Commissions</a>{% endif %}
+  </div>
+  <div class="topbar-right">
+    <div class="logo">Super<span>Ad</span>Pro</div>
+  </div>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <h1>SuperAdPro Academy</h1>
+  <p>Three powerful training tiers. Master digital advertising, build real income streams, and earn 100% commissions on every referral sale.</p>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<!-- Course Cards -->
+<div class="courses-grid">
+  {% for course in courses %}
+  <div class="course-card {{ 'owned' if course.tier in owned_tiers else '' }}">
+    <div class="card-header tier-{{ course.tier }}">
+      <div class="tier-badge">Tier {{ course.tier }}</div>
+      <h2>{{ course.title }}</h2>
+      <div class="card-price">${{ "%.0f"|format(course.price) }}<span> one-time</span></div>
+    </div>
+    <div class="card-body">
+      <p>{{ course.description }}</p>
+
+      <ul class="feature-list">
+        {% if course.tier == 1 %}
+        <li>Digital advertising fundamentals</li>
+        <li>Affiliate marketing foundations</li>
+        <li>Traffic generation basics</li>
+        <li>Social media ad strategies</li>
+        <li>Email marketing essentials</li>
+        {% elif course.tier == 2 %}
+        <li>Everything in Starter, plus:</li>
+        <li>Advanced funnel building</li>
+        <li>Conversion rate optimisation</li>
+        <li>Paid traffic mastery</li>
+        <li>Retargeting & audience building</li>
+        <li>Split testing frameworks</li>
+        {% elif course.tier == 3 %}
+        <li>Everything in Advanced, plus:</li>
+        <li>High-ticket sales system</li>
+        <li>Team building & leadership</li>
+        <li>Scaling to 6+ figures</li>
+        <li>Automation & systems</li>
+        <li>1-on-1 strategy templates</li>
+        <li>Complete business-in-a-box</li>
+        {% endif %}
+      </ul>
+
+      <!-- Commission callout -->
+      <div class="commission-callout">
+        <div class="amount">${{ "%.0f"|format(course.price) }}</div>
+        <div class="label">100% Commission Per Sale</div>
+      </div>
+
+      <!-- CTA -->
+      {% if course.tier in owned_tiers %}
+        <a href="/courses/learn/{{ course.id }}" class="btn-purchase btn-owned">✓ Owned — Access Course</a>
+      {% elif user %}
+        <form method="POST" action="/courses/purchase/{{ course.id }}" onsubmit="return confirm('Purchase {{ course.title }} for ${{ "%.0f"|format(course.price) }} from your wallet?')">
+          <button type="submit" class="btn-purchase tier-{{ course.tier }}">Buy Now — ${{ "%.0f"|format(course.price) }}</button>
+        </form>
+      {% else %}
+        <a href="/login?next=/courses" class="btn-purchase btn-login">Log In to Purchase</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Pass-Up Explainer -->
+<div class="passup-section">
+  <div class="passup-card">
+    <h2>🔄 Infinite Pass-Up System</h2>
+    <p class="subtitle">100% commissions with depth you didn't build. Here's how it works:</p>
+
+    <div class="passup-steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Buy a Course</h3>
+        <p>Purchase any tier to unlock the ability to earn commissions at that level.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Refer &amp; Sell</h3>
+        <p>Share your link. When your referrals buy, you earn 100% commission.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>First Sale Passes Up</h3>
+        <p>Your very first sale at each tier passes up to your qualified upline — then all future sales are yours.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h3>Infinite Depth</h3>
+        <p>As your team grows, pass-ups flow from people you've never met. Truly passive income.</p>
+      </div>
+    </div>
+
+    <div class="earnings-row">
+      <div class="earn-card">
+        <div class="val">$100</div>
+        <div class="lbl">Per Tier 1 Sale</div>
+      </div>
+      <div class="earn-card">
+        <div class="val">$300</div>
+        <div class="lbl">Per Tier 2 Sale</div>
+      </div>
+      <div class="earn-card">
+        <div class="val">$500</div>
+        <div class="lbl">Per Tier 3 Sale</div>
+      </div>
+      <div class="earn-card">
+        <div class="val">$900</div>
+        <div class="lbl">Full Stack Per Member</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  © 2026 SuperAdPro. All rights reserved. · <a href="/">superadpro.com</a>
+</div>
+
+</body>
+</html>

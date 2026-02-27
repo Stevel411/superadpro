@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Course Commissions — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+a{text-decoration:none;color:inherit}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:200}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-left a{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:14px;font-weight:600;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
+.topbar-left a:hover{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
+.topbar-right .logo{font-family:Sora,sans-serif;font-weight:800;font-size:18px;color:#fff;letter-spacing:-0.5px}
+.topbar-right .logo span{color:#0ea5e9}
+
+.wrap{max-width:1000px;margin:0 auto;padding:32px 24px}
+h1{font-family:Sora,sans-serif;font-size:28px;font-weight:800;margin-bottom:8px}
+.subtitle{color:#64748b;font-size:15px;margin-bottom:28px}
+
+/* Stats Row */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:32px}
+.stat{background:#fff;border-radius:14px;border:1px solid #e2e8f0;padding:20px;text-align:center}
+.stat .val{font-family:Sora,sans-serif;font-size:26px;font-weight:800;color:#0ea5e9}
+.stat .val.green{color:#059669}
+.stat .lbl{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;margin-top:4px}
+
+/* Owned Tiers */
+.tiers-row{display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap}
+.tier-pill{padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;border:1px solid #e2e8f0;background:#f8fafc;color:#94a3b8}
+.tier-pill.owned{background:#dcfce7;border-color:#86efac;color:#059669}
+
+/* Tracker */
+.tracker-section{margin-bottom:32px}
+.tracker-section h2{font-family:Sora,sans-serif;font-size:18px;font-weight:700;margin-bottom:14px}
+.tracker-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.tracker-card{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:16px}
+.tracker-card h3{font-size:14px;font-weight:700;margin-bottom:8px}
+.tracker-card .detail{font-size:13px;color:#64748b;line-height:1.6}
+.tracker-card .detail strong{color:#0f172a}
+.badge-passup{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:#fef3c7;color:#b45309;margin-top:4px}
+.badge-earning{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:#dcfce7;color:#059669;margin-top:4px}
+
+/* Commission Table */
+.table-section h2{font-family:Sora,sans-serif;font-size:18px;font-weight:700;margin-bottom:14px}
+.table-wrap{background:#fff;border-radius:14px;border:1px solid #e2e8f0;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:12px 16px;border-bottom:2px solid #e2e8f0;font-weight:700;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+td{padding:12px 16px;border-bottom:1px solid #f1f5f9}
+tr:last-child td{border-bottom:none}
+.type-direct{background:#dcfce7;color:#059669;font-weight:700;font-size:11px;padding:3px 10px;border-radius:10px}
+.type-passup{background:#ede9fe;color:#7c3aed;font-weight:700;font-size:11px;padding:3px 10px;border-radius:10px}
+.type-platform{background:#f1f5f9;color:#64748b;font-weight:700;font-size:11px;padding:3px 10px;border-radius:10px}
+.empty-state{text-align:center;padding:40px;color:#94a3b8;font-size:15px}
+
+.footer{text-align:center;padding:24px;color:#94a3b8;font-size:12px;border-top:1px solid #e2e8f0;margin-top:24px}
+
+@media(max-width:640px){
+  .topbar{padding:0 16px}
+  .wrap{padding:24px 16px}
+  .stats-row{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/dashboard">Dashboard</a>
+    <a href="/courses">📚 Courses</a>
+  </div>
+  <div class="topbar-right">
+    <div class="logo">Super<span>Ad</span>Pro</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <h1>💰 Course Commissions</h1>
+  <p class="subtitle">Track your course sales, pass-ups and earnings.</p>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat">
+      <div class="val green">${{ "%.2f"|format(stats.total_earned) }}</div>
+      <div class="lbl">Total Earned</div>
+    </div>
+    <div class="stat">
+      <div class="val">{{ stats.total_sales }}</div>
+      <div class="lbl">Total Sales</div>
+    </div>
+    <div class="stat">
+      <div class="val">{{ stats.direct_commissions }}</div>
+      <div class="lbl">Direct Commissions</div>
+    </div>
+    <div class="stat">
+      <div class="val">{{ stats.passup_commissions }}</div>
+      <div class="lbl">Pass-Up Commissions</div>
+    </div>
+  </div>
+
+  <!-- Owned Tiers -->
+  <div class="tiers-row">
+    <div class="tier-pill {{ 'owned' if 1 in stats.owned_tiers else '' }}">
+      {% if 1 in stats.owned_tiers %}✓{% else %}🔒{% endif %} Tier 1 — $100
+    </div>
+    <div class="tier-pill {{ 'owned' if 2 in stats.owned_tiers else '' }}">
+      {% if 2 in stats.owned_tiers %}✓{% else %}🔒{% endif %} Tier 2 — $300
+    </div>
+    <div class="tier-pill {{ 'owned' if 3 in stats.owned_tiers else '' }}">
+      {% if 3 in stats.owned_tiers %}✓{% else %}🔒{% endif %} Tier 3 — $500
+    </div>
+  </div>
+
+  <!-- Per-Tier Tracker -->
+  <div class="tracker-section">
+    <h2>Sales Tracker by Tier</h2>
+    <div class="tracker-grid">
+      {% for tier_num in [1, 2, 3] %}
+      <div class="tracker-card">
+        <h3>Tier {{ tier_num }}</h3>
+        {% if tier_num in stats.trackers %}
+          {% set t = stats.trackers[tier_num] %}
+          <div class="detail">
+            Sales made: <strong>{{ t.sales }}</strong><br>
+            {% if t.passed_up %}
+              <span class="badge-earning">✓ 1st sale passed up — now earning</span>
+            {% elif t.sales == 0 %}
+              <span class="badge-passup">Awaiting 1st sale (will pass up)</span>
+            {% endif %}
+          </div>
+        {% else %}
+          <div class="detail">No sales yet at this tier.</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Commission History -->
+  <div class="table-section">
+    <h2>Recent Commission History</h2>
+    <div class="table-wrap">
+      {% if commissions %}
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Buyer</th>
+            <th>Tier</th>
+            <th>Amount</th>
+            <th>Type</th>
+            <th>Depth</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in commissions %}
+          <tr>
+            <td>{{ c.date.strftime('%d %b %Y %H:%M') }}</td>
+            <td>{{ c.buyer }}</td>
+            <td>Tier {{ c.tier }}</td>
+            <td><strong>${{ "%.2f"|format(c.amount) }}</strong></td>
+            <td>
+              {% if c.type == 'direct_sale' %}
+                <span class="type-direct">Direct</span>
+              {% elif c.type == 'pass_up' %}
+                <span class="type-passup">Pass-Up</span>
+              {% else %}
+                <span class="type-platform">Platform</span>
+              {% endif %}
+            </td>
+            <td>{{ c.depth if c.depth > 0 else '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <p>No commissions yet. <a href="/courses" style="color:#0ea5e9;font-weight:700">Purchase a course</a> to start earning!</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  © 2026 SuperAdPro. All rights reserved. · <a href="/">superadpro.com</a>
+</div>
+
+</body>
+</html>

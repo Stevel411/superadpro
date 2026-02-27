@@ -82,6 +82,7 @@ class User(Base):
     low_balance_warned  = Column(Boolean, default=False)               # 3-day warning sent
     onboarding_completed = Column(Boolean, default=False)              # launch wizard done
     first_payment_to_company = Column(Boolean, default=False)          # True after 1st month payment goes to company
+    course_earnings         = Column(Float, default=0.0)               # lifetime earnings from course commissions
 
 class Grid(Base):
     """One grid instance per user per package tier."""
@@ -124,6 +125,56 @@ class Commission(Base):
     notes           = Column(Text, nullable=True)
     created_at      = Column(DateTime, default=datetime.utcnow)
     paid_at         = Column(DateTime, nullable=True)
+
+class Course(Base):
+    """Three-tier course catalogue."""
+    __tablename__ = "courses"
+    id              = Column(Integer, primary_key=True, index=True)
+    title           = Column(String, nullable=False)
+    slug            = Column(String, unique=True, index=True)
+    description     = Column(Text, nullable=True)
+    price           = Column(Float, nullable=False)          # 100 / 300 / 500
+    tier            = Column(Integer, nullable=False)         # 1, 2, 3
+    is_active       = Column(Boolean, default=True)
+    sort_order      = Column(Integer, default=0)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+
+class CoursePurchase(Base):
+    """Records every course purchase by a user."""
+    __tablename__ = "course_purchases"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), index=True)
+    course_id       = Column(Integer, ForeignKey("courses.id"))
+    course_tier     = Column(Integer)                         # denormalised for fast lookup
+    amount_paid     = Column(Float)
+    payment_method  = Column(String, default="wallet")        # wallet / stripe / crypto
+    tx_ref          = Column(String, nullable=True)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+
+class CourseCommission(Base):
+    """Audit trail for every course commission (pass-up or direct)."""
+    __tablename__ = "course_commissions"
+    id              = Column(Integer, primary_key=True, index=True)
+    purchase_id     = Column(Integer, ForeignKey("course_purchases.id"))
+    buyer_id        = Column(Integer, ForeignKey("users.id"))         # who bought
+    earner_id       = Column(Integer, ForeignKey("users.id"))         # who earns
+    amount          = Column(Float)
+    course_tier     = Column(Integer)
+    commission_type = Column(String)    # 'direct_sale' or 'pass_up'
+    pass_up_depth   = Column(Integer, default=0)    # 0 = direct, 1+ = levels walked
+    notes           = Column(Text, nullable=True)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+
+class CoursePassUpTracker(Base):
+    """Tracks how many sales each affiliate has made at each tier.
+       The 1st sale at each tier passes up; all others are kept."""
+    __tablename__ = "course_passup_tracker"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), index=True)
+    course_tier     = Column(Integer)                         # 1, 2, 3
+    sales_count     = Column(Integer, default=0)              # total sales closed at this tier
+    first_passed_up = Column(Boolean, default=False)          # True once 1st sale was passed up
+    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 class Payment(Base):
     """Incoming payments from members."""
@@ -468,6 +519,26 @@ try:
         conn.execute(text("CREATE TABLE IF NOT EXISTS ai_response_cache (id SERIAL PRIMARY KEY, tool VARCHAR, prompt_hash VARCHAR UNIQUE, response TEXT, hit_count INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), expires_at TIMESTAMP)"))
         conn.execute(text("CREATE TABLE IF NOT EXISTS link_clicks (id SERIAL PRIMARY KEY, link_id INTEGER, link_type VARCHAR DEFAULT 'short', source VARCHAR, referrer TEXT, country VARCHAR, device VARCHAR, clicked_at TIMESTAMP DEFAULT NOW())"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS first_payment_to_company BOOLEAN DEFAULT FALSE"))
+        # --- Course + Pass-Up tables ---
+        conn.execute(text("CREATE TABLE IF NOT EXISTS courses (id SERIAL PRIMARY KEY, title VARCHAR NOT NULL, slug VARCHAR UNIQUE, description TEXT, price FLOAT NOT NULL, tier INTEGER NOT NULL, is_active BOOLEAN DEFAULT TRUE, sort_order INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW())"))
+        conn.execute(text("CREATE TABLE IF NOT EXISTS course_purchases (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), course_id INTEGER REFERENCES courses(id), course_tier INTEGER, amount_paid FLOAT, payment_method VARCHAR DEFAULT 'wallet', tx_ref VARCHAR, created_at TIMESTAMP DEFAULT NOW())"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_course_purchases_user ON course_purchases(user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_course_purchases_tier ON course_purchases(user_id, course_tier)"))
+        conn.execute(text("CREATE TABLE IF NOT EXISTS course_commissions (id SERIAL PRIMARY KEY, purchase_id INTEGER REFERENCES course_purchases(id), buyer_id INTEGER REFERENCES users(id), earner_id INTEGER REFERENCES users(id), amount FLOAT, course_tier INTEGER, commission_type VARCHAR, pass_up_depth INTEGER DEFAULT 0, notes TEXT, created_at TIMESTAMP DEFAULT NOW())"))
+        conn.execute(text("CREATE TABLE IF NOT EXISTS course_passup_tracker (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), course_tier INTEGER, sales_count INTEGER DEFAULT 0, first_passed_up BOOLEAN DEFAULT FALSE, updated_at TIMESTAMP DEFAULT NOW())"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_passup_tracker_user_tier ON course_passup_tracker(user_id, course_tier)"))
+        # Seed default courses if empty
+        conn.execute(text("""
+            INSERT INTO courses (title, slug, description, price, tier, sort_order)
+            SELECT * FROM (VALUES
+                ('SuperAdPro Starter', 'starter', 'Master the fundamentals of digital advertising and affiliate marketing.', 100, 1, 1),
+                ('SuperAdPro Advanced', 'advanced', 'Advanced traffic strategies, funnel building and conversion optimisation.', 300, 2, 2),
+                ('SuperAdPro Elite', 'elite', 'Complete business-in-a-box: high-ticket sales, team building and scaling systems.', 500, 3, 3)
+            ) AS v(title, slug, description, price, tier, sort_order)
+            WHERE NOT EXISTS (SELECT 1 FROM courses LIMIT 1)
+        """))
+        # Add course_earnings column to users
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS course_earnings FLOAT DEFAULT 0.0"))
         # Mark existing users as onboarding complete (they don't need the wizard)
         conn.execute(text("UPDATE users SET onboarding_completed = TRUE WHERE onboarding_completed IS NULL OR (created_at < NOW() - INTERVAL '1 hour')"))
         conn.commit()

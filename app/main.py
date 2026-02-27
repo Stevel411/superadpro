@@ -28,6 +28,8 @@ from .email_utils import send_password_reset_email
 from .video_utils import parse_video_url, platform_label, platform_colour
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick
 from .database import PasswordResetToken
+from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker
+from .course_engine import process_course_purchase, get_user_course_stats
 import secrets
 from datetime import timedelta
 from .payment import (
@@ -4152,3 +4154,145 @@ async def ad_board_mockup(request: Request):
 @app.get("/ad-board-mockup-light")
 async def ad_board_mockup_light(request: Request):
     return templates.TemplateResponse("ad-board-mockup-light.html", {"request": request})
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  COURSES — Catalogue, Purchase, Pass-Up Commissions
+# ═══════════════════════════════════════════════════════════════════
+
+@app.get("/courses")
+async def courses_page(request: Request, db: Session = Depends(get_db)):
+    """Public course catalogue page."""
+    user = get_current_user(request, db)
+    courses = db.query(Course).filter(Course.is_active == True).order_by(Course.sort_order).all()
+
+    # Get user's owned tiers if logged in
+    owned_tiers = []
+    if user:
+        purchases = db.query(CoursePurchase).filter(CoursePurchase.user_id == user.id).all()
+        owned_tiers = [p.course_tier for p in purchases]
+
+    return templates.TemplateResponse("courses.html", {
+        "request": request,
+        "user": user,
+        "courses": courses,
+        "owned_tiers": owned_tiers
+    })
+
+
+@app.post("/courses/purchase/{course_id}")
+async def purchase_course(course_id: int, request: Request, db: Session = Depends(get_db)):
+    """Purchase a course — triggers the pass-up commission engine."""
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/courses", status_code=303)
+
+    result = process_course_purchase(db, user.id, course_id, payment_method="wallet")
+
+    if not result["success"]:
+        # Redirect back with error
+        return templates.TemplateResponse("courses.html", {
+            "request": request,
+            "user": user,
+            "courses": db.query(Course).filter(Course.is_active == True).order_by(Course.sort_order).all(),
+            "owned_tiers": [p.course_tier for p in db.query(CoursePurchase).filter(CoursePurchase.user_id == user.id).all()],
+            "error": result["error"]
+        })
+
+    return RedirectResponse(f"/courses/learn/{course_id}?purchased=1", status_code=303)
+
+
+@app.get("/courses/learn/{course_id}")
+async def course_learn(course_id: int, request: Request, purchased: int = 0, db: Session = Depends(get_db)):
+    """Course content/learning page (only accessible if purchased)."""
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/courses", status_code=303)
+
+    course = db.query(Course).filter(Course.id == course_id).first()
+    if not course:
+        return RedirectResponse("/courses", status_code=303)
+
+    # Check ownership
+    purchase = db.query(CoursePurchase).filter(
+        CoursePurchase.user_id == user.id,
+        CoursePurchase.course_id == course_id
+    ).first()
+    if not purchase:
+        return RedirectResponse("/courses", status_code=303)
+
+    return templates.TemplateResponse("course-learn.html", {
+        "request": request,
+        "user": user,
+        "course": course,
+        "just_purchased": purchased == 1
+    })
+
+
+@app.get("/courses/commissions")
+async def course_commissions_page(request: Request, db: Session = Depends(get_db)):
+    """Member's course commission dashboard."""
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/courses/commissions", status_code=303)
+
+    stats = get_user_course_stats(db, user.id)
+
+    # Recent commissions
+    recent = db.query(CourseCommission).filter(
+        CourseCommission.earner_id == user.id
+    ).order_by(CourseCommission.created_at.desc()).limit(50).all()
+
+    # Enrich with buyer info
+    commission_list = []
+    for c in recent:
+        buyer = db.query(User).filter(User.id == c.buyer_id).first()
+        commission_list.append({
+            "buyer": buyer.username if buyer else "Unknown",
+            "amount": c.amount,
+            "tier": c.course_tier,
+            "type": c.commission_type,
+            "depth": c.pass_up_depth,
+            "date": c.created_at
+        })
+
+    return templates.TemplateResponse("course-commissions.html", {
+        "request": request,
+        "user": user,
+        "stats": stats,
+        "commissions": commission_list
+    })
+
+
+# --- API endpoints for AJAX/future mobile ---
+
+@app.get("/api/courses")
+async def api_courses(request: Request, db: Session = Depends(get_db)):
+    """JSON list of available courses."""
+    courses = db.query(Course).filter(Course.is_active == True).order_by(Course.sort_order).all()
+    return JSONResponse([{
+        "id": c.id, "title": c.title, "slug": c.slug,
+        "description": c.description, "price": c.price, "tier": c.tier
+    } for c in courses])
+
+
+@app.post("/api/courses/purchase/{course_id}")
+async def api_purchase_course(course_id: int, request: Request, db: Session = Depends(get_db)):
+    """JSON purchase endpoint."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"success": False, "error": "Not authenticated"}, status_code=401)
+
+    result = process_course_purchase(db, user.id, course_id, payment_method="wallet")
+    return JSONResponse(result)
+
+
+@app.get("/api/courses/stats")
+async def api_course_stats(request: Request, db: Session = Depends(get_db)):
+    """JSON course stats for current user."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"success": False, "error": "Not authenticated"}, status_code=401)
+
+    stats = get_user_course_stats(db, user.id)
+    return JSONResponse(stats)

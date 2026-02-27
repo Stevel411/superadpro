@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Infinite Pass-Up Simulator — SuperAdPro Course Sales</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0b0f;
+  --surface: #12131a;
+  --border: #1e2030;
+  --text: #e2e4ed;
+  --dim: #6b7094;
+  --green: #10b981;
+  --green-glow: rgba(16,185,129,0.15);
+  --blue: #3b82f6;
+  --blue-glow: rgba(59,130,246,0.15);
+  --amber: #f59e0b;
+  --amber-glow: rgba(245,158,11,0.12);
+  --purple: #8b5cf6;
+  --red: #ef4444;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+
+/* ── HEADER ── */
+.header { padding:32px 40px 24px; border-bottom:1px solid var(--border); }
+.header h1 { font-size:28px; font-weight:800; letter-spacing:-0.5px; margin-bottom:6px; }
+.header h1 span { background:linear-gradient(135deg,var(--green),var(--blue)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.header p { font-size:14px; color:var(--dim); line-height:1.6; max-width:700px; }
+
+/* ── LAYOUT ── */
+.app { display:grid; grid-template-columns:320px 1fr; min-height:calc(100vh - 100px); }
+.panel { padding:28px; border-right:1px solid var(--border); display:flex; flex-direction:column; gap:20px; }
+.main { padding:28px; overflow-y:auto; }
+
+/* ── RULES BOX ── */
+.rules { background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(59,130,246,0.06)); border:1px solid rgba(16,185,129,0.15); border-radius:12px; padding:18px 20px; }
+.rules h3 { font-size:13px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--green); margin-bottom:12px; }
+.rule { display:flex; align-items:flex-start; gap:10px; margin-bottom:8px; font-size:13px; line-height:1.5; color:var(--dim); }
+.rule-num { min-width:22px; height:22px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; }
+.rule-keep .rule-num { background:var(--green-glow); color:var(--green); }
+.rule-pass .rule-num { background:var(--amber-glow); color:var(--amber); }
+.rule-free .rule-num { background:var(--blue-glow); color:var(--blue); }
+
+/* ── CONTROLS ── */
+.control-group { display:flex; flex-direction:column; gap:6px; }
+.control-label { font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--dim); }
+.btn { padding:12px 20px; border:none; border-radius:10px; font-family:inherit; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; }
+.btn-primary { background:linear-gradient(135deg,var(--green),#059669); color:#fff; }
+.btn-primary:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(16,185,129,0.3); }
+.btn-primary:disabled { opacity:0.4; cursor:not-allowed; transform:none; box-shadow:none; }
+.btn-reset { background:var(--surface); border:1px solid var(--border); color:var(--dim); }
+.btn-reset:hover { border-color:var(--red); color:var(--red); }
+.speed-row { display:flex; gap:8px; }
+.speed-btn { flex:1; padding:8px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--dim); font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; text-align:center; }
+.speed-btn.active { border-color:var(--blue); color:var(--blue); background:var(--blue-glow); }
+
+/* ── STATS ── */
+.stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.stat { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
+.stat-label { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--dim); margin-bottom:4px; }
+.stat-val { font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:700; }
+.stat-val.green { color:var(--green); }
+.stat-val.blue { color:var(--blue); }
+.stat-val.amber { color:var(--amber); }
+.stat-val.purple { color:var(--purple); }
+
+/* ── NETWORK TREE ── */
+.tree-section { margin-bottom:24px; }
+.tree-section h3 { font-size:13px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--dim); margin-bottom:14px; }
+.tree { display:flex; flex-direction:column; align-items:center; gap:0; }
+.tree-level { display:flex; align-items:center; gap:12px; position:relative; }
+.tree-level::before { content:''; position:absolute; top:-16px; left:50%; width:2px; height:16px; background:var(--border); }
+.tree-level:first-child::before { display:none; }
+.node { position:relative; min-width:120px; background:var(--surface); border:1.5px solid var(--border); border-radius:12px; padding:12px 14px; text-align:center; transition:all 0.3s; }
+.node.highlight { border-color:var(--green); box-shadow:0 0 20px var(--green-glow),0 0 40px rgba(16,185,129,0.08); }
+.node.pass-highlight { border-color:var(--amber); box-shadow:0 0 20px var(--amber-glow),0 0 40px rgba(245,158,11,0.08); }
+.node-name { font-size:13px; font-weight:700; margin-bottom:4px; }
+.node-role { font-size:10px; color:var(--dim); font-weight:600; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:8px; }
+.node-counter { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--dim); margin-bottom:4px; }
+.node-earned { font-family:'JetBrains Mono',monospace; font-size:15px; font-weight:700; color:var(--green); }
+.node-dots { display:flex; gap:3px; justify-content:center; margin-bottom:6px; flex-wrap:wrap; max-width:100px; margin:0 auto 6px; }
+.dot { width:14px; height:14px; border-radius:4px; border:1.5px solid var(--border); font-size:8px; font-weight:700; display:flex; align-items:center; justify-content:center; transition:all 0.3s; }
+.dot.keep { background:var(--green); border-color:var(--green); color:#fff; }
+.dot.pass { background:var(--amber); border-color:var(--amber); color:#fff; }
+.dot.free { background:var(--blue); border-color:var(--blue); color:#fff; }
+
+.connectors { display:flex; justify-content:center; gap:12px; padding:4px 0; }
+.conn-line { width:2px; height:20px; background:var(--border); }
+
+/* ── LOG ── */
+.log-section { margin-top:20px; }
+.log-section h3 { font-size:13px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--dim); margin-bottom:10px; }
+.log { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; max-height:340px; overflow-y:auto; font-family:'JetBrains Mono',monospace; font-size:12px; line-height:1.8; }
+.log::-webkit-scrollbar { width:6px; }
+.log::-webkit-scrollbar-track { background:transparent; }
+.log::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+.log-entry { padding:2px 0; border-bottom:1px solid rgba(255,255,255,0.02); }
+.log-keep { color:var(--green); }
+.log-pass { color:var(--amber); }
+.log-cascade { color:var(--purple); padding-left:16px; }
+.log-info { color:var(--blue); }
+
+/* ── FLOW ANIMATION ── */
+.money-flow { position:fixed; pointer-events:none; z-index:1000; font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:700; opacity:0; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px) {
+  .app { grid-template-columns:1fr; }
+  .panel { border-right:none; border-bottom:1px solid var(--border); }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🔄 Infinite Pass-Up <span>Simulator</span></h1>
+  <p>Watch how the 2nd, 4th &amp; 6th course sales cascade upward through the network. Sales 1, 3, 5 go direct to the seller. Sale 7+ the seller keeps everything. Pass-ups received count on your counter — triggering further cascades.</p>
+</div>
+
+<div class="app">
+  <div class="panel">
+    <div class="rules">
+      <h3>Pass-Up Rules</h3>
+      <div class="rule rule-keep"><div class="rule-num">1</div>Sales 1, 3, 5 → Seller KEEPS ($100)</div>
+      <div class="rule rule-pass"><div class="rule-num">↑</div>Sales 2, 4, 6 → PASS UP to sponsor (infinite cascade)</div>
+      <div class="rule rule-free"><div class="rule-num">7+</div>Sale 7 onwards → Seller keeps ALL (no more pass-ups)</div>
+    </div>
+
+    <div class="control-group">
+      <div class="control-label">Simulation Speed</div>
+      <div class="speed-row">
+        <button class="speed-btn" onclick="setSpeed(1200)" data-speed="1200">Slow</button>
+        <button class="speed-btn active" onclick="setSpeed(600)" data-speed="600">Normal</button>
+        <button class="speed-btn" onclick="setSpeed(200)" data-speed="200">Fast</button>
+        <button class="speed-btn" onclick="setSpeed(0)" data-speed="0">Instant</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="runBtn" onclick="runNextSale()">▶ Next Sale</button>
+    <button class="btn btn-primary" id="autoBtn" onclick="toggleAuto()">⚡ Auto-Run All</button>
+    <button class="btn btn-reset" onclick="resetSim()">↺ Reset</button>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Total Sales</div><div class="stat-val blue" id="statSales">0</div></div>
+      <div class="stat"><div class="stat-label">Pass-Ups</div><div class="stat-val amber" id="statPassups">0</div></div>
+      <div class="stat"><div class="stat-label">Steve Earned</div><div class="stat-val green" id="statSteve">$0</div></div>
+      <div class="stat"><div class="stat-label">Revenue</div><div class="stat-val purple" id="statRevenue">$0</div></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat" style="grid-column:1/-1"><div class="stat-label">Steve's Course Counter</div><div class="stat-val green" id="statSteveCounter">0 sales received</div></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="tree-section">
+      <h3>Network Tree — 5 Levels Deep</h3>
+      <div id="treeContainer"></div>
+    </div>
+
+    <div class="log-section">
+      <h3>Transaction Log</h3>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  SIMULATION ENGINE
+// ═══════════════════════════════════════════════════════════════
+
+const PRICE = 100;
+const PASS_UP_SALES = new Set([2, 4, 6]); // Only 2nd, 4th, 6th pass up
+
+// Network: Steve → Alice → Bob → Carol → Dave → Eve
+const MEMBERS = [
+  { id:'steve', name:'Steve', role:'Master Affiliate', sponsor:null, depth:0 },
+  { id:'alice', name:'Alice', role:'Level 1', sponsor:'steve', depth:1 },
+  { id:'bob',   name:'Bob',   role:'Level 2', sponsor:'alice', depth:2 },
+  { id:'carol', name:'Carol', role:'Level 3', sponsor:'bob',   depth:3 },
+  { id:'dave',  name:'Dave',  role:'Level 4', sponsor:'carol', depth:4 },
+  { id:'eve',   name:'Eve',   role:'Level 5', sponsor:'dave',  depth:5 },
+];
+
+const memberMap = {};
+MEMBERS.forEach(m => memberMap[m.id] = m);
+
+// State
+let counters = {};
+let earnings = {};
+let totalSales = 0;
+let totalPassups = 0;
+let speed = 600;
+let autoRunning = false;
+let autoTimer = null;
+
+// Sale queue: each seller makes 6 direct sales
+let saleQueue = [];
+const SELLERS = ['alice','bob','carol','dave','eve'];
+
+function buildSaleQueue() {
+  saleQueue = [];
+  // Interleave: each person makes sales in rounds
+  for (let round = 1; round <= 6; round++) {
+    for (let s of SELLERS) {
+      saleQueue.push({ seller: s, round });
+    }
+  }
+}
+
+function resetSim() {
+  stopAuto();
+  counters = {};
+  earnings = {};
+  MEMBERS.forEach(m => { counters[m.id] = 0; earnings[m.id] = 0; });
+  totalSales = 0;
+  totalPassups = 0;
+  buildSaleQueue();
+  renderTree();
+  updateStats();
+  document.getElementById('log').innerHTML = '<div class="log-entry log-info">Ready — click "Next Sale" or "Auto-Run All"</div>';
+  document.getElementById('runBtn').disabled = false;
+  document.getElementById('autoBtn').textContent = '⚡ Auto-Run All';
+}
+
+// ── CORE: Process a sale with infinite pass-up ──
+function processSale(sellerId, source, cascadeLog) {
+  counters[sellerId]++;
+  const count = counters[sellerId];
+  const seller = memberMap[sellerId];
+
+  if (PASS_UP_SALES.has(count)) {
+    // Pass up!
+    const sponsorId = seller.sponsor;
+    if (sponsorId) {
+      totalPassups++;
+      cascadeLog.push({
+        type: 'pass',
+        from: seller.name,
+        to: memberMap[sponsorId].name,
+        saleNum: count,
+        source
+      });
+      // Recursive: pass-up counts as a sale for the sponsor
+      processSale(sponsorId, `pass-up from ${seller.name}`, cascadeLog);
+    } else {
+      // Top of chain — Steve keeps it
+      earnings[sellerId] += PRICE;
+      cascadeLog.push({
+        type: 'keep_top',
+        who: seller.name,
+        saleNum: count,
+        source
+      });
+    }
+  } else {
+    // Keep it (odd sales 1,3,5 or 7+)
+    earnings[sellerId] += PRICE;
+    const isFree = count >= 7;
+    cascadeLog.push({
+      type: isFree ? 'keep_free' : 'keep',
+      who: seller.name,
+      saleNum: count,
+      source
+    });
+  }
+}
+
+async function runNextSale() {
+  if (saleQueue.length === 0) {
+    document.getElementById('runBtn').disabled = true;
+    addLog('info', '✅ All 30 sales complete! Check the earnings above.');
+    stopAuto();
+    return;
+  }
+
+  const sale = saleQueue.shift();
+  totalSales++;
+  const cascadeLog = [];
+
+  // Process direct sale
+  processSale(sale.seller, 'direct sale', cascadeLog);
+
+  // Animate and log
+  for (let i = 0; i < cascadeLog.length; i++) {
+    const entry = cascadeLog[i];
+    if (speed > 0) {
+      await wait(speed);
+    }
+
+    if (entry.type === 'keep') {
+      highlightNode(entry.who, 'highlight');
+      addLog('keep', `${entry.who} sale #${entry.saleNum} (${entry.source}) → KEEPS $${PRICE}`);
+    } else if (entry.type === 'keep_free') {
+      highlightNode(entry.who, 'highlight');
+      addLog('keep', `${entry.who} sale #${entry.saleNum} (${entry.source}) → KEEPS $${PRICE} 🎉 (free sale!)`);
+    } else if (entry.type === 'keep_top') {
+      highlightNode(entry.who, 'highlight');
+      addLog('keep', `${entry.who} sale #${entry.saleNum} (${entry.source}) → TOP OF CHAIN, KEEPS $${PRICE}`);
+    } else if (entry.type === 'pass') {
+      highlightNode(entry.from, 'pass-highlight');
+      addLog('pass', `${entry.from} sale #${entry.saleNum} (${entry.source}) → PASSES UP ↑ to ${entry.to}`);
+    }
+
+    renderTree();
+    updateStats();
+  }
+
+  if (speed > 0) await wait(speed / 2);
+  clearHighlights();
+
+  if (saleQueue.length === 0) {
+    document.getElementById('runBtn').disabled = true;
+    addLog('info', '🏁 All 30 sales complete!');
+    stopAuto();
+  }
+}
+
+// ── AUTO RUN ──
+function toggleAuto() {
+  if (autoRunning) {
+    stopAuto();
+  } else {
+    autoRunning = true;
+    document.getElementById('autoBtn').textContent = '⏸ Pause';
+    runAuto();
+  }
+}
+
+async function runAuto() {
+  while (autoRunning && saleQueue.length > 0) {
+    await runNextSale();
+    if (speed > 0) await wait(speed / 3);
+  }
+  if (saleQueue.length === 0) stopAuto();
+}
+
+function stopAuto() {
+  autoRunning = false;
+  document.getElementById('autoBtn').textContent = '⚡ Auto-Run All';
+}
+
+function setSpeed(s) {
+  speed = s;
+  document.querySelectorAll('.speed-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.speed) === s);
+  });
+}
+
+// ── RENDERING ──
+function renderTree() {
+  const container = document.getElementById('treeContainer');
+  let html = '';
+
+  MEMBERS.forEach((m, i) => {
+    const count = counters[m.id] || 0;
+    const earned = earnings[m.id] || 0;
+
+    // Build dots (sale counter visualization)
+    let dotsHtml = '';
+    for (let d = 1; d <= Math.max(count, 6); d++) {
+      let cls = '';
+      if (d <= count) {
+        if (PASS_UP_SALES.has(d)) cls = 'pass';
+        else if (d >= 7) cls = 'free';
+        else cls = 'keep';
+      }
+      dotsHtml += `<div class="dot ${cls}">${d <= count ? d : ''}</div>`;
+    }
+    if (count < 6) {
+      // Show empty slots up to 6
+      for (let d = count + 1; d <= 6; d++) {
+        dotsHtml += `<div class="dot">${d}</div>`;
+      }
+    }
+
+    if (i > 0) {
+      html += '<div style="display:flex;justify-content:center"><div class="conn-line"></div></div>';
+    }
+
+    html += `
+      <div class="tree-level">
+        <div class="node" id="node-${m.name}">
+          <div class="node-name">${m.name}</div>
+          <div class="node-role">${m.role}</div>
+          <div class="node-dots">${dotsHtml}</div>
+          <div class="node-counter">Counter: ${count} ${count === 1 ? 'sale' : 'sales'}</div>
+          <div class="node-earned">$${earned.toLocaleString()}</div>
+        </div>
+      </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function highlightNode(name, cls) {
+  const el = document.getElementById('node-' + name);
+  if (el) el.classList.add(cls);
+}
+
+function clearHighlights() {
+  document.querySelectorAll('.node').forEach(n => {
+    n.classList.remove('highlight', 'pass-highlight');
+  });
+}
+
+function updateStats() {
+  document.getElementById('statSales').textContent = totalSales;
+  document.getElementById('statPassups').textContent = totalPassups;
+  document.getElementById('statSteve').textContent = '$' + (earnings.steve || 0).toLocaleString();
+  document.getElementById('statRevenue').textContent = '$' + (totalSales * PRICE).toLocaleString();
+  const sc = counters.steve || 0;
+  document.getElementById('statSteveCounter').textContent = sc + ' sales received (all from pass-ups)';
+}
+
+function addLog(type, text) {
+  const log = document.getElementById('log');
+  const cls = type === 'keep' ? 'log-keep' : type === 'pass' ? 'log-pass' : type === 'cascade' ? 'log-cascade' : 'log-info';
+  log.innerHTML += `<div class="log-entry ${cls}">${text}</div>`;
+  log.scrollTop = log.scrollHeight;
+}
+
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── INIT ──
+resetSim();
+</script>
+</body>
+</html>
