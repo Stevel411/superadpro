@@ -14,18 +14,17 @@ a{text-decoration:none;color:inherit}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:200}
 .topbar-left a{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:14px;font-weight:600;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15)}
 .topbar-left a:hover{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
+.topbar-center{display:flex;align-items:center;gap:8px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.15);border-radius:24px;padding:6px 18px;font-size:11px;font-weight:700;color:#7dd3fc;letter-spacing:2px;text-transform:uppercase}
 
-/* Sky Blue Hero Banner */
-.hero-banner{background:linear-gradient(135deg,#0284c7 0%,#0ea5e9 40%,#38bdf8 100%);padding:40px 40px 36px;text-align:center;position:relative;overflow:hidden}
-.hero-banner::before{content:'';position:absolute;top:-40%;right:-10%;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,0.05);filter:blur(60px)}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:24px;padding:6px 18px;font-size:11px;font-weight:700;color:#fff;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
-.hero-banner h1{font-family:Sora,sans-serif;font-size:clamp(26px,4vw,40px);font-weight:800;color:#fff;margin-bottom:8px}
-.hero-banner p{font-size:15px;color:rgba(255,255,255,0.7);max-width:540px;margin:0 auto}
+/* Hero section - light */
+.hero-section{text-align:center;padding:32px 24px 8px;max-width:600px;margin:0 auto}
+.hero-section h1{font-family:Sora,sans-serif;font-size:clamp(26px,4vw,38px);font-weight:800;color:#0f172a;margin-bottom:8px}
+.hero-section p{font-size:15px;color:#64748b;line-height:1.6}
 
 .wrap{max-width:1200px;margin:0 auto;padding:28px 24px}
 
 /* Stats */
-.stats{display:flex;justify-content:center;gap:12px;margin:-24px auto 28px;position:relative;z-index:10;max-width:700px;flex-wrap:wrap}
+.stats{display:flex;justify-content:center;gap:12px;margin:0 auto 28px;max-width:700px;flex-wrap:wrap}
 .stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 24px;text-align:center;flex:1;min-width:120px;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
 .stat-val{font-size:24px;font-weight:800;color:#0ea5e9}
 .stat-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;margin-top:2px}
@@ -96,16 +95,16 @@ a{text-decoration:none;color:inherit}
       Dashboard
     </a>
   </div>
+  <div class="topbar-center">📢 Community Marketplace · 24 Live Ads</div>
   <div style="display:flex;align-items:center;gap:10px">
     <svg width="32" height="32" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-lg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-lg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
     <span style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
   </div>
 </div>
 
-<!-- Sky Blue Hero -->
-<div class="hero-banner">
-  <div class="hero-badge">📢 Community Marketplace · 24 Live Ads</div>
-  <h1>SuperAdPro Ad Board</h1>
+<!-- Hero Text -->
+<div class="hero-section">
+  <h1>SuperAdPro <span style="color:#0ea5e9">Ad Board</span></h1>
   <p>Browse offers, services and opportunities from the community. Find what converts — or post your own ad to drive real traffic.</p>
 </div>
 
