@@ -5,114 +5,148 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Ad Board — SuperAdPro Marketplace</title>
 <meta name="description" content="Browse offers, services and business opportunities from the SuperAdPro community. Find what you need or post your own ad.">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:#060918;color:#e2e8f0;min-height:100vh}
+body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
 a{text-decoration:none;color:inherit}
 
-/* Nav */
-.nav{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#06060f;border-bottom:1px solid rgba(56,189,248,0.12);position:sticky;top:0;z-index:200}
-.nav-logo{font-size:20px;font-weight:800;color:#fff}
-.nav-logo span{color:#38bdf8}
-.nav-links{display:flex;gap:12px}
-.nav-btn{font-size:13px;font-weight:600;padding:8px 18px;border-radius:8px;transition:all 0.2s}
-.nav-btn-outline{color:#94a3b8;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03)}
-.nav-btn-outline:hover{border-color:rgba(56,189,248,0.3);color:#38bdf8}
-.nav-btn-primary{color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);box-shadow:0 2px 12px rgba(14,165,233,0.25)}
-.nav-btn-primary:hover{box-shadow:0 4px 20px rgba(14,165,233,0.4)}
+/* Dark Topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:200}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-left a{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:14px;font-weight:600;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
+.topbar-left a:hover{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
+.topbar-center{display:flex;align-items:center;gap:8px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.15);border-radius:24px;padding:6px 18px;font-size:11px;font-weight:700;color:#7dd3fc;letter-spacing:2px;text-transform:uppercase}
+.topbar-right{display:flex;align-items:center;gap:10px}
 
-.wrap{max-width:1200px;margin:0 auto;padding:32px 24px}
+/* Hero section - light */
+.hero-section{text-align:center;padding:32px 24px 8px;max-width:600px;margin:0 auto}
+.hero-section h1{font-family:Sora,sans-serif;font-size:clamp(26px,4vw,38px);font-weight:800;color:#0f172a;margin-bottom:8px}
+.hero-section p{font-size:15px;color:#64748b;line-height:1.6}
 
-/* Hero */
-.hero{text-align:center;margin-bottom:36px}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.15);border-radius:24px;padding:8px 18px;font-size:12px;font-weight:700;color:#7dd3fc;margin-bottom:16px}
-.hero h1{font-size:clamp(28px,4vw,42px);font-weight:800;color:#fff;margin-bottom:10px}
-.hero h1 span{color:#38bdf8}
-.hero p{font-size:16px;color:rgba(186,230,253,0.45);max-width:560px;margin:0 auto}
+.wrap{max-width:1200px;margin:0 auto;padding:28px 24px}
 
-/* Category pills */
-.cats{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:32px}
-.cat{font-size:13px;font-weight:600;padding:8px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);color:rgba(186,230,253,0.5);transition:all 0.2s;cursor:pointer}
-.cat:hover{border-color:rgba(56,189,248,0.2);color:#38bdf8;background:rgba(56,189,248,0.06)}
-.cat.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-color:#0ea5e9;box-shadow:0 2px 12px rgba(14,165,233,0.25)}
+/* Stats */
+.stats{display:flex;justify-content:center;gap:12px;margin:0 auto 28px;max-width:700px;flex-wrap:wrap}
+.stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 24px;text-align:center;flex:1;min-width:120px;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
+.stat-val{font-size:24px;font-weight:800;color:#0ea5e9}
+.stat-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;margin-top:2px}
 
-/* Stats bar */
-.stats{display:flex;justify-content:center;gap:32px;margin-bottom:32px}
-.stat{text-align:center}
-.stat-val{font-size:24px;font-weight:800;color:#38bdf8}
-.stat-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(186,230,253,0.3)}
+/* Search */
+.search-bar{max-width:500px;margin:0 auto 24px;display:flex;gap:8px}
+.search-input{flex:1;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px 18px;color:#0f172a;font-family:inherit;font-size:14px;outline:none;transition:border 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.03)}
+.search-input:focus{border-color:#38bdf8;box-shadow:0 0 0 3px rgba(56,189,248,0.1)}
+.search-input::placeholder{color:#94a3b8}
+.search-btn{background:linear-gradient(180deg,#38bdf8,#0ea5e9);color:#fff;border:none;padding:12px 22px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;box-shadow:0 3px 0 #0284c7,0 4px 12px rgba(14,165,233,0.2);transition:all 0.2s}
+.search-btn:hover{transform:translateY(-1px);box-shadow:0 5px 0 #0284c7,0 8px 16px rgba(14,165,233,0.25)}
 
-/* Ad grid */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
-.ad{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow:hidden;transition:all 0.35s cubic-bezier(0.16,1,0.3,1)}
-.ad:hover{transform:translateY(-4px);border-color:rgba(56,189,248,0.2);box-shadow:0 12px 36px rgba(0,0,0,0.3)}
-.ad.featured{border-color:rgba(251,191,36,0.3);box-shadow:0 0 0 1px rgba(251,191,36,0.1)}
-.ad.featured::before{content:'⭐ FEATURED';position:absolute;top:12px;right:12px;font-size:9px;font-weight:700;letter-spacing:1px;color:#fbbf24;background:rgba(251,191,36,0.1);padding:4px 10px;border-radius:6px;border:1px solid rgba(251,191,36,0.2);z-index:2}
-.ad-img{width:100%;height:160px;background:linear-gradient(135deg,rgba(14,165,233,0.08),rgba(139,92,246,0.06));display:flex;align-items:center;justify-content:center;font-size:48px;position:relative}
-.ad-img img{width:100%;height:100%;object-fit:cover}
-.ad-body{padding:20px}
-.ad-cat{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#0ea5e9;margin-bottom:6px}
-.ad-title{font-size:17px;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.3}
-.ad-desc{font-size:13px;color:rgba(186,230,253,0.45);line-height:1.55;margin-bottom:14px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.ad-footer{display:flex;align-items:center;justify-content:space-between}
-.ad-author{font-size:12px;color:rgba(186,230,253,0.3)}
-.ad-stats{font-size:11px;color:rgba(186,230,253,0.25)}
-.ad-cta{display:block;text-align:center;font-size:14px;font-weight:700;color:#fff;padding:10px 16px;border-radius:10px;background:linear-gradient(180deg,#38bdf8 0%,#0ea5e9 100%);box-shadow:0 3px 0 #0284c7,0 4px 12px rgba(14,165,233,0.25);transition:all 0.2s;margin-top:12px}
-.ad-cta:hover{transform:translateY(-1px);box-shadow:0 5px 0 #0284c7,0 8px 20px rgba(14,165,233,0.3)}
-.ad-cta:active{transform:translateY(2px);box-shadow:0 1px 0 #0284c7}
-.ad-share{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
-.ad-share a,.ad-share button{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.04);cursor:pointer;transition:all 0.2s;text-decoration:none;color:#fff;padding:0}
-.ad-share a:hover,.ad-share button:hover{background:rgba(56,189,248,0.12);border-color:rgba(56,189,248,0.25)}
+/* Categories */
+.cats{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:28px}
+.cat{font-size:13px;font-weight:600;padding:8px 16px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#64748b;transition:all 0.2s;cursor:pointer;display:inline-block}
+.cat:hover{border-color:#38bdf8;color:#0ea5e9;background:rgba(14,165,233,0.03)}
+.cat.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-color:#0ea5e9;box-shadow:0 2px 10px rgba(14,165,233,0.25)}
 
-/* Empty */
-.empty{text-align:center;padding:80px 20px;color:rgba(186,230,253,0.25)}
+/* Rotation controls */
+.rotation-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding:10px 16px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 1px 3px rgba(0,40,100,0.03)}
+.rotation-info{font-size:12px;color:#64748b}
+.rotation-info strong{color:#0f172a}
+.rotation-controls{display:flex;align-items:center;gap:8px}
+.rot-btn{font-size:11px;font-weight:600;padding:6px 12px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;cursor:pointer;color:#64748b;font-family:inherit;transition:all 0.15s}
+.rot-btn:hover{border-color:#38bdf8;color:#0ea5e9;background:#f0f9ff}
+.rot-btn.active{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
+.rot-dot{width:6px;height:6px;border-radius:50%;background:#0ea5e9;animation:pulse 2s infinite;display:inline-block;vertical-align:middle;margin-right:6px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* Ad Grid — Compact */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.ad{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;transition:all 0.3s;position:relative;box-shadow:0 1px 3px rgba(0,40,100,0.03);padding:16px}
+.ad:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,40,100,0.08);border-color:#bae6fd}
+.ad.featured{border-color:#fbbf24;box-shadow:0 0 0 1px rgba(251,191,36,0.12),0 1px 3px rgba(0,40,100,0.03)}
+.featured-tag{position:absolute;top:8px;right:8px;font-size:8px;font-weight:700;letter-spacing:0.5px;color:#92400e;background:rgba(251,191,36,0.15);padding:3px 7px;border-radius:4px;border:1px solid rgba(251,191,36,0.25);text-transform:uppercase}
+.ad-icon-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ad-emoji{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ad-cat{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#0ea5e9}
+.ad-title{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ad-desc{font-size:12px;color:#94a3b8;line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ad-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:11px;color:#94a3b8}
+.ad-author{display:flex;align-items:center;gap:6px}
+.ad-avatar{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;flex-shrink:0}
+.ad-cta{display:block;text-align:center;font-size:12px;font-weight:700;color:#fff;padding:8px 12px;border-radius:8px;background:linear-gradient(180deg,#38bdf8 0%,#0ea5e9 100%);box-shadow:0 2px 0 #0284c7;transition:all 0.2s}
+.ad-cta:hover{transform:translateY(-1px);box-shadow:0 3px 0 #0284c7,0 4px 12px rgba(14,165,233,0.2)}
+.ad-cta:active{transform:translateY(1px);box-shadow:0 1px 0 #0284c7}
+
+/* Share row */
+.ad-share{display:flex;gap:4px;margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9}
+.ad-share a,.ad-share button{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;border:1px solid #e2e8f0;background:#f8fafc;cursor:pointer;transition:all 0.15s;text-decoration:none;color:#64748b;padding:0;font-family:inherit}
+.ad-share a:hover,.ad-share button:hover{background:#e0f2fe;border-color:#bae6fd;color:#0ea5e9}
+
+/* Empty state */
+.empty{text-align:center;padding:80px 20px}
 .empty-icon{font-size:48px;margin-bottom:16px}
-.empty-title{font-size:20px;font-weight:700;color:rgba(186,230,253,0.4);margin-bottom:8px}
+.empty-title{font-size:20px;font-weight:700;color:#64748b;margin-bottom:8px}
+.empty p{font-size:14px;color:#94a3b8}
 
-/* CTA banner */
-.cta-banner{background:linear-gradient(135deg,#0c1929,#0a2540);border:1px solid rgba(56,189,248,0.12);border-radius:18px;padding:36px;text-align:center;margin-top:40px}
-.cta-banner h3{font-size:22px;font-weight:800;color:#fff;margin-bottom:8px}
-.cta-banner p{font-size:15px;color:rgba(186,230,253,0.45);margin-bottom:20px}
-.cta-btn{display:inline-block;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;padding:14px 36px;border-radius:12px;font-weight:700;font-size:15px;transition:all 0.3s;box-shadow:0 4px 20px rgba(14,165,233,0.3)}
-.cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(14,165,233,0.4)}
+/* CTA Banner */
+.cta-banner{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);border-radius:18px;padding:40px;text-align:center;margin-top:40px;position:relative;overflow:hidden}
+.cta-banner::before{content:'';position:absolute;top:-30%;right:-10%;width:250px;height:250px;border-radius:50%;background:rgba(255,255,255,0.05);filter:blur(40px)}
+.cta-banner h3{font-family:Sora,sans-serif;font-size:24px;font-weight:800;color:#fff;margin-bottom:8px;position:relative;z-index:1}
+.cta-banner p{font-size:15px;color:rgba(255,255,255,0.7);margin-bottom:24px;max-width:480px;margin-left:auto;margin-right:auto;position:relative;z-index:1}
+.cta-post{display:inline-block;background:#fff;color:#0ea5e9;padding:14px 36px;border-radius:12px;font-weight:700;font-size:15px;box-shadow:0 4px 0 #e2e8f0,0 6px 20px rgba(0,0,0,0.1);transition:all 0.2s;position:relative;z-index:1}
+.cta-post:hover{transform:translateY(-2px);box-shadow:0 6px 0 #e2e8f0,0 10px 28px rgba(0,0,0,0.15)}
 
-.footer{text-align:center;padding:32px;font-size:11px;color:rgba(186,230,253,0.15);border-top:1px solid rgba(255,255,255,0.04);margin-top:32px}
-.footer a{color:rgba(56,189,248,0.3)}
+.footer{text-align:center;padding:32px;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;margin-top:32px}
+.footer a{color:#0ea5e9}
 
-@media(max-width:700px){.grid{grid-template-columns:1fr}.wrap{padding:20px 16px}}
+@media(max-width:700px){
+  .grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .wrap{padding:16px 12px}
+  .stats{flex-direction:row;gap:8px}
+  .stat-card{padding:10px 14px;min-width:0}
+  .topbar{padding:0 16px}
+  .topbar-center{display:none}
+  .rotation-bar{flex-direction:column;gap:8px;text-align:center}
+}
 </style>
 </head>
 <body>
-<div class="nav">
-  <a href="/" class="nav-logo" style="display:flex;align-items:center;gap:10px">
-    <svg width="30" height="30" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="20" fill="url(#ablg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="ablg" x1="0" y1="0" x2="44" y2="44"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
-    Super<span>AdPro</span>
-  </a>
-  <div class="nav-links">
-    <a href="/ads/my" class="nav-btn nav-btn-outline">📝 My Ads</a>
-    <a href="/vip" class="nav-btn nav-btn-primary">Join VIP</a>
+
+<!-- Dark Topbar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/dashboard">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+      Dashboard
+    </a>
+    <a href="/ads/my" style="background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.15);color:#7dd3fc">📝 My Ads</a>
+  </div>
+  <div class="topbar-center">📢 Community Marketplace · {{ total_ads }} Live Ad{{ 's' if total_ads != 1 else '' }}</div>
+  <div class="topbar-right">
+    <svg width="32" height="32" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-lg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-lg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
+    <span style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
   </div>
 </div>
 
-<div class="wrap">
-  <div class="hero">
-    <div class="hero-badge">📢 Community Marketplace</div>
-    <h1>SuperAdPro <span>Ad Board</span></h1>
-    <p>Browse offers, services and opportunities from the SuperAdPro community. Find what you need — or post your own ad to get real traffic.</p>
-  </div>
+<!-- Hero Text -->
+<div class="hero-section">
+  <h1>SuperAdPro <span style="color:#0ea5e9">Ad Board</span></h1>
+  <p>Browse offers, services and opportunities from the community. Find what converts — or post your own ad to drive real traffic.</p>
+</div>
 
+<div class="wrap">
+
+  <!-- Floating Stats -->
   <div class="stats">
-    <div class="stat"><div class="stat-val">{{ total_ads }}</div><div class="stat-label">Live Ads</div></div>
-    <div class="stat"><div class="stat-val">{{ categories|length }}</div><div class="stat-label">Categories</div></div>
+    <div class="stat-card"><div class="stat-val">{{ total_ads }}</div><div class="stat-label">Live Ads</div></div>
+    <div class="stat-card"><div class="stat-val">{{ categories|length }}</div><div class="stat-label">Categories</div></div>
   </div>
 
   <!-- Search -->
-  <div style="max-width:480px;margin:0 auto 28px;display:flex;gap:8px">
-    <input type="text" id="adSearch" placeholder="Search ads by keyword..." onkeyup="filterAds()" style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:11px 16px;color:#fff;font-family:inherit;font-size:14px;outline:none">
-    <button onclick="filterAds()" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border:none;padding:11px 20px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">Search</button>
+  <div class="search-bar">
+    <input type="text" id="adSearch" class="search-input" placeholder="Search ads by keyword, niche or category..." onkeyup="filterAds()">
+    <button class="search-btn" onclick="filterAds()">Search</button>
   </div>
 
+  <!-- Categories -->
   <div class="cats">
     <a href="/ads" class="cat {% if not active_category %}active{% endif %}">All</a>
     {% for c in categories %}
@@ -121,49 +155,60 @@ a{text-decoration:none;color:inherit}
   </div>
 
   {% if listings %}
-  <div class="grid">
+  <!-- Rotation Bar -->
+  <div class="rotation-bar">
+    <div class="rotation-info"><div class="rot-dot"></div> Showing <strong>{{ listings|length }}</strong> ad{{ 's' if listings|length != 1 else '' }} · Auto-rotating every 30s</div>
+    <div class="rotation-controls">
+      <button class="rot-btn" onclick="shuffleAds()">🔀 Shuffle</button>
+      <button class="rot-btn active" id="autoBtn" onclick="toggleAuto()">⟳ Auto</button>
+    </div>
+  </div>
+
+  <!-- Ad Grid -->
+  <div class="grid" id="adGrid">
+    {% set icons = {'business-opportunity':'💼','digital-marketing':'📣','health-wellness':'💪','finance-crypto':'💰','ecommerce':'🛒','education':'🎓','software-saas':'💻','general':'📌'} %}
+    {% set bg_colors = {'business-opportunity':'linear-gradient(135deg,#e0f2fe,#bae6fd)','digital-marketing':'linear-gradient(135deg,#fef3c7,#fde68a)','health-wellness':'linear-gradient(135deg,#d1fae5,#a7f3d0)','finance-crypto':'linear-gradient(135deg,#fef3c7,#fde68a)','ecommerce':'linear-gradient(135deg,#fce7f3,#fbcfe8)','education':'linear-gradient(135deg,#ede9fe,#ddd6fe)','software-saas':'linear-gradient(135deg,#e0f2fe,#bae6fd)','general':'linear-gradient(135deg,#f1f5f9,#e2e8f0)'} %}
+    {% set avatar_colors = ['#0ea5e9','#6d28d9','#f59e0b','#10b981','#ef4444','#8b5cf6','#d97706','#059669','#dc2626','#0284c7','#db2777','#16a34a'] %}
+
     {% for ad in listings %}
-    <div class="ad {% if ad.is_featured %}featured{% endif %}" style="position:relative">
-      <div class="ad-img">
-        {% if ad.image_url %}
-        <img src="{{ ad.image_url }}" alt="{{ ad.title }}" loading="lazy">
-        {% else %}
-        {% set icons = {'business-opportunity':'💼','digital-marketing':'📣','health-wellness':'💪','finance-crypto':'💰','ecommerce':'🛒','education':'🎓','software-saas':'💻','general':'📌'} %}
-        {{ icons.get(ad.category, '📌') }}
-        {% endif %}
+    <div class="ad {% if ad.is_featured %}featured{% endif %}">
+      {% if ad.is_featured %}<div class="featured-tag">⭐ Featured</div>{% endif %}
+      <div class="ad-icon-row">
+        <div class="ad-emoji" style="background:{{ bg_colors.get(ad.category, 'linear-gradient(135deg,#f1f5f9,#e2e8f0)') }}">{{ icons.get(ad.category, '📌') }}</div>
+        <div><div class="ad-cat">{{ icons.get(ad.category, '📌') }} {{ ad.category | replace('-', ' ') | title }}</div></div>
       </div>
-      <div class="ad-body">
-        <div class="ad-cat">{{ ad.category | replace('-', ' ') }}</div>
-        <div class="ad-title">{{ ad.title }}</div>
-        <div class="ad-desc">{{ ad.description }}</div>
-        <div class="ad-footer">
-          <div class="ad-author">by {{ ad.owner_name }}</div>
-          <div class="ad-stats">{{ ad.clicks }} clicks</div>
+      <div class="ad-title">{{ ad.title }}</div>
+      <div class="ad-desc">{{ ad.description }}</div>
+      <div class="ad-meta">
+        <div class="ad-author">
+          <div class="ad-avatar" style="background:{{ avatar_colors[loop.index0 % 12] }}">{{ ad.owner_name[:2] | upper }}</div>
+          {{ ad.owner_name }}
         </div>
-        <a href="/ads/click/{{ ad.id }}{% if user %}?ref={{ user.username }}{% endif %}" target="_blank" class="ad-cta">Visit Offer →</a>
-        <div class="ad-share">
-          <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url_for('ad_board') }}%23ad-{{ ad.id }}" target="_blank" title="Share on Facebook" style="background:rgba(24,119,242,0.12);border-color:rgba(24,119,242,0.2)">
-            <span style="font-weight:800;font-size:13px;color:#1877f2">f</span>
-          </a>
-          <a href="https://twitter.com/intent/tweet?text={{ ad.title | urlencode }}%20—%20Check%20this%20out%20on%20SuperAdPro!&url={{ request.url_for('ad_board') }}" target="_blank" title="Share on X" style="background:rgba(255,255,255,0.06)">
-            <span style="font-weight:800;font-size:12px">𝕏</span>
-          </a>
-          <a href="https://www.reddit.com/submit?url={{ request.url_for('ad_board') }}&title={{ ad.title | urlencode }}" target="_blank" title="Share on Reddit" style="background:rgba(255,69,0,0.1);border-color:rgba(255,69,0,0.15)">
-            <span style="font-weight:800;font-size:12px;color:#ff4500">R</span>
-          </a>
-          <a href="https://wa.me/?text={{ ad.title | urlencode }}%20—%20{{ request.url_for('ad_board') }}" target="_blank" title="Share on WhatsApp" style="background:rgba(37,211,102,0.1);border-color:rgba(37,211,102,0.15)">
-            <span style="font-size:14px">📱</span>
-          </a>
-          <a href="https://t.me/share/url?url={{ request.url_for('ad_board') }}&text={{ ad.title | urlencode }}" target="_blank" title="Share on Telegram" style="background:rgba(0,136,204,0.1);border-color:rgba(0,136,204,0.15)">
-            <span style="font-size:14px">✈️</span>
-          </a>
-          <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url_for('ad_board') }}" target="_blank" title="Share on LinkedIn" style="background:rgba(10,102,194,0.1);border-color:rgba(10,102,194,0.15)">
-            <span style="font-weight:800;font-size:11px;color:#0a66c2">in</span>
-          </a>
-          <button onclick="navigator.clipboard.writeText('{{ ad.title }} — Check this out on SuperAdPro! {{ request.url_for('ad_board') }}');this.innerHTML='✓';setTimeout(()=>this.innerHTML='📋',2000)" title="Copy link" style="background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.15);font-family:inherit">
-            <span style="font-size:13px">📋</span>
-          </button>
-        </div>
+        <span style="font-size:10px;color:#94a3b8">🔗 {{ ad.clicks }}</span>
+      </div>
+      <a href="/ads/click/{{ ad.id }}" target="_blank" class="ad-cta">Visit Offer →</a>
+      <div class="ad-share">
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url_for('ad_board_public') }}" target="_blank" title="Facebook">
+          <span style="font-weight:800;font-size:10px;color:#1877f2">f</span>
+        </a>
+        <a href="https://twitter.com/intent/tweet?text={{ ad.title | urlencode }}%20—%20SuperAdPro&url={{ request.url_for('ad_board_public') }}" target="_blank" title="X">
+          <span style="font-weight:800;font-size:10px">𝕏</span>
+        </a>
+        <a href="https://www.reddit.com/submit?url={{ request.url_for('ad_board_public') }}&title={{ ad.title | urlencode }}" target="_blank" title="Reddit">
+          <span style="font-weight:800;font-size:10px;color:#ff4500">R</span>
+        </a>
+        <a href="https://wa.me/?text={{ ad.title | urlencode }}%20—%20{{ request.url_for('ad_board_public') }}" target="_blank" title="WhatsApp">
+          <span style="font-size:11px">📱</span>
+        </a>
+        <a href="https://t.me/share/url?url={{ request.url_for('ad_board_public') }}&text={{ ad.title | urlencode }}" target="_blank" title="Telegram">
+          <span style="font-size:11px">✈️</span>
+        </a>
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url_for('ad_board_public') }}" target="_blank" title="LinkedIn">
+          <span style="font-weight:800;font-size:9px;color:#0a66c2">in</span>
+        </a>
+        <button onclick="navigator.clipboard.writeText('{{ ad.title }} — SuperAdPro Ad Board {{ request.url_for("ad_board_public") }}');this.innerHTML='✓';setTimeout(()=>this.innerHTML='📋',2000)" title="Copy link">
+          <span style="font-size:10px">📋</span>
+        </button>
       </div>
     </div>
     {% endfor %}
@@ -176,14 +221,17 @@ a{text-decoration:none;color:inherit}
   </div>
   {% endif %}
 
+  <!-- CTA Banner -->
   <div class="cta-banner">
-    <h3>Want to Advertise Here?</h3>
-    <p>SuperAdPro members can post up to 5 free ads to promote their offers, services or business opportunities to real visitors.</p>
-    <a href="/vip" class="cta-btn">🚀 Join SuperAdPro</a>
+    <h3>📢 Got Something to Promote?</h3>
+    <p>Post up to 5 free ads. Reach engaged members actively looking for tools, services and opportunities.</p>
+    <a href="/ads/my" class="cta-post">+ Post Your Ad Free →</a>
   </div>
+
 </div>
 
 <script>
+// Search filter
 function filterAds() {
   const q = document.getElementById('adSearch').value.toLowerCase();
   document.querySelectorAll('.ad').forEach(ad => {
@@ -193,8 +241,47 @@ function filterAds() {
     ad.style.display = (title.includes(q) || desc.includes(q) || cat.includes(q)) ? '' : 'none';
   });
 }
+
+// Auto-rotation: shuffle ad order every 30 seconds
+let autoRotate = true;
+let rotateTimer;
+
+function shuffleAds() {
+  const grid = document.getElementById('adGrid');
+  if (!grid) return;
+  const ads = Array.from(grid.children);
+  for (let i = ads.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    grid.appendChild(ads[j]);
+    ads.splice(j, 1, ads[i]);
+  }
+  grid.style.opacity = '0';
+  grid.style.transition = 'opacity 0.3s';
+  setTimeout(() => { grid.style.opacity = '1'; }, 50);
+}
+
+function startAuto() {
+  rotateTimer = setInterval(shuffleAds, 30000);
+}
+
+function toggleAuto() {
+  const btn = document.getElementById('autoBtn');
+  autoRotate = !autoRotate;
+  if (autoRotate) {
+    btn.classList.add('active');
+    btn.textContent = '⟳ Auto';
+    startAuto();
+  } else {
+    btn.classList.remove('active');
+    btn.textContent = '⏸ Paused';
+    clearInterval(rotateTimer);
+  }
+}
+
+startAuto();
 </script>
 
 <div class="footer">© 2026 SuperAdPro. All rights reserved. · <a href="/">superadpro.com</a></div>
+
 </body>
 </html>
