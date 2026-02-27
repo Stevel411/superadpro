@@ -11,106 +11,118 @@
 body{font-family:'DM Sans',sans-serif;overflow:hidden;background:#080c14}
 
 /* ═══ TOPBAR ═══ */
-.sap-topbar{display:flex;align-items:center;justify-content:space-between;height:54px;padding:0 16px;background:linear-gradient(180deg,#0c1020 0%,#0a0e1a 100%);border-bottom:1px solid rgba(14,165,233,0.12);z-index:999;position:relative}
+.sap-topbar{display:flex;align-items:center;justify-content:space-between;height:50px;padding:0 14px;background:#0a0e1a;border-bottom:1px solid rgba(14,165,233,0.12);z-index:999;position:relative}
 .sap-topbar-left{display:flex;align-items:center;gap:10px}
 .sap-topbar-left a{color:#64748b;font-size:12px;font-weight:600;text-decoration:none;padding:5px 12px;border-radius:8px;border:1px solid rgba(148,163,184,0.12);font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:6px}
 .sap-topbar-left a:hover{color:#38bdf8;border-color:rgba(56,189,248,0.25)}
 .sap-topbar-left a svg{width:14px;height:14px}
-.sap-topbar-center{display:flex;align-items:center;gap:14px}
-.tb-logo{font-family:Sora,sans-serif;font-weight:800;font-size:15px;color:#fff;letter-spacing:-0.3px}
-.tb-logo span{background:linear-gradient(135deg,#0ea5e9,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.page-title-input{background:rgba(14,165,233,0.06);border:1px solid rgba(14,165,233,0.12);border-radius:8px;color:#e2e8f0;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;padding:6px 14px;width:220px;transition:all 0.2s}
+.sap-topbar-center{display:flex;align-items:center;gap:12px}
+.tb-logo{font-family:Sora,sans-serif;font-weight:800;font-size:14px;color:#fff;letter-spacing:-0.3px;display:flex;align-items:center;gap:5px}
+.tb-logo span{color:#38bdf8}
+.page-title-input{background:rgba(14,165,233,0.06);border:1px solid rgba(14,165,233,0.12);border-radius:8px;color:#e2e8f0;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;padding:5px 12px;width:200px;transition:all 0.2s}
 .page-title-input:focus{outline:none;border-color:rgba(14,165,233,0.4);background:rgba(14,165,233,0.1)}
 .page-title-input::placeholder{color:#475569}
-.save-status{font-size:11px;color:#475569;font-family:'DM Sans',sans-serif;min-width:80px}
-.sap-topbar-right{display:flex;align-items:center;gap:6px}
-.tb-btn{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.15s;display:flex;align-items:center;gap:5px}
+.save-status{font-size:11px;color:#475569;font-family:'DM Sans',sans-serif;min-width:70px}
+.sap-topbar-right{display:flex;align-items:center;gap:5px}
+.tb-btn{padding:5px 12px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.15s;display:flex;align-items:center;gap:4px}
 .tb-preview{background:rgba(14,165,233,0.08);color:#64748b;border:1px solid rgba(14,165,233,0.12)}.tb-preview:hover{color:#38bdf8;border-color:rgba(14,165,233,0.3)}
-.tb-save{background:linear-gradient(135deg,#059669,#10b981);color:#fff;box-shadow:0 2px 8px rgba(16,185,129,0.25)}.tb-save:hover{box-shadow:0 4px 16px rgba(16,185,129,0.35);transform:translateY(-1px)}
-.tb-pub{background:linear-gradient(135deg,#0284c7,#0ea5e9);color:#fff;box-shadow:0 2px 8px rgba(14,165,233,0.3)}.tb-pub:hover{box-shadow:0 4px 16px rgba(14,165,233,0.4);transform:translateY(-1px)}
+.tb-save{background:linear-gradient(135deg,#059669,#10b981);color:#fff}.tb-save:hover{transform:translateY(-1px)}
+.tb-pub{background:linear-gradient(135deg,#0284c7,#0ea5e9);color:#fff}.tb-pub:hover{transform:translateY(-1px)}
 
-/* ═══ GRAPESJS THEME — sky blue dark ═══ */
+/* ═══ THREE-COLUMN LAYOUT ═══ */
+.editor-wrap{display:flex;height:calc(100vh - 50px)}
+.left-panel{width:240px;background:#0c1020;border-right:1px solid rgba(14,165,233,0.1);overflow-y:auto;flex-shrink:0;scrollbar-width:thin;scrollbar-color:rgba(14,165,233,0.15) transparent}
+.left-panel::-webkit-scrollbar{width:4px}
+.left-panel::-webkit-scrollbar-thumb{background:rgba(14,165,233,0.15);border-radius:10px}
+.left-panel-title{font-family:Sora,sans-serif;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#38bdf8;padding:14px 14px 8px;display:flex;align-items:center;gap:6px}
+.canvas-wrap{flex:1;min-width:0}
+.right-panel-wrap{width:260px;flex-shrink:0}
+
+/* ═══ GRAPESJS THEME ═══ */
 .gjs-one-bg{background:#0c1020!important}
-.gjs-two-color{color:#94a3b8!important}
+.gjs-two-color{color:#cbd5e1!important}
 .gjs-three-bg{background:linear-gradient(135deg,#0284c7,#0ea5e9)!important;color:#fff!important}
 .gjs-four-color,.gjs-four-color-h:hover{color:#38bdf8!important}
-#gjs{height:calc(100vh - 54px);width:100%;border:none}
+#gjs{height:100%;width:100%;border:none}
 .gjs-editor{background:#0c1020!important;font-family:'DM Sans',sans-serif!important}
+
+/* Canvas */
 .gjs-cv-canvas{background:#111827!important;background-image:radial-gradient(rgba(14,165,233,0.03) 1px,transparent 1px)!important;background-size:24px 24px!important}
-.gjs-frame-wrapper{background:#fff!important;border-radius:12px!important;box-shadow:0 8px 40px rgba(0,0,0,0.5),0 0 0 1px rgba(14,165,233,0.08)!important;margin:24px auto!important}
-.gjs-pn-views-container{width:280px!important;background:linear-gradient(180deg,#0c1020,#0a0e1a)!important;border-left:1px solid rgba(14,165,233,0.1)!important;scrollbar-width:thin;scrollbar-color:rgba(14,165,233,0.15) transparent}
-.gjs-pn-views{background:transparent!important;border-bottom:1px solid rgba(14,165,233,0.08)!important;padding:4px!important}
-.gjs-pn-btn{font-family:'DM Sans',sans-serif!important;font-size:11px!important;font-weight:600!important;border-radius:8px!important;color:#475569!important;margin:2px!important;padding:6px 8px!important;transition:all 0.2s!important}
-.gjs-pn-btn:hover{color:#94a3b8!important;background:rgba(14,165,233,0.06)!important}
-.gjs-pn-btn.gjs-pn-active{background:linear-gradient(135deg,rgba(14,165,233,0.15),rgba(56,189,248,0.1))!important;color:#38bdf8!important;box-shadow:0 0 0 1px rgba(14,165,233,0.2),0 2px 8px rgba(14,165,233,0.1)!important}
+.gjs-frame-wrapper{background:#fff!important;border-radius:10px!important;box-shadow:0 8px 40px rgba(0,0,0,0.5),0 0 0 1px rgba(14,165,233,0.08)!important;margin:20px auto!important}
+
+/* Hide default right panel (we use custom) — keep views-container for style mgr */
+.gjs-pn-views-container{width:260px!important;background:#0c1020!important;border-left:1px solid rgba(14,165,233,0.1)!important;scrollbar-width:thin;scrollbar-color:rgba(14,165,233,0.15) transparent}
+.gjs-pn-views-container::-webkit-scrollbar{width:4px}
+.gjs-pn-views-container::-webkit-scrollbar-thumb{background:rgba(14,165,233,0.15);border-radius:10px}
+.gjs-pn-views{background:transparent!important;border-bottom:1px solid rgba(14,165,233,0.08)!important;padding:3px!important}
+
+/* Panel buttons — BRIGHTER */
+.gjs-pn-btn{font-family:'DM Sans',sans-serif!important;font-size:11px!important;font-weight:600!important;border-radius:7px!important;color:#94a3b8!important;margin:2px!important;padding:5px 7px!important;transition:all 0.2s!important}
+.gjs-pn-btn:hover{color:#e2e8f0!important;background:rgba(14,165,233,0.08)!important}
+.gjs-pn-btn.gjs-pn-active{background:rgba(14,165,233,0.15)!important;color:#38bdf8!important;box-shadow:0 0 0 1px rgba(14,165,233,0.2)!important}
 .gjs-pn-panel{padding:0!important;background:transparent!important}
 .gjs-pn-commands,.gjs-pn-options,.gjs-pn-devices-c{background:rgba(12,16,32,0.95)!important;border-bottom:1px solid rgba(14,165,233,0.06)!important}
 
-/* ── Block gallery ── */
-.gjs-blocks-cs{padding:10px!important}
-.gjs-block-category{background:transparent!important;border:none!important}
-.gjs-block-category .gjs-title{font-family:'DM Sans',sans-serif!important;font-size:10px!important;font-weight:800!important;letter-spacing:1.5px!important;text-transform:uppercase!important;color:rgba(14,165,233,0.5)!important;padding:14px 12px 8px!important;background:transparent!important;border:none!important;border-bottom:1px solid rgba(14,165,233,0.06)!important}
-.gjs-blocks-c{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;padding:8px 4px!important}
-.gjs-block{border-radius:12px!important;border:1px solid rgba(14,165,233,0.1)!important;background:linear-gradient(135deg,rgba(14,165,233,0.04),rgba(14,165,233,0.02))!important;padding:16px 8px 12px!important;min-height:auto!important;width:auto!important;font-family:'DM Sans',sans-serif!important;font-size:11px!important;font-weight:600!important;color:#64748b!important;transition:all 0.2s ease!important;cursor:grab!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:8px!important;text-align:center!important}
-.gjs-block:hover{border-color:rgba(14,165,233,0.3)!important;background:linear-gradient(135deg,rgba(14,165,233,0.1),rgba(14,165,233,0.05))!important;color:#e2e8f0!important;transform:translateY(-2px)!important;box-shadow:0 4px 16px rgba(14,165,233,0.12)!important}
-.gjs-block:active{cursor:grabbing!important;transform:scale(0.96)!important}
-.gjs-block svg{fill:#475569!important;width:28px!important;height:28px!important;opacity:0.6!important;transition:all 0.2s!important}
-.gjs-block:hover svg{fill:#38bdf8!important;opacity:1!important}
-.gjs-block-label{font-family:'DM Sans',sans-serif!important;font-size:10px!important;line-height:1.2!important;margin-top:2px!important}
+/* ── LEFT: Block gallery (custom container) ── */
+#left-blocks .gjs-blocks-cs{padding:6px!important;background:transparent!important}
+#left-blocks .gjs-block-category{background:transparent!important;border:none!important}
+#left-blocks .gjs-block-category .gjs-title{font-family:'DM Sans',sans-serif!important;font-size:9px!important;font-weight:800!important;letter-spacing:1.5px!important;text-transform:uppercase!important;color:#38bdf8!important;padding:12px 10px 6px!important;background:transparent!important;border:none!important;border-bottom:1px solid rgba(14,165,233,0.08)!important}
+#left-blocks .gjs-blocks-c{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px!important;padding:6px 4px!important}
+#left-blocks .gjs-block{border-radius:10px!important;border:1px solid rgba(14,165,233,0.1)!important;background:rgba(14,165,233,0.03)!important;padding:12px 6px 10px!important;min-height:auto!important;width:auto!important;font-family:'DM Sans',sans-serif!important;font-size:10px!important;font-weight:600!important;color:#94a3b8!important;transition:all 0.2s!important;cursor:grab!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:6px!important;text-align:center!important}
+#left-blocks .gjs-block:hover{border-color:rgba(14,165,233,0.3)!important;background:rgba(14,165,233,0.08)!important;color:#e2e8f0!important;transform:translateY(-1px)!important;box-shadow:0 4px 12px rgba(14,165,233,0.1)!important}
+#left-blocks .gjs-block:active{cursor:grabbing!important;transform:scale(0.96)!important}
+#left-blocks .gjs-block svg{fill:#64748b!important;width:24px!important;height:24px!important;opacity:0.5!important;transition:all 0.2s!important}
+#left-blocks .gjs-block:hover svg{fill:#38bdf8!important;opacity:1!important}
+#left-blocks .gjs-block-label{font-size:9px!important;line-height:1.2!important}
 
-/* ── Style manager ── */
+/* ── RIGHT: Style manager — BRIGHTER labels ── */
 .gjs-sm-sector{border:none!important;margin-bottom:2px!important}
-.gjs-sm-sector .gjs-sm-sector-title{font-family:'DM Sans',sans-serif!important;font-size:10px!important;font-weight:800!important;letter-spacing:1.2px!important;text-transform:uppercase!important;color:rgba(14,165,233,0.5)!important;padding:12px 14px!important;background:transparent!important;border-bottom:1px solid rgba(14,165,233,0.06)!important;border-top:none!important}
+.gjs-sm-sector .gjs-sm-sector-title{font-family:'DM Sans',sans-serif!important;font-size:10px!important;font-weight:800!important;letter-spacing:1.2px!important;text-transform:uppercase!important;color:#38bdf8!important;padding:12px 12px!important;background:transparent!important;border-bottom:1px solid rgba(14,165,233,0.08)!important;border-top:none!important}
+.gjs-sm-sector .gjs-sm-sector-title:hover{color:#7dd3fc!important}
 .gjs-sm-properties{padding:8px 10px!important}
-.gjs-field{background:rgba(14,165,233,0.05)!important;border:1px solid rgba(14,165,233,0.1)!important;border-radius:8px!important;color:#e2e8f0!important;font-family:'DM Sans',sans-serif!important;font-size:12px!important;transition:border-color 0.2s!important}
+.gjs-field{background:rgba(14,165,233,0.05)!important;border:1px solid rgba(14,165,233,0.12)!important;border-radius:7px!important;color:#e2e8f0!important;font-family:'DM Sans',sans-serif!important;font-size:12px!important;transition:border-color 0.2s!important}
 .gjs-field:focus-within{border-color:rgba(14,165,233,0.35)!important;background:rgba(14,165,233,0.08)!important}
 .gjs-field input,.gjs-field select{color:#e2e8f0!important;font-family:'DM Sans',sans-serif!important}
-.gjs-sm-label{font-family:'DM Sans',sans-serif!important;font-size:11px!important;color:#475569!important}
-.gjs-field-arrows{color:#475569!important}
-.gjs-sm-sector .gjs-radio-item label{font-family:'DM Sans',sans-serif!important;font-size:11px!important;background:rgba(14,165,233,0.05)!important;border:1px solid rgba(14,165,233,0.1)!important;color:#64748b!important;border-radius:6px!important;transition:all 0.15s!important}
-.gjs-sm-sector .gjs-radio-item input:checked+label{background:linear-gradient(135deg,rgba(14,165,233,0.2),rgba(56,189,248,0.15))!important;color:#38bdf8!important;border-color:rgba(14,165,233,0.3)!important}
+.gjs-sm-label{font-family:'DM Sans',sans-serif!important;font-size:11px!important;color:#94a3b8!important}
+.gjs-field-arrows{color:#64748b!important}
+.gjs-sm-sector .gjs-radio-item label{font-family:'DM Sans',sans-serif!important;font-size:11px!important;background:rgba(14,165,233,0.05)!important;border:1px solid rgba(14,165,233,0.1)!important;color:#94a3b8!important;border-radius:6px!important;transition:all 0.15s!important}
+.gjs-sm-sector .gjs-radio-item input:checked+label{background:rgba(14,165,233,0.18)!important;color:#38bdf8!important;border-color:rgba(14,165,233,0.3)!important}
 
-/* ── Layers ── */
-.gjs-layer{border-bottom:1px solid rgba(14,165,233,0.04)!important}
-.gjs-layer-name{font-family:'DM Sans',sans-serif!important;font-size:12px!important;color:#94a3b8!important}
+/* Layers — BRIGHTER */
+.gjs-layer{border-bottom:1px solid rgba(14,165,233,0.05)!important}
+.gjs-layer-name{font-family:'DM Sans',sans-serif!important;font-size:12px!important;color:#cbd5e1!important}
 .gjs-layer.gjs-selected .gjs-layer-name{color:#38bdf8!important}
 .gjs-layers{background:transparent!important}
 
-/* ── Traits ── */
+/* Traits — BRIGHTER */
 .gjs-trt-traits{padding:8px 10px!important}
-.gjs-trt-trait .gjs-label{font-family:'DM Sans',sans-serif!important;font-size:11px!important;color:#475569!important}
+.gjs-trt-trait .gjs-label{font-family:'DM Sans',sans-serif!important;font-size:11px!important;color:#94a3b8!important}
 
-/* ── Canvas toolbar ── */
-.gjs-toolbar{background:linear-gradient(135deg,#0c1020,#111827)!important;border:1px solid rgba(14,165,233,0.2)!important;border-radius:10px!important;box-shadow:0 4px 20px rgba(0,0,0,0.4)!important;padding:4px!important}
-.gjs-toolbar-item{color:#64748b!important;font-size:13px!important;border-radius:6px!important;padding:4px 6px!important;transition:all 0.15s!important}
+/* Canvas toolbar */
+.gjs-toolbar{background:#111827!important;border:1px solid rgba(14,165,233,0.2)!important;border-radius:8px!important;box-shadow:0 4px 20px rgba(0,0,0,0.4)!important;padding:3px!important}
+.gjs-toolbar-item{color:#94a3b8!important;font-size:13px!important;border-radius:5px!important;padding:3px 5px!important;transition:all 0.15s!important}
 .gjs-toolbar-item:hover{color:#38bdf8!important;background:rgba(14,165,233,0.1)!important}
 
-/* ── Selection ── */
+/* Selection */
 .gjs-selected{outline:2px solid #0ea5e9!important;outline-offset:0!important}
 .gjs-highlighter{outline:2px solid rgba(14,165,233,0.35)!important}
-.gjs-badge{background:linear-gradient(135deg,#0284c7,#0ea5e9)!important;border-radius:4px!important;font-family:'DM Sans',sans-serif!important;font-size:10px!important;font-weight:700!important}
+.gjs-badge{background:#0ea5e9!important;border-radius:4px!important;font-family:'DM Sans',sans-serif!important;font-size:10px!important;font-weight:700!important}
 .gjs-ghost{background:rgba(14,165,233,0.15)!important;border:2px dashed rgba(14,165,233,0.4)!important;border-radius:8px!important}
 .gjs-placeholder{border:2px solid #0ea5e9!important}
 
-/* ── RTE ── */
-.gjs-rte-toolbar{background:linear-gradient(135deg,#0c1020,#111827)!important;border:1px solid rgba(14,165,233,0.2)!important;border-radius:8px!important;padding:4px!important;box-shadow:0 4px 16px rgba(0,0,0,0.3)!important}
-.gjs-rte-actionbar .gjs-rte-action{color:#64748b!important;border-radius:4px!important;transition:all 0.15s!important}
+/* RTE */
+.gjs-rte-toolbar{background:#111827!important;border:1px solid rgba(14,165,233,0.2)!important;border-radius:8px!important;padding:3px!important;box-shadow:0 4px 16px rgba(0,0,0,0.3)!important}
+.gjs-rte-actionbar .gjs-rte-action{color:#94a3b8!important;border-radius:4px!important}
 .gjs-rte-actionbar .gjs-rte-action:hover{color:#38bdf8!important;background:rgba(14,165,233,0.1)!important}
 
-/* ── Devices ── */
-.gjs-devices-c{padding:4px 8px!important}
-.gjs-device-label{font-family:'DM Sans',sans-serif!important;font-size:11px!important;color:#475569!important}
-
-/* ── Modals ── */
-.gjs-mdl-dialog{background:#111827!important;border:1px solid rgba(14,165,233,0.15)!important;border-radius:16px!important;box-shadow:0 16px 64px rgba(0,0,0,0.5)!important}
+/* Modals */
+.gjs-mdl-dialog{background:#111827!important;border:1px solid rgba(14,165,233,0.15)!important;border-radius:14px!important;box-shadow:0 16px 64px rgba(0,0,0,0.5)!important}
 .gjs-mdl-header{background:transparent!important;border-bottom:1px solid rgba(14,165,233,0.08)!important}
 .gjs-mdl-title{font-family:Sora,sans-serif!important;font-weight:700!important;color:#fff!important}
 
-/* ── Scrollbars ── */
-.gjs-pn-views-container::-webkit-scrollbar{width:5px}
-.gjs-pn-views-container::-webkit-scrollbar-track{background:transparent}
-.gjs-pn-views-container::-webkit-scrollbar-thumb{background:rgba(14,165,233,0.15);border-radius:10px}
-.gjs-pn-views-container::-webkit-scrollbar-thumb:hover{background:rgba(14,165,233,0.25)}
+/* Devices */
+.gjs-devices-c{padding:3px 6px!important}
+.gjs-device-label{font-family:'DM Sans',sans-serif!important;font-size:11px!important;color:#94a3b8!important}
 </style>
 </head>
 <body>
@@ -119,7 +131,7 @@ body{font-family:'DM Sans',sans-serif;overflow:hidden;background:#080c14}
     <a href="/funnels"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>Funnels</a>
   </div>
   <div class="sap-topbar-center">
-    <div class="tb-logo"><svg style="width:20px;height:20px;vertical-align:middle;margin-right:5px" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>Super<span>Ad</span>Pro</div>
+    <div class="tb-logo"><svg style="width:18px;height:18px" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>Super<span>Ad</span>Pro</div>
     <input type="text" class="page-title-input" id="pageTitle" value="{{ page.title }}" placeholder="Page title...">
     <span class="save-status" id="saveStatus"></span>
   </div>
@@ -129,7 +141,19 @@ body{font-family:'DM Sans',sans-serif;overflow:hidden;background:#080c14}
     <button class="tb-btn tb-pub" onclick="publishPage()">🚀 Publish</button>
   </div>
 </div>
-<div id="gjs"></div>
+
+<div class="editor-wrap">
+  <!-- LEFT: Blocks panel -->
+  <div class="left-panel">
+    <div class="left-panel-title">⚡ Blocks</div>
+    <div id="left-blocks"></div>
+  </div>
+  <!-- CENTER: Canvas -->
+  <div class="canvas-wrap">
+    <div id="gjs"></div>
+  </div>
+</div>
+
 <script src="https://unpkg.com/grapesjs@0.22.4"></script>
 <script src="https://unpkg.com/grapesjs-blocks-basic@1.0.2"></script>
 <script src="https://unpkg.com/grapesjs-preset-webpage@1.0.3"></script>
@@ -138,33 +162,87 @@ body{font-family:'DM Sans',sans-serif;overflow:hidden;background:#080c14}
 const PAGE_ID = {{ page.id }};
 const PAGE_SLUG = "{{ page.slug }}";
 let currentStatus = "{{ page.status }}";
-const editor = grapesjs.init({
-  container:'#gjs',height:'calc(100vh - 54px)',width:'auto',fromElement:false,storageManager:false,
-  plugins:['gjs-blocks-basic','grapesjs-preset-webpage','gjs-plugin-forms'],
-  pluginsOpts:{'gjs-blocks-basic':{flexGrid:true},'grapesjs-preset-webpage':{modalImportTitle:'Import HTML'},'gjs-plugin-forms':{blocks:['form','input','textarea','select','button','label','checkbox','radio']}},
-  canvas:{styles:['https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@400;600;700;800&display=swap']},
-  deviceManager:{devices:[{name:'Desktop',width:''},{name:'Tablet',width:'768px',widthMedia:'992px'},{name:'Mobile',width:'375px',widthMedia:'480px'}]},
-  styleManager:{sectors:[{name:'Layout',properties:['display','position','top','right','left','bottom','float']},{name:'Size',open:false,properties:['width','height','max-width','min-height','margin','padding']},{name:'Typography',open:false,properties:['font-family','font-size','font-weight','letter-spacing','color','line-height','text-align','text-decoration','text-shadow']},{name:'Appearance',open:false,properties:['background-color','background','border-radius','border','box-shadow','opacity']}]}
-});
-const bm=editor.BlockManager;
-bm.add('hero-section',{label:'🚀 Hero Section',category:'Sections',content:`<section style="padding:80px 24px;text-align:center;background:linear-gradient(135deg,#0a0a1a 0%,#1a1a4a 50%,#0a0a2a 100%);color:#fff;font-family:DM Sans,sans-serif"><h1 style="font-family:Sora,sans-serif;font-size:48px;font-weight:800;margin-bottom:16px;line-height:1.1">Your Headline Goes Here</h1><p style="font-size:18px;color:rgba(255,255,255,0.7);max-width:600px;margin:0 auto 32px;line-height:1.6">A compelling subheadline that explains the value proposition.</p><a href="#" style="display:inline-block;padding:16px 40px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-radius:12px;font-weight:700;font-size:16px;text-decoration:none">Get Started Now →</a></section>`});
-bm.add('hero-video',{label:'🎬 Video Hero',category:'Sections',content:`<section style="padding:60px 24px;text-align:center;background:#0f172a;color:#fff;font-family:DM Sans,sans-serif"><h1 style="font-family:Sora,sans-serif;font-size:42px;font-weight:800;margin-bottom:12px">Watch This Short Video</h1><p style="font-size:16px;color:rgba(255,255,255,0.6);margin-bottom:28px">See exactly how this system works in under 3 minutes.</p><div style="max-width:720px;margin:0 auto 32px;aspect-ratio:16/9;background:#1e293b;border-radius:16px;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:48px">▶</div><a href="#" style="display:inline-block;padding:16px 40px;background:#16a34a;color:#fff;border-radius:12px;font-weight:700;font-size:16px;text-decoration:none">Yes, I Want In →</a></section>`});
-bm.add('optin-section',{label:'📧 Opt-In Form',category:'Lead Capture',content:`<section style="padding:60px 24px;background:linear-gradient(135deg,#0c4a6e,#0369a1);color:#fff;font-family:DM Sans,sans-serif;text-align:center"><div style="max-width:480px;margin:0 auto"><h2 style="font-family:Sora,sans-serif;font-size:32px;font-weight:800;margin-bottom:8px">Get Instant Access</h2><p style="font-size:15px;color:rgba(255,255,255,0.7);margin-bottom:24px">Enter your details below to get started.</p><form style="display:flex;flex-direction:column;gap:12px"><input type="text" placeholder="Your Name" style="padding:14px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#fff;font-size:15px;font-family:inherit"><input type="email" placeholder="Your Email" style="padding:14px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#fff;font-size:15px;font-family:inherit"><button type="submit" style="padding:16px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#000;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit">Send Me The Free Guide →</button></form><p style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:12px">We respect your privacy.</p></div></section>`});
-bm.add('features-grid',{label:'✨ Features Grid',category:'Sections',content:`<section style="padding:60px 24px;background:#fff;font-family:DM Sans,sans-serif"><div style="max-width:900px;margin:0 auto;text-align:center"><h2 style="font-family:Sora,sans-serif;font-size:32px;font-weight:800;color:#0f172a;margin-bottom:40px">Why Choose Us</h2><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px"><div style="padding:28px;border-radius:16px;border:1px solid #e2e8f0;text-align:center"><div style="font-size:36px;margin-bottom:12px">🚀</div><h3 style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px">Feature One</h3><p style="font-size:14px;color:#64748b;line-height:1.6">Brief description of this feature.</p></div><div style="padding:28px;border-radius:16px;border:1px solid #e2e8f0;text-align:center"><div style="font-size:36px;margin-bottom:12px">💰</div><h3 style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px">Feature Two</h3><p style="font-size:14px;color:#64748b;line-height:1.6">Brief description of this feature.</p></div><div style="padding:28px;border-radius:16px;border:1px solid #e2e8f0;text-align:center"><div style="font-size:36px;margin-bottom:12px">⚡</div><h3 style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px">Feature Three</h3><p style="font-size:14px;color:#64748b;line-height:1.6">Brief description of this feature.</p></div></div></div></section>`});
-bm.add('testimonials',{label:'⭐ Testimonials',category:'Sections',content:`<section style="padding:60px 24px;background:#f8fafc;font-family:DM Sans,sans-serif"><div style="max-width:900px;margin:0 auto;text-align:center"><h2 style="font-family:Sora,sans-serif;font-size:28px;font-weight:800;color:#0f172a;margin-bottom:36px">What People Are Saying</h2><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;text-align:left"><div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px"><p style="font-size:15px;color:#334155;line-height:1.7;margin-bottom:16px">"This completely changed my approach. Within 30 days I saw real results."</p><div style="font-size:14px;font-weight:700;color:#0f172a">— Sarah K.</div></div><div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px"><p style="font-size:15px;color:#334155;line-height:1.7;margin-bottom:16px">"Finally a system that delivers. Highly recommended."</p><div style="font-size:14px;font-weight:700;color:#0f172a">— Mike R.</div></div></div></div></section>`});
-bm.add('cta-section',{label:'🔥 CTA Banner',category:'Sections',content:`<section style="padding:60px 24px;background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff;text-align:center;font-family:DM Sans,sans-serif"><h2 style="font-family:Sora,sans-serif;font-size:36px;font-weight:800;margin-bottom:12px">Ready to Get Started?</h2><p style="font-size:16px;color:rgba(255,255,255,0.8);margin-bottom:28px;max-width:500px;margin-left:auto;margin-right:auto">Join thousands building their future with us.</p><a href="#" style="display:inline-block;padding:18px 48px;background:#fff;color:#7c3aed;border-radius:12px;font-weight:800;font-size:17px;text-decoration:none">Claim Your Spot Now →</a></section>`});
-bm.add('pricing-table',{label:'💲 Pricing Card',category:'Sales',content:`<section style="padding:60px 24px;background:#fff;font-family:DM Sans,sans-serif;text-align:center"><div style="max-width:400px;margin:0 auto;border:2px solid #0ea5e9;border-radius:20px;overflow:hidden;box-shadow:0 8px 32px rgba(14,165,233,0.15)"><div style="background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:28px;color:#fff"><div style="font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Premium Access</div><div style="font-family:Sora,sans-serif;font-size:48px;font-weight:800">$97</div><div style="font-size:14px;color:rgba(255,255,255,0.7)">one-time payment</div></div><div style="padding:28px;text-align:left"><div style="padding:8px 0;font-size:14px;color:#334155">✓ Full course access</div><div style="padding:8px 0;font-size:14px;color:#334155">✓ Private community</div><div style="padding:8px 0;font-size:14px;color:#334155">✓ Weekly live calls</div><div style="padding:8px 0;font-size:14px;color:#334155">✓ Lifetime updates</div><a href="#" style="display:block;padding:16px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-radius:12px;font-weight:700;font-size:16px;text-decoration:none;text-align:center;margin-top:16px">Buy Now →</a></div></div></section>`});
-bm.add('countdown-urgency',{label:'⏰ Countdown',category:'Sales',content:`<section style="padding:40px 24px;background:#fef3c7;font-family:DM Sans,sans-serif;text-align:center;border-top:3px solid #f59e0b;border-bottom:3px solid #f59e0b"><div style="font-size:14px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">⚠️ Limited Time Offer</div><div style="font-family:Sora,sans-serif;font-size:28px;font-weight:800;color:#78350f">This price expires in 24:00:00</div></section>`});
-bm.add('guarantee-box',{label:'🛡 Guarantee',category:'Sales',content:`<section style="padding:48px 24px;background:#f0fdf4;font-family:DM Sans,sans-serif;text-align:center"><div style="max-width:600px;margin:0 auto"><div style="font-size:48px;margin-bottom:12px">🛡</div><h2 style="font-family:Sora,sans-serif;font-size:24px;font-weight:800;color:#166534;margin-bottom:12px">30-Day Money-Back Guarantee</h2><p style="font-size:15px;color:#047857;line-height:1.7">Try everything risk-free. Not satisfied? Full refund, no questions asked.</p></div></section>`});
-bm.add('webinar-reg',{label:'🎥 Webinar Signup',category:'Lead Capture',content:`<section style="padding:60px 24px;background:linear-gradient(135deg,#1e1b4b,#312e81);color:#fff;font-family:DM Sans,sans-serif;text-align:center"><div style="max-width:520px;margin:0 auto"><div style="font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#a78bfa;margin-bottom:12px">Free Live Training</div><h2 style="font-family:Sora,sans-serif;font-size:32px;font-weight:800;margin-bottom:8px">How To Build A 6-Figure Business</h2><p style="font-size:15px;color:rgba(255,255,255,0.6);margin-bottom:28px">Register now to save your spot.</p><form style="display:flex;flex-direction:column;gap:10px"><input type="text" placeholder="Your Name" style="padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-size:15px;font-family:inherit"><input type="email" placeholder="Your Best Email" style="padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-size:15px;font-family:inherit"><button type="submit" style="padding:16px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#000;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit">Reserve My Seat Now →</button></form></div></section>`});
-bm.add('thankyou-section',{label:'✅ Thank You',category:'Pages',content:`<section style="padding:80px 24px;background:#fff;font-family:DM Sans,sans-serif;text-align:center;min-height:60vh;display:flex;align-items:center;justify-content:center"><div style="max-width:500px"><div style="font-size:64px;margin-bottom:16px">🎉</div><h1 style="font-family:Sora,sans-serif;font-size:36px;font-weight:800;color:#0f172a;margin-bottom:12px">Thank You!</h1><p style="font-size:16px;color:#64748b;line-height:1.7;margin-bottom:28px">Check your email for the next steps.</p><a href="#" style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-radius:12px;font-weight:700;text-decoration:none">Continue →</a></div></section>`});
-bm.add('footer-section',{label:'📋 Footer',category:'Sections',content:`<footer style="padding:32px 24px;background:#0a0a1a;color:rgba(255,255,255,0.4);text-align:center;font-family:DM Sans,sans-serif;font-size:12px"><p>© 2026 Your Company. All rights reserved.</p><p style="margin-top:8px"><a href="#" style="color:rgba(255,255,255,0.3);text-decoration:none">Privacy</a> · <a href="#" style="color:rgba(255,255,255,0.3);text-decoration:none">Terms</a></p></footer>`});
 
-// ── Load ──
-async function loadPage(){try{const r=await fetch(`/api/funnels/load/${PAGE_ID}`);const d=await r.json();if(d.gjs_components&&d.gjs_components.length>0){editor.loadProjectData({pages:[{component:d.gjs_components,style:d.gjs_styles}]})}document.getElementById('pageTitle').value=d.title||''}catch(e){console.log('New page')}}
+const editor = grapesjs.init({
+  container:'#gjs',
+  height:'100%',
+  width:'auto',
+  fromElement:false,
+  storageManager:false,
+  blockManager:{ appendTo:'#left-blocks' },
+  plugins:['gjs-blocks-basic','grapesjs-preset-webpage','gjs-plugin-forms'],
+  pluginsOpts:{
+    'gjs-blocks-basic':{flexGrid:true},
+    'grapesjs-preset-webpage':{modalImportTitle:'Import HTML'},
+    'gjs-plugin-forms':{blocks:['form','input','textarea','select','button','label','checkbox','radio']}
+  },
+  canvas:{
+    styles:['https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@400;600;700;800&display=swap']
+  },
+  deviceManager:{
+    devices:[
+      {name:'Desktop',width:''},
+      {name:'Tablet',width:'768px',widthMedia:'992px'},
+      {name:'Mobile',width:'375px',widthMedia:'480px'}
+    ]
+  },
+  styleManager:{
+    sectors:[
+      {name:'Layout',properties:['display','position','top','right','left','bottom','float']},
+      {name:'Size',open:false,properties:['width','height','max-width','min-height','margin','padding']},
+      {name:'Typography',open:false,properties:['font-family','font-size','font-weight','letter-spacing','color','line-height','text-align','text-decoration','text-shadow']},
+      {name:'Appearance',open:false,properties:['background-color','background','border-radius','border','box-shadow','opacity']}
+    ]
+  }
+});
+
+// ── Custom Blocks ──
+const bm=editor.BlockManager;
+bm.add('hero-section',{label:'🚀 Hero',category:'Sections',content:`<section style="padding:80px 24px;text-align:center;background:linear-gradient(135deg,#0a0a1a 0%,#1a1a4a 50%,#0a0a2a 100%);color:#fff;font-family:DM Sans,sans-serif"><h1 style="font-family:Sora,sans-serif;font-size:48px;font-weight:800;margin-bottom:16px;line-height:1.1">Your Headline Here</h1><p style="font-size:18px;color:rgba(255,255,255,0.7);max-width:600px;margin:0 auto 32px;line-height:1.6">A compelling subheadline.</p><a href="#" style="display:inline-block;padding:16px 40px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-radius:12px;font-weight:700;font-size:16px;text-decoration:none">Get Started →</a></section>`});
+bm.add('hero-video',{label:'🎬 Video Hero',category:'Sections',content:`<section style="padding:60px 24px;text-align:center;background:#0f172a;color:#fff;font-family:DM Sans,sans-serif"><h1 style="font-family:Sora,sans-serif;font-size:42px;font-weight:800;margin-bottom:12px">Watch This Video</h1><p style="font-size:16px;color:rgba(255,255,255,0.6);margin-bottom:28px">See how it works in under 3 minutes.</p><div style="max-width:720px;margin:0 auto 32px;aspect-ratio:16/9;background:#1e293b;border-radius:16px;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:48px">▶</div><a href="#" style="display:inline-block;padding:16px 40px;background:#16a34a;color:#fff;border-radius:12px;font-weight:700;font-size:16px;text-decoration:none">Yes, I Want In →</a></section>`});
+bm.add('optin-section',{label:'📧 Opt-In Form',category:'Lead Capture',content:`<section style="padding:60px 24px;background:linear-gradient(135deg,#0c4a6e,#0369a1);color:#fff;font-family:DM Sans,sans-serif;text-align:center"><div style="max-width:480px;margin:0 auto"><h2 style="font-family:Sora,sans-serif;font-size:32px;font-weight:800;margin-bottom:8px">Get Instant Access</h2><p style="font-size:15px;color:rgba(255,255,255,0.7);margin-bottom:24px">Enter your details below.</p><form style="display:flex;flex-direction:column;gap:12px"><input type="text" placeholder="Your Name" style="padding:14px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#fff;font-size:15px;font-family:inherit"><input type="email" placeholder="Your Email" style="padding:14px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#fff;font-size:15px;font-family:inherit"><button type="submit" style="padding:16px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#000;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit">Send Me The Guide →</button></form></div></section>`});
+bm.add('features-grid',{label:'✨ Features',category:'Sections',content:`<section style="padding:60px 24px;background:#fff;font-family:DM Sans,sans-serif"><div style="max-width:900px;margin:0 auto;text-align:center"><h2 style="font-family:Sora,sans-serif;font-size:32px;font-weight:800;color:#0f172a;margin-bottom:40px">Why Choose Us</h2><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px"><div style="padding:28px;border-radius:16px;border:1px solid #e2e8f0;text-align:center"><div style="font-size:36px;margin-bottom:12px">🚀</div><h3 style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px">Feature One</h3><p style="font-size:14px;color:#64748b">Brief description.</p></div><div style="padding:28px;border-radius:16px;border:1px solid #e2e8f0;text-align:center"><div style="font-size:36px;margin-bottom:12px">💰</div><h3 style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px">Feature Two</h3><p style="font-size:14px;color:#64748b">Brief description.</p></div><div style="padding:28px;border-radius:16px;border:1px solid #e2e8f0;text-align:center"><div style="font-size:36px;margin-bottom:12px">⚡</div><h3 style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:8px">Feature Three</h3><p style="font-size:14px;color:#64748b">Brief description.</p></div></div></div></section>`});
+bm.add('testimonials',{label:'⭐ Testimonials',category:'Sections',content:`<section style="padding:60px 24px;background:#f8fafc;font-family:DM Sans,sans-serif"><div style="max-width:900px;margin:0 auto;text-align:center"><h2 style="font-family:Sora,sans-serif;font-size:28px;font-weight:800;color:#0f172a;margin-bottom:36px">What People Say</h2><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;text-align:left"><div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px"><p style="font-size:15px;color:#334155;line-height:1.7;margin-bottom:16px">"This changed everything. Real results in 30 days."</p><div style="font-size:14px;font-weight:700;color:#0f172a">— Sarah K.</div></div><div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px"><p style="font-size:15px;color:#334155;line-height:1.7;margin-bottom:16px">"A system that delivers. Highly recommended."</p><div style="font-size:14px;font-weight:700;color:#0f172a">— Mike R.</div></div></div></div></section>`});
+bm.add('cta-section',{label:'🔥 CTA Banner',category:'Sections',content:`<section style="padding:60px 24px;background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff;text-align:center;font-family:DM Sans,sans-serif"><h2 style="font-family:Sora,sans-serif;font-size:36px;font-weight:800;margin-bottom:12px">Ready to Start?</h2><p style="font-size:16px;color:rgba(255,255,255,0.8);margin-bottom:28px;max-width:500px;margin-left:auto;margin-right:auto">Join thousands building their future.</p><a href="#" style="display:inline-block;padding:18px 48px;background:#fff;color:#7c3aed;border-radius:12px;font-weight:800;font-size:17px;text-decoration:none">Claim Your Spot →</a></section>`});
+bm.add('footer-section',{label:'📋 Footer',category:'Sections',content:`<footer style="padding:32px 24px;background:#0a0a1a;color:rgba(255,255,255,0.4);text-align:center;font-family:DM Sans,sans-serif;font-size:12px"><p>© 2026 Your Company. All rights reserved.</p><p style="margin-top:8px"><a href="#" style="color:rgba(255,255,255,0.3);text-decoration:none">Privacy</a> · <a href="#" style="color:rgba(255,255,255,0.3);text-decoration:none">Terms</a></p></footer>`});
+bm.add('pricing-table',{label:'💲 Pricing',category:'Sales',content:`<section style="padding:60px 24px;background:#fff;font-family:DM Sans,sans-serif;text-align:center"><div style="max-width:400px;margin:0 auto;border:2px solid #0ea5e9;border-radius:20px;overflow:hidden;box-shadow:0 8px 32px rgba(14,165,233,0.15)"><div style="background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:28px;color:#fff"><div style="font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Premium</div><div style="font-family:Sora,sans-serif;font-size:48px;font-weight:800">$97</div><div style="font-size:14px;color:rgba(255,255,255,0.7)">one-time</div></div><div style="padding:28px;text-align:left"><div style="padding:8px 0;font-size:14px;color:#334155">✓ Full access</div><div style="padding:8px 0;font-size:14px;color:#334155">✓ Community</div><div style="padding:8px 0;font-size:14px;color:#334155">✓ Live calls</div><div style="padding:8px 0;font-size:14px;color:#334155">✓ Lifetime updates</div><a href="#" style="display:block;padding:16px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-radius:12px;font-weight:700;font-size:16px;text-decoration:none;text-align:center;margin-top:16px">Buy Now →</a></div></div></section>`});
+bm.add('countdown-urgency',{label:'⏰ Countdown',category:'Sales',content:`<section style="padding:40px 24px;background:#fef3c7;font-family:DM Sans,sans-serif;text-align:center;border-top:3px solid #f59e0b;border-bottom:3px solid #f59e0b"><div style="font-size:14px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">⚠️ Limited Time</div><div style="font-family:Sora,sans-serif;font-size:28px;font-weight:800;color:#78350f">Expires in 24:00:00</div></section>`});
+bm.add('guarantee-box',{label:'🛡 Guarantee',category:'Sales',content:`<section style="padding:48px 24px;background:#f0fdf4;font-family:DM Sans,sans-serif;text-align:center"><div style="max-width:600px;margin:0 auto"><div style="font-size:48px;margin-bottom:12px">🛡</div><h2 style="font-family:Sora,sans-serif;font-size:24px;font-weight:800;color:#166534;margin-bottom:12px">30-Day Guarantee</h2><p style="font-size:15px;color:#047857;line-height:1.7">Risk-free. Not satisfied? Full refund.</p></div></section>`});
+bm.add('webinar-reg',{label:'🎥 Webinar',category:'Lead Capture',content:`<section style="padding:60px 24px;background:linear-gradient(135deg,#1e1b4b,#312e81);color:#fff;font-family:DM Sans,sans-serif;text-align:center"><div style="max-width:520px;margin:0 auto"><div style="font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#a78bfa;margin-bottom:12px">Free Training</div><h2 style="font-family:Sora,sans-serif;font-size:32px;font-weight:800;margin-bottom:8px">Build A 6-Figure Business</h2><p style="font-size:15px;color:rgba(255,255,255,0.6);margin-bottom:28px">Register to save your spot.</p><form style="display:flex;flex-direction:column;gap:10px"><input type="text" placeholder="Your Name" style="padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-size:15px;font-family:inherit"><input type="email" placeholder="Your Email" style="padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-size:15px;font-family:inherit"><button type="submit" style="padding:16px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#000;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit">Reserve My Seat →</button></form></div></section>`});
+bm.add('thankyou-section',{label:'✅ Thank You',category:'Pages',content:`<section style="padding:80px 24px;background:#fff;font-family:DM Sans,sans-serif;text-align:center;min-height:60vh;display:flex;align-items:center;justify-content:center"><div style="max-width:500px"><div style="font-size:64px;margin-bottom:16px">🎉</div><h1 style="font-family:Sora,sans-serif;font-size:36px;font-weight:800;color:#0f172a;margin-bottom:12px">Thank You!</h1><p style="font-size:16px;color:#64748b;line-height:1.7;margin-bottom:28px">Check your email for next steps.</p><a href="#" style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-radius:12px;font-weight:700;text-decoration:none">Continue →</a></div></section>`});
+
+// ── Load existing content ──
+async function loadPage(){
+  try{
+    const r=await fetch(`/api/funnels/load/${PAGE_ID}`);
+    const d=await r.json();
+    if(d.gjs_components&&d.gjs_components.length>0){
+      editor.loadProjectData({pages:[{component:d.gjs_components,style:d.gjs_styles}]});
+    }
+    document.getElementById('pageTitle').value=d.title||'';
+  }catch(e){console.log('New page')}
+}
 loadPage();
+
 // ── Save ──
-async function savePage(pub=false){const s=document.getElementById('saveStatus');s.textContent='Saving...';s.style.color='#fbbf24';const pd=editor.getProjectData();const h=editor.getHtml();const c=editor.getCss();const comp=pd.pages?.[0]?.frames?.[0]?.component||pd.pages?.[0]?.component||[];const st=pd.styles||[];try{const r=await fetch('/api/funnels/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:PAGE_ID,title:document.getElementById('pageTitle').value||'Untitled',status:pub?'published':currentStatus,gjs_components:comp,gjs_styles:st,gjs_html:h,gjs_css:c})});const res=await r.json();if(res.success){currentStatus=res.status;s.textContent=pub?'✓ Published!':'✓ Saved';s.style.color='#10b981';if(pub)setTimeout(()=>{s.textContent=`Live → /p/${res.slug}`},1500)}else{s.textContent='✗ '+(res.error||'Failed');s.style.color='#ef4444'}}catch(e){s.textContent='✗ Network error';s.style.color='#ef4444'}setTimeout(()=>{s.textContent=''},4000)}
+async function savePage(pub=false){
+  const s=document.getElementById('saveStatus');
+  s.textContent='Saving...';s.style.color='#fbbf24';
+  const pd=editor.getProjectData();
+  const h=editor.getHtml();const c=editor.getCss();
+  const comp=pd.pages?.[0]?.frames?.[0]?.component||pd.pages?.[0]?.component||[];
+  const st=pd.styles||[];
+  try{
+    const r=await fetch('/api/funnels/save',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({id:PAGE_ID,title:document.getElementById('pageTitle').value||'Untitled',
+        status:pub?'published':currentStatus,gjs_components:comp,gjs_styles:st,gjs_html:h,gjs_css:c})});
+    const res=await r.json();
+    if(res.success){currentStatus=res.status;s.textContent=pub?'✓ Published!':'✓ Saved';s.style.color='#10b981';
+      if(pub)setTimeout(()=>{s.textContent=`Live → /p/${res.slug}`},1500);
+    }else{s.textContent='✗ '+(res.error||'Failed');s.style.color='#ef4444'}
+  }catch(e){s.textContent='✗ Network error';s.style.color='#ef4444'}
+  setTimeout(()=>{s.textContent=''},4000);
+}
 async function publishPage(){await savePage(true)}
 function previewPage(){window.open(`/p/${PAGE_SLUG}`,'_blank')}
 setInterval(()=>{if(editor.getDirtyCount()>0)savePage()},60000);
