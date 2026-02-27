@@ -81,6 +81,7 @@ class User(Base):
     membership_activated_by_referral = Column(Boolean, default=False)  # first month gifted
     low_balance_warned  = Column(Boolean, default=False)               # 3-day warning sent
     onboarding_completed = Column(Boolean, default=False)              # launch wizard done
+    first_payment_to_company = Column(Boolean, default=False)          # True after 1st month payment goes to company
 
 class Grid(Base):
     """One grid instance per user per package tier."""
@@ -466,6 +467,7 @@ try:
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS swipe_file_total INTEGER DEFAULT 0"))
         conn.execute(text("CREATE TABLE IF NOT EXISTS ai_response_cache (id SERIAL PRIMARY KEY, tool VARCHAR, prompt_hash VARCHAR UNIQUE, response TEXT, hit_count INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), expires_at TIMESTAMP)"))
         conn.execute(text("CREATE TABLE IF NOT EXISTS link_clicks (id SERIAL PRIMARY KEY, link_id INTEGER, link_type VARCHAR DEFAULT 'short', source VARCHAR, referrer TEXT, country VARCHAR, device VARCHAR, clicked_at TIMESTAMP DEFAULT NOW())"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS first_payment_to_company BOOLEAN DEFAULT FALSE"))
         # Mark existing users as onboarding complete (they don't need the wizard)
         conn.execute(text("UPDATE users SET onboarding_completed = TRUE WHERE onboarding_completed IS NULL OR (created_at < NOW() - INTERVAL '1 hour')"))
         conn.commit()

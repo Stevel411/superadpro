@@ -207,7 +207,14 @@ def process_membership_payment(db: Session, user_id: int, tx_hash: str) -> dict:
     if user.sponsor_id:
         sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
 
-    target_wallet = sponsor.wallet_address if sponsor and sponsor.wallet_address else COMPANY_WALLET
+    # FIRST MONTH → COMPANY: New members' first payment goes to the company
+    # to fund platform operations (AI tools, hosting, support).
+    # From month 2 onwards, renewals pass up to the sponsor as normal.
+    is_first_payment = not user.first_payment_to_company and not user.is_active
+    if is_first_payment:
+        target_wallet = COMPANY_WALLET
+    else:
+        target_wallet = sponsor.wallet_address if sponsor and sponsor.wallet_address else COMPANY_WALLET
     verified = verify_transaction(tx_hash, target_wallet, MEMBERSHIP_FEE)
 
     if not verified:
@@ -218,6 +225,28 @@ def process_membership_payment(db: Session, user_id: int, tx_hash: str) -> dict:
         user.is_active = True
 
         # 2. Record the primary membership payment
+        if is_first_payment:
+            # First month → company. Mark it so renewals go to sponsor from now on.
+            user.first_payment_to_company = True
+            db.add(Payment(
+                from_user_id = user_id,
+                to_user_id   = None,  # Company wallet
+                amount_usdt  = MEMBERSHIP_FEE,
+                payment_type = "membership_first_month",
+                tx_hash      = tx_hash,
+                status       = "confirmed",
+            ))
+            # No sponsor credit, no cascade — company keeps this payment
+            db.commit()
+            return {
+                "success": True,
+                "message": "Membership activated — first month funds platform operations. Sponsor commissions start from your renewal.",
+                "cascade_activations": 0,
+                "sponsor_auto_activated": False,
+                "first_payment_to_company": True,
+            }
+
+        # Normal flow (subsequent activations / reactivations) — sponsor gets paid
         db.add(Payment(
             from_user_id = user_id,
             to_user_id   = sponsor.id if sponsor else None,
