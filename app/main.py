@@ -2284,6 +2284,12 @@ async def vip_signup(request: Request, db: Session = Depends(get_db)):
     db.add(signup)
     db.commit()
     count = db.query(VIPSignup).count()
+    # Send welcome email (non-blocking — fails silently if not configured)
+    try:
+        from app.email_utils import send_vip_welcome_email
+        send_vip_welcome_email(to_email=email, name=name)
+    except Exception as e:
+        logger.warning(f"VIP welcome email failed for {email}: {e}")
     return {"success": True, "message": f"Welcome to the VIP list, {name}!", "count": count}
 
 @app.get("/api/vip/count")

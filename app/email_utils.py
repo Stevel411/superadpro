@@ -346,3 +346,79 @@ def send_renewal_reminder_email(to_email: str, first_name: str, days_left: int) 
         subject   = f"Your SuperAdPro membership renews in {days_left} day{'s' if days_left != 1 else ''}",
         html_body = html_body,
     )
+
+
+# ═══════════════════════════════════════════════════════════════
+# VIP Waiting List Welcome Email
+# ═══════════════════════════════════════════════════════════════
+def send_vip_welcome_email(to_email: str, name: str) -> bool:
+    html_body = f"""<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#060918;font-family:'Helvetica Neue',Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#060918;padding:40px 20px">
+<tr><td align="center">
+<table width="560" cellpadding="0" cellspacing="0" style="background:#0c1929;border:1px solid rgba(56,189,248,0.15);border-radius:16px;overflow:hidden;max-width:560px;width:100%">
+
+  <tr><td style="background:linear-gradient(135deg,#0a2540,#0e3a5c);padding:36px 32px;text-align:center">
+    <div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:2px">SUPER<span style="color:#38bdf8">AD</span>PRO</div>
+    <div style="font-size:12px;color:rgba(186,230,253,0.5);margin-top:6px;letter-spacing:1.5px">VIP EARLY ACCESS</div>
+  </td></tr>
+
+  <tr><td style="padding:40px 32px">
+    <p style="margin:0 0 8px;font-size:42px;text-align:center">🎉</p>
+    <p style="margin:0 0 8px;font-size:24px;font-weight:800;color:#ffffff;text-align:center">You're on the VIP List!</p>
+    <p style="margin:0 0 28px;font-size:15px;color:rgba(186,230,253,0.6);line-height:1.7;text-align:center">
+      Welcome {name} — you've secured your spot on the SuperAdPro VIP waiting list.
+      You'll be among the very first to get access when we launch.
+    </p>
+
+    <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.12);border-radius:12px;padding:24px;margin-bottom:28px">
+      <p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#fff;text-align:center">What's Coming:</p>
+      <table width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;color:rgba(186,230,253,0.7);line-height:2">
+        <tr><td style="padding:4px 0">⚡ <strong style="color:#38bdf8">Three Income Streams</strong> — memberships, campaign commissions &amp; course sales</td></tr>
+        <tr><td style="padding:4px 0">💰 <strong style="color:#38bdf8">95% Payout Rate</strong> — almost every dollar goes back to the network</td></tr>
+        <tr><td style="padding:4px 0">🤖 <strong style="color:#38bdf8">AI-Powered Tools</strong> — sales chatbot, funnel builder &amp; marketing suite</td></tr>
+        <tr><td style="padding:4px 0">🚀 <strong style="color:#38bdf8">Instant Commissions</strong> — paid the moment they're earned, no waiting</td></tr>
+      </table>
+    </div>
+
+    <div style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.15);border-radius:10px;padding:18px;margin-bottom:28px;text-align:center">
+      <p style="margin:0;font-size:14px;color:rgba(251,191,36,0.85);line-height:1.6">
+        <strong>Why VIP matters:</strong> When we launch, VIP members get first access.
+        The earlier you're in, the stronger your position in the network.
+      </p>
+    </div>
+
+    <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:10px 0">
+      <a href="{SITE_URL}/compensation-plan"
+         style="display:inline-block;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:15px;font-weight:700;text-decoration:none;padding:14px 36px;border-radius:10px;letter-spacing:0.5px">
+        Preview the Compensation Plan
+      </a>
+    </td></tr></table>
+
+    <p style="margin:24px 0 0;font-size:13px;color:rgba(186,230,253,0.35);text-align:center;line-height:1.6">
+      We'll send you one more email on launch day with your exclusive early access link.
+      That's it — no spam, ever.
+    </p>
+  </td></tr>
+
+  <tr><td style="background:rgba(0,0,0,0.3);padding:20px 32px;border-top:1px solid rgba(56,189,248,0.08);text-align:center">
+    <p style="margin:0;font-size:11px;color:rgba(186,230,253,0.2);line-height:1.7">
+      SuperAdPro &middot; Video Advertising &amp; Affiliate Platform<br>
+      <a href="{SITE_URL}" style="color:rgba(56,189,248,0.4);text-decoration:none">superadpro.com</a>
+    </p>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>"""
+
+    return send_email(
+        to_email  = to_email,
+        subject   = f"🎉 You're on the VIP list, {name}!",
+        html_body = html_body,
+        text_body = f"Welcome {name}! You've secured your spot on the SuperAdPro VIP waiting list. We'll email you the moment we launch. Preview the comp plan: {SITE_URL}/compensation-plan",
+    )
