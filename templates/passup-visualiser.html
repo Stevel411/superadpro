@@ -288,6 +288,18 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
         <div class="calc-stat-val" id="csTotal" style="color:#fff;font-size:24px">$0</div>
         <div class="calc-stat-lbl" style="color:rgba(255,255,255,0.7)">Total Estimated Earnings · <span id="csTeam">0</span> team members</div>
       </div>
+
+      <!-- Calculation explainer -->
+      <div style="margin-top:14px;padding:14px;background:#f8fafc;border:1px solid var(--border);border-radius:10px">
+        <div style="font-size:11px;font-weight:700;color:#334155;margin-bottom:8px">📊 How This Is Calculated</div>
+        <div style="font-size:10px;color:#64748b;line-height:1.6" id="calcExplainer"></div>
+      </div>
+
+      <!-- Legal disclaimer -->
+      <div style="margin-top:10px;padding:12px;background:#fefce8;border:1px solid #fde68a;border-radius:10px">
+        <div style="font-size:10px;font-weight:700;color:#92400e;margin-bottom:4px">⚠️ Income Disclaimer</div>
+        <div style="font-size:9px;color:#a16207;line-height:1.6">These figures are <strong>hypothetical estimates only</strong> and are not a guarantee of income. Actual earnings depend on individual effort, market conditions, team performance, and many other factors. The calculator assumes uniform recruitment and sales across all levels, which may not reflect real-world results. Many participants in affiliate programmes earn little or no income. Past performance or projected results do not guarantee future earnings. Please make your own independent assessment before making any financial decisions.</div>
+      </div>
     </div>
 
     <!-- How it works -->
@@ -664,6 +676,15 @@ function updateCalc(){
   document.getElementById('csL3').textContent='$'+l3Passups.toLocaleString();
   document.getElementById('csTotal').textContent='$'+totalEarnings.toLocaleString();
   document.getElementById('csTeam').textContent=teamSize.toLocaleString();
+
+  // Dynamic explainer
+  var kept=keptCount(salesPer), passed=passCount(salesPer);
+  var l2Total=directs*directs;
+  var ex='<strong>Your sales:</strong> You make '+salesPer+' sales. Of those, you keep '+kept+' (positions 1,3,5,7+) and pass up '+passed+' (positions 2,4,6). '+kept+' × $'+tier+' = $'+youKept.toLocaleString()+'.<br><br>';
+  ex+='<strong>L1 — Your '+directs+' directs:</strong> Each makes '+salesPer+' sales → '+passed+' pass up to you. '+directs+' × '+passed+' × $'+tier+' = $'+l1Passups.toLocaleString()+'.<br><br>';
+  ex+='<strong>L2 — Cascade:</strong> Assumes each L1 member also recruits '+directs+' people ('+l2Total+' total). Of those, '+l2YouCount+' have you as their pass-up sponsor. '+l2YouCount+' × '+passed+' × $'+tier+' = $'+l2Passups.toLocaleString()+'.<br><br>';
+  ex+='<strong>L3+ — Deep cascade:</strong> '+directs+'³ = '+l3Total.toLocaleString()+' members. Conservatively ~30% ('+Math.floor(l3Total*0.3).toLocaleString()+') have you as pass-up sponsor. '+Math.floor(l3Total*0.3).toLocaleString()+' × '+passed+' × $'+tier+' = $'+l3Passups.toLocaleString()+'.';
+  document.getElementById('calcExplainer').innerHTML=ex;
 }
 
 /* Init */
