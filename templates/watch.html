@@ -33,14 +33,9 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
 a{text-decoration:none;color:inherit}
-.sidebar{display:none}
-.main{margin-left:0;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
 /* ── Topbar ── */
-.topbar{background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 32px;height:70px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;position:sticky;top:0;z-index:50;flex-shrink:0}
-.back-btn{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:14px;font-weight:600;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
-.back-btn:hover{color:var(--cyan);border-color:rgba(56,189,248,0.3);background:rgba(56,189,248,0.05)}
-.topbar-center{display:flex;align-items:center;gap:10px;justify-content:center}
+.topbar{background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 32px;height:70px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0}
 .topbar-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--cyan2),var(--cyan));display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .topbar-title{font-family:Sora,sans-serif;font-size:20px;font-weight:800;color:#fff;line-height:1.1}
 .topbar-title em{font-style:normal;color:var(--cyan)}
@@ -213,11 +208,7 @@ a{text-decoration:none;color:inherit}
 <div class="main">
   <!-- Desktop Topbar -->
   <div class="topbar">
-    <a href="/dashboard" class="back-btn">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-      Dashboard
-    </a>
-    <div class="topbar-center">
+    <div style="display:flex;align-items:center;gap:10px">
       <div class="topbar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
       <div>
         <div class="topbar-title">Video <em>Hub</em></div>
