@@ -165,6 +165,33 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
             <div class="swatch" style="background:linear-gradient(135deg,#052e16,#166534)" data-theme="emerald" onclick="setTheme(this)"></div>
             <div class="swatch" style="background:#ffffff;border:1px solid #e2e8f0" data-theme="light" onclick="setTheme(this)"></div>
           </div>
+          <div style="margin-top:10px">
+            <label style="font-size:11px;color:var(--dim);margin-bottom:4px;display:block">Custom Background</label>
+            <div class="colour-row">
+              <div class="cpick" id="themeBgPick" style="background:#0a0a1a">
+                <input type="color" value="#0a0a1a" oninput="setCustomThemeBg(this.value)">
+              </div>
+              <input type="text" class="chex" id="themeBgHex" value="" placeholder="Use preset" oninput="if(this.value.match(/^#[0-9a-f]{6}$/i))setCustomThemeBg(this.value)">
+            </div>
+            <div class="cpresets" style="margin-top:6px">
+              <div class="cpre" style="background:#0a0a1a" onclick="setCustomThemeBg('#0a0a1a')"></div>
+              <div class="cpre" style="background:#0f172a" onclick="setCustomThemeBg('#0f172a')"></div>
+              <div class="cpre" style="background:#1a1a2e" onclick="setCustomThemeBg('#1a1a2e')"></div>
+              <div class="cpre" style="background:#0c0c1d" onclick="setCustomThemeBg('#0c0c1d')"></div>
+              <div class="cpre" style="background:#111827" onclick="setCustomThemeBg('#111827')"></div>
+              <div class="cpre" style="background:#18181b" onclick="setCustomThemeBg('#18181b')"></div>
+              <div class="cpre" style="background:#1e1b4b" onclick="setCustomThemeBg('#1e1b4b')"></div>
+              <div class="cpre" style="background:#052e16" onclick="setCustomThemeBg('#052e16')"></div>
+              <div class="cpre" style="background:#0c4a6e" onclick="setCustomThemeBg('#0c4a6e')"></div>
+              <div class="cpre" style="background:#1c1917" onclick="setCustomThemeBg('#1c1917')"></div>
+              <div class="cpre" style="background:#27272a" onclick="setCustomThemeBg('#27272a')"></div>
+              <div class="cpre" style="background:#f8fafc" onclick="setCustomThemeBg('#f8fafc')"></div>
+              <div class="cpre" style="background:#fefce8" onclick="setCustomThemeBg('#fefce8')"></div>
+              <div class="cpre" style="background:#f0fdf4" onclick="setCustomThemeBg('#f0fdf4')"></div>
+              <div class="cpre" style="background:#eff6ff" onclick="setCustomThemeBg('#eff6ff')"></div>
+              <div class="cpre" style="background:#faf5ff" onclick="setCustomThemeBg('#faf5ff')"></div>
+            </div>
+          </div>
         </div>
         <div class="field"><label>Accent Colour</label>
           <div class="colour-swatches" id="accentSwatches">
@@ -174,6 +201,33 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
             <div class="swatch" style="background:#10b981" data-accent="#10b981" onclick="setAccent(this)"></div>
             <div class="swatch" style="background:#ef4444" data-accent="#ef4444" onclick="setAccent(this)"></div>
             <div class="swatch" style="background:#ec4899" data-accent="#ec4899" onclick="setAccent(this)"></div>
+          </div>
+          <div style="margin-top:10px">
+            <label style="font-size:11px;color:var(--dim);margin-bottom:4px;display:block">Custom Accent</label>
+            <div class="colour-row">
+              <div class="cpick" id="accentPick" style="background:#0ea5e9">
+                <input type="color" value="#0ea5e9" oninput="setAccentCustom(this.value)">
+              </div>
+              <input type="text" class="chex" id="accentHex" value="#0ea5e9" oninput="if(this.value.match(/^#[0-9a-f]{6}$/i))setAccentCustom(this.value)">
+            </div>
+            <div class="cpresets" style="margin-top:6px">
+              <div class="cpre" style="background:#0ea5e9" onclick="setAccentCustom('#0ea5e9')"></div>
+              <div class="cpre" style="background:#8b5cf6" onclick="setAccentCustom('#8b5cf6')"></div>
+              <div class="cpre" style="background:#f59e0b" onclick="setAccentCustom('#f59e0b')"></div>
+              <div class="cpre" style="background:#10b981" onclick="setAccentCustom('#10b981')"></div>
+              <div class="cpre" style="background:#ef4444" onclick="setAccentCustom('#ef4444')"></div>
+              <div class="cpre" style="background:#ec4899" onclick="setAccentCustom('#ec4899')"></div>
+              <div class="cpre" style="background:#06b6d4" onclick="setAccentCustom('#06b6d4')"></div>
+              <div class="cpre" style="background:#d946ef" onclick="setAccentCustom('#d946ef')"></div>
+              <div class="cpre" style="background:#f97316" onclick="setAccentCustom('#f97316')"></div>
+              <div class="cpre" style="background:#14b8a6" onclick="setAccentCustom('#14b8a6')"></div>
+              <div class="cpre" style="background:#6366f1" onclick="setAccentCustom('#6366f1')"></div>
+              <div class="cpre" style="background:#84cc16" onclick="setAccentCustom('#84cc16')"></div>
+              <div class="cpre" style="background:#e11d48" onclick="setAccentCustom('#e11d48')"></div>
+              <div class="cpre" style="background:#facc15" onclick="setAccentCustom('#facc15')"></div>
+              <div class="cpre" style="background:#22d3ee" onclick="setAccentCustom('#22d3ee')"></div>
+              <div class="cpre" style="background:#a855f7" onclick="setAccentCustom('#a855f7')"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -217,7 +271,8 @@ function renderHTML(sec){
   const T=THEMES[currentTheme]||THEMES['dark-blue'],A=currentAccent,f=sec.fields,s=sec.style||{};
   const py=s.padding_y||60,hf=s.heading_font||'Sora',hs=s.heading_size||30;
   const hc=s.heading_colour||T.text,sc=s.sub_colour||T.dim,bg=s.bg_custom||'';
-  const secBg=bg||({'theme':T.bg,'card':T.card,'accent':A}[s.bg_type]||T.bg);
+  const themeBg=customThemeBg?customThemeBg:T.bg;
+  const secBg=bg||({'theme':themeBg,'card':T.card,'accent':A}[s.bg_type]||themeBg);
   const ctaC=s.cta_colour||A,ctaR=s.cta_radius||12;
   switch(sec.type){
     case 'hero':return `<section style="padding:${py}px 32px;text-align:center;background:${secBg};font-family:DM Sans,sans-serif"><h1 style="font-family:${hf},sans-serif;font-size:${s.heading_size||44}px;font-weight:800;color:${hc};margin-bottom:16px;line-height:1.15">${f.headline}</h1><p style="font-size:17px;color:${sc};max-width:580px;margin:0 auto 32px;line-height:1.7">${f.subheadline}</p><a href="${f.cta_url}" style="display:inline-block;padding:16px 40px;background:${ctaC};color:#fff;border-radius:${ctaR}px;font-weight:700;font-size:16px;text-decoration:none">${f.cta_text}</a></section>`;
@@ -358,8 +413,11 @@ function reorderSection(from,to){const item=pageSections.splice(from,1)[0];pageS
 function addSection(type){pageSections.push({type,enabled:true,fields:{...DEFAULTS[type].fields},style:{...DEFAULTS[type].style}});document.getElementById('addDropdown').classList.remove('open');activeSection=pageSections.length-1;renderAll();}
 function removeSection(i){pageSections.splice(i,1);activeSection=null;renderAll();}
 function toggleAddDropdown(){document.getElementById('addDropdown').classList.toggle('open')}
-function setTheme(el){currentTheme=el.dataset.theme;document.querySelectorAll('#colourSwatches .swatch').forEach(s=>s.classList.remove('active'));el.classList.add('active');renderPreview();}
-function setAccent(el){currentAccent=el.dataset.accent;document.querySelectorAll('#accentSwatches .swatch').forEach(s=>s.classList.remove('active'));el.classList.add('active');renderPreview();}
+function setTheme(el){currentTheme=el.dataset.theme;customThemeBg='';document.querySelectorAll('#colourSwatches .swatch').forEach(s=>s.classList.remove('active'));el.classList.add('active');document.getElementById('themeBgHex').value='';document.getElementById('themeBgHex').placeholder='Using preset';renderPreview();}
+function setAccent(el){currentAccent=el.dataset.accent;document.querySelectorAll('#accentSwatches .swatch').forEach(s=>s.classList.remove('active'));el.classList.add('active');document.getElementById('accentPick').style.background=currentAccent;document.getElementById('accentHex').value=currentAccent;document.querySelector('#accentPick input').value=currentAccent;renderPreview();}
+let customThemeBg='';
+function setCustomThemeBg(c){customThemeBg=c;document.getElementById('themeBgPick').style.background=c;document.getElementById('themeBgHex').value=c;document.querySelector('#themeBgPick input').value=c;document.querySelectorAll('#colourSwatches .swatch').forEach(s=>s.classList.remove('active'));renderPreview();}
+function setAccentCustom(c){currentAccent=c;document.getElementById('accentPick').style.background=c;document.getElementById('accentHex').value=c;document.querySelector('#accentPick input').value=c;document.querySelectorAll('#accentSwatches .swatch').forEach(s=>s.classList.remove('active'));renderPreview();}
 function setDevice(d,btn){document.getElementById('previewFrame').style.maxWidth=d==='desktop'?'820px':d==='tablet'?'768px':'375px';document.querySelectorAll('.device-toggle button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
 function previewPage(){window.open(`/p/${PAGE_SLUG}`,'_blank')}
 
@@ -372,7 +430,7 @@ async function savePage(publish=false){
   try{
     const r=await fetch('/api/funnels/save',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({id:PAGE_ID,title:document.getElementById('pageName').value||'Untitled',status:publish?'published':currentStatus,
-        gjs_components:pageSections,gjs_styles:{theme:currentTheme,accent:currentAccent},
+        gjs_components:pageSections,gjs_styles:{theme:currentTheme,accent:currentAccent,customBg:customThemeBg},
         gjs_html:generateFullHTML(),
         gjs_css:`*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif}img{max-width:100%}a{transition:opacity 0.2s}a:hover{opacity:0.9}`
       })});
@@ -398,6 +456,7 @@ async function init(){
     }
     if(d.gjs_styles&&typeof d.gjs_styles==='object'&&d.gjs_styles.theme){
       currentTheme=d.gjs_styles.theme;currentAccent=d.gjs_styles.accent||'#0ea5e9';
+      if(d.gjs_styles.customBg){customThemeBg=d.gjs_styles.customBg;document.getElementById('themeBgPick').style.background=customThemeBg;document.getElementById('themeBgHex').value=customThemeBg;document.querySelector('#themeBgPick input').value=customThemeBg;}
     }
   }catch(e){console.log('Load error or new page',e)}
   if(!pageSections.length)pageSections=[
@@ -407,8 +466,9 @@ async function init(){
     {type:'cta',enabled:true,fields:{...DEFAULTS.cta.fields},style:{...DEFAULTS.cta.style}},
     {type:'footer',enabled:true,fields:{...DEFAULTS.footer.fields},style:{...DEFAULTS.footer.style}}
   ];
-  document.querySelectorAll('#colourSwatches .swatch').forEach(s=>s.classList.toggle('active',s.dataset.theme===currentTheme));
+  document.querySelectorAll('#colourSwatches .swatch').forEach(s=>s.classList.toggle('active',s.dataset.theme===currentTheme&&!customThemeBg));
   document.querySelectorAll('#accentSwatches .swatch').forEach(s=>s.classList.toggle('active',s.dataset.accent===currentAccent));
+  document.getElementById('accentPick').style.background=currentAccent;document.getElementById('accentHex').value=currentAccent;document.querySelector('#accentPick input').value=currentAccent;
   activeSection=0;
   renderAll();
 }
