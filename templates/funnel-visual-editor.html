@@ -82,6 +82,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 .prev-section.disabled{opacity:0.3;pointer-events:none}
 .prev-section .edit-hint{position:absolute;top:8px;right:8px;background:rgba(14,165,233,0.9);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;opacity:0;transition:opacity 0.2s;pointer-events:none;z-index:5}
 .prev-section:hover .edit-hint{opacity:1}
+.prev-section .prev-move-bar{position:absolute;top:8px;left:8px;display:flex;gap:4px;opacity:0;transition:opacity 0.2s;z-index:5}
+.prev-section:hover .prev-move-bar{opacity:1}
+.prev-move-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:none;background:rgba(14,165,233,0.9);color:#fff;font-size:12px;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.prev-move-btn:hover{background:rgba(14,165,233,1);transform:scale(1.1)}
+.prev-move-btn:disabled{opacity:0.3;cursor:default;transform:none}
+.prev-move-btn.grab-handle{cursor:grab;font-size:14px}
+.prev-move-btn.grab-handle:active{cursor:grabbing}
 .device-toggle{display:flex;background:var(--blue-dim);border-radius:8px;overflow:hidden;border:1px solid var(--border)}
 .device-toggle button{padding:5px 10px;border:none;background:transparent;color:var(--text-dim);font-size:14px;cursor:pointer;transition:all 0.15s}
 .device-toggle button.active{background:var(--blue);color:#fff}
@@ -404,12 +411,97 @@ function onDragEnd(e){
   renderAll();
 }
 
+// ── Preview area drag reorder ──
+function startPreviewDrag(index,e){
+  const sections=document.querySelectorAll('#livePreview .prev-section');
+  const dragEl=sections[index];
+  if(!dragEl)return;
+  const rect=dragEl.getBoundingClientRect();
+  
+  dragState={
+    index:index,
+    startY:e.clientY,
+    currentY:e.clientY,
+    itemHeight:rect.height+2,
+    isPreview:true
+  };
+  
+  dragEl.style.opacity='0.4';dragEl.style.border='2px dashed rgba(14,165,233,0.5)';
+  pushUndo();
+  
+  document.addEventListener('mousemove',onPreviewDragMove);
+  document.addEventListener('mouseup',onPreviewDragEnd);
+}
+
+function onPreviewDragMove(e){
+  if(!dragState)return;
+  dragState.currentY=e.clientY;
+  const sections=document.querySelectorAll('#livePreview .prev-section');
+  
+  // Clear all indicators
+  sections.forEach(s=>{s.style.borderTop='';s.style.borderBottom='';});
+  // Keep dragged section styled
+  sections[dragState.index].style.opacity='0.4';
+  sections[dragState.index].style.border='2px dashed rgba(14,165,233,0.5)';
+  
+  // Find which section the mouse is over
+  for(let i=0;i<sections.length;i++){
+    if(i===dragState.index)continue;
+    const r=sections[i].getBoundingClientRect();
+    const mid=r.top+r.height/2;
+    if(e.clientY>r.top&&e.clientY<r.bottom){
+      if(e.clientY<mid){
+        sections[i].style.borderTop='3px solid #0ea5e9';
+      }else{
+        sections[i].style.borderBottom='3px solid #0ea5e9';
+      }
+      break;
+    }
+  }
+}
+
+function onPreviewDragEnd(e){
+  if(!dragState)return;
+  const sections=document.querySelectorAll('#livePreview .prev-section');
+  const from=dragState.index;
+  let to=from;
+  
+  // Find drop target
+  for(let i=0;i<sections.length;i++){
+    if(i===from)continue;
+    const r=sections[i].getBoundingClientRect();
+    const mid=r.top+r.height/2;
+    if(dragState.currentY>r.top&&dragState.currentY<r.bottom){
+      to=dragState.currentY<mid?i:i+1;
+      if(to>from)to--;
+      break;
+    }
+    // Handle dragging above first or below last
+    if(i===0&&dragState.currentY<r.top){to=0;break;}
+    if(i===sections.length-1&&dragState.currentY>r.bottom){to=sections.length-1;break;}
+  }
+  
+  document.removeEventListener('mousemove',onPreviewDragMove);
+  document.removeEventListener('mouseup',onPreviewDragEnd);
+  dragState=null;
+  
+  if(from!==to){
+    const item=pageSections.splice(from,1)[0];
+    pageSections.splice(to,0,item);
+    if(activeSection===from)activeSection=to;
+    markDirty();
+  }
+  renderAll();
+}
+
 function renderPreview(){
   const lp=document.getElementById('livePreview');lp.innerHTML='';
   pageSections.forEach((sec,i)=>{
     const wrap=document.createElement('div');
     wrap.className='prev-section'+(activeSection===i?' active':'')+(sec.enabled?'':' disabled');
-    wrap.innerHTML='<span class="edit-hint">Click to edit</span>'+renderHTML(sec);
+    const upDis=i===0?'disabled':'';
+    const downDis=i===pageSections.length-1?'disabled':'';
+    wrap.innerHTML=`<div class="prev-move-bar"><button class="prev-move-btn" title="Move up" onclick="event.stopPropagation();moveSection(${i},-1)" ${upDis}>▲</button><button class="prev-move-btn" title="Move down" onclick="event.stopPropagation();moveSection(${i},1)" ${downDis}>▼</button><button class="prev-move-btn grab-handle" title="Drag to reorder" onmousedown="event.stopPropagation();event.preventDefault();startPreviewDrag(${i},event)">⠿</button></div><span class="edit-hint">Click to edit</span>`+renderHTML(sec);
     wrap.addEventListener('click',()=>selectSection(i));lp.appendChild(wrap);
   });
 }
