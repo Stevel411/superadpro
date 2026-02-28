@@ -103,6 +103,7 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
 .nd.keeping{border-color:#10b981!important;border-style:solid!important;background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(16,185,129,0.15))!important;box-shadow:0 0 18px rgba(16,185,129,0.25)!important;animation:pulse .45s ease}
 .nd.receiving{border-color:var(--gold)!important;border-style:solid!important;background:linear-gradient(135deg,rgba(245,158,11,0.06),rgba(245,158,11,0.12))!important;box-shadow:0 0 18px rgba(245,158,11,0.25)!important;animation:pulse .45s ease}
 @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
+@keyframes nodeAppear{0%{opacity:0;transform:scale(0.3)}60%{transform:scale(1.1)}100%{opacity:1;transform:scale(1)}}
 .nd.keeping .nm{color:#065f46!important}.nd.receiving .nm{color:#92400e!important}
 
 /* Float */
@@ -344,221 +345,207 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
     </div>
   </div>
 </div>
-
 <script>
-/* ═══ ENGINE ═══ */
+/* ═══ PROGRESSIVE PASS-UP ENGINE ═══
+   Nodes appear one-by-one as they're sponsored.
+   Each new member buys a course → commission flows visually. */
+
 let tier=100;
 const PU=new Set([2,4,6]);
-const NM=['Alex','Beth','Carl','Dana','Eric','Faye','Gina','Hugo','Iris','Jake','Kate','Leo','Mia','Nate','Olga','Paul','Quinn'];
-let nodes=[],nMap={},playing=false,tmr=null,queue=[],qi=0;
+const NM=['Alex','Beth','Carl','Dana','Eric','Faye','Gina','Hugo','Iris','Jake','Kate','Leo','Mia','Nate','Olga','Paul','Quinn','Rosa','Sam','Tina'];
+let allNodes=[],nMap={},playing=false,tmr=null,steps=[],si=0;
 let tK=0,tP=0,nK=0,nP=0,tS=0;
-let youId=1; // YOU is not root — SPONSOR is id=0, YOU is id=1
+let youId=1,sponsorId=0;
 
-/* Tree: SPONSOR → YOU → 4 L1 → 2 each L2 (8) → 1 each L3 (8)
-   Shows YOU as a mid-tree affiliate with a sponsor above.
-   YOUR 2,4,6 sales pass UP to SPONSOR (visible flow).
-   YOUR team's pass-ups flow DOWN to YOU. */
+/* Pre-build full tree data (all hidden initially) */
 function buildTree(){
-  nodes=[];nMap={};let id=0,ni=0;
-  function mk(nm,lv,pid,cls){const n={id:id++,nm,lv,pid,pu:null,sc:0,rc:0,ch:[],el:null,cls:cls||''};nodes.push(n);nMap[n.id]=n;return n;}
+  allNodes=[];nMap={};let id=0,ni=0;
+  function mk(nm,pid,cls){const n={id:id++,nm,pid,pu:null,sc:0,rc:0,ch:[],el:null,cls:cls||'',visible:false};allNodes.push(n);nMap[n.id]=n;return n;}
 
-  // Level 0: SPONSOR (the person above you)
-  const sp=mk('SPONSOR',0,null,'sponsor');
+  const sp=mk('SPONSOR',null,'sponsor'); sp.visible=true;
+  const you=mk('YOU',sp.id,'root'); sp.ch.push(you.id); sp.rc++;
+  you.pu=sp.id; you.visible=true;
+  youId=you.id; sponsorId=sp.id;
 
-  // Level 1: YOU (the viewer) — you are sponsor's 1st referral
-  const you=mk('YOU',1,sp.id,'root');
-  sp.ch.push(you.id); sp.rc++;
-  // YOU is sponsor's 1st referral (kept position) → your pass_up_sponsor = SPONSOR
-  you.pu=sp.id;
-  youId=you.id;
-
-  // Level 2: YOUR 4 direct referrals
-  for(let i=0;i<4;i++){
-    const c=mk(NM[ni++],2,you.id);you.ch.push(c.id);you.rc++;
-    // Referral positions: 1=kept,2=passup,3=kept,4=passup
-    // If kept position → pass_up_sponsor = YOU
-    // If passup position → pass_up_sponsor = YOUR pass_up_sponsor = SPONSOR
+  // YOUR 7 direct referrals
+  for(let i=0;i<7;i++){
+    const c=mk(NM[ni++],you.id);you.ch.push(c.id);you.rc++;
     c.pu=PU.has(you.rc)?you.pu:you.id;
   }
 
-  // Level 3: Each of your directs gets 2 referrals
-  const yourDirects=you.ch.slice();
-  for(const cid of yourDirects){
+  // First 4 directs each get 3 referrals
+  for(const cid of you.ch.slice(0,4)){
     const p=nMap[cid];
-    for(let i=0;i<2;i++){
-      const c=mk(NM[ni++],3,p.id);p.ch.push(c.id);p.rc++;
+    for(let i=0;i<3;i++){
+      const c=mk(NM[ni++%NM.length],p.id);p.ch.push(c.id);p.rc++;
       c.pu=PU.has(p.rc)?p.pu:p.id;
     }
   }
-
-  // Level 4: Each L3 gets 1 referral
-  nodes.filter(n=>n.lv===3).forEach(p=>{
-    const c=mk(NM[ni++%NM.length],4,p.id);p.ch.push(c.id);p.rc++;
-    c.pu=PU.has(p.rc)?p.pu:p.id;
-  });
 }
 
-function buildQueue(){
-  queue=[];
+/* Build step queue — each step reveals a new member */
+function buildSteps(){
+  steps=[];
   const you=nMap[youId];
-  const l1=nodes.filter(n=>n.lv===2); // YOUR directs
-  const l2=nodes.filter(n=>n.lv===3);
-  const l3=nodes.filter(n=>n.lv===4);
 
-  // Phase 1: YOU make sales + your L1 directs start selling
-  for(let r=1;r<=4;r++){
-    const batch=[];
-    batch.push({sid:youId}); // YOU make a sale
-    l1.forEach(n=>batch.push({sid:n.id}));
-    shuffle(batch); queue.push(...batch);
+  // Phase 1: YOUR 7 directs join one by one
+  for(const cid of you.ch){
+    steps.push({nodeId:cid,spId:youId});
   }
 
-  // Phase 2: L2 starts, L1 continues
-  for(let r=1;r<=4;r++){
-    const batch=[];
-    l2.forEach(n=>batch.push({sid:n.id}));
-    if(r<=2) l1.forEach(n=>batch.push({sid:n.id}));
-    shuffle(batch); queue.push(...batch);
-  }
-
-  // Phase 3: L3 kicks in — full cascade
-  for(let r=1;r<=6;r++){
-    const batch=[];
-    l3.forEach(n=>batch.push({sid:n.id}));
-    if(r<=3) l2.forEach(n=>batch.push({sid:n.id}));
-    if(r<=2) l1.forEach(n=>batch.push({sid:n.id}));
-    shuffle(batch); queue.push(...batch);
+  // Phase 2: First 4 directs recruit — interleaved rotation
+  for(let round=0;round<3;round++){
+    for(const did of you.ch.slice(0,4)){
+      const d=nMap[did];
+      if(d.ch[round]!==undefined) steps.push({nodeId:d.ch[round],spId:did});
+    }
   }
 }
 
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*i|0;[a[i],a[j]]=[a[j],a[i]];}}
-
+/* Render only visible nodes */
 function renderTree(){
   const rows=document.getElementById('treeRows');rows.innerHTML='';
-  const lvls=[[],[],[],[],[]];nodes.forEach(n=>lvls[n.lv].push(n));
-  lvls.forEach((lv,li)=>{
-    if(!lv.length)return;
-    const row=document.createElement('div');row.className='tree-row';row.style.position='relative';
-    lv.forEach(n=>{
+  const levels={};
+  allNodes.forEach(n=>{
+    if(!n.visible)return;
+    const lv=getLevel(n);
+    if(!levels[lv])levels[lv]=[];
+    levels[lv].push(n);
+  });
+  const maxLv=Math.max(...Object.keys(levels).map(Number),0);
+  for(let lv=0;lv<=maxLv;lv++){
+    const lns=levels[lv]||[];
+    if(!lns.length)continue;
+    const row=document.createElement('div');row.className='tree-row';
+    lns.forEach(n=>{
       const el=document.createElement('div');
       el.className='nd'+(n.cls?' '+n.cls:'');el.id='n'+n.id;
-      el.innerHTML=`<div class="nm">${n.nm}</div><div class="sc" id="sc${n.id}">0 sales</div><div class="badge" id="pb${n.id}"></div>`;
+      el.innerHTML='<div class="nm">'+n.nm+'</div><div class="sc" id="sc'+n.id+'">'+n.sc+' sale'+(n.sc!==1?'s':'')+'</div><div class="badge" id="pb'+n.id+'"></div>';
       row.appendChild(el);n.el=el;
     });
     rows.appendChild(row);
-  });
-  requestAnimationFrame(()=>requestAnimationFrame(drawLines));
+  }
+  requestAnimationFrame(function(){requestAnimationFrame(drawLines);});
 }
+
+function getLevel(n){var lv=0,cur=n;while(cur.pid!==null){lv++;cur=nMap[cur.pid];}return lv;}
 
 function drawLines(){
-  const svg=document.getElementById('treeSvg');
-  const cv=document.getElementById('treeCanvas');
-  const cr=cv.getBoundingClientRect();
+  var svg=document.getElementById('treeSvg');
+  var cv=document.getElementById('treeCanvas');
+  var cr=cv.getBoundingClientRect();
   svg.setAttribute('width',cv.scrollWidth);svg.setAttribute('height',cv.scrollHeight);svg.innerHTML='';
-  nodes.forEach(n=>{
-    if(n.pid===null||!n.el)return;const p=nMap[n.pid];if(!p||!p.el)return;
-    const pr=p.el.getBoundingClientRect(),nr=n.el.getBoundingClientRect();
-    const x1=pr.left+pr.width/2-cr.left,y1=pr.top+pr.height-cr.top;
-    const x2=nr.left+nr.width/2-cr.left,y2=nr.top-cr.top;
-    const my=(y1+y2)/2;
-    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
-    path.setAttribute('d',`M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}`);
+  allNodes.forEach(function(n){
+    if(!n.visible||n.pid===null||!n.el)return;
+    var p=nMap[n.pid];if(!p||!p.visible||!p.el)return;
+    var pr=p.el.getBoundingClientRect(),nr=n.el.getBoundingClientRect();
+    var x1=pr.left+pr.width/2-cr.left,y1=pr.top+pr.height-cr.top;
+    var x2=nr.left+nr.width/2-cr.left,y2=nr.top-cr.top;
+    var my=(y1+y2)/2;
+    var path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d','M'+x1+','+y1+' C'+x1+','+my+' '+x2+','+my+' '+x2+','+y2);
     path.setAttribute('fill','none');path.setAttribute('stroke','#cbd5e1');path.setAttribute('stroke-width','1.5');
-    path.id=`ln${n.pid}-${n.id}`;svg.appendChild(path);
+    path.id='ln'+n.pid+'-'+n.id;svg.appendChild(path);
   });
 }
 
-function processSale(){
-  if(qi>=queue.length){pause();addLog('✅','','Simulation complete','#38bdf8','kept');return;}
-  const s=queue[qi++];const sl=nMap[s.sid];if(!sl){processSale();return;}
-  sl.sc++;tS++;const sn=sl.sc;const isUp=PU.has(sn);
-  const sce=document.getElementById('sc'+sl.id);if(sce)sce.textContent=sn+(sn===1?' sale':' sales');
-  if(sl.el&&!sl.el.classList.contains('root'))sl.el.classList.add('active');
+/* ═══ PROCESS STEP ═══ */
+function processStep(){
+  if(si>=steps.length){pause();addLog('✅','','Simulation complete!','#38bdf8','kept');return;}
+  var step=steps[si++];
+  var nn=nMap[step.nodeId];
+  var sp=nMap[step.spId];
+  if(!nn||!sp)return;
 
-  if(isUp){
-    // Find recipient — walk up pass-up chain
-    let rid=sl.pu,rec=rid!=null?nMap[rid]:null;if(!rec)rec=nMap[youId];
-    sl.el.classList.add('selling');setTimeout(()=>sl.el.classList.remove('selling'),600);
-    const bd=document.getElementById('pb'+sl.id);
-    if(bd){bd.style.display='flex';bd.style.background='var(--gold)';bd.style.color='#fff';bd.textContent='↑';}
+  // 1. Reveal the new node
+  nn.visible=true;
+  renderTree();
+  if(nn.el) nn.el.style.animation='nodeAppear 0.5s cubic-bezier(0.34,1.56,0.64,1)';
+  if(nn.el) nn.el.classList.add('active');
 
-    // Build the path from seller up to recipient for flow trail
-    const flowPath=[];
-    let cur=sl;
-    while(cur&&cur.id!==rec.id){
-      flowPath.push(cur);
-      if(cur.pid===null)break;
-      cur=nMap[cur.pid];
-    }
-    flowPath.push(rec);
+  // 2. Sponsor gets a sale (new member bought a course)
+  sp.sc++; tS++;
+  var sn=sp.sc;
+  var isUp=PU.has(sn);
+  var sce=document.getElementById('sc'+sp.id);
+  if(sce) sce.textContent=sn+(sn===1?' sale':' sales');
 
-    // Highlight connector lines along the path
-    for(let i=0;i<flowPath.length-1;i++){
-      const from=flowPath[i],to=flowPath[i+1];
-      // Find the line between them (could be parent-child in either direction)
-      let ln=document.getElementById(`ln${to.id}-${from.id}`)||document.getElementById(`ln${from.pid}-${from.id}`);
-      if(ln){ln.setAttribute('stroke','#f59e0b');ln.setAttribute('stroke-width','2.5');ln.setAttribute('stroke-dasharray','5 3');}
-    }
+  // 3. After brief pause, show the commission flow
+  setTimeout(function(){
+    if(isUp){
+      // PASS-UP: find recipient via pass-up sponsor chain
+      var rec=sp.pu!=null?nMap[sp.pu]:null;
+      if(!rec) rec=nMap[sponsorId];
 
-    // Animate flow dots along the path
-    animateFlowTrail(flowPath);
+      var bd=document.getElementById('pb'+sp.id);
+      if(bd){bd.style.display='flex';bd.style.background='var(--gold)';bd.style.color='#fff';bd.textContent='↑';}
 
-    rec.el.classList.add('receiving');setTimeout(()=>rec.el.classList.remove('receiving'),700+(flowPath.length*200));
-    // Delay the float to sync with flow trail arrival
-    setTimeout(()=>showFloat(rec.el,'+$'+tier,'#f59e0b'),flowPath.length*180);
-    if(rec.id===youId){tP+=tier;nP++;}
-    addLog(sl.nm,'#'+sn,'↑ '+rec.nm+(flowPath.length>2?' ('+flowPath.length+' levels)':''),'#f59e0b','passup');
-  } else {
-    sl.el.classList.add('keeping');setTimeout(()=>sl.el.classList.remove('keeping'),500);
-    showFloat(sl.el,'+$'+tier,'#10b981');
-    const bd=document.getElementById('pb'+sl.id);
-    if(bd&&sn<=7){bd.style.display='flex';bd.style.background='var(--green)';bd.style.color='#fff';bd.textContent='✓';}
-    if(sl.id===youId){tK+=tier;nK++;}
-    addLog(sl.nm,'#'+sn,'KEPT ✓','#10b981','kept');
-  }
-  updateUI();
-}
+      // Build flow path from sponsor UP to recipient
+      var flowPath=[];
+      var cur=sp;
+      while(cur&&cur.id!==rec.id){flowPath.push(cur);if(cur.pid===null)break;cur=nMap[cur.pid];}
+      flowPath.push(rec);
 
-/* Animate a glowing dot travelling up from seller to recipient */
-function animateFlowTrail(path){
-  if(path.length<2)return;
-  const cv=document.getElementById('treeCanvas');
-  const cr=cv.getBoundingClientRect();
-
-  for(let i=0;i<path.length-1;i++){
-    setTimeout(()=>{
-      const from=path[i].el,to=path[i+1].el;
-      if(!from||!to)return;
-      const fr=from.getBoundingClientRect(),tr=to.getBoundingClientRect();
-      const x1=fr.left+fr.width/2-cr.left,y1=fr.top+fr.height/2-cr.top;
-      const x2=tr.left+tr.width/2-cr.left,y2=tr.top+tr.height/2-cr.top;
-
-      const dot=document.createElement('div');
-      dot.style.cssText=`position:absolute;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px rgba(245,158,11,0.7),0 0 24px rgba(245,158,11,0.3);z-index:20;pointer-events:none;left:${x1-5}px;top:${y1-5}px;`;
-      cv.appendChild(dot);
-
-      // Animate from → to
-      const dx=x2-x1,dy=y2-y1;
-      const dur=280;
-      dot.animate([
-        {transform:'translate(0,0)',opacity:1},
-        {transform:`translate(${dx}px,${dy}px)`,opacity:1}
-      ],{duration:dur,easing:'ease-in-out',fill:'forwards'});
-
-      // Brief glow on the intermediate node
-      if(i<path.length-2&&path[i+1].el){
-        setTimeout(()=>{
-          path[i+1].el.style.boxShadow='0 0 16px rgba(245,158,11,0.4)';
-          setTimeout(()=>{path[i+1].el.style.boxShadow='';},400);
-        },dur-50);
+      // Highlight connector lines along path
+      for(var i=0;i<flowPath.length-1;i++){
+        var from=flowPath[i];
+        var ln=document.getElementById('ln'+from.pid+'-'+from.id);
+        if(ln){ln.setAttribute('stroke','#f59e0b');ln.setAttribute('stroke-width','2.5');ln.setAttribute('stroke-dasharray','5 3');}
       }
 
-      setTimeout(()=>dot.remove(),dur+100);
-    },i*250);
+      if(sp.el){sp.el.classList.add('selling');setTimeout(function(){sp.el.classList.remove('selling');},700);}
+      animateFlowTrail(flowPath);
+      if(rec.el){rec.el.classList.add('receiving');setTimeout(function(){rec.el.classList.remove('receiving');},800+(flowPath.length*280));}
+      setTimeout(function(){if(rec.el)showFloat(rec.el,'+$'+tier,'#f59e0b');},flowPath.length*250);
+
+      if(rec.id===youId){tP+=tier;nP++;}
+      addLog(nn.nm+' joins','Sale #'+sn,'↑ PASS-UP to '+rec.nm,'#f59e0b','passup');
+    } else {
+      // KEPT: sponsor keeps the commission
+      if(sp.el){sp.el.classList.add('keeping');setTimeout(function(){sp.el.classList.remove('keeping');},700);}
+      if(sp.el) showFloat(sp.el,'+$'+tier,'#10b981');
+
+      var bd=document.getElementById('pb'+sp.id);
+      if(bd&&sn<=7){bd.style.display='flex';bd.style.background='var(--green)';bd.style.color='#fff';bd.textContent='✓';}
+
+      if(sp.id===youId){tK+=tier;nK++;}
+      addLog(nn.nm+' joins','Sale #'+sn,'KEPT ✓ by '+sp.nm,'#10b981','kept');
+    }
+    updateUI();
+  },600);
+}
+
+/* Flow trail animation */
+function animateFlowTrail(path){
+  if(path.length<2)return;
+  var cv=document.getElementById('treeCanvas');
+  var cr=cv.getBoundingClientRect();
+  for(var i=0;i<path.length-1;i++){
+    (function(idx){
+      setTimeout(function(){
+        var from=path[idx].el,to=path[idx+1].el;
+        if(!from||!to)return;
+        var fr=from.getBoundingClientRect(),tr=to.getBoundingClientRect();
+        var x1=fr.left+fr.width/2-cr.left,y1=fr.top+fr.height/2-cr.top;
+        var x2=tr.left+tr.width/2-cr.left,y2=tr.top+tr.height/2-cr.top;
+        var dot=document.createElement('div');
+        dot.style.cssText='position:absolute;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px rgba(245,158,11,0.7),0 0 24px rgba(245,158,11,0.3);z-index:20;pointer-events:none;left:'+(x1-5)+'px;top:'+(y1-5)+'px;';
+        cv.appendChild(dot);
+        var dx=x2-x1,dy=y2-y1,dur=300;
+        dot.animate([{transform:'translate(0,0)',opacity:1},{transform:'translate('+dx+'px,'+dy+'px)',opacity:1}],{duration:dur,easing:'ease-in-out',fill:'forwards'});
+        if(idx<path.length-2&&path[idx+1].el){
+          setTimeout(function(){
+            path[idx+1].el.style.boxShadow='0 0 16px rgba(245,158,11,0.4)';
+            setTimeout(function(){path[idx+1].el.style.boxShadow='';},400);
+          },dur-50);
+        }
+        setTimeout(function(){dot.remove();},dur+100);
+      },idx*280);
+    })(i);
   }
 }
 
-function showFloat(el,t,c){const f=document.createElement('div');f.className='cfloat';f.textContent=t;f.style.color=c;el.appendChild(f);setTimeout(()=>f.remove(),1100);}
+function showFloat(el,t,c){var f=document.createElement('div');f.className='cfloat';f.textContent=t;f.style.color=c;el.appendChild(f);setTimeout(function(){f.remove();},1200);}
 
 function updateUI(){
   bump('keptAmt','$'+tK.toLocaleString());bump('passupAmt','$'+tP.toLocaleString());
@@ -567,26 +554,26 @@ function updateUI(){
   document.getElementById('iTotal').textContent=tS;document.getElementById('iDirect').textContent=nMap[youId].sc;
   document.getElementById('iPassups').textContent=nP;
 }
-function bump(id,v){const e=document.getElementById(id);e.textContent=v;e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');}
+function bump(id,v){var e=document.getElementById(id);e.textContent=v;e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');}
 
 function addLog(who,sale,act,col,type){
-  const l=document.getElementById('logList');
+  var l=document.getElementById('logList');
   if(l.querySelector('[style*="94a3b8"]'))l.innerHTML='';
-  const it=document.createElement('div');it.className='log-it';
-  it.innerHTML=`<div class="log-l"><span class="log-w">${who}</span><span class="log-s">${sale}</span><span class="log-t ${type}">${act}</span></div><span class="log-a" style="color:${col}">$${tier}</span>`;
-  l.insertBefore(it,l.firstChild);while(l.children.length>12)l.removeChild(l.lastChild);
+  var it=document.createElement('div');it.className='log-it';
+  it.innerHTML='<div class="log-l"><span class="log-w">'+who+'</span><span class="log-s">'+sale+'</span><span class="log-t '+type+'">'+act+'</span></div><span class="log-a" style="color:'+col+'">$'+tier+'</span>';
+  l.insertBefore(it,l.firstChild);while(l.children.length>14)l.removeChild(l.lastChild);
 }
 
 /* Controls */
 function togglePlay(){playing?pause():play();}
 function play(){playing=true;document.getElementById('playBtn').textContent='⏸ PAUSE';tick();}
 function pause(){playing=false;clearTimeout(tmr);document.getElementById('playBtn').textContent='▶ PLAY';}
-function getDelay(){return Math.round(2200-(parseInt(document.getElementById('spdSlider').value)-1)*400);}
-function tick(){if(!playing)return;processSale();if(qi<queue.length)tmr=setTimeout(tick,getDelay());else pause();}
+function getDelay(){return Math.round(2800-(parseInt(document.getElementById('spdSlider').value)-1)*480);}
+function tick(){if(!playing)return;processStep();if(si<steps.length)tmr=setTimeout(tick,getDelay());else pause();}
 
 function selTier(btn){
-  document.querySelectorAll('.tier-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
-  tier=parseInt(btn.dataset.price);const lb=tier===100?'STARTER':tier===300?'ADVANCED':'ELITE';
+  document.querySelectorAll('.tier-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');
+  tier=parseInt(btn.dataset.price);var lb=tier===100?'STARTER':tier===300?'ADVANCED':'ELITE';
   document.getElementById('panelTtl').textContent='INFINITE PASS-UP — $'+tier+' '+lb;
   document.getElementById('iTier').textContent='$'+tier+' '+lb.charAt(0)+lb.slice(1).toLowerCase();
   document.getElementById('spPrice').textContent=tier;document.getElementById('spK').textContent='$'+tier;document.getElementById('spP').textContent='$'+tier;
@@ -594,64 +581,38 @@ function selTier(btn){
 }
 
 function resetSim(){
-  pause();tK=0;tP=0;nK=0;nP=0;tS=0;qi=0;
-  buildTree();buildQueue();renderTree();updateUI();
-  document.getElementById('logList').innerHTML='<div class="log-it"><span style="color:#94a3b8;font-size:11px">Press PLAY to start…</span></div>';
+  pause();tK=0;tP=0;nK=0;nP=0;tS=0;si=0;
+  buildTree();buildSteps();
+  allNodes.forEach(function(n){n.sc=0;n.el=null;});
+  nMap[sponsorId].visible=true;nMap[youId].visible=true;
+  renderTree();updateUI();
+  document.getElementById('logList').innerHTML='<div class="log-it"><span style="color:#94a3b8;font-size:11px">Press PLAY — watch your team build…</span></div>';
   document.getElementById('playBtn').textContent='▶ PLAY';
 }
 
 /* ═══ CALCULATOR ═══ */
 function updateCalc(){
-  const directs=parseInt(document.getElementById('calcDirect').value);
-  const salesPer=parseInt(document.getElementById('calcSales').value);
+  var directs=parseInt(document.getElementById('calcDirect').value);
+  var salesPer=parseInt(document.getElementById('calcSales').value);
   document.getElementById('calcDirectBig').textContent=directs;
   document.getElementById('calcSalesBig').textContent=salesPer;
 
-  // How many of N sales does a person KEEP vs PASS UP?
-  function keptCount(n){let k=0;for(let i=1;i<=n;i++){if(!PU.has(i))k++;}return k;}
-  function passCount(n){return n-keptCount(n);} // sales 2,4,6 that fall within n
+  function keptCount(n){var k=0;for(var i=1;i<=n;i++){if(!PU.has(i))k++;}return k;}
+  function passCount(n){return n-keptCount(n);}
 
-  // ── YOUR PERSONAL KEPT EARNINGS ──
-  // You make salesPer sales. You keep 1,3,5,7+ and pass up 2,4,6.
-  const youKept = keptCount(salesPer) * tier;
+  var youKept=keptCount(salesPer)*tier;
+  var l1Passups=directs*passCount(salesPer)*tier;
 
-  // ── PASS-UPS FROM L1 (your direct referrals) ──
-  // Each of your directs makes salesPer sales.
-  // Their 2nd, 4th, 6th pass up to their pass-up sponsor.
-  // Pass-up sponsor for L1: positions 1,3,5,7+ → YOU. Positions 2,4,6 → YOUR pass-up sponsor (you're root, so still you).
-  // As root, ALL your L1 directs have YOU as pass-up sponsor.
-  const l1Passups = directs * passCount(salesPer) * tier;
+  var l2YouCount=0;
+  for(var d=0;d<directs;d++){for(var pos=1;pos<=directs;pos++){if(PU.has(pos))l2YouCount++;}}
+  var l2Passups=l2YouCount*passCount(salesPer)*tier;
 
-  // ── PASS-UPS FROM L2 (your directs' referrals) ──
-  // Each L1 member recruits (assume same count as you: directs each).
-  // L2 total = directs × directs
-  const l2Total = directs * directs;
-  // L2 pass-up sponsor assignment:
-  //   If L2 member was their parent's 1st,3rd,5th,7+ referral → pass-up sponsor = their parent (L1)
-  //   If L2 member was their parent's 2nd,4th,6th referral → pass-up sponsor = parent's pass-up sponsor = YOU
-  // Out of each L1's 'directs' referrals, positions 2,4,6 (up to 3) have YOU as pass-up sponsor
-  const l2WithYouAsSponsor = directs * Math.min(directs, 3); // max 3 per L1 parent at positions 2,4,6
-  // Correction: only count positions that actually fall in {2,4,6}
-  let l2YouCount = 0;
-  for(let d=0;d<directs;d++){
-    for(let pos=1;pos<=directs;pos++){
-      if(PU.has(pos)) l2YouCount++;
-    }
-  }
-  // Each of those L2 members makes salesPer sales, their 2,4,6 pass to YOU
-  const l2Passups = l2YouCount * passCount(salesPer) * tier;
+  var l3Total=directs*directs*directs;
+  var l3Passups=Math.floor(l3Total*0.3)*passCount(salesPer)*tier;
 
-  // ── PASS-UPS FROM L3 (directs' referrals' referrals) ──
-  // L3 total = directs × directs × directs
-  const l3Total = directs * directs * directs;
-  // L3 pass-up sponsors: similar logic, roughly half cascade to you
-  // Conservative estimate: ~30% of L3 have you as pass-up sponsor
-  const l3YouCount = Math.floor(l3Total * 0.3);
-  const l3Passups = l3YouCount * passCount(salesPer) * tier;
-
-  const totalPassups = l1Passups + l2Passups + l3Passups;
-  const totalEarnings = youKept + totalPassups;
-  const teamSize = 1 + directs + l2Total + l3Total;
+  var totalPassups=l1Passups+l2Passups+l3Passups;
+  var totalEarnings=youKept+totalPassups;
+  var teamSize=1+directs+(directs*directs)+l3Total;
 
   document.getElementById('csKept').textContent='$'+youKept.toLocaleString();
   document.getElementById('csL1').textContent='$'+l1Passups.toLocaleString();
@@ -663,7 +624,7 @@ function updateCalc(){
 
 /* Init */
 resetSim();updateCalc();
-window.addEventListener('resize',()=>requestAnimationFrame(drawLines));
+window.addEventListener('resize',function(){requestAnimationFrame(drawLines);});
 </script>
 
 <div class="mob-nav"><div class="mob-nav-in">
