@@ -5,113 +5,139 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Video Hub — SuperAdPro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+:root{--cyan:#38bdf8;--cyan2:#0ea5e9;--bg:#f0f2f8;--card:#ffffff;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;--green:#10b981;--green-light:#d1fae5;--amber:#f59e0b}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh;display:flex}
-
-/* ── Sidebar ── */
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+a{text-decoration:none;color:inherit}
 .sidebar{display:none}
 .main{margin-left:0;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
-.logo-shield{width:32px;height:32px}
-.nav-section{padding:22px 18px 8px;font-size:16px;font-weight:800;letter-spacing:0.5px;text-transform:none;color:#38bdf8;line-height:1.2}
-.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:19px;font-weight:600;color:rgba(200,220,255,0.75);text-decoration:none;transition:all 0.15s;border-left:2px solid transparent}
-.nav-item:hover{color:rgba(200,220,255,0.9);background:rgba(255,255,255,0.03)}
-.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
-.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
-.sidebar-footer{margin-top:auto;padding:16px;border-top:1px solid rgba(0,180,216,0.08)}
-.user-mini{display:flex;align-items:center;gap:10px}
-.user-mini-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0}
 
-/* ── Main ── */
-.topbar{background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 28px;height:90px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0}
-.topbar-left{display:flex;align-items:center;gap:14px}
-.back-btn{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:15px;font-weight:600;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
-.back-btn:hover{color:#38bdf8;border-color:rgba(0,180,216,0.3);background:rgba(0,180,216,0.05)}
-.topbar-title{font-size:22px;font-weight:800;color:#ffffff}
-.topbar-sub{font-size:16px;color:#6b7d94;margin-top:1px}
+/* ── Topbar ── */
+.topbar{background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 32px;height:70px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;position:sticky;top:0;z-index:50;flex-shrink:0}
+.back-btn{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:14px;font-weight:600;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
+.back-btn:hover{color:var(--cyan);border-color:rgba(56,189,248,0.3);background:rgba(56,189,248,0.05)}
+.topbar-center{display:flex;align-items:center;gap:10px;justify-content:center}
+.topbar-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--cyan2),var(--cyan));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.topbar-title{font-family:Sora,sans-serif;font-size:20px;font-weight:800;color:#fff;line-height:1.1}
+.topbar-title em{font-style:normal;color:var(--cyan)}
+.topbar-sub{font-size:11px;color:rgba(186,230,253,0.4);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.tier-chip{text-align:right}
+.tier-chip-val{font-size:12px;font-weight:700;color:var(--cyan)}
+.tier-chip-lbl{font-size:10px;color:rgba(186,230,253,0.3)}
+.brand-mark{display:flex;align-items:center;gap:8px}
+.brand-mark span{font-family:Sora,sans-serif;font-size:15px;font-weight:800;color:#fff}
+.brand-mark em{font-style:normal;color:var(--cyan)}
+
+/* ── Hero Banner ── */
+.hero-banner{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);padding:24px 32px;text-align:center;position:relative;overflow:hidden}
+.hero-banner::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+.hero-h{font-family:Sora,sans-serif;font-size:clamp(18px,3vw,24px);font-weight:800;color:#fff;position:relative;z-index:1}
+.hero-p{font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px;position:relative;z-index:1}
+
+/* ── Content ── */
 .content{padding:20px 24px;flex:1;overflow-y:auto}
-.watch-container{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.watch-container{max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
 
-/* ── Quota bar ── */
-.quota-bar-wrap{background:#ffffff;border:1px solid #d0d8e4;border-radius:12px;padding:14px 20px;flex-shrink:0;display:flex;align-items:center;gap:20px;flex-wrap:wrap;box-shadow:0 1px 3px rgba(0,0,0,0.05);width:100%}
-.quota-label{font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#64748b;margin-bottom:5px}
-.quota-count{font-size:28px;font-weight:800;color:#38bdf8}
-.quota-track{flex:1;min-width:200px}
-.quota-progress{height:10px;background:#e8ecf4;border-radius:999px;overflow:hidden;margin-top:8px}
-.quota-fill{height:100%;background:linear-gradient(90deg,#0ea5e9,#0ea5e9);border-radius:999px;transition:width 0.5s ease}
-.quota-complete{background:linear-gradient(90deg,#16a34a,#22c55e) !important}
-.quota-dots{display:flex;gap:8px;margin-top:10px}
-.quota-dot{width:28px;height:28px;border-radius:50%;border:2px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.3s;color:#6b7d94}
-.quota-dot.done{background:linear-gradient(135deg,#16a34a,#22c55e);border-color:#16a34a;color:#fff}
-.quota-dot.current{border-color:#38bdf8;background:rgba(0,180,216,0.1);color:#38bdf8}
-.quota-dot.pending{color:#cbd5e1;border-color:#e2e8f0}
+/* ── Quota Card ── */
+.quota-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 24px;display:flex;align-items:center;gap:24px;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
+.quota-left{flex-shrink:0}
+.quota-eyebrow{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan2)}
+.quota-big{font-size:36px;font-weight:800;color:var(--cyan);line-height:1}
+.quota-of{font-size:12px;color:var(--muted);margin-top:2px}
+.quota-right{flex:1;min-width:0}
+.quota-bar-header{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px}
+.quota-bar-header .pct{font-weight:700;color:var(--text)}
+.quota-track{height:10px;background:#e8ecf4;border-radius:999px;overflow:hidden}
+.quota-fill{height:100%;border-radius:999px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1)}
+.quota-fill.in-progress{background:linear-gradient(90deg,var(--cyan2),var(--cyan))}
+.quota-fill.complete{background:linear-gradient(90deg,#059669,var(--green))}
+.quota-dots{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.qdot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:all 0.3s}
+.qdot.done{background:linear-gradient(135deg,var(--cyan2),var(--cyan));color:#fff;border:2px solid var(--cyan);box-shadow:0 2px 8px rgba(14,165,233,0.2)}
+.qdot.current{border:2px solid var(--cyan);background:rgba(56,189,248,0.08);color:var(--cyan)}
+.qdot.pending{border:2px solid #e2e8f0;color:#cbd5e1;background:#f8fafc}
+.grace-chip{flex-shrink:0;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 14px;text-align:center}
+.grace-chip-val{font-size:18px;font-weight:800;color:#d97706}
+.grace-chip-lbl{font-size:9px;color:#92400e;text-transform:uppercase;letter-spacing:0.5px}
 
-/* ── Warning banner ── */
-.warning-banner{border-radius:12px;padding:16px 20px;margin-bottom:0;display:flex;align-items:center;gap:12px;font-size:16px;font-weight:600}
-.warning-amber{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:#fbbf24}
-.warning-red{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171}
+/* ── Warning Banner ── */
+.warning-banner{border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}
+.warning-amber{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#b45309}
+.warning-red{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#b91c1c}
 
-/* ── Video player card ── */
-.player-card{background:#ffffff;border:1px solid #d0d8e4;border-radius:14px;overflow:hidden;width:100%;display:flex;flex-direction:column;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
-.player-header{padding:12px 20px;border-bottom:1px solid #e4e9f1;flex-shrink:0}
-.campaign-title{font-size:16px;font-weight:800;color:#0f172a;margin-bottom:2px}
-.campaign-meta{font-size:16px;color:#64748b}
-.video-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#000;overflow:hidden;border-radius:0}
-.video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;display:block}
-
-/* ── Timer (below video in footer) ── */
-.timer-circle{width:56px;height:56px;position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.timer-svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
-.timer-bg{fill:none;stroke:#e2e8f0;stroke-width:5}
-.timer-arc{fill:none;stroke:url(#timerGrad);stroke-width:5;stroke-linecap:round;stroke-dasharray:150.8;stroke-dashoffset:150.8;transition:stroke-dashoffset 1s linear}
-.timer-num{font-size:19px;font-weight:800;color:#0f172a;z-index:1}
-
-/* ── Player footer ── */
-.player-footer{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#f5f7fb;border-top:1px solid #e8ecf4}
-/* ── Unmute overlay ── */
-.unmute-overlay{position:absolute;top:12px;right:12px;z-index:20;background:rgba(5,13,26,0.75);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all 0.2s;backdrop-filter:blur(4px)}
-.unmute-overlay:hover{background:rgba(0,180,216,0.8);border-color:rgba(0,180,216,0.5)}
+/* ── Player Card ── */
+.player-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
+.player-header{padding:14px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between}
+.campaign-title{font-size:15px;font-weight:700;color:var(--text)}
+.campaign-meta{font-size:11px;color:var(--muted)}
+.campaign-badge{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cyan2);background:rgba(14,165,233,0.08);padding:4px 10px;border-radius:20px}
+.video-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#000;overflow:hidden}
+.video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.unmute-overlay{position:absolute;top:12px;right:12px;z-index:20;background:rgba(5,13,26,0.7);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:7px 12px;display:flex;align-items:center;gap:6px;cursor:pointer;transition:all 0.2s;backdrop-filter:blur(6px)}
+.unmute-overlay:hover{background:rgba(14,165,233,0.8);border-color:rgba(14,165,233,0.5)}
 .unmute-overlay.hidden{display:none}
-.unmute-icon{font-size:16px}
-.unmute-text{font-size:16px;font-weight:700;color:#ffffff;letter-spacing:0.3px}
-.watch-status{font-size:16px;color:#64748b}
-.watch-status.counting{color:#38bdf8;font-weight:700}
-.watch-status.complete{color:#22c55e;font-weight:700}
-.btn-next{font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:8px;padding:12px 28px;cursor:pointer;opacity:0.4;pointer-events:none;transition:all 0.3s}
-.btn-next.ready{opacity:1;pointer-events:all;box-shadow:0 4px 14px rgba(0,180,216,0.3)}
-.btn-next.ready:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,180,216,0.4)}
+.unmute-text{font-size:11px;font-weight:700;color:#fff;letter-spacing:0.3px}
 
-/* ── Quota complete card ── */
-.complete-card{background:#ffffff;border:1px solid #bbf7d0;border-radius:16px;padding:48px 32px;text-align:center;max-width:560px;margin:0 auto;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
-.complete-icon{font-size:56px;margin-bottom:16px}
-.complete-title{font-size:24px;font-weight:800;color:#4ade80;margin-bottom:10px}
-.complete-sub{font-size:16px;color:#4a5a6e;line-height:1.7;margin-bottom:28px}
-.complete-stats{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:28px}
-.complete-stat{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 20px;min-width:120px}
-.complete-stat-val{font-size:22px;font-weight:800;color:#4ade80}
-.complete-stat-lbl{font-size:16px;color:#64748b;margin-top:2px;text-transform:uppercase;letter-spacing:1px}
-.btn-dashboard{display:inline-block;font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border-radius:8px;padding:13px 32px;text-decoration:none;box-shadow:0 4px 14px rgba(0,180,216,0.3)}
+/* Player Footer */
+.player-footer{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;background:#f8fafc;border-top:1px solid #f1f5f9}
+.timer-group{display:flex;align-items:center;gap:14px}
+.timer-circle{width:52px;height:52px;position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.timer-svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
+.timer-bg{fill:none;stroke:#e2e8f0;stroke-width:4.5}
+.timer-arc{fill:none;stroke:url(#timerGrad);stroke-width:4.5;stroke-linecap:round;stroke-dasharray:150.8;stroke-dashoffset:150.8;transition:stroke-dashoffset 1s linear}
+.timer-num{font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:var(--text);z-index:1}
+.watch-status{font-size:13px;font-weight:600;color:var(--muted)}
+.watch-status.counting{color:var(--cyan2);font-weight:700}
+.watch-status.complete{color:var(--green);font-weight:700}
+.watch-req{font-size:10px;color:var(--muted);margin-top:1px}
+.btn-next{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--cyan2),var(--cyan));border:none;border-radius:8px;padding:11px 24px;cursor:pointer;opacity:0.35;pointer-events:none;transition:all 0.3s}
+.btn-next.ready{opacity:1;pointer-events:all;box-shadow:0 4px 14px rgba(14,165,233,0.25)}
+.btn-next.ready:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(14,165,233,0.35)}
 
-/* ── No campaigns ── */
-.empty-card{background:#ffffff;border:1px solid #d0d8e4;border-radius:16px;padding:48px 32px;text-align:center;max-width:500px;margin:0 auto;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
+/* ── Quota Complete ── */
+.complete-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:48px 32px;text-align:center;max-width:580px;margin:0 auto;box-shadow:0 2px 8px rgba(0,40,100,0.06);position:relative;overflow:hidden}
+.complete-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--cyan2),var(--cyan),var(--green))}
+.complete-icon{font-size:52px;margin-bottom:14px}
+.complete-badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);padding:4px 14px;border-radius:20px;margin-bottom:12px}
+.complete-title{font-family:Sora,sans-serif;font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--cyan2),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.complete-sub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:28px;max-width:420px;margin-left:auto;margin-right:auto}
+.complete-stats{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:28px}
+.cs-card{background:linear-gradient(135deg,rgba(14,165,233,0.04),rgba(56,189,248,0.06));border:1px solid rgba(14,165,233,0.12);border-radius:12px;padding:16px 22px;min-width:130px}
+.cs-val{font-family:Sora,sans-serif;font-size:20px;font-weight:800;color:var(--cyan2)}
+.cs-lbl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.btn-dashboard{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--cyan2),var(--cyan));border-radius:10px;padding:13px 32px;box-shadow:0 4px 14px rgba(14,165,233,0.25);transition:all 0.2s}
+.btn-dashboard:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(14,165,233,0.35)}
 
-/* ── Terms note ── */
-.terms-note{flex-shrink:0;font-size:16px;color:#6b7d94;text-align:center;line-height:1.5}
+/* ── Stats Row ── */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:center;box-shadow:0 1px 3px rgba(0,40,100,0.03)}
+.stat-card-icon{font-size:20px;margin-bottom:4px}
+.stat-card-val{font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:var(--text)}
+.stat-card-lbl{font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
 
-/* ── Mobile topbar ── */
+/* ── Empty ── */
+.empty-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:48px 32px;text-align:center;max-width:500px;margin:0 auto;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
+
+/* ── Terms ── */
+.terms-note{font-size:11px;color:var(--muted);text-align:center;line-height:1.6;padding:0 20px}
+.terms-note a{color:var(--cyan2);font-weight:600}
+
+/* ── Mobile Topbar ── */
 .mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:10px 16px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:101}
-.mobile-topbar-left{display:flex;align-items:center;gap:10px;text-decoration:none}
-.mobile-topbar-name{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#0ea5e9,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.mobile-topbar-page{font-size:16px;color:#64748b}
-.mobile-balance-chip{font-size:16px;font-weight:800;color:#16a34a;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:8px;padding:6px 12px}
+.mobile-topbar-left{display:flex;align-items:center;gap:10px}
+.mobile-topbar-name{font-weight:800;font-size:14px;letter-spacing:1.5px;text-transform:uppercase;background:linear-gradient(135deg,var(--cyan2),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.mobile-topbar-page{font-size:11px;color:#64748b}
+.mobile-balance-chip{font-size:12px;font-weight:800;color:#16a34a;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:8px;padding:5px 10px}
 
-/* ── Mobile bottom nav ── */
+/* ── Mobile Nav ── */
 .mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#0a0a1a;border-top:1px solid rgba(0,212,255,0.1);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
 .mobile-nav-inner{display:flex;justify-content:space-around;align-items:center}
-.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 8px;font-size:10px;color:#64748b;transition:color 0.15s}
-.mob-nav-item.active{color:#38bdf8}
-.mob-nav-icon{font-size:19px}
+.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;font-size:10px;color:#64748b;transition:color 0.15s}
+.mob-nav-item.active{color:var(--cyan)}
+.mob-nav-icon{font-size:18px}
 .mob-nav-label{font-weight:600;letter-spacing:0.3px}
 
 @media(max-width:768px){
@@ -122,62 +148,34 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
   .mobile-nav{display:block}
   body{padding-bottom:70px}
   .topbar{display:none}
-  .content{padding:10px 12px}
+  .hero-banner{padding:16px}
+  .content{padding:12px}
   .watch-container{gap:10px}
-
-  /* Quota bar — full vertical stack */
-  .quota-bar-wrap{padding:14px 16px;gap:10px;flex-direction:column;align-items:stretch}
-  .quota-count{font-size:24px}
-  .quota-track{min-width:0;width:100%}
-  .quota-dots{flex-wrap:wrap;gap:6px;justify-content:center}
-  .quota-dot{width:30px;height:30px;font-size:16px}
-
-  /* Video player */
-  .player-card{border-radius:10px!important}
-  .video-wrap{aspect-ratio:16/9;border-radius:0!important}
-  .video-wrap iframe{border-radius:0!important}
-  .player-header{padding:10px 14px}
-  .campaign-title{font-size:16px!important}
-  .campaign-meta{font-size:16px!important}
-
-  /* Timer footer — stack vertically */
-  .player-footer{padding:12px 14px;gap:12px;flex-direction:column;align-items:center}
-  .timer-circle{align-self:center}
-  .watch-status{text-align:center;font-size:16px!important}
-  .btn-next{width:100%;text-align:center;padding:14px;font-size:16px}
-
-  /* Unmute overlay */
-  .unmute-overlay{font-size:16px!important;padding:6px 12px!important}
-
-  /* Complete card */
+  .quota-card{padding:14px 16px;gap:14px;flex-direction:column;align-items:stretch}
+  .quota-dots{justify-content:center}
+  .player-footer{flex-direction:column;align-items:center;gap:12px;padding:12px 14px}
+  .timer-group{width:100%;justify-content:center}
+  .btn-next{width:100%;text-align:center}
   .complete-card{padding:28px 16px}
-  .complete-title{font-size:19px}
-  .complete-stats{gap:8px;flex-wrap:wrap}
-  .complete-stat{min-width:90px;padding:10px 12px}
-  .terms-note{padding:0 4px;font-size:16px!important}
-
-  /* Warning banner */
-  .warning-banner{flex-direction:column;text-align:center;gap:6px;padding:12px 14px;font-size:16px}
+  .complete-stats{gap:8px}
+  .cs-card{min-width:90px;padding:12px 14px}
+  .stats-row{grid-template-columns:1fr;gap:8px}
 }
 </style>
-  <link rel="stylesheet" href="/static/mobile.css">
-  <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#0a0a1a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="SuperAdPro">
-  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+<link rel="stylesheet" href="/static/mobile.css">
+<link rel="manifest" href="/static/manifest.json">
+<meta name="theme-color" content="#0a0a1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SuperAdPro">
+<link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 </head>
 <body>
-<!-- ── Mobile Topbar ── -->
+
+<!-- Mobile Topbar -->
 <div class="mobile-topbar">
   <a class="mobile-topbar-left" href="/dashboard">
-    <svg width="26" height="26" viewBox="0 0 100 100">
-      <defs>
-        <linearGradient id="mhg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient>
-      </defs>
-      <circle cx="22" cy="22" r="20" fill="url(#mhg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/>
-    </svg>
+    <svg width="26" height="26" viewBox="0 0 44 44"><defs><linearGradient id="mhg" x1="0" y1="0" x2="44" y2="44"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs><circle cx="22" cy="22" r="20" fill="url(#mhg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></svg>
     <div>
       <div class="mobile-topbar-name">SuperAdPro</div>
       <div class="mobile-topbar-page">Video Hub</div>
@@ -186,157 +184,168 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
   <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
 </div>
 
-
-<!-- Sidebar -->
-<!-- Main -->
 <div class="main">
-  <div class="topbar" style="display:grid;grid-template-columns:auto 1fr auto;align-items:center">
+  <!-- Desktop Topbar -->
+  <div class="topbar">
     <a href="/dashboard" class="back-btn">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-      <span>Dashboard</span>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+      Dashboard
     </a>
-    <div style="display:flex;align-items:center;gap:12px;justify-content:center">
-      <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
-      </div>
+    <div class="topbar-center">
+      <div class="topbar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
       <div>
-        <div style="font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:#fff;line-height:1.1">Video <span style="color:#38bdf8">Hub</span></div>
-        <div style="font-size:12px;color:rgba(186,230,253,0.45);margin-top:2px">Watch videos · Qualify for daily commissions</div>
+        <div class="topbar-title">Video <em>Hub</em></div>
+        <div class="topbar-sub">Watch videos · Qualify for daily commissions</div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:20px">
-      <div style="text-align:right">
-        <div style="font-size:13px;font-weight:700;color:#38bdf8">Tier {{ quota.package_tier }}</div>
-        <div style="font-size:12px;color:rgba(186,230,253,0.35)">{{ quota.daily_required }} video{{ 's' if quota.daily_required != 1 else '' }} required today</div>
+    <div class="topbar-right">
+      <div class="tier-chip">
+        <div class="tier-chip-val">Tier {{ quota.package_tier }}</div>
+        <div class="tier-chip-lbl">{{ quota.daily_required }} video{{ 's' if quota.daily_required != 1 else '' }} required today</div>
       </div>
-      <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-        <svg width="32" height="32" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-tb)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-tb" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
-        <span style="font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
+      <a href="/" class="brand-mark">
+        <svg width="30" height="30" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-tb)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-tb" x1="0" y1="0" x2="44" y2="44"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
+        <span>Super<em>Ad</em>Pro</span>
       </a>
     </div>
+  </div>
+
+  <!-- Hero Banner -->
+  <div class="hero-banner">
+    <div class="hero-h">🎬 Daily Video Qualification</div>
+    <div class="hero-p">Watch your required videos to stay commission-eligible. Tier {{ quota.package_tier }} · {{ quota.daily_required }} videos per day.</div>
   </div>
 
   <div class="content">
   <div class="watch-container">
 
-    <!-- Warning banner -->
     {% if warning %}
     <div class="warning-banner {% if quota.commissions_paused %}warning-red{% else %}warning-amber{% endif %}">
-      <span style="font-size:20px">{% if quota.commissions_paused %}🔴{% else %}⚠️{% endif %}</span>
+      <span style="font-size:18px">{% if quota.commissions_paused %}🔴{% else %}⚠️{% endif %}</span>
       <span>{{ warning }}</span>
     </div>
     {% endif %}
 
     <!-- Quota progress -->
-    <div class="quota-bar-wrap">
-      <div>
-        <div class="quota-label">Today's Progress</div>
-        <div class="quota-count" id="watchedCount">{{ quota.today_watched }}</div>
-        <div style="font-size:16px;color:#6b7d94;margin-top:2px">of {{ quota.daily_required }} video{{ 's' if quota.daily_required != 1 else '' }}</div>
+    <div class="quota-card">
+      <div class="quota-left">
+        <div class="quota-eyebrow">Today's Progress</div>
+        <div class="quota-big" id="watchedCount">{{ quota.today_watched }}</div>
+        <div class="quota-of">of {{ quota.daily_required }} video{{ 's' if quota.daily_required != 1 else '' }}</div>
       </div>
-      <div class="quota-track">
-        <div style="display:flex;justify-content:space-between;font-size:16px;color:#6b7d94;margin-bottom:6px">
+      <div class="quota-right">
+        <div class="quota-bar-header">
           <span>Daily Quota</span>
-          <span id="pctLabel">{{ ((quota.today_watched / quota.daily_required) * 100)|int }}%</span>
+          <span class="pct" id="pctLabel">{{ ((quota.today_watched / quota.daily_required) * 100)|int }}%</span>
         </div>
-        <div class="quota-progress">
-          <div class="quota-fill {% if quota.today_watched >= quota.daily_required %}quota-complete{% endif %}"
+        <div class="quota-track">
+          <div class="quota-fill {% if quota.today_watched >= quota.daily_required %}complete{% else %}in-progress{% endif %}"
                id="quotaFill"
                style="width:{{ [(quota.today_watched / quota.daily_required * 100), 100]|min }}%"></div>
         </div>
-        <!-- Dot indicators -->
         <div class="quota-dots" id="quotaDots">
           {% for i in range(quota.daily_required) %}
-          <div class="quota-dot {% if i < quota.today_watched %}done{% elif i == quota.today_watched %}current{% else %}pending{% endif %}" id="dot-{{ i }}">
+          <div class="qdot {% if i < quota.today_watched %}done{% elif i == quota.today_watched %}current{% else %}pending{% endif %}" id="dot-{{ i }}">
             {% if i < quota.today_watched %}✓{% else %}{{ i + 1 }}{% endif %}
           </div>
           {% endfor %}
         </div>
       </div>
       {% if quota.consecutive_missed > 0 and not quota.commissions_paused %}
-      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;font-size:16px;text-align:center">
-        <div style="color:#d97706;font-weight:700;font-size:16px">{{ grace_days - quota.consecutive_missed }}</div>
-        <div style="color:#78350f;margin-top:2px">grace days left</div>
+      <div class="grace-chip">
+        <div class="grace-chip-val">{{ grace_days - quota.consecutive_missed }}</div>
+        <div class="grace-chip-lbl">Grace days left</div>
       </div>
       {% endif %}
     </div>
 
-    <!-- Quota already complete -->
     {% if quota.today_watched >= quota.daily_required %}
+    <!-- ═══ QUOTA COMPLETE ═══ -->
     <div class="complete-card">
       <div class="complete-icon">🎉</div>
+      <div class="complete-badge">✓ Fully Qualified</div>
       <div class="complete-title">Today's Quota Complete!</div>
       <div class="complete-sub">
         You've watched all {{ quota.daily_required }} required video{{ 's' if quota.daily_required != 1 else '' }} today.
-        Your commissions are fully qualified for today. Come back tomorrow for your next session.
+        Your commissions are fully qualified. Come back tomorrow for your next session.
       </div>
       <div class="complete-stats">
-        <div class="complete-stat">
-          <div class="complete-stat-val">{{ quota.today_watched }}</div>
-          <div class="complete-stat-lbl">Videos Today</div>
+        <div class="cs-card">
+          <div class="cs-val">{{ quota.today_watched }}</div>
+          <div class="cs-lbl">Videos Today</div>
         </div>
-        <div class="complete-stat">
-          <div class="complete-stat-val">{{ quota.daily_required * 30 }}s</div>
-          <div class="complete-stat-lbl">Time Watched</div>
+        <div class="cs-card">
+          <div class="cs-val">{{ quota.daily_required * 30 }}s</div>
+          <div class="cs-lbl">Time Watched</div>
         </div>
-        <div class="complete-stat">
-          <div class="complete-stat-val">Tier {{ quota.package_tier }}</div>
-          <div class="complete-stat-lbl">Your Level</div>
+        <div class="cs-card">
+          <div class="cs-val">Tier {{ quota.package_tier }}</div>
+          <div class="cs-lbl">Your Level</div>
         </div>
       </div>
-      <a href="/dashboard" class="btn-dashboard">Back to Dashboard →</a>
+      <a href="/dashboard" class="btn-dashboard">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        Back to Dashboard
+      </a>
     </div>
 
-    <!-- No campaigns available -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-card-icon">🔥</div>
+        <div class="stat-card-val">{{ quota.streak_days|default(0) }} Day{{ 's' if quota.streak_days|default(0) != 1 else '' }}</div>
+        <div class="stat-card-lbl">Watch Streak</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon">📊</div>
+        <div class="stat-card-val">{{ quota.total_watched|default(0) }}</div>
+        <div class="stat-card-lbl">Total Videos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon">✅</div>
+        <div class="stat-card-val">Active</div>
+        <div class="stat-card-lbl">Commission Status</div>
+      </div>
+    </div>
+
     {% elif not campaign %}
+    <!-- ═══ NO CAMPAIGNS ═══ -->
     <div class="empty-card">
-      <div style="font-size:48px;margin-bottom:16px">📭</div>
-      <div style="font-size:19px;font-weight:800;color:#0f172a;margin-bottom:8px">No Active Campaigns Yet</div>
-      <div style="font-size:16px;color:#4a5a6e;line-height:1.7;margin-bottom:20px">
+      <div style="font-size:44px;margin-bottom:14px">📭</div>
+      <div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px">No Active Campaigns</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px">
         There are no active video campaigns in the pool right now. Check back soon — campaigns are added as advertisers activate their campaign tiers.
       </div>
-      <a href="/dashboard" style="font-size:16px;font-weight:700;color:#38bdf8;text-decoration:none">← Back to Dashboard</a>
+      <a href="/dashboard" class="btn-dashboard" style="font-size:13px;padding:10px 24px">← Back to Dashboard</a>
     </div>
 
-    <!-- Video player -->
     {% else %}
+    <!-- ═══ VIDEO PLAYER ═══ -->
     <div class="player-card" id="playerCard">
       <div class="player-header">
-        <div class="campaign-title" id="campaignTitle">{{ campaign.title }}</div>
-        <div class="campaign-meta" id="campaignMeta">
-          {{ campaign.platform|title }} · {{ campaign.category or 'General' }} · 
-          Campaign #{{ campaign.id }}
+        <div>
+          <div class="campaign-title" id="campaignTitle">{{ campaign.title }}</div>
+          <div class="campaign-meta" id="campaignMeta">{{ campaign.platform|title }} · {{ campaign.category or 'General' }} · Campaign #{{ campaign.id }}</div>
         </div>
+        <div class="campaign-badge">▶ Now Playing</div>
       </div>
 
-      <!-- SVG gradient for timer arc -->
-      <svg width="0" height="0" style="position:absolute">
-        <defs>
-          <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#0ea5e9"/>
-            <stop offset="100%" stop-color="#0ea5e9"/>
-          </linearGradient>
-        </defs>
-      </svg>
+      <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient></defs></svg>
 
       <div class="video-wrap">
         <iframe id="videoFrame"
           src="{{ campaign.embed_url }}{% if '?' in campaign.embed_url %}&{% else %}?{% endif %}autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen>
-        </iframe>
-        <!-- Unmute prompt — top right corner of video -->
+          allowfullscreen></iframe>
         <div class="unmute-overlay" id="unmuteOverlay" onclick="unmuteVideo()">
-          <span class="unmute-icon">🔇</span>
+          <span style="font-size:14px">🔇</span>
           <span class="unmute-text">Click to unmute</span>
         </div>
       </div>
 
-      <!-- Timer bar — below the video, not overlaid -->
       <div class="player-footer">
-        <div style="display:flex;align-items:center;gap:14px">
+        <div class="timer-group">
           <div class="timer-circle">
-            <svg class="timer-svg" width="56" height="56" viewBox="0 0 56 56">
+            <svg class="timer-svg" width="52" height="52" viewBox="0 0 56 56">
               <circle class="timer-bg" cx="28" cy="28" r="24"/>
               <circle class="timer-arc" id="timerArc" cx="28" cy="28" r="24"/>
             </svg>
@@ -344,12 +353,10 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
           </div>
           <div>
             <div class="watch-status counting" id="watchStatus">⏱ Watching — timer counting down</div>
-            <div style="font-size:16px;color:#6b7d94;margin-top:2px">Must watch {{ watch_duration }}s to qualify</div>
+            <div class="watch-req">Must watch {{ watch_duration }}s to qualify</div>
           </div>
         </div>
-        <button class="btn-next" id="btnNext" onclick="submitWatch()">
-          ✓ Mark as Watched →
-        </button>
+        <button class="btn-next" id="btnNext" onclick="submitWatch()">✓ Mark as Watched →</button>
       </div>
     </div>
 
@@ -357,12 +364,11 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
       Videos must be watched for a minimum of {{ watch_duration }} seconds to qualify.
       Complete {{ quota.daily_required }} video{{ 's' if quota.daily_required != 1 else '' }} per day to maintain your commission eligibility.
       You have a {{ grace_days }}-day grace period before commissions are paused.
-      <a href="/legal" style="color:#38bdf8;text-decoration:none">Full terms →</a>
+      <a href="/legal">Full terms →</a>
     </div>
     {% endif %}
 
-  </div><!-- /watch-container -->
-  </div>
+  </div></div>
 </div>
 
 <script>
@@ -370,170 +376,63 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
   const DURATION    = {{ watch_duration }};
   const CAMPAIGN_ID = {{ campaign.id if campaign else 0 }};
   const QUOTA_MET   = {{ 'true' if quota.today_watched >= quota.daily_required else 'false' }};
-
   if (QUOTA_MET || !CAMPAIGN_ID) return;
 
-  const timerArc    = document.getElementById('timerArc');
-  const timerNum    = document.getElementById('timerNum');
-  const watchStatus = document.getElementById('watchStatus');
-  const btnNext     = document.getElementById('btnNext');
-  const quotaFill   = document.getElementById('quotaFill');
-  const watchedCount= document.getElementById('watchedCount');
-  const pctLabel    = document.getElementById('pctLabel');
+  const timerArc=document.getElementById('timerArc'),timerNum=document.getElementById('timerNum'),
+    watchStatus=document.getElementById('watchStatus'),btnNext=document.getElementById('btnNext'),
+    quotaFill=document.getElementById('quotaFill'),watchedCount=document.getElementById('watchedCount'),
+    pctLabel=document.getElementById('pctLabel');
+  const circumference=2*Math.PI*24;
+  let secondsLeft=DURATION,timerDone=false,submitted=false;
 
-  const circumference = 2 * Math.PI * 24; // r=24 → 150.8
-  let secondsLeft = DURATION;
-  let timerDone   = false;
-  let submitted   = false;
+  const interval=setInterval(()=>{
+    secondsLeft--;timerNum.textContent=secondsLeft;
+    timerArc.style.strokeDashoffset=circumference*(1-(DURATION-secondsLeft)/DURATION);
+    if(secondsLeft<=0){clearInterval(interval);timerDone=true;timerArc.style.strokeDashoffset=0;
+      watchStatus.textContent='✅ Qualified — click to record your view';watchStatus.className='watch-status complete';btnNext.classList.add('ready');}
+  },1000);
 
-  // Start timer immediately — video plays freely, timer counts alongside
-  const interval = setInterval(() => {
-    secondsLeft--;
-    timerNum.textContent = secondsLeft;
+  window.unmuteVideo=function(){const f=document.getElementById('videoFrame'),o=document.getElementById('unmuteOverlay');
+    f.src=f.src.replace('&mute=1','').replace('mute=1&','').replace('?mute=1','?');o.classList.add('hidden');};
 
-    // Update arc progress
-    const progress = (DURATION - secondsLeft) / DURATION;
-    timerArc.style.strokeDashoffset = circumference * (1 - progress);
-
-    if (secondsLeft <= 0) {
-      clearInterval(interval);
-      timerDone = true;
-      timerArc.style.strokeDashoffset = 0;
-      watchStatus.textContent = '✅ Qualified — click to record your view';
-      watchStatus.className   = 'watch-status complete';
-      btnNext.classList.add('ready');
-    }
-  }, 1000);
-
-  window.unmuteVideo = function() {
-    // Reload iframe src without mute=1 — browser allows this after user gesture
-    const frame = document.getElementById('videoFrame');
-    const overlay = document.getElementById('unmuteOverlay');
-    frame.src = frame.src
-      .replace('&mute=1', '')
-      .replace('mute=1&', '')
-      .replace('?mute=1', '?');
-    overlay.classList.add('hidden');
+  window.submitWatch=async function(){
+    if(!timerDone||submitted)return;submitted=true;btnNext.disabled=true;btnNext.textContent='Recording...';
+    try{const form=new FormData();form.append('campaign_id',CAMPAIGN_ID);
+      const res=await fetch('/api/record-watch',{method:'POST',body:form}),data=await res.json();
+      if(data.success){if(data.quota_met)window.location.reload();else if(data.next_campaign)loadNextVideo(data.next_campaign,data.watched_today,data.required);else window.location.reload();}
+      else{if(data.quota_met)window.location.reload();else{btnNext.textContent='Error — try again';btnNext.disabled=false;submitted=false;}}
+    }catch(e){btnNext.textContent='Error — try again';btnNext.disabled=false;submitted=false;}
   };
 
-  window.submitWatch = async function() {
-    if (!timerDone || submitted) return;
-    submitted = true;
-    btnNext.disabled    = true;
-    btnNext.textContent = 'Recording...';
-
-    try {
-      const form = new FormData();
-      form.append('campaign_id', CAMPAIGN_ID);
-
-      const res  = await fetch('/api/record-watch', { method: 'POST', body: form });
-      const data = await res.json();
-
-      if (data.success) {
-        if (data.quota_met) {
-          // Quota complete — reload to show completion screen
-          window.location.reload();
-        } else if (data.next_campaign) {
-          // Load next video without full page reload
-          loadNextVideo(data.next_campaign, data.watched_today, data.required);
-        } else {
-          window.location.reload();
-        }
-      } else {
-        if (data.quota_met) {
-          window.location.reload();
-        } else {
-          btnNext.textContent = 'Error — try again';
-          btnNext.disabled    = false;
-          submitted = false;
-        }
-      }
-    } catch(e) {
-      btnNext.textContent = 'Error — try again';
-      btnNext.disabled    = false;
-      submitted = false;
-    }
-  };
-
-  function loadNextVideo(campaign, watchedToday, required) {
-    // Update quota display
-    const pct = Math.min((watchedToday / required) * 100, 100);
-    quotaFill.style.width   = pct + '%';
-    watchedCount.textContent = watchedToday;
-    pctLabel.textContent    = Math.round(pct) + '%';
-
-    // Update dot indicators
-    for (let i = 0; i < required; i++) {
-      const dot = document.getElementById('dot-' + i);
-      if (!dot) continue;
-      if (i < watchedToday) {
-        dot.className   = 'quota-dot done';
-        dot.textContent = '✓';
-      } else if (i === watchedToday) {
-        dot.className   = 'quota-dot current';
-        dot.textContent = i + 1;
-      }
-    }
-
-    // Swap video
-    document.getElementById('campaignTitle').textContent = campaign.title;
-    document.getElementById('campaignMeta').textContent  =
-      campaign.platform.charAt(0).toUpperCase() + campaign.platform.slice(1) +
-      ' · Campaign #' + campaign.id;
-    const sep = campaign.embed_url.includes('?') ? '&' : '?';
-    document.getElementById('videoFrame').src = campaign.embed_url + sep + 'autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1';
-    // Show unmute overlay again for new video
-    const uo = document.getElementById('unmuteOverlay');
-    if (uo) uo.classList.remove('hidden');
-
-    // Reset timer for next video
-    secondsLeft = DURATION;
-    timerDone   = false;
-    submitted   = false;
-    timerArc.style.strokeDashoffset = circumference;
-    timerNum.textContent            = DURATION;
-    watchStatus.textContent = '⏱ Watching — timer counting down';
-    watchStatus.className   = 'watch-status counting';
-    btnNext.classList.remove('ready');
-    btnNext.textContent = '✓ Mark as Watched →';
-    btnNext.disabled    = false;
-
-    // Restart timer
-    const newInterval = setInterval(() => {
-      secondsLeft--;
-      timerNum.textContent = secondsLeft;
-      const progress = (DURATION - secondsLeft) / DURATION;
-      timerArc.style.strokeDashoffset = circumference * (1 - progress);
-      if (secondsLeft <= 0) {
-        clearInterval(newInterval);
-        timerDone = true;
-        timerArc.style.strokeDashoffset = 0;
-        watchStatus.textContent = '✅ Qualified — click to record your view';
-        watchStatus.className   = 'watch-status complete';
-        btnNext.classList.add('ready');
-      }
-    }, 1000);
+  function loadNextVideo(c,wt,req){
+    const pct=Math.min((wt/req)*100,100);quotaFill.style.width=pct+'%';watchedCount.textContent=wt;pctLabel.textContent=Math.round(pct)+'%';
+    for(let i=0;i<req;i++){const d=document.getElementById('dot-'+i);if(!d)continue;
+      if(i<wt){d.className='qdot done';d.textContent='✓';}else if(i===wt){d.className='qdot current';d.textContent=i+1;}}
+    document.getElementById('campaignTitle').textContent=c.title;
+    document.getElementById('campaignMeta').textContent=c.platform.charAt(0).toUpperCase()+c.platform.slice(1)+' · Campaign #'+c.id;
+    const sep=c.embed_url.includes('?')?'&':'?';
+    document.getElementById('videoFrame').src=c.embed_url+sep+'autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1';
+    const uo=document.getElementById('unmuteOverlay');if(uo)uo.classList.remove('hidden');
+    secondsLeft=DURATION;timerDone=false;submitted=false;timerArc.style.strokeDashoffset=circumference;
+    timerNum.textContent=DURATION;watchStatus.textContent='⏱ Watching — timer counting down';watchStatus.className='watch-status counting';
+    btnNext.classList.remove('ready');btnNext.textContent='✓ Mark as Watched →';btnNext.disabled=false;
+    const ni=setInterval(()=>{secondsLeft--;timerNum.textContent=secondsLeft;
+      timerArc.style.strokeDashoffset=circumference*(1-(DURATION-secondsLeft)/DURATION);
+      if(secondsLeft<=0){clearInterval(ni);timerDone=true;timerArc.style.strokeDashoffset=0;
+        watchStatus.textContent='✅ Qualified — click to record your view';watchStatus.className='watch-status complete';btnNext.classList.add('ready');}
+    },1000);
   }
 })();
 </script>
 
-<!-- ── Mobile Bottom Nav ── -->
-<div class="mobile-nav">
-  <div class="mobile-nav-inner">
-    <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
-    <a href="/watch" class="mob-nav-item active"><span class="mob-nav-icon">▶</span><span class="mob-nav-label">Watch</span></a>
-    <a href="/income-grid" class="mob-nav-item"><span class="mob-nav-icon">⚡</span><span class="mob-nav-label">Grid</span></a>
-    <a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">◎</span><span class="mob-nav-label">Wallet</span></a>
-    <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">◉</span><span class="mob-nav-label">Account</span></a>
-  </div>
-</div>
+<div class="mobile-nav"><div class="mobile-nav-inner">
+  <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
+  <a href="/watch" class="mob-nav-item active"><span class="mob-nav-icon">▶</span><span class="mob-nav-label">Watch</span></a>
+  <a href="/income-grid" class="mob-nav-item"><span class="mob-nav-icon">⚡</span><span class="mob-nav-label">Grid</span></a>
+  <a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">◎</span><span class="mob-nav-label">Wallet</span></a>
+  <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">◉</span><span class="mob-nav-label">Account</span></a>
+</div></div>
 
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/static/sw.js').catch(() => {});
-  });
-}
-</script>
+<script>if('serviceWorker' in navigator)window.addEventListener('load',()=>{navigator.serviceWorker.register('/static/sw.js').catch(()=>{});});</script>
 </body>
 </html>
