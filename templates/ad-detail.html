@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>{{ ad.title|e }} — SuperAdPro Ad Board</title>
+<meta name="description" content="{{ ad.description[:160]|e }} | Browse {{ ad.category|replace('-',' ')|title }} listings on SuperAdPro.">
+<meta name="keywords" content="{{ ad.title|e }}, {{ ad.category|replace('-',' ') }}, SuperAdPro, ad board, business opportunity">
+<link rel="canonical" href="{{ base_url }}/ads/listing/{{ ad.slug }}">
+<meta name="robots" content="index, follow">
+
+<!-- Open Graph -->
+<meta property="og:title" content="{{ ad.title|e }}">
+<meta property="og:description" content="{{ ad.description[:200]|e }}">
+<meta property="og:type" content="product">
+<meta property="og:url" content="{{ base_url }}/ads/listing/{{ ad.slug }}">
+{% if ad.image_url %}<meta property="og:image" content="{{ ad.image_url }}">{% endif %}
+<meta property="og:site_name" content="SuperAdPro Ad Board">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="{% if ad.image_url %}summary_large_image{% else %}summary{% endif %}">
+<meta name="twitter:title" content="{{ ad.title|e }}">
+<meta name="twitter:description" content="{{ ad.description[:200]|e }}">
+{% if ad.image_url %}<meta name="twitter:image" content="{{ ad.image_url }}">{% endif %}
+
+<!-- JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Offer",
+  "name": "{{ ad.title|e }}",
+  "description": "{{ ad.description|e }}",
+  "url": "{{ base_url }}/ads/listing/{{ ad.slug }}",
+  "category": "{{ ad.category|replace('-',' ')|title }}",
+  {% if ad.image_url %}"image": "{{ ad.image_url }}",{% endif %}
+  "offeredBy": {
+    "@type": "Person",
+    "name": "{{ ad.owner_name|e }}"
+  },
+  "datePublished": "{{ ad.created_at.strftime('%Y-%m-%d') if ad.created_at else '' }}"
+}
+</script>
+
+<!-- Breadcrumb JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Ad Board", "item": "{{ base_url }}/ads"},
+    {"@type": "ListItem", "position": 2, "name": "{{ ad.category|replace('-',' ')|title }}", "item": "{{ base_url }}/ads?category={{ ad.category }}"},
+    {"@type": "ListItem", "position": 3, "name": "{{ ad.title|e }}"}
+  ]
+}
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+a{text-decoration:none;color:inherit}
+
+/* Topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:200}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-left a{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:14px;font-weight:600;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
+.topbar-left a:hover{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
+.topbar-center{display:flex;align-items:center;gap:8px;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.15);border-radius:24px;padding:6px 18px;font-size:11px;font-weight:700;color:#7dd3fc;letter-spacing:2px;text-transform:uppercase}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-right a{font-size:13px;font-weight:700;padding:8px 18px;border-radius:8px;transition:all 0.2s}
+.btn-login{color:#94a3b8;border:1px solid rgba(148,163,184,0.2)}
+.btn-login:hover{color:#fff;border-color:rgba(56,189,248,0.4)}
+.btn-join{background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;border:none}
+.btn-join:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(14,165,233,0.3)}
+
+.wrap{max-width:900px;margin:0 auto;padding:32px 24px}
+
+/* Breadcrumb */
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:#94a3b8;margin-bottom:24px;flex-wrap:wrap}
+.breadcrumb a{color:#64748b;font-weight:600;transition:color 0.2s}
+.breadcrumb a:hover{color:#0ea5e9}
+.breadcrumb .sep{color:#cbd5e1}
+
+/* Main card */
+.ad-card{background:#fff;border-radius:16px;border:1px solid #e2e8f0;box-shadow:0 1px 4px rgba(0,40,100,0.04);overflow:hidden}
+.ad-img{width:100%;max-height:400px;object-fit:cover;display:block}
+.ad-body{padding:32px}
+.ad-cat{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#0ea5e9;background:rgba(14,165,233,0.08);padding:4px 10px;border-radius:20px;margin-bottom:12px}
+.ad-title{font-family:Sora,sans-serif;font-size:clamp(22px,3.5vw,32px);font-weight:800;color:#0f172a;line-height:1.2;margin-bottom:16px}
+.ad-desc{font-size:15px;color:#475569;line-height:1.7;margin-bottom:24px;white-space:pre-wrap}
+.ad-meta{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-bottom:24px;font-size:12px;color:#94a3b8}
+.ad-meta span{display:flex;align-items:center;gap:4px}
+
+/* CTA button */
+.cta-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;font-size:15px;font-weight:700;border-radius:10px;transition:all 0.2s;border:none;cursor:pointer}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(14,165,233,0.3)}
+.cta-btn svg{width:18px;height:18px}
+
+/* Share bar */
+.share-bar{display:flex;align-items:center;gap:10px;margin-top:28px;padding-top:24px;border-top:1px solid #f1f5f9}
+.share-lbl{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px}
+.share-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;font-size:14px;transition:all 0.2s;border:1px solid #e2e8f0;background:#f8fafc;cursor:pointer}
+.share-btn:hover{background:#0ea5e9;color:#fff;border-color:#0ea5e9;transform:scale(1.08)}
+
+/* Stats strip */
+.stats-strip{display:flex;gap:24px;margin-top:24px;padding:16px 20px;background:#f8fafc;border-radius:10px;border:1px solid #f1f5f9}
+.stat-item{text-align:center;flex:1}
+.stat-val{font-size:18px;font-weight:800;color:#0f172a}
+.stat-lbl{font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+
+/* Advertise CTA panel */
+.advertise-cta{margin-top:32px;padding:28px;background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:16px;text-align:center;color:#fff}
+.advertise-cta h3{font-family:Sora,sans-serif;font-size:20px;font-weight:800;margin-bottom:6px}
+.advertise-cta p{font-size:13px;color:#94a3b8;margin-bottom:16px;line-height:1.5}
+.advertise-cta .join-btn{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;font-weight:700;font-size:14px;border-radius:8px;transition:all 0.2s}
+.advertise-cta .join-btn:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(14,165,233,0.4)}
+
+/* Related */
+.related{margin-top:40px}
+.related h2{font-family:Sora,sans-serif;font-size:18px;font-weight:800;margin-bottom:16px;color:#0f172a}
+.rel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.rel-card{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:16px;transition:all 0.2s}
+.rel-card:hover{border-color:#0ea5e9;box-shadow:0 4px 12px rgba(14,165,233,0.08);transform:translateY(-2px)}
+.rel-card .rc-cat{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#0ea5e9;margin-bottom:6px}
+.rel-card h3{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:6px;line-height:1.3}
+.rel-card p{font-size:12px;color:#64748b;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rel-card .rc-footer{margin-top:10px;font-size:10px;color:#94a3b8;display:flex;justify-content:space-between}
+
+/* Footer */
+.site-footer{margin-top:48px;padding:24px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0}
+
+@media(max-width:600px){
+  .topbar{padding:0 16px}
+  .wrap{padding:20px 16px}
+  .ad-body{padding:20px}
+  .stats-strip{flex-direction:column;gap:12px}
+  .share-bar{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="/ads">← Ad Board</a>
+  </div>
+  <div class="topbar-center">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    Super<span style="color:#38bdf8">Ad</span>Pro
+  </div>
+  <div class="topbar-right">
+    <a href="/?login=1" class="btn-login">Log In</a>
+    <a href="/?register=1" class="btn-join">Join Free</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/ads">Ad Board</a>
+    <span class="sep">›</span>
+    <a href="/ads?category={{ ad.category }}">{{ ad.category|replace('-',' ')|title }}</a>
+    <span class="sep">›</span>
+    <span>{{ ad.title[:50] }}{% if ad.title|length > 50 %}…{% endif %}</span>
+  </nav>
+
+  <!-- Main ad card -->
+  <article class="ad-card" itemscope itemtype="https://schema.org/Offer">
+    {% if ad.image_url %}
+    <img src="{{ ad.image_url }}" alt="{{ ad.title|e }}" class="ad-img" itemprop="image" loading="lazy">
+    {% endif %}
+    <div class="ad-body">
+      <span class="ad-cat" itemprop="category">{{ ad.category|replace('-',' ')|title }}</span>
+      <h1 class="ad-title" itemprop="name">{{ ad.title }}</h1>
+      <p class="ad-desc" itemprop="description">{{ ad.description }}</p>
+
+      <div class="ad-meta">
+        <span>👤 <strong>{{ ad.owner_name }}</strong></span>
+        <span>📅 {{ ad.created_at.strftime('%d %b %Y') if ad.created_at else 'Recently' }}</span>
+        <span>👁 {{ ad.views|default(0) }} views</span>
+        <span>🔗 {{ ad.clicks|default(0) }} clicks</span>
+      </div>
+
+      <a href="/ads/click/{{ ad.id }}" class="cta-btn" target="_blank" rel="noopener" itemprop="url">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Visit This Offer
+      </a>
+
+      <!-- Share bar -->
+      <div class="share-bar">
+        <span class="share-lbl">Share</span>
+        <a class="share-btn" title="Share on Facebook" href="https://www.facebook.com/sharer/sharer.php?u={{ base_url }}/ads/listing/{{ ad.slug }}" target="_blank" rel="noopener">f</a>
+        <a class="share-btn" title="Share on X (Twitter)" href="https://twitter.com/intent/tweet?text={{ ad.title|urlencode }}&url={{ base_url }}/ads/listing/{{ ad.slug }}" target="_blank" rel="noopener">𝕏</a>
+        <a class="share-btn" title="Share on LinkedIn" href="https://www.linkedin.com/sharing/share-offsite/?url={{ base_url }}/ads/listing/{{ ad.slug }}" target="_blank" rel="noopener">in</a>
+        <a class="share-btn" title="Share on WhatsApp" href="https://wa.me/?text={{ ad.title|urlencode }}%20{{ base_url }}/ads/listing/{{ ad.slug }}" target="_blank" rel="noopener">💬</a>
+        <button class="share-btn" title="Copy link" onclick="navigator.clipboard.writeText('{{ base_url }}/ads/listing/{{ ad.slug }}');this.textContent='✓';setTimeout(()=>this.textContent='🔗',1500)">🔗</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-strip">
+        <div class="stat-item"><div class="stat-val">{{ ad.views|default(0) }}</div><div class="stat-lbl">Total Views</div></div>
+        <div class="stat-item"><div class="stat-val">{{ ad.clicks|default(0) }}</div><div class="stat-lbl">Click-Throughs</div></div>
+        <div class="stat-item"><div class="stat-val">{% if ad.views and ad.views > 0 %}{{ ((ad.clicks or 0) / ad.views * 100)|round(1) }}%{% else %}—{% endif %}</div><div class="stat-lbl">CTR</div></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- Advertise CTA -->
+  <div class="advertise-cta">
+    <h3>Want Your Ad Seen By Thousands?</h3>
+    <p>SuperAdPro members can place ads on this board and reach a growing audience of entrepreneurs, marketers, and business builders. Join today and start advertising.</p>
+    <a href="/?register=1" class="join-btn">🚀 Join SuperAdPro — Place Your Ad</a>
+  </div>
+
+  <!-- Related ads -->
+  {% if related %}
+  <section class="related">
+    <h2>More in {{ ad.category|replace('-',' ')|title }}</h2>
+    <div class="rel-grid">
+      {% for r in related %}
+      <a href="/ads/listing/{{ r.slug }}" class="rel-card">
+        <div class="rc-cat">{{ r.category|replace('-',' ')|title }}</div>
+        <h3>{{ r.title }}</h3>
+        <p>{{ r.description[:120] }}{% if r.description|length > 120 %}…{% endif %}</p>
+        <div class="rc-footer">
+          <span>👤 {{ r.owner_name }}</span>
+          <span>👁 {{ r.views|default(0) }} views</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <p>© 2025 SuperAdPro. All rights reserved. <a href="/ads" style="color:#0ea5e9">Browse all ads</a> · <a href="/?register=1" style="color:#0ea5e9">Become a member</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

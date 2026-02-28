@@ -3,8 +3,55 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Ad Board — SuperAdPro Marketplace</title>
-<meta name="description" content="Browse offers, services and business opportunities from the SuperAdPro community. Find what you need or post your own ad.">
+<title>{% if cat_name %}{{ cat_name }} Ads{% else %}Ad Board{% endif %} — SuperAdPro Marketplace | Browse {{ total_ads }}+ Listings</title>
+<meta name="description" content="{% if cat_name %}Browse {{ total_ads }} {{ cat_name }} ads and opportunities on SuperAdPro.{% else %}Discover business opportunities, digital marketing services, and more from the SuperAdPro community. {{ total_ads }} active listings.{% endif %} Free to browse, place your own ads as a member.">
+<meta name="keywords" content="ad board, business opportunities, digital marketing, affiliate marketing, online advertising, free ads, SuperAdPro{% if cat_name %}, {{ cat_name }}{% endif %}">
+<link rel="canonical" href="{{ base_url }}/ads{% if active_category %}?category={{ active_category }}{% endif %}">
+<meta name="robots" content="index, follow">
+
+<!-- Open Graph -->
+<meta property="og:title" content="{% if cat_name %}{{ cat_name }} — {% endif %}SuperAdPro Ad Board | {{ total_ads }}+ Listings">
+<meta property="og:description" content="Browse business opportunities, services and offers from the SuperAdPro community. Post your own ads and reach thousands of visitors.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ base_url }}/ads{% if active_category %}?category={{ active_category }}{% endif %}">
+<meta property="og:image" content="{{ base_url }}/static/og-adboard.png">
+<meta property="og:site_name" content="SuperAdPro">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SuperAdPro Ad Board — {{ total_ads }}+ Listings">
+<meta name="twitter:description" content="Discover business opportunities, digital marketing services, and more. Free to browse.">
+
+<!-- JSON-LD Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "{% if cat_name %}{{ cat_name }} — {% endif %}SuperAdPro Ad Board",
+  "description": "Browse {{ total_ads }} active ads and business opportunities on the SuperAdPro marketplace.",
+  "url": "{{ base_url }}/ads{% if active_category %}?category={{ active_category }}{% endif %}",
+  "mainEntity": {
+    "@type": "ItemList",
+    "numberOfItems": {{ total_ads }},
+    "itemListElement": [
+      {% for ad in listings[:10] %}
+      {
+        "@type": "ListItem",
+        "position": {{ loop.index }},
+        "item": {
+          "@type": "Offer",
+          "name": "{{ ad.title|e }}",
+          "description": "{{ ad.description[:160]|e }}",
+          "url": "{{ base_url }}/ads/listing/{{ ad.slug }}"{% if ad.image_url %},
+          "image": "{{ ad.image_url }}"{% endif %}
+        }
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+}
+</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -61,6 +108,7 @@ a{text-decoration:none;color:inherit}
 .ad-emoji{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .ad-cat{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#0ea5e9}
 .ad-title{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ad-title-link{display:block;transition:color 0.2s}.ad-title-link:hover .ad-title{color:#0284c7}
 .ad-desc{font-size:12px;color:#94a3b8;line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ad-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:11px;color:#94a3b8}
 .ad-author{display:flex;align-items:center;gap:6px}
@@ -163,16 +211,19 @@ a{text-decoration:none;color:inherit}
         <div class="ad-emoji" style="background:{{ bg_colors.get(ad.category, 'linear-gradient(135deg,#f1f5f9,#e2e8f0)') }}">{{ icons.get(ad.category, '📌') }}</div>
         <div><div class="ad-cat">{{ icons.get(ad.category, '📌') }} {{ ad.category | replace('-', ' ') | title }}</div></div>
       </div>
-      <div class="ad-title">{{ ad.title }}</div>
+      <a href="{% if ad.slug %}/ads/listing/{{ ad.slug }}{% else %}/ads/click/{{ ad.id }}{% endif %}" class="ad-title-link"><div class="ad-title">{{ ad.title }}</div></a>
       <div class="ad-desc">{{ ad.description }}</div>
       <div class="ad-meta">
         <div class="ad-author">
           <div class="ad-avatar" style="background:{{ avatar_colors[loop.index0 % 12] }}">{{ ad.owner_name[:2] | upper }}</div>
           {{ ad.owner_name }}
         </div>
-        <span style="font-size:10px;color:#94a3b8">🔗 {{ ad.clicks }}</span>
+        <span style="font-size:10px;color:#94a3b8">👁 {{ ad.views|default(0) }} · 🔗 {{ ad.clicks }}</span>
       </div>
-      <a href="/ads/click/{{ ad.id }}" target="_blank" class="ad-cta">Visit Offer →</a>
+      <div style="display:flex;gap:8px;align-items:center">
+        {% if ad.slug %}<a href="/ads/listing/{{ ad.slug }}" class="ad-cta" style="background:#f0f9ff;color:#0284c7;border:1px solid rgba(14,165,233,0.2)">View Details</a>{% endif %}
+        <a href="/ads/click/{{ ad.id }}" target="_blank" class="ad-cta">Visit Offer →</a>
+      </div>
       <div class="ad-share">
         <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url_for('ad_board_public') }}" target="_blank" title="Facebook">
           <span style="font-weight:800;font-size:10px;color:#1877f2">f</span>
@@ -266,6 +317,50 @@ function toggleAuto() {
 
 startAuto();
 </script>
+
+<!-- Advertise CTA Banner -->
+<div style="max-width:1200px;margin:32px auto;padding:0 24px">
+  <div style="background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:16px;padding:36px 32px;text-align:center;color:#fff">
+    <h2 style="font-family:Sora,sans-serif;font-size:22px;font-weight:800;margin-bottom:8px">🚀 Want Your Ad On This Board?</h2>
+    <p style="font-size:14px;color:#94a3b8;margin-bottom:20px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.6">SuperAdPro members can post up to 5 ads for free. Reach thousands of entrepreneurs, marketers, and business builders actively looking for opportunities.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="/?register=1" style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;font-weight:700;font-size:14px;border-radius:8px;transition:all 0.2s">Join Free & Start Advertising</a>
+      <a href="/how-it-works" style="display:inline-block;padding:12px 28px;border:1px solid rgba(148,163,184,0.3);color:#94a3b8;font-weight:600;font-size:14px;border-radius:8px;transition:all 0.2s">Learn How It Works</a>
+    </div>
+  </div>
+</div>
+
+<!-- Pagination -->
+{% if total_pages > 1 %}
+<div style="max-width:1200px;margin:0 auto 24px;padding:0 24px;display:flex;justify-content:center;gap:6px">
+  {% if page > 1 %}<a href="/ads?{% if active_category %}category={{ active_category }}&{% endif %}page={{ page - 1 }}" style="padding:8px 14px;border-radius:6px;border:1px solid #e2e8f0;font-size:13px;font-weight:600;color:#64748b">← Prev</a>{% endif %}
+  {% for p in range(1, total_pages + 1) %}
+    {% if p == page %}
+    <span style="padding:8px 14px;border-radius:6px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;font-size:13px;font-weight:700">{{ p }}</span>
+    {% elif p <= 3 or p >= total_pages - 1 or (p >= page - 1 and p <= page + 1) %}
+    <a href="/ads?{% if active_category %}category={{ active_category }}&{% endif %}page={{ p }}" style="padding:8px 14px;border-radius:6px;border:1px solid #e2e8f0;font-size:13px;font-weight:600;color:#64748b">{{ p }}</a>
+    {% elif p == 4 or p == total_pages - 2 %}
+    <span style="padding:8px 14px;font-size:13px;color:#94a3b8">…</span>
+    {% endif %}
+  {% endfor %}
+  {% if page < total_pages %}<a href="/ads?{% if active_category %}category={{ active_category }}&{% endif %}page={{ page + 1 }}" style="padding:8px 14px;border-radius:6px;border:1px solid #e2e8f0;font-size:13px;font-weight:600;color:#64748b">Next →</a>{% endif %}
+</div>
+{% endif %}
+
+<!-- SEO Content Footer -->
+<div style="max-width:1200px;margin:0 auto;padding:0 24px 32px">
+  <div style="background:#fff;border-radius:16px;border:1px solid #e2e8f0;padding:28px 32px">
+    <h2 style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#0f172a;margin-bottom:12px">SuperAdPro Ad Board — Free Online Advertising Marketplace</h2>
+    <p style="font-size:13px;color:#64748b;line-height:1.8;margin-bottom:12px">The SuperAdPro Ad Board is a free-to-browse advertising marketplace connecting entrepreneurs, digital marketers, and business builders. Whether you're looking for new business opportunities, digital marketing services, health and wellness products, finance and crypto tools, e-commerce solutions, or educational courses — our community-powered ad board has something for everyone.</p>
+    <p style="font-size:13px;color:#64748b;line-height:1.8;margin-bottom:12px">SuperAdPro members can post up to 5 active listings across {{ categories|length }} categories. Each ad gets its own shareable page with social sharing buttons, view and click tracking, and SEO-friendly URLs to help your offers get discovered by search engines.</p>
+    <p style="font-size:13px;color:#64748b;line-height:1.8">Browse our {{ total_ads }}+ active listings below, or <a href="/?register=1" style="color:#0ea5e9;font-weight:600">join SuperAdPro</a> to place your own ads and reach thousands of potential customers.</p>
+    <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:8px">
+      {% for cat in categories %}
+      <a href="/ads?category={{ cat.id }}" style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:600;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;transition:all 0.2s">{{ cat.icon }} {{ cat.name }}</a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
 
 <div class="footer">© 2026 SuperAdPro. All rights reserved. · <a href="/">superadpro.com</a></div>
 

@@ -2839,23 +2839,67 @@ AD_CATEGORIES = [
 ]
 
 @app.get("/ads")
-def ad_board_public(request: Request, category: str = None, db: Session = Depends(get_db)):
+def ad_board_public(request: Request, category: str = None, page: int = 1, db: Session = Depends(get_db)):
     query = db.query(AdListing).filter(AdListing.is_active == True)
     if category:
         query = query.filter(AdListing.category == category)
-    # Featured first, then newest
-    listings = query.order_by(AdListing.is_featured.desc(), AdListing.created_at.desc()).limit(60).all()
-    # Attach owner usernames
+    total_ads = query.count()
+    per_page = 30
+    offset = (page - 1) * per_page
+    listings = query.order_by(AdListing.is_featured.desc(), AdListing.created_at.desc()).offset(offset).limit(per_page).all()
     for listing in listings:
         owner = db.query(User).filter(User.id == listing.user_id).first()
         listing.owner_name = owner.username if owner else "Member"
+        listing.views += 1
+    db.commit()
+    # Category lookup for meta
+    cat_name = None
+    if category:
+        cat_match = [c for c in AD_CATEGORIES if c["id"] == category]
+        cat_name = cat_match[0]["name"] if cat_match else category
+    total_pages = max(1, (total_ads + per_page - 1) // per_page)
+    base_url = os.getenv("BASE_URL", "https://superadpro-production.up.railway.app")
     return templates.TemplateResponse("ad-board.html", {
         "request": request,
         "listings": listings,
         "categories": AD_CATEGORIES,
         "active_category": category,
-        "total_ads": db.query(AdListing).filter(AdListing.is_active == True).count(),
+        "cat_name": cat_name,
+        "total_ads": total_ads,
+        "page": page,
+        "total_pages": total_pages,
+        "base_url": base_url,
     })
+
+
+@app.get("/ads/listing/{slug}")
+def ad_detail_page(slug: str, request: Request, db: Session = Depends(get_db)):
+    """Individual ad page — SEO-indexable, shareable, with OG tags"""
+    listing = db.query(AdListing).filter(AdListing.slug == slug, AdListing.is_active == True).first()
+    if not listing:
+        raise HTTPException(status_code=404, detail="Ad not found")
+    listing.views += 1
+    db.commit()
+    owner = db.query(User).filter(User.id == listing.user_id).first()
+    listing.owner_name = owner.username if owner else "Member"
+    # Related ads in same category
+    related = db.query(AdListing).filter(
+        AdListing.is_active == True,
+        AdListing.category == listing.category,
+        AdListing.id != listing.id
+    ).order_by(AdListing.is_featured.desc(), AdListing.created_at.desc()).limit(6).all()
+    for r in related:
+        r_owner = db.query(User).filter(User.id == r.user_id).first()
+        r.owner_name = r_owner.username if r_owner else "Member"
+    base_url = os.getenv("BASE_URL", "https://superadpro-production.up.railway.app")
+    return templates.TemplateResponse("ad-detail.html", {
+        "request": request,
+        "ad": listing,
+        "related": related,
+        "categories": AD_CATEGORIES,
+        "base_url": base_url,
+    })
+
 
 @app.get("/ads/click/{ad_id}")
 def ad_click(ad_id: int, db: Session = Depends(get_db)):
@@ -2865,6 +2909,53 @@ def ad_click(ad_id: int, db: Session = Depends(get_db)):
     listing.clicks += 1
     db.commit()
     return RedirectResponse(url=listing.link_url, status_code=302)
+
+
+@app.get("/sitemap.xml")
+def sitemap_xml(request: Request, db: Session = Depends(get_db)):
+    """Dynamic XML sitemap for SEO — includes all active ads and category pages"""
+    from fastapi.responses import Response
+    base_url = os.getenv("BASE_URL", "https://superadpro-production.up.railway.app")
+    urls = []
+    # Static pages
+    for path in ["/", "/how-it-works", "/compensation-plan", "/courses", "/ads"]:
+        urls.append(f'<url><loc>{base_url}{path}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>')
+    # Category pages
+    for cat in AD_CATEGORIES:
+        urls.append(f'<url><loc>{base_url}/ads?category={cat["id"]}</loc><changefreq>daily</changefreq><priority>0.7</priority></url>')
+    # Individual ad pages
+    active_ads = db.query(AdListing).filter(AdListing.is_active == True, AdListing.slug.isnot(None)).all()
+    for ad in active_ads:
+        lastmod = ad.updated_at.strftime("%Y-%m-%d") if ad.updated_at else ""
+        lm = f"<lastmod>{lastmod}</lastmod>" if lastmod else ""
+        urls.append(f'<url><loc>{base_url}/ads/listing/{ad.slug}</loc>{lm}<changefreq>weekly</changefreq><priority>0.6</priority></url>')
+
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "\n".join(urls) + "\n</urlset>"
+    return Response(content=xml, media_type="application/xml")
+
+
+@app.get("/robots.txt")
+def robots_txt():
+    """Robots.txt for search engine crawlers"""
+    from fastapi.responses import Response
+    base_url = os.getenv("BASE_URL", "https://superadpro-production.up.railway.app")
+    content = f"""User-agent: *
+Allow: /
+Allow: /ads
+Allow: /ads/listing/
+Allow: /how-it-works
+Allow: /compensation-plan
+Allow: /courses
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /api/
+Disallow: /ads/my
+Disallow: /wallet
+Disallow: /settings
+
+Sitemap: {base_url}/sitemap.xml
+"""
+    return Response(content=content, media_type="text/plain")
 
 @app.get("/ads/my")
 def my_ads_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -2893,11 +2984,15 @@ async def create_ad(request: Request, user: User = Depends(get_current_user), db
         return JSONResponse({"error": "Title, description and link are required"}, status_code=400)
     if not link_url.startswith("http"):
         link_url = "https://" + link_url
+    # Generate URL-safe slug from title
+    import re, time
+    slug_base = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')[:80]
+    slug = f"{slug_base}-{int(time.time()) % 100000}"
     # Limit: max 5 active ads per user
     active_count = db.query(AdListing).filter(AdListing.user_id == user.id, AdListing.is_active == True).count()
     if active_count >= 5:
         return JSONResponse({"error": "Maximum 5 active ads. Deactivate one to post another."}, status_code=400)
-    ad = AdListing(user_id=user.id, title=title, description=description, category=category, link_url=link_url, image_url=image_url)
+    ad = AdListing(user_id=user.id, title=title, slug=slug, description=description, category=category, link_url=link_url, image_url=image_url)
     db.add(ad)
     db.commit()
     return {"success": True, "id": ad.id}

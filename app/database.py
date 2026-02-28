@@ -381,6 +381,7 @@ class AdListing(Base):
     id           = Column(Integer, primary_key=True, index=True)
     user_id      = Column(Integer, ForeignKey("users.id"), nullable=False)
     title        = Column(String, nullable=False)
+    slug         = Column(String, unique=True, index=True, nullable=True)
     description  = Column(String, nullable=False)
     category     = Column(String, nullable=False, default="general")
     link_url     = Column(String, nullable=False)
