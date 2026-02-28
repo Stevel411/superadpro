@@ -359,7 +359,7 @@ let youId=1,sponsorId=0;
 /* Pre-build full tree data (all hidden initially) */
 function buildTree(){
   allNodes=[];nMap={};let id=0,ni=0;
-  function mk(nm,pid,cls){const n={id:id++,nm,pid,pu:null,sc:0,rc:0,ch:[],el:null,cls:cls||'',visible:false};allNodes.push(n);nMap[n.id]=n;return n;}
+  function mk(nm,pid,cls){const n={id:id++,nm,pid,pu:null,sc:0,rc:0,ch:[],el:null,cls:cls||'',visible:false,saleType:null};allNodes.push(n);nMap[n.id]=n;return n;}
 
   const sp=mk('SPONSOR',null,'sponsor'); sp.visible=true;
   const you=mk('YOU',sp.id,'root'); sp.ch.push(you.id); sp.rc++;
@@ -437,6 +437,16 @@ function renderTree(){
       const el=document.createElement('div');
       el.className='nd'+(n.cls?' '+n.cls:'');el.id='n'+n.id;
       el.innerHTML='<div class="nm">'+n.nm+'</div><div class="sc" id="sc'+n.id+'">'+n.sc+' sale'+(n.sc!==1?'s':'')+'</div><div class="badge" id="pb'+n.id+'"></div>';
+      // Apply persistent colour based on sale type
+      if(n.saleType==='kept'){
+        el.style.background='#d1fae5';el.style.borderColor='#10b981';el.style.borderStyle='solid';
+        el.querySelector('.nm').style.color='#065f46';
+        el.querySelector('.sc').style.color='#047857';
+      } else if(n.saleType==='passup'){
+        el.style.background='#fef3c7';el.style.borderColor='#f59e0b';el.style.borderStyle='solid';
+        el.querySelector('.nm').style.color='#92400e';
+        el.querySelector('.sc').style.color='#b45309';
+      }
       row.appendChild(el);n.el=el;
     });
     rows.appendChild(row);
@@ -485,9 +495,15 @@ function processStep(){
   var sce=document.getElementById('sc'+sp.id);
   if(sce) sce.textContent=sn+(sn===1?' sale':' sales');
 
-  // 3. Colour the new node based on sale type
+  // 3. Colour the new node based on sale type and store it
+  if(isUp){
+    nn.saleType='passup';
+  } else {
+    nn.saleType='kept';
+  }
+  // Apply colour immediately (renderTree will also apply on re-render)
   if(nn.el){
-    if(isUp){
+    if(nn.saleType==='passup'){
       nn.el.style.background='#fef3c7';nn.el.style.borderColor='#f59e0b';nn.el.style.borderStyle='solid';
       nn.el.querySelector('.nm').style.color='#92400e';
       nn.el.querySelector('.sc').style.color='#b45309';
