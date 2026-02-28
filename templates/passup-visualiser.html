@@ -371,36 +371,33 @@ function buildTree(){
 
 function buildQueue(){
   queue=[];
-  const l1=nodes.filter(n=>n.lv===1); // YOU's direct children
+  const l1=nodes.filter(n=>n.lv===1);
   const l2=nodes.filter(n=>n.lv===2);
   const l3=nodes.filter(n=>n.lv===3);
 
-  // Phase 1: L1 members get their first few sales (YOUR directs selling)
-  // Each L1 node is a child of YOU → sale attributed to YOU (sid=0)
-  for(let r=1;r<=4;r++){
-    const batch=l1.map(n=>({sid:n.pid})); // sid=0 (YOU) for all
-    shuffle(batch); queue.push(...batch);
-  }
-
-  // Phase 2: L2 starts filling — L1 members now also continue selling
+  // Phase 1: YOU and L1 members make their first sales
+  // sid = the person making the sale (their sale count increments)
   for(let r=1;r<=4;r++){
     const batch=[];
-    // L2 children generate sales for their L1 parents
-    l2.forEach(n=>batch.push({sid:n.pid}));
-    // L1 continues getting occasional sales too
-    if(r<=2) l1.forEach(n=>batch.push({sid:n.pid}));
+    batch.push({sid:0}); // YOU makes a sale each round
+    l1.forEach(n=>batch.push({sid:n.id}));
     shuffle(batch); queue.push(...batch);
   }
 
-  // Phase 3: L3 kicks in — all levels active, showing cascade
+  // Phase 2: L2 starts selling, L1 picks up a couple more
+  for(let r=1;r<=4;r++){
+    const batch=[];
+    l2.forEach(n=>batch.push({sid:n.id}));
+    if(r<=2) l1.forEach(n=>batch.push({sid:n.id}));
+    shuffle(batch); queue.push(...batch);
+  }
+
+  // Phase 3: L3 kicks in — full cascade visible
   for(let r=1;r<=6;r++){
     const batch=[];
-    // L3 children generate sales for their L2 parents
-    l3.forEach(n=>batch.push({sid:n.pid}));
-    // L3 also make their own sales (phantom buyers below tree)
-    l3.forEach(n=>batch.push({sid:n.id,phantom:true}));
-    // L2 continues
-    if(r<=3) l2.forEach(n=>batch.push({sid:n.pid}));
+    l3.forEach(n=>batch.push({sid:n.id}));
+    if(r<=3) l2.forEach(n=>batch.push({sid:n.id}));
+    if(r<=2) l1.forEach(n=>batch.push({sid:n.id}));
     shuffle(batch); queue.push(...batch);
   }
 }
