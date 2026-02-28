@@ -2840,36 +2840,40 @@ AD_CATEGORIES = [
 
 @app.get("/ads")
 def ad_board_public(request: Request, category: str = None, page: int = 1, db: Session = Depends(get_db)):
-    query = db.query(AdListing).filter(AdListing.is_active == True)
-    if category:
-        query = query.filter(AdListing.category == category)
-    total_ads = query.count()
-    per_page = 30
-    offset = (page - 1) * per_page
-    listings = query.order_by(AdListing.is_featured.desc(), AdListing.created_at.desc()).offset(offset).limit(per_page).all()
-    for listing in listings:
-        owner = db.query(User).filter(User.id == listing.user_id).first()
-        listing.owner_name = owner.username if owner else "Member"
-        listing.views += 1
-    db.commit()
-    # Category lookup for meta
-    cat_name = None
-    if category:
-        cat_match = [c for c in AD_CATEGORIES if c["id"] == category]
-        cat_name = cat_match[0]["name"] if cat_match else category
-    total_pages = max(1, (total_ads + per_page - 1) // per_page)
-    base_url = os.getenv("BASE_URL", "https://superadpro-production.up.railway.app")
-    return templates.TemplateResponse("ad-board.html", {
-        "request": request,
-        "listings": listings,
-        "categories": AD_CATEGORIES,
-        "active_category": category,
-        "cat_name": cat_name,
-        "total_ads": total_ads,
-        "page": page,
-        "total_pages": total_pages,
-        "base_url": base_url,
-    })
+    from fastapi.responses import JSONResponse
+    try:
+        query = db.query(AdListing).filter(AdListing.is_active == True)
+        if category:
+            query = query.filter(AdListing.category == category)
+        total_ads = query.count()
+        per_page = 30
+        offset = (page - 1) * per_page
+        listings = query.order_by(AdListing.is_featured.desc(), AdListing.created_at.desc()).offset(offset).limit(per_page).all()
+        for listing in listings:
+            owner = db.query(User).filter(User.id == listing.user_id).first()
+            listing.owner_name = owner.username if owner else "Member"
+            listing.views = (listing.views or 0) + 1
+        db.commit()
+        cat_name = None
+        if category:
+            cat_match = [c for c in AD_CATEGORIES if c["id"] == category]
+            cat_name = cat_match[0]["name"] if cat_match else category
+        total_pages = max(1, (total_ads + per_page - 1) // per_page)
+        base_url = os.getenv("BASE_URL", "https://superadpro-production.up.railway.app")
+        return templates.TemplateResponse("ad-board.html", {
+            "request": request,
+            "listings": listings,
+            "categories": AD_CATEGORIES,
+            "active_category": category,
+            "cat_name": cat_name,
+            "total_ads": total_ads,
+            "page": page,
+            "total_pages": total_pages,
+            "base_url": base_url,
+        })
+    except Exception as exc:
+        logger.error(f"Ad board error: {exc}", exc_info=True)
+        return JSONResponse({"error": f"Ad board error: {exc}"}, status_code=500)
 
 
 @app.get("/ads/listing/{slug}")
