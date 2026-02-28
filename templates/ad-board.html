@@ -41,8 +41,8 @@
         "item": {
           "@type": "Offer",
           "name": "{{ ad.title|e }}",
-          "description": "{{ ad.description[:160]|e }}",
-          "url": "{{ base_url }}/ads/listing/{{ ad.slug }}"{% if ad.image_url %},
+          "description": "{{ ad.description|truncate(160,true,'')|e }}",
+          "url": "{{ base_url }}/ads/listing/{{ ad.slug or ad.id }}"{% if ad.image_url %},
           "image": "{{ ad.image_url }}"{% endif %}
         }
       }{% if not loop.last %},{% endif %}

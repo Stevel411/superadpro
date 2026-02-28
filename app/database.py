@@ -610,6 +610,9 @@ try:
         """))
         # Add course_earnings column to users
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS course_earnings FLOAT DEFAULT 0.0"))
+        # Add slug column to ad_listings
+        conn.execute(text("ALTER TABLE ad_listings ADD COLUMN IF NOT EXISTS slug VARCHAR"))
+        conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS idx_ad_listings_slug ON ad_listings(slug) WHERE slug IS NOT NULL"))
         # Mark existing users as onboarding complete (they don't need the wizard)
         conn.execute(text("UPDATE users SET onboarding_completed = TRUE WHERE onboarding_completed IS NULL OR (created_at < NOW() - INTERVAL '1 hour')"))
         conn.commit()

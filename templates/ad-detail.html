@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>{{ ad.title|e }} — SuperAdPro Ad Board</title>
-<meta name="description" content="{{ ad.description[:160]|e }} | Browse {{ ad.category|replace('-',' ')|title }} listings on SuperAdPro.">
+<meta name="description" content="{{ ad.description|default(""|string)|truncate(160,true,"")|e }} | Browse {{ ad.category|replace('-',' ')|title }} listings on SuperAdPro.">
 <meta name="keywords" content="{{ ad.title|e }}, {{ ad.category|replace('-',' ') }}, SuperAdPro, ad board, business opportunity">
 <link rel="canonical" href="{{ base_url }}/ads/listing/{{ ad.slug }}">
 <meta name="robots" content="index, follow">
 
 <!-- Open Graph -->
 <meta property="og:title" content="{{ ad.title|e }}">
-<meta property="og:description" content="{{ ad.description[:200]|e }}">
+<meta property="og:description" content="{{ ad.description|default(""|string)|truncate(200,true,"")|e }}">
 <meta property="og:type" content="product">
 <meta property="og:url" content="{{ base_url }}/ads/listing/{{ ad.slug }}">
 {% if ad.image_url %}<meta property="og:image" content="{{ ad.image_url }}">{% endif %}
@@ -20,7 +20,7 @@
 <!-- Twitter Card -->
 <meta name="twitter:card" content="{% if ad.image_url %}summary_large_image{% else %}summary{% endif %}">
 <meta name="twitter:title" content="{{ ad.title|e }}">
-<meta name="twitter:description" content="{{ ad.description[:200]|e }}">
+<meta name="twitter:description" content="{{ ad.description|default(""|string)|truncate(200,true,"")|e }}">
 {% if ad.image_url %}<meta name="twitter:image" content="{{ ad.image_url }}">{% endif %}
 
 <!-- JSON-LD -->
@@ -163,7 +163,7 @@ a{text-decoration:none;color:inherit}
     <span class="sep">›</span>
     <a href="/ads?category={{ ad.category }}">{{ ad.category|replace('-',' ')|title }}</a>
     <span class="sep">›</span>
-    <span>{{ ad.title[:50] }}{% if ad.title|length > 50 %}…{% endif %}</span>
+    <span>{{ ad.title|truncate(50) }}</span>
   </nav>
 
   <!-- Main ad card -->
@@ -223,7 +223,7 @@ a{text-decoration:none;color:inherit}
       <a href="/ads/listing/{{ r.slug }}" class="rel-card">
         <div class="rc-cat">{{ r.category|replace('-',' ')|title }}</div>
         <h3>{{ r.title }}</h3>
-        <p>{{ r.description[:120] }}{% if r.description|length > 120 %}…{% endif %}</p>
+        <p>{{ r.description|default('')|truncate(120) }}</p>
         <div class="rc-footer">
           <span>👤 {{ r.owner_name }}</span>
           <span>👁 {{ r.views|default(0) }} views</span>
