@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Video Script Generator — SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:#f4f7fc;color:#0f172a;min-height:100vh}
+body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.15);position:sticky;top:0;z-index:200}
 .topbar-left{display:flex;align-items:center;gap:20px}
 .topbar-title{font-size:18px;font-weight:800;color:#fff}
@@ -70,6 +70,11 @@ body{font-family:'DM Sans',sans-serif;background:#f4f7fc;color:#0f172a;min-heigh
 </style>
 </head>
 <body>
+
+<div class="layout">
+  {% include "_sidebar.html" %}
+  <div class="main">
+
 <div class="topbar">
   <div class="topbar-left">
     <a href="/dashboard" class="tb-btn">← Dashboard</a>
@@ -188,5 +193,7 @@ async function generate(){
 }
 function copyAll(){const t=document.getElementById('outputContent').innerText;navigator.clipboard.writeText(t).then(()=>{const b=document.querySelector('.copy-row .copy-btn');b.textContent='✅ Copied!';setTimeout(()=>b.textContent='📋 Copy Script',2000)})}
 </script>
+  </div><!-- /main -->
+</div><!-- /layout -->
 </body>
 </html>
