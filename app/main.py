@@ -2254,9 +2254,21 @@ def funnel_delete(page_id: int, user: User = Depends(get_current_user),
     page = db.query(FunnelPage).filter(FunnelPage.id == page_id, FunnelPage.user_id == user.id).first()
     if not page:
         return JSONResponse({"error": "Page not found"}, status_code=404)
-    db.delete(page)
-    db.commit()
-    return JSONResponse({"success": True})
+    try:
+        from sqlalchemy import text
+        # Clear any next_page_id references pointing to this page
+        db.query(FunnelPage).filter(FunnelPage.next_page_id == page_id).update({"next_page_id": None})
+        # Delete related leads
+        db.execute(text("DELETE FROM funnel_leads WHERE page_id = :pid"), {"pid": page_id})
+        # Delete related analytics events
+        db.execute(text("DELETE FROM funnel_events WHERE page_id = :pid"), {"pid": page_id})
+        # Now delete the page
+        db.delete(page)
+        db.commit()
+        return JSONResponse({"success": True})
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({"error": f"Delete failed: {str(e)}"}, status_code=500)
 
 
 # ── Phase 2: Lead Capture API ──────────────────────────────

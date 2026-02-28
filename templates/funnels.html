@@ -349,7 +349,7 @@ function copyUrl(inputId) {
 async function deletePage(id) {
   if(!confirm('Delete this page? This cannot be undone.')) return;
   try {
-    const res = await fetch('/api/funnels/delete/' + id, {method:'POST'});
+    const res = await fetch('/api/funnels/delete/' + id, {method:'POST', credentials:'same-origin'});
     const data = await res.json();
     if(data.success) location.reload();
     else alert('Error: ' + (data.error || 'Could not delete'));
