@@ -68,6 +68,8 @@ class User(Base):
     first_name          = Column(String, nullable=True)
     last_name           = Column(String, nullable=True)
     sponsor_id          = Column(Integer, ForeignKey("users.id"), nullable=True)
+    pass_up_sponsor_id  = Column(Integer, ForeignKey("users.id"), nullable=True)  # permanent pass-up chain
+    course_sale_count   = Column(Integer, default=0)              # total personally referred course sales (any tier)
     wallet_address      = Column(String, nullable=True)
     is_admin            = Column(Boolean, default=False)
     is_active           = Column(Boolean, default=False)
@@ -510,6 +512,8 @@ def run_migrations():
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS total_team INTEGER DEFAULT 0",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS sponsor_id INTEGER",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS pass_up_sponsor_id INTEGER",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS course_sale_count INTEGER DEFAULT 0",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS country VARCHAR",
         # Video watch system
         "CREATE TABLE IF NOT EXISTS video_watches (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), campaign_id INTEGER REFERENCES video_campaigns(id), watched_at TIMESTAMP DEFAULT NOW(), watch_date VARCHAR, duration_secs INTEGER DEFAULT 30)",

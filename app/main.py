@@ -29,7 +29,7 @@ from .video_utils import parse_video_url, platform_label, platform_colour
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent
 from .database import PasswordResetToken
 from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker
-from .course_engine import process_course_purchase, get_user_course_stats
+from .course_engine import process_course_purchase, get_user_course_stats, assign_passup_sponsor
 import secrets
 from datetime import timedelta
 from .payment import (
@@ -411,6 +411,12 @@ def register_process(
         wallet_address="",
         country="",
     )
+
+    # Assign pass-up sponsor for course commission chain
+    if sponsor_id:
+        sponsor_obj = db.query(User).filter(User.id == sponsor_id).first()
+        assign_passup_sponsor(db, user, sponsor_obj)
+        db.commit()
 
     response = RedirectResponse(url="/dashboard", status_code=303)
     set_secure_cookie(response, user.id)
@@ -3607,6 +3613,12 @@ async def api_register(
             wallet_address="",
             country="",
         )
+
+        # Assign pass-up sponsor for course commission chain
+        if sponsor_id:
+            sponsor_obj = db.query(User).filter(User.id == sponsor_id).first()
+            assign_passup_sponsor(db, user, sponsor_obj)
+            db.commit()
 
         # Send welcome email (fails silently if not configured)
         try:
