@@ -89,6 +89,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 .prev-move-btn:disabled{opacity:0.3;cursor:default;transform:none}
 .prev-move-btn.grab-handle{cursor:grab;font-size:14px}
 .prev-move-btn.grab-handle:active{cursor:grabbing}
+.prev-right-bar{position:absolute;top:8px;right:8px;display:flex;align-items:center;gap:6px;opacity:0;transition:opacity 0.2s;z-index:5}
+.prev-section:hover .prev-right-bar{opacity:1}
+.prev-right-bar .edit-hint{position:static;opacity:1;pointer-events:auto}
+.prev-del-btn{background:rgba(239,68,68,0.85) !important}
+.prev-del-btn:hover{background:rgba(239,68,68,1) !important}
 .device-toggle{display:flex;background:var(--blue-dim);border-radius:8px;overflow:hidden;border:1px solid var(--border)}
 .device-toggle button{padding:5px 10px;border:none;background:transparent;color:var(--text-dim);font-size:14px;cursor:pointer;transition:all 0.15s}
 .device-toggle button.active{background:var(--blue);color:#fff}
@@ -501,7 +506,7 @@ function renderPreview(){
     wrap.className='prev-section'+(activeSection===i?' active':'')+(sec.enabled?'':' disabled');
     const upDis=i===0?'disabled':'';
     const downDis=i===pageSections.length-1?'disabled':'';
-    wrap.innerHTML=`<div class="prev-move-bar"><button class="prev-move-btn" title="Move up" onclick="event.stopPropagation();moveSection(${i},-1)" ${upDis}>▲</button><button class="prev-move-btn" title="Move down" onclick="event.stopPropagation();moveSection(${i},1)" ${downDis}>▼</button><button class="prev-move-btn grab-handle" title="Drag to reorder" onmousedown="event.stopPropagation();event.preventDefault();startPreviewDrag(${i},event)">⠿</button></div><span class="edit-hint">Click to edit</span>`+renderHTML(sec);
+    wrap.innerHTML=`<div class="prev-move-bar"><button class="prev-move-btn" title="Move up" onclick="event.stopPropagation();moveSection(${i},-1)" ${upDis}>▲</button><button class="prev-move-btn" title="Move down" onclick="event.stopPropagation();moveSection(${i},1)" ${downDis}>▼</button><button class="prev-move-btn grab-handle" title="Drag to reorder" onmousedown="event.stopPropagation();event.preventDefault();startPreviewDrag(${i},event)">⠿</button></div><div class="prev-right-bar"><span class="edit-hint">Click to edit</span><button class="prev-move-btn prev-del-btn" title="Delete section" onclick="event.stopPropagation();if(confirm('Delete this section?'))removeSection(${i})">✕</button></div>`+renderHTML(sec);
     wrap.addEventListener('click',()=>selectSection(i));lp.appendChild(wrap);
   });
 }
