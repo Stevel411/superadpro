@@ -106,7 +106,7 @@ def place_member_in_grid(
 def _pay_direct_sponsor(db: Session, grid: Grid, member_id: int, price: float):
     """25% to the member's personal sponsor."""
     member = db.query(User).filter(User.id == member_id).first()
-    amount = round(price * DIRECT_PCT, 6)
+    amount = round(float(price) * DIRECT_PCT, 6)
 
     if not member or not member.sponsor_id:
         _record_commission(db, grid, None, amount, "direct_sponsor",
@@ -125,7 +125,7 @@ def _pay_direct_sponsor(db: Session, grid: Grid, member_id: int, price: float):
 
 def _pay_unilevel_chain(db: Session, grid: Grid, member_id: int, price: float):
     """8.75% to each of 8 sponsor chain levels above the new member."""
-    per_level = round(price * PER_LEVEL_PCT, 6)
+    per_level = round(float(price) * PER_LEVEL_PCT, 6)
     current_id = member_id
 
     for lvl in range(1, GRID_LEVELS + 1):
@@ -150,7 +150,7 @@ def _pay_unilevel_chain(db: Session, grid: Grid, member_id: int, price: float):
 
 
 def _record_platform_fee(db: Session, grid: Grid, price: float):
-    amount = round(price * PLATFORM_PCT, 6)
+    amount = round(float(price) * PLATFORM_PCT, 6)
     _record_commission(db, grid, None, amount, "platform",
                        f"Platform 5% fee on ${price}")
 
@@ -211,7 +211,7 @@ def get_grid_stats(db: Session, user_id: int) -> dict:
     completed = [g for g in grids if g.is_complete]
     active    = [g for g in grids if not g.is_complete]
 
-    total_earned = sum(g.revenue_total or 0 for g in grids) * PER_LEVEL_PCT
+    total_earned = sum(float(g.revenue_total or 0) for g in grids) * PER_LEVEL_PCT
 
     return {
         "total_grids":      len(grids),
@@ -227,7 +227,7 @@ def get_grid_stats(db: Session, user_id: int) -> dict:
                 "filled":          g.positions_filled,
                 "pct":             round((g.positions_filled / GRID_TOTAL) * 100),
                 "revenue":         g.revenue_total,
-                "owner_potential": round(g.revenue_total * PER_LEVEL_PCT, 2),
+                "owner_potential": round(float(g.revenue_total or 0) * PER_LEVEL_PCT, 2),
             }
             for g in active
         ]
