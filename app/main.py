@@ -99,6 +99,28 @@ def clear_failed_attempts(identifier):
     if identifier in failed_attempts:
         del failed_attempts[identifier]
 
+# ── Unique Slug Generator ─────────────────────────────────────
+import re as _re, random as _rand, string as _string
+def generate_unique_slug(db, username: str, title: str, exclude_page_id: int = None) -> str:
+    """Generate a unique slug for a funnel page: username/title-slug.
+    Appends random suffix if collision detected. Safe for concurrent use."""
+    raw = _re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-') or 'page'
+    base_slug = f"{username.lower()}/{raw}"
+    slug = base_slug
+    attempts = 0
+    while attempts < 10:
+        q = db.query(FunnelPage).filter(FunnelPage.slug == slug)
+        if exclude_page_id:
+            q = q.filter(FunnelPage.id != exclude_page_id)
+        if not q.first():
+            return slug
+        suffix = ''.join(_rand.choices(_string.ascii_lowercase + _string.digits, k=5))
+        slug = f"{base_slug}-{suffix}"
+        attempts += 1
+    # Absolute fallback: timestamp-based
+    import time
+    return f"{base_slug}-{int(time.time())}"
+
 # ── DB / Auth helpers ─────────────────────────────────────────
 def get_db():
     db = SessionLocal()
@@ -598,7 +620,7 @@ Return JSON: {{"headline":"...","subheadline":"...","cta_text":"...","benefits_t
             logger.warning(f"AI funnel gen failed: {e}")
 
     # Create the funnel page
-    slug = f"{user.username}/my-{niche.lower().replace(' ', '-')}-page"
+    slug = generate_unique_slug(db, user.username, f"My {niche} Page")
     page = FunnelPage(
         user_id=user.id,
         slug=slug,
@@ -1671,7 +1693,7 @@ def funnel_visual_new(request: Request, template_type: str = "optin",
         title="Untitled Page",
         template_type=template_type,
         status="draft",
-        slug=f"{user.username.lower()}/untitled-page"
+        slug=generate_unique_slug(db, user.username, "Untitled Page")
     )
     db.add(page)
     db.commit()
@@ -1735,13 +1757,7 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
     # Generate slug from title + username
     import re
     title = body.get("title", "My Page").strip()
-    raw_slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
-    slug = f"{user.username.lower()}/{raw_slug}"
-
-    # Ensure unique slug
-    existing = db.query(FunnelPage).filter(FunnelPage.slug == slug, FunnelPage.id != (page.id if page.id else -1)).first()
-    if existing:
-        slug = f"{slug}-{page.id or 'new'}"
+    slug = generate_unique_slug(db, user.username, title, exclude_page_id=page.id)
 
     page.title = title
     page.slug = slug
@@ -2221,9 +2237,7 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
         }}
     ]
 
-    slug_base = niche.lower().replace(' ', '-').replace('&', 'and')
-    rand = ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))
-    slug = f"{user.username}/{slug_base}-{rand}"
+    slug = generate_unique_slug(db, user.username, tpl["title"])
 
     sections_data = json.dumps(sections)
     page = FunnelPage(
@@ -2445,8 +2459,9 @@ def render_funnel_page(username: str, page_slug: str, request: Request,
     if not page:
         raise HTTPException(status_code=404, detail="Page not found")
 
-    # Track view
-    page.views = (page.views or 0) + 1
+    # Track view (atomic increment to prevent race conditions)
+    from sqlalchemy import text
+    db.execute(text("UPDATE funnel_pages SET views = COALESCE(views, 0) + 1 WHERE id = :pid"), {"pid": page.id})
     ua = request.headers.get("user-agent", "").lower()
     device = "mobile" if any(d in ua for d in ["mobile", "android", "iphone"]) else "desktop"
     view_event = FunnelEvent(
@@ -2479,10 +2494,9 @@ def render_funnel_page(username: str, page_slug: str, request: Request,
 @app.get("/api/funnels/track-click/{page_id}")
 def track_click(page_id: int, db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
-    page = db.query(FunnelPage).filter(FunnelPage.id == page_id).first()
-    if page:
-        page.clicks = (page.clicks or 0) + 1
-        db.commit()
+    from sqlalchemy import text
+    db.execute(text("UPDATE funnel_pages SET clicks = COALESCE(clicks, 0) + 1 WHERE id = :pid"), {"pid": page_id})
+    db.commit()
     return JSONResponse({"ok": True})
 
 

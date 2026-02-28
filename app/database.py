@@ -500,7 +500,7 @@ def run_migrations():
         "ALTER TABLE grids ADD COLUMN IF NOT EXISTS advance_number INTEGER DEFAULT 1",
         # Funnel page builder
         "CREATE TABLE IF NOT EXISTS funnel_pages (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), slug VARCHAR, title VARCHAR NOT NULL, template_type VARCHAR DEFAULT 'opportunity', status VARCHAR DEFAULT 'draft', headline TEXT, subheadline TEXT, body_copy TEXT, cta_text VARCHAR, cta_url VARCHAR, video_url VARCHAR, image_url VARCHAR, sections_json TEXT, color_scheme VARCHAR DEFAULT 'dark', accent_color VARCHAR DEFAULT '#00d4ff', font_family VARCHAR DEFAULT 'Rethink Sans', custom_css TEXT, meta_description TEXT, og_image_url VARCHAR, funnel_name VARCHAR, funnel_order INTEGER DEFAULT 0, next_page_id INTEGER REFERENCES funnel_pages(id), views INTEGER DEFAULT 0, clicks INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
-        "CREATE INDEX IF NOT EXISTS idx_funnel_pages_slug ON funnel_pages(slug)",
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_funnel_pages_slug_unique ON funnel_pages(slug) WHERE slug IS NOT NULL",
         "CREATE INDEX IF NOT EXISTS idx_funnel_pages_user ON funnel_pages(user_id)",
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS gjs_components TEXT",
         "ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS gjs_styles TEXT",
