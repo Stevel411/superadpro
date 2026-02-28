@@ -44,8 +44,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 .si-toggle.on{background:var(--blue)}
 .si-toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform 0.2s}
 .si-toggle.on::after{transform:translateX(16px)}
-.si-grip{color:var(--text-dim);cursor:grab;font-size:14px;opacity:0;transition:opacity 0.15s}
+.si-grip{color:var(--text-dim);cursor:grab;font-size:14px;opacity:0;transition:opacity 0.15s;padding:4px}
+.si-grip:active{cursor:grabbing}
 .section-item:hover .si-grip{opacity:1}
+.section-item.dragging{opacity:0.4;border:1px dashed rgba(14,165,233,0.4)}
+.section-item.drag-over-top{border-top:2px solid #0ea5e9 !important}
+.section-item.drag-over-bottom{border-bottom:2px solid #0ea5e9 !important}
+.si-move-btns{display:flex;flex-direction:column;gap:1px;opacity:0;transition:opacity 0.15s}
+.section-item:hover .si-move-btns{opacity:1}
+.si-move{width:20px;height:16px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:4px;background:var(--blue-dim);color:var(--text-dim);font-size:10px;cursor:pointer;padding:0;font-family:inherit;line-height:1}
+.si-move:hover{color:#38bdf8;border-color:rgba(14,165,233,0.3);background:rgba(14,165,233,0.12)}
 .editor-panel{padding:14px 18px}
 .editor-panel h3{font-family:Sora,sans-serif;font-size:13px;font-weight:700;color:var(--text-bright);margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .field{margin-bottom:14px}
@@ -299,15 +307,101 @@ function renderSectionList(){
   const list=document.getElementById('sectionList');list.innerHTML='';
   pageSections.forEach((sec,i)=>{
     const d=DEFAULTS[sec.type],el=document.createElement('div');
-    el.className='section-item'+(activeSection===i?' active':'');el.draggable=true;el.dataset.index=i;
-    el.innerHTML=`<span class="si-grip">⠿</span><span class="si-icon">${d.icon}</span><span class="si-name">${d.name}</span><div class="si-toggle ${sec.enabled?'on':''}" onclick="event.stopPropagation();toggleSection(${i})"></div>`;
+    el.className='section-item'+(activeSection===i?' active':'');el.dataset.index=i;
+    const upDisabled=i===0;
+    const downDisabled=i===pageSections.length-1;
+    el.innerHTML=`<span class="si-grip" title="Drag to reorder">⠿</span><span class="si-icon">${d.icon}</span><span class="si-name">${d.name}</span><div class="si-move-btns"><button class="si-move" title="Move up" onclick="event.stopPropagation();moveSection(${i},-1)" ${upDisabled?'disabled style="opacity:0.3"':''}>▲</button><button class="si-move" title="Move down" onclick="event.stopPropagation();moveSection(${i},1)" ${downDisabled?'disabled style="opacity:0.3"':''}>▼</button></div><div class="si-toggle ${sec.enabled?'on':''}" onclick="event.stopPropagation();toggleSection(${i})"></div>`;
     el.addEventListener('click',()=>selectSection(i));
-    el.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain',i));
-    el.addEventListener('dragover',e=>{e.preventDefault();el.style.borderColor='rgba(14,165,233,0.4)'});
-    el.addEventListener('dragleave',()=>{el.style.borderColor='transparent'});
-    el.addEventListener('drop',e=>{e.preventDefault();el.style.borderColor='transparent';reorderSection(+e.dataTransfer.getData('text/plain'),i)});
+    // Mouse drag reorder
+    const grip=el.querySelector('.si-grip');
+    grip.addEventListener('mousedown',e=>{e.preventDefault();startDrag(i,e);});
+    grip.addEventListener('touchstart',e=>{e.preventDefault();startDrag(i,e.touches[0]);},{passive:false});
     list.appendChild(el);
   });
+}
+
+function moveSection(i,dir){
+  const target=i+dir;
+  if(target<0||target>=pageSections.length)return;
+  pushUndo();
+  const item=pageSections.splice(i,1)[0];
+  pageSections.splice(target,0,item);
+  if(activeSection===i)activeSection=target;
+  else if(activeSection===target)activeSection=i;
+  renderAll();markDirty();
+}
+
+// ── Mouse/Touch Drag System ──
+let dragState=null;
+function startDrag(index,e){
+  const list=document.getElementById('sectionList');
+  const items=list.querySelectorAll('.section-item');
+  const dragEl=items[index];
+  const rect=dragEl.getBoundingClientRect();
+  const listRect=list.getBoundingClientRect();
+  
+  dragState={
+    index:index,
+    startY:e.clientY,
+    currentY:e.clientY,
+    itemHeight:rect.height+4,
+    listTop:listRect.top
+  };
+  
+  dragEl.classList.add('dragging');
+  pushUndo();
+  
+  document.addEventListener('mousemove',onDragMove);
+  document.addEventListener('mouseup',onDragEnd);
+  document.addEventListener('touchmove',onTouchDragMove,{passive:false});
+  document.addEventListener('touchend',onDragEnd);
+}
+
+function onTouchDragMove(e){e.preventDefault();onDragMove(e.touches[0]);}
+
+function onDragMove(e){
+  if(!dragState)return;
+  dragState.currentY=e.clientY;
+  const delta=e.clientY-dragState.startY;
+  const items=document.querySelectorAll('#sectionList .section-item');
+  
+  // Clear all hover states
+  items.forEach(el=>el.classList.remove('drag-over-top','drag-over-bottom'));
+  
+  // Determine which item we're hovering over
+  const moveCount=Math.round(delta/dragState.itemHeight);
+  const targetIndex=Math.max(0,Math.min(pageSections.length-1,dragState.index+moveCount));
+  
+  if(targetIndex!==dragState.index){
+    const targetEl=items[targetIndex];
+    if(targetEl){
+      if(targetIndex<dragState.index)targetEl.classList.add('drag-over-top');
+      else targetEl.classList.add('drag-over-bottom');
+    }
+  }
+}
+
+function onDragEnd(e){
+  if(!dragState)return;
+  const delta=(e.clientY||dragState.currentY)-dragState.startY;
+  const moveCount=Math.round(delta/dragState.itemHeight);
+  const from=dragState.index;
+  const to=Math.max(0,Math.min(pageSections.length-1,from+moveCount));
+  
+  document.removeEventListener('mousemove',onDragMove);
+  document.removeEventListener('mouseup',onDragEnd);
+  document.removeEventListener('touchmove',onTouchDragMove);
+  document.removeEventListener('touchend',onDragEnd);
+  
+  dragState=null;
+  
+  if(from!==to){
+    const item=pageSections.splice(from,1)[0];
+    pageSections.splice(to,0,item);
+    if(activeSection===from)activeSection=to;
+    markDirty();
+  }
+  renderAll();
 }
 
 function renderPreview(){
