@@ -40,8 +40,16 @@ from .payment import (
 )
 import re
 import bleach
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
 load_dotenv()
+
+# ── Session Security ──────────────────────────────────────────
+# HMAC-signed cookie prevents user_id tampering/impersonation.
+# Set SESSION_SECRET in Railway env vars. Falls back to random key
+# (which invalidates sessions on restart — acceptable for dev).
+SESSION_SECRET = os.getenv("SESSION_SECRET", secrets.token_hex(32))
+session_serializer = URLSafeTimedSerializer(SESSION_SECRET, salt="superadpro-session")
 
 logging.basicConfig(
     filename="security.log", level=logging.WARNING,
@@ -120,17 +128,23 @@ def get_db():
     finally: db.close()
 
 def get_current_user(request: Request, db: Session = Depends(get_db)):
-    user_id = request.cookies.get("user_id")
-    if not user_id: return None
-    try: return db.query(User).filter(User.id == int(user_id)).first()
-    except: return None
+    token = request.cookies.get("session")
+    if not token: return None
+    try:
+        # Verify HMAC signature and check max age (30 days)
+        user_id = session_serializer.loads(token, max_age=60 * 60 * 24 * 30)
+        return db.query(User).filter(User.id == int(user_id)).first()
+    except (BadSignature, SignatureExpired, ValueError, TypeError):
+        return None
 
 def is_admin(user): return user is not None and getattr(user, "is_admin", False)
 
 def set_secure_cookie(response, user_id):
+    """Create an HMAC-signed session token. Cannot be forged without SESSION_SECRET."""
+    token = session_serializer.dumps(user_id)
     response.set_cookie(
-        key="user_id", value=str(user_id),
-        httponly=True, secure=False, samesite="lax",
+        key="session", value=token,
+        httponly=True, secure=True, samesite="lax",
         max_age=60 * 60 * 24 * 30
     )
 
@@ -486,7 +500,8 @@ async def api_login(
 @app.get("/logout")
 def logout():
     response = RedirectResponse(url="/")
-    response.delete_cookie("user_id")
+    response.delete_cookie("session")
+    response.delete_cookie("user_id")  # Clear legacy cookie for migrating users
     return response
 
 # ═══════════════════════════════════════════════════════════════

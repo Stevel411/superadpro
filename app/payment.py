@@ -419,9 +419,15 @@ def request_withdrawal(db: Session, user_id: int, amount: float) -> dict:
     if not user.wallet_address:
         return {"success": False, "error": "No withdrawal wallet set"}
 
-    # Deduct from balance
-    user.balance -= amount
-    user.total_withdrawn = (user.total_withdrawn or 0) + amount
+    # Atomic balance deduction — prevents race condition double-spend
+    # Only deducts if balance is still sufficient at the moment of UPDATE
+    from sqlalchemy import text
+    result = db.execute(
+        text("UPDATE users SET balance = balance - :amt, total_withdrawn = COALESCE(total_withdrawn, 0) + :amt WHERE id = :uid AND balance >= :amt"),
+        {"amt": amount, "uid": user_id}
+    )
+    if result.rowcount == 0:
+        return {"success": False, "error": "Insufficient balance (concurrent request detected)"}
 
     withdrawal = Withdrawal(
         user_id        = user_id,
@@ -431,6 +437,7 @@ def request_withdrawal(db: Session, user_id: int, amount: float) -> dict:
     )
     db.add(withdrawal)
     db.commit()
+    db.refresh(user)
 
     return {
         "success":   True,
@@ -618,10 +625,20 @@ def process_p2p_transfer(db: Session, from_user_id: int, to_member_id: str, amou
     if not recipient.is_active:
         return {"success": False, "error": "Recipient does not have an active membership"}
 
-    # Execute transfer
-    sender.balance    = round((sender.balance or 0) - amount, 6)
-    recipient.balance = round((recipient.balance or 0) + amount, 6)
-    recipient.total_earned = round((recipient.total_earned or 0) + amount, 6)
+    # Atomic balance deduction — prevents race condition double-spend
+    from sqlalchemy import text as _text
+    result = db.execute(
+        _text("UPDATE users SET balance = balance - :amt WHERE id = :uid AND balance >= :amt"),
+        {"amt": amount, "uid": from_user_id}
+    )
+    if result.rowcount == 0:
+        return {"success": False, "error": "Insufficient balance (concurrent request detected)"}
+
+    # Credit recipient
+    db.execute(
+        _text("UPDATE users SET balance = balance + :amt, total_earned = COALESCE(total_earned, 0) + :amt WHERE id = :rid"),
+        {"amt": amount, "rid": recipient.id}
+    )
 
     transfer = P2PTransfer(
         from_user_id = from_user_id,
@@ -632,6 +649,7 @@ def process_p2p_transfer(db: Session, from_user_id: int, to_member_id: str, amou
     )
     db.add(transfer)
     db.commit()
+    db.refresh(sender)
 
     return {
         "success":          True,
