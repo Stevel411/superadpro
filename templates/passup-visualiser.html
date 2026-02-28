@@ -6,7 +6,7 @@
 <title>Course Pass-Up Visualiser — SuperAdPro</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--cyan:#38bdf8;--cyan2:#0ea5e9;--green:#10b981;--gold:#f59e0b;--purple:#a78bfa;--red:#f87171;--bg:#020818;--border:rgba(0,212,255,0.12)}
+:root{--cyan:#38bdf8;--cyan2:#0ea5e9;--green:#10b981;--gold:#f59e0b;--bg:#020818;--border:rgba(0,212,255,0.12)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans','Rethink Sans',sans-serif;background:var(--bg);color:#e8f0fe;min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;animation:gridDrift 30s linear infinite}
@@ -17,138 +17,144 @@ nav{background:rgba(2,8,24,0.95);border-bottom:1px solid var(--border);padding:0
 .nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
 .nav-brand span{font-weight:800;font-size:19px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#0ea5e9,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .nav-links{display:flex;align-items:center;gap:24px}
-.nav-links a{font-size:14px;font-weight:500;color:#4a5a6e;text-decoration:none;transition:color 0.2s}
+.nav-links a{font-size:19px;font-weight:500;color:#4a5a6e;text-decoration:none;transition:color 0.2s}
 .nav-links a:hover{color:var(--cyan)}
 .btn-nav{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff!important;padding:8px 20px;border-radius:7px;font-weight:700!important}
 
-.hero{text-align:center;padding:40px 40px 20px;position:relative;z-index:1}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:999px;padding:6px 18px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--purple);margin-bottom:16px}
-.hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--purple);animation:blink 1.5s infinite}
+.hero{text-align:center;padding:50px 40px 30px;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:999px;padding:6px 18px;font-size:19px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:20px}
+.hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:blink 1.5s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
-.hero h1{font-size:clamp(22px,3.5vw,36px);font-weight:800;line-height:1.15;margin-bottom:8px}
-.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--purple),#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero p{font-size:15px;color:#64748b;max-width:600px;margin:0 auto;line-height:1.6}
+.hero h1{font-size:clamp(22px,4vw,40px);font-weight:800;line-height:1.1;margin-bottom:10px}
+.hero h1 span{background:linear-gradient(135deg,#38bdf8,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:19px;color:#64748b;max-width:560px;margin:0 auto;line-height:1.7}
 
 /* Tier bar */
-.tier-bar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 40px 18px;position:relative;z-index:1}
-.tier-btn{padding:8px 18px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.45);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s}
-.tier-btn:hover{border-color:var(--purple);color:var(--purple);background:rgba(167,139,250,0.05)}
-.tier-btn.active{background:rgba(167,139,250,0.12);border-color:var(--purple);color:var(--purple);box-shadow:0 0 20px rgba(167,139,250,0.15)}
+.tier-bar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:16px 40px 20px;position:relative;z-index:1}
+.tier-btn{padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.45);font-family:'DM Sans','Rethink Sans',sans-serif;font-size:19px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.tier-btn:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(56,189,248,0.05)}
+.tier-btn.active{background:rgba(0,212,255,0.1);border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 20px rgba(56,189,248,0.15)}
 
 /* Layout */
 .main{display:grid;grid-template-columns:1fr 340px;gap:20px;max-width:1200px;margin:0 auto;padding:0 24px 80px;position:relative;z-index:1}
-@media(max-width:900px){.main{grid-template-columns:1fr}.right-col{order:-1}}
+@media(max-width:900px){.main{grid-template-columns:1fr}}
 
 /* Panels */
-.panel{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:16px;padding:24px;backdrop-filter:blur(8px)}
-.panel-eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(167,139,250,0.5);margin-bottom:4px}
-.panel-title{font-size:17px;font-weight:800;color:#fff;margin-bottom:16px}
+.grid-panel{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:16px;padding:24px;backdrop-filter:blur(8px)}
+.panel-eyebrow{font-size:19px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:4px}
+.panel-title{font-size:19px;font-weight:800;color:#fff;margin-bottom:16px}
 
 /* Controls */
 .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
-.btn{padding:10px 20px;border-radius:8px;border:none;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s}
-.btn-play{background:linear-gradient(135deg,var(--purple),#8b5cf6);color:#fff;box-shadow:0 4px 16px rgba(167,139,250,0.25)}
-.btn-play:hover{box-shadow:0 6px 24px rgba(167,139,250,0.4);transform:translateY(-1px)}
+.btn{padding:10px 20px;border-radius:8px;border:none;font-family:'DM Sans','Rethink Sans',sans-serif;font-size:19px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.btn-play{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#020818;box-shadow:0 4px 16px rgba(56,189,248,0.25)}
+.btn-play:hover{box-shadow:0 6px 24px rgba(0,212,255,0.4);transform:translateY(-1px)}
 .btn-reset{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.1)}
 .btn-reset:hover{background:rgba(255,255,255,0.1);color:#fff}
 .speed-wrap{display:flex;align-items:center;gap:8px;margin-left:auto}
-.speed-label{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase}
-input[type=range]{width:80px;accent-color:var(--purple);cursor:pointer}
+.speed-label{font-size:19px;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase}
+input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 
-/* ── TREE ── */
-.tree-container{position:relative;overflow-x:auto;overflow-y:visible;padding:20px 10px 40px;min-height:420px}
-.tree-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
-.tree-svg line{stroke:rgba(167,139,250,0.15);stroke-width:1.5}
-.tree-svg line.active{stroke:rgba(167,139,250,0.5);stroke-width:2;filter:drop-shadow(0 0 4px rgba(167,139,250,0.3))}
-.tree-svg line.passup-line{stroke:var(--gold);stroke-width:2;stroke-dasharray:6 3;filter:drop-shadow(0 0 6px rgba(245,158,11,0.4))}
-
-.tree-levels{position:relative;z-index:1}
-.tree-row{display:flex;justify-content:center;gap:12px;margin-bottom:28px}
+/* ── TREE VISUALISATION ── */
+.tree-canvas{position:relative;padding:16px 0 24px;overflow-x:auto}
+.tree-canvas svg{position:absolute;top:0;left:0;pointer-events:none;z-index:0}
+.tree-rows{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:24px}
+.tree-row{display:flex;justify-content:center;gap:8px;flex-wrap:nowrap}
+.tree-row-label{position:absolute;left:0;font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.25)}
 
 .node{
-  width:72px;height:72px;border-radius:12px;
+  width:62px;height:54px;border-radius:8px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  font-size:10px;font-weight:700;text-align:center;line-height:1.2;
-  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);
+  font-size:19px;font-weight:700;text-align:center;line-height:1.15;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
   color:rgba(255,255,255,0.15);position:relative;
-  transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);cursor:default;
+  transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);cursor:default;
+  overflow:visible;
 }
-.node .name{font-size:11px;font-weight:800;margin-bottom:1px}
-.node .sale-count{font-size:9px;opacity:0.6}
-.node .passup-badge{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:var(--gold);color:#000;font-size:8px;font-weight:800;display:none;align-items:center;justify-content:center;box-shadow:0 0 8px rgba(245,158,11,0.6);z-index:2}
+.node .nm{font-size:19px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:56px}
+.node .sc{font-size:19px;opacity:0.5}
+.node .pu-badge{position:absolute;top:-7px;right:-7px;width:16px;height:16px;border-radius:50%;font-size:19px;font-weight:800;display:none;align-items:center;justify-content:center;z-index:3;box-shadow:0 0 8px rgba(0,0,0,0.3)}
 
-/* Root / You */
-.node.root{background:linear-gradient(135deg,#7c3aed,#6d28d9)!important;border:2px solid var(--purple)!important;color:#fff!important;box-shadow:0 0 24px rgba(124,58,237,0.5),0 0 48px rgba(167,139,250,0.15)!important;width:80px;height:80px}
+/* YOU node */
+.node.root{background:linear-gradient(135deg,#0ea5e9,#0284c7)!important;border:2px solid var(--cyan)!important;color:#fff!important;box-shadow:0 0 24px rgba(0,212,255,0.5),0 0 48px rgba(56,189,248,0.15)!important;width:72px;height:62px}
+.node.root .nm{font-size:19px}
 /* Active member */
-.node.active{background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.4);color:#fff;box-shadow:0 0 12px rgba(56,189,248,0.2)}
-/* Person who just sold */
-.node.selling{border-color:var(--green)!important;box-shadow:0 0 18px rgba(16,185,129,0.5)!important}
-/* Person receiving pass-up */
-.node.receiving{border-color:var(--gold)!important;box-shadow:0 0 24px rgba(245,158,11,0.6)!important;animation:goldPulse 0.6s ease}
-@keyframes goldPulse{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
-/* Person keeping commission */
-.node.keeping{border-color:var(--green)!important;box-shadow:0 0 18px rgba(16,185,129,0.5)!important;animation:greenPulse 0.5s ease}
-@keyframes greenPulse{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
-.node.pop{animation:nodePop 0.45s cubic-bezier(0.34,1.56,0.64,1)}
-@keyframes nodePop{0%{transform:scale(0.3);opacity:0}65%{transform:scale(1.1)}100%{transform:scale(1)}}
+.node.active{background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.25);color:rgba(255,255,255,0.7)}
+/* Selling — green glow */
+.node.selling{border-color:rgba(16,185,129,0.7)!important;box-shadow:0 0 14px rgba(16,185,129,0.4)!important;color:#fff!important}
+/* Keeping — bright green */
+.node.keeping{border-color:#10b981!important;background:rgba(16,185,129,0.15)!important;box-shadow:0 0 18px rgba(16,185,129,0.5)!important;color:#fff!important}
+/* Receiving pass-up — gold */
+.node.receiving{border-color:var(--gold)!important;background:rgba(245,158,11,0.12)!important;box-shadow:0 0 22px rgba(245,158,11,0.5)!important;color:#fff!important}
+@keyframes nodePulse{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
+.node.keeping,.node.receiving{animation:nodePulse 0.5s ease}
 
-/* Commission float animation */
-.commission-float{
-  position:absolute;font-size:13px;font-weight:800;pointer-events:none;z-index:10;
-  animation:floatUp 1.2s ease-out forwards;white-space:nowrap;
-}
-@keyframes floatUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-40px)}}
+/* Commission float */
+.comm-float{position:absolute;font-size:19px;font-weight:800;pointer-events:none;z-index:10;white-space:nowrap;animation:floatUp 1.1s ease-out forwards;left:50%;transform:translateX(-50%)}
+@keyframes floatUp{0%{opacity:1;top:-8px}100%{opacity:0;top:-38px}}
 
 /* Legend */
-.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;padding:12px 16px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.06);border-radius:10px}
-.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#64748b}
-.legend-swatch{width:14px;height:14px;border-radius:4px;flex-shrink:0}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:19px;color:#64748b}
+.legend-sw{width:12px;height:12px;border-radius:3px;flex-shrink:0}
 
-/* Right col cards */
-.right-col{display:flex;flex-direction:column;gap:16px}
-.stat-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:14px;padding:18px;backdrop-filter:blur(8px)}
-.eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(167,139,250,0.45);margin-bottom:12px}
-.earn-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
-.earn-row:last-child{border-bottom:none}
+/* How it works strip */
+.how-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+@media(max-width:700px){.how-strip{grid-template-columns:repeat(2,1fr)}}
+.how-step{background:rgba(0,0,0,0.2);border:1px solid rgba(0,212,255,0.08);border-radius:10px;padding:14px;text-align:center}
+.how-step .num{width:26px;height:26px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;margin:0 auto 6px}
+.how-step .hw-title{font-size:19px;font-weight:700;color:#fff;margin-bottom:3px}
+.how-step .hw-desc{font-size:19px;color:#64748b;line-height:1.5}
+
+/* ── RIGHT COL ── */
+.right-col{display:flex;flex-direction:column;gap:14px}
+.stat-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:18px;backdrop-filter:blur(8px)}
+.eyebrow{font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:12px}
+.earn-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.earn-row:last-child{border-bottom:none;padding-bottom:0}
 .earn-left{display:flex;align-items:center;gap:10px}
 .earn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.earn-label{font-size:13px;font-weight:700;color:#e8f0fe}
-.earn-sub{font-size:11px;color:#4a5a6e;margin-top:1px}
-.earn-amount{font-size:18px;font-weight:800;transition:all 0.2s}
-.earn-amount.bump{animation:bumpAmt 0.3s ease}
-@keyframes bumpAmt{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+.earn-label{font-size:19px;color:#e8f0fe;font-weight:600}
+.earn-sub{font-size:19px;color:#4a5a6e;margin-top:1px}
+.earn-amount{font-size:19px;font-weight:700;transition:all 0.25s;text-align:right}
+.earn-amount.bump{animation:numBump 0.25s ease}
+@keyframes numBump{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
 
-.total-card{background:linear-gradient(135deg,rgba(124,58,237,0.15),rgba(167,139,250,0.08));border:1px solid rgba(167,139,250,0.2);border-radius:14px;padding:20px;text-align:center}
-.total-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(167,139,250,0.6);margin-bottom:4px}
-.total-amount{font-size:36px;font-weight:800;background:linear-gradient(135deg,var(--purple),#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.total-sub{font-size:12px;color:#4a5a6e;margin-top:4px}
+.total-card{background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(124,58,237,0.06));border:1px solid rgba(0,212,255,0.2);border-radius:12px;padding:18px;text-align:center}
+.total-label{font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:6px}
+.total-amount{font-size:30px;font-weight:800;background:linear-gradient(135deg,var(--cyan),#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;transition:all 0.3s}
+.total-sub{font-size:19px;color:rgba(255,255,255,0.3);margin-top:4px}
 
-/* How it works card */
-.how-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:14px;padding:18px}
-.how-title{font-size:13px;font-weight:800;color:#fff;margin-bottom:10px}
-.how-step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
-.how-num{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
-.how-text{font-size:12px;color:#8899aa;line-height:1.5}
-.how-text strong{color:#e8f0fe}
-
-/* Log */
-.log-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:14px;padding:14px}
-.log-list{max-height:200px;overflow-y:auto}
-.log-item{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:11px}
-.log-left{display:flex;align-items:center;gap:8px}
-.log-tag{padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:0.5px}
-.log-tag.kept{background:rgba(16,185,129,0.15);color:#10b981}
-.log-tag.passup{background:rgba(245,158,11,0.15);color:#f59e0b}
-.log-tag.skip{background:rgba(248,113,113,0.15);color:#f87171}
-.log-amt{font-weight:800}
+/* Split bar */
+.split-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:18px;backdrop-filter:blur(8px)}
+.split-bar{display:flex;height:8px;border-radius:99px;overflow:hidden;gap:2px;margin:10px 0 12px}
+.split-seg{border-radius:3px}
+.split-legend{display:flex;flex-direction:column;gap:7px}
+.split-item{display:flex;align-items:center;gap:8px;font-size:19px;color:rgba(200,220,255,0.55)}
+.split-swatch{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.split-val{margin-left:auto;font-weight:700}
 
 /* Info strip */
-.info-strip{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:14px;padding:16px}
-.info-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(167,139,250,0.4);margin-bottom:10px}
-.info-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:12px}
+.info-strip{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:18px;backdrop-filter:blur(8px)}
+.info-title{font-size:19px;font-weight:700;color:#fff;margin-bottom:10px}
+.info-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:19px}
 .info-row:last-child{border-bottom:none}
-.info-key{color:#4a5a6e}
+.info-key{color:#6b7d94}
 .info-val{font-weight:700}
+
+/* Log */
+.log-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:16px;backdrop-filter:blur(8px)}
+.log-list{display:flex;flex-direction:column;gap:0;max-height:none;overflow:hidden}
+.log-item{display:flex;align-items:center;font-size:12px;color:rgba(255,255,255,0.45);animation:slideIn 0.22s ease;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.log-item:last-child{border-bottom:none}
+@keyframes slideIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+.log-left{display:flex;align-items:center;gap:6px;min-width:0}
+.log-who{font-weight:700;color:rgba(255,255,255,0.55);min-width:40px}
+.log-sale{color:rgba(255,255,255,0.3)}
+.log-tag{font-size:9px;padding:2px 6px;border-radius:3px;font-weight:700;letter-spacing:0.5px;white-space:nowrap}
+.log-tag.kept{color:#10b981;border:1px solid rgba(16,185,129,0.35);background:rgba(16,185,129,0.08)}
+.log-tag.passup{color:var(--gold);border:1px solid rgba(245,158,11,0.3);background:rgba(245,158,11,0.08)}
+.log-amt{font-weight:700;font-size:12px;white-space:nowrap;margin-left:auto;font-variant-numeric:tabular-nums}
 
 /* Mobile nav */
 .mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(2,8,24,0.97);border-top:1px solid var(--border);z-index:200;backdrop-filter:blur(12px);padding:6px 0 max(6px,env(safe-area-inset-bottom))}
@@ -156,7 +162,7 @@ input[type=range]{width:80px;accent-color:var(--purple);cursor:pointer}
 .mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:4px 8px;border-radius:8px;transition:background 0.2s}
 .mob-nav-icon{font-size:18px;color:#3a4a5e}
 .mob-nav-label{font-size:9px;font-weight:600;color:#3a4a5e;letter-spacing:0.5px}
-.mob-nav-item.active .mob-nav-icon,.mob-nav-item.active .mob-nav-label{color:var(--purple)}
+.mob-nav-item.active .mob-nav-icon,.mob-nav-item.active .mob-nav-label{color:var(--cyan)}
 @media(max-width:768px){.mobile-nav{display:block}body{padding-bottom:72px}nav .nav-links{display:none}}
 </style>
 </head>
@@ -175,11 +181,10 @@ input[type=range]{width:80px;accent-color:var(--purple);cursor:pointer}
 
 <div class="hero">
   <div class="hero-badge">Stream 03 — Course Commissions</div>
-  <h1>Infinite <em>Pass-Up</em> Visualiser</h1>
-  <p>Watch how 100% course commissions flow through your team. Sales 1, 3, 5, 7+ you keep — sales 2, 4, 6 pass up to your sponsor. Infinite depth, infinite earnings.</p>
+  <h1>Infinite <span>Pass-Up</span> Visualiser</h1>
+  <p>Watch 100% course commissions flow through your team in real-time. Sales 1, 3, 5, 7+ you keep — sales 2, 4, 6 pass up. Infinite depth, infinite earnings.</p>
 </div>
 
-<!-- Tier selection -->
 <div class="tier-bar">
   <button class="tier-btn active" data-price="100" onclick="selectTier(this)">$100 Starter</button>
   <button class="tier-btn" data-price="300" onclick="selectTier(this)">$300 Advanced</button>
@@ -187,11 +192,12 @@ input[type=range]{width:80px;accent-color:var(--purple);cursor:pointer}
 </div>
 
 <div class="main">
-  <!-- LEFT: TREE -->
-  <div class="panel">
-    <div class="panel-eyebrow">Team Structure — Pass-Up Flow</div>
-    <div class="panel-title" id="panelTitle">$100 STARTER — PASS-UP SIMULATION</div>
+  <!-- LEFT PANEL -->
+  <div class="grid-panel">
+    <div class="panel-eyebrow">Stream 03 — Course Pass-Up</div>
+    <div class="panel-title" id="panelTitle">INFINITE PASS-UP — $100 STARTER</div>
 
+    <!-- Controls -->
     <div class="controls">
       <button class="btn btn-play" id="playBtn" onclick="togglePlay()">▶ PLAY</button>
       <button class="btn btn-reset" onclick="resetSim()">↺ RESET</button>
@@ -201,53 +207,67 @@ input[type=range]{width:80px;accent-color:var(--purple);cursor:pointer}
       </div>
     </div>
 
-    <div class="tree-container" id="treeContainer">
-      <svg class="tree-svg" id="treeSvg"></svg>
-      <div class="tree-levels" id="treeLevels"></div>
+    <!-- Tree -->
+    <div class="tree-canvas" id="treeCanvas">
+      <svg id="treeSvg" width="100%" height="100%"></svg>
+      <div class="tree-rows" id="treeRows"></div>
     </div>
 
+    <!-- Legend -->
     <div class="legend">
-      <div class="legend-item">
-        <div class="legend-swatch" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);border:1px solid var(--purple)"></div>
-        You (Root)
+      <div class="legend-item"><div class="legend-sw" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);border:1px solid var(--cyan)"></div>You (Root)</div>
+      <div class="legend-item"><div class="legend-sw" style="background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3)"></div>Active Member</div>
+      <div class="legend-item"><div class="legend-sw" style="background:rgba(16,185,129,0.15);border:1px solid var(--green)"></div>Keeps Sale (1,3,5,7+)</div>
+      <div class="legend-item"><div class="legend-sw" style="background:rgba(245,158,11,0.12);border:1px solid var(--gold)"></div>Pass-Up (2nd, 4th, 6th)</div>
+    </div>
+
+    <!-- How it works -->
+    <div class="how-strip">
+      <div class="how-step">
+        <div class="num" style="background:rgba(56,189,248,0.12);color:var(--cyan)">1</div>
+        <div class="hw-title">Refer & Sell</div>
+        <div class="hw-desc">You refer someone who buys a course — that's your sale.</div>
       </div>
-      <div class="legend-item">
-        <div class="legend-swatch" style="background:rgba(56,189,248,0.2);border:1px solid rgba(56,189,248,0.4)"></div>
-        Active Member
+      <div class="how-step">
+        <div class="num" style="background:rgba(16,185,129,0.12);color:var(--green)">2</div>
+        <div class="hw-title">Keep 100%</div>
+        <div class="hw-desc">Sales 1, 3, 5, and 7+ you keep the full 100% commission.</div>
       </div>
-      <div class="legend-item">
-        <div class="legend-swatch" style="background:rgba(16,185,129,0.2);border:1px solid var(--green)"></div>
-        Keeps Sale (1,3,5,7+)
+      <div class="how-step">
+        <div class="num" style="background:rgba(245,158,11,0.12);color:var(--gold)">3</div>
+        <div class="hw-title">Pass Up 3</div>
+        <div class="hw-desc">Your 2nd, 4th, and 6th sales pass 100% to your sponsor.</div>
       </div>
-      <div class="legend-item">
-        <div class="legend-swatch" style="background:rgba(245,158,11,0.15);border:1px solid var(--gold)"></div>
-        Pass-Up (2nd,4th,6th)
+      <div class="how-step">
+        <div class="num" style="background:rgba(124,58,237,0.12);color:#a78bfa">4</div>
+        <div class="hw-title">Infinite Cascade</div>
+        <div class="hw-desc">Everyone's pass-ups flow up — you receive from your entire team.</div>
       </div>
     </div>
   </div>
 
-  <!-- RIGHT -->
+  <!-- RIGHT COL -->
   <div class="right-col">
 
     <!-- Earnings tracker -->
     <div class="stat-card">
-      <div class="eyebrow">Your Earnings Tracker</div>
+      <div class="eyebrow">Live Earnings Tracker</div>
       <div class="earn-row">
         <div class="earn-left">
           <div class="earn-dot" style="background:var(--green)"></div>
           <div>
-            <div class="earn-label">Direct Kept</div>
-            <div class="earn-sub">Sales you referred & kept</div>
+            <div class="earn-label">Direct Sales Kept</div>
+            <div class="earn-sub">Your sales 1,3,5,7+</div>
           </div>
         </div>
-        <div class="earn-amount" id="keptAmt" style="color:var(--green)">$0</div>
+        <div class="earn-amount" id="keptAmt" style="color:#10b981">$0</div>
       </div>
       <div class="earn-row">
         <div class="earn-left">
           <div class="earn-dot" style="background:var(--gold)"></div>
           <div>
             <div class="earn-label">Pass-Ups Received</div>
-            <div class="earn-sub">From team's 2nd, 4th, 6th sales</div>
+            <div class="earn-sub">Team's 2nd, 4th, 6th</div>
           </div>
         </div>
         <div class="earn-amount" id="passupAmt" style="color:var(--gold)">$0</div>
@@ -256,55 +276,32 @@ input[type=range]{width:80px;accent-color:var(--purple);cursor:pointer}
 
     <!-- Total -->
     <div class="total-card">
-      <div class="total-label">Your Total Course Earnings</div>
+      <div class="total-label">Your Total This Round</div>
       <div class="total-amount" id="totalAmt">$0</div>
       <div class="total-sub"><span id="keptCount">0</span> kept + <span id="passupCount">0</span> pass-ups received</div>
     </div>
 
-    <!-- How it works -->
-    <div class="how-card">
-      <div class="how-title">How The Pass-Up Works</div>
-      <div class="how-step">
-        <div class="how-num" style="background:rgba(16,185,129,0.15);color:var(--green)">1</div>
-        <div class="how-text">You refer someone who buys a course. That's <strong>sale #1 — you keep 100%</strong>.</div>
+    <!-- Commission split -->
+    <div class="split-card">
+      <div class="eyebrow">Per Sale Commission — $<span id="splitPrice">100</span></div>
+      <div class="split-bar">
+        <div class="split-seg" style="flex:4;background:var(--green)"></div>
+        <div class="split-seg" style="flex:3;background:var(--gold)"></div>
       </div>
-      <div class="how-step">
-        <div class="how-num" style="background:rgba(245,158,11,0.15);color:var(--gold)">2</div>
-        <div class="how-text">Your <strong>2nd, 4th, and 6th</strong> referral sales pass <strong>100% up</strong> to your pass-up sponsor.</div>
-      </div>
-      <div class="how-step">
-        <div class="how-num" style="background:rgba(56,189,248,0.15);color:var(--cyan)">3</div>
-        <div class="how-text">After sale #6, you <strong>keep every sale forever</strong>. Sales 7, 8, 9… all yours.</div>
-      </div>
-      <div class="how-step">
-        <div class="how-num" style="background:rgba(167,139,250,0.15);color:var(--purple)">4</div>
-        <div class="how-text">Everyone in your team does the same — their pass-ups cascade <strong>infinitely</strong> up to you.</div>
+      <div class="split-legend">
+        <div class="split-item"><div class="split-swatch" style="background:var(--green)"></div>You keep (1,3,5,7+)<span class="split-val" id="splitKeep" style="color:var(--green)">$100</span></div>
+        <div class="split-item"><div class="split-swatch" style="background:var(--gold)"></div>Passes up (2,4,6)<span class="split-val" id="splitPass" style="color:var(--gold)">$100</span></div>
       </div>
     </div>
 
     <!-- Stats -->
     <div class="info-strip">
       <div class="info-title">Simulation Stats</div>
-      <div class="info-row">
-        <span class="info-key">Course tier</span>
-        <span class="info-val" id="infoTier" style="color:var(--purple)">$100 Starter</span>
-      </div>
-      <div class="info-row">
-        <span class="info-key">Total sales in team</span>
-        <span class="info-val" id="infoTotalSales" style="color:var(--cyan)">0</span>
-      </div>
-      <div class="info-row">
-        <span class="info-key">Your direct referrals</span>
-        <span class="info-val" id="infoDirects" style="color:var(--green)">0 / 6</span>
-      </div>
-      <div class="info-row">
-        <span class="info-key">Pass-ups you received</span>
-        <span class="info-val" id="infoPassups" style="color:var(--gold)">0</span>
-      </div>
-      <div class="info-row">
-        <span class="info-key">Team depth reached</span>
-        <span class="info-val" id="infoDepth" style="color:var(--purple)">0 levels</span>
-      </div>
+      <div class="info-row"><span class="info-key">Course tier</span><span class="info-val" id="infoTier" style="color:var(--cyan)">$100 Starter</span></div>
+      <div class="info-row"><span class="info-key">Total team sales</span><span class="info-val" id="infoTotal" style="color:var(--cyan)">0</span></div>
+      <div class="info-row"><span class="info-key">Your personal sales</span><span class="info-val" id="infoDirect" style="color:var(--green)">0</span></div>
+      <div class="info-row"><span class="info-key">Pass-ups received</span><span class="info-val" id="infoPassups" style="color:var(--gold)">0</span></div>
+      <div class="info-row"><span class="info-key">Depth reached</span><span class="info-val" id="infoDepth">0 levels</span></div>
     </div>
 
     <!-- Log -->
@@ -319,407 +316,239 @@ input[type=range]{width:80px;accent-color:var(--purple);cursor:pointer}
 </div>
 
 <script>
-// ── CONFIG ─────────────────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════════
+   PASS-UP SIMULATION ENGINE
+   ═══════════════════════════════════════════════════════════════ */
+
 let tierPrice = 100;
-const PASSUP_SALES = new Set([2, 4, 6]);
+const PASSUP = new Set([2,4,6]);
 
-// ── TREE DATA MODEL ────────────────────────────────────────────────────────
-// We build a 4-level tree: You → 6 children → each has 3 children → each has 2
-// Total nodes: 1 + 6 + 18 + 36 = 61 members
-// This gives a rich simulation with multiple pass-up cascades.
+// ── TREE DATA ───────────────────────────────────────────────────
+// 4-level tree: You → 6 children → 3 each → 2 each = 61 people
+const NAMES = ['Alex','Beth','Carl','Dana','Eric','Faye',
+  'Gina','Hugo','Iris','Jake','Kate','Leo','Mia','Nate',
+  'Olga','Paul','Quinn','Rosa','Sam','Tina','Uma','Vera',
+  'Will','Xena','Yuri','Zara','Abe','Bea','Cody','Dex',
+  'Eva','Finn','Grace','Hank','Ivy','Joel','Kim','Meg',
+  'Nico','Opal','Pete','Rae','Seth','Tara','Val','Wade',
+  'Flora','Glen','Hope','Ian','Jess','Cruz','Dot','Eli',
+  'Bree','Zeke','Aldo','Xia','Yael','Uriel'];
 
-let nodes = [];       // {id, name, level, parentId, passupSponsorId, saleCount, children[], el}
-let nodeMap = {};
-let playing = false;
-let timer = null;
-let saleQueue = [];   // pre-built sequence of sales events
-let saleIndex = 0;
+let nodes=[], nodeMap={}, playing=false, timer=null;
+let saleQueue=[], saleIdx=0;
+let tKept=0,tPass=0,nKept=0,nPass=0,totalSales=0,maxDepth=0;
 
-// Your earnings
-let tKept = 0, tPassup = 0, nKept = 0, nPassup = 0;
-let totalSalesCount = 0;
-let maxDepth = 0;
-
-// Names pool
-const NAMES = [
-  'Alex','Beth','Carl','Dana','Eric','Faye','Gina','Hugo','Iris','Jake',
-  'Kate','Liam','Mia','Nate','Olga','Paul','Quinn','Rosa','Sam','Tina',
-  'Uma','Vera','Will','Xena','Yuri','Zara','Abe','Bea','Cody','Dex',
-  'Eva','Finn','Grace','Hank','Ivy','Joel','Kim','Leo','Meg','Nico',
-  'Opal','Pete','Rae','Seth','Tara','Uriel','Val','Wade','Xia','Yael',
-  'Zeke','Aldo','Bree','Cruz','Dot','Eli','Flora','Glen','Hope','Ian','Jess'
-];
-
-function buildTree() {
-  nodes = []; nodeMap = {};
-  let id = 0;
-  const namePool = [...NAMES];
-
-  function makeNode(name, level, parentId) {
-    const n = { id: id++, name, level, parentId, passupSponsorId: null, saleCount: 0, referralCount: 0, children: [], el: null };
-    nodes.push(n);
-    nodeMap[n.id] = n;
-    return n;
+function buildTree(){
+  nodes=[]; nodeMap={}; let id=0, ni=0;
+  function mk(name,lvl,pid){
+    const n={id:id++,name,level:lvl,parentId:pid,puSponsor:null,saleCnt:0,refCnt:0,children:[],el:null};
+    nodes.push(n); nodeMap[n.id]=n; return n;
   }
-
-  // Root = YOU
-  const root = makeNode('YOU', 0, null);
-  root.passupSponsorId = null;
-
-  // Level 1: 6 direct children
-  const L1_COUNT = 6;
-  for (let i = 0; i < L1_COUNT; i++) {
-    const child = makeNode(namePool[i + 1], 1, root.id);
-    root.children.push(child.id);
-    root.referralCount++;
-    // Assign pass-up sponsor: position in parent's referrals
-    const pos = root.referralCount;
-    if (PASSUP_SALES.has(pos)) {
-      child.passupSponsorId = root.passupSponsorId !== null ? root.passupSponsorId : root.id;
-    } else {
-      child.passupSponsorId = root.id;
+  const root=mk('YOU',0,null);
+  // L1: 6
+  for(let i=0;i<6;i++){
+    const c=mk(NAMES[ni++%NAMES.length],1,0);
+    root.children.push(c.id); root.refCnt++;
+    c.puSponsor = PASSUP.has(root.refCnt) ? (root.puSponsor??root.id) : root.id;
+  }
+  // L2: each L1 gets 3
+  for(const cid of root.children){
+    const p=nodeMap[cid];
+    for(let i=0;i<3;i++){
+      const c=mk(NAMES[ni++%NAMES.length],2,p.id);
+      p.children.push(c.id); p.refCnt++;
+      c.puSponsor = PASSUP.has(p.refCnt) ? (p.puSponsor??p.id) : p.id;
     }
   }
-
-  // Level 2: each L1 gets 3 children
-  const L2_COUNT = 3;
-  let nameIdx = 7;
-  for (const l1id of root.children) {
-    const parent = nodeMap[l1id];
-    for (let i = 0; i < L2_COUNT; i++) {
-      const child = makeNode(namePool[nameIdx++ % namePool.length], 2, parent.id);
-      parent.children.push(child.id);
-      parent.referralCount++;
-      const pos = parent.referralCount;
-      if (PASSUP_SALES.has(pos)) {
-        child.passupSponsorId = parent.passupSponsorId !== null ? parent.passupSponsorId : parent.id;
-      } else {
-        child.passupSponsorId = parent.id;
-      }
+  // L3: each L2 gets 2
+  nodes.filter(n=>n.level===2).forEach(p=>{
+    for(let i=0;i<2;i++){
+      const c=mk(NAMES[ni++%NAMES.length],3,p.id);
+      p.children.push(c.id); p.refCnt++;
+      c.puSponsor = PASSUP.has(p.refCnt) ? (p.puSponsor??p.id) : p.id;
     }
-  }
+  });
+}
 
-  // Level 3: each L2 gets 2 children
-  const L3_COUNT = 2;
-  const l2Nodes = nodes.filter(n => n.level === 2);
-  for (const parent of l2Nodes) {
-    for (let i = 0; i < L3_COUNT; i++) {
-      const child = makeNode(namePool[nameIdx++ % namePool.length], 3, parent.id);
-      parent.children.push(child.id);
-      parent.referralCount++;
-      const pos = parent.referralCount;
-      if (PASSUP_SALES.has(pos)) {
-        child.passupSponsorId = parent.passupSponsorId !== null ? parent.passupSponsorId : parent.id;
-      } else {
-        child.passupSponsorId = parent.id;
-      }
-    }
+function buildQueue(){
+  saleQueue=[];
+  // Each non-root member generates sales attributed to their parent
+  for(let round=1;round<=8;round++){
+    const batch=nodes.filter(n=>n.id>0).map(n=>({sellerId:n.parentId,round}));
+    // Shuffle batch
+    for(let i=batch.length-1;i>0;i--){const j=Math.random()*i|0;[batch[i],batch[j]]=[batch[j],batch[i]];}
+    saleQueue.push(...batch);
   }
 }
 
-// ── BUILD SALE QUEUE ─────────────────────────────────────────────────────
-// Each "sale" means: a member makes a course sale to a new buyer.
-// The referring member's saleCount increments, and we determine keep vs pass-up.
-// We simulate by picking members in a natural order (L1 first, then L2, etc.)
-// Each member makes up to 8 sales in the simulation.
-function buildSaleQueue() {
-  saleQueue = [];
-  // Process level by level, each member gets sales in round-robin
-  const MAX_SALES_PER_MEMBER = 8;
-  for (let round = 1; round <= MAX_SALES_PER_MEMBER; round++) {
-    for (const node of nodes) {
-      if (node.id === 0) continue; // Root doesn't sell in this sim (they receive)
-      // Only members who are "active" (have been referenced)
-      saleQueue.push({ sellerId: node.parentId, buyerName: node.name + "'s buyer #" + round, saleRound: round, nodeId: node.id });
-    }
-  }
-  // Shuffle within each round for variety, but keep round order
-  const rounds = {};
-  for (const s of saleQueue) {
-    if (!rounds[s.saleRound]) rounds[s.saleRound] = [];
-    rounds[s.saleRound].push(s);
-  }
-  saleQueue = [];
-  for (let r = 1; r <= MAX_SALES_PER_MEMBER; r++) {
-    if (!rounds[r]) continue;
-    // Shuffle this round
-    const arr = rounds[r];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    saleQueue.push(...arr);
-  }
-}
+// ── RENDER TREE ──────────────────────────────────────────────────
+function renderTree(){
+  const rows=document.getElementById('treeRows');
+  rows.innerHTML='';
+  const levels=[[],[],[],[]];
+  nodes.forEach(n=>levels[n.level].push(n));
 
-// ── RENDER TREE ─────────────────────────────────────────────────────────
-function renderTree() {
-  const container = document.getElementById('treeLevels');
-  const svg = document.getElementById('treeSvg');
-  container.innerHTML = '';
-  svg.innerHTML = '';
-
-  const levels = [[], [], [], []];
-  for (const n of nodes) levels[n.level].push(n);
-
-  for (let lvl = 0; lvl < 4; lvl++) {
-    const row = document.createElement('div');
-    row.className = 'tree-row';
-    row.id = 'row-' + lvl;
-
-    for (const n of levels[lvl]) {
-      const el = document.createElement('div');
-      el.className = 'node' + (lvl === 0 ? ' root' : '');
-      el.id = 'node-' + n.id;
-      el.innerHTML = `
-        <div class="name">${n.name}</div>
-        <div class="sale-count">Sales: <span id="sc-${n.id}">0</span></div>
-        <div class="passup-badge" id="pb-${n.id}">↑</div>
-      `;
+  levels.forEach((lvl,li)=>{
+    const row=document.createElement('div');
+    row.className='tree-row';
+    lvl.forEach(n=>{
+      const el=document.createElement('div');
+      el.className='node'+(li===0?' root':'');
+      el.id='n'+n.id;
+      el.innerHTML=`<div class="nm">${n.name}</div><div class="sc" id="sc${n.id}">0 sales</div><div class="pu-badge" id="pb${n.id}">↑</div>`;
       row.appendChild(el);
-      n.el = el;
-    }
-    container.appendChild(row);
-  }
+      n.el=el;
+    });
+    rows.appendChild(row);
+  });
 
-  // Draw connector lines after layout settles
-  requestAnimationFrame(() => requestAnimationFrame(() => drawLines()));
+  requestAnimationFrame(()=>requestAnimationFrame(drawLines));
 }
 
-function drawLines() {
-  const svg = document.getElementById('treeSvg');
-  const container = document.getElementById('treeContainer');
-  const rect = container.getBoundingClientRect();
-  svg.setAttribute('width', container.scrollWidth);
-  svg.setAttribute('height', container.scrollHeight);
-  svg.innerHTML = '';
+function drawLines(){
+  const svg=document.getElementById('treeSvg');
+  const canvas=document.getElementById('treeCanvas');
+  const cr=canvas.getBoundingClientRect();
+  svg.setAttribute('width',canvas.scrollWidth);
+  svg.setAttribute('height',canvas.scrollHeight);
+  svg.innerHTML='';
 
-  for (const n of nodes) {
-    if (n.parentId === null) continue;
-    const parent = nodeMap[n.parentId];
-    if (!parent.el || !n.el) continue;
-
-    const pRect = parent.el.getBoundingClientRect();
-    const cRect = n.el.getBoundingClientRect();
-
-    const x1 = pRect.left + pRect.width / 2 - rect.left + container.scrollLeft;
-    const y1 = pRect.top + pRect.height - rect.top + container.scrollTop;
-    const x2 = cRect.left + cRect.width / 2 - rect.left + container.scrollLeft;
-    const y2 = cRect.top - rect.top + container.scrollTop;
-
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', x1);
-    line.setAttribute('y1', y1);
-    line.setAttribute('x2', x2);
-    line.setAttribute('y2', y2);
-    line.id = `line-${n.parentId}-${n.id}`;
+  nodes.forEach(n=>{
+    if(n.parentId===null||!n.el) return;
+    const p=nodeMap[n.parentId];
+    if(!p||!p.el) return;
+    const pr=p.el.getBoundingClientRect(), nr=n.el.getBoundingClientRect();
+    const x1=pr.left+pr.width/2-cr.left+canvas.scrollLeft;
+    const y1=pr.top+pr.height-cr.top+canvas.scrollTop;
+    const x2=nr.left+nr.width/2-cr.left+canvas.scrollLeft;
+    const y2=nr.top-cr.top+canvas.scrollTop;
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',x1);line.setAttribute('y1',y1);
+    line.setAttribute('x2',x2);line.setAttribute('y2',y2);
+    line.setAttribute('stroke','rgba(56,189,248,0.12)');
+    line.setAttribute('stroke-width','1.5');
+    line.id=`ln${n.parentId}-${n.id}`;
     svg.appendChild(line);
-  }
+  });
 }
 
-// ── PROCESS ONE SALE ────────────────────────────────────────────────────
-function processSale() {
-  if (saleIndex >= saleQueue.length) {
-    pause();
-    addLog('✅ Simulation complete!', '', 'All team sales processed', 'var(--purple)');
-    return;
-  }
+// ── PROCESS SALE ─────────────────────────────────────────────────
+function processSale(){
+  if(saleIdx>=saleQueue.length){pause();addLog('✅','','Simulation complete','var(--cyan)','kept');return;}
+  const s=saleQueue[saleIdx++];
+  const seller=nodeMap[s.sellerId]; if(!seller){processSale();return;}
 
-  const sale = saleQueue[saleIndex++];
-  const seller = nodeMap[sale.sellerId];
-  if (!seller) { processSale(); return; }
+  seller.saleCnt++; totalSales++;
+  const sn=seller.saleCnt;
+  const isUp=PASSUP.has(sn);
+  const scEl=document.getElementById('sc'+seller.id);
+  if(scEl) scEl.textContent=sn+' sale'+(sn>1?'s':'');
+  if(seller.el&&!seller.el.classList.contains('root')) seller.el.classList.add('active');
+  if(seller.level>maxDepth) maxDepth=seller.level;
 
-  seller.saleCount++;
-  totalSalesCount++;
-  const saleNum = seller.saleCount;
-  const isPassup = PASSUP_SALES.has(saleNum);
+  if(isUp){
+    // Pass up
+    let rid=seller.puSponsor; let recip=rid!=null?nodeMap[rid]:null;
+    if(!recip) recip=nodeMap[0];
 
-  // Update sale count display
-  const scEl = document.getElementById('sc-' + seller.id);
-  if (scEl) scEl.textContent = saleNum;
-
-  // Activate the seller visually
-  if (seller.el && !seller.el.classList.contains('root')) {
-    seller.el.classList.add('active');
-  }
-
-  // Track depth
-  if (seller.level > maxDepth) maxDepth = seller.level;
-
-  if (isPassup) {
-    // PASS UP — find qualified recipient
-    let recipientId = seller.passupSponsorId;
-    let recipient = recipientId !== null ? nodeMap[recipientId] : null;
-
-    // Walk up if needed (in real system this checks qualification)
-    // In sim, root always receives if nobody else qualifies
-    if (!recipient) recipient = nodeMap[0]; // root catches all
-
-    // Visual: seller flashes selling, recipient flashes receiving
     seller.el.classList.add('selling');
-    setTimeout(() => seller.el.classList.remove('selling'), 800);
+    setTimeout(()=>seller.el.classList.remove('selling'),700);
 
-    // Show pass-up badge on seller
-    const badge = document.getElementById('pb-' + seller.id);
-    if (badge) { badge.style.display = 'flex'; badge.textContent = '↑'; }
+    const badge=document.getElementById('pb'+seller.id);
+    if(badge){badge.style.display='flex';badge.style.background='var(--gold)';badge.style.color='#000';}
 
-    // Recipient gets the commission
-    if (recipient.el) {
-      recipient.el.classList.add('receiving');
-      setTimeout(() => recipient.el.classList.remove('receiving'), 800);
-      showFloat(recipient.el, '+$' + tierPrice, 'var(--gold)');
-    }
+    // Highlight the connector line
+    const line=document.getElementById(`ln${seller.parentId}-${seller.id}`);
+    if(line){line.setAttribute('stroke','var(--gold)');line.setAttribute('stroke-width','2.5');line.setAttribute('stroke-dasharray','6 3');}
 
-    // If recipient is YOU (root)
-    if (recipient.id === 0) {
-      tPassup += tierPrice;
-      nPassup++;
-    }
+    recip.el.classList.add('receiving');
+    setTimeout(()=>recip.el.classList.remove('receiving'),800);
+    showFloat(recip.el,'+$'+tierPrice,'var(--gold)');
 
-    addLog(
-      seller.name,
-      `Sale #${saleNum}`,
-      `PASS-UP → ${recipient.name}`,
-      'var(--gold)',
-      'passup'
-    );
-
+    if(recip.id===0){tPass+=tierPrice;nPass++;}
+    addLog(seller.name,'#'+sn,'↑ '+recip.name,'var(--gold)','passup');
   } else {
-    // KEEP — seller keeps 100%
+    // Keep
     seller.el.classList.add('keeping');
-    setTimeout(() => seller.el.classList.remove('keeping'), 600);
-    showFloat(seller.el, '+$' + tierPrice, 'var(--green)');
+    setTimeout(()=>seller.el.classList.remove('keeping'),600);
+    showFloat(seller.el,'+$'+tierPrice,'#10b981');
 
-    // If seller is YOU (root)
-    if (seller.id === 0) {
-      tKept += tierPrice;
-      nKept++;
-    }
+    const badge=document.getElementById('pb'+seller.id);
+    if(badge&&sn<=6){badge.style.display='flex';badge.style.background='var(--green)';badge.style.color='#fff';badge.textContent='✓';}
 
-    addLog(
-      seller.name,
-      `Sale #${saleNum}`,
-      'KEPT ✓',
-      'var(--green)',
-      'kept'
-    );
+    if(seller.id===0){tKept+=tierPrice;nKept++;}
+    addLog(seller.name,'#'+sn,'KEPT','#10b981','kept');
   }
-
   updateStats();
 }
 
-function showFloat(el, text, color) {
-  const f = document.createElement('div');
-  f.className = 'commission-float';
-  f.textContent = text;
-  f.style.color = color;
-  f.style.left = '50%';
-  f.style.top = '-10px';
-  f.style.transform = 'translateX(-50%)';
-  el.style.position = 'relative';
+function showFloat(el,text,color){
+  const f=document.createElement('div');
+  f.className='comm-float';f.textContent=text;f.style.color=color;
   el.appendChild(f);
-  setTimeout(() => f.remove(), 1200);
+  setTimeout(()=>f.remove(),1100);
 }
 
-function updateStats() {
-  bumpEl('keptAmt', '$' + tKept.toLocaleString());
-  bumpEl('passupAmt', '$' + tPassup.toLocaleString());
-  document.getElementById('totalAmt').textContent = '$' + (tKept + tPassup).toLocaleString();
-  document.getElementById('keptCount').textContent = nKept;
-  document.getElementById('passupCount').textContent = nPassup;
-  document.getElementById('infoTotalSales').textContent = totalSalesCount;
-  document.getElementById('infoDirects').textContent = nodeMap[0].saleCount + ' / 6';
-  document.getElementById('infoPassups').textContent = nPassup;
-  document.getElementById('infoDepth').textContent = maxDepth + ' levels';
+function updateStats(){
+  bump('keptAmt','$'+tKept.toLocaleString());
+  bump('passupAmt','$'+tPass.toLocaleString());
+  document.getElementById('totalAmt').textContent='$'+(tKept+tPass).toLocaleString();
+  document.getElementById('keptCount').textContent=nKept;
+  document.getElementById('passupCount').textContent=nPass;
+  document.getElementById('infoTotal').textContent=totalSales;
+  document.getElementById('infoDirect').textContent=nodeMap[0].saleCnt;
+  document.getElementById('infoPassups').textContent=nPass;
+  document.getElementById('infoDepth').textContent=maxDepth+' levels';
 }
 
-function bumpEl(id, val) {
-  const el = document.getElementById(id);
-  el.textContent = val;
-  el.classList.remove('bump');
-  void el.offsetWidth;
-  el.classList.add('bump');
+function bump(id,val){
+  const el=document.getElementById(id);el.textContent=val;
+  el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');
 }
 
-function addLog(who, sale, action, color, type) {
-  const list = document.getElementById('logList');
-  if (list.querySelector('[style*="0.2"]')) list.innerHTML = '';
-  const tagClass = type === 'passup' ? 'passup' : type === 'skip' ? 'skip' : 'kept';
-  const tagLabel = type === 'passup' ? 'PASS-UP' : type === 'skip' ? 'SKIP' : 'KEPT';
-  const item = document.createElement('div');
-  item.className = 'log-item';
-  item.innerHTML = `
-    <div class="log-left">
-      <strong style="color:#e8f0fe">${who}</strong>
-      <span style="color:#4a5a6e">${sale}</span>
-      <span class="log-tag ${tagClass}">${action || tagLabel}</span>
-    </div>
-    <span class="log-amt" style="color:${color}">$${tierPrice}</span>
-  `;
-  list.insertBefore(item, list.firstChild);
-  while (list.children.length > 15) list.removeChild(list.lastChild);
+function addLog(who,sale,action,color,type){
+  const list=document.getElementById('logList');
+  if(list.querySelector('[style*="0.2"]')) list.innerHTML='';
+  const tag=type==='passup'?'passup':'kept';
+  const lbl=type==='passup'?'PASS-UP':'KEPT';
+  const it=document.createElement('div');it.className='log-item';
+  it.innerHTML=`<div class="log-left"><span class="log-who">${who}</span><span class="log-sale">${sale}</span><span class="log-tag ${tag}">${action||lbl}</span></div><span class="log-amt" style="color:${color}">$${tierPrice}</span>`;
+  list.insertBefore(it,list.firstChild);
+  while(list.children.length>10) list.removeChild(list.lastChild);
 }
 
-// ── PLAYBACK CONTROLS ──────────────────────────────────────────────────
-function togglePlay() { playing ? pause() : play(); }
+// ── CONTROLS ────────────────────────────────────────────────────
+function togglePlay(){playing?pause():play();}
+function play(){playing=true;document.getElementById('playBtn').textContent='⏸ PAUSE';tick();}
+function pause(){playing=false;clearTimeout(timer);document.getElementById('playBtn').textContent='▶ PLAY';}
+function getDelay(){return Math.round(800-(parseInt(document.getElementById('speedSlider').value)-1)*160);}
+function tick(){if(!playing)return;processSale();if(saleIdx<saleQueue.length)timer=setTimeout(tick,getDelay());else pause();}
 
-function play() {
-  playing = true;
-  document.getElementById('playBtn').textContent = '⏸ PAUSE';
-  tick();
-}
-
-function pause() {
-  playing = false;
-  clearTimeout(timer);
-  document.getElementById('playBtn').textContent = '▶ PLAY';
-}
-
-function getDelay() {
-  const v = parseInt(document.getElementById('speedSlider').value);
-  return Math.round(900 - (v - 1) * 180);
-}
-
-function tick() {
-  if (!playing) return;
-  processSale();
-  if (saleIndex < saleQueue.length) {
-    timer = setTimeout(tick, getDelay());
-  } else {
-    pause();
-  }
-}
-
-function selectTier(btn) {
-  document.querySelectorAll('.tier-btn').forEach(b => b.classList.remove('active'));
+function selectTier(btn){
+  document.querySelectorAll('.tier-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  tierPrice = parseInt(btn.dataset.price);
-  document.getElementById('panelTitle').textContent = `$${tierPrice} ${tierPrice===100?'STARTER':tierPrice===300?'ADVANCED':'ELITE'} — PASS-UP SIMULATION`;
-  document.getElementById('infoTier').textContent = `$${tierPrice} ${tierPrice===100?'Starter':tierPrice===300?'Advanced':'Elite'}`;
+  tierPrice=parseInt(btn.dataset.price);
+  const label=tierPrice===100?'STARTER':tierPrice===300?'ADVANCED':'ELITE';
+  document.getElementById('panelTitle').textContent='INFINITE PASS-UP — $'+tierPrice+' '+label;
+  document.getElementById('infoTier').textContent='$'+tierPrice+' '+label.charAt(0)+label.slice(1).toLowerCase();
+  document.getElementById('splitPrice').textContent=tierPrice;
+  document.getElementById('splitKeep').textContent='$'+tierPrice;
+  document.getElementById('splitPass').textContent='$'+tierPrice;
   resetSim();
 }
 
-function resetSim() {
+function resetSim(){
   pause();
-  tKept = 0; tPassup = 0; nKept = 0; nPassup = 0;
-  totalSalesCount = 0; maxDepth = 0; saleIndex = 0;
-
-  buildTree();
-  buildSaleQueue();
-  renderTree();
-  updateStats();
-
-  document.getElementById('logList').innerHTML =
-    '<div class="log-item"><span style="color:rgba(255,255,255,0.2);font-size:11px">Press PLAY to start the simulation...</span></div>';
-  document.getElementById('playBtn').textContent = '▶ PLAY';
+  tKept=0;tPass=0;nKept=0;nPass=0;totalSales=0;maxDepth=0;saleIdx=0;
+  buildTree();buildQueue();renderTree();updateStats();
+  document.getElementById('logList').innerHTML='<div class="log-item"><span style="color:rgba(255,255,255,0.2);font-size:11px">Press PLAY to start the simulation...</span></div>';
+  document.getElementById('playBtn').textContent='▶ PLAY';
 }
 
-// ── INIT ───────────────────────────────────────────────────────────────
 resetSim();
-window.addEventListener('resize', () => requestAnimationFrame(drawLines));
+window.addEventListener('resize',()=>requestAnimationFrame(drawLines));
 </script>
 
-<!-- Mobile Bottom Nav -->
 <div class="mobile-nav">
   <div class="mobile-nav-inner">
     <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
@@ -731,11 +560,7 @@ window.addEventListener('resize', () => requestAnimationFrame(drawLines));
 </div>
 
 <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/static/sw.js').catch(() => {});
-  });
-}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/static/sw.js').catch(()=>{});});}
 </script>
 </body>
 </html>
