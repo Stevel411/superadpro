@@ -208,22 +208,15 @@ a{text-decoration:none;color:inherit}
 <div class="main">
   <!-- Desktop Topbar -->
   <div class="topbar">
-    <div style="display:flex;align-items:center;gap:10px">
-      <div class="topbar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
-      <div>
-        <div class="topbar-title">Video <em>Hub</em></div>
-        <div class="topbar-sub">Watch videos · Qualify for daily commissions</div>
-      </div>
+    <div>
+      <div class="topbar-title">▶️ Video Hub</div>
+      <div class="topbar-sub">Watch videos · Qualify for daily commissions</div>
     </div>
     <div class="topbar-right">
       <div class="tier-chip">
         <div class="tier-chip-val">Tier {{ quota.package_tier }}</div>
         <div class="tier-chip-lbl">{{ quota.daily_required }} video{{ 's' if quota.daily_required != 1 else '' }} required today</div>
       </div>
-      <a href="/" class="brand-mark">
-        <svg width="30" height="30" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-tb)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-tb" x1="0" y1="0" x2="44" y2="44"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
-        <span>Super<em>Ad</em>Pro</span>
-      </a>
     </div>
   </div>
 
