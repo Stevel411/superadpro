@@ -1790,6 +1790,10 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
         page.gjs_styles = json.dumps(gjs_styles) if isinstance(gjs_styles, (list, dict)) else gjs_styles
     gjs_html = body.get("gjs_html")
     if gjs_html is not None:
+        # Strip script tags and event handlers to prevent XSS
+        import re
+        gjs_html = re.sub(r'<script\b[^>]*>[\s\S]*?</script>', '', gjs_html, flags=re.IGNORECASE)
+        gjs_html = re.sub(r'\bon\w+\s*=\s*["\'][^"\']*["\']', '', gjs_html, flags=re.IGNORECASE)
         page.gjs_html = gjs_html
     gjs_css = body.get("gjs_css")
     if gjs_css is not None:

@@ -4,8 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>{{ page.headline or page.title }}</title>
-<meta name="description" content="{{ page.subheadline or '' }}">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="description" content="{{ page.meta_description or page.subheadline or '' }}">
+<meta property="og:title" content="{{ page.headline or page.title }}">
+<meta property="og:description" content="{{ page.meta_description or page.subheadline or '' }}">
+{% if page.og_image_url %}<meta property="og:image" content="{{ page.og_image_url }}">{% endif %}
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&family=Space+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans','Rethink Sans',sans-serif;min-height:100vh}
@@ -21,7 +24,18 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;min-height:100vh}
 .page-footer{text-align:center;padding:32px 24px 16px;font-size:11px;color:{% if sc == 'light' %}#b0bec5{% else %}rgba(255,255,255,0.12){% endif %};letter-spacing:0.5px}
 .page-footer a{color:{% if sc == 'light' %}#90a4ae{% else %}rgba(255,255,255,0.2){% endif %};text-decoration:none}
 .page-footer a:hover{color:{{ page.accent_color or '#38bdf8' }}}
-@media(max-width:768px){[style*="grid-template-columns: 1fr 1fr"],[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important}}
+img{max-width:100%;height:auto}
+a{transition:opacity 0.2s}a:hover{opacity:0.9}
+@media(max-width:768px){
+[style*="grid-template-columns: 1fr 1fr"],[style*="grid-template-columns:1fr 1fr"],
+[style*="grid-template-columns:repeat(3"],[style*="grid-template-columns: repeat(3"],
+[style*="grid-template-columns:repeat(auto-fit"],[style*="grid-template-columns: repeat(auto-fit"]{grid-template-columns:1fr !important}
+[style*="display:flex"][style*="gap:48px"],[style*="display:flex"][style*="gap:32px"]{flex-direction:column !important}
+section,div{overflow-wrap:break-word;word-wrap:break-word}
+h1{font-size:clamp(28px,7vw,44px) !important}
+h2{font-size:clamp(22px,5vw,36px) !important}
+}
+@media(max-width:480px){section{padding-left:16px !important;padding-right:16px !important}}
 </style>
 </head>
 <body>

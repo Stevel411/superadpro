@@ -242,6 +242,8 @@ const PAGE_ID={{page.id}},PAGE_SLUG="{{page.slug}}";
 let currentStatus="{{page.status}}",currentTheme='dark-blue',currentAccent='#0ea5e9',activeSection=null;
 
 const FONTS=['Sora','DM Sans','Inter','Space Grotesk','Plus Jakarta Sans','Outfit','Poppins','Montserrat','Raleway','Playfair Display'];
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function escUrl(u){if(!u)return'#';const s=String(u).trim();if(s.startsWith('javascript:'))return'#';return esc(s);}
 const CPRE=['#0ea5e9','#38bdf8','#0284c7','#8b5cf6','#a78bfa','#ec4899','#ef4444','#f59e0b','#10b981','#16a34a','#fff','#e2e8f0','#94a3b8','#1e293b','#0f172a','#000'];
 const DEFAULTS={
   hero:{icon:'🚀',name:'Hero Section',fields:{headline:'Your Headline Goes Here',subheadline:'A compelling subheadline that explains the value proposition and gets visitors excited.',cta_text:'Get Started Now →',cta_url:'#'},style:{heading_font:'Sora',heading_size:44,heading_colour:'',sub_colour:'',bg_custom:'',padding_y:80,cta_colour:'',cta_radius:12}},
@@ -422,7 +424,11 @@ function setDevice(d,btn){document.getElementById('previewFrame').style.maxWidth
 function previewPage(){window.open(`/p/${PAGE_SLUG}`,'_blank')}
 
 function generateFullHTML(){
-  let html='';pageSections.forEach(sec=>{if(sec.enabled)html+=renderHTML(sec);});return html;
+  let html='';pageSections.forEach(sec=>{if(sec.enabled)html+=renderHTML(sec);});
+  // Strip any script tags that could have been injected via user content
+  html=html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'');
+  html=html.replace(/on\w+\s*=\s*["'][^"']*["']/gi,'');
+  return html;
 }
 
 async function savePage(publish=false){
