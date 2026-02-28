@@ -750,6 +750,28 @@ def save_wallet(
     db.commit()
     return RedirectResponse(url="/account?saved=true", status_code=303)
 
+@app.post("/api/wallet/connect")
+def api_wallet_connect(
+    request: Request,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    """Save wallet address from Web3 wallet connect (JSON API)."""
+    from fastapi.responses import JSONResponse
+    import json
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    try:
+        body = json.loads(request._body.decode() if hasattr(request, '_body') else '{}')
+        wallet_address = body.get("wallet_address", "")
+    except Exception:
+        wallet_address = ""
+    if wallet_address and validate_wallet(wallet_address):
+        user.wallet_address = wallet_address
+        db.commit()
+        return JSONResponse({"success": True, "wallet": wallet_address})
+    return JSONResponse({"error": "Invalid wallet address"}, status_code=400)
+
 @app.get("/video-library")
 def video_library(request: Request, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):

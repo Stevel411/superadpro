@@ -1,0 +1,130 @@
+<!-- SuperAdPro Wallet Connect Component -->
+<!-- Include on any page: {% include 'wallet-connect.html' %} -->
+<!-- Requires: ethers.js CDN + /static/js/wallet.js -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<script src="/static/js/wallet.js"></script>
+
+<style>
+.wallet-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, #0ea5e9, #6d28d9);
+  color: #fff; font-weight: 700; font-size: 14px;
+  padding: 10px 20px; border-radius: 10px; border: none;
+  cursor: pointer; transition: all 0.2s;
+  font-family: inherit;
+}
+.wallet-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(14,165,233,0.3); }
+.wallet-btn.connected {
+  background: rgba(5,150,105,0.15); border: 1px solid rgba(5,150,105,0.3);
+  color: #059669;
+}
+.wallet-bal { font-size: 12px; color: #94a3b8; margin-left: 8px; }
+.wallet-status { display: flex; align-items: center; gap: 8px; }
+.wallet-dot { width: 8px; height: 8px; border-radius: 50%; }
+.wallet-dot.green { background: #059669; }
+.wallet-dot.red { background: #ef4444; }
+
+/* Transaction toast */
+.tx-toast {
+  position: fixed; bottom: 20px; right: 20px; z-index: 10000;
+  background: #0f172a; border: 1px solid rgba(14,165,233,0.3);
+  border-radius: 12px; padding: 16px 20px; color: #e2e8f0;
+  font-family: inherit; font-size: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  transform: translateY(100px); opacity: 0;
+  transition: all 0.3s ease;
+}
+.tx-toast.show { transform: translateY(0); opacity: 1; }
+.tx-toast a { color: #0ea5e9; text-decoration: none; }
+.tx-toast a:hover { text-decoration: underline; }
+.tx-toast .tx-spinner {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid rgba(14,165,233,0.3); border-top-color: #0ea5e9;
+  border-radius: 50%; animation: tx-spin 0.6s linear infinite;
+  margin-right: 8px; vertical-align: middle;
+}
+@keyframes tx-spin { to { transform: rotate(360deg); } }
+</style>
+
+<!-- Wallet button (place in topbar) -->
+<button id="walletBtn" class="wallet-btn" onclick="handleWalletConnect()">
+  🔗 Connect Wallet
+</button>
+<span id="walletBal" class="wallet-bal"></span>
+
+<!-- Transaction toast notification -->
+<div id="txToast" class="tx-toast"></div>
+
+<script>
+// ── Wallet connect handler ──
+async function handleWalletConnect() {
+  const btn = document.getElementById('walletBtn');
+  const bal = document.getElementById('walletBal');
+
+  if (SuperAdProWallet.isConnected()) {
+    SuperAdProWallet.disconnect();
+    btn.innerHTML = '🔗 Connect Wallet';
+    btn.classList.remove('connected');
+    bal.textContent = '';
+    return;
+  }
+
+  try {
+    btn.innerHTML = '⏳ Connecting...';
+    const addr = await SuperAdProWallet.connect();
+    btn.innerHTML = `<span class="wallet-dot green"></span> ${SuperAdProWallet.getShortAddress()}`;
+    btn.classList.add('connected');
+
+    // Show USDC balance
+    const { formatted } = await SuperAdProWallet.getUSDCBalance();
+    bal.textContent = `$${formatted} USDC`;
+
+    // Save wallet address to backend for syncing
+    fetch('/api/wallet/connect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet_address: addr })
+    });
+  } catch (e) {
+    btn.innerHTML = '🔗 Connect Wallet';
+    showTxToast('❌ ' + (e.message || 'Connection failed'), 'error');
+  }
+}
+
+// ── Transaction toast ──
+let toastTimer;
+function showTxToast(msg, type = 'info', link = '') {
+  const toast = document.getElementById('txToast');
+  let html = '';
+  if (type === 'loading') html = `<span class="tx-spinner"></span>${msg}`;
+  else if (type === 'success' && link) html = `✅ ${msg} <a href="${link}" target="_blank">View on BaseScan →</a>`;
+  else if (type === 'error') html = msg;
+  else html = msg;
+  toast.innerHTML = html;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  if (type !== 'loading') toastTimer = setTimeout(() => toast.classList.remove('show'), 6000);
+}
+
+// ── Wire up wallet event callbacks ──
+SuperAdProWallet.on('txStart', (msg) => showTxToast(msg, 'loading'));
+SuperAdProWallet.on('txConfirmed', (msg, hash) => showTxToast(msg, 'success', SuperAdProWallet.txLink(hash)));
+SuperAdProWallet.on('txFailed', (msg) => showTxToast('❌ ' + msg, 'error'));
+SuperAdProWallet.on('connect', async (addr) => {
+  console.log('Wallet connected:', addr);
+});
+SuperAdProWallet.on('disconnect', () => {
+  console.log('Wallet disconnected');
+  document.getElementById('walletBtn').innerHTML = '🔗 Connect Wallet';
+  document.getElementById('walletBtn').classList.remove('connected');
+  document.getElementById('walletBal').textContent = '';
+});
+
+// ── Auto-connect if previously connected ──
+(async function() {
+  if (window.ethereum && window.ethereum.selectedAddress) {
+    try { await handleWalletConnect(); } catch(e) {}
+  }
+})();
+</script>
