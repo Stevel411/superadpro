@@ -371,19 +371,41 @@ function buildTree(){
 
 function buildQueue(){
   queue=[];
+  const l1=nodes.filter(n=>n.lv===1); // YOU's direct children
+  const l2=nodes.filter(n=>n.lv===2);
   const l3=nodes.filter(n=>n.lv===3);
-  // Interleave: each round has tree sales + L3 phantom sales
-  for(let r=1;r<=8;r++){
+
+  // Phase 1: L1 members get their first few sales (YOUR directs selling)
+  // Each L1 node is a child of YOU → sale attributed to YOU (sid=0)
+  for(let r=1;r<=4;r++){
+    const batch=l1.map(n=>({sid:n.pid})); // sid=0 (YOU) for all
+    shuffle(batch); queue.push(...batch);
+  }
+
+  // Phase 2: L2 starts filling — L1 members now also continue selling
+  for(let r=1;r<=4;r++){
     const batch=[];
-    // Sales from tree children → parents (L1, L2, L3 nodes generate sales for their parents)
-    nodes.filter(n=>n.id>0).forEach(n=>batch.push({sid:n.pid,r}));
-    // L3 nodes also sell to phantom buyers (shows their counts + pass-ups flowing up)
-    if(r<=6) l3.forEach(n=>batch.push({sid:n.id,r,phantom:true}));
-    // Shuffle the combined batch
-    for(let i=batch.length-1;i>0;i--){const j=Math.random()*i|0;[batch[i],batch[j]]=[batch[j],batch[i]];}
-    queue.push(...batch);
+    // L2 children generate sales for their L1 parents
+    l2.forEach(n=>batch.push({sid:n.pid}));
+    // L1 continues getting occasional sales too
+    if(r<=2) l1.forEach(n=>batch.push({sid:n.pid}));
+    shuffle(batch); queue.push(...batch);
+  }
+
+  // Phase 3: L3 kicks in — all levels active, showing cascade
+  for(let r=1;r<=6;r++){
+    const batch=[];
+    // L3 children generate sales for their L2 parents
+    l3.forEach(n=>batch.push({sid:n.pid}));
+    // L3 also make their own sales (phantom buyers below tree)
+    l3.forEach(n=>batch.push({sid:n.id,phantom:true}));
+    // L2 continues
+    if(r<=3) l2.forEach(n=>batch.push({sid:n.pid}));
+    shuffle(batch); queue.push(...batch);
   }
 }
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*i|0;[a[i],a[j]]=[a[j],a[i]];}}
 
 function renderTree(){
   const rows=document.getElementById('treeRows');rows.innerHTML='';
