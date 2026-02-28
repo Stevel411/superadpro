@@ -153,16 +153,28 @@ a{text-decoration:none;color:inherit}
 <!-- Dark Topbar -->
 <div class="topbar">
   <div class="topbar-left">
+    {% if user %}
     <a href="/dashboard">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
       Dashboard
     </a>
     <a href="/ads/my" style="background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.15);color:#7dd3fc">📝 My Ads</a>
+    {% else %}
+    <a href="/">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+      Home
+    </a>
+    {% endif %}
   </div>
   <div class="topbar-center">📢 Community Marketplace · {{ total_ads }} Live Ad{{ 's' if total_ads != 1 else '' }}</div>
   <div class="topbar-right">
     <svg width="32" height="32" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-lg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-lg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
     <span style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
+    {% if not user %}
+    <a href="{{ join_url }}" style="margin-left:12px;padding:8px 20px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;font-size:13px;font-weight:700;border-radius:8px;transition:all 0.2s">🚀 Join Free</a>
+    {% endif %}
+  </div>
+</div>
   </div>
 </div>
 
@@ -324,7 +336,7 @@ startAuto();
     <h2 style="font-family:Sora,sans-serif;font-size:22px;font-weight:800;margin-bottom:8px">🚀 Want Your Ad On This Board?</h2>
     <p style="font-size:14px;color:#94a3b8;margin-bottom:20px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.6">SuperAdPro members can post up to 5 ads for free. Reach thousands of entrepreneurs, marketers, and business builders actively looking for opportunities.</p>
     <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <a href="/?register=1" style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;font-weight:700;font-size:14px;border-radius:8px;transition:all 0.2s">Join Free & Start Advertising</a>
+      <a href="{{ join_url }}" style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;font-weight:700;font-size:14px;border-radius:8px;transition:all 0.2s">Join Free & Start Advertising</a>
       <a href="/how-it-works" style="display:inline-block;padding:12px 28px;border:1px solid rgba(148,163,184,0.3);color:#94a3b8;font-weight:600;font-size:14px;border-radius:8px;transition:all 0.2s">Learn How It Works</a>
     </div>
   </div>
@@ -353,7 +365,7 @@ startAuto();
     <h2 style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#0f172a;margin-bottom:12px">SuperAdPro Ad Board — Free Online Advertising Marketplace</h2>
     <p style="font-size:13px;color:#64748b;line-height:1.8;margin-bottom:12px">The SuperAdPro Ad Board is a free-to-browse advertising marketplace connecting entrepreneurs, digital marketers, and business builders. Whether you're looking for new business opportunities, digital marketing services, health and wellness products, finance and crypto tools, e-commerce solutions, or educational courses — our community-powered ad board has something for everyone.</p>
     <p style="font-size:13px;color:#64748b;line-height:1.8;margin-bottom:12px">SuperAdPro members can post up to 5 active listings across {{ categories|length }} categories. Each ad gets its own shareable page with social sharing buttons, view and click tracking, and SEO-friendly URLs to help your offers get discovered by search engines.</p>
-    <p style="font-size:13px;color:#64748b;line-height:1.8">Browse our {{ total_ads }}+ active listings below, or <a href="/?register=1" style="color:#0ea5e9;font-weight:600">join SuperAdPro</a> to place your own ads and reach thousands of potential customers.</p>
+    <p style="font-size:13px;color:#64748b;line-height:1.8">Browse our {{ total_ads }}+ active listings below, or <a href="{{ join_url }}" style="color:#0ea5e9;font-weight:600">join SuperAdPro</a> to place your own ads and reach thousands of potential customers.</p>
     <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:8px">
       {% for cat in categories %}
       <a href="/ads?category={{ cat.id }}" style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:600;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;transition:all 0.2s">{{ cat.icon }} {{ cat.name }}</a>

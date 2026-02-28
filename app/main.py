@@ -235,11 +235,11 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
 
 @app.get("/")
 def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse("index.html", {"request": request, "join_url": get_join_url()})
 
 @app.get("/how-it-works")
 def how_it_works(request: Request):
-    return templates.TemplateResponse("how-it-works.html", {"request": request})
+    return templates.TemplateResponse("how-it-works.html", {"request": request, "join_url": get_join_url()})
 
 @app.get("/compensation-plan")
 def compensation_plan(request: Request, user: User = Depends(get_current_user)):
@@ -2827,6 +2827,11 @@ def logo_concepts(request: Request):
 # ═══════════════════════════════════════════════════
 #  PUBLIC AD BOARD
 # ═══════════════════════════════════════════════════
+MASTER_REF = os.getenv("MASTER_REF", "")  # Set to your username on Railway — all public CTAs use this
+def get_join_url():
+    """Returns the public signup URL — uses master affiliate link if configured"""
+    return f"/?join={MASTER_REF}" if MASTER_REF else "/?register=1"
+
 AD_CATEGORIES = [
     {"id": "business-opportunity", "name": "Business Opportunity", "icon": "💼"},
     {"id": "digital-marketing", "name": "Digital Marketing", "icon": "📣"},
@@ -2839,7 +2844,8 @@ AD_CATEGORIES = [
 ]
 
 @app.get("/ads")
-def ad_board_public(request: Request, category: str = None, page: int = 1, db: Session = Depends(get_db)):
+def ad_board_public(request: Request, category: str = None, page: int = 1,
+                    user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
     try:
         query = db.query(AdListing).filter(AdListing.is_active == True)
@@ -2870,6 +2876,8 @@ def ad_board_public(request: Request, category: str = None, page: int = 1, db: S
             "page": page,
             "total_pages": total_pages,
             "base_url": base_url,
+            "join_url": get_join_url(),
+            "user": user,
         })
     except Exception as exc:
         logger.error(f"Ad board error: {exc}", exc_info=True)
@@ -2902,6 +2910,7 @@ def ad_detail_page(slug: str, request: Request, db: Session = Depends(get_db)):
         "related": related,
         "categories": AD_CATEGORIES,
         "base_url": base_url,
+        "join_url": get_join_url(),
     })
 
 
