@@ -55,9 +55,9 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
 
 /* ═══ TREE — centred, compact ═══ */
 .tree-viewport{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:12px;background:#f8fafc;margin-bottom:16px}
-.tree-canvas{position:relative;min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 12px}
+.tree-canvas{position:relative;min-height:480px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 12px}
 .tree-canvas svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
-.tree-rows{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:22px}
+.tree-rows{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:18px}
 /* Flow trail — animated dot that travels up the tree on pass-up */
 .flow-dot{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px rgba(245,158,11,0.6),0 0 24px rgba(245,158,11,0.3);z-index:20;pointer-events:none;opacity:0}
 .flow-dot.active{animation:flowTravel var(--dur,0.8s) ease-in-out forwards}
@@ -79,7 +79,16 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
 .nd .sc{font-size:8px;font-weight:600;color:#94a3b8;margin-top:1px}
 .nd .badge{position:absolute;top:-7px;right:-7px;width:16px;height:16px;border-radius:50%;font-size:8px;font-weight:800;display:none;align-items:center;justify-content:center;z-index:3;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,0.15)}
 
-/* Root */
+/* Sponsor (above YOU) */
+.nd.sponsor{
+  background:linear-gradient(135deg,#6366f1,#4f46e5);border:2.5px solid #818cf8;color:#fff;
+  width:72px;height:56px;border-style:solid;
+  box-shadow:0 4px 16px rgba(99,102,241,0.3),0 0 0 3px rgba(99,102,241,0.1);
+}
+.nd.sponsor .nm{font-size:12px;color:#fff;font-family:Sora,sans-serif}
+.nd.sponsor .sc{color:rgba(255,255,255,0.6)}
+
+/* Root (YOU — mid-tree affiliate) */
 .nd.root{
   background:linear-gradient(135deg,#0ea5e9,#0284c7);border:2.5px solid var(--cyan);color:#fff;
   width:80px;height:64px;border-style:solid;
@@ -234,7 +243,8 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
 
     <!-- Legend -->
     <div class="legend">
-      <div class="lg-i"><div class="lg-s" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);border:2px solid var(--cyan)"></div>You (Root)</div>
+      <div class="lg-i"><div class="lg-s" style="background:linear-gradient(135deg,#6366f1,#4f46e5);border:2px solid #818cf8"></div>Your Sponsor</div>
+      <div class="lg-i"><div class="lg-s" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);border:2px solid var(--cyan)"></div>You</div>
       <div class="lg-i"><div class="lg-s" style="background:#f0f9ff;border:1.5px solid rgba(14,165,233,.3)"></div>Active Member</div>
       <div class="lg-i"><div class="lg-s" style="background:rgba(16,185,129,.12);border:1.5px solid var(--green)"></div>Keeps Commission</div>
       <div class="lg-i"><div class="lg-s" style="background:rgba(245,158,11,.1);border:1.5px solid var(--gold)"></div>Pass-Up to Sponsor</div>
@@ -342,49 +352,68 @@ const PU=new Set([2,4,6]);
 const NM=['Alex','Beth','Carl','Dana','Eric','Faye','Gina','Hugo','Iris','Jake','Kate','Leo','Mia','Nate','Olga','Paul','Quinn'];
 let nodes=[],nMap={},playing=false,tmr=null,queue=[],qi=0;
 let tK=0,tP=0,nK=0,nP=0,tS=0;
+let youId=1; // YOU is not root — SPONSOR is id=0, YOU is id=1
 
-/* Tree: YOU → 4 L1 → 2 each L2 (8) → 1 each L3 (8) = 21 nodes
-   Enough depth to show cascade, compact enough to centre */
+/* Tree: SPONSOR → YOU → 4 L1 → 2 each L2 (8) → 1 each L3 (8)
+   Shows YOU as a mid-tree affiliate with a sponsor above.
+   YOUR 2,4,6 sales pass UP to SPONSOR (visible flow).
+   YOUR team's pass-ups flow DOWN to YOU. */
 function buildTree(){
   nodes=[];nMap={};let id=0,ni=0;
-  function mk(nm,lv,pid){const n={id:id++,nm,lv,pid,pu:null,sc:0,rc:0,ch:[],el:null};nodes.push(n);nMap[n.id]=n;return n;}
-  const r=mk('YOU',0,null);
-  // L1: 4 directs
+  function mk(nm,lv,pid,cls){const n={id:id++,nm,lv,pid,pu:null,sc:0,rc:0,ch:[],el:null,cls:cls||''};nodes.push(n);nMap[n.id]=n;return n;}
+
+  // Level 0: SPONSOR (the person above you)
+  const sp=mk('SPONSOR',0,null,'sponsor');
+
+  // Level 1: YOU (the viewer) — you are sponsor's 1st referral
+  const you=mk('YOU',1,sp.id,'root');
+  sp.ch.push(you.id); sp.rc++;
+  // YOU is sponsor's 1st referral (kept position) → your pass_up_sponsor = SPONSOR
+  you.pu=sp.id;
+  youId=you.id;
+
+  // Level 2: YOUR 4 direct referrals
   for(let i=0;i<4;i++){
-    const c=mk(NM[ni++],1,0);r.ch.push(c.id);r.rc++;
-    c.pu=PU.has(r.rc)?(r.pu??r.id):r.id;
+    const c=mk(NM[ni++],2,you.id);you.ch.push(c.id);you.rc++;
+    // Referral positions: 1=kept,2=passup,3=kept,4=passup
+    // If kept position → pass_up_sponsor = YOU
+    // If passup position → pass_up_sponsor = YOUR pass_up_sponsor = SPONSOR
+    c.pu=PU.has(you.rc)?you.pu:you.id;
   }
-  // L2: each L1 gets 2
-  for(const cid of r.ch){
+
+  // Level 3: Each of your directs gets 2 referrals
+  const yourDirects=you.ch.slice();
+  for(const cid of yourDirects){
     const p=nMap[cid];
     for(let i=0;i<2;i++){
-      const c=mk(NM[ni++],2,p.id);p.ch.push(c.id);p.rc++;
-      c.pu=PU.has(p.rc)?(p.pu??p.id):p.id;
+      const c=mk(NM[ni++],3,p.id);p.ch.push(c.id);p.rc++;
+      c.pu=PU.has(p.rc)?p.pu:p.id;
     }
   }
-  // L3: each L2 gets 1
-  nodes.filter(n=>n.lv===2).forEach(p=>{
-    const c=mk(NM[ni++%NM.length],3,p.id);p.ch.push(c.id);p.rc++;
-    c.pu=PU.has(p.rc)?(p.pu??p.id):p.id;
+
+  // Level 4: Each L3 gets 1 referral
+  nodes.filter(n=>n.lv===3).forEach(p=>{
+    const c=mk(NM[ni++%NM.length],4,p.id);p.ch.push(c.id);p.rc++;
+    c.pu=PU.has(p.rc)?p.pu:p.id;
   });
 }
 
 function buildQueue(){
   queue=[];
-  const l1=nodes.filter(n=>n.lv===1);
-  const l2=nodes.filter(n=>n.lv===2);
-  const l3=nodes.filter(n=>n.lv===3);
+  const you=nMap[youId];
+  const l1=nodes.filter(n=>n.lv===2); // YOUR directs
+  const l2=nodes.filter(n=>n.lv===3);
+  const l3=nodes.filter(n=>n.lv===4);
 
-  // Phase 1: YOU and L1 members make their first sales
-  // sid = the person making the sale (their sale count increments)
+  // Phase 1: YOU make sales + your L1 directs start selling
   for(let r=1;r<=4;r++){
     const batch=[];
-    batch.push({sid:0}); // YOU makes a sale each round
+    batch.push({sid:youId}); // YOU make a sale
     l1.forEach(n=>batch.push({sid:n.id}));
     shuffle(batch); queue.push(...batch);
   }
 
-  // Phase 2: L2 starts selling, L1 picks up a couple more
+  // Phase 2: L2 starts, L1 continues
   for(let r=1;r<=4;r++){
     const batch=[];
     l2.forEach(n=>batch.push({sid:n.id}));
@@ -392,7 +421,7 @@ function buildQueue(){
     shuffle(batch); queue.push(...batch);
   }
 
-  // Phase 3: L3 kicks in — full cascade visible
+  // Phase 3: L3 kicks in — full cascade
   for(let r=1;r<=6;r++){
     const batch=[];
     l3.forEach(n=>batch.push({sid:n.id}));
@@ -406,12 +435,13 @@ function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*i|0;[a[i
 
 function renderTree(){
   const rows=document.getElementById('treeRows');rows.innerHTML='';
-  const lvls=[[],[],[],[]];nodes.forEach(n=>lvls[n.lv].push(n));
+  const lvls=[[],[],[],[],[]];nodes.forEach(n=>lvls[n.lv].push(n));
   lvls.forEach((lv,li)=>{
+    if(!lv.length)return;
     const row=document.createElement('div');row.className='tree-row';row.style.position='relative';
     lv.forEach(n=>{
       const el=document.createElement('div');
-      el.className='nd'+(li===0?' root':'');el.id='n'+n.id;
+      el.className='nd'+(n.cls?' '+n.cls:'');el.id='n'+n.id;
       el.innerHTML=`<div class="nm">${n.nm}</div><div class="sc" id="sc${n.id}">0 sales</div><div class="badge" id="pb${n.id}"></div>`;
       row.appendChild(el);n.el=el;
     });
@@ -447,7 +477,7 @@ function processSale(){
 
   if(isUp){
     // Find recipient — walk up pass-up chain
-    let rid=sl.pu,rec=rid!=null?nMap[rid]:null;if(!rec)rec=nMap[0];
+    let rid=sl.pu,rec=rid!=null?nMap[rid]:null;if(!rec)rec=nMap[youId];
     sl.el.classList.add('selling');setTimeout(()=>sl.el.classList.remove('selling'),600);
     const bd=document.getElementById('pb'+sl.id);
     if(bd){bd.style.display='flex';bd.style.background='var(--gold)';bd.style.color='#fff';bd.textContent='↑';}
@@ -476,14 +506,14 @@ function processSale(){
     rec.el.classList.add('receiving');setTimeout(()=>rec.el.classList.remove('receiving'),700+(flowPath.length*200));
     // Delay the float to sync with flow trail arrival
     setTimeout(()=>showFloat(rec.el,'+$'+tier,'#f59e0b'),flowPath.length*180);
-    if(rec.id===0){tP+=tier;nP++;}
+    if(rec.id===youId){tP+=tier;nP++;}
     addLog(sl.nm,'#'+sn,'↑ '+rec.nm+(flowPath.length>2?' ('+flowPath.length+' levels)':''),'#f59e0b','passup');
   } else {
     sl.el.classList.add('keeping');setTimeout(()=>sl.el.classList.remove('keeping'),500);
     showFloat(sl.el,'+$'+tier,'#10b981');
     const bd=document.getElementById('pb'+sl.id);
     if(bd&&sn<=7){bd.style.display='flex';bd.style.background='var(--green)';bd.style.color='#fff';bd.textContent='✓';}
-    if(sl.id===0){tK+=tier;nK++;}
+    if(sl.id===youId){tK+=tier;nK++;}
     addLog(sl.nm,'#'+sn,'KEPT ✓','#10b981','kept');
   }
   updateUI();
@@ -534,7 +564,7 @@ function updateUI(){
   bump('keptAmt','$'+tK.toLocaleString());bump('passupAmt','$'+tP.toLocaleString());
   document.getElementById('totalAmt').textContent='$'+(tK+tP).toLocaleString();
   document.getElementById('kc').textContent=nK;document.getElementById('pc').textContent=nP;
-  document.getElementById('iTotal').textContent=tS;document.getElementById('iDirect').textContent=nMap[0].sc;
+  document.getElementById('iTotal').textContent=tS;document.getElementById('iDirect').textContent=nMap[youId].sc;
   document.getElementById('iPassups').textContent=nP;
 }
 function bump(id,v){const e=document.getElementById(id);e.textContent=v;e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');}
