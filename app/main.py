@@ -63,6 +63,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # Decimal-safe JSON — Numeric(18,6) columns return Decimal objects
 # which the default JSON encoder can't handle. This converts them to float.
 import decimal
+import json as _json
 class DecimalEncoder(_json.JSONEncoder):
     def default(self, o):
         if isinstance(o, decimal.Decimal):
