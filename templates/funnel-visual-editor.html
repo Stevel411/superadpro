@@ -378,7 +378,7 @@ async function savePage(publish=false){
       })});
     const res=await r.json();
     if(res.success){currentStatus=res.status;s.textContent=publish?'✓ Published!':'✓ Saved';s.style.color='#10b981';if(publish)setTimeout(()=>{s.textContent=`Live → /p/${res.slug}`},1500);}
-    else{s.textContent='✗ '+(res.error||'Failed');s.style.color='#ef4444';}
+    else{s.textContent='✗ '+(res.error||'Failed');s.style.color='#ef4444';if(r.status===409)alert(res.error);}
   }catch(e){s.textContent='✗ Network error';s.style.color='#ef4444';}
   setTimeout(()=>{s.textContent=''},4000);
 }

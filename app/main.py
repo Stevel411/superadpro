@@ -102,24 +102,16 @@ def clear_failed_attempts(identifier):
 # ── Unique Slug Generator ─────────────────────────────────────
 import re as _re, random as _rand, string as _string
 def generate_unique_slug(db, username: str, title: str, exclude_page_id: int = None) -> str:
-    """Generate a unique slug for a funnel page: username/title-slug.
-    Appends random suffix if collision detected. Safe for concurrent use."""
+    """Generate a slug for a funnel page: username/title-slug.
+    Returns None if slug already exists (caller should notify user)."""
     raw = _re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-') or 'page'
-    base_slug = f"{username.lower()}/{raw}"
-    slug = base_slug
-    attempts = 0
-    while attempts < 10:
-        q = db.query(FunnelPage).filter(FunnelPage.slug == slug)
-        if exclude_page_id:
-            q = q.filter(FunnelPage.id != exclude_page_id)
-        if not q.first():
-            return slug
-        suffix = ''.join(_rand.choices(_string.ascii_lowercase + _string.digits, k=5))
-        slug = f"{base_slug}-{suffix}"
-        attempts += 1
-    # Absolute fallback: timestamp-based
-    import time
-    return f"{base_slug}-{int(time.time())}"
+    slug = f"{username.lower()}/{raw}"
+    q = db.query(FunnelPage).filter(FunnelPage.slug == slug)
+    if exclude_page_id:
+        q = q.filter(FunnelPage.id != exclude_page_id)
+    if q.first():
+        return None  # collision — let user pick a different name
+    return slug
 
 # ── DB / Auth helpers ─────────────────────────────────────────
 def get_db():
@@ -621,6 +613,8 @@ Return JSON: {{"headline":"...","subheadline":"...","cta_text":"...","benefits_t
 
     # Create the funnel page
     slug = generate_unique_slug(db, user.username, f"My {niche} Page")
+    if slug is None:
+        return {"error": f"You already have a page called 'My {niche} Page'. Please rename or delete the existing one first."}
     page = FunnelPage(
         user_id=user.id,
         slug=slug,
@@ -1693,8 +1687,10 @@ def funnel_visual_new(request: Request, template_type: str = "optin",
         title="Untitled Page",
         template_type=template_type,
         status="draft",
-        slug=generate_unique_slug(db, user.username, "Untitled Page")
     )
+    db.add(page)
+    db.flush()  # get page.id
+    page.slug = f"{user.username.lower()}/untitled-page-{page.id}"
     db.add(page)
     db.commit()
     db.refresh(page)
@@ -1758,6 +1754,8 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
     import re
     title = body.get("title", "My Page").strip()
     slug = generate_unique_slug(db, user.username, title, exclude_page_id=page.id)
+    if slug is None:
+        return JSONResponse({"error": f"A page called '{title}' already exists. Please choose a different title."}, status_code=409)
 
     page.title = title
     page.slug = slug
@@ -2237,12 +2235,9 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
         }}
     ]
 
-    slug = generate_unique_slug(db, user.username, tpl["title"])
-
     sections_data = json.dumps(sections)
     page = FunnelPage(
         user_id=user.id,
-        slug=slug,
         title=tpl["title"],
         headline=tpl["headline"],
         template_type="landing",
@@ -2253,8 +2248,10 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
         status="draft"
     )
     db.add(page)
+    db.flush()
+    slug_base = _re.sub(r'[^a-z0-9]+', '-', tpl["title"].lower()).strip('-')
+    page.slug = f"{user.username.lower()}/{slug_base}-{page.id}"
     db.commit()
-    db.refresh(page)
 
     return {"success": True, "edit_url": f"/funnels/visual/{page.id}"}
 
