@@ -55,9 +55,13 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
 
 /* ═══ TREE — centred, compact ═══ */
 .tree-viewport{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:12px;background:#f8fafc;margin-bottom:16px}
-.tree-canvas{position:relative;min-height:340px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px}
+.tree-canvas{position:relative;min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 12px}
 .tree-canvas svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
-.tree-rows{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:28px}
+.tree-rows{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:22px}
+/* Flow trail — animated dot that travels up the tree on pass-up */
+.flow-dot{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px rgba(245,158,11,0.6),0 0 24px rgba(245,158,11,0.3);z-index:20;pointer-events:none;opacity:0}
+.flow-dot.active{animation:flowTravel var(--dur,0.8s) ease-in-out forwards}
+@keyframes flowTravel{0%{opacity:1;offset-distance:0%}85%{opacity:1}100%{opacity:0;offset-distance:100%}}
 .tree-row{display:flex;justify-content:center;gap:10px}
 
 /* Row labels */
@@ -65,14 +69,14 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
 
 /* Nodes */
 .nd{
-  width:68px;height:56px;border-radius:10px;
+  width:64px;height:50px;border-radius:9px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;position:relative;cursor:default;
   background:#fff;border:1.5px dashed #e2e8f0;color:#64748b;
   transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);overflow:visible;
 }
-.nd .nm{font-size:11px;font-weight:800;line-height:1.1;color:#334155}
-.nd .sc{font-size:9px;font-weight:600;color:#94a3b8;margin-top:2px}
+.nd .nm{font-size:10px;font-weight:800;line-height:1.1;color:#334155}
+.nd .sc{font-size:8px;font-weight:600;color:#94a3b8;margin-top:1px}
 .nd .badge{position:absolute;top:-7px;right:-7px;width:16px;height:16px;border-radius:50%;font-size:8px;font-weight:800;display:none;align-items:center;justify-content:center;z-index:3;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,0.15)}
 
 /* Root */
@@ -331,19 +335,22 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
 /* ═══ ENGINE ═══ */
 let tier=100;
 const PU=new Set([2,4,6]);
-const NM=['Alex','Beth','Carl','Dana','Eric','Faye','Gina','Hugo','Iris','Jake','Kate','Leo'];
+const NM=['Alex','Beth','Carl','Dana','Eric','Faye','Gina','Hugo','Iris','Jake','Kate','Leo','Mia','Nate','Olga','Paul','Quinn'];
 let nodes=[],nMap={},playing=false,tmr=null,queue=[],qi=0;
 let tK=0,tP=0,nK=0,nP=0,tS=0;
 
-/* Tree: YOU → 4 directs → each has 2 = 13 nodes total — fits perfectly centred */
+/* Tree: YOU → 4 L1 → 2 each L2 (8) → 1 each L3 (8) = 21 nodes
+   Enough depth to show cascade, compact enough to centre */
 function buildTree(){
   nodes=[];nMap={};let id=0,ni=0;
   function mk(nm,lv,pid){const n={id:id++,nm,lv,pid,pu:null,sc:0,rc:0,ch:[],el:null};nodes.push(n);nMap[n.id]=n;return n;}
   const r=mk('YOU',0,null);
+  // L1: 4 directs
   for(let i=0;i<4;i++){
     const c=mk(NM[ni++],1,0);r.ch.push(c.id);r.rc++;
     c.pu=PU.has(r.rc)?(r.pu??r.id):r.id;
   }
+  // L2: each L1 gets 2
   for(const cid of r.ch){
     const p=nMap[cid];
     for(let i=0;i<2;i++){
@@ -351,6 +358,11 @@ function buildTree(){
       c.pu=PU.has(p.rc)?(p.pu??p.id):p.id;
     }
   }
+  // L3: each L2 gets 1
+  nodes.filter(n=>n.lv===2).forEach(p=>{
+    const c=mk(NM[ni++%NM.length],3,p.id);p.ch.push(c.id);p.rc++;
+    c.pu=PU.has(p.rc)?(p.pu??p.id):p.id;
+  });
 }
 
 function buildQueue(){
@@ -364,7 +376,7 @@ function buildQueue(){
 
 function renderTree(){
   const rows=document.getElementById('treeRows');rows.innerHTML='';
-  const lvls=[[],[],[]];nodes.forEach(n=>lvls[n.lv].push(n));
+  const lvls=[[],[],[],[]];nodes.forEach(n=>lvls[n.lv].push(n));
   lvls.forEach((lv,li)=>{
     const row=document.createElement('div');row.className='tree-row';row.style.position='relative';
     lv.forEach(n=>{
@@ -404,16 +416,38 @@ function processSale(){
   if(sl.el&&!sl.el.classList.contains('root'))sl.el.classList.add('active');
 
   if(isUp){
+    // Find recipient — walk up pass-up chain
     let rid=sl.pu,rec=rid!=null?nMap[rid]:null;if(!rec)rec=nMap[0];
     sl.el.classList.add('selling');setTimeout(()=>sl.el.classList.remove('selling'),600);
     const bd=document.getElementById('pb'+sl.id);
     if(bd){bd.style.display='flex';bd.style.background='var(--gold)';bd.style.color='#fff';bd.textContent='↑';}
-    const ln=document.getElementById(`ln${sl.pid}-${sl.id}`);
-    if(ln){ln.setAttribute('stroke','#f59e0b');ln.setAttribute('stroke-width','2.5');ln.setAttribute('stroke-dasharray','5 3');}
-    rec.el.classList.add('receiving');setTimeout(()=>rec.el.classList.remove('receiving'),700);
-    showFloat(rec.el,'+$'+tier,'#f59e0b');
+
+    // Build the path from seller up to recipient for flow trail
+    const flowPath=[];
+    let cur=sl;
+    while(cur&&cur.id!==rec.id){
+      flowPath.push(cur);
+      if(cur.pid===null)break;
+      cur=nMap[cur.pid];
+    }
+    flowPath.push(rec);
+
+    // Highlight connector lines along the path
+    for(let i=0;i<flowPath.length-1;i++){
+      const from=flowPath[i],to=flowPath[i+1];
+      // Find the line between them (could be parent-child in either direction)
+      let ln=document.getElementById(`ln${to.id}-${from.id}`)||document.getElementById(`ln${from.pid}-${from.id}`);
+      if(ln){ln.setAttribute('stroke','#f59e0b');ln.setAttribute('stroke-width','2.5');ln.setAttribute('stroke-dasharray','5 3');}
+    }
+
+    // Animate flow dots along the path
+    animateFlowTrail(flowPath);
+
+    rec.el.classList.add('receiving');setTimeout(()=>rec.el.classList.remove('receiving'),700+(flowPath.length*200));
+    // Delay the float to sync with flow trail arrival
+    setTimeout(()=>showFloat(rec.el,'+$'+tier,'#f59e0b'),flowPath.length*180);
     if(rec.id===0){tP+=tier;nP++;}
-    addLog(sl.nm,'#'+sn,'↑ '+rec.nm,'#f59e0b','passup');
+    addLog(sl.nm,'#'+sn,'↑ '+rec.nm+(flowPath.length>2?' ('+flowPath.length+' levels)':''),'#f59e0b','passup');
   } else {
     sl.el.classList.add('keeping');setTimeout(()=>sl.el.classList.remove('keeping'),500);
     showFloat(sl.el,'+$'+tier,'#10b981');
@@ -423,6 +457,45 @@ function processSale(){
     addLog(sl.nm,'#'+sn,'KEPT ✓','#10b981','kept');
   }
   updateUI();
+}
+
+/* Animate a glowing dot travelling up from seller to recipient */
+function animateFlowTrail(path){
+  if(path.length<2)return;
+  const cv=document.getElementById('treeCanvas');
+  const cr=cv.getBoundingClientRect();
+
+  for(let i=0;i<path.length-1;i++){
+    setTimeout(()=>{
+      const from=path[i].el,to=path[i+1].el;
+      if(!from||!to)return;
+      const fr=from.getBoundingClientRect(),tr=to.getBoundingClientRect();
+      const x1=fr.left+fr.width/2-cr.left,y1=fr.top+fr.height/2-cr.top;
+      const x2=tr.left+tr.width/2-cr.left,y2=tr.top+tr.height/2-cr.top;
+
+      const dot=document.createElement('div');
+      dot.style.cssText=`position:absolute;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px rgba(245,158,11,0.7),0 0 24px rgba(245,158,11,0.3);z-index:20;pointer-events:none;left:${x1-5}px;top:${y1-5}px;`;
+      cv.appendChild(dot);
+
+      // Animate from → to
+      const dx=x2-x1,dy=y2-y1;
+      const dur=280;
+      dot.animate([
+        {transform:'translate(0,0)',opacity:1},
+        {transform:`translate(${dx}px,${dy}px)`,opacity:1}
+      ],{duration:dur,easing:'ease-in-out',fill:'forwards'});
+
+      // Brief glow on the intermediate node
+      if(i<path.length-2&&path[i+1].el){
+        setTimeout(()=>{
+          path[i+1].el.style.boxShadow='0 0 16px rgba(245,158,11,0.4)';
+          setTimeout(()=>{path[i+1].el.style.boxShadow='';},400);
+        },dur-50);
+      }
+
+      setTimeout(()=>dot.remove(),dur+100);
+    },i*250);
+  }
 }
 
 function showFloat(el,t,c){const f=document.createElement('div');f.className='cfloat';f.textContent=t;f.style.color=c;el.appendChild(f);setTimeout(()=>f.remove(),1100);}
