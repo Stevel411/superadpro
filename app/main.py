@@ -267,7 +267,7 @@ def grid_visualiser(request: Request, user: User = Depends(get_current_user)):
 
 @app.get("/passup-visualiser")
 def passup_visualiser(request: Request, user: User = Depends(get_current_user)):
-    ctx = {"request": request}
+    ctx = {"request": request, "active_page": "passup-visualiser"}
     if user:
         ctx["user"] = user
     return templates.TemplateResponse("passup-visualiser.html", ctx)
@@ -4567,7 +4567,8 @@ async def courses_page(request: Request, db: Session = Depends(get_db)):
         "request": request,
         "user": user,
         "courses": courses,
-        "owned_tiers": owned_tiers
+        "owned_tiers": owned_tiers,
+        "active_page": "courses"
     })
 
 

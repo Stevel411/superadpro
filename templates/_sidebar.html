@@ -91,6 +91,20 @@
 
     <div class="nav-divider"></div>
 
+    <!-- ── Courses ── -->
+    <div class="nav-group" data-group="courses">
+      <div class="nav-header" onclick="toggleNav('courses')">
+        <span>Courses</span>
+        <span class="nav-chevron">›</span>
+      </div>
+      <div class="nav-children">
+        <a href="/courses" class="nav-item{% if active_page=='courses' %} active{% endif %}"><span class="nav-icon">🎓</span>Course Library</a>
+        <a href="/passup-visualiser" class="nav-item{% if active_page=='passup-visualiser' %} active{% endif %}"><span class="nav-icon">↑</span>Pass-Up Visualiser</a>
+      </div>
+    </div>
+
+    <div class="nav-divider"></div>
+
     <!-- ── Ad Board ── -->
     <a href="/ads/my" class="nav-item{% if active_page=='ads' %} active{% endif %}"><span class="nav-icon">📢</span>Ad Board</a>
   </div>
