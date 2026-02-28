@@ -1,6 +1,10 @@
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Float, Boolean, DateTime, Text, text
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Float, Boolean, DateTime, Text, text, Numeric
+
+# Precision type for all financial columns — 18 digits, 6 decimal places
+# Prevents floating-point drift across millions of transactions
+Money = Numeric(18, 6)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
@@ -67,12 +71,12 @@ class User(Base):
     wallet_address      = Column(String, nullable=True)
     is_admin            = Column(Boolean, default=False)
     is_active           = Column(Boolean, default=False)
-    balance             = Column(Float, default=0.0)      # available USDT balance
-    total_earned        = Column(Float, default=0.0)      # lifetime earnings
-    total_withdrawn     = Column(Float, default=0.0)      # lifetime withdrawals
-    grid_earnings       = Column(Float, default=0.0)      # earnings from grid completions
-    level_earnings      = Column(Float, default=0.0)      # earnings from level pool
-    upline_earnings     = Column(Float, default=0.0)      # earnings as upline on others' grids
+    balance             = Column(Money, default=0.0)      # available USDT balance
+    total_earned        = Column(Money, default=0.0)      # lifetime earnings
+    total_withdrawn     = Column(Money, default=0.0)      # lifetime withdrawals
+    grid_earnings       = Column(Money, default=0.0)      # earnings from grid completions
+    level_earnings      = Column(Money, default=0.0)      # earnings from level pool
+    upline_earnings     = Column(Money, default=0.0)      # earnings as upline on others' grids
     personal_referrals  = Column(Integer, default=0)      # direct recruits
     total_team          = Column(Integer, default=0)      # entire network size
     country             = Column(String, nullable=True)
@@ -82,7 +86,7 @@ class User(Base):
     low_balance_warned  = Column(Boolean, default=False)               # 3-day warning sent
     onboarding_completed = Column(Boolean, default=False)              # launch wizard done
     first_payment_to_company = Column(Boolean, default=False)          # True after 1st month payment goes to company
-    course_earnings         = Column(Float, default=0.0)               # lifetime earnings from course commissions
+    course_earnings         = Column(Money, default=0.0)               # lifetime earnings from course commissions
 
 class Grid(Base):
     """One grid instance per user per package tier."""
@@ -90,12 +94,12 @@ class Grid(Base):
     id              = Column(Integer, primary_key=True, index=True)
     owner_id        = Column(Integer, ForeignKey("users.id"), index=True)
     package_tier    = Column(Integer)                      # 1-8
-    package_price   = Column(Float)                        # $10-$1000
+    package_price   = Column(Money)                        # $10-$1000
     advance_number    = Column(Integer, default=1)           # which advance (1,2,3...)
     positions_filled = Column(Integer, default=0)          # 0-64
     is_complete     = Column(Boolean, default=False)       # True when 64 filled
     owner_paid      = Column(Boolean, default=False)       # owner payout sent
-    revenue_total   = Column(Float, default=0.0)           # total revenue collected
+    revenue_total   = Column(Money, default=0.0)           # total revenue collected
     created_at      = Column(DateTime, default=datetime.utcnow)
     completed_at    = Column(DateTime, nullable=True)
 
@@ -117,7 +121,7 @@ class Commission(Base):
     from_user_id    = Column(Integer, ForeignKey("users.id"))
     to_user_id      = Column(Integer, ForeignKey("users.id"))
     grid_id         = Column(Integer, ForeignKey("grids.id"), nullable=True)
-    amount_usdt     = Column(Float)
+    amount_usdt     = Column(Money)
     commission_type = Column(String)   # 'direct_sponsor','uni_level','platform','membership'
     package_tier    = Column(Integer)
     status          = Column(String, default="pending")  # pending/paid/failed
@@ -133,7 +137,7 @@ class Course(Base):
     title           = Column(String, nullable=False)
     slug            = Column(String, unique=True, index=True)
     description     = Column(Text, nullable=True)
-    price           = Column(Float, nullable=False)          # 100 / 300 / 500
+    price           = Column(Money, nullable=False)          # 100 / 300 / 500
     tier            = Column(Integer, nullable=False)         # 1, 2, 3
     is_active       = Column(Boolean, default=True)
     sort_order      = Column(Integer, default=0)
@@ -146,7 +150,7 @@ class CoursePurchase(Base):
     user_id         = Column(Integer, ForeignKey("users.id"), index=True)
     course_id       = Column(Integer, ForeignKey("courses.id"))
     course_tier     = Column(Integer)                         # denormalised for fast lookup
-    amount_paid     = Column(Float)
+    amount_paid     = Column(Money)
     payment_method  = Column(String, default="wallet")        # wallet / stripe / crypto
     tx_ref          = Column(String, nullable=True)
     created_at      = Column(DateTime, default=datetime.utcnow)
@@ -158,7 +162,7 @@ class CourseCommission(Base):
     purchase_id     = Column(Integer, ForeignKey("course_purchases.id"))
     buyer_id        = Column(Integer, ForeignKey("users.id"))         # who bought
     earner_id       = Column(Integer, ForeignKey("users.id"))         # who earns
-    amount          = Column(Float)
+    amount          = Column(Money)
     course_tier     = Column(Integer)
     commission_type = Column(String)    # 'direct_sale' or 'pass_up'
     pass_up_depth   = Column(Integer, default=0)    # 0 = direct, 1+ = levels walked
@@ -182,7 +186,7 @@ class Payment(Base):
     id              = Column(Integer, primary_key=True, index=True)
     from_user_id    = Column(Integer, ForeignKey("users.id"))
     to_user_id      = Column(Integer, ForeignKey("users.id"), nullable=True)
-    amount_usdt     = Column(Float)
+    amount_usdt     = Column(Money)
     payment_type    = Column(String)
     tx_hash         = Column(String, unique=True)
     status          = Column(String, default="pending")
@@ -193,7 +197,7 @@ class Withdrawal(Base):
     __tablename__ = "withdrawals"
     id              = Column(Integer, primary_key=True, index=True)
     user_id         = Column(Integer, ForeignKey("users.id"))
-    amount_usdt     = Column(Float)
+    amount_usdt     = Column(Money)
     wallet_address  = Column(String)
     tx_hash         = Column(String, nullable=True)
     status          = Column(String, default="pending")  # pending/processing/paid/failed
@@ -285,7 +289,7 @@ class P2PTransfer(Base):
     id              = Column(Integer, primary_key=True, index=True)
     from_user_id    = Column(Integer, ForeignKey("users.id"), index=True)
     to_user_id      = Column(Integer, ForeignKey("users.id"), index=True)
-    amount_usdt     = Column(Float)
+    amount_usdt     = Column(Money)
     note            = Column(String, nullable=True)             # optional message
     status          = Column(String, default="completed")       # completed/reversed
     created_at      = Column(DateTime, default=datetime.utcnow)
@@ -466,6 +470,24 @@ Base.metadata.create_all(bind=engine)
 def run_migrations():
     """Add any new columns that don't exist yet in the live DB."""
     migrations = [
+        # ── Float → Numeric(18,6) migration for financial precision ──
+        "ALTER TABLE users ALTER COLUMN balance TYPE NUMERIC(18,6) USING COALESCE(balance,0)::NUMERIC(18,6)",
+        "ALTER TABLE users ALTER COLUMN total_earned TYPE NUMERIC(18,6) USING COALESCE(total_earned,0)::NUMERIC(18,6)",
+        "ALTER TABLE users ALTER COLUMN total_withdrawn TYPE NUMERIC(18,6) USING COALESCE(total_withdrawn,0)::NUMERIC(18,6)",
+        "ALTER TABLE users ALTER COLUMN grid_earnings TYPE NUMERIC(18,6) USING COALESCE(grid_earnings,0)::NUMERIC(18,6)",
+        "ALTER TABLE users ALTER COLUMN level_earnings TYPE NUMERIC(18,6) USING COALESCE(level_earnings,0)::NUMERIC(18,6)",
+        "ALTER TABLE users ALTER COLUMN upline_earnings TYPE NUMERIC(18,6) USING COALESCE(upline_earnings,0)::NUMERIC(18,6)",
+        "ALTER TABLE users ALTER COLUMN course_earnings TYPE NUMERIC(18,6) USING COALESCE(course_earnings,0)::NUMERIC(18,6)",
+        "ALTER TABLE grids ALTER COLUMN package_price TYPE NUMERIC(18,6) USING COALESCE(package_price,0)::NUMERIC(18,6)",
+        "ALTER TABLE grids ALTER COLUMN revenue_total TYPE NUMERIC(18,6) USING COALESCE(revenue_total,0)::NUMERIC(18,6)",
+        "ALTER TABLE commissions ALTER COLUMN amount_usdt TYPE NUMERIC(18,6) USING COALESCE(amount_usdt,0)::NUMERIC(18,6)",
+        "ALTER TABLE courses ALTER COLUMN price TYPE NUMERIC(18,6) USING COALESCE(price,0)::NUMERIC(18,6)",
+        "ALTER TABLE course_purchases ALTER COLUMN amount_paid TYPE NUMERIC(18,6) USING COALESCE(amount_paid,0)::NUMERIC(18,6)",
+        "ALTER TABLE course_commissions ALTER COLUMN amount TYPE NUMERIC(18,6) USING COALESCE(amount,0)::NUMERIC(18,6)",
+        "ALTER TABLE payments ALTER COLUMN amount_usdt TYPE NUMERIC(18,6) USING COALESCE(amount_usdt,0)::NUMERIC(18,6)",
+        "ALTER TABLE withdrawals ALTER COLUMN amount_usdt TYPE NUMERIC(18,6) USING COALESCE(amount_usdt,0)::NUMERIC(18,6)",
+        "ALTER TABLE p2p_transfers ALTER COLUMN amount_usdt TYPE NUMERIC(18,6) USING COALESCE(amount_usdt,0)::NUMERIC(18,6)",
+        # ── End Numeric migration ──
         "CREATE TABLE IF NOT EXISTS video_campaigns (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), title VARCHAR NOT NULL, description TEXT, category VARCHAR, platform VARCHAR NOT NULL, video_url VARCHAR NOT NULL, embed_url VARCHAR NOT NULL, video_id VARCHAR, status VARCHAR DEFAULT 'active', views_target INTEGER DEFAULT 0, views_delivered INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
                 "CREATE TABLE IF NOT EXISTS password_reset_tokens (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), token VARCHAR UNIQUE NOT NULL, expires_at TIMESTAMP NOT NULL, used BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())",
         "CREATE TABLE IF NOT EXISTS membership_renewals (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, activated_at TIMESTAMP, next_renewal_date TIMESTAMP, last_renewed_at TIMESTAMP, renewal_source VARCHAR DEFAULT 'wallet', grace_period_start TIMESTAMP, in_grace_period BOOLEAN DEFAULT FALSE, total_renewals INTEGER DEFAULT 0, updated_at TIMESTAMP DEFAULT NOW())",

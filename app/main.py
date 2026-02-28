@@ -60,11 +60,33 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="SuperAdPro")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Decimal-safe JSON — Numeric(18,6) columns return Decimal objects
+# which the default JSON encoder can't handle. This converts them to float.
+import decimal
+class DecimalEncoder(_json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return float(o)
+        return super().default(o)
+
+# Monkey-patch JSONResponse to use Decimal-safe encoder
+from starlette.responses import JSONResponse as _OrigJSONResponse
+_orig_render = _OrigJSONResponse.render
+def _decimal_safe_render(self, content):
+    return _json.dumps(
+        content, ensure_ascii=False, allow_nan=False,
+        indent=None, separators=(",", ":"), cls=DecimalEncoder
+    ).encode("utf-8")
+JSONResponse.render = _decimal_safe_render
+
 @app.on_event("startup")
 async def startup_event():
     from .database import run_migrations
     run_migrations()
 templates = Jinja2Templates(directory="templates")
+# Make Decimal values render cleanly in templates
+templates.env.filters["money"] = lambda v: f"{float(v or 0):.2f}"
+templates.env.finalize = lambda x: float(x) if isinstance(x, decimal.Decimal) else x
 import json as _json
 templates.env.filters["from_json"] = lambda s: _json.loads(s) if s else []
 
