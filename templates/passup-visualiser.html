@@ -528,7 +528,7 @@ function addLog(who,sale,act,col,type){
 function togglePlay(){playing?pause():play();}
 function play(){playing=true;document.getElementById('playBtn').textContent='⏸ PAUSE';tick();}
 function pause(){playing=false;clearTimeout(tmr);document.getElementById('playBtn').textContent='▶ PLAY';}
-function getDelay(){return Math.round(800-(parseInt(document.getElementById('spdSlider').value)-1)*160);}
+function getDelay(){return Math.round(2200-(parseInt(document.getElementById('spdSlider').value)-1)*400);}
 function tick(){if(!playing)return;processSale();if(qi<queue.length)tmr=setTimeout(tick,getDelay());else pause();}
 
 function selTier(btn){
