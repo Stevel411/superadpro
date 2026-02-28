@@ -121,6 +121,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
       <span class="tb-status" id="saveStatus"></span>
     </div>
     <div class="tb-right">
+      <button class="tb-btn btn-preview" onclick="doUndo()" title="Undo (Ctrl+Z)">↩</button>
+      <button class="tb-btn btn-preview" onclick="doRedo()" title="Redo (Ctrl+Y)">↪</button>
       <div class="device-toggle">
         <button class="active" onclick="setDevice('desktop',this)" title="Desktop">🖥</button>
         <button onclick="setDevice('tablet',this)" title="Tablet">📱</button>
@@ -240,9 +242,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 <script>
 const PAGE_ID={{page.id}},PAGE_SLUG="{{page.slug}}";
 let currentStatus="{{page.status}}",currentTheme='dark-blue',currentAccent='#0ea5e9',activeSection=null;
+let lastUpdatedAt=null; // For optimistic locking
 
 const FONTS=['Sora','DM Sans','Inter','Space Grotesk','Plus Jakarta Sans','Outfit','Poppins','Montserrat','Raleway','Playfair Display'];
-function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/\x3c/g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function escUrl(u){if(!u)return'#';const s=String(u).trim();if(s.startsWith('javascript:'))return'#';return esc(s);}
 const CPRE=['#0ea5e9','#38bdf8','#0284c7','#8b5cf6','#a78bfa','#ec4899','#ef4444','#f59e0b','#10b981','#16a34a','#fff','#e2e8f0','#94a3b8','#1e293b','#0f172a','#000'];
 const DEFAULTS={
@@ -330,8 +333,16 @@ function renderEditor(){
   h+=`<div class="ed-pane active" id="pane-content">`;
   Object.entries(sec.fields).forEach(([key,val])=>{
     const label=key.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    const isUrl=key.includes('_url')||key.includes('image')||key.includes('bg_image');
     const isLong=val.length>60||key.includes('desc')||key.includes('subheadline')||(key.includes('text')&&!key.includes('cta_')&&!key.includes('link'));
-    h+=isLong?`<div class="field"><label>${label}</label><textarea data-key="${key}" oninput="updateField('${key}',this.value)">${val}</textarea></div>`:`<div class="field"><label>${label}</label><input type="text" data-key="${key}" value="${val.replace(/"/g,'&quot;')}" oninput="updateField('${key}',this.value)"></div>`;
+    if(isUrl&&(key.includes('image')||key.includes('bg'))){
+      // Image URL with upload button
+      h+=`<div class="field"><label>${label}</label><div style="display:flex;gap:6px"><input type="text" style="flex:1" data-key="${key}" value="${val.replace(/"/g,'&quot;')}" oninput="updateField('${key}',this.value)" id="field_${key}"><button type="button" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--blue-dim);color:var(--text);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit" onclick="uploadImage(document.getElementById('field_${key}'))">📁 Upload</button></div></div>`;
+    } else if(isLong){
+      h+=`<div class="field"><label>${label}</label><textarea data-key="${key}" oninput="updateField('${key}',this.value)">${val}</textarea></div>`;
+    } else {
+      h+=`<div class="field"><label>${label}</label><input type="text" data-key="${key}" value="${val.replace(/"/g,'&quot;')}" oninput="updateField('${key}',this.value)"></div>`;
+    }
   });
   h+=`</div>`;
 
@@ -393,6 +404,25 @@ function renderEditor(){
   content.innerHTML=h;
 }
 
+// Image upload helper — adds upload button to any URL field
+async function uploadImage(inputEl){
+  const file=document.createElement('input');file.type='file';file.accept='image/*';
+  file.onchange=async()=>{
+    if(!file.files[0])return;
+    if(file.files[0].size>5*1024*1024){alert('Image too large. Maximum 5MB.');return;}
+    const fd=new FormData();fd.append('file',file.files[0]);
+    inputEl.placeholder='Uploading...';
+    try{
+      const r=await fetch('/api/funnels/upload-image',{method:'POST',body:fd});
+      const d=await r.json();
+      if(d.success){inputEl.value=d.url;inputEl.dispatchEvent(new Event('input'));}
+      else{alert(d.error||'Upload failed');}
+    }catch(e){alert('Upload failed — network error');}
+    inputEl.placeholder='';
+  };
+  file.click();
+}
+
 function colourField(label,key,val){
   const bg=val||'#333';
   return `<div class="field"><label>${label}</label><div class="colour-row"><div class="cpick" style="background:${bg}"><input type="color" value="${val||'#0ea5e9'}" oninput="updateStyle('${key}',this.value);this.parentElement.style.background=this.value;this.parentElement.nextElementSibling.value=this.value"></div><input type="text" class="chex" value="${val}" placeholder="Theme default" oninput="updateStyle('${key}',this.value)"></div><div class="cpresets">${CPRE.map(c=>`<div class="cpre" style="background:${c}" onclick="updateStyle('${key}','${c}');renderEditor()"></div>`).join('')}</div></div>`;
@@ -405,15 +435,43 @@ function switchTab(btn,tab){
   document.getElementById('pane-'+tab).classList.add('active');
 }
 
-function updateStyle(key,val){if(activeSection!==null){if(!pageSections[activeSection].style)pageSections[activeSection].style={};pageSections[activeSection].style[key]=val;renderPreview();}}
+// updateStyle defined below with auto-save hook
 
 function renderAll(){renderSectionList();renderPreview();renderEditor();}
 function selectSection(i){activeSection=i;renderAll();document.querySelectorAll('.prev-section')[i]?.scrollIntoView({behavior:'smooth',block:'center'});}
-function toggleSection(i){pageSections[i].enabled=!pageSections[i].enabled;renderAll();}
-function updateField(key,val){if(activeSection!==null){pageSections[activeSection].fields[key]=val;renderPreview();}}
-function reorderSection(from,to){const item=pageSections.splice(from,1)[0];pageSections.splice(to,0,item);if(activeSection===from)activeSection=to;renderAll();}
-function addSection(type){pageSections.push({type,enabled:true,fields:{...DEFAULTS[type].fields},style:{...DEFAULTS[type].style}});document.getElementById('addDropdown').classList.remove('open');activeSection=pageSections.length-1;renderAll();}
-function removeSection(i){pageSections.splice(i,1);activeSection=null;renderAll();}
+
+// ── Undo/Redo System ──
+const undoStack=[],redoStack=[];
+const MAX_UNDO=50;
+function pushUndo(){
+  undoStack.push(JSON.stringify({sections:pageSections,active:activeSection,theme:currentTheme,accent:currentAccent,customBg:customThemeBg}));
+  if(undoStack.length>MAX_UNDO)undoStack.shift();
+  redoStack.length=0; // Clear redo on new action
+}
+function doUndo(){
+  if(!undoStack.length)return;
+  redoStack.push(JSON.stringify({sections:pageSections,active:activeSection,theme:currentTheme,accent:currentAccent,customBg:customThemeBg}));
+  const state=JSON.parse(undoStack.pop());
+  pageSections=state.sections;activeSection=state.active;currentTheme=state.theme;currentAccent=state.accent;customThemeBg=state.customBg||'';
+  renderAll();markDirty();
+  document.getElementById('saveStatus').textContent='↩ Undone';document.getElementById('saveStatus').style.color='#fbbf24';
+  setTimeout(()=>{document.getElementById('saveStatus').textContent='';},2000);
+}
+function doRedo(){
+  if(!redoStack.length)return;
+  undoStack.push(JSON.stringify({sections:pageSections,active:activeSection,theme:currentTheme,accent:currentAccent,customBg:customThemeBg}));
+  const state=JSON.parse(redoStack.pop());
+  pageSections=state.sections;activeSection=state.active;currentTheme=state.theme;currentAccent=state.accent;customThemeBg=state.customBg||'';
+  renderAll();markDirty();
+  document.getElementById('saveStatus').textContent='↪ Redone';document.getElementById('saveStatus').style.color='#fbbf24';
+  setTimeout(()=>{document.getElementById('saveStatus').textContent='';},2000);
+}
+
+function toggleSection(i){pushUndo();pageSections[i].enabled=!pageSections[i].enabled;renderAll();markDirty();}
+// updateField defined below with auto-save hook
+function reorderSection(from,to){pushUndo();const item=pageSections.splice(from,1)[0];pageSections.splice(to,0,item);if(activeSection===from)activeSection=to;renderAll();markDirty();}
+function addSection(type){pushUndo();pageSections.push({type,enabled:true,fields:{...DEFAULTS[type].fields},style:{...DEFAULTS[type].style}});document.getElementById('addDropdown').classList.remove('open');activeSection=pageSections.length-1;renderAll();markDirty();}
+function removeSection(i){pushUndo();pageSections.splice(i,1);activeSection=null;renderAll();markDirty();}
 function toggleAddDropdown(){document.getElementById('addDropdown').classList.toggle('open')}
 function setTheme(el){currentTheme=el.dataset.theme;customThemeBg='';document.querySelectorAll('#colourSwatches .swatch').forEach(s=>s.classList.remove('active'));el.classList.add('active');document.getElementById('themeBgHex').value='';document.getElementById('themeBgHex').placeholder='Using preset';renderPreview();}
 function setAccent(el){currentAccent=el.dataset.accent;document.querySelectorAll('#accentSwatches .swatch').forEach(s=>s.classList.remove('active'));el.classList.add('active');document.getElementById('accentPick').style.background=currentAccent;document.getElementById('accentHex').value=currentAccent;document.querySelector('#accentPick input').value=currentAccent;renderPreview();}
@@ -426,7 +484,7 @@ function previewPage(){window.open(`/p/${PAGE_SLUG}`,'_blank')}
 function generateFullHTML(){
   let html='';pageSections.forEach(sec=>{if(sec.enabled)html+=renderHTML(sec);});
   // Strip any script tags that could have been injected via user content
-  html=html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'');
+  html=html.replace(new RegExp('\x3cscript\\b[^>]*>[\\s\\S]*?\x3c/script>','gi'),'');
   html=html.replace(/on\w+\s*=\s*["'][^"']*["']/gi,'');
   return html;
 }
@@ -436,13 +494,14 @@ async function savePage(publish=false){
   try{
     const r=await fetch('/api/funnels/save',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({id:PAGE_ID,title:document.getElementById('pageName').value||'Untitled',status:publish?'published':currentStatus,
+        updated_at:lastUpdatedAt,
         gjs_components:pageSections,gjs_styles:{theme:currentTheme,accent:currentAccent,customBg:customThemeBg},
         gjs_html:generateFullHTML(),
         gjs_css:`*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif}img{max-width:100%}a{transition:opacity 0.2s}a:hover{opacity:0.9}`
       })});
     const res=await r.json();
-    if(res.success){currentStatus=res.status;s.textContent=publish?'✓ Published!':'✓ Saved';s.style.color='#10b981';if(publish)setTimeout(()=>{s.textContent=`Live → /p/${res.slug}`},1500);}
-    else{s.textContent='✗ '+(res.error||'Failed');s.style.color='#ef4444';if(r.status===409)alert(res.error);}
+    if(res.success){currentStatus=res.status;lastUpdatedAt=res.updated_at;s.textContent=publish?'✓ Published!':'✓ Saved';s.style.color='#10b981';if(publish)setTimeout(()=>{s.textContent=`Live → /p/${res.slug}`},1500);}
+    else{s.textContent='✗ '+(res.error||'Failed');s.style.color='#ef4444';if(res.conflict){alert(res.error+'\n\nClick OK to reload the latest version.');location.reload();}else if(r.status===409)alert(res.error);}
   }catch(e){s.textContent='✗ Network error';s.style.color='#ef4444';}
   setTimeout(()=>{s.textContent=''},4000);
 }
@@ -451,6 +510,7 @@ async function init(){
   try{
     const r=await fetch(`/api/funnels/load/${PAGE_ID}`),d=await r.json();
     document.getElementById('pageName').value=d.title||'';
+    lastUpdatedAt=d.updated_at||null;
     // Only load if data is in our section format (has .fields property)
     if(Array.isArray(d.gjs_components)&&d.gjs_components.length>0&&d.gjs_components[0]&&d.gjs_components[0].fields){
       pageSections=d.gjs_components.map(sec=>{
@@ -478,8 +538,47 @@ async function init(){
   activeSection=0;
   renderAll();
 }
-setInterval(()=>savePage(),60000);
-document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();savePage();}});
+// Smart auto-save: only saves when content has actually changed
+let lastSavedHash='';
+function contentHash(){return JSON.stringify({s:pageSections,t:currentTheme,a:currentAccent,b:customThemeBg,n:document.getElementById('pageName').value});}
+let autoSaveTimer=null;
+function markDirty(){
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer=setTimeout(()=>{
+    const h=contentHash();
+    if(h!==lastSavedHash){savePage().then(()=>{lastSavedHash=contentHash();});}
+  },5000); // 5 second debounce after last change
+}
+let undoFieldTimer=null;
+function updateField(key,val){
+  if(activeSection===null)return;
+  // Debounced undo snapshot: captures state when typing pauses
+  if(!undoFieldTimer)pushUndo();
+  clearTimeout(undoFieldTimer);
+  undoFieldTimer=setTimeout(()=>{undoFieldTimer=null;},800);
+  pageSections[activeSection].fields[key]=val;renderPreview();markDirty();
+}
+let undoStyleTimer=null;
+function updateStyle(key,val){
+  if(activeSection===null)return;
+  if(!undoStyleTimer)pushUndo();
+  clearTimeout(undoStyleTimer);
+  undoStyleTimer=setTimeout(()=>{undoStyleTimer=null;},800);
+  if(!pageSections[activeSection].style)pageSections[activeSection].style={};
+  pageSections[activeSection].style[key]=val;renderPreview();markDirty();
+}
+// Wrap theme/accent functions to trigger auto-save
+['setTheme','setAccent','setCustomThemeBg','setAccentCustom'].forEach(fn=>{
+  const orig=window[fn];window[fn]=function(){orig.apply(this,arguments);markDirty();};
+});
+document.getElementById('pageName').addEventListener('input',markDirty);
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();savePage().then(()=>{lastSavedHash=contentHash();});}
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'&&!e.shiftKey){e.preventDefault();doUndo();}
+  if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){e.preventDefault();doRedo();}
+});
+// Initial hash after load
+setTimeout(()=>{lastSavedHash=contentHash();},2000);
 init();
 </script>
 </body>

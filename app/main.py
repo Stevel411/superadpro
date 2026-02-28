@@ -4,7 +4,7 @@ import json
 import logging
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request, Form, Depends, HTTPException
+from fastapi import FastAPI, Request, Form, Depends, HTTPException, UploadFile, File
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -1727,6 +1727,7 @@ def funnel_load_gjs(page_id: int, request: Request, user: User = Depends(get_cur
         "gjs_styles": json.loads(page.gjs_styles) if page.gjs_styles else [],
         "gjs_html": page.gjs_html or "",
         "gjs_css": page.gjs_css or "",
+        "updated_at": page.updated_at.isoformat() if page.updated_at else None,
     })
 
 
@@ -1741,11 +1742,31 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
     except Exception:
         return JSONResponse({"error": "Invalid request"}, status_code=400)
 
+    # Payload size guard — reject excessively large pages (5MB limit)
+    import json as _json
+    if len(_json.dumps(body)) > 5 * 1024 * 1024:
+        return JSONResponse({"error": "Page content too large. Try removing some sections."}, status_code=413)
+
     page_id = body.get("id")
     if page_id:
         page = db.query(FunnelPage).filter(FunnelPage.id == page_id, FunnelPage.user_id == user.id).first()
         if not page:
             return JSONResponse({"error": "Page not found"}, status_code=404)
+        # Optimistic locking: reject if page was modified by another tab/session
+        client_updated = body.get("updated_at")
+        if client_updated and page.updated_at:
+            from datetime import datetime
+            try:
+                client_ts = datetime.fromisoformat(client_updated.replace("Z", "+00:00")).replace(tzinfo=None)
+                server_ts = page.updated_at
+                if abs((server_ts - client_ts).total_seconds()) > 2:
+                    return JSONResponse({
+                        "error": "This page was modified in another tab or session. Please reload to get the latest version.",
+                        "conflict": True,
+                        "server_updated_at": page.updated_at.isoformat()
+                    }, status_code=409)
+            except (ValueError, TypeError):
+                pass  # If timestamp parsing fails, allow the save
     else:
         page = FunnelPage(user_id=user.id)
         db.add(page)
@@ -1808,7 +1829,46 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
         "slug": page.slug,
         "status": page.status,
         "preview_url": f"/p/{page.slug}",
+        "updated_at": page.updated_at.isoformat() if page.updated_at else None,
     })
+
+
+@app.post("/api/funnels/upload-image")
+async def funnel_upload_image(file: UploadFile = File(...), user: User = Depends(get_current_user),
+                               db: Session = Depends(get_db)):
+    """Upload an image for use in funnel pages. Returns the public URL."""
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # Validate file type
+    allowed_types = {"image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"}
+    if file.content_type not in allowed_types:
+        return JSONResponse({"error": "Only JPEG, PNG, GIF, WebP and SVG images are allowed."}, status_code=400)
+
+    # Read and check size (max 5MB)
+    contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:
+        return JSONResponse({"error": "Image too large. Maximum size is 5MB."}, status_code=400)
+
+    # Generate unique filename
+    import uuid, os
+    ext = os.path.splitext(file.filename or "image.jpg")[1].lower()
+    if ext not in {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"}:
+        ext = ".jpg"
+    filename = f"{user.id}_{uuid.uuid4().hex[:12]}{ext}"
+
+    # Ensure uploads directory exists
+    upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "uploads")
+    os.makedirs(upload_dir, exist_ok=True)
+
+    # Save file
+    filepath = os.path.join(upload_dir, filename)
+    with open(filepath, "wb") as f:
+        f.write(contents)
+
+    url = f"/static/uploads/{filename}"
+    return JSONResponse({"success": True, "url": url, "filename": filename})
 
 
 @app.post("/api/funnels/generate-copy")
