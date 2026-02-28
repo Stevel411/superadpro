@@ -265,6 +265,13 @@ def grid_visualiser(request: Request, user: User = Depends(get_current_user)):
         return templates.TemplateResponse("grid-visualiser-internal.html", ctx)
     return templates.TemplateResponse("grid-visualiser.html", ctx)
 
+@app.get("/passup-visualiser")
+def passup_visualiser(request: Request, user: User = Depends(get_current_user)):
+    ctx = {"request": request}
+    if user:
+        ctx["user"] = user
+    return templates.TemplateResponse("passup-visualiser.html", ctx)
+
 @app.get("/packages")
 def packages(request: Request):
     return templates.TemplateResponse("packages.html", {
