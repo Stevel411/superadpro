@@ -55,46 +55,46 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
 
 /* ═══ TREE — centred, compact ═══ */
 .tree-viewport{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:12px;background:#f8fafc;margin-bottom:16px}
-.tree-canvas{position:relative;min-height:480px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 12px}
+.tree-canvas{position:relative;min-height:520px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 8px}
 .tree-canvas svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
-.tree-rows{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:18px}
+.tree-rows{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:36px}
 /* Flow trail — animated dot that travels up the tree on pass-up */
 .flow-dot{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px rgba(245,158,11,0.6),0 0 24px rgba(245,158,11,0.3);z-index:20;pointer-events:none;opacity:0}
 .flow-dot.active{animation:flowTravel var(--dur,0.8s) ease-in-out forwards}
 @keyframes flowTravel{0%{opacity:1;offset-distance:0%}85%{opacity:1}100%{opacity:0;offset-distance:100%}}
-.tree-row{display:flex;justify-content:center;gap:10px}
+.tree-row{display:flex;justify-content:center;gap:6px}
 
 /* Row labels */
 .row-label{position:absolute;left:8px;font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;top:50%;transform:translateY(-50%);white-space:nowrap}
 
 /* Nodes */
 .nd{
-  width:64px;height:50px;border-radius:9px;
+  width:58px;height:44px;border-radius:8px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;position:relative;cursor:default;
   background:#e8f4fd;border:1.5px solid rgba(14,165,233,0.25);color:#0f172a;
   transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);overflow:visible;
 }
-.nd .nm{font-size:10px;font-weight:800;line-height:1.1;color:#1e3a5f}
-.nd .sc{font-size:8px;font-weight:600;color:#64889a;margin-top:1px}
+.nd .nm{font-size:9px;font-weight:800;line-height:1.1;color:#1e3a5f}
+.nd .sc{font-size:7px;font-weight:600;color:#64889a;margin-top:1px}
 .nd .badge{position:absolute;top:-7px;right:-7px;width:16px;height:16px;border-radius:50%;font-size:8px;font-weight:800;display:none;align-items:center;justify-content:center;z-index:3;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,0.15)}
 
 /* Sponsor (above YOU) */
 .nd.sponsor{
   background:linear-gradient(135deg,#6366f1,#4f46e5);border:2.5px solid #818cf8;color:#fff;
-  width:72px;height:56px;border-style:solid;
+  width:66px;height:50px;border-style:solid;
   box-shadow:0 4px 16px rgba(99,102,241,0.3),0 0 0 3px rgba(99,102,241,0.1);
 }
-.nd.sponsor .nm{font-size:12px;color:#fff;font-family:Sora,sans-serif}
+.nd.sponsor .nm{font-size:10px;color:#fff;font-family:Sora,sans-serif}
 .nd.sponsor .sc{color:rgba(255,255,255,0.6)}
 
 /* Root (YOU — mid-tree affiliate) */
 .nd.root{
   background:linear-gradient(135deg,#0ea5e9,#0284c7);border:2.5px solid var(--cyan);color:#fff;
-  width:80px;height:64px;border-style:solid;
+  width:70px;height:54px;border-style:solid;
   box-shadow:0 4px 20px rgba(14,165,233,0.35),0 0 0 4px rgba(14,165,233,0.1);
 }
-.nd.root .nm{font-size:15px;color:#fff;font-family:Sora,sans-serif}
+.nd.root .nm{font-size:13px;color:#fff;font-family:Sora,sans-serif}
 .nd.root .sc{color:rgba(255,255,255,0.7)}
 
 /* States */
@@ -372,12 +372,21 @@ function buildTree(){
     c.pu=PU.has(you.rc)?you.pu:you.id;
   }
 
-  // First 4 directs each get 3 referrals
+  // First 4 directs each get 3 referrals (L2)
   for(const cid of you.ch.slice(0,4)){
     const p=nMap[cid];
     for(let i=0;i<3;i++){
       const c=mk(NM[ni++%NM.length],p.id);p.ch.push(c.id);p.rc++;
       c.pu=PU.has(p.rc)?p.pu:p.id;
+    }
+  }
+
+  // First 6 L2 members each get 2 referrals (L3 — shows deeper cascade)
+  const l2all=allNodes.filter(n=>n.pid!==null&&nMap[n.pid]&&nMap[n.pid].pid===you.id);
+  for(const l2 of l2all.slice(0,6)){
+    for(let j=0;j<2;j++){
+      const c=mk(NM[ni++%NM.length],l2.id);l2.ch.push(c.id);l2.rc++;
+      c.pu=PU.has(l2.rc)?l2.pu:l2.id;
     }
   }
 }
@@ -397,6 +406,14 @@ function buildSteps(){
     for(const did of you.ch.slice(0,4)){
       const d=nMap[did];
       if(d.ch[round]!==undefined) steps.push({nodeId:d.ch[round],spId:did});
+    }
+  }
+
+  // Phase 3: L2 members recruit — shows 3+ level cascade
+  const l2all=allNodes.filter(n=>n.pid!==null&&nMap[n.pid]&&nMap[n.pid].pid===youId);
+  for(let round=0;round<2;round++){
+    for(const l2 of l2all.slice(0,6)){
+      if(l2.ch[round]!==undefined) steps.push({nodeId:l2.ch[round],spId:l2.id});
     }
   }
 }
