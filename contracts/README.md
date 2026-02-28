@@ -1,6 +1,6 @@
 # SuperAdPro Smart Contracts
 
-Base Chain | USDC | Solidity 0.8.24
+Base Chain | USDT | Solidity 0.8.24
 
 ## Architecture
 
@@ -9,7 +9,7 @@ Base Chain | USDC | Solidity 0.8.24
   - Grid Engine: 8 tiers ($20-$1000) → 25% sponsor + 70% uni-level + 5% platform
   - Course Engine: $100/$300/$500 → 100% to affiliate, first sale passes up
 
-- **MockUSDC.sol** — Test USDC token for local development
+- **MockUSDT.sol** — Test USDT token for local development
 
 ## Setup
 
@@ -39,7 +39,7 @@ npx hardhat verify --network base <PROXY_ADDRESS>
 
 ## Network Addresses
 
-| Network | USDC | Contract |
+| Network | USDT | Contract |
 |---------|------|----------|
 | Base Mainnet (8453) | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` | TBD |
 | Base Sepolia (84532) | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` | TBD |

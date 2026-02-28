@@ -12,26 +12,26 @@ async function main() {
   console.log("Deploying with account:", deployer.address);
   console.log("Account balance:", ethers.formatEther(await ethers.provider.getBalance(deployer.address)), "ETH");
 
-  // ── Network-specific USDC addresses ──
+  // ── Network-specific USDT addresses ──
   const network = await ethers.provider.getNetwork();
-  let usdcAddress;
+  let usdtAddress;
 
   if (network.chainId === 8453n) {
     // Base Mainnet
-    usdcAddress = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+    usdtAddress = "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2";
     console.log("🟢 Deploying to BASE MAINNET");
   } else if (network.chainId === 84532n) {
     // Base Sepolia Testnet
-    usdcAddress = "0x036CbD53842c5426634e7929541eC2318f3dCF7e"; // Circle test USDC
+    usdtAddress = "0x0000000000000000000000000000000000000000"; // Will deploy mock USDT for testing
     console.log("🟡 Deploying to BASE SEPOLIA TESTNET");
   } else {
     console.log("⚪ Deploying to LOCAL HARDHAT");
-    // Deploy a mock USDC for local testing
-    const MockUSDC = await ethers.getContractFactory("MockUSDC");
-    const mockUsdc = await MockUSDC.deploy();
-    await mockUsdc.waitForDeployment();
-    usdcAddress = await mockUsdc.getAddress();
-    console.log("Mock USDC deployed at:", usdcAddress);
+    // Deploy a mock USDT for local testing
+    const MockUSDT = await ethers.getContractFactory("MockUSDT");
+    const mockUsdt = await MockUSDT.deploy();
+    await mockUsdt.waitForDeployment();
+    usdtAddress = await mockUsdt.getAddress();
+    console.log("Mock USDT deployed at:", usdtAddress);
   }
 
   // ── Deploy SuperAdPro (upgradeable proxy) ──
@@ -40,7 +40,7 @@ async function main() {
   console.log("\nDeploying SuperAdPro proxy...");
   const proxy = await upgrades.deployProxy(
     SuperAdPro,
-    [usdcAddress, deployer.address],  // treasury = deployer initially
+    [usdtAddress, deployer.address],  // treasury = deployer initially
     { initializer: "initialize" }
   );
   await proxy.waitForDeployment();
@@ -53,7 +53,7 @@ async function main() {
   console.log("════════════════════════════════════════");
   console.log("  Proxy:          ", proxyAddress);
   console.log("  Implementation: ", implAddress);
-  console.log("  USDC:           ", usdcAddress);
+  console.log("  USDT:           ", usdtAddress);
   console.log("  Treasury:       ", deployer.address);
   console.log("  Network:        ", network.chainId.toString());
   console.log("════════════════════════════════════════");
@@ -70,7 +70,7 @@ async function main() {
     network: network.chainId.toString(),
     proxy: proxyAddress,
     implementation: implAddress,
-    usdc: usdcAddress,
+    usdc: usdtAddress,
     treasury: deployer.address,
     deployedAt: new Date().toISOString(),
     deployer: deployer.address,

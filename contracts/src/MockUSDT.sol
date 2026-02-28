@@ -2,12 +2,12 @@
 pragma solidity ^0.8.24;
 
 /**
- * @title MockUSDC - Test token for local development
+ * @title MockUSDT - Mock USDT for local/testnet development
  * @notice Mints unlimited test tokens. DO NOT deploy on mainnet.
  */
-contract MockUSDC {
+contract MockUSDT {
     string public name = "USD Coin";
-    string public symbol = "USDC";
+    string public symbol = "USDT";
     uint8 public decimals = 6;
     uint256 public totalSupply;
 
@@ -18,7 +18,7 @@ contract MockUSDC {
     event Approval(address indexed owner, address indexed spender, uint256 value);
 
     constructor() {
-        // Mint 1M USDC to deployer for testing
+        // Mint 1M USDT to deployer for testing
         _mint(msg.sender, 1_000_000 * 10**6);
     }
 

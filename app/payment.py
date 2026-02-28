@@ -195,7 +195,7 @@ def _cascade_auto_activation(
 
 def process_membership_payment(db: Session, user_id: int, tx_hash: str) -> dict:
     """
-    Activate/renew membership after $20 USDC payment on Base Chain.
+    Activate/renew membership after $20 USDT payment on Base Chain.
     Split: $10 to company treasury, $10 to sponsor wallet.
     50/50 from day one — no first-month exceptions.
     Triggers recursive auto-activation cascade up the sponsor chain.

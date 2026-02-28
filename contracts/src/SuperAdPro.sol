@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 
 /**
- * @title IERC20 - Minimal ERC20 interface for USDC
+ * @title IERC20 - Minimal ERC20 interface for USDT
  */
 interface IERC20 {
     function balanceOf(address account) external view returns (uint256);
@@ -18,15 +18,15 @@ interface IERC20 {
 
 /**
  * @title SuperAdPro - Decentralised Income Platform
- * @notice Base Chain | USDC | 8x8 Grid | Uni-Level | Course Pass-Up
+ * @notice Base Chain | USDT | 8x8 Grid | Uni-Level | Course Pass-Up
  * @dev Upgradeable via OpenZeppelin TransparentProxy
  *
  * PAYMENT FLOWS:
- *   Membership: $20 USDC/month → $10 sponsor + $10 company treasury
+ *   Membership: $20 USDT/month → $10 sponsor + $10 company treasury
  *   Grid Tiers: $20-$1000 → 25% sponsor + 70% uni-level (8.75% x 8) + 5% platform
  *   Courses:    $100/$300/$500 → 100% to affiliate (1st sale at tier passes up)
  *
- * BASE CHAIN USDC: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+ * BASE CHAIN USDT: 0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2
  */
 contract SuperAdPro is
     Initializable,
@@ -38,10 +38,10 @@ contract SuperAdPro is
     //  CONSTANTS
     // ═══════════════════════════════════════════════════════════
 
-    uint256 public constant USDC_DECIMALS = 6;
-    uint256 public constant MEMBERSHIP_FEE = 20 * 10**USDC_DECIMALS;       // $20
-    uint256 public constant MEMBERSHIP_SPONSOR_SHARE = 10 * 10**USDC_DECIMALS; // $10
-    uint256 public constant MEMBERSHIP_COMPANY_SHARE = 10 * 10**USDC_DECIMALS; // $10
+    uint256 public constant USDT_DECIMALS = 6;
+    uint256 public constant MEMBERSHIP_FEE = 20 * 10**USDT_DECIMALS;       // $20
+    uint256 public constant MEMBERSHIP_SPONSOR_SHARE = 10 * 10**USDT_DECIMALS; // $10
+    uint256 public constant MEMBERSHIP_COMPANY_SHARE = 10 * 10**USDT_DECIMALS; // $10
 
     // Grid commission splits (basis points, 10000 = 100%)
     uint256 public constant DIRECT_SPONSOR_BPS = 2500;   // 25%
@@ -62,7 +62,7 @@ contract SuperAdPro is
     //  STATE
     // ═══════════════════════════════════════════════════════════
 
-    IERC20 public usdc;
+    IERC20 public usdt;
     address public treasury;  // company wallet
 
     // ── Member data ──
@@ -74,7 +74,7 @@ contract SuperAdPro is
         uint64 lastRenewal;
         uint32 personalReferrals;
         uint32 totalTeam;
-        uint256 totalEarned;         // lifetime on-chain earnings (USDC raw)
+        uint256 totalEarned;         // lifetime on-chain earnings (USDT raw)
         uint256 gridEarnings;
         uint256 levelEarnings;
         uint256 courseEarnings;
@@ -90,7 +90,7 @@ contract SuperAdPro is
         uint16 advance;           // which cycle (1, 2, 3...)
         uint8 positionsFilled;
         bool isComplete;
-        uint256 revenueTotal;     // total USDC collected
+        uint256 revenueTotal;     // total USDT collected
     }
 
     uint256 public nextGridId;
@@ -101,12 +101,12 @@ contract SuperAdPro is
     // Active grid per owner per tier
     mapping(address => mapping(uint8 => uint256)) public activeGridId;
 
-    // Grid tier prices (USDC raw amounts)
+    // Grid tier prices (USDT raw amounts)
     mapping(uint8 => uint256) public tierPrice;
 
     // ── Course data ──
     struct CourseInfo {
-        uint256 price;       // USDC raw
+        uint256 price;       // USDT raw
         bool isActive;
     }
 
@@ -201,30 +201,30 @@ contract SuperAdPro is
     // ═══════════════════════════════════════════════════════════
 
     function initialize(
-        address _usdc,
+        address _usdt,
         address _treasury
     ) external initializer {
         __Ownable_init(msg.sender);
         __ReentrancyGuard_init();
         __Pausable_init();
 
-        usdc = IERC20(_usdc);
+        usdt = IERC20(_usdt);
         treasury = _treasury;
 
         // Set grid tier prices
-        tierPrice[1] = 20 * 10**USDC_DECIMALS;
-        tierPrice[2] = 50 * 10**USDC_DECIMALS;
-        tierPrice[3] = 100 * 10**USDC_DECIMALS;
-        tierPrice[4] = 200 * 10**USDC_DECIMALS;
-        tierPrice[5] = 400 * 10**USDC_DECIMALS;
-        tierPrice[6] = 600 * 10**USDC_DECIMALS;
-        tierPrice[7] = 800 * 10**USDC_DECIMALS;
-        tierPrice[8] = 1000 * 10**USDC_DECIMALS;
+        tierPrice[1] = 20 * 10**USDT_DECIMALS;
+        tierPrice[2] = 50 * 10**USDT_DECIMALS;
+        tierPrice[3] = 100 * 10**USDT_DECIMALS;
+        tierPrice[4] = 200 * 10**USDT_DECIMALS;
+        tierPrice[5] = 400 * 10**USDT_DECIMALS;
+        tierPrice[6] = 600 * 10**USDT_DECIMALS;
+        tierPrice[7] = 800 * 10**USDT_DECIMALS;
+        tierPrice[8] = 1000 * 10**USDT_DECIMALS;
 
         // Set course prices
-        courses[1] = CourseInfo(100 * 10**USDC_DECIMALS, true);
-        courses[2] = CourseInfo(300 * 10**USDC_DECIMALS, true);
-        courses[3] = CourseInfo(500 * 10**USDC_DECIMALS, true);
+        courses[1] = CourseInfo(100 * 10**USDT_DECIMALS, true);
+        courses[2] = CourseInfo(300 * 10**USDT_DECIMALS, true);
+        courses[3] = CourseInfo(500 * 10**USDT_DECIMALS, true);
 
         nextGridId = 1;
     }
@@ -234,7 +234,7 @@ contract SuperAdPro is
     // ═══════════════════════════════════════════════════════════
 
     /**
-     * @notice Register as a new member. Pays $20 USDC ($10 sponsor, $10 company).
+     * @notice Register as a new member. Pays $20 USDT ($10 sponsor, $10 company).
      * @param _sponsor Address of the person who referred you (address(0) if none)
      */
     function register(address _sponsor) external nonReentrant whenNotPaused {
@@ -246,16 +246,16 @@ contract SuperAdPro is
             require(members[_sponsor].exists, "Sponsor not registered");
         }
 
-        // Transfer USDC from member
+        // Transfer USDT from member
         require(
-            usdc.transferFrom(msg.sender, address(this), MEMBERSHIP_FEE),
-            "USDC transfer failed"
+            usdt.transferFrom(msg.sender, address(this), MEMBERSHIP_FEE),
+            "USDT transfer failed"
         );
 
         // Split: $10 to sponsor, $10 to treasury
         if (_sponsor != address(0)) {
-            require(usdc.transfer(_sponsor, MEMBERSHIP_SPONSOR_SHARE), "Sponsor transfer failed");
-            require(usdc.transfer(treasury, MEMBERSHIP_COMPANY_SHARE), "Treasury transfer failed");
+            require(usdt.transfer(_sponsor, MEMBERSHIP_SPONSOR_SHARE), "Sponsor transfer failed");
+            require(usdt.transfer(treasury, MEMBERSHIP_COMPANY_SHARE), "Treasury transfer failed");
 
             // Update sponsor stats
             members[_sponsor].personalReferrals++;
@@ -264,7 +264,7 @@ contract SuperAdPro is
             emit CommissionPaid(msg.sender, _sponsor, MEMBERSHIP_SPONSOR_SHARE, "membership_sponsor", 0);
         } else {
             // No sponsor — full amount to treasury
-            require(usdc.transfer(treasury, MEMBERSHIP_FEE), "Treasury transfer failed");
+            require(usdt.transfer(treasury, MEMBERSHIP_FEE), "Treasury transfer failed");
         }
 
         emit PlatformFeePaid(msg.sender, _sponsor != address(0) ? MEMBERSHIP_COMPANY_SHARE : MEMBERSHIP_FEE, "membership_company", 0);
@@ -296,20 +296,20 @@ contract SuperAdPro is
         require(m.exists, "Not registered");
 
         require(
-            usdc.transferFrom(msg.sender, address(this), MEMBERSHIP_FEE),
-            "USDC transfer failed"
+            usdt.transferFrom(msg.sender, address(this), MEMBERSHIP_FEE),
+            "USDT transfer failed"
         );
 
         // Split
         if (m.sponsor != address(0) && members[m.sponsor].exists) {
-            require(usdc.transfer(m.sponsor, MEMBERSHIP_SPONSOR_SHARE), "Sponsor transfer failed");
-            require(usdc.transfer(treasury, MEMBERSHIP_COMPANY_SHARE), "Treasury transfer failed");
+            require(usdt.transfer(m.sponsor, MEMBERSHIP_SPONSOR_SHARE), "Sponsor transfer failed");
+            require(usdt.transfer(treasury, MEMBERSHIP_COMPANY_SHARE), "Treasury transfer failed");
 
             members[m.sponsor].totalEarned += MEMBERSHIP_SPONSOR_SHARE;
 
             emit CommissionPaid(msg.sender, m.sponsor, MEMBERSHIP_SPONSOR_SHARE, "membership_renewal", 0);
         } else {
-            require(usdc.transfer(treasury, MEMBERSHIP_FEE), "Treasury transfer failed");
+            require(usdt.transfer(treasury, MEMBERSHIP_FEE), "Treasury transfer failed");
         }
 
         emit PlatformFeePaid(msg.sender, m.sponsor != address(0) ? MEMBERSHIP_COMPANY_SHARE : MEMBERSHIP_FEE, "membership_renewal_company", 0);
@@ -358,10 +358,10 @@ contract SuperAdPro is
         uint256 price = tierPrice[_tier];
         require(price > 0, "Tier not configured");
 
-        // Transfer USDC from buyer to contract
+        // Transfer USDT from buyer to contract
         require(
-            usdc.transferFrom(msg.sender, address(this), price),
-            "USDC transfer failed"
+            usdt.transferFrom(msg.sender, address(this), price),
+            "USDT transfer failed"
         );
 
         // 1. Pay direct sponsor (25%)
@@ -374,7 +374,7 @@ contract SuperAdPro is
 
         // 3. Platform fee (5%)
         uint256 platformAmount = (price * PLATFORM_FEE_BPS) / BPS_DENOMINATOR;
-        require(usdc.transfer(treasury, platformAmount), "Platform fee transfer failed");
+        require(usdt.transfer(treasury, platformAmount), "Platform fee transfer failed");
         emit PlatformFeePaid(msg.sender, platformAmount, "grid_platform_fee", _tier);
 
         // 4. Place in sponsor's grid
@@ -401,13 +401,13 @@ contract SuperAdPro is
         address sponsor = members[_buyer].sponsor;
 
         if (sponsor != address(0) && members[sponsor].exists) {
-            require(usdc.transfer(sponsor, _amount), "Sponsor payout failed");
+            require(usdt.transfer(sponsor, _amount), "Sponsor payout failed");
             members[sponsor].totalEarned += _amount;
             members[sponsor].gridEarnings += _amount;
             emit CommissionPaid(_buyer, sponsor, _amount, "direct_sponsor", _tier);
         } else {
             // No sponsor — platform absorbs
-            require(usdc.transfer(treasury, _amount), "Treasury absorb failed");
+            require(usdt.transfer(treasury, _amount), "Treasury absorb failed");
             emit PlatformFeePaid(_buyer, _amount, "no_sponsor_absorb", _tier);
         }
     }
@@ -428,12 +428,12 @@ contract SuperAdPro is
             if (upline == address(0) || !members[upline].exists) {
                 // Chain ended — remaining levels go to treasury
                 uint256 remaining = _perLevel * (GRID_LEVELS - lvl + 1);
-                require(usdc.transfer(treasury, remaining), "Treasury absorb failed");
+                require(usdt.transfer(treasury, remaining), "Treasury absorb failed");
                 emit PlatformFeePaid(_buyer, remaining, "short_chain_absorb", _tier);
                 break;
             }
 
-            require(usdc.transfer(upline, _perLevel), "Uni-level payout failed");
+            require(usdt.transfer(upline, _perLevel), "Uni-level payout failed");
             members[upline].totalEarned += _perLevel;
             members[upline].levelEarnings += _perLevel;
             emit CommissionPaid(_buyer, upline, _perLevel, "uni_level", _tier);
@@ -572,10 +572,10 @@ contract SuperAdPro is
 
         uint256 price = courses[_tier].price;
 
-        // Transfer USDC from buyer to contract
+        // Transfer USDT from buyer to contract
         require(
-            usdc.transferFrom(msg.sender, address(this), price),
-            "USDC transfer failed"
+            usdt.transferFrom(msg.sender, address(this), price),
+            "USDT transfer failed"
         );
 
         // Record ownership
@@ -590,14 +590,14 @@ contract SuperAdPro is
 
         // Pay the earner 100%
         if (earner != address(0)) {
-            require(usdc.transfer(earner, price), "Course payout failed");
+            require(usdt.transfer(earner, price), "Course payout failed");
             members[earner].totalEarned += price;
             members[earner].courseEarnings += price;
 
             emit CourseCommissionPaid(msg.sender, earner, price, _tier, isPassUp, depth);
         } else {
             // Nobody qualified — treasury gets it
-            require(usdc.transfer(treasury, price), "Treasury course fallback failed");
+            require(usdt.transfer(treasury, price), "Treasury course fallback failed");
             emit PlatformFeePaid(msg.sender, price, "course_no_qualified", _tier);
         }
 

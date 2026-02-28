@@ -2,32 +2,32 @@ const { expect } = require("chai");
 const { ethers, upgrades } = require("hardhat");
 
 describe("SuperAdPro", function () {
-  let superAdPro, usdc;
+  let superAdPro, usdt;
   let owner, treasury, alice, bob, charlie, dave, eve;
-  const USDC = (n) => ethers.parseUnits(n.toString(), 6);
+  const USDT = (n) => ethers.parseUnits(n.toString(), 6);
 
   beforeEach(async function () {
     [owner, treasury, alice, bob, charlie, dave, eve] = await ethers.getSigners();
 
-    // Deploy mock USDC
-    const MockUSDC = await ethers.getContractFactory("MockUSDC");
-    usdc = await MockUSDC.deploy();
+    // Deploy mock USDT
+    const MockUSDT = await ethers.getContractFactory("MockUSDT");
+    usdt = await MockUSDT.deploy();
 
     // Deploy SuperAdPro via proxy
     const SuperAdPro = await ethers.getContractFactory("SuperAdPro");
     superAdPro = await upgrades.deployProxy(
       SuperAdPro,
-      [await usdc.getAddress(), treasury.address],
+      [await usdt.getAddress(), treasury.address],
       { initializer: "initialize" }
     );
 
     // Register owner as root admin
     await superAdPro.registerAdmin();
 
-    // Distribute test USDC to all users
+    // Distribute test USDT to all users
     for (const user of [alice, bob, charlie, dave, eve]) {
-      await usdc.mint(user.address, USDC(100000));
-      await usdc.connect(user).approve(await superAdPro.getAddress(), USDC(100000));
+      await usdt.mint(user.address, USDT(100000));
+      await usdt.connect(user).approve(await superAdPro.getAddress(), USDT(100000));
     }
   });
 
@@ -37,18 +37,18 @@ describe("SuperAdPro", function () {
 
   describe("Membership Registration", function () {
     it("should register a new member with 50/50 split", async function () {
-      const treasuryBefore = await usdc.balanceOf(treasury.address);
-      const ownerBefore = await usdc.balanceOf(owner.address);
+      const treasuryBefore = await usdt.balanceOf(treasury.address);
+      const ownerBefore = await usdt.balanceOf(owner.address);
 
       await superAdPro.connect(alice).register(owner.address);
 
-      const treasuryAfter = await usdc.balanceOf(treasury.address);
-      const ownerAfter = await usdc.balanceOf(owner.address);
+      const treasuryAfter = await usdt.balanceOf(treasury.address);
+      const ownerAfter = await usdt.balanceOf(owner.address);
 
       // Treasury gets $10
-      expect(treasuryAfter - treasuryBefore).to.equal(USDC(10));
+      expect(treasuryAfter - treasuryBefore).to.equal(USDT(10));
       // Sponsor (owner) gets $10
-      expect(ownerAfter - ownerBefore).to.equal(USDC(10));
+      expect(ownerAfter - ownerBefore).to.equal(USDT(10));
 
       // Alice is now active
       const member = await superAdPro.getMember(alice.address);
@@ -58,12 +58,12 @@ describe("SuperAdPro", function () {
     });
 
     it("should register without sponsor (100% to treasury)", async function () {
-      const treasuryBefore = await usdc.balanceOf(treasury.address);
+      const treasuryBefore = await usdt.balanceOf(treasury.address);
 
       await superAdPro.connect(alice).register(ethers.ZeroAddress);
 
-      const treasuryAfter = await usdc.balanceOf(treasury.address);
-      expect(treasuryAfter - treasuryBefore).to.equal(USDC(20));
+      const treasuryAfter = await usdt.balanceOf(treasury.address);
+      expect(treasuryAfter - treasuryBefore).to.equal(USDT(20));
     });
 
     it("should reject duplicate registration", async function () {
@@ -89,13 +89,13 @@ describe("SuperAdPro", function () {
       await superAdPro.connect(alice).register(owner.address);
       const member = await superAdPro.getMember(owner.address);
       expect(member.personalReferrals).to.equal(1);
-      expect(member.totalEarned).to.equal(USDC(10));
+      expect(member.totalEarned).to.equal(USDT(10));
     });
 
     it("should emit MemberRegistered event", async function () {
       await expect(superAdPro.connect(alice).register(owner.address))
         .to.emit(superAdPro, "MemberRegistered")
-        .withArgs(alice.address, owner.address, USDC(20), (v) => v > 0);
+        .withArgs(alice.address, owner.address, USDT(20), (v) => v > 0);
     });
   });
 
@@ -105,13 +105,13 @@ describe("SuperAdPro", function () {
     });
 
     it("should renew with 50/50 split", async function () {
-      const ownerBefore = await usdc.balanceOf(owner.address);
-      const treasuryBefore = await usdc.balanceOf(treasury.address);
+      const ownerBefore = await usdt.balanceOf(owner.address);
+      const treasuryBefore = await usdt.balanceOf(treasury.address);
 
       await superAdPro.connect(alice).renewMembership();
 
-      expect((await usdc.balanceOf(owner.address)) - ownerBefore).to.equal(USDC(10));
-      expect((await usdc.balanceOf(treasury.address)) - treasuryBefore).to.equal(USDC(10));
+      expect((await usdt.balanceOf(owner.address)) - ownerBefore).to.equal(USDT(10));
+      expect((await usdt.balanceOf(treasury.address)) - treasuryBefore).to.equal(USDT(10));
     });
 
     it("should emit MembershipRenewed event", async function () {
@@ -133,33 +133,33 @@ describe("SuperAdPro", function () {
     });
 
     it("should split Tier 1 ($20) correctly: 25/70/5", async function () {
-      const aliceBefore = await usdc.balanceOf(alice.address);  // direct sponsor
-      const ownerBefore = await usdc.balanceOf(owner.address);  // uni-level 2
-      const treasuryBefore = await usdc.balanceOf(treasury.address);
+      const aliceBefore = await usdt.balanceOf(alice.address);  // direct sponsor
+      const ownerBefore = await usdt.balanceOf(owner.address);  // uni-level 2
+      const treasuryBefore = await usdt.balanceOf(treasury.address);
 
       // Charlie buys Tier 1 ($20). Sponsor chain: bob → alice → owner
       await superAdPro.connect(charlie).purchaseGridTier(1);
 
       // Direct sponsor (bob) gets 25% = $5
-      const bobAfter = await usdc.balanceOf(bob.address);
+      const bobAfter = await usdt.balanceOf(bob.address);
       // Bob started with 100000 - 20 (membership) = 99980
       // Now gets $5 sponsor commission
 
       // Alice (uni-level 1) gets 8.75% = $1.75
-      const aliceAfter = await usdc.balanceOf(alice.address);
+      const aliceAfter = await usdt.balanceOf(alice.address);
 
       // Owner (uni-level 2) gets 8.75% = $1.75
-      const ownerAfter = await usdc.balanceOf(owner.address);
+      const ownerAfter = await usdt.balanceOf(owner.address);
 
       // Treasury gets 5% platform + remaining 6 uni-levels absorbed
       // Platform: $1 + (6 x $1.75) = $1 + $10.50 = $11.50
-      const treasuryAfter = await usdc.balanceOf(treasury.address);
+      const treasuryAfter = await usdt.balanceOf(treasury.address);
 
       // Verify direct sponsor commission
-      expect(aliceAfter - aliceBefore).to.equal(USDC(1.75)); // uni-level 1
+      expect(aliceAfter - aliceBefore).to.equal(USDT(1.75)); // uni-level 1
 
       // Treasury should get platform fee + absorbed levels
-      expect(treasuryAfter - treasuryBefore).to.equal(USDC(11.5)); // $1 + 6*$1.75
+      expect(treasuryAfter - treasuryBefore).to.equal(USDT(11.5)); // $1 + 6*$1.75
     });
 
     it("should emit GridPurchase event", async function () {
@@ -184,17 +184,17 @@ describe("SuperAdPro", function () {
     });
 
     it("should handle Tier 8 ($1000) correctly", async function () {
-      // Give charlie more USDC
-      await usdc.mint(charlie.address, USDC(10000));
-      await usdc.connect(charlie).approve(await superAdPro.getAddress(), USDC(10000));
+      // Give charlie more USDT
+      await usdt.mint(charlie.address, USDT(10000));
+      await usdt.connect(charlie).approve(await superAdPro.getAddress(), USDT(10000));
 
-      const bobBefore = await usdc.balanceOf(bob.address);
+      const bobBefore = await usdt.balanceOf(bob.address);
 
       await superAdPro.connect(charlie).purchaseGridTier(8);
 
       // Bob (direct sponsor) gets 25% of $1000 = $250
-      const bobAfter = await usdc.balanceOf(bob.address);
-      expect(bobAfter - bobBefore).to.equal(USDC(250));
+      const bobAfter = await usdt.balanceOf(bob.address);
+      expect(bobAfter - bobBefore).to.equal(USDT(250));
     });
   });
 
@@ -208,10 +208,10 @@ describe("SuperAdPro", function () {
       await superAdPro.connect(alice).register(owner.address);
       await superAdPro.connect(bob).register(alice.address);
 
-      // Give users more USDC for courses
+      // Give users more USDT for courses
       for (const user of [alice, bob, charlie]) {
-        await usdc.mint(user.address, USDC(10000));
-        await usdc.connect(user).approve(await superAdPro.getAddress(), USDC(10000));
+        await usdt.mint(user.address, USDT(10000));
+        await usdt.connect(user).approve(await superAdPro.getAddress(), USDT(10000));
       }
 
       // Register charlie under bob
@@ -227,12 +227,12 @@ describe("SuperAdPro", function () {
       await superAdPro.connect(bob).purchaseCourse(1, alice.address);
 
       // Charlie buys Tier 1 from Alice (Alice's second sale — she keeps it)
-      const aliceBefore = await usdc.balanceOf(alice.address);
+      const aliceBefore = await usdt.balanceOf(alice.address);
       await superAdPro.connect(charlie).purchaseCourse(1, alice.address);
-      const aliceAfter = await usdc.balanceOf(alice.address);
+      const aliceAfter = await usdt.balanceOf(alice.address);
 
       // Alice keeps 100% = $100
-      expect(aliceAfter - aliceBefore).to.equal(USDC(100));
+      expect(aliceAfter - aliceBefore).to.equal(USDT(100));
     });
 
     it("should pass up first sale to qualified sponsor", async function () {
@@ -241,12 +241,12 @@ describe("SuperAdPro", function () {
       await superAdPro.connect(alice).purchaseCourse(1, owner.address); // owner gets this
 
       // Now bob buys from alice — alice's first sale at tier 1
-      const ownerBefore = await usdc.balanceOf(owner.address);
+      const ownerBefore = await usdt.balanceOf(owner.address);
       await superAdPro.connect(bob).purchaseCourse(1, alice.address);
-      const ownerAfter = await usdc.balanceOf(owner.address);
+      const ownerAfter = await usdt.balanceOf(owner.address);
 
       // Owner gets $100 (pass-up from alice's first sale)
-      expect(ownerAfter - ownerBefore).to.equal(USDC(100));
+      expect(ownerAfter - ownerBefore).to.equal(USDT(100));
     });
 
     it("should emit CourseCommissionPaid event", async function () {
@@ -285,11 +285,11 @@ describe("SuperAdPro", function () {
     });
 
     it("should recover tokens", async function () {
-      // Send some USDC directly to contract
-      await usdc.transfer(await superAdPro.getAddress(), USDC(100));
-      const before = await usdc.balanceOf(treasury.address);
-      await superAdPro.recoverTokens(await usdc.getAddress(), USDC(100));
-      expect((await usdc.balanceOf(treasury.address)) - before).to.equal(USDC(100));
+      // Send some USDT directly to contract
+      await usdt.transfer(await superAdPro.getAddress(), USDT(100));
+      const before = await usdt.balanceOf(treasury.address);
+      await superAdPro.recoverTokens(await usdt.getAddress(), USDT(100));
+      expect((await usdt.balanceOf(treasury.address)) - before).to.equal(USDT(100));
     });
   });
 
@@ -305,8 +305,8 @@ describe("SuperAdPro", function () {
     });
 
     it("should return grid tier prices", async function () {
-      expect(await superAdPro.tierPrice(1)).to.equal(USDC(20));
-      expect(await superAdPro.tierPrice(8)).to.equal(USDC(1000));
+      expect(await superAdPro.tierPrice(1)).to.equal(USDT(20));
+      expect(await superAdPro.tierPrice(8)).to.equal(USDT(1000));
     });
   });
 });

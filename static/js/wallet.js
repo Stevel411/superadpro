@@ -1,6 +1,6 @@
 /**
  * SuperAdPro — Web3 Wallet Integration
- * Base Chain | USDC | ethers.js v6
+ * Base Chain | USDT | ethers.js v6
  *
  * Include this script on any page that needs wallet connectivity.
  * CDN: <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
@@ -24,7 +24,7 @@ const SuperAdProWallet = (function () {
       chainName: "Base",
       rpcUrl: "https://mainnet.base.org",
       blockExplorer: "https://basescan.org",
-      usdc: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      usdt: "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
       contract: "",  // Set after deployment
     },
     // Base Sepolia Testnet
@@ -34,7 +34,7 @@ const SuperAdProWallet = (function () {
       chainName: "Base Sepolia",
       rpcUrl: "https://sepolia.base.org",
       blockExplorer: "https://sepolia.basescan.org",
-      usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      usdt: "0x0000000000000000000000000000000000000000",
       contract: "",  // Set after testnet deployment
     },
   };
@@ -78,7 +78,7 @@ const SuperAdProWallet = (function () {
   let provider = null;
   let signer = null;
   let contract = null;
-  let usdcContract = null;
+  let usdtContract = null;
   let connectedAddress = null;
   let onConnect = null;
   let onDisconnect = null;
@@ -86,11 +86,11 @@ const SuperAdProWallet = (function () {
   let onTxConfirmed = null;
   let onTxFailed = null;
 
-  // ── Helper: format USDC (6 decimals) ──
-  function formatUSDC(raw) {
+  // ── Helper: format USDT (6 decimals) ──
+  function formatUSDT(raw) {
     return parseFloat(ethers.formatUnits(raw, 6)).toFixed(2);
   }
-  function parseUSDC(amount) {
+  function parseUSDT(amount) {
     return ethers.parseUnits(amount.toString(), 6);
   }
 
@@ -147,7 +147,7 @@ const SuperAdProWallet = (function () {
     if (NET.contract) {
       contract = new ethers.Contract(NET.contract, CONTRACT_ABI, signer);
     }
-    usdcContract = new ethers.Contract(NET.usdc, ERC20_ABI, signer);
+    usdtContract = new ethers.Contract(NET.usdt, ERC20_ABI, signer);
 
     // Listen for account/chain changes
     window.ethereum.on("accountsChanged", handleAccountsChanged);
@@ -170,49 +170,49 @@ const SuperAdProWallet = (function () {
     provider = null;
     signer = null;
     contract = null;
-    usdcContract = null;
+    usdtContract = null;
     connectedAddress = null;
     if (onDisconnect) onDisconnect();
   }
 
-  // ── USDC Balance & Allowance ──
-  async function getUSDCBalance(address) {
+  // ── USDT Balance & Allowance ──
+  async function getUSDTBalance(address) {
     const addr = address || connectedAddress;
-    if (!usdcContract) throw new Error("Not connected");
-    const raw = await usdcContract.balanceOf(addr);
-    return { raw, formatted: formatUSDC(raw) };
+    if (!usdtContract) throw new Error("Not connected");
+    const raw = await usdtContract.balanceOf(addr);
+    return { raw, formatted: formatUSDT(raw) };
   }
 
-  async function getUSDCAllowance() {
-    if (!usdcContract || !contract) throw new Error("Not connected");
-    const raw = await usdcContract.allowance(connectedAddress, NET.contract);
-    return { raw, formatted: formatUSDC(raw) };
+  async function getUSDTAllowance() {
+    if (!usdtContract || !contract) throw new Error("Not connected");
+    const raw = await usdtContract.allowance(connectedAddress, NET.contract);
+    return { raw, formatted: formatUSDT(raw) };
   }
 
-  async function approveUSDC(amount) {
-    if (!usdcContract) throw new Error("Not connected");
-    const rawAmount = parseUSDC(amount);
-    if (onTxStart) onTxStart("Approving USDC...");
-    const tx = await usdcContract.approve(NET.contract, rawAmount);
+  async function approveUSDT(amount) {
+    if (!usdtContract) throw new Error("Not connected");
+    const rawAmount = parseUSDT(amount);
+    if (onTxStart) onTxStart("Approving USDT...");
+    const tx = await usdtContract.approve(NET.contract, rawAmount);
     const receipt = await tx.wait();
-    if (onTxConfirmed) onTxConfirmed("USDC approved", receipt.hash);
+    if (onTxConfirmed) onTxConfirmed("USDT approved", receipt.hash);
     return receipt;
   }
 
   // Max approve so user only does it once
   async function approveMax() {
-    if (!usdcContract) throw new Error("Not connected");
-    if (onTxStart) onTxStart("Approving USDC (unlimited)...");
-    const tx = await usdcContract.approve(NET.contract, ethers.MaxUint256);
+    if (!usdtContract) throw new Error("Not connected");
+    if (onTxStart) onTxStart("Approving USDT (unlimited)...");
+    const tx = await usdtContract.approve(NET.contract, ethers.MaxUint256);
     const receipt = await tx.wait();
-    if (onTxConfirmed) onTxConfirmed("USDC approved (unlimited)", receipt.hash);
+    if (onTxConfirmed) onTxConfirmed("USDT approved (unlimited)", receipt.hash);
     return receipt;
   }
 
   // ── Auto-approve helper: check allowance, approve if needed ──
   async function ensureAllowance(amount) {
-    const rawAmount = parseUSDC(amount);
-    const { raw: currentAllowance } = await getUSDCAllowance();
+    const rawAmount = parseUSDT(amount);
+    const { raw: currentAllowance } = await getUSDTAllowance();
     if (currentAllowance < rawAmount) {
       // Approve max so they don't have to do it again
       await approveMax();
@@ -224,7 +224,7 @@ const SuperAdProWallet = (function () {
   // ══════════════════════════════════════════════
 
   /**
-   * Register as a new member ($20 USDC)
+   * Register as a new member ($20 USDT)
    * @param {string} sponsorAddress - Address of referrer (or ethers.ZeroAddress)
    */
   async function registerMember(sponsorAddress) {
@@ -243,7 +243,7 @@ const SuperAdProWallet = (function () {
   }
 
   /**
-   * Renew membership ($20 USDC)
+   * Renew membership ($20 USDT)
    */
   async function renewMembership() {
     if (!contract) throw new Error("Not connected");
@@ -317,10 +317,10 @@ const SuperAdProWallet = (function () {
       lastRenewal: Number(m.lastRenewal),
       personalReferrals: Number(m.personalReferrals),
       totalTeam: Number(m.totalTeam),
-      totalEarned: formatUSDC(m.totalEarned),
-      gridEarnings: formatUSDC(m.gridEarnings),
-      levelEarnings: formatUSDC(m.levelEarnings),
-      courseEarnings: formatUSDC(m.courseEarnings),
+      totalEarned: formatUSDT(m.totalEarned),
+      gridEarnings: formatUSDT(m.gridEarnings),
+      levelEarnings: formatUSDT(m.levelEarnings),
+      courseEarnings: formatUSDT(m.courseEarnings),
     };
   }
 
@@ -343,9 +343,9 @@ const SuperAdProWallet = (function () {
       ? `${connectedAddress.slice(0, 6)}...${connectedAddress.slice(-4)}`
       : null,
 
-    // USDC
-    getUSDCBalance,
-    approveUSDC,
+    // USDT
+    getUSDTBalance,
+    approveUSDT,
     approveMax,
 
     // Transactions

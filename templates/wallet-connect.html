@@ -76,9 +76,9 @@ async function handleWalletConnect() {
     btn.innerHTML = `<span class="wallet-dot green"></span> ${SuperAdProWallet.getShortAddress()}`;
     btn.classList.add('connected');
 
-    // Show USDC balance
-    const { formatted } = await SuperAdProWallet.getUSDCBalance();
-    bal.textContent = `$${formatted} USDC`;
+    // Show USDT balance
+    const { formatted } = await SuperAdProWallet.getUSDTBalance();
+    bal.textContent = `$${formatted} USDT`;
 
     // Save wallet address to backend for syncing
     fetch('/api/wallet/connect', {
