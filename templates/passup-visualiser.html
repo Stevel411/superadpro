@@ -485,6 +485,19 @@ function processStep(){
   var sce=document.getElementById('sc'+sp.id);
   if(sce) sce.textContent=sn+(sn===1?' sale':' sales');
 
+  // 3. Colour the new node based on sale type
+  if(nn.el){
+    if(isUp){
+      nn.el.style.background='#fef3c7';nn.el.style.borderColor='#f59e0b';nn.el.style.borderStyle='solid';
+      nn.el.querySelector('.nm').style.color='#92400e';
+      nn.el.querySelector('.sc').style.color='#b45309';
+    } else {
+      nn.el.style.background='#d1fae5';nn.el.style.borderColor='#10b981';nn.el.style.borderStyle='solid';
+      nn.el.querySelector('.nm').style.color='#065f46';
+      nn.el.querySelector('.sc').style.color='#047857';
+    }
+  }
+
   // 3. After brief pause, show the commission flow
   setTimeout(function(){
     if(isUp){
