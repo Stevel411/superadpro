@@ -72,11 +72,11 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
   width:64px;height:50px;border-radius:9px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;position:relative;cursor:default;
-  background:#fff;border:1.5px dashed #e2e8f0;color:#64748b;
+  background:#e8f4fd;border:1.5px solid rgba(14,165,233,0.25);color:#0f172a;
   transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);overflow:visible;
 }
-.nd .nm{font-size:10px;font-weight:800;line-height:1.1;color:#334155}
-.nd .sc{font-size:8px;font-weight:600;color:#94a3b8;margin-top:1px}
+.nd .nm{font-size:10px;font-weight:800;line-height:1.1;color:#1e3a5f}
+.nd .sc{font-size:8px;font-weight:600;color:#64889a;margin-top:1px}
 .nd .badge{position:absolute;top:-7px;right:-7px;width:16px;height:16px;border-radius:50%;font-size:8px;font-weight:800;display:none;align-items:center;justify-content:center;z-index:3;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,0.15)}
 
 /* Sponsor (above YOU) */
@@ -98,8 +98,7 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
 .nd.root .sc{color:rgba(255,255,255,0.7)}
 
 /* States */
-.nd.active{background:#f0f9ff;border:1.5px solid rgba(14,165,233,0.3);border-style:solid;color:#0f172a}
-.nd.selling{border-color:#10b981!important;border-style:solid!important;background:rgba(16,185,129,0.06)!important;box-shadow:0 0 12px rgba(16,185,129,0.15)!important}
+.nd.selling{border-color:#10b981!important;border-style:solid!important;background:rgba(16,185,129,0.1)!important;box-shadow:0 0 12px rgba(16,185,129,0.15)!important}
 .nd.keeping{border-color:#10b981!important;border-style:solid!important;background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(16,185,129,0.15))!important;box-shadow:0 0 18px rgba(16,185,129,0.25)!important;animation:pulse .45s ease}
 .nd.receiving{border-color:var(--gold)!important;border-style:solid!important;background:linear-gradient(135deg,rgba(245,158,11,0.06),rgba(245,158,11,0.12))!important;box-shadow:0 0 18px rgba(245,158,11,0.25)!important;animation:pulse .45s ease}
 @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
@@ -461,7 +460,6 @@ function processStep(){
   nn.visible=true;
   renderTree();
   if(nn.el) nn.el.style.animation='nodeAppear 0.5s cubic-bezier(0.34,1.56,0.64,1)';
-  if(nn.el) nn.el.classList.add('active');
 
   // 2. Sponsor gets a sale (new member bought a course)
   sp.sc++; tS++;
