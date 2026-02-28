@@ -35,7 +35,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 a{text-decoration:none;color:inherit}
 
 /* ── Topbar (identical to Profit Grid) ── */
-.topbar{position:sticky;top:0;z-index:50;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 32px;height:70px;display:grid;grid-template-columns:auto 1fr auto;align-items:center}
+.topbar{position:sticky;top:0;z-index:50;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 28px;height:70px;display:flex;align-items:center;justify-content:space-between}
 .back-btn{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:14px;font-weight:600;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
 .back-btn:hover{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
 .topbar-centre{text-align:center}
@@ -174,12 +174,7 @@ a{text-decoration:none;color:inherit}
 
 <!-- ── Desktop Topbar ── -->
 <div class="topbar">
-  <a href="/dashboard" class="back-btn">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-    Dashboard
-  </a>
-  <div class="topbar-centre">
-    <div class="topbar-title">📚 Course <span style="color:#a78bfa">Academy</span></div>
+  <div><div class="topbar-title">📚 Course <span style="color:#a78bfa">Academy</span></div>
     <div class="topbar-sub">3-Tier Training · 100% Commissions · Infinite Pass-Up</div>
   </div>
   <div class="topbar-right">
@@ -190,10 +185,7 @@ a{text-decoration:none;color:inherit}
       <div><span class="balance-val">${{ '%.2f'|format(user.balance) }}</span><span class="balance-unit">USDT</span></div>
     </div>
     {% endif %}
-    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-      <svg width="32" height="32" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-tb)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-tb" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs></svg>
-      <span style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff">Super<span style="color:#a78bfa">Ad</span>Pro</span>
-    </a>
+    
   </div>
 </div>
 
