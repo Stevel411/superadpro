@@ -2827,7 +2827,7 @@ def logo_concepts(request: Request):
 # ═══════════════════════════════════════════════════
 #  PUBLIC AD BOARD
 # ═══════════════════════════════════════════════════
-MASTER_REF = os.getenv("MASTER_REF", "")  # Set to your username on Railway — all public CTAs use this
+MASTER_REF = os.getenv("MASTER_REF", "SuperAdPro")  # Master affiliate username — all public CTAs use this
 def get_join_url():
     """Returns the public signup URL — uses master affiliate link if configured"""
     return f"/?join={MASTER_REF}" if MASTER_REF else "/?register=1"
