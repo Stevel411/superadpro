@@ -270,9 +270,13 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
 
       <div class="calc-grid">
         <div class="calc-stat"><div class="calc-stat-val" id="csKept" style="color:var(--green)">$0</div><div class="calc-stat-lbl">You Keep (1,3,5,7+)</div></div>
-        <div class="calc-stat"><div class="calc-stat-val" id="csPassup" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">Pass-Ups Received</div></div>
-        <div class="calc-stat"><div class="calc-stat-val" id="csTotal" style="color:var(--cyan2)">$0</div><div class="calc-stat-lbl">Total Estimated</div></div>
-        <div class="calc-stat"><div class="calc-stat-val" id="csTeam" style="color:#334155">0</div><div class="calc-stat-lbl">Total Team Size</div></div>
+        <div class="calc-stat"><div class="calc-stat-val" id="csL1" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">From L1 Directs</div></div>
+        <div class="calc-stat"><div class="calc-stat-val" id="csL2" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">From L2 (Cascade)</div></div>
+        <div class="calc-stat"><div class="calc-stat-val" id="csL3" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">From L3+ (Cascade)</div></div>
+      </div>
+      <div class="calc-stat" style="margin-top:10px;background:linear-gradient(135deg,#0284c7,#0ea5e9);border:none;color:#fff">
+        <div class="calc-stat-val" id="csTotal" style="color:#fff;font-size:24px">$0</div>
+        <div class="calc-stat-lbl" style="color:rgba(255,255,255,0.7)">Total Estimated Earnings · <span id="csTeam">0</span> team members</div>
       </div>
     </div>
 
@@ -554,37 +558,56 @@ function updateCalc(){
   document.getElementById('calcDirectBig').textContent=directs;
   document.getElementById('calcSalesBig').textContent=salesPer;
 
-  // Your personal sales: you make salesPer sales
-  // You keep 1,3,5,7+ and pass up 2,4,6
-  const keptPositions=salesPer-Math.min(salesPer,3); // positions 2,4,6 pass up (max 3)
-  let myKept=0;
-  for(let i=1;i<=salesPer;i++){if(!PU.has(i))myKept++;}
-  const myKeptEarnings=myKept*tier;
+  // How many of N sales does a person KEEP vs PASS UP?
+  function keptCount(n){let k=0;for(let i=1;i<=n;i++){if(!PU.has(i))k++;}return k;}
+  function passCount(n){return n-keptCount(n);} // sales 2,4,6 that fall within n
 
-  // Pass-ups you receive:
-  // Each of your directs makes salesPer sales → their 2,4,6 pass to you
-  // That's min(salesPer,6) check which are in {2,4,6}
-  let passUpsFromEachDirect=0;
-  for(let i=1;i<=salesPer;i++){if(PU.has(i))passUpsFromEachDirect++;}
-  const directPassups=directs*passUpsFromEachDirect;
+  // ── YOUR PERSONAL KEPT EARNINGS ──
+  // You make salesPer sales. You keep 1,3,5,7+ and pass up 2,4,6.
+  const youKept = keptCount(salesPer) * tier;
 
-  // L2: each direct has ~directs/2 referrals (conservative), their pass-ups flow up
-  // For simplicity: each L1 member has same referral count
-  const l2Each=Math.max(1,Math.floor(directs*0.6));
-  // L2 members' pass-ups go to their pass-up sponsor
-  // Half of L2 members have YOU as pass-up sponsor (the ones who were position 2,4,6 of their parent)
-  const l2Total=directs*l2Each;
-  const l2PassToYou=Math.floor(l2Total*0.5); // roughly half have you as pass-up sponsor
-  let l2Passups=0;
-  for(let i=1;i<=salesPer;i++){if(PU.has(i))l2Passups++;}
-  const l2PassupEarnings=l2PassToYou*l2Passups;
+  // ── PASS-UPS FROM L1 (your direct referrals) ──
+  // Each of your directs makes salesPer sales.
+  // Their 2nd, 4th, 6th pass up to their pass-up sponsor.
+  // Pass-up sponsor for L1: positions 1,3,5,7+ → YOU. Positions 2,4,6 → YOUR pass-up sponsor (you're root, so still you).
+  // As root, ALL your L1 directs have YOU as pass-up sponsor.
+  const l1Passups = directs * passCount(salesPer) * tier;
 
-  const totalPassupEarnings=(directPassups+l2PassupEarnings)*tier;
-  const totalEarnings=myKeptEarnings+totalPassupEarnings;
-  const teamSize=1+directs+l2Total;
+  // ── PASS-UPS FROM L2 (your directs' referrals) ──
+  // Each L1 member recruits (assume same count as you: directs each).
+  // L2 total = directs × directs
+  const l2Total = directs * directs;
+  // L2 pass-up sponsor assignment:
+  //   If L2 member was their parent's 1st,3rd,5th,7+ referral → pass-up sponsor = their parent (L1)
+  //   If L2 member was their parent's 2nd,4th,6th referral → pass-up sponsor = parent's pass-up sponsor = YOU
+  // Out of each L1's 'directs' referrals, positions 2,4,6 (up to 3) have YOU as pass-up sponsor
+  const l2WithYouAsSponsor = directs * Math.min(directs, 3); // max 3 per L1 parent at positions 2,4,6
+  // Correction: only count positions that actually fall in {2,4,6}
+  let l2YouCount = 0;
+  for(let d=0;d<directs;d++){
+    for(let pos=1;pos<=directs;pos++){
+      if(PU.has(pos)) l2YouCount++;
+    }
+  }
+  // Each of those L2 members makes salesPer sales, their 2,4,6 pass to YOU
+  const l2Passups = l2YouCount * passCount(salesPer) * tier;
 
-  document.getElementById('csKept').textContent='$'+myKeptEarnings.toLocaleString();
-  document.getElementById('csPassup').textContent='$'+totalPassupEarnings.toLocaleString();
+  // ── PASS-UPS FROM L3 (directs' referrals' referrals) ──
+  // L3 total = directs × directs × directs
+  const l3Total = directs * directs * directs;
+  // L3 pass-up sponsors: similar logic, roughly half cascade to you
+  // Conservative estimate: ~30% of L3 have you as pass-up sponsor
+  const l3YouCount = Math.floor(l3Total * 0.3);
+  const l3Passups = l3YouCount * passCount(salesPer) * tier;
+
+  const totalPassups = l1Passups + l2Passups + l3Passups;
+  const totalEarnings = youKept + totalPassups;
+  const teamSize = 1 + directs + l2Total + l3Total;
+
+  document.getElementById('csKept').textContent='$'+youKept.toLocaleString();
+  document.getElementById('csL1').textContent='$'+l1Passups.toLocaleString();
+  document.getElementById('csL2').textContent='$'+l2Passups.toLocaleString();
+  document.getElementById('csL3').textContent='$'+l3Passups.toLocaleString();
   document.getElementById('csTotal').textContent='$'+totalEarnings.toLocaleString();
   document.getElementById('csTeam').textContent=teamSize.toLocaleString();
 }
