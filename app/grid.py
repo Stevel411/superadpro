@@ -211,7 +211,7 @@ def get_grid_stats(db: Session, user_id: int) -> dict:
     completed = [g for g in grids if g.is_complete]
     active    = [g for g in grids if not g.is_complete]
 
-    total_earned = sum(float(g.revenue_total or 0) for g in grids) * PER_LEVEL_PCT
+    total_earned = sum(float(g.revenue_total or 0) for g in grids) * float(PER_LEVEL_PCT)
 
     return {
         "total_grids":      len(grids),
@@ -225,9 +225,9 @@ def get_grid_stats(db: Session, user_id: int) -> dict:
                 "price":           g.package_price,
                 "advance":           g.advance_number,
                 "filled":          g.positions_filled,
-                "pct":             round((g.positions_filled / GRID_TOTAL) * 100),
+                "pct":             round(float(g.positions_filled or 0) / float(GRID_TOTAL) * 100),
                 "revenue":         g.revenue_total,
-                "owner_potential": round(float(g.revenue_total or 0) * PER_LEVEL_PCT, 2),
+                "owner_potential": round(float(g.revenue_total or 0) * float(PER_LEVEL_PCT), 2),
             }
             for g in active
         ]
