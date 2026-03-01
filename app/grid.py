@@ -3,7 +3,7 @@
 #
 # Commission Architecture (Stream 2):
 #   40% → Direct Sponsor   (person who personally referred the entrant)
-#   55% → Uni-Level Pool   (variable % across 8 levels: 15/10/8/6/5/4/4/3)
+#   55% → Uni-Level Pool   (6.875% × 8 levels in the entrant's upline chain)
 #    5% → Platform Fee     (SuperAdPro)
 #
 # Commissions paid per seat fill — no waiting for grid completion.
@@ -124,21 +124,15 @@ def _pay_direct_sponsor(db: Session, grid: Grid, member_id: int, price: float):
 
 
 def _pay_unilevel_chain(db: Session, grid: Grid, member_id: int, price: float):
-    """Variable % to each of 8 sponsor chain levels: 15/10/8/6/5/4/4/3."""
-    from .database import LEVEL_PCTS
+    """6.875% to each of 8 sponsor chain levels above the new member."""
+    per_level = round(float(price) * PER_LEVEL_PCT, 6)
     current_id = member_id
 
     for lvl in range(1, GRID_LEVELS + 1):
-        level_pct = LEVEL_PCTS[lvl - 1]  # 0-indexed
-        per_level = round(float(price) * level_pct, 6)
-
         current_user = db.query(User).filter(User.id == current_id).first()
         if not current_user or not current_user.sponsor_id:
-            # Chain shorter than 8 — absorb remaining into platform
             for remaining in range(lvl, GRID_LEVELS + 1):
-                rem_pct = LEVEL_PCTS[remaining - 1]
-                rem_amt = round(float(price) * rem_pct, 6)
-                _record_commission(db, grid, None, rem_amt, "uni_level",
+                _record_commission(db, grid, None, per_level, "uni_level",
                                    f"Uni-level {remaining} — chain ended, platform absorb")
             break
 
@@ -150,7 +144,7 @@ def _pay_unilevel_chain(db: Session, grid: Grid, member_id: int, price: float):
             upline.level_earnings += per_level
 
         _record_commission(db, grid, upline_id, per_level, "uni_level",
-                           f"Uni-level {lvl} — {level_pct*100:.0f}% of ${price}")
+                           f"Uni-level {lvl} — 6.875% of ${price}")
         current_id = upline_id
 
 

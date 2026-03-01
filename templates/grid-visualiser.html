@@ -388,7 +388,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
         </div>
         <div class="legend-item">
           <div class="legend-swatch" style="background:#3b82f6;opacity:0.8"></div>
-          Upline overspill · $<span id="legendOverspill">6.88</span> avg, varies by level
+          Upline overspill · $<span id="legendOverspill">6.88</span> per level
         </div>
       </div>
     </div>
@@ -439,8 +439,8 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
         <div class="earn-left">
           <div class="earn-dot" style="background:#38bdf8"></div>
           <div>
-            <div class="earn-label">Uni-Level (15%→3%)</div>
-            <div class="earn-sub">$<span id="uniPerSeat">6.88</span> avg · varies by level (15%→3%)</div>
+            <div class="earn-label">Uni-Level (6.875% × 8)</div>
+            <div class="earn-sub">$<span id="uniPerSeat">6.88</span> avg · 6.875% per level</div>
           </div>
         </div>
         <div class="earn-amount" id="uniAmt" style="color:#38bdf8">$0.00</div>
@@ -522,8 +522,6 @@ let directSeats = new Set(); // which seat indices (1–63) are directs — rand
 // Running totals
 let tSponsor = 0, tUni = 0;
 
-// Variable uni-level percentages per level (total = 55%)
-const LEVEL_PCTS = [0.15, 0.10, 0.08, 0.06, 0.05, 0.04, 0.04, 0.03];
 
 const LEVEL_COLOURS = [
   '#38bdf8','#3b82f6','#6366f1','#0ea5e9',
@@ -643,12 +641,11 @@ function fillNext() {
   const cell     = cells[filled];
   const level    = Math.floor((filled - 1) / 8);  // 0 = L1 … 7 = L8
   const isDirect = directSeats.has(filled);
-  const levelPct = LEVEL_PCTS[level];             // variable % for this level
-  const perLevel = pkg * levelPct;                 // actual $ for this level
+  const perLevel = pkg * 0.55 / 8;   // 6.875% flat per level
 
   // ── COMMISSION LOGIC ──────────────────────────────────────────────────
-  // Uni-level commissions vary by level: L1=15%, L2=10%, L3=8%, L4=6%,
-  // L5=5%, L6=4%, L7=4%, L8=3%.
+  // Uni-level commissions: 6.875% flat per level (55% / 8 levels).
+  // Each of 8 upline levels receives the same amount.
   // If this seat is YOUR personal direct referral, you also receive
   // the 40% direct sponsor commission.
   // ─────────────────────────────────────────────────────────────────────
