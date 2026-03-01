@@ -15,11 +15,10 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:#050d1a;color:#e8f0fe;min-height:100vh}
+body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
 a{text-decoration:none;color:inherit}
 
-/* Nav */
-nav{background:rgba(10,18,40,0.95);border-bottom:1px solid rgba(0,180,216,0.12);padding:0 40px;height:70px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;backdrop-filter:blur(12px)}
+nav{background:rgba(10,18,40,0.97);border-bottom:1px solid rgba(0,180,216,0.12);padding:0 40px;height:70px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;backdrop-filter:blur(12px)}
 .nb{display:flex;align-items:center;gap:10px;text-decoration:none}
 .nb span{font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;letter-spacing:-0.5px}
 .nb span b{color:#38bdf8}
@@ -28,108 +27,92 @@ nav{background:rgba(10,18,40,0.95);border-bottom:1px solid rgba(0,180,216,0.12);
 .nl a:hover{color:#fff}
 .nl a.active{color:#38bdf8}
 .ncta{font-weight:700;font-size:14px;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:9px 22px;border-radius:6px;text-decoration:none;transition:all 0.3s}
+.ncta:hover{box-shadow:0 4px 24px rgba(0,180,216,0.35);transform:translateY(-1px)}
 
-/* Hero */
-.hero{text-align:center;padding:48px 32px 32px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 70% at 50% 30%,rgba(0,180,216,0.06),transparent)}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(56,189,248,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:999px;padding:5px 16px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#38bdf8;margin-bottom:16px}
-.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:#38bdf8;animation:blink 2s infinite}
+.hero{text-align:center;padding:40px 32px 24px;background:#fff;border-bottom:1px solid #e2e8f0}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(14,165,233,0.06);border:1px solid rgba(14,165,233,0.15);border-radius:999px;padding:5px 16px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0ea5e9;margin-bottom:16px}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:#0ea5e9;animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
-.hero h1{font-family:Sora,sans-serif;font-size:clamp(28px,4vw,44px);font-weight:800;color:#fff;margin-bottom:10px;line-height:1.1}
-.hero h1 em{font-style:normal;color:#38bdf8}
-.hero p{font-size:15px;color:rgba(200,220,255,0.5);max-width:550px;margin:0 auto;line-height:1.6}
-.hero-stats{display:flex;justify-content:center;gap:32px;margin-top:24px}
+.hero h1{font-family:Sora,sans-serif;font-size:clamp(28px,4vw,42px);font-weight:800;color:#0f172a;margin-bottom:10px;line-height:1.1}
+.hero h1 em{font-style:normal;color:#0ea5e9}
+.hero p{font-size:15px;color:#64748b;max-width:550px;margin:0 auto;line-height:1.6}
+.hero-stats{display:flex;justify-content:center;gap:32px;margin-top:20px}
 .hs{text-align:center}
-.hs-val{font-family:Sora,sans-serif;font-size:28px;font-weight:800;color:#38bdf8}
-.hs-lbl{font-size:11px;color:rgba(200,220,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.hs-val{font-family:Sora,sans-serif;font-size:28px;font-weight:800;color:#0ea5e9}
+.hs-lbl{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
 
 .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
 
-/* Search */
 .search-row{max-width:520px;margin:24px auto;display:flex;gap:8px}
-.search-input{flex:1;background:rgba(10,18,40,0.8);border:1px solid rgba(0,180,216,0.15);border-radius:10px;padding:12px 18px;color:#e8f0fe;font-family:inherit;font-size:14px;outline:none;transition:border 0.2s}
-.search-input:focus{border-color:#38bdf8}
-.search-input::placeholder{color:rgba(200,220,255,0.3)}
-.search-btn{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border:none;padding:12px 22px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;transition:all 0.2s}
-.search-btn:hover{box-shadow:0 4px 16px rgba(14,165,233,0.3)}
+.search-input{flex:1;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px 18px;color:#0f172a;font-family:inherit;font-size:14px;outline:none;transition:border 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.03)}
+.search-input:focus{border-color:#38bdf8;box-shadow:0 0 0 3px rgba(56,189,248,0.1)}
+.search-input::placeholder{color:#94a3b8}
+.search-btn{background:linear-gradient(180deg,#38bdf8,#0ea5e9);color:#fff;border:none;padding:12px 22px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;box-shadow:0 3px 0 #0284c7,0 4px 12px rgba(14,165,233,0.2);transition:all 0.2s}
+.search-btn:hover{transform:translateY(-1px);box-shadow:0 5px 0 #0284c7,0 8px 16px rgba(14,165,233,0.25)}
 
-/* Categories */
 .cats{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:24px;padding:0 24px}
-.cat{font-size:13px;font-weight:600;padding:8px 16px;border-radius:10px;border:1px solid rgba(0,180,216,0.12);background:rgba(10,18,40,0.6);color:rgba(200,220,255,0.5);transition:all 0.2s;cursor:pointer;display:inline-block;text-decoration:none}
-.cat:hover{border-color:rgba(56,189,248,0.4);color:#38bdf8}
-.cat.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-color:#0ea5e9}
+.cat{font-size:13px;font-weight:600;padding:8px 16px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;display:inline-block;transition:all 0.2s;text-decoration:none}
+.cat:hover{border-color:#38bdf8;color:#0ea5e9;background:rgba(14,165,233,0.03)}
+.cat.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-color:#0ea5e9;box-shadow:0 2px 10px rgba(14,165,233,0.25)}
 
-/* Rotation bar */
-.rot-bar{display:flex;align-items:center;justify-content:space-between;margin:0 0 16px;padding:12px 16px;background:rgba(10,18,40,0.6);border:1px solid rgba(0,180,216,0.1);border-radius:10px}
-.rot-info{font-size:12px;color:rgba(200,220,255,0.45)}
-.rot-info strong{color:#fff}
-.rot-controls{display:flex;align-items:center;gap:8px}
-.rot-btn{font-size:11px;font-weight:600;padding:6px 12px;border-radius:6px;border:1px solid rgba(0,180,216,0.15);background:rgba(10,18,40,0.8);cursor:pointer;color:rgba(200,220,255,0.5);font-family:inherit;transition:all 0.15s}
-.rot-btn:hover{border-color:#38bdf8;color:#38bdf8}
-.rot-btn.active{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
+.rot-bar{display:flex;align-items:center;justify-content:space-between;margin:0 0 16px;padding:12px 16px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 1px 3px rgba(0,40,100,0.03)}
+.rot-info{font-size:12px;color:#64748b}
+.rot-info strong{color:#0f172a}
 .rot-dot{width:6px;height:6px;border-radius:50%;background:#0ea5e9;animation:pulse 2s infinite;display:inline-block;vertical-align:middle;margin-right:6px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.rot-controls{display:flex;gap:6px}
+.rot-btn{font-size:11px;font-weight:600;padding:6px 12px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;cursor:pointer;color:#64748b;font-family:inherit;transition:all 0.15s}
+.rot-btn:hover{border-color:#38bdf8;color:#0ea5e9}
+.rot-btn.active{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
 
-/* Ad Grid */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:40px}
-.ad{background:rgba(10,18,40,0.7);border:1px solid rgba(0,180,216,0.1);border-radius:14px;overflow:hidden;transition:all 0.3s;position:relative;padding:20px}
-.ad:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,0.3);border-color:rgba(56,189,248,0.3)}
-.ad.featured{border-color:rgba(251,191,36,0.3)}
-.featured-tag{position:absolute;top:10px;right:10px;font-size:8px;font-weight:700;letter-spacing:1px;color:#fbbf24;background:rgba(251,191,36,0.1);padding:3px 8px;border-radius:4px;border:1px solid rgba(251,191,36,0.2);text-transform:uppercase}
-.ad-img{width:100%;height:140px;border-radius:10px;object-fit:cover;margin-bottom:14px;background:rgba(0,180,216,0.05);border:1px solid rgba(0,180,216,0.08)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:40px}
+.ad{background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;transition:all 0.3s;position:relative;padding:18px;box-shadow:0 1px 3px rgba(0,40,100,0.03)}
+.ad:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,40,100,0.08);border-color:#bae6fd}
+.ad.featured{border-color:#fbbf24;box-shadow:0 0 0 1px rgba(251,191,36,0.12),0 1px 3px rgba(0,40,100,0.03)}
+.featured-tag{position:absolute;top:10px;right:10px;font-size:8px;font-weight:700;letter-spacing:1px;color:#92400e;background:rgba(251,191,36,0.15);padding:3px 8px;border-radius:4px;border:1px solid rgba(251,191,36,0.25);text-transform:uppercase}
+.ad-img{width:100%;height:140px;border-radius:10px;object-fit:cover;margin-bottom:14px;background:#f1f5f9;border:1px solid #e2e8f0}
 .ad-icon-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.ad-emoji{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:rgba(0,180,216,0.08)}
+.ad-emoji{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:rgba(14,165,233,0.06)}
 .ad-cat{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#0ea5e9}
-.ad-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.ad-desc{font-size:12px;color:rgba(200,220,255,0.4);line-height:1.5;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.ad-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:11px;color:rgba(200,220,255,0.35)}
+.ad-title{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ad-title-link{display:block;transition:color 0.2s}
+.ad-title-link:hover .ad-title{color:#0284c7}
+.ad-desc{font-size:12px;color:#94a3b8;line-height:1.5;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ad-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:11px;color:#94a3b8}
 .ad-author{display:flex;align-items:center;gap:6px}
 .ad-avatar{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;flex-shrink:0}
-.ad-cta{display:block;text-align:center;font-size:12px;font-weight:700;color:#fff;padding:10px 12px;border-radius:8px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);transition:all 0.2s}
-.ad-cta:hover{box-shadow:0 4px 16px rgba(14,165,233,0.3);transform:translateY(-1px)}
+.ad-cta{display:block;text-align:center;font-size:12px;font-weight:700;color:#fff;padding:10px 12px;border-radius:8px;background:linear-gradient(180deg,#38bdf8,#0ea5e9);box-shadow:0 2px 0 #0284c7;transition:all 0.2s}
+.ad-cta:hover{transform:translateY(-1px);box-shadow:0 3px 0 #0284c7,0 4px 12px rgba(14,165,233,0.2)}
 .ad-share{display:flex;gap:6px;margin-top:8px}
-.ad-share a{font-size:10px;padding:4px 8px;border-radius:5px;font-weight:600;border:1px solid rgba(0,180,216,0.1);color:rgba(200,220,255,0.4);transition:all 0.2s}
-.ad-share a:hover{border-color:#38bdf8;color:#38bdf8}
+.ad-share a{font-size:10px;padding:4px 8px;border-radius:5px;font-weight:600;border:1px solid #e2e8f0;color:#94a3b8;transition:all 0.2s}
+.ad-share a:hover{border-color:#38bdf8;color:#0ea5e9}
 
-/* Empty state */
-.empty{text-align:center;padding:60px 24px;color:rgba(200,220,255,0.3)}
+.empty{text-align:center;padding:60px 24px}
 .empty-icon{font-size:48px;margin-bottom:16px}
-.empty h3{font-size:20px;font-weight:700;color:rgba(200,220,255,0.5);margin-bottom:8px}
+.empty h3{font-size:20px;font-weight:700;color:#64748b;margin-bottom:8px}
+.empty p{color:#94a3b8;font-size:14px}
 
-/* Pagination */
-.pager{display:flex;justify-content:center;gap:6px;margin:24px 0 40px}
-.pg{font-size:13px;font-weight:600;padding:8px 14px;border-radius:8px;border:1px solid rgba(0,180,216,0.12);color:rgba(200,220,255,0.5);transition:all 0.2s;display:inline-block}
-.pg:hover{border-color:#38bdf8;color:#fff}
+.pager{display:flex;justify-content:center;gap:6px;margin:0 0 40px}
+.pg{font-size:13px;font-weight:600;padding:8px 14px;border-radius:8px;border:1px solid #e2e8f0;color:#64748b;display:inline-block;transition:all 0.2s}
+.pg:hover{border-color:#38bdf8;color:#0ea5e9}
 .pg.active{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
 
-/* CTA band */
-.cta-band{text-align:center;padding:60px 40px;position:relative;border-top:1px solid rgba(0,180,216,0.06)}
-.cta-band::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 50% 50%,rgba(0,180,216,0.04),transparent)}
+.cta-band{text-align:center;padding:60px 40px;background:#050d1a;position:relative}
+.cta-band::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 50% 50%,rgba(0,180,216,0.06),transparent)}
 .cta-band h2{font-family:Sora,sans-serif;font-size:clamp(22px,3vw,32px);font-weight:800;color:#fff;margin-bottom:10px;position:relative}
-.cta-band p{font-size:15px;color:rgba(200,220,255,0.45);margin-bottom:24px;position:relative}
+.cta-band p{font-size:15px;color:rgba(200,220,255,0.5);margin-bottom:24px;position:relative}
 
-/* Footer */
-footer{border-top:1px solid rgba(0,180,216,0.08);padding:28px 40px;display:flex;justify-content:space-between;align-items:center;max-width:1100px;margin:0 auto}
+footer{border-top:1px solid rgba(0,180,216,0.08);padding:28px 40px;display:flex;justify-content:space-between;align-items:center;max-width:1100px;margin:0 auto;background:#050d1a}
 .fl{display:flex;gap:20px}
 .fl a{font-size:12px;color:rgba(200,220,255,0.3);text-decoration:none}
 .fl a:hover{color:rgba(200,220,255,0.6)}
 .fc{font-size:12px;color:rgba(200,220,255,0.15)}
 
-@media(max-width:768px){
-    .nl{display:none}
-    nav{padding:0 20px}
-    .hero{padding:32px 20px 24px}
-    .hero-stats{gap:20px}
-    .grid{grid-template-columns:1fr}
-    .wrap{padding:0 16px}
-    .rot-bar{flex-direction:column;gap:8px;text-align:center}
-    footer{flex-direction:column;gap:12px;text-align:center;padding:28px 20px}
-}
+@media(max-width:768px){.nl{display:none}nav{padding:0 20px}.hero{padding:32px 20px 24px}.hero-stats{gap:20px}.grid{grid-template-columns:1fr}.wrap{padding:0 16px}.rot-bar{flex-direction:column;gap:8px;text-align:center}footer{flex-direction:column;gap:12px;text-align:center;padding:28px 20px}}
 </style>
 </head>
 <body>
 
-<!-- Public Nav -->
 <nav>
     <a href="/" class="nb">
         <svg width="28" height="28" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#nlg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="nlg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
@@ -149,7 +132,6 @@ footer{border-top:1px solid rgba(0,180,216,0.08);padding:28px 40px;display:flex;
     </div>
 </nav>
 
-<!-- Hero -->
 <div class="hero">
     <div class="hero-badge"><div class="dot"></div>Live Marketplace</div>
     <h1>The <em>Ad Board</em></h1>
@@ -161,14 +143,12 @@ footer{border-top:1px solid rgba(0,180,216,0.08);padding:28px 40px;display:flex;
     </div>
 </div>
 
-<div class="wrap">
-    <!-- Search -->
+<div class="wrap" style="padding-top:24px">
     <div class="search-row">
         <input class="search-input" type="text" id="adSearch" placeholder="Search ads..." oninput="filterAds()">
         <button class="search-btn" onclick="filterAds()">Search</button>
     </div>
 
-    <!-- Categories -->
     <div class="cats">
         <a href="/ads" class="cat{% if not active_category %} active{% endif %}">All</a>
         {% for cat in categories %}
@@ -176,7 +156,6 @@ footer{border-top:1px solid rgba(0,180,216,0.08);padding:28px 40px;display:flex;
         {% endfor %}
     </div>
 
-    <!-- Rotation Bar -->
     <div class="rot-bar">
         <div class="rot-info"><span class="rot-dot"></span>Showing <strong>{{ listings|length }}</strong> of <strong>{{ total_ads }}</strong> ads · Ads rotate automatically for fair exposure</div>
         <div class="rot-controls">
@@ -185,21 +164,21 @@ footer{border-top:1px solid rgba(0,180,216,0.08);padding:28px 40px;display:flex;
         </div>
     </div>
 
-    <!-- Ad Grid -->
     {% if listings|length > 0 %}
     <div class="grid" id="adGrid">
         {% for ad in listings %}
         <div class="ad{% if ad.is_featured %} featured{% endif %}" data-title="{{ ad.title|lower }}" data-desc="{{ ad.description|lower|truncate(100) }}">
             {% if ad.is_featured %}<div class="featured-tag">⭐ Featured</div>{% endif %}
-            {% if ad.image_url %}<img src="{{ ad.image_url }}" alt="{{ ad.title }}" class="ad-img" loading="lazy" onerror="this.style.display='none'">{% endif %}
+            {% if ad.image_url %}
+            <img src="{{ ad.image_url }}" alt="{{ ad.title }}" class="ad-img" loading="lazy" onerror="this.style.display='none'">
+            {% endif %}
             <div class="ad-icon-row">
-                {% set cat_match = [] %}
                 {% for c in categories %}{% if c.id == ad.category %}
                 <div class="ad-emoji">{{ c.icon }}</div>
                 <div class="ad-cat">{{ c.name }}</div>
                 {% endif %}{% endfor %}
             </div>
-            <a href="/ads/listing/{{ ad.slug or ad.id }}" style="display:block;margin-bottom:5px">
+            <a href="/ads/listing/{{ ad.slug or ad.id }}" class="ad-title-link">
                 <div class="ad-title">{{ ad.title }}</div>
             </a>
             <div class="ad-desc">{{ ad.description|truncate(120) }}</div>
@@ -220,7 +199,6 @@ footer{border-top:1px solid rgba(0,180,216,0.08);padding:28px 40px;display:flex;
         {% endfor %}
     </div>
 
-    <!-- Pagination -->
     {% if total_pages > 1 %}
     <div class="pager">
         {% if page > 1 %}<a href="/ads?{% if active_category %}category={{ active_category }}&{% endif %}page={{ page - 1 }}" class="pg">← Prev</a>{% endif %}
@@ -236,16 +214,14 @@ footer{border-top:1px solid rgba(0,180,216,0.08);padding:28px 40px;display:flex;
     {% endif %}
 
     {% else %}
-    <!-- Empty State -->
     <div class="empty">
         <div class="empty-icon">📢</div>
         <h3>{% if active_category %}No ads in this category yet{% else %}The Ad Board is warming up{% endif %}</h3>
-        <p>Members can post unlimited ads as part of their subscription. <a href="/register" style="color:#38bdf8">Join SuperAdPro</a> to place your first ad.</p>
+        <p>Members can post unlimited ads as part of their subscription. <a href="/register" style="color:#0ea5e9;font-weight:600">Join SuperAdPro</a> to place your first ad.</p>
     </div>
     {% endif %}
 </div>
 
-<!-- CTA -->
 <div class="cta-band">
     <h2>Want Your Ad Here?</h2>
     <p>SuperAdPro members can post unlimited ads for free. Your ads rotate across the platform reaching thousands of visitors.</p>
