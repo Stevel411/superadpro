@@ -50,9 +50,9 @@
         .hero-title { font-weight:800; font-size:clamp(28px,4.2vw,56px); color:#ffffff; line-height:1.1; margin-bottom:14px; opacity:0; animation:fadeUp 0.8s ease forwards 0.2s; }
         .hero-title .gold { background:linear-gradient(135deg,#38bdf8,#7c9fff,#0ea5e9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
 
-        .hero-sub { font-size:clamp(13px,1.4vw,16px); color:rgba(200,225,210,0.6); line-height:1.65; max-width:580px; margin:0 auto 48px; opacity:0; animation:fadeUp 0.8s ease forwards 0.3s; }
+        .hero-sub { font-size:clamp(13px,1.4vw,16px); color:rgba(200,225,210,0.6); line-height:1.65; max-width:580px; margin:0 auto 28px; opacity:0; animation:fadeUp 0.8s ease forwards 0.3s; }
 
-        .hero-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:72px; opacity:0; animation:fadeUp 0.8s ease forwards 0.4s; }
+        .hero-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:24px; opacity:0; animation:fadeUp 0.8s ease forwards 0.4s; }
         .btn-gold { font-weight:700; font-size:19px; color:#050d1a; background:#38bdf8; padding:13px 34px; border-radius:8px; text-decoration:none; box-shadow:0 0 32px rgba(0,212,255,0.4); transition:all 0.3s; }
         .btn-gold:hover { background:#00e5ff; box-shadow:0 0 50px rgba(0,212,255,0.6); transform:translateY(-2px); }
         .btn-outline { font-weight:600; font-size:19px; color:#fff; background:rgba(255,255,255,0.06); padding:12px 34px; border-radius:8px; border:1px solid rgba(255,255,255,0.2); text-decoration:none; transition:all 0.3s; }
@@ -61,24 +61,20 @@
         @keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
 
         /* ===== VIDEO AD PLAYER CENTREPIECE ===== */
-        .ad-stage { display:flex; align-items:center; justify-content:center; gap:14px; width:868px; max-width:100%; margin:0 auto; opacity:0; animation:fadeUp 1s ease forwards 0.4s; }
-        .metric-col { display:flex; flex-direction:column; gap:16px; width:150px; min-width:150px; max-width:150px; flex:0 0 150px; }
-        .ad-screen-wrap { flex:0 0 520px; min-width:520px; }
+        .ad-stage { display:flex; align-items:center; justify-content:center; gap:0; width:100%; max-width:900px; margin:0 auto; opacity:0; animation:fadeUp 1s ease forwards 0.4s; }
+        .metric-col { display:none; }
+        .ad-screen-wrap { flex:1; width:100%; min-width:0; }
 
-        /* Main screen */
+        /* Main screen — responsive video */
         .ad-screen {
             position:relative; margin:0 auto;
-            width:520px; height:300px;
+            width:100%; height:auto; aspect-ratio:16/9;
             background:#020818;
             border:2px solid rgba(0,180,216,0.5);
-            border-radius:12px;
-            box-shadow: 0 0 40px rgba(0,180,216,0.25), 0 0 80px rgba(109,40,217,0.15), inset 0 0 40px rgba(0,0,0,0.6);
+            border-radius:14px;
+            box-shadow: 0 0 50px rgba(0,180,216,0.25), 0 0 100px rgba(109,40,217,0.15);
             overflow:hidden;
         }
-        /* Screen scanlines */
-        .ad-screen::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.06) 3px,rgba(0,0,0,0.06) 4px); z-index:3; pointer-events:none; }
-        /* Screen glow overlay */
-        .ad-screen::after { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 80% 50% at 50% 80%,rgba(0,100,200,0.12),transparent 70%); z-index:2; pointer-events:none; }
 
         /* Video content playing */
         .screen-content { position:absolute; inset:0; z-index:1; display:flex; align-items:center; justify-content:center; }
@@ -451,59 +447,33 @@
     <div class="eyebrow"><div class="dot"></div>Video Advertising Platform · Powered by AI</div>
     <h1 class="hero-title">Advertisers. Marketers. Affiliates.<br><span class="gold">One Platform. Real Results.</span></h1>
     <p class="hero-sub">Drive targeted traffic to your website with real video advertising. Powerful AI tools help you find your niche, craft campaigns, and reach customers who are actually watching — not scrolling past.</p>
-    <div class="hero-btns">
+    <div class="hero-btns" style="margin-bottom:24px">
         <a href="/vip" class="btn-gold">🚀 Join the VIP Waiting List</a>
-        <a href="/how-it-works" class="btn-outline">See How It Works</a>
     </div>
 
-    <!-- VIDEO AD PLAYER CENTREPIECE -->
-    <div class="ad-stage">
-
-        <!-- Left column: 2 cards stacked -->
-        <div class="metric-col">
-            <div class="metric m-views">
-                <div class="metric-label">Views Target</div>
-                <div class="metric-value">2.4M</div>
-                <div class="metric-sub">Monthly projection</div>
-                <svg class="sparkline" width="100%" height="28" viewBox="0 0 110 28">
-                    <defs><linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.3"/><stop offset="100%" stop-color="#0ea5e9" stop-opacity="0"/></linearGradient></defs>
-                    <polygon points="0,24 18,18 32,20 50,10 65,14 82,5 95,8 110,2 110,28 0,28" fill="url(#sg1)"/>
-                    <polyline points="0,24 18,18 32,20 50,10 65,14 82,5 95,8 110,2" fill="none" stroke="#0ea5e9" stroke-width="1.5"/>
-                </svg>
-                <span class="metric-badge badge-up">▲ +38% this week</span>
-            </div>
-            <div class="metric m-ctr">
-                <div class="metric-label">Click-Through Rate</div>
-                <div class="metric-value">28%</div>
-                <div class="metric-sub">Avg. across campaigns</div>
-                <span class="metric-badge badge-up">▲ Above industry avg</span>
-            </div>
-        </div>
-
-        <!-- Centre: Welcome Video Player -->
-        <div class="ad-screen-wrap">
-            <div class="ad-screen" style="position:relative;overflow:hidden;border-radius:12px;border:1.5px solid rgba(0,180,216,0.3);box-shadow:0 0 40px rgba(0,180,216,0.15),0 0 80px rgba(0,180,216,0.05)">
+    <!-- WELCOME VIDEO — FULL WIDTH -->
+    <div class="ad-stage" style="max-width:960px">
+        <div class="ad-screen-wrap" style="width:100%">
+            <div class="ad-screen" style="position:relative;overflow:hidden;border-radius:14px;border:1.5px solid rgba(0,180,216,0.3);box-shadow:0 0 50px rgba(0,180,216,0.2),0 0 100px rgba(0,180,216,0.06);width:100%;height:auto;aspect-ratio:16/9">
                 <video id="heroVideo"
                        poster="/static/video/welcome-poster.jpg"
                        preload="metadata"
                        playsinline
-                       style="width:100%;height:100%;object-fit:cover;display:block;border-radius:11px">
+                       style="width:100%;height:100%;object-fit:cover;display:block;border-radius:13px">
                     <source src="/static/video/welcome.mp4" type="video/mp4">
                 </video>
                 <!-- Custom play overlay -->
-                <div id="videoPlayOverlay" onclick="document.getElementById('heroVideo').play();this.style.display='none'" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(5,13,26,0.35);transition:background 0.3s">
-                    <div style="width:72px;height:72px;border-radius:50%;background:rgba(0,180,216,0.85);display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(0,180,216,0.5),0 0 60px rgba(0,180,216,0.2);transition:transform 0.2s,box-shadow 0.2s" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 40px rgba(0,180,216,0.7),0 0 80px rgba(0,180,216,0.3)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 0 30px rgba(0,180,216,0.5),0 0 60px rgba(0,180,216,0.2)'">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+                <div id="videoPlayOverlay" onclick="document.getElementById('heroVideo').play();this.style.display='none'" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(5,13,26,0.3);transition:background 0.3s">
+                    <div style="width:80px;height:80px;border-radius:50%;background:rgba(0,180,216,0.85);display:flex;align-items:center;justify-content:center;box-shadow:0 0 35px rgba(0,180,216,0.5),0 0 70px rgba(0,180,216,0.2);transition:transform 0.2s,box-shadow 0.2s" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 50px rgba(0,180,216,0.7),0 0 100px rgba(0,180,216,0.3)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 0 35px rgba(0,180,216,0.5),0 0 70px rgba(0,180,216,0.2)'">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
                     </div>
                 </div>
                 <!-- Minimal bottom bar -->
-                <div id="videoBottomBar" style="position:absolute;bottom:0;left:0;right:0;padding:8px 14px;background:linear-gradient(transparent,rgba(5,13,26,0.8));display:flex;align-items:center;gap:10px;opacity:0;transition:opacity 0.3s;pointer-events:none">
+                <div id="videoBottomBar" style="position:absolute;bottom:0;left:0;right:0;padding:10px 18px;background:linear-gradient(transparent,rgba(5,13,26,0.8));display:flex;align-items:center;gap:12px;opacity:0;transition:opacity 0.3s;pointer-events:none">
                     <span style="font-size:11px;color:rgba(255,255,255,0.7);font-family:monospace;letter-spacing:1px">SUPERADPRO WELCOME</span>
                     <div style="flex:1;height:3px;background:rgba(255,255,255,0.15);border-radius:2px;overflow:hidden"><div id="videoProgress" style="height:100%;width:0%;background:linear-gradient(90deg,#0ea5e9,#38bdf8);border-radius:2px;transition:width 0.3s"></div></div>
                 </div>
             </div>
-            <div class="monitor-stand"></div>
-            <div class="monitor-base"></div>
         </div>
         <script>
         (function(){
@@ -518,23 +488,11 @@
             v.addEventListener('click',function(){if(v.paused){v.play()}else{v.pause()}});
         })();
         </script>
+    </div>
 
-        <!-- Right column: 2 cards stacked -->
-        <div class="metric-col">
-            <div class="metric m-roi">
-                <div class="metric-label">Projected Campaign ROI</div>
-                <div class="metric-value">320%</div>
-                <div class="metric-sub">AI-optimised targeting</div>
-                <span class="metric-badge badge-hot">★ Top performer</span>
-            </div>
-            <div class="metric m-members">
-                <div class="metric-label">Member Target</div>
-                <div class="metric-value">12.8K</div>
-                <div class="metric-sub">Year 1 projection</div>
-                <span class="metric-badge badge-up">▲ Growing daily</span>
-            </div>
-        </div>
-
+    <!-- See How It Works — below video -->
+    <div style="text-align:center;margin-top:28px;opacity:0;animation:fadeUp 1s ease forwards 0.6s">
+        <a href="/how-it-works" class="btn-outline">See How It Works</a>
     </div>
 
 </section>
