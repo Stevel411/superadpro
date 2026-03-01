@@ -18,16 +18,16 @@ nav{background:rgba(10,18,40,0.95);border-bottom:1px solid rgba(0,180,216,0.12);
 .nav-links a:hover{color:#fff}
 .nav-cta{font-weight:700;font-size:19px;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:9px 22px;border-radius:6px;text-decoration:none;transition:all 0.3s}
 .hero{text-align:center;padding:80px 40px 60px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(16,185,129,0.06),transparent)}
-.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:999px;padding:6px 18px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#34d399;margin-bottom:24px}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(16,185,129,0.06),transparent);pointer-events:none}
+.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:999px;padding:6px 18px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#34d399;margin-bottom:24px;position:relative;z-index:2}
 .badge .pulse{width:6px;height:6px;border-radius:50%;background:#34d399;animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
-.hero h1{font-family:Sora,sans-serif;font-size:clamp(32px,5vw,56px);font-weight:800;color:#fff;line-height:1.08;margin-bottom:18px}
+.hero h1{font-family:Sora,sans-serif;font-size:clamp(32px,5vw,56px);font-weight:800;color:#fff;line-height:1.08;margin-bottom:18px;position:relative;z-index:2}
 .hero h1 em{font-style:normal;background:linear-gradient(135deg,#34d399,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero p{font-size:17px;color:rgba(200,220,255,0.55);max-width:620px;margin:0 auto 36px;line-height:1.7}
-.btn-primary{font-weight:700;font-size:15px;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:14px 32px;border-radius:8px;text-decoration:none;transition:all 0.3s;box-shadow:0 4px 20px rgba(0,180,216,0.25);display:inline-block}
+.hero p{font-size:17px;color:rgba(200,220,255,0.55);max-width:620px;margin:0 auto 36px;line-height:1.7;position:relative;z-index:2}
+.btn-primary{font-weight:700;font-size:15px;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:14px 32px;border-radius:8px;text-decoration:none;transition:all 0.3s;box-shadow:0 4px 20px rgba(0,180,216,0.25);display:inline-block;position:relative;z-index:2}
 .btn-primary:hover{box-shadow:0 8px 36px rgba(0,180,216,0.4);transform:translateY(-2px)}
-.btn-ghost{font-weight:600;font-size:15px;color:rgba(200,220,255,0.7);border:1px solid rgba(0,180,216,0.25);padding:14px 32px;border-radius:8px;text-decoration:none;transition:all 0.3s;display:inline-block;margin-left:14px}
+.btn-ghost{font-weight:600;font-size:15px;color:rgba(200,220,255,0.7);border:1px solid rgba(0,180,216,0.25);padding:14px 32px;border-radius:8px;text-decoration:none;transition:all 0.3s;display:inline-block;margin-left:14px;position:relative;z-index:2}
 .btn-ghost:hover{border-color:#38bdf8;color:#fff}
 .container{max-width:1100px;margin:0 auto;padding:0 40px}
 .sec-label{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.5);text-align:center;margin-bottom:10px}
