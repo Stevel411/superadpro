@@ -62,7 +62,7 @@
 
         /* ===== VIDEO AD PLAYER CENTREPIECE ===== */
         .ad-stage { display:flex; align-items:center; justify-content:center; gap:14px; width:868px; max-width:100%; margin:0 auto; opacity:0; animation:fadeUp 1s ease forwards 0.4s; }
-        .metric-col { display:flex; flex-direction:column; gap:12px; width:160px; min-width:160px; max-width:160px; flex:0 0 160px; }
+        .metric-col { display:flex; flex-direction:column; gap:16px; width:150px; min-width:150px; max-width:150px; flex:0 0 150px; }
         .ad-screen-wrap { flex:0 0 520px; min-width:520px; }
 
         /* Main screen */
@@ -480,335 +480,44 @@
             </div>
         </div>
 
-        <!-- Centre: main video screen -->
+        <!-- Centre: Welcome Video Player -->
         <div class="ad-screen-wrap">
-            <div class="ad-screen">
-            <div class="screen-content">
-                <!-- Dubai night photo background -->
-                <div style="position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=900&q=80&fit=crop');background-size:cover;background-position:center 60%;z-index:0"></div>
-                <!-- Colour grade overlay: deep blue/purple tint -->
-                <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,20,80,0.55) 0%,rgba(60,0,120,0.45) 50%,rgba(0,40,100,0.5) 100%);z-index:1"></div>
-                <!-- Cyan HUD targeting grid lines -->
-                <svg style="position:absolute;inset:0;width:100%;height:100%;z-index:2;opacity:0.7" viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg">
-                  <!-- Corner brackets top-left -->
-                  <path d="M30 40 L30 20 L50 20" fill="none" stroke="#00f0ff" stroke-width="2" opacity="0.8"/>
-                  <!-- Corner brackets top-right -->
-                  <path d="M490 40 L490 20 L470 20" fill="none" stroke="#00f0ff" stroke-width="2" opacity="0.8"/>
-                  <!-- Corner brackets bottom-left -->
-                  <path d="M30 260 L30 280 L50 280" fill="none" stroke="#00f0ff" stroke-width="2" opacity="0.8"/>
-                  <!-- Corner brackets bottom-right -->
-                  <path d="M490 260 L490 280 L470 280" fill="none" stroke="#00f0ff" stroke-width="2" opacity="0.8"/>
-                  <!-- AI targeting bracket centre-left -->
-                  <rect x="120" y="90" width="60" height="40" fill="none" stroke="#00f0ff" stroke-width="1.2" stroke-dasharray="6,4" opacity="0.6"/>
-                  <text x="122" y="86" font-size="7" fill="#00f0ff" font-family="monospace" opacity="0.8">AD REACH</text>
-                  <!-- AI targeting bracket centre -->
-                  <rect x="240" y="70" width="50" height="35" fill="none" stroke="#00f0ff" stroke-width="1.2" stroke-dasharray="6,4" opacity="0.6"/>
-                  <text x="255" y="66" font-size="7" fill="#00f0ff" font-family="monospace" opacity="0.8">CTR</text>
-                  <!-- AI targeting bracket right -->
-                  <rect x="360" y="80" width="55" height="38" fill="none" stroke="#38bdf8" stroke-width="1.2" stroke-dasharray="6,4" opacity="0.6"/>
-                  <text x="362" y="76" font-size="7" fill="#38bdf8" font-family="monospace" opacity="0.8">ENGAGE</text>
-                  <!-- Scan line animation -->
-                  <line x1="0" y1="150" x2="520" y2="150" stroke="#00f0ff" stroke-width="0.5" opacity="0.2">
-                    <animate attributeName="y1" values="0;300;0" dur="4s" repeatCount="indefinite"/>
-                    <animate attributeName="y2" values="0;300;0" dur="4s" repeatCount="indefinite"/>
-                  </line>
-                  <!-- Data stream text (watermark style) -->
-                  <text x="20" y="110" font-size="7" fill="rgba(0,240,255,0.18)" font-family="monospace">Impression • Impression • Impression • Impression • Impression • Impression</text>
-                  <text x="20" y="125" font-size="7" fill="rgba(0,240,255,0.18)" font-family="monospace">ClickRate • ClickRate • ClickRate • ClickRate • ClickRate • ClickRate</text>
-                  <text x="20" y="195" font-size="7" fill="rgba(0,240,255,0.18)" font-family="monospace">Impression • Impression • Impression • Impression • Impression • Impression</text>
-                  <text x="20" y="210" font-size="7" fill="rgba(0,240,255,0.18)" font-family="monospace">ClickRate • ClickRate • ClickRate • ClickRate • ClickRate • ClickRate</text>
-                </svg>
-
-                <!-- IGNORE OLD SVG below (replaced) --><div style="display:none"><!-- Dubai night skyline SVG v2 -->
-                <svg class="city-sil" viewBox="0 0 520 300" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#020818"/>
-                      <stop offset="60%" stop-color="#040d2a"/>
-                      <stop offset="100%" stop-color="#061535"/>
-                    </linearGradient>
-                    <!-- Burj Khalifa gradient -->
-                    <linearGradient id="bk" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#1a2a4a"/>
-                      <stop offset="100%" stop-color="#0d1a30"/>
-                    </linearGradient>
-                    <!-- Mid tower gradient -->
-                    <linearGradient id="mt" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#162040"/>
-                      <stop offset="100%" stop-color="#0a1428"/>
-                    </linearGradient>
-                    <!-- Ground gradient -->
-                    <linearGradient id="gnd" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#050f1e"/>
-                      <stop offset="100%" stop-color="#020810"/>
-                    </linearGradient>
-                    <!-- Purple glow for towers -->
-                    <radialGradient id="glow1" cx="50%" cy="100%" r="50%">
-                      <stop offset="0%" stop-color="rgba(100,60,220,0.25)"/>
-                      <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
-                    </radialGradient>
-                    <!-- Cyan glow -->
-                    <radialGradient id="glow2" cx="50%" cy="100%" r="50%">
-                      <stop offset="0%" stop-color="rgba(0,180,255,0.2)"/>
-                      <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
-                    </radialGradient>
-                    <!-- Street light orange -->
-                    <radialGradient id="street" cx="50%" cy="0%" r="100%">
-                      <stop offset="0%" stop-color="rgba(255,140,30,0.18)"/>
-                      <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
-                    </radialGradient>
-                    <filter id="blur2"><feGaussianBlur stdDeviation="2"/></filter>
-                    <filter id="blur1"><feGaussianBlur stdDeviation="1"/></filter>
-                    <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-                  </defs>
-
-                  <!-- Night sky base -->
-                  <rect width="520" height="300" fill="url(#sky)"/>
-
-                  <!-- Stars -->
-                  <g opacity="0.7">
-                    <circle cx="30" cy="20" r="0.8" fill="#fff"/><circle cx="80" cy="12" r="0.6" fill="#fff"/>
-                    <circle cx="130" cy="25" r="0.9" fill="#adf"/><circle cx="180" cy="8" r="0.7" fill="#fff"/>
-                    <circle cx="220" cy="18" r="0.5" fill="#fff"/><circle cx="270" cy="10" r="0.8" fill="#adf"/>
-                    <circle cx="320" cy="22" r="0.6" fill="#fff"/><circle cx="370" cy="6" r="0.9" fill="#fff"/>
-                    <circle cx="420" cy="16" r="0.7" fill="#adf"/><circle cx="470" cy="28" r="0.6" fill="#fff"/>
-                    <circle cx="500" cy="10" r="0.8" fill="#fff"/><circle cx="50" cy="35" r="0.5" fill="#adf"/>
-                    <circle cx="150" cy="40" r="0.6" fill="#fff"/><circle cx="350" cy="35" r="0.5" fill="#fff"/>
-                    <circle cx="450" cy="38" r="0.7" fill="#adf"/>
-                  </g>
-
-                  <!-- Moon glow -->
-                  <circle cx="460" cy="30" r="14" fill="#0a1a35" filter="url(#blur2)"/>
-                  <circle cx="460" cy="30" r="10" fill="#1a3060" opacity="0.6"/>
-                  <circle cx="460" cy="30" r="7" fill="#2a4080" opacity="0.5"/>
-
-                  <!-- Far background haze / atmosphere -->
-                  <ellipse cx="260" cy="240" rx="260" ry="80" fill="rgba(0,80,180,0.07)"/>
-
-                  <!-- ── BACKGROUND TOWERS (far/small) ── -->
-                  <!-- Far left cluster -->
-                  <rect x="0" y="200" width="18" height="100" fill="#0d1828"/>
-                  <rect x="22" y="185" width="14" height="115" fill="#0f1e30"/>
-                  <rect x="40" y="195" width="20" height="105" fill="#0d1828"/>
-                  <!-- Windows far left -->
-                  <rect x="25" y="188" width="3" height="2" fill="rgba(255,220,100,0.4)"/>
-                  <rect x="25" y="193" width="3" height="2" fill="rgba(255,220,100,0.3)"/>
-                  <rect x="30" y="188" width="3" height="2" fill="rgba(0,180,255,0.3)"/>
-
-                  <!-- Far right cluster -->
-                  <rect x="480" y="190" width="18" height="110" fill="#0d1828"/>
-                  <rect x="500" y="200" width="20" height="100" fill="#0f1e30"/>
-                  <rect x="490" y="193" width="3" height="2" fill="rgba(255,220,100,0.35)"/>
-                  <rect x="490" y="198" width="3" height="2" fill="rgba(0,200,255,0.3)"/>
-
-                  <!-- ── MID TOWERS ── -->
-                  <!-- Tower group left-centre -->
-                  <rect x="55" y="155" width="28" height="145" fill="url(#mt)"/>
-                  <rect x="55" y="155" width="28" height="3" fill="rgba(0,180,255,0.4)"/>
-                  <!-- Windows -->
-                  <rect x="59" y="160" width="5" height="3" fill="rgba(255,200,80,0.5)"/>
-                  <rect x="67" y="160" width="5" height="3" fill="rgba(255,200,80,0.4)"/>
-                  <rect x="59" y="168" width="5" height="3" fill="rgba(0,180,255,0.4)"/>
-                  <rect x="67" y="168" width="5" height="3" fill="rgba(0,180,255,0.3)"/>
-                  <rect x="59" y="176" width="5" height="3" fill="rgba(255,200,80,0.45)"/>
-                  <rect x="67" y="176" width="5" height="3" fill="rgba(255,200,80,0.35)"/>
-                  <rect x="59" y="184" width="5" height="3" fill="rgba(0,180,255,0.35)"/>
-                  <rect x="67" y="192" width="5" height="3" fill="rgba(255,200,80,0.4)"/>
-
-                  <!-- Twin towers left -->
-                  <rect x="92" y="130" width="22" height="170" fill="url(#mt)"/>
-                  <rect x="118" y="140" width="22" height="160" fill="url(#mt)"/>
-                  <rect x="92" y="130" width="22" height="3" fill="rgba(100,60,255,0.5)"/>
-                  <rect x="118" y="140" width="22" height="3" fill="rgba(100,60,255,0.4)"/>
-                  <!-- Bridge connecting twins -->
-                  <rect x="114" y="175" width="4" height="6" fill="#162040"/>
-                  <!-- Windows twins -->
-                  <rect x="95" y="136" width="4" height="3" fill="rgba(255,200,80,0.5)"/>
-                  <rect x="102" y="136" width="4" height="3" fill="rgba(255,200,80,0.4)"/>
-                  <rect x="95" y="143" width="4" height="3" fill="rgba(0,200,255,0.4)"/>
-                  <rect x="102" y="150" width="4" height="3" fill="rgba(255,200,80,0.5)"/>
-                  <rect x="121" y="145" width="4" height="3" fill="rgba(255,200,80,0.45)"/>
-                  <rect x="128" y="145" width="4" height="3" fill="rgba(0,200,255,0.35)"/>
-                  <rect x="121" y="152" width="4" height="3" fill="rgba(255,200,80,0.4)"/>
-                  <rect x="128" y="159" width="4" height="3" fill="rgba(0,200,255,0.3)"/>
-                  <!-- Glow base twins -->
-                  <ellipse cx="114" cy="300" rx="40" ry="20" fill="rgba(80,40,200,0.12)"/>
-
-                  <!-- ── BURJ KHALIFA (centre-left, tallest) ── -->
-                  <!-- Spire -->
-                  <polygon points="196,20 199,80 193,80" fill="#1a2a4a"/>
-                  <polygon points="197,20 198,60 196,60" fill="rgba(0,200,255,0.15)"/>
-                  <!-- Main shaft -->
-                  <rect x="188" y="78" width="18" height="30" fill="url(#bk)"/>
-                  <rect x="184" y="106" width="26" height="35" fill="url(#bk)"/>
-                  <rect x="180" y="138" width="34" height="40" fill="url(#bk)"/>
-                  <rect x="175" y="175" width="44" height="50" fill="url(#bk)"/>
-                  <rect x="170" y="220" width="54" height="80" fill="url(#bk)"/>
-                  <!-- Setbacks highlight edges -->
-                  <rect x="188" y="78" width="2" height="30" fill="rgba(0,180,255,0.15)"/>
-                  <rect x="204" y="78" width="2" height="30" fill="rgba(0,180,255,0.1)"/>
-                  <!-- Antenna light -->
-                  <circle cx="197" cy="22" r="2" fill="rgba(255,80,80,0.9)" filter="url(#glow)"/>
-                  <!-- Windows Burj -->
-                  <rect x="192" y="85" width="3" height="2" fill="rgba(255,220,100,0.6)"/>
-                  <rect x="198" y="85" width="3" height="2" fill="rgba(255,220,100,0.5)"/>
-                  <rect x="186" y="112" width="3" height="2" fill="rgba(0,200,255,0.5)"/>
-                  <rect x="192" y="112" width="3" height="2" fill="rgba(255,220,100,0.55)"/>
-                  <rect x="199" y="112" width="3" height="2" fill="rgba(0,200,255,0.4)"/>
-                  <rect x="182" y="145" width="3" height="2" fill="rgba(255,220,100,0.5)"/>
-                  <rect x="189" y="145" width="3" height="2" fill="rgba(255,220,100,0.45)"/>
-                  <rect x="196" y="145" width="3" height="2" fill="rgba(0,200,255,0.4)"/>
-                  <rect x="203" y="145" width="3" height="2" fill="rgba(255,220,100,0.4)"/>
-                  <rect x="178" y="182" width="3" height="2" fill="rgba(255,220,100,0.5)"/>
-                  <rect x="185" y="182" width="3" height="2" fill="rgba(0,200,255,0.45)"/>
-                  <rect x="192" y="182" width="3" height="2" fill="rgba(255,220,100,0.5)"/>
-                  <rect x="199" y="182" width="3" height="2" fill="rgba(0,200,255,0.4)"/>
-                  <rect x="206" y="182" width="3" height="2" fill="rgba(255,220,100,0.35)"/>
-                  <!-- Glow base Burj -->
-                  <ellipse cx="197" cy="300" rx="55" ry="22" fill="rgba(0,100,200,0.18)" filter="url(#blur2)"/>
-
-                  <!-- ── CENTRE TOWERS ── -->
-                  <!-- Tall diamond top tower -->
-                  <polygon points="280,55 285,90 275,90" fill="#162040"/>
-                  <rect x="272" y="88" width="16" height="20" fill="url(#mt)"/>
-                  <rect x="268" y="106" width="24" height="30" fill="url(#mt)"/>
-                  <rect x="263" y="133" width="34" height="45" fill="url(#mt)"/>
-                  <rect x="258" y="175" width="44" height="125" fill="url(#mt)"/>
-                  <rect x="263" y="133" width="2" height="170" fill="rgba(100,60,255,0.1)"/>
-                  <circle cx="280" cy="57" r="2" fill="rgba(255,80,80,0.8)" filter="url(#glow)"/>
-                  <!-- Windows centre -->
-                  <rect x="276" y="95" width="3" height="2" fill="rgba(255,220,100,0.6)"/>
-                  <rect x="270" y="112" width="3" height="2" fill="rgba(0,200,255,0.5)"/>
-                  <rect x="277" y="112" width="3" height="2" fill="rgba(255,220,100,0.55)"/>
-                  <rect x="265" y="140" width="3" height="2" fill="rgba(255,220,100,0.5)"/>
-                  <rect x="272" y="140" width="3" height="2" fill="rgba(0,200,255,0.45)"/>
-                  <rect x="279" y="140" width="3" height="2" fill="rgba(255,220,100,0.5)"/>
-                  <rect x="286" y="140" width="3" height="2" fill="rgba(0,200,255,0.35)"/>
-                  <rect x="261" y="180" width="3" height="2" fill="rgba(255,220,100,0.45)"/>
-                  <rect x="268" y="180" width="3" height="2" fill="rgba(0,200,255,0.4)"/>
-                  <rect x="275" y="180" width="3" height="2" fill="rgba(255,220,100,0.5)"/>
-                  <rect x="282" y="180" width="3" height="2" fill="rgba(0,200,255,0.4)"/>
-                  <rect x="289" y="180" width="3" height="2" fill="rgba(255,220,100,0.35)"/>
-                  <ellipse cx="280" cy="300" rx="50" ry="20" fill="rgba(80,40,200,0.15)" filter="url(#blur2)"/>
-
-                  <!-- Curved facade tower right-centre -->
-                  <path d="M315,100 Q325,95 335,100 L338,300 L312,300 Z" fill="url(#mt)"/>
-                  <rect x="312" y="98" width="26" height="3" fill="rgba(0,180,255,0.3)"/>
-                  <rect x="318" y="105" width="3" height="2" fill="rgba(255,220,100,0.5)"/>
-                  <rect x="325" y="105" width="3" height="2" fill="rgba(0,200,255,0.4)"/>
-                  <rect x="318" y="112" width="3" height="2" fill="rgba(255,220,100,0.45)"/>
-                  <rect x="325" y="112" width="3" height="2" fill="rgba(255,220,100,0.4)"/>
-                  <rect x="318" y="119" width="3" height="2" fill="rgba(0,200,255,0.4)"/>
-                  <rect x="325" y="126" width="3" height="2" fill="rgba(255,220,100,0.45)"/>
-                  <rect x="318" y="133" width="3" height="2" fill="rgba(255,220,100,0.4)"/>
-                  <rect x="325" y="140" width="3" height="2" fill="rgba(0,200,255,0.35)"/>
-                  <ellipse cx="325" cy="300" rx="30" ry="15" fill="rgba(0,80,200,0.12)"/>
-
-                  <!-- ── RIGHT TOWERS ── -->
-                  <!-- Emirates towers style - tall narrow -->
-                  <polygon points="370,45 374,90 366,90" fill="#162040"/>
-                  <rect x="363" y="88" width="14" height="212" fill="url(#bk)"/>
-                  <rect x="363" y="88" width="2" height="212" fill="rgba(100,60,255,0.12)"/>
-                  <circle cx="370" cy="47" r="2" fill="rgba(255,80,80,0.85)" filter="url(#glow)"/>
-                  <rect x="366" y="95" width="3" height="2" fill="rgba(255,220,100,0.55)"/>
-                  <rect x="372" y="95" width="3" height="2" fill="rgba(255,220,100,0.5)"/>
-                  <rect x="366" y="103" width="3" height="2" fill="rgba(0,200,255,0.45)"/>
-                  <rect x="372" y="110" width="3" height="2" fill="rgba(255,220,100,0.5)"/>
-                  <rect x="366" y="117" width="3" height="2" fill="rgba(255,220,100,0.45)"/>
-                  <rect x="372" y="124" width="3" height="2" fill="rgba(0,200,255,0.4)"/>
-                  <rect x="366" y="131" width="3" height="2" fill="rgba(255,220,100,0.5)"/>
-                  <rect x="372" y="138" width="3" height="2" fill="rgba(255,220,100,0.4)"/>
-                  <ellipse cx="370" cy="300" rx="35" ry="18" fill="rgba(60,20,200,0.15)" filter="url(#blur2)"/>
-
-                  <!-- Second Emirates-style -->
-                  <polygon points="400,65 404,105 396,105" fill="#162040"/>
-                  <rect x="393" y="103" width="14" height="197" fill="url(#mt)"/>
-                  <circle cx="400" cy="67" r="1.5" fill="rgba(255,80,80,0.8)" filter="url(#glow)"/>
-                  <rect x="396" y="110" width="3" height="2" fill="rgba(255,220,100,0.5)"/>
-                  <rect x="402" y="117" width="3" height="2" fill="rgba(0,200,255,0.45)"/>
-                  <rect x="396" y="124" width="3" height="2" fill="rgba(255,220,100,0.5)"/>
-                  <rect x="402" y="131" width="3" height="2" fill="rgba(255,220,100,0.4)"/>
-                  <rect x="396" y="138" width="3" height="2" fill="rgba(0,200,255,0.4)"/>
-                  <ellipse cx="400" cy="300" rx="30" ry="14" fill="rgba(0,60,200,0.12)"/>
-
-                  <!-- Wide podium building right -->
-                  <rect x="420" y="150" width="60" height="150" fill="url(#mt)"/>
-                  <rect x="420" y="150" width="60" height="4" fill="rgba(0,180,255,0.25)"/>
-                  <rect x="424" y="158" width="5" height="3" fill="rgba(255,220,100,0.45)"/>
-                  <rect x="433" y="158" width="5" height="3" fill="rgba(0,200,255,0.4)"/>
-                  <rect x="442" y="158" width="5" height="3" fill="rgba(255,220,100,0.45)"/>
-                  <rect x="451" y="158" width="5" height="3" fill="rgba(255,220,100,0.4)"/>
-                  <rect x="460" y="158" width="5" height="3" fill="rgba(0,200,255,0.35)"/>
-                  <rect x="469" y="158" width="5" height="3" fill="rgba(255,220,100,0.4)"/>
-                  <rect x="424" y="166" width="5" height="3" fill="rgba(0,200,255,0.4)"/>
-                  <rect x="433" y="166" width="5" height="3" fill="rgba(255,220,100,0.45)"/>
-                  <rect x="442" y="166" width="5" height="3" fill="rgba(0,200,255,0.35)"/>
-                  <rect x="451" y="166" width="5" height="3" fill="rgba(255,220,100,0.4)"/>
-                  <rect x="460" y="174" width="5" height="3" fill="rgba(255,220,100,0.45)"/>
-                  <rect x="469" y="174" width="5" height="3" fill="rgba(0,200,255,0.35)"/>
-
-                  <!-- ── GROUND LEVEL ── -->
-                  <rect x="0" y="268" width="520" height="32" fill="url(#gnd)"/>
-                  <!-- Road markings -->
-                  <rect x="0" y="272" width="520" height="1" fill="rgba(255,130,0,0.15)"/>
-                  <!-- Street lights glow pools -->
-                  <ellipse cx="100" cy="270" rx="30" ry="8" fill="rgba(255,160,30,0.1)"/>
-                  <ellipse cx="260" cy="270" rx="40" ry="8" fill="rgba(255,160,30,0.08)"/>
-                  <ellipse cx="420" cy="270" rx="30" ry="8" fill="rgba(255,160,30,0.1)"/>
-                  <!-- Street light poles -->
-                  <rect x="99" y="248" width="2" height="22" fill="rgba(200,200,200,0.2)"/>
-                  <rect x="259" y="248" width="2" height="22" fill="rgba(200,200,200,0.2)"/>
-                  <rect x="419" y="248" width="2" height="22" fill="rgba(200,200,200,0.2)"/>
-                  <circle cx="100" cy="248" r="3" fill="rgba(255,200,80,0.6)" filter="url(#blur1)"/>
-                  <circle cx="260" cy="248" r="3" fill="rgba(255,200,80,0.6)" filter="url(#blur1)"/>
-                  <circle cx="420" cy="248" r="3" fill="rgba(255,200,80,0.6)" filter="url(#blur1)"/>
-
-                  <!-- ── REFLECTIONS IN WATER/GROUND ── -->
-                  <rect x="0" y="269" width="520" height="31" fill="rgba(0,30,80,0.3)"/>
-                  <!-- Burj reflection -->
-                  <line x1="197" y1="270" x2="193" y2="300" stroke="rgba(0,160,255,0.12)" stroke-width="6"/>
-                  <!-- Other tower reflections -->
-                  <line x1="280" y1="270" x2="276" y2="300" stroke="rgba(80,40,200,0.1)" stroke-width="4"/>
-                  <line x1="370" y1="270" x2="367" y2="300" stroke="rgba(0,140,255,0.1)" stroke-width="3"/>
-
-                  <!-- ── CYAN CITY GLOW on horizon ── -->
-                  <ellipse cx="197" cy="268" rx="80" ry="18" fill="rgba(0,120,255,0.1)" filter="url(#blur2)"/>
-                  <ellipse cx="280" cy="268" rx="60" ry="15" fill="rgba(80,0,220,0.1)" filter="url(#blur2)"/>
-                  <ellipse cx="370" cy="268" rx="50" ry="14" fill="rgba(0,100,255,0.08)" filter="url(#blur2)"/>
-
-                  <!-- Animated window blinks (CSS animated) -->
-                  <rect class="win" x="193" y="92" width="3" height="2" fill="rgba(255,220,100,0.8)" style="animation-duration:3.1s;animation-delay:0s"/>
-                  <rect class="win" x="277" y="98" width="3" height="2" fill="rgba(0,220,255,0.8)" style="animation-duration:2.7s;animation-delay:0.5s"/>
-                  <rect class="win" x="366" y="102" width="3" height="2" fill="rgba(255,200,80,0.8)" style="animation-duration:4.2s;animation-delay:1s"/>
-                  <rect class="win" x="121" y="147" width="3" height="2" fill="rgba(0,220,255,0.7)" style="animation-duration:3.8s;animation-delay:0.3s"/>
-                  <rect class="win" x="402" y="118" width="3" height="2" fill="rgba(255,220,100,0.75)" style="animation-duration:2.4s;animation-delay:0.8s"/>
-                </svg>
-
-                </div><!-- /hidden old SVG -->
-
-                <!-- Play button -->
-                <div class="play-btn"><div class="play-tri"></div></div>
-
-                <!-- Ad badge top -->
-                <div class="screen-bar">
-                    <span class="screen-tag">AD</span>
-                    <span class="screen-tag" style="color:rgba(201,168,76,0.9);border-color:rgba(0,180,216,0.25)">SUPERADPRO CAMPAIGN</span>
-                    <div class="screen-live"><div class="live-dot"></div>LIVE</div>
-                </div>
-
-                <!-- Progress bar bottom -->
-                <div class="screen-bottom">
-                    <div class="progress-bar"><div class="progress-fill"></div></div>
-                    <div class="screen-info">
-                        <span class="screen-title">EcoTech Product Launch 2026</span>
-                        <span class="screen-views">👁 128,450 views</span>
+            <div class="ad-screen" style="position:relative;overflow:hidden;border-radius:12px;border:1.5px solid rgba(0,180,216,0.3);box-shadow:0 0 40px rgba(0,180,216,0.15),0 0 80px rgba(0,180,216,0.05)">
+                <video id="heroVideo"
+                       poster="/static/video/welcome-poster.jpg"
+                       preload="metadata"
+                       playsinline
+                       style="width:100%;height:100%;object-fit:cover;display:block;border-radius:11px">
+                    <source src="/static/video/welcome.mp4" type="video/mp4">
+                </video>
+                <!-- Custom play overlay -->
+                <div id="videoPlayOverlay" onclick="document.getElementById('heroVideo').play();this.style.display='none'" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(5,13,26,0.35);transition:background 0.3s">
+                    <div style="width:72px;height:72px;border-radius:50%;background:rgba(0,180,216,0.85);display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(0,180,216,0.5),0 0 60px rgba(0,180,216,0.2);transition:transform 0.2s,box-shadow 0.2s" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 40px rgba(0,180,216,0.7),0 0 80px rgba(0,180,216,0.3)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 0 30px rgba(0,180,216,0.5),0 0 60px rgba(0,180,216,0.2)'">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
                     </div>
                 </div>
+                <!-- Minimal bottom bar -->
+                <div id="videoBottomBar" style="position:absolute;bottom:0;left:0;right:0;padding:8px 14px;background:linear-gradient(transparent,rgba(5,13,26,0.8));display:flex;align-items:center;gap:10px;opacity:0;transition:opacity 0.3s;pointer-events:none">
+                    <span style="font-size:11px;color:rgba(255,255,255,0.7);font-family:monospace;letter-spacing:1px">SUPERADPRO WELCOME</span>
+                    <div style="flex:1;height:3px;background:rgba(255,255,255,0.15);border-radius:2px;overflow:hidden"><div id="videoProgress" style="height:100%;width:0%;background:linear-gradient(90deg,#0ea5e9,#38bdf8);border-radius:2px;transition:width 0.3s"></div></div>
+                </div>
             </div>
-        </div>
             <div class="monitor-stand"></div>
             <div class="monitor-base"></div>
         </div>
+        <script>
+        (function(){
+            var v=document.getElementById('heroVideo'),
+                o=document.getElementById('videoPlayOverlay'),
+                b=document.getElementById('videoBottomBar'),
+                p=document.getElementById('videoProgress');
+            v.addEventListener('play',function(){o.style.display='none';b.style.opacity='1';b.style.pointerEvents='auto'});
+            v.addEventListener('pause',function(){o.style.display='flex';b.style.opacity='0'});
+            v.addEventListener('ended',function(){o.style.display='flex';b.style.opacity='0';p.style.width='0%'});
+            v.addEventListener('timeupdate',function(){if(v.duration){p.style.width=(v.currentTime/v.duration*100)+'%'}});
+            v.addEventListener('click',function(){if(v.paused){v.play()}else{v.pause()}});
+        })();
+        </script>
 
         <!-- Right column: 2 cards stacked -->
         <div class="metric-col">
