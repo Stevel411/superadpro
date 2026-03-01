@@ -263,6 +263,9 @@
 
 @media(max-width:500px){}
 
+/* === TICKER ANIMATION === */
+@keyframes missionTicker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
 /* === MODAL STYLES === */
 .m-overlay{position:fixed;inset:0;background:rgba(2,6,18,0.88);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.2s ease}
 .m-overlay.open{opacity:1;pointer-events:all}
@@ -1323,6 +1326,144 @@
 
 </section>
 <!-- ═══════════════════════════════════════════════════════════ -->
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- THE PEOPLE'S PLATFORM — MISSION SECTION                    -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div style="max-width:1100px;margin:0 auto;padding:0 40px"><div style="height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,248,0.15),transparent)"></div></div>
+
+<section style="padding:80px 40px;max-width:1100px;margin:0 auto">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center">
+
+    <!-- LEFT: The Message -->
+    <div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(56,189,248,0.6);margin-bottom:16px">Our Mission</div>
+      <h2 style="font-family:Sora,sans-serif;font-size:clamp(26px,3.5vw,40px);font-weight:800;color:#ffffff;line-height:1.15;margin-bottom:20px">
+        Built for People.<br>
+        <span style="background:linear-gradient(135deg,#38bdf8,#7c9fff,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">The People's Platform.</span>
+      </h2>
+      <p style="font-size:15px;color:rgba(200,220,255,0.55);line-height:1.75;margin-bottom:28px">
+        We created SuperAdPro with a simple belief: that ordinary people deserve genuine opportunities to build additional income — especially in difficult and uncertain times. Not hype. Not false promises. A real platform with real tools, transparent earnings, and a community where 95% of every dollar flows back to the members who make it work.
+      </p>
+
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:flex-start;gap:14px">
+          <div style="width:36px;height:36px;border-radius:8px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🔓</div>
+          <div style="font-size:14px;color:rgba(200,220,255,0.5);line-height:1.6"><strong style="color:rgba(200,220,255,0.8)">Low barrier to entry.</strong> A $20 membership unlocks everything — AI marketing tools, three income streams, and a global community. No upsells. No hidden tiers.</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:14px">
+          <div style="width:36px;height:36px;border-radius:8px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🤝</div>
+          <div style="font-size:14px;color:rgba(200,220,255,0.5);line-height:1.6"><strong style="color:rgba(200,220,255,0.8)">Built to share, not to hoard.</strong> 95% of all revenue is paid out to members. The platform keeps just 5% to run. This isn't a company extracting from its users — it's a system designed to distribute.</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:14px">
+          <div style="width:36px;height:36px;border-radius:8px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🛠️</div>
+          <div style="font-size:14px;color:rgba(200,220,255,0.5);line-height:1.6"><strong style="color:rgba(200,220,255,0.8)">Tools that do the heavy lifting.</strong> Not everyone knows how to market. That's why every member gets AI-powered tools to find their niche, write content, build funnels and launch campaigns — no experience needed.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: People Visual -->
+    <div>
+
+      <!-- Photo Collage Grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:10px;margin-bottom:20px;position:relative">
+        <!-- Fade overlay -->
+        <div style="position:absolute;inset:0;border-radius:16px;background:linear-gradient(180deg,transparent 50%,rgba(5,13,26,0.9) 100%);pointer-events:none;z-index:1"></div>
+
+        <div style="border-radius:12px;overflow:hidden;position:relative;aspect-ratio:1">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face" alt="Member" style="width:100%;height:100%;object-fit:cover;filter:brightness(0.85) saturate(0.9)">
+          <span style="position:absolute;bottom:6px;left:6px;font-size:14px;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);border-radius:4px;padding:2px 5px;z-index:2">🇳🇬</span>
+        </div>
+        <div style="border-radius:12px;overflow:hidden;position:relative;grid-row:1/3">
+          <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&h=600&fit=crop&crop=face" alt="Member" style="width:100%;height:100%;object-fit:cover;filter:brightness(0.85) saturate(0.9)">
+          <span style="position:absolute;bottom:6px;left:6px;font-size:14px;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);border-radius:4px;padding:2px 5px;z-index:2">🇬🇧</span>
+        </div>
+        <div style="border-radius:12px;overflow:hidden;position:relative;aspect-ratio:1">
+          <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=300&fit=crop&crop=face" alt="Member" style="width:100%;height:100%;object-fit:cover;filter:brightness(0.85) saturate(0.9)">
+          <span style="position:absolute;bottom:6px;left:6px;font-size:14px;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);border-radius:4px;padding:2px 5px;z-index:2">🇧🇷</span>
+        </div>
+        <div style="border-radius:12px;overflow:hidden;position:relative;aspect-ratio:1">
+          <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&h=300&fit=crop&crop=face" alt="Member" style="width:100%;height:100%;object-fit:cover;filter:brightness(0.85) saturate(0.9)">
+          <span style="position:absolute;bottom:6px;left:6px;font-size:14px;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);border-radius:4px;padding:2px 5px;z-index:2">🇮🇳</span>
+        </div>
+        <div style="border-radius:12px;overflow:hidden;position:relative;aspect-ratio:1">
+          <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop&crop=face" alt="Member" style="width:100%;height:100%;object-fit:cover;filter:brightness(0.85) saturate(0.9)">
+          <span style="position:absolute;bottom:6px;left:6px;font-size:14px;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);border-radius:4px;padding:2px 5px;z-index:2">🇺🇸</span>
+        </div>
+      </div>
+
+      <!-- Avatar stack + text overlay -->
+      <div style="position:relative;z-index:2;margin-top:-40px;display:flex;align-items:center;gap:14px;padding:0 12px">
+        <div style="display:flex;flex-shrink:0">
+          <div style="width:38px;height:38px;border-radius:50%;border:2px solid #050d1a;overflow:hidden"><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover" alt=""></div>
+          <div style="width:38px;height:38px;border-radius:50%;border:2px solid #050d1a;overflow:hidden;margin-left:-10px"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover" alt=""></div>
+          <div style="width:38px;height:38px;border-radius:50%;border:2px solid #050d1a;overflow:hidden;margin-left:-10px"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&h=80&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover" alt=""></div>
+          <div style="width:38px;height:38px;border-radius:50%;border:2px solid #050d1a;overflow:hidden;margin-left:-10px"><img src="https://images.unsplash.com/photo-1552058544-f2b08422138a?w=80&h=80&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover" alt=""></div>
+          <div style="width:38px;height:38px;border-radius:50%;border:2px solid #050d1a;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;margin-left:-10px">+</div>
+        </div>
+        <div style="font-size:13px;color:rgba(200,220,255,0.6);line-height:1.4">
+          <strong style="color:#38bdf8;font-weight:700">Members from 100+ countries</strong><br>
+          building income on their own terms
+        </div>
+      </div>
+
+      <!-- Quote card -->
+      <div style="background:rgba(5,13,26,0.8);border:1px solid rgba(56,189,248,0.12);border-radius:16px;padding:24px;margin-top:20px">
+        <div style="font-size:14px;font-style:italic;color:rgba(200,220,255,0.55);line-height:1.7;margin-bottom:8px">"This platform exists because we believe the people who create value should be the ones who capture it. Not venture capitalists. Not platform owners. The people."</div>
+        <div style="font-size:11px;font-weight:700;color:rgba(56,189,248,0.6);letter-spacing:0.5px">— SuperAdPro Founding Vision</div>
+      </div>
+
+      <!-- Stats row -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px">
+        <div style="background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.08);border-radius:10px;padding:12px 8px;text-align:center">
+          <div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#38bdf8;margin-bottom:2px">95%</div>
+          <div style="font-size:9px;color:rgba(200,220,255,0.35);line-height:1.3">Revenue to<br>members</div>
+        </div>
+        <div style="background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.08);border-radius:10px;padding:12px 8px;text-align:center">
+          <div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#38bdf8;margin-bottom:2px">$20</div>
+          <div style="font-size:9px;color:rgba(200,220,255,0.35);line-height:1.3">Unlocks<br>everything</div>
+        </div>
+        <div style="background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.08);border-radius:10px;padding:12px 8px;text-align:center">
+          <div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#38bdf8;margin-bottom:2px">9</div>
+          <div style="font-size:9px;color:rgba(200,220,255,0.35);line-height:1.3">AI tools<br>included</div>
+        </div>
+        <div style="background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.08);border-radius:10px;padding:12px 8px;text-align:center">
+          <div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#38bdf8;margin-bottom:2px">3</div>
+          <div style="font-size:9px;color:rgba(200,220,255,0.35);line-height:1.3">Income<br>streams</div>
+        </div>
+      </div>
+
+      <!-- Country flags ticker -->
+      <div style="display:flex;gap:6px;margin-top:16px;overflow:hidden;position:relative">
+        <div style="position:absolute;right:0;top:0;bottom:0;width:60px;background:linear-gradient(90deg,transparent,#050d1a);pointer-events:none;z-index:1"></div>
+        <div style="display:flex;gap:6px;animation:missionTicker 20s linear infinite">
+          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.08);border-radius:6px;padding:5px 10px;font-size:11px;color:rgba(200,220,255,0.4)">🇬🇧 United Kingdom</span>
+          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.08);border-radius:6px;padding:5px 10px;font-size:11px;color:rgba(200,220,255,0.4)">🇳🇬 Nigeria</span>
+          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.08);border-radius:6px;padding:5px 10px;font-size:11px;color:rgba(200,220,255,0.4)">🇺🇸 United States</span>
+          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.08);border-radius:6px;padding:5px 10px;font-size:11px;color:rgba(200,220,255,0.4)">🇮🇳 India</span>
+          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.08);border-radius:6px;padding:5px 10px;font-size:11px;color:rgba(200,220,255,0.4)">🇧🇷 Brazil</span>
+          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.08);border-radius:6px;padding:5px 10px;font-size:11px;color:rgba(200,220,255,0.4)">🇿🇦 South Africa</span>
+          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.08);border-radius:6px;padding:5px 10px;font-size:11px;color:rgba(200,220,255,0.4)">🇵🇭 Philippines</span>
+          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.08);border-radius:6px;padding:5px 10px;font-size:11px;color:rgba(200,220,255,0.4)">🇰🇪 Kenya</span>
+          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.08);border-radius:6px;padding:5px 10px;font-size:11px;color:rgba(200,220,255,0.4)">🇦🇺 Australia</span>
+          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.08);border-radius:6px;padding:5px 10px;font-size:11px;color:rgba(200,220,255,0.4)">🇩🇪 Germany</span>
+          <!-- Duplicate for seamless loop -->
+          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.08);border-radius:6px;padding:5px 10px;font-size:11px;color:rgba(200,220,255,0.4)">🇬🇧 United Kingdom</span>
+          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.08);border-radius:6px;padding:5px 10px;font-size:11px;color:rgba(200,220,255,0.4)">🇳🇬 Nigeria</span>
+          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.08);border-radius:6px;padding:5px 10px;font-size:11px;color:rgba(200,220,255,0.4)">🇺🇸 United States</span>
+          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.08);border-radius:6px;padding:5px 10px;font-size:11px;color:rgba(200,220,255,0.4)">🇮🇳 India</span>
+          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.08);border-radius:6px;padding:5px 10px;font-size:11px;color:rgba(200,220,255,0.4)">🇧🇷 Brazil</span>
+          <span style="flex-shrink:0;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.03);border:1px solid rgba(56,189,248,0.08);border-radius:6px;padding:5px 10px;font-size:11px;color:rgba(200,220,255,0.4)">🇿🇦 South Africa</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<div style="max-width:1100px;margin:0 auto;padding:0 40px"><div style="height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,248,0.15),transparent)"></div></div>
 
 <!-- CTA SECTION -->
 <section style="text-align:center;padding:70px 40px 40px">
