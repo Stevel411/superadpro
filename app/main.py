@@ -302,6 +302,10 @@ def campaign_tiers(request: Request, user: User = Depends(get_current_user),
 def faq(request: Request):
     return templates.TemplateResponse("faq.html", {"request": request})
 
+@app.get("/support-public")
+def support_public(request: Request):
+    return templates.TemplateResponse("support.html", {"request": request})
+
 @app.get("/support")
 def support_get(request: Request, user: User = Depends(get_current_user)):
     ctx = {"request": request}
