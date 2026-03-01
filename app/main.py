@@ -241,6 +241,19 @@ def home(request: Request):
 def how_it_works(request: Request):
     return templates.TemplateResponse("how-it-works.html", {"request": request, "join_url": get_join_url()})
 
+@app.get("/affiliates")
+def affiliates_public(request: Request):
+    ctx = {
+        "request": request,
+        "GRID_PACKAGES": GRID_PACKAGES,
+        "GRID_TOTAL": GRID_TOTAL,
+        "OWNER_PCT": OWNER_PCT,
+        "UPLINE_PCT": UPLINE_PCT,
+        "LEVEL_PCT": LEVEL_PCT,
+        "COMPANY_PCT": COMPANY_PCT,
+    }
+    return templates.TemplateResponse("compensation-plan.html", ctx)
+
 @app.get("/compensation-plan")
 def compensation_plan(request: Request, user: User = Depends(get_current_user)):
     ctx = {
