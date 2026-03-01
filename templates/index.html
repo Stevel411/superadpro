@@ -12,7 +12,7 @@
         /* Background */
         .bg{display:none}
         .grid{display:none}
-        .particle { position:fixed; border-radius:50%; pointer-events:none; z-index:2; opacity:0; animation:floatUp linear infinite; }
+        .particle { position:fixed; border-radius:50%; pointer-events:none; z-index:1; opacity:0; animation:floatUp linear infinite; }
         @keyframes floatUp { 0%{transform:translateY(100vh);opacity:0} 10%{opacity:0.8} 85%{opacity:0.4} 100%{transform:translateY(-5vh);opacity:0} }
 
         /* Hamburger + Mobile Menu */
@@ -452,7 +452,7 @@
     </div>
 
     <!-- WELCOME VIDEO — FULL WIDTH -->
-    <div class="ad-stage" style="max-width:960px">
+    <div class="ad-stage" style="max-width:960px;position:relative;z-index:3">
         <div class="ad-screen-wrap" style="width:100%">
             <div class="ad-screen" style="position:relative;z-index:3;overflow:hidden;border-radius:14px;border:1.5px solid rgba(0,180,216,0.3);box-shadow:0 0 50px rgba(0,180,216,0.2),0 0 100px rgba(0,180,216,0.06);width:100%;height:auto;aspect-ratio:16/9">
                 <video id="heroVideo"
