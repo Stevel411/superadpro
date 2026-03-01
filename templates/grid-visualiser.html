@@ -388,7 +388,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
         </div>
         <div class="legend-item">
           <div class="legend-swatch" style="background:#3b82f6;opacity:0.8"></div>
-          Upline overspill · you earn $<span id="legendOverspill">8.75</span>
+          Upline overspill · you earn $<span id="legendOverspill">6.88</span> avg
         </div>
       </div>
     </div>
@@ -428,7 +428,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
         <div class="earn-left">
           <div class="earn-dot" style="background:#10b981"></div>
           <div>
-            <div class="earn-label">Direct Sponsor (25%)</div>
+            <div class="earn-label">Direct Sponsor (40%)</div>
             <div class="earn-sub">$<span id="directPerSeat">25.00</span> · your personal referrals only</div>
           </div>
         </div>
@@ -439,8 +439,8 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
         <div class="earn-left">
           <div class="earn-dot" style="background:#38bdf8"></div>
           <div>
-            <div class="earn-label">Uni-Level (8.75%)</div>
-            <div class="earn-sub">$<span id="uniPerSeat">8.75</span> · every seat, direct or overspill</div>
+            <div class="earn-label">Uni-Level (avg 6.88%)</div>
+            <div class="earn-sub">$<span id="uniPerSeat">6.88</span> avg · every seat, direct or overspill</div>
           </div>
         </div>
         <div class="earn-amount" id="uniAmt" style="color:#38bdf8">$0.00</div>
@@ -470,7 +470,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
         </div>
         <div class="split-item">
           <div class="split-swatch" style="background:linear-gradient(135deg,#3b82f6,#38bdf8)"></div>
-          Uni-Level (8 levels × $<span id="sp2lvl">8.75</span>)
+          Uni-Level (8 levels × $<span id="sp2lvl">6.88</span> avg)
           <span class="split-pct" id="sp2" style="color:#38bdf8">$70.00</span>
         </div>
       </div>
@@ -556,9 +556,9 @@ function updateDirectCount(val) {
 }
 
 function updateSplitDisplay() {
-  const direct   = pkg * 0.25;
-  const perLevel = pkg * 0.70 / 8;
-  const uniTotal = pkg * 0.70;
+  const direct   = pkg * 0.40;
+  const perLevel = pkg * 0.55 / 8; // avg uni-level (55% / 8 levels)
+  const uniTotal = pkg * 0.55;
   const overspill = 63 - directCount;
   // Your earnings: each direct = direct+perLevel, each overspill = perLevel
   const est = (directCount * (direct + perLevel)) + (overspill * perLevel);
@@ -637,17 +637,17 @@ function fillNext() {
   const cell     = cells[filled];
   const level    = Math.floor((filled - 1) / 8);  // 0 = L1 … 7 = L8
   const isDirect = directSeats.has(filled);
-  const perLevel = pkg * 0.70 / 8;   // $8.75 on $100
+  const perLevel = pkg * 0.55 / 8; // avg uni-level (55% / 8 levels)   
 
   // ── COMMISSION LOGIC ──────────────────────────────────────────────────
-  // Every seat pays you ONE uni-level position ($8.75 on $100).
+  // Uni-level commissions vary by level (15% down to 3%).
   // If this seat is YOUR personal direct referral, you also receive
-  // the 25% direct sponsor commission ($25 on $100).
+  // the 40% direct sponsor commission ($40 on $100).
   // ─────────────────────────────────────────────────────────────────────
   let youEarn = perLevel;
   if (isDirect) {
-    tSponsor += pkg * 0.25;
-    youEarn  += pkg * 0.25;
+    tSponsor += pkg * 0.40;
+    youEarn  += pkg * 0.40;
     directFilled++;
   }
   tUni      += perLevel;

@@ -387,7 +387,7 @@ footer a{color:#6b7d94;text-decoration:none}
         <span class="stream-icon">⚡</span>
         <div class="stream-title">Profit Engine Grid</div>
         <div class="stream-desc">Activate an campaign tier ($20–$1,000 USDT) and earn through a direct sponsor commission plus an 8-level uni-level chain — paid instantly every time anyone in your network activates a tier.</div>
-        <div class="stream-highlight sh-cyan">25% direct + 70% uni-level (8 levels)</div>
+        <div class="stream-highlight sh-cyan">40% direct + 55% uni-level (8 levels)</div>
         <br><span class="tag-live">● Live Now</span>
       </div>
       <!-- Stream 3 -->
@@ -481,7 +481,7 @@ footer a{color:#6b7d94;text-decoration:none}
         <div class="comm-item" style="border-color:rgba(124,58,237,0.15)">
           <div class="comm-pct" style="background:linear-gradient(135deg,#3b82f6,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">70%</div>
           <div class="comm-who">Uni-Level Chain (8 Levels)</div>
-          <div class="comm-when">$8.75 paid instantly to each of the 8 sponsors above the new member</div>
+          <div class="comm-when">Variable % paid instantly to each of the 8 sponsors above the new member (15% down to 3%)</div>
           <div class="comm-eg" style="background:rgba(124,58,237,0.08);color:#38bdf8">$8.75 per level on $100</div>
         </div>
       </div>
@@ -495,41 +495,41 @@ footer a{color:#6b7d94;text-decoration:none}
         <div class="entry-left">
           <div class="entry-dot" style="background:#10b981"></div>
           <div>
-            <div class="entry-label">Direct Sponsor Commission (25%)</div>
+            <div class="entry-label">Direct Sponsor Commission (40%)</div>
             <div class="entry-detail">Paid to the person who personally referred the new member</div>
           </div>
         </div>
-        <div style="text-align:right"><div class="entry-amount" style="color:#10b981">$25.00</div><div class="entry-timing">Instant ✓</div></div>
+        <div style="text-align:right"><div class="entry-amount" style="color:#10b981">$40.00</div><div class="entry-timing">Instant ✓</div></div>
       </div>
       <div class="entry-row">
         <div class="entry-left">
           <div class="entry-dot" style="background:#3b82f6"></div>
           <div>
-            <div class="entry-label">Level 1 Uni-Level (8.75%)</div>
+            <div class="entry-label">Level 1 Uni-Level (15%)</div>
             <div class="entry-detail">One level above the new member's sponsor</div>
           </div>
         </div>
-        <div style="text-align:right"><div class="entry-amount" style="color:#3b82f6">$8.75</div><div class="entry-timing">Instant ✓</div></div>
+        <div style="text-align:right"><div class="entry-amount" style="color:#3b82f6">$15.00</div><div class="entry-timing">Instant ✓</div></div>
       </div>
       <div class="entry-row">
         <div class="entry-left">
           <div class="entry-dot" style="background:#6366f1"></div>
           <div>
-            <div class="entry-label">Level 2 Uni-Level (8.75%)</div>
+            <div class="entry-label">Level 2 Uni-Level (10%)</div>
             <div class="entry-detail">Two levels above the new member</div>
           </div>
         </div>
-        <div style="text-align:right"><div class="entry-amount" style="color:#6366f1">$8.75</div><div class="entry-timing">Instant ✓</div></div>
+        <div style="text-align:right"><div class="entry-amount" style="color:#6366f1">$10.00</div><div class="entry-timing">Instant ✓</div></div>
       </div>
       <div class="entry-row">
         <div class="entry-left">
           <div class="entry-dot" style="background:#38bdf8"></div>
           <div>
-            <div class="entry-label">Levels 3 – 8 Uni-Level (8.75% each)</div>
-            <div class="entry-detail">Each of the remaining 6 upline levels receives $8.75 instantly</div>
+            <div class="entry-label">Levels 3–8 Uni-Level (8%→3%)</div>
+            <div class="entry-detail">Remaining 6 levels: 8%, 6%, 5%, 4%, 4%, 3% — $30 total</div>
           </div>
         </div>
-        <div style="text-align:right"><div class="entry-amount" style="color:#38bdf8">$8.75 × 6</div><div class="entry-timing">Instant ✓</div></div>
+        <div style="text-align:right"><div class="entry-amount" style="color:#38bdf8">$30.00</div><div class="entry-timing">Instant ✓</div></div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid rgba(0,212,255,0.12)">
         <div style="font-size:19px;font-weight:700;color:#64748b">Distributed to Network</div>
@@ -571,7 +571,7 @@ footer a{color:#6b7d94;text-decoration:none}
           {% endfor %}
           <tr style="background:rgba(0,212,255,0.03);border-top:1px solid rgba(0,212,255,0.1)">
             <td style="color:#38bdf8;font-weight:700">Direct (25%)</td>
-            {% for p in pkgs %}<td style="color:#38bdf8">${{ '%.2f'|format(p * 0.25) }}</td>{% endfor %}
+            {% for p in pkgs %}<td style="color:#38bdf8">${{ '%.2f'|format(p * 0.40) }}</td>{% endfor %}
           </tr>
         </tbody>
       </table>
@@ -1154,8 +1154,8 @@ async function doRegister(e) {
     {name:'Legend',   price:1000, color:'#f97316'}
   ];
   var SEATS = 63;
-  var PER_LEVEL_PCT = 0.0875;  // 8.75% — what you earn per entry as one level in the chain
-  var DIRECT_PCT = 0.25;
+  var LEVEL_PCTS = [0.15, 0.10, 0.08, 0.06, 0.05, 0.04, 0.04, 0.03]; // variable per level
+  var DIRECT_PCT = 0.40;
   var MEMBERSHIP = 20;
   var activeTiers = [true,true,true,true,true,false,false,false]; // first 5 on by default
 
@@ -1213,12 +1213,12 @@ async function doRegister(e) {
     TIERS.forEach(function(t, i){
       if(!activeTiers[i]) return;
 
-      // Uni-level: you earn 8.75% on each grid entry (your position in the chain)
-      // Per advance: 63 positions × price × 8.75%
+      // Uni-level: variable % per level (15/10/8/6/5/4/4/3) (your position in the chain)
+      // Per advance: 63 positions × price × variable level %
       var uniLevelPerAdvance = SEATS * t.price * PER_LEVEL_PCT;
       var uniLevelTotal = uniLevelPerAdvance * advances;
 
-      // Direct sponsor: 25% on people YOU personally referred
+      // Direct sponsor: 40% on people YOU personally referred
       // Capped at 63 per advance (can't have more referrals than seats)
       var directPerAdvance = Math.min(referrals, SEATS) * t.price * DIRECT_PCT;
       var directTotal = directPerAdvance * advances;

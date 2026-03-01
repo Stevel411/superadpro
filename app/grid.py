@@ -2,8 +2,8 @@
 # SuperAdPro — 8×8 Recurring Profit Engine Grid
 #
 # Commission Architecture (Stream 2):
-#   25% → Direct Sponsor   (person who personally referred the entrant)
-#   70% → Uni-Level Pool   (8.75% × 8 levels in the entrant's upline chain)
+#   40% → Direct Sponsor   (person who personally referred the entrant)
+#   55% → Uni-Level Pool   (variable % across 8 levels: 15/10/8/6/5/4/4/3)
 #    5% → Platform Fee     (SuperAdPro)
 #
 # Commissions paid per seat fill — no waiting for grid completion.
@@ -104,13 +104,13 @@ def place_member_in_grid(
 
 
 def _pay_direct_sponsor(db: Session, grid: Grid, member_id: int, price: float):
-    """25% to the member's personal sponsor."""
+    """40% to the member's personal sponsor."""
     member = db.query(User).filter(User.id == member_id).first()
     amount = round(float(price) * DIRECT_PCT, 6)
 
     if not member or not member.sponsor_id:
         _record_commission(db, grid, None, amount, "direct_sponsor",
-                           f"No sponsor — 25% platform absorb on ${price}")
+                           f"No sponsor — 40% platform absorb on ${price}")
         return
 
     sponsor = db.query(User).filter(User.id == member.sponsor_id).first()
@@ -120,20 +120,25 @@ def _pay_direct_sponsor(db: Session, grid: Grid, member_id: int, price: float):
         sponsor.grid_earnings += amount
 
     _record_commission(db, grid, member.sponsor_id, amount, "direct_sponsor",
-                       f"Direct sponsor 25% — member {member_id} on ${price} package")
+                       f"Direct sponsor 40% — member {member_id} on ${price} package")
 
 
 def _pay_unilevel_chain(db: Session, grid: Grid, member_id: int, price: float):
-    """8.75% to each of 8 sponsor chain levels above the new member."""
-    per_level = round(float(price) * PER_LEVEL_PCT, 6)
+    """Variable % to each of 8 sponsor chain levels: 15/10/8/6/5/4/4/3."""
+    from .database import LEVEL_PCTS
     current_id = member_id
 
     for lvl in range(1, GRID_LEVELS + 1):
+        level_pct = LEVEL_PCTS[lvl - 1]  # 0-indexed
+        per_level = round(float(price) * level_pct, 6)
+
         current_user = db.query(User).filter(User.id == current_id).first()
         if not current_user or not current_user.sponsor_id:
             # Chain shorter than 8 — absorb remaining into platform
             for remaining in range(lvl, GRID_LEVELS + 1):
-                _record_commission(db, grid, None, per_level, "uni_level",
+                rem_pct = LEVEL_PCTS[remaining - 1]
+                rem_amt = round(float(price) * rem_pct, 6)
+                _record_commission(db, grid, None, rem_amt, "uni_level",
                                    f"Uni-level {remaining} — chain ended, platform absorb")
             break
 
@@ -145,7 +150,7 @@ def _pay_unilevel_chain(db: Session, grid: Grid, member_id: int, price: float):
             upline.level_earnings += per_level
 
         _record_commission(db, grid, upline_id, per_level, "uni_level",
-                           f"Uni-level {lvl} — 8.75% of ${price}")
+                           f"Uni-level {lvl} — {level_pct*100:.0f}% of ${price}")
         current_id = upline_id
 
 

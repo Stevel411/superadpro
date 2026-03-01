@@ -3199,7 +3199,7 @@ ABOUT SUPERADPRO (the platform):
 - SuperAdPro is a video advertising platform with a built-in affiliate income opportunity
 - Membership costs $20/month in USDT (crypto) on Base Chain
 - Members get: AI Campaign Studio, Funnel Builder with AI chatbot, Niche Finder, Swipe File, Campaign Analytics
-- Members earn by: watching daily videos (Watch & Earn), referring others (25% direct commission), and the 8x8 Profit Engine Grid (uni-level commissions)
+- Members earn by: watching daily videos (Watch & Earn), referring others (40% direct commission), and the 8x8 Profit Engine Grid (uni-level commissions)
 - There are 8 campaign tiers from $20 to $1,000 for advertisers who want engaged video views
 - All payments are in USDT on Base Chain (crypto) — fast, transparent, no chargebacks
 - The platform is real with genuine marketing tools, not just a compensation plan
@@ -3236,7 +3236,7 @@ YOUR PERSONALITY & RULES:
         elif any(w in msg_lower for w in ["scam", "legit", "real", "trust", "ponzi"]):
             reply = f"I totally understand the caution — there's a lot of rubbish out there. SuperAdPro is a real platform with genuine marketing tools (AI campaign studio, funnel builder, analytics). The income comes from real video advertising, not just recruitment. The $20 membership gives you tools worth way more than that on their own."
         elif any(w in msg_lower for w in ["earn", "money", "income", "commission"]):
-            reply = f"There are multiple ways to earn: direct referral commissions (25%), uni-level commissions through the 8x8 grid system, and you can use the marketing tools to promote any affiliate offer you like. Results vary based on effort and team building — I won't make any unrealistic promises."
+            reply = f"There are multiple ways to earn: direct referral commissions (40%), uni-level commissions through the 8x8 grid system, and you can use the marketing tools to promote any affiliate offer you like. Results vary based on effort and team building — I won't make any unrealistic promises."
         elif any(w in msg_lower for w in ["join", "sign up", "start", "register", "link"]):
             reply = f"Great to hear you're interested! You can sign up through {owner_name}'s referral link. Membership is $20/month in USDT on Base Chain. You'll get instant access to all the AI tools and can start building straight away. 🚀"
         elif any(w in msg_lower for w in ["hello", "hi", "hey", "sup"]):

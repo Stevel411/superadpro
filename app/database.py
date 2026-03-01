@@ -24,16 +24,19 @@ GRID_LEVELS   = 8      # levels deep
 GRID_TOTAL    = 63     # seats 1-63 (seat 0 = owner, not an entrant)
 
 # ── Commission split (Stream 2 — Profit Engine Grid) ─────────
-# Per entry: 25% direct sponsor + 70% uni-level + 5% platform
-DIRECT_PCT    = 0.25   # 25% → to the person who personally referred the entrant
-UNILEVEL_PCT  = 0.70   # 70% → split across 8 uni-level positions (8.75% each)
-PER_LEVEL_PCT = 0.0875 # 8.75% → each of 8 levels in the upline chain
+# Per entry: 40% direct sponsor + 55% uni-level (variable) + 5% platform
+DIRECT_PCT    = 0.40   # 40% → to the person who personally referred the entrant
+UNILEVEL_PCT  = 0.55   # 55% → split across 8 uni-level positions (variable per level)
+PER_LEVEL_PCT = 0.0875 # legacy — now variable per level, see LEVEL_PCTS
 PLATFORM_PCT  = 0.05   # 5%  → SuperAdPro platform fee
 
-# Legacy aliases (kept for any old references — map to correct values)
-OWNER_PCT     = DIRECT_PCT    # 0.25
-UPLINE_PCT    = UNILEVEL_PCT  # 0.70
-LEVEL_PCT     = PER_LEVEL_PCT # 0.0875
+# Variable uni-level percentages per level (total = 55%)
+LEVEL_PCTS = [0.15, 0.10, 0.08, 0.06, 0.05, 0.04, 0.04, 0.03]
+
+# Legacy aliases
+OWNER_PCT     = DIRECT_PCT    # 0.40
+UPLINE_PCT    = UNILEVEL_PCT  # 0.55
+LEVEL_PCT     = PER_LEVEL_PCT # 0.0875 (legacy compat)
 COMPANY_PCT   = PLATFORM_PCT  # 0.05
 
 # Package prices
