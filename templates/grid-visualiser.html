@@ -388,7 +388,7 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
         </div>
         <div class="legend-item">
           <div class="legend-swatch" style="background:#3b82f6;opacity:0.8"></div>
-          Upline overspill · you earn $<span id="legendOverspill">6.88</span> avg
+          Upline overspill · varies by level
         </div>
       </div>
     </div>
@@ -439,8 +439,8 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
         <div class="earn-left">
           <div class="earn-dot" style="background:#38bdf8"></div>
           <div>
-            <div class="earn-label">Uni-Level (avg 6.88%)</div>
-            <div class="earn-sub">$<span id="uniPerSeat">6.88</span> avg · every seat, direct or overspill</div>
+            <div class="earn-label">Uni-Level (15%→3%)</div>
+            <div class="earn-sub">$<span id="uniPerSeat">6.88</span> avg · varies by level (15%→3%)</div>
           </div>
         </div>
         <div class="earn-amount" id="uniAmt" style="color:#38bdf8">$0.00</div>
@@ -522,6 +522,9 @@ let directSeats = new Set(); // which seat indices (1–63) are directs — rand
 // Running totals
 let tSponsor = 0, tUni = 0;
 
+// Variable uni-level percentages per level (total = 55%)
+const LEVEL_PCTS = [0.15, 0.10, 0.08, 0.06, 0.05, 0.04, 0.04, 0.03];
+
 const LEVEL_COLOURS = [
   '#38bdf8','#3b82f6','#6366f1','#0ea5e9',
   '#0ea5e9','#38bdf8','#b197fc','#c4b5fd'
@@ -557,15 +560,18 @@ function updateDirectCount(val) {
 
 function updateSplitDisplay() {
   const direct   = pkg * 0.40;
-  const perLevel = pkg * 0.55 / 8; // avg uni-level (55% / 8 levels)
   const uniTotal = pkg * 0.55;
+  const avgPerLevel = uniTotal / 8;
   const overspill = 63 - directCount;
-  // Your earnings: each direct = direct+perLevel, each overspill = perLevel
-  const est = (directCount * (direct + perLevel)) + (overspill * perLevel);
+
+  // Estimate earnings: for each direct, you earn direct + the uni-level for that seat's level
+  // For each overspill, you earn only the uni-level for that seat's level
+  // Since directs are random across levels, use average uni-level for estimation
+  const est = (directCount * (direct + avgPerLevel)) + (overspill * avgPerLevel);
 
   document.getElementById('splitPrice').textContent   = pkg.toLocaleString();
   document.getElementById('sp1').textContent          = '$' + direct.toFixed(2);
-  document.getElementById('sp2lvl').textContent       = perLevel.toFixed(2);
+  document.getElementById('sp2lvl').textContent       = avgPerLevel.toFixed(2);
   document.getElementById('sp2').textContent          = '$' + uniTotal.toFixed(2);
   document.getElementById('infoPkg').textContent      = '$' + pkg.toLocaleString();
   document.getElementById('infoDirectCount').textContent  = directCount + ' seats';
@@ -573,9 +579,9 @@ function updateSplitDisplay() {
   document.getElementById('infoMax').textContent      = '$' + est.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById('panelTitle').textContent   = `8×8 GRID — $${pkg.toLocaleString()} PACKAGE`;
   document.getElementById('directPerSeat').textContent = direct.toFixed(2);
-  document.getElementById('uniPerSeat').textContent   = perLevel.toFixed(2);
-  document.getElementById('legendDirect').textContent = (direct + perLevel).toFixed(2);
-  document.getElementById('legendOverspill').textContent = perLevel.toFixed(2);
+  document.getElementById('uniPerSeat').textContent   = avgPerLevel.toFixed(2);
+  document.getElementById('legendDirect').textContent = (direct + avgPerLevel).toFixed(2);
+  document.getElementById('legendOverspill').textContent = avgPerLevel.toFixed(2);
 }
 
 // ── Build grid ─────────────────────────────────────────────────────────────
@@ -637,12 +643,14 @@ function fillNext() {
   const cell     = cells[filled];
   const level    = Math.floor((filled - 1) / 8);  // 0 = L1 … 7 = L8
   const isDirect = directSeats.has(filled);
-  const perLevel = pkg * 0.55 / 8; // avg uni-level (55% / 8 levels)   
+  const levelPct = LEVEL_PCTS[level];             // variable % for this level
+  const perLevel = pkg * levelPct;                 // actual $ for this level
 
   // ── COMMISSION LOGIC ──────────────────────────────────────────────────
-  // Uni-level commissions vary by level (15% down to 3%).
+  // Uni-level commissions vary by level: L1=15%, L2=10%, L3=8%, L4=6%,
+  // L5=5%, L6=4%, L7=4%, L8=3%.
   // If this seat is YOUR personal direct referral, you also receive
-  // the 40% direct sponsor commission ($40 on $100).
+  // the 40% direct sponsor commission.
   // ─────────────────────────────────────────────────────────────────────
   let youEarn = perLevel;
   if (isDirect) {

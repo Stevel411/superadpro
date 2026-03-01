@@ -1230,8 +1230,8 @@
     }
     cells[0].style.background='#38bdf8';
     let filled=1, earnings=0;
-    const pkgPrice=100, ownerPct=0.25;
-    const totalPayout=pkgPrice*64*ownerPct;
+    const pkgPrice=100, ownerPct=0.40;
+    const totalPayout=pkgPrice*63*0.55/8 + pkgPrice*15*0.40; // approx: uni-level on all 63 + direct on ~15
     function fillNext(){
         if(filled>=64){
             setTimeout(()=>{
