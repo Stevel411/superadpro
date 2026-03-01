@@ -4800,3 +4800,7 @@ async def api_course_stats(request: Request, db: Session = Depends(get_db)):
 
     stats = get_user_course_stats(db, user.id)
     return JSONResponse(stats)
+
+@app.get("/page-builder-v2")
+async def page_builder_v2(request: Request):
+    return templates.TemplateResponse("page-builder-v2.html", {"request": request})

@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Page Builder v2 — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --accent:#0ea5e9;--accent-light:#38bdf8;--accent-dark:#0284c7;
+  --bg:#f0f2f8;--surface:#fff;--border:#e2e8f0;
+  --text:#0f172a;--text-mid:#64748b;--text-light:#94a3b8;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── Top Toolbar ── */
+.toolbar{display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 20px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:500}
+.toolbar-left{display:flex;align-items:center;gap:14px}
+.toolbar-left a{display:flex;align-items:center;gap:6px;color:#6b7d94;font-size:13px;font-weight:600;text-decoration:none;padding:6px 12px;border-radius:6px;border:1px solid rgba(148,163,184,0.15);transition:all 0.15s}
+.toolbar-left a:hover{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
+.toolbar-title{display:flex;align-items:center;gap:8px}
+.toolbar-title input{background:transparent;border:none;color:#fff;font-family:inherit;font-size:15px;font-weight:700;width:240px;outline:none;padding:4px 0;border-bottom:1px solid transparent}
+.toolbar-title input:focus{border-bottom-color:rgba(56,189,248,0.4)}
+.toolbar-right{display:flex;align-items:center;gap:8px}
+.tb-btn{font-size:12px;font-weight:700;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.tb-btn-ghost{background:transparent;color:#94a3b8;border:1px solid rgba(148,163,184,0.2)}
+.tb-btn-ghost:hover{color:#fff;border-color:rgba(255,255,255,0.2)}
+.tb-btn-primary{background:linear-gradient(180deg,#38bdf8,#0ea5e9);color:#fff;box-shadow:0 2px 0 #0284c7}
+.tb-btn-primary:hover{transform:translateY(-1px);box-shadow:0 3px 0 #0284c7,0 4px 12px rgba(14,165,233,0.25)}
+.tb-btn-publish{background:linear-gradient(180deg,#22c55e,#16a34a);color:#fff;box-shadow:0 2px 0 #15803d}
+.tb-btn-publish:hover{transform:translateY(-1px);box-shadow:0 3px 0 #15803d,0 4px 12px rgba(22,163,74,0.25)}
+
+/* ── Canvas Area ── */
+.canvas-wrap{display:flex;min-height:calc(100vh - 56px)}
+.canvas{flex:1;max-width:100%;position:relative}
+
+/* ── Add Block Button ── */
+.add-block-bar{padding:20px;text-align:center}
+.add-block-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:var(--surface);border:2px dashed var(--border);border-radius:12px;color:var(--text-mid);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit}
+.add-block-btn:hover{border-color:var(--accent);color:var(--accent);background:#f0f9ff}
+
+/* ── Block Wrapper ── */
+.block{position:relative;transition:box-shadow 0.2s;cursor:pointer}
+.block:hover{box-shadow:inset 0 0 0 2px rgba(14,165,233,0.15)}
+.block.selected{box-shadow:inset 0 0 0 2px var(--accent)}
+
+/* ── Block Floating Actions ── */
+.block-actions{position:absolute;top:-14px;right:16px;display:none;gap:4px;z-index:100;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,0.1)}
+.block.selected .block-actions{display:flex}
+.ba-btn{width:28px;height:28px;border:none;border-radius:6px;background:transparent;color:var(--text-mid);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.1s}
+.ba-btn:hover{background:var(--bg);color:var(--accent)}
+.ba-btn.danger:hover{background:#fef2f2;color:#ef4444}
+
+/* ── Inline Editing ── */
+[contenteditable]{outline:none;cursor:text}
+[contenteditable]:focus{background:rgba(14,165,233,0.03);border-radius:4px}
+[contenteditable]:empty::before{content:attr(data-placeholder);color:var(--text-light);pointer-events:none}
+
+/* ── Block: Hero ── */
+.b-hero{padding:80px 40px;text-align:center;background:linear-gradient(180deg,#0a0a1a 0%,#0f172a 100%);color:#fff}
+.b-hero .hero-eyebrow{font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent-light);margin-bottom:16px}
+.b-hero h1{font-family:Sora,sans-serif;font-size:clamp(32px,5vw,56px);font-weight:800;line-height:1.1;margin-bottom:16px;max-width:700px;margin-left:auto;margin-right:auto}
+.b-hero .hero-sub{font-size:18px;color:rgba(255,255,255,0.6);max-width:560px;margin:0 auto 32px;line-height:1.6}
+.b-hero .hero-cta{display:inline-block;padding:16px 40px;background:linear-gradient(180deg,var(--accent-light),var(--accent));color:#fff;border-radius:12px;font-size:16px;font-weight:700;text-decoration:none;box-shadow:0 4px 0 var(--accent-dark),0 6px 20px rgba(14,165,233,0.3);transition:all 0.2s;cursor:pointer;border:none;font-family:inherit}
+.b-hero .hero-cta:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--accent-dark),0 10px 28px rgba(14,165,233,0.35)}
+
+/* ── Block: Text ── */
+.b-text{padding:60px 40px;max-width:720px;margin:0 auto}
+.b-text h2{font-family:Sora,sans-serif;font-size:28px;font-weight:800;margin-bottom:12px;color:var(--text)}
+.b-text p{font-size:16px;color:var(--text-mid);line-height:1.8}
+
+/* ── Block: Features ── */
+.b-features{padding:60px 40px;background:var(--surface)}
+.b-features h2{font-family:Sora,sans-serif;font-size:28px;font-weight:800;text-align:center;margin-bottom:36px}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:900px;margin:0 auto}
+.feature-card{text-align:center;padding:28px 20px;border:1px solid var(--border);border-radius:14px;background:var(--bg)}
+.feature-icon{font-size:32px;margin-bottom:12px}
+.feature-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.feature-desc{font-size:13px;color:var(--text-mid);line-height:1.6}
+
+/* ── Block: Video ── */
+.b-video{padding:60px 40px;text-align:center;background:var(--bg)}
+.b-video h2{font-family:Sora,sans-serif;font-size:28px;font-weight:800;margin-bottom:24px}
+.video-embed{max-width:680px;margin:0 auto;aspect-ratio:16/9;background:#0a0a1a;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:48px;overflow:hidden;border:1px solid var(--border)}
+.video-embed iframe{width:100%;height:100%;border:none;border-radius:16px}
+
+/* ── Block: Testimonials ── */
+.b-testimonials{padding:60px 40px;background:var(--surface)}
+.b-testimonials h2{font-family:Sora,sans-serif;font-size:28px;font-weight:800;text-align:center;margin-bottom:36px}
+.testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:900px;margin:0 auto}
+.testimonial{padding:24px;border:1px solid var(--border);border-radius:14px;background:var(--bg)}
+.testimonial-stars{color:#f59e0b;font-size:14px;margin-bottom:8px}
+.testimonial-text{font-size:14px;color:var(--text-mid);line-height:1.7;margin-bottom:12px;font-style:italic}
+.testimonial-author{font-size:13px;font-weight:700;color:var(--text)}
+
+/* ── Block: CTA Banner ── */
+.b-cta{padding:60px 40px;text-align:center;background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);color:#fff;position:relative;overflow:hidden}
+.b-cta::before{content:'';position:absolute;top:-30%;right:-10%;width:250px;height:250px;border-radius:50%;background:rgba(255,255,255,0.05);filter:blur(40px)}
+.b-cta h2{font-family:Sora,sans-serif;font-size:32px;font-weight:800;margin-bottom:12px;position:relative}
+.b-cta p{font-size:16px;color:rgba(255,255,255,0.7);margin-bottom:28px;position:relative}
+.b-cta .cta-button{display:inline-block;padding:16px 40px;background:#fff;color:var(--accent);border-radius:12px;font-size:16px;font-weight:700;text-decoration:none;box-shadow:0 4px 0 #e2e8f0,0 6px 20px rgba(0,0,0,0.1);transition:all 0.2s;cursor:pointer;border:none;font-family:inherit}
+
+/* ── Block: Countdown ── */
+.b-countdown{padding:40px;text-align:center;background:#0a0a1a;color:#fff}
+.b-countdown h3{font-size:16px;font-weight:700;color:var(--accent-light);margin-bottom:16px;letter-spacing:2px;text-transform:uppercase}
+.countdown-digits{display:flex;justify-content:center;gap:16px}
+.cd-unit{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px 20px;min-width:80px}
+.cd-num{font-family:Sora,sans-serif;font-size:36px;font-weight:800;color:#fff}
+.cd-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:4px}
+
+/* ── Block: Image ── */
+.b-image{padding:40px;text-align:center}
+.b-image img{max-width:100%;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
+.b-image .img-placeholder{max-width:680px;margin:0 auto;aspect-ratio:16/9;background:var(--bg);border:2px dashed var(--border);border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--text-light);font-size:14px;font-weight:600}
+
+/* ── Block: Spacer ── */
+.b-spacer{height:60px;background:transparent;position:relative}
+.b-spacer::after{content:'⋯ spacer';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:11px;color:var(--text-light);letter-spacing:2px;text-transform:uppercase;opacity:0;transition:opacity 0.2s}
+.b-spacer:hover::after{opacity:1}
+
+/* ── Block: Divider ── */
+.b-divider{padding:20px 40px}
+.b-divider hr{border:none;height:1px;background:var(--border)}
+
+/* ── Add Block Panel ── */
+.add-panel{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center}
+.add-panel.open{display:flex}
+.add-panel-inner{background:var(--surface);border-radius:20px;padding:32px;max-width:640px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+.add-panel-title{font-family:Sora,sans-serif;font-size:20px;font-weight:800;margin-bottom:6px}
+.add-panel-sub{font-size:13px;color:var(--text-mid);margin-bottom:24px}
+.block-options{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.block-opt{padding:20px 16px;border:1px solid var(--border);border-radius:12px;text-align:center;cursor:pointer;transition:all 0.15s;background:var(--bg)}
+.block-opt:hover{border-color:var(--accent);background:#f0f9ff;transform:translateY(-2px)}
+.block-opt-icon{font-size:28px;margin-bottom:8px}
+.block-opt-name{font-size:13px;font-weight:700}
+.block-opt-desc{font-size:11px;color:var(--text-light);margin-top:2px}
+
+/* ── Style Panel (floating) ── */
+.style-panel{position:fixed;top:70px;right:20px;width:260px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 8px 32px rgba(0,0,0,0.1);z-index:400;display:none}
+.style-panel.open{display:block}
+.sp-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.sp-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-mid)}
+.sp-group{margin-bottom:14px}
+.sp-label{font-size:11px;font-weight:700;color:var(--text-mid);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.sp-row{display:flex;gap:6px;flex-wrap:wrap}
+.sp-color{width:28px;height:28px;border-radius:8px;border:2px solid transparent;cursor:pointer;transition:all 0.15s}
+.sp-color:hover,.sp-color.active{border-color:var(--accent);transform:scale(1.15)}
+.sp-input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);outline:none}
+.sp-input:focus{border-color:var(--accent)}
+.sp-select{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);outline:none;background:var(--surface);cursor:pointer}
+</style>
+</head>
+<body>
+
+<!-- ═══ Top Toolbar ═══ -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <a href="/funnels">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+      Pages
+    </a>
+    <div class="toolbar-title">
+      <input type="text" id="pageTitle" value="My Landing Page" placeholder="Page title...">
+    </div>
+  </div>
+  <div class="toolbar-right">
+    <button class="tb-btn tb-btn-ghost" onclick="toggleStylePanel()">🎨 Style</button>
+    <button class="tb-btn tb-btn-ghost" onclick="previewPage()">👁 Preview</button>
+    <button class="tb-btn tb-btn-primary" onclick="savePage('draft')">💾 Save Draft</button>
+    <button class="tb-btn tb-btn-publish" onclick="savePage('published')">🚀 Publish</button>
+  </div>
+</div>
+
+<!-- ═══ Canvas ═══ -->
+<div class="canvas-wrap">
+  <div class="canvas" id="canvas">
+
+    <!-- Default Hero Block -->
+    <div class="block b-hero" data-type="hero" onclick="selectBlock(this)">
+      <div class="block-actions">
+        <button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,-1)" title="Move up">↑</button>
+        <button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,1)" title="Move down">↓</button>
+        <button class="ba-btn" onclick="event.stopPropagation();duplicateBlock(this)" title="Duplicate">⧉</button>
+        <button class="ba-btn" onclick="event.stopPropagation();openBlockStyle(this)" title="Style">🎨</button>
+        <button class="ba-btn danger" onclick="event.stopPropagation();deleteBlock(this)" title="Delete">✕</button>
+      </div>
+      <div class="hero-eyebrow" contenteditable="true" data-placeholder="EYEBROW TEXT">LIMITED TIME OFFER</div>
+      <h1 contenteditable="true" data-placeholder="Your Headline Here">Transform Your Life With This One Simple Strategy</h1>
+      <div class="hero-sub" contenteditable="true" data-placeholder="Subheadline supporting text...">Discover the exact blueprint that helped over 1,000 people achieve financial freedom in less than 90 days.</div>
+      <button class="hero-cta" contenteditable="true" data-placeholder="Button Text">Get Instant Access →</button>
+    </div>
+
+    <!-- Default Features Block -->
+    <div class="block b-features" data-type="features" onclick="selectBlock(this)">
+      <div class="block-actions">
+        <button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,-1)">↑</button>
+        <button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,1)">↓</button>
+        <button class="ba-btn" onclick="event.stopPropagation();duplicateBlock(this)">⧉</button>
+        <button class="ba-btn" onclick="event.stopPropagation();openBlockStyle(this)">🎨</button>
+        <button class="ba-btn danger" onclick="event.stopPropagation();deleteBlock(this)">✕</button>
+      </div>
+      <h2 contenteditable="true" data-placeholder="Section Title">What You'll Get</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon" contenteditable="true">🚀</div>
+          <div class="feature-title" contenteditable="true" data-placeholder="Feature title">Step-by-Step Training</div>
+          <div class="feature-desc" contenteditable="true" data-placeholder="Feature description">Complete video course walking you through every stage from beginner to expert.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" contenteditable="true">💰</div>
+          <div class="feature-title" contenteditable="true" data-placeholder="Feature title">Proven Earning System</div>
+          <div class="feature-desc" contenteditable="true" data-placeholder="Feature description">The same system used by top earners generating consistent income every month.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" contenteditable="true">🤝</div>
+          <div class="feature-title" contenteditable="true" data-placeholder="Feature title">Community Support</div>
+          <div class="feature-desc" contenteditable="true" data-placeholder="Feature description">Join a private group of action-takers who help each other grow and succeed.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Default Video Block -->
+    <div class="block b-video" data-type="video" onclick="selectBlock(this)">
+      <div class="block-actions">
+        <button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,-1)">↑</button>
+        <button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,1)">↓</button>
+        <button class="ba-btn" onclick="event.stopPropagation();duplicateBlock(this)">⧉</button>
+        <button class="ba-btn" onclick="event.stopPropagation();openBlockStyle(this)">🎨</button>
+        <button class="ba-btn danger" onclick="event.stopPropagation();deleteBlock(this)">✕</button>
+      </div>
+      <h2 contenteditable="true" data-placeholder="Section Title">Watch How It Works</h2>
+      <div class="video-embed">
+        <span style="color:rgba(255,255,255,0.3)">📹 Click style → add YouTube URL</span>
+      </div>
+    </div>
+
+    <!-- Default Testimonials Block -->
+    <div class="block b-testimonials" data-type="testimonials" onclick="selectBlock(this)">
+      <div class="block-actions">
+        <button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,-1)">↑</button>
+        <button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,1)">↓</button>
+        <button class="ba-btn" onclick="event.stopPropagation();duplicateBlock(this)">⧉</button>
+        <button class="ba-btn" onclick="event.stopPropagation();openBlockStyle(this)">🎨</button>
+        <button class="ba-btn danger" onclick="event.stopPropagation();deleteBlock(this)">✕</button>
+      </div>
+      <h2 contenteditable="true" data-placeholder="Section Title">What People Are Saying</h2>
+      <div class="testimonials-grid">
+        <div class="testimonial">
+          <div class="testimonial-stars">★★★★★</div>
+          <div class="testimonial-text" contenteditable="true" data-placeholder="Testimonial text...">"This completely changed my approach. Within 30 days I was seeing real results. Highly recommend to anyone serious about making a change."</div>
+          <div class="testimonial-author" contenteditable="true" data-placeholder="Author name">— Sarah M., London</div>
+        </div>
+        <div class="testimonial">
+          <div class="testimonial-stars">★★★★★</div>
+          <div class="testimonial-text" contenteditable="true" data-placeholder="Testimonial text...">"Simple, clear and effective. I wish I'd found this sooner. The community alone is worth 10x the investment."</div>
+          <div class="testimonial-author" contenteditable="true" data-placeholder="Author name">— James T., New York</div>
+        </div>
+        <div class="testimonial">
+          <div class="testimonial-stars">★★★★★</div>
+          <div class="testimonial-text" contenteditable="true" data-placeholder="Testimonial text...">"From zero experience to consistent results in under 60 days. The step-by-step format makes it impossible to fail."</div>
+          <div class="testimonial-author" contenteditable="true" data-placeholder="Author name">— Maria K., Sydney</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Default CTA Block -->
+    <div class="block b-cta" data-type="cta" onclick="selectBlock(this)">
+      <div class="block-actions">
+        <button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,-1)">↑</button>
+        <button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,1)">↓</button>
+        <button class="ba-btn" onclick="event.stopPropagation();duplicateBlock(this)">⧉</button>
+        <button class="ba-btn" onclick="event.stopPropagation();openBlockStyle(this)">🎨</button>
+        <button class="ba-btn danger" onclick="event.stopPropagation();deleteBlock(this)">✕</button>
+      </div>
+      <h2 contenteditable="true" data-placeholder="CTA Headline">Ready to Get Started?</h2>
+      <p contenteditable="true" data-placeholder="Supporting text">Join thousands of people who already made the leap. Your future self will thank you.</p>
+      <button class="cta-button" contenteditable="true" data-placeholder="Button text">Start Now — It's Free →</button>
+    </div>
+
+    <!-- Add Block Button -->
+    <div class="add-block-bar">
+      <button class="add-block-btn" onclick="openAddPanel()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Add Block
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ Add Block Panel ═══ -->
+<div class="add-panel" id="addPanel" onclick="if(event.target===this)closeAddPanel()">
+  <div class="add-panel-inner">
+    <div class="add-panel-title">Add a Block</div>
+    <div class="add-panel-sub">Click any block to add it to your page</div>
+    <div class="block-options">
+      <div class="block-opt" onclick="addBlock('hero')">
+        <div class="block-opt-icon">🎯</div>
+        <div class="block-opt-name">Hero</div>
+        <div class="block-opt-desc">Headline + CTA</div>
+      </div>
+      <div class="block-opt" onclick="addBlock('text')">
+        <div class="block-opt-icon">📝</div>
+        <div class="block-opt-name">Text</div>
+        <div class="block-opt-desc">Heading + paragraph</div>
+      </div>
+      <div class="block-opt" onclick="addBlock('features')">
+        <div class="block-opt-icon">✨</div>
+        <div class="block-opt-name">Features</div>
+        <div class="block-opt-desc">3-column grid</div>
+      </div>
+      <div class="block-opt" onclick="addBlock('video')">
+        <div class="block-opt-icon">📹</div>
+        <div class="block-opt-name">Video</div>
+        <div class="block-opt-desc">YouTube/Vimeo</div>
+      </div>
+      <div class="block-opt" onclick="addBlock('testimonials')">
+        <div class="block-opt-icon">💬</div>
+        <div class="block-opt-name">Testimonials</div>
+        <div class="block-opt-desc">Social proof</div>
+      </div>
+      <div class="block-opt" onclick="addBlock('cta')">
+        <div class="block-opt-icon">🚀</div>
+        <div class="block-opt-name">CTA Banner</div>
+        <div class="block-opt-desc">Call to action</div>
+      </div>
+      <div class="block-opt" onclick="addBlock('countdown')">
+        <div class="block-opt-icon">⏰</div>
+        <div class="block-opt-name">Countdown</div>
+        <div class="block-opt-desc">Urgency timer</div>
+      </div>
+      <div class="block-opt" onclick="addBlock('image')">
+        <div class="block-opt-icon">🖼️</div>
+        <div class="block-opt-name">Image</div>
+        <div class="block-opt-desc">Full-width image</div>
+      </div>
+      <div class="block-opt" onclick="addBlock('spacer')">
+        <div class="block-opt-icon">↕️</div>
+        <div class="block-opt-name">Spacer</div>
+        <div class="block-opt-desc">Empty space</div>
+      </div>
+      <div class="block-opt" onclick="addBlock('divider')">
+        <div class="block-opt-icon">—</div>
+        <div class="block-opt-name">Divider</div>
+        <div class="block-opt-desc">Horizontal line</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Style Panel ═══ -->
+<div class="style-panel" id="stylePanel">
+  <div class="sp-title">
+    Block Style
+    <button class="sp-close" onclick="closeStylePanel()">✕</button>
+  </div>
+
+  <div class="sp-group" id="spBgGroup">
+    <div class="sp-label">Background</div>
+    <div class="sp-row">
+      <div class="sp-color" style="background:#0a0a1a" onclick="setBlockBg('#0a0a1a')"></div>
+      <div class="sp-color" style="background:#0f172a" onclick="setBlockBg('#0f172a')"></div>
+      <div class="sp-color" style="background:#1e293b" onclick="setBlockBg('#1e293b')"></div>
+      <div class="sp-color" style="background:#fff" onclick="setBlockBg('#ffffff')"></div>
+      <div class="sp-color" style="background:#f0f2f8" onclick="setBlockBg('#f0f2f8')"></div>
+      <div class="sp-color" style="background:#0ea5e9" onclick="setBlockBg('#0ea5e9')"></div>
+      <div class="sp-color" style="background:#6366f1" onclick="setBlockBg('#6366f1')"></div>
+      <div class="sp-color" style="background:#16a34a" onclick="setBlockBg('#16a34a')"></div>
+    </div>
+  </div>
+
+  <div class="sp-group" id="spTextColor">
+    <div class="sp-label">Text Colour</div>
+    <div class="sp-row">
+      <div class="sp-color" style="background:#fff" onclick="setBlockTextColor('#fff')"></div>
+      <div class="sp-color" style="background:#0f172a" onclick="setBlockTextColor('#0f172a')"></div>
+      <div class="sp-color" style="background:#64748b" onclick="setBlockTextColor('#64748b')"></div>
+      <div class="sp-color" style="background:#0ea5e9" onclick="setBlockTextColor('#0ea5e9')"></div>
+    </div>
+  </div>
+
+  <div class="sp-group" id="spVideoUrl" style="display:none">
+    <div class="sp-label">Video URL</div>
+    <input type="text" class="sp-input" id="videoUrlInput" placeholder="https://youtube.com/watch?v=..." onchange="setVideoUrl()">
+  </div>
+
+  <div class="sp-group" id="spImageUrl" style="display:none">
+    <div class="sp-label">Image URL</div>
+    <input type="text" class="sp-input" id="imageUrlInput" placeholder="https://example.com/image.jpg" onchange="setImageUrl()">
+  </div>
+
+  <div class="sp-group" id="spCtaUrl" style="display:none">
+    <div class="sp-label">Button Link</div>
+    <input type="text" class="sp-input" id="ctaUrlInput" placeholder="https://..." onchange="setCtaUrl()">
+  </div>
+
+  <div class="sp-group">
+    <div class="sp-label">Padding</div>
+    <select class="sp-select" onchange="setBlockPadding(this.value)">
+      <option value="20px 40px">Compact</option>
+      <option value="40px 40px">Normal</option>
+      <option value="60px 40px" selected>Comfortable</option>
+      <option value="80px 40px">Spacious</option>
+      <option value="100px 40px">Extra Large</option>
+    </select>
+  </div>
+</div>
+
+<!-- ═══ JavaScript ═══ -->
+<script>
+let selectedBlock = null;
+let pageId = null; // set if editing existing page
+
+// ── Block Selection ──
+function selectBlock(el) {
+  if (el.classList.contains('add-block-bar')) return;
+  document.querySelectorAll('.block.selected').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedBlock = el;
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.block') && !e.target.closest('.style-panel') && !e.target.closest('.toolbar')) {
+    document.querySelectorAll('.block.selected').forEach(b => b.classList.remove('selected'));
+    selectedBlock = null;
+  }
+});
+
+// ── Block Actions ──
+function moveBlock(btnEl, dir) {
+  const block = btnEl.closest('.block');
+  const canvas = document.getElementById('canvas');
+  const blocks = Array.from(canvas.querySelectorAll('.block'));
+  const idx = blocks.indexOf(block);
+  if (dir === -1 && idx > 0) {
+    canvas.insertBefore(block, blocks[idx - 1]);
+  } else if (dir === 1 && idx < blocks.length - 1) {
+    canvas.insertBefore(blocks[idx + 1], block);
+  }
+}
+
+function duplicateBlock(btnEl) {
+  const block = btnEl.closest('.block');
+  const clone = block.cloneNode(true);
+  clone.classList.remove('selected');
+  block.parentNode.insertBefore(clone, block.nextSibling);
+}
+
+function deleteBlock(btnEl) {
+  const block = btnEl.closest('.block');
+  if (confirm('Remove this block?')) {
+    block.remove();
+    selectedBlock = null;
+  }
+}
+
+// ── Add Block ──
+function openAddPanel() { document.getElementById('addPanel').classList.add('open'); }
+function closeAddPanel() { document.getElementById('addPanel').classList.remove('open'); }
+
+const blockTemplates = {
+  hero: `<div class="block b-hero" data-type="hero" onclick="selectBlock(this)">
+    <div class="block-actions"><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,-1)">↑</button><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,1)">↓</button><button class="ba-btn" onclick="event.stopPropagation();duplicateBlock(this)">⧉</button><button class="ba-btn" onclick="event.stopPropagation();openBlockStyle(this)">🎨</button><button class="ba-btn danger" onclick="event.stopPropagation();deleteBlock(this)">✕</button></div>
+    <div class="hero-eyebrow" contenteditable="true" data-placeholder="EYEBROW TEXT">YOUR EYEBROW TEXT</div>
+    <h1 contenteditable="true" data-placeholder="Your Headline Here">Your Headline Here</h1>
+    <div class="hero-sub" contenteditable="true" data-placeholder="Subheadline text...">Your subheadline supporting text goes here.</div>
+    <button class="hero-cta" contenteditable="true" data-placeholder="Button Text">Get Started →</button>
+  </div>`,
+  text: `<div class="block b-text" data-type="text" onclick="selectBlock(this)">
+    <div class="block-actions"><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,-1)">↑</button><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,1)">↓</button><button class="ba-btn" onclick="event.stopPropagation();duplicateBlock(this)">⧉</button><button class="ba-btn" onclick="event.stopPropagation();openBlockStyle(this)">🎨</button><button class="ba-btn danger" onclick="event.stopPropagation();deleteBlock(this)">✕</button></div>
+    <h2 contenteditable="true" data-placeholder="Section Heading">Your Section Heading</h2>
+    <p contenteditable="true" data-placeholder="Write your content here...">Write your content here. Click to edit this text directly on the page.</p>
+  </div>`,
+  features: `<div class="block b-features" data-type="features" onclick="selectBlock(this)">
+    <div class="block-actions"><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,-1)">↑</button><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,1)">↓</button><button class="ba-btn" onclick="event.stopPropagation();duplicateBlock(this)">⧉</button><button class="ba-btn" onclick="event.stopPropagation();openBlockStyle(this)">🎨</button><button class="ba-btn danger" onclick="event.stopPropagation();deleteBlock(this)">✕</button></div>
+    <h2 contenteditable="true" data-placeholder="Section Title">Key Features</h2>
+    <div class="features-grid">
+      <div class="feature-card"><div class="feature-icon" contenteditable="true">⚡</div><div class="feature-title" contenteditable="true">Feature One</div><div class="feature-desc" contenteditable="true">Describe this feature.</div></div>
+      <div class="feature-card"><div class="feature-icon" contenteditable="true">🎯</div><div class="feature-title" contenteditable="true">Feature Two</div><div class="feature-desc" contenteditable="true">Describe this feature.</div></div>
+      <div class="feature-card"><div class="feature-icon" contenteditable="true">🏆</div><div class="feature-title" contenteditable="true">Feature Three</div><div class="feature-desc" contenteditable="true">Describe this feature.</div></div>
+    </div>
+  </div>`,
+  video: `<div class="block b-video" data-type="video" onclick="selectBlock(this)">
+    <div class="block-actions"><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,-1)">↑</button><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,1)">↓</button><button class="ba-btn" onclick="event.stopPropagation();duplicateBlock(this)">⧉</button><button class="ba-btn" onclick="event.stopPropagation();openBlockStyle(this)">🎨</button><button class="ba-btn danger" onclick="event.stopPropagation();deleteBlock(this)">✕</button></div>
+    <h2 contenteditable="true" data-placeholder="Section Title">Watch This Video</h2>
+    <div class="video-embed"><span style="color:rgba(255,255,255,0.3)">📹 Click style → add YouTube URL</span></div>
+  </div>`,
+  testimonials: `<div class="block b-testimonials" data-type="testimonials" onclick="selectBlock(this)">
+    <div class="block-actions"><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,-1)">↑</button><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,1)">↓</button><button class="ba-btn" onclick="event.stopPropagation();duplicateBlock(this)">⧉</button><button class="ba-btn" onclick="event.stopPropagation();openBlockStyle(this)">🎨</button><button class="ba-btn danger" onclick="event.stopPropagation();deleteBlock(this)">✕</button></div>
+    <h2 contenteditable="true" data-placeholder="Section Title">Testimonials</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial"><div class="testimonial-stars">★★★★★</div><div class="testimonial-text" contenteditable="true">"Your testimonial text here."</div><div class="testimonial-author" contenteditable="true">— Name, Location</div></div>
+      <div class="testimonial"><div class="testimonial-stars">★★★★★</div><div class="testimonial-text" contenteditable="true">"Your testimonial text here."</div><div class="testimonial-author" contenteditable="true">— Name, Location</div></div>
+      <div class="testimonial"><div class="testimonial-stars">★★★★★</div><div class="testimonial-text" contenteditable="true">"Your testimonial text here."</div><div class="testimonial-author" contenteditable="true">— Name, Location</div></div>
+    </div>
+  </div>`,
+  cta: `<div class="block b-cta" data-type="cta" onclick="selectBlock(this)">
+    <div class="block-actions"><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,-1)">↑</button><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,1)">↓</button><button class="ba-btn" onclick="event.stopPropagation();duplicateBlock(this)">⧉</button><button class="ba-btn" onclick="event.stopPropagation();openBlockStyle(this)">🎨</button><button class="ba-btn danger" onclick="event.stopPropagation();deleteBlock(this)">✕</button></div>
+    <h2 contenteditable="true" data-placeholder="CTA Headline">Ready to Get Started?</h2>
+    <p contenteditable="true" data-placeholder="Supporting text">Take the next step today.</p>
+    <button class="cta-button" contenteditable="true" data-placeholder="Button text">Get Started →</button>
+  </div>`,
+  countdown: `<div class="block b-countdown" data-type="countdown" onclick="selectBlock(this)">
+    <div class="block-actions"><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,-1)">↑</button><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,1)">↓</button><button class="ba-btn" onclick="event.stopPropagation();duplicateBlock(this)">⧉</button><button class="ba-btn" onclick="event.stopPropagation();openBlockStyle(this)">🎨</button><button class="ba-btn danger" onclick="event.stopPropagation();deleteBlock(this)">✕</button></div>
+    <h3 contenteditable="true" data-placeholder="Timer label">Offer Expires In</h3>
+    <div class="countdown-digits"><div class="cd-unit"><div class="cd-num">02</div><div class="cd-label">Days</div></div><div class="cd-unit"><div class="cd-num">14</div><div class="cd-label">Hours</div></div><div class="cd-unit"><div class="cd-num">37</div><div class="cd-label">Mins</div></div><div class="cd-unit"><div class="cd-num">52</div><div class="cd-label">Secs</div></div></div>
+  </div>`,
+  image: `<div class="block b-image" data-type="image" onclick="selectBlock(this)">
+    <div class="block-actions"><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,-1)">↑</button><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,1)">↓</button><button class="ba-btn" onclick="event.stopPropagation();duplicateBlock(this)">⧉</button><button class="ba-btn" onclick="event.stopPropagation();openBlockStyle(this)">🎨</button><button class="ba-btn danger" onclick="event.stopPropagation();deleteBlock(this)">✕</button></div>
+    <div class="img-placeholder">🖼️ Click style → add image URL</div>
+  </div>`,
+  spacer: `<div class="block b-spacer" data-type="spacer" onclick="selectBlock(this)">
+    <div class="block-actions"><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,-1)">↑</button><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,1)">↓</button><button class="ba-btn danger" onclick="event.stopPropagation();deleteBlock(this)">✕</button></div>
+  </div>`,
+  divider: `<div class="block b-divider" data-type="divider" onclick="selectBlock(this)">
+    <div class="block-actions"><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,-1)">↑</button><button class="ba-btn" onclick="event.stopPropagation();moveBlock(this,1)">↓</button><button class="ba-btn danger" onclick="event.stopPropagation();deleteBlock(this)">✕</button></div>
+    <hr>
+  </div>`
+};
+
+function addBlock(type) {
+  const html = blockTemplates[type];
+  if (!html) return;
+  const addBar = document.querySelector('.add-block-bar');
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
+  const block = temp.firstElementChild;
+  addBar.parentNode.insertBefore(block, addBar);
+  closeAddPanel();
+  selectBlock(block);
+  block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ── Style Panel ──
+function toggleStylePanel() {
+  document.getElementById('stylePanel').classList.toggle('open');
+}
+function closeStylePanel() {
+  document.getElementById('stylePanel').classList.remove('open');
+}
+
+function openBlockStyle(btnEl) {
+  const block = btnEl.closest('.block');
+  selectBlock(block);
+  const panel = document.getElementById('stylePanel');
+  panel.classList.add('open');
+
+  // Show/hide context-specific fields
+  const type = block.dataset.type;
+  document.getElementById('spVideoUrl').style.display = type === 'video' ? 'block' : 'none';
+  document.getElementById('spImageUrl').style.display = type === 'image' ? 'block' : 'none';
+  document.getElementById('spCtaUrl').style.display = (type === 'hero' || type === 'cta') ? 'block' : 'none';
+}
+
+function setBlockBg(color) {
+  if (!selectedBlock) return;
+  selectedBlock.style.background = color;
+  // Auto-switch text to white on dark backgrounds
+  const dark = ['#0a0a1a','#0f172a','#1e293b','#0ea5e9','#6366f1','#16a34a'];
+  if (dark.includes(color)) {
+    selectedBlock.style.color = '#fff';
+  }
+}
+
+function setBlockTextColor(color) {
+  if (!selectedBlock) return;
+  selectedBlock.style.color = color;
+}
+
+function setBlockPadding(val) {
+  if (!selectedBlock) return;
+  selectedBlock.style.padding = val;
+}
+
+function setVideoUrl() {
+  if (!selectedBlock) return;
+  const url = document.getElementById('videoUrlInput').value.trim();
+  const embed = selectedBlock.querySelector('.video-embed');
+  if (!embed || !url) return;
+  // Extract YouTube ID
+  let videoId = '';
+  const match = url.match(/(?:v=|\/embed\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (match) videoId = match[1];
+  if (videoId) {
+    embed.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>`;
+  }
+}
+
+function setImageUrl() {
+  if (!selectedBlock) return;
+  const url = document.getElementById('imageUrlInput').value.trim();
+  const placeholder = selectedBlock.querySelector('.img-placeholder');
+  if (placeholder && url) {
+    placeholder.outerHTML = `<img src="${url}" alt="Image" style="max-width:100%;border-radius:14px">`;
+  }
+}
+
+function setCtaUrl() {
+  // Store CTA URL as data attribute for save
+  if (!selectedBlock) return;
+  selectedBlock.dataset.ctaUrl = document.getElementById('ctaUrlInput').value.trim();
+}
+
+// ── Save Page ──
+function collectSections() {
+  const blocks = document.querySelectorAll('#canvas .block');
+  const sections = [];
+  blocks.forEach(block => {
+    const type = block.dataset.type;
+    const data = {};
+
+    if (type === 'hero') {
+      data.eyebrow = block.querySelector('.hero-eyebrow')?.innerText || '';
+      data.headline = block.querySelector('h1')?.innerText || '';
+      data.subheadline = block.querySelector('.hero-sub')?.innerText || '';
+      data.cta_text = block.querySelector('.hero-cta')?.innerText || '';
+      data.cta_url = block.dataset.ctaUrl || '';
+    } else if (type === 'text') {
+      data.heading = block.querySelector('h2')?.innerText || '';
+      data.body = block.querySelector('p')?.innerText || '';
+    } else if (type === 'features') {
+      data.heading = block.querySelector('h2')?.innerText || '';
+      data.items = [];
+      block.querySelectorAll('.feature-card').forEach(card => {
+        data.items.push({
+          icon: card.querySelector('.feature-icon')?.innerText || '',
+          title: card.querySelector('.feature-title')?.innerText || '',
+          desc: card.querySelector('.feature-desc')?.innerText || ''
+        });
+      });
+    } else if (type === 'video') {
+      data.heading = block.querySelector('h2')?.innerText || '';
+      const iframe = block.querySelector('iframe');
+      data.video_url = iframe ? iframe.src : '';
+    } else if (type === 'testimonials') {
+      data.heading = block.querySelector('h2')?.innerText || '';
+      data.items = [];
+      block.querySelectorAll('.testimonial').forEach(t => {
+        data.items.push({
+          text: t.querySelector('.testimonial-text')?.innerText || '',
+          author: t.querySelector('.testimonial-author')?.innerText || ''
+        });
+      });
+    } else if (type === 'cta') {
+      data.headline = block.querySelector('h2')?.innerText || '';
+      data.subtext = block.querySelector('p')?.innerText || '';
+      data.cta_text = block.querySelector('.cta-button')?.innerText || '';
+      data.cta_url = block.dataset.ctaUrl || '';
+    } else if (type === 'countdown') {
+      data.label = block.querySelector('h3')?.innerText || '';
+    } else if (type === 'image') {
+      const img = block.querySelector('img');
+      data.image_url = img ? img.src : '';
+    }
+
+    const style = {
+      background: block.style.background || '',
+      color: block.style.color || '',
+      padding: block.style.padding || ''
+    };
+
+    sections.push({ type, data, style });
+  });
+  return sections;
+}
+
+async function savePage(status) {
+  const title = document.getElementById('pageTitle').value.trim() || 'Untitled Page';
+  const sections = collectSections();
+  const heroSection = sections.find(s => s.type === 'hero');
+
+  const payload = {
+    id: pageId,
+    title: title,
+    status: status,
+    headline: heroSection?.data?.headline || '',
+    subheadline: heroSection?.data?.subheadline || '',
+    cta_text: heroSection?.data?.cta_text || '',
+    cta_url: heroSection?.data?.cta_url || '',
+    sections: sections
+  };
+
+  try {
+    const res = await fetch('/api/funnels/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      pageId = data.id;
+      const msg = status === 'published' ? `Published! Live at ${data.preview_url}` : 'Draft saved!';
+      showToast(msg, status === 'published' ? '#16a34a' : '#0ea5e9');
+    } else {
+      showToast(data.error || 'Save failed', '#ef4444');
+    }
+  } catch (e) {
+    showToast('Network error', '#ef4444');
+  }
+}
+
+function previewPage() {
+  // Open current page in new tab if saved
+  if (pageId) {
+    window.open(`/p/${document.getElementById('pageTitle').value.trim().toLowerCase().replace(/[^a-z0-9]+/g,'-')}`, '_blank');
+  } else {
+    showToast('Save the page first to preview', '#f59e0b');
+  }
+}
+
+// ── Toast ──
+function showToast(msg, color) {
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:${color};color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:700;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.2);animation:fadeIn 0.3s`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// ── Keyboard shortcuts ──
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Delete' && selectedBlock && !document.activeElement.isContentEditable) {
+    deleteBlock(selectedBlock.querySelector('.ba-btn.danger') || selectedBlock);
+  }
+  if (e.ctrlKey && e.key === 's') {
+    e.preventDefault();
+    savePage('draft');
+  }
+});
+</script>
+
+<style>
+@keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+</style>
+
+</body>
+</html>
