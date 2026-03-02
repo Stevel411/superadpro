@@ -102,6 +102,37 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 /* ── Responsive ── */
 @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.stats-row{grid-template-columns:1fr 1fr}.campaigns-grid{grid-template-columns:1fr}.content{padding:16px}.topbar{padding:0 16px}}
 @media(max-width:480px){.stats-row{grid-template-columns:1fr}.toolbar{flex-direction:column;align-items:stretch}}
+
+/* ── Boost ── */
+.boost-badge{position:absolute;top:10px;left:10px;display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#f59e0b,#ef4444);padding:4px 10px;border-radius:50px;box-shadow:0 2px 8px rgba(245,158,11,0.4);z-index:2}
+.boost-badge .pulse-dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:bpulse 1.5s infinite}
+@keyframes bpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.7)}}
+.boost-btn{font-size:12px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);padding:5px 12px;border-radius:6px;cursor:pointer;font-family:inherit;transition:all 0.2s;display:inline-flex;align-items:center;gap:4px}
+.boost-btn:hover{background:rgba(245,158,11,0.15);color:#d97706;border-color:rgba(245,158,11,0.35)}
+.boost-btn.active{color:#16a34a;border-color:rgba(22,163,74,0.25);background:rgba(22,163,74,0.06);cursor:default}
+
+/* ── Boost modal ── */
+.boost-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.boost-overlay.open{display:flex}
+.boost-modal{background:#fff;border-radius:16px;padding:32px;max-width:520px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,0.15);position:relative}
+.boost-modal-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:20px;color:#94a3b8;cursor:pointer}
+.boost-modal h3{font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:#0f172a;margin-bottom:4px}
+.boost-modal-sub{font-size:14px;color:#64748b;margin-bottom:20px}
+.boost-tiers-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.boost-tier{border:2px solid #e2e8f0;border-radius:12px;padding:16px;cursor:pointer;transition:all 0.2s;position:relative}
+.boost-tier:hover{border-color:#f59e0b}
+.boost-tier.selected{border-color:#f59e0b;background:rgba(245,158,11,0.04);box-shadow:0 0 0 3px rgba(245,158,11,0.1)}
+.boost-tier-name{font-size:15px;font-weight:800;color:#0f172a;margin-bottom:2px}
+.boost-tier-price{font-size:22px;font-weight:800;color:#f59e0b;margin-bottom:4px}
+.boost-tier-detail{font-size:11px;color:#94a3b8;line-height:1.4}
+.boost-tier-multi{position:absolute;top:10px;right:12px;font-size:10px;font-weight:800;color:#fff;background:linear-gradient(135deg,#f59e0b,#ef4444);padding:2px 8px;border-radius:50px}
+.boost-confirm-btn{width:100%;padding:13px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-weight:700;font-size:15px;border:none;border-radius:10px;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.boost-confirm-btn:hover{box-shadow:0 4px 20px rgba(245,158,11,0.35);transform:translateY(-1px)}
+.boost-confirm-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none}
+.boost-balance{font-size:13px;color:#64748b;text-align:center;margin-top:10px}
+.boost-commission{font-size:12px;color:#16a34a;text-align:center;margin-top:6px;font-weight:600}
+.boost-err{display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#dc2626;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px}
+
 </style>
 <link rel="stylesheet" href="/static/mobile.css">
 <link rel="manifest" href="/static/manifest.json">
@@ -170,8 +201,8 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
       <div class="stat-detail">Across all campaigns</div>
     </div>
     <div class="stat-card c4">
-      <div class="stat-label">Platforms</div>
-      <div class="stat-value">{{ platforms|length }}</div>
+      <div class="stat-label">Active Boosts</div>
+      <div class="stat-value">{{ active_boosts|length }}</div>
       <div class="stat-detail">{{ platforms|join(', ')|title if platforms else 'None yet' }}</div>
     </div>
   </div>
@@ -196,6 +227,9 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
     <div class="campaign-card {% if c.status == 'paused' %}status-paused{% endif %}" data-status="{{ c.status }}" data-platform="{{ c.platform }}">
 
       <div class="video-wrap">
+        {% if c.id in active_boosts %}
+        <div class="boost-badge"><span class="pulse-dot"></span> {{ active_boosts[c.id].tier|title }} Boost</div>
+        {% endif %}
         <iframe src="{{ c.embed_url }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
       </div>
 
@@ -237,9 +271,16 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 
         <div class="campaign-footer">
           <span class="campaign-date">Added {{ c.created_at.strftime('%d %b %Y') }}</span>
-          <button class="delete-btn" onclick="confirmDelete({{ c.id }}, '{{ c.title|replace("'","\\'")|truncate(30) }}')">
-            Remove
-          </button>
+          <div style="display:flex;align-items:center;gap:8px">
+            {% if c.id in active_boosts %}
+            <button class="boost-btn active" disabled>&#x1F525; Boosted</button>
+            {% else %}
+            <button class="boost-btn" onclick="openBoostModal({{ c.id }}, '{{ c.title|replace("'","\\'")|truncate(30) }}', 'video')">&#x1F680; Boost</button>
+            {% endif %}
+            <button class="delete-btn" onclick="confirmDelete({{ c.id }}, '{{ c.title|replace("'","\\'")|truncate(30) }}')">
+              Remove
+            </button>
+          </div>
         </div>
       </div>
 
@@ -255,6 +296,29 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
     <a href="/upload" class="btn-add">Add Your First Video &rarr;</a>
   </div>
   {% endif %}
+
+<!-- Boost modal -->
+<div class="boost-overlay" id="boostModal" onclick="if(event.target===this)closeBoostModal()">
+  <div class="boost-modal">
+    <button class="boost-modal-close" onclick="closeBoostModal()">&#x2715;</button>
+    <h3>&#x1F680; Boost Campaign</h3>
+    <div class="boost-modal-sub">Boosting "<span id="boostTargetName"></span>" — more views, faster delivery</div>
+    <div class="boost-err" id="boostErr"></div>
+    <div class="boost-tiers-grid" id="boostTiersGrid">
+      {% for key, t in boost_tiers.items() %}
+      <div class="boost-tier" data-tier="{{ key }}" data-price="{{ t.price }}" onclick="selectBoostTier(this, '{{ key }}')">
+        <div class="boost-tier-multi">{{ t.multiplier }}&times;</div>
+        <div class="boost-tier-name">{{ t.label }}</div>
+        <div class="boost-tier-price">${{ t.price }}</div>
+        <div class="boost-tier-detail">{{ t.hours // 24 }} day{{ 's' if t.hours > 24 else '' }} &middot; {{ t.multiplier }}&times; priority</div>
+      </div>
+      {% endfor %}
+    </div>
+    <button class="boost-confirm-btn" id="boostConfirmBtn" onclick="confirmBoost()" disabled>Select a tier above</button>
+    <div class="boost-balance">Your balance: <strong>${{ '%.2f'|format(balance) }}</strong> USDT</div>
+    <div class="boost-commission">&#x1F4B0; 75% of every boost purchase goes to your sponsor</div>
+  </div>
+</div>
 
 </div><!-- /content -->
 
@@ -302,6 +366,73 @@ function filterCampaigns(filter) {
     else if (filter.startsWith('platform-')) show = card.dataset.platform === filter.replace('platform-','');
     card.style.display = show ? '' : 'none';
   });
+}
+
+/* ── Boost modal ── */
+var boostTargetId = 0;
+var boostTargetType = '';
+var boostSelectedTier = '';
+
+function openBoostModal(targetId, title, type) {
+  boostTargetId = targetId;
+  boostTargetType = type;
+  boostSelectedTier = '';
+  document.getElementById('boostTargetName').textContent = title;
+  document.getElementById('boostErr').style.display = 'none';
+  document.getElementById('boostConfirmBtn').disabled = true;
+  document.getElementById('boostConfirmBtn').textContent = 'Select a tier above';
+  document.querySelectorAll('.boost-tier').forEach(function(t) { t.classList.remove('selected'); });
+  document.getElementById('boostModal').classList.add('open');
+}
+
+function closeBoostModal() {
+  document.getElementById('boostModal').classList.remove('open');
+}
+
+function selectBoostTier(el, tier) {
+  document.querySelectorAll('.boost-tier').forEach(function(t) { t.classList.remove('selected'); });
+  el.classList.add('selected');
+  boostSelectedTier = tier;
+  var price = el.dataset.price;
+  var btn = document.getElementById('boostConfirmBtn');
+  btn.disabled = false;
+  btn.textContent = 'Boost for $' + price + ' USDT';
+}
+
+async function confirmBoost() {
+  if (!boostSelectedTier) return;
+  var btn = document.getElementById('boostConfirmBtn');
+  var err = document.getElementById('boostErr');
+  err.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+
+  try {
+    var r = await fetch('/api/boost/purchase', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        boost_type: boostTargetType,
+        target_id: boostTargetId,
+        tier: boostSelectedTier
+      })
+    });
+    var d = await r.json();
+    if (d.success) {
+      closeBoostModal();
+      window.location.reload();
+    } else {
+      err.textContent = d.error || 'Boost failed';
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Try Again';
+    }
+  } catch(x) {
+    err.textContent = 'Network error — please try again';
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Try Again';
+  }
 }
 </script>
 

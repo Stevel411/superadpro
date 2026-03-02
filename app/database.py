@@ -396,6 +396,36 @@ class AdListing(Base):
 
     owner = relationship("User", backref="ad_listings")
 
+# ── AdBoost constants ──
+BOOST_TIERS = {
+    "spark":   {"price": 5,   "hours": 24,   "multiplier": 2,  "label": "Spark"},
+    "flame":   {"price": 15,  "hours": 72,   "multiplier": 3,  "label": "Flame"},
+    "blaze":   {"price": 40,  "hours": 168,  "multiplier": 5,  "label": "Blaze"},
+    "inferno": {"price": 100, "hours": 336,  "multiplier": 10, "label": "Inferno"},
+}
+BOOST_SPONSOR_PCT = 0.75   # 75% to direct sponsor
+BOOST_COMPANY_PCT = 0.25   # 25% to platform
+
+
+class AdBoost(Base):
+    """A purchased boost for a video campaign or ad board listing."""
+    __tablename__ = "ad_boosts"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), index=True)
+    boost_type      = Column(String, nullable=False)        # "video" or "adboard"
+    target_id       = Column(Integer, nullable=False)        # campaign_id or ad_listing_id
+    tier            = Column(String, nullable=False)          # spark/flame/blaze/inferno
+    price_paid      = Column(Float, default=0)
+    multiplier      = Column(Integer, default=2)
+    sponsor_earned  = Column(Float, default=0)
+    starts_at       = Column(DateTime, default=datetime.utcnow)
+    expires_at      = Column(DateTime, nullable=False)
+    status          = Column(String, default="active")       # active/expired/cancelled
+    created_at      = Column(DateTime, default=datetime.utcnow)
+
+    owner = relationship("User", backref="boosts")
+
+
 class ShortLink(Base):
     """Bitly-style short links: superadpro.com/go/slug"""
     __tablename__ = "short_links"

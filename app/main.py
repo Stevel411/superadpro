@@ -20,6 +20,7 @@ from .database import (
     OWNER_PCT, UPLINE_PCT, LEVEL_PCT, COMPANY_PCT
 )
 from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker
+from .database import AdBoost, BOOST_TIERS, BOOST_SPONSOR_PCT, BOOST_COMPANY_PCT
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent
 from .crud import create_user, verify_password
 from .grid import (
@@ -860,6 +861,13 @@ def video_library(request: Request, user: User = Depends(get_current_user),
         "platform_label": platform_label,
         "platform_colour": platform_colour,
         "added": request.query_params.get("added", ""),
+        "boost_tiers": BOOST_TIERS,
+        "active_boosts": {b.target_id: b for b in db.query(AdBoost).filter(
+            AdBoost.user_id == user.id,
+            AdBoost.boost_type == "video",
+            AdBoost.status == "active",
+            AdBoost.expires_at > datetime.utcnow()
+        ).all()},
     })
     return templates.TemplateResponse("video-library.html", ctx)
 
@@ -960,6 +968,206 @@ def upload_video_post(
     db.commit()
 
     return RedirectResponse(url="/video-library?added=1", status_code=303)
+
+# ═══════════════════════════════════════════════════════════════
+#  ADBOOST ROUTES
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/boost/tiers")
+def boost_tiers_api():
+    """Return available boost tiers and pricing."""
+    return {"tiers": BOOST_TIERS}
+
+
+@app.post("/api/boost/purchase")
+async def purchase_boost(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Purchase a boost for a video campaign or ad board listing.
+    Body: { boost_type: "video"|"adboard", target_id: int, tier: "spark"|"flame"|"blaze"|"inferno" }
+    Commission: 75% to direct sponsor, 25% to platform.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    body = await request.json()
+    boost_type = body.get("boost_type", "")
+    target_id  = body.get("target_id", 0)
+    tier_key   = body.get("tier", "")
+
+    # Validate tier
+    if tier_key not in BOOST_TIERS:
+        return JSONResponse({"error": f"Invalid boost tier: {tier_key}"}, status_code=400)
+
+    tier = BOOST_TIERS[tier_key]
+    price = tier["price"]
+
+    # Validate boost type and target ownership
+    if boost_type == "video":
+        target = db.query(VideoCampaign).filter(
+            VideoCampaign.id == target_id,
+            VideoCampaign.user_id == user.id,
+            VideoCampaign.status == "active"
+        ).first()
+        if not target:
+            return JSONResponse({"error": "Campaign not found or not active"}, status_code=404)
+    elif boost_type == "adboard":
+        target = db.query(AdListing).filter(
+            AdListing.id == target_id,
+            AdListing.user_id == user.id,
+            AdListing.is_active == True
+        ).first()
+        if not target:
+            return JSONResponse({"error": "Ad listing not found or not active"}, status_code=404)
+    else:
+        return JSONResponse({"error": "boost_type must be 'video' or 'adboard'"}, status_code=400)
+
+    # Check for existing active boost on same target
+    existing = db.query(AdBoost).filter(
+        AdBoost.target_id == target_id,
+        AdBoost.boost_type == boost_type,
+        AdBoost.user_id == user.id,
+        AdBoost.status == "active",
+        AdBoost.expires_at > datetime.utcnow()
+    ).first()
+    if existing:
+        return JSONResponse({
+            "error": f"This {boost_type} already has an active {existing.tier.title()} boost until {existing.expires_at.strftime('%d %b %Y %H:%M')} UTC"
+        }, status_code=400)
+
+    # Check balance
+    balance = float(user.balance or 0)
+    if balance < price:
+        return JSONResponse({
+            "error": f"Insufficient balance. Need ${price:.2f}, you have ${balance:.2f}"
+        }, status_code=400)
+
+    # Deduct balance
+    user.balance = float(user.balance or 0) - price
+    expires = datetime.utcnow() + timedelta(hours=tier["hours"])
+
+    # Create boost record
+    boost = AdBoost(
+        user_id=user.id,
+        boost_type=boost_type,
+        target_id=target_id,
+        tier=tier_key,
+        price_paid=price,
+        multiplier=tier["multiplier"],
+        starts_at=datetime.utcnow(),
+        expires_at=expires,
+        status="active"
+    )
+    db.add(boost)
+
+    # Pay sponsor commission (75%)
+    sponsor_payout = round(price * BOOST_SPONSOR_PCT, 2)
+    if user.sponsor_id:
+        sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
+        if sponsor:
+            sponsor.balance = float(sponsor.balance or 0) + sponsor_payout
+            sponsor.total_earned = float(sponsor.total_earned or 0) + sponsor_payout
+            boost.sponsor_earned = sponsor_payout
+
+            # Record commission
+            comm = Commission(
+                user_id=sponsor.id,
+                from_user_id=user.id,
+                amount=sponsor_payout,
+                commission_type="boost",
+                description=f"AdBoost {tier['label']} ({boost_type}) — 75% of ${price:.2f}",
+                grid_id=None,
+                level=0
+            )
+            db.add(comm)
+
+    # Apply boost effect
+    if boost_type == "video":
+        # Set priority_level based on multiplier (maps to scoring algorithm)
+        target.priority_level = max(target.priority_level or 0, tier["multiplier"])
+    elif boost_type == "adboard":
+        target.is_featured = True
+
+    db.commit()
+
+    return {
+        "success": True,
+        "boost_id": boost.id,
+        "tier": tier_key,
+        "label": tier["label"],
+        "multiplier": tier["multiplier"],
+        "expires_at": expires.strftime("%d %b %Y %H:%M UTC"),
+        "price": price,
+        "sponsor_earned": sponsor_payout if user.sponsor_id else 0,
+        "new_balance": round(float(user.balance), 2)
+    }
+
+
+@app.get("/api/boost/active")
+def active_boosts_api(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Return user's currently active boosts."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # Expire any that have passed
+    expired = db.query(AdBoost).filter(
+        AdBoost.user_id == user.id,
+        AdBoost.status == "active",
+        AdBoost.expires_at <= datetime.utcnow()
+    ).all()
+    for b in expired:
+        b.status = "expired"
+        # Reset priority if video boost
+        if b.boost_type == "video":
+            camp = db.query(VideoCampaign).filter(VideoCampaign.id == b.target_id).first()
+            if camp:
+                # Check if another active boost exists
+                other = db.query(AdBoost).filter(
+                    AdBoost.target_id == b.target_id,
+                    AdBoost.boost_type == "video",
+                    AdBoost.status == "active",
+                    AdBoost.expires_at > datetime.utcnow(),
+                    AdBoost.id != b.id
+                ).first()
+                if not other:
+                    camp.priority_level = 0
+        elif b.boost_type == "adboard":
+            ad = db.query(AdListing).filter(AdListing.id == b.target_id).first()
+            if ad:
+                other = db.query(AdBoost).filter(
+                    AdBoost.target_id == b.target_id,
+                    AdBoost.boost_type == "adboard",
+                    AdBoost.status == "active",
+                    AdBoost.expires_at > datetime.utcnow(),
+                    AdBoost.id != b.id
+                ).first()
+                if not other:
+                    ad.is_featured = False
+    if expired:
+        db.commit()
+
+    active = db.query(AdBoost).filter(
+        AdBoost.user_id == user.id,
+        AdBoost.status == "active",
+        AdBoost.expires_at > datetime.utcnow()
+    ).order_by(AdBoost.expires_at.asc()).all()
+
+    return {"boosts": [{
+        "id": b.id,
+        "boost_type": b.boost_type,
+        "target_id": b.target_id,
+        "tier": b.tier,
+        "label": BOOST_TIERS.get(b.tier, {}).get("label", b.tier),
+        "multiplier": b.multiplier,
+        "expires_at": b.expires_at.strftime("%d %b %Y %H:%M UTC"),
+        "price_paid": b.price_paid
+    } for b in active]}
+
 
 # ═══════════════════════════════════════════════════════════════
 #  PAYMENT ROUTES
@@ -2977,6 +3185,14 @@ def my_ads_page(request: Request, user: User = Depends(get_current_user), db: Se
         "user": user,
         "listings": listings,
         "categories": AD_CATEGORIES,
+        "boost_tiers": BOOST_TIERS,
+        "active_boosts": {b.target_id: b for b in db.query(AdBoost).filter(
+            AdBoost.user_id == user.id,
+            AdBoost.boost_type == "adboard",
+            AdBoost.status == "active",
+            AdBoost.expires_at > datetime.utcnow()
+        ).all()},
+        "balance": round(float(user.balance or 0), 2),
     })
 
 @app.post("/api/ads/create")
