@@ -23,7 +23,7 @@ a{text-decoration:none;color:inherit}
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
 
 /* ── Topbar ── */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:50;width:100%}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:70px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:50;width:100%}
 .topbar-left{display:flex;align-items:center;gap:12px}
 .topbar-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .topbar-title{font-family:'Sora',sans-serif;font-size:17px;font-weight:800;color:#fff}
@@ -42,7 +42,7 @@ a{text-decoration:none;color:inherit}
 
 /* ── Content ── */
 .content{padding:20px 24px;flex:1}
-.watch-layout{max-width:960px;margin:0 auto;display:grid;grid-template-columns:1fr 300px;gap:18px;align-items:start}
+.watch-layout{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 300px;gap:18px;align-items:start}
 
 /* ── Progress card (right sidebar) ── */
 .progress-panel{display:flex;flex-direction:column;gap:14px;position:sticky;top:82px}
@@ -121,7 +121,7 @@ a{text-decoration:none;color:inherit}
 .btn-dash:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(14,165,233,0.35)}
 
 /* ── Empty state ── */
-.empty-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:48px 28px;text-align:center;max-width:480px;margin:0 auto}
+.empty-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:48px 28px;text-align:center;max-width:960px;margin:0 auto}
 
 /* ── Terms ── */
 .terms-note{font-size:11px;color:#94a3b8;text-align:center;line-height:1.5;padding:0 16px}
@@ -205,14 +205,14 @@ a{text-decoration:none;color:inherit}
 <div class="content">
 
 {% if warning %}
-<div class="warning-banner {% if quota.commissions_paused %}warning-red{% else %}warning-amber{% endif %}" style="max-width:960px;margin:0 auto 14px">
+<div class="warning-banner {% if quota.commissions_paused %}warning-red{% else %}warning-amber{% endif %}" style="max-width:1100px;margin:0 auto 14px">
   <span>{{ warning }}</span>
 </div>
 {% endif %}
 
 {% if quota.today_watched >= quota.daily_required %}
 <!-- ═══ QUOTA COMPLETE ═══ -->
-<div style="max-width:640px;margin:0 auto">
+<div style="max-width:960px;margin:0 auto">
   <div class="complete-card">
     <div class="complete-icon">&#x1F389;</div>
     <div class="complete-badge">&#x2713; Fully Qualified</div>
