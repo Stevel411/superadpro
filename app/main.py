@@ -1386,17 +1386,19 @@ async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
 
         # Credit sponsor 50% ($10) and trigger auto-activation cascade
         activated_users = []
+        sponsor_share = decimal.Decimal(str(MEMBERSHIP_SPONSOR_SHARE))
+        company_share = decimal.Decimal(str(MEMBERSHIP_COMPANY_SHARE))
         if user.sponsor_id:
             sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
             if sponsor:
-                sponsor.balance += MEMBERSHIP_SPONSOR_SHARE
-                sponsor.total_earned += MEMBERSHIP_SPONSOR_SHARE
+                sponsor.balance += sponsor_share
+                sponsor.total_earned += sponsor_share
                 sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
 
                 db.add(Commission(
                     from_user_id=user_id,
                     to_user_id=sponsor.id,
-                    amount_usdt=MEMBERSHIP_SPONSOR_SHARE,
+                    amount_usdt=sponsor_share,
                     commission_type="membership_sponsor",
                     package_tier=0,
                     status="paid",
@@ -1408,7 +1410,7 @@ async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
                 db.add(Commission(
                     from_user_id=user_id,
                     to_user_id=None,
-                    amount_usdt=MEMBERSHIP_COMPANY_SHARE,
+                    amount_usdt=company_share,
                     commission_type="membership_company",
                     package_tier=0,
                     status="platform",
@@ -1429,7 +1431,7 @@ async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
             db.add(Commission(
                 from_user_id=user_id,
                 to_user_id=None,
-                amount_usdt=MEMBERSHIP_FEE,
+                amount_usdt=decimal.Decimal(str(MEMBERSHIP_FEE)),
                 commission_type="membership_company",
                 package_tier=0,
                 status="platform",
