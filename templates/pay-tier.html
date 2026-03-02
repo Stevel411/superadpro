@@ -140,7 +140,7 @@ tr:last-child td{border-bottom:none}
           <div onclick="selectPkg({{ tier }}, {{ price }}, {{ earn }})" id="pkg{{ tier }}"
                style="border:2px solid rgba(0,180,216,0.2);border-radius:10px;padding:14px;cursor:pointer;transition:all 0.2s;text-align:center">
             <div style="font-size:19px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">{{ name }}</div>
-            <div style="font-size:22px;font-weight:800;color:#ffffff">${{ price }}</div>
+            <div style="font-size:22px;font-weight:800;color:#0f172a">${{ price }}</div>
             <div style="font-size:19px;color:#16a34a;font-weight:700;margin-top:2px">→ ${{ '{:,}'.format(earn) }} potential</div>
           </div>
           {% endfor %}
@@ -161,39 +161,14 @@ tr:last-child td{border-bottom:none}
 
         <!-- Coinbase Commerce button -->
         <div style="margin-bottom:20px">
-          <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4ade80;margin-bottom:10px">&#x2714; Recommended — Instant Checkout</div>
           <button onclick="payCoinbaseTier()" id="coinbaseTierBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#0052ff,#3b82f6);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s;opacity:0.5;pointer-events:none">
-            &#x1F4B3; Pay with Card or Crypto
+            &#x1F4B3; Select a tier to pay
           </button>
-          <div style="font-size:11px;color:#64748b;margin-top:6px;text-align:center">Coinbase Commerce — Visa, Mastercard, Apple Pay, BTC, ETH, USDT</div>
+          <div style="font-size:11px;color:#64748b;margin-top:6px;text-align:center">Powered by Coinbase Commerce</div>
           <div id="coinbaseTierErr" style="display:none;padding:10px 14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;color:#f87171;font-size:13px;margin-top:10px"></div>
         </div>
 
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
-          <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
-          <div style="font-size:10px;font-weight:700;color:#475569;letter-spacing:1px;text-transform:uppercase">Or pay manually</div>
-          <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
-        </div>
-
-        <div style="margin-bottom:16px">
-          <div style="font-size:19px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Send exact USDT amount to:</div>
-          <div style="background:#0f172a;border-radius:8px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
-            <span style="font-size:19px;color:#38bdf8;font-family:monospace">0xF5D76f3dB286F23A8Aee26AaFBD46C9DE9bE1483</span>
-            <button onclick="copyWallet()" style="font-size:19px;font-weight:700;color:#fff;background:rgba(56,189,248,0.15);border:1px solid rgba(0,212,255,0.3);border-radius:5px;padding:4px 10px;cursor:pointer;font-family:inherit;white-space:nowrap">Copy</button>
-          </div>
-          <div style="font-size:19px;color:#6b7d94;margin-top:6px;text-align:center">Network: Base Chain (USDT) · Also: superadpro.base.eth</div>
-        </div>
-        <form method="POST" action="/verify-grid-payment">
-          <input type="hidden" name="package_tier" id="tierInput" value="">
-          <div class="form-group">
-            <label class="form-label">Transaction Hash (after payment)</label>
-            <input class="form-input" type="text" name="tx_hash" placeholder="0x..." required>
-          </div>
-          <button type="submit" class="btn-primary" style="width:100%" id="submitBtn" disabled>Verify Payment & Activate Grid</button>
-        </form>
-        <div style="margin-top:12px;padding:10px 14px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:7px;font-size:19px;color:#fbbf24">
-          ⚠ Only send USDT on the Base Chain network. Sending on other networks will result in lost funds.
-        </div>
+        <a href="/income-grid" style="display:block;text-align:center;font-size:14px;color:#64748b;text-decoration:none;margin-top:10px">← Back to Income Grid</a>
       </div>
     </div>
   </div>
@@ -201,7 +176,6 @@ tr:last-child td{border-bottom:none}
 
 <script>
 let selectedTier = null;
-const wallet = '0xF5D76f3dB286F23A8Aee26AaFBD46C9DE9bE1483';
 
 function selectPkg(tier, price, earn) {
   selectedTier = tier;
@@ -212,18 +186,14 @@ function selectPkg(tier, price, earn) {
   const el = document.getElementById('pkg'+tier);
   el.style.borderColor = '#0ea5e9';
   el.style.background = 'rgba(0,180,216,0.05)';
-  document.getElementById('tierInput').value = tier;
-  document.getElementById('submitBtn').disabled = false;
-  // Enable Coinbase button
   var cbBtn = document.getElementById('coinbaseTierBtn');
   cbBtn.style.opacity = '1';
   cbBtn.style.pointerEvents = 'all';
-  cbBtn.innerHTML = '&#x1F4B3; Pay $' + price + ' with Card or Crypto';
-  document.getElementById('pkgSummary').innerHTML = `
-    <div style="font-size:19px;color:#6b7d94;margin-bottom:4px">SEND EXACTLY</div>
-    <div style="font-size:32px;font-weight:800;color:#ffffff">$${price} <span style="font-size:19px;color:#64748b">USDT</span></div>
-    <div style="font-size:19px;color:#16a34a;margin-top:4px">Full grid potential: $${earn.toLocaleString()}</div>
-  `;
+  cbBtn.innerHTML = '&#x1F4B3; Pay $' + price + ' \u2014 Activate Now';
+  document.getElementById('pkgSummary').innerHTML =
+    '<div style="font-size:12px;color:#6b7d94;margin-bottom:4px">SELECTED TIER</div>' +
+    '<div style="font-size:32px;font-weight:800;color:#0f172a">$' + price + ' <span style="font-size:14px;color:#64748b">USDT</span></div>' +
+    '<div style="font-size:13px;color:#16a34a;margin-top:4px">Full grid potential: $' + earn.toLocaleString() + '</div>';
 }
 
 async function payCoinbaseTier() {
@@ -233,7 +203,6 @@ async function payCoinbaseTier() {
   err.style.display = 'none';
   btn.disabled = true;
   btn.innerHTML = '&#x23F3; Creating checkout...';
-
   try {
     var r = await fetch('/api/coinbase/create-charge', {
       method: 'POST',
@@ -250,18 +219,11 @@ async function payCoinbaseTier() {
       btn.innerHTML = '&#x1F4B3; Pay with Card or Crypto';
     }
   } catch(x) {
-    err.textContent = 'Network error — please try again';
+    err.textContent = 'Network error \u2014 please try again';
     err.style.display = 'block';
     btn.disabled = false;
     btn.innerHTML = '&#x1F4B3; Pay with Card or Crypto';
   }
-}
-
-function copyWallet() {
-  navigator.clipboard.writeText(wallet).then(() => {
-    event.target.textContent = '✓ Copied';
-    setTimeout(() => event.target.textContent = 'Copy', 2000);
-  });
 }
 </script>
 
