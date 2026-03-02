@@ -482,7 +482,7 @@ footer a{color:#6b7d94;text-decoration:none}
           <div class="comm-pct" style="background:linear-gradient(135deg,#3b82f6,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">70%</div>
           <div class="comm-who">Uni-Level Chain (8 Levels)</div>
           <div class="comm-when">6.875% paid instantly to each of the 8 sponsors above the new member</div>
-          <div class="comm-eg" style="background:rgba(124,58,237,0.08);color:#38bdf8">$8.75 per level on $100</div>
+          <div class="comm-eg" style="background:rgba(124,58,237,0.08);color:#38bdf8">$6.88 per level on $100</div>
         </div>
       </div>
     </div>
@@ -566,7 +566,7 @@ footer a{color:#6b7d94;text-decoration:none}
           {% for lvl in range(1,9) %}
           <tr>
             <td style="color:{{ lvl_colours[lvl-1] }};font-weight:700">Level {{ lvl }}</td>
-            {% for p in pkgs %}<td style="color:{{ lvl_colours[lvl-1] }}">${{ '%.2f'|format(p * 0.70 / 8) }}</td>{% endfor %}
+            {% for p in pkgs %}<td style="color:{{ lvl_colours[lvl-1] }}">${{ '%.2f'|format(p * 0.55 / 8) }}</td>{% endfor %}
           </tr>
           {% endfor %}
           <tr style="background:rgba(0,212,255,0.03);border-top:1px solid rgba(0,212,255,0.1)">
@@ -741,8 +741,8 @@ footer a{color:#6b7d94;text-decoration:none}
         <!-- Stream 2 Grid Owner -->
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
           <div>
-            <div style="font-size:16px;font-weight:700;color:#fff">Stream 2 — Uni-Level Income (8.75% per entry)</div>
-            <div style="font-size:16px;color:#64748b;margin-top:2px">63 positions × tier price × 8.75% × advances</div>
+            <div style="font-size:16px;font-weight:700;color:#fff">Stream 2 — Uni-Level Income (6.875% per entry)</div>
+            <div style="font-size:16px;color:#64748b;margin-top:2px">63 positions × tier price × 6.875% × advances</div>
           </div>
           <div style="font-size:20px;font-weight:800;color:#0ea5e9" id="s2OwnerResult">$0</div>
         </div>
