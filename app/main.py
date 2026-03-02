@@ -215,6 +215,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "level_earnings":    round(float(user.level_earnings or 0), 2),
         "upline_earnings":   round(float(user.upline_earnings or 0), 2),
         "sponsor_earnings":  round(float(user.upline_earnings or 0), 2),
+        "course_earnings":   round(float(user.course_earnings or 0), 2),
         "personal_referrals":user.personal_referrals or 0,
         "total_team":        user.total_team or 0,
         "grid_stats":        stats,

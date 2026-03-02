@@ -436,8 +436,8 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
             <a href="/wallet" class="card-link">Details →</a>
           </div>
           <div class="card-body" style="padding:16px 20px">
-            {% set total_streams = sponsor_earnings + grid_earnings + level_earnings %}
-            {% set max_earn = [sponsor_earnings, grid_earnings, level_earnings, 1]|max %}
+            {% set total_streams = sponsor_earnings + grid_earnings + level_earnings + course_earnings %}
+            {% set max_earn = [sponsor_earnings, grid_earnings, level_earnings, course_earnings, 1]|max %}
 
             <!-- Stream 1: Membership -->
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
@@ -471,8 +471,26 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
               </div>
               <span style="font-size:14px;font-weight:800;color:#8b5cf6">${{ '%.2f'|format(level_earnings) }}</span>
             </div>
-            <div style="height:5px;background:#e8ecf4;border-radius:99px;overflow:hidden;margin-bottom:12px">
+            <div style="height:5px;background:#e8ecf4;border-radius:99px;overflow:hidden;margin-bottom:14px">
               <div style="height:100%;width:{{ ((level_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:99px"></div>
+            </div>
+
+            <!-- Stream 4: Course Sales -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0"></div>
+                <span style="font-size:13px;font-weight:600;color:#334155">Course Sales (100% pass-up)</span>
+              </div>
+              {% if course_earnings > 0 %}
+              <span style="font-size:14px;font-weight:800;color:#f59e0b">${{ '%.2f'|format(course_earnings) }}</span>
+              {% else %}
+              <span style="font-size:12px;font-weight:700;color:#94a3b8;letter-spacing:0.5px">COMING SOON</span>
+              {% endif %}
+            </div>
+            <div style="height:5px;background:#e8ecf4;border-radius:99px;overflow:hidden;margin-bottom:12px">
+              {% if course_earnings > 0 %}
+              <div style="height:100%;width:{{ ((course_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#d97706,#fbbf24);border-radius:99px"></div>
+              {% endif %}
             </div>
 
             <!-- Totals row -->
