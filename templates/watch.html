@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-.layout{display:flex;min-height:100vh}
+.layout{display:flex;min-height:100vh;width:100%}
 .sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
 .sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:rgba(56,189,248,0.2);border-radius:4px}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
@@ -48,12 +48,6 @@ a{text-decoration:none;color:inherit}
 .brand-mark span{font-family:Sora,sans-serif;font-size:15px;font-weight:800;color:#fff}
 .brand-mark em{font-style:normal;color:var(--cyan)}
 
-/* ── Hero Banner ── */
-.hero-banner{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);padding:24px 32px;text-align:center;position:relative;overflow:hidden}
-.hero-banner::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
-.hero-h{font-family:Sora,sans-serif;font-size:clamp(18px,3vw,24px);font-weight:800;color:#fff;position:relative;z-index:1}
-.hero-p{font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px;position:relative;z-index:1}
-
 /* ── Content ── */
 .content{padding:20px 24px;flex:1;overflow-y:auto}
 .watch-container{max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
@@ -74,7 +68,8 @@ a{text-decoration:none;color:inherit}
 .quota-dots{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
 .qdot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:all 0.3s}
 .qdot.done{background:linear-gradient(135deg,var(--cyan2),var(--cyan));color:#fff;border:2px solid var(--cyan);box-shadow:0 2px 8px rgba(14,165,233,0.2)}
-.qdot.current{border:2px solid var(--cyan);background:rgba(56,189,248,0.08);color:var(--cyan)}
+.qdot.current{border:2px solid var(--cyan);background:rgba(56,189,248,0.08);color:var(--cyan);animation:dotPulse 2s infinite}
+@keyframes dotPulse{0%,100%{box-shadow:0 0 0 0 rgba(56,189,248,0.3)}50%{box-shadow:0 0 0 6px rgba(56,189,248,0)}}
 .qdot.pending{border:2px solid #e2e8f0;color:#cbd5e1;background:#f8fafc}
 .grace-chip{flex-shrink:0;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 14px;text-align:center}
 .grace-chip-val{font-size:18px;font-weight:800;color:#d97706}
@@ -207,22 +202,37 @@ a{text-decoration:none;color:inherit}
 
   <!-- Desktop Topbar -->
   <div class="topbar">
-    <div>
-      <div class="topbar-title">▶️ Video Hub</div>
-      <div class="topbar-sub">Watch videos · Qualify for daily commissions</div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--cyan2),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">&#x25B6;</div>
+      <div>
+        <div class="topbar-title">Watch to Earn</div>
+        <div class="topbar-sub">{{ quota.today_watched }}/{{ quota.daily_required }} videos today &middot; {{ watch_duration }}s per video</div>
+      </div>
     </div>
     <div class="topbar-right">
-      <div class="tier-chip">
-        <div class="tier-chip-val">Tier {{ quota.package_tier }}</div>
-        <div class="tier-chip-lbl">{{ quota.daily_required }} video{{ 's' if quota.daily_required != 1 else '' }} required today</div>
+      <div style="background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.15);border-radius:10px;padding:8px 14px;text-align:right">
+        <div style="font-size:15px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#64748b">USDT Balance</div>
       </div>
     </div>
   </div>
 
-  <!-- Hero Banner -->
-  <div class="hero-banner">
-    <div class="hero-h">🎬 Daily Video Qualification</div>
-    <div class="hero-p">Watch your required videos to stay commission-eligible. Tier {{ quota.package_tier }} · {{ quota.daily_required }} videos per day.</div>
+  <!-- Commission Status Banner -->
+  <div style="background:linear-gradient(135deg,rgba(14,165,233,0.08),rgba(56,189,248,0.04));border:1px solid rgba(14,165,233,0.12);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <div style="display:flex;align-items:center;gap:10px">
+      {% if quota.today_watched >= quota.daily_required %}
+      <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#16a34a;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);padding:4px 12px;border-radius:20px"><span style="width:7px;height:7px;border-radius:50%;background:#16a34a;box-shadow:0 0 6px rgba(22,163,74,0.5);display:inline-block"></span> Commission Eligible</span>
+      {% elif quota.commissions_paused %}
+      <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#dc2626;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);padding:4px 12px;border-radius:20px"><span style="width:7px;height:7px;border-radius:50%;background:#dc2626;display:inline-block"></span> Commissions Paused</span>
+      {% else %}
+      <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);padding:4px 12px;border-radius:20px"><span style="width:7px;height:7px;border-radius:50%;background:#f59e0b;display:inline-block"></span> Watching — {{ quota.daily_required - quota.today_watched }} left today</span>
+      {% endif %}
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;font-size:12px;color:var(--muted)">
+      {% if quota.streak_days|default(0) > 0 %}<span style="font-weight:700;color:#f59e0b">&#x1F525; {{ quota.streak_days }} day streak</span>{% endif %}
+      <span>{{ quota.total_watched|default(0) }} total views</span>
+      <span>Tier {{ quota.package_tier }}</span>
+    </div>
   </div>
 
   <div class="content">
@@ -331,11 +341,14 @@ a{text-decoration:none;color:inherit}
     <!-- ═══ VIDEO PLAYER ═══ -->
     <div class="player-card" id="playerCard">
       <div class="player-header">
-        <div>
-          <div class="campaign-title" id="campaignTitle">{{ campaign.title }}</div>
-          <div class="campaign-meta" id="campaignMeta">{{ campaign.platform|title }} · {{ campaign.category or 'General' }} · Campaign #{{ campaign.id }}</div>
+        <div style="display:flex;align-items:center;gap:12px;min-width:0">
+          <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--cyan2),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">&#x1F3AC;</div>
+          <div style="min-width:0">
+            <div class="campaign-title" id="campaignTitle" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ campaign.title }}</div>
+            <div class="campaign-meta" id="campaignMeta">{{ campaign.platform|title }} &middot; {{ campaign.category|default('General')|replace('_',' ')|title }} &middot; Video {{ quota.today_watched + 1 }} of {{ quota.daily_required }}</div>
+          </div>
         </div>
-        <div class="campaign-badge">▶ Now Playing</div>
+        <div class="campaign-badge">&#x25B6; Now Playing</div>
       </div>
 
       <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient></defs></svg>
@@ -361,11 +374,11 @@ a{text-decoration:none;color:inherit}
             <div class="timer-num" id="timerNum">{{ watch_duration }}</div>
           </div>
           <div>
-            <div class="watch-status counting" id="watchStatus">⏱ Watching — timer counting down</div>
-            <div class="watch-req">Must watch {{ watch_duration }}s to qualify</div>
+            <div class="watch-status counting" id="watchStatus">&#x23F1; Watching &mdash; stay on this tab</div>
+            <div class="watch-req">{{ watch_duration }}s required &middot; {{ quota.daily_required - quota.today_watched }} video{{ 's' if (quota.daily_required - quota.today_watched) != 1 else '' }} remaining</div>
           </div>
         </div>
-        <button class="btn-next" id="btnNext" onclick="submitWatch()">✓ Mark as Watched →</button>
+        <button class="btn-next" id="btnNext" onclick="submitWatch()">&#x2713; Watched &mdash; Next Video &rarr;</button>
       </div>
     </div>
 
@@ -420,7 +433,7 @@ a{text-decoration:none;color:inherit}
     if (!isPaused || timerDone) return;
     isPaused = false;
     if (pauseOverlay) pauseOverlay.style.display = 'none';
-    watchStatus.textContent = '⏱ Watching — timer counting down';
+    watchStatus.textContent = '⏱ Watching — stay on this tab';
     watchStatus.className = 'watch-status counting';
     watchStatus.style.color = '';
     // Resume YouTube iframe
@@ -442,7 +455,7 @@ a{text-decoration:none;color:inherit}
       secondsLeft--;timerNum.textContent=secondsLeft;
       timerArc.style.strokeDashoffset=circumference*(1-(DURATION-secondsLeft)/DURATION);
       if(secondsLeft<=0){clearInterval(timerInterval);timerInterval=null;timerDone=true;timerArc.style.strokeDashoffset=0;
-        watchStatus.textContent='✅ Qualified — click to record your view';watchStatus.className='watch-status complete';watchStatus.style.color='';btnNext.classList.add('ready');}
+        watchStatus.textContent='✅ Complete — click to continue';watchStatus.className='watch-status complete';watchStatus.style.color='';btnNext.classList.add('ready');}
     },1000);
   }
 
@@ -475,8 +488,8 @@ a{text-decoration:none;color:inherit}
     document.getElementById('videoFrame').src=c.embed_url+sep+'autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&enablejsapi=1';
     const uo=document.getElementById('unmuteOverlay');if(uo)uo.classList.remove('hidden');
     secondsLeft=DURATION;timerDone=false;submitted=false;isPaused=false;timerArc.style.strokeDashoffset=circumference;
-    timerNum.textContent=DURATION;watchStatus.textContent='⏱ Watching — timer counting down';watchStatus.className='watch-status counting';watchStatus.style.color='';
-    btnNext.classList.remove('ready');btnNext.textContent='✓ Mark as Watched →';btnNext.disabled=false;
+    timerNum.textContent=DURATION;watchStatus.textContent='⏱ Watching — stay on this tab';watchStatus.className='watch-status counting';watchStatus.style.color='';
+    btnNext.classList.remove('ready');btnNext.textContent='✓ Watched — Next Video →';btnNext.disabled=false;
     if (pauseOverlay) pauseOverlay.style.display = 'none';
     startTimer();
   }
