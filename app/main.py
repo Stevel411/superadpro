@@ -1574,6 +1574,11 @@ def watch_page(request: Request, user: User = Depends(get_current_user), db: Ses
     campaign = get_next_campaign(db, user.id)
     db.commit()
 
+    # Admin/owner bypass — always commission-eligible, can always view the player
+    if user.is_admin:
+        quota.commissions_paused = False
+        quota.consecutive_missed = 0
+
     # Warning level for grace period
     warning = None
     if quota.consecutive_missed >= 3:
