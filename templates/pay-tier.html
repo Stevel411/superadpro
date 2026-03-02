@@ -158,6 +158,23 @@ tr:last-child td{border-bottom:none}
         <div id="pkgSummary" style="background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:10px;padding:16px;margin-bottom:16px;text-align:center">
           <div style="font-size:19px;color:#6b7d94;margin-bottom:6px">Select a tier to see payment details</div>
         </div>
+
+        <!-- Coinbase Commerce button -->
+        <div style="margin-bottom:20px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4ade80;margin-bottom:10px">&#x2714; Recommended — Instant Checkout</div>
+          <button onclick="payCoinbaseTier()" id="coinbaseTierBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#0052ff,#3b82f6);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s;opacity:0.5;pointer-events:none">
+            &#x1F4B3; Pay with Card or Crypto
+          </button>
+          <div style="font-size:11px;color:#64748b;margin-top:6px;text-align:center">Coinbase Commerce — Visa, Mastercard, Apple Pay, BTC, ETH, USDT</div>
+          <div id="coinbaseTierErr" style="display:none;padding:10px 14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;color:#f87171;font-size:13px;margin-top:10px"></div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
+          <div style="font-size:10px;font-weight:700;color:#475569;letter-spacing:1px;text-transform:uppercase">Or pay manually</div>
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
+        </div>
+
         <div style="margin-bottom:16px">
           <div style="font-size:19px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Send exact USDT amount to:</div>
           <div style="background:#0f172a;border-radius:8px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
@@ -197,11 +214,47 @@ function selectPkg(tier, price, earn) {
   el.style.background = 'rgba(0,180,216,0.05)';
   document.getElementById('tierInput').value = tier;
   document.getElementById('submitBtn').disabled = false;
+  // Enable Coinbase button
+  var cbBtn = document.getElementById('coinbaseTierBtn');
+  cbBtn.style.opacity = '1';
+  cbBtn.style.pointerEvents = 'all';
+  cbBtn.innerHTML = '&#x1F4B3; Pay $' + price + ' with Card or Crypto';
   document.getElementById('pkgSummary').innerHTML = `
     <div style="font-size:19px;color:#6b7d94;margin-bottom:4px">SEND EXACTLY</div>
     <div style="font-size:32px;font-weight:800;color:#ffffff">$${price} <span style="font-size:19px;color:#64748b">USDT</span></div>
     <div style="font-size:19px;color:#16a34a;margin-top:4px">Full grid potential: $${earn.toLocaleString()}</div>
   `;
+}
+
+async function payCoinbaseTier() {
+  if (!selectedTier) return;
+  var btn = document.getElementById('coinbaseTierBtn');
+  var err = document.getElementById('coinbaseTierErr');
+  err.style.display = 'none';
+  btn.disabled = true;
+  btn.innerHTML = '&#x23F3; Creating checkout...';
+
+  try {
+    var r = await fetch('/api/coinbase/create-charge', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ payment_type: 'grid_tier', package_tier: selectedTier })
+    });
+    var d = await r.json();
+    if (d.success && d.hosted_url) {
+      window.location.href = d.hosted_url;
+    } else {
+      err.textContent = d.error || 'Could not create checkout';
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.innerHTML = '&#x1F4B3; Pay with Card or Crypto';
+    }
+  } catch(x) {
+    err.textContent = 'Network error — please try again';
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.innerHTML = '&#x1F4B3; Pay with Card or Crypto';
+  }
 }
 
 function copyWallet() {

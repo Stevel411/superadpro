@@ -21,6 +21,7 @@ from .database import (
 )
 from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker
 from .database import AdBoost, BOOST_TIERS, BOOST_SPONSOR_PCT, BOOST_COMPANY_PCT
+from .coinbase_commerce import create_charge as cb_create_charge, verify_webhook_signature as cb_verify_sig, parse_webhook_event as cb_parse_event, SANDBOX_MODE as CB_SANDBOX
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent
 from .crud import create_user, verify_password
 from .grid import (
@@ -36,8 +37,10 @@ from .payment import (
     process_membership_payment, process_grid_payment,
     request_withdrawal, get_user_balance, MEMBERSHIP_FEE, COMPANY_WALLET,
     process_p2p_transfer, get_p2p_history, get_renewal_status,
-    initialise_renewal_record, process_auto_renewals
+    initialise_renewal_record, process_auto_renewals,
+    _find_overspill_placement,
 )
+from .grid import place_member_in_grid
 import re
 import bleach
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
@@ -1251,6 +1254,213 @@ def verify_grid_payment(
         "error": result["error"]
     })
     return templates.TemplateResponse("pay-tier.html", ctx)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  COINBASE COMMERCE PAYMENT ROUTES
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/coinbase/create-charge")
+async def coinbase_create_charge(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Create a Coinbase Commerce charge for membership or grid tier.
+    Body: { payment_type: "membership"|"grid_tier", package_tier: int (for grid) }
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    body = await request.json()
+    payment_type = body.get("payment_type", "")
+    package_tier = int(body.get("package_tier", 0))
+
+    if payment_type == "membership":
+        amount = MEMBERSHIP_FEE
+        description = f"Membership Activation — ${MEMBERSHIP_FEE}/month"
+        redirect = f"{os.getenv('BASE_URL', 'https://superadpro-production.up.railway.app')}/dashboard?activated=true"
+        cancel = f"{os.getenv('BASE_URL', 'https://superadpro-production.up.railway.app')}/pay-membership?cancelled=1"
+
+    elif payment_type == "grid_tier":
+        price = GRID_PACKAGES.get(package_tier)
+        if not price:
+            return JSONResponse({"error": f"Invalid tier: {package_tier}"}, status_code=400)
+        if not user.is_active:
+            return JSONResponse({"error": "Membership must be active first"}, status_code=400)
+        tier_name = {1:"Starter",2:"Builder",3:"Pro",4:"Advanced",5:"Elite",6:"Premium",7:"Executive",8:"Ultimate"}.get(package_tier, f"Tier {package_tier}")
+        amount = price
+        description = f"Income Grid — {tier_name} Tier (${price})"
+        redirect = f"{os.getenv('BASE_URL', 'https://superadpro-production.up.railway.app')}/income-grid?activated={package_tier}"
+        cancel = f"{os.getenv('BASE_URL', 'https://superadpro-production.up.railway.app')}/activate-grid?tier={package_tier}&cancelled=1"
+
+    else:
+        return JSONResponse({"error": "payment_type must be 'membership' or 'grid_tier'"}, status_code=400)
+
+    result = cb_create_charge(
+        user_id=user.id,
+        username=user.username,
+        payment_type=payment_type,
+        amount_usd=amount,
+        description=description,
+        package_tier=package_tier,
+        redirect_url=redirect,
+        cancel_url=cancel,
+    )
+
+    if result["success"]:
+        return {
+            "success": True,
+            "hosted_url": result["hosted_url"],
+            "charge_id": result["charge_id"],
+            "code": result["code"],
+        }
+    else:
+        return JSONResponse({"error": result["error"]}, status_code=500)
+
+
+@app.post("/api/webhook/coinbase")
+async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
+    """Handle Coinbase Commerce webhook events.
+    Processes charge:confirmed to activate memberships and grid tiers.
+    """
+    body = await request.body()
+    signature = request.headers.get("X-CC-Webhook-Signature", "")
+
+    # Verify signature
+    if not cb_verify_sig(body, signature):
+        logger.warning("Coinbase webhook: Invalid signature")
+        return JSONResponse({"error": "Invalid signature"}, status_code=401)
+
+    try:
+        payload = json.loads(body)
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON"}, status_code=400)
+
+    event = cb_parse_event(payload)
+    event_type = event["event_type"]
+    user_id = event["user_id"]
+    payment_type = event["payment_type"]
+
+    logger.info(f"Coinbase webhook: {event_type} for user {user_id} ({payment_type})")
+
+    # Only process confirmed charges
+    if event_type not in ("charge:confirmed", "charge:completed"):
+        # Acknowledge other events (pending, failed, etc) without processing
+        return {"status": "acknowledged", "event": event_type}
+
+    if not user_id:
+        logger.error("Coinbase webhook: No user_id in metadata")
+        return JSONResponse({"error": "Missing user_id"}, status_code=400)
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        logger.error(f"Coinbase webhook: User {user_id} not found")
+        return JSONResponse({"error": "User not found"}, status_code=404)
+
+    # Check for duplicate processing
+    existing = db.query(Payment).filter(Payment.tx_hash == f"cb_{event['charge_id']}").first()
+    if existing:
+        logger.info(f"Coinbase webhook: Charge {event['charge_id']} already processed")
+        return {"status": "already_processed"}
+
+    if payment_type == "membership":
+        # Activate membership — mirrors process_membership_payment logic
+        user.is_active = True
+        if not user.first_payment_to_company:
+            user.first_payment_to_company = True
+
+        # Record payment
+        db.add(Payment(
+            from_user_id = user_id,
+            to_user_id   = user.sponsor_id,
+            amount_usdt  = MEMBERSHIP_FEE,
+            payment_type = "membership",
+            tx_hash      = f"cb_{event['charge_id']}",
+            status       = "confirmed",
+        ))
+
+        # Credit sponsor 50% ($10)
+        if user.sponsor_id:
+            sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
+            if sponsor:
+                sponsor.balance += MEMBERSHIP_FEE * 0.5
+                sponsor.total_earned += MEMBERSHIP_FEE * 0.5
+                sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
+
+                db.add(Commission(
+                    from_user_id=user_id,
+                    to_user_id=sponsor.id,
+                    amount_usdt=MEMBERSHIP_FEE * 0.5,
+                    commission_type="membership_sponsor",
+                    package_tier=0,
+                    status="paid",
+                    paid_at=datetime.utcnow(),
+                ))
+
+        # Initialise renewal record
+        initialise_renewal_record(db, user_id, source="coinbase")
+        db.commit()
+        logger.info(f"Coinbase: Membership activated for user {user_id}")
+        return {"status": "membership_activated", "user_id": user_id}
+
+    elif payment_type == "grid_tier":
+        package_tier = event["package_tier"]
+        price = GRID_PACKAGES.get(package_tier)
+        if not price:
+            return JSONResponse({"error": f"Invalid tier: {package_tier}"}, status_code=400)
+
+        if not user.is_active:
+            return JSONResponse({"error": "User membership not active"}, status_code=400)
+
+        # Record payment
+        db.add(Payment(
+            from_user_id=user_id,
+            to_user_id=None,
+            amount_usdt=price,
+            payment_type=f"grid_tier_{package_tier}",
+            tx_hash=f"cb_{event['charge_id']}",
+            status="confirmed",
+        ))
+        db.flush()
+
+        # Place in grid — mirrors process_grid_payment logic
+        sponsor_id = user.sponsor_id
+        if not sponsor_id:
+            admin = db.query(User).filter(User.is_admin == True).first()
+            sponsor_id = admin.id if admin else 1
+
+        result = place_member_in_grid(
+            db=db,
+            member_id=user_id,
+            owner_id=sponsor_id,
+            package_tier=package_tier,
+        )
+
+        if not result["success"]:
+            result = _find_overspill_placement(db, user_id, sponsor_id, package_tier)
+
+        db.commit()
+        logger.info(f"Coinbase: Grid tier {package_tier} activated for user {user_id}")
+        return {"status": "grid_activated", "user_id": user_id, "tier": package_tier}
+
+    return {"status": "unhandled_payment_type", "payment_type": payment_type}
+
+
+@app.get("/payment/success")
+def payment_success_page(request: Request, user: User = Depends(get_current_user)):
+    """Landing page after successful Coinbase payment."""
+    return templates.TemplateResponse("payment-result.html", {
+        "request": request, "user": user, "success": True,
+    })
+
+@app.get("/payment/cancelled")
+def payment_cancelled_page(request: Request, user: User = Depends(get_current_user)):
+    """Landing page after cancelled Coinbase payment."""
+    return templates.TemplateResponse("payment-result.html", {
+        "request": request, "user": user, "success": False,
+    })
+
 
 @app.post("/withdraw")
 def withdraw(

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Payment {{ 'Complete' if success else 'Cancelled' }} — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#0a0a1a;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.card{max-width:480px;width:90%;background:linear-gradient(145deg,rgba(14,165,233,0.04),rgba(0,0,0,0.3));border:1px solid rgba(14,165,233,0.15);border-radius:20px;padding:48px 36px;text-align:center;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:{% if success %}linear-gradient(90deg,#0ea5e9,#22c55e){% else %}linear-gradient(90deg,#f59e0b,#ef4444){% endif %}}
+.icon{font-size:56px;margin-bottom:16px}
+.title{font-family:'Sora',sans-serif;font-size:24px;font-weight:800;margin-bottom:8px}
+.sub{font-size:14px;color:rgba(200,220,255,0.6);line-height:1.6;margin-bottom:28px;max-width:360px;margin-left:auto;margin-right:auto}
+.btn{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border-radius:10px;padding:13px 32px;text-decoration:none;transition:all 0.2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(14,165,233,0.35)}
+.btn-secondary{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1)}
+.btn-secondary:hover{background:rgba(255,255,255,0.1)}
+.note{font-size:12px;color:rgba(200,220,255,0.4);margin-top:20px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="card">
+  {% if success %}
+  <div class="icon">&#x1F389;</div>
+  <div class="title">Payment Confirmed!</div>
+  <div class="sub">Your payment has been received and is being processed. Your account will be activated within a few moments.</div>
+  <a href="/dashboard" class="btn">&#x2190; Go to Dashboard</a>
+  <div class="note">If your account isn't activated yet, please allow up to 5 minutes for blockchain confirmation.</div>
+  {% else %}
+  <div class="icon">&#x2716;</div>
+  <div class="title">Payment Cancelled</div>
+  <div class="sub">Your payment was not completed. No charges have been made. You can try again whenever you're ready.</div>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <a href="/pay-membership" class="btn">Try Again</a>
+    <a href="/dashboard" class="btn btn-secondary">Dashboard</a>
+  </div>
+  {% endif %}
+</div>
+</body>
+</html>
