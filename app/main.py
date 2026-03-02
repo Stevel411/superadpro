@@ -38,7 +38,8 @@ from .payment import (
     request_withdrawal, get_user_balance, MEMBERSHIP_FEE, COMPANY_WALLET,
     process_p2p_transfer, get_p2p_history, get_renewal_status,
     initialise_renewal_record, process_auto_renewals,
-    _find_overspill_placement,
+    _find_overspill_placement, _cascade_auto_activation,
+    MEMBERSHIP_SPONSOR_SHARE, MEMBERSHIP_COMPANY_SHARE,
 )
 from .grid import place_member_in_grid
 import re
@@ -746,6 +747,7 @@ def income_grid(request: Request, user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
     if not user: return RedirectResponse(url="/?login=1")
+    if not user.is_active: return RedirectResponse(url="/pay-membership")
     try:
         ctx = get_dashboard_context(request, user, db)
         grids = get_user_grids(db, user.id)
@@ -854,6 +856,7 @@ def api_wallet_connect(
 def video_library(request: Request, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
+    if not user.is_active: return RedirectResponse(url="/pay-membership")
     ctx = get_dashboard_context(request, user, db)
     campaigns = db.query(VideoCampaign).filter(
         VideoCampaign.user_id == user.id,
@@ -896,6 +899,7 @@ def delete_campaign(
 def upload_video(request: Request, user: User = Depends(get_current_user),
                  db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
+    if not user.is_active: return RedirectResponse(url="/pay-membership")
     ctx = get_dashboard_context(request, user, db)
     # Get user's highest active tier for targeting UI
     highest_grid = db.query(Grid).filter(
@@ -1380,29 +1384,71 @@ async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
             status       = "confirmed",
         ))
 
-        # Credit sponsor 50% ($10)
+        # Credit sponsor 50% ($10) and trigger auto-activation cascade
+        activated_users = []
         if user.sponsor_id:
             sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
             if sponsor:
-                sponsor.balance += MEMBERSHIP_FEE * 0.5
-                sponsor.total_earned += MEMBERSHIP_FEE * 0.5
+                sponsor.balance += MEMBERSHIP_SPONSOR_SHARE
+                sponsor.total_earned += MEMBERSHIP_SPONSOR_SHARE
                 sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
 
                 db.add(Commission(
                     from_user_id=user_id,
                     to_user_id=sponsor.id,
-                    amount_usdt=MEMBERSHIP_FEE * 0.5,
+                    amount_usdt=MEMBERSHIP_SPONSOR_SHARE,
                     commission_type="membership_sponsor",
                     package_tier=0,
                     status="paid",
                     paid_at=datetime.utcnow(),
+                    notes=f"Membership 50% sponsor share (${MEMBERSHIP_SPONSOR_SHARE})",
                 ))
+
+                # Company share record
+                db.add(Commission(
+                    from_user_id=user_id,
+                    to_user_id=None,
+                    amount_usdt=MEMBERSHIP_COMPANY_SHARE,
+                    commission_type="membership_company",
+                    package_tier=0,
+                    status="platform",
+                    paid_at=datetime.utcnow(),
+                    notes=f"Membership 50% company share (${MEMBERSHIP_COMPANY_SHARE})",
+                ))
+
+                # Auto-activation cascade — if sponsor is free and balance >= $20, auto-activate them
+                _cascade_auto_activation(
+                    db=db,
+                    recipient=sponsor,
+                    tx_hash=f"cb_{event['charge_id']}",
+                    chain_depth=1,
+                    activated_users=activated_users,
+                )
+        else:
+            # No sponsor — 100% to company
+            db.add(Commission(
+                from_user_id=user_id,
+                to_user_id=None,
+                amount_usdt=MEMBERSHIP_FEE,
+                commission_type="membership_company",
+                package_tier=0,
+                status="platform",
+                paid_at=datetime.utcnow(),
+                notes=f"Membership — no sponsor, full ${MEMBERSHIP_FEE} to company",
+            ))
 
         # Initialise renewal record
         initialise_renewal_record(db, user_id, source="coinbase")
         db.commit()
+
+        # Log cascade activations
+        if activated_users:
+            logger.info(f"Coinbase: Auto-activated {len(activated_users)} users in cascade")
+            for au, depth in activated_users:
+                logger.info(f"  → Auto-activated user {au.id} ({au.username}) at depth {depth}")
+
         logger.info(f"Coinbase: Membership activated for user {user_id}")
-        return {"status": "membership_activated", "user_id": user_id}
+        return {"status": "membership_activated", "user_id": user_id, "cascade_activations": len(activated_users)}
 
     elif payment_type == "grid_tier":
         package_tier = event["package_tier"]
@@ -3923,6 +3969,7 @@ Keep recommendations concise, specific and immediately actionable. Use a friendl
 def campaign_studio(request: Request, user: User = Depends(get_current_user),
                     db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
+    if not user.is_active: return RedirectResponse(url="/pay-membership")
     ctx = get_dashboard_context(request, user, db)
     return templates.TemplateResponse("campaign-studio.html", ctx)
 
@@ -4399,6 +4446,7 @@ def cron_process_renewals_ping(request: Request):
 def niche_finder(request: Request, user: User = Depends(get_current_user),
                  db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
+    if not user.is_active: return RedirectResponse(url="/pay-membership")
     ctx = get_dashboard_context(request, user, db)
     return templates.TemplateResponse("niche-finder.html", ctx)
 
@@ -4553,6 +4601,7 @@ IMPORTANT:
 def social_post_generator_page(request: Request, user: User = Depends(get_current_user),
                                 db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
+    if not user.is_active: return RedirectResponse(url="/pay-membership")
     ctx = get_dashboard_context(request, user, db)
     return templates.TemplateResponse("social-post-generator.html", ctx)
 
@@ -4649,6 +4698,7 @@ Return ONLY the posts, no preamble or explanation."""
 def email_swipes_page(request: Request, user: User = Depends(get_current_user),
                        db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
+    if not user.is_active: return RedirectResponse(url="/pay-membership")
     ctx = get_dashboard_context(request, user, db)
     return templates.TemplateResponse("email-swipes.html", ctx)
 
@@ -4661,6 +4711,7 @@ def email_swipes_page(request: Request, user: User = Depends(get_current_user),
 def video_script_generator_page(request: Request, user: User = Depends(get_current_user),
                                  db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
+    if not user.is_active: return RedirectResponse(url="/pay-membership")
     ctx = get_dashboard_context(request, user, db)
     return templates.TemplateResponse("video-script-generator.html", ctx)
 
@@ -4773,6 +4824,7 @@ RULES:
 def swipe_file(request: Request, user: User = Depends(get_current_user),
                db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
+    if not user.is_active: return RedirectResponse(url="/pay-membership")
     ctx = get_dashboard_context(request, user, db)
     return templates.TemplateResponse("swipe-file.html", ctx)
 
@@ -5187,6 +5239,8 @@ async def purchase_course(course_id: int, request: Request, db: Session = Depend
     user = get_current_user(request, db)
     if not user:
         return RedirectResponse("/login?next=/courses", status_code=303)
+    if not user.is_active:
+        return RedirectResponse(url="/pay-membership")
 
     result = process_course_purchase(db, user.id, course_id, payment_method="wallet")
 
@@ -5209,6 +5263,8 @@ async def course_learn(course_id: int, request: Request, purchased: int = 0, db:
     user = get_current_user(request, db)
     if not user:
         return RedirectResponse("/login?next=/courses", status_code=303)
+    if not user.is_active:
+        return RedirectResponse(url="/pay-membership")
 
     course = db.query(Course).filter(Course.id == course_id).first()
     if not course:
@@ -5236,6 +5292,8 @@ async def course_commissions_page(request: Request, db: Session = Depends(get_db
     user = get_current_user(request, db)
     if not user:
         return RedirectResponse("/login?next=/courses/commissions", status_code=303)
+    if not user.is_active:
+        return RedirectResponse(url="/pay-membership")
 
     stats = get_user_course_stats(db, user.id)
 
