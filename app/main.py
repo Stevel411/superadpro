@@ -1944,6 +1944,95 @@ def dev_reset_watch(db: Session = Depends(get_db), user: User = Depends(get_curr
     db.commit()
     return RedirectResponse(url="/watch", status_code=303)
 
+@app.get("/dev/test-coinbase")
+def dev_test_coinbase(request: Request, user: User = Depends(get_current_user)):
+    """TEMPORARY — test Coinbase payment flow. Shows buttons for membership + each grid tier."""
+    if not user: return RedirectResponse(url="/?login=1")
+    html = f"""<!DOCTYPE html><html><head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Test Coinbase — SuperAdPro</title>
+    <style>
+    *{{box-sizing:border-box;margin:0;padding:0}}
+    body{{font-family:system-ui,sans-serif;background:#0a0a1a;color:#fff;min-height:100vh;padding:40px 20px}}
+    .wrap{{max-width:600px;margin:0 auto}}
+    h1{{font-size:24px;margin-bottom:8px}}
+    .sub{{color:#64748b;font-size:14px;margin-bottom:30px}}
+    .card{{background:#111827;border:1px solid #1e293b;border-radius:12px;padding:20px;margin-bottom:14px}}
+    .card h3{{font-size:16px;margin-bottom:4px}}
+    .card .price{{font-size:24px;font-weight:800;color:#38bdf8;margin-bottom:12px}}
+    .btn{{width:100%;padding:13px;background:linear-gradient(135deg,#0052ff,#3b82f6);border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:700;cursor:pointer}}
+    .btn:hover{{opacity:0.9}}
+    .btn:disabled{{opacity:0.4;cursor:not-allowed}}
+    .err{{color:#f87171;font-size:13px;margin-top:8px;display:none}}
+    .ok{{color:#4ade80;font-size:13px;margin-top:8px}}
+    .note{{color:#64748b;font-size:12px;margin-top:6px;text-align:center}}
+    .status{{margin-bottom:20px;padding:14px;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);border-radius:10px;font-size:13px}}
+    .back{{display:inline-block;color:#38bdf8;font-size:13px;margin-bottom:20px}}
+    </style></head><body>
+    <div class="wrap">
+    <a href="/dashboard" class="back">&larr; Back to Dashboard</a>
+    <h1>&#x1F9EA; Coinbase Payment Test</h1>
+    <div class="sub">Test the payment flow without affecting your account. Click any button to create a real Coinbase charge.</div>
+
+    <div class="status">
+    <strong>Config status:</strong><br>
+    API Key: {'&#x2705; Set' if os.getenv('COINBASE_COMMERCE_API_KEY') else '&#x274C; Missing'}<br>
+    Webhook Secret: {'&#x2705; Set' if os.getenv('COINBASE_WEBHOOK_SECRET') else '&#x274C; Missing'}<br>
+    User: {user.username} (ID: {user.id}) &middot; Active: {user.is_active}
+    </div>
+
+    <div class="card">
+    <h3>Membership Activation</h3>
+    <div class="price">${MEMBERSHIP_FEE}</div>
+    <button class="btn" onclick="testPay('membership', 0, this)">Pay Membership via Coinbase</button>
+    <div class="err" id="err-membership"></div>
+    <div class="note">Creates a real $20 charge — you can close the Coinbase page without paying</div>
+    </div>
+    """
+
+    tiers = {1:"Starter",2:"Builder",3:"Pro",4:"Advanced",5:"Elite",6:"Premium",7:"Executive",8:"Ultimate"}
+    for tier, name in tiers.items():
+        price = GRID_PACKAGES.get(tier, 0)
+        html += f"""
+    <div class="card">
+    <h3>Grid Tier {tier} — {name}</h3>
+    <div class="price">${price}</div>
+    <button class="btn" onclick="testPay('grid_tier', {tier}, this)">Pay {name} Tier via Coinbase</button>
+    <div class="err" id="err-grid_tier-{tier}"></div>
+    </div>"""
+
+    html += """
+    <script>
+    async function testPay(type, tier, btn) {
+      btn.disabled = true; btn.textContent = 'Creating charge...';
+      var errId = type === 'membership' ? 'err-membership' : 'err-grid_tier-' + tier;
+      var errEl = document.getElementById(errId);
+      errEl.style.display = 'none';
+      try {
+        var r = await fetch('/api/coinbase/create-charge', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({payment_type: type, package_tier: tier})
+        });
+        var d = await r.json();
+        if (d.success && d.hosted_url) {
+          btn.textContent = 'Redirecting to Coinbase...';
+          window.location.href = d.hosted_url;
+        } else {
+          errEl.textContent = d.error || 'Failed to create charge';
+          errEl.style.display = 'block';
+          btn.disabled = false; btn.textContent = 'Try Again';
+        }
+      } catch(e) {
+        errEl.textContent = 'Network error: ' + e.message;
+        errEl.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Try Again';
+      }
+    }
+    </script>
+    </div></body></html>"""
+    return HTMLResponse(html)
+
 @app.get("/admin")
 def admin_panel(request: Request, user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
