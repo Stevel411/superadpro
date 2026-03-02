@@ -214,7 +214,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "grid_earnings":     round(float(user.grid_earnings or 0), 2),
         "level_earnings":    round(float(user.level_earnings or 0), 2),
         "upline_earnings":   round(float(user.upline_earnings or 0), 2),
-        "sponsor_earnings":  round(float(user.level_earnings or 0), 2),
+        "sponsor_earnings":  round(float(user.upline_earnings or 0), 2),
         "personal_referrals":user.personal_referrals or 0,
         "total_team":        user.total_team or 0,
         "grid_stats":        stats,
@@ -1393,6 +1393,7 @@ async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
             if sponsor:
                 sponsor.balance += sponsor_share
                 sponsor.total_earned += sponsor_share
+                sponsor.upline_earnings = (sponsor.upline_earnings or decimal.Decimal('0')) + sponsor_share
                 sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
 
                 db.add(Commission(
@@ -1827,6 +1828,11 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
 def watch_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not user:     return RedirectResponse(url="/?login=1")
     if not user.is_active: return RedirectResponse(url="/pay-membership")
+
+    # Require at least one active grid to access Watch to Earn
+    has_grid = db.query(Grid).filter(Grid.owner_id == user.id).first()
+    if not has_grid and not user.is_admin:
+        return RedirectResponse(url="/income-grid?need_grid=1")
 
     quota    = get_or_create_quota(db, user)
     campaign = get_next_campaign(db, user.id)

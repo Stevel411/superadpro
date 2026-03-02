@@ -237,6 +237,7 @@ def process_membership_payment(db: Session, user_id: int, tx_hash: str) -> dict:
         if sponsor:
             sponsor.balance          += MEMBERSHIP_SPONSOR_SHARE
             sponsor.total_earned     += MEMBERSHIP_SPONSOR_SHARE
+            sponsor.upline_earnings  = (sponsor.upline_earnings or 0) + MEMBERSHIP_SPONSOR_SHARE
             sponsor.personal_referrals += 1
 
             # Record sponsor commission
