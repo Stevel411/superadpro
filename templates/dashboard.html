@@ -435,39 +435,70 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
             <div class="card-title"><div class="card-dot" style="background:#0ea5e9"></div>Earnings Breakdown</div>
             <a href="/wallet" class="card-link">Details →</a>
           </div>
-          <div class="card-body">
-            {% set max_earn = [grid_earnings, level_earnings, sponsor_earnings, 1]|max %}
-            <div class="earn-item">
-              <span style="font-size:16px;color:#4a5a6e;width:150px;flex-shrink:0">Direct Sponsor (25%)</span>
-              <div class="earn-bar-wrap"><div class="earn-bar" style="width:{{ ((grid_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#16a34a,#059669)"></div></div>
-              <span style="font-size:16px;font-weight:800;color:#16a34a;width:76px;text-align:right">${{ '%.2f'|format(grid_earnings) }}</span>
-            </div>
-            <div class="earn-item">
-              <span style="font-size:16px;color:#4a5a6e;width:150px;flex-shrink:0">Uni-Level (6.875%×8)</span>
-              <div class="earn-bar-wrap"><div class="earn-bar" style="width:{{ ((level_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#0ea5e9,#38bdf8)"></div></div>
-              <span style="font-size:16px;font-weight:800;color:#0ea5e9;width:76px;text-align:right">${{ '%.2f'|format(level_earnings) }}</span>
-            </div>
-            <div class="earn-item">
-              <span style="font-size:16px;color:#4a5a6e;width:150px;flex-shrink:0">Membership (S1)</span>
-              <div class="earn-bar-wrap"><div class="earn-bar" style="width:{{ ((sponsor_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#0ea5e9,#38bdf8)"></div></div>
-              <span style="font-size:16px;font-weight:800;color:#0ea5e9;width:76px;text-align:right">${{ '%.2f'|format(sponsor_earnings) }}</span>
-            </div>
+          <div class="card-body" style="padding:16px 20px">
+            {% set total_streams = sponsor_earnings + grid_earnings + level_earnings %}
+            {% set max_earn = [sponsor_earnings, grid_earnings, level_earnings, 1]|max %}
 
-            <div style="height:1px;background:#f0f2f8;margin:18px 0"></div>
-
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
-              <div style="background:#f5f7fb;border-radius:8px;padding:12px;border:1px solid #d0d8e4;text-align:center">
-                <div style="font-size:16px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Directs</div>
-                <div style="font-size:28px;font-weight:800;color:#0f172a">{{ personal_referrals }}</div>
+            <!-- Stream 1: Membership -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:8px;height:8px;border-radius:50%;background:#16a34a;flex-shrink:0"></div>
+                <span style="font-size:13px;font-weight:600;color:#334155">Membership (50%)</span>
               </div>
-              <div style="background:#f5f7fb;border-radius:8px;padding:12px;border:1px solid #d0d8e4;text-align:center">
-                <div style="font-size:16px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Advances</div>
-                <div style="font-size:28px;font-weight:800;color:#0f172a">{{ grid_stats.completed_advances }}</div>
+              <span style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(sponsor_earnings) }}</span>
+            </div>
+            <div style="height:5px;background:#e8ecf4;border-radius:99px;overflow:hidden;margin-bottom:14px">
+              <div style="height:100%;width:{{ ((sponsor_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#16a34a,#22c55e);border-radius:99px"></div>
+            </div>
+
+            <!-- Stream 2: Grid Direct Sponsor -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex-shrink:0"></div>
+                <span style="font-size:13px;font-weight:600;color:#334155">Grid Direct (40%)</span>
+              </div>
+              <span style="font-size:14px;font-weight:800;color:#0ea5e9">${{ '%.2f'|format(grid_earnings) }}</span>
+            </div>
+            <div style="height:5px;background:#e8ecf4;border-radius:99px;overflow:hidden;margin-bottom:14px">
+              <div style="height:100%;width:{{ ((grid_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#0284c7,#38bdf8);border-radius:99px"></div>
+            </div>
+
+            <!-- Stream 3: Grid Uni-Level -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;flex-shrink:0"></div>
+                <span style="font-size:13px;font-weight:600;color:#334155">Grid Uni-Level (55%)</span>
+              </div>
+              <span style="font-size:14px;font-weight:800;color:#8b5cf6">${{ '%.2f'|format(level_earnings) }}</span>
+            </div>
+            <div style="height:5px;background:#e8ecf4;border-radius:99px;overflow:hidden;margin-bottom:12px">
+              <div style="height:100%;width:{{ ((level_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:99px"></div>
+            </div>
+
+            <!-- Totals row -->
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <span style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px">Total Earned</span>
+              <span style="font-size:18px;font-weight:800;color:#0f172a">${{ '%.2f'|format(total_earned) }}</span>
+            </div>
+
+            <!-- Directs + Network mini stats -->
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+              <div style="background:#f5f7fb;border-radius:8px;padding:10px;border:1px solid #e2e8f0;text-align:center">
+                <div style="font-size:9px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Directs</div>
+                <div style="font-size:22px;font-weight:800;color:#0f172a">{{ personal_referrals }}</div>
+              </div>
+              <div style="background:#f5f7fb;border-radius:8px;padding:10px;border:1px solid #e2e8f0;text-align:center">
+                <div style="font-size:9px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Network</div>
+                <div style="font-size:22px;font-weight:800;color:#0f172a">{{ total_team }}</div>
+              </div>
+              <div style="background:#f5f7fb;border-radius:8px;padding:10px;border:1px solid #e2e8f0;text-align:center">
+                <div style="font-size:9px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Advances</div>
+                <div style="font-size:22px;font-weight:800;color:#0f172a">{{ grid_stats.completed_advances }}</div>
               </div>
             </div>
 
             {% if balance > 5 %}
-            <a href="/wallet" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;background:linear-gradient(135deg,#dcfce7,#d1fae5);border:1px solid #bbf7d0;border-radius:8px;font-size:16px;font-weight:700;color:#16a34a;text-decoration:none">
+            <a href="/wallet" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;margin-top:14px;background:linear-gradient(135deg,#dcfce7,#d1fae5);border:1px solid #bbf7d0;border-radius:8px;font-size:14px;font-weight:700;color:#16a34a;text-decoration:none">
               ◎ Withdraw ${{ '%.2f'|format(balance) }} USDT →
             </a>
             {% endif %}
