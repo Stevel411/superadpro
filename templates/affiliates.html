@@ -77,22 +77,62 @@ footer{border-top:1px solid rgba(0,180,216,0.08);padding:32px 40px;display:flex;
 .footer-links a{font-size:12px;color:rgba(200,220,255,0.3);text-decoration:none}
 .footer-copy{font-size:12px;color:rgba(200,220,255,0.15)}
 .disc{max-width:700px;margin:0 auto;padding:0 40px 40px;font-size:11px;color:rgba(200,220,255,0.2);line-height:1.6;text-align:center}
-@media(max-width:900px){.nav-links{display:none}.stream-row,.stream-row.rev{grid-template-columns:1fr;direction:ltr}.math{grid-template-columns:1fr}.hero{padding:60px 20px 40px}.container{padding:0 20px}nav{padding:0 20px}footer{flex-direction:column;gap:14px;text-align:center}}
+@media(max-width:900px){.nav-links{display:none}.hamburger{display:block}.stream-row,.stream-row.rev{grid-template-columns:1fr;direction:ltr}.math{grid-template-columns:1fr}.hero{padding:60px 20px 40px}.container{padding:0 20px}nav{padding:0 20px}footer{flex-direction:column;gap:14px;text-align:center}}
+
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.nav-sep{color:rgba(200,220,255,0.25);font-size:10px}
+.hamburger{display:none;background:none;border:none;color:#38bdf8;font-size:24px;cursor:pointer}
+.nav-login{font-size:16px;font-weight:600;color:rgba(200,230,210,0.6);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:7px;transition:all 0.2s}
+.nav-login:hover{color:rgba(200,230,210,0.9)}
+.mobile-menu{display:none;position:fixed;inset:0;z-index:99;background:rgba(5,13,26,0.98);padding:80px 32px 32px;flex-direction:column;gap:16px}
+.mobile-menu.open{display:flex}
+.mobile-menu a{font-size:18px;font-weight:600;color:rgba(200,220,255,0.7);text-decoration:none;padding:10px 0;border-bottom:1px solid rgba(0,180,216,0.08)}
+.m-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+.m-overlay.open{display:flex}
+.m-box{background:#0f1729;border:1px solid rgba(0,180,216,0.2);border-radius:16px;padding:36px;max-width:420px;width:90%;position:relative}
+.m-close{position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(200,220,255,0.4);font-size:20px;cursor:pointer}
+.m-title{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:6px}
+.m-sub{font-size:14px;color:rgba(200,220,255,0.5);margin-bottom:20px}
+.m-err{display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px}
+.m-field{margin-bottom:14px}
+.m-label{display:block;font-size:12px;font-weight:600;color:rgba(200,220,255,0.5);margin-bottom:5px}
+.m-input{width:100%;padding:10px 14px;background:rgba(0,20,50,0.5);border:1px solid rgba(0,180,216,0.15);border-radius:8px;color:#fff;font-size:14px;font-family:inherit;outline:none;transition:border-color 0.2s}
+.m-input:focus{border-color:#0ea5e9}
+.m-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.m-terms{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:rgba(200,220,255,0.5);margin-bottom:18px;line-height:1.4}
+.m-terms a{color:#38bdf8}
+.m-btn{width:100%;padding:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-weight:700;font-size:15px;border:none;border-radius:8px;cursor:pointer;transition:box-shadow 0.2s;font-family:inherit}
+.m-btn:hover{box-shadow:0 4px 20px rgba(14,165,233,0.4)}
+.m-foot{text-align:center;margin-top:16px;font-size:13px;color:rgba(200,220,255,0.4)}
+.m-foot a{color:#38bdf8;text-decoration:none}
 </style>
 </head>
 <body>
 
 <nav>
-    <a href="/" class="nav-brand"><svg width="28" height="28" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#nlg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="nlg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg><span>Super<b>Ad</b>Pro</span></a>
-    <ul class="nav-links"><li><a href="/how-it-works">How It Works</a></li><li><a href="/for-advertisers">Advertisers</a></li><li><a href="/ads">Ad Board</a></li><li><a href="/affiliates" style="color:#34d399">Affiliates</a></li><li><a href="/faq">FAQ</a></li><li><a href="/support-public">Support</a></li></ul>
-    <div style="display:flex;align-items:center;gap:10px"><a href="/login" style="font-size:19px;color:rgba(200,220,255,0.7);text-decoration:none">Log In</a><a href="/register" class="nav-cta">Get started →</a></div>
+    <a href="/" class="nav-logo">
+        <span class="nav-brand"><svg style="width:24px;height:24px;vertical-align:middle;margin-right:6px" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>Super<span>Ad</span>Pro</span>
+    </a>
+    <ul class="nav-links">
+        <li><a href="/how-it-works">How It Works</a></li><li><span class="nav-sep">&middot;</span></li>
+        <li><a href="/for-advertisers">Advertisers</a></li><li><span class="nav-sep">&middot;</span></li>
+        <li><a href="/ads">Ad Board</a></li><li><span class="nav-sep">&middot;</span></li>
+        <li><a href="/affiliates" style="color:#fff">Affiliates</a></li><li><span class="nav-sep">&middot;</span></li>
+        <li><a href="/faq">FAQ</a></li><li><span class="nav-sep">&middot;</span></li>
+        <li><a href="/support-public">Support</a></li>
+    </ul>
+    <div style="display:flex;align-items:center;gap:10px">
+        <a href="#" class="nav-login" onclick="mOpen('mLogin');return false;">Log In</a>
+        <a href="#" class="nav-cta" onclick="mOpen('mReg');return false;">Get started &rarr;</a>
+        <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">&#9776;</button>
+    </div>
 </nav>
 
 <div class="hero">
     <div class="badge"><div class="pulse"></div>Affiliate Programme</div>
     <h1>Earn From Three<br><em>Independent Income Streams</em></h1>
     <p>SuperAdPro pays 95% of every dollar back to its members. Build recurring monthly income, grid commissions, and course sales — all from a single $20/month membership.</p>
-    <div><a href="/register" class="btn-primary">🚀 Join SuperAdPro</a></div>
+    <div><a href="#" class="btn-primary" onclick="mOpen('mReg');return false;">🚀 Join SuperAdPro</a></div>
 </div>
 
 <!-- STREAM 1: MONTHLY MEMBERSHIP -->
@@ -216,7 +256,7 @@ footer{border-top:1px solid rgba(0,180,216,0.08);padding:32px 40px;display:flex;
 <div class="cta-band">
     <h2>Start Building Your Income Today</h2>
     <p>$20/month unlocks all three streams, 9 AI marketing tools, and your affiliate link.</p>
-    <a href="/register" class="btn-primary">🚀 Join SuperAdPro Now</a>
+    <a href="#" class="btn-primary" onclick="mOpen('mReg');return false;">🚀 Join SuperAdPro Now</a>
 </div>
 
 <div class="disc">Income examples are for illustration only. Actual earnings depend on individual effort, network activity, and market conditions. SuperAdPro does not guarantee any specific income level.</div>
@@ -225,5 +265,51 @@ footer{border-top:1px solid rgba(0,180,216,0.08);padding:32px 40px;display:flex;
     <div class="footer-links"><a href="/">Home</a><a href="/how-it-works">How It Works</a><a href="/for-advertisers">Advertisers</a><a href="/faq">FAQ</a><a href="/legal">Legal</a><a href="/contact">Contact</a></div>
     <div class="footer-copy">© 2026 SuperAdPro. All rights reserved.</div>
 </footer>
+
+<!-- LOGIN MODAL -->
+<div class="m-overlay" id="mLogin" onclick="if(event.target===this)mClose('mLogin')">
+  <div class="m-box">
+    <button class="m-close" onclick="mClose('mLogin')">&#x2715;</button>
+    <div class="m-title">Log In</div>
+    <div class="m-sub">Welcome back &mdash; enter your details below</div>
+    <div id="loginErr" class="m-err"></div>
+    <form id="loginForm" onsubmit="doLogin(event)">
+      <div class="m-field"><label class="m-label">Username or Email</label><input class="m-input" type="text" id="loginUser" placeholder="username or email" required autocomplete="username"></div>
+      <div class="m-field" style="margin-bottom:6px"><label class="m-label">Password</label><input class="m-input" type="password" id="loginPw" placeholder="Your password" required autocomplete="current-password"></div>
+      <div style="text-align:right;margin-bottom:18px"><a href="/forgot-password" style="font-size:13px;color:rgba(0,212,255,0.7);text-decoration:none">Forgot password?</a></div>
+      <button type="submit" class="m-btn" id="loginBtn">Log In &rarr;</button>
+    </form>
+    <div class="m-foot">Don't have an account? <a href="#" onclick="mClose('mLogin');mOpen('mReg');return false;">Register here &rarr;</a></div>
+  </div>
+</div>
+<!-- REGISTER MODAL -->
+<div class="m-overlay" id="mReg" onclick="if(event.target===this)mClose('mReg')">
+  <div class="m-box">
+    <button class="m-close" onclick="mClose('mReg')">&#x2715;</button>
+    <div class="m-title">Create Your Free Account</div>
+    <div class="m-sub">Takes 60 seconds &middot; No credit card required</div>
+    <div id="regErr" class="m-err"></div>
+    <form id="regForm" onsubmit="doRegister(event)">
+      <input type="hidden" id="regRef" value="">
+      <div class="m-field"><label class="m-label">First Name</label><input class="m-input" type="text" id="regFirst" placeholder="John" required autocomplete="given-name"></div>
+      <div class="m-field"><label class="m-label">Email Address</label><input class="m-input" type="email" id="regEmail" placeholder="john@example.com" required autocomplete="email"></div>
+      <div class="m-field"><label class="m-label">Username</label><input class="m-input" type="text" id="regUser" placeholder="johnsmith99" required autocomplete="off" pattern="[a-zA-Z0-9_]{3,30}"></div>
+      <div class="m-row"><div class="m-field"><label class="m-label">Password</label><input class="m-input" type="password" id="regPw" placeholder="Min. 8 chars" required minlength="8" autocomplete="new-password"></div><div class="m-field"><label class="m-label">Confirm</label><input class="m-input" type="password" id="regPwC" placeholder="Repeat" required autocomplete="new-password"></div></div>
+      <div class="m-field" id="regSponsorWrap" style="display:none"><label class="m-label">Referred by</label><input class="m-input" type="text" id="regSponsorShow" readonly style="opacity:0.55;cursor:default"></div>
+      <div class="m-terms"><input type="checkbox" id="regTerms"><div>I agree to the <a href="/legal" target="_blank">Terms of Service</a> and <a href="/legal" target="_blank">Privacy Policy</a>.</div></div>
+      <button type="submit" class="m-btn" id="regBtn">Register Here &rarr;</button>
+    </form>
+    <div class="m-foot">Already have an account? <a href="#" onclick="mClose('mReg');mOpen('mLogin');return false;">Log in here &rarr;</a></div>
+  </div>
+</div>
+<script>
+function toggleMobileMenu(){var m=document.getElementById('mobileMenu');if(m)m.classList.toggle('open');}
+function mOpen(id,sponsor){var el=document.getElementById(id);if(!el)return;el.classList.add('open');document.body.style.overflow='hidden';if(sponsor&&id==='mReg'){document.getElementById('regRef').value=sponsor;document.getElementById('regSponsorShow').value=sponsor;document.getElementById('regSponsorWrap').style.display='block';}setTimeout(function(){var f=el.querySelector('input:not([type=hidden])');if(f)f.focus();},250);}
+function mClose(id){var el=document.getElementById(id);if(el)el.classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){mClose('mReg');mClose('mLogin');}});
+async function doLogin(e){e.preventDefault();var err=document.getElementById('loginErr'),btn=document.getElementById('loginBtn');err.style.display='none';btn.disabled=true;btn.textContent='Logging in...';try{var r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:document.getElementById('loginUser').value,password:document.getElementById('loginPw').value})});var d=await r.json();if(d.success){window.location.href=d.redirect||'/dashboard';return;}err.textContent=d.error||'Login failed.';err.style.display='block';}catch(x){err.textContent='Network error.';err.style.display='block';}btn.disabled=false;btn.textContent='Log In →';}
+async function doRegister(e){e.preventDefault();var err=document.getElementById('regErr'),btn=document.getElementById('regBtn');err.style.display='none';if(document.getElementById('regPw').value!==document.getElementById('regPwC').value){err.textContent='Passwords do not match.';err.style.display='block';return;}if(!document.getElementById('regTerms').checked){err.textContent='Please tick the Terms checkbox.';err.style.display='block';return;}btn.disabled=true;btn.textContent='Creating account...';try{var r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({first_name:document.getElementById('regFirst').value,email:document.getElementById('regEmail').value,username:document.getElementById('regUser').value,password:document.getElementById('regPw').value,confirm_password:document.getElementById('regPwC').value,ref:document.getElementById('regRef').value,beta_code:''})});var d=await r.json();if(d.success){window.location.href=d.redirect||'/dashboard?new=1';return;}err.textContent=d.error||'Something went wrong.';err.style.display='block';}catch(x){err.textContent='Network error.';err.style.display='block';}btn.disabled=false;btn.textContent='Register Here →';}
+(function(){var p=new URLSearchParams(window.location.search);var sponsor=p.get('join')||'';if(p.get('login')==='1'){mOpen('mLogin');}else if(p.get('register')==='1'){mOpen('mReg');}else if(sponsor){mOpen('mReg',sponsor);}})();
+</script>
 </body>
 </html>

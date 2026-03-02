@@ -109,6 +109,29 @@ footer{border-top:1px solid rgba(0,180,216,0.08);padding:28px 40px;display:flex;
 .fc{font-size:12px;color:rgba(200,220,255,0.15)}
 
 @media(max-width:768px){.nl{display:none}nav{padding:0 20px}.hero{padding:32px 20px 24px}.hero-stats{gap:20px}.grid{grid-template-columns:1fr}.wrap{padding:0 16px}.rot-bar{flex-direction:column;gap:8px;text-align:center}footer{flex-direction:column;gap:12px;text-align:center;padding:28px 20px}}
+
+.hamburger{display:none;background:none;border:none;color:#38bdf8;font-size:24px;cursor:pointer}
+.mobile-menu{display:none;position:fixed;inset:0;z-index:99;background:rgba(5,13,26,0.98);padding:80px 32px 32px;flex-direction:column;gap:16px}
+.mobile-menu.open{display:flex}
+.mobile-menu a{font-size:18px;font-weight:600;color:rgba(200,220,255,0.7);text-decoration:none;padding:10px 0;border-bottom:1px solid rgba(0,180,216,0.08)}
+.m-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+.m-overlay.open{display:flex}
+.m-box{background:#0f1729;border:1px solid rgba(0,180,216,0.2);border-radius:16px;padding:36px;max-width:420px;width:90%;position:relative}
+.m-close{position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(200,220,255,0.4);font-size:20px;cursor:pointer}
+.m-title{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:6px}
+.m-sub{font-size:14px;color:rgba(200,220,255,0.5);margin-bottom:20px}
+.m-err{display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px}
+.m-field{margin-bottom:14px}
+.m-label{display:block;font-size:12px;font-weight:600;color:rgba(200,220,255,0.5);margin-bottom:5px}
+.m-input{width:100%;padding:10px 14px;background:rgba(0,20,50,0.5);border:1px solid rgba(0,180,216,0.15);border-radius:8px;color:#fff;font-size:14px;font-family:inherit;outline:none;transition:border-color 0.2s}
+.m-input:focus{border-color:#0ea5e9}
+.m-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.m-terms{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:rgba(200,220,255,0.5);margin-bottom:18px;line-height:1.4}
+.m-terms a{color:#38bdf8}
+.m-btn{width:100%;padding:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-weight:700;font-size:15px;border:none;border-radius:8px;cursor:pointer;transition:box-shadow 0.2s;font-family:inherit}
+.m-btn:hover{box-shadow:0 4px 20px rgba(14,165,233,0.4)}
+.m-foot{text-align:center;margin-top:16px;font-size:13px;color:rgba(200,220,255,0.4)}
+.m-foot a{color:#38bdf8;text-decoration:none}
 </style>
 </head>
 <body>
@@ -116,7 +139,7 @@ footer{border-top:1px solid rgba(0,180,216,0.08);padding:28px 40px;display:flex;
 <nav>
     <a href="/" class="nb">
         <svg width="28" height="28" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#nlg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="nlg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
-        <span>Super<b>Ad</b>Pro</span>
+        <span style="font-family:Sora,sans-serif;font-weight:800;font-size:19px;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
     </a>
     <ul class="nl">
         <li><a href="/how-it-works">How It Works</a></li>
@@ -131,6 +154,14 @@ footer{border-top:1px solid rgba(0,180,216,0.08);padding:28px 40px;display:flex;
         <a href="/register" class="ncta">Get started →</a>
     </div>
 </nav>
+
+<div class="mobile-menu" id="mobileMenu">
+    <a href="/how-it-works">How It Works</a><a href="/for-advertisers">Advertisers</a><a href="/ads">Ad Board</a><a href="/affiliates">Affiliates</a><a href="/faq">FAQ</a><a href="/support-public">Support</a>
+    <div style="border-top:1px solid rgba(0,180,216,0.15);margin:12px 0;padding-top:12px;display:flex;flex-direction:column;gap:10px">
+        <a href="#" onclick="mOpen('mLogin');toggleMobileMenu();return false;" style="color:#38bdf8">Log In</a>
+        <a href="#" onclick="mOpen('mReg');toggleMobileMenu();return false;" style="text-align:center;display:block;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;padding:12px;border-radius:8px;font-weight:700">Register Here</a>
+    </div>
+</div>
 
 <div class="hero">
     <div class="hero-badge"><div class="dot"></div>Live Marketplace</div>
@@ -249,5 +280,18 @@ function setView(mode){
     else{g.style.gridTemplateColumns='repeat(auto-fill,minmax(260px,1fr))';}
 }
 </script>
+
+<div class="m-overlay" id="mLogin" onclick="if(event.target===this)mClose('mLogin')"><div class="m-box"><button class="m-close" onclick="mClose('mLogin')">&#x2715;</button><div class="m-title">Log In</div><div class="m-sub">Welcome back</div><div id="loginErr" class="m-err"></div><form id="loginForm" onsubmit="doLogin(event)"><div class="m-field"><label class="m-label">Username or Email</label><input class="m-input" type="text" id="loginUser" required autocomplete="username"></div><div class="m-field" style="margin-bottom:6px"><label class="m-label">Password</label><input class="m-input" type="password" id="loginPw" required autocomplete="current-password"></div><div style="text-align:right;margin-bottom:18px"><a href="/forgot-password" style="font-size:13px;color:rgba(0,212,255,0.7);text-decoration:none">Forgot password?</a></div><button type="submit" class="m-btn" id="loginBtn">Log In &rarr;</button></form><div class="m-foot">No account? <a href="#" onclick="mClose('mLogin');mOpen('mReg');return false;">Register &rarr;</a></div></div></div>
+<div class="m-overlay" id="mReg" onclick="if(event.target===this)mClose('mReg')"><div class="m-box"><button class="m-close" onclick="mClose('mReg')">&#x2715;</button><div class="m-title">Create Your Free Account</div><div class="m-sub">60 seconds &middot; No credit card</div><div id="regErr" class="m-err"></div><form id="regForm" onsubmit="doRegister(event)"><input type="hidden" id="regRef" value=""><div class="m-field"><label class="m-label">First Name</label><input class="m-input" type="text" id="regFirst" required autocomplete="given-name"></div><div class="m-field"><label class="m-label">Email</label><input class="m-input" type="email" id="regEmail" required autocomplete="email"></div><div class="m-field"><label class="m-label">Username</label><input class="m-input" type="text" id="regUser" required autocomplete="off" pattern="[a-zA-Z0-9_]{3,30}"></div><div class="m-row"><div class="m-field"><label class="m-label">Password</label><input class="m-input" type="password" id="regPw" required minlength="8" autocomplete="new-password"></div><div class="m-field"><label class="m-label">Confirm</label><input class="m-input" type="password" id="regPwC" required autocomplete="new-password"></div></div><div class="m-field" id="regSponsorWrap" style="display:none"><label class="m-label">Referred by</label><input class="m-input" type="text" id="regSponsorShow" readonly style="opacity:0.55"></div><div class="m-terms"><input type="checkbox" id="regTerms"><div>I agree to the <a href="/legal" target="_blank">Terms</a> and <a href="/legal" target="_blank">Privacy Policy</a>.</div></div><button type="submit" class="m-btn" id="regBtn">Register Here &rarr;</button></form><div class="m-foot">Have an account? <a href="#" onclick="mClose('mReg');mOpen('mLogin');return false;">Log in &rarr;</a></div></div></div>
+<script>
+function toggleMobileMenu(){var m=document.getElementById('mobileMenu');if(m)m.classList.toggle('open');}
+function mOpen(id,s){var el=document.getElementById(id);if(!el)return;el.classList.add('open');document.body.style.overflow='hidden';if(s&&id==='mReg'){document.getElementById('regRef').value=s;document.getElementById('regSponsorShow').value=s;document.getElementById('regSponsorWrap').style.display='block';}setTimeout(function(){var f=el.querySelector('input:not([type=hidden])');if(f)f.focus();},250);}
+function mClose(id){var el=document.getElementById(id);if(el)el.classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){mClose('mReg');mClose('mLogin');}});
+async function doLogin(e){e.preventDefault();var err=document.getElementById('loginErr'),btn=document.getElementById('loginBtn');err.style.display='none';btn.disabled=true;btn.textContent='Logging in...';try{var r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:document.getElementById('loginUser').value,password:document.getElementById('loginPw').value})});var d=await r.json();if(d.success){window.location.href=d.redirect||'/dashboard';return;}err.textContent=d.error||'Login failed.';err.style.display='block';}catch(x){err.textContent='Network error.';err.style.display='block';}btn.disabled=false;btn.textContent='Log In \u2192';}
+async function doRegister(e){e.preventDefault();var err=document.getElementById('regErr'),btn=document.getElementById('regBtn');err.style.display='none';if(document.getElementById('regPw').value!==document.getElementById('regPwC').value){err.textContent='Passwords do not match.';err.style.display='block';return;}if(!document.getElementById('regTerms').checked){err.textContent='Please tick Terms.';err.style.display='block';return;}btn.disabled=true;btn.textContent='Creating account...';try{var r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({first_name:document.getElementById('regFirst').value,email:document.getElementById('regEmail').value,username:document.getElementById('regUser').value,password:document.getElementById('regPw').value,confirm_password:document.getElementById('regPwC').value,ref:document.getElementById('regRef').value,beta_code:''})});var d=await r.json();if(d.success){window.location.href=d.redirect||'/dashboard?new=1';return;}err.textContent=d.error||'Something went wrong.';err.style.display='block';}catch(x){err.textContent='Network error.';err.style.display='block';}btn.disabled=false;btn.textContent='Register Here \u2192';}
+(function(){var p=new URLSearchParams(window.location.search);var s=p.get('join')||'';if(p.get('login')==='1')mOpen('mLogin');else if(p.get('register')==='1')mOpen('mReg');else if(s)mOpen('mReg',s);})();
+</script>
+
 </body>
 </html>

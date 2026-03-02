@@ -119,6 +119,12 @@ a{text-decoration:none;color:inherit}
 
 @media(max-width:900px){.streams,.tools-grid{grid-template-columns:1fr}.comp-highlight{grid-template-columns:1fr}.compare-grid{grid-template-columns:1fr;gap:12px}.compare-vs{padding:0}}
 @media(max-width:600px){.hero{padding:48px 20px 40px}.section{padding:40px 20px}.comp-highlight{padding:28px 24px}.comp-stats{grid-template-columns:1fr}}
+
+.hamburger{display:none;background:none;border:none;color:#38bdf8;font-size:24px;cursor:pointer}
+.mobile-menu{display:none;position:fixed;inset:0;z-index:99;background:rgba(5,13,26,0.98);padding:80px 32px 32px;flex-direction:column;gap:16px}
+.mobile-menu.open{display:flex}
+.mobile-menu a{font-size:18px;font-weight:600;color:rgba(200,220,255,0.7);text-decoration:none;padding:10px 0;border-bottom:1px solid rgba(0,180,216,0.08)}
+@media(max-width:900px){.nav-links .n-btn.n-outline{display:none}.hamburger{display:block}}
 </style>
 </head>
 <body>
@@ -126,12 +132,22 @@ a{text-decoration:none;color:inherit}
 <div class="nav">
   <a href="/" class="nav-logo" style="display:flex;align-items:center;gap:10px">
     <svg width="32" height="32" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="20" fill="url(#wlg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="wlg" x1="0" y1="0" x2="44" y2="44"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
-    <span style="font-family:'Sora',sans-serif;font-weight:800;font-size:20px">Super<span>AdPro</span></span>
+    <span style="font-family:'Sora',sans-serif;font-weight:800;font-size:20px;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
   </a>
   <div class="nav-links">
+    <a href="/how-it-works" class="n-btn n-outline">How It Works</a>
     <a href="/affiliates" class="n-btn n-outline">Affiliates</a>
-    <a href="/vip" class="n-btn n-primary">Join VIP</a>
+    <a href="/register" class="n-btn n-primary">Get started &rarr;</a>
+    <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">&#9776;</button>
   </div>
+</div>
+
+<div class="mobile-menu" id="mobileMenu">
+    <a href="/how-it-works">How It Works</a><a href="/for-advertisers">Advertisers</a><a href="/ads">Ad Board</a><a href="/affiliates">Affiliates</a><a href="/faq">FAQ</a><a href="/support-public">Support</a>
+    <div style="border-top:1px solid rgba(0,180,216,0.15);margin:12px 0;padding-top:12px;display:flex;flex-direction:column;gap:10px">
+        <a href="/login" style="color:#38bdf8">Log In</a>
+        <a href="/register" style="text-align:center;display:block;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;padding:12px;border-radius:8px;font-weight:700">Register Here</a>
+    </div>
 </div>
 
 <div class="wrap">
