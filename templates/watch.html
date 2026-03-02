@@ -203,6 +203,7 @@ a{text-decoration:none;color:inherit}
     </div>
   </a>
   <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
+</div>
 
   <!-- Desktop Topbar -->
   <div class="topbar">
@@ -447,8 +448,13 @@ a{text-decoration:none;color:inherit}
 
   startTimer();
 
-  window.unmuteVideo=function(){const f=document.getElementById('videoFrame'),o=document.getElementById('unmuteOverlay');
-    f.src=f.src.replace('&mute=1','').replace('mute=1&','').replace('?mute=1','?');o.classList.add('hidden');};
+  window.unmuteVideo=function(){
+    const f=document.getElementById('videoFrame'),o=document.getElementById('unmuteOverlay');
+    // Use YouTube JS API to unmute without reloading the iframe
+    if(f) f.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+    if(f) f.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[80]}', '*');
+    if(o) o.classList.add('hidden');
+  };
 
   window.submitWatch=async function(){
     if(!timerDone||submitted)return;submitted=true;btnNext.disabled=true;btnNext.textContent='Recording...';
