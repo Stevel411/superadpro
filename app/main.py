@@ -4943,8 +4943,31 @@ def test_email(secret: str, email: str):
 
 
 # ── Owner full activation (master affiliate setup) ────────────
+# ── One-time fix: sync upline_earnings from membership commissions ──
+@app.get("/admin/fix-upline-earnings")
+def fix_upline_earnings(secret: str, db: Session = Depends(get_db)):
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    # Sum membership_sponsor commissions per user and update upline_earnings
+    from sqlalchemy import func
+    results = []
+    sponsors = db.query(Commission.to_user_id, func.sum(Commission.amount_usdt)).filter(
+        Commission.commission_type == "membership_sponsor",
+        Commission.status == "paid",
+        Commission.to_user_id.isnot(None),
+    ).group_by(Commission.to_user_id).all()
+    for uid, total in sponsors:
+        user = db.query(User).filter(User.id == uid).first()
+        if user:
+            old = float(user.upline_earnings or 0)
+            user.upline_earnings = total
+            results.append({"user_id": uid, "username": user.username, "old": old, "new": float(total)})
+    db.commit()
+    return {"fixed": len(results), "details": results}
+
 @app.get("/admin/activate-owner")
 def activate_owner(secret: str, username: str, db: Session = Depends(get_db)):
+
     from fastapi.responses import JSONResponse
     from app.grid import get_or_create_active_grid
     import uuid
