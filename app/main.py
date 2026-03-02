@@ -1537,7 +1537,14 @@ def withdraw(
 ):
     if not user: return RedirectResponse(url="/?login=1", status_code=302)
     result = request_withdrawal(db, user.id, amount)
-    redirect_url = "/wallet?withdrawn=true" if result["success"] else f"/wallet?error={result['error']}"
+    if result["success"]:
+        tx = result.get("tx_hash", "")
+        msg = result.get("message", "Withdrawal processed")
+        redirect_url = f"/wallet?withdrawn=true&msg={msg}"
+        if tx:
+            redirect_url += f"&tx={tx}"
+    else:
+        redirect_url = f"/wallet?error={result['error']}"
     return RedirectResponse(url=redirect_url, status_code=303)
 
 
@@ -4981,6 +4988,28 @@ def fix_upline_earnings(secret: str, db: Session = Depends(get_db)):
             results.append({"user_id": uid, "username": user.username, "old": old, "new": float(total)})
     db.commit()
     return {"fixed": len(results), "details": results}
+
+# ── Hot wallet balance check ──
+@app.get("/admin/hot-wallet-balance")
+def hot_wallet_balance(secret: str):
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    from app.withdrawals import get_hot_wallet_usdc_balance, HOT_WALLET_ADDRESS
+    balance = get_hot_wallet_usdc_balance()
+    return {"address": HOT_WALLET_ADDRESS, "usdc_balance": float(balance)}
+
+# ── Retry pending withdrawals ──
+@app.get("/admin/process-pending-withdrawals")
+def process_pending_withdrawals(secret: str, db: Session = Depends(get_db)):
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    from app.withdrawals import process_withdrawal
+    pending = db.query(Withdrawal).filter(Withdrawal.status == "pending").all()
+    results = []
+    for w in pending:
+        r = process_withdrawal(db, w.id)
+        results.append({"withdrawal_id": w.id, "user_id": w.user_id, "amount": float(w.amount_usdt), "result": r})
+    return {"processed": len(results), "details": results}
 
 @app.get("/admin/activate-owner")
 def activate_owner(secret: str, username: str, db: Session = Depends(get_db)):

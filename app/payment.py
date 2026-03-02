@@ -406,45 +406,78 @@ def _find_overspill_placement(
 # ── Withdrawal request ────────────────────────────────────────
 
 def request_withdrawal(db: Session, user_id: int, amount: float) -> dict:
-    """User requests withdrawal of their available balance."""
+    """User requests withdrawal — auto-processed on Base chain with $1 fee."""
+    from decimal import Decimal as D
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         return {"success": False, "error": "User not found"}
 
-    if amount < 5.0:
-        return {"success": False, "error": "Minimum withdrawal is $5 USDT"}
+    amount_d = D(str(amount))
+    fee = D("1.00")
+    min_withdrawal = D("10.00")
 
-    if user.balance < amount:
+    if amount_d < min_withdrawal:
+        return {"success": False, "error": f"Minimum withdrawal is ${min_withdrawal} USDT"}
+
+    if user.balance < amount_d:
         return {"success": False, "error": f"Insufficient balance. Available: ${user.balance:.2f}"}
 
     if not user.wallet_address:
-        return {"success": False, "error": "No withdrawal wallet set"}
+        return {"success": False, "error": "No withdrawal wallet set — add your wallet in Account settings"}
+
+    net_amount = amount_d - fee
+    if net_amount <= 0:
+        return {"success": False, "error": f"Amount after ${fee} fee is zero"}
 
     # Atomic balance deduction — prevents race condition double-spend
-    # Only deducts if balance is still sufficient at the moment of UPDATE
     from sqlalchemy import text
     result = db.execute(
         text("UPDATE users SET balance = balance - :amt, total_withdrawn = COALESCE(total_withdrawn, 0) + :amt WHERE id = :uid AND balance >= :amt"),
-        {"amt": amount, "uid": user_id}
+        {"amt": float(amount_d), "uid": user_id}
     )
     if result.rowcount == 0:
         return {"success": False, "error": "Insufficient balance (concurrent request detected)"}
 
     withdrawal = Withdrawal(
         user_id        = user_id,
-        amount_usdt    = amount,
+        amount_usdt    = amount_d,
         wallet_address = user.wallet_address,
         status         = "pending",
     )
     db.add(withdrawal)
     db.commit()
-    db.refresh(user)
+    db.refresh(withdrawal)
 
-    return {
-        "success":   True,
-        "message":   f"Withdrawal of ${amount:.2f} USDT queued for processing",
-        "remaining": user.balance,
-    }
+    # Auto-process: send USDC on Base chain immediately
+    try:
+        from .withdrawals import process_withdrawal
+        proc_result = process_withdrawal(db, withdrawal.id)
+        if proc_result["success"]:
+            db.refresh(user)
+            return {
+                "success":    True,
+                "message":    f"${net_amount:.2f} USDC sent to your wallet (${fee} fee deducted)",
+                "tx_hash":    proc_result["tx_hash"],
+                "net_amount": float(net_amount),
+                "fee":        float(fee),
+                "remaining":  float(user.balance),
+            }
+        else:
+            # On-chain send failed — withdrawal stays pending for manual review
+            db.refresh(user)
+            return {
+                "success": True,
+                "message": f"Withdrawal of ${amount_d:.2f} queued — auto-send failed, will retry shortly",
+                "remaining": float(user.balance),
+            }
+    except Exception as e:
+        logger.warning(f"Auto-withdrawal failed for user {user_id}: {e}")
+        db.refresh(user)
+        return {
+            "success": True,
+            "message": f"Withdrawal of ${amount_d:.2f} queued for processing",
+            "remaining": float(user.balance),
+        }
 
 
 
