@@ -4,212 +4,148 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>For Advertisers — SuperAdPro</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{background:#050d1a;color:#e8f0fe;font-family:'DM Sans','Rethink Sans',sans-serif;min-height:100vh}
-
-        /* ── NAV ── */
-        nav{position:relative;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:80px;background:rgba(10,18,40,0.9);border-bottom:1px solid rgba(0,180,216,0.12)}
-        .nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
-        .nav-brand{font-family:'Sora',sans-serif;font-weight:800;font-size:19px;letter-spacing:0;text-transform:none;color:#fff;-webkit-text-fill-color:#fff}
-        .nav-brand span{color:#38bdf8;-webkit-text-fill-color:#38bdf8}
-        .nav-links{display:flex;align-items:center;gap:6px;list-style:none}
-        .nav-links a{font-size:19px;font-weight:500;color:rgba(200,220,255,0.7);text-decoration:none;padding:4px 10px;transition:color 0.2s}
-        .nav-links a:hover{color:#ffffff}
-        .nav-cta{font-weight:700;font-size:19px;color:#ffffff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:8px 22px;border-radius:5px;text-decoration:none;transition:all 0.3s}
-        .nav-cta:hover{box-shadow:0 4px 24px rgba(0,180,216,0.35);transform:translateY(-1px)}
-
-        /* ── HERO ── */
-        .hero{text-align:center;padding:80px 32px 64px;max-width:860px;margin:0 auto}
-        .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:19px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0ea5e9;border:1px solid rgba(0,180,216,0.25);border-radius:50px;background:rgba(0,180,216,0.08);padding:5px 16px;margin-bottom:20px}
-        .dot{width:6px;height:6px;border-radius:50%;background:#0ea5e9;animation:blink 2s infinite}
-        @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
-        .hero h1{font-weight:800;font-size:clamp(30px,4.5vw,58px);color:#ffffff;line-height:1.1;margin-bottom:18px}
-        .hero h1 .accent{background:linear-gradient(135deg,#0ea5e9,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-        .hero p{font-size:19px;color:rgba(200,220,255,0.7);max-width:600px;margin:0 auto 36px;line-height:1.7}
-        .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-        .btn-primary{font-weight:700;font-size:19px;color:#ffffff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:14px 36px;border-radius:5px;text-decoration:none;transition:all 0.3s}
-        .btn-primary:hover{box-shadow:0 0 40px rgba(0,180,216,0.4);transform:translateY(-2px)}
-        .btn-outline{font-weight:600;font-size:19px;color:rgba(220,242,230,0.8);padding:13px 36px;border-radius:5px;border:1px solid rgba(0,180,216,0.3);text-decoration:none;transition:all 0.3s}
-        .btn-outline:hover{border-color:#0ea5e9;color:#ffffff}
-
-        /* ── STATS BAR ── */
-        .stats-bar{display:flex;justify-content:center;border-top:1px solid rgba(0,180,216,0.1);border-bottom:1px solid rgba(0,180,216,0.1);background:rgba(0,180,216,0.03);max-width:1080px;margin:0 auto}
-        .stat-item{flex:1;max-width:220px;text-align:center;padding:28px 20px;border-right:1px solid rgba(0,180,216,0.08)}
-        .stat-item:last-child{border-right:none}
-        .stat-val{font-size:32px;font-weight:800;color:#0ea5e9;line-height:1;margin-bottom:6px}
-        .stat-lbl{font-size:19px;color:rgba(200,220,255,0.55);letter-spacing:0.5px}
-
-        /* ── SECTION ── */
-        .section{max-width:1080px;margin:0 auto;padding:72px 32px}
-        .section-label{font-size:19px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0ea5e9;margin-bottom:12px}
-        .section-title{font-size:clamp(24px,3vw,38px);font-weight:800;color:#ffffff;line-height:1.2;margin-bottom:16px}
-        .section-sub{font-size:19px;color:rgba(200,220,255,0.65);line-height:1.7;max-width:600px}
-
-        /* ── STEPS ── */
-        .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
-        .step-card{background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.12);border-radius:12px;padding:28px 24px}
-        .step-num{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;color:#fff;margin-bottom:16px}
-        .step-title{font-size:19px;font-weight:700;color:#ffffff;margin-bottom:8px}
-        .step-desc{font-size:19px;color:rgba(200,220,255,0.65);line-height:1.7}
-
-        /* ── PACKAGES ── */
-        .packages-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:48px}
-        .pkg-card{background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.12);border-radius:12px;padding:24px 20px;text-align:center;transition:all 0.3s;position:relative}
-        .pkg-card:hover{border-color:rgba(0,180,216,0.35);transform:translateY(-3px)}
-        .pkg-card.featured{border-color:rgba(0,180,216,0.4);background:rgba(0,180,216,0.06)}
-        .pkg-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-size:19px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;padding:4px 14px;border-radius:50px;white-space:nowrap}
-        .pkg-name{font-size:19px;font-weight:700;color:rgba(200,220,255,0.7);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
-        .pkg-price{font-size:32px;font-weight:800;color:#ffffff;margin-bottom:4px}
-        .pkg-views{font-size:19px;color:#0ea5e9;font-weight:600;margin-bottom:16px}
-        .pkg-features{text-align:left;margin-bottom:20px}
-        .pkg-feature{font-size:19px;color:rgba(200,220,255,0.65);padding:5px 0;border-bottom:1px solid rgba(0,180,216,0.07);display:flex;gap:7px;align-items:flex-start}
-        .pkg-feature:last-child{border-bottom:none}
-        .pkg-feature .tick{color:#0ea5e9;flex-shrink:0}
-        .pkg-btn{display:block;font-size:19px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:10px;border-radius:6px;text-decoration:none;transition:all 0.3s}
-        .pkg-btn:hover{box-shadow:0 0 24px rgba(0,180,216,0.35)}
-
-        /* ── WHY ── */
-        .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
-        .why-card{background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.1);border-radius:12px;padding:26px 22px}
-        .why-icon{font-size:32px;margin-bottom:14px}
-        .why-title{font-size:19px;font-weight:700;color:#ffffff;margin-bottom:8px}
-        .why-desc{font-size:19px;color:rgba(200,220,255,0.62);line-height:1.7}
-
-        /* ── AUDIENCE ── */
-        .audience-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:48px;align-items:center}
-        .audience-list{list-style:none}
-        .audience-list li{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid rgba(0,180,216,0.08);font-size:19px;color:rgba(200,220,255,0.75);line-height:1.6}
-        .audience-list li:last-child{border-bottom:none}
-        .audience-list .tick{color:#0ea5e9;font-size:19px;flex-shrink:0;margin-top:1px}
-        .audience-stat-block{background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.15);border-radius:14px;padding:32px}
-        .aud-stat{text-align:center;padding:18px 0;border-bottom:1px solid rgba(0,180,216,0.08)}
-        .aud-stat:last-child{border-bottom:none}
-        .aud-stat-val{font-size:32px;font-weight:800;color:#0ea5e9}
-        .aud-stat-lbl{font-size:19px;color:rgba(200,220,255,0.5);margin-top:4px}
-
-        /* ── CTA ── */
-        .cta-strip{background:rgba(10,18,40,0.9);border:1px solid rgba(0,180,216,0.15);border-radius:14px;padding:56px 48px;text-align:center;margin:0 32px 80px;max-width:1016px;margin-left:auto;margin-right:auto}
-        .cta-strip h2{font-size:clamp(24px,3vw,38px);font-weight:800;color:#ffffff;margin-bottom:12px}
-        .cta-strip p{font-size:19px;color:rgba(200,220,255,0.65);margin-bottom:32px}
-        .disclaimer{font-size:19px;color:rgba(200,220,255,0.3);margin-top:20px;line-height:1.6}
-
-        /* ── FOOTER ── */
-        footer{border-top:1px solid rgba(0,180,216,0.08);padding:20px 36px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;max-width:1080px;margin:0 auto}
-        .footer-copy{font-size:19px;color:rgba(200,220,255,0.3)}
-        .footer-links{display:flex;gap:18px}
-        .footer-links a{font-size:19px;color:rgba(200,220,255,0.35);text-decoration:none;transition:color 0.2s}
-        .footer-links a:hover{color:#0ea5e9}
-
-        @media(max-width:900px){.steps,.why-grid{grid-template-columns:1fr}.packages-grid{grid-template-columns:1fr 1fr}.audience-grid{grid-template-columns:1fr}.stats-bar{flex-wrap:wrap}.stat-item{min-width:150px;border-right:none;border-bottom:1px solid rgba(0,180,216,0.08)}}
-        @media(max-width:580px){.packages-grid{grid-template-columns:1fr}.hero-btns{flex-direction:column;align-items:center}}
-    
-
-@media(max-width:500px){}
-
-
-@media(max-width:500px){}
-
-/* === MODAL STYLES === */
-.m-overlay{position:fixed;inset:0;background:rgba(2,6,18,0.88);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.2s ease}
-.m-overlay.open{opacity:1;pointer-events:all}
-.m-box{background:#111827;border:1px solid rgba(0,212,255,0.18);border-radius:16px;padding:36px 40px;width:100%;max-width:460px;position:relative;box-shadow:0 32px 80px rgba(0,0,0,0.7);transform:translateY(16px);transition:transform 0.2s ease}
-.m-overlay.open .m-box{transform:translateY(0)}
-.m-close{position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(148,163,184,0.6);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:6px;line-height:1;transition:color 0.15s}
-.m-close:hover{color:#fff}
-.m-title{font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
-.m-sub{font-size:16px;color:rgba(148,163,184,0.8);margin-bottom:22px}
-.m-err{display:none;padding:10px 14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:16px;font-weight:600;color:#f87171;margin-bottom:14px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050d1a;color:#e8f0fe;font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+nav{position:relative;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:80px;background:rgba(10,18,40,0.9);border-bottom:1px solid rgba(0,180,216,0.12)}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.nav-brand{font-family:'Sora',sans-serif;font-weight:800;font-size:19px;letter-spacing:0;text-transform:none;color:#fff;-webkit-text-fill-color:#fff}
+.nav-brand span{color:#38bdf8;-webkit-text-fill-color:#38bdf8}
+.nav-links{display:flex;align-items:center;gap:6px;list-style:none}
+.nav-links a{font-size:19px;font-weight:500;color:rgba(200,220,255,0.7);text-decoration:none;padding:4px 10px;transition:color 0.2s}
+.nav-links a:hover{color:#fff}
+.nav-sep{color:rgba(200,220,255,0.25);font-size:10px}
+.nav-cta{font-weight:700;font-size:19px;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:8px 22px;border-radius:5px;text-decoration:none;transition:all 0.3s}
+.nav-cta:hover{box-shadow:0 4px 24px rgba(0,180,216,0.35);transform:translateY(-1px)}
+.hamburger{display:none;background:none;border:none;color:#38bdf8;font-size:24px;cursor:pointer}
+.nav-login{font-size:16px;font-weight:600;color:rgba(200,230,210,0.6);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:7px;transition:all 0.2s}
+.nav-login:hover{color:rgba(200,230,210,0.9)}
+.hero{position:relative;text-align:center;padding:100px 32px 80px;max-width:900px;margin:0 auto;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-120px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(14,165,233,0.08) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0ea5e9;border:1px solid rgba(0,180,216,0.25);border-radius:50px;background:rgba(0,180,216,0.06);padding:6px 18px;margin-bottom:24px}
+.pulse{width:6px;height:6px;border-radius:50%;background:#0ea5e9;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+.hero h1{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(32px,5vw,60px);color:#fff;line-height:1.08;margin-bottom:20px}
+.hero h1 .glow{background:linear-gradient(135deg,#00f0ff,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:18px;color:rgba(200,220,255,0.6);max-width:580px;margin:0 auto 36px;line-height:1.7}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;font-size:17px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:14px 32px;border-radius:8px;text-decoration:none;transition:all 0.3s;box-shadow:0 4px 20px rgba(14,165,233,0.3)}
+.hero-cta:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(14,165,233,0.45)}
+.hero-ghost{display:inline-flex;align-items:center;font-size:17px;font-weight:600;color:rgba(200,220,255,0.7);padding:14px 28px;text-decoration:none;transition:color 0.2s}
+.hero-ghost:hover{color:#fff}
+.stats-strip{display:flex;justify-content:center;max-width:880px;margin:-32px auto 0;position:relative;z-index:10;border:1px solid rgba(0,180,216,0.15);border-radius:12px;overflow:hidden;background:rgba(5,13,26,0.85);backdrop-filter:blur(10px)}
+.stat-box{flex:1;padding:20px 16px;text-align:center;border-right:1px solid rgba(0,180,216,0.1)}
+.stat-box:last-child{border-right:none}
+.stat-num{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff}
+.stat-lbl{font-size:10px;font-weight:700;color:rgba(0,212,255,0.5);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.sec{max-width:1080px;margin:0 auto;padding:80px 32px}
+.sec-label{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0ea5e9;margin-bottom:10px}
+.sec-title{font-family:'Sora',sans-serif;font-size:clamp(24px,3.5vw,40px);font-weight:800;color:#fff;line-height:1.15;margin-bottom:14px}
+.sec-sub{font-size:17px;color:rgba(200,220,255,0.55);line-height:1.7;max-width:600px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:40px}
+.step{position:relative;background:rgba(14,165,233,0.04);border:1px solid rgba(0,180,216,0.1);border-radius:14px;padding:28px 24px;transition:border-color 0.3s}
+.step:hover{border-color:rgba(0,180,216,0.25)}
+.step-num{font-family:'Sora',sans-serif;font-size:48px;font-weight:800;color:rgba(14,165,233,0.12);position:absolute;top:16px;right:20px;line-height:1}
+.step-icon{font-size:28px;margin-bottom:12px}
+.step-title{font-size:17px;font-weight:700;color:#fff;margin-bottom:8px}
+.step-text{font-size:14px;color:rgba(200,220,255,0.55);line-height:1.6}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-top:40px}
+.why-content{display:flex;flex-direction:column;gap:20px}
+.why-item{display:flex;gap:14px;align-items:flex-start}
+.why-dot{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.15)}
+.why-item-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:3px}
+.why-item-text{font-size:14px;color:rgba(200,220,255,0.5);line-height:1.6}
+.why-visual{background:rgba(14,165,233,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:16px;padding:32px;text-align:center}
+.why-chart{display:flex;align-items:flex-end;justify-content:center;gap:20px;height:180px;margin-bottom:16px}
+.bar{border-radius:6px 6px 0 0;width:48px;position:relative}
+.bar-label{position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:rgba(200,220,255,0.4);letter-spacing:1px;white-space:nowrap}
+.bar-val{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:800;color:#fff}
+.tiers-wrap{margin-top:32px;border:1px solid rgba(0,180,216,0.12);border-radius:14px;overflow:hidden;background:rgba(5,13,26,0.6)}
+.tiers-table{width:100%;border-collapse:collapse}
+.tiers-table th{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.5);padding:14px 16px;text-align:left;background:rgba(14,165,233,0.04);border-bottom:1px solid rgba(0,180,216,0.1)}
+.tiers-table th:last-child{text-align:center}
+.tiers-table td{padding:14px 16px;border-bottom:1px solid rgba(0,180,216,0.06);font-size:15px;color:rgba(200,220,255,0.75)}
+.tiers-table tr:last-child td{border-bottom:none}
+.tiers-table tr:hover{background:rgba(14,165,233,0.03)}
+.tier-name{font-weight:700;color:#fff}
+.tier-price{font-weight:800;color:#38bdf8}
+.tier-btn{font-size:12px;font-weight:700;color:#0ea5e9;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);padding:6px 14px;border-radius:6px;text-decoration:none;transition:all 0.2s;display:inline-block}
+.tier-btn:hover{background:rgba(14,165,233,0.15);color:#fff}
+.tier-pop{background:rgba(14,165,233,0.06)}
+.tier-pop .tier-name::after{content:'Popular';font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;padding:2px 8px;border-radius:4px;margin-left:8px;vertical-align:middle}
+.audience-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;margin-top:36px}
+.aud-card{background:rgba(14,165,233,0.04);border:1px solid rgba(0,180,216,0.1);border-radius:12px;padding:22px;display:flex;gap:14px;align-items:flex-start;transition:border-color 0.3s}
+.aud-card:hover{border-color:rgba(0,180,216,0.25)}
+.aud-icon{font-size:28px;flex-shrink:0}
+.aud-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:4px}
+.aud-text{font-size:13px;color:rgba(200,220,255,0.5);line-height:1.6}
+.aud-stats{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.aud-stat{background:rgba(5,13,26,0.6);border:1px solid rgba(0,180,216,0.1);border-radius:10px;padding:18px;text-align:center}
+.aud-stat-val{font-family:'Sora',sans-serif;font-size:26px;font-weight:800;color:#fff}
+.aud-stat-lbl{font-size:11px;color:rgba(200,220,255,0.4);margin-top:4px;line-height:1.3}
+.faq-list{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:32px}
+.faq-item{background:rgba(14,165,233,0.03);border:1px solid rgba(0,180,216,0.1);border-radius:10px;padding:20px 22px;transition:border-color 0.3s}
+.faq-item:hover{border-color:rgba(0,180,216,0.25)}
+.faq-q{font-size:15px;font-weight:700;color:#fff;margin-bottom:8px;display:flex;align-items:flex-start;gap:8px}
+.faq-q::before{content:'\2192';color:#0ea5e9;flex-shrink:0;font-size:13px;margin-top:2px}
+.faq-a{font-size:13px;color:rgba(200,220,255,0.5);line-height:1.6;padding-left:22px}
+.cta-band{text-align:center;padding:80px 32px;background:linear-gradient(180deg,transparent 0%,rgba(14,165,233,0.06) 100%);border-top:1px solid rgba(0,180,216,0.08)}
+.cta-band h2{font-family:'Sora',sans-serif;font-size:clamp(24px,3.5vw,40px);font-weight:800;color:#fff;margin-bottom:14px}
+.cta-band p{font-size:17px;color:rgba(200,220,255,0.5);max-width:500px;margin:0 auto 32px;line-height:1.7}
+.cta-price{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:rgba(200,220,255,0.4);margin-top:14px}
+.footer{text-align:center;padding:32px;border-top:1px solid rgba(0,180,216,0.08);font-size:13px;color:rgba(200,220,255,0.25)}
+.footer a{color:rgba(0,180,216,0.5);text-decoration:none}
+.m-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+.m-overlay.open{display:flex}
+.m-box{background:#0f1729;border:1px solid rgba(0,180,216,0.2);border-radius:16px;padding:36px;max-width:420px;width:90%;position:relative}
+.m-close{position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(200,220,255,0.4);font-size:20px;cursor:pointer}
+.m-title{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:6px}
+.m-sub{font-size:14px;color:rgba(200,220,255,0.5);margin-bottom:20px}
+.m-err{display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px}
 .m-field{margin-bottom:14px}
-.m-label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(148,163,184,0.7);margin-bottom:6px}
-.m-input{width:100%;padding:10px 13px;border:1.5px solid rgba(0,212,255,0.14);border-radius:8px;background:rgba(0,212,255,0.04);color:#f1f5f9;font-size:16px;font-family:inherit;box-sizing:border-box;transition:border-color 0.15s}
-.m-input:focus{outline:none;border-color:rgba(0,212,255,0.5);background:rgba(56,189,248,0.07)}
-.m-input::placeholder{color:rgba(148,163,184,0.35)}
+.m-label{display:block;font-size:12px;font-weight:600;color:rgba(200,220,255,0.5);margin-bottom:5px}
+.m-input{width:100%;padding:10px 14px;background:rgba(0,20,50,0.5);border:1px solid rgba(0,180,216,0.15);border-radius:8px;color:#fff;font-size:14px;font-family:inherit;outline:none;transition:border-color 0.2s}
+.m-input:focus{border-color:#0ea5e9}
 .m-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.m-terms{display:flex;align-items:flex-start;gap:10px;margin-bottom:18px;font-size:16px;color:rgba(148,163,184,0.6);line-height:1.5}
-.m-terms input{width:14px;height:14px;flex-shrink:0;margin-top:1px;accent-color:#38bdf8;cursor:pointer}
-.m-terms a{color:rgba(0,212,255,0.8);text-decoration:none}
-.m-btn{width:100%;padding:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:9px;color:#fff;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:0.3px;transition:opacity 0.15s}
-.m-btn:hover{opacity:0.9}
-.m-btn:disabled{opacity:0.5;cursor:not-allowed}
-.m-foot{text-align:center;margin-top:14px;font-size:16px;color:rgba(148,163,184,0.5)}
-.m-foot a{color:rgba(0,212,255,0.8);text-decoration:none;font-weight:600}
-@media(max-width:520px){.m-box{padding:26px 20px}.m-row{grid-template-columns:1fr}}
-/* === END MODAL STYLES === */
-
-/* Hamburger + Mobile Menu */
-.hamburger{display:none;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:4px 8px}
-.mobile-menu{display:none;position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(5,13,26,0.98);backdrop-filter:blur(12px);z-index:99;overflow-y:auto}
-.mobile-menu.open{display:block}
-.mobile-menu-inner{padding:24px;display:flex;flex-direction:column;gap:4px}
-.mobile-menu-inner a{display:block;padding:14px 16px;font-size:16px;font-weight:600;color:rgba(200,220,255,0.8);text-decoration:none;border-radius:8px;transition:background 0.2s}
-.mobile-menu-inner a:hover{background:rgba(0,180,216,0.1);color:#fff}
-@media(max-width:900px){
-  .hamburger{display:block}
-  .nav-links{display:none!important}
-  nav{padding:0 16px}
-}
-@media(min-width:901px){.mobile-menu{display:none!important}}
-@media(max-width:600px){
-  nav{height:64px}
-  .nav-brand{font-size:16px!important}
-}
-
-</style>
+.m-terms{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:rgba(200,220,255,0.5);margin-bottom:18px;line-height:1.4}
+.m-terms a{color:#38bdf8}
+.m-btn{width:100%;padding:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-weight:700;font-size:15px;border:none;border-radius:8px;cursor:pointer;transition:box-shadow 0.2s;font-family:inherit}
+.m-btn:hover{box-shadow:0 4px 20px rgba(14,165,233,0.4)}
+.m-foot{text-align:center;margin-top:16px;font-size:13px;color:rgba(200,220,255,0.4)}
+.m-foot a{color:#38bdf8;text-decoration:none}
+.mobile-menu{display:none;position:fixed;inset:0;z-index:99;background:rgba(5,13,26,0.98);padding:80px 32px 32px;flex-direction:column;gap:16px}
+.mobile-menu.open{display:flex}
+.mobile-menu a{font-size:18px;font-weight:600;color:rgba(200,220,255,0.7);text-decoration:none;padding:10px 0;border-bottom:1px solid rgba(0,180,216,0.08)}
+@media(max-width:900px){.nav-links{display:none}.hamburger{display:block}.steps{grid-template-columns:1fr}.why-grid{grid-template-columns:1fr}.audience-grid{grid-template-columns:1fr}.faq-list{grid-template-columns:1fr}.stats-strip{flex-wrap:wrap}.stat-box{min-width:33%}}
+@media(max-width:600px){nav{padding:0 16px;height:64px}.nav-brand{font-size:16px!important}.hero{padding:60px 20px 50px}.sec{padding:48px 20px}.stat-box{min-width:50%}}
+    </style>
 </head>
 <body>
-
-<svg width="0" height="0" style="position:absolute">
-  <defs>
-    <linearGradient id="logo-grad-fa" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0ea5e9"/>
-      <stop offset="1" stop-color="#38bdf8"/>
-    </linearGradient>
-    <symbol id="shield" viewBox="0 0 44 44">
-      <circle cx="22" cy="22" r="20" fill="url(#logo-grad-fa)"/>
-      <path d="M18 13l14 9-14 9V13z" fill="#fff"/>
-    </symbol>
-  </defs>
-</svg>
 
 <nav>
     <a href="/" class="nav-logo">
         <span class="nav-brand"><svg style="width:24px;height:24px;vertical-align:middle;margin-right:6px" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>Super<span>Ad</span>Pro</span>
     </a>
     <ul class="nav-links">
-        <li><a href="/how-it-works">How It Works</a></li>
-        <li><span class="nav-sep">·</span></li>
-        <li><a href="/for-advertisers">Advertisers</a></li>
-        <li><span class="nav-sep">·</span></li>
-        <li><a href="/ads">Ad Board</a></li>
-        <li><span class="nav-sep">·</span></li>
-        <li><a href="/affiliates">Affiliates</a></li>
-        <li><span class="nav-sep">·</span></li>
-        <li><a href="/faq">FAQ</a></li>
-        <li><span class="nav-sep">·</span></li>
+        <li><a href="/how-it-works">How It Works</a></li><li><span class="nav-sep">&middot;</span></li>
+        <li><a href="/for-advertisers" style="color:#fff">Advertisers</a></li><li><span class="nav-sep">&middot;</span></li>
+        <li><a href="/ads">Ad Board</a></li><li><span class="nav-sep">&middot;</span></li>
+        <li><a href="/affiliates">Affiliates</a></li><li><span class="nav-sep">&middot;</span></li>
+        <li><a href="/faq">FAQ</a></li><li><span class="nav-sep">&middot;</span></li>
         <li><a href="/support-public">Support</a></li>
     </ul>
     <div style="display:flex;align-items:center;gap:10px">
-        <a href="#" onclick="mOpen('mLogin');return false;" onclick="openLoginModal();return false;" onclick="openLoginModal();return false;" style="font-size:16px;font-weight:600;color:rgba(200,230,210,0.6);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:7px;transition:all 0.2s" onmouseover="this.style.color='rgba(200,230,210,0.9)'" onmouseout="this.style.color='rgba(200,230,210,0.6)'">Log In</a>
-        <a href="#" class="nav-cta" onclick="mOpen('mReg');return false;">Register Here</a>
-        <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">☰</button>
+        <a href="#" class="nav-login" onclick="mOpen('mLogin');return false;">Log In</a>
+        <a href="#" class="nav-cta" onclick="mOpen('mReg');return false;">Get started &rarr;</a>
+        <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">&#9776;</button>
     </div>
 </nav>
 
-<!-- MOBILE MENU -->
 <div class="mobile-menu" id="mobileMenu">
-    <div class="mobile-menu-inner">
-        <a href="/how-it-works">How It Works</a>
-        <a href="/for-advertisers">Advertisers</a>
-        <a href="/ads">Ad Board</a>
-        <a href="/affiliates">Affiliates</a>
-        <a href="/faq">FAQ</a>
-        <a href="/support-public">Support</a>
-        <div style="border-top:1px solid rgba(0,180,216,0.15);margin:12px 0;padding-top:12px;display:flex;flex-direction:column;gap:10px">
-            <a href="#" onclick="mOpen('mLogin');toggleMobileMenu();return false;" style="color:#38bdf8">Log In</a>
-            <a href="#" onclick="mOpen('mReg');toggleMobileMenu();return false;" style="text-align:center;display:block;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;padding:12px;border-radius:8px;font-weight:700">Register Here</a>
-        </div>
+    <a href="/how-it-works">How It Works</a><a href="/for-advertisers">Advertisers</a><a href="/ads">Ad Board</a><a href="/affiliates">Affiliates</a><a href="/faq">FAQ</a><a href="/support-public">Support</a>
+    <div style="border-top:1px solid rgba(0,180,216,0.15);margin:12px 0;padding-top:12px;display:flex;flex-direction:column;gap:10px">
+        <a href="#" onclick="mOpen('mLogin');toggleMobileMenu();return false;" style="color:#38bdf8">Log In</a>
+        <a href="#" onclick="mOpen('mReg');toggleMobileMenu();return false;" style="text-align:center;display:block;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;padding:12px;border-radius:8px;font-weight:700">Register Here</a>
     </div>
 </div>
 
@@ -221,17 +157,9 @@
     <div class="m-sub">Welcome back &mdash; enter your details below</div>
     <div id="loginErr" class="m-err"></div>
     <form id="loginForm" onsubmit="doLogin(event)">
-      <div class="m-field">
-        <label class="m-label">Username or Email</label>
-        <input class="m-input" type="text" id="loginUser" placeholder="username or email" required autocomplete="username">
-      </div>
-      <div class="m-field" style="margin-bottom:6px">
-        <label class="m-label">Password</label>
-        <input class="m-input" type="password" id="loginPw" placeholder="Your password" required autocomplete="current-password">
-      </div>
-      <div style="text-align:right;margin-bottom:18px">
-        <a href="/forgot-password" style="font-size:16px;color:rgba(0,212,255,0.7);text-decoration:none">Forgot password?</a>
-      </div>
+      <div class="m-field"><label class="m-label">Username or Email</label><input class="m-input" type="text" id="loginUser" placeholder="username or email" required autocomplete="username"></div>
+      <div class="m-field" style="margin-bottom:6px"><label class="m-label">Password</label><input class="m-input" type="password" id="loginPw" placeholder="Your password" required autocomplete="current-password"></div>
+      <div style="text-align:right;margin-bottom:18px"><a href="/forgot-password" style="font-size:13px;color:rgba(0,212,255,0.7);text-decoration:none">Forgot password?</a></div>
       <button type="submit" class="m-btn" id="loginBtn">Log In &rarr;</button>
     </form>
     <div class="m-foot">Don't have an account? <a href="#" onclick="mClose('mLogin');mOpen('mReg');return false;">Register here &rarr;</a></div>
@@ -247,36 +175,15 @@
     <div id="regErr" class="m-err"></div>
     <form id="regForm" onsubmit="doRegister(event)">
       <input type="hidden" id="regRef" value="">
-      <div class="m-field">
-        <label class="m-label">First Name</label>
-        <input class="m-input" type="text" id="regFirst" placeholder="John" required autocomplete="given-name">
-      </div>
-      <div class="m-field">
-        <label class="m-label">Email Address</label>
-        <input class="m-input" type="email" id="regEmail" placeholder="john@example.com" required autocomplete="email">
-      </div>
-      <div class="m-field">
-        <label class="m-label">Username</label>
-        <input class="m-input" type="text" id="regUser" placeholder="johnsmith99" required autocomplete="off" pattern="[a-zA-Z0-9_]{3,30}">
-      </div>
+      <div class="m-field"><label class="m-label">First Name</label><input class="m-input" type="text" id="regFirst" placeholder="John" required autocomplete="given-name"></div>
+      <div class="m-field"><label class="m-label">Email Address</label><input class="m-input" type="email" id="regEmail" placeholder="john@example.com" required autocomplete="email"></div>
+      <div class="m-field"><label class="m-label">Username</label><input class="m-input" type="text" id="regUser" placeholder="johnsmith99" required autocomplete="off" pattern="[a-zA-Z0-9_]{3,30}"></div>
       <div class="m-row">
-        <div class="m-field">
-          <label class="m-label">Password</label>
-          <input class="m-input" type="password" id="regPw" placeholder="Min. 8 chars" required minlength="8" autocomplete="new-password">
-        </div>
-        <div class="m-field">
-          <label class="m-label">Confirm</label>
-          <input class="m-input" type="password" id="regPwC" placeholder="Repeat" required autocomplete="new-password">
-        </div>
+        <div class="m-field"><label class="m-label">Password</label><input class="m-input" type="password" id="regPw" placeholder="Min. 8 chars" required minlength="8" autocomplete="new-password"></div>
+        <div class="m-field"><label class="m-label">Confirm</label><input class="m-input" type="password" id="regPwC" placeholder="Repeat" required autocomplete="new-password"></div>
       </div>
-      <div class="m-field" id="regSponsorWrap" style="display:none">
-        <label class="m-label">Referred by</label>
-        <input class="m-input" type="text" id="regSponsorShow" readonly style="opacity:0.55;cursor:default">
-      </div>
-      <div class="m-terms">
-        <input type="checkbox" id="regTerms">
-        <div>I agree to the <a href="/legal" target="_blank">Terms of Service</a> and <a href="/legal" target="_blank">Privacy Policy</a>.</div>
-      </div>
+      <div class="m-field" id="regSponsorWrap" style="display:none"><label class="m-label">Referred by</label><input class="m-input" type="text" id="regSponsorShow" readonly style="opacity:0.55;cursor:default"></div>
+      <div class="m-terms"><input type="checkbox" id="regTerms"><div>I agree to the <a href="/legal" target="_blank">Terms of Service</a> and <a href="/legal" target="_blank">Privacy Policy</a>.</div></div>
       <button type="submit" class="m-btn" id="regBtn">Register Here &rarr;</button>
     </form>
     <div class="m-foot">Already have an account? <a href="#" onclick="mClose('mReg');mOpen('mLogin');return false;">Log in here &rarr;</a></div>
@@ -285,469 +192,136 @@
 
 <!-- HERO -->
 <div class="hero">
-    <div class="eyebrow"><div class="dot"></div>Video Advertising Platform</div>
-    <h1>Put Your Brand in Front of<br><span class="accent">a Motivated Audience</span></h1>
-    <p>SuperAdPro delivers engaged video views to your campaigns — every view comes from an active member watching your content as part of their earning activity. Real people, real attention, no bots.</p>
-    <div class="hero-btns">
-        <a href="/packages" class="btn-primary">View Campaign Tiers →</a>
-        <a href="#" class="btn-outline" onclick="openRegModal();return false;">Create Free Account</a>
+    <div class="hero-badge"><div class="pulse"></div>Video Advertising Platform &middot; Powered by AI</div>
+    <h1>Put Your Brand in Front of<br><span class="glow">Real People, Real Attention</span></h1>
+    <p class="hero-sub">SuperAdPro delivers engaged video views from active members &mdash; real people watching your content, not bots scrolling past. AI-optimised delivery, on-chain payments, live analytics.</p>
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
+        <a href="#" class="hero-cta" onclick="mOpen('mReg');return false;">&#x1F680; Launch Your Campaign</a>
+        <a href="#tiers" class="hero-ghost">View Campaign Tiers &darr;</a>
     </div>
 </div>
 
-<!-- STATS BAR -->
-<div class="stats-bar">
-    <div class="stat-item">
-        <div class="stat-val">8</div>
-        <div class="stat-lbl">Campaign tiers from $20–$1,000</div>
-    </div>
-    <div class="stat-item">
-        <div class="stat-val">24h</div>
-        <div class="stat-lbl">Campaign live within 24 hours</div>
-    </div>
-    <div class="stat-item">
-        <div class="stat-val">Base</div>
-        <div class="stat-lbl">Blockchain — transparent payments</div>
-    </div>
-    <div class="stat-item">
-        <div class="stat-val">AI</div>
-        <div class="stat-lbl">Optimised delivery, 24/7</div>
-    </div>
+<!-- STATS STRIP -->
+<div class="stats-strip">
+    <div class="stat-box"><div class="stat-num">100%</div><div class="stat-lbl">Real Human Views</div></div>
+    <div class="stat-box"><div class="stat-num">8</div><div class="stat-lbl">Campaign Tiers</div></div>
+    <div class="stat-box"><div class="stat-num">&lt;24h</div><div class="stat-lbl">Launch Time</div></div>
+    <div class="stat-box"><div class="stat-num">AI</div><div class="stat-lbl">Optimised Delivery</div></div>
+    <div class="stat-box"><div class="stat-num">USDT</div><div class="stat-lbl">On-Chain Payments</div></div>
 </div>
 
 <!-- HOW IT WORKS -->
-<div class="section">
-    <div class="section-label">How It Works</div>
-    <div class="section-title">From Payment to Live Campaign<br>in Three Steps</div>
+<div class="sec">
+    <div class="sec-label">How It Works</div>
+    <div class="sec-title">From Sign-Up to Live Campaign<br>in Three Simple Steps</div>
+    <div class="sec-sub">No contracts, no minimum spend, no complicated setup. Create an account, choose your tier, and your video goes live.</div>
     <div class="steps">
-        <div class="step-card">
-            <div class="step-num">1</div>
-            <div class="step-title">Choose Your Campaign Tier</div>
-            <div class="step-desc">Select from 8 advertising tiers starting at $20 USDT. Each campaign tier comes with a defined number of engaged video views delivered by active members watching your content.</div>
-        </div>
-        <div class="step-card">
-            <div class="step-num">2</div>
-            <div class="step-title">Upload Your Video</div>
-            <div class="step-desc">Submit your MP4 video and set your audience preferences. Our AI analyses your content and begins optimising delivery immediately.</div>
-        </div>
-        <div class="step-card">
-            <div class="step-num">3</div>
-            <div class="step-title">Your Campaign Goes Live</div>
-            <div class="step-desc">Within 24 hours of on-chain payment confirmation, your video starts reaching real viewers. Track performance live in your dashboard.</div>
-        </div>
+        <div class="step"><div class="step-num">01</div><div class="step-icon">&#x1F4CB;</div><div class="step-title">Create Your Free Account</div><div class="step-text">Sign up in 60 seconds. No credit card required. You'll get instant access to the campaign dashboard where you can upload your video ad and configure targeting.</div></div>
+        <div class="step"><div class="step-num">02</div><div class="step-icon">&#x1F3AF;</div><div class="step-title">Choose a Campaign Tier</div><div class="step-text">Pick from 8 tiers starting at just $20 USDT. Each tier gives you access to our active viewer network. AI handles delivery optimisation and scheduling automatically.</div></div>
+        <div class="step"><div class="step-num">03</div><div class="step-icon">&#x1F4CA;</div><div class="step-title">Watch the Views Roll In</div><div class="step-text">Your video goes into the viewing queue within 24 hours. Track views, completion rates, and engagement in real time from your dashboard. Every view is a real person.</div></div>
     </div>
 </div>
 
-<!-- PACKAGES -->
-<div class="section" style="padding-top:0">
-    <div class="section-label">Campaign Tiers</div>
-    <div class="section-title">A Campaign Tier for Every Budget</div>
-    <div class="section-sub">All tiers include AI-optimised delivery and real-time analytics. Payments processed in USDT on Base Chain.</div>
-
-    <div class="packages-grid">
-        <div class="pkg-card">
-            <div class="pkg-name">Starter</div>
-            <div class="pkg-price">$20</div>
-            <div class="pkg-views">Entry level</div>
-            <div class="pkg-features">
-                <div class="pkg-feature"><span class="tick">✓</span>Engaged video views</div>
-                <div class="pkg-feature"><span class="tick">✓</span>AI-optimised delivery</div>
-                <div class="pkg-feature"><span class="tick">✓</span>Campaign analytics</div>
-            </div>
-            <a href="#" class="pkg-btn" onclick="openRegModal();return false;">Get Started →</a>
-        </div>
-        <div class="pkg-card">
-            <div class="pkg-name">Builder</div>
-            <div class="pkg-price">$50</div>
-            <div class="pkg-views">Mid tier</div>
-            <div class="pkg-features">
-                <div class="pkg-feature"><span class="tick">✓</span>Engaged video views</div>
-                <div class="pkg-feature"><span class="tick">✓</span>AI-optimised delivery</div>
-                <div class="pkg-feature"><span class="tick">✓</span>Multiple campaigns</div>
-            </div>
-            <a href="#" class="pkg-btn" onclick="openRegModal();return false;">Get Started →</a>
-        </div>
-        <div class="pkg-card featured">
-            <div class="pkg-badge">Most Popular</div>
-            <div class="pkg-name">Pro</div>
-            <div class="pkg-price">$100</div>
-            <div class="pkg-views">High volume</div>
-            <div class="pkg-features">
-                <div class="pkg-feature"><span class="tick">✓</span>Engaged video views</div>
-                <div class="pkg-feature"><span class="tick">✓</span>Advanced targeting</div>
-                <div class="pkg-feature"><span class="tick">✓</span>Multiple campaigns</div>
-                <div class="pkg-feature"><span class="tick">✓</span>Demographics & behaviour</div>
-            </div>
-            <a href="#" class="pkg-btn" onclick="openRegModal();return false;">Get Started →</a>
-        </div>
-        <div class="pkg-card">
-            <div class="pkg-name">Advanced</div>
-            <div class="pkg-price">$200</div>
-            <div class="pkg-views">High volume</div>
-            <div class="pkg-features">
-                <div class="pkg-feature"><span class="tick">✓</span>Maximum view volume</div>
-                <div class="pkg-feature"><span class="tick">✓</span>Geo &amp; interest targeting</div>
-                <div class="pkg-feature"><span class="tick">✓</span>Priority queue placement</div>
-                <div class="pkg-feature"><span class="tick">✓</span>Multiple campaign slots</div>
-            </div>
-            <a href="#" class="pkg-btn" onclick="openRegModal();return false;">Get Started →</a>
-        </div>
-    </div>
-    <p style="text-align:center;margin-top:24px;font-size:19px;color:rgba(200,220,255,0.5)">
-        Also available: Elite ($400), Premium ($600), Executive ($800), Ultimate ($1,000) —
-        <a href="/packages" style="color:#0ea5e9;font-weight:600">see all tiers →</a>
-    </p>
-</div>
-
-<!-- WHY SUPERADPRO -->
-<div class="section" style="padding-top:0">
-    <div class="section-label">Why SuperAdPro</div>
-    <div class="section-title">What Makes Us Different</div>
+<!-- WHY VIDEO -->
+<div class="sec" style="padding-top:0">
+    <div class="sec-label">Why Video Advertising</div>
+    <div class="sec-title">Video Outperforms Everything Else</div>
     <div class="why-grid">
-        <div class="why-card">
-            <div class="why-icon">🎯</div>
-            <div class="why-title">Real Views</div>
-            <div class="why-desc">Your tier delivers real views from real members — not bots or inflated impression counts.</div>
+        <div class="why-content">
+            <div class="why-item"><div class="why-dot">&#x1F4C8;</div><div><div class="why-item-title">Higher Engagement Rates</div><div class="why-item-text">Video ads generate significantly more engagement than static banners or text ads. People remember what they see and hear &mdash; not what they scroll past.</div></div></div>
+            <div class="why-item"><div class="why-dot">&#x1F9E0;</div><div><div class="why-item-title">Better Brand Recall</div><div class="why-item-text">Viewers retain far more information from video content compared to text or images. Your message sticks because it's delivered through sight, sound, and motion.</div></div></div>
+            <div class="why-item"><div class="why-dot">&#x1F3AF;</div><div><div class="why-item-title">Motivated Audience</div><div class="why-item-text">SuperAdPro's viewers are active digital marketers, entrepreneurs, and business builders &mdash; high-intent individuals already spending money on tools and services.</div></div></div>
+            <div class="why-item"><div class="why-dot">&#x1F916;</div><div><div class="why-item-title">Zero Bot Traffic</div><div class="why-item-text">Every single view comes from a verified, active member. No click farms, no bots, no inflated metrics. You pay for real human attention.</div></div></div>
         </div>
-        <div class="why-card">
-            <div class="why-icon">🤖</div>
-            <div class="why-title">AI-Optimised Delivery</div>
-            <div class="why-desc">Our system analyses your video content and continuously optimises audience matching for engagement — running 24/7 automatically.</div>
-        </div>
-        <div class="why-card">
-            <div class="why-icon">⛓</div>
-            <div class="why-title">Blockchain Payments</div>
-            <div class="why-desc">All payments are made in USDT on the Base blockchain. Fast, transparent, and verifiable on-chain — no chargebacks, no delays.</div>
-        </div>
-        <div class="why-card">
-            <div class="why-icon">📊</div>
-            <div class="why-title">Live Analytics</div>
-            <div class="why-desc">Track views, completion rates, and audience data in real time from your dashboard. See exactly where your budget is going.</div>
-        </div>
-        <div class="why-card">
-            <div class="why-icon">⚡</div>
-            <div class="why-title">Live Within 24 Hours</div>
-            <div class="why-desc">Once your payment confirms on-chain, upload your video and your campaign is live within 24 hours.</div>
-        </div>
-        <div class="why-card">
-            <div class="why-icon">🌍</div>
-            <div class="why-title">Engaged Audience</div>
-            <div class="why-desc">SuperAdPro's member base is built around digital marketing and online business — a receptive audience for digital products and services.</div>
+        <div class="why-visual">
+            <div style="font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.4);margin-bottom:20px">Average Engagement Rate by Format</div>
+            <div class="why-chart">
+                <div class="bar" style="height:24px;background:rgba(200,220,255,0.12)"><div class="bar-val" style="color:rgba(200,220,255,0.4)">0.1%</div><div class="bar-label">Banner</div></div>
+                <div class="bar" style="height:44px;background:rgba(200,220,255,0.18)"><div class="bar-val" style="color:rgba(200,220,255,0.5)">0.4%</div><div class="bar-label">Display</div></div>
+                <div class="bar" style="height:65px;background:rgba(200,220,255,0.24)"><div class="bar-val" style="color:rgba(200,220,255,0.6)">1.8%</div><div class="bar-label">Social</div></div>
+                <div class="bar" style="height:145px;background:linear-gradient(180deg,#0ea5e9,#38bdf8);box-shadow:0 0 20px rgba(14,165,233,0.3)"><div class="bar-val">7.5%</div><div class="bar-label" style="color:#38bdf8;font-weight:800">Video</div></div>
+            </div>
+            <div style="font-size:12px;color:rgba(200,220,255,0.3);margin-top:8px">Industry average engagement rates by ad format</div>
         </div>
     </div>
 </div>
 
-<!-- AUDIENCE -->
-<div class="section" style="padding-top:0">
-    <div class="section-label">The Audience</div>
-    <div class="section-title">Who Watches Your Ads</div>
+<!-- CAMPAIGN TIERS -->
+<div class="sec" style="padding-top:0" id="tiers">
+    <div class="sec-label">Campaign Tiers</div>
+    <div class="sec-title">A Tier for Every Budget</div>
+    <div class="sec-sub">All tiers include AI-optimised delivery, real-time analytics, and campaign dashboard access. Payments in USDT on Base Chain.</div>
+    <div class="tiers-wrap">
+        <table class="tiers-table">
+            <thead><tr><th>Tier</th><th>Investment</th><th>Features</th><th>Action</th></tr></thead>
+            <tbody>
+                <tr><td class="tier-name">Starter</td><td class="tier-price">$20</td><td>Engaged video views &middot; AI delivery &middot; Campaign analytics</td><td style="text-align:center"><a href="#" class="tier-btn" onclick="mOpen('mReg');return false;">Get Started</a></td></tr>
+                <tr><td class="tier-name">Builder</td><td class="tier-price">$50</td><td>Everything in Starter &middot; Multiple campaigns &middot; Extended reach</td><td style="text-align:center"><a href="#" class="tier-btn" onclick="mOpen('mReg');return false;">Get Started</a></td></tr>
+                <tr class="tier-pop"><td class="tier-name">Pro</td><td class="tier-price">$100</td><td>Everything in Builder &middot; Advanced targeting &middot; Demographics &amp; behaviour</td><td style="text-align:center"><a href="#" class="tier-btn" onclick="mOpen('mReg');return false;">Get Started</a></td></tr>
+                <tr><td class="tier-name">Advanced</td><td class="tier-price">$200</td><td>Everything in Pro &middot; Geo &amp; interest targeting &middot; Priority queue</td><td style="text-align:center"><a href="#" class="tier-btn" onclick="mOpen('mReg');return false;">Get Started</a></td></tr>
+                <tr><td class="tier-name">Elite</td><td class="tier-price">$400</td><td>Everything in Advanced &middot; Maximum view volume &middot; Dedicated support</td><td style="text-align:center"><a href="#" class="tier-btn" onclick="mOpen('mReg');return false;">Get Started</a></td></tr>
+                <tr><td class="tier-name">Premium</td><td class="tier-price">$600</td><td>Everything in Elite &middot; Featured placement &middot; Campaign optimisation</td><td style="text-align:center"><a href="#" class="tier-btn" onclick="mOpen('mReg');return false;">Get Started</a></td></tr>
+                <tr><td class="tier-name">Executive</td><td class="tier-price">$800</td><td>Everything in Premium &middot; Priority delivery &middot; Brand spotlight</td><td style="text-align:center"><a href="#" class="tier-btn" onclick="mOpen('mReg');return false;">Get Started</a></td></tr>
+                <tr><td class="tier-name">Ultimate</td><td class="tier-price">$1,000</td><td>Everything in Executive &middot; Maximum exposure &middot; White-glove onboarding</td><td style="text-align:center"><a href="#" class="tier-btn" onclick="mOpen('mReg');return false;">Get Started</a></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- THE AUDIENCE -->
+<div class="sec" style="padding-top:0">
+    <div class="sec-label">The Audience</div>
+    <div class="sec-title">Who Watches Your Ads</div>
+    <div class="sec-sub">SuperAdPro's viewer network is made up of active digital professionals &mdash; people already spending money on tools, courses, and services.</div>
     <div class="audience-grid">
-        <div>
-            <p style="font-size:19px;color:rgba(200,220,255,0.7);line-height:1.8;margin-bottom:24px">
-                SuperAdPro's viewer network is made up of active digital marketers, affiliate marketers, entrepreneurs, and online business builders — people already engaged with digital products, tools, and services.
-            </p>
-            <ul class="audience-list">
-                <li><span class="tick">✓</span>Digital marketers and affiliate advertisers</li>
-                <li><span class="tick">✓</span>Online business owners and entrepreneurs</li>
-                <li><span class="tick">✓</span>Crypto and blockchain-native users</li>
-                <li><span class="tick">✓</span>People actively spending on digital tools and services</li>
-                <li><span class="tick">✓</span>High intent — our members are buyers, not passive browsers</li>
-            </ul>
+        <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="aud-card"><div class="aud-icon">&#x1F4BB;</div><div><div class="aud-title">Digital Marketers &amp; Affiliates</div><div class="aud-text">Active professionals running campaigns, building funnels, and promoting digital products. They understand advertising and are buyers themselves.</div></div></div>
+            <div class="aud-card"><div class="aud-icon">&#x1F680;</div><div><div class="aud-title">Entrepreneurs &amp; Business Builders</div><div class="aud-text">Founders, side-hustlers, and online business owners constantly looking for tools and services to grow their businesses.</div></div></div>
+            <div class="aud-card"><div class="aud-icon">&#x26D3;</div><div><div class="aud-title">Crypto-Native Users</div><div class="aud-text">Blockchain-savvy individuals comfortable with USDT, wallets, and on-chain transactions. Early adopters of new technology and platforms.</div></div></div>
+            <div class="aud-card"><div class="aud-icon">&#x1F393;</div><div><div class="aud-title">Learners &amp; Course Buyers</div><div class="aud-text">People actively investing in their education and skills &mdash; they buy courses, attend webinars, and subscribe to paid communities.</div></div></div>
         </div>
-        <div class="audience-stat-block">
-            <div class="aud-stat">
-                <div class="aud-stat-val">$20</div>
-                <div class="aud-stat-lbl">Campaigns start from just $20 USDT</div>
-            </div>
-            <div class="aud-stat">
-                <div class="aud-stat-val">8</div>
-                <div class="aud-stat-lbl">Campaign tiers to match any budget</div>
-            </div>
-            <div class="aud-stat">
-                <div class="aud-stat-val">24h</div>
-                <div class="aud-stat-lbl">Average time from payment to live</div>
-            </div>
-            <div class="aud-stat">
-                <div class="aud-stat-val">Base</div>
-                <div class="aud-stat-lbl">Blockchain — secure, instant settlement</div>
-            </div>
+        <div class="aud-stats">
+            <div class="aud-stat"><div class="aud-stat-val">$20</div><div class="aud-stat-lbl">Campaigns start from just $20 USDT</div></div>
+            <div class="aud-stat"><div class="aud-stat-val">8</div><div class="aud-stat-lbl">Campaign tiers for any budget</div></div>
+            <div class="aud-stat"><div class="aud-stat-val">&lt;24h</div><div class="aud-stat-lbl">Payment to live campaign</div></div>
+            <div class="aud-stat"><div class="aud-stat-val">Base</div><div class="aud-stat-lbl">Blockchain &mdash; instant settlement</div></div>
         </div>
+    </div>
+</div>
+
+<!-- ADVERTISER FAQ -->
+<div class="sec" style="padding-top:0">
+    <div class="sec-label">Frequently Asked</div>
+    <div class="sec-title">Advertiser Questions</div>
+    <div class="faq-list">
+        <div class="faq-item"><div class="faq-q">What video formats do you accept?</div><div class="faq-a">We accept MP4, MOV, and WebM. Recommended resolution is 1080p (1920x1080) for best results. Maximum file size is 100MB per video.</div></div>
+        <div class="faq-item"><div class="faq-q">How quickly will my campaign go live?</div><div class="faq-a">Most campaigns go live within 24 hours of payment. Once your USDT payment is confirmed on Base Chain, your video enters the viewing queue automatically.</div></div>
+        <div class="faq-item"><div class="faq-q">Can I target specific audiences?</div><div class="faq-a">Higher tiers (Pro and above) include advanced targeting options including interest categories, geographic regions, and demographic filters. AI optimisation is included on all tiers.</div></div>
+        <div class="faq-item"><div class="faq-q">How do I track performance?</div><div class="faq-a">Your campaign dashboard shows real-time views, completion rates, and engagement metrics. You can see exactly how your video is performing at any time.</div></div>
+        <div class="faq-item"><div class="faq-q">Are the views from real people?</div><div class="faq-a">Yes &mdash; every single view comes from an active, verified SuperAdPro member. Zero bots, zero click farms. Our members watch your video as part of their daily earning activity.</div></div>
+        <div class="faq-item"><div class="faq-q">Can I run multiple campaigns?</div><div class="faq-a">Yes &mdash; Builder tier and above support multiple simultaneous campaigns. You can run different videos for different products or audiences at the same time.</div></div>
     </div>
 </div>
 
 <!-- CTA -->
-<div class="cta-strip">
-    <h2>Ready to Launch Your Campaign?</h2>
+<div class="cta-band">
+    <h2>Ready to Launch<br>Your First Campaign?</h2>
     <p>Create your free account, choose a tier, and have your video in front of a real audience within 24 hours.</p>
-    <div class="hero-btns">
-        <a href="#" class="btn-primary" onclick="openRegModal();return false;">Create Free Account →</a>
-        <a href="/packages" class="btn-outline">View All Tiers</a>
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap">
+        <a href="#" class="hero-cta" onclick="mOpen('mReg');return false;">&#x1F680; Create Free Account</a>
+        <a href="/packages" class="hero-ghost">View All Tiers &rarr;</a>
     </div>
-    <p class="disclaimer">
-        SuperAdPro is a video advertising platform. Advertiser results will vary based on creative quality, targeting, and audience relevance.
-        All payments made in USDT on the Base blockchain. See our <a href="/legal" style="color:rgba(0,180,216,0.6)">legal page</a> for full terms.
-    </p>
+    <div class="cta-price">&#x1F4B0; Campaigns start from just $20 USDT &middot; No contracts &middot; Cancel anytime</div>
 </div>
 
-<footer>
-    <span class="footer-copy">© 2026 SuperAdPro. All rights reserved.</span>
-    <div class="footer-links">
-        <a href="/">Home</a>
-        <a href="/ads">Ad Board</a>
-        <a href="/how-it-works">How It Works</a>
-        <a href="/faq">FAQ</a>
-        <a href="/legal">Legal</a>
-        <a href="/support-public">Support</a>
-    </div>
-</footer>
-
+<div class="footer">
+    <p>SuperAdPro is a video advertising platform. Advertiser results vary based on creative quality, targeting, and audience relevance. All payments made in USDT on the Base blockchain. <a href="/legal">Terms &amp; Privacy</a></p>
+    <p style="margin-top:8px">&copy; 2025 SuperAdPro. All rights reserved.</p>
+</div>
 
 <script>
+function toggleMobileMenu(){var m=document.getElementById('mobileMenu');if(m)m.classList.toggle('open');}
 
-function openLoginModal() {
-  var overlay = document.getElementById('loginOverlay');
-  if (!overlay) return;
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  setTimeout(function(){ var f=document.getElementById('loginUser'); if(f) f.focus(); }, 300);
-}
-function closeLoginModal() {
-  var overlay = document.getElementById('loginOverlay');
-  if (overlay) overlay.classList.remove('open');
-  document.body.style.overflow = '';
-}
-document.addEventListener('keydown', function(e){
-  if(e.key==='Escape'){ closeLoginModal(); closeRegModal && closeRegModal(); }
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-  var form = document.getElementById('loginModalForm');
-  if (!form) return;
-  form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    var err = document.getElementById('loginErr');
-    var btn = document.getElementById('loginBtn');
-    err.style.display = 'none';
-    btn.disabled = true;
-    btn.textContent = 'Logging in…';
-    try {
-      var res = await fetch('/api/login', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          username: document.getElementById('loginUser').value,
-          password: document.getElementById('loginPw').value
-        })
-      });
-      var data = await res.json();
-      if (data.success) {
-        window.location.href = data.redirect || '/dashboard';
-        return;
-      }
-      err.textContent = data.error || 'Login failed. Please try again.';
-      err.style.display = 'block';
-      btn.disabled = false;
-      btn.textContent = 'Log In →';
-    } catch(ex) {
-      err.textContent = 'Network error. Please try again.';
-      err.style.display = 'block';
-      btn.disabled = false;
-      btn.textContent = 'Log In →';
-    }
-  });
-});</script>
-<script>
-/* ── Modal JS ── */
-function openRegModal(sponsor) {
-  var o=document.getElementById('regOverlay'); if(!o)return;
-  if(sponsor){document.getElementById('regRef').value=sponsor;document.getElementById('regSponsor').value=sponsor;document.getElementById('regSponsorField').style.display='block';}
-  o.classList.add('open'); document.body.style.overflow='hidden';
-  setTimeout(function(){var f=document.getElementById('regFirstName');if(f)f.focus();},300);
-}
-function closeRegModal(){var o=document.getElementById('regOverlay');if(o)o.classList.remove('open');document.body.style.overflow='';}
-function openLoginModal(){
-  var o=document.getElementById('loginOverlay'); if(!o)return;
-  o.classList.add('open'); document.body.style.overflow='hidden';
-  setTimeout(function(){var f=document.getElementById('loginUser');if(f)f.focus();},300);
-}
-function closeLoginModal(){var o=document.getElementById('loginOverlay');if(o)o.classList.remove('open');document.body.style.overflow='';}
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeLoginModal();closeRegModal();}});
-
-document.addEventListener('DOMContentLoaded',function(){
-  /* Register form */
-  var rf=document.getElementById('regModalForm');
-  if(rf) rf.addEventListener('submit',async function(e){
-    e.preventDefault();
-    var err=document.getElementById('regErr'),btn=document.getElementById('regBtn');
-    err.style.display='none';
-    if(document.getElementById('regPw').value!==document.getElementById('regPwC').value){err.textContent='Passwords do not match.';err.style.display='block';return;}
-    if(!document.getElementById('regTerms').checked){err.textContent='Please agree to the Terms of Service.';err.style.display='block';return;}
-    btn.disabled=true; btn.textContent='Creating account…';
-    try{
-      var res=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        first_name:document.getElementById('regFirstName').value,
-        email:document.getElementById('regEmail').value,
-        username:document.getElementById('regUsername').value,
-        password:document.getElementById('regPw').value,
-        confirm_password:document.getElementById('regPwC').value,
-        ref:document.getElementById('regRef').value,
-        beta_code:''
-      })});
-      var d=await res.json();
-      if(d.success){window.location.href=d.redirect||'/dashboard?new=1';return;}
-      err.textContent=d.error||'Something went wrong.';err.style.display='block';
-      btn.disabled=false;btn.textContent='Register Here →';
-    }catch(ex){err.textContent='Network error. Please try again.';err.style.display='block';btn.disabled=false;btn.textContent='Register Here →';}
-  });
-
-  /* Login form */
-  var lf=document.getElementById('loginModalForm');
-  if(lf) lf.addEventListener('submit',async function(e){
-    e.preventDefault();
-    var err=document.getElementById('loginErr'),btn=document.getElementById('loginBtn');
-    err.style.display='none'; btn.disabled=true; btn.textContent='Logging in…';
-    try{
-      var res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        username:document.getElementById('loginUser').value,
-        password:document.getElementById('loginPw').value
-      })});
-      var d=await res.json();
-      if(d.success){window.location.href=d.redirect||'/dashboard';return;}
-      err.textContent=d.error||'Login failed.';err.style.display='block';
-      btn.disabled=false;btn.textContent='Log In →';
-    }catch(ex){err.textContent='Network error. Please try again.';err.style.display='block';btn.disabled=false;btn.textContent='Log In →';}
-  });
-
-  /* Auto-open from URL params */
-  var p=new URLSearchParams(window.location.search);
-  var sponsor=p.get('join')||p.get('ref')||'';
-  if(p.get('login')==='1'){openLoginModal();}
-  else if(sponsor||p.get('register')==='1'){openRegModal(sponsor);}
-});
-</script>
-<script>
-/* ── Register Modal ── */
-function openRegModal(sponsor) {
-  var o = document.getElementById('regOverlay');
-  if (!o) return;
-  if (sponsor) {
-    document.getElementById('regRef').value = sponsor;
-    document.getElementById('regSponsor').value = sponsor;
-    document.getElementById('regSponsorField').style.display = 'block';
-  }
-  o.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  setTimeout(function(){ var f=document.getElementById('regFirstName'); if(f) f.focus(); }, 300);
-}
-function closeRegModal() {
-  var o = document.getElementById('regOverlay');
-  if (o) o.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-/* ── Login Modal ── */
-function openLoginModal() {
-  var o = document.getElementById('loginOverlay');
-  if (!o) return;
-  o.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  setTimeout(function(){ var f=document.getElementById('loginUser'); if(f) f.focus(); }, 300);
-}
-function closeLoginModal() {
-  var o = document.getElementById('loginOverlay');
-  if (o) o.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-/* ── Keyboard close ── */
-document.addEventListener('keydown', function(e){
-  if (e.key === 'Escape') { closeRegModal(); closeLoginModal(); }
-});
-
-/* ── Register form submit ── */
-document.addEventListener('DOMContentLoaded', function() {
-  var rForm = document.getElementById('regModalForm');
-  if (rForm) {
-    rForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      var err = document.getElementById('regErr');
-      var btn = document.getElementById('regBtn');
-      err.style.display = 'none';
-      if (document.getElementById('regPw').value !== document.getElementById('regPwC').value) {
-        err.textContent = 'Passwords do not match.';
-        err.style.display = 'block'; return;
-      }
-      if (!document.getElementById('regTerms').checked) {
-        err.textContent = 'Please agree to the Terms of Service.';
-        err.style.display = 'block'; return;
-      }
-      btn.disabled = true; btn.textContent = 'Creating account\u2026';
-      try {
-        var res = await fetch('/api/register', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            first_name:       document.getElementById('regFirstName').value,
-            email:            document.getElementById('regEmail').value,
-            username:         document.getElementById('regUsername').value,
-            password:         document.getElementById('regPw').value,
-            confirm_password: document.getElementById('regPwC').value,
-            ref:              document.getElementById('regRef').value,
-            beta_code:        ''
-          })
-        });
-        var data = await res.json();
-        if (data.success) { window.location.href = data.redirect || '/dashboard?new=1'; return; }
-        err.textContent = data.error || 'Something went wrong. Please try again.';
-        err.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Register Here \u2192';
-      } catch(ex) {
-        err.textContent = 'Network error. Please try again.';
-        err.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Register Here \u2192';
-      }
-    });
-  }
-
-  /* ── Login form submit ── */
-  var lForm = document.getElementById('loginModalForm');
-  if (lForm) {
-    lForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      var err = document.getElementById('loginErr');
-      var btn = document.getElementById('loginBtn');
-      err.style.display = 'none';
-      btn.disabled = true; btn.textContent = 'Logging in\u2026';
-      try {
-        var res = await fetch('/api/login', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            username: document.getElementById('loginUser').value,
-            password: document.getElementById('loginPw').value
-          })
-        });
-        var data = await res.json();
-        if (data.success) { window.location.href = data.redirect || '/dashboard'; return; }
-        err.textContent = data.error || 'Login failed. Please try again.';
-        err.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Log In \u2192';
-      } catch(ex) {
-        err.textContent = 'Network error. Please try again.';
-        err.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Log In \u2192';
-      }
-    });
-  }
-
-  /* ── Auto-open from URL params ── */
-  var p = new URLSearchParams(window.location.search);
-  var sponsor = p.get('join') || p.get('ref') || '';
-  if (p.get('login') === '1')  { openLoginModal(); }
-  else if (sponsor || p.get('register') === '1') { openRegModal(sponsor); }
-});
-</script>
-<script>
-/* === MODAL JS === */
 function mOpen(id, sponsor) {
   var el = document.getElementById(id);
   if (!el) return;
@@ -758,90 +332,54 @@ function mOpen(id, sponsor) {
     document.getElementById('regSponsorShow').value = sponsor;
     document.getElementById('regSponsorWrap').style.display = 'block';
   }
-  setTimeout(function() {
-    var f = el.querySelector('input:not([type=hidden])');
-    if (f) f.focus();
-  }, 250);
+  setTimeout(function() { var f = el.querySelector('input:not([type=hidden])'); if (f) f.focus(); }, 250);
 }
-function mClose(id) {
-  var el = document.getElementById(id);
-  if (el) el.classList.remove('open');
-  document.body.style.overflow = '';
-}
+function mClose(id) { var el = document.getElementById(id); if (el) el.classList.remove('open'); document.body.style.overflow = ''; }
 function openRegModal(s)  { mOpen('mReg', s); }
-function closeRegModal()  { mClose('mReg'); }
 function openLoginModal() { mOpen('mLogin'); }
-function closeLoginModal(){ mClose('mLogin'); }
 
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') { mClose('mReg'); mClose('mLogin'); }
-});
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { mClose('mReg'); mClose('mLogin'); } });
 
 async function doLogin(e) {
   e.preventDefault();
-  var err = document.getElementById('loginErr');
-  var btn = document.getElementById('loginBtn');
-  err.style.display = 'none';
-  btn.disabled = true; btn.textContent = 'Logging in...';
+  var err = document.getElementById('loginErr'), btn = document.getElementById('loginBtn');
+  err.style.display = 'none'; btn.disabled = true; btn.textContent = 'Logging in...';
   try {
-    var r = await fetch('/api/login', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        username: document.getElementById('loginUser').value,
-        password: document.getElementById('loginPw').value
-      })
-    });
+    var r = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ username:document.getElementById('loginUser').value, password:document.getElementById('loginPw').value }) });
     var d = await r.json();
     if (d.success) { window.location.href = d.redirect || '/dashboard'; return; }
-    err.textContent = d.error || 'Login failed.';
-    err.style.display = 'block';
-  } catch(x) { err.textContent = 'Network error. Please try again.'; err.style.display = 'block'; }
-  btn.disabled = false; btn.textContent = 'Log In';
+    err.textContent = d.error || 'Login failed.'; err.style.display = 'block';
+  } catch(x) { err.textContent = 'Network error.'; err.style.display = 'block'; }
+  btn.disabled = false; btn.textContent = 'Log In \u2192';
 }
 
 async function doRegister(e) {
   e.preventDefault();
-  var err = document.getElementById('regErr');
-  var btn = document.getElementById('regBtn');
+  var err = document.getElementById('regErr'), btn = document.getElementById('regBtn');
   err.style.display = 'none';
-  if (document.getElementById('regPw').value !== document.getElementById('regPwC').value) {
-    err.textContent = 'Passwords do not match.'; err.style.display = 'block'; return;
-  }
-  if (!document.getElementById('regTerms').checked) {
-    err.textContent = 'Please tick the Terms checkbox.'; err.style.display = 'block'; return;
-  }
+  if (document.getElementById('regPw').value !== document.getElementById('regPwC').value) { err.textContent = 'Passwords do not match.'; err.style.display = 'block'; return; }
+  if (!document.getElementById('regTerms').checked) { err.textContent = 'Please tick the Terms checkbox.'; err.style.display = 'block'; return; }
   btn.disabled = true; btn.textContent = 'Creating account...';
   try {
-    var r = await fetch('/api/register', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        first_name:       document.getElementById('regFirst').value,
-        email:            document.getElementById('regEmail').value,
-        username:         document.getElementById('regUser').value,
-        password:         document.getElementById('regPw').value,
-        confirm_password: document.getElementById('regPwC').value,
-        ref:              document.getElementById('regRef').value,
-        beta_code:        ''
-      })
-    });
+    var r = await fetch('/api/register', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
+      first_name: document.getElementById('regFirst').value, email: document.getElementById('regEmail').value,
+      username: document.getElementById('regUser').value, password: document.getElementById('regPw').value,
+      confirm_password: document.getElementById('regPwC').value, ref: document.getElementById('regRef').value, beta_code: ''
+    }) });
     var d = await r.json();
     if (d.success) { window.location.href = d.redirect || '/dashboard?new=1'; return; }
-    err.textContent = d.error || 'Something went wrong.';
-    err.style.display = 'block';
-  } catch(x) { err.textContent = 'Network error. Please try again.'; err.style.display = 'block'; }
-  btn.disabled = false; btn.textContent = 'Register Here';
+    err.textContent = d.error || 'Something went wrong.'; err.style.display = 'block';
+  } catch(x) { err.textContent = 'Network error.'; err.style.display = 'block'; }
+  btn.disabled = false; btn.textContent = 'Register Here \u2192';
 }
 
-/* Auto-open from URL params */
 (function() {
   var p = new URLSearchParams(window.location.search);
   var sponsor = p.get('join') || '';
-  if (p.get('login') === '1')       { mOpen('mLogin'); }
+  if (p.get('login') === '1') { mOpen('mLogin'); }
   else if (p.get('register') === '1') { mOpen('mReg'); }
-  else if (sponsor)                   { mOpen('mReg', sponsor); }
+  else if (sponsor) { mOpen('mReg', sponsor); }
 })();
-/* === END MODAL JS === */</script>
+</script>
 </body>
-
-<script>function toggleMobileMenu(){var m=document.getElementById('mobileMenu');if(m)m.classList.toggle('open');}</script>
 </html>
