@@ -203,9 +203,7 @@ a{text-decoration:none;color:inherit}
     </div>
   </a>
   <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
-</div>
 
-<div class="main">
   <!-- Desktop Topbar -->
   <div class="topbar">
     <div>
@@ -343,7 +341,7 @@ a{text-decoration:none;color:inherit}
 
       <div class="video-wrap">
         <iframe id="videoFrame"
-          src="{{ campaign.embed_url }}{% if '?' in campaign.embed_url %}&{% else %}?{% endif %}autoplay=1autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1mute=1autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1controls=0autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1modestbranding=1autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1rel=0autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1showinfo=0autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1iv_load_policy=3autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1playsinline=1&enablejsapi=1"
+          src="{{ campaign.embed_url }}{% if '?' in campaign.embed_url %}&{% else %}?{% endif %}autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&enablejsapi=1"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen></iframe>
         <div class="unmute-overlay" id="unmuteOverlay" onclick="unmuteVideo()">
@@ -379,7 +377,6 @@ a{text-decoration:none;color:inherit}
     {% endif %}
 
   </div></div>
-</div>
 
 <script>
 (function() {
@@ -469,7 +466,7 @@ a{text-decoration:none;color:inherit}
     document.getElementById('campaignTitle').textContent=c.title;
     document.getElementById('campaignMeta').textContent=c.platform.charAt(0).toUpperCase()+c.platform.slice(1)+' · Campaign #'+c.id;
     const sep=c.embed_url.includes('?')?'&':'?';
-    document.getElementById('videoFrame').src=c.embed_url+sep+'autoplay=1autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1mute=1autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1controls=0autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1modestbranding=1autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1rel=0autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1showinfo=0autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1iv_load_policy=3autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1playsinline=1&enablejsapi=1';
+    document.getElementById('videoFrame').src=c.embed_url+sep+'autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&enablejsapi=1';
     const uo=document.getElementById('unmuteOverlay');if(uo)uo.classList.remove('hidden');
     secondsLeft=DURATION;timerDone=false;submitted=false;isPaused=false;timerArc.style.strokeDashoffset=circumference;
     timerNum.textContent=DURATION;watchStatus.textContent='⏱ Watching — timer counting down';watchStatus.className='watch-status counting';watchStatus.style.color='';
