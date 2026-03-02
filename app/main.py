@@ -19,6 +19,8 @@ from .database import (
     DIRECT_PCT, UNILEVEL_PCT, PER_LEVEL_PCT, PLATFORM_PCT,
     OWNER_PCT, UPLINE_PCT, LEVEL_PCT, COMPANY_PCT
 )
+from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker
+from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent
 from .crud import create_user, verify_password
 from .grid import (
     get_grid_stats, get_user_grids, get_grid_positions,
@@ -26,9 +28,6 @@ from .grid import (
 )
 from .email_utils import send_password_reset_email
 from .video_utils import parse_video_url, platform_label, platform_colour
-from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent
-from .database import PasswordResetToken
-from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker
 from .course_engine import process_course_purchase, get_user_course_stats, assign_passup_sponsor
 import secrets
 from datetime import timedelta
@@ -696,7 +695,7 @@ Return JSON: {{"headline":"...","subheadline":"...","cta_text":"...","benefits_t
             "preview_url": f"/p/{slug}", "edit_url": f"/funnels/visual/{page.id}"}
 
 @app.post("/api/launch-wizard/generate-posts")
-async def generate_social_posts(request: Request, user: User = Depends(get_current_user)):
+async def generate_social_posts_wizard(request: Request, user: User = Depends(get_current_user)):
     """Generate ready-to-post social media content."""
     if not user: return {"error": "Not logged in"}
     body = await request.json()
@@ -2819,17 +2818,7 @@ def delete_rotator(rotator_id: int, user: User = Depends(get_current_user),
 def what_you_get(request: Request):
     return templates.TemplateResponse("what-you-get.html", {"request": request})
 
-@app.get("/dashboard-mockup")
-def dashboard_mockup(request: Request):
-    return templates.TemplateResponse("dashboard-mockup.html", {"request": request})
 
-@app.get("/dashboard-mockup2")
-def dashboard_mockup2(request: Request):
-    return templates.TemplateResponse("dashboard-mockup2.html", {"request": request})
-
-@app.get("/logo-concepts")
-def logo_concepts(request: Request):
-    return templates.TemplateResponse("logo-concepts.html", {"request": request})
 
 
 # ═══════════════════════════════════════════════════
@@ -4645,22 +4634,6 @@ def reset_account(secret: str, db: Session = Depends(get_db)):
         db.rollback()
         return JSONResponse({"error": str(e)}, status_code=500)
 
-
-@app.get("/grid-mockup1")
-def grid_mockup1(request: Request):
-    return templates.TemplateResponse("grid-mockup1.html", {"request": request})
-
-@app.get("/grid-mockup2")
-def grid_mockup2(request: Request):
-    return templates.TemplateResponse("grid-mockup2.html", {"request": request})
-
-@app.get("/ad-board-mockup")
-async def ad_board_mockup(request: Request):
-    return templates.TemplateResponse("ad-board-mockup.html", {"request": request})
-
-@app.get("/ad-board-mockup-light")
-async def ad_board_mockup_light(request: Request):
-    return templates.TemplateResponse("ad-board-mockup-light.html", {"request": request})
 
 
 # ═══════════════════════════════════════════════════════════════════
