@@ -343,7 +343,7 @@ a{text-decoration:none;color:inherit}
 
       <div class="video-wrap">
         <iframe id="videoFrame"
-          src="{{ campaign.embed_url }}{% if '?' in campaign.embed_url %}&{% else %}?{% endif %}autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1"
+          src="{{ campaign.embed_url }}{% if '?' in campaign.embed_url %}&{% else %}?{% endif %}autoplay=1autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1mute=1autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1controls=0autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1modestbranding=1autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1rel=0autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1showinfo=0autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1iv_load_policy=3autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1playsinline=1&enablejsapi=1"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen></iframe>
         <div class="unmute-overlay" id="unmuteOverlay" onclick="unmuteVideo()">
@@ -394,13 +394,61 @@ a{text-decoration:none;color:inherit}
     pctLabel=document.getElementById('pctLabel');
   const circumference=2*Math.PI*24;
   let secondsLeft=DURATION,timerDone=false,submitted=false;
+  let timerInterval=null;
+  let isPaused=false;
 
-  const interval=setInterval(()=>{
-    secondsLeft--;timerNum.textContent=secondsLeft;
-    timerArc.style.strokeDashoffset=circumference*(1-(DURATION-secondsLeft)/DURATION);
-    if(secondsLeft<=0){clearInterval(interval);timerDone=true;timerArc.style.strokeDashoffset=0;
-      watchStatus.textContent='✅ Qualified — click to record your view';watchStatus.className='watch-status complete';btnNext.classList.add('ready');}
-  },1000);
+  /* ── Visibility detection — pause when user leaves the tab ── */
+  const pauseOverlay = document.createElement('div');
+  pauseOverlay.id = 'pauseOverlay';
+  pauseOverlay.style.cssText = 'display:none;position:absolute;inset:0;background:rgba(5,13,26,0.92);z-index:30;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;backdrop-filter:blur(8px)';
+  pauseOverlay.innerHTML = '<div style="font-size:36px">⏸</div><div style="font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#fff">Video Paused</div><div style="font-size:13px;color:rgba(200,220,255,0.6)">Return to this tab to continue watching</div>';
+  const vwrap = document.querySelector('.video-wrap');
+  if (vwrap) vwrap.appendChild(pauseOverlay);
+
+  function pauseWatch() {
+    if (isPaused || timerDone) return;
+    isPaused = true;
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    if (pauseOverlay) pauseOverlay.style.display = 'flex';
+    watchStatus.textContent = '⏸ Paused — return to this tab to continue';
+    watchStatus.className = 'watch-status';
+    watchStatus.style.color = '#f59e0b';
+    // Pause YouTube iframe
+    const frame = document.getElementById('videoFrame');
+    if (frame) frame.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+  }
+
+  function resumeWatch() {
+    if (!isPaused || timerDone) return;
+    isPaused = false;
+    if (pauseOverlay) pauseOverlay.style.display = 'none';
+    watchStatus.textContent = '⏱ Watching — timer counting down';
+    watchStatus.className = 'watch-status counting';
+    watchStatus.style.color = '';
+    // Resume YouTube iframe
+    const frame = document.getElementById('videoFrame');
+    if (frame) frame.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+    startTimer();
+  }
+
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) pauseWatch(); else resumeWatch();
+  });
+  window.addEventListener('blur', function() { pauseWatch(); });
+  window.addEventListener('focus', function() { if (!document.hidden) resumeWatch(); });
+
+  function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(()=>{
+      if (isPaused) return;
+      secondsLeft--;timerNum.textContent=secondsLeft;
+      timerArc.style.strokeDashoffset=circumference*(1-(DURATION-secondsLeft)/DURATION);
+      if(secondsLeft<=0){clearInterval(timerInterval);timerInterval=null;timerDone=true;timerArc.style.strokeDashoffset=0;
+        watchStatus.textContent='✅ Qualified — click to record your view';watchStatus.className='watch-status complete';watchStatus.style.color='';btnNext.classList.add('ready');}
+    },1000);
+  }
+
+  startTimer();
 
   window.unmuteVideo=function(){const f=document.getElementById('videoFrame'),o=document.getElementById('unmuteOverlay');
     f.src=f.src.replace('&mute=1','').replace('mute=1&','').replace('?mute=1','?');o.classList.add('hidden');};
@@ -421,16 +469,13 @@ a{text-decoration:none;color:inherit}
     document.getElementById('campaignTitle').textContent=c.title;
     document.getElementById('campaignMeta').textContent=c.platform.charAt(0).toUpperCase()+c.platform.slice(1)+' · Campaign #'+c.id;
     const sep=c.embed_url.includes('?')?'&':'?';
-    document.getElementById('videoFrame').src=c.embed_url+sep+'autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1';
+    document.getElementById('videoFrame').src=c.embed_url+sep+'autoplay=1autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1mute=1autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1controls=0autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1modestbranding=1autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1rel=0autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1showinfo=0autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1iv_load_policy=3autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1playsinline=1&enablejsapi=1';
     const uo=document.getElementById('unmuteOverlay');if(uo)uo.classList.remove('hidden');
-    secondsLeft=DURATION;timerDone=false;submitted=false;timerArc.style.strokeDashoffset=circumference;
-    timerNum.textContent=DURATION;watchStatus.textContent='⏱ Watching — timer counting down';watchStatus.className='watch-status counting';
+    secondsLeft=DURATION;timerDone=false;submitted=false;isPaused=false;timerArc.style.strokeDashoffset=circumference;
+    timerNum.textContent=DURATION;watchStatus.textContent='⏱ Watching — timer counting down';watchStatus.className='watch-status counting';watchStatus.style.color='';
     btnNext.classList.remove('ready');btnNext.textContent='✓ Mark as Watched →';btnNext.disabled=false;
-    const ni=setInterval(()=>{secondsLeft--;timerNum.textContent=secondsLeft;
-      timerArc.style.strokeDashoffset=circumference*(1-(DURATION-secondsLeft)/DURATION);
-      if(secondsLeft<=0){clearInterval(ni);timerDone=true;timerArc.style.strokeDashoffset=0;
-        watchStatus.textContent='✅ Qualified — click to record your view';watchStatus.className='watch-status complete';btnNext.classList.add('ready');}
-    },1000);
+    if (pauseOverlay) pauseOverlay.style.display = 'none';
+    startTimer();
   }
 })();
 </script>
