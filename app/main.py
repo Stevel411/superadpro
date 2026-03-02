@@ -1445,6 +1445,22 @@ async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
         initialise_renewal_record(db, user_id, source="coinbase")
         db.commit()
 
+        # Send commission email to sponsor (non-blocking)
+        if user.sponsor_id:
+            try:
+                from .email_utils import send_commission_email
+                sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
+                if sponsor and sponsor.email:
+                    send_commission_email(
+                        to_email=sponsor.email,
+                        first_name=sponsor.first_name or sponsor.username,
+                        commission_type="Membership Sponsor",
+                        from_username=user.username,
+                    )
+                    logger.info(f"Coinbase: Commission email sent to {sponsor.username}")
+            except Exception as e:
+                logger.warning(f"Coinbase: Commission email failed: {e}")
+
         # Log cascade activations
         if activated_users:
             logger.info(f"Coinbase: Auto-activated {len(activated_users)} users in cascade")
