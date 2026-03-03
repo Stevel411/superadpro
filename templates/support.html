@@ -314,7 +314,7 @@
         <a href="/faq#getting-started" class="topic-card">
             <span class="topic-icon">🚀</span>
             <div class="topic-title">Getting Started</div>
-            <div class="topic-desc">Registration, beta codes, wallet setup and your first tier activation.</div>
+            <div class="topic-desc">Registration, wallet setup and your first tier activation.</div>
             <span class="topic-link">View answers →</span>
         </a>
         <a href="/faq#payments" class="topic-card">
@@ -514,7 +514,6 @@ document.addEventListener('DOMContentLoaded',function(){
         password:document.getElementById('regPw').value,
         confirm_password:document.getElementById('regPwC').value,
         ref:document.getElementById('regRef').value,
-        beta_code:''
       })});
       var d=await res.json();
       if(d.success){window.location.href=d.redirect||'/dashboard?new=1';return;}

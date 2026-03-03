@@ -181,7 +181,6 @@ def validate_email(e):    return bool(re.match(r'^[^\@\s]+@[^\@\s]+\.[^\@\s]+$',
 def validate_wallet(w):   return bool(re.match(r'^0x[a-fA-F0-9]{40}$', w))
 def sanitize(v):          return bleach.clean(v.strip()) if v else ""
 
-BETA_CODE = os.getenv("BETA_CODE")
 
 # ── Dashboard context ─────────────────────────────────────────
 def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
@@ -417,7 +416,6 @@ def register_process(
     password:         str  = Form(),
     confirm_password: str  = Form(),
     ref:              str  = Form(""),
-    beta_code:        str  = Form(""),
     db: Session = Depends(get_db)
 ):
     username   = sanitize(username)
@@ -428,7 +426,6 @@ def register_process(
     def err(msg):
         return templates.TemplateResponse("register.html", {
             "request": request, "error": msg, "sponsor": ref,
-            "beta_required": bool(BETA_CODE),
             "prefill": {
                 "first_name": first_name,
                 "username":   username,
@@ -437,8 +434,6 @@ def register_process(
             }
         })
 
-    if BETA_CODE and beta_code != BETA_CODE:
-        return err("Invalid beta access code.")
     if not first_name.strip():
         return err("Please enter your first name.")
     if not validate_username(username):
@@ -4561,10 +4556,7 @@ async def api_register(
         password         = body.get("password", "")
         confirm_password = body.get("confirm_password", "")
         ref              = sanitize(body.get("ref", "").strip())
-        beta_code        = body.get("beta_code", "").strip()
 
-        if BETA_CODE and beta_code != BETA_CODE:
-            return JSONResponse({"error": "Invalid beta access code."}, status_code=400)
         if not first_name:
             return JSONResponse({"error": "Please enter your first name."}, status_code=400)
         if not validate_username(username):

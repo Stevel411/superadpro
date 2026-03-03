@@ -310,44 +310,6 @@
         <div class="faq-section" data-cat="getting-started">
             <div class="faq-section-title"><span class="faq-section-icon">🚀</span>Getting Started</div>
 
-            <div class="faq-item" data-cat="getting-started">
-                <div class="faq-q" onclick="toggleFAQ(this)">
-                    <span class="faq-q-text">What is SuperAdPro?</span>
-                    <span class="faq-chevron">⌄</span>
-                </div>
-                <div class="faq-a"><div class="faq-a-inner">SuperAdPro is a video advertising platform where advertisers buy engaged video views, marketers launch AI-optimised campaigns, and affiliates earn commissions by growing the network. Payments are made securely via Coinbase Commerce — pay with card, Apple Pay, Google Pay, or crypto.</div></div>
-            </div>
-
-            <div class="faq-item" data-cat="getting-started">
-                <div class="faq-q" onclick="toggleFAQ(this)">
-                    <span class="faq-q-text">Is it free to register?</span>
-                    <span class="faq-chevron">⌄</span>
-                </div>
-                <div class="faq-a"><div class="faq-a-inner">Yes — registration is completely free. As a free member you can explore the platform, receive your personal referral link and refer others. Your first paying referral automatically activates your $20 membership for month one — meaning the platform pays your entry for you. From month two onwards, your $20 membership renews automatically from your wallet balance, which you build up through grid commissions, Stream 1 referral income and other platform earnings.</div></div>
-            </div>
-
-            <div class="faq-item" data-cat="getting-started">
-                <div class="faq-q" onclick="toggleFAQ(this)">
-                    <span class="faq-q-text">What do I need to get started?</span>
-                    <span class="faq-chevron">⌄</span>
-                </div>
-                <div class="faq-a"><div class="faq-a-inner">You need: (1) a valid email address, (2) a payment method (card, Apple Pay, or crypto wallet), and (3) a beta access code if you're joining during our beta phase. That's it.</div></div>
-            </div>
-
-            <div class="faq-item" data-cat="getting-started">
-                <div class="faq-q" onclick="toggleFAQ(this)">
-                    <span class="faq-q-text">Do I need crypto experience to use SuperAdPro?</span>
-                    <span class="faq-chevron">⌄</span>
-                </div>
-                <div class="faq-a"><div class="faq-a-inner">No crypto experience needed. You can pay with a regular debit card, credit card, or Apple Pay. If you'd prefer to use crypto, that works too. Visit our <a href="/support-public">Support page</a> if you need help.</div></div>
-            </div>
-
-            <div class="faq-item" data-cat="getting-started">
-                <div class="faq-q" onclick="toggleFAQ(this)">
-                    <span class="faq-q-text">What is a beta access code?</span>
-                    <span class="faq-chevron">⌄</span>
-                </div>
-                <div class="faq-a"><div class="faq-a-inner">During our beta launch phase, registration requires a beta access code. Codes are distributed by existing members and the SuperAdPro team. If you don't have one, contact us via the <a href="/support-public">Support page</a> or ask the person who referred you.</div></div>
             </div>
         </div>
 
@@ -729,7 +691,6 @@ document.addEventListener('DOMContentLoaded',function(){
         password:document.getElementById('regPw').value,
         confirm_password:document.getElementById('regPwC').value,
         ref:document.getElementById('regRef').value,
-        beta_code:''
       })});
       var d=await res.json();
       if(d.success){window.location.href=d.redirect||'/dashboard?new=1';return;}
@@ -831,7 +792,6 @@ document.addEventListener('DOMContentLoaded', function() {
             password:         document.getElementById('regPw').value,
             confirm_password: document.getElementById('regPwC').value,
             ref:              document.getElementById('regRef').value,
-            beta_code:        ''
           })
         });
         var data = await res.json();
@@ -960,7 +920,6 @@ async function doRegister(e) {
         password:         document.getElementById('regPw').value,
         confirm_password: document.getElementById('regPwC').value,
         ref:              document.getElementById('regRef').value,
-        beta_code:        ''
       })
     });
     var d = await r.json();

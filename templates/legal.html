@@ -697,7 +697,6 @@ document.addEventListener('DOMContentLoaded',function(){
         password:document.getElementById('regPw').value,
         confirm_password:document.getElementById('regPwC').value,
         ref:document.getElementById('regRef').value,
-        beta_code:''
       })});
       var d=await res.json();
       if(d.success){window.location.href=d.redirect||'/dashboard?new=1';return;}
@@ -799,7 +798,6 @@ document.addEventListener('DOMContentLoaded', function() {
             password:         document.getElementById('regPw').value,
             confirm_password: document.getElementById('regPwC').value,
             ref:              document.getElementById('regRef').value,
-            beta_code:        ''
           })
         });
         var data = await res.json();
@@ -928,7 +926,6 @@ async function doRegister(e) {
         password:         document.getElementById('regPw').value,
         confirm_password: document.getElementById('regPwC').value,
         ref:              document.getElementById('regRef').value,
-        beta_code:        ''
       })
     });
     var d = await r.json();

@@ -53,8 +53,6 @@ body { display:flex; flex-direction:column; }
 .form-title { font-weight:800; font-size:32px; color:#ffffff; margin-bottom:4px; }
 .form-sub { font-size:19px; color:rgba(200,220,255,0.7); margin-bottom:28px; }
 .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-.beta-field { position:relative; }
-.beta-badge { position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:19px; font-weight:700; letter-spacing:1px; color:#0284c7; background:rgba(0,180,216,0.08); border:1px solid rgba(0,180,216,0.2); padding:2px 7px; border-radius:3px; }
 .wallet-hint { font-size:19px; color:#0284c7; margin-top:5px; }
 .terms { display:flex; align-items:flex-start; gap:10px; margin-bottom:20px; }
 .terms input[type=checkbox] { width:16px; height:16px; flex-shrink:0; margin-top:2px; accent-color:#0ea5e9; }
@@ -257,15 +255,6 @@ body { display:flex; flex-direction:column; }
           <label>Referred by <span style="color:rgba(200,220,255,0.35);font-size:16px;font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
           <input type="text" name="ref" placeholder="Sponsor username" value="{{ sponsor or (prefill.ref if prefill else '') }}" autocomplete="off">
         </div>
-        {% if beta_required %}
-        <div class="form-group">
-          <label>Beta Access Code</label>
-          <div class="beta-field">
-            <input type="text" name="beta_code" placeholder="Enter your beta code" required>
-            <span class="beta-badge">BETA</span>
-          </div>
-        </div>
-        {% endif %}
         <div style="background:rgba(0,180,216,0.04);border:1px solid rgba(0,180,216,0.12);border-radius:8px;padding:12px 14px;margin-bottom:18px">
           <div style="font-size:16px;color:rgba(200,220,255,0.5);line-height:1.6">
             💡 <strong style="color:rgba(200,220,255,0.8)">You can complete your profile later</strong> — wallet address, country and other details can be added in your Account page after registration.
@@ -336,7 +325,7 @@ document.addEventListener('DOMContentLoaded',function(){
         password:document.getElementById('regPw').value,
         confirm_password:document.getElementById('regPwC').value,
         ref:document.getElementById('regRef').value,
-        beta_code:''
+        
       })});
       var d=await res.json();
       if(d.success){window.location.href=d.redirect||'/dashboard?new=1';return;}
