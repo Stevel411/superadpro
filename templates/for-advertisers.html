@@ -306,44 +306,18 @@ nav{position:relative;z-index:100;display:flex;align-items:center;justify-conten
     <div class="sec-label">The Audience</div>
     <div class="sec-title">Who Sees Your Ads</div>
     <div class="sec-sub">Your campaigns reach both active SuperAdPro members and organic visitors browsing our public pages — two distinct audiences, one platform.</div>
-
-    <!-- Audience cards — full width 2x2 -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:36px">
-        <div style="background:linear-gradient(135deg,rgba(14,165,233,0.06),rgba(14,165,233,0.01));border:1px solid rgba(14,165,233,0.15);border-radius:14px;padding:28px 24px;display:flex;gap:16px;align-items:flex-start;transition:border-color 0.3s">
-            <div style="width:48px;height:48px;border-radius:12px;background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">&#x1F4BB;</div>
-            <div><div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:6px">Digital Marketers &amp; Affiliates</div><div style="font-size:13px;color:rgba(200,220,255,0.5);line-height:1.7">Active professionals running campaigns, building funnels, and promoting digital products. They understand advertising and are buyers themselves.</div></div>
+    <div class="audience-grid">
+        <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="aud-card"><div class="aud-icon">&#x1F4BB;</div><div><div class="aud-title">Digital Marketers &amp; Affiliates</div><div class="aud-text">Active professionals running campaigns, building funnels, and promoting digital products. They understand advertising and are buyers themselves.</div></div></div>
+            <div class="aud-card"><div class="aud-icon">&#x1F680;</div><div><div class="aud-title">Entrepreneurs &amp; Business Builders</div><div class="aud-text">Founders, side-hustlers, and online business owners constantly looking for tools and services to grow their businesses.</div></div></div>
+            <div class="aud-card"><div class="aud-icon">&#x1F310;</div><div><div class="aud-title">Organic Search Visitors</div><div class="aud-text">People who discover your video or ad board listing through Google search, social shares, or direct browsing of our public pages — completely outside the member network.</div></div></div>
+            <div class="aud-card"><div class="aud-icon">&#x1F393;</div><div><div class="aud-title">Learners &amp; Course Buyers</div><div class="aud-text">People actively investing in their education and skills &mdash; they buy courses, attend webinars, and subscribe to paid communities.</div></div></div>
         </div>
-        <div style="background:linear-gradient(135deg,rgba(245,158,11,0.06),rgba(245,158,11,0.01));border:1px solid rgba(245,158,11,0.15);border-radius:14px;padding:28px 24px;display:flex;gap:16px;align-items:flex-start;transition:border-color 0.3s">
-            <div style="width:48px;height:48px;border-radius:12px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">&#x1F680;</div>
-            <div><div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:6px">Entrepreneurs &amp; Business Builders</div><div style="font-size:13px;color:rgba(200,220,255,0.5);line-height:1.7">Founders, side-hustlers, and online business owners constantly looking for tools and services to grow their businesses.</div></div>
-        </div>
-        <div style="background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(16,185,129,0.01));border:1px solid rgba(16,185,129,0.15);border-radius:14px;padding:28px 24px;display:flex;gap:16px;align-items:flex-start;transition:border-color 0.3s">
-            <div style="width:48px;height:48px;border-radius:12px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">&#x1F310;</div>
-            <div><div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:6px">Organic Search Visitors</div><div style="font-size:13px;color:rgba(200,220,255,0.5);line-height:1.7">People who discover your video or ad board listing through Google search, social shares, or direct browsing — completely outside the member network.</div></div>
-        </div>
-        <div style="background:linear-gradient(135deg,rgba(124,58,237,0.06),rgba(124,58,237,0.01));border:1px solid rgba(124,58,237,0.15);border-radius:14px;padding:28px 24px;display:flex;gap:16px;align-items:flex-start;transition:border-color 0.3s">
-            <div style="width:48px;height:48px;border-radius:12px;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">&#x1F393;</div>
-            <div><div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:6px">Learners &amp; Course Buyers</div><div style="font-size:13px;color:rgba(200,220,255,0.5);line-height:1.7">People actively investing in their education and skills — they buy courses, attend webinars, and subscribe to paid communities.</div></div>
-        </div>
-    </div>
-
-    <!-- Key stats strip — sits below the audience cards -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:24px">
-        <div style="text-align:center;padding:20px 16px;background:rgba(14,165,233,0.04);border:1px solid rgba(14,165,233,0.1);border-radius:12px">
-            <div style="font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:#fff">$20</div>
-            <div style="font-size:11px;font-weight:600;color:rgba(200,220,255,0.4);margin-top:4px">Campaigns from just $20</div>
-        </div>
-        <div style="text-align:center;padding:20px 16px;background:rgba(16,185,129,0.04);border:1px solid rgba(16,185,129,0.1);border-radius:12px">
-            <div style="font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:#fff">8</div>
-            <div style="font-size:11px;font-weight:600;color:rgba(200,220,255,0.4);margin-top:4px">Tiers for any budget</div>
-        </div>
-        <div style="text-align:center;padding:20px 16px;background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.1);border-radius:12px">
-            <div style="font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:#fff">&lt;24h</div>
-            <div style="font-size:11px;font-weight:600;color:rgba(200,220,255,0.4);margin-top:4px">Payment to live campaign</div>
-        </div>
-        <div style="text-align:center;padding:20px 16px;background:rgba(124,58,237,0.04);border:1px solid rgba(124,58,237,0.1);border-radius:12px">
-            <div style="font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:#fff">3</div>
-            <div style="font-size:11px;font-weight:600;color:rgba(200,220,255,0.4);margin-top:4px">Public exposure channels</div>
+        <div class="aud-stats">
+            <div class="aud-stat"><div class="aud-stat-val">$20</div><div class="aud-stat-lbl">Campaigns start from just $20 USD</div></div>
+            <div class="aud-stat"><div class="aud-stat-val">8</div><div class="aud-stat-lbl">Campaign tiers for any budget</div></div>
+            <div class="aud-stat"><div class="aud-stat-val">&lt;24h</div><div class="aud-stat-lbl">Payment to live campaign</div></div>
+            <div class="aud-stat"><div class="aud-stat-val">Base</div><div class="aud-stat-lbl">Blockchain &mdash; instant settlement</div></div>
         </div>
     </div>
 </div>

@@ -17,32 +17,27 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 .nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
 .nav-icon{font-size:16px;width:22px;text-align:center}
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-
 .main{margin-left:224px;flex:1}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.15);position:sticky;top:0;z-index:50}
 .topbar-title{font-size:19px;font-weight:800;color:#fff}
 .topbar-sub{font-size:13px;color:rgba(200,220,255,0.5);margin-top:2px}
-
 .content{padding:28px;max-width:1100px;margin:0 auto}
-
-/* Period tabs */
-.period-tabs{display:flex;gap:8px;margin-bottom:24px}
-.period-tab{padding:8px 20px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;transition:all 0.2s;border:1px solid #d0d8e4;color:#5a6a7e;background:#fff}
-.period-tab:hover{border-color:#0ea5e9;color:#0ea5e9}
-.period-tab.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(14,165,233,0.25)}
-
-/* Chart card */
+.cat-tabs{display:flex;gap:12px;margin-bottom:28px}
+.cat-tab{flex:1;padding:18px 20px;border-radius:14px;text-decoration:none;transition:all 0.25s;border:2px solid #d0d8e4;background:#fff;text-align:center;cursor:pointer}
+.cat-tab:hover{border-color:#0ea5e9;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+.cat-tab.active{border-color:#0ea5e9;background:linear-gradient(135deg,#eff6ff,#e0f2fe);box-shadow:0 0 0 1px rgba(14,165,233,0.2)}
+.cat-icon{font-size:28px;margin-bottom:6px}
+.cat-label{font-size:14px;font-weight:700;color:#0f172a}
+.cat-count{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:#0ea5e9;margin-top:2px}
 .chart-card{background:#fff;border:1px solid #d0d8e4;border-radius:16px;padding:24px;margin-bottom:24px;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
 .chart-title{font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#5a6a7e;margin-bottom:20px}
 .bar-chart{display:flex;align-items:flex-end;gap:12px;height:200px;padding:0 4px}
 .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
-.bar-amount{font-size:11px;font-weight:800;color:#0f172a;white-space:nowrap}
-.bar-fill{width:100%;border-radius:8px 8px 0 0;min-height:4px;transition:height 0.6s ease;position:relative}
+.bar-amount{font-size:12px;font-weight:800;color:#0f172a;white-space:nowrap}
+.bar-fill{width:100%;border-radius:8px 8px 0 0;min-height:4px;transition:height 0.6s ease}
 .bar-fill.me{box-shadow:0 0 0 2px #fbbf24,0 0 12px rgba(251,191,27,0.3)}
 .bar-name{font-size:10px;font-weight:600;color:#5a6a7e;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .bar-flag{font-size:16px;line-height:1}
-
-/* Table */
 .lb-card{background:#fff;border:1px solid #d0d8e4;border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
 .lb-table{width:100%;border-collapse:collapse}
 .lb-table th{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#5a6a7e;padding:14px 16px;text-align:left;background:#f8fafc;border-bottom:1px solid #e2e8f0}
@@ -51,52 +46,35 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 .lb-table tr:hover{background:#f8fafc}
 .lb-table tr.me{background:rgba(251,191,27,0.06)}
 .lb-table tr.me td{font-weight:700}
-
 .rank-badge{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;font-size:13px;font-weight:800}
 .rank-1{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff;box-shadow:0 2px 8px rgba(245,158,11,0.3)}
-.rank-2{background:linear-gradient(135deg,#94a3b8,#64748b);color:#fff;box-shadow:0 2px 8px rgba(100,116,139,0.2)}
-.rank-3{background:linear-gradient(135deg,#d97706,#b45309);color:#fff;box-shadow:0 2px 8px rgba(180,83,9,0.2)}
+.rank-2{background:linear-gradient(135deg,#94a3b8,#64748b);color:#fff}
+.rank-3{background:linear-gradient(135deg,#d97706,#b45309);color:#fff}
 .rank-default{background:#f1f5f9;color:#64748b}
-
 .member-info{display:flex;align-items:center;gap:10px}
 .member-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
 .member-name{font-weight:700;color:#0f172a}
 .member-sub{font-size:12px;color:#94a3b8}
-
+.metric-val{font-family:'Sora',sans-serif;font-size:17px;font-weight:800;color:#0f172a}
 .tier-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:linear-gradient(135deg,#eff6ff,#dbeafe);color:#0284c7;border:1px solid #bfdbfe}
-.earnings-val{font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:#16a34a}
-.referral-count{font-weight:700;color:#0f172a}
-
 .empty-state{text-align:center;padding:60px 20px}
 .empty-icon{font-size:48px;margin-bottom:12px}
 .empty-title{font-size:18px;font-weight:700;color:#0f172a;margin-bottom:6px}
 .empty-text{font-size:14px;color:#64748b}
-
-/* Mobile */
-@media(max-width:900px){
-  .sidebar{display:none!important}
-  .main{margin-left:0}
-  .bar-chart{height:150px;gap:6px}
-  .bar-amount{font-size:9px}
-  .lb-table th:nth-child(4),.lb-table td:nth-child(4){display:none}
-}
-@media(max-width:600px){
-  .content{padding:16px}
-  .topbar{padding:0 16px}
-  .bar-chart{height:120px;gap:4px}
-  .lb-table th:nth-child(5),.lb-table td:nth-child(5){display:none}
-}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+@media(max-width:900px){.sidebar{display:none!important}.main{margin-left:0}.bar-chart{height:150px;gap:6px}.cat-tabs{flex-direction:column;gap:8px}}
+@media(max-width:600px){.content{padding:16px}.topbar{padding:0 16px}.bar-chart{height:120px;gap:4px}}
 </style>
 </head>
 <body>
 <div class="layout">
   {% include "_sidebar.html" %}
-
   <div class="main">
     <div class="topbar">
       <div>
         <div class="topbar-title">🏆 Affiliate Leaderboard</div>
-        <div class="topbar-sub">Top earners across the SuperAdPro network</div>
+        <div class="topbar-sub">See who's leading across the SuperAdPro network</div>
       </div>
       <div style="display:flex;align-items:center;gap:14px">
         <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:6px 14px;text-align:center">
@@ -105,133 +83,160 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
         </div>
       </div>
     </div>
-
     <div class="content">
-
-      <!-- Period tabs -->
-      <div class="period-tabs">
-        <a href="/leaderboard?period=all" class="period-tab {% if period == 'all' %}active{% endif %}">All Time</a>
-        <a href="/leaderboard?period=month" class="period-tab {% if period == 'month' %}active{% endif %}">This Month</a>
-        <a href="/leaderboard?period=week" class="period-tab {% if period == 'week' %}active{% endif %}">This Week</a>
-      </div>
-
-      {% if leaders|length > 0 %}
-      <!-- Bar chart — top 10 -->
-      <div class="chart-card">
-        <div class="chart-title">Top {{ [leaders|length, 10]|min }} Earners</div>
-        <div class="bar-chart" id="barChart">
-          {% set max_earned = leaders[0]._period_earned if leaders|length > 0 else 1 %}
-          {% for u in leaders[:10] %}
-          {% set pct = (u._period_earned / max_earned * 100) if max_earned > 0 else 0 %}
-          {% set colors = ['#f59e0b','#94a3b8','#d97706','#0ea5e9','#0ea5e9','#0ea5e9','#0ea5e9','#0ea5e9','#0ea5e9','#0ea5e9'] %}
-          <div class="bar-col">
-            <div class="bar-amount">${{ '%.0f'|format(u._period_earned) }}</div>
-            <div class="bar-fill {% if u.id == user.id %}me{% endif %}" style="height:{{ [pct, 3]|max }}%;background:{% if loop.index0 < 3 %}{{ colors[loop.index0] }}{% else %}linear-gradient(180deg,#38bdf8,#0ea5e9){% endif %}"></div>
-            <div class="bar-flag" data-country="{{ u.country or '' }}">🌍</div>
-            <div class="bar-name">{{ u.first_name or u.username }}</div>
-          </div>
-          {% endfor %}
+      <div class="cat-tabs">
+        <div class="cat-tab {% if tab == 'referrals' %}active{% endif %}" onclick="switchTab('referrals')">
+          <div class="cat-icon">👥</div>
+          <div class="cat-label">Members Referred</div>
+          <div class="cat-count">{{ ref_leaders|length }} on the board</div>
+        </div>
+        <div class="cat-tab {% if tab == 'grid' %}active{% endif %}" onclick="switchTab('grid')">
+          <div class="cat-icon">⚡</div>
+          <div class="cat-label">Grid Members</div>
+          <div class="cat-count">{{ grid_users|length }} on the board</div>
+        </div>
+        <div class="cat-tab {% if tab == 'courses' %}active{% endif %}" onclick="switchTab('courses')">
+          <div class="cat-icon">🎓</div>
+          <div class="cat-label">Course Sales</div>
+          <div class="cat-count">{{ course_users|length }} on the board</div>
         </div>
       </div>
 
-      {% if my_rank %}
-      <div style="background:linear-gradient(135deg,rgba(251,191,27,0.08),rgba(251,191,27,0.03));border:1px solid rgba(251,191,27,0.25);border-radius:12px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
-        <div style="font-size:24px">🎯</div>
-        <div>
-          <div style="font-size:15px;font-weight:700;color:#0f172a">You're ranked <span style="color:#f59e0b">#{{ my_rank }}</span> on the leaderboard!</div>
-          <div style="font-size:13px;color:#64748b">Keep earning to climb the ranks.</div>
-        </div>
-      </div>
-      {% endif %}
-
-      <!-- Full table -->
-      <div class="lb-card">
-        <table class="lb-table">
-          <thead>
-            <tr>
-              <th style="width:50px">Rank</th>
-              <th>Member</th>
-              <th>Tier</th>
-              <th>Referrals</th>
-              <th style="text-align:right">Earnings</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for u in leaders %}
-            <tr class="{% if u.id == user.id %}me{% endif %}">
-              <td>
-                <div class="rank-badge {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% else %}rank-default{% endif %}">
-                  {% if loop.index == 1 %}👑{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}
-                </div>
-              </td>
-              <td>
-                <div class="member-info">
-                  <div class="member-avatar" data-country="{{ u.country or '' }}">{{ (u.first_name or u.username or 'U')[0]|upper }}</div>
-                  <div>
-                    <div class="member-name">{{ u.first_name or u.username }}{% if u.id == user.id %} <span style="font-size:11px;color:#f59e0b">(You)</span>{% endif %}</div>
-                    <div class="member-sub">@{{ u.username }}</div>
-                  </div>
-                </div>
-              </td>
-              <td><span class="tier-pill">Tier {{ u.grid_tier or 0 }}</span></td>
-              <td><span class="referral-count">{{ u.personal_referrals or 0 }}</span></td>
-              <td style="text-align:right"><span class="earnings-val">${{ '%.2f'|format(u._period_earned) }}</span></td>
-            </tr>
+      <!-- TAB 1: REFERRALS -->
+      <div class="tab-panel {% if tab == 'referrals' %}active{% endif %}" id="panel-referrals">
+        {% if ref_leaders|length > 0 %}
+        <div class="chart-card">
+          <div class="chart-title">Top {{ [ref_leaders|length, 10]|min }} Recruiters</div>
+          <div class="bar-chart">
+            {% set max_val = ref_leaders[0].personal_referrals if ref_leaders else 1 %}
+            {% for u in ref_leaders[:10] %}
+            {% set pct = (u.personal_referrals / max_val * 100) if max_val > 0 else 0 %}
+            <div class="bar-col">
+              <div class="bar-amount">{{ u.personal_referrals }}</div>
+              <div class="bar-fill {% if u.id == user.id %}me{% endif %}" style="height:{{ [pct, 3]|max }}%;background:{% if loop.index <= 3 %}{{ ['#f59e0b','#94a3b8','#d97706'][loop.index0] }}{% else %}linear-gradient(180deg,#38bdf8,#0ea5e9){% endif %}"></div>
+              <div class="bar-flag" data-country="{{ u.country or '' }}">🌍</div>
+              <div class="bar-name">{{ u.first_name or u.username }}</div>
+            </div>
             {% endfor %}
-          </tbody>
-        </table>
+          </div>
+        </div>
+        <div class="lb-card">
+          <table class="lb-table">
+            <thead><tr><th style="width:50px">Rank</th><th>Member</th><th>Tier</th><th style="text-align:right">Referrals</th></tr></thead>
+            <tbody>
+              {% for u in ref_leaders %}
+              <tr class="{% if u.id == user.id %}me{% endif %}">
+                <td><div class="rank-badge {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% else %}rank-default{% endif %}">{% if loop.index == 1 %}👑{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}</div></td>
+                <td><div class="member-info"><div class="member-avatar" data-country="{{ u.country or '' }}">{{ (u.first_name or u.username or 'U')[0]|upper }}</div><div><div class="member-name">{{ u.first_name or u.username }}{% if u.id == user.id %} <span style="font-size:11px;color:#f59e0b">(You)</span>{% endif %}</div><div class="member-sub">@{{ u.username }}</div></div></div></td>
+                <td><span class="tier-pill">Tier {{ u.grid_tier or 0 }}</span></td>
+                <td style="text-align:right"><span class="metric-val">{{ u.personal_referrals }}</span></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No referrals yet</div><div class="empty-text">Be the first — share your referral link and start building your team!</div></div>
+        {% endif %}
       </div>
 
-      {% else %}
-      <div class="empty-state">
-        <div class="empty-icon">🏆</div>
-        <div class="empty-title">No earners yet</div>
-        <div class="empty-text">Be the first on the leaderboard — start referring and earning commissions!</div>
+      <!-- TAB 2: GRID -->
+      <div class="tab-panel {% if tab == 'grid' %}active{% endif %}" id="panel-grid">
+        {% if grid_users|length > 0 %}
+        <div class="chart-card">
+          <div class="chart-title">Top {{ [grid_users|length, 10]|min }} Grid Builders</div>
+          <div class="bar-chart">
+            {% set max_val = grid_users[0]._grid_count if grid_users else 1 %}
+            {% for u in grid_users[:10] %}
+            {% set pct = (u._grid_count / max_val * 100) if max_val > 0 else 0 %}
+            <div class="bar-col">
+              <div class="bar-amount">{{ u._grid_count }}</div>
+              <div class="bar-fill {% if u.id == user.id %}me{% endif %}" style="height:{{ [pct, 3]|max }}%;background:{% if loop.index <= 3 %}{{ ['#f59e0b','#94a3b8','#d97706'][loop.index0] }}{% else %}linear-gradient(180deg,#34d399,#059669){% endif %}"></div>
+              <div class="bar-flag" data-country="{{ u.country or '' }}">🌍</div>
+              <div class="bar-name">{{ u.first_name or u.username }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="lb-card">
+          <table class="lb-table">
+            <thead><tr><th style="width:50px">Rank</th><th>Member</th><th>Tier</th><th style="text-align:right">Grid Members</th></tr></thead>
+            <tbody>
+              {% for u in grid_users %}
+              <tr class="{% if u.id == user.id %}me{% endif %}">
+                <td><div class="rank-badge {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% else %}rank-default{% endif %}">{% if loop.index == 1 %}👑{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}</div></td>
+                <td><div class="member-info"><div class="member-avatar" data-country="{{ u.country or '' }}">{{ (u.first_name or u.username or 'U')[0]|upper }}</div><div><div class="member-name">{{ u.first_name or u.username }}{% if u.id == user.id %} <span style="font-size:11px;color:#f59e0b">(You)</span>{% endif %}</div><div class="member-sub">@{{ u.username }}</div></div></div></td>
+                <td><span class="tier-pill">Tier {{ u.grid_tier or 0 }}</span></td>
+                <td style="text-align:right"><span class="metric-val">{{ u._grid_count }}</span></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty-state"><div class="empty-icon">⚡</div><div class="empty-title">No grid activity yet</div><div class="empty-text">Activate a grid tier and start filling positions to appear here!</div></div>
+        {% endif %}
       </div>
-      {% endif %}
 
+      <!-- TAB 3: COURSES -->
+      <div class="tab-panel {% if tab == 'courses' %}active{% endif %}" id="panel-courses">
+        {% if course_users|length > 0 %}
+        <div class="chart-card">
+          <div class="chart-title">Top {{ [course_users|length, 10]|min }} Course Sellers</div>
+          <div class="bar-chart">
+            {% set max_val = course_users[0]._course_count if course_users else 1 %}
+            {% for u in course_users[:10] %}
+            {% set pct = (u._course_count / max_val * 100) if max_val > 0 else 0 %}
+            <div class="bar-col">
+              <div class="bar-amount">{{ u._course_count }}</div>
+              <div class="bar-fill {% if u.id == user.id %}me{% endif %}" style="height:{{ [pct, 3]|max }}%;background:{% if loop.index <= 3 %}{{ ['#f59e0b','#94a3b8','#d97706'][loop.index0] }}{% else %}linear-gradient(180deg,#c084fc,#7c3aed){% endif %}"></div>
+              <div class="bar-flag" data-country="{{ u.country or '' }}">🌍</div>
+              <div class="bar-name">{{ u.first_name or u.username }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="lb-card">
+          <table class="lb-table">
+            <thead><tr><th style="width:50px">Rank</th><th>Member</th><th>Tier</th><th style="text-align:right">Course Sales</th></tr></thead>
+            <tbody>
+              {% for u in course_users %}
+              <tr class="{% if u.id == user.id %}me{% endif %}">
+                <td><div class="rank-badge {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% else %}rank-default{% endif %}">{% if loop.index == 1 %}👑{% elif loop.index == 2 %}🥈{% elif loop.index == 3 %}🥉{% else %}{{ loop.index }}{% endif %}</div></td>
+                <td><div class="member-info"><div class="member-avatar" data-country="{{ u.country or '' }}">{{ (u.first_name or u.username or 'U')[0]|upper }}</div><div><div class="member-name">{{ u.first_name or u.username }}{% if u.id == user.id %} <span style="font-size:11px;color:#f59e0b">(You)</span>{% endif %}</div><div class="member-sub">@{{ u.username }}</div></div></div></td>
+                <td><span class="tier-pill">Tier {{ u.grid_tier or 0 }}</span></td>
+                <td style="text-align:right"><span class="metric-val">{{ u._course_count }}</span></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty-state"><div class="empty-icon">🎓</div><div class="empty-title">No course sales yet</div><div class="empty-text">Refer members who purchase courses to climb this leaderboard!</div></div>
+        {% endif %}
+      </div>
     </div>
   </div>
 </div>
-</body>
-</html>
 <script>
-// Convert country name to flag emoji
-const FLAGS = {
-  'Afghanistan':'🇦🇫','Albania':'🇦🇱','Algeria':'🇩🇿','Angola':'🇦🇴','Argentina':'🇦🇷','Armenia':'🇦🇲',
-  'Australia':'🇦🇺','Austria':'🇦🇹','Azerbaijan':'🇦🇿','Bahrain':'🇧🇭','Bangladesh':'🇧🇩','Belarus':'🇧🇾',
-  'Belgium':'🇧🇪','Bolivia':'🇧🇴','Bosnia and Herzegovina':'🇧🇦','Brazil':'🇧🇷','Bulgaria':'🇧🇬',
-  'Cambodia':'🇰🇭','Cameroon':'🇨🇲','Canada':'🇨🇦','Chile':'🇨🇱','China':'🇨🇳','Colombia':'🇨🇴',
-  'Congo':'🇨🇬','Costa Rica':'🇨🇷','Croatia':'🇭🇷','Cyprus':'🇨🇾','Czech Republic':'🇨🇿','Denmark':'🇩🇰',
-  'Dominican Republic':'🇩🇴','Ecuador':'🇪🇨','Egypt':'🇪🇬','El Salvador':'🇸🇻','Estonia':'🇪🇪',
-  'Ethiopia':'🇪🇹','Finland':'🇫🇮','France':'🇫🇷','Georgia':'🇬🇪','Germany':'🇩🇪','Ghana':'🇬🇭',
-  'Greece':'🇬🇷','Guatemala':'🇬🇹','Honduras':'🇭🇳','Hong Kong':'🇭🇰','Hungary':'🇭🇺','India':'🇮🇳',
-  'Indonesia':'🇮🇩','Iraq':'🇮🇶','Ireland':'🇮🇪','Israel':'🇮🇱','Italy':'🇮🇹','Jamaica':'🇯🇲',
-  'Japan':'🇯🇵','Jordan':'🇯🇴','Kazakhstan':'🇰🇿','Kenya':'🇰🇪','Kuwait':'🇰🇼','Latvia':'🇱🇻',
-  'Lebanon':'🇱🇧','Libya':'🇱🇾','Lithuania':'🇱🇹','Luxembourg':'🇱🇺','Malaysia':'🇲🇾','Mali':'🇲🇱',
-  'Malta':'🇲🇹','Mexico':'🇲🇽','Moldova':'🇲🇩','Morocco':'🇲🇦','Myanmar':'🇲🇲','Nepal':'🇳🇵',
-  'Netherlands':'🇳🇱','New Zealand':'🇳🇿','Nicaragua':'🇳🇮','Nigeria':'🇳🇬','Norway':'🇳🇴','Oman':'🇴🇲',
-  'Pakistan':'🇵🇰','Panama':'🇵🇦','Paraguay':'🇵🇾','Peru':'🇵🇪','Philippines':'🇵🇭','Poland':'🇵🇱',
-  'Portugal':'🇵🇹','Qatar':'🇶🇦','Romania':'🇷🇴','Russia':'🇷🇺','Rwanda':'🇷🇼','Saudi Arabia':'🇸🇦',
-  'Senegal':'🇸🇳','Serbia':'🇷🇸','Singapore':'🇸🇬','Slovakia':'🇸🇰','Slovenia':'🇸🇮','South Africa':'🇿🇦',
-  'South Korea':'🇰🇷','Spain':'🇪🇸','Sri Lanka':'🇱🇰','Sudan':'🇸🇩','Sweden':'🇸🇪','Switzerland':'🇨🇭',
-  'Syria':'🇸🇾','Taiwan':'🇹🇼','Tanzania':'🇹🇿','Thailand':'🇹🇭','Tunisia':'🇹🇳','Turkey':'🇹🇷',
-  'UAE':'🇦🇪','Uganda':'🇺🇬','Ukraine':'🇺🇦','United Kingdom':'🇬🇧','United States':'🇺🇸',
-  'Uruguay':'🇺🇾','Uzbekistan':'🇺🇿','Venezuela':'🇻🇪','Vietnam':'🇻🇳','Yemen':'🇾🇪','Zambia':'🇿🇲','Zimbabwe':'🇿🇼'
-};
-
-document.querySelectorAll('[data-country]').forEach(function(el) {
-  var c = el.getAttribute('data-country');
-  var flag = FLAGS[c];
-  if (flag) {
-    if (el.classList.contains('bar-flag')) {
-      el.textContent = flag;
-    } else if (el.classList.contains('member-avatar')) {
-      el.textContent = flag;
-      el.style.fontSize = '20px';
-      el.style.background = 'rgba(14,165,233,0.08)';
-      el.style.border = '1px solid rgba(14,165,233,0.15)';
-    }
+function switchTab(tab) {
+  document.querySelectorAll('.cat-tab').forEach(function(el, i) {
+    var tabs = ['referrals','grid','courses'];
+    el.classList.toggle('active', tabs[i] === tab);
+  });
+  document.querySelectorAll('.tab-panel').forEach(function(el) {
+    el.classList.toggle('active', el.id === 'panel-' + tab);
+  });
+  history.replaceState(null, '', '/leaderboard?tab=' + tab);
+}
+const FLAGS={'Afghanistan':'🇦🇫','Albania':'🇦🇱','Algeria':'🇩🇿','Angola':'🇦🇴','Argentina':'🇦🇷','Armenia':'🇦🇲','Australia':'🇦🇺','Austria':'🇦🇹','Azerbaijan':'🇦🇿','Bahrain':'🇧🇭','Bangladesh':'🇧🇩','Belarus':'🇧🇾','Belgium':'🇧🇪','Bolivia':'🇧🇴','Bosnia and Herzegovina':'🇧🇦','Brazil':'🇧🇷','Bulgaria':'🇧🇬','Cambodia':'🇰🇭','Cameroon':'🇨🇲','Canada':'🇨🇦','Chile':'🇨🇱','China':'🇨🇳','Colombia':'🇨🇴','Congo':'🇨🇬','Costa Rica':'🇨🇷','Croatia':'🇭🇷','Cyprus':'🇨🇾','Czech Republic':'🇨🇿','Denmark':'🇩🇰','Dominican Republic':'🇩🇴','Ecuador':'🇪🇨','Egypt':'🇪🇬','El Salvador':'🇸🇻','Estonia':'🇪🇪','Ethiopia':'🇪🇹','Finland':'🇫🇮','France':'🇫🇷','Georgia':'🇬🇪','Germany':'🇩🇪','Ghana':'🇬🇭','Greece':'🇬🇷','Guatemala':'🇬🇹','Honduras':'🇭🇳','Hong Kong':'🇭🇰','Hungary':'🇭🇺','India':'🇮🇳','Indonesia':'🇮🇩','Iraq':'🇮🇶','Ireland':'🇮🇪','Israel':'🇮🇱','Italy':'🇮🇹','Jamaica':'🇯🇲','Japan':'🇯🇵','Jordan':'🇯🇴','Kazakhstan':'🇰🇿','Kenya':'🇰🇪','Kuwait':'🇰🇼','Latvia':'🇱🇻','Lebanon':'🇱🇧','Libya':'🇱🇾','Lithuania':'🇱🇹','Luxembourg':'🇱🇺','Malaysia':'🇲🇾','Mali':'🇲🇱','Malta':'🇲🇹','Mexico':'🇲🇽','Moldova':'🇲🇩','Morocco':'🇲🇦','Myanmar':'🇲🇲','Nepal':'🇳🇵','Netherlands':'🇳🇱','New Zealand':'🇳🇿','Nicaragua':'🇳🇮','Nigeria':'🇳🇬','Norway':'🇳🇴','Oman':'🇴🇲','Pakistan':'🇵🇰','Panama':'🇵🇦','Paraguay':'🇵🇾','Peru':'🇵🇪','Philippines':'🇵🇭','Poland':'🇵🇱','Portugal':'🇵🇹','Qatar':'🇶🇦','Romania':'🇷🇴','Russia':'🇷🇺','Rwanda':'🇷🇼','Saudi Arabia':'🇸🇦','Senegal':'🇸🇳','Serbia':'🇷🇸','Singapore':'🇸🇬','Slovakia':'🇸🇰','Slovenia':'🇸🇮','South Africa':'🇿🇦','South Korea':'🇰🇷','Spain':'🇪🇸','Sri Lanka':'🇱🇰','Sudan':'🇸🇩','Sweden':'🇸🇪','Switzerland':'🇨🇭','Syria':'🇸🇾','Taiwan':'🇹🇼','Tanzania':'🇹🇿','Thailand':'🇹🇭','Tunisia':'🇹🇳','Turkey':'🇹🇷','UAE':'🇦🇪','Uganda':'🇺🇬','Ukraine':'🇺🇦','United Kingdom':'🇬🇧','United States':'🇺🇸','Uruguay':'🇺🇾','Uzbekistan':'🇺🇿','Venezuela':'🇻🇪','Vietnam':'🇻🇳','Yemen':'🇾🇪','Zambia':'🇿🇲','Zimbabwe':'🇿🇼'};
+document.querySelectorAll('[data-country]').forEach(function(el){
+  var c=el.getAttribute('data-country'),flag=FLAGS[c];
+  if(flag){
+    if(el.classList.contains('bar-flag')){el.textContent=flag}
+    else if(el.classList.contains('member-avatar')){el.textContent=flag;el.style.fontSize='20px';el.style.background='rgba(14,165,233,0.08)';el.style.border='1px solid rgba(14,165,233,0.15)'}
   }
 });
 </script>
+</body>
+</html>
