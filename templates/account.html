@@ -222,18 +222,30 @@ tr:last-child td{border-bottom:none}
       </div>
     </div>
 
-    <!-- USDT Wallet -->
+    <!-- Withdrawal Wallet -->
     <div class="card" style="margin-bottom:20px">
-      <div class="card-head"><div class="card-title"><div class="card-dot" style="background:#16a34a"></div>USDT Withdrawal Wallet</div></div>
+      <div class="card-head"><div class="card-title"><div class="card-dot" style="background:#16a34a"></div>Withdrawal Wallet</div></div>
       <div class="card-body">
-        <p style="font-size:16px;color:#64748b;margin-bottom:14px;line-height:1.6">Enter your Base Chain wallet address to receive USDT withdrawals. Make sure this is correct — payments go directly to this address.</p>
+        <p style="font-size:14px;color:#64748b;margin-bottom:14px;line-height:1.6">Enter your wallet address to receive withdrawals. Make sure this is correct — payments go directly to this address.</p>
         <form method="POST" action="/save-wallet">
           <div class="form-group">
-            <label class="form-label">Base Chain Address (0x...)</label>
+            <label class="form-label">Wallet Address (0x...)</label>
             <input class="form-input" type="text" name="wallet_address" value="{{ user.wallet_address or '' }}" placeholder="0x...">
           </div>
-          <button type="submit" class="btn-primary" style="font-size:16px;padding:9px 20px">Save Wallet Address</button>
+          <button type="submit" class="btn-primary" style="font-size:14px;padding:9px 20px">Save Wallet Address</button>
         </form>
+        <div style="margin-top:16px;padding:14px 16px;background:#f0f7ff;border:1px solid #bfdbfe;border-radius:10px">
+          <div style="font-size:13px;font-weight:700;color:#0369a1;margin-bottom:8px">💳 Supported Wallets</div>
+          <div style="font-size:13px;color:#475569;line-height:1.8">
+            Any wallet that accepts USDC on Base network will work. Popular options:<br>
+            <strong>Coinbase</strong> — easiest option, convert to bank money instantly<br>
+            <strong>MetaMask</strong> — most popular crypto wallet<br>
+            <strong>Coinbase Wallet</strong> — self-custody mobile app<br>
+            <strong>Trust Wallet</strong> — popular mobile wallet<br>
+            <strong>Rainbow</strong> — clean mobile wallet with Base support
+          </div>
+          <div style="font-size:12px;color:#94a3b8;margin-top:8px">Need help setting up a wallet? Visit our <a href="/support-public" style="color:#0284c7;text-decoration:none">Support page</a> for step-by-step guides.</div>
+        </div>
       </div>
     </div>
 
