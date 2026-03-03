@@ -78,6 +78,7 @@ footer{border-top:1px solid rgba(0,180,216,0.08);padding:32px 40px;display:flex;
 .footer-copy{font-size:12px;color:rgba(200,220,255,0.15)}
 .disc{max-width:700px;margin:0 auto;padding:0 40px 40px;font-size:11px;color:rgba(200,220,255,0.2);line-height:1.6;text-align:center}
 @media(max-width:900px){.nav-links{display:none}.hamburger{display:block}.stream-row,.stream-row.rev{grid-template-columns:1fr;direction:ltr}.math{grid-template-columns:1fr}.hero{padding:60px 20px 40px}.container{padding:0 20px}nav{padding:0 20px}footer{flex-direction:column;gap:14px;text-align:center}}
+@media(max-width:768px){.math{grid-template-columns:1fr}}
 
 .nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
 .nav-sep{color:rgba(200,220,255,0.25);font-size:10px}
@@ -250,11 +251,77 @@ footer{border-top:1px solid rgba(0,180,216,0.08);padding:32px 40px;display:flex;
         <div class="sec-title">What Could Your Income Look Like?</div>
         <div class="sec-sub">These scenarios show potential earnings from combining all three streams. Results depend on your effort and network activity.</div>
     </div>
+
+    <!-- Visual income growth banner -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:48px">
+      <div style="background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(16,185,129,0.02));border:1px solid rgba(16,185,129,0.15);border-radius:14px;padding:24px;text-align:center">
+        <div style="font-size:36px;margin-bottom:8px">💸</div>
+        <div style="font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:#34d399">95%</div>
+        <div style="font-size:12px;color:rgba(200,220,255,0.4);margin-top:4px">Paid Back to Members</div>
+      </div>
+      <div style="background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(56,189,248,0.02));border:1px solid rgba(56,189,248,0.15);border-radius:14px;padding:24px;text-align:center">
+        <div style="font-size:36px;margin-bottom:8px">🔄</div>
+        <div style="font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:#38bdf8">Monthly</div>
+        <div style="font-size:12px;color:rgba(200,220,255,0.4);margin-top:4px">Recurring Commissions</div>
+      </div>
+      <div style="background:linear-gradient(135deg,rgba(124,58,237,0.08),rgba(124,58,237,0.02));border:1px solid rgba(124,58,237,0.15);border-radius:14px;padding:24px;text-align:center">
+        <div style="font-size:36px;margin-bottom:8px">📈</div>
+        <div style="font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:#a78bfa">8 Levels</div>
+        <div style="font-size:12px;color:rgba(200,220,255,0.4);margin-top:4px">Deep Network Earnings</div>
+      </div>
+      <div style="background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(245,158,11,0.02));border:1px solid rgba(245,158,11,0.15);border-radius:14px;padding:24px;text-align:center">
+        <div style="font-size:36px;margin-bottom:8px">⚡</div>
+        <div style="font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:#fbbf24">Instant</div>
+        <div style="font-size:12px;color:rgba(200,220,255,0.4);margin-top:4px">USDC Payouts on Base</div>
+      </div>
+    </div>
+
     <div class="math">
         <div class="mc"><div class="ms">Just Getting Started</div><div class="ma">$300+</div><div class="mp">per month</div><div class="md">3 referrals × $10 membership/month<br>+ 3 × Starter grid ($20) = $24 commissions<br>+ uni-level from their activity<br><strong>Even 3 people creates real income</strong></div></div>
         <div class="mc" style="border-color:rgba(0,180,216,0.25)"><div class="ms">Small Team, Big Tiers</div><div class="ma">$2,500+</div><div class="mp">per month</div><div class="md">5 referrals × $10 membership/month<br>+ 5 × Pro grid ($100) = $200 direct<br>+ 5 × Elite grid ($400) = $800 direct<br>+ 8-level uni-level on every entry<br><strong>5 active people across multiple tiers</strong></div></div>
         <div class="mc"><div class="ms">Team Momentum</div><div class="ma">$8,000+</div><div class="mp">per month</div><div class="md">10 referrals buying multiple grid tiers<br>+ course sales ($100–$500) with pass-ups<br>+ uni-level commissions 8 levels deep<br>+ their referrals filling your grids too<br><strong>Your team's activity pays you on every level</strong></div></div>
     </div>
+</div>
+
+<!-- REWARDS & BENEFITS VISUAL STRIP -->
+<div style="padding:60px 0;border-top:1px solid rgba(0,180,216,0.06);border-bottom:1px solid rgba(0,180,216,0.06)">
+  <div class="container">
+    <div class="sec-label">What You Get</div>
+    <div class="sec-title">Everything Included With Your Membership</div>
+    <div class="sec-sub">$20/month unlocks all income streams plus a full marketing toolkit to help you grow.</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <div style="background:rgba(10,18,40,0.6);border:1px solid rgba(0,180,216,0.1);border-radius:14px;padding:28px;text-align:center;transition:all 0.3s">
+        <div style="width:64px;height:64px;margin:0 auto 16px;border-radius:14px;background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(16,185,129,0.05));border:1px solid rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;font-size:28px">💰</div>
+        <div style="font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:6px">3 Income Streams</div>
+        <div style="font-size:13px;color:rgba(200,220,255,0.45);line-height:1.6">Membership commissions, grid earnings, and course sales — all from one membership.</div>
+      </div>
+      <div style="background:rgba(10,18,40,0.6);border:1px solid rgba(0,180,216,0.1);border-radius:14px;padding:28px;text-align:center;transition:all 0.3s">
+        <div style="width:64px;height:64px;margin:0 auto 16px;border-radius:14px;background:linear-gradient(135deg,rgba(56,189,248,0.15),rgba(56,189,248,0.05));border:1px solid rgba(56,189,248,0.2);display:flex;align-items:center;justify-content:center;font-size:28px">🤖</div>
+        <div style="font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:6px">9 AI Marketing Tools</div>
+        <div style="font-size:13px;color:rgba(200,220,255,0.45);line-height:1.6">Campaign studio, social post generator, video scripts, niche finder, swipe files, and more.</div>
+      </div>
+      <div style="background:rgba(10,18,40,0.6);border:1px solid rgba(0,180,216,0.1);border-radius:14px;padding:28px;text-align:center;transition:all 0.3s">
+        <div style="width:64px;height:64px;margin:0 auto 16px;border-radius:14px;background:linear-gradient(135deg,rgba(124,58,237,0.15),rgba(124,58,237,0.05));border:1px solid rgba(124,58,237,0.2);display:flex;align-items:center;justify-content:center;font-size:28px">🚀</div>
+        <div style="font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:6px">Page Builder & Link Tools</div>
+        <div style="font-size:13px;color:rgba(200,220,255,0.45);line-height:1.6">Build landing pages, track links, rotate URLs, and drive traffic with built-in tools.</div>
+      </div>
+      <div style="background:rgba(10,18,40,0.6);border:1px solid rgba(0,180,216,0.1);border-radius:14px;padding:28px;text-align:center;transition:all 0.3s">
+        <div style="width:64px;height:64px;margin:0 auto 16px;border-radius:14px;background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(245,158,11,0.05));border:1px solid rgba(245,158,11,0.2);display:flex;align-items:center;justify-content:center;font-size:28px">📢</div>
+        <div style="font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:6px">Ad Board Listing</div>
+        <div style="font-size:13px;color:rgba(200,220,255,0.45);line-height:1.6">Promote any business on the public ad board — included with membership, boost for more reach.</div>
+      </div>
+      <div style="background:rgba(10,18,40,0.6);border:1px solid rgba(0,180,216,0.1);border-radius:14px;padding:28px;text-align:center;transition:all 0.3s">
+        <div style="width:64px;height:64px;margin:0 auto 16px;border-radius:14px;background:linear-gradient(135deg,rgba(236,72,153,0.15),rgba(236,72,153,0.05));border:1px solid rgba(236,72,153,0.2);display:flex;align-items:center;justify-content:center;font-size:28px">👁️</div>
+        <div style="font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:6px">Watch to Earn</div>
+        <div style="font-size:13px;color:rgba(200,220,255,0.45);line-height:1.6">Watch video content daily to maintain your commission eligibility and stay engaged.</div>
+      </div>
+      <div style="background:rgba(10,18,40,0.6);border:1px solid rgba(0,180,216,0.1);border-radius:14px;padding:28px;text-align:center;transition:all 0.3s">
+        <div style="width:64px;height:64px;margin:0 auto 16px;border-radius:14px;background:linear-gradient(135deg,rgba(34,197,94,0.15),rgba(34,197,94,0.05));border:1px solid rgba(34,197,94,0.2);display:flex;align-items:center;justify-content:center;font-size:28px">💳</div>
+        <div style="font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:6px">Instant USDC Withdrawals</div>
+        <div style="font-size:13px;color:rgba(200,220,255,0.45);line-height:1.6">Withdraw your earnings as USDC on Base chain — sent automatically to your wallet.</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="cta-band">
