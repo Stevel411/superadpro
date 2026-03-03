@@ -5588,3 +5588,259 @@ async def api_course_stats(request: Request, db: Session = Depends(get_db)):
 @app.get("/page-builder-v2")
 async def page_builder_v2(request: Request):
     return templates.TemplateResponse("page-builder-v2.html", {"request": request})
+
+
+# ═══════════════════════════════════════════════════════════════
+#  ADMIN: GRID COMPLETION FLOW TEST
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/admin/test-grid-fill")
+def admin_test_grid_fill(
+    secret: str,
+    owner_username: str = "master",
+    tier: int = 1,
+    seats: int = 1,
+    db: Session = Depends(get_db)
+):
+    """
+    Simulate filling seats in a grid to test the full commission flow.
+    Creates dummy users and places them into the owner's grid.
+    
+    Usage: /admin/test-grid-fill?secret=superadpro-owner-2026&owner_username=master&tier=1&seats=5
+    
+    Use seats=63 to test full grid completion + auto-spawn.
+    """
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+
+    owner = db.query(User).filter(User.username == owner_username).first()
+    if not owner:
+        return JSONResponse({"error": f"User '{owner_username}' not found"}, status_code=404)
+
+    price = GRID_PACKAGES.get(tier)
+    if not price:
+        return JSONResponse({"error": f"Invalid tier: {tier}"}, status_code=400)
+
+    # Cap at 63 seats
+    seats = min(seats, 63)
+
+    results = []
+    for i in range(seats):
+        # Create a unique dummy test user
+        import secrets as sec
+        suffix = sec.token_hex(4)
+        dummy_username = f"gridtest_{suffix}"
+        dummy = User(
+            username=dummy_username,
+            email=f"{dummy_username}@test.local",
+            password="test",
+            first_name=f"Test_{suffix}",
+            sponsor_id=owner.id,
+            is_active=True,
+        )
+        db.add(dummy)
+        db.flush()
+
+        # Place into grid
+        result = place_member_in_grid(
+            db=db,
+            member_id=dummy.id,
+            owner_id=owner.id,
+            package_tier=tier,
+        )
+        results.append({
+            "seat": i + 1,
+            "dummy_user": dummy_username,
+            "result": result,
+        })
+
+        if not result["success"]:
+            break
+
+    db.commit()
+
+    # Get current grid state after fills
+    from app.grid import get_or_create_active_grid
+    active_grid = db.query(Grid).filter(
+        Grid.owner_id == owner.id,
+        Grid.package_tier == tier,
+    ).order_by(Grid.advance_number.desc()).first()
+
+    # Check owner's updated balances
+    db.refresh(owner)
+
+    # Count commissions generated
+    from sqlalchemy import func
+    total_commissions = db.query(func.count(Commission.id)).filter(
+        Commission.grid_id.in_([r["result"].get("grid_id") for r in results if r["result"].get("success")])
+    ).scalar()
+
+    return {
+        "test": "grid_fill",
+        "owner": owner_username,
+        "tier": tier,
+        "seats_filled": len([r for r in results if r["result"].get("success")]),
+        "seats_requested": seats,
+        "grid_state": {
+            "id": active_grid.id if active_grid else None,
+            "advance": active_grid.advance_number if active_grid else None,
+            "filled": active_grid.positions_filled if active_grid else 0,
+            "is_complete": active_grid.is_complete if active_grid else False,
+        },
+        "owner_balances": {
+            "balance": float(owner.balance or 0),
+            "total_earned": float(owner.total_earned or 0),
+            "grid_earnings": float(owner.grid_earnings or 0),
+            "level_earnings": float(owner.level_earnings or 0),
+        },
+        "commissions_generated": total_commissions,
+        "fill_results": results,
+    }
+
+
+@app.get("/admin/test-grid-reset")
+def admin_test_grid_reset(
+    secret: str,
+    owner_username: str = "master",
+    tier: int = 1,
+    db: Session = Depends(get_db)
+):
+    """
+    Reset a grid for re-testing — removes all test positions, commissions, and the grid itself.
+    Only removes grids and data for gridtest_* users.
+    
+    Usage: /admin/test-grid-reset?secret=superadpro-owner-2026&owner_username=master&tier=1
+    """
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+
+    owner = db.query(User).filter(User.username == owner_username).first()
+    if not owner:
+        return JSONResponse({"error": f"User '{owner_username}' not found"}, status_code=404)
+
+    # Find test users
+    test_users = db.query(User).filter(User.username.like("gridtest_%")).all()
+    test_user_ids = [u.id for u in test_users]
+
+    if not test_user_ids:
+        return {"message": "No test users found — nothing to clean up"}
+
+    # Find grids for this owner+tier
+    grids = db.query(Grid).filter(
+        Grid.owner_id == owner.id,
+        Grid.package_tier == tier,
+    ).all()
+    grid_ids = [g.id for g in grids]
+
+    # Remove positions from test users
+    positions_deleted = db.query(GridPosition).filter(
+        GridPosition.grid_id.in_(grid_ids),
+        GridPosition.member_id.in_(test_user_ids)
+    ).delete(synchronize_session=False) if grid_ids else 0
+
+    # Remove commissions from test grids
+    commissions_deleted = db.query(Commission).filter(
+        Commission.grid_id.in_(grid_ids)
+    ).delete(synchronize_session=False) if grid_ids else 0
+
+    # Reset grid counters
+    for g in grids:
+        remaining = db.query(GridPosition).filter(GridPosition.grid_id == g.id).count()
+        g.positions_filled = remaining
+        g.is_complete = False
+        g.completed_at = None
+        g.owner_paid = False
+        g.revenue_total = remaining * g.package_price
+
+    # Remove test users
+    users_deleted = db.query(User).filter(User.id.in_(test_user_ids)).delete(synchronize_session=False)
+
+    # Reset owner balances (rough — manual review needed for production)
+    owner.balance = 0
+    owner.total_earned = 0
+    owner.grid_earnings = 0
+    owner.level_earnings = 0
+    owner.upline_earnings = 0
+
+    db.commit()
+
+    return {
+        "cleaned": True,
+        "positions_deleted": positions_deleted,
+        "commissions_deleted": commissions_deleted,
+        "test_users_deleted": users_deleted,
+        "grids_reset": len(grids),
+    }
+
+
+@app.get("/admin/grid-audit")
+def admin_grid_audit(
+    secret: str,
+    owner_username: str = "master",
+    tier: int = 1,
+    db: Session = Depends(get_db)
+):
+    """
+    Full audit of a grid — shows positions, commissions, balances.
+    
+    Usage: /admin/grid-audit?secret=superadpro-owner-2026&owner_username=master&tier=1
+    """
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+
+    owner = db.query(User).filter(User.username == owner_username).first()
+    if not owner:
+        return JSONResponse({"error": f"User '{owner_username}' not found"}, status_code=404)
+
+    grids = db.query(Grid).filter(
+        Grid.owner_id == owner.id,
+        Grid.package_tier == tier,
+    ).order_by(Grid.advance_number).all()
+
+    audit = []
+    for g in grids:
+        positions = db.query(GridPosition).filter(GridPosition.grid_id == g.id).order_by(
+            GridPosition.grid_level, GridPosition.position_num
+        ).all()
+
+        commissions = db.query(Commission).filter(Commission.grid_id == g.id).all()
+
+        level_breakdown = {}
+        for lvl in range(1, 9):
+            level_positions = [p for p in positions if p.grid_level == lvl]
+            level_breakdown[f"level_{lvl}"] = {
+                "filled": len(level_positions),
+                "capacity": 8,
+                "members": [p.member_id for p in level_positions],
+            }
+
+        commission_summary = {}
+        for c in commissions:
+            ct = c.commission_type
+            if ct not in commission_summary:
+                commission_summary[ct] = {"count": 0, "total": 0.0}
+            commission_summary[ct]["count"] += 1
+            commission_summary[ct]["total"] += float(c.amount_usdt or 0)
+
+        audit.append({
+            "grid_id": g.id,
+            "advance": g.advance_number,
+            "filled": g.positions_filled,
+            "is_complete": g.is_complete,
+            "revenue_total": float(g.revenue_total or 0),
+            "levels": level_breakdown,
+            "commission_summary": commission_summary,
+        })
+
+    return {
+        "owner": owner_username,
+        "tier": tier,
+        "price": GRID_PACKAGES.get(tier),
+        "owner_balances": {
+            "balance": float(owner.balance or 0),
+            "total_earned": float(owner.total_earned or 0),
+            "grid_earnings": float(owner.grid_earnings or 0),
+            "level_earnings": float(owner.level_earnings or 0),
+        },
+        "grids": audit,
+    }
