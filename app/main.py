@@ -309,11 +309,10 @@ def leaderboard_page(request: Request, tab: str = "referrals", user: User = Depe
 
 @app.get("/grid-visualiser")
 def grid_visualiser(request: Request, user: User = Depends(get_current_user)):
-    ctx = {"request": request}
+    ctx = {"request": request, "active_page": "grid-visualiser"}
     if user:
         ctx["user"] = user
-        return templates.TemplateResponse("grid-visualiser-internal.html", ctx)
-    return templates.TemplateResponse("grid-visualiser.html", ctx)
+    return templates.TemplateResponse("grid-visualiser-internal.html", ctx)
 
 @app.get("/passup-visualiser")
 def passup_visualiser(request: Request, user: User = Depends(get_current_user)):
