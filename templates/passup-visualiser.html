@@ -4,16 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Pass-Up Visualiser - SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link rel="manifest" href="/static/manifest.json">
+<meta name="theme-color" content="#0a0a1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
-
-/* === Dashboard Layout (matches income-grid) === */
+/* Dashboard Shell */
 *{margin:0;padding:0;box-sizing:border-box}
 .layout{display:flex;min-height:100vh}
 .sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
 .sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff;-webkit-text-fill-color:#fff}
-.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
+.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:14px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
 .nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
 .nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
 .nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
@@ -21,241 +23,160 @@
 .user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.1);border-radius:8px}
 .user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-.topbar{position:sticky;top:0;z-index:50;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 28px;height:70px;display:flex;align-items:center;justify-content:space-between}
-.container{padding:16px 20px 40px}
+.topbar{position:sticky;top:0;z-index:50;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 24px;height:56px;display:flex;align-items:center}
+.container{padding:12px 20px 40px;background:#f0f2f5}
 @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.topbar{display:none}}
 
-/* === Visualiser Styles === */
-
-
-:root{--cyan:#38bdf8;--cyan2:#0ea5e9;--green:#10b981;--gold:#f59e0b;--bg:#f0f2f8;--border:#e2e8f0}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans','Rethink Sans',sans-serif;background:var(--bg);color:#0f172a;min-height:100vh;overflow-x:hidden}
-
-/* ── Top Bar ── */
-.topbar{position:sticky;top:0;z-index:100;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between}
-.topbar-back{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:14px;font-weight:600;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
-.topbar-back:hover{border-color:rgba(56,189,248,0.4);color:#38bdf8;background:rgba(56,189,248,0.08)}
-.topbar-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
-.topbar-brand b{font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff}
-.topbar-brand b em{font-style:normal;color:#38bdf8}
-
-/* ── Hero ── */
-.hero{text-align:center;padding:36px 40px 24px;background:linear-gradient(135deg,#0284c7 0%,#0ea5e9 40%,#38bdf8 100%);border-radius:0 0 24px 24px;margin-bottom:20px}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:6px 18px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#fff;margin-bottom:16px}
-.hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1.5s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
-.hero h1{font-family:Sora,sans-serif;font-size:clamp(22px,3.5vw,36px);font-weight:800;line-height:1.15;color:#fff;margin-bottom:8px}
-.hero h1 span{color:#e0f2fe}
-.hero p{font-size:15px;color:rgba(255,255,255,0.7);max-width:560px;margin:0 auto;line-height:1.6}
-
-/* ── Tier bar ── */
-.tier-bar{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:10px 16px;background:#fff;border:1px solid var(--border);border-radius:14px;max-width:1200px;margin:0 auto 20px;box-shadow:0 1px 3px rgba(0,0,0,0.03)}
-.tier-btn{padding:8px 18px;border-radius:10px;border:none;background:transparent;color:#64748b;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s}
-.tier-btn:hover{color:#0ea5e9;background:rgba(14,165,233,0.05)}
+/* Visualiser */
+:root{--cyan:#38bdf8;--cyan2:#0ea5e9;--green:#10b981;--gold:#f59e0b;--border:#e2e8f0}
+body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:#0f172a}
+.tier-bar{display:flex;gap:4px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:6px 12px;margin-bottom:14px}
+.tier-btn{padding:6px 14px;border-radius:8px;border:none;background:transparent;color:#94a3b8;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.tier-btn:hover{color:#0ea5e9}
 .tier-btn.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;box-shadow:0 4px 14px rgba(14,165,233,0.3)}
+.viz-layout{display:grid;grid-template-columns:1fr 320px;gap:14px;max-width:1200px}
+@media(max-width:900px){.viz-layout{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px}
+.card-eye{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:4px}
+.card-ttl{font-size:14px;font-weight:800;color:#0f172a;margin-bottom:10px}
 
-/* ── Layout ── */
-.viz-layout{display:grid;grid-template-columns:1fr 280px;gap:14px;max-width:1200px;margin:0 auto;padding:0 12px 40px}
-@media(max-width:960px){.viz-layout{grid-template-columns:1fr}}
+/* Controls */
+.ctrls{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.btn{padding:7px 16px;border-radius:6px;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.btn-play{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff}
+.btn-rst{background:#f8fafc;color:#64748b;border:1px solid #e2e8f0}
+.spd{display:flex;align-items:center;gap:6px;margin-left:auto;font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px}
+input[type=range]{width:60px;accent-color:var(--cyan);cursor:pointer}
 
-/* ── Cards ── */
-.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
-.card-eye{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#38bdf8;margin-bottom:4px}
-.card-ttl{font-size:12px;font-weight:800;color:#0f172a;margin-bottom:14px}
-
-/* ── Controls ── */
-.ctrls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
-.btn{padding:10px 20px;border-radius:8px;border:none;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s}
-.btn-play{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;box-shadow:0 4px 14px rgba(14,165,233,0.3)}
-.btn-play:hover{box-shadow:0 6px 24px rgba(0,212,255,0.4);transform:translateY(-1px)}
-.btn-rst{background:#f8fafc;color:#64748b;border:1px solid var(--border)}
-.btn-rst:hover{background:#f1f5f9;color:#0f172a}
-.spd{display:flex;align-items:center;gap:8px;margin-left:auto}
-.spd span{font-size:10px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase}
-input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
-
-/* ═══ TREE — centred, compact ═══ */
-.tree-viewport{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:12px;background:#f8fafc;margin-bottom:16px}
-.tree-canvas{position:relative;min-height:340px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 8px}
-.tree-canvas svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
-.tree-rows{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:22px}
-/* Flow trail — animated dot that travels up the tree on pass-up */
-.flow-dot{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px rgba(245,158,11,0.6),0 0 24px rgba(245,158,11,0.3);z-index:20;pointer-events:none;opacity:0}
-.flow-dot.active{animation:flowTravel var(--dur,0.8s) ease-in-out forwards}
-@keyframes flowTravel{0%{opacity:1;offset-distance:0%}85%{opacity:1}100%{opacity:0;offset-distance:100%}}
-.tree-row{display:flex;justify-content:center;gap:6px}
-
-/* Row labels */
-.row-label{position:absolute;left:8px;font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;top:50%;transform:translateY(-50%);white-space:nowrap}
-
-/* Nodes */
-.nd{
-  width:46px;height:34px;border-radius:8px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;position:relative;cursor:default;
-  background:#e8f4fd;border:1.5px solid rgba(14,165,233,0.25);color:#0f172a;
-  transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);overflow:visible;
-}
-.nd .nm{font-size:8px;font-weight:800;line-height:1.1;color:#1e3a5f}
-.nd .sc{font-size:6px;font-weight:600;color:#64889a;margin-top:1px}
-.nd .badge{position:absolute;top:-7px;right:-7px;width:16px;height:16px;border-radius:50%;font-size:8px;font-weight:800;display:none;align-items:center;justify-content:center;z-index:3;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,0.15)}
-
-/* Sponsor (above YOU) */
-.nd.sponsor{
-  background:linear-gradient(135deg,#6366f1,#4f46e5);border:2.5px solid #818cf8;color:#fff;
-  width:52px;height:40px;border-style:solid;
-  box-shadow:0 4px 16px rgba(99,102,241,0.3),0 0 0 3px rgba(99,102,241,0.1);
-}
-.nd.sponsor .nm{font-size:10px;color:#fff;font-family:Sora,sans-serif}
-.nd.sponsor .sc{color:rgba(255,255,255,0.6)}
-
-/* Root (YOU — mid-tree affiliate) */
-.nd.root{
-  background:linear-gradient(135deg,#0ea5e9,#0284c7);border:2.5px solid var(--cyan);color:#fff;
-  width:56px;height:42px;border-style:solid;
-  box-shadow:0 4px 20px rgba(14,165,233,0.35),0 0 0 4px rgba(14,165,233,0.1);
-}
-.nd.root .nm{font-size:10px;color:#fff;font-family:Sora,sans-serif}
+/* Tree */
+.tree-viewport{border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:10px;background:#fafbfc;overflow:hidden}
+.tree-canvas{position:relative;min-height:280px}
+.tree-rows{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:20px;padding:12px 0}
+.nd{width:46px;height:34px;border-radius:6px;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;position:relative;transition:all 0.3s;border:1.5px solid rgba(14,165,233,0.2);background:#f0f9ff}
+.nd .nm{font-size:8px;line-height:1.2}
+.nd .sc{font-size:6px;color:#94a3b8}
+.nd.root{background:linear-gradient(135deg,#0ea5e9,#0284c7);border:2px solid var(--cyan);color:#fff;width:54px;height:42px}
+.nd.root .nm{font-size:10px;color:#fff}
 .nd.root .sc{color:rgba(255,255,255,0.7)}
-
-/* States */
-.nd.selling{border-color:#10b981!important;border-style:solid!important;background:rgba(16,185,129,0.1)!important;box-shadow:0 0 12px rgba(16,185,129,0.15)!important}
-.nd.keeping{border-color:#10b981!important;border-style:solid!important;background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(16,185,129,0.15))!important;box-shadow:0 0 18px rgba(16,185,129,0.25)!important;animation:pulse .45s ease}
-.nd.receiving{border-color:var(--gold)!important;border-style:solid!important;background:linear-gradient(135deg,rgba(245,158,11,0.06),rgba(245,158,11,0.12))!important;box-shadow:0 0 18px rgba(245,158,11,0.25)!important;animation:pulse .45s ease}
-@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
-@keyframes nodeAppear{0%{opacity:0;transform:scale(0.3)}60%{transform:scale(1.1)}100%{opacity:1;transform:scale(1)}}
-.nd.keeping .nm{color:#065f46!important}.nd.receiving .nm{color:#92400e!important}
-
-/* Float */
-.cfloat{position:absolute;font-size:13px;font-weight:800;pointer-events:none;z-index:10;white-space:nowrap;left:50%;animation:fUp 1.1s ease-out forwards}
-@keyframes fUp{0%{opacity:1;top:-8px;transform:translateX(-50%)}100%{opacity:0;top:-36px;transform:translateX(-50%)}}
-
-/* Flow arrow for pass-up */
-.flow-arrow{position:absolute;z-index:5;pointer-events:none;animation:flowPulse 0.6s ease-out forwards}
-@keyframes flowPulse{0%{opacity:0;transform:scale(0.5)}30%{opacity:1;transform:scale(1.1)}100%{opacity:0;transform:scale(1)}}
+.nd.sponsor{background:linear-gradient(135deg,#6366f1,#4f46e5);border:2px solid #818cf8;color:#fff;width:52px;height:40px}
+.nd.sponsor .nm{font-size:9px;color:#fff}
+.nd.sponsor .sc{color:rgba(255,255,255,0.7)}
+.nd.kept{background:rgba(16,185,129,0.12)!important;border-color:var(--green)!important}
+.nd.passup{background:rgba(245,158,11,0.1)!important;border-color:var(--gold)!important}
+.nd.pop{animation:ndPop 0.4s ease}
+@keyframes ndPop{0%{transform:scale(0.3);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1)}}
+.tree-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+#treeSvg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
 
 /* Legend */
-.legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
-.lg-i{display:flex;align-items:center;gap:6px;font-size:11px;color:#64748b}
-.lg-s{width:14px;height:14px;border-radius:4px;flex-shrink:0}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.lg-i{display:flex;align-items:center;gap:4px;font-size:10px;color:#64748b}
+.lg-s{width:10px;height:10px;border-radius:3px;flex-shrink:0}
 
-/* ═══ CALCULATOR PANEL ═══ */
-.calc-panel{background:rgba(14,165,233,0.03);border:1px solid rgba(14,165,233,0.12);border-radius:12px;padding:18px;margin-bottom:16px}
-.calc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+/* Calculator */
+.calc-panel{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:10px}
+.calc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
 .calc-label{font-size:12px;font-weight:700;color:#0f172a}
-.calc-sub{font-size:12px;color:#64748b;margin-top:2px}
-.calc-big{font-size:22px;font-weight:800;line-height:1}
-.calc-cap{font-size:11px;color:#94a3b8}
-.calc-slider{width:100%;accent-color:var(--cyan2);margin:8px 0}
-.calc-range{display:flex;justify-content:space-between;font-size:10px;color:#94a3b8;margin-bottom:6px}
-.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-.calc-stat{background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+.calc-sub{font-size:10px;color:#94a3b8;margin-top:2px}
+.calc-big{font-size:20px;font-weight:800;line-height:1}
+.calc-cap{font-size:10px;color:#94a3b8}
+.calc-slider{width:100%;accent-color:var(--green)}
+.calc-range{display:flex;justify-content:space-between;font-size:9px;color:#94a3b8;margin-top:2px}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.calc-stat{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
 .calc-stat-val{font-size:16px;font-weight:800;margin-bottom:2px}
-.calc-stat-lbl{font-size:10px;color:#64748b;font-weight:600}
+.calc-stat-lbl{font-size:9px;color:#64748b}
 
-/* How-strip */
-.how-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-@media(max-width:700px){.how-strip{grid-template-columns:repeat(2,1fr)}}
-.how-s{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
-.how-s .hn{width:24px;height:24px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;margin-bottom:5px}
-.how-s .ht{font-size:12px;font-weight:700;color:#0f172a;margin-bottom:2px}
-.how-s .hd{font-size:10px;color:#64748b;line-height:1.45}
+/* How it works strip */
+.how-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.how-s{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+.hn{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;margin:0 auto 4px}
+.ht{font-size:10px;font-weight:700;color:#0f172a;margin-bottom:2px}
+.hd{font-size:9px;color:#64748b;line-height:1.4}
 
-/* ── Right Col ── */
+/* Right column */
 .right-col{display:flex;flex-direction:column;gap:10px}
-.eye{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#38bdf8;margin-bottom:12px}
-.e-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9}
+.eye{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}
+.e-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9}
 .e-row:last-child{border-bottom:none}
-.e-left{display:flex;align-items:center;gap:10px}
+.e-left{display:flex;align-items:center;gap:8px}
 .e-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.e-lbl{font-size:13px;font-weight:600;color:#334155}
-.e-sub{font-size:11px;color:#94a3b8;margin-top:1px}
-.e-amt{font-size:13px;font-weight:700;text-align:right}
-.e-amt.bump{animation:nb .25s ease}
-@keyframes nb{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+.e-lbl{font-size:11px;font-weight:600;color:#334155}
+.e-sub{font-size:10px;color:#94a3b8;margin-top:1px}
+.e-amt{font-size:13px;font-weight:700}
+.tot-card{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);border-radius:12px;padding:16px;text-align:center;color:#fff}
+.tot-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:2px}
+.tot-amt{font-size:28px;font-weight:800;color:#fff;-webkit-text-fill-color:#fff}
+.tot-sub{font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px}
 
-.tot-card{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);border:none;border-radius:14px;padding:20px;text-align:center;color:#fff}
-.tot-lbl{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:4px}
-.tot-amt{font-size:20px;font-weight:800;color:#fff}
-.tot-sub{font-size:12px;color:rgba(255,255,255,0.55);margin-top:4px}
+/* Stat grid */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mini-stat{background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px}
+.mini-stat-label{font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.mini-stat-val{font-size:16px;font-weight:800}
 
-/* Split */
-.sp-bar{display:flex;height:8px;border-radius:99px;overflow:hidden;gap:2px;margin:10px 0 12px}
-.sp-seg{border-radius:3px}
-.sp-leg{display:flex;flex-direction:column;gap:6px}
-.sp-i{display:flex;align-items:center;gap:8px;font-size:12px;color:#64748b}
-.sp-sw{width:8px;height:8px;border-radius:2px;flex-shrink:0}
-.sp-v{margin-left:auto;font-weight:700}
+/* Split bar */
+.sp-bar{display:flex;height:6px;border-radius:3px;overflow:hidden;gap:2px;margin:8px 0}
+.sp-seg{border-radius:2px}
+.sp-leg{display:flex;justify-content:space-between;font-size:11px}
+.sp-i{display:flex;align-items:center;gap:4px;color:#64748b}
+.sp-sw{width:6px;height:6px;border-radius:2px;flex-shrink:0}
+.sp-v{font-weight:700;margin-left:4px}
 
-/* Info */
-.i-ttl{font-size:13px;font-weight:700;color:#0f172a;margin-bottom:10px}
-.i-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f1f5f9;font-size:12px}
+/* Info rows */
+.i-ttl{font-size:11px;font-weight:700;color:#0f172a;margin-bottom:8px}
+.i-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9;font-size:11px}
 .i-row:last-child{border-bottom:none}
-.i-k{color:#64748b}.i-v{font-weight:700}
+.i-k{color:#64748b}
+.i-v{font-weight:700}
 
 /* Log */
 .log-ls{display:flex;flex-direction:column;max-height:200px;overflow-y:auto}
-.log-it{display:flex;align-items:center;font-size:11px;color:#64748b;padding:4px 0;border-bottom:1px solid #f8fafc;animation:sIn .2s ease}
+.log-it{display:flex;align-items:center;font-size:11px;color:#64748b;animation:sIn 0.2s ease;padding:4px 0;border-bottom:1px solid #f1f5f9}
 .log-it:last-child{border-bottom:none}
 @keyframes sIn{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
 .log-l{display:flex;align-items:center;gap:6px;min-width:0}
 .log-w{font-weight:700;color:#334155;min-width:36px}
 .log-s{color:#94a3b8;font-size:10px}
-.log-t{font-size:8px;padding:2px 5px;border-radius:3px;font-weight:700;letter-spacing:.5px;white-space:nowrap}
+.log-t{font-size:8px;padding:2px 5px;border-radius:3px;font-weight:700}
 .log-t.kept{color:#10b981;border:1px solid rgba(16,185,129,.25);background:rgba(16,185,129,.06)}
 .log-t.passup{color:var(--gold);border:1px solid rgba(245,158,11,.25);background:rgba(245,158,11,.06)}
-.log-a{font-weight:700;font-size:11px;white-space:nowrap;margin-left:auto;font-variant-numeric:tabular-nums}
+.log-a{font-weight:700;font-size:11px;margin-left:auto}
 
 /* Mobile */
-.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(2,8,24,.97);border-top:1px solid rgba(14,165,233,.12);z-index:200;backdrop-filter:blur(12px);padding:6px 0 max(6px,env(safe-area-inset-bottom))}
-.mob-nav-in{display:flex;justify-content:space-around;max-width:480px;margin:0 auto}
-.mob-i{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:4px 8px;font-size:10px;color:#64748b}
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:#0a0a1a;border-top:1px solid rgba(56,189,248,0.1);padding:6px 0}
+.mob-nav-in{display:flex;justify-content:space-around}
+.mob-i{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:#4a5a6e;font-size:10px;font-weight:600;padding:4px 8px}
 .mob-i.on{color:#38bdf8}
-@media(max-width:768px){.mob-nav{display:block}body{padding-bottom:72px}.viz-layout{padding:0 12px 80px;grid-template-columns:1fr}.topbar b{font-size:15px}}
+@media(max-width:768px){.mob-nav{display:block}body{padding-bottom:72px}.viz-layout{grid-template-columns:1fr}}
+
+.mobile-topbar{display:none}
+@media(max-width:768px){.mobile-topbar{display:flex;align-items:center;padding:10px 16px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12)}}
+.mobile-topbar-left{display:flex;align-items:center;gap:10px;text-decoration:none}
+.mobile-topbar-name{font-size:14px;font-weight:800;color:#fff}
+.mobile-topbar-page{font-size:10px;color:#6b7d94}
 </style>
-<link rel="stylesheet" href="/static/mobile.css">
-<link rel="manifest" href="/static/manifest.json">
-<meta name="theme-color" content="#0a0a1a">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="SuperAdPro">
-<link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 </head>
 <body>
 <div class="layout">
 <div class="mobile-topbar"><a class="mobile-topbar-left" href="/dashboard"><svg width="26" height="26" viewBox="0 0 100 100"><defs><linearGradient id="mhg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs><circle cx="22" cy="22" r="20" fill="url(#mhg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></svg><div><div class="mobile-topbar-name">SuperAdPro</div><div class="mobile-topbar-page">Pass-Up Visualiser</div></div></a></div>
 <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="logo-grad-pg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient><symbol id="shield" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#logo-grad-pg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></symbol></defs></svg>
-  {% include "_sidebar.html" %}
-  <div class="main">
-<div class="topbar"><div><div style="font-size:18px;font-weight:800;color:#fff">&#x1F503; Pass-Up Visualiser</div><div style="font-size:13px;color:#6b7d94;margin-top:1px">See how the infinite pass-up cycle drives commissions</div></div></div>
+{% include "_sidebar.html" %}
+<div class="main">
+<div class="topbar"><div><div style="font-size:16px;font-weight:800;color:#fff">&#x1F503; Pass-Up Visualiser</div><div style="font-size:11px;color:#6b7d94;margin-top:1px">See how the infinite pass-up cycle drives commissions</div></div></div>
 <div class="container">
 <div class="tier-bar">
   <button class="tier-btn active" data-price="100" onclick="selTier(this)">$100 Starter</button>
   <button class="tier-btn" data-price="300" onclick="selTier(this)">$300 Advanced</button>
   <button class="tier-btn" data-price="500" onclick="selTier(this)">$500 Elite</button>
 </div>
-
-  <!-- ═══ LEFT ═══ -->
+<div class="viz-layout">
+<div style="display:flex;flex-direction:column;gap:12px">
   <div class="card">
-    <div class="card-eye">Stream 03 — Course Pass-Up</div>
-    <div class="card-ttl" id="panelTtl">INFINITE PASS-UP — $100 STARTER</div>
-
-    <div class="ctrls">
-      <button class="btn btn-play" id="playBtn" onclick="togglePlay()">▶ PLAY</button>
-      <button class="btn btn-rst" onclick="resetSim()">↺ RESET</button>
-      <div class="spd"><span>Speed</span><input type="range" min="1" max="5" value="3" id="spdSlider"></div>
-    </div>
-
-    <!-- TREE — focused 3-level view -->
-    <div class="tree-viewport">
-      <div class="tree-canvas" id="treeCanvas">
-        <svg id="treeSvg" width="100%" height="100%"></svg>
-        <div class="tree-rows" id="treeRows"></div>
-      </div>
-    </div>
-
-    <!-- Legend -->
+    <div class="card-eye">Stream 03 &#x2014; Course Pass-Up</div>
+    <div class="card-ttl" id="panelTtl">INFINITE PASS-UP &#x2014; $100 STARTER</div>
+    <div class="ctrls"><button class="btn btn-play" id="playBtn" onclick="togglePlay()">&#x25B6; PLAY</button><button class="btn btn-rst" onclick="resetSim()">&#x21BA; RESET</button><div class="spd"><span>Speed</span><input type="range" min="1" max="5" value="3" id="spdSlider"></div></div>
+    <div class="tree-viewport"><div class="tree-canvas" id="treeCanvas"><svg id="treeSvg" width="100%" height="100%"></svg><div class="tree-rows" id="treeRows"></div></div></div>
     <div class="legend">
       <div class="lg-i"><div class="lg-s" style="background:linear-gradient(135deg,#6366f1,#4f46e5);border:2px solid #818cf8"></div>Your Sponsor</div>
       <div class="lg-i"><div class="lg-s" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);border:2px solid var(--cyan)"></div>You</div>
@@ -263,113 +184,40 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
       <div class="lg-i"><div class="lg-s" style="background:rgba(16,185,129,.12);border:1.5px solid var(--green)"></div>Keeps Commission</div>
       <div class="lg-i"><div class="lg-s" style="background:rgba(245,158,11,.1);border:1.5px solid var(--gold)"></div>Pass-Up to Sponsor</div>
     </div>
-
-    <!-- Earnings Calculator -->
-    <div class="calc-panel">
-      <div class="calc-top">
-        <div>
-          <div class="calc-label">Your Direct Referrals</div>
-          <div class="calc-sub">Each referral sells courses &amp; their team pass up to you</div>
-        </div>
-        <div style="text-align:right">
-          <div class="calc-big" id="calcDirectBig" style="color:var(--green)">6</div>
-          <div class="calc-cap">personal referrals</div>
-        </div>
-      </div>
-      <input type="range" class="calc-slider" min="1" max="20" value="6" id="calcDirect" oninput="updateCalc()">
-      <div class="calc-range"><span>1 referral</span><span>10 referrals</span><span>20 referrals</span></div>
-
-      <div class="calc-top" style="margin-top:10px">
-        <div>
-          <div class="calc-label">Avg Sales Per Member</div>
-          <div class="calc-sub">How many course sales each person in your team makes</div>
-        </div>
-        <div style="text-align:right">
-          <div class="calc-big" id="calcSalesBig" style="color:var(--cyan2)">6</div>
-          <div class="calc-cap">sales each</div>
-        </div>
-      </div>
-      <input type="range" class="calc-slider" min="1" max="12" value="6" id="calcSales" oninput="updateCalc()">
-      <div class="calc-range"><span>1 sale</span><span>6 sales</span><span>12 sales</span></div>
-
-      <div class="calc-grid">
-        <div class="calc-stat"><div class="calc-stat-val" id="csKept" style="color:var(--green)">$0</div><div class="calc-stat-lbl">You Keep (1,3,5,7+)</div></div>
-        <div class="calc-stat"><div class="calc-stat-val" id="csL1" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">From L1 Directs</div></div>
-        <div class="calc-stat"><div class="calc-stat-val" id="csL2" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">From L2 (Cascade)</div></div>
-        <div class="calc-stat"><div class="calc-stat-val" id="csL3" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">From L3+ (Cascade)</div></div>
-      </div>
-      <div class="calc-stat" style="margin-top:10px;background:linear-gradient(135deg,#0284c7,#0ea5e9);border:none;color:#fff">
-        <div class="calc-stat-val" id="csTotal" style="color:#fff;font-size:24px">$0</div>
-        <div class="calc-stat-lbl" style="color:rgba(255,255,255,0.7)">Total Estimated Earnings · <span id="csTeam">0</span> team members</div>
-      </div>
-
-      <!-- Calculation explainer -->
-      <div style="margin-top:14px;padding:14px;background:#f8fafc;border:1px solid var(--border);border-radius:10px">
-        <div style="font-size:11px;font-weight:700;color:#334155;margin-bottom:8px">📊 How This Is Calculated</div>
-        <div style="font-size:10px;color:#64748b;line-height:1.6" id="calcExplainer"></div>
-      </div>
-
-      <!-- Legal disclaimer -->
-      <div style="margin-top:10px;padding:12px;background:#fefce8;border:1px solid #fde68a;border-radius:10px">
-        <div style="font-size:10px;font-weight:700;color:#92400e;margin-bottom:4px">⚠️ Income Disclaimer</div>
-        <div style="font-size:9px;color:#a16207;line-height:1.6">These figures are <strong>hypothetical estimates only</strong> and are not a guarantee of income. Actual earnings depend on individual effort, market conditions, team performance, and many other factors. The calculator assumes uniform recruitment and sales across all levels, which may not reflect real-world results. Many participants in affiliate programmes earn little or no income. Past performance or projected results do not guarantee future earnings. Please make your own independent assessment before making any financial decisions.</div>
-      </div>
-    </div>
-
-    <!-- How it works -->
-    <div class="how-strip">
-      <div class="how-s"><div class="hn" style="background:rgba(14,165,233,.1);color:var(--cyan2)">1</div><div class="ht">Refer &amp; Sell</div><div class="hd">Refer someone who buys a course — that's your sale</div></div>
-      <div class="how-s"><div class="hn" style="background:rgba(16,185,129,.1);color:var(--green)">2</div><div class="ht">Keep 100%</div><div class="hd">Sales 1, 3, 5, 7+ you keep the full commission</div></div>
-      <div class="how-s"><div class="hn" style="background:rgba(245,158,11,.1);color:var(--gold)">3</div><div class="ht">Pass Up 3</div><div class="hd">Your 2nd, 4th &amp; 6th sales pass 100% to your sponsor</div></div>
-      <div class="how-s"><div class="hn" style="background:rgba(124,58,237,.1);color:#8b5cf6">4</div><div class="ht">Infinite Depth</div><div class="hd">Pass-ups cascade through every level of your team</div></div>
-    </div>
   </div>
-
-  <!-- ═══ RIGHT ═══ -->
-  <div class="right-col">
-    <div class="card">
-      <div class="eye">Live Earnings Tracker</div>
-      <div class="e-row">
-        <div class="e-left"><div class="e-dot" style="background:var(--green)"></div><div><div class="e-lbl">Direct Sales Kept</div><div class="e-sub">Your sales 1, 3, 5, 7+</div></div></div>
-        <div class="e-amt" id="keptAmt" style="color:#10b981">$0</div>
-      </div>
-      <div class="e-row">
-        <div class="e-left"><div class="e-dot" style="background:var(--gold)"></div><div><div class="e-lbl">Pass-Ups Received</div><div class="e-sub">Team's 2nd, 4th, 6th</div></div></div>
-        <div class="e-amt" id="passupAmt" style="color:var(--gold)">$0</div>
-      </div>
+  <div class="calc-panel">
+    <div class="calc-top"><div><div class="calc-label">Your Direct Referrals</div><div class="calc-sub">Each referral sells courses &amp; their team pass up to you</div></div><div style="text-align:right"><div class="calc-big" id="calcDirectBig" style="color:var(--green)">6</div><div class="calc-cap">personal referrals</div></div></div>
+    <input type="range" class="calc-slider" min="1" max="20" value="6" id="calcDirect" oninput="updateCalc()">
+    <div class="calc-range"><span>1 referral</span><span>10 referrals</span><span>20 referrals</span></div>
+    <div class="calc-top" style="margin-top:10px"><div><div class="calc-label">Avg Sales Per Member</div><div class="calc-sub">How many course sales each person makes</div></div><div style="text-align:right"><div class="calc-big" id="calcSalesBig" style="color:var(--cyan2)">6</div><div class="calc-cap">sales each</div></div></div>
+    <input type="range" class="calc-slider" min="1" max="12" value="6" id="calcSales" oninput="updateCalc()">
+    <div class="calc-range"><span>1 sale</span><span>6 sales</span><span>12 sales</span></div>
+    <div class="calc-grid">
+      <div class="calc-stat"><div class="calc-stat-val" id="csKept" style="color:var(--green)">$0</div><div class="calc-stat-lbl">You Keep (1,3,5,7+)</div></div>
+      <div class="calc-stat"><div class="calc-stat-val" id="csL1" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">From L1 Directs</div></div>
+      <div class="calc-stat"><div class="calc-stat-val" id="csL2" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">From L2 (Cascade)</div></div>
+      <div class="calc-stat"><div class="calc-stat-val" id="csL3" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">From L3+ (Cascade)</div></div>
     </div>
-
-    <div class="tot-card">
-      <div class="tot-lbl">Your Total This Round</div>
-      <div class="tot-amt" id="totalAmt">$0</div>
-      <div class="tot-sub"><span id="kc">0</span> kept · <span id="pc">0</span> pass-ups</div>
-    </div>
-
-    <div class="card">
-      <div class="eye">Per Sale — $<span id="spPrice">100</span></div>
-      <div class="sp-bar"><div class="sp-seg" style="flex:4;background:var(--green)"></div><div class="sp-seg" style="flex:3;background:var(--gold)"></div></div>
-      <div class="sp-leg">
-        <div class="sp-i"><div class="sp-sw" style="background:var(--green)"></div>You keep (1,3,5,7+)<span class="sp-v" id="spK" style="color:#10b981">$100</span></div>
-        <div class="sp-i"><div class="sp-sw" style="background:var(--gold)"></div>Passes up (2,4,6)<span class="sp-v" id="spP" style="color:var(--gold)">$100</span></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="i-ttl">Simulation Stats</div>
-      <div class="i-row"><span class="i-k">Course tier</span><span class="i-v" id="iTier" style="color:var(--cyan2)">$100 Starter</span></div>
-      <div class="i-row"><span class="i-k">Total team sales</span><span class="i-v" id="iTotal" style="color:var(--cyan2)">0</span></div>
-      <div class="i-row"><span class="i-k">Your personal sales</span><span class="i-v" id="iDirect" style="color:var(--green)">0</span></div>
-      <div class="i-row"><span class="i-k">Pass-ups received</span><span class="i-v" id="iPassups" style="color:var(--gold)">0</span></div>
-    </div>
-
-    <div class="card">
-      <div class="eye" style="font-size:10px;margin-bottom:8px">Activity Log</div>
-      <div class="log-ls" id="logList">
-        <div class="log-it"><span style="color:#94a3b8;font-size:11px">Press PLAY to start…</span></div>
-      </div>
-    </div>
+    <div class="calc-stat" style="margin-top:10px;background:linear-gradient(135deg,#0284c7,#0ea5e9);border:none;color:#fff"><div class="calc-stat-val" id="csTotal" style="color:#fff;font-size:20px">$0</div><div class="calc-stat-lbl" style="color:rgba(255,255,255,0.7)">Total Estimated &#xB7; <span id="csTeam">0</span> team members</div></div>
+    <div style="margin-top:10px;padding:10px;background:#f8fafc;border:1px solid var(--border);border-radius:8px"><div style="font-size:10px;font-weight:700;color:#334155;margin-bottom:4px">&#x1F4CA; How This Is Calculated</div><div style="font-size:9px;color:#64748b;line-height:1.5" id="calcExplainer"></div></div>
+    <div style="margin-top:8px;padding:10px;background:#fefce8;border:1px solid #fde68a;border-radius:8px"><div style="font-size:9px;font-weight:700;color:#92400e;margin-bottom:3px">&#x26A0;&#xFE0F; Income Disclaimer</div><div style="font-size:8px;color:#a16207;line-height:1.5">These figures are <strong>hypothetical estimates only</strong> and not a guarantee of income. Actual earnings depend on individual effort, market conditions, and team performance. Many participants earn little or no income.</div></div>
+  </div>
+  <div class="how-strip">
+    <div class="how-s"><div class="hn" style="background:rgba(14,165,233,.1);color:var(--cyan2)">1</div><div class="ht">Refer &amp; Sell</div><div class="hd">Refer someone who buys a course</div></div>
+    <div class="how-s"><div class="hn" style="background:rgba(16,185,129,.1);color:var(--green)">2</div><div class="ht">Keep 100%</div><div class="hd">Sales 1, 3, 5, 7+ you keep full commission</div></div>
+    <div class="how-s"><div class="hn" style="background:rgba(245,158,11,.1);color:var(--gold)">3</div><div class="ht">Pass Up 3</div><div class="hd">2nd, 4th &amp; 6th pass 100% to sponsor</div></div>
+    <div class="how-s"><div class="hn" style="background:rgba(124,58,237,.1);color:#8b5cf6">4</div><div class="ht">Infinite Depth</div><div class="hd">Pass-ups cascade through every level</div></div>
   </div>
 </div>
+<div class="right-col">
+  <div class="tot-card"><div class="tot-lbl">Your Total This Round</div><div class="tot-amt" id="totalAmt">$0</div><div class="tot-sub"><span id="kc">0</span> kept &#xB7; <span id="pc">0</span> pass-ups</div></div>
+  <div class="card"><div class="eye">Live Earnings Tracker</div><div class="e-row"><div class="e-left"><div class="e-dot" style="background:var(--green)"></div><div><div class="e-lbl">Direct Sales Kept</div><div class="e-sub">Your sales 1, 3, 5, 7+</div></div></div><div class="e-amt" id="keptAmt" style="color:#10b981">$0</div></div><div class="e-row"><div class="e-left"><div class="e-dot" style="background:var(--gold)"></div><div><div class="e-lbl">Pass-Ups Received</div><div class="e-sub">Team's 2nd, 4th, 6th</div></div></div><div class="e-amt" id="passupAmt" style="color:var(--gold)">$0</div></div></div>
+  <div class="stat-grid"><div class="mini-stat"><div class="mini-stat-label">&#x1F3AF; Direct Sales</div><div class="mini-stat-val" id="iDirect" style="color:var(--green)">0</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F4E8; Pass-Ups</div><div class="mini-stat-val" id="iPassups" style="color:var(--gold)">0</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F465; Team Sales</div><div class="mini-stat-val" id="iTotal" style="color:var(--cyan2)">0</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F4CA; Active Tier</div><div class="mini-stat-val" id="iTier" style="color:var(--cyan2)">$100</div></div></div>
+  <div class="card"><div class="eye">Per Sale &#x2014; $<span id="spPrice">100</span></div><div class="sp-bar"><div class="sp-seg" style="flex:4;background:var(--green)"></div><div class="sp-seg" style="flex:3;background:var(--gold)"></div></div><div class="sp-leg"><div class="sp-i"><div class="sp-sw" style="background:var(--green)"></div>Keep (1,3,5,7+)<span class="sp-v" id="spK" style="color:#10b981">$100</span></div><div class="sp-i"><div class="sp-sw" style="background:var(--gold)"></div>Pass up (2,4,6)<span class="sp-v" id="spP" style="color:var(--gold)">$100</span></div></div></div>
+  <div class="card"><div class="eye" style="font-size:9px;margin-bottom:6px">Activity Log</div><div class="log-ls" id="logList"><div class="log-it"><span style="color:#94a3b8;font-size:11px">Press PLAY to start&#x2026;</span></div></div></div>
+</div>
+</div>
+</div></div></div>
 <script>
 /* ═══ PROGRESSIVE PASS-UP ENGINE ═══
    Nodes appear one-by-one as they're sponsored.
@@ -706,31 +554,6 @@ resetSim();updateCalc();
 window.addEventListener('resize',function(){requestAnimationFrame(drawLines);});
 </script>
 
-<div class="mob-nav"><div class="mob-nav-in">
-  <a href="/dashboard" class="mob-i">⊞ Home</a>
-  <a href="/watch" class="mob-i">▶ Watch</a>
-  <a href="/income-grid" class="mob-i">⚡ Grid</a>
-  <a href="/wallet" class="mob-i">◎ Wallet</a>
-  <a href="/passup-visualiser" class="mob-i on">↑ Pass-Up</a>
-</div></div>
-
-</div></div></div>
-<div class="mobile-nav"><div class="mobile-nav-inner">
-<a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">&#x229E;</span><span class="mob-nav-label">Home</span></a>
-<a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">&#x25B6;</span><span class="mob-nav-label">Watch</span></a>
-<a href="/income-grid" class="mob-nav-item"><span class="mob-nav-icon">&#x26A1;</span><span class="mob-nav-label">Grid</span></a>
-<a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">&#x25CE;</span><span class="mob-nav-label">Wallet</span></a>
-<a href="/account" class="mob-nav-item"><span class="mob-nav-icon">&#x25C9;</span><span class="mob-nav-label">Account</span></a>
-</div></div>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/static/sw.js").catch(function(){});});}</script>
-
-</div></div></div>
-<div class="mobile-nav"><div class="mobile-nav-inner">
-<a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">&#x229E;</span><span class="mob-nav-label">Home</span></a>
-<a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">&#x25B6;</span><span class="mob-nav-label">Watch</span></a>
-<a href="/income-grid" class="mob-nav-item"><span class="mob-nav-icon">&#x26A1;</span><span class="mob-nav-label">Grid</span></a>
-<a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">&#x25CE;</span><span class="mob-nav-label">Wallet</span></a>
-<a href="/account" class="mob-nav-item"><span class="mob-nav-icon">&#x25C9;</span><span class="mob-nav-label">Account</span></a>
-</div></div>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/static/sw.js").catch(function(){});});}</script>
-</body></html>
+<div class="mob-nav"><div class="mob-nav-in"><a href="/dashboard" class="mob-i"><span style="font-size:18px">&#x229E;</span><span>Home</span></a><a href="/watch" class="mob-i"><span style="font-size:18px">&#x25B6;</span><span>Watch</span></a><a href="/income-grid" class="mob-i"><span style="font-size:18px">&#x26A1;</span><span>Grid</span></a><a href="/wallet" class="mob-i"><span style="font-size:18px">&#x25CE;</span><span>Wallet</span></a><a href="/account" class="mob-i"><span style="font-size:18px">&#x25C9;</span><span>Account</span></a></div></div>
+</body>
+</html>
