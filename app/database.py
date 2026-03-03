@@ -60,6 +60,19 @@ GRID_TIER_NAMES = {
     8: "Ultimate",
 }
 
+# ── Campaign Tier Features ────────────────────────────────────
+# Controls what each grid tier unlocks for video campaigns
+CAMPAIGN_TIER_FEATURES = {
+    1: {"max_campaigns": 1,  "monthly_views": 500,    "targeting": False, "demographics": False, "priority": 0, "featured": False, "spotlight": False, "reach": "category"},
+    2: {"max_campaigns": 3,  "monthly_views": 1500,   "targeting": False, "demographics": False, "priority": 0, "featured": False, "spotlight": False, "reach": "category"},
+    3: {"max_campaigns": 5,  "monthly_views": 5000,   "targeting": False, "demographics": False, "priority": 0, "featured": False, "spotlight": False, "reach": "extended"},
+    4: {"max_campaigns": 10, "monthly_views": 10000,  "targeting": True,  "demographics": True,  "priority": 0, "featured": False, "spotlight": False, "reach": "extended"},
+    5: {"max_campaigns": 20, "monthly_views": 20000,  "targeting": True,  "demographics": True,  "priority": 1, "featured": False, "spotlight": False, "reach": "full"},
+    6: {"max_campaigns": 30, "monthly_views": 30000,  "targeting": True,  "demographics": True,  "priority": 2, "featured": True,  "spotlight": False, "reach": "full"},
+    7: {"max_campaigns": 50, "monthly_views": 40000,  "targeting": True,  "demographics": True,  "priority": 3, "featured": True,  "spotlight": True,  "reach": "full"},
+    8: {"max_campaigns": 999,"monthly_views": 50000,  "targeting": True,  "demographics": True,  "priority": 4, "featured": True,  "spotlight": True,  "reach": "full"},
+}
+
 class User(Base):
     __tablename__ = "users"
     id                  = Column(Integer, primary_key=True, index=True)
@@ -84,6 +97,8 @@ class User(Base):
     total_team          = Column(Integer, default=0)      # entire network size
     country             = Column(String, nullable=True)
     interests           = Column(String, nullable=True)    # comma-separated interest tags
+    age_range           = Column(String, nullable=True)    # "18-24","25-34","35-44","45-54","55+"
+    gender              = Column(String, nullable=True)    # "male","female","other"
     created_at          = Column(DateTime, default=datetime.utcnow)
     membership_activated_by_referral = Column(Boolean, default=False)  # first month gifted
     low_balance_warned  = Column(Boolean, default=False)               # 3-day warning sent
@@ -237,9 +252,16 @@ class VideoCampaign(Base):
     # Targeting (Advanced tier and above)
     target_country  = Column(String, nullable=True)    # ISO country or null=worldwide
     target_interests = Column(String, nullable=True)   # comma-separated interest tags
+    # Demographics targeting (Advanced tier 4+)
+    target_age_min  = Column(Integer, nullable=True)   # min age (e.g. 18)
+    target_age_max  = Column(Integer, nullable=True)   # max age (e.g. 55)
+    target_gender   = Column(String, nullable=True)    # "male","female","all" or null
     # Priority (Elite tier and above)
     priority_level  = Column(Integer, default=0)       # 0=normal, 1-4=priority tiers
     owner_tier      = Column(Integer, default=1)       # owner's package tier (1-8)
+    # Featured & Spotlight (Premium tier 6+ / Executive 7+)
+    is_featured     = Column(Boolean, default=False)   # auto-featured on public page
+    is_spotlight    = Column(Boolean, default=False)   # brand spotlight (large card)
     created_at      = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -575,6 +597,13 @@ def run_migrations():
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_interests VARCHAR",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS priority_level INTEGER DEFAULT 0",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS owner_tier INTEGER DEFAULT 1",
+        "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_age_min INTEGER",
+        "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_age_max INTEGER",
+        "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_gender VARCHAR",
+        "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS is_spotlight BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS age_range VARCHAR",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS gender VARCHAR",
         # User interests
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS interests VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE",
@@ -611,6 +640,13 @@ try:
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_interests VARCHAR"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS priority_level INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS owner_tier INTEGER DEFAULT 1"))
+        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_age_min INTEGER"))
+        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_age_max INTEGER"))
+        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_gender VARCHAR"))
+        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE"))
+        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS is_spotlight BOOLEAN DEFAULT FALSE"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS age_range VARCHAR"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS gender VARCHAR"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE"))
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS social_posts_uses INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS social_posts_total INTEGER DEFAULT 0"))

@@ -940,6 +940,25 @@ def upload_video_post(
     if not title:
         return err("Please enter a campaign title.")
 
+    # Determine user's highest active tier and features
+    highest_grid = db.query(Grid).filter(
+        Grid.owner_id == user.id,
+        Grid.is_complete == False
+    ).order_by(Grid.package_tier.desc()).first()
+
+    user_tier = highest_grid.package_tier if highest_grid else 1
+    from .database import CAMPAIGN_TIER_FEATURES
+    tier_features = CAMPAIGN_TIER_FEATURES.get(user_tier, CAMPAIGN_TIER_FEATURES[1])
+
+    # Enforce campaign limit
+    active_count = db.query(VideoCampaign).filter(
+        VideoCampaign.user_id == user.id,
+        VideoCampaign.status == "active"
+    ).count()
+    if active_count >= tier_features["max_campaigns"]:
+        tier_name = GRID_TIER_NAMES.get(user_tier, "Starter")
+        return err(f"Your {tier_name} tier allows {tier_features['max_campaigns']} active campaign(s). Upgrade your tier or pause an existing campaign.")
+
     parsed = parse_video_url(video_url)
     if not parsed:
         return err("Unsupported video URL. Please paste a YouTube, Rumble, or Vimeo link.")
@@ -954,24 +973,36 @@ def upload_video_post(
         embed_url   = parsed["embed_url"],
         video_id    = parsed["video_id"],
         status      = "active",
+        owner_tier  = user_tier,
+        views_target = tier_features["monthly_views"],
     )
 
-    # Set targeting fields based on user's highest active tier
-    highest_grid = db.query(Grid).filter(
-        Grid.owner_id == user.id,
-        Grid.is_complete == False
-    ).order_by(Grid.package_tier.desc()).first()
+    # Priority queue placement (Tier 5+)
+    campaign.priority_level = tier_features["priority"]
 
-    if highest_grid:
-        campaign.owner_tier = highest_grid.package_tier
-        # Priority queue: tiers 5-8 (Elite+) get priority levels 1-4
-        if highest_grid.package_tier >= 5:
-            campaign.priority_level = highest_grid.package_tier - 4
-        # Geo & interest targeting: tier 4+ (Advanced+)
-        if highest_grid.package_tier >= 4:
-            campaign.target_country = sanitize(target_country)[:200] if target_country else None
-            campaign.target_interests = sanitize(target_interests)[:200] if target_interests else None
-    
+    # Geo & interest targeting (Tier 4+)
+    if tier_features["targeting"]:
+        campaign.target_country = sanitize(target_country)[:200] if target_country else None
+        campaign.target_interests = sanitize(target_interests)[:200] if target_interests else None
+
+    # Demographics targeting (Tier 4+)
+    if tier_features["demographics"]:
+        target_age_min = request.query_params.get("target_age_min", "") or ""
+        target_age_max = request.query_params.get("target_age_max", "") or ""
+        target_gender = request.query_params.get("target_gender", "") or ""
+        if target_age_min.isdigit():
+            campaign.target_age_min = int(target_age_min)
+        if target_age_max.isdigit():
+            campaign.target_age_max = int(target_age_max)
+        if target_gender in ("male", "female", "all"):
+            campaign.target_gender = target_gender
+
+    # Auto-featured on public page (Tier 6+)
+    campaign.is_featured = tier_features["featured"]
+
+    # Brand spotlight — large card on public page (Tier 7+)
+    campaign.is_spotlight = tier_features["spotlight"]
+
     db.add(campaign)
     db.commit()
 
@@ -1855,15 +1886,28 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
         score = 0.0
 
         # ── Priority boost (Elite tier 5+ gets priority queue placement) ──
-        # priority_level: 0=normal (tiers 1-4), 1=Elite, 2=Premium, 3=Executive, 4=Ultimate
         priority = c.priority_level or 0
         score += priority * 100  # strong boost for higher tiers
 
         # ── View deficit score (campaigns furthest from target get priority) ──
         target = c.views_target or 1
         delivered = c.views_delivered or 0
-        pct_remaining = max(0, 1.0 - (delivered / target))
-        score += pct_remaining * 50  # up to 50 points for campaigns with 0% delivered
+        # Skip campaigns that have hit their monthly view target
+        if target > 0 and delivered >= target:
+            score -= 500  # heavily deprioritise completed campaigns
+        else:
+            pct_remaining = max(0, 1.0 - (delivered / target)) if target > 0 else 0.5
+            score += pct_remaining * 50
+
+        # ── Reach level (category/extended/full) ──
+        from .database import CAMPAIGN_TIER_FEATURES
+        tier_features = CAMPAIGN_TIER_FEATURES.get(c.owner_tier or 1, CAMPAIGN_TIER_FEATURES[1])
+        reach = tier_features.get("reach", "category")
+        if reach == "category" and c.category and watcher_interests:
+            # Category-only reach: penalty if no interest match
+            campaign_cat = (c.category or "").strip().lower()
+            if campaign_cat and campaign_cat not in watcher_interests:
+                score -= 15  # slight penalty for category mismatch on limited reach
 
         # ── Geo targeting match (Advanced tier 4+) ──
         if c.target_country and watcher_country:
@@ -1881,6 +1925,36 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
                 score += len(overlap) * 15  # bonus per matching interest
             elif campaign_interests:
                 score -= 10  # slight penalty for no interest match
+
+        # ── Demographics targeting (Advanced tier 4+) ──
+        if c.target_gender and c.target_gender != "all":
+            watcher_gender = (watcher.gender or "").strip().lower() if watcher else ""
+            if watcher_gender and watcher_gender == c.target_gender:
+                score += 20  # gender match bonus
+            elif watcher_gender and watcher_gender != c.target_gender:
+                score -= 15  # gender mismatch penalty
+
+        if c.target_age_min or c.target_age_max:
+            watcher_age_range = (watcher.age_range or "").strip() if watcher else ""
+            if watcher_age_range:
+                # Parse age range midpoint (e.g. "25-34" → 29)
+                try:
+                    parts = watcher_age_range.replace("+", "-99").split("-")
+                    watcher_age_mid = (int(parts[0]) + int(parts[1])) // 2
+                    age_min = c.target_age_min or 0
+                    age_max = c.target_age_max or 99
+                    if age_min <= watcher_age_mid <= age_max:
+                        score += 20  # age match bonus
+                    else:
+                        score -= 15  # age mismatch penalty
+                except (ValueError, IndexError):
+                    pass
+
+        # ── Featured / Spotlight boost (Tier 6+/7+) ──
+        if getattr(c, 'is_spotlight', False):
+            score += 40  # spotlight campaigns get strong boost
+        elif getattr(c, 'is_featured', False):
+            score += 20  # featured campaigns get moderate boost
 
         # ── Freshness bonus (newer campaigns get a small boost) ──
         if c.created_at:
@@ -2090,7 +2164,8 @@ def public_videos(request: Request, category: str = "", db: Session = Depends(ge
     Members earn by watching inside /watch — this is bonus exposure for advertisers."""
     campaigns = db.query(VideoCampaign).filter(
         VideoCampaign.status == "active"
-    ).order_by(VideoCampaign.priority_level.desc(), VideoCampaign.created_at.desc()).all()
+    ).order_by(VideoCampaign.is_spotlight.desc(), VideoCampaign.is_featured.desc(),
+               VideoCampaign.priority_level.desc(), VideoCampaign.created_at.desc()).all()
 
     # Get unique categories for filter
     categories = sorted(set(c.category for c in campaigns if c.category))
@@ -2098,9 +2173,15 @@ def public_videos(request: Request, category: str = "", db: Session = Depends(ge
     if category:
         campaigns = [c for c in campaigns if (c.category or "").lower() == category.lower()]
 
+    # Separate spotlight campaigns for hero treatment
+    spotlight = [c for c in campaigns if getattr(c, 'is_spotlight', False)]
+    featured = [c for c in campaigns if getattr(c, 'is_featured', False) and not getattr(c, 'is_spotlight', False)]
+
     return templates.TemplateResponse("public-videos.html", {
         "request": request,
         "campaigns": campaigns,
+        "spotlight": spotlight,
+        "featured": featured,
         "categories": categories,
         "selected_category": category,
         "total": len(campaigns),

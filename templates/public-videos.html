@@ -97,11 +97,42 @@ nav{background:rgba(2,8,24,0.95);border-bottom:1px solid rgba(0,180,216,0.1);pad
 </div>
 
 {% if campaigns %}
+
+<!-- Brand Spotlight — Executive & Ultimate tier campaigns -->
+{% if spotlight %}
+<div style="max-width:1200px;margin:0 auto 40px;padding:0 40px">
+  <div style="font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(245,158,11,0.7);margin-bottom:12px;text-align:center">&#x2B50; Brand Spotlight</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(480px,1fr));gap:24px">
+    {% for c in spotlight %}
+    <div style="background:linear-gradient(135deg,rgba(245,158,11,0.06),rgba(239,68,68,0.04));border:1px solid rgba(245,158,11,0.2);border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(245,158,11,0.08)">
+      <div style="aspect-ratio:16/9;background:#000;position:relative">
+        <iframe src="{{ c.embed_url }}" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" style="width:100%;height:100%;border:none"></iframe>
+        <div style="position:absolute;top:12px;left:12px;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#f59e0b,#ef4444);padding:5px 12px;border-radius:50px;box-shadow:0 2px 8px rgba(245,158,11,0.4)">&#x2B50; Spotlight</div>
+      </div>
+      <div style="padding:20px">
+        <div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:6px">{{ c.title }}</div>
+        {% if c.description %}<div style="font-size:14px;color:rgba(200,220,255,0.5);margin-bottom:10px;line-height:1.6">{{ c.description[:200] }}</div>{% endif %}
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="card-cat">{{ c.category or 'General' }}</span>
+          <span style="font-size:12px;color:rgba(200,220,255,0.35)">{{ c.platform|title }}</span>
+          <span style="font-size:12px;color:rgba(200,220,255,0.35)">&#x25B6; {{ c.views_delivered or 0 }} views</span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
 <div class="grid">
   {% for c in campaigns %}
   <div class="card">
     <div class="card-video">
-      {% if c.priority_level and c.priority_level > 0 %}
+      {% if c.is_spotlight %}
+      <div class="boosted" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">&#x2B50; Spotlight</div>
+      {% elif c.is_featured %}
+      <div class="boosted" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">&#x2728; Featured</div>
+      {% elif c.priority_level and c.priority_level > 0 %}
       <div class="boosted">&#x1F525; Boosted</div>
       {% endif %}
       <iframe src="{{ c.embed_url }}" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
