@@ -62,7 +62,8 @@ tr:last-child td{border-bottom:none}
 .p2p-dir-recv{color:#16a34a;font-weight:700}
 .member-id-chip{display:inline-flex;align-items:center;gap:8px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:8px 16px;font-size:16px;font-weight:700;color:#15803d;cursor:pointer;transition:all 0.15s}
 .member-id-chip:hover{background:#dcfce7}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.two-col>div{display:flex;flex-direction:column}.two-col>div>.card{flex:1}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
 @media(max-width:768px){
   .layout{display:block!important}
   .sidebar{display:none!important}
