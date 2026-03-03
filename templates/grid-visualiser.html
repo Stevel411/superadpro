@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Profit Engine Grid Visualiser — SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Grid Visualiser - SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
+
 :root{--cyan:#38bdf8;--cyan2:#0ea5e9;--green:#10b981;--gold:#f59e0b;--bg:#020818;--border:rgba(0,212,255,0.12)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans','Rethink Sans',sans-serif;background:var(--bg);color:#e8f0fe;min-height:100vh;overflow-x:hidden}
@@ -15,7 +16,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;back
 
 nav{background:rgba(2,8,24,0.95);border-bottom:1px solid var(--border);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
 .nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
-.nav-brand{color:#fff;-webkit-text-fill-color:#fff;font-weight:800;font-size:19px;letter-spacing:0;text-transform:none}.nav-brand span{color:#38bdf8;-webkit-text-fill-color:#38bdf8}
+.nav-brand span{font-weight:800;font-size:19px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#0ea5e9,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .nav-links{display:flex;align-items:center;gap:24px}
 .nav-links a{font-size:19px;font-weight:500;color:#4a5a6e;text-decoration:none;transition:color 0.2s}
 .nav-links a:hover{color:var(--cyan)}
@@ -188,37 +189,27 @@ input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
 
 
 
-/* Sidebar styles */
-.sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;letter-spacing:0;text-transform:none;color:#fff;-webkit-text-fill-color:#fff}
-.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
-.nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
-.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
-.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
-.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.1);border-radius:8px}
-.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
-/* Dashboard shell */
+/* === DASHBOARD SHELL === */
 .layout{display:flex;min-height:100vh}
-.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.sidebar{width:224px!important;height:100vh!important;background:#0a0a1a!important;border-right:1px solid rgba(0,212,255,0.08)!important;position:fixed!important;top:0!important;left:0!important;z-index:100!important;display:flex!important;flex-direction:column!important;overflow-y:auto!important}
+.sidebar-logo{display:flex!important;align-items:center!important;gap:10px!important;padding:22px 18px!important;border-bottom:1px solid rgba(255,255,255,0.06)!important;text-decoration:none!important}
+.nav-item{display:flex!important;align-items:center!important;gap:11px!important;padding:12px 18px!important;font-size:16px!important;font-weight:500!important;color:rgba(200,220,255,0.75)!important;text-decoration:none!important;border-left:2px solid transparent!important}
+.nav-item:hover{color:#38bdf8!important;background:rgba(56,189,248,0.06)!important}
+.nav-item.active{color:#38bdf8!important;background:rgba(56,189,248,0.07)!important;border-left-color:#38bdf8!important}
+.nav-icon{font-size:16px!important;width:18px!important;text-align:center!important;flex-shrink:0!important}
+.sidebar-footer{margin-top:auto!important;padding:14px 12px!important;border-top:1px solid rgba(255,255,255,0.06)!important}
+.main{margin-left:224px!important;flex:1;display:flex;flex-direction:column;min-height:100vh}
 .db-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:50}
 .db-content{flex:1;position:relative;z-index:1}
 nav{display:none!important}
 .hero{display:none!important}
-@media(max-width:768px){.layout{display:block!important}.sidebar{display:none!important}.main{margin-left:0!important}.db-topbar{display:none!important}.db-content{padding-bottom:80px!important}body{overflow-x:hidden}}
+@media(max-width:768px){.layout{display:block!important}.sidebar{display:none!important}.main{margin-left:0!important}.db-topbar{display:none!important}.db-content{padding-bottom:80px!important}}
+
 </style>
-  <link rel="stylesheet" href="/static/mobile.css">
-  <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#0a0a1a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="SuperAdPro">
-  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
-  <link rel="stylesheet" href="/static/mobile.css">
-  <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#0a0a1a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="/static/mobile.css">
+<link rel="manifest" href="/static/manifest.json">
+<meta name="theme-color" content="#0a0a1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
 </head>
 <body>
 <div class="layout">
@@ -226,7 +217,7 @@ nav{display:none!important}
 <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="logo-grad-pg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient><symbol id="shield" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#logo-grad-pg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></symbol></defs></svg>
     {% include "_sidebar.html" %}
 <div class="main">
-<div class="db-topbar"><div><div style="font-size:18px;font-weight:800;color:#fff">&#x26A1; Grid Visualiser</div><div style="font-size:13px;color:#6b7d94;margin-top:1px">Watch your grid fill with direct referrals and upline overspill</div></div></div>
+<div class="db-topbar"><div><div style="font-size:18px;font-weight:800;color:#fff">&#x26A1; Grid Visualiser</div><div style="font-size:13px;color:#6b7d94;margin-top:1px">Watch your grid fill with referrals and overspill</div></div></div>
 <div class="db-content">
 <div class="pkg-bar" id="pkgBar">
   <button class="pkg-btn" data-price="20"   onclick="selectPkg(this)">$20</button>
@@ -283,7 +274,7 @@ nav{display:none!important}
         </div>
         <div class="legend-item">
           <div class="legend-swatch" style="background:#3b82f6;opacity:0.8"></div>
-          Upline overspill · $<span id="legendOverspill">6.88</span> per level
+          Upline overspill · you earn $<span id="legendOverspill">8.75</span>
         </div>
       </div>
     </div>
@@ -306,55 +297,6 @@ nav{display:none!important}
       </div>
     </div>
 
-    <!-- Dual Commission Explanation -->
-    <div class="advance-note" style="border-color:rgba(16,185,129,0.2);background:rgba(16,185,129,0.04)">
-      <div style="font-size:19px;flex-shrink:0">💡</div>
-      <div>
-        <div class="advance-note-title" style="color:#10b981">How You Earn Per Seat</div>
-        <div class="advance-note-text">Every seat that fills in your grid pays you a <strong>6.875% uni-level commission</strong> — regardless of who fills it. When the seat is filled by someone <em>you personally referred</em> (shown in <span style="color:#10b981;font-weight:700">green</span>), you <em>also</em> receive a <strong>40% direct sponsor commission</strong> on top. That's why green cells show a higher amount — it's both commissions combined on the same seat.</div>
-      </div>
-    </div>
-
-    <!-- Tier Earnings Chart -->
-    <div style="background:rgba(5,13,26,0.6);border:1px solid rgba(0,180,216,0.12);border-radius:10px;padding:18px;margin-bottom:14px">
-      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#0ea5e9;margin-bottom:12px">Per Seat Earnings — First 3 Tiers</div>
-      <table style="width:100%;border-collapse:collapse;font-size:13px;color:#e8f0fe">
-        <thead>
-          <tr style="border-bottom:2px solid rgba(0,180,216,0.15)">
-            <th style="text-align:left;padding:8px 6px;color:rgba(200,220,255,0.5);font-weight:600">Tier</th>
-            <th style="text-align:center;padding:8px 6px;color:rgba(200,220,255,0.5);font-weight:600">Price</th>
-            <th style="text-align:center;padding:8px 6px;font-weight:600"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#38bdf8;margin-right:4px;vertical-align:middle"></span>Overspill</th>
-            <th style="text-align:center;padding:8px 6px;font-weight:600"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#10b981;margin-right:4px;vertical-align:middle"></span>Direct</th>
-            
-          </tr>
-        </thead>
-        <tbody>
-          <tr style="border-bottom:1px solid rgba(0,180,216,0.08)">
-            <td style="padding:10px 6px;font-weight:700">Starter</td>
-            <td style="padding:10px 6px;text-align:center;color:rgba(200,220,255,0.5)">$20</td>
-            <td style="padding:10px 6px;text-align:center;color:#38bdf8;font-weight:700">$1.38</td>
-            <td style="padding:10px 6px;text-align:center;color:#10b981;font-weight:700">$9.38</td>
-            
-          </tr>
-          <tr style="border-bottom:1px solid rgba(0,180,216,0.08)">
-            <td style="padding:10px 6px;font-weight:700">Builder</td>
-            <td style="padding:10px 6px;text-align:center;color:rgba(200,220,255,0.5)">$50</td>
-            <td style="padding:10px 6px;text-align:center;color:#38bdf8;font-weight:700">$3.44</td>
-            <td style="padding:10px 6px;text-align:center;color:#10b981;font-weight:700">$23.44</td>
-            
-          </tr>
-          <tr>
-            <td style="padding:10px 6px;font-weight:700">Pro</td>
-            <td style="padding:10px 6px;text-align:center;color:rgba(200,220,255,0.5)">$100</td>
-            <td style="padding:10px 6px;text-align:center;color:#38bdf8;font-weight:700">$6.88</td>
-            <td style="padding:10px 6px;text-align:center;color:#10b981;font-weight:700">$46.88</td>
-            
-          </tr>
-        </tbody>
-      </table>
-      <div style="font-size:11px;color:rgba(200,220,255,0.35);margin-top:10px;line-height:1.5"><strong style="color:#10b981">Direct</strong> = 40% sponsor + 6.875% uni-level combined. <strong style="color:#38bdf8">Overspill</strong> = 6.875% uni-level only. Your total earnings depend on how many of the 63 seats are your personal referrals vs overspill. Grid auto-restarts after all 63 seats fill.</div>
-    </div>
-
     <div class="advance-banner" id="advanceBanner">
       <div class="advance-title">⚡ GRID COMPLETE — NEW ADVANCE STARTING</div>
       <div class="advance-sub" id="advanceSubText"></div>
@@ -372,7 +314,7 @@ nav{display:none!important}
         <div class="earn-left">
           <div class="earn-dot" style="background:#10b981"></div>
           <div>
-            <div class="earn-label">Direct Sponsor (40%)</div>
+            <div class="earn-label">Direct Sponsor (25%)</div>
             <div class="earn-sub">$<span id="directPerSeat">25.00</span> · your personal referrals only</div>
           </div>
         </div>
@@ -383,8 +325,8 @@ nav{display:none!important}
         <div class="earn-left">
           <div class="earn-dot" style="background:#38bdf8"></div>
           <div>
-            <div class="earn-label">Uni-Level (6.875% × 8)</div>
-            <div class="earn-sub">$<span id="uniPerSeat">6.88</span> per seat · 6.875% per level</div>
+            <div class="earn-label">Uni-Level (8.75%)</div>
+            <div class="earn-sub">$<span id="uniPerSeat">8.75</span> · every seat, direct or overspill</div>
           </div>
         </div>
         <div class="earn-amount" id="uniAmt" style="color:#38bdf8">$0.00</div>
@@ -401,10 +343,10 @@ nav{display:none!important}
 
     <!-- Split bar -->
     <div class="split-card">
-      <div class="eyebrow">Single Seat Payout — $<span id="splitPrice">100</span> Entry</div>
+      <div class="eyebrow">Per Entry Distribution — $<span id="splitPrice">100</span></div>
       <div class="split-bar-wrap">
-        <div class="split-seg" style="width:42.1%;background:#10b981"></div>
-        <div class="split-seg" style="width:57.9%;background:linear-gradient(90deg,#3b82f6,#38bdf8)"></div>
+        <div class="split-seg" style="width:26.3%;background:#10b981"></div>
+        <div class="split-seg" style="width:73.7%;background:linear-gradient(90deg,#3b82f6,#38bdf8)"></div>
       </div>
       <div class="split-legend">
         <div class="split-item">
@@ -414,7 +356,7 @@ nav{display:none!important}
         </div>
         <div class="split-item">
           <div class="split-swatch" style="background:linear-gradient(135deg,#3b82f6,#38bdf8)"></div>
-          Uni-Level (8 levels × $<span id="sp2lvl">6.88</span> each)
+          Uni-Level (8 levels × $<span id="sp2lvl">8.75</span>)
           <span class="split-pct" id="sp2" style="color:#38bdf8">$70.00</span>
         </div>
       </div>
@@ -466,7 +408,6 @@ let directSeats = new Set(); // which seat indices (1–63) are directs — rand
 // Running totals
 let tSponsor = 0, tUni = 0;
 
-
 const LEVEL_COLOURS = [
   '#38bdf8','#3b82f6','#6366f1','#0ea5e9',
   '#0ea5e9','#38bdf8','#b197fc','#c4b5fd'
@@ -501,19 +442,16 @@ function updateDirectCount(val) {
 }
 
 function updateSplitDisplay() {
-  const direct   = pkg * 0.40;
-  const uniTotal = pkg * 0.55;
-  const avgPerLevel = uniTotal / 8;
+  const direct   = pkg * 0.25;
+  const perLevel = pkg * 0.70 / 8;
+  const uniTotal = pkg * 0.70;
   const overspill = 63 - directCount;
-
-  // Estimate earnings: for each direct, you earn direct + the uni-level for that seat's level
-  // For each overspill, you earn only the uni-level for that seat's level
-  // Since directs are random across levels, use average uni-level for estimation
-  const est = (directCount * (direct + avgPerLevel)) + (overspill * avgPerLevel);
+  // Your earnings: each direct = direct+perLevel, each overspill = perLevel
+  const est = (directCount * (direct + perLevel)) + (overspill * perLevel);
 
   document.getElementById('splitPrice').textContent   = pkg.toLocaleString();
   document.getElementById('sp1').textContent          = '$' + direct.toFixed(2);
-  document.getElementById('sp2lvl').textContent       = avgPerLevel.toFixed(2);
+  document.getElementById('sp2lvl').textContent       = perLevel.toFixed(2);
   document.getElementById('sp2').textContent          = '$' + uniTotal.toFixed(2);
   document.getElementById('infoPkg').textContent      = '$' + pkg.toLocaleString();
   document.getElementById('infoDirectCount').textContent  = directCount + ' seats';
@@ -521,9 +459,9 @@ function updateSplitDisplay() {
   document.getElementById('infoMax').textContent      = '$' + est.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById('panelTitle').textContent   = `8×8 GRID — $${pkg.toLocaleString()} PACKAGE`;
   document.getElementById('directPerSeat').textContent = direct.toFixed(2);
-  document.getElementById('uniPerSeat').textContent   = avgPerLevel.toFixed(2);
-  document.getElementById('legendDirect').textContent = (direct + avgPerLevel).toFixed(2);
-  document.getElementById('legendOverspill').textContent = avgPerLevel.toFixed(2);
+  document.getElementById('uniPerSeat').textContent   = perLevel.toFixed(2);
+  document.getElementById('legendDirect').textContent = (direct + perLevel).toFixed(2);
+  document.getElementById('legendOverspill').textContent = perLevel.toFixed(2);
 }
 
 // ── Build grid ─────────────────────────────────────────────────────────────
@@ -585,18 +523,17 @@ function fillNext() {
   const cell     = cells[filled];
   const level    = Math.floor((filled - 1) / 8);  // 0 = L1 … 7 = L8
   const isDirect = directSeats.has(filled);
-  const perLevel = pkg * 0.55 / 8;   // 6.875% flat per level
+  const perLevel = pkg * 0.70 / 8;   // $8.75 on $100
 
   // ── COMMISSION LOGIC ──────────────────────────────────────────────────
-  // Uni-level commissions: 6.875% flat per level (55% / 8 levels).
-  // Each of 8 upline levels receives the same amount.
+  // Every seat pays you ONE uni-level position ($8.75 on $100).
   // If this seat is YOUR personal direct referral, you also receive
-  // the 40% direct sponsor commission.
+  // the 25% direct sponsor commission ($25 on $100).
   // ─────────────────────────────────────────────────────────────────────
   let youEarn = perLevel;
   if (isDirect) {
-    tSponsor += pkg * 0.40;
-    youEarn  += pkg * 0.40;
+    tSponsor += pkg * 0.25;
+    youEarn  += pkg * 0.25;
     directFilled++;
   }
   tUni      += perLevel;
@@ -713,6 +650,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+
 </div></div></div>
 <div class="mobile-nav"><div class="mobile-nav-inner">
 <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">&#x229E;</span><span class="mob-nav-label">Home</span></a>
@@ -721,5 +659,5 @@ if ('serviceWorker' in navigator) {
 <a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">&#x25CE;</span><span class="mob-nav-label">Wallet</span></a>
 <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">&#x25C9;</span><span class="mob-nav-label">Account</span></a>
 </div></div>
-</body>
-</html>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/static/sw.js").catch(function(){});});}</script>
+</body></html>

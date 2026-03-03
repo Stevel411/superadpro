@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Pass-Up Visualiser — SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Pass-Up Visualiser - SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
+
 :root{--cyan:#38bdf8;--cyan2:#0ea5e9;--green:#10b981;--gold:#f59e0b;--bg:#f0f2f8;--border:#e2e8f0}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans','Rethink Sans',sans-serif;background:var(--bg);color:#0f172a;min-height:100vh;overflow-x:hidden}
@@ -192,29 +193,28 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
 .mob-i.on{color:#38bdf8}
 @media(max-width:768px){.mob-nav{display:block}body{padding-bottom:72px}.main{padding:0 12px 80px;grid-template-columns:1fr}.topbar b{font-size:15px}}
 
-.layout{display:flex;min-height:100vh}
-.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-.db-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:50}
-.db-content{flex:1;padding:24px 28px;position:relative;z-index:1}
-.topbar{display:none!important}
-.hero{display:none!important}
-@media(max-width:768px){.layout{display:block!important}.sidebar{display:none!important}.main{margin-left:0!important}.db-topbar{display:none!important}.db-content{padding:10px 12px 80px!important}}
 
-/* Sidebar styles */
-.sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff;-webkit-text-fill-color:#fff}
-.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
-.nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
-.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
-.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
-.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.1);border-radius:8px}
-.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
+/* === DASHBOARD SHELL === */
+.layout{display:flex;min-height:100vh}
+.sidebar{width:224px!important;height:100vh!important;background:#0a0a1a!important;border-right:1px solid rgba(0,212,255,0.08)!important;position:fixed!important;top:0!important;left:0!important;z-index:100!important;display:flex!important;flex-direction:column!important;overflow-y:auto!important}
+.sidebar-logo{display:flex!important;align-items:center!important;gap:10px!important;padding:22px 18px!important;border-bottom:1px solid rgba(255,255,255,0.06)!important;text-decoration:none!important}
+.nav-item{display:flex!important;align-items:center!important;gap:11px!important;padding:12px 18px!important;font-size:16px!important;font-weight:500!important;color:rgba(200,220,255,0.75)!important;text-decoration:none!important;border-left:2px solid transparent!important}
+.nav-item:hover{color:#38bdf8!important;background:rgba(56,189,248,0.06)!important}
+.nav-item.active{color:#38bdf8!important;background:rgba(56,189,248,0.07)!important;border-left-color:#38bdf8!important}
+.nav-icon{font-size:16px!important;width:18px!important;text-align:center!important;flex-shrink:0!important}
+.sidebar-footer{margin-top:auto!important;padding:14px 12px!important;border-top:1px solid rgba(255,255,255,0.06)!important}
+.main{margin-left:224px!important;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.db-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:50}
+.db-content{flex:1;position:relative;z-index:1}
+nav{display:none!important}
+.hero{display:none!important}
+@media(max-width:768px){.layout{display:block!important}.sidebar{display:none!important}.main{margin-left:0!important}.db-topbar{display:none!important}.db-content{padding-bottom:80px!important}}
+
 </style>
-  <link rel="stylesheet" href="/static/mobile.css">
-  <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#0a0a1a">
+<link rel="stylesheet" href="/static/mobile.css">
+<link rel="manifest" href="/static/manifest.json">
+<meta name="theme-color" content="#0a0a1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
 </head>
 <body>
 <div class="layout">
@@ -222,7 +222,7 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
 <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="logo-grad-pg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient><symbol id="shield" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#logo-grad-pg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></symbol></defs></svg>
     {% include "_sidebar.html" %}
 <div class="main">
-<div class="db-topbar"><div><div style="font-size:18px;font-weight:800;color:#fff">&#x1F503; Pass-Up Visualiser</div><div style="font-size:13px;color:#6b7d94;margin-top:1px">See how the infinite pass-up cycle drives commissions</div></div></div>
+<div class="db-topbar"><div><div style="font-size:18px;font-weight:800;color:#fff">&#x1F503; Pass-Up Visualiser</div><div style="font-size:13px;color:#6b7d94;margin-top:1px">See how the pass-up cycle drives commissions</div></div></div>
 <div class="db-content">
 <div class="tier-bar">
   <button class="tier-btn active" data-price="100" onclick="selTier(this)">$100 Starter</button>
@@ -708,6 +708,7 @@ window.addEventListener('resize',function(){requestAnimationFrame(drawLines);});
   <a href="/wallet" class="mob-i">◎ Wallet</a>
   <a href="/passup-visualiser" class="mob-i on">↑ Pass-Up</a>
 </div></div>
+
 </div></div></div>
 <div class="mobile-nav"><div class="mobile-nav-inner">
 <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">&#x229E;</span><span class="mob-nav-label">Home</span></a>
@@ -716,5 +717,5 @@ window.addEventListener('resize',function(){requestAnimationFrame(drawLines);});
 <a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">&#x25CE;</span><span class="mob-nav-label">Wallet</span></a>
 <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">&#x25C9;</span><span class="mob-nav-label">Account</span></a>
 </div></div>
-</body>
-</html>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/static/sw.js").catch(function(){});});}</script>
+</body></html>
