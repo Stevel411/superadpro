@@ -263,24 +263,40 @@ a{text-decoration:none;color:inherit}
     <div class="player-card" id="playerCard">
       <div class="player-header">
         <div>
-          <div class="cam-title" id="campaignTitle">{{ campaign.title }}</div>
-          <div class="cam-meta" id="campaignMeta">{{ campaign.platform|title }} &middot; {{ campaign.category or 'General' }}</div>
+          <div class="cam-title" id="campaignTitle">{% if content_type == 'video' and campaign %}{{ campaign.title }}{% elif content_type == 'adboard' and ad_listing %}{{ ad_listing.title }}{% else %}No content{% endif %}</div>
+          <div class="cam-meta" id="campaignMeta">{% if content_type == 'video' and campaign %}{{ campaign.platform|title }} &middot; {{ campaign.category or 'General' }}{% elif content_type == 'adboard' %}Ad Board &middot; {{ ad_listing.category|title if ad_listing else 'General' }}{% endif %}</div>
         </div>
-        <div class="cam-badge">&#x25B6; Now Playing</div>
+        <div class="cam-badge" id="contentBadge">{% if content_type == 'adboard' %}&#x1F4CB; Sponsored{% else %}&#x25B6; Now Playing{% endif %}</div>
       </div>
 
       <div class="video-wrap">
+        <!-- Video iframe (shown for video content) -->
         <iframe id="videoFrame"
-          src="{{ campaign.embed_url }}{% if '?' in campaign.embed_url %}&{% else %}?{% endif %}autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&enablejsapi=1"
+          src="{% if content_type == 'video' and campaign %}{{ campaign.embed_url }}{% if '?' in campaign.embed_url %}&{% else %}?{% endif %}autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&enablejsapi=1{% endif %}"
+          style="{% if content_type == 'adboard' %}display:none{% endif %}"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen></iframe>
-        <div class="unmute-overlay" id="unmuteOverlay" onclick="unmuteVideo()">
+
+        <!-- Ad board display card (shown for ad content) -->
+        <div id="adDisplayCard" style="{% if content_type != 'adboard' %}display:none;{% endif %}width:100%;height:100%;position:absolute;inset:0;background:linear-gradient(160deg,#0a1628,#0f1d32);display:{% if content_type == 'adboard' %}flex{% else %}none{% endif %};flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;gap:20px">
+          {% if content_type == 'adboard' and ad_listing %}
+          <div id="adImage" style="width:120px;height:120px;border-radius:16px;background:linear-gradient(135deg,rgba(56,189,248,0.15),rgba(109,40,217,0.15));border:1px solid rgba(0,180,216,0.2);display:flex;align-items:center;justify-content:center;font-size:48px;overflow:hidden">
+            {% if ad_listing.image_url %}<img src="{{ ad_listing.image_url }}" style="width:100%;height:100%;object-fit:cover;border-radius:16px" />{% else %}&#x1F4CB;{% endif %}
+          </div>
+          <div id="adTitle" style="font-size:22px;font-weight:800;color:#fff;max-width:400px">{{ ad_listing.title }}</div>
+          <div id="adDesc" style="font-size:14px;color:rgba(200,220,255,0.6);max-width:420px;line-height:1.6">{{ ad_listing.description[:200] }}</div>
+          <div id="adCategory" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#38bdf8;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);padding:4px 14px;border-radius:50px">{{ ad_listing.category }}</div>
+          <a id="adLink" href="{{ ad_listing.link_url }}" target="_blank" rel="noopener" style="font-size:14px;font-weight:700;color:#10b981;text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-top:4px">Visit &#x2192;</a>
+          {% endif %}
+        </div>
+
+        <div class="unmute-overlay {% if content_type == 'adboard' %}hidden{% endif %}" id="unmuteOverlay" onclick="unmuteVideo()">
           <span style="font-size:12px">&#x1F507;</span>
           <span class="unmute-text">Click to unmute</span>
         </div>
         <div class="pause-overlay" id="pauseOverlay">
           <div style="font-size:36px">&#x23F8;</div>
-          <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#fff">Video Paused</div>
+          <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#fff">Paused</div>
           <div style="font-size:13px;color:rgba(200,220,255,0.6)">Return to this tab to continue</div>
         </div>
       </div>
@@ -376,8 +392,10 @@ a{text-decoration:none;color:inherit}
 
 <script>
 (function() {
-  var DURATION    = {{ watch_duration }};
+  var CONTENT_TYPE = '{{ content_type }}';
+  var DURATION    = CONTENT_TYPE === 'adboard' ? {{ ad_duration if ad_duration is defined else 15 }} : {{ watch_duration }};
   var CAMPAIGN_ID = {{ campaign.id if campaign else 0 }};
+  var AD_ID       = {{ ad_listing.id if ad_listing else 0 }};
   var QUOTA_MET   = {{ 'true' if quota.today_watched >= quota.daily_required else 'false' }};
   var DAILY_REQ   = {{ quota.daily_required }};
   if (QUOTA_MET || !CAMPAIGN_ID) return;
@@ -463,11 +481,19 @@ a{text-decoration:none;color:inherit}
     btnNext.textContent = 'Recording...';
     try {
       var form = new FormData();
-      form.append('campaign_id', CAMPAIGN_ID);
-      var res = await fetch('/api/record-watch', {method:'POST', body:form});
+      var endpoint;
+      if (CONTENT_TYPE === 'adboard') {
+        form.append('ad_id', AD_ID);
+        endpoint = '/api/record-ad-watch';
+      } else {
+        form.append('campaign_id', CAMPAIGN_ID);
+        endpoint = '/api/record-watch';
+      }
+      var res = await fetch(endpoint, {method:'POST', body:form});
       var data = await res.json();
       if (data.success) {
         if (data.quota_met) window.location.reload();
+        else if (data.next_content) loadNextContent(data.next_content, data.watched_today, data.required);
         else if (data.next_campaign) loadNextVideo(data.next_campaign, data.watched_today, data.required);
         else window.location.reload();
       } else {
@@ -476,6 +502,71 @@ a{text-decoration:none;color:inherit}
       }
     } catch(e) { btnNext.textContent = 'Error \u2014 try again'; btnNext.disabled = false; submitted = false; }
   };
+
+  function loadNextContent(c, wt, req) {
+    // Update progress ring and dots
+    var pct = Math.min(wt / req, 1);
+    if (progRingFill) progRingFill.style.strokeDashoffset = progCirc * (1 - pct);
+    if (progRingText) progRingText.textContent = wt;
+    if (watchedCount) watchedCount.innerHTML = wt + '<span style="font-size:14px;color:#94a3b8;font-weight:500"> / ' + req + '</span>';
+    for (var i = 0; i < req; i++) {
+      var d = document.getElementById('dot-' + i);
+      if (!d) continue;
+      if (i < wt) { d.className = 'qdot done'; d.textContent = '\u2713'; }
+      else if (i === wt) { d.className = 'qdot current'; d.textContent = i + 1; }
+    }
+
+    if (c.type === 'adboard') {
+      CONTENT_TYPE = 'adboard';
+      AD_ID = c.id;
+      CAMPAIGN_ID = 0;
+      DURATION = AD_DURATION;
+      // Show ad card, hide video
+      document.getElementById('videoFrame').style.display = 'none';
+      var adCard = document.getElementById('adDisplayCard');
+      adCard.style.display = 'flex';
+      adCard.innerHTML = '<div style="width:120px;height:120px;border-radius:16px;background:linear-gradient(135deg,rgba(56,189,248,0.15),rgba(109,40,217,0.15));border:1px solid rgba(0,180,216,0.2);display:flex;align-items:center;justify-content:center;font-size:48px;overflow:hidden">' +
+        (c.image_url ? '<img src="' + c.image_url + '" style="width:100%;height:100%;object-fit:cover;border-radius:16px" />' : '\uD83D\uDCCB') + '</div>' +
+        '<div style="font-size:22px;font-weight:800;color:#fff;max-width:400px">' + c.title + '</div>' +
+        '<div style="font-size:14px;color:rgba(200,220,255,0.6);max-width:420px;line-height:1.6">' + (c.description || '').substring(0, 200) + '</div>' +
+        '<div style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#38bdf8;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.2);padding:4px 14px;border-radius:50px">' + (c.category || 'General') + '</div>' +
+        '<a href="' + c.link_url + '" target="_blank" rel="noopener" style="font-size:14px;font-weight:700;color:#10b981;text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-top:4px">Visit \u2192</a>';
+      document.getElementById('campaignTitle').textContent = c.title;
+      document.getElementById('campaignMeta').textContent = 'Ad Board \u00B7 ' + (c.category || 'General');
+      document.getElementById('contentBadge').innerHTML = '\uD83D\uDCCB Sponsored';
+      var uo = document.getElementById('unmuteOverlay');
+      if (uo) uo.classList.add('hidden');
+    } else {
+      CONTENT_TYPE = 'video';
+      CAMPAIGN_ID = c.id;
+      AD_ID = 0;
+      DURATION = {{ watch_duration }};
+      // Show video, hide ad card
+      document.getElementById('adDisplayCard').style.display = 'none';
+      var frame = document.getElementById('videoFrame');
+      frame.style.display = '';
+      document.getElementById('campaignTitle').textContent = c.title;
+      document.getElementById('campaignMeta').textContent = c.platform.charAt(0).toUpperCase() + c.platform.slice(1) + ' \u00B7 General';
+      document.getElementById('contentBadge').innerHTML = '\u25B6 Now Playing';
+      var sep = c.embed_url.includes('?') ? '&' : '?';
+      frame.src = c.embed_url + sep + 'autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&enablejsapi=1';
+      var uo = document.getElementById('unmuteOverlay');
+      if (uo) uo.classList.remove('hidden');
+    }
+
+    // Reset timer
+    secondsLeft = DURATION; timerDone = false; submitted = false; isPaused = false;
+    circumference = 2 * Math.PI * 21;
+    timerArc.style.strokeDashoffset = circumference;
+    timerNum.textContent = DURATION;
+    watchStatus.textContent = '\u23F1 Watching \u2014 timer counting down';
+    watchStatus.className = 'watch-status counting';
+    btnNext.classList.remove('ready');
+    btnNext.textContent = '\u2713 Mark as Watched \u2192';
+    btnNext.disabled = false;
+    if (pauseOvl) pauseOvl.classList.remove('visible');
+    startTimer();
+  }
 
   function loadNextVideo(c, wt, req) {
     // Update progress ring

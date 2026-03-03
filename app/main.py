@@ -1745,6 +1745,54 @@ def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
     return quota
 
 
+def get_next_content(db: Session, user_id: int) -> dict:
+    """
+    Returns the next content item for Watch to Earn — either a video campaign or ad board listing.
+    Ad board listings are interleaved every 3rd-4th slot as timed display cards.
+    Returns dict with 'type' ('video'|'adboard'), 'data' (campaign or listing), or None.
+    """
+    from datetime import date
+    today_str = str(date.today())
+
+    # Count watches today to decide if this slot should be an ad listing
+    quota = db.query(WatchQuota).filter(WatchQuota.user_id == user_id).first()
+    watched_today = quota.today_watched if quota else 0
+
+    # Every 3rd slot (positions 2, 5, 8...) show an ad board listing
+    show_ad = (watched_today % 3 == 2)
+
+    if show_ad:
+        # Get an active ad listing not owned by user, prefer featured/boosted
+        ad = db.query(AdListing).filter(
+            AdListing.is_active == True,
+            AdListing.user_id != user_id,
+        ).order_by(
+            AdListing.is_featured.desc(),  # boosted first
+            AdListing.views.asc(),         # least viewed first
+        ).first()
+
+        if ad:
+            return {
+                "type": "adboard",
+                "data": ad,
+            }
+
+    # Default: return a video campaign
+    campaign = get_next_campaign(db, user_id)
+    if campaign:
+        return {"type": "video", "data": campaign}
+
+    # Fallback: try an ad listing anyway
+    ad = db.query(AdListing).filter(
+        AdListing.is_active == True,
+        AdListing.user_id != user_id,
+    ).order_by(AdListing.views.asc()).first()
+    if ad:
+        return {"type": "adboard", "data": ad}
+
+    return None
+
+
 def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
     """
     Smart campaign selection algorithm:
@@ -1859,7 +1907,10 @@ def watch_page(request: Request, user: User = Depends(get_current_user), db: Ses
         return RedirectResponse(url="/income-grid?need_grid=1")
 
     quota    = get_or_create_quota(db, user)
-    campaign = get_next_campaign(db, user.id)
+    content  = get_next_content(db, user.id)
+    campaign = content["data"] if content and content["type"] == "video" else None
+    ad_listing = content["data"] if content and content["type"] == "adboard" else None
+    content_type = content["type"] if content else "none"
     db.commit()
 
     # Admin/owner bypass — always commission-eligible, can always view the player
@@ -1880,7 +1931,10 @@ def watch_page(request: Request, user: User = Depends(get_current_user), db: Ses
         "user":           user,
         "quota":          quota,
         "campaign":       campaign,
+        "ad_listing":     ad_listing,
+        "content_type":   content_type,
         "watch_duration": WATCH_DURATION,
+        "ad_duration":    15,  # seconds for ad board display cards
         "warning":        warning,
         "grace_days":     GRACE_DAYS,
         "balance":        round(float(user.balance or 0), 2),
@@ -1937,24 +1991,122 @@ def record_watch(
 
     db.commit()
 
-    # Get next campaign
-    next_campaign = get_next_campaign(db, user.id)
-    quota_met     = quota.today_watched >= quota.daily_required
+    # Get next content (could be video or ad board listing)
+    next_content = get_next_content(db, user.id)
+    quota_met    = quota.today_watched >= quota.daily_required
+
+    next_data = None
+    if next_content and not quota_met:
+        if next_content["type"] == "video":
+            c = next_content["data"]
+            next_data = {"type": "video", "id": c.id, "title": c.title, "embed_url": c.embed_url, "platform": c.platform}
+        elif next_content["type"] == "adboard":
+            a = next_content["data"]
+            next_data = {"type": "adboard", "id": a.id, "title": a.title, "description": a.description,
+                        "image_url": a.image_url or "", "link_url": a.link_url, "category": a.category}
 
     return {
         "success":       True,
         "watched_today": quota.today_watched,
         "required":      quota.daily_required,
         "quota_met":     quota_met,
-        "next_campaign": {
-            "id":        next_campaign.id,
-            "title":     next_campaign.title,
-            "embed_url": next_campaign.embed_url,
-            "platform":  next_campaign.platform,
-        } if next_campaign and not quota_met else None,
+        "next_content":  next_data,
+        "next_campaign": next_data if next_data and next_data.get("type") == "video" else None,
+    }
+
+
+@app.post("/api/record-ad-watch")
+def record_ad_watch(
+    request:   Request,
+    ad_id:     int = Form(),
+    db:        Session = Depends(get_db),
+    user:      User = Depends(get_current_user)
+):
+    """Called after ad board display card timer completes. Records the view."""
+    from datetime import date
+    if not user or not user.is_active:
+        return {"success": False, "error": "Not authorised"}
+
+    today_str = str(date.today())
+    quota = get_or_create_quota(db, user)
+    ad = db.query(AdListing).filter(AdListing.id == ad_id, AdListing.is_active == True).first()
+
+    if not ad:
+        return {"success": False, "error": "Ad listing not found"}
+
+    if quota.today_watched >= quota.daily_required:
+        return {"success": False, "error": "Daily quota already completed", "quota_met": True}
+
+    # Record as a watch (counts towards quota)
+    watch = VideoWatch(
+        user_id       = user.id,
+        campaign_id   = 0,  # 0 = ad board view (not a video campaign)
+        watch_date    = today_str,
+        duration_secs = 15,
+    )
+    db.add(watch)
+
+    # Update quota counter
+    quota.today_watched += 1
+    if quota.today_watched >= quota.daily_required:
+        quota.last_quota_met     = today_str
+        quota.consecutive_missed = 0
+        quota.commissions_paused = False
+
+    # Increment ad listing views
+    ad.views = (ad.views or 0) + 1
+    db.commit()
+
+    # Get next content
+    next_content = get_next_content(db, user.id)
+    quota_met = quota.today_watched >= quota.daily_required
+
+    next_data = None
+    if next_content and not quota_met:
+        if next_content["type"] == "video":
+            c = next_content["data"]
+            next_data = {"type": "video", "id": c.id, "title": c.title, "embed_url": c.embed_url, "platform": c.platform}
+        elif next_content["type"] == "adboard":
+            a = next_content["data"]
+            next_data = {"type": "adboard", "id": a.id, "title": a.title, "description": a.description,
+                        "image_url": a.image_url or "", "link_url": a.link_url, "category": a.category}
+
+    return {
+        "success":       True,
+        "watched_today": quota.today_watched,
+        "required":      quota.daily_required,
+        "quota_met":     quota_met,
+        "next_content":  next_data,
     }
 
 # ═══════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════
+#  PUBLIC VIDEO LIBRARY — SEO-friendly, no login required
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/videos")
+def public_videos(request: Request, category: str = "", db: Session = Depends(get_db)):
+    """Public-facing video library. Browsable by anyone, SEO-indexed.
+    Members earn by watching inside /watch — this is bonus exposure for advertisers."""
+    campaigns = db.query(VideoCampaign).filter(
+        VideoCampaign.status == "active"
+    ).order_by(VideoCampaign.priority_level.desc(), VideoCampaign.created_at.desc()).all()
+
+    # Get unique categories for filter
+    categories = sorted(set(c.category for c in campaigns if c.category))
+
+    if category:
+        campaigns = [c for c in campaigns if (c.category or "").lower() == category.lower()]
+
+    return templates.TemplateResponse("public-videos.html", {
+        "request": request,
+        "campaigns": campaigns,
+        "categories": categories,
+        "selected_category": category,
+        "total": len(campaigns),
+    })
+
+
 #  SOCIAL PROOF API — recent joiners notification feed
 # ═══════════════════════════════════════════════════════════════
 

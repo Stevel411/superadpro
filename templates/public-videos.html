@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Video Library — SuperAdPro</title>
+<meta name="description" content="Browse video content from SuperAdPro advertisers. Watch campaigns from creators and businesses worldwide.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#050d1a;color:#e8f0fe;min-height:100vh}
+nav{background:rgba(2,8,24,0.95);border-bottom:1px solid rgba(0,180,216,0.1);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-brand span{font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff}
+.nav-brand .accent{color:#38bdf8}
+.nav-links{display:flex;align-items:center;gap:6px}
+.nav-links a{font-size:14px;font-weight:500;color:rgba(200,220,255,0.7);text-decoration:none;padding:6px 12px;border-radius:6px;transition:all 0.2s}
+.nav-links a:hover{color:#fff;background:rgba(255,255,255,0.05)}
+.nav-links a.active{color:#38bdf8;background:rgba(56,189,248,0.08)}
+.nav-cta{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:8px 20px;border-radius:8px;text-decoration:none;transition:all 0.2s}
+.nav-cta:hover{box-shadow:0 4px 16px rgba(56,189,248,0.3)}
+
+.hero{text-align:center;padding:60px 40px 40px}
+.hero h1{font-family:Sora,sans-serif;font-size:clamp(28px,4vw,42px);font-weight:800;color:#fff;margin-bottom:10px}
+.hero h1 .grad{background:linear-gradient(135deg,#38bdf8,#0284c7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:16px;color:rgba(200,220,255,0.5);max-width:560px;margin:0 auto;line-height:1.7}
+
+.filters{display:flex;align-items:center;justify-content:center;gap:8px;padding:0 40px 40px;flex-wrap:wrap}
+.filter-btn{font-size:13px;font-weight:600;color:rgba(200,220,255,0.6);background:rgba(255,255,255,0.04);border:1px solid rgba(0,180,216,0.12);padding:6px 16px;border-radius:50px;text-decoration:none;transition:all 0.2s;cursor:pointer}
+.filter-btn:hover{color:#fff;border-color:rgba(0,180,216,0.3);background:rgba(0,180,216,0.06)}
+.filter-btn.active{color:#38bdf8;border-color:#38bdf8;background:rgba(56,189,248,0.08)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;padding:0 40px 80px;max-width:1200px;margin:0 auto}
+.card{background:rgba(10,26,40,0.6);border:1px solid rgba(0,180,216,0.1);border-radius:14px;overflow:hidden;transition:all 0.3s}
+.card:hover{border-color:rgba(0,180,216,0.25);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.card-video{position:relative;aspect-ratio:16/9;background:#000}
+.card-video iframe{width:100%;height:100%;border:none}
+.card-body{padding:16px}
+.card-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.4}
+.card-meta{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(200,220,255,0.4)}
+.card-cat{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#38bdf8;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.15);padding:3px 10px;border-radius:50px}
+.card-views{display:flex;align-items:center;gap:4px;font-size:12px;color:rgba(200,220,255,0.35)}
+.boosted{position:absolute;top:10px;left:10px;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#f59e0b,#ef4444);padding:4px 10px;border-radius:50px;box-shadow:0 2px 8px rgba(245,158,11,0.4)}
+
+.empty{text-align:center;padding:80px 40px}
+.empty-icon{font-size:48px;margin-bottom:16px}
+.empty-title{font-size:20px;font-weight:700;color:rgba(200,220,255,0.6);margin-bottom:8px}
+.empty-sub{font-size:14px;color:rgba(200,220,255,0.35)}
+
+.cta-band{text-align:center;padding:60px 40px;border-top:1px solid rgba(0,180,216,0.08)}
+.cta-band h2{font-family:Sora,sans-serif;font-size:24px;font-weight:800;color:#fff;margin-bottom:8px}
+.cta-band p{font-size:14px;color:rgba(200,220,255,0.5);margin-bottom:24px}
+.cta-btn{display:inline-block;font-size:15px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:14px 32px;border-radius:10px;text-decoration:none}
+
+.footer{text-align:center;padding:32px;border-top:1px solid rgba(0,180,216,0.08);font-size:13px;color:rgba(200,220,255,0.25)}
+.footer a{color:rgba(0,180,216,0.5);text-decoration:none}
+
+@media(max-width:768px){
+  nav{padding:0 16px;height:56px}
+  .nav-links{display:none}
+  .hero{padding:40px 16px 24px}
+  .filters{padding:0 16px 24px}
+  .grid{grid-template-columns:1fr;padding:0 16px 60px;gap:16px}
+  .cta-band{padding:40px 16px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="/">
+    <svg width="32" height="32" viewBox="0 0 44 44"><defs><linearGradient id="lg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs><circle cx="22" cy="22" r="20" fill="url(#lg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></svg>
+    <span>Super<span class="accent">Ad</span>Pro</span>
+  </a>
+  <div class="nav-links">
+    <a href="/how-it-works">How It Works</a>
+    <a href="/for-advertisers">Advertisers</a>
+    <a href="/ads">Ad Board</a>
+    <a href="/videos" class="active">Videos</a>
+    <a href="/affiliates">Affiliates</a>
+    <a href="/faq">FAQ</a>
+  </div>
+  <a class="nav-cta" href="/?login=1">Join Free</a>
+</nav>
+
+<div class="hero">
+  <h1>Browse the <span class="grad">Video Library</span></h1>
+  <p>Watch content from advertisers and creators on SuperAdPro. Members earn crypto rewards for every video watched inside the platform.</p>
+</div>
+
+<!-- Category Filters -->
+<div class="filters">
+  <a class="filter-btn {% if not selected_category %}active{% endif %}" href="/videos">All ({{ total }})</a>
+  {% for cat in categories %}
+  <a class="filter-btn {% if selected_category == cat %}active{% endif %}" href="/videos?category={{ cat }}">{{ cat|title }}</a>
+  {% endfor %}
+</div>
+
+{% if campaigns %}
+<div class="grid">
+  {% for c in campaigns %}
+  <div class="card">
+    <div class="card-video">
+      {% if c.priority_level and c.priority_level > 0 %}
+      <div class="boosted">&#x1F525; Boosted</div>
+      {% endif %}
+      <iframe src="{{ c.embed_url }}" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+    </div>
+    <div class="card-body">
+      <div class="card-title">{{ c.title }}</div>
+      <div class="card-meta">
+        <span class="card-cat">{{ c.category or 'General' }}</span>
+        <span>{{ c.platform|title }}</span>
+        <span class="card-views">&#x25B6; {{ c.views_delivered or 0 }} views</span>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty">
+  <div class="empty-icon">&#x1F3AC;</div>
+  <div class="empty-title">No videos yet</div>
+  <div class="empty-sub">Check back soon — advertisers are uploading content daily.</div>
+</div>
+{% endif %}
+
+<div class="cta-band">
+  <h2>Want to earn while you watch?</h2>
+  <p>SuperAdPro members earn USDC for every video they watch inside the platform. Join for just $20/month.</p>
+  <a class="cta-btn" href="/?login=1">Get Started &#x2192;</a>
+</div>
+
+<div class="footer">
+  SuperAdPro &middot; Video Advertising &amp; Affiliate Platform &middot; <a href="/">superadpro.com</a>
+</div>
+
+</body>
+</html>
