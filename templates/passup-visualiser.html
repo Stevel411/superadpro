@@ -6,11 +6,12 @@
 <title>Pass-Up Visualiser - SuperAdPro</title>
 <link rel="manifest" href="/static/manifest.json">
 <meta name="theme-color" content="#0a0a1a">
-<meta name="apple-mobile-web-app-capable" content="yes">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
-/* Dashboard Shell */
 *{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:#0f172a}
+
+/* Dashboard shell - identical to grid viz */
 .layout{display:flex;min-height:100vh}
 .sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
@@ -24,114 +25,107 @@
 .user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
 .topbar{position:sticky;top:0;z-index:50;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 24px;height:56px;display:flex;align-items:center}
-.container{padding:12px 20px 40px;background:#f0f2f5}
+.container{padding:12px 24px 40px}
 @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.topbar{display:none}}
 
-/* Visualiser */
-:root{--cyan:#38bdf8;--cyan2:#0ea5e9;--green:#10b981;--gold:#f59e0b;--border:#e2e8f0}
-body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:#0f172a}
-.tier-bar{display:flex;gap:4px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:6px 12px;margin-bottom:clamp(10px,1vw,16px)}
-.tier-btn{padding:clamp(5px,0.5vw,8px) clamp(10px,1vw,16px);border-radius:8px;border:none;background:transparent;color:#94a3b8;font-family:inherit;font-size:clamp(11px,0.85vw,13px);font-weight:700;cursor:pointer;transition:all 0.2s}
-.tier-btn:hover{color:#0ea5e9}
+/* Tier bar */
+.tier-bar{display:flex;gap:4px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:6px 12px;margin-bottom:14px;max-width:400px}
+.tier-btn{padding:6px 14px;border-radius:8px;border:none;background:transparent;color:#94a3b8;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.tier-btn:hover{color:#0ea5e9;background:rgba(14,165,233,0.05)}
 .tier-btn.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;box-shadow:0 4px 14px rgba(14,165,233,0.3)}
-.viz-layout{display:grid;grid-template-columns:1fr clamp(280px,25vw,340px);gap:clamp(10px,1vw,16px);max-width:1100px}
+
+/* 2-col layout - identical to grid viz */
+.viz-layout{display:grid;grid-template-columns:1fr 320px;gap:14px;max-width:1200px}
 @media(max-width:900px){.viz-layout{grid-template-columns:1fr}}
-.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:clamp(12px,1.2vw,18px)}
-.card-eye{font-size:clamp(8px,0.7vw,10px);font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:4px}
-.card-ttl{font-size:clamp(12px,1.1vw,15px);font-weight:800;color:#0f172a;margin-bottom:10px}
+
+/* Cards */
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px}
+.card-eye{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#38bdf8;margin-bottom:4px}
+.card-ttl{font-size:14px;font-weight:800;color:#0f172a;margin-bottom:10px}
 
 /* Controls */
 .ctrls{display:flex;gap:8px;align-items:center;margin-bottom:10px}
-.btn{padding:clamp(6px,0.6vw,10px) clamp(12px,1.2vw,20px);border-radius:6px;border:none;font-family:inherit;font-size:clamp(11px,0.9vw,13px);font-weight:700;cursor:pointer;transition:all 0.2s}
+.btn{padding:7px 16px;border-radius:6px;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s}
 .btn-play{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff}
+.btn-play:hover{box-shadow:0 4px 16px rgba(14,165,233,0.3);transform:translateY(-1px)}
 .btn-rst{background:#f8fafc;color:#64748b;border:1px solid #e2e8f0}
+.btn-rst:hover{background:#f1f5f9;color:#0f172a}
 .spd{display:flex;align-items:center;gap:6px;margin-left:auto;font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px}
-input[type=range]{width:60px;accent-color:var(--cyan);cursor:pointer}
+input[type=range]{width:60px;accent-color:#0ea5e9;cursor:pointer}
 
-/* Tree */
-.tree-viewport{border:1px solid var(--border);border-radius:10px;padding:clamp(8px,1vw,14px);margin-bottom:10px;background:#fafbfc;overflow:hidden;flex:1;min-height:300px}
-.tree-canvas{position:relative;height:100%;min-height:inherit}
+/* Tree viewport - fills available space */
+.tree-viewport{border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-bottom:10px;background:#fafbfc;overflow:hidden;min-height:300px}
+.tree-canvas{position:relative;min-height:300px}
 .tree-rows{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:20px;padding:12px 0}
+.tree-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+#treeSvg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+/* Nodes */
 .nd{width:46px;height:34px;border-radius:6px;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;position:relative;transition:all 0.3s;border:1.5px solid rgba(14,165,233,0.2);background:#f0f9ff}
 .nd .nm{font-size:8px;line-height:1.2}
 .nd .sc{font-size:6px;color:#94a3b8}
-.nd.root{background:linear-gradient(135deg,#0ea5e9,#0284c7);border:2px solid var(--cyan);color:#fff;width:54px;height:42px}
+.nd.root{background:linear-gradient(135deg,#0ea5e9,#0284c7);border:2px solid #38bdf8;color:#fff;width:54px;height:42px}
 .nd.root .nm{font-size:10px;color:#fff}
 .nd.root .sc{color:rgba(255,255,255,0.7)}
 .nd.sponsor{background:linear-gradient(135deg,#6366f1,#4f46e5);border:2px solid #818cf8;color:#fff;width:52px;height:40px}
 .nd.sponsor .nm{font-size:9px;color:#fff}
 .nd.sponsor .sc{color:rgba(255,255,255,0.7)}
-.nd.kept{background:rgba(16,185,129,0.12)!important;border-color:var(--green)!important}
-.nd.passup{background:rgba(245,158,11,0.1)!important;border-color:var(--gold)!important}
+.nd.kept{background:rgba(16,185,129,0.12)!important;border-color:#10b981!important}
+.nd.passup{background:rgba(245,158,11,0.1)!important;border-color:#f59e0b!important}
 .nd.pop{animation:ndPop 0.4s ease}
 @keyframes ndPop{0%{transform:scale(0.3);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1)}}
-.tree-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-#treeSvg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
 
 /* Legend */
-.legend{display:flex;gap:clamp(6px,0.8vw,12px);flex-wrap:wrap;margin-bottom:8px}
-.lg-i{display:flex;align-items:center;gap:4px;font-size:clamp(9px,0.75vw,11px);color:#64748b}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.lg-i{display:flex;align-items:center;gap:4px;font-size:10px;color:#64748b}
 .lg-s{width:10px;height:10px;border-radius:3px;flex-shrink:0}
 
-/* Calculator */
-.calc-panel{background:#fff;border:1px solid var(--border);border-radius:12px;padding:clamp(10px,1vw,14px)}
+/* Calculator - compact for right column */
+.calc-panel{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px}
 .calc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
-.calc-label{font-size:clamp(10px,0.85vw,12px);font-weight:700;color:#0f172a}
-.calc-sub{font-size:clamp(8px,0.7vw,10px);color:#94a3b8;margin-top:2px}
-.calc-big{font-size:clamp(16px,1.5vw,22px);font-weight:800;line-height:1}
-.calc-cap{font-size:clamp(8px,0.65vw,10px);color:#94a3b8}
-.calc-slider{width:100%;accent-color:var(--green)}
-.calc-range{display:flex;justify-content:space-between;font-size:clamp(7px,0.6vw,9px);color:#94a3b8;margin-top:2px}
-.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(4px,0.5vw,8px);margin-top:8px}
-.calc-stat{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:clamp(6px,0.6vw,10px);text-align:center}
-.calc-stat-val{font-size:clamp(12px,1.1vw,15px);font-weight:800;margin-bottom:1px}
-.calc-stat-lbl{font-size:clamp(7px,0.55vw,9px);color:#64748b}
+.calc-label{font-size:11px;font-weight:700;color:#0f172a}
+.calc-big{font-size:18px;font-weight:800;line-height:1}
+.calc-slider{width:100%;accent-color:#10b981}
+.calc-range{display:flex;justify-content:space-between;font-size:8px;color:#94a3b8;margin-top:2px}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.calc-stat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px;text-align:center}
+.calc-stat-val{font-size:13px;font-weight:800;margin-bottom:1px}
+.calc-stat-lbl{font-size:8px;color:#64748b}
 
-/* How it works strip */
-.how-strip{display:grid;grid-template-columns:1fr 1fr;gap:clamp(4px,0.5vw,8px);margin-top:0}
-.how-s{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:clamp(6px,0.7vw,10px);text-align:center}
-.hn{width:clamp(18px,1.6vw,24px);height:clamp(18px,1.6vw,24px);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:clamp(9px,0.8vw,11px);font-weight:800;margin:0 auto 3px}
-.ht{font-size:clamp(8px,0.7vw,10px);font-weight:700;color:#0f172a;margin-bottom:1px}
-.hd{font-size:clamp(7px,0.6vw,9px);color:#64748b;line-height:1.3}
+/* How it works - 2x2 for right column */
+.how-strip{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.how-s{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px;text-align:center}
+.hn{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;margin:0 auto 3px}
+.ht{font-size:9px;font-weight:700;color:#0f172a;margin-bottom:1px}
+.hd{font-size:8px;color:#64748b;line-height:1.3}
 
-/* Right column */
-.right-col{display:flex;flex-direction:column;gap:clamp(8px,0.8vw,12px)}
-.eye{font-size:clamp(8px,0.7vw,10px);font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:6px}
-.e-row{display:flex;justify-content:space-between;align-items:center;padding:clamp(4px,0.5vw,7px) 0;border-bottom:1px solid #f1f5f9}
-.e-row:last-child{border-bottom:none}
+/* Right column - identical structure to grid viz */
+.right-col{display:flex;flex-direction:column;gap:10px}
+.tot-card{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);border-radius:12px;padding:16px;text-align:center;color:#fff}
+.tot-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:2px}
+.tot-amt{font-size:28px;font-weight:800;color:#fff;-webkit-text-fill-color:#fff}
+.tot-sub{font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px}
+.eye{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#38bdf8;margin-bottom:8px}
+.e-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f1f5f9}
+.e-row:last-child{border-bottom:none;padding-bottom:0}
 .e-left{display:flex;align-items:center;gap:8px}
 .e-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.e-lbl{font-size:clamp(10px,0.85vw,12px);font-weight:600;color:#334155}
-.e-sub{font-size:clamp(9px,0.7vw,11px);color:#94a3b8;margin-top:1px}
-.e-amt{font-size:clamp(12px,1.1vw,15px);font-weight:700}
-.tot-card{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);border-radius:12px;padding:clamp(12px,1.2vw,18px);text-align:center;color:#fff}
-.tot-lbl{font-size:clamp(8px,0.65vw,10px);font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:2px}
-.tot-amt{font-size:clamp(22px,2.2vw,32px);font-weight:800;color:#fff;-webkit-text-fill-color:#fff}
-.tot-sub{font-size:clamp(9px,0.7vw,11px);color:rgba(255,255,255,0.5);margin-top:2px}
-
-/* Stat grid */
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(6px,0.6vw,10px)}
-.mini-stat{background:#fff;border:1px solid var(--border);border-radius:10px;padding:clamp(8px,0.8vw,12px)}
-.mini-stat-label{font-size:clamp(8px,0.65vw,10px);font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-.mini-stat-val{font-size:clamp(14px,1.3vw,18px);font-weight:800}
-
-/* Split bar */
-.sp-bar{display:flex;height:6px;border-radius:3px;overflow:hidden;gap:2px;margin:8px 0}
+.e-lbl{font-size:11px;font-weight:600;color:#334155}
+.e-sub{font-size:10px;color:#94a3b8;margin-top:1px}
+.e-amt{font-size:14px;font-weight:700}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mini-stat{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px}
+.mini-stat-label{font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.mini-stat-val{font-size:16px;font-weight:800}
+.sp-bar{display:flex;height:6px;border-radius:3px;overflow:hidden;gap:2px;margin:6px 0 8px}
 .sp-seg{border-radius:2px}
-.sp-leg{display:flex;justify-content:space-between;font-size:clamp(9px,0.8vw,11px)}
+.sp-leg{display:flex;justify-content:space-between;font-size:11px}
 .sp-i{display:flex;align-items:center;gap:4px;color:#64748b}
 .sp-sw{width:6px;height:6px;border-radius:2px;flex-shrink:0}
 .sp-v{font-weight:700;margin-left:4px}
 
-/* Info rows */
-.i-ttl{font-size:11px;font-weight:700;color:#0f172a;margin-bottom:8px}
-.i-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9;font-size:11px}
-.i-row:last-child{border-bottom:none}
-.i-k{color:#64748b}
-.i-v{font-weight:700}
-
 /* Log */
-.log-ls{display:flex;flex-direction:column;max-height:200px;overflow-y:auto}
+.log-ls{display:flex;flex-direction:column;max-height:120px;overflow-y:auto}
 .log-it{display:flex;align-items:center;font-size:11px;color:#64748b;animation:sIn 0.2s ease;padding:4px 0;border-bottom:1px solid #f1f5f9}
 .log-it:last-child{border-bottom:none}
 @keyframes sIn{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
@@ -140,85 +134,109 @@ input[type=range]{width:60px;accent-color:var(--cyan);cursor:pointer}
 .log-s{color:#94a3b8;font-size:10px}
 .log-t{font-size:8px;padding:2px 5px;border-radius:3px;font-weight:700}
 .log-t.kept{color:#10b981;border:1px solid rgba(16,185,129,.25);background:rgba(16,185,129,.06)}
-.log-t.passup{color:var(--gold);border:1px solid rgba(245,158,11,.25);background:rgba(245,158,11,.06)}
+.log-t.passup{color:#f59e0b;border:1px solid rgba(245,158,11,.25);background:rgba(245,158,11,.06)}
 .log-a{font-weight:700;font-size:11px;margin-left:auto}
 
-/* Mobile */
-.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:#0a0a1a;border-top:1px solid rgba(56,189,248,0.1);padding:6px 0}
+/* Mobile nav */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:#0a0a1a;border-top:1px solid rgba(56,189,248,0.1);padding:6px 0 env(safe-area-inset-bottom,0)}
 .mob-nav-in{display:flex;justify-content:space-around}
-.mob-i{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:#4a5a6e;font-size:10px;font-weight:600;padding:4px 8px}
+.mob-i{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:#4a5a6e;font-size:10px;font-weight:600;padding:4px 8px;transition:color 0.2s}
 .mob-i.on{color:#38bdf8}
 @media(max-width:768px){.mob-nav{display:block}body{padding-bottom:72px}.viz-layout{grid-template-columns:1fr}}
-
-.mobile-topbar{display:none}
-@media(max-width:768px){.mobile-topbar{display:flex;align-items:center;padding:10px 16px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12)}}
-.mobile-topbar-left{display:flex;align-items:center;gap:10px;text-decoration:none}
-.mobile-topbar-name{font-size:14px;font-weight:800;color:#fff}
-.mobile-topbar-page{font-size:10px;color:#6b7d94}
 </style>
 </head>
 <body>
 <div class="layout">
-<div class="mobile-topbar"><a class="mobile-topbar-left" href="/dashboard"><svg width="26" height="26" viewBox="0 0 100 100"><defs><linearGradient id="mhg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs><circle cx="22" cy="22" r="20" fill="url(#mhg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></svg><div><div class="mobile-topbar-name">SuperAdPro</div><div class="mobile-topbar-page">Pass-Up Visualiser</div></div></a></div>
-<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="logo-grad-pg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient><symbol id="shield" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#logo-grad-pg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></symbol></defs></svg>
 {% include "_sidebar.html" %}
 <div class="main">
-<div class="topbar"><div><div style="font-size:16px;font-weight:800;color:#fff">&#x1F503; Pass-Up Visualiser</div><div style="font-size:11px;color:#6b7d94;margin-top:1px">See how the infinite pass-up cycle drives commissions</div></div></div>
+<div class="topbar"><div><div style="font-size:16px;font-weight:800;color:#fff">&#x1F3D3; Pass-Up Visualiser</div><div style="font-size:11px;color:#6b7d94;margin-top:1px">See how the infinite pass-up cycle drives commissions</div></div></div>
 <div class="container">
+
+<!-- Tier bar -->
 <div class="tier-bar">
   <button class="tier-btn active" data-price="100" onclick="selTier(this)">$100 Starter</button>
   <button class="tier-btn" data-price="300" onclick="selTier(this)">$300 Advanced</button>
   <button class="tier-btn" data-price="500" onclick="selTier(this)">$500 Elite</button>
 </div>
+
+<!-- 2-col layout -->
 <div class="viz-layout">
-<div style="display:flex;flex-direction:column;gap:12px">
-  <div class="card" style="display:flex;flex-direction:column;flex:1">
-    <div class="card-eye">Stream 03 &#x2014; Course Pass-Up</div>
-    <div class="card-ttl" id="panelTtl">INFINITE PASS-UP &#x2014; $100 STARTER</div>
-    <div class="ctrls"><button class="btn btn-play" id="playBtn" onclick="togglePlay()">&#x25B6; PLAY</button><button class="btn btn-rst" onclick="resetSim()">&#x21BA; RESET</button><div class="spd"><span>Speed</span><input type="range" min="1" max="5" value="3" id="spdSlider"></div></div>
-    <div class="tree-viewport"><div class="tree-canvas" id="treeCanvas"><svg id="treeSvg" width="100%" height="100%"></svg><div class="tree-rows" id="treeRows"></div></div></div>
-    <div class="legend">
-      <div class="lg-i"><div class="lg-s" style="background:linear-gradient(135deg,#6366f1,#4f46e5);border:2px solid #818cf8"></div>Your Sponsor</div>
-      <div class="lg-i"><div class="lg-s" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);border:2px solid var(--cyan)"></div>You</div>
-      <div class="lg-i"><div class="lg-s" style="background:#f0f9ff;border:1.5px solid rgba(14,165,233,.3)"></div>Active Member</div>
-      <div class="lg-i"><div class="lg-s" style="background:rgba(16,185,129,.12);border:1.5px solid var(--green)"></div>Keeps Commission</div>
-      <div class="lg-i"><div class="lg-s" style="background:rgba(245,158,11,.1);border:1.5px solid var(--gold)"></div>Pass-Up to Sponsor</div>
+  <!-- LEFT: Tree + Legend -->
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div class="card" style="display:flex;flex-direction:column;flex:1">
+      <div class="card-eye">Stream 03 &#x2014; Course Pass-Up</div>
+      <div class="card-ttl" id="panelTtl">INFINITE PASS-UP &#x2014; $100 STARTER</div>
+      <div class="ctrls">
+        <button class="btn btn-play" id="playBtn" onclick="togglePlay()">&#x25B6; PLAY</button>
+        <button class="btn btn-rst" onclick="resetSim()">&#x21BA; RESET</button>
+        <div class="spd"><span>Speed</span><input type="range" min="1" max="5" value="3" id="spdSlider"></div>
+      </div>
+      <div class="tree-viewport" style="flex:1">
+        <div class="tree-canvas" id="treeCanvas">
+          <svg id="treeSvg" width="100%" height="100%"></svg>
+          <div class="tree-rows" id="treeRows"></div>
+        </div>
+      </div>
+      <div class="legend">
+        <div class="lg-i"><div class="lg-s" style="background:linear-gradient(135deg,#6366f1,#4f46e5);border:2px solid #818cf8"></div>Your Sponsor</div>
+        <div class="lg-i"><div class="lg-s" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);border:2px solid #38bdf8"></div>You</div>
+        <div class="lg-i"><div class="lg-s" style="background:#f0f9ff;border:1.5px solid rgba(14,165,233,.3)"></div>Active Member</div>
+        <div class="lg-i"><div class="lg-s" style="background:rgba(16,185,129,.12);border:1.5px solid #10b981"></div>Keeps Commission</div>
+        <div class="lg-i"><div class="lg-s" style="background:rgba(245,158,11,.1);border:1.5px solid #f59e0b"></div>Pass-Up to Sponsor</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Stats + Calculator -->
+  <div class="right-col">
+    <!-- Total hero -->
+    <div class="tot-card"><div class="tot-lbl">Your Total This Round</div><div class="tot-amt" id="totalAmt">$0</div><div class="tot-sub"><span id="kc">0</span> kept &#xB7; <span id="pc">0</span> pass-ups</div></div>
+
+    <!-- Earnings tracker -->
+    <div class="card"><div class="eye">Live Earnings Tracker</div><div class="e-row"><div class="e-left"><div class="e-dot" style="background:#10b981"></div><div><div class="e-lbl">Direct Sales Kept</div><div class="e-sub">Your sales 1, 3, 5, 7+</div></div></div><div class="e-amt" id="keptAmt" style="color:#10b981">$0</div></div><div class="e-row"><div class="e-left"><div class="e-dot" style="background:#f59e0b"></div><div><div class="e-lbl">Pass-Ups Received</div><div class="e-sub">Team's 2nd, 4th, 6th</div></div></div><div class="e-amt" id="passupAmt" style="color:#f59e0b">$0</div></div></div>
+
+    <!-- 2x2 stats -->
+    <div class="stat-grid"><div class="mini-stat"><div class="mini-stat-label">&#x1F3AF; Direct Sales</div><div class="mini-stat-val" id="iDirect" style="color:#10b981">0</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F4E8; Pass-Ups</div><div class="mini-stat-val" id="iPassups" style="color:#f59e0b">0</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F465; Team Sales</div><div class="mini-stat-val" id="iTotal" style="color:#0ea5e9">0</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F4CA; Active Tier</div><div class="mini-stat-val" id="iTier" style="color:#0ea5e9">$100</div></div></div>
+
+    <!-- Split bar -->
+    <div class="card"><div class="eye">Per Sale &#x2014; $<span id="spPrice">100</span></div><div class="sp-bar"><div class="sp-seg" style="flex:4;background:#10b981"></div><div class="sp-seg" style="flex:3;background:#f59e0b"></div></div><div class="sp-leg"><div class="sp-i"><div class="sp-sw" style="background:#10b981"></div>Keep (1,3,5,7+)<span class="sp-v" id="spK" style="color:#10b981">$100</span></div><div class="sp-i"><div class="sp-sw" style="background:#f59e0b"></div>Pass up (2,4,6)<span class="sp-v" id="spP" style="color:#f59e0b">$100</span></div></div></div>
+
+    <!-- Activity log -->
+    <div class="card"><div class="eye">Activity Log</div><div class="log-ls" id="logList"><div class="log-it"><span style="color:#94a3b8;font-size:11px">Press PLAY &#x2014; watch your team build&#x2026;</span></div></div></div>
+
+    <!-- Calculator -->
+    <div class="calc-panel">
+      <div class="eye">Earnings Calculator</div>
+      <div class="calc-top"><div><div class="calc-label">Direct Referrals</div></div><div style="text-align:right"><div class="calc-big" id="calcDirectBig" style="color:#10b981">6</div></div></div>
+      <input type="range" class="calc-slider" min="1" max="20" value="6" id="calcDirect" oninput="updateCalc()">
+      <div class="calc-range"><span>1</span><span>10</span><span>20</span></div>
+      <div class="calc-top" style="margin-top:8px"><div><div class="calc-label">Avg Sales / Member</div></div><div style="text-align:right"><div class="calc-big" id="calcSalesBig" style="color:#0ea5e9">6</div></div></div>
+      <input type="range" class="calc-slider" min="1" max="12" value="6" id="calcSales" oninput="updateCalc()">
+      <div class="calc-range"><span>1</span><span>6</span><span>12</span></div>
+      <div class="calc-grid">
+        <div class="calc-stat"><div class="calc-stat-val" id="csKept" style="color:#10b981">$0</div><div class="calc-stat-lbl">Keep (1,3,5,7+)</div></div>
+        <div class="calc-stat"><div class="calc-stat-val" id="csL1" style="color:#f59e0b">$0</div><div class="calc-stat-lbl">L1 Directs</div></div>
+        <div class="calc-stat"><div class="calc-stat-val" id="csL2" style="color:#f59e0b">$0</div><div class="calc-stat-lbl">L2 Cascade</div></div>
+        <div class="calc-stat"><div class="calc-stat-val" id="csL3" style="color:#f59e0b">$0</div><div class="calc-stat-lbl">L3+ Cascade</div></div>
+      </div>
+      <div class="calc-stat" style="margin-top:8px;background:linear-gradient(135deg,#0284c7,#0ea5e9);border:none;color:#fff"><div class="calc-stat-val" id="csTotal" style="color:#fff;font-size:18px">$0</div><div class="calc-stat-lbl" style="color:rgba(255,255,255,0.7)">Total &#xB7; <span id="csTeam">0</span> team</div></div>
+      <div style="margin-top:8px;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px"><div style="font-size:9px;font-weight:700;color:#334155;margin-bottom:3px">&#x1F4CA; Calculation</div><div style="font-size:8px;color:#64748b;line-height:1.4" id="calcExplainer"></div></div>
+      <div style="margin-top:6px;padding:8px;background:#fefce8;border:1px solid #fde68a;border-radius:6px"><div style="font-size:8px;font-weight:700;color:#92400e;margin-bottom:2px">&#x26A0;&#xFE0F; Disclaimer</div><div style="font-size:7px;color:#a16207;line-height:1.4">Hypothetical estimates only. Not a guarantee of income. Results depend on effort, market conditions, and team performance.</div></div>
+    </div>
+
+    <!-- How it works -->
+    <div class="how-strip">
+      <div class="how-s"><div class="hn" style="background:rgba(14,165,233,.1);color:#0ea5e9">1</div><div class="ht">Refer</div><div class="hd">Sell a course</div></div>
+      <div class="how-s"><div class="hn" style="background:rgba(16,185,129,.1);color:#10b981">2</div><div class="ht">Keep</div><div class="hd">1,3,5,7+</div></div>
+      <div class="how-s"><div class="hn" style="background:rgba(245,158,11,.1);color:#f59e0b">3</div><div class="ht">Pass Up</div><div class="hd">2nd,4th,6th</div></div>
+      <div class="how-s"><div class="hn" style="background:rgba(124,58,237,.1);color:#8b5cf6">4</div><div class="ht">Infinite</div><div class="hd">All levels</div></div>
     </div>
   </div>
 </div>
-<div class="right-col">
-  <div class="tot-card"><div class="tot-lbl">Your Total This Round</div><div class="tot-amt" id="totalAmt">$0</div><div class="tot-sub"><span id="kc">0</span> kept &#xB7; <span id="pc">0</span> pass-ups</div></div>
-  <div class="card"><div class="eye">Live Earnings Tracker</div><div class="e-row"><div class="e-left"><div class="e-dot" style="background:var(--green)"></div><div><div class="e-lbl">Direct Sales Kept</div><div class="e-sub">Your sales 1, 3, 5, 7+</div></div></div><div class="e-amt" id="keptAmt" style="color:#10b981">$0</div></div><div class="e-row"><div class="e-left"><div class="e-dot" style="background:var(--gold)"></div><div><div class="e-lbl">Pass-Ups Received</div><div class="e-sub">Team's 2nd, 4th, 6th</div></div></div><div class="e-amt" id="passupAmt" style="color:var(--gold)">$0</div></div></div>
-  <div class="stat-grid"><div class="mini-stat"><div class="mini-stat-label">&#x1F3AF; Direct Sales</div><div class="mini-stat-val" id="iDirect" style="color:var(--green)">0</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F4E8; Pass-Ups</div><div class="mini-stat-val" id="iPassups" style="color:var(--gold)">0</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F465; Team Sales</div><div class="mini-stat-val" id="iTotal" style="color:var(--cyan2)">0</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F4CA; Active Tier</div><div class="mini-stat-val" id="iTier" style="color:var(--cyan2)">$100</div></div></div>
-  <div class="card"><div class="eye">Per Sale &#x2014; $<span id="spPrice">100</span></div><div class="sp-bar"><div class="sp-seg" style="flex:4;background:var(--green)"></div><div class="sp-seg" style="flex:3;background:var(--gold)"></div></div><div class="sp-leg"><div class="sp-i"><div class="sp-sw" style="background:var(--green)"></div>Keep (1,3,5,7+)<span class="sp-v" id="spK" style="color:#10b981">$100</span></div><div class="sp-i"><div class="sp-sw" style="background:var(--gold)"></div>Pass up (2,4,6)<span class="sp-v" id="spP" style="color:var(--gold)">$100</span></div></div></div>
-  <div class="card"><div class="eye" style="font-size:9px;margin-bottom:6px">Activity Log</div><div class="log-ls" id="logList"><div class="log-it"><span style="color:#94a3b8;font-size:11px">Press PLAY to start&#x2026;</span></div></div></div>
-  <div class="calc-panel">
-    <div class="eye">Earnings Calculator</div>
-    <div class="calc-top"><div><div class="calc-label">Direct Referrals</div></div><div style="text-align:right"><div class="calc-big" id="calcDirectBig" style="color:var(--green)">6</div></div></div>
-    <input type="range" class="calc-slider" min="1" max="20" value="6" id="calcDirect" oninput="updateCalc()">
-    <div class="calc-range"><span>1</span><span>10</span><span>20</span></div>
-    <div class="calc-top" style="margin-top:8px"><div><div class="calc-label">Avg Sales / Member</div></div><div style="text-align:right"><div class="calc-big" id="calcSalesBig" style="color:var(--cyan2)">6</div></div></div>
-    <input type="range" class="calc-slider" min="1" max="12" value="6" id="calcSales" oninput="updateCalc()">
-    <div class="calc-range"><span>1</span><span>6</span><span>12</span></div>
-    <div class="calc-grid">
-      <div class="calc-stat"><div class="calc-stat-val" id="csKept" style="color:var(--green)">$0</div><div class="calc-stat-lbl">Keep (1,3,5,7+)</div></div>
-      <div class="calc-stat"><div class="calc-stat-val" id="csL1" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">L1 Directs</div></div>
-      <div class="calc-stat"><div class="calc-stat-val" id="csL2" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">L2 Cascade</div></div>
-      <div class="calc-stat"><div class="calc-stat-val" id="csL3" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">L3+ Cascade</div></div>
-    </div>
-    <div class="calc-stat" style="margin-top:8px;background:linear-gradient(135deg,#0284c7,#0ea5e9);border:none;color:#fff"><div class="calc-stat-val" id="csTotal" style="color:#fff;font-size:18px">$0</div><div class="calc-stat-lbl" style="color:rgba(255,255,255,0.7)">Total &#xB7; <span id="csTeam">0</span> team</div></div>
-    <div style="margin-top:8px;padding:8px;background:#f8fafc;border:1px solid var(--border);border-radius:6px"><div style="font-size:9px;font-weight:700;color:#334155;margin-bottom:3px">&#x1F4CA; Calculation</div><div style="font-size:8px;color:#64748b;line-height:1.4" id="calcExplainer"></div></div>
-    <div style="margin-top:6px;padding:8px;background:#fefce8;border:1px solid #fde68a;border-radius:6px"><div style="font-size:8px;font-weight:700;color:#92400e;margin-bottom:2px">&#x26A0;&#xFE0F; Disclaimer</div><div style="font-size:7px;color:#a16207;line-height:1.4">Hypothetical estimates only. Not a guarantee of income. Results depend on effort, market conditions, and team performance.</div></div>
-  </div>
-  <div class="how-strip">
-    <div class="how-s"><div class="hn" style="background:rgba(14,165,233,.1);color:var(--cyan2)">1</div><div class="ht">Refer</div><div class="hd">Sell a course</div></div>
-    <div class="how-s"><div class="hn" style="background:rgba(16,185,129,.1);color:var(--green)">2</div><div class="ht">Keep</div><div class="hd">1,3,5,7+</div></div>
-    <div class="how-s"><div class="hn" style="background:rgba(245,158,11,.1);color:var(--gold)">3</div><div class="ht">Pass Up</div><div class="hd">2nd,4th,6th</div></div>
-    <div class="how-s"><div class="hn" style="background:rgba(124,58,237,.1);color:#8b5cf6">4</div><div class="ht">Infinite</div><div class="hd">All levels</div></div>
-  </div>
+
 </div>
 </div>
-</div></div></div>
+</div>
 <script>
 /* ═══ PROGRESSIVE PASS-UP ENGINE ═══
    Nodes appear one-by-one as they're sponsored.
