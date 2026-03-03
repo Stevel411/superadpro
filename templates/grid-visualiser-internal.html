@@ -65,14 +65,12 @@ input[type=range]{width:60px;accent-color:#0ea5e9;cursor:pointer}
 .legend-row{display:flex;gap:14px;margin-top:6px}
 .legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:#64748b}
 .legend-swatch{width:10px;height:10px;border-radius:3px;flex-shrink:0}
-.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.info-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:clamp(10px,1vw,14px)}
-.info-card-t{font-size:clamp(9px,0.8vw,11px);font-weight:700;margin-bottom:3px}
-.info-card-p{font-size:clamp(9px,0.8vw,11px);color:#64748b;line-height:1.4}
+.info-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:clamp(8px,0.8vw,12px)}
+.info-card-t{font-size:clamp(9px,0.75vw,10px);font-weight:700;margin-bottom:3px}
+.info-card-p{font-size:clamp(8px,0.7vw,10px);color:#64748b;line-height:1.4}
 .mt{width:100%;border-collapse:collapse;font-size:9px;margin-top:4px}
 .mt th{text-align:left;padding:2px 3px;color:#94a3b8;font-weight:600;border-bottom:1px solid #e2e8f0}
 .mt td{padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9}
-@media(max-width:768px){.info-grid{grid-template-columns:1fr}}
 .right-col{display:flex;flex-direction:column;gap:10px}
 .total-card{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);border-radius:12px;padding:clamp(12px,1.2vw,18px);text-align:center;color:#fff}
 .total-label{font-size:clamp(8px,0.65vw,10px);font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:2px}
@@ -151,11 +149,6 @@ input[type=range]{width:60px;accent-color:#0ea5e9;cursor:pointer}
 <input type="range" min="0" max="63" value="15" id="directSlider" style="width:100%;accent-color:#10b981" oninput="updateDirectCount(this.value)">
 <div class="legend-row"><div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(135deg,#10b981,#059669)"></div>Direct &#xB7; $<span id="legendDirect">33.75</span></div><div class="legend-item"><div class="legend-swatch" style="background:#3b82f6"></div>Overspill &#xB7; $<span id="legendOverspill">6.88</span>/level</div></div>
 </div>
-<div class="info-grid">
-<div class="info-card"><div style="font-size:14px;margin-bottom:3px">&#x267E;&#xFE0F;</div><div class="info-card-t" style="color:#38bdf8">Recurring Engine</div><div class="info-card-p">63 seats fill &#x2192; grid auto-advances &#x2192; commissions restart</div></div>
-<div class="info-card"><div style="font-size:14px;margin-bottom:3px">&#x1F4A1;</div><div class="info-card-t" style="color:#10b981">How You Earn</div><div class="info-card-p">Every seat = 6.875% uni-level. Your referrals also get 40% sponsor bonus.</div></div>
-<div class="info-card"><div class="info-card-t" style="color:#0ea5e9">Per Seat Earnings</div><table class="mt"><tr><th>Tier</th><th style="color:#38bdf8">Spill</th><th style="color:#10b981">Direct</th></tr><tr><td>$20</td><td>$1.38</td><td>$9.38</td></tr><tr><td>$50</td><td>$3.44</td><td>$23.44</td></tr><tr><td>$100</td><td>$6.88</td><td>$46.88</td></tr></table></div>
-</div>
 </div>
 <div class="right-col">
 <div class="total-card"><div class="total-label">Your Total This Advance</div><div class="total-amount" id="totalAmt">$0.00</div><div class="total-sub"><span id="directFilled">0</span> directs / <span id="overspillFilled">0</span> overspill</div></div>
@@ -163,6 +156,9 @@ input[type=range]{width:60px;accent-color:#0ea5e9;cursor:pointer}
 <div class="stat-grid"><div class="mini-stat"><div class="mini-stat-label">&#x1F3AF; Directs</div><div class="mini-stat-val" id="infoDirectCount" style="color:#10b981">15 seats</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F504; Overspill</div><div class="mini-stat-val" id="infoOverspillCount" style="color:#3b82f6">48 seats</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F4B0; Est. Earnings</div><div class="mini-stat-val" id="infoMax" style="color:#f59e0b">$926.25</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F4CA; Active Tier</div><div class="mini-stat-val" id="infoPkg" style="color:#0ea5e9">$100 Pro</div></div></div>
 <div class="split-card"><div class="eyebrow">Single Seat Payout &#x2014; $<span id="splitPrice">100</span></div><div class="split-bar-wrap"><div class="split-seg" style="width:42%;background:#10b981"></div><div class="split-seg" style="width:58%;background:linear-gradient(90deg,#3b82f6,#38bdf8)"></div></div><div class="split-legend"><div class="split-item"><div class="split-swatch" style="background:#10b981"></div><span style="color:#64748b">Sponsor</span> <span class="split-pct" id="sp1" style="color:#10b981">$40.00</span></div><div class="split-item"><div class="split-swatch" style="background:#3b82f6"></div><span style="color:#64748b">Uni-Level</span> <span class="split-pct" id="sp2" style="color:#38bdf8">$55.00</span></div></div><span style="display:none" id="sp2lvl">6.88</span></div>
 <div class="log-card"><div class="eyebrow">Activity Log</div><div class="log-list" id="logList"><div class="log-item"><span style="color:#94a3b8;font-size:11px">Waiting for grid to start...</span></div></div></div>
+<div class="info-card"><div class="info-card-t" style="color:#38bdf8">&#x267E;&#xFE0F; Recurring Engine</div><div class="info-card-p">63 seats fill &#x2192; grid auto-advances &#x2192; commissions restart</div></div>
+<div class="info-card"><div class="info-card-t" style="color:#10b981">&#x1F4A1; How You Earn</div><div class="info-card-p">Every seat = 6.875% uni-level. Your referrals also get 40% sponsor bonus.</div></div>
+<div class="info-card"><div class="info-card-t" style="color:#0ea5e9">Per Seat Earnings</div><table class="mt"><tr><th>Tier</th><th style="color:#38bdf8">Spill</th><th style="color:#10b981">Direct</th></tr><tr><td>$20</td><td>$1.38</td><td>$9.38</td></tr><tr><td>$50</td><td>$3.44</td><td>$23.44</td></tr><tr><td>$100</td><td>$6.88</td><td>$46.88</td></tr></table></div>
 </div>
 </div>
 </div></div></div>
