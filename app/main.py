@@ -266,6 +266,60 @@ def compensation_plan(request: Request, user: User = Depends(get_current_user)):
         return templates.TemplateResponse("compensation-plan-internal.html", ctx)
     return templates.TemplateResponse("compensation-plan.html", ctx)
 
+@app.get("/leaderboard")
+def leaderboard(request: Request, period: str = "all", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    from sqlalchemy import func, desc
+    from datetime import datetime, timedelta
+    import calendar
+
+    now = datetime.utcnow()
+    # Build the query
+    query = db.query(User).filter(User.is_active == True, User.total_earned > 0)
+
+    if period == "month":
+        # Filter commissions earned this month
+        start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        month_earners = db.query(Commission.recipient_id, func.sum(Commission.amount).label("period_earned")).filter(
+            Commission.created_at >= start_of_month
+        ).group_by(Commission.recipient_id).order_by(desc("period_earned")).limit(50).all()
+        earner_ids = [e[0] for e in month_earners]
+        earner_amounts = {e[0]: float(e[1]) for e in month_earners}
+        leaders = db.query(User).filter(User.id.in_(earner_ids)).all() if earner_ids else []
+        leaders.sort(key=lambda u: earner_amounts.get(u.id, 0), reverse=True)
+        for u in leaders:
+            u._period_earned = earner_amounts.get(u.id, 0)
+    elif period == "week":
+        start_of_week = now - timedelta(days=now.weekday())
+        start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
+        week_earners = db.query(Commission.recipient_id, func.sum(Commission.amount).label("period_earned")).filter(
+            Commission.created_at >= start_of_week
+        ).group_by(Commission.recipient_id).order_by(desc("period_earned")).limit(50).all()
+        earner_ids = [e[0] for e in week_earners]
+        earner_amounts = {e[0]: float(e[1]) for e in week_earners}
+        leaders = db.query(User).filter(User.id.in_(earner_ids)).all() if earner_ids else []
+        leaders.sort(key=lambda u: earner_amounts.get(u.id, 0), reverse=True)
+        for u in leaders:
+            u._period_earned = earner_amounts.get(u.id, 0)
+    else:
+        leaders = query.order_by(desc(User.total_earned)).limit(50).all()
+        for u in leaders:
+            u._period_earned = float(u.total_earned or 0)
+
+    # Find current user's rank
+    my_rank = None
+    for i, u in enumerate(leaders):
+        if u.id == user.id:
+            my_rank = i + 1
+            break
+
+    return templates.TemplateResponse("leaderboard.html", {
+        "request": request, "user": user, "active_page": "leaderboard",
+        "leaders": leaders, "period": period, "my_rank": my_rank,
+        "balance": float(user.balance or 0)
+    })
+
 @app.get("/grid-visualiser")
 def grid_visualiser(request: Request, user: User = Depends(get_current_user)):
     ctx = {"request": request}
