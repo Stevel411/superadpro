@@ -27,7 +27,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e2e8f0}
 .card-title{font-size:16px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
 .card-dot{width:7px;height:7px;border-radius:50%;background:#0ea5e9;flex-shrink:0}
-.card-body{padding:20px}
+.card-body{padding:14px 16px}
 .btn-primary{font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:10px 20px;border-radius:7px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:inline-block}
 .btn-outline{font-size:14px;font-weight:600;color:#64748b;background:#f5f7fb;padding:9px 18px;border-radius:7px;border:1px solid #e2e8f0;text-decoration:none;cursor:pointer;font-family:inherit;display:inline-block}
 .form-group{margin-bottom:16px}
@@ -41,8 +41,8 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .row{display:grid;gap:20px}
 .row-2{grid-template-columns:1fr 1fr}
 .row-3{grid-template-columns:1fr 1fr 1fr}
-.stat-pill{border-radius:14px;padding:18px;text-align:center}
-.stat-pill-val{font-size:28px;font-weight:800;letter-spacing:-0.5px}
+.stat-pill{border-radius:14px;padding:14px;text-align:center}
+.stat-pill-val{font-size:24px;font-weight:800;letter-spacing:-0.5px}
 .stat-pill-lbl{font-size:11px;font-weight:700;color:#5a6a7e;text-transform:uppercase;letter-spacing:1.5px;margin-top:5px}
 table{width:100%;border-collapse:collapse}
 th{font-size:11px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border-bottom:2px solid #e2e8f0;text-align:left}
@@ -62,6 +62,7 @@ tr:last-child td{border-bottom:none}
 .p2p-dir-recv{color:#16a34a;font-weight:700}
 .member-id-chip{display:inline-flex;align-items:center;gap:8px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:8px 16px;font-size:16px;font-weight:700;color:#15803d;cursor:pointer;transition:all 0.15s}
 .member-id-chip:hover{background:#dcfce7}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
 @media(max-width:768px){
   .layout{display:block!important}
   .sidebar{display:none!important}
@@ -176,6 +177,7 @@ tr:last-child td{border-bottom:none}
   </div>
 </div>
 
+<div class="two-col"><div>
 <!-- WITHDRAW -->
 <div class="card">
   <div class="card-head">
@@ -221,6 +223,7 @@ tr:last-child td{border-bottom:none}
   </div>
 </div>
 
+</div><div>
 <!-- COMMISSION HISTORY -->
 <div class="card">
   <div class="card-head">
@@ -427,6 +430,7 @@ tr:last-child td{border-bottom:none}
 </div>
 {% endif %}
 
+</div></div><!-- end two-col -->
 </div></div></div>
 <!-- ── Mobile Bottom Nav ── -->
 <div class="mobile-nav">
