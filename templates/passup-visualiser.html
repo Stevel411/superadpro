@@ -35,8 +35,8 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:var(--bg);color:
 .tier-btn.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;box-shadow:0 4px 14px rgba(14,165,233,0.3)}
 
 /* ── Layout ── */
-.main{display:grid;grid-template-columns:1fr 340px;gap:20px;max-width:1200px;margin:0 auto;padding:0 24px 80px}
-@media(max-width:960px){.main{grid-template-columns:1fr}}
+.viz-layout{display:grid;grid-template-columns:1fr 340px;gap:20px;max-width:1200px;margin:0 auto;padding:0 24px 80px}
+@media(max-width:960px){.viz-layout{grid-template-columns:1fr}}
 
 /* ── Cards ── */
 .card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
@@ -191,7 +191,7 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
 .mob-nav-in{display:flex;justify-content:space-around;max-width:480px;margin:0 auto}
 .mob-i{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:4px 8px;font-size:10px;color:#64748b}
 .mob-i.on{color:#38bdf8}
-@media(max-width:768px){.mob-nav{display:block}body{padding-bottom:72px}.main{padding:0 12px 80px;grid-template-columns:1fr}.topbar b{font-size:15px}}
+@media(max-width:768px){.mob-nav{display:block}body{padding-bottom:72px}.viz-layout{padding:0 12px 80px;grid-template-columns:1fr}.topbar b{font-size:15px}}
 
 
 /* === DASHBOARD SHELL === */
