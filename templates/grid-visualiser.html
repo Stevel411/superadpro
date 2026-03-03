@@ -4,400 +4,137 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Grid Visualiser - SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
-
-/* === Dashboard Layout (matches income-grid) === */
 *{margin:0;padding:0;box-sizing:border-box}
-.layout{display:flex;min-height:100vh}
-.sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff;-webkit-text-fill-color:#fff}
-.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
-.nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
-.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
-.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
-.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.1);border-radius:8px}
-.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
-.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-.topbar{position:sticky;top:0;z-index:50;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 28px;height:70px;display:flex;align-items:center;justify-content:space-between}
-.container{padding:16px 20px 40px}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.topbar{display:none}}
-
-/* === Visualiser Styles === */
-
-
-:root{--cyan:#38bdf8;--cyan2:#0ea5e9;--green:#10b981;--gold:#f59e0b;--bg:#020818;--border:rgba(0,212,255,0.12)}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans','Rethink Sans',sans-serif;background:var(--bg);color:#e8f0fe;min-height:100vh;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;animation:gridDrift 30s linear infinite}
-@keyframes gridDrift{from{background-position:0 0}to{background-position:48px 48px}}
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 40% at 20% 30%,rgba(0,180,216,0.07),transparent),radial-gradient(ellipse 50% 40% at 80% 70%,rgba(124,58,237,0.07),transparent)}
-
-nav{background:rgba(2,8,24,0.95);border-bottom:1px solid var(--border);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
-.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
-.nav-brand span{font-weight:800;font-size:19px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#0ea5e9,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.nav-links{display:flex;align-items:center;gap:24px}
-.nav-links a{font-size:19px;font-weight:500;color:#4a5a6e;text-decoration:none;transition:color 0.2s}
-.nav-links a:hover{color:var(--cyan)}
-.btn-nav{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff!important;padding:8px 20px;border-radius:7px;font-weight:700!important}
-
-.hero{text-align:center;padding:50px 40px 30px;position:relative;z-index:1}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:999px;padding:6px 18px;font-size:19px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:20px}
-.hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:blink 1.5s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
-.hero h1{font-size:clamp(22px,4vw,40px);font-weight:800;line-height:1.1;margin-bottom:10px}
-.hero h1 span{background:linear-gradient(135deg,#38bdf8,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero p{font-size:19px;color:#64748b;max-width:560px;margin:0 auto;line-height:1.7}
-
-.pkg-bar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:10px 20px 12px;position:relative;z-index:1}
-.pkg-btn{padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.45);font-family:'DM Sans','Rethink Sans',sans-serif;font-size:19px;font-weight:600;cursor:pointer;transition:all 0.2s}
-.pkg-btn:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(56,189,248,0.05)}
-.pkg-btn.active{background:rgba(0,212,255,0.1);border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 20px rgba(56,189,248,0.15)}
-
-.viz-layout{display:grid;grid-template-columns:1fr 280px;gap:14px;max-width:1200px;margin:0 auto;padding:0 12px 40px;position:relative;z-index:1}
+body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:#0f172a;min-height:100vh}
+.topbar{background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 24px;height:56px;display:flex;align-items:center}
+.page-wrap{max-width:1200px;margin:0 auto;padding:12px 20px 40px}
+.pkg-bar{display:flex;gap:4px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:6px 12px;margin-bottom:14px}
+.pkg-btn{padding:6px 14px;border-radius:8px;border:none;background:transparent;color:#94a3b8;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.pkg-btn:hover{color:#0ea5e9;background:rgba(14,165,233,0.05)}
+.pkg-btn.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;box-shadow:0 4px 14px rgba(14,165,233,0.3)}
+.viz-layout{display:grid;grid-template-columns:1fr 320px;gap:14px}
 @media(max-width:900px){.viz-layout{grid-template-columns:1fr}}
-
-.grid-panel{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:16px;padding:24px;backdrop-filter:blur(8px)}
-.panel-eyebrow{font-size:19px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:4px}
-.panel-title{font-size:19px;font-weight:800;color:#fff;margin-bottom:16px}
-
-.level-labels{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin-bottom:4px}
-.level-label{text-align:center;font-size:19px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 0}
-
-/* GRID */
-.grid-wrap{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin-bottom:16px}
-.cell{
-  min-height:36px;border-radius:6px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:clamp(8px,1vw,12px);font-weight:800;line-height:1.2;text-align:center;
-  transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);
-  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.05);
-  color:transparent;cursor:default;position:relative;overflow:hidden;
-  -webkit-font-smoothing:antialiased;will-change:transform;
-}
-.cell::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.1),transparent);opacity:0;transition:opacity 0.3s}
-/* Owner cell */
-.cell.owner{background:linear-gradient(135deg,#0ea5e9,#0e7490)!important;border:2px solid var(--cyan)!important;color:#fff!important;box-shadow:0 0 24px rgba(0,212,255,0.5),0 0 48px rgba(56,189,248,0.15)!important}
-.cell.owner::before{opacity:1}
-/* Direct referral — bright green glow */
-.cell.direct{color:#fff!important;border:2px solid rgba(52,211,153,0.7)!important;box-shadow:0 0 18px rgba(16,185,129,0.55),0 0 36px rgba(16,185,129,0.2)!important}
-/* Overspill — level colour, subtler */
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.card-eye{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#38bdf8}
+.card-ttl{font-size:14px;font-weight:800;color:#0f172a}
+.progress-mini{text-align:right}
+.progress-mini-text{font-size:11px;color:#94a3b8}
+.progress-mini-bar{height:4px;width:80px;background:#f1f5f9;border-radius:2px;margin-top:2px}
+.progress-mini-fill{height:4px;background:#38bdf8;border-radius:2px;transition:width 0.3s}
+.level-labels{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin-bottom:2px}
+.level-lbl{text-align:center;font-size:10px;font-weight:700;color:#38bdf8}
+.grid-wrap{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}
+.cell{min-height:32px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:clamp(7px,0.9vw,11px);font-weight:800;text-align:center;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);background:#f8fafc;border:1px dashed #e2e8f0;color:transparent;cursor:default;position:relative;overflow:hidden}
+.cell.owner{background:linear-gradient(135deg,#0ea5e9,#0e7490)!important;border:2px solid #38bdf8!important;color:#fff!important;box-shadow:0 0 16px rgba(0,212,255,0.4)}
+.cell.direct{color:#fff!important;border:2px solid rgba(52,211,153,0.7)!important;box-shadow:0 0 14px rgba(16,185,129,0.45)}
 .cell.overspill{color:rgba(255,255,255,0.9)!important}
 .cell.pop{animation:cellPop 0.45s cubic-bezier(0.34,1.56,0.64,1)}
 @keyframes cellPop{0%{transform:scale(0.25);opacity:0}65%{transform:scale(1.12)}100%{transform:scale(1)}}
-
-/* Controls */
-.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
-.btn{padding:10px 20px;border-radius:8px;border:none;font-family:'DM Sans','Rethink Sans',sans-serif;font-size:19px;font-weight:700;cursor:pointer;transition:all 0.2s}
-.btn-play{background:linear-gradient(135deg,var(--cyan),var(--cyan2));color:#020818;box-shadow:0 4px 16px rgba(56,189,248,0.25)}
-.btn-play:hover{box-shadow:0 6px 24px rgba(0,212,255,0.4);transform:translateY(-1px)}
-.btn-reset{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.1)}
-.btn-reset:hover{background:rgba(255,255,255,0.1);color:#fff}
-.speed-wrap{display:flex;align-items:center;gap:8px;margin-left:auto}
-.speed-label{font-size:19px;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase}
-input[type=range]{width:80px;accent-color:var(--cyan);cursor:pointer}
-
-/* Direct-count slider panel */
-.direct-panel{background:rgba(0,0,0,0.2);border:1px solid rgba(16,185,129,0.15);border-radius:10px;padding:14px 16px;margin-bottom:14px}
-.direct-panel-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.direct-panel-label{font-size:19px;font-weight:700;color:#fff}
-.direct-panel-sub{font-size:19px;color:#6b7d94;margin-top:2px}
-.direct-count-big{font-size:32px;font-weight:800;color:var(--green);line-height:1}
-.direct-count-caption{font-size:19px;color:rgba(255,255,255,0.3)}
-.legend-row{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}
-.legend-item{display:flex;align-items:center;gap:6px;font-size:19px;color:#64748b}
-.legend-swatch{width:14px;height:14px;border-radius:3px;flex-shrink:0}
-
-/* Progress */
-.progress-wrap{margin-bottom:14px}
-.progress-row{display:flex;justify-content:space-between;margin-bottom:6px}
-.progress-label{font-size:19px;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase}
-.progress-value{font-size:19px;color:var(--cyan)}
-.progress-bar{height:3px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden}
-.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),#38bdf8);border-radius:99px;transition:width 0.3s;box-shadow:0 0 8px rgba(0,212,255,0.4)}
-
-/* Advance note */
-.advance-note{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.15);border-radius:8px;margin-bottom:12px}
-.advance-note-text{font-size:19px;color:#64748b;line-height:1.6}
-.advance-note-title{font-size:19px;font-weight:700;color:#38bdf8;margin-bottom:3px}
-
-/* Advance banner */
-.advance-banner{display:none;text-align:center;padding:16px;background:linear-gradient(135deg,rgba(0,212,255,0.1),rgba(124,58,237,0.1));border:1px solid rgba(56,189,248,0.25);border-radius:10px}
-.advance-banner.show{display:block;animation:fadeUp 0.4s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.advance-title{font-size:19px;font-weight:700;color:var(--cyan);margin-bottom:4px}
-.advance-sub{font-size:19px;color:rgba(255,255,255,0.45)}
-
-/* RIGHT col */
-.right-col{display:flex;flex-direction:column;gap:14px}
-.stat-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:18px;backdrop-filter:blur(8px)}
-.eyebrow{font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:12px}
-.earn-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
-.earn-row:last-child{border-bottom:none;padding-bottom:0}
-.earn-left{display:flex;align-items:center;gap:10px}
+.controls{display:flex;gap:8px;align-items:center;margin-top:10px}
+.btn{padding:7px 16px;border-radius:6px;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.btn-play{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff}
+.btn-reset{background:#f8fafc;color:#64748b;border:1px solid #e2e8f0}
+.speed-wrap{display:flex;align-items:center;gap:6px;margin-left:auto}
+.speed-label{font-size:9px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase}
+input[type=range]{width:60px;accent-color:#0ea5e9;cursor:pointer}
+.direct-panel{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px}
+.direct-panel-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.direct-panel-label{font-size:12px;font-weight:700;color:#0f172a}
+.direct-panel-sub{font-size:10px;color:#94a3b8;margin-top:2px}
+.direct-count-big{font-size:22px;font-weight:800;color:#10b981;line-height:1}
+.direct-count-caption{font-size:11px;color:#94a3b8}
+.legend-row{display:flex;gap:14px;margin-top:6px}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:#64748b}
+.legend-swatch{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.info-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px}
+.info-card-t{font-size:10px;font-weight:700;margin-bottom:3px}
+.info-card-p{font-size:10px;color:#64748b;line-height:1.4}
+.mt{width:100%;border-collapse:collapse;font-size:9px;margin-top:4px}
+.mt th{text-align:left;padding:2px 3px;color:#94a3b8;font-weight:600;border-bottom:1px solid #e2e8f0}
+.mt td{padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9}
+@media(max-width:768px){.info-grid{grid-template-columns:1fr}}
+.right-col{display:flex;flex-direction:column;gap:10px}
+.total-card{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);border-radius:12px;padding:16px;text-align:center;color:#fff}
+.total-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:2px}
+.total-amount{font-size:28px;font-weight:800;color:#fff;-webkit-text-fill-color:#fff}
+.total-sub{font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px}
+.stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px}
+.eyebrow{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#38bdf8;margin-bottom:8px}
+.earn-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9}
+.earn-row:last-child{border-bottom:none}
+.earn-left{display:flex;align-items:center;gap:8px}
 .earn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.earn-label{font-size:19px;color:#4a5a6e}
-.earn-sub{font-size:19px;color:#6b7d94;margin-top:2px}
-.earn-amount{font-size:19px;font-weight:700;transition:all 0.25s;text-align:right}
+.earn-label{font-size:11px;font-weight:600;color:#334155}
+.earn-sub{font-size:10px;color:#94a3b8;margin-top:1px}
+.earn-amount{font-size:14px;font-weight:700}
 .earn-amount.bump{animation:numBump 0.25s ease}
 @keyframes numBump{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
-
-.total-card{background:linear-gradient(135deg,rgba(0,212,255,0.06),rgba(124,58,237,0.06));border:1px solid rgba(0,212,255,0.2);border-radius:12px;padding:18px;text-align:center}
-.total-label{font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:6px}
-.total-amount{font-size:30px;font-weight:800;background:linear-gradient(135deg,var(--cyan),#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;transition:all 0.3s}
-.total-sub{font-size:19px;color:rgba(255,255,255,0.3);margin-top:4px}
-
-.split-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:18px;backdrop-filter:blur(8px)}
-.split-bar-wrap{display:flex;height:8px;border-radius:99px;overflow:hidden;gap:2px;margin:10px 0 12px}
-.split-seg{border-radius:3px}
-.split-legend{display:flex;flex-direction:column;gap:7px}
-.split-item{display:flex;align-items:center;gap:8px;font-size:19px;color:rgba(200,220,255,0.55)}
-.split-swatch{width:8px;height:8px;border-radius:2px;flex-shrink:0}
-.split-pct{margin-left:auto;font-size:19px;font-weight:700}
-
-.info-strip{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:18px;backdrop-filter:blur(8px)}
-.info-title{font-size:19px;font-weight:700;color:#fff;margin-bottom:10px}
-.info-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:19px}
-.info-row:last-child{border-bottom:none}
-.info-key{color:#6b7d94}
-.info-val{font-weight:700}
-
-.log-card{background:rgba(5,15,35,0.8);border:1px solid var(--border);border-radius:12px;padding:16px;backdrop-filter:blur(8px)}
-.log-list{display:flex;flex-direction:column;gap:0;max-height:none;overflow:hidden}
-.log-item{display:flex;align-items:center;font-size:12px;color:rgba(255,255,255,0.45);animation:slideIn 0.22s ease;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mini-stat{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px}
+.mini-stat-label{font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.mini-stat-val{font-size:16px;font-weight:800}
+.split-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px}
+.split-bar-wrap{display:flex;height:6px;border-radius:3px;overflow:hidden;gap:2px;margin:8px 0}
+.split-seg{border-radius:2px}
+.split-legend{display:flex;justify-content:space-between;font-size:11px}
+.split-item{display:flex;align-items:center;gap:4px}
+.split-swatch{width:6px;height:6px;border-radius:2px;flex-shrink:0}
+.split-pct{font-weight:700}
+.log-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;flex:1;min-height:80px}
+.log-list{display:flex;flex-direction:column;max-height:200px;overflow-y:auto}
+.log-item{display:flex;align-items:center;font-size:11px;color:#64748b;animation:slideIn 0.22s ease;padding:4px 0;border-bottom:1px solid #f1f5f9}
 .log-item:last-child{border-bottom:none}
 @keyframes slideIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
-.log-left{display:flex;align-items:center;gap:6px;min-width:0}
-.log-seat{font-weight:700;color:rgba(255,255,255,0.55);font-variant-numeric:tabular-nums;min-width:52px}
-.log-level{color:rgba(255,255,255,0.3);min-width:22px}
-.log-tag{font-size:9px;padding:2px 6px;border-radius:3px;font-weight:700;letter-spacing:0.5px;white-space:nowrap}
+.log-seat{font-weight:700;color:#334155;min-width:52px}
+.log-level{color:#94a3b8;min-width:22px}
+.log-tag{font-size:8px;padding:2px 5px;border-radius:3px;font-weight:700}
 .log-tag.direct{color:#10b981;border:1px solid rgba(16,185,129,0.35);background:rgba(16,185,129,0.08)}
-.log-tag.overspill{color:rgba(0,180,216,0.6);border:1px solid rgba(56,189,248,0.15);background:rgba(0,212,255,0.04)}
-.log-amt{font-weight:700;font-size:12px;white-space:nowrap;margin-left:auto;font-variant-numeric:tabular-nums}
-.reg-overlay{position:fixed;inset:0;background:rgba(1,8,20,0.85);backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity 0.25s}
-.reg-overlay.open{opacity:1;pointer-events:all}
-.reg-modal{background:#0d1117;border:1px solid rgba(56,189,248,0.15);border-radius:18px;padding:36px 38px;width:100%;max-width:460px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);transform:translateY(20px);transition:transform 0.25s}
-.reg-overlay.open .reg-modal{transform:translateY(0)}
-.reg-close{position:absolute;top:14px;right:18px;background:none;border:none;color:rgba(200,220,255,0.4);font-size:22px;cursor:pointer;line-height:1;padding:4px 8px;border-radius:6px;transition:color 0.2s}
-.reg-close:hover{color:rgba(200,220,255,0.9)}
-.reg-title{font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
-.reg-sub{font-size:16px;color:rgba(200,220,255,0.5);margin-bottom:24px}
-.reg-field{margin-bottom:16px}
-.reg-label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(200,220,255,0.5);margin-bottom:6px}
-.reg-input{width:100%;padding:11px 14px;border:1.5px solid rgba(0,212,255,0.12);border-radius:9px;background:rgba(0,212,255,0.04);color:#fff;font-size:16px;font-family:inherit;box-sizing:border-box;transition:border-color 0.2s}
-.reg-input:focus{outline:none;border-color:#38bdf8;background:rgba(56,189,248,0.07)}
-.reg-input::placeholder{color:rgba(200,220,255,0.25)}
-.reg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.reg-terms{display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;font-size:16px;color:rgba(200,220,255,0.45);line-height:1.5}
-.reg-terms input{width:15px;height:15px;flex-shrink:0;margin-top:1px;accent-color:#38bdf8}
-.reg-terms a{color:rgba(0,212,255,0.7);text-decoration:none}
-.reg-submit{width:100%;padding:13px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:10px;color:#fff;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;transition:opacity 0.2s;letter-spacing:0.3px}
-.reg-submit:hover{opacity:0.9}
-.reg-submit:disabled{opacity:0.5;cursor:not-allowed}
-.reg-err{display:none;margin-bottom:14px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:16px;color:#dc2626;font-weight:600}
-.reg-login{text-align:center;margin-top:16px;font-size:16px;color:rgba(200,220,255,0.4)}
-.reg-login a{color:rgba(0,212,255,0.7);text-decoration:none;font-weight:600}
-@media(max-width:500px){.reg-modal{padding:28px 22px}.reg-row{grid-template-columns:1fr}}
-
-
-.login-overlay{position:fixed;inset:0;background:rgba(1,8,20,0.85);backdrop-filter:blur(6px);z-index:1001;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity 0.25s}
-.login-overlay.open{opacity:1;pointer-events:all}
-.login-modal{background:#0d1117;border:1px solid rgba(56,189,248,0.15);border-radius:18px;padding:36px 38px;width:100%;max-width:400px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);transform:translateY(20px);transition:transform 0.25s}
-.login-overlay.open .login-modal{transform:translateY(0)}
-@media(max-width:500px){.login-modal{padding:28px 22px}}
+.log-tag.overspill{color:#38bdf8;border:1px solid rgba(56,189,248,0.15);background:rgba(14,165,233,0.04)}
+.log-amt{font-weight:700;font-size:11px;margin-left:auto}
+.advance-banner{display:none;text-align:center;padding:12px;background:rgba(14,165,233,0.06);border:1px solid rgba(14,165,233,0.15);border-radius:8px;margin-top:8px}
+.advance-banner.show{display:block;animation:fadeUp 0.4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.advance-title{font-size:12px;font-weight:700;color:#38bdf8;margin-bottom:2px}
+.advance-sub{font-size:11px;color:#64748b}
 </style>
-<link rel="stylesheet" href="/static/mobile.css">
-<link rel="manifest" href="/static/manifest.json">
-<meta name="theme-color" content="#0a0a1a">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="SuperAdPro">
-<link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 </head>
 <body>
-<div class="layout">
-<div class="mobile-topbar"><a class="mobile-topbar-left" href="/dashboard"><svg width="26" height="26" viewBox="0 0 100 100"><defs><linearGradient id="mhg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs><circle cx="22" cy="22" r="20" fill="url(#mhg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></svg><div><div class="mobile-topbar-name">SuperAdPro</div><div class="mobile-topbar-page">Grid Visualiser</div></div></a></div>
-<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="logo-grad-pg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient><symbol id="shield" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#logo-grad-pg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></symbol></defs></svg>
-  {% include "_sidebar.html" %}
-  <div class="main">
-<div class="topbar"><div><div style="font-size:18px;font-weight:800;color:#fff">&#x26A1; Grid Visualiser</div><div style="font-size:13px;color:#6b7d94;margin-top:1px">Watch your grid fill with direct referrals and upline overspill</div></div></div>
-<div class="container">
-<div class="pkg-bar" id="pkgBar">
-  <button class="pkg-btn" data-price="20"   onclick="selectPkg(this)">$20</button>
-  <button class="pkg-btn" data-price="50"   onclick="selectPkg(this)">$50</button>
-  <button class="pkg-btn active" data-price="100"  onclick="selectPkg(this)">$100</button>
-  <button class="pkg-btn" data-price="200"  onclick="selectPkg(this)">$200</button>
-  <button class="pkg-btn" data-price="400"  onclick="selectPkg(this)">$400</button>
-  <button class="pkg-btn" data-price="600"  onclick="selectPkg(this)">$600</button>
-  <button class="pkg-btn" data-price="800"  onclick="selectPkg(this)">$800</button>
-  <button class="pkg-btn" data-price="1000" onclick="selectPkg(this)">$1,000</button>
+<div class="topbar"><div><div style="font-size:16px;font-weight:800;color:#fff">&#x26A1; Grid Visualiser</div><div style="font-size:11px;color:#6b7d94;margin-top:1px">Watch your grid fill with direct referrals and upline overspill</div></div></div>
+<div class="page-wrap">
+<div class="pkg-bar" id="pkgBar"></div>
+<div class="viz-layout">
+<div style="display:flex;flex-direction:column;gap:12px">
+<div class="card">
+<div class="card-head"><div><div class="card-eye">Stream 02 &#x2014; Profit Engine Grid</div><div class="card-ttl" id="panelTitle">8&#xD7;8 GRID &#x2014; $100 PACKAGE</div></div><div class="progress-mini"><div class="progress-mini-text" id="progressVal">0 / 63 filled</div><div class="progress-mini-bar"><div class="progress-mini-fill" id="progressFill" style="width:0%"></div></div></div></div>
+<div class="level-labels" id="levelLabels"></div>
+<div class="grid-wrap" id="gridWrap"></div>
+<div class="controls"><button class="btn btn-play" id="playBtn" onclick="togglePlay()">&#x25B6; PLAY</button><button class="btn btn-reset" onclick="resetGrid()">&#x21BA; RESET</button><div class="speed-wrap"><span class="speed-label">Speed</span><input type="range" min="1" max="5" value="3" id="speedSlider"></div></div>
+<div class="advance-banner" id="advanceBanner"><div class="advance-title">&#x26A1; GRID COMPLETE</div><div class="advance-sub" id="advanceSubText"></div></div>
 </div>
-
-
-  <!-- LEFT -->
-  <div class="grid-panel">
-    <div class="panel-eyebrow">Stream 02 — Profit Engine Grid</div>
-    <div class="panel-title" id="panelTitle">8×8 GRID — $100 PRO TIER</div>
-
-    <div class="level-labels" id="levelLabels"></div>
-    <div class="grid-wrap"   id="gridWrap"></div>
-
-    <!-- Controls -->
-    <div class="controls">
-      <button class="btn btn-play"  id="playBtn" onclick="togglePlay()">▶ PLAY</button>
-      <button class="btn btn-reset" onclick="resetGrid()">↺ RESET</button>
-      <div class="speed-wrap">
-        <span class="speed-label">Speed</span>
-        <input type="range" min="1" max="5" value="3" id="speedSlider">
-      </div>
-    </div>
-
-    <!-- Direct count slider -->
-    <div class="direct-panel">
-      <div class="direct-panel-top">
-        <div>
-          <div class="direct-panel-label">Your Personal Direct Referrals</div>
-          <div class="direct-panel-sub">Randomly placed across all 8 levels — the rest is upline overspill</div>
-        </div>
-        <div style="text-align:right">
-          <div class="direct-count-big" id="directCountDisplay">15</div>
-          <div class="direct-count-caption">of 63 positions</div>
-        </div>
-      </div>
-      <input type="range" min="0" max="63" value="15" id="directSlider"
-             style="width:100%;accent-color:#10b981" oninput="updateDirectCount(this.value)">
-      <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:19px;color:rgba(255,255,255,0.2)">
-        <span>0 directs</span><span>~30 directs</span><span>All 63</span>
-      </div>
-      <div class="legend-row">
-        <div class="legend-item">
-          <div class="legend-swatch" style="background:linear-gradient(135deg,#10b981,#059669);border:1px solid rgba(52,211,153,0.5)"></div>
-          Direct referral · you earn $<span id="legendDirect">33.75</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-swatch" style="background:#3b82f6;opacity:0.8"></div>
-          Upline overspill · you earn $<span id="legendOverspill">8.75</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Progress -->
-    <div class="progress-wrap">
-      <div class="progress-row">
-        <span class="progress-label">Grid Progress</span>
-        <span class="progress-value" id="progressVal">0 / 63 positions filled</span>
-      </div>
-      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-    </div>
-
-    <!-- Advance note -->
-    <div class="advance-note">
-      <div style="font-size:19px;flex-shrink:0">♾️</div>
-      <div>
-        <div class="advance-note-title">Recurring Income Engine</div>
-        <div class="advance-note-text">Once all 63 positions fill, your grid auto-advances with a fresh random pattern — directs and overspill redistributed — and the commissions start flowing again immediately.</div>
-      </div>
-    </div>
-
-    <div class="advance-banner" id="advanceBanner">
-      <div class="advance-title">⚡ GRID COMPLETE — NEW ADVANCE STARTING</div>
-      <div class="advance-sub" id="advanceSubText"></div>
-    </div>
-  </div>
-
-  <!-- RIGHT -->
-  <div class="right-col">
-
-    <!-- Tracker -->
-    <div class="stat-card">
-      <div class="eyebrow">Live Earnings Tracker</div>
-
-      <div class="earn-row">
-        <div class="earn-left">
-          <div class="earn-dot" style="background:#10b981"></div>
-          <div>
-            <div class="earn-label">Direct Sponsor (25%)</div>
-            <div class="earn-sub">$<span id="directPerSeat">25.00</span> · your personal referrals only</div>
-          </div>
-        </div>
-        <div class="earn-amount" id="sponsorAmt" style="color:#10b981">$0.00</div>
-      </div>
-
-      <div class="earn-row">
-        <div class="earn-left">
-          <div class="earn-dot" style="background:#38bdf8"></div>
-          <div>
-            <div class="earn-label">Uni-Level (8.75%)</div>
-            <div class="earn-sub">$<span id="uniPerSeat">8.75</span> · every seat, direct or overspill</div>
-          </div>
-        </div>
-        <div class="earn-amount" id="uniAmt" style="color:#38bdf8">$0.00</div>
-      </div>
-
-    </div>
-
-    <!-- Total -->
-    <div class="total-card">
-      <div class="total-label">Your Total This Advance</div>
-      <div class="total-amount" id="totalAmt">$0.00</div>
-      <div class="total-sub">Direct Sponsor + Uni-Level · <span id="directFilled">0</span> directs / <span id="overspillFilled">0</span> overspill so far</div>
-    </div>
-
-    <!-- Split bar -->
-    <div class="split-card">
-      <div class="eyebrow">Per Entry Distribution — $<span id="splitPrice">100</span></div>
-      <div class="split-bar-wrap">
-        <div class="split-seg" style="width:26.3%;background:#10b981"></div>
-        <div class="split-seg" style="width:73.7%;background:linear-gradient(90deg,#3b82f6,#38bdf8)"></div>
-      </div>
-      <div class="split-legend">
-        <div class="split-item">
-          <div class="split-swatch" style="background:#10b981"></div>
-          Direct Sponsor
-          <span class="split-pct" id="sp1" style="color:#10b981">$25.00</span>
-        </div>
-        <div class="split-item">
-          <div class="split-swatch" style="background:linear-gradient(135deg,#3b82f6,#38bdf8)"></div>
-          Uni-Level (8 levels × $<span id="sp2lvl">8.75</span>)
-          <span class="split-pct" id="sp2" style="color:#38bdf8">$70.00</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Package summary -->
-    <div class="info-strip">
-      <div class="info-title">Campaign Tier Summary</div>
-      <div class="info-row">
-        <span class="info-key">Tier price</span>
-        <span class="info-val" id="infoPkg" style="color:var(--cyan)">$100 Pro</span>
-      </div>
-      <div class="info-row">
-        <span class="info-key">Your directs this advance</span>
-        <span class="info-val" id="infoDirectCount" style="color:#10b981">15 seats</span>
-      </div>
-      <div class="info-row">
-        <span class="info-key">Overspill entries</span>
-        <span class="info-val" id="infoOverspillCount" style="color:#38bdf8">48 seats</span>
-      </div>
-      <div class="info-row">
-        <span class="info-key">Estimated full advance earnings</span>
-        <span class="info-val" id="infoMax" style="color:var(--gold)">$926.25</span>
-      </div>
-    </div>
-
-    <!-- Log -->
-    <div class="log-card">
-      <div class="eyebrow" style="font-size:10px;margin-bottom:10px">Activity Log</div>
-      <div class="log-list" id="logList">
-        <div class="log-item"><span style="color:rgba(255,255,255,0.2);font-size:11px">Waiting for grid to start...</span></div>
-      </div>
-    </div>
-
-  </div>
+<div class="direct-panel">
+<div class="direct-panel-top"><div><div class="direct-panel-label">Your Personal Direct Referrals</div><div class="direct-panel-sub">Randomly placed across all 8 levels</div></div><div style="text-align:right"><div class="direct-count-big" id="directCountDisplay">15</div><div class="direct-count-caption">of 63 positions</div></div></div>
+<input type="range" min="0" max="63" value="15" id="directSlider" style="width:100%;accent-color:#10b981" oninput="updateDirectCount(this.value)">
+<div class="legend-row"><div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(135deg,#10b981,#059669)"></div>Direct &#xB7; $<span id="legendDirect">33.75</span></div><div class="legend-item"><div class="legend-swatch" style="background:#3b82f6"></div>Overspill &#xB7; $<span id="legendOverspill">6.88</span>/level</div></div>
 </div>
-
+<div class="info-grid">
+<div class="info-card"><div style="font-size:14px;margin-bottom:3px">&#x267E;&#xFE0F;</div><div class="info-card-t" style="color:#38bdf8">Recurring Engine</div><div class="info-card-p">63 seats fill &#x2192; grid auto-advances &#x2192; commissions restart</div></div>
+<div class="info-card"><div style="font-size:14px;margin-bottom:3px">&#x1F4A1;</div><div class="info-card-t" style="color:#10b981">How You Earn</div><div class="info-card-p">Every seat = 6.875% uni-level. Your referrals also get 40% sponsor bonus.</div></div>
+<div class="info-card"><div class="info-card-t" style="color:#0ea5e9">Per Seat Earnings</div><table class="mt"><tr><th>Tier</th><th style="color:#38bdf8">Spill</th><th style="color:#10b981">Direct</th></tr><tr><td>$20</td><td>$1.38</td><td>$9.38</td></tr><tr><td>$50</td><td>$3.44</td><td>$23.44</td></tr><tr><td>$100</td><td>$6.88</td><td>$46.88</td></tr></table></div>
+</div>
+</div>
+<div class="right-col">
+<div class="total-card"><div class="total-label">Your Total This Advance</div><div class="total-amount" id="totalAmt">$0.00</div><div class="total-sub"><span id="directFilled">0</span> directs / <span id="overspillFilled">0</span> overspill</div></div>
+<div class="stat-card"><div class="eyebrow">Live Earnings Tracker</div><div class="earn-row"><div class="earn-left"><div class="earn-dot" style="background:#10b981"></div><div><div class="earn-label">Direct Sponsor (40%)</div><div class="earn-sub">$<span id="directPerSeat">40.00</span> per referral</div></div></div><div class="earn-amount" id="sponsorAmt" style="color:#10b981">$0.00</div></div><div class="earn-row"><div class="earn-left"><div class="earn-dot" style="background:#38bdf8"></div><div><div class="earn-label">Uni-Level (6.875% &#xD7; 8)</div><div class="earn-sub">$<span id="uniPerSeat">6.88</span> per seat</div></div></div><div class="earn-amount" id="uniAmt" style="color:#38bdf8">$0.00</div></div></div>
+<div class="stat-grid"><div class="mini-stat"><div class="mini-stat-label">&#x1F3AF; Directs</div><div class="mini-stat-val" id="infoDirectCount" style="color:#10b981">15 seats</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F504; Overspill</div><div class="mini-stat-val" id="infoOverspillCount" style="color:#3b82f6">48 seats</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F4B0; Est. Earnings</div><div class="mini-stat-val" id="infoMax" style="color:#f59e0b">$926.25</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F4CA; Active Tier</div><div class="mini-stat-val" id="infoPkg" style="color:#0ea5e9">$100 Pro</div></div></div>
+<div class="split-card"><div class="eyebrow">Single Seat Payout &#x2014; $<span id="splitPrice">100</span></div><div class="split-bar-wrap"><div class="split-seg" style="width:42%;background:#10b981"></div><div class="split-seg" style="width:58%;background:linear-gradient(90deg,#3b82f6,#38bdf8)"></div></div><div class="split-legend"><div class="split-item"><div class="split-swatch" style="background:#10b981"></div><span style="color:#64748b">Sponsor</span> <span class="split-pct" id="sp1" style="color:#10b981">$40.00</span></div><div class="split-item"><div class="split-swatch" style="background:#3b82f6"></div><span style="color:#64748b">Uni-Level</span> <span class="split-pct" id="sp2" style="color:#38bdf8">$55.00</span></div></div><span style="display:none" id="sp2lvl">6.88</span></div>
+<div class="log-card"><div class="eyebrow">Activity Log</div><div class="log-list" id="logList"><div class="log-item"><span style="color:#94a3b8;font-size:11px">Waiting for grid to start...</span></div></div></div>
+</div>
+</div>
+</div>
 <script>
 // ── State ──────────────────────────────────────────────────────────────────
 let pkg         = 100;
@@ -636,42 +373,5 @@ randomiseDirects();
 buildGrid();
 </script>
 
-<!-- ── Mobile Bottom Nav ── -->
-<div class="mobile-nav">
-  <div class="mobile-nav-inner">
-    <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
-    <a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">▶</span><span class="mob-nav-label">Watch</span></a>
-    <a href="/income-grid" class="mob-nav-item active"><span class="mob-nav-icon">⚡</span><span class="mob-nav-label">Grid</span></a>
-    <a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">◎</span><span class="mob-nav-label">Wallet</span></a>
-    <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">◉</span><span class="mob-nav-label">Account</span></a>
-  </div>
-</div>
-
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/static/sw.js').catch(() => {});
-  });
-}
-</script>
-
-</div></div></div>
-<div class="mobile-nav"><div class="mobile-nav-inner">
-<a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">&#x229E;</span><span class="mob-nav-label">Home</span></a>
-<a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">&#x25B6;</span><span class="mob-nav-label">Watch</span></a>
-<a href="/income-grid" class="mob-nav-item"><span class="mob-nav-icon">&#x26A1;</span><span class="mob-nav-label">Grid</span></a>
-<a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">&#x25CE;</span><span class="mob-nav-label">Wallet</span></a>
-<a href="/account" class="mob-nav-item"><span class="mob-nav-icon">&#x25C9;</span><span class="mob-nav-label">Account</span></a>
-</div></div>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/static/sw.js").catch(function(){});});}</script>
-
-</div></div></div>
-<div class="mobile-nav"><div class="mobile-nav-inner">
-<a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">&#x229E;</span><span class="mob-nav-label">Home</span></a>
-<a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">&#x25B6;</span><span class="mob-nav-label">Watch</span></a>
-<a href="/income-grid" class="mob-nav-item"><span class="mob-nav-icon">&#x26A1;</span><span class="mob-nav-label">Grid</span></a>
-<a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">&#x25CE;</span><span class="mob-nav-label">Wallet</span></a>
-<a href="/account" class="mob-nav-item"><span class="mob-nav-icon">&#x25C9;</span><span class="mob-nav-label">Account</span></a>
-</div></div>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/static/sw.js").catch(function(){});});}</script>
-</body></html>
+</body>
+</html>
