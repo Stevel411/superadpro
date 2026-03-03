@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Pass-Up Visualiser - SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<title>Pass-Up Visualiser — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-
 :root{--cyan:#38bdf8;--cyan2:#0ea5e9;--green:#10b981;--gold:#f59e0b;--bg:#f0f2f8;--border:#e2e8f0}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans','Rethink Sans',sans-serif;background:var(--bg);color:#0f172a;min-height:100vh;overflow-x:hidden}
@@ -193,61 +192,25 @@ input[type=range]{width:80px;accent-color:var(--cyan2);cursor:pointer}
 .mob-i.on{color:#38bdf8}
 @media(max-width:768px){.mob-nav{display:block}body{padding-bottom:72px}.main{padding:0 12px 80px;grid-template-columns:1fr}.topbar b{font-size:15px}}
 
-/* Dashboard overrides */
-body{background:#f0f2f8!important}
 .layout{display:flex;min-height:100vh}
-.main{margin-left:224px;flex:1;display:flex;flex-direction:column;overflow-y:auto}
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
 .db-topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:50}
-.db-content{padding:24px 28px;flex:1}
+.db-content{flex:1;padding:24px 28px;position:relative;z-index:1}
 .topbar{display:none!important}
 .hero{display:none!important}
-@media(max-width:768px){
-  .layout{display:block!important}
-  .sidebar{display:none!important}
-  .main{margin-left:0!important}
-  .db-topbar{display:none!important}
-  .db-content{padding:10px 12px 80px!important}
-  body{overflow-x:hidden}
-}
+@media(max-width:768px){.layout{display:block!important}.sidebar{display:none!important}.main{margin-left:0!important}.db-topbar{display:none!important}.db-content{padding:10px 12px 80px!important}}
 </style>
   <link rel="stylesheet" href="/static/mobile.css">
   <link rel="manifest" href="/static/manifest.json">
   <meta name="theme-color" content="#0a0a1a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="SuperAdPro">
-  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 </head>
 <body>
 <div class="layout">
-<div class="mobile-topbar">
-  <a class="mobile-topbar-left" href="/dashboard">
-    <svg width="26" height="26" viewBox="0 0 100 100">
-      <defs><linearGradient id="mhg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs>
-      <circle cx="22" cy="22" r="20" fill="url(#mhg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/>
-    </svg>
-    <div>
-      <div class="mobile-topbar-name">SuperAdPro</div>
-      <div class="mobile-topbar-page">Pass-Up Visualiser</div>
-    </div>
-  </a>
-</div>
-
-<svg width="0" height="0" style="position:absolute">
-  <defs>
-    <linearGradient id="logo-grad-pg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient>
-    <symbol id="shield" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#logo-grad-pg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></symbol>
-  </defs>
-</svg>
+<div class="mobile-topbar"><a class="mobile-topbar-left" href="/dashboard"><svg width="26" height="26" viewBox="0 0 100 100"><defs><linearGradient id="mhg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs><circle cx="22" cy="22" r="20" fill="url(#mhg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></svg><div><div class="mobile-topbar-name">SuperAdPro</div><div class="mobile-topbar-page">Pass-Up Visualiser</div></div></a></div>
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="logo-grad-pg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient><symbol id="shield" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#logo-grad-pg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></symbol></defs></svg>
     {% include "_sidebar.html" %}
-
 <div class="main">
-<div class="db-topbar">
-  <div>
-    <div style="font-size:18px;font-weight:800;color:#fff">&#x1F503; Pass-Up Visualiser</div>
-    <div style="font-size:13px;color:#6b7d94;margin-top:1px">See how the infinite pass-up cycle drives commissions to your upline</div>
-  </div>
-</div>
+<div class="db-topbar"><div><div style="font-size:18px;font-weight:800;color:#fff">&#x1F503; Pass-Up Visualiser</div><div style="font-size:13px;color:#6b7d94;margin-top:1px">See how the infinite pass-up cycle drives commissions</div></div></div>
 <div class="db-content">
 <div class="tier-bar">
   <button class="tier-btn active" data-price="100" onclick="selTier(this)">$100 Starter</button>
@@ -733,25 +696,13 @@ window.addEventListener('resize',function(){requestAnimationFrame(drawLines);});
   <a href="/wallet" class="mob-i">◎ Wallet</a>
   <a href="/passup-visualiser" class="mob-i on">↑ Pass-Up</a>
 </div></div>
-
 </div></div></div>
-
-<div class="mobile-nav">
-  <div class="mobile-nav-inner">
-    <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">&#x229E;</span><span class="mob-nav-label">Home</span></a>
-    <a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">&#x25B6;</span><span class="mob-nav-label">Watch</span></a>
-    <a href="/income-grid" class="mob-nav-item"><span class="mob-nav-icon">&#x26A1;</span><span class="mob-nav-label">Grid</span></a>
-    <a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">&#x25CE;</span><span class="mob-nav-label">Wallet</span></a>
-    <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">&#x25C9;</span><span class="mob-nav-label">Account</span></a>
-  </div>
-</div>
-
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", function() {
-    navigator.serviceWorker.register("/static/sw.js").catch(function() {});
-  });
-}
-</script>
-
-</body></html>
+<div class="mobile-nav"><div class="mobile-nav-inner">
+<a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">&#x229E;</span><span class="mob-nav-label">Home</span></a>
+<a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">&#x25B6;</span><span class="mob-nav-label">Watch</span></a>
+<a href="/income-grid" class="mob-nav-item"><span class="mob-nav-icon">&#x26A1;</span><span class="mob-nav-label">Grid</span></a>
+<a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">&#x25CE;</span><span class="mob-nav-label">Wallet</span></a>
+<a href="/account" class="mob-nav-item"><span class="mob-nav-icon">&#x25C9;</span><span class="mob-nav-label">Account</span></a>
+</div></div>
+</body>
+</html>
