@@ -50,7 +50,7 @@ input[type=range]{width:60px;accent-color:var(--cyan);cursor:pointer}
 
 /* Tree */
 .tree-viewport{border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:10px;background:#fafbfc;overflow:hidden}
-.tree-canvas{position:relative;min-height:280px}
+.tree-canvas{position:relative;min-height:420px}
 .tree-rows{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:20px;padding:12px 0}
 .nd{width:46px;height:34px;border-radius:6px;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;position:relative;transition:all 0.3s;border:1.5px solid rgba(14,165,233,0.2);background:#f0f9ff}
 .nd .nm{font-size:8px;line-height:1.2}
@@ -74,7 +74,7 @@ input[type=range]{width:60px;accent-color:var(--cyan);cursor:pointer}
 .lg-s{width:10px;height:10px;border-radius:3px;flex-shrink:0}
 
 /* Calculator */
-.calc-panel{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:10px}
+.calc-panel{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px}
 .calc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
 .calc-label{font-size:12px;font-weight:700;color:#0f172a}
 .calc-sub{font-size:10px;color:#94a3b8;margin-top:2px}
@@ -83,12 +83,12 @@ input[type=range]{width:60px;accent-color:var(--cyan);cursor:pointer}
 .calc-slider{width:100%;accent-color:var(--green)}
 .calc-range{display:flex;justify-content:space-between;font-size:9px;color:#94a3b8;margin-top:2px}
 .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-.calc-stat{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
-.calc-stat-val{font-size:16px;font-weight:800;margin-bottom:2px}
-.calc-stat-lbl{font-size:9px;color:#64748b}
+.calc-stat{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center}
+.calc-stat-val{font-size:14px;font-weight:800;margin-bottom:1px}
+.calc-stat-lbl{font-size:8px;color:#64748b}
 
 /* How it works strip */
-.how-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.how-strip{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:0}
 .how-s{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
 .hn{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;margin:0 auto 4px}
 .ht{font-size:10px;font-weight:700;color:#0f172a;margin-bottom:2px}
@@ -185,29 +185,6 @@ input[type=range]{width:60px;accent-color:var(--cyan);cursor:pointer}
       <div class="lg-i"><div class="lg-s" style="background:rgba(245,158,11,.1);border:1.5px solid var(--gold)"></div>Pass-Up to Sponsor</div>
     </div>
   </div>
-  <div class="calc-panel">
-    <div class="calc-top"><div><div class="calc-label">Your Direct Referrals</div><div class="calc-sub">Each referral sells courses &amp; their team pass up to you</div></div><div style="text-align:right"><div class="calc-big" id="calcDirectBig" style="color:var(--green)">6</div><div class="calc-cap">personal referrals</div></div></div>
-    <input type="range" class="calc-slider" min="1" max="20" value="6" id="calcDirect" oninput="updateCalc()">
-    <div class="calc-range"><span>1 referral</span><span>10 referrals</span><span>20 referrals</span></div>
-    <div class="calc-top" style="margin-top:10px"><div><div class="calc-label">Avg Sales Per Member</div><div class="calc-sub">How many course sales each person makes</div></div><div style="text-align:right"><div class="calc-big" id="calcSalesBig" style="color:var(--cyan2)">6</div><div class="calc-cap">sales each</div></div></div>
-    <input type="range" class="calc-slider" min="1" max="12" value="6" id="calcSales" oninput="updateCalc()">
-    <div class="calc-range"><span>1 sale</span><span>6 sales</span><span>12 sales</span></div>
-    <div class="calc-grid">
-      <div class="calc-stat"><div class="calc-stat-val" id="csKept" style="color:var(--green)">$0</div><div class="calc-stat-lbl">You Keep (1,3,5,7+)</div></div>
-      <div class="calc-stat"><div class="calc-stat-val" id="csL1" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">From L1 Directs</div></div>
-      <div class="calc-stat"><div class="calc-stat-val" id="csL2" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">From L2 (Cascade)</div></div>
-      <div class="calc-stat"><div class="calc-stat-val" id="csL3" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">From L3+ (Cascade)</div></div>
-    </div>
-    <div class="calc-stat" style="margin-top:10px;background:linear-gradient(135deg,#0284c7,#0ea5e9);border:none;color:#fff"><div class="calc-stat-val" id="csTotal" style="color:#fff;font-size:20px">$0</div><div class="calc-stat-lbl" style="color:rgba(255,255,255,0.7)">Total Estimated &#xB7; <span id="csTeam">0</span> team members</div></div>
-    <div style="margin-top:10px;padding:10px;background:#f8fafc;border:1px solid var(--border);border-radius:8px"><div style="font-size:10px;font-weight:700;color:#334155;margin-bottom:4px">&#x1F4CA; How This Is Calculated</div><div style="font-size:9px;color:#64748b;line-height:1.5" id="calcExplainer"></div></div>
-    <div style="margin-top:8px;padding:10px;background:#fefce8;border:1px solid #fde68a;border-radius:8px"><div style="font-size:9px;font-weight:700;color:#92400e;margin-bottom:3px">&#x26A0;&#xFE0F; Income Disclaimer</div><div style="font-size:8px;color:#a16207;line-height:1.5">These figures are <strong>hypothetical estimates only</strong> and not a guarantee of income. Actual earnings depend on individual effort, market conditions, and team performance. Many participants earn little or no income.</div></div>
-  </div>
-  <div class="how-strip">
-    <div class="how-s"><div class="hn" style="background:rgba(14,165,233,.1);color:var(--cyan2)">1</div><div class="ht">Refer &amp; Sell</div><div class="hd">Refer someone who buys a course</div></div>
-    <div class="how-s"><div class="hn" style="background:rgba(16,185,129,.1);color:var(--green)">2</div><div class="ht">Keep 100%</div><div class="hd">Sales 1, 3, 5, 7+ you keep full commission</div></div>
-    <div class="how-s"><div class="hn" style="background:rgba(245,158,11,.1);color:var(--gold)">3</div><div class="ht">Pass Up 3</div><div class="hd">2nd, 4th &amp; 6th pass 100% to sponsor</div></div>
-    <div class="how-s"><div class="hn" style="background:rgba(124,58,237,.1);color:#8b5cf6">4</div><div class="ht">Infinite Depth</div><div class="hd">Pass-ups cascade through every level</div></div>
-  </div>
 </div>
 <div class="right-col">
   <div class="tot-card"><div class="tot-lbl">Your Total This Round</div><div class="tot-amt" id="totalAmt">$0</div><div class="tot-sub"><span id="kc">0</span> kept &#xB7; <span id="pc">0</span> pass-ups</div></div>
@@ -215,6 +192,30 @@ input[type=range]{width:60px;accent-color:var(--cyan);cursor:pointer}
   <div class="stat-grid"><div class="mini-stat"><div class="mini-stat-label">&#x1F3AF; Direct Sales</div><div class="mini-stat-val" id="iDirect" style="color:var(--green)">0</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F4E8; Pass-Ups</div><div class="mini-stat-val" id="iPassups" style="color:var(--gold)">0</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F465; Team Sales</div><div class="mini-stat-val" id="iTotal" style="color:var(--cyan2)">0</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F4CA; Active Tier</div><div class="mini-stat-val" id="iTier" style="color:var(--cyan2)">$100</div></div></div>
   <div class="card"><div class="eye">Per Sale &#x2014; $<span id="spPrice">100</span></div><div class="sp-bar"><div class="sp-seg" style="flex:4;background:var(--green)"></div><div class="sp-seg" style="flex:3;background:var(--gold)"></div></div><div class="sp-leg"><div class="sp-i"><div class="sp-sw" style="background:var(--green)"></div>Keep (1,3,5,7+)<span class="sp-v" id="spK" style="color:#10b981">$100</span></div><div class="sp-i"><div class="sp-sw" style="background:var(--gold)"></div>Pass up (2,4,6)<span class="sp-v" id="spP" style="color:var(--gold)">$100</span></div></div></div>
   <div class="card"><div class="eye" style="font-size:9px;margin-bottom:6px">Activity Log</div><div class="log-ls" id="logList"><div class="log-it"><span style="color:#94a3b8;font-size:11px">Press PLAY to start&#x2026;</span></div></div></div>
+  <div class="calc-panel">
+    <div class="eye">Earnings Calculator</div>
+    <div class="calc-top"><div><div class="calc-label">Direct Referrals</div></div><div style="text-align:right"><div class="calc-big" id="calcDirectBig" style="color:var(--green)">6</div></div></div>
+    <input type="range" class="calc-slider" min="1" max="20" value="6" id="calcDirect" oninput="updateCalc()">
+    <div class="calc-range"><span>1</span><span>10</span><span>20</span></div>
+    <div class="calc-top" style="margin-top:8px"><div><div class="calc-label">Avg Sales / Member</div></div><div style="text-align:right"><div class="calc-big" id="calcSalesBig" style="color:var(--cyan2)">6</div></div></div>
+    <input type="range" class="calc-slider" min="1" max="12" value="6" id="calcSales" oninput="updateCalc()">
+    <div class="calc-range"><span>1</span><span>6</span><span>12</span></div>
+    <div class="calc-grid">
+      <div class="calc-stat"><div class="calc-stat-val" id="csKept" style="color:var(--green)">$0</div><div class="calc-stat-lbl">Keep (1,3,5,7+)</div></div>
+      <div class="calc-stat"><div class="calc-stat-val" id="csL1" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">L1 Directs</div></div>
+      <div class="calc-stat"><div class="calc-stat-val" id="csL2" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">L2 Cascade</div></div>
+      <div class="calc-stat"><div class="calc-stat-val" id="csL3" style="color:var(--gold)">$0</div><div class="calc-stat-lbl">L3+ Cascade</div></div>
+    </div>
+    <div class="calc-stat" style="margin-top:8px;background:linear-gradient(135deg,#0284c7,#0ea5e9);border:none;color:#fff"><div class="calc-stat-val" id="csTotal" style="color:#fff;font-size:18px">$0</div><div class="calc-stat-lbl" style="color:rgba(255,255,255,0.7)">Total &#xB7; <span id="csTeam">0</span> team</div></div>
+    <div style="margin-top:8px;padding:8px;background:#f8fafc;border:1px solid var(--border);border-radius:6px"><div style="font-size:9px;font-weight:700;color:#334155;margin-bottom:3px">&#x1F4CA; Calculation</div><div style="font-size:8px;color:#64748b;line-height:1.4" id="calcExplainer"></div></div>
+    <div style="margin-top:6px;padding:8px;background:#fefce8;border:1px solid #fde68a;border-radius:6px"><div style="font-size:8px;font-weight:700;color:#92400e;margin-bottom:2px">&#x26A0;&#xFE0F; Disclaimer</div><div style="font-size:7px;color:#a16207;line-height:1.4">Hypothetical estimates only. Not a guarantee of income. Results depend on effort, market conditions, and team performance.</div></div>
+  </div>
+  <div class="how-strip">
+    <div class="how-s"><div class="hn" style="background:rgba(14,165,233,.1);color:var(--cyan2)">1</div><div class="ht">Refer</div><div class="hd">Sell a course</div></div>
+    <div class="how-s"><div class="hn" style="background:rgba(16,185,129,.1);color:var(--green)">2</div><div class="ht">Keep</div><div class="hd">1,3,5,7+</div></div>
+    <div class="how-s"><div class="hn" style="background:rgba(245,158,11,.1);color:var(--gold)">3</div><div class="ht">Pass Up</div><div class="hd">2nd,4th,6th</div></div>
+    <div class="how-s"><div class="hn" style="background:rgba(124,58,237,.1);color:#8b5cf6">4</div><div class="ht">Infinite</div><div class="hd">All levels</div></div>
+  </div>
 </div>
 </div>
 </div></div></div>
