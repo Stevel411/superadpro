@@ -41,9 +41,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 /* ── STREAM STRIPS ── */
 .stream-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
 .stream-card{border-radius:10px;padding:16px 18px;border:1px solid}
-.stream-card.s1{background:#f0fdf4;border-color:#bbf7d0}
-.stream-card.s2{background:#f0f9ff;border-color:#bae6fd}
-.stream-card.s3{background:#faf5ff;border-color:#e9d5ff}
+.stream-card.s1,.stream-card.s2,.stream-card.s3{background:#f0f9ff;border-color:#bae6fd}
 .stream-num{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
 .stream-name{font-size:16px;font-weight:800;color:#0f172a;margin-bottom:3px}
 .stream-val{font-size:28px;font-weight:800;line-height:1}
@@ -54,14 +52,8 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .stat-card{border-radius:14px;padding:22px 22px;position:relative;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s}
 .stat-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,40,100,0.1)}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.stat-card.c1{background:linear-gradient(135deg,#f0fdfa,#f0fdf4);border:1px solid #b2ece0;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
-.stat-card.c1::before{background:linear-gradient(90deg,transparent,#059669,transparent)}
-.stat-card.c2{background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #b8d4f8;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
-.stat-card.c2::before{background:linear-gradient(90deg,transparent,#0284c7,transparent)}
-.stat-card.c3{background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #d4bef8;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
-.stat-card.c3::before{background:linear-gradient(90deg,transparent,#0ea5e9,transparent)}
-.stat-card.c4{background:linear-gradient(135deg,#fefce8,#fffbeb);border:1px solid #fcd778;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
-.stat-card.c4::before{background:linear-gradient(90deg,transparent,#d97706,transparent)}
+.stat-card.c1,.stat-card.c2,.stat-card.c3,.stat-card.c4{background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #b8d4f8;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
+.stat-card.c1::before,.stat-card.c2::before,.stat-card.c3::before,.stat-card.c4::before{background:linear-gradient(90deg,transparent,#0284c7,transparent)}
 .stat-label{font-size:16px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#5a6a7e;margin-bottom:8px}
 .stat-value{font-size:30px;font-weight:800;line-height:1;margin-bottom:4px;letter-spacing:-0.5px}
 .stat-sub{font-size:16px;color:#5a6a7e;font-weight:500}
@@ -270,7 +262,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
       <!-- 3 INCOME STREAMS -->
       <div class="stream-strip">
         <div class="stream-card s1">
-          <div class="stream-num" style="color:#16a34a">Stream 1 — Monthly Membership</div>
+          <div class="stream-num" style="color:#0284c7">Stream 1 — Monthly Membership</div>
           <div class="stream-name">Residual Income</div>
           <div class="stream-val" style="color:#16a34a">${{ '%.2f'|format(sponsor_earnings) }}</div>
           <div class="stream-sub">Membership referral commissions</div>
@@ -278,13 +270,13 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
         <div class="stream-card s2">
           <div class="stream-num" style="color:#0284c7">Stream 2 — Profit Engine Grid</div>
           <div class="stream-name">Uni-Level Income</div>
-          <div class="stream-val" style="color:#0ea5e9">${{ '%.2f'|format(grid_earnings + level_earnings) }}</div>
+          <div class="stream-val" style="color:#16a34a">${{ '%.2f'|format(grid_earnings + level_earnings) }}</div>
           <div class="stream-sub">Direct + Uni-Level commissions</div>
         </div>
         <div class="stream-card s3">
-          <div class="stream-num" style="color:#0ea5e9">Stream 3 — Marketing Mastery</div>
+          <div class="stream-num" style="color:#0284c7">Stream 3 — Marketing Mastery</div>
           <div class="stream-name">Course Sales</div>
-          <div class="stream-val" style="color:#c4b5fd">Coming Soon</div>
+          <div class="stream-val" style="color:#16a34a">Coming Soon</div>
           <div class="stream-sub">100% commission + infinite pass-up</div>
         </div>
       </div>
@@ -373,19 +365,19 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
         </div>
         <div class="stat-card c2">
           <div class="stat-label">Available Balance</div>
-          <div class="stat-value" style="color:#0ea5e9">${{ '%.2f'|format(balance) }}</div>
+          <div class="stat-value" style="color:#16a34a">${{ '%.2f'|format(balance) }}</div>
           <div class="stat-sub">Ready to withdraw</div>
           <div class="stat-bg">◎</div>
         </div>
         <div class="stat-card c3">
           <div class="stat-label">Grid Advances</div>
-          <div class="stat-value" style="color:#0ea5e9">{{ grid_stats.completed_advances }}</div>
+          <div class="stat-value" style="color:#16a34a">{{ grid_stats.completed_advances }}</div>
           <div class="stat-sub">{{ grid_stats.active_grids }} active grid{% if grid_stats.active_grids != 1 %}s{% endif %}</div>
           <div class="stat-bg">◈</div>
         </div>
         <div class="stat-card c4">
           <div class="stat-label">Your Network</div>
-          <div class="stat-value" style="color:#f59e0b">{{ total_team }}</div>
+          <div class="stat-value" style="color:#16a34a">{{ total_team }}</div>
           <div class="stat-sub">Members in network</div>
           <div class="stat-bg">🤝</div>
         </div>
@@ -441,13 +433,13 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
             <!-- Stream 1: Membership -->
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
               <div style="display:flex;align-items:center;gap:8px">
-                <div style="width:8px;height:8px;border-radius:50%;background:#16a34a;flex-shrink:0"></div>
+                <div style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex-shrink:0"></div>
                 <span style="font-size:13px;font-weight:600;color:#334155">Membership (50%)</span>
               </div>
               <span style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(sponsor_earnings) }}</span>
             </div>
             <div style="height:5px;background:#e8ecf4;border-radius:99px;overflow:hidden;margin-bottom:14px">
-              <div style="height:100%;width:{{ ((sponsor_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#16a34a,#22c55e);border-radius:99px"></div>
+              <div style="height:100%;width:{{ ((sponsor_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#0284c7,#38bdf8);border-radius:99px"></div>
             </div>
 
             <!-- Stream 2: Grid Direct Sponsor -->
@@ -456,7 +448,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
                 <div style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex-shrink:0"></div>
                 <span style="font-size:13px;font-weight:600;color:#334155">Grid Direct Sponsor</span>
               </div>
-              <span style="font-size:14px;font-weight:800;color:#0ea5e9">${{ '%.2f'|format(grid_earnings) }}</span>
+              <span style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(grid_earnings) }}</span>
             </div>
             <div style="height:5px;background:#e8ecf4;border-radius:99px;overflow:hidden;margin-bottom:14px">
               <div style="height:100%;width:{{ ((grid_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#0284c7,#38bdf8);border-radius:99px"></div>
@@ -465,23 +457,23 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
             <!-- Stream 3: Grid Uni-Level -->
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
               <div style="display:flex;align-items:center;gap:8px">
-                <div style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;flex-shrink:0"></div>
+                <div style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex-shrink:0"></div>
                 <span style="font-size:13px;font-weight:600;color:#334155">Grid Uni-Level</span>
               </div>
-              <span style="font-size:14px;font-weight:800;color:#8b5cf6">${{ '%.2f'|format(level_earnings) }}</span>
+              <span style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(level_earnings) }}</span>
             </div>
             <div style="height:5px;background:#e8ecf4;border-radius:99px;overflow:hidden;margin-bottom:14px">
-              <div style="height:100%;width:{{ ((level_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:99px"></div>
+              <div style="height:100%;width:{{ ((level_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#0284c7,#38bdf8);border-radius:99px"></div>
             </div>
 
             <!-- Stream 4: Course Sales -->
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
               <div style="display:flex;align-items:center;gap:8px">
-                <div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0"></div>
+                <div style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex-shrink:0"></div>
                 <span style="font-size:13px;font-weight:600;color:#334155">Course Sales (100% pass-up)</span>
               </div>
               {% if course_earnings > 0 %}
-              <span style="font-size:14px;font-weight:800;color:#f59e0b">${{ '%.2f'|format(course_earnings) }}</span>
+              <span style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(course_earnings) }}</span>
               {% else %}
               <span style="font-size:12px;font-weight:700;color:#94a3b8;letter-spacing:0.5px">COMING SOON</span>
               {% endif %}
