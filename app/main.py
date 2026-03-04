@@ -1225,6 +1225,8 @@ async def purchase_boost(
 
     # Pay sponsor commission (75%)
     sponsor_payout = round(price * BOOST_SPONSOR_PCT, 2)
+    platform_fee = round(price * BOOST_COMPANY_PCT, 2)
+
     if user.sponsor_id:
         sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
         if sponsor:
@@ -1232,17 +1234,33 @@ async def purchase_boost(
             sponsor.total_earned = float(sponsor.total_earned or 0) + sponsor_payout
             boost.sponsor_earned = sponsor_payout
 
-            # Record commission
+            # Record sponsor commission
             comm = Commission(
-                user_id=sponsor.id,
+                to_user_id=sponsor.id,
                 from_user_id=user.id,
-                amount=sponsor_payout,
+                amount_usdt=sponsor_payout,
                 commission_type="boost",
-                description=f"AdBoost {tier['label']} ({boost_type}) — 75% of ${price:.2f}",
+                notes=f"AdBoost {tier['label']} ({boost_type}) — 75% of ${price:.2f}",
                 grid_id=None,
-                level=0
+                package_tier=0, status="paid"
             )
             db.add(comm)
+    else:
+        # No sponsor — 75% goes to platform revenue (absorbed as company income)
+        boost.sponsor_earned = 0
+        logger.info(f"AdBoost: no sponsor for user {user.id}, ${sponsor_payout:.2f} sponsor share absorbed as platform revenue")
+
+    # Record platform fee (25%) — always logged for audit trail
+    platform_comm = Commission(
+        to_user_id=user.id,
+        from_user_id=user.id,
+        amount_usdt=platform_fee,
+        commission_type="boost_platform_fee",
+        notes=f"AdBoost {tier['label']} ({boost_type}) — platform 25% of ${price:.2f}",
+        grid_id=None,
+        package_tier=0, status="paid"
+    )
+    db.add(platform_comm)
 
     # Apply boost effect
     if boost_type == "video":
