@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a1a">
+<title>SuperAdPro</title>
+<link rel="manifest" href="/static/manifest.json">
+<link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#0a0a1a;color:#fff;min-height:100vh;min-height:100dvh;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+
+/* ── App Shell ── */
+.app{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+.app-header{position:sticky;top:0;z-index:100;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:env(safe-area-inset-top,0) 16px 0 16px}
+.header-inner{display:flex;align-items:center;justify-content:space-between;height:56px}
+.app-logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+.app-logo svg{width:28px;height:28px}
+.app-brand{font-family:Sora;font-size:16px;font-weight:800;color:#fff}
+.app-brand span{color:#38bdf8}
+.header-balance{background:rgba(22,163,74,0.15);border:1px solid rgba(22,163,74,0.3);border-radius:10px;padding:5px 12px;font-size:13px;font-weight:800;color:#4ade80}
+.app-content{flex:1;padding:16px;padding-bottom:80px;overflow-y:auto}
+
+/* ── Status Banner ── */
+.status-banner{border-radius:14px;padding:16px;margin-bottom:16px;text-align:center}
+.status-banner.good{background:linear-gradient(135deg,rgba(22,163,74,0.12),rgba(56,189,248,0.08));border:1px solid rgba(22,163,74,0.2)}
+.status-banner.warn{background:linear-gradient(135deg,rgba(217,119,6,0.12),rgba(217,119,6,0.05));border:1px solid rgba(217,119,6,0.2)}
+.status-banner.paused{background:linear-gradient(135deg,rgba(220,38,38,0.12),rgba(220,38,38,0.05));border:1px solid rgba(220,38,38,0.2)}
+.status-emoji{font-size:32px;margin-bottom:6px}
+.status-title{font-size:15px;font-weight:800;margin-bottom:2px}
+.status-sub{font-size:12px;color:#94a3b8;line-height:1.4}
+.status-banner.good .status-title{color:#4ade80}
+.status-banner.warn .status-title{color:#fbbf24}
+.status-banner.paused .status-title{color:#f87171}
+
+/* ── Quota Tracker ── */
+.quota-card{background:linear-gradient(135deg,rgba(14,165,233,0.08),rgba(56,189,248,0.04));border:1px solid rgba(14,165,233,0.15);border-radius:14px;padding:16px;margin-bottom:16px}
+.quota-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.quota-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#38bdf8}
+.quota-count{font-family:Sora;font-size:20px;font-weight:800}
+.quota-count span{color:#38bdf8}
+.quota-bar-bg{height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden}
+.quota-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,#0ea5e9,#38bdf8);transition:width 0.5s ease}
+.quota-bar.complete{background:linear-gradient(90deg,#16a34a,#4ade80)}
+.quota-dots{display:flex;gap:6px;margin-top:10px;justify-content:center}
+.q-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;border:2px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);transition:all 0.3s}
+.q-dot.done{background:linear-gradient(135deg,#0ea5e9,#38bdf8);border-color:#38bdf8;color:#fff;box-shadow:0 0 12px rgba(56,189,248,0.3)}
+.q-dot.current{border-color:#38bdf8;color:#38bdf8;animation:pulse-dot 1.5s infinite}
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 rgba(56,189,248,0.3)}50%{box-shadow:0 0 0 6px rgba(56,189,248,0)}}
+
+/* ── Watch Button ── */
+.watch-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:18px;border-radius:14px;border:none;font-family:Sora;font-size:16px;font-weight:800;color:#fff;cursor:pointer;margin-bottom:16px;transition:all 0.2s;text-decoration:none}
+.watch-btn.ready{background:linear-gradient(135deg,#0ea5e9,#06b6d4);box-shadow:0 4px 20px rgba(14,165,233,0.3)}
+.watch-btn.ready:active{transform:scale(0.98);box-shadow:0 2px 10px rgba(14,165,233,0.2)}
+.watch-btn.done{background:linear-gradient(135deg,#16a34a,#22c55e);box-shadow:0 4px 20px rgba(22,163,74,0.3)}
+.watch-btn.done:active{transform:scale(0.98)}
+.watch-btn-icon{font-size:22px}
+
+/* ── Stats Grid ── */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-tile{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px;text-align:center}
+.stat-tile-val{font-family:Sora;font-size:20px;font-weight:800;line-height:1.2}
+.stat-tile-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#64748b;margin-top:4px}
+.stat-tile.green .stat-tile-val{color:#4ade80}
+.stat-tile.blue .stat-tile-val{color:#38bdf8}
+.stat-tile.amber .stat-tile-val{color:#fbbf24}
+.stat-tile.purple .stat-tile-val{color:#a78bfa}
+
+/* ── Streak ── */
+.streak-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px;padding:12px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.12);border-radius:12px}
+.streak-flame{font-size:22px}
+.streak-text{font-size:13px;font-weight:700;color:#fbbf24}
+.streak-num{font-family:Sora;font-size:18px;font-weight:800;color:#fbbf24}
+
+/* ── Quick Links ── */
+.quick-links{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.q-link{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;text-decoration:none;transition:all 0.2s}
+.q-link:active{background:rgba(14,165,233,0.08);border-color:rgba(14,165,233,0.2)}
+.q-link-icon{font-size:20px}
+.q-link-label{font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8}
+
+/* ── Install Banner ── */
+.install-banner{background:linear-gradient(135deg,rgba(14,165,233,0.1),rgba(168,85,247,0.08));border:1px solid rgba(14,165,233,0.2);border-radius:14px;padding:16px;margin-bottom:16px;text-align:center;display:none}
+.install-banner.show{display:block}
+.install-title{font-size:14px;font-weight:800;color:#fff;margin-bottom:4px}
+.install-sub{font-size:11px;color:#94a3b8;margin-bottom:10px}
+.install-btn{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer}
+.install-dismiss{background:none;border:none;color:#64748b;font-size:11px;cursor:pointer;margin-top:6px;font-family:inherit}
+
+/* ── Bottom Nav ── */
+.app-nav{position:fixed;bottom:0;left:0;right:0;background:#0a0a1a;border-top:1px solid rgba(14,165,233,0.12);z-index:100;padding-bottom:env(safe-area-inset-bottom,0)}
+.nav-inner{display:flex;justify-content:space-around;align-items:center;height:56px}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 12px;border-radius:10px;transition:all 0.2s}
+.nav-btn.active{background:rgba(14,165,233,0.08)}
+.nav-icon{font-size:20px}
+.nav-label{font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:rgba(200,220,255,0.4)}
+.nav-btn.active .nav-label{color:#38bdf8}
+.nav-btn.active .nav-icon{filter:drop-shadow(0 0 4px rgba(56,189,248,0.4))}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="header-inner">
+      <a href="/app" class="app-logo">
+        <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
+        <span class="app-brand">Super<span>Ad</span>Pro</span>
+      </a>
+      <div class="header-balance">${{ balance }}</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="app-content">
+
+    <!-- Install Banner -->
+    <div class="install-banner" id="installBanner">
+      <div class="install-title">📲 Install SuperAdPro</div>
+      <div class="install-sub">Add to your home screen for the best experience</div>
+      <button class="install-btn" id="installBtn" onclick="installApp()">Install App</button><br>
+      <button class="install-dismiss" onclick="dismissInstall()">Not now</button>
+    </div>
+
+    <!-- Status Banner -->
+    {% if quota.commissions_paused %}
+    <div class="status-banner paused">
+      <div class="status-emoji">🔴</div>
+      <div class="status-title">Commissions Paused</div>
+      <div class="status-sub">Complete today's watch quota to reactivate your commissions</div>
+    </div>
+    {% elif quota.consecutive_missed >= 3 %}
+    <div class="status-banner warn">
+      <div class="status-emoji">⚠️</div>
+      <div class="status-title">{{ grace_days - quota.consecutive_missed }} Days Left</div>
+      <div class="status-sub">You've missed {{ quota.consecutive_missed }} days. Watch today to keep commissions active!</div>
+    </div>
+    {% elif quota_complete %}
+    <div class="status-banner good">
+      <div class="status-emoji">✅</div>
+      <div class="status-title">Today's Quota Complete!</div>
+      <div class="status-sub">You're qualified. Come back tomorrow to stay on track.</div>
+    </div>
+    {% else %}
+    <div class="status-banner good">
+      <div class="status-emoji">👋</div>
+      <div class="status-title">Hey {{ display_name }}!</div>
+      <div class="status-sub">Watch {{ quota.daily_required - quota.today_watched }} more video{{ 's' if (quota.daily_required - quota.today_watched) != 1 else '' }} today to stay qualified</div>
+    </div>
+    {% endif %}
+
+    <!-- Quota Tracker -->
+    <div class="quota-card">
+      <div class="quota-header">
+        <div class="quota-label">Today's Progress</div>
+        <div class="quota-count">{{ quota.today_watched }}<span>/{{ quota.daily_required }}</span></div>
+      </div>
+      <div class="quota-bar-bg">
+        <div class="quota-bar{% if quota_complete %} complete{% endif %}" style="width:{{ [((quota.today_watched / quota.daily_required) * 100)|round, 100]|min }}%"></div>
+      </div>
+      <div class="quota-dots">
+        {% for i in range(1, quota.daily_required + 1) %}
+        <div class="q-dot{% if i <= quota.today_watched %} done{% elif i == quota.today_watched + 1 %} current{% endif %}">{{ i }}</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Watch Button -->
+    {% if quota_complete %}
+    <a href="/watch" class="watch-btn done">
+      <span class="watch-btn-icon">✅</span>
+      Quota Complete — Watch More
+    </a>
+    {% else %}
+    <a href="/watch" class="watch-btn ready">
+      <span class="watch-btn-icon">▶️</span>
+      Watch Video {{ quota.today_watched + 1 }} of {{ quota.daily_required }}
+    </a>
+    {% endif %}
+
+    <!-- Streak -->
+    {% if streak > 0 %}
+    <div class="streak-row">
+      <span class="streak-flame">🔥</span>
+      <span class="streak-text">Watch Streak</span>
+      <span class="streak-num">{{ streak }} day{{ 's' if streak != 1 else '' }}</span>
+    </div>
+    {% endif %}
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-tile green">
+        <div class="stat-tile-val">${{ balance }}</div>
+        <div class="stat-tile-label">Balance</div>
+      </div>
+      <div class="stat-tile blue">
+        <div class="stat-tile-val">${{ total_earned }}</div>
+        <div class="stat-tile-label">Total Earned</div>
+      </div>
+      <div class="stat-tile amber">
+        <div class="stat-tile-val">{{ total_watched }}</div>
+        <div class="stat-tile-label">Videos Watched</div>
+      </div>
+      <div class="stat-tile purple">
+        <div class="stat-tile-val">{{ referral_count }}</div>
+        <div class="stat-tile-label">Referrals</div>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="quick-links">
+      <a href="/watch" class="q-link"><span class="q-link-icon">👁️</span><span class="q-link-label">Watch</span></a>
+      <a href="/wallet" class="q-link"><span class="q-link-icon">💰</span><span class="q-link-label">Wallet</span></a>
+      <a href="/income-grid" class="q-link"><span class="q-link-icon">⚡</span><span class="q-link-label">Grid</span></a>
+      <a href="/affiliate" class="q-link"><span class="q-link-icon">🤝</span><span class="q-link-label">Share</span></a>
+    </div>
+    <div class="quick-links">
+      <a href="/ads/my" class="q-link"><span class="q-link-icon">📢</span><span class="q-link-label">Ads</span></a>
+      <a href="/leaderboard" class="q-link"><span class="q-link-icon">🏆</span><span class="q-link-label">Ranks</span></a>
+      <a href="/courses" class="q-link"><span class="q-link-icon">🎓</span><span class="q-link-label">Learn</span></a>
+      <a href="/dashboard" class="q-link"><span class="q-link-icon">🏠</span><span class="q-link-label">Full Site</span></a>
+    </div>
+
+  </div><!-- /app-content -->
+
+  <!-- BOTTOM NAV -->
+  <div class="app-nav">
+    <div class="nav-inner">
+      <a href="/app" class="nav-btn active"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a>
+      <a href="/watch" class="nav-btn"><span class="nav-icon">▶️</span><span class="nav-label">Watch</span></a>
+      <a href="/wallet" class="nav-btn"><span class="nav-icon">💰</span><span class="nav-label">Wallet</span></a>
+      <a href="/affiliate" class="nav-btn"><span class="nav-icon">🤝</span><span class="nav-label">Share</span></a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// PWA Install
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (!localStorage.getItem('pwa-dismissed')) {
+    document.getElementById('installBanner').classList.add('show');
+  }
+});
+
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(r => {
+      document.getElementById('installBanner').classList.remove('show');
+      deferredPrompt = null;
+    });
+  }
+}
+
+function dismissInstall() {
+  document.getElementById('installBanner').classList.remove('show');
+  localStorage.setItem('pwa-dismissed', '1');
+}
+
+// iOS install hint
+if (navigator.standalone === false) {
+  const b = document.getElementById('installBanner');
+  b.querySelector('.install-sub').textContent = 'Tap the Share button then "Add to Home Screen"';
+  b.querySelector('.install-btn').style.display = 'none';
+  if (!localStorage.getItem('pwa-dismissed')) b.classList.add('show');
+}
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>

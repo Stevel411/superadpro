@@ -2,7 +2,7 @@
   "name": "SuperAdPro",
   "short_name": "SuperAdPro",
   "description": "Watch. Earn. Grow. Your video marketing income platform.",
-  "start_url": "/dashboard",
+  "start_url": "/app",
   "display": "standalone",
   "background_color": "#0a0a1a",
   "theme_color": "#0a0a1a",
