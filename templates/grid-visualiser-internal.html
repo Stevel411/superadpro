@@ -29,8 +29,8 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:#0f172a}
 @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.topbar{display:none}}
 
 /* Tier bar */
-.pkg-bar{display:flex;gap:4px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:6px 12px;margin-bottom:14px}
-.pkg-btn{padding:6px 14px;border-radius:8px;border:none;background:transparent;color:#94a3b8;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.pkg-bar{display:flex;gap:4px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:6px 8px;flex-wrap:wrap}
+.pkg-btn{padding:5px 10px;border-radius:6px;border:none;background:transparent;color:#94a3b8;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s}
 .pkg-btn:hover{color:#0ea5e9;background:rgba(14,165,233,0.05)}
 .pkg-btn.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;box-shadow:0 4px 14px rgba(14,165,233,0.3)}
 
@@ -52,7 +52,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:#0f172a}
 .level-labels{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin-bottom:2px}
 .level-lbl{text-align:center;font-size:10px;font-weight:700;color:#38bdf8}
 .grid-wrap{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}
-.cell{min-height:32px;aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;text-align:center;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);background:#f8fafc;border:1px dashed #e2e8f0;color:transparent;cursor:default;position:relative;overflow:hidden}
+.cell{min-height:28px;max-height:48px;aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;text-align:center;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);background:#f8fafc;border:1px dashed #e2e8f0;color:transparent;cursor:default;position:relative;overflow:hidden}
 .cell.owner{background:linear-gradient(135deg,#0ea5e9,#0e7490)!important;border:2px solid #38bdf8!important;color:#fff!important;box-shadow:0 0 16px rgba(0,212,255,0.4)}
 .cell.direct{color:#fff!important;border:2px solid rgba(52,211,153,0.7)!important;box-shadow:0 0 14px rgba(16,185,129,0.45)}
 .cell.overspill{color:rgba(255,255,255,0.9)!important}
@@ -119,8 +119,8 @@ input[type=range]{width:60px;accent-color:#0ea5e9;cursor:pointer}
 .split-item{display:flex;align-items:center;gap:4px}
 .split-swatch{width:6px;height:6px;border-radius:2px;flex-shrink:0}
 .split-pct{font-weight:700}
-.log-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;flex:1}
-.log-list{display:flex;flex-direction:column;max-height:120px;overflow-y:auto}
+.log-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px}
+.log-list{display:flex;flex-direction:column;max-height:100px;overflow-y:auto}
 .log-item{display:flex;align-items:center;font-size:11px;color:#64748b;animation:slideIn 0.22s ease;padding:4px 0;border-bottom:1px solid #f1f5f9}
 .log-item:last-child{border-bottom:none}
 @keyframes slideIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
@@ -151,9 +151,6 @@ input[type=range]{width:60px;accent-color:#0ea5e9;cursor:pointer}
 <div class="main">
 <div class="topbar"><div><div style="font-size:16px;font-weight:800;color:#fff">&#x26A1; Grid Visualiser</div><div style="font-size:11px;color:#6b7d94;margin-top:1px">Watch your grid fill with direct referrals and upline overspill</div></div></div>
 <div class="container">
-
-<!-- Tier bar -->
-<div class="pkg-bar" id="pkgBar"></div>
 
 <!-- 2-col layout -->
 <div class="viz-layout">
@@ -201,6 +198,7 @@ input[type=range]{width:60px;accent-color:#0ea5e9;cursor:pointer}
     <div class="stat-grid"><div class="mini-stat"><div class="mini-stat-label">&#x1F3AF; Directs</div><div class="mini-stat-val" id="infoDirectCount" style="color:#10b981">15 seats</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F504; Overspill</div><div class="mini-stat-val" id="infoOverspillCount" style="color:#3b82f6">48 seats</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F4B0; Est. Earnings</div><div class="mini-stat-val" id="infoMax" style="color:#f59e0b">$926.25</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F4CA; Active Tier</div><div class="mini-stat-val" id="infoPkg" style="color:#0ea5e9">$100 Pro</div></div></div>
     <div class="split-card"><div class="eyebrow">Single Seat Payout &#x2014; $<span id="splitPrice">100</span></div><div class="split-bar-wrap"><div class="split-seg" style="width:42%;background:#10b981"></div><div class="split-seg" style="width:58%;background:linear-gradient(90deg,#3b82f6,#38bdf8)"></div></div><div class="split-legend"><div class="split-item"><div class="split-swatch" style="background:#10b981"></div><span style="color:#64748b">Sponsor</span> <span class="split-pct" id="sp1" style="color:#10b981">$40.00</span></div><div class="split-item"><div class="split-swatch" style="background:#3b82f6"></div><span style="color:#64748b">Uni-Level</span> <span class="split-pct" id="sp2" style="color:#38bdf8">$55.00</span></div></div><span style="display:none" id="sp2lvl">6.88</span></div>
     <div class="log-card"><div class="eyebrow">Activity Log</div><div class="log-list" id="logList"><div class="log-item"><span style="color:#94a3b8;font-size:11px">Waiting for grid to start...</span></div></div></div>
+    <div class="pkg-bar" id="pkgBar" style="flex-wrap:wrap"></div>
   </div>
 </div>
 
@@ -441,6 +439,23 @@ function resetGrid() {
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────
+// Build tier selector
+(function(){
+  const bar = document.getElementById('pkgBar');
+  const tiers = [
+    {label:'$20',price:20},{label:'$50',price:50},{label:'$100',price:100},
+    {label:'$200',price:200},{label:'$400',price:400},{label:'$600',price:600},
+    {label:'$800',price:800},{label:'$1,000',price:1000}
+  ];
+  tiers.forEach(function(t){
+    const b = document.createElement('button');
+    b.className = 'pkg-btn' + (t.price === pkg ? ' active' : '');
+    b.dataset.price = t.price;
+    b.textContent = t.label;
+    b.onclick = function(){ selectPkg(this); };
+    bar.appendChild(b);
+  });
+})();
 updateSplitDisplay();
 randomiseDirects();
 buildGrid();
