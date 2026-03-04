@@ -105,6 +105,17 @@ class User(Base):
     onboarding_completed = Column(Boolean, default=False)              # launch wizard done
     first_payment_to_company = Column(Boolean, default=False)          # True after 1st month payment goes to company
     course_earnings         = Column(Money, default=0.0)               # lifetime earnings from course commissions
+    # ── KYC fields ──
+    kyc_status              = Column(String, default="none")               # none, pending, approved, rejected
+    kyc_dob                 = Column(String, nullable=True)                # date of birth YYYY-MM-DD
+    kyc_id_type             = Column(String, nullable=True)                # passport, drivers_licence, national_id
+    kyc_id_filename         = Column(String, nullable=True)                # uploaded file name
+    kyc_submitted_at        = Column(DateTime, nullable=True)
+    kyc_reviewed_at         = Column(DateTime, nullable=True)
+    kyc_rejection_reason    = Column(String, nullable=True)
+    # ── 2FA fields ──
+    totp_secret             = Column(String, nullable=True)                # base32-encoded TOTP secret
+    totp_enabled            = Column(Boolean, default=False)               # True once user confirms setup
 
 class Grid(Base):
     """One grid instance per user per package tier."""

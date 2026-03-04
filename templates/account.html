@@ -79,11 +79,27 @@ select.form-input{background:#f8fafc}
 .pg-wrap{flex:1;display:flex;flex-direction:column;gap:16px}
 .pg-top{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;flex:3}
 .pg-top>.card{min-height:0}
+.pg-mid{display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1}
+.pg-mid>.card{min-height:0}
 .pg-bottom{display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1}
 .pg-bottom>.card{min-height:0}
 
+/* KYC/2FA status badges */
+.status-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700}
+.status-chip.none{background:rgba(100,116,139,0.1);color:#64748b;border:1px solid rgba(100,116,139,0.2)}
+.status-chip.pending{background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.25)}
+.status-chip.approved{background:rgba(22,163,74,0.1);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
+.status-chip.rejected{background:rgba(220,38,38,0.1);color:#dc2626;border:1px solid rgba(220,38,38,0.25)}
+.status-chip.enabled{background:rgba(22,163,74,0.1);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
+.status-chip.disabled{background:rgba(100,116,139,0.1);color:#64748b;border:1px solid rgba(100,116,139,0.2)}
+
+/* File upload */
+.file-input{width:100%;padding:8px;border:1.5px dashed #d0d8e4;border-radius:6px;font-size:12px;font-family:inherit;color:#64748b;background:#f8fafc;cursor:pointer}
+.file-input:hover{border-color:#0ea5e9}
+
 @media(max-width:1100px){
   .pg-top{grid-template-columns:1fr 1fr}
+  .pg-mid{grid-template-columns:1fr}
   .pg-bottom{grid-template-columns:1fr}
 }
 @media(max-width:768px){
@@ -92,8 +108,8 @@ select.form-input{background:#f8fafc}
   .main{margin-left:0!important}
   .topbar{display:none!important}
   .content{padding:10px 12px 80px!important}
-  .pg-top,.pg-bottom{grid-template-columns:1fr!important}
-  .pg-top,.pg-bottom{flex:unset}
+  .pg-top,.pg-mid,.pg-bottom{grid-template-columns:1fr!important}
+  .pg-top,.pg-mid,.pg-bottom{flex:unset}
 }
 </style>
 <link rel="stylesheet" href="/static/mobile.css">
@@ -227,7 +243,103 @@ select.form-input{background:#f8fafc}
 
 </div>
 
-<!-- ═══ BOTTOM ROW: 2 equal cards that stretch ═══ -->
+<!-- ═══ MIDDLE ROW: KYC + 2FA ═══ -->
+<div class="pg-mid">
+
+  <!-- KYC Verification -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title"><div class="card-dot"></div>Identity Verification (KYC)</div>
+      {% set kyc = user.kyc_status or 'none' %}
+      <span class="status-chip {{ kyc }}">
+        {% if kyc == 'none' %}⬜ Not Started
+        {% elif kyc == 'pending' %}⏳ Under Review
+        {% elif kyc == 'approved' %}✅ Verified
+        {% elif kyc == 'rejected' %}❌ Rejected{% endif %}
+      </span>
+    </div>
+    <div class="card-body">
+      {% if kyc == 'approved' %}
+      <div style="text-align:center;padding:12px 0">
+        <div style="font-size:32px;margin-bottom:8px">✅</div>
+        <div style="font-size:14px;font-weight:700;color:#16a34a;margin-bottom:4px">Identity Verified</div>
+        <div style="font-size:11px;color:#64748b">Your identity has been verified. You're approved for withdrawals.</div>
+      </div>
+      {% elif kyc == 'pending' %}
+      <div style="text-align:center;padding:12px 0">
+        <div style="font-size:32px;margin-bottom:8px">⏳</div>
+        <div style="font-size:14px;font-weight:700;color:#f59e0b;margin-bottom:4px">Verification In Progress</div>
+        <div style="font-size:11px;color:#64748b">We're reviewing your documents. This usually takes 24–48 hours.</div>
+      </div>
+      {% elif kyc == 'rejected' %}
+      <div style="padding:8px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;margin-bottom:12px;font-size:11px;color:#dc2626;font-weight:600">
+        ⚠ {{ user.kyc_rejection_reason or 'Your submission was rejected. Please resubmit with clearer documents.' }}
+      </div>
+      <form method="POST" action="/account/kyc-submit" enctype="multipart/form-data" style="flex:1;display:flex;flex-direction:column">
+        <div class="form-group"><label class="form-label">Date of Birth</label><input class="form-input" type="date" name="kyc_dob" value="{{ user.kyc_dob or '' }}" required></div>
+        <div class="form-group">
+          <label class="form-label">ID Type</label>
+          <select name="kyc_id_type" class="form-input">
+            <option value="passport" {% if user.kyc_id_type == 'passport' %}selected{% endif %}>Passport</option>
+            <option value="drivers_licence" {% if user.kyc_id_type == 'drivers_licence' %}selected{% endif %}>Driver's Licence</option>
+            <option value="national_id" {% if user.kyc_id_type == 'national_id' %}selected{% endif %}>National ID Card</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Upload ID (JPG, PNG, or PDF — max 10MB)</label><input class="file-input" type="file" name="kyc_id_file" accept=".jpg,.jpeg,.png,.pdf" required></div>
+        <button type="submit" class="btn-primary" style="width:100%;margin-top:auto">Resubmit Verification</button>
+      </form>
+      {% else %}
+      <div style="font-size:12px;color:#64748b;margin-bottom:12px;line-height:1.6">Verify your identity to enable withdrawals. We need your date of birth and a photo of a government-issued ID.</div>
+      <form method="POST" action="/account/kyc-submit" enctype="multipart/form-data" style="flex:1;display:flex;flex-direction:column">
+        <div class="form-group"><label class="form-label">Date of Birth</label><input class="form-input" type="date" name="kyc_dob" required></div>
+        <div class="form-group">
+          <label class="form-label">ID Type</label>
+          <select name="kyc_id_type" class="form-input">
+            <option value="passport">Passport</option>
+            <option value="drivers_licence">Driver's Licence</option>
+            <option value="national_id">National ID Card</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Upload ID (JPG, PNG, or PDF — max 10MB)</label><input class="file-input" type="file" name="kyc_id_file" accept=".jpg,.jpeg,.png,.pdf" required></div>
+        <button type="submit" class="btn-primary" style="width:100%;margin-top:auto">Submit Verification</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- 2FA -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title"><div class="card-dot"></div>Two-Factor Authentication</div>
+      <span class="status-chip {% if user.totp_enabled %}enabled{% else %}disabled{% endif %}">
+        {% if user.totp_enabled %}🔒 Enabled{% else %}⬜ Disabled{% endif %}
+      </span>
+    </div>
+    <div class="card-body">
+      {% if user.totp_enabled %}
+      <div style="text-align:center;padding:12px 0;margin-bottom:12px">
+        <div style="font-size:32px;margin-bottom:8px">🔒</div>
+        <div style="font-size:14px;font-weight:700;color:#16a34a;margin-bottom:4px">2FA is Active</div>
+        <div style="font-size:11px;color:#64748b;margin-bottom:16px">Your account is protected with two-factor authentication.</div>
+      </div>
+      <form method="POST" action="/account/2fa-disable" style="margin-top:auto">
+        <div class="form-group"><label class="form-label">Enter current 2FA code to disable</label><input class="form-input" type="text" name="totp_code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" inputmode="numeric" style="text-align:center;letter-spacing:6px;font-weight:700" required></div>
+        <button type="submit" class="btn-warn" style="width:100%">Disable 2FA</button>
+      </form>
+      {% else %}
+      <div style="text-align:center;padding:8px 0;margin-bottom:12px">
+        <div style="font-size:32px;margin-bottom:8px">🔓</div>
+        <div style="font-size:14px;font-weight:700;color:#64748b;margin-bottom:4px">Not Enabled</div>
+        <div style="font-size:12px;color:#64748b;line-height:1.6;margin-bottom:4px">Protect your account with an authenticator app. Required before you can make withdrawals.</div>
+      </div>
+      <a href="/account/2fa-setup" class="btn-primary" style="width:100%;display:block;text-align:center;text-decoration:none;margin-top:auto;padding:8px 18px">Setup 2FA →</a>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ BOTTOM ROW: Wallet + Quick Links ═══ -->
 <div class="pg-bottom">
 
   <!-- 5. Withdrawal Wallet -->

@@ -1760,6 +1760,11 @@ def withdraw(
     user: User = Depends(get_current_user)
 ):
     if not user: return RedirectResponse(url="/?login=1", status_code=302)
+    # ── KYC/2FA Gate ──
+    if getattr(user, 'kyc_status', 'none') != 'approved':
+        return RedirectResponse(url="/wallet?error=KYC_verification_required_before_withdrawal._Go_to_Account_to_complete.", status_code=303)
+    if not getattr(user, 'totp_enabled', False):
+        return RedirectResponse(url="/wallet?error=Two-factor_authentication_required_before_withdrawal._Go_to_Account_to_enable.", status_code=303)
     result = request_withdrawal(db, user.id, amount)
     if result["success"]:
         tx = result.get("tx_hash", "")
@@ -2976,6 +2981,47 @@ def admin_api_withdrawals(
     }
 
 # ── System Health ────────────────────────────────────────────
+@app.get("/admin/api/kyc-pending")
+def admin_kyc_pending(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """List users with pending KYC."""
+    if not user or not user.is_admin: raise HTTPException(403)
+    pending = db.query(User).filter(User.kyc_status == "pending").all()
+    return [{"id": u.id, "username": u.username, "first_name": u.first_name, "last_name": u.last_name,
+             "email": u.email, "country": u.country, "kyc_dob": u.kyc_dob, "kyc_id_type": u.kyc_id_type,
+             "kyc_id_filename": u.kyc_id_filename,
+             "submitted_at": str(u.kyc_submitted_at) if u.kyc_submitted_at else None} for u in pending]
+
+
+@app.post("/admin/api/kyc-review/{user_id}")
+def admin_kyc_review(user_id: int, action: str = Form(), reason: str = Form(""),
+                     db: Session = Depends(get_db), admin: User = Depends(get_current_user)):
+    """Approve or reject KYC. action = 'approve' or 'reject'."""
+    if not admin or not admin.is_admin: raise HTTPException(403)
+    from datetime import datetime
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target: raise HTTPException(404)
+    if action == "approve":
+        target.kyc_status = "approved"
+        target.kyc_reviewed_at = datetime.utcnow()
+    elif action == "reject":
+        target.kyc_status = "rejected"
+        target.kyc_rejection_reason = reason or "Documents unclear. Please resubmit."
+        target.kyc_reviewed_at = datetime.utcnow()
+    db.commit()
+    return {"success": True, "status": target.kyc_status}
+
+
+@app.get("/admin/api/kyc-document/{filename}")
+def admin_kyc_document(filename: str, user: User = Depends(get_current_user)):
+    """Serve uploaded KYC document (admin only)."""
+    if not user or not user.is_admin: raise HTTPException(403)
+    import os
+    filepath = os.path.join("/tmp/kyc-uploads", filename)
+    if not os.path.exists(filepath): raise HTTPException(404)
+    from fastapi.responses import FileResponse
+    return FileResponse(filepath)
+
+
 @app.get("/admin/api/health")
 def admin_api_health(
     user: User = Depends(get_current_user),
@@ -5360,6 +5406,129 @@ def account_change_password(
     user.password = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
     db.commit()
     return RR(url="/account?saved=password", status_code=303)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  KYC — Basic identity verification
+# ═══════════════════════════════════════════════════════════════
+
+import os, uuid
+
+KYC_UPLOAD_DIR = "/tmp/kyc-uploads"
+os.makedirs(KYC_UPLOAD_DIR, exist_ok=True)
+
+@app.post("/account/kyc-submit")
+def kyc_submit(
+    request: Request,
+    kyc_dob: str = Form(),
+    kyc_id_type: str = Form(),
+    kyc_id_file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    if not user: return RedirectResponse(url="/?login=1", status_code=302)
+    from datetime import datetime
+    # Validate DOB format
+    try:
+        datetime.strptime(kyc_dob, "%Y-%m-%d")
+    except ValueError:
+        return RedirectResponse(url="/account?error=invalid_date_format", status_code=303)
+    # Validate ID type
+    if kyc_id_type not in ("passport", "drivers_licence", "national_id"):
+        return RedirectResponse(url="/account?error=invalid_id_type", status_code=303)
+    # Validate file (image or PDF, max 10MB)
+    allowed_ext = (".jpg", ".jpeg", ".png", ".pdf")
+    ext = os.path.splitext(kyc_id_file.filename or "")[1].lower()
+    if ext not in allowed_ext:
+        return RedirectResponse(url="/account?error=invalid_file_type_use_jpg_png_or_pdf", status_code=303)
+    content = kyc_id_file.file.read()
+    if len(content) > 10 * 1024 * 1024:
+        return RedirectResponse(url="/account?error=file_too_large_max_10mb", status_code=303)
+    # Save file
+    safe_name = f"kyc_{user.id}_{uuid.uuid4().hex[:8]}{ext}"
+    filepath = os.path.join(KYC_UPLOAD_DIR, safe_name)
+    with open(filepath, "wb") as f:
+        f.write(content)
+    # Update user
+    user.kyc_dob = kyc_dob
+    user.kyc_id_type = kyc_id_type
+    user.kyc_id_filename = safe_name
+    user.kyc_status = "pending"
+    user.kyc_submitted_at = datetime.utcnow()
+    db.commit()
+    return RedirectResponse(url="/account?saved=kyc_submitted", status_code=303)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  2FA — TOTP Setup & Verification (backend ready, enable later)
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/account/2fa-setup")
+def totp_setup_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Generate TOTP secret and QR code for setup."""
+    if not user: return RedirectResponse(url="/?login=1")
+    import pyotp, qrcode, io, base64
+    # Generate new secret if not already set (or if re-setting up)
+    if not user.totp_secret or user.totp_enabled:
+        secret = pyotp.random_base32()
+        user.totp_secret = secret
+        db.commit()
+    else:
+        secret = user.totp_secret
+    # Generate QR code
+    totp = pyotp.TOTP(secret)
+    uri = totp.provisioning_uri(name=user.email or user.username, issuer_name="SuperAdPro")
+    img = qrcode.make(uri)
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    qr_b64 = base64.b64encode(buf.getvalue()).decode()
+    return templates.TemplateResponse("2fa-setup.html", {
+        "request": request, "user": user, "qr_b64": qr_b64, "secret": secret,
+        "active_page": "account"
+    })
+
+
+@app.post("/account/2fa-verify")
+def totp_verify(
+    request: Request,
+    totp_code: str = Form(),
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    """Verify the TOTP code and enable 2FA."""
+    if not user: return RedirectResponse(url="/?login=1", status_code=302)
+    import pyotp
+    if not user.totp_secret:
+        return RedirectResponse(url="/account?error=setup_2fa_first", status_code=303)
+    totp = pyotp.TOTP(user.totp_secret)
+    if totp.verify(totp_code, valid_window=1):
+        user.totp_enabled = True
+        db.commit()
+        return RedirectResponse(url="/account?saved=2fa_enabled", status_code=303)
+    else:
+        return RedirectResponse(url="/account/2fa-setup?error=invalid_code", status_code=303)
+
+
+@app.post("/account/2fa-disable")
+def totp_disable(
+    request: Request,
+    totp_code: str = Form(),
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    """Disable 2FA after verifying current code."""
+    if not user: return RedirectResponse(url="/?login=1", status_code=302)
+    import pyotp
+    if not user.totp_secret or not user.totp_enabled:
+        return RedirectResponse(url="/account?error=2fa_not_enabled", status_code=303)
+    totp = pyotp.TOTP(user.totp_secret)
+    if totp.verify(totp_code, valid_window=1):
+        user.totp_enabled = False
+        user.totp_secret = None
+        db.commit()
+        return RedirectResponse(url="/account?saved=2fa_disabled", status_code=303)
+    else:
+        return RedirectResponse(url="/account?error=invalid_2fa_code", status_code=303)
 
 
 # ═══════════════════════════════════════════════════════════════
