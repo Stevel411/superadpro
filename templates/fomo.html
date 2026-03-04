@@ -291,9 +291,15 @@ function rnd(a){return a[Math.floor(Math.random()*a.length)]}
 function rndB(a,b){return Math.floor(Math.random()*(b-a+1))+a}
 function initGrid(){
   var g=document.getElementById('gridVisual');g.innerHTML='';
+  // Pick 3 random positions among filled cells (not position 0 which is YOU)
+  var recentSet={};
+  while(Object.keys(recentSet).length<3 && filled>3){
+    var r=rndB(1,filled-1);
+    recentSet[r]=true;
+  }
   for(var i=0;i<64;i++){var c=document.createElement('div');
     if(i===0)c.className='g-cell you';
-    else if(i<filled)c.className='g-cell '+(i>=filled-3?'recent':'filled');
+    else if(i<filled)c.className='g-cell '+(recentSet[i]?'recent':'filled');
     else c.className='g-cell empty';
     g.appendChild(c);}
 }
