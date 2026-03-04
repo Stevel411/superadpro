@@ -43,21 +43,21 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 @media(max-width:900px){.grid-layout{grid-template-columns:1fr}}
 
 /* Cards */
-.card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px}
-.eyebrow{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#0ea5e9;margin-bottom:4px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px}
+.eyebrow{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#0ea5e9;margin-bottom:6px}
 
 /* Hero total */
-.total-card{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);border-radius:8px;padding:10px 14px;text-align:center;color:#fff;position:relative;overflow:hidden}
+.total-card{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);border-radius:8px;padding:14px 16px;text-align:center;color:#fff;position:relative;overflow:hidden}
 .total-card::before{content:'';position:absolute;top:-40%;right:-20%;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,0.06)}
-.total-label{font-size:7px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6)}
-.total-amount{font-family:Sora;font-size:20px;font-weight:800;margin:2px 0}
-.total-sub{font-size:8px;color:rgba(255,255,255,0.55)}
+.total-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6)}
+.total-amount{font-family:Sora;font-size:26px;font-weight:800;margin:3px 0}
+.total-sub{font-size:9px;color:rgba(255,255,255,0.55)}
 
 /* Stats grid */
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.mini-stat{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:6px 8px}
-.mini-stat-label{font-size:8px;font-weight:700;color:#94a3b8}
-.mini-stat-val{font-size:14px;font-weight:800;margin-top:0}
+.mini-stat{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px}
+.mini-stat-label{font-size:9px;font-weight:700;color:#94a3b8}
+.mini-stat-val{font-size:17px;font-weight:800;margin-top:1px}
 
 /* Grid */
 .grid-8x8{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;margin-bottom:6px}
@@ -75,18 +75,18 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 .prog-row{display:flex;justify-content:space-between;font-size:9px;color:#94a3b8}
 
 /* Level breakdown */
-.level-row{display:flex;align-items:center;gap:5px;padding:2px 0;border-bottom:1px solid #f8fafc}
+.level-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid #f8fafc}
 .level-row:last-child{border-bottom:none}
-.level-label{font-size:9px;font-weight:700;color:#334155;width:20px}
-.level-bar-wrap{flex:1;height:6px;background:#f1f5f9;border-radius:99px;overflow:hidden}
+.level-label{font-size:11px;font-weight:700;color:#334155;width:22px}
+.level-bar-wrap{flex:1;height:7px;background:#f1f5f9;border-radius:99px;overflow:hidden}
 .level-bar{height:100%;background:linear-gradient(90deg,#0ea5e9,#38bdf8);border-radius:99px}
-.level-seats{font-size:9px;color:#94a3b8;width:28px;text-align:right}
-.level-earn{font-size:10px;font-weight:800;color:#0ea5e9;width:48px;text-align:right}
+.level-seats{font-size:10px;color:#94a3b8;width:30px;text-align:right}
+.level-earn{font-size:12px;font-weight:800;color:#0ea5e9;width:52px;text-align:right}
 
 /* Split bar */
 .split-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:6px}
 .split-seg{height:100%}
-.split-legend{display:flex;justify-content:space-between;font-size:10px}
+.split-legend{display:flex;justify-content:space-between;font-size:11px}
 .split-item{display:flex;align-items:center;gap:4px}
 .split-swatch{width:8px;height:8px;border-radius:2px}
 .split-pct{font-weight:700}
@@ -99,8 +99,8 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 .info-card-p{font-size:10px;color:#64748b;line-height:1.4}
 
 /* Tier bar */
-.tier-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px}
-.tier-btn{padding:5px 3px;border-radius:6px;border:none;background:#f8fafc;color:#64748b;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;transition:all 0.2s;text-align:center;text-decoration:none;display:block}
+.tier-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:7px}
+.tier-btn{padding:7px 4px;border-radius:6px;border:none;background:#f8fafc;color:#64748b;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;text-align:center;text-decoration:none;display:block}
 .tier-btn:hover{color:#0ea5e9;background:rgba(14,165,233,0.05)}
 .tier-btn.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;box-shadow:0 4px 14px rgba(14,165,233,0.3)}
 
@@ -236,15 +236,15 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 
     <div class="card">
       <div class="eyebrow">Live Earnings Tracker</div>
-      <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #f1f5f9">
-        <div style="width:7px;height:7px;border-radius:50%;background:#10b981"></div>
-        <div style="flex:1"><div style="font-size:11px;font-weight:700">Direct Sponsor (40%)</div><div style="font-size:8px;color:#94a3b8">${{ '%.2f'|format(per_seat_direct) if g else '0.00' }} per referral</div></div>
-        <div style="font-size:13px;font-weight:800;color:#10b981">${{ '%.2f'|format(grid_earnings) }}</div>
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9">
+        <div style="width:8px;height:8px;border-radius:50%;background:#10b981"></div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:700">Direct Sponsor (40%)</div><div style="font-size:9px;color:#94a3b8">${{ '%.2f'|format(per_seat_direct) if g else '0.00' }} per referral</div></div>
+        <div style="font-size:15px;font-weight:800;color:#10b981">${{ '%.2f'|format(grid_earnings) }}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;padding:4px 0">
-        <div style="width:7px;height:7px;border-radius:50%;background:#38bdf8"></div>
-        <div style="flex:1"><div style="font-size:11px;font-weight:700">Uni-Level (6.875% × 8)</div><div style="font-size:8px;color:#94a3b8">${{ '%.2f'|format(per_seat_uni) if g else '0.00' }} per seat</div></div>
-        <div style="font-size:13px;font-weight:800;color:#38bdf8">${{ '%.2f'|format(level_earnings) }}</div>
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0">
+        <div style="width:8px;height:8px;border-radius:50%;background:#38bdf8"></div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:700">Uni-Level (6.875% × 8)</div><div style="font-size:9px;color:#94a3b8">${{ '%.2f'|format(per_seat_uni) if g else '0.00' }} per seat</div></div>
+        <div style="font-size:15px;font-weight:800;color:#38bdf8">${{ '%.2f'|format(level_earnings) }}</div>
       </div>
     </div>
 
