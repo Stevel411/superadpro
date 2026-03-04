@@ -22,7 +22,7 @@ from .database import (
 from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker
 from .database import AdBoost, BOOST_TIERS, BOOST_SPONSOR_PCT, BOOST_COMPANY_PCT
 from .coinbase_commerce import create_charge as cb_create_charge, verify_webhook_signature as cb_verify_sig, parse_webhook_event as cb_parse_event, SANDBOX_MODE as CB_SANDBOX
-from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent
+from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog
 from .crud import create_user, verify_password
 from .grid import (
     get_grid_stats, get_user_grids, get_grid_positions,
@@ -6218,6 +6218,82 @@ async def page_builder_v2(request: Request):
 # ═══════════════════════════════════════════════════════════════
 #  ADMIN: GRID COMPLETION FLOW TEST
 # ═══════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════
+#  AI WATCHDOG — automated monitoring & self-healing
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/admin/watchdog")
+def admin_watchdog_run(secret: str = "", db: Session = Depends(get_db)):
+    """
+    Main watchdog endpoint — hit this via Railway cron every 15-30 mins.
+    Usage: /admin/watchdog?secret=superadpro-owner-2026
+    """
+    from fastapi.responses import JSONResponse
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+
+    from .watchdog import run_watchdog
+    result = run_watchdog(db)
+    return result
+
+
+@app.get("/admin/watchdog/status")
+def admin_watchdog_status(secret: str = "", db: Session = Depends(get_db)):
+    """Check watchdog status and recent logs."""
+    from fastapi.responses import JSONResponse
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+
+    from .watchdog import is_enabled
+
+    recent_logs = db.query(WatchdogLog).order_by(
+        WatchdogLog.created_at.desc()
+    ).limit(20).all()
+
+    return {
+        "enabled": is_enabled(),
+        "message": "Watchdog is ACTIVE" if is_enabled() else "Watchdog is OFF — set WATCHDOG_ENABLED=true to activate",
+        "recent_logs": [
+            {
+                "id": log.id,
+                "type": log.run_type,
+                "status": log.status,
+                "summary": log.summary,
+                "ai_used": log.ai_used,
+                "ai_model": log.ai_model,
+                "ai_tokens": log.ai_tokens,
+                "created_at": log.created_at.isoformat() if log.created_at else None
+            }
+            for log in recent_logs
+        ]
+    }
+
+
+@app.get("/admin/watchdog/health")
+def admin_watchdog_health_only(secret: str = "", db: Session = Depends(get_db)):
+    """Run health check only (no fixes) — useful for monitoring dashboards."""
+    from fastapi.responses import JSONResponse
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+
+    from .watchdog import run_health_check
+    return run_health_check(db)
+
+
+@app.post("/admin/watchdog/toggle")
+def admin_watchdog_toggle(secret: str = "", db: Session = Depends(get_db)):
+    """Toggle watchdog on/off (runtime only — doesn't persist across deploys)."""
+    from fastapi.responses import JSONResponse
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+
+    import app.watchdog as wd
+    wd.WATCHDOG_ENABLED = not wd.WATCHDOG_ENABLED
+    status = "enabled" if wd.WATCHDOG_ENABLED else "disabled"
+    logger.info(f"Watchdog toggled: {status}")
+    return {"success": True, "watchdog_enabled": wd.WATCHDOG_ENABLED, "message": f"Watchdog {status}. For permanent change, set WATCHDOG_ENABLED in Railway env vars."}
+
 
 @app.get("/admin/adjust-balance")
 def admin_adjust_balance(

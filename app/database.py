@@ -520,6 +520,20 @@ class FunnelEvent(Base):
     created_at  = Column(DateTime, default=datetime.utcnow)
 
 
+class WatchdogLog(Base):
+    """AI Watchdog activity log — every check, fix, and escalation."""
+    __tablename__ = "watchdog_logs"
+    id          = Column(Integer, primary_key=True, index=True)
+    run_type    = Column(String, nullable=False)       # health_check, auto_fix, ai_escalation, alert
+    status      = Column(String, default="ok")         # ok, warning, error, fixed
+    summary     = Column(Text, nullable=False)
+    details     = Column(Text, nullable=True)          # JSON detail
+    ai_used     = Column(Boolean, default=False)
+    ai_model    = Column(String, nullable=True)
+    ai_tokens   = Column(Integer, default=0)
+    created_at  = Column(DateTime, default=datetime.utcnow)
+
+
 Base.metadata.create_all(bind=engine)
 
 # ── Auto-migration: add missing columns if they don't exist ──────────────

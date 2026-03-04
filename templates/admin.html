@@ -266,7 +266,27 @@ tr:hover td{background:rgba(56,189,248,0.02)}
         </div>
       </div>
       <div class="panel">
-        <div class="panel-head"><div class="panel-title">📡 API Endpoints (AI-Ready)</div></div>
+        <div class="panel-head"><div class="panel-title">🐕 AI Watchdog</div><span class="tag" id="wdStatus" style="font-size:10px">Loading...</span></div>
+        <div class="panel-body">
+          <div style="margin-bottom:12px;font-size:12px;color:rgba(186,230,253,0.4);line-height:1.6">
+            Automated monitoring with 3 layers: routine checks → AI escalation → owner alerts. Set <span class="mono">WATCHDOG_ENABLED=true</span> in Railway env vars to activate.
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-primary" onclick="runWatchdog()">🐕 Run Watchdog Now</button>
+            <button class="btn btn-outline" onclick="toggleWatchdog()">⚡ Toggle On/Off (Runtime)</button>
+            <button class="btn btn-outline" onclick="watchdogStatus()">📊 View Status & Logs</button>
+          </div>
+          <div id="watchdogResult" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Watchdog Logs -->
+    <div class="panel" id="wdLogsPanel" style="display:none">
+      <div class="panel-head"><div class="panel-title">🐕 Watchdog Activity Log</div></div>
+      <div id="wdLogs"></div>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <div class="panel-head"><div class="panel-title">📡 API Endpoints (AI-Ready)</div></div>
         <div class="panel-body">
           <div style="font-size:11px;color:rgba(186,230,253,0.4);line-height:2">
             <div><span class="tag tag-ok" style="font-family:'JetBrains Mono';font-size:9px">GET</span> <span class="mono">/admin/api/users?q=&status=&sort=</span></div>
@@ -280,6 +300,12 @@ tr:hover td{background:rgba(56,189,248,0.02)}
             <div><span class="tag tag-error" style="font-family:'JetBrains Mono';font-size:9px">POST</span> <span class="mono">/admin/api/fix/{issue_type}</span></div>
             <div><span class="tag tag-ok" style="font-family:'JetBrains Mono';font-size:9px">GET</span> <span class="mono">/admin/api/boosts</span></div>
             <div><span class="tag tag-warn" style="font-family:'JetBrains Mono';font-size:9px">GET</span> <span class="mono">/admin/adjust-balance?secret=&username=&amount=&reason=</span></div>
+            <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.04)">
+            <div><span class="tag tag-ok" style="font-family:'JetBrains Mono';font-size:9px">GET</span> <span class="mono">/admin/watchdog?secret= — full watchdog run</span></div>
+            <div><span class="tag tag-ok" style="font-family:'JetBrains Mono';font-size:9px">GET</span> <span class="mono">/admin/watchdog/status?secret= — status + logs</span></div>
+            <div><span class="tag tag-ok" style="font-family:'JetBrains Mono';font-size:9px">GET</span> <span class="mono">/admin/watchdog/health?secret= — health only</span></div>
+            <div><span class="tag tag-warn" style="font-family:'JetBrains Mono';font-size:9px">POST</span> <span class="mono">/admin/watchdog/toggle?secret= — on/off</span></div>
+            </div>
           </div>
         </div>
       </div>
@@ -509,6 +535,66 @@ async function processWithdrawals() {
 }
 
 function refreshAll() { location.reload(); }
+
+// ── Watchdog ──
+async function runWatchdog() {
+  document.getElementById('watchdogResult').innerHTML = '<span class="spinner"></span>Running watchdog...';
+  const data = await api('/admin/watchdog?secret=superadpro-owner-2026');
+  if (!data) { document.getElementById('watchdogResult').innerHTML = '<span class="tag tag-error">Failed</span>'; return; }
+  let html = `<div style="font-size:12px;color:rgba(186,230,253,0.5);margin-top:8px">`;
+  html += `<div style="font-weight:700;color:#fff;margin-bottom:4px">Status: <span class="tag tag-${data.status === 'ok' ? 'ok' : data.status === 'disabled' ? 'warn' : 'error'}">${data.status.toUpperCase()}</span></div>`;
+  html += `<div>${data.message}</div>`;
+  if (data.auto_fixed && data.auto_fixed.length) {
+    html += '<div style="margin-top:6px;font-weight:700;color:#10b981">Auto-fixed:</div>';
+    data.auto_fixed.forEach(f => html += `<div>✅ ${f.action}</div>`);
+  }
+  if (data.ai_analysis) {
+    html += `<div style="margin-top:6px;font-weight:700;color:#38bdf8">AI Analysis:</div>`;
+    html += `<div>${data.ai_analysis.diagnosis || JSON.stringify(data.ai_analysis)}</div>`;
+  }
+  html += '</div>';
+  document.getElementById('watchdogResult').innerHTML = html;
+}
+
+async function toggleWatchdog() {
+  const data = await api('/admin/watchdog/toggle?secret=superadpro-owner-2026', { method: 'POST' });
+  if (data) {
+    toast(data.message);
+    updateWatchdogBadge(data.watchdog_enabled);
+  }
+}
+
+async function watchdogStatus() {
+  const data = await api('/admin/watchdog/status?secret=superadpro-owner-2026');
+  if (!data) return;
+  updateWatchdogBadge(data.enabled);
+  const panel = document.getElementById('wdLogsPanel');
+  panel.style.display = 'block';
+  let html = '<table><thead><tr><th>Time</th><th>Type</th><th>Status</th><th>Summary</th><th>AI</th></tr></thead><tbody>';
+  if (data.recent_logs && data.recent_logs.length) {
+    data.recent_logs.forEach(l => {
+      html += `<tr><td class="mono">${l.created_at ? l.created_at.slice(0,16) : '—'}</td><td><span class="tag tag-ok">${l.type}</span></td><td><span class="tag tag-${l.status === 'ok' ? 'ok' : l.status === 'fixed' ? 'ok' : 'warn'}">${l.status}</span></td><td>${l.summary}</td><td>${l.ai_used ? '🤖 ' + (l.ai_tokens || '') + ' tok' : '—'}</td></tr>`;
+    });
+  } else {
+    html += '<tr><td colspan="5" style="text-align:center;color:rgba(186,230,253,0.2);padding:20px">No watchdog logs yet</td></tr>';
+  }
+  html += '</tbody></table>';
+  document.getElementById('wdLogs').innerHTML = html;
+}
+
+function updateWatchdogBadge(enabled) {
+  const el = document.getElementById('wdStatus');
+  el.textContent = enabled ? 'ACTIVE' : 'OFF';
+  el.className = enabled ? 'tag tag-active' : 'tag tag-inactive';
+}
+
+// Init watchdog badge
+(async () => {
+  try {
+    const d = await api('/admin/watchdog/status?secret=superadpro-owner-2026');
+    if (d) updateWatchdogBadge(d.enabled);
+  } catch(e) {}
+})();
 </script>
 
   </div><!-- /main -->
