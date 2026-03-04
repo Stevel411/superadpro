@@ -49,9 +49,9 @@ body{font-family:'Outfit',sans-serif;background:var(--deep);color:#e2e8f0;overfl
 .trust-inner{display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap;font-size:12px;color:#5a6a7e;font-weight:600}
 .trust-item{display:flex;align-items:center;gap:6px}
 
-/* WHITE SECTION */
-.white-section{background:#ffffff;color:#0f172a;padding:48px 0 56px;position:relative}
-.white-section::before{content:'';position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(180deg,#f0f4f8,#fff);pointer-events:none}
+/* WHITE SECTION - now dark with white feed card */
+.white-section{background:var(--deep);color:#e2e8f0;padding:48px 0 56px;position:relative}
+.white-section::before{content:'';position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(180deg,rgba(10,22,40,0.8),var(--deep));pointer-events:none}
 .ws-inner{max-width:1100px;margin:0 auto;padding:0 24px;position:relative}
 .ws-grid{display:grid;grid-template-columns:1fr 400px;gap:28px;align-items:start}
 @media(max-width:900px){.ws-grid{grid-template-columns:1fr}}
@@ -60,29 +60,30 @@ body{font-family:'Outfit',sans-serif;background:var(--deep);color:#e2e8f0;overfl
 .sec-title{font-size:22px;font-weight:900;letter-spacing:-0.5px;margin-bottom:16px}
 
 /* Grid card */
-.grid-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;box-shadow:0 4px 24px rgba(0,40,100,0.06)}
+.grid-card{background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:24px;box-shadow:0 4px 24px rgba(0,0,0,0.2)}
 .grid-visual{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:16px 0}
 .g-cell{aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;transition:all 0.5s ease;position:relative;overflow:hidden}
-.g-cell.empty{background:#f1f5f9;border:1.5px dashed #d0d8e4}
-.g-cell.filled{background:linear-gradient(135deg,#e0f2fe,#dbeafe);border:1.5px solid #93c5fd}
-.g-cell.filled::after{content:'\2713';color:#3b82f6;font-size:10px}
-.g-cell.recent{background:linear-gradient(135deg,var(--emerald),#059669);border:1.5px solid var(--emerald);box-shadow:0 0 12px rgba(16,185,129,0.3);animation:cellPop 0.4s ease}
+.g-cell.empty{background:rgba(255,255,255,0.04);border:1.5px dashed rgba(255,255,255,0.1)}
+.g-cell.filled{background:rgba(245,158,11,0.15);border:1.5px solid rgba(245,158,11,0.3)}
+.g-cell.filled::after{content:'\2713';color:var(--amber);font-size:10px}
+.g-cell.recent{background:linear-gradient(135deg,var(--emerald),#059669);border:1.5px solid var(--emerald);box-shadow:0 0 12px rgba(16,185,129,0.4);animation:cellPop 0.4s ease}
 .g-cell.recent::after{content:'\2713';color:#fff;font-size:11px;font-weight:800}
-.g-cell.you{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px dashed var(--amber);animation:youPulse 2s ease infinite}
-.g-cell.you::after{content:'YOU';font-size:7px;letter-spacing:1px;color:#92400e;font-weight:800}
+.g-cell.you{background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(245,158,11,0.1));border:2px dashed var(--amber);animation:youPulse 2s ease infinite}
+.g-cell.you::after{content:'YOU';font-size:7px;letter-spacing:1px;color:var(--amber);font-weight:800}
 @keyframes cellPop{from{transform:scale(0.7);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes youPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0.3)}50%{box-shadow:0 0 0 6px rgba(245,158,11,0)}}
 
-.prog-wrap{height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;margin:12px 0 6px}
+.prog-wrap{height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin:12px 0 6px}
 .prog-fill{height:100%;border-radius:4px;transition:width 1s ease}
-.prog-meta{display:flex;justify-content:space-between;font-size:11px;color:#64748b;font-weight:600}
+.prog-meta{display:flex;justify-content:space-between;font-size:11px;color:#6b7d94;font-weight:600}
 
 /* Feed */
-.feed-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:20px;box-shadow:0 4px 24px rgba(0,40,100,0.06)}
-.feed-list{display:flex;flex-direction:column;gap:6px;max-height:420px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#e2e8f0 transparent}
-.feed-list::-webkit-scrollbar{width:4px}
-.feed-list::-webkit-scrollbar-thumb{background:#d0d8e4;border-radius:2px}
-.fi{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;animation:slideIn 0.4s ease;transition:background 0.2s}
+.feed-card{background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:20px;box-shadow:0 4px 24px rgba(0,0,0,0.2)}
+.feed-inner{background:#ffffff;border-radius:12px;padding:12px;max-height:420px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#e2e8f0 transparent}
+.feed-inner::-webkit-scrollbar{width:4px}
+.feed-inner::-webkit-scrollbar-thumb{background:#d0d8e4;border-radius:2px}
+.feed-list{display:flex;flex-direction:column;gap:4px}
+.fi{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;animation:slideIn 0.4s ease;transition:background 0.2s}
 .fi:hover{background:#f8fafc}
 .fi.join{border-left:3px solid var(--cyan)}
 .fi.earn{border-left:3px solid var(--emerald)}
@@ -189,8 +190,8 @@ body{font-family:'Outfit',sans-serif;background:var(--deep);color:#e2e8f0;overfl
   <div>
     <div class="grid-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <div><div class="sec-label" style="color:var(--cyan)">Live Grid Tracker</div><div class="sec-title">8&#xD7;8 Profit Engine Grid</div></div>
-        <div style="text-align:right"><div style="font-family:'Space Mono';font-size:24px;font-weight:700;color:var(--emerald)" id="gridCount">41/63</div><div style="font-size:10px;color:#64748b;font-weight:600">positions filled</div></div>
+        <div><div class="sec-label" style="color:var(--cyan)">Live Grid Tracker</div><div class="sec-title" style="color:#e2e8f0">8&#xD7;8 Profit Engine Grid</div></div>
+        <div style="text-align:right"><div style="font-family:'Space Mono';font-size:24px;font-weight:700;color:var(--emerald)" id="gridCount">41/63</div><div style="font-size:10px;color:#6b7d94;font-weight:600">positions filled</div></div>
       </div>
       <div class="grid-visual" id="gridVisual"></div>
       <div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:65%;background:linear-gradient(90deg,var(--cyan),var(--sky),var(--emerald))"></div></div>
@@ -210,7 +211,7 @@ body{font-family:'Outfit',sans-serif;background:var(--deep);color:#e2e8f0;overfl
       <a href="/income-grid" class="cta-btn">View My Grid &#x2192;</a>
       {% else %}
       <a href="/register{% if ref %}?ref={{ ref }}{% endif %}" class="cta-btn">Claim Your Position &#x2192;</a>
-      <div class="cta-sub" style="color:#64748b">Free to register &#xB7; No obligation &#xB7; <span style="color:var(--emerald);font-weight:700">See your grid instantly</span></div>
+      <div class="cta-sub">Free to register &#xB7; No obligation &#xB7; <span style="color:var(--emerald);font-weight:700">See your grid instantly</span></div>
       {% endif %}
     </div>
   </div>
@@ -221,7 +222,9 @@ body{font-family:'Outfit',sans-serif;background:var(--deep);color:#e2e8f0;overfl
         <div class="live-dot"></div>
         <div class="sec-label" style="color:var(--cyan);margin-bottom:0">Live Activity Feed</div>
       </div>
-      <div class="feed-list" id="feedList"></div>
+      <div class="feed-inner">
+        <div class="feed-list" id="feedList"></div>
+      </div>
     </div>
   </div>
 </div>
