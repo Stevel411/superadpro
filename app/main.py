@@ -5812,6 +5812,61 @@ async def page_builder_v2(request: Request):
 #  ADMIN: GRID COMPLETION FLOW TEST
 # ═══════════════════════════════════════════════════════════════
 
+@app.get("/admin/adjust-balance")
+def admin_adjust_balance(
+    secret: str = "",
+    username: str = "",
+    amount: float = 0,
+    reason: str = "Manual adjustment",
+    db: Session = Depends(get_db)
+):
+    """
+    Manually adjust a user's balance (positive to credit, negative to debit).
+
+    Usage: /admin/adjust-balance?secret=superadpro-owner-2026&username=master&amount=5.00&reason=Refund+lost+AdBoost
+    """
+    from fastapi.responses import JSONResponse
+
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    if not username:
+        return JSONResponse({"error": "username is required"}, status_code=400)
+    if amount == 0:
+        return JSONResponse({"error": "amount must be non-zero"}, status_code=400)
+
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        return JSONResponse({"error": f"User '{username}' not found"}, status_code=404)
+
+    old_balance = float(user.balance or 0)
+    user.balance = old_balance + amount
+    new_balance = float(user.balance)
+
+    # Audit trail
+    comm = Commission(
+        to_user_id=user.id,
+        from_user_id=user.id,
+        amount_usdt=abs(amount),
+        commission_type="admin_adjustment",
+        notes=f"{'Credit' if amount > 0 else 'Debit'}: {reason}",
+        package_tier=0,
+        status="paid"
+    )
+    db.add(comm)
+    db.commit()
+
+    logger.info(f"Admin balance adjustment: {username} {'+' if amount > 0 else ''}{amount:.2f} ({reason}). {old_balance:.2f} → {new_balance:.2f}")
+
+    return {
+        "success": True,
+        "username": username,
+        "adjustment": amount,
+        "old_balance": round(old_balance, 2),
+        "new_balance": round(new_balance, 2),
+        "reason": reason
+    }
+
+
 @app.get("/admin/test-grid-fill")
 def admin_test_grid_fill(
     secret: str,
