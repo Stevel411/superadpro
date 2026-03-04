@@ -56,12 +56,12 @@ tr:last-child td{border-bottom:none}
 .renewal-bar{height:6px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin:10px 0}
 .renewal-bar-fill{height:100%;border-radius:999px;transition:width 0.4s}
 .p2p-form input{padding:9px 13px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:16px;font-family:inherit;color:#0f172a;background:#f5f7fb;width:100%;box-sizing:border-box}
-.p2p-form input:focus{border-color:#6366f1;outline:none;background:#fff}
-.p2p-btn{padding:10px 22px;background:linear-gradient(135deg,#6366f1,#10b981);border:none;border-radius:8px;font-size:16px;font-weight:800;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap}
+.p2p-form input:focus{border-color:#0ea5e9;outline:none;background:#fff}
+.p2p-btn{padding:10px 22px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:8px;font-size:16px;font-weight:800;color:#fff;cursor:pointer;font-family:inherit;white-space:nowrap}
 .p2p-dir-sent{color:#dc2626;font-weight:700}
 .p2p-dir-recv{color:#16a34a;font-weight:700}
-.member-id-chip{display:inline-flex;align-items:center;gap:8px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:8px 16px;font-size:16px;font-weight:700;color:#15803d;cursor:pointer;transition:all 0.15s}
-.member-id-chip:hover{background:#dcfce7}
+.member-id-chip{display:inline-flex;align-items:center;gap:8px;background:#eff6ff;border:1.5px solid #b8d4f8;border-radius:8px;padding:8px 16px;font-size:16px;font-weight:700;color:#0284c7;cursor:pointer;transition:all 0.15s}
+.member-id-chip:hover{background:#e0f2fe}
 .two-col>div{display:flex;flex-direction:column}.two-col>div>.card{flex:1}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
 @media(max-width:768px){
@@ -164,16 +164,16 @@ tr:last-child td{border-bottom:none}
 {% endif %}
 
 <div class="row row-3" style="margin-bottom:20px">
-  <div class="stat-pill" style="background:linear-gradient(135deg,#f0fdfa,#f0fdf4);border:1px solid #b2ece0">
-    <div class="stat-pill-val" style="color:#059669">${{ '%.2f'|format(balance) }}</div>
+  <div class="stat-pill" style="background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #b8d4f8">
+    <div class="stat-pill-val" style="color:#16a34a">${{ '%.2f'|format(balance) }}</div>
     <div class="stat-pill-lbl">Available Balance</div>
   </div>
   <div class="stat-pill" style="background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #b8d4f8">
-    <div class="stat-pill-val" style="color:#0284c7">${{ '%.2f'|format(total_earned) }}</div>
+    <div class="stat-pill-val" style="color:#16a34a">${{ '%.2f'|format(total_earned) }}</div>
     <div class="stat-pill-lbl">Total Earned</div>
   </div>
-  <div class="stat-pill" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #d4bef8">
-    <div class="stat-pill-val" style="color:#0284c7">${{ '%.2f'|format(total_withdrawn) }}</div>
+  <div class="stat-pill" style="background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #b8d4f8">
+    <div class="stat-pill-val" style="color:#16a34a">${{ '%.2f'|format(total_withdrawn) }}</div>
     <div class="stat-pill-lbl">Total Withdrawn</div>
   </div>
 </div>
@@ -313,7 +313,7 @@ tr:last-child td{border-bottom:none}
 <!-- MEMBER ID CARD -->
 <div class="card">
   <div class="card-head">
-    <div class="card-title"><div class="card-dot" style="background:#6366f1"></div>Your Member ID</div>
+    <div class="card-title"><div class="card-dot" style="background:#0ea5e9"></div>Your Member ID</div>
   </div>
   <div class="card-body">
     <p style="font-size:16px;color:#64748b;margin-bottom:12px">Share this ID so other members can send you funds via the P2P transfer system.</p>
@@ -321,7 +321,7 @@ tr:last-child td{border-bottom:none}
       <div class="member-id-chip" onclick="copyMemberId()" id="memberIdChip">
         <span>🪪</span>
         <span id="memberIdText">{{ member_id }}</span>
-        <span style="font-size:16px;color:#86efac">Copy</span>
+        <span style="font-size:16px;color:#38bdf8">Copy</span>
       </div>
       <span style="font-size:16px;color:#6b7d94">Click to copy your ID</span>
     </div>
@@ -425,7 +425,7 @@ tr:last-child td{border-bottom:none}
 {% if p2p_history %}
 <div class="card">
   <div class="card-head">
-    <div class="card-title"><div class="card-dot" style="background:#6366f1"></div>Transfer History</div>
+    <div class="card-title"><div class="card-dot" style="background:#0ea5e9"></div>Transfer History</div>
   </div>
   <div class="card-body" style="padding:0">
     <table>
