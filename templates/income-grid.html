@@ -137,7 +137,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 <div class="topbar">
   <div>
     <div style="font-size:16px;font-weight:800;color:#fff">⚡ Profit Engine Grids</div>
-    <div style="font-size:11px;color:#6b7d94;margin-top:1px">Your live 8×8 recurring grid · 63 positions per advance</div>
+    <div style="font-size:11px;color:#6b7d94;margin-top:1px">Your live 8×8 recurring grid · 64 positions per advance</div>
   </div>
   <div style="display:flex;align-items:center;gap:14px">
     <div style="background:#fff;border-radius:8px;padding:5px 12px;text-align:center">
@@ -154,7 +154,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
   <div class="empty">
     <div class="empty-icon">◈</div>
     <div class="empty-title">No Active Grids Yet</div>
-    <div class="empty-sub">Activate your first campaign tier to launch your 8×8 Profit Engine Grid. Fill 63 positions, earn commissions on every entry, then it resets and you earn again.</div>
+    <div class="empty-sub">Activate your first campaign tier to launch your 8×8 Profit Engine Grid. Fill 64 positions, earn commissions on every entry, then it resets and you earn again.</div>
     <a href="/campaign-tiers" class="empty-cta">🚀 Activate Your First Grid →</a>
   </div>
 </div>
@@ -180,15 +180,13 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
         <div style="font-size:13px;font-weight:800">${{ g.price|int }} Campaign · Advance #{{ g.advance }}</div>
         <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:11px;font-weight:700;color:#0ea5e9">{{ g.filled }}/63 filled</span>
+          <span style="font-size:11px;font-weight:700;color:#0ea5e9">{{ g.filled }}/64 positions filled</span>
           <span style="font-size:9px;font-weight:700;color:#10b981;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);padding:3px 10px;border-radius:12px">ACTIVE</span>
         </div>
       </div>
       <div class="grid-8x8">
-      {% for i in range(64) %}
-        {% if i == 0 %}
-          <div class="g-cell owner">YOU</div>
-        {% elif i <= g.filled %}
+      {% for i in range(1, 65) %}
+        {% if i <= g.filled %}
           <div class="g-cell filled">{{ i }}</div>
         {% else %}
           <div class="g-cell empty">{{ i }}</div>
@@ -196,7 +194,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
       {% endfor %}
       </div>
       <div class="legend">
-        <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)"></div>You</div>
         <div class="legend-item"><div class="legend-dot" style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2)"></div>Filled</div>
         <div class="legend-item"><div class="legend-dot" style="background:#fff;border:1px solid #e8ecf1"></div>Empty</div>
       </div>
@@ -221,10 +218,10 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
         <div style="font-size:10px;color:#64748b;line-height:1.5;position:relative;z-index:1">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="background:#0ea5e9;border-radius:4px;padding:2px 6px;font-weight:700;color:#fff;font-size:10px">40%</span><span>Direct sponsor</span></div>
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="background:#0ea5e9;border-radius:4px;padding:2px 6px;font-weight:700;color:#fff;font-size:10px">6.875%</span><span>× 8 levels (55%)</span></div>
-          <div style="font-size:9px;color:#94a3b8;margin-top:4px">63 fill → advance → earn again</div>
+          <div style="font-size:9px;color:#94a3b8;margin-top:4px">64 positions fill → advance → earn again</div>
         </div>
       </div>
-      <div class="info-card"><div style="font-size:14px;margin-bottom:3px">∞</div><div class="info-card-t" style="color:#10b981">Recurring Engine</div><div class="info-card-p">63 seats fill → grid auto-advances → commissions restart</div></div>
+      <div class="info-card"><div style="font-size:14px;margin-bottom:3px">∞</div><div class="info-card-t" style="color:#10b981">Recurring Engine</div><div class="info-card-p">64 positions fill → grid auto-advances → commissions restart</div></div>
       <div class="info-card"><div style="font-size:14px;margin-bottom:3px">💡</div><div class="info-card-t" style="color:#f59e0b">How You Earn</div><div class="info-card-p">Every seat = 6.875% uni-level. Your referrals also get 40% sponsor bonus.</div></div>
     </div>
   </div>

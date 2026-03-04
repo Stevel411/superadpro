@@ -109,19 +109,19 @@ input[type=range]{width:60px;accent-color:#0ea5e9;cursor:pointer}
 <div class="viz-layout">
 <div style="display:flex;flex-direction:column;gap:12px">
 <div class="card">
-<div class="card-head"><div><div class="card-eye">Stream 02 &#x2014; Profit Engine Grid</div><div class="card-ttl" id="panelTitle">8&#xD7;8 GRID &#x2014; $100 PACKAGE</div></div><div class="progress-mini"><div class="progress-mini-text" id="progressVal">0 / 63 filled</div><div class="progress-mini-bar"><div class="progress-mini-fill" id="progressFill" style="width:0%"></div></div></div></div>
+<div class="card-head"><div><div class="card-eye">Stream 02 &#x2014; Profit Engine Grid</div><div class="card-ttl" id="panelTitle">8&#xD7;8 GRID &#x2014; $100 PACKAGE</div></div><div class="progress-mini"><div class="progress-mini-text" id="progressVal">0 / 64 filled</div><div class="progress-mini-bar"><div class="progress-mini-fill" id="progressFill" style="width:0%"></div></div></div></div>
 <div class="level-labels" id="levelLabels"></div>
 <div class="grid-wrap" id="gridWrap"></div>
 <div class="controls"><button class="btn btn-play" id="playBtn" onclick="togglePlay()">&#x25B6; PLAY</button><button class="btn btn-reset" onclick="resetGrid()">&#x21BA; RESET</button><div class="speed-wrap"><span class="speed-label">Speed</span><input type="range" min="1" max="5" value="3" id="speedSlider"></div></div>
 <div class="advance-banner" id="advanceBanner"><div class="advance-title">&#x26A1; GRID COMPLETE</div><div class="advance-sub" id="advanceSubText"></div></div>
 </div>
 <div class="direct-panel">
-<div class="direct-panel-top"><div><div class="direct-panel-label">Your Personal Direct Referrals</div><div class="direct-panel-sub">Randomly placed across all 8 levels</div></div><div style="text-align:right"><div class="direct-count-big" id="directCountDisplay">15</div><div class="direct-count-caption">of 63 positions</div></div></div>
+<div class="direct-panel-top"><div><div class="direct-panel-label">Your Personal Direct Referrals</div><div class="direct-panel-sub">Randomly placed across all 8 levels</div></div><div style="text-align:right"><div class="direct-count-big" id="directCountDisplay">15</div><div class="direct-count-caption">of 64 positions</div></div></div>
 <input type="range" min="0" max="63" value="15" id="directSlider" style="width:100%;accent-color:#10b981" oninput="updateDirectCount(this.value)">
 <div class="legend-row"><div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(135deg,#10b981,#059669)"></div>Direct &#xB7; $<span id="legendDirect">33.75</span></div><div class="legend-item"><div class="legend-swatch" style="background:#3b82f6"></div>Overspill &#xB7; $<span id="legendOverspill">6.88</span>/level</div></div>
 </div>
 <div class="info-grid">
-<div class="info-card"><div style="font-size:14px;margin-bottom:3px">&#x267E;&#xFE0F;</div><div class="info-card-t" style="color:#38bdf8">Recurring Engine</div><div class="info-card-p">63 seats fill &#x2192; grid auto-advances &#x2192; commissions restart</div></div>
+<div class="info-card"><div style="font-size:14px;margin-bottom:3px">&#x267E;&#xFE0F;</div><div class="info-card-t" style="color:#38bdf8">Recurring Engine</div><div class="info-card-p">64 positions fill &#x2192; grid auto-advances &#x2192; commissions restart</div></div>
 <div class="info-card"><div style="font-size:14px;margin-bottom:3px">&#x1F4A1;</div><div class="info-card-t" style="color:#10b981">How You Earn</div><div class="info-card-p">Every seat = 6.875% uni-level. Your referrals also get 40% sponsor bonus.</div></div>
 <div class="info-card"><div class="info-card-t" style="color:#0ea5e9">Per Seat Earnings</div><table class="mt"><tr><th>Tier</th><th style="color:#38bdf8">Spill</th><th style="color:#10b981">Direct</th></tr><tr><td>$20</td><td>$1.38</td><td>$9.38</td></tr><tr><td>$50</td><td>$3.44</td><td>$23.44</td></tr><tr><td>$100</td><td>$6.88</td><td>$46.88</td></tr></table></div>
 </div>
@@ -195,8 +195,8 @@ function updateSplitDisplay() {
   document.getElementById('sp2lvl').textContent       = perLevel.toFixed(2);
   document.getElementById('sp2').textContent          = '$' + uniTotal.toFixed(2);
   document.getElementById('infoPkg').textContent      = '$' + pkg.toLocaleString();
-  document.getElementById('infoDirectCount').textContent  = directCount + ' seats';
-  document.getElementById('infoOverspillCount').textContent = overspill + ' seats';
+  document.getElementById('infoDirectCount').textContent  = directCount + ' positions';
+  document.getElementById('infoOverspillCount').textContent = overspill + ' positions';
   document.getElementById('infoMax').textContent      = '$' + est.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById('panelTitle').textContent   = `8×8 GRID — $${pkg.toLocaleString()} PACKAGE`;
   document.getElementById('directPerSeat').textContent = direct.toFixed(2);

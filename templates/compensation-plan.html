@@ -744,7 +744,7 @@ footer a{color:#6b7d94;text-decoration:none}
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
           <div>
             <div style="font-size:16px;font-weight:700;color:#fff">Stream 2 — Uni-Level Income (6.875% per entry)</div>
-            <div style="font-size:16px;color:#64748b;margin-top:2px">63 positions × tier price × 6.875% × advances</div>
+            <div style="font-size:16px;color:#64748b;margin-top:2px">64 positions × tier price × 6.875% × advances</div>
           </div>
           <div style="font-size:20px;font-weight:800;color:#0ea5e9" id="s2OwnerResult">$0</div>
         </div>
@@ -1213,12 +1213,12 @@ async function doRegister(e) {
       if(!activeTiers[i]) return;
 
       // Uni-level: 6.875% per level (your position in the chain)
-      // Per advance: 63 positions × price × 6.875%
+      // Per advance: 64 positions × price × 6.875%
       var uniLevelPerAdvance = SEATS * t.price * PER_LEVEL_PCT;
       var uniLevelTotal = uniLevelPerAdvance * advances;
 
       // Direct sponsor: 40% on people YOU personally referred
-      // Capped at 63 per advance (can't have more referrals than seats)
+      // Capped at 64 per advance (can't have more referrals than positions)
       var directPerAdvance = Math.min(referrals, SEATS) * t.price * DIRECT_PCT;
       var directTotal = directPerAdvance * advances;
 

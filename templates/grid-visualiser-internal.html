@@ -160,7 +160,7 @@ input[type=range]{width:60px;accent-color:#0ea5e9;cursor:pointer}
     <div class="card">
       <div class="card-head">
         <div><div class="card-eye">Stream 02 &#x2014; Profit Engine Grid</div><div class="card-ttl" id="panelTitle">8&#xD7;8 GRID &#x2014; $100 PACKAGE</div></div>
-        <div class="progress-mini"><div class="progress-mini-text" id="progressVal">0 / 63 filled</div><div class="progress-mini-bar"><div class="progress-mini-fill" id="progressFill" style="width:0%"></div></div></div>
+        <div class="progress-mini"><div class="progress-mini-text" id="progressVal">0 / 64 filled</div><div class="progress-mini-bar"><div class="progress-mini-fill" id="progressFill" style="width:0%"></div></div></div>
       </div>
       <div class="level-labels" id="levelLabels"></div>
       <div class="grid-wrap" id="gridWrap"></div>
@@ -175,9 +175,9 @@ input[type=range]{width:60px;accent-color:#0ea5e9;cursor:pointer}
     <div class="direct-panel">
       <div class="direct-panel-top">
         <div><div class="direct-panel-label">Your Personal Direct Referrals</div><div class="direct-panel-sub">Randomly placed across all 8 levels</div></div>
-        <div style="text-align:right"><div class="direct-count-big" id="directCountDisplay">0</div><div class="direct-count-caption">of 63 positions</div></div>
+        <div style="text-align:right"><div class="direct-count-big" id="directCountDisplay">0</div><div class="direct-count-caption">of 64 positions</div></div>
       </div>
-      <input type="range" min="0" max="63" value="0" id="directSlider" style="width:100%;accent-color:#10b981" oninput="updateDirectCount(this.value)">
+      <input type="range" min="0" max="64" value="0" id="directSlider" style="width:100%;accent-color:#10b981" oninput="updateDirectCount(this.value)">
       <div class="legend-row">
         <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(135deg,#10b981,#059669)"></div>Direct &#xB7; $<span id="legendDirect">33.75</span></div>
         <div class="legend-item"><div class="legend-swatch" style="background:#3b82f6"></div>Overspill &#xB7; $<span id="legendOverspill">6.88</span>/level</div>
@@ -185,7 +185,7 @@ input[type=range]{width:60px;accent-color:#0ea5e9;cursor:pointer}
     </div>
     <!-- Info strip -->
     <div class="info-grid">
-      <div class="info-card"><div style="font-size:14px;margin-bottom:4px">&#x267E;&#xFE0F;</div><div class="info-card-t" style="color:#38bdf8">Recurring Engine</div><div class="info-card-p">63 seats fill &#x2192; grid auto-advances &#x2192; commissions restart</div></div>
+      <div class="info-card"><div style="font-size:14px;margin-bottom:4px">&#x267E;&#xFE0F;</div><div class="info-card-t" style="color:#38bdf8">Recurring Engine</div><div class="info-card-p">64 positions fill &#x2192; grid auto-advances &#x2192; commissions restart</div></div>
       <div class="info-card"><div style="font-size:14px;margin-bottom:4px">&#x1F4A1;</div><div class="info-card-t" style="color:#10b981">How You Earn</div><div class="info-card-p">Every seat = 6.875% uni-level. Your referrals also get 40% sponsor bonus.</div></div>
       <div class="info-card"><div class="info-card-t" style="color:#0ea5e9">Per Seat Earnings</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px"><div><table class="mt"><tr><th>Tier</th><th style="color:#10b981">Direct</th><th style="color:#38bdf8">Spill</th></tr><tr><td>$20</td><td>$9.38</td><td>$1.38</td></tr><tr><td>$50</td><td>$23.44</td><td>$3.44</td></tr><tr><td>$100</td><td>$46.88</td><td>$6.88</td></tr><tr><td>$200</td><td>$93.75</td><td>$13.75</td></tr></table></div><div><table class="mt"><tr><th>Tier</th><th style="color:#10b981">Direct</th><th style="color:#38bdf8">Spill</th></tr><tr><td>$400</td><td>$187.50</td><td>$27.50</td></tr><tr><td>$600</td><td>$281.25</td><td>$41.25</td></tr><tr><td>$800</td><td>$375.00</td><td>$55.00</td></tr><tr><td>$1,000</td><td>$468.75</td><td>$68.75</td></tr></table></div></div></div>
     </div>
@@ -213,7 +213,7 @@ let filled      = 0;
 let directFilled = 0;
 let playing     = false;
 let timer       = null;
-let directCount = 0;       // how many of the 63 positions are your personal referrals
+let directCount = 0;       // how many of the 64 positions are your personal referrals
 let directSeats = new Set(); // which seat indices (1–63) are directs — randomised each reset
 
 // Running totals
@@ -225,12 +225,12 @@ const LEVEL_COLOURS = [
   '#0ea5e9','#38bdf8','#b197fc','#c4b5fd'
 ];
 
-// ── Randomise which seats are personal directs ─────────────────────────────
+// ── Randomise which positions are personal directs ─────────────────────────
 function randomiseDirects() {
   directSeats.clear();
-  // Fisher-Yates shuffle of seats 1–63, pick first directCount
-  const pool = Array.from({length:63}, (_,i) => i+1);
-  for (let i = 62; i > 0; i--) {
+  // Fisher-Yates shuffle of positions 0–63, pick first directCount
+  const pool = Array.from({length:64}, (_,i) => i);
+  for (let i = 63; i > 0; i--) {
     const j = Math.floor(Math.random() * (i+1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
@@ -257,7 +257,7 @@ function updateSplitDisplay() {
   const direct   = pkg * 0.40;
   const uniTotal = pkg * 0.55;
   const avgPerLevel = uniTotal / 8;
-  const overspill = 63 - directCount;
+  const overspill = 64 - directCount;
   const est = (directCount * (direct + avgPerLevel)) + (overspill * avgPerLevel);
 
   document.getElementById('splitPrice').textContent   = pkg.toLocaleString();
@@ -265,8 +265,8 @@ function updateSplitDisplay() {
   document.getElementById('sp2lvl').textContent       = avgPerLevel.toFixed(2);
   document.getElementById('sp2').textContent          = '$' + uniTotal.toFixed(2);
   document.getElementById('infoPkg').textContent      = '$' + pkg.toLocaleString();
-  document.getElementById('infoDirectCount').textContent  = directCount + ' seats';
-  document.getElementById('infoOverspillCount').textContent = overspill + ' seats';
+  document.getElementById('infoDirectCount').textContent  = directCount + ' positions';
+  document.getElementById('infoOverspillCount').textContent = overspill + ' positions';
   document.getElementById('infoMax').textContent      = '$' + est.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById('panelTitle').textContent   = `8×8 GRID — $${pkg.toLocaleString()} PACKAGE`;
   document.getElementById('directPerSeat').textContent = direct.toFixed(2);
@@ -292,10 +292,7 @@ function buildGrid() {
   for (let i = 0; i < 64; i++) {
     const c = document.createElement('div');
     c.className = 'cell';
-    if (i === 0) {
-      c.classList.add('owner');
-      c.innerHTML = '<span style="font-size:clamp(12px,1.4vw,17px);font-weight:800;line-height:1.3;color:#fff">YOU</span>';
-    }
+    c.textContent = (i + 1);
     wrap.appendChild(c);
     cells.push(c);
   }
@@ -323,23 +320,22 @@ function getDelay() {
 
 function tick() {
   if (!playing) return;
-  if (filled >= 63) { gridAdvance(); return; }
+  if (filled >= 64) { gridAdvance(); return; }
   fillNext();
   timer = setTimeout(tick, getDelay());
 }
 
-// ── Fill one seat ──────────────────────────────────────────────────────────
+// ── Fill one position ──────────────────────────────────────────────────────
 function fillNext() {
-  filled++;
   const cell     = cells[filled];
-  const level    = Math.floor((filled - 1) / 8);  // 0 = L1 … 7 = L8
+  const level    = Math.floor(filled / 8);  // 0 = L1 … 7 = L8
   const isDirect = directSeats.has(filled);
   const perLevel = pkg * 0.55 / 8;   // 6.875% flat per level
 
   // ── COMMISSION LOGIC ──────────────────────────────────────────────────
   // Uni-level commissions: 6.875% flat per level (55% / 8 levels).
   // Each of 8 upline levels receives the same amount.
-  // If this seat is YOUR personal direct referral, you also receive
+  // If this position is YOUR personal direct referral, you also receive
   // the 40% direct sponsor commission.
   // ─────────────────────────────────────────────────────────────────────
   let youEarn = perLevel;
@@ -372,10 +368,11 @@ function fillNext() {
   bump('uniAmt',     tUni);
   document.getElementById('totalAmt').textContent = '$' + (tSponsor + tUni).toFixed(2);
   document.getElementById('directFilled').textContent   = directFilled;
-  document.getElementById('overspillFilled').textContent = filled - directFilled;
+  document.getElementById('overspillFilled').textContent = (filled + 1) - directFilled;
 
-  const pct = Math.round((filled / 63) * 100);
-  document.getElementById('progressVal').textContent = `${filled} / 63 positions filled`;
+  filled++;
+  const pct = Math.round((filled / 64) * 100);
+  document.getElementById('progressVal').textContent = `${filled} / 64 positions filled`;
   document.getElementById('progressFill').style.width = pct + '%';
 
   addLog(filled, level+1, isDirect, youEarn, isDirect ? '#10b981' : col);
@@ -428,7 +425,7 @@ function resetGrid() {
     document.getElementById(id).textContent = '$0.00'
   );
   document.getElementById('totalAmt').textContent         = '$0.00';
-  document.getElementById('progressVal').textContent      = '0 / 63 positions filled';
+  document.getElementById('progressVal').textContent      = '0 / 64 positions filled';
   document.getElementById('progressFill').style.width     = '0%';
   document.getElementById('directFilled').textContent     = '0';
   document.getElementById('overspillFilled').textContent  = '0';
