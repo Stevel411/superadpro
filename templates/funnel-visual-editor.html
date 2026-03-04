@@ -4,773 +4,442 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Page Builder — {{ page.title }}</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&family=Space+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/grapesjs@0.21.13/dist/css/grapes.min.css">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0e1a;--surface:#111827;--border:rgba(14,165,233,0.1);--blue:#0ea5e9;--blue-dim:rgba(14,165,233,0.08);--text:#e2e8f0;--text-dim:#64748b;--text-bright:#fff;--green:#10b981;--radius:12px}
+:root{--bg:#0a0e1a;--surface:#111827;--border:rgba(14,165,233,0.1);--blue:#0ea5e9;--blue-dim:rgba(14,165,233,0.08);--text:#e2e8f0;--text-dim:#64748b;--green:#10b981;--radius:8px}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
-.app{display:grid;grid-template-rows:60px 1fr;grid-template-columns:300px 1fr;height:100vh}
-.topbar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:var(--bg);border-bottom:1px solid var(--border)}
-.sidebar{overflow-y:auto;background:var(--surface);border-right:1px solid var(--border);scrollbar-width:thin;scrollbar-color:rgba(14,165,233,0.12) transparent}
-.preview{overflow-y:auto;background:#1a2035}
-.tb-left{display:flex;align-items:center;gap:14px}
-.tb-back{color:var(--text-dim);font-size:12px;font-weight:600;text-decoration:none;padding:6px 12px;border-radius:8px;border:1px solid rgba(148,163,184,0.12);transition:all 0.2s;display:flex;align-items:center;gap:5px}
+html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
+
+/* ── Topbar ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:52px;background:var(--bg);border-bottom:1px solid var(--border);position:relative;z-index:10}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-back{color:var(--text-dim);font-size:12px;font-weight:600;text-decoration:none;padding:5px 10px;border-radius:6px;border:1px solid rgba(148,163,184,0.12);display:flex;align-items:center;gap:4px}
 .tb-back:hover{color:#38bdf8;border-color:rgba(56,189,248,0.25)}
-.tb-logo{font-family:Sora,sans-serif;font-weight:800;font-size:14px;color:var(--text-bright);display:flex;align-items:center;gap:6px}
-.tb-logo b{color:#38bdf8}
-.tb-sep{width:1px;height:22px;background:var(--border)}
-.tb-title{font-family:Sora,sans-serif;font-size:13px;font-weight:700;color:#38bdf8}
-.tb-center{display:flex;align-items:center;gap:10px}
-.tb-page-name{background:var(--blue-dim);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-weight:500;font-family:inherit;padding:6px 14px;width:220px}
-.tb-page-name:focus{outline:none;border-color:rgba(14,165,233,0.4)}
-.tb-page-name::placeholder{color:var(--text-dim)}
-.tb-status{font-size:11px;color:var(--text-dim);min-width:80px}
+.tb-logo{font-family:Sora;font-weight:800;font-size:14px;color:#fff}
+.tb-logo span{color:#38bdf8}
+.tb-sep{width:1px;height:20px;background:var(--border)}
+.tb-center{display:flex;align-items:center;gap:8px}
+.tb-input{background:var(--blue-dim);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;font-weight:500;font-family:inherit;padding:5px 12px;width:200px}
+.tb-input:focus{outline:none;border-color:rgba(14,165,233,0.4)}
+.tb-status{font-size:10px;color:var(--text-dim);min-width:80px;text-align:center}
 .tb-right{display:flex;align-items:center;gap:6px}
-.tb-btn{padding:7px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all 0.15s}
-.btn-preview{background:var(--blue-dim);color:var(--text-dim);border:1px solid var(--border)}.btn-preview:hover{color:#38bdf8;border-color:rgba(14,165,233,0.3)}
-.btn-save{background:linear-gradient(135deg,#059669,var(--green));color:#fff}.btn-save:hover{transform:translateY(-1px)}
-.btn-publish{background:linear-gradient(135deg,#0284c7,var(--blue));color:#fff}.btn-publish:hover{transform:translateY(-1px)}
-.sb-section{border-bottom:1px solid var(--border)}
-.sb-header{padding:16px 18px 12px;display:flex;align-items:center;justify-content:space-between}
-.sb-title{font-family:Sora,sans-serif;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#38bdf8}
-.sb-subtitle{font-size:11px;color:var(--text-dim)}
-.section-list{padding:0 12px 12px}
-.section-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid transparent;cursor:pointer;transition:all 0.15s;margin-bottom:4px;user-select:none}
-.section-item:hover{background:var(--blue-dim);border-color:var(--border)}
-.section-item.active{background:rgba(14,165,233,0.15);border-color:rgba(14,165,233,0.35);box-shadow:0 0 0 1px rgba(14,165,233,0.15)}
-.si-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0}
-.si-name{font-size:13px;font-weight:600;color:var(--text);flex:1}
-.si-toggle{width:36px;height:20px;border-radius:10px;background:#334155;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0}
-.si-toggle.on{background:var(--blue)}
-.si-toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform 0.2s}
-.si-toggle.on::after{transform:translateX(16px)}
-.si-grip{color:var(--text-dim);cursor:grab;font-size:14px;opacity:0;transition:opacity 0.15s;padding:4px}
-.si-grip:active{cursor:grabbing}
-.section-item:hover .si-grip{opacity:1}
-.section-item.dragging{opacity:0.4;border:1px dashed rgba(14,165,233,0.4)}
-.section-item.drag-over-top{border-top:2px solid #0ea5e9 !important}
-.section-item.drag-over-bottom{border-bottom:2px solid #0ea5e9 !important}
-.si-move-btns{display:flex;flex-direction:column;gap:1px;opacity:0;transition:opacity 0.15s}
-.section-item:hover .si-move-btns{opacity:1}
-.si-move{width:20px;height:16px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:4px;background:var(--blue-dim);color:var(--text-dim);font-size:10px;cursor:pointer;padding:0;font-family:inherit;line-height:1}
-.si-move:hover{color:#38bdf8;border-color:rgba(14,165,233,0.3);background:rgba(14,165,233,0.12)}
-.editor-panel{padding:14px 18px}
-.editor-panel h3{font-family:Sora,sans-serif;font-size:13px;font-weight:700;color:var(--text-bright);margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.field{margin-bottom:14px}
-.field label{display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);margin-bottom:5px}
-.field input,.field textarea,.field select{width:100%;padding:9px 12px;background:rgba(14,165,233,0.04);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;transition:border-color 0.2s}
-.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:rgba(14,165,233,0.4)}
-.field textarea{resize:vertical;min-height:60px}
-.colour-swatches{display:flex;gap:6px;flex-wrap:wrap}
-.swatch{width:32px;height:32px;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:all 0.15s;position:relative}
-.swatch:hover{transform:scale(1.1)}
-.swatch.active{border-color:#fff;box-shadow:0 0 0 2px var(--blue)}
-.swatch::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;opacity:0}
-.swatch.active::after{opacity:1}
-.add-section-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:calc(100% - 24px);margin:8px 12px 16px;padding:10px;border-radius:10px;border:1px dashed rgba(14,165,233,0.2);background:transparent;color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s}
-.add-section-btn:hover{border-color:rgba(14,165,233,0.4);color:#38bdf8;background:var(--blue-dim)}
-.add-dropdown{display:none;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:6px;margin:0 12px 12px;box-shadow:0 8px 24px rgba(0,0,0,0.3)}
-.add-dropdown.open{display:block}
-.add-opt{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text);transition:all 0.15s}
-.add-opt:hover{background:var(--blue-dim);color:#38bdf8}
-.add-opt span{font-size:16px}
-.preview-frame{width:100%;max-width:820px;margin:0 auto;min-height:100%}
-.live-preview{padding:20px}
-.prev-section{position:relative;border:2px solid transparent;border-radius:8px;transition:border-color 0.2s;cursor:pointer;margin-bottom:2px}
-.prev-section:hover{border-color:rgba(14,165,233,0.2)}
-.prev-section.active{border-color:rgba(14,165,233,0.5);box-shadow:0 0 0 4px rgba(14,165,233,0.08)}
-.prev-section.disabled{opacity:0.3;pointer-events:none}
-.prev-section .edit-hint{position:absolute;top:8px;right:8px;background:rgba(14,165,233,0.9);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;opacity:0;transition:opacity 0.2s;pointer-events:none;z-index:5}
-.prev-section:hover .edit-hint{opacity:1}
-.prev-section .prev-move-bar{position:absolute;top:8px;left:8px;display:flex;gap:4px;opacity:0;transition:opacity 0.2s;z-index:5}
-.prev-section:hover .prev-move-bar{opacity:1}
-.prev-move-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:none;background:rgba(14,165,233,0.9);color:#fff;font-size:12px;cursor:pointer;font-family:inherit;transition:all 0.15s}
-.prev-move-btn:hover{background:rgba(14,165,233,1);transform:scale(1.1)}
-.prev-move-btn:disabled{opacity:0.3;cursor:default;transform:none}
-.prev-move-btn.grab-handle{cursor:grab;font-size:14px}
-.prev-move-btn.grab-handle:active{cursor:grabbing}
-.prev-right-bar{position:absolute;top:8px;right:8px;display:flex;align-items:center;gap:6px;opacity:0;transition:opacity 0.2s;z-index:5}
-.prev-section:hover .prev-right-bar{opacity:1}
-.prev-right-bar .edit-hint{position:static;opacity:1;pointer-events:auto}
-.prev-del-btn{background:rgba(239,68,68,0.85) !important}
-.prev-del-btn:hover{background:rgba(239,68,68,1) !important}
-.device-toggle{display:flex;background:var(--blue-dim);border-radius:8px;overflow:hidden;border:1px solid var(--border)}
-.device-toggle button{padding:5px 10px;border:none;background:transparent;color:var(--text-dim);font-size:14px;cursor:pointer;transition:all 0.15s}
-.device-toggle button.active{background:var(--blue);color:#fff}
-.sidebar::-webkit-scrollbar,.preview::-webkit-scrollbar{width:5px}
-.sidebar::-webkit-scrollbar-thumb,.preview::-webkit-scrollbar-thumb{background:rgba(14,165,233,0.12);border-radius:10px}
-.del-btn{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.06);color:#f87171;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px;transition:all 0.15s}
-.del-btn:hover{background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.4)}
-.ed-tabs{display:flex;gap:2px;margin-bottom:14px;background:rgba(14,165,233,0.04);border-radius:8px;padding:2px}
-.ed-tab{flex:1;padding:7px 4px;text-align:center;font-size:11px;font-weight:700;color:var(--text-dim);border-radius:6px;cursor:pointer;transition:all 0.15s;border:none;background:transparent;font-family:inherit}
-.ed-tab:hover{color:var(--text)}
-.ed-tab.active{background:var(--blue);color:#fff}
-.ed-pane{display:none}.ed-pane.active{display:block}
-.colour-row{display:flex;align-items:center;gap:8px}
-.cpick{width:32px;height:32px;border-radius:8px;border:2px solid rgba(255,255,255,0.1);cursor:pointer;flex-shrink:0;padding:0;overflow:hidden;position:relative}
-.cpick input[type=color]{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);cursor:pointer;border:none;padding:0}
-.chex{flex:1;padding:7px 10px;background:rgba(14,165,233,0.04);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:'DM Sans',monospace}
-.chex:focus{outline:none;border-color:rgba(14,165,233,0.4)}
-.cpresets{display:flex;gap:3px;flex-wrap:wrap;margin-top:6px}
-.cpre{width:20px;height:20px;border-radius:5px;cursor:pointer;border:1.5px solid transparent;transition:all 0.12s}
-.cpre:hover{transform:scale(1.15);border-color:rgba(255,255,255,0.4)}
-.range-row{display:flex;align-items:center;gap:8px}
-.range-row input[type=range]{flex:1;height:4px;-webkit-appearance:none;background:rgba(14,165,233,0.15);border-radius:2px;outline:none}
-.range-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--blue);cursor:pointer;border:2px solid var(--surface)}
-.rval{font-size:11px;color:var(--text-dim);min-width:32px;text-align:right;font-family:monospace}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.ed-divider{height:1px;background:var(--border);margin:14px 0}
-.ed-label{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#38bdf8;margin:12px 0 6px}
-.styled-select{width:100%;padding:8px 10px;background:rgba(14,165,233,0.04);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;font-family:inherit;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
-.styled-select:focus{outline:none;border-color:rgba(14,165,233,0.4)}
-.styled-select option{background:var(--surface);color:var(--text)}
+.tb-btn{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all 0.15s}
+.btn-device{background:var(--blue-dim);color:var(--text-dim);border:1px solid var(--border);font-size:14px;padding:5px 8px}
+.btn-device:hover,.btn-device.active{color:#38bdf8;border-color:rgba(14,165,233,0.3)}
+.btn-preview{background:var(--blue-dim);color:var(--text-dim);border:1px solid var(--border)}
+.btn-preview:hover{color:#38bdf8;border-color:rgba(14,165,233,0.3)}
+.btn-save{background:linear-gradient(135deg,#059669,var(--green));color:#fff}
+.btn-save:hover{box-shadow:0 2px 12px rgba(16,185,129,0.3)}
+.btn-publish{background:linear-gradient(135deg,#0284c7,var(--blue));color:#fff}
+.btn-publish:hover{box-shadow:0 2px 12px rgba(14,165,233,0.3)}
+.btn-template{background:rgba(168,85,247,0.1);color:#a78bfa;border:1px solid rgba(168,85,247,0.2)}
+.btn-template:hover{background:rgba(168,85,247,0.15);border-color:rgba(168,85,247,0.35)}
+
+/* ── GrapesJS Overrides — SuperAdPro Dark Theme ── */
+.gjs-one-bg{background:var(--surface)!important}
+.gjs-two-color{color:var(--text)!important}
+.gjs-three-bg{background:var(--blue)!important}
+.gjs-four-color,.gjs-four-color-h:hover{color:#38bdf8!important}
+.gjs-pn-panel{background:var(--surface)!important;border-color:var(--border)!important}
+.gjs-pn-views,.gjs-pn-views-container{background:var(--surface)!important}
+.gjs-block{background:rgba(14,165,233,0.06)!important;border:1px solid rgba(14,165,233,0.12)!important;border-radius:8px!important;color:var(--text)!important;min-height:60px!important;transition:all 0.15s!important}
+.gjs-block:hover{background:rgba(14,165,233,0.12)!important;border-color:rgba(14,165,233,0.25)!important;box-shadow:0 2px 8px rgba(14,165,233,0.15)!important}
+.gjs-block__media{color:#38bdf8!important}
+.gjs-block-label{font-family:'DM Sans'!important;font-size:11px!important;font-weight:600!important}
+.gjs-category-title,.gjs-layer-title,.gjs-sm-sector-title{font-family:'DM Sans'!important;font-weight:700!important;color:var(--text)!important;background:rgba(14,165,233,0.04)!important;border-color:var(--border)!important}
+.gjs-clm-tags .gjs-input{background:var(--bg)!important;border-color:var(--border)!important;color:var(--text)!important}
+.gjs-field{background:var(--bg)!important;border-color:var(--border)!important;color:var(--text)!important;border-radius:4px!important}
+.gjs-field input,.gjs-field select,.gjs-field textarea{color:var(--text)!important}
+.gjs-radio-item{border-color:var(--border)!important}
+.gjs-radio-item:checked,.gjs-radio-item.active{background:var(--blue)!important}
+.gjs-sm-label{color:var(--text-dim)!important;font-size:11px!important}
+.gjs-toolbar{background:var(--blue)!important;border-radius:6px!important}
+.gjs-resizer-h{border-color:var(--blue)!important}
+
+/* Editor area height */
+.editor-wrap{display:flex;flex-direction:column;height:calc(100vh - 52px)}
+#gjs{flex:1;overflow:hidden}
+
+/* Template picker modal */
+.tpl-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+.tpl-overlay.show{display:flex}
+.tpl-modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;max-width:800px;width:90%;max-height:80vh;overflow-y:auto;padding:28px}
+.tpl-title{font-family:Sora;font-size:20px;font-weight:800;margin-bottom:4px}
+.tpl-sub{font-size:12px;color:var(--text-dim);margin-bottom:20px}
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:700px){.tpl-grid{grid-template-columns:1fr 1fr}}
+.tpl-card{border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all 0.2s;background:var(--bg)}
+.tpl-card:hover{border-color:rgba(14,165,233,0.35);box-shadow:0 4px 16px rgba(14,165,233,0.15);transform:translateY(-2px)}
+.tpl-thumb{height:120px;background:#1a2035;display:flex;align-items:center;justify-content:center;font-size:36px}
+.tpl-info{padding:12px}
+.tpl-name{font-size:13px;font-weight:700;margin-bottom:2px}
+.tpl-desc{font-size:10px;color:var(--text-dim)}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;z-index:999;transition:transform 0.3s ease,opacity 0.3s;opacity:0}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.success{background:#10b981;color:#fff}
+.toast.error{background:#ef4444;color:#fff}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="topbar">
-    <div class="tb-left">
-      <a href="/funnels" class="tb-back">← Funnels</a>
-      <div class="tb-sep"></div>
-      <div class="tb-logo"><svg style="width:18px;height:18px" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>Super<b>Ad</b>Pro</div>
-      <div class="tb-sep"></div>
-      <div class="tb-title">Page Builder</div>
-    </div>
-    <div class="tb-center">
-      <input type="text" class="tb-page-name" id="pageName" value="{{ page.title }}" placeholder="Page name...">
-      <span class="tb-status" id="saveStatus"></span>
-    </div>
-    <div class="tb-right">
-      <button class="tb-btn btn-preview" onclick="doUndo()" title="Undo (Ctrl+Z)">↩</button>
-      <button class="tb-btn btn-preview" onclick="doRedo()" title="Redo (Ctrl+Y)">↪</button>
-      <div class="device-toggle">
-        <button class="active" onclick="setDevice('desktop',this)" title="Desktop">🖥</button>
-        <button onclick="setDevice('tablet',this)" title="Tablet">📱</button>
-        <button onclick="setDevice('mobile',this)" title="Mobile">📲</button>
-      </div>
-      <button class="tb-btn btn-preview" onclick="previewPage()">👁 Preview</button>
-      <button class="tb-btn btn-save" onclick="savePage()">💾 Save</button>
-      <button class="tb-btn btn-publish" onclick="savePage(true)">🚀 Publish</button>
-    </div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-left">
+    <a href="/funnels" class="tb-back">← Pages</a>
+    <div class="tb-sep"></div>
+    <div class="tb-logo">Super<span>Ad</span>Pro</div>
+    <div class="tb-sep"></div>
+    <span style="font-family:Sora;font-size:12px;font-weight:700;color:#38bdf8">Page Builder</span>
   </div>
-  <div class="sidebar" id="sidebar">
-    <div class="sb-section">
-      <div class="sb-header"><div class="sb-title">Sections</div><div class="sb-subtitle">Click to edit · Drag to reorder</div></div>
-      <div class="section-list" id="sectionList"></div>
-      <button class="add-section-btn" onclick="toggleAddDropdown()">+ Add Section</button>
-      <div class="add-dropdown" id="addDropdown">
-        <div class="add-opt" onclick="addSection('hero')"><span>🚀</span> Hero Section</div>
-        <div class="add-opt" onclick="addSection('video')"><span>🎬</span> Video Hero</div>
-        <div class="add-opt" onclick="addSection('features')"><span>✨</span> Features Grid</div>
-        <div class="add-opt" onclick="addSection('benefits')"><span>💎</span> Benefits List</div>
-        <div class="add-opt" onclick="addSection('testimonials')"><span>⭐</span> Testimonials</div>
-        <div class="add-opt" onclick="addSection('cta')"><span>🔥</span> Call to Action</div>
-        <div class="add-opt" onclick="addSection('optin')"><span>📧</span> Opt-In Form</div>
-        <div class="add-opt" onclick="addSection('pricing')"><span>💲</span> Pricing Card</div>
-        <div class="add-opt" onclick="addSection('guarantee')"><span>🛡</span> Guarantee Box</div>
-        <div class="add-opt" onclick="addSection('faq')"><span>❓</span> FAQ Section</div>
-        <div class="add-opt" onclick="addSection('footer')"><span>📋</span> Footer</div>
-      </div>
-    </div>
-    <div class="sb-section" id="editorPanel" style="display:none">
-      <div class="editor-panel" id="editorContent"></div>
-    </div>
-    <div class="sb-section">
-      <div class="sb-header"><div class="sb-title">Theme</div></div>
-      <div class="editor-panel">
-        <div class="field"><label>Colour Scheme</label>
-          <div class="colour-swatches" id="colourSwatches">
-            <div class="swatch active" style="background:linear-gradient(135deg,#0a0a1a,#1a1a4a)" data-theme="dark-blue" onclick="setTheme(this)"></div>
-            <div class="swatch" style="background:linear-gradient(135deg,#0f172a,#1e293b)" data-theme="slate" onclick="setTheme(this)"></div>
-            <div class="swatch" style="background:linear-gradient(135deg,#0c4a6e,#0369a1)" data-theme="ocean" onclick="setTheme(this)"></div>
-            <div class="swatch" style="background:linear-gradient(135deg,#1e1b4b,#312e81)" data-theme="purple" onclick="setTheme(this)"></div>
-            <div class="swatch" style="background:linear-gradient(135deg,#052e16,#166534)" data-theme="emerald" onclick="setTheme(this)"></div>
-            <div class="swatch" style="background:#ffffff;border:1px solid #e2e8f0" data-theme="light" onclick="setTheme(this)"></div>
-          </div>
-          <div style="margin-top:10px">
-            <label style="font-size:11px;color:var(--dim);margin-bottom:4px;display:block">Custom Background</label>
-            <div class="colour-row">
-              <div class="cpick" id="themeBgPick" style="background:#0a0a1a">
-                <input type="color" value="#0a0a1a" oninput="setCustomThemeBg(this.value)">
-              </div>
-              <input type="text" class="chex" id="themeBgHex" value="" placeholder="Use preset" oninput="if(this.value.match(/^#[0-9a-f]{6}$/i))setCustomThemeBg(this.value)">
-            </div>
-            <div class="cpresets" style="margin-top:6px">
-              <div class="cpre" style="background:#0a0a1a" onclick="setCustomThemeBg('#0a0a1a')"></div>
-              <div class="cpre" style="background:#0f172a" onclick="setCustomThemeBg('#0f172a')"></div>
-              <div class="cpre" style="background:#1a1a2e" onclick="setCustomThemeBg('#1a1a2e')"></div>
-              <div class="cpre" style="background:#0c0c1d" onclick="setCustomThemeBg('#0c0c1d')"></div>
-              <div class="cpre" style="background:#111827" onclick="setCustomThemeBg('#111827')"></div>
-              <div class="cpre" style="background:#18181b" onclick="setCustomThemeBg('#18181b')"></div>
-              <div class="cpre" style="background:#1e1b4b" onclick="setCustomThemeBg('#1e1b4b')"></div>
-              <div class="cpre" style="background:#052e16" onclick="setCustomThemeBg('#052e16')"></div>
-              <div class="cpre" style="background:#0c4a6e" onclick="setCustomThemeBg('#0c4a6e')"></div>
-              <div class="cpre" style="background:#1c1917" onclick="setCustomThemeBg('#1c1917')"></div>
-              <div class="cpre" style="background:#27272a" onclick="setCustomThemeBg('#27272a')"></div>
-              <div class="cpre" style="background:#f8fafc" onclick="setCustomThemeBg('#f8fafc')"></div>
-              <div class="cpre" style="background:#fefce8" onclick="setCustomThemeBg('#fefce8')"></div>
-              <div class="cpre" style="background:#f0fdf4" onclick="setCustomThemeBg('#f0fdf4')"></div>
-              <div class="cpre" style="background:#eff6ff" onclick="setCustomThemeBg('#eff6ff')"></div>
-              <div class="cpre" style="background:#faf5ff" onclick="setCustomThemeBg('#faf5ff')"></div>
-            </div>
-          </div>
-        </div>
-        <div class="field"><label>Accent Colour</label>
-          <div class="colour-swatches" id="accentSwatches">
-            <div class="swatch active" style="background:#0ea5e9" data-accent="#0ea5e9" onclick="setAccent(this)"></div>
-            <div class="swatch" style="background:#8b5cf6" data-accent="#8b5cf6" onclick="setAccent(this)"></div>
-            <div class="swatch" style="background:#f59e0b" data-accent="#f59e0b" onclick="setAccent(this)"></div>
-            <div class="swatch" style="background:#10b981" data-accent="#10b981" onclick="setAccent(this)"></div>
-            <div class="swatch" style="background:#ef4444" data-accent="#ef4444" onclick="setAccent(this)"></div>
-            <div class="swatch" style="background:#ec4899" data-accent="#ec4899" onclick="setAccent(this)"></div>
-          </div>
-          <div style="margin-top:10px">
-            <label style="font-size:11px;color:var(--dim);margin-bottom:4px;display:block">Custom Accent</label>
-            <div class="colour-row">
-              <div class="cpick" id="accentPick" style="background:#0ea5e9">
-                <input type="color" value="#0ea5e9" oninput="setAccentCustom(this.value)">
-              </div>
-              <input type="text" class="chex" id="accentHex" value="#0ea5e9" oninput="if(this.value.match(/^#[0-9a-f]{6}$/i))setAccentCustom(this.value)">
-            </div>
-            <div class="cpresets" style="margin-top:6px">
-              <div class="cpre" style="background:#0ea5e9" onclick="setAccentCustom('#0ea5e9')"></div>
-              <div class="cpre" style="background:#8b5cf6" onclick="setAccentCustom('#8b5cf6')"></div>
-              <div class="cpre" style="background:#f59e0b" onclick="setAccentCustom('#f59e0b')"></div>
-              <div class="cpre" style="background:#10b981" onclick="setAccentCustom('#10b981')"></div>
-              <div class="cpre" style="background:#ef4444" onclick="setAccentCustom('#ef4444')"></div>
-              <div class="cpre" style="background:#ec4899" onclick="setAccentCustom('#ec4899')"></div>
-              <div class="cpre" style="background:#06b6d4" onclick="setAccentCustom('#06b6d4')"></div>
-              <div class="cpre" style="background:#d946ef" onclick="setAccentCustom('#d946ef')"></div>
-              <div class="cpre" style="background:#f97316" onclick="setAccentCustom('#f97316')"></div>
-              <div class="cpre" style="background:#14b8a6" onclick="setAccentCustom('#14b8a6')"></div>
-              <div class="cpre" style="background:#6366f1" onclick="setAccentCustom('#6366f1')"></div>
-              <div class="cpre" style="background:#84cc16" onclick="setAccentCustom('#84cc16')"></div>
-              <div class="cpre" style="background:#e11d48" onclick="setAccentCustom('#e11d48')"></div>
-              <div class="cpre" style="background:#facc15" onclick="setAccentCustom('#facc15')"></div>
-              <div class="cpre" style="background:#22d3ee" onclick="setAccentCustom('#22d3ee')"></div>
-              <div class="cpre" style="background:#a855f7" onclick="setAccentCustom('#a855f7')"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="tb-center">
+    <input class="tb-input" type="text" id="pageName" value="{{ page.title }}" placeholder="Page name...">
+    <div class="tb-status" id="saveStatus">Ready</div>
   </div>
-  <div class="preview" id="previewArea">
-    <div class="preview-frame" id="previewFrame"><div class="live-preview" id="livePreview"></div></div>
+  <div class="tb-right">
+    <button class="tb-btn btn-template" onclick="showTemplates()">📋 Templates</button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn btn-device" id="devDesktop" onclick="setDevice('Desktop')" title="Desktop">🖥</button>
+    <button class="tb-btn btn-device" id="devTablet" onclick="setDevice('Tablet')" title="Tablet">📱</button>
+    <button class="tb-btn btn-device" id="devMobile" onclick="setDevice('Mobile')" title="Mobile">📲</button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn btn-preview" onclick="togglePreview()">👁 Preview</button>
+    <button class="tb-btn btn-save" onclick="savePage('draft')">💾 Save</button>
+    <button class="tb-btn btn-publish" onclick="savePage('published')">🚀 Publish</button>
   </div>
 </div>
+
+<!-- EDITOR -->
+<div class="editor-wrap">
+  <div id="gjs"></div>
+</div>
+
+<!-- TEMPLATE PICKER -->
+<div class="tpl-overlay" id="tplOverlay" onclick="if(event.target===this)hideTemplates()">
+  <div class="tpl-modal">
+    <div class="tpl-title">Choose a Template</div>
+    <div class="tpl-sub">Start with a pre-built design and customise it to match your brand.</div>
+    <div class="tpl-grid" id="tplGrid"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/grapesjs@0.21.13"></script>
+<script src="https://unpkg.com/grapesjs-preset-webpage@1.0.3"></script>
+<script src="https://unpkg.com/grapesjs-blocks-basic@1.0.2"></script>
+<script src="https://unpkg.com/grapesjs-plugin-forms@2.0.6"></script>
 <script>
-const PAGE_ID={{page.id}},PAGE_SLUG="{{page.slug}}";
-let currentStatus="{{page.status}}",currentTheme='dark-blue',currentAccent='#0ea5e9',activeSection=null;
-let lastUpdatedAt=null; // For optimistic locking
+// ═══ TEMPLATES ═══
+const TEMPLATES = {
+  blank: {name:'Blank Page',desc:'Start from scratch',icon:'📄',html:'<div style="padding:60px 20px;text-align:center"><h1>Your Page Title</h1><p>Start building by dragging blocks from the right panel.</p></div>',css:''},
 
-const FONTS=['Sora','DM Sans','Inter','Space Grotesk','Plus Jakarta Sans','Outfit','Poppins','Montserrat','Raleway','Playfair Display'];
-function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/\x3c/g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function escUrl(u){if(!u)return'#';const s=String(u).trim();if(s.startsWith('javascript:'))return'#';return esc(s);}
-const CPRE=['#0ea5e9','#38bdf8','#0284c7','#8b5cf6','#a78bfa','#ec4899','#ef4444','#f59e0b','#10b981','#16a34a','#fff','#e2e8f0','#94a3b8','#1e293b','#0f172a','#000'];
-const DEFAULTS={
-  hero:{icon:'🚀',name:'Hero Section',fields:{headline:'Your Headline Goes Here',subheadline:'A compelling subheadline that explains the value proposition and gets visitors excited.',cta_text:'Get Started Now →',cta_url:'#'},style:{heading_font:'Sora',heading_size:44,heading_colour:'',sub_colour:'',bg_custom:'',padding_y:80,cta_colour:'',cta_radius:12}},
-  video:{icon:'🎬',name:'Video Hero',fields:{headline:'Watch This Short Video',subheadline:'See exactly how this system works in under 3 minutes.',video_url:'https://www.youtube.com/embed/dQw4w9WgXcQ',cta_text:'Yes, I Want In →',cta_url:'#'},style:{heading_font:'Sora',heading_size:40,heading_colour:'',sub_colour:'',bg_custom:'',padding_y:60,cta_colour:'',cta_radius:12,video_radius:14}},
-  features:{icon:'✨',name:'Features Grid',fields:{heading:'Why Choose Us',f1_icon:'🚀',f1_title:'Feature One',f1_desc:'Brief description of this feature.',f2_icon:'💰',f2_title:'Feature Two',f2_desc:'Brief description of this feature.',f3_icon:'⚡',f3_title:'Feature Three',f3_desc:'Brief description of this feature.'},style:{heading_font:'Sora',heading_size:30,heading_colour:'',bg_custom:'',padding_y:60,card_radius:14,card_bg:'',card_border:''}},
-  benefits:{icon:'💎',name:'Benefits List',fields:{heading:'What You Get',b1:'Complete access to the full platform and all tools',b2:'Three separate income streams that all stack',b3:'AI-powered marketing suite built into your dashboard',b4:'Instant commissions — no waiting for pay day',b5:'Dedicated support and training resources'},style:{heading_font:'Sora',heading_size:28,heading_colour:'',bg_custom:'',padding_y:60,check_colour:''}},
-  testimonials:{icon:'⭐',name:'Testimonials',fields:{heading:'What People Are Saying',t1_text:'This completely changed my approach. Within 30 days I saw real results.',t1_name:'Sarah K.',t2_text:'Finally a system that delivers. Highly recommended.',t2_name:'Mike R.'},style:{heading_font:'Sora',heading_size:26,heading_colour:'',bg_custom:'',padding_y:60,card_radius:14,card_bg:'',name_colour:''}},
-  cta:{icon:'🔥',name:'Call to Action',fields:{headline:'Ready to Get Started?',subheadline:'Join thousands building their future with us.',cta_text:'Claim Your Spot Now →',cta_url:'#'},style:{heading_font:'Sora',heading_size:34,heading_colour:'',bg_custom:'',padding_y:60,cta_radius:12}},
-  optin:{icon:'📧',name:'Opt-In Form',fields:{headline:'Get Instant Access',subheadline:'Enter your details below to get started.',cta_text:'Send Me The Free Guide →',privacy_text:'We respect your privacy. Unsubscribe any time.'},style:{heading_font:'Sora',heading_size:30,heading_colour:'',bg_custom:'',padding_y:60,input_radius:10,cta_colour:'',cta_radius:10}},
-  pricing:{icon:'💲',name:'Pricing Card',fields:{plan_name:'Premium Access',price:'97',price_type:'one-time payment',p1:'Full course access',p2:'Private community',p3:'Weekly live calls',p4:'Lifetime updates',cta_text:'Buy Now →',cta_url:'#'},style:{bg_custom:'',padding_y:60,card_radius:18,header_bg:''}},
-  guarantee:{icon:'🛡',name:'Guarantee Box',fields:{headline:'30-Day Money-Back Guarantee',description:'Try everything risk-free. Not satisfied? Full refund, no questions asked.'},style:{heading_font:'Sora',heading_size:22,heading_colour:'',bg_custom:'',padding_y:48}},
-  faq:{icon:'❓',name:'FAQ Section',fields:{heading:'Frequently Asked Questions',q1:'How does this work?',a1:'Our platform connects advertisers with engaged viewers. You earn through three stacking income streams.',q2:'How much can I earn?',a2:'Earnings depend on your activity and network. Our comp plan pays 95% back with no caps.',q3:'Is there a guarantee?',a3:'Yes — full 30-day money-back guarantee. Try it risk-free.'},style:{heading_font:'Sora',heading_size:26,heading_colour:'',bg_custom:'',padding_y:60}},
-  footer:{icon:'📋',name:'Footer',fields:{company:'SuperAdPro',year:'2026',link1_text:'Privacy',link1_url:'#',link2_text:'Terms',link2_url:'#'},style:{bg_custom:'#0a0a1a',padding_y:28,text_colour:''}}
+  optin: {name:'Lead Capture',desc:'Collect emails with a clean opt-in form',icon:'📧',
+    html:`<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0a1628,#050d1a);padding:40px 20px">
+      <div style="max-width:480px;width:100%;text-align:center">
+        <h1 style="font-family:Sora,sans-serif;font-size:32px;font-weight:800;color:#fff;margin-bottom:12px">Get Your Free Guide</h1>
+        <p style="font-size:16px;color:#94a3b8;margin-bottom:28px;line-height:1.6">Enter your email below and we'll send you the complete step-by-step blueprint for building passive income online.</p>
+        <form style="display:flex;flex-direction:column;gap:10px">
+          <input type="text" placeholder="Your name" style="padding:14px 18px;border-radius:10px;border:1px solid rgba(14,165,233,0.2);background:rgba(255,255,255,0.06);color:#fff;font-size:15px;font-family:inherit">
+          <input type="email" placeholder="Your best email" style="padding:14px 18px;border-radius:10px;border:1px solid rgba(14,165,233,0.2);background:rgba(255,255,255,0.06);color:#fff;font-size:15px;font-family:inherit">
+          <button type="button" style="padding:16px;border-radius:10px;border:none;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:16px;font-weight:800;font-family:Sora,sans-serif;cursor:pointer;box-shadow:0 8px 24px rgba(14,165,233,0.3)">Download Now →</button>
+        </form>
+        <p style="font-size:11px;color:#475569;margin-top:14px">🔒 We respect your privacy. Unsubscribe at any time.</p>
+      </div>
+    </section>`,css:''},
+
+  sales: {name:'Sales Page',desc:'Promote a product or opportunity',icon:'💰',
+    html:`<section style="min-height:100vh;background:linear-gradient(135deg,#050d1a,#0a1628);padding:0">
+      <div style="max-width:700px;margin:0 auto;padding:60px 24px;text-align:center">
+        <div style="display:inline-block;padding:6px 16px;border-radius:20px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);font-size:11px;font-weight:700;color:#10b981;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:20px">Limited Time Offer</div>
+        <h1 style="font-family:Sora,sans-serif;font-size:38px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:16px;letter-spacing:-1px">Start Earning Passive Income in the Next 24 Hours</h1>
+        <p style="font-size:16px;color:#94a3b8;line-height:1.7;margin-bottom:32px">Join hundreds of members who are using our proven system to build a real online income. No experience needed. No tech skills required.</p>
+        <div style="display:flex;gap:12px;justify-content:center;margin-bottom:40px;flex-wrap:wrap">
+          <div style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.15);border-radius:12px;padding:18px 24px;text-align:center;flex:1;min-width:140px"><div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:#0ea5e9">40%</div><div style="font-size:10px;color:#64748b;margin-top:4px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Commission</div></div>
+          <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);border-radius:12px;padding:18px 24px;text-align:center;flex:1;min-width:140px"><div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:#10b981">$1,033</div><div style="font-size:10px;color:#64748b;margin-top:4px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Per Grid</div></div>
+          <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.15);border-radius:12px;padding:18px 24px;text-align:center;flex:1;min-width:140px"><div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:#f59e0b">8 Levels</div><div style="font-size:10px;color:#64748b;margin-top:4px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Deep Income</div></div>
+        </div>
+        <a href="#" style="display:inline-block;padding:18px 52px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:18px;font-weight:800;font-family:Sora,sans-serif;text-decoration:none;box-shadow:0 8px 32px rgba(14,165,233,0.35)">Get Started Now →</a>
+        <p style="font-size:11px;color:#475569;margin-top:14px">Free to register · No obligation</p>
+      </div>
+    </section>`,css:''},
+
+  biolink: {name:'Bio Link Page',desc:'Linktree-style link hub for social bios',icon:'🔗',
+    html:`<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#050d1a,#0a1628);padding:40px 20px">
+      <div style="max-width:400px;width:100%;text-align:center">
+        <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:32px;color:#fff;font-weight:800">▶</div>
+        <h2 style="font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:4px">Your Name</h2>
+        <p style="font-size:13px;color:#64748b;margin-bottom:24px">Digital entrepreneur · SuperAdPro member</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <a href="#" style="display:block;padding:14px 20px;border-radius:12px;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);color:#fff;font-size:14px;font-weight:700;text-decoration:none;text-align:center;transition:all 0.2s">🚀 Join My Team on SuperAdPro</a>
+          <a href="#" style="display:block;padding:14px 20px;border-radius:12px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:#fff;font-size:14px;font-weight:700;text-decoration:none;text-align:center;transition:all 0.2s">💰 See How I Earn Online</a>
+          <a href="#" style="display:block;padding:14px 20px;border-radius:12px;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);color:#fff;font-size:14px;font-weight:700;text-decoration:none;text-align:center;transition:all 0.2s">📱 Follow Me on Instagram</a>
+          <a href="#" style="display:block;padding:14px 20px;border-radius:12px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);color:#fff;font-size:14px;font-weight:700;text-decoration:none;text-align:center;transition:all 0.2s">🎬 My YouTube Channel</a>
+          <a href="#" style="display:block;padding:14px 20px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:#fff;font-size:14px;font-weight:700;text-decoration:none;text-align:center;transition:all 0.2s">📧 Contact Me</a>
+        </div>
+        <p style="font-size:10px;color:#334155;margin-top:20px">Powered by SuperAdPro</p>
+      </div>
+    </section>`,css:''},
+
+  thankyou: {name:'Thank You Page',desc:'Post-signup confirmation page',icon:'✅',
+    html:`<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#050d1a,#0a1628);padding:40px 20px">
+      <div style="max-width:500px;width:100%;text-align:center">
+        <div style="font-size:64px;margin-bottom:16px">🎉</div>
+        <h1 style="font-family:Sora,sans-serif;font-size:34px;font-weight:900;color:#fff;margin-bottom:12px">You're In!</h1>
+        <p style="font-size:16px;color:#94a3b8;line-height:1.7;margin-bottom:28px">Welcome to the team! Check your email for your login details and next steps.</p>
+        <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:14px;padding:20px;margin-bottom:24px;text-align:left">
+          <div style="font-size:13px;font-weight:700;color:#10b981;margin-bottom:10px">✅ Your Next Steps:</div>
+          <div style="font-size:13px;color:#94a3b8;line-height:1.8">1. Check your inbox for the welcome email<br>2. Log in to your dashboard<br>3. Activate your membership<br>4. Start watching & earning!</div>
+        </div>
+        <a href="/dashboard" style="display:inline-block;padding:16px 40px;border-radius:12px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:16px;font-weight:800;font-family:Sora,sans-serif;text-decoration:none;box-shadow:0 8px 24px rgba(16,185,129,0.3)">Go To Dashboard →</a>
+      </div>
+    </section>`,css:''},
+
+  webinar: {name:'Video Page',desc:'Video with CTA and bullet points',icon:'🎬',
+    html:`<section style="min-height:100vh;background:linear-gradient(135deg,#050d1a,#0a1628);padding:60px 24px">
+      <div style="max-width:700px;margin:0 auto;text-align:center">
+        <h1 style="font-family:Sora,sans-serif;font-size:30px;font-weight:900;color:#fff;margin-bottom:20px;letter-spacing:-0.5px">Watch This Short Video to See How Members Are Earning</h1>
+        <div style="background:#000;border-radius:14px;aspect-ratio:16/9;margin-bottom:24px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(14,165,233,0.15)">
+          <div style="font-size:48px;opacity:0.5">▶</div>
+        </div>
+        <p style="font-size:16px;color:#94a3b8;line-height:1.7;margin-bottom:28px">In just 3 minutes, you'll see exactly how SuperAdPro members are building real passive income with our automated grid system.</p>
+        <a href="#" style="display:inline-block;padding:18px 48px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:17px;font-weight:800;font-family:Sora,sans-serif;text-decoration:none;box-shadow:0 8px 32px rgba(14,165,233,0.35)">Join Now — It's Free →</a>
+      </div>
+    </section>`,css:''}
 };
 
-let pageSections=[];
-const THEMES={
-  'dark-blue':{bg:'linear-gradient(180deg,#0a0a1a 0%,#0f1232 50%,#0a0a2a 100%)',text:'#fff',dim:'rgba(255,255,255,0.6)',card:'rgba(255,255,255,0.05)',cb:'rgba(255,255,255,0.08)'},
-  'slate':{bg:'linear-gradient(180deg,#0f172a,#1e293b)',text:'#fff',dim:'rgba(255,255,255,0.6)',card:'rgba(255,255,255,0.05)',cb:'rgba(255,255,255,0.08)'},
-  'ocean':{bg:'linear-gradient(180deg,#0c4a6e,#0e5a82,#064e73)',text:'#fff',dim:'rgba(224,242,254,0.7)',card:'rgba(255,255,255,0.08)',cb:'rgba(255,255,255,0.12)'},
-  'purple':{bg:'linear-gradient(180deg,#1e1b4b,#2e2970,#1e1b4b)',text:'#fff',dim:'rgba(196,181,253,0.7)',card:'rgba(255,255,255,0.06)',cb:'rgba(255,255,255,0.1)'},
-  'emerald':{bg:'linear-gradient(180deg,#052e16,#064e22,#052e16)',text:'#fff',dim:'rgba(209,250,229,0.7)',card:'rgba(255,255,255,0.06)',cb:'rgba(255,255,255,0.1)'},
-  'light':{bg:'#ffffff',text:'#0f172a',dim:'#64748b',card:'#f8fafc',cb:'#e2e8f0'}
-};
-
-function renderHTML(sec){
-  const T=THEMES[currentTheme]||THEMES['dark-blue'],A=currentAccent,f=sec.fields,s=sec.style||{};
-  const py=s.padding_y||60,hf=s.heading_font||'Sora',hs=s.heading_size||30;
-  const hc=s.heading_colour||T.text,sc=s.sub_colour||T.dim,bg=s.bg_custom||'';
-  const themeBg=customThemeBg?customThemeBg:T.bg;
-  const secBg=bg||({'theme':themeBg,'card':T.card,'accent':A}[s.bg_type]||themeBg);
-  const ctaC=s.cta_colour||A,ctaR=s.cta_radius||12;
-  switch(sec.type){
-    case 'hero':return `<section style="padding:${py}px 32px;text-align:center;background:${secBg};font-family:DM Sans,sans-serif"><h1 style="font-family:${hf},sans-serif;font-size:${s.heading_size||44}px;font-weight:800;color:${hc};margin-bottom:16px;line-height:1.15">${f.headline}</h1><p style="font-size:17px;color:${sc};max-width:580px;margin:0 auto 32px;line-height:1.7">${f.subheadline}</p><a href="${f.cta_url}" style="display:inline-block;padding:16px 40px;background:${ctaC};color:#fff;border-radius:${ctaR}px;font-weight:700;font-size:16px;text-decoration:none">${f.cta_text}</a></section>`;
-    case 'video':return `<section style="padding:${py}px 32px;text-align:center;background:${secBg};font-family:DM Sans,sans-serif"><h1 style="font-family:${hf},sans-serif;font-size:${s.heading_size||40}px;font-weight:800;color:${hc};margin-bottom:10px">${f.headline}</h1><p style="font-size:16px;color:${sc};margin-bottom:28px">${f.subheadline}</p><div style="max-width:680px;margin:0 auto 28px;aspect-ratio:16/9;border-radius:${s.video_radius||14}px;overflow:hidden;border:1px solid ${T.cb}"><iframe src="${f.video_url}" style="width:100%;height:100%;border:none" allowfullscreen></iframe></div><a href="${f.cta_url}" style="display:inline-block;padding:16px 40px;background:${ctaC};color:#fff;border-radius:${ctaR}px;font-weight:700;font-size:16px;text-decoration:none">${f.cta_text}</a></section>`;
-    case 'features':{const cr=s.card_radius||14;const cbg=s.card_bg||T.card;const cbo=s.card_border||T.cb;return `<section style="padding:${py}px 32px;background:${secBg};font-family:DM Sans,sans-serif"><div style="max-width:780px;margin:0 auto;text-align:center"><h2 style="font-family:${hf},sans-serif;font-size:${hs}px;font-weight:800;color:${hc};margin-bottom:40px">${f.heading}</h2><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">${[1,2,3].map(n=>`<div style="padding:24px;border-radius:${cr}px;border:1px solid ${cbo};background:${cbg}"><div style="font-size:32px;margin-bottom:10px">${f['f'+n+'_icon']}</div><h3 style="font-size:15px;font-weight:700;color:${hc};margin-bottom:6px">${f['f'+n+'_title']}</h3><p style="font-size:13px;color:${sc||T.dim};line-height:1.6">${f['f'+n+'_desc']}</p></div>`).join('')}</div></div></section>`;}
-    case 'benefits':{const ic=s.check_colour||A;return `<section style="padding:${py}px 32px;background:${secBg};font-family:DM Sans,sans-serif"><div style="max-width:600px;margin:0 auto"><h2 style="font-family:${hf},sans-serif;font-size:${hs}px;font-weight:800;color:${hc};margin-bottom:28px;text-align:center">${f.heading}</h2>${[1,2,3,4,5].map(n=>f['b'+n]?`<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid ${T.cb}"><span style="color:${ic};font-size:18px;flex-shrink:0">✓</span><span style="font-size:15px;color:${T.text}">${f['b'+n]}</span></div>`:``).join('')}</div></section>`;}
-    case 'testimonials':{const cr=s.card_radius||14;const cbg=s.card_bg||T.bg;const nc=s.name_colour||A;return `<section style="padding:${py}px 32px;background:${secBg};font-family:DM Sans,sans-serif"><div style="max-width:780px;margin:0 auto;text-align:center"><h2 style="font-family:${hf},sans-serif;font-size:${hs}px;font-weight:800;color:${hc};margin-bottom:32px">${f.heading}</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;text-align:left">${[1,2].map(n=>`<div style="background:${cbg};border:1px solid ${T.cb};border-radius:${cr}px;padding:22px"><p style="font-size:14px;color:${T.dim};line-height:1.7;margin-bottom:14px;font-style:italic">"${f['t'+n+'_text']}"</p><div style="font-size:13px;font-weight:700;color:${nc}">— ${f['t'+n+'_name']}</div></div>`).join('')}</div></div></section>`;}
-    case 'cta':{const ctaBg=bg||A;return `<section style="padding:${py}px 32px;background:${ctaBg};text-align:center;font-family:DM Sans,sans-serif"><h2 style="font-family:${hf},sans-serif;font-size:${s.heading_size||34}px;font-weight:800;color:#fff;margin-bottom:10px">${f.headline}</h2><p style="font-size:16px;color:rgba(255,255,255,0.8);margin-bottom:28px;max-width:480px;margin-left:auto;margin-right:auto">${f.subheadline}</p><a href="${f.cta_url}" style="display:inline-block;padding:16px 44px;background:#fff;color:${ctaBg};border-radius:${ctaR}px;font-weight:800;font-size:16px;text-decoration:none">${f.cta_text}</a></section>`;}
-    case 'optin':{const ir=s.input_radius||10;return `<section style="padding:${py}px 32px;background:${secBg};font-family:DM Sans,sans-serif;text-align:center"><div style="max-width:440px;margin:0 auto"><h2 style="font-family:${hf},sans-serif;font-size:${hs}px;font-weight:800;color:${hc};margin-bottom:8px">${f.headline}</h2><p style="font-size:15px;color:${sc||T.dim};margin-bottom:24px">${f.subheadline}</p><form style="display:flex;flex-direction:column;gap:10px"><input type="text" placeholder="Your Name" style="padding:14px;border-radius:${ir}px;border:1px solid ${T.cb};background:${T.card};color:${T.text};font-size:14px;font-family:inherit"><input type="email" placeholder="Your Email" style="padding:14px;border-radius:${ir}px;border:1px solid ${T.cb};background:${T.card};color:${T.text};font-size:14px;font-family:inherit"><button type="submit" style="padding:16px;background:${ctaC};color:#fff;border:none;border-radius:${s.cta_radius||10}px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit">${f.cta_text}</button></form><p style="font-size:11px;color:${T.dim};margin-top:12px;opacity:0.6">${f.privacy_text}</p></div></section>`;}
-    case 'pricing':{const cr=s.card_radius||18;const hbg=s.header_bg||A;return `<section style="padding:${py}px 32px;background:${secBg};font-family:DM Sans,sans-serif;text-align:center"><div style="max-width:380px;margin:0 auto;border:2px solid ${hbg};border-radius:${cr}px;overflow:hidden"><div style="background:${hbg};padding:26px;color:#fff"><div style="font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">${f.plan_name}</div><div style="font-family:Sora,sans-serif;font-size:44px;font-weight:800">$${f.price}</div><div style="font-size:13px;opacity:0.7">${f.price_type}</div></div><div style="padding:24px;text-align:left;background:${T.bg}">${[1,2,3,4].map(n=>f['p'+n]?`<div style="padding:8px 0;font-size:14px;color:${T.text}">✓ ${f['p'+n]}</div>`:``).join('')}<a href="${f.cta_url}" style="display:block;padding:14px;background:${hbg};color:#fff;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;text-align:center;margin-top:16px">${f.cta_text}</a></div></div></section>`;}
-    case 'guarantee':return `<section style="padding:${py}px 32px;background:${secBg};font-family:DM Sans,sans-serif;text-align:center"><div style="max-width:560px;margin:0 auto"><div style="font-size:44px;margin-bottom:12px">🛡</div><h2 style="font-family:${hf},sans-serif;font-size:${hs}px;font-weight:800;color:${hc};margin-bottom:10px">${f.headline}</h2><p style="font-size:14px;color:${T.dim};line-height:1.7">${f.description}</p></div></section>`;
-    case 'faq':return `<section style="padding:${py}px 32px;background:${secBg};font-family:DM Sans,sans-serif"><div style="max-width:640px;margin:0 auto"><h2 style="font-family:${hf},sans-serif;font-size:${hs}px;font-weight:800;color:${hc};margin-bottom:28px;text-align:center">${f.heading}</h2>${[1,2,3].map(n=>f['q'+n]?`<div style="border-bottom:1px solid ${T.cb};padding:16px 0"><div style="font-size:15px;font-weight:700;color:${T.text};margin-bottom:6px">${f['q'+n]}</div><div style="font-size:14px;color:${T.dim};line-height:1.7">${f['a'+n]}</div></div>`:``).join('')}</div></section>`;
-    case 'footer':{const fbg=s.bg_custom||'#0a0a1a';const ftc=s.text_colour||'rgba(255,255,255,0.35)';return `<footer style="padding:${py}px 32px;background:${fbg};color:${ftc};text-align:center;font-family:DM Sans,sans-serif;font-size:12px"><p>© ${f.year} ${f.company}. All rights reserved.</p><p style="margin-top:6px"><a href="${f.link1_url}" style="color:${ftc};text-decoration:none">${f.link1_text}</a> · <a href="${f.link2_url}" style="color:${ftc};text-decoration:none">${f.link2_text}</a></p></footer>`;}
-    default:return '';
+// ═══ INIT GRAPESJS ═══
+const editor = grapesjs.init({
+  container: '#gjs',
+  height: '100%',
+  width: 'auto',
+  fromElement: false,
+  storageManager: false,
+  canvas: {
+    styles: [
+      'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&family=Outfit:wght@400;500;600;700;800;900&family=Space+Mono:wght@700&display=swap'
+    ]
+  },
+  deviceManager: {
+    devices: [
+      {name:'Desktop',width:''},
+      {name:'Tablet',width:'768px',widthMedia:'768px'},
+      {name:'Mobile',width:'375px',widthMedia:'375px'}
+    ]
+  },
+  plugins: ['gjs-blocks-basic','gjs-preset-webpage','gjs-plugin-forms'],
+  pluginsOpts: {
+    'gjs-blocks-basic': {flexGrid:true},
+    'gjs-preset-webpage': {
+      modalImportTitle:'Import HTML',
+      modalImportButton:'Import',
+      modalImportLabel:'Paste your HTML/CSS here',
+    },
+    'gjs-plugin-forms': {}
+  },
+  blockManager: {
+    appendTo: '.gjs-pn-views-container',
+  },
+  styleManager: {
+    appendTo: '.gjs-pn-views-container',
+    sectors: [
+      {name:'Layout',open:true,properties:['display','position','top','right','left','bottom','float','clear','overflow']},
+      {name:'Dimension',open:false,properties:['width','height','max-width','min-height','margin','padding']},
+      {name:'Typography',open:false,properties:['font-family','font-size','font-weight','letter-spacing','color','line-height','text-align','text-decoration','text-shadow']},
+      {name:'Decorations',open:false,properties:['background-color','background','border-radius','border','box-shadow','opacity']},
+      {name:'Flex',open:false,properties:['flex-direction','flex-wrap','justify-content','align-items','align-content','order','flex-basis','flex-grow','flex-shrink','align-self','gap']}
+    ]
   }
+});
+
+// ═══ CUSTOM BLOCKS — SuperAdPro specific ═══
+editor.Blocks.add('hero-section', {
+  label:'Hero Section',category:'SuperAdPro',
+  content:`<section style="min-height:50vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#050d1a,#0a1628);padding:60px 24px;text-align:center">
+    <div style="max-width:600px"><h1 style="font-family:Sora;font-size:36px;font-weight:900;color:#fff;margin-bottom:12px">Your Headline Here</h1>
+    <p style="font-size:16px;color:#94a3b8;line-height:1.6;margin-bottom:24px">Supporting text that explains your offer in one or two compelling sentences.</p>
+    <a href="#" style="display:inline-block;padding:16px 40px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:16px;font-weight:800;font-family:Sora;text-decoration:none">Get Started →</a></div></section>`,
+  media:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 10h10M9 14h6"/></svg>'
+});
+editor.Blocks.add('cta-button', {
+  label:'CTA Button',category:'SuperAdPro',
+  content:'<a href="#" style="display:inline-block;padding:16px 40px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:16px;font-weight:800;font-family:Sora,sans-serif;text-decoration:none;text-align:center;box-shadow:0 8px 24px rgba(14,165,233,0.3)">Click Here →</a>',
+  media:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="8" width="18" height="8" rx="4"/><path d="M8 12h8m-2-2l2 2-2 2"/></svg>'
+});
+editor.Blocks.add('testimonial', {
+  label:'Testimonial',category:'SuperAdPro',
+  content:`<div style="max-width:400px;margin:20px auto;background:rgba(14,165,233,0.06);border:1px solid rgba(14,165,233,0.12);border-radius:14px;padding:24px;text-align:center">
+    <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff">JD</div>
+    <p style="font-size:14px;color:#94a3b8;font-style:italic;line-height:1.6;margin-bottom:12px">"SuperAdPro changed everything for me. I'm earning real passive income for the first time in my life."</p>
+    <div style="font-size:13px;font-weight:700;color:#fff">John Doe</div>
+    <div style="font-size:11px;color:#64748b">SuperAdPro Member</div></div>`,
+  media:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>'
+});
+editor.Blocks.add('stat-cards', {
+  label:'Stat Cards',category:'SuperAdPro',
+  content:`<div style="display:flex;gap:16px;justify-content:center;padding:40px 20px;flex-wrap:wrap">
+    <div style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.15);border-radius:12px;padding:20px 28px;text-align:center;flex:1;min-width:150px"><div style="font-size:28px;font-weight:700;color:#0ea5e9;font-family:'Space Mono',monospace">40%</div><div style="font-size:11px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:1px;font-weight:600">Commission</div></div>
+    <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);border-radius:12px;padding:20px 28px;text-align:center;flex:1;min-width:150px"><div style="font-size:28px;font-weight:700;color:#10b981;font-family:'Space Mono',monospace">$1,033</div><div style="font-size:11px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:1px;font-weight:600">Per Grid</div></div>
+    <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.15);border-radius:12px;padding:20px 28px;text-align:center;flex:1;min-width:150px"><div style="font-size:28px;font-weight:700;color:#f59e0b;font-family:'Space Mono',monospace">8 Levels</div><div style="font-size:11px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:1px;font-weight:600">Deep Income</div></div></div>`,
+  media:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="8" height="8" rx="1"/><rect x="14" y="3" width="8" height="8" rx="1"/><rect x="8" y="13" width="8" height="8" rx="1"/></svg>'
+});
+editor.Blocks.add('bio-link', {
+  label:'Bio Link',category:'SuperAdPro',
+  content:'<a href="#" style="display:block;max-width:400px;margin:6px auto;padding:14px 20px;border-radius:12px;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);color:#fff;font-size:14px;font-weight:700;text-decoration:none;text-align:center">🔗 Your Link Text Here</a>',
+  media:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>'
+});
+editor.Blocks.add('divider', {
+  label:'Divider',category:'SuperAdPro',
+  content:'<hr style="border:none;height:1px;background:rgba(14,165,233,0.15);margin:32px auto;max-width:600px">',
+  media:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18"/></svg>'
+});
+editor.Blocks.add('spacer', {
+  label:'Spacer',category:'SuperAdPro',
+  content:'<div style="height:60px"></div>',
+  media:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>'
+});
+
+// ═══ FUNCTIONS ═══
+const PAGE_ID = {{ page.id }};
+let currentStatus = '{{ page.status }}';
+let lastSavedAt = null;
+
+function setDevice(name) {
+  editor.setDevice(name);
+  document.querySelectorAll('.btn-device').forEach(b => b.classList.remove('active'));
+  document.getElementById('dev'+name.replace(/\s/g,'')).classList.add('active');
 }
 
-function renderSectionList(){
-  const list=document.getElementById('sectionList');list.innerHTML='';
-  pageSections.forEach((sec,i)=>{
-    const d=DEFAULTS[sec.type],el=document.createElement('div');
-    el.className='section-item'+(activeSection===i?' active':'');el.dataset.index=i;
-    const upDisabled=i===0;
-    const downDisabled=i===pageSections.length-1;
-    el.innerHTML=`<span class="si-grip" title="Drag to reorder">⠿</span><span class="si-icon">${d.icon}</span><span class="si-name">${d.name}</span><div class="si-move-btns"><button class="si-move" title="Move up" onclick="event.stopPropagation();moveSection(${i},-1)" ${upDisabled?'disabled style="opacity:0.3"':''}>▲</button><button class="si-move" title="Move down" onclick="event.stopPropagation();moveSection(${i},1)" ${downDisabled?'disabled style="opacity:0.3"':''}>▼</button></div><div class="si-toggle ${sec.enabled?'on':''}" onclick="event.stopPropagation();toggleSection(${i})"></div>`;
-    el.addEventListener('click',()=>selectSection(i));
-    // Mouse drag reorder
-    const grip=el.querySelector('.si-grip');
-    grip.addEventListener('mousedown',e=>{e.preventDefault();startDrag(i,e);});
-    grip.addEventListener('touchstart',e=>{e.preventDefault();startDrag(i,e.touches[0]);},{passive:false});
-    list.appendChild(el);
-  });
+function togglePreview() {
+  editor.runCommand('preview');
 }
 
-function moveSection(i,dir){
-  const target=i+dir;
-  if(target<0||target>=pageSections.length)return;
-  pushUndo();
-  const item=pageSections.splice(i,1)[0];
-  pageSections.splice(target,0,item);
-  if(activeSection===i)activeSection=target;
-  else if(activeSection===target)activeSection=i;
-  renderAll();markDirty();
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// ── Mouse/Touch Drag System ──
-let dragState=null;
-function startDrag(index,e){
-  const list=document.getElementById('sectionList');
-  const items=list.querySelectorAll('.section-item');
-  const dragEl=items[index];
-  const rect=dragEl.getBoundingClientRect();
-  const listRect=list.getBoundingClientRect();
-  
-  dragState={
-    index:index,
-    startY:e.clientY,
-    currentY:e.clientY,
-    itemHeight:rect.height+4,
-    listTop:listRect.top
+function showTemplates() {
+  const grid = document.getElementById('tplGrid');
+  grid.innerHTML = Object.entries(TEMPLATES).map(([key, tpl]) =>
+    `<div class="tpl-card" onclick="loadTemplate('${key}')">
+      <div class="tpl-thumb">${tpl.icon}</div>
+      <div class="tpl-info"><div class="tpl-name">${tpl.name}</div><div class="tpl-desc">${tpl.desc}</div></div>
+    </div>`
+  ).join('');
+  document.getElementById('tplOverlay').classList.add('show');
+}
+
+function hideTemplates() {
+  document.getElementById('tplOverlay').classList.remove('show');
+}
+
+function loadTemplate(key) {
+  const tpl = TEMPLATES[key];
+  if (!tpl) return;
+  if (editor.getComponents().length > 0) {
+    if (!confirm('This will replace your current content. Continue?')) return;
+  }
+  editor.setComponents(tpl.html);
+  editor.setStyle(tpl.css || '');
+  hideTemplates();
+  showToast('Template loaded — customise it!', 'success');
+}
+
+async function savePage(status) {
+  const st = document.getElementById('saveStatus');
+  st.textContent = 'Saving...';
+  st.style.color = '#f59e0b';
+
+  const payload = {
+    id: PAGE_ID,
+    title: document.getElementById('pageName').value || 'Untitled Page',
+    status: status || currentStatus,
+    template_type: 'visual',
+    gjs_components: JSON.stringify(editor.getComponents()),
+    gjs_styles: JSON.stringify(editor.getStyle()),
+    gjs_html: editor.getHtml(),
+    gjs_css: editor.getCss(),
+    updated_at: lastSavedAt
   };
-  
-  dragEl.classList.add('dragging');
-  pushUndo();
-  
-  document.addEventListener('mousemove',onDragMove);
-  document.addEventListener('mouseup',onDragEnd);
-  document.addEventListener('touchmove',onTouchDragMove,{passive:false});
-  document.addEventListener('touchend',onDragEnd);
-}
 
-function onTouchDragMove(e){e.preventDefault();onDragMove(e.touches[0]);}
-
-function onDragMove(e){
-  if(!dragState)return;
-  dragState.currentY=e.clientY;
-  const delta=e.clientY-dragState.startY;
-  const items=document.querySelectorAll('#sectionList .section-item');
-  
-  // Clear all hover states
-  items.forEach(el=>el.classList.remove('drag-over-top','drag-over-bottom'));
-  
-  // Determine which item we're hovering over
-  const moveCount=Math.round(delta/dragState.itemHeight);
-  const targetIndex=Math.max(0,Math.min(pageSections.length-1,dragState.index+moveCount));
-  
-  if(targetIndex!==dragState.index){
-    const targetEl=items[targetIndex];
-    if(targetEl){
-      if(targetIndex<dragState.index)targetEl.classList.add('drag-over-top');
-      else targetEl.classList.add('drag-over-bottom');
-    }
-  }
-}
-
-function onDragEnd(e){
-  if(!dragState)return;
-  const delta=(e.clientY||dragState.currentY)-dragState.startY;
-  const moveCount=Math.round(delta/dragState.itemHeight);
-  const from=dragState.index;
-  const to=Math.max(0,Math.min(pageSections.length-1,from+moveCount));
-  
-  document.removeEventListener('mousemove',onDragMove);
-  document.removeEventListener('mouseup',onDragEnd);
-  document.removeEventListener('touchmove',onTouchDragMove);
-  document.removeEventListener('touchend',onDragEnd);
-  
-  dragState=null;
-  
-  if(from!==to){
-    const item=pageSections.splice(from,1)[0];
-    pageSections.splice(to,0,item);
-    if(activeSection===from)activeSection=to;
-    markDirty();
-  }
-  renderAll();
-}
-
-// ── Preview area drag reorder ──
-function startPreviewDrag(index,e){
-  const sections=document.querySelectorAll('#livePreview .prev-section');
-  const dragEl=sections[index];
-  if(!dragEl)return;
-  const rect=dragEl.getBoundingClientRect();
-  
-  dragState={
-    index:index,
-    startY:e.clientY,
-    currentY:e.clientY,
-    itemHeight:rect.height+2,
-    isPreview:true
-  };
-  
-  dragEl.style.opacity='0.4';dragEl.style.border='2px dashed rgba(14,165,233,0.5)';
-  pushUndo();
-  
-  document.addEventListener('mousemove',onPreviewDragMove);
-  document.addEventListener('mouseup',onPreviewDragEnd);
-}
-
-function onPreviewDragMove(e){
-  if(!dragState)return;
-  dragState.currentY=e.clientY;
-  const sections=document.querySelectorAll('#livePreview .prev-section');
-  
-  // Clear all indicators
-  sections.forEach(s=>{s.style.borderTop='';s.style.borderBottom='';});
-  // Keep dragged section styled
-  sections[dragState.index].style.opacity='0.4';
-  sections[dragState.index].style.border='2px dashed rgba(14,165,233,0.5)';
-  
-  // Find which section the mouse is over
-  for(let i=0;i<sections.length;i++){
-    if(i===dragState.index)continue;
-    const r=sections[i].getBoundingClientRect();
-    const mid=r.top+r.height/2;
-    if(e.clientY>r.top&&e.clientY<r.bottom){
-      if(e.clientY<mid){
-        sections[i].style.borderTop='3px solid #0ea5e9';
-      }else{
-        sections[i].style.borderBottom='3px solid #0ea5e9';
-      }
-      break;
-    }
-  }
-}
-
-function onPreviewDragEnd(e){
-  if(!dragState)return;
-  const sections=document.querySelectorAll('#livePreview .prev-section');
-  const from=dragState.index;
-  let to=from;
-  
-  // Find drop target
-  for(let i=0;i<sections.length;i++){
-    if(i===from)continue;
-    const r=sections[i].getBoundingClientRect();
-    const mid=r.top+r.height/2;
-    if(dragState.currentY>r.top&&dragState.currentY<r.bottom){
-      to=dragState.currentY<mid?i:i+1;
-      if(to>from)to--;
-      break;
-    }
-    // Handle dragging above first or below last
-    if(i===0&&dragState.currentY<r.top){to=0;break;}
-    if(i===sections.length-1&&dragState.currentY>r.bottom){to=sections.length-1;break;}
-  }
-  
-  document.removeEventListener('mousemove',onPreviewDragMove);
-  document.removeEventListener('mouseup',onPreviewDragEnd);
-  dragState=null;
-  
-  if(from!==to){
-    const item=pageSections.splice(from,1)[0];
-    pageSections.splice(to,0,item);
-    if(activeSection===from)activeSection=to;
-    markDirty();
-  }
-  renderAll();
-}
-
-function renderPreview(){
-  const lp=document.getElementById('livePreview');lp.innerHTML='';
-  pageSections.forEach((sec,i)=>{
-    const wrap=document.createElement('div');
-    wrap.className='prev-section'+(activeSection===i?' active':'')+(sec.enabled?'':' disabled');
-    const upDis=i===0?'disabled':'';
-    const downDis=i===pageSections.length-1?'disabled':'';
-    wrap.innerHTML=`<div class="prev-move-bar"><button class="prev-move-btn" title="Move up" onclick="event.stopPropagation();moveSection(${i},-1)" ${upDis}>▲</button><button class="prev-move-btn" title="Move down" onclick="event.stopPropagation();moveSection(${i},1)" ${downDis}>▼</button><button class="prev-move-btn grab-handle" title="Drag to reorder" onmousedown="event.stopPropagation();event.preventDefault();startPreviewDrag(${i},event)">⠿</button></div><div class="prev-right-bar"><span class="edit-hint">Click to edit</span><button class="prev-move-btn prev-del-btn" title="Delete section" onclick="event.stopPropagation();if(confirm('Delete this section?'))removeSection(${i})">✕</button></div>`+renderHTML(sec);
-    wrap.addEventListener('click',()=>selectSection(i));lp.appendChild(wrap);
-  });
-}
-
-function renderEditor(){
-  const panel=document.getElementById('editorPanel'),content=document.getElementById('editorContent');
-  if(activeSection===null){panel.style.display='none';return;}
-  panel.style.display='block';const sec=pageSections[activeSection],d=DEFAULTS[sec.type];
-  if(!sec.style)sec.style={...d.style};
-  const s=sec.style;
-  let h=`<h3>${d.icon} ${d.name}</h3>`;
-  h+=`<div class="ed-tabs"><button class="ed-tab active" onclick="switchTab(this,'content')">Content</button><button class="ed-tab" onclick="switchTab(this,'style')">Style</button></div>`;
-
-  // ── CONTENT TAB ──
-  h+=`<div class="ed-pane active" id="pane-content">`;
-  Object.entries(sec.fields).forEach(([key,val])=>{
-    const label=key.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-    const isUrl=key.includes('_url')||key.includes('image')||key.includes('bg_image');
-    const isLong=val.length>60||key.includes('desc')||key.includes('subheadline')||(key.includes('text')&&!key.includes('cta_')&&!key.includes('link'));
-    if(isUrl&&(key.includes('image')||key.includes('bg'))){
-      // Image URL with upload button
-      h+=`<div class="field"><label>${label}</label><div style="display:flex;gap:6px"><input type="text" style="flex:1" data-key="${key}" value="${val.replace(/"/g,'&quot;')}" oninput="updateField('${key}',this.value)" id="field_${key}"><button type="button" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--blue-dim);color:var(--text);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit" onclick="uploadImage(document.getElementById('field_${key}'))">📁 Upload</button></div></div>`;
-    } else if(isLong){
-      h+=`<div class="field"><label>${label}</label><textarea data-key="${key}" oninput="updateField('${key}',this.value)">${val}</textarea></div>`;
+  try {
+    const resp = await fetch('/api/funnels/save', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      currentStatus = status;
+      lastSavedAt = data.updated_at;
+      st.textContent = status === 'published' ? '🟢 Published' : '✓ Saved';
+      st.style.color = '#10b981';
+      showToast(status === 'published' ? 'Page published!' : 'Page saved', 'success');
     } else {
-      h+=`<div class="field"><label>${label}</label><input type="text" data-key="${key}" value="${val.replace(/"/g,'&quot;')}" oninput="updateField('${key}',this.value)"></div>`;
+      st.textContent = '⚠ Error';
+      st.style.color = '#ef4444';
+      showToast(data.error || 'Save failed', 'error');
     }
-  });
-  h+=`</div>`;
-
-  // ── STYLE TAB ──
-  h+=`<div class="ed-pane" id="pane-style">`;
-
-  // Font
-  if(s.heading_font!==undefined){
-    h+=`<div class="field"><label>Heading Font</label><select class="styled-select" onchange="updateStyle('heading_font',this.value)">`;
-    FONTS.forEach(f=>{h+=`<option value="${f}"${s.heading_font===f?' selected':''}>${f}</option>`;});
-    h+=`</select></div>`;
+  } catch (e) {
+    st.textContent = '⚠ Error';
+    st.style.color = '#ef4444';
+    showToast('Network error — check your connection', 'error');
   }
-
-  // Heading size
-  if(s.heading_size!==undefined){
-    h+=`<div class="field"><label>Heading Size</label><div class="range-row"><input type="range" min="16" max="72" value="${s.heading_size}" oninput="updateStyle('heading_size',+this.value);this.nextElementSibling.textContent=this.value+'px'"><span class="rval">${s.heading_size}px</span></div></div>`;
-  }
-
-  // Padding
-  if(s.padding_y!==undefined){
-    h+=`<div class="field"><label>Vertical Padding</label><div class="range-row"><input type="range" min="16" max="120" value="${s.padding_y}" oninput="updateStyle('padding_y',+this.value);this.nextElementSibling.textContent=this.value+'px'"><span class="rval">${s.padding_y}px</span></div></div>`;
-  }
-
-  // Colours section
-  h+=`<div class="ed-divider"></div><div class="ed-label">Colours</div>`;
-
-  // Heading colour
-  if(s.heading_colour!==undefined) h+=colourField('Heading Colour','heading_colour',s.heading_colour);
-  if(s.sub_colour!==undefined) h+=colourField('Text Colour','sub_colour',s.sub_colour);
-  if(s.text_colour!==undefined) h+=colourField('Text Colour','text_colour',s.text_colour);
-  if(s.cta_colour!==undefined) h+=colourField('Button Colour','cta_colour',s.cta_colour);
-  if(s.check_colour!==undefined) h+=colourField('Checkmark Colour','check_colour',s.check_colour);
-  if(s.name_colour!==undefined) h+=colourField('Name Colour','name_colour',s.name_colour);
-  if(s.header_bg!==undefined) h+=colourField('Header Background','header_bg',s.header_bg);
-  if(s.card_bg!==undefined) h+=colourField('Card Background','card_bg',s.card_bg);
-  if(s.card_border!==undefined) h+=colourField('Card Border','card_border',s.card_border);
-
-  // Section background
-  h+=`<div class="ed-divider"></div><div class="ed-label">Background</div>`;
-  h+=colourField('Custom Background','bg_custom',s.bg_custom||'');
-
-  // Border radius
-  if(s.cta_radius!==undefined){
-    h+=`<div class="ed-divider"></div><div class="ed-label">Corners</div>`;
-    h+=`<div class="field"><label>Button Radius</label><div class="range-row"><input type="range" min="0" max="30" value="${s.cta_radius}" oninput="updateStyle('cta_radius',+this.value);this.nextElementSibling.textContent=this.value+'px'"><span class="rval">${s.cta_radius}px</span></div></div>`;
-  }
-  if(s.card_radius!==undefined){
-    h+=`<div class="field"><label>Card Radius</label><div class="range-row"><input type="range" min="0" max="30" value="${s.card_radius}" oninput="updateStyle('card_radius',+this.value);this.nextElementSibling.textContent=this.value+'px'"><span class="rval">${s.card_radius}px</span></div></div>`;
-  }
-  if(s.input_radius!==undefined){
-    h+=`<div class="field"><label>Input Radius</label><div class="range-row"><input type="range" min="0" max="20" value="${s.input_radius}" oninput="updateStyle('input_radius',+this.value);this.nextElementSibling.textContent=this.value+'px'"><span class="rval">${s.input_radius}px</span></div></div>`;
-  }
-  if(s.video_radius!==undefined){
-    h+=`<div class="field"><label>Video Radius</label><div class="range-row"><input type="range" min="0" max="30" value="${s.video_radius}" oninput="updateStyle('video_radius',+this.value);this.nextElementSibling.textContent=this.value+'px'"><span class="rval">${s.video_radius}px</span></div></div>`;
-  }
-
-  h+=`</div>`;
-  h+=`<div class="ed-divider"></div><button class="del-btn" onclick="removeSection(${activeSection})">🗑 Remove Section</button>`;
-  content.innerHTML=h;
 }
 
-// Image upload helper — adds upload button to any URL field
-async function uploadImage(inputEl){
-  const file=document.createElement('input');file.type='file';file.accept='image/*';
-  file.onchange=async()=>{
-    if(!file.files[0])return;
-    if(file.files[0].size>5*1024*1024){alert('Image too large. Maximum 5MB.');return;}
-    const fd=new FormData();fd.append('file',file.files[0]);
-    inputEl.placeholder='Uploading...';
-    try{
-      const r=await fetch('/api/funnels/upload-image',{method:'POST',body:fd});
-      const d=await r.json();
-      if(d.success){inputEl.value=d.url;inputEl.dispatchEvent(new Event('input'));}
-      else{alert(d.error||'Upload failed');}
-    }catch(e){alert('Upload failed — network error');}
-    inputEl.placeholder='';
-  };
-  file.click();
-}
-
-function colourField(label,key,val){
-  const bg=val||'#333';
-  return `<div class="field"><label>${label}</label><div class="colour-row"><div class="cpick" style="background:${bg}"><input type="color" value="${val||'#0ea5e9'}" oninput="updateStyle('${key}',this.value);this.parentElement.style.background=this.value;this.parentElement.nextElementSibling.value=this.value"></div><input type="text" class="chex" value="${val}" placeholder="Theme default" oninput="updateStyle('${key}',this.value)"></div><div class="cpresets">${CPRE.map(c=>`<div class="cpre" style="background:${c}" onclick="updateStyle('${key}','${c}');renderEditor()"></div>`).join('')}</div></div>`;
-}
-
-function switchTab(btn,tab){
-  btn.parentElement.querySelectorAll('.ed-tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  btn.closest('.editor-panel').querySelectorAll('.ed-pane').forEach(p=>p.classList.remove('active'));
-  document.getElementById('pane-'+tab).classList.add('active');
-}
-
-// updateStyle defined below with auto-save hook
-
-function renderAll(){renderSectionList();renderPreview();renderEditor();}
-function selectSection(i){activeSection=i;renderAll();document.querySelectorAll('.prev-section')[i]?.scrollIntoView({behavior:'smooth',block:'center'});}
-
-// ── Undo/Redo System ──
-const undoStack=[],redoStack=[];
-const MAX_UNDO=50;
-function pushUndo(){
-  undoStack.push(JSON.stringify({sections:pageSections,active:activeSection,theme:currentTheme,accent:currentAccent,customBg:customThemeBg}));
-  if(undoStack.length>MAX_UNDO)undoStack.shift();
-  redoStack.length=0; // Clear redo on new action
-}
-function doUndo(){
-  if(!undoStack.length)return;
-  redoStack.push(JSON.stringify({sections:pageSections,active:activeSection,theme:currentTheme,accent:currentAccent,customBg:customThemeBg}));
-  const state=JSON.parse(undoStack.pop());
-  pageSections=state.sections;activeSection=state.active;currentTheme=state.theme;currentAccent=state.accent;customThemeBg=state.customBg||'';
-  renderAll();markDirty();
-  document.getElementById('saveStatus').textContent='↩ Undone';document.getElementById('saveStatus').style.color='#fbbf24';
-  setTimeout(()=>{document.getElementById('saveStatus').textContent='';},2000);
-}
-function doRedo(){
-  if(!redoStack.length)return;
-  undoStack.push(JSON.stringify({sections:pageSections,active:activeSection,theme:currentTheme,accent:currentAccent,customBg:customThemeBg}));
-  const state=JSON.parse(redoStack.pop());
-  pageSections=state.sections;activeSection=state.active;currentTheme=state.theme;currentAccent=state.accent;customThemeBg=state.customBg||'';
-  renderAll();markDirty();
-  document.getElementById('saveStatus').textContent='↪ Redone';document.getElementById('saveStatus').style.color='#fbbf24';
-  setTimeout(()=>{document.getElementById('saveStatus').textContent='';},2000);
-}
-
-function toggleSection(i){pushUndo();pageSections[i].enabled=!pageSections[i].enabled;renderAll();markDirty();}
-// updateField defined below with auto-save hook
-function reorderSection(from,to){pushUndo();const item=pageSections.splice(from,1)[0];pageSections.splice(to,0,item);if(activeSection===from)activeSection=to;renderAll();markDirty();}
-function addSection(type){pushUndo();pageSections.push({type,enabled:true,fields:{...DEFAULTS[type].fields},style:{...DEFAULTS[type].style}});document.getElementById('addDropdown').classList.remove('open');activeSection=pageSections.length-1;renderAll();markDirty();}
-function removeSection(i){pushUndo();pageSections.splice(i,1);activeSection=null;renderAll();markDirty();}
-function toggleAddDropdown(){document.getElementById('addDropdown').classList.toggle('open')}
-function setTheme(el){currentTheme=el.dataset.theme;customThemeBg='';document.querySelectorAll('#colourSwatches .swatch').forEach(s=>s.classList.remove('active'));el.classList.add('active');document.getElementById('themeBgHex').value='';document.getElementById('themeBgHex').placeholder='Using preset';renderPreview();}
-function setAccent(el){currentAccent=el.dataset.accent;document.querySelectorAll('#accentSwatches .swatch').forEach(s=>s.classList.remove('active'));el.classList.add('active');document.getElementById('accentPick').style.background=currentAccent;document.getElementById('accentHex').value=currentAccent;document.querySelector('#accentPick input').value=currentAccent;renderPreview();}
-let customThemeBg='';
-function setCustomThemeBg(c){customThemeBg=c;document.getElementById('themeBgPick').style.background=c;document.getElementById('themeBgHex').value=c;document.querySelector('#themeBgPick input').value=c;document.querySelectorAll('#colourSwatches .swatch').forEach(s=>s.classList.remove('active'));renderPreview();}
-function setAccentCustom(c){currentAccent=c;document.getElementById('accentPick').style.background=c;document.getElementById('accentHex').value=c;document.querySelector('#accentPick input').value=c;document.querySelectorAll('#accentSwatches .swatch').forEach(s=>s.classList.remove('active'));renderPreview();}
-function setDevice(d,btn){document.getElementById('previewFrame').style.maxWidth=d==='desktop'?'820px':d==='tablet'?'768px':'375px';document.querySelectorAll('.device-toggle button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
-function previewPage(){window.open(`/p/${PAGE_SLUG}`,'_blank')}
-
-function generateFullHTML(){
-  let html='';pageSections.forEach(sec=>{if(sec.enabled)html+=renderHTML(sec);});
-  // Strip any script tags that could have been injected via user content
-  html=html.replace(new RegExp('\x3cscript\\b[^>]*>[\\s\\S]*?\x3c/script>','gi'),'');
-  html=html.replace(/on\w+\s*=\s*["'][^"']*["']/gi,'');
-  return html;
-}
-
-async function savePage(publish=false){
-  const s=document.getElementById('saveStatus');s.textContent='Saving...';s.style.color='#fbbf24';
-  try{
-    const r=await fetch('/api/funnels/save',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({id:PAGE_ID,title:document.getElementById('pageName').value||'Untitled',status:publish?'published':currentStatus,
-        updated_at:lastUpdatedAt,
-        gjs_components:pageSections,gjs_styles:{theme:currentTheme,accent:currentAccent,customBg:customThemeBg},
-        gjs_html:generateFullHTML(),
-        gjs_css:`*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif}img{max-width:100%}a{transition:opacity 0.2s}a:hover{opacity:0.9}`
-      })});
-    const res=await r.json();
-    if(res.success){currentStatus=res.status;lastUpdatedAt=res.updated_at;s.textContent=publish?'✓ Published!':'✓ Saved';s.style.color='#10b981';if(publish)setTimeout(()=>{s.textContent=`Live → /p/${res.slug}`},1500);}
-    else{s.textContent='✗ '+(res.error||'Failed');s.style.color='#ef4444';if(res.conflict){alert(res.error+'\n\nClick OK to reload the latest version.');location.reload();}else if(r.status===409)alert(res.error);}
-  }catch(e){s.textContent='✗ Network error';s.style.color='#ef4444';}
-  setTimeout(()=>{s.textContent=''},4000);
-}
-
-async function init(){
-  try{
-    const r=await fetch(`/api/funnels/load/${PAGE_ID}`),d=await r.json();
-    document.getElementById('pageName').value=d.title||'';
-    lastUpdatedAt=d.updated_at||null;
-    // Only load if data is in our section format (has .fields property)
-    if(Array.isArray(d.gjs_components)&&d.gjs_components.length>0&&d.gjs_components[0]&&d.gjs_components[0].fields){
-      pageSections=d.gjs_components.map(sec=>{
-        // Ensure style exists with defaults
-        const def=DEFAULTS[sec.type];
-        if(def&&!sec.style)sec.style={...def.style};
-        return sec;
-      });
+// ═══ LOAD EXISTING PAGE ═══
+async function loadPage() {
+  try {
+    const resp = await fetch('/api/funnels/load/'+PAGE_ID);
+    const data = await resp.json();
+    if (data.gjs_components && typeof data.gjs_components === 'string') {
+      try {
+        editor.setComponents(JSON.parse(data.gjs_components));
+        editor.setStyle(JSON.parse(data.gjs_styles || '[]'));
+      } catch(e) {
+        // Fallback: load raw HTML
+        if (data.gjs_html) {
+          editor.setComponents(data.gjs_html);
+          editor.setStyle(data.gjs_css || '');
+        }
+      }
+    } else if (data.gjs_html) {
+      editor.setComponents(data.gjs_html);
+      editor.setStyle(data.gjs_css || '');
     }
-    if(d.gjs_styles&&typeof d.gjs_styles==='object'&&d.gjs_styles.theme){
-      currentTheme=d.gjs_styles.theme;currentAccent=d.gjs_styles.accent||'#0ea5e9';
-      if(d.gjs_styles.customBg){customThemeBg=d.gjs_styles.customBg;document.getElementById('themeBgPick').style.background=customThemeBg;document.getElementById('themeBgHex').value=customThemeBg;document.querySelector('#themeBgPick input').value=customThemeBg;}
-    }
-  }catch(e){console.log('Load error or new page',e)}
-  if(!pageSections.length)pageSections=[
-    {type:'hero',enabled:true,fields:{...DEFAULTS.hero.fields},style:{...DEFAULTS.hero.style}},
-    {type:'features',enabled:true,fields:{...DEFAULTS.features.fields},style:{...DEFAULTS.features.style}},
-    {type:'testimonials',enabled:true,fields:{...DEFAULTS.testimonials.fields},style:{...DEFAULTS.testimonials.style}},
-    {type:'cta',enabled:true,fields:{...DEFAULTS.cta.fields},style:{...DEFAULTS.cta.style}},
-    {type:'footer',enabled:true,fields:{...DEFAULTS.footer.fields},style:{...DEFAULTS.footer.style}}
-  ];
-  document.querySelectorAll('#colourSwatches .swatch').forEach(s=>s.classList.toggle('active',s.dataset.theme===currentTheme&&!customThemeBg));
-  document.querySelectorAll('#accentSwatches .swatch').forEach(s=>s.classList.toggle('active',s.dataset.accent===currentAccent));
-  document.getElementById('accentPick').style.background=currentAccent;document.getElementById('accentHex').value=currentAccent;document.querySelector('#accentPick input').value=currentAccent;
-  activeSection=0;
-  renderAll();
+    if (data.title) document.getElementById('pageName').value = data.title;
+    if (data.updated_at) lastSavedAt = data.updated_at;
+    currentStatus = data.status || 'draft';
+  } catch(e) {
+    // New page — show template picker
+    setTimeout(showTemplates, 500);
+  }
 }
-// Smart auto-save: only saves when content has actually changed
-let lastSavedHash='';
-function contentHash(){return JSON.stringify({s:pageSections,t:currentTheme,a:currentAccent,b:customThemeBg,n:document.getElementById('pageName').value});}
-let autoSaveTimer=null;
-function markDirty(){
-  clearTimeout(autoSaveTimer);
-  autoSaveTimer=setTimeout(()=>{
-    const h=contentHash();
-    if(h!==lastSavedHash){savePage().then(()=>{lastSavedHash=contentHash();});}
-  },5000); // 5 second debounce after last change
-}
-let undoFieldTimer=null;
-function updateField(key,val){
-  if(activeSection===null)return;
-  // Debounced undo snapshot: captures state when typing pauses
-  if(!undoFieldTimer)pushUndo();
-  clearTimeout(undoFieldTimer);
-  undoFieldTimer=setTimeout(()=>{undoFieldTimer=null;},800);
-  pageSections[activeSection].fields[key]=val;renderPreview();markDirty();
-}
-let undoStyleTimer=null;
-function updateStyle(key,val){
-  if(activeSection===null)return;
-  if(!undoStyleTimer)pushUndo();
-  clearTimeout(undoStyleTimer);
-  undoStyleTimer=setTimeout(()=>{undoStyleTimer=null;},800);
-  if(!pageSections[activeSection].style)pageSections[activeSection].style={};
-  pageSections[activeSection].style[key]=val;renderPreview();markDirty();
-}
-// Wrap theme/accent functions to trigger auto-save
-['setTheme','setAccent','setCustomThemeBg','setAccentCustom'].forEach(fn=>{
-  const orig=window[fn];window[fn]=function(){orig.apply(this,arguments);markDirty();};
+
+// ═══ KEYBOARD SHORTCUTS ═══
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    savePage(currentStatus);
+  }
 });
-document.getElementById('pageName').addEventListener('input',markDirty);
-document.addEventListener('keydown',e=>{
-  if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();savePage().then(()=>{lastSavedHash=contentHash();});}
-  if((e.ctrlKey||e.metaKey)&&e.key==='z'&&!e.shiftKey){e.preventDefault();doUndo();}
-  if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){e.preventDefault();doRedo();}
-});
-// Initial hash after load
-setTimeout(()=>{lastSavedHash=contentHash();},2000);
-init();
+
+// ═══ AUTO-SAVE every 60 seconds ═══
+setInterval(function() {
+  if (editor.getDirtyCount() > 0) {
+    savePage(currentStatus);
+  }
+}, 60000);
+
+// Init
+setDevice('Desktop');
+loadPage();
 </script>
 </body>
 </html>
