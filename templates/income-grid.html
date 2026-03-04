@@ -4,9 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Profit Engine Grids — SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
-
 /* ═══ SHARED LAYOUT ═══ */
 .layout{display:flex;min-height:100vh}
 .sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
@@ -28,275 +27,280 @@
 .user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
 .user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.topbar{display:none}}
 
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
-.topbar{position:sticky;top:0;z-index:50;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 28px;height:70px;display:flex;align-items:center;justify-content:space-between}
-.back-btn{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:14px;font-weight:600;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
-.back-btn:hover{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
-.topbar-centre{text-align:center}
-.topbar-title{font-family:Sora,sans-serif;font-size:20px;font-weight:800;color:#fff}
-.topbar-sub{font-size:12px;color:rgba(148,163,184,0.6);margin-top:2px}
-.topbar-right{display:flex;align-items:center;gap:14px;justify-content:flex-end}
-.balance-chip{background:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:6px 14px;text-align:center}
-.balance-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8}
-.balance-val{font-size:15px;font-weight:800;color:#16a34a}
-.balance-unit{font-size:11px;color:#94a3b8;margin-left:3px}
-.container{max-width:1140px;margin:0 auto;padding:28px 28px 80px}
-.hero{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;align-items:stretch}
-.hero-main{background:linear-gradient(135deg,#0284c7 0%,#0ea5e9 40%,#38bdf8 100%);border-radius:24px;padding:40px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
-.hero-main::before{content:'';position:absolute;top:-40%;right:-20%;width:350px;height:350px;border-radius:50%;background:rgba(255,255,255,0.06);filter:blur(60px)}
-.hero-main::after{content:'';position:absolute;bottom:-30%;left:-10%;width:250px;height:250px;border-radius:50%;background:rgba(255,255,255,0.04);filter:blur(40px)}
-.hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:12px;position:relative;z-index:1}
-.hero-h1{font-family:Sora,sans-serif;font-size:36px;font-weight:800;color:#fff;line-height:1.1;margin-bottom:12px;position:relative;z-index:1}
-.hero-h1 span{color:#e0f2fe}
-.hero-desc{font-size:15px;color:rgba(255,255,255,0.7);line-height:1.6;max-width:380px;position:relative;z-index:1}
-.hero-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;position:relative;overflow:hidden;transition:all 0.3s;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
-.stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,165,233,0.1)}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
-.stat-card.c1::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}
-.stat-card.c2::before{background:linear-gradient(90deg,#38bdf8,#7dd3fc)}
-.stat-card.c3::before{background:linear-gradient(90deg,#10b981,#34d399)}
-.stat-card.c4::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
-.stat-icon{font-size:24px;margin-bottom:10px}
-.stat-val{font-family:Sora,sans-serif;font-size:30px;font-weight:800;line-height:1}
-.stat-val.c1{color:#0ea5e9}.stat-val.c2{color:#38bdf8}.stat-val.c3{color:#16a34a}.stat-val.c4{color:#f59e0b}
-.stat-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#94a3b8;margin-top:4px}
-.tier-selector{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:6px;box-shadow:0 1px 3px rgba(0,0,0,0.03)}
-.tier-btn{padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;border:none;background:transparent;color:#64748b;text-decoration:none;transition:all 0.2s;cursor:pointer}
+body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+
+/* Topbar */
+.topbar{position:sticky;top:0;z-index:50;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between}
+
+/* Container */
+.container{padding:16px 20px 40px}
+
+/* 2-col layout */
+.grid-layout{display:grid;grid-template-columns:1fr minmax(300px,420px);gap:14px;min-height:calc(100vh - 80px)}
+@media(max-width:900px){.grid-layout{grid-template-columns:1fr}}
+
+/* Cards */
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px}
+.eyebrow{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#0ea5e9;margin-bottom:8px}
+
+/* Hero total */
+.total-card{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);border-radius:12px;padding:16px 20px;text-align:center;color:#fff;position:relative;overflow:hidden}
+.total-card::before{content:'';position:absolute;top:-40%;right:-20%;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.06)}
+.total-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6)}
+.total-amount{font-family:Sora;font-size:28px;font-weight:800;margin:4px 0}
+.total-sub{font-size:10px;color:rgba(255,255,255,0.55)}
+
+/* Stats grid */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mini-stat{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px}
+.mini-stat-label{font-size:9px;font-weight:700;color:#94a3b8}
+.mini-stat-val{font-size:18px;font-weight:800;margin-top:2px}
+
+/* Grid */
+.grid-8x8{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-bottom:10px}
+.g-cell{height:52px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:all 0.3s}
+.g-cell.owner{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-weight:800;box-shadow:0 4px 14px rgba(14,165,233,0.3)}
+.g-cell.filled{background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);color:#0ea5e9}
+.g-cell.empty{background:#f8fafc;border:1px dashed #e2e8f0;color:#cbd5e1}
+.legend{display:flex;gap:16px;margin-bottom:10px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:#64748b}
+.legend-dot{width:10px;height:10px;border-radius:3px}
+
+/* Progress */
+.prog-wrap{height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;margin-bottom:4px}
+.prog-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#0ea5e9,#38bdf8);transition:width 0.6s}
+.prog-row{display:flex;justify-content:space-between;font-size:10px;color:#94a3b8}
+
+/* Level breakdown */
+.level-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f8fafc}
+.level-row:last-child{border-bottom:none}
+.level-label{font-size:11px;font-weight:700;color:#334155;width:28px}
+.level-bar-wrap{flex:1;height:6px;background:#f1f5f9;border-radius:99px;overflow:hidden}
+.level-bar{height:100%;background:linear-gradient(90deg,#0ea5e9,#38bdf8);border-radius:99px}
+.level-seats{font-size:10px;color:#94a3b8;width:32px;text-align:right}
+.level-earn{font-size:12px;font-weight:800;color:#0ea5e9;width:55px;text-align:right}
+
+/* Split bar */
+.split-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:6px}
+.split-seg{height:100%}
+.split-legend{display:flex;justify-content:space-between;font-size:10px}
+.split-item{display:flex;align-items:center;gap:4px}
+.split-swatch{width:8px;height:8px;border-radius:2px}
+.split-pct{font-weight:700}
+
+/* Info strip */
+.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:768px){.info-grid{grid-template-columns:1fr}}
+.info-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px}
+.info-card-t{font-size:12px;font-weight:700;margin-bottom:4px}
+.info-card-p{font-size:11px;color:#64748b;line-height:1.5}
+
+/* Tier bar */
+.tier-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:8px}
+.tier-btn{padding:8px 4px;border-radius:8px;border:none;background:#f8fafc;color:#64748b;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;text-align:center;text-decoration:none;display:block}
 .tier-btn:hover{color:#0ea5e9;background:rgba(14,165,233,0.05)}
 .tier-btn.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;box-shadow:0 4px 14px rgba(14,165,233,0.3)}
-.grid-card{background:#fff;border:1px solid #e2e8f0;border-radius:20px;overflow:hidden;margin-bottom:24px;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
-.grid-card-head{display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-bottom:1px solid #f1f5f9}
-.grid-card-title{font-size:17px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:10px}
-.grid-card-title .dot{width:10px;height:10px;border-radius:50%;background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.15);animation:pulse 2s ease infinite}
-.badge-active{font-size:11px;font-weight:700;color:#10b981;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);padding:4px 12px;border-radius:20px}
-.badge-filled{font-size:13px;font-weight:700;color:#0ea5e9}
-.grid-card-body{padding:28px}
-.progress-wrap{margin-bottom:28px}
-.progress-bar{height:10px;background:#f1f5f9;border-radius:99px;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(90deg,#0ea5e9,#38bdf8);border-radius:99px;transition:width 0.6s ease}
-.progress-meta{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:#94a3b8}
-.progress-meta .earned{color:#16a34a;font-weight:700}
-.section-label{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#38bdf8;text-align:center;margin:28px 0 16px}
-.grid-container{background:#eef6fb;border:1px solid #d4e8f5;border-radius:16px;padding:24px}
-.grid-8x8{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-bottom:16px}
-.g-cell{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:all 0.3s}
-.g-cell.owner{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:11px;font-weight:800;box-shadow:0 4px 14px rgba(14,165,233,0.3)}
-.g-cell.filled{background:linear-gradient(135deg,rgba(14,165,233,0.08),rgba(56,189,248,0.12));border:1px solid rgba(14,165,233,0.2);color:#0ea5e9}
-.g-cell.empty{background:#ffffff;border:1px dashed #d4e8f5;color:#cbd5e1}
-.g-cell.empty:hover{border-color:rgba(14,165,233,0.25);background:rgba(14,165,233,0.03);color:#0ea5e9}
-.legend{display:flex;gap:24px;justify-content:center;margin:0}
-.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#64748b}
-.legend-dot{width:14px;height:14px;border-radius:4px}
-.level-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f8fafc}
-.level-label{font-size:13px;font-weight:700;color:#334155;width:60px}
-.level-bar-wrap{flex:1;height:8px;background:#f1f5f9;border-radius:99px;overflow:hidden}
-.level-bar{height:100%;background:linear-gradient(90deg,#0ea5e9,#38bdf8);border-radius:99px;transition:width 0.5s}
-.level-seats{font-size:12px;color:#94a3b8;width:40px;text-align:right}
-.level-earn{font-size:14px;font-weight:800;color:#0ea5e9;width:70px;text-align:right}
-.earnings-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px}
-.earn-card{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);border-radius:20px;padding:28px;position:relative;overflow:hidden}
-.earn-card::before{content:'';position:absolute;top:-30%;right:-10%;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.06)}
-.earn-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:rgba(255,255,255,0.15)}
-.earn-card-title{font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:8px;position:relative;z-index:1}
-.earn-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1);position:relative;z-index:1}
-.earn-row:last-child{border-bottom:none}
-.earn-label{font-size:14px;color:rgba(255,255,255,0.7)}
-.earn-val{font-size:14px;font-weight:700;color:#fff}
-.earn-val.total{font-size:20px;color:#fff;font-family:Sora,sans-serif}
-.empty{text-align:center;padding:60px 24px}
-.empty-icon{font-size:48px;margin-bottom:16px}
-.empty-title{font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:#0f172a;margin-bottom:10px}
-.empty-sub{font-size:15px;color:#64748b;max-width:480px;margin:0 auto 24px;line-height:1.6}
-.empty-cta{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:15px;font-weight:700;padding:12px 28px;border-radius:12px;text-decoration:none;box-shadow:0 4px 14px rgba(14,165,233,0.3);transition:all 0.2s}
+
+/* Right col */
+.right-col{display:flex;flex-direction:column;gap:10px;align-self:stretch}
+
+/* Earn card */
+.earn-card{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);border-radius:12px;padding:16px;position:relative;overflow:hidden}
+.earn-card::before{content:'';position:absolute;top:-30%;right:-10%;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,0.06)}
+.earn-card-title{font-size:12px;font-weight:800;color:#fff;margin-bottom:10px;position:relative;z-index:1}
+
+/* Empty state */
+.empty{text-align:center;padding:40px 24px}
+.empty-icon{font-size:36px;margin-bottom:12px}
+.empty-title{font-family:Sora;font-size:18px;font-weight:800;margin-bottom:8px}
+.empty-sub{font-size:13px;color:#64748b;max-width:420px;margin:0 auto 16px;line-height:1.6}
+.empty-cta{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:13px;font-weight:700;padding:10px 24px;border-radius:10px;text-decoration:none;box-shadow:0 4px 14px rgba(14,165,233,0.3);transition:all 0.2s}
 .empty-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,165,233,0.35)}
-.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:10px 16px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:101}
-.mobile-topbar-left{display:flex;align-items:center;gap:10px;text-decoration:none}
-.mobile-topbar-name{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff}
-.mobile-balance-chip{font-size:16px;font-weight:800;color:#16a34a;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:8px;padding:6px 12px}
-@keyframes pulse{0%,100%{opacity:0.5}50%{opacity:1}}
-@media(max-width:900px){.hero{grid-template-columns:1fr}.hero-stats-grid{grid-template-columns:1fr 1fr}.earnings-row{grid-template-columns:1fr}}
-@media(max-width:640px){.topbar{display:none}.mobile-topbar{display:flex!important}.hero{grid-template-columns:1fr}.hero-main{padding:28px}.hero-h1{font-size:28px}.hero-stats-grid{grid-template-columns:1fr 1fr}.stat-card{padding:16px}.stat-val{font-size:24px}.container{padding:20px 16px 60px}.tier-selector{gap:4px;padding:4px}.tier-btn{padding:8px 12px;font-size:12px}.grid-card-head{flex-wrap:wrap;gap:10px}.grid-card-body{padding:20px 16px}.g-cell{font-size:9px;border-radius:6px}.level-earn{width:55px;font-size:12px}.earn-card{padding:20px}}
+
+/* Mobile nav */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:#0a0a1a;border-top:1px solid rgba(14,165,233,0.1)}
+.mob-nav-inner{display:flex;justify-content:space-around;padding:6px 0}
+.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;color:rgba(200,220,255,0.5);text-decoration:none;font-size:9px;font-weight:600;padding:6px 12px}
+.mob-nav-item.active{color:#38bdf8}
+.mob-nav-icon{font-size:18px}
+@media(max-width:768px){.mob-nav{display:block}body{padding-bottom:72px}}
 </style>
 </head>
 <body>
-
 <div class="layout">
   {% include "_sidebar.html" %}
   <div class="main">
 
-
-<div class="mobile-topbar">
-  <a class="mobile-topbar-left" href="/dashboard">
-    <svg width="28" height="28" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#mlg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="mlg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
-    <span class="mobile-topbar-name">SuperAdPro</span>
-  </a>
-  <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
-</div>
-
 <div class="topbar">
-  <div><div class="topbar-title">⚡ Profit Engine <span style="color:#38bdf8">Grids</span></div>
-    <div class="topbar-sub">8×8 Recurring Grid · 63 positions per advance</div>
+  <div>
+    <div style="font-size:16px;font-weight:800;color:#fff">⚡ Profit Engine Grids</div>
+    <div style="font-size:11px;color:#6b7d94;margin-top:1px">Your live 8×8 recurring grid · 63 positions per advance</div>
   </div>
-  <div class="topbar-right">
-    <div class="balance-chip">
-      <div class="balance-label">Balance</div>
-      <div><span class="balance-val">${{ '%.2f'|format(balance) }}</span><span class="balance-unit">USDT</span></div>
+  <div style="display:flex;align-items:center;gap:14px">
+    <div style="background:#fff;border-radius:8px;padding:5px 12px;text-align:center">
+      <div style="font-size:8px;font-weight:700;letter-spacing:1px;color:#94a3b8;text-transform:uppercase">Balance</div>
+      <div style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }} <span style="font-size:10px;color:#94a3b8">USDT</span></div>
     </div>
-    
   </div>
 </div>
 
 <div class="container">
 
-  <div class="hero">
-    <div class="hero-main">
-      <div class="hero-eyebrow">Profit Engine Status</div>
-      <div class="hero-h1">Your Grid<br>is <span>Live</span> ⚡</div>
-      <div class="hero-desc">Every grid entryed earns you commissions across 8 levels. Fill 63 positions, advance, and the grid resets — so you earn again and again.</div>
+{% if grid_stats.active_grids == 0 and grid_stats.completed_advances == 0 %}
+<div class="card">
+  <div class="empty">
+    <div class="empty-icon">◈</div>
+    <div class="empty-title">No Active Grids Yet</div>
+    <div class="empty-sub">Activate your first campaign tier to launch your 8×8 Profit Engine Grid. Fill 63 positions, earn commissions on every entry, then it resets and you earn again.</div>
+    <a href="/campaign-tiers" class="empty-cta">🚀 Activate Your First Grid →</a>
+  </div>
+</div>
+{% else %}
+
+{% set tier_grids = grid_stats.active_grids_detail|selectattr('tier','equalto',selected_tier)|list %}
+{% if tier_grids|length > 0 %}
+  {% set g = tier_grids[0] %}
+  {% set per_seat_uni = (g.price|float) * 0.06875 %}
+  {% set per_seat_direct = (g.price|float) * 0.40 %}
+{% else %}
+  {% set g = none %}
+  {% set per_seat_uni = 0 %}
+  {% set per_seat_direct = 0 %}
+{% endif %}
+
+<div class="grid-layout">
+  <!-- LEFT -->
+  <div style="display:flex;flex-direction:column;gap:12px">
+    {% if g %}
+    <div class="card" style="display:flex;flex-direction:column;flex:1">
+      <div class="eyebrow">Stream 02 — Profit Engine Grid</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:15px;font-weight:800">${{ g.price|int }} Campaign · Advance #{{ g.advance }}</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;font-weight:700;color:#0ea5e9">{{ g.filled }}/63 filled</span>
+          <span style="font-size:9px;font-weight:700;color:#10b981;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);padding:3px 10px;border-radius:12px">ACTIVE</span>
+        </div>
+      </div>
+      <div class="grid-8x8">
+      {% for i in range(64) %}
+        {% if i == 0 %}
+          <div class="g-cell owner">YOU</div>
+        {% elif i <= g.filled %}
+          <div class="g-cell filled">{{ i }}</div>
+        {% else %}
+          <div class="g-cell empty">{{ i }}</div>
+        {% endif %}
+      {% endfor %}
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)"></div>You</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2)"></div>Filled</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f8fafc;border:1px dashed #e2e8f0"></div>Empty</div>
+      </div>
+      <div class="prog-wrap"><div class="prog-fill" style="width:{{ g.pct }}%"></div></div>
+      <div class="prog-row"><span>{{ g.pct }}% complete</span><span style="color:#16a34a;font-weight:700">${{ '%.2f'|format(g.owner_potential) }} earned</span></div>
     </div>
-    <div class="hero-stats-grid">
-      <div class="stat-card c1">
-        <div class="stat-icon">🔄</div>
-        <div class="stat-val c1">{{ grid_stats.completed_advances }}</div>
-        <div class="stat-label">Advances</div>
+
+    <div class="card">
+      <div class="eyebrow">Level Earnings Breakdown</div>
+      {% for lvl in range(1,9) %}
+      {% set seats_before = (lvl-1)*8 %}
+      {% set seats_filled_raw = g.filled - seats_before %}
+      {% set seats_this = [seats_filled_raw, 0]|max %}
+      {% set seats_this_level = [seats_this, 8]|min %}
+      <div class="level-row">
+        <div class="level-label">L{{ lvl }}</div>
+        <div class="level-bar-wrap"><div class="level-bar" style="width:{{ (seats_this_level/8*100)|int }}%"></div></div>
+        <div class="level-seats">{{ seats_this_level }}/8</div>
+        <div class="level-earn">${{ '%.2f'|format(per_seat_uni * seats_this_level) }}</div>
       </div>
-      <div class="stat-card c2">
-        <div class="stat-icon">⚡</div>
-        <div class="stat-val c2">{{ grid_stats.active_grids }}</div>
-        <div class="stat-label">Active Grids</div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card">
+      <div class="empty">
+        <div class="empty-icon">⚡</div>
+        <div class="empty-title">Tier {{ selected_tier }} Not Activated</div>
+        <div class="empty-sub">Activate this campaign tier to start filling your grid.</div>
+        <a href="/campaign-tiers" class="empty-cta">Activate Tier {{ selected_tier }} →</a>
       </div>
-      <div class="stat-card c3">
-        <div class="stat-icon">💰</div>
-        <div class="stat-val c3">${{ '%.2f'|format(grid_stats.total_earned) }}</div>
-        <div class="stat-label">Total Earned</div>
-      </div>
-      <div class="stat-card c4">
-        <div class="stat-icon">👥</div>
-        <div class="stat-val c4">{{ grid_stats.total_members }}</div>
-        <div class="stat-label">Network Size</div>
-      </div>
+    </div>
+    {% endif %}
+
+    <div class="info-grid">
+      <div class="info-card"><div style="font-size:16px;margin-bottom:4px">∞</div><div class="info-card-t" style="color:#10b981">Recurring Engine</div><div class="info-card-p">63 seats fill → grid auto-advances → commissions restart</div></div>
+      <div class="info-card"><div style="font-size:16px;margin-bottom:4px">💡</div><div class="info-card-t" style="color:#f59e0b">How You Earn</div><div class="info-card-p">Every seat = 6.875% uni-level. Your referrals also get 40% sponsor bonus.</div></div>
+      <div class="info-card"><div class="info-card-t" style="color:#0ea5e9">Per Seat Earnings</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px"><div><table style="width:100%;border-collapse:collapse;font-size:10px"><tr><th style="text-align:left;padding:2px 3px;color:#94a3b8;font-weight:600;border-bottom:1px solid #e2e8f0">Tier</th><th style="text-align:left;padding:2px 3px;color:#10b981;font-weight:600;border-bottom:1px solid #e2e8f0">Direct</th><th style="text-align:left;padding:2px 3px;color:#38bdf8;font-weight:600;border-bottom:1px solid #e2e8f0">Spill</th></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$20</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$9.38</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$1.38</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$50</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$23.44</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$3.44</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$100</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$46.88</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$6.88</td></tr><tr><td style="padding:2px 3px;font-weight:600">$200</td><td style="padding:2px 3px;font-weight:600">$93.75</td><td style="padding:2px 3px;font-weight:600">$13.75</td></tr></table></div><div><table style="width:100%;border-collapse:collapse;font-size:10px"><tr><th style="text-align:left;padding:2px 3px;color:#94a3b8;font-weight:600;border-bottom:1px solid #e2e8f0">Tier</th><th style="text-align:left;padding:2px 3px;color:#10b981;font-weight:600;border-bottom:1px solid #e2e8f0">Direct</th><th style="text-align:left;padding:2px 3px;color:#38bdf8;font-weight:600;border-bottom:1px solid #e2e8f0">Spill</th></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$400</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$187.50</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$27.50</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$600</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$281.25</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$41.25</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$800</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$375.00</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$55.00</td></tr><tr><td style="padding:2px 3px;font-weight:600">$1,000</td><td style="padding:2px 3px;font-weight:600">$468.75</td><td style="padding:2px 3px;font-weight:600">$68.75</td></tr></table></div></div></div>
     </div>
   </div>
 
-  {% if grid_stats.active_grids == 0 and grid_stats.completed_advances == 0 %}
-  <div class="grid-card">
-    <div class="empty">
-      <div class="empty-icon">◈</div>
-      <div class="empty-title">No Active Grids Yet</div>
-      <div class="empty-sub">Activate your first campaign tier to launch your 8×8 Profit Engine Grid. Fill 63 positions, earn 40% direct sponsor + 6.875% uni-level × 8 levels per entry, then it resets and you earn again.</div>
-      <a href="/campaign-tiers" class="empty-cta">🚀 Activate Your First Grid →</a>
+  <!-- RIGHT -->
+  <div class="right-col">
+    <div class="total-card">
+      <div class="total-label">Your Grid Earnings</div>
+      <div class="total-amount">${{ '%.2f'|format(total_earned) }}</div>
+      <div class="total-sub">{{ grid_stats.completed_advances }} advances · {{ grid_stats.active_grids }} active</div>
     </div>
-  </div>
-  {% else %}
 
-  <div class="tier-selector">
-    {% for tier, price in GRID_PACKAGES.items() %}
-    <a href="?tier={{ tier }}" class="tier-btn {% if selected_tier == tier %}active{% endif %}">
-      Tier {{ tier }} · ${{ price|int }}
-    </a>
-    {% endfor %}
-  </div>
-
-  {% set tier_grids = grid_stats.active_grids_detail|selectattr('tier','equalto',selected_tier)|list %}
-  {% if tier_grids|length > 0 %}
-    {% for g in tier_grids %}
-    <div class="grid-card">
-      <div class="grid-card-head">
-        <div class="grid-card-title">
-          <div class="dot"></div>
-          ${{ g.price|int }} Campaign Tier · Advance #{{ g.advance }}
-        </div>
-        <div style="display:flex;align-items:center;gap:12px">
-          <span class="badge-filled">{{ g.filled }}/63 filled</span>
-          <span class="badge-active">ACTIVE</span>
-        </div>
+    <div class="card">
+      <div class="eyebrow">Live Earnings Tracker</div>
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9">
+        <div style="width:8px;height:8px;border-radius:50%;background:#10b981"></div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:700">Direct Sponsor (40%)</div><div style="font-size:9px;color:#94a3b8">${{ '%.2f'|format(per_seat_direct) if g else '0.00' }} per referral</div></div>
+        <div style="font-size:14px;font-weight:800;color:#10b981">${{ '%.2f'|format(grid_earnings) }}</div>
       </div>
-      <div class="grid-card-body">
-        <div class="progress-wrap">
-          <div class="progress-bar"><div class="progress-fill" style="width:{{ g.pct }}%"></div></div>
-          <div class="progress-meta">
-            <span>{{ g.pct }}% complete</span>
-            <span class="earned">${{ '%.2f'|format(g.owner_potential) }} earned</span>
-          </div>
-        </div>
-
-        <div class="section-label">Grid Visualisation</div>
-        <div class="grid-container">
-          <div class="grid-8x8">
-          {% for i in range(64) %}
-            {% if i == 0 %}
-              <div class="g-cell owner">YOU</div>
-            {% elif i <= g.filled %}
-              <div class="g-cell filled">{{ i }}</div>
-            {% else %}
-              <div class="g-cell empty">{{ i }}</div>
-            {% endif %}
-          {% endfor %}
-          </div>
-          <div class="legend">
-            <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)"></div>You (Owner)</div>
-            <div class="legend-item"><div class="legend-dot" style="background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.2)"></div>Filled</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#f8fafc;border:1px dashed #e2e8f0"></div>Empty</div>
-          </div>
-        </div>
-
-        <div class="section-label">Level Earnings Breakdown</div>
-        <div>
-          {% for lvl in range(1,9) %}
-          {% set per_seat = (g.price|float) * 0.06875 %}
-          {% set seats_before = (lvl-1)*8 %}
-          {% set seats_filled_raw = g.filled - seats_before %}
-          {% set seats_this = [seats_filled_raw, 0]|max %}
-          {% set seats_this_level = [seats_this, 8]|min %}
-          <div class="level-row">
-            <div class="level-label">Level {{ lvl }}</div>
-            <div class="level-bar-wrap"><div class="level-bar" style="width:{{ (seats_this_level/8*100)|int }}%"></div></div>
-            <div class="level-seats">{{ seats_this_level }}/8</div>
-            <div class="level-earn">${{ '%.2f'|format(per_seat * seats_this_level) }}</div>
-          </div>
-          {% endfor %}
-        </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0">
+        <div style="width:8px;height:8px;border-radius:50%;background:#38bdf8"></div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:700">Uni-Level (6.875% × 8)</div><div style="font-size:9px;color:#94a3b8">${{ '%.2f'|format(per_seat_uni) if g else '0.00' }} per seat</div></div>
+        <div style="font-size:14px;font-weight:800;color:#38bdf8">${{ '%.2f'|format(level_earnings) }}</div>
       </div>
     </div>
-    {% endfor %}
 
-  {% else %}
-  <div class="grid-card">
-    <div class="empty" style="padding:40px 24px">
-      <div class="empty-icon">⚡</div>
-      <div class="empty-title">Tier {{ selected_tier }} Not Activated</div>
-      <div class="empty-sub">Activate this campaign tier to start filling your grid and earning commissions.</div>
-      <a href="/campaign-tiers" class="empty-cta">Activate Tier {{ selected_tier }} →</a>
+    <div class="stat-grid">
+      <div class="mini-stat"><div class="mini-stat-label">🔄 Advances</div><div class="mini-stat-val" style="color:#0ea5e9">{{ grid_stats.completed_advances }}</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">⚡ Active Grids</div><div class="mini-stat-val" style="color:#38bdf8">{{ grid_stats.active_grids }}</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">💰 Total Earned</div><div class="mini-stat-val" style="color:#10b981">${{ '%.2f'|format(grid_stats.total_earned) }}</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">👥 Network Size</div><div class="mini-stat-val" style="color:#f59e0b">{{ grid_stats.total_members }}</div></div>
     </div>
-  </div>
-  {% endif %}
 
-  <div class="earnings-row">
-    <div class="earn-card">
-      <div class="earn-card-title">📊 Your Grid Earnings</div>
-      <div class="earn-row"><span class="earn-label">Direct Sponsor (40%)</span><span class="earn-val">${{ '%.2f'|format(grid_earnings) }}</span></div>
-      <div class="earn-row"><span class="earn-label">Uni-Level (6.875% × 8)</span><span class="earn-val">${{ '%.2f'|format(level_earnings) }}</span></div>
-      <div class="earn-row" style="border-top:1px solid rgba(255,255,255,0.15);margin-top:4px;padding-top:12px"><span class="earn-label" style="color:#fff;font-weight:700">Total Earned</span><span class="earn-val total">${{ '%.2f'|format(total_earned) }}</span></div>
+    <div class="card">
+      <div class="eyebrow">Single Seat Payout{% if g %} — ${{ g.price|int }}{% endif %}</div>
+      <div class="split-bar">
+        <div class="split-seg" style="width:42%;background:#10b981"></div>
+        <div class="split-seg" style="width:58%;background:linear-gradient(90deg,#3b82f6,#38bdf8)"></div>
+      </div>
+      <div class="split-legend">
+        <div class="split-item"><div class="split-swatch" style="background:#10b981"></div><span style="color:#64748b">Sponsor</span> <span class="split-pct" style="color:#10b981">${{ '%.2f'|format(per_seat_direct) if g else '0.00' }}</span></div>
+        <div class="split-item"><div class="split-swatch" style="background:#3b82f6"></div><span style="color:#64748b">Uni-Level</span> <span class="split-pct" style="color:#38bdf8">${{ '%.2f'|format(per_seat_uni * 8) if g else '0.00' }}</span></div>
+      </div>
     </div>
-    <div class="earn-card">
+
+    <div class="tier-bar">
+      {% for tier, price in GRID_PACKAGES.items() %}
+      <a href="?tier={{ tier }}" class="tier-btn {% if selected_tier == tier %}active{% endif %}">${{ price|int }}</a>
+      {% endfor %}
+    </div>
+
+    <div class="earn-card" style="flex:1">
       <div class="earn-card-title">💡 How Grid Earnings Work</div>
-      <div style="font-size:14px;color:rgba(255,255,255,0.7);line-height:1.7;position:relative;z-index:1">
-        <p style="margin-bottom:12px">Your 8×8 grid has 64 positions — 1 is yours and <strong style="color:#fff">63 are open positions</strong> across 8 levels. When a position is filled:</p>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="background:rgba(255,255,255,0.12);border-radius:6px;padding:3px 10px;font-weight:700;color:#fff;font-size:13px">40%</span><span>goes to the direct sponsor</span></div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span style="background:rgba(255,255,255,0.12);border-radius:6px;padding:3px 10px;font-weight:700;color:#fff;font-size:13px">6.875%</span><span>goes to each of the 8 upline levels (55% total)</span></div>
-        <p>When all 63 positions are filled, the grid <strong style="color:#fff">advances</strong> — it resets and you start earning again on a fresh grid.</p>
+      <div style="font-size:11px;color:rgba(255,255,255,0.7);line-height:1.6;position:relative;z-index:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="background:rgba(255,255,255,0.12);border-radius:5px;padding:2px 8px;font-weight:700;color:#fff;font-size:11px">40%</span><span>Direct sponsor commission</span></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="background:rgba(255,255,255,0.12);border-radius:5px;padding:2px 8px;font-weight:700;color:#fff;font-size:11px">6.875%</span><span>Uni-level × 8 levels (55% total)</span></div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.5);border-top:1px solid rgba(255,255,255,0.1);padding-top:6px;margin-top:4px">When all 63 positions fill, the grid advances and you earn again on a fresh grid.</div>
       </div>
     </div>
   </div>
+</div>
 
-  {% endif %}
+{% endif %}
 
 </div>
-  </div><!-- /main -->
-</div><!-- /layout -->
+  </div>
+</div>
+
+<div class="mob-nav"><div class="mob-nav-inner"><a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span>Home</span></a><a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">▶</span><span>Watch</span></a><a href="/income-grid" class="mob-nav-item active"><span class="mob-nav-icon">⚡</span><span>Grid</span></a><a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">◎</span><span>Wallet</span></a><a href="/account" class="mob-nav-item"><span class="mob-nav-icon">◉</span><span>Account</span></a></div></div>
 </body>
 </html>
