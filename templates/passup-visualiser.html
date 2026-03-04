@@ -29,13 +29,13 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:#0f172a}
 @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.topbar{display:none}}
 
 /* Tier bar */
-.tier-bar{display:flex;gap:4px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:6px 12px;margin-bottom:14px;max-width:400px}
+.tier-bar{display:flex;gap:4px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:6px 12px;margin-bottom:14px}
 .tier-btn{padding:6px 14px;border-radius:8px;border:none;background:transparent;color:#94a3b8;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s}
 .tier-btn:hover{color:#0ea5e9;background:rgba(14,165,233,0.05)}
 .tier-btn.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;box-shadow:0 4px 14px rgba(14,165,233,0.3)}
 
 /* 2-col layout - identical to grid viz */
-.viz-layout{display:grid;grid-template-columns:1fr 320px;gap:14px;max-width:1200px}
+.viz-layout{display:grid;grid-template-columns:1fr minmax(280px,340px);gap:14px}
 @media(max-width:900px){.viz-layout{grid-template-columns:1fr}}
 
 /* Cards */
