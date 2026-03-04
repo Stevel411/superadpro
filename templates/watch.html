@@ -470,7 +470,9 @@ a{text-decoration:none;color:inherit}
   window.unmuteVideo = function() {
     var f = document.getElementById('videoFrame');
     var o = document.getElementById('unmuteOverlay');
-    f.src = f.src.replace('&mute=1','').replace('mute=1&','').replace('?mute=1','?');
+    // Use YouTube IFrame API postMessage to unmute without reloading
+    f.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+    f.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[100]}', '*');
     o.classList.add('hidden');
   };
 
