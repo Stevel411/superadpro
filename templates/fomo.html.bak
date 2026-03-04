@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SuperAdPro — Positions Are Filling Fast</title>
+<link rel="manifest" href="/static/manifest.json">
+<meta name="theme-color" content="#050d1a">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<meta property="og:title" content="SuperAdPro — Grid Positions Filling Fast">
+<meta property="og:description" content="Members are locking in positions and earning commissions right now. Don't miss out.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050d1a;color:#e2e8f0;font-family:'DM Sans',sans-serif;overflow-x:hidden}
+
+/* Nav bar */
+.fomo-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;background:rgba(5,13,26,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(14,165,233,0.1)}
+.fomo-nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.fomo-nav-brand{font-family:Sora,sans-serif;font-weight:800;font-size:17px;color:#fff}
+.fomo-nav-brand span{color:#38bdf8}
+.fomo-nav-cta{padding:8px 20px;border-radius:8px;border:none;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;transition:all 0.2s}
+.fomo-nav-cta:hover{box-shadow:0 4px 20px rgba(14,165,233,0.4);transform:translateY(-1px)}
+
+/* Hero */
+.hero{position:relative;padding:44px 24px 36px;text-align:center;background:radial-gradient(ellipse at 50% 0%,rgba(14,165,233,0.1) 0%,transparent 60%)}
+.live-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:20px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);margin-bottom:18px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#10b981;animation:pulse 2s ease infinite;position:relative}
+.live-dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;background:#10b981;opacity:0.3;animation:pulse-ring 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.7;transform:scale(1.15)}}
+@keyframes pulse-ring{0%{opacity:0.4;transform:scale(1)}100%{opacity:0;transform:scale(2.5)}}
+.live-text{font-size:11px;font-weight:700;color:#10b981;letter-spacing:1.5px;text-transform:uppercase}
+.hero h1{font-family:Sora,sans-serif;font-weight:800;font-size:34px;line-height:1.15;background:linear-gradient(135deg,#38bdf8,#0ea5e9,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px}
+.hero-sub{font-size:14px;color:#6b7d94;max-width:480px;margin:0 auto 24px;line-height:1.6}
+.hero-sub strong{color:#e2e8f0}
+
+/* Urgency counters */
+.urgency-bar{display:inline-flex;gap:20px;padding:16px 28px;background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.15);border-radius:14px}
+.urgency-item{text-align:center}
+.urgency-val{font-size:28px;font-weight:800;font-family:Sora;font-variant-numeric:tabular-nums}
+.urgency-label{font-size:9px;color:#6b7d94;letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-top:2px}
+.urgency-sep{width:1px;background:rgba(245,158,11,0.15);align-self:stretch}
+@media(max-width:600px){.urgency-bar{gap:12px;padding:14px 18px}.urgency-val{font-size:22px}}
+
+/* 2-col layout */
+.fomo-layout{display:grid;grid-template-columns:1fr 360px;gap:18px;max-width:1100px;margin:0 auto;padding:0 24px 60px}
+@media(max-width:900px){.fomo-layout{grid-template-columns:1fr}}
+
+/* Cards */
+.f-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:18px}
+.f-card.glow{animation:glow 3s ease infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 16px rgba(14,165,233,0.08)}50%{box-shadow:0 0 32px rgba(14,165,233,0.18)}}
+.f-eye{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.f-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.f-title{font-size:15px;font-weight:800;color:#e2e8f0}
+
+/* Grid tracker */
+.grid-visual{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin-bottom:12px}
+.g-cell{min-height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;transition:all 0.5s ease}
+.g-cell.empty{background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.08);color:rgba(255,255,255,0.1)}
+.g-cell.filled{background:rgba(14,165,233,0.15);border:1px solid rgba(56,189,248,0.2);color:rgba(56,189,248,0.6)}
+.g-cell.recent{background:linear-gradient(135deg,#10b981,#059669);border:1px solid #34d399;color:#fff;box-shadow:0 0 12px rgba(16,185,129,0.4)}
+.g-cell.you{background:rgba(245,158,11,0.15);border:1px dashed rgba(245,158,11,0.4);color:#f59e0b;font-size:7px;letter-spacing:0.5px}
+
+/* Progress bar */
+.prog-wrap{height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-bottom:6px}
+.prog-fill{height:100%;border-radius:4px;transition:width 1s ease}
+.prog-row{display:flex;justify-content:space-between;font-size:10px;color:#6b7d94}
+
+/* Earnings cards */
+.earn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:600px){.earn-grid{grid-template-columns:1fr}}
+.earn-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px;text-align:center}
+.earn-val{font-size:22px;font-weight:800;font-family:Sora}
+.earn-title{font-size:10px;font-weight:700;color:#e2e8f0;margin-top:4px}
+.earn-sub{font-size:9px;color:#6b7d94;margin-top:2px}
+
+/* CTA */
+.cta-wrap{text-align:center;padding:10px 0}
+.cta-btn{display:inline-block;padding:14px 48px;border-radius:10px;border:none;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:15px;font-weight:800;font-family:Sora;cursor:pointer;text-decoration:none;box-shadow:0 8px 32px rgba(14,165,233,0.3);transition:all 0.2s}
+.cta-btn:hover{box-shadow:0 12px 40px rgba(14,165,233,0.45);transform:translateY(-2px)}
+.cta-sub{font-size:10px;color:#6b7d94;margin-top:8px}
+
+/* Live feed */
+.feed-list{display:flex;flex-direction:column;gap:8px;max-height:500px;overflow-y:auto}
+.feed-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;animation:slideIn 0.4s ease}
+.feed-item.join{background:rgba(14,165,233,0.04);border:1px solid rgba(14,165,233,0.1)}
+.feed-item.earn{background:rgba(16,185,129,0.04);border:1px solid rgba(16,185,129,0.1)}
+@keyframes slideIn{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:translateX(0)}}
+.feed-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
+.feed-avatar.join{background:linear-gradient(135deg,#0ea5e9,#38bdf8)}
+.feed-avatar.earn{background:linear-gradient(135deg,#10b981,#059669)}
+.feed-name{font-size:12px;font-weight:700;color:#e2e8f0}
+.feed-tag{display:inline-block;margin-left:6px;font-size:8px;padding:2px 6px;border-radius:4px;font-weight:700}
+.feed-tag.join{background:rgba(14,165,233,0.12);color:#38bdf8}
+.feed-tag.earn{background:rgba(16,185,129,0.12);color:#10b981}
+.feed-desc{font-size:10px;color:#6b7d94;margin-top:2px}
+.feed-time{font-size:9px;color:#4a5a6e;flex-shrink:0}
+
+/* Social proof stats */
+.proof-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.proof-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;text-align:center}
+.proof-icon{font-size:14px;margin-bottom:4px}
+.proof-val{font-size:18px;font-weight:800}
+.proof-label{font-size:8px;color:#6b7d94;letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-top:2px}
+
+/* Registered-only banner */
+.registered-banner{margin-top:14px;padding:12px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:8px;text-align:center}
+.registered-banner-text{font-size:11px;color:#f59e0b;font-weight:700}
+.registered-banner-sub{font-size:10px;color:#a16207;margin-top:4px}
+
+/* Footer */
+.fomo-footer{text-align:center;padding:24px;border-top:1px solid rgba(255,255,255,0.04);font-size:10px;color:#4a5a6e}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="fomo-nav">
+  <a href="/" class="fomo-nav-logo">
+    <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">&#x25B6;</span></div>
+    <span class="fomo-nav-brand">Super<span>Ad</span>Pro</span>
+  </a>
+  <div style="display:flex;gap:10px;align-items:center">
+    {% if user %}
+    <a href="/dashboard" class="fomo-nav-cta">Dashboard</a>
+    {% else %}
+    <a href="/login" style="color:#6b7d94;text-decoration:none;font-size:12px;font-weight:600">Log In</a>
+    <a href="/register{% if ref %}?ref={{ ref }}{% endif %}" class="fomo-nav-cta">Join Now</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="live-badge"><div class="live-dot"></div><span class="live-text">Live Activity</span></div>
+  <h1>The Grid Is Filling Fast</h1>
+  <p class="hero-sub">
+    {% if sponsor %}
+    <strong>{{ sponsor.first_name or sponsor.username }}</strong> invited you to SuperAdPro.
+    {% endif %}
+    {% if user and not user.is_active %}
+    You signed up but haven't activated yet — <strong>here's what you're missing</strong>. Members are locking in positions and earning commissions right now.
+    {% else %}
+    Members are locking in positions and earning commissions <strong>right now</strong>. Every empty seat is money left on the table.
+    {% endif %}
+  </p>
+  <div class="urgency-bar">
+    <div class="urgency-item"><div class="urgency-val" style="color:#f59e0b" id="spotsLeft">22</div><div class="urgency-label">Spots Left</div></div>
+    <div class="urgency-sep"></div>
+    <div class="urgency-item"><div class="urgency-val" style="color:#38bdf8" id="posFilled">41</div><div class="urgency-label">Positions Filled</div></div>
+    <div class="urgency-sep"></div>
+    <div class="urgency-item"><div class="urgency-val" style="color:#10b981" id="earnedToday">$0</div><div class="urgency-label">Earned Today</div></div>
+  </div>
+</div>
+
+<!-- Main layout -->
+<div class="fomo-layout">
+  <!-- LEFT -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <!-- Grid tracker -->
+    <div class="f-card glow">
+      <div class="f-head">
+        <div><div class="f-eye" style="color:#38bdf8">Grid Position Tracker</div><div class="f-title">8×8 Profit Engine Grid</div></div>
+        <div style="text-align:right"><div style="font-size:22px;font-weight:800;color:#f59e0b" id="gridCount">41/63</div><div style="font-size:10px;color:#6b7d94">positions filled</div></div>
+      </div>
+      <div class="grid-visual" id="gridVisual"></div>
+      <div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:65%;background:linear-gradient(90deg,#0ea5e9,#38bdf8,#10b981)"></div></div>
+      <div class="prog-row"><span id="progPct">65% complete</span><span id="progMsg" style="font-weight:700">22 spots remaining</span></div>
+    </div>
+
+    <!-- Earnings you're missing -->
+    <div class="f-card">
+      <div class="f-eye" style="color:#10b981">&#x1F4B0; What You're Missing</div>
+      <div class="earn-grid">
+        <div class="earn-card"><div class="earn-val" style="color:#10b981">$40.00</div><div class="earn-title">Per Direct Sale</div><div class="earn-sub">40% sponsor bonus</div></div>
+        <div class="earn-card"><div class="earn-val" style="color:#38bdf8">$6.88</div><div class="earn-title">Per Grid Seat</div><div class="earn-sub">6.875% uni-level</div></div>
+        <div class="earn-card"><div class="earn-val" style="color:#f59e0b">$1,033</div><div class="earn-title">Full Grid Payout</div><div class="earn-sub">When 64 positions fill</div></div>
+      </div>
+      {% if user and not user.is_active %}
+      <div class="registered-banner">
+        <div class="registered-banner-text">&#x23F0; Since you signed up, <span id="missedPositions">0</span> positions have been filled</div>
+        <div class="registered-banner-sub">That's $<span id="missedEarnings">0</span> in potential spillover earnings you've missed</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-wrap">
+      {% if user and not user.is_active %}
+      <a href="/pay-membership" class="cta-btn">Activate My Account &#x2192;</a>
+      <div class="cta-sub">Your grid position is reserved — activate now before it's released</div>
+      {% elif user %}
+      <a href="/dashboard" class="cta-btn">Go To Dashboard &#x2192;</a>
+      {% else %}
+      <a href="/register{% if ref %}?ref={{ ref }}{% endif %}" class="cta-btn">Claim Your Position &#x2192;</a>
+      <div class="cta-sub">Free to register &#xB7; No obligation &#xB7; See your position instantly</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <!-- Live feed -->
+    <div class="f-card" style="flex:1">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <div class="live-dot"></div>
+        <span class="f-eye" style="color:#38bdf8;margin-bottom:0">Live Activity Feed</span>
+      </div>
+      <div class="feed-list" id="feedList"></div>
+    </div>
+
+    <!-- Social proof -->
+    <div class="proof-grid">
+      <div class="proof-card"><div class="proof-icon">&#x1F465;</div><div class="proof-val" style="color:#38bdf8" id="proofMembers">0</div><div class="proof-label">Active Members</div></div>
+      <div class="proof-card"><div class="proof-icon">&#x1F4B8;</div><div class="proof-val" style="color:#10b981" id="proofPaid">$0</div><div class="proof-label">Paid Out Today</div></div>
+      <div class="proof-card"><div class="proof-icon">&#x1F525;</div><div class="proof-val" style="color:#f59e0b" id="proofGrids">0</div><div class="proof-label">Grids Completed</div></div>
+      <div class="proof-card"><div class="proof-icon">&#x26A1;</div><div class="proof-val" style="color:#8b5cf6" id="proofAvg">-</div><div class="proof-label">Avg Fill Time</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="fomo-footer">&copy; 2026 SuperAdPro. All rights reserved. Results vary — see full income disclaimer.</div>
+
+<script>
+/* ═══ FOMO ENGINE ═══
+   Loads real stats from /api/fomo-stats, then simulates ongoing activity.
+   Falls back to realistic simulated data when the platform is quiet. */
+
+const NAMES = ['Alex M.','Sarah K.','David R.','Emma L.','Jake T.','Mia W.','Chris B.','Olivia H.','Ryan P.','Sophie D.','Marcus J.','Lily F.','Nathan S.','Zoe A.','Tyler G.','Hannah C.','Brandon V.','Chloe N.','Justin E.','Amber Q.'];
+const TIERS = [{l:'$100',p:100},{l:'$300',p:300},{l:'$500',p:500}];
+
+let filled = 41;
+let earned = 4250;
+let feedItems = [];
+
+function rnd(a){return a[Math.floor(Math.random()*a.length)]}
+function rndBetween(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function initGrid(){
+  const g = document.getElementById('gridVisual');
+  g.innerHTML = '';
+  for(let i=0;i<64;i++){
+    const c = document.createElement('div');
+    c.className = 'g-cell';
+    if(i===0) { c.className='g-cell you'; c.textContent='YOU?'; }
+    else if(i<filled) {
+      const isRecent = i >= filled - 3;
+      c.className = 'g-cell ' + (isRecent ? 'recent' : 'filled');
+      c.textContent = isRecent ? '✓' : '';
+    } else {
+      c.className = 'g-cell empty';
+    }
+    g.appendChild(c);
+  }
+}
+
+function updateCounters(){
+  const spots = Math.max(0, 63 - filled);
+  const pct = Math.round((filled/63)*100);
+  document.getElementById('spotsLeft').textContent = spots;
+  document.getElementById('posFilled').textContent = filled;
+  document.getElementById('earnedToday').textContent = '$' + earned.toLocaleString();
+  document.getElementById('gridCount').textContent = filled + '/63';
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progPct').textContent = pct + '% complete';
+
+  if(pct > 85) {
+    document.getElementById('progFill').style.background = 'linear-gradient(90deg,#f59e0b,#ef4444)';
+    document.getElementById('progMsg').innerHTML = '<span style="color:#f59e0b">⚠️ Almost full!</span>';
+  } else {
+    document.getElementById('progMsg').textContent = spots + ' spots remaining';
+  }
+}
+
+function addFeedItem(item){
+  feedItems.unshift(item);
+  if(feedItems.length > 15) feedItems.pop();
+  renderFeed();
+}
+
+function renderFeed(){
+  const list = document.getElementById('feedList');
+  list.innerHTML = feedItems.map(function(a){
+    const isJoin = a.type === 'joined';
+    const initials = a.name.split(' ').map(function(w){return w[0]}).join('');
+    return '<div class="feed-item '+(isJoin?'join':'earn')+'">'+
+      '<div class="feed-avatar '+(isJoin?'join':'earn')+'">'+initials+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div class="feed-name">'+a.name+
+          '<span class="feed-tag '+(isJoin?'join':'earn')+'">'+(isJoin?'POSITION #'+a.pos:'EARNED '+a.tier)+'</span>'+
+        '</div>'+
+        '<div class="feed-desc">'+(isJoin?'Activated '+a.tier+' grid · Position '+a.pos:'Received '+a.tier+' commission from spillover')+'</div>'+
+      '</div>'+
+      '<div class="feed-time">'+a.time+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function simulateActivity(){
+  const name = rnd(NAMES);
+  const tier = rnd(TIERS);
+  const isJoin = Math.random() > 0.35;
+  const pos = rndBetween(1, 63);
+
+  addFeedItem({
+    name: name,
+    type: isJoin ? 'joined' : 'earned',
+    tier: tier.l,
+    pos: pos,
+    time: 'just now'
+  });
+
+  if(isJoin && filled < 63){
+    filled++;
+    initGrid();
+  }
+  earned += rndBetween(50, 400);
+  updateCounters();
+
+  // Update missed positions for registered unpaid users
+  var mp = document.getElementById('missedPositions');
+  if(mp){
+    var curr = parseInt(mp.textContent) || 0;
+    mp.textContent = curr + 1;
+    document.getElementById('missedEarnings').textContent = ((curr+1) * 6.88).toFixed(2);
+  }
+}
+
+// Load real stats from API, then fill gaps with simulation
+function loadRealStats(){
+  fetch('/api/fomo-stats')
+    .then(function(r){return r.json()})
+    .then(function(data){
+      // Apply real data
+      if(data.active_members) document.getElementById('proofMembers').textContent = data.active_members;
+      if(data.paid_today) document.getElementById('proofPaid').textContent = '$' + data.paid_today.toLocaleString();
+      if(data.grids_completed) document.getElementById('proofGrids').textContent = data.grids_completed;
+      if(data.avg_fill_time) document.getElementById('proofAvg').textContent = data.avg_fill_time;
+      if(data.positions_filled){
+        filled = data.positions_filled;
+        initGrid();
+        updateCounters();
+      }
+      if(data.earned_today) earned = data.earned_today;
+      if(data.recent_activity){
+        data.recent_activity.forEach(function(a){addFeedItem(a)});
+      }
+    })
+    .catch(function(){
+      // Fallback: use simulated defaults
+      document.getElementById('proofMembers').textContent = rndBetween(180, 920);
+      document.getElementById('proofPaid').textContent = '$' + rndBetween(3000, 15000).toLocaleString();
+      document.getElementById('proofGrids').textContent = rndBetween(8, 45);
+      document.getElementById('proofAvg').textContent = rndBetween(3, 7) + '.' + rndBetween(1, 9) + ' days';
+    });
+}
+
+// Initial load
+(function(){
+  initGrid();
+  updateCounters();
+
+  // Seed initial feed items with staggered times
+  var times = ['just now','1m ago','2m ago','4m ago','7m ago','11m ago','16m ago','23m ago'];
+  for(var i=0;i<8;i++){
+    feedItems.push({
+      name: rnd(NAMES),
+      type: Math.random()>0.35 ? 'joined' : 'earned',
+      tier: rnd(TIERS).l,
+      pos: rndBetween(1,63),
+      time: times[i]
+    });
+  }
+  renderFeed();
+
+  // Load real data
+  loadRealStats();
+
+  // Simulate ongoing activity every 4-8 seconds
+  setInterval(simulateActivity, rndBetween(4000, 8000));
+  // Re-randomize interval
+  setInterval(function(){
+    setTimeout(simulateActivity, rndBetween(1000, 3000));
+  }, rndBetween(6000, 12000));
+})();
+</script>
+
+</body>
+</html>

@@ -6,384 +6,349 @@
 <title>SuperAdPro — Positions Are Filling Fast</title>
 <link rel="manifest" href="/static/manifest.json">
 <meta name="theme-color" content="#050d1a">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
 <meta property="og:title" content="SuperAdPro — Grid Positions Filling Fast">
 <meta property="og:description" content="Members are locking in positions and earning commissions right now. Don't miss out.">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#050d1a;color:#e2e8f0;font-family:'DM Sans',sans-serif;overflow-x:hidden}
+:root{--deep:#050d1a;--surface:#0a1628;--cyan:#0ea5e9;--sky:#38bdf8;--emerald:#10b981;--amber:#f59e0b;--rose:#f43f5e}
+body{font-family:'Outfit',sans-serif;background:var(--deep);color:#e2e8f0;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 
-/* Nav bar */
-.fomo-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;background:rgba(5,13,26,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(14,165,233,0.1)}
-.fomo-nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
-.fomo-nav-brand{font-family:Sora,sans-serif;font-weight:800;font-size:17px;color:#fff}
-.fomo-nav-brand span{color:#38bdf8}
-.fomo-nav-cta{padding:8px 20px;border-radius:8px;border:none;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;transition:all 0.2s}
-.fomo-nav-cta:hover{box-shadow:0 4px 20px rgba(14,165,233,0.4);transform:translateY(-1px)}
+/* Nav */
+.nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:60px;background:rgba(5,13,26,0.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(14,165,233,0.08)}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-brand{font-weight:900;font-size:18px;color:#fff;letter-spacing:-0.3px}
+.nav-brand span{color:var(--sky)}
+.nav-cta{padding:9px 22px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--cyan),var(--sky));color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;transition:all 0.25s;box-shadow:0 2px 12px rgba(14,165,233,0.25)}
+.nav-cta:hover{box-shadow:0 6px 24px rgba(14,165,233,0.4);transform:translateY(-1px)}
 
 /* Hero */
-.hero{position:relative;padding:44px 24px 36px;text-align:center;background:radial-gradient(ellipse at 50% 0%,rgba(14,165,233,0.1) 0%,transparent 60%)}
-.live-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:20px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);margin-bottom:18px}
-.live-dot{width:8px;height:8px;border-radius:50%;background:#10b981;animation:pulse 2s ease infinite;position:relative}
-.live-dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;background:#10b981;opacity:0.3;animation:pulse-ring 2s ease infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.7;transform:scale(1.15)}}
-@keyframes pulse-ring{0%{opacity:0.4;transform:scale(1)}100%{opacity:0;transform:scale(2.5)}}
-.live-text{font-size:11px;font-weight:700;color:#10b981;letter-spacing:1.5px;text-transform:uppercase}
-.hero h1{font-family:Sora,sans-serif;font-weight:800;font-size:34px;line-height:1.15;background:linear-gradient(135deg,#38bdf8,#0ea5e9,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px}
-.hero-sub{font-size:14px;color:#6b7d94;max-width:480px;margin:0 auto 24px;line-height:1.6}
-.hero-sub strong{color:#e2e8f0}
+.hero{position:relative;padding:56px 24px 48px;text-align:center;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-120px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(14,165,233,0.08) 0%,rgba(16,185,129,0.04) 40%,transparent 70%);pointer-events:none}
+.live-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 18px;border-radius:24px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);margin-bottom:20px;animation:fadeDown 0.6s ease}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--emerald);position:relative}
+.live-dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;background:var(--emerald);opacity:0.3;animation:ring 2s ease infinite}
+@keyframes ring{0%{opacity:0.4;transform:scale(1)}100%{opacity:0;transform:scale(2.5)}}
+.live-text{font-size:11px;font-weight:700;color:var(--emerald);letter-spacing:2px;text-transform:uppercase}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+.hero h1{font-weight:900;font-size:clamp(32px,5vw,52px);line-height:1.08;letter-spacing:-1.5px;margin-bottom:14px;animation:fadeDown 0.7s ease 0.1s both}
+.hero h1 .grad{background:linear-gradient(135deg,var(--sky),var(--cyan),var(--emerald));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:16px;color:#7b8da4;max-width:520px;margin:0 auto 28px;line-height:1.65;animation:fadeDown 0.7s ease 0.2s both}
+.hero-sub strong{color:#e2e8f0;font-weight:700}
 
-/* Urgency counters */
-.urgency-bar{display:inline-flex;gap:20px;padding:16px 28px;background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.15);border-radius:14px}
-.urgency-item{text-align:center}
-.urgency-val{font-size:28px;font-weight:800;font-family:Sora;font-variant-numeric:tabular-nums}
-.urgency-label{font-size:9px;color:#6b7d94;letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-top:2px}
-.urgency-sep{width:1px;background:rgba(245,158,11,0.15);align-self:stretch}
-@media(max-width:600px){.urgency-bar{gap:12px;padding:14px 18px}.urgency-val{font-size:22px}}
+/* Counters */
+.counters{display:inline-flex;gap:0;background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow:hidden;animation:fadeDown 0.7s ease 0.3s both}
+.counter{padding:18px 28px;text-align:center;position:relative}
+.counter+.counter::before{content:'';position:absolute;left:0;top:20%;height:60%;width:1px;background:rgba(255,255,255,0.06)}
+.counter-val{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+.counter-label{font-size:9px;color:#5a6a7e;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-top:4px}
+@media(max-width:600px){.counter{padding:14px 16px}.counter-val{font-size:20px}}
 
-/* 2-col layout */
-.fomo-layout{display:grid;grid-template-columns:1fr 360px;gap:18px;max-width:1100px;margin:0 auto;padding:0 24px 60px}
-@media(max-width:900px){.fomo-layout{grid-template-columns:1fr}}
+/* Trust */
+.trust{padding:20px 0;text-align:center;border-bottom:1px solid rgba(255,255,255,0.04)}
+.trust-inner{display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap;font-size:12px;color:#5a6a7e;font-weight:600}
+.trust-item{display:flex;align-items:center;gap:6px}
 
-/* Cards */
-.f-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:18px}
-.f-card.glow{animation:glow 3s ease infinite}
-@keyframes glow{0%,100%{box-shadow:0 0 16px rgba(14,165,233,0.08)}50%{box-shadow:0 0 32px rgba(14,165,233,0.18)}}
-.f-eye{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
-.f-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.f-title{font-size:15px;font-weight:800;color:#e2e8f0}
+/* WHITE SECTION */
+.white-section{background:#ffffff;color:#0f172a;padding:48px 0 56px;position:relative}
+.white-section::before{content:'';position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(180deg,#f0f4f8,#fff);pointer-events:none}
+.ws-inner{max-width:1100px;margin:0 auto;padding:0 24px;position:relative}
+.ws-grid{display:grid;grid-template-columns:1fr 400px;gap:28px;align-items:start}
+@media(max-width:900px){.ws-grid{grid-template-columns:1fr}}
 
-/* Grid tracker */
-.grid-visual{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin-bottom:12px}
-.g-cell{min-height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;transition:all 0.5s ease}
-.g-cell.empty{background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.08);color:rgba(255,255,255,0.1)}
-.g-cell.filled{background:rgba(14,165,233,0.15);border:1px solid rgba(56,189,248,0.2);color:rgba(56,189,248,0.6)}
-.g-cell.recent{background:linear-gradient(135deg,#10b981,#059669);border:1px solid #34d399;color:#fff;box-shadow:0 0 12px rgba(16,185,129,0.4)}
-.g-cell.you{background:rgba(245,158,11,0.15);border:1px dashed rgba(245,158,11,0.4);color:#f59e0b;font-size:7px;letter-spacing:0.5px}
+.sec-label{font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px}
+.sec-title{font-size:22px;font-weight:900;letter-spacing:-0.5px;margin-bottom:16px}
 
-/* Progress bar */
-.prog-wrap{height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-bottom:6px}
+/* Grid card */
+.grid-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;box-shadow:0 4px 24px rgba(0,40,100,0.06)}
+.grid-visual{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:16px 0}
+.g-cell{aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;transition:all 0.5s ease;position:relative;overflow:hidden}
+.g-cell.empty{background:#f1f5f9;border:1.5px dashed #d0d8e4}
+.g-cell.filled{background:linear-gradient(135deg,#e0f2fe,#dbeafe);border:1.5px solid #93c5fd}
+.g-cell.filled::after{content:'\2713';color:#3b82f6;font-size:10px}
+.g-cell.recent{background:linear-gradient(135deg,var(--emerald),#059669);border:1.5px solid var(--emerald);box-shadow:0 0 12px rgba(16,185,129,0.3);animation:cellPop 0.4s ease}
+.g-cell.recent::after{content:'\2713';color:#fff;font-size:11px;font-weight:800}
+.g-cell.you{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px dashed var(--amber);animation:youPulse 2s ease infinite}
+.g-cell.you::after{content:'YOU';font-size:7px;letter-spacing:1px;color:#92400e;font-weight:800}
+@keyframes cellPop{from{transform:scale(0.7);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes youPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0.3)}50%{box-shadow:0 0 0 6px rgba(245,158,11,0)}}
+
+.prog-wrap{height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;margin:12px 0 6px}
 .prog-fill{height:100%;border-radius:4px;transition:width 1s ease}
-.prog-row{display:flex;justify-content:space-between;font-size:10px;color:#6b7d94}
+.prog-meta{display:flex;justify-content:space-between;font-size:11px;color:#64748b;font-weight:600}
 
-/* Earnings cards */
-.earn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+/* Feed */
+.feed-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:20px;box-shadow:0 4px 24px rgba(0,40,100,0.06)}
+.feed-list{display:flex;flex-direction:column;gap:6px;max-height:420px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#e2e8f0 transparent}
+.feed-list::-webkit-scrollbar{width:4px}
+.feed-list::-webkit-scrollbar-thumb{background:#d0d8e4;border-radius:2px}
+.fi{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;animation:slideIn 0.4s ease;transition:background 0.2s}
+.fi:hover{background:#f8fafc}
+.fi.join{border-left:3px solid var(--cyan)}
+.fi.earn{border-left:3px solid var(--emerald)}
+@keyframes slideIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}
+.fi-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0;position:relative}
+.fi-avatar.join{background:linear-gradient(135deg,var(--cyan),var(--sky))}
+.fi-avatar.earn{background:linear-gradient(135deg,var(--emerald),#059669)}
+.fi-flag{position:absolute;bottom:-2px;right:-2px;font-size:14px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.2))}
+.fi-name{font-size:13px;font-weight:700;color:#0f172a}
+.fi-tag{display:inline-block;margin-left:6px;font-size:8px;padding:2px 7px;border-radius:4px;font-weight:700}
+.fi-tag.join{background:rgba(14,165,233,0.1);color:var(--cyan)}
+.fi-tag.earn{background:rgba(16,185,129,0.1);color:var(--emerald)}
+.fi-desc{font-size:11px;color:#64748b;margin-top:1px}
+.fi-time{font-size:10px;color:#94a3b8;flex-shrink:0}
+
+/* Earnings */
+.earn-section{padding:56px 24px;background:var(--deep);text-align:center}
+.earn-section .sec-sub{font-size:14px;color:#5a6a7e;max-width:500px;margin:0 auto 28px;line-height:1.6}
+.earn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:700px;margin:0 auto}
 @media(max-width:600px){.earn-grid{grid-template-columns:1fr}}
-.earn-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px;text-align:center}
-.earn-val{font-size:22px;font-weight:800;font-family:Sora}
-.earn-title{font-size:10px;font-weight:700;color:#e2e8f0;margin-top:4px}
-.earn-sub{font-size:9px;color:#6b7d94;margin-top:2px}
+.ec{background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:24px 16px;text-align:center;position:relative;overflow:hidden}
+.ec::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.ec.s1::before{background:linear-gradient(90deg,var(--emerald),#34d399)}
+.ec.s2::before{background:linear-gradient(90deg,var(--cyan),var(--sky))}
+.ec.s3::before{background:linear-gradient(90deg,var(--amber),#fbbf24)}
+.ec-val{font-family:'Space Mono',monospace;font-size:28px;font-weight:700}
+.ec-title{font-size:13px;font-weight:700;color:#e2e8f0;margin-top:6px}
+.ec-sub{font-size:11px;color:#5a6a7e;margin-top:4px}
 
-/* CTA */
-.cta-wrap{text-align:center;padding:10px 0}
-.cta-btn{display:inline-block;padding:14px 48px;border-radius:10px;border:none;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:15px;font-weight:800;font-family:Sora;cursor:pointer;text-decoration:none;box-shadow:0 8px 32px rgba(14,165,233,0.3);transition:all 0.2s}
-.cta-btn:hover{box-shadow:0 12px 40px rgba(14,165,233,0.45);transform:translateY(-2px)}
-.cta-sub{font-size:10px;color:#6b7d94;margin-top:8px}
+/* How it works */
+.proof-section{padding:48px 24px;background:#f8fafc;text-align:center}
+.proof-stats{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;margin-bottom:32px}
+.ps-val{font-family:'Space Mono',monospace;font-size:32px;font-weight:700;color:var(--cyan)}
+.ps-label{font-size:10px;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-top:4px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:800px;margin:0 auto}
+@media(max-width:700px){.steps{grid-template-columns:1fr}}
+.step{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:24px 20px;text-align:center}
+.step-num{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--sky));color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.step-title{font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px}
+.step-desc{font-size:12px;color:#64748b;line-height:1.5}
 
-/* Live feed */
-.feed-list{display:flex;flex-direction:column;gap:8px;max-height:500px;overflow-y:auto}
-.feed-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;animation:slideIn 0.4s ease}
-.feed-item.join{background:rgba(14,165,233,0.04);border:1px solid rgba(14,165,233,0.1)}
-.feed-item.earn{background:rgba(16,185,129,0.04);border:1px solid rgba(16,185,129,0.1)}
-@keyframes slideIn{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:translateX(0)}}
-.feed-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
-.feed-avatar.join{background:linear-gradient(135deg,#0ea5e9,#38bdf8)}
-.feed-avatar.earn{background:linear-gradient(135deg,#10b981,#059669)}
-.feed-name{font-size:12px;font-weight:700;color:#e2e8f0}
-.feed-tag{display:inline-block;margin-left:6px;font-size:8px;padding:2px 6px;border-radius:4px;font-weight:700}
-.feed-tag.join{background:rgba(14,165,233,0.12);color:#38bdf8}
-.feed-tag.earn{background:rgba(16,185,129,0.12);color:#10b981}
-.feed-desc{font-size:10px;color:#6b7d94;margin-top:2px}
-.feed-time{font-size:9px;color:#4a5a6e;flex-shrink:0}
+/* Final CTA */
+.final-cta{padding:64px 24px;text-align:center;background:var(--deep);position:relative;overflow:hidden}
+.final-cta::before{content:'';position:absolute;bottom:-200px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(14,165,233,0.12) 0%,transparent 60%);pointer-events:none}
+.final-cta h2{font-weight:900;font-size:clamp(26px,4vw,38px);letter-spacing:-1px;margin-bottom:12px;color:#fff}
+.final-cta h2 .grad{background:linear-gradient(135deg,var(--sky),var(--emerald));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.final-cta p{font-size:14px;color:#5a6a7e;max-width:420px;margin:0 auto 24px;line-height:1.6}
+.cta-btn{display:inline-block;padding:16px 52px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--cyan),var(--sky));color:#fff;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;text-decoration:none;box-shadow:0 8px 32px rgba(14,165,233,0.35);transition:all 0.25s}
+.cta-btn:hover{box-shadow:0 12px 48px rgba(14,165,233,0.5);transform:translateY(-2px)}
+.cta-btn.green{background:linear-gradient(135deg,var(--emerald),#059669);box-shadow:0 8px 32px rgba(16,185,129,0.35)}
+.cta-btn.green:hover{box-shadow:0 12px 48px rgba(16,185,129,0.5)}
+.cta-sub{font-size:11px;color:#4a5a6e;margin-top:10px}
+.cta-sub span{color:var(--emerald);font-weight:700}
 
-/* Social proof stats */
-.proof-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.proof-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;text-align:center}
-.proof-icon{font-size:14px;margin-bottom:4px}
-.proof-val{font-size:18px;font-weight:800}
-.proof-label{font-size:8px;color:#6b7d94;letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-top:2px}
+.missed-banner{margin-top:16px;padding:14px 18px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:10px;text-align:center}
+.missed-title{font-size:13px;color:var(--amber);font-weight:700}
+.missed-sub{font-size:11px;color:#a16207;margin-top:4px}
 
-/* Registered-only banner */
-.registered-banner{margin-top:14px;padding:12px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:8px;text-align:center}
-.registered-banner-text{font-size:11px;color:#f59e0b;font-weight:700}
-.registered-banner-sub{font-size:10px;color:#a16207;margin-top:4px}
-
-/* Footer */
-.fomo-footer{text-align:center;padding:24px;border-top:1px solid rgba(255,255,255,0.04);font-size:10px;color:#4a5a6e}
+.footer{text-align:center;padding:24px;border-top:1px solid rgba(255,255,255,0.04);font-size:10px;color:#4a5a6e;background:var(--deep)}
 </style>
 </head>
 <body>
 
-<!-- Nav -->
-<nav class="fomo-nav">
-  <a href="/" class="fomo-nav-logo">
-    <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center"><span style="font-size:14px">&#x25B6;</span></div>
-    <span class="fomo-nav-brand">Super<span>Ad</span>Pro</span>
+<nav class="nav">
+  <a href="/" class="nav-logo">
+    <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--sky));display:flex;align-items:center;justify-content:center"><span style="font-size:14px;color:#fff">&#x25B6;</span></div>
+    <span class="nav-brand">Super<span>Ad</span>Pro</span>
   </a>
-  <div style="display:flex;gap:10px;align-items:center">
+  <div style="display:flex;gap:12px;align-items:center">
     {% if user %}
-    <a href="/dashboard" class="fomo-nav-cta">Dashboard</a>
+    <a href="/dashboard" class="nav-cta">Dashboard</a>
     {% else %}
-    <a href="/login" style="color:#6b7d94;text-decoration:none;font-size:12px;font-weight:600">Log In</a>
-    <a href="/register{% if ref %}?ref={{ ref }}{% endif %}" class="fomo-nav-cta">Join Now</a>
+    <a href="/login" style="color:#6b7d94;text-decoration:none;font-size:13px;font-weight:600">Log In</a>
+    <a href="/register{% if ref %}?ref={{ ref }}{% endif %}" class="nav-cta">Join Free &#x2192;</a>
     {% endif %}
   </div>
 </nav>
 
-<!-- Hero -->
 <div class="hero">
-  <div class="live-badge"><div class="live-dot"></div><span class="live-text">Live Activity</span></div>
-  <h1>The Grid Is Filling Fast</h1>
+  <div class="live-pill"><div class="live-dot"></div><span class="live-text">Live Activity</span></div>
+  <h1>Your Income Grid Is<br><span class="grad">Filling Right Now</span></h1>
   <p class="hero-sub">
-    {% if sponsor %}
-    <strong>{{ sponsor.first_name or sponsor.username }}</strong> invited you to SuperAdPro.
-    {% endif %}
-    {% if user and not user.is_active %}
-    You signed up but haven't activated yet — <strong>here's what you're missing</strong>. Members are locking in positions and earning commissions right now.
-    {% else %}
-    Members are locking in positions and earning commissions <strong>right now</strong>. Every empty seat is money left on the table.
-    {% endif %}
+    {% if sponsor %}<strong>{{ sponsor.first_name or sponsor.username }}</strong> invited you to join SuperAdPro. {% endif %}
+    {% if user and not user.is_active %}You signed up but haven't activated yet &#x2014; <strong>positions are being claimed while you wait</strong>.
+    {% else %}Every position that fills earns commissions for the members above it. The earlier you join, the more you earn. <strong>Don't wait &#x2014; this grid won't stay empty.</strong>{% endif %}
   </p>
-  <div class="urgency-bar">
-    <div class="urgency-item"><div class="urgency-val" style="color:#f59e0b" id="spotsLeft">22</div><div class="urgency-label">Spots Left</div></div>
-    <div class="urgency-sep"></div>
-    <div class="urgency-item"><div class="urgency-val" style="color:#38bdf8" id="posFilled">41</div><div class="urgency-label">Positions Filled</div></div>
-    <div class="urgency-sep"></div>
-    <div class="urgency-item"><div class="urgency-val" style="color:#10b981" id="earnedToday">$0</div><div class="urgency-label">Earned Today</div></div>
+  <div class="counters">
+    <div class="counter"><div class="counter-val" style="color:var(--amber)" id="spotsLeft">22</div><div class="counter-label">Spots Left</div></div>
+    <div class="counter"><div class="counter-val" style="color:var(--sky)" id="posFilled">41</div><div class="counter-label">Positions Filled</div></div>
+    <div class="counter"><div class="counter-val" style="color:var(--emerald)" id="earnedToday">$0</div><div class="counter-label">Earned Today</div></div>
   </div>
 </div>
 
-<!-- Main layout -->
-<div class="fomo-layout">
-  <!-- LEFT -->
-  <div style="display:flex;flex-direction:column;gap:16px">
-    <!-- Grid tracker -->
-    <div class="f-card glow">
-      <div class="f-head">
-        <div><div class="f-eye" style="color:#38bdf8">Grid Position Tracker</div><div class="f-title">8×8 Profit Engine Grid</div></div>
-        <div style="text-align:right"><div style="font-size:22px;font-weight:800;color:#f59e0b" id="gridCount">41/63</div><div style="font-size:10px;color:#6b7d94">positions filled</div></div>
+<div class="trust"><div class="trust-inner">
+  <div class="trust-item"><span>&#x1F512;</span>USDC Crypto Payments</div>
+  <div class="trust-item"><span>&#x26A1;</span>Instant Commissions</div>
+  <div class="trust-item"><span>&#x1F30D;</span>Members in 30+ Countries</div>
+  <div class="trust-item"><span>&#x1F4B0;</span>Automated Withdrawals</div>
+</div></div>
+
+<div class="white-section">
+<div class="ws-inner">
+<div class="ws-grid">
+  <div>
+    <div class="grid-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <div><div class="sec-label" style="color:var(--cyan)">Live Grid Tracker</div><div class="sec-title">8&#xD7;8 Profit Engine Grid</div></div>
+        <div style="text-align:right"><div style="font-family:'Space Mono';font-size:24px;font-weight:700;color:var(--emerald)" id="gridCount">41/63</div><div style="font-size:10px;color:#64748b;font-weight:600">positions filled</div></div>
       </div>
       <div class="grid-visual" id="gridVisual"></div>
-      <div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:65%;background:linear-gradient(90deg,#0ea5e9,#38bdf8,#10b981)"></div></div>
-      <div class="prog-row"><span id="progPct">65% complete</span><span id="progMsg" style="font-weight:700">22 spots remaining</span></div>
+      <div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:65%;background:linear-gradient(90deg,var(--cyan),var(--sky),var(--emerald))"></div></div>
+      <div class="prog-meta"><span id="progPct">65% complete</span><span id="progMsg" style="font-weight:700">22 spots remaining</span></div>
     </div>
-
-    <!-- Earnings you're missing -->
-    <div class="f-card">
-      <div class="f-eye" style="color:#10b981">&#x1F4B0; What You're Missing</div>
-      <div class="earn-grid">
-        <div class="earn-card"><div class="earn-val" style="color:#10b981">$40.00</div><div class="earn-title">Per Direct Sale</div><div class="earn-sub">40% sponsor bonus</div></div>
-        <div class="earn-card"><div class="earn-val" style="color:#38bdf8">$6.88</div><div class="earn-title">Per Grid Seat</div><div class="earn-sub">6.875% uni-level</div></div>
-        <div class="earn-card"><div class="earn-val" style="color:#f59e0b">$1,033</div><div class="earn-title">Full Grid Payout</div><div class="earn-sub">When 64 positions fill</div></div>
-      </div>
-      {% if user and not user.is_active %}
-      <div class="registered-banner">
-        <div class="registered-banner-text">&#x23F0; Since you signed up, <span id="missedPositions">0</span> positions have been filled</div>
-        <div class="registered-banner-sub">That's $<span id="missedEarnings">0</span> in potential spillover earnings you've missed</div>
-      </div>
-      {% endif %}
+    {% if user and not user.is_active %}
+    <div class="missed-banner">
+      <div class="missed-title">&#x23F0; Since you signed up, <span id="missedPositions">0</span> positions have been filled</div>
+      <div class="missed-sub">That's $<span id="missedEarnings">0</span> in potential spillover earnings you've missed</div>
     </div>
-
-    <!-- CTA -->
-    <div class="cta-wrap">
+    {% endif %}
+    <div style="text-align:center;margin-top:20px">
       {% if user and not user.is_active %}
-      <a href="/pay-membership" class="cta-btn">Activate My Account &#x2192;</a>
-      <div class="cta-sub">Your grid position is reserved — activate now before it's released</div>
+      <a href="/pay-membership" class="cta-btn green">Activate My Account &#x2192;</a>
+      <div class="cta-sub">Your position is reserved &#x2014; <span>activate before it's released</span></div>
       {% elif user %}
-      <a href="/dashboard" class="cta-btn">Go To Dashboard &#x2192;</a>
+      <a href="/income-grid" class="cta-btn">View My Grid &#x2192;</a>
       {% else %}
       <a href="/register{% if ref %}?ref={{ ref }}{% endif %}" class="cta-btn">Claim Your Position &#x2192;</a>
-      <div class="cta-sub">Free to register &#xB7; No obligation &#xB7; See your position instantly</div>
+      <div class="cta-sub" style="color:#64748b">Free to register &#xB7; No obligation &#xB7; <span style="color:var(--emerald);font-weight:700">See your grid instantly</span></div>
       {% endif %}
     </div>
   </div>
 
-  <!-- RIGHT -->
-  <div style="display:flex;flex-direction:column;gap:16px">
-    <!-- Live feed -->
-    <div class="f-card" style="flex:1">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+  <div>
+    <div class="feed-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
         <div class="live-dot"></div>
-        <span class="f-eye" style="color:#38bdf8;margin-bottom:0">Live Activity Feed</span>
+        <div class="sec-label" style="color:var(--cyan);margin-bottom:0">Live Activity Feed</div>
       </div>
       <div class="feed-list" id="feedList"></div>
     </div>
+  </div>
+</div>
+</div>
+</div>
 
-    <!-- Social proof -->
-    <div class="proof-grid">
-      <div class="proof-card"><div class="proof-icon">&#x1F465;</div><div class="proof-val" style="color:#38bdf8" id="proofMembers">0</div><div class="proof-label">Active Members</div></div>
-      <div class="proof-card"><div class="proof-icon">&#x1F4B8;</div><div class="proof-val" style="color:#10b981" id="proofPaid">$0</div><div class="proof-label">Paid Out Today</div></div>
-      <div class="proof-card"><div class="proof-icon">&#x1F525;</div><div class="proof-val" style="color:#f59e0b" id="proofGrids">0</div><div class="proof-label">Grids Completed</div></div>
-      <div class="proof-card"><div class="proof-icon">&#x26A1;</div><div class="proof-val" style="color:#8b5cf6" id="proofAvg">-</div><div class="proof-label">Avg Fill Time</div></div>
-    </div>
+<div class="earn-section">
+  <div class="sec-label" style="color:var(--sky)">&#x1F4B0; Earning Potential</div>
+  <div class="sec-title" style="color:#e2e8f0;font-size:28px">What You Earn When People Join Below You</div>
+  <div class="sec-sub">SuperAdPro pays you in four ways &#x2014; every grid position that fills beneath yours generates income automatically.</div>
+  <div class="earn-grid">
+    <div class="ec s1"><div class="ec-val" style="color:var(--emerald)">$40.00</div><div class="ec-title">Per Direct Referral</div><div class="ec-sub">40% instant sponsor commission on every $100 grid purchase</div></div>
+    <div class="ec s2"><div class="ec-val" style="color:var(--sky)">$6.88</div><div class="ec-title">Per Grid Seat Filled</div><div class="ec-sub">6.875% uni-level commission from every position in your grid</div></div>
+    <div class="ec s3"><div class="ec-val" style="color:var(--amber)">$1,033</div><div class="ec-title">Full Grid Payout</div><div class="ec-sub">Earn when all 64 positions fill &#x2014; then your grid advances and starts again</div></div>
   </div>
 </div>
 
-<div class="fomo-footer">&copy; 2026 SuperAdPro. All rights reserved. Results vary — see full income disclaimer.</div>
+<div class="proof-section">
+  <div class="sec-label" style="color:var(--cyan)">How It Works</div>
+  <div class="sec-title" style="font-size:26px;margin-bottom:8px">Three Steps to Start Earning</div>
+  <p style="font-size:14px;color:#64748b;max-width:460px;margin:0 auto 28px;line-height:1.6">SuperAdPro combines video advertising with a powerful compensation plan. Here's how members are building income:</p>
+  <div class="proof-stats">
+    <div><div class="ps-val" id="proofMembers">0</div><div class="ps-label">Active Members</div></div>
+    <div><div class="ps-val" id="proofPaid">$0</div><div class="ps-label">Paid Out Today</div></div>
+    <div><div class="ps-val" id="proofGrids">0</div><div class="ps-label">Grids Completed</div></div>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-title">Join &amp; Activate</div><div class="step-desc">Register free, then activate your membership for $20/month. Choose your grid tier ($100&#x2013;$800) to lock in your position.</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-title">Watch &amp; Qualify</div><div class="step-desc">Watch a short video daily to stay qualified for commissions. Use the mobile app on the go &#x2014; takes less than 60 seconds.</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-title">Earn &amp; Withdraw</div><div class="step-desc">Earn commissions as your grid fills. Withdraw anytime to your crypto wallet &#x2014; USDC on Base chain, arrives in seconds.</div></div>
+  </div>
+</div>
+
+<div class="final-cta">
+  <h2>Stop Watching.<br><span class="grad">Start Earning.</span></h2>
+  <p>Every minute you wait is another position claimed by someone else. Your spot in the grid is waiting &#x2014; but it won't wait forever.</p>
+  {% if user and not user.is_active %}
+  <a href="/pay-membership" class="cta-btn green" style="font-size:18px;padding:18px 56px">Activate Now &#x2192;</a>
+  <div class="cta-sub">Instant activation &#xB7; Start earning today</div>
+  {% elif user %}
+  <a href="/dashboard" class="cta-btn" style="font-size:18px;padding:18px 56px">Go To Dashboard &#x2192;</a>
+  {% else %}
+  <a href="/register{% if ref %}?ref={{ ref }}{% endif %}" class="cta-btn" style="font-size:18px;padding:18px 56px">Claim Your Position &#x2192;</a>
+  <div class="cta-sub">Join <span id="joinCount">850+</span> members already earning &#xB7; Free to register</div>
+  {% endif %}
+</div>
+
+<div class="footer">&copy; 2026 SuperAdPro. All rights reserved. Results vary &#x2014; earnings depend on individual effort, market conditions, and network activity. See full income disclaimer.</div>
 
 <script>
-/* ═══ FOMO ENGINE ═══
-   Loads real stats from /api/fomo-stats, then simulates ongoing activity.
-   Falls back to realistic simulated data when the platform is quiet. */
-
-const NAMES = ['Alex M.','Sarah K.','David R.','Emma L.','Jake T.','Mia W.','Chris B.','Olivia H.','Ryan P.','Sophie D.','Marcus J.','Lily F.','Nathan S.','Zoe A.','Tyler G.','Hannah C.','Brandon V.','Chloe N.','Justin E.','Amber Q.'];
-const TIERS = [{l:'$100',p:100},{l:'$300',p:300},{l:'$500',p:500}];
-
-let filled = 41;
-let earned = 4250;
-let feedItems = [];
-
+var PEOPLE=[
+  {n:'Alex M.',f:'\uD83C\uDDFA\uD83C\uDDF8'},{n:'Sarah K.',f:'\uD83C\uDDEC\uD83C\uDDE7'},{n:'David R.',f:'\uD83C\uDDE8\uD83C\uDDE6'},{n:'Emma L.',f:'\uD83C\uDDE6\uD83C\uDDFA'},
+  {n:'Jake T.',f:'\uD83C\uDDFA\uD83C\uDDF8'},{n:'Mia W.',f:'\uD83C\uDDE9\uD83C\uDDEA'},{n:'Chris B.',f:'\uD83C\uDDEC\uD83C\uDDE7'},{n:'Olivia H.',f:'\uD83C\uDDEB\uD83C\uDDF7'},
+  {n:'Ryan P.',f:'\uD83C\uDDEE\uD83C\uDDEA'},{n:'Sophie D.',f:'\uD83C\uDDF3\uD83C\uDDF1'},{n:'Marcus J.',f:'\uD83C\uDDFA\uD83C\uDDF8'},{n:'Lily F.',f:'\uD83C\uDDEF\uD83C\uDDF5'},
+  {n:'Nathan S.',f:'\uD83C\uDDE7\uD83C\uDDF7'},{n:'Zoe A.',f:'\uD83C\uDDEA\uD83C\uDDF8'},{n:'Tyler G.',f:'\uD83C\uDDF2\uD83C\uDDFD'},{n:'Hannah C.',f:'\uD83C\uDDF8\uD83C\uDDEC'},
+  {n:'Brandon V.',f:'\uD83C\uDDFF\uD83C\uDDE6'},{n:'Chloe N.',f:'\uD83C\uDDF3\uD83C\uDDEC'},{n:'Justin E.',f:'\uD83C\uDDEE\uD83C\uDDF3'},{n:'Amber Q.',f:'\uD83C\uDDF5\uD83C\uDDED'},
+  {n:'Daniel K.',f:'\uD83C\uDDF0\uD83C\uDDF7'},{n:'Grace L.',f:'\uD83C\uDDF9\uD83C\uDDED'},{n:'Omar H.',f:'\uD83C\uDDE6\uD83C\uDDEA'},{n:'Fatima R.',f:'\uD83C\uDDF2\uD83C\uDDE6'},
+  {n:'Liam O.',f:'\uD83C\uDDEE\uD83C\uDDEA'},{n:'Priya S.',f:'\uD83C\uDDEE\uD83C\uDDF3'},{n:'Chen W.',f:'\uD83C\uDDF9\uD83C\uDDFC'},{n:'Anna P.',f:'\uD83C\uDDF5\uD83C\uDDF1'},
+  {n:'James D.',f:'\uD83C\uDDEC\uD83C\uDDE7'},{n:'Maria G.',f:'\uD83C\uDDEE\uD83C\uDDF9'},{n:'Yuki T.',f:'\uD83C\uDDEF\uD83C\uDDF5'},{n:'Ahmed B.',f:'\uD83C\uDDEA\uD83C\uDDEC'}
+];
+var TIERS=[{l:'$100',p:100},{l:'$300',p:300},{l:'$500',p:500}];
+var filled=41,earned=4250,feedItems=[];
 function rnd(a){return a[Math.floor(Math.random()*a.length)]}
-function rndBetween(a,b){return Math.floor(Math.random()*(b-a+1))+a}
-
+function rndB(a,b){return Math.floor(Math.random()*(b-a+1))+a}
 function initGrid(){
-  const g = document.getElementById('gridVisual');
-  g.innerHTML = '';
-  for(let i=0;i<64;i++){
-    const c = document.createElement('div');
-    c.className = 'g-cell';
-    if(i===0) { c.className='g-cell you'; c.textContent='YOU?'; }
-    else if(i<filled) {
-      const isRecent = i >= filled - 3;
-      c.className = 'g-cell ' + (isRecent ? 'recent' : 'filled');
-      c.textContent = isRecent ? '✓' : '';
-    } else {
-      c.className = 'g-cell empty';
-    }
-    g.appendChild(c);
-  }
+  var g=document.getElementById('gridVisual');g.innerHTML='';
+  for(var i=0;i<64;i++){var c=document.createElement('div');
+    if(i===0)c.className='g-cell you';
+    else if(i<filled)c.className='g-cell '+(i>=filled-3?'recent':'filled');
+    else c.className='g-cell empty';
+    g.appendChild(c);}
 }
-
-function updateCounters(){
-  const spots = Math.max(0, 63 - filled);
-  const pct = Math.round((filled/63)*100);
-  document.getElementById('spotsLeft').textContent = spots;
-  document.getElementById('posFilled').textContent = filled;
-  document.getElementById('earnedToday').textContent = '$' + earned.toLocaleString();
-  document.getElementById('gridCount').textContent = filled + '/63';
-  document.getElementById('progFill').style.width = pct + '%';
-  document.getElementById('progPct').textContent = pct + '% complete';
-
-  if(pct > 85) {
-    document.getElementById('progFill').style.background = 'linear-gradient(90deg,#f59e0b,#ef4444)';
-    document.getElementById('progMsg').innerHTML = '<span style="color:#f59e0b">⚠️ Almost full!</span>';
-  } else {
-    document.getElementById('progMsg').textContent = spots + ' spots remaining';
-  }
+function updateC(){
+  var s=Math.max(0,63-filled),p=Math.round((filled/63)*100);
+  document.getElementById('spotsLeft').textContent=s;
+  document.getElementById('posFilled').textContent=filled;
+  document.getElementById('earnedToday').textContent='$'+earned.toLocaleString();
+  document.getElementById('gridCount').textContent=filled+'/63';
+  document.getElementById('progFill').style.width=p+'%';
+  document.getElementById('progPct').textContent=p+'% complete';
+  if(p>85){document.getElementById('progFill').style.background='linear-gradient(90deg,var(--amber),var(--rose))';document.getElementById('progMsg').innerHTML='<span style="color:var(--rose);font-weight:800">\u26A0 Almost full!</span>';}
+  else document.getElementById('progMsg').textContent=s+' spots remaining';
 }
-
-function addFeedItem(item){
-  feedItems.unshift(item);
-  if(feedItems.length > 15) feedItems.pop();
-  renderFeed();
-}
-
+function addFeed(item){feedItems.unshift(item);if(feedItems.length>15)feedItems.pop();renderFeed()}
 function renderFeed(){
-  const list = document.getElementById('feedList');
-  list.innerHTML = feedItems.map(function(a){
-    const isJoin = a.type === 'joined';
-    const initials = a.name.split(' ').map(function(w){return w[0]}).join('');
-    return '<div class="feed-item '+(isJoin?'join':'earn')+'">'+
-      '<div class="feed-avatar '+(isJoin?'join':'earn')+'">'+initials+'</div>'+
-      '<div style="flex:1;min-width:0">'+
-        '<div class="feed-name">'+a.name+
-          '<span class="feed-tag '+(isJoin?'join':'earn')+'">'+(isJoin?'POSITION #'+a.pos:'EARNED '+a.tier)+'</span>'+
-        '</div>'+
-        '<div class="feed-desc">'+(isJoin?'Activated '+a.tier+' grid · Position '+a.pos:'Received '+a.tier+' commission from spillover')+'</div>'+
-      '</div>'+
-      '<div class="feed-time">'+a.time+'</div>'+
-    '</div>';
+  document.getElementById('feedList').innerHTML=feedItems.map(function(a){
+    var isJ=a.type==='joined',ini=a.name.split(' ').map(function(w){return w[0]}).join('');
+    return '<div class="fi '+(isJ?'join':'earn')+'">'+
+      '<div class="fi-avatar '+(isJ?'join':'earn')+'">'+ini+'<span class="fi-flag">'+(a.flag||'')+'</span></div>'+
+      '<div style="flex:1;min-width:0"><div class="fi-name">'+a.name+
+        '<span class="fi-tag '+(isJ?'join':'earn')+'">'+(isJ?'POSITION #'+a.pos:'EARNED '+a.tier)+'</span></div>'+
+        '<div class="fi-desc">'+(isJ?'Activated '+a.tier+' grid \xB7 Position '+a.pos:'Received '+a.tier+' commission from spillover')+'</div></div>'+
+      '<div class="fi-time">'+a.time+'</div></div>';
   }).join('');
 }
-
-function simulateActivity(){
-  const name = rnd(NAMES);
-  const tier = rnd(TIERS);
-  const isJoin = Math.random() > 0.35;
-  const pos = rndBetween(1, 63);
-
-  addFeedItem({
-    name: name,
-    type: isJoin ? 'joined' : 'earned',
-    tier: tier.l,
-    pos: pos,
-    time: 'just now'
+function simulate(){
+  var p=rnd(PEOPLE),t=rnd(TIERS),isJ=Math.random()>0.3,pos=rndB(1,63);
+  addFeed({name:p.n,flag:p.f,type:isJ?'joined':'earned',tier:t.l,pos:pos,time:'just now'});
+  feedItems.forEach(function(item,i){if(i>0)item.time=i<3?i+'m ago':rndB(i*2,i*4)+'m ago'});
+  if(isJ&&filled<63){filled++;initGrid()}
+  earned+=rndB(50,400);updateC();
+  var mp=document.getElementById('missedPositions');
+  if(mp){var c=parseInt(mp.textContent)||0;mp.textContent=c+1;document.getElementById('missedEarnings').textContent=((c+1)*6.88).toFixed(2)}
+}
+function loadStats(){
+  fetch('/api/fomo-stats').then(function(r){return r.json()}).then(function(d){
+    if(d.active_members)document.getElementById('proofMembers').textContent=d.active_members;
+    if(d.paid_today)document.getElementById('proofPaid').textContent='$'+d.paid_today.toLocaleString();
+    if(d.grids_completed)document.getElementById('proofGrids').textContent=d.grids_completed;
+    if(d.positions_filled){filled=d.positions_filled;initGrid();updateC()}
+    if(d.earned_today)earned=d.earned_today;
+    if(d.recent_activity)d.recent_activity.forEach(function(a){a.flag=rnd(PEOPLE).f;addFeed(a)});
+    var jc=document.getElementById('joinCount');if(jc&&d.active_members)jc.textContent=d.active_members+'+';
+  }).catch(function(){
+    document.getElementById('proofMembers').textContent=rndB(180,920);
+    document.getElementById('proofPaid').textContent='$'+rndB(3000,15000).toLocaleString();
+    document.getElementById('proofGrids').textContent=rndB(8,45);
   });
-
-  if(isJoin && filled < 63){
-    filled++;
-    initGrid();
-  }
-  earned += rndBetween(50, 400);
-  updateCounters();
-
-  // Update missed positions for registered unpaid users
-  var mp = document.getElementById('missedPositions');
-  if(mp){
-    var curr = parseInt(mp.textContent) || 0;
-    mp.textContent = curr + 1;
-    document.getElementById('missedEarnings').textContent = ((curr+1) * 6.88).toFixed(2);
-  }
 }
-
-// Load real stats from API, then fill gaps with simulation
-function loadRealStats(){
-  fetch('/api/fomo-stats')
-    .then(function(r){return r.json()})
-    .then(function(data){
-      // Apply real data
-      if(data.active_members) document.getElementById('proofMembers').textContent = data.active_members;
-      if(data.paid_today) document.getElementById('proofPaid').textContent = '$' + data.paid_today.toLocaleString();
-      if(data.grids_completed) document.getElementById('proofGrids').textContent = data.grids_completed;
-      if(data.avg_fill_time) document.getElementById('proofAvg').textContent = data.avg_fill_time;
-      if(data.positions_filled){
-        filled = data.positions_filled;
-        initGrid();
-        updateCounters();
-      }
-      if(data.earned_today) earned = data.earned_today;
-      if(data.recent_activity){
-        data.recent_activity.forEach(function(a){addFeedItem(a)});
-      }
-    })
-    .catch(function(){
-      // Fallback: use simulated defaults
-      document.getElementById('proofMembers').textContent = rndBetween(180, 920);
-      document.getElementById('proofPaid').textContent = '$' + rndBetween(3000, 15000).toLocaleString();
-      document.getElementById('proofGrids').textContent = rndBetween(8, 45);
-      document.getElementById('proofAvg').textContent = rndBetween(3, 7) + '.' + rndBetween(1, 9) + ' days';
-    });
-}
-
-// Initial load
 (function(){
-  initGrid();
-  updateCounters();
-
-  // Seed initial feed items with staggered times
-  var times = ['just now','1m ago','2m ago','4m ago','7m ago','11m ago','16m ago','23m ago'];
-  for(var i=0;i<8;i++){
-    feedItems.push({
-      name: rnd(NAMES),
-      type: Math.random()>0.35 ? 'joined' : 'earned',
-      tier: rnd(TIERS).l,
-      pos: rndBetween(1,63),
-      time: times[i]
-    });
-  }
-  renderFeed();
-
-  // Load real data
-  loadRealStats();
-
-  // Simulate ongoing activity every 4-8 seconds
-  setInterval(simulateActivity, rndBetween(4000, 8000));
-  // Re-randomize interval
-  setInterval(function(){
-    setTimeout(simulateActivity, rndBetween(1000, 3000));
-  }, rndBetween(6000, 12000));
+  initGrid();updateC();
+  var times=['just now','1m ago','2m ago','4m ago','7m ago','11m ago','16m ago','23m ago','31m ago','45m ago'];
+  for(var i=0;i<10;i++){var p=rnd(PEOPLE);feedItems.push({name:p.n,flag:p.f,type:Math.random()>0.35?'joined':'earned',tier:rnd(TIERS).l,pos:rndB(1,63),time:times[i]})}
+  renderFeed();loadStats();
+  setInterval(simulate,rndB(4000,8000));
+  setInterval(function(){setTimeout(simulate,rndB(1000,3000))},rndB(6000,12000));
 })();
 </script>
-
 </body>
 </html>
