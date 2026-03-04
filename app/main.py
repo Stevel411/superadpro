@@ -2431,6 +2431,139 @@ def recent_joiners(db: Session = Depends(get_db)):
 # ═══════════════════════════════════════════════════════════════
 
 
+@app.get("/dev/seed-campaigns")
+def dev_seed_campaigns(secret: str = "", db: Session = Depends(get_db)):
+    """Seed demo video campaigns for testing rotation. Remove before launch."""
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"})
+
+    demos = [
+        {
+            "title": "The Future of Digital Marketing",
+            "description": "How AI is transforming online advertising and what it means for entrepreneurs.",
+            "category": "marketing",
+            "platform": "youtube",
+            "video_url": "https://www.youtube.com/watch?v=8yMIjMadNS4",
+            "embed_url": "https://www.youtube.com/embed/8yMIjMadNS4",
+            "video_id": "8yMIjMadNS4",
+        },
+        {
+            "title": "How to Build Passive Income Online",
+            "description": "5 proven strategies for building passive income streams in 2026.",
+            "category": "business",
+            "platform": "youtube",
+            "video_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "embed_url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+            "video_id": "dQw4w9WgXcQ",
+        },
+        {
+            "title": "Affiliate Marketing for Beginners",
+            "description": "A complete beginner's guide to affiliate marketing success.",
+            "category": "marketing",
+            "platform": "youtube",
+            "video_url": "https://www.youtube.com/watch?v=GVaRzCOdBMk",
+            "embed_url": "https://www.youtube.com/embed/GVaRzCOdBMk",
+            "video_id": "GVaRzCOdBMk",
+        },
+        {
+            "title": "The Power of Video Advertising",
+            "description": "Why video ads outperform every other format and how to leverage them.",
+            "category": "advertising",
+            "platform": "youtube",
+            "video_url": "https://www.youtube.com/watch?v=ZXsQAXx_ao0",
+            "embed_url": "https://www.youtube.com/embed/ZXsQAXx_ao0",
+            "video_id": "ZXsQAXx_ao0",
+        },
+        {
+            "title": "Cryptocurrency & Business Payments",
+            "description": "How crypto payments are revolutionising online business in 2026.",
+            "category": "crypto",
+            "platform": "youtube",
+            "video_url": "https://www.youtube.com/watch?v=rYQgy8QDEBI",
+            "embed_url": "https://www.youtube.com/embed/rYQgy8QDEBI",
+            "video_id": "rYQgy8QDEBI",
+        },
+        {
+            "title": "Social Media Growth Strategies",
+            "description": "Proven tactics to grow your audience and monetise your social presence.",
+            "category": "social",
+            "platform": "youtube",
+            "video_url": "https://www.youtube.com/watch?v=n8UosDsa9uI",
+            "embed_url": "https://www.youtube.com/embed/n8UosDsa9uI",
+            "video_id": "n8UosDsa9uI",
+        },
+        {
+            "title": "Email Marketing That Converts",
+            "description": "Build an email list and turn subscribers into paying customers.",
+            "category": "marketing",
+            "platform": "youtube",
+            "video_url": "https://www.youtube.com/watch?v=qJ3gBSNIyMo",
+            "embed_url": "https://www.youtube.com/embed/qJ3gBSNIyMo",
+            "video_id": "qJ3gBSNIyMo",
+        },
+        {
+            "title": "Building a Brand From Zero",
+            "description": "How to create a recognisable brand that attracts loyal customers.",
+            "category": "branding",
+            "platform": "youtube",
+            "video_url": "https://www.youtube.com/watch?v=sS6sMjGMMFo",
+            "embed_url": "https://www.youtube.com/embed/sS6sMjGMMFo",
+            "video_id": "sS6sMjGMMFo",
+        },
+        {
+            "title": "SEO Fundamentals for 2026",
+            "description": "Get your website ranking on Google with these essential SEO techniques.",
+            "category": "marketing",
+            "platform": "youtube",
+            "video_url": "https://www.youtube.com/watch?v=DvwS7cV9GmQ",
+            "embed_url": "https://www.youtube.com/embed/DvwS7cV9GmQ",
+            "video_id": "DvwS7cV9GmQ",
+        },
+        {
+            "title": "Financial Freedom Blueprint",
+            "description": "A step-by-step plan for achieving financial independence.",
+            "category": "finance",
+            "platform": "youtube",
+            "video_url": "https://www.youtube.com/watch?v=PHe0bXAIuk0",
+            "embed_url": "https://www.youtube.com/embed/PHe0bXAIuk0",
+            "video_id": "PHe0bXAIuk0",
+        },
+    ]
+
+    # Use user_id=1 as "system" owner, or find first admin
+    from sqlalchemy import func
+    admin = db.query(User).filter(User.is_admin == True).first()
+    owner_id = admin.id if admin else 1
+
+    added = 0
+    for d in demos:
+        # Skip if video_id already exists
+        exists = db.query(VideoCampaign).filter(VideoCampaign.video_id == d["video_id"]).first()
+        if exists:
+            continue
+        c = VideoCampaign(
+            user_id=owner_id,
+            title=d["title"],
+            description=d["description"],
+            category=d["category"],
+            platform=d["platform"],
+            video_url=d["video_url"],
+            embed_url=d["embed_url"],
+            video_id=d["video_id"],
+            status="active",
+            views_target=1000,
+            views_delivered=0,
+            priority_level=0,
+            owner_tier=1,
+        )
+        db.add(c)
+        added += 1
+
+    db.commit()
+    total = db.query(VideoCampaign).filter(VideoCampaign.status == "active").count()
+    return {"success": True, "added": added, "total_active_campaigns": total}
+
+
 @app.get("/dev/reset-watch")
 def dev_reset_watch(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     """TEMPORARY — reset today's watch quota for testing. Remove before launch."""
