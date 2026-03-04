@@ -450,22 +450,44 @@ async function toggleUserActive() {
 // ── Finances ──
 async function loadFinances() {
   const [fin, comm, wd] = await Promise.all([api('/admin/api/finances'), api('/admin/api/commissions?limit=30'), api('/admin/api/withdrawals')]);
-  if (fin) {
+  if (fin && fin.overview) {
+    const o = fin.overview;
     document.getElementById('financeStats').innerHTML = `<div class="stat-row">
-      <div class="stat green"><div class="stat-label">Total Revenue</div><div class="stat-val">$${parseFloat(fin.total_revenue).toFixed(2)}</div></div>
-      <div class="stat blue"><div class="stat-label">Commissions Paid</div><div class="stat-val">$${parseFloat(fin.total_commissions_paid).toFixed(2)}</div></div>
-      <div class="stat amber"><div class="stat-label">User Balances</div><div class="stat-val">$${parseFloat(fin.total_user_balances).toFixed(2)}</div></div>
-      <div class="stat red"><div class="stat-label">Pending W/D</div><div class="stat-val">$${parseFloat(fin.pending_withdrawal_total).toFixed(2)}</div></div>
+      <div class="stat green"><div class="stat-label">Total Revenue</div><div class="stat-val">$${o.total_revenue.toFixed(2)}</div></div>
+      <div class="stat blue"><div class="stat-label">Commissions Paid</div><div class="stat-val">$${o.total_commissions_paid.toFixed(2)}</div></div>
+      <div class="stat amber"><div class="stat-label">User Balances</div><div class="stat-val">$${o.total_user_balances.toFixed(2)}</div></div>
+      <div class="stat red"><div class="stat-label">Pending W/D</div><div class="stat-val">$${o.pending_withdrawals.toFixed(2)}</div></div>
     </div>`;
   }
   if (comm && comm.commissions) {
     document.getElementById('commCount').textContent = comm.total;
-    let html = '<table><thead><tr><th>Type</th><th>To</th><th>From</th><th>Amount</th><th>Date</th></tr></thead><tbody>';
-    comm.commissions.forEach(c => { html += `<tr><td><span class="tag tag-ok">${c.commission_type}</span></td><td class="mono">#${c.to_user_id}</td><td class="mono">#${c.from_user_id}</td><td style="color:#16a34a;font-weight:700">$${parseFloat(c.amount_usdt).toFixed(2)}</td><td class="mono">${c.created_at ? c.created_at.slice(0,16) : '—'}</td></tr>`; });
+    let html = '<table><thead><tr><th>Type</th><th>To</th><th>From</th><th>Amount</th><th>Notes</th><th>Date</th></tr></thead><tbody>';
+    comm.commissions.forEach(c => { html += `<tr><td><span class="tag tag-ok">${c.type || '—'}</span></td><td class="mono">#${c.to_user_id}</td><td class="mono">${c.from_user_id ? '#'+c.from_user_id : '—'}</td><td style="color:#16a34a;font-weight:700">$${(c.amount || 0).toFixed(2)}</td><td style="font-size:11px;color:#64748b;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.notes || '—'}</td><td class="mono">${c.date ? c.date.slice(0,16) : '—'}</td></tr>`; });
     html += '</tbody></table>';
     document.getElementById('commissionsTable').innerHTML = html;
   }
-  if (wd) document.getElementById('wdCount').textContent = wd.total || wd.withdrawals?.length || 0;
+  if (wd && wd.withdrawals) {
+    const pending = wd.withdrawals.filter(w => w.status === 'pending');
+    document.getElementById('wdCount').textContent = pending.length;
+    let html = '<table><thead><tr><th>User</th><th>Amount</th><th>Wallet</th><th>Status</th><th>Action</th></tr></thead><tbody>';
+    if (wd.withdrawals.length) {
+      wd.withdrawals.forEach(w => {
+        html += `<tr><td style="font-weight:700">${w.username || '#'+w.user_id}</td><td style="color:#d97706;font-weight:700">$${(w.amount || 0).toFixed(2)}</td><td class="mono">${w.wallet ? w.wallet.slice(0,10)+'...' : '—'}</td><td><span class="tag tag-${w.status === 'paid' ? 'ok' : w.status === 'pending' ? 'pending' : 'error'}">${w.status.toUpperCase()}</span></td><td>${w.status === 'pending' ? '<button class="btn btn-sm btn-primary" onclick="processAllWithdrawals()">Process</button>' : (w.tx_hash ? '<a href="https://basescan.org/tx/'+w.tx_hash+'" target="_blank" class="mono" style="color:#0284c7;font-size:10px">View Tx</a>' : '—')}</td></tr>`;
+      });
+    } else {
+      html += '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px">No withdrawals</td></tr>';
+    }
+    html += '</tbody></table>';
+    document.getElementById('withdrawalsTable').innerHTML = html;
+  }
+}
+
+async function processAllWithdrawals() {
+  if (!confirm('Process all pending withdrawals now? This will send USDC from the hot wallet.')) return;
+  toast('Processing withdrawals...');
+  const data = await api('/admin/process-pending-withdrawals?secret=superadpro-owner-2026');
+  if (data) { toast(data.message || `Processed ${data.processed || 0} withdrawals`); loadFinances(); }
+  else { toast('Failed to process', true); }
 }
 
 // ── Health ──
