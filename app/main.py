@@ -458,7 +458,7 @@ def fomo_stats_api(db: Session = Depends(get_db)):
             "name": f"{(u.first_name or u.username or 'Member')[:1]}. {(u.last_name or '')[:1]}." if u.first_name else f"Member {u.id}",
             "type": "joined",
             "tier": "$100",
-            "pos": random.randint(1, 63),
+            "pos": random.randint(1, 64),
             "time": time_str
         })
 
@@ -5808,7 +5808,7 @@ def admin_test_grid_fill(
     
     Usage: /admin/test-grid-fill?secret=superadpro-owner-2026&owner_username=master&tier=1&seats=5
     
-    Use seats=63 to test full grid completion + auto-spawn.
+    Use seats=64 to test full grid completion + auto-spawn.
     """
     if secret != "superadpro-owner-2026":
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
@@ -5821,8 +5821,8 @@ def admin_test_grid_fill(
     if not price:
         return JSONResponse({"error": f"Invalid tier: {tier}"}, status_code=400)
 
-    # Cap at 63 seats
-    seats = min(seats, 63)
+    # Cap at 64 positions
+    seats = min(seats, 64)
 
     results = []
     for i in range(seats):

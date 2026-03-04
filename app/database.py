@@ -21,7 +21,7 @@ Base = declarative_base()
 # ── Grid constants ────────────────────────────────────────────
 GRID_WIDTH    = 8      # positions per level
 GRID_LEVELS   = 8      # levels deep
-GRID_TOTAL    = 63     # seats 1-63 (seat 0 = owner, not an entrant)
+GRID_TOTAL    = 64     # 64 positions filled by referrals across 8 levels
 
 # ── Commission split (Stream 2 — Profit Engine Grid) ─────────
 # Per entry: 40% direct sponsor + 55% uni-level (variable) + 5% platform
