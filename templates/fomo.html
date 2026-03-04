@@ -125,7 +125,7 @@ body{background:#050d1a;color:#e2e8f0;font-family:'DM Sans',sans-serif;overflow-
     <a href="/dashboard" class="fomo-nav-cta">Dashboard</a>
     {% else %}
     <a href="/login" style="color:#6b7d94;text-decoration:none;font-size:12px;font-weight:600">Log In</a>
-    <a href="/register" class="fomo-nav-cta">Join Now</a>
+    <a href="/register{% if ref %}?ref={{ ref }}{% endif %}" class="fomo-nav-cta">Join Now</a>
     {% endif %}
   </div>
 </nav>
@@ -135,6 +135,9 @@ body{background:#050d1a;color:#e2e8f0;font-family:'DM Sans',sans-serif;overflow-
   <div class="live-badge"><div class="live-dot"></div><span class="live-text">Live Activity</span></div>
   <h1>The Grid Is Filling Fast</h1>
   <p class="hero-sub">
+    {% if sponsor %}
+    <strong>{{ sponsor.first_name or sponsor.username }}</strong> invited you to SuperAdPro.
+    {% endif %}
     {% if user and not user.is_active %}
     You signed up but haven't activated yet — <strong>here's what you're missing</strong>. Members are locking in positions and earning commissions right now.
     {% else %}
@@ -189,7 +192,7 @@ body{background:#050d1a;color:#e2e8f0;font-family:'DM Sans',sans-serif;overflow-
       {% elif user %}
       <a href="/dashboard" class="cta-btn">Go To Dashboard &#x2192;</a>
       {% else %}
-      <a href="/register" class="cta-btn">Claim Your Position &#x2192;</a>
+      <a href="/register{% if ref %}?ref={{ ref }}{% endif %}" class="cta-btn">Claim Your Position &#x2192;</a>
       <div class="cta-sub">Free to register &#xB7; No obligation &#xB7; See your position instantly</div>
       {% endif %}
     </div>

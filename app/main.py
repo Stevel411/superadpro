@@ -399,11 +399,25 @@ def referral_link(username: str, request: Request):
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/momentum")
-def fomo_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """FOMO campaign page — public + enhanced for registered unpaid users."""
-    return templates.TemplateResponse("fomo.html", {
-        "request": request, "user": user, "active_page": "momentum"
+def fomo_page(request: Request, ref: str = "", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """FOMO campaign page — primary affiliate shareable link.
+       Usage: superadpro.com/momentum?ref=username
+    """
+    sponsor = ref or request.query_params.get("ref", "") or request.cookies.get("ref", "")
+    # Look up sponsor for personalised messaging
+    sponsor_user = None
+    if sponsor:
+        sponsor_user = db.query(User).filter(User.username == sponsor).first()
+
+    response = templates.TemplateResponse("fomo.html", {
+        "request": request, "user": user, "active_page": "momentum",
+        "sponsor": sponsor_user, "ref": sponsor
     })
+    # Set referral cookie so it persists through to registration
+    if sponsor:
+        response.set_cookie(key="ref", value=sponsor, max_age=60*60*24*30,
+                            httponly=False, samesite="lax")
+    return response
 
 @app.get("/api/fomo-stats")
 def fomo_stats_api(db: Session = Depends(get_db)):
