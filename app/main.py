@@ -687,43 +687,49 @@ def app_home(request: Request, user: User = Depends(get_current_user), db: Sessi
     if not user:     return RedirectResponse(url="/?login=1")
     if not user.is_active: return RedirectResponse(url="/pay-membership")
 
-    quota = get_or_create_quota(db, user)
-    quota_complete = quota.today_watched >= quota.daily_required
-    db.commit()
+    try:
+        quota = get_or_create_quota(db, user)
+        quota_complete = quota.today_watched >= quota.daily_required
+        db.commit()
 
-    # Calculate streak (consecutive days quota met)
-    streak = 0
-    if quota.consecutive_missed == 0 and quota.last_quota_met:
-        from datetime import date, timedelta
-        d = date.today()
-        if quota_complete or str(d) == quota.today_date:
-            streak = 1
-            # Count backwards from last_quota_met
-            check = d - timedelta(days=1)
-            while str(check) <= (quota.last_quota_met or ""):
-                streak += 1
-                check -= timedelta(days=1)
-                if streak > 365: break  # safety cap
+        # Calculate streak (consecutive days quota met)
+        streak = 0
+        if quota.consecutive_missed == 0 and quota.last_quota_met:
+            from datetime import date, timedelta
+            d = date.today()
+            if quota_complete or str(d) == quota.today_date:
+                streak = 1
+                # Count backwards from last_quota_met
+                check = d - timedelta(days=1)
+                while str(check) <= (quota.last_quota_met or ""):
+                    streak += 1
+                    check -= timedelta(days=1)
+                    if streak > 365: break  # safety cap
 
-    # Referral count
-    referral_count = db.query(User).filter(User.sponsor_id == user.id).count()
+        # Referral count
+        referral_count = db.query(User).filter(User.sponsor_id == user.id).count()
 
-    # Total videos watched (not stored as a column, use today's count as fallback)
-    total_watched = getattr(quota, 'total_watched', None) or quota.today_watched or 0
+        # Total videos watched (not stored as a column, use today's count as fallback)
+        total_watched = getattr(quota, 'total_watched', None) or quota.today_watched or 0
 
-    return templates.TemplateResponse("app.html", {
-        "request":        request,
-        "user":           user,
-        "quota":          quota,
-        "quota_complete":  quota_complete,
-        "balance":        f"{float(user.balance or 0):.2f}",
-        "total_earned":   f"{float(user.total_earned or 0):.2f}",
-        "total_watched":  total_watched,
-        "referral_count": referral_count,
-        "streak":         streak,
-        "display_name":   user.first_name or user.username,
-        "grace_days":     GRACE_DAYS,
-    })
+        return templates.TemplateResponse("app.html", {
+            "request":        request,
+            "user":           user,
+            "quota":          quota,
+            "quota_complete":  quota_complete,
+            "balance":        f"{float(user.balance or 0):.2f}",
+            "total_earned":   f"{float(user.total_earned or 0):.2f}",
+            "total_watched":  total_watched,
+            "referral_count": referral_count,
+            "streak":         streak,
+            "display_name":   user.first_name or user.username,
+            "grace_days":     GRACE_DAYS,
+        })
+    except Exception as e:
+        logger.error(f"App route error: {e}")
+        import traceback
+        traceback.print_exc()
+        return JSONResponse({"error": str(e), "type": type(e).__name__}, status_code=500)
 
 
 @app.get("/dashboard")
