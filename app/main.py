@@ -2520,6 +2520,413 @@ def admin_panel(request: Request, user: User = Depends(get_current_user),
 
 
 # ═══════════════════════════════════════════════════════════════
+#  ADMIN API — dual-purpose: dashboard UI + AI agent automation
+# ═══════════════════════════════════════════════════════════════
+
+def _require_admin(user):
+    """Guard for admin API endpoints."""
+    if not user or not is_admin(user):
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+# ── Users ────────────────────────────────────────────────────
+@app.get("/admin/api/users")
+def admin_api_users(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    q: str = "",
+    status: str = "",          # "active" | "inactive" | ""
+    sort: str = "newest",      # "newest" | "oldest" | "balance" | "earned"
+    limit: int = 100,
+    offset: int = 0
+):
+    _require_admin(user)
+    query = db.query(User)
+    if q:
+        query = query.filter(
+            (User.username.ilike(f"%{q}%")) | (User.email.ilike(f"%{q}%"))
+        )
+    if status == "active":
+        query = query.filter(User.is_active == True)
+    elif status == "inactive":
+        query = query.filter(User.is_active == False)
+
+    if sort == "oldest":
+        query = query.order_by(User.id.asc())
+    elif sort == "balance":
+        query = query.order_by(User.balance.desc())
+    elif sort == "earned":
+        query = query.order_by(User.total_earned.desc())
+    else:
+        query = query.order_by(User.id.desc())
+
+    total = query.count()
+    users = query.offset(offset).limit(limit).all()
+    return {
+        "total": total,
+        "users": [{
+            "id": u.id, "username": u.username, "email": u.email,
+            "is_active": u.is_active, "is_admin": u.is_admin,
+            "balance": round(float(u.balance or 0), 2),
+            "total_earned": round(float(u.total_earned or 0), 2),
+            "total_withdrawn": round(float(u.total_withdrawn or 0), 2),
+            "personal_referrals": u.personal_referrals or 0,
+            "total_team": u.total_team or 0,
+            "sponsor_id": u.sponsor_id,
+            "wallet_address": u.wallet_address,
+            "created_at": u.created_at.isoformat() if u.created_at else None,
+        } for u in users]
+    }
+
+@app.get("/admin/api/user/{user_id}")
+def admin_api_user_detail(
+    user_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    _require_admin(user)
+    u = db.query(User).filter(User.id == user_id).first()
+    if not u:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    grids = db.query(Grid).filter(Grid.owner_id == u.id).all()
+    commissions = db.query(Commission).filter(
+        Commission.to_user_id == u.id
+    ).order_by(Commission.created_at.desc()).limit(50).all()
+    payments = db.query(Payment).filter(
+        Payment.from_user_id == u.id
+    ).order_by(Payment.created_at.desc()).limit(20).all()
+    withdrawals = db.query(Withdrawal).filter(
+        Withdrawal.user_id == u.id
+    ).order_by(Withdrawal.requested_at.desc()).limit(20).all()
+
+    return {
+        "user": {
+            "id": u.id, "username": u.username, "email": u.email,
+            "first_name": u.first_name, "last_name": u.last_name,
+            "is_active": u.is_active, "is_admin": u.is_admin,
+            "balance": round(float(u.balance or 0), 2),
+            "total_earned": round(float(u.total_earned or 0), 2),
+            "total_withdrawn": round(float(u.total_withdrawn or 0), 2),
+            "grid_earnings": round(float(u.grid_earnings or 0), 2),
+            "level_earnings": round(float(u.level_earnings or 0), 2),
+            "upline_earnings": round(float(u.upline_earnings or 0), 2),
+            "course_earnings": round(float(u.course_earnings or 0), 2),
+            "personal_referrals": u.personal_referrals or 0,
+            "total_team": u.total_team or 0,
+            "sponsor_id": u.sponsor_id,
+            "wallet_address": u.wallet_address,
+            "country": u.country,
+            "created_at": u.created_at.isoformat() if u.created_at else None,
+        },
+        "grids": [{
+            "id": g.id, "tier": g.package_tier, "price": float(g.package_price),
+            "advance": g.advance_number, "filled": g.positions_filled,
+            "is_complete": g.is_complete,
+            "revenue": round(float(g.revenue_total or 0), 2),
+        } for g in grids],
+        "recent_commissions": [{
+            "id": c.id, "amount": round(float(c.amount_usdt or 0), 2),
+            "type": c.commission_type, "from_user": c.from_user_id,
+            "notes": c.notes, "status": c.status,
+            "date": c.created_at.isoformat() if c.created_at else None,
+        } for c in commissions],
+        "payments": [{
+            "id": p.id, "amount": round(float(p.amount_usdt or 0), 2),
+            "type": p.payment_type, "status": p.status,
+            "tx_hash": p.tx_hash,
+            "date": p.created_at.isoformat() if p.created_at else None,
+        } for p in payments],
+        "withdrawals": [{
+            "id": w.id, "amount": round(float(w.amount_usdt or 0), 2),
+            "status": w.status, "wallet": w.wallet_address,
+            "tx_hash": w.tx_hash,
+            "requested": w.requested_at.isoformat() if w.requested_at else None,
+            "processed": w.processed_at.isoformat() if w.processed_at else None,
+        } for w in withdrawals],
+    }
+
+@app.post("/admin/api/user/{user_id}/adjust-balance")
+async def admin_api_adjust_balance(
+    user_id: int,
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    _require_admin(user)
+    body = await request.json()
+    amount = float(body.get("amount", 0))
+    reason = body.get("reason", "Admin adjustment")
+    if amount == 0:
+        return {"error": "Amount must be non-zero"}
+
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    old_bal = float(target.balance or 0)
+    target.balance = old_bal + amount
+
+    comm = Commission(
+        to_user_id=target.id, from_user_id=user.id,
+        amount_usdt=abs(amount), commission_type="admin_adjustment",
+        notes=f"{'Credit' if amount > 0 else 'Debit'}: {reason}",
+        package_tier=0, status="paid"
+    )
+    db.add(comm)
+    db.commit()
+    logger.info(f"Admin balance adjust: {target.username} {'+' if amount > 0 else ''}{amount:.2f} ({reason})")
+    return {"success": True, "username": target.username, "old_balance": round(old_bal, 2), "new_balance": round(float(target.balance), 2)}
+
+@app.post("/admin/api/user/{user_id}/toggle-active")
+def admin_api_toggle_active(
+    user_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    _require_admin(user)
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found")
+    target.is_active = not target.is_active
+    db.commit()
+    logger.info(f"Admin toggle active: {target.username} → {'active' if target.is_active else 'inactive'}")
+    return {"success": True, "username": target.username, "is_active": target.is_active}
+
+# ── Finances ─────────────────────────────────────────────────
+@app.get("/admin/api/finances")
+def admin_api_finances(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    _require_admin(user)
+    from sqlalchemy import func
+
+    total_revenue = db.query(func.sum(Payment.amount_usdt)).filter(Payment.status == "confirmed").scalar() or 0
+    total_commissions = db.query(func.sum(Commission.amount_usdt)).filter(Commission.status == "paid").scalar() or 0
+    total_withdrawn = db.query(func.sum(Withdrawal.amount_usdt)).filter(Withdrawal.status == "paid").scalar() or 0
+    pending_withdrawals = db.query(func.sum(Withdrawal.amount_usdt)).filter(Withdrawal.status == "pending").scalar() or 0
+    total_balances = db.query(func.sum(User.balance)).scalar() or 0
+
+    # Revenue by type
+    payments_by_type = db.query(
+        Payment.payment_type, func.sum(Payment.amount_usdt), func.count(Payment.id)
+    ).filter(Payment.status == "confirmed").group_by(Payment.payment_type).all()
+
+    # Commissions by type
+    comms_by_type = db.query(
+        Commission.commission_type, func.sum(Commission.amount_usdt), func.count(Commission.id)
+    ).filter(Commission.status == "paid").group_by(Commission.commission_type).all()
+
+    return {
+        "overview": {
+            "total_revenue": round(float(total_revenue), 2),
+            "total_commissions_paid": round(float(total_commissions), 2),
+            "total_withdrawn": round(float(total_withdrawn), 2),
+            "pending_withdrawals": round(float(pending_withdrawals), 2),
+            "total_user_balances": round(float(total_balances), 2),
+            "platform_profit": round(float(total_revenue) - float(total_commissions), 2),
+        },
+        "revenue_by_type": [{
+            "type": t, "total": round(float(s or 0), 2), "count": c
+        } for t, s, c in payments_by_type],
+        "commissions_by_type": [{
+            "type": t, "total": round(float(s or 0), 2), "count": c
+        } for t, s, c in comms_by_type],
+    }
+
+@app.get("/admin/api/commissions")
+def admin_api_commissions(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    commission_type: str = "",
+    limit: int = 50,
+    offset: int = 0
+):
+    _require_admin(user)
+    query = db.query(Commission).order_by(Commission.created_at.desc())
+    if commission_type:
+        query = query.filter(Commission.commission_type == commission_type)
+    total = query.count()
+    comms = query.offset(offset).limit(limit).all()
+    return {
+        "total": total,
+        "commissions": [{
+            "id": c.id,
+            "to_user_id": c.to_user_id, "from_user_id": c.from_user_id,
+            "amount": round(float(c.amount_usdt or 0), 2),
+            "type": c.commission_type, "status": c.status,
+            "notes": c.notes,
+            "date": c.created_at.isoformat() if c.created_at else None,
+        } for c in comms]
+    }
+
+@app.get("/admin/api/withdrawals")
+def admin_api_withdrawals(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    status: str = ""
+):
+    _require_admin(user)
+    query = db.query(Withdrawal).order_by(Withdrawal.requested_at.desc())
+    if status:
+        query = query.filter(Withdrawal.status == status)
+    ws = query.limit(100).all()
+
+    # Get usernames
+    user_ids = {w.user_id for w in ws}
+    users_map = {u.id: u.username for u in db.query(User).filter(User.id.in_(user_ids)).all()} if user_ids else {}
+
+    return {
+        "withdrawals": [{
+            "id": w.id, "user_id": w.user_id,
+            "username": users_map.get(w.user_id, "?"),
+            "amount": round(float(w.amount_usdt or 0), 2),
+            "wallet": w.wallet_address, "status": w.status,
+            "tx_hash": w.tx_hash,
+            "requested": w.requested_at.isoformat() if w.requested_at else None,
+            "processed": w.processed_at.isoformat() if w.processed_at else None,
+        } for w in ws]
+    }
+
+# ── System Health ────────────────────────────────────────────
+@app.get("/admin/api/health")
+def admin_api_health(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    _require_admin(user)
+    from sqlalchemy import func
+
+    issues = []
+
+    # Check for negative balances
+    neg_bal = db.query(User).filter(User.balance < 0).all()
+    if neg_bal:
+        issues.append({
+            "severity": "critical",
+            "type": "negative_balance",
+            "message": f"{len(neg_bal)} user(s) with negative balance",
+            "details": [{"id": u.id, "username": u.username, "balance": round(float(u.balance), 2)} for u in neg_bal]
+        })
+
+    # Check for stuck pending withdrawals (>24h)
+    from datetime import timedelta
+    cutoff = datetime.utcnow() - timedelta(hours=24)
+    stuck_w = db.query(Withdrawal).filter(
+        Withdrawal.status == "pending",
+        Withdrawal.requested_at < cutoff
+    ).all()
+    if stuck_w:
+        issues.append({
+            "severity": "warning",
+            "type": "stuck_withdrawals",
+            "message": f"{len(stuck_w)} withdrawal(s) pending > 24h",
+            "details": [{"id": w.id, "user_id": w.user_id, "amount": round(float(w.amount_usdt), 2),
+                         "requested": w.requested_at.isoformat()} for w in stuck_w]
+        })
+
+    # Check for grids that should have advanced (filled >= 64 but not complete)
+    stuck_grids = db.query(Grid).filter(
+        Grid.positions_filled >= 64,
+        Grid.is_complete == False
+    ).all()
+    if stuck_grids:
+        issues.append({
+            "severity": "critical",
+            "type": "stuck_grids",
+            "message": f"{len(stuck_grids)} grid(s) should have advanced but didn't",
+            "details": [{"id": g.id, "owner_id": g.owner_id, "tier": g.package_tier,
+                         "filled": g.positions_filled} for g in stuck_grids]
+        })
+
+    # Check for users with earnings mismatch
+    # (total_earned < sum of commissions to them)
+    total_users = db.query(User).count()
+    active_users = db.query(User).filter(User.is_active == True).count()
+    total_grids = db.query(Grid).count()
+    active_grids = db.query(Grid).filter(Grid.is_complete == False).count()
+    pending_w_count = db.query(Withdrawal).filter(Withdrawal.status == "pending").count()
+
+    return {
+        "status": "healthy" if not issues else ("critical" if any(i["severity"] == "critical" for i in issues) else "warning"),
+        "issues": issues,
+        "metrics": {
+            "total_users": total_users,
+            "active_users": active_users,
+            "total_grids": total_grids,
+            "active_grids": active_grids,
+            "pending_withdrawals": pending_w_count,
+        },
+        "checked_at": datetime.utcnow().isoformat()
+    }
+
+@app.post("/admin/api/fix/{issue_type}")
+def admin_api_fix(
+    issue_type: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    _require_admin(user)
+    from app.grid import _complete_grid
+
+    fixed = []
+
+    if issue_type == "negative_balance":
+        neg = db.query(User).filter(User.balance < 0).all()
+        for u in neg:
+            old = float(u.balance)
+            u.balance = 0
+            comm = Commission(
+                to_user_id=u.id, from_user_id=user.id,
+                amount_usdt=abs(old), commission_type="admin_fix",
+                notes=f"Auto-fix: negative balance {old:.2f} → 0.00",
+                package_tier=0, status="paid"
+            )
+            db.add(comm)
+            fixed.append({"user_id": u.id, "username": u.username, "old_balance": round(old, 2)})
+        db.commit()
+
+    elif issue_type == "stuck_grids":
+        stuck = db.query(Grid).filter(
+            Grid.positions_filled >= 64, Grid.is_complete == False
+        ).all()
+        for g in stuck:
+            _complete_grid(db, g)
+            fixed.append({"grid_id": g.id, "owner_id": g.owner_id, "tier": g.package_tier})
+        db.commit()
+
+    else:
+        return {"error": f"Unknown issue type: {issue_type}"}
+
+    logger.info(f"Admin auto-fix '{issue_type}': {len(fixed)} items fixed")
+    return {"success": True, "issue_type": issue_type, "fixed_count": len(fixed), "details": fixed}
+
+# ── Boosts ───────────────────────────────────────────────────
+@app.get("/admin/api/boosts")
+def admin_api_boosts(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    _require_admin(user)
+    boosts = db.query(AdBoost).order_by(AdBoost.starts_at.desc()).limit(100).all()
+    user_ids = {b.user_id for b in boosts}
+    users_map = {u.id: u.username for u in db.query(User).filter(User.id.in_(user_ids)).all()} if user_ids else {}
+    return {
+        "boosts": [{
+            "id": b.id, "user_id": b.user_id,
+            "username": users_map.get(b.user_id, "?"),
+            "type": b.boost_type, "tier": b.tier,
+            "price": round(float(b.price_paid or 0), 2),
+            "multiplier": b.multiplier, "status": b.status,
+            "sponsor_earned": round(float(b.sponsor_earned or 0), 2),
+            "starts": b.starts_at.isoformat() if b.starts_at else None,
+            "expires": b.expires_at.isoformat() if b.expires_at else None,
+        } for b in boosts]
+    }
+
+
+# ═══════════════════════════════════════════════════════════════
 #  AI USAGE RATE LIMITING
 # ═══════════════════════════════════════════════════════════════
 
