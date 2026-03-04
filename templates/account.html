@@ -9,276 +9,253 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
 .layout{display:flex;min-height:100vh}
-.sidebar{width:220px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;letter-spacing:0;text-transform:none;color:#fff;-webkit-text-fill-color:#fff}
-.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
-.nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
-.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
-.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
-.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
-.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
-.main{margin-left:220px;flex:1;display:flex;flex-direction:column;overflow-y:auto}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.1);position:sticky;top:0;z-index:50}
-.content{padding:24px 28px;flex:1}
-.card{background:#ffffff;border:1px solid #d0d8e4;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
-.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e8ecf4}
-.card-title{font-size:19px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
-.card-dot{width:7px;height:7px;border-radius:50%;background:#0ea5e9;flex-shrink:0}
-.card-body{padding:20px}
-.btn-primary{font-size:19px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:10px 20px;border-radius:7px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:inline-block}
-.btn-outline{font-size:19px;font-weight:600;color:#4a5a6e;background:#ffffff;padding:9px 18px;border-radius:7px;border:1px solid #d0d8e4;text-decoration:none;cursor:pointer;font-family:inherit;display:inline-block}
-.form-group{margin-bottom:16px}
-.form-label{font-size:19px;font-weight:700;color:#4a5a6e;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
-.form-input{width:100%;padding:10px 14px;border:1px solid #d0d8e4;border-radius:7px;font-size:19px;color:#0f172a;font-family:inherit;background:#ffffff;transition:border-color 0.2s}
-.form-input:focus{outline:none;border-color:#0ea5e9;background:#ffffff}
-.badge{font-size:19px;font-weight:700;padding:3px 10px;border-radius:999px}
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:50}
+.content{padding:18px 24px;flex:1}
+
+/* Cards */
+.card{background:#fff;border:1px solid #d0d8e4;border-radius:12px;box-shadow:0 1px 4px rgba(0,40,100,0.06);overflow:hidden}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #e4e9f1}
+.card-title{font-size:13px;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:8px}
+.card-dot{width:6px;height:6px;border-radius:50%;background:#0ea5e9;flex-shrink:0}
+.card-body{padding:14px 16px}
+
+/* Forms */
+.form-group{margin-bottom:10px}
+.form-label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;display:block}
+.form-input{width:100%;padding:8px 12px;border:1px solid #d0d8e4;border-radius:6px;font-size:13px;color:#0f172a;font-family:inherit;background:#fff;transition:border-color 0.2s}
+.form-input:focus{outline:none;border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,0.1)}
+select.form-input{background:#f8fafc}
+
+/* Buttons */
+.btn-primary{font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:8px 16px;border-radius:6px;border:none;cursor:pointer;font-family:inherit}
+.btn-primary:hover{box-shadow:0 4px 12px rgba(14,165,233,0.25)}
+.btn-warn{font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#f59e0b,#ef4444);padding:8px 16px;border-radius:6px;border:none;cursor:pointer;font-family:inherit}
+
+/* Badges */
+.badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px}
 .badge-green{background:rgba(22,163,74,0.12);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
 .badge-amber{background:rgba(245,158,11,0.08);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)}
-.badge-cyan{background:rgba(0,180,216,0.08);color:#0284c7;border:1px solid rgba(0,180,216,0.2)}
-.row{display:grid;gap:20px}
-.row-2{grid-template-columns:1fr 1fr}
-.row-3{grid-template-columns:1fr 1fr 1fr}
-.stat-pill{border-radius:14px;padding:18px;text-align:center;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
-.stat-pill-val{font-size:30px;font-weight:800;letter-spacing:-0.5px}
-.stat-pill-lbl{font-size:16px;font-weight:700;color:#5a6a7e;text-transform:uppercase;letter-spacing:1.5px;margin-top:5px}
-table{width:100%;border-collapse:collapse}
-th{font-size:19px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border-bottom:2px solid #e2e8f0;text-align:left}
-td{padding:12px;border-bottom:1px solid #e4e9f1;font-size:19px;color:#0f172a;vertical-align:middle}
-tr:last-child td{border-bottom:none}
-.empty-state{text-align:center;padding:48px 20px}
-.empty-icon{font-size:40px;margin-bottom:12px}
-.empty-title{font-size:19px;font-weight:700;color:#4a5a6e;margin-bottom:6px}
-.empty-sub{font-size:19px;color:#6b7d94;margin-bottom:20px}
+
+/* Profile header */
+.profile-header{display:flex;align-items:center;gap:14px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #e4e9f1}
+.profile-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0284c7,#0ea5e9);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;flex-shrink:0}
+
+/* Info rows */
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f1f5f9}
+.info-row:last-child{border-bottom:none}
+.info-key{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px}
+.info-val{font-size:12px;font-weight:600;color:#0f172a}
+
+/* Earnings row */
+.earn-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f1f5f9}
+.earn-row:last-child{border-bottom:none}
+.earn-label{font-size:12px;color:#64748b}
+.earn-val{font-size:12px;font-weight:800;color:#16a34a}
+
+/* Layout grid — 3 columns */
+.pg-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start}
+
+/* Wallet info box */
+.wallet-info{margin-top:10px;padding:10px 12px;background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #b8d4f8;border-radius:8px}
+.wallet-info-title{font-size:11px;font-weight:700;color:#0284c7;margin-bottom:4px}
+.wallet-info-text{font-size:11px;color:#475569;line-height:1.6}
+
+/* Quick links */
+.q-link{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f8fafc;border:1px solid #e4e9f1;border-radius:6px;text-decoration:none;font-size:12px;font-weight:600;color:#334155;transition:all 0.15s}
+.q-link:hover{background:#eff6ff;border-color:#bae6fd}
+
+/* Toast banner */
+.toast-banner{border-radius:8px;padding:10px 16px;margin-bottom:14px;font-size:12px;font-weight:600}
+.toast-banner.success{background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.25);color:#16a34a}
+.toast-banner.error{background:#fef2f2;border:1px solid #fecaca;color:#dc2626}
+
+@media(max-width:1200px){.pg-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:768px){
   .layout{display:block!important}
-  .sidebar{display:none!important}
   .main{margin-left:0!important}
   .topbar{display:none!important}
   .content{padding:10px 12px 80px!important}
-  .row-2,.row-3{grid-template-columns:1fr!important}
-  .card{margin-bottom:0}
-  body{overflow-x:hidden}
+  .pg-grid{grid-template-columns:1fr!important}
 }
 </style>
-  <link rel="stylesheet" href="/static/mobile.css">
-  <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#0a0a1a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="SuperAdPro">
-  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+<link rel="stylesheet" href="/static/mobile.css">
+<link rel="manifest" href="/static/manifest.json">
+<meta name="theme-color" content="#0a0a1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 </head>
 <body>
 <div class="layout">
-<!-- ── Mobile Topbar ── -->
+
+<!-- Mobile Topbar -->
 <div class="mobile-topbar">
   <a class="mobile-topbar-left" href="/dashboard">
-    <svg width="26" height="26" viewBox="0 0 100 100">
-      <defs>
-        <linearGradient id="mhg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient>
-      </defs>
-      <circle cx="22" cy="22" r="20" fill="url(#mhg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/>
-    </svg>
-    <div>
-      <div class="mobile-topbar-name">SuperAdPro</div>
-      <div class="mobile-topbar-page">My Account</div>
-    </div>
+    <svg width="26" height="26" viewBox="0 0 100 100"><defs><linearGradient id="mhg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs><circle cx="22" cy="22" r="20" fill="url(#mhg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></svg>
+    <div><div class="mobile-topbar-name">SuperAdPro</div><div class="mobile-topbar-page">My Account</div></div>
   </a>
-  <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
+  <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDC</div>
 </div>
-
 
 <svg width="0" height="0" style="position:absolute">
   <defs>
-    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="30%" stop-color="#0284c7"/><stop offset="70%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient>
-    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a0a2e"/><stop offset="40%" stop-color="#06061a"/><stop offset="100%" stop-color="#03031a"/></linearGradient>
-    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="25%" stop-color="#0ea5e9"/><stop offset="50%" stop-color="#0284c7"/><stop offset="75%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
-    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
-    <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <linearGradient id="logo-grad-pg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0ea5e9"/>
-      <stop offset="1" stop-color="#38bdf8"/>
-    </linearGradient>
-    <symbol id="shield" viewBox="0 0 44 44">
-      <circle cx="22" cy="22" r="20" fill="url(#logo-grad-pg)"/>
-      <path d="M18 13l14 9-14 9V13z" fill="#fff"/>
-    </symbol>
+    <linearGradient id="logo-grad-pg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient>
+    <symbol id="shield" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#logo-grad-pg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></symbol>
   </defs>
 </svg>
-    {% include "_sidebar.html" %}
+
+{% include "_sidebar.html" %}
 
 <div class="main">
 <div class="topbar">
-      <div>
-    <div style="font-size:19px;font-weight:800;color:#ffffff">◉ My Profile</div>
-    <div style="font-size:19px;color:#6b7d94;margin-top:1px">Manage your account details and wallet address</div>
+  <div>
+    <div style="font-size:16px;font-weight:800;color:#fff">◉ My Profile</div>
+    <div style="font-size:11px;color:rgba(0,212,255,0.5)">Manage your account details and wallet</div>
   </div>
-      <div style="display:flex;align-items:center;gap:14px">
-          <div style="background:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:6px 14px;text-align:center">
-            <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8">Balance</div>
-            <div><span style="font-size:15px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:11px;color:#94a3b8;margin-left:3px">USDT</span></div>
-          </div>
-          <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-          <svg width="32" height="32" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-tb)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-tb" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
-          <span style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
-        </a>
-        </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div style="background:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:5px 12px;text-align:center">
+      <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8">Balance</div>
+      <div><span style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:10px;color:#94a3b8;margin-left:3px">USDC</span></div>
     </div>
+    <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none">
+      <svg width="30" height="30" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-tb)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-tb" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
+      <span style="font-family:Sora;font-size:16px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
+    </a>
+  </div>
+</div>
+
 <div class="content">
 
-<!-- SUCCESS / ERROR BANNERS -->
 {% if request.query_params.get('saved') %}
-<div style="background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.25);border-radius:10px;padding:12px 18px;margin-bottom:18px;font-size:16px;color:#16a34a;font-weight:600">✓ {{ request.query_params.get('saved')|replace('_',' ')|title }} saved successfully.</div>
+<div class="toast-banner success">✓ {{ request.query_params.get('saved')|replace('_',' ')|title }} saved successfully.</div>
 {% endif %}
 {% if request.query_params.get('error') %}
-<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px 18px;margin-bottom:18px;font-size:16px;color:#dc2626;font-weight:600">⚠ {{ request.query_params.get('error')|replace('_',' ')|title }}.</div>
+<div class="toast-banner error">⚠ {{ request.query_params.get('error')|replace('_',' ')|title }}.</div>
 {% endif %}
 
-<div class="row row-2">
+<div class="pg-grid">
 
-  <!-- LEFT: Profile avatar + read-only info -->
-  <div>
-    <div class="card" style="margin-bottom:20px">
+  <!-- ═══ COLUMN 1: Identity + Earnings ═══ -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+
+    <div class="card">
       <div class="card-head">
         <div class="card-title"><div class="card-dot"></div>Account Overview</div>
         <span class="badge {% if is_active %}badge-green{% else %}badge-amber{% endif %}">{% if is_active %}Active{% else %}Inactive{% endif %}</span>
       </div>
       <div class="card-body">
-        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid #e4e9f1">
-          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#0284c7,#0ea5e9);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0">{{ (user.first_name[:1] + (user.last_name[:1] if user.last_name else user.username[1:2])).upper() }}</div>
+        <div class="profile-header">
+          <div class="profile-avatar">{{ (user.first_name[:1] + (user.last_name[:1] if user.last_name else user.username[1:2])).upper() }}</div>
           <div>
-            <div style="font-size:19px;font-weight:800;color:#0f172a">{{ user.first_name }} {{ user.last_name }}</div>
-            <div style="font-size:16px;color:#64748b">@{{ user.username }}</div>
-            <div style="font-size:16px;color:#6b7d94;margin-top:2px">Member since {{ user.created_at.strftime('%d %b %Y') if user.created_at else '—' }}</div>
+            <div style="font-size:15px;font-weight:800;color:#0f172a">{{ user.first_name }} {{ user.last_name }}</div>
+            <div style="font-size:11px;color:#64748b">@{{ user.username }}</div>
           </div>
         </div>
-        <div style="display:grid;gap:8px">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #e4e9f1">
-            <span style="font-size:16px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px">Member ID</span>
-            <span style="font-size:16px;font-weight:700;color:#6366f1;font-family:monospace">{{ member_id }}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #e4e9f1">
-            <span style="font-size:16px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px">Email</span>
-            <span style="font-size:16px;font-weight:600;color:#0f172a">{{ user.email }}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #e4e9f1">
-            <span style="font-size:16px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px">Country</span>
-            <span style="font-size:16px;font-weight:600;color:#0f172a">{{ user.country or '—' }}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
-            <span style="font-size:16px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px">Sponsor</span>
-            <span style="font-size:16px;font-weight:600;color:#0f172a">{{ sponsor_username or 'Direct' }}</span>
-          </div>
-        </div>
+        <div class="info-row"><span class="info-key">Member ID</span><span class="info-val" style="color:#0284c7;font-family:monospace">{{ member_id }}</span></div>
+        <div class="info-row"><span class="info-key">Email</span><span class="info-val">{{ user.email }}</span></div>
+        <div class="info-row"><span class="info-key">Country</span><span class="info-val">{{ user.country or '—' }}</span></div>
+        <div class="info-row"><span class="info-key">Sponsor</span><span class="info-val">{{ sponsor_username or 'Direct' }}</span></div>
+        <div class="info-row"><span class="info-key">Joined</span><span class="info-val">{{ user.created_at.strftime('%d %b %Y') if user.created_at else '—' }}</span></div>
       </div>
     </div>
 
-    <!-- Earnings summary -->
     <div class="card">
-      <div class="card-head"><div class="card-title"><div class="card-dot" style="background:#0284c7"></div>Earnings Summary</div></div>
+      <div class="card-head"><div class="card-title"><div class="card-dot"></div>Earnings Summary</div></div>
       <div class="card-body">
-        <div style="display:grid;gap:8px">
-          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #e4e9f1"><span style="font-size:16px;color:#64748b">Total Earned</span><span style="font-size:16px;font-weight:800;color:#16a34a">${{ '%.2f'|format(total_earned) }}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #e4e9f1"><span style="font-size:16px;color:#64748b">Available Balance</span><span style="font-size:16px;font-weight:800;color:#0ea5e9">${{ '%.2f'|format(balance) }}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #e4e9f1"><span style="font-size:16px;color:#64748b">Grid Earnings</span><span style="font-size:16px;font-weight:700;color:#0f172a">${{ '%.2f'|format(grid_earnings) }}</span></div>
-          <div style="display:flex;justify-content:space-between;padding:7px 0"><span style="font-size:16px;color:#64748b">Uni-Level Income</span><span style="font-size:16px;font-weight:700;color:#0284c7">${{ '%.2f'|format(level_earnings) }}</span></div>
-        </div>
-        <a href="/wallet" style="display:block;text-align:center;margin-top:14px;padding:9px;background:#f5f7fb;border:1px solid #d0d8e4;border-radius:7px;font-size:16px;font-weight:700;color:#4a5a6e;text-decoration:none">View Full Wallet →</a>
+        <div class="earn-row"><span class="earn-label">Total Earned</span><span class="earn-val">${{ '%.2f'|format(total_earned) }}</span></div>
+        <div class="earn-row"><span class="earn-label">Available Balance</span><span class="earn-val">${{ '%.2f'|format(balance) }}</span></div>
+        <div class="earn-row"><span class="earn-label">Grid Earnings</span><span class="earn-val">${{ '%.2f'|format(grid_earnings) }}</span></div>
+        <div class="earn-row"><span class="earn-label">Uni-Level Income</span><span class="earn-val">${{ '%.2f'|format(level_earnings) }}</span></div>
+        <a href="/wallet" style="display:block;text-align:center;margin-top:10px;padding:7px;background:#f8fafc;border:1px solid #d0d8e4;border-radius:6px;font-size:12px;font-weight:700;color:#0284c7;text-decoration:none">View Full Wallet →</a>
       </div>
     </div>
+
   </div>
 
-  <!-- RIGHT: Editable forms -->
-  <div>
+  <!-- ═══ COLUMN 2: Personal Info + Wallet ═══ -->
+  <div style="display:flex;flex-direction:column;gap:16px">
 
-    <!-- Personal Info -->
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-head"><div class="card-title"><div class="card-dot" style="background:#0ea5e9"></div>Personal Information</div></div>
+    <div class="card">
+      <div class="card-head"><div class="card-title"><div class="card-dot"></div>Personal Information</div></div>
       <div class="card-body">
         <form method="POST" action="/account/update-profile">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-            <div class="form-group">
-              <label class="form-label">First Name</label>
-              <input class="form-input" type="text" name="first_name" value="{{ user.first_name or '' }}" placeholder="First name" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Last Name</label>
-              <input class="form-input" type="text" name="last_name" value="{{ user.last_name or '' }}" placeholder="Last name">
-            </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div class="form-group"><label class="form-label">First Name</label><input class="form-input" type="text" name="first_name" value="{{ user.first_name or '' }}" placeholder="First name" required></div>
+            <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" type="text" name="last_name" value="{{ user.last_name or '' }}" placeholder="Last name"></div>
           </div>
-          <div class="form-group" style="margin-bottom:14px">
+          <div class="form-group" style="margin-bottom:10px">
             <label class="form-label">Country</label>
-            <select name="country" style="width:100%;padding:10px 14px;border:1px solid #d0d8e4;border-radius:7px;font-size:16px;font-family:inherit;color:#0f172a;background:#f5f7fb">
+            <select name="country" class="form-input">
               <option value="">Select country...</option>
               {% for c in ['Afghanistan','Albania','Algeria','Angola','Argentina','Armenia','Australia','Austria','Azerbaijan','Bahrain','Bangladesh','Belarus','Belgium','Bolivia','Bosnia and Herzegovina','Brazil','Bulgaria','Cambodia','Cameroon','Canada','Chile','China','Colombia','Congo','Costa Rica','Croatia','Cyprus','Czech Republic','Denmark','Dominican Republic','Ecuador','Egypt','El Salvador','Estonia','Ethiopia','Finland','France','Georgia','Germany','Ghana','Greece','Guatemala','Honduras','Hong Kong','Hungary','India','Indonesia','Iraq','Ireland','Israel','Italy','Jamaica','Japan','Jordan','Kazakhstan','Kenya','Kuwait','Latvia','Lebanon','Libya','Lithuania','Luxembourg','Malaysia','Mali','Malta','Mexico','Moldova','Morocco','Myanmar','Nepal','Netherlands','New Zealand','Nicaragua','Nigeria','Norway','Oman','Pakistan','Panama','Paraguay','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Rwanda','Saudi Arabia','Senegal','Serbia','Singapore','Slovakia','Slovenia','South Africa','South Korea','Spain','Sri Lanka','Sudan','Sweden','Switzerland','Syria','Taiwan','Tanzania','Thailand','Tunisia','Turkey','UAE','Uganda','Ukraine','United Kingdom','United States','Uruguay','Uzbekistan','Venezuela','Vietnam','Yemen','Zambia','Zimbabwe'] %}
               <option {% if user.country == c %}selected{% endif %}>{{ c }}</option>
               {% endfor %}
             </select>
           </div>
-          <button type="submit" class="btn-primary" style="font-size:16px;padding:9px 20px">Save Profile</button>
+          <button type="submit" class="btn-primary">Save Profile</button>
         </form>
       </div>
     </div>
 
-    <!-- Withdrawal Wallet -->
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-head"><div class="card-title"><div class="card-dot" style="background:#16a34a"></div>Withdrawal Wallet</div></div>
+    <div class="card">
+      <div class="card-head"><div class="card-title"><div class="card-dot"></div>Withdrawal Wallet</div></div>
       <div class="card-body">
-        <p style="font-size:14px;color:#64748b;margin-bottom:14px;line-height:1.6">Enter your wallet address to receive withdrawals. Make sure this is correct — payments go directly to this address.</p>
         <form method="POST" action="/save-wallet">
           <div class="form-group">
-            <label class="form-label">Wallet Address (0x...)</label>
-            <input class="form-input" type="text" name="wallet_address" value="{{ user.wallet_address or '' }}" placeholder="0x...">
+            <label class="form-label">Wallet Address (USDC on Base)</label>
+            <input class="form-input" type="text" name="wallet_address" value="{{ user.wallet_address or '' }}" placeholder="0x..." style="font-family:monospace;font-size:12px">
           </div>
-          <button type="submit" class="btn-primary" style="font-size:14px;padding:9px 20px">Save Wallet Address</button>
+          <button type="submit" class="btn-primary">Save Wallet</button>
         </form>
-        <div style="margin-top:16px;padding:14px 16px;background:#f0f7ff;border:1px solid #bfdbfe;border-radius:10px">
-          <div style="font-size:13px;font-weight:700;color:#0369a1;margin-bottom:8px">💳 Supported Wallets</div>
-          <div style="font-size:13px;color:#475569;line-height:1.8">
-            Any wallet that accepts USDC on Base network will work. Popular options:<br>
-            <strong>Coinbase</strong> — easiest option, convert to bank money instantly<br>
-            <strong>MetaMask</strong> — most popular crypto wallet<br>
-            <strong>Coinbase Wallet</strong> — self-custody mobile app<br>
-            <strong>Trust Wallet</strong> — popular mobile wallet<br>
-            <strong>Rainbow</strong> — clean mobile wallet with Base support
-          </div>
-          <div style="font-size:12px;color:#94a3b8;margin-top:8px">Need help setting up a wallet? Visit our <a href="/support-public" style="color:#0284c7;text-decoration:none">Support page</a> for step-by-step guides.</div>
+        <div class="wallet-info">
+          <div class="wallet-info-title">💳 Supported Wallets</div>
+          <div class="wallet-info-text">Coinbase · MetaMask · Coinbase Wallet · Trust Wallet · Rainbow — any wallet accepting USDC on Base. <a href="/support-public" style="color:#0284c7;text-decoration:none">Need help? →</a></div>
         </div>
       </div>
     </div>
 
-    <!-- Password Change -->
+  </div>
+
+  <!-- ═══ COLUMN 3: Security + Quick Links ═══ -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+
     <div class="card">
-      <div class="card-head"><div class="card-title"><div class="card-dot" style="background:#f59e0b"></div>Change Password</div></div>
+      <div class="card-head"><div class="card-title"><div class="card-dot"></div>Change Password</div></div>
       <div class="card-body">
         <form method="POST" action="/account/change-password" id="pwForm">
-          <div class="form-group" style="margin-bottom:14px">
+          <div class="form-group">
             <label class="form-label">Current Password</label>
             <input class="form-input" type="password" name="current_password" placeholder="Enter current password" required autocomplete="current-password">
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-            <div class="form-group">
-              <label class="form-label">New Password</label>
-              <input class="form-input" type="password" name="new_password" id="newPw" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Confirm New Password</label>
-              <input class="form-input" type="password" name="confirm_password" id="confirmPw" placeholder="Repeat new password" required autocomplete="new-password">
-            </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" name="new_password" id="newPw" placeholder="Min. 8 chars" required minlength="8" autocomplete="new-password"></div>
+            <div class="form-group"><label class="form-label">Confirm</label><input class="form-input" type="password" name="confirm_password" id="confirmPw" placeholder="Repeat" required autocomplete="new-password"></div>
           </div>
-          <div id="pwError" style="display:none;font-size:16px;color:#dc2626;margin-bottom:10px;padding:8px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px"></div>
-          <button type="submit" class="btn-primary" style="font-size:16px;padding:9px 20px;background:linear-gradient(135deg,#f59e0b,#ef4444)">Update Password</button>
+          <div id="pwError" style="display:none;font-size:11px;color:#dc2626;margin-bottom:8px;padding:6px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px"></div>
+          <button type="submit" class="btn-warn">Update Password</button>
         </form>
       </div>
     </div>
 
+    <div class="card">
+      <div class="card-head"><div class="card-title"><div class="card-dot"></div>Quick Links</div></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:6px">
+        <a href="/wallet" class="q-link"><span>💰</span>Wallet & Withdrawals</a>
+        <a href="/affiliate" class="q-link"><span>🤝</span>Affiliate Centre</a>
+        <a href="/income-grid" class="q-link"><span>⚡</span>Profit Engine Grid</a>
+        <a href="/support" class="q-link"><span>🎧</span>Support</a>
+        <a href="/app" class="q-link"><span>📱</span>Mobile App</a>
+      </div>
+    </div>
+
   </div>
-</div>
+
+</div><!-- /pg-grid -->
 
 </div></div></div>
-<!-- ── Mobile Bottom Nav ── -->
+
+<!-- Mobile Bottom Nav -->
 <div class="mobile-nav">
   <div class="mobile-nav-inner">
     <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
@@ -294,21 +271,10 @@ document.getElementById('pwForm').addEventListener('submit', function(e) {
   const np = document.getElementById('newPw').value;
   const cp = document.getElementById('confirmPw').value;
   const err = document.getElementById('pwError');
-  if (np !== cp) {
-    e.preventDefault();
-    err.textContent = 'New passwords do not match.';
-    err.style.display = 'block';
-  } else {
-    err.style.display = 'none';
-  }
+  if (np !== cp) { e.preventDefault(); err.textContent = 'Passwords do not match.'; err.style.display = 'block'; }
+  else { err.style.display = 'none'; }
 });
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/static/sw.js').catch(() => {});
-  });
-}
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/static/sw.js').catch(() => {}));
 </script>
 </body>
 </html>
