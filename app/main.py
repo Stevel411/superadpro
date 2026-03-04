@@ -708,8 +708,8 @@ def app_home(request: Request, user: User = Depends(get_current_user), db: Sessi
     # Referral count
     referral_count = db.query(User).filter(User.sponsor_id == user.id).count()
 
-    # Total videos watched
-    total_watched = quota.total_watched or 0
+    # Total videos watched (not stored as a column, use today's count as fallback)
+    total_watched = getattr(quota, 'total_watched', None) or quota.today_watched or 0
 
     return templates.TemplateResponse("app.html", {
         "request":        request,
