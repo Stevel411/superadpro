@@ -84,12 +84,13 @@ body{font-family:'DM Sans',sans-serif;background:#0a0a1a;color:#fff;min-height:1
 .q-link-label{font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8}
 
 /* ── Install Banner ── */
-.install-banner{background:linear-gradient(135deg,rgba(14,165,233,0.1),rgba(168,85,247,0.08));border:1px solid rgba(14,165,233,0.2);border-radius:14px;padding:16px;margin-bottom:16px;text-align:center;display:none}
+.install-banner{background:linear-gradient(135deg,#0ea5e9,#06b6d4);border-radius:0;padding:12px 16px;text-align:center;display:none;position:sticky;top:56px;z-index:99}
 .install-banner.show{display:block}
-.install-title{font-size:14px;font-weight:800;color:#fff;margin-bottom:4px}
-.install-sub{font-size:11px;color:#94a3b8;margin-bottom:10px}
-.install-btn{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border:none;padding:10px 20px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer}
-.install-dismiss{background:none;border:none;color:#64748b;font-size:11px;cursor:pointer;margin-top:6px;font-family:inherit}
+.install-inner{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.install-text{font-size:13px;font-weight:700;color:#fff}
+.install-btn{background:#fff;color:#0ea5e9;border:none;padding:8px 18px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer}
+.install-btn:active{opacity:0.9}
+.install-dismiss{background:none;border:none;color:rgba(255,255,255,0.7);font-size:18px;cursor:pointer;font-family:inherit;padding:4px 8px;line-height:1}
 
 /* ── Bottom Nav ── */
 .app-nav{position:fixed;bottom:0;left:0;right:0;background:#0a0a1a;border-top:1px solid rgba(14,165,233,0.12);z-index:100;padding-bottom:env(safe-area-inset-bottom,0)}
@@ -116,16 +117,17 @@ body{font-family:'DM Sans',sans-serif;background:#0a0a1a;color:#fff;min-height:1
     </div>
   </div>
 
+  <!-- Install Banner (sticky below header) -->
+  <div class="install-banner" id="installBanner">
+    <div class="install-inner">
+      <span class="install-text">📲 Install SuperAdPro App</span>
+      <button class="install-btn" id="installBtn" onclick="installApp()">Install Now</button>
+      <button class="install-dismiss" onclick="dismissInstall()">✕</button>
+    </div>
+  </div>
+
   <!-- CONTENT -->
   <div class="app-content">
-
-    <!-- Install Banner -->
-    <div class="install-banner" id="installBanner">
-      <div class="install-title">📲 Install SuperAdPro</div>
-      <div class="install-sub">Add to your home screen for the best experience</div>
-      <button class="install-btn" id="installBtn" onclick="installApp()">Install App</button><br>
-      <button class="install-dismiss" onclick="dismissInstall()">Not now</button>
-    </div>
 
     <!-- Status Banner -->
     {% if quota.commissions_paused %}
@@ -269,7 +271,7 @@ function dismissInstall() {
 // iOS install hint
 if (navigator.standalone === false) {
   const b = document.getElementById('installBanner');
-  b.querySelector('.install-sub').textContent = 'Tap the Share button then "Add to Home Screen"';
+  b.querySelector('.install-text').textContent = '📲 Tap Share ⬆ then "Add to Home Screen"';
   b.querySelector('.install-btn').style.display = 'none';
   if (!localStorage.getItem('pwa-dismissed')) b.classList.add('show');
 }
