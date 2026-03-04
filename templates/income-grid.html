@@ -172,13 +172,13 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 {% endif %}
 
 <div class="grid-layout">
-  <!-- LEFT -->
-  <div style="display:flex;flex-direction:column;gap:12px">
+  <!-- LEFT: Grid + bottom info -->
+  <div style="display:flex;flex-direction:column;gap:10px">
     {% if g %}
     <div class="card">
       <div class="eyebrow">Stream 02 — Profit Engine Grid</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-size:15px;font-weight:800">${{ g.price|int }} Campaign · Advance #{{ g.advance }}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:14px;font-weight:800">${{ g.price|int }} Campaign · Advance #{{ g.advance }}</div>
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:11px;font-weight:700;color:#0ea5e9">{{ g.filled }}/63 filled</span>
           <span style="font-size:9px;font-weight:700;color:#10b981;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);padding:3px 10px;border-radius:12px">ACTIVE</span>
@@ -198,26 +198,10 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
       <div class="legend">
         <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)"></div>You</div>
         <div class="legend-item"><div class="legend-dot" style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2)"></div>Filled</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#f8fafc;border:1px dashed #e2e8f0"></div>Empty</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fff;border:1px solid #e8ecf1"></div>Empty</div>
       </div>
       <div class="prog-wrap"><div class="prog-fill" style="width:{{ g.pct }}%"></div></div>
       <div class="prog-row"><span>{{ g.pct }}% complete</span><span style="color:#16a34a;font-weight:700">${{ '%.2f'|format(g.owner_potential) }} earned</span></div>
-    </div>
-
-    <div class="card">
-      <div class="eyebrow">Level Earnings Breakdown</div>
-      {% for lvl in range(1,9) %}
-      {% set seats_before = (lvl-1)*8 %}
-      {% set seats_filled_raw = g.filled - seats_before %}
-      {% set seats_this = [seats_filled_raw, 0]|max %}
-      {% set seats_this_level = [seats_this, 8]|min %}
-      <div class="level-row">
-        <div class="level-label">L{{ lvl }}</div>
-        <div class="level-bar-wrap"><div class="level-bar" style="width:{{ (seats_this_level/8*100)|int }}%"></div></div>
-        <div class="level-seats">{{ seats_this_level }}/8</div>
-        <div class="level-earn">${{ '%.2f'|format(per_seat_uni * seats_this_level) }}</div>
-      </div>
-      {% endfor %}
     </div>
     {% else %}
     <div class="card">
@@ -230,14 +214,22 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
     </div>
     {% endif %}
 
-    <div class="info-grid">
-      <div class="info-card"><div style="font-size:16px;margin-bottom:4px">∞</div><div class="info-card-t" style="color:#10b981">Recurring Engine</div><div class="info-card-p">63 seats fill → grid auto-advances → commissions restart</div></div>
-      <div class="info-card"><div style="font-size:16px;margin-bottom:4px">💡</div><div class="info-card-t" style="color:#f59e0b">How You Earn</div><div class="info-card-p">Every seat = 6.875% uni-level. Your referrals also get 40% sponsor bonus.</div></div>
-      <div class="info-card"><div class="info-card-t" style="color:#0ea5e9">Per Seat Earnings</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px"><div><table style="width:100%;border-collapse:collapse;font-size:10px"><tr><th style="text-align:left;padding:2px 3px;color:#94a3b8;font-weight:600;border-bottom:1px solid #e2e8f0">Tier</th><th style="text-align:left;padding:2px 3px;color:#10b981;font-weight:600;border-bottom:1px solid #e2e8f0">Direct</th><th style="text-align:left;padding:2px 3px;color:#38bdf8;font-weight:600;border-bottom:1px solid #e2e8f0">Spill</th></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$20</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$9.38</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$1.38</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$50</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$23.44</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$3.44</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$100</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$46.88</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$6.88</td></tr><tr><td style="padding:2px 3px;font-weight:600">$200</td><td style="padding:2px 3px;font-weight:600">$93.75</td><td style="padding:2px 3px;font-weight:600">$13.75</td></tr></table></div><div><table style="width:100%;border-collapse:collapse;font-size:10px"><tr><th style="text-align:left;padding:2px 3px;color:#94a3b8;font-weight:600;border-bottom:1px solid #e2e8f0">Tier</th><th style="text-align:left;padding:2px 3px;color:#10b981;font-weight:600;border-bottom:1px solid #e2e8f0">Direct</th><th style="text-align:left;padding:2px 3px;color:#38bdf8;font-weight:600;border-bottom:1px solid #e2e8f0">Spill</th></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$400</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$187.50</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$27.50</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$600</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$281.25</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$41.25</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$800</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$375.00</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$55.00</td></tr><tr><td style="padding:2px 3px;font-weight:600">$1,000</td><td style="padding:2px 3px;font-weight:600">$468.75</td><td style="padding:2px 3px;font-weight:600">$68.75</td></tr></table></div></div></div>
+    <!-- Bottom info strip -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div class="earn-card">
+        <div class="earn-card-title">💡 How Grid Earnings Work</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.7);line-height:1.5;position:relative;z-index:1">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="background:rgba(255,255,255,0.12);border-radius:4px;padding:2px 6px;font-weight:700;color:#fff;font-size:10px">40%</span><span>Direct sponsor</span></div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="background:rgba(255,255,255,0.12);border-radius:4px;padding:2px 6px;font-weight:700;color:#fff;font-size:10px">6.875%</span><span>× 8 levels (55%)</span></div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:4px">63 fill → advance → earn again</div>
+        </div>
+      </div>
+      <div class="info-card"><div style="font-size:14px;margin-bottom:3px">∞</div><div class="info-card-t" style="color:#10b981">Recurring Engine</div><div class="info-card-p">63 seats fill → grid auto-advances → commissions restart</div></div>
+      <div class="info-card"><div style="font-size:14px;margin-bottom:3px">💡</div><div class="info-card-t" style="color:#f59e0b">How You Earn</div><div class="info-card-p">Every seat = 6.875% uni-level. Your referrals also get 40% sponsor bonus.</div></div>
     </div>
   </div>
 
-  <!-- RIGHT -->
+  <!-- RIGHT: All stats -->
   <div class="right-col">
     <div class="total-card">
       <div class="total-label">Your Grid Earnings</div>
@@ -247,15 +239,15 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 
     <div class="card">
       <div class="eyebrow">Live Earnings Tracker</div>
-      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9">
-        <div style="width:8px;height:8px;border-radius:50%;background:#10b981"></div>
-        <div style="flex:1"><div style="font-size:12px;font-weight:700">Direct Sponsor (40%)</div><div style="font-size:9px;color:#94a3b8">${{ '%.2f'|format(per_seat_direct) if g else '0.00' }} per referral</div></div>
-        <div style="font-size:14px;font-weight:800;color:#10b981">${{ '%.2f'|format(grid_earnings) }}</div>
+      <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #f1f5f9">
+        <div style="width:7px;height:7px;border-radius:50%;background:#10b981"></div>
+        <div style="flex:1"><div style="font-size:11px;font-weight:700">Direct Sponsor (40%)</div><div style="font-size:8px;color:#94a3b8">${{ '%.2f'|format(per_seat_direct) if g else '0.00' }} per referral</div></div>
+        <div style="font-size:13px;font-weight:800;color:#10b981">${{ '%.2f'|format(grid_earnings) }}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;padding:6px 0">
-        <div style="width:8px;height:8px;border-radius:50%;background:#38bdf8"></div>
-        <div style="flex:1"><div style="font-size:12px;font-weight:700">Uni-Level (6.875% × 8)</div><div style="font-size:9px;color:#94a3b8">${{ '%.2f'|format(per_seat_uni) if g else '0.00' }} per seat</div></div>
-        <div style="font-size:14px;font-weight:800;color:#38bdf8">${{ '%.2f'|format(level_earnings) }}</div>
+      <div style="display:flex;align-items:center;gap:8px;padding:4px 0">
+        <div style="width:7px;height:7px;border-radius:50%;background:#38bdf8"></div>
+        <div style="flex:1"><div style="font-size:11px;font-weight:700">Uni-Level (6.875% × 8)</div><div style="font-size:8px;color:#94a3b8">${{ '%.2f'|format(per_seat_uni) if g else '0.00' }} per seat</div></div>
+        <div style="font-size:13px;font-weight:800;color:#38bdf8">${{ '%.2f'|format(level_earnings) }}</div>
       </div>
     </div>
 
@@ -284,14 +276,30 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
       {% endfor %}
     </div>
 
-    <div class="earn-card">
-      <div class="earn-card-title">💡 How Grid Earnings Work</div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.7);line-height:1.6;position:relative;z-index:1">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="background:rgba(255,255,255,0.12);border-radius:5px;padding:2px 8px;font-weight:700;color:#fff;font-size:11px">40%</span><span>Direct sponsor commission</span></div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="background:rgba(255,255,255,0.12);border-radius:5px;padding:2px 8px;font-weight:700;color:#fff;font-size:11px">6.875%</span><span>Uni-level × 8 levels (55% total)</span></div>
-        <div style="font-size:10px;color:rgba(255,255,255,0.5);border-top:1px solid rgba(255,255,255,0.1);padding-top:6px;margin-top:4px">When all 63 positions fill, the grid advances and you earn again on a fresh grid.</div>
-      </div>
+    <!-- Per Seat Earnings -->
+    <div class="card">
+      <div class="eyebrow" style="color:#0ea5e9">Per Seat Earnings</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><table style="width:100%;border-collapse:collapse;font-size:9px"><tr><th style="text-align:left;padding:2px 3px;color:#94a3b8;font-weight:600;border-bottom:1px solid #e2e8f0">Tier</th><th style="text-align:left;padding:2px 3px;color:#10b981;font-weight:600;border-bottom:1px solid #e2e8f0">Direct</th><th style="text-align:left;padding:2px 3px;color:#38bdf8;font-weight:600;border-bottom:1px solid #e2e8f0">Spill</th></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$20</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$9.38</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$1.38</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$50</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$23.44</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$3.44</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$100</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$46.88</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$6.88</td></tr><tr><td style="padding:2px 3px;font-weight:600">$200</td><td style="padding:2px 3px;font-weight:600">$93.75</td><td style="padding:2px 3px;font-weight:600">$13.75</td></tr></table></div><div><table style="width:100%;border-collapse:collapse;font-size:9px"><tr><th style="text-align:left;padding:2px 3px;color:#94a3b8;font-weight:600;border-bottom:1px solid #e2e8f0">Tier</th><th style="text-align:left;padding:2px 3px;color:#10b981;font-weight:600;border-bottom:1px solid #e2e8f0">Direct</th><th style="text-align:left;padding:2px 3px;color:#38bdf8;font-weight:600;border-bottom:1px solid #e2e8f0">Spill</th></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$400</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$187.50</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$27.50</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$600</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$281.25</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$41.25</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$800</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$375.00</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$55.00</td></tr><tr><td style="padding:2px 3px;font-weight:600">$1,000</td><td style="padding:2px 3px;font-weight:600">$468.75</td><td style="padding:2px 3px;font-weight:600">$68.75</td></tr></table></div></div>
     </div>
+
+    {% if g %}
+    <!-- Level Earnings Breakdown -->
+    <div class="card">
+      <div class="eyebrow">Level Earnings Breakdown</div>
+      {% for lvl in range(1,9) %}
+      {% set seats_before = (lvl-1)*8 %}
+      {% set seats_filled_raw = g.filled - seats_before %}
+      {% set seats_this = [seats_filled_raw, 0]|max %}
+      {% set seats_this_level = [seats_this, 8]|min %}
+      <div class="level-row">
+        <div class="level-label">L{{ lvl }}</div>
+        <div class="level-bar-wrap"><div class="level-bar" style="width:{{ (seats_this_level/8*100)|int }}%"></div></div>
+        <div class="level-seats">{{ seats_this_level }}/8</div>
+        <div class="level-earn">${{ '%.2f'|format(per_seat_uni * seats_this_level) }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
 </div>
 
