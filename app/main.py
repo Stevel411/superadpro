@@ -395,6 +395,78 @@ def referral_link(username: str, request: Request):
     return response
 
 # ═══════════════════════════════════════════════════════════════
+#  FOMO CAMPAIGN PAGE
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/momentum")
+def fomo_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """FOMO campaign page — public + enhanced for registered unpaid users."""
+    return templates.TemplateResponse("fomo.html", {
+        "request": request, "user": user, "active_page": "momentum"
+    })
+
+@app.get("/api/fomo-stats")
+def fomo_stats_api(db: Session = Depends(get_db)):
+    """Real-time stats for the FOMO page with simulated fallback."""
+    from datetime import datetime, timedelta
+    from sqlalchemy import func, desc
+    import random
+
+    today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+
+    # Real data queries
+    active_members = db.query(User).filter(User.is_active == True).count()
+    grids_completed = db.query(Grid).filter(Grid.is_complete == True).count()
+
+    # Today's commissions
+    today_commissions = db.query(func.sum(Commission.amount_usdt)).filter(
+        Commission.created_at >= today
+    ).scalar() or 0
+
+    # Recent grid positions filled
+    recent_positions = db.query(GridPosition).order_by(desc(GridPosition.created_at)).limit(10).all()
+
+    # Average positions filled across active grids
+    avg_filled = db.query(func.avg(Grid.positions_filled)).filter(
+        Grid.is_complete == False, Grid.positions_filled > 0
+    ).scalar() or 0
+
+    # Build recent activity from real data
+    recent_activity = []
+    recent_users = db.query(User).filter(
+        User.is_active == True
+    ).order_by(desc(User.created_at)).limit(10).all()
+
+    for u in recent_users:
+        mins_ago = int((datetime.utcnow() - u.created_at).total_seconds() / 60)
+        time_str = "just now" if mins_ago < 2 else f"{mins_ago}m ago" if mins_ago < 60 else f"{mins_ago // 60}h ago"
+        recent_activity.append({
+            "name": f"{(u.first_name or u.username or 'Member')[:1]}. {(u.last_name or '')[:1]}." if u.first_name else f"Member {u.id}",
+            "type": "joined",
+            "tier": "$100",
+            "pos": random.randint(1, 63),
+            "time": time_str
+        })
+
+    # Ensure minimums for social proof (supplement with realistic ranges if data is low)
+    if active_members < 5:
+        active_members = random.randint(180, 450)
+    if today_commissions < 10:
+        today_commissions = random.randint(2500, 8500)
+    if grids_completed < 1:
+        grids_completed = random.randint(5, 25)
+
+    return {
+        "active_members": active_members,
+        "paid_today": round(float(today_commissions), 2),
+        "grids_completed": grids_completed,
+        "avg_fill_time": f"{random.randint(3,6)}.{random.randint(1,9)} days",
+        "positions_filled": int(avg_filled) if avg_filled > 5 else random.randint(35, 52),
+        "earned_today": round(float(today_commissions), 2),
+        "recent_activity": recent_activity[:8]
+    }
+
+# ═══════════════════════════════════════════════════════════════
 #  AUTH ROUTES
 # ═══════════════════════════════════════════════════════════════
 
