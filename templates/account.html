@@ -9,52 +9,46 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
 .layout{display:flex;min-height:100vh}
+.sidebar{width:220px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
 .main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:50}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:50}
 .content{padding:18px 24px;flex:1}
 
 /* Cards */
 .card{background:#fff;border:1px solid #d0d8e4;border-radius:12px;box-shadow:0 1px 4px rgba(0,40,100,0.06);overflow:hidden}
 .card-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #e4e9f1}
-.card-title{font-size:13px;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:8px}
+.card-title{font-size:14px;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:8px}
 .card-dot{width:6px;height:6px;border-radius:50%;background:#0ea5e9;flex-shrink:0}
 .card-body{padding:14px 16px}
 
 /* Forms */
 .form-group{margin-bottom:10px}
-.form-label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;display:block}
-.form-input{width:100%;padding:8px 12px;border:1px solid #d0d8e4;border-radius:6px;font-size:13px;color:#0f172a;font-family:inherit;background:#fff;transition:border-color 0.2s}
+.form-label{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;display:block}
+.form-input{width:100%;padding:8px 12px;border:1px solid #d0d8e4;border-radius:6px;font-size:14px;color:#0f172a;font-family:inherit;background:#fff;transition:border-color 0.2s}
 .form-input:focus{outline:none;border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,0.1)}
 select.form-input{background:#f8fafc}
 
 /* Buttons */
-.btn-primary{font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:8px 16px;border-radius:6px;border:none;cursor:pointer;font-family:inherit}
+.btn-primary{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:8px 18px;border-radius:6px;border:none;cursor:pointer;font-family:inherit}
 .btn-primary:hover{box-shadow:0 4px 12px rgba(14,165,233,0.25)}
-.btn-warn{font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#f59e0b,#ef4444);padding:8px 16px;border-radius:6px;border:none;cursor:pointer;font-family:inherit}
+.btn-warn{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#f59e0b,#ef4444);padding:8px 18px;border-radius:6px;border:none;cursor:pointer;font-family:inherit}
 
 /* Badges */
-.badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px}
+.badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px}
 .badge-green{background:rgba(22,163,74,0.12);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
 .badge-amber{background:rgba(245,158,11,0.08);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)}
 
-/* Profile header */
-.profile-header{display:flex;align-items:center;gap:14px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #e4e9f1}
-.profile-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0284c7,#0ea5e9);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;flex-shrink:0}
-
 /* Info rows */
-.info-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f1f5f9}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9}
 .info-row:last-child{border-bottom:none}
-.info-key{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px}
-.info-val{font-size:12px;font-weight:600;color:#0f172a}
+.info-key{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.8px}
+.info-val{font-size:13px;font-weight:600;color:#0f172a}
 
 /* Earnings row */
-.earn-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f1f5f9}
+.earn-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9}
 .earn-row:last-child{border-bottom:none}
-.earn-label{font-size:12px;color:#64748b}
-.earn-val{font-size:12px;font-weight:800;color:#16a34a}
-
-/* Layout grid — 3 columns */
-.pg-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start}
+.earn-label{font-size:13px;color:#64748b}
+.earn-val{font-size:13px;font-weight:800;color:#16a34a}
 
 /* Wallet info box */
 .wallet-info{margin-top:10px;padding:10px 12px;background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #b8d4f8;border-radius:8px}
@@ -62,21 +56,29 @@ select.form-input{background:#f8fafc}
 .wallet-info-text{font-size:11px;color:#475569;line-height:1.6}
 
 /* Quick links */
-.q-link{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f8fafc;border:1px solid #e4e9f1;border-radius:6px;text-decoration:none;font-size:12px;font-weight:600;color:#334155;transition:all 0.15s}
+.q-link{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f8fafc;border:1px solid #e4e9f1;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;color:#334155;transition:all 0.15s}
 .q-link:hover{background:#eff6ff;border-color:#bae6fd}
 
 /* Toast banner */
-.toast-banner{border-radius:8px;padding:10px 16px;margin-bottom:14px;font-size:12px;font-weight:600}
+.toast-banner{border-radius:8px;padding:10px 16px;margin-bottom:14px;font-size:13px;font-weight:600}
 .toast-banner.success{background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.25);color:#16a34a}
 .toast-banner.error{background:#fef2f2;border:1px solid #fecaca;color:#dc2626}
 
-@media(max-width:1200px){.pg-grid{grid-template-columns:1fr 1fr}}
+/* ── Page Grid: top row 4 cards, bottom row 2 cards ── */
+.pg-top{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+.pg-bottom{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+@media(max-width:1100px){
+  .pg-top{grid-template-columns:1fr 1fr}
+  .pg-bottom{grid-template-columns:1fr 1fr}
+}
 @media(max-width:768px){
   .layout{display:block!important}
+  .sidebar{display:none!important}
   .main{margin-left:0!important}
   .topbar{display:none!important}
   .content{padding:10px 12px 80px!important}
-  .pg-grid{grid-template-columns:1fr!important}
+  .pg-top,.pg-bottom{grid-template-columns:1fr!important}
 }
 </style>
 <link rel="stylesheet" href="/static/mobile.css">
@@ -134,124 +136,117 @@ select.form-input{background:#f8fafc}
 <div class="toast-banner error">⚠ {{ request.query_params.get('error')|replace('_',' ')|title }}.</div>
 {% endif %}
 
-<div class="pg-grid">
+<!-- ═══ TOP ROW: 4 equal cards ═══ -->
+<div class="pg-top">
 
-  <!-- ═══ COLUMN 1: Identity + Earnings ═══ -->
-  <div style="display:flex;flex-direction:column;gap:16px">
-
-    <div class="card">
-      <div class="card-head">
-        <div class="card-title"><div class="card-dot"></div>Account Overview</div>
-        <span class="badge {% if is_active %}badge-green{% else %}badge-amber{% endif %}">{% if is_active %}Active{% else %}Inactive{% endif %}</span>
-      </div>
-      <div class="card-body">
-        <div class="profile-header">
-          <div class="profile-avatar">{{ (user.first_name[:1] + (user.last_name[:1] if user.last_name else user.username[1:2])).upper() }}</div>
-          <div>
-            <div style="font-size:15px;font-weight:800;color:#0f172a">{{ user.first_name }} {{ user.last_name }}</div>
-            <div style="font-size:11px;color:#64748b">@{{ user.username }}</div>
-          </div>
-        </div>
-        <div class="info-row"><span class="info-key">Member ID</span><span class="info-val" style="color:#0284c7;font-family:monospace">{{ member_id }}</span></div>
-        <div class="info-row"><span class="info-key">Email</span><span class="info-val">{{ user.email }}</span></div>
-        <div class="info-row"><span class="info-key">Country</span><span class="info-val">{{ user.country or '—' }}</span></div>
-        <div class="info-row"><span class="info-key">Sponsor</span><span class="info-val">{{ sponsor_username or 'Direct' }}</span></div>
-        <div class="info-row"><span class="info-key">Joined</span><span class="info-val">{{ user.created_at.strftime('%d %b %Y') if user.created_at else '—' }}</span></div>
-      </div>
+  <!-- 1. Account Overview -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title"><div class="card-dot"></div>Account</div>
+      <span class="badge {% if is_active %}badge-green{% else %}badge-amber{% endif %}">{% if is_active %}Active{% else %}Inactive{% endif %}</span>
     </div>
-
-    <div class="card">
-      <div class="card-head"><div class="card-title"><div class="card-dot"></div>Earnings Summary</div></div>
-      <div class="card-body">
-        <div class="earn-row"><span class="earn-label">Total Earned</span><span class="earn-val">${{ '%.2f'|format(total_earned) }}</span></div>
-        <div class="earn-row"><span class="earn-label">Available Balance</span><span class="earn-val">${{ '%.2f'|format(balance) }}</span></div>
-        <div class="earn-row"><span class="earn-label">Grid Earnings</span><span class="earn-val">${{ '%.2f'|format(grid_earnings) }}</span></div>
-        <div class="earn-row"><span class="earn-label">Uni-Level Income</span><span class="earn-val">${{ '%.2f'|format(level_earnings) }}</span></div>
-        <a href="/wallet" style="display:block;text-align:center;margin-top:10px;padding:7px;background:#f8fafc;border:1px solid #d0d8e4;border-radius:6px;font-size:12px;font-weight:700;color:#0284c7;text-decoration:none">View Full Wallet →</a>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ═══ COLUMN 2: Personal Info + Wallet ═══ -->
-  <div style="display:flex;flex-direction:column;gap:16px">
-
-    <div class="card">
-      <div class="card-head"><div class="card-title"><div class="card-dot"></div>Personal Information</div></div>
-      <div class="card-body">
-        <form method="POST" action="/account/update-profile">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-            <div class="form-group"><label class="form-label">First Name</label><input class="form-input" type="text" name="first_name" value="{{ user.first_name or '' }}" placeholder="First name" required></div>
-            <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" type="text" name="last_name" value="{{ user.last_name or '' }}" placeholder="Last name"></div>
-          </div>
-          <div class="form-group" style="margin-bottom:10px">
-            <label class="form-label">Country</label>
-            <select name="country" class="form-input">
-              <option value="">Select country...</option>
-              {% for c in ['Afghanistan','Albania','Algeria','Angola','Argentina','Armenia','Australia','Austria','Azerbaijan','Bahrain','Bangladesh','Belarus','Belgium','Bolivia','Bosnia and Herzegovina','Brazil','Bulgaria','Cambodia','Cameroon','Canada','Chile','China','Colombia','Congo','Costa Rica','Croatia','Cyprus','Czech Republic','Denmark','Dominican Republic','Ecuador','Egypt','El Salvador','Estonia','Ethiopia','Finland','France','Georgia','Germany','Ghana','Greece','Guatemala','Honduras','Hong Kong','Hungary','India','Indonesia','Iraq','Ireland','Israel','Italy','Jamaica','Japan','Jordan','Kazakhstan','Kenya','Kuwait','Latvia','Lebanon','Libya','Lithuania','Luxembourg','Malaysia','Mali','Malta','Mexico','Moldova','Morocco','Myanmar','Nepal','Netherlands','New Zealand','Nicaragua','Nigeria','Norway','Oman','Pakistan','Panama','Paraguay','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Rwanda','Saudi Arabia','Senegal','Serbia','Singapore','Slovakia','Slovenia','South Africa','South Korea','Spain','Sri Lanka','Sudan','Sweden','Switzerland','Syria','Taiwan','Tanzania','Thailand','Tunisia','Turkey','UAE','Uganda','Ukraine','United Kingdom','United States','Uruguay','Uzbekistan','Venezuela','Vietnam','Yemen','Zambia','Zimbabwe'] %}
-              <option {% if user.country == c %}selected{% endif %}>{{ c }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <button type="submit" class="btn-primary">Save Profile</button>
-        </form>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><div class="card-title"><div class="card-dot"></div>Withdrawal Wallet</div></div>
-      <div class="card-body">
-        <form method="POST" action="/save-wallet">
-          <div class="form-group">
-            <label class="form-label">Wallet Address (USDC on Base)</label>
-            <input class="form-input" type="text" name="wallet_address" value="{{ user.wallet_address or '' }}" placeholder="0x..." style="font-family:monospace;font-size:12px">
-          </div>
-          <button type="submit" class="btn-primary">Save Wallet</button>
-        </form>
-        <div class="wallet-info">
-          <div class="wallet-info-title">💳 Supported Wallets</div>
-          <div class="wallet-info-text">Coinbase · MetaMask · Coinbase Wallet · Trust Wallet · Rainbow — any wallet accepting USDC on Base. <a href="/support-public" style="color:#0284c7;text-decoration:none">Need help? →</a></div>
+    <div class="card-body">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #e4e9f1">
+        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0284c7,#0ea5e9);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0">{{ (user.first_name[:1] + (user.last_name[:1] if user.last_name else user.username[1:2])).upper() }}</div>
+        <div>
+          <div style="font-size:14px;font-weight:800;color:#0f172a">{{ user.first_name }} {{ user.last_name }}</div>
+          <div style="font-size:11px;color:#64748b">@{{ user.username }}</div>
         </div>
       </div>
+      <div class="info-row"><span class="info-key">Member ID</span><span class="info-val" style="color:#0284c7;font-family:monospace">{{ member_id }}</span></div>
+      <div class="info-row"><span class="info-key">Email</span><span class="info-val" style="font-size:11px">{{ user.email }}</span></div>
+      <div class="info-row"><span class="info-key">Country</span><span class="info-val">{{ user.country or '—' }}</span></div>
+      <div class="info-row"><span class="info-key">Sponsor</span><span class="info-val">{{ sponsor_username or 'Direct' }}</span></div>
+      <div class="info-row"><span class="info-key">Joined</span><span class="info-val">{{ user.created_at.strftime('%d %b %Y') if user.created_at else '—' }}</span></div>
     </div>
-
   </div>
 
-  <!-- ═══ COLUMN 3: Security + Quick Links ═══ -->
-  <div style="display:flex;flex-direction:column;gap:16px">
+  <!-- 2. Earnings Summary -->
+  <div class="card">
+    <div class="card-head"><div class="card-title"><div class="card-dot"></div>Earnings</div></div>
+    <div class="card-body">
+      <div class="earn-row"><span class="earn-label">Total Earned</span><span class="earn-val">${{ '%.2f'|format(total_earned) }}</span></div>
+      <div class="earn-row"><span class="earn-label">Balance</span><span class="earn-val">${{ '%.2f'|format(balance) }}</span></div>
+      <div class="earn-row"><span class="earn-label">Grid Earnings</span><span class="earn-val">${{ '%.2f'|format(grid_earnings) }}</span></div>
+      <div class="earn-row"><span class="earn-label">Uni-Level</span><span class="earn-val">${{ '%.2f'|format(level_earnings) }}</span></div>
+      <a href="/wallet" style="display:block;text-align:center;margin-top:12px;padding:7px;background:#f8fafc;border:1px solid #d0d8e4;border-radius:6px;font-size:12px;font-weight:700;color:#0284c7;text-decoration:none">View Full Wallet →</a>
+    </div>
+  </div>
 
-    <div class="card">
-      <div class="card-head"><div class="card-title"><div class="card-dot"></div>Change Password</div></div>
-      <div class="card-body">
-        <form method="POST" action="/account/change-password" id="pwForm">
-          <div class="form-group">
-            <label class="form-label">Current Password</label>
-            <input class="form-input" type="password" name="current_password" placeholder="Enter current password" required autocomplete="current-password">
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" name="new_password" id="newPw" placeholder="Min. 8 chars" required minlength="8" autocomplete="new-password"></div>
-            <div class="form-group"><label class="form-label">Confirm</label><input class="form-input" type="password" name="confirm_password" id="confirmPw" placeholder="Repeat" required autocomplete="new-password"></div>
-          </div>
-          <div id="pwError" style="display:none;font-size:11px;color:#dc2626;margin-bottom:8px;padding:6px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px"></div>
-          <button type="submit" class="btn-warn">Update Password</button>
-        </form>
+  <!-- 3. Personal Info -->
+  <div class="card">
+    <div class="card-head"><div class="card-title"><div class="card-dot"></div>Edit Profile</div></div>
+    <div class="card-body">
+      <form method="POST" action="/account/update-profile">
+        <div class="form-group"><label class="form-label">First Name</label><input class="form-input" type="text" name="first_name" value="{{ user.first_name or '' }}" required></div>
+        <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" type="text" name="last_name" value="{{ user.last_name or '' }}"></div>
+        <div class="form-group">
+          <label class="form-label">Country</label>
+          <select name="country" class="form-input">
+            <option value="">Select...</option>
+            {% for c in ['Afghanistan','Albania','Algeria','Angola','Argentina','Armenia','Australia','Austria','Azerbaijan','Bahrain','Bangladesh','Belarus','Belgium','Bolivia','Bosnia and Herzegovina','Brazil','Bulgaria','Cambodia','Cameroon','Canada','Chile','China','Colombia','Congo','Costa Rica','Croatia','Cyprus','Czech Republic','Denmark','Dominican Republic','Ecuador','Egypt','El Salvador','Estonia','Ethiopia','Finland','France','Georgia','Germany','Ghana','Greece','Guatemala','Honduras','Hong Kong','Hungary','India','Indonesia','Iraq','Ireland','Israel','Italy','Jamaica','Japan','Jordan','Kazakhstan','Kenya','Kuwait','Latvia','Lebanon','Libya','Lithuania','Luxembourg','Malaysia','Mali','Malta','Mexico','Moldova','Morocco','Myanmar','Nepal','Netherlands','New Zealand','Nicaragua','Nigeria','Norway','Oman','Pakistan','Panama','Paraguay','Peru','Philippines','Poland','Portugal','Qatar','Romania','Russia','Rwanda','Saudi Arabia','Senegal','Serbia','Singapore','Slovakia','Slovenia','South Africa','South Korea','Spain','Sri Lanka','Sudan','Sweden','Switzerland','Syria','Taiwan','Tanzania','Thailand','Tunisia','Turkey','UAE','Uganda','Ukraine','United Kingdom','United States','Uruguay','Uzbekistan','Venezuela','Vietnam','Yemen','Zambia','Zimbabwe'] %}
+            <option {% if user.country == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%">Save Profile</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Change Password -->
+  <div class="card">
+    <div class="card-head"><div class="card-title"><div class="card-dot"></div>Password</div></div>
+    <div class="card-body">
+      <form method="POST" action="/account/change-password" id="pwForm">
+        <div class="form-group"><label class="form-label">Current Password</label><input class="form-input" type="password" name="current_password" placeholder="Current password" required autocomplete="current-password"></div>
+        <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" name="new_password" id="newPw" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password"></div>
+        <div class="form-group"><label class="form-label">Confirm New</label><input class="form-input" type="password" name="confirm_password" id="confirmPw" placeholder="Repeat password" required autocomplete="new-password"></div>
+        <div id="pwError" style="display:none;font-size:11px;color:#dc2626;margin-bottom:8px;padding:6px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px"></div>
+        <button type="submit" class="btn-warn" style="width:100%">Update Password</button>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ BOTTOM ROW: 2 equal cards ═══ -->
+<div class="pg-bottom">
+
+  <!-- 5. Withdrawal Wallet -->
+  <div class="card">
+    <div class="card-head"><div class="card-title"><div class="card-dot"></div>Withdrawal Wallet</div></div>
+    <div class="card-body" style="display:flex;gap:16px;align-items:flex-start">
+      <form method="POST" action="/save-wallet" style="flex:1">
+        <div class="form-group">
+          <label class="form-label">Wallet Address (USDC on Base)</label>
+          <input class="form-input" type="text" name="wallet_address" value="{{ user.wallet_address or '' }}" placeholder="0x..." style="font-family:monospace;font-size:12px">
+        </div>
+        <button type="submit" class="btn-primary">Save Wallet</button>
+      </form>
+      <div class="wallet-info" style="flex:1;margin-top:0">
+        <div class="wallet-info-title">💳 Supported Wallets</div>
+        <div class="wallet-info-text">Coinbase · MetaMask · Coinbase Wallet · Trust Wallet · Rainbow — any wallet accepting USDC on Base. <a href="/support-public" style="color:#0284c7;text-decoration:none">Need help? →</a></div>
       </div>
     </div>
+  </div>
 
-    <div class="card">
-      <div class="card-head"><div class="card-title"><div class="card-dot"></div>Quick Links</div></div>
-      <div class="card-body" style="display:flex;flex-direction:column;gap:6px">
+  <!-- 6. Quick Links -->
+  <div class="card">
+    <div class="card-head"><div class="card-title"><div class="card-dot"></div>Quick Links</div></div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
         <a href="/wallet" class="q-link"><span>💰</span>Wallet & Withdrawals</a>
         <a href="/affiliate" class="q-link"><span>🤝</span>Affiliate Centre</a>
         <a href="/income-grid" class="q-link"><span>⚡</span>Profit Engine Grid</a>
         <a href="/support" class="q-link"><span>🎧</span>Support</a>
         <a href="/app" class="q-link"><span>📱</span>Mobile App</a>
+        <a href="/dashboard" class="q-link"><span>🏠</span>Dashboard</a>
       </div>
     </div>
-
   </div>
 
-</div><!-- /pg-grid -->
+</div>
 
 </div></div></div>
 
