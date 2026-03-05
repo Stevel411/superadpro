@@ -19,6 +19,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
   position:fixed;top:0;left:0;right:0;height:var(--topbar);
   background:#13192b;border-bottom:1px solid var(--border);
   display:flex;align-items:center;z-index:200;gap:0;
+  overflow:hidden;
 }
 .tb-brand{display:flex;align-items:center;gap:11px;padding:0 20px;height:100%;border-right:1px solid var(--border);flex-shrink:0}
 .tb-s{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#6366f1);display:flex;align-items:center;justify-content:center;font-family:'Sora',Georgia,sans-serif;font-weight:900;font-size:20px;color:#fff;flex-shrink:0;box-shadow:0 2px 10px rgba(99,102,241,.45)}
@@ -44,7 +45,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
 #zoom-label{font-size:11px;font-weight:700;color:var(--text2);min-width:40px;text-align:center}
 
 /* ── LAYOUT ── */
-#layout{display:flex;height:calc(100vh - var(--topbar));margin-top:var(--topbar)}
+#layout{
+  display:flex;
+  height:calc(100vh - var(--topbar));
+  margin-top:var(--topbar);
+  overflow:hidden;  /* critical - nothing bleeds off screen */
+  width:100vw;
+}
 
 /* ── SIDEBAR ── */
 #sidebar{
@@ -98,47 +105,45 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
 .lname{font-size:12px;font-weight:600;flex:1;color:var(--text2)}
 
 /* ── CANVAS AREA ── */
-#canvas-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#canvas-area{
+  flex:1;min-width:0;  /* flex:1 takes remaining space, min-width:0 allows shrinking */
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
 #hint-bar{
   display:flex;align-items:center;gap:6px;padding:6px 14px;
   background:rgba(0,0,0,.2);border-bottom:1px solid rgba(255,255,255,.05);
   flex-shrink:0;overflow:hidden;
 }
 .htag{font-size:10px;font-weight:600;color:rgba(255,255,255,.3);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:3px 11px;white-space:nowrap}
-/* canvas-wrap: fills all space between left and right panels */
+/* canvas-wrap: fills all available space, clips the canvas neatly */
 #canvas-wrap{
-  flex:1;overflow:auto;
-  display:flex;align-items:flex-start;justify-content:flex-start;
-  padding:0;
+  flex:1;
+  overflow:auto;
   background:#1a1f30;
-  border-right:3px solid rgba(255,255,255,.1);
   position:relative;
+  /* The right border is the visual separator Steve wants */
+  border-right:3px solid rgba(255,255,255,.12);
 }
 #canvas-wrap::-webkit-scrollbar{width:6px;height:6px}
 #canvas-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
 
 /* ── THE CANVAS ── */
-/* Canvas fills the wrap width fully. cW (logical page width) is tracked in JS
-   and elements use CSS zoom to scale into the full canvas width. */
 #canvas{
-  position:relative;background:#fff;
+  position:relative;
+  background:#fff;
   box-shadow:0 4px 32px rgba(0,0,0,.4);
   min-height:900px;
-  /* Fill full wrap width — no margins, no centering */
-  width:100%;
+  /* JS sets width to cW (logical px) then applies CSS zoom to fill wrap */
   flex-shrink:0;
   transform-origin:top left;
 }
-/* When in narrow (tablet/mobile) preview mode, canvas sits centred with dark surround */
+#canvas.dover{outline:3px dashed rgba(59,130,246,.55);outline-offset:-2px}
+/* Narrow preview: canvas centred with dark surround */
 #canvas-wrap.preview-mode{
-  justify-content:center;
+  display:flex;align-items:flex-start;justify-content:center;
   padding:28px;
 }
-#canvas-wrap.preview-mode #canvas{
-  width:var(--preview-w, 768px);
-  box-shadow:0 12px 48px rgba(0,0,0,.6);
-}
-#canvas.dover{outline:3px dashed rgba(59,130,246,.55);outline-offset:-2px}
 #cempty{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   display:flex;flex-direction:column;align-items:center;gap:8px;
@@ -205,7 +210,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
 .fb-col input{width:28px;height:28px;border:none;cursor:pointer;transform:translate(-3px,-3px)}
 
 /* ── RIGHT PANEL ── */
-#rpanel{width:var(--rpanel);flex-shrink:0;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+#rpanel{
+  width:var(--rpanel);flex-shrink:0;
+  background:var(--panel);
+  border-left:3px solid rgba(255,255,255,.1);  /* visible separator */
+  display:flex;flex-direction:column;overflow:hidden;
+  /* Never let this shrink or get pushed off screen */
+  min-width:var(--rpanel);
+}
 .rph{padding:14px 14px 11px;border-bottom:1px solid var(--border);flex-shrink:0}
 .rph-ctx{font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--text3)}
 .rph-name{font-size:15px;font-weight:800;color:var(--text);margin-top:3px}
