@@ -256,7 +256,41 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .gjs-toolbar{background:var(--blue)!important;border-radius:7px!important;box-shadow:0 4px 14px rgba(37,99,235,0.35)!important}
 .gjs-toolbar-item{color:#fff!important}
 .gjs-badge{background:var(--blue)!important;border-radius:4px!important;font-family:'DM Sans'!important;font-size:10px!important}
-.gjs-resizer-h{border-color:var(--blue)!important}
+.gjs-resizer-h{
+  background:rgba(59,130,246,0.9)!important;border-radius:3px!important;
+  width:9px!important;height:9px!important;border:1px solid rgba(255,255,255,0.8)!important;
+  transition:all 0.12s!important;
+}
+.gjs-resizer-h:hover{background:#fff!important;transform:scale(1.3)!important}
+
+/* ══ IMAGE UPLOAD BUTTON ══ */
+.right-img-tools{padding:10px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.img-upload-btn{
+  width:100%;padding:10px;border-radius:8px;
+  background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);
+  color:#7db4ff;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;
+  cursor:pointer;transition:all 0.13s;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.img-upload-btn:hover{background:rgba(59,130,246,0.22);border-color:rgba(59,130,246,0.45);color:#93c5fd}
+
+/* ══ ASSET MANAGER — dark theme ══ */
+.gjs-mdl-dialog{background:var(--chrome)!important;border:1px solid var(--border)!important;border-radius:12px!important;box-shadow:0 24px 64px rgba(0,0,0,0.5)!important}
+.gjs-mdl-title{color:var(--text)!important;font-family:'DM Sans'!important;font-weight:800!important}
+.gjs-mdl-header{background:var(--chrome2)!important;border-bottom:1px solid var(--border)!important;padding:14px 18px!important}
+.gjs-mdl-content{background:var(--chrome)!important}
+.gjs-mdl-btn-close{color:var(--text2)!important}
+.gjs-mdl-btn-close:hover{color:var(--text)!important}
+.gjs-am-assets-header{background:var(--chrome2)!important;border-bottom:1px solid var(--border)!important;padding:10px 14px!important}
+.gjs-am-add-field{background:rgba(255,255,255,0.06)!important;border:1px solid var(--border)!important;border-radius:7px!important;padding:6px 10px!important}
+.gjs-am-add-field input{color:var(--text)!important;background:transparent!important;font-family:'DM Sans'!important;font-size:12px!important}
+.gjs-am-assets{background:var(--chrome)!important;padding:12px!important}
+.gjs-am-asset{background:var(--chrome2)!important;border:1px solid var(--border)!important;border-radius:8px!important;overflow:hidden!important;cursor:pointer!important}
+.gjs-am-asset:hover,.gjs-am-asset-selected{border-color:rgba(59,130,246,0.5)!important;background:rgba(59,130,246,0.08)!important}
+.gjs-am-asset-image{background:var(--chrome3)!important;min-height:80px!important}
+.gjs-am-file-uploader{background:rgba(59,130,246,0.05)!important;border:2px dashed rgba(59,130,246,0.25)!important;border-radius:10px!important;margin:12px!important;padding:20px!important;text-align:center!important}
+.gjs-am-file-uploader:hover{background:rgba(59,130,246,0.09)!important;border-color:rgba(59,130,246,0.45)!important}
+.gjs-am-file-uploader label{color:var(--text2)!important;font-family:'DM Sans'!important;font-size:12px!important;cursor:pointer!important}
+.gjs-am-file-uploader input[type=file]{display:none!important}
 
 /* empty canvas helper */
 .canvas-empty{
@@ -723,9 +757,24 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
       <div class="right-context" id="rContext">Properties</div>
       <div class="right-element-name" id="rName">Select an element</div>
     </div>
+    <!-- Image upload row — shown when image selected -->
+    <div class="right-img-tools" id="rImgTools" style="display:none">
+      <button class="img-upload-btn" onclick="editor.runCommand('open-assets')">
+        <span>🖼</span> Replace / Upload Image
+      </button>
+      <div style="font-size:9px;color:var(--text3);text-align:center;padding:4px 0 2px">
+        Click to open image manager
+      </div>
+    </div>
     <div class="right-empty" id="rEmpty">
       <div class="right-empty-ico">🖱</div>
       <div class="right-empty-txt">Click any element on the canvas to see its style properties</div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);width:100%;text-align:center">
+        <div style="font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Images</div>
+        <button class="img-upload-btn" onclick="editor.runCommand('open-assets')">
+          🖼 Open Image Manager
+        </button>
+      </div>
     </div>
     <div class="right-styles" id="rStyles">
       <div id="gjs-sm"></div>
@@ -820,20 +869,27 @@ const editor=grapesjs.init({
     scripts:[],
     customBadgeLabel: c => c.get('tagName') || 'element',
   },
-  // Inject CSS into the canvas iframe to fix body bg and element sizing
   protectedCss: `
-    body {
-      background: #ffffff !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-    section {
-      width: 100% !important;
-      box-sizing: border-box !important;
-    }
+    body { background: #ffffff !important; margin: 0 !important; padding: 0 !important; }
+    section { width: 100% !important; box-sizing: border-box !important; }
     img { max-width: 100% !important; height: auto !important; }
     * { box-sizing: border-box !important; }
   `,
+  // ── Asset Manager — image uploads ──
+  assetManager:{
+    upload: '/api/funnels/upload-image',
+    uploadName: 'file',
+    multiUpload: true,
+    autoAdd: true,
+    headers: {},
+    assets: [],
+    uploadText: 'Drop images here or click to upload',
+    addBtnText: '+ Add image URL',
+    customFetch: undefined,
+    modalTitle: 'Image Manager',
+    inputPlaceholder: 'https://your-image-url.com/image.jpg',
+  },
+  // ── Enable resizing on all components ──
   deviceManager:{devices:[{name:'Desktop',width:''},{name:'Tablet',width:'768px',widthMedia:'768px'},{name:'Mobile',width:'375px',widthMedia:'375px'}]},
   plugins:['gjs-blocks-basic','gjs-preset-webpage','gjs-plugin-forms'],
   pluginsOpts:{'gjs-blocks-basic':{flexGrid:true},'gjs-preset-webpage':{modalImportTitle:'Import HTML',modalImportButton:'Import',modalImportLabel:'Paste HTML here'}},
@@ -874,21 +930,56 @@ editor.on('load',function(){
   }catch(e){}
 });
 
+/* ── Enable resizing on all component types ── */
+editor.on('load', function(){
+  // Override component types to enable resizing
+  const domc = editor.DomComponents;
+  const toResize = ['image','default','text','link','video','map','table','row','cell'];
+  toResize.forEach(type => {
+    try {
+      const model = domc.getType(type);
+      if(model) {
+        domc.addType(type, {
+          model: {
+            defaults: {
+              ...model.model.prototype.defaults,
+              resizable: {
+                tl:1, tc:1, tr:1,
+                cl:1,         cr:1,
+                bl:1, bc:1, br:1,
+                minDim:20,
+                currentUnit:1,
+                unitHeight:'px',
+                unitWidth:'px',
+              },
+            }
+          }
+        });
+      }
+    } catch(e){}
+  });
+});
+
 /* ── Context-smart right panel ── */
 editor.on('component:selected',function(c){
   if(!c)return;
   const tag=(c.get('tagName')||'').toLowerCase();
+  const type=c.get('type')||'';
   const map={section:'Section',div:'Container',h1:'Heading',h2:'Heading',h3:'Heading',p:'Paragraph',a:'Button / Link',img:'Image',form:'Form',input:'Input Field',hr:'Divider',video:'Video'};
   document.getElementById('rContext').textContent=(map[tag]||'Element')+' — Properties';
   document.getElementById('rName').textContent=tag.toUpperCase()||'Element';
   document.getElementById('rEmpty').style.display='none';
   document.getElementById('rStyles').style.display='block';
+  // Show image upload tools if an image is selected
+  const isImg = tag==='img' || type==='image';
+  document.getElementById('rImgTools').style.display = isImg ? 'block' : 'none';
 });
 editor.on('component:deselected',function(){
   document.getElementById('rContext').textContent='Properties';
   document.getElementById('rName').textContent='Select an element';
   document.getElementById('rEmpty').style.display='flex';
   document.getElementById('rStyles').style.display='none';
+  document.getElementById('rImgTools').style.display='none';
 });
 
 /* ── Panel switching ── */
