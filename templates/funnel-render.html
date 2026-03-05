@@ -36,6 +36,18 @@ h1{font-size:clamp(28px,7vw,44px) !important}
 h2{font-size:clamp(22px,5vw,36px) !important}
 }
 @media(max-width:480px){section{padding-left:16px !important;padding-right:16px !important}}
+
+/* Visual builder canvas responsive scaling */
+#gjsContent > div > div[style*="width:1200px"] {
+  transform-origin: top left;
+}
+@media(max-width:1200px){
+  #gjsContent > div { overflow-x:hidden; }
+  #gjsContent > div > div[style*="width:1200px"] {
+    transform: scale(var(--canvas-scale, 1));
+    width: 1200px !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -326,6 +338,26 @@ if (sections.length > 0) {
   const sc = scheme==='light'?'#4a5a6e':'rgba(255,255,255,0.65)';
   el.innerHTML = `<div style="text-align:center;padding:72px 32px;max-width:720px;margin:0 auto"><h1 style="font-size:clamp(32px,5vw,48px);font-weight:800;color:${tc};margin-bottom:16px">${h}</h1><p style="font-size:19px;color:${sc};margin-bottom:36px">${sub}</p>${cta?`<a href="${url}" style="display:inline-block;padding:18px 48px;background:${accent};color:#fff;font-size:19px;font-weight:800;border-radius:12px;text-decoration:none">${cta}</a>`:''}</div>`;
 }
+
+// Scale visual builder canvas to viewport
+(function(){
+  const wrap = document.querySelector('#gjsContent > div > div[style*="width:1200px"]');
+  if(!wrap) return;
+  function applyScale(){
+    const vw = document.documentElement.clientWidth;
+    if(vw < 1200){
+      const scale = vw / 1200;
+      wrap.style.transform = `scale(${scale})`;
+      wrap.style.transformOrigin = 'top left';
+      // Shrink outer to match scaled height
+      const h = parseFloat(wrap.style.minHeight || 860);
+      wrap.parentElement.style.minHeight = (h * scale) + 'px';
+      wrap.parentElement.style.overflow = 'hidden';
+    }
+  }
+  applyScale();
+  window.addEventListener('resize', applyScale);
+})();
 
 // Track page view
 fetch('/api/funnels/track-click/{{ page.id }}').catch(()=>{});
