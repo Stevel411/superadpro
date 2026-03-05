@@ -5,1365 +5,869 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Page Builder — {{ page.title }}</title>
 <link rel="stylesheet" href="https://unpkg.com/grapesjs@0.21.13/dist/css/grapes.min.css">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&family=Outfit:wght@400;500;600;700;800;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
-/* ── Reset & Vars ── */
 :root{
-  --bg:#080d18;
-  --surface:#0f1623;
-  --surface2:#141c2e;
-  --border:rgba(56,189,248,0.08);
-  --border-hover:rgba(56,189,248,0.22);
-  --blue:#0ea5e9;
-  --blue-bright:#38bdf8;
-  --blue-dim:rgba(14,165,233,0.08);
-  --green:#10b981;
-  --purple:#a78bfa;
-  --amber:#f59e0b;
-  --text:#e2e8f0;
-  --text-dim:#64748b;
-  --text-mid:#94a3b8;
-  --radius:10px;
-  --left-panel:260px;
-  --right-panel:260px;
-  --topbar:52px;
+  --topbar-h:50px;
+  --iconbar-w:52px;
+  --panel-w:232px;
+  --right-w:260px;
+  --chrome:#ffffff;
+  --chrome2:#f6f8fa;
+  --chrome3:#eef0f3;
+  --border:#e4e7eb;
+  --border2:#d1d5db;
+  --iconbar:#1c2233;
+  --text:#111827;
+  --text2:#4b5563;
+  --text3:#9ca3af;
+  --blue:#2563eb;
+  --blue-bg:#eff6ff;
+  --blue-border:#bfdbfe;
+  --green:#059669;
+  --canvas-bg:#f0f2f5;
+  --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg:0 16px 48px rgba(0,0,0,0.14);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
+html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--canvas-bg);color:var(--text)}
 
-/* ══════════════════════════════════════════
-   TOPBAR
-══════════════════════════════════════════ */
+/* ══ TOPBAR ══ */
 .topbar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 14px;height:var(--topbar);
-  background:var(--bg);
-  border-bottom:1px solid var(--border);
-  position:relative;z-index:200;
-  gap:12px;
+  position:fixed;top:0;left:0;right:0;height:var(--topbar-h);
+  background:var(--chrome);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;z-index:300;
 }
-.tb-left{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.tb-back{
-  color:var(--text-dim);font-size:11px;font-weight:700;text-decoration:none;
-  padding:5px 10px;border-radius:6px;border:1px solid rgba(148,163,184,0.1);
-  display:flex;align-items:center;gap:4px;transition:all 0.15s;letter-spacing:0.3px;
+.tb-logo-cell{
+  width:var(--iconbar-w);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  border-right:1px solid var(--border);height:100%;
 }
-.tb-back:hover{color:var(--blue-bright);border-color:var(--border-hover)}
-.tb-logo{font-family:Sora;font-weight:800;font-size:13px;color:#fff;letter-spacing:-0.3px}
-.tb-logo span{color:var(--blue-bright)}
-.tb-sep{width:1px;height:18px;background:var(--border);flex-shrink:0}
-.tb-tag{font-family:Sora;font-size:11px;font-weight:700;color:var(--blue-bright);letter-spacing:0.5px;text-transform:uppercase}
-
-.tb-center{display:flex;align-items:center;gap:8px;flex:1;justify-content:center;max-width:360px;margin:0 auto}
-.tb-input{
-  background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:7px;
+.tb-logo-mark{
+  width:28px;height:28px;border-radius:7px;
+  background:linear-gradient(135deg,#1e40af,var(--blue));
+  display:flex;align-items:center;justify-content:center;
+}
+.tb-logo-mark svg{width:14px;height:14px;fill:#fff}
+.tb-brand{
+  display:flex;align-items:center;gap:8px;padding:0 14px;
+  border-right:1px solid var(--border);height:100%;flex-shrink:0;
+}
+.tb-brand-name{font-family:Sora;font-size:13px;font-weight:800;color:var(--text);letter-spacing:-0.2px}
+.tb-brand-name span{color:var(--blue)}
+.tb-pill{font-size:10px;font-weight:700;color:var(--blue);background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:4px;padding:2px 7px;letter-spacing:0.3px}
+.tb-title-area{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 16px}
+.tb-page-input{
+  background:var(--chrome2);border:1px solid var(--border);border-radius:7px;
   color:var(--text);font-size:13px;font-weight:600;font-family:inherit;
-  padding:6px 14px;width:220px;transition:all 0.15s;text-align:center;
+  padding:6px 14px;width:210px;text-align:center;outline:none;transition:all 0.14s;
 }
-.tb-input:focus{outline:none;border-color:rgba(56,189,248,0.3);background:rgba(56,189,248,0.04)}
-.tb-status{font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:0.5px;white-space:nowrap}
-
-.tb-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.tb-page-input:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,0.09)}
+.tb-save-status{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:0.4px;white-space:nowrap}
+.tb-right{display:flex;align-items:center;gap:5px;padding:0 12px}
 .tb-btn{
-  padding:6px 13px;border-radius:7px;font-size:11px;font-weight:700;
-  cursor:pointer;border:none;font-family:inherit;transition:all 0.15s;
-  letter-spacing:0.3px;display:flex;align-items:center;gap:5px;
+  display:flex;align-items:center;gap:5px;
+  padding:7px 12px;border-radius:7px;font-size:11px;font-weight:700;
+  cursor:pointer;border:1px solid transparent;font-family:inherit;
+  transition:all 0.13s;letter-spacing:0.2px;
 }
-.btn-device{
-  background:rgba(255,255,255,0.04);color:var(--text-dim);
-  border:1px solid var(--border);font-size:13px;padding:5px 9px;
-}
-.btn-device:hover,.btn-device.active{color:var(--blue-bright);border-color:var(--border-hover);background:var(--blue-dim)}
-.btn-preview{background:rgba(255,255,255,0.04);color:var(--text-mid);border:1px solid var(--border)}
-.btn-preview:hover{color:var(--blue-bright);border-color:var(--border-hover)}
-.btn-save{
-  background:linear-gradient(180deg,#059669,#047857);color:#fff;
-  box-shadow:0 3px 0 #065f46;
-}
-.btn-save:hover{transform:translateY(-1px);box-shadow:0 4px 0 #065f46}
-.btn-save:active{transform:translateY(1px);box-shadow:0 1px 0 #065f46}
-.btn-publish{
-  background:linear-gradient(180deg,var(--blue-bright),var(--blue));color:#fff;
-  box-shadow:0 3px 0 #0369a1;
-}
-.btn-publish:hover{transform:translateY(-1px);box-shadow:0 4px 0 #0369a1}
-.btn-publish:active{transform:translateY(1px);box-shadow:0 1px 0 #0369a1}
-.btn-undo{background:rgba(255,255,255,0.04);color:var(--text-dim);border:1px solid var(--border);padding:5px 8px;font-size:14px}
-.btn-undo:hover{color:var(--text);border-color:var(--border-hover)}
+.btn-icon{padding:6px 8px;background:transparent;color:var(--text3);border-color:var(--border)}
+.btn-icon:hover{background:var(--chrome2);color:var(--text);border-color:var(--border2)}
+.btn-preview{background:var(--chrome2);color:var(--text2);border-color:var(--border)}
+.btn-preview:hover{background:var(--chrome3);color:var(--text)}
+.btn-save{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border);font-weight:700}
+.btn-save:hover{background:#dbeafe;border-color:#93c5fd}
+.btn-publish{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 1px 3px rgba(37,99,235,0.3)}
+.btn-publish:hover{background:#1d4ed8}
+.tb-divider{width:1px;height:20px;background:var(--border);margin:0 3px;flex-shrink:0}
+.dev-grp{display:flex;align-items:center;gap:1px;background:var(--chrome2);border:1px solid var(--border);border-radius:7px;padding:2px;overflow:hidden}
+.dev-btn{padding:5px 7px;border-radius:5px;font-size:13px;cursor:pointer;border:none;background:transparent;color:var(--text3);transition:all 0.12s}
+.dev-btn:hover{color:var(--text)}
+.dev-btn.active{background:#fff;color:var(--blue);box-shadow:var(--shadow)}
 
-/* ══════════════════════════════════════════
-   MAIN LAYOUT  (left panel | canvas | right panel)
-══════════════════════════════════════════ */
-.editor-shell{
+/* ══ APP BODY ══ */
+.app-body{
   display:flex;
-  height:calc(100vh - var(--topbar));
+  margin-top:var(--topbar-h);
+  height:calc(100vh - var(--topbar-h));
   overflow:hidden;
 }
 
-/* ══════════════════════════════════════════
-   LEFT PANEL
-══════════════════════════════════════════ */
+/* ══ ICON BAR ══ */
+.iconbar{
+  width:var(--iconbar-w);min-width:var(--iconbar-w);
+  background:var(--iconbar);
+  display:flex;flex-direction:column;align-items:center;
+  padding:10px 0;gap:2px;flex-shrink:0;z-index:100;
+}
+.ic-btn{
+  width:36px;height:36px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.13s;color:rgba(255,255,255,0.38);
+  font-size:15px;position:relative;
+}
+.ic-btn:hover{background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.8)}
+.ic-btn.active{background:rgba(37,99,235,0.28);color:#7db4ff}
+.ic-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.ic-sep{width:22px;height:1px;background:rgba(255,255,255,0.07);margin:4px 0}
+.ic-btn::after{
+  content:attr(data-tip);position:absolute;left:calc(100% + 9px);top:50%;transform:translateY(-50%);
+  background:#1c2233;color:rgba(255,255,255,0.88);font-size:10px;font-weight:700;
+  padding:4px 8px;border-radius:5px;white-space:nowrap;pointer-events:none;
+  opacity:0;transition:opacity 0.13s;z-index:400;font-family:'DM Sans',sans-serif;
+  border:1px solid rgba(255,255,255,0.07);letter-spacing:0.3px;
+}
+.ic-btn:hover::after{opacity:1}
+
+/* ══ LEFT PANEL ══ */
 .left-panel{
-  width:var(--left-panel);
-  min-width:var(--left-panel);
-  background:var(--surface);
+  width:0;overflow:hidden;
+  background:var(--chrome);
   border-right:1px solid var(--border);
-  display:flex;flex-direction:column;
-  overflow:hidden;
-  flex-shrink:0;
+  transition:width 0.18s cubic-bezier(0.4,0,0.2,1);
+  display:flex;flex-direction:column;flex-shrink:0;z-index:90;
 }
+.left-panel.open{width:var(--panel-w)}
 
-/* Panel tabs */
-.panel-tabs{
-  display:flex;border-bottom:1px solid var(--border);flex-shrink:0;
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 12px;border-bottom:1px solid var(--border);
+  flex-shrink:0;min-width:var(--panel-w);
 }
-.panel-tab{
-  flex:1;padding:10px 6px;font-size:11px;font-weight:700;letter-spacing:0.5px;
-  text-transform:uppercase;text-align:center;cursor:pointer;color:var(--text-dim);
-  border-bottom:2px solid transparent;transition:all 0.15s;
+.panel-head-title{font-size:11px;font-weight:800;color:var(--text);letter-spacing:0.5px;text-transform:uppercase}
+.panel-close{
+  width:20px;height:20px;border-radius:4px;
+  background:var(--chrome2);border:1px solid var(--border);
+  cursor:pointer;font-size:10px;color:var(--text3);
+  display:flex;align-items:center;justify-content:center;transition:all 0.11s;
 }
-.panel-tab.active{color:var(--blue-bright);border-bottom-color:var(--blue-bright)}
-.panel-tab:hover:not(.active){color:var(--text-mid)}
+.panel-close:hover{background:var(--chrome3);color:var(--text)}
 
-/* Panel search */
-.panel-search-wrap{padding:10px 10px 0;flex-shrink:0}
+.panel-search-row{
+  padding:9px 10px;border-bottom:1px solid var(--border);
+  flex-shrink:0;min-width:var(--panel-w);position:relative;
+}
+.panel-search-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px;pointer-events:none}
 .panel-search{
-  width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);
-  border-radius:7px;color:var(--text);font-size:12px;font-family:inherit;
-  padding:7px 10px 7px 30px;outline:none;transition:all 0.15s;
+  width:100%;background:var(--chrome2);border:1px solid var(--border);
+  border-radius:7px;color:var(--text);font-size:11px;font-family:inherit;
+  padding:7px 9px 7px 26px;outline:none;transition:all 0.13s;
 }
-.panel-search:focus{border-color:rgba(56,189,248,0.3);background:rgba(56,189,248,0.03)}
-.panel-search-wrap{position:relative}
-.panel-search-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:12px;pointer-events:none}
+.panel-search:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,0.07)}
+.panel-search::placeholder{color:var(--text3)}
 
-/* Panel content (scrollable) */
-.panel-content{flex:1;overflow-y:auto;padding:10px}
-.panel-content::-webkit-scrollbar{width:4px}
-.panel-content::-webkit-scrollbar-thumb{background:rgba(56,189,248,0.15);border-radius:4px}
+.panel-body{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  min-width:var(--panel-w);
+}
+.panel-body::-webkit-scrollbar{width:3px}
+.panel-body::-webkit-scrollbar-thumb{background:var(--chrome3);border-radius:3px}
 
-/* ── Section category label ── */
-.sec-cat-label{
-  font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;
-  color:var(--text-dim);padding:12px 4px 6px;
-}
+/* category header */
+.cat-row{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:10px 12px 4px}
 
-/* ── Section cards (large visual thumbnails) ── */
-.section-card{
-  border:1px solid var(--border);border-radius:10px;overflow:hidden;
-  cursor:pointer;transition:all 0.18s;margin-bottom:8px;
-  background:var(--surface2);
+/* section cards */
+.sec-card{
+  margin:0 8px 5px;border-radius:8px;overflow:hidden;
+  border:1px solid var(--border);background:var(--chrome);cursor:pointer;
+  transition:all 0.14s;
 }
-.section-card:hover{
-  border-color:var(--border-hover);
-  box-shadow:0 4px 16px rgba(14,165,233,0.12);
-  transform:translateY(-1px);
-}
-.section-thumb{
-  height:72px;display:flex;align-items:center;justify-content:center;
-  font-size:22px;position:relative;overflow:hidden;
-  background:linear-gradient(135deg,rgba(14,165,233,0.06),rgba(56,189,248,0.03));
-}
-.section-thumb-preview{
-  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
-  padding:8px;gap:4px;
-}
-.section-info{padding:8px 10px}
-.section-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:1px}
-.section-desc{font-size:10px;color:var(--text-dim);line-height:1.4}
+.sec-card:hover{border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,99,235,0.1),var(--shadow);transform:translateY(-1px)}
+.sec-thumb{height:50px;display:flex;align-items:center;justify-content:center;padding:7px 10px;gap:4px}
+.sec-thumb.dark{background:linear-gradient(135deg,#0d1424,#162035)}
+.sec-thumb.light{background:linear-gradient(135deg,#f8faff,#eef3ff)}
+.sec-thumb.white{background:#ffffff;border-bottom:1px solid var(--border)}
+.sec-meta{padding:6px 9px 7px}
+.sec-name{font-size:11px;font-weight:700;color:var(--text)}
+.sec-desc{font-size:9px;color:var(--text3);margin-top:1px;line-height:1.4}
 
-/* ── Element blocks (compact grid) ── */
-.elements-grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:6px;
+/* elements grid */
+.elem-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:0 8px 6px}
+.elem-card{
+  border:1px solid var(--border);border-radius:7px;padding:9px 5px 7px;
+  cursor:pointer;transition:all 0.13s;text-align:center;background:var(--chrome);
 }
-.elem-block{
-  border:1px solid var(--border);border-radius:9px;padding:12px 8px;
-  cursor:grab;transition:all 0.15s;text-align:center;
-  background:var(--surface2);
-}
-.elem-block:hover{
-  border-color:var(--border-hover);background:var(--blue-dim);
-  box-shadow:0 2px 8px rgba(14,165,233,0.1);
-}
-.elem-block:active{cursor:grabbing}
-.elem-icon{font-size:20px;margin-bottom:4px;display:block}
-.elem-name{font-size:10px;font-weight:700;color:var(--text-mid);letter-spacing:0.3px}
+.elem-card:hover{border-color:var(--blue);background:var(--blue-bg);box-shadow:0 0 0 2px rgba(37,99,235,0.07)}
+.elem-icon{font-size:17px;display:block;margin-bottom:3px;line-height:1.1}
+.elem-label{font-size:9px;font-weight:700;color:var(--text2);letter-spacing:0.3px;text-transform:uppercase}
 
-/* ── Layers tab ── */
-.layer-item{
-  display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;
-  cursor:pointer;transition:all 0.12s;font-size:12px;color:var(--text-mid);
-}
-.layer-item:hover{background:var(--blue-dim);color:var(--text)}
-.layer-item.selected{background:rgba(56,189,248,0.1);color:var(--blue-bright)}
-.layer-icon{font-size:13px;flex-shrink:0;width:16px;text-align:center}
-.layer-name{flex:1;font-weight:600;truncate:ellipsis;overflow:hidden;white-space:nowrap}
-
-/* ══════════════════════════════════════════
-   CANVAS AREA
-══════════════════════════════════════════ */
+/* ══ CANVAS ══ */
 .canvas-area{
-  flex:1;overflow:hidden;position:relative;
-  background:linear-gradient(135deg,#0a0e18,#080d14);
-  display:flex;flex-direction:column;
+  flex:1;display:flex;flex-direction:column;
+  overflow:hidden;position:relative;
+  background:var(--canvas-bg);
 }
-
-/* Device bar under topbar */
-.device-bar{
-  display:flex;align-items:center;gap:6px;padding:6px 14px;
-  background:var(--surface);border-bottom:1px solid var(--border);
-  flex-shrink:0;
-}
-.device-bar-label{font-size:10px;color:var(--text-dim);font-weight:600;margin-right:4px;letter-spacing:0.5px;text-transform:uppercase}
-.dev-btn{
-  padding:4px 10px;border-radius:5px;font-size:10px;font-weight:700;
-  cursor:pointer;border:1px solid var(--border);background:transparent;
-  color:var(--text-dim);font-family:inherit;transition:all 0.15s;letter-spacing:0.3px;
-}
-.dev-btn:hover{color:var(--blue-bright);border-color:var(--border-hover)}
-.dev-btn.active{color:var(--blue-bright);border-color:var(--blue-bright);background:var(--blue-dim)}
-
 #gjs{flex:1;overflow:hidden}
 
-/* ── Empty canvas helper ── */
+/* GrapesJS overrides — clean canvas */
+.gjs-cv-canvas{background:var(--canvas-bg)!important;padding:24px!important}
+.gjs-frame{border-radius:6px!important;box-shadow:var(--shadow-lg)!important;border:none!important}
+.gjs-pn-panels{display:none!important}
+.gjs-selected{outline:2px solid var(--blue)!important;outline-offset:2px!important}
+.gjs-hovered{outline:1px dashed rgba(37,99,235,0.4)!important;outline-offset:1px!important}
+.gjs-toolbar{background:var(--blue)!important;border-radius:7px!important;box-shadow:0 4px 14px rgba(37,99,235,0.35)!important}
+.gjs-toolbar-item{color:#fff!important}
+.gjs-badge{background:var(--blue)!important;border-radius:4px!important;font-family:'DM Sans'!important;font-size:10px!important}
+.gjs-resizer-h{border-color:var(--blue)!important}
+
+/* empty canvas helper */
 .canvas-empty{
   position:absolute;inset:0;z-index:10;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:24px;pointer-events:none;
-  opacity:1;transition:opacity 0.3s;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
 }
-.canvas-empty.hidden{opacity:0;pointer-events:none}
-.empty-inner{text-align:center;pointer-events:all}
-.empty-icon{font-size:48px;margin-bottom:12px;opacity:0.4}
-.empty-title{font-family:Sora;font-size:18px;font-weight:800;color:rgba(226,232,240,0.5);margin-bottom:6px}
-.empty-sub{font-size:13px;color:var(--text-dim);margin-bottom:20px}
-.empty-btn{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:12px 24px;border-radius:10px;
-  background:linear-gradient(180deg,var(--blue-bright),var(--blue));
-  color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;
-  font-family:inherit;box-shadow:0 4px 16px rgba(14,165,233,0.25);
-  transition:all 0.15s;
+.canvas-empty.gone{display:none}
+.empty-card{
+  pointer-events:all;text-align:center;
+  background:var(--chrome);border:1px solid var(--border);
+  border-radius:14px;padding:40px 48px;box-shadow:var(--shadow-md);
+  max-width:400px;
 }
-.empty-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(14,165,233,0.35)}
+.empty-icon{font-size:36px;margin-bottom:12px;opacity:0.45}
+.empty-h{font-family:Sora;font-size:16px;font-weight:800;color:var(--text);margin-bottom:6px}
+.empty-p{font-size:12px;color:var(--text3);margin-bottom:20px;line-height:1.6}
+.empty-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.ebtn-primary{
+  padding:9px 20px;border-radius:7px;background:var(--blue);color:#fff;
+  font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:inherit;
+  box-shadow:0 2px 8px rgba(37,99,235,0.3);transition:all 0.13s;
+}
+.ebtn-primary:hover{background:#1d4ed8;transform:translateY(-1px)}
+.ebtn-secondary{
+  padding:9px 16px;border-radius:7px;background:var(--chrome2);color:var(--text2);
+  font-size:11px;font-weight:700;border:1px solid var(--border);cursor:pointer;
+  font-family:inherit;transition:all 0.13s;
+}
+.ebtn-secondary:hover{background:var(--chrome3);color:var(--text)}
 
-/* ══════════════════════════════════════════
-   RIGHT PANEL (context-smart)
-══════════════════════════════════════════ */
+/* ══ RIGHT PANEL ══ */
 .right-panel{
-  width:var(--right-panel);
-  min-width:var(--right-panel);
-  background:var(--surface);
-  border-left:1px solid var(--border);
-  display:flex;flex-direction:column;
-  overflow:hidden;flex-shrink:0;
+  width:var(--right-w);min-width:var(--right-w);
+  background:var(--chrome);border-left:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;
 }
-.right-header{
-  padding:12px 14px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+.right-head{
+  padding:10px 13px;border-bottom:1px solid var(--border);flex-shrink:0;
 }
-.right-title{font-size:11px;font-weight:800;color:var(--text-mid);letter-spacing:1px;text-transform:uppercase}
-.right-subtitle{font-size:10px;color:var(--text-dim);font-weight:600;margin-top:1px}
-
-/* No selection state */
+.right-context{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text3)}
+.right-element-name{font-size:12px;font-weight:700;color:var(--text);margin-top:2px}
 .right-empty{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:24px;text-align:center;gap:8px;
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:24px;text-align:center;gap:8px;
 }
-.right-empty-icon{font-size:32px;opacity:0.25;margin-bottom:4px}
-.right-empty-text{font-size:12px;color:var(--text-dim);line-height:1.6}
+.right-empty-ico{font-size:28px;opacity:0.18;margin-bottom:4px}
+.right-empty-txt{font-size:11px;color:var(--text3);line-height:1.6;max-width:160px}
+.right-styles{flex:1;overflow-y:auto;display:none}
+.right-styles::-webkit-scrollbar{width:3px}
+.right-styles::-webkit-scrollbar-thumb{background:var(--chrome3);border-radius:3px}
 
-/* Properties area */
-.right-props{flex:1;overflow-y:auto;display:none}
-.right-props::-webkit-scrollbar{width:4px}
-.right-props::-webkit-scrollbar-thumb{background:rgba(56,189,248,0.15);border-radius:4px}
-.right-props.active{display:block}
-
-/* Prop section */
-.prop-section{border-bottom:1px solid var(--border)}
-.prop-section-head{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 14px;cursor:pointer;
+/* Style manager — light skin */
+#gjs-sm .gjs-sm-sector{background:transparent!important;border-bottom:1px solid var(--border)!important}
+#gjs-sm .gjs-sm-sector-title{
+  background:var(--chrome2)!important;color:var(--text2)!important;
+  font-family:'DM Sans'!important;font-size:9px!important;font-weight:800!important;
+  letter-spacing:1px!important;padding:8px 12px!important;border:none!important;text-transform:uppercase!important;
 }
-.prop-section-title{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text-mid)}
-.prop-section-arrow{font-size:10px;color:var(--text-dim);transition:transform 0.2s}
-.prop-section-arrow.open{transform:rotate(180deg)}
-.prop-section-body{padding:10px 14px 14px;display:none}
-.prop-section-body.open{display:block}
+#gjs-sm .gjs-sm-sector-title:hover{background:var(--chrome3)!important}
+#gjs-sm .gjs-sm-properties{padding:9px 10px 11px!important}
+#gjs-sm .gjs-sm-label{color:var(--text3)!important;font-size:9px!important;font-family:'DM Sans'!important;font-weight:700!important;text-transform:uppercase!important;letter-spacing:0.5px!important}
+#gjs-sm .gjs-field{background:var(--chrome2)!important;border:1px solid var(--border)!important;border-radius:6px!important;color:var(--text)!important}
+#gjs-sm .gjs-field input,#gjs-sm .gjs-field select{color:var(--text)!important;font-family:'DM Sans'!important;font-size:11px!important}
+#gjs-sm .gjs-radio-item{border-color:var(--border)!important;background:var(--chrome2)!important;color:var(--text2)!important}
+#gjs-sm .gjs-radio-item-label{color:var(--text2)!important;font-size:10px!important}
+#gjs-sm .gjs-four-color{color:var(--blue)!important}
+#gjs-sm .gjs-clm-tag{background:var(--blue-bg)!important;border-color:var(--blue-border)!important;color:var(--blue)!important}
 
-/* Individual prop controls */
-.prop-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.prop-label{font-size:10px;font-weight:700;color:var(--text-dim);width:60px;flex-shrink:0;letter-spacing:0.3px}
-.prop-input{
-  flex:1;background:rgba(255,255,255,0.04);border:1px solid var(--border);
-  border-radius:6px;color:var(--text);font-size:11px;font-family:inherit;
-  padding:5px 8px;outline:none;transition:all 0.15s;
-}
-.prop-input:focus{border-color:rgba(56,189,248,0.3);background:rgba(56,189,248,0.03)}
-.prop-select{
-  flex:1;background:var(--surface2);border:1px solid var(--border);
-  border-radius:6px;color:var(--text);font-size:11px;font-family:inherit;
-  padding:5px 8px;outline:none;cursor:pointer;
-}
-.prop-color{
-  width:28px;height:28px;border-radius:6px;border:1px solid var(--border);
-  cursor:pointer;padding:2px;background:transparent;
-}
-.prop-color-wrap{display:flex;align-items:center;gap:6px;flex:1}
-.prop-color-hex{
-  flex:1;background:rgba(255,255,255,0.04);border:1px solid var(--border);
-  border-radius:6px;color:var(--text);font-size:11px;font-family:inherit;
-  padding:5px 8px;outline:none;
-}
+/* Layers */
+#gjs-ly .gjs-layer{color:var(--text2)!important;font-family:'DM Sans'!important;font-size:11px!important}
+#gjs-ly .gjs-layer.gjs-selected{background:var(--blue-bg)!important;color:var(--blue)!important}
+#gjs-ly .gjs-layer-title{background:transparent!important;border-bottom:1px solid var(--border)!important}
+#gjs-ly .gjs-layer-title:hover{background:var(--chrome2)!important}
 
-/* Spacing visual control */
-.spacing-grid{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:4px;margin-top:4px}
-.spacing-cell{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:4px;padding:4px;display:flex;align-items:center;justify-content:center}
-.spacing-input{width:40px;background:transparent;border:none;color:var(--text);font-size:11px;font-family:inherit;text-align:center;outline:none;padding:2px}
-.spacing-box{background:rgba(14,165,233,0.06);border:1px dashed rgba(14,165,233,0.2);border-radius:4px;display:flex;align-items:center;justify-content:center;padding:8px;font-size:10px;color:var(--text-dim);grid-column:2;grid-row:2}
-
-/* Font size stepper */
-.stepper{display:flex;align-items:center;gap:0;flex:1}
-.stepper-btn{background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--text-mid);font-size:13px;width:24px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.1s}
-.stepper-btn:first-child{border-radius:5px 0 0 5px}
-.stepper-btn:last-child{border-radius:0 5px 5px 0}
-.stepper-btn:hover{background:var(--blue-dim);color:var(--blue-bright)}
-.stepper-val{flex:1;background:rgba(255,255,255,0.04);border-top:1px solid var(--border);border-bottom:1px solid var(--border);border-left:none;border-right:none;color:var(--text);font-size:11px;font-family:inherit;text-align:center;padding:4px 0;outline:none}
-
-/* Align buttons */
-.align-btns{display:flex;gap:4px}
-.align-btn{padding:5px 8px;border-radius:5px;background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--text-dim);font-size:13px;cursor:pointer;transition:all 0.12s}
-.align-btn:hover,.align-btn.active{background:var(--blue-dim);color:var(--blue-bright);border-color:var(--border-hover)}
-
-/* Weight buttons */
-.weight-btns{display:flex;gap:4px;flex-wrap:wrap}
-.weight-btn{padding:4px 8px;border-radius:5px;background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--text-dim);font-size:10px;font-weight:700;cursor:pointer;transition:all 0.12s}
-.weight-btn:hover,.weight-btn.active{background:var(--blue-dim);color:var(--blue-bright);border-color:var(--border-hover)}
-
-/* GrapesJS style manager mount point */
-#gjs-styles-container{padding:0}
-
-/* ══════════════════════════════════════════
-   WELCOME MODAL
-══════════════════════════════════════════ */
-.modal-overlay{
+/* ══ WELCOME MODAL ══ */
+.modal-bg{
   display:none;position:fixed;inset:0;z-index:500;
-  background:rgba(5,10,20,0.88);backdrop-filter:blur(8px);
+  background:rgba(10,15,28,0.55);backdrop-filter:blur(5px);
   align-items:center;justify-content:center;padding:20px;
 }
-.modal-overlay.show{display:flex}
+.modal-bg.show{display:flex}
 .modal-box{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:18px;width:100%;max-width:760px;max-height:85vh;
+  background:var(--chrome);border:1px solid var(--border);
+  border-radius:14px;width:100%;max-width:800px;max-height:88vh;
   overflow:hidden;display:flex;flex-direction:column;
-  box-shadow:0 32px 80px rgba(0,0,0,0.6);
+  box-shadow:var(--shadow-lg);
 }
-.modal-head{
-  padding:24px 28px 0;flex-shrink:0;
+.modal-top{padding:22px 24px 0;flex-shrink:0}
+.modal-kicker{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--blue);margin-bottom:5px}
+.modal-title{font-family:Sora;font-size:18px;font-weight:800;color:var(--text);margin-bottom:3px}
+.modal-sub{font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.5}
+.modal-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin:0}
+.mtab{
+  padding:8px 16px;font-size:11px;font-weight:700;cursor:pointer;
+  color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;
+  transition:all 0.12s;
 }
-.modal-title{font-family:Sora;font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
-.modal-sub{font-size:13px;color:var(--text-dim);margin-bottom:20px}
-.modal-tabs{display:flex;gap:6px;margin-bottom:0;border-bottom:1px solid var(--border);padding-bottom:0}
-.modal-tab{
-  padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;
-  color:var(--text-dim);border-bottom:2px solid transparent;transition:all 0.15s;
-  margin-bottom:-1px;letter-spacing:0.3px;
-}
-.modal-tab.active{color:var(--blue-bright);border-bottom-color:var(--blue-bright)}
-.modal-body{padding:20px 28px;overflow-y:auto;flex:1}
-.modal-body::-webkit-scrollbar{width:5px}
-.modal-body::-webkit-scrollbar-thumb{background:rgba(56,189,248,0.15);border-radius:4px}
-
-/* Template grid */
-.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.mtab:hover{color:var(--text);background:var(--chrome2)}
+.mtab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.modal-scroll{padding:18px 20px;overflow-y:auto;flex:1}
+.modal-scroll::-webkit-scrollbar{width:4px}
+.modal-scroll::-webkit-scrollbar-thumb{background:var(--chrome3);border-radius:4px}
+.tpl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
 .tpl-card{
-  border:1px solid var(--border);border-radius:12px;overflow:hidden;
-  cursor:pointer;transition:all 0.18s;background:var(--surface2);
+  border:1px solid var(--border);border-radius:9px;overflow:hidden;
+  cursor:pointer;transition:all 0.14s;background:var(--chrome);
 }
-.tpl-card:hover{
-  border-color:var(--border-hover);
-  box-shadow:0 6px 24px rgba(14,165,233,0.15);
-  transform:translateY(-2px);
+.tpl-card:hover{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.08),var(--shadow);transform:translateY(-1px)}
+.tpl-thumb{height:70px;display:flex;align-items:center;justify-content:center;font-size:26px}
+.tpl-meta{padding:9px 10px}
+.tpl-name{font-size:11px;font-weight:800;color:var(--text);margin-bottom:2px}
+.tpl-desc{font-size:9px;color:var(--text3);line-height:1.4}
+.modal-foot{
+  padding:12px 22px;border-top:1px solid var(--border);
+  background:var(--chrome2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
 }
-.tpl-thumb{
-  height:100px;display:flex;align-items:center;justify-content:center;
-  position:relative;overflow:hidden;
-}
-.tpl-info{padding:12px}
-.tpl-name{font-size:12px;font-weight:800;color:var(--text);margin-bottom:2px}
-.tpl-desc{font-size:10px;color:var(--text-dim);line-height:1.5}
-.tpl-badge{
-  display:inline-block;font-size:8px;font-weight:700;letter-spacing:1px;
-  text-transform:uppercase;padding:2px 7px;border-radius:20px;margin-top:5px;
-}
-.tpl-badge.free{background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.2)}
-.tpl-badge.starter{background:rgba(56,189,248,0.1);color:var(--blue-bright);border:1px solid rgba(56,189,248,0.2)}
-
-/* Modal footer */
-.modal-footer{
-  padding:14px 28px;border-top:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
-}
-.modal-skip{font-size:12px;color:var(--text-dim);cursor:pointer;font-weight:600;transition:color 0.15s}
+.modal-skip{font-size:11px;color:var(--text3);cursor:pointer;font-weight:600;text-decoration:underline;text-underline-offset:2px;transition:color 0.12s}
 .modal-skip:hover{color:var(--text)}
-.modal-cta{
-  padding:9px 22px;border-radius:8px;
-  background:linear-gradient(180deg,var(--blue-bright),var(--blue));
-  color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;
-  font-family:inherit;box-shadow:0 3px 0 #0369a1;transition:all 0.15s;
-}
-.modal-cta:hover{transform:translateY(-1px);box-shadow:0 4px 0 #0369a1}
 
-/* ══════════════════════════════════════════
-   GRAPESJS OVERRIDES
-══════════════════════════════════════════ */
-/* Hide default GrapesJS panels — we control layout */
-.gjs-pn-panels{display:none!important}
-.gjs-cv-canvas{background:transparent!important}
-.gjs-frame-wrapper{padding-top:0!important}
-
-/* Selection highlight */
-.gjs-selected{outline:2px solid var(--blue-bright)!important;outline-offset:1px!important}
-.gjs-hovered{outline:1px dashed rgba(56,189,248,0.4)!important;outline-offset:1px!important}
-.gjs-toolbar{background:var(--blue)!important;border-radius:7px!important;box-shadow:0 4px 16px rgba(14,165,233,0.3)!important}
-.gjs-toolbar-item{color:#fff!important}
-.gjs-resizer-h{border-color:var(--blue-bright)!important}
-.gjs-badge{background:var(--blue)!important;border-radius:4px!important;font-family:'DM Sans'!important}
-
-/* Style manager inside right panel */
-#gjs-styles-container .gjs-sm-sector{background:transparent!important;border-bottom:1px solid var(--border)!important}
-#gjs-styles-container .gjs-sm-sector-title{background:rgba(255,255,255,0.02)!important;color:var(--text-mid)!important;font-family:'DM Sans'!important;font-size:10px!important;font-weight:800!important;letter-spacing:1px!important;padding:10px 14px!important;border:none!important}
-#gjs-styles-container .gjs-sm-properties{padding:10px 14px!important}
-#gjs-styles-container .gjs-sm-label{color:var(--text-dim)!important;font-size:10px!important;font-family:'DM Sans'!important;font-weight:700!important}
-#gjs-styles-container .gjs-field{background:rgba(255,255,255,0.04)!important;border:1px solid var(--border)!important;border-radius:6px!important;color:var(--text)!important}
-#gjs-styles-container .gjs-field input,#gjs-styles-container .gjs-field select{color:var(--text)!important;font-family:'DM Sans'!important}
-#gjs-styles-container .gjs-sm-composite{border-color:var(--border)!important}
-#gjs-styles-container .gjs-clm-tag{background:var(--blue-dim)!important;border-color:var(--border)!important;color:var(--blue-bright)!important}
-#gjs-styles-container .gjs-four-color{color:var(--blue-bright)!important}
-
-/* ══════════════════════════════════════════
-   TOAST
-══════════════════════════════════════════ */
+/* ══ TOAST ══ */
 .toast{
-  position:fixed;bottom:20px;left:50%;
-  transform:translateX(-50%) translateY(80px);
-  padding:10px 20px;border-radius:8px;font-size:12px;font-weight:700;
-  z-index:999;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);opacity:0;
-  display:flex;align-items:center;gap:8px;
+  position:fixed;bottom:22px;left:50%;
+  transform:translateX(-50%) translateY(50px);
+  padding:9px 16px;border-radius:8px;font-size:11px;font-weight:700;
+  z-index:999;transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);opacity:0;
+  display:flex;align-items:center;gap:7px;box-shadow:var(--shadow-md);
 }
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-.toast.success{background:#10b981;color:#fff;box-shadow:0 4px 20px rgba(16,185,129,0.4)}
-.toast.error{background:#ef4444;color:#fff;box-shadow:0 4px 20px rgba(239,68,68,0.4)}
-.toast.info{background:var(--blue);color:#fff;box-shadow:0 4px 20px rgba(14,165,233,0.4)}
-
-/* ══════════════════════════════════════════
-   DRAG HINT OVERLAY
-══════════════════════════════════════════ */
-.drag-hint{
-  position:absolute;bottom:16px;left:50%;transform:translateX(-50%);
-  background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.2);
-  border-radius:8px;padding:7px 14px;font-size:11px;color:var(--text-dim);
-  font-weight:600;z-index:5;pointer-events:none;opacity:0;transition:opacity 0.3s;
-  white-space:nowrap;
-}
-.drag-hint.show{opacity:1}
+.toast.success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+.toast.error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.toast.info{background:var(--blue-bg);color:#1e3a8a;border:1px solid var(--blue-border)}
 </style>
 </head>
 <body>
 
-<!-- ══ TOPBAR ══ -->
+<!-- TOPBAR -->
 <div class="topbar">
-  <div class="tb-left">
-    <a href="/funnels" class="tb-back">← Pages</a>
-    <div class="tb-sep"></div>
-    <div class="tb-logo">Super<span>Ad</span>Pro</div>
-    <div class="tb-sep"></div>
-    <span class="tb-tag">Page Builder</span>
+  <div class="tb-logo-cell">
+    <div class="tb-logo-mark">
+      <svg viewBox="0 0 20 20"><path d="M4 4l6 4-6 4V4zm7 0h5v2h-5V4zm0 4h4v2h-4V8zm0 4h5v2h-5v-2z"/></svg>
+    </div>
   </div>
-  <div class="tb-center">
-    <input class="tb-input" type="text" id="pageName" value="{{ page.title }}" placeholder="Untitled Page">
-    <div class="tb-status" id="saveStatus">Ready</div>
+  <div class="tb-brand">
+    <span class="tb-brand-name">Super<span>Ad</span>Pro</span>
+    <div style="width:1px;height:16px;background:var(--border)"></div>
+    <span class="tb-pill">Page Builder</span>
+  </div>
+  <div class="tb-title-area">
+    <input class="tb-page-input" type="text" id="pageName" value="{{ page.title }}" placeholder="Untitled Page">
+    <span class="tb-save-status" id="saveStatus">Ready</span>
   </div>
   <div class="tb-right">
-    <button class="tb-btn btn-undo" onclick="editor.runCommand('core:undo')" title="Undo">↩</button>
-    <button class="tb-btn btn-undo" onclick="editor.runCommand('core:redo')" title="Redo">↪</button>
-    <div class="tb-sep"></div>
+    <button class="tb-btn btn-icon" onclick="editor.runCommand('core:undo')" title="Undo">↩</button>
+    <button class="tb-btn btn-icon" onclick="editor.runCommand('core:redo')" title="Redo">↪</button>
+    <div class="tb-divider"></div>
+    <div class="dev-grp">
+      <button class="dev-btn active" id="devDesktop" onclick="setDevice('Desktop')" title="Desktop">🖥</button>
+      <button class="dev-btn" id="devTablet" onclick="setDevice('Tablet')" title="Tablet">⬛</button>
+      <button class="dev-btn" id="devMobile" onclick="setDevice('Mobile')" title="Mobile">📱</button>
+    </div>
+    <div class="tb-divider"></div>
     <button class="tb-btn btn-preview" onclick="togglePreview()">👁 Preview</button>
     <button class="tb-btn btn-save" onclick="savePage('draft')">💾 Save</button>
     <button class="tb-btn btn-publish" onclick="savePage('published')">🚀 Publish</button>
   </div>
 </div>
 
-<!-- ══ MAIN SHELL ══ -->
-<div class="editor-shell">
+<!-- APP BODY -->
+<div class="app-body">
 
-  <!-- ══ LEFT PANEL ══ -->
-  <div class="left-panel" id="leftPanel">
-    <div class="panel-tabs">
-      <div class="panel-tab active" id="tabSections" onclick="switchTab('sections')">Sections</div>
-      <div class="panel-tab" id="tabElements" onclick="switchTab('elements')">Elements</div>
-      <div class="panel-tab" id="tabLayers" onclick="switchTab('layers')">Layers</div>
+  <!-- ICON BAR -->
+  <div class="iconbar">
+    <div class="ic-btn active" id="icSec" data-tip="Sections" onclick="openPanel('sections')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="5" rx="1"/><rect x="3" y="10" width="18" height="5" rx="1"/><rect x="3" y="17" width="18" height="4" rx="1"/></svg>
     </div>
-
-    <div class="panel-search-wrap" id="searchWrap">
-      <span class="panel-search-icon">🔍</span>
-      <input class="panel-search" id="panelSearch" placeholder="Search..." oninput="filterBlocks(this.value)">
+    <div class="ic-btn" id="icElem" data-tip="Elements" onclick="openPanel('elements')">
+      <svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="18" r="2.5"/><rect x="10" y="5" width="4" height="14" rx="1"/></svg>
     </div>
+    <div class="ic-btn" id="icLay" data-tip="Layers" onclick="openPanel('layers')">
+      <svg viewBox="0 0 24 24"><polygon points="12 2 22 8.5 12 15 2 8.5"/><polyline points="2 14 12 20.5 22 14"/></svg>
+    </div>
+    <div class="ic-sep"></div>
+    <div class="ic-btn" data-tip="Templates" onclick="showModal()">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+    </div>
+    <div class="ic-sep"></div>
+    <div class="ic-btn" data-tip="Back to Pages" onclick="window.location='/funnels'">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+  </div>
 
-    <!-- SECTIONS TAB -->
-    <div class="panel-content" id="contentSections">
+  <!-- LEFT PANEL -->
+  <div class="left-panel open" id="leftPanel">
 
-      <div class="sec-cat-label">Heroes</div>
-      <div class="section-card" draggable="true" data-section="hero-dark" onclick="addSection('hero-dark')">
-        <div class="section-thumb">
-          <div class="section-thumb-preview" style="background:linear-gradient(135deg,#050d1a,#0a1628)">
-            <div style="text-align:center;width:100%">
-              <div style="height:8px;background:rgba(255,255,255,0.7);border-radius:3px;width:60%;margin:0 auto 4px"></div>
-              <div style="height:4px;background:rgba(255,255,255,0.3);border-radius:2px;width:80%;margin:0 auto 6px"></div>
-              <div style="height:14px;background:rgba(14,165,233,0.6);border-radius:4px;width:36%;margin:0 auto"></div>
+    <!-- SECTIONS panel -->
+    <div id="pSections" style="display:flex;flex-direction:column;height:100%">
+      <div class="panel-head">
+        <span class="panel-head-title">Sections</span>
+        <div class="panel-close" onclick="closePanel()">✕</div>
+      </div>
+      <div class="panel-search-row">
+        <span class="panel-search-icon">⌕</span>
+        <input class="panel-search" id="secQ" placeholder="Search sections…" oninput="filterSec(this.value)">
+      </div>
+      <div class="panel-body" id="secBody">
+
+        <div class="cat-row">Heroes</div>
+
+        <div class="sec-card" onclick="addSec('hero-dark')">
+          <div class="sec-thumb dark">
+            <div style="display:flex;flex-direction:column;gap:3px;align-items:center;width:100%">
+              <div style="height:6px;background:rgba(255,255,255,0.7);border-radius:2px;width:50%"></div>
+              <div style="height:3px;background:rgba(255,255,255,0.3);border-radius:2px;width:65%"></div>
+              <div style="height:10px;background:rgba(37,99,235,0.85);border-radius:3px;width:28%"></div>
             </div>
           </div>
+          <div class="sec-meta"><div class="sec-name">Dark Hero</div><div class="sec-desc">Full-screen dark with CTA button</div></div>
         </div>
-        <div class="section-info">
-          <div class="section-name">Dark Hero</div>
-          <div class="section-desc">Full-screen dark hero with headline & CTA</div>
-        </div>
-      </div>
 
-      <div class="section-card" draggable="true" data-section="hero-light" onclick="addSection('hero-light')">
-        <div class="section-thumb">
-          <div class="section-thumb-preview" style="background:linear-gradient(135deg,#f8fafc,#eff6ff)">
-            <div style="text-align:center;width:100%">
-              <div style="height:8px;background:rgba(15,23,42,0.8);border-radius:3px;width:60%;margin:0 auto 4px"></div>
-              <div style="height:4px;background:rgba(100,116,139,0.5);border-radius:2px;width:80%;margin:0 auto 6px"></div>
-              <div style="height:14px;background:rgba(14,165,233,0.8);border-radius:4px;width:36%;margin:0 auto"></div>
+        <div class="sec-card" onclick="addSec('hero-light')">
+          <div class="sec-thumb white">
+            <div style="display:flex;flex-direction:column;gap:3px;align-items:center;width:100%">
+              <div style="height:6px;background:rgba(17,24,39,0.7);border-radius:2px;width:50%"></div>
+              <div style="height:3px;background:rgba(75,85,99,0.35);border-radius:2px;width:65%"></div>
+              <div style="height:10px;background:rgba(37,99,235,0.8);border-radius:3px;width:28%"></div>
             </div>
           </div>
+          <div class="sec-meta"><div class="sec-name">Light Hero</div><div class="sec-desc">Clean white hero with CTA</div></div>
         </div>
-        <div class="section-info">
-          <div class="section-name">Light Hero</div>
-          <div class="section-desc">Clean white hero with blue CTA button</div>
-        </div>
-      </div>
 
-      <div class="section-card" draggable="true" data-section="hero-split" onclick="addSection('hero-split')">
-        <div class="section-thumb">
-          <div class="section-thumb-preview" style="background:linear-gradient(135deg,#050d1a,#0a1628);display:grid;grid-template-columns:1fr 1fr;gap:6px">
-            <div style="display:flex;flex-direction:column;justify-content:center;gap:3px;padding:4px">
-              <div style="height:6px;background:rgba(255,255,255,0.7);border-radius:2px"></div>
-              <div style="height:4px;background:rgba(255,255,255,0.3);border-radius:2px"></div>
-              <div style="height:10px;background:rgba(14,165,233,0.7);border-radius:3px;width:70%"></div>
-            </div>
-            <div style="background:rgba(14,165,233,0.1);border-radius:5px;border:1px solid rgba(14,165,233,0.2)"></div>
-          </div>
-        </div>
-        <div class="section-info">
-          <div class="section-name">Split Hero</div>
-          <div class="section-desc">Two-column layout with text + image</div>
-        </div>
-      </div>
-
-      <div class="sec-cat-label">Lead Generation</div>
-      <div class="section-card" draggable="true" data-section="optin" onclick="addSection('optin')">
-        <div class="section-thumb">
-          <div class="section-thumb-preview" style="background:linear-gradient(135deg,#050d1a,#0a1628);flex-direction:column;gap:4px">
-            <div style="height:6px;background:rgba(255,255,255,0.6);border-radius:2px;width:55%"></div>
-            <div style="height:14px;background:rgba(255,255,255,0.08);border:1px solid rgba(56,189,248,0.2);border-radius:3px;width:80%"></div>
-            <div style="height:14px;background:rgba(14,165,233,0.7);border-radius:3px;width:80%"></div>
-          </div>
-        </div>
-        <div class="section-info">
-          <div class="section-name">Opt-In Form</div>
-          <div class="section-desc">Email capture with name + email fields</div>
-        </div>
-      </div>
-
-      <div class="section-card" draggable="true" data-section="video-cta" onclick="addSection('video-cta')">
-        <div class="section-thumb">
-          <div class="section-thumb-preview" style="background:linear-gradient(135deg,#050d1a,#0a1628);flex-direction:column;gap:3px">
-            <div style="height:30px;background:#000;border-radius:3px;width:80%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(14,165,233,0.15)">
-              <div style="width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:10px solid rgba(255,255,255,0.4)"></div>
-            </div>
-            <div style="height:12px;background:rgba(14,165,233,0.7);border-radius:3px;width:55%"></div>
-          </div>
-        </div>
-        <div class="section-info">
-          <div class="section-name">Video + CTA</div>
-          <div class="section-desc">Video frame with call-to-action below</div>
-        </div>
-      </div>
-
-      <div class="sec-cat-label">Social Proof</div>
-      <div class="section-card" draggable="true" data-section="testimonials" onclick="addSection('testimonials')">
-        <div class="section-thumb">
-          <div class="section-thumb-preview" style="background:#f8fafc;gap:4px">
-            <div style="background:white;border-radius:4px;padding:5px;flex:1;border:1px solid #e2e8f0">
-              <div style="height:4px;background:#e2e8f0;border-radius:2px;margin-bottom:3px"></div>
-              <div style="height:3px;background:#e2e8f0;border-radius:2px;width:70%"></div>
-            </div>
-            <div style="background:white;border-radius:4px;padding:5px;flex:1;border:1px solid #e2e8f0">
-              <div style="height:4px;background:#e2e8f0;border-radius:2px;margin-bottom:3px"></div>
-              <div style="height:3px;background:#e2e8f0;border-radius:2px;width:80%"></div>
+        <div class="sec-card" onclick="addSec('hero-split')">
+          <div class="sec-thumb dark">
+            <div style="display:flex;gap:5px;width:100%;align-items:center">
+              <div style="flex:1;display:flex;flex-direction:column;gap:3px">
+                <div style="height:5px;background:rgba(255,255,255,0.7);border-radius:2px"></div>
+                <div style="height:3px;background:rgba(255,255,255,0.3);border-radius:2px"></div>
+                <div style="height:8px;background:rgba(37,99,235,0.8);border-radius:2px;width:55%"></div>
+              </div>
+              <div style="flex:1;background:rgba(37,99,235,0.15);border:1px solid rgba(37,99,235,0.25);border-radius:3px;height:36px"></div>
             </div>
           </div>
+          <div class="sec-meta"><div class="sec-name">Split Hero</div><div class="sec-desc">Text left, image right</div></div>
         </div>
-        <div class="section-info">
-          <div class="section-name">Testimonials</div>
-          <div class="section-desc">3-column social proof cards</div>
-        </div>
-      </div>
 
-      <div class="section-card" draggable="true" data-section="stats" onclick="addSection('stats')">
-        <div class="section-thumb">
-          <div class="section-thumb-preview" style="background:linear-gradient(135deg,#050d1a,#0a1628);gap:4px">
-            <div style="flex:1;background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.2);border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px">
-              <div style="height:8px;background:rgba(14,165,233,0.6);border-radius:2px;width:60%"></div>
-            </div>
-            <div style="flex:1;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px">
-              <div style="height:8px;background:rgba(16,185,129,0.6);border-radius:2px;width:60%"></div>
-            </div>
-            <div style="flex:1;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px">
-              <div style="height:8px;background:rgba(245,158,11,0.6);border-radius:2px;width:60%"></div>
+        <div class="cat-row">Lead Generation</div>
+
+        <div class="sec-card" onclick="addSec('optin')">
+          <div class="sec-thumb dark">
+            <div style="display:flex;flex-direction:column;gap:3px;align-items:center;width:100%">
+              <div style="height:4px;background:rgba(255,255,255,0.5);border-radius:2px;width:45%"></div>
+              <div style="height:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(37,99,235,0.3);border-radius:3px;width:70%"></div>
+              <div style="height:10px;background:rgba(37,99,235,0.7);border-radius:3px;width:70%"></div>
             </div>
           </div>
+          <div class="sec-meta"><div class="sec-name">Opt-In Form</div><div class="sec-desc">Email capture with name + email</div></div>
         </div>
-        <div class="section-info">
-          <div class="section-name">Stat Cards</div>
-          <div class="section-desc">Commission / earnings / levels highlight</div>
-        </div>
-      </div>
 
-      <div class="sec-cat-label">Content</div>
-      <div class="section-card" draggable="true" data-section="features" onclick="addSection('features')">
-        <div class="section-thumb">
-          <div class="section-thumb-preview" style="background:#f8fafc;gap:4px;flex-wrap:wrap">
-            <div style="background:white;border-radius:4px;padding:5px;flex:1;min-width:30%;border:1px solid #e2e8f0;display:flex;flex-direction:column;align-items:center">
-              <div style="width:16px;height:16px;background:#eff6ff;border-radius:50%;margin-bottom:3px"></div>
-              <div style="height:3px;background:#e2e8f0;border-radius:2px;width:70%"></div>
-            </div>
-            <div style="background:white;border-radius:4px;padding:5px;flex:1;min-width:30%;border:1px solid #e2e8f0;display:flex;flex-direction:column;align-items:center">
-              <div style="width:16px;height:16px;background:#f0fdf4;border-radius:50%;margin-bottom:3px"></div>
-              <div style="height:3px;background:#e2e8f0;border-radius:2px;width:70%"></div>
-            </div>
-            <div style="background:white;border-radius:4px;padding:5px;flex:1;min-width:30%;border:1px solid #e2e8f0;display:flex;flex-direction:column;align-items:center">
-              <div style="width:16px;height:16px;background:#fff7ed;border-radius:50%;margin-bottom:3px"></div>
-              <div style="height:3px;background:#e2e8f0;border-radius:2px;width:70%"></div>
+        <div class="sec-card" onclick="addSec('video-cta')">
+          <div class="sec-thumb dark">
+            <div style="display:flex;flex-direction:column;gap:3px;align-items:center;width:100%">
+              <div style="height:22px;background:#000;border-radius:3px;width:70%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(37,99,235,0.2)">
+                <div style="width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:7px solid rgba(255,255,255,0.4)"></div>
+              </div>
+              <div style="height:9px;background:rgba(37,99,235,0.7);border-radius:3px;width:40%"></div>
             </div>
           </div>
+          <div class="sec-meta"><div class="sec-name">Video + CTA</div><div class="sec-desc">Video frame with call-to-action</div></div>
         </div>
-        <div class="section-info">
-          <div class="section-name">Features Grid</div>
-          <div class="section-desc">3-column icon + text feature highlights</div>
-        </div>
-      </div>
 
-      <div class="section-card" draggable="true" data-section="biolink" onclick="addSection('biolink')">
-        <div class="section-thumb">
-          <div class="section-thumb-preview" style="background:linear-gradient(135deg,#050d1a,#0a1628);flex-direction:column;gap:4px">
-            <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);margin:0 auto 2px"></div>
-            <div style="height:10px;background:rgba(14,165,233,0.2);border-radius:3px;width:80%"></div>
-            <div style="height:10px;background:rgba(16,185,129,0.2);border-radius:3px;width:80%"></div>
-            <div style="height:10px;background:rgba(168,85,247,0.2);border-radius:3px;width:80%"></div>
+        <div class="cat-row">Social Proof</div>
+
+        <div class="sec-card" onclick="addSec('testimonials')">
+          <div class="sec-thumb light">
+            <div style="display:flex;gap:4px;width:100%">
+              <div style="flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:3px;padding:4px">
+                <div style="height:2px;background:#e5e7eb;border-radius:1px;margin-bottom:2px"></div>
+                <div style="height:2px;background:#e5e7eb;border-radius:1px;width:70%"></div>
+              </div>
+              <div style="flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:3px;padding:4px">
+                <div style="height:2px;background:#e5e7eb;border-radius:1px;margin-bottom:2px"></div>
+                <div style="height:2px;background:#e5e7eb;border-radius:1px;width:80%"></div>
+              </div>
+              <div style="flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:3px;padding:4px">
+                <div style="height:2px;background:#e5e7eb;border-radius:1px;margin-bottom:2px"></div>
+                <div style="height:2px;background:#e5e7eb;border-radius:1px;width:60%"></div>
+              </div>
+            </div>
           </div>
+          <div class="sec-meta"><div class="sec-name">Testimonials</div><div class="sec-desc">3-column social proof cards</div></div>
         </div>
-        <div class="section-info">
-          <div class="section-name">Bio Link Page</div>
-          <div class="section-desc">Linktree-style link hub for social bios</div>
-        </div>
-      </div>
 
-      <div class="section-card" draggable="true" data-section="cta-banner" onclick="addSection('cta-banner')">
-        <div class="section-thumb">
-          <div class="section-thumb-preview" style="background:linear-gradient(90deg,#0ea5e9,#38bdf8);flex-direction:column;gap:3px">
-            <div style="height:6px;background:rgba(255,255,255,0.8);border-radius:2px;width:50%"></div>
-            <div style="height:4px;background:rgba(255,255,255,0.5);border-radius:2px;width:70%"></div>
-            <div style="height:12px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:4px;width:35%"></div>
+        <div class="sec-card" onclick="addSec('stats')">
+          <div class="sec-thumb dark">
+            <div style="display:flex;gap:3px;width:100%">
+              <div style="flex:1;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.25);border-radius:3px;display:flex;align-items:center;justify-content:center;height:34px"><div style="height:6px;background:rgba(37,99,235,0.7);border-radius:2px;width:55%"></div></div>
+              <div style="flex:1;background:rgba(5,150,105,0.12);border:1px solid rgba(5,150,105,0.25);border-radius:3px;display:flex;align-items:center;justify-content:center;height:34px"><div style="height:6px;background:rgba(5,150,105,0.7);border-radius:2px;width:55%"></div></div>
+              <div style="flex:1;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);border-radius:3px;display:flex;align-items:center;justify-content:center;height:34px"><div style="height:6px;background:rgba(245,158,11,0.7);border-radius:2px;width:55%"></div></div>
+            </div>
           </div>
+          <div class="sec-meta"><div class="sec-name">Stat Cards</div><div class="sec-desc">Commissions / earnings highlight</div></div>
         </div>
-        <div class="section-info">
-          <div class="section-name">CTA Banner</div>
-          <div class="section-desc">Gradient action banner with button</div>
-        </div>
-      </div>
 
-      <div class="section-card" draggable="true" data-section="thankyou" onclick="addSection('thankyou')">
-        <div class="section-thumb">
-          <div class="section-thumb-preview" style="background:linear-gradient(135deg,#050d1a,#0a1628);flex-direction:column;gap:3px">
-            <div style="font-size:20px">🎉</div>
-            <div style="height:6px;background:rgba(255,255,255,0.6);border-radius:2px;width:40%"></div>
-            <div style="height:4px;background:rgba(255,255,255,0.3);border-radius:2px;width:60%"></div>
+        <div class="cat-row">Content</div>
+
+        <div class="sec-card" onclick="addSec('features')">
+          <div class="sec-thumb white">
+            <div style="display:flex;gap:4px;width:100%">
+              <div style="flex:1;background:#f9fafb;border:1px solid #e5e7eb;border-radius:3px;padding:5px;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="width:10px;height:10px;background:#eff6ff;border-radius:50%"></div><div style="height:2px;background:#e5e7eb;border-radius:1px;width:70%"></div></div>
+              <div style="flex:1;background:#f9fafb;border:1px solid #e5e7eb;border-radius:3px;padding:5px;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="width:10px;height:10px;background:#f0fdf4;border-radius:50%"></div><div style="height:2px;background:#e5e7eb;border-radius:1px;width:70%"></div></div>
+              <div style="flex:1;background:#f9fafb;border:1px solid #e5e7eb;border-radius:3px;padding:5px;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="width:10px;height:10px;background:#fff7ed;border-radius:50%"></div><div style="height:2px;background:#e5e7eb;border-radius:1px;width:70%"></div></div>
+            </div>
           </div>
+          <div class="sec-meta"><div class="sec-name">Features Grid</div><div class="sec-desc">3-column icon + text features</div></div>
         </div>
-        <div class="section-info">
-          <div class="section-name">Thank You Page</div>
-          <div class="section-desc">Post-signup confirmation with next steps</div>
+
+        <div class="sec-card" onclick="addSec('biolink')">
+          <div class="sec-thumb dark">
+            <div style="display:flex;flex-direction:column;gap:3px;align-items:center;width:100%">
+              <div style="width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#60a5fa)"></div>
+              <div style="height:7px;background:rgba(37,99,235,0.2);border-radius:3px;width:70%"></div>
+              <div style="height:7px;background:rgba(5,150,105,0.2);border-radius:3px;width:70%"></div>
+            </div>
+          </div>
+          <div class="sec-meta"><div class="sec-name">Bio Link Hub</div><div class="sec-desc">Linktree-style social page</div></div>
+        </div>
+
+        <div class="sec-card" onclick="addSec('cta-banner')">
+          <div class="sec-thumb" style="background:linear-gradient(90deg,#1d4ed8,#3b82f6)">
+            <div style="display:flex;flex-direction:column;gap:3px;align-items:center;width:100%">
+              <div style="height:5px;background:rgba(255,255,255,0.8);border-radius:2px;width:42%"></div>
+              <div style="height:8px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:3px;width:26%"></div>
+            </div>
+          </div>
+          <div class="sec-meta"><div class="sec-name">CTA Banner</div><div class="sec-desc">Gradient action strip</div></div>
+        </div>
+
+        <div class="sec-card" onclick="addSec('thankyou')">
+          <div class="sec-thumb dark">
+            <div style="display:flex;flex-direction:column;gap:3px;align-items:center">
+              <span style="font-size:14px">🎉</span>
+              <div style="height:5px;background:rgba(255,255,255,0.6);border-radius:2px;width:38%"></div>
+            </div>
+          </div>
+          <div class="sec-meta"><div class="sec-name">Thank You</div><div class="sec-desc">Post-signup confirmation page</div></div>
+        </div>
+
+      </div>
+    </div><!-- /pSections -->
+
+    <!-- ELEMENTS panel -->
+    <div id="pElements" style="display:none;flex-direction:column;height:100%">
+      <div class="panel-head">
+        <span class="panel-head-title">Elements</span>
+        <div class="panel-close" onclick="closePanel()">✕</div>
+      </div>
+      <div class="panel-body" style="padding-top:4px">
+        <div class="cat-row">Basic</div>
+        <div class="elem-grid">
+          <div class="elem-card" onclick="addElem('text')"><span class="elem-icon" style="font-weight:900;font-size:18px;font-family:serif">T</span><span class="elem-label">Heading</span></div>
+          <div class="elem-card" onclick="addElem('paragraph')"><span class="elem-icon">¶</span><span class="elem-label">Text</span></div>
+          <div class="elem-card" onclick="addElem('button')"><span class="elem-icon">⬤</span><span class="elem-label">Button</span></div>
+          <div class="elem-card" onclick="addElem('image')"><span class="elem-icon">🖼</span><span class="elem-label">Image</span></div>
+          <div class="elem-card" onclick="addElem('video')"><span class="elem-icon">▶</span><span class="elem-label">Video</span></div>
+          <div class="elem-card" onclick="addElem('form')"><span class="elem-icon">📋</span><span class="elem-label">Form</span></div>
+          <div class="elem-card" onclick="addElem('columns-2')"><span class="elem-icon" style="font-size:13px;letter-spacing:-1px">⬜⬜</span><span class="elem-label">2 Cols</span></div>
+          <div class="elem-card" onclick="addElem('columns-3')"><span class="elem-icon" style="font-size:10px;letter-spacing:-1px">⬜⬜⬜</span><span class="elem-label">3 Cols</span></div>
+          <div class="elem-card" onclick="addElem('divider')"><span class="elem-icon">─</span><span class="elem-label">Divider</span></div>
+          <div class="elem-card" onclick="addElem('spacer')"><span class="elem-icon">↕</span><span class="elem-label">Spacer</span></div>
+        </div>
+        <div class="cat-row">SuperAdPro</div>
+        <div class="elem-grid">
+          <div class="elem-card" onclick="addElem('cta-btn')"><span class="elem-icon">🔵</span><span class="elem-label">CTA Btn</span></div>
+          <div class="elem-card" onclick="addElem('testimonial')"><span class="elem-icon">💬</span><span class="elem-label">Review</span></div>
+          <div class="elem-card" onclick="addElem('stat-card')"><span class="elem-icon">📊</span><span class="elem-label">Stat</span></div>
+          <div class="elem-card" onclick="addElem('biolink-btn')"><span class="elem-icon">🔗</span><span class="elem-label">Link Btn</span></div>
+          <div class="elem-card" onclick="addElem('countdown')"><span class="elem-icon">⏱</span><span class="elem-label">Timer</span></div>
+          <div class="elem-card" onclick="addElem('badge')"><span class="elem-icon">🏷</span><span class="elem-label">Badge</span></div>
         </div>
       </div>
+    </div><!-- /pElements -->
 
-    </div><!-- /contentSections -->
-
-    <!-- ELEMENTS TAB -->
-    <div class="panel-content" id="contentElements" style="display:none">
-      <div class="sec-cat-label">Basic</div>
-      <div class="elements-grid" id="elementsGrid">
-        <div class="elem-block" draggable="true" data-elem="text" onclick="addElement('text')">
-          <span class="elem-icon">T</span>
-          <span class="elem-name">Heading</span>
-        </div>
-        <div class="elem-block" draggable="true" data-elem="paragraph" onclick="addElement('paragraph')">
-          <span class="elem-icon">¶</span>
-          <span class="elem-name">Paragraph</span>
-        </div>
-        <div class="elem-block" draggable="true" data-elem="button" onclick="addElement('button')">
-          <span class="elem-icon">⬛</span>
-          <span class="elem-name">Button</span>
-        </div>
-        <div class="elem-block" draggable="true" data-elem="image" onclick="addElement('image')">
-          <span class="elem-icon">🖼</span>
-          <span class="elem-name">Image</span>
-        </div>
-        <div class="elem-block" draggable="true" data-elem="video" onclick="addElement('video')">
-          <span class="elem-icon">▶</span>
-          <span class="elem-name">Video</span>
-        </div>
-        <div class="elem-block" draggable="true" data-elem="divider" onclick="addElement('divider')">
-          <span class="elem-icon">─</span>
-          <span class="elem-name">Divider</span>
-        </div>
-        <div class="elem-block" draggable="true" data-elem="spacer" onclick="addElement('spacer')">
-          <span class="elem-icon">↕</span>
-          <span class="elem-name">Spacer</span>
-        </div>
-        <div class="elem-block" draggable="true" data-elem="columns-2" onclick="addElement('columns-2')">
-          <span class="elem-icon">⬜⬜</span>
-          <span class="elem-name">2 Columns</span>
-        </div>
-        <div class="elem-block" draggable="true" data-elem="columns-3" onclick="addElement('columns-3')">
-          <span class="elem-icon">⬜⬜⬜</span>
-          <span class="elem-name">3 Columns</span>
-        </div>
-        <div class="elem-block" draggable="true" data-elem="form" onclick="addElement('form')">
-          <span class="elem-icon">📋</span>
-          <span class="elem-name">Form</span>
-        </div>
+    <!-- LAYERS panel -->
+    <div id="pLayers" style="display:none;flex-direction:column;height:100%">
+      <div class="panel-head">
+        <span class="panel-head-title">Layers</span>
+        <div class="panel-close" onclick="closePanel()">✕</div>
       </div>
-      <div class="sec-cat-label" style="margin-top:8px">SuperAdPro</div>
-      <div class="elements-grid">
-        <div class="elem-block" draggable="true" data-elem="cta-btn" onclick="addElement('cta-btn')">
-          <span class="elem-icon">🔵</span>
-          <span class="elem-name">CTA Button</span>
-        </div>
-        <div class="elem-block" draggable="true" data-elem="testimonial" onclick="addElement('testimonial')">
-          <span class="elem-icon">💬</span>
-          <span class="elem-name">Testimonial</span>
-        </div>
-        <div class="elem-block" draggable="true" data-elem="stat-card" onclick="addElement('stat-card')">
-          <span class="elem-icon">📊</span>
-          <span class="elem-name">Stat Card</span>
-        </div>
-        <div class="elem-block" draggable="true" data-elem="biolink-btn" onclick="addElement('biolink-btn')">
-          <span class="elem-icon">🔗</span>
-          <span class="elem-name">Link Button</span>
-        </div>
-        <div class="elem-block" draggable="true" data-elem="countdown" onclick="addElement('countdown')">
-          <span class="elem-icon">⏱</span>
-          <span class="elem-name">Countdown</span>
-        </div>
-        <div class="elem-block" draggable="true" data-elem="badge" onclick="addElement('badge')">
-          <span class="elem-icon">🏷</span>
-          <span class="elem-name">Badge</span>
-        </div>
+      <div class="panel-body">
+        <div id="gjs-ly"></div>
       </div>
-    </div><!-- /contentElements -->
-
-    <!-- LAYERS TAB -->
-    <div class="panel-content" id="contentLayers" style="display:none">
-      <div id="layersMount"></div>
     </div>
 
   </div><!-- /left-panel -->
 
-  <!-- ══ CANVAS ══ -->
+  <!-- CANVAS -->
   <div class="canvas-area">
-    <div class="device-bar">
-      <span class="device-bar-label">Device</span>
-      <button class="dev-btn active" id="devDesktop" onclick="setDevice('Desktop')">🖥 Desktop</button>
-      <button class="dev-btn" id="devTablet" onclick="setDevice('Tablet')">⬜ Tablet</button>
-      <button class="dev-btn" id="devMobile" onclick="setDevice('Mobile')">📱 Mobile</button>
-    </div>
     <div id="gjs"></div>
     <div class="canvas-empty" id="canvasEmpty">
-      <div class="empty-inner">
+      <div class="empty-card">
         <div class="empty-icon">✦</div>
-        <div class="empty-title">Start building your page</div>
-        <div class="empty-sub">Pick a section from the left panel,<br>or start with a ready-made template</div>
-        <button class="empty-btn" onclick="showWelcomeModal()">✦ Choose a Template</button>
+        <div class="empty-h">Your page is empty</div>
+        <div class="empty-p">Add sections from the left panel,<br>or start with a ready-made template</div>
+        <div class="empty-actions">
+          <button class="ebtn-primary" onclick="showModal()">✦ Choose a Template</button>
+          <button class="ebtn-secondary" onclick="addSec('hero-dark')">Add Hero Section</button>
+        </div>
       </div>
     </div>
-    <div class="drag-hint" id="dragHint">Drop here to add to your page</div>
   </div>
 
-  <!-- ══ RIGHT PANEL ══ -->
+  <!-- RIGHT PANEL -->
   <div class="right-panel">
-    <div class="right-header">
-      <div>
-        <div class="right-title" id="rightTitle">Properties</div>
-        <div class="right-subtitle" id="rightSubtitle">Select an element to edit</div>
-      </div>
+    <div class="right-head">
+      <div class="right-context" id="rContext">Properties</div>
+      <div class="right-element-name" id="rName">Select an element</div>
     </div>
-
-    <!-- Empty state -->
-    <div class="right-empty" id="rightEmpty">
-      <div class="right-empty-icon">↖</div>
-      <div class="right-empty-text">Click any element on the canvas to see its properties here</div>
+    <div class="right-empty" id="rEmpty">
+      <div class="right-empty-ico">🖱</div>
+      <div class="right-empty-txt">Click any element on the canvas to see its style properties</div>
     </div>
-
-    <!-- GrapesJS style manager will be mounted here -->
-    <div class="right-props active" id="rightProps">
-      <div id="gjs-styles-container"></div>
+    <div class="right-styles" id="rStyles">
+      <div id="gjs-sm"></div>
     </div>
   </div>
 
-</div><!-- /editor-shell -->
+</div><!-- /app-body -->
 
-<!-- ══ WELCOME MODAL ══ -->
-<div class="modal-overlay" id="welcomeModal">
+<!-- WELCOME MODAL -->
+<div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
-    <div class="modal-head">
-      <div class="modal-title">Start with a template ✦</div>
-      <div class="modal-sub">Choose a ready-made design and make it yours — or start from a blank canvas.</div>
+    <div class="modal-top">
+      <div class="modal-kicker">Start building fast</div>
+      <div class="modal-title">Choose a template</div>
+      <div class="modal-sub">Pick a professionally designed starting point — or start blank.</div>
       <div class="modal-tabs">
-        <div class="modal-tab active" onclick="switchModalTab('all',this)">All</div>
-        <div class="modal-tab" onclick="switchModalTab('lead',this)">Lead Gen</div>
-        <div class="modal-tab" onclick="switchModalTab('sales',this)">Sales</div>
-        <div class="modal-tab" onclick="switchModalTab('social',this)">Social</div>
+        <div class="mtab active" onclick="renderTpls('all',this)">All</div>
+        <div class="mtab" onclick="renderTpls('sales',this)">Sales</div>
+        <div class="mtab" onclick="renderTpls('lead',this)">Lead Gen</div>
+        <div class="mtab" onclick="renderTpls('social',this)">Social</div>
       </div>
     </div>
-    <div class="modal-body">
-      <div class="tpl-grid" id="tplGrid"></div>
-    </div>
-    <div class="modal-footer">
-      <span class="modal-skip" onclick="closeWelcomeModal()">Start with blank canvas →</span>
-      <button class="modal-cta" onclick="closeWelcomeModal()">Close</button>
+    <div class="modal-scroll"><div class="tpl-grid" id="tplGrid"></div></div>
+    <div class="modal-foot">
+      <span class="modal-skip" onclick="closeModal()">Skip — start with blank canvas</span>
     </div>
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- GrapesJS -->
 <script src="https://unpkg.com/grapesjs@0.21.13"></script>
 <script src="https://unpkg.com/grapesjs-preset-webpage@1.0.3"></script>
 <script src="https://unpkg.com/grapesjs-blocks-basic@1.0.2"></script>
 <script src="https://unpkg.com/grapesjs-plugin-forms@2.0.6"></script>
-
 <script>
 'use strict';
 
-// ══════════════════════════════════════════
-// SECTION LIBRARY
-// ══════════════════════════════════════════
-const SECTIONS = {
-  'hero-dark': `<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#050d1a 0%,#0a1628 100%);padding:80px 24px;text-align:center">
-  <div style="max-width:640px;width:100%">
-    <div style="display:inline-block;padding:5px 14px;border-radius:20px;background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.2);font-size:11px;font-weight:700;color:#0ea5e9;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px">🚀 Passive Income Platform</div>
-    <h1 style="font-family:'Sora',sans-serif;font-size:48px;font-weight:900;color:#fff;line-height:1.08;margin-bottom:18px;letter-spacing:-1.5px">Build Real Passive Income<br><span style="background:linear-gradient(135deg,#0ea5e9,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Starting Today</span></h1>
-    <p style="font-size:18px;color:#94a3b8;line-height:1.7;margin-bottom:36px;max-width:480px;margin-left:auto;margin-right:auto">Join thousands of members earning commissions on autopilot with our proven grid system. No experience needed.</p>
-    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <a href="#" style="display:inline-block;padding:16px 40px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:16px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none;box-shadow:0 8px 32px rgba(14,165,233,0.35)">Get Started Free →</a>
-      <a href="#" style="display:inline-block;padding:16px 32px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:16px;font-weight:700;text-decoration:none">Watch Demo</a>
-    </div>
-    <p style="font-size:11px;color:#334155;margin-top:16px">Free to join · No credit card · Cancel anytime</p>
-  </div>
-</section>`,
-
-  'hero-light': `<section style="min-height:80vh;display:flex;align-items:center;justify-content:center;background:#ffffff;padding:80px 24px;text-align:center">
-  <div style="max-width:640px;width:100%">
-    <div style="display:inline-block;padding:5px 14px;border-radius:20px;background:#eff6ff;border:1px solid #bfdbfe;font-size:11px;font-weight:700;color:#2563eb;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px">New Opportunity</div>
-    <h1 style="font-family:'Sora',sans-serif;font-size:44px;font-weight:900;color:#0f172a;line-height:1.1;margin-bottom:16px;letter-spacing:-1px">Your Headline That <span style="color:#0ea5e9">Converts</span></h1>
-    <p style="font-size:17px;color:#64748b;line-height:1.7;margin-bottom:32px">Your supporting message goes here. Keep it clear, benefit-driven, and focused on what the reader gets.</p>
-    <a href="#" style="display:inline-block;padding:16px 44px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;font-size:16px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none;box-shadow:0 6px 20px rgba(14,165,233,0.25)">Start Now →</a>
-    <p style="font-size:11px;color:#94a3b8;margin-top:14px">Join 10,000+ members already earning</p>
-  </div>
-</section>`,
-
-  'hero-split': `<section style="min-height:100vh;display:flex;align-items:center;background:linear-gradient(135deg,#050d1a,#0a1628);padding:60px 40px">
-  <div style="max-width:1100px;margin:0 auto;width:100%;display:flex;gap:60px;align-items:center;flex-wrap:wrap">
-    <div style="flex:1;min-width:280px">
-      <div style="display:inline-block;padding:5px 14px;border-radius:20px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);font-size:11px;font-weight:700;color:#10b981;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px">Passive Income</div>
-      <h1 style="font-family:'Sora',sans-serif;font-size:40px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:16px;letter-spacing:-1px">The Smarter Way to Build Online Income</h1>
-      <p style="font-size:16px;color:#94a3b8;line-height:1.7;margin-bottom:28px">Our automated grid system works 24/7 so you don't have to. Set it up once and earn commissions on every referral your network makes.</p>
-      <a href="#" style="display:inline-block;padding:15px 36px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:15px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none;box-shadow:0 6px 24px rgba(14,165,233,0.3)">Join Free Today →</a>
-    </div>
-    <div style="flex:1;min-width:260px;background:rgba(14,165,233,0.06);border:1px solid rgba(14,165,233,0.15);border-radius:20px;padding:32px;min-height:280px;display:flex;align-items:center;justify-content:center;color:#475569;font-size:14px">📸 Your image or video goes here</div>
-  </div>
-</section>`,
-
-  'optin': `<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#050d1a,#0a1628);padding:60px 20px">
-  <div style="max-width:480px;width:100%;text-align:center">
-    <h1 style="font-family:'Sora',sans-serif;font-size:32px;font-weight:800;color:#fff;margin-bottom:10px">Get Your Free Blueprint</h1>
-    <p style="font-size:15px;color:#94a3b8;margin-bottom:28px;line-height:1.6">Enter your details below and we'll send you the complete step-by-step guide to building passive income online.</p>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <input type="text" placeholder="Your first name" style="padding:15px 18px;border-radius:10px;border:1px solid rgba(14,165,233,0.2);background:rgba(255,255,255,0.06);color:#fff;font-size:15px;font-family:inherit;outline:none">
-      <input type="email" placeholder="Your best email address" style="padding:15px 18px;border-radius:10px;border:1px solid rgba(14,165,233,0.2);background:rgba(255,255,255,0.06);color:#fff;font-size:15px;font-family:inherit;outline:none">
-      <button type="button" style="padding:17px;border-radius:10px;border:none;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:16px;font-weight:800;font-family:'Sora',sans-serif;cursor:pointer;box-shadow:0 8px 24px rgba(14,165,233,0.3)">Send Me the Blueprint →</button>
-    </div>
-    <p style="font-size:11px;color:#475569;margin-top:14px">🔒 We respect your privacy. Unsubscribe at any time.</p>
-  </div>
-</section>`,
-
-  'video-cta': `<section style="min-height:100vh;background:linear-gradient(135deg,#050d1a,#0a1628);padding:60px 24px">
-  <div style="max-width:700px;margin:0 auto;text-align:center">
-    <h1 style="font-family:'Sora',sans-serif;font-size:30px;font-weight:900;color:#fff;margin-bottom:20px">Watch This 3-Minute Video</h1>
-    <div style="background:#000;border-radius:16px;aspect-ratio:16/9;margin-bottom:28px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(14,165,233,0.15);overflow:hidden">
-      <div style="font-size:56px;opacity:0.4">▶</div>
-    </div>
-    <p style="font-size:16px;color:#94a3b8;line-height:1.7;margin-bottom:28px">See exactly how our members are building real passive income using the SuperAdPro automated grid system.</p>
-    <a href="#" style="display:inline-block;padding:18px 52px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:18px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none;box-shadow:0 8px 32px rgba(14,165,233,0.35)">Join Free Now →</a>
-  </div>
-</section>`,
-
-  'testimonials': `<section style="padding:80px 24px;background:#f8fafc">
-  <div style="max-width:1000px;margin:0 auto;text-align:center">
-    <div style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#0ea5e9;margin-bottom:10px">Real Members · Real Results</div>
-    <h2 style="font-family:'Sora',sans-serif;font-size:32px;font-weight:900;color:#0f172a;margin-bottom:48px">What Our Community Says</h2>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;flex-wrap:wrap">
-      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px 24px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,0.04)">
-        <div style="font-size:24px;color:#f59e0b;margin-bottom:10px">★★★★★</div>
-        <p style="font-size:14px;color:#475569;font-style:italic;line-height:1.7;margin-bottom:16px">"I was skeptical at first but within 30 days I had my first commission. The system really works!"</p>
-        <div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff">JD</div><div><div style="font-size:13px;font-weight:700;color:#0f172a">James D.</div><div style="font-size:11px;color:#94a3b8">Member since 2024</div></div></div>
-      </div>
-      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px 24px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,0.04)">
-        <div style="font-size:24px;color:#f59e0b;margin-bottom:10px">★★★★★</div>
-        <p style="font-size:14px;color:#475569;font-style:italic;line-height:1.7;margin-bottom:16px">"The passive income from my grid has covered my subscription costs and more. Highly recommend!"</p>
-        <div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff">SM</div><div><div style="font-size:13px;font-weight:700;color:#0f172a">Sarah M.</div><div style="font-size:11px;color:#94a3b8">Tier 5 Member</div></div></div>
-      </div>
-      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px 24px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,0.04)">
-        <div style="font-size:24px;color:#f59e0b;margin-bottom:10px">★★★★★</div>
-        <p style="font-size:14px;color:#475569;font-style:italic;line-height:1.7;margin-bottom:16px">"Best decision I made this year. The automated system does the heavy lifting for you."</p>
-        <div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#a78bfa,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff">RK</div><div><div style="font-size:13px;font-weight:700;color:#0f172a">Rachel K.</div><div style="font-size:11px;color:#94a3b8">Grid Owner</div></div></div>
-      </div>
-    </div>
-  </div>
-</section>`,
-
-  'stats': `<section style="padding:60px 24px;background:linear-gradient(135deg,#050d1a,#0a1628)">
-  <div style="max-width:900px;margin:0 auto;text-align:center">
-    <h2 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:#fff;margin-bottom:8px">The Numbers Speak for Themselves</h2>
-    <p style="font-size:14px;color:#64748b;margin-bottom:40px">Real earnings data from our active member base</p>
-    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
-      <div style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.15);border-radius:16px;padding:28px 36px;flex:1;min-width:160px"><div style="font-family:'Space Mono',monospace;font-size:36px;font-weight:700;color:#0ea5e9;margin-bottom:6px">40%</div><div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Direct Commission</div></div>
-      <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);border-radius:16px;padding:28px 36px;flex:1;min-width:160px"><div style="font-family:'Space Mono',monospace;font-size:36px;font-weight:700;color:#10b981;margin-bottom:6px">$1,033</div><div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Max Per Grid</div></div>
-      <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.15);border-radius:16px;padding:28px 36px;flex:1;min-width:160px"><div style="font-family:'Space Mono',monospace;font-size:36px;font-weight:700;color:#f59e0b;margin-bottom:6px">8</div><div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Income Levels</div></div>
-      <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.15);border-radius:16px;padding:28px 36px;flex:1;min-width:160px"><div style="font-family:'Space Mono',monospace;font-size:36px;font-weight:700;color:#a78bfa;margin-bottom:6px">24/7</div><div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Automated</div></div>
-    </div>
-  </div>
-</section>`,
-
-  'features': `<section style="padding:80px 24px;background:#ffffff">
-  <div style="max-width:1000px;margin:0 auto;text-align:center">
-    <h2 style="font-family:'Sora',sans-serif;font-size:32px;font-weight:900;color:#0f172a;margin-bottom:10px">Everything You Need to Succeed</h2>
-    <p style="font-size:15px;color:#64748b;margin-bottom:52px;max-width:500px;margin-left:auto;margin-right:auto">Our platform gives you all the tools to build, grow, and automate your income online.</p>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
-      <div style="padding:28px 20px;border:1px solid #f1f5f9;border-radius:16px;text-align:center"><div style="width:52px;height:52px;border-radius:14px;background:#eff6ff;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px">💰</div><h3 style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#0f172a;margin-bottom:8px">Passive Commissions</h3><p style="font-size:13px;color:#64748b;line-height:1.6">Earn 40% on direct referrals plus 6.875% across 8 uni-level tiers automatically.</p></div>
-      <div style="padding:28px 20px;border:1px solid #f1f5f9;border-radius:16px;text-align:center"><div style="width:52px;height:52px;border-radius:14px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px">⚡</div><h3 style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#0f172a;margin-bottom:8px">Instant Payouts</h3><p style="font-size:13px;color:#64748b;line-height:1.6">Withdrawals go straight to your crypto wallet. No waiting, no delays, no middlemen.</p></div>
-      <div style="padding:28px 20px;border:1px solid #f1f5f9;border-radius:16px;text-align:center"><div style="width:52px;height:52px;border-radius:14px;background:#fff7ed;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px">🌍</div><h3 style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#0f172a;margin-bottom:8px">Global Platform</h3><p style="font-size:13px;color:#64748b;line-height:1.6">Members in 30+ countries. No geographic restrictions. Earn from anywhere in the world.</p></div>
-    </div>
-  </div>
-</section>`,
-
-  'biolink': `<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#050d1a,#0a1628);padding:60px 20px">
-  <div style="max-width:400px;width:100%;text-align:center">
-    <div style="width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:900;color:#fff">▶</div>
-    <h2 style="font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:4px">Your Name Here</h2>
-    <p style="font-size:13px;color:#64748b;margin-bottom:28px">Digital entrepreneur · SuperAdPro member</p>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <a href="#" style="display:block;padding:15px 20px;border-radius:12px;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);color:#fff;font-size:14px;font-weight:700;text-decoration:none">🚀 Join My Team on SuperAdPro</a>
-      <a href="#" style="display:block;padding:15px 20px;border-radius:12px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:#fff;font-size:14px;font-weight:700;text-decoration:none">💰 See How I Earn Online</a>
-      <a href="#" style="display:block;padding:15px 20px;border-radius:12px;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);color:#fff;font-size:14px;font-weight:700;text-decoration:none">📱 Follow Me on Instagram</a>
-      <a href="#" style="display:block;padding:15px 20px;border-radius:12px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);color:#fff;font-size:14px;font-weight:700;text-decoration:none">🎬 My YouTube Channel</a>
-    </div>
-    <p style="font-size:10px;color:#1e293b;margin-top:20px">Powered by SuperAdPro</p>
-  </div>
-</section>`,
-
-  'cta-banner': `<section style="padding:60px 24px;background:linear-gradient(135deg,#0ea5e9,#0284c7)">
-  <div style="max-width:700px;margin:0 auto;text-align:center">
-    <h2 style="font-family:'Sora',sans-serif;font-size:32px;font-weight:900;color:#fff;margin-bottom:10px">Ready to Start Earning?</h2>
-    <p style="font-size:16px;color:rgba(255,255,255,0.8);margin-bottom:28px;line-height:1.6">Join thousands of members already building passive income with SuperAdPro. Free to register, no obligation.</p>
-    <a href="#" style="display:inline-block;padding:16px 44px;border-radius:12px;background:#fff;color:#0ea5e9;font-size:16px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none;box-shadow:0 6px 20px rgba(0,0,0,0.15)">Join Free Today →</a>
-  </div>
-</section>`,
-
-  'thankyou': `<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#050d1a,#0a1628);padding:60px 20px">
-  <div style="max-width:520px;width:100%;text-align:center">
-    <div style="font-size:68px;margin-bottom:18px">🎉</div>
-    <div style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#10b981;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);padding:4px 14px;border-radius:20px;margin-bottom:14px">✓ You're In!</div>
-    <h1 style="font-family:'Sora',sans-serif;font-size:36px;font-weight:900;color:#fff;margin-bottom:12px">Welcome to the Team!</h1>
-    <p style="font-size:15px;color:#94a3b8;line-height:1.7;margin-bottom:28px">Check your email for your login details. Your journey to passive income starts right now.</p>
-    <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:14px;padding:24px;margin-bottom:28px;text-align:left">
-      <div style="font-size:12px;font-weight:800;color:#10b981;margin-bottom:12px;letter-spacing:0.5px">YOUR NEXT STEPS:</div>
-      <div style="font-size:14px;color:#94a3b8;line-height:2">1. ✅ Check your inbox for the welcome email<br>2. 🔑 Log in to your dashboard<br>3. 💎 Activate your membership tier<br>4. 👁 Start watching &amp; earning!</div>
-    </div>
-    <a href="/dashboard" style="display:inline-block;padding:16px 40px;border-radius:12px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:16px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none;box-shadow:0 8px 24px rgba(16,185,129,0.3)">Go To Dashboard →</a>
-  </div>
-</section>`
+/* ── Section HTML ── */
+const S={
+'hero-dark':`<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#050d1a,#0c1628);padding:80px 24px;text-align:center"><div style="max-width:640px;width:100%"><div style="display:inline-block;padding:5px 14px;border-radius:20px;background:rgba(37,99,235,0.1);border:1px solid rgba(37,99,235,0.2);font-size:11px;font-weight:700;color:#60a5fa;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px">🚀 Passive Income Platform</div><h1 style="font-family:'Sora',sans-serif;font-size:48px;font-weight:900;color:#fff;line-height:1.08;margin-bottom:18px;letter-spacing:-1.5px">Build Real Passive Income<br><span style="color:#60a5fa">Starting Today</span></h1><p style="font-size:18px;color:#94a3b8;line-height:1.7;margin-bottom:36px;max-width:480px;margin-left:auto;margin-right:auto">Join thousands of members earning commissions on autopilot. No experience needed.</p><div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><a href="#" style="display:inline-block;padding:16px 40px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#60a5fa);color:#fff;font-size:16px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none;box-shadow:0 8px 28px rgba(37,99,235,0.35)">Get Started Free →</a><a href="#" style="display:inline-block;padding:16px 32px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:16px;font-weight:700;text-decoration:none">Watch Demo</a></div></div></section>`,
+'hero-light':`<section style="min-height:80vh;display:flex;align-items:center;justify-content:center;background:#fff;padding:80px 24px;text-align:center"><div style="max-width:640px;width:100%"><div style="display:inline-block;padding:5px 14px;border-radius:20px;background:#eff6ff;border:1px solid #bfdbfe;font-size:11px;font-weight:700;color:#2563eb;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px">New Opportunity</div><h1 style="font-family:'Sora',sans-serif;font-size:44px;font-weight:900;color:#0f172a;line-height:1.1;margin-bottom:16px;letter-spacing:-1px">Your Headline That <span style="color:#2563eb">Converts</span></h1><p style="font-size:17px;color:#64748b;line-height:1.7;margin-bottom:32px">Your supporting message goes here. Clear, benefit-driven, focused on the reader.</p><a href="#" style="display:inline-block;padding:16px 44px;border-radius:12px;background:#2563eb;color:#fff;font-size:16px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none;box-shadow:0 6px 20px rgba(37,99,235,0.25)">Start Now →</a></div></section>`,
+'hero-split':`<section style="min-height:100vh;display:flex;align-items:center;background:linear-gradient(135deg,#050d1a,#0c1628);padding:60px 40px"><div style="max-width:1100px;margin:0 auto;width:100%;display:flex;gap:60px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:280px"><h1 style="font-family:'Sora',sans-serif;font-size:40px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:16px;letter-spacing:-1px">The Smarter Way to Build Online Income</h1><p style="font-size:16px;color:#94a3b8;line-height:1.7;margin-bottom:28px">Our automated grid system works 24/7 so you don't have to.</p><a href="#" style="display:inline-block;padding:15px 36px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#60a5fa);color:#fff;font-size:15px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none">Join Free Today →</a></div><div style="flex:1;min-width:260px;background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.15);border-radius:20px;padding:32px;min-height:280px;display:flex;align-items:center;justify-content:center;color:#475569;font-size:14px">📸 Your image or video</div></div></section>`,
+'optin':`<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#050d1a,#0c1628);padding:60px 20px"><div style="max-width:480px;width:100%;text-align:center"><h1 style="font-family:'Sora',sans-serif;font-size:32px;font-weight:800;color:#fff;margin-bottom:10px">Get Your Free Blueprint</h1><p style="font-size:15px;color:#94a3b8;margin-bottom:28px;line-height:1.6">Enter your details and we'll send the complete step-by-step guide.</p><div style="display:flex;flex-direction:column;gap:10px"><input type="text" placeholder="Your first name" style="padding:15px 18px;border-radius:10px;border:1px solid rgba(37,99,235,0.25);background:rgba(255,255,255,0.06);color:#fff;font-size:15px;font-family:inherit;outline:none"><input type="email" placeholder="Your best email address" style="padding:15px 18px;border-radius:10px;border:1px solid rgba(37,99,235,0.25);background:rgba(255,255,255,0.06);color:#fff;font-size:15px;font-family:inherit;outline:none"><button type="button" style="padding:17px;border-radius:10px;border:none;background:linear-gradient(135deg,#2563eb,#60a5fa);color:#fff;font-size:16px;font-weight:800;font-family:'Sora',sans-serif;cursor:pointer">Send Me the Blueprint →</button></div><p style="font-size:11px;color:#475569;margin-top:14px">🔒 We respect your privacy.</p></div></section>`,
+'video-cta':`<section style="min-height:100vh;background:linear-gradient(135deg,#050d1a,#0c1628);padding:60px 24px"><div style="max-width:700px;margin:0 auto;text-align:center"><h1 style="font-family:'Sora',sans-serif;font-size:30px;font-weight:900;color:#fff;margin-bottom:20px">Watch This 3-Minute Video</h1><div style="background:#000;border-radius:16px;aspect-ratio:16/9;margin-bottom:28px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(37,99,235,0.15)"><div style="font-size:56px;opacity:0.35">▶</div></div><a href="#" style="display:inline-block;padding:18px 52px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#60a5fa);color:#fff;font-size:18px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none;box-shadow:0 8px 32px rgba(37,99,235,0.35)">Join Free Now →</a></div></section>`,
+'testimonials':`<section style="padding:80px 24px;background:#f8fafc"><div style="max-width:1000px;margin:0 auto;text-align:center"><h2 style="font-family:'Sora',sans-serif;font-size:32px;font-weight:900;color:#0f172a;margin-bottom:48px">What Our Community Says</h2><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px"><div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px 24px;text-align:left"><div style="font-size:22px;color:#f59e0b;margin-bottom:10px">★★★★★</div><p style="font-size:14px;color:#475569;font-style:italic;line-height:1.7;margin-bottom:16px">"I had my first commission within 30 days. The system really works!"</p><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#60a5fa);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff">JD</div><div><div style="font-size:13px;font-weight:700;color:#0f172a">James D.</div><div style="font-size:11px;color:#94a3b8">Member since 2024</div></div></div></div><div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px 24px;text-align:left"><div style="font-size:22px;color:#f59e0b;margin-bottom:10px">★★★★★</div><p style="font-size:14px;color:#475569;font-style:italic;line-height:1.7;margin-bottom:16px">"My passive income now covers my subscription and more!"</p><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#059669,#34d399);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff">SM</div><div><div style="font-size:13px;font-weight:700;color:#0f172a">Sarah M.</div><div style="font-size:11px;color:#94a3b8">Tier 5 Member</div></div></div></div><div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px 24px;text-align:left"><div style="font-size:22px;color:#f59e0b;margin-bottom:10px">★★★★★</div><p style="font-size:14px;color:#475569;font-style:italic;line-height:1.7;margin-bottom:16px">"Best decision this year. The automated system does everything."</p><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#a78bfa,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff">RK</div><div><div style="font-size:13px;font-weight:700;color:#0f172a">Rachel K.</div><div style="font-size:11px;color:#94a3b8">Grid Owner</div></div></div></div></div></div></section>`,
+'stats':`<section style="padding:60px 24px;background:linear-gradient(135deg,#050d1a,#0c1628)"><div style="max-width:900px;margin:0 auto;text-align:center"><h2 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:#fff;margin-bottom:40px">The Numbers Speak for Themselves</h2><div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap"><div style="background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:16px;padding:28px 32px;flex:1;min-width:140px"><div style="font-family:'Space Mono',monospace;font-size:34px;font-weight:700;color:#60a5fa;margin-bottom:6px">40%</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Direct Commission</div></div><div style="background:rgba(5,150,105,0.08);border:1px solid rgba(5,150,105,0.2);border-radius:16px;padding:28px 32px;flex:1;min-width:140px"><div style="font-family:'Space Mono',monospace;font-size:34px;font-weight:700;color:#34d399;margin-bottom:6px">$1,033</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Max Per Grid</div></div><div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:16px;padding:28px 32px;flex:1;min-width:140px"><div style="font-family:'Space Mono',monospace;font-size:34px;font-weight:700;color:#fcd34d;margin-bottom:6px">8</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Income Levels</div></div><div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:16px;padding:28px 32px;flex:1;min-width:140px"><div style="font-family:'Space Mono',monospace;font-size:34px;font-weight:700;color:#c4b5fd;margin-bottom:6px">24/7</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Automated</div></div></div></div></section>`,
+'features':`<section style="padding:80px 24px;background:#fff"><div style="max-width:1000px;margin:0 auto;text-align:center"><h2 style="font-family:'Sora',sans-serif;font-size:32px;font-weight:900;color:#0f172a;margin-bottom:10px">Everything You Need to Succeed</h2><p style="font-size:15px;color:#64748b;margin-bottom:52px;max-width:500px;margin-left:auto;margin-right:auto">All the tools to build, grow, and automate your income online.</p><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px"><div style="padding:28px 20px;border:1px solid #f1f5f9;border-radius:16px;text-align:center"><div style="width:52px;height:52px;border-radius:14px;background:#eff6ff;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px">💰</div><h3 style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#0f172a;margin-bottom:8px">Passive Commissions</h3><p style="font-size:13px;color:#64748b;line-height:1.6">40% direct + 6.875% across 8 levels automatically.</p></div><div style="padding:28px 20px;border:1px solid #f1f5f9;border-radius:16px;text-align:center"><div style="width:52px;height:52px;border-radius:14px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px">⚡</div><h3 style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#0f172a;margin-bottom:8px">Instant Payouts</h3><p style="font-size:13px;color:#64748b;line-height:1.6">Straight to your crypto wallet. No waiting, no delays.</p></div><div style="padding:28px 20px;border:1px solid #f1f5f9;border-radius:16px;text-align:center"><div style="width:52px;height:52px;border-radius:14px;background:#fff7ed;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px">🌍</div><h3 style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#0f172a;margin-bottom:8px">Global Platform</h3><p style="font-size:13px;color:#64748b;line-height:1.6">Members in 30+ countries. No geographic restrictions.</p></div></div></div></section>`,
+'biolink':`<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#050d1a,#0c1628);padding:60px 20px"><div style="max-width:400px;width:100%;text-align:center"><div style="width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#60a5fa);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:36px;color:#fff">▶</div><h2 style="font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:4px">Your Name Here</h2><p style="font-size:13px;color:#64748b;margin-bottom:28px">Digital entrepreneur · SuperAdPro member</p><div style="display:flex;flex-direction:column;gap:10px"><a href="#" style="display:block;padding:15px 20px;border-radius:12px;background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);color:#fff;font-size:14px;font-weight:700;text-decoration:none">🚀 Join My Team on SuperAdPro</a><a href="#" style="display:block;padding:15px 20px;border-radius:12px;background:rgba(5,150,105,0.08);border:1px solid rgba(5,150,105,0.2);color:#fff;font-size:14px;font-weight:700;text-decoration:none">💰 See How I Earn Online</a><a href="#" style="display:block;padding:15px 20px;border-radius:12px;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);color:#fff;font-size:14px;font-weight:700;text-decoration:none">📱 Follow Me on Instagram</a></div></div></section>`,
+'cta-banner':`<section style="padding:60px 24px;background:linear-gradient(135deg,#2563eb,#1d4ed8)"><div style="max-width:700px;margin:0 auto;text-align:center"><h2 style="font-family:'Sora',sans-serif;font-size:32px;font-weight:900;color:#fff;margin-bottom:10px">Ready to Start Earning?</h2><p style="font-size:16px;color:rgba(255,255,255,0.8);margin-bottom:28px;line-height:1.6">Join thousands already building passive income. Free to register.</p><a href="#" style="display:inline-block;padding:16px 44px;border-radius:12px;background:#fff;color:#2563eb;font-size:16px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none">Join Free Today →</a></div></section>`,
+'thankyou':`<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#050d1a,#0c1628);padding:60px 20px"><div style="max-width:520px;width:100%;text-align:center"><div style="font-size:68px;margin-bottom:18px">🎉</div><h1 style="font-family:'Sora',sans-serif;font-size:36px;font-weight:900;color:#fff;margin-bottom:12px">Welcome to the Team!</h1><p style="font-size:15px;color:#94a3b8;line-height:1.7;margin-bottom:28px">Check your email for login details. Your journey starts now.</p><a href="/dashboard" style="display:inline-block;padding:16px 40px;border-radius:12px;background:linear-gradient(135deg,#059669,#047857);color:#fff;font-size:16px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none">Go To Dashboard →</a></div></section>`
 };
 
-// ══════════════════════════════════════════
-// ELEMENT SNIPPETS
-// ══════════════════════════════════════════
-const ELEMENTS = {
-  'text': '<h2 style="font-family:Sora,sans-serif;font-size:28px;font-weight:800;color:#0f172a;margin:16px 0">Your Heading Here</h2>',
-  'paragraph': '<p style="font-size:15px;color:#64748b;line-height:1.7;margin:12px 0;max-width:600px">Your paragraph text goes here. Click to edit this text and replace it with your own content.</p>',
-  'button': '<a href="#" style="display:inline-block;padding:14px 32px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:14px;font-weight:700;font-family:Sora,sans-serif;text-decoration:none;box-shadow:0 4px 14px rgba(14,165,233,0.3);margin:10px 0">Click Here →</a>',
-  'image': '<img src="https://via.placeholder.com/800x400/0a1628/0ea5e9?text=Your+Image+Here" style="width:100%;border-radius:12px;margin:12px 0" alt="Image">',
-  'video': '<div style="aspect-ratio:16/9;background:#000;border-radius:14px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(14,165,233,0.15);margin:12px 0"><div style="font-size:48px;opacity:0.35">▶</div></div>',
-  'divider': '<hr style="border:none;height:1px;background:rgba(14,165,233,0.15);margin:32px auto;max-width:600px">',
-  'spacer': '<div style="height:60px"></div>',
-  'columns-2': '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:20px 0"><div style="background:rgba(14,165,233,0.04);border:1px dashed rgba(14,165,233,0.15);border-radius:10px;padding:28px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:12px">Column 1</div><div style="background:rgba(14,165,233,0.04);border:1px dashed rgba(14,165,233,0.15);border-radius:10px;padding:28px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:12px">Column 2</div></div>',
-  'columns-3': '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;padding:20px 0"><div style="background:rgba(14,165,233,0.04);border:1px dashed rgba(14,165,233,0.15);border-radius:10px;padding:20px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:12px">Col 1</div><div style="background:rgba(14,165,233,0.04);border:1px dashed rgba(14,165,233,0.15);border-radius:10px;padding:20px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:12px">Col 2</div><div style="background:rgba(14,165,233,0.04);border:1px dashed rgba(14,165,233,0.15);border-radius:10px;padding:20px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:12px">Col 3</div></div>',
-  'form': '<form style="display:flex;flex-direction:column;gap:10px;max-width:400px;margin:12px 0"><input type="text" placeholder="Your name" style="padding:13px 16px;border-radius:9px;border:1px solid #e2e8f0;font-size:14px;font-family:inherit;outline:none"><input type="email" placeholder="Email address" style="padding:13px 16px;border-radius:9px;border:1px solid #e2e8f0;font-size:14px;font-family:inherit;outline:none"><button type="button" style="padding:14px;border-radius:9px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:Sora,sans-serif">Submit →</button></form>',
-  'cta-btn': '<a href="#" style="display:inline-block;padding:16px 44px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:16px;font-weight:800;font-family:Sora,sans-serif;text-decoration:none;box-shadow:0 8px 24px rgba(14,165,233,0.3);margin:10px 0">Get Started Free →</a>',
-  'testimonial': '<div style="max-width:380px;background:rgba(14,165,233,0.05);border:1px solid rgba(14,165,233,0.12);border-radius:16px;padding:24px;margin:12px auto"><div style="font-size:20px;color:#f59e0b;margin-bottom:10px">★★★★★</div><p style="font-size:14px;color:#94a3b8;font-style:italic;line-height:1.6;margin-bottom:14px">"This platform genuinely changed my financial situation. Real passive income, real commissions."</p><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff">AB</div><div><div style="font-size:13px;font-weight:700;color:#fff">Alex B.</div><div style="font-size:10px;color:#64748b">SuperAdPro Member</div></div></div></div>',
-  'stat-card': '<div style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.15);border-radius:14px;padding:24px 32px;text-align:center;display:inline-block;margin:8px"><div style="font-family:Space Mono,monospace;font-size:32px;font-weight:700;color:#0ea5e9;margin-bottom:6px">40%</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Commission Rate</div></div>',
-  'biolink-btn': '<a href="#" style="display:block;max-width:400px;margin:6px auto;padding:15px 20px;border-radius:12px;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);color:#fff;font-size:14px;font-weight:700;text-decoration:none;text-align:center">🔗 Your Link Text Here</a>',
-  'countdown': '<div style="text-align:center;padding:20px;margin:12px 0"><div style="font-size:11px;font-weight:700;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">Offer Expires In</div><div style="display:flex;gap:12px;justify-content:center"><div style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.15);border-radius:10px;padding:14px 18px;text-align:center"><div style="font-family:Space Mono,monospace;font-size:28px;font-weight:700;color:#0ea5e9">23</div><div style="font-size:9px;color:#64748b;margin-top:3px;font-weight:700;letter-spacing:1px">HRS</div></div><div style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.15);border-radius:10px;padding:14px 18px;text-align:center"><div style="font-family:Space Mono,monospace;font-size:28px;font-weight:700;color:#0ea5e9">59</div><div style="font-size:9px;color:#64748b;margin-top:3px;font-weight:700;letter-spacing:1px">MIN</div></div><div style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.15);border-radius:10px;padding:14px 18px;text-align:center"><div style="font-family:Space Mono,monospace;font-size:28px;font-weight:700;color:#0ea5e9">59</div><div style="font-size:9px;color:#64748b;margin-top:3px;font-weight:700;letter-spacing:1px">SEC</div></div></div></div>',
-  'badge': '<div style="display:inline-block;padding:6px 16px;border-radius:20px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);font-size:11px;font-weight:700;color:#10b981;letter-spacing:2px;text-transform:uppercase;margin:8px 0">✓ Verified Member</div>'
+/* ── Elements ── */
+const E={
+'text':'<h2 style="font-family:Sora,sans-serif;font-size:28px;font-weight:800;color:#0f172a;margin:16px 0">Your Heading Here</h2>',
+'paragraph':'<p style="font-size:15px;color:#64748b;line-height:1.7;margin:12px 0;max-width:600px">Your paragraph text goes here. Click to edit.</p>',
+'button':'<a href="#" style="display:inline-block;padding:14px 32px;border-radius:10px;background:#2563eb;color:#fff;font-size:14px;font-weight:700;font-family:Sora,sans-serif;text-decoration:none;margin:10px 0">Click Here →</a>',
+'image':'<img src="https://via.placeholder.com/800x400/f0f4ff/2563eb?text=Your+Image+Here" style="width:100%;border-radius:12px;margin:12px 0" alt="Image">',
+'video':'<div style="aspect-ratio:16/9;background:#f8fafc;border-radius:12px;display:flex;align-items:center;justify-content:center;border:2px dashed #e2e8f0;margin:12px 0;color:#94a3b8">▶ Video placeholder</div>',
+'divider':'<hr style="border:none;height:1px;background:#e2e8f0;margin:28px auto;max-width:600px">',
+'spacer':'<div style="height:60px"></div>',
+'columns-2':'<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:20px 0"><div style="border:2px dashed #e2e8f0;border-radius:8px;padding:28px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px">Column 1</div><div style="border:2px dashed #e2e8f0;border-radius:8px;padding:28px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px">Column 2</div></div>',
+'columns-3':'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;padding:20px 0"><div style="border:2px dashed #e2e8f0;border-radius:8px;padding:20px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px">Col 1</div><div style="border:2px dashed #e2e8f0;border-radius:8px;padding:20px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px">Col 2</div><div style="border:2px dashed #e2e8f0;border-radius:8px;padding:20px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px">Col 3</div></div>',
+'form':'<form style="display:flex;flex-direction:column;gap:10px;max-width:400px;margin:12px 0"><input type="text" placeholder="Your name" style="padding:12px 16px;border-radius:8px;border:1px solid #e2e8f0;font-size:14px;font-family:inherit;outline:none"><input type="email" placeholder="Email address" style="padding:12px 16px;border-radius:8px;border:1px solid #e2e8f0;font-size:14px;font-family:inherit;outline:none"><button type="button" style="padding:13px;border-radius:8px;background:#2563eb;color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:Sora,sans-serif">Submit →</button></form>',
+'cta-btn':'<a href="#" style="display:inline-block;padding:16px 44px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#60a5fa);color:#fff;font-size:16px;font-weight:800;font-family:Sora,sans-serif;text-decoration:none;margin:10px 0">Get Started Free →</a>',
+'testimonial':'<div style="max-width:380px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:24px;margin:12px auto"><div style="font-size:18px;color:#f59e0b;margin-bottom:10px">★★★★★</div><p style="font-size:14px;color:#64748b;font-style:italic;line-height:1.6;margin-bottom:14px">"This platform genuinely changed my financial situation."</p><div style="display:flex;align-items:center;gap:10px"><div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#60a5fa);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff">AB</div><div><div style="font-size:13px;font-weight:700;color:#0f172a">Alex B.</div><div style="font-size:10px;color:#94a3b8">SuperAdPro Member</div></div></div></div>',
+'stat-card':'<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;padding:24px 32px;text-align:center;display:inline-block;margin:8px"><div style="font-family:Space Mono,monospace;font-size:32px;font-weight:700;color:#2563eb;margin-bottom:6px">40%</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Commission Rate</div></div>',
+'biolink-btn':'<a href="#" style="display:block;max-width:400px;margin:6px auto;padding:15px 20px;border-radius:12px;background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);color:#0f172a;font-size:14px;font-weight:700;text-decoration:none;text-align:center">🔗 Your Link Text Here</a>',
+'countdown':'<div style="text-align:center;padding:20px;margin:12px 0"><div style="font-size:10px;font-weight:700;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">Offer Expires In</div><div style="display:flex;gap:10px;justify-content:center"><div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:12px 16px;text-align:center"><div style="font-family:Space Mono,monospace;font-size:26px;font-weight:700;color:#2563eb">23</div><div style="font-size:8px;color:#64748b;margin-top:2px;font-weight:700;letter-spacing:1px">HRS</div></div><div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:12px 16px;text-align:center"><div style="font-family:Space Mono,monospace;font-size:26px;font-weight:700;color:#2563eb">59</div><div style="font-size:8px;color:#64748b;margin-top:2px;font-weight:700;letter-spacing:1px">MIN</div></div><div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:12px 16px;text-align:center"><div style="font-family:Space Mono,monospace;font-size:26px;font-weight:700;color:#2563eb">59</div><div style="font-size:8px;color:#64748b;margin-top:2px;font-weight:700;letter-spacing:1px">SEC</div></div></div></div>',
+'badge':'<div style="display:inline-block;padding:5px 14px;border-radius:20px;background:#ecfdf5;border:1px solid #a7f3d0;font-size:10px;font-weight:700;color:#065f46;letter-spacing:1px;text-transform:uppercase;margin:8px 0">✓ Verified Member</div>'
 };
 
-// ══════════════════════════════════════════
-// TEMPLATE DEFINITIONS (for welcome modal)
-// ══════════════════════════════════════════
-const TEMPLATES = {
-  blank:     {name:'Blank Canvas',    desc:'Start from scratch',                  icon:'📄', cat:'all',  html:'<div style="padding:80px 20px;text-align:center;color:#94a3b8;font-size:15px">Click a section in the left panel to start building</div>', css:''},
-  sales:     {name:'Sales Page',      desc:'High-converting sales funnel page',   icon:'💰', cat:'sales', html: SECTIONS['hero-dark'] + SECTIONS['stats'] + SECTIONS['features'] + SECTIONS['testimonials'] + SECTIONS['cta-banner'], css:''},
-  optin:     {name:'Lead Capture',    desc:'Collect emails with opt-in form',     icon:'📧', cat:'lead',  html: SECTIONS['hero-dark'] + SECTIONS['optin'], css:''},
-  biolink:   {name:'Bio Link Hub',    desc:'Linktree-style page for your bios',   icon:'🔗', cat:'social',html: SECTIONS['biolink'], css:''},
-  video:     {name:'Video Page',      desc:'Video + CTA for maximum conversions', icon:'🎬', cat:'sales', html: SECTIONS['video-cta'] + SECTIONS['cta-banner'], css:''},
-  thankyou:  {name:'Thank You Page',  desc:'Post-signup confirmation page',       icon:'✅', cat:'all',  html: SECTIONS['thankyou'], css:''},
-  social:    {name:'Social Proof',    desc:'Testimonials + stats page',           icon:'⭐', cat:'social',html: SECTIONS['hero-dark'] + SECTIONS['testimonials'] + SECTIONS['stats'] + SECTIONS['cta-banner'], css:''},
-  features:  {name:'Features Page',   desc:'Showcase your platform features',     icon:'✨', cat:'all',  html: SECTIONS['hero-light'] + SECTIONS['features'] + SECTIONS['cta-banner'], css:''},
+/* ── Templates ── */
+const T={
+blank:{name:'Blank Canvas',desc:'Start from scratch',icon:'📄',color:'#f8fafc',cat:'all',html:'',css:''},
+sales:{name:'Sales Page',desc:'Full conversion funnel',icon:'💰',color:'#050d1a',cat:'sales',html:S['hero-dark']+S['stats']+S['features']+S['testimonials']+S['cta-banner'],css:''},
+optin:{name:'Lead Capture',desc:'Email opt-in page',icon:'📧',color:'#050d1a',cat:'lead',html:S['hero-dark']+S['optin'],css:''},
+biolink:{name:'Bio Link Hub',desc:'Linktree-style page',icon:'🔗',color:'#050d1a',cat:'social',html:S['biolink'],css:''},
+video:{name:'Video Page',desc:'Video + CTA',icon:'🎬',color:'#050d1a',cat:'sales',html:S['video-cta']+S['cta-banner'],css:''},
+thankyou:{name:'Thank You',desc:'Post-signup confirmation',icon:'✅',color:'#050d1a',cat:'all',html:S['thankyou'],css:''},
+features:{name:'Features Page',desc:'Showcase your platform',icon:'✨',color:'#fff',cat:'all',html:S['hero-light']+S['features']+S['cta-banner'],css:''},
+social:{name:'Social Proof',desc:'Testimonials + stats',icon:'⭐',color:'#050d1a',cat:'social',html:S['hero-dark']+S['testimonials']+S['stats']+S['cta-banner'],css:''},
 };
 
-// ══════════════════════════════════════════
-// INIT GRAPESJS
-// ══════════════════════════════════════════
-const editor = grapesjs.init({
-  container: '#gjs',
-  height: '100%',
-  width: 'auto',
-  fromElement: false,
-  storageManager: false,
-  canvas: {
-    styles: [
-      'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Space+Mono:wght@700&display=swap'
-    ]
-  },
-  deviceManager: {
-    devices: [
-      {name:'Desktop', width:''},
-      {name:'Tablet',  width:'768px', widthMedia:'768px'},
-      {name:'Mobile',  width:'375px', widthMedia:'375px'}
-    ]
-  },
-  plugins: ['gjs-blocks-basic','gjs-preset-webpage','gjs-plugin-forms'],
-  pluginsOpts: {
-    'gjs-blocks-basic': {flexGrid:true},
-    'gjs-preset-webpage': {
-      modalImportTitle:'Import HTML',
-      modalImportButton:'Import',
-      modalImportLabel:'Paste your HTML/CSS here',
-    }
-  },
-  // Mount blocks into our left panel elements tab
-  blockManager: { appendTo: '#elementsGrid' },
-  // Mount style manager into our right panel
-  styleManager: {
-    appendTo: '#gjs-styles-container',
-    sectors: [
-      {name:'Typography', open:true,  properties:['font-family','font-size','font-weight','color','line-height','text-align','letter-spacing','text-decoration']},
-      {name:'Spacing',    open:false, properties:['margin','padding']},
-      {name:'Size',       open:false, properties:['width','height','max-width','min-height']},
-      {name:'Background', open:false, properties:['background-color','background']},
-      {name:'Border',     open:false, properties:['border-radius','border','box-shadow']},
-      {name:'Layout',     open:false, properties:['display','position','flex-direction','justify-content','align-items','gap','overflow']}
-    ]
-  },
-  layerManager: { appendTo: '#layersMount' },
-  panels: { defaults: [] }  // clear default panels — we control layout
+/* ── GrapesJS Init ── */
+const editor=grapesjs.init({
+  container:'#gjs',height:'100%',width:'auto',fromElement:false,storageManager:false,
+  canvas:{styles:['https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800;900&family=Space+Mono:wght@700&display=swap']},
+  deviceManager:{devices:[{name:'Desktop',width:''},{name:'Tablet',width:'768px',widthMedia:'768px'},{name:'Mobile',width:'375px',widthMedia:'375px'}]},
+  plugins:['gjs-blocks-basic','gjs-preset-webpage','gjs-plugin-forms'],
+  pluginsOpts:{'gjs-blocks-basic':{flexGrid:true},'gjs-preset-webpage':{modalImportTitle:'Import HTML',modalImportButton:'Import',modalImportLabel:'Paste HTML here'}},
+  styleManager:{appendTo:'#gjs-sm',sectors:[
+    {name:'Typography',open:true,properties:['font-family','font-size','font-weight','color','line-height','text-align','letter-spacing']},
+    {name:'Spacing',open:false,properties:['margin','padding']},
+    {name:'Size',open:false,properties:['width','height','max-width','min-height']},
+    {name:'Background',open:false,properties:['background-color','background']},
+    {name:'Border',open:false,properties:['border-radius','border','box-shadow']},
+    {name:'Layout',open:false,properties:['display','flex-direction','justify-content','align-items','gap']}
+  ]},
+  layerManager:{appendTo:'#gjs-ly'},
+  panels:{defaults:[]}
 });
 
-// ══════════════════════════════════════════
-// EMPTY CANVAS DETECTION
-// ══════════════════════════════════════════
-function checkEmpty() {
-  const comps = editor.getComponents();
-  const isEmpty = !comps.length || (comps.length === 1 && !comps.at(0).get('components').length && !comps.at(0).getEl()?.innerHTML?.trim());
-  document.getElementById('canvasEmpty').classList.toggle('hidden', !isEmpty);
+/* ── Empty state ── */
+function checkEmpty(){
+  const h=editor.getHtml().trim();
+  const empty=!h||h==='<body></body>';
+  document.getElementById('canvasEmpty').classList.toggle('gone',!empty);
 }
+editor.on('component:add',checkEmpty);
+editor.on('component:remove',checkEmpty);
+editor.on('load',checkEmpty);
 
-editor.on('component:add', checkEmpty);
-editor.on('component:remove', checkEmpty);
-editor.on('load', checkEmpty);
-
-// ══════════════════════════════════════════
-// CONTEXT-SMART RIGHT PANEL
-// ══════════════════════════════════════════
-editor.on('component:selected', function(component) {
-  if (!component) return;
-  const type = component.get('type') || 'default';
-  const tagName = (component.get('tagName') || '').toLowerCase();
-  const rightTitle = document.getElementById('rightTitle');
-  const rightSubtitle = document.getElementById('rightSubtitle');
-  const rightEmpty = document.getElementById('rightEmpty');
-  const rightProps = document.getElementById('rightProps');
-
-  // Determine label
-  let label = 'Element';
-  if (tagName === 'section') label = 'Section';
-  else if (tagName === 'h1' || tagName === 'h2' || tagName === 'h3') label = 'Heading';
-  else if (tagName === 'p') label = 'Paragraph';
-  else if (tagName === 'a') label = 'Button / Link';
-  else if (tagName === 'img') label = 'Image';
-  else if (tagName === 'div') label = 'Container';
-  else if (tagName === 'input' || tagName === 'textarea') label = 'Form Field';
-  else if (tagName === 'form') label = 'Form';
-  else if (tagName === 'hr') label = 'Divider';
-
-  rightTitle.textContent = label + ' Properties';
-  rightSubtitle.textContent = 'Edit styles & attributes';
-  rightEmpty.style.display = 'none';
-  rightProps.classList.add('active');
+/* ── Context-smart right panel ── */
+editor.on('component:selected',function(c){
+  if(!c)return;
+  const tag=(c.get('tagName')||'').toLowerCase();
+  const map={section:'Section',div:'Container',h1:'Heading',h2:'Heading',h3:'Heading',p:'Paragraph',a:'Button / Link',img:'Image',form:'Form',input:'Input Field',hr:'Divider',video:'Video'};
+  document.getElementById('rContext').textContent=(map[tag]||'Element')+' — Properties';
+  document.getElementById('rName').textContent=tag.toUpperCase()||'Element';
+  document.getElementById('rEmpty').style.display='none';
+  document.getElementById('rStyles').style.display='block';
+});
+editor.on('component:deselected',function(){
+  document.getElementById('rContext').textContent='Properties';
+  document.getElementById('rName').textContent='Select an element';
+  document.getElementById('rEmpty').style.display='flex';
+  document.getElementById('rStyles').style.display='none';
 });
 
-editor.on('component:deselected', function() {
-  document.getElementById('rightTitle').textContent = 'Properties';
-  document.getElementById('rightSubtitle').textContent = 'Select an element to edit';
-  document.getElementById('rightEmpty').style.display = 'flex';
-  document.getElementById('rightProps').classList.remove('active');
-});
-
-// ══════════════════════════════════════════
-// LEFT PANEL TAB SWITCHING
-// ══════════════════════════════════════════
-function switchTab(tab) {
-  ['sections','elements','layers'].forEach(t => {
-    document.getElementById('content' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = (t === tab) ? 'block' : 'none';
-    document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
-  });
-  document.getElementById('searchWrap').style.display = tab === 'layers' ? 'none' : 'block';
+/* ── Panel switching ── */
+let activePanel='sections';
+function openPanel(name){
+  const map={sections:'pSections',elements:'pElements',layers:'pLayers'};
+  const ic={sections:'icSec',elements:'icElem',layers:'icLay'};
+  const panel=document.getElementById('leftPanel');
+  if(activePanel===name&&panel.classList.contains('open')){closePanel();return;}
+  panel.classList.add('open');
+  activePanel=name;
+  Object.entries(map).forEach(([k,id])=>document.getElementById(id).style.display=(k===name)?'flex':'none');
+  Object.entries(ic).forEach(([k,id])=>document.getElementById(id).classList.toggle('active',k===name));
 }
-
-// ══════════════════════════════════════════
-// ADD SECTION / ELEMENT TO CANVAS
-// ══════════════════════════════════════════
-function addSection(key) {
-  const html = SECTIONS[key];
-  if (!html) return;
-  editor.addComponents(html);
-  showToast('Section added ✓', 'success');
-  checkEmpty();
+function closePanel(){
+  document.getElementById('leftPanel').classList.remove('open');
+  document.querySelectorAll('.ic-btn').forEach(b=>b.classList.remove('active'));
+  activePanel=null;
 }
+/* init — sections open by default */
+openPanel('sections');
 
-function addElement(key) {
-  const html = ELEMENTS[key];
-  if (!html) return;
-  editor.addComponents(html);
-  showToast('Element added ✓', 'info');
-  checkEmpty();
-}
-
-// ══════════════════════════════════════════
-// SEARCH / FILTER
-// ══════════════════════════════════════════
-function filterBlocks(query) {
-  const q = query.toLowerCase();
-  document.querySelectorAll('.section-card').forEach(card => {
-    const name = card.querySelector('.section-name').textContent.toLowerCase();
-    const desc = card.querySelector('.section-desc').textContent.toLowerCase();
-    card.style.display = (name.includes(q) || desc.includes(q)) ? '' : 'none';
-  });
-  document.querySelectorAll('.elem-block').forEach(block => {
-    const name = block.querySelector('.elem-name').textContent.toLowerCase();
-    block.style.display = name.includes(q) ? '' : 'none';
-  });
-  document.querySelectorAll('.sec-cat-label').forEach(label => {
-    label.style.display = '';
+/* ── Filter ── */
+function filterSec(q){
+  const ql=q.toLowerCase();
+  document.querySelectorAll('.sec-card').forEach(c=>{
+    const n=(c.querySelector('.sec-name')||{}).textContent||'';
+    c.style.display=n.toLowerCase().includes(ql)?'':'none';
   });
 }
 
-// ══════════════════════════════════════════
-// DEVICE SWITCHING
-// ══════════════════════════════════════════
-function setDevice(name) {
-  editor.setDevice(name);
-  document.querySelectorAll('.dev-btn').forEach(b => b.classList.remove('active'));
-  const id = 'dev' + name.charAt(0).toUpperCase() + name.slice(1);
-  const el = document.getElementById(id);
-  if (el) el.classList.add('active');
+/* ── Add section / element ── */
+function addSec(k){const h=S[k];if(!h)return;editor.addComponents(h);toast('Section added ✓','success');checkEmpty();}
+function addElem(k){const h=E[k];if(!h)return;editor.addComponents(h);toast('Element added ✓','info');checkEmpty();}
+
+/* ── Device ── */
+function setDevice(n){editor.setDevice(n);document.querySelectorAll('.dev-btn').forEach(b=>b.classList.remove('active'));document.getElementById('dev'+n).classList.add('active');}
+
+/* ── Preview ── */
+function togglePreview(){editor.runCommand('preview')}
+
+/* ── Toast ── */
+function toast(msg,type){
+  const t=document.getElementById('toast');
+  t.innerHTML=msg;t.className='toast '+(type||'success')+' show';
+  setTimeout(()=>t.classList.remove('show'),2400);
 }
 
-// ══════════════════════════════════════════
-// PREVIEW
-// ══════════════════════════════════════════
-function togglePreview() {
-  editor.runCommand('preview');
+/* ── Modal ── */
+function renderTpls(f,el){
+  if(el){document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
+  const entries=Object.entries(T).filter(([,v])=>!f||f==='all'||v.cat===f);
+  document.getElementById('tplGrid').innerHTML=entries.map(([k,t])=>`
+    <div class="tpl-card" onclick="loadTpl('${k}')">
+      <div class="tpl-thumb" style="background:${t.color||'#f8fafc'}"><span>${t.icon}</span></div>
+      <div class="tpl-meta"><div class="tpl-name">${t.name}</div><div class="tpl-desc">${t.desc}</div></div>
+    </div>`).join('');
+}
+function showModal(){renderTpls('all');document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function loadTpl(k){
+  const t=T[k];if(!t)return;
+  if(editor.getComponents().length>0&&!confirm('Replace current page?'))return;
+  editor.setComponents(t.html||'');editor.setStyle(t.css||'');
+  closeModal();checkEmpty();toast('Template loaded — make it yours!','success');
 }
 
-// ══════════════════════════════════════════
-// TOAST
-// ══════════════════════════════════════════
-function showToast(msg, type) {
-  const t = document.getElementById('toast');
-  t.innerHTML = msg;
-  t.className = 'toast ' + (type||'success') + ' show';
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
+/* ── Save / Load ── */
+const PAGE_ID={{ page.id }};
+let currentStatus='{{ page.status }}';
+let lastSaved=null;
 
-// ══════════════════════════════════════════
-// WELCOME MODAL
-// ══════════════════════════════════════════
-function renderTemplates(filter) {
-  const grid = document.getElementById('tplGrid');
-  const entries = Object.entries(TEMPLATES).filter(([k,v]) => !filter || filter === 'all' || v.cat === filter);
-  grid.innerHTML = entries.map(([key, tpl]) => `
-    <div class="tpl-card" onclick="loadTemplate('${key}')">
-      <div class="tpl-thumb" style="background:linear-gradient(135deg,#0a1628,#050d1a)">
-        <span style="font-size:32px">${tpl.icon}</span>
-      </div>
-      <div class="tpl-info">
-        <div class="tpl-name">${tpl.name}</div>
-        <div class="tpl-desc">${tpl.desc}</div>
-        <span class="tpl-badge free">Free</span>
-      </div>
-    </div>
-  `).join('');
-}
-
-function switchModalTab(filter, el) {
-  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  renderTemplates(filter);
-}
-
-function showWelcomeModal() {
-  renderTemplates('all');
-  document.getElementById('welcomeModal').classList.add('show');
-}
-
-function closeWelcomeModal() {
-  document.getElementById('welcomeModal').classList.remove('show');
-}
-
-function loadTemplate(key) {
-  const tpl = TEMPLATES[key];
-  if (!tpl) return;
-  if (editor.getComponents().length > 0) {
-    if (!confirm('This will replace your current page. Continue?')) return;
-  }
-  editor.setComponents(tpl.html);
-  editor.setStyle(tpl.css || '');
-  closeWelcomeModal();
-  checkEmpty();
-  showToast('Template loaded — make it yours! ✦', 'success');
-}
-
-// ══════════════════════════════════════════
-// SAVE / LOAD
-// ══════════════════════════════════════════
-const PAGE_ID = {{ page.id }};
-let currentStatus = '{{ page.status }}';
-let lastSavedAt = null;
-
-async function savePage(status) {
-  const st = document.getElementById('saveStatus');
-  st.textContent = 'Saving...';
-  st.style.color = '#f59e0b';
-
-  const payload = {
-    id: PAGE_ID,
-    title: document.getElementById('pageName').value || 'Untitled Page',
-    status: status || currentStatus,
-    template_type: 'visual',
-    gjs_components: JSON.stringify(editor.getComponents()),
-    gjs_styles: JSON.stringify(editor.getStyle()),
-    gjs_html: editor.getHtml(),
-    gjs_css: editor.getCss(),
-    updated_at: lastSavedAt
+async function savePage(status){
+  const st=document.getElementById('saveStatus');
+  st.textContent='Saving…';st.style.color='#d97706';
+  const payload={
+    id:PAGE_ID,title:document.getElementById('pageName').value||'Untitled Page',
+    status:status||currentStatus,template_type:'visual',
+    gjs_components:JSON.stringify(editor.getComponents()),
+    gjs_styles:JSON.stringify(editor.getStyle()),
+    gjs_html:editor.getHtml(),gjs_css:editor.getCss(),updated_at:lastSaved
   };
-
-  try {
-    const resp = await fetch('/api/funnels/save', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-    const data = await resp.json();
-    if (resp.ok) {
-      currentStatus = status;
-      lastSavedAt = data.updated_at;
-      st.textContent = status === 'published' ? '🟢 Published' : '✓ Saved';
-      st.style.color = '#10b981';
-      showToast(status === 'published' ? '🚀 Page published!' : '✓ Page saved', 'success');
-    } else {
-      st.textContent = '⚠ Error';
-      st.style.color = '#ef4444';
-      showToast(data.error || 'Save failed', 'error');
-    }
-  } catch(e) {
-    st.textContent = '⚠ Error';
-    st.style.color = '#ef4444';
-    showToast('Network error', 'error');
-  }
+  try{
+    const r=await fetch('/api/funnels/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const d=await r.json();
+    if(r.ok){currentStatus=status;lastSaved=d.updated_at;st.textContent=status==='published'?'🟢 Published':'✓ Saved';st.style.color='#059669';toast(status==='published'?'🚀 Published!':'✓ Saved','success');}
+    else{st.textContent='⚠ Error';st.style.color='#dc2626';toast(d.error||'Save failed','error');}
+  }catch(e){st.textContent='⚠ Error';st.style.color='#dc2626';toast('Network error','error');}
 }
 
-async function loadPage() {
-  try {
-    const resp = await fetch('/api/funnels/load/' + PAGE_ID);
-    const data = await resp.json();
-    if (data.gjs_components && typeof data.gjs_components === 'string') {
-      try {
-        editor.setComponents(JSON.parse(data.gjs_components));
-        editor.setStyle(JSON.parse(data.gjs_styles || '[]'));
-      } catch(e) {
-        if (data.gjs_html) {
-          editor.setComponents(data.gjs_html);
-          editor.setStyle(data.gjs_css || '');
-        }
-      }
-    } else if (data.gjs_html) {
-      editor.setComponents(data.gjs_html);
-      editor.setStyle(data.gjs_css || '');
-    }
-    if (data.title) document.getElementById('pageName').value = data.title;
-    if (data.updated_at) lastSavedAt = data.updated_at;
-    currentStatus = data.status || 'draft';
-    checkEmpty();
-  } catch(e) {
-    // New page — show welcome modal
-    setTimeout(showWelcomeModal, 600);
-  }
+async function loadPage(){
+  try{
+    const r=await fetch('/api/funnels/load/'+PAGE_ID);const d=await r.json();
+    if(d.gjs_components&&typeof d.gjs_components==='string'){
+      try{editor.setComponents(JSON.parse(d.gjs_components));editor.setStyle(JSON.parse(d.gjs_styles||'[]'));}
+      catch(e){if(d.gjs_html){editor.setComponents(d.gjs_html);editor.setStyle(d.gjs_css||'');}}
+    }else if(d.gjs_html){editor.setComponents(d.gjs_html);editor.setStyle(d.gjs_css||'');}
+    if(d.title)document.getElementById('pageName').value=d.title;
+    if(d.updated_at)lastSaved=d.updated_at;
+    currentStatus=d.status||'draft';checkEmpty();
+  }catch(e){setTimeout(showModal,500);}
 }
 
-// ══════════════════════════════════════════
-// KEYBOARD SHORTCUTS
-// ══════════════════════════════════════════
-document.addEventListener('keydown', function(e) {
-  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); savePage(currentStatus); }
-  if (e.key === 'Escape') closeWelcomeModal();
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();savePage(currentStatus);}
+  if(e.key==='Escape')closeModal();
 });
+setInterval(()=>{if(editor.getDirtyCount()>0)savePage(currentStatus);},60000);
 
-// ══════════════════════════════════════════
-// AUTO-SAVE
-// ══════════════════════════════════════════
-setInterval(function() {
-  if (editor.getDirtyCount() > 0) savePage(currentStatus);
-}, 60000);
-
-// ══════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════
 setDevice('Desktop');
 loadPage();
 </script>
