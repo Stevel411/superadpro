@@ -196,3 +196,141 @@
   .studio-hero::before,
   .studio-hero::after { display: none !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   SHARED BUTTON STYLES — 3D clickable look across all pages
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Primary buttons — gradient with bottom shadow for 3D depth */
+.btn-primary,
+button[class*="btn-primary"],
+a[class*="btn-primary"],
+input[type="submit"].btn-primary {
+  background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%) !important;
+  box-shadow: 0 3px 0 #0284c7, 0 4px 12px rgba(14,165,233,0.25) !important;
+  border: none !important;
+  color: #fff !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  position: relative !important;
+  top: 0 !important;
+}
+.btn-primary:hover,
+button[class*="btn-primary"]:hover,
+a[class*="btn-primary"]:hover {
+  background: linear-gradient(180deg, #7dd3fc 0%, #38bdf8 100%) !important;
+  box-shadow: 0 3px 0 #0284c7, 0 6px 20px rgba(14,165,233,0.35) !important;
+  top: -1px !important;
+}
+.btn-primary:active,
+button[class*="btn-primary"]:active,
+a[class*="btn-primary"]:active {
+  top: 2px !important;
+  box-shadow: 0 1px 0 #0284c7, 0 2px 4px rgba(14,165,233,0.15) !important;
+}
+
+/* Warning/danger buttons — amber/red gradient */
+.btn-warn,
+button[class*="btn-warn"] {
+  background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%) !important;
+  box-shadow: 0 3px 0 #d97706, 0 4px 12px rgba(245,158,11,0.25) !important;
+  border: none !important;
+  color: #fff !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  position: relative !important;
+  top: 0 !important;
+}
+.btn-warn:hover,
+button[class*="btn-warn"]:hover {
+  background: linear-gradient(180deg, #fcd34d 0%, #fbbf24 100%) !important;
+  box-shadow: 0 3px 0 #d97706, 0 6px 20px rgba(245,158,11,0.35) !important;
+  top: -1px !important;
+}
+.btn-warn:active,
+button[class*="btn-warn"]:active {
+  top: 2px !important;
+  box-shadow: 0 1px 0 #d97706, 0 2px 4px rgba(245,158,11,0.15) !important;
+}
+
+/* Green/success buttons */
+.btn-success,
+.btn-save,
+button[class*="btn-save"] {
+  background: linear-gradient(180deg, #34d399 0%, #10b981 100%) !important;
+  box-shadow: 0 3px 0 #059669, 0 4px 12px rgba(16,185,129,0.25) !important;
+  border: none !important;
+  color: #fff !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  position: relative !important;
+  top: 0 !important;
+}
+.btn-success:hover, .btn-save:hover,
+button[class*="btn-save"]:hover {
+  background: linear-gradient(180deg, #6ee7b7 0%, #34d399 100%) !important;
+  box-shadow: 0 3px 0 #059669, 0 6px 20px rgba(16,185,129,0.35) !important;
+  top: -1px !important;
+}
+.btn-success:active, .btn-save:active,
+button[class*="btn-save"]:active {
+  top: 2px !important;
+  box-shadow: 0 1px 0 #059669, 0 2px 4px rgba(16,185,129,0.15) !important;
+}
+
+/* Outline/secondary buttons — subtle lift effect */
+.btn-outline,
+button[class*="btn-outline"],
+a[class*="btn-outline"] {
+  box-shadow: 0 2px 0 #c0c8d4, 0 2px 6px rgba(0,0,0,0.06) !important;
+  transition: all 0.15s ease !important;
+  position: relative !important;
+  top: 0 !important;
+  cursor: pointer !important;
+}
+.btn-outline:hover,
+button[class*="btn-outline"]:hover,
+a[class*="btn-outline"]:hover {
+  box-shadow: 0 2px 0 #c0c8d4, 0 4px 12px rgba(0,0,0,0.1) !important;
+  top: -1px !important;
+}
+.btn-outline:active,
+button[class*="btn-outline"]:active,
+a[class*="btn-outline"]:active {
+  top: 1px !important;
+  box-shadow: 0 1px 0 #c0c8d4, 0 1px 2px rgba(0,0,0,0.04) !important;
+}
+
+/* Copy/action buttons — subtle but clickable */
+.copy-btn,
+.analytics-btn,
+.qr-btn {
+  box-shadow: 0 2px 0 rgba(0,0,0,0.06) !important;
+  transition: all 0.15s ease !important;
+  position: relative !important;
+  top: 0 !important;
+}
+.copy-btn:hover,
+.analytics-btn:hover,
+.qr-btn:hover {
+  top: -1px !important;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.06), 0 4px 8px rgba(0,0,0,0.08) !important;
+}
+.copy-btn:active,
+.analytics-btn:active,
+.qr-btn:active {
+  top: 1px !important;
+  box-shadow: 0 0 0 rgba(0,0,0,0) !important;
+}
+
+/* Generic inline buttons (style= buttons) — add via data attribute or class */
+button[type="submit"],
+.card-body button:not(.remove-dest):not(.add-dest-btn):not(.mode-opt) {
+  position: relative;
+  transition: all 0.15s ease;
+}
+button[type="submit"]:active,
+.card-body button:not(.remove-dest):not(.add-dest-btn):not(.mode-opt):active {
+  transform: translateY(2px);
+  filter: brightness(0.95);
+}
