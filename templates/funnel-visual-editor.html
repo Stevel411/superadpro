@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Page Builder — {{ page.title }}</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Sora:wght@700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Sora:wght@700;800;900&family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&family=Raleway:wght@400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=Nunito:wght@400;500;600;700;800;900&family=Lato:wght@400;700;900&family=Open+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700;900&family=Oswald:wght@400;500;600;700&family=Merriweather:wght@400;700;900&family=Lora:wght@400;500;600;700&family=PT+Serif:wght@400;700&family=Source+Sans+3:wght@400;500;600;700;800;900&family=Work+Sans:wght@400;500;600;700;800;900&family=Bebas+Neue&family=Anton&family=Righteous&family=Pacifico&family=Dancing+Script:wght@400;500;600;700&family=Abril+Fatface&family=Cinzel:wght@400;500;600;700;800;900&family=Josefin+Sans:wght@400;500;600;700&family=Urbanist:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Barlow:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -234,9 +234,42 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
 .pi{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;padding:6px 9px;outline:none;transition:border .12s}
 .pi:focus{border-color:rgba(59,130,246,.4)}
 .pi[type=range]{
-  padding:0;height:20px;accent-color:var(--blue);
-  cursor:pointer;flex:1;min-width:0;
-  -webkit-appearance:auto;appearance:auto;
+  -webkit-appearance:none;
+  appearance:none;
+  background:transparent;
+  border:none;
+  padding:0;
+  height:20px;
+  cursor:pointer;
+  flex:1;
+  min-width:0;
+}
+.pi[type=range]::-webkit-slider-runnable-track{
+  height:4px;
+  background:rgba(255,255,255,.12);
+  border-radius:2px;
+}
+.pi[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  appearance:none;
+  width:16px;height:16px;
+  border-radius:50%;
+  background:var(--blue);
+  margin-top:-6px;
+  cursor:grab;
+  box-shadow:0 1px 4px rgba(0,0,0,.3);
+  transition:transform .1s;
+}
+.pi[type=range]::-webkit-slider-thumb:active{
+  cursor:grabbing;
+  transform:scale(1.2);
+}
+.pi[type=range]::-moz-range-track{
+  height:4px;background:rgba(255,255,255,.12);border-radius:2px;
+}
+.pi[type=range]::-moz-range-thumb{
+  width:16px;height:16px;border-radius:50%;border:none;
+  background:var(--blue);cursor:grab;
 }
 .pi[type=color]{padding:1px;height:28px;cursor:pointer;border-radius:4px}
 .psel{flex:1;background:#1e2740;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;padding:6px 8px;outline:none}
@@ -280,7 +313,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
 <!-- TOPBAR -->
 <div id="topbar">
   <div class="tb-brand">
-    <div class="tb-s">S</div>
+    <div class="tb-s">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <!-- Play triangle / V shape representing video/ads -->
+        <path d="M5 5 L17 11 L5 17 Z" fill="white" opacity="0.95"/>
+        <path d="M5 5 L17 11 L11 11 Z" fill="white" opacity="0.5"/>
+      </svg>
+    </div>
     <span class="tb-name">SuperAd<b>Pro</b></span>
     <span class="tb-tag">Builder</span>
   </div>
@@ -483,13 +522,48 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
 <!-- FLOATING TOOLBAR -->
 <div id="ftbar">
   <div id="ft-text" style="display:contents">
-    <select class="fb-sel" id="ft-font" onchange="sp('fontFamily',this.value)" style="width:95px">
-      <option value="'DM Sans',sans-serif">DM Sans</option>
-      <option value="'Sora',sans-serif">Sora</option>
-      <option value="Georgia,serif">Georgia</option>
-      <option value="'Times New Roman',serif">Times NR</option>
-      <option value="Arial,sans-serif">Arial</option>
-      <option value="'Courier New',monospace">Courier</option>
+    <select class="fb-sel" id="ft-font" onchange="sp('fontFamily',this.value);loadFont(this.value)" style="width:130px">
+      <optgroup label="── Modern Sans">
+        <option value="'DM Sans',sans-serif">DM Sans</option>
+        <option value="'Inter',sans-serif">Inter</option>
+        <option value="'Plus Jakarta Sans',sans-serif">Jakarta Sans</option>
+        <option value="'Outfit',sans-serif">Outfit</option>
+        <option value="'Urbanist',sans-serif">Urbanist</option>
+        <option value="'Space Grotesk',sans-serif">Space Grotesk</option>
+        <option value="'Work Sans',sans-serif">Work Sans</option>
+        <option value="'Barlow',sans-serif">Barlow</option>
+      </optgroup>
+      <optgroup label="── Headlines">
+        <option value="'Sora',sans-serif">Sora</option>
+        <option value="'Montserrat',sans-serif">Montserrat</option>
+        <option value="'Raleway',sans-serif">Raleway</option>
+        <option value="'Poppins',sans-serif">Poppins</option>
+        <option value="'Josefin Sans',sans-serif">Josefin Sans</option>
+        <option value="'Oswald',sans-serif">Oswald</option>
+        <option value="'Bebas Neue',cursive">Bebas Neue</option>
+        <option value="'Anton',sans-serif">Anton</option>
+      </optgroup>
+      <optgroup label="── Classic Sans">
+        <option value="'Open Sans',sans-serif">Open Sans</option>
+        <option value="'Lato',sans-serif">Lato</option>
+        <option value="'Roboto',sans-serif">Roboto</option>
+        <option value="'Nunito',sans-serif">Nunito</option>
+        <option value="'Source Sans 3',sans-serif">Source Sans</option>
+      </optgroup>
+      <optgroup label="── Serif">
+        <option value="'Playfair Display',serif">Playfair Display</option>
+        <option value="'Merriweather',serif">Merriweather</option>
+        <option value="'Lora',serif">Lora</option>
+        <option value="'PT Serif',serif">PT Serif</option>
+        <option value="'Cinzel',serif">Cinzel</option>
+        <option value="'Abril Fatface',cursive">Abril Fatface</option>
+        <option value="Georgia,serif">Georgia</option>
+      </optgroup>
+      <optgroup label="── Decorative">
+        <option value="'Righteous',cursive">Righteous</option>
+        <option value="'Pacifico',cursive">Pacifico</option>
+        <option value="'Dancing Script',cursive">Dancing Script</option>
+      </optgroup>
     </select>
     <select class="fb-sel" id="ft-size" onchange="spSize(this.value)" style="width:58px">
       <option>10</option><option>12</option><option>14</option><option>16</option>
@@ -1068,6 +1142,12 @@ function toHex(c){
 }
 
 // toolbar actions
+// Font loader — all fonts pre-loaded via Google Fonts link, this is a no-op safety net
+function loadFont(family){
+  // Fonts are all pre-loaded in the <head> link tag. No dynamic loading needed.
+  // This function exists so the onchange handler doesn't error if called.
+}
+
 function sp(prop,val){
   const el=els.find(x=>x.id===selId); if(!el) return;
   el.s[prop]=val;
@@ -1126,6 +1206,25 @@ function drawRP(){
   ${TEXT_ELS.has(el.type)?`
   <div class="pg">
     <div class="pl">Typography</div>
+    <div class="pr"><label>Font</label>
+      <select class="psel" onchange="sp('fontFamily',this.value);loadFont(this.value)">
+        <optgroup label="Modern Sans">
+          ${[["'DM Sans',sans-serif","DM Sans"],["'Inter',sans-serif","Inter"],["'Plus Jakarta Sans',sans-serif","Jakarta Sans"],["'Outfit',sans-serif","Outfit"],["'Urbanist',sans-serif","Urbanist"],["'Space Grotesk',sans-serif","Space Grotesk"],["'Work Sans',sans-serif","Work Sans"],["'Barlow',sans-serif","Barlow"]].map(([v,n])=>`<option value="${v}"${(el.s.fontFamily||'')==v?'selected':''}>${n}</option>`).join('')}
+        </optgroup>
+        <optgroup label="Headlines">
+          ${[["'Sora',sans-serif","Sora"],["'Montserrat',sans-serif","Montserrat"],["'Raleway',sans-serif","Raleway"],["'Poppins',sans-serif","Poppins"],["'Josefin Sans',sans-serif","Josefin Sans"],["'Oswald',sans-serif","Oswald"],["'Bebas Neue',cursive","Bebas Neue"],["'Anton',sans-serif","Anton"]].map(([v,n])=>`<option value="${v}"${(el.s.fontFamily||'')==v?'selected':''}>${n}</option>`).join('')}
+        </optgroup>
+        <optgroup label="Classic Sans">
+          ${[["'Open Sans',sans-serif","Open Sans"],["'Lato',sans-serif","Lato"],["'Roboto',sans-serif","Roboto"],["'Nunito',sans-serif","Nunito"],["'Source Sans 3',sans-serif","Source Sans"]].map(([v,n])=>`<option value="${v}"${(el.s.fontFamily||'')==v?'selected':''}>${n}</option>`).join('')}
+        </optgroup>
+        <optgroup label="Serif">
+          ${[["'Playfair Display',serif","Playfair Display"],["'Merriweather',serif","Merriweather"],["'Lora',serif","Lora"],["'PT Serif',serif","PT Serif"],["'Cinzel',serif","Cinzel"],["'Abril Fatface',cursive","Abril Fatface"],["Georgia,serif","Georgia"]].map(([v,n])=>`<option value="${v}"${(el.s.fontFamily||'')==v?'selected':''}>${n}</option>`).join('')}
+        </optgroup>
+        <optgroup label="Decorative">
+          ${[["'Righteous',cursive","Righteous"],["'Pacifico',cursive","Pacifico"],["'Dancing Script',cursive","Dancing Script"]].map(([v,n])=>`<option value="${v}"${(el.s.fontFamily||'')==v?'selected':''}>${n}</option>`).join('')}
+        </optgroup>
+      </select>
+    </div>
     <div class="pr"><label>Size</label>
       <input class="pi" type="range" min="8" max="120" step="1" value="${parseInt(el.s.fontSize)||16}" oninput="spSize(this.value);this.nextElementSibling.value=this.value" style="flex:1">
       <input class="pi" type="number" min="8" max="200" value="${parseInt(el.s.fontSize)||16}" onchange="spSize(this.value);this.previousElementSibling.value=this.value" style="width:52px;flex:none">
