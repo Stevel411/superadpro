@@ -236,72 +236,30 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
 .pr label{font-size:11px;color:var(--text3);width:58px;flex-shrink:0}
 .pi{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;padding:6px 9px;outline:none;transition:border .12s}
 .pi:focus{border-color:rgba(59,130,246,.4)}
-.pi[type=range]{
-  -webkit-appearance:none;
-  appearance:none;
-  background:transparent;
-  border:none;
-  padding:0;
-  height:24px;        /* taller hit area */
-  cursor:pointer;
-  flex:1;
-  min-width:0;
-  display:block;
-  pointer-events:all; /* always receive mouse/touch even if parent blocks */
-  touch-action:none;
-  position:relative;
-  z-index:1;          /* sit above any flex container event capture */
+/* ── CUSTOM SLIDER (replaces native range - immune to canvas drag) ── */
+.cslider{
+  flex:1;min-width:0;height:20px;
+  position:relative;display:flex;align-items:center;cursor:pointer;
 }
-.pi[type=range]::-webkit-slider-container{
-  height:20px;
+.cslider-track{
+  position:absolute;left:0;right:0;height:4px;
+  background:rgba(255,255,255,.12);border-radius:2px;overflow:hidden;
 }
-.pi[type=range]::-webkit-slider-runnable-track{
-  height:4px;
-  background:rgba(255,255,255,.15);
-  border-radius:2px;
+.cslider-fill{
+  position:absolute;left:0;top:0;height:100%;
+  background:var(--blue);border-radius:2px;
+  pointer-events:none;
 }
-.pi[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none;
-  appearance:none;
-  width:16px;
-  height:16px;
-  border-radius:50%;
-  background:var(--blue);
-  margin-top:-6px;
-  cursor:grab;
-  box-shadow:0 0 0 3px rgba(59,130,246,.2), 0 2px 6px rgba(0,0,0,.4);
-  transition:box-shadow .1s, transform .1s;
+.cslider-thumb{
+  position:absolute;top:50%;
+  width:16px;height:16px;margin-top:-8px;margin-left:-8px;
+  border-radius:50%;background:var(--blue);
+  box-shadow:0 0 0 3px rgba(59,130,246,.25),0 2px 6px rgba(0,0,0,.4);
+  transition:box-shadow .1s,transform .1s;
+  pointer-events:none;
 }
-.pi[type=range]:active::-webkit-slider-thumb{
-  cursor:grabbing;
-  transform:scale(1.15);
-  box-shadow:0 0 0 5px rgba(59,130,246,.3), 0 2px 8px rgba(0,0,0,.4);
-}
-.pi[type=range]::-moz-range-track{
-  height:4px;
-  background:rgba(255,255,255,.15);
-  border-radius:2px;
-}
-.pi[type=range]::-moz-range-thumb{
-  width:16px;height:16px;
-  border-radius:50%;
-  border:none;
-  background:var(--blue);
-  cursor:grab;
-  box-shadow:0 0 0 3px rgba(59,130,246,.2);
-}
-.pi[type=range]::-moz-range-thumb:active{
-  cursor:grabbing;
-}
-/* filled track (blue left side) */
-.pi[type=range]::-webkit-slider-runnable-track{
-  background: linear-gradient(to right,
-    var(--blue) 0%,
-    var(--blue) var(--val, 50%),
-    rgba(255,255,255,.12) var(--val, 50%),
-    rgba(255,255,255,.12) 100%
-  );
-}
+.cslider:hover .cslider-thumb{ box-shadow:0 0 0 5px rgba(59,130,246,.3),0 2px 8px rgba(0,0,0,.4); }
+.cslider.dragging .cslider-thumb{ transform:scale(1.18); box-shadow:0 0 0 6px rgba(59,130,246,.35),0 3px 10px rgba(0,0,0,.5); }
 .pi[type=color]{padding:1px;height:28px;cursor:pointer;border-radius:4px}
 .psel{flex:1;background:#1e2740;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;padding:6px 8px;outline:none}
 .psel option{background:#1e2740}
@@ -1177,24 +1135,8 @@ function toHex(c){
 // toolbar actions
 // Font loader — all fonts pre-loaded via Google Fonts link, this is a no-op safety net
 function loadFont(family){
-  // Fonts are all pre-loaded in the <head> link tag. No dynamic loading needed.
-  // This function exists so the onchange handler doesn't error if called.
+  // All fonts pre-loaded via Google Fonts link tag
 }
-
-// Keep slider track visually filled up to thumb position
-function updateSliderFill(input){
-  const min=parseFloat(input.min)||0;
-  const max=parseFloat(input.max)||100;
-  const val=parseFloat(input.value)||0;
-  const pct=((val-min)/(max-min)*100).toFixed(1)+'%';
-  input.style.setProperty('--val', pct);
-  // Also update background directly for maximum compat
-  input.style.background=`linear-gradient(to right, var(--blue) 0%, var(--blue) ${pct}, rgba(255,255,255,.12) ${pct}, rgba(255,255,255,.12) 100%)`;
-}
-// Call on every range input event
-document.addEventListener('input', e=>{
-  if(e.target.type==='range') updateSliderFill(e.target);
-});
 
 function sp(prop,val){
   const el=els.find(x=>x.id===selId); if(!el) return;
@@ -1227,6 +1169,82 @@ function delEl(){
 }
 
 // ── Right panel ──
+// ── Custom slider engine ──
+// Generates a draggable slider div that's 100% independent of canvas drag system
+function mkSlider(id, min, max, step, val, callbackExpr, isPercent=false, unit=''){
+  const pct = ((val-min)/(max-min)*100).toFixed(2);
+  const display = isPercent ? Math.round(val*100)+'%' : (Number.isInteger(step) ? Math.round(val) : parseFloat(val).toFixed(1)) + unit;
+  return `<div class="cslider" id="${id}"
+    data-min="${min}" data-max="${max}" data-step="${step}"
+    data-val="${val}" data-cb="${callbackExpr.replace(/"/g,'&quot;')}"
+    data-pct="${isPercent?'1':'0'}" data-unit="${unit}"
+    onmousedown="sliderDown(event,this)"
+    ontouchstart="sliderTouch(event,this)">
+    <div class="cslider-track"><div class="cslider-fill" style="width:${pct}%"></div></div>
+    <div class="cslider-thumb" style="left:${pct}%"></div>
+  </div>
+  <span class="slider-val" style="font-size:11px;color:var(--text2);width:42px;text-align:right;flex-shrink:0">${display}</span>`;
+}
+
+let _sl = null; // active custom slider drag state
+function sliderDown(e, el){
+  e.preventDefault();
+  e.stopPropagation();
+  _sl = { el, rect: el.getBoundingClientRect() };
+  el.classList.add('dragging');
+  sliderMove(e.clientX);
+  document.addEventListener('mousemove', _slMove);
+  document.addEventListener('mouseup',   _slUp);
+}
+function sliderTouch(e, el){
+  e.stopPropagation();
+  _sl = { el, rect: el.getBoundingClientRect() };
+  el.classList.add('dragging');
+  sliderMove(e.touches[0].clientX);
+  document.addEventListener('touchmove', _slTouchMove, {passive:false});
+  document.addEventListener('touchend',  _slUp);
+}
+const _slMove      = e => { if(_sl) sliderMove(e.clientX); };
+const _slTouchMove = e => { e.preventDefault(); if(_sl) sliderMove(e.touches[0].clientX); };
+const _slUp        = () => {
+  if(!_sl) return;
+  _sl.el.classList.remove('dragging');
+  _sl = null;
+  document.removeEventListener('mousemove',  _slMove);
+  document.removeEventListener('mouseup',    _slUp);
+  document.removeEventListener('touchmove',  _slTouchMove);
+  document.removeEventListener('touchend',   _slUp);
+  if(selId) pushH();
+};
+function sliderMove(clientX){
+  if(!_sl) return;
+  const el   = _sl.el;
+  const rect = _sl.rect;
+  const min  = parseFloat(el.dataset.min);
+  const max  = parseFloat(el.dataset.max);
+  const step = parseFloat(el.dataset.step);
+  const isP  = el.dataset.pct === '1';
+  const unit = el.dataset.unit || '';
+  let pct  = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  let raw  = min + pct * (max - min);
+  // Snap to step
+  raw = Math.round(raw / step) * step;
+  raw = Math.max(min, Math.min(max, raw));
+  const pctDisp = ((raw-min)/(max-min)*100).toFixed(2);
+  // Update visuals
+  el.querySelector('.cslider-fill').style.width  = pctDisp + '%';
+  el.querySelector('.cslider-thumb').style.left  = pctDisp + '%';
+  // Update label
+  const label = el.nextElementSibling;
+  if(label && label.classList.contains('slider-val')){
+    label.textContent = isP ? Math.round(raw*100)+'%'
+      : (Number.isInteger(step) ? Math.round(raw) : parseFloat(raw).toFixed(1)) + unit;
+  }
+  // Fire callback — v = the value
+  const v = raw;
+  try{ eval(el.dataset.cb.replace(/&quot;/g,'"')); }catch(x){}
+}
+
 function drawRP(){
   const el=els.find(x=>x.id===selId);
   if(!el){ document.getElementById('rp-empty').style.display='flex'; document.getElementById('rp-body').style.display='none'; return; }
@@ -1247,8 +1265,7 @@ function drawRP(){
       <div class="p2i"><label>H</label><input class="pi" type="number" value="${el.h}" onchange="updXY('h',+this.value)"></div>
     </div>
     <div class="pr"><label>Opacity</label>
-      <input class="pi" type="range" min="0" max="1" step="0.05" value="${el.s.opacity||1}" oninput="sp('opacity',this.value);this.nextElementSibling.textContent=Math.round(this.value*100)+'%'" style="flex:1">
-      <span style="font-size:11px;color:var(--text2);width:38px;text-align:right;flex-shrink:0">${Math.round((parseFloat(el.s.opacity)||1)*100)}%</span>
+      ${mkSlider('opacity-sl', 0, 1, 0.05, parseFloat(el.s.opacity)||1, "sp('opacity',v)", true)}
     </div>
   </div>
   ${TEXT_ELS.has(el.type)?`
@@ -1274,15 +1291,13 @@ function drawRP(){
       </select>
     </div>
     <div class="pr"><label>Size</label>
-      <input class="pi" type="range" min="8" max="120" step="1" value="${parseInt(el.s.fontSize)||16}" oninput="spSize(this.value);this.nextElementSibling.value=this.value" style="flex:1">
-      <input class="pi" type="number" min="8" max="200" value="${parseInt(el.s.fontSize)||16}" onchange="spSize(this.value);this.previousElementSibling.value=this.value" style="width:52px;flex:none">
+      ${mkSlider('size-sl', 8, 120, 1, parseInt(el.s.fontSize)||16, 'spSize(v)', false, 'px')}
     </div>
     <div class="pr"><label>Weight</label><select class="psel" onchange="sp('fontWeight',this.value)">${[300,400,500,600,700,800,900].map(w=>`<option value="${w}"${(el.s.fontWeight||'400')==w?'selected':''} >${w}</option>`).join('')}</select></div>
     <div class="pr"><label>Colour</label><input class="pi" type="color" value="${toHex(el.s.color||'#111827')}" oninput="sp('color',this.value)"></div>
     <div class="pr"><label>Align</label><div style="display:flex;gap:4px;flex:1">${['left','center','right'].map(a=>`<button class="abtn${el.s.textAlign===a?' on':''}" onclick="sp('textAlign','${a}')">${a==='left'?'⬅':a==='center'?'↔':'➡'}</button>`).join('')}</div></div>
     <div class="pr"><label>Line H</label>
-      <input class="pi" type="range" min="0.8" max="3" step="0.1" value="${parseFloat(el.s.lineHeight)||1.5}" oninput="sp('lineHeight',this.value);this.nextElementSibling.value=this.value" style="flex:1">
-      <input class="pi" type="number" min="0.8" max="3" step="0.1" value="${parseFloat(el.s.lineHeight)||1.5}" onchange="sp('lineHeight',this.value);this.previousElementSibling.value=this.value" style="width:52px;flex:none">
+      ${mkSlider('lineh-sl', 0.8, 3, 0.1, parseFloat(el.s.lineHeight)||1.5, "sp('lineHeight',v)", false)}
     </div>
   </div>`:''}
   <div class="pg">
@@ -1293,8 +1308,7 @@ function drawRP(){
   <div class="pg">
     <div class="pl">Border & Shadow</div>
     <div class="pr"><label>Radius</label>
-      <input class="pi" type="range" min="0" max="60" step="1" value="${parseInt(el.s.borderRadius)||0}" oninput="spd('borderRadius',this.value+'px');this.nextElementSibling.value=this.value" style="flex:1">
-      <input class="pi" type="number" min="0" max="60" value="${parseInt(el.s.borderRadius)||0}" onchange="spd('borderRadius',this.value+'px');this.previousElementSibling.value=this.value" style="width:52px;flex:none">
+      ${mkSlider('radius-sl', 0, 60, 1, parseInt(el.s.borderRadius)||0, "spd('borderRadius',v+'px')", false, 'px')}
     </div>
     <div class="pr"><label>Border</label><input class="pi" type="text" placeholder="1px solid #e2e8f0" value="${el.s.border||''}" onchange="spd('border',this.value)"></div>
     <div class="pr"><label>Shadow</label><input class="pi" type="text" placeholder="0 4px 12px rgba(0,0,0,.1)" value="${el.s.boxShadow||''}" onchange="spd('boxShadow',this.value)"></div>
