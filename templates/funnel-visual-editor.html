@@ -892,11 +892,15 @@ function buildInner(e){
   const span=document.createElement('div');
   span.className='el-inner';
   span.innerHTML=e.txt||'';
-  const TK=['fontSize','fontWeight','fontFamily','color','textAlign','lineHeight','letterSpacing','textTransform','textDecoration'];
+  const TK=['fontSize','fontWeight','fontFamily','color','lineHeight','letterSpacing','textTransform','textDecoration'];
   TK.forEach(k=>{if(e.s[k])span.style[k]=e.s[k];});
   span.style.width='100%'; span.style.height='100%';
   span.style.display='flex'; span.style.alignItems='center';
-  if(['button','cta'].includes(e.type)){span.style.justifyContent=({left:'flex-start',center:'center',right:'flex-end'})[e.s.textAlign||'center']||'center';span.style.padding='0 14px';}
+  // ALL text types: map textAlign → justifyContent so flex doesn't ignore it
+  const jc = ({left:'flex-start', center:'center', right:'flex-end'})[e.s.textAlign||'left'] || 'flex-start';
+  span.style.justifyContent = jc;
+  span.style.textAlign = e.s.textAlign || 'left'; // also set for inline text within
+  if(['button','cta'].includes(e.type)){span.style.padding='0 14px';}
   return span;
 }
 
@@ -1175,9 +1179,10 @@ function sp(prop,val){
   el.s[prop]=val;
   const inn=document.getElementById(selId)?.querySelector('.el-inner');
   if(inn){
-    // button/cta use flexbox - textAlign must map to justifyContent
-    if(prop==='textAlign' && ['button','cta'].includes(el.type)){
-      inn.style.justifyContent=({left:'flex-start',center:'center',right:'flex-end'})[val]||'center';
+    // All text elements use flexbox — textAlign must map to justifyContent
+    if(prop==='textAlign'){
+      inn.style.justifyContent=({left:'flex-start',center:'center',right:'flex-end'})[val]||'flex-start';
+      inn.style.textAlign=val; // keep for inline wrapping
     } else {
       inn.style[prop]=val;
     }
