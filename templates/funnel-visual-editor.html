@@ -210,6 +210,20 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   overflow:hidden;position:relative;
   background:var(--canvas-bg);
 }
+/* Editing hint bar */
+.canvas-hint-bar{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 14px;flex-shrink:0;
+  background:rgba(0,0,0,0.2);border-bottom:1px solid rgba(255,255,255,0.05);
+  overflow-x:auto;white-space:nowrap;
+}
+.canvas-hint-bar::-webkit-scrollbar{display:none}
+.hint-chip{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:600;color:rgba(255,255,255,0.4);
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);
+  border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;
+}
 #gjs{flex:1;overflow:hidden}
 
 /* GrapesJS — frame fills canvas correctly, no misalignment */
@@ -253,8 +267,55 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .gjs-four-color, .gjs-four-color-h:hover{color:var(--blue)!important}
 .gjs-selected{outline:2px solid var(--blue)!important;outline-offset:2px!important}
 .gjs-hovered{outline:1px dashed rgba(37,99,235,0.4)!important;outline-offset:1px!important}
-.gjs-toolbar{background:var(--blue)!important;border-radius:7px!important;box-shadow:0 4px 14px rgba(37,99,235,0.35)!important}
-.gjs-toolbar-item{color:#fff!important}
+.gjs-toolbar{background:#1a1f2e!important;border-radius:8px!important;box-shadow:0 4px 20px rgba(0,0,0,0.5)!important;border:1px solid rgba(255,255,255,0.1)!important;padding:2px!important}
+.gjs-toolbar-item{
+  color:rgba(255,255,255,0.7)!important;
+  border-radius:5px!important;padding:4px 7px!important;
+  font-size:12px!important;min-width:28px!important;
+  transition:all 0.12s!important;
+}
+.gjs-toolbar-item:hover{background:rgba(255,255,255,0.1)!important;color:#fff!important}
+.gjs-toolbar-item svg{width:14px!important;height:14px!important;fill:currentColor!important}
+
+/* ══ RTE — Rich Text Editor toolbar ══ */
+.gjs-rte-toolbar{
+  background:#1a1f2e!important;
+  border:1px solid rgba(255,255,255,0.1)!important;
+  border-radius:10px!important;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5)!important;
+  padding:4px 6px!important;
+  display:flex!important;gap:2px!important;
+  flex-wrap:wrap!important;
+}
+.gjs-rte-action{
+  background:transparent!important;
+  border:none!important;
+  border-radius:6px!important;
+  color:rgba(255,255,255,0.7)!important;
+  cursor:pointer!important;
+  font-size:12px!important;font-weight:600!important;
+  padding:5px 8px!important;min-width:28px!important;
+  transition:all 0.12s!important;font-family:'DM Sans',sans-serif!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+}
+.gjs-rte-action:hover,.gjs-rte-action.gjs-rte-active{
+  background:rgba(59,130,246,0.2)!important;
+  color:#7db4ff!important;
+}
+/* Divider between RTE action groups */
+.gjs-rte-toolbar > span{
+  width:1px!important;height:20px!important;
+  background:rgba(255,255,255,0.1)!important;
+  margin:0 3px!important;align-self:center!important;
+}
+/* Double-click hint on hover */
+.gjs-hovered[data-editable="true"]::after{
+  content:'Double-click to edit';
+  position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,0.75);color:#fff;font-size:10px;
+  padding:2px 8px;border-radius:4px;white-space:nowrap;pointer-events:none;
+  font-family:'DM Sans',sans-serif;
+}
 .gjs-badge{background:var(--blue)!important;border-radius:4px!important;font-family:'DM Sans'!important;font-size:10px!important}
 .gjs-resizer-h{
   background:rgba(59,130,246,0.9)!important;border-radius:3px!important;
@@ -737,6 +798,13 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 
   <!-- CANVAS -->
   <div class="canvas-area">
+    <!-- Editing hint bar -->
+    <div class="canvas-hint-bar">
+      <span class="hint-chip">✏️ Double-click any text to edit</span>
+      <span class="hint-chip">↔ Drag elements to reposition</span>
+      <span class="hint-chip">⬛ Drag corners/edges to resize</span>
+      <span class="hint-chip">🎨 Click to style in right panel</span>
+    </div>
     <div id="gjs"></div>
     <div class="canvas-empty" id="canvasEmpty">
       <div class="empty-card">
@@ -874,6 +942,20 @@ const editor=grapesjs.init({
     section { width: 100% !important; box-sizing: border-box !important; }
     img { max-width: 100% !important; height: auto !important; }
     * { box-sizing: border-box !important; }
+    /* Editable text hint */
+    [contenteditable="true"] {
+      outline: 2px dashed rgba(59,130,246,0.5) !important;
+      outline-offset: 2px !important;
+      cursor: text !important;
+      border-radius: 3px !important;
+    }
+    [contenteditable="true"]:focus {
+      outline: 2px solid rgba(59,130,246,0.8) !important;
+    }
+    /* Draggable cursor on hover */
+    .gjs-selected, .gjs-hovered {
+      cursor: move !important;
+    }
   `,
   // ── Asset Manager — image uploads ──
   assetManager:{
@@ -892,7 +974,30 @@ const editor=grapesjs.init({
   // ── Enable resizing on all components ──
   deviceManager:{devices:[{name:'Desktop',width:''},{name:'Tablet',width:'768px',widthMedia:'768px'},{name:'Mobile',width:'375px',widthMedia:'375px'}]},
   plugins:['gjs-blocks-basic','gjs-preset-webpage','gjs-plugin-forms'],
-  pluginsOpts:{'gjs-blocks-basic':{flexGrid:true},'gjs-preset-webpage':{modalImportTitle:'Import HTML',modalImportButton:'Import',modalImportLabel:'Paste HTML here'}},
+  pluginsOpts:{
+    'gjs-blocks-basic':{flexGrid:true},
+    'gjs-preset-webpage':{
+      modalImportTitle:'Import HTML',
+      modalImportButton:'Import',
+      modalImportLabel:'Paste HTML here',
+      // Enable rich text editor
+      richTextEditorOptions: {
+        actions: ['bold','italic','underline','strikethrough',
+          {name:'link',icon:'🔗',event:'mousedown',
+            result: rte => rte.exec('createLink', prompt('Enter URL:','https://'))},
+          'foreColor',
+          {name:'h1',icon:'<b>H1</b>',result: rte => rte.exec('formatBlock','<h1>')},
+          {name:'h2',icon:'<b>H2</b>',result: rte => rte.exec('formatBlock','<h2>')},
+          {name:'h3',icon:'<b>H3</b>',result: rte => rte.exec('formatBlock','<h3>')},
+          {name:'p', icon:'¶',result: rte => rte.exec('formatBlock','<p>')},
+          {name:'alignLeft',icon:'⬅',result: rte => rte.exec('justifyLeft')},
+          {name:'alignCenter',icon:'↔',result: rte => rte.exec('justifyCenter')},
+          {name:'alignRight',icon:'➡',result: rte => rte.exec('justifyRight')},
+        ]
+      }
+    },
+    'gjs-plugin-forms':{}
+  },
   styleManager:{appendTo:'#gjs-sm',sectors:[
     {name:'Typography',open:true,properties:['font-family','font-size','font-weight','color','line-height','text-align','letter-spacing']},
     {name:'Spacing',open:false,properties:['margin','padding']},
@@ -930,33 +1035,77 @@ editor.on('load',function(){
   }catch(e){}
 });
 
-/* ── Enable resizing on all component types ── */
+/* ── Enable full editing on all component types ── */
 editor.on('load', function(){
-  // Override component types to enable resizing
   const domc = editor.DomComponents;
-  const toResize = ['image','default','text','link','video','map','table','row','cell'];
-  toResize.forEach(type => {
+
+  // Base traits for resizing (all 8 handles)
+  const resizeCfg = {
+    tl:1,tc:1,tr:1, cl:1,cr:1, bl:1,bc:1,br:1,
+    minDim:10, currentUnit:1, unitHeight:'px', unitWidth:'px',
+  };
+
+  // Text-based types — editable + resizable + draggable
+  const textTypes = ['text','link','label'];
+  textTypes.forEach(type => {
     try {
-      const model = domc.getType(type);
-      if(model) {
-        domc.addType(type, {
-          model: {
-            defaults: {
-              ...model.model.prototype.defaults,
-              resizable: {
-                tl:1, tc:1, tr:1,
-                cl:1,         cr:1,
-                bl:1, bc:1, br:1,
-                minDim:20,
-                currentUnit:1,
-                unitHeight:'px',
-                unitWidth:'px',
-              },
-            }
+      const existing = domc.getType(type);
+      if(!existing) return;
+      domc.addType(type, {
+        model:{
+          defaults:{
+            ...existing.model.prototype.defaults,
+            editable: true,
+            draggable: true,
+            droppable: true,
+            resizable: resizeCfg,
           }
-        });
-      }
-    } catch(e){}
+        }
+      });
+    }catch(e){}
+  });
+
+  // Block/container types — draggable + resizable
+  const blockTypes = ['default','image','video','map','table','row','cell','checkbox','radio','input','textarea','select','button','label','form','svg','svg-in'];
+  blockTypes.forEach(type => {
+    try {
+      const existing = domc.getType(type);
+      if(!existing) return;
+      domc.addType(type, {
+        model:{
+          defaults:{
+            ...existing.model.prototype.defaults,
+            draggable: true,
+            droppable: true,
+            resizable: resizeCfg,
+          }
+        }
+      });
+    }catch(e){}
+  });
+
+  // Make ALL existing components on canvas editable after load
+  function makeEditable(component){
+    const tag = (component.get('tagName')||'').toLowerCase();
+    const textTags = ['h1','h2','h3','h4','h5','h6','p','span','a','li','td','th','label','button','div'];
+    if(textTags.includes(tag)){
+      component.set({editable:true, draggable:true, resizable:resizeCfg});
+    } else {
+      component.set({draggable:true, resizable:resizeCfg});
+    }
+    component.components().each(child => makeEditable(child));
+  }
+
+  // Apply to wrapper and all children
+  try {
+    makeEditable(editor.getWrapper());
+  }catch(e){}
+
+  // Also apply to any newly added components
+  editor.on('component:add', comp => {
+    setTimeout(() => {
+      try { makeEditable(comp); }catch(e){}
+    }, 50);
   });
 });
 
