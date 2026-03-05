@@ -304,6 +304,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
 <!-- TOPBAR -->
 <div id="topbar">
   <div class="tb-brand">
+    <a href="/funnels" title="Back to My Pages" style="display:flex;align-items:center;gap:6px;text-decoration:none;margin-right:4px;padding:5px 10px;border-radius:7px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);transition:background .12s" onmouseover="this.style.background='rgba(255,255,255,.09)'" onmouseout="this.style.background='rgba(255,255,255,.04)'">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7L9 12" stroke="rgba(255,255,255,.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span style="font-size:11px;font-weight:600;color:rgba(255,255,255,.6);white-space:nowrap">Pages</span>
+    </a>
     <div class="tb-s">
       <svg viewBox="0 0 32 32" fill="none" style="width:22px;height:22px">
         <circle cx="16" cy="16" r="16" fill="#0ea5e9"/>
@@ -343,7 +347,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
 
   <!-- SIDEBAR -->
   <div id="sidebar">
-    <button class="sic on" id="sic-elements" onclick="openPanel('elements')" title="Add Elements">
+    <button class="sic" id="sic-elements" onclick="openPanel('elements')" title="Add Elements">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       <span>Add</span>
     </button>
@@ -483,21 +487,21 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
       <span class="htag">⬛ Corner handles to resize</span>
       <span class="htag">⌘Z Undo · ⌘Y Redo · Del to delete</span>
       <div style="flex:1"></div>
-      <div style="display:flex;align-items:center;gap:7px;flex-shrink:0;padding:0 4px">
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;padding:0 4px">
         <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,.55);white-space:nowrap">Page BG</span>
-        <div style="position:relative;width:26px;height:26px;border-radius:6px;border:1px solid rgba(255,255,255,.15);overflow:hidden;cursor:pointer;flex-shrink:0" title="Canvas background colour">
+        <!-- Colour picker wheel -->
+        <div style="position:relative;width:28px;height:28px;border-radius:6px;border:2px solid rgba(255,255,255,.2);overflow:hidden;cursor:pointer;flex-shrink:0" title="Pick any colour">
           <div id="canvas-bg-swatch" style="position:absolute;inset:0;background:#ffffff"></div>
           <input type="color" id="canvas-bg-pick" value="#ffffff"
             oninput="setCanvasBg(this.value)"
             style="position:absolute;inset:-4px;width:calc(100%+8px);height:calc(100%+8px);opacity:0;cursor:pointer;padding:0;border:none">
         </div>
-        <div style="display:flex;gap:3px">
-          <button onclick="setCanvasBg('#ffffff')" title="White"  style="width:16px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.2);background:#ffffff;cursor:pointer;padding:0"></button>
-          <button onclick="setCanvasBg('#f8fafc')" title="Off-white" style="width:16px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.15);background:#f8fafc;cursor:pointer;padding:0"></button>
-          <button onclick="setCanvasBg('#0f172a')" title="Dark"   style="width:16px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.15);background:#0f172a;cursor:pointer;padding:0"></button>
-          <button onclick="setCanvasBg('#050d1a')" title="Deep dark" style="width:16px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.15);background:#050d1a;cursor:pointer;padding:0"></button>
-          <button onclick="setCanvasBg('#fef9f0')" title="Warm cream" style="width:16px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.15);background:#fef9f0;cursor:pointer;padding:0"></button>
-          <button onclick="setCanvasBg('#f0f7ff')" title="Cool blue" style="width:16px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.15);background:#f0f7ff;cursor:pointer;padding:0"></button>
+        <!-- 4 distinct presets: white / dark / cream / deep navy -->
+        <div style="display:flex;gap:4px;align-items:center">
+          <button onclick="setCanvasBg('#ffffff')" title="White"      style="width:20px;height:20px;border-radius:4px;border:2px solid rgba(255,255,255,.25);background:#ffffff;cursor:pointer;padding:0;flex-shrink:0"></button>
+          <button onclick="setCanvasBg('#050d1a')" title="Deep dark"  style="width:20px;height:20px;border-radius:4px;border:2px solid rgba(255,255,255,.15);background:#050d1a;cursor:pointer;padding:0;flex-shrink:0"></button>
+          <button onclick="setCanvasBg('#fef9f0')" title="Warm cream" style="width:20px;height:20px;border-radius:4px;border:2px solid rgba(255,255,255,.15);background:#fef9f0;cursor:pointer;padding:0;flex-shrink:0"></button>
+          <button onclick="setCanvasBg('#f0f4ff')" title="Cool blue"  style="width:20px;height:20px;border-radius:4px;border:2px solid rgba(255,255,255,.15);background:#f0f4ff;cursor:pointer;padding:0;flex-shrink:0"></button>
         </div>
       </div>
     </div>
@@ -1665,7 +1669,7 @@ setInterval(()=>{ if(els.length>0 && _isDirty) savePage(); }, 90000);
 window.addEventListener('load',()=>{
   loadPage();
   pushH();
-  openPanel('elements');
+  // Panels start closed - user opens them as needed
   // Let layout settle then scale canvas to fill available space
   requestAnimationFrame(()=>{ setTimeout(applyCanvasScale, 50); });
 });
