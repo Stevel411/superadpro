@@ -105,13 +105,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
   flex-shrink:0;overflow:hidden;
 }
 .htag{font-size:10px;font-weight:600;color:rgba(255,255,255,.3);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:3px 11px;white-space:nowrap}
-/* canvas-wrap: extra right padding creates the visible gap before right panel */
+/* canvas-wrap: dark background creates natural border on both sides */
 #canvas-wrap{
   flex:1;overflow:auto;
   display:flex;align-items:flex-start;justify-content:center;
-  padding:32px 40px;
+  padding:32px;
   background:#1a1f30;
-  gap:0;
+  border-right:3px solid rgba(255,255,255,.1);
 }
 #canvas-wrap::-webkit-scrollbar{width:6px;height:6px}
 #canvas-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
@@ -121,7 +121,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
   position:relative;background:#fff;
   box-shadow:0 12px 48px rgba(0,0,0,.55);
   min-height:900px;flex-shrink:0;
-  /* right edge separator visible against dark wrap background */
+  /* max-width ensures canvas never overflows its wrap */
+  max-width:100%;
 }
 #canvas.dover{outline:2px dashed rgba(59,130,246,.5);outline-offset:3px}
 #cempty{
@@ -206,7 +207,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
 .pr label{font-size:11px;color:var(--text3);width:58px;flex-shrink:0}
 .pi{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;padding:6px 9px;outline:none;transition:border .12s}
 .pi:focus{border-color:rgba(59,130,246,.4)}
-.pi[type=range]{padding:0;height:4px;accent-color:var(--blue)}
+.pi[type=range]{
+  padding:0;height:20px;accent-color:var(--blue);
+  cursor:pointer;flex:1;min-width:0;
+  -webkit-appearance:auto;appearance:auto;
+}
 .pi[type=color]{padding:1px;height:28px;cursor:pointer;border-radius:4px}
 .psel{flex:1;background:#1e2740;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;padding:6px 8px;outline:none}
 .psel option{background:#1e2740}
@@ -541,19 +546,22 @@ function setW(w){
   cW=w;
   const cv=CV();
   cv.style.width=w+'px';
-  // Auto-zoom to fit the canvas-wrap width
-  const wrap=document.getElementById('canvas-wrap');
-  const available=wrap.clientWidth - 48;
-  if(w > available){
-    const z=Math.round((available/w)*10)/10;
-    zoom=Math.max(0.3,z);
-    cv.style.zoom=zoom;
-    document.getElementById('zoom-label').textContent=Math.round(zoom*100)+'%';
-  } else {
-    zoom=1; cv.style.zoom=1;
-    document.getElementById('zoom-label').textContent='100%';
-  }
+  fitCanvas();
 }
+function fitCanvas(){
+  const cv=CV();
+  const wrap=document.getElementById('canvas-wrap');
+  const available=wrap.clientWidth - 64; // 32px padding each side
+  if(cW > available){
+    zoom=Math.max(0.25, Math.round((available/cW)*20)/20);
+  } else {
+    zoom=1;
+  }
+  cv.style.zoom=zoom;
+  document.getElementById('zoom-label').textContent=Math.round(zoom*100)+'%';
+}
+// Re-fit canvas when window resizes or panels open/close
+window.addEventListener('resize', ()=>{ if(cW) fitCanvas(); });
 
 // ── Panel ──
 let curPanel=null;
@@ -571,11 +579,13 @@ function openPanel(name){
     document.getElementById('sic-'+k)?.classList.toggle('on',k===name);
   });
   if(name==='layers') drawLayers();
+  setTimeout(fitCanvas, 210); // after transition
 }
 function closePanel(){
   document.getElementById('lpanel').classList.remove('open');
   document.querySelectorAll('.sic[id^=sic-]').forEach(b=>b.classList.remove('on'));
   curPanel=null;
+  setTimeout(fitCanvas, 210);
 }
 
 // ── Element defaults ──
@@ -1016,16 +1026,25 @@ function drawRP(){
       <div class="p2i"><label>W</label><input class="pi" type="number" value="${el.w}" onchange="updXY('w',+this.value)"></div>
       <div class="p2i"><label>H</label><input class="pi" type="number" value="${el.h}" onchange="updXY('h',+this.value)"></div>
     </div>
-    <div class="pr"><label>Opacity</label><input class="pi" type="range" min="0" max="1" step=".05" value="${el.s.opacity||1}" oninput="sp('opacity',this.value)"></div>
+    <div class="pr"><label>Opacity</label>
+      <input class="pi" type="range" min="0" max="1" step="0.05" value="${el.s.opacity||1}" oninput="sp('opacity',this.value);this.nextElementSibling.textContent=Math.round(this.value*100)+'%'" style="flex:1">
+      <span style="font-size:11px;color:var(--text2);width:36px;text-align:right;flex-shrink:0">${Math.round((el.s.opacity||1)*100)}%</span>
+    </div>
   </div>
   ${TEXT_ELS.has(el.type)?`
   <div class="pg">
     <div class="pl">Typography</div>
-    <div class="pr"><label>Size</label><input class="pi" type="number" value="${parseInt(el.s.fontSize)||16}" onchange="spSize(this.value)"></div>
+    <div class="pr"><label>Size</label>
+      <input class="pi" type="range" min="8" max="120" step="1" value="${parseInt(el.s.fontSize)||16}" oninput="spSize(this.value);this.nextElementSibling.value=this.value" style="flex:1">
+      <input class="pi" type="number" min="8" max="200" value="${parseInt(el.s.fontSize)||16}" onchange="spSize(this.value);this.previousElementSibling.value=this.value" style="width:52px;flex:none">
+    </div>
     <div class="pr"><label>Weight</label><select class="psel" onchange="sp('fontWeight',this.value)">${[300,400,500,600,700,800,900].map(w=>`<option value="${w}"${(el.s.fontWeight||'400')==w?'selected':''} >${w}</option>`).join('')}</select></div>
     <div class="pr"><label>Colour</label><input class="pi" type="color" value="${toHex(el.s.color||'#000')}" oninput="sp('color',this.value)"></div>
-    <div class="pr"><label>Align</label><div style="display:flex;gap:3px;flex:1">${['left','center','right'].map(a=>`<button class="abtn${el.s.textAlign===a?' on':''}" onclick="sp('textAlign','${a}')">${a==='left'?'⬅':a==='center'?'↔':'➡'}</button>`).join('')}</div></div>
-    <div class="pr"><label>Line H</label><input class="pi" type="number" step=".1" value="${parseFloat(el.s.lineHeight)||1.5}" onchange="sp('lineHeight',this.value)"></div>
+    <div class="pr"><label>Align</label><div style="display:flex;gap:4px;flex:1">${['left','center','right'].map(a=>`<button class="abtn${el.s.textAlign===a?' on':''}" onclick="sp('textAlign','${a}')">${a==='left'?'⬅':a==='center'?'↔':'➡'}</button>`).join('')}</div></div>
+    <div class="pr"><label>Line H</label>
+      <input class="pi" type="range" min="0.8" max="3" step="0.1" value="${parseFloat(el.s.lineHeight)||1.5}" oninput="sp('lineHeight',this.value);this.nextElementSibling.value=this.value" style="flex:1">
+      <input class="pi" type="number" min="0.8" max="3" step="0.1" value="${parseFloat(el.s.lineHeight)||1.5}" onchange="sp('lineHeight',this.value);this.previousElementSibling.value=this.value" style="width:52px;flex:none">
+    </div>
   </div>`:''}
   <div class="pg">
     <div class="pl">Background</div>
@@ -1034,7 +1053,10 @@ function drawRP(){
   </div>
   <div class="pg">
     <div class="pl">Border & Shadow</div>
-    <div class="pr"><label>Radius</label><input class="pi" type="text" value="${el.s.borderRadius||'0'}" onchange="spd('borderRadius',this.value)"></div>
+    <div class="pr"><label>Radius</label>
+      <input class="pi" type="range" min="0" max="60" step="1" value="${parseInt(el.s.borderRadius)||0}" oninput="spd('borderRadius',this.value+'px');this.nextElementSibling.value=this.value" style="flex:1">
+      <input class="pi" type="number" min="0" max="60" value="${parseInt(el.s.borderRadius)||0}" onchange="spd('borderRadius',this.value+'px');this.previousElementSibling.value=this.value" style="width:52px;flex:none">
+    </div>
     <div class="pr"><label>Border</label><input class="pi" type="text" placeholder="1px solid #e2e8f0" value="${el.s.border||''}" onchange="spd('border',this.value)"></div>
     <div class="pr"><label>Shadow</label><input class="pi" type="text" placeholder="0 4px 12px rgba(0,0,0,.1)" value="${el.s.boxShadow||''}" onchange="spd('boxShadow',this.value)"></div>
   </div>
@@ -1253,8 +1275,8 @@ setInterval(()=>{if(els.length>0)savePage();},60000);
 window.addEventListener('load',()=>{
   loadPage();
   pushH();
-  // Open elements panel by default
   openPanel('elements');
+  setTimeout(fitCanvas, 250);
 });
 </script>
 </body>
