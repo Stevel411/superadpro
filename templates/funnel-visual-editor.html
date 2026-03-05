@@ -240,8 +240,17 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 /* Kill ALL GrapesJS native panels — nothing should leak out */
 .gjs-pn-panels{display:none!important;width:0!important;overflow:hidden!important}
 .gjs-pn-panel{display:none!important}
-.gjs-editor{overflow:hidden!important}
-.gjs-editor-cont{overflow:hidden!important}
+.gjs-editor{overflow:hidden!important;background:transparent!important}
+.gjs-editor-cont{overflow:hidden!important;background:transparent!important}
+/* Kill any GJS background that shows in the right panel area */
+.gjs-editor > *:not(.gjs-cv-canvas){background:transparent!important}
+#gjs > .gjs-editor{background:var(--canvas-bg)!important}
+.gjs-sm-sector__title ~ .gjs-sm-properties{background:transparent!important}
+/* The specific brown - override GJS default theme colors globally */
+.gjs-one-bg{background:var(--chrome)!important}
+.gjs-two-color{color:var(--text)!important}
+.gjs-three-bg{background:var(--chrome2)!important}
+.gjs-four-color, .gjs-four-color-h:hover{color:var(--blue)!important}
 .gjs-selected{outline:2px solid var(--blue)!important;outline-offset:2px!important}
 .gjs-hovered{outline:1px dashed rgba(37,99,235,0.4)!important;outline-offset:1px!important}
 .gjs-toolbar{background:var(--blue)!important;border-radius:7px!important;box-shadow:0 4px 14px rgba(37,99,235,0.35)!important}
@@ -297,9 +306,11 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 }
 .right-empty-ico{font-size:28px;opacity:0.18;margin-bottom:4px}
 .right-empty-txt{font-size:11px;color:var(--text3);line-height:1.6;max-width:160px}
-.right-styles{flex:1;overflow-y:auto;display:none}
+.right-styles{flex:1;overflow-y:auto;display:none;background:var(--chrome)}
 .right-styles::-webkit-scrollbar{width:3px}
 .right-styles::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+/* Ensure #gjs-sm fills its container with matching dark bg */
+#gjs-sm{background:var(--chrome);min-height:100%}
 
 /* Style manager — dark skin (inherits from --chrome2 vars) */
 #gjs-sm .gjs-sm-sector{background:transparent!important;border-bottom:1px solid var(--border)!important}
@@ -910,8 +921,40 @@ function filterSec(q){
 }
 
 /* ── Add section / element ── */
-function addSec(k){const h=S[k];if(!h)return;editor.addComponents(h);toast('Section added ✓','success');checkEmpty();}
-function addElem(k){const h=E[k];if(!h)return;editor.addComponents(h);toast('Element added ✓','info');checkEmpty();}
+function addSec(k){
+  const h=S[k];if(!h)return;
+  const added=editor.addComponents(h);
+  toast('Section added ✓','success');
+  checkEmpty();
+  // Select and scroll to the new component
+  if(added && added.length){
+    const comp=added[0];
+    editor.select(comp);
+    setTimeout(()=>{
+      try{
+        const el=comp.getEl();
+        if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+      }catch(e){}
+    },80);
+  }
+}
+function addElem(k){
+  const h=E[k];if(!h)return;
+  const added=editor.addComponents(h);
+  toast('Element added ✓','info');
+  checkEmpty();
+  // Select and scroll to the new component
+  if(added && added.length){
+    const comp=added[0];
+    editor.select(comp);
+    setTimeout(()=>{
+      try{
+        const el=comp.getEl();
+        if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+      }catch(e){}
+    },80);
+  }
+}
 
 /* ── Device ── */
 function setDevice(n){editor.setDevice(n);document.querySelectorAll('.dev-btn').forEach(b=>b.classList.remove('active'));document.getElementById('dev'+n).classList.add('active');}
