@@ -2,493 +2,450 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Page Builder — {{ page.title }}</title>
-<link rel="stylesheet" href="https://unpkg.com/grapesjs@0.21.13/dist/css/grapes.min.css">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.27/dist/interact.min.js"></script>
 <style>
-:root{
-  --topbar-h:62px;
-  --iconbar-w:64px;
-  --panel-w:290px;
-  --right-w:290px;
-  --chrome:#2a2d3e;
-  --chrome2:#323548;
-  --chrome3:#3a3f56;
-  --border:rgba(255,255,255,0.08);
-  --border2:rgba(255,255,255,0.14);
-  --iconbar:#1e2130;
+/* ═══════════════════════════════════════════════
+   SUPERADPRO PAGE BUILDER v5 — Free Canvas
+═══════════════════════════════════════════════ */
+:root {
+  --topbar:62px;
+  --sidebar:72px;
+  --panel:280px;
+  --dark:#161b2e;
+  --dark2:#1e2537;
+  --dark3:#252e42;
+  --dark4:#2d3650;
+  --border:rgba(255,255,255,0.07);
+  --blue:#3b82f6;
+  --blue2:#60a5fa;
   --text:#e8edf4;
   --text2:#94a3b8;
   --text3:#64748b;
-  --blue:#3b82f6;
-  --blue-bg:rgba(59,130,246,0.12);
-  --blue-border:rgba(59,130,246,0.3);
+  --canvas:#f0f2f8;
+  --white:#ffffff;
   --green:#10b981;
-  --canvas-bg:#23263a;
-  --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md:0 4px 16px rgba(0,0,0,0.08);
-  --shadow-lg:0 16px 48px rgba(0,0,0,0.14);
+  --red:#ef4444;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--canvas-bg);color:var(--text)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--dark)}
 
-/* ══ TOPBAR — dark, unified with workspace ══ */
+/* ── TOPBAR ── */
 .topbar{
-  position:fixed;top:0;left:0;right:0;height:var(--topbar-h);
-  background:#1e2130;border-bottom:1px solid rgba(255,255,255,0.06);
-  display:flex;align-items:center;z-index:300;
+  position:fixed;top:0;left:0;right:0;height:var(--topbar);
+  background:#1a1f30;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;z-index:500;
 }
-.tb-logo-cell{display:none} /* removed — merged into brand */
 .tb-brand{
-  display:flex;align-items:center;gap:10px;padding:0 20px;
-  border-right:1px solid rgba(255,255,255,0.06);height:100%;flex-shrink:0;
+  display:flex;align-items:center;gap:10px;
+  padding:0 20px;height:100%;
+  border-right:1px solid var(--border);flex-shrink:0;
 }
 .tb-logomark{
+  width:34px;height:34px;border-radius:9px;flex-shrink:0;
+  background:linear-gradient(135deg,#2563eb,#6366f1);
   display:flex;align-items:center;justify-content:center;
-  filter:drop-shadow(0 2px 6px rgba(99,102,241,0.4));
-  flex-shrink:0;
+  font-family:'Sora',sans-serif;font-weight:900;font-size:18px;color:#fff;
+  box-shadow:0 2px 10px rgba(99,102,241,0.35);
 }
-.tb-wordmark{display:flex;flex-direction:column;justify-content:center}
-.tb-wordmark-main{
-  font-family:'Sora',sans-serif;font-size:16px;font-weight:900;
-  color:#fff;letter-spacing:-0.5px;line-height:1;white-space:nowrap;
-}
-.tb-wordmark-main span{color:#60a5fa}
+.tb-name{font-family:'Sora',sans-serif;font-size:16px;font-weight:900;color:#fff;letter-spacing:-0.5px}
+.tb-name span{color:var(--blue2)}
 .tb-pill{
-  font-size:9px;font-weight:700;color:#60a5fa;
-  background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);
-  border-radius:4px;padding:3px 8px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;
+  font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--blue2);background:rgba(59,130,246,0.12);
+  border:1px solid rgba(59,130,246,0.25);border-radius:4px;padding:3px 8px;
 }
-.tb-title-area{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 16px}
-.tb-page-input{
+.tb-center{flex:1;display:flex;align-items:center;justify-content:center;gap:10px}
+.tb-page-name{
   background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);
-  border-radius:8px;color:#e8edf4;font-size:13px;font-weight:600;font-family:inherit;
-  padding:7px 16px;width:220px;text-align:center;outline:none;transition:all 0.14s;
+  border-radius:8px;color:var(--text);font-size:13px;font-weight:600;
+  font-family:'DM Sans',sans-serif;padding:7px 18px;width:220px;
+  text-align:center;outline:none;transition:all .14s;
 }
-.tb-page-input:focus{border-color:rgba(59,130,246,0.5);background:rgba(59,130,246,0.08);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
-.tb-page-input::placeholder{color:rgba(255,255,255,0.3)}
-.tb-save-status{font-size:10px;font-weight:700;color:#64748b;letter-spacing:0.4px;white-space:nowrap}
-.tb-right{display:flex;align-items:center;gap:6px;padding:0 14px}
+.tb-page-name:focus{border-color:rgba(59,130,246,.5);background:rgba(59,130,246,.07)}
+.tb-status{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.4px}
+.tb-right{display:flex;align-items:center;gap:6px;padding:0 16px}
 .tb-btn{
   display:flex;align-items:center;gap:5px;
-  padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;
-  cursor:pointer;border:1px solid transparent;font-family:inherit;
-  transition:all 0.13s;letter-spacing:0.2px;
+  padding:8px 14px;border-radius:8px;border:1px solid transparent;
+  font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;
+  cursor:pointer;transition:all .13s;letter-spacing:.2px;white-space:nowrap;
 }
-.btn-icon{padding:7px 9px;background:rgba(255,255,255,0.06);color:#94a3b8;border-color:rgba(255,255,255,0.08)}
-.btn-icon:hover{background:rgba(255,255,255,0.1);color:#e8edf4;border-color:rgba(255,255,255,0.15)}
-.btn-preview{background:rgba(255,255,255,0.06);color:#94a3b8;border-color:rgba(255,255,255,0.08)}
-.btn-preview:hover{background:rgba(255,255,255,0.1);color:#e8edf4}
-.btn-save{background:rgba(16,185,129,0.15);color:#34d399;border-color:rgba(16,185,129,0.3);font-weight:700}
-.btn-save:hover{background:rgba(16,185,129,0.25);border-color:rgba(16,185,129,0.5)}
-.btn-publish{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 2px 8px rgba(37,99,235,0.35)}
-.btn-publish:hover{background:#1d4ed8;box-shadow:0 3px 12px rgba(37,99,235,0.5)}
-.tb-divider{width:1px;height:22px;background:rgba(255,255,255,0.07);margin:0 4px;flex-shrink:0}
-.dev-grp{
-  display:flex;align-items:center;gap:1px;
-  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
-  border-radius:8px;padding:3px;overflow:hidden;
-}
-.dev-btn{padding:5px 8px;border-radius:5px;font-size:14px;cursor:pointer;border:none;background:transparent;color:#64748b;transition:all 0.12s}
-.dev-btn:hover{color:#e8edf4}
-.dev-btn.active{background:rgba(59,130,246,0.2);color:#60a5fa;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.btn-icon{padding:8px 10px;background:rgba(255,255,255,.06);color:var(--text2);border-color:var(--border)}
+.btn-icon:hover{background:rgba(255,255,255,.1);color:var(--text)}
+.btn-preview{background:rgba(255,255,255,.06);color:var(--text2);border-color:var(--border)}
+.btn-preview:hover{background:rgba(255,255,255,.1);color:var(--text)}
+.btn-save{background:rgba(16,185,129,.12);color:#34d399;border-color:rgba(16,185,129,.3)}
+.btn-save:hover{background:rgba(16,185,129,.22);border-color:rgba(16,185,129,.5)}
+.btn-publish{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 2px 10px rgba(59,130,246,.3)}
+.btn-publish:hover{background:#2563eb;box-shadow:0 3px 16px rgba(59,130,246,.5)}
+.tb-divider{width:1px;height:22px;background:var(--border);margin:0 2px}
+.zoom-grp{display:flex;align-items:center;gap:1px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:7px;padding:2px}
+.zoom-btn{padding:5px 9px;border-radius:5px;border:none;background:transparent;color:var(--text3);font-size:13px;cursor:pointer;transition:all .12s}
+.zoom-btn:hover{background:rgba(255,255,255,.08);color:var(--text)}
+.zoom-val{font-size:10px;font-weight:700;color:var(--text2);min-width:34px;text-align:center}
 
-/* ══ APP BODY ══ */
-.app-body{
-  display:flex;
-  margin-top:var(--topbar-h);
-  height:calc(100vh - var(--topbar-h));
-  overflow:hidden;
-}
+/* ── LAYOUT ── */
+.app{display:flex;height:calc(100vh - var(--topbar));margin-top:var(--topbar)}
 
-/* ══ ICON BAR ══ */
-.iconbar{
-  width:var(--iconbar-w);min-width:var(--iconbar-w);
-  background:var(--iconbar);
+/* ── LEFT SIDEBAR (icons) ── */
+.sidebar{
+  width:var(--sidebar);flex-shrink:0;
+  background:#161b2e;border-right:1px solid var(--border);
   display:flex;flex-direction:column;align-items:center;
-  padding:10px 0;gap:2px;flex-shrink:0;z-index:100;
+  padding:10px 0;gap:4px;z-index:100;
 }
 .ic-btn{
-  width:36px;height:36px;border-radius:9px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all 0.13s;color:rgba(255,255,255,0.38);
-  font-size:15px;position:relative;
+  width:48px;height:48px;border-radius:12px;border:none;
+  background:transparent;color:var(--text3);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;transition:all .13s;flex-shrink:0;
 }
-.ic-btn:hover{background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.8)}
-.ic-btn.active{background:rgba(37,99,235,0.28);color:#7db4ff}
-.ic-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.ic-sep{width:22px;height:1px;background:rgba(255,255,255,0.07);margin:4px 0}
-.ic-btn::after{
-  content:attr(data-tip);position:absolute;left:calc(100% + 9px);top:50%;transform:translateY(-50%);
-  background:#1c2233;color:rgba(255,255,255,0.88);font-size:10px;font-weight:700;
-  padding:4px 8px;border-radius:5px;white-space:nowrap;pointer-events:none;
-  opacity:0;transition:opacity 0.13s;z-index:400;font-family:'DM Sans',sans-serif;
-  border:1px solid rgba(255,255,255,0.07);letter-spacing:0.3px;
-}
-.ic-btn:hover::after{opacity:1}
+.ic-btn:hover{background:rgba(255,255,255,.07);color:var(--text2)}
+.ic-btn.active{background:rgba(59,130,246,.15);color:var(--blue2)}
+.ic-btn svg{width:18px;height:18px}
+.ic-label{font-size:8px;font-weight:700;letter-spacing:.3px;text-transform:uppercase}
+.ic-sep{width:28px;height:1px;background:var(--border);margin:4px 0}
 
-/* ══ LEFT PANEL ══ */
+/* ── LEFT PANEL ── */
 .left-panel{
-  width:0;overflow:hidden;
-  background:var(--chrome);
-  border-right:1px solid var(--border);
-  transition:width 0.18s cubic-bezier(0.4,0,0.2,1);
-  display:flex;flex-direction:column;flex-shrink:0;z-index:90;
+  width:0;overflow:hidden;transition:width .22s cubic-bezier(.4,0,.2,1);
+  background:var(--dark2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;
 }
-.left-panel.open{width:var(--panel-w)}
-
+.left-panel.open{width:var(--panel)}
 .panel-head{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:13px 14px;border-bottom:1px solid var(--border);
-  flex-shrink:0;min-width:var(--panel-w);
+  padding:14px 16px 12px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
 }
-.panel-head-title{font-size:11px;font-weight:800;color:var(--text);letter-spacing:1px;text-transform:uppercase}
+.panel-title{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text2)}
 .panel-close{
-  width:22px;height:22px;border-radius:5px;
-  background:rgba(255,255,255,0.06);border:1px solid var(--border);
-  cursor:pointer;font-size:11px;color:var(--text3);
-  display:flex;align-items:center;justify-content:center;transition:all 0.11s;
+  width:22px;height:22px;border-radius:5px;border:none;
+  background:rgba(255,255,255,.06);color:var(--text3);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;
 }
-.panel-close:hover{background:rgba(255,255,255,0.1);color:var(--text)}
-
-.panel-search-row{
-  padding:9px 10px;border-bottom:1px solid var(--border);
-  flex-shrink:0;min-width:var(--panel-w);position:relative;
-}
-.panel-search-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px;pointer-events:none}
-.panel-search{
-  width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);
-  border-radius:7px;color:var(--text);font-size:11px;font-family:inherit;
-  padding:7px 9px 7px 26px;outline:none;transition:all 0.13s;
-}
-.panel-search:focus{border-color:var(--blue);background:rgba(59,130,246,0.08)}
-.panel-search::placeholder{color:var(--text3)}
-
-.panel-body{
-  flex:1;overflow-y:auto;overflow-x:hidden;
-  min-width:var(--panel-w);
-}
+.panel-close:hover{background:rgba(255,255,255,.12);color:var(--text)}
+.panel-body{flex:1;overflow-y:auto;padding:10px 10px 20px}
 .panel-body::-webkit-scrollbar{width:3px}
-.panel-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
-
-/* category header */
-.cat-row{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:12px 14px 5px}
-
-/* section cards */
-.sec-card{
-  margin:0 10px 6px;border-radius:9px;overflow:hidden;
-  border:1px solid var(--border);background:var(--chrome2);cursor:pointer;
-  transition:all 0.14s;
+.panel-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+.cat-label{
+  font-size:9px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--text3);padding:12px 4px 6px;
 }
-.sec-card:hover{border-color:rgba(59,130,246,0.5);background:var(--chrome3);box-shadow:0 0 0 2px rgba(59,130,246,0.1);transform:translateY(-1px)}
-.sec-thumb{
-  height:52px;display:flex;align-items:center;justify-content:center;
-  padding:7px 10px;gap:4px;overflow:hidden;
-}
-.sec-thumb.dark{background:linear-gradient(135deg,#0d1424,#162035)}
-.sec-thumb.light{background:linear-gradient(135deg,#f0f4ff,#e8eeff)}
-.sec-thumb.white{background:#ffffff;border-bottom:1px solid rgba(0,0,0,0.06)}
-.sec-meta{padding:7px 10px 8px}
-.sec-name{font-size:11px;font-weight:700;color:var(--text)}
-.sec-desc{font-size:9px;color:var(--text3);margin-top:1px;line-height:1.4}
 
-/* elements grid — 2 big columns */
-.elem-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 10px 8px}
+/* ── ELEMENT CARDS (draggable from panel) ── */
+.elem-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:4px}
 .elem-card{
-  border:1px solid var(--border);border-radius:9px;
-  padding:16px 8px 12px;cursor:pointer;transition:all 0.13s;
-  text-align:center;background:var(--chrome2);
+  background:var(--dark3);border:1px solid var(--border);border-radius:10px;
+  padding:14px 8px 10px;text-align:center;cursor:grab;
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  transition:all .13s;user-select:none;
 }
-.elem-card:hover{border-color:rgba(59,130,246,0.5);background:rgba(59,130,246,0.1);box-shadow:0 0 0 2px rgba(59,130,246,0.1)}
-.elem-icon{font-size:22px;display:block;margin-bottom:6px;line-height:1.1}
-.elem-label{font-size:10px;font-weight:700;color:var(--text2);letter-spacing:0.5px;text-transform:uppercase}
+.elem-card:hover{background:var(--dark4);border-color:rgba(59,130,246,.3);transform:translateY(-1px)}
+.elem-card:active{cursor:grabbing}
+.elem-icon{font-size:20px;line-height:1}
+.elem-name{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text2)}
 
-/* ══ CANVAS ══ */
-.canvas-area{
-  flex:1;display:flex;flex-direction:column;
-  overflow:hidden;position:relative;
-  background:var(--canvas-bg);
+/* Section thumbnails */
+.sec-card{
+  background:var(--dark3);border:1px solid var(--border);border-radius:10px;
+  overflow:hidden;cursor:pointer;transition:all .13s;margin-bottom:8px;
 }
-/* Editing hint bar */
-.canvas-hint-bar{
-  display:flex;align-items:center;gap:6px;
-  padding:6px 14px;flex-shrink:0;
-  background:rgba(0,0,0,0.2);border-bottom:1px solid rgba(255,255,255,0.05);
-  overflow-x:auto;white-space:nowrap;
-}
-.canvas-hint-bar::-webkit-scrollbar{display:none}
-.hint-chip{
-  display:inline-flex;align-items:center;gap:4px;
-  font-size:10px;font-weight:600;color:rgba(255,255,255,0.4);
-  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);
-  border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;
-}
-#gjs{flex:1;overflow:hidden}
-
-/* GrapesJS — frame fills canvas correctly, no misalignment */
-.gjs-cv-canvas{
-  background:var(--canvas-bg)!important;
-  top:0!important;left:0!important;
-  width:100%!important;height:100%!important;
-}
-.gjs-frame-wrapper{
-  width:100%!important;height:100%!important;
-}
-.gjs-frame{
-  border-radius:0!important;
-  box-shadow:none!important;
-  border:none!important;
-  width:100%!important;
-}
-/* Tablet/mobile floating frame */
-.gjs-cv-canvas--tablet .gjs-frame-wrapper,
-.gjs-cv-canvas--mobile .gjs-frame-wrapper{
-  padding:20px!important;display:flex!important;justify-content:center!important;
-}
-.gjs-cv-canvas--tablet .gjs-frame,
-.gjs-cv-canvas--mobile .gjs-frame{
-  border-radius:8px!important;box-shadow:0 8px 32px rgba(0,0,0,0.4)!important;
-  border:1px solid rgba(255,255,255,0.08)!important;height:auto!important;
-}
-/* Kill ALL GrapesJS native panels — nothing should leak out */
-.gjs-pn-panels{display:none!important;width:0!important;overflow:hidden!important}
-.gjs-pn-panel{display:none!important}
-.gjs-editor{overflow:hidden!important;background:transparent!important}
-.gjs-editor-cont{overflow:hidden!important;background:transparent!important}
-/* Kill any GJS background that shows in the right panel area */
-.gjs-editor > *:not(.gjs-cv-canvas){background:transparent!important}
-#gjs > .gjs-editor{background:var(--canvas-bg)!important}
-.gjs-sm-sector__title ~ .gjs-sm-properties{background:transparent!important}
-/* The specific brown - override GJS default theme colors globally */
-.gjs-one-bg{background:var(--chrome)!important}
-.gjs-two-color{color:var(--text)!important}
-.gjs-three-bg{background:var(--chrome2)!important}
-.gjs-four-color, .gjs-four-color-h:hover{color:var(--blue)!important}
-.gjs-selected{outline:2px solid var(--blue)!important;outline-offset:2px!important}
-.gjs-hovered{outline:1px dashed rgba(37,99,235,0.4)!important;outline-offset:1px!important}
-.gjs-toolbar{background:#1a1f2e!important;border-radius:8px!important;box-shadow:0 4px 20px rgba(0,0,0,0.5)!important;border:1px solid rgba(255,255,255,0.1)!important;padding:2px!important}
-.gjs-toolbar-item{
-  color:rgba(255,255,255,0.7)!important;
-  border-radius:5px!important;padding:4px 7px!important;
-  font-size:12px!important;min-width:28px!important;
-  transition:all 0.12s!important;
-}
-.gjs-toolbar-item:hover{background:rgba(255,255,255,0.1)!important;color:#fff!important}
-.gjs-toolbar-item svg{width:14px!important;height:14px!important;fill:currentColor!important}
-
-/* ══ RTE — Rich Text Editor toolbar ══ */
-.gjs-rte-toolbar{
-  background:#1a1f2e!important;
-  border:1px solid rgba(255,255,255,0.1)!important;
-  border-radius:10px!important;
-  box-shadow:0 8px 32px rgba(0,0,0,0.5)!important;
-  padding:4px 6px!important;
-  display:flex!important;gap:2px!important;
-  flex-wrap:wrap!important;
-}
-.gjs-rte-action{
-  background:transparent!important;
-  border:none!important;
-  border-radius:6px!important;
-  color:rgba(255,255,255,0.7)!important;
-  cursor:pointer!important;
-  font-size:12px!important;font-weight:600!important;
-  padding:5px 8px!important;min-width:28px!important;
-  transition:all 0.12s!important;font-family:'DM Sans',sans-serif!important;
-  display:flex!important;align-items:center!important;justify-content:center!important;
-}
-.gjs-rte-action:hover,.gjs-rte-action.gjs-rte-active{
-  background:rgba(59,130,246,0.2)!important;
-  color:#7db4ff!important;
-}
-/* Divider between RTE action groups */
-.gjs-rte-toolbar > span{
-  width:1px!important;height:20px!important;
-  background:rgba(255,255,255,0.1)!important;
-  margin:0 3px!important;align-self:center!important;
-}
-/* Double-click hint on hover */
-.gjs-hovered[data-editable="true"]::after{
-  content:'Double-click to edit';
-  position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);
-  background:rgba(0,0,0,0.75);color:#fff;font-size:10px;
-  padding:2px 8px;border-radius:4px;white-space:nowrap;pointer-events:none;
-  font-family:'DM Sans',sans-serif;
-}
-.gjs-badge{background:var(--blue)!important;border-radius:4px!important;font-family:'DM Sans'!important;font-size:10px!important}
-.gjs-resizer-h{
-  background:rgba(59,130,246,0.9)!important;border-radius:3px!important;
-  width:9px!important;height:9px!important;border:1px solid rgba(255,255,255,0.8)!important;
-  transition:all 0.12s!important;
-}
-.gjs-resizer-h:hover{background:#fff!important;transform:scale(1.3)!important}
-
-/* ══ IMAGE UPLOAD BUTTON ══ */
-.right-img-tools{padding:10px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
-.img-upload-btn{
-  width:100%;padding:10px;border-radius:8px;
-  background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);
-  color:#7db4ff;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;
-  cursor:pointer;transition:all 0.13s;display:flex;align-items:center;justify-content:center;gap:6px;
-}
-.img-upload-btn:hover{background:rgba(59,130,246,0.22);border-color:rgba(59,130,246,0.45);color:#93c5fd}
-
-/* ══ ASSET MANAGER — dark theme ══ */
-.gjs-mdl-dialog{background:var(--chrome)!important;border:1px solid var(--border)!important;border-radius:12px!important;box-shadow:0 24px 64px rgba(0,0,0,0.5)!important}
-.gjs-mdl-title{color:var(--text)!important;font-family:'DM Sans'!important;font-weight:800!important}
-.gjs-mdl-header{background:var(--chrome2)!important;border-bottom:1px solid var(--border)!important;padding:14px 18px!important}
-.gjs-mdl-content{background:var(--chrome)!important}
-.gjs-mdl-btn-close{color:var(--text2)!important}
-.gjs-mdl-btn-close:hover{color:var(--text)!important}
-.gjs-am-assets-header{background:var(--chrome2)!important;border-bottom:1px solid var(--border)!important;padding:10px 14px!important}
-.gjs-am-add-field{background:rgba(255,255,255,0.06)!important;border:1px solid var(--border)!important;border-radius:7px!important;padding:6px 10px!important}
-.gjs-am-add-field input{color:var(--text)!important;background:transparent!important;font-family:'DM Sans'!important;font-size:12px!important}
-.gjs-am-assets{background:var(--chrome)!important;padding:12px!important}
-.gjs-am-asset{background:var(--chrome2)!important;border:1px solid var(--border)!important;border-radius:8px!important;overflow:hidden!important;cursor:pointer!important}
-.gjs-am-asset:hover,.gjs-am-asset-selected{border-color:rgba(59,130,246,0.5)!important;background:rgba(59,130,246,0.08)!important}
-.gjs-am-asset-image{background:var(--chrome3)!important;min-height:80px!important}
-.gjs-am-file-uploader{background:rgba(59,130,246,0.05)!important;border:2px dashed rgba(59,130,246,0.25)!important;border-radius:10px!important;margin:12px!important;padding:20px!important;text-align:center!important}
-.gjs-am-file-uploader:hover{background:rgba(59,130,246,0.09)!important;border-color:rgba(59,130,246,0.45)!important}
-.gjs-am-file-uploader label{color:var(--text2)!important;font-family:'DM Sans'!important;font-size:12px!important;cursor:pointer!important}
-.gjs-am-file-uploader input[type=file]{display:none!important}
-
-/* empty canvas helper */
-.canvas-empty{
-  position:absolute;inset:0;z-index:10;
-  display:flex;align-items:center;justify-content:center;
-  pointer-events:none;
-}
-.canvas-empty.gone{display:none}
-.empty-card{
-  pointer-events:all;text-align:center;
-  background:var(--chrome);border:1px solid var(--border);
-  border-radius:14px;padding:40px 48px;
-  box-shadow:0 8px 32px rgba(0,0,0,0.3);
-  max-width:380px;
-}
-.empty-icon{font-size:36px;margin-bottom:12px;opacity:0.4}
-.empty-h{font-family:Sora;font-size:16px;font-weight:800;color:var(--text);margin-bottom:6px}
-.empty-p{font-size:12px;color:var(--text3);margin-bottom:20px;line-height:1.6}
-.empty-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-.ebtn-primary{
-  padding:9px 20px;border-radius:7px;background:var(--blue);color:#fff;
-  font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:inherit;
-  box-shadow:0 2px 8px rgba(59,130,246,0.3);transition:all 0.13s;
-}
-.ebtn-primary:hover{background:#2563eb;transform:translateY(-1px)}
-.ebtn-secondary{
-  padding:9px 16px;border-radius:7px;background:rgba(255,255,255,0.06);color:var(--text2);
-  font-size:11px;font-weight:700;border:1px solid var(--border);cursor:pointer;
-  font-family:inherit;transition:all 0.13s;
-}
-.ebtn-secondary:hover{background:rgba(255,255,255,0.1);color:var(--text)}
-
-/* ══ RIGHT PANEL — matches left panel exactly ══ */
-.right-panel{
-  width:var(--right-w);min-width:var(--right-w);
-  background:var(--chrome);border-left:1px solid var(--border);
-  display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;
-}
-.right-head{
-  padding:11px 14px;border-bottom:1px solid var(--border);flex-shrink:0;
-}
-.right-context{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text3)}
-.right-element-name{font-size:12px;font-weight:700;color:var(--text);margin-top:2px}
-.right-empty{
-  flex:1;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;padding:24px;text-align:center;gap:8px;
-}
-.right-empty-ico{font-size:28px;opacity:0.18;margin-bottom:4px}
-.right-empty-txt{font-size:11px;color:var(--text3);line-height:1.6;max-width:160px}
-.right-styles{flex:1;overflow-y:auto;display:none;background:var(--chrome)}
-.right-styles::-webkit-scrollbar{width:3px}
-.right-styles::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
-/* Ensure #gjs-sm fills its container with matching dark bg */
-#gjs-sm{background:var(--chrome);min-height:100%}
-
-/* Style manager — dark skin (inherits from --chrome2 vars) */
-#gjs-sm .gjs-sm-sector{background:transparent!important;border-bottom:1px solid var(--border)!important}
-#gjs-sm .gjs-sm-sector-title{
-  background:rgba(255,255,255,0.03)!important;color:var(--text2)!important;
-  font-family:'DM Sans'!important;font-size:9px!important;font-weight:800!important;
-  letter-spacing:1px!important;padding:9px 13px!important;border:none!important;text-transform:uppercase!important;
-}
-#gjs-sm .gjs-sm-sector-title:hover{background:rgba(255,255,255,0.06)!important}
-#gjs-sm .gjs-sm-properties{padding:9px 10px 11px!important}
-#gjs-sm .gjs-sm-label{color:var(--text3)!important;font-size:9px!important;font-family:'DM Sans'!important;font-weight:700!important;text-transform:uppercase!important;letter-spacing:0.5px!important}
-#gjs-sm .gjs-field{background:rgba(255,255,255,0.06)!important;border:1px solid var(--border)!important;border-radius:6px!important;color:var(--text)!important}
-#gjs-sm .gjs-field input,#gjs-sm .gjs-field select{color:var(--text)!important;font-family:'DM Sans'!important;font-size:11px!important;background:transparent!important}
-#gjs-sm .gjs-radio-item{border-color:var(--border)!important;background:rgba(255,255,255,0.04)!important;color:var(--text2)!important}
-#gjs-sm .gjs-radio-item-label{color:var(--text2)!important;font-size:10px!important}
-#gjs-sm .gjs-four-color{color:var(--blue)!important}
-#gjs-sm .gjs-clm-tag{background:var(--blue-bg)!important;border-color:var(--blue-border)!important;color:#7db4ff!important}
-#gjs-sm .gjs-sm-composite{border-color:var(--border)!important}
-#gjs-sm select option{background:#1e2537!important;color:var(--text)!important}
+.sec-card:hover{border-color:rgba(59,130,246,.4);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.sec-thumb{height:72px;display:flex;align-items:center;justify-content:center;padding:10px 12px;overflow:hidden}
+.sec-thumb.dk{background:linear-gradient(135deg,#0d1424,#162035)}
+.sec-thumb.lt{background:#ffffff}
+.sec-thumb.gr{background:linear-gradient(135deg,#1d4ed8,#3b82f6)}
+.sec-meta{padding:8px 10px}
+.sec-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:1px}
+.sec-desc{font-size:9px;color:var(--text3)}
 
 /* Layers */
-#gjs-ly .gjs-layer{color:var(--text2)!important;font-family:'DM Sans'!important;font-size:11px!important}
-#gjs-ly .gjs-layer.gjs-selected{background:var(--blue-bg)!important;color:var(--blue)!important}
-#gjs-ly .gjs-layer-title{background:transparent!important;border-bottom:1px solid var(--border)!important}
-#gjs-ly .gjs-layer-title:hover{background:var(--chrome2)!important}
+.layer-item{
+  display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;
+  cursor:pointer;transition:all .12s;
+}
+.layer-item:hover{background:rgba(255,255,255,.05)}
+.layer-item.selected{background:rgba(59,130,246,.12);color:var(--blue2)}
+.layer-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;background:var(--text3)}
+.layer-name{font-size:11px;font-weight:600;color:var(--text2);flex:1}
+.layer-vis{
+  width:18px;height:18px;border-radius:4px;border:none;background:transparent;
+  color:var(--text3);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;
+}
+.layer-vis:hover{color:var(--text2)}
 
-/* ══ WELCOME MODAL ══ */
-.modal-bg{
-  display:none;position:fixed;inset:0;z-index:500;
-  background:rgba(5,8,18,0.75);backdrop-filter:blur(6px);
-  align-items:center;justify-content:center;padding:20px;
+/* ── CANVAS AREA ── */
+.canvas-area{
+  flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;
 }
-.modal-bg.show{display:flex}
-.modal-box{
-  background:var(--chrome);border:1px solid var(--border);
-  border-radius:14px;width:100%;max-width:800px;max-height:88vh;
-  overflow:hidden;display:flex;flex-direction:column;
-  box-shadow:0 24px 64px rgba(0,0,0,0.5);
+.canvas-hint{
+  display:flex;align-items:center;gap:6px;padding:5px 14px;
+  background:rgba(0,0,0,.25);border-bottom:1px solid rgba(255,255,255,.04);
+  flex-shrink:0;overflow-x:auto;
 }
-.modal-top{padding:22px 24px 0;flex-shrink:0}
-.modal-kicker{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--blue);margin-bottom:5px}
-.modal-title{font-family:Sora;font-size:18px;font-weight:800;color:var(--text);margin-bottom:3px}
-.modal-sub{font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.5}
-.modal-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin:0}
-.mtab{
-  padding:8px 16px;font-size:11px;font-weight:700;cursor:pointer;
-  color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;
-  transition:all 0.12s;
+.canvas-hint::-webkit-scrollbar{display:none}
+.hint-tag{
+  font-size:9px;font-weight:600;color:rgba(255,255,255,.3);
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
+  border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;
 }
-.mtab:hover{color:var(--text);background:rgba(255,255,255,0.04)}
-.mtab.active{color:var(--blue);border-bottom-color:var(--blue)}
-.modal-scroll{padding:18px 20px;overflow-y:auto;flex:1}
-.modal-scroll::-webkit-scrollbar{width:4px}
-.modal-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px}
-.tpl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
-.tpl-card{
-  border:1px solid var(--border);border-radius:9px;overflow:hidden;
-  cursor:pointer;transition:all 0.14s;background:var(--chrome2);
-}
-.tpl-card:hover{border-color:rgba(59,130,246,0.5);background:var(--chrome3);box-shadow:0 0 0 3px rgba(59,130,246,0.1);transform:translateY(-1px)}
-.tpl-thumb{height:70px;display:flex;align-items:center;justify-content:center;font-size:26px}
-.tpl-meta{padding:9px 10px}
-.tpl-name{font-size:11px;font-weight:800;color:var(--text);margin-bottom:2px}
-.tpl-desc{font-size:9px;color:var(--text3);line-height:1.4}
-.modal-foot{
-  padding:12px 22px;border-top:1px solid var(--border);
-  background:rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
-}
-.modal-skip{font-size:11px;color:var(--text3);cursor:pointer;font-weight:600;text-decoration:underline;text-underline-offset:2px;transition:color 0.12s}
-.modal-skip:hover{color:var(--text)}
+.canvas-scroll{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:30px}
+.canvas-scroll::-webkit-scrollbar{width:6px;height:6px}
+.canvas-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
 
-/* ══ TOAST ══ */
-.toast{
-  position:fixed;bottom:22px;left:50%;
-  transform:translateX(-50%) translateY(50px);
-  padding:9px 16px;border-radius:8px;font-size:11px;font-weight:700;
-  z-index:999;transition:all 0.22s cubic-bezier(0.34,1.56,0.64,1);opacity:0;
-  display:flex;align-items:center;gap:7px;box-shadow:var(--shadow-md);
+/* ── THE PAGE CANVAS ── */
+#canvas{
+  position:relative;
+  background:#ffffff;
+  box-shadow:0 8px 48px rgba(0,0,0,.45);
+  border-radius:2px;
+  min-height:900px;
+  flex-shrink:0;
+  transition:width .15s;
+  /* drop zone outline */
+  outline:2px dashed transparent;
+  outline-offset:4px;
+  transition:outline .15s;
 }
-.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-.toast.success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
-.toast.error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
-.toast.info{background:var(--blue-bg);color:#1e3a8a;border:1px solid var(--blue-border)}
+#canvas.drag-over{outline-color:rgba(59,130,246,.4)}
+
+/* ── CANVAS ELEMENTS ── */
+.cv-el{
+  position:absolute;
+  cursor:move;
+  user-select:none;
+  /* smooth selection ring */
+  outline:2px solid transparent;
+  outline-offset:1px;
+  border-radius:2px;
+  transition:outline .1s;
+  /* min sizes */
+  min-width:20px;min-height:20px;
+}
+.cv-el:hover{outline-color:rgba(59,130,246,.35)}
+.cv-el.selected{outline-color:var(--blue)!important;z-index:100}
+.cv-el.selected .resize-handle{display:flex}
+
+/* Resize handles — hidden until selected */
+.resize-handle{
+  position:absolute;width:9px;height:9px;
+  background:var(--white);border:2px solid var(--blue);border-radius:2px;
+  display:none;z-index:101;
+  align-items:center;justify-content:center;
+}
+.rh-tl{top:-5px;left:-5px;cursor:nw-resize}
+.rh-tc{top:-5px;left:50%;transform:translateX(-50%);cursor:n-resize}
+.rh-tr{top:-5px;right:-5px;cursor:ne-resize}
+.rh-ml{top:50%;left:-5px;transform:translateY(-50%);cursor:w-resize}
+.rh-mr{top:50%;right:-5px;transform:translateY(-50%);cursor:e-resize}
+.rh-bl{bottom:-5px;left:-5px;cursor:sw-resize}
+.rh-bc{bottom:-5px;left:50%;transform:translateX(-50%);cursor:s-resize}
+.rh-br{bottom:-5px;right:-5px;cursor:se-resize}
+
+/* element content defaults */
+.cv-el .el-text{
+  width:100%;height:100%;
+  outline:none;border:none;
+  background:transparent;
+  font-family:'DM Sans',sans-serif;
+  cursor:inherit;
+  overflow:hidden;
+  word-break:break-word;
+}
+.cv-el .el-text[contenteditable="true"]{cursor:text!important;overflow:visible}
+.cv-el img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.cv-el .el-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:100%;height:100%;
+  background:linear-gradient(135deg,#2563eb,#60a5fa);
+  color:#fff;font-weight:800;font-family:'Sora',sans-serif;
+  border-radius:10px;text-decoration:none;font-size:16px;
+  border:none;cursor:pointer;
+}
+.cv-el .el-divider{width:100%;height:2px;background:#e2e8f0;border-radius:1px;margin:auto 0}
+.cv-el .el-spacer{width:100%;height:100%;background:transparent}
+.cv-el .el-video{
+  width:100%;height:100%;
+  background:#000;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,.4);font-size:13px;gap:8px;
+}
+.cv-el .el-form{
+  width:100%;height:100%;display:flex;flex-direction:column;gap:8px;padding:16px;
+  background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;
+}
+.cv-el .el-form input{
+  padding:10px 14px;border:1px solid #e2e8f0;border-radius:7px;
+  font-family:'DM Sans',sans-serif;font-size:14px;outline:none;
+}
+.cv-el .el-form button{
+  padding:12px;background:var(--blue);color:#fff;
+  border:none;border-radius:7px;font-weight:700;font-family:'DM Sans',sans-serif;
+  cursor:pointer;font-size:14px;
+}
+
+/* ── FLOATING TOOLBAR (appears above selected element) ── */
+#floatbar{
+  position:fixed;z-index:600;
+  display:none;
+  background:#1a1f30;border:1px solid rgba(255,255,255,.12);
+  border-radius:10px;padding:4px 5px;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  align-items:center;gap:2px;
+  transform:translateX(-50%);
+}
+.fb-btn{
+  padding:5px 8px;border-radius:6px;border:none;
+  background:transparent;color:rgba(255,255,255,.65);
+  font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;
+  cursor:pointer;transition:all .12s;white-space:nowrap;
+  display:flex;align-items:center;gap:3px;min-width:26px;justify-content:center;
+}
+.fb-btn:hover,.fb-btn.active{background:rgba(59,130,246,.2);color:var(--blue2)}
+.fb-sep{width:1px;height:18px;background:rgba(255,255,255,.08);margin:0 2px;flex-shrink:0}
+.fb-select{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:6px;color:var(--text);font-size:11px;font-family:'DM Sans',sans-serif;
+  padding:4px 6px;outline:none;cursor:pointer;
+}
+.fb-select option{background:#1a1f30}
+.fb-color{
+  width:22px;height:22px;border-radius:5px;border:1px solid rgba(255,255,255,.15);
+  cursor:pointer;overflow:hidden;padding:0;
+}
+.fb-color input[type=color]{
+  width:32px;height:32px;border:none;cursor:pointer;
+  transform:translate(-4px,-4px);
+}
+
+/* ── RIGHT PANEL ── */
+.right-panel{
+  width:270px;flex-shrink:0;
+  background:var(--dark2);border-left:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.rp-head{
+  padding:14px 14px 10px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.rp-ctx{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text3)}
+.rp-name{font-size:14px;font-weight:800;color:var(--text);margin-top:2px}
+.rp-body{flex:1;overflow-y:auto;padding:12px}
+.rp-body::-webkit-scrollbar{width:3px}
+.rp-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+.rp-empty{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:8px;padding:24px;text-align:center;
+}
+.rp-empty-icon{font-size:28px;opacity:.35}
+.rp-empty-txt{font-size:11px;color:var(--text3);line-height:1.5}
+
+/* property rows */
+.prop-group{margin-bottom:14px}
+.prop-label{
+  font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--text3);margin-bottom:6px;
+}
+.prop-row{display:flex;gap:6px;margin-bottom:6px;align-items:center}
+.prop-row label{font-size:10px;color:var(--text3);width:56px;flex-shrink:0}
+.prop-input{
+  flex:1;background:rgba(255,255,255,.06);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);font-size:11px;font-family:'DM Sans',sans-serif;
+  padding:5px 8px;outline:none;transition:border .13s;
+}
+.prop-input:focus{border-color:rgba(59,130,246,.5)}
+.prop-input[type=range]{padding:0;height:4px;accent-color:var(--blue);cursor:pointer}
+.prop-input[type=color]{padding:2px;height:28px;cursor:pointer;border-radius:5px}
+.prop-select{
+  flex:1;background:var(--dark3);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);font-size:11px;font-family:'DM Sans',sans-serif;
+  padding:5px 8px;outline:none;cursor:pointer;
+}
+.prop-select option{background:var(--dark3)}
+.prop-2col{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.prop-2col-item{display:flex;flex-direction:column;gap:3px}
+.prop-2col-item label{font-size:9px;color:var(--text3)}
+
+.img-upload-btn{
+  width:100%;padding:10px;border-radius:8px;
+  background:rgba(59,130,246,.1);border:1px dashed rgba(59,130,246,.3);
+  color:var(--blue2);font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;
+  cursor:pointer;transition:all .13s;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.img-upload-btn:hover{background:rgba(59,130,246,.18)}
+.img-upload-input{display:none}
+
+/* alignment buttons */
+.align-grp{display:flex;gap:3px}
+.align-btn{
+  flex:1;padding:5px;border-radius:5px;border:1px solid var(--border);
+  background:var(--dark3);color:var(--text3);font-size:13px;
+  cursor:pointer;transition:all .12s;text-align:center;
+}
+.align-btn:hover,.align-btn.active{background:rgba(59,130,246,.15);color:var(--blue2);border-color:rgba(59,130,246,.3)}
+
+/* ── EMPTY CANVAS PROMPT ── */
+#canvas-empty{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  pointer-events:none;
+}
+#canvas-empty.hidden{display:none}
+.ce-icon{font-size:36px;opacity:.25}
+.ce-title{font-size:16px;font-weight:700;color:#94a3b8}
+.ce-sub{font-size:12px;color:#cbd5e1;text-align:center;max-width:240px}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#1a1f30;border:1px solid var(--border);border-radius:10px;
+  padding:10px 20px;font-size:12px;font-weight:700;color:var(--text);
+  opacity:0;transition:all .25s;z-index:9999;pointer-events:none;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── IMAGE UPLOAD OVERLAY ── */
+#img-overlay{
+  display:none;position:fixed;inset:0;z-index:700;
+  background:rgba(5,8,18,.75);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;
+}
+#img-overlay.show{display:flex}
+.img-modal{
+  background:var(--dark2);border:1px solid var(--border);border-radius:16px;
+  width:440px;padding:24px;box-shadow:0 24px 64px rgba(0,0,0,.5);
+}
+.img-modal h3{font-size:15px;font-weight:800;color:var(--text);margin-bottom:16px}
+.img-drop{
+  border:2px dashed rgba(59,130,246,.25);border-radius:10px;
+  padding:32px;text-align:center;cursor:pointer;transition:all .15s;
+  background:rgba(59,130,246,.03);
+}
+.img-drop:hover,.img-drop.dragover{border-color:rgba(59,130,246,.5);background:rgba(59,130,246,.08)}
+.img-drop p{font-size:12px;color:var(--text3);margin-top:6px}
+.img-url{
+  margin-top:12px;display:flex;gap:8px;
+}
+.img-url input{
+  flex:1;background:rgba(255,255,255,.06);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:12px;padding:9px 12px;outline:none;
+  font-family:'DM Sans',sans-serif;
+}
+.img-url input:focus{border-color:rgba(59,130,246,.5)}
+.img-url button{
+  padding:9px 16px;background:var(--blue);color:#fff;border:none;
+  border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+}
+.img-modal-close{
+  float:right;width:28px;height:28px;border-radius:7px;border:none;
+  background:rgba(255,255,255,.06);color:var(--text2);font-size:14px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
 </style>
 </head>
 <body>
@@ -496,324 +453,252 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="tb-brand">
-    <!-- Logomark: glowing "S" shield -->
-    <div class="tb-logomark">
-      <svg viewBox="0 0 32 32" width="32" height="32">
-        <defs>
-          <linearGradient id="lg1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#3b82f6"/>
-            <stop offset="100%" stop-color="#6366f1"/>
-          </linearGradient>
-        </defs>
-        <rect width="32" height="32" rx="8" fill="url(#lg1)"/>
-        <text x="16" y="23" text-anchor="middle" font-family="'Sora',sans-serif" font-weight="900" font-size="20" fill="white">S</text>
-      </svg>
-    </div>
-    <!-- Wordmark -->
-    <div class="tb-wordmark">
-      <span class="tb-wordmark-main">SuperAd<span>Pro</span></span>
-    </div>
-    <div style="width:1px;height:18px;background:rgba(255,255,255,0.08);margin:0 4px"></div>
-    <span class="tb-pill">Page Builder</span>
+    <div class="tb-logomark">S</div>
+    <div class="tb-name">SuperAd<span>Pro</span></div>
+    <div class="tb-pill">Page Builder</div>
   </div>
-  <div class="tb-title-area">
-    <input class="tb-page-input" type="text" id="pageName" value="{{ page.title }}" placeholder="Untitled Page">
-    <span class="tb-save-status" id="saveStatus">Ready</span>
+  <div class="tb-center">
+    <input class="tb-page-name" id="pageName" type="text" value="{{ page.title }}" placeholder="Untitled Page">
+    <span class="tb-status" id="saveStatus">Ready</span>
   </div>
   <div class="tb-right">
-    <button class="tb-btn btn-icon" onclick="editor.runCommand('core:undo')" title="Undo">↩</button>
-    <button class="tb-btn btn-icon" onclick="editor.runCommand('core:redo')" title="Redo">↪</button>
+    <!-- Undo / Redo -->
+    <button class="tb-btn btn-icon" onclick="undo()" title="Undo (Ctrl+Z)">↩</button>
+    <button class="tb-btn btn-icon" onclick="redo()" title="Redo (Ctrl+Y)">↪</button>
     <div class="tb-divider"></div>
-    <div class="dev-grp">
-      <button class="dev-btn active" id="devDesktop" onclick="setDevice('Desktop')" title="Desktop">🖥</button>
-      <button class="dev-btn" id="devTablet" onclick="setDevice('Tablet')" title="Tablet">⬛</button>
-      <button class="dev-btn" id="devMobile" onclick="setDevice('Mobile')" title="Mobile">📱</button>
+    <!-- Zoom -->
+    <div class="zoom-grp">
+      <button class="zoom-btn" onclick="setZoom(zoom-0.1)">−</button>
+      <span class="zoom-val" id="zoomVal">100%</span>
+      <button class="zoom-btn" onclick="setZoom(zoom+0.1)">+</button>
+    </div>
+    <!-- Canvas width -->
+    <div class="zoom-grp">
+      <button class="zoom-btn" onclick="setWidth(1200)" title="Desktop" style="font-size:11px">🖥</button>
+      <button class="zoom-btn" onclick="setWidth(768)" title="Tablet" style="font-size:11px">⬛</button>
+      <button class="zoom-btn" onclick="setWidth(390)" title="Mobile" style="font-size:11px">📱</button>
     </div>
     <div class="tb-divider"></div>
-    <button class="tb-btn btn-preview" onclick="togglePreview()">👁 Preview</button>
-    <button class="tb-btn btn-save" onclick="savePage('draft')">💾 Save</button>
-    <button class="tb-btn btn-publish" onclick="savePage('published')">🚀 Publish</button>
+    <button class="tb-btn btn-preview" onclick="previewPage()">👁 Preview</button>
+    <button class="tb-btn btn-save" id="btnSave" onclick="savePage()">💾 Save</button>
+    <button class="tb-btn btn-publish" onclick="publishPage()">🚀 Publish</button>
   </div>
 </div>
 
 <!-- APP BODY -->
-<div class="app-body">
+<div class="app">
 
-  <!-- ICON BAR -->
-  <div class="iconbar">
-    <div class="ic-btn active" id="icSec" data-tip="Sections" onclick="openPanel('sections')">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="5" rx="1"/><rect x="3" y="10" width="18" height="5" rx="1"/><rect x="3" y="17" width="18" height="4" rx="1"/></svg>
-    </div>
-    <div class="ic-btn" id="icElem" data-tip="Elements" onclick="openPanel('elements')">
-      <svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="18" r="2.5"/><rect x="10" y="5" width="4" height="14" rx="1"/></svg>
-    </div>
-    <div class="ic-btn" id="icLay" data-tip="Layers" onclick="openPanel('layers')">
-      <svg viewBox="0 0 24 24"><polygon points="12 2 22 8.5 12 15 2 8.5"/><polyline points="2 14 12 20.5 22 14"/></svg>
-    </div>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <button class="ic-btn active" id="ic-elements" onclick="openPanel('elements')" title="Elements">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span class="ic-label">Add</span>
+    </button>
+    <button class="ic-btn" id="ic-sections" onclick="openPanel('sections')" title="Sections">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="5" rx="1"/><rect x="2" y="10" width="20" height="5" rx="1"/><rect x="2" y="17" width="20" height="5" rx="1"/></svg>
+      <span class="ic-label">Sections</span>
+    </button>
+    <button class="ic-btn" id="ic-layers" onclick="openPanel('layers')" title="Layers">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      <span class="ic-label">Layers</span>
+    </button>
     <div class="ic-sep"></div>
-    <div class="ic-btn" data-tip="Templates" onclick="showModal()">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
-    </div>
-    <div class="ic-sep"></div>
-    <div class="ic-btn" data-tip="Back to Pages" onclick="window.location='/funnels'">
-      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-    </div>
+    <button class="ic-btn" onclick="clearCanvas()" title="Clear all">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+      <span class="ic-label">Clear</span>
+    </button>
   </div>
 
   <!-- LEFT PANEL -->
   <div class="left-panel open" id="leftPanel">
 
-    <!-- SECTIONS panel -->
-    <div id="pSections" style="display:flex;flex-direction:column;height:100%">
+    <!-- ELEMENTS panel -->
+    <div id="pElements" style="display:flex;flex-direction:column;height:100%">
       <div class="panel-head">
-        <span class="panel-head-title">Sections</span>
-        <div class="panel-close" onclick="closePanel()">✕</div>
+        <span class="panel-title">Elements</span>
+        <button class="panel-close" onclick="closePanel()">✕</button>
       </div>
-      <div class="panel-search-row">
-        <span class="panel-search-icon">⌕</span>
-        <input class="panel-search" id="secQ" placeholder="Search sections…" oninput="filterSec(this.value)">
+      <div class="panel-body">
+        <div class="cat-label">Text</div>
+        <div class="elem-grid">
+          <div class="elem-card" draggable="true" data-type="heading" ondragstart="dragStart(event)">
+            <span class="elem-icon" style="font-family:'Sora',sans-serif;font-weight:900;font-size:22px">H</span>
+            <span class="elem-name">Heading</span>
+          </div>
+          <div class="elem-card" draggable="true" data-type="text" ondragstart="dragStart(event)">
+            <span class="elem-icon">¶</span>
+            <span class="elem-name">Text</span>
+          </div>
+          <div class="elem-card" draggable="true" data-type="subheading" ondragstart="dragStart(event)">
+            <span class="elem-icon" style="font-size:16px;font-weight:800">H2</span>
+            <span class="elem-name">Subheading</span>
+          </div>
+          <div class="elem-card" draggable="true" data-type="label" ondragstart="dragStart(event)">
+            <span class="elem-icon" style="font-size:14px">Aa</span>
+            <span class="elem-name">Label</span>
+          </div>
+        </div>
+
+        <div class="cat-label">Media</div>
+        <div class="elem-grid">
+          <div class="elem-card" draggable="true" data-type="image" ondragstart="dragStart(event)">
+            <span class="elem-icon">🖼</span>
+            <span class="elem-name">Image</span>
+          </div>
+          <div class="elem-card" draggable="true" data-type="video" ondragstart="dragStart(event)">
+            <span class="elem-icon">▶</span>
+            <span class="elem-name">Video</span>
+          </div>
+        </div>
+
+        <div class="cat-label">Actions</div>
+        <div class="elem-grid">
+          <div class="elem-card" draggable="true" data-type="button" ondragstart="dragStart(event)">
+            <span class="elem-icon">⬤</span>
+            <span class="elem-name">Button</span>
+          </div>
+          <div class="elem-card" draggable="true" data-type="form" ondragstart="dragStart(event)">
+            <span class="elem-icon">📋</span>
+            <span class="elem-name">Opt-In Form</span>
+          </div>
+        </div>
+
+        <div class="cat-label">Layout</div>
+        <div class="elem-grid">
+          <div class="elem-card" draggable="true" data-type="divider" ondragstart="dragStart(event)">
+            <span class="elem-icon">─</span>
+            <span class="elem-name">Divider</span>
+          </div>
+          <div class="elem-card" draggable="true" data-type="spacer" ondragstart="dragStart(event)">
+            <span class="elem-icon">↕</span>
+            <span class="elem-name">Spacer</span>
+          </div>
+          <div class="elem-card" draggable="true" data-type="box" ondragstart="dragStart(event)">
+            <span class="elem-icon">⬜</span>
+            <span class="elem-name">Box</span>
+          </div>
+          <div class="elem-card" draggable="true" data-type="badge" ondragstart="dragStart(event)">
+            <span class="elem-icon">🏷</span>
+            <span class="elem-name">Badge</span>
+          </div>
+        </div>
+
+        <div class="cat-label">SuperAdPro</div>
+        <div class="elem-grid">
+          <div class="elem-card" draggable="true" data-type="cta-btn" ondragstart="dragStart(event)">
+            <span class="elem-icon">🔵</span>
+            <span class="elem-name">CTA Btn</span>
+          </div>
+          <div class="elem-card" draggable="true" data-type="review" ondragstart="dragStart(event)">
+            <span class="elem-icon">💬</span>
+            <span class="elem-name">Review</span>
+          </div>
+          <div class="elem-card" draggable="true" data-type="stat" ondragstart="dragStart(event)">
+            <span class="elem-icon">📊</span>
+            <span class="elem-name">Stat Card</span>
+          </div>
+          <div class="elem-card" draggable="true" data-type="timer" ondragstart="dragStart(event)">
+            <span class="elem-icon">⏱</span>
+            <span class="elem-name">Timer</span>
+          </div>
+        </div>
       </div>
-      <div class="panel-body" id="secBody">
+    </div>
 
-        <div class="cat-row">Heroes</div>
-
-        <div class="sec-card" onclick="addSec('hero-dark')">
-          <div class="sec-thumb dark" style="height:64px;padding:10px 12px;flex-direction:column;gap:5px;align-items:flex-start">
-            <div style="display:flex;gap:3px;align-items:center;margin-bottom:2px">
-              <div style="width:4px;height:4px;border-radius:50%;background:#60a5fa"></div>
-              <div style="height:3px;background:rgba(255,255,255,0.2);border-radius:2px;width:40px"></div>
-            </div>
-            <div style="height:7px;background:rgba(255,255,255,0.85);border-radius:2px;width:75%"></div>
-            <div style="height:4px;background:rgba(255,255,255,0.3);border-radius:2px;width:90%"></div>
-            <div style="height:4px;background:rgba(255,255,255,0.3);border-radius:2px;width:60%"></div>
-            <div style="height:12px;background:linear-gradient(90deg,#2563eb,#60a5fa);border-radius:4px;width:50px;margin-top:2px"></div>
+    <!-- SECTIONS panel -->
+    <div id="pSections" style="display:none;flex-direction:column;height:100%">
+      <div class="panel-head">
+        <span class="panel-title">Sections</span>
+        <button class="panel-close" onclick="closePanel()">✕</button>
+      </div>
+      <div class="panel-body">
+        <div class="cat-label">Heroes</div>
+        <div class="sec-card" onclick="addSection('hero-dark')">
+          <div class="sec-thumb dk" style="flex-direction:column;gap:5px;align-items:flex-start;padding:12px 14px">
+            <div style="height:7px;background:rgba(255,255,255,.85);border-radius:2px;width:55%"></div>
+            <div style="height:4px;background:rgba(255,255,255,.3);border-radius:2px;width:80%"></div>
+            <div style="height:14px;background:linear-gradient(90deg,#2563eb,#60a5fa);border-radius:5px;width:40%;margin-top:4px"></div>
           </div>
-          <div class="sec-meta"><div class="sec-name">Dark Hero</div><div class="sec-desc">Full-screen dark with headline + CTA</div></div>
+          <div class="sec-meta"><div class="sec-name">Dark Hero</div><div class="sec-desc">Full-width dark headline + CTA</div></div>
+        </div>
+        <div class="sec-card" onclick="addSection('hero-light')">
+          <div class="sec-thumb lt" style="flex-direction:column;gap:5px;align-items:flex-start;padding:12px 14px">
+            <div style="height:7px;background:#1e293b;border-radius:2px;width:55%"></div>
+            <div style="height:4px;background:#94a3b8;border-radius:2px;width:80%"></div>
+            <div style="height:14px;background:#2563eb;border-radius:5px;width:40%;margin-top:4px"></div>
+          </div>
+          <div class="sec-meta"><div class="sec-name">Light Hero</div><div class="sec-desc">Clean white headline + CTA</div></div>
         </div>
 
-        <div class="sec-card" onclick="addSec('hero-light')">
-          <div class="sec-thumb white" style="height:64px;padding:10px 12px;flex-direction:column;gap:4px;align-items:flex-start">
-            <div style="display:flex;gap:3px;align-items:center;margin-bottom:2px">
-              <div style="width:4px;height:4px;border-radius:50%;background:#2563eb"></div>
-              <div style="height:3px;background:#e2e8f0;border-radius:2px;width:40px"></div>
-            </div>
-            <div style="height:7px;background:#1e293b;border-radius:2px;width:70%"></div>
-            <div style="height:4px;background:#94a3b8;border-radius:2px;width:85%"></div>
-            <div style="height:4px;background:#94a3b8;border-radius:2px;width:55%"></div>
-            <div style="height:12px;background:#2563eb;border-radius:4px;width:50px;margin-top:2px"></div>
+        <div class="cat-label">Lead Gen</div>
+        <div class="sec-card" onclick="addSection('optin')">
+          <div class="sec-thumb dk" style="flex-direction:column;gap:5px;align-items:center;padding:10px 14px">
+            <div style="height:5px;background:rgba(255,255,255,.6);border-radius:2px;width:50%"></div>
+            <div style="height:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:4px;width:80%"></div>
+            <div style="height:12px;background:linear-gradient(90deg,#2563eb,#60a5fa);border-radius:4px;width:80%"></div>
           </div>
-          <div class="sec-meta"><div class="sec-name">Light Hero</div><div class="sec-desc">White background with blue CTA</div></div>
+          <div class="sec-meta"><div class="sec-name">Opt-In Form</div><div class="sec-desc">Email capture section</div></div>
         </div>
 
-        <div class="sec-card" onclick="addSec('hero-split')">
-          <div class="sec-thumb dark" style="height:64px;padding:10px 12px;flex-direction:row;gap:8px;align-items:center">
-            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
-              <div style="height:6px;background:rgba(255,255,255,0.8);border-radius:2px;width:90%"></div>
-              <div style="height:3px;background:rgba(255,255,255,0.3);border-radius:2px"></div>
-              <div style="height:3px;background:rgba(255,255,255,0.3);border-radius:2px;width:70%"></div>
-              <div style="height:10px;background:linear-gradient(90deg,#2563eb,#60a5fa);border-radius:3px;width:60%;margin-top:3px"></div>
-            </div>
-            <div style="flex:1;background:rgba(37,99,235,0.12);border:1px dashed rgba(37,99,235,0.3);border-radius:4px;height:44px;display:flex;align-items:center;justify-content:center">
-              <div style="font-size:16px">🖼</div>
-            </div>
-          </div>
-          <div class="sec-meta"><div class="sec-name">Split Hero</div><div class="sec-desc">Text left, image/video right</div></div>
-        </div>
-
-        <div class="cat-row">Lead Generation</div>
-
-        <div class="sec-card" onclick="addSec('optin')">
-          <div class="sec-thumb dark" style="height:64px;padding:10px 12px;flex-direction:column;gap:4px;align-items:center">
-            <div style="height:5px;background:rgba(255,255,255,0.6);border-radius:2px;width:60%;margin-bottom:2px"></div>
-            <div style="height:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:4px;width:85%;display:flex;align-items:center;padding:0 6px">
-              <div style="height:3px;background:rgba(255,255,255,0.2);border-radius:1px;width:50%"></div>
-            </div>
-            <div style="height:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:4px;width:85%;display:flex;align-items:center;padding:0 6px">
-              <div style="height:3px;background:rgba(255,255,255,0.2);border-radius:1px;width:65%"></div>
-            </div>
-            <div style="height:11px;background:linear-gradient(90deg,#2563eb,#60a5fa);border-radius:3px;width:85%"></div>
-          </div>
-          <div class="sec-meta"><div class="sec-name">Opt-In Form</div><div class="sec-desc">Name + email capture form</div></div>
-        </div>
-
-        <div class="sec-card" onclick="addSec('video-cta')">
-          <div class="sec-thumb dark" style="height:64px;padding:10px 12px;flex-direction:column;gap:4px;align-items:center">
-            <div style="height:5px;background:rgba(255,255,255,0.6);border-radius:2px;width:55%;margin-bottom:2px"></div>
-            <div style="height:28px;background:#000;border-radius:4px;width:80%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(37,99,235,0.3)">
-              <div style="width:0;height:0;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:12px solid rgba(255,255,255,0.7)"></div>
-            </div>
-            <div style="height:10px;background:linear-gradient(90deg,#2563eb,#60a5fa);border-radius:3px;width:45%;margin-top:1px"></div>
-          </div>
-          <div class="sec-meta"><div class="sec-name">Video + CTA</div><div class="sec-desc">Video frame with action button</div></div>
-        </div>
-
-        <div class="cat-row">Social Proof</div>
-
-        <div class="sec-card" onclick="addSec('testimonials')">
-          <div class="sec-thumb white" style="height:64px;padding:8px 10px;flex-direction:column;gap:4px">
-            <div style="height:3px;background:#1e293b;border-radius:2px;width:55%;margin-bottom:2px"></div>
+        <div class="cat-label">Social Proof</div>
+        <div class="sec-card" onclick="addSection('testimonials')">
+          <div class="sec-thumb lt" style="flex-direction:column;gap:5px;padding:10px 12px">
+            <div style="height:4px;background:#1e293b;border-radius:2px;width:40%"></div>
             <div style="display:flex;gap:4px;width:100%">
-              <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 5px">
-                <div style="color:#f59e0b;font-size:7px;letter-spacing:-0.5px;margin-bottom:2px">★★★★★</div>
-                <div style="height:2px;background:#e2e8f0;border-radius:1px;margin-bottom:1px"></div>
-                <div style="height:2px;background:#e2e8f0;border-radius:1px;width:70%"></div>
+              <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:5px;padding:5px">
+                <div style="color:#f59e0b;font-size:7px">★★★★★</div>
+                <div style="height:2px;background:#e2e8f0;border-radius:1px;margin-top:3px"></div>
               </div>
-              <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 5px">
-                <div style="color:#f59e0b;font-size:7px;letter-spacing:-0.5px;margin-bottom:2px">★★★★★</div>
-                <div style="height:2px;background:#e2e8f0;border-radius:1px;margin-bottom:1px"></div>
-                <div style="height:2px;background:#e2e8f0;border-radius:1px;width:80%"></div>
+              <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:5px;padding:5px">
+                <div style="color:#f59e0b;font-size:7px">★★★★★</div>
+                <div style="height:2px;background:#e2e8f0;border-radius:1px;margin-top:3px"></div>
               </div>
-              <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 5px">
-                <div style="color:#f59e0b;font-size:7px;letter-spacing:-0.5px;margin-bottom:2px">★★★★★</div>
-                <div style="height:2px;background:#e2e8f0;border-radius:1px;margin-bottom:1px"></div>
-                <div style="height:2px;background:#e2e8f0;border-radius:1px;width:60%"></div>
+              <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:5px;padding:5px">
+                <div style="color:#f59e0b;font-size:7px">★★★★★</div>
+                <div style="height:2px;background:#e2e8f0;border-radius:1px;margin-top:3px"></div>
               </div>
             </div>
           </div>
           <div class="sec-meta"><div class="sec-name">Testimonials</div><div class="sec-desc">3-column star reviews</div></div>
         </div>
 
-        <div class="sec-card" onclick="addSec('stats')">
-          <div class="sec-thumb dark" style="height:64px;padding:10px 12px;flex-direction:column;gap:4px">
-            <div style="height:3px;background:rgba(255,255,255,0.5);border-radius:2px;width:50%;margin-bottom:2px"></div>
-            <div style="display:flex;gap:5px;width:100%">
-              <div style="flex:1;background:rgba(37,99,235,0.15);border:1px solid rgba(37,99,235,0.3);border-radius:4px;padding:5px;text-align:center">
-                <div style="height:10px;background:rgba(37,99,235,0.7);border-radius:2px;margin-bottom:2px"></div>
-                <div style="height:3px;background:rgba(255,255,255,0.2);border-radius:1px;width:80%;margin:0 auto"></div>
-              </div>
-              <div style="flex:1;background:rgba(5,150,105,0.15);border:1px solid rgba(5,150,105,0.3);border-radius:4px;padding:5px;text-align:center">
-                <div style="height:10px;background:rgba(5,150,105,0.7);border-radius:2px;margin-bottom:2px"></div>
-                <div style="height:3px;background:rgba(255,255,255,0.2);border-radius:1px;width:80%;margin:0 auto"></div>
-              </div>
-              <div style="flex:1;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);border-radius:4px;padding:5px;text-align:center">
-                <div style="height:10px;background:rgba(245,158,11,0.7);border-radius:2px;margin-bottom:2px"></div>
-                <div style="height:3px;background:rgba(255,255,255,0.2);border-radius:1px;width:80%;margin:0 auto"></div>
-              </div>
-            </div>
+        <div class="cat-label">CTA</div>
+        <div class="sec-card" onclick="addSection('cta-banner')">
+          <div class="sec-thumb gr" style="flex-direction:column;gap:5px;align-items:center;padding:14px">
+            <div style="height:6px;background:rgba(255,255,255,.9);border-radius:2px;width:50%"></div>
+            <div style="height:14px;background:rgba(255,255,255,.9);border-radius:5px;width:35%;margin-top:4px"></div>
           </div>
-          <div class="sec-meta"><div class="sec-name">Stat Cards</div><div class="sec-desc">Earnings / commissions highlight</div></div>
-        </div>
-
-        <div class="cat-row">Content</div>
-
-        <div class="sec-card" onclick="addSec('features')">
-          <div class="sec-thumb white" style="height:64px;padding:10px 12px;flex-direction:column;gap:4px">
-            <div style="height:5px;background:#1e293b;border-radius:2px;width:50%;margin-bottom:2px"></div>
-            <div style="display:flex;gap:4px;width:100%">
-              <div style="flex:1;border:1px solid #e2e8f0;border-radius:4px;padding:5px;display:flex;flex-direction:column;align-items:center;gap:2px">
-                <div style="width:10px;height:10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:3px"></div>
-                <div style="height:2px;background:#cbd5e1;border-radius:1px;width:80%"></div>
-                <div style="height:2px;background:#e2e8f0;border-radius:1px;width:60%"></div>
-              </div>
-              <div style="flex:1;border:1px solid #e2e8f0;border-radius:4px;padding:5px;display:flex;flex-direction:column;align-items:center;gap:2px">
-                <div style="width:10px;height:10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:3px"></div>
-                <div style="height:2px;background:#cbd5e1;border-radius:1px;width:80%"></div>
-                <div style="height:2px;background:#e2e8f0;border-radius:1px;width:60%"></div>
-              </div>
-              <div style="flex:1;border:1px solid #e2e8f0;border-radius:4px;padding:5px;display:flex;flex-direction:column;align-items:center;gap:2px">
-                <div style="width:10px;height:10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:3px"></div>
-                <div style="height:2px;background:#cbd5e1;border-radius:1px;width:80%"></div>
-                <div style="height:2px;background:#e2e8f0;border-radius:1px;width:60%"></div>
-              </div>
-            </div>
-          </div>
-          <div class="sec-meta"><div class="sec-name">Features Grid</div><div class="sec-desc">3-column icon + text features</div></div>
-        </div>
-
-        <div class="sec-card" onclick="addSec('biolink')">
-          <div class="sec-thumb dark" style="height:64px;padding:10px 14px;flex-direction:column;gap:5px;align-items:center">
-            <div style="width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#60a5fa);margin-bottom:2px"></div>
-            <div style="height:9px;background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.3);border-radius:4px;width:80%"></div>
-            <div style="height:9px;background:rgba(5,150,105,0.2);border:1px solid rgba(5,150,105,0.3);border-radius:4px;width:80%"></div>
-          </div>
-          <div class="sec-meta"><div class="sec-name">Bio Link Hub</div><div class="sec-desc">Linktree-style link page</div></div>
-        </div>
-
-        <div class="sec-card" onclick="addSec('cta-banner')">
-          <div class="sec-thumb" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);height:64px;padding:14px 16px;flex-direction:column;gap:5px;align-items:center;justify-content:center">
-            <div style="height:6px;background:rgba(255,255,255,0.9);border-radius:2px;width:55%"></div>
-            <div style="height:4px;background:rgba(255,255,255,0.5);border-radius:2px;width:70%"></div>
-            <div style="height:12px;background:rgba(255,255,255,0.9);border-radius:4px;width:40%;margin-top:2px"></div>
-          </div>
-          <div class="sec-meta"><div class="sec-name">CTA Banner</div><div class="sec-desc">Full-width gradient action strip</div></div>
-        </div>
-
-        <div class="sec-card" onclick="addSec('thankyou')">
-          <div class="sec-thumb dark" style="height:64px;padding:10px 14px;flex-direction:column;gap:4px;align-items:center;justify-content:center">
-            <span style="font-size:22px;line-height:1">🎉</span>
-            <div style="height:6px;background:rgba(255,255,255,0.75);border-radius:2px;width:50%"></div>
-            <div style="height:3px;background:rgba(255,255,255,0.3);border-radius:2px;width:65%"></div>
-            <div style="height:10px;background:rgba(5,150,105,0.6);border:1px solid rgba(5,150,105,0.4);border-radius:3px;width:42%;margin-top:1px"></div>
-          </div>
-          <div class="sec-meta"><div class="sec-name">Thank You</div><div class="sec-desc">Post-signup confirmation page</div></div>
-        </div>
-
-      </div>
-    </div><!-- /pSections -->
-
-    <!-- ELEMENTS panel -->
-    <div id="pElements" style="display:none;flex-direction:column;height:100%">
-      <div class="panel-head">
-        <span class="panel-head-title">Elements</span>
-        <div class="panel-close" onclick="closePanel()">✕</div>
-      </div>
-      <div class="panel-body" style="padding-top:4px">
-        <div class="cat-row">Basic</div>
-        <div class="elem-grid">
-          <div class="elem-card" onclick="addElem('text')"><span class="elem-icon" style="font-weight:900;font-size:18px;font-family:serif">T</span><span class="elem-label">Heading</span></div>
-          <div class="elem-card" onclick="addElem('paragraph')"><span class="elem-icon">¶</span><span class="elem-label">Text</span></div>
-          <div class="elem-card" onclick="addElem('button')"><span class="elem-icon">⬤</span><span class="elem-label">Button</span></div>
-          <div class="elem-card" onclick="addElem('image')"><span class="elem-icon">🖼</span><span class="elem-label">Image</span></div>
-          <div class="elem-card" onclick="addElem('video')"><span class="elem-icon">▶</span><span class="elem-label">Video</span></div>
-          <div class="elem-card" onclick="addElem('form')"><span class="elem-icon">📋</span><span class="elem-label">Form</span></div>
-          <div class="elem-card" onclick="addElem('columns-2')"><span class="elem-icon" style="font-size:13px;letter-spacing:-1px">⬜⬜</span><span class="elem-label">2 Cols</span></div>
-          <div class="elem-card" onclick="addElem('columns-3')"><span class="elem-icon" style="font-size:10px;letter-spacing:-1px">⬜⬜⬜</span><span class="elem-label">3 Cols</span></div>
-          <div class="elem-card" onclick="addElem('divider')"><span class="elem-icon">─</span><span class="elem-label">Divider</span></div>
-          <div class="elem-card" onclick="addElem('spacer')"><span class="elem-icon">↕</span><span class="elem-label">Spacer</span></div>
-        </div>
-        <div class="cat-row">SuperAdPro</div>
-        <div class="elem-grid">
-          <div class="elem-card" onclick="addElem('cta-btn')"><span class="elem-icon">🔵</span><span class="elem-label">CTA Btn</span></div>
-          <div class="elem-card" onclick="addElem('testimonial')"><span class="elem-icon">💬</span><span class="elem-label">Review</span></div>
-          <div class="elem-card" onclick="addElem('stat-card')"><span class="elem-icon">📊</span><span class="elem-label">Stat</span></div>
-          <div class="elem-card" onclick="addElem('biolink-btn')"><span class="elem-icon">🔗</span><span class="elem-label">Link Btn</span></div>
-          <div class="elem-card" onclick="addElem('countdown')"><span class="elem-icon">⏱</span><span class="elem-label">Timer</span></div>
-          <div class="elem-card" onclick="addElem('badge')"><span class="elem-icon">🏷</span><span class="elem-label">Badge</span></div>
+          <div class="sec-meta"><div class="sec-name">CTA Banner</div><div class="sec-desc">Gradient call-to-action strip</div></div>
         </div>
       </div>
-    </div><!-- /pElements -->
+    </div>
 
     <!-- LAYERS panel -->
     <div id="pLayers" style="display:none;flex-direction:column;height:100%">
       <div class="panel-head">
-        <span class="panel-head-title">Layers</span>
-        <div class="panel-close" onclick="closePanel()">✕</div>
+        <span class="panel-title">Layers</span>
+        <button class="panel-close" onclick="closePanel()">✕</button>
       </div>
-      <div class="panel-body">
-        <div id="gjs-ly"></div>
-      </div>
+      <div class="panel-body" id="layerList"></div>
     </div>
 
   </div><!-- /left-panel -->
 
-  <!-- CANVAS -->
+  <!-- CANVAS AREA -->
   <div class="canvas-area">
-    <!-- Editing hint bar -->
-    <div class="canvas-hint-bar">
-      <span class="hint-chip">✏️ Double-click any text to edit</span>
-      <span class="hint-chip">↔ Drag elements to reposition</span>
-      <span class="hint-chip">⬛ Drag corners/edges to resize</span>
-      <span class="hint-chip">🎨 Click to style in right panel</span>
+    <div class="canvas-hint">
+      <span class="hint-tag">✏️ Double-click text to edit</span>
+      <span class="hint-tag">🖱 Drag elements anywhere</span>
+      <span class="hint-tag">⬛ Drag corners to resize</span>
+      <span class="hint-tag">🎨 Click to style in panel</span>
+      <span class="hint-tag">⌘Z Undo &nbsp; ⌘Y Redo</span>
     </div>
-    <div id="gjs"></div>
-    <div class="canvas-empty" id="canvasEmpty">
-      <div class="empty-card">
-        <div class="empty-icon">✦</div>
-        <div class="empty-h">Your page is empty</div>
-        <div class="empty-p">Add sections from the left panel,<br>or start with a ready-made template</div>
-        <div class="empty-actions">
-          <button class="ebtn-primary" onclick="showModal()">✦ Choose a Template</button>
-          <button class="ebtn-secondary" onclick="addSec('hero-dark')">Add Hero Section</button>
+    <div class="canvas-scroll" id="canvasScroll">
+      <div id="canvas" style="width:1200px">
+        <div id="canvas-empty">
+          <div class="ce-icon">✦</div>
+          <div class="ce-title">Your canvas is empty</div>
+          <div class="ce-sub">Drag elements from the left panel, or pick a section template</div>
         </div>
       </div>
     </div>
@@ -821,457 +706,980 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 
   <!-- RIGHT PANEL -->
   <div class="right-panel">
-    <div class="right-head">
-      <div class="right-context" id="rContext">Properties</div>
-      <div class="right-element-name" id="rName">Select an element</div>
+    <div class="rp-head">
+      <div class="rp-ctx" id="rpCtx">Properties</div>
+      <div class="rp-name" id="rpName">Select an element</div>
     </div>
-    <!-- Image upload row — shown when image selected -->
-    <div class="right-img-tools" id="rImgTools" style="display:none">
-      <button class="img-upload-btn" onclick="editor.runCommand('open-assets')">
-        <span>🖼</span> Replace / Upload Image
-      </button>
-      <div style="font-size:9px;color:var(--text3);text-align:center;padding:4px 0 2px">
-        Click to open image manager
-      </div>
+    <div class="rp-empty" id="rpEmpty">
+      <div class="rp-empty-icon">🖱</div>
+      <div class="rp-empty-txt">Click any element on the canvas to edit its properties</div>
     </div>
-    <div class="right-empty" id="rEmpty">
-      <div class="right-empty-ico">🖱</div>
-      <div class="right-empty-txt">Click any element on the canvas to see its style properties</div>
-      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);width:100%;text-align:center">
-        <div style="font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Images</div>
-        <button class="img-upload-btn" onclick="editor.runCommand('open-assets')">
-          🖼 Open Image Manager
-        </button>
-      </div>
-    </div>
-    <div class="right-styles" id="rStyles">
-      <div id="gjs-sm"></div>
-    </div>
+    <div class="rp-body" id="rpBody" style="display:none"></div>
   </div>
 
-</div><!-- /app-body -->
+</div><!-- /app -->
 
-<!-- WELCOME MODAL -->
-<div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
-  <div class="modal-box">
-    <div class="modal-top">
-      <div class="modal-kicker">Start building fast</div>
-      <div class="modal-title">Choose a template</div>
-      <div class="modal-sub">Pick a professionally designed starting point — or start blank.</div>
-      <div class="modal-tabs">
-        <div class="mtab active" onclick="renderTpls('all',this)">All</div>
-        <div class="mtab" onclick="renderTpls('sales',this)">Sales</div>
-        <div class="mtab" onclick="renderTpls('lead',this)">Lead Gen</div>
-        <div class="mtab" onclick="renderTpls('social',this)">Social</div>
-      </div>
+<!-- FLOATING TOOLBAR -->
+<div id="floatbar">
+  <!-- text tools — shown for text elements -->
+  <div id="fb-text-tools" style="display:contents">
+    <select class="fb-select" id="fb-font" onchange="applyProp('fontFamily',this.value)" style="width:100px">
+      <option value="'DM Sans',sans-serif">DM Sans</option>
+      <option value="'Sora',sans-serif">Sora</option>
+      <option value="Georgia,serif">Georgia</option>
+      <option value="'Times New Roman',serif">Times New Roman</option>
+      <option value="'Courier New',monospace">Courier New</option>
+      <option value="Arial,sans-serif">Arial</option>
+    </select>
+    <select class="fb-select" id="fb-size" onchange="applyFontSize(this.value)" style="width:58px">
+      <option>10</option><option>12</option><option>14</option><option>16</option>
+      <option>18</option><option>20</option><option>24</option><option>28</option>
+      <option>32</option><option>36</option><option>42</option><option>48</option>
+      <option>56</option><option>64</option><option>72</option><option>96</option>
+    </select>
+    <div class="fb-sep"></div>
+    <button class="fb-btn" id="fb-bold" onclick="toggleBold()" title="Bold"><b>B</b></button>
+    <button class="fb-btn" id="fb-italic" onclick="toggleItalic()" title="Italic"><i>I</i></button>
+    <button class="fb-btn" id="fb-under" onclick="toggleUnderline()" title="Underline"><u>U</u></button>
+    <div class="fb-sep"></div>
+    <button class="fb-btn" onclick="applyAlign('left')" title="Left">⬅</button>
+    <button class="fb-btn" onclick="applyAlign('center')" title="Center">↔</button>
+    <button class="fb-btn" onclick="applyAlign('right')" title="Right">➡</button>
+    <div class="fb-sep"></div>
+    <div class="fb-color" title="Text colour">
+      <input type="color" id="fb-color" oninput="applyProp('color',this.value)" value="#000000">
     </div>
-    <div class="modal-scroll"><div class="tpl-grid" id="tplGrid"></div></div>
-    <div class="modal-foot">
-      <span class="modal-skip" onclick="closeModal()">Skip — start with blank canvas</span>
+  </div>
+  <div class="fb-sep"></div>
+  <!-- universal tools -->
+  <button class="fb-btn" onclick="duplicateEl()" title="Duplicate">⧉</button>
+  <button class="fb-btn" onclick="deleteEl()" title="Delete" style="color:#f87171">🗑</button>
+</div>
+
+<!-- IMAGE UPLOAD OVERLAY -->
+<div id="img-overlay">
+  <div class="img-modal">
+    <button class="img-modal-close" onclick="closeImgOverlay()">✕</button>
+    <h3>🖼 Add Image</h3>
+    <div class="img-drop" id="imgDrop" onclick="document.getElementById('imgFileInput').click()">
+      <div style="font-size:32px">📂</div>
+      <p>Click to upload or drag & drop<br><span style="color:var(--text3)">PNG, JPG, GIF, WebP — max 5MB</span></p>
+      <input type="file" id="imgFileInput" accept="image/*" onchange="handleFileUpload(event)" style="display:none">
+    </div>
+    <div class="img-url">
+      <input type="text" id="imgUrlInput" placeholder="Or paste image URL…">
+      <button onclick="applyImageUrl()">Use URL</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div id="toast"></div>
 
-<script src="https://unpkg.com/grapesjs@0.21.13"></script>
-<script src="https://unpkg.com/grapesjs-preset-webpage@1.0.3"></script>
-<script src="https://unpkg.com/grapesjs-blocks-basic@1.0.2"></script>
-<script src="https://unpkg.com/grapesjs-plugin-forms@2.0.6"></script>
 <script>
-'use strict';
+// ═══════════════════════════════════════════
+//  SUPERADPRO FREE-CANVAS BUILDER v5
+// ═══════════════════════════════════════════
 
-/* ── Section HTML ── */
-const S={
-'hero-dark':`<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#050d1a,#0c1628);padding:80px 24px;text-align:center"><div style="max-width:640px;width:100%"><div style="display:inline-block;padding:5px 14px;border-radius:20px;background:rgba(37,99,235,0.1);border:1px solid rgba(37,99,235,0.2);font-size:11px;font-weight:700;color:#60a5fa;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px">🚀 Passive Income Platform</div><h1 style="font-family:'Sora',sans-serif;font-size:48px;font-weight:900;color:#fff;line-height:1.08;margin-bottom:18px;letter-spacing:-1.5px">Build Real Passive Income<br><span style="color:#60a5fa">Starting Today</span></h1><p style="font-size:18px;color:#94a3b8;line-height:1.7;margin-bottom:36px;max-width:480px;margin-left:auto;margin-right:auto">Join thousands of members earning commissions on autopilot. No experience needed.</p><div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><a href="#" style="display:inline-block;padding:16px 40px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#60a5fa);color:#fff;font-size:16px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none;box-shadow:0 8px 28px rgba(37,99,235,0.35)">Get Started Free →</a><a href="#" style="display:inline-block;padding:16px 32px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:16px;font-weight:700;text-decoration:none">Watch Demo</a></div></div></section>`,
-'hero-light':`<section style="min-height:80vh;display:flex;align-items:center;justify-content:center;background:#fff;padding:80px 24px;text-align:center"><div style="max-width:640px;width:100%"><div style="display:inline-block;padding:5px 14px;border-radius:20px;background:#eff6ff;border:1px solid #bfdbfe;font-size:11px;font-weight:700;color:#2563eb;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px">New Opportunity</div><h1 style="font-family:'Sora',sans-serif;font-size:44px;font-weight:900;color:#0f172a;line-height:1.1;margin-bottom:16px;letter-spacing:-1px">Your Headline That <span style="color:#2563eb">Converts</span></h1><p style="font-size:17px;color:#64748b;line-height:1.7;margin-bottom:32px">Your supporting message goes here. Clear, benefit-driven, focused on the reader.</p><a href="#" style="display:inline-block;padding:16px 44px;border-radius:12px;background:#2563eb;color:#fff;font-size:16px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none;box-shadow:0 6px 20px rgba(37,99,235,0.25)">Start Now →</a></div></section>`,
-'hero-split':`<section style="min-height:100vh;display:flex;align-items:center;background:linear-gradient(135deg,#050d1a,#0c1628);padding:60px 40px"><div style="max-width:1100px;margin:0 auto;width:100%;display:flex;gap:60px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:280px"><h1 style="font-family:'Sora',sans-serif;font-size:40px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:16px;letter-spacing:-1px">The Smarter Way to Build Online Income</h1><p style="font-size:16px;color:#94a3b8;line-height:1.7;margin-bottom:28px">Our automated grid system works 24/7 so you don't have to.</p><a href="#" style="display:inline-block;padding:15px 36px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#60a5fa);color:#fff;font-size:15px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none">Join Free Today →</a></div><div style="flex:1;min-width:260px;background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.15);border-radius:20px;padding:32px;min-height:280px;display:flex;align-items:center;justify-content:center;color:#475569;font-size:14px">📸 Your image or video</div></div></section>`,
-'optin':`<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#050d1a,#0c1628);padding:60px 20px"><div style="max-width:480px;width:100%;text-align:center"><h1 style="font-family:'Sora',sans-serif;font-size:32px;font-weight:800;color:#fff;margin-bottom:10px">Get Your Free Blueprint</h1><p style="font-size:15px;color:#94a3b8;margin-bottom:28px;line-height:1.6">Enter your details and we'll send the complete step-by-step guide.</p><div style="display:flex;flex-direction:column;gap:10px"><input type="text" placeholder="Your first name" style="padding:15px 18px;border-radius:10px;border:1px solid rgba(37,99,235,0.25);background:rgba(255,255,255,0.06);color:#fff;font-size:15px;font-family:inherit;outline:none"><input type="email" placeholder="Your best email address" style="padding:15px 18px;border-radius:10px;border:1px solid rgba(37,99,235,0.25);background:rgba(255,255,255,0.06);color:#fff;font-size:15px;font-family:inherit;outline:none"><button type="button" style="padding:17px;border-radius:10px;border:none;background:linear-gradient(135deg,#2563eb,#60a5fa);color:#fff;font-size:16px;font-weight:800;font-family:'Sora',sans-serif;cursor:pointer">Send Me the Blueprint →</button></div><p style="font-size:11px;color:#475569;margin-top:14px">🔒 We respect your privacy.</p></div></section>`,
-'video-cta':`<section style="min-height:100vh;background:linear-gradient(135deg,#050d1a,#0c1628);padding:60px 24px"><div style="max-width:700px;margin:0 auto;text-align:center"><h1 style="font-family:'Sora',sans-serif;font-size:30px;font-weight:900;color:#fff;margin-bottom:20px">Watch This 3-Minute Video</h1><div style="background:#000;border-radius:16px;aspect-ratio:16/9;margin-bottom:28px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(37,99,235,0.15)"><div style="font-size:56px;opacity:0.35">▶</div></div><a href="#" style="display:inline-block;padding:18px 52px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#60a5fa);color:#fff;font-size:18px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none;box-shadow:0 8px 32px rgba(37,99,235,0.35)">Join Free Now →</a></div></section>`,
-'testimonials':`<section style="padding:80px 24px;background:#f8fafc"><div style="max-width:1000px;margin:0 auto;text-align:center"><h2 style="font-family:'Sora',sans-serif;font-size:32px;font-weight:900;color:#0f172a;margin-bottom:48px">What Our Community Says</h2><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px"><div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px 24px;text-align:left"><div style="font-size:22px;color:#f59e0b;margin-bottom:10px">★★★★★</div><p style="font-size:14px;color:#475569;font-style:italic;line-height:1.7;margin-bottom:16px">"I had my first commission within 30 days. The system really works!"</p><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#60a5fa);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff">JD</div><div><div style="font-size:13px;font-weight:700;color:#0f172a">James D.</div><div style="font-size:11px;color:#94a3b8">Member since 2024</div></div></div></div><div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px 24px;text-align:left"><div style="font-size:22px;color:#f59e0b;margin-bottom:10px">★★★★★</div><p style="font-size:14px;color:#475569;font-style:italic;line-height:1.7;margin-bottom:16px">"My passive income now covers my subscription and more!"</p><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#059669,#34d399);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff">SM</div><div><div style="font-size:13px;font-weight:700;color:#0f172a">Sarah M.</div><div style="font-size:11px;color:#94a3b8">Tier 5 Member</div></div></div></div><div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px 24px;text-align:left"><div style="font-size:22px;color:#f59e0b;margin-bottom:10px">★★★★★</div><p style="font-size:14px;color:#475569;font-style:italic;line-height:1.7;margin-bottom:16px">"Best decision this year. The automated system does everything."</p><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#a78bfa,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff">RK</div><div><div style="font-size:13px;font-weight:700;color:#0f172a">Rachel K.</div><div style="font-size:11px;color:#94a3b8">Grid Owner</div></div></div></div></div></div></section>`,
-'stats':`<section style="padding:60px 24px;background:linear-gradient(135deg,#050d1a,#0c1628)"><div style="max-width:900px;margin:0 auto;text-align:center"><h2 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:#fff;margin-bottom:40px">The Numbers Speak for Themselves</h2><div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap"><div style="background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:16px;padding:28px 32px;flex:1;min-width:140px"><div style="font-family:'Space Mono',monospace;font-size:34px;font-weight:700;color:#60a5fa;margin-bottom:6px">40%</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Direct Commission</div></div><div style="background:rgba(5,150,105,0.08);border:1px solid rgba(5,150,105,0.2);border-radius:16px;padding:28px 32px;flex:1;min-width:140px"><div style="font-family:'Space Mono',monospace;font-size:34px;font-weight:700;color:#34d399;margin-bottom:6px">$1,033</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Max Per Grid</div></div><div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:16px;padding:28px 32px;flex:1;min-width:140px"><div style="font-family:'Space Mono',monospace;font-size:34px;font-weight:700;color:#fcd34d;margin-bottom:6px">8</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Income Levels</div></div><div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:16px;padding:28px 32px;flex:1;min-width:140px"><div style="font-family:'Space Mono',monospace;font-size:34px;font-weight:700;color:#c4b5fd;margin-bottom:6px">24/7</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Automated</div></div></div></div></section>`,
-'features':`<section style="padding:80px 24px;background:#fff"><div style="max-width:1000px;margin:0 auto;text-align:center"><h2 style="font-family:'Sora',sans-serif;font-size:32px;font-weight:900;color:#0f172a;margin-bottom:10px">Everything You Need to Succeed</h2><p style="font-size:15px;color:#64748b;margin-bottom:52px;max-width:500px;margin-left:auto;margin-right:auto">All the tools to build, grow, and automate your income online.</p><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px"><div style="padding:28px 20px;border:1px solid #f1f5f9;border-radius:16px;text-align:center"><div style="width:52px;height:52px;border-radius:14px;background:#eff6ff;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px">💰</div><h3 style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#0f172a;margin-bottom:8px">Passive Commissions</h3><p style="font-size:13px;color:#64748b;line-height:1.6">40% direct + 6.875% across 8 levels automatically.</p></div><div style="padding:28px 20px;border:1px solid #f1f5f9;border-radius:16px;text-align:center"><div style="width:52px;height:52px;border-radius:14px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px">⚡</div><h3 style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#0f172a;margin-bottom:8px">Instant Payouts</h3><p style="font-size:13px;color:#64748b;line-height:1.6">Straight to your crypto wallet. No waiting, no delays.</p></div><div style="padding:28px 20px;border:1px solid #f1f5f9;border-radius:16px;text-align:center"><div style="width:52px;height:52px;border-radius:14px;background:#fff7ed;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px">🌍</div><h3 style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#0f172a;margin-bottom:8px">Global Platform</h3><p style="font-size:13px;color:#64748b;line-height:1.6">Members in 30+ countries. No geographic restrictions.</p></div></div></div></section>`,
-'biolink':`<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#050d1a,#0c1628);padding:60px 20px"><div style="max-width:400px;width:100%;text-align:center"><div style="width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#60a5fa);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:36px;color:#fff">▶</div><h2 style="font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:4px">Your Name Here</h2><p style="font-size:13px;color:#64748b;margin-bottom:28px">Digital entrepreneur · SuperAdPro member</p><div style="display:flex;flex-direction:column;gap:10px"><a href="#" style="display:block;padding:15px 20px;border-radius:12px;background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);color:#fff;font-size:14px;font-weight:700;text-decoration:none">🚀 Join My Team on SuperAdPro</a><a href="#" style="display:block;padding:15px 20px;border-radius:12px;background:rgba(5,150,105,0.08);border:1px solid rgba(5,150,105,0.2);color:#fff;font-size:14px;font-weight:700;text-decoration:none">💰 See How I Earn Online</a><a href="#" style="display:block;padding:15px 20px;border-radius:12px;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);color:#fff;font-size:14px;font-weight:700;text-decoration:none">📱 Follow Me on Instagram</a></div></div></section>`,
-'cta-banner':`<section style="padding:60px 24px;background:linear-gradient(135deg,#2563eb,#1d4ed8)"><div style="max-width:700px;margin:0 auto;text-align:center"><h2 style="font-family:'Sora',sans-serif;font-size:32px;font-weight:900;color:#fff;margin-bottom:10px">Ready to Start Earning?</h2><p style="font-size:16px;color:rgba(255,255,255,0.8);margin-bottom:28px;line-height:1.6">Join thousands already building passive income. Free to register.</p><a href="#" style="display:inline-block;padding:16px 44px;border-radius:12px;background:#fff;color:#2563eb;font-size:16px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none">Join Free Today →</a></div></section>`,
-'thankyou':`<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#050d1a,#0c1628);padding:60px 20px"><div style="max-width:520px;width:100%;text-align:center"><div style="font-size:68px;margin-bottom:18px">🎉</div><h1 style="font-family:'Sora',sans-serif;font-size:36px;font-weight:900;color:#fff;margin-bottom:12px">Welcome to the Team!</h1><p style="font-size:15px;color:#94a3b8;line-height:1.7;margin-bottom:28px">Check your email for login details. Your journey starts now.</p><a href="/dashboard" style="display:inline-block;padding:16px 40px;border-radius:12px;background:linear-gradient(135deg,#059669,#047857);color:#fff;font-size:16px;font-weight:800;font-family:'Sora',sans-serif;text-decoration:none">Go To Dashboard →</a></div></section>`
-};
+const PAGE_ID = {{ page.id }};
+let canvasW = 1200;
+let zoom = 1;
+let elements = [];   // [{id,type,x,y,w,h,styles,content,...}]
+let selectedId = null;
+let history = [];
+let historyIdx = -1;
+let dragType = null;  // type being dragged from panel
+let imgTargetId = null; // which element is getting image assigned
 
-/* ── Elements ── */
-const E={
-'text':'<h2 style="font-family:Sora,sans-serif;font-size:28px;font-weight:800;color:#0f172a;margin:16px 0">Your Heading Here</h2>',
-'paragraph':'<p style="font-size:15px;color:#64748b;line-height:1.7;margin:12px 0;max-width:600px">Your paragraph text goes here. Click to edit.</p>',
-'button':'<a href="#" style="display:inline-block;padding:14px 32px;border-radius:10px;background:#2563eb;color:#fff;font-size:14px;font-weight:700;font-family:Sora,sans-serif;text-decoration:none;margin:10px 0">Click Here →</a>',
-'image':'<img src="https://via.placeholder.com/800x400/f0f4ff/2563eb?text=Your+Image+Here" style="width:100%;border-radius:12px;margin:12px 0" alt="Image">',
-'video':'<div style="aspect-ratio:16/9;background:#f8fafc;border-radius:12px;display:flex;align-items:center;justify-content:center;border:2px dashed #e2e8f0;margin:12px 0;color:#94a3b8">▶ Video placeholder</div>',
-'divider':'<hr style="border:none;height:1px;background:#e2e8f0;margin:28px auto;max-width:600px">',
-'spacer':'<div style="height:60px"></div>',
-'columns-2':'<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:20px 0"><div style="border:2px dashed #e2e8f0;border-radius:8px;padding:28px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px">Column 1</div><div style="border:2px dashed #e2e8f0;border-radius:8px;padding:28px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px">Column 2</div></div>',
-'columns-3':'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;padding:20px 0"><div style="border:2px dashed #e2e8f0;border-radius:8px;padding:20px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px">Col 1</div><div style="border:2px dashed #e2e8f0;border-radius:8px;padding:20px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px">Col 2</div><div style="border:2px dashed #e2e8f0;border-radius:8px;padding:20px;min-height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px">Col 3</div></div>',
-'form':'<form style="display:flex;flex-direction:column;gap:10px;max-width:400px;margin:12px 0"><input type="text" placeholder="Your name" style="padding:12px 16px;border-radius:8px;border:1px solid #e2e8f0;font-size:14px;font-family:inherit;outline:none"><input type="email" placeholder="Email address" style="padding:12px 16px;border-radius:8px;border:1px solid #e2e8f0;font-size:14px;font-family:inherit;outline:none"><button type="button" style="padding:13px;border-radius:8px;background:#2563eb;color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:Sora,sans-serif">Submit →</button></form>',
-'cta-btn':'<a href="#" style="display:inline-block;padding:16px 44px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#60a5fa);color:#fff;font-size:16px;font-weight:800;font-family:Sora,sans-serif;text-decoration:none;margin:10px 0">Get Started Free →</a>',
-'testimonial':'<div style="max-width:380px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:24px;margin:12px auto"><div style="font-size:18px;color:#f59e0b;margin-bottom:10px">★★★★★</div><p style="font-size:14px;color:#64748b;font-style:italic;line-height:1.6;margin-bottom:14px">"This platform genuinely changed my financial situation."</p><div style="display:flex;align-items:center;gap:10px"><div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#60a5fa);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff">AB</div><div><div style="font-size:13px;font-weight:700;color:#0f172a">Alex B.</div><div style="font-size:10px;color:#94a3b8">SuperAdPro Member</div></div></div></div>',
-'stat-card':'<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;padding:24px 32px;text-align:center;display:inline-block;margin:8px"><div style="font-family:Space Mono,monospace;font-size:32px;font-weight:700;color:#2563eb;margin-bottom:6px">40%</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Commission Rate</div></div>',
-'biolink-btn':'<a href="#" style="display:block;max-width:400px;margin:6px auto;padding:15px 20px;border-radius:12px;background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);color:#0f172a;font-size:14px;font-weight:700;text-decoration:none;text-align:center">🔗 Your Link Text Here</a>',
-'countdown':'<div style="text-align:center;padding:20px;margin:12px 0"><div style="font-size:10px;font-weight:700;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">Offer Expires In</div><div style="display:flex;gap:10px;justify-content:center"><div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:12px 16px;text-align:center"><div style="font-family:Space Mono,monospace;font-size:26px;font-weight:700;color:#2563eb">23</div><div style="font-size:8px;color:#64748b;margin-top:2px;font-weight:700;letter-spacing:1px">HRS</div></div><div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:12px 16px;text-align:center"><div style="font-family:Space Mono,monospace;font-size:26px;font-weight:700;color:#2563eb">59</div><div style="font-size:8px;color:#64748b;margin-top:2px;font-weight:700;letter-spacing:1px">MIN</div></div><div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:12px 16px;text-align:center"><div style="font-family:Space Mono,monospace;font-size:26px;font-weight:700;color:#2563eb">59</div><div style="font-size:8px;color:#64748b;margin-top:2px;font-weight:700;letter-spacing:1px">SEC</div></div></div></div>',
-'badge':'<div style="display:inline-block;padding:5px 14px;border-radius:20px;background:#ecfdf5;border:1px solid #a7f3d0;font-size:10px;font-weight:700;color:#065f46;letter-spacing:1px;text-transform:uppercase;margin:8px 0">✓ Verified Member</div>'
-};
+// ── Helpers ──
+let _uid = 1;
+const uid = () => 'el_' + (Date.now()) + '_' + (_uid++);
 
-/* ── Templates ── */
-const T={
-blank:{name:'Blank Canvas',desc:'Start from scratch',icon:'📄',color:'#f8fafc',cat:'all',html:'',css:''},
-sales:{name:'Sales Page',desc:'Full conversion funnel',icon:'💰',color:'#050d1a',cat:'sales',html:S['hero-dark']+S['stats']+S['features']+S['testimonials']+S['cta-banner'],css:''},
-optin:{name:'Lead Capture',desc:'Email opt-in page',icon:'📧',color:'#050d1a',cat:'lead',html:S['hero-dark']+S['optin'],css:''},
-biolink:{name:'Bio Link Hub',desc:'Linktree-style page',icon:'🔗',color:'#050d1a',cat:'social',html:S['biolink'],css:''},
-video:{name:'Video Page',desc:'Video + CTA',icon:'🎬',color:'#050d1a',cat:'sales',html:S['video-cta']+S['cta-banner'],css:''},
-thankyou:{name:'Thank You',desc:'Post-signup confirmation',icon:'✅',color:'#050d1a',cat:'all',html:S['thankyou'],css:''},
-features:{name:'Features Page',desc:'Showcase your platform',icon:'✨',color:'#fff',cat:'all',html:S['hero-light']+S['features']+S['cta-banner'],css:''},
-social:{name:'Social Proof',desc:'Testimonials + stats',icon:'⭐',color:'#050d1a',cat:'social',html:S['hero-dark']+S['testimonials']+S['stats']+S['cta-banner'],css:''},
-};
-
-/* ── GrapesJS Init ── */
-const editor=grapesjs.init({
-  container:'#gjs',height:'100%',width:'auto',fromElement:false,storageManager:false,
-  forceClass:false,
-  canvas:{
-    styles:['https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800;900&family=Space+Mono:wght@700&display=swap'],
-    scripts:[],
-    customBadgeLabel: c => c.get('tagName') || 'element',
-  },
-  protectedCss: `
-    body { background: #ffffff !important; margin: 0 !important; padding: 0 !important; }
-    section { width: 100% !important; box-sizing: border-box !important; }
-    img { max-width: 100% !important; height: auto !important; }
-    * { box-sizing: border-box !important; }
-    /* Editable text hint */
-    [contenteditable="true"] {
-      outline: 2px dashed rgba(59,130,246,0.5) !important;
-      outline-offset: 2px !important;
-      cursor: text !important;
-      border-radius: 3px !important;
-    }
-    [contenteditable="true"]:focus {
-      outline: 2px solid rgba(59,130,246,0.8) !important;
-    }
-    /* Draggable cursor on hover */
-    .gjs-selected, .gjs-hovered {
-      cursor: move !important;
-    }
-  `,
-  // ── Asset Manager — image uploads ──
-  assetManager:{
-    upload: '/api/funnels/upload-image',
-    uploadName: 'file',
-    multiUpload: true,
-    autoAdd: true,
-    headers: {},
-    assets: [],
-    uploadText: 'Drop images here or click to upload',
-    addBtnText: '+ Add image URL',
-    customFetch: undefined,
-    modalTitle: 'Image Manager',
-    inputPlaceholder: 'https://your-image-url.com/image.jpg',
-  },
-  // ── Enable resizing on all components ──
-  deviceManager:{devices:[{name:'Desktop',width:''},{name:'Tablet',width:'768px',widthMedia:'768px'},{name:'Mobile',width:'375px',widthMedia:'375px'}]},
-  plugins:['gjs-blocks-basic','gjs-preset-webpage','gjs-plugin-forms'],
-  pluginsOpts:{
-    'gjs-blocks-basic':{flexGrid:true},
-    'gjs-preset-webpage':{
-      modalImportTitle:'Import HTML',
-      modalImportButton:'Import',
-      modalImportLabel:'Paste HTML here',
-      // Enable rich text editor
-      richTextEditorOptions: {
-        actions: ['bold','italic','underline','strikethrough',
-          {name:'link',icon:'🔗',event:'mousedown',
-            result: rte => rte.exec('createLink', prompt('Enter URL:','https://'))},
-          'foreColor',
-          {name:'h1',icon:'<b>H1</b>',result: rte => rte.exec('formatBlock','<h1>')},
-          {name:'h2',icon:'<b>H2</b>',result: rte => rte.exec('formatBlock','<h2>')},
-          {name:'h3',icon:'<b>H3</b>',result: rte => rte.exec('formatBlock','<h3>')},
-          {name:'p', icon:'¶',result: rte => rte.exec('formatBlock','<p>')},
-          {name:'alignLeft',icon:'⬅',result: rte => rte.exec('justifyLeft')},
-          {name:'alignCenter',icon:'↔',result: rte => rte.exec('justifyCenter')},
-          {name:'alignRight',icon:'➡',result: rte => rte.exec('justifyRight')},
-        ]
-      }
-    },
-    'gjs-plugin-forms':{}
-  },
-  styleManager:{appendTo:'#gjs-sm',sectors:[
-    {name:'Typography',open:true,properties:['font-family','font-size','font-weight','color','line-height','text-align','letter-spacing']},
-    {name:'Spacing',open:false,properties:['margin','padding']},
-    {name:'Size',open:false,properties:['width','height','max-width','min-height']},
-    {name:'Background',open:false,properties:['background-color','background']},
-    {name:'Border',open:false,properties:['border-radius','border','box-shadow']},
-    {name:'Layout',open:false,properties:['display','flex-direction','justify-content','align-items','gap']}
-  ]},
-  layerManager:{appendTo:'#gjs-ly'},
-  panels:{defaults:[]}
-});
-
-/* ── Empty state ── */
-function checkEmpty(){
-  const h=editor.getHtml().trim();
-  const empty=!h||h==='<body></body>';
-  document.getElementById('canvasEmpty').classList.toggle('gone',!empty);
+function toast(msg, type='info'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.borderColor=type==='success'?'rgba(16,185,129,.4)':type==='error'?'rgba(239,68,68,.4)':'var(--border)';
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>t.classList.remove('show'),2200);
 }
-editor.on('component:add',checkEmpty);
-editor.on('component:remove',checkEmpty);
-editor.on('load',function(){
-  checkEmpty();
-  // Force canvas iframe body to white, no stray background colours
-  const frame = document.querySelector('#gjs iframe');
-  if(frame && frame.contentDocument){
-    const s = frame.contentDocument.createElement('style');
-    s.id = 'sap-canvas-reset';
-    s.textContent = 'html,body{background:#ffffff!important;margin:0!important;padding:0!important;}';
-    frame.contentDocument.head.appendChild(s);
-  }
-  // Also reset via GrapesJS wrapper
-  try{
-    const wrapper = editor.getWrapper();
-    wrapper.setStyle({'background-color':'#ffffff','margin':'0','padding':'0'});
-  }catch(e){}
-});
 
-/* ── Enable full editing on all component types ── */
-editor.on('load', function(){
-  const domc = editor.DomComponents;
+function setStatus(msg){document.getElementById('saveStatus').textContent=msg}
 
-  // Base traits for resizing (all 8 handles)
-  const resizeCfg = {
-    tl:1,tc:1,tr:1, cl:1,cr:1, bl:1,bc:1,br:1,
-    minDim:10, currentUnit:1, unitHeight:'px', unitWidth:'px',
-  };
+// ── Zoom & Width ──
+function setZoom(z){
+  zoom=Math.max(0.3,Math.min(2,z));
+  document.getElementById('canvas').style.transform=`scale(${zoom})`;
+  document.getElementById('canvas').style.transformOrigin='top center';
+  document.getElementById('zoomVal').textContent=Math.round(zoom*100)+'%';
+}
+function setWidth(w){
+  canvasW=w;
+  document.getElementById('canvas').style.width=w+'px';
+}
 
-  // Text-based types — editable + resizable + draggable
-  const textTypes = ['text','link','label'];
-  textTypes.forEach(type => {
-    try {
-      const existing = domc.getType(type);
-      if(!existing) return;
-      domc.addType(type, {
-        model:{
-          defaults:{
-            ...existing.model.prototype.defaults,
-            editable: true,
-            draggable: true,
-            droppable: true,
-            resizable: resizeCfg,
-          }
-        }
-      });
-    }catch(e){}
-  });
-
-  // Block/container types — draggable + resizable
-  const blockTypes = ['default','image','video','map','table','row','cell','checkbox','radio','input','textarea','select','button','label','form','svg','svg-in'];
-  blockTypes.forEach(type => {
-    try {
-      const existing = domc.getType(type);
-      if(!existing) return;
-      domc.addType(type, {
-        model:{
-          defaults:{
-            ...existing.model.prototype.defaults,
-            draggable: true,
-            droppable: true,
-            resizable: resizeCfg,
-          }
-        }
-      });
-    }catch(e){}
-  });
-
-  // Make ALL existing components on canvas editable after load
-  function makeEditable(component){
-    const tag = (component.get('tagName')||'').toLowerCase();
-    const textTags = ['h1','h2','h3','h4','h5','h6','p','span','a','li','td','th','label','button','div'];
-    if(textTags.includes(tag)){
-      component.set({editable:true, draggable:true, resizable:resizeCfg});
-    } else {
-      component.set({draggable:true, resizable:resizeCfg});
-    }
-    component.components().each(child => makeEditable(child));
-  }
-
-  // Apply to wrapper and all children
-  try {
-    makeEditable(editor.getWrapper());
-  }catch(e){}
-
-  // Also apply to any newly added components
-  editor.on('component:add', comp => {
-    setTimeout(() => {
-      try { makeEditable(comp); }catch(e){}
-    }, 50);
-  });
-});
-
-/* ── Context-smart right panel ── */
-editor.on('component:selected',function(c){
-  if(!c)return;
-  const tag=(c.get('tagName')||'').toLowerCase();
-  const type=c.get('type')||'';
-  const map={section:'Section',div:'Container',h1:'Heading',h2:'Heading',h3:'Heading',p:'Paragraph',a:'Button / Link',img:'Image',form:'Form',input:'Input Field',hr:'Divider',video:'Video'};
-  document.getElementById('rContext').textContent=(map[tag]||'Element')+' — Properties';
-  document.getElementById('rName').textContent=tag.toUpperCase()||'Element';
-  document.getElementById('rEmpty').style.display='none';
-  document.getElementById('rStyles').style.display='block';
-  // Show image upload tools if an image is selected
-  const isImg = tag==='img' || type==='image';
-  document.getElementById('rImgTools').style.display = isImg ? 'block' : 'none';
-});
-editor.on('component:deselected',function(){
-  document.getElementById('rContext').textContent='Properties';
-  document.getElementById('rName').textContent='Select an element';
-  document.getElementById('rEmpty').style.display='flex';
-  document.getElementById('rStyles').style.display='none';
-  document.getElementById('rImgTools').style.display='none';
-});
-
-/* ── Panel switching ── */
-let activePanel='sections';
+// ── Panel switching ──
+let activePanel='elements';
 function openPanel(name){
-  const map={sections:'pSections',elements:'pElements',layers:'pLayers'};
-  const ic={sections:'icSec',elements:'icElem',layers:'icLay'};
+  const panels={elements:'pElements',sections:'pSections',layers:'pLayers'};
   const panel=document.getElementById('leftPanel');
   if(activePanel===name&&panel.classList.contains('open')){closePanel();return;}
   panel.classList.add('open');
   activePanel=name;
-  Object.entries(map).forEach(([k,id])=>document.getElementById(id).style.display=(k===name)?'flex':'none');
-  Object.entries(ic).forEach(([k,id])=>document.getElementById(id).classList.toggle('active',k===name));
+  Object.entries(panels).forEach(([k,id])=>{
+    document.getElementById(id).style.display=(k===name)?'flex':'none';
+  });
+  ['elements','sections','layers'].forEach(k=>{
+    document.getElementById('ic-'+k)?.classList.toggle('active',k===name);
+  });
+  if(name==='layers') renderLayers();
 }
 function closePanel(){
   document.getElementById('leftPanel').classList.remove('open');
   document.querySelectorAll('.ic-btn').forEach(b=>b.classList.remove('active'));
   activePanel=null;
 }
-/* init — sections open by default */
-openPanel('sections');
 
-/* ── Filter ── */
-function filterSec(q){
-  const ql=q.toLowerCase();
-  document.querySelectorAll('.sec-card').forEach(c=>{
-    const n=(c.querySelector('.sec-name')||{}).textContent||'';
-    c.style.display=n.toLowerCase().includes(ql)?'':'none';
+// ── ELEMENT DEFINITIONS ──
+const EL_DEFAULTS = {
+  heading:    {w:500,h:72,  content:'Your Headline Here',  styles:{fontSize:'42px',fontWeight:'900',fontFamily:"'Sora',sans-serif",color:'#111827',textAlign:'left',lineHeight:'1.1'}},
+  subheading: {w:440,h:52,  content:'Your Subheading',     styles:{fontSize:'28px',fontWeight:'800',fontFamily:"'Sora',sans-serif",color:'#1e293b',textAlign:'left',lineHeight:'1.2'}},
+  text:       {w:460,h:80,  content:'Add your paragraph text here. Double-click to start editing this block.',styles:{fontSize:'16px',fontWeight:'400',fontFamily:"'DM Sans',sans-serif",color:'#475569',textAlign:'left',lineHeight:'1.7'}},
+  label:      {w:200,h:34,  content:'Label Text',          styles:{fontSize:'12px',fontWeight:'700',fontFamily:"'DM Sans',sans-serif",color:'#64748b',textAlign:'left',letterSpacing:'1px',textTransform:'uppercase'}},
+  button:     {w:200,h:52,  content:'Click Here',          styles:{fontSize:'16px',fontWeight:'800',fontFamily:"'Sora',sans-serif",color:'#ffffff',backgroundColor:'#2563eb',borderRadius:'10px',textAlign:'center'}},
+  'cta-btn':  {w:240,h:58,  content:'Get Started Free →',  styles:{fontSize:'17px',fontWeight:'900',fontFamily:"'Sora',sans-serif",color:'#ffffff',backgroundImage:'linear-gradient(135deg,#2563eb,#6366f1)',borderRadius:'12px',textAlign:'center',boxShadow:'0 8px 24px rgba(37,99,235,0.35)'}},
+  image:      {w:400,h:280, content:'',                    styles:{objectFit:'cover',borderRadius:'8px'}},
+  video:      {w:560,h:320, content:'https://www.youtube.com/embed/dQw4w9WgXcQ', styles:{borderRadius:'10px'}},
+  form:       {w:360,h:200, content:'',                    styles:{}},
+  divider:    {w:500,h:20,  content:'',                    styles:{borderTop:'2px solid #e2e8f0'}},
+  spacer:     {w:500,h:60,  content:'',                    styles:{backgroundColor:'transparent'}},
+  box:        {w:300,h:200, content:'',                    styles:{backgroundColor:'#f8fafc',borderRadius:'12px',border:'1px solid #e2e8f0'}},
+  badge:      {w:160,h:36,  content:'🚀 New Feature',      styles:{fontSize:'12px',fontWeight:'700',fontFamily:"'DM Sans',sans-serif",color:'#2563eb',backgroundColor:'#eff6ff',border:'1px solid #bfdbfe',borderRadius:'20px',textAlign:'center',padding:'6px 14px'}},
+  review:     {w:280,h:130, content:'',                    styles:{backgroundColor:'#ffffff',borderRadius:'12px',border:'1px solid #e2e8f0',padding:'16px'}},
+  stat:       {w:180,h:110, content:'',                    styles:{backgroundColor:'#eff6ff',borderRadius:'12px',border:'1px solid #bfdbfe',padding:'16px',textAlign:'center'}},
+  timer:      {w:280,h:80,  content:'',                    styles:{backgroundColor:'#0f172a',borderRadius:'12px',padding:'16px',textAlign:'center'}},
+};
+
+const TEXT_TYPES = new Set(['heading','subheading','text','label','button','cta-btn','badge']);
+
+// ── Create element object ──
+function makeEl(type, x, y){
+  const d = EL_DEFAULTS[type] || EL_DEFAULTS.text;
+  return {
+    id: uid(), type, x: Math.round(x), y: Math.round(y),
+    w: d.w, h: d.h, content: d.content,
+    styles: {...d.styles}, visible: true, locked: false,
+  };
+}
+
+// ── Render all elements ──
+function renderAll(){
+  // Remove all .cv-el nodes
+  document.querySelectorAll('#canvas .cv-el').forEach(e=>e.remove());
+  elements.forEach(el => { if(el.visible!==false) renderEl(el); });
+  updateEmpty();
+  renderLayers();
+}
+
+function updateEmpty(){
+  const em=document.getElementById('canvas-empty');
+  em.classList.toggle('hidden', elements.filter(e=>e.visible!==false).length>0);
+}
+
+function renderEl(el){
+  const div = document.createElement('div');
+  div.className = 'cv-el' + (el.id===selectedId?' selected':'');
+  div.id = el.id;
+  div.style.cssText = `left:${el.x}px;top:${el.y}px;width:${el.w}px;height:${el.h}px;`;
+
+  // Apply background styles to wrapper for box/badge/button types
+  const wrapperStyles = ['backgroundColor','backgroundImage','borderRadius','border','boxShadow','opacity','padding'];
+  if(['button','cta-btn','box','badge','stat','review','timer'].includes(el.type)){
+    wrapperStyles.forEach(k => {
+      if(el.styles[k]) div.style[k] = el.styles[k];
+    });
+  }
+
+  // Inner content
+  const inner = buildInner(el);
+  div.appendChild(inner);
+
+  // Resize handles
+  ['tl','tc','tr','ml','mr','bl','bc','br'].forEach(pos=>{
+    const h = document.createElement('div');
+    h.className = `resize-handle rh-${pos}`;
+    div.appendChild(h);
+  });
+
+  // Events
+  div.addEventListener('click', e => { e.stopPropagation(); selectEl(el.id); });
+  div.addEventListener('dblclick', e => {
+    if(TEXT_TYPES.has(el.type)){ e.stopPropagation(); startEdit(el.id); }
+    else if(el.type==='image'){ openImgOverlay(el.id); }
+  });
+
+  document.getElementById('canvas').appendChild(div);
+  attachInteract(div, el);
+}
+
+function buildInner(el){
+  if(el.type==='image'){
+    if(el.content){
+      const img = document.createElement('img');
+      img.src = el.content;
+      img.style.cssText='width:100%;height:100%;display:block;pointer-events:none;';
+      applyObjStyles(img, el.styles, ['objectFit','borderRadius','opacity']);
+      return img;
+    } else {
+      const ph = document.createElement('div');
+      ph.style.cssText=`width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f1f5f9;border:2px dashed #cbd5e1;border-radius:${el.styles.borderRadius||'8px'};color:#94a3b8;flex-direction:column;gap:8px;font-family:'DM Sans',sans-serif;`;
+      ph.innerHTML='<div style="font-size:28px">🖼</div><div style="font-size:12px;font-weight:600">Double-click to add image</div>';
+      return ph;
+    }
+  }
+  if(el.type==='video'){
+    const wrap = document.createElement('div');
+    wrap.style.cssText='width:100%;height:100%;overflow:hidden;border-radius:'+(el.styles.borderRadius||'10px');
+    const iframe = document.createElement('iframe');
+    iframe.src = el.content;
+    iframe.style.cssText='width:100%;height:100%;border:none;pointer-events:none;';
+    iframe.allow='autoplay;encrypted-media';
+    iframe.allowfullscreen=true;
+    wrap.appendChild(iframe);
+    return wrap;
+  }
+  if(el.type==='form'){
+    const f=document.createElement('div');
+    f.className='el-form';
+    f.innerHTML=`
+      <div style="font-size:16px;font-weight:800;color:#1e293b;margin-bottom:4px">Join Free Today</div>
+      <input placeholder="Your Name" style="pointer-events:none">
+      <input placeholder="Email Address" style="pointer-events:none">
+      <button style="pointer-events:none;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:7px;font-weight:700;font-size:14px">Get Instant Access →</button>
+    `;
+    return f;
+  }
+  if(el.type==='divider'){
+    const d=document.createElement('div');
+    d.style.cssText=`width:100%;height:100%;display:flex;align-items:center;`;
+    const line=document.createElement('div');
+    line.style.cssText=`width:100%;height:2px;background:${el.styles.borderTopColor||'#e2e8f0'};border-radius:1px;`;
+    d.appendChild(line);
+    return d;
+  }
+  if(el.type==='spacer'){
+    const s=document.createElement('div');
+    s.style.cssText='width:100%;height:100%;background:repeating-linear-gradient(0deg,transparent,transparent 6px,rgba(203,213,225,.2) 6px,rgba(203,213,225,.2) 7px);';
+    return s;
+  }
+  if(el.type==='review'){
+    const r=document.createElement('div');
+    r.style.cssText='width:100%;height:100%;padding:14px;';
+    r.innerHTML=`<div style="color:#f59e0b;font-size:14px;margin-bottom:6px">★★★★★</div><div style="font-size:13px;color:#374151;line-height:1.5;font-family:'DM Sans',sans-serif">"This platform changed my life. I made my first commission within 48 hours!"</div><div style="font-size:11px;color:#94a3b8;margin-top:8px;font-weight:700">— Sarah M.</div>`;
+    return r;
+  }
+  if(el.type==='stat'){
+    const s=document.createElement('div');
+    s.style.cssText='width:100%;height:100%;padding:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;';
+    s.innerHTML=`<div style="font-size:32px;font-weight:900;color:#2563eb;font-family:'Sora',sans-serif">$4,200</div><div style="font-size:12px;color:#64748b;font-weight:600;font-family:'DM Sans',sans-serif">Monthly Earnings</div>`;
+    return s;
+  }
+  if(el.type==='timer'){
+    const t=document.createElement('div');
+    t.style.cssText='width:100%;height:100%;display:flex;align-items:center;justify-content:center;gap:8px;';
+    t.innerHTML=`<div style="text-align:center"><div style="font-size:28px;font-weight:900;color:#fff;font-family:'Sora',sans-serif">23</div><div style="font-size:9px;color:#94a3b8;letter-spacing:1px">HRS</div></div><div style="font-size:24px;color:#3b82f6;font-weight:900">:</div><div style="text-align:center"><div style="font-size:28px;font-weight:900;color:#fff;font-family:'Sora',sans-serif">47</div><div style="font-size:9px;color:#94a3b8;letter-spacing:1px">MIN</div></div><div style="font-size:24px;color:#3b82f6;font-weight:900">:</div><div style="text-align:center"><div style="font-size:28px;font-weight:900;color:#fff;font-family:'Sora',sans-serif">12</div><div style="font-size:9px;color:#94a3b8;letter-spacing:1px">SEC</div></div>`;
+    return t;
+  }
+
+  // All text-based elements
+  const span = document.createElement('div');
+  span.className = 'el-text';
+  span.innerHTML = el.content || '';
+  const textStyles = ['fontSize','fontWeight','fontFamily','color','textAlign','lineHeight','letterSpacing','textTransform','textDecoration'];
+  textStyles.forEach(k => { if(el.styles[k]) span.style[k]=el.styles[k]; });
+  span.style.width='100%';
+  span.style.height='100%';
+  span.style.display='flex';
+  span.style.alignItems='center';
+  // For button types centre vertically
+  if(['button','cta-btn'].includes(el.type)){
+    span.style.justifyContent='center';
+    span.style.padding='0 16px';
+  }
+  return span;
+}
+
+function applyObjStyles(el,styles,keys){
+  keys.forEach(k=>{if(styles[k]) el.style[k]=styles[k];});
+}
+
+// ── Interact.js: drag + resize ──
+function attachInteract(div, el){
+  interact(div)
+    .draggable({
+      listeners:{
+        start(e){ selectEl(el.id); },
+        move(e){
+          if(el.locked) return;
+          el.x = Math.round(el.x + e.dx);
+          el.y = Math.round(Math.max(0, el.y + e.dy));
+          div.style.left = el.x+'px';
+          div.style.top  = el.y+'px';
+          updateFloatbar(div);
+        },
+        end(){ pushHistory(); updateRightPanel(); }
+      },
+      modifiers:[
+        interact.modifiers.snap({
+          targets:[interact.snappers.grid({x:10,y:10})],
+          range:Infinity, relativePoints:[{x:0,y:0}]
+        })
+      ]
+    })
+    .resizable({
+      edges:{left:'.rh-ml,.rh-tl,.rh-bl',right:'.rh-mr,.rh-tr,.rh-br',top:'.rh-tc,.rh-tl,.rh-tr',bottom:'.rh-bc,.rh-bl,.rh-br'},
+      listeners:{
+        start(){ selectEl(el.id); },
+        move(e){
+          if(el.locked) return;
+          el.w = Math.round(Math.max(30, e.rect.width));
+          el.h = Math.round(Math.max(20, e.rect.height));
+          el.x = Math.round(e.rect.left - document.getElementById('canvas').getBoundingClientRect().left / zoom);
+          el.y = Math.round(e.rect.top  - document.getElementById('canvas').getBoundingClientRect().top  / zoom);
+          div.style.width  = el.w+'px';
+          div.style.height = el.h+'px';
+          div.style.left   = el.x+'px';
+          div.style.top    = el.y+'px';
+          updateFloatbar(div);
+        },
+        end(){ pushHistory(); updateRightPanel(); }
+      },
+      modifiers:[interact.modifiers.restrictSize({min:{width:30,height:20}})]
+    });
+}
+
+// ── Drop from panel ──
+function dragStart(e){
+  dragType = e.currentTarget.dataset.type;
+  e.dataTransfer.effectAllowed='copy';
+  e.dataTransfer.setData('text/plain', dragType);
+}
+
+const canvas = document.getElementById('canvas');
+canvas.addEventListener('dragover', e=>{
+  e.preventDefault();
+  canvas.classList.add('drag-over');
+});
+canvas.addEventListener('dragleave', e=>{
+  if(!canvas.contains(e.relatedTarget)) canvas.classList.remove('drag-over');
+});
+canvas.addEventListener('drop', e=>{
+  e.preventDefault();
+  canvas.classList.remove('drag-over');
+  const type = dragType || e.dataTransfer.getData('text/plain');
+  if(!type) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = Math.round((e.clientX - rect.left) / zoom) - 100;
+  const y = Math.round((e.clientY - rect.top)  / zoom) - 30;
+  addEl(type, Math.max(0,x), Math.max(0,y));
+  dragType = null;
+});
+
+// Click canvas bg to deselect
+canvas.addEventListener('click', e=>{
+  if(e.target===canvas || e.target===document.getElementById('canvas-empty')) deselectAll();
+});
+
+function addEl(type, x, y){
+  const el = makeEl(type, x, y);
+  elements.push(el);
+  renderEl(el);
+  selectEl(el.id);
+  pushHistory();
+  updateEmpty();
+  if(el.type==='image') openImgOverlay(el.id);
+  toast(`${type} added ✓`,'success');
+}
+
+// ── Add full section ──
+function addSection(type){
+  const startY = elements.length>0 ? Math.max(...elements.map(e=>e.y+e.h)) + 30 : 40;
+  const batch = [];
+
+  if(type==='hero-dark'){
+    batch.push(makeEl('heading',   100, startY+40));
+    batch.push(makeEl('text',      100, startY+120));
+    batch.push(makeEl('cta-btn',   100, startY+220));
+    batch[0].content='Build Real Passive Income<br>Starting Today';
+    batch[0].styles.color='#ffffff';
+    batch[0].styles.fontSize='48px';
+    // dark bg box
+    const bg=makeEl('box',0,startY);
+    bg.w=canvasW;bg.h=380;
+    bg.styles.backgroundColor='#050d1a';bg.styles.borderRadius='0';bg.styles.border='none';
+    bg.styles.backgroundImage='linear-gradient(135deg,#050d1a,#0c1628)';
+    elements.unshift(bg); renderEl(bg);
+    batch.forEach(e=>{elements.push(e);renderEl(e);});
+  } else if(type==='hero-light'){
+    batch.push(makeEl('heading',   100, startY+40));
+    batch.push(makeEl('text',      100, startY+120));
+    batch.push(makeEl('button',    100, startY+220));
+    batch[0].content='The Smarter Way to Build Income Online';
+    batch.forEach(e=>{elements.push(e);renderEl(e);});
+  } else if(type==='optin'){
+    batch.push(makeEl('heading',   120, startY+30));
+    batch.push(makeEl('form',      120, startY+100));
+    batch[0].content='Get Instant Access — It\'s Free';
+    batch[0].styles.textAlign='center';
+    batch.forEach(e=>{elements.push(e);renderEl(e);});
+  } else if(type==='testimonials'){
+    batch.push(makeEl('heading', 80, startY+20));
+    batch[0].content='What Our Members Say';batch[0].styles.textAlign='center';batch[0].w=900;
+    for(let i=0;i<3;i++){
+      const r=makeEl('review', 80+i*310, startY+100);
+      batch.push(r);
+    }
+    batch.forEach(e=>{elements.push(e);renderEl(e);});
+  } else if(type==='cta-banner'){
+    const bg=makeEl('box',0,startY);
+    bg.w=canvasW;bg.h=240;
+    bg.styles.backgroundImage='linear-gradient(135deg,#1d4ed8,#6366f1)';
+    bg.styles.backgroundColor='transparent';bg.styles.borderRadius='0';bg.styles.border='none';
+    elements.unshift(bg);renderEl(bg);
+    const h=makeEl('heading',100,startY+50);
+    h.content='Ready to Start Earning?';h.styles.color='#fff';h.styles.textAlign='center';h.w=canvasW-200;h.x=100;
+    const b=makeEl('cta-btn',canvasW/2-120,startY+140);
+    [h,b].forEach(e=>{elements.push(e);renderEl(e);});
+  }
+
+  selectEl(batch[0]?.id || elements[elements.length-1]?.id);
+  pushHistory();
+  updateEmpty();
+  toast(type+' section added ✓','success');
+
+  // Scroll into view
+  setTimeout(()=>{
+    document.getElementById('canvasScroll').scrollTo({top:startY*zoom-60,behavior:'smooth'});
+  },50);
+}
+
+// ── Selection ──
+function selectEl(id){
+  deselectAll(false);
+  selectedId=id;
+  const div=document.getElementById(id);
+  if(!div) return;
+  div.classList.add('selected');
+  showFloatbar(div);
+  updateRightPanel();
+  if(activePanel==='layers') renderLayers();
+}
+
+function deselectAll(update=true){
+  if(selectedId){
+    endEdit(selectedId);
+    document.getElementById(selectedId)?.classList.remove('selected');
+  }
+  selectedId=null;
+  hideFloatbar();
+  if(update){ document.getElementById('rpEmpty').style.display='flex'; document.getElementById('rpBody').style.display='none'; document.getElementById('rpCtx').textContent='Properties'; document.getElementById('rpName').textContent='Select an element'; }
+}
+
+// ── Inline text editing ──
+let editingId=null;
+function startEdit(id){
+  if(editingId) endEdit(editingId);
+  editingId=id;
+  const div=document.getElementById(id);
+  if(!div) return;
+  const inner=div.querySelector('.el-text');
+  if(!inner) return;
+  inner.contentEditable='true';
+  inner.style.cursor='text';
+  div.style.cursor='text';
+  inner.focus();
+  // Move caret to end
+  const range=document.createRange();
+  const sel=window.getSelection();
+  range.selectNodeContents(inner);
+  range.collapse(false);
+  sel.removeAllRanges();sel.addRange(range);
+  // Prevent drag while editing
+  interact(div).draggable({enabled:false});
+}
+
+function endEdit(id){
+  const div=document.getElementById(id);
+  if(!div) return;
+  const inner=div.querySelector('.el-text');
+  if(inner){
+    inner.contentEditable='false';
+    inner.style.cursor='';
+    div.style.cursor='move';
+    // Save content
+    const el=elements.find(e=>e.id===id);
+    if(el) el.content=inner.innerHTML;
+    interact(div).draggable({enabled:true});
+  }
+  editingId=null;
+  pushHistory();
+}
+
+// Re-enable drag after clicking elsewhere
+document.addEventListener('click', e=>{
+  if(editingId && !document.getElementById(editingId)?.contains(e.target)){
+    endEdit(editingId);
+  }
+});
+
+// ── Floating toolbar ──
+function showFloatbar(div){
+  const el=elements.find(e=>e.id===selectedId);
+  if(!el) return;
+  const fb=document.getElementById('floatbar');
+  const textTools=document.getElementById('fb-text-tools');
+  textTools.style.display=TEXT_TYPES.has(el.type)?'contents':'none';
+
+  // Position above element
+  const rect=div.getBoundingClientRect();
+  fb.style.display='flex';
+  fb.style.top=(rect.top-48)+'px';
+  fb.style.left=(rect.left+rect.width/2)+'px';
+
+  // Sync controls
+  if(TEXT_TYPES.has(el.type)){
+    document.getElementById('fb-size').value = parseInt(el.styles.fontSize)||16;
+    document.getElementById('fb-font').value = el.styles.fontFamily||"'DM Sans',sans-serif";
+    document.getElementById('fb-bold').classList.toggle('active', el.styles.fontWeight==='700'||el.styles.fontWeight==='800'||el.styles.fontWeight==='900');
+    document.getElementById('fb-italic').classList.toggle('active', el.styles.fontStyle==='italic');
+    document.getElementById('fb-under').classList.toggle('active', el.styles.textDecoration==='underline');
+    document.getElementById('fb-color').value = rgbToHex(el.styles.color||'#000000');
+  }
+}
+
+function hideFloatbar(){ document.getElementById('floatbar').style.display='none'; }
+
+function updateFloatbar(div){
+  if(document.getElementById('floatbar').style.display!=='none') showFloatbar(div);
+}
+
+function rgbToHex(c){
+  if(c&&c.startsWith('#')) return c;
+  const m=c?.match?.(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+  if(!m) return '#000000';
+  return '#'+[m[1],m[2],m[3]].map(n=>parseInt(n).toString(16).padStart(2,'0')).join('');
+}
+
+// ── Toolbar actions ──
+function applyProp(prop, val){
+  const el=elements.find(e=>e.id===selectedId);
+  if(!el) return;
+  el.styles[prop]=val;
+  const div=document.getElementById(selectedId);
+  if(!div) return;
+  const inner=div.querySelector('.el-text');
+  if(inner) inner.style[prop]=val;
+  else div.style[prop]=val;
+  updateRightPanel();
+}
+
+function applyFontSize(val){
+  applyProp('fontSize', val+'px');
+  // Resize element height if needed
+  const el=elements.find(e=>e.id===selectedId);
+  if(el){ el.h=Math.max(el.h, parseInt(val)*1.5); const d=document.getElementById(selectedId); if(d) d.style.height=el.h+'px'; }
+}
+
+function applyAlign(a){ applyProp('textAlign',a); }
+
+function toggleBold(){
+  const el=elements.find(e=>e.id===selectedId);
+  if(!el) return;
+  const isBold=el.styles.fontWeight==='700'||el.styles.fontWeight==='800'||el.styles.fontWeight==='900'||el.styles.fontWeight==='bold';
+  applyProp('fontWeight', isBold?'400':'700');
+  document.getElementById('fb-bold').classList.toggle('active',!isBold);
+}
+function toggleItalic(){
+  const el=elements.find(e=>e.id===selectedId);
+  if(!el) return;
+  const isIt=el.styles.fontStyle==='italic';
+  applyProp('fontStyle',isIt?'normal':'italic');
+  document.getElementById('fb-italic').classList.toggle('active',!isIt);
+}
+function toggleUnderline(){
+  const el=elements.find(e=>e.id===selectedId);
+  if(!el) return;
+  const isU=el.styles.textDecoration==='underline';
+  applyProp('textDecoration',isU?'none':'underline');
+  document.getElementById('fb-under').classList.toggle('active',!isU);
+}
+
+// ── Duplicate / Delete ──
+function duplicateEl(){
+  const el=elements.find(e=>e.id===selectedId);
+  if(!el) return;
+  const copy={...el, id:uid(), x:el.x+20, y:el.y+20, styles:{...el.styles}};
+  elements.push(copy);
+  renderEl(copy);
+  selectEl(copy.id);
+  pushHistory();
+  toast('Duplicated ✓','success');
+}
+
+function deleteEl(){
+  if(!selectedId) return;
+  elements=elements.filter(e=>e.id!==selectedId);
+  document.getElementById(selectedId)?.remove();
+  deselectAll();
+  pushHistory();
+  updateEmpty();
+  toast('Deleted','info');
+}
+
+function clearCanvas(){
+  if(!confirm('Clear all elements?')) return;
+  elements=[];
+  document.querySelectorAll('#canvas .cv-el').forEach(e=>e.remove());
+  deselectAll();
+  pushHistory();
+  updateEmpty();
+  toast('Canvas cleared','info');
+}
+
+// ── Right Panel ──
+function updateRightPanel(){
+  const el=elements.find(e=>e.id===selectedId);
+  if(!el){ document.getElementById('rpEmpty').style.display='flex'; document.getElementById('rpBody').style.display='none'; return; }
+
+  document.getElementById('rpEmpty').style.display='none';
+  document.getElementById('rpBody').style.display='block';
+  document.getElementById('rpCtx').textContent=el.type.toUpperCase()+' — Properties';
+  document.getElementById('rpName').textContent=el.type==='heading'?'Heading':el.type==='text'?'Paragraph':el.type==='image'?'Image':el.type==='button'?'Button':el.type==='cta-btn'?'CTA Button':el.type.replace(/-/g,' ');
+
+  const body=document.getElementById('rpBody');
+  body.innerHTML='';
+
+  // Position & Size
+  body.innerHTML+=`
+  <div class="prop-group">
+    <div class="prop-label">Position & Size</div>
+    <div class="prop-2col">
+      <div class="prop-2col-item"><label>X</label><input class="prop-input" type="number" value="${el.x}" onchange="updateElProp('x',+this.value)"></div>
+      <div class="prop-2col-item"><label>Y</label><input class="prop-input" type="number" value="${el.y}" onchange="updateElProp('y',+this.value)"></div>
+    </div>
+    <div class="prop-2col">
+      <div class="prop-2col-item"><label>W</label><input class="prop-input" type="number" value="${el.w}" onchange="updateElProp('w',+this.value)"></div>
+      <div class="prop-2col-item"><label>H</label><input class="prop-input" type="number" value="${el.h}" onchange="updateElProp('h',+this.value)"></div>
+    </div>
+    <div class="prop-row"><label>Opacity</label><input class="prop-input" type="range" min="0" max="1" step="0.05" value="${el.styles.opacity||1}" oninput="applyProp('opacity',this.value);this.closest('.prop-row').querySelector('.op-val').textContent=Math.round(this.value*100)+'%'"><span class="op-val" style="font-size:10px;color:var(--text3);min-width:32px">${Math.round((el.styles.opacity||1)*100)}%</span></div>
+  </div>`;
+
+  // Typography (text elements)
+  if(TEXT_TYPES.has(el.type)){
+    body.innerHTML+=`
+    <div class="prop-group">
+      <div class="prop-label">Typography</div>
+      <div class="prop-row"><label>Size</label><input class="prop-input" type="number" value="${parseInt(el.styles.fontSize)||16}" onchange="applyFontSize(this.value)"></div>
+      <div class="prop-row"><label>Weight</label>
+        <select class="prop-select" onchange="applyProp('fontWeight',this.value)">
+          ${[300,400,500,600,700,800,900].map(w=>`<option value="${w}" ${(el.styles.fontWeight||'400')==w+'?selected':''}>${w}</option>`).join('')}
+        </select>
+      </div>
+      <div class="prop-row"><label>Colour</label><input class="prop-input" type="color" value="${rgbToHex(el.styles.color||'#000')}" oninput="applyProp('color',this.value)"></div>
+      <div class="prop-row"><label>Align</label>
+        <div class="align-grp">
+          ${['left','center','right','justify'].map(a=>`<button class="align-btn${el.styles.textAlign===a?' active':''}" onclick="applyAlign('${a}')">${a==='left'?'⬅':a==='center'?'↔':a==='right'?'➡':'☰'}</button>`).join('')}
+        </div>
+      </div>
+      <div class="prop-row"><label>Line H</label><input class="prop-input" type="number" step="0.1" value="${parseFloat(el.styles.lineHeight)||1.5}" onchange="applyProp('lineHeight',this.value)"></div>
+      <div class="prop-row"><label>Spacing</label><input class="prop-input" type="text" value="${el.styles.letterSpacing||'0'}" onchange="applyProp('letterSpacing',this.value)"></div>
+    </div>`;
+  }
+
+  // Background
+  body.innerHTML+=`
+  <div class="prop-group">
+    <div class="prop-label">Background</div>
+    <div class="prop-row"><label>Colour</label><input class="prop-input" type="color" value="${rgbToHex(el.styles.backgroundColor||'#ffffff')}" oninput="applyPropDom('backgroundColor',this.value)"></div>
+    <div class="prop-row"><label>Gradient</label><input class="prop-input" type="text" placeholder="linear-gradient(...)" value="${el.styles.backgroundImage||''}" onchange="applyPropDom('backgroundImage',this.value)"></div>
+  </div>`;
+
+  // Border
+  body.innerHTML+=`
+  <div class="prop-group">
+    <div class="prop-label">Border & Shadow</div>
+    <div class="prop-row"><label>Radius</label><input class="prop-input" type="text" value="${el.styles.borderRadius||'0'}" onchange="applyPropDom('borderRadius',this.value)"></div>
+    <div class="prop-row"><label>Border</label><input class="prop-input" type="text" placeholder="1px solid #e2e8f0" value="${el.styles.border||''}" onchange="applyPropDom('border',this.value)"></div>
+    <div class="prop-row"><label>Shadow</label><input class="prop-input" type="text" placeholder="0 4px 12px rgba(0,0,0,.1)" value="${el.styles.boxShadow||''}" onchange="applyPropDom('boxShadow',this.value)"></div>
+  </div>`;
+
+  // Image specific
+  if(el.type==='image'){
+    body.innerHTML+=`
+    <div class="prop-group">
+      <div class="prop-label">Image</div>
+      <button class="img-upload-btn" onclick="openImgOverlay('${el.id}')">🖼 Replace / Upload Image</button>
+      <div style="margin-top:8px">
+        <div class="prop-row"><label>Fit</label>
+          <select class="prop-select" onchange="applyProp('objectFit',this.value)">
+            ${['cover','contain','fill','scale-down'].map(f=>`<option ${(el.styles.objectFit||'cover')===f?'selected':''}>${f}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Actions
+  body.innerHTML+=`
+  <div class="prop-group">
+    <div class="prop-label">Actions</div>
+    <div style="display:flex;gap:6px">
+      <button class="tb-btn btn-icon" style="flex:1;justify-content:center" onclick="duplicateEl()">⧉ Duplicate</button>
+      <button class="tb-btn" style="flex:1;justify-content:center;background:rgba(239,68,68,.1);color:#f87171;border-color:rgba(239,68,68,.2)" onclick="deleteEl()">🗑 Delete</button>
+    </div>
+  </div>`;
+}
+
+function updateElProp(prop, val){
+  const el=elements.find(e=>e.id===selectedId);
+  if(!el) return;
+  el[prop]=val;
+  const div=document.getElementById(selectedId);
+  if(!div) return;
+  if(prop==='x') div.style.left=val+'px';
+  else if(prop==='y') div.style.top=val+'px';
+  else if(prop==='w') div.style.width=val+'px';
+  else if(prop==='h') div.style.height=val+'px';
+  pushHistory();
+}
+
+function applyPropDom(prop,val){
+  const el=elements.find(e=>e.id===selectedId);
+  if(!el) return;
+  el.styles[prop]=val;
+  const div=document.getElementById(selectedId);
+  if(div) div.style[prop]=val;
+}
+
+// ── Layers panel ──
+function renderLayers(){
+  const list=document.getElementById('layerList');
+  if(!list) return;
+  list.innerHTML='';
+  [...elements].reverse().forEach(el=>{
+    const item=document.createElement('div');
+    item.className='layer-item'+(el.id===selectedId?' selected':'');
+    const icon={'heading':'🔤','subheading':'🔤','text':'¶','label':'Aa','button':'⬤','cta-btn':'🔵','image':'🖼','video':'▶','form':'📋','divider':'─','spacer':'↕','box':'⬜','badge':'🏷','review':'💬','stat':'📊','timer':'⏱'}[el.type]||'•';
+    item.innerHTML=`
+      <div class="layer-dot" style="background:${el.id===selectedId?'#3b82f6':''}"></div>
+      <span style="font-size:12px">${icon}</span>
+      <span class="layer-name">${el.type}</span>
+      <button class="layer-vis" onclick="toggleVisible('${el.id}',event)">${el.visible===false?'👁‍🗨':'👁'}</button>
+    `;
+    item.addEventListener('click',()=>selectEl(el.id));
+    list.appendChild(item);
   });
 }
 
-/* ── Add section / element ── */
-function addSec(k){
-  const h=S[k];if(!h)return;
-  const added=editor.addComponents(h);
-  toast('Section added ✓','success');
-  checkEmpty();
-  // Select and scroll to the new component
-  if(added && added.length){
-    const comp=added[0];
-    editor.select(comp);
-    setTimeout(()=>{
-      try{
-        const el=comp.getEl();
-        if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
-      }catch(e){}
-    },80);
+function toggleVisible(id, e){
+  e.stopPropagation();
+  const el=elements.find(e=>e.id===id);
+  if(!el) return;
+  el.visible=el.visible===false?true:false;
+  const div=document.getElementById(id);
+  if(div) div.style.display=el.visible===false?'none':'';
+  renderLayers();
+}
+
+// ── History (Undo/Redo) ──
+function pushHistory(){
+  const state=JSON.stringify(elements);
+  history=history.slice(0,historyIdx+1);
+  history.push(state);
+  if(history.length>50) history.shift();
+  historyIdx=history.length-1;
+}
+function undo(){
+  if(historyIdx<=0) return;
+  historyIdx--;
+  elements=JSON.parse(history[historyIdx]);
+  renderAll();
+  toast('Undo ✓');
+}
+function redo(){
+  if(historyIdx>=history.length-1) return;
+  historyIdx++;
+  elements=JSON.parse(history[historyIdx]);
+  renderAll();
+  toast('Redo ✓');
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e=>{
+  const tag=(document.activeElement?.tagName||'').toLowerCase();
+  if(['input','textarea','select'].includes(tag)||document.activeElement?.contentEditable==='true') return;
+  if((e.metaKey||e.ctrlKey)&&e.key==='z'&&!e.shiftKey){ e.preventDefault();undo(); }
+  if((e.metaKey||e.ctrlKey)&&(e.key==='y'||e.shiftKey&&e.key==='z')){ e.preventDefault();redo(); }
+  if((e.metaKey||e.ctrlKey)&&e.key==='d'){ e.preventDefault();duplicateEl(); }
+  if(e.key==='Delete'||e.key==='Backspace'){ if(selectedId) deleteEl(); }
+  // Nudge with arrow keys
+  if(selectedId&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){
+    e.preventDefault();
+    const el=elements.find(e2=>e2.id===selectedId);
+    const d=e.shiftKey?10:1;
+    if(e.key==='ArrowUp')    el.y=Math.max(0,el.y-d);
+    if(e.key==='ArrowDown')  el.y+=d;
+    if(e.key==='ArrowLeft')  el.x=Math.max(0,el.x-d);
+    if(e.key==='ArrowRight') el.x+=d;
+    const div=document.getElementById(selectedId);
+    if(div){div.style.top=el.y+'px';div.style.left=el.x+'px';}
+    pushHistory();
   }
+});
+
+// ── Image overlay ──
+function openImgOverlay(id){
+  imgTargetId=id;
+  document.getElementById('img-overlay').classList.add('show');
+  document.getElementById('imgUrlInput').value='';
 }
-function addElem(k){
-  const h=E[k];if(!h)return;
-  const added=editor.addComponents(h);
-  toast('Element added ✓','info');
-  checkEmpty();
-  // Select and scroll to the new component
-  if(added && added.length){
-    const comp=added[0];
-    editor.select(comp);
-    setTimeout(()=>{
-      try{
-        const el=comp.getEl();
-        if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
-      }catch(e){}
-    },80);
+function closeImgOverlay(){
+  document.getElementById('img-overlay').classList.remove('show');
+  imgTargetId=null;
+}
+function applyImageUrl(){
+  const url=document.getElementById('imgUrlInput').value.trim();
+  if(!url) return;
+  setImage(imgTargetId, url);
+  closeImgOverlay();
+}
+function setImage(id, url){
+  const el=elements.find(e=>e.id===id);
+  if(!el) return;
+  el.content=url;
+  // Re-render the element
+  const div=document.getElementById(id);
+  if(div){
+    const old=div.querySelector('img,.el-text,iframe,div[style*="dashed"],.el-form');
+    const handles=div.querySelectorAll('.resize-handle');
+    // Remove all non-handle children
+    Array.from(div.children).forEach(c=>{if(!c.classList.contains('resize-handle')) c.remove();});
+    div.prepend(buildInner(el));
   }
+  toast('Image updated ✓','success');
 }
 
-/* ── Device ── */
-function setDevice(n){editor.setDevice(n);document.querySelectorAll('.dev-btn').forEach(b=>b.classList.remove('active'));document.getElementById('dev'+n).classList.add('active');}
-
-/* ── Preview ── */
-function togglePreview(){editor.runCommand('preview')}
-
-/* ── Toast ── */
-function toast(msg,type){
-  const t=document.getElementById('toast');
-  t.innerHTML=msg;t.className='toast '+(type||'success')+' show';
-  setTimeout(()=>t.classList.remove('show'),2400);
+async function handleFileUpload(e){
+  const file=e.target.files[0];
+  if(!file) return;
+  if(file.size>5*1024*1024){toast('Image too large (max 5MB)','error');return;}
+  const fd=new FormData();
+  fd.append('file',file);
+  toast('Uploading…');
+  try {
+    const r=await fetch('/api/funnels/upload-image',{method:'POST',body:fd});
+    const d=await r.json();
+    if(d.url){ setImage(imgTargetId,d.url); closeImgOverlay(); }
+    else toast(d.error||'Upload failed','error');
+  } catch(err){ toast('Upload failed','error'); }
 }
 
-/* ── Modal ── */
-function renderTpls(f,el){
-  if(el){document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
-  const entries=Object.entries(T).filter(([,v])=>!f||f==='all'||v.cat===f);
-  document.getElementById('tplGrid').innerHTML=entries.map(([k,t])=>`
-    <div class="tpl-card" onclick="loadTpl('${k}')">
-      <div class="tpl-thumb" style="background:${t.color||'#f8fafc'}"><span>${t.icon}</span></div>
-      <div class="tpl-meta"><div class="tpl-name">${t.name}</div><div class="tpl-desc">${t.desc}</div></div>
-    </div>`).join('');
-}
-function showModal(){renderTpls('all');document.getElementById('modal').classList.add('show')}
-function closeModal(){document.getElementById('modal').classList.remove('show')}
-function loadTpl(k){
-  const t=T[k];if(!t)return;
-  if(editor.getComponents().length>0&&!confirm('Replace current page?'))return;
-  editor.setComponents(t.html||'');editor.setStyle(t.css||'');
-  closeModal();checkEmpty();toast('Template loaded — make it yours!','success');
-}
+// Drag & drop into image overlay
+const imgDrop=document.getElementById('imgDrop');
+imgDrop.addEventListener('dragover',e=>{e.preventDefault();imgDrop.classList.add('dragover')});
+imgDrop.addEventListener('dragleave',()=>imgDrop.classList.remove('dragover'));
+imgDrop.addEventListener('drop',e=>{
+  e.preventDefault();imgDrop.classList.remove('dragover');
+  const file=e.dataTransfer.files[0];
+  if(file){ document.getElementById('imgFileInput').files=e.dataTransfer.files; handleFileUpload({target:{files:[file]}}); }
+});
 
-/* ── Save / Load ── */
-const PAGE_ID={{ page.id }};
-let currentStatus='{{ page.status }}';
-let lastSaved=null;
-
-async function savePage(status){
-  const st=document.getElementById('saveStatus');
-  st.textContent='Saving…';st.style.color='#d97706';
+// ── Save / Load / Publish / Preview ──
+let saveTimer=null;
+async function savePage(){
+  setStatus('Saving…');
   const payload={
-    id:PAGE_ID,title:document.getElementById('pageName').value||'Untitled Page',
-    status:status||currentStatus,template_type:'visual',
-    gjs_components:JSON.stringify(editor.getComponents()),
-    gjs_styles:JSON.stringify(editor.getStyle()),
-    gjs_html:editor.getHtml(),gjs_css:editor.getCss(),updated_at:lastSaved
+    page_id:PAGE_ID,
+    title:document.getElementById('pageName').value,
+    canvas_data:JSON.stringify(elements),
+    canvas_version:'v5',
+    gjs_html: exportHTML(),
+    gjs_css: exportCSS(),
   };
   try{
     const r=await fetch('/api/funnels/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const d=await r.json();
-    if(r.ok){currentStatus=status;lastSaved=d.updated_at;st.textContent=status==='published'?'🟢 Published':'✓ Saved';st.style.color='#059669';toast(status==='published'?'🚀 Published!':'✓ Saved','success');}
-    else{st.textContent='⚠ Error';st.style.color='#dc2626';toast(d.error||'Save failed','error');}
-  }catch(e){st.textContent='⚠ Error';st.style.color='#dc2626';toast('Network error','error');}
+    if(d.success||d.page_id){ setStatus('Saved ✓'); toast('Page saved ✓','success'); }
+    else{ setStatus('Save error'); toast('Save failed: '+(d.error||'?'),'error'); }
+  }catch(e){ setStatus('Save error'); toast('Network error','error'); }
 }
+
+// Auto-save every 60s
+setInterval(()=>{ if(elements.length>0) savePage(); }, 60000);
 
 async function loadPage(){
+  if(!PAGE_ID) return;
   try{
-    const r=await fetch('/api/funnels/load/'+PAGE_ID);const d=await r.json();
-    if(d.gjs_components&&typeof d.gjs_components==='string'){
-      try{editor.setComponents(JSON.parse(d.gjs_components));editor.setStyle(JSON.parse(d.gjs_styles||'[]'));}
-      catch(e){if(d.gjs_html){editor.setComponents(d.gjs_html);editor.setStyle(d.gjs_css||'');}}
-    }else if(d.gjs_html){editor.setComponents(d.gjs_html);editor.setStyle(d.gjs_css||'');}
-    if(d.title)document.getElementById('pageName').value=d.title;
-    if(d.updated_at)lastSaved=d.updated_at;
-    currentStatus=d.status||'draft';checkEmpty();
-  }catch(e){setTimeout(showModal,500);}
+    const r=await fetch('/api/funnels/load/'+PAGE_ID);
+    const d=await r.json();
+    if(d.canvas_data){
+      elements=JSON.parse(d.canvas_data);
+      renderAll();
+      toast('Page loaded ✓','success');
+    } else if(d.gjs_html && d.gjs_html.trim()){
+      // Legacy GrapesJS content — show notice
+      toast('Legacy page — resave to upgrade format','info');
+    }
+  }catch(e){ console.warn('Load failed',e); }
+  pushHistory();
 }
 
-document.addEventListener('keydown',e=>{
-  if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();savePage(currentStatus);}
-  if(e.key==='Escape')closeModal();
-});
-setInterval(()=>{if(editor.getDirtyCount()>0)savePage(currentStatus);},60000);
+function previewPage(){
+  window.open('/p/'+PAGE_ID,'_blank');
+}
 
-setDevice('Desktop');
-loadPage();
+async function publishPage(){
+  await savePage();
+  toast('Published! 🚀','success');
+}
+
+// ── Export HTML/CSS for rendering ──
+function exportHTML(){
+  let html='<div style="position:relative;min-height:900px;width:100%">';
+  elements.forEach(el=>{
+    if(el.visible===false) return;
+    const styles=Object.entries({
+      position:'absolute',left:el.x+'px',top:el.y+'px',
+      width:el.w+'px',height:el.h+'px',
+      ...el.styles,
+      boxSizing:'border-box',
+    }).map(([k,v])=>`${k.replace(/([A-Z])/g,'-$1').toLowerCase()}:${v}`).join(';');
+    if(el.type==='image' && el.content){
+      html+=`<img src="${el.content}" style="${styles};object-fit:${el.styles.objectFit||'cover'}">`;
+    } else if(el.type==='video'){
+      html+=`<iframe src="${el.content}" style="${styles}" frameborder="0" allowfullscreen></iframe>`;
+    } else if(el.type==='spacer'||el.type==='divider'||el.type==='box'){
+      html+=`<div style="${styles}"></div>`;
+    } else if(el.type==='form'){
+      html+=`<div style="${styles};background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;padding:16px;display:flex;flex-direction:column;gap:8px"><input name="name" placeholder="Your Name" style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:7px;font-size:14px"><input name="email" type="email" placeholder="Email Address" style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:7px;font-size:14px"><button type="submit" style="padding:12px;background:#2563eb;color:#fff;border:none;border-radius:7px;font-weight:700;font-size:14px;cursor:pointer">Get Instant Access →</button></div>`;
+    } else {
+      html+=`<div style="${styles}">${el.content||''}</div>`;
+    }
+  });
+  html+='</div>';
+  return html;
+}
+
+function exportCSS(){
+  return `@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800;900&display=swap');*{box-sizing:border-box}`;
+}
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', ()=>{
+  loadPage();
+  pushHistory();
+  // Hint to pick panel
+  openPanel('elements');
+});
 </script>
 </body>
 </html>
