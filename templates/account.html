@@ -250,7 +250,7 @@ select.form-input{background:#f8fafc}
   <div class="card">
     <div class="card-head">
       <div class="card-title"><div class="card-dot"></div>Identity Verification (KYC)</div>
-      {% set kyc = user.kyc_status or 'none' %}
+      {% set kyc = user.kyc_status|default('none') %}
       <span class="status-chip {{ kyc }}">
         {% if kyc == 'none' %}⬜ Not Started
         {% elif kyc == 'pending' %}⏳ Under Review
@@ -311,12 +311,12 @@ select.form-input{background:#f8fafc}
   <div class="card">
     <div class="card-head">
       <div class="card-title"><div class="card-dot"></div>Two-Factor Authentication</div>
-      <span class="status-chip {% if user.totp_enabled %}enabled{% else %}disabled{% endif %}">
-        {% if user.totp_enabled %}🔒 Enabled{% else %}⬜ Disabled{% endif %}
+      <span class="status-chip {% if user.totp_enabled|default(false) %}enabled{% else %}disabled{% endif %}">
+        {% if user.totp_enabled|default(false) %}🔒 Enabled{% else %}⬜ Disabled{% endif %}
       </span>
     </div>
     <div class="card-body">
-      {% if user.totp_enabled %}
+      {% if user.totp_enabled|default(false) %}
       <div style="text-align:center;padding:12px 0;margin-bottom:12px">
         <div style="font-size:32px;margin-bottom:8px">🔒</div>
         <div style="font-size:14px;font-weight:700;color:#16a34a;margin-bottom:4px">2FA is Active</div>
