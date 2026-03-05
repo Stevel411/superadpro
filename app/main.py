@@ -2062,23 +2062,28 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
 
     candidates = query.all()
 
-    # If no unwatched campaigns, allow re-watches (excluding own)
+    # If no unwatched campaigns from others, allow re-watches (excluding own, but
+    # still prefer ones not watched today so we rotate through the pool)
     if not candidates:
-        candidates = db.query(VideoCampaign).filter(
+        q2 = db.query(VideoCampaign).filter(
             VideoCampaign.status == "active",
             VideoCampaign.user_id != user_id,
-        ).all()
+        )
+        # Prefer unwatched-today in re-watch pool too
+        unwatched_others = q2.filter(~VideoCampaign.id.in_(watched_ids)).all() if watched_ids else q2.all()
+        candidates = unwatched_others if unwatched_others else q2.all()
 
     if not candidates:
-        # Last resort: include own campaigns if nothing else exists
-        candidates = db.query(VideoCampaign).filter(
-            VideoCampaign.status == "active"
-        ).all()
+        # Last resort: include own campaigns — still rotate by excluding watched-today first
+        q3 = db.query(VideoCampaign).filter(VideoCampaign.status == "active")
+        unwatched_own = q3.filter(~VideoCampaign.id.in_(watched_ids)).all() if watched_ids else q3.all()
+        candidates = unwatched_own if unwatched_own else q3.all()
 
     if not candidates:
         return None
 
     # Score each campaign
+    import random
     scored = []
     for c in candidates:
         score = 0.0
@@ -2163,8 +2168,8 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
 
         scored.append((score, c))
 
-    # Sort by score descending, pick the best
-    scored.sort(key=lambda x: x[0], reverse=True)
+    # Sort by score descending with random tiebreaker so equal-scored campaigns rotate
+    scored.sort(key=lambda x: (x[0], random.random()), reverse=True)
     return scored[0][1]
 
 
@@ -6955,3 +6960,4 @@ def admin_grid_audit(
         },
         "grids": audit,
     }
+
