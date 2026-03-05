@@ -6,154 +6,60 @@
 <title>Affiliate Tools — SuperAdPro</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#080d18;--panel:#0d1424;--panel2:#111a2e;
-  --border:rgba(255,255,255,.1);--border2:rgba(255,255,255,.18);
-  --cyan:#0ea5e9;--cyan2:#38bdf8;--green:#22c55e;--green2:#4ade80;
-  --amber:#f59e0b;--indigo:#6366f1;--red:#ef4444;
-  --text:#f1f5f9;--text2:#b8c8dc;--text3:#6b88a8;
-}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-a{text-decoration:none;color:inherit}
+body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
 .layout{display:flex;min-height:100vh}
-
-/* ── Sidebar ── */
-.sidebar{width:224px;height:100vh;background:var(--panel);border-right:1px solid var(--border);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-.sidebar::-webkit-scrollbar{width:3px}.sidebar::-webkit-scrollbar-thumb{background:rgba(56,189,248,.15);border-radius:3px}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid var(--border);text-decoration:none}
-.sidebar-brand{font-family:'Sora',sans-serif;font-weight:800;font-size:15px;color:#fff}
-.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid var(--border)}
-.nav-section{padding:18px 12px 4px;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3)}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;margin:1px 8px;border-radius:8px;font-size:14px;font-weight:500;color:var(--text2);text-decoration:none;transition:all .15s}
-.nav-item:hover{background:rgba(255,255,255,.05);color:var(--text)}
-.nav-item.active{background:rgba(14,165,233,.12);color:var(--cyan2);font-weight:600}
-.nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
-.nav-divider{height:1px;background:var(--border);margin:6px 16px}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--border)}
-.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0}
-.user-name{font-size:12px;font-weight:700;color:var(--text)}
-.user-role{font-size:10px;color:var(--text3);margin-top:1px}
-.status-dot-sb{width:7px;height:7px;border-radius:50%;margin-left:auto;flex-shrink:0}
-.status-dot-sb.active{background:var(--green);box-shadow:0 0 6px rgba(34,197,94,.6)}
-.status-dot-sb.inactive{background:var(--amber)}
-
-/* ── Main ── */
-.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
-.topbar-title{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;color:var(--text)!important}
-.topbar-sub{font-size:12px;color:var(--text3)!important;margin-top:2px}
-.tb-right{display:flex;align-items:center;gap:10px}
-.balance-chip{display:flex;align-items:center;gap:10px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:8px 16px}
-.bc-label{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
-.bc-val{font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--green);line-height:1}
-.bc-unit{font-size:10px;color:var(--text3);margin-left:3px}
-.status-badge{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700}
-.status-badge.active{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:var(--green)}
-.status-badge.inactive{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);color:var(--amber)}
-.status-badge::before{content:'';width:6px;height:6px;border-radius:50%}
-.status-badge.active::before{background:var(--green);box-shadow:0 0 5px rgba(34,197,94,.7)}
-.status-badge.inactive::before{background:var(--amber)}
+.sidebar{width:220px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;letter-spacing:0;text-transform:none;color:#fff;-webkit-text-fill-color:#fff}
+.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
+.nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
+.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
+.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;overflow-y:auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.1);position:sticky;top:0;z-index:50}
+.topbar-title{color:#ffffff !important}.topbar-sub{color:#6b7d94 !important}
 .content{padding:24px 28px;flex:1}
-
-/* ── Cards ── */
-.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:18px;transition:border-color .15s}
-.card:hover{border-color:var(--border2)}
-.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)}
-.card-title{font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
-.card-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);flex-shrink:0}
-.card-action{font-size:13px;font-weight:700;color:var(--cyan);opacity:.8;transition:opacity .15s}
-.card-action:hover{opacity:1}
-.card-body{padding:18px 20px}
-
-/* ── Buttons ── */
-.btn-primary{font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--cyan),var(--cyan2));padding:10px 22px;border-radius:9px;border:none;cursor:pointer;font-family:inherit;display:inline-block;text-decoration:none;transition:opacity .15s}
-.btn-primary:hover{opacity:.85}
-.btn-outline{font-size:14px;font-weight:600;color:var(--text2);background:var(--panel2);padding:10px 20px;border-radius:9px;border:1px solid var(--border2);cursor:pointer;font-family:inherit;display:inline-block;transition:all .15s}
-.btn-outline:hover{border-color:var(--cyan);color:var(--cyan2)}
-.btn-green{font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--green),var(--green2));padding:10px 22px;border-radius:9px;border:none;cursor:pointer;font-family:inherit;display:inline-block;transition:opacity .15s}
-.btn-green:hover{opacity:.85}
-.btn-amber{font-size:14px;font-weight:700;color:#000;background:var(--amber);padding:10px 22px;border-radius:9px;border:none;cursor:pointer;font-family:inherit;display:inline-block;transition:opacity .15s}
-
-/* ── Forms ── */
+.card{background:#ffffff;border:1px solid #d0d8e4;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e4e9f1}
+.card-title{font-size:19px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
+.card-dot{width:7px;height:7px;border-radius:50%;background:#0ea5e9;flex-shrink:0}
+.card-body{padding:20px}
+.btn-primary{font-size:19px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:10px 20px;border-radius:7px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:inline-block}
+.btn-outline{font-size:19px;font-weight:600;color:#4a5a6e;background:#ffffff;padding:9px 18px;border-radius:7px;border:1px solid #d0d8e4;text-decoration:none;cursor:pointer;font-family:inherit;display:inline-block}
 .form-group{margin-bottom:16px}
-.form-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;display:block}
-.form-input{width:100%;padding:10px 14px;border:1px solid var(--border2);border-radius:9px;font-size:14px;color:var(--text);font-family:inherit;background:var(--panel2);transition:border-color .2s}
-.form-input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(14,165,233,.12)}
-.form-input::placeholder{color:var(--text3)}
-select.form-input{background:var(--panel2);color:var(--text)}
-select.form-input option{background:var(--panel2)}
-textarea.form-input{resize:vertical;min-height:100px}
-
-/* ── Table ── */
-.tbl{width:100%;border-collapse:collapse}
-.tbl th{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text3);padding:10px 14px;border-bottom:1px solid var(--border);text-align:left}
-.tbl td{font-size:14px;padding:12px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
-.tbl tr:last-child td{border-bottom:none}
-.tbl tr:hover td{background:rgba(255,255,255,.03)}
-
-/* ── Badges / Tags ── */
-.badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px;display:inline-block}
-.badge-green{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.25)}
-.badge-amber{background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.25)}
-.badge-red{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.25)}
-.badge-blue{background:rgba(14,165,233,.1);color:var(--cyan2);border:1px solid rgba(14,165,233,.25)}
-.badge-indigo{background:rgba(99,102,241,.1);color:#818cf8;border:1px solid rgba(99,102,241,.25)}
-
-/* ── Alerts ── */
-.alert{border-radius:12px;padding:14px 18px;margin-bottom:18px;border:1px solid;font-size:13px;line-height:1.6}
-.alert-amber{background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.2);color:var(--amber)}
-.alert-red{background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.2);color:#f87171}
-.alert-green{background:rgba(34,197,94,.07);border-color:rgba(34,197,94,.2);color:var(--green)}
-.alert-blue{background:rgba(14,165,233,.07);border-color:rgba(14,165,233,.2);color:var(--cyan2)}
-
-/* ── Info rows ── */
-.info-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
-.info-row:last-child{border-bottom:none}
-.info-key{font-size:12px;font-weight:600;color:var(--text3)}
-.info-val{font-size:13px;font-weight:700;color:var(--text)}
-
-/* ── Stat cards ── */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
-.stat{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden;transition:border-color .15s,transform .15s}
-.stat:hover{border-color:var(--border2);transform:translateY(-1px)}
-.stat-label{font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
-.stat-val{font-family:'Sora',sans-serif;font-size:36px;font-weight:800;line-height:1;margin-bottom:6px;color:var(--text)}
-.stat-val.green{color:var(--green)}
-.stat-val.cyan{color:var(--cyan2)}
-.stat-sub{font-size:13px;color:var(--text3)}
-
-/* ── Empty state ── */
-.empty{text-align:center;padding:40px 20px}
-.empty-icon{font-size:36px;margin-bottom:14px}
-.empty-title{font-size:15px;font-weight:700;color:var(--text2);margin-bottom:6px}
-.empty-sub{font-size:13px;color:var(--text3);margin-bottom:18px;line-height:1.6}
-
-/* ── Toast ── */
-.toast{border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;font-weight:600;border:1px solid}
-.toast-success{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.25);color:var(--green)}
-.toast-error{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.25);color:#f87171}
-.toast-info{background:rgba(14,165,233,.08);border-color:rgba(14,165,233,.25);color:var(--cyan2)}
-
-/* ── Mobile ── */
-.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:101}
-.mobile-topbar-left{display:flex;align-items:center;gap:10px}
-.mobile-topbar-name{font-weight:800;font-size:14px;font-family:'Sora',sans-serif;color:#fff}
-.mobile-topbar-name span{color:var(--cyan2)}
-.mobile-topbar-page{font-size:11px;color:var(--text3)}
-.mobile-balance-chip{font-size:12px;font-weight:800;color:var(--green);background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:5px 10px}
-.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--border);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
-.mobile-nav-inner{display:flex;justify-content:space-around;align-items:center}
-.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 8px;font-size:10px;color:var(--text3);transition:color .15s}
-.mob-nav-item.active{color:var(--cyan2)}
-.mob-nav-icon{font-size:19px}
-.mob-nav-label{font-weight:600;letter-spacing:.3px}
-
-@media(max-width:1100px){.stats-row{grid-template-columns:1fr 1fr}}
+.form-label{font-size:19px;font-weight:700;color:#4a5a6e;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
+.form-input{width:100%;padding:10px 14px;border:1px solid #d0d8e4;border-radius:7px;font-size:19px;color:#0f172a;font-family:inherit;background:#f5f7fb;transition:border-color 0.2s}
+.form-input:focus{outline:none;border-color:#0ea5e9;background:#ffffff}
+.badge{font-size:19px;font-weight:700;padding:3px 10px;border-radius:999px}
+.badge-green{background:rgba(22,163,74,0.12);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
+.badge-amber{background:rgba(245,158,11,0.08);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)}
+.badge-cyan{background:rgba(0,180,216,0.12);color:#0284c7;border:1px solid rgba(0,180,216,0.2)}
+.row{display:grid;gap:20px}
+.row-2{grid-template-columns:1fr 1fr}
+.row-3{grid-template-columns:1fr 1fr 1fr}
+.stat-pill{border-radius:14px;padding:18px;text-align:center;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
+.stat-pill-val{font-size:30px;font-weight:800;letter-spacing:-0.5px}
+.stat-pill-lbl{font-size:16px;font-weight:700;color:#5a6a7e;text-transform:uppercase;letter-spacing:1.5px;margin-top:6px}
+table{width:100%;border-collapse:collapse}
+th{font-size:19px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border-bottom:2px solid rgba(0,180,216,0.15);text-align:left}
+td{padding:12px;border-bottom:1px solid #e4e9f1;font-size:19px;color:#2d3b4e;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.empty-state{text-align:center;padding:48px 20px}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-title{font-size:19px;font-weight:700;color:#4a5a6e;margin-bottom:6px}
+.empty-sub{font-size:19px;color:#6b7d94;margin-bottom:20px}
 @media(max-width:768px){
-  .main{margin-left:0}.topbar{display:none!important}
-  .mobile-topbar{display:flex!important}.mobile-nav{display:block}
-  body{padding-bottom:70px}.content{padding:16px}
+  .layout{display:block!important}
+  .sidebar{display:none!important}
+  .main{margin-left:0!important}
+  .topbar{display:none!important}
+  .content{padding:10px 12px 80px!important}
+  .row-2,.row-3,.stats-row,.two-col{grid-template-columns:1fr!important}
+  body{overflow-x:hidden}
 }
 </style>
   <link rel="stylesheet" href="/static/mobile.css">
@@ -207,16 +113,16 @@ textarea.form-input{resize:vertical;min-height:100px}
 <div class="topbar">
       <div>
     <div style="font-size:19px;font-weight:800;color:#ffffff">🤝 Affiliate Tools</div>
-    <div style="font-size:19px;color:var(--text3);margin-top:1px">Your referral link, team stats & downline</div>
+    <div style="font-size:19px;color:#6b7d94;margin-top:1px">Your referral link, team stats & downline</div>
   </div>
       <div style="display:flex;align-items:center;gap:14px">
-          <div style="background:var(--panel2);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:6px 14px;text-align:center">
-            <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Balance</div>
-            <div><span style="font-size:15px;font-weight:800;color:var(--green)">${{ '%.2f'|format(balance) }}</span><span style="font-size:11px;color:var(--text3);margin-left:3px">USDT</span></div>
+          <div style="background:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:6px 14px;text-align:center">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8">Balance</div>
+            <div><span style="font-size:15px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:11px;color:#94a3b8;margin-left:3px">USDT</span></div>
           </div>
           <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
           <svg width="32" height="32" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-tb)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-tb" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
-          <span style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff">Super<span style="color:var(--cyan2)">Ad</span>Pro</span>
+          <span style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
         </a>
         </div>
     </div>
@@ -227,12 +133,12 @@ textarea.form-input{resize:vertical;min-height:100px}
     <div class="stat-pill-val" style="color:#059669">{{ personal_referrals }}</div>
     <div class="stat-pill-lbl">Direct Recruits</div>
   </div>
-  <div class="stat-pill" style="background:rgba(14,165,233,.07);border:1px solid rgba(14,165,233,.2)">
-    <div class="stat-pill-val" style="color:var(--cyan)">{{ total_team }}</div>
+  <div class="stat-pill" style="background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #b8d4f8">
+    <div class="stat-pill-val" style="color:#0284c7">{{ total_team }}</div>
     <div class="stat-pill-lbl">Total Team</div>
   </div>
   <div class="stat-pill" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #d4bef8">
-    <div class="stat-pill-val" style="color:var(--cyan)">${{ '%.2f'|format(level_earnings) }}</div>
+    <div class="stat-pill-val" style="color:#0284c7">${{ '%.2f'|format(level_earnings) }}</div>
     <div class="stat-pill-lbl">Upline Earned</div>
   </div>
 </div>
@@ -243,15 +149,15 @@ textarea.form-input{resize:vertical;min-height:100px}
     <div class="card-title"><div class="card-dot" style="background:#16a34a"></div>Your Referral Link</div>
   </div>
   <div class="card-body">
-    <p style="font-size:19px;color:var(--text3);margin-bottom:16px;line-height:1.6">Share this link to refer new members. Every person who joins through your link is placed into your Income Grid — earning you level commissions from their first payment.</p>
-    <div style="background:var(--panel2);border:1px solid #bae6fd;border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px">
-      <span style="font-size:19px;color:var(--cyan);font-family:monospace;flex:1" id="refUrl">{{ ref_link }}</span>
+    <p style="font-size:19px;color:#64748b;margin-bottom:16px;line-height:1.6">Share this link to refer new members. Every person who joins through your link is placed into your Income Grid — earning you level commissions from their first payment.</p>
+    <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <span style="font-size:19px;color:#0284c7;font-family:monospace;flex:1" id="refUrl">{{ ref_link }}</span>
       <button onclick="copyRef()" id="copyBtn" style="font-size:19px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-family:inherit;white-space:nowrap">Copy Link</button>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-      <a href="https://wa.me/?text=Join%20SuperAdPro%20—%20earn%20from%20your%208×8%20Income%20Grid!%20{{ ref_link }}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.25);border-radius:8px;font-size:13px;font-weight:700;color:var(--green);text-decoration:none">📱 WhatsApp</a>
-      <a href="https://t.me/share/url?url={{ ref_link }}&text=Join%20SuperAdPro%20and%20earn%20from%20your%20Income%20Grid!" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:#cffafe;border:1px solid #67e8f9;border-radius:8px;font-size:13px;font-weight:700;color:var(--cyan);text-decoration:none">✈️ Telegram</a>
-      <a href="https://twitter.com/intent/tweet?text=I%27m%20building%20my%208×8%20Income%20Grid%20on%20SuperAdPro%20—%20join%20me!%20{{ ref_link }}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:rgba(124,58,237,0.12);border:1px solid #ddd6fe;border-radius:8px;font-size:13px;font-weight:700;color:var(--cyan);text-decoration:none">🐦 X / Twitter</a>
+      <a href="https://wa.me/?text=Join%20SuperAdPro%20—%20earn%20from%20your%208×8%20Income%20Grid!%20{{ ref_link }}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.25);border-radius:8px;font-size:13px;font-weight:700;color:#16a34a;text-decoration:none">📱 WhatsApp</a>
+      <a href="https://t.me/share/url?url={{ ref_link }}&text=Join%20SuperAdPro%20and%20earn%20from%20your%20Income%20Grid!" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:#cffafe;border:1px solid #67e8f9;border-radius:8px;font-size:13px;font-weight:700;color:#0284c7;text-decoration:none">✈️ Telegram</a>
+      <a href="https://twitter.com/intent/tweet?text=I%27m%20building%20my%208×8%20Income%20Grid%20on%20SuperAdPro%20—%20join%20me!%20{{ ref_link }}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:rgba(124,58,237,0.12);border:1px solid #ddd6fe;border-radius:8px;font-size:13px;font-weight:700;color:#0284c7;text-decoration:none">🐦 X / Twitter</a>
     </div>
   </div>
 </div>
@@ -263,7 +169,7 @@ textarea.form-input{resize:vertical;min-height:100px}
     <span class="badge badge-cyan">Traffic Flywheel</span>
   </div>
   <div class="card-body">
-    <p style="font-size:14px;color:var(--text3);margin-bottom:20px;line-height:1.6">Every share drives traffic back to SuperAdPro. When someone signs up through your link, they're tracked as your referral — even if they click weeks later. Share everywhere, share often.</p>
+    <p style="font-size:14px;color:#64748b;margin-bottom:20px;line-height:1.6">Every share drives traffic back to SuperAdPro. When someone signs up through your link, they're tracked as your referral — even if they click weeks later. Share everywhere, share often.</p>
     
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px">
       <!-- Facebook -->
@@ -312,9 +218,9 @@ textarea.form-input{resize:vertical;min-height:100px}
     </div>
 
     <!-- Pre-written posts -->
-    <div style="background:var(--panel2);border:1px solid #bae6fd;border-radius:10px;padding:18px;margin-bottom:16px">
-      <div style="font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:10px;display:flex;align-items:center;gap:8px">📝 Ready-to-Post Caption <span style="font-size:11px;font-weight:600;color:var(--text3)">(copy & paste to any platform)</span></div>
-      <div style="font-size:13px;color:var(--text);line-height:1.7;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px" id="socialCaption">🚀 I just discovered a platform where you earn real commissions by watching video ads and building an 8×8 Income Grid. Three income streams, 95% payouts, AI marketing tools included.
+    <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:18px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:700;color:#0284c7;margin-bottom:10px;display:flex;align-items:center;gap:8px">📝 Ready-to-Post Caption <span style="font-size:11px;font-weight:600;color:#64748b">(copy & paste to any platform)</span></div>
+      <div style="font-size:13px;color:#334155;line-height:1.7;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:10px" id="socialCaption">🚀 I just discovered a platform where you earn real commissions by watching video ads and building an 8×8 Income Grid. Three income streams, 95% payouts, AI marketing tools included.
 
 No selling, no guesswork — just real participation that pays.
 
@@ -324,7 +230,7 @@ Check it out 👇
 #SuperAdPro #PassiveIncome #VideoAds #OnlineIncome #SideHustle #IncomeGrid</div>
       <div style="display:flex;gap:8px">
         <button onclick="copySocial()" id="copySocialBtn" style="font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-family:inherit">📋 Copy Caption</button>
-        <button onclick="nextCaption()" style="font-size:12px;font-weight:600;color:var(--cyan);background:#e0f2fe;border:1px solid #bae6fd;border-radius:6px;padding:8px 16px;cursor:pointer;font-family:inherit">🔄 Next Caption</button>
+        <button onclick="nextCaption()" style="font-size:12px;font-weight:600;color:#0284c7;background:#e0f2fe;border:1px solid #bae6fd;border-radius:6px;padding:8px 16px;cursor:pointer;font-family:inherit">🔄 Next Caption</button>
       </div>
     </div>
   </div>
@@ -337,48 +243,48 @@ Check it out 👇
     <a href="/ads/my" class="btn-primary" style="font-size:12px;padding:7px 14px">+ Post an Ad</a>
   </div>
   <div class="card-body">
-    <p style="font-size:14px;color:var(--text3);margin-bottom:16px;line-height:1.6">Your Ad Board listings have unique shareable URLs with your referral code baked in. Share your ads across social media — every click drives new visitors to SuperAdPro, and every sign-up is tracked as your referral.</p>
+    <p style="font-size:14px;color:#64748b;margin-bottom:16px;line-height:1.6">Your Ad Board listings have unique shareable URLs with your referral code baked in. Share your ads across social media — every click drives new visitors to SuperAdPro, and every sign-up is tracked as your referral.</p>
     
     <div style="background:linear-gradient(135deg,#eff6ff,#f0f9ff);border:1px solid #bae6fd;border-radius:12px;padding:20px;margin-bottom:16px">
-      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:12px">🔄 The Traffic Flywheel</div>
+      <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:12px">🔄 The Traffic Flywheel</div>
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-        <div style="background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
           <div style="font-size:18px;margin-bottom:4px">📢</div>
-          <div style="font-size:11px;font-weight:700;color:var(--text)">Post an Ad</div>
+          <div style="font-size:11px;font-weight:700;color:#0f172a">Post an Ad</div>
         </div>
-        <div style="font-size:18px;color:var(--cyan)">→</div>
-        <div style="background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
+        <div style="font-size:18px;color:#0ea5e9">→</div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
           <div style="font-size:18px;margin-bottom:4px">📱</div>
-          <div style="font-size:11px;font-weight:700;color:var(--text)">Share on Socials</div>
+          <div style="font-size:11px;font-weight:700;color:#0f172a">Share on Socials</div>
         </div>
-        <div style="font-size:18px;color:var(--cyan)">→</div>
-        <div style="background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
+        <div style="font-size:18px;color:#0ea5e9">→</div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
           <div style="font-size:18px;margin-bottom:4px">👀</div>
-          <div style="font-size:11px;font-weight:700;color:var(--text)">New Visitors Land</div>
+          <div style="font-size:11px;font-weight:700;color:#0f172a">New Visitors Land</div>
         </div>
-        <div style="font-size:18px;color:var(--cyan)">→</div>
-        <div style="background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
+        <div style="font-size:18px;color:#0ea5e9">→</div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
           <div style="font-size:18px;margin-bottom:4px">🤝</div>
-          <div style="font-size:11px;font-weight:700;color:var(--text)">They Sign Up</div>
+          <div style="font-size:11px;font-weight:700;color:#0f172a">They Sign Up</div>
         </div>
         <div style="font-size:18px;color:#10b981">→</div>
         <div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
           <div style="font-size:18px;margin-bottom:4px">💰</div>
-          <div style="font-size:11px;font-weight:700;color:var(--green)">You Earn</div>
+          <div style="font-size:11px;font-weight:700;color:#16a34a">You Earn</div>
         </div>
       </div>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-      <a href="/ads" style="display:block;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:18px;text-decoration:none;transition:all 0.2s" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='#e2e8f0'">
+      <a href="/ads" style="display:block;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:18px;text-decoration:none;transition:all 0.2s" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='#e2e8f0'">
         <div style="font-size:22px;margin-bottom:8px">📢</div>
-        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">Browse the Ad Board</div>
-        <div style="font-size:12px;color:var(--text3)">See what other members are promoting and get inspiration for your own ads.</div>
+        <div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px">Browse the Ad Board</div>
+        <div style="font-size:12px;color:#64748b">See what other members are promoting and get inspiration for your own ads.</div>
       </a>
-      <a href="/ads/my" style="display:block;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:18px;text-decoration:none;transition:all 0.2s" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='#e2e8f0'">
+      <a href="/ads/my" style="display:block;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:18px;text-decoration:none;transition:all 0.2s" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='#e2e8f0'">
         <div style="font-size:22px;margin-bottom:8px">✏️</div>
-        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">Manage Your Ads</div>
-        <div style="font-size:12px;color:var(--text3)">Create, edit and track your Ad Board listings. Up to 5 free ads per member.</div>
+        <div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px">Manage Your Ads</div>
+        <div style="font-size:12px;color:#64748b">Create, edit and track your Ad Board listings. Up to 5 free ads per member.</div>
       </a>
     </div>
   </div>
@@ -392,19 +298,19 @@ Check it out 👇
   <div class="card-body">
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
       <div style="background:#dcfce7;border:1px solid #86efac;border-radius:10px;padding:16px;text-align:center">
-        <div style="font-size:22px;font-weight:800;color:var(--green);margin-bottom:4px">25%+<br>70%</div>
-        <div style="font-size:19px;font-weight:700;color:var(--text);margin-bottom:4px">Direct Sponsor</div>
-        <div style="font-size:19px;color:var(--text3)">When your 64-position grid fills completely</div>
+        <div style="font-size:22px;font-weight:800;color:#16a34a;margin-bottom:4px">25%+<br>70%</div>
+        <div style="font-size:19px;font-weight:700;color:#0f172a;margin-bottom:4px">Direct Sponsor</div>
+        <div style="font-size:19px;color:#64748b">When your 64-position grid fills completely</div>
       </div>
       <div style="background:#cffafe;border:1px solid #67e8f9;border-radius:10px;padding:16px;text-align:center">
-        <div style="font-size:22px;font-weight:800;color:var(--cyan);margin-bottom:4px">25%</div>
-        <div style="font-size:19px;font-weight:700;color:var(--text);margin-bottom:4px">Uni-Level</div>
-        <div style="font-size:19px;color:var(--text3)">Paid instantly as each grid entries across 8 levels</div>
+        <div style="font-size:22px;font-weight:800;color:#0ea5e9;margin-bottom:4px">25%</div>
+        <div style="font-size:19px;font-weight:700;color:#0f172a;margin-bottom:4px">Uni-Level</div>
+        <div style="font-size:19px;color:#64748b">Paid instantly as each grid entries across 8 levels</div>
       </div>
       <div style="background:#e0d9ff;border:1px solid #38bdf8;border-radius:10px;padding:16px;text-align:center">
-        <div style="font-size:22px;font-weight:800;color:var(--cyan);margin-bottom:4px">25%</div>
-        <div style="font-size:19px;font-weight:700;color:var(--text);margin-bottom:4px">Uni-Level Income</div>
-        <div style="font-size:19px;color:var(--text3)">Your upline earns this when your grid completes</div>
+        <div style="font-size:22px;font-weight:800;color:#0284c7;margin-bottom:4px">25%</div>
+        <div style="font-size:19px;font-weight:700;color:#0f172a;margin-bottom:4px">Uni-Level Income</div>
+        <div style="font-size:19px;color:#64748b">Your upline earns this when your grid completes</div>
       </div>
     </div>
   </div>
@@ -423,8 +329,8 @@ Check it out 👇
       {% for r in referrals %}
       <tr>
         <td style="font-weight:700">{{ r.first_name }} {{ r.last_name }}</td>
-        <td style="color:var(--text3);font-family:monospace">@{{ r.username }}</td>
-        <td style="color:var(--text3)">{{ r.created_at.strftime('%d %b %Y') if r.created_at else '—' }}</td>
+        <td style="color:#64748b;font-family:monospace">@{{ r.username }}</td>
+        <td style="color:#6b7d94">{{ r.created_at.strftime('%d %b %Y') if r.created_at else '—' }}</td>
         <td><span class="badge {% if r.is_active %}badge-green{% else %}badge-amber{% endif %}">{% if r.is_active %}Active{% else %}Inactive{% endif %}</span></td>
       </tr>
       {% endfor %}
