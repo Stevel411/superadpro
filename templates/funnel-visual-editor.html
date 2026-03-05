@@ -105,7 +105,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
   flex-shrink:0;overflow:hidden;
 }
 .htag{font-size:9px;font-weight:600;color:rgba(255,255,255,.28);background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:20px;padding:2px 9px;white-space:nowrap}
-#canvas-wrap{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:24px;background:#1a1f30}
+#canvas-wrap{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:24px 32px 24px 24px;background:#1a1f30}
 #canvas-wrap::-webkit-scrollbar{width:6px;height:6px}
 #canvas-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
 
@@ -211,6 +211,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
 /* ── IMAGE MODAL ── */
 #img-modal{display:none;position:fixed;inset:0;z-index:400;background:rgba(5,8,18,.8);backdrop-filter:blur(6px);align-items:center;justify-content:center}
 #img-modal.show{display:flex}
+#video-modal.show{display:flex!important}
 .imb{background:var(--panel);border:1px solid var(--border);border-radius:14px;width:400px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
 .imb h3{font-size:14px;font-weight:800;color:var(--text);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
 .imb-x{width:26px;height:26px;border-radius:6px;border:none;background:rgba(255,255,255,.06);color:var(--text2);cursor:pointer;font-size:12px}
@@ -457,6 +458,27 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
 
 <div id="toast"></div>
 
+<!-- VIDEO MODAL -->
+<div id="video-modal" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(5,8,18,.8);backdrop-filter:blur(6px);align-items:center;justify-content:center">
+  <div class="imb" style="width:460px">
+    <h3>▶ Add Video <button class="imb-x" onclick="closeVideoModal()">✕</button></h3>
+    <div style="margin-bottom:10px">
+      <div style="font-size:11px;color:var(--text2);margin-bottom:8px;font-weight:600">Paste a YouTube, Vimeo, or direct MP4 link:</div>
+      <input id="vm-inp" type="text" class="pi" style="width:100%;font-size:13px;padding:10px 12px" placeholder="https://www.youtube.com/watch?v=…">
+    </div>
+    <div style="font-size:10px;color:var(--text3);line-height:1.6;margin-bottom:14px;padding:10px;background:rgba(255,255,255,.03);border-radius:7px;border:1px solid var(--border)">
+      <b style="color:var(--text2)">Supported formats:</b><br>
+      🎬 YouTube: youtube.com/watch?v=… or youtu.be/…<br>
+      🎥 Vimeo: vimeo.com/123456789<br>
+      📹 Direct MP4: https://example.com/video.mp4
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="closeVideoModal()" style="flex:1;padding:10px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Cancel</button>
+      <button onclick="applyVideoModal()" style="flex:2;padding:10px;border-radius:7px;background:var(--blue);border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">▶ Add Video</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ════════════════════════════════════════════════
 //  SUPERADPRO PAGE BUILDER  — vanilla JS engine
@@ -500,7 +522,23 @@ function setZoom(z){
   CV().style.zoom=zoom;
   document.getElementById('zoom-label').textContent=Math.round(zoom*100)+'%';
 }
-function setW(w){ cW=w; CV().style.width=w+'px'; }
+function setW(w){
+  cW=w;
+  const cv=CV();
+  cv.style.width=w+'px';
+  // Auto-zoom to fit the canvas-wrap width
+  const wrap=document.getElementById('canvas-wrap');
+  const available=wrap.clientWidth - 48;
+  if(w > available){
+    const z=Math.round((available/w)*10)/10;
+    zoom=Math.max(0.3,z);
+    cv.style.zoom=zoom;
+    document.getElementById('zoom-label').textContent=Math.round(zoom*100)+'%';
+  } else {
+    zoom=1; cv.style.zoom=1;
+    document.getElementById('zoom-label').textContent='100%';
+  }
+}
 
 // ── Panel ──
 let curPanel='elements';
@@ -829,6 +867,7 @@ function onElDblclick(e){
   const el=els.find(x=>x.id===id);
   if(el&&TEXT_ELS.has(el.type)){ e.stopPropagation(); startEdit(id); }
   else if(el&&el.type==='image'){ openImg(id); }
+  else if(el&&el.type==='video'){ openVideoModal(id); }
 }
 function startEdit(id){
   if(editId) endEdit(editId);
@@ -952,6 +991,13 @@ function drawRP(){
     <div class="pr"><label>Shadow</label><input class="pi" type="text" placeholder="0 4px 12px rgba(0,0,0,.1)" value="${el.s.boxShadow||''}" onchange="spd('boxShadow',this.value)"></div>
   </div>
   ${el.type==='image'?`<div class="pg"><div class="pl">Image</div><button class="iup-btn" onclick="openImg('${el.id}')">🖼 Replace / Upload Image</button></div>`:''}
+  ${el.type==='video'?`<div class="pg">
+    <div class="pl">Video</div>
+    <div class="pr"><label style="width:auto;margin-bottom:4px;display:block;width:100%">YouTube / Vimeo / MP4 URL</label></div>
+    <input class="pi" type="text" style="width:100%;margin-bottom:6px" placeholder="https://www.youtube.com/watch?v=…" value="${el.txt||''}" onchange="setVideoUrl(this.value)">
+    <div style="font-size:9px;color:var(--text3);line-height:1.5;margin-bottom:8px">Paste a YouTube, Vimeo, or direct MP4 link. YouTube links are auto-converted to embed format.</div>
+    <button class="iup-btn" onclick="openVideoModal('${el.id}')">▶ Change Video</button>
+  </div>`:''}
   <div class="pg">
     <div class="pl">Actions</div>
     <div class="act-row">
@@ -1105,7 +1151,51 @@ async function loadPage(){
   }catch(e){console.warn('Load failed',e);}
   pushH();
 }
-function previewPage(){ window.open('/p/'+PAGE_ID,'_blank'); }
+// ── Video URL handling ──
+function toEmbedUrl(url){
+  if(!url) return '';
+  // YouTube watch -> embed
+  let m=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if(m) return 'https://www.youtube.com/embed/'+m[1];
+  // Vimeo
+  m=url.match(/vimeo\.com\/(\d+)/);
+  if(m) return 'https://player.vimeo.com/video/'+m[1];
+  // Already an embed or direct mp4 — use as-is
+  return url;
+}
+function setVideoUrl(raw){
+  const el=els.find(x=>x.id===selId); if(!el||el.type!=='video') return;
+  const url=toEmbedUrl(raw);
+  el.txt=url;
+  // Re-render inner
+  const d=document.getElementById(selId); if(!d) return;
+  Array.from(d.children).forEach(c=>{if(!c.classList.contains('rh'))c.remove();});
+  d.prepend(buildInner(el));
+  toast('Video updated ✓');
+}
+
+let videoTarget=null;
+function openVideoModal(id){
+  videoTarget=id||selId;
+  const el=els.find(x=>x.id===videoTarget);
+  document.getElementById('vm-inp').value=el?.txt||'';
+  document.getElementById('video-modal').classList.add('show');
+}
+function closeVideoModal(){ document.getElementById('video-modal').classList.remove('show'); videoTarget=null; }
+function applyVideoModal(){
+  const raw=document.getElementById('vm-inp').value.trim();
+  if(!raw) return;
+  const el=els.find(x=>x.id===videoTarget); if(!el) return;
+  el.txt=toEmbedUrl(raw);
+  const d=document.getElementById(videoTarget); if(!d) return;
+  Array.from(d.children).forEach(c=>{if(!c.classList.contains('rh'))c.remove();});
+  d.prepend(buildInner(el));
+  toast('Video updated ✓');
+  closeVideoModal();
+  pushH();
+}
+
+function previewPage(){ savePage().then(()=>window.open('/p/'+PAGE_ID,'_blank')); }
 async function publishPage(){ await savePage(); toast('Published! 🚀'); }
 
 // Auto-save
