@@ -131,35 +131,35 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
   pointer-events:none;z-index:0;
 }
 #cempty.hide{display:none}
-.cem-ico{font-size:32px;opacity:.2}
-.cem-h{font-size:15px;font-weight:700;color:#94a3b8}
-.cem-p{font-size:11px;color:#cbd5e1;text-align:center;max-width:220px}
+.cem-ico{font-size:42px;opacity:.15;margin-bottom:4px}
+.cem-h{font-size:18px;font-weight:700;color:#64748b}
+.cem-p{font-size:13px;color:#94a3b8;text-align:center;max-width:240px;line-height:1.6}
 
 /* ── CANVAS ELEMENTS ── */
 .el{
   position:absolute;cursor:move;
-  outline:2px solid transparent;outline-offset:1px;
-  transition:outline-color .1s;
+  outline:2px solid transparent;outline-offset:2px;
+  transition:outline-color .08s;
   min-width:20px;min-height:10px;
 }
-.el:hover{outline-color:rgba(59,130,246,.3)}
-.el.sel{outline-color:#3b82f6!important;z-index:10}
+.el:hover{outline-color:rgba(59,130,246,.4);outline-width:2px}
+.el.sel{outline-color:#3b82f6!important;outline-width:2px!important;z-index:10}
 .el.sel .rh{display:block}
-
-/* resize handles */
+/* Slightly larger, more visible resize handles */
 .rh{
-  position:absolute;width:9px;height:9px;
-  background:#fff;border:2px solid #3b82f6;border-radius:2px;
+  position:absolute;width:11px;height:11px;
+  background:#fff;border:2px solid #3b82f6;border-radius:3px;
   display:none;z-index:11;
+  box-shadow:0 1px 4px rgba(0,0,0,.25);
 }
-.rh-nw{top:-5px;left:-5px;cursor:nw-resize}
-.rh-n {top:-5px;left:calc(50% - 4px);cursor:n-resize}
-.rh-ne{top:-5px;right:-5px;cursor:ne-resize}
-.rh-w {top:calc(50% - 4px);left:-5px;cursor:w-resize}
-.rh-e {top:calc(50% - 4px);right:-5px;cursor:e-resize}
-.rh-sw{bottom:-5px;left:-5px;cursor:sw-resize}
-.rh-s {bottom:-5px;left:calc(50% - 4px);cursor:s-resize}
-.rh-se{bottom:-5px;right:-5px;cursor:se-resize}
+.rh-nw{top:-6px;left:-6px;cursor:nw-resize}
+.rh-n {top:-6px;left:calc(50% - 5px);cursor:n-resize}
+.rh-ne{top:-6px;right:-6px;cursor:ne-resize}
+.rh-w {top:calc(50% - 5px);left:-6px;cursor:w-resize}
+.rh-e {top:calc(50% - 5px);right:-6px;cursor:e-resize}
+.rh-sw{bottom:-6px;left:-6px;cursor:sw-resize}
+.rh-s {bottom:-6px;left:calc(50% - 5px);cursor:s-resize}
+.rh-se{bottom:-6px;right:-6px;cursor:se-resize}
 
 /* inner content */
 .el-inner{width:100%;height:100%;overflow:hidden;word-break:break-word;box-sizing:border-box}
@@ -176,19 +176,19 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
 /* ── FLOATING TOOLBAR ── */
 #ftbar{
   position:fixed;z-index:300;
-  background:#13192b;border:1px solid rgba(255,255,255,.1);
-  border-radius:9px;padding:3px 4px;
-  box-shadow:0 6px 24px rgba(0,0,0,.5);
-  display:none;align-items:center;gap:1px;
+  background:#13192b;border:1px solid rgba(255,255,255,.14);
+  border-radius:10px;padding:4px 6px;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);
+  display:none;align-items:center;gap:2px;
   transform:translateX(-50%);white-space:nowrap;
 }
-.fb{padding:5px 7px;border-radius:5px;border:none;background:transparent;color:rgba(255,255,255,.6);font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .11s;display:flex;align-items:center;justify-content:center;min-width:26px}
-.fb:hover,.fb.on{background:rgba(59,130,246,.18);color:var(--blue2)}
-.fb-sep{width:1px;height:16px;background:rgba(255,255,255,.07);margin:0 2px;flex-shrink:0}
-.fb-sel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:5px;color:var(--text);font-size:11px;font-family:'DM Sans',sans-serif;padding:3px 5px;outline:none;cursor:pointer}
+.fb{padding:6px 9px;border-radius:6px;border:none;background:transparent;color:rgba(255,255,255,.65);font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .11s;display:flex;align-items:center;justify-content:center;min-width:28px;height:30px}
+.fb:hover,.fb.on{background:rgba(59,130,246,.2);color:var(--blue2)}
+.fb-sep{width:1px;height:18px;background:rgba(255,255,255,.09);margin:0 3px;flex-shrink:0}
+.fb-sel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;padding:4px 6px;outline:none;cursor:pointer;height:30px}
 .fb-sel option{background:#13192b}
-.fb-col{width:20px;height:20px;border-radius:4px;border:1px solid rgba(255,255,255,.12);padding:1px;cursor:pointer;overflow:hidden;flex-shrink:0}
-.fb-col input{width:26px;height:26px;border:none;cursor:pointer;transform:translate(-3px,-3px)}
+.fb-col{width:22px;height:22px;border-radius:5px;border:1px solid rgba(255,255,255,.14);padding:1px;cursor:pointer;overflow:hidden;flex-shrink:0}
+.fb-col input{width:28px;height:28px;border:none;cursor:pointer;transform:translate(-3px,-3px)}
 
 /* ── RIGHT PANEL ── */
 #rpanel{width:var(--rpanel);flex-shrink:0;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
@@ -405,8 +405,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
       <div id="canvas" style="width:900px">
         <div id="cempty">
           <div class="cem-ico">✦</div>
-          <div class="cem-h">Canvas is empty</div>
-          <div class="cem-p">Drag elements from the left panel onto the canvas</div>
+          <div class="cem-h">Start building your page</div>
+          <div class="cem-p">Drag any element from the left panel, or choose a section template to get started quickly</div>
         </div>
       </div>
     </div>
@@ -438,11 +438,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
       <option value="Arial,sans-serif">Arial</option>
       <option value="'Courier New',monospace">Courier</option>
     </select>
-    <select class="fb-sel" id="ft-size" onchange="spSize(this.value)" style="width:54px">
+    <select class="fb-sel" id="ft-size" onchange="spSize(this.value)" style="width:58px">
       <option>10</option><option>12</option><option>14</option><option>16</option>
       <option>18</option><option>20</option><option>24</option><option>28</option>
       <option>32</option><option>36</option><option>42</option><option>48</option>
-      <option>56</option><option>64</option><option>72</option><option>96</option>
+      <option>56</option><option>64</option><option>72</option><option>80</option><option>96</option>
     </select>
     <div class="fb-sep"></div>
     <button class="fb" id="ft-b" onclick="toggleB()" title="Bold"><b>B</b></button>
@@ -534,7 +534,15 @@ function toast(msg,type='ok'){
   clearTimeout(t._tid);
   t._tid=setTimeout(()=>t.classList.remove('show'),2000);
 }
-function setSt(s){document.getElementById('tb-status').textContent=s}
+let _saveTimer=null;
+let _isDirty=false;
+function markDirty(){ _isDirty=true; setSt('Unsaved'); }
+function setSt(s){
+  const el=document.getElementById('tb-status');
+  if(!el) return;
+  el.textContent=s;
+  el.style.color=s.includes('✓')?'#34d399':s.includes('Error')?'#f87171':'var(--text3)';
+}
 
 // ── Zoom ──
 function setZoom(z){
@@ -753,8 +761,10 @@ canvas.addEventListener('drop', e=>{
   const type=dragType||e.dataTransfer.getData('text/plain');
   if(!type) return;
   const r=canvas.getBoundingClientRect();
-  const x=(e.clientX-r.left)/zoom - 80;
-  const y=(e.clientY-r.top)/zoom  - 30;
+  const def=DEFS[type]||DEFS.text;
+  // Centre element under cursor
+  const x=(e.clientX-r.left)/zoom - def.w/2;
+  const y=(e.clientY-r.top)/zoom  - def.h/2;
   addEl(type, Math.max(0,x), Math.max(0,y));
   dragType=null;
 });
@@ -812,9 +822,10 @@ function select(id){
     document.getElementById(selId)?.classList.remove('sel');
   }
   selId=id;
-  document.getElementById(id)?.classList.add('sel');
-  positionFT(document.getElementById(id));
+  const div=document.getElementById(id);
+  div?.classList.add('sel');
   showFT(true);
+  positionFT(div);
   drawRP();
   if(curPanel==='layers') drawLayers();
 }
@@ -952,22 +963,30 @@ function showFT(yes){ document.getElementById('ftbar').style.display=yes?'flex':
 function hideFT(){ document.getElementById('ftbar').style.display='none'; }
 function positionFT(div){
   const fb=document.getElementById('ftbar');
-  if(!div||fb.style.display==='none') return;
+  if(!div||!selId){ hideFT(); return; }
+  fb.style.display='flex';
   const r=div.getBoundingClientRect();
-  fb.style.top=Math.max(62,r.top-46)+'px';
+  const top=Math.max(68, r.top - 50);
+  fb.style.top=top+'px';
   fb.style.left=(r.left+r.width/2)+'px';
-  // Sync text tools
+  // Sync text controls to current element
   const el=els.find(x=>x.id===selId);
   if(!el) return;
   const isT=TEXT_ELS.has(el.type);
   document.getElementById('ft-text').style.display=isT?'contents':'none';
-  if(isT){
-    try{ document.getElementById('ft-size').value=parseInt(el.s.fontSize)||16; }catch(x){}
-    try{ document.getElementById('ft-col').value=toHex(el.s.color||'#000'); }catch(x){}
-    document.getElementById('ft-b').classList.toggle('on',['700','800','900','bold'].includes(''+el.s.fontWeight));
-    document.getElementById('ft-i').classList.toggle('on',el.s.fontStyle==='italic');
-    document.getElementById('ft-u').classList.toggle('on',el.s.textDecoration==='underline');
-  }
+  if(!isT) return;
+  // Font family
+  const ff=document.getElementById('ft-font');
+  const curFF=(el.s.fontFamily||'').replace(/['"]/g,'').split(',')[0].trim();
+  Array.from(ff.options).forEach(o=>{ o.selected=o.text.trim()===curFF; });
+  // Font size
+  try{ document.getElementById('ft-size').value=parseInt(el.s.fontSize)||16; }catch(x){}
+  // Color
+  try{ document.getElementById('ft-col').value=toHex(el.s.color||'#000000'); }catch(x){}
+  // Bold/italic/underline states
+  document.getElementById('ft-b').classList.toggle('on',['700','800','900','bold'].includes(''+el.s.fontWeight));
+  document.getElementById('ft-i').classList.toggle('on',el.s.fontStyle==='italic');
+  document.getElementById('ft-u').classList.toggle('on',(el.s.textDecoration||'').includes('underline'));
 }
 function toHex(c){
   if(c&&c[0]==='#') return c.slice(0,7);
@@ -1028,7 +1047,7 @@ function drawRP(){
     </div>
     <div class="pr"><label>Opacity</label>
       <input class="pi" type="range" min="0" max="1" step="0.05" value="${el.s.opacity||1}" oninput="sp('opacity',this.value);this.nextElementSibling.textContent=Math.round(this.value*100)+'%'" style="flex:1">
-      <span style="font-size:11px;color:var(--text2);width:36px;text-align:right;flex-shrink:0">${Math.round((el.s.opacity||1)*100)}%</span>
+      <span style="font-size:11px;color:var(--text2);width:38px;text-align:right;flex-shrink:0">${Math.round((parseFloat(el.s.opacity)||1)*100)}%</span>
     </div>
   </div>
   ${TEXT_ELS.has(el.type)?`
@@ -1039,7 +1058,7 @@ function drawRP(){
       <input class="pi" type="number" min="8" max="200" value="${parseInt(el.s.fontSize)||16}" onchange="spSize(this.value);this.previousElementSibling.value=this.value" style="width:52px;flex:none">
     </div>
     <div class="pr"><label>Weight</label><select class="psel" onchange="sp('fontWeight',this.value)">${[300,400,500,600,700,800,900].map(w=>`<option value="${w}"${(el.s.fontWeight||'400')==w?'selected':''} >${w}</option>`).join('')}</select></div>
-    <div class="pr"><label>Colour</label><input class="pi" type="color" value="${toHex(el.s.color||'#000')}" oninput="sp('color',this.value)"></div>
+    <div class="pr"><label>Colour</label><input class="pi" type="color" value="${toHex(el.s.color||'#111827')}" oninput="sp('color',this.value)"></div>
     <div class="pr"><label>Align</label><div style="display:flex;gap:4px;flex:1">${['left','center','right'].map(a=>`<button class="abtn${el.s.textAlign===a?' on':''}" onclick="sp('textAlign','${a}')">${a==='left'?'⬅':a==='center'?'↔':'➡'}</button>`).join('')}</div></div>
     <div class="pr"><label>Line H</label>
       <input class="pi" type="range" min="0.8" max="3" step="0.1" value="${parseFloat(el.s.lineHeight)||1.5}" oninput="sp('lineHeight',this.value);this.nextElementSibling.value=this.value" style="flex:1">
@@ -1096,14 +1115,29 @@ function spd(prop,val){
 function drawLayers(){
   const ul=document.getElementById('layer-list'); if(!ul) return;
   ul.innerHTML='';
+  const LABELS={heading:'Heading',subheading:'Subheading',text:'Paragraph',label:'Label',button:'Button',cta:'CTA Button',image:'Image',video:'Video',form:'Opt-In Form',divider:'Divider',spacer:'Spacer',box:'Box',badge:'Badge',review:'Review',stat:'Stat',timer:'Timer'};
+  const ICONS={heading:'H',subheading:'H2',text:'¶',label:'Aa',button:'▣',cta:'◉',image:'🖼',video:'▶',form:'≡',divider:'─',spacer:'↕',box:'□',badge:'◈',review:'★',stat:'#',timer:'◷'};
   [...els].reverse().forEach(el=>{
-    const icons={heading:'🔤',subheading:'🔤',text:'¶',label:'Aa',button:'⬤',cta:'🔵',image:'🖼',video:'▶',form:'📋',divider:'─',spacer:'↕',box:'⬜',badge:'🏷',review:'💬',stat:'📊',timer:'⏱'};
     const d=document.createElement('div');
     d.className='litem'+(el.id===selId?' sel':'');
-    d.innerHTML=`<div class="ldot" style="${el.id===selId?'background:#3b82f6':''}"></div><span style="font-size:11px">${icons[el.type]||'•'}</span><span class="lname">${el.type}</span>`;
-    d.onclick=()=>select(el.id);
+    d.style.opacity=el.vis===false?'0.35':'1';
+    d.innerHTML=`
+      <div class="ldot" style="background:${el.id===selId?'#3b82f6':'#475569'}"></div>
+      <span style="font-size:10px;font-weight:700;color:var(--text3);width:16px;text-align:center;flex-shrink:0">${ICONS[el.type]||'•'}</span>
+      <span class="lname">${LABELS[el.type]||el.type}</span>
+      <button onclick="event.stopPropagation();toggleVis('${el.id}')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:2px 4px;border-radius:3px" title="Show/Hide">${el.vis===false?'👁‍🗨':'👁'}</button>
+    `;
+    d.addEventListener('click',()=>select(el.id));
     ul.appendChild(d);
   });
+}
+function toggleVis(id){
+  const el=els.find(x=>x.id===id); if(!el) return;
+  el.vis=el.vis===false?true:false;
+  const d=document.getElementById(id);
+  if(d) d.style.opacity=el.vis===false?'0.15':'1';
+  drawLayers();
+  pushH();
 }
 
 // ── History ──
@@ -1113,6 +1147,7 @@ function pushH(){
   hist.push(s);
   if(hist.length>60) hist.shift();
   hIdx=hist.length-1;
+  markDirty();
 }
 function undo(){ if(hIdx<=0) return; hIdx--; els=JSON.parse(hist[hIdx]); renderAll(); toast('Undo'); }
 function redo(){ if(hIdx>=hist.length-1) return; hIdx++; els=JSON.parse(hist[hIdx]); renderAll(); toast('Redo'); }
@@ -1124,7 +1159,11 @@ document.addEventListener('keydown', e=>{
   if((e.metaKey||e.ctrlKey)&&!e.shiftKey&&e.key==='z'){ e.preventDefault(); undo(); }
   if((e.metaKey||e.ctrlKey)&&(e.key==='y'||(e.shiftKey&&e.key==='z'))){ e.preventDefault(); redo(); }
   if((e.metaKey||e.ctrlKey)&&e.key==='d'){ e.preventDefault(); dupEl(); }
-  if((e.key==='Delete'||e.key==='Backspace')&&selId){ delEl(); }
+  if((e.key==='Delete'||e.key==='Backspace')&&selId){
+    // Never delete element when focus is in an input/textarea/select or contenteditable
+    if(['input','textarea','select'].includes(tag)||document.activeElement?.contentEditable==='true') return;
+    delEl();
+  }
   if(selId&&e.key.startsWith('Arrow')){
     e.preventDefault();
     const el=els.find(x=>x.id===selId); if(!el) return;
@@ -1201,7 +1240,7 @@ async function savePage(){
   try{
     const r=await fetch('/api/funnels/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const d=await r.json();
-    if(d.success||d.id){setSt('Saved ✓');toast('Saved ✓');}
+    if(d.success||d.id){setSt('Saved ✓');_isDirty=false;}
     else{setSt('Error');toast((d.error||'Save failed'),'err');}
   }catch(e){setSt('Error');toast('Network error','err');}
 }
@@ -1268,8 +1307,8 @@ function applyVideoModal(){
 function previewPage(){ savePage().then(()=>window.open('/p/'+PAGE_ID,'_blank')); }
 async function publishPage(){ await savePage(); toast('Published! 🚀'); }
 
-// Auto-save
-setInterval(()=>{if(els.length>0)savePage();},60000);
+// Auto-save every 90s only when dirty
+setInterval(()=>{ if(els.length>0 && _isDirty) savePage(); }, 90000);
 
 // ── Init ──
 window.addEventListener('load',()=>{
