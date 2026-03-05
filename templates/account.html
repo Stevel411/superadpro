@@ -18,6 +18,24 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 a{text-decoration:none;color:inherit}
 .layout{display:flex;min-height:100vh}
 
+/* ── Sidebar ── */
+.sidebar{width:224px;height:100vh;background:var(--panel);border-right:1px solid var(--border);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
+.sidebar::-webkit-scrollbar{width:3px}.sidebar::-webkit-scrollbar-thumb{background:rgba(56,189,248,.15);border-radius:3px}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid var(--border);text-decoration:none}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid var(--border)}
+.nav-section{padding:18px 12px 4px;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;margin:1px 8px;border-radius:8px;font-size:14px;font-weight:500;color:var(--text2);text-decoration:none;transition:all .15s}
+.nav-item:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.nav-item.active{background:rgba(14,165,233,.12);color:var(--cyan2);font-weight:600}
+.nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+.user-mini{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--border)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0}
+.user-name{font-size:12px;font-weight:700;color:var(--text)}
+.user-role{font-size:10px;color:var(--text3);margin-top:1px}
+.status-dot-sb{width:7px;height:7px;border-radius:50%;margin-left:auto;flex-shrink:0}
+.status-dot-sb.active{background:var(--green);box-shadow:0 0 6px rgba(34,197,94,.6)}
+.status-dot-sb.inactive{background:var(--amber)}
+
 /* ── Main Area ── */
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
