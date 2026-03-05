@@ -71,6 +71,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
   width:0;overflow:hidden;flex-shrink:0;background:var(--panel);
   border-right:1px solid var(--border);transition:width .2s ease;
   display:flex;flex-direction:column;
+  user-select:text;
+  -webkit-user-select:text;
 }
 #lpanel.open{width:var(--lpanel)}
 .ph{padding:14px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
@@ -213,10 +215,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
 #rpanel{
   width:var(--rpanel);flex-shrink:0;
   background:var(--panel);
-  border-left:3px solid rgba(255,255,255,.1);  /* visible separator */
+  border-left:3px solid rgba(255,255,255,.1);
   display:flex;flex-direction:column;overflow:hidden;
-  /* Never let this shrink or get pushed off screen */
   min-width:var(--rpanel);
+  user-select:text;        /* never inherit userSelect:none from body */
+  -webkit-user-select:text;
 }
 .rph{padding:14px 14px 11px;border-bottom:1px solid var(--border);flex-shrink:0}
 .rph-ctx{font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--text3)}
@@ -239,37 +242,65 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
   background:transparent;
   border:none;
   padding:0;
-  height:20px;
+  height:24px;        /* taller hit area */
   cursor:pointer;
   flex:1;
   min-width:0;
+  display:block;
+  pointer-events:all; /* always receive mouse/touch even if parent blocks */
+  touch-action:none;
+  position:relative;
+  z-index:1;          /* sit above any flex container event capture */
+}
+.pi[type=range]::-webkit-slider-container{
+  height:20px;
 }
 .pi[type=range]::-webkit-slider-runnable-track{
   height:4px;
-  background:rgba(255,255,255,.12);
+  background:rgba(255,255,255,.15);
   border-radius:2px;
 }
 .pi[type=range]::-webkit-slider-thumb{
   -webkit-appearance:none;
   appearance:none;
-  width:16px;height:16px;
+  width:16px;
+  height:16px;
   border-radius:50%;
   background:var(--blue);
   margin-top:-6px;
   cursor:grab;
-  box-shadow:0 1px 4px rgba(0,0,0,.3);
-  transition:transform .1s;
+  box-shadow:0 0 0 3px rgba(59,130,246,.2), 0 2px 6px rgba(0,0,0,.4);
+  transition:box-shadow .1s, transform .1s;
 }
-.pi[type=range]::-webkit-slider-thumb:active{
+.pi[type=range]:active::-webkit-slider-thumb{
   cursor:grabbing;
-  transform:scale(1.2);
+  transform:scale(1.15);
+  box-shadow:0 0 0 5px rgba(59,130,246,.3), 0 2px 8px rgba(0,0,0,.4);
 }
 .pi[type=range]::-moz-range-track{
-  height:4px;background:rgba(255,255,255,.12);border-radius:2px;
+  height:4px;
+  background:rgba(255,255,255,.15);
+  border-radius:2px;
 }
 .pi[type=range]::-moz-range-thumb{
-  width:16px;height:16px;border-radius:50%;border:none;
-  background:var(--blue);cursor:grab;
+  width:16px;height:16px;
+  border-radius:50%;
+  border:none;
+  background:var(--blue);
+  cursor:grab;
+  box-shadow:0 0 0 3px rgba(59,130,246,.2);
+}
+.pi[type=range]::-moz-range-thumb:active{
+  cursor:grabbing;
+}
+/* filled track (blue left side) */
+.pi[type=range]::-webkit-slider-runnable-track{
+  background: linear-gradient(to right,
+    var(--blue) 0%,
+    var(--blue) var(--val, 50%),
+    rgba(255,255,255,.12) var(--val, 50%),
+    rgba(255,255,255,.12) 100%
+  );
 }
 .pi[type=color]{padding:1px;height:28px;cursor:pointer;border-radius:4px}
 .psel{flex:1;background:#1e2740;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;padding:6px 8px;outline:none}
@@ -999,7 +1030,7 @@ function onElMousedown(e){
   select(id);
   const el=els.find(x=>x.id===id);
   _d={el, div:e.currentTarget, sx:e.clientX, sy:e.clientY, ox:el.x, oy:el.y};
-  document.body.style.userSelect='none';
+  CV().style.userSelect='none'; // scope to canvas only
 }
 
 // ── RESIZE (mousedown on handle) ──
@@ -1011,11 +1042,13 @@ function onRhMousedown(e){
   select(id);
   const el=els.find(x=>x.id===id);
   _r={el, div, dir:e.currentTarget.dataset.dir, sx:e.clientX, sy:e.clientY, ox:el.x, oy:el.y, ow:el.w, oh:el.h};
-  document.body.style.userSelect='none';
+  CV().style.userSelect='none'; // scope to canvas only
 }
 
 // ── GLOBAL mousemove / mouseup ──
 document.addEventListener('mousemove', e=>{
+  // Never interfere when the active target is inside the right panel
+  if(!_d && !_r) return;
   const scale = parseFloat(CV().style.zoom)||1;
   if(_d){
     const dx=(e.clientX-_d.sx)/scale, dy=(e.clientY-_d.sy)/scale;
@@ -1044,7 +1077,7 @@ document.addEventListener('mousemove', e=>{
 document.addEventListener('mouseup', e=>{
   if(_d||_r){ pushH(); drawRP(); }
   _d=null; _r=null;
-  document.body.style.userSelect='';
+  CV().style.userSelect='';
 });
 
 // ── Double-click to edit text ──
@@ -1147,6 +1180,21 @@ function loadFont(family){
   // Fonts are all pre-loaded in the <head> link tag. No dynamic loading needed.
   // This function exists so the onchange handler doesn't error if called.
 }
+
+// Keep slider track visually filled up to thumb position
+function updateSliderFill(input){
+  const min=parseFloat(input.min)||0;
+  const max=parseFloat(input.max)||100;
+  const val=parseFloat(input.value)||0;
+  const pct=((val-min)/(max-min)*100).toFixed(1)+'%';
+  input.style.setProperty('--val', pct);
+  // Also update background directly for maximum compat
+  input.style.background=`linear-gradient(to right, var(--blue) 0%, var(--blue) ${pct}, rgba(255,255,255,.12) ${pct}, rgba(255,255,255,.12) 100%)`;
+}
+// Call on every range input event
+document.addEventListener('input', e=>{
+  if(e.target.type==='range') updateSliderFill(e.target);
+});
 
 function sp(prop,val){
   const el=els.find(x=>x.id===selId); if(!el) return;
