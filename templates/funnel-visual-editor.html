@@ -477,6 +477,24 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
       <span class="htag">🖱 Drag to move</span>
       <span class="htag">⬛ Corner handles to resize</span>
       <span class="htag">⌘Z Undo · ⌘Y Redo · Del to delete</span>
+      <div style="flex:1"></div>
+      <div style="display:flex;align-items:center;gap:7px;flex-shrink:0;padding:0 4px">
+        <span style="font-size:10px;font-weight:600;color:rgba(255,255,255,.35);white-space:nowrap">Page BG</span>
+        <div style="position:relative;width:26px;height:26px;border-radius:6px;border:1px solid rgba(255,255,255,.15);overflow:hidden;cursor:pointer;flex-shrink:0" title="Canvas background colour">
+          <div id="canvas-bg-swatch" style="position:absolute;inset:0;background:#ffffff"></div>
+          <input type="color" id="canvas-bg-pick" value="#ffffff"
+            oninput="setCanvasBg(this.value)"
+            style="position:absolute;inset:-4px;width:calc(100%+8px);height:calc(100%+8px);opacity:0;cursor:pointer;padding:0;border:none">
+        </div>
+        <div style="display:flex;gap:3px">
+          <button onclick="setCanvasBg('#ffffff')" title="White"  style="width:16px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.2);background:#ffffff;cursor:pointer;padding:0"></button>
+          <button onclick="setCanvasBg('#f8fafc')" title="Off-white" style="width:16px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.15);background:#f8fafc;cursor:pointer;padding:0"></button>
+          <button onclick="setCanvasBg('#0f172a')" title="Dark"   style="width:16px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.15);background:#0f172a;cursor:pointer;padding:0"></button>
+          <button onclick="setCanvasBg('#050d1a')" title="Deep dark" style="width:16px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.15);background:#050d1a;cursor:pointer;padding:0"></button>
+          <button onclick="setCanvasBg('#fef9f0')" title="Warm cream" style="width:16px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.15);background:#fef9f0;cursor:pointer;padding:0"></button>
+          <button onclick="setCanvasBg('#f0f7ff')" title="Cool blue" style="width:16px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.15);background:#f0f7ff;cursor:pointer;padding:0"></button>
+        </div>
+      </div>
     </div>
     <div id="canvas-wrap">
       <div id="canvas" style="width:1200px">
@@ -1130,6 +1148,16 @@ function toHex(c){
 
 // toolbar actions
 // Font loader — all fonts pre-loaded via Google Fonts link, this is a no-op safety net
+// ── Canvas background colour ──
+let canvasBg = '#ffffff';
+function setCanvasBg(hex){
+  canvasBg = hex;
+  CV().style.background = hex;
+  document.getElementById('canvas-bg-swatch').style.background = hex;
+  document.getElementById('canvas-bg-pick').value = hex;
+  markDirty();
+}
+
 function loadFont(family){
   // All fonts pre-loaded via Google Fonts link tag
 }
@@ -1465,7 +1493,7 @@ async function savePage(){
     id: PAGE_ID,
     title: document.getElementById('tb-title').value,
     gjs_html: exportHTML(),
-    gjs_css: JSON.stringify(els),   // canvas element data stored here
+    gjs_css: JSON.stringify({els, canvasBg}),
   };
   try{
     const r=await fetch('/api/funnels/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
@@ -1482,9 +1510,15 @@ async function loadPage(){
     // canvas data is stored in gjs_css as JSON array
     const raw=d.gjs_css||'';
     if(raw.trim().startsWith('[')){
+      // legacy format - plain array
       els=JSON.parse(raw);
-      renderAll();
+    } else if(raw.trim().startsWith('{')){
+      // new format - {els, canvasBg}
+      const saved=JSON.parse(raw);
+      els=saved.els||[];
+      if(saved.canvasBg) setCanvasBg(saved.canvasBg);
     }
+    renderAll();
     // update title
     if(d.title) document.getElementById('tb-title').value=d.title;
   }catch(e){console.warn('Load failed',e);}
