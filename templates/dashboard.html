@@ -4,251 +4,155 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Dashboard — SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:     #080d18;
-  --panel:  #0d1424;
-  --panel2: #111a2e;
-  --border: rgba(255,255,255,.1);
-  --border2:rgba(255,255,255,.18);
-  --cyan:   #0ea5e9;
-  --cyan2:  #38bdf8;
-  --green:  #22c55e;
-  --green2: #4ade80;
-  --amber:  #f59e0b;
-  --indigo: #6366f1;
-  --text:   #f1f5f9;
-  --text2:  #b8c8dc;
-  --text3:  #6b88a8;
-}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-a{text-decoration:none;color:inherit}
+body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
 .layout{display:flex;min-height:100vh}
 
-/* ── SIDEBAR ── */
-.sidebar{width:224px;height:100vh;background:var(--panel);border-right:1px solid var(--border);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-.sidebar::-webkit-scrollbar{width:3px}.sidebar::-webkit-scrollbar-thumb{background:rgba(56,189,248,.15);border-radius:3px}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid var(--border);text-decoration:none}
-.sb-name{font-family:'Sora',sans-serif;font-weight:800;font-size:15px;color:#fff}
-.sb-name span{color:var(--cyan2)}
-.sb-tag{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-top:1px}
-.nav-section{padding:18px 12px 4px;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3)}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;margin:1px 8px;border-radius:8px;font-size:14px;font-weight:500;color:var(--text2);text-decoration:none;transition:all .15s}
-.nav-item:hover{background:rgba(255,255,255,.05);color:var(--text)}
-.nav-item.active{background:rgba(14,165,233,.12);color:var(--cyan2);font-weight:600}
-.nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
-.nav-divider{height:1px;background:var(--border);margin:10px 16px}
-.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid var(--border)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--border)}
-.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0}
-.user-name{font-size:12px;font-weight:700;color:var(--text)}
-.user-role{font-size:10px;color:var(--text3);margin-top:1px}
-.status-dot-sb{width:7px;height:7px;border-radius:50%;margin-left:auto;flex-shrink:0}
-.status-dot-sb.active{background:var(--green);box-shadow:0 0 6px rgba(34,197,94,.6)}
-.status-dot-sb.inactive{background:var(--amber)}
+/* ── SIDEBAR (dark) ── */
+.sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;letter-spacing:0;text-transform:none;color:#fff;-webkit-text-fill-color:#fff}
+.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
+.nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
+.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
+.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
 
-/* ── MAIN ── */
+/* ── MAIN (white/light) ── */
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
 
-/* ── TOPBAR ── */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
-.tb-greeting{font-family:'Sora',sans-serif;font-size:19px;font-weight:700;color:var(--text)}
-.tb-greeting span{color:var(--cyan2)}
-.tb-right{display:flex;align-items:center;gap:10px}
-.balance-chip{display:flex;align-items:center;gap:10px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:8px 16px}
-.bc-label{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
-.bc-val{font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--green);line-height:1}
-.bc-unit{font-size:10px;color:var(--text3);margin-left:3px}
-.status-badge{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700}
-.status-badge.active{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:var(--green)}
-.status-badge.inactive{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);color:var(--amber)}
-.status-badge::before{content:'';width:6px;height:6px;border-radius:50%}
-.status-badge.active::before{background:var(--green);box-shadow:0 0 5px rgba(34,197,94,.7)}
-.status-badge.inactive::before{background:var(--amber)}
+/* ── TOPBAR (white) ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:50}
+.topbar-title{font-size:18px;font-weight:800;color:#fff;letter-spacing:0.5px}
+.topbar-sub{font-size:16px;color:rgba(0,212,255,0.5);margin-top:2px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.balance-pill{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:8px 16px;display:flex;align-items:center;gap:6px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.balance-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8}
+.balance-val{font-size:16px;font-weight:800;color:#16a34a}
+.balance-unit{font-size:12px;color:#94a3b8;margin-left:3px}
 
 /* ── CONTENT ── */
 .content{padding:24px 28px;flex:1}
 
-/* ── BANNERS ── */
-.banner{border-radius:14px;padding:20px 24px;margin-bottom:22px;border:1px solid}
-.banner-amber{background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.2)}
-.banner-green{background:rgba(34,197,94,.07);border-color:rgba(34,197,94,.2)}
-.banner-blue{background:rgba(99,102,241,.07);border-color:rgba(99,102,241,.2)}
-.banner-red{background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.2)}
-.banner-title{font-size:13px;font-weight:800;margin-bottom:5px}
-.banner-body{font-size:12px;color:var(--text2);line-height:1.65}
-.banner-cta{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--cyan),var(--cyan2));white-space:nowrap;flex-shrink:0;transition:opacity .15s}
-.banner-cta:hover{opacity:.85}
-
-/* Free member steps */
-.free-steps{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
-.free-step{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:12px 14px;flex:1;min-width:140px}
-.free-step-num{font-size:18px;margin-bottom:6px}
-.free-step-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px}
-.free-step-body{font-size:11px;color:var(--text3);line-height:1.5}
-
-/* ── STREAMS ── */
-.streams{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
-.stream{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;transition:border-color .15s,transform .15s}
-.stream:hover{border-color:var(--border2);transform:translateY(-1px)}
-.stream::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
-.stream.s1::before{background:linear-gradient(90deg,var(--cyan),var(--cyan2))}
-.stream.s2::before{background:linear-gradient(90deg,var(--indigo),#8b5cf6)}
-.stream.s3::before{background:linear-gradient(90deg,var(--amber),#fbbf24)}
-.stream-tag{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
-.stream-label{font-size:15px;font-weight:600;color:var(--text2);margin-bottom:10px}
-.stream-val{font-family:'Sora',sans-serif;font-size:36px;font-weight:800;color:var(--green);line-height:1;margin-bottom:4px}
-.stream-sub{font-size:13px;color:var(--text3)}
-.stream-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);opacity:.6}
+/* ── STREAM STRIPS ── */
+.stream-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.stream-card{border-radius:10px;padding:16px 18px;border:1px solid}
+.stream-card.s1,.stream-card.s2,.stream-card.s3{background:#f0f9ff;border-color:#bae6fd}
+.stream-num{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.stream-name{font-size:16px;font-weight:800;color:#0f172a;margin-bottom:3px}
+.stream-val{font-size:28px;font-weight:800;line-height:1}
+.stream-sub{font-size:16px;color:#64748b;margin-top:3px}
 
 /* ── STAT CARDS ── */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
-.stat{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden;transition:border-color .15s,transform .15s}
-.stat:hover{border-color:var(--border2);transform:translateY(-1px)}
-.stat-label{font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
-.stat-val{font-family:'Sora',sans-serif;font-size:40px;font-weight:800;line-height:1;margin-bottom:6px}
-.stat-val.green{color:var(--green)}
-.stat-sub{font-size:13px;color:var(--text3)}
-.stat-trend{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:7px}
-.stat-trend.up{background:rgba(34,197,94,.1);color:var(--green)}
-.stat-trend.neutral{background:rgba(255,255,255,.06);color:var(--text3)}
-.stat-glyph{position:absolute;right:14px;bottom:12px;opacity:.6}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{border-radius:14px;padding:22px 22px;position:relative;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,40,100,0.1)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stat-card.c1,.stat-card.c2,.stat-card.c3,.stat-card.c4{background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #b8d4f8;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
+.stat-card.c1::before,.stat-card.c2::before,.stat-card.c3::before,.stat-card.c4::before{background:linear-gradient(90deg,transparent,#0284c7,transparent)}
+.stat-label{font-size:16px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#5a6a7e;margin-bottom:8px}
+.stat-value{font-size:30px;font-weight:800;line-height:1;margin-bottom:4px;letter-spacing:-0.5px}
+.stat-sub{font-size:16px;color:#5a6a7e;font-weight:500}
+.stat-bg{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:46px;opacity:0.07}
 
-/* ── LAYOUT GRIDS ── */
-.row2{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-bottom:16px}
-.row3{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-bottom:16px}
+/* ── CARDS ── */
+.card{background:#ffffff;border:1px solid #d0d8e4;border-radius:14px;box-shadow:0 1px 4px rgba(0,40,100,0.06);overflow:hidden;transition:box-shadow 0.2s}
+.card:hover{box-shadow:0 4px 16px rgba(0,40,100,0.1)}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e4e9f1}
+.card-title{font-size:16px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
+.card-dot{width:7px;height:7px;border-radius:50%;background:#0ea5e9;flex-shrink:0}
+.card-link{font-size:16px;color:#0284c7;font-weight:700;text-decoration:none}
+.card-link:hover{color:#0ea5e9}
+.card-body{padding:20px}
 
-/* ── CARD ── */
-.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden}
-.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)}
-.card-title{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--text)}
-.card-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.card-action{font-size:13px;font-weight:700;color:var(--cyan);opacity:.8;transition:opacity .15s}
-.card-action:hover{opacity:1}
-.card-body{padding:16px 20px}
+/* ── LAYOUTS ── */
+.dash-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;margin-bottom:20px}
+.dash-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:20px}
 
-/* Grid stats */
-.grid-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.gs{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
-.gs-val{font-family:'Sora',sans-serif;font-size:34px;font-weight:800;line-height:1;margin-bottom:4px}
-.gs-label{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3)}
+/* ── MINI GRID ── */
+.mini-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin:8px 0 4px}
+.mg-cell{aspect-ratio:1;border-radius:3px}
+.mg-filled{background:linear-gradient(135deg,#0ea5e9,#38bdf8)}
+.mg-owner{background:linear-gradient(135deg,#16a34a,#059669)}
+.mg-empty{background:#e8ecf4}
 
-/* Mini grid */
-.mini-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:10px 0 6px;max-width:310px}
-.mg-cell{width:26px;height:26px;border-radius:4px}
-.mg-filled{background:linear-gradient(135deg,var(--cyan),var(--cyan2));opacity:.9}
-.mg-owner{background:linear-gradient(135deg,var(--green),var(--green2))}
-.mg-empty{background:rgba(255,255,255,.06)}
-.grid-legend{font-size:10px;color:var(--text3);margin-top:4px}
+/* ── ACTIVE GRID ITEMS ── */
+.agi-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.agi-name{font-size:16px;font-weight:700;color:#0f172a}
+.agi-badge{font-size:16px;font-weight:700;padding:2px 9px;border-radius:999px;background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0}
+.agi-progress{height:5px;background:#e8ecf4;border-radius:999px;overflow:hidden;margin:8px 0 4px}
+.agi-fill{height:100%;background:linear-gradient(90deg,#0284c7,#38bdf8);border-radius:999px}
+.agi-meta{display:flex;justify-content:space-between;font-size:16px;color:#6b7d94}
+.active-grid-item{padding:16px 0;border-bottom:1px solid #f0f2f8}
+.active-grid-item:last-child{border-bottom:none;padding-bottom:0}
 
-/* Earnings bars */
-.earn-item{margin-bottom:14px}
+/* ── EARNINGS ── */
+.earn-item{display:flex;align-items:center;gap:12px;margin-bottom:14px}
 .earn-item:last-child{margin-bottom:0}
-.earn-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
-.earn-name{font-size:15px;font-weight:600;color:var(--text2)}
-.earn-val{font-size:16px;font-weight:800;color:var(--green)}
-.earn-track{height:4px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden}
-.earn-fill{height:100%;border-radius:99px}
-.earn-total{display:flex;justify-content:space-between;padding:10px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;margin-top:12px}
-.earn-total-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
-.earn-total-val{font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:var(--text)}
+.earn-bar-wrap{flex:1;height:6px;background:#e8ecf4;border-radius:999px;overflow:hidden}
+.earn-bar{height:100%;border-radius:999px}
 
-/* Mini stats row */
-.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-.mini-stat{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
-.mini-stat-val{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:var(--text)}
-.mini-stat-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-top:3px}
-
-/* Commission rows */
-.comm-item{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border)}
-.comm-item:last-child{border-bottom:none;padding-bottom:0}
+/* ── COMMISSIONS ── */
+.comm-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f2f8}
+.comm-row:last-child{border-bottom:none;padding-bottom:0}
 .comm-left{display:flex;align-items:center;gap:10px}
-.comm-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.comm-name{font-size:15px;font-weight:700;color:var(--text)}
-.comm-meta{font-size:13px;color:var(--text3);margin-top:2px}
-.comm-amount{font-family:'Sora',sans-serif;font-size:17px;font-weight:800}
-.comm-amount.paid{color:var(--green)}
-.comm-amount.pending{color:var(--amber)}
-.comm-tag{font-size:11px;font-weight:700;letter-spacing:.5px;padding:2px 7px;border-radius:99px;display:inline-block;margin-top:3px}
-.comm-tag.paid{background:rgba(34,197,94,.1);color:var(--green)}
-.comm-tag.pending{background:rgba(245,158,11,.1);color:var(--amber)}
+.comm-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 
-/* Referral */
-.ref-box{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.ref-url{font-size:13px;color:var(--cyan);font-family:monospace;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ref-copy{font-size:10px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--cyan),var(--cyan2));border:none;border-radius:6px;padding:6px 12px;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif}
-.ref-stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
-.ref-stat:last-child{border-bottom:none}
-.ref-stat-label{font-size:14px;color:var(--text2)}
-.ref-stat-val{font-size:15px;font-weight:800;color:var(--text)}
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:36px 20px}
+.empty-icon{font-size:30px;margin-bottom:10px}
+.empty-title{font-size:16px;font-weight:700;color:#4a5a6e;margin-bottom:5px}
+.empty-sub{font-size:16px;color:#6b7d94;margin-bottom:14px}
+.empty-cta{font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:8px 20px;border-radius:7px;text-decoration:none;display:inline-block}
 
-/* Quick actions */
-.qa{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:11px;background:var(--panel);border:1px solid var(--border);text-decoration:none;transition:all .15s;margin-bottom:8px}
-.qa:last-child{margin-bottom:0}
-.qa:hover{border-color:var(--border2);transform:translateY(-1px)}
-.qa-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.qa-label{font-size:15px;font-weight:700;color:var(--text)}
-.qa-sub{font-size:13px;color:var(--text3);margin-top:2px}
-.qa-arrow{margin-left:auto;font-size:16px;color:var(--text3)}
+/* ── ACTIVATION BANNER ── */
+.activation-banner{background:linear-gradient(135deg,#fffbeb,#fef9c3);border:1px solid #fde68a;border-radius:12px;padding:18px 22px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:14px}
 
-/* Empty state */
-.empty{text-align:center;padding:36px 20px}
-.empty-icon{font-size:32px;margin-bottom:12px}
-.empty-title{font-size:14px;font-weight:700;color:var(--text2);margin-bottom:6px}
-.empty-sub{font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.6}
-.empty-cta{display:inline-flex;align-items:center;font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--cyan),var(--cyan2));padding:9px 20px;border-radius:8px}
-
-/* Renewal banner */
-.renewal{border-radius:14px;overflow:hidden;border:1px solid;margin-bottom:22px}
-.renewal-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;gap:12px;flex-wrap:wrap}
-.renewal-icon{font-size:22px;flex-shrink:0}
-.renewal-title{font-size:13px;font-weight:800;margin-bottom:3px}
-.renewal-body{font-size:12px;color:var(--text2);line-height:1.55}
-.renewal-balance{font-size:14px;font-weight:800;margin-bottom:6px}
-.renewal-link{font-size:11px;font-weight:700;color:var(--indigo);border:1px solid rgba(99,102,241,.25);border-radius:6px;padding:4px 10px;background:rgba(99,102,241,.06)}
-
-/* Withdraw CTA */
-.withdraw-cta{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;margin-top:14px;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:8px;font-size:13px;font-weight:700;color:var(--green)}
-.withdraw-cta:hover{background:rgba(34,197,94,.12)}
-
-/* Mobile */
-.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:101}
-.mobile-topbar-left{display:flex;align-items:center;gap:10px}
-.mobile-topbar-name{font-weight:800;font-size:14px;font-family:'Sora',sans-serif;color:#fff}
-.mobile-topbar-name span{color:var(--cyan2)}
-.mobile-topbar-page{font-size:11px;color:var(--text3)}
-.mobile-balance-chip{font-size:12px;font-weight:800;color:var(--green);background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:5px 10px}
-.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--border);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
-.mobile-nav-inner{display:flex;justify-content:space-around;align-items:center}
-.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 8px;font-size:10px;color:var(--text3);transition:color .15s}
-.mob-nav-item.active{color:var(--cyan2)}
-.mob-nav-icon{font-size:19px}
-.mob-nav-label{font-weight:600;letter-spacing:.3px}
-
-@media(max-width:1100px){.stats{grid-template-columns:1fr 1fr}.row2,.row3{grid-template-columns:1fr}.streams{grid-template-columns:1fr}}
+@media(max-width:1100px){.stats-row{grid-template-columns:1fr 1fr}.dash-grid,.dash-grid-3{grid-template-columns:1fr}.stream-strip{grid-template-columns:1fr}}
 @media(max-width:768px){
-  .sidebar{display:none}.main{margin-left:0}.topbar{display:none}
-  .mobile-topbar{display:flex!important}.mobile-nav{display:block}
-  body{padding-bottom:70px}.content{padding:16px}
-  .streams{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .topbar{display:none}
+  .mobile-topbar{display:flex!important}
+  .mobile-nav{display:block}
+  body{padding-bottom:70px}
+  .content{padding:16px}
+  .stream-strip{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .topbar-title{font-size:19px}
+  .balance-val{font-size:16px;font-weight:800;color:#16a34a}
 }
+.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:101}
+.mobile-topbar-left{display:flex;align-items:center;gap:10px;text-decoration:none}
+.mobile-topbar-name{font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#0ea5e9,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.mobile-topbar-page{font-size:16px;color:#64748b}
+.mobile-balance-chip{font-size:16px;font-weight:800;color:#16a34a;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:8px;padding:6px 12px}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#0a0a1a;border-top:1px solid rgba(0,212,255,0.1);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
+.mobile-nav-inner{display:flex;justify-content:space-around;align-items:center}
+.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 8px;font-size:10px;color:#64748b;transition:color 0.15s}
+.mob-nav-item.active{color:#38bdf8}
+.mob-nav-icon{font-size:19px}
+.mob-nav-label{font-weight:600;letter-spacing:0.3px}
 </style>
-<link rel="stylesheet" href="/static/mobile.css">
-<link rel="manifest" href="/static/manifest.json">
-<meta name="theme-color" content="#080d18">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="SuperAdPro">
-<link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+  <link rel="stylesheet" href="/static/mobile.css">
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SuperAdPro">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 </head>
 <body>
 
 <svg width="0" height="0" style="position:absolute">
   <defs>
     <linearGradient id="logo-grad" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/>
+      <stop stop-color="#0ea5e9"/>
+      <stop offset="1" stop-color="#38bdf8"/>
     </linearGradient>
     <symbol id="sap-logo" viewBox="0 0 44 44">
       <circle cx="22" cy="22" r="20" fill="url(#logo-grad)"/>
@@ -258,395 +162,447 @@ a{text-decoration:none;color:inherit}
 </svg>
 
 <div class="layout">
-
-<!-- Mobile Topbar -->
+<!-- ── Mobile Topbar ── -->
 <div class="mobile-topbar">
   <a class="mobile-topbar-left" href="/dashboard">
-    <svg width="30" height="30" viewBox="0 0 44 44"><use href="#sap-logo"/></svg>
+    <svg width="30" height="30" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#logo-grad)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></svg>
     <div>
-      <div class="mobile-topbar-name">Super<span>Ad</span>Pro</div>
+      <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</div>
       <div class="mobile-topbar-page">Dashboard</div>
     </div>
   </a>
   <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
 </div>
 
-{% include "_sidebar.html" %}
 
-<div class="main">
+  <!-- SIDEBAR (dark) -->
+      {% include "_sidebar.html" %}
 
-  <!-- TOPBAR -->
-  <div class="topbar">
-    <div class="tb-greeting">Welcome back, <span>{{ display_name }}</span> 👋</div>
-    <div class="tb-right">
-      <div class="status-badge {% if is_active %}active{% else %}inactive{% endif %}">
-        {% if is_active %}Active Member{% else %}Inactive{% endif %}
-      </div>
-      <div class="balance-chip">
-        <div>
-          <div class="bc-label">Balance</div>
-          <div><span class="bc-val">${{ '%.2f'|format(balance) }}</span><span class="bc-unit">USDT</span></div>
-        </div>
-      </div>
-      <a href="/wallet" style="display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid var(--border2);font-size:13px;font-weight:700;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--cyan)';this.style.color='var(--cyan2)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="7" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg> Withdraw</a>
-    </div>
-  </div>
+  <!-- MAIN (white) -->
+  <div class="main">
 
-  <div class="content">
-
-    <!-- ── FREE MEMBER BANNER ── -->
-    {% if not is_active %}
-    <div class="banner banner-amber" style="margin-bottom:22px">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
-        <div style="flex:1;min-width:240px">
-          <div class="banner-title" style="color:var(--amber)">🎯 Free Member — Activate for Free with 2 Referrals</div>
-          <div class="banner-body">
-            Refer just <strong style="color:var(--text)">two people</strong> and your membership activates itself.
-            You earn <strong style="color:var(--text)">$10 for every referral</strong> who pays. Once your wallet hits $20 it <strong style="color:var(--cyan2)">auto-pays your membership</strong>.
-          </div>
-          <div class="free-steps">
-            <div class="free-step">
-              <div class="free-step-num">1️⃣</div>
-              <div class="free-step-title">Share your link</div>
-              <div class="free-step-body">Send your referral link to anyone interested</div>
-            </div>
-            <div class="free-step">
-              <div class="free-step-num">2️⃣</div>
-              <div class="free-step-title">They pay $20</div>
-              <div class="free-step-body">You earn $10 commission per referral</div>
-            </div>
-            <div class="free-step">
-              <div class="free-step-num">3️⃣</div>
-              <div class="free-step-title">You auto-activate</div>
-              <div class="free-step-body">2 referrals = $20 → membership activates instantly</div>
-            </div>
-          </div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;flex-shrink:0">
-          <a href="/pay-membership" class="banner-cta">Activate Now — $20 →</a>
-          <a href="/affiliate" style="font-size:12px;font-weight:600;color:var(--cyan2)">Get my referral link →</a>
-        </div>
-      </div>
-    </div>
-    {% endif %}
-
-    <!-- ── AUTO-ACTIVATED SUCCESS ── -->
-    {% if request.query_params.get("auto_activated") %}
-    <div class="banner banner-green" style="margin-bottom:22px;display:flex;align-items:center;gap:14px">
-      <div style="font-size:28px">🎉</div>
+    <!-- TOPBAR -->
+    <div class="topbar">
       <div>
-        <div class="banner-title" style="color:var(--green)">Your membership activated automatically!</div>
-        <div class="banner-body">Your referral commission paid for your membership. You now have full access to all income streams.</div>
+        <div class="topbar-title">👋 Welcome back, {{ display_name }}!</div>
+      </div>
+      <div class="topbar-right">
+        <div class="balance-pill">
+          <div>
+            <div class="balance-label">Balance</div>
+            <div><span class="balance-val">${{ '%.2f'|format(balance) }}</span><span class="balance-unit">USDT</span></div>
+          </div>
+        </div>
+        <span style="font-size:13px;font-weight:700;color:{% if is_active %}#10b981{% else %}#f59e0b{% endif %}">{% if is_active %}● Active{% else %}○ Inactive{% endif %}</span>
       </div>
     </div>
-    {% endif %}
 
-    <!-- ── PROFILE COMPLETION ── -->
-    {% if not user.wallet_address or not user.country %}
-    <div class="banner banner-blue" style="margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="font-size:22px">🎉</div>
-        <div>
-          <div class="banner-title" style="color:#818cf8">Welcome to SuperAdPro, {{ display_name }}!</div>
-          <div class="banner-body">Complete your profile to unlock withdrawals — add your
-            {% if not user.wallet_address and not user.country %}wallet address and country
-            {% elif not user.wallet_address %}wallet address
-            {% else %}country{% endif %} in Account settings.
+    <div class="content">
+
+      {% if not is_active %}
+      <!-- Free member banner — explains self-funding mechanic -->
+      <div style="background:linear-gradient(135deg,#f0fdf4,#ecfeff);border:1px solid #bbf7d0;border-radius:14px;padding:22px 24px;margin-bottom:24px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <div style="flex:1;min-width:240px">
+            <div style="font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#16a34a;margin-bottom:6px">🎯 Free Member — Here's How To Get Activated For Free</div>
+            <h3 style="font-size:19px;font-weight:800;color:#0f172a;margin-bottom:10px;line-height:1.4">Refer just <span style="color:#0891b2">two people</span> and your membership activates itself</h3>
+            <p style="font-size:16px;color:#4a5a6e;line-height:1.7;margin-bottom:14px">
+              As a free member you earn <strong style="color:#0f172a">$10 for every person you refer</strong> who pays their membership. 
+              The moment your wallet reaches $20, it <strong style="color:#0891b2">automatically pays for your own membership</strong> — 
+              no manual payment needed. You'll get full access to all 3 income streams instantly.
+            </p>
+            <!-- Step breakdown -->
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+              <div style="background:#ffffff;border:1px solid #d0d8e4;border-radius:8px;padding:10px 14px;font-size:16px;color:#0f172a;flex:1;min-width:120px;box-shadow:0 1px 4px rgba(0,40,100,0.06)">
+                <div style="font-size:19px;margin-bottom:4px">1️⃣</div>
+                <strong>Share your link</strong><br>
+                <span style="color:#64748b;font-size:16px">Send your referral link to anyone interested</span>
+              </div>
+              <div style="background:#ffffff;border:1px solid #d0d8e4;border-radius:8px;padding:10px 14px;font-size:16px;color:#0f172a;flex:1;min-width:120px;box-shadow:0 1px 4px rgba(0,40,100,0.06)">
+                <div style="font-size:19px;margin-bottom:4px">2️⃣</div>
+                <strong>They pay $20</strong><br>
+                <span style="color:#64748b;font-size:16px">You earn $10 commission per referral</span>
+              </div>
+              <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;font-size:16px;color:#0f172a;flex:1;min-width:120px;box-shadow:0 1px 4px rgba(0,40,100,0.06)">
+                <div style="font-size:19px;margin-bottom:4px">3️⃣</div>
+                <strong>You auto-activate</strong><br>
+                <span style="color:#64748b;font-size:16px">2 referrals = $20 → membership activates instantly</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;flex-shrink:0">
+            <a href="/pay-membership" style="font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:12px 24px;border-radius:8px;text-decoration:none;white-space:nowrap;box-shadow:0 4px 14px rgba(0,180,216,0.3)">Activate Now — $20 →</a>
+            <a href="/affiliate" style="font-size:16px;font-weight:600;color:#0891b2;text-decoration:none;text-align:center">Get my referral link →</a>
           </div>
         </div>
       </div>
-      <a href="/account" class="banner-cta" style="background:linear-gradient(135deg,#6366f1,#818cf8)">Complete Profile →</a>
-    </div>
-    {% endif %}
 
-    <!-- ── RENEWAL NOTICE ── -->
-    {% if renewal and renewal.has_renewal %}
-    <div class="renewal" style="border-color:{% if renewal.in_grace_period %}rgba(239,68,68,.25){% elif renewal.status == 'warning' %}rgba(245,158,11,.25){% else %}rgba(34,197,94,.2){% endif %};background:{% if renewal.in_grace_period %}rgba(239,68,68,.06){% elif renewal.status == 'warning' %}rgba(245,158,11,.06){% else %}rgba(34,197,94,.05){% endif %}">
-      <div class="renewal-inner">
-        <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
-          <div class="renewal-icon">
-            {% if renewal.in_grace_period %}⚠️{% elif renewal.status == 'warning' %}⏱️{% else %}✅{% endif %}
-          </div>
+      <!-- Auto-activated success flash -->
+      {% if request.query_params.get("auto_activated") %}
+      <div style="background:linear-gradient(135deg,#052e16,#0f2a1a);border:1px solid rgba(22,163,74,0.4);border-radius:12px;padding:18px 22px;margin-bottom:24px;display:flex;align-items:center;gap:14px">
+        <div style="font-size:28px">🎉</div>
+        <div>
+          <div style="font-size:16px;font-weight:800;color:#4ade80;margin-bottom:4px">Your membership activated automatically!</div>
+          <div style="font-size:16px;color:#2d3b4e;line-height:1.6">Your referral commission paid for your membership. You now have full access to all 3 income streams. Welcome to the full platform!</div>
+        </div>
+      </div>
+      {% endif %}
+      {% endif %}
+
+      {% if is_active and request.query_params.get("auto_activated") %}
+      <div style="background:linear-gradient(135deg,#052e16,#0f2a1a);border:1px solid rgba(22,163,74,0.4);border-radius:12px;padding:18px 22px;margin-bottom:24px;display:flex;align-items:center;gap:14px">
+        <div style="font-size:28px">🎉</div>
+        <div>
+          <div style="font-size:16px;font-weight:800;color:#4ade80;margin-bottom:4px">Your membership activated automatically!</div>
+          <div style="font-size:16px;color:#2d3b4e;line-height:1.6">Your referral commission paid for your membership. You now have full access to all 3 income streams. Welcome to the full platform!</div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- 3 INCOME STREAMS -->
+      <div class="stream-strip">
+        <div class="stream-card s1">
+          <div class="stream-num" style="color:#0284c7">Stream 1 — Monthly Membership</div>
+          <div class="stream-name">Residual Income</div>
+          <div class="stream-val" style="color:#16a34a">${{ '%.2f'|format(sponsor_earnings) }}</div>
+          <div class="stream-sub">Membership referral commissions</div>
+        </div>
+        <div class="stream-card s2">
+          <div class="stream-num" style="color:#0284c7">Stream 2 — Profit Engine Grid</div>
+          <div class="stream-name">Uni-Level Income</div>
+          <div class="stream-val" style="color:#16a34a">${{ '%.2f'|format(grid_earnings + level_earnings) }}</div>
+          <div class="stream-sub">Direct + Uni-Level commissions</div>
+        </div>
+        <div class="stream-card s3">
+          <div class="stream-num" style="color:#0284c7">Stream 3 — Marketing Mastery</div>
+          <div class="stream-name">Course Sales</div>
+          <div class="stream-val" style="color:#16a34a">Coming Soon</div>
+          <div class="stream-sub">100% commission + infinite pass-up</div>
+        </div>
+      </div>
+
+
+
+      <!-- PROFILE COMPLETION BANNER (persists until wallet address and country are set) -->
+      {% if not user.wallet_address or not user.country %}
+      <div id="profileBanner" style="margin-bottom:16px;border-radius:12px;background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(16,185,129,0.08));border:1px solid rgba(99,102,241,0.25);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;position:relative;overflow:hidden">
+        <div style="position:absolute;bottom:0;left:0;height:3px;background:linear-gradient(90deg,#6366f1,#10b981);width:100%"></div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:22px">🎉</div>
           <div>
-            {% if renewal.in_grace_period %}
-              <div class="renewal-title" style="color:#f87171">Membership in Grace Period</div>
-              <div class="renewal-body">Your wallet balance was insufficient at renewal. Top up with at least $20 USDT to reactivate automatically.</div>
-            {% elif renewal.status == 'warning' %}
-              <div class="renewal-title" style="color:var(--amber)">Renewal in {{ renewal.days_remaining }} day{{ 's' if renewal.days_remaining != 1 }} — {% if renewal.can_afford %}You're covered ✓{% else %}Top up needed{% endif %}</div>
-              <div class="renewal-body">{% if renewal.can_afford %}Your $20 renewal will be deducted automatically. No action needed.{% else %}Your balance of ${{ renewal.balance }} is below the $20 required. Add funds before your renewal date.{% endif %}</div>
+            <div style="font-size:16px;font-weight:800;color:#0f172a">Welcome to SuperAdPro, {{ display_name }}!</div>
+            <div style="font-size:16px;color:#4a5a6e;margin-top:2px">Complete your profile to unlock withdrawals — add your
+              {% if not user.wallet_address and not user.country %}wallet address and country
+              {% elif not user.wallet_address %}wallet address
+              {% else %}country{% endif %} in Account settings.</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+          <a href="/account" style="font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#6366f1,#10b981);padding:8px 16px;border-radius:7px;text-decoration:none;white-space:nowrap">Complete Profile →</a>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- MEMBERSHIP RENEWAL NOTICE -->
+      {% if renewal and renewal.has_renewal %}
+      <div style="margin-bottom:16px;border-radius:14px;overflow:hidden;border:1px solid
+        {% if renewal.in_grace_period %}#fecaca
+        {% elif renewal.status == 'warning' %}#fde68a
+        {% else %}#d1fae5{% endif %};
+        background:{% if renewal.in_grace_period %}#fff5f5
+        {% elif renewal.status == 'warning' %}#fefce8
+        {% else %}#f0fdf4{% endif %}">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;gap:12px;flex-wrap:wrap">
+
+          <!-- Icon + message -->
+          <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
+            <div style="font-size:22px;flex-shrink:0">
+              {% if renewal.in_grace_period %}⚠️
+              {% elif renewal.status == 'warning' %}⏱️
+              {% else %}✅{% endif %}
+            </div>
+            <div>
+              {% if renewal.in_grace_period %}
+                <div style="font-size:16px;font-weight:800;color:#dc2626;margin-bottom:2px">Membership in Grace Period</div>
+                <div style="font-size:16px;color:#7f1d1d;line-height:1.5">Your wallet balance was insufficient at renewal. Top up your wallet with at least $20 USDT within the grace period to reactivate your membership automatically.</div>
+              {% elif renewal.status == 'warning' %}
+                <div style="font-size:16px;font-weight:800;color:#92400e;margin-bottom:2px">Renewal in {{ renewal.days_remaining }} day{{ 's' if renewal.days_remaining != 1 }} — {% if renewal.can_afford %}You're covered ✓{% else %}Top up needed{% endif %}</div>
+                <div style="font-size:16px;color:#78350f;line-height:1.5">
+                  {% if renewal.can_afford %}Your $20 renewal will be deducted automatically from your wallet balance. No action needed.
+                  {% else %}Your current balance of ${{ renewal.balance }} is below the $20 required. Add funds to your wallet before your renewal date to avoid a grace period.{% endif %}
+                </div>
+              {% else %}
+                <div style="font-size:16px;font-weight:800;color:#15803d;margin-bottom:2px">Membership Active — renews in {{ renewal.days_remaining }} day{{ 's' if renewal.days_remaining != 1 }}</div>
+                <div style="font-size:16px;color:#166534;line-height:1.5">Your $20 membership fee is deducted automatically from your wallet balance on your renewal date. As long as your wallet has funds from grid commissions, Stream 1 referral income and other earnings, your membership stays active with no manual action required.</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Right side: balance chip + wallet link -->
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+            <div style="font-size:16px;font-weight:800;color:
+              {% if renewal.in_grace_period %}#dc2626
+              {% elif not renewal.can_afford and renewal.status == 'warning' %}#b45309
+              {% else %}#15803d{% endif %}">
+              ${{ renewal.balance }} balance
+            </div>
+            <a href="/wallet" style="font-size:16px;font-weight:700;color:#6366f1;text-decoration:none;border:1px solid rgba(99,102,241,0.3);border-radius:6px;padding:4px 10px;background:rgba(99,102,241,0.06)">
+              View Wallet →
+            </a>
+          </div>
+
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- HERO STATS -->
+      <div class="stats-row">
+        <div class="stat-card c1">
+          <div class="stat-label">Total Earned</div>
+          <div class="stat-value" style="color:#16a34a">${{ '%.2f'|format(total_earned) }}</div>
+          <div class="stat-sub">All time USDT</div>
+          <div class="stat-bg">💰</div>
+        </div>
+        <div class="stat-card c2">
+          <div class="stat-label">Available Balance</div>
+          <div class="stat-value" style="color:#16a34a">${{ '%.2f'|format(balance) }}</div>
+          <div class="stat-sub">Ready to withdraw</div>
+          <div class="stat-bg">◎</div>
+        </div>
+        <div class="stat-card c3">
+          <div class="stat-label">Grid Advances</div>
+          <div class="stat-value" style="color:#16a34a">{{ grid_stats.completed_advances }}</div>
+          <div class="stat-sub">{{ grid_stats.active_grids }} active grid{% if grid_stats.active_grids != 1 %}s{% endif %}</div>
+          <div class="stat-bg">◈</div>
+        </div>
+        <div class="stat-card c4">
+          <div class="stat-label">Your Network</div>
+          <div class="stat-value" style="color:#16a34a">{{ total_team }}</div>
+          <div class="stat-sub">Members in network</div>
+          <div class="stat-bg">🤝</div>
+        </div>
+      </div>
+
+      <!-- ROW 2 -->
+      <div class="dash-grid">
+
+        <!-- GRID ENGINE SUMMARY -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><div class="card-dot" style="background:#0ea5e9"></div>Profit Engine Grids</div>
+            <a href="/income-grid" class="card-link">Manage Grids →</a>
+          </div>
+          <div class="card-body">
+            {% if grid_stats.active_grids > 0 %}
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+                <div style="background:#f0fdfa;border-radius:8px;padding:14px;border:1px solid #ccfbf1;text-align:center">
+                  <div style="font-size:16px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Active</div>
+                  <div style="font-size:28px;font-weight:800;color:#0d9488">{{ grid_stats.active_grids }}</div>
+                </div>
+                <div style="background:#eff6ff;border-radius:8px;padding:14px;border:1px solid #dbeafe;text-align:center">
+                  <div style="font-size:16px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Advances</div>
+                  <div style="font-size:28px;font-weight:800;color:#2563eb">{{ grid_stats.completed_advances }}</div>
+                </div>
+                <div style="background:#f0fdf4;border-radius:8px;padding:14px;border:1px solid #dcfce7;text-align:center">
+                  <div style="font-size:16px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Earned</div>
+                  <div style="font-size:22px;font-weight:800;color:#16a34a">${{ '%.0f'|format(grid_stats.total_earned or 0) }}</div>
+                </div>
+              </div>
+              <a href="/income-grid" class="btn-primary" style="display:block;text-align:center;padding:12px;color:#fff;border-radius:8px;font-size:16px;font-weight:700;text-decoration:none">View All Grids & Details →</a>
             {% else %}
-              <div class="renewal-title" style="color:var(--green)">Membership Active — renews in {{ renewal.days_remaining }} day{{ 's' if renewal.days_remaining != 1 }}</div>
-              <div class="renewal-body">Your $20 fee is deducted automatically from your wallet on renewal. As long as you have funds from commissions, your membership stays active.</div>
+              <div class="empty-state">
+                <div class="empty-icon">⚡</div>
+                <div class="empty-title">No Active Grids Yet</div>
+                <div class="empty-sub">Activate an campaign tier to launch your 8×8 Profit Engine Grid</div>
+                <a href="/campaign-tiers" class="empty-cta">Browse Campaign Tiers →</a>
+              </div>
             {% endif %}
           </div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-          <div class="renewal-balance" style="color:{% if renewal.in_grace_period %}#f87171{% elif not renewal.can_afford and renewal.status == 'warning' %}var(--amber){% else %}var(--green){% endif %}">${{ renewal.balance }} balance</div>
-          <a href="/wallet" class="renewal-link">View Wallet →</a>
-        </div>
-      </div>
-    </div>
-    {% endif %}
 
-    <!-- ── 3 INCOME STREAMS ── -->
-    <div class="streams">
-      <div class="stream s1">
-        <div class="stream-tag">Stream 1 · Monthly Membership</div>
-        <div class="stream-label">Residual Income</div>
-        <div class="stream-val">${{ '%.2f'|format(sponsor_earnings) }}</div>
-        <div class="stream-sub">Membership referral commissions</div>
-        <div class="stream-icon">
-          <svg width="44" height="44" viewBox="0 0 44 44" fill="none"><path d="M8 14h28M8 22h20M8 30h14" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/></svg>
-        </div>
-      </div>
-      <div class="stream s2">
-        <div class="stream-tag">Stream 2 · Profit Engine Grid</div>
-        <div class="stream-label">Uni-Level Income</div>
-        <div class="stream-val">${{ '%.2f'|format(grid_earnings + level_earnings) }}</div>
-        <div class="stream-sub">Direct + Uni-Level commissions</div>
-        <div class="stream-icon">
-          <svg width="44" height="44" viewBox="0 0 44 44" fill="none"><path d="M24 6L13 24H21L20 38L32 20H24L24 6Z" fill="#818cf8"/></svg>
-        </div>
-      </div>
-      <div class="stream s3">
-        <div class="stream-tag">Stream 3 · Marketing Mastery</div>
-        <div class="stream-label">Course Sales</div>
-        <div class="stream-val" style="font-size:18px;color:var(--amber);padding-top:6px">Coming Soon</div>
-        <div class="stream-sub">100% commission + infinite pass-up</div>
-        <div class="stream-icon">
-          <svg width="44" height="44" viewBox="0 0 44 44" fill="none"><path d="M22 8L6 18L22 28L38 18L22 8Z" stroke="#f59e0b" stroke-width="2.5" stroke-linejoin="round"/><path d="M11 23v9c0 3 5 6 11 6s11-3 11-6v-9" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/></svg>
-        </div>
-      </div>
-    </div>
+        <!-- EARNINGS BREAKDOWN -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><div class="card-dot" style="background:#0ea5e9"></div>Earnings Breakdown</div>
+            <a href="/wallet" class="card-link">Details →</a>
+          </div>
+          <div class="card-body" style="padding:16px 20px">
+            {% set total_streams = sponsor_earnings + grid_earnings + level_earnings + course_earnings %}
+            {% set max_earn = [sponsor_earnings, grid_earnings, level_earnings, course_earnings, 1]|max %}
 
-    <!-- ── STAT CARDS ── -->
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-label">Total Earned</div>
-        <div class="stat-val green">${{ '%.2f'|format(total_earned) }}</div>
-        <div class="stat-sub">All time USDT</div>
-        <div class="stat-trend up">All income streams</div>
-        <div class="stat-glyph"><svg width="42" height="42" viewBox="0 0 42 42" fill="none"><circle cx="21" cy="21" r="15" stroke="#22c55e" stroke-width="2"/><path d="M21 13v16M17 17h7a2 2 0 010 4h-5a2 2 0 000 4h7" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/></svg></div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Available Balance</div>
-        <div class="stat-val green">${{ '%.2f'|format(balance) }}</div>
-        <div class="stat-sub">Ready to withdraw</div>
-        <div class="stat-trend neutral">Min $5 threshold</div>
-        <div class="stat-glyph"><svg width="42" height="42" viewBox="0 0 42 42" fill="none"><circle cx="21" cy="21" r="15" stroke="#38bdf8" stroke-width="2"/><circle cx="21" cy="21" r="7" stroke="#38bdf8" stroke-width="2"/></svg></div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Grid Advances</div>
-        <div class="stat-val">{{ grid_stats.completed_advances }}</div>
-        <div class="stat-sub">{{ grid_stats.active_grids }} active grid{% if grid_stats.active_grids != 1 %}s{% endif %}</div>
-        <div class="stat-trend neutral">Across all tiers</div>
-        <div class="stat-glyph"><svg width="42" height="42" viewBox="0 0 42 42" fill="none"><rect x="10" y="10" width="22" height="22" rx="3" stroke="#818cf8" stroke-width="2"/><path d="M10 21h22M21 10v22" stroke="#818cf8" stroke-width="1.5"/></svg></div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Your Network</div>
-        <div class="stat-val">{{ total_team }}</div>
-        <div class="stat-sub">Members in network</div>
-        <div class="stat-trend up">{{ personal_referrals }} direct recruits</div>
-        <div class="stat-glyph"><svg width="42" height="42" viewBox="0 0 42 42" fill="none"><circle cx="15" cy="16" r="6" stroke="#f59e0b" stroke-width="2"/><circle cx="27" cy="16" r="6" stroke="#f59e0b" stroke-width="2"/><path d="M6 36c0-6 4-10 9-10h12c5 0 9 4 9 10" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/></svg></div>
-      </div>
-    </div>
-
-    <!-- ── ROW 2: GRID + EARNINGS ── -->
-    <div class="row2">
-
-      <!-- GRID ENGINE -->
-      <div class="card">
-        <div class="card-head">
-          <div class="card-title"><div class="card-dot" style="background:var(--cyan)"></div>Profit Engine Grid</div>
-          <a href="/income-grid" class="card-action">Manage Grids →</a>
-        </div>
-        <div class="card-body">
-          {% if grid_stats.active_grids > 0 %}
-          <div class="grid-stats">
-            <div class="gs"><div class="gs-val" style="color:var(--cyan2)">{{ grid_stats.active_grids }}</div><div class="gs-label">Active</div></div>
-            <div class="gs"><div class="gs-val" style="color:#818cf8">{{ grid_stats.completed_advances }}</div><div class="gs-label">Advances</div></div>
-            <div class="gs"><div class="gs-val" style="color:var(--green)">${{ '%.0f'|format(grid_stats.total_earned or 0) }}</div><div class="gs-label">Earned</div></div>
-          </div>
-          <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">Grid Progress</div>
-          <div class="mini-grid">
-            <div class="mg-cell mg-owner"></div>
-            <div class="mg-cell mg-filled"></div><div class="mg-cell mg-filled"></div><div class="mg-cell mg-filled"></div>
-            <div class="mg-cell mg-filled"></div><div class="mg-cell mg-filled"></div><div class="mg-cell mg-filled"></div><div class="mg-cell mg-filled"></div>
-            <div class="mg-cell mg-filled"></div><div class="mg-cell mg-filled"></div><div class="mg-cell mg-filled"></div><div class="mg-cell mg-filled"></div>
-            <div class="mg-cell mg-filled"></div><div class="mg-cell mg-empty"></div><div class="mg-cell mg-empty"></div><div class="mg-cell mg-empty"></div>
-            <div class="mg-cell mg-empty"></div><div class="mg-cell mg-empty"></div><div class="mg-cell mg-empty"></div><div class="mg-cell mg-empty"></div>
-            <div class="mg-cell mg-empty"></div><div class="mg-cell mg-empty"></div><div class="mg-cell mg-empty"></div><div class="mg-cell mg-empty"></div>
-          </div>
-          <div class="grid-legend"><span style="color:var(--green)">■</span> You &nbsp;<span style="color:var(--cyan2)">■</span> Filled &nbsp;<span style="color:var(--text3)">■</span> Open</div>
-          <a href="/income-grid" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;margin-top:14px;background:rgba(14,165,233,.08);border:1px solid rgba(14,165,233,.2);border-radius:9px;font-size:13px;font-weight:700;color:var(--cyan2)">
-            View All Grids & Details →
-          </a>
-          {% else %}
-          <div class="empty">
-            <div class="empty-icon">⚡</div>
-            <div class="empty-title">No Active Grids Yet</div>
-            <div class="empty-sub">Activate a campaign tier to launch your 8×8 Profit Engine Grid</div>
-            <a href="/campaign-tiers" class="empty-cta">Browse Campaign Tiers →</a>
-          </div>
-          {% endif %}
-        </div>
-      </div>
-
-      <!-- EARNINGS BREAKDOWN -->
-      <div class="card">
-        <div class="card-head">
-          <div class="card-title"><div class="card-dot" style="background:var(--green)"></div>Earnings Breakdown</div>
-          <a href="/wallet" class="card-action">Details →</a>
-        </div>
-        <div class="card-body">
-          {% set max_earn = [sponsor_earnings, grid_earnings, level_earnings, course_earnings, 1]|max %}
-
-          <div class="earn-item">
-            <div class="earn-header"><div class="earn-name">Membership (50%)</div><div class="earn-val">${{ '%.2f'|format(sponsor_earnings) }}</div></div>
-            <div class="earn-track"><div class="earn-fill" style="width:{{ ((sponsor_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,var(--cyan),var(--cyan2))"></div></div>
-          </div>
-          <div class="earn-item">
-            <div class="earn-header"><div class="earn-name">Grid Direct Sponsor</div><div class="earn-val">${{ '%.2f'|format(grid_earnings) }}</div></div>
-            <div class="earn-track"><div class="earn-fill" style="width:{{ ((grid_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,var(--indigo),#818cf8)"></div></div>
-          </div>
-          <div class="earn-item">
-            <div class="earn-header"><div class="earn-name">Grid Uni-Level</div><div class="earn-val">${{ '%.2f'|format(level_earnings) }}</div></div>
-            <div class="earn-track"><div class="earn-fill" style="width:{{ ((level_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#8b5cf6,#a78bfa)"></div></div>
-          </div>
-          <div class="earn-item">
-            <div class="earn-header">
-              <div class="earn-name">Course Sales</div>
-              {% if course_earnings > 0 %}<div class="earn-val">${{ '%.2f'|format(course_earnings) }}</div>
-              {% else %}<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px">COMING SOON</div>{% endif %}
+            <!-- Stream 1: Membership -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex-shrink:0"></div>
+                <span style="font-size:13px;font-weight:600;color:#334155">Membership (50%)</span>
+              </div>
+              <span style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(sponsor_earnings) }}</span>
             </div>
-            <div class="earn-track">{% if course_earnings > 0 %}<div class="earn-fill" style="width:{{ ((course_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,var(--amber),#fbbf24)"></div>{% endif %}</div>
-          </div>
+            <div style="height:5px;background:#e8ecf4;border-radius:99px;overflow:hidden;margin-bottom:14px">
+              <div style="height:100%;width:{{ ((sponsor_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#0284c7,#38bdf8);border-radius:99px"></div>
+            </div>
 
-          <div class="earn-total">
-            <span class="earn-total-label">Total Earned</span>
-            <span class="earn-total-val">${{ '%.2f'|format(total_earned) }}</span>
-          </div>
+            <!-- Stream 2: Grid Direct Sponsor -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex-shrink:0"></div>
+                <span style="font-size:13px;font-weight:600;color:#334155">Grid Direct Sponsor</span>
+              </div>
+              <span style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(grid_earnings) }}</span>
+            </div>
+            <div style="height:5px;background:#e8ecf4;border-radius:99px;overflow:hidden;margin-bottom:14px">
+              <div style="height:100%;width:{{ ((grid_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#0284c7,#38bdf8);border-radius:99px"></div>
+            </div>
 
-          <div class="mini-stats">
-            <div class="mini-stat"><div class="mini-stat-val">{{ personal_referrals }}</div><div class="mini-stat-label">Directs</div></div>
-            <div class="mini-stat"><div class="mini-stat-val">{{ total_team }}</div><div class="mini-stat-label">Network</div></div>
-            <div class="mini-stat"><div class="mini-stat-val">{{ grid_stats.completed_advances }}</div><div class="mini-stat-label">Advances</div></div>
-          </div>
+            <!-- Stream 3: Grid Uni-Level -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex-shrink:0"></div>
+                <span style="font-size:13px;font-weight:600;color:#334155">Grid Uni-Level</span>
+              </div>
+              <span style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(level_earnings) }}</span>
+            </div>
+            <div style="height:5px;background:#e8ecf4;border-radius:99px;overflow:hidden;margin-bottom:14px">
+              <div style="height:100%;width:{{ ((level_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#0284c7,#38bdf8);border-radius:99px"></div>
+            </div>
 
-          {% if balance > 5 %}
-          <a href="/wallet" class="withdraw-cta">◎ Withdraw ${{ '%.2f'|format(balance) }} USDT →</a>
-          {% endif %}
+            <!-- Stream 4: Course Sales -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex-shrink:0"></div>
+                <span style="font-size:13px;font-weight:600;color:#334155">Course Sales (100% pass-up)</span>
+              </div>
+              {% if course_earnings > 0 %}
+              <span style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(course_earnings) }}</span>
+              {% else %}
+              <span style="font-size:12px;font-weight:700;color:#94a3b8;letter-spacing:0.5px">COMING SOON</span>
+              {% endif %}
+            </div>
+            <div style="height:5px;background:#e8ecf4;border-radius:99px;overflow:hidden;margin-bottom:12px">
+              {% if course_earnings > 0 %}
+              <div style="height:100%;width:{{ ((course_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#d97706,#fbbf24);border-radius:99px"></div>
+              {% endif %}
+            </div>
+
+            <!-- Totals row -->
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <span style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px">Total Earned</span>
+              <span style="font-size:18px;font-weight:800;color:#0f172a">${{ '%.2f'|format(total_earned) }}</span>
+            </div>
+
+            <!-- Directs + Network mini stats -->
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+              <div style="background:#f5f7fb;border-radius:8px;padding:10px;border:1px solid #e2e8f0;text-align:center">
+                <div style="font-size:9px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Directs</div>
+                <div style="font-size:22px;font-weight:800;color:#0f172a">{{ personal_referrals }}</div>
+              </div>
+              <div style="background:#f5f7fb;border-radius:8px;padding:10px;border:1px solid #e2e8f0;text-align:center">
+                <div style="font-size:9px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Network</div>
+                <div style="font-size:22px;font-weight:800;color:#0f172a">{{ total_team }}</div>
+              </div>
+              <div style="background:#f5f7fb;border-radius:8px;padding:10px;border:1px solid #e2e8f0;text-align:center">
+                <div style="font-size:9px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Advances</div>
+                <div style="font-size:22px;font-weight:800;color:#0f172a">{{ grid_stats.completed_advances }}</div>
+              </div>
+            </div>
+
+            {% if balance > 5 %}
+            <a href="/wallet" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;margin-top:14px;background:linear-gradient(135deg,#dcfce7,#d1fae5);border:1px solid #bbf7d0;border-radius:8px;font-size:14px;font-weight:700;color:#16a34a;text-decoration:none">
+              ◎ Withdraw ${{ '%.2f'|format(balance) }} USDT →
+            </a>
+            {% endif %}
+          </div>
         </div>
-      </div>
 
-    </div>
+      </div><!-- /dash-grid -->
 
-    <!-- ── ROW 3: COMMISSIONS + REFERRAL + QUICK ACTIONS ── -->
-    <div class="row3">
+      <!-- ROW 3 -->
+      <div class="dash-grid-3">
 
-      <!-- RECENT COMMISSIONS -->
-      <div class="card">
-        <div class="card-head">
-          <div class="card-title"><div class="card-dot" style="background:var(--amber)"></div>Recent Commissions</div>
-          <a href="/wallet" class="card-action">Full History →</a>
-        </div>
-        <div class="card-body" style="padding:0 20px">
-          {% if recent_commissions %}
-            {% for c in recent_commissions %}
-            <div class="comm-item">
-              <div class="comm-left">
-                <div class="comm-icon" style="background:{% if c.commission_type == 'direct_sponsor' %}rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.2){% elif c.commission_type == 'uni_level' %}rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.2){% elif c.commission_type == 'membership' %}rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.2){% else %}rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.2){% endif %}">
-                  {% if c.commission_type == 'direct_sponsor' %}
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.5 12L13 5" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  {% elif c.commission_type == 'uni_level' %}
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M9 2L4 9H8L7 14L12 7H8L9 2Z" fill="#818cf8"/></svg>
-                  {% elif c.commission_type == 'membership' %}
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6" cy="8" r="3" stroke="#38bdf8" stroke-width="1.5"/><path d="M9 8H14M12 6V10" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round"/></svg>
-                  {% else %}
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="#f59e0b" stroke-width="1.5"/><path d="M8 5V8.5L10 10" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/></svg>
-                  {% endif %}
-                </div>
-                <div>
-                  <div class="comm-name">
-                    {% if c.commission_type == 'direct_sponsor' %}Direct Sponsor Commission
-                    {% elif c.commission_type == 'uni_level' %}Uni-Level Commission
-                    {% elif c.commission_type == 'membership' %}Membership Residual
-                    {% else %}{{ c.commission_type|replace('_',' ')|title }}{% endif %}
+        <!-- RECENT COMMISSIONS -->
+        <div class="card" style="grid-column:span 2">
+          <div class="card-head">
+            <div class="card-title"><div class="card-dot" style="background:#f59e0b"></div>Recent Commissions</div>
+            <a href="/wallet" class="card-link">Full History →</a>
+          </div>
+          <div class="card-body" style="padding:0 20px">
+            {% if recent_commissions %}
+              {% for c in recent_commissions %}
+              <div class="comm-row">
+                <div class="comm-left">
+                  <div class="comm-icon" style="background:{% if c.commission_type == 'direct_sponsor' %}#dcfce7{% elif c.commission_type == 'uni_level' %}#dbeafe{% else %}#ede9fe{% endif %}">
+                    {% if c.commission_type == 'direct_sponsor' %}💚
+                    {% elif c.commission_type == 'uni_level' %}⚡
+                    {% elif c.commission_type == 'membership' %}🔑
+                    {% else %}◎{% endif %}
                   </div>
-                  <div class="comm-meta">${{ c.package_tier }} Campaign Tier · {{ c.created_at.strftime('%d %b %Y') if c.created_at else '' }}</div>
+                  <div>
+                    <div style="font-size:16px;font-weight:700;color:#0f172a">
+                      {% if c.commission_type == 'direct_sponsor' %}Direct Sponsor Commission
+                      {% elif c.commission_type == 'uni_level' %}Uni-Level Commission
+                      {% elif c.commission_type == 'membership' %}Membership Residual
+                      {% else %}{{ c.commission_type|replace('_',' ')|title }}{% endif %}
+                    </div>
+                    <div style="font-size:16px;color:#6b7d94;margin-top:2px">${{ c.package_tier }} Campaign Tier · {{ c.created_at.strftime('%d %b %Y') if c.created_at else '' }}</div>
+                  </div>
                 </div>
+                <div style="font-size:16px;font-weight:800;color:{% if c.status == 'paid' %}#16a34a{% else %}#f59e0b{% endif %}">+${{ '%.2f'|format(c.amount_usdt) }}</div>
               </div>
-              <div style="text-align:right">
-                <div class="comm-amount {% if c.status == 'paid' %}paid{% else %}pending{% endif %}">+${{ '%.2f'|format(c.amount_usdt) }}</div>
-                <span class="comm-tag {% if c.status == 'paid' %}paid{% else %}pending{% endif %}">{{ c.status|title }}</span>
+              {% endfor %}
+            {% else %}
+              <div class="empty-state">
+                <div class="empty-icon">📊</div>
+                <div class="empty-title">No Commissions Yet</div>
+                <div class="empty-sub">Activate a tier to start earning</div>
               </div>
-            </div>
-            {% endfor %}
-          {% else %}
-            <div class="empty">
-              <div class="empty-icon">📊</div>
-              <div class="empty-title">No Commissions Yet</div>
-              <div class="empty-sub">Activate a tier to start earning</div>
-            </div>
-          {% endif %}
+            {% endif %}
+          </div>
         </div>
-      </div>
-
-      <!-- RIGHT: REFERRAL + QUICK ACTIONS -->
-      <div style="display:flex;flex-direction:column;gap:16px">
 
         <!-- REFERRAL LINK -->
         <div class="card">
           <div class="card-head">
-            <div class="card-title"><div class="card-dot" style="background:var(--green)"></div>Your Referral Link</div>
-            <a href="/affiliate" class="card-action">Tools →</a>
+            <div class="card-title"><div class="card-dot" style="background:#16a34a"></div>Your Referral Link</div>
+            <a href="/affiliate" class="card-link">Tools →</a>
           </div>
           <div class="card-body">
-            <p style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6">Share your link — earn <strong style="color:var(--green)">$10/month</strong> per active referral (50%).</p>
-            <div class="ref-box">
-              <span class="ref-url">superadpro.com/ref/{{ user.username }}</span>
-              <button onclick="copyRef()" id="copyBtn" class="ref-copy">Copy</button>
+            <p style="font-size:16px;color:#64748b;margin-bottom:14px;line-height:1.6">Share your link. Each person who joins under you pays $20/month — <strong style="color:#16a34a">you earn $10/month</strong> (50%) for every active referral.</p>
+            <div style="background:#f5f7fb;border:1px solid #d0d8e4;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:10px">
+              <span style="font-size:10px;color:#0284c7;font-family:monospace;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">superadpro.com/ref/{{ user.username }}</span>
+              <button onclick="copyRef()" style="font-size:10px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:6px;padding:7px 14px;cursor:pointer;white-space:nowrap;font-family:inherit" id="copyBtn">Copy</button>
             </div>
-            <div class="ref-stat"><span class="ref-stat-label">Direct recruits</span><span class="ref-stat-val">{{ personal_referrals }}</span></div>
-            <div class="ref-stat"><span class="ref-stat-label">Total network</span><span class="ref-stat-val">{{ total_team }}</span></div>
+            <div style="margin-top:14px">
+              <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f2f8">
+                <span style="font-size:16px;color:#4a5a6e">Direct recruits</span>
+                <span style="font-size:16px;font-weight:800;color:#0f172a">{{ personal_referrals }}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:7px 0">
+                <span style="font-size:16px;color:#4a5a6e">Total network</span>
+                <span style="font-size:16px;font-weight:800;color:#0f172a">{{ total_team }}</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- QUICK ACTIONS -->
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><div class="card-dot" style="background:#818cf8"></div>Quick Actions</div>
-          </div>
-          <div class="card-body" style="padding:12px 14px">
-            <a href="/campaign-tiers" class="qa">
-              <div class="qa-icon" style="background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.2)">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="2" stroke="#38bdf8" stroke-width="1.5"/><path d="M7 7L12 9L7 11V7Z" fill="#38bdf8"/></svg>
-              </div>
-              <div><div class="qa-label">Campaign Tiers</div><div class="qa-sub">Browse & activate tiers</div></div>
-              <div class="qa-arrow">›</div>
-            </a>
-            <a href="/grid-visualiser" class="qa">
-              <div class="qa-icon" style="background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.2)">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9.5 2L4 10H8.5L8 16L14 8H9.5L9.5 2Z" fill="#818cf8"/></svg>
-              </div>
-              <div><div class="qa-label">Grid Demo</div><div class="qa-sub">See how it works</div></div>
-              <div class="qa-arrow">›</div>
-            </a>
-            <a href="/wallet" class="qa">
-              <div class="qa-icon" style="background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.2)">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="#22c55e" stroke-width="1.5"/><circle cx="9" cy="9" r="3" stroke="#22c55e" stroke-width="1.5"/></svg>
-              </div>
-              <div><div class="qa-label">Withdraw Funds</div><div class="qa-sub">${{ '%.2f'|format(balance) }} available</div></div>
-              <div class="qa-arrow">›</div>
-            </a>
-          </div>
-        </div>
+      </div><!-- /dash-grid-3 -->
 
+      <!-- QUICK LINKS -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title"><div class="card-dot" style="background:#0ea5e9"></div>Explore the Income Grid</div>
+        </div>
+        <div class="card-body" style="display:flex;gap:12px;flex-wrap:wrap">
+          <a href="/campaign-tiers" style="flex:1;min-width:200px;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 24px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:16px;font-weight:700;border-radius:10px;text-decoration:none;box-shadow:0 4px 14px rgba(0,180,216,0.25);transition:all 0.2s">
+            🎬 View Campaign Tiers
+          </a>
+          <a href="/grid-visualiser" style="flex:1;min-width:200px;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 24px;background:linear-gradient(135deg,#0284c7,#0ea5e9);color:#fff;font-size:16px;font-weight:700;border-radius:10px;text-decoration:none;box-shadow:0 4px 14px rgba(109,40,217,0.25);transition:all 0.2s">
+            ⚡ Grid Engine Demo
+          </a>
+        </div>
       </div>
-    </div>
 
-  </div><!-- /content -->
-</div><!-- /main -->
+    </div><!-- /content -->
+  </div><!-- /main -->
 </div><!-- /layout -->
 
 <script>
@@ -654,16 +610,16 @@ function copyRef() {
   navigator.clipboard.writeText('https://superadpro.com/ref/{{ user.username }}').then(() => {
     const btn = document.getElementById('copyBtn');
     btn.textContent = '✓ Copied!';
-    btn.style.background = '#22c55e';
+    btn.style.background = '#16a34a';
     setTimeout(() => { btn.textContent = 'Copy'; btn.style.background = ''; }, 2000);
   });
 }
 </script>
 
-<!-- Mobile Bottom Nav -->
+<!-- ── Mobile Bottom Nav ── -->
 <div class="mobile-nav">
   <div class="mobile-nav-inner">
-    <a href="/dashboard" class="mob-nav-item active"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
+        <a href="/dashboard" class="mob-nav-item active"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
     <a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">▶</span><span class="mob-nav-label">Watch</span></a>
     <a href="/income-grid" class="mob-nav-item"><span class="mob-nav-icon">⚡</span><span class="mob-nav-label">Grid</span></a>
     <a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">◎</span><span class="mob-nav-label">Wallet</span></a>
@@ -673,7 +629,9 @@ function copyRef() {
 
 <script>
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => { navigator.serviceWorker.register('/static/sw.js').catch(() => {}); });
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+  });
 }
 </script>
 </body>
