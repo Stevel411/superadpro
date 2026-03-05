@@ -461,7 +461,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
 // ════════════════════════════════════════════════
 //  SUPERADPRO PAGE BUILDER  — vanilla JS engine
 // ════════════════════════════════════════════════
-const PAGE_ID = {{ page.id }};
+
+// Global error handler — shows visible alert if JS crashes
+window.onerror = function(msg,src,line,col,err){
+  document.body.insertAdjacentHTML('afterbegin',`<div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#ef4444;color:#fff;padding:10px 16px;font-family:monospace;font-size:12px">JS ERROR: ${msg} (line ${line})</div>`);
+};
+
+const PAGE_ID = parseInt('{{ page.id }}') || 0;
 
 // ── State ──
 let els   = [];        // array of element objects
@@ -1068,12 +1074,19 @@ function exportHTML(){
 // ── Save / Load ──
 async function savePage(){
   setSt('Saving…');
-  const payload={page_id:PAGE_ID,title:document.getElementById('tb-title').value,canvas_data:JSON.stringify(els),canvas_version:'v5',gjs_html:exportHTML(),gjs_css:"@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800;900&family=Sora:wght@700;800;900&display=swap');*{box-sizing:border-box}"};
+  // Store canvas_data as gjs_css (reusing existing text field)
+  // Store rendered HTML as gjs_html (stripped of scripts by server, that's fine)
+  const payload={
+    id: PAGE_ID,
+    title: document.getElementById('tb-title').value,
+    gjs_html: exportHTML(),
+    gjs_css: JSON.stringify(els),   // canvas element data stored here
+  };
   try{
     const r=await fetch('/api/funnels/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const d=await r.json();
-    if(d.success||d.page_id){setSt('Saved ✓');toast('Saved ✓');}
-    else{setSt('Error');toast(d.error||'Save failed','err');}
+    if(d.success||d.id){setSt('Saved ✓');toast('Saved ✓');}
+    else{setSt('Error');toast((d.error||'Save failed'),'err');}
   }catch(e){setSt('Error');toast('Network error','err');}
 }
 async function loadPage(){
@@ -1081,7 +1094,14 @@ async function loadPage(){
   try{
     const r=await fetch('/api/funnels/load/'+PAGE_ID);
     const d=await r.json();
-    if(d.canvas_data){ els=JSON.parse(d.canvas_data); renderAll(); }
+    // canvas data is stored in gjs_css as JSON array
+    const raw=d.gjs_css||'';
+    if(raw.trim().startsWith('[')){
+      els=JSON.parse(raw);
+      renderAll();
+    }
+    // update title
+    if(d.title) document.getElementById('tb-title').value=d.title;
   }catch(e){console.warn('Load failed',e);}
   pushH();
 }
