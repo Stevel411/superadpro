@@ -6,110 +6,123 @@
 <title>Profile — SuperAdPro</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
+:root{
+  --bg:#080d18;--panel:#0d1424;--panel2:#111a2e;
+  --border:rgba(255,255,255,.1);--border2:rgba(255,255,255,.18);
+  --cyan:#0ea5e9;--cyan2:#38bdf8;--green:#22c55e;--green2:#4ade80;
+  --amber:#f59e0b;--indigo:#6366f1;
+  --text:#f1f5f9;--text2:#b8c8dc;--text3:#6b88a8;
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+a{text-decoration:none;color:inherit}
 .layout{display:flex;min-height:100vh}
-
-/* ── Sidebar (matches dashboard exactly) ── */
-.sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;letter-spacing:0;text-transform:none;color:#fff;-webkit-text-fill-color:#fff}
-.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
-.nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
-.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
-.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
-.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
 
 /* ── Main Area ── */
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:50}
-.content{padding:18px 24px;flex:1;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.topbar-title{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;color:var(--text)}
+.topbar-sub{font-size:12px;color:var(--text3);margin-top:2px}
+.content{padding:24px 28px;flex:1;display:flex;flex-direction:column}
 
 /* ── Cards ── */
-.card{background:#fff;border:1px solid #d0d8e4;border-radius:12px;box-shadow:0 1px 4px rgba(0,40,100,0.06);overflow:hidden;display:flex;flex-direction:column}
-.card-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #e4e9f1;flex-shrink:0}
-.card-title{font-size:14px;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:8px}
-.card-dot{width:6px;height:6px;border-radius:50%;background:#0ea5e9;flex-shrink:0}
-.card-body{padding:14px 16px;flex:1;display:flex;flex-direction:column}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .15s}
+.card:hover{border-color:var(--border2)}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--border);flex-shrink:0}
+.card-title{font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.card-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);flex-shrink:0}
+.card-body{padding:16px 18px;flex:1;display:flex;flex-direction:column}
 
 /* ── Forms ── */
-.form-group{margin-bottom:10px}
-.form-label{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;display:block}
-.form-input{width:100%;padding:8px 12px;border:1px solid #d0d8e4;border-radius:6px;font-size:14px;color:#0f172a;font-family:inherit;background:#fff;transition:border-color 0.2s}
-.form-input:focus{outline:none;border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,0.1)}
-select.form-input{background:#f8fafc}
+.form-group{margin-bottom:12px}
+.form-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;display:block}
+.form-input{width:100%;padding:9px 13px;border:1px solid var(--border2);border-radius:8px;font-size:14px;color:var(--text);font-family:inherit;background:var(--panel2);transition:border-color .2s}
+.form-input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(14,165,233,.12)}
+select.form-input{background:var(--panel2);color:var(--text)}
+select.form-input option{background:var(--panel2)}
 
 /* ── Buttons ── */
-.btn-primary{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:8px 18px;border-radius:6px;border:none;cursor:pointer;font-family:inherit}
-.btn-primary:hover{box-shadow:0 4px 12px rgba(14,165,233,0.25)}
-.btn-warn{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#f59e0b,#ef4444);padding:8px 18px;border-radius:6px;border:none;cursor:pointer;font-family:inherit}
+.btn-primary{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--cyan),var(--cyan2));padding:9px 18px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.btn-primary:hover{opacity:.85}
+.btn-warn{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#f59e0b,#ef4444);padding:9px 18px;border-radius:8px;border:none;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.btn-warn:hover{opacity:.85}
 
 /* ── Badges ── */
 .badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px}
-.badge-green{background:rgba(22,163,74,0.12);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
-.badge-amber{background:rgba(245,158,11,0.08);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)}
+.badge-green{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+.badge-amber{background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.25)}
 
 /* ── Info rows ── */
-.info-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
 .info-row:last-child{border-bottom:none}
-.info-key{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.8px}
-.info-val{font-size:13px;font-weight:600;color:#0f172a}
+.info-key{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px}
+.info-val{font-size:13px;font-weight:600;color:var(--text)}
 
 /* ── Earnings rows ── */
-.earn-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9}
+.earn-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)}
 .earn-row:last-child{border-bottom:none}
-.earn-label{font-size:13px;color:#64748b}
-.earn-val{font-size:13px;font-weight:800;color:#16a34a}
+.earn-label{font-size:14px;color:var(--text2)}
+.earn-val{font-size:15px;font-weight:800;color:var(--green)}
 
-/* ── Wallet info ── */
-.wallet-info{padding:10px 12px;background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #b8d4f8;border-radius:8px;margin-top:auto}
-.wallet-info-title{font-size:11px;font-weight:700;color:#0284c7;margin-bottom:4px}
-.wallet-info-text{font-size:11px;color:#475569;line-height:1.6}
+/* ── Wallet info box ── */
+.wallet-info{padding:12px 14px;background:rgba(14,165,233,.06);border:1px solid rgba(14,165,233,.2);border-radius:10px;margin-top:auto}
+.wallet-info-title{font-size:12px;font-weight:700;color:var(--cyan2);margin-bottom:5px}
+.wallet-info-text{font-size:12px;color:var(--text2);line-height:1.65}
 
 /* ── Quick links ── */
-.q-link{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f8fafc;border:1px solid #e4e9f1;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;color:#334155;transition:all 0.15s}
-.q-link:hover{background:#eff6ff;border-color:#bae6fd}
+.q-link{display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--panel2);border:1px solid var(--border);border-radius:9px;font-size:13px;font-weight:600;color:var(--text2);transition:all .15s}
+.q-link:hover{border-color:var(--cyan);color:var(--cyan2);background:rgba(14,165,233,.06)}
 
 /* ── Toast ── */
-.toast-banner{border-radius:8px;padding:10px 16px;margin-bottom:14px;font-size:13px;font-weight:600}
-.toast-banner.success{background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.25);color:#16a34a}
-.toast-banner.error{background:#fef2f2;border:1px solid #fecaca;color:#dc2626}
+.toast-banner{border-radius:10px;padding:11px 16px;margin-bottom:16px;font-size:13px;font-weight:600}
+.toast-banner.success{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);color:var(--green)}
+.toast-banner.error{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:#f87171}
 
-/* ═══ Page Layout: 4-across top, 2-across bottom, both stretch to fill ═══ */
+/* ── KYC/2FA status chips ── */
+.status-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700}
+.status-chip.none{background:rgba(107,136,168,.1);color:var(--text3);border:1px solid rgba(107,136,168,.2)}
+.status-chip.pending{background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.25)}
+.status-chip.approved{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+.status-chip.rejected{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.25)}
+.status-chip.enabled{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+.status-chip.disabled{background:rgba(107,136,168,.1);color:var(--text3);border:1px solid rgba(107,136,168,.2)}
+
+/* ── File upload ── */
+.file-input{width:100%;padding:9px;border:1.5px dashed rgba(255,255,255,.15);border-radius:8px;font-size:12px;font-family:inherit;color:var(--text3);background:var(--panel2);cursor:pointer}
+.file-input:hover{border-color:var(--cyan)}
+
+/* ── Page Layout ── */
 .pg-wrap{flex:1;display:flex;flex-direction:column;gap:16px}
-.pg-top{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;flex:3}
-.pg-top>.card{min-height:0}
-.pg-mid{display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1}
-.pg-mid>.card{min-height:0}
-.pg-bottom{display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1}
-.pg-bottom>.card{min-height:0}
+.pg-top{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.pg-mid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pg-bottom{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 
-/* KYC/2FA status badges */
-.status-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700}
-.status-chip.none{background:rgba(100,116,139,0.1);color:#64748b;border:1px solid rgba(100,116,139,0.2)}
-.status-chip.pending{background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.25)}
-.status-chip.approved{background:rgba(22,163,74,0.1);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
-.status-chip.rejected{background:rgba(220,38,38,0.1);color:#dc2626;border:1px solid rgba(220,38,38,0.25)}
-.status-chip.enabled{background:rgba(22,163,74,0.1);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
-.status-chip.disabled{background:rgba(100,116,139,0.1);color:#64748b;border:1px solid rgba(100,116,139,0.2)}
+/* ── Balance chip in topbar ── */
+.balance-chip{display:flex;align-items:center;gap:10px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:8px 16px}
+.bc-label{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
+.bc-val{font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--green);line-height:1}
+.bc-unit{font-size:10px;color:var(--text3);margin-left:3px}
 
-/* File upload */
-.file-input{width:100%;padding:8px;border:1.5px dashed #d0d8e4;border-radius:6px;font-size:12px;font-family:inherit;color:#64748b;background:#f8fafc;cursor:pointer}
-.file-input:hover{border-color:#0ea5e9}
+/* ── Mobile ── */
+.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:101}
+.mobile-topbar-left{display:flex;align-items:center;gap:10px}
+.mobile-topbar-name{font-weight:800;font-size:14px;font-family:'Sora',sans-serif;color:#fff}
+.mobile-topbar-name span{color:var(--cyan2)}
+.mobile-topbar-page{font-size:11px;color:var(--text3)}
+.mobile-balance-chip{font-size:12px;font-weight:800;color:var(--green);background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:5px 10px}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--border);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
+.mobile-nav-inner{display:flex;justify-content:space-around;align-items:center}
+.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 8px;font-size:10px;color:var(--text3);transition:color .15s}
+.mob-nav-item.active{color:var(--cyan2)}
+.mob-nav-icon{font-size:19px}
+.mob-nav-label{font-weight:600;letter-spacing:.3px}
 
-@media(max-width:1100px){
-  .pg-top{grid-template-columns:1fr 1fr}
-  .pg-mid{grid-template-columns:1fr}
-  .pg-bottom{grid-template-columns:1fr}
-}
+@media(max-width:1100px){.pg-top{grid-template-columns:1fr 1fr}.pg-mid,.pg-bottom{grid-template-columns:1fr}}
 @media(max-width:768px){
-  .layout{display:block!important}
-  .sidebar{display:none!important}
-  .main{margin-left:0!important}
-  .topbar{display:none!important}
-  .content{padding:10px 12px 80px!important}
+  .layout{display:block!important}.main{margin-left:0!important}
+  .topbar{display:none!important}.mobile-topbar{display:flex!important}.mobile-nav{display:block}
+  .content{padding:14px 14px 80px!important}
   .pg-top,.pg-mid,.pg-bottom{grid-template-columns:1fr!important}
-  .pg-top,.pg-mid,.pg-bottom{flex:unset}
 }
 </style>
 <link rel="stylesheet" href="/static/mobile.css">
@@ -143,17 +156,18 @@ select.form-input{background:#f8fafc}
 <div class="main">
 <div class="topbar">
   <div>
-    <div style="font-size:16px;font-weight:800;color:#fff">◉ My Profile</div>
-    <div style="font-size:11px;color:rgba(0,212,255,0.5)">Manage your account details and wallet</div>
+    <div class="topbar-title">My Profile</div>
+    <div class="topbar-sub">Manage your account details and wallet</div>
   </div>
-  <div style="display:flex;align-items:center;gap:12px">
-    <div style="background:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:5px 12px;text-align:center">
-      <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8">Balance</div>
-      <div><span style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:10px;color:#94a3b8;margin-left:3px">USDC</span></div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="balance-chip">
+      <div>
+        <div class="bc-label">Balance</div>
+        <div><span class="bc-val">${{ '%.2f'|format(balance) }}</span><span class="bc-unit">USDC</span></div>
+      </div>
     </div>
-    <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none">
-      <svg width="30" height="30" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-tb)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-tb" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
-      <span style="font-family:Sora;font-size:16px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
+    <a href="/wallet" style="display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:700;color:#b8c8dc;transition:all .15s" onmouseover="this.style.borderColor='#0ea5e9';this.style.color='#38bdf8'" onmouseout="this.style.borderColor='rgba(255,255,255,.18)';this.style.color='#b8c8dc'">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="7" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg> Withdraw
     </a>
   </div>
 </div>
@@ -180,10 +194,10 @@ select.form-input{background:#f8fafc}
     </div>
     <div class="card-body">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #e4e9f1">
-        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0284c7,#0ea5e9);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0">{{ (user.first_name[:1] + (user.last_name[:1] if user.last_name else user.username[1:2])).upper() }}</div>
+        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0">{{ (user.first_name[:1] + (user.last_name[:1] if user.last_name else user.username[1:2])).upper() }}</div>
         <div>
-          <div style="font-size:14px;font-weight:800;color:#0f172a">{{ user.first_name }} {{ user.last_name }}</div>
-          <div style="font-size:11px;color:#64748b">@{{ user.username }}</div>
+          <div style="font-size:14px;font-weight:800;color:var(--text)">{{ user.first_name }} {{ user.last_name }}</div>
+          <div style="font-size:11px;color:var(--text3)">@{{ user.username }}</div>
         </div>
       </div>
       <div class="info-row"><span class="info-key">Member ID</span><span class="info-val" style="color:#0284c7;font-family:monospace">{{ member_id }}</span></div>
@@ -202,7 +216,7 @@ select.form-input{background:#f8fafc}
       <div class="earn-row"><span class="earn-label">Balance</span><span class="earn-val">${{ '%.2f'|format(balance) }}</span></div>
       <div class="earn-row"><span class="earn-label">Grid Earnings</span><span class="earn-val">${{ '%.2f'|format(grid_earnings) }}</span></div>
       <div class="earn-row"><span class="earn-label">Uni-Level</span><span class="earn-val">${{ '%.2f'|format(level_earnings) }}</span></div>
-      <a href="/wallet" style="display:block;text-align:center;margin-top:auto;padding:8px;background:#f8fafc;border:1px solid #d0d8e4;border-radius:6px;font-size:12px;font-weight:700;color:#0284c7;text-decoration:none">View Full Wallet →</a>
+      <a href="/wallet" style="display:block;text-align:center;margin-top:auto;padding:9px;background:rgba(14,165,233,.08);border:1px solid rgba(14,165,233,.2);border-radius:8px;font-size:13px;font-weight:700;color:var(--cyan2)">View Full Wallet →</a>
     </div>
   </div>
 
@@ -235,7 +249,7 @@ select.form-input{background:#f8fafc}
         <div class="form-group"><label class="form-label">Current Password</label><input class="form-input" type="password" name="current_password" placeholder="Current password" required autocomplete="current-password"></div>
         <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" name="new_password" id="newPw" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password"></div>
         <div class="form-group"><label class="form-label">Confirm New</label><input class="form-input" type="password" name="confirm_password" id="confirmPw" placeholder="Repeat password" required autocomplete="new-password"></div>
-        <div id="pwError" style="display:none;font-size:11px;color:#dc2626;margin-bottom:8px;padding:6px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px"></div>
+        <div id="pwError" style="display:none;font-size:12px;color:#f87171;margin-bottom:8px;padding:6px 10px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:6px"></div>
         <button type="submit" class="btn-warn" style="width:100%;margin-top:auto">Update Password</button>
       </form>
     </div>
@@ -262,17 +276,17 @@ select.form-input{background:#f8fafc}
       {% if kyc == 'approved' %}
       <div style="text-align:center;padding:12px 0">
         <div style="font-size:32px;margin-bottom:8px">✅</div>
-        <div style="font-size:14px;font-weight:700;color:#16a34a;margin-bottom:4px">Identity Verified</div>
-        <div style="font-size:11px;color:#64748b">Your identity has been verified. You're approved for withdrawals.</div>
+        <div style="font-size:14px;font-weight:700;color:var(--green);margin-bottom:4px">Identity Verified</div>
+        <div style="font-size:12px;color:var(--text2)">Your identity has been verified. You're approved for withdrawals.</div>
       </div>
       {% elif kyc == 'pending' %}
       <div style="text-align:center;padding:12px 0">
         <div style="font-size:32px;margin-bottom:8px">⏳</div>
-        <div style="font-size:14px;font-weight:700;color:#f59e0b;margin-bottom:4px">Verification In Progress</div>
-        <div style="font-size:11px;color:#64748b">We're reviewing your documents. This usually takes 24–48 hours.</div>
+        <div style="font-size:14px;font-weight:700;color:var(--amber);margin-bottom:4px">Verification In Progress</div>
+        <div style="font-size:12px;color:var(--text2)">We're reviewing your documents. This usually takes 24–48 hours.</div>
       </div>
       {% elif kyc == 'rejected' %}
-      <div style="padding:8px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;margin-bottom:12px;font-size:11px;color:#dc2626;font-weight:600">
+      <div style="padding:8px 12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:8px;margin-bottom:12px;font-size:12px;color:#f87171;font-weight:600">
         ⚠ {{ user.kyc_rejection_reason or 'Your submission was rejected. Please resubmit with clearer documents.' }}
       </div>
       <form method="POST" action="/account/kyc-submit" enctype="multipart/form-data" style="flex:1;display:flex;flex-direction:column">
@@ -289,7 +303,7 @@ select.form-input{background:#f8fafc}
         <button type="submit" class="btn-primary" style="width:100%;margin-top:auto">Resubmit Verification</button>
       </form>
       {% else %}
-      <div style="font-size:12px;color:#64748b;margin-bottom:12px;line-height:1.6">Verify your identity to enable withdrawals. We need your date of birth and a photo of a government-issued ID.</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6">Verify your identity to enable withdrawals. We need your date of birth and a photo of a government-issued ID.</div>
       <form method="POST" action="/account/kyc-submit" enctype="multipart/form-data" style="flex:1;display:flex;flex-direction:column">
         <div class="form-group"><label class="form-label">Date of Birth</label><input class="form-input" type="date" name="kyc_dob" required></div>
         <div class="form-group">
@@ -319,8 +333,8 @@ select.form-input{background:#f8fafc}
       {% if user.totp_enabled|default(false) %}
       <div style="text-align:center;padding:12px 0;margin-bottom:12px">
         <div style="font-size:32px;margin-bottom:8px">🔒</div>
-        <div style="font-size:14px;font-weight:700;color:#16a34a;margin-bottom:4px">2FA is Active</div>
-        <div style="font-size:11px;color:#64748b;margin-bottom:16px">Your account is protected with two-factor authentication.</div>
+        <div style="font-size:14px;font-weight:700;color:var(--green);margin-bottom:4px">2FA is Active</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:16px">Your account is protected with two-factor authentication.</div>
       </div>
       <form method="POST" action="/account/2fa-disable" style="margin-top:auto">
         <div class="form-group"><label class="form-label">Enter current 2FA code to disable</label><input class="form-input" type="text" name="totp_code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" inputmode="numeric" style="text-align:center;letter-spacing:6px;font-weight:700" required></div>
@@ -329,8 +343,8 @@ select.form-input{background:#f8fafc}
       {% else %}
       <div style="text-align:center;padding:8px 0;margin-bottom:12px">
         <div style="font-size:32px;margin-bottom:8px">🔓</div>
-        <div style="font-size:14px;font-weight:700;color:#64748b;margin-bottom:4px">Not Enabled</div>
-        <div style="font-size:12px;color:#64748b;line-height:1.6;margin-bottom:4px">Protect your account with an authenticator app. Required before you can make withdrawals.</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text3);margin-bottom:4px">Not Enabled</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:4px">Protect your account with an authenticator app. Required before you can make withdrawals.</div>
       </div>
       <a href="/account/2fa-setup" class="btn-primary" style="width:100%;display:block;text-align:center;text-decoration:none;margin-top:auto;padding:8px 18px">Setup 2FA →</a>
       {% endif %}
