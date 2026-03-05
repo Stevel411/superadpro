@@ -8,16 +8,16 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --topbar-h:50px;
+  --topbar-h:62px;
   --iconbar-w:64px;
-  --panel-w:248px;
-  --right-w:268px;
-  --chrome:#1e2537;
-  --chrome2:#252e42;
-  --chrome3:#2d3650;
-  --border:rgba(255,255,255,0.07);
-  --border2:rgba(255,255,255,0.12);
-  --iconbar:#161d2e;
+  --panel-w:290px;
+  --right-w:290px;
+  --chrome:#2a2d3e;
+  --chrome2:#323548;
+  --chrome3:#3a3f56;
+  --border:rgba(255,255,255,0.08);
+  --border2:rgba(255,255,255,0.14);
+  --iconbar:#1e2130;
   --text:#e8edf4;
   --text2:#94a3b8;
   --text3:#64748b;
@@ -25,7 +25,7 @@
   --blue-bg:rgba(59,130,246,0.12);
   --blue-border:rgba(59,130,246,0.3);
   --green:#10b981;
-  --canvas-bg:#1a2035;
+  --canvas-bg:#23263a;
   --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
   --shadow-md:0 4px 16px rgba(0,0,0,0.08);
   --shadow-lg:0 16px 48px rgba(0,0,0,0.14);
@@ -33,58 +33,66 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--canvas-bg);color:var(--text)}
 
-/* ══ TOPBAR — stays white/light ══ */
+/* ══ TOPBAR — dark, unified with workspace ══ */
 .topbar{
   position:fixed;top:0;left:0;right:0;height:var(--topbar-h);
-  background:#ffffff;border-bottom:1px solid #e4e7eb;
+  background:#1e2130;border-bottom:1px solid rgba(255,255,255,0.06);
   display:flex;align-items:center;z-index:300;
 }
-.tb-logo-cell{
-  width:var(--iconbar-w);flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  border-right:1px solid #e4e7eb;height:100%;
-}
-.tb-logo-mark{
-  width:30px;height:30px;border-radius:8px;
-  background:linear-gradient(135deg,#1e40af,#2563eb);
-  display:flex;align-items:center;justify-content:center;
-}
-.tb-logo-mark svg{width:16px;height:16px;fill:#fff}
+.tb-logo-cell{display:none} /* removed — merged into brand */
 .tb-brand{
-  display:flex;align-items:center;gap:8px;padding:0 14px;
-  border-right:1px solid #e4e7eb;height:100%;flex-shrink:0;
+  display:flex;align-items:center;gap:10px;padding:0 20px;
+  border-right:1px solid rgba(255,255,255,0.06);height:100%;flex-shrink:0;
 }
-.tb-brand-name{font-family:Sora;font-size:13px;font-weight:800;color:#111827;letter-spacing:-0.2px}
-.tb-brand-name span{color:#2563eb}
-.tb-pill{font-size:10px;font-weight:700;color:#2563eb;background:#eff6ff;border:1px solid #bfdbfe;border-radius:4px;padding:2px 7px;letter-spacing:0.3px}
+.tb-logomark{
+  display:flex;align-items:center;justify-content:center;
+  filter:drop-shadow(0 2px 6px rgba(99,102,241,0.4));
+  flex-shrink:0;
+}
+.tb-wordmark{display:flex;flex-direction:column;justify-content:center}
+.tb-wordmark-main{
+  font-family:'Sora',sans-serif;font-size:16px;font-weight:900;
+  color:#fff;letter-spacing:-0.5px;line-height:1;white-space:nowrap;
+}
+.tb-wordmark-main span{color:#60a5fa}
+.tb-pill{
+  font-size:9px;font-weight:700;color:#60a5fa;
+  background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);
+  border-radius:4px;padding:3px 8px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;
+}
 .tb-title-area{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 16px}
 .tb-page-input{
-  background:#f6f8fa;border:1px solid #e4e7eb;border-radius:7px;
-  color:#111827;font-size:13px;font-weight:600;font-family:inherit;
-  padding:6px 14px;width:210px;text-align:center;outline:none;transition:all 0.14s;
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px;color:#e8edf4;font-size:13px;font-weight:600;font-family:inherit;
+  padding:7px 16px;width:220px;text-align:center;outline:none;transition:all 0.14s;
 }
-.tb-page-input:focus{border-color:#2563eb;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,0.09)}
-.tb-save-status{font-size:10px;font-weight:700;color:#9ca3af;letter-spacing:0.4px;white-space:nowrap}
-.tb-right{display:flex;align-items:center;gap:5px;padding:0 12px}
+.tb-page-input:focus{border-color:rgba(59,130,246,0.5);background:rgba(59,130,246,0.08);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
+.tb-page-input::placeholder{color:rgba(255,255,255,0.3)}
+.tb-save-status{font-size:10px;font-weight:700;color:#64748b;letter-spacing:0.4px;white-space:nowrap}
+.tb-right{display:flex;align-items:center;gap:6px;padding:0 14px}
 .tb-btn{
   display:flex;align-items:center;gap:5px;
-  padding:7px 12px;border-radius:7px;font-size:11px;font-weight:700;
+  padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;
   cursor:pointer;border:1px solid transparent;font-family:inherit;
   transition:all 0.13s;letter-spacing:0.2px;
 }
-.btn-icon{padding:6px 8px;background:transparent;color:#6b7280;border-color:#e4e7eb}
-.btn-icon:hover{background:#f6f8fa;color:#111827;border-color:#d1d5db}
-.btn-preview{background:#f6f8fa;color:#4b5563;border-color:#e4e7eb}
-.btn-preview:hover{background:#eef0f3;color:#111827}
-.btn-save{background:#ecfdf5;color:#059669;border-color:#a7f3d0;font-weight:700}
-.btn-save:hover{background:#d1fae5;border-color:#6ee7b7}
-.btn-publish{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 1px 3px rgba(37,99,235,0.3)}
-.btn-publish:hover{background:#1d4ed8}
-.tb-divider{width:1px;height:20px;background:#e4e7eb;margin:0 3px;flex-shrink:0}
-.dev-grp{display:flex;align-items:center;gap:1px;background:#f6f8fa;border:1px solid #e4e7eb;border-radius:7px;padding:2px;overflow:hidden}
-.dev-btn{padding:5px 7px;border-radius:5px;font-size:13px;cursor:pointer;border:none;background:transparent;color:#9ca3af;transition:all 0.12s}
-.dev-btn:hover{color:#111827}
-.dev-btn.active{background:#fff;color:#2563eb;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.btn-icon{padding:7px 9px;background:rgba(255,255,255,0.06);color:#94a3b8;border-color:rgba(255,255,255,0.08)}
+.btn-icon:hover{background:rgba(255,255,255,0.1);color:#e8edf4;border-color:rgba(255,255,255,0.15)}
+.btn-preview{background:rgba(255,255,255,0.06);color:#94a3b8;border-color:rgba(255,255,255,0.08)}
+.btn-preview:hover{background:rgba(255,255,255,0.1);color:#e8edf4}
+.btn-save{background:rgba(16,185,129,0.15);color:#34d399;border-color:rgba(16,185,129,0.3);font-weight:700}
+.btn-save:hover{background:rgba(16,185,129,0.25);border-color:rgba(16,185,129,0.5)}
+.btn-publish{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 2px 8px rgba(37,99,235,0.35)}
+.btn-publish:hover{background:#1d4ed8;box-shadow:0 3px 12px rgba(37,99,235,0.5)}
+.tb-divider{width:1px;height:22px;background:rgba(255,255,255,0.07);margin:0 4px;flex-shrink:0}
+.dev-grp{
+  display:flex;align-items:center;gap:1px;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;padding:3px;overflow:hidden;
+}
+.dev-btn{padding:5px 8px;border-radius:5px;font-size:14px;cursor:pointer;border:none;background:transparent;color:#64748b;transition:all 0.12s}
+.dev-btn:hover{color:#e8edf4}
+.dev-btn.active{background:rgba(59,130,246,0.2);color:#60a5fa;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
 
 /* ══ APP BODY ══ */
 .app-body{
@@ -378,14 +386,25 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <div class="tb-logo-cell">
-    <div class="tb-logo-mark">
-      <svg viewBox="0 0 20 20"><path d="M4 4l6 4-6 4V4zm7 0h5v2h-5V4zm0 4h4v2h-4V8zm0 4h5v2h-5v-2z"/></svg>
-    </div>
-  </div>
   <div class="tb-brand">
-    <span class="tb-brand-name">Super<span>Ad</span>Pro</span>
-    <div style="width:1px;height:16px;background:var(--border)"></div>
+    <!-- Logomark: glowing "S" shield -->
+    <div class="tb-logomark">
+      <svg viewBox="0 0 32 32" width="32" height="32">
+        <defs>
+          <linearGradient id="lg1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#3b82f6"/>
+            <stop offset="100%" stop-color="#6366f1"/>
+          </linearGradient>
+        </defs>
+        <rect width="32" height="32" rx="8" fill="url(#lg1)"/>
+        <text x="16" y="23" text-anchor="middle" font-family="'Sora',sans-serif" font-weight="900" font-size="20" fill="white">S</text>
+      </svg>
+    </div>
+    <!-- Wordmark -->
+    <div class="tb-wordmark">
+      <span class="tb-wordmark-main">SuperAd<span>Pro</span></span>
+    </div>
+    <div style="width:1px;height:18px;background:rgba(255,255,255,0.08);margin:0 4px"></div>
     <span class="tb-pill">Page Builder</span>
   </div>
   <div class="tb-title-area">
