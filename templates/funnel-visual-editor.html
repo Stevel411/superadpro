@@ -6,7 +6,6 @@
 <title>Page Builder — {{ page.title }}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800;900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.27/dist/interact.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════
    SUPERADPRO PAGE BUILDER v5 — Free Canvas
@@ -1013,52 +1012,112 @@ function applyObjStyles(el,styles,keys){
   keys.forEach(k=>{if(styles[k]) el.style[k]=styles[k];});
 }
 
-// ── Interact.js: drag + resize ──
+// ═══════════════════════════════════════════════════════
+//  VANILLA DRAG + RESIZE ENGINE (zero dependencies)
+// ═══════════════════════════════════════════════════════
+
+let _drag = null;   // {el, div, startX, startY, origX, origY}
+let _resize = null; // {el, div, handle, startX, startY, origX, origY, origW, origH}
+
+document.addEventListener('mousemove', onMouseMove);
+document.addEventListener('mouseup',   onMouseUp);
+
+function onMouseMove(e){
+  if(_drag){
+    const dx = (e.clientX - _drag.startX) / zoom;
+    const dy = (e.clientY - _drag.startY) / zoom;
+    _drag.el.x = Math.round(Math.max(0, _drag.origX + dx));
+    _drag.el.y = Math.round(Math.max(0, _drag.origY + dy));
+    _drag.div.style.left = _drag.el.x + 'px';
+    _drag.div.style.top  = _drag.el.y + 'px';
+    positionFloatbar(_drag.div);
+    return;
+  }
+  if(_resize){
+    const dx = (e.clientX - _resize.startX) / zoom;
+    const dy = (e.clientY - _resize.startY) / zoom;
+    const h  = _resize.handle;
+    let x = _resize.origX, y = _resize.origY;
+    let w = _resize.origW, ht = _resize.origH;
+
+    if(h.includes('e')) w  = Math.max(30, w + dx);
+    if(h.includes('s')) ht = Math.max(20, ht + dy);
+    if(h.includes('w')){ const nw = Math.max(30, w - dx); x = x + (w - nw); w = nw; }
+    if(h.includes('n')){ const nh = Math.max(20, ht - dy); y = Math.max(0, y + (ht - nh)); ht = nh; }
+
+    _resize.el.x = Math.round(x);
+    _resize.el.y = Math.round(y);
+    _resize.el.w = Math.round(w);
+    _resize.el.h = Math.round(ht);
+    _resize.div.style.left   = _resize.el.x + 'px';
+    _resize.div.style.top    = _resize.el.y + 'px';
+    _resize.div.style.width  = _resize.el.w + 'px';
+    _resize.div.style.height = _resize.el.h + 'px';
+    positionFloatbar(_resize.div);
+  }
+}
+
+function onMouseUp(){
+  if(_drag || _resize){ pushHistory(); updateRightPanel(); }
+  _drag = null;
+  _resize = null;
+  document.body.style.userSelect = '';
+  document.body.style.cursor = '';
+}
+
+// Called on mousedown for an element div
+function attachDrag(div, el){
+  div.addEventListener('mousedown', e=>{
+    // Ignore if clicking a resize handle
+    if(e.target.classList.contains('resize-handle')) return;
+    // Ignore if in text edit mode
+    if(div.dataset.editing) return;
+    // Ignore right-click
+    if(e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    selectEl(el.id);
+    _drag = { el, div, startX: e.clientX, startY: e.clientY, origX: el.x, origY: el.y };
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'move';
+  });
+}
+
+// Called for each resize handle
+function attachResize(handleDiv, div, el, direction){
+  handleDiv.addEventListener('mousedown', e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    selectEl(el.id);
+    _resize = {
+      el, div, handle: direction,
+      startX: e.clientX, startY: e.clientY,
+      origX: el.x, origY: el.y, origW: el.w, origH: el.h
+    };
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = getattr(direction);
+  });
+}
+
+function getattr(d){
+  const map={nw:'nw-resize',n:'n-resize',ne:'ne-resize',w:'w-resize',e:'e-resize',sw:'sw-resize',s:'s-resize',se:'se-resize'};
+  return map[d]||'se-resize';
+}
+
+// Direction codes for handles
+const HANDLE_DIRS = {
+  'rh-tl':'nw','rh-tc':'n','rh-tr':'ne',
+  'rh-ml':'w',             'rh-mr':'e',
+  'rh-bl':'sw','rh-bc':'s','rh-br':'se'
+};
+
+// ── Attach drag + resize to a rendered element ──
 function attachInteract(div, el){
-  interact(div)
-    .draggable({
-      inertia: false,
-      autoScroll: { container: document.getElementById('canvasScroll'), margin:50, speed:300 },
-      listeners:{
-        start(){ selectEl(el.id); },
-        move(e){
-          if(el.locked) return;
-          if(div.dataset.editing) return;  // don't drag while editing text
-          el.x = Math.round(el.x + e.dx / zoom);
-          el.y = Math.round(Math.max(0, el.y + e.dy / zoom));
-          div.style.left = el.x+'px';
-          div.style.top  = el.y+'px';
-          positionFloatbar(div);
-        },
-        end(){ pushHistory(); updateRightPanel(); }
-      }
-    })
-    .resizable({
-      edges:{
-        left:  '.rh-ml, .rh-tl, .rh-bl',
-        right: '.rh-mr, .rh-tr, .rh-br',
-        top:   '.rh-tc, .rh-tl, .rh-tr',
-        bottom:'.rh-bc, .rh-bl, .rh-br'
-      },
-      listeners:{
-        start(){ selectEl(el.id); },
-        move(e){
-          if(el.locked) return;
-          // deltaRect gives us change in each edge
-          el.w = Math.round(Math.max(30, el.w + e.deltaRect.width  / zoom));
-          el.h = Math.round(Math.max(20, el.h + e.deltaRect.height / zoom));
-          el.x = Math.round(el.x + e.deltaRect.left / zoom);
-          el.y = Math.round(Math.max(0, el.y + e.deltaRect.top / zoom));
-          div.style.width  = el.w+'px';
-          div.style.height = el.h+'px';
-          div.style.left   = el.x+'px';
-          div.style.top    = el.y+'px';
-          positionFloatbar(div);
-        },
-        end(){ pushHistory(); updateRightPanel(); }
-      },
-      modifiers:[interact.modifiers.restrictSize({min:{width:30, height:20}})]
-    });
+  attachDrag(div, el);
+  div.querySelectorAll('.resize-handle').forEach(h => {
+    const cls = Array.from(h.classList).find(c => HANDLE_DIRS[c]);
+    if(cls) attachResize(h, div, el, HANDLE_DIRS[cls]);
+  });
 }
 
 // ── Drop from panel ──
