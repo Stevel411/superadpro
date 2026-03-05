@@ -92,12 +92,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
 .ecard:active{cursor:grabbing}
 .ei{font-size:22px;line-height:1}
 .en{font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--text2)}
-.scard{background:var(--panel2);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;margin-bottom:8px;transition:all .12s}
-.scard:hover{border-color:rgba(59,130,246,.35);transform:translateY(-1px)}
-.sthumb{height:68px;display:flex;align-items:center;padding:10px 14px}
-.smeta{padding:8px 12px}
+.scard{background:var(--panel2);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;margin-bottom:10px;transition:all .14s}
+.scard:hover{border-color:rgba(59,130,246,.45);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.sthumb{display:flex;overflow:hidden}
+.smeta{padding:9px 12px;border-top:1px solid var(--border)}
 .sn{font-size:12px;font-weight:700;color:var(--text)}
-.sd{font-size:10px;color:var(--text3);margin-top:1px}
+.sd{font-size:10px;color:var(--text3);margin-top:2px}
 .litem{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;cursor:pointer;transition:all .11s}
 .litem:hover{background:rgba(255,255,255,.04)}
 .litem.sel{background:rgba(59,130,246,.1);color:var(--blue2)}
@@ -377,39 +377,66 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
       <div class="ph"><span class="ph-title">Sections</span><button class="ph-x" onclick="closePanel()">✕</button></div>
       <div class="pb">
         <div class="cat">Heroes</div>
+
+        <!-- DARK HERO -->
         <div class="scard" onclick="addSection('dark-hero')">
-          <div class="sthumb" style="background:linear-gradient(135deg,#050d1a,#0c1628);flex-direction:column;gap:5px;align-items:flex-start">
-            <div style="height:7px;background:rgba(255,255,255,.8);border-radius:2px;width:55%"></div>
-            <div style="height:4px;background:rgba(255,255,255,.3);border-radius:2px;width:75%"></div>
-            <div style="height:13px;background:linear-gradient(90deg,#2563eb,#60a5fa);border-radius:5px;width:38%;margin-top:4px"></div>
+          <div class="sthumb" style="background:linear-gradient(135deg,#050d1a,#0c1628);padding:12px 14px;flex-direction:column;gap:6px;align-items:flex-start;height:90px;justify-content:center">
+            <div style="font-size:9px;font-weight:900;color:#fff;font-family:'Sora',sans-serif;letter-spacing:-.2px;line-height:1.2;max-width:120px">Build Real Passive Income Today</div>
+            <div style="font-size:6px;color:#94a3b8;max-width:140px;line-height:1.3">Join thousands earning commissions on autopilot.</div>
+            <div style="height:13px;background:linear-gradient(90deg,#2563eb,#6366f1);border-radius:5px;width:60px;margin-top:2px;display:flex;align-items:center;justify-content:center">
+              <span style="font-size:5px;font-weight:900;color:#fff;letter-spacing:.3px">GET STARTED →</span>
+            </div>
           </div>
           <div class="smeta"><div class="sn">Dark Hero</div><div class="sd">Full-width dark headline + CTA</div></div>
         </div>
+
+        <!-- LIGHT HERO -->
         <div class="scard" onclick="addSection('light-hero')">
-          <div class="sthumb" style="background:#fff;flex-direction:column;gap:5px;align-items:flex-start">
-            <div style="height:7px;background:#1e293b;border-radius:2px;width:55%"></div>
-            <div style="height:4px;background:#94a3b8;border-radius:2px;width:75%"></div>
-            <div style="height:13px;background:#2563eb;border-radius:5px;width:38%;margin-top:4px"></div>
+          <div class="sthumb" style="background:#f8fafc;padding:12px 14px;flex-direction:column;gap:6px;align-items:flex-start;height:90px;justify-content:center;border-bottom:1px solid #e2e8f0">
+            <div style="font-size:9px;font-weight:900;color:#0f172a;font-family:'Sora',sans-serif;letter-spacing:-.2px;line-height:1.2;max-width:130px">The Smarter Way to Build Online Income</div>
+            <div style="font-size:6px;color:#64748b;max-width:150px;line-height:1.3">Start earning with our proven commission system.</div>
+            <div style="height:13px;background:#2563eb;border-radius:5px;width:50px;margin-top:2px;display:flex;align-items:center;justify-content:center">
+              <span style="font-size:5px;font-weight:900;color:#fff;letter-spacing:.3px">CLICK HERE</span>
+            </div>
           </div>
           <div class="smeta"><div class="sn">Light Hero</div><div class="sd">Clean white headline + CTA</div></div>
         </div>
+
         <div class="cat">Lead Gen</div>
+
+        <!-- OPT-IN FORM -->
         <div class="scard" onclick="addSection('optin')">
-          <div class="sthumb" style="background:linear-gradient(135deg,#050d1a,#0c1628);flex-direction:column;gap:5px;align-items:center">
-            <div style="height:6px;background:rgba(255,255,255,.7);border-radius:2px;width:50%"></div>
-            <div style="height:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:4px;width:80%"></div>
-            <div style="height:11px;background:linear-gradient(90deg,#2563eb,#60a5fa);border-radius:4px;width:80%"></div>
+          <div class="sthumb" style="background:linear-gradient(135deg,#050d1a,#0c1628);padding:10px 14px;flex-direction:column;gap:5px;align-items:center;height:90px;justify-content:center">
+            <div style="font-size:8px;font-weight:900;color:#fff;font-family:'Sora',sans-serif;text-align:center;letter-spacing:-.1px">Get Instant Access — Free</div>
+            <div style="width:110px;display:flex;flex-direction:column;gap:3px;margin-top:2px">
+              <div style="height:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:3px;width:100%;display:flex;align-items:center;padding:0 5px">
+                <span style="font-size:5px;color:rgba(255,255,255,.4)">Your Name</span>
+              </div>
+              <div style="height:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:3px;width:100%;display:flex;align-items:center;padding:0 5px">
+                <span style="font-size:5px;color:rgba(255,255,255,.4)">Email Address</span>
+              </div>
+              <div style="height:10px;background:linear-gradient(90deg,#2563eb,#60a5fa);border-radius:3px;width:100%;display:flex;align-items:center;justify-content:center">
+                <span style="font-size:5px;font-weight:900;color:#fff">Get Instant Access →</span>
+              </div>
+            </div>
           </div>
           <div class="smeta"><div class="sn">Opt-In Form</div><div class="sd">Name + email capture</div></div>
         </div>
+
         <div class="cat">CTA</div>
+
+        <!-- CTA BANNER -->
         <div class="scard" onclick="addSection('cta-banner')">
-          <div class="sthumb" style="background:linear-gradient(135deg,#1d4ed8,#6366f1);flex-direction:column;gap:5px;align-items:center">
-            <div style="height:6px;background:rgba(255,255,255,.85);border-radius:2px;width:50%"></div>
-            <div style="height:13px;background:rgba(255,255,255,.85);border-radius:5px;width:34%;margin-top:4px"></div>
+          <div class="sthumb" style="background:linear-gradient(135deg,#1d4ed8,#6366f1);padding:12px 14px;flex-direction:column;gap:6px;align-items:center;height:90px;justify-content:center">
+            <div style="font-size:9px;font-weight:900;color:#fff;font-family:'Sora',sans-serif;text-align:center;letter-spacing:-.2px">Ready to Start Earning?</div>
+            <div style="font-size:6px;color:rgba(255,255,255,.75);text-align:center;max-width:130px;line-height:1.3">Join today and start earning commissions.</div>
+            <div style="height:14px;background:rgba(255,255,255,.95);border-radius:5px;width:70px;display:flex;align-items:center;justify-content:center;margin-top:2px">
+              <span style="font-size:5px;font-weight:900;color:#2563eb;letter-spacing:.3px">GET STARTED FREE →</span>
+            </div>
           </div>
           <div class="smeta"><div class="sn">CTA Banner</div><div class="sd">Gradient call-to-action</div></div>
         </div>
+
       </div>
     </div>
     <!-- LAYERS -->
