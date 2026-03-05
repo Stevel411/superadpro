@@ -409,65 +409,139 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
     <div id="p-sections" style="display:none;flex-direction:column;height:100%">
       <div class="ph"><span class="ph-title">Sections</span><button class="ph-x" onclick="closePanel()">✕</button></div>
       <div class="pb">
+
         <div class="cat">Heroes</div>
 
-        <!-- DARK HERO -->
         <div class="scard" onclick="addSection('dark-hero')">
-          <div class="sthumb" style="background:linear-gradient(135deg,#050d1a,#0c1628);padding:12px 14px;flex-direction:column;gap:6px;align-items:flex-start;height:90px;justify-content:center">
-            <div style="font-size:9px;font-weight:900;color:#fff;font-family:'Sora',sans-serif;letter-spacing:-.2px;line-height:1.2;max-width:120px">Build Real Passive Income Today</div>
-            <div style="font-size:6px;color:#94a3b8;max-width:140px;line-height:1.3">Join thousands earning commissions on autopilot.</div>
-            <div style="height:13px;background:linear-gradient(90deg,#2563eb,#6366f1);border-radius:5px;width:60px;margin-top:2px;display:flex;align-items:center;justify-content:center">
-              <span style="font-size:5px;font-weight:900;color:#fff;letter-spacing:.3px">GET STARTED →</span>
-            </div>
+          <div class="sthumb" style="background:linear-gradient(135deg,#050d1a,#0c1628);padding:12px 14px;flex-direction:column;gap:5px;align-items:flex-start;height:88px;justify-content:center">
+            <div style="font-size:9px;font-weight:900;color:#fff;font-family:'Sora',sans-serif;line-height:1.2;max-width:140px">Build Real Passive Income Starting Today</div>
+            <div style="font-size:6px;color:#94a3b8;max-width:150px;line-height:1.3">Join thousands earning on autopilot.</div>
+            <div style="height:12px;background:linear-gradient(90deg,#2563eb,#6366f1);border-radius:4px;width:64px;display:flex;align-items:center;justify-content:center;margin-top:2px"><span style="font-size:5px;font-weight:900;color:#fff">GET STARTED →</span></div>
           </div>
-          <div class="smeta"><div class="sn">Dark Hero</div><div class="sd">Full-width dark headline + CTA</div></div>
+          <div class="smeta"><div class="sn">Dark Hero</div><div class="sd">Dark background · headline · subtext · CTA</div></div>
         </div>
 
-        <!-- LIGHT HERO -->
         <div class="scard" onclick="addSection('light-hero')">
-          <div class="sthumb" style="background:#f8fafc;padding:12px 14px;flex-direction:column;gap:6px;align-items:flex-start;height:90px;justify-content:center;border-bottom:1px solid #e2e8f0">
-            <div style="font-size:9px;font-weight:900;color:#0f172a;font-family:'Sora',sans-serif;letter-spacing:-.2px;line-height:1.2;max-width:130px">The Smarter Way to Build Online Income</div>
-            <div style="font-size:6px;color:#64748b;max-width:150px;line-height:1.3">Start earning with our proven commission system.</div>
-            <div style="height:13px;background:#2563eb;border-radius:5px;width:50px;margin-top:2px;display:flex;align-items:center;justify-content:center">
-              <span style="font-size:5px;font-weight:900;color:#fff;letter-spacing:.3px">CLICK HERE</span>
+          <div class="sthumb" style="background:#f8fafc;padding:12px 14px;flex-direction:column;gap:5px;align-items:flex-start;height:88px;justify-content:center;border-bottom:1px solid #e2e8f0">
+            <div style="font-size:9px;font-weight:900;color:#0f172a;font-family:'Sora',sans-serif;line-height:1.2;max-width:140px">The Smarter Way to Earn Online</div>
+            <div style="font-size:6px;color:#64748b;max-width:150px;line-height:1.3">Start earning with our proven system.</div>
+            <div style="height:12px;background:#2563eb;border-radius:4px;width:52px;display:flex;align-items:center;justify-content:center;margin-top:2px"><span style="font-size:5px;font-weight:900;color:#fff">CLICK HERE</span></div>
+          </div>
+          <div class="smeta"><div class="sn">Light Hero</div><div class="sd">Clean white · headline · subtext · button</div></div>
+        </div>
+
+        <div class="scard" onclick="addSection('gradient-hero')">
+          <div class="sthumb" style="background:linear-gradient(135deg,#1d4ed8,#7c3aed,#db2777);padding:12px 14px;flex-direction:column;gap:5px;align-items:center;height:88px;justify-content:center">
+            <div style="font-size:9px;font-weight:900;color:#fff;font-family:'Sora',sans-serif;text-align:center;line-height:1.2;max-width:140px">Your Income. Your Freedom.</div>
+            <div style="font-size:6px;color:rgba(255,255,255,.8);text-align:center;max-width:130px;line-height:1.3">Start your journey today.</div>
+            <div style="height:12px;background:rgba(255,255,255,.95);border-radius:4px;width:64px;display:flex;align-items:center;justify-content:center;margin-top:2px"><span style="font-size:5px;font-weight:900;color:#7c3aed">GET STARTED →</span></div>
+          </div>
+          <div class="smeta"><div class="sn">Gradient Hero</div><div class="sd">Bold colour gradient · centred layout</div></div>
+        </div>
+
+        <div class="scard" onclick="addSection('video-hero')">
+          <div class="sthumb" style="background:#0f172a;padding:12px 14px;flex-direction:row;gap:10px;align-items:center;height:88px;justify-content:flex-start">
+            <div style="width:70px;height:44px;background:#1e293b;border-radius:5px;border:1px solid #334155;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <div style="width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:14px solid #3b82f6;margin-left:2px"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:8px;font-weight:900;color:#fff;font-family:'Sora',sans-serif;line-height:1.2">Watch This First</div>
+              <div style="font-size:6px;color:#94a3b8;line-height:1.3;max-width:100px">See how members earn daily.</div>
+              <div style="height:11px;background:linear-gradient(90deg,#2563eb,#6366f1);border-radius:3px;width:52px;display:flex;align-items:center;justify-content:center"><span style="font-size:5px;font-weight:900;color:#fff">JOIN NOW</span></div>
             </div>
           </div>
-          <div class="smeta"><div class="sn">Light Hero</div><div class="sd">Clean white headline + CTA</div></div>
+          <div class="smeta"><div class="sn">Video Hero</div><div class="sd">Video embed · headline · CTA beside</div></div>
         </div>
 
         <div class="cat">Lead Gen</div>
 
-        <!-- OPT-IN FORM -->
         <div class="scard" onclick="addSection('optin')">
-          <div class="sthumb" style="background:linear-gradient(135deg,#050d1a,#0c1628);padding:10px 14px;flex-direction:column;gap:5px;align-items:center;height:90px;justify-content:center">
-            <div style="font-size:8px;font-weight:900;color:#fff;font-family:'Sora',sans-serif;text-align:center;letter-spacing:-.1px">Get Instant Access — Free</div>
-            <div style="width:110px;display:flex;flex-direction:column;gap:3px;margin-top:2px">
-              <div style="height:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:3px;width:100%;display:flex;align-items:center;padding:0 5px">
-                <span style="font-size:5px;color:rgba(255,255,255,.4)">Your Name</span>
-              </div>
-              <div style="height:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:3px;width:100%;display:flex;align-items:center;padding:0 5px">
-                <span style="font-size:5px;color:rgba(255,255,255,.4)">Email Address</span>
-              </div>
-              <div style="height:10px;background:linear-gradient(90deg,#2563eb,#60a5fa);border-radius:3px;width:100%;display:flex;align-items:center;justify-content:center">
-                <span style="font-size:5px;font-weight:900;color:#fff">Get Instant Access →</span>
-              </div>
+          <div class="sthumb" style="background:linear-gradient(135deg,#050d1a,#0c1628);padding:10px 14px;flex-direction:column;gap:4px;align-items:center;height:88px;justify-content:center">
+            <div style="font-size:8px;font-weight:900;color:#fff;font-family:'Sora',sans-serif;text-align:center">Get Instant Access — Free</div>
+            <div style="width:110px;display:flex;flex-direction:column;gap:3px;margin-top:3px">
+              <div style="height:9px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:3px;display:flex;align-items:center;padding:0 5px"><span style="font-size:5px;color:rgba(255,255,255,.35)">Your Name</span></div>
+              <div style="height:9px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:3px;display:flex;align-items:center;padding:0 5px"><span style="font-size:5px;color:rgba(255,255,255,.35)">Email Address</span></div>
+              <div style="height:9px;background:linear-gradient(90deg,#2563eb,#60a5fa);border-radius:3px;display:flex;align-items:center;justify-content:center"><span style="font-size:5px;font-weight:900;color:#fff">Get Instant Access →</span></div>
             </div>
           </div>
-          <div class="smeta"><div class="sn">Opt-In Form</div><div class="sd">Name + email capture</div></div>
+          <div class="smeta"><div class="sn">Opt-In Form</div><div class="sd">Headline · name + email · submit</div></div>
+        </div>
+
+        <div class="scard" onclick="addSection('optin-light')">
+          <div class="sthumb" style="background:#fff;padding:10px 14px;flex-direction:column;gap:4px;align-items:center;height:88px;justify-content:center;border-bottom:1px solid #e2e8f0">
+            <div style="font-size:8px;font-weight:900;color:#0f172a;font-family:'Sora',sans-serif;text-align:center">Join Free Today</div>
+            <div style="width:110px;display:flex;flex-direction:column;gap:3px;margin-top:3px">
+              <div style="height:9px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:3px;display:flex;align-items:center;padding:0 5px"><span style="font-size:5px;color:#94a3b8">Your Name</span></div>
+              <div style="height:9px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:3px;display:flex;align-items:center;padding:0 5px"><span style="font-size:5px;color:#94a3b8">Email Address</span></div>
+              <div style="height:9px;background:#2563eb;border-radius:3px;display:flex;align-items:center;justify-content:center"><span style="font-size:5px;font-weight:900;color:#fff">Get Instant Access →</span></div>
+            </div>
+          </div>
+          <div class="smeta"><div class="sn">Light Opt-In</div><div class="sd">White card · clean form layout</div></div>
+        </div>
+
+        <div class="cat">Social Proof</div>
+
+        <div class="scard" onclick="addSection('testimonials')">
+          <div class="sthumb" style="background:#f8fafc;padding:10px 14px;flex-direction:column;gap:5px;align-items:flex-start;height:88px;justify-content:center;border-bottom:1px solid #e2e8f0">
+            <div style="font-size:7px;color:#f59e0b">★★★★★</div>
+            <div style="font-size:6px;color:#374151;font-style:italic;max-width:160px;line-height:1.4">"This changed everything for me. First commission in 48 hours!"</div>
+            <div style="font-size:5px;font-weight:700;color:#94a3b8">— Sarah M., Member</div>
+          </div>
+          <div class="smeta"><div class="sn">Testimonial</div><div class="sd">Star rating · quote · attribution</div></div>
+        </div>
+
+        <div class="scard" onclick="addSection('stats')">
+          <div class="sthumb" style="background:#050d1a;padding:10px 14px;flex-direction:row;gap:8px;align-items:center;height:88px;justify-content:center">
+            <div style="text-align:center"><div style="font-size:13px;font-weight:900;color:#38bdf8;font-family:'Sora',sans-serif">2,400+</div><div style="font-size:5px;color:#94a3b8;letter-spacing:.5px;margin-top:1px">MEMBERS</div></div>
+            <div style="width:1px;height:30px;background:rgba(255,255,255,.1)"></div>
+            <div style="text-align:center"><div style="font-size:13px;font-weight:900;color:#22c55e;font-family:'Sora',sans-serif">$4.2M</div><div style="font-size:5px;color:#94a3b8;letter-spacing:.5px;margin-top:1px">PAID OUT</div></div>
+            <div style="width:1px;height:30px;background:rgba(255,255,255,.1)"></div>
+            <div style="text-align:center"><div style="font-size:13px;font-weight:900;color:#f59e0b;font-family:'Sora',sans-serif">98%</div><div style="font-size:5px;color:#94a3b8;letter-spacing:.5px;margin-top:1px">RETENTION</div></div>
+          </div>
+          <div class="smeta"><div class="sn">Stats Row</div><div class="sd">3 key numbers · dark background</div></div>
         </div>
 
         <div class="cat">CTA</div>
 
-        <!-- CTA BANNER -->
         <div class="scard" onclick="addSection('cta-banner')">
-          <div class="sthumb" style="background:linear-gradient(135deg,#1d4ed8,#6366f1);padding:12px 14px;flex-direction:column;gap:6px;align-items:center;height:90px;justify-content:center">
-            <div style="font-size:9px;font-weight:900;color:#fff;font-family:'Sora',sans-serif;text-align:center;letter-spacing:-.2px">Ready to Start Earning?</div>
+          <div class="sthumb" style="background:linear-gradient(135deg,#1d4ed8,#6366f1);padding:12px 14px;flex-direction:column;gap:5px;align-items:center;height:88px;justify-content:center">
+            <div style="font-size:9px;font-weight:900;color:#fff;font-family:'Sora',sans-serif;text-align:center">Ready to Start Earning?</div>
             <div style="font-size:6px;color:rgba(255,255,255,.75);text-align:center;max-width:130px;line-height:1.3">Join today and start earning commissions.</div>
-            <div style="height:14px;background:rgba(255,255,255,.95);border-radius:5px;width:70px;display:flex;align-items:center;justify-content:center;margin-top:2px">
-              <span style="font-size:5px;font-weight:900;color:#2563eb;letter-spacing:.3px">GET STARTED FREE →</span>
+            <div style="height:12px;background:rgba(255,255,255,.95);border-radius:4px;width:70px;display:flex;align-items:center;justify-content:center;margin-top:2px"><span style="font-size:5px;font-weight:900;color:#2563eb">GET STARTED FREE →</span></div>
+          </div>
+          <div class="smeta"><div class="sn">CTA Banner</div><div class="sd">Blue gradient · centred CTA</div></div>
+        </div>
+
+        <div class="scard" onclick="addSection('cta-green')">
+          <div class="sthumb" style="background:linear-gradient(135deg,#065f46,#047857);padding:12px 14px;flex-direction:column;gap:5px;align-items:center;height:88px;justify-content:center">
+            <div style="font-size:9px;font-weight:900;color:#fff;font-family:'Sora',sans-serif;text-align:center">Claim Your Position Now</div>
+            <div style="font-size:6px;color:rgba(255,255,255,.75);text-align:center;max-width:130px;line-height:1.3">Limited positions available.</div>
+            <div style="height:12px;background:#22c55e;border-radius:4px;width:70px;display:flex;align-items:center;justify-content:center;margin-top:2px"><span style="font-size:5px;font-weight:900;color:#fff">CLAIM NOW →</span></div>
+          </div>
+          <div class="smeta"><div class="sn">Green CTA</div><div class="sd">Urgency · dark green · bright button</div></div>
+        </div>
+
+        <div class="cat">Content</div>
+
+        <div class="scard" onclick="addSection('features')">
+          <div class="sthumb" style="background:#fff;padding:10px 14px;flex-direction:column;gap:5px;align-items:flex-start;height:88px;justify-content:center;border-bottom:1px solid #e2e8f0">
+            <div style="font-size:8px;font-weight:900;color:#0f172a;font-family:'Sora',sans-serif">Everything You Need to Succeed</div>
+            <div style="display:flex;flex-direction:column;gap:3px;margin-top:2px">
+              <div style="display:flex;gap:4px;align-items:center"><div style="width:6px;height:6px;background:#2563eb;border-radius:50%;flex-shrink:0"></div><span style="font-size:6px;color:#374151">AI Marketing Tools included</span></div>
+              <div style="display:flex;gap:4px;align-items:center"><div style="width:6px;height:6px;background:#22c55e;border-radius:50%;flex-shrink:0"></div><span style="font-size:6px;color:#374151">Automated commission system</span></div>
+              <div style="display:flex;gap:4px;align-items:center"><div style="width:6px;height=6px;background:#f59e0b;border-radius:50%;flex-shrink:0"></div><span style="font-size:6px;color:#374151">Full training & support</span></div>
             </div>
           </div>
-          <div class="smeta"><div class="sn">CTA Banner</div><div class="sd">Gradient call-to-action</div></div>
+          <div class="smeta"><div class="sn">Features List</div><div class="sd">Headline · bullet benefits</div></div>
+        </div>
+
+        <div class="scard" onclick="addSection('divider-section')">
+          <div class="sthumb" style="background:#f8fafc;padding:12px 14px;flex-direction:column;gap:6px;align-items:center;height:88px;justify-content:center;border-bottom:1px solid #e2e8f0">
+            <div style="width:100%;height:1px;background:#e2e8f0"></div>
+            <div style="font-size:7px;font-weight:700;color:#94a3b8;letter-spacing:1px;text-transform:uppercase">Section Break</div>
+            <div style="width:100%;height:1px;background:#e2e8f0"></div>
+          </div>
+          <div class="smeta"><div class="sn">Divider</div><div class="sd">Spacer with label text</div></div>
         </div>
 
       </div>
@@ -942,33 +1016,104 @@ function addEl(type,x,y){
 
 // ── Add section ──
 function addSection(type){
-  const bot= els.length? Math.max(...els.map(e=>e.y+e.h))+30 : 30;
+  const bot = els.length ? Math.max(...els.map(e=>e.y+e.h))+40 : 40;
   const batch=[];
+  const add=(e)=>{ els.push(e); drawEl(e); batch.push(e); };
+
   if(type==='dark-hero'){
-    const bg=mkEl('box',0,bot); bg.w=cW; bg.h=360; bg.s={backgroundColor:'#050d1a',backgroundImage:'linear-gradient(135deg,#050d1a,#0c1628)',borderRadius:'0',border:'none'};
-    const h=mkEl('heading',80,bot+50); h.s={...h.s,color:'#fff',fontSize:'46px'}; h.txt='Build Real Passive Income<br>Starting Today';
-    const p=mkEl('text',80,bot+130); p.s={...p.s,color:'#94a3b8'}; p.txt='Join thousands of members earning commissions on autopilot.';
-    const b=mkEl('cta',80,bot+220);
-    [bg,h,p,b].forEach(e=>{els.push(e);drawEl(e);batch.push(e);});
+    const bg=mkEl('box',0,bot); bg.w=cW; bg.h=380; bg.s={backgroundColor:'#050d1a',backgroundImage:'linear-gradient(135deg,#050d1a,#0c1628)',borderRadius:'0',border:'none'};
+    const h=mkEl('heading',80,bot+60); h.w=800; h.txt='Build Real Passive Income<br>Starting Today'; h.s={...h.s,color:'#fff',fontSize:'48px',lineHeight:'1.15'};
+    const p=mkEl('text',80,bot+175); p.w=600; p.txt='Join thousands of members earning commissions on autopilot with our proven system.'; p.s={...p.s,color:'#94a3b8',fontSize:'18px'};
+    const b=mkEl('cta',80,bot+270);
+    [bg,h,p,b].forEach(add);
+
   } else if(type==='light-hero'){
-    const h=mkEl('heading',80,bot+40); h.txt='The Smarter Way to Build Online Income';
-    const p=mkEl('text',80,bot+120); p.s={...p.s,color:'#64748b'};
-    const b=mkEl('button',80,bot+210);
-    [h,p,b].forEach(e=>{els.push(e);drawEl(e);batch.push(e);});
+    const bg=mkEl('box',0,bot); bg.w=cW; bg.h=380; bg.s={backgroundColor:'#f8fafc',borderRadius:'0',border:'none'};
+    const h=mkEl('heading',80,bot+60); h.w=800; h.txt='The Smarter Way to Build Online Income'; h.s={...h.s,color:'#0f172a',fontSize:'48px',lineHeight:'1.15'};
+    const p=mkEl('text',80,bot+175); p.w=600; p.txt='Start earning with our proven commission system. No experience needed.'; p.s={...p.s,color:'#64748b',fontSize:'18px'};
+    const b=mkEl('button',80,bot+270);
+    [bg,h,p,b].forEach(add);
+
+  } else if(type==='gradient-hero'){
+    const bg=mkEl('box',0,bot); bg.w=cW; bg.h=420; bg.s={backgroundImage:'linear-gradient(135deg,#1d4ed8,#7c3aed,#db2777)',borderRadius:'0',border:'none'};
+    const h=mkEl('heading',100,bot+80); h.w=cW-200; h.txt='Your Income. Your Freedom.<br>Your Time.'; h.s={...h.s,color:'#fff',fontSize:'52px',textAlign:'center',lineHeight:'1.15'};
+    const p=mkEl('text',200,bot+215); p.w=cW-400; p.txt='One membership. Unlimited earning potential. Start your journey today.'; p.s={...p.s,color:'rgba(255,255,255,0.85)',fontSize:'18px',textAlign:'center'};
+    const b=mkEl('cta',(cW/2)-115,bot+310); b.s={...b.s,backgroundColor:'rgba(255,255,255,0.95)',color:'#7c3aed',backgroundImage:'none'};
+    [bg,h,p,b].forEach(add);
+
+  } else if(type==='video-hero'){
+    const bg=mkEl('box',0,bot); bg.w=cW; bg.h=500; bg.s={backgroundColor:'#0f172a',borderRadius:'0',border:'none'};
+    const h=mkEl('heading',80,bot+50); h.w=480; h.txt='Watch This First'; h.s={...h.s,color:'#fff',fontSize:'42px'};
+    const p=mkEl('text',80,bot+130); p.w=460; p.txt='See exactly how our members earn daily commissions — even while they sleep.'; p.s={...p.s,color:'#94a3b8',fontSize:'16px'};
+    const b=mkEl('cta',80,bot+240);
+    const v=mkEl('video',600,bot+50); v.w=500; v.h=310; v.txt='https://www.youtube.com/embed/dQw4w9WgXcQ'; v.s={...v.s,borderRadius:'12px'};
+    [bg,h,p,b,v].forEach(add);
+
   } else if(type==='optin'){
-    const h=mkEl('heading',100,bot+30); h.s={...h.s,textAlign:'center',fontSize:'32px'}; h.txt='Get Instant Access — Free';
-    const f=mkEl('form',  (cW/2)-170, bot+100);
-    [h,f].forEach(e=>{els.push(e);drawEl(e);batch.push(e);});
+    const bg=mkEl('box',0,bot); bg.w=cW; bg.h=400; bg.s={backgroundImage:'linear-gradient(135deg,#050d1a,#0c1628)',borderRadius:'0',border:'none'};
+    const h=mkEl('heading',100,bot+50); h.w=cW-200; h.s={...h.s,color:'#fff',textAlign:'center',fontSize:'36px'}; h.txt='Get Instant Access — Free';
+    const p=mkEl('text',200,bot+130); p.w=cW-400; p.txt='Enter your details below and we\'ll send you everything you need to get started.'; p.s={...p.s,color:'#94a3b8',textAlign:'center',fontSize:'15px'};
+    const f=mkEl('form',(cW/2)-190,bot+200); f.w=380; f.h=160;
+    [bg,h,p,f].forEach(add);
+
+  } else if(type==='optin-light'){
+    const bg=mkEl('box',0,bot); bg.w=cW; bg.h=400; bg.s={backgroundColor:'#ffffff',borderRadius:'0',border:'none'};
+    const h=mkEl('heading',100,bot+50); h.w=cW-200; h.s={...h.s,color:'#0f172a',textAlign:'center',fontSize:'36px'}; h.txt='Join Free Today';
+    const p=mkEl('text',200,bot+130); p.w=cW-400; p.txt='Enter your details and get instant access to everything inside.'; p.s={...p.s,color:'#64748b',textAlign:'center',fontSize:'15px'};
+    const f=mkEl('form',(cW/2)-190,bot+200); f.w=380; f.h=160;
+    [bg,h,p,f].forEach(add);
+
+  } else if(type==='testimonials'){
+    const bg=mkEl('box',0,bot); bg.w=cW; bg.h=300; bg.s={backgroundColor:'#f8fafc',borderRadius:'0',border:'none'};
+    const h=mkEl('heading',80,bot+40); h.w=cW-160; h.s={...h.s,color:'#0f172a',textAlign:'center',fontSize:'32px'}; h.txt='What Our Members Are Saying';
+    const r1=mkEl('review',80,bot+130); r1.w=320; r1.h=120;
+    const r2=mkEl('review',440,bot+130); r2.w=320; r2.h=120;
+    const r3=mkEl('review',800,bot+130); r3.w=320; r3.h=120;
+    [bg,h,r1,r2,r3].forEach(add);
+
+  } else if(type==='stats'){
+    const bg=mkEl('box',0,bot); bg.w=cW; bg.h=240; bg.s={backgroundColor:'#050d1a',borderRadius:'0',border:'none'};
+    const h=mkEl('heading',80,bot+30); h.w=cW-160; h.s={...h.s,color:'#fff',textAlign:'center',fontSize:'28px'}; h.txt='The Numbers Speak for Themselves';
+    const s1=mkEl('stat',120,bot+110); s1.w=260; s1.h=100;
+    const s2=mkEl('stat',470,bot+110); s2.w=260; s2.h=100;
+    const s3=mkEl('stat',820,bot+110); s3.w=260; s3.h=100;
+    [bg,h,s1,s2,s3].forEach(add);
+
   } else if(type==='cta-banner'){
-    const bg=mkEl('box',0,bot); bg.w=cW; bg.h=220; bg.s={backgroundImage:'linear-gradient(135deg,#1d4ed8,#6366f1)',borderRadius:'0',border:'none'};
-    const h=mkEl('heading',100,bot+50); h.s={...h.s,color:'#fff',textAlign:'center'}; h.w=cW-200; h.txt='Ready to Start Earning?';
-    const b=mkEl('cta',(cW/2)-115,bot+130);
-    [bg,h,b].forEach(e=>{els.push(e);drawEl(e);batch.push(e);});
+    const bg=mkEl('box',0,bot); bg.w=cW; bg.h=260; bg.s={backgroundImage:'linear-gradient(135deg,#1d4ed8,#6366f1)',borderRadius:'0',border:'none'};
+    const h=mkEl('heading',100,bot+50); h.w=cW-200; h.s={...h.s,color:'#fff',textAlign:'center',fontSize:'38px'}; h.txt='Ready to Start Earning?';
+    const p=mkEl('text',250,bot+130); p.w=700; p.txt='Join thousands of members already earning passive income.'; p.s={...p.s,color:'rgba(255,255,255,0.8)',textAlign:'center',fontSize:'16px'};
+    const b=mkEl('cta',(cW/2)-115,bot+185); b.s={...b.s,backgroundColor:'rgba(255,255,255,0.95)',color:'#1d4ed8',backgroundImage:'none'};
+    [bg,h,p,b].forEach(add);
+
+  } else if(type==='cta-green'){
+    const bg=mkEl('box',0,bot); bg.w=cW; bg.h=260; bg.s={backgroundImage:'linear-gradient(135deg,#065f46,#047857)',borderRadius:'0',border:'none'};
+    const h=mkEl('heading',100,bot+45); h.w=cW-200; h.s={...h.s,color:'#fff',textAlign:'center',fontSize:'38px'}; h.txt='Claim Your Position Now';
+    const p=mkEl('text',250,bot+130); p.w=700; p.txt='Limited positions available. Secure your spot before it fills.'; p.s={...p.s,color:'rgba(255,255,255,0.8)',textAlign:'center',fontSize:'16px'};
+    const b=mkEl('cta',(cW/2)-115,bot+185); b.s={...b.s,backgroundColor:'#22c55e',backgroundImage:'none',boxShadow:'0 6px 20px rgba(34,197,94,.4)'}; b.txt='Claim Now →';
+    [bg,h,p,b].forEach(add);
+
+  } else if(type==='features'){
+    const bg=mkEl('box',0,bot); bg.w=cW; bg.h=360; bg.s={backgroundColor:'#ffffff',borderRadius:'0',border:'none'};
+    const h=mkEl('heading',80,bot+40); h.w=cW-160; h.s={...h.s,color:'#0f172a',textAlign:'center',fontSize:'34px'}; h.txt='Everything You Need to Succeed';
+    const f1=mkEl('text',80,bot+140); f1.w=300; f1.h=80; f1.txt='✅ AI Marketing Tools'; f1.s={...f1.s,color:'#0f172a',fontSize:'18px',fontWeight:'700'};
+    const f2=mkEl('text',450,bot+140); f2.w=300; f2.h=80; f2.txt='✅ Automated Commissions'; f2.s={...f2.s,color:'#0f172a',fontSize:'18px',fontWeight:'700'};
+    const f3=mkEl('text',820,bot+140); f3.w=300; f3.h=80; f3.txt='✅ Full Training & Support'; f3.s={...f3.s,color:'#0f172a',fontSize:'18px',fontWeight:'700'};
+    const f4=mkEl('text',80,bot+250); f4.w=300; f4.h=80; f4.txt='✅ Video Ad Campaigns'; f4.s={...f4.s,color:'#0f172a',fontSize:'18px',fontWeight:'700'};
+    const f5=mkEl('text',450,bot+250); f5.w=300; f5.h=80; f5.txt='✅ Affiliate Income Grid'; f5.s={...f5.s,color:'#0f172a',fontSize:'18px',fontWeight:'700'};
+    const f6=mkEl('text',820,bot+250); f6.w=300; f6.h=80; f6.txt='✅ Instant Withdrawals'; f6.s={...f6.s,color:'#0f172a',fontSize:'18px',fontWeight:'700'};
+    [bg,h,f1,f2,f3,f4,f5,f6].forEach(add);
+
+  } else if(type==='divider-section'){
+    const sp=mkEl('spacer',0,bot); sp.w=cW; sp.h=60;
+    const d=mkEl('divider',80,bot+25); d.w=cW-160;
+    [sp,d].forEach(add);
   }
+
   if(batch[0]) select(batch[0].id);
   pushH(); checkEmpty();
-  toast(type+' added ✓');
-  setTimeout(()=>document.getElementById('canvas-wrap').scrollTo({top:(bot*zoom)-40,behavior:'smooth'}),60);
+  toast(type.replace(/-/g,' ')+' added ✓');
+  setTimeout(()=>document.getElementById('canvas-wrap').scrollTo({top:(bot*(parseFloat(CV().style.zoom)||1))-40,behavior:'smooth'}),60);
 }
 
 // ── Select / deselect ──
