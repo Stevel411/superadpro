@@ -898,7 +898,7 @@ function buildInner(e){
   TK.forEach(k=>{if(e.s[k])span.style[k]=e.s[k];});
   span.style.width='100%'; span.style.height='100%';
   span.style.display='flex'; span.style.alignItems='center';
-  if(['button','cta'].includes(e.type)){span.style.justifyContent='center';span.style.padding='0 14px';}
+  if(['button','cta'].includes(e.type)){span.style.justifyContent=({left:'flex-start',center:'center',right:'flex-end'})[e.s.textAlign||'center']||'center';span.style.padding='0 14px';}
   return span;
 }
 
@@ -1176,8 +1176,23 @@ function sp(prop,val){
   const el=els.find(x=>x.id===selId); if(!el) return;
   el.s[prop]=val;
   const inn=document.getElementById(selId)?.querySelector('.el-inner');
-  if(inn) inn.style[prop]=val;
-  else { const d=document.getElementById(selId); if(d) d.style[prop]=val; }
+  if(inn){
+    // button/cta use flexbox - textAlign must map to justifyContent
+    if(prop==='textAlign' && ['button','cta'].includes(el.type)){
+      inn.style.justifyContent=({left:'flex-start',center:'center',right:'flex-end'})[val]||'center';
+    } else {
+      inn.style[prop]=val;
+    }
+  } else {
+    const d=document.getElementById(selId); if(d) d.style[prop]=val;
+  }
+  // Sync align button states in toolbar
+  if(prop==='textAlign'){
+    ['left','center','right'].forEach(a=>{
+      const btn=document.getElementById('ft-a'+a[0]);
+      if(btn) btn.classList.toggle('on', val===a);
+    });
+  }
   drawRP();
 }
 function spSize(v){
