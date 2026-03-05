@@ -1552,7 +1552,9 @@ imd.addEventListener('drop',e=>{e.preventDefault();imd.classList.remove('dragove
 
 // ── Export HTML for rendering ──
 function exportHTML(){
-  let h='<div style="position:relative;min-height:860px;width:100%;font-family:DM Sans,sans-serif">';
+  const bg = canvasBg || '#ffffff';
+  let h = `<div style="background:${bg};min-height:100vh;width:100%;font-family:'DM Sans',sans-serif">`;
+  h    += `<div style="position:relative;width:1200px;max-width:100%;margin:0 auto;min-height:860px;overflow-x:hidden">`;
   els.forEach(el=>{
     if(el.vis===false) return;
     const st=Object.entries({position:'absolute',left:el.x+'px',top:el.y+'px',width:el.w+'px',height:el.h+'px',...el.s,boxSizing:'border-box'}).map(([k,v])=>k.replace(/([A-Z])/g,'-$1').toLowerCase()+':'+v).join(';');
@@ -1562,7 +1564,10 @@ function exportHTML(){
     else if(el.type==='form') h+=`<div style="${st};background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;padding:16px;display:flex;flex-direction:column;gap:8px"><input name="name" placeholder="Your Name" style="padding:9px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px"><input name="email" type="email" placeholder="Email Address" style="padding:9px 12px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px"><button type="submit" style="padding:11px;background:#2563eb;color:#fff;border:none;border-radius:7px;font-weight:700;font-size:13px;cursor:pointer">Get Instant Access →</button></div>`;
     else h+=`<div style="${st}">${el.txt||''}</div>`;
   });
-  h+='</div>';
+  // Set container min-height to fit all elements
+  const maxBottom = els.length ? Math.max(...els.map(e=>e.y+e.h)) + 60 : 860;
+  h = h.replace('min-height:860px', `min-height:${maxBottom}px`);
+  h += '</div></div>';
   return h;
 }
 
