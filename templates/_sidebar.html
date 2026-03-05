@@ -9,7 +9,7 @@
 
   <div class="nav-scroll">
     <!-- ── Dashboard (always visible) ── -->
-    <a href="/dashboard" class="nav-item{% if active_page=='dashboard' %} active{% endif %}"><span class="nav-icon">🏠</span>Dashboard</a>
+    <a href="/dashboard" class="nav-item nav-standalone{% if active_page=='dashboard' %} active{% endif %}"><span class="nav-icon">🏠</span>Dashboard</a>
 
     <div class="nav-divider"></div>
 
@@ -126,10 +126,16 @@
 .nav-scroll::-webkit-scrollbar{width:0}
 .nav-divider{height:1px;background:rgba(0,200,255,0.07);margin:6px 16px}
 .nav-group{overflow:hidden}
-.nav-header{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;font-size:13px;font-weight:800;letter-spacing:0.3px;text-transform:uppercase;color:#00c8ff;cursor:pointer;user-select:none;transition:all 0.2s;text-shadow:0 0 12px rgba(0,200,255,0.4)}
+/* Standalone items (Dashboard, Ad Board) */
+.nav-standalone{font-size:14px;font-weight:800;color:#00c8ff;letter-spacing:0.3px;text-shadow:0 0 12px rgba(0,200,255,0.35)}
+.nav-standalone:hover{color:#fff;text-shadow:none}
+.nav-standalone.active{color:#fff;text-shadow:none}
+/* Group headers */
+.nav-header{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;font-size:14px;font-weight:800;letter-spacing:0.3px;text-transform:uppercase;color:#00c8ff;cursor:pointer;user-select:none;transition:all 0.2s;text-shadow:0 0 12px rgba(0,200,255,0.35)}
 .nav-header:hover{color:#fff;background:rgba(0,200,255,0.08);text-shadow:none}
 .nav-chevron{font-size:15px;font-weight:900;transition:transform 0.25s ease;color:rgba(0,200,255,0.5)}
 .nav-group.open .nav-chevron{transform:rotate(90deg);color:#00c8ff}
+/* Child nav items */
 .nav-children{max-height:0;overflow:hidden;transition:max-height 0.3s ease}
 .nav-group.open .nav-children{max-height:500px}
 </style>
