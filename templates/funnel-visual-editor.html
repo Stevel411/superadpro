@@ -182,7 +182,10 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   transition:all 0.14s;
 }
 .sec-card:hover{border-color:rgba(59,130,246,0.5);background:var(--chrome3);box-shadow:0 0 0 2px rgba(59,130,246,0.1);transform:translateY(-1px)}
-.sec-thumb{height:52px;display:flex;align-items:center;justify-content:center;padding:7px 10px;gap:4px}
+.sec-thumb{
+  height:52px;display:flex;align-items:center;justify-content:center;
+  padding:7px 10px;gap:4px;overflow:hidden;
+}
 .sec-thumb.dark{background:linear-gradient(135deg,#0d1424,#162035)}
 .sec-thumb.light{background:linear-gradient(135deg,#f0f4ff,#e8eeff)}
 .sec-thumb.white{background:#ffffff;border-bottom:1px solid rgba(0,0,0,0.06)}
@@ -224,21 +227,21 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   border:none!important;
   width:100%!important;
 }
-/* When not desktop (tablet/mobile), add the floating frame look */
+/* Tablet/mobile floating frame */
 .gjs-cv-canvas--tablet .gjs-frame-wrapper,
 .gjs-cv-canvas--mobile .gjs-frame-wrapper{
-  padding:20px!important;
-  display:flex!important;
-  justify-content:center!important;
+  padding:20px!important;display:flex!important;justify-content:center!important;
 }
 .gjs-cv-canvas--tablet .gjs-frame,
 .gjs-cv-canvas--mobile .gjs-frame{
-  border-radius:8px!important;
-  box-shadow:0 8px 32px rgba(0,0,0,0.4)!important;
-  border:1px solid rgba(255,255,255,0.08)!important;
-  height:auto!important;
+  border-radius:8px!important;box-shadow:0 8px 32px rgba(0,0,0,0.4)!important;
+  border:1px solid rgba(255,255,255,0.08)!important;height:auto!important;
 }
-.gjs-pn-panels{display:none!important}
+/* Kill ALL GrapesJS native panels — nothing should leak out */
+.gjs-pn-panels{display:none!important;width:0!important;overflow:hidden!important}
+.gjs-pn-panel{display:none!important}
+.gjs-editor{overflow:hidden!important}
+.gjs-editor-cont{overflow:hidden!important}
 .gjs-selected{outline:2px solid var(--blue)!important;outline-offset:2px!important}
 .gjs-hovered{outline:1px dashed rgba(37,99,235,0.4)!important;outline-offset:1px!important}
 .gjs-toolbar{background:var(--blue)!important;border-radius:7px!important;box-shadow:0 4px 14px rgba(37,99,235,0.35)!important}
@@ -277,7 +280,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 }
 .ebtn-secondary:hover{background:rgba(255,255,255,0.1);color:var(--text)}
 
-/* ══ RIGHT PANEL ══ */
+/* ══ RIGHT PANEL — matches left panel exactly ══ */
 .right-panel{
   width:var(--right-w);min-width:var(--right-w);
   background:var(--chrome);border-left:1px solid var(--border);
@@ -469,139 +472,172 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
         <div class="cat-row">Heroes</div>
 
         <div class="sec-card" onclick="addSec('hero-dark')">
-          <div class="sec-thumb dark">
-            <div style="display:flex;flex-direction:column;gap:3px;align-items:center;width:100%">
-              <div style="height:6px;background:rgba(255,255,255,0.7);border-radius:2px;width:50%"></div>
-              <div style="height:3px;background:rgba(255,255,255,0.3);border-radius:2px;width:65%"></div>
-              <div style="height:10px;background:rgba(37,99,235,0.85);border-radius:3px;width:28%"></div>
+          <div class="sec-thumb dark" style="height:64px;padding:10px 12px;flex-direction:column;gap:5px;align-items:flex-start">
+            <div style="display:flex;gap:3px;align-items:center;margin-bottom:2px">
+              <div style="width:4px;height:4px;border-radius:50%;background:#60a5fa"></div>
+              <div style="height:3px;background:rgba(255,255,255,0.2);border-radius:2px;width:40px"></div>
             </div>
+            <div style="height:7px;background:rgba(255,255,255,0.85);border-radius:2px;width:75%"></div>
+            <div style="height:4px;background:rgba(255,255,255,0.3);border-radius:2px;width:90%"></div>
+            <div style="height:4px;background:rgba(255,255,255,0.3);border-radius:2px;width:60%"></div>
+            <div style="height:12px;background:linear-gradient(90deg,#2563eb,#60a5fa);border-radius:4px;width:50px;margin-top:2px"></div>
           </div>
-          <div class="sec-meta"><div class="sec-name">Dark Hero</div><div class="sec-desc">Full-screen dark with CTA button</div></div>
+          <div class="sec-meta"><div class="sec-name">Dark Hero</div><div class="sec-desc">Full-screen dark with headline + CTA</div></div>
         </div>
 
         <div class="sec-card" onclick="addSec('hero-light')">
-          <div class="sec-thumb white">
-            <div style="display:flex;flex-direction:column;gap:3px;align-items:center;width:100%">
-              <div style="height:6px;background:rgba(17,24,39,0.7);border-radius:2px;width:50%"></div>
-              <div style="height:3px;background:rgba(75,85,99,0.35);border-radius:2px;width:65%"></div>
-              <div style="height:10px;background:rgba(37,99,235,0.8);border-radius:3px;width:28%"></div>
+          <div class="sec-thumb white" style="height:64px;padding:10px 12px;flex-direction:column;gap:4px;align-items:flex-start">
+            <div style="display:flex;gap:3px;align-items:center;margin-bottom:2px">
+              <div style="width:4px;height:4px;border-radius:50%;background:#2563eb"></div>
+              <div style="height:3px;background:#e2e8f0;border-radius:2px;width:40px"></div>
             </div>
+            <div style="height:7px;background:#1e293b;border-radius:2px;width:70%"></div>
+            <div style="height:4px;background:#94a3b8;border-radius:2px;width:85%"></div>
+            <div style="height:4px;background:#94a3b8;border-radius:2px;width:55%"></div>
+            <div style="height:12px;background:#2563eb;border-radius:4px;width:50px;margin-top:2px"></div>
           </div>
-          <div class="sec-meta"><div class="sec-name">Light Hero</div><div class="sec-desc">Clean white hero with CTA</div></div>
+          <div class="sec-meta"><div class="sec-name">Light Hero</div><div class="sec-desc">White background with blue CTA</div></div>
         </div>
 
         <div class="sec-card" onclick="addSec('hero-split')">
-          <div class="sec-thumb dark">
-            <div style="display:flex;gap:5px;width:100%;align-items:center">
-              <div style="flex:1;display:flex;flex-direction:column;gap:3px">
-                <div style="height:5px;background:rgba(255,255,255,0.7);border-radius:2px"></div>
-                <div style="height:3px;background:rgba(255,255,255,0.3);border-radius:2px"></div>
-                <div style="height:8px;background:rgba(37,99,235,0.8);border-radius:2px;width:55%"></div>
-              </div>
-              <div style="flex:1;background:rgba(37,99,235,0.15);border:1px solid rgba(37,99,235,0.25);border-radius:3px;height:36px"></div>
+          <div class="sec-thumb dark" style="height:64px;padding:10px 12px;flex-direction:row;gap:8px;align-items:center">
+            <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+              <div style="height:6px;background:rgba(255,255,255,0.8);border-radius:2px;width:90%"></div>
+              <div style="height:3px;background:rgba(255,255,255,0.3);border-radius:2px"></div>
+              <div style="height:3px;background:rgba(255,255,255,0.3);border-radius:2px;width:70%"></div>
+              <div style="height:10px;background:linear-gradient(90deg,#2563eb,#60a5fa);border-radius:3px;width:60%;margin-top:3px"></div>
+            </div>
+            <div style="flex:1;background:rgba(37,99,235,0.12);border:1px dashed rgba(37,99,235,0.3);border-radius:4px;height:44px;display:flex;align-items:center;justify-content:center">
+              <div style="font-size:16px">🖼</div>
             </div>
           </div>
-          <div class="sec-meta"><div class="sec-name">Split Hero</div><div class="sec-desc">Text left, image right</div></div>
+          <div class="sec-meta"><div class="sec-name">Split Hero</div><div class="sec-desc">Text left, image/video right</div></div>
         </div>
 
         <div class="cat-row">Lead Generation</div>
 
         <div class="sec-card" onclick="addSec('optin')">
-          <div class="sec-thumb dark">
-            <div style="display:flex;flex-direction:column;gap:3px;align-items:center;width:100%">
-              <div style="height:4px;background:rgba(255,255,255,0.5);border-radius:2px;width:45%"></div>
-              <div style="height:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(37,99,235,0.3);border-radius:3px;width:70%"></div>
-              <div style="height:10px;background:rgba(37,99,235,0.7);border-radius:3px;width:70%"></div>
+          <div class="sec-thumb dark" style="height:64px;padding:10px 12px;flex-direction:column;gap:4px;align-items:center">
+            <div style="height:5px;background:rgba(255,255,255,0.6);border-radius:2px;width:60%;margin-bottom:2px"></div>
+            <div style="height:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:4px;width:85%;display:flex;align-items:center;padding:0 6px">
+              <div style="height:3px;background:rgba(255,255,255,0.2);border-radius:1px;width:50%"></div>
             </div>
+            <div style="height:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:4px;width:85%;display:flex;align-items:center;padding:0 6px">
+              <div style="height:3px;background:rgba(255,255,255,0.2);border-radius:1px;width:65%"></div>
+            </div>
+            <div style="height:11px;background:linear-gradient(90deg,#2563eb,#60a5fa);border-radius:3px;width:85%"></div>
           </div>
-          <div class="sec-meta"><div class="sec-name">Opt-In Form</div><div class="sec-desc">Email capture with name + email</div></div>
+          <div class="sec-meta"><div class="sec-name">Opt-In Form</div><div class="sec-desc">Name + email capture form</div></div>
         </div>
 
         <div class="sec-card" onclick="addSec('video-cta')">
-          <div class="sec-thumb dark">
-            <div style="display:flex;flex-direction:column;gap:3px;align-items:center;width:100%">
-              <div style="height:22px;background:#000;border-radius:3px;width:70%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(37,99,235,0.2)">
-                <div style="width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:7px solid rgba(255,255,255,0.4)"></div>
-              </div>
-              <div style="height:9px;background:rgba(37,99,235,0.7);border-radius:3px;width:40%"></div>
+          <div class="sec-thumb dark" style="height:64px;padding:10px 12px;flex-direction:column;gap:4px;align-items:center">
+            <div style="height:5px;background:rgba(255,255,255,0.6);border-radius:2px;width:55%;margin-bottom:2px"></div>
+            <div style="height:28px;background:#000;border-radius:4px;width:80%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(37,99,235,0.3)">
+              <div style="width:0;height:0;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:12px solid rgba(255,255,255,0.7)"></div>
             </div>
+            <div style="height:10px;background:linear-gradient(90deg,#2563eb,#60a5fa);border-radius:3px;width:45%;margin-top:1px"></div>
           </div>
-          <div class="sec-meta"><div class="sec-name">Video + CTA</div><div class="sec-desc">Video frame with call-to-action</div></div>
+          <div class="sec-meta"><div class="sec-name">Video + CTA</div><div class="sec-desc">Video frame with action button</div></div>
         </div>
 
         <div class="cat-row">Social Proof</div>
 
         <div class="sec-card" onclick="addSec('testimonials')">
-          <div class="sec-thumb light">
+          <div class="sec-thumb white" style="height:64px;padding:8px 10px;flex-direction:column;gap:4px">
+            <div style="height:3px;background:#1e293b;border-radius:2px;width:55%;margin-bottom:2px"></div>
             <div style="display:flex;gap:4px;width:100%">
-              <div style="flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:3px;padding:4px">
-                <div style="height:2px;background:#e5e7eb;border-radius:1px;margin-bottom:2px"></div>
-                <div style="height:2px;background:#e5e7eb;border-radius:1px;width:70%"></div>
+              <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 5px">
+                <div style="color:#f59e0b;font-size:7px;letter-spacing:-0.5px;margin-bottom:2px">★★★★★</div>
+                <div style="height:2px;background:#e2e8f0;border-radius:1px;margin-bottom:1px"></div>
+                <div style="height:2px;background:#e2e8f0;border-radius:1px;width:70%"></div>
               </div>
-              <div style="flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:3px;padding:4px">
-                <div style="height:2px;background:#e5e7eb;border-radius:1px;margin-bottom:2px"></div>
-                <div style="height:2px;background:#e5e7eb;border-radius:1px;width:80%"></div>
+              <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 5px">
+                <div style="color:#f59e0b;font-size:7px;letter-spacing:-0.5px;margin-bottom:2px">★★★★★</div>
+                <div style="height:2px;background:#e2e8f0;border-radius:1px;margin-bottom:1px"></div>
+                <div style="height:2px;background:#e2e8f0;border-radius:1px;width:80%"></div>
               </div>
-              <div style="flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:3px;padding:4px">
-                <div style="height:2px;background:#e5e7eb;border-radius:1px;margin-bottom:2px"></div>
-                <div style="height:2px;background:#e5e7eb;border-radius:1px;width:60%"></div>
+              <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:4px 5px">
+                <div style="color:#f59e0b;font-size:7px;letter-spacing:-0.5px;margin-bottom:2px">★★★★★</div>
+                <div style="height:2px;background:#e2e8f0;border-radius:1px;margin-bottom:1px"></div>
+                <div style="height:2px;background:#e2e8f0;border-radius:1px;width:60%"></div>
               </div>
             </div>
           </div>
-          <div class="sec-meta"><div class="sec-name">Testimonials</div><div class="sec-desc">3-column social proof cards</div></div>
+          <div class="sec-meta"><div class="sec-name">Testimonials</div><div class="sec-desc">3-column star reviews</div></div>
         </div>
 
         <div class="sec-card" onclick="addSec('stats')">
-          <div class="sec-thumb dark">
-            <div style="display:flex;gap:3px;width:100%">
-              <div style="flex:1;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.25);border-radius:3px;display:flex;align-items:center;justify-content:center;height:34px"><div style="height:6px;background:rgba(37,99,235,0.7);border-radius:2px;width:55%"></div></div>
-              <div style="flex:1;background:rgba(5,150,105,0.12);border:1px solid rgba(5,150,105,0.25);border-radius:3px;display:flex;align-items:center;justify-content:center;height:34px"><div style="height:6px;background:rgba(5,150,105,0.7);border-radius:2px;width:55%"></div></div>
-              <div style="flex:1;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);border-radius:3px;display:flex;align-items:center;justify-content:center;height:34px"><div style="height:6px;background:rgba(245,158,11,0.7);border-radius:2px;width:55%"></div></div>
+          <div class="sec-thumb dark" style="height:64px;padding:10px 12px;flex-direction:column;gap:4px">
+            <div style="height:3px;background:rgba(255,255,255,0.5);border-radius:2px;width:50%;margin-bottom:2px"></div>
+            <div style="display:flex;gap:5px;width:100%">
+              <div style="flex:1;background:rgba(37,99,235,0.15);border:1px solid rgba(37,99,235,0.3);border-radius:4px;padding:5px;text-align:center">
+                <div style="height:10px;background:rgba(37,99,235,0.7);border-radius:2px;margin-bottom:2px"></div>
+                <div style="height:3px;background:rgba(255,255,255,0.2);border-radius:1px;width:80%;margin:0 auto"></div>
+              </div>
+              <div style="flex:1;background:rgba(5,150,105,0.15);border:1px solid rgba(5,150,105,0.3);border-radius:4px;padding:5px;text-align:center">
+                <div style="height:10px;background:rgba(5,150,105,0.7);border-radius:2px;margin-bottom:2px"></div>
+                <div style="height:3px;background:rgba(255,255,255,0.2);border-radius:1px;width:80%;margin:0 auto"></div>
+              </div>
+              <div style="flex:1;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);border-radius:4px;padding:5px;text-align:center">
+                <div style="height:10px;background:rgba(245,158,11,0.7);border-radius:2px;margin-bottom:2px"></div>
+                <div style="height:3px;background:rgba(255,255,255,0.2);border-radius:1px;width:80%;margin:0 auto"></div>
+              </div>
             </div>
           </div>
-          <div class="sec-meta"><div class="sec-name">Stat Cards</div><div class="sec-desc">Commissions / earnings highlight</div></div>
+          <div class="sec-meta"><div class="sec-name">Stat Cards</div><div class="sec-desc">Earnings / commissions highlight</div></div>
         </div>
 
         <div class="cat-row">Content</div>
 
         <div class="sec-card" onclick="addSec('features')">
-          <div class="sec-thumb white">
+          <div class="sec-thumb white" style="height:64px;padding:10px 12px;flex-direction:column;gap:4px">
+            <div style="height:5px;background:#1e293b;border-radius:2px;width:50%;margin-bottom:2px"></div>
             <div style="display:flex;gap:4px;width:100%">
-              <div style="flex:1;background:#f9fafb;border:1px solid #e5e7eb;border-radius:3px;padding:5px;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="width:10px;height:10px;background:#eff6ff;border-radius:50%"></div><div style="height:2px;background:#e5e7eb;border-radius:1px;width:70%"></div></div>
-              <div style="flex:1;background:#f9fafb;border:1px solid #e5e7eb;border-radius:3px;padding:5px;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="width:10px;height:10px;background:#f0fdf4;border-radius:50%"></div><div style="height:2px;background:#e5e7eb;border-radius:1px;width:70%"></div></div>
-              <div style="flex:1;background:#f9fafb;border:1px solid #e5e7eb;border-radius:3px;padding:5px;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="width:10px;height:10px;background:#fff7ed;border-radius:50%"></div><div style="height:2px;background:#e5e7eb;border-radius:1px;width:70%"></div></div>
+              <div style="flex:1;border:1px solid #e2e8f0;border-radius:4px;padding:5px;display:flex;flex-direction:column;align-items:center;gap:2px">
+                <div style="width:10px;height:10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:3px"></div>
+                <div style="height:2px;background:#cbd5e1;border-radius:1px;width:80%"></div>
+                <div style="height:2px;background:#e2e8f0;border-radius:1px;width:60%"></div>
+              </div>
+              <div style="flex:1;border:1px solid #e2e8f0;border-radius:4px;padding:5px;display:flex;flex-direction:column;align-items:center;gap:2px">
+                <div style="width:10px;height:10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:3px"></div>
+                <div style="height:2px;background:#cbd5e1;border-radius:1px;width:80%"></div>
+                <div style="height:2px;background:#e2e8f0;border-radius:1px;width:60%"></div>
+              </div>
+              <div style="flex:1;border:1px solid #e2e8f0;border-radius:4px;padding:5px;display:flex;flex-direction:column;align-items:center;gap:2px">
+                <div style="width:10px;height:10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:3px"></div>
+                <div style="height:2px;background:#cbd5e1;border-radius:1px;width:80%"></div>
+                <div style="height:2px;background:#e2e8f0;border-radius:1px;width:60%"></div>
+              </div>
             </div>
           </div>
           <div class="sec-meta"><div class="sec-name">Features Grid</div><div class="sec-desc">3-column icon + text features</div></div>
         </div>
 
         <div class="sec-card" onclick="addSec('biolink')">
-          <div class="sec-thumb dark">
-            <div style="display:flex;flex-direction:column;gap:3px;align-items:center;width:100%">
-              <div style="width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#60a5fa)"></div>
-              <div style="height:7px;background:rgba(37,99,235,0.2);border-radius:3px;width:70%"></div>
-              <div style="height:7px;background:rgba(5,150,105,0.2);border-radius:3px;width:70%"></div>
-            </div>
+          <div class="sec-thumb dark" style="height:64px;padding:10px 14px;flex-direction:column;gap:5px;align-items:center">
+            <div style="width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#60a5fa);margin-bottom:2px"></div>
+            <div style="height:9px;background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.3);border-radius:4px;width:80%"></div>
+            <div style="height:9px;background:rgba(5,150,105,0.2);border:1px solid rgba(5,150,105,0.3);border-radius:4px;width:80%"></div>
           </div>
-          <div class="sec-meta"><div class="sec-name">Bio Link Hub</div><div class="sec-desc">Linktree-style social page</div></div>
+          <div class="sec-meta"><div class="sec-name">Bio Link Hub</div><div class="sec-desc">Linktree-style link page</div></div>
         </div>
 
         <div class="sec-card" onclick="addSec('cta-banner')">
-          <div class="sec-thumb" style="background:linear-gradient(90deg,#1d4ed8,#3b82f6)">
-            <div style="display:flex;flex-direction:column;gap:3px;align-items:center;width:100%">
-              <div style="height:5px;background:rgba(255,255,255,0.8);border-radius:2px;width:42%"></div>
-              <div style="height:8px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:3px;width:26%"></div>
-            </div>
+          <div class="sec-thumb" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);height:64px;padding:14px 16px;flex-direction:column;gap:5px;align-items:center;justify-content:center">
+            <div style="height:6px;background:rgba(255,255,255,0.9);border-radius:2px;width:55%"></div>
+            <div style="height:4px;background:rgba(255,255,255,0.5);border-radius:2px;width:70%"></div>
+            <div style="height:12px;background:rgba(255,255,255,0.9);border-radius:4px;width:40%;margin-top:2px"></div>
           </div>
-          <div class="sec-meta"><div class="sec-name">CTA Banner</div><div class="sec-desc">Gradient action strip</div></div>
+          <div class="sec-meta"><div class="sec-name">CTA Banner</div><div class="sec-desc">Full-width gradient action strip</div></div>
         </div>
 
         <div class="sec-card" onclick="addSec('thankyou')">
-          <div class="sec-thumb dark">
-            <div style="display:flex;flex-direction:column;gap:3px;align-items:center">
-              <span style="font-size:14px">🎉</span>
-              <div style="height:5px;background:rgba(255,255,255,0.6);border-radius:2px;width:38%"></div>
-            </div>
+          <div class="sec-thumb dark" style="height:64px;padding:10px 14px;flex-direction:column;gap:4px;align-items:center;justify-content:center">
+            <span style="font-size:22px;line-height:1">🎉</span>
+            <div style="height:6px;background:rgba(255,255,255,0.75);border-radius:2px;width:50%"></div>
+            <div style="height:3px;background:rgba(255,255,255,0.3);border-radius:2px;width:65%"></div>
+            <div style="height:10px;background:rgba(5,150,105,0.6);border:1px solid rgba(5,150,105,0.4);border-radius:3px;width:42%;margin-top:1px"></div>
           </div>
           <div class="sec-meta"><div class="sec-name">Thank You</div><div class="sec-desc">Post-signup confirmation page</div></div>
         </div>
@@ -767,7 +803,26 @@ social:{name:'Social Proof',desc:'Testimonials + stats',icon:'⭐',color:'#050d1
 /* ── GrapesJS Init ── */
 const editor=grapesjs.init({
   container:'#gjs',height:'100%',width:'auto',fromElement:false,storageManager:false,
-  canvas:{styles:['https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800;900&family=Space+Mono:wght@700&display=swap']},
+  forceClass:false,
+  canvas:{
+    styles:['https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800;900&family=Space+Mono:wght@700&display=swap'],
+    scripts:[],
+    customBadgeLabel: c => c.get('tagName') || 'element',
+  },
+  // Inject CSS into the canvas iframe to fix body bg and element sizing
+  protectedCss: `
+    body {
+      background: #ffffff !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    section {
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    img { max-width: 100% !important; height: auto !important; }
+    * { box-sizing: border-box !important; }
+  `,
   deviceManager:{devices:[{name:'Desktop',width:''},{name:'Tablet',width:'768px',widthMedia:'768px'},{name:'Mobile',width:'375px',widthMedia:'375px'}]},
   plugins:['gjs-blocks-basic','gjs-preset-webpage','gjs-plugin-forms'],
   pluginsOpts:{'gjs-blocks-basic':{flexGrid:true},'gjs-preset-webpage':{modalImportTitle:'Import HTML',modalImportButton:'Import',modalImportLabel:'Paste HTML here'}},
@@ -791,7 +846,22 @@ function checkEmpty(){
 }
 editor.on('component:add',checkEmpty);
 editor.on('component:remove',checkEmpty);
-editor.on('load',checkEmpty);
+editor.on('load',function(){
+  checkEmpty();
+  // Force canvas iframe body to white, no stray background colours
+  const frame = document.querySelector('#gjs iframe');
+  if(frame && frame.contentDocument){
+    const s = frame.contentDocument.createElement('style');
+    s.id = 'sap-canvas-reset';
+    s.textContent = 'html,body{background:#ffffff!important;margin:0!important;padding:0!important;}';
+    frame.contentDocument.head.appendChild(s);
+  }
+  // Also reset via GrapesJS wrapper
+  try{
+    const wrapper = editor.getWrapper();
+    wrapper.setStyle({'background-color':'#ffffff','margin':'0','padding':'0'});
+  }catch(e){}
+});
 
 /* ── Context-smart right panel ── */
 editor.on('component:selected',function(c){
