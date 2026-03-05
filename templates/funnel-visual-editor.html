@@ -22,7 +22,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
   overflow:hidden;
 }
 .tb-brand{display:flex;align-items:center;gap:11px;padding:0 20px;height:100%;border-right:1px solid var(--border);flex-shrink:0}
-.tb-s{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#6366f1);display:flex;align-items:center;justify-content:center;font-family:'Sora',Georgia,sans-serif;font-weight:900;font-size:20px;color:#fff;flex-shrink:0;box-shadow:0 2px 10px rgba(99,102,241,.45)}
+.tb-s{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#06b6d4);display:flex;align-items:center;justify-content:center;font-family:'Sora',Georgia,sans-serif;font-weight:900;font-size:18px;color:#fff;flex-shrink:0;box-shadow:0 2px 12px rgba(6,182,212,.45)}
 .tb-name{font-family:'Sora',Georgia,sans-serif;font-weight:900;font-size:17px;letter-spacing:-.3px;color:#fff}
 .tb-name b{color:var(--blue2)}
 .tb-tag{font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--blue2);background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);border-radius:5px;padding:3px 9px}
@@ -302,13 +302,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Sans'
 <!-- TOPBAR -->
 <div id="topbar">
   <div class="tb-brand">
-    <div class="tb-s">
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-        <!-- Play triangle / V shape representing video/ads -->
-        <path d="M5 5 L17 11 L5 17 Z" fill="white" opacity="0.95"/>
-        <path d="M5 5 L17 11 L11 11 Z" fill="white" opacity="0.5"/>
-      </svg>
-    </div>
+    <div class="tb-s">S</div>
     <span class="tb-name">SuperAd<b>Pro</b></span>
     <span class="tb-tag">Builder</span>
   </div>
@@ -1538,7 +1532,7 @@ function applyVideoModal(){
   pushH();
 }
 
-function previewPage(){ savePage().then(()=>window.open('/p/'+PAGE_ID,'_blank')); }
+function previewPage(){ savePage().then(()=>window.open('/p/{{ page.slug }}','_blank')); }
 async function publishPage(){ await savePage(); toast('Published! 🚀'); }
 
 // Auto-save every 90s only when dirty
