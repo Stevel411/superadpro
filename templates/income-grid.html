@@ -6,127 +6,151 @@
 <title>Profit Engine Grids — SuperAdPro</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
-/* ═══ SHARED LAYOUT ═══ */
-.layout{display:flex;min-height:100vh}
-.sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:rgba(56,189,248,0.2);border-radius:4px}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.nav-scroll{flex:1;overflow-y:auto;padding:8px 0}
-.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:14px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
-.nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
-.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
-.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
-.nav-divider{height:1px;background:rgba(255,255,255,0.06);margin:8px 16px}
-.nav-group{overflow:hidden}
-.nav-header{display:flex;align-items:center;justify-content:space-between;padding:8px 18px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(200,220,255,0.35);cursor:pointer;user-select:none}
-.nav-chevron{font-size:14px;transition:transform 0.2s}
-.nav-group.open .nav-chevron{transform:rotate(90deg)}
-.nav-group:not(.open) .nav-children{display:none}
-.nav-children .nav-item{padding-left:28px;font-size:13px}
-.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
-.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
-.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.topbar{display:none}}
-
+:root{
+  --bg:#080d18;--panel:#0d1424;--panel2:#111a2e;
+  --border:rgba(255,255,255,.1);--border2:rgba(255,255,255,.18);
+  --cyan:#0ea5e9;--cyan2:#38bdf8;--green:#22c55e;--green2:#4ade80;
+  --amber:#f59e0b;--indigo:#6366f1;
+  --text:#f1f5f9;--text2:#b8c8dc;--text3:#6b88a8;
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+a{text-decoration:none;color:inherit}
+.layout{display:flex;min-height:100vh}
+/* ── Sidebar ── */
+.sidebar{width:224px;height:100vh;background:var(--panel);border-right:1px solid var(--border);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
+.sidebar::-webkit-scrollbar{width:3px}.sidebar::-webkit-scrollbar-thumb{background:rgba(56,189,248,.15);border-radius:3px}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid var(--border);text-decoration:none}
+.sidebar-brand{font-family:'Sora',sans-serif;font-weight:800;font-size:15px;color:#fff}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid var(--border)}
+.nav-section{padding:18px 12px 4px;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;margin:1px 8px;border-radius:8px;font-size:14px;font-weight:500;color:var(--text2);text-decoration:none;transition:all .15s}
+.nav-item:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.nav-item.active{background:rgba(14,165,233,.12);color:var(--cyan2);font-weight:600}
+.nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+.nav-divider{height:1px;background:var(--border);margin:6px 16px}
+.user-mini{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--border)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0}
+.user-name{font-size:12px;font-weight:700;color:var(--text)}
+.user-role{font-size:10px;color:var(--text3);margin-top:1px}
+.status-dot-sb{width:7px;height:7px;border-radius:50%;margin-left:auto;flex-shrink:0}
+.status-dot-sb.active{background:var(--green);box-shadow:0 0 6px rgba(34,197,94,.6)}
+.status-dot-sb.inactive{background:var(--amber)}
 
-/* Topbar */
-.topbar{position:sticky;top:0;z-index:50;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 20px;height:48px;display:flex;align-items:center;justify-content:space-between}
+/* ── Main ── */
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.topbar-title{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;color:var(--text)!important}
+.topbar-sub{font-size:12px;color:var(--text3)!important;margin-top:2px}
+.tb-right{display:flex;align-items:center;gap:10px}
+.balance-chip{display:flex;align-items:center;gap:10px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:8px 16px}
+.bc-label{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
+.bc-val{font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--green);line-height:1}
+.bc-unit{font-size:10px;color:var(--text3);margin-left:3px}
+.status-badge{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700}
+.status-badge.active{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:var(--green)}
+.status-badge.inactive{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);color:var(--amber)}
+.status-badge::before{content:'';width:6px;height:6px;border-radius:50%}
+.status-badge.active::before{background:var(--green);box-shadow:0 0 5px rgba(34,197,94,.7)}
+.status-badge.inactive::before{background:var(--amber)}
+.content{padding:24px 28px;flex:1}
 
-/* Container */
-.container{padding:8px 16px 16px}
+/* ── Cards ── */
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:18px;transition:border-color .15s}
+.card:hover{border-color:var(--border2)}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)}
+.card-title{font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.card-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);flex-shrink:0}
+.card-action{font-size:13px;font-weight:700;color:var(--cyan);opacity:.8;transition:opacity .15s}
+.card-action:hover{opacity:1}
+.card-body{padding:18px 20px}
 
-/* 2-col layout */
-.grid-layout{display:grid;grid-template-columns:1fr minmax(280px,400px);gap:10px}
-@media(max-width:900px){.grid-layout{grid-template-columns:1fr}}
+/* ── Buttons ── */
+.btn-primary{font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--cyan),var(--cyan2));padding:10px 22px;border-radius:9px;border:none;cursor:pointer;font-family:inherit;display:inline-block;transition:opacity .15s;text-decoration:none}
+.btn-primary:hover{opacity:.85}
+.btn-outline{font-size:14px;font-weight:600;color:var(--text2);background:var(--panel2);padding:10px 20px;border-radius:9px;border:1px solid var(--border2);cursor:pointer;font-family:inherit;display:inline-block;transition:all .15s}
+.btn-outline:hover{border-color:var(--cyan);color:var(--cyan2)}
+.btn-green{font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--green),var(--green2));padding:10px 22px;border-radius:9px;border:none;cursor:pointer;font-family:inherit;display:inline-block;transition:opacity .15s}
+.btn-green:hover{opacity:.85}
 
-/* Cards */
-.card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px}
-.eyebrow{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#0ea5e9;margin-bottom:6px}
+/* ── Forms ── */
+.form-group{margin-bottom:16px}
+.form-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;display:block}
+.form-input{width:100%;padding:10px 14px;border:1px solid var(--border2);border-radius:9px;font-size:14px;color:var(--text);font-family:inherit;background:var(--panel2);transition:border-color .2s}
+.form-input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(14,165,233,.12)}
+.form-input::placeholder{color:var(--text3)}
+select.form-input{background:var(--panel2);color:var(--text)}
+select.form-input option{background:var(--panel2)}
 
-/* Hero total */
-.total-card{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);border-radius:8px;padding:14px 16px;text-align:center;color:#fff;position:relative;overflow:hidden}
-.total-card::before{content:'';position:absolute;top:-40%;right:-20%;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,0.06)}
-.total-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6)}
-.total-amount{font-family:Sora;font-size:26px;font-weight:800;margin:3px 0}
-.total-sub{font-size:9px;color:rgba(255,255,255,0.55)}
+/* ── Stats ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden;transition:border-color .15s,transform .15s}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.stat-label{font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.stat-val{font-family:'Sora',sans-serif;font-size:36px;font-weight:800;line-height:1;margin-bottom:6px;color:var(--text)}
+.stat-val.green{color:var(--green)}
+.stat-val.cyan{color:var(--cyan2)}
+.stat-sub{font-size:13px;color:var(--text3)}
 
-/* Stats grid */
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.mini-stat{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px}
-.mini-stat-label{font-size:9px;font-weight:700;color:#94a3b8}
-.mini-stat-val{font-size:17px;font-weight:800;margin-top:1px}
+/* ── Info rows ── */
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.info-row:last-child{border-bottom:none}
+.info-key{font-size:12px;font-weight:600;color:var(--text3)}
+.info-val{font-size:13px;font-weight:700;color:var(--text)}
 
-/* Grid */
-.grid-8x8{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;margin-bottom:6px}
-.g-cell{height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;transition:all 0.3s}
-.g-cell.owner{background:#0ea5e9;color:#fff;font-weight:800;font-size:10px}
-.g-cell.filled{background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);color:#0ea5e9}
-.g-cell.empty{background:#fff;border:1px solid #e8ecf1;color:#cbd5e1}
-.legend{display:flex;gap:12px;margin-bottom:4px}
-.legend-item{display:flex;align-items:center;gap:4px;font-size:9px;color:#64748b}
-.legend-dot{width:8px;height:8px;border-radius:2px}
+/* ── Alerts / banners ── */
+.alert{border-radius:12px;padding:14px 18px;margin-bottom:18px;border:1px solid;font-size:13px;line-height:1.6}
+.alert-amber{background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.2);color:var(--amber)}
+.alert-red{background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.2);color:#f87171}
+.alert-green{background:rgba(34,197,94,.07);border-color:rgba(34,197,94,.2);color:var(--green)}
+.alert-blue{background:rgba(14,165,233,.07);border-color:rgba(14,165,233,.2);color:var(--cyan2)}
 
-/* Progress */
-.prog-wrap{height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;margin-bottom:2px}
-.prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#0ea5e9,#38bdf8);transition:width 0.6s}
-.prog-row{display:flex;justify-content:space-between;font-size:9px;color:#94a3b8}
+/* ── Tables ── */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text3);padding:8px 12px;border-bottom:1px solid var(--border);text-align:left}
+.tbl td{font-size:13px;color:var(--text2);padding:11px 12px;border-bottom:1px solid var(--border)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.02);color:var(--text)}
 
-/* Level breakdown */
-.level-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid #f8fafc}
-.level-row:last-child{border-bottom:none}
-.level-label{font-size:11px;font-weight:700;color:#334155;width:22px}
-.level-bar-wrap{flex:1;height:7px;background:#f1f5f9;border-radius:99px;overflow:hidden}
-.level-bar{height:100%;background:linear-gradient(90deg,#0ea5e9,#38bdf8);border-radius:99px}
-.level-seats{font-size:10px;color:#94a3b8;width:30px;text-align:right}
-.level-earn{font-size:12px;font-weight:800;color:#0ea5e9;width:52px;text-align:right}
+/* ── Tags / badges ── */
+.tag{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;display:inline-block}
+.tag-green{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.tag-amber{background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.2)}
+.tag-blue{background:rgba(14,165,233,.1);color:var(--cyan2);border:1px solid rgba(14,165,233,.2)}
+.tag-indigo{background:rgba(99,102,241,.1);color:#818cf8;border:1px solid rgba(99,102,241,.2)}
+.tag-red{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)}
 
-/* Split bar */
-.split-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:6px}
-.split-seg{height:100%}
-.split-legend{display:flex;justify-content:space-between;font-size:11px}
-.split-item{display:flex;align-items:center;gap:4px}
-.split-swatch{width:8px;height:8px;border-radius:2px}
-.split-pct{font-weight:700}
+/* ── Grid layouts ── */
+.two-col{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 
-/* Info strip */
-.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-@media(max-width:768px){.info-grid{grid-template-columns:1fr}}
-.info-card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px}
-.info-card-t{font-size:11px;font-weight:700;margin-bottom:3px}
-.info-card-p{font-size:10px;color:#64748b;line-height:1.4}
-
-/* Tier bar */
-.tier-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:7px}
-.tier-btn{padding:7px 4px;border-radius:6px;border:none;background:#f8fafc;color:#64748b;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;text-align:center;text-decoration:none;display:block}
-.tier-btn:hover{color:#0ea5e9;background:rgba(14,165,233,0.05)}
-.tier-btn.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;box-shadow:0 4px 14px rgba(14,165,233,0.3)}
-
-/* Right col */
-.right-col{display:flex;flex-direction:column;gap:6px;align-self:stretch}
-
-/* Earn card */
-.earn-card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;position:relative;overflow:hidden}
-.earn-card::before{display:none}
-.earn-card-title{font-size:10px;font-weight:800;color:#0f172a;margin-bottom:6px;position:relative;z-index:1}
-
-/* Empty state */
-.empty{text-align:center;padding:40px 24px}
+/* ── Empty state ── */
+.empty{text-align:center;padding:40px 20px}
 .empty-icon{font-size:36px;margin-bottom:12px}
-.empty-title{font-family:Sora;font-size:18px;font-weight:800;margin-bottom:8px}
-.empty-sub{font-size:13px;color:#64748b;max-width:420px;margin:0 auto 16px;line-height:1.6}
-.empty-cta{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:13px;font-weight:700;padding:10px 24px;border-radius:10px;text-decoration:none;box-shadow:0 4px 14px rgba(14,165,233,0.3);transition:all 0.2s}
-.empty-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,165,233,0.35)}
+.empty-title{font-size:15px;font-weight:700;color:var(--text2);margin-bottom:6px}
+.empty-sub{font-size:13px;color:var(--text3);margin-bottom:18px;line-height:1.65}
 
-/* Mobile nav */
-.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:#0a0a1a;border-top:1px solid rgba(14,165,233,0.1)}
-.mob-nav-inner{display:flex;justify-content:space-around;padding:6px 0}
-.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;color:rgba(200,220,255,0.5);text-decoration:none;font-size:9px;font-weight:600;padding:6px 12px}
-.mob-nav-item.active{color:#38bdf8}
-.mob-nav-icon{font-size:18px}
-@media(max-width:768px){.mob-nav{display:block}body{padding-bottom:72px}}
+/* ── Mobile ── */
+.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:101}
+.mobile-topbar-left{display:flex;align-items:center;gap:10px}
+.mobile-topbar-name{font-weight:800;font-size:14px;font-family:'Sora',sans-serif;color:#fff}
+.mobile-topbar-name span{color:var(--cyan2)}
+.mobile-topbar-page{font-size:11px;color:var(--text3)}
+.mobile-balance-chip{font-size:12px;font-weight:800;color:var(--green);background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:5px 10px}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--border);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
+.mobile-nav-inner{display:flex;justify-content:space-around;align-items:center}
+.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 8px;font-size:10px;color:var(--text3);transition:color .15s}
+.mob-nav-item.active{color:var(--cyan2)}
+.mob-nav-icon{font-size:19px}
+.mob-nav-label{font-weight:600;letter-spacing:.3px}
+
+@media(max-width:1100px){.stats-row{grid-template-columns:1fr 1fr}.two-col,.three-col{grid-template-columns:1fr}}
+@media(max-width:768px){
+  .main{margin-left:0}.topbar{display:none!important}
+  .mobile-topbar{display:flex!important}.mobile-nav{display:block}
+  body{padding-bottom:70px}.content{padding:16px}
+  .stats-row{grid-template-columns:1fr 1fr}
+}
 </style>
 <link rel="stylesheet" href="/static/mobile.css">
 </head>
@@ -138,12 +162,12 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 <div class="topbar">
   <div>
     <div style="font-size:16px;font-weight:800;color:#fff">⚡ Profit Engine Grids</div>
-    <div style="font-size:11px;color:#6b7d94;margin-top:1px">Your live 8×8 recurring grid · 64 positions per advance</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:1px">Your live 8×8 recurring grid · 64 positions per advance</div>
   </div>
   <div style="display:flex;align-items:center;gap:14px">
-    <div style="background:#fff;border-radius:8px;padding:5px 12px;text-align:center">
-      <div style="font-size:8px;font-weight:700;letter-spacing:1px;color:#94a3b8;text-transform:uppercase">Balance</div>
-      <div style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }} <span style="font-size:10px;color:#94a3b8">USDT</span></div>
+    <div style="background:var(--panel2);border-radius:8px;padding:5px 12px;text-align:center">
+      <div style="font-size:8px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase">Balance</div>
+      <div style="font-size:14px;font-weight:800;color:var(--green)">${{ '%.2f'|format(balance) }} <span style="font-size:10px;color:var(--text3)">USDT</span></div>
     </div>
   </div>
 </div>
@@ -181,7 +205,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
         <div style="font-size:13px;font-weight:800">${{ g.price|int }} Campaign · Advance #{{ g.advance }}</div>
         <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:11px;font-weight:700;color:#0ea5e9">{{ g.filled }}/64 positions filled</span>
+          <span style="font-size:11px;font-weight:700;color:var(--cyan)">{{ g.filled }}/64 positions filled</span>
           <span style="font-size:9px;font-weight:700;color:#10b981;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);padding:3px 10px;border-radius:12px">ACTIVE</span>
         </div>
       </div>
@@ -196,10 +220,10 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
       </div>
       <div class="legend">
         <div class="legend-item"><div class="legend-dot" style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2)"></div>Filled</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#fff;border:1px solid #e8ecf1"></div>Empty</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--panel2);border:1px solid #e8ecf1"></div>Empty</div>
       </div>
       <div class="prog-wrap"><div class="prog-fill" style="width:{{ g.pct }}%"></div></div>
-      <div class="prog-row"><span>{{ g.pct }}% complete</span><span style="color:#16a34a;font-weight:700">${{ '%.2f'|format(g.owner_potential) }} earned</span></div>
+      <div class="prog-row"><span>{{ g.pct }}% complete</span><span style="color:var(--green);font-weight:700">${{ '%.2f'|format(g.owner_potential) }} earned</span></div>
     </div>
     {% else %}
     <div class="card">
@@ -216,10 +240,10 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
       <div class="earn-card">
         <div class="earn-card-title">💡 How Grid Earnings Work</div>
-        <div style="font-size:10px;color:#64748b;line-height:1.5;position:relative;z-index:1">
+        <div style="font-size:10px;color:var(--text3);line-height:1.5;position:relative;z-index:1">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="background:#0ea5e9;border-radius:4px;padding:2px 6px;font-weight:700;color:#fff;font-size:10px">40%</span><span>Direct sponsor</span></div>
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="background:#0ea5e9;border-radius:4px;padding:2px 6px;font-weight:700;color:#fff;font-size:10px">6.875%</span><span>× 8 levels (55%)</span></div>
-          <div style="font-size:9px;color:#94a3b8;margin-top:4px">64 positions fill → advance → earn again</div>
+          <div style="font-size:9px;color:var(--text3);margin-top:4px">64 positions fill → advance → earn again</div>
         </div>
       </div>
       <div class="info-card"><div style="font-size:14px;margin-bottom:3px">∞</div><div class="info-card-t" style="color:#10b981">Recurring Engine</div><div class="info-card-p">64 positions fill → grid auto-advances → commissions restart</div></div>
@@ -237,21 +261,21 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 
     <div class="card">
       <div class="eyebrow">Live Earnings Tracker</div>
-      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9">
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
         <div style="width:8px;height:8px;border-radius:50%;background:#10b981"></div>
-        <div style="flex:1"><div style="font-size:12px;font-weight:700">Direct Sponsor (40%)</div><div style="font-size:9px;color:#94a3b8">${{ '%.2f'|format(per_seat_direct) if g else '0.00' }} per referral</div></div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:700">Direct Sponsor (40%)</div><div style="font-size:9px;color:var(--text3)">${{ '%.2f'|format(per_seat_direct) if g else '0.00' }} per referral</div></div>
         <div style="font-size:15px;font-weight:800;color:#10b981">${{ '%.2f'|format(grid_earnings) }}</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;padding:6px 0">
         <div style="width:8px;height:8px;border-radius:50%;background:#38bdf8"></div>
-        <div style="flex:1"><div style="font-size:12px;font-weight:700">Uni-Level (6.875% × 8)</div><div style="font-size:9px;color:#94a3b8">${{ '%.2f'|format(per_seat_uni) if g else '0.00' }} per seat</div></div>
-        <div style="font-size:15px;font-weight:800;color:#38bdf8">${{ '%.2f'|format(level_earnings) }}</div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:700">Uni-Level (6.875% × 8)</div><div style="font-size:9px;color:var(--text3)">${{ '%.2f'|format(per_seat_uni) if g else '0.00' }} per seat</div></div>
+        <div style="font-size:15px;font-weight:800;color:var(--cyan2)">${{ '%.2f'|format(level_earnings) }}</div>
       </div>
     </div>
 
     <div class="stat-grid">
-      <div class="mini-stat"><div class="mini-stat-label">🔄 Advances</div><div class="mini-stat-val" style="color:#0ea5e9">{{ grid_stats.completed_advances }}</div></div>
-      <div class="mini-stat"><div class="mini-stat-label">⚡ Active Grids</div><div class="mini-stat-val" style="color:#38bdf8">{{ grid_stats.active_grids }}</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">🔄 Advances</div><div class="mini-stat-val" style="color:var(--cyan)">{{ grid_stats.completed_advances }}</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">⚡ Active Grids</div><div class="mini-stat-val" style="color:var(--cyan2)">{{ grid_stats.active_grids }}</div></div>
       <div class="mini-stat"><div class="mini-stat-label">💰 Total Earned</div><div class="mini-stat-val" style="color:#10b981">${{ '%.2f'|format(grid_stats.total_earned) }}</div></div>
       <div class="mini-stat"><div class="mini-stat-label">👥 Network Size</div><div class="mini-stat-val" style="color:#f59e0b">{{ grid_stats.total_members }}</div></div>
     </div>
@@ -263,8 +287,8 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
         <div class="split-seg" style="width:58%;background:linear-gradient(90deg,#3b82f6,#38bdf8)"></div>
       </div>
       <div class="split-legend">
-        <div class="split-item"><div class="split-swatch" style="background:#10b981"></div><span style="color:#64748b">Sponsor</span> <span class="split-pct" style="color:#10b981">${{ '%.2f'|format(per_seat_direct) if g else '0.00' }}</span></div>
-        <div class="split-item"><div class="split-swatch" style="background:#3b82f6"></div><span style="color:#64748b">Uni-Level</span> <span class="split-pct" style="color:#38bdf8">${{ '%.2f'|format(per_seat_uni * 8) if g else '0.00' }}</span></div>
+        <div class="split-item"><div class="split-swatch" style="background:#10b981"></div><span style="color:var(--text3)">Sponsor</span> <span class="split-pct" style="color:#10b981">${{ '%.2f'|format(per_seat_direct) if g else '0.00' }}</span></div>
+        <div class="split-item"><div class="split-swatch" style="background:#3b82f6"></div><span style="color:var(--text3)">Uni-Level</span> <span class="split-pct" style="color:var(--cyan2)">${{ '%.2f'|format(per_seat_uni * 8) if g else '0.00' }}</span></div>
       </div>
     </div>
 
@@ -276,8 +300,8 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 
     <!-- Per Seat Earnings -->
     <div class="card">
-      <div class="eyebrow" style="color:#0ea5e9">Per Seat Earnings</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><table style="width:100%;border-collapse:collapse;font-size:9px"><tr><th style="text-align:left;padding:2px 3px;color:#94a3b8;font-weight:600;border-bottom:1px solid #e2e8f0">Tier</th><th style="text-align:left;padding:2px 3px;color:#10b981;font-weight:600;border-bottom:1px solid #e2e8f0">Direct</th><th style="text-align:left;padding:2px 3px;color:#38bdf8;font-weight:600;border-bottom:1px solid #e2e8f0">Spill</th></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$20</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$9.38</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$1.38</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$50</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$23.44</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$3.44</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$100</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$46.88</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$6.88</td></tr><tr><td style="padding:2px 3px;font-weight:600">$200</td><td style="padding:2px 3px;font-weight:600">$93.75</td><td style="padding:2px 3px;font-weight:600">$13.75</td></tr></table></div><div><table style="width:100%;border-collapse:collapse;font-size:9px"><tr><th style="text-align:left;padding:2px 3px;color:#94a3b8;font-weight:600;border-bottom:1px solid #e2e8f0">Tier</th><th style="text-align:left;padding:2px 3px;color:#10b981;font-weight:600;border-bottom:1px solid #e2e8f0">Direct</th><th style="text-align:left;padding:2px 3px;color:#38bdf8;font-weight:600;border-bottom:1px solid #e2e8f0">Spill</th></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$400</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$187.50</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$27.50</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$600</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$281.25</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$41.25</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$800</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$375.00</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid #f1f5f9">$55.00</td></tr><tr><td style="padding:2px 3px;font-weight:600">$1,000</td><td style="padding:2px 3px;font-weight:600">$468.75</td><td style="padding:2px 3px;font-weight:600">$68.75</td></tr></table></div></div>
+      <div class="eyebrow" style="color:var(--cyan)">Per Seat Earnings</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><table style="width:100%;border-collapse:collapse;font-size:9px"><tr><th style="text-align:left;padding:2px 3px;color:var(--text3);font-weight:600;border-bottom:1px solid var(--border)">Tier</th><th style="text-align:left;padding:2px 3px;color:#10b981;font-weight:600;border-bottom:1px solid var(--border)">Direct</th><th style="text-align:left;padding:2px 3px;color:var(--cyan2);font-weight:600;border-bottom:1px solid var(--border)">Spill</th></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$20</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$9.38</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$1.38</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$50</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$23.44</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$3.44</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$100</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$46.88</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$6.88</td></tr><tr><td style="padding:2px 3px;font-weight:600">$200</td><td style="padding:2px 3px;font-weight:600">$93.75</td><td style="padding:2px 3px;font-weight:600">$13.75</td></tr></table></div><div><table style="width:100%;border-collapse:collapse;font-size:9px"><tr><th style="text-align:left;padding:2px 3px;color:var(--text3);font-weight:600;border-bottom:1px solid var(--border)">Tier</th><th style="text-align:left;padding:2px 3px;color:#10b981;font-weight:600;border-bottom:1px solid var(--border)">Direct</th><th style="text-align:left;padding:2px 3px;color:var(--cyan2);font-weight:600;border-bottom:1px solid var(--border)">Spill</th></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$400</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$187.50</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$27.50</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$600</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$281.25</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$41.25</td></tr><tr><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$800</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$375.00</td><td style="padding:2px 3px;font-weight:600;border-bottom:1px solid var(--border)">$55.00</td></tr><tr><td style="padding:2px 3px;font-weight:600">$1,000</td><td style="padding:2px 3px;font-weight:600">$468.75</td><td style="padding:2px 3px;font-weight:600">$68.75</td></tr></table></div></div>
     </div>
 
     {% if g %}
