@@ -94,7 +94,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 .inner-surface-2{background:#eef1f8}
 
 /* ── MINI GRID ── */
-.mini-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;margin:6px 0 4px;max-width:260px}
+.mini-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:6px 0 4px;width:100%}
 .mg-cell{aspect-ratio:1;border-radius:3px}
 .mg-filled{background:linear-gradient(135deg,#0ea5e9,#38bdf8)}
 .mg-owner{background:linear-gradient(135deg,#16a34a,#059669)}
@@ -451,6 +451,9 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
           </div>
         </div>
 
+        <!-- RIGHT COLUMN: Earnings + Referral stacked -->
+        <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+
         <!-- EARNINGS BREAKDOWN -->
         <div class="card">
           <div class="card-head">
@@ -545,8 +548,8 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
           </div>
         </div>
 
-        <!-- REFERRAL LINK — stacked below earnings -->
-        <div class="card" style="margin-top:14px">
+        <!-- REFERRAL LINK -->
+        <div class="card">
           <div class="card-head">
             <div class="card-title"><div class="card-dot" style="background:#16a34a"></div>Your Referral Link</div>
             <a href="/affiliate" class="card-link">Tools →</a>
@@ -570,6 +573,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
           </div>
         </div>
 
+        </div><!-- /right column wrapper -->
       </div><!-- /dash-grid -->
 
       <!-- ROW 3 — Recent Commissions full width -->
