@@ -8,7 +8,7 @@
   display: none;
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  background: #0a0a1a;
+  background: #1c223d;
   border-top: 1px solid rgba(0,240,255,0.12);
   z-index: 300;
 }
@@ -51,7 +51,7 @@
   position: sticky;
   top: 0;
   z-index: 200;
-  background: #0a0a1a;
+  background: #1c223d;
   border-bottom: 1px solid rgba(0,180,216,0.12);
   padding: 0 16px;
   height: 54px;
