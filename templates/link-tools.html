@@ -407,7 +407,7 @@ async function toggleAnalytics(linkId, linkType) {
   var panel = document.getElementById('ap-' + linkType + '-' + linkId);
   if (!panel) return;
   if (panel.classList.contains('show')) { panel.classList.remove('show'); return; }
-  panel.innerHTML = '<div style="text-align:center;padding:20px;color:#64748b;font-size:12px">Loading analytics...</div>';
+  panel.innerHTML = '<div style="text-align:center;padding:20px;color:#7b91a8;font-size:12px">Loading analytics...</div>';
   panel.classList.add('show');
   try {
     var resp = await fetch('/api/links/analytics/' + linkId + '?link_type=' + linkType);
