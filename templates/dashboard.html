@@ -36,14 +36,14 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 .balance-unit{font-size:10px;color:rgba(148,163,184,0.5);margin-left:3px}
 
 /* ── CONTENT ── */
-.content{padding:26px 28px;flex:1}
+.content{padding:16px 24px;flex:1}
 
 /* ── SECTION LABEL ── */
 .section-label{font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#7b91a8;margin-bottom:14px;padding-left:2px}
 
 /* ── STREAM STRIPS ── */
-.stream-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
-.stream-card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:16px;padding:20px;position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 16px rgba(15,25,60,.07);transition:box-shadow .2s,transform .15s}
+.stream-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.stream-card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:14px;padding:14px 16px;position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 16px rgba(15,25,60,.07);transition:box-shadow .2s,transform .15s}
 .stream-card:hover{box-shadow:0 2px 6px rgba(15,25,60,.07),0 8px 28px rgba(15,25,60,.11);transform:translateY(-1px)}
 .stream-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
 .stream-card.s1::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}
@@ -55,12 +55,12 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 .stream-card.s3::after{background:#d97706}
 .stream-num{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#7b91a8;margin-bottom:8px}
 .stream-name{font-size:15px;font-weight:700;color:#3d5068;margin-bottom:10px}
-.stream-val{font-family:'Sora',sans-serif;font-size:36px;font-weight:800;line-height:1;margin-bottom:6px}
+.stream-val{font-family:'Sora',sans-serif;font-size:26px;font-weight:800;line-height:1;margin-bottom:4px}
 .stream-sub{font-size:13px;color:#7b91a8}
 
 /* ── STAT CARDS ── */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
-.stat-card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:16px;padding:20px;position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 16px rgba(15,25,60,.07);transition:box-shadow .2s,transform .15s}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.stat-card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 16px rgba(15,25,60,.07);transition:box-shadow .2s,transform .15s}
 .stat-card:hover{box-shadow:0 2px 6px rgba(15,25,60,.07),0 8px 28px rgba(15,25,60,.11);transform:translateY(-1px)}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
 .stat-card.c1::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}
@@ -68,9 +68,9 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 .stat-card.c3::before{background:linear-gradient(90deg,#6366f1,#818cf8)}
 .stat-card.c4::before{background:linear-gradient(90deg,#d97706,#fbbf24)}
 .stat-label{font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#7b91a8;margin-bottom:10px}
-.stat-value{font-family:'Sora',sans-serif;font-size:40px;font-weight:800;line-height:1;margin-bottom:6px;letter-spacing:-1px}
+.stat-value{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;line-height:1;margin-bottom:4px;letter-spacing:-0.5px}
 .stat-sub{font-size:13px;color:#7b91a8;font-weight:500}
-.stat-bg{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:46px;opacity:.07}
+.stat-bg{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:36px;opacity:.07}
 .stat-trend{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;margin-top:8px}
 .stat-trend.up{background:rgba(22,163,74,.09);color:#16a34a;border:1px solid rgba(22,163,74,.15)}
 .stat-trend.neutral{background:#f0f3f9;color:#7b91a8;border:1px solid rgba(15,25,60,.08)}
@@ -86,15 +86,15 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 .card-body{padding:18px 20px}
 
 /* ── LAYOUT GRIDS ── */
-.dash-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-bottom:18px}
-.dash-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px}
+.dash-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:14px}
+.dash-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
 
 /* ── INNER SURFACES (nested elements inside cards) ── */
 .inner-surface{background:#f6f8fc;border:1px solid rgba(15,25,60,.07);border-radius:10px}
 .inner-surface-2{background:#eef1f8}
 
 /* ── MINI GRID ── */
-.mini-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin:8px 0 4px}
+.mini-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;margin:6px 0 4px;max-width:260px}
 .mg-cell{aspect-ratio:1;border-radius:3px}
 .mg-filled{background:linear-gradient(135deg,#0ea5e9,#38bdf8)}
 .mg-owner{background:linear-gradient(135deg,#16a34a,#059669)}
@@ -111,7 +111,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 .active-grid-item:last-child{border-bottom:none;padding-bottom:0}
 
 /* ── COMMISSION ROWS ── */
-.comm-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(15,25,60,.06)}
+.comm-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(15,25,60,.06)}
 .comm-row:last-child{border-bottom:none;padding-bottom:0}
 .comm-left{display:flex;align-items:center;gap:10px}
 .comm-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
@@ -406,22 +406,22 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
           </div>
           <div class="card-body">
             {% if grid_stats.active_grids > 0 %}
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
-                <div style="background:#f6f8fc;border-radius:10px;padding:14px;border:1px solid rgba(15,25,60,.07);text-align:center">
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+                <div style="background:#f6f8fc;border-radius:9px;padding:10px 8px;border:1px solid rgba(15,25,60,.07);text-align:center">
                   <div style="font-size:11px;font-weight:800;color:#7b91a8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Active</div>
-                  <div style="font-size:32px;font-weight:800;color:#0d9488">{{ grid_stats.active_grids }}</div>
+                  <div style="font-size:24px;font-weight:800;color:#0d9488">{{ grid_stats.active_grids }}</div>
                 </div>
-                <div style="background:#f6f8fc;border-radius:10px;padding:14px;border:1px solid rgba(15,25,60,.07);text-align:center">
+                <div style="background:#f6f8fc;border-radius:9px;padding:10px 8px;border:1px solid rgba(15,25,60,.07);text-align:center">
                   <div style="font-size:11px;font-weight:800;color:#7b91a8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Advances</div>
-                  <div style="font-size:32px;font-weight:800;color:#2563eb">{{ grid_stats.completed_advances }}</div>
+                  <div style="font-size:24px;font-weight:800;color:#2563eb">{{ grid_stats.completed_advances }}</div>
                 </div>
-                <div style="background:#f6f8fc;border-radius:10px;padding:14px;border:1px solid rgba(15,25,60,.07);text-align:center">
+                <div style="background:#f6f8fc;border-radius:9px;padding:10px 8px;border:1px solid rgba(15,25,60,.07);text-align:center">
                   <div style="font-size:11px;font-weight:800;color:#7b91a8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Earned</div>
-                  <div style="font-size:28px;font-weight:800;color:#16a34a">${{ '%.0f'|format(grid_stats.total_earned or 0) }}</div>
+                  <div style="font-size:24px;font-weight:800;color:#16a34a">${{ '%.0f'|format(grid_stats.total_earned or 0) }}</div>
                 </div>
               </div>
               <!-- Mini grid visualiser -->
-              <div style="margin:16px 0 14px">
+              <div style="margin:10px 0 10px">
                 <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#7b91a8;margin-bottom:8px">Your Grid Position</div>
                 <div class="mini-grid">
                   {%- set total_cells = 64 %}
@@ -457,48 +457,48 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
             <div class="card-title"><div class="card-dot" style="background:#0ea5e9"></div>Earnings Breakdown</div>
             <a href="/wallet" class="card-link">Details →</a>
           </div>
-          <div class="card-body" style="padding:16px 20px">
+          <div class="card-body" style="padding:12px 16px">
             {% set total_streams = sponsor_earnings + grid_earnings + level_earnings + course_earnings %}
             {% set max_earn = [sponsor_earnings, grid_earnings, level_earnings, course_earnings, 1]|max %}
 
             <!-- Stream 1: Membership -->
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
               <div style="display:flex;align-items:center;gap:8px">
                 <div style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex-shrink:0"></div>
                 <span style="font-size:14px;font-weight:600;color:#334155">Membership (50%)</span>
               </div>
               <span style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(sponsor_earnings) }}</span>
             </div>
-            <div style="height:5px;background:#eef1f8;border-radius:99px;overflow:hidden;margin-bottom:14px">
+            <div style="height:4px;background:#eef1f8;border-radius:99px;overflow:hidden;margin-bottom:10px">
               <div style="height:100%;width:{{ ((sponsor_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#0284c7,#38bdf8);border-radius:99px"></div>
             </div>
 
             <!-- Stream 2: Grid Direct Sponsor -->
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
               <div style="display:flex;align-items:center;gap:8px">
                 <div style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex-shrink:0"></div>
                 <span style="font-size:14px;font-weight:600;color:#334155">Grid Direct Sponsor</span>
               </div>
               <span style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(grid_earnings) }}</span>
             </div>
-            <div style="height:5px;background:#eef1f8;border-radius:99px;overflow:hidden;margin-bottom:14px">
+            <div style="height:4px;background:#eef1f8;border-radius:99px;overflow:hidden;margin-bottom:10px">
               <div style="height:100%;width:{{ ((grid_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#0284c7,#38bdf8);border-radius:99px"></div>
             </div>
 
             <!-- Stream 3: Grid Uni-Level -->
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
               <div style="display:flex;align-items:center;gap:8px">
                 <div style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex-shrink:0"></div>
                 <span style="font-size:14px;font-weight:600;color:#334155">Grid Uni-Level</span>
               </div>
               <span style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(level_earnings) }}</span>
             </div>
-            <div style="height:5px;background:#eef1f8;border-radius:99px;overflow:hidden;margin-bottom:14px">
+            <div style="height:4px;background:#eef1f8;border-radius:99px;overflow:hidden;margin-bottom:10px">
               <div style="height:100%;width:{{ ((level_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#0284c7,#38bdf8);border-radius:99px"></div>
             </div>
 
             <!-- Stream 4: Course Sales -->
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
               <div style="display:flex;align-items:center;gap:8px">
                 <div style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex-shrink:0"></div>
                 <span style="font-size:14px;font-weight:600;color:#334155">Course Sales (100% pass-up)</span>
@@ -509,14 +509,14 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
               <span style="font-size:12px;font-weight:700;color:#94a3b8;letter-spacing:0.5px">COMING SOON</span>
               {% endif %}
             </div>
-            <div style="height:5px;background:#eef1f8;border-radius:99px;overflow:hidden;margin-bottom:12px">
+            <div style="height:4px;background:#eef1f8;border-radius:99px;overflow:hidden;margin-bottom:10px">
               {% if course_earnings > 0 %}
               <div style="height:100%;width:{{ ((course_earnings/max_earn)*100)|int }}%;background:linear-gradient(90deg,#d97706,#fbbf24);border-radius:99px"></div>
               {% endif %}
             </div>
 
             <!-- Totals row -->
-            <div style="background:#f6f8fc;border:1px solid rgba(15,25,60,.07);border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div style="background:#f6f8fc;border:1px solid rgba(15,25,60,.07);border-radius:10px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
               <span style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px">Total Earned</span>
               <span style="font-size:20px;font-weight:800;color:#0f172a">${{ '%.2f'|format(total_earned) }}</span>
             </div>
@@ -545,18 +545,41 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
           </div>
         </div>
 
+        <!-- REFERRAL LINK — stacked below earnings -->
+        <div class="card" style="margin-top:14px">
+          <div class="card-head">
+            <div class="card-title"><div class="card-dot" style="background:#16a34a"></div>Your Referral Link</div>
+            <a href="/affiliate" class="card-link">Tools →</a>
+          </div>
+          <div class="card-body" style="padding:14px 16px">
+            <p style="font-size:13px;color:#3d5068;margin-bottom:10px;line-height:1.6">Share your link — earn <strong style="color:#16a34a">$10/month</strong> (50%) per active referral.</p>
+            <div style="background:#f6f8fc;border:1px solid rgba(15,25,60,.07);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <span style="font-size:11px;color:#0ea5e9;font-family:monospace;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">superadpro.com/ref/{{ user.username }}</span>
+              <button onclick="copyRef()" style="font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:6px;padding:6px 12px;cursor:pointer;white-space:nowrap;font-family:inherit" id="copyBtn">Copy</button>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div style="background:#f6f8fc;border-radius:8px;padding:8px 10px;border:1px solid rgba(15,25,60,.07);display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:12px;color:#7b91a8;font-weight:600">Directs</span>
+                <span style="font-size:16px;font-weight:800;color:#0f172a">{{ personal_referrals }}</span>
+              </div>
+              <div style="background:#f6f8fc;border-radius:8px;padding:8px 10px;border:1px solid rgba(15,25,60,.07);display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:12px;color:#7b91a8;font-weight:600">Network</span>
+                <span style="font-size:16px;font-weight:800;color:#0f172a">{{ total_team }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div><!-- /dash-grid -->
 
-      <!-- ROW 3 -->
-      <div class="dash-grid-3">
-
-        <!-- RECENT COMMISSIONS -->
-        <div class="card" style="grid-column:span 2">
+      <!-- ROW 3 — Recent Commissions full width -->
+      <div style="margin-bottom:14px">
+        <div class="card">
           <div class="card-head">
             <div class="card-title"><div class="card-dot" style="background:#f59e0b"></div>Recent Commissions</div>
             <a href="/wallet" class="card-link">Full History →</a>
           </div>
-          <div class="card-body" style="padding:0 20px">
+          <div class="card-body" style="padding:0 16px">
             {% if recent_commissions %}
               {% for c in recent_commissions %}
               <div class="comm-row">
@@ -589,33 +612,8 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
             {% endif %}
           </div>
         </div>
-
-        <!-- REFERRAL LINK -->
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><div class="card-dot" style="background:#16a34a"></div>Your Referral Link</div>
-            <a href="/affiliate" class="card-link">Tools →</a>
-          </div>
-          <div class="card-body">
-            <p style="font-size:12px;color:#3d5068;margin-bottom:12px;line-height:1.6">Share your link. Each person who joins under you pays $20/month — <strong style="color:#16a34a">you earn $10/month</strong> (50%) for every active referral.</p>
-            <div style="background:#f6f8fc;border:1px solid rgba(15,25,60,.07);border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:10px">
-              <span style="font-size:11px;color:#0ea5e9;font-family:monospace;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">superadpro.com/ref/{{ user.username }}</span>
-              <button onclick="copyRef()" style="font-size:10px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:6px;padding:7px 14px;cursor:pointer;white-space:nowrap;font-family:inherit" id="copyBtn">Copy</button>
-            </div>
-            <div style="margin-top:14px">
-              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(15,25,60,.06)">
-                <span style="font-size:14px;color:#3d5068">Direct recruits</span>
-                <span style="font-size:15px;font-weight:800;color:#0f172a">{{ personal_referrals }}</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;padding:7px 0">
-                <span style="font-size:14px;color:#3d5068">Total network</span>
-                <span style="font-size:15px;font-weight:800;color:#0f172a">{{ total_team }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /dash-grid-3 -->
+      </div>
+      </div><!-- /row3 -->
 
       <!-- QUICK LINKS -->
       <div class="card">
