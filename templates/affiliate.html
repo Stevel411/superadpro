@@ -100,7 +100,26 @@ tr:last-child td{border-bottom:none}
   <meta name="apple-mobile-web-app-title" content="SuperAdPro">
   <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 </head>
-
+<body>
+<div class="layout">
+{% include "_sidebar.html" %}
+<div class="main">
+<div class="topbar">
+  <div>
+    <div style="font-size:18px;font-weight:800;color:#ffffff">🤝 Social Share Hub</div>
+    <div style="font-size:13px;color:#6b7d94;margin-top:1px">Your referral link, captions &amp; share tools</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px">
+    <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px 14px;text-align:center">
+      <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8">Balance</div>
+      <div><span style="font-size:15px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:11px;color:#94a3b8;margin-left:3px">USDT</span></div>
+    </div>
+    <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none">
+      <svg width="30" height="30" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#0ea5e9"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></svg>
+      <span style="font-family:Sora,sans-serif;font-size:17px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
+    </a>
+  </div>
+</div>
 <div class="content">
 
 <!-- HERO -->
@@ -298,6 +317,8 @@ Check it out 👇
 </div><!-- /two-col -->
 
 </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /layout -->
 
 <!-- Toast -->
 <div class="toast" id="toast">
