@@ -3,114 +3,166 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Affiliate Tools — SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<title>Social Share Hub — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0f172a;min-height:100vh}
-.layout{display:flex;min-height:100vh}
-
-/* ── Sidebar (matches dashboard exactly) ── */
-.sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;letter-spacing:0;text-transform:none;color:#fff;-webkit-text-fill-color:#fff}
-.nav-item{display:flex;align-items:center;gap:11px;padding:11px 16px;margin:2px 10px;border-radius:10px;font-size:14px;font-weight:500;color:rgba(188,213,240,0.65);text-decoration:none;transition:all 0.18s;position:relative}
-.nav-item:hover{background:rgba(0,200,255,0.08);color:rgba(188,213,240,0.95)}
-.nav-item.active{background:linear-gradient(90deg,rgba(0,200,255,0.2),rgba(0,200,255,0.06));color:#fff;font-weight:700}
-.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
-.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-
-/* ── Main Area ── */
-.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#070c18;border-bottom:1px solid rgba(0,200,255,0.1);position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,200,255,0.15),0 4px 20px rgba(0,0,0,0.3)}
-.content{padding:18px 24px;flex:1;display:flex;flex-direction:column}
-
-/* ── Cards ── */
-.card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:16px;box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 16px rgba(15,25,60,.07);overflow:hidden;display:flex;flex-direction:column}
-.card-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(15,25,60,.07);flex-shrink:0}
-.card-title{font-size:14px;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:8px;font-family:'Sora',sans-serif}
-.card-dot{width:6px;height:6px;border-radius:50%;background:#0ea5e9;flex-shrink:0}
-.card-body{padding:14px 16px;flex:1;display:flex;flex-direction:column}
-
-/* ── Forms ── */
-.form-group{margin-bottom:10px}
-.form-label{font-size:11px;font-weight:800;color:#7b91a8;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;display:block}
-.form-input{width:100%;padding:8px 12px;border:1px solid rgba(15,25,60,.12);border-radius:8px;font-size:14px;color:#0f172a;font-family:inherit;background:#f6f8fc;transition:border-color 0.2s}
-.form-input:focus{outline:none;border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,0.1)}
-select.form-input{background:#f6f8fc}
-
-/* ── Buttons ── */
-.btn-primary{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:8px 18px;border-radius:6px;border:none;cursor:pointer;font-family:inherit}
-.btn-primary:hover{box-shadow:0 4px 12px rgba(14,165,233,0.25)}
-.btn-warn{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#f59e0b,#ef4444);padding:8px 18px;border-radius:6px;border:none;cursor:pointer;font-family:inherit}
-
-/* ── Badges ── */
-.badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px}
-.badge-green{background:rgba(22,163,74,0.12);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
-.badge-amber{background:rgba(245,158,11,0.08);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)}
-
-/* ── Info rows ── */
-.info-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(15,25,60,.05)}
-.info-row:last-child{border-bottom:none}
-.info-key{font-size:11px;font-weight:800;color:#7b91a8;text-transform:uppercase;letter-spacing:0.8px}
-.info-val{font-size:13px;font-weight:600;color:#0f172a}
-
-/* ── Earnings rows ── */
-.earn-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(15,25,60,.05)}
-.earn-row:last-child{border-bottom:none}
-.earn-label{font-size:13px;color:#3d5068}
-.earn-val{font-size:13px;font-weight:800;color:#16a34a}
-
-/* ── Wallet info ── */
-.wallet-info{padding:10px 12px;background:#f6f8fc;border:1px solid rgba(14,165,233,.15);border-radius:10px;margin-top:auto}
-.wallet-info-title{font-size:11px;font-weight:700;color:#0284c7;margin-bottom:4px}
-.wallet-info-text{font-size:11px;color:#3d5068;line-height:1.6}
-
-/* ── Quick links ── */
-.q-link{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f6f8fc;border:1px solid rgba(15,25,60,.08);border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;color:#334155;transition:all 0.15s}
-.q-link:hover{background:#e0f2fe;border-color:rgba(14,165,233,.25)}
-
-/* ── Toast ── */
-.toast-banner{border-radius:8px;padding:10px 16px;margin-bottom:14px;font-size:13px;font-weight:600}
-.toast-banner.success{background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.25);color:#16a34a}
-.toast-banner.error{background:#fef2f2;border:1px solid #fecaca;color:#dc2626}
-
-/* ═══ Page Layout: 4-across top, 2-across bottom, both stretch to fill ═══ */
-.pg-wrap{flex:1;display:flex;flex-direction:column;gap:16px}
-.pg-top{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;flex:3}
-.pg-top>.card{min-height:0}
-.pg-mid{display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1}
-.pg-mid>.card{min-height:0}
-.pg-bottom{display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1}
-.pg-bottom>.card{min-height:0}
-
-/* KYC/2FA status badges */
-.status-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700}
-.status-chip.none{background:rgba(100,116,139,0.1);color:#64748b;border:1px solid rgba(100,116,139,0.2)}
-.status-chip.pending{background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.25)}
-.status-chip.approved{background:rgba(22,163,74,0.1);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
-.status-chip.rejected{background:rgba(220,38,38,0.1);color:#dc2626;border:1px solid rgba(220,38,38,0.25)}
-.status-chip.enabled{background:rgba(22,163,74,0.1);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
-.status-chip.disabled{background:rgba(100,116,139,0.1);color:#64748b;border:1px solid rgba(100,116,139,0.2)}
-
-/* File upload */
-.file-input{width:100%;padding:8px;border:1.5px dashed rgba(15,25,60,.15);border-radius:8px;font-size:12px;font-family:inherit;color:#7b91a8;background:#f6f8fc;cursor:pointer}
-.file-input:hover{border-color:#0ea5e9}
-
-@media(max-width:1100px){
-  .pg-top{grid-template-columns:1fr 1fr}
-  .pg-mid{grid-template-columns:1fr}
-  .pg-bottom{grid-template-columns:1fr}
+*{{ margin:0;padding:0;box-sizing:border-box }}
+:root{
+  --bg:#f0f3f9;
+  --card:#fff;
+  --border:rgba(15,25,60,.08);
+  --text:#0f172a;
+  --muted:#7b91a8;
+  --cyan:#00c8ff;
+  --cyan2:#0ea5e9;
+  --green:#16a34a;
+  --shadow:0 1px 3px rgba(15,25,60,.06),0 4px 16px rgba(15,25,60,.07);
 }
-@media(max-width:768px){
-  .layout{display:block!important}
-  .sidebar{display:none!important}
-  .main{margin-left:0!important}
-  .topbar{display:none!important}
-  .content{padding:10px 12px 80px!important}
-  .pg-top,.pg-mid,.pg-bottom{grid-template-columns:1fr!important}
-  .pg-top,.pg-mid,.pg-bottom{flex:unset}
-}
+body{{ font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh }}
+
+/* ── HERO BANNER ── */
+.share-hero{{ background:linear-gradient(135deg,#0a0a1a 0%,#0d1629 50%,#0a1a0d 100%);
+  border-radius:20px;
+  padding:36px 40px;
+  margin-bottom:20px;
+  position:relative;
+  overflow:hidden; }}
+.share-hero::before{{ content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 80% at 80% 50%,rgba(0,200,255,0.12),transparent),
+             radial-gradient(ellipse 40% 60% at 20% 80%,rgba(22,163,74,0.08),transparent); }}
+.share-hero::after{{ content:'';position:absolute;top:-60px;right:-60px;width:280px;height:280px;
+  border-radius:50%;background:rgba(0,200,255,0.04);border:1px solid rgba(0,200,255,0.08); }}
+.hero-inner{{ position:relative;z-index:1;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center }}
+.hero-label{{ font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:rgba(0,200,255,0.7);margin-bottom:10px }}
+.hero-title{{ font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:10px }}
+.hero-title span{{ color:var(--cyan) }}
+.hero-sub{{ font-size:14px;color:rgba(200,220,255,0.65);line-height:1.7;max-width:520px }}
+
+/* Ref link box in hero */
+.ref-box{{ background:rgba(255,255,255,0.05);border:1px solid rgba(0,200,255,0.2);border-radius:14px;padding:16px 20px;margin-top:20px;display:flex;align-items:center;gap:12px }}
+.ref-url{{ font-family:monospace;font-size:13px;color:var(--cyan);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap }}
+.ref-copy-btn{{ background:linear-gradient(135deg,#00c8ff,#0ea5e9);color:#fff;font-size:13px;font-weight:700;border:none;border-radius:9px;padding:10px 20px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all 0.2s }}
+.ref-copy-btn:hover{{ transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,200,255,0.35) }}
+
+/* Hero stats */
+.hero-stats{{ display:flex;flex-direction:column;gap:12px;min-width:180px }}
+.hero-stat{{ background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 20px;text-align:center }}
+.hero-stat-val{{ font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:#fff;line-height:1 }}
+.hero-stat-val.green{{ color:#4ade80 }}
+.hero-stat-val.cyan{{ color:var(--cyan) }}
+.hero-stat-lbl{{ font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(200,220,255,0.5);margin-top:5px }}
+
+/* ── SECTION LABEL ── */
+.section-label{{ font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;padding-left:2px;display:flex;align-items:center;gap:8px }}
+.section-label::after{{ content:'';flex:1;height:1px;background:var(--border) }}
+
+/* ── SOCIAL GRID ── */
+.social-grid{{ display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px }}
+
+.social-card{{ border-radius:18px;
+  padding:24px 16px 20px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  cursor:pointer;text-decoration:none;
+  position:relative;overflow:hidden;
+  transition:all 0.25s cubic-bezier(.34,1.56,.64,1);
+  border:1px solid transparent; }}
+.social-card:hover{{ transform:translateY(-4px) scale(1.02) }}
+.social-card::before{{ content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.2s;background:rgba(255,255,255,0.1) }}
+.social-card:hover::before{{ opacity:1 }}
+
+.social-card .soc-icon{{ width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;margin-bottom:4px;transition:all 0.2s }}
+.social-card:hover .soc-icon{{ background:rgba(255,255,255,0.25);transform:scale(1.08) }}
+.social-card .soc-name{{ font-size:13px;font-weight:800;color:#fff;letter-spacing:0.3px }}
+.social-card .soc-action{{ font-size:10px;font-weight:600;color:rgba(255,255,255,0.65);letter-spacing:0.5px }}
+.social-card .soc-badge{{ position:absolute;top:10px;right:10px;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,0.2);color:#fff }}
+
+/* Platform colours */
+.sc-facebook{{ background:linear-gradient(145deg,#1a6ef7,#1877f2) }}
+.sc-instagram{{ background:linear-gradient(145deg,#f58529,#dd2a7b,#8134af) }}
+.sc-tiktok{{ background:linear-gradient(145deg,#1a1a1a,#010101);border-color:rgba(255,255,255,0.08)!important }}
+.sc-twitter{{ background:linear-gradient(145deg,#1a1a1a,#000) }}
+.sc-linkedin{{ background:linear-gradient(145deg,#0d7ec4,#0a66c2) }}
+.sc-youtube{{ background:linear-gradient(145deg,#ff2121,#ff0000) }}
+.sc-whatsapp{{ background:linear-gradient(145deg,#25d366,#128c7e) }}
+.sc-telegram{{ background:linear-gradient(145deg,#2ba5d4,#0088cc) }}
+
+/* ── CAPTION WORKSHOP ── */
+.caption-workshop{{ background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px }}
+.workshop-head{{ display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#f8faff,var(--card)) }}
+.workshop-title{{ font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px }}
+.workshop-dot{{ width:7px;height:7px;border-radius:50%;background:#a855f7 }}
+.workshop-tabs{{ display:flex;gap:6px }}
+.w-tab{{ font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:#f6f8fc;color:var(--muted);cursor:pointer;transition:all 0.15s }}
+.w-tab.active{{ background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;border-color:transparent }}
+
+.workshop-body{{ padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px }}
+.caption-box{{ background:#f6f8fc;border:1px solid var(--border);border-radius:12px;padding:16px;font-size:13px;color:#334155;line-height:1.8;min-height:160px;white-space:pre-wrap;font-family:'DM Sans',sans-serif }}
+
+.caption-controls{{ display:flex;flex-direction:column;gap:12px }}
+.caption-label{{ font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px }}
+.platform-pills{{ display:flex;flex-wrap:wrap;gap:6px }}
+.plat-pill{{ font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:#f6f8fc;color:#3d5068;cursor:pointer;transition:all 0.15s }}
+.plat-pill.active{{ background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border-color:transparent }}
+
+.caption-btn-row{{ display:flex;gap:8px;margin-top:4px }}
+.cap-btn{{ font-size:12px;font-weight:700;padding:9px 16px;border-radius:9px;border:none;cursor:pointer;font-family:inherit;transition:all 0.15s;display:flex;align-items:center;gap:6px }}
+.cap-btn.primary{{ background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff }}
+.cap-btn.secondary{{ background:#f6f8fc;border:1px solid var(--border);color:#3d5068 }}
+.cap-btn:hover{{ transform:translateY(-1px) }}
+
+/* ── TRAFFIC FLYWHEEL ── */
+.flywheel-card{{ background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px }}
+.flywheel-head{{ padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between }}
+.flywheel-body{{ padding:24px }}
+.flywheel-steps{{ display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative }}
+.flywheel-steps::before{{ content:'';position:absolute;top:28px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,#16a34a,#0ea5e9,#a855f7,#f59e0b,#16a34a);border-radius:2px;z-index:0 }}
+.fw-step{{ display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;z-index:1 }}
+.fw-icon{{ width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;border:3px solid var(--card);box-shadow:0 0 0 2px var(--border),var(--shadow) }}
+.fw-step:nth-child(1) .fw-icon{{ background:linear-gradient(135deg,#dcfce7,#bbf7d0) }}
+.fw-step:nth-child(2) .fw-icon{{ background:linear-gradient(135deg,#e0f2fe,#bae6fd) }}
+.fw-step:nth-child(3) .fw-icon{{ background:linear-gradient(135deg,#f0f9ff,#e0f2fe) }}
+.fw-step:nth-child(4) .fw-icon{{ background:linear-gradient(135deg,#fdf4ff,#fae8ff) }}
+.fw-step:nth-child(5) .fw-icon{{ background:linear-gradient(135deg,#fefce8,#fef08a) }}
+.fw-label{{ font-size:12px;font-weight:700;color:var(--text);text-align:center;line-height:1.3 }}
+.fw-sub{{ font-size:10px;color:var(--muted);text-align:center }}
+
+/* ── COMMISSION CARDS ── */
+.comm-grid{{ display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px }}
+.comm-card{{ border-radius:16px;padding:22px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:6px }}
+.comm-card::before{{ content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0 }}
+.cc1{{ background:linear-gradient(145deg,#f0fdf4,#dcfce7);border:1px solid #bbf7d0 }}.cc1::before{{ background:linear-gradient(90deg,#16a34a,#22c55e) }}
+.cc2{{ background:linear-gradient(145deg,#f0f9ff,#e0f2fe);border:1px solid #bae6fd }}.cc2::before{{ background:linear-gradient(90deg,#0284c7,#38bdf8) }}
+.cc3{{ background:linear-gradient(145deg,#fdf4ff,#f3e8ff);border:1px solid #e9d5ff }}.cc3::before{{ background:linear-gradient(90deg,#a855f7,#7c3aed) }}
+.cc-pct{{ font-family:'Sora',sans-serif;font-size:32px;font-weight:800;line-height:1 }}
+.cc1 .cc-pct{{ color:#16a34a }}.cc2 .cc-pct{{ color:#0284c7 }}.cc3 .cc-pct{{ color:#a855f7 }}
+.cc-name{{ font-size:15px;font-weight:700;color:var(--text) }}
+.cc-desc{{ font-size:12px;color:var(--muted);line-height:1.5 }}
+
+/* ── TEAM TABLE ── */
+.team-card{{ background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);overflow:hidden }}
+table{{ width:100%;border-collapse:collapse }}
+thead tr{{ background:#f6f8fc;border-bottom:2px solid var(--border) }}
+th{{ padding:10px 16px;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;text-align:left }}
+td{{ padding:12px 16px;font-size:14px;border-bottom:1px solid var(--border);color:var(--text) }}
+tr:last-child td{{ border-bottom:none }}
+tr:hover td{{ background:#f8faff }}
+.badge{{ font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px }}
+.badge-green{{ background:rgba(22,163,74,.1);color:#16a34a;border:1px solid rgba(22,163,74,.2) }}
+.badge-amber{{ background:rgba(245,158,11,.08);color:#f59e0b;border:1px solid rgba(245,158,11,.25) }}
+
+.empty-state{{ text-align:center;padding:48px 20px }}
+.empty-icon{{ font-size:36px;margin-bottom:12px }}
+.empty-title{{ font-size:16px;font-weight:700;color:#3d5068;margin-bottom:6px }}
+.empty-sub{{ font-size:14px;color:var(--muted);margin-bottom:20px }}
+.empty-cta{{ display:inline-block;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:13px;font-weight:700;padding:10px 22px;border-radius:9px;text-decoration:none }}
+
+/* ── TOAST ── */
+.toast{{ position:fixed;bottom:24px;right:24px;background:#0f172a;color:#fff;font-size:13px;font-weight:700;padding:12px 20px;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px;transform:translateY(80px);opacity:0;transition:all 0.3s cubic-bezier(.34,1.56,.64,1);z-index:999 }}
+.toast.show{{ transform:translateY(0);opacity:1 }}
+.toast-icon{{ font-size:16px }}
+
+/* ── LAYOUT WRAPPER ── */
+.content{{ padding:20px 28px }}
 </style>
   <link rel="stylesheet" href="/static/mobile.css">
   <link rel="manifest" href="/static/manifest.json">
@@ -120,157 +172,104 @@ select.form-input{background:#f6f8fc}
   <meta name="apple-mobile-web-app-title" content="SuperAdPro">
   <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 </head>
-<body>
-<div class="layout">
-<!-- ── Mobile Topbar ── -->
-<div class="mobile-topbar">
-  <a class="mobile-topbar-left" href="/dashboard">
-    <svg width="26" height="26" viewBox="0 0 100 100">
-      <defs>
-        <linearGradient id="mhg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient>
-      </defs>
-      <circle cx="22" cy="22" r="20" fill="url(#mhg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/>
-    </svg>
-    <div>
-      <div class="mobile-topbar-name">SuperAdPro</div>
-      <div class="mobile-topbar-page">Affiliate Tools</div>
-    </div>
-  </a>
-  <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
-</div>
 
-
-<svg width="0" height="0" style="position:absolute">
-  <defs>
-    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="30%" stop-color="#0284c7"/><stop offset="70%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient>
-    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a0a2e"/><stop offset="40%" stop-color="#06061a"/><stop offset="100%" stop-color="#03031a"/></linearGradient>
-    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="25%" stop-color="#0ea5e9"/><stop offset="50%" stop-color="#0284c7"/><stop offset="75%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
-    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
-    <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <linearGradient id="logo-grad-pg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0ea5e9"/>
-      <stop offset="1" stop-color="#38bdf8"/>
-    </linearGradient>
-    <symbol id="shield" viewBox="0 0 44 44">
-      <circle cx="22" cy="22" r="20" fill="url(#logo-grad-pg)"/>
-      <path d="M18 13l14 9-14 9V13z" fill="#fff"/>
-    </symbol>
-  </defs>
-</svg>
-    {% include "_sidebar.html" %}
-
-<div class="main">
-<div class="topbar">
-      <div>
-    <div style="font-size:19px;font-weight:800;color:#ffffff">🤝 Affiliate Tools</div>
-    <div style="font-size:19px;color:#6b7d94;margin-top:1px">Your referral link, team stats & downline</div>
-  </div>
-      <div style="display:flex;align-items:center;gap:14px">
-          <div style="background:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:6px 14px;text-align:center">
-            <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8">Balance</div>
-            <div><span style="font-size:15px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:11px;color:#94a3b8;margin-left:3px">USDT</span></div>
-          </div>
-          <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-          <svg width="32" height="32" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-tb)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-tb" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
-          <span style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
-        </a>
-        </div>
-    </div>
 <div class="content">
 
-<div class="row row-3" style="margin-bottom:20px">
-  <div class="stat-pill" style="background:linear-gradient(135deg,#f0fdfa,#f0fdf4);border:1px solid #b2ece0">
-    <div class="stat-pill-val" style="color:#059669">{{ personal_referrals }}</div>
-    <div class="stat-pill-lbl">Direct Recruits</div>
-  </div>
-  <div class="stat-pill" style="background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #b8d4f8">
-    <div class="stat-pill-val" style="color:#0284c7">{{ total_team }}</div>
-    <div class="stat-pill-lbl">Total Team</div>
-  </div>
-  <div class="stat-pill" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #d4bef8">
-    <div class="stat-pill-val" style="color:#0284c7">${{ '%.2f'|format(level_earnings) }}</div>
-    <div class="stat-pill-lbl">Upline Earned</div>
-  </div>
-</div>
-
-<!-- REF LINK -->
-<div class="card">
-  <div class="card-head">
-    <div class="card-title"><div class="card-dot" style="background:#16a34a"></div>Your Referral Link</div>
-  </div>
-  <div class="card-body">
-    <p style="font-size:19px;color:#64748b;margin-bottom:16px;line-height:1.6">Share this link to refer new members. Every person who joins through your link is placed into your Income Grid — earning you level commissions from their first payment.</p>
-    <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px">
-      <span style="font-size:19px;color:#0284c7;font-family:monospace;flex:1" id="refUrl">{{ ref_link }}</span>
-      <button onclick="copyRef()" id="copyBtn" style="font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-family:inherit;white-space:nowrap">Copy Link</button>
+<!-- ── HERO ── -->
+<div class="share-hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-label">🤝 Affiliate Hub</div>
+      <div class="hero-title">Your Social <span>Share Command Centre</span></div>
+      <div class="hero-sub">Every share plants a seed. Every referral that joins is tracked to you permanently — even if they click weeks later. Share everywhere, share often, earn for life.</div>
+      <div class="ref-box">
+        <span class="ref-url" id="refUrl">{{ ref_link }}</span>
+        <button class="ref-copy-btn" onclick="copyRef()">📋 Copy Link</button>
+      </div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-      <a href="https://wa.me/?text=Join%20SuperAdPro%20—%20earn%20from%20your%208×8%20Income%20Grid!%20{{ ref_link }}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.25);border-radius:8px;font-size:13px;font-weight:700;color:#16a34a;text-decoration:none">📱 WhatsApp</a>
-      <a href="https://t.me/share/url?url={{ ref_link }}&text=Join%20SuperAdPro%20and%20earn%20from%20your%20Income%20Grid!" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:#cffafe;border:1px solid #67e8f9;border-radius:8px;font-size:13px;font-weight:700;color:#0284c7;text-decoration:none">✈️ Telegram</a>
-      <a href="https://twitter.com/intent/tweet?text=I%27m%20building%20my%208×8%20Income%20Grid%20on%20SuperAdPro%20—%20join%20me!%20{{ ref_link }}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:rgba(124,58,237,0.12);border:1px solid #ddd6fe;border-radius:8px;font-size:13px;font-weight:700;color:#0284c7;text-decoration:none">🐦 X / Twitter</a>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-val green">{{ personal_referrals }}</div>
+        <div class="hero-stat-lbl">Direct Recruits</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val cyan">{{ total_team }}</div>
+        <div class="hero-stat-lbl">Total Network</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val" style="color:#fbbf24">${ '%.2f'|format(sponsor_earnings + level_earnings) }</div>
+        <div class="hero-stat-lbl">Total Earned</div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- SOCIAL SHARING HUB -->
-<div class="card">
-  <div class="card-head">
-    <div class="card-title"><div class="card-dot" style="background:#a855f7"></div>Share Across Social Media</div>
-    <span class="badge badge-cyan">Traffic Flywheel</span>
+<!-- ── SOCIAL PLATFORMS ── -->
+<div class="section-label">Share Your Link Instantly</div>
+<div class="social-grid">
+  <a href="https://www.facebook.com/sharer/sharer.php?u={{ ref_link }}" target="_blank" class="social-card sc-facebook">
+    <div class="soc-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div>
+    <div class="soc-name">Facebook</div>
+    <div class="soc-action">Share Post →</div>
+  </a>
+  <div class="social-card sc-instagram" onclick="copyForPlatform('instagram')">
+    <div class="soc-badge">Copy</div>
+    <div class="soc-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></div>
+    <div class="soc-name">Instagram</div>
+    <div class="soc-action">Copy Caption →</div>
   </div>
-  <div class="card-body">
-    <p style="font-size:14px;color:#64748b;margin-bottom:20px;line-height:1.6">Every share drives traffic back to SuperAdPro. When someone signs up through your link, they're tracked as your referral — even if they click weeks later. Share everywhere, share often.</p>
-    
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px">
-      <!-- Facebook -->
-      <a href="https://www.facebook.com/sharer/sharer.php?u={{ ref_link }}" target="_blank" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:90px;background:#1877f2;border-radius:14px;text-decoration:none;transition:all 0.2s;box-shadow:0 2px 8px rgba(24,119,242,0.25)">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-        <span style="font-size:11px;font-weight:700;color:#fff;letter-spacing:0.3px">Facebook</span>
-      </a>
-      <!-- Instagram -->
-      <div onclick="copyForInsta()" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:90px;background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af,#515bd4);border-radius:14px;transition:all 0.2s;box-shadow:0 2px 8px rgba(221,42,123,0.25)">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-        <span id="instaLabel" style="font-size:11px;font-weight:700;color:#fff;letter-spacing:0.3px">Instagram</span>
-      </div>
-      <!-- TikTok -->
-      <div onclick="copyForTikTok()" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:90px;background:#000;border-radius:14px;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.25)">
-        <svg width="26" height="30" viewBox="0 0 448 512" fill="#fff"><path d="M448 209.91a210.06 210.06 0 01-122.77-39.25v178.72A162.55 162.55 0 11185 188.31v89.89a74.62 74.62 0 1052.23 71.18V0h88a121.18 121.18 0 00122.77 121.33z"/></svg>
-        <span id="tiktokLabel" style="font-size:11px;font-weight:700;color:#fff;letter-spacing:0.3px">TikTok</span>
-      </div>
-      <!-- Reddit -->
-      <a href="https://www.reddit.com/submit?url={{ ref_link }}&title=SuperAdPro%20—%20Video%20Advertising%20Platform%20with%208×8%20Income%20Grid" target="_blank" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:90px;background:#ff4500;border-radius:14px;text-decoration:none;transition:all 0.2s;box-shadow:0 2px 8px rgba(255,69,0,0.25)">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="#fff"><path d="M12 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 01-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 01.042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 014.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 01.14-.197.35.35 0 01.238-.042l2.906.617a1.214 1.214 0 011.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 00-.231.094.33.33 0 000 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 000-.462.342.342 0 00-.462 0c-.545.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 00-.205-.095z"/></svg>
-        <span style="font-size:11px;font-weight:700;color:#fff;letter-spacing:0.3px">Reddit</span>
-      </a>
-    </div>
+  <div class="social-card sc-tiktok" onclick="copyForPlatform('tiktok')">
+    <div class="soc-badge">Copy</div>
+    <div class="soc-icon"><svg width="22" height="26" viewBox="0 0 448 512" fill="#fff"><path d="M448 209.91a210.06 210.06 0 01-122.77-39.25v178.72A162.55 162.55 0 11185 188.31v89.89a74.62 74.62 0 1052.23 71.18V0h88a121.18 121.18 0 00122.77 121.33z"/></svg></div>
+    <div class="soc-name">TikTok</div>
+    <div class="soc-action">Copy Caption →</div>
+  </div>
+  <a href="https://twitter.com/intent/tweet?text=Check%20out%20SuperAdPro%20%E2%80%94%20video%20ad%20platform%20with%203%20income%20streams%20%F0%9F%9A%80&url={{ ref_link }}" target="_blank" class="social-card sc-twitter">
+    <div class="soc-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></div>
+    <div class="soc-name">X / Twitter</div>
+    <div class="soc-action">Post Tweet →</div>
+  </a>
+  <a href="https://wa.me/?text=Join%20SuperAdPro%20%E2%80%94%20earn%20from%20your%208%C3%978%20Income%20Grid!%20{{ ref_link }}" target="_blank" class="social-card sc-whatsapp">
+    <div class="soc-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></div>
+    <div class="soc-name">WhatsApp</div>
+    <div class="soc-action">Send Message →</div>
+  </a>
+  <a href="https://t.me/share/url?url={{ ref_link }}&text=Join%20SuperAdPro%20and%20earn%20from%20your%20Income%20Grid!" target="_blank" class="social-card sc-telegram">
+    <div class="soc-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></div>
+    <div class="soc-name">Telegram</div>
+    <div class="soc-action">Send Message →</div>
+  </a>
+  <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ ref_link }}" target="_blank" class="social-card sc-linkedin">
+    <div class="soc-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></div>
+    <div class="soc-name">LinkedIn</div>
+    <div class="soc-action">Share Post →</div>
+  </a>
+  <div class="social-card sc-youtube" onclick="copyForPlatform('youtube')">
+    <div class="soc-badge">Copy</div>
+    <div class="soc-icon"><svg width="30" height="22" viewBox="0 0 461 323" fill="#fff"><path d="M365 1H96C43 1 0 44 0 97v129c0 53 43 96 96 96h269c53 0 96-43 96-96V97c0-53-43-96-96-96zM183 232V91l126 70-126 71z"/></svg></div>
+    <div class="soc-name">YouTube</div>
+    <div class="soc-action">Copy Description →</div>
+  </div>
+</div>
 
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px">
-      <!-- LinkedIn -->
-      <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ ref_link }}" target="_blank" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:90px;background:#0a66c2;border-radius:14px;text-decoration:none;transition:all 0.2s;box-shadow:0 2px 8px rgba(10,102,194,0.25)">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-        <span style="font-size:11px;font-weight:700;color:#fff;letter-spacing:0.3px">LinkedIn</span>
-      </a>
-      <!-- YouTube -->
-      <div onclick="copyForYouTube()" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:90px;background:#ff0000;border-radius:14px;transition:all 0.2s;box-shadow:0 2px 8px rgba(255,0,0,0.25)">
-        <svg width="34" height="24" viewBox="0 0 461 323" fill="#fff"><path d="M365 1H96C43 1 0 44 0 97v129c0 53 43 96 96 96h269c53 0 96-43 96-96V97c0-53-43-96-96-96zM183 232V91l126 70-126 71z"/></svg>
-        <span id="ytLabel" style="font-size:11px;font-weight:700;color:#fff;letter-spacing:0.3px">YouTube</span>
-      </div>
-      <!-- Pinterest -->
-      <a href="https://pinterest.com/pin/create/button/?url={{ ref_link }}&description=SuperAdPro%20Video%20Advertising%20Platform" target="_blank" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:90px;background:#e60023;border-radius:14px;text-decoration:none;transition:all 0.2s;box-shadow:0 2px 8px rgba(230,0,35,0.25)">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641 0 12.017 0z"/></svg>
-        <span style="font-size:11px;font-weight:700;color:#fff;letter-spacing:0.3px">Pinterest</span>
-      </a>
-      <!-- X -->
-      <a href="https://twitter.com/intent/tweet?text=Check%20out%20SuperAdPro%20—%20video%20advertising%20platform%20with%203%20income%20streams%20🚀&url={{ ref_link }}" target="_blank" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:90px;background:#000;border-radius:14px;text-decoration:none;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.25)">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        <span style="font-size:11px;font-weight:700;color:#fff;letter-spacing:0.3px">X</span>
-      </a>
+<!-- ── CAPTION WORKSHOP ── -->
+<div class="caption-workshop">
+  <div class="workshop-head">
+    <div class="workshop-title">
+      <div style="width:7px;height:7px;border-radius:50%;background:#a855f7"></div>
+      Caption Workshop
     </div>
-
-    <!-- Pre-written posts -->
-    <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:18px;margin-bottom:16px">
-      <div style="font-size:13px;font-weight:700;color:#0284c7;margin-bottom:10px;display:flex;align-items:center;gap:8px">📝 Ready-to-Post Caption <span style="font-size:11px;font-weight:600;color:#64748b">(copy & paste to any platform)</span></div>
-      <div style="font-size:13px;color:#334155;line-height:1.7;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:10px" id="socialCaption">🚀 I just discovered a platform where you earn real commissions by watching video ads and building an 8×8 Income Grid. Three income streams, 95% payouts, AI marketing tools included.
+    <div class="workshop-tabs">
+      <div class="w-tab active" onclick="switchCaption(0,this)">🔥 Hype</div>
+      <div class="w-tab" onclick="switchCaption(1,this)">💰 Income</div>
+      <div class="w-tab" onclick="switchCaption(2,this)">🤝 Trust</div>
+      <div class="w-tab" onclick="switchCaption(3,this)">🚀 FOMO</div>
+    </div>
+  </div>
+  <div class="workshop-body">
+    <div>
+      <div class="caption-label">Ready-to-Post Caption</div>
+      <div class="caption-box" id="captionText">🚀 I just discovered a platform where you earn real commissions by watching video ads and building an 8×8 Income Grid. Three income streams, 95% payouts, AI marketing tools included.
 
 No selling, no guesswork — just real participation that pays.
 
@@ -278,203 +277,144 @@ Check it out 👇
 {{ ref_link }}
 
 #SuperAdPro #PassiveIncome #VideoAds #OnlineIncome #SideHustle #IncomeGrid</div>
-      <div style="display:flex;gap:8px">
-        <button onclick="copySocial()" id="copySocialBtn" style="font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-family:inherit">📋 Copy Caption</button>
-        <button onclick="nextCaption()" style="font-size:12px;font-weight:600;color:#0284c7;background:#e0f2fe;border:1px solid #bae6fd;border-radius:6px;padding:8px 16px;cursor:pointer;font-family:inherit">🔄 Next Caption</button>
+    </div>
+    <div class="caption-controls">
+      <div>
+        <div class="caption-label">Optimised For</div>
+        <div class="platform-pills">
+          <div class="plat-pill active">All Platforms</div>
+          <div class="plat-pill">Instagram</div>
+          <div class="plat-pill">TikTok</div>
+          <div class="plat-pill">LinkedIn</div>
+          <div class="plat-pill">Facebook</div>
+        </div>
       </div>
+      <div>
+        <div class="caption-label">Your Link is Embedded</div>
+        <div style="background:#f0fdf4;border:1px solid rgba(22,163,74,.2);border-radius:8px;padding:10px 12px;font-size:12px;color:#16a34a;font-weight:600">✅ {{ ref_link }}</div>
+      </div>
+      <div class="caption-btn-row">
+        <button class="cap-btn primary" onclick="copyCaption()">📋 Copy Caption</button>
+        <button class="cap-btn secondary" onclick="nextCaption()">🔄 Next Variant</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6">💡 Paste directly into any platform. Your referral link is always included — anyone who signs up is credited to you permanently.</div>
     </div>
   </div>
 </div>
 
-<!-- AD BOARD PROMOTION -->
-<div class="card">
-  <div class="card-head">
-    <div class="card-title"><div class="card-dot" style="background:#f59e0b"></div>Promote Your Ad Board Listings</div>
-    <a href="/ads/my" class="btn-primary" style="font-size:12px;padding:7px 14px">+ Post an Ad</a>
-  </div>
-  <div class="card-body">
-    <p style="font-size:14px;color:#64748b;margin-bottom:16px;line-height:1.6">Your Ad Board listings have unique shareable URLs with your referral code baked in. Share your ads across social media — every click drives new visitors to SuperAdPro, and every sign-up is tracked as your referral.</p>
-    
-    <div style="background:linear-gradient(135deg,#eff6ff,#f0f9ff);border:1px solid #bae6fd;border-radius:12px;padding:20px;margin-bottom:16px">
-      <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:12px">🔄 The Traffic Flywheel</div>
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
-          <div style="font-size:18px;margin-bottom:4px">📢</div>
-          <div style="font-size:11px;font-weight:700;color:#0f172a">Post an Ad</div>
-        </div>
-        <div style="font-size:18px;color:#0ea5e9">→</div>
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
-          <div style="font-size:18px;margin-bottom:4px">📱</div>
-          <div style="font-size:11px;font-weight:700;color:#0f172a">Share on Socials</div>
-        </div>
-        <div style="font-size:18px;color:#0ea5e9">→</div>
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
-          <div style="font-size:18px;margin-bottom:4px">👀</div>
-          <div style="font-size:11px;font-weight:700;color:#0f172a">New Visitors Land</div>
-        </div>
-        <div style="font-size:18px;color:#0ea5e9">→</div>
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
-          <div style="font-size:18px;margin-bottom:4px">🤝</div>
-          <div style="font-size:11px;font-weight:700;color:#0f172a">They Sign Up</div>
-        </div>
-        <div style="font-size:18px;color:#10b981">→</div>
-        <div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:120px">
-          <div style="font-size:18px;margin-bottom:4px">💰</div>
-          <div style="font-size:11px;font-weight:700;color:#16a34a">You Earn</div>
-        </div>
-      </div>
+<!-- ── TRAFFIC FLYWHEEL ── -->
+<div class="flywheel-card">
+  <div class="flywheel-head">
+    <div style="font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px">
+      <div style="width:7px;height:7px;border-radius:50%;background:#f59e0b"></div>
+      The Traffic Flywheel
     </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-      <a href="/ads" style="display:block;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:18px;text-decoration:none;transition:all 0.2s" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='#e2e8f0'">
-        <div style="font-size:22px;margin-bottom:8px">📢</div>
-        <div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px">Browse the Ad Board</div>
-        <div style="font-size:12px;color:#64748b">See what other members are promoting and get inspiration for your own ads.</div>
-      </a>
-      <a href="/ads/my" style="display:block;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:18px;text-decoration:none;transition:all 0.2s" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='#e2e8f0'">
-        <div style="font-size:22px;margin-bottom:8px">✏️</div>
-        <div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px">Manage Your Ads</div>
-        <div style="font-size:12px;color:#64748b">Create, edit and track your Ad Board listings. Up to 5 free ads per member.</div>
-      </a>
+    <span style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.2)">How it compounds</span>
+  </div>
+  <div class="flywheel-body">
+    <div class="flywheel-steps">
+      <div class="fw-step"><div class="fw-icon">📢</div><div class="fw-label">Post Your<br>Referral Link</div><div class="fw-sub">Any platform</div></div>
+      <div class="fw-step"><div class="fw-icon">👀</div><div class="fw-label">People<br>Click & Land</div><div class="fw-sub">Tracked 30 days</div></div>
+      <div class="fw-step"><div class="fw-icon">🤝</div><div class="fw-label">They Join<br>& Pay $20</div><div class="fw-sub">You're credited</div></div>
+      <div class="fw-step"><div class="fw-icon">💰</div><div class="fw-label">You Earn<br>$10 Commission</div><div class="fw-sub">50% every month</div></div>
+      <div class="fw-step"><div class="fw-icon">⚡</div><div class="fw-label">Their Grid<br>Earns You More</div><div class="fw-sub">8-level deep</div></div>
     </div>
   </div>
 </div>
 
-<!-- HOW COMMISSIONS WORK -->
-<div class="card">
-  <div class="card-head">
-    <div class="card-title"><div class="card-dot" style="background:#0ea5e9"></div>How Your Commissions Work</div>
+<!-- ── COMMISSION BREAKDOWN ── -->
+<div class="section-label" style="margin-top:4px">Your Commission Structure</div>
+<div class="comm-grid">
+  <div class="comm-card cc1">
+    <div class="cc-pct">$10<span style="font-size:16px">/mo</span></div>
+    <div class="cc-name">Membership Referral</div>
+    <div class="cc-desc">50% of $20/month for every active member you directly refer. Recurring every month they stay active.</div>
   </div>
-  <div class="card-body">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
-      <div style="background:#dcfce7;border:1px solid #86efac;border-radius:10px;padding:16px;text-align:center">
-        <div style="font-size:22px;font-weight:800;color:#16a34a;margin-bottom:4px">25%+<br>70%</div>
-        <div style="font-size:19px;font-weight:700;color:#0f172a;margin-bottom:4px">Direct Sponsor</div>
-        <div style="font-size:19px;color:#64748b">When your 64-position grid fills completely</div>
-      </div>
-      <div style="background:#cffafe;border:1px solid #67e8f9;border-radius:10px;padding:16px;text-align:center">
-        <div style="font-size:22px;font-weight:800;color:#0ea5e9;margin-bottom:4px">25%</div>
-        <div style="font-size:19px;font-weight:700;color:#0f172a;margin-bottom:4px">Uni-Level</div>
-        <div style="font-size:19px;color:#64748b">Paid instantly as each grid entries across 8 levels</div>
-      </div>
-      <div style="background:#e0d9ff;border:1px solid #38bdf8;border-radius:10px;padding:16px;text-align:center">
-        <div style="font-size:22px;font-weight:800;color:#0284c7;margin-bottom:4px">25%</div>
-        <div style="font-size:19px;font-weight:700;color:#0f172a;margin-bottom:4px">Uni-Level Income</div>
-        <div style="font-size:19px;color:#64748b">Your upline earns this when your grid completes</div>
-      </div>
-    </div>
+  <div class="comm-card cc2">
+    <div class="cc-pct">40%</div>
+    <div class="cc-name">Grid Direct Sponsor</div>
+    <div class="cc-desc">Earn 40% when someone you referred activates a campaign tier grid. Paid instantly on activation.</div>
+  </div>
+  <div class="comm-card cc3">
+    <div class="cc-pct">6.875%</div>
+    <div class="cc-name">Uni-Level (8 Levels)</div>
+    <div class="cc-desc">Earn across 8 levels deep on your entire network's grid activations. Compounds as your team grows.</div>
   </div>
 </div>
 
-<!-- TEAM LIST -->
-<div class="card">
-  <div class="card-head">
-    <div class="card-title"><div class="card-dot" style="background:#f59e0b"></div>Your Direct Recruits</div>
+<!-- ── TEAM TABLE ── -->
+<div class="section-label">Your Direct Recruits</div>
+<div class="team-card">
+  {% if referrals %}
+  <table>
+    <thead><tr><th>Member</th><th>Username</th><th>Joined</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for r in referrals %}
+    <tr>
+      <td style="font-weight:700">{{ r.first_name }} {{ r.last_name }}</td>
+      <td style="color:#64748b;font-family:monospace">@{{ r.username }}</td>
+      <td style="color:#6b7d94">{{ r.created_at.strftime('%d %b %Y') if r.created_at else '—' }}</td>
+      <td><span class="badge {% if r.is_active %}badge-green{% else %}badge-amber{% endif %}">{% if r.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">🤝</div>
+    <div class="empty-title">No referrals yet — let's change that</div>
+    <div class="empty-sub">Copy your link above and share it on any platform. Your first referral is closer than you think.</div>
+    <a href="#" class="empty-cta" onclick="copyRef();return false">📋 Copy My Referral Link</a>
   </div>
-  <div class="card-body" style="padding:0">
-    {% if referrals %}
-    <table>
-      <thead><tr><th>Member</th><th>Username</th><th>Joined</th><th>Status</th></tr></thead>
-      <tbody>
-      {% for r in referrals %}
-      <tr>
-        <td style="font-weight:700">{{ r.first_name }} {{ r.last_name }}</td>
-        <td style="color:#64748b;font-family:monospace">@{{ r.username }}</td>
-        <td style="color:#6b7d94">{{ r.created_at.strftime('%d %b %Y') if r.created_at else '—' }}</td>
-        <td><span class="badge {% if r.is_active %}badge-green{% else %}badge-amber{% endif %}">{% if r.is_active %}Active{% else %}Inactive{% endif %}</span></td>
-      </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <div class="empty-state">
-      <div class="empty-icon">🤝</div>
-      <div class="empty-title">No referrals yet</div>
-      <div class="empty-sub">Share your referral link above to start building your team and earning level commissions.</div>
-    </div>
-    {% endif %}
-  </div>
+  {% endif %}
 </div>
+
+</div><!-- /content -->
 
 <script>
-function copyRef() {
-  navigator.clipboard.writeText('{{ ref_link }}').then(() => {
-    const btn = document.getElementById('copyBtn');
-    btn.textContent = '✓ Copied!';
-    btn.style.background = '#16a34a';
-    setTimeout(() => { btn.textContent = 'Copy Link'; btn.style.background = ''; }, 2500);
-  });
-}
+const REF_LINK = '{{ ref_link }}';
+
+function showToast(msg, icon='✅') {{ const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastIcon').textContent = icon;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500); }}
+
+function copyRef() {{ navigator.clipboard.writeText(REF_LINK).then(() => showToast('Referral link copied!')); }}
+
+function copyCaption() {{ const text = document.getElementById('captionText').innerText;
+  navigator.clipboard.writeText(text).then(() => showToast('Caption copied — ready to paste!', '📋')); }}
 
 const captions = [
-  `🚀 I just discovered a platform where you earn real commissions by watching video ads and building an 8×8 Income Grid. Three income streams, 95% payouts, AI marketing tools included.\n\nNo selling, no guesswork — just real participation that pays.\n\nCheck it out 👇\n{{ ref_link }}\n\n#SuperAdPro #PassiveIncome #VideoAds #OnlineIncome #SideHustle #IncomeGrid`,
-  `💰 What if you could earn just by watching video ads? SuperAdPro pays 95% of every dollar back to members through 3 income streams.\n\nThey even give you a full AI marketing suite to grow your network.\n\nSee for yourself 👇\n{{ ref_link }}\n\n#SuperAdPro #MakeMoneyOnline #VideoMarketing #AffiliateMarketing #DigitalMarketing`,
-  `🔥 Found something interesting — a video ad platform that actually pays YOU to participate. 8×8 recurring grid, 40% direct commissions, 8-level deep earnings.\n\nPlus they give you AI tools to create campaigns, scripts and funnels.\n\nJoin me here 👇\n{{ ref_link }}\n\n#SuperAdPro #OnlineBusiness #Crypto #USDT #WorkFromHome #Entrepreneur`,
-  `📱 Stop scrolling and start earning. SuperAdPro turns video advertising into real income — watch ads, share your link, earn from 3 streams.\n\n✅ 95% payout\n✅ Paid in USDT\n✅ AI marketing tools included\n✅ No experience needed\n\n{{ ref_link }}\n\n#SuperAdPro #FinancialFreedom #CryptoEarnings #SideIncome #AdPlatform`
+  `🚀 I just discovered a platform where you earn real commissions by watching video ads and building an 8×8 Income Grid. Three income streams, 95% payouts, AI marketing tools included.\n\nNo selling, no guesswork — just real participation that pays.\n\nCheck it out 👇\n${{ REF_LINK }}\n\n#SuperAdPro #PassiveIncome #VideoAds #OnlineIncome #SideHustle #IncomeGrid`,
+  `💰 What if you could earn just by watching video ads? SuperAdPro pays 95% of every dollar back to members through 3 income streams.\n\nThey even give you a full AI marketing suite to grow your network.\n\nSee for yourself 👇\n${{ REF_LINK }}\n\n#SuperAdPro #MakeMoneyOnline #VideoMarketing #AffiliateMarketing #DigitalMarketing`,
+  `✅ Found something that actually pays — not a scam, not MLM hype.\n\nSuperAdPro is a video ad platform where you earn real USDT:\n• 50% referral commissions\n• 8×8 income grid\n• 8 levels deep\n\nJoin here 👇\n${{ REF_LINK }}\n\n#SuperAdPro #CryptoEarnings #USDT #PassiveIncome #OnlineBusiness`,
+  `⏰ Still scrolling while others are building income grids?\n\nSuperAdPro pays you to watch ads AND gives you 3 income streams:\n🔥 $10/month per referral\n🔥 Grid commissions 8 levels deep\n🔥 AI marketing tools included FREE\n\nDon't miss this 👇\n${{ REF_LINK }}\n\n#SuperAdPro #FOMO #WorkFromAnywhere #SideHustle #FinancialFreedom`
 ];
-let captionIdx = 0;
+let capIdx = 0;
 
-function copySocial() {
-  const el = document.getElementById('socialCaption');
-  navigator.clipboard.writeText(el.innerText).then(() => {
-    const btn = document.getElementById('copySocialBtn');
-    btn.textContent = '✓ Copied!';
-    setTimeout(() => { btn.textContent = '📋 Copy Caption'; }, 2500);
-  });
+function nextCaption() {{ capIdx = (capIdx + 1) % captions.length;
+  document.getElementById('captionText').innerText = captions[capIdx]; }}
+
+function switchCaption(idx, el) {{ capIdx = idx;
+  document.getElementById('captionText').innerText = captions[idx];
+  document.querySelectorAll('.w-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active'); }}
+
+const platformCaptions = {{ instagram: `🚀 Earning from video ads is a thing now.\n\nSuperAdPro lets you build an 8×8 income grid and earn from 3 streams. 95% payout, paid in USDT.\n\n✅ Link in bio!\n\n#SuperAdPro #PassiveIncome #SideHustle #IncomeGrid #WorkFromHome`,
+  tiktok: `Check out SuperAdPro — earn from video ads 🚀 Link in bio!\n\n${REF_LINK }}\n\n#SuperAdPro #MakeMoneyOnline #TikTokBusiness #PassiveIncome #USDT`,
+  youtube: `🚀 SuperAdPro — The Video Ad Platform That Pays YOU\n\nEarn real commissions from 3 income streams. AI marketing tools included FREE.\n\n👉 Join here: ${{ REF_LINK }}\n\n#SuperAdPro #OnlineIncome #VideoAds #PassiveIncome`
+};
+
+function copyForPlatform(platform) {{ const text = platformCaptions[platform] || captions[capIdx];
+  navigator.clipboard.writeText(text).then(() => showToast(`${platform.charAt(0).toUpperCase()+platform.slice(1) }} caption copied!`, '📋'));
 }
-
-function nextCaption() {
-  captionIdx = (captionIdx + 1) % captions.length;
-  document.getElementById('socialCaption').innerText = captions[captionIdx];
-}
-
-function copyForInsta() {
-  navigator.clipboard.writeText(captions[captionIdx]).then(() => {
-    const lbl = document.getElementById('instaLabel');
-    lbl.textContent = '✓ Copied!';
-    setTimeout(() => { lbl.textContent = 'Instagram'; }, 2500);
-  });
-}
-
-function copyForTikTok() {
-  navigator.clipboard.writeText(`Check out SuperAdPro — earn from video ads 🚀 Link in bio!\n\n{{ ref_link }}\n\n#SuperAdPro #MakeMoneyOnline #TikTokBusiness #PassiveIncome`).then(() => {
-    const lbl = document.getElementById('tiktokLabel');
-    lbl.textContent = '✓ Copied!';
-    setTimeout(() => { lbl.textContent = 'TikTok'; }, 2500);
-  });
-}
-
-function copyForYouTube() {
-  navigator.clipboard.writeText(`🚀 SuperAdPro — The Video Ad Platform That Pays YOU\n\nEarn real commissions from 3 income streams. AI marketing tools included.\n\n👉 Join here: {{ ref_link }}\n\n#SuperAdPro #OnlineIncome #VideoAds`).then(() => {
-    const lbl = document.getElementById('ytLabel');
-    lbl.textContent = '✓ Copied!';
-    setTimeout(() => { lbl.textContent = 'YouTube'; }, 2500);
-  });
-}
-
 </script>
 
-</div></div></div>
-<!-- ── Mobile Bottom Nav ── -->
-<div class="mobile-nav">
-  <div class="mobile-nav-inner">
-        <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
-    <a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">▶</span><span class="mob-nav-label">Watch</span></a>
-    <a href="/income-grid" class="mob-nav-item"><span class="mob-nav-icon">⚡</span><span class="mob-nav-label">Grid</span></a>
-    <a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">◎</span><span class="mob-nav-label">Wallet</span></a>
-    <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">◉</span><span class="mob-nav-label">Account</span></a>
-<a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">▶</span><span class="mob-nav-label">Watch</span></a>
-    <a href="/income-grid" class="mob-nav-item"><span class="mob-nav-icon">⚡</span><span class="mob-nav-label">Grid</span></a>
-    <a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">◎</span><span class="mob-nav-label">Wallet</span></a>
-    <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">◉</span><span class="mob-nav-label">Account</span></a>
-  </div>
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">✅</span>
+  <span id="toastMsg">Copied!</span>
 </div>
 
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/static/sw.js').catch(() => {});
-  });
-}
-</script>
-</body></html>
+
