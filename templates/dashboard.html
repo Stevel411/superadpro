@@ -586,48 +586,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
         </div><!-- /right column wrapper -->
       </div><!-- /dash-grid -->
 
-      <!-- ROW 3 — Recent Commissions full width -->
-      <div style="margin-bottom:14px">
-        <div class="card">
-          <div class="card-head">
-            <div class="card-title"><div class="card-dot" style="background:#f59e0b"></div>Recent Commissions</div>
-            <a href="/wallet" class="card-link">Full History →</a>
-          </div>
-          <div class="card-body" style="padding:0 16px">
-            {% if recent_commissions %}
-              {% for c in recent_commissions %}
-              <div class="comm-row">
-                <div class="comm-left">
-                  <div class="comm-icon" style="background:{% if c.commission_type == 'direct_sponsor' %}rgba(22,163,74,.09){% elif c.commission_type == 'uni_level' %}rgba(99,102,241,.09){% else %}rgba(14,165,233,.09){% endif %};border:1px solid {% if c.commission_type == 'direct_sponsor' %}rgba(22,163,74,.15){% elif c.commission_type == 'uni_level' %}rgba(99,102,241,.15){% else %}rgba(14,165,233,.15){% endif %}">
-                    {% if c.commission_type == 'direct_sponsor' %}💚
-                    {% elif c.commission_type == 'uni_level' %}⚡
-                    {% elif c.commission_type == 'membership' %}🔑
-                    {% else %}◎{% endif %}
-                  </div>
-                  <div>
-                    <div style="font-size:14px;font-weight:700;color:#0f172a">
-                      {% if c.commission_type == 'direct_sponsor' %}Direct Sponsor Commission
-                      {% elif c.commission_type == 'uni_level' %}Uni-Level Commission
-                      {% elif c.commission_type == 'membership' %}Membership Residual
-                      {% else %}{{ c.commission_type|replace('_',' ')|title }}{% endif %}
-                    </div>
-                    <div style="font-size:13px;color:#7b91a8;margin-top:2px">${{ c.package_tier }} Campaign Tier · {{ c.created_at.strftime('%d %b %Y') if c.created_at else '' }}</div>
-                  </div>
-                </div>
-                <div style="font-size:14px;font-weight:800;color:{% if c.status == 'paid' %}#16a34a{% else %}#f59e0b{% endif %}">+${{ '%.2f'|format(c.amount_usdt) }}</div>
-              </div>
-              {% endfor %}
-            {% else %}
-              <div class="empty-state">
-                <div class="empty-icon">📊</div>
-                <div class="empty-title">No Commissions Yet</div>
-                <div class="empty-sub">Activate a tier to start earning</div>
-              </div>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-      </div><!-- /row3 -->
+
 
 
     </div><!-- /content -->
