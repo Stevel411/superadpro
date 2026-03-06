@@ -86,7 +86,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 .card-body{padding:18px 20px}
 
 /* ── LAYOUT GRIDS ── */
-.dash-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:14px}
+.dash-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:14px;align-items:stretch}
 .dash-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
 
 /* ── INNER SURFACES (nested elements inside cards) ── */
@@ -94,8 +94,8 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 .inner-surface-2{background:#eef1f8}
 
 /* ── MINI GRID ── */
-.mini-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:6px 0 4px;width:100%}
-.mg-cell{aspect-ratio:1;border-radius:3px}
+.mini-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;width:100%;flex:1}
+.mg-cell{border-radius:4px;min-height:28px}
 .mg-filled{background:linear-gradient(135deg,#0ea5e9,#38bdf8)}
 .mg-owner{background:linear-gradient(135deg,#16a34a,#059669)}
 .mg-empty{background:#eef1f8}
@@ -399,12 +399,12 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
       <div class="dash-grid">
 
         <!-- GRID ENGINE SUMMARY -->
-        <div class="card">
+        <div class="card" style="display:flex;flex-direction:column">
           <div class="card-head">
             <div class="card-title"><div class="card-dot" style="background:#0ea5e9"></div>Profit Engine Grids</div>
             <a href="/income-grid" class="card-link">Manage Grids →</a>
           </div>
-          <div class="card-body">
+          <div class="card-body" style="flex:1;display:flex;flex-direction:column">
             {% if grid_stats.active_grids > 0 %}
               <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
                 <div style="background:#f6f8fc;border-radius:9px;padding:10px 8px;border:1px solid rgba(15,25,60,.07);text-align:center">
@@ -421,7 +421,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
                 </div>
               </div>
               <!-- Mini grid visualiser -->
-              <div style="margin:10px 0 10px">
+              <div style="flex:1;margin:10px 0 10px;display:flex;flex-direction:column">
                 <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#7b91a8;margin-bottom:8px">Your Grid Position</div>
                 <div class="mini-grid">
                   {%- set total_cells = 64 %}
@@ -452,7 +452,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
         </div>
 
         <!-- RIGHT COLUMN: Earnings + Referral stacked -->
-        <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+        <div style="display:flex;flex-direction:column;gap:14px;min-width:0;height:100%">
 
         <!-- EARNINGS BREAKDOWN -->
         <div class="card">
@@ -549,12 +549,12 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
         </div>
 
         <!-- REFERRAL LINK -->
-        <div class="card">
+        <div class="card" style="flex:1;display:flex;flex-direction:column">
           <div class="card-head">
             <div class="card-title"><div class="card-dot" style="background:#16a34a"></div>Your Referral Link</div>
             <a href="/affiliate" class="card-link">Tools →</a>
           </div>
-          <div class="card-body" style="padding:14px 16px">
+          <div class="card-body" style="padding:14px 16px;flex:1">
             <p style="font-size:13px;color:#3d5068;margin-bottom:10px;line-height:1.6">Share your link — earn <strong style="color:#16a34a">$10/month</strong> (50%) per active referral.</p>
             <div style="background:#f6f8fc;border:1px solid rgba(15,25,60,.07);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:10px">
               <span style="font-size:11px;color:#0ea5e9;font-family:monospace;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">superadpro.com/ref/{{ user.username }}</span>
@@ -578,7 +578,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 
       <!-- ROW 3 — Recent Commissions full width -->
       <div style="margin-bottom:14px">
-        <div class="card">
+        <div class="card" style="margin-bottom:0">
           <div class="card-head">
             <div class="card-title"><div class="card-dot" style="background:#f59e0b"></div>Recent Commissions</div>
             <a href="/wallet" class="card-link">Full History →</a>
