@@ -20,23 +20,30 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#070c18;border-bottom:1px solid rgba(0,200,255,0.1);position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,200,255,0.15),0 4px 20px rgba(0,0,0,0.3)}
+
+/* ── HERO — LIGHT ── */
+.hero{background:#fff;border-bottom:1px solid rgba(15,25,60,0.08);padding:32px 40px 28px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 0%,rgba(14,165,233,0.06),transparent),radial-gradient(ellipse 30% 50% at 10% 100%,rgba(99,102,241,0.04),transparent),radial-gradient(ellipse 30% 50% at 90% 100%,rgba(16,185,129,0.04),transparent)}
+.hero-inner{position:relative;z-index:1;max-width:680px;margin:0 auto}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#0ea5e9;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);padding:5px 14px;border-radius:20px;margin-bottom:14px}
+.hero-title{font-family:'Sora',sans-serif;font-size:34px;font-weight:900;color:#0f172a;line-height:1.15;margin-bottom:10px}
+.hero-title span{background:linear-gradient(135deg,#0ea5e9,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:14px;color:#5a6a7e;line-height:1.7;max-width:500px;margin:0 auto 22px}
+.income-bar{display:inline-flex;align-items:center;gap:0;background:#f6f8fc;border:1px solid rgba(15,25,60,0.09);border-radius:14px;overflow:hidden}
+.is-stat{text-align:center;padding:14px 24px}
+.is-val{font-family:'Sora',sans-serif;font-size:22px;font-weight:900;color:#0ea5e9}
+.is-val.green{color:#16a34a}
+.is-lbl{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#94a3b8;margin-top:3px}
+.is-sep{width:1px;background:rgba(15,25,60,0.08);align-self:stretch}
+
+/* ── CONTENT ── */
 .content{padding:24px 28px 48px;max-width:1280px;margin:0 auto}
+.section-lbl{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:12px}
 
 /* ── TIER CARDS ── */
-.page-title{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#0f172a;margin-bottom:4px}
-.page-sub{font-size:14px;color:#5a6a7e;margin-bottom:22px}
-
 .tiers-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;align-items:stretch}
-
-.tier-card{
-  background:#fff;border:1px solid #d0d8e4;border-radius:16px;padding:22px;
-  position:relative;overflow:hidden;
-  box-shadow:0 1px 4px rgba(0,40,100,0.06);
-  transition:all 0.25s;display:flex;flex-direction:column;
-}
+.tier-card{background:#fff;border:1px solid #d0d8e4;border-radius:16px;padding:22px;position:relative;overflow:hidden;box-shadow:0 1px 4px rgba(0,40,100,0.06);transition:all 0.25s;display:flex;flex-direction:column}
 .tier-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,40,100,0.1)}
-
-/* Thick coloured top bar per tier */
 .tier-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;border-radius:16px 16px 0 0}
 .t1::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}
 .t2::before{background:linear-gradient(90deg,#6366f1,#818cf8)}
@@ -46,43 +53,24 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 .t6::before{background:linear-gradient(90deg,#ec4899,#f472b6)}
 .t7::before{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
 .t8::before{background:linear-gradient(90deg,#0284c7,#38bdf8)}
-
 .tier-card.popular{border-color:rgba(245,158,11,0.4);box-shadow:0 0 0 2px rgba(245,158,11,0.2),0 4px 20px rgba(245,158,11,0.1)}
 .popular-badge{position:absolute;top:14px;right:14px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#fff;font-size:9px;font-weight:900;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:20px;box-shadow:0 2px 8px rgba(245,158,11,0.4)}
-
-/* Tier name */
 .tier-name{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#7b91a8;margin-bottom:10px}
 
-/* ── 3D PRICE ── */
-.tier-price{
-  font-family:'Sora',sans-serif;
-  font-size:48px;font-weight:900;
-  line-height:1;margin-bottom:3px;
-  /* 3D layered text shadow effect */
-  color:#0f172a;
-  text-shadow:
-    1px 1px 0 rgba(0,0,0,0.15),
-    2px 2px 0 rgba(0,0,0,0.12),
-    3px 3px 0 rgba(0,0,0,0.09),
-    4px 4px 0 rgba(0,0,0,0.06),
-    5px 5px 8px rgba(0,0,0,0.12);
-  letter-spacing:-1px;
-}
-/* Per-tier coloured 3D price */
-.t1 .tier-price{color:#0ea5e9;text-shadow:1px 1px 0 #0284c7,2px 2px 0 #0369a1,3px 3px 0 #075985,4px 4px 8px rgba(14,165,233,0.3)}
-.t2 .tier-price{color:#6366f1;text-shadow:1px 1px 0 #4f46e5,2px 2px 0 #4338ca,3px 3px 0 #3730a3,4px 4px 8px rgba(99,102,241,0.3)}
-.t3 .tier-price{color:#059669;text-shadow:1px 1px 0 #047857,2px 2px 0 #065f46,3px 3px 0 #064e3b,4px 4px 8px rgba(5,150,105,0.3)}
-.t4 .tier-price{color:#d97706;text-shadow:1px 1px 0 #b45309,2px 2px 0 #92400e,3px 3px 0 #78350f,4px 4px 8px rgba(217,119,6,0.3)}
-.t5 .tier-price{color:#dc2626;text-shadow:1px 1px 0 #b91c1c,2px 2px 0 #991b1b,3px 3px 0 #7f1d1d,4px 4px 8px rgba(220,38,38,0.3)}
-.t6 .tier-price{color:#db2777;text-shadow:1px 1px 0 #be185d,2px 2px 0 #9d174d,3px 3px 0 #831843,4px 4px 8px rgba(219,39,119,0.3)}
-.t7 .tier-price{color:#7c3aed;text-shadow:1px 1px 0 #6d28d9,2px 2px 0 #5b21b6,3px 3px 0 #4c1d95,4px 4px 8px rgba(124,58,237,0.3)}
-.t8 .tier-price{color:#0284c7;text-shadow:1px 1px 0 #0369a1,2px 2px 0 #075985,3px 3px 0 #0c4a6e,4px 4px 8px rgba(2,132,199,0.3)}
+/* 3D prices */
+.tier-price{font-family:'Sora',sans-serif;font-size:48px;font-weight:900;line-height:1;margin-bottom:3px;letter-spacing:-1px}
 .tier-price sup{font-size:22px;font-weight:700;vertical-align:super;letter-spacing:0}
+.t1 .tier-price{color:#0ea5e9;text-shadow:1px 1px 0 #0284c7,2px 2px 0 #0369a1,3px 3px 0 #075985,4px 4px 8px rgba(14,165,233,0.25)}
+.t2 .tier-price{color:#6366f1;text-shadow:1px 1px 0 #4f46e5,2px 2px 0 #4338ca,3px 3px 0 #3730a3,4px 4px 8px rgba(99,102,241,0.25)}
+.t3 .tier-price{color:#059669;text-shadow:1px 1px 0 #047857,2px 2px 0 #065f46,3px 3px 0 #064e3b,4px 4px 8px rgba(5,150,105,0.25)}
+.t4 .tier-price{color:#d97706;text-shadow:1px 1px 0 #b45309,2px 2px 0 #92400e,3px 3px 0 #78350f,4px 4px 8px rgba(217,119,6,0.25)}
+.t5 .tier-price{color:#dc2626;text-shadow:1px 1px 0 #b91c1c,2px 2px 0 #991b1b,3px 3px 0 #7f1d1d,4px 4px 8px rgba(220,38,38,0.25)}
+.t6 .tier-price{color:#db2777;text-shadow:1px 1px 0 #be185d,2px 2px 0 #9d174d,3px 3px 0 #831843,4px 4px 8px rgba(219,39,119,0.25)}
+.t7 .tier-price{color:#7c3aed;text-shadow:1px 1px 0 #6d28d9,2px 2px 0 #5b21b6,3px 3px 0 #4c1d95,4px 4px 8px rgba(124,58,237,0.25)}
+.t8 .tier-price{color:#0284c7;text-shadow:1px 1px 0 #0369a1,2px 2px 0 #075985,3px 3px 0 #0c4a6e,4px 4px 8px rgba(2,132,199,0.25)}
 
 .tier-currency{font-size:12px;color:#7b91a8;margin-bottom:16px}
-
-/* Views box — tinted per tier */
-.tier-views{border-radius:10px;padding:13px;text-align:center;margin-bottom:14px}
+.tier-views{border-radius:10px;padding:13px;text-align:center;margin-bottom:12px}
 .t1 .tier-views{background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #bae6fd}
 .t2 .tier-views{background:linear-gradient(135deg,#eef2ff,#e0e7ff);border:1px solid #c7d2fe}
 .t3 .tier-views{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #bbf7d0}
@@ -91,83 +79,44 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 .t6 .tier-views{background:linear-gradient(135deg,#fdf2f8,#fce7f3);border:1px solid #fbcfe8}
 .t7 .tier-views{background:linear-gradient(135deg,#faf5ff,#f3e8ff);border:1px solid #e9d5ff}
 .t8 .tier-views{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe}
-
-.tier-views-label{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#7b91a8;margin-bottom:2px}
-.tier-views-num{font-size:20px;font-weight:800;line-height:1.1}
+.tier-views-label{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#7b91a8}
+.tier-views-num{font-size:20px;font-weight:800;line-height:1.2}
 .t1 .tier-views-num{color:#0ea5e9}.t2 .tier-views-num{color:#6366f1}.t3 .tier-views-num{color:#059669}
 .t4 .tier-views-num{color:#d97706}.t5 .tier-views-num{color:#dc2626}.t6 .tier-views-num{color:#db2777}
 .t7 .tier-views-num{color:#7c3aed}.t8 .tier-views-num{color:#0284c7}
-
-/* Earn callout */
 .tier-earn{display:flex;align-items:center;justify-content:space-between;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 12px;margin-bottom:14px}
 .tier-earn-lbl{font-size:11px;font-weight:700;color:#15803d}
 .tier-earn-val{font-family:'Sora',sans-serif;font-size:14px;font-weight:900;color:#15803d}
-
-/* Features */
 .tier-features{list-style:none;margin-bottom:18px;flex:1}
 .tier-features li{font-size:13px;color:#2d3b4e;padding:5px 0;display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid rgba(15,25,60,.05)}
 .tier-features li:last-child{border-bottom:none}
 .tier-features li::before{content:'✓';font-weight:800;font-size:12px;flex-shrink:0;margin-top:2px;color:#16a34a}
 .feat-gold::before{color:#f59e0b !important}
 .feat-purple::before{color:#7c3aed !important}
-
-/* Buttons */
 .tier-btn{display:block;width:100%;padding:13px;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;transition:all 0.2s}
 .tier-btn.activate{background:linear-gradient(180deg,#38bdf8 0%,#0ea5e9 100%);color:#fff;box-shadow:0 4px 0 #0284c7,0 6px 16px rgba(14,165,233,0.3);text-shadow:0 1px 2px rgba(0,0,0,0.15)}
 .tier-btn.activate:hover{transform:translateY(-2px);box-shadow:0 6px 0 #0284c7,0 10px 24px rgba(14,165,233,0.35)}
-.tier-btn.activate:active{transform:translateY(2px);box-shadow:0 1px 0 #0284c7}
-.tier-btn.active-badge{background:linear-gradient(180deg,#dcfce7 0%,#bbf7d0 100%);color:#059669;border:none;box-shadow:0 3px 0 #86efac,0 4px 12px rgba(16,185,129,0.15);cursor:default;text-shadow:0 1px 1px rgba(255,255,255,0.6)}
+.tier-btn.active-badge{background:linear-gradient(180deg,#dcfce7 0%,#bbf7d0 100%);color:#059669;box-shadow:0 3px 0 #86efac;cursor:default}
 
-/* ── BOTTOM PANELS ── */
-.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px}
-.panel{background:#fff;border:1px solid #d0d8e4;border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
-.panel-head{padding:16px 20px;border-bottom:1px solid #e4e9f1;display:flex;align-items:center;gap:8px}
-.panel-title{font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:#0f172a}
-.panel-body{padding:18px 20px}
-.panel-text{font-size:13px;color:#2d3b4e;line-height:1.75;margin-bottom:10px}
-.panel-text strong{color:#0f172a}
-.panel-cta{display:inline-flex;align-items:center;gap:8px;margin-top:8px;padding:10px 20px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:13px;font-weight:700;border-radius:9px;text-decoration:none;box-shadow:0 4px 0 #0284c7,0 6px 16px rgba(14,165,233,0.25);transition:all 0.2s}
-.panel-cta:hover{transform:translateY(-1px);box-shadow:0 6px 0 #0284c7,0 10px 20px rgba(14,165,233,0.3)}
-
-/* Commission table */
-.comm-table{width:100%;border-collapse:collapse}
-.comm-table th{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#7b91a8;padding:7px 10px;text-align:left;border-bottom:2px solid #e4e9f1}
-.comm-table td{font-size:13px;padding:8px 10px;border-bottom:1px solid #f0f3f7;color:#2d3b4e}
-.comm-table tr:last-child td{border-bottom:none}
-.comm-table tr:hover td{background:#f8fafc}
-.comm-table .active-row td{background:#f0fdf4;font-weight:700}
-.comm-earn{font-weight:800;color:#16a34a;text-align:right}
-.tier-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
-
-/* ── COMPARE TABLE ── */
-.compare-wrap{margin-top:16px}
-.compare-card{background:#fff;border:1px solid #d0d8e4;border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
-.compare-head{padding:16px 20px;border-bottom:1px solid #e4e9f1;display:flex;align-items:center;justify-content:space-between}
-.compare-title{font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:8px}
-.compare-sub{font-size:12px;color:#7b91a8}
-.ctable{width:100%;border-collapse:collapse}
-.ctable th{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#7b91a8;padding:10px 10px;text-align:center;border-bottom:2px solid #e4e9f1;white-space:nowrap}
-.ctable th.fcol{text-align:left;width:185px}
-.ctable td{padding:9px 10px;border-bottom:1px solid #f0f3f7;text-align:center;font-size:12px}
-.ctable td.fcol{text-align:left;font-weight:700;color:#0f172a;font-size:12px}
-.ctable tr:last-child td{border-bottom:none}
-.ctable tr:hover td{background:#f8fafc}
-.t-th{padding:7px 5px !important}
-.t-th-inner{border-radius:7px;padding:4px 7px;font-size:9px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;color:#fff;white-space:nowrap}
-.bg-t1{background:linear-gradient(135deg,#0ea5e9,#38bdf8)}
-.bg-t2{background:linear-gradient(135deg,#6366f1,#818cf8)}
-.bg-t3{background:linear-gradient(135deg,#059669,#10b981)}
-.bg-t4{background:linear-gradient(135deg,#f59e0b,#fbbf24)}
-.bg-t5{background:linear-gradient(135deg,#ef4444,#f87171)}
-.bg-t6{background:linear-gradient(135deg,#ec4899,#f472b6)}
-.bg-t7{background:linear-gradient(135deg,#7c3aed,#a78bfa)}
-.bg-t8{background:linear-gradient(135deg,#0284c7,#38bdf8)}
-.cy{color:#16a34a;font-size:14px;font-weight:800}
-.cn{color:#d1d5db;font-size:14px}
-.cv{font-size:12px;font-weight:800;color:#0f172a}
-.cb{font-size:12px;font-weight:800;color:#0ea5e9}
-.cg{font-size:12px;font-weight:800;color:#16a34a}
-.grp td{background:#f6f8fc;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#7b91a8;padding:7px 10px !important}
+/* ── HOW IT WORKS — LIGHT ── */
+.hiw{background:#fff;border:1px solid rgba(15,25,60,0.08);border-radius:18px;overflow:hidden;margin-top:4px;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
+.hiw-inner{display:grid;grid-template-columns:repeat(3,1fr)}
+.hiw-step{padding:28px 30px;border-right:1px solid rgba(15,25,60,0.07)}
+.hiw-step:last-child{border-right:none}
+.hiw-step:nth-child(1){background:linear-gradient(135deg,rgba(14,165,233,0.03),transparent)}
+.hiw-step:nth-child(2){background:linear-gradient(135deg,rgba(99,102,241,0.03),transparent)}
+.hiw-step:nth-child(3){background:linear-gradient(135deg,rgba(16,185,129,0.03),transparent)}
+.hiw-num{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:15px;font-weight:900;margin-bottom:14px}
+.hiw-step:nth-child(1) .hiw-num{background:#eff6ff;border:1px solid #bae6fd;color:#0ea5e9}
+.hiw-step:nth-child(2) .hiw-num{background:#eef2ff;border:1px solid #c7d2fe;color:#6366f1}
+.hiw-step:nth-child(3) .hiw-num{background:#f0fdf4;border:1px solid #bbf7d0;color:#059669}
+.hiw-title{font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#0f172a;margin-bottom:8px}
+.hiw-desc{font-size:13px;color:#5a6a7e;line-height:1.75}
+.hiw-hl-blue{color:#0ea5e9;font-weight:700}
+.hiw-hl-indigo{color:#6366f1;font-weight:700}
+.hiw-hl-green{color:#059669;font-weight:700}
+.hiw-cta{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:11px 22px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:13px;font-weight:700;border-radius:10px;text-decoration:none;box-shadow:0 4px 0 #0284c7,0 6px 16px rgba(14,165,233,0.25);transition:all 0.2s}
+.hiw-cta:hover{transform:translateY(-1px);box-shadow:0 6px 0 #0284c7,0 10px 20px rgba(14,165,233,0.3)}
 
 @media(max-width:1100px){.tiers-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:768px){
@@ -177,7 +126,10 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
   .topbar{display:none!important}
   .content{padding:10px 12px 80px!important}
   .tiers-grid{grid-template-columns:1fr 1fr!important}
-  .bottom-grid{grid-template-columns:1fr!important}
+  .hiw-inner{grid-template-columns:1fr!important}
+  .hiw-step{border-right:none!important;border-bottom:1px solid rgba(15,25,60,0.07)}
+  .hiw-step:last-child{border-bottom:none}
+  .income-bar{flex-wrap:wrap;justify-content:center}
 }
 {% endraw %}
 </style>
@@ -209,7 +161,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
   <div class="topbar">
     <div>
       <div style="font-size:18px;font-weight:800;color:#fff">📦 Campaign Tiers</div>
-      <div style="font-size:13px;color:#6b7d94;margin-top:1px">Activate tiers to unlock advertising &amp; earn affiliate commissions</div>
+      <div style="font-size:13px;color:#6b7d94;margin-top:1px">Activate tiers to unlock advertising &amp; earn commissions</div>
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px 14px;text-align:center">
@@ -223,23 +175,40 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
     </div>
   </div>
 
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">⚡ Income Grid · Campaign Tiers</div>
+      <div class="hero-title">Choose Your <span>Power Level</span></div>
+      <div class="hero-sub">Each tier activates an 8×8 grid position, unlocks video advertising and opens the door to compounding commissions across 8 levels deep.</div>
+      <div class="income-bar">
+        <div class="is-stat"><div class="is-val green">40%</div><div class="is-lbl">Direct Commission</div></div>
+        <div class="is-sep"></div>
+        <div class="is-stat"><div class="is-val green">6.875%</div><div class="is-lbl">Uni-Level × 8</div></div>
+        <div class="is-sep"></div>
+        <div class="is-stat"><div class="is-val">600K</div><div class="is-lbl">Max Views / Tier</div></div>
+        <div class="is-sep"></div>
+        <div class="is-stat"><div class="is-val">♾</div><div class="is-lbl">Recurring Grids</div></div>
+      </div>
+    </div>
+  </div>
+
   <div class="content">
-    <div class="page-title">Choose Your Campaign Tier</div>
-    <div class="page-sub">Each tier activates a grid position and unlocks video advertising. Higher tiers get more views and earn bigger commissions.</div>
 
     {% set tiers = [
-      (1,'Starter',20,'500','5,000','t1',false,'$8'),
-      (2,'Builder',50,'1,500','15,000','t2',false,'$20'),
-      (3,'Pro',100,'5,000','35,000','t3',false,'$40'),
-      (4,'Advanced',200,'10,000','80,000','t4',true,'$80'),
-      (5,'Elite',400,'20,000','150,000','t5',false,'$160'),
-      (6,'Premium',600,'30,000','250,000','t6',false,'$240'),
-      (7,'Executive',800,'40,000','400,000','t7',false,'$320'),
-      (8,'Ultimate',1000,'50,000+','600,000','t8',false,'$400'),
+      (1,'Starter',20,'5,000','500','t1',false,'$8'),
+      (2,'Builder',50,'15,000','1,500','t2',false,'$20'),
+      (3,'Pro',100,'35,000','5,000','t3',false,'$40'),
+      (4,'Advanced',200,'80,000','10,000','t4',true,'$80'),
+      (5,'Elite',400,'150,000','20,000','t5',false,'$160'),
+      (6,'Premium',600,'250,000','30,000','t6',false,'$240'),
+      (7,'Executive',800,'400,000','40,000','t7',false,'$320'),
+      (8,'Ultimate',1000,'600,000','50,000+','t8',false,'$400'),
     ] %}
 
+    <div class="section-lbl">Entry &amp; Mid Tiers</div>
     <div class="tiers-grid">
-      {% for num, name, price, monthly_views, ad_views, cls, popular, earn in tiers %}
+      {% for num, name, price, ad_views, monthly_views, cls, popular, earn in tiers if num <= 4 %}
       <div class="tier-card {{ cls }}{% if popular %} popular{% endif %}">
         {% if popular %}<div class="popular-badge">★ Most Popular</div>{% endif %}
         <div class="tier-name">{{ name }}</div>
@@ -251,7 +220,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
           <div class="tier-views-label">Engaged Video Views</div>
         </div>
         <div class="tier-earn">
-          <span class="tier-earn-lbl">You earn per referral</span>
+          <span class="tier-earn-lbl">Earn per referral</span>
           <span class="tier-earn-val">{{ earn }}</span>
         </div>
         <ul class="tier-features">
@@ -259,6 +228,39 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
           <li>Upload &amp; promote videos</li>
           <li>{{ monthly_views }} monthly ad views</li>
           {% if num >= 4 %}<li class="feat-gold">Geo &amp; interest targeting</li>{% endif %}
+          <li>40% direct commission</li>
+          <li>8-level uni-level commissions</li>
+        </ul>
+        {% if num in active_tiers %}
+          <div class="tier-btn active-badge">✓ Active</div>
+        {% else %}
+          <a href="/activate-grid?tier={{ num }}" class="tier-btn activate">Activate — ${{ '{:,}'.format(price) }} USDT</a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="section-lbl" style="margin-top:20px">Power Tiers</div>
+    <div class="tiers-grid">
+      {% for num, name, price, ad_views, monthly_views, cls, popular, earn in tiers if num >= 5 %}
+      <div class="tier-card {{ cls }}">
+        <div class="tier-name">{{ name }}</div>
+        <div class="tier-price"><sup>$</sup>{{ '{:,}'.format(price) }}</div>
+        <div class="tier-currency">{{ price }} USDT · Base Chain</div>
+        <div class="tier-views">
+          <div class="tier-views-label">Up To</div>
+          <div class="tier-views-num">{{ ad_views }}</div>
+          <div class="tier-views-label">Engaged Video Views</div>
+        </div>
+        <div class="tier-earn">
+          <span class="tier-earn-lbl">Earn per referral</span>
+          <span class="tier-earn-val">{{ earn }}</span>
+        </div>
+        <ul class="tier-features">
+          <li>Grid position activated</li>
+          <li>Upload &amp; promote videos</li>
+          <li>{{ monthly_views }} monthly ad views</li>
+          <li class="feat-gold">Geo &amp; interest targeting</li>
           {% if num >= 5 %}<li class="feat-gold">Priority delivery queue</li>{% endif %}
           {% if num >= 6 %}<li class="feat-gold">Featured placement</li>{% endif %}
           {% if num >= 7 %}<li class="feat-purple">Spotlight placement</li>{% endif %}
@@ -274,147 +276,31 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
       {% endfor %}
     </div>
 
-    <!-- BOTTOM: How It Works + Commission Table -->
-    <div class="bottom-grid">
-
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">📊 How the Income Grid Works</div>
+    <!-- HOW IT WORKS — LIGHT -->
+    <div class="hiw">
+      <div class="hiw-inner">
+        <div class="hiw-step">
+          <div class="hiw-num">1</div>
+          <div class="hiw-title">Activate Your Tier</div>
+          <div class="hiw-desc">Pay once in USDT. Your <span class="hiw-hl-blue">8×8 grid position</span> is immediately activated with 64 slots filling across your network.</div>
         </div>
-        <div class="panel-body">
-          <div class="panel-text">Each tier activates an <strong>8×8 grid position</strong> with 64 slots. As your network grows, positions fill and you earn commissions on every level below you.</div>
-          <div class="panel-text"><strong>40% direct commission</strong> on every personal referral who activates the same tier — paid instantly to your wallet.</div>
-          <div class="panel-text"><strong>6.875% uni-level commission</strong> across 8 levels deep. When a grid fills it auto-advances — income compounds indefinitely.</div>
-          <a href="/income-grid" class="panel-cta">⚡ View Your Profit Grid →</a>
+        <div class="hiw-step">
+          <div class="hiw-num">2</div>
+          <div class="hiw-title">Earn on Every Level</div>
+          <div class="hiw-desc"><span class="hiw-hl-indigo">40% direct commission</span> on every personal referral who activates the same tier. Plus <span class="hiw-hl-indigo">6.875%</span> uni-level across 8 levels deep.</div>
         </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">💵 Commission Per Referral</div>
-        </div>
-        <div class="panel-body" style="padding:0">
-          <table class="comm-table">
-            <thead>
-              <tr><th>Tier</th><th>Cost</th><th style="text-align:right">You Earn</th></tr>
-            </thead>
-            <tbody>
-              {% for num, name, price, mv, av, cls, pop, earn in tiers %}
-              <tr{% if num in active_tiers %} class="active-row"{% endif %}>
-                <td>
-                  <span class="tier-dot" style="background:{% if cls=='t1' %}#0ea5e9{% elif cls=='t2' %}#6366f1{% elif cls=='t3' %}#059669{% elif cls=='t4' %}#f59e0b{% elif cls=='t5' %}#ef4444{% elif cls=='t6' %}#ec4899{% elif cls=='t7' %}#7c3aed{% else %}#0284c7{% endif %}"></span>
-                  {{ name }}{% if num in active_tiers %} ✓{% endif %}
-                </td>
-                <td>${{ price }}</td>
-                <td class="comm-earn">{{ earn }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- FEATURE COMPARISON TABLE -->
-    <div class="compare-wrap">
-      <div class="compare-card">
-        <div class="compare-head">
-          <div class="compare-title">📋 Full Feature Comparison</div>
-          <div class="compare-sub">All figures verified against live account tier data</div>
-        </div>
-        <div style="overflow-x:auto">
-          <table class="ctable">
-            <thead>
-              <tr>
-                <th class="fcol">Feature</th>
-                <th class="t-th"><div class="t-th-inner bg-t1">$20</div></th>
-                <th class="t-th"><div class="t-th-inner bg-t2">$50</div></th>
-                <th class="t-th"><div class="t-th-inner bg-t3">$100</div></th>
-                <th class="t-th"><div class="t-th-inner bg-t4">$200</div></th>
-                <th class="t-th"><div class="t-th-inner bg-t5">$400</div></th>
-                <th class="t-th"><div class="t-th-inner bg-t6">$600</div></th>
-                <th class="t-th"><div class="t-th-inner bg-t7">$800</div></th>
-                <th class="t-th"><div class="t-th-inner bg-t8">$1k</div></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="grp"><td colspan="9">Grid &amp; Commissions</td></tr>
-              <tr>
-                <td class="fcol">8×8 Grid Position</td>
-                <td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td>
-              </tr>
-              <tr>
-                <td class="fcol">40% Direct Commission</td>
-                <td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td>
-              </tr>
-              <tr>
-                <td class="fcol">8-Level Uni-Level</td>
-                <td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td>
-              </tr>
-              <tr>
-                <td class="fcol">Earn Per Referral</td>
-                <td><span class="cb">$8</span></td><td><span class="cb">$20</span></td><td><span class="cb">$40</span></td><td><span class="cb">$80</span></td><td><span class="cb">$160</span></td><td><span class="cb">$240</span></td><td><span class="cb">$320</span></td><td><span class="cb">$400</span></td>
-              </tr>
-              <tr class="grp"><td colspan="9">Video Advertising</td></tr>
-              <tr>
-                <td class="fcol">Upload &amp; Promote Videos</td>
-                <td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td>
-              </tr>
-              <tr>
-                <td class="fcol">Active Campaigns</td>
-                <td><span class="cv">1</span></td><td><span class="cv">3</span></td><td><span class="cv">5</span></td><td><span class="cv">10</span></td><td><span class="cv">20</span></td><td><span class="cv">30</span></td><td><span class="cv">50</span></td><td><span class="cv">∞</span></td>
-              </tr>
-              <tr>
-                <td class="fcol">Monthly Ad Views</td>
-                <td><span class="cv">500</span></td><td><span class="cv">1,500</span></td><td><span class="cv">5,000</span></td><td><span class="cv">10,000</span></td><td><span class="cv">20,000</span></td><td><span class="cv">30,000</span></td><td><span class="cv">40,000</span></td><td><span class="cv">50k+</span></td>
-              </tr>
-              <tr>
-                <td class="fcol">Audience Reach</td>
-                <td><span class="cv" style="color:#94a3b8">Category</span></td>
-                <td><span class="cv" style="color:#94a3b8">Category</span></td>
-                <td><span class="cb">Extended</span></td>
-                <td><span class="cb">Extended</span></td>
-                <td><span class="cg">Full</span></td><td><span class="cg">Full</span></td><td><span class="cg">Full</span></td><td><span class="cg">Full</span></td>
-              </tr>
-              <tr class="grp"><td colspan="9">Targeting &amp; Delivery</td></tr>
-              <tr>
-                <td class="fcol">Geo &amp; Interest Targeting</td>
-                <td><span class="cn">—</span></td><td><span class="cn">—</span></td><td><span class="cn">—</span></td>
-                <td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td>
-              </tr>
-              <tr>
-                <td class="fcol">Demographics Targeting</td>
-                <td><span class="cn">—</span></td><td><span class="cn">—</span></td><td><span class="cn">—</span></td>
-                <td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td>
-              </tr>
-              <tr>
-                <td class="fcol">Priority Delivery</td>
-                <td><span class="cn">—</span></td><td><span class="cn">—</span></td><td><span class="cn">—</span></td><td><span class="cn">—</span></td>
-                <td><span class="cv" style="color:#f59e0b">Lvl 1</span></td>
-                <td><span class="cv" style="color:#ef4444">Lvl 2</span></td>
-                <td><span class="cv" style="color:#7c3aed">Lvl 3</span></td>
-                <td><span class="cv" style="color:#7c3aed">Lvl 3</span></td>
-              </tr>
-              <tr>
-                <td class="fcol">Featured Placement</td>
-                <td><span class="cn">—</span></td><td><span class="cn">—</span></td><td><span class="cn">—</span></td><td><span class="cn">—</span></td><td><span class="cn">—</span></td>
-                <td><span class="cy">✓</span></td><td><span class="cy">✓</span></td><td><span class="cy">✓</span></td>
-              </tr>
-              <tr>
-                <td class="fcol">Spotlight Placement</td>
-                <td><span class="cn">—</span></td><td><span class="cn">—</span></td><td><span class="cn">—</span></td><td><span class="cn">—</span></td><td><span class="cn">—</span></td><td><span class="cn">—</span></td>
-                <td><span class="cy">✓</span></td><td><span class="cy">✓</span></td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="hiw-step">
+          <div class="hiw-num">3</div>
+          <div class="hiw-title">Compound Forever</div>
+          <div class="hiw-desc">When a grid fills it <span class="hiw-hl-green">auto-advances</span>. New grid starts immediately. Your income compounds as your network grows — no ceiling.</div>
+          <a href="/income-grid" class="hiw-cta">⚡ View Your Grid →</a>
         </div>
       </div>
     </div>
 
-  </div><!-- /content -->
-</div><!-- /main -->
-</div><!-- /layout -->
+  </div>
+</div>
+</div>
 
 <div class="mobile-nav">
   <div class="mobile-nav-inner">
@@ -426,7 +312,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
   </div>
 </div>
 <script>
-if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/static/sw.js').catch(()=>{});})}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/static/sw.js').catch(()=>{})})}
 </script>
 </body>
 </html>
