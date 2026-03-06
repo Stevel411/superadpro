@@ -7,37 +7,37 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0f172a;min-height:100vh}
 .layout{display:flex;min-height:100vh}
 
 /* ── Sidebar (matches dashboard exactly) ── */
 .sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
 .sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;letter-spacing:0;text-transform:none;color:#fff;-webkit-text-fill-color:#fff}
-.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
-.nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
-.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 16px;margin:2px 10px;border-radius:10px;font-size:14px;font-weight:500;color:rgba(188,213,240,0.65);text-decoration:none;transition:all 0.18s;position:relative}
+.nav-item:hover{background:rgba(0,200,255,0.08);color:rgba(188,213,240,0.95)}
+.nav-item.active{background:linear-gradient(90deg,rgba(0,200,255,0.2),rgba(0,200,255,0.06));color:#fff;font-weight:700}
 .nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
 
 /* ── Main Area ── */
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:60px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:50}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#070c18;border-bottom:1px solid rgba(0,200,255,0.1);position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,200,255,0.15),0 4px 20px rgba(0,0,0,0.3)}
 .content{padding:18px 24px;flex:1;display:flex;flex-direction:column}
 
 /* ── Cards ── */
-.card{background:#fff;border:1px solid #d0d8e4;border-radius:12px;box-shadow:0 1px 4px rgba(0,40,100,0.06);overflow:hidden;display:flex;flex-direction:column}
-.card-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #e4e9f1;flex-shrink:0}
-.card-title{font-size:14px;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:8px}
+.card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:16px;box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 16px rgba(15,25,60,.07);overflow:hidden;display:flex;flex-direction:column}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(15,25,60,.07);flex-shrink:0}
+.card-title{font-size:14px;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:8px;font-family:'Sora',sans-serif}
 .card-dot{width:6px;height:6px;border-radius:50%;background:#0ea5e9;flex-shrink:0}
 .card-body{padding:14px 16px;flex:1;display:flex;flex-direction:column}
 
 /* ── Forms ── */
 .form-group{margin-bottom:10px}
-.form-label{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;display:block}
-.form-input{width:100%;padding:8px 12px;border:1px solid #d0d8e4;border-radius:6px;font-size:14px;color:#0f172a;font-family:inherit;background:#fff;transition:border-color 0.2s}
+.form-label{font-size:11px;font-weight:800;color:#7b91a8;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;display:block}
+.form-input{width:100%;padding:8px 12px;border:1px solid rgba(15,25,60,.12);border-radius:8px;font-size:14px;color:#0f172a;font-family:inherit;background:#f6f8fc;transition:border-color 0.2s}
 .form-input:focus{outline:none;border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,0.1)}
-select.form-input{background:#f8fafc}
+select.form-input{background:#f6f8fc}
 
 /* ── Buttons ── */
 .btn-primary{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:8px 18px;border-radius:6px;border:none;cursor:pointer;font-family:inherit}
@@ -50,25 +50,25 @@ select.form-input{background:#f8fafc}
 .badge-amber{background:rgba(245,158,11,0.08);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)}
 
 /* ── Info rows ── */
-.info-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(15,25,60,.05)}
 .info-row:last-child{border-bottom:none}
-.info-key{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.8px}
+.info-key{font-size:11px;font-weight:800;color:#7b91a8;text-transform:uppercase;letter-spacing:0.8px}
 .info-val{font-size:13px;font-weight:600;color:#0f172a}
 
 /* ── Earnings rows ── */
-.earn-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9}
+.earn-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(15,25,60,.05)}
 .earn-row:last-child{border-bottom:none}
-.earn-label{font-size:13px;color:#64748b}
+.earn-label{font-size:13px;color:#3d5068}
 .earn-val{font-size:13px;font-weight:800;color:#16a34a}
 
 /* ── Wallet info ── */
-.wallet-info{padding:10px 12px;background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #b8d4f8;border-radius:8px;margin-top:auto}
+.wallet-info{padding:10px 12px;background:#f6f8fc;border:1px solid rgba(14,165,233,.15);border-radius:10px;margin-top:auto}
 .wallet-info-title{font-size:11px;font-weight:700;color:#0284c7;margin-bottom:4px}
-.wallet-info-text{font-size:11px;color:#475569;line-height:1.6}
+.wallet-info-text{font-size:11px;color:#3d5068;line-height:1.6}
 
 /* ── Quick links ── */
-.q-link{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f8fafc;border:1px solid #e4e9f1;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;color:#334155;transition:all 0.15s}
-.q-link:hover{background:#eff6ff;border-color:#bae6fd}
+.q-link{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f6f8fc;border:1px solid rgba(15,25,60,.08);border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;color:#334155;transition:all 0.15s}
+.q-link:hover{background:#e0f2fe;border-color:rgba(14,165,233,.25)}
 
 /* ── Toast ── */
 .toast-banner{border-radius:8px;padding:10px 16px;margin-bottom:14px;font-size:13px;font-weight:600}
@@ -94,7 +94,7 @@ select.form-input{background:#f8fafc}
 .status-chip.disabled{background:rgba(100,116,139,0.1);color:#64748b;border:1px solid rgba(100,116,139,0.2)}
 
 /* File upload */
-.file-input{width:100%;padding:8px;border:1.5px dashed #d0d8e4;border-radius:6px;font-size:12px;font-family:inherit;color:#64748b;background:#f8fafc;cursor:pointer}
+.file-input{width:100%;padding:8px;border:1.5px dashed rgba(15,25,60,.15);border-radius:8px;font-size:12px;font-family:inherit;color:#7b91a8;background:#f6f8fc;cursor:pointer}
 .file-input:hover{border-color:#0ea5e9}
 
 @media(max-width:1100px){
@@ -143,13 +143,13 @@ select.form-input{background:#f8fafc}
 <div class="main">
 <div class="topbar">
   <div>
-    <div style="font-size:16px;font-weight:800;color:#fff">◉ My Profile</div>
-    <div style="font-size:11px;color:rgba(0,212,255,0.5)">Manage your account details and wallet</div>
+    <div style="font-family:'Sora',sans-serif;font-size:19px;font-weight:800;color:#fff;letter-spacing:-0.2px">◉ My Profile</div>
+    <div style="font-size:12px;color:rgba(0,200,255,0.45);margin-top:2px">Manage your account details and wallet</div>
   </div>
   <div style="display:flex;align-items:center;gap:12px">
-    <div style="background:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:5px 12px;text-align:center">
-      <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8">Balance</div>
-      <div><span style="font-size:14px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:10px;color:#94a3b8;margin-left:3px">USDC</span></div>
+    <div style="background:rgba(34,197,94,.09);border:1px solid rgba(34,197,94,.22);border-radius:10px;padding:7px 14px;text-align:center">
+      <div style="font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(148,163,184,.5)">Balance</div>
+      <div><span style="font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:#4ade80">${{ '%.2f'|format(balance) }}</span><span style="font-size:10px;color:#94a3b8;margin-left:3px">USDC</span></div>
     </div>
     <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none">
       <svg width="30" height="30" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-tb)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-tb" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
@@ -179,11 +179,11 @@ select.form-input{background:#f8fafc}
       <span class="badge {% if is_active %}badge-green{% else %}badge-amber{% endif %}">{% if is_active %}Active{% else %}Inactive{% endif %}</span>
     </div>
     <div class="card-body">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #e4e9f1">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(15,25,60,.07)">
         <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0284c7,#0ea5e9);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0">{{ (user.first_name[:1] + (user.last_name[:1] if user.last_name else user.username[1:2])).upper() }}</div>
         <div>
           <div style="font-size:14px;font-weight:800;color:#0f172a">{{ user.first_name }} {{ user.last_name }}</div>
-          <div style="font-size:11px;color:#64748b">@{{ user.username }}</div>
+          <div style="font-size:11px;color:#7b91a8">@{{ user.username }}</div>
         </div>
       </div>
       <div class="info-row"><span class="info-key">Member ID</span><span class="info-val" style="color:#0284c7;font-family:monospace">{{ member_id }}</span></div>
@@ -202,7 +202,7 @@ select.form-input{background:#f8fafc}
       <div class="earn-row"><span class="earn-label">Balance</span><span class="earn-val">${{ '%.2f'|format(balance) }}</span></div>
       <div class="earn-row"><span class="earn-label">Grid Earnings</span><span class="earn-val">${{ '%.2f'|format(grid_earnings) }}</span></div>
       <div class="earn-row"><span class="earn-label">Uni-Level</span><span class="earn-val">${{ '%.2f'|format(level_earnings) }}</span></div>
-      <a href="/wallet" style="display:block;text-align:center;margin-top:auto;padding:8px;background:#f8fafc;border:1px solid #d0d8e4;border-radius:6px;font-size:12px;font-weight:700;color:#0284c7;text-decoration:none">View Full Wallet →</a>
+      <a href="/wallet" style="display:block;text-align:center;margin-top:auto;padding:8px;background:#f6f8fc;border:1px solid rgba(14,165,233,.2);border-radius:8px;font-size:12px;font-weight:700;color:#0284c7;text-decoration:none">View Full Wallet →</a>
     </div>
   </div>
 
@@ -263,13 +263,13 @@ select.form-input{background:#f8fafc}
       <div style="text-align:center;padding:12px 0">
         <div style="font-size:32px;margin-bottom:8px">✅</div>
         <div style="font-size:14px;font-weight:700;color:#16a34a;margin-bottom:4px">Identity Verified</div>
-        <div style="font-size:11px;color:#64748b">Your identity has been verified. You're approved for withdrawals.</div>
+        <div style="font-size:11px;color:#7b91a8">Your identity has been verified. You're approved for withdrawals.</div>
       </div>
       {% elif kyc == 'pending' %}
       <div style="text-align:center;padding:12px 0">
         <div style="font-size:32px;margin-bottom:8px">⏳</div>
         <div style="font-size:14px;font-weight:700;color:#f59e0b;margin-bottom:4px">Verification In Progress</div>
-        <div style="font-size:11px;color:#64748b">We're reviewing your documents. This usually takes 24–48 hours.</div>
+        <div style="font-size:11px;color:#7b91a8">We're reviewing your documents. This usually takes 24–48 hours.</div>
       </div>
       {% elif kyc == 'rejected' %}
       <div style="padding:8px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;margin-bottom:12px;font-size:11px;color:#dc2626;font-weight:600">
@@ -289,7 +289,7 @@ select.form-input{background:#f8fafc}
         <button type="submit" class="btn-primary" style="width:100%;margin-top:auto">Resubmit Verification</button>
       </form>
       {% else %}
-      <div style="font-size:12px;color:#64748b;margin-bottom:12px;line-height:1.6">Verify your identity to enable withdrawals. We need your date of birth and a photo of a government-issued ID.</div>
+      <div style="font-size:12px;color:#3d5068;margin-bottom:12px;line-height:1.6">Verify your identity to enable withdrawals. We need your date of birth and a photo of a government-issued ID.</div>
       <form method="POST" action="/account/kyc-submit" enctype="multipart/form-data" style="flex:1;display:flex;flex-direction:column">
         <div class="form-group"><label class="form-label">Date of Birth</label><input class="form-input" type="date" name="kyc_dob" required></div>
         <div class="form-group">
@@ -330,7 +330,7 @@ select.form-input{background:#f8fafc}
       <div style="text-align:center;padding:8px 0;margin-bottom:12px">
         <div style="font-size:32px;margin-bottom:8px">🔓</div>
         <div style="font-size:14px;font-weight:700;color:#64748b;margin-bottom:4px">Not Enabled</div>
-        <div style="font-size:12px;color:#64748b;line-height:1.6;margin-bottom:4px">Protect your account with an authenticator app. Required before you can make withdrawals.</div>
+        <div style="font-size:12px;color:#3d5068;line-height:1.6;margin-bottom:4px">Protect your account with an authenticator app. Required before you can make withdrawals.</div>
       </div>
       <a href="/account/2fa-setup" class="btn-primary" style="width:100%;display:block;text-align:center;text-decoration:none;margin-top:auto;padding:8px 18px">Setup 2FA →</a>
       {% endif %}
