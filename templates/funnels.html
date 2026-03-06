@@ -3,335 +3,355 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Funnel Builder — SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Page Builder — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
+{% raw %}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#0f172a;min-height:100vh}
 .layout{display:flex;min-height:100vh}
 .sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;letter-spacing:0;text-transform:none;color:#fff;-webkit-text-fill-color:#fff}
-.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
-.nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
-.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
+.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff;-webkit-text-fill-color:#fff}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 16px;margin:2px 10px;border-radius:10px;font-size:14px;font-weight:500;color:rgba(188,213,240,0.65);text-decoration:none;transition:all 0.18s}
+.nav-item:hover{background:rgba(0,200,255,0.08);color:rgba(188,213,240,0.95)}
+.nav-item.active{background:linear-gradient(90deg,rgba(0,200,255,0.2),rgba(0,200,255,0.06));color:#fff;font-weight:700}
 .nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
-.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:50}
-.topbar-title{font-size:22px;font-weight:800;color:#fff}
-.topbar-sub{font-size:16px;color:rgba(0,212,255,0.5);margin-top:2px}
-.topbar-right{display:flex;align-items:center;gap:12px}
-.balance-pill{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:8px 16px;display:flex;align-items:center;gap:6px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
-.balance-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8}
-.balance-val{font-size:16px;font-weight:800;color:#16a34a}
-.content{padding:24px 28px;flex:1}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#070c18;border-bottom:1px solid rgba(0,200,255,0.1);position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,200,255,0.15),0 4px 20px rgba(0,0,0,0.3)}
+.content{padding:18px 24px;flex:1}
 
-/* ── Page specific ── */
-.top-bar-actions{display:flex;align-items:center;gap:12px}
-.btn-new{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;text-decoration:none;transition:all 0.2s;font-family:inherit}
-.btn-new:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,180,216,0.3)}
+/* Top action buttons */
+.btn-action{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;transition:all 0.2s;border:none;font-family:inherit}
+.btn-action:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
 
-.pages-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;margin-top:20px}
-.page-card{background:#fff;border:1px solid #d0d8e4;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,40,100,0.06);transition:all 0.2s}
-.page-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,40,100,0.1)}
-.page-preview{height:160px;background:#0a0a1a;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-.page-preview-text{color:#38bdf8;font-size:19px;font-weight:800;text-align:center;padding:16px;line-height:1.3}
-.page-type-badge{position:absolute;top:10px;right:10px;background:rgba(0,180,216,0.2);color:#38bdf8;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
-.page-info{padding:16px 18px}
-.page-title{font-size:16px;font-weight:700;margin-bottom:4px}
-.page-meta{font-size:16px;color:#6b7d94;margin-bottom:12px}
-.page-stats{display:flex;gap:16px;margin-bottom:14px}
-.page-stat{display:flex;align-items:center;gap:4px;font-size:16px;color:#64748b}
-.page-stat strong{color:#0f172a}
-.page-actions{display:flex;gap:8px}
-.page-actions a,.page-actions button{padding:7px 14px;border-radius:6px;font-size:16px;font-weight:600;text-decoration:none;cursor:pointer;border:1px solid #d0d8e4;background:#fff;color:#0f172a;transition:all 0.15s;font-family:inherit}
-.page-actions a:hover,.page-actions button:hover{background:#eef2f7}
-.page-actions .btn-primary{background:#0f172a;color:#fff;border-color:#0f172a}
-.page-actions .btn-primary:hover{background:#1e293b}
-.page-actions .btn-danger{color:#dc2626;border-color:#fecaca}
-.page-actions .btn-danger:hover{background:#fef2f2}
-.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
-.status-published{background:#16a34a}
-.status-draft{background:#f59e0b}
+/* Gallery section */
+.section-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px}
+.section-title{font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#0f172a}
+.section-sub{font-size:12px;color:#7b91a8;margin-top:3px}
 
-/* ── Template Gallery ── */
-.gallery-section{margin-bottom:32px}
-.gallery-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.gallery-title{font-size:20px;font-weight:800;color:#0f172a}
-.gallery-sub{font-size:13px;color:#64748b;margin-top:2px}
-.templates-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
-.tpl-card{background:#fff;border:1px solid #d0d8e4;border-radius:14px;overflow:hidden;cursor:pointer;transition:all 0.25s;position:relative}
-.tpl-card:hover{transform:translateY(-4px);box-shadow:0 8px 28px rgba(0,40,100,0.12)}
-.tpl-preview{height:130px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-.tpl-preview-icon{font-size:36px;margin-bottom:6px}
-.tpl-preview-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s}
-.tpl-card:hover .tpl-preview-overlay{opacity:1}
-.tpl-use-btn{background:#fff;color:#0f172a;padding:8px 20px;border-radius:8px;font-weight:700;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
-.tpl-info{padding:14px 16px}
-.tpl-name{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:2px}
-.tpl-desc{font-size:11px;color:#64748b;line-height:1.4}
-.tpl-niche-tag{position:absolute;top:10px;right:10px;background:rgba(255,255,255,0.9);padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#334155}
+/* Template cards */
+.templates-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-bottom:28px}
+.tpl-card{background:#fff;border:1px solid rgba(15,25,60,.09);border-radius:14px;overflow:hidden;cursor:pointer;transition:all 0.22s;position:relative;box-shadow:0 1px 3px rgba(15,25,60,.05)}
+.tpl-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(15,25,60,.12);border-color:rgba(14,165,233,.2)}
+.tpl-preview{height:120px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.tpl-preview-inner{position:relative;text-align:center;z-index:2}
+.tpl-preview-icon{font-size:30px;margin-bottom:4px;display:block}
+.tpl-preview-label{font-size:12px;font-weight:700;color:#fff;opacity:0.9}
+.tpl-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s}
+.tpl-card:hover .tpl-overlay{opacity:1}
+.tpl-use-btn{background:#fff;color:#0f172a;padding:7px 18px;border-radius:8px;font-weight:800;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+.tpl-niche-tag{position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.88);backdrop-filter:blur(4px);padding:2px 8px;border-radius:8px;font-size:9px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;color:#334155}
+.tpl-info{padding:11px 14px}
+.tpl-name{font-size:13px;font-weight:700;color:#0f172a;margin-bottom:2px}
+.tpl-desc{font-size:11px;color:#7b91a8;line-height:1.45}
 
-/* Build your own card */
-.tpl-card.build-own{border:2px dashed #0284c7;background:linear-gradient(135deg,#f0f9ff,#ecfeff)}
-.tpl-card.build-own:hover{border-color:#0284c7;background:linear-gradient(135deg,#e0f2fe,#cffafe)}
-.build-own-content{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
-.build-own-icon{font-size:32px;margin-bottom:8px;color:#0284c7}
-.build-own-title{font-size:16px;font-weight:800;color:#0284c7;margin-bottom:4px}
-.build-own-desc{font-size:12px;color:#64748b}
+/* Build your own */
+.tpl-card.build-own{border:2px dashed rgba(14,165,233,.35);background:linear-gradient(135deg,#f0f9ff,#f8fdff)}
+.tpl-card.build-own:hover{border-color:#0ea5e9;background:linear-gradient(135deg,#e0f2fe,#f0f9ff)}
+.build-own-inner{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+.build-own-icon{font-size:28px;margin-bottom:6px}
+.build-own-title{font-size:14px;font-weight:800;color:#0284c7;margin-bottom:3px}
+.build-own-desc{font-size:11px;color:#64748b}
 
 /* Section divider */
-.section-divider{display:flex;align-items:center;gap:14px;margin:28px 0 16px}
-.section-divider .line{flex:1;height:1px;background:#d0d8e4}
-.section-divider .label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#0284c7;white-space:nowrap}
+.section-divider{display:flex;align-items:center;gap:12px;margin:4px 0 18px}
+.sd-line{flex:1;height:1px;background:rgba(15,25,60,.08)}
+.sd-label{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#0284c7;white-space:nowrap}
 
-.empty-state{text-align:center;padding:60px 20px}
-.empty-icon{font-size:48px;margin-bottom:16px}
-.empty-title{font-size:22px;font-weight:800;margin-bottom:8px}
-.empty-sub{font-size:16px;color:#64748b;margin-bottom:24px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6}
+/* My pages grid */
+.pages-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;align-items:stretch}
+.page-card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(15,25,60,.05);transition:all 0.2s;display:flex;flex-direction:column}
+.page-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(15,25,60,.1)}
+.page-preview{height:140px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0}
+.page-preview-text{font-family:'Sora',sans-serif;font-size:14px;font-weight:800;text-align:center;padding:14px;line-height:1.4;position:relative;z-index:1}
+.page-type-badge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.35);backdrop-filter:blur(4px);color:#fff;padding:2px 9px;border-radius:8px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px}
+.page-info{padding:14px 16px;flex:1;display:flex;flex-direction:column}
+.page-title{font-size:14px;font-weight:800;color:#0f172a;margin-bottom:3px}
+.page-meta{font-size:12px;color:#7b91a8;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.status-published{background:#16a34a}
+.status-draft{background:#f59e0b}
+.page-stats{display:flex;gap:14px;margin-bottom:12px}
+.page-stat{font-size:12px;color:#7b91a8;display:flex;align-items:center;gap:3px}
+.page-stat strong{color:#0f172a;font-weight:700}
+.page-actions{display:flex;gap:7px;margin-top:auto}
+.btn-edit{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;cursor:pointer;border:none;font-family:inherit;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;transition:all 0.15s}
+.btn-edit:hover{box-shadow:0 3px 10px rgba(14,165,233,.3)}
+.btn-view{padding:7px 13px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;cursor:pointer;border:1px solid rgba(15,25,60,.12);background:#f6f8fc;color:#3d5068;transition:all 0.15s;font-family:inherit}
+.btn-view:hover{background:#eef2f7}
+.btn-del{padding:7px 13px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid rgba(239,68,68,.2);background:rgba(239,68,68,.04);color:#dc2626;transition:all 0.15s;font-family:inherit}
+.btn-del:hover{background:rgba(239,68,68,.08)}
+.page-url-row{margin-top:10px;display:flex;align-items:center;gap:6px;background:rgba(5,150,105,.06);border:1px solid rgba(5,150,105,.18);border-radius:8px;padding:7px 10px}
+.page-url-input{flex:1;border:none;background:none;font-size:11px;font-family:monospace;color:#2d3b4e;outline:none;min-width:0}
+.page-url-copy{background:#059669;color:#fff;border:none;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit}
 
-@media(max-width:900px){.sidebar{display:none}.main{margin-left:0}.topbar{padding:0 16px}.content{padding:16px}}
+/* Empty state */
+.empty-state{text-align:center;padding:48px 20px}
+.empty-icon{font-size:44px;margin-bottom:14px}
+.empty-title{font-family:'Sora',sans-serif;font-size:20px;font-weight:800;margin-bottom:8px}
+.empty-sub{font-size:13px;color:#7b91a8;margin-bottom:22px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.7}
+
+@media(max-width:768px){
+  .layout{display:block!important}
+  .sidebar{display:none!important}
+  .main{margin-left:0!important}
+  .topbar{display:none!important}
+  .content{padding:10px 12px 80px!important}
+  .templates-grid{grid-template-columns:repeat(2,1fr)!important}
+  .pages-grid{grid-template-columns:1fr!important}
+  .topbar-actions{display:none!important}
+}
+{% endraw %}
 </style>
-<link rel="stylesheet" href="/static/mobile.css">
+  <link rel="stylesheet" href="/static/mobile.css">
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SuperAdPro">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 </head>
 <body>
-<svg style="display:none"><symbol id="shield" viewBox="0 0 30 30"><path d="M15 2L3 7v7c0 7.73 5.12 14.95 12 17 6.88-2.05 12-9.27 12-17V7L15 2z" fill="url(#sg)"/><defs><linearGradient id="sg" x1="0" y1="0" x2="30" y2="30"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient></defs></symbol></svg>
-
 <div class="layout">
-  {% include "_sidebar.html" %}
 
-  <div class="main">
-    <div class="topbar">
-      <div>
-        <div class="topbar-title">Funnel Builder</div>
-        <div class="topbar-sub">Create landing pages &amp; sales funnels with AI</div>
+<div class="mobile-topbar">
+  <a class="mobile-topbar-left" href="/dashboard">
+    <svg width="26" height="26" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#0ea5e9"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></svg>
+    <div>
+      <div class="mobile-topbar-name">SuperAdPro</div>
+      <div class="mobile-topbar-page">Page Builder</div>
+    </div>
+  </a>
+  <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
+</div>
+
+{% include "_sidebar.html" %}
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div style="font-size:18px;font-weight:800;color:#ffffff">🚀 Page Builder</div>
+      <div style="font-size:13px;color:#6b7d94;margin-top:1px">Create landing pages &amp; sales funnels</div>
+    </div>
+    <div class="topbar-actions" style="display:flex;align-items:center;gap:10px">
+      <a href="/funnels/analytics" class="btn-action" style="background:rgba(14,165,233,.15);color:#38bdf8;border:1px solid rgba(14,165,233,.2)">📊 Analytics</a>
+      <a href="/funnels/leads" class="btn-action" style="background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.2)">📧 Leads</a>
+      <a href="/funnels/visual/new" class="btn-action" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff">⚡ New Page</a>
+      <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px 14px;text-align:center">
+        <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8">Balance</div>
+        <div><span style="font-size:15px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:11px;color:#94a3b8;margin-left:3px">USDT</span></div>
       </div>
-      <div style="display:flex;align-items:center;gap:14px">
-          <a href="/funnels/analytics" class="btn-new" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)">📊 Analytics</a>
-          <a href="/funnels/leads" class="btn-new" style="background:linear-gradient(135deg,#10b981,#34d399)">📧 Leads</a>
-          <a href="/funnels/visual/new" class="btn-new" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">⚡ New Page</a>
-          <div style="background:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:6px 14px;text-align:center">
-            <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8">Balance</div>
-            <div><span style="font-size:15px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:11px;color:#94a3b8;margin-left:3px">USDT</span></div>
-          </div>
-          <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-          <svg width="32" height="32" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-tb)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-tb" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
-          <span style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
-        </a>
-        </div>
+      <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none">
+        <svg width="30" height="30" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#0ea5e9"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></svg>
+        <span style="font-family:Sora,sans-serif;font-size:17px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- TEMPLATE GALLERY -->
+    <div class="section-header">
+      <div>
+        <div class="section-title">Start With a Template</div>
+        <div class="section-sub">Pick a niche, get a complete page — then customise everything in the editor</div>
+      </div>
     </div>
 
-    <div class="content">
+    <div class="templates-grid">
 
-      <!-- ═══ TEMPLATE GALLERY ═══ -->
-      <div class="gallery-section">
-        <div class="gallery-header">
-          <div>
-            <div class="gallery-title">Start With a Template</div>
-            <div class="gallery-sub">Pick a niche, get a complete page — then customise everything in the editor</div>
-          </div>
+      <!-- Build Your Own -->
+      <a href="/funnels/visual/new" class="tpl-card build-own" style="text-decoration:none">
+        <div class="build-own-inner">
+          <div class="build-own-icon">✦</div>
+          <div class="build-own-title">Build Your Own</div>
+          <div class="build-own-desc">Start from a blank canvas</div>
         </div>
-        <div class="templates-grid">
-          <!-- Build Your Own -->
-          <a href="/funnels/visual/new" class="tpl-card build-own" style="text-decoration:none">
-            <div class="build-own-content">
-              <div class="build-own-icon">✦</div>
-              <div class="build-own-title">Build Your Own</div>
-              <div class="build-own-desc">Start from scratch with a blank canvas</div>
-            </div>
-          </a>
+      </a>
 
-          <!-- Forex -->
-          <div class="tpl-card" onclick="useTemplate('forex')">
-            <div class="tpl-preview" style="background:url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=500&q=70') center/cover">
-              <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,22,40,0.6),rgba(13,40,71,0.6))"></div>
-              <div style="position:relative;text-align:center;color:#fff;z-index:2">
-                <div class="tpl-preview-icon">📈</div>
-                <div style="font-size:13px;font-weight:700;opacity:0.9">Forex Trading</div>
-              </div>
-              <span class="tpl-niche-tag">Forex</span>
-              <div class="tpl-preview-overlay"><span class="tpl-use-btn">Use Template →</span></div>
-            </div>
-            <div class="tpl-info">
-              <div class="tpl-name">Forex Trading Opportunity</div>
-              <div class="tpl-desc">Learn to trade the world's largest market with proven strategies and expert guidance.</div>
-            </div>
-          </div>
-
-          <!-- Crypto -->
-          <div class="tpl-card" onclick="useTemplate('crypto')">
-            <div class="tpl-preview" style="background:url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=500&q=70') center/cover">
-              <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(26,10,46,0.6),rgba(45,27,105,0.6))"></div>
-              <div style="position:relative;text-align:center;color:#fff;z-index:2">
-                <div class="tpl-preview-icon">₿</div>
-                <div style="font-size:13px;font-weight:700;opacity:0.9">Cryptocurrency</div>
-              </div>
-              <span class="tpl-niche-tag">Crypto</span>
-              <div class="tpl-preview-overlay"><span class="tpl-use-btn">Use Template →</span></div>
-            </div>
-            <div class="tpl-info">
-              <div class="tpl-name">Crypto Income Blueprint</div>
-              <div class="tpl-desc">Discover how to build wealth in the digital currency revolution.</div>
-            </div>
-          </div>
-
-          <!-- Affiliate Marketing -->
-          <div class="tpl-card" onclick="useTemplate('affiliate-marketing')">
-            <div class="tpl-preview" style="background:url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&q=70') center/cover">
-              <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,40,24,0.6),rgba(13,74,42,0.6))"></div>
-              <div style="position:relative;text-align:center;color:#fff;z-index:2">
-                <div class="tpl-preview-icon">🔗</div>
-                <div style="font-size:13px;font-weight:700;opacity:0.9">Affiliate Marketing</div>
-              </div>
-              <span class="tpl-niche-tag">Affiliate</span>
-              <div class="tpl-preview-overlay"><span class="tpl-use-btn">Use Template →</span></div>
-            </div>
-            <div class="tpl-info">
-              <div class="tpl-name">Affiliate Income Machine</div>
-              <div class="tpl-desc">Earn commissions promoting products you believe in — no inventory needed.</div>
-            </div>
-          </div>
-
-          <!-- E-Commerce -->
-          <div class="tpl-card" onclick="useTemplate('ecommerce')">
-            <div class="tpl-preview" style="background:url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=500&q=70') center/cover">
-              <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(42,26,10,0.6),rgba(74,45,10,0.6))"></div>
-              <div style="position:relative;text-align:center;color:#fff;z-index:2">
-                <div class="tpl-preview-icon">🛒</div>
-                <div style="font-size:13px;font-weight:700;opacity:0.9">E-Commerce</div>
-              </div>
-              <span class="tpl-niche-tag">E-Comm</span>
-              <div class="tpl-preview-overlay"><span class="tpl-use-btn">Use Template →</span></div>
-            </div>
-            <div class="tpl-info">
-              <div class="tpl-name">E-Commerce Success System</div>
-              <div class="tpl-desc">Build a profitable online store and sell products worldwide from day one.</div>
-            </div>
-          </div>
-
-          <!-- AI & Tech -->
-          <div class="tpl-card" onclick="useTemplate('ai-tech')">
-            <div class="tpl-preview" style="background:url('https://images.unsplash.com/photo-1677442136019-21780ecad995?w=500&q=70') center/cover">
-              <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,10,46,0.6),rgba(26,26,92,0.6))"></div>
-              <div style="position:relative;text-align:center;color:#fff;z-index:2">
-                <div class="tpl-preview-icon">🤖</div>
-                <div style="font-size:13px;font-weight:700;opacity:0.9">AI & Technology</div>
-              </div>
-              <span class="tpl-niche-tag">AI & Tech</span>
-              <div class="tpl-preview-overlay"><span class="tpl-use-btn">Use Template →</span></div>
-            </div>
-            <div class="tpl-info">
-              <div class="tpl-name">AI-Powered Income</div>
-              <div class="tpl-desc">Leverage artificial intelligence to automate your business and multiply your earnings.</div>
-            </div>
-          </div>
-
-          <!-- Health & Fitness -->
-          <div class="tpl-card" onclick="useTemplate('health-fitness')">
-            <div class="tpl-preview" style="background:url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&q=70') center/cover">
-              <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,42,26,0.6),rgba(13,74,38,0.6))"></div>
-              <div style="position:relative;text-align:center;color:#fff;z-index:2">
-                <div class="tpl-preview-icon">💪</div>
-                <div style="font-size:13px;font-weight:700;opacity:0.9">Health & Fitness</div>
-              </div>
-              <span class="tpl-niche-tag">Health</span>
-              <div class="tpl-preview-overlay"><span class="tpl-use-btn">Use Template →</span></div>
-            </div>
-            <div class="tpl-info">
-              <div class="tpl-name">Fitness & Wellness Partner</div>
-              <div class="tpl-desc">Help others transform their health while building a rewarding income stream.</div>
-            </div>
-          </div>
-
-          <!-- Real Estate -->
-          <div class="tpl-card" onclick="useTemplate('real-estate')">
-            <div class="tpl-preview" style="background:url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500&q=70') center/cover">
-              <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(26,26,10,0.6),rgba(58,58,13,0.6))"></div>
-              <div style="position:relative;text-align:center;color:#fff;z-index:2">
-                <div class="tpl-preview-icon">🏠</div>
-                <div style="font-size:13px;font-weight:700;opacity:0.9">Real Estate</div>
-              </div>
-              <span class="tpl-niche-tag">Property</span>
-              <div class="tpl-preview-overlay"><span class="tpl-use-btn">Use Template →</span></div>
-            </div>
-            <div class="tpl-info">
-              <div class="tpl-name">Real Estate Wealth Builder</div>
-              <div class="tpl-desc">Generate recurring income through property investing strategies and digital tools.</div>
-            </div>
-          </div>
-
-          <!-- Personal Finance -->
-          <div class="tpl-card" onclick="useTemplate('personal-finance')">
-            <div class="tpl-preview" style="background:url('https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=500&q=70') center/cover">
-              <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,26,42,0.6),rgba(13,42,74,0.6))"></div>
-              <div style="position:relative;text-align:center;color:#fff;z-index:2">
-                <div class="tpl-preview-icon">💰</div>
-                <div style="font-size:13px;font-weight:700;opacity:0.9">Personal Finance</div>
-              </div>
-              <span class="tpl-niche-tag">Finance</span>
-              <div class="tpl-preview-overlay"><span class="tpl-use-btn">Use Template →</span></div>
-            </div>
-            <div class="tpl-info">
-              <div class="tpl-name">Financial Freedom Blueprint</div>
-              <div class="tpl-desc">Take control of your money and build multiple income streams for lasting wealth.</div>
-            </div>
-          </div>
+      <!-- Forex -->
+      <div class="tpl-card" onclick="useTemplate('forex')">
+        <div class="tpl-preview" style="background:url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=500&q=70') center/cover">
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,22,40,0.65),rgba(13,40,71,0.65))"></div>
+          <div class="tpl-preview-inner"><span class="tpl-preview-icon">📈</span><div class="tpl-preview-label">Forex Trading</div></div>
+          <span class="tpl-niche-tag">Forex</span>
+          <div class="tpl-overlay"><span class="tpl-use-btn">Use Template →</span></div>
+        </div>
+        <div class="tpl-info">
+          <div class="tpl-name">Forex Trading Opportunity</div>
+          <div class="tpl-desc">Proven strategies for the world's largest market.</div>
         </div>
       </div>
 
-      <!-- ═══ MY PAGES ═══ -->
-      {% if pages %}
-      <div class="section-divider"><div class="line"></div><div class="label">My Pages ({{ pages|length }})</div><div class="line"></div></div>
-      <div class="pages-grid">
-        {% for p in pages %}
-        <div class="page-card">
-          <div class="page-preview" style="{% if p.color_scheme == 'light' %}background:#f0f2f8{% elif p.color_scheme == 'gradient' %}background:linear-gradient(135deg,#0a0a1a,#1a1a4a){% elif p.color_scheme == 'ocean' %}background:linear-gradient(135deg,#0a1628,#0a2840){% elif p.color_scheme == 'fire' %}background:linear-gradient(135deg,#1a0a0a,#2a1a0a){% else %}background:#0a0a1a{% endif %}">
-            <div class="page-preview-text" style="color:{{ p.accent_color or '#38bdf8' }}">{{ p.headline or p.title }}</div>
-            <div class="page-type-badge">{{ p.template_type }}</div>
+      <!-- Crypto -->
+      <div class="tpl-card" onclick="useTemplate('crypto')">
+        <div class="tpl-preview" style="background:url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=500&q=70') center/cover">
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(26,10,46,0.65),rgba(45,27,105,0.65))"></div>
+          <div class="tpl-preview-inner"><span class="tpl-preview-icon">₿</span><div class="tpl-preview-label">Cryptocurrency</div></div>
+          <span class="tpl-niche-tag">Crypto</span>
+          <div class="tpl-overlay"><span class="tpl-use-btn">Use Template →</span></div>
+        </div>
+        <div class="tpl-info">
+          <div class="tpl-name">Crypto Income Blueprint</div>
+          <div class="tpl-desc">Build wealth in the digital currency revolution.</div>
+        </div>
+      </div>
+
+      <!-- Affiliate -->
+      <div class="tpl-card" onclick="useTemplate('affiliate-marketing')">
+        <div class="tpl-preview" style="background:url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&q=70') center/cover">
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,40,24,0.65),rgba(13,74,42,0.65))"></div>
+          <div class="tpl-preview-inner"><span class="tpl-preview-icon">🔗</span><div class="tpl-preview-label">Affiliate Marketing</div></div>
+          <span class="tpl-niche-tag">Affiliate</span>
+          <div class="tpl-overlay"><span class="tpl-use-btn">Use Template →</span></div>
+        </div>
+        <div class="tpl-info">
+          <div class="tpl-name">Affiliate Income Machine</div>
+          <div class="tpl-desc">Earn commissions — no inventory needed.</div>
+        </div>
+      </div>
+
+      <!-- E-Commerce -->
+      <div class="tpl-card" onclick="useTemplate('ecommerce')">
+        <div class="tpl-preview" style="background:url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=500&q=70') center/cover">
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(42,26,10,0.65),rgba(74,45,10,0.65))"></div>
+          <div class="tpl-preview-inner"><span class="tpl-preview-icon">🛒</span><div class="tpl-preview-label">E-Commerce</div></div>
+          <span class="tpl-niche-tag">E-Comm</span>
+          <div class="tpl-overlay"><span class="tpl-use-btn">Use Template →</span></div>
+        </div>
+        <div class="tpl-info">
+          <div class="tpl-name">E-Commerce Success System</div>
+          <div class="tpl-desc">Sell products worldwide from day one.</div>
+        </div>
+      </div>
+
+      <!-- AI & Tech -->
+      <div class="tpl-card" onclick="useTemplate('ai-tech')">
+        <div class="tpl-preview" style="background:url('https://images.unsplash.com/photo-1677442136019-21780ecad995?w=500&q=70') center/cover">
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,10,46,0.65),rgba(26,26,92,0.65))"></div>
+          <div class="tpl-preview-inner"><span class="tpl-preview-icon">🤖</span><div class="tpl-preview-label">AI & Technology</div></div>
+          <span class="tpl-niche-tag">AI & Tech</span>
+          <div class="tpl-overlay"><span class="tpl-use-btn">Use Template →</span></div>
+        </div>
+        <div class="tpl-info">
+          <div class="tpl-name">AI-Powered Income</div>
+          <div class="tpl-desc">Automate your business with artificial intelligence.</div>
+        </div>
+      </div>
+
+      <!-- Health & Fitness -->
+      <div class="tpl-card" onclick="useTemplate('health-fitness')">
+        <div class="tpl-preview" style="background:url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=500&q=70') center/cover">
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,42,26,0.65),rgba(13,74,38,0.65))"></div>
+          <div class="tpl-preview-inner"><span class="tpl-preview-icon">💪</span><div class="tpl-preview-label">Health & Fitness</div></div>
+          <span class="tpl-niche-tag">Health</span>
+          <div class="tpl-overlay"><span class="tpl-use-btn">Use Template →</span></div>
+        </div>
+        <div class="tpl-info">
+          <div class="tpl-name">Fitness & Wellness Partner</div>
+          <div class="tpl-desc">Transform health while building a rewarding income.</div>
+        </div>
+      </div>
+
+      <!-- Real Estate -->
+      <div class="tpl-card" onclick="useTemplate('real-estate')">
+        <div class="tpl-preview" style="background:url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500&q=70') center/cover">
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(26,26,10,0.65),rgba(58,58,13,0.65))"></div>
+          <div class="tpl-preview-inner"><span class="tpl-preview-icon">🏠</span><div class="tpl-preview-label">Real Estate</div></div>
+          <span class="tpl-niche-tag">Property</span>
+          <div class="tpl-overlay"><span class="tpl-use-btn">Use Template →</span></div>
+        </div>
+        <div class="tpl-info">
+          <div class="tpl-name">Real Estate Wealth Builder</div>
+          <div class="tpl-desc">Generate recurring income through property strategies.</div>
+        </div>
+      </div>
+
+      <!-- Personal Finance -->
+      <div class="tpl-card" onclick="useTemplate('personal-finance')">
+        <div class="tpl-preview" style="background:url('https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=500&q=70') center/cover">
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,26,42,0.65),rgba(13,42,74,0.65))"></div>
+          <div class="tpl-preview-inner"><span class="tpl-preview-icon">💰</span><div class="tpl-preview-label">Personal Finance</div></div>
+          <span class="tpl-niche-tag">Finance</span>
+          <div class="tpl-overlay"><span class="tpl-use-btn">Use Template →</span></div>
+        </div>
+        <div class="tpl-info">
+          <div class="tpl-name">Financial Freedom Blueprint</div>
+          <div class="tpl-desc">Build multiple income streams for lasting wealth.</div>
+        </div>
+      </div>
+
+    </div><!-- /templates-grid -->
+
+    <!-- MY PAGES -->
+    {% if pages %}
+    <div class="section-divider">
+      <div class="sd-line"></div>
+      <div class="sd-label">My Pages ({{ pages|length }})</div>
+      <div class="sd-line"></div>
+    </div>
+
+    <div class="pages-grid">
+      {% for p in pages %}
+      <div class="page-card">
+        <div class="page-preview" style="{% if p.color_scheme == 'light' %}background:#f0f2f8{% elif p.color_scheme == 'gradient' %}background:linear-gradient(135deg,#0a0a1a,#1a1a4a){% elif p.color_scheme == 'ocean' %}background:linear-gradient(135deg,#0a1628,#0a2840){% elif p.color_scheme == 'fire' %}background:linear-gradient(135deg,#1a0a0a,#2a1a0a){% else %}background:#0a0a1a{% endif %}">
+          <div class="page-preview-text" style="color:{{ p.accent_color or '#38bdf8' }}">{{ p.headline or p.title }}</div>
+          <div class="page-type-badge">{{ p.template_type }}</div>
+        </div>
+        <div class="page-info">
+          <div class="page-title">{{ p.title }}</div>
+          <div class="page-meta">
+            <span class="status-dot status-{{ p.status }}"></span>
+            {{ p.status|capitalize }} · {{ p.created_at.strftime('%d %b %Y') if p.created_at else '' }}
           </div>
-          <div class="page-info">
-            <div class="page-title">{{ p.title }}</div>
-            <div class="page-meta">
-              <span class="status-dot status-{{ p.status }}"></span>{{ p.status|capitalize }}
-              · Created {{ p.created_at.strftime('%d %b %Y') if p.created_at else '' }}
-            </div>
-            <div class="page-stats">
-              <div class="page-stat">👁 <strong>{{ p.views or 0 }}</strong> views</div>
-              <div class="page-stat">👆 <strong>{{ p.clicks or 0 }}</strong> clicks</div>
-              {% if p.views and p.views > 0 %}
-              <div class="page-stat">📊 <strong>{{ '%.1f'|format((p.clicks or 0) / p.views * 100) }}%</strong> CTR</div>
-              {% endif %}
-            </div>
-            <div class="page-actions">
-              <a href="/funnels/visual/{{ p.id }}" class="btn-primary">⚡ Edit</a>
-              {% if p.status == 'published' %}
-              <a href="/p/{{ p.slug }}" target="_blank">View Live</a>
-              {% endif %}
-              <button class="btn-danger" onclick="deletePage({{ p.id }})">Delete</button>
-            </div>
-            {% if p.status == 'published' and p.slug %}
-            <div class="page-url-row" style="margin-top:10px;display:flex;align-items:center;gap:6px;background:rgba(5,150,105,0.08);border:1px solid rgba(5,150,105,0.2);border-radius:8px;padding:8px 10px">
-              <span style="font-size:16px;color:#059669;font-weight:700;white-space:nowrap">🔗 URL:</span>
-              <input readonly value="{{ request.url.scheme }}://{{ request.url.hostname }}/p/{{ p.slug }}" style="flex:1;border:none;background:none;font-size:16px;font-family:monospace;color:#2d3b4e;outline:none;min-width:0" id="url-{{ p.id }}">
-              <button onclick="copyUrl('url-{{ p.id }}')" style="background:#059669;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:16px;font-weight:700;cursor:pointer;white-space:nowrap">Copy</button>
-            </div>
+          <div class="page-stats">
+            <div class="page-stat">👁 <strong>{{ p.views or 0 }}</strong> views</div>
+            <div class="page-stat">👆 <strong>{{ p.clicks or 0 }}</strong> clicks</div>
+            {% if p.views and p.views > 0 %}
+            <div class="page-stat">📊 <strong>{{ '%.1f'|format((p.clicks or 0) / p.views * 100) }}%</strong> CTR</div>
             {% endif %}
           </div>
+          <div class="page-actions">
+            <a href="/funnels/visual/{{ p.id }}" class="btn-edit">⚡ Edit</a>
+            {% if p.status == 'published' %}
+            <a href="/p/{{ p.slug }}" target="_blank" class="btn-view">View Live</a>
+            {% endif %}
+            <button class="btn-del" onclick="deletePage({{ p.id }})">Delete</button>
+          </div>
+          {% if p.status == 'published' and p.slug %}
+          <div class="page-url-row">
+            <span style="font-size:11px;color:#059669;font-weight:700;white-space:nowrap">🔗</span>
+            <input readonly class="page-url-input" value="{{ request.url.scheme }}://{{ request.url.hostname }}/p/{{ p.slug }}" id="url-{{ p.id }}">
+            <button class="page-url-copy" onclick="copyUrl('url-{{ p.id }}')">Copy</button>
+          </div>
+          {% endif %}
         </div>
-        {% endfor %}
       </div>
-      {% else %}
-      <div class="empty-state">
-        <div class="empty-icon">🚀</div>
-        <div class="empty-title">Build Your First Funnel Page</div>
-        <div class="empty-sub">Create professional landing pages and sales funnels in minutes with AI-generated copy. Perfect for promoting your affiliate offers, capturing leads, or sharing your opportunity.</div>
-        <a href="/funnels/visual/new" class="btn-new" style="font-size:16px;padding:14px 32px">+ Create Your First Page</a>
-      </div>
-      {% endif %}
+      {% endfor %}
     </div>
+
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🚀</div>
+      <div class="empty-title">Build Your First Funnel Page</div>
+      <div class="empty-sub">Create professional landing pages in minutes. Pick a template above or start from scratch — perfect for promoting your offers, capturing leads, or sharing your opportunity.</div>
+      <a href="/funnels/visual/new" class="btn-action" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff;font-size:14px;padding:12px 28px;margin:0 auto">+ Create Your First Page</a>
+    </div>
+    {% endif %}
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<div class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
+    <a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">▶</span><span class="mob-nav-label">Watch</span></a>
+    <a href="/income-grid" class="mob-nav-item"><span class="mob-nav-icon">⚡</span><span class="mob-nav-label">Grid</span></a>
+    <a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">◎</span><span class="mob-nav-label">Wallet</span></a>
+    <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">◉</span><span class="mob-nav-label">Account</span></a>
   </div>
 </div>
 
@@ -341,46 +361,39 @@ function copyUrl(inputId) {
   if (input) {
     navigator.clipboard.writeText(input.value).then(() => {
       const btn = input.nextElementSibling;
-      btn.textContent = '✓ Copied!';
+      btn.textContent = '✓ Done';
       setTimeout(() => btn.textContent = 'Copy', 2000);
     }).catch(() => { input.select(); document.execCommand('copy'); });
   }
 }
 
 async function deletePage(id) {
-  if(!confirm('Delete this page? This cannot be undone.')) return;
+  if (!confirm('Delete this page? This cannot be undone.')) return;
   try {
     const res = await fetch('/api/funnels/delete/' + id, {method:'POST', credentials:'same-origin'});
     const data = await res.json();
-    if(data.success) location.reload();
+    if (data.success) location.reload();
     else alert('Error: ' + (data.error || 'Could not delete'));
-  } catch(e) { alert('Network error'); console.error(e); }
+  } catch(e) { alert('Network error'); }
 }
 
 async function useTemplate(niche) {
-  // Show loading
   const card = event.currentTarget;
-  const overlay = card.querySelector('.tpl-preview-overlay');
-  if (overlay) overlay.innerHTML = '<span class="tpl-use-btn" style="opacity:0.7">Creating page...</span>';
-  overlay.style.opacity = '1';
-  
+  const overlay = card.querySelector('.tpl-overlay');
+  if (overlay) { overlay.innerHTML = '<span class="tpl-use-btn" style="opacity:0.7">Creating...</span>'; overlay.style.opacity = '1'; }
   try {
     const res = await fetch('/api/funnels/from-template', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({niche: niche})
     });
     const data = await res.json();
-    if (data.edit_url) {
-      window.location.href = data.edit_url;
-    } else {
-      alert(data.error || 'Error creating page');
-      if (overlay) overlay.innerHTML = '<span class="tpl-use-btn">Use Template →</span>';
-    }
-  } catch(e) {
-    alert('Network error — please try again');
-    if (overlay) overlay.innerHTML = '<span class="tpl-use-btn">Use Template →</span>';
-  }
+    if (data.edit_url) { window.location.href = data.edit_url; }
+    else { alert(data.error || 'Error creating page'); if (overlay) overlay.innerHTML = '<span class="tpl-use-btn">Use Template →</span>'; }
+  } catch(e) { alert('Network error — please try again'); if (overlay) overlay.innerHTML = '<span class="tpl-use-btn">Use Template →</span>'; }
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('/static/sw.js').catch(() => {}); });
 }
 </script>
 </body>
