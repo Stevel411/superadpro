@@ -11,7 +11,6 @@
 body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#0f172a;min-height:100vh}
 .layout{display:flex;min-height:100vh}
 .sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-/* ── Sidebar nav (required on every member page) ── */
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
 .sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff;-webkit-text-fill-color:#fff}
 .nav-item{display:flex;align-items:center;gap:11px;padding:11px 16px;margin:2px 10px;border-radius:10px;font-size:14px;font-weight:500;color:rgba(188,213,240,0.65);text-decoration:none;transition:all 0.18s;position:relative}
@@ -21,62 +20,73 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#0f172a;min-heigh
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#070c18;border-bottom:1px solid rgba(0,200,255,0.1);position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,200,255,0.15),0 4px 20px rgba(0,0,0,0.3)}
-.content{padding:28px 32px;flex:1;display:flex;flex-direction:column;align-items:center}
+.content{padding:18px 24px;flex:1}
 
-/* Card */
-.form-card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:20px;box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 24px rgba(15,25,60,.08);width:100%;max-width:660px;overflow:hidden}
-.form-card-head{padding:22px 28px 18px;border-bottom:1px solid rgba(15,25,60,.07);display:flex;align-items:center;gap:14px}
-.form-card-icon{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.form-card-title{font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#0f172a}
-.form-card-sub{font-size:13px;color:#7b91a8;margin-top:2px;line-height:1.5}
-.form-card-body{padding:24px 28px}
+/* Page header */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#7b91a8;text-decoration:none;font-weight:600;transition:color 0.2s}
+.back-link:hover{color:#0ea5e9}
+
+/* Cards */
+.card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:16px;box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 16px rgba(15,25,60,.07);display:flex;flex-direction:column}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(15,25,60,.07);flex-shrink:0}
+.card-title{font-size:14px;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:8px;font-family:'Sora',sans-serif}
+.card-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.card-body{padding:16px 18px;flex:1;display:flex;flex-direction:column}
 
 /* Platform pills */
-.platforms-row{display:flex;gap:8px;margin-bottom:22px}
-.platform-pill{display:flex;align-items:center;gap:7px;padding:5px 13px;border-radius:50px;border:1px solid rgba(15,25,60,.1);font-size:12px;font-weight:700;color:#3d5068;background:#f6f8fc}
+.platforms-row{display:flex;gap:7px;margin-bottom:18px}
+.platform-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:50px;border:1px solid rgba(15,25,60,.1);font-size:12px;font-weight:700;color:#3d5068;background:#f6f8fc}
 .platform-pill .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 
 /* Form fields */
-.field{margin-bottom:18px}
+.field{margin-bottom:14px}
+.field:last-of-type{margin-bottom:0}
 .field label{display:block;font-size:11px;font-weight:800;color:#7b91a8;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:5px}
 .field input,.field select,.field textarea{width:100%;background:#f6f8fc;border:1px solid rgba(15,25,60,.12);border-radius:10px;padding:10px 14px;font-size:14px;font-family:'DM Sans',sans-serif;color:#0f172a;outline:none;transition:all 0.2s}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,0.1);background:#fff}
 .field input::placeholder,.field textarea::placeholder{color:#b0bec8}
 .field select option{background:#fff}
-.field .hint{font-size:12px;color:#94a3b8;margin-top:5px;line-height:1.5}
-.field textarea{resize:vertical;min-height:80px;line-height:1.6}
+.field .hint{font-size:11px;color:#94a3b8;margin-top:4px;line-height:1.5}
+.field textarea{resize:vertical;min-height:90px;line-height:1.6}
 
 /* Video preview */
 .preview-wrap{display:none;margin-top:10px;border-radius:10px;overflow:hidden;aspect-ratio:16/9;border:1px solid rgba(15,25,60,.1)}
 .preview-wrap iframe{width:100%;height:100%;border:none}
-.preview-label{font-size:12px;color:#0ea5e9;margin-top:5px;display:none;font-weight:600}
+.preview-label{font-size:11px;color:#0ea5e9;margin-top:4px;display:none;font-weight:600}
 
 /* Error */
-.alert-error{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:12px 16px;font-size:13px;color:#dc2626;margin-bottom:18px;line-height:1.5}
+.alert-error{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:12px 14px;font-size:13px;color:#dc2626;margin-bottom:14px;line-height:1.5}
 
 /* Divider */
-.divider{height:1px;background:rgba(15,25,60,.07);margin:20px 0}
+.divider{height:1px;background:rgba(15,25,60,.07);margin:14px 0}
 
-/* Advanced targeting */
-.targeting-header{font-size:12px;font-weight:800;color:#0ea5e9;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.targeting-badge{font-size:10px;background:rgba(14,165,233,.1);color:#0ea5e9;padding:2px 8px;border-radius:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
-.targeting-sub{font-size:13px;color:#7b91a8;margin-bottom:16px;line-height:1.5}
-.priority-box{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.18);border-radius:10px;padding:11px 14px;margin-bottom:16px;font-size:13px;color:#6b7d94;display:flex;align-items:center;gap:8px}
+/* Targeting section */
+.targeting-header{font-size:11px;font-weight:800;color:#0ea5e9;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.targeting-badge{font-size:10px;background:rgba(14,165,233,.1);color:#0ea5e9;padding:2px 8px;border-radius:10px;font-weight:700}
+.targeting-sub{font-size:12px;color:#7b91a8;margin-bottom:14px;line-height:1.5}
+.priority-box{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.18);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#6b7d94;display:flex;align-items:center;gap:8px}
 
 /* Buttons */
-.submit-btn{display:block;width:100%;text-align:center;font-weight:700;font-size:14px;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:13px;border-radius:10px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;margin-top:4px}
+.submit-btn{display:block;width:100%;text-align:center;font-weight:700;font-size:14px;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:12px;border-radius:10px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
 .submit-btn:hover{box-shadow:0 4px 16px rgba(14,165,233,0.3);transform:translateY(-1px)}
 .cancel-link{display:block;text-align:center;font-size:13px;color:#94a3b8;margin-top:10px;text-decoration:none;transition:color 0.2s}
 .cancel-link:hover{color:#3d5068}
-.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#7b91a8;text-decoration:none;margin-bottom:18px;font-weight:600;transition:color 0.2s;max-width:660px;width:100%}
-.back-link:hover{color:#0ea5e9}
+
+/* Info box */
+.info-box{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:1px solid #bae6fd;border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.info-box-title{font-size:12px;font-weight:800;color:#0284c7;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.info-box-item{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#334155;margin-bottom:4px;line-height:1.5}
+.info-box-item:last-child{margin-bottom:0}
+.info-dot{width:5px;height:5px;border-radius:50%;background:#0ea5e9;flex-shrink:0;margin-top:5px}
 
 @media(max-width:768px){
   .layout{display:block!important}
   .sidebar{display:none!important}
   .main{margin-left:0!important}
   .topbar{display:none!important}
-  .content{padding:16px 14px 80px!important}
+  .content{padding:10px 12px 80px!important}
+  .two-col{grid-template-columns:1fr!important}
 }
 {% endraw %}
 </style>
@@ -91,7 +101,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#0f172a;min-heigh
 <body>
 <div class="layout">
 
-<!-- Mobile Topbar -->
 <div class="mobile-topbar">
   <a class="mobile-topbar-left" href="/dashboard">
     <svg width="26" height="26" viewBox="0 0 100 100"><defs><linearGradient id="mhg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs><circle cx="22" cy="22" r="20" fill="url(#mhg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></svg>
@@ -124,108 +133,135 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#0f172a;min-heigh
   </div>
 
   <div class="content">
-    <a href="/video-library" class="back-link">← Back to My Campaigns</a>
 
-    <div class="form-card">
-      <div class="form-card-head">
-        <div class="form-card-icon">🎬</div>
-        <div>
-          <div class="form-card-title">Add New Campaign Video</div>
-          <div class="form-card-sub">Paste your video link below — no file uploads required. We generate a live preview automatically.</div>
-        </div>
-      </div>
-      <div class="form-card-body">
-
-        <div class="platforms-row">
-          <div class="platform-pill"><div class="dot" style="background:#ff0000"></div>YouTube</div>
-          <div class="platform-pill"><div class="dot" style="background:#85c742"></div>Rumble</div>
-          <div class="platform-pill"><div class="dot" style="background:#1ab7ea"></div>Vimeo</div>
-        </div>
-
-        {% if error %}
-        <div class="alert-error">⚠ {{ error }}</div>
-        {% endif %}
-
-        <form method="POST" action="/upload">
-
-          <div class="field">
-            <label>Campaign Title</label>
-            <input type="text" name="title" placeholder="e.g. SuperAdPro Platform Overview"
-                   value="{{ prefill.title if prefill else '' }}" required maxlength="120">
-            <div class="hint">Appears in your campaign library — keep it clear and descriptive</div>
-          </div>
-
-          <div class="field">
-            <label>Video URL</label>
-            <input type="url" name="video_url" id="videoUrl"
-                   placeholder="https://www.youtube.com/watch?v=..."
-                   value="{{ prefill.video_url if prefill else '' }}"
-                   required oninput="previewVideo(this.value)">
-            <div class="hint">Paste the full URL from your browser or the video's share button</div>
-            <div class="preview-wrap" id="previewWrap">
-              <iframe id="previewFrame" allowfullscreen></iframe>
-            </div>
-            <div class="preview-label" id="previewLabel">↑ Live preview — this is how your video will appear</div>
-          </div>
-
-          <div class="field">
-            <label>Category</label>
-            <select name="category">
-              <option value="">Select a category...</option>
-              <option value="training" {% if prefill and prefill.category == 'training' %}selected{% endif %}>Training &amp; Education</option>
-              <option value="promo" {% if prefill and prefill.category == 'promo' %}selected{% endif %}>Platform Promotion</option>
-              <option value="testimonial" {% if prefill and prefill.category == 'testimonial' %}selected{% endif %}>Member Testimonial</option>
-              <option value="product" {% if prefill and prefill.category == 'product' %}selected{% endif %}>Product Demo</option>
-              <option value="other" {% if prefill and prefill.category == 'other' %}selected{% endif %}>Other</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Description <span style="font-weight:500;text-transform:none;letter-spacing:0;color:#b0bec8">(optional)</span></label>
-            <textarea name="description" placeholder="Brief description of what this video covers..." maxlength="500">{{ prefill.description if prefill else '' }}</textarea>
-          </div>
-
-          {% if user_tier >= 4 %}
-          <div class="divider"></div>
-          <div class="targeting-header">
-            🎯 Advanced Targeting
-            <span class="targeting-badge">Tier {{ user_tier }}+</span>
-          </div>
-          <div class="targeting-sub">Your campaign tier unlocks audience targeting. Match your content to viewers most likely to engage.</div>
-
-          <div class="field">
-            <label>Target Countries <span style="font-weight:500;text-transform:none;letter-spacing:0;color:#b0bec8">(optional)</span></label>
-            <input type="text" name="target_country" placeholder="e.g. United Kingdom, United States, Canada" maxlength="200">
-            <div class="hint">Comma-separated. Leave blank for worldwide delivery.</div>
-          </div>
-
-          <div class="field">
-            <label>Target Interests <span style="font-weight:500;text-transform:none;letter-spacing:0;color:#b0bec8">(optional)</span></label>
-            <input type="text" name="target_interests" placeholder="e.g. forex, crypto, affiliate marketing, fitness" maxlength="200">
-            <div class="hint">Comma-separated. Matches against viewer interest profiles.</div>
-          </div>
-
-          {% if user_tier >= 5 %}
-          <div class="priority-box">
-            ⚡ <strong style="color:#7c3aed">Priority Queue Active</strong> — Your campaigns are served before standard-tier campaigns.
-          </div>
-          {% endif %}
-          {% else %}
-          <input type="hidden" name="target_country" value="">
-          <input type="hidden" name="target_interests" value="">
-          {% endif %}
-
-          <div class="divider"></div>
-          <button type="submit" class="submit-btn">Add to Campaign Library →</button>
-          <a href="/video-library" class="cancel-link">Cancel</a>
-        </form>
+    <div class="page-header">
+      <a href="/video-library" class="back-link">← Back to My Campaigns</a>
+      <div class="platforms-row" style="margin-bottom:0">
+        <div class="platform-pill"><div class="dot" style="background:#ff0000"></div>YouTube</div>
+        <div class="platform-pill"><div class="dot" style="background:#85c742"></div>Rumble</div>
+        <div class="platform-pill"><div class="dot" style="background:#1ab7ea"></div>Vimeo</div>
       </div>
     </div>
-  </div>
+
+    {% if error %}
+    <div class="alert-error">⚠ {{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/upload">
+      <input type="hidden" name="target_country" value="">
+      <input type="hidden" name="target_interests" value="">
+
+      <!-- TWO COLUMN -->
+      <div class="two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch">
+
+        <!-- LEFT — Video details -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><div class="card-dot" style="background:#0ea5e9"></div>Video Details</div>
+          </div>
+          <div class="card-body" style="gap:0">
+
+            <div class="field">
+              <label>Campaign Title</label>
+              <input type="text" name="title" placeholder="e.g. SuperAdPro Platform Overview"
+                     value="{{ prefill.title if prefill else '' }}" required maxlength="120">
+              <div class="hint">Appears in your campaign library — keep it clear and descriptive</div>
+            </div>
+
+            <div class="field">
+              <label>Video URL</label>
+              <input type="url" name="video_url" id="videoUrl"
+                     placeholder="https://www.youtube.com/watch?v=..."
+                     value="{{ prefill.video_url if prefill else '' }}"
+                     required oninput="previewVideo(this.value)">
+              <div class="hint">Paste the full URL from your browser or the video's share button</div>
+              <div class="preview-wrap" id="previewWrap">
+                <iframe id="previewFrame" allowfullscreen></iframe>
+              </div>
+              <div class="preview-label" id="previewLabel">↑ Live preview</div>
+            </div>
+
+            <!-- Info box -->
+            <div class="info-box" style="margin-top:auto">
+              <div class="info-box-title">💡 Supported Platforms</div>
+              <div class="info-box-item"><div class="info-dot"></div>YouTube — paste any watch, shorts or share URL</div>
+              <div class="info-box-item"><div class="info-dot"></div>Rumble — paste the video page URL</div>
+              <div class="info-box-item"><div class="info-dot"></div>Vimeo — paste the video page URL</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- RIGHT — Settings + actions -->
+        <div style="display:flex;flex-direction:column;gap:18px">
+
+          <div class="card" style="flex:1">
+            <div class="card-head">
+              <div class="card-title"><div class="card-dot" style="background:#a855f7"></div>Campaign Settings</div>
+            </div>
+            <div class="card-body" style="gap:0">
+
+              <div class="field">
+                <label>Category</label>
+                <select name="category">
+                  <option value="">Select a category...</option>
+                  <option value="training" {% if prefill and prefill.category == 'training' %}selected{% endif %}>Training &amp; Education</option>
+                  <option value="promo" {% if prefill and prefill.category == 'promo' %}selected{% endif %}>Platform Promotion</option>
+                  <option value="testimonial" {% if prefill and prefill.category == 'testimonial' %}selected{% endif %}>Member Testimonial</option>
+                  <option value="product" {% if prefill and prefill.category == 'product' %}selected{% endif %}>Product Demo</option>
+                  <option value="other" {% if prefill and prefill.category == 'other' %}selected{% endif %}>Other</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Description <span style="font-weight:500;text-transform:none;letter-spacing:0;color:#b0bec8">(optional)</span></label>
+                <textarea name="description" placeholder="Brief description of what this video covers..." maxlength="500">{{ prefill.description if prefill else '' }}</textarea>
+              </div>
+
+              {% if user_tier >= 4 %}
+              <div class="divider"></div>
+              <div class="targeting-header">
+                🎯 Advanced Targeting
+                <span class="targeting-badge">Tier {{ user_tier }}+</span>
+              </div>
+              <div class="targeting-sub">Match your content to viewers most likely to engage.</div>
+
+              {% if user_tier >= 5 %}
+              <div class="priority-box">⚡ <strong style="color:#7c3aed">Priority Queue Active</strong> — served before standard-tier campaigns.</div>
+              {% endif %}
+
+              <div class="field">
+                <label>Target Countries <span style="font-weight:500;text-transform:none;letter-spacing:0;color:#b0bec8">(optional)</span></label>
+                <input type="text" name="target_country" placeholder="e.g. United Kingdom, United States" maxlength="200">
+                <div class="hint">Comma-separated. Leave blank for worldwide.</div>
+              </div>
+
+              <div class="field">
+                <label>Target Interests <span style="font-weight:500;text-transform:none;letter-spacing:0;color:#b0bec8">(optional)</span></label>
+                <input type="text" name="target_interests" placeholder="e.g. forex, crypto, affiliate marketing" maxlength="200">
+                <div class="hint">Comma-separated interest profiles.</div>
+              </div>
+              {% endif %}
+
+            </div>
+          </div>
+
+          <!-- Action card -->
+          <div class="card">
+            <div class="card-body" style="gap:0">
+              <button type="submit" class="submit-btn">Add to Campaign Library →</button>
+              <a href="/video-library" class="cancel-link">Cancel</a>
+            </div>
+          </div>
+
+        </div><!-- /right col -->
+      </div><!-- /two-col -->
+    </form>
+
+  </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /layout -->
 
-<!-- Mobile Bottom Nav -->
 <div class="mobile-nav">
   <div class="mobile-nav-inner">
     <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
@@ -240,24 +276,17 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#0f172a;min-heigh
 const ytRegex = /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
 const rmRegex = /rumble\.com\/(?:embed\/)?([a-zA-Z0-9]+)(?:[/-]|\.html|$)/;
 const viRegex = /vimeo\.com\/(?:video\/)?(\d+)/;
-
 function previewVideo(url) {
-  const wrap  = document.getElementById('previewWrap');
-  const frame = document.getElementById('previewFrame');
-  const label = document.getElementById('previewLabel');
-  let embedUrl = null;
-  let m = url.match(ytRegex);
-  if (m) { embedUrl = `https://www.youtube.com/embed/${m[1]}?rel=0&modestbranding=1`; }
-  if (!embedUrl) { m = url.match(rmRegex); if (m && url.includes('rumble.com')) { embedUrl = `https://rumble.com/embed/${m[1]}/`; } }
-  if (!embedUrl) { m = url.match(viRegex); if (m) { embedUrl = `https://player.vimeo.com/video/${m[1]}?title=0&byline=0`; } }
-  if (embedUrl) { frame.src = embedUrl; wrap.style.display = 'block'; label.style.display = 'block'; }
-  else { frame.src = ''; wrap.style.display = 'none'; label.style.display = 'none'; }
+  const wrap=document.getElementById('previewWrap'),frame=document.getElementById('previewFrame'),label=document.getElementById('previewLabel');
+  let e=null,m=url.match(ytRegex);
+  if(m){e=`https://www.youtube.com/embed/${m[1]}?rel=0&modestbranding=1`;}
+  if(!e){m=url.match(rmRegex);if(m&&url.includes('rumble.com')){e=`https://rumble.com/embed/${m[1]}/`;}}
+  if(!e){m=url.match(viRegex);if(m){e=`https://player.vimeo.com/video/${m[1]}?title=0&byline=0`;}}
+  if(e){frame.src=e;wrap.style.display='block';label.style.display='block';}
+  else{frame.src='';wrap.style.display='none';label.style.display='none';}
 }
-window.addEventListener('load', () => { const u = document.getElementById('videoUrl'); if (u.value) previewVideo(u.value); });
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => { navigator.serviceWorker.register('/static/sw.js').catch(() => {}); });
-}
+window.addEventListener('load',()=>{const u=document.getElementById('videoUrl');if(u.value)previewVideo(u.value);});
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/static/sw.js').catch(()=>{});});}
 </script>
 </body>
 </html>
