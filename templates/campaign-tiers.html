@@ -4,159 +4,340 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Campaign Tiers — SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
+{% raw %}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#0f172a;min-height:100vh}
 .layout{display:flex;min-height:100vh}
-.sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,180,216,0.25);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column};overflow-y:auto
+.sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;letter-spacing:0;text-transform:none;color:#fff;-webkit-text-fill-color:#fff}
-.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
-.nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
-.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
-.nav-icon{font-size:16px;width:22px;text-align:center}
+.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff;-webkit-text-fill-color:#fff}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 16px;margin:2px 10px;border-radius:10px;font-size:14px;font-weight:500;color:rgba(188,213,240,0.65);text-decoration:none;transition:all 0.18s}
+.nav-item:hover{background:rgba(0,200,255,0.08);color:rgba(188,213,240,0.95)}
+.nav-item.active{background:linear-gradient(90deg,rgba(0,200,255,0.2),rgba(0,200,255,0.06));color:#fff;font-weight:700}
+.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
-.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#070c18;border-bottom:1px solid rgba(0,200,255,0.1);position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,200,255,0.15),0 4px 20px rgba(0,0,0,0.3)}
+.content{padding:20px 24px 48px}
 
-.main{margin-left:224px;flex:1}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#0a0a1a;border-bottom:1px solid rgba(14,165,233,0.15);position:sticky;top:0;z-index:50}
-.topbar-title{font-size:19px;font-weight:800;color:#fff}
-.topbar-sub{font-size:13px;color:rgba(200,220,255,0.5);margin-top:2px}
-.balance-chip{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:8px 16px;display:flex;align-items:center;gap:6px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+/* ── TIER CARDS ── */
+.tiers-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px;align-items:stretch}
+.tier-card{background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 14px rgba(15,25,60,.06);border:1px solid rgba(15,25,60,.07);transition:all 0.22s}
+.tier-card:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(15,25,60,.13)}
+.tier-card.popular{border:2px solid transparent;background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,#f59e0b,#fbbf24) border-box;box-shadow:0 4px 20px rgba(245,158,11,.15),0 1px 3px rgba(15,25,60,.06)}
 
-.content{padding:28px;max-width:1200px;margin:0 auto}
-.page-title{font-size:26px;font-weight:800;color:#0f172a;margin-bottom:4px}
-.page-sub{font-size:15px;color:#5a6a7e;margin-bottom:28px}
+/* Coloured header band per tier */
+.card-band{padding:14px 16px 12px;position:relative}
+.t1 .card-band{background:linear-gradient(135deg,#0ea5e9,#38bdf8)}
+.t2 .card-band{background:linear-gradient(135deg,#6366f1,#818cf8)}
+.t3 .card-band{background:linear-gradient(135deg,#059669,#10b981)}
+.t4 .card-band{background:linear-gradient(135deg,#f59e0b,#fbbf24)}
+.t5 .card-band{background:linear-gradient(135deg,#ef4444,#f87171)}
+.t6 .card-band{background:linear-gradient(135deg,#ec4899,#f472b6)}
+.t7 .card-band{background:linear-gradient(135deg,#7c3aed,#a78bfa)}
+.t8 .card-band{background:linear-gradient(135deg,#0284c7,#38bdf8)}
 
-.tiers-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
-.tier-card{background:#ffffff;border:1px solid #d0d8e4;border-radius:16px;padding:24px;position:relative;overflow:hidden;box-shadow:0 1px 4px rgba(0,40,100,0.06);transition:all 0.25s;display:flex;flex-direction:column}
-.tier-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,40,100,0.1)}
-.tier-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
-.tier-card.t1::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}
-.tier-card.t2::before{background:linear-gradient(90deg,#0284c7,#0ea5e9)}
-.tier-card.t3::before{background:linear-gradient(90deg,#16a34a,#059669)}
-.tier-card.t4::before{background:linear-gradient(90deg,#f59e0b,#d97706)}
-.tier-card.t5::before{background:linear-gradient(90deg,#ef4444,#dc2626)}
-.tier-card.t6::before{background:linear-gradient(90deg,#ec4899,#be185d)}
-.tier-card.t7::before{background:linear-gradient(90deg,#0369a1,#0284c7)}
-.tier-card.t8::before{background:linear-gradient(90deg,#0284c7,#38bdf8)}
-.tier-card.popular{border-color:#0ea5e9;box-shadow:0 0 0 2px rgba(14,165,233,0.2),0 1px 4px rgba(0,40,100,0.06)}
-.popular-badge{position:absolute;top:12px;right:12px;background:linear-gradient(135deg,#0284c7,#0ea5e9);color:#fff;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:20px}
-.tier-name{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#5a6a7e;margin-bottom:10px}
-.tier-price{font-size:38px;font-weight:800;color:#0f172a;line-height:1;margin-bottom:4px}
-.tier-price span{font-size:18px;font-weight:600;vertical-align:super}
-.tier-currency{font-size:13px;color:#5a6a7e;margin-bottom:18px}
-.tier-views{background:linear-gradient(135deg,#eff6ff,#e0f2fe);border:1px solid #b8d4f8;border-radius:10px;padding:14px;text-align:center;margin-bottom:18px}
-.tier-views-num{font-size:22px;font-weight:800;color:#0284c7}
-.tier-views-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#5a6a7e;margin-top:2px}
-.tier-features{list-style:none;margin-bottom:20px;flex:1}
-.tier-features li{font-size:14px;color:#2d3b4e;padding:6px 0;display:flex;align-items:flex-start;gap:8px}
-.tier-features li::before{content:'✓';color:#059669;font-weight:800;font-size:13px;flex-shrink:0;margin-top:1px}
-.tier-btn{display:block;width:100%;padding:14px;border:none;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;transition:all 0.2s}
-.tier-btn.activate{background:linear-gradient(180deg,#38bdf8 0%,#0ea5e9 100%);color:#fff;box-shadow:0 4px 0 #0284c7,0 6px 16px rgba(14,165,233,0.3);text-shadow:0 1px 2px rgba(0,0,0,0.15)}
-.tier-btn.activate:hover{transform:translateY(-2px);box-shadow:0 6px 0 #0284c7,0 10px 24px rgba(14,165,233,0.35)}
-.tier-btn.activate:active{transform:translateY(2px);box-shadow:0 1px 0 #0284c7,0 2px 8px rgba(14,165,233,0.2)}
-.tier-btn.active-badge{background:linear-gradient(180deg,#dcfce7 0%,#bbf7d0 100%);color:#059669;border:none;box-shadow:0 3px 0 #86efac,0 4px 12px rgba(16,185,129,0.15);cursor:default;text-shadow:0 1px 1px rgba(255,255,255,0.6)}
+.card-band-name{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.75);margin-bottom:6px}
+.card-band-price{font-family:'Sora',sans-serif;font-size:32px;font-weight:900;color:#fff;line-height:1}
+.card-band-price sup{font-size:15px;font-weight:700;vertical-align:super}
+.card-band-sub{font-size:10px;color:rgba(255,255,255,0.6);margin-top:3px}
+.popular-badge{position:absolute;top:10px;right:10px;background:rgba(255,255,255,0.25);backdrop-filter:blur(4px);color:#fff;font-size:8px;font-weight:900;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:20px;border:1px solid rgba(255,255,255,0.3)}
 
-.info-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.info-card{background:#ffffff;border:1px solid #d0d8e4;border-radius:14px;padding:22px;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
-.info-card-title{font-size:16px;font-weight:800;color:#0f172a;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e4e9f1;font-size:14px}
-.info-row:last-child{border-bottom:none}
-.info-row .label{color:#5a6a7e}
-.info-row .val{font-weight:700;color:#0284c7}
+.card-body{padding:12px 16px 14px;flex:1;display:flex;flex-direction:column;gap:8px}
+.stat-row{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;background:#f6f8fc}
+.stat-lbl{font-size:10px;font-weight:700;color:#7b91a8;text-transform:uppercase;letter-spacing:0.5px}
+.stat-val{font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:#0f172a}
+.earn-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #bbf7d0}
+.earn-lbl{font-size:10px;font-weight:700;color:#15803d}
+.earn-val{font-family:'Sora',sans-serif;font-size:15px;font-weight:900;color:#15803d}
 
-@media(max-width:1100px){.tiers-grid{grid-template-columns:1fr 1fr}}
+.tier-btn{display:block;width:100%;padding:10px;border:none;border-radius:9px;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;text-align:center;text-decoration:none;transition:all 0.2s;margin-top:auto}
+.tier-btn.activate{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;box-shadow:0 3px 0 #0284c7,0 5px 14px rgba(14,165,233,.3)}
+.tier-btn.activate:hover{transform:translateY(-1px);box-shadow:0 5px 0 #0284c7,0 8px 20px rgba(14,165,233,.35)}
+.tier-btn.active-badge{background:linear-gradient(135deg,#dcfce7,#bbf7d0);color:#15803d;border:1px solid #86efac;box-shadow:0 3px 0 #4ade80;cursor:default}
+
+/* ── COMPARE TABLE ── */
+.compare-card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:18px;overflow:hidden;box-shadow:0 1px 3px rgba(15,25,60,.05);margin-top:4px}
+.compare-header{padding:16px 24px;border-bottom:1px solid rgba(15,25,60,.07);display:flex;align-items:center;gap:10px}
+.compare-title{font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:#0f172a}
+.compare-sub{font-size:12px;color:#7b91a8;margin-left:auto}
+.compare-table{width:100%;border-collapse:collapse}
+.compare-table th{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;padding:10px 10px;text-align:center;border-bottom:2px solid rgba(15,25,60,.07);white-space:nowrap}
+.compare-table th.feature-col{text-align:left;width:190px}
+.compare-table td{padding:9px 10px;border-bottom:1px solid rgba(15,25,60,.05);text-align:center;font-size:12px}
+.compare-table td.feature-col{text-align:left;font-weight:700;color:#0f172a;font-size:12px}
+.compare-table tr:last-child td{border-bottom:none}
+.compare-table tr:hover td{background:rgba(14,165,233,.02)}
+.tier-th{padding:8px 6px !important}
+.tier-th-inner{border-radius:8px;padding:5px 8px;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#fff;white-space:nowrap}
+.th-t1{background:linear-gradient(135deg,#0ea5e9,#38bdf8)}
+.th-t2{background:linear-gradient(135deg,#6366f1,#818cf8)}
+.th-t3{background:linear-gradient(135deg,#059669,#10b981)}
+.th-t4{background:linear-gradient(135deg,#f59e0b,#fbbf24)}
+.th-t5{background:linear-gradient(135deg,#ef4444,#f87171)}
+.th-t6{background:linear-gradient(135deg,#ec4899,#f472b6)}
+.th-t7{background:linear-gradient(135deg,#7c3aed,#a78bfa)}
+.th-t8{background:linear-gradient(135deg,#0284c7,#38bdf8)}
+.chk-yes{color:#16a34a;font-size:14px}
+.chk-no{color:#d1d5db;font-size:14px}
+.chk-val{font-size:12px;font-weight:800;color:#0f172a}
+.chk-blue{font-size:12px;font-weight:800;color:#0ea5e9}
+.chk-green{font-size:12px;font-weight:800;color:#16a34a}
+.group-row td{background:#f6f8fc;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;padding:7px 10px !important}
+
+/* Section labels */
+.section-lbl{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:10px}
+
 @media(max-width:768px){
-  .sidebar{display:none}
-  .main{margin-left:0}
-  .tiers-grid{grid-template-columns:1fr}
-  .info-cards{grid-template-columns:1fr}
+  .layout{display:block!important}
+  .sidebar{display:none!important}
+  .main{margin-left:0!important}
+  .topbar{display:none!important}
+  .content{padding:10px 12px 80px!important}
+  .tiers-grid{grid-template-columns:repeat(2,1fr)!important}
 }
+{% endraw %}
 </style>
+  <link rel="stylesheet" href="/static/mobile.css">
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SuperAdPro">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 </head>
 <body>
 <div class="layout">
-  {% include "_sidebar.html" %}
 
-  <div class="main">
-    <div class="topbar">
-      <div>
-        <div class="topbar-title">📦 Campaign Tiers</div>
-        <div class="topbar-sub">Activate tiers to unlock advertising + earn affiliate commissions</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:14px">
-          <div style="background:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:6px 14px;text-align:center">
-            <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8">Balance</div>
-            <div><span style="font-size:15px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:11px;color:#94a3b8;margin-left:3px">USDT</span></div>
-          </div>
-          <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-          <svg width="32" height="32" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#sap-tb)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="sap-tb" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs></svg>
-          <span style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
-        </a>
-        </div>
+<div class="mobile-topbar">
+  <a class="mobile-topbar-left" href="/dashboard">
+    <svg width="26" height="26" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#0ea5e9"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></svg>
+    <div>
+      <div class="mobile-topbar-name">SuperAdPro</div>
+      <div class="mobile-topbar-page">Campaign Tiers</div>
     </div>
+  </a>
+  <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
+</div>
 
-    <div class="content">
-      <div class="page-title">Choose Your Campaign Tier</div>
-      <div class="page-sub">Each tier activates a grid position and unlocks video advertising. Higher tiers get more views and earn bigger commissions.</div>
+{% include "_sidebar.html" %}
 
-      {% set tiers = [
-        (1, 'Starter', 20, '5,000', 't1', false),
-        (2, 'Builder', 50, '15,000', 't2', false),
-        (3, 'Pro', 100, '35,000', 't3', false),
-        (4, 'Advanced', 200, '80,000', 't4', true),
-        (5, 'Elite', 400, '150,000', 't5', false),
-        (6, 'Premium', 600, '250,000', 't6', false),
-        (7, 'Executive', 800, '400,000', 't7', false),
-        (8, 'Ultimate', 1000, '600,000', 't8', false),
-      ] %}
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div style="font-size:18px;font-weight:800;color:#fff">📦 Campaign Tiers</div>
+      <div style="font-size:13px;color:#6b7d94;margin-top:1px">Activate tiers to unlock advertising &amp; earn commissions</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px 14px;text-align:center">
+        <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8">Balance</div>
+        <div><span style="font-size:15px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:11px;color:#94a3b8;margin-left:3px">USDT</span></div>
+      </div>
+      <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none">
+        <svg width="30" height="30" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#0ea5e9"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></svg>
+        <span style="font-family:Sora,sans-serif;font-size:17px;font-weight:800;color:#fff">Super<span style="color:#38bdf8">Ad</span>Pro</span>
+      </a>
+    </div>
+  </div>
 
-      <div class="tiers-grid">
-        {% for num, name, price, views, cls, popular in tiers %}
-        <div class="tier-card {{ cls }}{% if popular %} popular{% endif %}">
-          {% if popular %}<div class="popular-badge">★ Most Popular</div>{% endif %}
-          <div class="tier-name">{{ name }}</div>
-          <div class="tier-price"><span>$</span>{{ price }}</div>
-          <div class="tier-currency">{{ price }} USDT · Base Chain</div>
-          <div class="tier-views">
-            <div class="tier-views-label">Up To</div>
-            <div class="tier-views-num">{{ views }}</div>
-            <div class="tier-views-label">Engaged Video Views</div>
+  <div class="content">
+
+    <!-- ROW 1 -->
+    <div class="section-lbl">Entry &amp; Mid Tiers</div>
+    <div class="tiers-grid">
+
+      {% for num, name, cls in [(1,'Starter','t1'),(2,'Builder','t2'),(3,'Pro','t3'),(4,'Advanced','t4')] %}
+      {% set price = {1:20,2:50,3:100,4:200}[num] %}
+      {% set views = {1:'500',2:'1,500',3:'5,000',4:'10,000'}[num] %}
+      {% set campaigns = {1:'1',2:'3',3:'5',4:'10'}[num] %}
+      {% set earn = {1:'$8',2:'$20',3:'$40',4:'$80'}[num] %}
+      <div class="tier-card {{ cls }}{% if num == 4 %} popular{% endif %}">
+        <div class="card-band">
+          {% if num == 4 %}<div class="popular-badge">★ Popular</div>{% endif %}
+          <div class="card-band-name">{{ name }}</div>
+          <div class="card-band-price"><sup>$</sup>{{ price }}</div>
+          <div class="card-band-sub">{{ price }} USDT · Base Chain</div>
+        </div>
+        <div class="card-body">
+          <div class="stat-row">
+            <span class="stat-lbl">Monthly Views</span>
+            <span class="stat-val">{{ views }}</span>
           </div>
-          <ul class="tier-features">
-            <li>Grid position activated</li>
-            <li>Upload &amp; promote videos</li>
-            {% if num >= 4 %}<li>Geo &amp; interest targeting</li>{% endif %}
-            {% if num >= 5 %}<li>Priority delivery queue</li>{% endif %}
-            <li>Earn 40% direct commission</li>
-            <li>8-level uni-level commissions</li>
-          </ul>
+          <div class="stat-row">
+            <span class="stat-lbl">Campaigns</span>
+            <span class="stat-val">{{ campaigns }}</span>
+          </div>
+          <div class="earn-row">
+            <span class="earn-lbl">Earn per referral</span>
+            <span class="earn-val">{{ earn }}</span>
+          </div>
           {% if num in active_tiers %}
             <div class="tier-btn active-badge">✓ Active</div>
           {% else %}
-            <a href="/activate-grid?tier={{ num }}" class="tier-btn activate">Activate — ${{ price }} USDT</a>
+            <a href="/activate-grid?tier={{ num }}" class="tier-btn activate">Activate — ${{ price }}</a>
           {% endif %}
         </div>
-        {% endfor %}
       </div>
+      {% endfor %}
 
-      <div class="info-cards" style="grid-template-columns:1fr">
-        <div class="info-card">
-          <div class="info-card-title">📊 How It Works</div>
-          <div style="font-size:14px;color:#2d3b4e;line-height:1.7">
-            <p style="margin-bottom:10px">Each tier activates an <strong>8×8 grid position</strong> with 64 positions. As your network grows, entries fill and you earn commissions on every level.</p>
-            <p style="margin-bottom:10px"><strong>40% direct commission</strong> on every personal referral who activates the same tier.</p>
-            <p style="margin-bottom:10px"><strong>6.875% uni-level commission</strong> across 8 levels deep — that's 55% total payout per grid, plus your 40% direct commission.</p>
-            <p style="margin-bottom:16px">Grids are <strong>recurring</strong> — when one fills, a new advance starts automatically. Your income compounds.</p>
-            <a href="/income-grid" style="display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:15px;font-weight:700;border-radius:8px;text-decoration:none;box-shadow:0 4px 14px rgba(0,180,216,0.25);transition:all 0.2s">⚡ View Profit Engine Grid →</a>
+    </div>
+
+    <!-- ROW 2 -->
+    <div class="section-lbl" style="margin-top:18px">Power Tiers</div>
+    <div class="tiers-grid">
+
+      {% for num, name, cls in [(5,'Elite','t5'),(6,'Premium','t6'),(7,'Executive','t7'),(8,'Ultimate','t8')] %}
+      {% set price = {5:400,6:600,7:800,8:1000}[num] %}
+      {% set views = {5:'20,000',6:'30,000',7:'40,000',8:'50,000+'}[num] %}
+      {% set campaigns = {5:'20',6:'30',7:'50',8:'∞'}[num] %}
+      {% set earn = {5:'$160',6:'$240',7:'$320',8:'$400'}[num] %}
+      <div class="tier-card {{ cls }}">
+        <div class="card-band">
+          <div class="card-band-name">{{ name }}</div>
+          <div class="card-band-price"><sup>$</sup>{{ '{:,}'.format(price) }}</div>
+          <div class="card-band-sub">{{ price }} USDT · Base Chain</div>
+        </div>
+        <div class="card-body">
+          <div class="stat-row">
+            <span class="stat-lbl">Monthly Views</span>
+            <span class="stat-val">{{ views }}</span>
           </div>
+          <div class="stat-row">
+            <span class="stat-lbl">Campaigns</span>
+            <span class="stat-val">{{ campaigns }}</span>
+          </div>
+          <div class="earn-row">
+            <span class="earn-lbl">Earn per referral</span>
+            <span class="earn-val">{{ earn }}</span>
+          </div>
+          {% if num in active_tiers %}
+            <div class="tier-btn active-badge">✓ Active</div>
+          {% else %}
+            <a href="/activate-grid?tier={{ num }}" class="tier-btn activate">Activate — ${{ '{:,}'.format(price) }}</a>
+          {% endif %}
         </div>
       </div>
+      {% endfor %}
+
     </div>
+
+    <!-- FEATURE COMPARISON TABLE -->
+    <div class="compare-card">
+      <div class="compare-header">
+        <div class="compare-title">📋 What's Included — All Tiers</div>
+        <div class="compare-sub">Every figure is verified against your account tier in real time</div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th class="feature-col">Feature</th>
+              <th class="tier-th"><div class="tier-th-inner th-t1">$20</div></th>
+              <th class="tier-th"><div class="tier-th-inner th-t2">$50</div></th>
+              <th class="tier-th"><div class="tier-th-inner th-t3">$100</div></th>
+              <th class="tier-th"><div class="tier-th-inner th-t4">$200</div></th>
+              <th class="tier-th"><div class="tier-th-inner th-t5">$400</div></th>
+              <th class="tier-th"><div class="tier-th-inner th-t6">$600</div></th>
+              <th class="tier-th"><div class="tier-th-inner th-t7">$800</div></th>
+              <th class="tier-th"><div class="tier-th-inner th-t8">$1,000</div></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="group-row"><td colspan="9">Grid &amp; Commissions</td></tr>
+            <tr>
+              <td class="feature-col">8×8 Grid Position</td>
+              <td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td class="feature-col">40% Direct Commission</td>
+              <td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td class="feature-col">8-Level Uni-Level</td>
+              <td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td class="feature-col">Earn Per Referral</td>
+              <td><span class="chk-blue">$8</span></td><td><span class="chk-blue">$20</span></td><td><span class="chk-blue">$40</span></td><td><span class="chk-blue">$80</span></td><td><span class="chk-blue">$160</span></td><td><span class="chk-blue">$240</span></td><td><span class="chk-blue">$320</span></td><td><span class="chk-blue">$400</span></td>
+            </tr>
+            <tr class="group-row"><td colspan="9">Video Advertising</td></tr>
+            <tr>
+              <td class="feature-col">Upload &amp; Promote Videos</td>
+              <td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td class="feature-col">Active Campaigns</td>
+              <td><span class="chk-val">1</span></td><td><span class="chk-val">3</span></td><td><span class="chk-val">5</span></td><td><span class="chk-val">10</span></td><td><span class="chk-val">20</span></td><td><span class="chk-val">30</span></td><td><span class="chk-val">50</span></td><td><span class="chk-val">∞</span></td>
+            </tr>
+            <tr>
+              <td class="feature-col">Monthly Video Views</td>
+              <td><span class="chk-val">500</span></td><td><span class="chk-val">1,500</span></td><td><span class="chk-val">5,000</span></td><td><span class="chk-val">10,000</span></td><td><span class="chk-val">20,000</span></td><td><span class="chk-val">30,000</span></td><td><span class="chk-val">40,000</span></td><td><span class="chk-val">50,000+</span></td>
+            </tr>
+            <tr>
+              <td class="feature-col">Audience Reach</td>
+              <td><span class="chk-val" style="color:#94a3b8">Category</span></td>
+              <td><span class="chk-val" style="color:#94a3b8">Category</span></td>
+              <td><span class="chk-blue">Extended</span></td>
+              <td><span class="chk-blue">Extended</span></td>
+              <td><span class="chk-green">Full</span></td>
+              <td><span class="chk-green">Full</span></td>
+              <td><span class="chk-green">Full</span></td>
+              <td><span class="chk-green">Full</span></td>
+            </tr>
+            <tr class="group-row"><td colspan="9">Targeting &amp; Delivery</td></tr>
+            <tr>
+              <td class="feature-col">Geo &amp; Interest Targeting</td>
+              <td><span class="chk-no">—</span></td><td><span class="chk-no">—</span></td><td><span class="chk-no">—</span></td>
+              <td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td class="feature-col">Demographics Targeting</td>
+              <td><span class="chk-no">—</span></td><td><span class="chk-no">—</span></td><td><span class="chk-no">—</span></td>
+              <td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td class="feature-col">Priority Delivery</td>
+              <td><span class="chk-no">—</span></td><td><span class="chk-no">—</span></td><td><span class="chk-no">—</span></td><td><span class="chk-no">—</span></td>
+              <td><span class="chk-val" style="color:#f59e0b">Level 1</span></td>
+              <td><span class="chk-val" style="color:#ef4444">Level 2</span></td>
+              <td><span class="chk-val" style="color:#7c3aed">Level 3</span></td>
+              <td><span class="chk-val" style="color:#7c3aed">Level 3</span></td>
+            </tr>
+            <tr>
+              <td class="feature-col">Featured Placement</td>
+              <td><span class="chk-no">—</span></td><td><span class="chk-no">—</span></td><td><span class="chk-no">—</span></td><td><span class="chk-no">—</span></td><td><span class="chk-no">—</span></td>
+              <td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td>
+            </tr>
+            <tr>
+              <td class="feature-col">Spotlight Placement</td>
+              <td><span class="chk-no">—</span></td><td><span class="chk-no">—</span></td><td><span class="chk-no">—</span></td><td><span class="chk-no">—</span></td><td><span class="chk-no">—</span></td><td><span class="chk-no">—</span></td>
+              <td><span class="chk-yes">✓</span></td><td><span class="chk-yes">✓</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<div class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
+    <a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">▶</span><span class="mob-nav-label">Watch</span></a>
+    <a href="/income-grid" class="mob-nav-item"><span class="mob-nav-icon">⚡</span><span class="mob-nav-label">Grid</span></a>
+    <a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">◎</span><span class="mob-nav-label">Wallet</span></a>
+    <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">◉</span><span class="mob-nav-label">Account</span></a>
   </div>
 </div>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('/static/sw.js').catch(() => {}); });
+}
+</script>
 </body>
 </html>
