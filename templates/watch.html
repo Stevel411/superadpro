@@ -73,8 +73,8 @@ a{text-decoration:none;color:inherit}
 .prog-label{font-size:12px;font-weight:600;color:#3d5068;margin-top:4px}
 
 /* Dots row */
-.prog-dots{display:flex;gap:7px;flex-wrap:wrap;margin-top:4px}
-.qdot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:all 0.3s;flex-shrink:0}
+.prog-dots{display:flex;gap:5px;flex-wrap:nowrap;margin-top:6px;overflow:visible}
+.qdot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;transition:all 0.3s;flex-shrink:0}
 .qdot.done{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;border:2px solid #0ea5e9;box-shadow:0 2px 8px rgba(14,165,233,0.25)}
 .qdot.current{border:2px solid #38bdf8;background:rgba(56,189,248,0.1);color:#0ea5e9}
 .qdot.pending{border:2px solid rgba(15,25,60,.1);color:#cbd5e1;background:#f6f8fc}
@@ -226,7 +226,7 @@ a{text-decoration:none;color:inherit}
 <!-- Desktop Topbar -->
 <div class="topbar">
   <div class="topbar-left">
-    <div class="topbar-icon">&#x25B6;</div>
+    <div class="topbar-icon"><svg width="14" height="14" viewBox="0 0 12 12" fill="#00c8ff"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg></div>
     <div>
       <div class="topbar-title">Watch to Earn</div>
       <div class="topbar-sub">Complete your daily quota to stay commission-eligible</div>
