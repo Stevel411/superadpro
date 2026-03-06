@@ -7,59 +7,109 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0f172a;min-height:100vh}
 .layout{display:flex;min-height:100vh}
-.sidebar{width:220px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+
+/* ── Sidebar (matches dashboard exactly) ── */
+.sidebar{width:224px;height:100vh;background:#0a0a1a;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
 .sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;letter-spacing:0;text-transform:none;color:#fff;-webkit-text-fill-color:#fff}
-.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:16px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
-.nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
-.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 16px;margin:2px 10px;border-radius:10px;font-size:14px;font-weight:500;color:rgba(188,213,240,0.65);text-decoration:none;transition:all 0.18s;position:relative}
+.nav-item:hover{background:rgba(0,200,255,0.08);color:rgba(188,213,240,0.95)}
+.nav-item.active{background:linear-gradient(90deg,rgba(0,200,255,0.2),rgba(0,200,255,0.06));color:#fff;font-weight:700}
 .nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
-.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
-.main{margin-left:220px;flex:1;display:flex;flex-direction:column;overflow-y:auto}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:80px;background:#0a0a1a;border-bottom:1px solid rgba(0,180,216,0.1);position:sticky;top:0;z-index:50}
-.topbar-title{color:#ffffff !important}.topbar-sub{color:#6b7d94 !important}
-.content{padding:24px 28px;flex:1}
-.card{background:#ffffff;border:1px solid #d0d8e4;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden;margin-bottom:20px}
-.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e4e9f1}
-.card-title{font-size:19px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
-.card-dot{width:7px;height:7px;border-radius:50%;background:#0ea5e9;flex-shrink:0}
-.card-body{padding:20px}
-.btn-primary{font-size:19px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:10px 20px;border-radius:7px;text-decoration:none;border:none;cursor:pointer;font-family:inherit;display:inline-block}
-.btn-outline{font-size:19px;font-weight:600;color:#4a5a6e;background:#ffffff;padding:9px 18px;border-radius:7px;border:1px solid #d0d8e4;text-decoration:none;cursor:pointer;font-family:inherit;display:inline-block}
-.form-group{margin-bottom:16px}
-.form-label{font-size:19px;font-weight:700;color:#4a5a6e;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
-.form-input{width:100%;padding:10px 14px;border:1px solid #d0d8e4;border-radius:7px;font-size:19px;color:#0f172a;font-family:inherit;background:#f5f7fb;transition:border-color 0.2s}
-.form-input:focus{outline:none;border-color:#0ea5e9;background:#ffffff}
-.badge{font-size:19px;font-weight:700;padding:3px 10px;border-radius:999px}
+
+/* ── Main Area ── */
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#070c18;border-bottom:1px solid rgba(0,200,255,0.1);position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,200,255,0.15),0 4px 20px rgba(0,0,0,0.3)}
+.content{padding:18px 24px;flex:1;display:flex;flex-direction:column}
+
+/* ── Cards ── */
+.card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:16px;box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 16px rgba(15,25,60,.07);overflow:hidden;display:flex;flex-direction:column}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(15,25,60,.07);flex-shrink:0}
+.card-title{font-size:14px;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:8px;font-family:'Sora',sans-serif}
+.card-dot{width:6px;height:6px;border-radius:50%;background:#0ea5e9;flex-shrink:0}
+.card-body{padding:14px 16px;flex:1;display:flex;flex-direction:column}
+
+/* ── Forms ── */
+.form-group{margin-bottom:10px}
+.form-label{font-size:11px;font-weight:800;color:#7b91a8;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;display:block}
+.form-input{width:100%;padding:8px 12px;border:1px solid rgba(15,25,60,.12);border-radius:8px;font-size:14px;color:#0f172a;font-family:inherit;background:#f6f8fc;transition:border-color 0.2s}
+.form-input:focus{outline:none;border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,0.1)}
+select.form-input{background:#f6f8fc}
+
+/* ── Buttons ── */
+.btn-primary{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);padding:8px 18px;border-radius:6px;border:none;cursor:pointer;font-family:inherit}
+.btn-primary:hover{box-shadow:0 4px 12px rgba(14,165,233,0.25)}
+.btn-warn{font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#f59e0b,#ef4444);padding:8px 18px;border-radius:6px;border:none;cursor:pointer;font-family:inherit}
+
+/* ── Badges ── */
+.badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px}
 .badge-green{background:rgba(22,163,74,0.12);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
-.badge-amber{background:rgba(245,158,11,0.08);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)}
-.badge-cyan{background:rgba(0,180,216,0.12);color:#0284c7;border:1px solid rgba(0,180,216,0.2)}
-.row{display:grid;gap:20px}
-.row-2{grid-template-columns:1fr 1fr}
-.row-3{grid-template-columns:1fr 1fr 1fr}
-.stat-pill{border-radius:14px;padding:18px;text-align:center;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
-.stat-pill-val{font-size:30px;font-weight:800;letter-spacing:-0.5px}
-.stat-pill-lbl{font-size:16px;font-weight:700;color:#5a6a7e;text-transform:uppercase;letter-spacing:1.5px;margin-top:6px}
-table{width:100%;border-collapse:collapse}
-th{font-size:19px;font-weight:700;color:#6b7d94;text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border-bottom:2px solid rgba(0,180,216,0.15);text-align:left}
-td{padding:12px;border-bottom:1px solid #e4e9f1;font-size:19px;color:#2d3b4e;vertical-align:middle}
-tr:last-child td{border-bottom:none}
-.empty-state{text-align:center;padding:48px 20px}
-.empty-icon{font-size:40px;margin-bottom:12px}
-.empty-title{font-size:19px;font-weight:700;color:#4a5a6e;margin-bottom:6px}
-.empty-sub{font-size:19px;color:#6b7d94;margin-bottom:20px}
+.badge-amber{background:rgba(245,158,11,0.08);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)}
+
+/* ── Info rows ── */
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(15,25,60,.05)}
+.info-row:last-child{border-bottom:none}
+.info-key{font-size:11px;font-weight:800;color:#7b91a8;text-transform:uppercase;letter-spacing:0.8px}
+.info-val{font-size:13px;font-weight:600;color:#0f172a}
+
+/* ── Earnings rows ── */
+.earn-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(15,25,60,.05)}
+.earn-row:last-child{border-bottom:none}
+.earn-label{font-size:13px;color:#3d5068}
+.earn-val{font-size:13px;font-weight:800;color:#16a34a}
+
+/* ── Wallet info ── */
+.wallet-info{padding:10px 12px;background:#f6f8fc;border:1px solid rgba(14,165,233,.15);border-radius:10px;margin-top:auto}
+.wallet-info-title{font-size:11px;font-weight:700;color:#0284c7;margin-bottom:4px}
+.wallet-info-text{font-size:11px;color:#3d5068;line-height:1.6}
+
+/* ── Quick links ── */
+.q-link{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f6f8fc;border:1px solid rgba(15,25,60,.08);border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;color:#334155;transition:all 0.15s}
+.q-link:hover{background:#e0f2fe;border-color:rgba(14,165,233,.25)}
+
+/* ── Toast ── */
+.toast-banner{border-radius:8px;padding:10px 16px;margin-bottom:14px;font-size:13px;font-weight:600}
+.toast-banner.success{background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.25);color:#16a34a}
+.toast-banner.error{background:#fef2f2;border:1px solid #fecaca;color:#dc2626}
+
+/* ═══ Page Layout: 4-across top, 2-across bottom, both stretch to fill ═══ */
+.pg-wrap{flex:1;display:flex;flex-direction:column;gap:16px}
+.pg-top{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;flex:3}
+.pg-top>.card{min-height:0}
+.pg-mid{display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1}
+.pg-mid>.card{min-height:0}
+.pg-bottom{display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1}
+.pg-bottom>.card{min-height:0}
+
+/* KYC/2FA status badges */
+.status-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700}
+.status-chip.none{background:rgba(100,116,139,0.1);color:#64748b;border:1px solid rgba(100,116,139,0.2)}
+.status-chip.pending{background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.25)}
+.status-chip.approved{background:rgba(22,163,74,0.1);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
+.status-chip.rejected{background:rgba(220,38,38,0.1);color:#dc2626;border:1px solid rgba(220,38,38,0.25)}
+.status-chip.enabled{background:rgba(22,163,74,0.1);color:#16a34a;border:1px solid rgba(22,163,74,0.25)}
+.status-chip.disabled{background:rgba(100,116,139,0.1);color:#64748b;border:1px solid rgba(100,116,139,0.2)}
+
+/* File upload */
+.file-input{width:100%;padding:8px;border:1.5px dashed rgba(15,25,60,.15);border-radius:8px;font-size:12px;font-family:inherit;color:#7b91a8;background:#f6f8fc;cursor:pointer}
+.file-input:hover{border-color:#0ea5e9}
+
+@media(max-width:1100px){
+  .pg-top{grid-template-columns:1fr 1fr}
+  .pg-mid{grid-template-columns:1fr}
+  .pg-bottom{grid-template-columns:1fr}
+}
 @media(max-width:768px){
   .layout{display:block!important}
   .sidebar{display:none!important}
   .main{margin-left:0!important}
   .topbar{display:none!important}
   .content{padding:10px 12px 80px!important}
-  .row-2,.row-3,.stats-row,.two-col{grid-template-columns:1fr!important}
-  body{overflow-x:hidden}
+  .pg-top,.pg-mid,.pg-bottom{grid-template-columns:1fr!important}
+  .pg-top,.pg-mid,.pg-bottom{flex:unset}
 }
 </style>
   <link rel="stylesheet" href="/static/mobile.css">
@@ -152,7 +202,7 @@ tr:last-child td{border-bottom:none}
     <p style="font-size:19px;color:#64748b;margin-bottom:16px;line-height:1.6">Share this link to refer new members. Every person who joins through your link is placed into your Income Grid — earning you level commissions from their first payment.</p>
     <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px">
       <span style="font-size:19px;color:#0284c7;font-family:monospace;flex:1" id="refUrl">{{ ref_link }}</span>
-      <button onclick="copyRef()" id="copyBtn" style="font-size:19px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-family:inherit;white-space:nowrap">Copy Link</button>
+      <button onclick="copyRef()" id="copyBtn" style="font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-family:inherit;white-space:nowrap">Copy Link</button>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
       <a href="https://wa.me/?text=Join%20SuperAdPro%20—%20earn%20from%20your%208×8%20Income%20Grid!%20{{ ref_link }}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:rgba(22,163,74,0.12);border:1px solid rgba(22,163,74,0.25);border-radius:8px;font-size:13px;font-weight:700;color:#16a34a;text-decoration:none">📱 WhatsApp</a>
