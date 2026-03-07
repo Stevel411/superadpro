@@ -86,10 +86,35 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-heigh
 
 @media(max-width:900px){.sidebar{display:none!important}.main{margin-left:0}.cat-tabs{flex-direction:column;gap:8px}.podium{gap:12px;padding:16px 0}.p-gold .podium-avatar{width:64px;height:64px;font-size:26px}.p-silver .podium-avatar,.p-bronze .podium-avatar{width:54px;height:54px;font-size:20px}}
 @media(max-width:600px){.content{padding:16px}.topbar{padding:0 16px;height:64px}.podium-bar{display:none}.podium{gap:8px}.lb-table th:nth-child(3),.lb-table td:nth-child(3){display:none}}
+
+@media(max-width:768px){
+  .sidebar{display:none}.main{margin-left:0}.topbar{display:none}
+  .mobile-topbar{display:flex!important}.mobile-nav{display:block}
+  body{padding-bottom:70px}.content{padding:12px 16px}
+}
+.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:#1c223d;border-bottom:1px solid rgba(0,212,255,0.08);position:sticky;top:0;z-index:100}
+.mobile-topbar-left{display:flex;align-items:center;gap:10px;text-decoration:none}
+.mobile-topbar-name{font-weight:800;font-size:15px;font-family:'Sora',sans-serif;color:#fff}
+.mobile-topbar-name span{color:#38bdf8}
+.mobile-topbar-page{font-size:11px;color:#64748b}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#1c223d;border-top:1px solid rgba(0,212,255,0.08);z-index:100;padding:6px 0}
+.mobile-nav-inner{display:flex;justify-content:space-around;align-items:center}
+.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 8px;font-size:10px;color:rgba(200,220,255,0.5);transition:color .2s}
+.mob-nav-item.active{color:#38bdf8}
+.mob-nav-icon{font-size:19px}
+.mob-nav-label{font-weight:600;letter-spacing:0.3px}
 </style>
 <link rel="stylesheet" href="/static/mobile.css">
 </head>
 <body>
+
+<!-- Mobile Topbar -->
+<div class="mobile-topbar">
+  <a class="mobile-topbar-left" href="/dashboard">
+    <div class="mobile-topbar-name">Super<span>AdPro</span></div>
+  </a>
+  <div class="mobile-topbar-page">🏆 Leaderboard</div>
+</div>
 <div class="layout">
   {%- include "_sidebar.html" -%}
   <div class="main">
@@ -288,5 +313,16 @@ document.querySelectorAll('[data-country]').forEach(function(el){
   }
 });
 </script>
+
+<!-- Mobile Bottom Nav -->
+<div class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">⊞</span><span class="mob-nav-label">Home</span></a>
+    <a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">▶</span><span class="mob-nav-label">Watch</span></a>
+    <a href="/income-grid" class="mob-nav-item"><span class="mob-nav-icon">⚡</span><span class="mob-nav-label">Grid</span></a>
+    <a href="/leaderboard" class="mob-nav-item active"><span class="mob-nav-icon">🏆</span><span class="mob-nav-label">Ranks</span></a>
+    <a href="/account" class="mob-nav-item"><span class="mob-nav-icon">◉</span><span class="mob-nav-label">Account</span></a>
+  </div>
+</div>
 </body>
 </html>
