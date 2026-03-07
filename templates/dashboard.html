@@ -7,8 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0f172a;height:100vh;overflow:hidden;display:flex}
-.layout{display:flex;width:100%;height:100vh;overflow:hidden}
+body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0f172a;min-height:100vh;display:flex}
+.layout{display:flex;width:100%;min-height:100vh}
 
 /* ── SIDEBAR (unchanged — uses _sidebar.html include) ── */
 .sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
@@ -23,7 +23,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 .user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
 
 /* ── MAIN ── */
-.main{margin-left:224px;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
 
 /* ── TOPBAR ── */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:72px;background:#1c223d;border-bottom:1px solid rgba(14,165,233,0.12);flex-shrink:0;z-index:50}
@@ -157,7 +157,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 @media(max-width:768px){
   .sidebar{display:none}.main{margin-left:0}.topbar{display:none}
   .mobile-topbar{display:flex!important}.mobile-nav{display:block}
-  body{padding-bottom:70px}.content{padding:16px}
+  body{padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}.content{padding:16px;overflow:visible;height:auto}
   .journey-row,.stats-row{grid-template-columns:1fr}.dash-grid{grid-template-columns:1fr}.tools-grid{grid-template-columns:repeat(4,1fr)}
 }
 .mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:12px 16px;background:#1c223d;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:101}
@@ -172,6 +172,13 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 .mob-nav-item.active{color:#38bdf8}
 .mob-nav-icon{font-size:19px}
 .mob-nav-label{font-weight:600;letter-spacing:0.3px}
+
+@media(min-width:769px){
+  body{height:100vh;overflow:hidden}
+  .layout{height:100vh;overflow:hidden}
+  .main{height:100vh;overflow:hidden}
+  .content{overflow-y:auto}
+}
 </style>
   <link rel="stylesheet" href="/static/mobile.css">
   <link rel="manifest" href="/static/manifest.json">
