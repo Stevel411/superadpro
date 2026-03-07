@@ -63,8 +63,8 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f3f9;color:#0f172a;min-
 .section{padding:72px 0}
 .section-label{font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:10px}
 .section-title{font-family:'Sora',sans-serif;font-size:clamp(24px,3vw,34px);font-weight:800;color:var(--text);margin-bottom:12px;letter-spacing:-0.5px}
-.section-sub{font-size:17px;color:var(--muted);max-width:560px;line-height:1.7}
-.section-head{margin-bottom:48px}
+.section-sub{font-size:17px;color:var(--muted);max-width:560px;line-height:1.7;margin:0 auto}
+.section-head{margin-bottom:48px;text-align:center}
 
 /* ── STREAM OVERVIEW CARDS ── */
 .streams-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:32px;align-items:stretch}
@@ -233,6 +233,18 @@ footer a{color:var(--cyan);text-decoration:none}
 .hero{padding:48px 40px;text-align:center;position:relative;overflow:hidden;width:100%;box-sizing:border-box}
 .container{max-width:100%;padding:0 40px;box-sizing:border-box}
 footer{padding:32px 40px}
+
+/* ── In-page section nav ── */
+.in-page-nav{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;padding:20px 40px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:56px;z-index:40}
+.ipnav-link{font-size:14px;font-weight:600;color:var(--muted);padding:8px 18px;border-radius:99px;text-decoration:none;transition:all 0.15s;border:1.5px solid transparent}
+.ipnav-link:hover{color:var(--text);background:var(--card-inner)}
+.ipnav-link.active{color:var(--cyan);background:rgba(14,165,233,0.08);border-color:rgba(14,165,233,0.3)}
+
+/* ── Scroll to top ── */
+.scroll-top{position:fixed;bottom:28px;right:28px;width:44px;height:44px;border-radius:50%;background:var(--navy);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 16px rgba(15,25,60,0.25);opacity:0;pointer-events:none;transition:all 0.25s;z-index:200}
+.scroll-top.visible{opacity:1;pointer-events:all}
+.scroll-top:hover{background:var(--cyan);transform:translateY(-2px)}
+
 /* Hide the old sticky-nav (replaced by page-topbar) */
 .sticky-nav{display:none !important}
 
@@ -265,16 +277,9 @@ footer{padding:32px 40px}
 {% include "_sidebar.html" %}
 <div class="main">
 
-  <!-- Page topbar with section nav inside -->
+  <!-- Topbar — title only -->
   <div class="page-topbar">
     <div class="page-topbar-title">Compensation Plan</div>
-    <div class="snav-wrap">
-      <a href="#overview"    class="snav-link active">Overview</a>
-      <a href="#stream1"     class="snav-link">Stream 1</a>
-      <a href="#stream2"     class="snav-link">Stream 2</a>
-      <a href="#stream3"     class="snav-link">Stream 3</a>
-      <a href="#calculator"  class="snav-link">Calculator</a>
-    </div>
   </div>
 
   <!-- Content -->
@@ -286,6 +291,15 @@ footer{padding:32px 40px}
   <p class="hero-sub">Stack three independent income streams — residual membership income, deep network commissions, and 100% course sales — all from a single $20/month platform.</p>
   <a href="/dashboard" class="hero-cta">Go to Dashboard →</a>
   <a href="#overview" class="hero-cta-ghost">See How It Works ↓</a>
+</div>
+
+<!-- SECTION NAV -->
+<div class="in-page-nav">
+  <a href="#overview"   class="ipnav-link active">Overview</a>
+  <a href="#stream1"    class="ipnav-link">Stream 1 — Membership</a>
+  <a href="#stream2"    class="ipnav-link">Stream 2 — Profit Grid</a>
+  <a href="#stream3"    class="ipnav-link">Stream 3 — Courses</a>
+  <a href="#calculator" class="ipnav-link">Calculator</a>
 </div>
 
 <!-- OVERVIEW -->
@@ -758,20 +772,25 @@ function calc(){
 }
 calc();
 
-/* ── Sticky nav active state ── */
+/* ── Section nav active state + scroll-to-top ── */
 const sections = ['overview','stream1','stream2','stream3','calculator'];
-const snavLinks = document.querySelectorAll('.snav-link');
-window.addEventListener('scroll',()=>{
+const ipnavLinks = document.querySelectorAll('.ipnav-link');
+const scrollBtn = document.getElementById('scrollTopBtn');
+const mainEl = document.querySelector('.main');
+(mainEl||window).addEventListener('scroll',()=>{
+  const scrollY = mainEl ? mainEl.scrollTop : window.scrollY;
   let current='';
   sections.forEach(id=>{
     const el=document.getElementById(id);
-    if(el && window.scrollY >= el.offsetTop-120) current=id;
+    if(el && scrollY >= el.offsetTop-140) current=id;
   });
-  snavLinks.forEach(l=>{
+  ipnavLinks.forEach(l=>{
     l.classList.toggle('active', l.getAttribute('href')==='#'+current);
   });
+  if(scrollBtn) scrollBtn.classList.toggle('visible', scrollY > 300);
 });
   </div><!-- /cp-body -->
+<button class="scroll-top" id="scrollTopBtn" onclick="(document.querySelector('.main')||window).scrollTo({top:0,behavior:'smooth'})" title="Back to top">&#8679;</button>
 
 </div><!-- /main -->
 </div><!-- /layout -->
