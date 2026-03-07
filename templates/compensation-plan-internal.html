@@ -5,34 +5,47 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SuperAdPro — Compensation Plan</title>
 <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/mobile.css">
 <style>
+/* ── Base ── */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Rethink Sans',sans-serif;background:#f0f3f9;color:#0f172a;min-height:100vh}
+
+/* ── Layout ── */
+.layout{display:flex;min-height:100vh}
+.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff;-webkit-text-fill-color:#fff}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 16px;margin:2px 10px;border-radius:10px;font-size:14px;font-weight:500;color:rgba(188,213,240,0.65);text-decoration:none;transition:all 0.18s;position:relative}
+.nav-item:hover{background:rgba(0,200,255,0.08);color:rgba(188,213,240,0.95)}
+.nav-item.active{background:linear-gradient(90deg,rgba(0,200,255,0.2),rgba(0,200,255,0.06));color:#fff;font-weight:700}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:65%;border-radius:0 3px 3px 0;background:#00c8ff;box-shadow:0 0 10px rgba(0,200,255,0.8)}
+.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}}
+
+/* ── Page-level nav bar (replaces sticky-nav, lives inside topbar) ── */
+.page-topbar{background:#1c223d;border-bottom:1px solid rgba(0,200,255,0.1);padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.page-topbar-title{font-family:Sora,sans-serif;font-size:16px;font-weight:700;color:#fff}
+.snav-wrap{display:flex;gap:2px;overflow-x:auto}
+.snav-link{font-size:13px;font-weight:600;color:rgba(200,220,255,0.55);padding:8px 14px;text-decoration:none;border-radius:8px;transition:all 0.15s;white-space:nowrap}
+.snav-link:hover{color:#fff;background:rgba(255,255,255,0.07)}
+.snav-link.active{color:#00c8ff;background:rgba(0,200,255,0.12)}
+
+/* ── Content wrapper ── */
+.cp-body{padding:0;max-width:100%}
+
+/* ── Comp Plan CSS ── */
 :root {
-  --navy: #1c223d;
-  --bg: #f0f3f9;
-  --card: #ffffff;
-  --card-inner: #f6f8fc;
-  --card-inner-2: #eef1f8;
-  --cyan: #0ea5e9;
-  --cyan-bright: #38bdf8;
-  --green: #16a34a;
-  --green-bright: #22c55e;
-  --gold: #d97706;
-  --purple: #6366f1;
-  --purple-bright: #818cf8;
-  --text: #0f172a;
-  --text-2: #3d5068;
-  --muted: #7b91a8;
-  --border: rgba(15,25,60,0.08);
-  --border-strong: rgba(15,25,60,0.14);
+  --navy: #1c223d;--bg: #f0f3f9;--card: #ffffff;--card-inner: #f6f8fc;--card-inner-2: #eef1f8;
+  --cyan: #0ea5e9;--cyan-bright: #38bdf8;--green: #16a34a;--green-bright: #22c55e;
+  --gold: #d97706;--purple: #6366f1;--purple-bright: #818cf8;
+  --text: #0f172a;--text-2: #3d5068;--muted: #7b91a8;
+  --border: rgba(15,25,60,0.08);--border-strong: rgba(15,25,60,0.14);
   --shadow-sm: 0 1px 3px rgba(15,25,60,0.06),0 4px 12px rgba(15,25,60,0.06);
   --shadow-md: 0 2px 6px rgba(15,25,60,0.07),0 8px 28px rgba(15,25,60,0.11);
 }
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:'Rethink Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6}
-
-/* nav styles removed — sidebar layout */
-
 /* ── HERO ── */
 .hero{padding:50px 48px 50px;text-align:center;position:relative;overflow:hidden;width:100%;box-sizing:border-box}
 .hero::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(14,165,233,0.06) 0%,transparent 65%);pointer-events:none}
@@ -215,38 +228,26 @@ footer a{color:var(--cyan);text-decoration:none}
   .cta-section{padding:40px 24px}
   footer{padding:24px 20px}
 }
-</style>
-  <link rel="stylesheet" href="/static/mobile.css">
-  <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#1c223d">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="SuperAdPro">
-  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
-<style>
-/* ── Layout (matches platform standard) ── */
-.layout{display:flex;min-height:100vh}
-.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff;-webkit-text-fill-color:#fff}
-.nav-item{display:flex;align-items:center;gap:11px;padding:11px 16px;margin:2px 10px;border-radius:10px;font-size:14px;font-weight:500;color:rgba(188,213,240,0.65);text-decoration:none;transition:all 0.18s;position:relative}
-.nav-item:hover{background:rgba(0,200,255,0.08);color:rgba(188,213,240,0.95)}
-.nav-item.active{background:linear-gradient(90deg,rgba(0,200,255,0.2),rgba(0,200,255,0.06));color:#fff;font-weight:700}
-.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:65%;border-radius:0 3px 3px 0;background:#00c8ff;box-shadow:0 0 10px rgba(0,200,255,0.8)}
-.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
-.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden;overflow-y:auto}
-.sticky-nav{background:#fff;border-bottom:2px solid var(--border);position:sticky;top:0;z-index:50}
-.sticky-nav-inner{display:flex;gap:4px;padding:0 40px;overflow-x:auto}
-.container{padding:0 40px}
-.hero{padding:50px 40px;width:100%;box-sizing:border-box}
+
+/* ── Override standalone-page rules for sidebar layout ── */
+.hero{padding:48px 40px;text-align:center;position:relative;overflow:hidden;width:100%;box-sizing:border-box}
+.container{max-width:100%;padding:0 40px;box-sizing:border-box}
 footer{padding:32px 40px}
-@media(max-width:768px){.main{margin-left:0;overflow-y:unset}.container{padding:0 20px}.hero{padding:40px 20px}.sticky-nav-inner{padding:0 20px}}
+/* Hide the old sticky-nav (replaced by page-topbar) */
+.sticky-nav{display:none !important}
+
+@media(max-width:900px){
+  .hero{padding:36px 24px}
+  .container{padding:0 20px}
+  .streams-grid{grid-template-columns:1fr}
+  .s1-split,.comm-split,.calc-sliders,.passup-rules{grid-template-columns:1fr}
+  .passup-flow{grid-template-columns:repeat(4,1fr)}
+  footer{padding:24px 20px}
+}
 </style>
 </head>
 <body>
 
-<!-- Mobile Topbar -->
 <div class="mobile-topbar">
   <a class="mobile-topbar-left" href="/dashboard">
     <svg width="26" height="26" viewBox="0 0 100 100"><defs><linearGradient id="mhg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs>
@@ -257,25 +258,27 @@ footer{padding:32px 40px}
       <div class="mobile-topbar-page">Compensation Plan</div>
     </div>
   </a>
-  {%- if user is defined and user %}<div class="mobile-balance-chip">${{ '%.2f'|format(user.balance or 0) }}</div>{%- endif %}
+  {%- if user is defined and user %}<div class="mobile-balance-chip">${ '%.2f'|format(user.balance or 0) }</div>{%- endif %}
 </div>
 
 <div class="layout">
 {% include "_sidebar.html" %}
 <div class="main">
 
-
-<!-- STICKY SECTION NAV -->
-<div class="sticky-nav">
-  <div class="sticky-nav-inner">
-    <a href="#overview" class="snav-link active">Overview</a>
-    <a href="#stream1" class="snav-link">Stream 1 — Membership</a>
-    <a href="#stream2" class="snav-link">Stream 2 — Profit Grid</a>
-    <a href="#stream3" class="snav-link">Stream 3 — Courses</a>
-    <a href="#calculator" class="snav-link">Calculator</a>
+  <!-- Page topbar with section nav inside -->
+  <div class="page-topbar">
+    <div class="page-topbar-title">Compensation Plan</div>
+    <div class="snav-wrap">
+      <a href="#overview"    class="snav-link active">Overview</a>
+      <a href="#stream1"     class="snav-link">Stream 1</a>
+      <a href="#stream2"     class="snav-link">Stream 2</a>
+      <a href="#stream3"     class="snav-link">Stream 3</a>
+      <a href="#calculator"  class="snav-link">Calculator</a>
+    </div>
   </div>
-</div>
 
+  <!-- Content -->
+  <div class="cp-body">
 <!-- HERO -->
 <div class="hero fade-in">
   <div class="hero-eyebrow">Compensation Plan</div>
@@ -768,7 +771,8 @@ window.addEventListener('scroll',()=>{
     l.classList.toggle('active', l.getAttribute('href')==='#'+current);
   });
 });
-</script>
+  </div><!-- /cp-body -->
+
 </div><!-- /main -->
 </div><!-- /layout -->
 
