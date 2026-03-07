@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SuperAdPro — Compensation Plan</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/mobile.css">
 <style>
 /* ── Base ── */
@@ -21,7 +21,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 .nav-item.active{background:linear-gradient(90deg,rgba(0,200,255,0.2),rgba(0,200,255,0.06));color:#fff;font-weight:700}
 .nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:65%;border-radius:0 3px 3px 0;background:#00c8ff;box-shadow:0 0 10px rgba(0,200,255,0.8)}
 .nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
-.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.sidebar-/* footer removed */
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden}
 @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}}
 
@@ -192,15 +192,11 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:4px}
 .calc-disclaimer{margin-top:14px;font-size:13px;color:var(--muted);line-height:1.6;padding:12px 16px;background:var(--card-inner);border-radius:8px;border:1px solid var(--border)}
 
 /* ── CTA SECTION ── */
-.cta-section{background:linear-gradient(135deg,var(--navy) 0%,#1e2d4e 100%);border-radius:20px;padding:60px 48px;text-align:center;margin:72px 0}
-.cta-section h2{font-family:'Sora',sans-serif;font-size:34px;font-weight:800;color:#fff;margin-bottom:14px;letter-spacing:-0.5px}
-.cta-section p{font-size:17px;color:rgba(200,220,255,0.6);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto}
+/* .cta-section removed */;margin:72px 0}
 .cta-btns{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
-.cta-section .hero-cta-ghost{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.15)}
-.cta-section .hero-cta-ghost:hover{background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.3)}
 
 /* ── FOOTER ── */
-footer{background:var(--navy);border-top:1px solid rgba(255,255,255,0.06);padding:32px 48px;text-align:center}
+/* footer css removed */
 footer p{font-size:14px;color:rgba(200,220,255,0.4)}
 footer a{color:var(--cyan);text-decoration:none}
 
@@ -225,14 +221,13 @@ footer a{color:var(--cyan);text-decoration:none}
   .s1-split,.comm-split,.calc-sliders,.passup-rules{grid-template-columns:1fr}
   .passup-flow{grid-template-columns:repeat(4,1fr)}
   .sticky-nav-inner{overflow-x:auto;padding:0 20px}
-  .cta-section{padding:40px 24px}
-  footer{padding:24px 20px}
+  /* footer removed */
 }
 
 /* ── Override standalone-page rules for sidebar layout ── */
 .hero{padding:48px 40px;text-align:center;position:relative;overflow:hidden;width:100%;box-sizing:border-box}
 .container{max-width:100%;padding:0 40px;box-sizing:border-box}
-footer{padding:32px 40px}
+/* footer removed */
 
 /* ── In-page section nav ── */
 .in-page-nav{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;padding:20px 40px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:56px;z-index:40}
@@ -245,13 +240,6 @@ footer{padding:32px 40px}
 .scroll-top.visible{opacity:1;pointer-events:all}
 .scroll-top:hover{background:var(--cyan);transform:translateY(-2px)}
 
-
-/* ── Light footer (replaces dark footer) ── */
-.light-footer{background:#f0f3f9;border-top:1px solid var(--border);padding:32px 40px;text-align:center;color:var(--text-2);font-size:14px}
-
-/* ── Calc constrained width ── */
-#calculator .calc-wrap{max-width:860px;margin:0 auto}
-
 /* Hide the old sticky-nav (replaced by page-topbar) */
 .sticky-nav{display:none !important}
 
@@ -261,7 +249,7 @@ footer{padding:32px 40px}
   .streams-grid{grid-template-columns:1fr}
   .s1-split,.comm-split,.calc-sliders,.passup-rules{grid-template-columns:1fr}
   .passup-flow{grid-template-columns:repeat(4,1fr)}
-  footer{padding:24px 20px}
+  /* footer removed */
 }
 </style>
 </head>
@@ -687,105 +675,7 @@ footer{padding:32px 40px}
 </div>
 
 
-<div class="light-footer">
-  <p>© 2026 SuperAdPro. All rights reserved. &nbsp;|&nbsp; <a href="/legal" style="color:var(--cyan)">Terms & Legal</a></p>
-  <p style="margin-top:6px;font-size:13px;color:var(--muted)">Income figures shown are mathematical projections only. Past performance of other members does not guarantee your results.</p>
-</div><!-- /light-footer -->
 
-<script>
-/* ── Uni-level table ── */
-const pkgs = [20,50,100,200,400,600,800,1000];
-const tbody = document.getElementById('uniTableBody');
-const colours = ['#0ea5e9','#6366f1','#0284c7','#4f46e5','#0369a1','#7c3aed','#1d4ed8','#2563eb'];
-pkgs.forEach((p,i) => {
-  // handled below per level
-});
-for(let lvl=1;lvl<=8;lvl++){
-  const tr = document.createElement('tr');
-  tr.innerHTML = `<td style="color:${colours[lvl-1]}">Level ${lvl}</td>` +
-    pkgs.map(p=>{
-      const exact={20:'1.375',50:'3.4375',100:'6.875',200:'13.75',400:'27.50',600:'41.25',800:'55.00',1000:'68.75'};
-      return `<td style="color:${colours[lvl-1]}">$${exact[p]}</td>`;
-    }).join('') ;
-  tbody.appendChild(tr);
-}
-const trDirect = document.createElement('tr');
-trDirect.style.borderTop = '1px solid rgba(14,165,233,0.15)';
-trDirect.innerHTML = `<td style="color:var(--green);font-weight:700">Direct (40%)</td>` +
-  pkgs.map(p=>`<td style="color:var(--green)">\$${(p*0.40).toFixed(2)}</td>`).join('');
-tbody.appendChild(trDirect);
-
-/* ── Calculator ── */
-const tiers = [20,50,100,200,400,600,800,1000];
-let activeTiers = new Set([100]);
-
-const togglesEl = document.getElementById('tierToggles');
-tiers.forEach(t => {
-  const btn = document.createElement('button');
-  btn.className = 'tier-btn' + (activeTiers.has(t) ? ' active' : '');
-  btn.textContent = '$'+t;
-  btn.onclick = () => {
-    if(activeTiers.has(t)){ if(activeTiers.size>1) activeTiers.delete(t); }
-    else activeTiers.add(t);
-    document.querySelectorAll('.tier-btn').forEach((b,i)=>b.className='tier-btn'+(activeTiers.has(tiers[i])?' active':''));
-    calc();
-  };
-  togglesEl.appendChild(btn);
-});
-
-const advSlider = document.getElementById('advancesSlider');
-const refSlider = document.getElementById('referralsSlider');
-advSlider.oninput = ()=>{ document.getElementById('advancesVal').textContent=advSlider.value; calc(); };
-refSlider.oninput = ()=>{ document.getElementById('referralsVal').textContent=refSlider.value; calc(); };
-
-function fmt(n){ return '$'+Math.round(n).toLocaleString(); }
-
-function calc(){
-  const advances = parseInt(advSlider.value);
-  const refs = parseInt(refSlider.value);
-  const s1 = refs * 10 * 12;
-  let s2Owner=0, s2Direct=0;
-  activeTiers.forEach(t=>{
-    s2Owner += 64 * t * (0.55/8) * advances;  // 6.875% ≈ 0.55/8
-    s2Direct += refs * t * 0.40;
-  });
-  const total = s1+s2Owner+s2Direct;
-  document.getElementById('s1Result').textContent = fmt(s1);
-  document.getElementById('s2OwnerResult').textContent = fmt(s2Owner);
-  document.getElementById('s2DirectResult').textContent = fmt(s2Direct);
-  document.getElementById('totalResult').textContent = fmt(total);
-
-  // Tier breakdown
-  const bd = document.getElementById('tierBreakdown');
-  bd.innerHTML='';
-  activeTiers.forEach(t=>{
-    const tierTotal = (64*t*0.0625*advances)+(refs*t*0.40);
-    const el = document.createElement('div');
-    el.style.cssText='background:var(--card-inner);border:1px solid rgba(14,165,233,0.18);border-radius:10px;padding:14px;text-align:center';
-    el.innerHTML=`<div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">$${t} Tier</div><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:700;color:var(--cyan)">${fmt(tierTotal)}</div>`;
-    bd.appendChild(el);
-  });
-}
-calc();
-
-/* ── Section nav active state + scroll-to-top ── */
-const sections = ['overview','stream1','stream2','stream3','calculator'];
-const ipnavLinks = document.querySelectorAll('.ipnav-link');
-const scrollBtn = document.getElementById('scrollTopBtn');
-const mainEl = document.querySelector('.main');
-(mainEl||window).addEventListener('scroll',()=>{
-  const scrollY = mainEl ? mainEl.scrollTop : window.scrollY;
-  let current='';
-  sections.forEach(id=>{
-    const el=document.getElementById(id);
-    if(el && scrollY >= el.offsetTop-140) current=id;
-  });
-  ipnavLinks.forEach(l=>{
-    l.classList.toggle('active', l.getAttribute('href')==='#'+current);
-  });
-  if(scrollBtn) scrollBtn.classList.toggle('visible', scrollY > 300);
-});
-  </div><!-- /cp-body -->
 <button class="scroll-top" id="scrollTopBtn" onclick="(document.querySelector('.main')||window).scrollTo({top:0,behavior:'smooth'})" title="Back to top">&#8679;</button>
 
 </div><!-- /main -->
