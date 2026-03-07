@@ -168,9 +168,26 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f4f8;color:#1e293b}
 .save-msg.show{display:block}
 
 /* Preview panel */
-.preview-panel{position:sticky;top:24px}
-.preview-frame{border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.12);height:580px;border:none;width:100%}
-.preview-label{font-size:0.78rem;color:#94a3b8;text-align:center;margin-top:8px}
+.preview-panel{position:sticky;top:80px}
+.phone-shell{width:260px;height:520px;background:#fff;border-radius:36px;border:8px solid #1e293b;box-shadow:0 20px 60px rgba(0,0,0,.25),inset 0 0 0 1px rgba(255,255,255,.1);position:relative;overflow:hidden;flex-shrink:0}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:80px;height:18px;background:#1e293b;border-radius:0 0 14px 14px;z-index:10}
+.phone-screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.phone-screen::-webkit-scrollbar{display:none}
+
+/* ── PREVIEW INNER STYLES (scoped via .pv- prefix) ── */
+.pv-body{min-height:100%;display:flex;flex-direction:column;align-items:center;padding:36px 12px 40px;font-family:'Rethink Sans',sans-serif;transition:background .3s}
+.pv-avatar{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin-bottom:10px;border:3px solid;overflow:hidden;flex-shrink:0;transition:border-color .3s}
+.pv-avatar img{width:100%;height:100%;object-fit:cover}
+.pv-name{font-size:1rem;font-weight:800;margin-bottom:3px;text-align:center;transition:color .3s}
+.pv-username{font-size:0.7rem;margin-bottom:8px;transition:color .3s}
+.pv-bio{font-size:0.72rem;text-align:center;line-height:1.5;max-width:220px;margin-bottom:16px;transition:color .3s}
+.pv-links{width:100%;display:flex;flex-direction:column;gap:8px}
+.pv-link{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;border:1.5px solid;font-size:0.8rem;font-weight:600;transition:all .3s;cursor:default}
+.pv-link-icon{font-size:1rem;flex-shrink:0}
+.pv-link-title{flex:1}
+.pv-link-arrow{font-size:0.75rem;opacity:.6}
+.pv-empty{text-align:center;padding:20px 0;font-size:0.75rem;opacity:.5}
+.pv-powered{margin-top:16px;font-size:0.65rem;opacity:.5;text-align:center}
 
 /* Stats row */
 .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
@@ -343,10 +360,25 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f4f8;color:#1e293b}
 
     <!-- RIGHT: Live Preview -->
     <div class="preview-panel">
-      <div class="card" style="padding:12px">
-        <div class="card-title" style="margin-bottom:12px"><span>📱</span> Live Preview</div>
-        <iframe class="preview-frame" id="preview-frame" src="/u/{{ current_user.username }}?preview=1" title="LinkHub Preview"></iframe>
-        <div class="preview-label">Updates after saving</div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #f1f5f9">
+          <div class="card-title" style="margin-bottom:0"><span>📱</span> Live Preview</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:0.72rem;color:#10b981;font-weight:700;background:#f0fdf4;padding:3px 10px;border-radius:20px;border:1px solid #bbf7d0">● LIVE</span>
+          </div>
+        </div>
+        <!-- Phone shell -->
+        <div style="padding:16px;background:#f8fafc;display:flex;justify-content:center">
+          <div class="phone-shell">
+            <div class="phone-notch"></div>
+            <div class="phone-screen" id="live-preview">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+        <div style="padding:10px 18px;font-size:0.75rem;color:#94a3b8;text-align:center;border-top:1px solid #f1f5f9">
+          Updates instantly as you type
+        </div>
       </div>
     </div>
 
@@ -367,26 +399,103 @@ const ICONS = ['🔗','🌐','📧','📱','💼','🎯','🚀','⭐','💡','�
   '🎵','🎮','📚','✍️','🤝','🌍','💻','🔥','❤️','🎁','📢','🔔','💎','⚡','🌟','👋',
   '▶️','🐦','📘','📸','💼','🎤','📺','🎧','📰','📝','🏠','📍','🛡️','⚙️','🌈'];
 
+// ── THEME DEFINITIONS ─────────────────────────────────────────────────────
+const THEMES = {
+  dark:     { text:'#e2e8f0', sub:'#94a3b8', btnBg:'#0f1f3d', btnBorder:'rgba(255,255,255,.12)', bodyBg:'#050d1a' },
+  light:    { text:'#1e293b', sub:'#64748b', btnBg:'#fff',    btnBorder:'#e2e8f0',               bodyBg:'#f8fafc' },
+  gradient: { text:'#fff',   sub:'rgba(255,255,255,.7)', btnBg:'rgba(255,255,255,.12)', btnBorder:'rgba(255,255,255,.22)', bodyBg:'linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#581c87 100%)' },
+  neon:     { text:'#e2e8f0', sub:'#6b7280', btnBg:'#111',    btnBorder:null,                    bodyBg:'#0a0a0a' },
+  minimal:  { text:'#1e293b', sub:'#9ca3af', btnBg:'#fff',    btnBorder:'#f3f4f6',               bodyBg:'#fff' },
+};
+
+let previewAvatarSrc = null;
+let previewTimer;
+
+function schedulePreview() {
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(buildPreview, 80);
+}
+
+function buildPreview() {
+  const theme   = document.getElementById('theme-val').value || 'dark';
+  const accent  = document.getElementById('accent-val').value || '#00d4ff';
+  const name    = document.getElementById('display-name').value.trim() || 'Your Name';
+  const bio     = document.getElementById('bio').value.trim();
+  const t       = THEMES[theme] || THEMES.dark;
+  const border  = theme === 'neon' ? accent : t.btnBorder;
+
+  // Avatar
+  const avatarPrev = document.querySelector('#avatar-preview img');
+  const avatarSrc  = previewAvatarSrc || (avatarPrev && !avatarPrev.src.includes('undefined') ? avatarPrev.src : null);
+  const avatarHtml = avatarSrc
+    ? `<img src="${avatarSrc}" style="width:100%;height:100%;object-fit:cover">`
+    : `<span style="font-size:1.8rem;color:${accent}">${name[0].toUpperCase()}</span>`;
+
+  // Links
+  const linkItems = document.querySelectorAll('.link-item');
+  let linksHtml = '';
+  linkItems.forEach(item => {
+    const title  = item.querySelector('.link-title').value.trim();
+    const active = item.querySelector('.link-active').checked;
+    const icon   = item.querySelector('.link-icon-btn').textContent;
+    if (!title || !active) return;
+    linksHtml += `<div class="pv-link" style="background:${t.btnBg};border-color:${border};color:${t.text}">
+      <span class="pv-link-icon">${icon}</span>
+      <span class="pv-link-title">${title}</span>
+      <span class="pv-link-arrow" style="color:${accent}">→</span>
+    </div>`;
+  });
+  if (!linksHtml) linksHtml = `<div class="pv-empty" style="color:${t.sub}">Your links appear here</div>`;
+
+  const neonGlow = theme === 'neon'
+    ? `<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 110%,${accent}22 0%,transparent 65%);pointer-events:none;z-index:0"></div>`
+    : '';
+  const avatarGlow = theme === 'neon' ? `box-shadow:0 0 20px ${accent}55` : '';
+
+  document.getElementById('live-preview').innerHTML = `
+    <div class="pv-body" style="background:${t.bodyBg};position:relative;z-index:1">
+      ${neonGlow}
+      <div class="pv-avatar" style="border-color:${accent};${avatarGlow}">${avatarHtml}</div>
+      <div class="pv-name" style="color:${t.text}">${name}</div>
+      <div class="pv-username" style="color:${t.sub}">@{{ current_user.username }}</div>
+      ${bio ? `<div class="pv-bio" style="color:${t.sub}">${bio}</div>` : ''}
+      <div class="pv-links">${linksHtml}</div>
+      <div class="pv-powered" style="color:${t.sub}">⚡ Powered by <span style="color:${accent}">SuperAdPro</span></div>
+    </div>`;
+}
+
+// ── Boot preview on load ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  buildPreview();
+  document.getElementById('display-name').addEventListener('input', schedulePreview);
+  document.getElementById('bio').addEventListener('input', schedulePreview);
+  document.getElementById('links-list').addEventListener('input', schedulePreview);
+  document.getElementById('links-list').addEventListener('change', schedulePreview);
+  document.getElementById('is-published').addEventListener('change', schedulePreview);
+});
+
+// ── ICON PICKER ───────────────────────────────────────────────────────────
 let activeIconBtn = null;
 
 function openIconPicker(btn) {
   activeIconBtn = btn;
   const modal = document.getElementById('icon-modal');
-  const grid = document.getElementById('icon-grid');
+  const grid  = document.getElementById('icon-grid');
   grid.innerHTML = '';
   ICONS.forEach(ic => {
     const div = document.createElement('div');
     div.className = 'icon-cell' + (ic === btn.textContent ? ' selected' : '');
     div.textContent = ic;
-    div.onclick = () => { btn.textContent = ic; modal.classList.remove('open'); };
+    div.onclick = () => { btn.textContent = ic; modal.classList.remove('open'); schedulePreview(); };
     grid.appendChild(div);
   });
   modal.classList.add('open');
 }
 document.getElementById('icon-modal').onclick = (e) => {
-  if(e.target === document.getElementById('icon-modal')) e.target.classList.remove('open');
+  if (e.target === document.getElementById('icon-modal')) e.target.classList.remove('open');
 };
 
+// ── ADD / DELETE LINKS ────────────────────────────────────────────────────
 function addLink() {
   const list = document.getElementById('links-list');
   const item = document.createElement('div');
@@ -406,16 +515,19 @@ function addLink() {
     <button class="link-del" onclick="deleteLink(this)" title="Delete">✕</button>`;
   list.appendChild(item);
   item.querySelector('.link-title').focus();
+  schedulePreview();
 }
 
 function deleteLink(btn) {
-  if(confirm('Remove this link?')) btn.closest('.link-item').remove();
+  if (confirm('Remove this link?')) { btn.closest('.link-item').remove(); schedulePreview(); }
 }
 
+// ── THEME & ACCENT ────────────────────────────────────────────────────────
 function selectTheme(val, el) {
   document.querySelectorAll('.theme-opt').forEach(o => o.classList.remove('selected'));
   el.classList.add('selected');
   document.getElementById('theme-val').value = val;
+  schedulePreview();
 }
 
 function selectAccent(val, el) {
@@ -423,83 +535,86 @@ function selectAccent(val, el) {
   el.classList.add('selected');
   document.getElementById('accent-val').value = val;
   document.getElementById('accent-custom-input').value = val;
+  schedulePreview();
 }
 
 function selectAccentCustom(input) {
   document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('selected'));
   document.getElementById('accent-val').value = input.value;
+  schedulePreview();
 }
 
+// ── AVATAR ────────────────────────────────────────────────────────────────
 function handleAvatar(input) {
   const file = input.files[0];
-  if(!file) return;
-  if(file.size > 2*1024*1024) { alert('Max file size is 2MB'); return; }
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { alert('Max file size is 2MB'); return; }
   const reader = new FileReader();
   reader.onload = e => {
-    const prev = document.getElementById('avatar-preview');
-    prev.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
+    previewAvatarSrc = e.target.result;
+    document.getElementById('avatar-preview').innerHTML =
+      `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
+    schedulePreview();
   };
   reader.readAsDataURL(file);
 }
 
+// ── SAVE ──────────────────────────────────────────────────────────────────
 async function saveProfile(btn) {
   btn.disabled = true; btn.textContent = 'Saving...';
 
-  // Gather links
   const linkItems = document.querySelectorAll('.link-item');
   const links = [];
   linkItems.forEach((item, idx) => {
     const title = item.querySelector('.link-title').value.trim();
-    const url = item.querySelector('.link-url').value.trim();
-    if(!title && !url) return;
+    const url   = item.querySelector('.link-url').value.trim();
+    if (!title && !url) return;
     links.push({
       id: item.dataset.id === 'new' ? null : parseInt(item.dataset.id),
       title, url,
-      icon: item.querySelector('.link-icon-btn').textContent,
-      is_active: item.querySelector('.link-active').checked,
+      icon:       item.querySelector('.link-icon-btn').textContent,
+      is_active:  item.querySelector('.link-active').checked,
       sort_order: idx
     });
   });
 
-  // Avatar upload if changed
   const avatarInput = document.getElementById('avatar-input');
   let avatarUrl = null;
-  if(avatarInput.files.length > 0) {
+  if (avatarInput.files.length > 0) {
     const fd = new FormData();
     fd.append('file', avatarInput.files[0]);
-    const r = await fetch('/linkhub/upload-avatar', {method:'POST',body:fd});
-    if(r.ok) { const d = await r.json(); avatarUrl = d.filename; }
+    const r = await fetch('/linkhub/upload-avatar', { method: 'POST', body: fd });
+    if (r.ok) { const d = await r.json(); avatarUrl = d.filename; }
   }
 
   const payload = {
     display_name: document.getElementById('display-name').value.trim(),
-    bio: document.getElementById('bio').value.trim(),
-    theme: document.getElementById('theme-val').value,
+    bio:          document.getElementById('bio').value.trim(),
+    theme:        document.getElementById('theme-val').value,
     accent_color: document.getElementById('accent-val').value,
     is_published: document.getElementById('is-published').checked,
-    links,
-    avatar_url: avatarUrl
+    links, avatar_url: avatarUrl
   };
 
-  const r = await fetch('/linkhub/save', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  const r = await fetch('/linkhub/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
   const d = await r.json();
 
   btn.disabled = false; btn.textContent = '💾 Save Changes';
-  if(d.ok) {
+  if (d.ok) {
     const msg = document.getElementById('save-msg');
     msg.classList.add('show');
-    setTimeout(()=>msg.classList.remove('show'), 3000);
-    document.getElementById('preview-frame').src = document.getElementById('preview-frame').src;
+    setTimeout(() => msg.classList.remove('show'), 3000);
   } else {
     alert('Save failed: ' + (d.error || 'Unknown error'));
   }
 }
 
+// ── COPY URL ──────────────────────────────────────────────────────────────
 function copyUrl() {
   navigator.clipboard.writeText(window.location.origin + '/u/{{ current_user.username }}');
   const btn = event.target;
   btn.textContent = '✅';
-  setTimeout(()=>btn.textContent='📋', 1500);
+  setTimeout(() => btn.textContent = '📋', 1500);
 }
 </script>
 </body>
