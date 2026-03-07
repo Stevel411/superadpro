@@ -351,16 +351,14 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
           <div>
             <div class="pg-label">8×8 Profit Engine Grid</div>
             <div class="profit-grid" id="profit-grid">
-              {%- set filled = [grid_stats.completed_advances, 63]|min -%}
+              {%- set filled = [grid_stats.completed_advances, 64]|min -%}
               {%- for i in range(64) -%}
-                {%- if i == 0 %}<div class="pg-you"></div>
-                {%- elif i <= filled %}<div class="pg-filled"></div>
+                {%- if i < filled %}<div class="pg-filled"></div>
                 {%- else %}<div class="pg-empty"></div>
                 {%- endif -%}
               {%- endfor -%}
             </div>
             <div class="pg-legend">
-              <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,#059669,#10b981)"></div>You</div>
               <div class="legend-item"><div class="legend-dot" style="background:#4f46e5"></div>Filled</div>
               <div class="legend-item"><div class="legend-dot" style="background:#eef1f8;border:1px solid rgba(15,25,60,.07)"></div>Open</div>
             </div>
