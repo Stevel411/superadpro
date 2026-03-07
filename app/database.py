@@ -8,6 +8,13 @@ Money = Numeric(18, 6)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
+try:
+    import geoip2.database as _geoip2_db
+    import os as _os
+    _GEOIP_PATH = _os.path.join(_os.path.dirname(__file__), "..", "data", "GeoLite2-Country.mmdb")
+    _geoip_reader = _geoip2_db.Reader(_GEOIP_PATH) if _os.path.exists(_GEOIP_PATH) else None
+except Exception:
+    _geoip_reader = None
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -469,8 +476,13 @@ class ShortLink(Base):
     title           = Column(String, nullable=True)               # optional label
     clicks          = Column(Integer, default=0)
     last_clicked    = Column(DateTime, nullable=True)
-    is_rotator      = Column(Boolean, default=False)              # if True, this is a rotator entry
+    is_rotator      = Column(Boolean, default=False)
     rotator_id      = Column(Integer, ForeignKey("link_rotators.id"), nullable=True)
+    # Smart redirect features
+    click_cap       = Column(Integer, nullable=True)              # deactivate after N clicks
+    expires_at      = Column(DateTime, nullable=True)             # deactivate after date
+    geo_redirect_json    = Column(Text, nullable=True)            # JSON: {country_code: url}
+    device_redirect_json = Column(Text, nullable=True)            # JSON: {mobile: url, desktop: url}
     created_at      = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -491,16 +503,21 @@ class LinkRotator(Base):
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 class LinkClick(Base):
-    """Individual click event for analytics — tracks source, time, and device."""
+    """Individual click event for analytics — tracks source, time, device and geo."""
     __tablename__ = "link_clicks"
-    id          = Column(Integer, primary_key=True, index=True)
-    link_id     = Column(Integer, index=True)          # ShortLink or LinkRotator ID
-    link_type   = Column(String, default="short")      # "short" or "rotator"
-    source      = Column(String, nullable=True)        # Derived from referrer: facebook, google, direct, etc.
-    referrer    = Column(Text, nullable=True)           # Raw HTTP referer header
-    country     = Column(String, nullable=True)         # Future: GeoIP
-    device      = Column(String, nullable=True)         # mobile / desktop / tablet
-    clicked_at  = Column(DateTime, default=datetime.utcnow, index=True)
+    id              = Column(Integer, primary_key=True, index=True)
+    link_id         = Column(Integer, index=True)
+    link_type       = Column(String, default="short")   # "short" or "rotator"
+    source          = Column(String, nullable=True)      # facebook, google, direct, etc.
+    referrer        = Column(Text, nullable=True)
+    country         = Column(String, nullable=True)      # ISO code e.g. "GB"
+    country_name    = Column(String, nullable=True)      # Full name e.g. "United Kingdom"
+    device          = Column(String, nullable=True)      # mobile / desktop / tablet
+    browser         = Column(String, nullable=True)      # chrome / safari / firefox / edge
+    utm_source      = Column(String, nullable=True)
+    utm_medium      = Column(String, nullable=True)
+    utm_campaign    = Column(String, nullable=True)
+    clicked_at      = Column(DateTime, default=datetime.utcnow, index=True)
 
 
 class FunnelLead(Base):
@@ -653,6 +670,16 @@ def run_migrations():
         # ── 2FA columns ──
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS totp_secret VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS totp_enabled BOOLEAN DEFAULT FALSE",
+        # ── Link Tools — geo, UTM, smart redirects ──
+        "ALTER TABLE link_clicks ADD COLUMN IF NOT EXISTS country_name VARCHAR",
+        "ALTER TABLE link_clicks ADD COLUMN IF NOT EXISTS browser VARCHAR",
+        "ALTER TABLE link_clicks ADD COLUMN IF NOT EXISTS utm_source VARCHAR",
+        "ALTER TABLE link_clicks ADD COLUMN IF NOT EXISTS utm_medium VARCHAR",
+        "ALTER TABLE link_clicks ADD COLUMN IF NOT EXISTS utm_campaign VARCHAR",
+        "ALTER TABLE short_links ADD COLUMN IF NOT EXISTS click_cap INTEGER",
+        "ALTER TABLE short_links ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP",
+        "ALTER TABLE short_links ADD COLUMN IF NOT EXISTS geo_redirect_json TEXT",
+        "ALTER TABLE short_links ADD COLUMN IF NOT EXISTS device_redirect_json TEXT",
     ]
     results = []
     with engine.connect() as conn:
