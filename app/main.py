@@ -7129,8 +7129,7 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
     profile.theme         = data.get("theme", "dark")
     profile.accent_color  = data.get("accent_color", "#00d4ff")
     profile.is_published  = bool(data.get("is_published", True))
-    if data.get("avatar_url"):
-        profile.avatar_url = data["avatar_url"]
+    # avatar_data is saved directly by the upload endpoint — don't overwrite with None here
     from datetime import datetime as _dt
     profile.updated_at = _dt.utcnow()
 
@@ -7161,25 +7160,34 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
 
 @app.post("/linkhub/upload-avatar")
 async def linkhub_upload_avatar(request: Request, file: UploadFile = File(...), db: Session = Depends(get_db)):
-    """Upload avatar image for LinkHub."""
+    """Upload avatar — stored as base64 data URL in DB (survives Railway redeploys)."""
     user = get_current_user(request, db)
     if not user:
-        return JSONResponse({"ok": False}, status_code=401)
+        return JSONResponse({"ok": False, "error": "Not logged in"}, status_code=401)
 
-    if file.size and file.size > 2 * 1024 * 1024:
-        return JSONResponse({"ok": False, "error": "File too large"}, status_code=400)
+    content = await file.read()
 
-    ext = file.filename.rsplit(".", 1)[-1].lower() if "." in file.filename else "jpg"
+    if len(content) > 2 * 1024 * 1024:
+        return JSONResponse({"ok": False, "error": "File too large (max 2MB)"}, status_code=400)
+
+    ext = (file.filename or "").rsplit(".", 1)[-1].lower() if "." in (file.filename or "") else "jpg"
     if ext not in ("jpg", "jpeg", "png", "gif", "webp"):
         return JSONResponse({"ok": False, "error": "Invalid file type"}, status_code=400)
 
-    filename = f"avatar_{user.id}.{ext}"
-    path = os.path.join(AVATAR_DIR, filename)
-    with open(path, "wb") as f:
-        content = await file.read()
-        f.write(content)
+    mime = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "gif": "image/gif", "webp": "image/webp"}.get(ext, "image/jpeg")
+    import base64 as _b64
+    b64 = _b64.b64encode(content).decode("utf-8")
+    data_url = f"data:{mime};base64,{b64}"
 
-    return JSONResponse({"ok": True, "filename": filename})
+    # Save directly to profile
+    profile = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
+    if not profile:
+        profile = LinkHubProfile(user_id=user.id)
+        db.add(profile)
+    profile.avatar_data = data_url
+    db.commit()
+
+    return JSONResponse({"ok": True, "data_url": data_url})
 
 
 @app.get("/linkhub/click/{link_id}")

@@ -85,8 +85,8 @@ body{font-family:'Rethink Sans',sans-serif;color:var(--text);min-height:100vh;di
 
   <!-- Avatar -->
   <div class="avatar">
-    {% if profile.avatar_url %}
-      <img src="/static/uploads/avatars/{{ profile.avatar_url }}" alt="{{ profile.display_name }}">
+    {% if profile.avatar_data %}
+      <img src="{{ profile.avatar_data }}" alt="{{ profile.display_name }}">
     {% else %}
       {{ (profile.display_name or user.username)[0] | upper }}
     {% endif %}
@@ -96,6 +96,8 @@ body{font-family:'Rethink Sans',sans-serif;color:var(--text);min-height:100vh;di
   <div class="username-tag">@{{ user.username }}</div>
   {% if profile.bio %}
   <div class="bio">{{ profile.bio }}</div>
+  {% else %}
+  <div class="bio" style="opacity:.4;font-style:italic">No bio yet</div>
   {% endif %}
 
   <!-- Links -->

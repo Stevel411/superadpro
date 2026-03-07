@@ -265,10 +265,10 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f4f8;color:#1e293b}
 
         <div class="avatar-upload">
           <div class="avatar-preview" id="avatar-preview">
-            {% if profile and profile.avatar_url %}
-              <img src="/static/uploads/avatars/{{ profile.avatar_url }}" id="avatar-img">
+            {% if profile and profile.avatar_data %}
+              <img src="{{ profile.avatar_data }}" id="avatar-img" style="width:100%;height:100%;object-fit:cover">
             {% else %}
-              <span id="avatar-emoji">{{ current_user.first_name[0] if current_user.first_name else current_user.username[0] | upper }}</span>
+              <span id="avatar-emoji">{{ (current_user.first_name[0] if current_user.first_name else current_user.username[0]) | upper }}</span>
             {% endif %}
           </div>
           <div>
@@ -549,12 +549,25 @@ function handleAvatar(input) {
   const file = input.files[0];
   if (!file) return;
   if (file.size > 2 * 1024 * 1024) { alert('Max file size is 2MB'); return; }
+
+  // Show preview immediately from local file
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = async (e) => {
     previewAvatarSrc = e.target.result;
     document.getElementById('avatar-preview').innerHTML =
       `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
     schedulePreview();
+
+    // Upload to server right away — saves to DB independently of Save Changes
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      const r = await fetch('/linkhub/upload-avatar', { method: 'POST', body: fd });
+      const d = await r.json();
+      if (!d.ok) console.error('Avatar upload failed:', d.error);
+    } catch(err) {
+      console.error('Avatar upload error:', err);
+    }
   };
   reader.readAsDataURL(file);
 }
@@ -578,14 +591,6 @@ async function saveProfile(btn) {
     });
   });
 
-  const avatarInput = document.getElementById('avatar-input');
-  let avatarUrl = null;
-  if (avatarInput.files.length > 0) {
-    const fd = new FormData();
-    fd.append('file', avatarInput.files[0]);
-    const r = await fetch('/linkhub/upload-avatar', { method: 'POST', body: fd });
-    if (r.ok) { const d = await r.json(); avatarUrl = d.filename; }
-  }
 
   const payload = {
     display_name: document.getElementById('display-name').value.trim(),
@@ -593,7 +598,7 @@ async function saveProfile(btn) {
     theme:        document.getElementById('theme-val').value,
     accent_color: document.getElementById('accent-val').value,
     is_published: document.getElementById('is-published').checked,
-    links, avatar_url: avatarUrl
+    links
   };
 
   const r = await fetch('/linkhub/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
