@@ -29,14 +29,20 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f4f8;color:#1e293b}
 .nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
 
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#1c223d;border-bottom:1px solid rgba(0,212,255,0.1);position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,212,255,0.12),0 4px 20px rgba(0,0,0,.25)}
+.topbar-title{font-size:1.15rem;font-weight:800;color:#fff}
+.topbar-title span{color:#38bdf8}
+.topbar-sub{font-size:12px;color:rgba(0,212,255,0.45);margin-top:2px}
+.live-url-top{font-size:0.82rem;color:#94a3b8;background:rgba(255,255,255,.06);padding:6px 14px;border-radius:20px;display:flex;align-items:center;gap:8px}
+.live-url-top a{color:#38bdf8;text-decoration:none;font-weight:600}
+.live-url-top a:hover{text-decoration:underline}
+
 /* ── MAIN ── */
-.main{margin-left:224px;min-height:100vh;padding:32px}
-.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
-.page-header h1{font-size:1.6rem;font-weight:800;color:#1e293b}
-.page-header h1 span{color:#0ea5e9}
-.live-url{font-size:0.82rem;color:#64748b;background:#e2e8f0;padding:6px 14px;border-radius:20px;display:flex;align-items:center;gap:8px}
-.live-url a{color:#0ea5e9;text-decoration:none;font-weight:600}
-.live-url a:hover{text-decoration:underline}
+.main{margin-left:224px;min-height:100vh}
+.main-inner{padding:28px 32px}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.live-url-top{font-size:0.82rem}
 
 /* Layout */
 .editor-grid{display:grid;grid-template-columns:1fr 380px;gap:24px;align-items:start}
@@ -154,14 +160,19 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f4f8;color:#1e293b}
 {% include "_sidebar.html" %}
 <div class="main">
 
-  <!-- Header -->
-  <div class="page-header">
-    <h1>🔗 <span>LinkHub</span> Editor</h1>
-    <div class="live-url">
-      Your public URL: <a href="/u/{{ current_user.username }}" target="_blank">superadpro.com/u/{{ current_user.username }}</a>
-      <button onclick="copyUrl()" style="background:none;border:none;cursor:pointer;color:#0ea5e9;font-size:1rem" title="Copy">📋</button>
+  <!-- Dark topbar -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">🔗 <span>LinkHub</span> Editor</div>
+      <div class="topbar-sub">Build your personal link page</div>
+    </div>
+    <div class="live-url-top">
+      Your URL: <a href="/u/{{ current_user.username }}" target="_blank">superadpro.com/u/{{ current_user.username }}</a>
+      <button onclick="copyUrl()" style="background:none;border:none;cursor:pointer;color:#38bdf8;font-size:1rem" title="Copy">📋</button>
     </div>
   </div>
+
+  <div class="main-inner">
 
   <!-- Stats -->
   <div class="stats-row">
@@ -305,7 +316,8 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f4f8;color:#1e293b}
     </div>
 
   </div><!-- /editor-grid -->
-</div>
+  </div><!-- /main-inner -->
+</div><!-- /main -->
 
 <!-- Icon picker modal -->
 <div class="icon-modal" id="icon-modal">

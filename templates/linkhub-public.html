@@ -14,17 +14,22 @@
 
 {% if profile.theme == 'dark' %}
 :root{--bg:#050d1a;--card:#0f1f3d;--text:#e2e8f0;--sub:#94a3b8;--btn-bg:#0f1f3d;--btn-border:rgba(255,255,255,.1);--btn-hover:#162a50;--accent:{{ profile.accent_color }};--shadow:rgba(0,0,0,.4)}
+body{background:#050d1a}
 {% elif profile.theme == 'light' %}
 :root{--bg:#f8fafc;--card:#fff;--text:#1e293b;--sub:#64748b;--btn-bg:#fff;--btn-border:#e2e8f0;--btn-hover:#f1f5f9;--accent:{{ profile.accent_color }};--shadow:rgba(0,0,0,.08)}
+body{background:#f8fafc}
 {% elif profile.theme == 'gradient' %}
-:root{--bg:linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#581c87 100%);--card:rgba(255,255,255,.1);--text:#fff;--sub:rgba(255,255,255,.7);--btn-bg:rgba(255,255,255,.12);--btn-border:rgba(255,255,255,.2);--btn-hover:rgba(255,255,255,.2);--accent:{{ profile.accent_color }};--shadow:rgba(0,0,0,.3)}
+:root{--card:rgba(255,255,255,.1);--text:#fff;--sub:rgba(255,255,255,.7);--btn-bg:rgba(255,255,255,.12);--btn-border:rgba(255,255,255,.2);--btn-hover:rgba(255,255,255,.2);--accent:{{ profile.accent_color }};--shadow:rgba(0,0,0,.3)}
+body{background:linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#581c87 100%);background-attachment:fixed}
 {% elif profile.theme == 'neon' %}
-:root{--bg:#0a0a0a;--card:#111;--text:#e2e8f0;--sub:#6b7280;--btn-bg:#111;--btn-border:{{ profile.accent_color }};--btn-hover:#1a1a1a;--accent:{{ profile.accent_color }};--shadow:rgba(0,212,255,.15)}
+:root{--bg:#0a0a0a;--card:#111;--text:#e2e8f0;--sub:#6b7280;--btn-bg:#111;--btn-border:{{ profile.accent_color }};--btn-hover:#1a1a1a;--accent:{{ profile.accent_color }};--shadow:{{ profile.accent_color }}40}
+body{background:#0a0a0a}
 {% else %}
 :root{--bg:#fff;--card:#fafafa;--text:#1e293b;--sub:#9ca3af;--btn-bg:#fff;--btn-border:#f3f4f6;--btn-hover:#f9fafb;--accent:{{ profile.accent_color }};--shadow:rgba(0,0,0,.05)}
+body{background:#fff}
 {% endif %}
 
-body{font-family:'Rethink Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 16px 80px}
+body{font-family:'Rethink Sans',sans-serif;color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 16px 80px}
 
 .profile{width:100%;max-width:480px;display:flex;flex-direction:column;align-items:center}
 
