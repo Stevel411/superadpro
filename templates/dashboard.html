@@ -105,7 +105,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 .pg-label{font-size:12px;font-weight:800;color:#7b91a8;margin-bottom:8px;text-transform:uppercase;letter-spacing:.8px}
 .profit-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}
 .pg-you{aspect-ratio:1;border-radius:3px;background:linear-gradient(135deg,#059669,#10b981)}
-.pg-filled{aspect-ratio:1;border-radius:3px;background:#4f46e5}
+.pg-filled{aspect-ratio:1;border-radius:3px;background:rgba(14,165,233,0.15);border:1px solid rgba(14,165,233,0.3)}
 .pg-empty{aspect-ratio:1;border-radius:3px;background:#eef1f8;border:1px solid rgba(15,25,60,.07)}
 .pg-legend{display:flex;gap:12px;margin-top:8px}
 .legend-item{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#7b91a8}
@@ -359,7 +359,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
               {%- endfor -%}
             </div>
             <div class="pg-legend">
-              <div class="legend-item"><div class="legend-dot" style="background:#4f46e5"></div>Filled</div>
+              <div class="legend-item"><div class="legend-dot" style="background:rgba(14,165,233,0.15);border:1px solid rgba(14,165,233,0.3)"></div>Filled</div>
               <div class="legend-item"><div class="legend-dot" style="background:#eef1f8;border:1px solid rgba(15,25,60,.07)"></div>Open</div>
             </div>
           </div>
