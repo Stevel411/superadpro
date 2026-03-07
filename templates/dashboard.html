@@ -94,12 +94,12 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 .tier-title{font-size:17px;font-weight:800;color:#0f172a;margin-bottom:4px}
 .tier-sub{font-size:14px;color:#64748b}
 .tier-badge{font-size:10px;font-weight:800;padding:5px 12px;border-radius:20px;background:#fffbeb;color:#d97706;border:1px solid #fde68a;white-space:nowrap}
-.tier-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+.tier-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px;row-gap:8px}
 .tier-btn{padding:12px 6px;border-radius:12px;text-align:center;cursor:pointer;border:1px solid rgba(15,25,60,.08);background:#f6f8fc;transition:all .15s}
 .tier-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(79,70,229,.12)}
 .tier-btn.active{background:#4f46e5;border-color:#4f46e5}
 .tier-btn-name{font-size:12px;font-weight:800;color:#7b91a8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
-.tier-btn-price{font-family:Sora,sans-serif;font-size:20px;font-weight:900;color:#0f172a}
+.tier-btn-price{font-family:Sora,sans-serif;font-size:17px;font-weight:900;color:#0f172a}
 .tier-btn.active .tier-btn-name,.tier-btn.active .tier-btn-price{color:#fff}
 .tier-body{display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1;margin-bottom:16px}
 .pg-label{font-size:12px;font-weight:800;color:#7b91a8;margin-bottom:8px;text-transform:uppercase;letter-spacing:.8px}
@@ -341,16 +341,28 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 
         <div class="tier-btns">
           <div class="tier-btn active" data-payout="220" data-label="55% of $20 × 64 seats" onclick="selectTier(this)">
-            <div class="tier-btn-name">Spark</div><div class="tier-btn-price">$20</div>
+            <div class="tier-btn-name">Campaign 1</div><div class="tier-btn-price">$20</div>
           </div>
           <div class="tier-btn" data-payout="550" data-label="55% of $50 × 64 seats" onclick="selectTier(this)">
-            <div class="tier-btn-name">Flame</div><div class="tier-btn-price">$50</div>
+            <div class="tier-btn-name">Campaign 2</div><div class="tier-btn-price">$50</div>
           </div>
           <div class="tier-btn" data-payout="1100" data-label="55% of $100 × 64 seats" onclick="selectTier(this)">
-            <div class="tier-btn-name">Blaze</div><div class="tier-btn-price">$100</div>
+            <div class="tier-btn-name">Campaign 3</div><div class="tier-btn-price">$100</div>
           </div>
           <div class="tier-btn" data-payout="2200" data-label="55% of $200 × 64 seats" onclick="selectTier(this)">
-            <div class="tier-btn-name">Inferno</div><div class="tier-btn-price">$200</div>
+            <div class="tier-btn-name">Campaign 4</div><div class="tier-btn-price">$200</div>
+          </div>
+          <div class="tier-btn" data-payout="4400" data-label="55% of $400 × 64 seats" onclick="selectTier(this)">
+            <div class="tier-btn-name">Campaign 5</div><div class="tier-btn-price">$400</div>
+          </div>
+          <div class="tier-btn" data-payout="6600" data-label="55% of $600 × 64 seats" onclick="selectTier(this)">
+            <div class="tier-btn-name">Campaign 6</div><div class="tier-btn-price">$600</div>
+          </div>
+          <div class="tier-btn" data-payout="8800" data-label="55% of $800 × 64 seats" onclick="selectTier(this)">
+            <div class="tier-btn-name">Campaign 7</div><div class="tier-btn-price">$800</div>
+          </div>
+          <div class="tier-btn" data-payout="11000" data-label="55% of $1,000 × 64 seats" onclick="selectTier(this)">
+            <div class="tier-btn-name">Campaign 8</div><div class="tier-btn-price">$1,000</div>
           </div>
         </div>
 
