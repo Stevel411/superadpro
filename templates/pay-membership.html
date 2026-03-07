@@ -44,13 +44,21 @@
     .error{padding:12px 16px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;color:#f87171;font-size:14px;margin-bottom:18px}
     .back-link{display:block;text-align:center;margin-top:18px;font-size:14px;color:#64748b;text-decoration:none}
     .back-link:hover{color:#94a3b8}
-  </style>
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:72px;background:#1c223d;border-bottom:1px solid rgba(0,200,255,0.1);position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,200,255,0.15),0 4px 20px rgba(0,0,0,0.3)}
+.topbar-left{display:flex;flex-direction:column;gap:2px}.topbar-title{font-family:Sora,sans-serif;font-size:17px;font-weight:800;color:#fff;letter-spacing:-0.3px}.topbar-sub{font-size:12px;color:rgba(188,213,240,0.5)}
+</style>
 </head>
 <body>
 
 <div class="layout">
   {% include "_sidebar.html" %}
   <div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">Activate Membership</div>
+      <div class="topbar-sub">Unlock commissions and all income streams</div>
+    </div>
+  </div>
 
 <div class="card">
   <div class="logo">⚡ <span>SuperAdPro</span></div>
