@@ -69,25 +69,59 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f4f8;color:#1e293b}
 #avatar-input{display:none}
 
 /* Theme picker */
-.theme-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:4px}
-.theme-opt{border:2px solid transparent;border-radius:10px;padding:10px 6px;cursor:pointer;text-align:center;font-size:0.72rem;font-weight:700;transition:all .2s}
-.theme-opt:hover{transform:translateY(-2px)}
-.theme-opt.selected{border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,.15)}
-.theme-opt .swatch{width:100%;height:36px;border-radius:6px;margin-bottom:6px}
-.t-dark .swatch{background:linear-gradient(135deg,#050d1a,#0f2040)}
-.t-light .swatch{background:linear-gradient(135deg,#f8fafc,#e2e8f0)}
-.t-gradient .swatch{background:linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899)}
-.t-neon .swatch{background:linear-gradient(135deg,#0f0f0f,#001a00)}
-.t-minimal .swatch{background:linear-gradient(135deg,#fff,#fafafa)}
-.t-dark{color:#64748b} .t-light{color:#64748b} .t-gradient{color:#64748b} .t-neon{color:#64748b} .t-minimal{color:#64748b}
+.theme-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:8px}
+.theme-opt{border:2px solid #e2e8f0;border-radius:14px;padding:0;cursor:pointer;text-align:center;font-size:0.75rem;font-weight:700;transition:all .22s;overflow:hidden;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.theme-opt:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.12)}
+.theme-opt.selected{border-width:2.5px;box-shadow:0 0 0 3px rgba(14,165,233,.2),0 4px 16px rgba(0,0,0,.12);transform:translateY(-2px)}
+.theme-opt.selected.t-dark{border-color:#38bdf8}
+.theme-opt.selected.t-light{border-color:#94a3b8}
+.theme-opt.selected.t-gradient{border-color:#8b5cf6}
+.theme-opt.selected.t-neon{border-color:#00ff88}
+.theme-opt.selected.t-minimal{border-color:#64748b}
 
-/* Accent color */
-.accent-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
-.accent-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .2s}
-.accent-dot.selected{border-color:#1e293b;box-shadow:0 0 0 3px rgba(30,41,59,.2);transform:scale(1.15)}
-.accent-custom{display:flex;align-items:center;gap:8px;margin-top:10px}
-.accent-custom input[type=color]{width:32px;height:32px;border:none;border-radius:50%;cursor:pointer;padding:0}
-.accent-custom span{font-size:0.8rem;color:#64748b}
+.swatch{width:100%;height:64px;position:relative;overflow:hidden}
+.theme-label{padding:8px 4px 10px;font-size:0.72rem;font-weight:800;letter-spacing:.3px}
+
+/* Dark swatch */
+.t-dark .swatch{background:linear-gradient(160deg,#050d1a 0%,#0f2040 60%,#0ea5e9 200%)}
+.t-dark .swatch::after{content:'';position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:60%;height:3px;background:rgba(0,212,255,.5);border-radius:2px;box-shadow:0 0 8px rgba(0,212,255,.6)}
+.t-dark .theme-label{color:#1e293b}
+
+/* Light swatch */
+.t-light .swatch{background:linear-gradient(160deg,#f8fafc,#e8f0fe)}
+.t-light .swatch::before{content:'';position:absolute;top:10px;left:50%;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#dbeafe,#bfdbfe);border:2px solid #93c5fd}
+.t-light .swatch::after{content:'';position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:55%;height:8px;background:#e2e8f0;border-radius:4px}
+.t-light .theme-label{color:#1e293b}
+
+/* Gradient swatch */
+.t-gradient .swatch{background:linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899,#f43f5e)}
+.t-gradient .swatch::after{content:'✦';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.4rem;color:rgba(255,255,255,.9);text-shadow:0 0 12px rgba(255,255,255,.6)}
+.t-gradient .theme-label{color:#6366f1}
+
+/* Neon swatch */
+.t-neon .swatch{background:#0a0a0a}
+.t-neon .swatch::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 120%,rgba(0,255,136,.25) 0%,transparent 70%)}
+.t-neon .swatch::after{content:'⚡';position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);font-size:1.6rem;filter:drop-shadow(0 0 8px #00ff88) drop-shadow(0 0 16px #00ff88)}
+.t-neon .theme-label{color:#059669;text-shadow:0 0 8px rgba(0,255,136,.3)}
+.t-neon.selected .theme-label{color:#00cc6a}
+
+/* Minimal swatch */
+.t-minimal .swatch{background:#fff;border-bottom:1px solid #f1f5f9}
+.t-minimal .swatch::before{content:'';position:absolute;top:14px;left:50%;transform:translateX(-50%);width:50%;height:6px;background:#e2e8f0;border-radius:3px}
+.t-minimal .swatch::after{content:'';position:absolute;top:28px;left:50%;transform:translateX(-50%);width:35%;height:4px;background:#f1f5f9;border-radius:3px}
+.t-minimal .theme-label{color:#64748b}
+
+/* Accent colour */
+.accent-section{margin-top:4px}
+.accent-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.accent-dot{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s;box-shadow:0 2px 6px rgba(0,0,0,.15);position:relative}
+.accent-dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid transparent;transition:border-color .2s}
+.accent-dot.selected{transform:scale(1.18);box-shadow:0 3px 12px rgba(0,0,0,.25)}
+.accent-dot.selected::after{border-color:currentColor}
+.accent-dot:hover{transform:scale(1.1)}
+.accent-custom-row{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;background:#f8fafc;border-radius:10px;border:1.5px solid #e2e8f0}
+.accent-custom-row input[type=color]{width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;padding:0;background:none}
+.accent-custom-row span{font-size:0.82rem;color:#64748b;font-weight:500}
 
 /* Links section */
 .links-list{display:flex;flex-direction:column;gap:10px;min-height:40px}
@@ -274,25 +308,26 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f4f8;color:#1e293b}
             {% for val, name in themes %}
             <div class="theme-opt t-{{ val }} {% if (profile and profile.theme == val) or (not profile and val == 'dark') %}selected{% endif %}"
                  onclick="selectTheme('{{ val }}', this)" data-val="{{ val }}">
-              <div class="swatch"></div>{{ name }}
+              <div class="swatch"></div>
+              <div class="theme-label">{{ name }}</div>
             </div>
             {% endfor %}
           </div>
           <input type="hidden" id="theme-val" value="{{ profile.theme if profile else 'dark' }}">
         </div>
 
-        <div class="field">
+        <div class="field accent-section">
           <label>Accent Colour</label>
           <div class="accent-row" id="accent-row">
-            {% set accents = ['#00d4ff','#0ea5e9','#6366f1','#8b5cf6','#ec4899','#10b981','#f59e0b','#ef4444'] %}
+            {% set accents = ['#00d4ff','#0ea5e9','#6366f1','#8b5cf6','#ec4899','#10b981','#f59e0b','#ef4444','#ffffff'] %}
             {% for c in accents %}
             <div class="accent-dot {% if (profile and profile.accent_color == c) or (not profile and c == '#00d4ff') %}selected{% endif %}"
-                 style="background:{{ c }}" onclick="selectAccent('{{ c }}', this)" data-val="{{ c }}"></div>
+                 style="background:{{ c }}{% if c == '#ffffff' %};border:2px solid #e2e8f0{% endif %}" onclick="selectAccent('{{ c }}', this)" data-val="{{ c }}" title="{{ c }}"></div>
             {% endfor %}
           </div>
-          <div class="accent-custom">
+          <div class="accent-custom-row">
             <input type="color" id="accent-custom-input" value="{{ profile.accent_color if profile else '#00d4ff' }}" oninput="selectAccentCustom(this)">
-            <span>Custom colour</span>
+            <span>Pick a custom colour</span>
           </div>
           <input type="hidden" id="accent-val" value="{{ profile.accent_color if profile else '#00d4ff' }}">
         </div>
