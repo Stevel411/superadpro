@@ -7208,7 +7208,7 @@ def linkhub_track_click(link_id: int, request: Request, db: Session = Depends(ge
 @app.get("/u/{username}")
 def linkhub_public(username: str, request: Request, db: Session = Depends(get_db)):
     """Public LinkHub profile page."""
-    user = db.query(User).filter(User.username == username).first()
+    user = db.query(User).filter(User.username.ilike(username)).first()
     if not user:
         return templates.TemplateResponse("404.html", {"request": request}, status_code=404) \
                if os.path.exists("templates/404.html") \
