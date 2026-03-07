@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>{{ profile.display_name or user.username }} | LinkHub</title>
+<meta name="description" content="{{ profile.bio or 'Visit my LinkHub page' }}">
+<meta property="og:title" content="{{ profile.display_name or user.username }}">
+<meta property="og:description" content="{{ profile.bio or 'Visit my links' }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+{% if profile.theme == 'dark' %}
+:root{--bg:#050d1a;--card:#0f1f3d;--text:#e2e8f0;--sub:#94a3b8;--btn-bg:#0f1f3d;--btn-border:rgba(255,255,255,.1);--btn-hover:#162a50;--accent:{{ profile.accent_color }};--shadow:rgba(0,0,0,.4)}
+{% elif profile.theme == 'light' %}
+:root{--bg:#f8fafc;--card:#fff;--text:#1e293b;--sub:#64748b;--btn-bg:#fff;--btn-border:#e2e8f0;--btn-hover:#f1f5f9;--accent:{{ profile.accent_color }};--shadow:rgba(0,0,0,.08)}
+{% elif profile.theme == 'gradient' %}
+:root{--bg:linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#581c87 100%);--card:rgba(255,255,255,.1);--text:#fff;--sub:rgba(255,255,255,.7);--btn-bg:rgba(255,255,255,.12);--btn-border:rgba(255,255,255,.2);--btn-hover:rgba(255,255,255,.2);--accent:{{ profile.accent_color }};--shadow:rgba(0,0,0,.3)}
+{% elif profile.theme == 'neon' %}
+:root{--bg:#0a0a0a;--card:#111;--text:#e2e8f0;--sub:#6b7280;--btn-bg:#111;--btn-border:{{ profile.accent_color }};--btn-hover:#1a1a1a;--accent:{{ profile.accent_color }};--shadow:rgba(0,212,255,.15)}
+{% else %}
+:root{--bg:#fff;--card:#fafafa;--text:#1e293b;--sub:#9ca3af;--btn-bg:#fff;--btn-border:#f3f4f6;--btn-hover:#f9fafb;--accent:{{ profile.accent_color }};--shadow:rgba(0,0,0,.05)}
+{% endif %}
+
+body{font-family:'Rethink Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 16px 80px}
+
+.profile{width:100%;max-width:480px;display:flex;flex-direction:column;align-items:center}
+
+/* Avatar */
+.avatar{width:96px;height:96px;border-radius:50%;border:3px solid var(--accent);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin-bottom:16px;background:var(--card);box-shadow:0 0 24px rgba(0,0,0,.2);flex-shrink:0}
+.avatar img{width:100%;height:100%;object-fit:cover}
+
+.display-name{font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:6px;text-align:center}
+.username-tag{font-size:0.82rem;color:var(--sub);margin-bottom:10px}
+.bio{font-size:0.9rem;color:var(--sub);text-align:center;line-height:1.55;max-width:360px;margin-bottom:28px}
+
+/* Links */
+.links{width:100%;display:flex;flex-direction:column;gap:12px;margin-bottom:32px}
+
+.link-btn{display:flex;align-items:center;gap:14px;width:100%;padding:16px 20px;background:var(--btn-bg);border:1.5px solid var(--btn-border);border-radius:14px;color:var(--text);text-decoration:none;font-weight:600;font-size:0.95rem;transition:all .2s;cursor:pointer;box-shadow:0 2px 8px var(--shadow);position:relative;overflow:hidden}
+.link-btn::before{content:'';position:absolute;inset:0;background:var(--accent);opacity:0;transition:opacity .2s}
+.link-btn:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 20px var(--shadow)}
+.link-btn:hover::before{opacity:0.06}
+.link-btn:active{transform:translateY(0)}
+
+{% if profile.theme == 'neon' %}
+.link-btn{box-shadow:0 0 12px var(--shadow)}
+.link-btn:hover{box-shadow:0 0 24px var(--shadow)}
+{% endif %}
+
+.link-icon{font-size:1.3rem;flex-shrink:0;position:relative}
+.link-title{flex:1;position:relative;text-align:left}
+.link-arrow{color:var(--sub);font-size:0.9rem;position:relative;transition:transform .2s}
+.link-btn:hover .link-arrow{transform:translateX(3px)}
+
+/* Powered by */
+.powered{margin-top:8px;display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--sub)}
+.powered a{color:var(--accent);text-decoration:none;font-weight:700}
+.powered a:hover{text-decoration:underline}
+
+/* Offline notice */
+.offline-notice{text-align:center;padding:60px 20px}
+.offline-notice .icon{font-size:3rem;margin-bottom:12px}
+.offline-notice h2{font-size:1.1rem;color:var(--text);margin-bottom:6px}
+.offline-notice p{font-size:0.85rem;color:var(--sub)}
+</style>
+</head>
+<body>
+
+{% if not profile.is_published %}
+<div class="offline-notice">
+  <div class="icon">🔒</div>
+  <h2>This LinkHub is private</h2>
+  <p>The owner hasn't published their page yet.</p>
+</div>
+{% else %}
+<div class="profile">
+
+  <!-- Avatar -->
+  <div class="avatar">
+    {% if profile.avatar_url %}
+      <img src="/static/uploads/avatars/{{ profile.avatar_url }}" alt="{{ profile.display_name }}">
+    {% else %}
+      {{ (profile.display_name or user.username)[0] | upper }}
+    {% endif %}
+  </div>
+
+  <div class="display-name">{{ profile.display_name or user.username }}</div>
+  <div class="username-tag">@{{ user.username }}</div>
+  {% if profile.bio %}
+  <div class="bio">{{ profile.bio }}</div>
+  {% endif %}
+
+  <!-- Links -->
+  <div class="links">
+    {% for link in links %}
+    {% if link.is_active %}
+    <a class="link-btn" href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener">
+      <span class="link-icon">{{ link.icon }}</span>
+      <span class="link-title">{{ link.title }}</span>
+      <span class="link-arrow">→</span>
+    </a>
+    {% endif %}
+    {% endfor %}
+  </div>
+
+  <!-- Powered by -->
+  <div class="powered">
+    ⚡ Powered by <a href="/" target="_blank">SuperAdPro LinkHub</a>
+  </div>
+</div>
+{% endif %}
+
+</body>
+</html>

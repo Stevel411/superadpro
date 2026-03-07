@@ -23,7 +23,7 @@ from .database import (
 from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker
 from .database import AdBoost, BOOST_TIERS, BOOST_SPONSOR_PCT, BOOST_COMPANY_PCT
 from .coinbase_commerce import create_charge as cb_create_charge, verify_webhook_signature as cb_verify_sig, parse_webhook_event as cb_parse_event, SANDBOX_MODE as CB_SANDBOX
-from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog
+from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick
 from .crud import create_user, verify_password
 from .grid import (
     get_grid_stats, get_user_grids, get_grid_positions,
@@ -7069,4 +7069,174 @@ def admin_grid_audit(
         },
         "grids": audit,
     }
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ── LINKHUB ───────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+
+import os, shutil, hashlib, re as _re
+
+AVATAR_DIR = "static/uploads/avatars"
+os.makedirs(AVATAR_DIR, exist_ok=True)
+
+@app.get("/linkhub")
+def linkhub_editor(request: Request, db: Session = Depends(get_db)):
+    """LinkHub editor page — members only."""
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    if not user.is_active:
+        return RedirectResponse("/dashboard", status_code=302)
+
+    profile = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
+    links = []
+    total_clicks = 0
+    if profile:
+        links = db.query(LinkHubLink).filter(
+            LinkHubLink.profile_id == profile.id
+        ).order_by(LinkHubLink.sort_order).all()
+        total_clicks = sum(l.click_count for l in links)
+
+    return templates.TemplateResponse("linkhub-editor.html", {
+        "request": request,
+        "current_user": user,
+        "profile": profile,
+        "links": links,
+        "total_clicks": total_clicks,
+        "active_page": "linkhub"
+    })
+
+
+@app.post("/linkhub/save")
+async def linkhub_save(request: Request, db: Session = Depends(get_db)):
+    """Save LinkHub profile + links."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"ok": False, "error": "Not logged in"}, status_code=401)
+
+    data = await request.json()
+
+    # Upsert profile
+    profile = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
+    if not profile:
+        profile = LinkHubProfile(user_id=user.id)
+        db.add(profile)
+        db.flush()
+
+    profile.display_name  = data.get("display_name", "")[:100]
+    profile.bio           = data.get("bio", "")[:300]
+    profile.theme         = data.get("theme", "dark")
+    profile.accent_color  = data.get("accent_color", "#00d4ff")
+    profile.is_published  = bool(data.get("is_published", True))
+    if data.get("avatar_url"):
+        profile.avatar_url = data["avatar_url"]
+    from datetime import datetime as _dt
+    profile.updated_at = _dt.utcnow()
+
+    # Replace all links
+    db.query(LinkHubLink).filter(LinkHubLink.profile_id == profile.id).delete()
+    for idx, lk in enumerate(data.get("links", [])):
+        title = str(lk.get("title", "")).strip()[:200]
+        url   = str(lk.get("url", "")).strip()[:2000]
+        if not title or not url:
+            continue
+        if not url.startswith(("http://", "https://")):
+            url = "https://" + url
+        link = LinkHubLink(
+            profile_id  = profile.id,
+            user_id     = user.id,
+            title       = title,
+            url         = url,
+            icon        = str(lk.get("icon", "🔗"))[:10],
+            is_active   = bool(lk.get("is_active", True)),
+            sort_order  = idx,
+            click_count = int(lk.get("click_count", 0)) if lk.get("id") else 0,
+        )
+        db.add(link)
+
+    db.commit()
+    return JSONResponse({"ok": True})
+
+
+@app.post("/linkhub/upload-avatar")
+async def linkhub_upload_avatar(request: Request, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    """Upload avatar image for LinkHub."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"ok": False}, status_code=401)
+
+    if file.size and file.size > 2 * 1024 * 1024:
+        return JSONResponse({"ok": False, "error": "File too large"}, status_code=400)
+
+    ext = file.filename.rsplit(".", 1)[-1].lower() if "." in file.filename else "jpg"
+    if ext not in ("jpg", "jpeg", "png", "gif", "webp"):
+        return JSONResponse({"ok": False, "error": "Invalid file type"}, status_code=400)
+
+    filename = f"avatar_{user.id}.{ext}"
+    path = os.path.join(AVATAR_DIR, filename)
+    with open(path, "wb") as f:
+        content = await file.read()
+        f.write(content)
+
+    return JSONResponse({"ok": True, "filename": filename})
+
+
+@app.get("/linkhub/click/{link_id}")
+def linkhub_track_click(link_id: int, request: Request, db: Session = Depends(get_db)):
+    """Track a link click then redirect."""
+    link = db.query(LinkHubLink).filter(LinkHubLink.id == link_id, LinkHubLink.is_active == True).first()
+    if not link:
+        return RedirectResponse("/", status_code=302)
+
+    # Record click
+    ua = request.headers.get("user-agent", "").lower()
+    device = "mobile" if any(x in ua for x in ("mobile", "android", "iphone")) else "tablet" if "tablet" in ua or "ipad" in ua else "desktop"
+    click = LinkHubClick(
+        link_id    = link.id,
+        profile_id = link.profile_id,
+        referrer   = request.headers.get("referer", "")[:500],
+        device     = device,
+    )
+    db.add(click)
+    link.click_count = (link.click_count or 0) + 1
+    db.commit()
+
+    return RedirectResponse(link.url, status_code=302)
+
+
+@app.get("/u/{username}")
+def linkhub_public(username: str, request: Request, db: Session = Depends(get_db)):
+    """Public LinkHub profile page."""
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        return templates.TemplateResponse("404.html", {"request": request}, status_code=404) \
+               if os.path.exists("templates/404.html") \
+               else HTMLResponse("<h2>Profile not found</h2>", status_code=404)
+
+    profile = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
+    if not profile:
+        # Auto-create a blank published profile so the URL resolves
+        profile = LinkHubProfile(user_id=user.id, display_name=user.first_name or user.username)
+        db.add(profile)
+        db.commit()
+        db.refresh(profile)
+
+    # Count the view (skip preview mode)
+    preview = request.query_params.get("preview") == "1"
+    if not preview and profile.is_published:
+        profile.total_views = (profile.total_views or 0) + 1
+        db.commit()
+
+    links = db.query(LinkHubLink).filter(
+        LinkHubLink.profile_id == profile.id,
+        LinkHubLink.is_active == True
+    ).order_by(LinkHubLink.sort_order).all()
+
+    return templates.TemplateResponse("linkhub-public.html", {
+        "request": request,
+        "user": user,
+        "profile": profile,
+        "links": links,
+    })
 

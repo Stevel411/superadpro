@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>LinkHub Editor — SuperAdPro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/mobile.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Rethink Sans',sans-serif;background:#f0f4f8;color:#1e293b}
+.main{margin-left:224px;min-height:100vh;padding:32px}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.page-header h1{font-size:1.6rem;font-weight:800;color:#1e293b}
+.page-header h1 span{color:#0ea5e9}
+.live-url{font-size:0.82rem;color:#64748b;background:#e2e8f0;padding:6px 14px;border-radius:20px;display:flex;align-items:center;gap:8px}
+.live-url a{color:#0ea5e9;text-decoration:none;font-weight:600}
+.live-url a:hover{text-decoration:underline}
+
+/* Layout */
+.editor-grid{display:grid;grid-template-columns:1fr 380px;gap:24px;align-items:start}
+@media(max-width:1100px){.editor-grid{grid-template-columns:1fr}}
+
+/* Cards */
+.card{background:#fff;border-radius:16px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card-title{font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.card-title span{font-size:1.2rem}
+
+/* Form fields */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:0.82rem;font-weight:600;color:#475569;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.field input,.field textarea,.field select{width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-family:inherit;font-size:0.9rem;color:#1e293b;background:#f8fafc;transition:border-color .2s}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:#0ea5e9;background:#fff}
+.field textarea{min-height:80px;resize:vertical}
+
+/* Avatar upload */
+.avatar-upload{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.avatar-preview{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;flex-shrink:0;border:3px solid #e2e8f0}
+.avatar-preview img{width:100%;height:100%;object-fit:cover}
+.avatar-btn{padding:8px 16px;background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;color:#475569;transition:all .2s}
+.avatar-btn:hover{background:#e2e8f0}
+#avatar-input{display:none}
+
+/* Theme picker */
+.theme-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:4px}
+.theme-opt{border:2px solid transparent;border-radius:10px;padding:10px 6px;cursor:pointer;text-align:center;font-size:0.72rem;font-weight:700;transition:all .2s}
+.theme-opt:hover{transform:translateY(-2px)}
+.theme-opt.selected{border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,.15)}
+.theme-opt .swatch{width:100%;height:36px;border-radius:6px;margin-bottom:6px}
+.t-dark .swatch{background:linear-gradient(135deg,#050d1a,#0f2040)}
+.t-light .swatch{background:linear-gradient(135deg,#f8fafc,#e2e8f0)}
+.t-gradient .swatch{background:linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899)}
+.t-neon .swatch{background:linear-gradient(135deg,#0f0f0f,#001a00)}
+.t-minimal .swatch{background:linear-gradient(135deg,#fff,#fafafa)}
+.t-dark{color:#64748b} .t-light{color:#64748b} .t-gradient{color:#64748b} .t-neon{color:#64748b} .t-minimal{color:#64748b}
+
+/* Accent color */
+.accent-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.accent-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.accent-dot.selected{border-color:#1e293b;box-shadow:0 0 0 3px rgba(30,41,59,.2);transform:scale(1.15)}
+.accent-custom{display:flex;align-items:center;gap:8px;margin-top:10px}
+.accent-custom input[type=color]{width:32px;height:32px;border:none;border-radius:50%;cursor:pointer;padding:0}
+.accent-custom span{font-size:0.8rem;color:#64748b}
+
+/* Links section */
+.links-list{display:flex;flex-direction:column;gap:10px;min-height:40px}
+.link-item{display:flex;align-items:center;gap:10px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;transition:all .2s}
+.link-item:hover{border-color:#0ea5e9;background:#f0f9ff}
+.link-drag{cursor:grab;color:#94a3b8;font-size:1.1rem;flex-shrink:0}
+.link-icon-btn{width:36px;height:36px;border-radius:8px;background:#fff;border:1.5px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;flex-shrink:0;transition:all .2s}
+.link-icon-btn:hover{border-color:#0ea5e9}
+.link-fields{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.link-fields input{padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:0.83rem;color:#1e293b;background:#fff;width:100%}
+.link-fields input:focus{outline:none;border-color:#0ea5e9}
+.link-toggle{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.toggle-sw{position:relative;width:36px;height:20px;cursor:pointer}
+.toggle-sw input{opacity:0;width:0;height:0}
+.toggle-track{position:absolute;top:0;left:0;right:0;bottom:0;background:#cbd5e1;border-radius:20px;transition:.3s}
+.toggle-sw input:checked + .toggle-track{background:#0ea5e9}
+.toggle-track:before{content:'';position:absolute;height:14px;width:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle-sw input:checked + .toggle-track:before{transform:translateX(16px)}
+.link-del{background:none;border:none;color:#f87171;cursor:pointer;font-size:1.1rem;padding:4px;border-radius:6px;transition:all .2s;flex-shrink:0}
+.link-del:hover{background:#fef2f2}
+.link-stats{font-size:0.72rem;color:#94a3b8;white-space:nowrap;flex-shrink:0}
+
+.add-link-btn{width:100%;padding:12px;background:#f0f9ff;border:2px dashed #bae6fd;border-radius:12px;color:#0ea5e9;font-weight:700;font-size:0.9rem;cursor:pointer;margin-top:12px;transition:all .2s;font-family:inherit}
+.add-link-btn:hover{background:#e0f2fe;border-color:#0ea5e9}
+
+/* Icon picker modal */
+.icon-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.icon-modal.open{display:flex}
+.icon-box{background:#fff;border-radius:16px;padding:24px;width:340px;max-height:80vh;overflow-y:auto}
+.icon-box h3{font-size:1rem;font-weight:700;margin-bottom:14px}
+.icon-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+.icon-cell{width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;border-radius:8px;cursor:pointer;transition:background .15s}
+.icon-cell:hover{background:#f0f9ff}
+.icon-cell.selected{background:#e0f2fe;outline:2px solid #0ea5e9}
+
+/* Save button */
+.save-bar{display:flex;align-items:center;gap:12px;margin-top:24px;flex-wrap:wrap}
+.btn-save{padding:12px 32px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border:none;border-radius:12px;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:inherit;transition:all .2s;box-shadow:0 4px 12px rgba(14,165,233,.3)}
+.btn-save:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(14,165,233,.4)}
+.btn-save:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-preview{padding:12px 24px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;border-radius:12px;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+.btn-preview:hover{background:#e2e8f0}
+.save-msg{font-size:0.85rem;color:#10b981;font-weight:600;display:none}
+.save-msg.show{display:block}
+
+/* Preview panel */
+.preview-panel{position:sticky;top:24px}
+.preview-frame{border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.12);height:580px;border:none;width:100%}
+.preview-label{font-size:0.78rem;color:#94a3b8;text-align:center;margin-top:8px}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:12px;padding:16px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.stat-val{font-size:1.6rem;font-weight:800;color:#0ea5e9}
+.stat-lbl{font-size:0.75rem;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+
+/* Publish toggle */
+.publish-row{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#f8fafc;border-radius:12px;border:1.5px solid #e2e8f0;margin-bottom:16px}
+.publish-info h4{font-size:0.9rem;font-weight:700;color:#1e293b}
+.publish-info p{font-size:0.78rem;color:#94a3b8}
+.big-toggle{position:relative;width:52px;height:28px;cursor:pointer;flex-shrink:0}
+.big-toggle input{opacity:0;width:0;height:0}
+.big-track{position:absolute;top:0;left:0;right:0;bottom:0;background:#cbd5e1;border-radius:28px;transition:.3s}
+.big-toggle input:checked + .big-track{background:#10b981}
+.big-track:before{content:'';position:absolute;height:20px;width:20px;left:4px;bottom:4px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.big-toggle input:checked + .big-track:before{transform:translateX(24px)}
+</style>
+</head>
+<body>
+{% include "_sidebar.html" %}
+<div class="main">
+
+  <!-- Header -->
+  <div class="page-header">
+    <h1>🔗 <span>LinkHub</span> Editor</h1>
+    <div class="live-url">
+      Your public URL: <a href="/u/{{ current_user.username }}" target="_blank">superadpro.com/u/{{ current_user.username }}</a>
+      <button onclick="copyUrl()" style="background:none;border:none;cursor:pointer;color:#0ea5e9;font-size:1rem" title="Copy">📋</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-val">{{ profile.total_views if profile else 0 }}</div>
+      <div class="stat-lbl">Profile Views</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ links|length }}</div>
+      <div class="stat-lbl">Active Links</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ total_clicks }}</div>
+      <div class="stat-lbl">Total Clicks</div>
+    </div>
+  </div>
+
+  <div class="editor-grid">
+    <!-- LEFT: Editor -->
+    <div>
+
+      <!-- Publish toggle -->
+      <div class="card" style="margin-bottom:20px;padding:16px">
+        <div class="publish-row" style="margin-bottom:0;border:none;padding:0;background:none">
+          <div class="publish-info">
+            <h4>Profile Status</h4>
+            <p>When published, your LinkHub is live and visible to anyone with your link.</p>
+          </div>
+          <label class="big-toggle">
+            <input type="checkbox" id="is-published" {% if not profile or profile.is_published %}checked{% endif %}>
+            <div class="big-track"></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Profile details -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title"><span>👤</span> Profile Info</div>
+
+        <div class="avatar-upload">
+          <div class="avatar-preview" id="avatar-preview">
+            {% if profile and profile.avatar_url %}
+              <img src="/static/uploads/avatars/{{ profile.avatar_url }}" id="avatar-img">
+            {% else %}
+              <span id="avatar-emoji">{{ current_user.first_name[0] if current_user.first_name else current_user.username[0] | upper }}</span>
+            {% endif %}
+          </div>
+          <div>
+            <button class="avatar-btn" onclick="document.getElementById('avatar-input').click()">📷 Change Photo</button>
+            <input type="file" id="avatar-input" accept="image/*" onchange="handleAvatar(this)">
+            <div style="font-size:0.75rem;color:#94a3b8;margin-top:4px">JPG or PNG, max 2MB</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Display Name</label>
+          <input type="text" id="display-name" value="{{ profile.display_name if profile and profile.display_name else (current_user.first_name + ' ' + current_user.last_name if current_user.first_name else current_user.username) }}" placeholder="Your name or brand">
+        </div>
+        <div class="field">
+          <label>Bio</label>
+          <textarea id="bio" placeholder="Short bio — tell visitors who you are...">{{ profile.bio if profile and profile.bio else '' }}</textarea>
+        </div>
+      </div>
+
+      <!-- Links -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title"><span>🔗</span> Your Links</div>
+        <div class="links-list" id="links-list">
+          {% for link in links %}
+          <div class="link-item" data-id="{{ link.id }}" data-order="{{ link.sort_order }}">
+            <span class="link-drag">⠿</span>
+            <button class="link-icon-btn" onclick="openIconPicker(this)" data-current="{{ link.icon }}">{{ link.icon }}</button>
+            <div class="link-fields">
+              <input type="text" placeholder="Link title" value="{{ link.title }}" class="link-title">
+              <input type="url" placeholder="https://..." value="{{ link.url }}" class="link-url">
+            </div>
+            <div class="link-stats">{{ link.click_count }} clicks</div>
+            <div class="link-toggle">
+              <label class="toggle-sw">
+                <input type="checkbox" {% if link.is_active %}checked{% endif %} class="link-active">
+                <div class="toggle-track"></div>
+              </label>
+            </div>
+            <button class="link-del" onclick="deleteLink(this)" title="Delete">✕</button>
+          </div>
+          {% endfor %}
+        </div>
+        <button class="add-link-btn" onclick="addLink()">+ Add Link</button>
+      </div>
+
+      <!-- Appearance -->
+      <div class="card">
+        <div class="card-title"><span>🎨</span> Appearance</div>
+
+        <div class="field">
+          <label>Theme</label>
+          <div class="theme-grid">
+            {% set themes = [('dark','Dark'),('light','Light'),('gradient','Gradient'),('neon','Neon'),('minimal','Minimal')] %}
+            {% for val, name in themes %}
+            <div class="theme-opt t-{{ val }} {% if (profile and profile.theme == val) or (not profile and val == 'dark') %}selected{% endif %}"
+                 onclick="selectTheme('{{ val }}', this)" data-val="{{ val }}">
+              <div class="swatch"></div>{{ name }}
+            </div>
+            {% endfor %}
+          </div>
+          <input type="hidden" id="theme-val" value="{{ profile.theme if profile else 'dark' }}">
+        </div>
+
+        <div class="field">
+          <label>Accent Colour</label>
+          <div class="accent-row" id="accent-row">
+            {% set accents = ['#00d4ff','#0ea5e9','#6366f1','#8b5cf6','#ec4899','#10b981','#f59e0b','#ef4444'] %}
+            {% for c in accents %}
+            <div class="accent-dot {% if (profile and profile.accent_color == c) or (not profile and c == '#00d4ff') %}selected{% endif %}"
+                 style="background:{{ c }}" onclick="selectAccent('{{ c }}', this)" data-val="{{ c }}"></div>
+            {% endfor %}
+          </div>
+          <div class="accent-custom">
+            <input type="color" id="accent-custom-input" value="{{ profile.accent_color if profile else '#00d4ff' }}" oninput="selectAccentCustom(this)">
+            <span>Custom colour</span>
+          </div>
+          <input type="hidden" id="accent-val" value="{{ profile.accent_color if profile else '#00d4ff' }}">
+        </div>
+      </div>
+
+      <div class="save-bar">
+        <button class="btn-save" onclick="saveProfile(this)">💾 Save Changes</button>
+        <a class="btn-preview" href="/u/{{ current_user.username }}" target="_blank">👁 Preview Live</a>
+        <span class="save-msg" id="save-msg">✓ Saved successfully!</span>
+      </div>
+
+    </div><!-- /left -->
+
+    <!-- RIGHT: Live Preview -->
+    <div class="preview-panel">
+      <div class="card" style="padding:12px">
+        <div class="card-title" style="margin-bottom:12px"><span>📱</span> Live Preview</div>
+        <iframe class="preview-frame" id="preview-frame" src="/u/{{ current_user.username }}?preview=1" title="LinkHub Preview"></iframe>
+        <div class="preview-label">Updates after saving</div>
+      </div>
+    </div>
+
+  </div><!-- /editor-grid -->
+</div>
+
+<!-- Icon picker modal -->
+<div class="icon-modal" id="icon-modal">
+  <div class="icon-box">
+    <h3>Choose Icon</h3>
+    <div class="icon-grid" id="icon-grid"></div>
+  </div>
+</div>
+
+<script>
+const ICONS = ['🔗','🌐','📧','📱','💼','🎯','🚀','⭐','💡','📊','🎬','📸','🛒','💰','🏆','📣',
+  '🎵','🎮','📚','✍️','🤝','🌍','💻','🔥','❤️','🎁','📢','🔔','💎','⚡','🌟','👋',
+  '▶️','🐦','📘','📸','💼','🎤','📺','🎧','📰','📝','🏠','📍','🛡️','⚙️','🌈'];
+
+let activeIconBtn = null;
+
+function openIconPicker(btn) {
+  activeIconBtn = btn;
+  const modal = document.getElementById('icon-modal');
+  const grid = document.getElementById('icon-grid');
+  grid.innerHTML = '';
+  ICONS.forEach(ic => {
+    const div = document.createElement('div');
+    div.className = 'icon-cell' + (ic === btn.textContent ? ' selected' : '');
+    div.textContent = ic;
+    div.onclick = () => { btn.textContent = ic; modal.classList.remove('open'); };
+    grid.appendChild(div);
+  });
+  modal.classList.add('open');
+}
+document.getElementById('icon-modal').onclick = (e) => {
+  if(e.target === document.getElementById('icon-modal')) e.target.classList.remove('open');
+};
+
+function addLink() {
+  const list = document.getElementById('links-list');
+  const item = document.createElement('div');
+  item.className = 'link-item';
+  item.dataset.id = 'new';
+  item.innerHTML = `
+    <span class="link-drag">⠿</span>
+    <button class="link-icon-btn" onclick="openIconPicker(this)" data-current="🔗">🔗</button>
+    <div class="link-fields">
+      <input type="text" placeholder="Link title" class="link-title">
+      <input type="url" placeholder="https://..." class="link-url">
+    </div>
+    <div class="link-stats">0 clicks</div>
+    <div class="link-toggle">
+      <label class="toggle-sw"><input type="checkbox" checked class="link-active"><div class="toggle-track"></div></label>
+    </div>
+    <button class="link-del" onclick="deleteLink(this)" title="Delete">✕</button>`;
+  list.appendChild(item);
+  item.querySelector('.link-title').focus();
+}
+
+function deleteLink(btn) {
+  if(confirm('Remove this link?')) btn.closest('.link-item').remove();
+}
+
+function selectTheme(val, el) {
+  document.querySelectorAll('.theme-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('theme-val').value = val;
+}
+
+function selectAccent(val, el) {
+  document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('accent-val').value = val;
+  document.getElementById('accent-custom-input').value = val;
+}
+
+function selectAccentCustom(input) {
+  document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('selected'));
+  document.getElementById('accent-val').value = input.value;
+}
+
+function handleAvatar(input) {
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 2*1024*1024) { alert('Max file size is 2MB'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const prev = document.getElementById('avatar-preview');
+    prev.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveProfile(btn) {
+  btn.disabled = true; btn.textContent = 'Saving...';
+
+  // Gather links
+  const linkItems = document.querySelectorAll('.link-item');
+  const links = [];
+  linkItems.forEach((item, idx) => {
+    const title = item.querySelector('.link-title').value.trim();
+    const url = item.querySelector('.link-url').value.trim();
+    if(!title && !url) return;
+    links.push({
+      id: item.dataset.id === 'new' ? null : parseInt(item.dataset.id),
+      title, url,
+      icon: item.querySelector('.link-icon-btn').textContent,
+      is_active: item.querySelector('.link-active').checked,
+      sort_order: idx
+    });
+  });
+
+  // Avatar upload if changed
+  const avatarInput = document.getElementById('avatar-input');
+  let avatarUrl = null;
+  if(avatarInput.files.length > 0) {
+    const fd = new FormData();
+    fd.append('file', avatarInput.files[0]);
+    const r = await fetch('/linkhub/upload-avatar', {method:'POST',body:fd});
+    if(r.ok) { const d = await r.json(); avatarUrl = d.filename; }
+  }
+
+  const payload = {
+    display_name: document.getElementById('display-name').value.trim(),
+    bio: document.getElementById('bio').value.trim(),
+    theme: document.getElementById('theme-val').value,
+    accent_color: document.getElementById('accent-val').value,
+    is_published: document.getElementById('is-published').checked,
+    links,
+    avatar_url: avatarUrl
+  };
+
+  const r = await fetch('/linkhub/save', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  const d = await r.json();
+
+  btn.disabled = false; btn.textContent = '💾 Save Changes';
+  if(d.ok) {
+    const msg = document.getElementById('save-msg');
+    msg.classList.add('show');
+    setTimeout(()=>msg.classList.remove('show'), 3000);
+    document.getElementById('preview-frame').src = document.getElementById('preview-frame').src;
+  } else {
+    alert('Save failed: ' + (d.error || 'Unknown error'));
+  }
+}
+
+function copyUrl() {
+  navigator.clipboard.writeText(window.location.origin + '/u/{{ current_user.username }}');
+  const btn = event.target;
+  btn.textContent = '✅';
+  setTimeout(()=>btn.textContent='📋', 1500);
+}
+</script>
+</body>
+</html>

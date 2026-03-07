@@ -562,6 +562,49 @@ class WatchdogLog(Base):
     created_at  = Column(DateTime, default=datetime.utcnow)
 
 
+class LinkHubProfile(Base):
+    """LinkHub — user's public bio link page (Linktree-style)."""
+    __tablename__ = "linkhub_profiles"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), unique=True, index=True)
+    display_name    = Column(String, nullable=True)
+    bio             = Column(Text, nullable=True)
+    avatar_url      = Column(String, nullable=True)        # uploaded avatar filename
+    theme           = Column(String, default="dark")       # dark|light|gradient|neon|minimal
+    bg_color        = Column(String, default="#050d1a")
+    accent_color    = Column(String, default="#00d4ff")
+    font_family     = Column(String, default="Rethink Sans")
+    is_published    = Column(Boolean, default=True)
+    total_views     = Column(Integer, default=0)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+    updated_at      = Column(DateTime, default=datetime.utcnow)
+
+class LinkHubLink(Base):
+    """Individual link inside a LinkHub profile."""
+    __tablename__ = "linkhub_links"
+    id              = Column(Integer, primary_key=True, index=True)
+    profile_id      = Column(Integer, ForeignKey("linkhub_profiles.id"), index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), index=True)
+    title           = Column(String, nullable=False)
+    url             = Column(String, nullable=False)
+    icon            = Column(String, default="🔗")         # emoji or icon key
+    is_active       = Column(Boolean, default=True)
+    sort_order      = Column(Integer, default=0)
+    click_count     = Column(Integer, default=0)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+
+class LinkHubClick(Base):
+    """Click analytics for LinkHub links."""
+    __tablename__ = "linkhub_clicks"
+    id              = Column(Integer, primary_key=True, index=True)
+    link_id         = Column(Integer, ForeignKey("linkhub_links.id"), index=True)
+    profile_id      = Column(Integer, ForeignKey("linkhub_profiles.id"), index=True)
+    referrer        = Column(String, nullable=True)
+    device          = Column(String, nullable=True)        # mobile|desktop|tablet
+    country         = Column(String, nullable=True)
+    clicked_at      = Column(DateTime, default=datetime.utcnow)
+
+
 Base.metadata.create_all(bind=engine)
 
 # ── Auto-migration: add missing columns if they don't exist ──────────────
@@ -745,7 +788,14 @@ try:
         conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS idx_ad_listings_slug ON ad_listings(slug) WHERE slug IS NOT NULL"))
         # Mark existing users as onboarding complete (they don't need the wizard)
         conn.execute(text("UPDATE users SET onboarding_completed = TRUE WHERE onboarding_completed IS NULL OR (created_at < NOW() - INTERVAL '1 hour')"))
+        # ── LinkHub tables ──
+        conn.execute(text("CREATE TABLE IF NOT EXISTS linkhub_profiles (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, display_name VARCHAR, bio TEXT, avatar_url VARCHAR, theme VARCHAR DEFAULT 'dark', bg_color VARCHAR DEFAULT '#050d1a', accent_color VARCHAR DEFAULT '#00d4ff', font_family VARCHAR DEFAULT 'Rethink Sans', is_published BOOLEAN DEFAULT TRUE, total_views INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())"))
+        conn.execute(text("CREATE TABLE IF NOT EXISTS linkhub_links (id SERIAL PRIMARY KEY, profile_id INTEGER REFERENCES linkhub_profiles(id), user_id INTEGER REFERENCES users(id), title VARCHAR NOT NULL, url VARCHAR NOT NULL, icon VARCHAR DEFAULT '🔗', is_active BOOLEAN DEFAULT TRUE, sort_order INTEGER DEFAULT 0, click_count INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW())"))
+        conn.execute(text("CREATE TABLE IF NOT EXISTS linkhub_clicks (id SERIAL PRIMARY KEY, link_id INTEGER REFERENCES linkhub_links(id), profile_id INTEGER REFERENCES linkhub_profiles(id), referrer VARCHAR, device VARCHAR, country VARCHAR, clicked_at TIMESTAMP DEFAULT NOW())"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_linkhub_profiles_user ON linkhub_profiles(user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_linkhub_links_profile ON linkhub_links(profile_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_linkhub_clicks_link ON linkhub_clicks(link_id)"))
         conn.commit()
-        print("✅ Force migration: interests + targeting + onboarding columns confirmed")
+        print("✅ Force migration: interests + targeting + onboarding + linkhub columns confirmed")
 except Exception as e:
     print(f"⚠️ Force migration note: {e}")
