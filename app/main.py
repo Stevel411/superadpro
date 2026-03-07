@@ -4286,11 +4286,29 @@ async def create_short_link(request: Request, user: User = Depends(get_current_u
                not db.query(LinkRotator).filter(LinkRotator.slug == slug).first():
                 break
 
+    import json as _json
+    click_cap       = body.get("click_cap")
+    expires_at_str  = body.get("expires_at")
+    geo_redirect    = body.get("geo_redirect")
+    device_redirect = body.get("device_redirect")
+
+    from datetime import datetime as _dt
+    expires_at = None
+    if expires_at_str:
+        try:
+            expires_at = _dt.fromisoformat(expires_at_str.replace("Z",""))
+        except Exception:
+            pass
+
     link = ShortLink(
         user_id=user.id,
         slug=slug,
         destination_url=dest,
-        title=title
+        title=title,
+        click_cap=int(click_cap) if click_cap else None,
+        expires_at=expires_at,
+        geo_redirect_json=_json.dumps(geo_redirect) if geo_redirect else None,
+        device_redirect_json=_json.dumps(device_redirect) if device_redirect else None,
     )
     db.add(link)
     db.commit()
@@ -4353,10 +4371,25 @@ def link_analytics(link_id: int, link_type: str = "short",
         d = (today - timedelta(days=i)).isoformat()
         timeline.append({"date": d, "clicks": daily.get(d, 0)})
 
+    # Country breakdown
+    country_counts = {}
+    browser_counts = {}
+    utm_counts = {}
+    for c in clicks:
+        if c.country_name:
+            country_counts[c.country_name] = country_counts.get(c.country_name, 0) + 1
+        if hasattr(c, 'browser') and c.browser:
+            browser_counts[c.browser] = browser_counts.get(c.browser, 0) + 1
+        if hasattr(c, 'utm_campaign') and c.utm_campaign:
+            utm_counts[c.utm_campaign] = utm_counts.get(c.utm_campaign, 0) + 1
+
     return {
         "total_clicks": len(clicks),
         "sources": source_counts,
         "devices": device_counts,
+        "countries": dict(sorted(country_counts.items(), key=lambda x: -x[1])[:10]),
+        "browsers": browser_counts,
+        "utm_campaigns": utm_counts,
         "timeline": timeline
     }
 
@@ -4694,39 +4727,117 @@ def vip_export(user: User = Depends(get_current_user), db: Session = Depends(get
 
 @app.get("/go/{slug}")
 def go_redirect(slug: str, request: Request, db: Session = Depends(get_db)):
-    """Redirect /go/slug to destination URL with detailed click tracking."""
+    """Redirect /go/slug with full Linkly-style tracking: geo, device, browser, UTM, smart rules."""
     from datetime import datetime
     import json, random
+    from urllib.parse import urlparse, parse_qs
 
-    # Derive source from referrer
-    referrer = request.headers.get("referer", "") or ""
-    source = "direct"
+    # ── UTM params ──
+    qs = request.query_params
+    utm_source   = qs.get("utm_source",   None)
+    utm_medium   = qs.get("utm_medium",   None)
+    utm_campaign = qs.get("utm_campaign", None)
+
+    # ── Source from referrer ──
+    referrer  = request.headers.get("referer", "") or ""
     ref_lower = referrer.lower()
-    for domain, label in [("facebook.com","facebook"),("fb.com","facebook"),("instagram.com","instagram"),
-                          ("twitter.com","x"),("x.com","x"),("linkedin.com","linkedin"),("reddit.com","reddit"),
-                          ("tiktok.com","tiktok"),("youtube.com","youtube"),("google.com","google"),("bing.com","bing"),
-                          ("pinterest.com","pinterest"),("t.co","x"),("whatsapp.com","whatsapp"),("wa.me","whatsapp")]:
+    source    = "direct"
+    for domain, label in [
+        ("facebook.com","facebook"),("fb.com","facebook"),("instagram.com","instagram"),
+        ("twitter.com","x"),("x.com","x"),("linkedin.com","linkedin"),("reddit.com","reddit"),
+        ("tiktok.com","tiktok"),("youtube.com","youtube"),("google.com","google"),("bing.com","bing"),
+        ("pinterest.com","pinterest"),("t.co","x"),("whatsapp.com","whatsapp"),("wa.me","whatsapp"),
+        ("email","email"),("mailto","email"),
+    ]:
         if domain in ref_lower:
             source = label
             break
     else:
         if referrer and "superadpro" not in ref_lower:
             source = "other"
+    if utm_source and source == "direct":
+        source = utm_source.lower()
 
-    # Detect device from user-agent
+    # ── Device + Browser detection ──
     ua = (request.headers.get("user-agent", "") or "").lower()
-    device = "mobile" if any(d in ua for d in ["mobile","android","iphone","ipad"]) else "desktop"
+    if any(d in ua for d in ["mobile","android","iphone"]):
+        device = "mobile"
+    elif "ipad" in ua or "tablet" in ua:
+        device = "tablet"
+    else:
+        device = "desktop"
+    if "edg" in ua:
+        browser = "edge"
+    elif "chrome" in ua and "chromium" not in ua:
+        browser = "chrome"
+    elif "firefox" in ua:
+        browser = "firefox"
+    elif "safari" in ua and "chrome" not in ua:
+        browser = "safari"
+    else:
+        browser = "other"
 
-    # Check short links first
+    # ── GeoIP lookup ──
+    country_code = None
+    country_name = None
+    try:
+        from app.database import _geoip_reader
+        if _geoip_reader:
+            ip = request.headers.get("cf-connecting-ip") or                  request.headers.get("x-forwarded-for","").split(",")[0].strip() or                  (request.client.host if request.client else None)
+            if ip and ip not in ("127.0.0.1","::1","localhost"):
+                geo = _geoip_reader.country(ip)
+                country_code = geo.country.iso_code
+                country_name = geo.country.name
+    except Exception:
+        pass
+
+    def build_click(link_id, link_type):
+        return LinkClick(
+            link_id=link_id, link_type=link_type,
+            source=source, referrer=referrer[:500] if referrer else None,
+            device=device, browser=browser,
+            country=country_code, country_name=country_name,
+            utm_source=utm_source, utm_medium=utm_medium, utm_campaign=utm_campaign,
+        )
+
+    now = datetime.utcnow()
+
+    # ── Short link ──
     link = db.query(ShortLink).filter(ShortLink.slug == slug).first()
     if link:
-        link.clicks = (link.clicks or 0) + 1
-        link.last_clicked = datetime.utcnow()
-        db.add(LinkClick(link_id=link.id, link_type="short", source=source, referrer=referrer[:500], device=device))
-        db.commit()
-        return RedirectResponse(url=link.destination_url, status_code=302)
+        # Smart rules: expiry
+        if link.expires_at and now > link.expires_at:
+            raise HTTPException(status_code=410, detail="This link has expired")
+        # Smart rules: click cap
+        if link.click_cap and (link.clicks or 0) >= link.click_cap:
+            raise HTTPException(status_code=410, detail="This link has reached its click limit")
 
-    # Check rotators
+        # Geo redirect
+        dest_url = link.destination_url
+        if link.geo_redirect_json and country_code:
+            try:
+                geo_rules = json.loads(link.geo_redirect_json)
+                if country_code in geo_rules:
+                    dest_url = geo_rules[country_code]
+            except Exception:
+                pass
+
+        # Device redirect
+        if link.device_redirect_json:
+            try:
+                dev_rules = json.loads(link.device_redirect_json)
+                if device in dev_rules and dev_rules[device]:
+                    dest_url = dev_rules[device]
+            except Exception:
+                pass
+
+        link.clicks = (link.clicks or 0) + 1
+        link.last_clicked = now
+        db.add(build_click(link.id, "short"))
+        db.commit()
+        return RedirectResponse(url=dest_url, status_code=302)
+
+    # ── Rotator ──
     rotator = db.query(LinkRotator).filter(LinkRotator.slug == slug).first()
     if rotator and rotator.destinations_json:
         dests = json.loads(rotator.destinations_json)
@@ -4734,28 +4845,25 @@ def go_redirect(slug: str, request: Request, db: Session = Depends(get_db)):
             raise HTTPException(status_code=404, detail="No destinations configured")
 
         if rotator.mode == "weighted":
-            # Weighted random selection
             total_weight = sum(d.get("weight", 50) for d in dests)
-            r = random.uniform(0, total_weight)
+            r_val = random.uniform(0, total_weight)
             cumulative = 0
             chosen = dests[0]
             for d in dests:
                 cumulative += d.get("weight", 50)
-                if r <= cumulative:
+                if r_val <= cumulative:
                     chosen = d
                     break
         else:
-            # Equal round-robin
             idx = (rotator.current_index or 0) % len(dests)
             chosen = dests[idx]
             rotator.current_index = idx + 1
 
-        # Track clicks
         chosen["clicks"] = chosen.get("clicks", 0) + 1
         rotator.destinations_json = json.dumps(dests)
         rotator.total_clicks = (rotator.total_clicks or 0) + 1
-        rotator.last_clicked = datetime.utcnow()
-        db.add(LinkClick(link_id=rotator.id, link_type="rotator", source=source, referrer=referrer[:500], device=device))
+        rotator.last_clicked = now
+        db.add(build_click(rotator.id, "rotator"))
         db.commit()
         return RedirectResponse(url=chosen["url"], status_code=302)
 
