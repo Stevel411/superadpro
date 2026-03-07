@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>TrackPro Link Suite — SuperAdPro</title>
+<title>ProTrack Link Suite — SuperAdPro</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/mobile.css">
 <style>
@@ -193,7 +193,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     </svg>
     <div>
       <div class="mobile-topbar-name">SuperAdPro</div>
-      <div class="mobile-topbar-page">TrackPro Link Suite</div>
+      <div class="mobile-topbar-page">ProTrack Link Suite</div>
     </div>
   </a>
   {%- if user is defined and user %}<div class="mobile-balance-chip">${{ '%.2f'|format(user.balance or 0) }}</div>{%- endif %}
@@ -205,8 +205,32 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
   <div class="topbar">
     <div class="topbar-left">
-      <div class="topbar-title">🔗 TrackPro Link Suite</div>
-      <div class="topbar-sub">Shorten, track, rotate and optimise every link you share</div>
+      <div class="topbar-title">🔗 ProTrack Link Suite</div>
+      <div class="topbar-sub">Shorten · Track · Rotate · Win</div>
+    </div>
+  </div>
+
+  <!-- ProTrack Hero Banner -->
+  <div style="background:#fff;border-bottom:1px solid rgba(15,25,60,0.08);padding:28px 32px 24px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:20px">
+      <div>
+        <div style="font-family:Sora,sans-serif;font-size:26px;font-weight:800;color:#0f172a;letter-spacing:-0.5px;margin-bottom:6px">
+          Shorten · Track · Rotate · <span style="color:#0ea5e9">Win</span>
+        </div>
+        <div style="font-size:15px;color:#7b91a8;max-width:560px;line-height:1.65">
+          ProTrack gives you full control over every link you share. Create branded short links, track clicks by country, device and source, run smart rotators for split-testing, and build perfectly tagged UTM URLs — all from one place.
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(14,165,233,0.07);border:1px solid rgba(14,165,233,0.2);color:#0ea5e9;font-size:12px;font-weight:700;padding:5px 12px;border-radius:99px">🔗 Smart Short Links</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(99,102,241,0.07);border:1px solid rgba(99,102,241,0.2);color:#6366f1;font-size:12px;font-weight:700;padding:5px 12px;border-radius:99px">🌍 Geo Tracking</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(22,163,74,0.07);border:1px solid rgba(22,163,74,0.2);color:#16a34a;font-size:12px;font-weight:700;padding:5px 12px;border-radius:99px">🔄 Link Rotators</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(217,119,6,0.07);border:1px solid rgba(217,119,6,0.2);color:#d97706;font-size:12px;font-weight:700;padding:5px 12px;border-radius:99px">🏷️ UTM Builder</span>
+        </div>
+      </div>
     </div>
   </div>
 
