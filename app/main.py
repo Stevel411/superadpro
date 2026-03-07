@@ -7128,6 +7128,9 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
     profile.bio           = data.get("bio", "")[:300]
     profile.theme         = data.get("theme", "dark")
     profile.accent_color  = data.get("accent_color", "#00d4ff")
+    profile.bg_color      = data.get("bg_color") or None
+    profile.btn_color     = data.get("btn_color") or None
+    profile.text_color    = data.get("text_color") or None
     profile.is_published  = bool(data.get("is_published", True))
     # avatar_data is saved directly by the upload endpoint — don't overwrite with None here
     from datetime import datetime as _dt

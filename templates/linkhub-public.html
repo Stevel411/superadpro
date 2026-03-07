@@ -12,60 +12,83 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 
+{# ── Resolve colours: use custom if set, otherwise theme default ── #}
+{% set accent = profile.accent_color or '#00d4ff' %}
+{% set bg_col = profile.bg_color %}
+{% set btn_col = profile.btn_color %}
+{% set txt_col = profile.text_color %}
+
 {% if profile.theme == 'dark' %}
-:root{--bg:#050d1a;--card:#0f1f3d;--text:#e2e8f0;--sub:#94a3b8;--btn-bg:#0f1f3d;--btn-border:rgba(255,255,255,.1);--btn-hover:#162a50;--accent:{{ profile.accent_color }};--shadow:rgba(0,0,0,.4)}
-body{background:#050d1a}
+  {% set bg_col = bg_col or '#050d1a' %}
+  {% set btn_col = btn_col or '#0f1f3d' %}
+  {% set txt_col = txt_col or '#e2e8f0' %}
+  :root{--bg:{{ bg_col }};--card:{{ btn_col }};--text:{{ txt_col }};--sub:#94a3b8;--btn-bg:{{ btn_col }};--btn-border:rgba(255,255,255,.12);--btn-hover:{{ btn_col }};--accent:{{ accent }};--shadow:rgba(0,0,0,.4)}
+  body{background:{{ bg_col }}}
+
 {% elif profile.theme == 'light' %}
-:root{--bg:#f8fafc;--card:#fff;--text:#1e293b;--sub:#64748b;--btn-bg:#fff;--btn-border:#e2e8f0;--btn-hover:#f1f5f9;--accent:{{ profile.accent_color }};--shadow:rgba(0,0,0,.08)}
-body{background:#f8fafc}
+  {% set bg_col = bg_col or '#f8fafc' %}
+  {% set btn_col = btn_col or '#ffffff' %}
+  {% set txt_col = txt_col or '#1e293b' %}
+  :root{--bg:{{ bg_col }};--card:{{ btn_col }};--text:{{ txt_col }};--sub:#64748b;--btn-bg:{{ btn_col }};--btn-border:#e2e8f0;--btn-hover:#f1f5f9;--accent:{{ accent }};--shadow:rgba(0,0,0,.08)}
+  body{background:{{ bg_col }}}
+
 {% elif profile.theme == 'gradient' %}
-:root{--card:rgba(255,255,255,.1);--text:#fff;--sub:rgba(255,255,255,.7);--btn-bg:rgba(255,255,255,.12);--btn-border:rgba(255,255,255,.2);--btn-hover:rgba(255,255,255,.2);--accent:{{ profile.accent_color }};--shadow:rgba(0,0,0,.3)}
-body{background:linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#581c87 100%);background-attachment:fixed}
+  {% set bg_col = bg_col or '#1e1b4b' %}
+  {% set btn_col = btn_col or 'rgba(255,255,255,.12)' %}
+  {% set txt_col = txt_col or '#ffffff' %}
+  :root{--bg:{{ bg_col }};--card:{{ btn_col }};--text:{{ txt_col }};--sub:rgba(255,255,255,.65);--btn-bg:{{ btn_col }};--btn-border:rgba(255,255,255,.22);--btn-hover:rgba(255,255,255,.2);--accent:{{ accent }};--shadow:rgba(0,0,0,.3)}
+  body{background:linear-gradient(135deg,{{ bg_col }} 0%,{{ bg_col }} 50%,{{ accent }}22 100%);background-attachment:fixed}
+
 {% elif profile.theme == 'neon' %}
-:root{--bg:#0a0a0a;--card:#111;--text:#e2e8f0;--sub:#6b7280;--btn-bg:#111;--btn-border:{{ profile.accent_color }};--btn-hover:#1a1a1a;--accent:{{ profile.accent_color }};--shadow:{{ profile.accent_color }}40}
-body{background:#0a0a0a}
-{% else %}
-:root{--bg:#fff;--card:#fafafa;--text:#1e293b;--sub:#9ca3af;--btn-bg:#fff;--btn-border:#f3f4f6;--btn-hover:#f9fafb;--accent:{{ profile.accent_color }};--shadow:rgba(0,0,0,.05)}
-body{background:#fff}
+  {% set bg_col = bg_col or '#0a0a0a' %}
+  {% set btn_col = btn_col or '#111111' %}
+  {% set txt_col = txt_col or '#e2e8f0' %}
+  :root{--bg:{{ bg_col }};--card:{{ btn_col }};--text:{{ txt_col }};--sub:#6b7280;--btn-bg:{{ btn_col }};--btn-border:{{ accent }};--btn-hover:#1a1a1a;--accent:{{ accent }};--shadow:{{ accent }}40}
+  body{background:{{ bg_col }}}
+
+{% else %}{# minimal #}
+  {% set bg_col = bg_col or '#ffffff' %}
+  {% set btn_col = btn_col or '#ffffff' %}
+  {% set txt_col = txt_col or '#1e293b' %}
+  :root{--bg:{{ bg_col }};--card:{{ btn_col }};--text:{{ txt_col }};--sub:#9ca3af;--btn-bg:{{ btn_col }};--btn-border:#f3f4f6;--btn-hover:#f9fafb;--accent:{{ accent }};--shadow:rgba(0,0,0,.05)}
+  body{background:{{ bg_col }}}
 {% endif %}
 
 body{font-family:'Rethink Sans',sans-serif;color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 16px 80px}
 
-.profile{width:100%;max-width:480px;display:flex;flex-direction:column;align-items:center}
+{% if profile.theme == 'neon' %}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 100%,{{ accent }}18 0%,transparent 60%);pointer-events:none;z-index:0}
+{% endif %}
 
-/* Avatar */
-.avatar{width:96px;height:96px;border-radius:50%;border:3px solid var(--accent);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin-bottom:16px;background:var(--card);box-shadow:0 0 24px rgba(0,0,0,.2);flex-shrink:0}
+.profile{width:100%;max-width:480px;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
+
+.avatar{width:96px;height:96px;border-radius:50%;border:3px solid var(--accent);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin-bottom:16px;background:var(--card);flex-shrink:0;
+  {% if profile.theme == 'neon' %}box-shadow:0 0 24px {{ accent }}55{% else %}box-shadow:0 0 24px rgba(0,0,0,.2){% endif %}}
 .avatar img{width:100%;height:100%;object-fit:cover}
 
 .display-name{font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:6px;text-align:center}
 .username-tag{font-size:0.82rem;color:var(--sub);margin-bottom:10px}
 .bio{font-size:0.9rem;color:var(--sub);text-align:center;line-height:1.55;max-width:360px;margin-bottom:28px}
 
-/* Links */
 .links{width:100%;display:flex;flex-direction:column;gap:12px;margin-bottom:32px}
 
-.link-btn{display:flex;align-items:center;gap:14px;width:100%;padding:16px 20px;background:var(--btn-bg);border:1.5px solid var(--btn-border);border-radius:14px;color:var(--text);text-decoration:none;font-weight:600;font-size:0.95rem;transition:all .2s;cursor:pointer;box-shadow:0 2px 8px var(--shadow);position:relative;overflow:hidden}
+.link-btn{display:flex;align-items:center;gap:14px;width:100%;padding:16px 20px;background:var(--btn-bg);border:1.5px solid var(--btn-border);border-radius:14px;color:var(--text);text-decoration:none;font-weight:600;font-size:0.95rem;transition:all .2s;cursor:pointer;position:relative;overflow:hidden;
+  {% if profile.theme == 'neon' %}box-shadow:0 0 12px {{ accent }}22{% else %}box-shadow:0 2px 8px var(--shadow){% endif %}}
 .link-btn::before{content:'';position:absolute;inset:0;background:var(--accent);opacity:0;transition:opacity .2s}
-.link-btn:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 20px var(--shadow)}
+.link-btn:hover{border-color:var(--accent);transform:translateY(-2px);
+  {% if profile.theme == 'neon' %}box-shadow:0 0 24px {{ accent }}44{% else %}box-shadow:0 6px 20px var(--shadow){% endif %}}
 .link-btn:hover::before{opacity:0.06}
 .link-btn:active{transform:translateY(0)}
 
-{% if profile.theme == 'neon' %}
-.link-btn{box-shadow:0 0 12px var(--shadow)}
-.link-btn:hover{box-shadow:0 0 24px var(--shadow)}
-{% endif %}
-
 .link-icon{font-size:1.3rem;flex-shrink:0;position:relative}
 .link-title{flex:1;position:relative;text-align:left}
-.link-arrow{color:var(--sub);font-size:0.9rem;position:relative;transition:transform .2s}
+.link-arrow{color:var(--accent);font-size:0.9rem;position:relative;transition:transform .2s}
 .link-btn:hover .link-arrow{transform:translateX(3px)}
 
-/* Powered by */
 .powered{margin-top:8px;display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--sub)}
 .powered a{color:var(--accent);text-decoration:none;font-weight:700}
 .powered a:hover{text-decoration:underline}
 
-/* Offline notice */
 .offline-notice{text-align:center;padding:60px 20px}
 .offline-notice .icon{font-size:3rem;margin-bottom:12px}
 .offline-notice h2{font-size:1.1rem;color:var(--text);margin-bottom:6px}
@@ -83,7 +106,6 @@ body{font-family:'Rethink Sans',sans-serif;color:var(--text);min-height:100vh;di
 {% else %}
 <div class="profile">
 
-  <!-- Avatar -->
   <div class="avatar">
     {% if profile.avatar_data %}
       <img src="{{ profile.avatar_data }}" alt="{{ profile.display_name }}">
@@ -100,7 +122,6 @@ body{font-family:'Rethink Sans',sans-serif;color:var(--text);min-height:100vh;di
   <div class="bio" style="opacity:.4;font-style:italic">No bio yet</div>
   {% endif %}
 
-  <!-- Links -->
   <div class="links">
     {% for link in links %}
     {% if link.is_active %}
@@ -113,7 +134,6 @@ body{font-family:'Rethink Sans',sans-serif;color:var(--text);min-height:100vh;di
     {% endfor %}
   </div>
 
-  <!-- Powered by -->
   <div class="powered">
     ⚡ Powered by <a href="/" target="_blank">SuperAdPro LinkHub</a>
   </div>

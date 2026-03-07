@@ -572,6 +572,8 @@ class LinkHubProfile(Base):
     avatar_data     = Column(Text, nullable=True)          # base64 data URL — survives ephemeral filesystem
     theme           = Column(String, default="dark")       # dark|light|gradient|neon|minimal
     bg_color        = Column(String, default="#050d1a")
+    btn_color       = Column(String, nullable=True)
+    text_color      = Column(String, nullable=True)
     accent_color    = Column(String, default="#00d4ff")
     font_family     = Column(String, default="Rethink Sans")
     is_published    = Column(Boolean, default=True)
@@ -789,6 +791,8 @@ try:
         # Mark existing users as onboarding complete (they don't need the wizard)
         conn.execute(text("UPDATE users SET onboarding_completed = TRUE WHERE onboarding_completed IS NULL OR (created_at < NOW() - INTERVAL '1 hour')"))
         conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS avatar_data TEXT"))
+        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS btn_color VARCHAR"))
+        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS text_color VARCHAR"))
         # ── LinkHub tables ──
         conn.execute(text("CREATE TABLE IF NOT EXISTS linkhub_profiles (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, display_name VARCHAR, bio TEXT, avatar_url VARCHAR, theme VARCHAR DEFAULT 'dark', bg_color VARCHAR DEFAULT '#050d1a', accent_color VARCHAR DEFAULT '#00d4ff', font_family VARCHAR DEFAULT 'Rethink Sans', is_published BOOLEAN DEFAULT TRUE, total_views INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())"))
         conn.execute(text("CREATE TABLE IF NOT EXISTS linkhub_links (id SERIAL PRIMARY KEY, profile_id INTEGER REFERENCES linkhub_profiles(id), user_id INTEGER REFERENCES users(id), title VARCHAR NOT NULL, url VARCHAR NOT NULL, icon VARCHAR DEFAULT '🔗', is_active BOOLEAN DEFAULT TRUE, sort_order INTEGER DEFAULT 0, click_count INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW())"))

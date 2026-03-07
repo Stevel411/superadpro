@@ -5,386 +5,409 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>LinkHub Editor — SuperAdPro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/mobile.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Rethink Sans',sans-serif;background:#f0f4f8;color:#1e293b}
+body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#1e293b;height:100vh;overflow:hidden;display:flex}
+.layout{display:flex;width:100%;height:100vh;overflow:hidden}
 
-/* ── SIDEBAR ── */
+/* ── SIDEBAR — do NOT redefine; _sidebar.html handles all nav styles ── */
 .sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.nav-scroll{flex:1;overflow-y:auto;padding:8px 0}
-.nav-divider{height:1px;background:rgba(255,255,255,0.06);margin:8px 16px}
-.nav-group{overflow:hidden}
-.nav-header{display:flex;align-items:center;justify-content:space-between;padding:8px 18px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(200,220,255,0.35);cursor:pointer;user-select:none}
-.nav-chevron{font-size:14px;transition:transform 0.2s}
-.nav-group.open .nav-chevron{transform:rotate(90deg)}
-.nav-group:not(.open) .nav-children{display:none}
-.nav-children .nav-item{padding-left:28px;font-size:13px}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;min-height:72px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
 .nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:14px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
 .nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
 .nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
-.nav-item.nav-standalone{border-left:2px solid transparent}
 .nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
 
-/* ── TOPBAR ── */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#1c223d;border-bottom:1px solid rgba(0,212,255,0.1);position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,212,255,0.12),0 4px 20px rgba(0,0,0,.25)}
-.topbar-title{font-size:1.15rem;font-weight:800;color:#fff}
+/* ── MAIN ── */
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* ── TOPBAR — matches platform exactly: 72px, #1c223d ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:72px;background:#1c223d;border-bottom:1px solid rgba(14,165,233,0.12);flex-shrink:0;z-index:50}
+.topbar-title{font-size:19px;font-weight:800;color:#fff}
 .topbar-title span{color:#38bdf8}
 .topbar-sub{font-size:12px;color:rgba(0,212,255,0.45);margin-top:2px}
-.live-url-top{font-size:0.82rem;color:#94a3b8;background:rgba(255,255,255,.06);padding:6px 14px;border-radius:20px;display:flex;align-items:center;gap:8px}
-.live-url-top a{color:#38bdf8;text-decoration:none;font-weight:600}
-.live-url-top a:hover{text-decoration:underline}
+.topbar-url{font-size:13px;color:#94a3b8;background:rgba(255,255,255,.06);padding:6px 14px;border-radius:20px;display:flex;align-items:center;gap:8px}
+.topbar-url a{color:#38bdf8;text-decoration:none;font-weight:600}
+.topbar-url a:hover{text-decoration:underline}
 
-/* ── MAIN ── */
-.main{margin-left:224px;min-height:100vh}
-.main-inner{padding:28px 32px}
-.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
-.live-url-top{font-size:0.82rem}
+/* ── CONTENT — only this scrolls ── */
+.content{flex:1;overflow-y:auto;padding:20px 28px 32px;scrollbar-gutter:stable}
+.content::-webkit-scrollbar{width:5px}
+.content::-webkit-scrollbar-thumb{background:rgba(15,25,60,.12);border-radius:99px}
 
-/* Layout */
-.editor-grid{display:grid;grid-template-columns:1fr 380px;gap:24px;align-items:start}
+/* ── STATS ROW ── */
+.lh-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+.lh-stat{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:14px;padding:16px;text-align:center;box-shadow:0 1px 3px rgba(15,25,60,.06)}
+.lh-stat-val{font-family:Sora,sans-serif;font-size:26px;font-weight:800;color:#0ea5e9}
+.lh-stat-lbl{font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-top:4px}
+
+/* ── EDITOR GRID ── */
+.editor-grid{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start}
 @media(max-width:1100px){.editor-grid{grid-template-columns:1fr}}
 
-/* Cards */
-.card{background:#fff;border-radius:16px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.card-title{font-size:1rem;font-weight:700;color:#1e293b;margin-bottom:18px;display:flex;align-items:center;gap:8px}
-.card-title span{font-size:1.2rem}
+/* ── CARDS ── */
+.card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:16px;padding:22px;box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 16px rgba(15,25,60,.07);margin-bottom:16px}
+.card:last-child{margin-bottom:0}
+.card-title{font-size:15px;font-weight:800;color:#0f172a;margin-bottom:18px;display:flex;align-items:center;gap:8px}
 
-/* Form fields */
-.field{margin-bottom:16px}
-.field label{display:block;font-size:0.82rem;font-weight:600;color:#475569;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.field input,.field textarea,.field select{width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-family:inherit;font-size:0.9rem;color:#1e293b;background:#f8fafc;transition:border-color .2s}
+/* ── FORM FIELDS ── */
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:11px;font-weight:800;color:#7b91a8;margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px}
+.field input,.field textarea,.field select{width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-family:inherit;font-size:14px;color:#1e293b;background:#f8fafc;transition:border-color .2s}
 .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:#0ea5e9;background:#fff}
-.field textarea{min-height:80px;resize:vertical}
+.field textarea{min-height:76px;resize:vertical}
 
-/* Avatar upload */
+/* ── AVATAR ── */
 .avatar-upload{display:flex;align-items:center;gap:16px;margin-bottom:16px}
 .avatar-preview{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;flex-shrink:0;border:3px solid #e2e8f0}
 .avatar-preview img{width:100%;height:100%;object-fit:cover}
-.avatar-btn{padding:8px 16px;background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;color:#475569;transition:all .2s}
+.avatar-btn{padding:8px 16px;background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;color:#475569;transition:all .2s;font-family:inherit}
 .avatar-btn:hover{background:#e2e8f0}
 #avatar-input{display:none}
 
-/* Theme picker */
-.theme-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:8px}
-.theme-opt{border:2px solid #e2e8f0;border-radius:14px;padding:0;cursor:pointer;text-align:center;font-size:0.75rem;font-weight:700;transition:all .22s;overflow:hidden;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.theme-opt:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,.12)}
-.theme-opt.selected{border-width:2.5px;box-shadow:0 0 0 3px rgba(14,165,233,.2),0 4px 16px rgba(0,0,0,.12);transform:translateY(-2px)}
-.theme-opt.selected.t-dark{border-color:#38bdf8}
-.theme-opt.selected.t-light{border-color:#94a3b8}
-.theme-opt.selected.t-gradient{border-color:#8b5cf6}
-.theme-opt.selected.t-neon{border-color:#00ff88}
-.theme-opt.selected.t-minimal{border-color:#64748b}
-
-.swatch{width:100%;height:64px;position:relative;overflow:hidden}
-.theme-label{padding:8px 4px 10px;font-size:0.72rem;font-weight:800;letter-spacing:.3px}
-
-/* Dark swatch */
-.t-dark .swatch{background:linear-gradient(160deg,#050d1a 0%,#0f2040 60%,#0ea5e9 200%)}
-.t-dark .swatch::after{content:'';position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:60%;height:3px;background:rgba(0,212,255,.5);border-radius:2px;box-shadow:0 0 8px rgba(0,212,255,.6)}
-.t-dark .theme-label{color:#1e293b}
-
-/* Light swatch */
-.t-light .swatch{background:linear-gradient(160deg,#f8fafc,#e8f0fe)}
-.t-light .swatch::before{content:'';position:absolute;top:10px;left:50%;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#dbeafe,#bfdbfe);border:2px solid #93c5fd}
-.t-light .swatch::after{content:'';position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:55%;height:8px;background:#e2e8f0;border-radius:4px}
-.t-light .theme-label{color:#1e293b}
-
-/* Gradient swatch */
-.t-gradient .swatch{background:linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899,#f43f5e)}
-.t-gradient .swatch::after{content:'✦';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.4rem;color:rgba(255,255,255,.9);text-shadow:0 0 12px rgba(255,255,255,.6)}
-.t-gradient .theme-label{color:#6366f1}
-
-/* Neon swatch */
-.t-neon .swatch{background:#0a0a0a}
-.t-neon .swatch::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 120%,rgba(0,255,136,.25) 0%,transparent 70%)}
-.t-neon .swatch::after{content:'⚡';position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);font-size:1.6rem;filter:drop-shadow(0 0 8px #00ff88) drop-shadow(0 0 16px #00ff88)}
-.t-neon .theme-label{color:#059669;text-shadow:0 0 8px rgba(0,255,136,.3)}
-.t-neon.selected .theme-label{color:#00cc6a}
-
-/* Minimal swatch */
-.t-minimal .swatch{background:#fff;border-bottom:1px solid #f1f5f9}
-.t-minimal .swatch::before{content:'';position:absolute;top:14px;left:50%;transform:translateX(-50%);width:50%;height:6px;background:#e2e8f0;border-radius:3px}
-.t-minimal .swatch::after{content:'';position:absolute;top:28px;left:50%;transform:translateX(-50%);width:35%;height:4px;background:#f1f5f9;border-radius:3px}
-.t-minimal .theme-label{color:#64748b}
-
-/* Accent colour */
-.accent-section{margin-top:4px}
-.accent-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;align-items:center}
-.accent-dot{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s;box-shadow:0 2px 6px rgba(0,0,0,.15);position:relative}
-.accent-dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid transparent;transition:border-color .2s}
-.accent-dot.selected{transform:scale(1.18);box-shadow:0 3px 12px rgba(0,0,0,.25)}
-.accent-dot.selected::after{border-color:currentColor}
-.accent-dot:hover{transform:scale(1.1)}
-.accent-custom-row{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;background:#f8fafc;border-radius:10px;border:1.5px solid #e2e8f0}
-.accent-custom-row input[type=color]{width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;padding:0;background:none}
-.accent-custom-row span{font-size:0.82rem;color:#64748b;font-weight:500}
-
-/* Links section */
-.links-list{display:flex;flex-direction:column;gap:10px;min-height:40px}
-.link-item{display:flex;align-items:center;gap:10px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;transition:all .2s}
-.link-item:hover{border-color:#0ea5e9;background:#f0f9ff}
-.link-drag{cursor:grab;color:#94a3b8;font-size:1.1rem;flex-shrink:0}
-.link-icon-btn{width:36px;height:36px;border-radius:8px;background:#fff;border:1.5px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;flex-shrink:0;transition:all .2s}
-.link-icon-btn:hover{border-color:#0ea5e9}
-.link-fields{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.link-fields input{padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:0.83rem;color:#1e293b;background:#fff;width:100%}
-.link-fields input:focus{outline:none;border-color:#0ea5e9}
-.link-toggle{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.toggle-sw{position:relative;width:36px;height:20px;cursor:pointer}
-.toggle-sw input{opacity:0;width:0;height:0}
-.toggle-track{position:absolute;top:0;left:0;right:0;bottom:0;background:#cbd5e1;border-radius:20px;transition:.3s}
-.toggle-sw input:checked + .toggle-track{background:#0ea5e9}
-.toggle-track:before{content:'';position:absolute;height:14px;width:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
-.toggle-sw input:checked + .toggle-track:before{transform:translateX(16px)}
-.link-del{background:none;border:none;color:#f87171;cursor:pointer;font-size:1.1rem;padding:4px;border-radius:6px;transition:all .2s;flex-shrink:0}
-.link-del:hover{background:#fef2f2}
-.link-stats{font-size:0.72rem;color:#94a3b8;white-space:nowrap;flex-shrink:0}
-
-.add-link-btn{width:100%;padding:12px;background:#f0f9ff;border:2px dashed #bae6fd;border-radius:12px;color:#0ea5e9;font-weight:700;font-size:0.9rem;cursor:pointer;margin-top:12px;transition:all .2s;font-family:inherit}
-.add-link-btn:hover{background:#e0f2fe;border-color:#0ea5e9}
-
-/* Icon picker modal */
-.icon-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
-.icon-modal.open{display:flex}
-.icon-box{background:#fff;border-radius:16px;padding:24px;width:340px;max-height:80vh;overflow-y:auto}
-.icon-box h3{font-size:1rem;font-weight:700;margin-bottom:14px}
-.icon-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
-.icon-cell{width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;border-radius:8px;cursor:pointer;transition:background .15s}
-.icon-cell:hover{background:#f0f9ff}
-.icon-cell.selected{background:#e0f2fe;outline:2px solid #0ea5e9}
-
-/* Save button */
-.save-bar{display:flex;align-items:center;gap:12px;margin-top:24px;flex-wrap:wrap}
-.btn-save{padding:12px 32px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border:none;border-radius:12px;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:inherit;transition:all .2s;box-shadow:0 4px 12px rgba(14,165,233,.3)}
-.btn-save:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(14,165,233,.4)}
-.btn-save:disabled{opacity:.6;cursor:not-allowed;transform:none}
-.btn-preview{padding:12px 24px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;border-radius:12px;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
-.btn-preview:hover{background:#e2e8f0}
-.save-msg{font-size:0.85rem;color:#10b981;font-weight:600;display:none}
-.save-msg.show{display:block}
-
-/* Preview panel */
-.preview-panel{position:sticky;top:80px}
-.phone-shell{width:260px;height:520px;background:#fff;border-radius:36px;border:8px solid #1e293b;box-shadow:0 20px 60px rgba(0,0,0,.25),inset 0 0 0 1px rgba(255,255,255,.1);position:relative;overflow:hidden;flex-shrink:0}
-.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:80px;height:18px;background:#1e293b;border-radius:0 0 14px 14px;z-index:10}
-.phone-screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
-.phone-screen::-webkit-scrollbar{display:none}
-
-/* ── PREVIEW INNER STYLES (scoped via .pv- prefix) ── */
-.pv-body{min-height:100%;display:flex;flex-direction:column;align-items:center;padding:36px 12px 40px;font-family:'Rethink Sans',sans-serif;transition:background .3s}
-.pv-avatar{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin-bottom:10px;border:3px solid;overflow:hidden;flex-shrink:0;transition:border-color .3s}
-.pv-avatar img{width:100%;height:100%;object-fit:cover}
-.pv-name{font-size:1rem;font-weight:800;margin-bottom:3px;text-align:center;transition:color .3s}
-.pv-username{font-size:0.7rem;margin-bottom:8px;transition:color .3s}
-.pv-bio{font-size:0.72rem;text-align:center;line-height:1.5;max-width:220px;margin-bottom:16px;transition:color .3s}
-.pv-links{width:100%;display:flex;flex-direction:column;gap:8px}
-.pv-link{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;border:1.5px solid;font-size:0.8rem;font-weight:600;transition:all .3s;cursor:default}
-.pv-link-icon{font-size:1rem;flex-shrink:0}
-.pv-link-title{flex:1}
-.pv-link-arrow{font-size:0.75rem;opacity:.6}
-.pv-empty{text-align:center;padding:20px 0;font-size:0.75rem;opacity:.5}
-.pv-powered{margin-top:16px;font-size:0.65rem;opacity:.5;text-align:center}
-
-/* Stats row */
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
-.stat-card{background:#fff;border-radius:12px;padding:16px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.stat-val{font-size:1.6rem;font-weight:800;color:#0ea5e9}
-.stat-lbl{font-size:0.75rem;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-
-/* Publish toggle */
-.publish-row{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#f8fafc;border-radius:12px;border:1.5px solid #e2e8f0;margin-bottom:16px}
-.publish-info h4{font-size:0.9rem;font-weight:700;color:#1e293b}
-.publish-info p{font-size:0.78rem;color:#94a3b8}
+/* ── PUBLISH TOGGLE ── */
+.publish-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#f8fafc;border-radius:12px;border:1.5px solid #e2e8f0}
+.publish-info h4{font-size:14px;font-weight:700;color:#1e293b}
+.publish-info p{font-size:12px;color:#94a3b8;margin-top:2px}
 .big-toggle{position:relative;width:52px;height:28px;cursor:pointer;flex-shrink:0}
 .big-toggle input{opacity:0;width:0;height:0}
 .big-track{position:absolute;top:0;left:0;right:0;bottom:0;background:#cbd5e1;border-radius:28px;transition:.3s}
 .big-toggle input:checked + .big-track{background:#10b981}
 .big-track:before{content:'';position:absolute;height:20px;width:20px;left:4px;bottom:4px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
 .big-toggle input:checked + .big-track:before{transform:translateX(24px)}
+
+/* ── THEME PICKER ── */
+.theme-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:4px}
+.theme-opt{border:2px solid #e2e8f0;border-radius:12px;cursor:pointer;text-align:center;overflow:hidden;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.06);transition:all .2s}
+.theme-opt:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.1)}
+.theme-opt.selected{border-width:2.5px;box-shadow:0 0 0 3px rgba(14,165,233,.2),0 4px 14px rgba(0,0,0,.1);transform:translateY(-2px)}
+.theme-opt.selected.t-dark{border-color:#38bdf8}
+.theme-opt.selected.t-light{border-color:#94a3b8}
+.theme-opt.selected.t-gradient{border-color:#8b5cf6}
+.theme-opt.selected.t-neon{border-color:#00ff88}
+.theme-opt.selected.t-minimal{border-color:#64748b}
+.swatch{width:100%;height:56px;position:relative;overflow:hidden}
+.theme-label{padding:6px 4px 8px;font-size:11px;font-weight:800;letter-spacing:.3px}
+.t-dark .swatch{background:linear-gradient(160deg,#050d1a 0%,#0f2040 100%)}
+.t-dark .swatch::after{content:'';position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:60%;height:3px;background:rgba(0,212,255,.5);border-radius:2px}
+.t-dark .theme-label{color:#1e293b}
+.t-light .swatch{background:linear-gradient(160deg,#f8fafc,#e8f0fe)}
+.t-light .swatch::before{content:'';position:absolute;top:10px;left:50%;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#dbeafe,#bfdbfe);border:2px solid #93c5fd}
+.t-light .theme-label{color:#1e293b}
+.t-gradient .swatch{background:linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899)}
+.t-gradient .swatch::after{content:'✦';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.2rem;color:rgba(255,255,255,.9)}
+.t-gradient .theme-label{color:#6366f1}
+.t-neon .swatch{background:#0a0a0a}
+.t-neon .swatch::after{content:'⚡';position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);font-size:1.4rem;filter:drop-shadow(0 0 6px #00ff88)}
+.t-neon .theme-label{color:#059669}
+.t-minimal .swatch{background:#fff;border-bottom:1px solid #f1f5f9}
+.t-minimal .swatch::before{content:'';position:absolute;top:14px;left:50%;transform:translateX(-50%);width:50%;height:5px;background:#e2e8f0;border-radius:3px}
+.t-minimal .swatch::after{content:'';position:absolute;top:26px;left:50%;transform:translateX(-50%);width:35%;height:4px;background:#f1f5f9;border-radius:3px}
+.t-minimal .theme-label{color:#64748b}
+
+/* ── COLOUR CUSTOMISER ── */
+.colour-customiser{margin-top:16px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:16px}
+.colour-customiser-title{font-size:11px;font-weight:800;color:#7b91a8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px}
+.colour-rows{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.colour-row{display:flex;flex-direction:column;gap:6px}
+.colour-row label{font-size:11px;font-weight:700;color:#64748b}
+.colour-row-inner{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;padding:6px 10px}
+.colour-row-inner input[type=color]{width:28px;height:28px;border:none;border-radius:6px;cursor:pointer;padding:0;background:none;flex-shrink:0}
+.colour-row-inner span{font-size:12px;color:#94a3b8;font-family:monospace}
+.accent-presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.accent-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.accent-dot.selected{transform:scale(1.18);box-shadow:0 3px 12px rgba(0,0,0,.25);border-color:#fff}
+.accent-dot:hover{transform:scale(1.1)}
+.reset-btn{font-size:11px;font-weight:700;color:#0ea5e9;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;margin-top:8px}
+.reset-btn:hover{text-decoration:underline}
+
+/* ── LINKS ── */
+.links-list{display:flex;flex-direction:column;gap:10px;min-height:40px}
+.link-item{display:flex;align-items:center;gap:10px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;transition:all .2s}
+.link-item:hover{border-color:#0ea5e9;background:#f0f9ff}
+.link-drag{cursor:grab;color:#94a3b8;font-size:18px;flex-shrink:0}
+.link-icon-btn{width:36px;height:36px;border-radius:8px;background:#fff;border:1.5px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0;transition:all .2s}
+.link-icon-btn:hover{border-color:#0ea5e9}
+.link-fields{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.link-fields input{padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:13px;color:#1e293b;background:#fff;width:100%}
+.link-fields input:focus{outline:none;border-color:#0ea5e9}
+.toggle-sw{position:relative;width:36px;height:20px;cursor:pointer;flex-shrink:0}
+.toggle-sw input{opacity:0;width:0;height:0}
+.toggle-track{position:absolute;top:0;left:0;right:0;bottom:0;background:#cbd5e1;border-radius:20px;transition:.3s}
+.toggle-sw input:checked + .toggle-track{background:#0ea5e9}
+.toggle-track:before{content:'';position:absolute;height:14px;width:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle-sw input:checked + .toggle-track:before{transform:translateX(16px)}
+.link-del{background:none;border:none;color:#f87171;cursor:pointer;font-size:18px;padding:4px;border-radius:6px;transition:all .2s;flex-shrink:0}
+.link-del:hover{background:#fef2f2}
+.link-stats{font-size:11px;color:#94a3b8;white-space:nowrap;flex-shrink:0}
+.add-link-btn{width:100%;padding:12px;background:#f0f9ff;border:2px dashed #bae6fd;border-radius:12px;color:#0ea5e9;font-weight:700;font-size:14px;cursor:pointer;margin-top:12px;transition:all .2s;font-family:inherit}
+.add-link-btn:hover{background:#e0f2fe;border-color:#0ea5e9}
+
+/* ── ICON MODAL ── */
+.icon-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.icon-modal.open{display:flex}
+.icon-box{background:#fff;border-radius:16px;padding:24px;width:340px;max-height:80vh;overflow-y:auto}
+.icon-box h3{font-size:15px;font-weight:800;margin-bottom:14px}
+.icon-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+.icon-cell{width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:20px;border-radius:8px;cursor:pointer;transition:background .15s}
+.icon-cell:hover{background:#f0f9ff}
+.icon-cell.selected{background:#e0f2fe;outline:2px solid #0ea5e9}
+
+/* ── SAVE BAR ── */
+.save-bar{display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap}
+.btn-save{padding:12px 28px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border:none;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:all .2s;box-shadow:0 4px 12px rgba(14,165,233,.3)}
+.btn-save:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(14,165,233,.4)}
+.btn-save:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-preview{padding:12px 20px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+.btn-preview:hover{background:#e2e8f0}
+.save-msg{font-size:13px;color:#10b981;font-weight:700;display:none}
+.save-msg.show{display:block}
+
+/* ── PHONE PREVIEW ── */
+.preview-panel{position:sticky;top:0}
+.phone-shell{width:240px;height:480px;background:#fff;border-radius:34px;border:8px solid #1e293b;box-shadow:0 20px 60px rgba(0,0,0,.25),inset 0 0 0 1px rgba(255,255,255,.1);position:relative;overflow:hidden;margin:0 auto}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:72px;height:16px;background:#1e293b;border-radius:0 0 12px 12px;z-index:10}
+.phone-screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.phone-screen::-webkit-scrollbar{display:none}
+
+/* ── PREVIEW INNER ── */
+.pv-body{min-height:100%;display:flex;flex-direction:column;align-items:center;padding:32px 12px 36px;font-family:'Rethink Sans',sans-serif;transition:background .3s}
+.pv-avatar{width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:8px;border:3px solid;overflow:hidden;flex-shrink:0}
+.pv-avatar img{width:100%;height:100%;object-fit:cover}
+.pv-name{font-size:15px;font-weight:800;margin-bottom:2px;text-align:center}
+.pv-username{font-size:11px;margin-bottom:6px}
+.pv-bio{font-size:11px;text-align:center;line-height:1.5;max-width:200px;margin-bottom:14px}
+.pv-links{width:100%;display:flex;flex-direction:column;gap:7px}
+.pv-link{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1.5px solid;font-size:12px;font-weight:600;cursor:default}
+.pv-link-icon{font-size:14px;flex-shrink:0}
+.pv-link-title{flex:1}
+.pv-link-arrow{font-size:11px;opacity:.6}
+.pv-empty{text-align:center;padding:16px 0;font-size:11px;opacity:.5}
+.pv-powered{margin-top:14px;font-size:10px;opacity:.5;text-align:center}
 </style>
 </head>
 <body>
+<div class="layout">
+
 {% include "_sidebar.html" %}
+
 <div class="main">
 
-  <!-- Dark topbar -->
+  <!-- TOPBAR -->
   <div class="topbar">
     <div>
       <div class="topbar-title">🔗 <span>LinkHub</span> Editor</div>
       <div class="topbar-sub">Build your personal link page</div>
     </div>
-    <div class="live-url-top">
+    <div class="topbar-url">
       Your URL: <a href="/u/{{ current_user.username }}" target="_blank">superadpro.com/u/{{ current_user.username }}</a>
-      <button onclick="copyUrl()" style="background:none;border:none;cursor:pointer;color:#38bdf8;font-size:1rem" title="Copy">📋</button>
+      <button onclick="copyUrl()" style="background:none;border:none;cursor:pointer;color:#38bdf8;font-size:16px" title="Copy">📋</button>
     </div>
   </div>
 
-  <div class="main-inner">
+  <!-- CONTENT -->
+  <div class="content">
 
-  <!-- Stats -->
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-val">{{ profile.total_views if profile else 0 }}</div>
-      <div class="stat-lbl">Profile Views</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-val">{{ links|length }}</div>
-      <div class="stat-lbl">Active Links</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-val">{{ total_clicks }}</div>
-      <div class="stat-lbl">Total Clicks</div>
-    </div>
-  </div>
-
-  <div class="editor-grid">
-    <!-- LEFT: Editor -->
-    <div>
-
-      <!-- Publish toggle -->
-      <div class="card" style="margin-bottom:20px;padding:16px">
-        <div class="publish-row" style="margin-bottom:0;border:none;padding:0;background:none">
-          <div class="publish-info">
-            <h4>Profile Status</h4>
-            <p>When published, your LinkHub is live and visible to anyone with your link.</p>
-          </div>
-          <label class="big-toggle">
-            <input type="checkbox" id="is-published" {% if not profile or profile.is_published %}checked{% endif %}>
-            <div class="big-track"></div>
-          </label>
-        </div>
+    <!-- Stats -->
+    <div class="lh-stats">
+      <div class="lh-stat">
+        <div class="lh-stat-val">{{ profile.total_views if profile else 0 }}</div>
+        <div class="lh-stat-lbl">Profile Views</div>
       </div>
-
-      <!-- Profile details -->
-      <div class="card" style="margin-bottom:20px">
-        <div class="card-title"><span>👤</span> Profile Info</div>
-
-        <div class="avatar-upload">
-          <div class="avatar-preview" id="avatar-preview">
-            {% if profile and profile.avatar_data %}
-              <img src="{{ profile.avatar_data }}" id="avatar-img" style="width:100%;height:100%;object-fit:cover">
-            {% else %}
-              <span id="avatar-emoji">{{ (current_user.first_name[0] if current_user.first_name else current_user.username[0]) | upper }}</span>
-            {% endif %}
-          </div>
-          <div>
-            <button class="avatar-btn" onclick="document.getElementById('avatar-input').click()">📷 Change Photo</button>
-            <input type="file" id="avatar-input" accept="image/*" onchange="handleAvatar(this)">
-            <div style="font-size:0.75rem;color:#94a3b8;margin-top:4px">JPG or PNG, max 2MB</div>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Display Name</label>
-          <input type="text" id="display-name" value="{{ profile.display_name if profile and profile.display_name else (current_user.first_name + ' ' + current_user.last_name if current_user.first_name else current_user.username) }}" placeholder="Your name or brand">
-        </div>
-        <div class="field">
-          <label>Bio</label>
-          <textarea id="bio" placeholder="Short bio — tell visitors who you are...">{{ profile.bio if profile and profile.bio else '' }}</textarea>
-        </div>
+      <div class="lh-stat">
+        <div class="lh-stat-val">{{ links|length }}</div>
+        <div class="lh-stat-lbl">Active Links</div>
       </div>
+      <div class="lh-stat">
+        <div class="lh-stat-val">{{ total_clicks }}</div>
+        <div class="lh-stat-lbl">Total Clicks</div>
+      </div>
+    </div>
 
-      <!-- Links -->
-      <div class="card" style="margin-bottom:20px">
-        <div class="card-title"><span>🔗</span> Your Links</div>
-        <div class="links-list" id="links-list">
-          {% for link in links %}
-          <div class="link-item" data-id="{{ link.id }}" data-order="{{ link.sort_order }}">
-            <span class="link-drag">⠿</span>
-            <button class="link-icon-btn" onclick="openIconPicker(this)" data-current="{{ link.icon }}">{{ link.icon }}</button>
-            <div class="link-fields">
-              <input type="text" placeholder="Link title" value="{{ link.title }}" class="link-title">
-              <input type="url" placeholder="https://..." value="{{ link.url }}" class="link-url">
+    <div class="editor-grid">
+
+      <!-- ── LEFT: EDITOR ── -->
+      <div>
+
+        <!-- Publish status -->
+        <div class="card">
+          <div class="publish-row">
+            <div class="publish-info">
+              <h4>Profile Status</h4>
+              <p>When published, your LinkHub is live and visible to anyone with your link.</p>
             </div>
-            <div class="link-stats">{{ link.click_count }} clicks</div>
-            <div class="link-toggle">
+            <label class="big-toggle">
+              <input type="checkbox" id="is-published" {% if not profile or profile.is_published %}checked{% endif %}>
+              <div class="big-track"></div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Profile info -->
+        <div class="card">
+          <div class="card-title"><span>👤</span> Profile Info</div>
+          <div class="avatar-upload">
+            <div class="avatar-preview" id="avatar-preview">
+              {% if profile and profile.avatar_data %}
+                <img src="{{ profile.avatar_data }}" id="avatar-img" style="width:100%;height:100%;object-fit:cover">
+              {% else %}
+                <span id="avatar-emoji">{{ (current_user.first_name[0] if current_user.first_name else current_user.username[0]) | upper }}</span>
+              {% endif %}
+            </div>
+            <div>
+              <button class="avatar-btn" onclick="document.getElementById('avatar-input').click()">📷 Change Photo</button>
+              <input type="file" id="avatar-input" accept="image/*" onchange="handleAvatar(this)">
+              <div style="font-size:12px;color:#94a3b8;margin-top:4px">JPG or PNG, max 2MB</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Display Name</label>
+            <input type="text" id="display-name" value="{{ profile.display_name if profile and profile.display_name else (current_user.first_name + ' ' + current_user.last_name if current_user.first_name else current_user.username) }}" placeholder="Your name or brand">
+          </div>
+          <div class="field">
+            <label>Bio</label>
+            <textarea id="bio" placeholder="Short bio — tell visitors who you are...">{{ profile.bio if profile and profile.bio else '' }}</textarea>
+          </div>
+        </div>
+
+        <!-- Links -->
+        <div class="card">
+          <div class="card-title"><span>🔗</span> Your Links</div>
+          <div class="links-list" id="links-list">
+            {% for link in links %}
+            <div class="link-item" data-id="{{ link.id }}" data-order="{{ link.sort_order }}">
+              <span class="link-drag">⠿</span>
+              <button class="link-icon-btn" onclick="openIconPicker(this)" data-current="{{ link.icon }}">{{ link.icon }}</button>
+              <div class="link-fields">
+                <input type="text" placeholder="Link title" value="{{ link.title }}" class="link-title">
+                <input type="url" placeholder="https://..." value="{{ link.url }}" class="link-url">
+              </div>
+              <div class="link-stats">{{ link.click_count }} clicks</div>
               <label class="toggle-sw">
                 <input type="checkbox" {% if link.is_active %}checked{% endif %} class="link-active">
                 <div class="toggle-track"></div>
               </label>
-            </div>
-            <button class="link-del" onclick="deleteLink(this)" title="Delete">✕</button>
-          </div>
-          {% endfor %}
-        </div>
-        <button class="add-link-btn" onclick="addLink()">+ Add Link</button>
-      </div>
-
-      <!-- Appearance -->
-      <div class="card">
-        <div class="card-title"><span>🎨</span> Appearance</div>
-
-        <div class="field">
-          <label>Theme</label>
-          <div class="theme-grid">
-            {% set themes = [('dark','Dark'),('light','Light'),('gradient','Gradient'),('neon','Neon'),('minimal','Minimal')] %}
-            {% for val, name in themes %}
-            <div class="theme-opt t-{{ val }} {% if (profile and profile.theme == val) or (not profile and val == 'dark') %}selected{% endif %}"
-                 onclick="selectTheme('{{ val }}', this)" data-val="{{ val }}">
-              <div class="swatch"></div>
-              <div class="theme-label">{{ name }}</div>
+              <button class="link-del" onclick="deleteLink(this)" title="Delete">✕</button>
             </div>
             {% endfor %}
           </div>
-          <input type="hidden" id="theme-val" value="{{ profile.theme if profile else 'dark' }}">
+          <button class="add-link-btn" onclick="addLink()">+ Add Link</button>
         </div>
 
-        <div class="field accent-section">
-          <label>Accent Colour</label>
-          <div class="accent-row" id="accent-row">
-            {% set accents = ['#00d4ff','#0ea5e9','#6366f1','#8b5cf6','#ec4899','#10b981','#f59e0b','#ef4444','#ffffff'] %}
-            {% for c in accents %}
-            <div class="accent-dot {% if (profile and profile.accent_color == c) or (not profile and c == '#00d4ff') %}selected{% endif %}"
-                 style="background:{{ c }}{% if c == '#ffffff' %};border:2px solid #e2e8f0{% endif %}" onclick="selectAccent('{{ c }}', this)" data-val="{{ c }}" title="{{ c }}"></div>
-            {% endfor %}
+        <!-- Appearance -->
+        <div class="card">
+          <div class="card-title"><span>🎨</span> Appearance</div>
+
+          <!-- Theme selector -->
+          <div class="field">
+            <label>Theme</label>
+            <div class="theme-grid">
+              {% set themes = [('dark','Dark'),('light','Light'),('gradient','Gradient'),('neon','Neon'),('minimal','Minimal')] %}
+              {% for val, name in themes %}
+              <div class="theme-opt t-{{ val }} {% if (profile and profile.theme == val) or (not profile and val == 'dark') %}selected{% endif %}"
+                   onclick="selectTheme('{{ val }}', this)" data-val="{{ val }}">
+                <div class="swatch"></div>
+                <div class="theme-label">{{ name }}</div>
+              </div>
+              {% endfor %}
+            </div>
+            <input type="hidden" id="theme-val" value="{{ profile.theme if profile else 'dark' }}">
           </div>
-          <div class="accent-custom-row">
-            <input type="color" id="accent-custom-input" value="{{ profile.accent_color if profile else '#00d4ff' }}" oninput="selectAccentCustom(this)">
-            <span>Pick a custom colour</span>
+
+          <!-- Full colour customiser -->
+          <div class="colour-customiser" id="colour-customiser">
+            <div class="colour-customiser-title">🎨 Customise Colours</div>
+
+            <!-- Accent presets -->
+            <div style="margin-bottom:10px">
+              <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:8px">Accent / Highlight</div>
+              <div class="accent-presets" id="accent-presets">
+                {% set accents = ['#00d4ff','#0ea5e9','#6366f1','#8b5cf6','#ec4899','#10b981','#f59e0b','#ef4444','#ff6b35','#ffffff'] %}
+                {% for c in accents %}
+                <div class="accent-dot {% if (profile and profile.accent_color == c) or (not profile and c == '#00d4ff') %}selected{% endif %}"
+                     style="background:{{ c }}{% if c == '#ffffff' %};border:2px solid #e2e8f0{% endif %}"
+                     onclick="selectAccent('{{ c }}', this)" data-val="{{ c }}" title="{{ c }}"></div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Per-theme colour controls -->
+            <div class="colour-rows">
+              <div class="colour-row">
+                <label>Background</label>
+                <div class="colour-row-inner">
+                  <input type="color" id="col-bg" oninput="onColourChange()">
+                  <span id="col-bg-hex">#050d1a</span>
+                </div>
+              </div>
+              <div class="colour-row">
+                <label>Accent</label>
+                <div class="colour-row-inner">
+                  <input type="color" id="col-accent" oninput="onAccentPickerChange(this)">
+                  <span id="col-accent-hex">#00d4ff</span>
+                </div>
+              </div>
+              <div class="colour-row">
+                <label>Button BG</label>
+                <div class="colour-row-inner">
+                  <input type="color" id="col-btn" oninput="onColourChange()">
+                  <span id="col-btn-hex">#0f1f3d</span>
+                </div>
+              </div>
+              <div class="colour-row">
+                <label>Text</label>
+                <div class="colour-row-inner">
+                  <input type="color" id="col-text" oninput="onColourChange()">
+                  <span id="col-text-hex">#e2e8f0</span>
+                </div>
+              </div>
+            </div>
+
+            <button class="reset-btn" onclick="resetThemeDefaults()">↺ Reset to theme defaults</button>
           </div>
+
+          <!-- Hidden fields for save -->
           <input type="hidden" id="accent-val" value="{{ profile.accent_color if profile else '#00d4ff' }}">
+          <input type="hidden" id="col-bg-val" value="{{ profile.bg_color if profile and profile.bg_color else '' }}">
+          <input type="hidden" id="col-btn-val" value="{{ profile.btn_color if profile and profile.btn_color else '' }}">
+          <input type="hidden" id="col-text-val" value="{{ profile.text_color if profile and profile.text_color else '' }}">
         </div>
-      </div>
 
-      <div class="save-bar">
-        <button class="btn-save" onclick="saveProfile(this)">💾 Save Changes</button>
-        <a class="btn-preview" href="/u/{{ current_user.username }}" target="_blank">👁 Preview Live</a>
-        <span class="save-msg" id="save-msg">✓ Saved successfully!</span>
-      </div>
+        <div class="save-bar">
+          <button class="btn-save" onclick="saveProfile(this)">💾 Save Changes</button>
+          <a class="btn-preview" href="/u/{{ current_user.username }}" target="_blank">👁 Preview Live</a>
+          <span class="save-msg" id="save-msg">✓ Saved!</span>
+        </div>
 
-    </div><!-- /left -->
+      </div><!-- /left -->
 
-    <!-- RIGHT: Live Preview -->
-    <div class="preview-panel">
-      <div class="card" style="padding:0;overflow:hidden">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #f1f5f9">
-          <div class="card-title" style="margin-bottom:0"><span>📱</span> Live Preview</div>
-          <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:0.72rem;color:#10b981;font-weight:700;background:#f0fdf4;padding:3px 10px;border-radius:20px;border:1px solid #bbf7d0">● LIVE</span>
+      <!-- ── RIGHT: LIVE PREVIEW ── -->
+      <div class="preview-panel">
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #f1f5f9">
+            <div class="card-title" style="margin-bottom:0;font-size:14px"><span>📱</span> Live Preview</div>
+            <span style="font-size:11px;color:#10b981;font-weight:700;background:#f0fdf4;padding:3px 10px;border-radius:20px;border:1px solid #bbf7d0">● LIVE</span>
           </div>
-        </div>
-        <!-- Phone shell -->
-        <div style="padding:16px;background:#f8fafc;display:flex;justify-content:center">
-          <div class="phone-shell">
-            <div class="phone-notch"></div>
-            <div class="phone-screen" id="live-preview">
-              <!-- Rendered by JS -->
+          <div style="padding:16px;background:#f8fafc;display:flex;justify-content:center">
+            <div class="phone-shell">
+              <div class="phone-notch"></div>
+              <div class="phone-screen" id="live-preview"></div>
             </div>
           </div>
-        </div>
-        <div style="padding:10px 18px;font-size:0.75rem;color:#94a3b8;text-align:center;border-top:1px solid #f1f5f9">
-          Updates instantly as you type
+          <div style="padding:8px 16px;font-size:11px;color:#94a3b8;text-align:center;border-top:1px solid #f1f5f9">
+            Updates instantly as you type
+          </div>
         </div>
       </div>
-    </div>
 
-  </div><!-- /editor-grid -->
-  </div><!-- /main-inner -->
+    </div><!-- /editor-grid -->
+  </div><!-- /content -->
 </div><!-- /main -->
+</div><!-- /layout -->
 
 <!-- Icon picker modal -->
 <div class="icon-modal" id="icon-modal">
@@ -397,15 +420,24 @@ body{font-family:'Rethink Sans',sans-serif;background:#f0f4f8;color:#1e293b}
 <script>
 const ICONS = ['🔗','🌐','📧','📱','💼','🎯','🚀','⭐','💡','📊','🎬','📸','🛒','💰','🏆','📣',
   '🎵','🎮','📚','✍️','🤝','🌍','💻','🔥','❤️','🎁','📢','🔔','💎','⚡','🌟','👋',
-  '▶️','🐦','📘','📸','💼','🎤','📺','🎧','📰','📝','🏠','📍','🛡️','⚙️','🌈'];
+  '▶️','🐦','📘','🎤','📺','🎧','📰','📝','🏠','📍','🛡️','⚙️','🌈','🎪','🧲','🪄'];
 
-// ── THEME DEFINITIONS ─────────────────────────────────────────────────────
-const THEMES = {
-  dark:     { text:'#e2e8f0', sub:'#94a3b8', btnBg:'#0f1f3d', btnBorder:'rgba(255,255,255,.12)', bodyBg:'#050d1a' },
-  light:    { text:'#1e293b', sub:'#64748b', btnBg:'#fff',    btnBorder:'#e2e8f0',               bodyBg:'#f8fafc' },
-  gradient: { text:'#fff',   sub:'rgba(255,255,255,.7)', btnBg:'rgba(255,255,255,.12)', btnBorder:'rgba(255,255,255,.22)', bodyBg:'linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#581c87 100%)' },
-  neon:     { text:'#e2e8f0', sub:'#6b7280', btnBg:'#111',    btnBorder:null,                    bodyBg:'#0a0a0a' },
-  minimal:  { text:'#1e293b', sub:'#9ca3af', btnBg:'#fff',    btnBorder:'#f3f4f6',               bodyBg:'#fff' },
+// ── THEME DEFAULTS ─────────────────────────────────────────────────────────
+// Each theme defines its own full colour set
+const THEME_DEFAULTS = {
+  dark:     { bg:'#050d1a', accent:'#00d4ff', btn:'#0f1f3d', text:'#e2e8f0', sub:'#94a3b8', btnBorder:'rgba(255,255,255,.12)' },
+  light:    { bg:'#f8fafc', accent:'#0ea5e9', btn:'#ffffff', text:'#1e293b', sub:'#64748b', btnBorder:'#e2e8f0' },
+  gradient: { bg:'#1e1b4b', accent:'#a78bfa', btn:'rgba(255,255,255,.12)', text:'#ffffff', sub:'rgba(255,255,255,.65)', btnBorder:'rgba(255,255,255,.22)' },
+  neon:     { bg:'#0a0a0a', accent:'#00ff88', btn:'#111111', text:'#e2e8f0', sub:'#6b7280', btnBorder:null },
+  minimal:  { bg:'#ffffff', accent:'#6366f1', btn:'#ffffff', text:'#1e293b', sub:'#9ca3af', btnBorder:'#f3f4f6' },
+};
+
+// Current live colour state — starts from saved profile or theme defaults
+let colours = {
+  bg:     '{{ profile.bg_color if profile and profile.bg_color else "" }}' || THEME_DEFAULTS['{{ profile.theme if profile else "dark" }}'].bg,
+  accent: '{{ profile.accent_color if profile else "#00d4ff" }}',
+  btn:    '{{ profile.btn_color if profile and profile.btn_color else "" }}' || THEME_DEFAULTS['{{ profile.theme if profile else "dark" }}'].btn,
+  text:   '{{ profile.text_color if profile and profile.text_color else "" }}' || THEME_DEFAULTS['{{ profile.theme if profile else "dark" }}'].text,
 };
 
 let previewAvatarSrc = null;
@@ -416,20 +448,39 @@ function schedulePreview() {
   previewTimer = setTimeout(buildPreview, 80);
 }
 
+// ── BUILD PREVIEW ──────────────────────────────────────────────────────────
 function buildPreview() {
   const theme   = document.getElementById('theme-val').value || 'dark';
-  const accent  = document.getElementById('accent-val').value || '#00d4ff';
-  const name    = document.getElementById('display-name').value.trim() || 'Your Name';
-  const bio     = document.getElementById('bio').value.trim();
-  const t       = THEMES[theme] || THEMES.dark;
-  const border  = theme === 'neon' ? accent : t.btnBorder;
+  const td      = THEME_DEFAULTS[theme];
+  const bg      = colours.bg    || td.bg;
+  const accent  = colours.accent|| td.accent;
+  const btn     = colours.btn   || td.btn;
+  const text    = colours.text  || td.text;
+  const sub     = td.sub; // sub-text always from theme default (not customisable to keep readability)
+  const border  = theme === 'neon' ? accent : (td.btnBorder || accent + '44');
+
+  const name = document.getElementById('display-name').value.trim() || 'Your Name';
+  const bio  = document.getElementById('bio').value.trim();
+
+  // Body background — gradient theme gets a gradient, others use solid colour
+  const bodyBg = theme === 'gradient'
+    ? `linear-gradient(135deg, ${bg} 0%, ${shiftColour(bg, 30)} 50%, ${shiftColour(bg, 60)} 100%)`
+    : bg;
 
   // Avatar
   const avatarPrev = document.querySelector('#avatar-preview img');
   const avatarSrc  = previewAvatarSrc || (avatarPrev && !avatarPrev.src.includes('undefined') ? avatarPrev.src : null);
   const avatarHtml = avatarSrc
     ? `<img src="${avatarSrc}" style="width:100%;height:100%;object-fit:cover">`
-    : `<span style="font-size:1.8rem;color:${accent}">${name[0].toUpperCase()}</span>`;
+    : `<span style="font-size:1.6rem;color:${accent}">${name[0].toUpperCase()}</span>`;
+
+  // Avatar glow for neon
+  const avatarGlow = theme === 'neon' ? `box-shadow:0 0 18px ${accent}55` : '';
+
+  // Neon radial glow overlay
+  const neonGlow = theme === 'neon'
+    ? `<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 110%,${accent}20 0%,transparent 65%);pointer-events:none"></div>`
+    : '';
 
   // Links
   const linkItems = document.querySelectorAll('.link-item');
@@ -439,33 +490,126 @@ function buildPreview() {
     const active = item.querySelector('.link-active').checked;
     const icon   = item.querySelector('.link-icon-btn').textContent;
     if (!title || !active) return;
-    linksHtml += `<div class="pv-link" style="background:${t.btnBg};border-color:${border};color:${t.text}">
+    const neonLinkShadow = theme === 'neon' ? `box-shadow:0 0 10px ${accent}33` : '';
+    linksHtml += `<div class="pv-link" style="background:${btn};border-color:${border};color:${text};${neonLinkShadow}">
       <span class="pv-link-icon">${icon}</span>
       <span class="pv-link-title">${title}</span>
       <span class="pv-link-arrow" style="color:${accent}">→</span>
     </div>`;
   });
-  if (!linksHtml) linksHtml = `<div class="pv-empty" style="color:${t.sub}">Your links appear here</div>`;
-
-  const neonGlow = theme === 'neon'
-    ? `<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 110%,${accent}22 0%,transparent 65%);pointer-events:none;z-index:0"></div>`
-    : '';
-  const avatarGlow = theme === 'neon' ? `box-shadow:0 0 20px ${accent}55` : '';
+  if (!linksHtml) linksHtml = `<div class="pv-empty" style="color:${sub}">Your links appear here</div>`;
 
   document.getElementById('live-preview').innerHTML = `
-    <div class="pv-body" style="background:${t.bodyBg};position:relative;z-index:1">
+    <div class="pv-body" style="background:${bodyBg};position:relative">
       ${neonGlow}
       <div class="pv-avatar" style="border-color:${accent};${avatarGlow}">${avatarHtml}</div>
-      <div class="pv-name" style="color:${t.text}">${name}</div>
-      <div class="pv-username" style="color:${t.sub}">@{{ current_user.username }}</div>
-      ${bio ? `<div class="pv-bio" style="color:${t.sub}">${bio}</div>` : ''}
+      <div class="pv-name" style="color:${text}">${name}</div>
+      <div class="pv-username" style="color:${sub}">@{{ current_user.username }}</div>
+      ${bio ? `<div class="pv-bio" style="color:${sub}">${bio}</div>` : ''}
       <div class="pv-links">${linksHtml}</div>
-      <div class="pv-powered" style="color:${t.sub}">⚡ Powered by <span style="color:${accent}">SuperAdPro</span></div>
+      <div class="pv-powered" style="color:${sub}">⚡ Powered by <span style="color:${accent}">SuperAdPro</span></div>
     </div>`;
 }
 
-// ── Boot preview on load ──────────────────────────────────────────────────
+// Shift a hex colour lighter/darker for gradient generation
+function shiftColour(hex, amount) {
+  try {
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    const nr = Math.min(255, r + amount);
+    const ng = Math.min(255, g + amount/2);
+    const nb = Math.min(255, b + amount*2);
+    return `#${nr.toString(16).padStart(2,'0')}${ng.toString(16).padStart(2,'0')}${nb.toString(16).padStart(2,'0')}`;
+  } catch(e) { return hex; }
+}
+
+// ── SYNC COLOUR PICKERS ────────────────────────────────────────────────────
+function syncColourPickers() {
+  setPickerVal('col-bg', colours.bg);
+  setPickerVal('col-accent', colours.accent);
+  setPickerVal('col-btn', colours.btn);
+  setPickerVal('col-text', colours.text);
+  // sync hidden fields
+  document.getElementById('col-bg-val').value    = colours.bg;
+  document.getElementById('col-btn-val').value   = colours.btn;
+  document.getElementById('col-text-val').value  = colours.text;
+  document.getElementById('accent-val').value    = colours.accent;
+}
+
+function setPickerVal(id, val) {
+  // colour inputs only accept 6-char hex
+  const el = document.getElementById(id);
+  const hexEl = document.getElementById(id + '-hex');
+  if (!el) return;
+  try {
+    // normalise rgba/named to hex where possible — fallback gracefully
+    if (val && val.startsWith('#') && val.length >= 7) {
+      el.value = val.slice(0,7);
+      if (hexEl) hexEl.textContent = val.slice(0,7);
+    }
+  } catch(e) {}
+}
+
+function onColourChange() {
+  colours.bg     = document.getElementById('col-bg').value;
+  colours.btn    = document.getElementById('col-btn').value;
+  colours.text   = document.getElementById('col-text').value;
+  document.getElementById('col-bg-hex').textContent    = colours.bg;
+  document.getElementById('col-btn-hex').textContent   = colours.btn;
+  document.getElementById('col-text-hex').textContent  = colours.text;
+  syncColourPickers();
+  schedulePreview();
+}
+
+function onAccentPickerChange(input) {
+  colours.accent = input.value;
+  document.getElementById('col-accent-hex').textContent = input.value;
+  document.getElementById('accent-val').value = input.value;
+  // deselect preset dots
+  document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('selected'));
+  syncColourPickers();
+  schedulePreview();
+}
+
+// ── THEME SELECT ───────────────────────────────────────────────────────────
+function selectTheme(val, el) {
+  document.querySelectorAll('.theme-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('theme-val').value = val;
+  // Reset colours to new theme defaults
+  const td = THEME_DEFAULTS[val];
+  colours = { bg: td.bg, accent: td.accent, btn: td.btn, text: td.text };
+  syncColourPickers();
+  schedulePreview();
+}
+
+// ── ACCENT PRESETS ─────────────────────────────────────────────────────────
+function selectAccent(val, el) {
+  document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+  colours.accent = val;
+  document.getElementById('accent-val').value = val;
+  syncColourPickers();
+  schedulePreview();
+}
+
+function resetThemeDefaults() {
+  const theme = document.getElementById('theme-val').value || 'dark';
+  const td = THEME_DEFAULTS[theme];
+  colours = { bg: td.bg, accent: td.accent, btn: td.btn, text: td.text };
+  document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('selected'));
+  // Try to select matching preset dot
+  document.querySelectorAll('.accent-dot').forEach(d => {
+    if (d.dataset.val === td.accent) d.classList.add('selected');
+  });
+  syncColourPickers();
+  schedulePreview();
+}
+
+// ── BOOT ───────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  syncColourPickers();
   buildPreview();
   document.getElementById('display-name').addEventListener('input', schedulePreview);
   document.getElementById('bio').addEventListener('input', schedulePreview);
@@ -474,9 +618,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('is-published').addEventListener('change', schedulePreview);
 });
 
-// ── ICON PICKER ───────────────────────────────────────────────────────────
+// ── ICON PICKER ────────────────────────────────────────────────────────────
 let activeIconBtn = null;
-
 function openIconPicker(btn) {
   activeIconBtn = btn;
   const modal = document.getElementById('icon-modal');
@@ -495,7 +638,7 @@ document.getElementById('icon-modal').onclick = (e) => {
   if (e.target === document.getElementById('icon-modal')) e.target.classList.remove('open');
 };
 
-// ── ADD / DELETE LINKS ────────────────────────────────────────────────────
+// ── ADD / DELETE LINKS ─────────────────────────────────────────────────────
 function addLink() {
   const list = document.getElementById('links-list');
   const item = document.createElement('div');
@@ -509,9 +652,7 @@ function addLink() {
       <input type="url" placeholder="https://..." class="link-url">
     </div>
     <div class="link-stats">0 clicks</div>
-    <div class="link-toggle">
-      <label class="toggle-sw"><input type="checkbox" checked class="link-active"><div class="toggle-track"></div></label>
-    </div>
+    <label class="toggle-sw"><input type="checkbox" checked class="link-active"><div class="toggle-track"></div></label>
     <button class="link-del" onclick="deleteLink(this)" title="Delete">✕</button>`;
   list.appendChild(item);
   item.querySelector('.link-title').focus();
@@ -522,60 +663,31 @@ function deleteLink(btn) {
   if (confirm('Remove this link?')) { btn.closest('.link-item').remove(); schedulePreview(); }
 }
 
-// ── THEME & ACCENT ────────────────────────────────────────────────────────
-function selectTheme(val, el) {
-  document.querySelectorAll('.theme-opt').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('theme-val').value = val;
-  schedulePreview();
-}
-
-function selectAccent(val, el) {
-  document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('accent-val').value = val;
-  document.getElementById('accent-custom-input').value = val;
-  schedulePreview();
-}
-
-function selectAccentCustom(input) {
-  document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('selected'));
-  document.getElementById('accent-val').value = input.value;
-  schedulePreview();
-}
-
-// ── AVATAR ────────────────────────────────────────────────────────────────
+// ── AVATAR ─────────────────────────────────────────────────────────────────
 function handleAvatar(input) {
   const file = input.files[0];
   if (!file) return;
   if (file.size > 2 * 1024 * 1024) { alert('Max file size is 2MB'); return; }
-
-  // Show preview immediately from local file
   const reader = new FileReader();
   reader.onload = async (e) => {
     previewAvatarSrc = e.target.result;
     document.getElementById('avatar-preview').innerHTML =
       `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
     schedulePreview();
-
-    // Upload to server right away — saves to DB independently of Save Changes
     const fd = new FormData();
     fd.append('file', file);
     try {
       const r = await fetch('/linkhub/upload-avatar', { method: 'POST', body: fd });
       const d = await r.json();
       if (!d.ok) console.error('Avatar upload failed:', d.error);
-    } catch(err) {
-      console.error('Avatar upload error:', err);
-    }
+    } catch(err) { console.error('Avatar upload error:', err); }
   };
   reader.readAsDataURL(file);
 }
 
-// ── SAVE ──────────────────────────────────────────────────────────────────
+// ── SAVE ───────────────────────────────────────────────────────────────────
 async function saveProfile(btn) {
   btn.disabled = true; btn.textContent = 'Saving...';
-
   const linkItems = document.querySelectorAll('.link-item');
   const links = [];
   linkItems.forEach((item, idx) => {
@@ -583,27 +695,26 @@ async function saveProfile(btn) {
     const url   = item.querySelector('.link-url').value.trim();
     if (!title && !url) return;
     links.push({
-      id: item.dataset.id === 'new' ? null : parseInt(item.dataset.id),
+      id:         item.dataset.id === 'new' ? null : parseInt(item.dataset.id),
       title, url,
       icon:       item.querySelector('.link-icon-btn').textContent,
       is_active:  item.querySelector('.link-active').checked,
       sort_order: idx
     });
   });
-
-
   const payload = {
     display_name: document.getElementById('display-name').value.trim(),
     bio:          document.getElementById('bio').value.trim(),
     theme:        document.getElementById('theme-val').value,
-    accent_color: document.getElementById('accent-val').value,
+    accent_color: colours.accent,
+    bg_color:     colours.bg,
+    btn_color:    colours.btn,
+    text_color:   colours.text,
     is_published: document.getElementById('is-published').checked,
     links
   };
-
-  const r = await fetch('/linkhub/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+  const r = await fetch('/linkhub/save', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
   const d = await r.json();
-
   btn.disabled = false; btn.textContent = '💾 Save Changes';
   if (d.ok) {
     const msg = document.getElementById('save-msg');
@@ -614,12 +725,11 @@ async function saveProfile(btn) {
   }
 }
 
-// ── COPY URL ──────────────────────────────────────────────────────────────
+// ── COPY URL ───────────────────────────────────────────────────────────────
 function copyUrl() {
   navigator.clipboard.writeText(window.location.origin + '/u/{{ current_user.username }}');
-  const btn = event.target;
-  btn.textContent = '✅';
-  setTimeout(() => btn.textContent = '📋', 1500);
+  event.target.textContent = '✅';
+  setTimeout(() => event.target.textContent = '📋', 1500);
 }
 </script>
 </body>
