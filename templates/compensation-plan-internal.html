@@ -3,356 +3,769 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Compensation Plan — SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<title>SuperAdPro — Compensation Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
-
-/* ═══ SHARED LAYOUT ═══ */
-.layout{display:flex;min-height:100vh}
-.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:rgba(56,189,248,0.2);border-radius:4px}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.nav-scroll{flex:1;overflow-y:auto;padding:8px 0}
-.nav-item{display:flex;align-items:center;gap:11px;padding:11px 16px;margin:2px 10px;border-radius:10px;font-size:14px;font-weight:500;color:rgba(188,213,240,0.65);text-decoration:none;transition:all 0.18s}
-.nav-item:hover{background:rgba(0,200,255,0.08);color:rgba(188,213,240,0.95)}
-.nav-item.active{background:linear-gradient(90deg,rgba(0,200,255,0.2),rgba(0,200,255,0.06));color:#fff;font-weight:700}
-.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
-.nav-divider{height:1px;background:rgba(255,255,255,0.06);margin:8px 16px}
-.nav-group{overflow:hidden}
-.nav-header{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;font-size:14px;font-weight:800;color:#00c8ff;cursor:pointer;user-select:none;text-shadow:0 0 12px rgba(0,200,255,0.35)}
-.nav-chevron{font-size:14px;transition:transform 0.2s}
-.nav-group.open .nav-chevron{transform:rotate(90deg)}
-.nav-group:not(.open) .nav-children{display:none}
-.nav-children .nav-item{font-size:14px}
-.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,200,255,0.05);border:1px solid rgba(0,200,255,0.1);border-radius:10px}
-.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
-.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}}
-
+:root {
+  --navy: #1c223d;
+  --bg: #f0f3f9;
+  --card: #ffffff;
+  --card-inner: #f6f8fc;
+  --card-inner-2: #eef1f8;
+  --cyan: #0ea5e9;
+  --cyan-bright: #38bdf8;
+  --green: #16a34a;
+  --green-bright: #22c55e;
+  --gold: #d97706;
+  --purple: #6366f1;
+  --purple-bright: #818cf8;
+  --text: #0f172a;
+  --text-2: #3d5068;
+  --muted: #7b91a8;
+  --border: rgba(15,25,60,0.08);
+  --border-strong: rgba(15,25,60,0.14);
+  --shadow-sm: 0 1px 3px rgba(15,25,60,0.06),0 4px 12px rgba(15,25,60,0.06);
+  --shadow-md: 0 2px 6px rgba(15,25,60,0.07),0 8px 28px rgba(15,25,60,0.11);
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0f172a;min-height:100vh}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;background:#1c223d;border-bottom:1px solid rgba(0,200,255,0.1);position:sticky;top:0;z-index:200;box-shadow:0 1px 0 rgba(0,200,255,0.15),0 4px 20px rgba(0,0,0,0.3)}
-.topbar-left{display:flex;align-items:center;gap:28px}
-.topbar-title{font-family:'Sora',sans-serif;font-size:19px;font-weight:800;color:#fff;letter-spacing:-0.2px}
-.topbar-sub{font-size:12px;color:rgba(0,200,255,0.45);margin-top:2px}
-.back-btn{display:flex;align-items:center;gap:6px;color:#94a3b8;text-decoration:none;font-size:14px;font-weight:600;padding:8px 16px;border:1px solid rgba(255,255,255,0.15);border-radius:8px;background:rgba(255,255,255,0.05);transition:all 0.2s}
-.back-btn:hover{border-color:rgba(14,165,233,0.4);color:#38bdf8;background:rgba(14,165,233,0.08)}
-.topbar-user{display:flex;align-items:center;gap:10px;color:rgba(200,220,255,0.6);font-size:13px;font-weight:500}
-.topbar-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
-.content{max-width:1140px;margin:0 auto;padding:32px}
+html{scroll-behavior:smooth}
+body{font-family:'Rethink Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6}
 
-/* HERO */
-.hero{background:linear-gradient(160deg,#0369a1 0%,#0284c7 25%,#0ea5e9 50%,#38bdf8 75%,#0284c7 100%);border-radius:24px;padding:56px 48px 48px;margin-bottom:36px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.15)}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 30%,rgba(255,255,255,0.08),transparent),radial-gradient(ellipse 60% 50% at 80% 70%,rgba(255,255,255,0.06),transparent);animation:hShift 10s ease-in-out infinite alternate}
-.hero::after{content:'';position:absolute;top:0;right:0;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,0.06),transparent 70%);filter:blur(40px);animation:fl1 8s ease-in-out infinite}
-@keyframes hShift{0%{opacity:1}100%{opacity:.85;transform:scale(1.02)}}
-@keyframes fl1{0%,100%{transform:translate(0,0)}50%{transform:translate(-20px,15px)}}
-.hero .orb{position:absolute;bottom:-60px;left:-40px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,0.04),transparent 70%);filter:blur(30px);animation:fl2 12s ease-in-out infinite}
-@keyframes fl2{0%,100%{transform:translate(0,0)}50%{transform:translate(15px,-20px)}}
-.hero-ey{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,0.12);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.25);border-radius:28px;padding:10px 22px;font-size:13px;font-weight:700;color:#fff;position:relative;z-index:2;margin-bottom:20px}
-.hero-ey .dot{width:8px;height:8px;border-radius:50%;background:#38bdf8;animation:pls 2s ease-in-out infinite}
-@keyframes pls{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
-.hero h1{font-size:44px;font-weight:800;color:#fff;line-height:1.12;position:relative;z-index:2;margin-bottom:14px}
-.hero h1 span{background:linear-gradient(135deg,#a855f7,#7c3aed,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-desc{font-size:18px;color:rgba(255,255,255,0.75);line-height:1.7;position:relative;z-index:2;max-width:680px;margin-bottom:32px}
-.hero-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;position:relative;z-index:2}
-.hm{background:rgba(255,255,255,0.12);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.2);border-radius:16px;padding:20px;text-align:center;transition:all 0.3s}
-.hm:hover{background:rgba(255,255,255,0.18);border-color:rgba(255,255,255,0.3);transform:translateY(-2px)}
-.hm-val{font-size:40px;font-weight:800;color:#38bdf8;line-height:1}
-.hm-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-top:6px}
+/* ── NAV ── */
+nav{background:var(--navy);height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,0.06)}
+.brand{font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:#fff;text-decoration:none;letter-spacing:-0.3px}
+.brand span{color:var(--cyan)}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-links a{font-size:15px;font-weight:500;color:rgba(200,220,255,0.6);text-decoration:none;transition:color 0.2s}
+.nav-links a:hover{color:#fff}
+.nav-btn{background:var(--cyan);color:#fff;padding:8px 20px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;transition:all 0.2s}
+.nav-btn:hover{background:var(--cyan-bright);color:#fff}
 
-.sl{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#38bdf8;margin-bottom:10px}
-.st{font-size:28px;font-weight:800;color:#0f172a;margin-bottom:6px;line-height:1.2}
-.ss{font-size:16px;color:#3d5068;line-height:1.6;margin-bottom:24px;max-width:700px}
+/* ── HERO ── */
+.hero{padding:70px 48px 60px;text-align:center;position:relative;overflow:hidden;max-width:1200px;margin:0 auto}
+.hero::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(14,165,233,0.06) 0%,transparent 65%);pointer-events:none}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);border-radius:99px;padding:6px 16px;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:28px}
+.hero h1{font-family:'Sora',sans-serif;font-size:clamp(34px,5vw,56px);font-weight:800;color:var(--text);line-height:1.08;letter-spacing:-1px;margin-bottom:20px}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--cyan),var(--cyan-bright));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:18px;color:var(--muted);max-width:540px;margin:0 auto 40px;line-height:1.7}
+.hero-cta{display:inline-flex;align-items:center;gap:10px;background:var(--cyan);color:#fff;padding:14px 32px;border-radius:10px;font-size:16px;font-weight:600;text-decoration:none;transition:all 0.25s}
+.hero-cta:hover{background:var(--cyan-bright);transform:translateY(-1px);box-shadow:0 8px 30px rgba(14,165,233,0.25)}
+.hero-cta-ghost{display:inline-flex;align-items:center;gap:10px;background:#fff;color:var(--text-2);padding:14px 32px;border-radius:10px;font-size:16px;font-weight:500;text-decoration:none;border:1px solid var(--border-strong);margin-left:12px;transition:all 0.25s;box-shadow:var(--shadow-sm)}
+.hero-cta-ghost:hover{border-color:var(--cyan);color:var(--cyan)}
 
-/* STREAMS */
-.streams{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:36px}
-.sc{background:#fff;border-radius:18px;padding:28px;position:relative;overflow:hidden;border:1px solid rgba(15,25,60,.08);box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 16px rgba(15,25,60,.07);transition:all 0.4s cubic-bezier(0.16,1,0.3,1)}
-.sc:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,40,100,0.1)}
-.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;transition:height 0.3s}
-.sc:hover::before{height:6px}
-.sc-num{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:10px}
-.sc-icon{font-size:36px;margin-bottom:14px;display:block}
-.sc-name{font-size:21px;font-weight:800;color:#0f172a;margin-bottom:8px}
-.sc-desc{font-size:15px;color:#3d5068;line-height:1.6;margin-bottom:18px}
-.sc-tag{font-size:14px;font-weight:700;padding:10px 16px;border-radius:10px;display:inline-block}
-.sc.s1::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}.sc.s1:hover{border-color:rgba(14,165,233,0.3)}
-.sc.s2::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}.sc.s2:hover{border-color:rgba(14,165,233,0.3)}
-.sc.s3::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}.sc.s3:hover{border-color:rgba(14,165,233,0.3)}
-.sc-soon{position:absolute;top:14px;right:14px;background:#f6f8fc;color:#94a3b8;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;border:1px solid rgba(15,25,60,.08)}
+/* ── SECTION LAYOUT ── */
+.container{max-width:1100px;margin:0 auto;padding:0 48px}
+.section{padding:72px 0}
+.section-label{font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:10px}
+.section-title{font-family:'Sora',sans-serif;font-size:clamp(24px,3vw,34px);font-weight:800;color:var(--text);margin-bottom:12px;letter-spacing:-0.5px}
+.section-sub{font-size:17px;color:var(--muted);max-width:560px;line-height:1.7}
+.section-head{margin-bottom:48px}
 
-/* CARDS */
-.card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:20px;padding:32px;box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 16px rgba(15,25,60,.07);margin-bottom:24px}
-.ch{padding:24px 32px;margin:-32px -32px 28px;border-radius:20px 20px 0 0;position:relative;overflow:hidden}
-.ch::after{content:'';position:absolute;top:-50%;right:-15%;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,0.06)}
-.ch.s1{background:linear-gradient(135deg,#0284c7,#0ea5e9)}
-.ch.s2{background:linear-gradient(135deg,#0284c7,#0ea5e9)}
-.ch.s3{background:linear-gradient(135deg,#0284c7,#0ea5e9)}
-.ch-label{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:6px}
-.ch-title{font-size:24px;font-weight:800;color:#fff;display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.ch-sub{font-size:16px;color:rgba(255,255,255,0.8);line-height:1.6}
+/* ── STREAM OVERVIEW CARDS ── */
+.streams-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:32px;align-items:stretch}
+.stream-card{border-radius:16px;padding:28px;border:1px solid var(--border);background:var(--card);position:relative;overflow:hidden;display:flex;flex-direction:column;transition:all 0.2s;box-shadow:var(--shadow-sm)}
+.stream-card:hover{box-shadow:var(--shadow-md);border-color:var(--border-strong);transform:translateY(-1px)}
+.stream-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
+.sc-green::after{background:linear-gradient(90deg,var(--green),var(--green-bright))}
+.sc-cyan::after{background:linear-gradient(90deg,var(--cyan),var(--cyan-bright))}
+.sc-purple::after{background:linear-gradient(90deg,var(--purple),var(--purple-bright))}
+.sc-dim{opacity:0.6}
+.stream-num{font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.stream-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;flex-shrink:0}
+.si-green{background:rgba(22,163,74,0.08)}
+.si-cyan{background:rgba(14,165,233,0.08)}
+.si-purple{background:rgba(99,102,241,0.08)}
+.stream-title{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px}
+.stream-desc{font-size:15px;color:var(--muted);line-height:1.65;flex:1;margin-bottom:18px}
+.stream-stat{font-size:13px;font-weight:700;padding:5px 11px;border-radius:7px;display:inline-block}
+.ss-green{background:rgba(22,163,74,0.08);color:var(--green);border:1px solid rgba(22,163,74,0.18)}
+.ss-cyan{background:rgba(14,165,233,0.08);color:var(--cyan);border:1px solid rgba(14,165,233,0.2)}
+.ss-purple{background:rgba(99,102,241,0.08);color:var(--purple);border:1px solid rgba(99,102,241,0.2)}
+.badge-live{display:inline-block;margin-top:10px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);padding:3px 10px;background:rgba(22,163,74,0.07);border:1px solid rgba(22,163,74,0.18);border-radius:99px}
+.badge-soon{display:inline-block;margin-top:10px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:3px 10px;background:var(--card-inner);border:1px solid var(--border);border-radius:99px}
 
-/* S1 */
-.s1-duo{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px}
-.s1-box{background:linear-gradient(135deg,#e0f2fe,#f0f9ff);border:1px solid #bae6fd;border-radius:14px;padding:28px;text-align:center;transition:all 0.3s}
-.s1-box:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,165,233,0.08)}
-.s1-big{font-size:44px;font-weight:800;color:#0ea5e9;margin-bottom:4px}
-.s1-mid{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:4px}
-.s1-sm{font-size:13px;color:#3d5068;line-height:1.5}
-.inc-table{width:100%;border-collapse:collapse;font-size:15px}
-.inc-table th{text-align:left;padding:12px 16px;background:#f6f8fc;color:#7b91a8;font-weight:700;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid rgba(15,25,60,.08)}
-.inc-table td{padding:12px 16px;border-bottom:1px solid rgba(15,25,60,.05);color:#334155}
-.inc-table .val{font-weight:700;color:#0ea5e9;font-size:16px}
-.inc-table tr:hover td{background:#f0f9ff}
+/* ── GATEWAY BANNER ── */
+.gateway{background:linear-gradient(135deg,rgba(22,163,74,0.04),rgba(14,165,233,0.04));border:1px solid rgba(22,163,74,0.15);border-radius:14px;padding:22px 28px;display:flex;align-items:center;gap:20px;box-shadow:var(--shadow-sm)}
+.gateway-icon{width:46px;height:46px;border-radius:12px;background:rgba(22,163,74,0.08);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.gateway-title{font-size:16px;font-weight:700;color:var(--green);margin-bottom:4px}
+.gateway-text{font-size:15px;color:var(--muted);line-height:1.6}
 
-/* S2 */
-.split-viz{display:flex;height:16px;border-radius:99px;overflow:hidden;gap:3px;margin:16px 0 24px;box-shadow:0 2px 10px rgba(0,40,100,0.1)}
-.split-viz .seg{border-radius:99px;position:relative;overflow:hidden}
-.split-viz .seg::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);animation:shimmer 3s ease-in-out infinite}
-@keyframes shimmer{0%{left:-100%}100%{left:100%}}
-.comm-duo{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:28px}
-.comm-box{border-radius:16px;padding:28px;text-align:center;transition:all 0.3s;overflow:hidden}
-.comm-box:hover{transform:translateY(-3px)}
-.comm-box.sponsor{background:linear-gradient(135deg,#e0f2fe,#f0f9ff);border:1px solid #bae6fd}
-.comm-box.sponsor:hover{box-shadow:0 8px 28px rgba(14,165,233,0.1)}
-.comm-box.unilevel{background:linear-gradient(135deg,#e0f2fe,#f0f9ff);border:1px solid #bae6fd}
-.comm-box.unilevel:hover{box-shadow:0 8px 28px rgba(14,165,233,0.1)}
-.comm-big{font-size:52px;font-weight:800;line-height:1;margin-bottom:6px}
-.comm-mid{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:4px}
-.comm-sm{font-size:13px;color:#3d5068}
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--border);margin:0}
 
-/* TIERS */
-.tiers-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.tc{border-radius:16px;padding:22px 18px;text-align:center;transition:all 0.35s cubic-bezier(0.16,1,0.3,1);overflow:hidden}
-.tc:hover{transform:translateY(-6px) scale(1.02)}
-.tc-name{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
-.tc-price{font-size:32px;font-weight:800;margin-bottom:2px}
-.tc-per{font-size:12px;color:#7b91a8;margin-bottom:14px}
-.tc-earn{background:rgba(255,255,255,0.7);backdrop-filter:blur(8px);border:1px solid rgba(0,0,0,0.06);border-radius:10px;padding:12px}
-.tc-earn-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:2px}
-.tc-earn-val{font-size:24px;font-weight:800}
-.tc1,.tc2{background:linear-gradient(145deg,#e0f2fe,#bae6fd);border:1px solid #7dd3fc;color:#0ea5e9}
-.tc3,.tc4{background:linear-gradient(145deg,#e0f2fe,#bae6fd);border:1px solid #7dd3fc;color:#0ea5e9}
-.tc5,.tc6{background:linear-gradient(145deg,#bae6fd,#7dd3fc);border:1px solid #38bdf8;color:#0ea5e9}
-.tc7{background:linear-gradient(145deg,#fef3c7,#fde68a);border:1px solid #fcd34d;color:#b45309}
-.tc8{background:linear-gradient(145deg,#fef3c7,#fbbf24);border:2px solid #f59e0b;color:#b45309;box-shadow:0 4px 20px rgba(245,158,11,0.2)}
+/* ── DETAIL SECTIONS ── */
+.detail-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;box-shadow:var(--shadow-sm)}
+.detail-card + .detail-card{margin-top:16px}
 
-/* MULT */
-.mult{margin-top:24px;background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);border-radius:16px;padding:28px 32px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.15)}
-.mult::before{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,0.1),transparent 70%)}
-.mult h3{font-size:20px;font-weight:800;color:#fff;margin-bottom:6px}
-.mult p{font-size:15px;color:rgba(186,230,253,0.65);line-height:1.65}
-.mult strong{color:#fff}
+/* Stream 1 */
+.s1-split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 0}
+.s1-box{background:var(--card-inner);border-radius:12px;padding:22px;border:1px solid var(--border)}
+.s1-amount{font-family:'Sora',sans-serif;font-size:40px;font-weight:800;line-height:1}
+.s1-amount-green{color:var(--green)}
+.s1-label{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:8px;margin-bottom:6px}
+.s1-detail{font-size:14px;color:var(--muted);line-height:1.6}
 
-.uni-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:20px}
-.uni-table th{padding:10px;background:#f6f8fc;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#7b91a8;text-align:center;border-bottom:1px solid rgba(15,25,60,.08)}
+.earn-table{width:100%;border-collapse:collapse;margin-top:22px}
+.earn-table th{padding:10px 16px;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-align:left;border-bottom:1px solid var(--border)}
+.earn-table th:not(:first-child){text-align:right}
+.earn-table td{padding:12px 16px;font-size:15px;border-bottom:1px solid var(--border);color:var(--muted)}
+.earn-table td:first-child{color:var(--text-2);font-weight:600}
+.earn-table td:not(:first-child){text-align:right;font-weight:700;color:var(--green)}
+.earn-table tr:last-child td{border-bottom:none}
+.earn-table tr:nth-child(4){background:rgba(22,163,74,0.03)}
+
+/* Stream 2 */
+.comm-split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 0}
+.comm-box{background:var(--card-inner);border-radius:12px;padding:22px;border:1px solid var(--border);text-align:center}
+.comm-pct{font-family:'Sora',sans-serif;font-size:38px;font-weight:800;color:var(--cyan);line-height:1;margin-bottom:8px}
+.comm-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px}
+.comm-desc{font-size:14px;color:var(--muted);line-height:1.55;margin-bottom:14px}
+.comm-eg{font-size:14px;font-weight:700;color:var(--cyan);background:rgba(14,165,233,0.07);border:1px solid rgba(14,165,233,0.18);padding:5px 12px;border-radius:7px;display:inline-block}
+
+.dist-bar{display:grid;grid-template-columns:1fr 1fr;gap:0;height:7px;border-radius:99px;overflow:hidden;margin:18px 0 22px}
+.db-direct{background:var(--cyan)}
+.db-uni{background:linear-gradient(90deg,var(--purple),var(--cyan-bright))}
+
+.payout-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border)}
+.payout-row:last-child{border-bottom:none}
+.payout-left{display:flex;align-items:center;gap:12px}
+.payout-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.payout-name{font-size:15px;font-weight:600;color:var(--text)}
+.payout-desc{font-size:13px;color:var(--muted);margin-top:2px}
+.payout-amount{font-family:'Sora',sans-serif;font-size:18px;font-weight:700}
+.payout-timing{font-size:12px;color:var(--muted);text-align:right;margin-top:2px}
+.payout-total{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:18px;border-top:1px solid rgba(14,165,233,0.15)}
+
+/* Uni-level table */
+.uni-table-wrap{overflow-x:auto;margin-top:24px}
+.uni-table{width:100%;border-collapse:collapse;font-size:14px}
+.uni-table th{padding:10px 14px;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--card-inner)}
 .uni-table th:first-child{text-align:left}
-.uni-table td{padding:10px;border-bottom:1px solid rgba(15,25,60,.05);text-align:center;color:#334155}
-.uni-table td:first-child{text-align:left;font-weight:600;color:#0f172a}
-.uni-table .total-row td{background:linear-gradient(90deg,#e0f2fe,#f0f9ff);font-weight:700;color:#0ea5e9;border-top:2px solid #7dd3fc;font-size:14px}
-.uni-table tr:hover td{background:#f6f8fc}
+.uni-table td{padding:11px 14px;text-align:right;border-bottom:1px solid var(--border);font-weight:600;color:var(--text-2)}
+.uni-table td:first-child{text-align:left;font-weight:700;color:var(--cyan)}
+.uni-table tr:last-child td{border-bottom:none;color:var(--green)}
+.uni-table tr:hover td{background:var(--card-inner)}
 
-.viz-cta{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);border:1px solid rgba(255,255,255,0.15);border-radius:18px;padding:40px;text-align:center;margin-top:32px;position:relative;overflow:hidden}
-.viz-cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(56,189,248,0.06),transparent);animation:hShift 10s ease-in-out infinite alternate}
-.viz-cta h3{font-size:26px;font-weight:800;color:#fff;margin-bottom:10px;position:relative;z-index:2}
-.viz-cta p{font-size:16px;color:rgba(186,230,253,0.6);margin-bottom:24px;position:relative;z-index:2}
-.viz-btn{display:inline-block;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;padding:16px 44px;border-radius:14px;font-weight:700;font-size:16px;text-decoration:none;transition:all 0.3s;position:relative;z-index:2;box-shadow:0 4px 24px rgba(14,165,233,0.35)}
-.viz-btn:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(14,165,233,0.45)}
+/* Stream 3 */
+.passup-flow{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin:22px 0}
+.pf-step{border-radius:10px;padding:14px 8px;text-align:center;font-size:13px}
+.pf-keep{background:rgba(22,163,74,0.06);border:1px solid rgba(22,163,74,0.18)}
+.pf-pass{background:rgba(217,119,6,0.06);border:1px solid rgba(217,119,6,0.18)}
+.pf-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.pf-val{font-size:14px;font-weight:700}
+.pf-keep .pf-val{color:var(--green)}
+.pf-pass .pf-val{color:var(--gold)}
 
-/* S3 */
-.pf-flow{display:flex;gap:8px;margin:20px 0 24px;flex-wrap:wrap;align-items:center}
-.pf{border-radius:14px;padding:14px 18px;text-align:center;min-width:90px;transition:all 0.3s}
-.pf:hover{transform:translateY(-3px)}
-.pf-keep{background:linear-gradient(135deg,#e0f2fe,#f0f9ff);border:1px solid #7dd3fc}
-.pf-pass{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:1px solid #bae6fd}
-.pf-num{font-weight:700;color:#334155;margin-bottom:3px;font-size:12px}
-.pf-vk{font-size:18px;font-weight:800;color:#0ea5e9}
-.pf-vp{font-size:16px;font-weight:700;color:#0ea5e9}
-.pf-who{font-size:10px;color:#7b91a8;margin-top:2px}
-.rules{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
-.rule{display:flex;gap:14px;padding:18px;background:#f6f8fc;border:1px solid rgba(15,25,60,.08);border-radius:14px;transition:all 0.3s}
-.rule:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(15,25,60,.08);border-color:rgba(139,92,246,0.2)}
-.ri{font-size:26px;flex-shrink:0}.rn{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:3px}.rd{font-size:13px;color:#3d5068;line-height:1.55}
-.courses{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px}
-.course{background:#f6f8fc;border:1px solid rgba(15,25,60,.08);border-radius:16px;padding:24px;transition:all 0.3s}
-.course:hover{box-shadow:0 6px 20px rgba(15,25,60,.08)}
-.course-top{display:flex;align-items:center;gap:14px;margin-bottom:16px}
-.course-badge{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
-.cml{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
-.cmn{font-size:16px;font-weight:800;color:#0f172a;line-height:1.2}
-.course-body{font-size:14px;color:#3d5068;line-height:1.6;margin-bottom:16px}
-.ctags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
-.ctag{font-size:11px;font-weight:600;padding:5px 12px;border-radius:8px}
-.cstat{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 16px;border-radius:20px;display:inline-block}
+.passup-rules{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.rule-item{display:flex;align-items:flex-start;gap:14px;background:var(--card-inner);border-radius:12px;padding:18px;border:1px solid var(--border)}
+.rule-icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.rule-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
+.rule-desc{font-size:14px;color:var(--muted);line-height:1.55}
 
-/* CALC */
-.calc-label{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#0ea5e9;margin-bottom:12px}
-.calc-slider{width:100%;accent-color:#0ea5e9;height:8px;cursor:pointer;border-radius:4px}
-.calc-val{font-size:30px;font-weight:800;background:linear-gradient(135deg,#0284c7,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.tier-toggle{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:10px;border:1px solid rgba(15,25,60,.1);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.25s;background:#f6f8fc;color:#3d5068;font-family:inherit}
-.tier-toggle:hover{border-color:#0ea5e9;color:#0ea5e9;background:#f0f9ff}
-.tier-toggle.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);border-color:#0ea5e9;color:#fff;box-shadow:0 3px 12px rgba(14,165,233,0.3)}
-.result-row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid rgba(15,25,60,.06)}
-.result-row:last-child{border-bottom:none}
-.rl{font-size:16px;font-weight:600;color:#0f172a}.rs{font-size:13px;color:#3d5068;margin-top:2px}.rv{font-size:24px;font-weight:800}
-.total-box{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);border:2px solid rgba(255,255,255,0.2);border-radius:18px;padding:30px;display:flex;align-items:center;justify-content:space-between;margin-top:24px;position:relative;overflow:visible;flex-wrap:wrap;gap:16px}
-.total-box::before{content:'';position:absolute;top:-50%;right:-25%;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,0.12),transparent 70%);pointer-events:none}
-.total-lbl{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#38bdf8;margin-bottom:3px}
-.total-val{font-size:44px;font-weight:800;background:linear-gradient(135deg,#0284c7,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:#fff;background-clip:unset;position:relative;z-index:2;word-break:break-word}
-.tb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:14px}
-.tb{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center}
-.tb-name{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#94a3b8}
-.tb-val{font-size:18px;font-weight:800;color:#0ea5e9}
-.disclaimer{margin-top:20px;padding:14px 18px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;font-size:12px;color:#92400e;line-height:1.6;text-align:center}
-.int-footer{text-align:center;padding:28px;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;margin-top:16px}
+/* ── CALCULATOR ── */
+.calc-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;box-shadow:var(--shadow-sm)}
+.calc-tiers{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px}
+.tier-btn{padding:7px 16px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--card-inner);color:var(--muted);transition:all 0.15s}
+.tier-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.tier-btn.active{background:var(--cyan);color:#fff;border-color:var(--cyan)}
+.calc-sliders{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:26px}
+.slider-wrap label{font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.slider-wrap label span{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;color:var(--cyan)}
+input[type=range]{width:100%;accent-color:var(--cyan);height:4px}
+.calc-results{border-top:1px solid var(--border);padding-top:26px}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+.result-row:last-of-type{border-bottom:none}
+.result-name{font-size:15px;font-weight:600;color:var(--text)}
+.result-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.result-val{font-family:'Sora',sans-serif;font-size:18px;font-weight:700}
+.rv-green{color:var(--green)}
+.rv-cyan{color:var(--cyan)}
+.total-box{margin-top:18px;background:linear-gradient(135deg,rgba(14,165,233,0.05),rgba(99,102,241,0.05));border:1px solid rgba(14,165,233,0.18);border-radius:12px;padding:22px 26px;display:flex;justify-content:space-between;align-items:center}
+.total-label{font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.total-sub{font-size:14px;color:var(--muted)}
+.total-val{font-family:'Sora',sans-serif;font-size:34px;font-weight:800;color:var(--text)}
+.calc-disclaimer{margin-top:14px;font-size:13px;color:var(--muted);line-height:1.6;padding:12px 16px;background:var(--card-inner);border-radius:8px;border:1px solid var(--border)}
 
-@media(max-width:900px){.streams,.comm-duo,.s1-duo,.rules,.courses{grid-template-columns:1fr}.tiers-grid{grid-template-columns:repeat(2,1fr)}.hero-metrics{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.content{padding:16px}.hero{padding:36px 24px}.tiers-grid{grid-template-columns:1fr 1fr}.tb-grid{grid-template-columns:1fr 1fr}.uni-table{font-size:10px}.total-box{flex-direction:column;text-align:center;padding:24px}.total-val{font-size:36px}}
+/* ── CTA SECTION ── */
+.cta-section{background:linear-gradient(135deg,var(--navy) 0%,#1e2d4e 100%);border-radius:20px;padding:60px 48px;text-align:center;margin:72px 0}
+.cta-section h2{font-family:'Sora',sans-serif;font-size:34px;font-weight:800;color:#fff;margin-bottom:14px;letter-spacing:-0.5px}
+.cta-section p{font-size:17px;color:rgba(200,220,255,0.6);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto}
+.cta-btns{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.cta-section .hero-cta-ghost{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.15)}
+.cta-section .hero-cta-ghost:hover{background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.3)}
+
+/* ── FOOTER ── */
+footer{background:var(--navy);border-top:1px solid rgba(255,255,255,0.06);padding:32px 48px;text-align:center}
+footer p{font-size:14px;color:rgba(200,220,255,0.4)}
+footer a{color:var(--cyan);text-decoration:none}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeUp 0.5s ease forwards}
+.delay-1{animation-delay:0.1s;opacity:0}
+.delay-2{animation-delay:0.2s;opacity:0}
+.delay-3{animation-delay:0.3s;opacity:0}
+
+/* ── STICKY SECTION NAV ── */
+.sticky-nav{position:sticky;top:68px;z-index:90;background:rgba(240,243,249,0.97);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+.sticky-nav-inner{max-width:1100px;margin:0 auto;padding:0 48px;display:flex;gap:4px}
+.snav-link{font-size:14px;font-weight:500;color:var(--muted);padding:14px 16px;text-decoration:none;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap}
+.snav-link:hover,.snav-link.active{color:var(--text);border-bottom-color:var(--cyan)}
+
+@media(max-width:768px){
+  nav{padding:0 20px}
+  .container{padding:0 20px}
+  .hero{padding:60px 20px 50px}
+  .streams-grid{grid-template-columns:1fr}
+  .s1-split,.comm-split,.calc-sliders,.passup-rules{grid-template-columns:1fr}
+  .passup-flow{grid-template-columns:repeat(4,1fr)}
+  .sticky-nav-inner{overflow-x:auto;padding:0 20px}
+  .cta-section{padding:40px 24px}
+  footer{padding:24px 20px}
+}
+</style>
+  <link rel="stylesheet" href="/static/mobile.css">
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#1c223d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SuperAdPro">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+<style>
+/* ── Sidebar layout ── */
+body{margin:0}
+.layout{display:flex;min-height:100vh}
+.main{margin-left:224px;flex:1;background:var(--bg);min-height:100vh}
+@media(max-width:768px){.main{margin-left:0}}
 </style>
 </head>
 <body>
 
+<!-- Mobile Topbar -->
+<div class="mobile-topbar">
+  <a class="mobile-topbar-left" href="/dashboard">
+    <svg width="26" height="26" viewBox="0 0 100 100"><defs><linearGradient id="mhg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs>
+      <circle cx="22" cy="22" r="20" fill="url(#mhg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/>
+    </svg>
+    <div>
+      <div class="mobile-topbar-name">SuperAdPro</div>
+      <div class="mobile-topbar-page">Compensation Plan</div>
+    </div>
+  </a>
+  {%- if user is defined and user %}<div class="mobile-balance-chip">${{ '%.2f'|format(user.balance or 0) }}</div>{%- endif %}
+</div>
+
 <div class="layout">
-  {% include "_sidebar.html" %}
-  <div class="main">
+{% include "_sidebar.html" %}
+<div class="main">
 
-<div class="topbar">
-  <div class="topbar-left">
-    <div><div class="topbar-title">📊 Compensation Plan</div><div class="topbar-sub">Three income streams · Full breakdown</div></div>
-  </div>
-  <div style="display:flex;align-items:center;gap:10px">
-    
+
+<!-- STICKY SECTION NAV -->
+<div class="sticky-nav">
+  <div class="sticky-nav-inner">
+    <a href="#overview" class="snav-link active">Overview</a>
+    <a href="#stream1" class="snav-link">Stream 1 — Membership</a>
+    <a href="#stream2" class="snav-link">Stream 2 — Profit Grid</a>
+    <a href="#stream3" class="snav-link">Stream 3 — Courses</a>
+    <a href="#calculator" class="snav-link">Calculator</a>
   </div>
 </div>
-<div class="content">
-  <div class="hero">
-    <div class="orb"></div>
-    <div class="hero-ey"><span class="dot"></span> Participate · Qualify · Earn Commissions</div>
-    <h1>Get Paid Every Time<br>Someone <span>Enters The Grid</span></h1>
-    <div class="hero-desc">Members qualify to earn commissions by actively participating — watching real video ads that deliver genuine value to advertisers. SuperAdPro pays out 95% of every dollar across three stackable income streams, paid instantly to your wallet.</div>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;position:relative;z-index:2;margin-top:8px">
-      <div style="display:flex;align-items:center;gap:8px;background:rgba(56,189,248,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:10px 16px;font-size:14px;color:rgba(255,255,255,0.75)"><span style="font-size:16px">🔑</span> <strong style="color:#fff">$20/mo membership</strong> — 100% to you</div>
-      <div style="display:flex;align-items:center;gap:8px;background:rgba(56,189,248,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:10px 16px;font-size:14px;color:rgba(255,255,255,0.75)"><span style="font-size:16px">⚡</span> <strong style="color:#fff">Profit Engine Grid</strong> — 8 levels deep</div>
-      <div style="display:flex;align-items:center;gap:8px;background:rgba(56,189,248,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:10px 16px;font-size:14px;color:rgba(255,255,255,0.75)"><span style="font-size:16px">🎓</span> <strong style="color:#fff">Marketing Mastery</strong> — 100% + pass-up</div>
-    </div>
-  </div>
 
-  <div class="sl">The Three Streams</div>
-  <div class="st">Three Ways to Earn — Stack Them All</div>
-  <div class="ss">Each stream operates independently. Activate one, two, or all three — every stream you add multiplies your earning potential.</div>
-  <div class="streams">
-    <div class="sc s1"><div class="sc-num">Stream 01</div><span class="sc-icon">🔑</span><div class="sc-name">Monthly Membership</div><div class="sc-desc">Every member pays $20/month. You earn 100% of that — paid directly to you, every month they remain active. Refer once, get paid forever.</div><div class="sc-tag" style="background:#e0f2fe;color:#0ea5e9;border:1px solid #7dd3fc">$20/mo — 100% to you</div></div>
-    <div class="sc s2"><div class="sc-num">Stream 02</div><span class="sc-icon">⚡</span><div class="sc-name">Profit Engine Grid</div><div class="sc-desc">When anyone in your 8-level network enters a campaign tier ($20–$1,000), you earn from every single activation. Two commission layers — both paid instantly.</div><div class="sc-tag" style="background:#e0f2fe;color:#0ea5e9;border:1px solid #bae6fd">40% direct + 55% uni-level</div></div>
-    <div class="sc s3"><span class="sc-soon">Coming Soon</span><div class="sc-num">Stream 03</div><span class="sc-icon">🎓</span><div class="sc-name">Marketing Mastery</div><div class="sc-desc">Sell premium courses and keep 100% commission. Every 2nd sale passes up to your sponsor — cascading infinitely through the entire network.</div><div class="sc-tag" style="background:#e0f2fe;color:#0ea5e9;border:1px solid #7dd3fc">100% + infinite pass-up</div></div>
-  </div>
-
-  <div class="card">
-    <div class="ch s1"><div class="ch-label">Stream 01 — Monthly Membership</div><div class="ch-title">🔑 Recurring Income — $10/Month Per Referral</div><div class="ch-sub">The simplest stream. Refer someone, earn $20 every month they stay active. No levels, no splits — 50% ($10) goes to the referring sponsor every month, 50% funds the platform.</div></div>
-    <div class="s1-duo">
-      <div class="s1-box"><div class="s1-big">$20</div><div class="s1-mid">Monthly Subscription</div><div class="s1-sm">Paid by every active member to unlock all income streams and platform tools</div></div>
-      <div class="s1-box"><div class="s1-big">100%</div><div class="s1-mid">Paid to Your Sponsor</div><div class="s1-sm">The full $20 — instantly. No platform cut, no deductions, no waiting.</div></div>
-    </div>
-    <div class="sl" style="margin-top:8px">Scale Your Recurring Income</div>
-    <table class="inc-table"><thead><tr><th>Your Active Referrals</th><th>Monthly Income</th><th>Annual Income</th></tr></thead><tbody>
-      <tr><td>5 active members</td><td class="val">$100</td><td class="val">$1,200</td></tr>
-      <tr><td>10 active members</td><td class="val">$200</td><td class="val">$2,400</td></tr>
-      <tr><td>25 active members</td><td class="val">$500</td><td class="val">$6,000</td></tr>
-      <tr><td>50 active members</td><td class="val">$1,000</td><td class="val">$12,000</td></tr>
-      <tr><td>100 active members</td><td class="val">$2,000</td><td class="val">$24,000</td></tr>
-    </tbody></table>
-  </div>
-
-  <div class="card">
-    <div class="ch s2"><div class="ch-label">Stream 02 — Profit Engine Grid</div><div class="ch-title">⚡ Two Commission Layers — Every Entry Pays You</div><div class="ch-sub">When anyone in your network activates a campaign tier, 95% of that payment flows back to the network. You earn from every single seat across 8 levels.</div></div>
-    <div style="font-size:14px;font-weight:600;color:#64748b;margin-bottom:6px">How every entry payment is split:</div>
-    <div class="split-viz"><div class="seg" style="width:25%;background:linear-gradient(135deg,#0284c7,#0ea5e9)"></div><div class="seg" style="width:70%;background:linear-gradient(135deg,#0ea5e9,#38bdf8)"></div><div class="seg" style="width:5%;background:#cbd5e1"></div></div>
-    <div class="comm-duo">
-      <div class="comm-box sponsor"><div class="comm-big" style="color:#0ea5e9">40%</div><div class="comm-mid">Direct Sponsor Commission</div><div class="comm-sm">Paid to the person who directly referred the new grid entry</div></div>
-      <div class="comm-box unilevel"><div class="comm-big" style="color:#0ea5e9">55%</div><div class="comm-mid">Uni-Level · 8 Levels × 6.875%</div><div class="comm-sm">Distributed across your 8 upline levels — 6.875% per entry at each level</div></div>
-    </div>
-    <div style="font-size:22px;font-weight:800;color:#0f172a;margin-bottom:6px">8 Campaign Tiers — Choose Your Earning Power</div>
-    <div style="font-size:15px;color:#64748b;line-height:1.6;margin-bottom:20px">Each tier represents a campaign seat. When someone in your network activates any tier, you earn <strong style="color:#0ea5e9">6.875% per entry</strong> at each of your 8 uni-level positions:</div>
-    <div class="tiers-grid" style="margin-bottom:14px">
-      <div class="tc tc1"><div class="tc-name">Starter</div><div class="tc-price">$20</div><div class="tc-per">per entry</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per entry</div><div class="tc-earn-val" style="color:#0ea5e9">$1.75</div></div></div>
-      <div class="tc tc2"><div class="tc-name">Builder</div><div class="tc-price">$50</div><div class="tc-per">per entry</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per entry</div><div class="tc-earn-val" style="color:#0ea5e9">$4.38</div></div></div>
-      <div class="tc tc3"><div class="tc-name">Pro</div><div class="tc-price">$100</div><div class="tc-per">per entry</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per entry</div><div class="tc-earn-val" style="color:#0ea5e9">$6.88</div></div></div>
-      <div class="tc tc4"><div class="tc-name">Advanced</div><div class="tc-price">$200</div><div class="tc-per">per entry</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per entry</div><div class="tc-earn-val" style="color:#0ea5e9">$17.50</div></div></div>
-    </div>
-    <div class="tiers-grid">
-      <div class="tc tc5"><div class="tc-name">Elite</div><div class="tc-price">$400</div><div class="tc-per">per entry</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per entry</div><div class="tc-earn-val" style="color:#0ea5e9">$35.00</div></div></div>
-      <div class="tc tc6"><div class="tc-name">Premium</div><div class="tc-price">$600</div><div class="tc-per">per entry</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per entry</div><div class="tc-earn-val" style="color:#0ea5e9">$52.50</div></div></div>
-      <div class="tc tc7"><div class="tc-name">Executive</div><div class="tc-price">$800</div><div class="tc-per">per entry</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per entry</div><div class="tc-earn-val" style="color:#b45309">$70.00</div></div></div>
-      <div class="tc tc8"><div class="tc-name">Ultimate 🏆</div><div class="tc-price">$1,000</div><div class="tc-per">per entry</div><div class="tc-earn"><div class="tc-earn-lbl">You earn per entry</div><div class="tc-earn-val" style="color:#b45309">$87.50</div></div></div>
-    </div>
-    <div class="mult"><div style="font-size:48px;flex-shrink:0">🔥</div><div style="flex:1;min-width:220px"><h3>8 Levels Deep = 8× the Earnings Per Entry</h3><p>Every grid entry pays 6.875% commission across <strong>8 levels</strong> of your network. On the Ultimate $1,000 tier, that's <strong>$550 total uni-level</strong> flowing through your network from a single grid entry.</p></div></div>
-    <div style="margin-top:28px;font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px">Uni-Level Earnings Per Entry — All 8 Levels & All Campaign Tiers</div>
-    <div style="overflow-x:auto"><table class="uni-table"><thead><tr><th>Level</th><th>$20</th><th>$50</th><th>$100</th><th>$200</th><th>$400</th><th>$600</th><th>$800</th><th>$1,000</th></tr></thead><tbody>
-      <tr><td>Level 1</td><td>$1.38</td><td>$3.44</td><td>$6.88</td><td>$13.75</td><td>$27.50</td><td>$41.25</td><td>$55.00</td><td>$68.75</td></tr>
-      <tr><td>Level 2</td><td>$1.38</td><td>$3.44</td><td>$6.88</td><td>$13.75</td><td>$27.50</td><td>$41.25</td><td>$55.00</td><td>$68.75</td></tr>
-      <tr><td>Level 3</td><td>$1.38</td><td>$3.44</td><td>$6.88</td><td>$13.75</td><td>$27.50</td><td>$41.25</td><td>$55.00</td><td>$68.75</td></tr>
-      <tr><td>Level 4</td><td>$1.38</td><td>$3.44</td><td>$6.88</td><td>$13.75</td><td>$27.50</td><td>$41.25</td><td>$55.00</td><td>$68.75</td></tr>
-      <tr><td>Level 5</td><td>$1.38</td><td>$3.44</td><td>$6.88</td><td>$13.75</td><td>$27.50</td><td>$41.25</td><td>$55.00</td><td>$68.75</td></tr>
-      <tr><td>Level 6</td><td>$1.38</td><td>$3.44</td><td>$6.88</td><td>$13.75</td><td>$27.50</td><td>$41.25</td><td>$55.00</td><td>$68.75</td></tr>
-      <tr><td>Level 7</td><td>$1.38</td><td>$3.44</td><td>$6.88</td><td>$13.75</td><td>$27.50</td><td>$41.25</td><td>$55.00</td><td>$68.75</td></tr>
-      <tr><td>Level 8</td><td>$1.38</td><td>$3.44</td><td>$6.88</td><td>$13.75</td><td>$27.50</td><td>$41.25</td><td>$55.00</td><td>$68.75</td></tr>
-      <tr class="total-row"><td>Total (8 Levels)</td><td>$14.00</td><td>$35.00</td><td>$70.00</td><td>$140.00</td><td>$280.00</td><td>$420.00</td><td>$560.00</td><td>$700.00</td></tr>
-    </tbody></table></div>
-    <div class="viz-cta"><h3>◈ Watch the Money Flow in Real Time</h3><p>Select any tier, press Play and watch commissions cascade across your network — entry by entry, level by level.</p><a href="/grid-visualiser" class="viz-btn">Open Grid Visualiser →</a></div>
-  </div>
-
-  <div class="card">
-    <div class="ch s3"><div class="ch-label">Stream 03 — Coming Soon</div><div class="ch-title">🎓 Premium Courses — Infinite Pass-Up Engine</div><div class="ch-sub">Keep 100% on every sale. Every 2nd sale cascades up to your sponsor — infinitely through the entire network above you.</div></div>
-    <div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:6px">How the Infinite Pass-Up Works</div>
-    <div style="font-size:14px;color:#64748b;line-height:1.65;margin-bottom:18px">You sell SuperAdPro's premium courses — keeping 100% commission on every odd-numbered sale. Every even-numbered sale (2nd, 4th, 6th...) passes up to your sponsor in full — and that pass-up counts as one of their sales, cascading infinitely up the chain.</div>
-    <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-bottom:10px">Your First 7 Sales — Watch the Pattern</div>
-    <div class="pf-flow">
-      <div class="pf pf-keep"><div class="pf-num">Sale 1</div><div class="pf-vk">100%</div><div class="pf-who">You keep</div></div>
-      <div class="pf pf-pass"><div class="pf-num">Sale 2</div><div class="pf-vp">↑ Pass-up</div><div class="pf-who" style="color:#0ea5e9">To sponsor</div></div>
-      <div class="pf pf-keep"><div class="pf-num">Sale 3</div><div class="pf-vk">100%</div><div class="pf-who">You keep</div></div>
-      <div class="pf pf-pass"><div class="pf-num">Sale 4</div><div class="pf-vp">↑ Pass-up</div><div class="pf-who" style="color:#0ea5e9">To sponsor</div></div>
-      <div class="pf pf-keep"><div class="pf-num">Sale 5</div><div class="pf-vk">100%</div><div class="pf-who">You keep</div></div>
-      <div class="pf pf-pass"><div class="pf-num">Sale 6</div><div class="pf-vp">↑ Pass-up</div><div class="pf-who" style="color:#0ea5e9">To sponsor</div></div>
-      <div class="pf pf-keep"><div class="pf-num">Sale 7+</div><div class="pf-vk">Repeats ∞</div><div class="pf-who">Forever</div></div>
-    </div>
-    <div class="rules">
-      <div class="rule"><div class="ri">💰</div><div><div class="rn">100% Commission — Zero Splits</div><div class="rd">On every kept sale, you receive the full course price. No percentage deducted, no platform cut, no middlemen.</div></div></div>
-      <div class="rule"><div class="ri">♾️</div><div><div class="rn">Truly Infinite Depth</div><div class="rd">Pass-ups cascade up the entire sponsor chain with no level cap. The deeper your network grows, the more pass-ups flow back to you.</div></div></div>
-      <div class="rule"><div class="ri">🔄</div><div><div class="rn">Cascading Pass-Ups</div><div class="rd">When your sponsor receives a pass-up, it counts as one of their sales — meaning it can pass up again. This creates an infinite revenue cascade.</div></div></div>
-      <div class="rule"><div class="ri">🔑</div><div><div class="rn">Active Membership Required</div><div class="rd">Stream 3 requires an active Stream 1 subscription ($20/mo). Letting it lapse suspends your course sales access.</div></div></div>
-    </div>
-    <div class="courses">
-      <div class="course"><div class="course-top"><div class="course-badge" style="background:linear-gradient(135deg,#0ea5e9,#0284c7)">🎓</div><div><div class="cml" style="color:#0ea5e9">Stream 3 · Course 1</div><div class="cmn">Marketing Mastery Course</div></div></div><div class="course-body">Professional sales training, digital marketing strategy and affiliate mastery — all in one comprehensive course.</div><div class="ctags"><span class="ctag" style="background:#e0f2fe;color:#0ea5e9;border:1px solid #bae6fd">Sales Training</span><span class="ctag" style="background:#e0f2fe;color:#0ea5e9;border:1px solid #bae6fd">Digital Marketing</span><span class="ctag" style="background:#e0f2fe;color:#0ea5e9;border:1px solid #bae6fd">Affiliate Mastery</span><span class="ctag" style="background:#e0f2fe;color:#0ea5e9;border:1px solid #bae6fd">Lead Generation</span></div><span class="cstat" style="background:#e0f2fe;color:#0ea5e9;border:1px solid #bae6fd">Launching Soon</span></div>
-      <div class="course"><div class="course-top"><div class="course-badge" style="background:linear-gradient(135deg,#0284c7,#38bdf8)">🤖</div><div><div class="cml" style="color:#0ea5e9">Stream 3 · Course 2</div><div class="cmn">AI Mastery Course</div></div></div><div class="course-body">Master AI tools and automation for business growth — content creation, lead generation and scaling income with artificial intelligence.</div><div class="ctags"><span class="ctag" style="background:#e0f2fe;color:#0ea5e9;border:1px solid #7dd3fc">AI Automation</span><span class="ctag" style="background:#e0f2fe;color:#0ea5e9;border:1px solid #7dd3fc">Content Creation</span><span class="ctag" style="background:#e0f2fe;color:#0ea5e9;border:1px solid #7dd3fc">Business Scaling</span><span class="ctag" style="background:#e0f2fe;color:#0ea5e9;border:1px solid #7dd3fc">AI Copywriting</span></div><span class="cstat" style="background:#e0f2fe;color:#0ea5e9;border:1px solid #7dd3fc">Launching Soon</span></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="ch" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)"><div class="ch-label">Interactive Calculator</div><div class="ch-title">🧮 Model Your Income Potential</div><div class="ch-sub">Select your active tiers, set grid advances, and watch your projected earnings stack up across all income streams.</div></div>
-    <div style="margin-bottom:28px"><div class="calc-label">Select Active Tiers</div><div id="tierToggles" style="display:flex;flex-wrap:wrap;gap:8px"></div></div>
-    <div style="margin-bottom:28px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div class="calc-label" style="margin-bottom:0">Grid Advances Per Tier</div><div class="calc-val" id="advancesVal">10</div></div><input type="range" id="advancesSlider" min="1" max="50" value="10" class="calc-slider"><div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-top:4px"><span>1</span><span>10</span><span>25</span><span>50</span></div></div>
-    <div style="margin-bottom:28px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div class="calc-label" style="margin-bottom:0">Your Direct Referrals</div><div class="calc-val" id="referralsVal">15</div></div><input type="range" id="referralsSlider" min="0" max="100" value="15" class="calc-slider"><div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-top:4px"><span>0</span><span>25</span><span>50</span><span>100</span></div></div>
-    <div style="border-top:2px solid #e2e8f0;padding-top:24px">
-      <div class="calc-label">Projected Earnings</div>
-      <div class="result-row"><div><div class="rl">Stream 1 — Recurring Membership</div><div class="rs">$20/month × direct referrals × 12 months</div></div><div class="rv" style="color:#0ea5e9" id="s1Result">$0</div></div>
-      <div class="result-row"><div><div class="rl">Stream 2 — Uni-Level (6.875% per entry)</div><div class="rs">64 positions × tier price × 6.875% × grid advances</div></div><div class="rv" style="color:#0ea5e9" id="s2OwnerResult">$0</div></div>
-      <div class="result-row"><div><div class="rl">Stream 2 — Direct Sponsor (40%)</div><div class="rs">40% of each grid entry from your personal referrals</div></div><div class="rv" style="color:#0ea5e9" id="s2DirectResult">$0</div></div>
-      <div class="total-box"><div><div class="total-lbl">Total Projected Earnings</div><div style="font-size:12px;color:rgba(186,230,253,0.45)">Across all selected tiers and grid advances</div></div><div class="total-val" id="totalResult">$0</div></div>
-      <div style="margin-top:18px"><div class="calc-label" style="color:#94a3b8">Per-Tier Breakdown</div><div id="tierBreakdown" class="tb-grid"></div></div>
-    </div>
-    <div class="disclaimer">⚠️ These figures are <strong>mathematical projections only</strong> based on full grid completion. Actual earnings depend on personal effort, team activity, network growth and member retention. SuperAdPro does not guarantee any income.</div>
-  </div>
-  <div class="int-footer">© 2026 SuperAdPro. All rights reserved. · Income figures are mathematical illustrations only.</div>
+<!-- HERO -->
+<div class="hero fade-in">
+  <div class="hero-eyebrow">Compensation Plan</div>
+  <h1>Three Streams.<br><em>One Unstoppable Income.</em></h1>
+  <p class="hero-sub">Stack three independent income streams — residual membership income, deep network commissions, and 100% course sales — all from a single $20/month platform.</p>
+  <a href="/dashboard" class="hero-cta">Go to Dashboard →</a>
+  <a href="#overview" class="hero-cta-ghost">See How It Works ↓</a>
 </div>
+
+<!-- OVERVIEW -->
+<div id="overview">
+  <div class="divider"></div>
+  <div class="container section">
+    <div class="section-head">
+      <div class="section-label">The Three Streams</div>
+      <div class="section-title">Your Complete Earning Opportunity</div>
+      <div class="section-sub">Each stream compounds the others. Start with Stream 1 and unlock the rest.</div>
+    </div>
+
+    <div class="streams-grid">
+      <!-- S1 -->
+      <div class="stream-card sc-green delay-1 fade-in">
+        <div class="stream-num">Stream 01</div>
+        <div class="stream-icon si-green">🔑</div>
+        <div class="stream-title">Monthly Membership</div>
+        <div class="stream-desc">Pay $20/month and earn $10/month for every member you refer (50% to sponsor, 50% platform). Simple, predictable, compounding residual income.</div>
+        <div class="stream-stat ss-green">$10/month to sponsor · 50/50 split</div>
+        <div><span class="badge-live">● Live Now</span></div>
+      </div>
+      <!-- S2 -->
+      <div class="stream-card sc-cyan delay-2 fade-in">
+        <div class="stream-num">Stream 02</div>
+        <div class="stream-icon si-cyan">⚡</div>
+        <div class="stream-title">Profit Engine Grid</div>
+        <div class="stream-desc">Activate a campaign tier ($20–$1,000) and earn 40% direct commission plus 6.875% across 8 levels of your network on every entry.</div>
+        <div class="stream-stat ss-cyan">40% direct + 55% uni-level (8 levels)</div>
+        <div><span class="badge-live">● Live Now</span></div>
+      </div>
+      <!-- S3 -->
+      <div class="stream-card sc-purple delay-3 fade-in sc-dim">
+        <div class="stream-num">Stream 03</div>
+        <div class="stream-icon si-purple">🎓</div>
+        <div class="stream-title">Marketing Mastery Courses</div>
+        <div class="stream-desc">Sell exclusive courses and keep 100% of every other sale. Pass-ups cascade infinitely up your sponsor chain with no level cap.</div>
+        <div class="stream-stat ss-purple">100% commission · infinite pass-up</div>
+        <div><span class="badge-soon">In Development</span></div>
+      </div>
+    </div>
+
+    <!-- Gateway -->
+    <div class="gateway">
+      <div class="gateway-icon">🔑</div>
+      <div>
+        <div class="gateway-title">Stream 1 is the Gateway to Everything</div>
+        <div class="gateway-text">Your $20/month membership is not just an income stream — it is the key that unlocks Streams 2 and 3. Let it lapse and access to all income streams is paused until you reactivate.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STREAM 1 -->
+<div class="divider"></div>
+<div id="stream1" class="container section">
+  <div class="section-head">
+    <div class="section-label">Stream 01 — Full Detail</div>
+    <div class="section-title">Monthly Membership Residual Income</div>
+    <div class="section-sub">Refer a member. Earn $20 every single month they stay active. No limits.</div>
+  </div>
+
+  <div class="detail-card">
+    <div class="s1-split">
+      <div class="s1-box">
+        <div class="s1-amount" style="color:var(--text)">$20</div>
+        <div class="s1-label">Monthly Subscription</div>
+        <div class="s1-detail">Paid by every active member each month to maintain full access to all income streams.</div>
+      </div>
+      <div class="s1-box">
+        <div class="s1-amount s1-amount-green">$10</div>
+        <div class="s1-label">Direct to Your Wallet</div>
+        <div class="s1-detail">50% of the $20 subscription goes instantly to your sponsor. The remaining $10 goes to the platform.</div>
+      </div>
+    </div>
+
+    <div style="font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Residual Income Potential</div>
+    <table class="earn-table">
+      <thead>
+        <tr>
+          <th>Members You Referred</th>
+          <th>Monthly Income</th>
+          <th>Annual Income</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>5 members</td><td>$50/mo</td><td>$600</td></tr>
+        <tr><td>10 members</td><td>$100/mo</td><td>$1,200</td></tr>
+        <tr><td>25 members</td><td>$250/mo</td><td>$3,000</td></tr>
+        <tr><td>50 members</td><td>$500/mo</td><td>$6,000</td></tr>
+        <tr><td>100 members</td><td>$1,000/mo</td><td>$12,000</td></tr>
+        <tr><td>250 members</td><td>$2,500/mo</td><td>$30,000</td></tr>
+        <tr><td>500 members</td><td>$5,000/mo</td><td>$60,000</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:13px;color:var(--muted);margin-top:12px">* Based on all referred members maintaining active subscriptions.</p>
+  </div>
+</div>
+
+<!-- STREAM 2 -->
+<div class="divider"></div>
+<div id="stream2" class="container section">
+  <div class="section-head">
+    <div class="section-label">Stream 02 — Full Detail</div>
+    <div class="section-title">Profit Engine Grid Commissions</div>
+    <div class="section-sub">Activate a campaign tier and earn through two commission layers on every entry across your entire 8-level network.</div>
+  </div>
+
+  <!-- Commission split -->
+  <div class="detail-card" style="margin-bottom:20px">
+    <div style="font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">How Every Entry is Split — 3 Ways</div>
+    <div class="dist-bar" style="grid-template-columns:5fr 40fr 55fr">
+      <div style="background:#e879f9;border-radius:3px 0 0 3px"></div>
+      <div class="db-direct"></div>
+      <div class="db-uni" style="border-radius:0 3px 3px 0"></div>
+    </div>
+    <div class="comm-split" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="comm-box">
+        <div class="comm-pct" style="color:#e879f9">5%</div>
+        <div class="comm-title">Operational Costs</div>
+        <div class="comm-desc">SuperAdPro's operational costs — covers platform infrastructure and development.</div>
+        <div class="comm-eg" style="color:#e879f9;background:rgba(232,121,249,0.08);border-color:rgba(232,121,249,0.2)">$5.00 on a $100 entry</div>
+      </div>
+      <div class="comm-box">
+        <div class="comm-pct">40%</div>
+        <div class="comm-title">Direct Sponsor</div>
+        <div class="comm-desc">Paid instantly to the person who personally referred the new member.</div>
+        <div class="comm-eg">$40.00 on a $100 entry</div>
+      </div>
+      <div class="comm-box">
+        <div class="comm-pct" style="color:var(--purple-bright,#818cf8)">55%</div>
+        <div class="comm-title">Uni-Level Chain (8 Levels)</div>
+        <div class="comm-desc">Split equally — 6.875% (exact) per level — paid instantly to each of the 8 upline positions.</div>
+        <div class="comm-eg" style="color:var(--purple-bright,#818cf8);background:rgba(129,140,248,0.08);border-color:rgba(129,140,248,0.2)">$6.875 per level on $100</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid structure illustration -->
+  <div class="detail-card" style="margin-bottom:20px">
+    <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px">How the 64-Seat Grid Works</div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:24px">The sponsor sits <em>above</em> the grid — not inside it. The grid is filled entirely by their network below.</div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+      <!-- Sponsor node -->
+      <div style="background:linear-gradient(135deg,var(--cyan),var(--cyan-bright));border-radius:12px;padding:12px 32px;font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:#fff;text-align:center;position:relative;z-index:2">
+        👤 SPONSOR
+        <div style="font-size:12px;font-weight:500;opacity:0.85;margin-top:2px">Earns $40 direct + $6.875 per level (on $100 tier)</div>
+      </div>
+      <!-- Connector line -->
+      <div style="width:2px;height:24px;background:rgba(14,165,233,0.3)"></div>
+      <!-- Grid box -->
+      <div style="width:100%;border:1px solid rgba(14,165,233,0.2);border-radius:14px;overflow:hidden">
+        <div style="background:rgba(14,165,233,0.05);padding:10px 20px;border-bottom:1px solid rgba(14,165,233,0.12);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);text-align:center">64-Seat Profit Engine Grid</div>
+        <div style="padding:16px 20px;display:grid;gap:6px">
+          <div style="display:grid;grid-template-columns:80px 1fr 100px;gap:12px;padding:8px 12px;background:rgba(14,165,233,0.04);border-radius:8px;align-items:center">
+            <div style="font-size:13px;font-weight:700;color:var(--cyan)">Level 1</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap">
+              <div style="width:18px;height:18px;border-radius:4px;background:var(--cyan);opacity:0.7"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:var(--cyan);opacity:0.7"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:var(--cyan);opacity:0.7"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:var(--cyan);opacity:0.7"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:var(--cyan);opacity:0.7"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:var(--cyan);opacity:0.7"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:var(--cyan);opacity:0.7"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:var(--cyan);opacity:0.7"></div>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:var(--cyan);text-align:right">8 seats</div>
+          </div>
+          <div style="display:grid;grid-template-columns:80px 1fr 100px;gap:12px;padding:8px 12px;background:rgba(99,102,241,0.03);border-radius:8px;align-items:center">
+            <div style="font-size:13px;font-weight:700;color:#818cf8">Level 2</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap">
+              <div style="width:18px;height:18px;border-radius:4px;background:#818cf8;opacity:0.5"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:#818cf8;opacity:0.5"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:#818cf8;opacity:0.5"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:#818cf8;opacity:0.5"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:#818cf8;opacity:0.5"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:#818cf8;opacity:0.5"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:#818cf8;opacity:0.5"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:#818cf8;opacity:0.5"></div>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:#818cf8;text-align:right">8 seats</div>
+          </div>
+          <div style="text-align:center;padding:4px;font-size:13px;color:var(--muted)">Levels 3–8 continue the same pattern…</div>
+          <div style="display:grid;grid-template-columns:80px 1fr 100px;gap:12px;padding:8px 12px;background:rgba(22,163,74,0.04);border-radius:8px;align-items:center">
+            <div style="font-size:13px;font-weight:700;color:var(--green)">Level 8</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap">
+              <div style="width:18px;height:18px;border-radius:4px;background:var(--green);opacity:0.4"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:var(--green);opacity:0.4"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:var(--green);opacity:0.4"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:var(--green);opacity:0.4"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:var(--green);opacity:0.4"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:var(--green);opacity:0.4"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:var(--green);opacity:0.4"></div>
+              <div style="width:18px;height:18px;border-radius:4px;background:var(--green);opacity:0.4"></div>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:var(--green);text-align:right">8 seats</div>
+          </div>
+        </div>
+        <div style="background:var(--card-inner);padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:14px;color:var(--text-2)">Total seats in grid</div>
+          <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--text)">8 levels × 8 seats = <span style="color:var(--cyan)">64 positions</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding:12px 16px;background:rgba(14,165,233,0.04);border:1px solid rgba(14,165,233,0.18);border-radius:8px;font-size:14px;color:var(--muted);line-height:1.6">
+      💡 <strong style="color:var(--text)">Key point:</strong> When all 64 seats activate at the <strong style="color:var(--cyan)">$100 tier</strong>, the sponsor earns <strong style="color:var(--cyan)">64 × $6.875 = $440.00</strong> in uni-level income — completely separate from their $40 direct commissions.
+    </div>
+  </div>
+
+  <!-- Exact payout breakdown -->
+  <div class="detail-card" style="margin-bottom:20px">
+    <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px">Exact Payout Breakdown — All Tiers</div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:20px">Every dollar accounted for on every entry. All payments instant.</div>
+
+    <div class="payout-row">
+      <div class="payout-left">
+        <div class="payout-dot" style="background:#e879f9"></div>
+        <div><div class="payout-name">Operational Costs (5%)</div><div class="payout-desc">SuperAdPro's operational costs on every grid entry</div></div>
+      </div>
+      <div style="text-align:right"><div class="payout-amount" style="color:#e879f9">$5.00</div><div class="payout-timing">on $100</div></div>
+    </div>
+    <div class="payout-row">
+      <div class="payout-left">
+        <div class="payout-dot" style="background:var(--green)"></div>
+        <div><div class="payout-name">Direct Sponsor (40%)</div><div class="payout-desc">The person who personally referred the new member</div></div>
+      </div>
+      <div style="text-align:right"><div class="payout-amount" style="color:var(--green)">$40.00</div><div class="payout-timing">Instant</div></div>
+    </div>
+    <div class="payout-row">
+      <div class="payout-left">
+        <div class="payout-dot" style="background:var(--cyan)"></div>
+        <div><div class="payout-name">Uni-Level Levels 1–8 (6.875% each)</div><div class="payout-desc">$6.875 paid instantly to each of the 8 upline positions above the new member</div></div>
+      </div>
+      <div style="text-align:right"><div class="payout-amount" style="color:var(--cyan)">$6.875 × 8</div><div class="payout-timing">= $55.00 · Instant</div></div>
+    </div>
+    <div class="payout-total">
+      <div style="font-size:15px;font-weight:600;color:var(--text-2)">Total = 5% + 40% + 55%</div>
+      <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:var(--cyan)">$100.00 ✓</div>
+    </div>
+
+    <!-- All tiers table -->
+    <div style="margin-top:24px;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">All Tier Payouts at a Glance</div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:14px">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border)">
+            <th style="padding:9px 12px;text-align:left;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Tier</th>
+            <th style="padding:9px 12px;text-align:right;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#e879f9">Op. Costs 5%</th>
+            <th style="padding:9px 12px;text-align:right;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green)">Direct 40%</th>
+            <th style="padding:9px 12px;text-align:right;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan)">Per Level 6.875%</th>
+            <th style="padding:9px 12px;text-align:right;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Full Grid (64)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:10px 12px;color:var(--text);font-weight:600">$20</td><td style="padding:10px 12px;text-align:right;color:#e879f9;font-weight:700">$1.00</td><td style="padding:10px 12px;text-align:right;color:var(--green);font-weight:700">$8.00</td><td style="padding:10px 12px;text-align:right;color:var(--cyan);font-weight:700">$1.375</td><td style="padding:10px 12px;text-align:right;color:var(--muted);font-weight:600">$88.00</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:10px 12px;color:var(--text);font-weight:600">$50</td><td style="padding:10px 12px;text-align:right;color:#e879f9;font-weight:700">$2.50</td><td style="padding:10px 12px;text-align:right;color:var(--green);font-weight:700">$20.00</td><td style="padding:10px 12px;text-align:right;color:var(--cyan);font-weight:700">$3.4375</td><td style="padding:10px 12px;text-align:right;color:var(--muted);font-weight:600">$220.00</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(14,165,233,0.04)"><td style="padding:10px 12px;color:var(--text);font-weight:600">$100</td><td style="padding:10px 12px;text-align:right;color:#e879f9;font-weight:700">$5.00</td><td style="padding:10px 12px;text-align:right;color:var(--green);font-weight:700">$40.00</td><td style="padding:10px 12px;text-align:right;color:var(--cyan);font-weight:700">$6.875</td><td style="padding:10px 12px;text-align:right;color:var(--muted);font-weight:600">$440.00</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:10px 12px;color:var(--text);font-weight:600">$200</td><td style="padding:10px 12px;text-align:right;color:#e879f9;font-weight:700">$10.00</td><td style="padding:10px 12px;text-align:right;color:var(--green);font-weight:700">$80.00</td><td style="padding:10px 12px;text-align:right;color:var(--cyan);font-weight:700">$13.75</td><td style="padding:10px 12px;text-align:right;color:var(--muted);font-weight:600">$880.00</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:10px 12px;color:var(--text);font-weight:600">$400</td><td style="padding:10px 12px;text-align:right;color:#e879f9;font-weight:700">$20.00</td><td style="padding:10px 12px;text-align:right;color:var(--green);font-weight:700">$160.00</td><td style="padding:10px 12px;text-align:right;color:var(--cyan);font-weight:700">$27.50</td><td style="padding:10px 12px;text-align:right;color:var(--muted);font-weight:600">$1,760.00</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:10px 12px;color:var(--text);font-weight:600">$600</td><td style="padding:10px 12px;text-align:right;color:#e879f9;font-weight:700">$30.00</td><td style="padding:10px 12px;text-align:right;color:var(--green);font-weight:700">$240.00</td><td style="padding:10px 12px;text-align:right;color:var(--cyan);font-weight:700">$41.25</td><td style="padding:10px 12px;text-align:right;color:var(--muted);font-weight:600">$2,640.00</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:10px 12px;color:var(--text);font-weight:600">$800</td><td style="padding:10px 12px;text-align:right;color:#e879f9;font-weight:700">$40.00</td><td style="padding:10px 12px;text-align:right;color:var(--green);font-weight:700">$320.00</td><td style="padding:10px 12px;text-align:right;color:var(--cyan);font-weight:700">$55.00</td><td style="padding:10px 12px;text-align:right;color:var(--muted);font-weight:600">$3,520.00</td></tr>
+          <tr><td style="padding:10px 12px;color:var(--text);font-weight:600">$1,000</td><td style="padding:10px 12px;text-align:right;color:#e879f9;font-weight:700">$50.00</td><td style="padding:10px 12px;text-align:right;color:var(--green);font-weight:700">$400.00</td><td style="padding:10px 12px;text-align:right;color:var(--cyan);font-weight:700">$68.75</td><td style="padding:10px 12px;text-align:right;color:var(--muted);font-weight:600">$4,400.00</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Uni-level table all tiers -->
+  <div class="detail-card">
+    <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px">Uni-Level Earnings Per Entry — All Tiers</div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:4px">What you earn per activation at each level of your network</div>
+    <div class="uni-table-wrap">
+      <table class="uni-table">
+        <thead>
+          <tr>
+            <th>Level</th>
+            <th>$20</th><th>$50</th><th>$100</th><th>$200</th><th>$400</th><th>$600</th><th>$800</th><th>$1,000</th>
+          </tr>
+        </thead>
+        <tbody id="uniTableBody"></tbody>
+      </table>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-top:14px;padding:12px 14px;background:var(--card-inner);border-radius:8px;border:1px solid rgba(14,165,233,0.18)">
+      📊 <strong style="color:var(--text-2)">About the 8×8 Profit Engine Grid:</strong> The grid in your dashboard is a visual tracker showing positions filled across 8 levels. It does not determine commission eligibility — commissions are paid on every network entry regardless of grid position.
+    </p>
+  </div>
+</div>
+
+<!-- STREAM 3 -->
+<div class="divider"></div>
+<div id="stream3" class="container section">
+  <div class="section-head">
+    <div class="section-label" style="opacity:0.6">Stream 03 — Coming Soon</div>
+    <div class="section-title">Exclusive Courses — Infinite Pass-Up</div>
+    <div class="section-sub">Keep 100% on every sale you make personally. Every 2nd sale passes up to your sponsor — and cascades infinitely.</div>
+  </div>
+
+  <div class="detail-card" style="opacity:0.8">
+    <div style="font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px">How the Pattern Works</div>
+    <div class="passup-flow">
+      <div class="pf-step pf-keep"><div class="pf-label">Sale 1</div><div class="pf-val">100% yours</div></div>
+      <div class="pf-step pf-pass"><div class="pf-label">Sale 2</div><div class="pf-val">↑ Pass-up</div></div>
+      <div class="pf-step pf-keep"><div class="pf-label">Sale 3</div><div class="pf-val">100% yours</div></div>
+      <div class="pf-step pf-pass"><div class="pf-label">Sale 4</div><div class="pf-val">↑ Pass-up</div></div>
+      <div class="pf-step pf-keep"><div class="pf-label">Sale 5</div><div class="pf-val">100% yours</div></div>
+      <div class="pf-step pf-pass"><div class="pf-label">Sale 6</div><div class="pf-val">↑ Pass-up</div></div>
+      <div class="pf-step pf-keep"><div class="pf-label">Sale 7+</div><div class="pf-val">Repeats</div></div>
+    </div>
+    <div class="passup-rules">
+      <div class="rule-item">
+        <div class="rule-icon">💰</div>
+        <div><div class="rule-title">100% Commission — No Splits</div><div class="rule-desc">On kept sales you receive the full course price. Zero platform deduction.</div></div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-icon">♾️</div>
+        <div><div class="rule-title">Truly Infinite Depth</div><div class="rule-desc">Pass-ups cascade up the entire sponsor chain with no level cap whatsoever.</div></div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-icon">🔄</div>
+        <div><div class="rule-title">Cascading Pass-Ups</div><div class="rule-desc">Your sponsor's received pass-up counts toward their own pattern — triggering their next pass-up upward.</div></div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-icon">🔑</div>
+        <div><div class="rule-title">Active Subscription Required</div><div class="rule-desc">Stream 3 requires an active Stream 1 subscription. Lapsing pauses course commissions.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CALCULATOR -->
+<div class="divider"></div>
+<div id="calculator" class="container section">
+  <div class="section-head">
+    <div class="section-label">Earnings Calculator</div>
+    <div class="section-title">Estimate Your Income Potential</div>
+    <div class="section-sub">Select your campaign tiers, set your network activity, and see projected earnings across all streams.</div>
+  </div>
+
+  <div class="calc-wrap">
+    <div style="margin-bottom:20px">
+      <div style="font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px">Campaign Tiers to Activate</div>
+      <div class="calc-tiers" id="tierToggles"></div>
+    </div>
+    <div class="calc-sliders">
+      <div class="slider-wrap">
+        <label>Grid Advances <span id="advancesVal">10</span></label>
+        <input type="range" id="advancesSlider" min="1" max="50" value="10">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:4px"><span>1</span><span>50</span></div>
+      </div>
+      <div class="slider-wrap">
+        <label>Direct Referrals <span id="referralsVal">15</span></label>
+        <input type="range" id="referralsSlider" min="0" max="100" value="15">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:4px"><span>0</span><span>100</span></div>
+      </div>
+    </div>
+    <div class="calc-results">
+      <div style="font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Projected Annual Earnings</div>
+      <div class="result-row">
+        <div><div class="result-name">Stream 1 — Membership Residual</div><div class="result-sub">$10/month × direct referrals × 12 months (50% of $20 fee)</div></div>
+        <div class="result-val rv-green" id="s1Result">$0</div>
+      </div>
+      <div class="result-row">
+        <div><div class="result-name">Stream 2 — Uni-Level Income</div><div class="result-sub">64 positions × tier × 6.875% × advances</div></div>
+        <div class="result-val rv-cyan" id="s2OwnerResult">$0</div>
+      </div>
+      <div class="result-row">
+        <div><div class="result-name">Stream 2 — Direct Sponsor (40%)</div><div class="result-sub">40% of each entry from personal referrals</div></div>
+        <div class="result-val rv-cyan" id="s2DirectResult">$0</div>
+      </div>
+      <div class="total-box">
+        <div><div class="total-label">Total Projected Annual Income</div><div class="total-sub">Across all selected tiers and advances</div></div>
+        <div class="total-val" id="totalResult">$0</div>
+      </div>
+      <div id="tierBreakdown" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px"></div>
+    </div>
+    <div class="calc-disclaimer">⚠️ <strong>Important:</strong> All commission figures shown are mathematically exact and represent the precise amounts distributed per entry. Uni-level payments are calculated as exactly 6.875% per level (55% ÷ 8) of the tier price — figures are displayed to the number of decimal places required for exactness (e.g. $3.4375 on a $50 tier). Earnings projections are illustrative only and based on full grid completion. Actual earnings depend entirely on your personal activity and network performance. Income is not guaranteed. SuperAdPro does not guarantee any specific level of income or success.</div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="container">
+  <div class="cta-section">
+    <h2>Ready to Start Earning?</h2>
+    <p>Join SuperAdPro for $20/month and unlock all three income streams from day one.</p>
+    <div class="cta-btns">
+      <a href="#" class="hero-cta">Create Your Account →</a>
+      <a href="/faq" class="hero-cta-ghost">Read the FAQ</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 SuperAdPro. All rights reserved. &nbsp;|&nbsp; <a href="/legal">Terms & Legal</a></p>
+  <p style="margin-top:6px;font-size:13px">Income figures shown are mathematical projections only. Past performance of other members does not guarantee your results.</p>
+</footer>
+
 <script>
-var TIERS=[{name:'Starter',price:20},{name:'Builder',price:50},{name:'Pro',price:100},{name:'Advanced',price:200},{name:'Elite',price:400},{name:'Premium',price:600},{name:'Executive',price:800},{name:'Ultimate',price:1000}];
-var SEATS=63,PER_LEVEL_PCT=0.06875,DIRECT_PCT=0.40;
-var activeTiers=new Set([0,1,2,3,4,5,6,7]);
-function initCalc(){var w=document.getElementById('tierToggles');TIERS.forEach(function(t,i){var b=document.createElement('button');b.className='tier-toggle active';b.textContent='$'+t.price;b.onclick=function(){if(activeTiers.has(i)){activeTiers.delete(i);b.classList.remove('active')}else{activeTiers.add(i);b.classList.add('active')}calc()};w.appendChild(b)});document.getElementById('advancesSlider').oninput=function(){document.getElementById('advancesVal').textContent=this.value;calc()};document.getElementById('referralsSlider').oninput=function(){document.getElementById('referralsVal').textContent=this.value;calc()};calc()}
-function calc(){var a=parseInt(document.getElementById('advancesSlider').value),r=parseInt(document.getElementById('referralsSlider').value);var s1=r*20*12,s2O=0,s2D=0,bd=[];activeTiers.forEach(function(i){var t=TIERS[i],u=SEATS*t.price*PER_LEVEL_PCT,oT=u*a,dT=t.price*DIRECT_PCT*r*a;s2O+=oT;s2D+=dT;bd.push({name:t.name,val:oT+dT})});var tot=s1+s2O+s2D;document.getElementById('s1Result').textContent='$'+s1.toLocaleString();document.getElementById('s2OwnerResult').textContent='$'+Math.round(s2O).toLocaleString();document.getElementById('s2DirectResult').textContent='$'+Math.round(s2D).toLocaleString();document.getElementById('totalResult').textContent='$'+Math.round(tot).toLocaleString();var bw=document.getElementById('tierBreakdown');bw.innerHTML='';bd.forEach(function(b){bw.innerHTML+='<div class="tb"><div class="tb-name">'+b.name+'</div><div class="tb-val">$'+Math.round(b.val).toLocaleString()+'</div></div>'})}
-initCalc();
+/* ── Uni-level table ── */
+const pkgs = [20,50,100,200,400,600,800,1000];
+const tbody = document.getElementById('uniTableBody');
+const colours = ['#0ea5e9','#6366f1','#0284c7','#4f46e5','#0369a1','#7c3aed','#1d4ed8','#2563eb'];
+pkgs.forEach((p,i) => {
+  // handled below per level
+});
+for(let lvl=1;lvl<=8;lvl++){
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td style="color:${colours[lvl-1]}">Level ${lvl}</td>` +
+    pkgs.map(p=>{
+      const exact={20:'1.375',50:'3.4375',100:'6.875',200:'13.75',400:'27.50',600:'41.25',800:'55.00',1000:'68.75'};
+      return `<td style="color:${colours[lvl-1]}">$${exact[p]}</td>`;
+    }).join('') ;
+  tbody.appendChild(tr);
+}
+const trDirect = document.createElement('tr');
+trDirect.style.borderTop = '1px solid rgba(14,165,233,0.15)';
+trDirect.innerHTML = `<td style="color:var(--green);font-weight:700">Direct (40%)</td>` +
+  pkgs.map(p=>`<td style="color:var(--green)">\$${(p*0.40).toFixed(2)}</td>`).join('');
+tbody.appendChild(trDirect);
+
+/* ── Calculator ── */
+const tiers = [20,50,100,200,400,600,800,1000];
+let activeTiers = new Set([100]);
+
+const togglesEl = document.getElementById('tierToggles');
+tiers.forEach(t => {
+  const btn = document.createElement('button');
+  btn.className = 'tier-btn' + (activeTiers.has(t) ? ' active' : '');
+  btn.textContent = '$'+t;
+  btn.onclick = () => {
+    if(activeTiers.has(t)){ if(activeTiers.size>1) activeTiers.delete(t); }
+    else activeTiers.add(t);
+    document.querySelectorAll('.tier-btn').forEach((b,i)=>b.className='tier-btn'+(activeTiers.has(tiers[i])?' active':''));
+    calc();
+  };
+  togglesEl.appendChild(btn);
+});
+
+const advSlider = document.getElementById('advancesSlider');
+const refSlider = document.getElementById('referralsSlider');
+advSlider.oninput = ()=>{ document.getElementById('advancesVal').textContent=advSlider.value; calc(); };
+refSlider.oninput = ()=>{ document.getElementById('referralsVal').textContent=refSlider.value; calc(); };
+
+function fmt(n){ return '$'+Math.round(n).toLocaleString(); }
+
+function calc(){
+  const advances = parseInt(advSlider.value);
+  const refs = parseInt(refSlider.value);
+  const s1 = refs * 10 * 12;
+  let s2Owner=0, s2Direct=0;
+  activeTiers.forEach(t=>{
+    s2Owner += 64 * t * (0.55/8) * advances;  // 6.875% ≈ 0.55/8
+    s2Direct += refs * t * 0.40;
+  });
+  const total = s1+s2Owner+s2Direct;
+  document.getElementById('s1Result').textContent = fmt(s1);
+  document.getElementById('s2OwnerResult').textContent = fmt(s2Owner);
+  document.getElementById('s2DirectResult').textContent = fmt(s2Direct);
+  document.getElementById('totalResult').textContent = fmt(total);
+
+  // Tier breakdown
+  const bd = document.getElementById('tierBreakdown');
+  bd.innerHTML='';
+  activeTiers.forEach(t=>{
+    const tierTotal = (64*t*0.0625*advances)+(refs*t*0.40);
+    const el = document.createElement('div');
+    el.style.cssText='background:var(--card-inner);border:1px solid rgba(14,165,233,0.18);border-radius:10px;padding:14px;text-align:center';
+    el.innerHTML=`<div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">$${t} Tier</div><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:700;color:var(--cyan)">${fmt(tierTotal)}</div>`;
+    bd.appendChild(el);
+  });
+}
+calc();
+
+/* ── Sticky nav active state ── */
+const sections = ['overview','stream1','stream2','stream3','calculator'];
+const snavLinks = document.querySelectorAll('.snav-link');
+window.addEventListener('scroll',()=>{
+  let current='';
+  sections.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el && window.scrollY >= el.offsetTop-120) current=id;
+  });
+  snavLinks.forEach(l=>{
+    l.classList.toggle('active', l.getAttribute('href')==='#'+current);
+  });
+});
 </script>
-  </div><!-- /main -->
+</div><!-- /main -->
 </div><!-- /layout -->
+
 </body>
 </html>
