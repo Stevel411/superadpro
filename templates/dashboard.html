@@ -36,16 +36,16 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 .balance-unit{font-size:10px;color:rgba(148,163,184,0.5);margin-left:3px}
 
 /* ── CONTENT SCROLL AREA ── */
-.content{padding:20px 24px;flex:1;overflow-y:auto;scrollbar-gutter:stable}
+.content{padding:16px 24px 24px;flex:1;overflow-y:auto;scrollbar-gutter:stable}
 .content::-webkit-scrollbar{width:5px}
 .content::-webkit-scrollbar-track{background:transparent}
 .content::-webkit-scrollbar-thumb{background:rgba(15,25,60,.12);border-radius:99px}
 
 /* ── SECTION LABEL ── */
-.section-label{font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#7b91a8;margin-bottom:14px;padding-left:2px}
+.section-label{font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#7b91a8;margin:16px 0 12px;padding-left:2px}
 
 /* ── JOURNEY STEPS ── */
-.journey-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px}
+.journey-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
 .journey-step{border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:7px;position:relative;overflow:hidden}
 .js-1{background:linear-gradient(135deg,#1d4ed8,#2563eb)}
 .js-2{background:linear-gradient(135deg,#4338ca,#6366f1)}
@@ -59,7 +59,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 .step-cta:hover{gap:8px}
 
 /* ── TOOLS STRIP ── */
-.tools-strip{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:16px;padding:18px 22px;margin-bottom:20px;box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 16px rgba(15,25,60,.07)}
+.tools-strip{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:16px;padding:18px 22px;margin-bottom:16px;box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 16px rgba(15,25,60,.07)}
 .tools-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .tools-title{font-size:15px;font-weight:700;color:#0f172a}
 .tools-badge{font-size:10px;font-weight:800;padding:4px 12px;border-radius:20px;background:#f0fdf4;color:#059669;border:1px solid #a7f3d0}
@@ -70,7 +70,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 .tool-name{font-size:13px;font-weight:700;color:#4a5a6e;text-align:center;line-height:1.3}
 
 /* ── STAT CARDS ── */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
 .stat-card{border-radius:16px;padding:20px 18px;position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 16px rgba(15,25,60,.07)}
 .sc-blue{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe}
 .sc-green{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #a7f3d0}
@@ -86,7 +86,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
 .stat-icon{position:absolute;right:16px;top:16px;font-size:24px;opacity:.1}
 
 /* ── DASH GRID ── */
-.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;align-items:stretch}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;align-items:stretch}
 
 /* ── TIER CARD ── */
 .tier-card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:16px;padding:22px;display:flex;flex-direction:column;box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 16px rgba(15,25,60,.07)}
@@ -250,7 +250,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#0
     {% endif %}
 
     <!-- JOURNEY -->
-    <div class="section-label">Your Journey</div>
+    <div class="section-label" style="margin-top:0">Your Journey</div>
     <div class="journey-row">
       <div class="journey-step js-1">
         <div class="step-num">1</div>
