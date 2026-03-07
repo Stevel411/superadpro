@@ -226,13 +226,16 @@ footer a{color:var(--cyan);text-decoration:none}
 <style>
 /* ── Sidebar layout ── */
 body{margin:0}
-.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;overflow-y:auto;z-index:100}
 .layout{display:flex;min-height:100vh}
-.main{margin-left:224px;flex:1;background:var(--bg);min-height:100vh;overflow-x:hidden;width:calc(100% - 224px)}
-/* Force all content inside .main to respect its bounds */
-.main .container{max-width:100% !important;margin-left:0 !important;margin-right:0 !important}
-.main .sticky-nav-inner{max-width:100% !important;margin-left:0 !important;margin-right:0 !important}
-@media(max-width:768px){.main{margin-left:0;width:100%}}
+.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;overflow-y:auto;z-index:100}
+.main{margin-left:224px;flex:1;background:var(--bg);min-height:100vh;overflow-y:auto;overflow-x:hidden}
+/* All content sections fill .main width with consistent padding */
+.sticky-nav{background:#fff;border-bottom:2px solid var(--border);position:sticky;top:0;z-index:50}
+.sticky-nav-inner{display:flex;gap:4px;padding:0 40px;overflow-x:auto}
+.container{padding:0 40px}
+.hero{padding:50px 40px;width:100%;box-sizing:border-box}
+footer{padding:32px 40px}
+@media(max-width:768px){.main{margin-left:0}.container{padding:0 20px}.hero{padding:40px 20px}.sticky-nav-inner{padding:0 20px}}
 </style>
 </head>
 <body>
