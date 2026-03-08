@@ -107,7 +107,7 @@ app.add_middleware(
         "https://superadpro-production.up.railway.app"
     ],
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "HEAD"],
     allow_headers=["*"]
 )
 
