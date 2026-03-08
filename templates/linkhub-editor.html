@@ -726,9 +726,14 @@ function buildPreview(){
     const title=item.querySelector('.link-title').value.trim();
     const active=item.querySelector('.link-active').checked;
     const icon=item.querySelector('.link-icon-btn').textContent;
+    const selStyleBtn=item.querySelector('.style-opt.selected');
+    const linkStyle=selStyleBtn?(selStyleBtn.getAttribute('onclick').split("'")[1]||'filled'):'filled';
     if(!title||!active)return;
     const ns=theme==='neon'?`box-shadow:0 0 10px ${accent}33`:'';
-    linksHtml+=`<div class="pv-link" style="background:${btn};border-color:${border};${ns}"><span class="pv-link-icon">${icon}</span><span class="pv-link-title" style="color:${text}">${title}</span><span class="pv-link-arrow" style="color:${accent}">→</span></div>`;
+    let linkBg=btn, linkBorder=border, linkRadius='12px', linkBorderW='1px';
+    if(linkStyle==='pill'){linkRadius='999px';}
+    else if(linkStyle==='solid'){linkBg='transparent';linkBorder=accent;linkBorderW='2px';}
+    linksHtml+=`<div class="pv-link" style="background:${linkBg};border:${linkBorderW} solid ${linkBorder};border-radius:${linkRadius};${ns}"><span class="pv-link-icon">${icon}</span><span class="pv-link-title" style="color:${text}">${title}</span><span class="pv-link-arrow" style="color:${accent}">→</span></div>`;
   });
   if(!linksHtml)linksHtml=`<div class="pv-empty" style="color:${sub}">Your links appear here</div>`;
 
