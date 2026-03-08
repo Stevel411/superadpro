@@ -6221,10 +6221,21 @@ def test_email(secret: str, email: str):
     if secret != "superadpro-owner-2026":
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
     try:
-        from app.email_utils import send_commission_email, send_welcome_email
-        r1 = send_welcome_email(email, "Steve", "SuperAdPro")
+        from app.email_utils import (send_welcome_email, send_commission_email,
+            send_password_reset_email, send_membership_activated_email,
+            send_renewal_reminder_email)
+        r1 = send_welcome_email(email, "Steve", "stevel411")
         r2 = send_commission_email(email, "Steve", "Direct Sponsor", "testuser123")
-        return JSONResponse({"welcome_sent": r1, "commission_sent": r2})
+        r3 = send_password_reset_email(email, "Steve", "test-reset-token-abc123")
+        r4 = send_membership_activated_email(email, "Steve")
+        r5 = send_renewal_reminder_email(email, "Steve", 3)
+        return JSONResponse({
+            "welcome": r1,
+            "commission_cha_ching": r2,
+            "password_reset": r3,
+            "membership_activated": r4,
+            "renewal_reminder": r5
+        })
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
