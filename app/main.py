@@ -87,10 +87,8 @@ JSONResponse.render = _decimal_safe_render
 
 @app.on_event("startup")
 async def startup_event():
-    from .database import init_db, run_migrations, run_force_migrations
-    init_db()
+    from .database import run_migrations
     run_migrations()
-    run_force_migrations()
 templates = Jinja2Templates(directory="templates")
 # Make Decimal values render cleanly in templates
 templates.env.filters["money"] = lambda v: f"{float(v or 0):.2f}"
