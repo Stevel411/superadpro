@@ -72,7 +72,7 @@ def _email_header(accent_color="#0ea5e9", tagline="Video Advertising Platform"):
       </td>
       <td style="vertical-align:middle">
         <!-- Exact site wordmark: Super + Ad (cyan) + Pro, Sora font -->
-        <span style="font-family:Sora,'Helvetica Neue',Arial,sans-serif;font-size:24px;font-weight:800;color:#ffffff">Super</span><span style="font-family:Sora,'Helvetica Neue',Arial,sans-serif;font-size:24px;font-weight:800;color:#38bdf8">Ad</span><span style="font-family:Sora,'Helvetica Neue',Arial,sans-serif;font-size:24px;font-weight:800;color:#ffffff">Pro</span>
+        <span style="font-family:Sora,'Helvetica Neue',Arial,sans-serif;font-size:24px;font-weight:800;color:#ffffff">SuperAd</span><span style="color:#38bdf8">Pro</span>
       </td>
     </tr></table>
     <div style="font-size:11px;color:rgba(56,189,248,0.5);letter-spacing:2px;text-transform:uppercase;margin-top:6px">{tagline}</div>
