@@ -146,6 +146,50 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#1
 .link-stats{font-size:11px;color:#94a3b8;white-space:nowrap;flex-shrink:0}
 .add-link-btn{width:100%;padding:12px;background:#f0f9ff;border:2px dashed #bae6fd;border-radius:12px;color:#0ea5e9;font-weight:700;font-size:14px;cursor:pointer;margin-top:12px;transition:all .2s;font-family:inherit}
 .add-link-btn:hover{background:#e0f2fe;border-color:#0ea5e9}
+/* ── TABS ── */
+.editor-tabs{display:flex;gap:4px;background:#f1f5f9;border-radius:12px;padding:4px;margin-bottom:16px}
+.editor-tab{flex:1;padding:9px 12px;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:#64748b;transition:all .2s;text-align:center}
+.editor-tab.active{background:#fff;color:#0ea5e9;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.tab-pane{display:none}.tab-pane.active{display:block}
+/* ── LINK STYLE PICKER ── */
+.style-picker{display:flex;gap:6px;margin-top:6px}
+.style-opt{flex:1;padding:6px 4px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;text-align:center;color:#64748b;background:#fff;transition:all .2s;font-family:inherit}
+.style-opt.selected{border-color:#0ea5e9;color:#0ea5e9;background:#f0f9ff}
+.style-opt:hover{border-color:#0ea5e9}
+.link-subtitle-input{width:100%;padding:6px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:12px;color:#1e293b;background:#fff;margin-top:6px}
+.link-subtitle-input:focus{outline:none;border-color:#0ea5e9}
+.link-style-row{margin-top:4px}
+/* ── SOCIAL MANAGER ── */
+.social-list{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.social-item{display:flex;align-items:center;gap:10px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px}
+.social-platform-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;background:#fff;border:1.5px solid #e2e8f0;flex-shrink:0}
+.social-platform-label{font-size:13px;font-weight:700;color:#1e293b;width:90px;flex-shrink:0}
+.social-url-input{flex:1;padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:13px;color:#1e293b;background:#fff}
+.social-url-input:focus{outline:none;border-color:#0ea5e9}
+.social-del{background:none;border:none;color:#f87171;cursor:pointer;font-size:16px;padding:4px;border-radius:6px;flex-shrink:0}
+.add-social-btn{width:100%;padding:11px;background:#f0f9ff;border:2px dashed #bae6fd;border-radius:12px;color:#0ea5e9;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;font-family:inherit}
+.add-social-btn:hover{background:#e0f2fe;border-color:#0ea5e9}
+/* ── ANALYTICS ── */
+.a-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+.a-stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.a-stat-val{font-size:30px;font-weight:900;color:#0ea5e9;font-family:'DM Sans',sans-serif;line-height:1}
+.a-stat-lbl{font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-top:6px}
+.a-section-title{font-size:13px;font-weight:800;color:#1e293b;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.device-bars{display:flex;flex-direction:column;gap:10px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px;margin-bottom:16px}
+.device-row{display:flex;align-items:center;gap:10px}
+.device-lbl{font-size:13px;color:#475569;width:70px;flex-shrink:0}
+.device-bar-wrap{flex:1;height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden}
+.device-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,#0ea5e9,#6366f1)}
+.device-pct{font-size:12px;font-weight:700;color:#0ea5e9;width:36px;text-align:right}
+.link-perf-list{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px}
+.link-perf-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f8fafc}
+.link-perf-row:last-child{border-bottom:none}
+.link-perf-icon{font-size:18px;flex-shrink:0;width:28px;text-align:center}
+.link-perf-name{font-size:13px;color:#1e293b;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.link-perf-bar-wrap{flex:2;height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden}
+.link-perf-bar{height:100%;border-radius:3px;background:linear-gradient(90deg,#0ea5e9,#6366f1)}
+.link-perf-num{font-size:12px;font-weight:700;color:#0ea5e9;min-width:40px;text-align:right}
+.analytics-empty{text-align:center;padding:40px 20px;color:#94a3b8;font-size:14px}
 
 /* ── ICON MODAL ── */
 .icon-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
@@ -274,28 +318,149 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#1
           </div>
         </div>
 
-        <!-- Links -->
+        <!-- Tabbed editor -->
         <div class="card">
-          <div class="card-title"><span>🔗</span> Your Links</div>
-          <div class="links-list" id="links-list">
-            {% for link in links %}
-            <div class="link-item" data-id="{{ link.id }}" data-order="{{ link.sort_order }}">
-              <span class="link-drag">⠿</span>
-              <button class="link-icon-btn" onclick="openIconPicker(this)" data-current="{{ link.icon }}">{{ link.icon }}</button>
-              <div class="link-fields">
-                <input type="text" placeholder="Link title" value="{{ link.title }}" class="link-title">
-                <input type="url" placeholder="https://..." value="{{ link.url }}" class="link-url">
-              </div>
-              <div class="link-stats">{{ link.click_count }} clicks</div>
-              <label class="toggle-sw">
-                <input type="checkbox" {% if link.is_active %}checked{% endif %} class="link-active">
-                <div class="toggle-track"></div>
-              </label>
-              <button class="link-del" onclick="deleteLink(this)" title="Delete">✕</button>
-            </div>
-            {% endfor %}
+          <div class="editor-tabs">
+            <button class="editor-tab active" onclick="switchTab(this,'tab-links')">🔗 Links</button>
+            <button class="editor-tab" onclick="switchTab(this,'tab-social')">📱 Social Icons</button>
+            <button class="editor-tab" onclick="switchTab(this,'tab-analytics')">📊 Analytics</button>
           </div>
-          <button class="add-link-btn" onclick="addLink()">+ Add Link</button>
+
+          <!-- TAB: LINKS -->
+          <div class="tab-pane active" id="tab-links">
+            <div class="links-list" id="links-list">
+              {% for link in links %}
+              <div class="link-item" data-id="{{ link.id }}" data-order="{{ link.sort_order }}">
+                <span class="link-drag">⠿</span>
+                <button class="link-icon-btn" onclick="openIconPicker(this)" data-current="{{ link.icon }}">{{ link.icon }}</button>
+                <div style="flex:1">
+                  <div class="link-fields">
+                    <input type="text" placeholder="Link title" value="{{ link.title }}" class="link-title">
+                    <input type="url" placeholder="https://..." value="{{ link.url }}" class="link-url">
+                  </div>
+                  <input class="link-subtitle-input" type="text" placeholder="Optional subtitle (shown on filled style)" value="{{ link.subtitle or '' }}" class="link-subtitle">
+                  <div class="link-style-row">
+                    <div class="style-picker">
+                      <button class="style-opt {% if not link.btn_style or link.btn_style == 'filled' %}selected{% endif %}" onclick="setStyle(this,'filled')">▭ Filled</button>
+                      <button class="style-opt {% if link.btn_style == 'pill' %}selected{% endif %}" onclick="setStyle(this,'pill')">⬭ Pill</button>
+                      <button class="style-opt {% if link.btn_style == 'solid' %}selected{% endif %}" onclick="setStyle(this,'solid')">■ Solid</button>
+                    </div>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0">
+                  <div class="link-stats">{{ link.click_count }} clicks</div>
+                  <label class="toggle-sw">
+                    <input type="checkbox" {% if link.is_active %}checked{% endif %} class="link-active">
+                    <div class="toggle-track"></div>
+                  </label>
+                  <button class="link-del" onclick="deleteLink(this)" title="Delete">✕</button>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <button class="add-link-btn" onclick="addLink()">+ Add Link</button>
+          </div>
+
+          <!-- TAB: SOCIAL ICONS -->
+          <div class="tab-pane" id="tab-social">
+            <p style="font-size:13px;color:#64748b;margin-bottom:14px">Add your social profiles. They appear below your bio as clickable icon buttons.</p>
+            <div class="social-list" id="social-list">
+              {% for s in social_links %}
+              <div class="social-item">
+                <div class="social-platform-icon">{{ {'instagram':'📸','tiktok':'🎵','youtube':'▶️','x':'✖','twitter':'✖','facebook':'👤','linkedin':'💼','whatsapp':'💬','snapchat':'👻','pinterest':'📌'}.get(s.platform, '🔗') }}</div>
+                <div class="social-platform-label">{{ s.platform | title }}</div>
+                <input class="social-url-input" type="url" placeholder="https://..." value="{{ s.url }}" data-platform="{{ s.platform }}">
+                <button class="social-del" onclick="this.closest('.social-item').remove()">✕</button>
+              </div>
+              {% endfor %}
+            </div>
+            <div style="margin-bottom:12px">
+              <select id="social-platform-select" style="padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:13px;color:#1e293b;background:#fff;width:100%;margin-bottom:8px">
+                <option value="">— Choose a platform —</option>
+                <option value="instagram">📸 Instagram</option>
+                <option value="tiktok">🎵 TikTok</option>
+                <option value="youtube">▶️ YouTube</option>
+                <option value="x">✖ X (Twitter)</option>
+                <option value="facebook">👤 Facebook</option>
+                <option value="linkedin">💼 LinkedIn</option>
+                <option value="whatsapp">💬 WhatsApp</option>
+                <option value="snapchat">👻 Snapchat</option>
+                <option value="pinterest">📌 Pinterest</option>
+              </select>
+              <button class="add-social-btn" onclick="addSocialIcon()">+ Add Social Icon</button>
+            </div>
+          </div>
+
+          <!-- TAB: ANALYTICS -->
+          <div class="tab-pane" id="tab-analytics">
+            {% set total_views = profile.total_views if profile else 0 %}
+            {% set total_cls = total_clicks %}
+            {% set ctr = ((total_cls / total_views * 100) | round(1)) if total_views > 0 else 0 %}
+
+            <div class="a-grid">
+              <div class="a-stat-card">
+                <div class="a-stat-val">{{ total_views }}</div>
+                <div class="a-stat-lbl">Total Views</div>
+              </div>
+              <div class="a-stat-card">
+                <div class="a-stat-val">{{ total_cls }}</div>
+                <div class="a-stat-lbl">Total Clicks</div>
+              </div>
+              <div class="a-stat-card">
+                <div class="a-stat-val">{{ ctr }}%</div>
+                <div class="a-stat-lbl">Click Rate</div>
+              </div>
+            </div>
+
+            {% if total_views > 0 %}
+            <!-- Device breakdown -->
+            <div class="a-section-title">📱 Device Breakdown (last 30 days)</div>
+            {% set d_total = (device_stats.mobile + device_stats.desktop + device_stats.tablet) or 1 %}
+            <div class="device-bars">
+              <div class="device-row">
+                <div class="device-lbl">📱 Mobile</div>
+                <div class="device-bar-wrap"><div class="device-bar" style="width:{{ (device_stats.mobile / d_total * 100) | round }}%"></div></div>
+                <div class="device-pct">{{ (device_stats.mobile / d_total * 100) | round }}%</div>
+              </div>
+              <div class="device-row">
+                <div class="device-lbl">💻 Desktop</div>
+                <div class="device-bar-wrap"><div class="device-bar" style="width:{{ (device_stats.desktop / d_total * 100) | round }}%;background:linear-gradient(90deg,#7c3aed,#6366f1)"></div></div>
+                <div class="device-pct">{{ (device_stats.desktop / d_total * 100) | round }}%</div>
+              </div>
+              <div class="device-row">
+                <div class="device-lbl">📲 Tablet</div>
+                <div class="device-bar-wrap"><div class="device-bar" style="width:{{ (device_stats.tablet / d_total * 100) | round }}%;background:linear-gradient(90deg,#f59e0b,#f97316)"></div></div>
+                <div class="device-pct">{{ (device_stats.tablet / d_total * 100) | round }}%</div>
+              </div>
+            </div>
+
+            <!-- Per-link performance -->
+            <div class="a-section-title">🔗 Clicks Per Link</div>
+            {% set max_clicks = links | map(attribute='click_count') | max if links else 1 %}
+            <div class="link-perf-list">
+              {% for link in links | sort(attribute='click_count', reverse=True) %}
+              <div class="link-perf-row">
+                <div class="link-perf-icon">{{ link.icon }}</div>
+                <div class="link-perf-name" title="{{ link.title }}">{{ link.title }}</div>
+                <div class="link-perf-bar-wrap">
+                  <div class="link-perf-bar" style="width:{{ ((link.click_count / (max_clicks or 1)) * 100) | round }}%"></div>
+                </div>
+                <div class="link-perf-num">{{ link.click_count }}</div>
+              </div>
+              {% else %}
+              <div class="analytics-empty">No links yet — add some above!</div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="analytics-empty">
+              <div style="font-size:2.5rem;margin-bottom:12px">📊</div>
+              <div style="font-weight:700;color:#64748b;margin-bottom:4px">No data yet</div>
+              <div style="font-size:13px">Share your LinkHub URL to start collecting views and clicks.</div>
+              <div style="margin-top:12px;font-size:13px;color:#0ea5e9;font-weight:600">superadpro.com/u/{{ current_user.username }}</div>
+            </div>
+            {% endif %}
+          </div>
+
         </div>
 
         <!-- Appearance -->
@@ -647,16 +812,72 @@ function addLink() {
   item.innerHTML = `
     <span class="link-drag">⠿</span>
     <button class="link-icon-btn" onclick="openIconPicker(this)" data-current="🔗">🔗</button>
-    <div class="link-fields">
-      <input type="text" placeholder="Link title" class="link-title">
-      <input type="url" placeholder="https://..." class="link-url">
+    <div style="flex:1">
+      <div class="link-fields">
+        <input type="text" placeholder="Link title" class="link-title">
+        <input type="url" placeholder="https://..." class="link-url">
+      </div>
+      <input class="link-subtitle-input" type="text" placeholder="Optional subtitle (shown on filled style)" class="link-subtitle">
+      <div class="link-style-row">
+        <div class="style-picker">
+          <button class="style-opt selected" onclick="setStyle(this,'filled')">▭ Filled</button>
+          <button class="style-opt" onclick="setStyle(this,'pill')">⬭ Pill</button>
+          <button class="style-opt" onclick="setStyle(this,'solid')">■ Solid</button>
+        </div>
+      </div>
     </div>
-    <div class="link-stats">0 clicks</div>
-    <label class="toggle-sw"><input type="checkbox" checked class="link-active"><div class="toggle-track"></div></label>
-    <button class="link-del" onclick="deleteLink(this)" title="Delete">✕</button>`;
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0">
+      <div class="link-stats">0 clicks</div>
+      <label class="toggle-sw"><input type="checkbox" checked class="link-active"><div class="toggle-track"></div></label>
+      <button class="link-del" onclick="deleteLink(this)" title="Delete">✕</button>
+    </div>`;
   list.appendChild(item);
   item.querySelector('.link-title').focus();
   schedulePreview();
+}
+
+function setStyle(btn, style) {
+  const picker = btn.closest('.style-picker');
+  picker.querySelectorAll('.style-opt').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  schedulePreview();
+}
+
+function switchTab(btn, tabId) {
+  document.querySelectorAll('.editor-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+function addSocialIcon() {
+  const sel = document.getElementById('social-platform-select');
+  const platform = sel.value;
+  if (!platform) { alert('Please choose a platform first'); return; }
+  const list = document.getElementById('social-list');
+  const icons = {instagram:'📸',tiktok:'🎵',youtube:'▶️',x:'✖',facebook:'👤',linkedin:'💼',whatsapp:'💬',snapchat:'👻',pinterest:'📌'};
+  const item = document.createElement('div');
+  item.className = 'social-item';
+  item.innerHTML = `
+    <div class="social-platform-icon">${icons[platform] || '🔗'}</div>
+    <div class="social-platform-label">${platform.charAt(0).toUpperCase() + platform.slice(1)}</div>
+    <input class="social-url-input" type="url" placeholder="https://..." data-platform="${platform}">
+    <button class="social-del" onclick="this.closest('.social-item').remove()">✕</button>`;
+  list.appendChild(item);
+  sel.value = '';
+  item.querySelector('.social-url-input').focus();
+}
+
+function collectSocialLinks() {
+  const items = document.querySelectorAll('.social-item');
+  const result = [];
+  items.forEach(item => {
+    const input = item.querySelector('.social-url-input');
+    const url = input.value.trim();
+    const platform = input.dataset.platform;
+    if (platform && url) result.push({platform, url});
+  });
+  return result;
 }
 
 function deleteLink(btn) {
@@ -694,10 +915,14 @@ async function saveProfile(btn) {
     const title = item.querySelector('.link-title').value.trim();
     const url   = item.querySelector('.link-url').value.trim();
     if (!title && !url) return;
+    const selStyle = item.querySelector('.style-opt.selected');
+    const subtitleEl = item.querySelector('.link-subtitle');
     links.push({
       id:         item.dataset.id === 'new' ? null : parseInt(item.dataset.id),
       title, url,
       icon:       item.querySelector('.link-icon-btn').textContent,
+      btn_style:  selStyle ? (selStyle.getAttribute('onclick').split("'")[1] || 'filled') : 'filled',
+      subtitle:   subtitleEl ? subtitleEl.value.trim() : '',
       is_active:  item.querySelector('.link-active').checked,
       sort_order: idx
     });
@@ -711,6 +936,7 @@ async function saveProfile(btn) {
     btn_color:    colours.btn,
     text_color:   colours.text,
     is_published: document.getElementById('is-published').checked,
+    social_links: collectSocialLinks(),
     links
   };
   const r = await fetch('/linkhub/save', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });

@@ -578,6 +578,7 @@ class LinkHubProfile(Base):
     font_family     = Column(String, default="Rethink Sans")
     is_published    = Column(Boolean, default=True)
     total_views     = Column(Integer, default=0)
+    social_links    = Column(Text, nullable=True)          # JSON: [{platform, url}]
     created_at      = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow)
 
@@ -590,6 +591,8 @@ class LinkHubLink(Base):
     title           = Column(String, nullable=False)
     url             = Column(String, nullable=False)
     icon            = Column(String, default="🔗")         # emoji or icon key
+    btn_style       = Column(String, default="filled")     # filled|pill|solid
+    subtitle        = Column(String, nullable=True)        # optional sub-label
     is_active       = Column(Boolean, default=True)
     sort_order      = Column(Integer, default=0)
     click_count     = Column(Integer, default=0)
@@ -834,6 +837,10 @@ try:
         """))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_nurture_user ON nurture_sequences(user_id)"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_nurture_send ON nurture_sequences(next_send_at) WHERE completed = FALSE AND cancelled_at IS NULL"))
+        # ── LinkHub upgrades ──
+        conn.execute(text("ALTER TABLE linkhub_links ADD COLUMN IF NOT EXISTS btn_style VARCHAR DEFAULT 'filled'"))
+        conn.execute(text("ALTER TABLE linkhub_links ADD COLUMN IF NOT EXISTS subtitle VARCHAR"))
+        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS social_links TEXT"))
         conn.commit()
         print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture columns confirmed")
 except Exception as e:

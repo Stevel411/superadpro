@@ -8,12 +8,12 @@
 <meta property="og:title" content="{{ profile.display_name or user.username }}">
 <meta property="og:description" content="{{ profile.bio or 'Visit my links' }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 
-{# ── Resolve colours: use custom if set, otherwise theme default ── #}
-{% set accent = profile.accent_color or '#00d4ff' %}
+{# ── Resolve colours ── #}
+{% set accent = profile.accent_color or '#0ea5e9' %}
 {% set bg_col = profile.bg_color %}
 {% set btn_col = profile.btn_color %}
 {% set txt_col = profile.text_color %}
@@ -22,77 +22,292 @@
   {% set bg_col = bg_col or '#050d1a' %}
   {% set btn_col = btn_col or '#0f1f3d' %}
   {% set txt_col = txt_col or '#e2e8f0' %}
-  :root{--bg:{{ bg_col }};--card:{{ btn_col }};--text:{{ txt_col }};--sub:#94a3b8;--btn-bg:{{ btn_col }};--btn-border:rgba(255,255,255,.12);--btn-hover:{{ btn_col }};--accent:{{ accent }};--shadow:rgba(0,0,0,.4)}
-  body{background:{{ bg_col }}}
-
+  {% set sub_col = '#64748b' %}
+  {% set border_col = 'rgba(255,255,255,0.08)' %}
+  {% set btn_hover = 'rgba(255,255,255,0.06)' %}
+  {% set shadow = 'rgba(0,0,0,0.4)' %}
 {% elif profile.theme == 'light' %}
   {% set bg_col = bg_col or '#f8fafc' %}
   {% set btn_col = btn_col or '#ffffff' %}
   {% set txt_col = txt_col or '#1e293b' %}
-  :root{--bg:{{ bg_col }};--card:{{ btn_col }};--text:{{ txt_col }};--sub:#64748b;--btn-bg:{{ btn_col }};--btn-border:#e2e8f0;--btn-hover:#f1f5f9;--accent:{{ accent }};--shadow:rgba(0,0,0,.08)}
-  body{background:{{ bg_col }}}
-
+  {% set sub_col = '#64748b' %}
+  {% set border_col = '#e2e8f0' %}
+  {% set btn_hover = '#f1f5f9' %}
+  {% set shadow = 'rgba(0,0,0,0.08)' %}
 {% elif profile.theme == 'gradient' %}
   {% set bg_col = bg_col or '#1e1b4b' %}
-  {% set btn_col = btn_col or 'rgba(255,255,255,.12)' %}
+  {% set btn_col = btn_col or 'rgba(255,255,255,0.1)' %}
   {% set txt_col = txt_col or '#ffffff' %}
-  :root{--bg:{{ bg_col }};--card:{{ btn_col }};--text:{{ txt_col }};--sub:rgba(255,255,255,.65);--btn-bg:{{ btn_col }};--btn-border:rgba(255,255,255,.22);--btn-hover:rgba(255,255,255,.2);--accent:{{ accent }};--shadow:rgba(0,0,0,.3)}
-  body{background:linear-gradient(135deg,{{ bg_col }} 0%,{{ bg_col }} 50%,{{ accent }}22 100%);background-attachment:fixed}
-
+  {% set sub_col = 'rgba(255,255,255,0.55)' %}
+  {% set border_col = 'rgba(255,255,255,0.18)' %}
+  {% set btn_hover = 'rgba(255,255,255,0.18)' %}
+  {% set shadow = 'rgba(0,0,0,0.3)' %}
 {% elif profile.theme == 'neon' %}
   {% set bg_col = bg_col or '#0a0a0a' %}
   {% set btn_col = btn_col or '#111111' %}
   {% set txt_col = txt_col or '#e2e8f0' %}
-  :root{--bg:{{ bg_col }};--card:{{ btn_col }};--text:{{ txt_col }};--sub:#6b7280;--btn-bg:{{ btn_col }};--btn-border:{{ accent }};--btn-hover:#1a1a1a;--accent:{{ accent }};--shadow:{{ accent }}40}
-  body{background:{{ bg_col }}}
-
-{% else %}{# minimal #}
+  {% set sub_col = '#6b7280' %}
+  {% set border_col = accent %}
+  {% set btn_hover = '#1a1a1a' %}
+  {% set shadow = accent + '40' %}
+{% else %}
   {% set bg_col = bg_col or '#ffffff' %}
   {% set btn_col = btn_col or '#ffffff' %}
   {% set txt_col = txt_col or '#1e293b' %}
-  :root{--bg:{{ bg_col }};--card:{{ btn_col }};--text:{{ txt_col }};--sub:#9ca3af;--btn-bg:{{ btn_col }};--btn-border:#f3f4f6;--btn-hover:#f9fafb;--accent:{{ accent }};--shadow:rgba(0,0,0,.05)}
-  body{background:{{ bg_col }}}
+  {% set sub_col = '#9ca3af' %}
+  {% set border_col = '#f3f4f6' %}
+  {% set btn_hover = '#f9fafb' %}
+  {% set shadow = 'rgba(0,0,0,0.05)' %}
 {% endif %}
 
-body{font-family:'Rethink Sans',sans-serif;color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 16px 80px}
+:root {
+  --bg: {{ bg_col }};
+  --btn-bg: {{ btn_col }};
+  --text: {{ txt_col }};
+  --sub: {{ sub_col }};
+  --border: {{ border_col }};
+  --btn-hover: {{ btn_hover }};
+  --accent: {{ accent }};
+  --shadow: {{ shadow }};
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 16px 80px;
+  position: relative;
+}
+
+{% if profile.theme == 'gradient' %}
+body { background: linear-gradient(135deg, {{ bg_col }} 0%, {{ bg_col }} 60%, {{ accent }}22 100%); background-attachment: fixed; }
+{% endif %}
+
+/* Top wash */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 260px;
+  background: linear-gradient(180deg, {{ accent }}18 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
 
 {% if profile.theme == 'neon' %}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 100%,{{ accent }}18 0%,transparent 60%);pointer-events:none;z-index:0}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 100%, {{ accent }}15 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
 {% endif %}
 
-.profile{width:100%;max-width:480px;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
+.profile {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
 
-.avatar{width:96px;height:96px;border-radius:50%;border:3px solid var(--accent);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin-bottom:16px;background:var(--card);flex-shrink:0;
-  {% if profile.theme == 'neon' %}box-shadow:0 0 24px {{ accent }}55{% else %}box-shadow:0 0 24px rgba(0,0,0,.2){% endif %}}
-.avatar img{width:100%;height:100%;object-fit:cover}
+/* ── Avatar ── */
+.avatar-wrap {
+  position: relative;
+  margin-top: 48px;
+  margin-bottom: 20px;
+}
+.avatar-ring {
+  width: 112px; height: 112px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, {{ accent }}, {{ accent }}88, {{ accent }});
+  padding: 3px;
+  box-shadow: 0 0 36px {{ accent }}44;
+  animation: ring-spin 10s linear infinite;
+}
+@keyframes ring-spin { to { transform: rotate(360deg); } }
+.avatar-inner {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  background: var(--btn-bg);
+  border: 3px solid var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.8rem;
+  overflow: hidden;
+}
+.avatar-inner img { width: 100%; height: 100%; object-fit: cover; }
 
-.display-name{font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:6px;text-align:center}
-.username-tag{font-size:0.82rem;color:var(--sub);margin-bottom:10px}
-.bio{font-size:0.9rem;color:var(--sub);text-align:center;line-height:1.55;max-width:360px;margin-bottom:28px}
+/* ── Identity ── */
+.display-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.5rem; font-weight: 900;
+  color: var(--text);
+  margin-bottom: 5px;
+  letter-spacing: -0.3px;
+  text-align: center;
+}
+.username-tag {
+  font-size: 0.8rem;
+  color: var(--sub);
+  margin-bottom: 12px;
+  background: rgba(128,128,128,0.08);
+  padding: 3px 12px;
+  border-radius: 20px;
+}
+.bio {
+  font-size: 0.9rem;
+  color: var(--sub);
+  text-align: center;
+  line-height: 1.65;
+  max-width: 360px;
+  margin-bottom: 22px;
+}
 
-.links{width:100%;display:flex;flex-direction:column;gap:12px;margin-bottom:32px}
+/* ── Social icons — below bio, above links ── */
+.social-row {
+  display: flex;
+  gap: 9px;
+  margin-bottom: 26px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.soc-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--btn-bg);
+  border: 1.5px solid var(--border);
+  color: var(--sub);
+  text-decoration: none;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.soc-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px var(--shadow);
+}
+.soc-btn svg { width: 17px; height: 17px; fill: currentColor; }
 
-.link-btn{display:flex;align-items:center;gap:14px;width:100%;padding:16px 20px;background:var(--btn-bg);border:1.5px solid var(--btn-border);border-radius:14px;color:var(--text);text-decoration:none;font-weight:600;font-size:0.95rem;transition:all .2s;cursor:pointer;position:relative;overflow:hidden;
-  {% if profile.theme == 'neon' %}box-shadow:0 0 12px {{ accent }}22{% else %}box-shadow:0 2px 8px var(--shadow){% endif %}}
-.link-btn::before{content:'';position:absolute;inset:0;background:var(--accent);opacity:0;transition:opacity .2s}
-.link-btn:hover{border-color:var(--accent);transform:translateY(-2px);
-  {% if profile.theme == 'neon' %}box-shadow:0 0 24px {{ accent }}44{% else %}box-shadow:0 6px 20px var(--shadow){% endif %}}
-.link-btn:hover::before{opacity:0.06}
-.link-btn:active{transform:translateY(0)}
+/* ── Links ── */
+.links { width: 100%; display: flex; flex-direction: column; gap: 11px; margin-bottom: 32px; }
 
-.link-icon{font-size:1.3rem;flex-shrink:0;position:relative}
-.link-title{flex:1;position:relative;text-align:left}
-.link-arrow{color:var(--accent);font-size:0.9rem;position:relative;transition:transform .2s}
-.link-btn:hover .link-arrow{transform:translateX(3px)}
+/* Style: filled (card with thumbnail) */
+.link-filled {
+  display: flex; align-items: center; gap: 0;
+  width: 100%;
+  background: var(--btn-bg);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600; font-size: 0.93rem;
+  transition: all 0.22s;
+  overflow: hidden;
+  position: relative;
+}
+.link-filled:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--shadow);
+}
+.link-thumb {
+  width: 56px; height: 56px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  background: {{ accent }}22;
+  border-right: 1.5px solid var(--border);
+}
+.link-body { flex: 1; padding: 12px 14px; }
+.link-sub-text { font-size: 0.72rem; color: var(--sub); font-weight: 400; margin-top: 2px; }
+.link-arr { padding-right: 16px; color: var(--accent); font-size: 1rem; transition: transform 0.2s; }
+.link-filled:hover .link-arr { transform: translateX(4px); }
 
-.powered{margin-top:8px;display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--sub)}
-.powered a{color:var(--accent);text-decoration:none;font-weight:700}
-.powered a:hover{text-decoration:underline}
+/* Style: pill (outlined) */
+.link-pill {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%;
+  padding: 15px 22px;
+  background: transparent;
+  border: 2px solid var(--accent);
+  border-radius: 50px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 700; font-size: 0.93rem;
+  transition: all 0.22s;
+}
+.link-pill:hover {
+  background: {{ accent }}15;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px {{ accent }}30;
+}
 
-.offline-notice{text-align:center;padding:60px 20px}
-.offline-notice .icon{font-size:3rem;margin-bottom:12px}
-.offline-notice h2{font-size:1.1rem;color:var(--text);margin-bottom:6px}
-.offline-notice p{font-size:0.85rem;color:var(--sub)}
+/* Style: solid */
+.link-solid {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%;
+  padding: 16px 22px;
+  background: var(--accent);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700; font-size: 0.93rem;
+  transition: all 0.22s;
+  box-shadow: 0 4px 20px {{ accent }}40;
+}
+.link-solid:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px {{ accent }}55;
+}
+
+/* ── Powered by ── */
+.powered {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 0.75rem; color: var(--sub);
+  text-decoration: none;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.powered:hover { opacity: 1; }
+.powered-circle {
+  width: 20px; height: 20px;
+  background: #0ea5e9; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: #fff; font-weight: 900; padding-left: 1px;
+}
+.powered-wm {
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px; font-weight: 900; color: var(--sub);
+}
+.powered-wm span { color: #0ea5e9; }
+
+/* offline */
+.offline-notice { text-align: center; padding: 80px 20px; position: relative; z-index: 1; }
+.offline-notice .icon { font-size: 3rem; margin-bottom: 12px; }
+.offline-notice h2 { font-size: 1.1rem; color: var(--text); margin-bottom: 6px; }
+.offline-notice p { font-size: 0.85rem; color: var(--sub); }
+
+/* Entry animation */
+.profile { animation: fade-up 0.5s ease both; }
+@keyframes fade-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+.links a:nth-child(1) { animation: fade-up 0.5s 0.05s ease both; }
+.links a:nth-child(2) { animation: fade-up 0.5s 0.10s ease both; }
+.links a:nth-child(3) { animation: fade-up 0.5s 0.15s ease both; }
+.links a:nth-child(4) { animation: fade-up 0.5s 0.20s ease both; }
+.links a:nth-child(5) { animation: fade-up 0.5s 0.25s ease both; }
+.links a:nth-child(n+6) { animation: fade-up 0.5s 0.30s ease both; }
 </style>
 </head>
 <body>
@@ -104,39 +319,99 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <p>The owner hasn't published their page yet.</p>
 </div>
 {% else %}
+
+{# Parse social links #}
+{% set social_data = [] %}
+{% if profile.social_links %}
+  {# Rendered via template variable from route #}
+{% endif %}
+
+{# Social icon SVGs #}
+{% macro social_svg(platform) %}
+  {% if platform == 'instagram' %}<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+  {% elif platform == 'tiktok' %}<svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.31 6.31 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.77a4.85 4.85 0 01-1.01-.08z"/></svg>
+  {% elif platform == 'youtube' %}<svg viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+  {% elif platform == 'x' or platform == 'twitter' %}<svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 5.958 5.45-5.958zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+  {% elif platform == 'facebook' %}<svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+  {% elif platform == 'linkedin' %}<svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+  {% elif platform == 'whatsapp' %}<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  {% elif platform == 'snapchat' %}<svg viewBox="0 0 24 24"><path d="M12.166.011C9.338.011 5.57 1.37 4.241 5.036c-.363.993-.287 2.152-.3 3.179-.37.183-.78.232-1.184.232-.51 0-1.013-.123-1.385-.123-.144 0-.602.025-.602.483 0 .59.822.959 1.539 1.205.1.034.212.067.316.105.448.155.921.393 1.098.884.078.215.071.44-.031.726-.534 1.507-1.676 2.74-2.652 3.835-.365.409-.708.795-.979 1.178-.094.133-.142.27-.142.4 0 .508.584.798 1.053.921.63.165 1.343.252 2.118.252.505 0 1.043-.044 1.6-.135.16 1.027.744 1.543 1.746 1.543.484 0 1.02-.131 1.61-.394.597-.265 1.174-.617 1.74-.617s1.143.352 1.74.617c.59.263 1.126.394 1.61.394 1.002 0 1.586-.516 1.746-1.543.557.091 1.095.135 1.6.135.775 0 1.488-.087 2.118-.252.469-.123 1.053-.413 1.053-.921 0-.13-.048-.267-.142-.4-.271-.383-.614-.769-.979-1.178-.976-1.095-2.118-2.328-2.652-3.835-.102-.286-.109-.511-.031-.726.177-.491.65-.729 1.098-.884.104-.038.216-.071.316-.105.717-.246 1.539-.615 1.539-1.205 0-.458-.458-.483-.602-.483-.372 0-.875.123-1.385.123-.404 0-.814-.049-1.184-.232-.013-1.027.063-2.186-.3-3.179C18.596 1.37 14.829.011 12.166.011z"/></svg>
+  {% elif platform == 'pinterest' %}<svg viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+  {% else %}<svg viewBox="0 0 24 24"><path d="M10 6v2H5v11h11v-5h2v6a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1h6zm11-3v8l-3.197-3.197-5.91 5.91-1.414-1.414 5.91-5.91L13 3h8z"/></svg>
+  {% endif %}
+{% endmacro %}
+
 <div class="profile">
 
-  <div class="avatar">
-    {% if profile.avatar_data %}
-      <img src="{{ profile.avatar_data }}" alt="{{ profile.display_name }}">
-    {% else %}
-      {{ (profile.display_name or user.username)[0] | upper }}
-    {% endif %}
+  <!-- Avatar -->
+  <div class="avatar-wrap">
+    <div class="avatar-ring">
+      <div class="avatar-inner">
+        {% if profile.avatar_data %}
+          <img src="{{ profile.avatar_data }}" alt="{{ profile.display_name }}">
+        {% else %}
+          {{ (profile.display_name or user.username)[0] | upper }}
+        {% endif %}
+      </div>
+    </div>
   </div>
 
+  <!-- Identity -->
   <div class="display-name">{{ profile.display_name or user.username }}</div>
   <div class="username-tag">@{{ user.username }}</div>
   {% if profile.bio %}
   <div class="bio">{{ profile.bio }}</div>
-  {% else %}
-  <div class="bio" style="opacity:.4;font-style:italic">No bio yet</div>
   {% endif %}
 
-  <div class="links">
-    {% for link in links %}
-    {% if link.is_active %}
-    <a class="link-btn" href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener">
-      <span class="link-icon">{{ link.icon }}</span>
-      <span class="link-title">{{ link.title }}</span>
-      <span class="link-arrow">→</span>
+  <!-- Social icons — below bio, above links -->
+  {% if social_links %}
+  <div class="social-row">
+    {% for s in social_links %}
+    {% if s.url %}
+    <a class="soc-btn" href="{{ s.url }}" target="_blank" rel="noopener noreferrer" title="{{ s.platform | title }}">
+      {{ social_svg(s.platform) }}
     </a>
     {% endif %}
     {% endfor %}
   </div>
+  {% endif %}
 
-  <div class="powered">
-    ⚡ Powered by <a href="/" target="_blank">SuperAdPro LinkHub</a>
+  <!-- Links -->
+  <div class="links">
+    {% for link in links %}
+    {% if link.is_active %}
+      {% if link.btn_style == 'pill' %}
+      <a class="link-pill" href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener">
+        <span>{{ link.icon }}</span>
+        <span>{{ link.title }}</span>
+      </a>
+      {% elif link.btn_style == 'solid' %}
+      <a class="link-solid" href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener">
+        <span>{{ link.icon }}</span>
+        <span>{{ link.title }}</span>
+      </a>
+      {% else %}
+      <a class="link-filled" href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener">
+        <div class="link-thumb">{{ link.icon }}</div>
+        <div class="link-body">
+          <div>{{ link.title }}</div>
+          {% if link.subtitle %}<div class="link-sub-text">{{ link.subtitle }}</div>{% endif %}
+        </div>
+        <span class="link-arr">→</span>
+      </a>
+      {% endif %}
+    {% endif %}
+    {% endfor %}
   </div>
+
+  <!-- Powered by -->
+  <a class="powered" href="/" target="_blank">
+    ⚡ Powered by
+    <div class="powered-circle">▶</div>
+    <div class="powered-wm">SuperAd<span>Pro</span></div>
+    LinkHub
+  </a>
+
 </div>
 {% endif %}
 

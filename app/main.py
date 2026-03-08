@@ -7350,14 +7350,35 @@ def linkhub_editor(request: Request, db: Session = Depends(get_db)):
     if not user.is_active:
         return RedirectResponse("/dashboard", status_code=302)
 
+    import json as _json
     profile = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
     links = []
     total_clicks = 0
+    click_30d = 0
+    device_stats = {"mobile": 0, "desktop": 0, "tablet": 0}
     if profile:
         links = db.query(LinkHubLink).filter(
             LinkHubLink.profile_id == profile.id
         ).order_by(LinkHubLink.sort_order).all()
         total_clicks = sum(l.click_count for l in links)
+        # Last 30 days clicks + device breakdown
+        from datetime import timedelta
+        cutoff = datetime.utcnow() - timedelta(days=30)
+        recent_clicks = db.query(LinkHubClick).filter(
+            LinkHubClick.profile_id == profile.id,
+            LinkHubClick.clicked_at >= cutoff
+        ).all()
+        click_30d = len(recent_clicks)
+        for c in recent_clicks:
+            device_stats[c.device or "desktop"] = device_stats.get(c.device or "desktop", 0) + 1
+
+    # Social links
+    social_links = []
+    if profile and profile.social_links:
+        try:
+            social_links = _json.loads(profile.social_links)
+        except Exception:
+            social_links = []
 
     return templates.TemplateResponse("linkhub-editor.html", {
         "request": request,
@@ -7365,6 +7386,9 @@ def linkhub_editor(request: Request, db: Session = Depends(get_db)):
         "profile": profile,
         "links": links,
         "total_clicks": total_clicks,
+        "click_30d": click_30d,
+        "device_stats": device_stats,
+        "social_links": social_links,
         "active_page": "linkhub"
     })
 
@@ -7393,6 +7417,10 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
     profile.btn_color     = data.get("btn_color") or None
     profile.text_color    = data.get("text_color") or None
     profile.is_published  = bool(data.get("is_published", True))
+    # Social icons — stored as JSON string
+    import json as _json
+    social_raw = data.get("social_links", [])
+    profile.social_links = _json.dumps(social_raw) if social_raw else None
     # avatar_data is saved directly by the upload endpoint — don't overwrite with None here
     from datetime import datetime as _dt
     profile.updated_at = _dt.utcnow()
@@ -7412,6 +7440,8 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
             title       = title,
             url         = url,
             icon        = str(lk.get("icon", "🔗"))[:10],
+            btn_style   = str(lk.get("btn_style", "filled")),
+            subtitle    = str(lk.get("subtitle", ""))[:200] or None,
             is_active   = bool(lk.get("is_active", True)),
             sort_order  = idx,
             click_count = int(lk.get("click_count", 0)) if lk.get("id") else 0,
