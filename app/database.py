@@ -741,7 +741,10 @@ def run_migrations():
                 results.append(("skip", f"{sql[:50]} — {e}"))
     return results
 
-run_migrations()
+try:
+    run_migrations()
+except Exception as e:
+    print(f"⚠️ run_migrations skipped: {e}")
 
 # Force critical column additions with direct connection
 try:
