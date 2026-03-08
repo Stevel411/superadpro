@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>LinkHub Editor — SuperAdPro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/mobile.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f3f9;color:#1e293b;height:100vh;overflow:hidden;display:flex}
+.layout{display:flex;width:100%;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR — do NOT redefine; _sidebar.html handles all nav styles ── */
+.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;min-height:72px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:14px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
+.nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
+.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
+.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+
+/* ── MAIN ── */
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* ── TOPBAR — matches platform exactly: 72px, #1c223d ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:72px;background:#1c223d;border-bottom:1px solid rgba(14,165,233,0.12);flex-shrink:0;z-index:50}
+.topbar-title{font-size:19px;font-weight:800;color:#fff}
+.topbar-title span{color:#38bdf8}
+.topbar-sub{font-size:12px;color:rgba(0,212,255,0.45);margin-top:2px}
+.topbar-url{font-size:13px;color:#94a3b8;background:rgba(255,255,255,.06);padding:6px 14px;border-radius:20px;display:flex;align-items:center;gap:8px}
+.topbar-url a{color:#38bdf8;text-decoration:none;font-weight:600}
+.topbar-url a:hover{text-decoration:underline}
+
+/* ── CONTENT — only this scrolls ── */
+.content{flex:1;overflow-y:auto;padding:20px 28px 32px;scrollbar-gutter:stable}
+.content::-webkit-scrollbar{width:5px}
+.content::-webkit-scrollbar-thumb{background:rgba(15,25,60,.12);border-radius:99px}
+
+/* ── STATS ROW ── */
+.lh-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+.lh-stat{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:14px;padding:16px;text-align:center;box-shadow:0 1px 3px rgba(15,25,60,.06)}
+.lh-stat-val{font-family:Sora,sans-serif;font-size:26px;font-weight:800;color:#0ea5e9}
+.lh-stat-lbl{font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-top:4px}
+
+/* ── EDITOR GRID ── */
+.editor-grid{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start}
+@media(max-width:1100px){.editor-grid{grid-template-columns:1fr}}
+
+/* ── CARDS ── */
+.card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:16px;padding:22px;box-shadow:0 1px 3px rgba(15,25,60,.06),0 4px 16px rgba(15,25,60,.07);margin-bottom:16px}
+.card:last-child{margin-bottom:0}
+.card-title{font-size:15px;font-weight:800;color:#0f172a;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+
+/* ── FORM FIELDS ── */
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:11px;font-weight:800;color:#7b91a8;margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px}
+.field input,.field textarea,.field select{width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-family:inherit;font-size:14px;color:#1e293b;background:#f8fafc;transition:border-color .2s}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:#0ea5e9;background:#fff}
+.field textarea{min-height:76px;resize:vertical}
+
+/* ── AVATAR ── */
+.avatar-upload{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.avatar-preview{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;flex-shrink:0;border:3px solid #e2e8f0}
+.avatar-preview img{width:100%;height:100%;object-fit:cover}
+.avatar-btn{padding:8px 16px;background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;color:#475569;transition:all .2s;font-family:inherit}
+.avatar-btn:hover{background:#e2e8f0}
+#avatar-input{display:none}
+
+/* ── PUBLISH TOGGLE ── */
+.publish-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#f8fafc;border-radius:12px;border:1.5px solid #e2e8f0}
+.publish-info h4{font-size:14px;font-weight:700;color:#1e293b}
+.publish-info p{font-size:12px;color:#94a3b8;margin-top:2px}
+.big-toggle{position:relative;width:52px;height:28px;cursor:pointer;flex-shrink:0}
+.big-toggle input{opacity:0;width:0;height:0}
+.big-track{position:absolute;top:0;left:0;right:0;bottom:0;background:#cbd5e1;border-radius:28px;transition:.3s}
+.big-toggle input:checked + .big-track{background:#10b981}
+.big-track:before{content:'';position:absolute;height:20px;width:20px;left:4px;bottom:4px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.big-toggle input:checked + .big-track:before{transform:translateX(24px)}
+
+/* ── THEME PICKER ── */
+.theme-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:4px}
+.theme-opt{border:2px solid #e2e8f0;border-radius:12px;cursor:pointer;text-align:center;overflow:hidden;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.06);transition:all .2s}
+.theme-opt:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.1)}
+.theme-opt.selected{border-width:2.5px;box-shadow:0 0 0 3px rgba(14,165,233,.2),0 4px 14px rgba(0,0,0,.1);transform:translateY(-2px)}
+.theme-opt.selected.t-dark{border-color:#38bdf8}
+.theme-opt.selected.t-light{border-color:#94a3b8}
+.theme-opt.selected.t-gradient{border-color:#8b5cf6}
+.theme-opt.selected.t-neon{border-color:#00ff88}
+.theme-opt.selected.t-minimal{border-color:#64748b}
+.swatch{width:100%;height:56px;position:relative;overflow:hidden}
+.theme-label{padding:6px 4px 8px;font-size:11px;font-weight:800;letter-spacing:.3px}
+.t-dark .swatch{background:linear-gradient(160deg,#050d1a 0%,#0f2040 100%)}
+.t-dark .swatch::after{content:'';position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:60%;height:3px;background:rgba(0,212,255,.5);border-radius:2px}
+.t-dark .theme-label{color:#1e293b}
+.t-light .swatch{background:linear-gradient(160deg,#f8fafc,#e8f0fe)}
+.t-light .swatch::before{content:'';position:absolute;top:10px;left:50%;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#dbeafe,#bfdbfe);border:2px solid #93c5fd}
+.t-light .theme-label{color:#1e293b}
+.t-gradient .swatch{background:linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899)}
+.t-gradient .swatch::after{content:'✦';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.2rem;color:rgba(255,255,255,.9)}
+.t-gradient .theme-label{color:#6366f1}
+.t-neon .swatch{background:#0a0a0a}
+.t-neon .swatch::after{content:'⚡';position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);font-size:1.4rem;filter:drop-shadow(0 0 6px #00ff88)}
+.t-neon .theme-label{color:#059669}
+.t-minimal .swatch{background:#fff;border-bottom:1px solid #f1f5f9}
+.t-minimal .swatch::before{content:'';position:absolute;top:14px;left:50%;transform:translateX(-50%);width:50%;height:5px;background:#e2e8f0;border-radius:3px}
+.t-minimal .swatch::after{content:'';position:absolute;top:26px;left:50%;transform:translateX(-50%);width:35%;height:4px;background:#f1f5f9;border-radius:3px}
+.t-minimal .theme-label{color:#64748b}
+
+/* ── COLOUR CUSTOMISER ── */
+.colour-customiser{margin-top:16px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:16px}
+.colour-customiser-title{font-size:11px;font-weight:800;color:#7b91a8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px}
+.colour-rows{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.colour-row{display:flex;flex-direction:column;gap:6px}
+.colour-row label{font-size:11px;font-weight:700;color:#64748b}
+.colour-row-inner{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;padding:6px 10px}
+.colour-row-inner input[type=color]{width:28px;height:28px;border:none;border-radius:6px;cursor:pointer;padding:0;background:none;flex-shrink:0}
+.colour-row-inner span{font-size:12px;color:#94a3b8;font-family:monospace}
+.accent-presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.accent-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.accent-dot.selected{transform:scale(1.18);box-shadow:0 3px 12px rgba(0,0,0,.25);border-color:#fff}
+.accent-dot:hover{transform:scale(1.1)}
+.reset-btn{font-size:11px;font-weight:700;color:#0ea5e9;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;margin-top:8px}
+.reset-btn:hover{text-decoration:underline}
+
+/* ── LINKS ── */
+.links-list{display:flex;flex-direction:column;gap:10px;min-height:40px}
+.link-item{display:flex;align-items:center;gap:10px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;transition:all .2s}
+.link-item:hover{border-color:#0ea5e9;background:#f0f9ff}
+.link-drag{cursor:grab;color:#94a3b8;font-size:18px;flex-shrink:0}
+.link-icon-btn{width:36px;height:36px;border-radius:8px;background:#fff;border:1.5px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0;transition:all .2s}
+.link-icon-btn:hover{border-color:#0ea5e9}
+.link-fields{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.link-fields input{padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:13px;color:#1e293b;background:#fff;width:100%}
+.link-fields input:focus{outline:none;border-color:#0ea5e9}
+.toggle-sw{position:relative;width:36px;height:20px;cursor:pointer;flex-shrink:0}
+.toggle-sw input{opacity:0;width:0;height:0}
+.toggle-track{position:absolute;top:0;left:0;right:0;bottom:0;background:#cbd5e1;border-radius:20px;transition:.3s}
+.toggle-sw input:checked + .toggle-track{background:#0ea5e9}
+.toggle-track:before{content:'';position:absolute;height:14px;width:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle-sw input:checked + .toggle-track:before{transform:translateX(16px)}
+.link-del{background:none;border:none;color:#f87171;cursor:pointer;font-size:18px;padding:4px;border-radius:6px;transition:all .2s;flex-shrink:0}
+.link-del:hover{background:#fef2f2}
+.link-stats{font-size:11px;color:#94a3b8;white-space:nowrap;flex-shrink:0}
+.add-link-btn{width:100%;padding:12px;background:#f0f9ff;border:2px dashed #bae6fd;border-radius:12px;color:#0ea5e9;font-weight:700;font-size:14px;cursor:pointer;margin-top:12px;transition:all .2s;font-family:inherit}
+.add-link-btn:hover{background:#e0f2fe;border-color:#0ea5e9}
+/* ── TABS ── */
+.editor-tabs{display:flex;gap:4px;background:#f1f5f9;border-radius:12px;padding:4px;margin-bottom:16px}
+.editor-tab{flex:1;padding:9px 12px;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:#64748b;transition:all .2s;text-align:center}
+.editor-tab.active{background:#fff;color:#0ea5e9;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.tab-pane{display:none}.tab-pane.active{display:block}
+/* ── LINK STYLE PICKER ── */
+.style-picker{display:flex;gap:6px;margin-top:6px}
+.style-opt{flex:1;padding:6px 4px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;text-align:center;color:#64748b;background:#fff;transition:all .2s;font-family:inherit}
+.style-opt.selected{border-color:#0ea5e9;color:#0ea5e9;background:#f0f9ff}
+.style-opt:hover{border-color:#0ea5e9}
+.link-subtitle-input{width:100%;padding:6px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:12px;color:#1e293b;background:#fff;margin-top:6px}
+.link-subtitle-input:focus{outline:none;border-color:#0ea5e9}
+.link-style-row{margin-top:4px}
+/* ── SOCIAL MANAGER ── */
+.social-list{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.social-item{display:flex;align-items:center;gap:10px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px}
+.social-platform-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;background:#fff;border:1.5px solid #e2e8f0;flex-shrink:0}
+.social-platform-label{font-size:13px;font-weight:700;color:#1e293b;width:90px;flex-shrink:0}
+.social-url-input{flex:1;padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:13px;color:#1e293b;background:#fff}
+.social-url-input:focus{outline:none;border-color:#0ea5e9}
+.social-del{background:none;border:none;color:#f87171;cursor:pointer;font-size:16px;padding:4px;border-radius:6px;flex-shrink:0}
+.add-social-btn{width:100%;padding:11px;background:#f0f9ff;border:2px dashed #bae6fd;border-radius:12px;color:#0ea5e9;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;font-family:inherit}
+.add-social-btn:hover{background:#e0f2fe;border-color:#0ea5e9}
+/* ── ANALYTICS ── */
+.a-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+.a-stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.a-stat-val{font-size:30px;font-weight:900;color:#0ea5e9;font-family:'DM Sans',sans-serif;line-height:1}
+.a-stat-lbl{font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-top:6px}
+.a-section-title{font-size:13px;font-weight:800;color:#1e293b;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.device-bars{display:flex;flex-direction:column;gap:10px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px;margin-bottom:16px}
+.device-row{display:flex;align-items:center;gap:10px}
+.device-lbl{font-size:13px;color:#475569;width:70px;flex-shrink:0}
+.device-bar-wrap{flex:1;height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden}
+.device-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,#0ea5e9,#6366f1)}
+.device-pct{font-size:12px;font-weight:700;color:#0ea5e9;width:36px;text-align:right}
+.link-perf-list{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px}
+.link-perf-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f8fafc}
+.link-perf-row:last-child{border-bottom:none}
+.link-perf-icon{font-size:18px;flex-shrink:0;width:28px;text-align:center}
+.link-perf-name{font-size:13px;color:#1e293b;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.link-perf-bar-wrap{flex:2;height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden}
+.link-perf-bar{height:100%;border-radius:3px;background:linear-gradient(90deg,#0ea5e9,#6366f1)}
+.link-perf-num{font-size:12px;font-weight:700;color:#0ea5e9;min-width:40px;text-align:right}
+.analytics-empty{text-align:center;padding:40px 20px;color:#94a3b8;font-size:14px}
+
+/* ── ICON MODAL ── */
+.icon-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.icon-modal.open{display:flex}
+.icon-box{background:#fff;border-radius:16px;padding:24px;width:340px;max-height:80vh;overflow-y:auto}
+.icon-box h3{font-size:15px;font-weight:800;margin-bottom:14px}
+.icon-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+.icon-cell{width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:20px;border-radius:8px;cursor:pointer;transition:background .15s}
+.icon-cell:hover{background:#f0f9ff}
+.icon-cell.selected{background:#e0f2fe;outline:2px solid #0ea5e9}
+
+/* ── SAVE BAR ── */
+.save-bar{display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap}
+.btn-save{padding:12px 28px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border:none;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:all .2s;box-shadow:0 4px 12px rgba(14,165,233,.3)}
+.btn-save:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(14,165,233,.4)}
+.btn-save:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-preview{padding:12px 20px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+.btn-preview:hover{background:#e2e8f0}
+.save-msg{font-size:13px;color:#10b981;font-weight:700;display:none}
+.save-msg.show{display:block}
+
+/* ── PHONE PREVIEW ── */
+.preview-panel{position:sticky;top:0}
+.phone-shell{width:240px;height:480px;background:#fff;border-radius:34px;border:8px solid #1e293b;box-shadow:0 20px 60px rgba(0,0,0,.25),inset 0 0 0 1px rgba(255,255,255,.1);position:relative;overflow:hidden;margin:0 auto}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:72px;height:16px;background:#1e293b;border-radius:0 0 12px 12px;z-index:10}
+.phone-screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.phone-screen::-webkit-scrollbar{display:none}
+
+/* ── PREVIEW INNER ── */
+.pv-body{min-height:100%;display:flex;flex-direction:column;align-items:center;padding:32px 12px 36px;font-family:'Rethink Sans',sans-serif;transition:background .3s}
+.pv-avatar{width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:8px;border:3px solid;overflow:hidden;flex-shrink:0}
+.pv-avatar img{width:100%;height:100%;object-fit:cover}
+.pv-name{font-size:15px;font-weight:800;margin-bottom:2px;text-align:center}
+.pv-username{font-size:11px;margin-bottom:6px}
+.pv-bio{font-size:11px;text-align:center;line-height:1.5;max-width:200px;margin-bottom:14px}
+.pv-links{width:100%;display:flex;flex-direction:column;gap:7px}
+.pv-link{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1.5px solid;font-size:12px;font-weight:600;cursor:default}
+.pv-link-icon{font-size:14px;flex-shrink:0}
+.pv-link-title{flex:1}
+.pv-link-arrow{font-size:11px;opacity:.6}
+.pv-empty{text-align:center;padding:16px 0;font-size:11px;opacity:.5}
+.pv-powered{margin-top:14px;font-size:10px;opacity:.5;text-align:center}
+</style>
+</head>
+<body>
+<div class="layout">
+
+{% include "_sidebar.html" %}
+
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">🔗 <span>LinkHub</span> Editor</div>
+      <div class="topbar-sub">Build your personal link page</div>
+    </div>
+    <div class="topbar-url">
+      Your URL: <a href="/u/{{ current_user.username }}" target="_blank">superadpro.com/u/{{ current_user.username }}</a>
+      <button onclick="copyUrl()" style="background:none;border:none;cursor:pointer;color:#38bdf8;font-size:16px" title="Copy">📋</button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- Stats -->
+    <div class="lh-stats">
+      <div class="lh-stat">
+        <div class="lh-stat-val">{{ profile.total_views if profile else 0 }}</div>
+        <div class="lh-stat-lbl">Profile Views</div>
+      </div>
+      <div class="lh-stat">
+        <div class="lh-stat-val">{{ links|length }}</div>
+        <div class="lh-stat-lbl">Active Links</div>
+      </div>
+      <div class="lh-stat">
+        <div class="lh-stat-val">{{ total_clicks }}</div>
+        <div class="lh-stat-lbl">Total Clicks</div>
+      </div>
+    </div>
+
+    <div class="editor-grid">
+
+      <!-- ── LEFT: EDITOR ── -->
+      <div>
+
+        <!-- Publish status -->
+        <div class="card">
+          <div class="publish-row">
+            <div class="publish-info">
+              <h4>Profile Status</h4>
+              <p>When published, your LinkHub is live and visible to anyone with your link.</p>
+            </div>
+            <label class="big-toggle">
+              <input type="checkbox" id="is-published" {% if not profile or profile.is_published %}checked{% endif %}>
+              <div class="big-track"></div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Profile info -->
+        <div class="card">
+          <div class="card-title"><span>👤</span> Profile Info</div>
+          <div class="avatar-upload">
+            <div class="avatar-preview" id="avatar-preview">
+              {% if profile and profile.avatar_data %}
+                <img src="{{ profile.avatar_data }}" id="avatar-img" style="width:100%;height:100%;object-fit:cover">
+              {% else %}
+                <span id="avatar-emoji">{{ (current_user.first_name[0] if current_user.first_name else current_user.username[0]) | upper }}</span>
+              {% endif %}
+            </div>
+            <div>
+              <button class="avatar-btn" onclick="document.getElementById('avatar-input').click()">📷 Change Photo</button>
+              <input type="file" id="avatar-input" accept="image/*" onchange="handleAvatar(this)">
+              <div style="font-size:12px;color:#94a3b8;margin-top:4px">JPG or PNG, max 2MB</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Display Name</label>
+            <input type="text" id="display-name" value="{{ profile.display_name if profile and profile.display_name else (current_user.first_name + ' ' + current_user.last_name if current_user.first_name else current_user.username) }}" placeholder="Your name or brand">
+          </div>
+          <div class="field">
+            <label>Bio</label>
+            <textarea id="bio" placeholder="Short bio — tell visitors who you are...">{{ profile.bio if profile and profile.bio else '' }}</textarea>
+          </div>
+        </div>
+
+        <!-- Tabbed editor -->
+        <div class="card">
+          <div class="editor-tabs">
+            <button class="editor-tab active" onclick="switchTab(this,'tab-links')">🔗 Links</button>
+            <button class="editor-tab" onclick="switchTab(this,'tab-social')">📱 Social Icons</button>
+            <button class="editor-tab" onclick="switchTab(this,'tab-analytics')">📊 Analytics</button>
+          </div>
+
+          <!-- TAB: LINKS -->
+          <div class="tab-pane active" id="tab-links">
+            <div class="links-list" id="links-list">
+              {% for link in links %}
+              <div class="link-item" data-id="{{ link.id }}" data-order="{{ link.sort_order }}">
+                <span class="link-drag">⠿</span>
+                <button class="link-icon-btn" onclick="openIconPicker(this)" data-current="{{ link.icon }}">{{ link.icon }}</button>
+                <div style="flex:1">
+                  <div class="link-fields">
+                    <input type="text" placeholder="Link title" value="{{ link.title }}" class="link-title">
+                    <input type="url" placeholder="https://..." value="{{ link.url }}" class="link-url">
+                  </div>
+                  <input class="link-subtitle-input" type="text" placeholder="Optional subtitle (shown on filled style)" value="{{ link.subtitle or '' }}" class="link-subtitle">
+                  <div class="link-style-row">
+                    <div class="style-picker">
+                      <button class="style-opt {% if not link.btn_style or link.btn_style == 'filled' %}selected{% endif %}" onclick="setStyle(this,'filled')">▭ Filled</button>
+                      <button class="style-opt {% if link.btn_style == 'pill' %}selected{% endif %}" onclick="setStyle(this,'pill')">⬭ Pill</button>
+                      <button class="style-opt {% if link.btn_style == 'solid' %}selected{% endif %}" onclick="setStyle(this,'solid')">■ Solid</button>
+                    </div>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0">
+                  <div class="link-stats">{{ link.click_count }} clicks</div>
+                  <label class="toggle-sw">
+                    <input type="checkbox" {% if link.is_active %}checked{% endif %} class="link-active">
+                    <div class="toggle-track"></div>
+                  </label>
+                  <button class="link-del" onclick="deleteLink(this)" title="Delete">✕</button>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <button class="add-link-btn" onclick="addLink()">+ Add Link</button>
+          </div>
+
+          <!-- TAB: SOCIAL ICONS -->
+          <div class="tab-pane" id="tab-social">
+            <p style="font-size:13px;color:#64748b;margin-bottom:14px">Add your social profiles. They appear below your bio as clickable icon buttons.</p>
+            <div class="social-list" id="social-list">
+              {% for s in social_links %}
+              <div class="social-item">
+                <div class="social-platform-icon">{{ {'instagram':'📸','tiktok':'🎵','youtube':'▶️','x':'✖','twitter':'✖','facebook':'👤','linkedin':'💼','whatsapp':'💬','snapchat':'👻','pinterest':'📌'}.get(s.platform, '🔗') }}</div>
+                <div class="social-platform-label">{{ s.platform | title }}</div>
+                <input class="social-url-input" type="url" placeholder="https://..." value="{{ s.url }}" data-platform="{{ s.platform }}">
+                <button class="social-del" onclick="this.closest('.social-item').remove()">✕</button>
+              </div>
+              {% endfor %}
+            </div>
+            <div style="margin-bottom:12px">
+              <select id="social-platform-select" style="padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:13px;color:#1e293b;background:#fff;width:100%;margin-bottom:8px">
+                <option value="">— Choose a platform —</option>
+                <option value="instagram">📸 Instagram</option>
+                <option value="tiktok">🎵 TikTok</option>
+                <option value="youtube">▶️ YouTube</option>
+                <option value="x">✖ X (Twitter)</option>
+                <option value="facebook">👤 Facebook</option>
+                <option value="linkedin">💼 LinkedIn</option>
+                <option value="whatsapp">💬 WhatsApp</option>
+                <option value="snapchat">👻 Snapchat</option>
+                <option value="pinterest">📌 Pinterest</option>
+              </select>
+              <button class="add-social-btn" onclick="addSocialIcon()">+ Add Social Icon</button>
+            </div>
+          </div>
+
+          <!-- TAB: ANALYTICS -->
+          <div class="tab-pane" id="tab-analytics">
+            {% set total_views = profile.total_views if profile else 0 %}
+            {% set total_cls = total_clicks %}
+            {% set ctr = ((total_cls / total_views * 100) | round(1)) if total_views > 0 else 0 %}
+
+            <div class="a-grid">
+              <div class="a-stat-card">
+                <div class="a-stat-val">{{ total_views }}</div>
+                <div class="a-stat-lbl">Total Views</div>
+              </div>
+              <div class="a-stat-card">
+                <div class="a-stat-val">{{ total_cls }}</div>
+                <div class="a-stat-lbl">Total Clicks</div>
+              </div>
+              <div class="a-stat-card">
+                <div class="a-stat-val">{{ ctr }}%</div>
+                <div class="a-stat-lbl">Click Rate</div>
+              </div>
+            </div>
+
+            {% if total_views > 0 %}
+            <!-- Device breakdown -->
+            <div class="a-section-title">📱 Device Breakdown (last 30 days)</div>
+            {% set d_total = (device_stats.mobile + device_stats.desktop + device_stats.tablet) or 1 %}
+            <div class="device-bars">
+              <div class="device-row">
+                <div class="device-lbl">📱 Mobile</div>
+                <div class="device-bar-wrap"><div class="device-bar" style="width:{{ (device_stats.mobile / d_total * 100) | round }}%"></div></div>
+                <div class="device-pct">{{ (device_stats.mobile / d_total * 100) | round }}%</div>
+              </div>
+              <div class="device-row">
+                <div class="device-lbl">💻 Desktop</div>
+                <div class="device-bar-wrap"><div class="device-bar" style="width:{{ (device_stats.desktop / d_total * 100) | round }}%;background:linear-gradient(90deg,#7c3aed,#6366f1)"></div></div>
+                <div class="device-pct">{{ (device_stats.desktop / d_total * 100) | round }}%</div>
+              </div>
+              <div class="device-row">
+                <div class="device-lbl">📲 Tablet</div>
+                <div class="device-bar-wrap"><div class="device-bar" style="width:{{ (device_stats.tablet / d_total * 100) | round }}%;background:linear-gradient(90deg,#f59e0b,#f97316)"></div></div>
+                <div class="device-pct">{{ (device_stats.tablet / d_total * 100) | round }}%</div>
+              </div>
+            </div>
+
+            <!-- Per-link performance -->
+            <div class="a-section-title">🔗 Clicks Per Link</div>
+            {% set max_clicks = links | map(attribute='click_count') | max if links else 1 %}
+            <div class="link-perf-list">
+              {% for link in links | sort(attribute='click_count', reverse=True) %}
+              <div class="link-perf-row">
+                <div class="link-perf-icon">{{ link.icon }}</div>
+                <div class="link-perf-name" title="{{ link.title }}">{{ link.title }}</div>
+                <div class="link-perf-bar-wrap">
+                  <div class="link-perf-bar" style="width:{{ ((link.click_count / (max_clicks or 1)) * 100) | round }}%"></div>
+                </div>
+                <div class="link-perf-num">{{ link.click_count }}</div>
+              </div>
+              {% else %}
+              <div class="analytics-empty">No links yet — add some above!</div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="analytics-empty">
+              <div style="font-size:2.5rem;margin-bottom:12px">📊</div>
+              <div style="font-weight:700;color:#64748b;margin-bottom:4px">No data yet</div>
+              <div style="font-size:13px">Share your LinkHub URL to start collecting views and clicks.</div>
+              <div style="margin-top:12px;font-size:13px;color:#0ea5e9;font-weight:600">superadpro.com/u/{{ current_user.username }}</div>
+            </div>
+            {% endif %}
+          </div>
+
+        </div>
+
+        <!-- Appearance -->
+        <div class="card">
+          <div class="card-title"><span>🎨</span> Appearance</div>
+
+          <!-- Theme selector -->
+          <div class="field">
+            <label>Theme</label>
+            <div class="theme-grid">
+              {% set themes = [('dark','Dark'),('light','Light'),('gradient','Gradient'),('neon','Neon'),('minimal','Minimal')] %}
+              {% for val, name in themes %}
+              <div class="theme-opt t-{{ val }} {% if (profile and profile.theme == val) or (not profile and val == 'dark') %}selected{% endif %}"
+                   onclick="selectTheme('{{ val }}', this)" data-val="{{ val }}">
+                <div class="swatch"></div>
+                <div class="theme-label">{{ name }}</div>
+              </div>
+              {% endfor %}
+            </div>
+            <input type="hidden" id="theme-val" value="{{ profile.theme if profile else 'dark' }}">
+          </div>
+
+          <!-- Full colour customiser -->
+          <div class="colour-customiser" id="colour-customiser">
+            <div class="colour-customiser-title">🎨 Customise Colours</div>
+
+            <!-- Accent presets -->
+            <div style="margin-bottom:10px">
+              <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:8px">Accent / Highlight</div>
+              <div class="accent-presets" id="accent-presets">
+                {% set accents = ['#00d4ff','#0ea5e9','#6366f1','#8b5cf6','#ec4899','#10b981','#f59e0b','#ef4444','#ff6b35','#ffffff'] %}
+                {% for c in accents %}
+                <div class="accent-dot {% if (profile and profile.accent_color == c) or (not profile and c == '#00d4ff') %}selected{% endif %}"
+                     style="background:{{ c }}{% if c == '#ffffff' %};border:2px solid #e2e8f0{% endif %}"
+                     onclick="selectAccent('{{ c }}', this)" data-val="{{ c }}" title="{{ c }}"></div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Per-theme colour controls -->
+            <div class="colour-rows">
+              <div class="colour-row">
+                <label>Background</label>
+                <div class="colour-row-inner">
+                  <input type="color" id="col-bg" oninput="onColourChange()">
+                  <span id="col-bg-hex">#050d1a</span>
+                </div>
+              </div>
+              <div class="colour-row">
+                <label>Accent</label>
+                <div class="colour-row-inner">
+                  <input type="color" id="col-accent" oninput="onAccentPickerChange(this)">
+                  <span id="col-accent-hex">#00d4ff</span>
+                </div>
+              </div>
+              <div class="colour-row">
+                <label>Button BG</label>
+                <div class="colour-row-inner">
+                  <input type="color" id="col-btn" oninput="onColourChange()">
+                  <span id="col-btn-hex">#0f1f3d</span>
+                </div>
+              </div>
+              <div class="colour-row">
+                <label>Text</label>
+                <div class="colour-row-inner">
+                  <input type="color" id="col-text" oninput="onColourChange()">
+                  <span id="col-text-hex">#e2e8f0</span>
+                </div>
+              </div>
+            </div>
+
+            <button class="reset-btn" onclick="resetThemeDefaults()">↺ Reset to theme defaults</button>
+          </div>
+
+          <!-- Hidden fields for save -->
+          <input type="hidden" id="accent-val" value="{{ profile.accent_color if profile else '#00d4ff' }}">
+          <input type="hidden" id="col-bg-val" value="{{ profile.bg_color if profile and profile.bg_color else '' }}">
+          <input type="hidden" id="col-btn-val" value="{{ profile.btn_color if profile and profile.btn_color else '' }}">
+          <input type="hidden" id="col-text-val" value="{{ profile.text_color if profile and profile.text_color else '' }}">
+        </div>
+
+        <div class="save-bar">
+          <button class="btn-save" onclick="saveProfile(this)">💾 Save Changes</button>
+          <a class="btn-preview" href="/u/{{ current_user.username }}" target="_blank">👁 Preview Live</a>
+          <span class="save-msg" id="save-msg">✓ Saved!</span>
+        </div>
+
+      </div><!-- /left -->
+
+      <!-- ── RIGHT: LIVE PREVIEW ── -->
+      <div class="preview-panel">
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #f1f5f9">
+            <div class="card-title" style="margin-bottom:0;font-size:14px"><span>📱</span> Live Preview</div>
+            <span style="font-size:11px;color:#10b981;font-weight:700;background:#f0fdf4;padding:3px 10px;border-radius:20px;border:1px solid #bbf7d0">● LIVE</span>
+          </div>
+          <div style="padding:16px;background:#f8fafc;display:flex;justify-content:center">
+            <div class="phone-shell">
+              <div class="phone-notch"></div>
+              <div class="phone-screen" id="live-preview"></div>
+            </div>
+          </div>
+          <div style="padding:8px 16px;font-size:11px;color:#94a3b8;text-align:center;border-top:1px solid #f1f5f9">
+            Updates instantly as you type
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /editor-grid -->
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- Icon picker modal -->
+<div class="icon-modal" id="icon-modal">
+  <div class="icon-box">
+    <h3>Choose Icon</h3>
+    <div class="icon-grid" id="icon-grid"></div>
+  </div>
+</div>
+
+<script>
+const ICONS = ['🔗','🌐','📧','📱','💼','🎯','🚀','⭐','💡','📊','🎬','📸','🛒','💰','🏆','📣',
+  '🎵','🎮','📚','✍️','🤝','🌍','💻','🔥','❤️','🎁','📢','🔔','💎','⚡','🌟','👋',
+  '▶️','🐦','📘','🎤','📺','🎧','📰','📝','🏠','📍','🛡️','⚙️','🌈','🎪','🧲','🪄'];
+
+// ── THEME DEFAULTS ─────────────────────────────────────────────────────────
+// Each theme defines its own full colour set
+const THEME_DEFAULTS = {
+  dark:     { bg:'#050d1a', accent:'#00d4ff', btn:'#0f1f3d', text:'#e2e8f0', sub:'#94a3b8', btnBorder:'rgba(255,255,255,.12)' },
+  light:    { bg:'#f8fafc', accent:'#0ea5e9', btn:'#ffffff', text:'#1e293b', sub:'#64748b', btnBorder:'#e2e8f0' },
+  gradient: { bg:'#1e1b4b', accent:'#a78bfa', btn:'rgba(255,255,255,.12)', text:'#ffffff', sub:'rgba(255,255,255,.65)', btnBorder:'rgba(255,255,255,.22)' },
+  neon:     { bg:'#0a0a0a', accent:'#00ff88', btn:'#111111', text:'#e2e8f0', sub:'#6b7280', btnBorder:null },
+  minimal:  { bg:'#ffffff', accent:'#6366f1', btn:'#ffffff', text:'#1e293b', sub:'#9ca3af', btnBorder:'#f3f4f6' },
+};
+
+// Current live colour state — starts from saved profile or theme defaults
+let colours = {
+  bg:     '{{ profile.bg_color if profile and profile.bg_color else "" }}' || THEME_DEFAULTS['{{ profile.theme if profile else "dark" }}'].bg,
+  accent: '{{ profile.accent_color if profile else "#00d4ff" }}',
+  btn:    '{{ profile.btn_color if profile and profile.btn_color else "" }}' || THEME_DEFAULTS['{{ profile.theme if profile else "dark" }}'].btn,
+  text:   '{{ profile.text_color if profile and profile.text_color else "" }}' || THEME_DEFAULTS['{{ profile.theme if profile else "dark" }}'].text,
+};
+
+let previewAvatarSrc = null;
+let previewTimer;
+
+function schedulePreview() {
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(buildPreview, 80);
+}
+
+// ── BUILD PREVIEW ──────────────────────────────────────────────────────────
+function buildPreview() {
+  const theme   = document.getElementById('theme-val').value || 'dark';
+  const td      = THEME_DEFAULTS[theme];
+  const bg      = colours.bg    || td.bg;
+  const accent  = colours.accent|| td.accent;
+  const btn     = colours.btn   || td.btn;
+  const text    = colours.text  || td.text;
+  const sub     = td.sub; // sub-text always from theme default (not customisable to keep readability)
+  const border  = theme === 'neon' ? accent : (td.btnBorder || accent + '44');
+
+  const name = document.getElementById('display-name').value.trim() || 'Your Name';
+  const bio  = document.getElementById('bio').value.trim();
+
+  // Body background — gradient theme gets a gradient, others use solid colour
+  const bodyBg = theme === 'gradient'
+    ? `linear-gradient(135deg, ${bg} 0%, ${shiftColour(bg, 30)} 50%, ${shiftColour(bg, 60)} 100%)`
+    : bg;
+
+  // Avatar
+  const avatarPrev = document.querySelector('#avatar-preview img');
+  const avatarSrc  = previewAvatarSrc || (avatarPrev && !avatarPrev.src.includes('undefined') ? avatarPrev.src : null);
+  const avatarHtml = avatarSrc
+    ? `<img src="${avatarSrc}" style="width:100%;height:100%;object-fit:cover">`
+    : `<span style="font-size:1.6rem;color:${accent}">${name[0].toUpperCase()}</span>`;
+
+  // Avatar glow for neon
+  const avatarGlow = theme === 'neon' ? `box-shadow:0 0 18px ${accent}55` : '';
+
+  // Neon radial glow overlay
+  const neonGlow = theme === 'neon'
+    ? `<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 110%,${accent}20 0%,transparent 65%);pointer-events:none"></div>`
+    : '';
+
+  // Links
+  const linkItems = document.querySelectorAll('.link-item');
+  let linksHtml = '';
+  linkItems.forEach(item => {
+    const title  = item.querySelector('.link-title').value.trim();
+    const active = item.querySelector('.link-active').checked;
+    const icon   = item.querySelector('.link-icon-btn').textContent;
+    if (!title || !active) return;
+    const neonLinkShadow = theme === 'neon' ? `box-shadow:0 0 10px ${accent}33` : '';
+    linksHtml += `<div class="pv-link" style="background:${btn};border-color:${border};color:${text};${neonLinkShadow}">
+      <span class="pv-link-icon">${icon}</span>
+      <span class="pv-link-title">${title}</span>
+      <span class="pv-link-arrow" style="color:${accent}">→</span>
+    </div>`;
+  });
+  if (!linksHtml) linksHtml = `<div class="pv-empty" style="color:${sub}">Your links appear here</div>`;
+
+  document.getElementById('live-preview').innerHTML = `
+    <div class="pv-body" style="background:${bodyBg};position:relative">
+      ${neonGlow}
+      <div class="pv-avatar" style="border-color:${accent};${avatarGlow}">${avatarHtml}</div>
+      <div class="pv-name" style="color:${text}">${name}</div>
+      <div class="pv-username" style="color:${sub}">@{{ current_user.username }}</div>
+      ${bio ? `<div class="pv-bio" style="color:${sub}">${bio}</div>` : ''}
+      <div class="pv-links">${linksHtml}</div>
+      <div class="pv-powered" style="color:${sub}">⚡ Powered by <span style="color:${accent}">SuperAdPro</span></div>
+    </div>`;
+}
+
+// Shift a hex colour lighter/darker for gradient generation
+function shiftColour(hex, amount) {
+  try {
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    const nr = Math.min(255, r + amount);
+    const ng = Math.min(255, g + amount/2);
+    const nb = Math.min(255, b + amount*2);
+    return `#${nr.toString(16).padStart(2,'0')}${ng.toString(16).padStart(2,'0')}${nb.toString(16).padStart(2,'0')}`;
+  } catch(e) { return hex; }
+}
+
+// ── SYNC COLOUR PICKERS ────────────────────────────────────────────────────
+function syncColourPickers() {
+  setPickerVal('col-bg', colours.bg);
+  setPickerVal('col-accent', colours.accent);
+  setPickerVal('col-btn', colours.btn);
+  setPickerVal('col-text', colours.text);
+  // sync hidden fields
+  document.getElementById('col-bg-val').value    = colours.bg;
+  document.getElementById('col-btn-val').value   = colours.btn;
+  document.getElementById('col-text-val').value  = colours.text;
+  document.getElementById('accent-val').value    = colours.accent;
+}
+
+function setPickerVal(id, val) {
+  // colour inputs only accept 6-char hex
+  const el = document.getElementById(id);
+  const hexEl = document.getElementById(id + '-hex');
+  if (!el) return;
+  try {
+    // normalise rgba/named to hex where possible — fallback gracefully
+    if (val && val.startsWith('#') && val.length >= 7) {
+      el.value = val.slice(0,7);
+      if (hexEl) hexEl.textContent = val.slice(0,7);
+    }
+  } catch(e) {}
+}
+
+function onColourChange() {
+  colours.bg     = document.getElementById('col-bg').value;
+  colours.btn    = document.getElementById('col-btn').value;
+  colours.text   = document.getElementById('col-text').value;
+  document.getElementById('col-bg-hex').textContent    = colours.bg;
+  document.getElementById('col-btn-hex').textContent   = colours.btn;
+  document.getElementById('col-text-hex').textContent  = colours.text;
+  syncColourPickers();
+  schedulePreview();
+}
+
+function onAccentPickerChange(input) {
+  colours.accent = input.value;
+  document.getElementById('col-accent-hex').textContent = input.value;
+  document.getElementById('accent-val').value = input.value;
+  // deselect preset dots
+  document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('selected'));
+  syncColourPickers();
+  schedulePreview();
+}
+
+// ── THEME SELECT ───────────────────────────────────────────────────────────
+function selectTheme(val, el) {
+  document.querySelectorAll('.theme-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('theme-val').value = val;
+  // Reset colours to new theme defaults
+  const td = THEME_DEFAULTS[val];
+  colours = { bg: td.bg, accent: td.accent, btn: td.btn, text: td.text };
+  syncColourPickers();
+  schedulePreview();
+}
+
+// ── ACCENT PRESETS ─────────────────────────────────────────────────────────
+function selectAccent(val, el) {
+  document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+  colours.accent = val;
+  document.getElementById('accent-val').value = val;
+  syncColourPickers();
+  schedulePreview();
+}
+
+function resetThemeDefaults() {
+  const theme = document.getElementById('theme-val').value || 'dark';
+  const td = THEME_DEFAULTS[theme];
+  colours = { bg: td.bg, accent: td.accent, btn: td.btn, text: td.text };
+  document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('selected'));
+  // Try to select matching preset dot
+  document.querySelectorAll('.accent-dot').forEach(d => {
+    if (d.dataset.val === td.accent) d.classList.add('selected');
+  });
+  syncColourPickers();
+  schedulePreview();
+}
+
+// ── BOOT ───────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  syncColourPickers();
+  buildPreview();
+  document.getElementById('display-name').addEventListener('input', schedulePreview);
+  document.getElementById('bio').addEventListener('input', schedulePreview);
+  document.getElementById('links-list').addEventListener('input', schedulePreview);
+  document.getElementById('links-list').addEventListener('change', schedulePreview);
+  document.getElementById('is-published').addEventListener('change', schedulePreview);
+});
+
+// ── ICON PICKER ────────────────────────────────────────────────────────────
+let activeIconBtn = null;
+function openIconPicker(btn) {
+  activeIconBtn = btn;
+  const modal = document.getElementById('icon-modal');
+  const grid  = document.getElementById('icon-grid');
+  grid.innerHTML = '';
+  ICONS.forEach(ic => {
+    const div = document.createElement('div');
+    div.className = 'icon-cell' + (ic === btn.textContent ? ' selected' : '');
+    div.textContent = ic;
+    div.onclick = () => { btn.textContent = ic; modal.classList.remove('open'); schedulePreview(); };
+    grid.appendChild(div);
+  });
+  modal.classList.add('open');
+}
+document.getElementById('icon-modal').onclick = (e) => {
+  if (e.target === document.getElementById('icon-modal')) e.target.classList.remove('open');
+};
+
+// ── ADD / DELETE LINKS ─────────────────────────────────────────────────────
+function addLink() {
+  const list = document.getElementById('links-list');
+  const item = document.createElement('div');
+  item.className = 'link-item';
+  item.dataset.id = 'new';
+  item.innerHTML = `
+    <span class="link-drag">⠿</span>
+    <button class="link-icon-btn" onclick="openIconPicker(this)" data-current="🔗">🔗</button>
+    <div style="flex:1">
+      <div class="link-fields">
+        <input type="text" placeholder="Link title" class="link-title">
+        <input type="url" placeholder="https://..." class="link-url">
+      </div>
+      <input class="link-subtitle-input" type="text" placeholder="Optional subtitle (shown on filled style)" class="link-subtitle">
+      <div class="link-style-row">
+        <div class="style-picker">
+          <button class="style-opt selected" onclick="setStyle(this,'filled')">▭ Filled</button>
+          <button class="style-opt" onclick="setStyle(this,'pill')">⬭ Pill</button>
+          <button class="style-opt" onclick="setStyle(this,'solid')">■ Solid</button>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0">
+      <div class="link-stats">0 clicks</div>
+      <label class="toggle-sw"><input type="checkbox" checked class="link-active"><div class="toggle-track"></div></label>
+      <button class="link-del" onclick="deleteLink(this)" title="Delete">✕</button>
+    </div>`;
+  list.appendChild(item);
+  item.querySelector('.link-title').focus();
+  schedulePreview();
+}
+
+function setStyle(btn, style) {
+  const picker = btn.closest('.style-picker');
+  picker.querySelectorAll('.style-opt').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  schedulePreview();
+}
+
+function switchTab(btn, tabId) {
+  document.querySelectorAll('.editor-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+function addSocialIcon() {
+  const sel = document.getElementById('social-platform-select');
+  const platform = sel.value;
+  if (!platform) { alert('Please choose a platform first'); return; }
+  const list = document.getElementById('social-list');
+  const icons = {instagram:'📸',tiktok:'🎵',youtube:'▶️',x:'✖',facebook:'👤',linkedin:'💼',whatsapp:'💬',snapchat:'👻',pinterest:'📌'};
+  const item = document.createElement('div');
+  item.className = 'social-item';
+  item.innerHTML = `
+    <div class="social-platform-icon">${icons[platform] || '🔗'}</div>
+    <div class="social-platform-label">${platform.charAt(0).toUpperCase() + platform.slice(1)}</div>
+    <input class="social-url-input" type="url" placeholder="https://..." data-platform="${platform}">
+    <button class="social-del" onclick="this.closest('.social-item').remove()">✕</button>`;
+  list.appendChild(item);
+  sel.value = '';
+  item.querySelector('.social-url-input').focus();
+}
+
+function collectSocialLinks() {
+  const items = document.querySelectorAll('.social-item');
+  const result = [];
+  items.forEach(item => {
+    const input = item.querySelector('.social-url-input');
+    const url = input.value.trim();
+    const platform = input.dataset.platform;
+    if (platform && url) result.push({platform, url});
+  });
+  return result;
+}
+
+function deleteLink(btn) {
+  if (confirm('Remove this link?')) { btn.closest('.link-item').remove(); schedulePreview(); }
+}
+
+// ── AVATAR ─────────────────────────────────────────────────────────────────
+function handleAvatar(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { alert('Max file size is 2MB'); return; }
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    previewAvatarSrc = e.target.result;
+    document.getElementById('avatar-preview').innerHTML =
+      `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
+    schedulePreview();
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      const r = await fetch('/linkhub/upload-avatar', { method: 'POST', body: fd });
+      const d = await r.json();
+      if (!d.ok) console.error('Avatar upload failed:', d.error);
+    } catch(err) { console.error('Avatar upload error:', err); }
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── SAVE ───────────────────────────────────────────────────────────────────
+async function saveProfile(btn) {
+  btn.disabled = true; btn.textContent = 'Saving...';
+  const linkItems = document.querySelectorAll('.link-item');
+  const links = [];
+  linkItems.forEach((item, idx) => {
+    const title = item.querySelector('.link-title').value.trim();
+    const url   = item.querySelector('.link-url').value.trim();
+    if (!title && !url) return;
+    const selStyle = item.querySelector('.style-opt.selected');
+    const subtitleEl = item.querySelector('.link-subtitle');
+    links.push({
+      id:         item.dataset.id === 'new' ? null : parseInt(item.dataset.id),
+      title, url,
+      icon:       item.querySelector('.link-icon-btn').textContent,
+      btn_style:  selStyle ? (selStyle.getAttribute('onclick').split("'")[1] || 'filled') : 'filled',
+      subtitle:   subtitleEl ? subtitleEl.value.trim() : '',
+      is_active:  item.querySelector('.link-active').checked,
+      sort_order: idx
+    });
+  });
+  const payload = {
+    display_name: document.getElementById('display-name').value.trim(),
+    bio:          document.getElementById('bio').value.trim(),
+    theme:        document.getElementById('theme-val').value,
+    accent_color: colours.accent,
+    bg_color:     colours.bg,
+    btn_color:    colours.btn,
+    text_color:   colours.text,
+    is_published: document.getElementById('is-published').checked,
+    social_links: collectSocialLinks(),
+    links
+  };
+  const r = await fetch('/linkhub/save', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+  const d = await r.json();
+  btn.disabled = false; btn.textContent = '💾 Save Changes';
+  if (d.ok) {
+    const msg = document.getElementById('save-msg');
+    msg.classList.add('show');
+    setTimeout(() => msg.classList.remove('show'), 3000);
+  } else {
+    alert('Save failed: ' + (d.error || 'Unknown error'));
+  }
+}
+
+// ── COPY URL ───────────────────────────────────────────────────────────────
+function copyUrl() {
+  navigator.clipboard.writeText(window.location.origin + '/u/{{ current_user.username }}');
+  event.target.textContent = '✅';
+  setTimeout(() => event.target.textContent = '📋', 1500);
+}
+</script>
+{% include "_tawk.html" %}
+</body>
+</html>
