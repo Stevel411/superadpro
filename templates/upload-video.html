@@ -288,5 +288,6 @@ function previewVideo(url) {
 window.addEventListener('load',()=>{const u=document.getElementById('videoUrl');if(u.value)previewVideo(u.value);});
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/static/sw.js').catch(()=>{});});}
 </script>
+{% include "_tawk.html" %}
 </body>
 </html>

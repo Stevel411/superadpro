@@ -402,5 +402,6 @@ document.getElementById('pwForm').addEventListener('submit', function(e) {
 });
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/static/sw.js').catch(() => {}));
 </script>
+{% include "_tawk.html" %}
 </body>
 </html>

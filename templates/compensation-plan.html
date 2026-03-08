@@ -877,5 +877,6 @@ async function doRegister(e){e.preventDefault();var err=document.getElementById(
 (function(){var p=new URLSearchParams(window.location.search);var sponsor=p.get('join')||'';if(p.get('login')==='1'){mOpen('mLogin');}else if(p.get('register')==='1'){mOpen('mReg');}else if(sponsor){mOpen('mReg',sponsor);}})();
 </script>
 
+{% include "_tawk.html" %}
 </body>
 </html>

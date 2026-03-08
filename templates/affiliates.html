@@ -379,5 +379,6 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape'){mClose('mRe
 async function doLogin(e){e.preventDefault();var err=document.getElementById('loginErr'),btn=document.getElementById('loginBtn');err.style.display='none';btn.disabled=true;btn.textContent='Logging in...';try{var r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:document.getElementById('loginUser').value,password:document.getElementById('loginPw').value})});var d=await r.json();if(d.success){window.location.href=d.redirect||'/dashboard';return;}err.textContent=d.error||'Login failed.';err.style.display='block';}catch(x){err.textContent='Network error.';err.style.display='block';}btn.disabled=false;btn.textContent='Log In →';}
 (function(){var p=new URLSearchParams(window.location.search);var sponsor=p.get('join')||'';if(p.get('login')==='1'){mOpen('mLogin');}else if(p.get('register')==='1'){mOpen('mReg');}else if(sponsor){mOpen('mReg',sponsor);}})();
 </script>
+{% include "_tawk.html" %}
 </body>
 </html>
