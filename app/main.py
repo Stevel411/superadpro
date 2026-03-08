@@ -87,8 +87,24 @@ JSONResponse.render = _decimal_safe_render
 
 @app.on_event("startup")
 async def startup_event():
-    from .database import run_migrations
-    run_migrations()
+    import time
+    from .database import engine, run_migrations
+    from sqlalchemy import text
+    for attempt in range(1, 6):
+        try:
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            print(f"✅ DB connected on attempt {attempt}")
+            break
+        except Exception as e:
+            print(f"⚠️ DB attempt {attempt} failed: {e}")
+            if attempt < 5:
+                time.sleep(3)
+    try:
+        run_migrations()
+        print("✅ Migrations complete")
+    except Exception as e:
+        print(f"⚠️ Migrations skipped: {e}")
 templates = Jinja2Templates(directory="templates")
 # Make Decimal values render cleanly in templates
 templates.env.filters["money"] = lambda v: f"{float(v or 0):.2f}"
