@@ -156,36 +156,39 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .shape-demo svg{width:13px;height:13px;fill:#fff}
 
 /* design */
-
-/* colour swatches */
-.col-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.col-card{background:#fff;border:1.5px solid #c8d0de;border-radius:10px;padding:10px 12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.col-card .lbl{font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
-.col-swatch-row{display:flex;align-items:center;gap:10px;position:relative}
-.col-swatch{width:38px;height:38px;border-radius:8px;border:2px solid rgba(0,0,0,.08);flex-shrink:0;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.12);display:block}
-.col-swatch input[type=color]{position:absolute;opacity:0;width:38px;height:38px;cursor:pointer;top:0;left:0}
-.col-hex{font-size:12px;color:#475569;font-family:monospace;font-weight:600}
-/* font dropdown */
-.font-select{width:100%;padding:9px 12px;border:1.5px solid #c8d0de;border-radius:8px;font-family:inherit;font-size:14px;color:var(--text);background:#fff;cursor:pointer}
-.font-select:focus{outline:none;border-color:var(--accent)}
-/* combined image uploads */
-.img-upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.img-upload-card{border:2px dashed #c8d0de;border-radius:10px;overflow:hidden;position:relative;cursor:pointer;transition:border-color .2s;background:#f8fafc}
-.img-upload-card:hover{border-color:var(--accent)}
-.img-preview-zone{width:100%;height:76px;overflow:hidden;position:relative}
-.img-preview-zone img{width:100%;height:100%;object-fit:cover}
-.img-placeholder{height:76px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#94a3b8;font-size:11px;font-weight:700}
-.img-placeholder span{font-size:24px}
-.img-card-footer{padding:6px 10px;font-size:10px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.5px;background:#f4f7fb;border-top:1px solid #e2e8f0;text-align:center;display:flex;align-items:center;justify-content:space-between}
-.img-clear{background:none;border:none;color:#f87171;cursor:pointer;font-size:13px;line-height:1;padding:0}
-/* overlay slider */
-.overlay-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 8px}
+.theme-swatch{border-radius:9px;overflow:hidden;border:2px solid #c8d0de;cursor:pointer;transition:all .2s;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.theme-swatch:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.14)}
+.theme-swatch.sel{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,165,233,.18)}
+.sw-preview{height:44px;border-radius:6px 6px 0 0}
+.sw-colors{display:flex;gap:4px;padding:6px 6px 0}
+.sw-dot{width:14px;height:14px;border-radius:50%;border:1.5px solid rgba(0,0,0,.08);flex-shrink:0}
+.sw-label{font-size:11px;font-weight:800;padding:4px 4px 7px;text-align:center;color:#475569}
+.sw-dark{background:#050d1a}.sw-light{background:#f0f4ff}.sw-grad{background:linear-gradient(135deg,#6366f1,#ec4899)}.sw-neon{background:#0a0a0a}
+.accent-dots{display:flex;gap:6px;flex-wrap:wrap;padding:8px 0 12px}
+.acc-dot{width:24px;height:24px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all .18s}
+.acc-dot:hover{transform:scale(1.12)}
+.acc-dot.sel{border-color:#1e293b;box-shadow:0 0 0 2px var(--accent);transform:scale(1.1)}
+.col-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.col-card{background:#fff;border:1.5px solid #c8d0de;border-radius:8px;padding:8px 10px;box-shadow:inset 0 1px 2px rgba(0,0,0,.04)}
+.col-card .lbl{font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+.col-inner{display:flex;align-items:center;gap:6px}
+.col-inner input[type=color]{width:24px;height:24px;border:none;border-radius:4px;cursor:pointer;padding:0}
+.col-inner span{font-size:11px;color:#94a3b8;font-family:monospace}
+.reset-btn{width:100%;padding:8px;background:#f1f5f9;border:1.5px solid #c8d0de;border-radius:8px;font-size:12px;font-weight:700;color:#64748b;cursor:pointer;font-family:inherit;margin-bottom:12px}
+.font-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0 12px}
+.font-btn{padding:8px 10px;border:2px solid #c8d0de;border-radius:8px;background:#fff;font-size:12px;cursor:pointer;text-align:center;color:var(--text);transition:all .15s}
+.font-btn.sel{border-color:var(--accent);background:#f0f9ff}
+.banner-wrap{width:100%;height:64px;border-radius:9px;overflow:hidden;border:1.5px solid #c8d0de;margin-bottom:8px;background:linear-gradient(135deg,#0ea5e9,#6366f1);position:relative}
+.banner-wrap img{width:100%;height:100%;object-fit:cover}
+.banner-clear{position:absolute;top:4px;right:6px;background:rgba(0,0,0,.5);border:none;border-radius:4px;color:#fff;font-size:11px;cursor:pointer;padding:2px 6px}
+.bg-img-wrap{width:100%;height:54px;border-radius:8px;background:#f1f5f9;border:1.5px solid #c8d0de;overflow:hidden;margin-bottom:8px;position:relative}
+.bg-img-wrap img{width:100%;height:100%;object-fit:cover}
+.overlay-row{display:flex;align-items:center;gap:8px;margin-top:6px;margin-bottom:12px}
 .overlay-row label{font-size:11px;font-weight:700;color:#475569;flex-shrink:0}
-.overlay-row input[type=range]{flex:1;accent-color:var(--accent)}
-/* link font size slider */
-.slider-row{display:flex;align-items:center;gap:8px}
-.slider-row input[type=range]{flex:1;accent-color:var(--accent)}
-.slider-val{font-size:12px;font-weight:700;color:var(--accent);min-width:28px;text-align:right}
+.overlay-row input[type=range]{flex:1}
+.section-upload-btn{padding:7px 12px;background:#f1f5f9;border:1px solid #c8d0de;border-radius:7px;font-size:12px;font-weight:700;color:#475569;cursor:pointer;font-family:inherit;margin-bottom:8px;width:100%;text-align:center}
+.section-upload-btn:hover{background:#e2e8f0}
 
 /* analytics */
 .ana-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
@@ -325,7 +328,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
                   </div>
                   <input type="text" class="link-sub-input" placeholder="Subtitle (optional)" value="{{ link.subtitle or '' }}" oninput="schedulePreview()">
                   <div class="style-pills">
-                    <button class="style-pill {% if not link.btn_style or link.btn_style=='filled' or link.btn_style=='pill' %}active{% endif %}" onclick="setSP(this,'filled')">▭ Filled</button>
+                    <button class="style-pill {% if not link.btn_style or link.btn_style=='filled' %}active{% endif %}" onclick="setSP(this,'filled')">▭ Filled</button>
+                    <button class="style-pill {% if link.btn_style=='pill' %}active{% endif %}" onclick="setSP(this,'pill')">⬭ Pill</button>
                     <button class="style-pill {% if link.btn_style=='solid' %}active{% endif %}" onclick="setSP(this,'solid')">□ Line</button>
                   </div>
                   <div class="link-adv-grid" style="margin-top:8px">
@@ -346,9 +350,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
                       </div>
                     </div>
                     <div>
-                      <span class="adv-lbl">Font Size <span class="slider-val">{{ link.font_size or 14 }}px</span></span>
-                      <div class="slider-row">
-                        <input type="range" min="10" max="24" value="{{ link.font_size or 14 }}" class="sz-slider" oninput="onSzSlider(this)">
+                      <span class="adv-lbl">Font Size</span>
+                      <div class="sz-row">
+                        <button class="sz-btn" onclick="adjSz(this,-1)">−</button>
+                        <span class="sz-val">{{ link.font_size or 14 }}</span>
+                        <button class="sz-btn" onclick="adjSz(this,1)">+</button>
                       </div>
                     </div>
                     <div>
@@ -438,50 +444,55 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 
         <div class="section">
           <div class="section-header" onclick="toggleSection(this)">
-            <div class="section-header-left"><span class="section-icon">🎨</span><span class="section-label">Colours</span></div>
+            <div class="section-header-left"><span class="section-icon">🖼</span><span class="section-label">Header Banner</span></div>
             <span class="section-chevron open">▾</span>
           </div>
           <div class="section-body" style="padding-top:12px">
-            <div class="col-grid">
-              <div class="col-card" onclick="document.getElementById('col-bg').click()">
-                <div class="lbl">Background</div>
-                <div class="col-swatch-row">
-                  <div class="col-swatch" id="swatch-bg" style="background:{{ profile.bg_color if profile and profile.bg_color else '#050d1a' }}">
-                    <input type="color" id="col-bg" value="{{ profile.bg_color if profile and profile.bg_color else '#050d1a' }}" oninput="onColour('bg')">
-                  </div>
-                  <span class="col-hex" id="hex-bg">{{ profile.bg_color if profile and profile.bg_color else '#050d1a' }}</span>
-                </div>
+            <div class="banner-wrap" id="banner-wrap">
+              {% if profile and profile.banner_image %}<img src="{{ profile.banner_image }}">{% endif %}
+              <button class="banner-clear" onclick="clearBanner()">✕</button>
+            </div>
+            <button class="section-upload-btn" onclick="document.getElementById('banner-inp').click()">📸 Upload Banner Image</button>
+            <input type="file" id="banner-inp" accept="image/*" style="display:none" onchange="handleBanner(this)">
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header" onclick="toggleSection(this)">
+            <div class="section-header-left"><span class="section-icon">🎨</span><span class="section-label">Theme & Colours</span></div>
+            <span class="section-chevron open">▾</span>
+          </div>
+          <div class="section-body">
+            <div style="font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin:10px 0 6px">Theme</div>
+            <div class="theme-grid">
+              <div class="theme-swatch {% if (profile and profile.theme=='dark') or not profile %}sel{% endif %}" onclick="selectTheme('dark',this)">
+                <div class="sw-preview sw-dark"></div><div class="sw-colors"><div class="sw-dot" style="background:#050d1a"></div><div class="sw-dot" style="background:#0f2040"></div><div class="sw-dot" style="background:#00d4ff"></div><div class="sw-dot" style="background:#6366f1"></div></div><div class="sw-label">Dark</div>
               </div>
-              <div class="col-card" onclick="document.getElementById('col-btn').click()">
-                <div class="lbl">Button</div>
-                <div class="col-swatch-row">
-                  <div class="col-swatch" id="swatch-btn" style="background:{{ profile.btn_color if profile and profile.btn_color else '#0f1f3d' }}">
-                    <input type="color" id="col-btn" value="{{ profile.btn_color if profile and profile.btn_color else '#0f1f3d' }}" oninput="onColour('btn')">
-                  </div>
-                  <span class="col-hex" id="hex-btn">{{ profile.btn_color if profile and profile.btn_color else '#0f1f3d' }}</span>
-                </div>
+              <div class="theme-swatch {% if profile and profile.theme=='light' %}sel{% endif %}" onclick="selectTheme('light',this)">
+                <div class="sw-preview sw-light"></div><div class="sw-colors"><div class="sw-dot" style="background:#f0f4ff"></div><div class="sw-dot" style="background:#e8f0fe"></div><div class="sw-dot" style="background:#0ea5e9"></div><div class="sw-dot" style="background:#bfdbfe"></div></div><div class="sw-label">Light</div>
               </div>
-              <div class="col-card" onclick="document.getElementById('col-text').click()">
-                <div class="lbl">Text</div>
-                <div class="col-swatch-row">
-                  <div class="col-swatch" id="swatch-text" style="background:{{ profile.text_color if profile and profile.text_color else '#e2e8f0' }}">
-                    <input type="color" id="col-text" value="{{ profile.text_color if profile and profile.text_color else '#e2e8f0' }}" oninput="onColour('text')">
-                  </div>
-                  <span class="col-hex" id="hex-text">{{ profile.text_color if profile and profile.text_color else '#e2e8f0' }}</span>
-                </div>
+              <div class="theme-swatch {% if profile and profile.theme=='gradient' %}sel{% endif %}" onclick="selectTheme('gradient',this)">
+                <div class="sw-preview sw-grad"></div><div class="sw-colors"><div class="sw-dot" style="background:#1e1b4b"></div><div class="sw-dot" style="background:#6366f1"></div><div class="sw-dot" style="background:#8b5cf6"></div><div class="sw-dot" style="background:#ec4899"></div></div><div class="sw-label">Gradient</div>
               </div>
-              <div class="col-card" onclick="document.getElementById('col-accent').click()">
-                <div class="lbl">Accent</div>
-                <div class="col-swatch-row">
-                  <div class="col-swatch" id="swatch-accent" style="background:{{ profile.accent_color if profile else '#00d4ff' }}">
-                    <input type="color" id="col-accent" value="{{ profile.accent_color if profile else '#00d4ff' }}" oninput="onColour('accent')">
-                  </div>
-                  <span class="col-hex" id="hex-accent">{{ profile.accent_color if profile else '#00d4ff' }}</span>
-                </div>
+              <div class="theme-swatch {% if profile and profile.theme=='neon' %}sel{% endif %}" onclick="selectTheme('neon',this)">
+                <div class="sw-preview sw-neon"></div><div class="sw-colors"><div class="sw-dot" style="background:#0a0a0a"></div><div class="sw-dot" style="background:#111"></div><div class="sw-dot" style="background:#00ff88"></div><div class="sw-dot" style="background:#00d4ff"></div></div><div class="sw-label">Neon</div>
               </div>
             </div>
-            <input type="hidden" id="accent-val" value="{{ profile.accent_color if profile else '#00d4ff' }}">
             <input type="hidden" id="theme-val" value="{{ profile.theme if profile else 'dark' }}">
+            <div style="font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin:10px 0 4px">Accent Colour</div>
+            <div class="accent-dots">
+              {% for c in ['#00d4ff','#0ea5e9','#6366f1','#8b5cf6','#ec4899','#10b981','#f59e0b','#ef4444','#ff6b35','#ffffff'] %}
+              <div class="acc-dot {% if (profile and profile.accent_color==c) or (not profile and c=='#00d4ff') %}sel{% endif %}" style="background:{{ c }}{% if c=='#ffffff' %};border:2px solid #c8d0de{% endif %}" onclick="selectAccent('{{ c }}',this)" data-val="{{ c }}"></div>
+              {% endfor %}
+            </div>
+            <div class="col-grid">
+              <div class="col-card"><div class="lbl">Background</div><div class="col-inner"><input type="color" id="col-bg" oninput="onColour('bg')"><span id="hex-bg">#050d1a</span></div></div>
+              <div class="col-card"><div class="lbl">Button BG</div><div class="col-inner"><input type="color" id="col-btn" oninput="onColour('btn')"><span id="hex-btn">#0f1f3d</span></div></div>
+              <div class="col-card"><div class="lbl">Text</div><div class="col-inner"><input type="color" id="col-text" oninput="onColour('text')"><span id="hex-text">#e2e8f0</span></div></div>
+              <div class="col-card"><div class="lbl">Accent</div><div class="col-inner"><input type="color" id="col-accent" oninput="onAccentPicker(this)"><span id="hex-accent">#00d4ff</span></div></div>
+            </div>
+            <button class="reset-btn" onclick="resetTheme()">↺ Reset to theme defaults</button>
+            <input type="hidden" id="accent-val" value="{{ profile.accent_color if profile else '#00d4ff' }}">
           </div>
         </div>
 
@@ -490,47 +501,31 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
             <div class="section-header-left"><span class="section-icon">🔤</span><span class="section-label">Font</span></div>
             <span class="section-chevron open">▾</span>
           </div>
-          <div class="section-body" style="padding-top:12px">
+          <div class="section-body">
             {% set cur_font = profile.font_family if profile and profile.font_family else 'DM Sans' %}
-            <select class="font-select" id="font-val" onchange="selectFont(this.value)" style="font-family:'{{ cur_font }}'">
+            <div class="font-grid">
               {% for fval in ['DM Sans','Inter','Poppins','Outfit','Nunito','Raleway','Space Grotesk','Sora'] %}
-              <option value="{{ fval }}" {% if cur_font==fval %}selected{% endif %} style="font-family:'{{ fval }}'">{{ fval }}</option>
+              <button class="font-btn {% if cur_font==fval %}sel{% endif %}" onclick="selectFont('{{ fval }}',this)" style="font-family:'{{ fval }}'">{{ fval }}</button>
               {% endfor %}
-            </select>
-            <div style="font-size:11px;color:#94a3b8;margin-top:4px">Preview updates live as you choose</div>
+            </div>
+            <input type="hidden" id="font-val" value="{{ cur_font }}">
           </div>
         </div>
 
         <div class="section">
           <div class="section-header" onclick="toggleSection(this)">
-            <div class="section-header-left"><span class="section-icon">🖼</span><span class="section-label">Images</span></div>
+            <div class="section-header-left"><span class="section-icon">🌄</span><span class="section-label">Background Image</span></div>
             <span class="section-chevron open">▾</span>
           </div>
           <div class="section-body" style="padding-top:12px">
-            <div class="img-upload-grid">
-              <div class="img-upload-card" onclick="document.getElementById('banner-inp').click()">
-                <div class="img-preview-zone" id="banner-preview-zone">
-                  {% if profile and profile.banner_image %}<img src="{{ profile.banner_image }}">{% else %}<div class="img-placeholder"><span>📸</span>Click to upload</div>{% endif %}
-                </div>
-                <div class="img-card-footer">
-                  <span>Header Banner</span>
-                  <button class="img-clear" onclick="event.stopPropagation();clearBanner()" title="Remove">✕</button>
-                </div>
-                <input type="file" id="banner-inp" accept="image/*" style="display:none" onchange="handleBanner(this)">
-              </div>
-              <div class="img-upload-card" onclick="document.getElementById('bg-inp').click()">
-                <div class="img-preview-zone" id="bg-preview-zone">
-                  {% if profile and profile.bg_image %}<img src="{{ profile.bg_image }}">{% else %}<div class="img-placeholder"><span>🌄</span>Click to upload</div>{% endif %}
-                </div>
-                <div class="img-card-footer">
-                  <span>Background</span>
-                  <button class="img-clear" onclick="event.stopPropagation();clearBgImage()" title="Remove">✕</button>
-                </div>
-                <input type="file" id="bg-inp" accept="image/*" style="display:none" onchange="handleBgImage(this)">
-              </div>
+            <div class="bg-img-wrap" id="bg-wrap">
+              {% if profile and profile.bg_image %}<img src="{{ profile.bg_image }}">{% else %}<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-size:11px">No image</div>{% endif %}
             </div>
+            <button class="section-upload-btn" onclick="document.getElementById('bg-inp').click()">🌄 Upload Background</button>
+            <input type="file" id="bg-inp" accept="image/*" style="display:none" onchange="handleBgImage(this)">
+            <button class="section-upload-btn" onclick="clearBgImage()" style="color:#f87171">Remove Background</button>
             <div class="overlay-row">
-              <label>BG Overlay</label>
+              <label>Overlay</label>
               <input type="range" id="bg-overlay" min="0" max="90" value="60" step="5" oninput="schedulePreview()">
               <span id="overlay-lbl" style="font-size:11px;color:#64748b;min-width:30px">60%</span>
             </div>
@@ -667,16 +662,10 @@ function schedulePreview(){clearTimeout(pvTimer);pvTimer=setTimeout(buildPreview
 
 function buildPreview(){
   const theme=document.getElementById('theme-val').value||'dark';
-  const fontSel=document.getElementById('font-val');
-  const font=fontSel?fontSel.value||fontSel.options[fontSel.selectedIndex].value:'DM Sans';
+  const font=document.getElementById('font-val').value||'DM Sans';
   const td=THEME_DEF[theme];
-  // Read live from colour pickers (fallback to colours object)
-  const bgEl=document.getElementById('col-bg'),btnEl=document.getElementById('col-btn'),textEl=document.getElementById('col-text'),accEl=document.getElementById('col-accent');
-  const bg=(bgEl?bgEl.value:null)||colours.bg||td.bg;
-  const btn=(btnEl?btnEl.value:null)||colours.btn||td.btn;
-  const text=(textEl?textEl.value:null)||colours.text||td.text;
-  const accent=(accEl?accEl.value:null)||colours.accent||td.accent;
-  const sub=td.sub;
+  const bg=colours.bg||td.bg, accent=colours.accent||td.accent;
+  const btn=colours.btn||td.btn, text=colours.text||td.text, sub=td.sub;
   const name=document.getElementById('display-name').value.trim()||'Your Name';
   const bio=document.getElementById('bio').value.trim();
   const followers=document.getElementById('follower-count').value.trim();
@@ -711,7 +700,7 @@ function buildPreview(){
     const lStyle=(item.querySelector('.style-pill.active')||{getAttribute:()=>"'filled'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'filled';
     const lAlign=(item.querySelector('.align-pill.active')||{getAttribute:()=>"'center'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'center';
     const lWeight=(item.querySelector('.wt-pill.active')||{getAttribute:()=>"'semibold'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'semibold';
-    const lSize=parseInt((item.querySelector('.sz-slider')||{value:'14'}).value)||14;
+    const lSize=parseInt((item.querySelector('.sz-val')||{textContent:'14'}).textContent)||14;
     const sub2=(item.querySelector('.link-sub-input')||{value:''}).value.trim();
     const thumbImg=item.querySelector('.thumb-preview img');
     const thumbSrc=thumbImg?thumbImg.src:'';
@@ -765,7 +754,7 @@ function toggleSection(hdr){
 function setSP(btn,v){btn.closest('.style-pills').querySelectorAll('.style-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');schedulePreview();}
 function setAP(btn,v){btn.closest('.align-pills').querySelectorAll('.align-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');schedulePreview();}
 function setWP(btn,v){btn.closest('.wt-pills').querySelectorAll('.wt-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');schedulePreview();}
-function onSzSlider(inp){const lbl=inp.closest('.link-adv-grid').querySelector('.slider-val');if(lbl)lbl.textContent=inp.value+'px';schedulePreview();}
+function adjSz(btn,d){const el=btn.closest('.sz-row').querySelector('.sz-val');el.textContent=Math.min(24,Math.max(10,parseInt(el.textContent)||14)+d);schedulePreview();}
 
 // ── Icon picker ──
 let activeIconBtn=null;
@@ -777,28 +766,34 @@ function openIconPicker(btn){
 document.getElementById('icon-modal').onclick=e=>{if(e.target===document.getElementById('icon-modal'))e.target.classList.remove('open');};
 
 // ── Colour controls ──
+function syncPickers(){
+  const map={bg:'col-bg',btn:'col-btn',text:'col-text'};
+  Object.entries(map).forEach(([k,id])=>{const el=document.getElementById(id),hex=document.getElementById('hex-'+k),v=colours[k];if(el&&v&&v.startsWith('#')){el.value=v.slice(0,7);if(hex)hex.textContent=v.slice(0,7);}});
+  const ae=document.getElementById('col-accent');if(ae&&colours.accent.startsWith('#'))ae.value=colours.accent.slice(0,7);
+  const ah=document.getElementById('hex-accent');if(ah)ah.textContent=colours.accent.slice(0,7);
+}
 function onColour(k){
-  const el=document.getElementById('col-'+k),v=el.value;
-  colours[k]=v;
-  const sw=document.getElementById('swatch-'+k);if(sw)sw.style.background=v;
-  const hx=document.getElementById('hex-'+k);if(hx)hx.textContent=v;
-  if(k==='accent'){document.getElementById('accent-val').value=v;}
-  schedulePreview();
+  const el=document.getElementById('col-'+k);colours[k]=el.value;document.getElementById('hex-'+k).textContent=el.value;schedulePreview();
 }
-function selectFont(val){
-  const sel=document.getElementById('font-val');
-  sel.style.fontFamily="'"+val+"'";
-  schedulePreview();
+function onAccentPicker(inp){colours.accent=inp.value;document.getElementById('hex-accent').textContent=inp.value;document.querySelectorAll('.acc-dot').forEach(d=>d.classList.remove('sel'));schedulePreview();}
+function selectTheme(val,el){
+  document.querySelectorAll('.theme-swatch').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');
+  document.getElementById('theme-val').value=val;
+  const td=THEME_DEF[val];colours={bg:td.bg,accent:td.accent,btn:td.btn,text:td.text};
+  syncPickers();schedulePreview();
 }
+function selectAccent(val,el){document.querySelectorAll('.acc-dot').forEach(d=>d.classList.remove('sel'));el.classList.add('sel');colours.accent=val;document.getElementById('accent-val').value=val;syncPickers();schedulePreview();}
+function resetTheme(){const td=THEME_DEF[document.getElementById('theme-val').value||'dark'];colours={bg:td.bg,accent:td.accent,btn:td.btn,text:td.text};syncPickers();schedulePreview();}
+function selectFont(val,el){document.querySelectorAll('.font-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');document.getElementById('font-val').value=val;schedulePreview();}
 function setShape(el,val){document.querySelectorAll('.shape-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');document.getElementById('soc-shape-val').value=val;schedulePreview();}
 
 // ── Image uploads ──
 function handleAvatar(input){const f=input.files[0];if(!f||f.size>2*1024*1024){alert('Max 2MB');return;}const r=new FileReader();r.onload=async e=>{previewAvatarSrc=e.target.result;document.getElementById('avatar-preview').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;schedulePreview();try{const fd=new FormData();fd.append('file',f);await fetch('/linkhub/upload-avatar',{method:'POST',body:fd});}catch(err){}};r.readAsDataURL(f);}
 function handleThumb(input,pid){const f=input.files[0];if(!f||f.size>2*1024*1024){alert('Max 2MB');return;}const r=new FileReader();r.onload=e=>{document.getElementById(pid).innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;schedulePreview();};r.readAsDataURL(f);}
-function handleBanner(input){const f=input.files[0];if(!f||f.size>3*1024*1024){alert('Max 3MB');return;}const r=new FileReader();r.onload=e=>{bannerData=e.target.result;document.getElementById('banner-preview-zone').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;schedulePreview();};r.readAsDataURL(f);}
-function clearBanner(){bannerData='';document.getElementById('banner-preview-zone').innerHTML='<div class="img-placeholder"><span>📸</span>Click to upload</div>';schedulePreview();}
-function handleBgImage(input){const f=input.files[0];if(!f||f.size>3*1024*1024){alert('Max 3MB');return;}const r=new FileReader();r.onload=e=>{bgImageData=e.target.result;document.getElementById('bg-preview-zone').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;schedulePreview();};r.readAsDataURL(f);}
-function clearBgImage(){bgImageData='';document.getElementById('bg-preview-zone').innerHTML='<div class="img-placeholder"><span>🌄</span>Click to upload</div>';schedulePreview();}
+function handleBanner(input){const f=input.files[0];if(!f||f.size>3*1024*1024){alert('Max 3MB');return;}const r=new FileReader();r.onload=e=>{bannerData=e.target.result;const w=document.getElementById('banner-wrap');w.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover"><button class="banner-clear" onclick="clearBanner()">✕</button>`;schedulePreview();};r.readAsDataURL(f);}
+function clearBanner(){bannerData='';document.getElementById('banner-wrap').innerHTML='<button class="banner-clear" onclick="clearBanner()">✕</button>';schedulePreview();}
+function handleBgImage(input){const f=input.files[0];if(!f||f.size>3*1024*1024){alert('Max 3MB');return;}const r=new FileReader();r.onload=e=>{bgImageData=e.target.result;document.getElementById('bg-wrap').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;schedulePreview();};r.readAsDataURL(f);}
+function clearBgImage(){bgImageData='';document.getElementById('bg-wrap').innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-size:11px">No image</div>';schedulePreview();}
 
 // ── Social ──
 function addSocial(){
@@ -818,11 +813,11 @@ function addLink(){
   <div class="link-body">
     <div class="link-inputs"><input type="text" placeholder="Title" class="link-title" oninput="schedulePreview()"><input type="url" placeholder="https://..." class="link-url"></div>
     <input type="text" class="link-sub-input" placeholder="Subtitle (optional)" oninput="schedulePreview()">
-    <div class="style-pills"><button class="style-pill active" onclick="setSP(this,'filled')">▭ Filled</button><button class="style-pill" onclick="setSP(this,'solid')">□ Line</button></div>
+    <div class="style-pills"><button class="style-pill active" onclick="setSP(this,'filled')">▭ Filled</button><button class="style-pill" onclick="setSP(this,'pill')">⬭ Pill</button><button class="style-pill" onclick="setSP(this,'solid')">□ Line</button></div>
     <div class="link-adv-grid" style="margin-top:8px">
       <div><span class="adv-lbl">Align</span><div class="align-pills"><button class="align-pill active" onclick="setAP(this,'center')">≡</button><button class="align-pill" onclick="setAP(this,'left')">☰</button><button class="align-pill" onclick="setAP(this,'right')">≡</button></div></div>
       <div><span class="adv-lbl">Weight</span><div class="wt-pills"><button class="wt-pill active" onclick="setWP(this,'semibold')" style="font-weight:600">Semi</button><button class="wt-pill" onclick="setWP(this,'bold')" style="font-weight:700">Bold</button><button class="wt-pill" onclick="setWP(this,'black')" style="font-weight:900">Black</button></div></div>
-      <div><span class="adv-lbl">Font Size <span class="slider-val">14px</span></span><div class="slider-row"><input type="range" min="10" max="24" value="14" class="sz-slider" oninput="onSzSlider(this)"></div></div>
+      <div><span class="adv-lbl">Font Size</span><div class="sz-row"><button class="sz-btn" onclick="adjSz(this,-1)">−</button><span class="sz-val">14</span><button class="sz-btn" onclick="adjSz(this,1)">+</button></div></div>
       <div><span class="adv-lbl">Thumbnail</span><div class="thumb-wrap"><div class="thumb-preview" id="tpv-n${n}">🖼</div><button class="avatar-change-btn" onclick="document.getElementById('tinp-n${n}').click()" style="font-size:11px;margin-bottom:0">Upload</button><input type="file" id="tinp-n${n}" accept="image/*" style="display:none" onchange="handleThumb(this,'tpv-n${n}')"></div></div>
     </div>
   </div>
@@ -853,9 +848,9 @@ async function saveProfile(btn){
     const lStyle=(item.querySelector('.style-pill.active')||{getAttribute:()=>"'filled'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'filled';
     const lAlign=(item.querySelector('.align-pill.active')||{getAttribute:()=>"'center'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'center';
     const lWeight=(item.querySelector('.wt-pill.active')||{getAttribute:()=>"'semibold'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'semibold';
-    const szEl=item.querySelector('.sz-slider');
+    const szEl=item.querySelector('.sz-val');
     const thumbImg=item.querySelector('.thumb-preview img');
-    links.push({id:item.dataset.id==='new'?null:parseInt(item.dataset.id),title,url,icon:item.querySelector('.link-icon-btn').textContent,btn_style:lStyle,text_align:lAlign,font_weight:lWeight,font_size:szEl?parseInt(szEl.value)||14:14,subtitle:(item.querySelector('.link-sub-input')||{value:''}).value.trim(),thumbnail:thumbImg?thumbImg.src:'',is_active:item.querySelector('.link-active').checked,sort_order:idx,click_count:0});
+    links.push({id:item.dataset.id==='new'?null:parseInt(item.dataset.id),title,url,icon:item.querySelector('.link-icon-btn').textContent,btn_style:lStyle,text_align:lAlign,font_weight:lWeight,font_size:szEl?parseInt(szEl.textContent)||14:14,subtitle:(item.querySelector('.link-sub-input')||{value:''}).value.trim(),thumbnail:thumbImg?thumbImg.src:'',is_active:item.querySelector('.link-active').checked,sort_order:idx,click_count:0});
   });
   const payload={display_name:document.getElementById('display-name').value.trim(),bio:document.getElementById('bio').value.trim(),follower_count:document.getElementById('follower-count').value.trim(),theme:document.getElementById('theme-val').value,font_family:document.getElementById('font-val').value,accent_color:colours.accent,bg_color:colours.bg,btn_color:colours.btn,text_color:colours.text,is_published:document.getElementById('is-published').checked,soc_icon_shape:document.getElementById('soc-shape-val').value,social_links:collectSocial(),banner_image:bannerData||'',clear_banner:!bannerData,bg_image:bgImageData||'',clear_bg_image:!bgImageData,links};
   try{
@@ -867,7 +862,7 @@ async function saveProfile(btn){
 }
 function copyUrl(){navigator.clipboard.writeText(window.location.origin+'/u/{{ current_user.username }}');event.target.textContent='✅';setTimeout(()=>event.target.textContent='Copy',1500);}
 
-document.addEventListener('DOMContentLoaded',()=>{buildPreview();});
+document.addEventListener('DOMContentLoaded',()=>{syncPickers();buildPreview();});
 </script>
 {% include "_tawk.html" %}
 </body>
