@@ -38,11 +38,11 @@
   bottom: 92px;
   right: 24px;
   width: 360px;
-  height: 500px;
-  background: #0a1628;
-  border: 1px solid rgba(0,200,232,0.2);
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  height: 520px;
+  background: #0b1a2e;
+  border: 1px solid rgba(0,200,232,0.18);
+  border-radius: 20px;
+  box-shadow: 0 24px 70px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,200,232,0.05);
   z-index: 9998;
   display: none;
   flex-direction: column;
@@ -125,7 +125,11 @@
   color: #c8e8ff;
   align-self: flex-start;
   border-bottom-left-radius: 4px;
+  white-space: pre-line;
+  line-height: 1.6;
 }
+.sap-msg-bot p { margin: 0 0 6px 0; }
+.sap-msg-bot p:last-child { margin-bottom: 0; }
 .sap-msg-user {
   background: linear-gradient(135deg, #00c8e8, #0090b8);
   color: #fff;
@@ -296,7 +300,15 @@ function sapAddMsg(type, text) {
   var msgs = document.getElementById('sap-messages');
   var div = document.createElement('div');
   div.className = 'sap-msg sap-msg-' + type;
-  div.textContent = text;
+  if (type === 'bot') {
+    // Render paragraphs with proper spacing
+    var paras = text.trim().split(/\n\n+/);
+    div.innerHTML = paras.map(function(p) {
+      return '<p>' + p.replace(/\n/g, '<br>') + '</p>';
+    }).join('');
+  } else {
+    div.textContent = text;
+  }
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
   return div;

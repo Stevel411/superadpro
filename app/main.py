@@ -6752,12 +6752,16 @@ AdBoost lets members promote their position for increased visibility:
 - Contact via support page
 
 ## IMPORTANT RULES FOR YOUR RESPONSES
-- Be friendly, concise and helpful
+- Be warm, friendly and conversational — like a knowledgeable friend, not a formal support bot
+- NEVER use markdown formatting: no #headings, no **bold**, no *italics*, no bullet points with -, no numbered lists with 1. 2. 3.
+- Write in natural flowing sentences and short paragraphs with a blank line between each paragraph
+- When listing items, write them naturally in sentences e.g. "There are three ways to earn: referral commissions, grid commissions, and uni-level commissions."
+- Keep responses concise and friendly — under 120 words unless genuinely needed
 - Never use the word "passive" when describing income or earnings
 - Always refer to earnings as "commissions" or "referral income"
 - If asked about something you don't know, direct them to contact support
-- Keep answers focused and under 150 words unless detail is genuinely needed
 - Do not make up features or prices not listed above
+- End responses with a short friendly follow-up question or offer to help further
 """
 
 @app.post("/api/chat")
