@@ -1,251 +1,244 @@
 <!-- SuperAdPro AI Chat Widget -->
 <style>
+/* ── LAUNCHER BUTTON ── */
 #sap-chat-btn {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #00c8e8, #0090b8);
+  bottom: 20px;
+  right: 20px;
+  width: 76px;
+  height: 76px;
   border: none;
+  background: none;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0,200,232,0.4);
   z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  padding: 0;
+  filter: drop-shadow(0 6px 18px rgba(0,200,232,0.45));
+  transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), filter 0.2s;
 }
 #sap-chat-btn:hover {
-  transform: scale(1.08);
-  box-shadow: 0 6px 28px rgba(0,200,232,0.55);
+  transform: scale(1.1) translateY(-2px);
+  filter: drop-shadow(0 10px 24px rgba(0,200,232,0.6));
 }
-#sap-chat-btn svg { width: 26px; height: 26px; }
+#sap-chat-btn.open-state { transform: scale(0.92); }
+#sap-chat-btn svg.sap-robot { width: 76px; height: 76px; }
 #sap-chat-badge {
   position: absolute;
-  top: -2px;
-  right: -2px;
+  bottom: 6px;
+  right: 4px;
   width: 14px;
   height: 14px;
   background: #22c55e;
   border-radius: 50%;
-  border: 2px solid #050d1a;
+  border: 2.5px solid #050d1a;
   display: none;
+  animation: sapBadgePop 0.3s cubic-bezier(.34,1.56,.64,1);
 }
+@keyframes sapBadgePop { from{transform:scale(0)} to{transform:scale(1)} }
+#sap-chat-label {
+  position: absolute;
+  bottom: 82px;
+  right: 0;
+  background: #0b1a2e;
+  border: 1px solid rgba(0,200,232,0.3);
+  color: #00c8e8;
+  font-size: 12px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  display: none;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  pointer-events: none;
+}
+#sap-chat-label::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  right: 24px;
+  border: 6px solid transparent;
+  border-top-color: rgba(0,200,232,0.3);
+  border-bottom: none;
+}
+
+/* ── CHAT WINDOW ── */
 #sap-chat-window {
   position: fixed;
-  bottom: 92px;
-  right: 24px;
+  bottom: 108px;
+  right: 20px;
   width: 360px;
-  height: 520px;
+  height: 530px;
   background: #0b1a2e;
   border: 1px solid rgba(0,200,232,0.18);
   border-radius: 20px;
-  box-shadow: 0 24px 70px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,200,232,0.05);
+  box-shadow: 0 24px 70px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,200,232,0.04);
   z-index: 9998;
   display: none;
   flex-direction: column;
   overflow: hidden;
   font-family: 'Segoe UI', system-ui, sans-serif;
+  transform-origin: bottom right;
 }
-#sap-chat-window.open { display: flex; }
+#sap-chat-window.open {
+  display: flex;
+  animation: sapWindowIn 0.28s cubic-bezier(.34,1.4,.64,1);
+}
+@keyframes sapWindowIn {
+  from { opacity:0; transform: scale(0.88) translateY(12px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+
+/* ── HEADER ── */
 .sap-chat-header {
-  background: linear-gradient(135deg, #00c8e8 0%, #0088b0 100%);
-  padding: 14px 16px;
+  background: linear-gradient(135deg, #00c8e8 0%, #0077a8 100%);
+  padding: 12px 14px 12px 12px;
   display: flex;
   align-items: center;
   gap: 10px;
-}
-.sap-chat-header-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
   flex-shrink: 0;
 }
-.sap-chat-header-info { flex: 1; }
-.sap-chat-header-name {
-  font-size: 14px;
-  font-weight: 700;
-  color: #fff;
-  line-height: 1.2;
-}
-.sap-chat-header-status {
-  font-size: 11px;
-  color: rgba(255,255,255,0.8);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.sap-status-dot {
-  width: 7px;
-  height: 7px;
-  background: #22c55e;
-  border-radius: 50%;
-  animation: sapPulse 2s infinite;
-}
-@keyframes sapPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.sap-header-robot { width: 44px; height: 44px; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3)); }
+.sap-chat-header-info { flex: 1; min-width: 0; }
+.sap-chat-header-brand { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.7); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1px; }
+.sap-chat-header-name { font-size: 14px; font-weight: 700; color: #fff; line-height: 1.2; }
+.sap-chat-header-status { font-size: 11px; color: rgba(255,255,255,0.85); display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+.sap-status-dot { width: 7px; height: 7px; background: #4ade80; border-radius: 50%; animation: sapPulse 2s infinite; flex-shrink: 0; }
+@keyframes sapPulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
 .sap-chat-close {
-  background: none;
-  border: none;
-  color: rgba(255,255,255,0.8);
-  cursor: pointer;
-  padding: 4px;
-  font-size: 18px;
-  line-height: 1;
+  background: rgba(255,255,255,0.15); border: none; color: #fff; cursor: pointer;
+  width: 28px; height: 28px; border-radius: 8px; font-size: 14px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.15s;
 }
-.sap-chat-close:hover { color: #fff; }
+.sap-chat-close:hover { background: rgba(255,255,255,0.28); }
+
+/* ── MESSAGES ── */
 .sap-chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0,200,232,0.2) transparent;
+  flex: 1; overflow-y: auto; padding: 14px 14px 8px;
+  display: flex; flex-direction: column; gap: 10px;
+  scrollbar-width: thin; scrollbar-color: rgba(0,200,232,0.15) transparent;
 }
-.sap-msg {
-  max-width: 85%;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-size: 13.5px;
-  line-height: 1.5;
-  animation: sapFadeIn 0.2s ease;
-}
-@keyframes sapFadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.sap-msg-row { display: flex; align-items: flex-end; gap: 7px; animation: sapFadeIn 0.22s ease; }
+.sap-msg-row.user { justify-content: flex-end; }
+@keyframes sapFadeIn { from{opacity:0;transform:translateY(7px)} to{opacity:1;transform:translateY(0)} }
+.sap-msg-avatar { width: 26px; height: 26px; flex-shrink: 0; align-self: flex-end; margin-bottom: 2px; }
+.sap-msg { max-width: 80%; padding: 9px 13px; border-radius: 14px; font-size: 13.5px; line-height: 1.6; }
 .sap-msg-bot {
-  background: rgba(0,200,232,0.08);
-  border: 1px solid rgba(0,200,232,0.15);
-  color: #c8e8ff;
-  align-self: flex-start;
-  border-bottom-left-radius: 4px;
-  white-space: pre-line;
-  line-height: 1.6;
+  background: rgba(0,200,232,0.08); border: 1px solid rgba(0,200,232,0.15);
+  color: #c8e8ff; border-bottom-left-radius: 4px;
 }
-.sap-msg-bot p { margin: 0 0 6px 0; }
+.sap-msg-bot p { margin: 0 0 7px 0; }
 .sap-msg-bot p:last-child { margin-bottom: 0; }
-.sap-msg-user {
-  background: linear-gradient(135deg, #00c8e8, #0090b8);
-  color: #fff;
-  align-self: flex-end;
-  border-bottom-right-radius: 4px;
-}
+.sap-msg-user { background: linear-gradient(135deg, #00b8d8, #0080a8); color: #fff; border-bottom-right-radius: 4px; }
+
+/* Typing */
+.sap-typing-row { display: flex; align-items: flex-end; gap: 7px; animation: sapFadeIn 0.2s ease; }
 .sap-typing {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  padding: 10px 14px;
-  background: rgba(0,200,232,0.08);
-  border: 1px solid rgba(0,200,232,0.15);
-  border-radius: 12px;
-  border-bottom-left-radius: 4px;
-  align-self: flex-start;
+  display: flex; gap: 5px; align-items: center; padding: 11px 14px;
+  background: rgba(0,200,232,0.08); border: 1px solid rgba(0,200,232,0.15);
+  border-radius: 14px; border-bottom-left-radius: 4px;
 }
-.sap-typing span {
-  width: 7px;
-  height: 7px;
-  background: #00c8e8;
-  border-radius: 50%;
-  animation: sapBounce 1.2s infinite;
-}
-.sap-typing span:nth-child(2) { animation-delay: 0.2s; }
-.sap-typing span:nth-child(3) { animation-delay: 0.4s; }
+.sap-typing span { width: 7px; height: 7px; background: #00c8e8; border-radius: 50%; animation: sapBounce 1.2s infinite; }
+.sap-typing span:nth-child(2) { animation-delay: 0.18s; }
+.sap-typing span:nth-child(3) { animation-delay: 0.36s; }
 @keyframes sapBounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
-.sap-chat-suggestions {
-  padding: 0 16px 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
+
+/* Suggestions */
+.sap-chat-suggestions { padding: 0 14px 10px; display: flex; flex-wrap: wrap; gap: 6px; flex-shrink: 0; }
 .sap-suggestion {
-  background: rgba(0,200,232,0.08);
-  border: 1px solid rgba(0,200,232,0.25);
-  color: #00c8e8;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
+  background: rgba(0,200,232,0.07); border: 1px solid rgba(0,200,232,0.22);
+  color: #00c8e8; padding: 5px 12px; border-radius: 20px; font-size: 11.5px;
+  cursor: pointer; transition: all 0.18s; white-space: nowrap; font-family: inherit;
 }
-.sap-suggestion:hover {
-  background: rgba(0,200,232,0.18);
-  border-color: rgba(0,200,232,0.5);
-}
+.sap-suggestion:hover { background: rgba(0,200,232,0.16); border-color: rgba(0,200,232,0.45); }
+
+/* Input */
 .sap-chat-input-area {
-  padding: 12px 16px;
-  border-top: 1px solid rgba(0,200,232,0.1);
-  display: flex;
-  gap: 8px;
-  align-items: flex-end;
+  padding: 10px 14px 12px; border-top: 1px solid rgba(0,200,232,0.1);
+  display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0;
 }
 #sap-chat-input {
-  flex: 1;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(0,200,232,0.2);
-  border-radius: 10px;
-  padding: 9px 12px;
-  color: #e2eaf8;
-  font-size: 13.5px;
-  resize: none;
-  outline: none;
-  min-height: 40px;
-  max-height: 100px;
-  line-height: 1.4;
-  font-family: inherit;
-  transition: border-color 0.2s;
+  flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,200,232,0.18);
+  border-radius: 12px; padding: 9px 12px; color: #e2eaf8; font-size: 13.5px;
+  resize: none; outline: none; min-height: 40px; max-height: 100px;
+  line-height: 1.4; font-family: inherit; transition: border-color 0.2s;
 }
-#sap-chat-input:focus { border-color: rgba(0,200,232,0.5); }
-#sap-chat-input::placeholder { color: rgba(200,220,255,0.35); }
+#sap-chat-input:focus { border-color: rgba(0,200,232,0.45); }
+#sap-chat-input::placeholder { color: rgba(200,220,255,0.3); }
 #sap-chat-send {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #00c8e8, #0090b8);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: opacity 0.2s, transform 0.2s;
+  width: 40px; height: 40px; border-radius: 12px;
+  background: linear-gradient(135deg, #00c8e8, #0080a8);
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: opacity 0.18s, transform 0.18s;
 }
-#sap-chat-send:hover { opacity: 0.85; transform: scale(1.05); }
-#sap-chat-send:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-.sap-chat-footer {
-  text-align: center;
-  font-size: 10px;
-  color: rgba(200,220,255,0.25);
-  padding: 0 16px 10px;
-}
+#sap-chat-send:hover { opacity: 0.82; transform: scale(1.06); }
+#sap-chat-send:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+.sap-chat-footer { text-align: center; font-size: 10px; color: rgba(200,220,255,0.2); padding: 0 14px 9px; flex-shrink: 0; }
+
 @media (max-width: 420px) {
-  #sap-chat-window { width: calc(100vw - 24px); right: 12px; bottom: 80px; }
-  #sap-chat-btn { right: 12px; bottom: 12px; }
+  #sap-chat-window { width: calc(100vw - 20px); right: 10px; bottom: 104px; }
+  #sap-chat-btn { right: 10px; bottom: 10px; }
 }
 </style>
 
-<!-- Chat Button -->
+<!-- LAUNCHER ROBOT BUTTON -->
 <button id="sap-chat-btn" onclick="sapToggleChat()" title="Chat with SuperAdPro AI">
   <div id="sap-chat-badge"></div>
-  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+  <div id="sap-chat-label">Ask me anything! 💬</div>
+  <svg class="sap-robot" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="40" cy="44" r="34" fill="url(#sapBgGrad)" opacity="0.95"/>
+    <rect x="22" y="44" width="36" height="22" rx="8" fill="url(#sapBodyGrad)"/>
+    <rect x="20" y="18" width="40" height="30" rx="12" fill="url(#sapHeadGrad)"/>
+    <line x1="40" y1="18" x2="40" y2="10" stroke="#00c8e8" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="40" cy="8" r="4" fill="#00c8e8">
+      <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <rect x="26" y="26" width="28" height="12" rx="6" fill="#0a1628"/>
+    <circle cx="34" cy="32" r="4" fill="#00c8e8" opacity="0.9"/>
+    <circle cx="46" cy="32" r="4" fill="#00c8e8" opacity="0.9"/>
+    <circle cx="35" cy="31" r="1.5" fill="white" opacity="0.7"/>
+    <circle cx="47" cy="31" r="1.5" fill="white" opacity="0.7"/>
+    <path d="M32 41 Q40 47 48 41" stroke="#00c8e8" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <rect x="28" y="49" width="24" height="12" rx="5" fill="rgba(0,200,232,0.12)" stroke="rgba(0,200,232,0.3)" stroke-width="1"/>
+    <text x="40" y="58" text-anchor="middle" font-family="'Segoe UI',sans-serif" font-size="6.5" font-weight="800" fill="#00c8e8" letter-spacing="0.5">SAP AI</text>
+    <rect x="10" y="46" width="12" height="8" rx="4" fill="url(#sapBodyGrad)"/>
+    <rect x="58" y="46" width="12" height="8" rx="4" fill="url(#sapBodyGrad)"/>
+    <ellipse cx="70" cy="44" rx="5" ry="4" fill="url(#sapBodyGrad)" transform="rotate(-20,70,44)"/>
+    <defs>
+      <radialGradient id="sapBgGrad" cx="50%" cy="50%">
+        <stop offset="0%" stop-color="#0e2040"/>
+        <stop offset="100%" stop-color="#050d1a"/>
+      </radialGradient>
+      <linearGradient id="sapHeadGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#1a7fa8"/>
+        <stop offset="100%" stop-color="#0e5878"/>
+      </linearGradient>
+      <linearGradient id="sapBodyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#1568a0"/>
+        <stop offset="100%" stop-color="#0d4070"/>
+      </linearGradient>
+    </defs>
   </svg>
 </button>
 
-<!-- Chat Window -->
+<!-- CHAT WINDOW -->
 <div id="sap-chat-window">
   <div class="sap-chat-header">
-    <div class="sap-chat-header-avatar">▶</div>
+    <svg class="sap-header-robot" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="22" cy="24" r="20" fill="rgba(255,255,255,0.15)"/>
+      <rect x="10" y="24" width="24" height="14" rx="5" fill="rgba(255,255,255,0.2)"/>
+      <rect x="9" y="10" width="26" height="18" rx="7" fill="rgba(255,255,255,0.25)"/>
+      <line x1="22" y1="10" x2="22" y2="5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="22" cy="4" r="2.5" fill="white" opacity="0.9"/>
+      <rect x="13" y="14" width="18" height="8" rx="4" fill="#0a1628"/>
+      <circle cx="18" cy="18" r="2.5" fill="#00c8e8"/>
+      <circle cx="26" cy="18" r="2.5" fill="#00c8e8"/>
+      <path d="M17 24 Q22 28 27 24" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.8"/>
+    </svg>
     <div class="sap-chat-header-info">
-      <div class="sap-chat-header-name">SuperAdPro Assistant</div>
+      <div class="sap-chat-header-brand">SuperAdPro</div>
+      <div class="sap-chat-header-name">AI Assistant</div>
       <div class="sap-chat-header-status">
-        <span class="sap-status-dot"></span> Online — Ask me anything
+        <span class="sap-status-dot"></span> Online — Ready to help
       </div>
     </div>
     <button class="sap-chat-close" onclick="sapToggleChat()">✕</button>
@@ -255,13 +248,14 @@
 
   <div class="sap-chat-suggestions" id="sap-suggestions">
     <button class="sap-suggestion" onclick="sapSuggest('What is SuperAdPro?')">What is SuperAdPro?</button>
-    <button class="sap-suggestion" onclick="sapSuggest('How do I get started?')">How do I get started?</button>
-    <button class="sap-suggestion" onclick="sapSuggest('How do commissions work?')">How do commissions work?</button>
-    <button class="sap-suggestion" onclick="sapSuggest('What tools are included?')">What tools are included?</button>
+    <button class="sap-suggestion" onclick="sapSuggest('How do I get started?')">Getting started</button>
+    <button class="sap-suggestion" onclick="sapSuggest('How do commissions work?')">Commissions</button>
+    <button class="sap-suggestion" onclick="sapSuggest('What tools are included?')">Tools included</button>
   </div>
 
   <div class="sap-chat-input-area">
-    <textarea id="sap-chat-input" placeholder="Ask me anything about SuperAdPro..." rows="1" onkeydown="sapKeyDown(event)" oninput="sapAutoResize(this)"></textarea>
+    <textarea id="sap-chat-input" placeholder="Ask me anything..." rows="1"
+      onkeydown="sapKeyDown(event)" oninput="sapAutoResize(this)"></textarea>
     <button id="sap-chat-send" onclick="sapSend()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -277,50 +271,60 @@ var sapOpen = false;
 var sapHistory = [];
 var sapWelcomed = false;
 
+var SAP_BOT_AVATAR = '<svg class="sap-msg-avatar" viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg"><circle cx="13" cy="14" r="12" fill="#0e2040"/><rect x="5" y="14" width="16" height="8" rx="3" fill="#1568a0"/><rect x="4" y="6" width="18" height="11" rx="5" fill="#1a7fa8"/><line x1="13" y1="6" x2="13" y2="2" stroke="#00c8e8" stroke-width="1.5" stroke-linecap="round"/><circle cx="13" cy="1.5" r="1.5" fill="#00c8e8"/><rect x="7" y="9" width="12" height="5" rx="2.5" fill="#0a1628"/><circle cx="10" cy="11.5" r="1.6" fill="#00c8e8"/><circle cx="16" cy="11.5" r="1.6" fill="#00c8e8"/></svg>';
+
 function sapToggleChat() {
   sapOpen = !sapOpen;
   var win = document.getElementById('sap-chat-window');
+  var btn = document.getElementById('sap-chat-btn');
   var badge = document.getElementById('sap-chat-badge');
+  var label = document.getElementById('sap-chat-label');
   if (sapOpen) {
     win.classList.add('open');
+    btn.classList.add('open-state');
     badge.style.display = 'none';
+    label.style.display = 'none';
     if (!sapWelcomed) {
       sapWelcomed = true;
       setTimeout(function() {
-        sapAddMsg('bot', "👋 Hi! I'm the SuperAdPro AI assistant. I can answer questions about our platform, membership packages, tools, commissions and more. How can I help you today?");
+        sapAddMsg('bot', "👋 Hi there! I'm the SuperAdPro AI assistant. I can help with questions about our platform, memberships, commissions, tools and more. What would you like to know?");
       }, 300);
     }
-    setTimeout(function() { document.getElementById('sap-chat-input').focus(); }, 400);
+    setTimeout(function() { document.getElementById('sap-chat-input').focus(); }, 380);
   } else {
     win.classList.remove('open');
+    btn.classList.remove('open-state');
   }
 }
 
 function sapAddMsg(type, text) {
   var msgs = document.getElementById('sap-messages');
-  var div = document.createElement('div');
-  div.className = 'sap-msg sap-msg-' + type;
+  var row = document.createElement('div');
+  row.className = 'sap-msg-row' + (type === 'user' ? ' user' : '');
+  var bubble = document.createElement('div');
+  bubble.className = 'sap-msg sap-msg-' + type;
   if (type === 'bot') {
-    // Render paragraphs with proper spacing
     var paras = text.trim().split(/\n\n+/);
-    div.innerHTML = paras.map(function(p) {
+    bubble.innerHTML = paras.map(function(p) {
       return '<p>' + p.replace(/\n/g, '<br>') + '</p>';
     }).join('');
+    row.innerHTML = SAP_BOT_AVATAR;
+    row.appendChild(bubble);
   } else {
-    div.textContent = text;
+    bubble.textContent = text;
+    row.appendChild(bubble);
   }
-  msgs.appendChild(div);
+  msgs.appendChild(row);
   msgs.scrollTop = msgs.scrollHeight;
-  return div;
 }
 
 function sapShowTyping() {
   var msgs = document.getElementById('sap-messages');
-  var div = document.createElement('div');
-  div.className = 'sap-typing';
-  div.id = 'sap-typing-indicator';
-  div.innerHTML = '<span></span><span></span><span></span>';
-  msgs.appendChild(div);
+  var row = document.createElement('div');
+  row.className = 'sap-typing-row';
+  row.id = 'sap-typing-indicator';
+  row.innerHTML = SAP_BOT_AVATAR + '<div class="sap-typing"><span></span><span></span><span></span></div>';
+  msgs.appendChild(row);
   msgs.scrollTop = msgs.scrollHeight;
 }
 
@@ -339,10 +343,7 @@ function sapSuggest(text) {
 }
 
 function sapKeyDown(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sapSend();
-  }
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sapSend(); }
 }
 
 function sapAutoResize(el) {
@@ -354,17 +355,14 @@ async function sapSend() {
   var input = document.getElementById('sap-chat-input');
   var text = input.value.trim();
   if (!text) return;
-
   sapHideSuggestions();
   sapAddMsg('user', text);
   sapHistory.push({ role: 'user', content: text });
   input.value = '';
   input.style.height = 'auto';
-
   var sendBtn = document.getElementById('sap-chat-send');
   sendBtn.disabled = true;
   sapShowTyping();
-
   try {
     var res = await fetch('/api/chat', {
       method: 'POST',
@@ -373,27 +371,25 @@ async function sapSend() {
     });
     var data = await res.json();
     sapHideTyping();
-
     var reply = data.reply || "I'm sorry, I couldn't process that. Please try again.";
     sapAddMsg('bot', reply);
     sapHistory.push({ role: 'assistant', content: reply });
-
-    // Keep history to last 10 exchanges to manage cost
     if (sapHistory.length > 20) sapHistory = sapHistory.slice(-20);
-
   } catch (err) {
     sapHideTyping();
     sapAddMsg('bot', "Sorry, I'm having trouble connecting right now. Please try again in a moment.");
   }
-
   sendBtn.disabled = false;
   document.getElementById('sap-chat-input').focus();
 }
 
-// Show badge after 8 seconds if chat hasn't been opened
 setTimeout(function() {
   if (!sapOpen) {
     document.getElementById('sap-chat-badge').style.display = 'block';
+    document.getElementById('sap-chat-label').style.display = 'block';
+    setTimeout(function() {
+      if (!sapOpen) document.getElementById('sap-chat-label').style.display = 'none';
+    }, 5000);
   }
 }, 8000);
 </script>
