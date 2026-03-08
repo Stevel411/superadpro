@@ -102,12 +102,9 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://superadpro.com",
-        "https://superadpro-production.up.railway.app"
-    ],
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "HEAD"],
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "HEAD", "OPTIONS"],
     allow_headers=["*"]
 )
 
