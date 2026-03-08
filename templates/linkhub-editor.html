@@ -184,7 +184,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .overlay-row input[type=range]{flex:1;accent-color:var(--accent)}
 /* link font size slider */
 .slider-row{display:flex;align-items:center;gap:8px}
-.slider-row input[type=range]{flex:1;accent-color:var(--accent)}
+.slider-row input[type=range]{flex:1;accent-color:var(--accent);cursor:pointer;position:relative;z-index:5}
+.link-item input[type=range]{-webkit-user-drag:none;user-drag:none}
 .slider-val{font-size:12px;font-weight:700;color:var(--accent);min-width:28px;text-align:right}
 
 /* analytics */
@@ -272,8 +273,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 
       <div class="editor-tabs">
         <button class="editor-tab active" onclick="switchTab(this,'t-links')">🔗 Links</button>
-        <button class="editor-tab" onclick="switchTab(this,'t-social')">📱 Social</button>
         <button class="editor-tab" onclick="switchTab(this,'t-design')">🎨 Design</button>
+        <button class="editor-tab" onclick="switchTab(this,'t-social')">📱 Social</button>
         <button class="editor-tab" onclick="switchTab(this,'t-analytics')">📊 Analytics</button>
       </div>
 
@@ -332,9 +333,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
                     <div>
                       <span class="adv-lbl">Align</span>
                       <div class="align-pills">
-                        <button class="align-pill {% if not link.text_align or link.text_align=='center' %}active{% endif %}" onclick="setAP(this,'center')">≡</button>
-                        <button class="align-pill {% if link.text_align=='left' %}active{% endif %}" onclick="setAP(this,'left')">☰</button>
-                        <button class="align-pill {% if link.text_align=='right' %}active{% endif %}" onclick="setAP(this,'right')">≡</button>
+                        <button class="align-pill {% if not link.text_align or link.text_align=='center' %}active{% endif %}" data-align="center" onclick="setAP(this)">Center</button>
+                        <button class="align-pill {% if link.text_align=='left' %}active{% endif %}" data-align="left" onclick="setAP(this)">Left</button>
+                        <button class="align-pill {% if link.text_align=='right' %}active{% endif %}" data-align="right" onclick="setAP(this)">Right</button>
                       </div>
                     </div>
                     <div>
@@ -709,7 +710,7 @@ function buildPreview(){
     if(!item.querySelector('.link-active').checked||!title)return;
     const icon=item.querySelector('.link-icon-btn').textContent;
     const lStyle=(item.querySelector('.style-pill.active')||{getAttribute:()=>"'filled'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'filled';
-    const lAlign=(item.querySelector('.align-pill.active')||{getAttribute:()=>"'center'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'center';
+    const lAlign=(item.querySelector('.align-pill.active')||{dataset:{align:'center'}}).dataset.align||'center';
     const lWeight=(item.querySelector('.wt-pill.active')||{getAttribute:()=>"'semibold'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'semibold';
     const lSize=parseInt((item.querySelector('.sz-slider')||{value:'14'}).value)||14;
     const sub2=(item.querySelector('.link-sub-input')||{value:''}).value.trim();
@@ -751,7 +752,7 @@ function buildPreview(){
 // ── Tab switching ──
 function switchTab(btn,id){
   document.querySelectorAll('.editor-tab').forEach(t=>t.classList.remove('active'));
-  ['t-links','t-social','t-design','t-analytics'].forEach(tid=>{document.getElementById(tid).style.display=tid===id?'block':'none';});
+  ['t-links','t-design','t-social','t-analytics'].forEach(tid=>{document.getElementById(tid).style.display=tid===id?'block':'none';});
   btn.classList.add('active');
 }
 function toggleSection(hdr){
@@ -763,7 +764,7 @@ function toggleSection(hdr){
 
 // ── Style/Align/Weight pills ──
 function setSP(btn,v){btn.closest('.style-pills').querySelectorAll('.style-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');schedulePreview();}
-function setAP(btn,v){btn.closest('.align-pills').querySelectorAll('.align-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');schedulePreview();}
+function setAP(btn){btn.closest('.align-pills').querySelectorAll('.align-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');schedulePreview();}
 function setWP(btn,v){btn.closest('.wt-pills').querySelectorAll('.wt-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');schedulePreview();}
 function onSzSlider(inp){const lbl=inp.closest('.link-adv-grid').querySelector('.slider-val');if(lbl)lbl.textContent=inp.value+'px';schedulePreview();}
 
@@ -820,7 +821,7 @@ function addLink(){
     <input type="text" class="link-sub-input" placeholder="Subtitle (optional)" oninput="schedulePreview()">
     <div class="style-pills"><button class="style-pill active" onclick="setSP(this,'filled')">▭ Filled</button><button class="style-pill" onclick="setSP(this,'solid')">□ Line</button></div>
     <div class="link-adv-grid" style="margin-top:8px">
-      <div><span class="adv-lbl">Align</span><div class="align-pills"><button class="align-pill active" onclick="setAP(this,'center')">≡</button><button class="align-pill" onclick="setAP(this,'left')">☰</button><button class="align-pill" onclick="setAP(this,'right')">≡</button></div></div>
+      <div><span class="adv-lbl">Align</span><div class="align-pills"><button class="align-pill active" data-align="center" onclick="setAP(this)">Center</button><button class="align-pill" data-align="left" onclick="setAP(this)">Left</button><button class="align-pill" data-align="right" onclick="setAP(this)">Right</button></div></div>
       <div><span class="adv-lbl">Weight</span><div class="wt-pills"><button class="wt-pill active" onclick="setWP(this,'semibold')" style="font-weight:600">Semi</button><button class="wt-pill" onclick="setWP(this,'bold')" style="font-weight:700">Bold</button><button class="wt-pill" onclick="setWP(this,'black')" style="font-weight:900">Black</button></div></div>
       <div><span class="adv-lbl">Font Size <span class="slider-val">14px</span></span><div class="slider-row"><input type="range" min="10" max="24" value="14" class="sz-slider" oninput="onSzSlider(this)"></div></div>
       <div><span class="adv-lbl">Thumbnail</span><div class="thumb-wrap"><div class="thumb-preview" id="tpv-n${n}">🖼</div><button class="avatar-change-btn" onclick="document.getElementById('tinp-n${n}').click()" style="font-size:11px;margin-bottom:0">Upload</button><input type="file" id="tinp-n${n}" accept="image/*" style="display:none" onchange="handleThumb(this,'tpv-n${n}')"></div></div>
@@ -834,7 +835,11 @@ function deleteLink(btn){if(confirm('Remove this link?')){btn.closest('.link-ite
 // ── Drag to reorder ──
 let dragSrc=null;
 function initDrag(item){
-  item.addEventListener('dragstart',e=>{dragSrc=item;item.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+  item.addEventListener('dragstart',e=>{
+    // Only drag when initiated from the drag handle
+    if(!e.target.classList.contains('link-drag')){e.preventDefault();return;}
+    dragSrc=item;item.classList.add('dragging');e.dataTransfer.effectAllowed='move';
+  });
   item.addEventListener('dragend',()=>{dragSrc=null;document.querySelectorAll('.link-item').forEach(i=>i.classList.remove('dragging','drag-over'));});
   item.addEventListener('dragover',e=>{e.preventDefault();if(dragSrc&&dragSrc!==item)item.classList.add('drag-over');});
   item.addEventListener('dragleave',()=>item.classList.remove('drag-over'));
@@ -851,7 +856,7 @@ async function saveProfile(btn){
     const url=item.querySelector('.link-url').value.trim();
     if(!title&&!url)return;
     const lStyle=(item.querySelector('.style-pill.active')||{getAttribute:()=>"'filled'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'filled';
-    const lAlign=(item.querySelector('.align-pill.active')||{getAttribute:()=>"'center'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'center';
+    const lAlign=(item.querySelector('.align-pill.active')||{dataset:{align:'center'}}).dataset.align||'center';
     const lWeight=(item.querySelector('.wt-pill.active')||{getAttribute:()=>"'semibold'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'semibold';
     const szEl=item.querySelector('.sz-slider');
     const thumbImg=item.querySelector('.thumb-preview img');
