@@ -1,45 +1,48 @@
 # ═══════════════════════════════════════════════════════════════
 # SuperAdPro — Email Utilities
-# Uses Brevo SMTP for transactional email delivery
+# Uses Brevo HTTP API for transactional email delivery
 # ═══════════════════════════════════════════════════════════════
 import os
+import json
 import logging
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import urllib.request
 
 logger = logging.getLogger(__name__)
 
-SMTP_HOST  = os.getenv("SMTP_HOST", "smtp-relay.brevo.com")
-SMTP_PORT  = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER  = os.getenv("SMTP_USER", "")
-SMTP_PASS  = os.getenv("SMTP_PASS", "")
-FROM_EMAIL = os.getenv("FROM_EMAIL", "superadpro@proton.me")
-SITE_URL   = os.getenv("SITE_URL", "https://superadpro-production.up.railway.app")
-
-FROM_DISPLAY = f"SuperAdPro <{FROM_EMAIL}>"
+BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
+FROM_EMAIL    = os.getenv("FROM_EMAIL", "superadpro@proton.me")
+SITE_URL      = os.getenv("SITE_URL", "https://superadpro-production.up.railway.app")
+FROM_DISPLAY  = "SuperAdPro"
 
 
 def send_email(to_email: str, subject: str, html_body: str, text_body: str = "") -> bool:
-    """Send an email via Brevo SMTP. Returns True on success."""
-    if not SMTP_USER or not SMTP_PASS:
-        logger.warning(f"SMTP not configured — would send to {to_email}: {subject}")
+    """Send an email via Brevo HTTP API. Returns True on success."""
+    if not BREVO_API_KEY:
+        logger.warning(f"BREVO_API_KEY not set — would send to {to_email}: {subject}")
         return False
     try:
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"]    = FROM_DISPLAY
-        msg["To"]      = to_email
+        payload = {
+            "sender":      {"name": FROM_DISPLAY, "email": FROM_EMAIL},
+            "to":          [{"email": to_email}],
+            "subject":     subject,
+            "htmlContent": html_body,
+        }
         if text_body:
-            msg.attach(MIMEText(text_body, "plain"))
-        msg.attach(MIMEText(html_body, "html"))
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-            server.ehlo()
-            server.starttls()
-            server.login(SMTP_USER, SMTP_PASS)
-            server.sendmail(FROM_EMAIL, to_email, msg.as_string())
-        logger.info(f"Email sent to {to_email}: {subject}")
-        return True
+            payload["textContent"] = text_body
+        data = json.dumps(payload).encode("utf-8")
+        req  = urllib.request.Request(
+            "https://api.brevo.com/v3/smtp/email",
+            data    = data,
+            headers = {
+                "Content-Type": "application/json",
+                "api-key":      BREVO_API_KEY,
+            },
+            method = "POST",
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            status = resp.status
+        logger.info(f"Email sent to {to_email}: {subject} (status {status})")
+        return status in (200, 201)
     except Exception as e:
         logger.error(f"Email send failed to {to_email}: {e}")
         return False
