@@ -255,6 +255,10 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
 def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "join_url": get_join_url()})
 
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
 @app.get("/how-it-works")
 def how_it_works(request: Request):
     return templates.TemplateResponse("how-it-works.html", {"request": request, "join_url": get_join_url()})
