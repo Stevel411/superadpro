@@ -738,69 +738,65 @@ def run_migrations():
                 results.append(("skip", f"{sql[:50]} — {e}"))
     return results
 
-run_migrations()
+# NOTE: run_migrations() is called in the FastAPI startup event, not here
 
-# Force critical column additions with direct connection
-try:
-    with engine.connect() as conn:
-        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS interests VARCHAR"))
-        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_country VARCHAR"))
-        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_interests VARCHAR"))
-        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS priority_level INTEGER DEFAULT 0"))
-        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS owner_tier INTEGER DEFAULT 1"))
-        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_age_min INTEGER"))
-        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_age_max INTEGER"))
-        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_gender VARCHAR"))
-        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE"))
-        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS is_spotlight BOOLEAN DEFAULT FALSE"))
-        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS age_range VARCHAR"))
-        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS gender VARCHAR"))
-        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE"))
-        conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS social_posts_uses INTEGER DEFAULT 0"))
-        conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS social_posts_total INTEGER DEFAULT 0"))
-        conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS video_scripts_uses INTEGER DEFAULT 0"))
-        conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS video_scripts_total INTEGER DEFAULT 0"))
-        conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS swipe_file_uses INTEGER DEFAULT 0"))
-        conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS swipe_file_total INTEGER DEFAULT 0"))
-        conn.execute(text("CREATE TABLE IF NOT EXISTS ai_response_cache (id SERIAL PRIMARY KEY, tool VARCHAR, prompt_hash VARCHAR UNIQUE, response TEXT, hit_count INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), expires_at TIMESTAMP)"))
-        conn.execute(text("CREATE TABLE IF NOT EXISTS link_clicks (id SERIAL PRIMARY KEY, link_id INTEGER, link_type VARCHAR DEFAULT 'short', source VARCHAR, referrer TEXT, country VARCHAR, device VARCHAR, clicked_at TIMESTAMP DEFAULT NOW())"))
-        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS first_payment_to_company BOOLEAN DEFAULT FALSE"))
-        # --- Course + Pass-Up tables ---
-        conn.execute(text("CREATE TABLE IF NOT EXISTS courses (id SERIAL PRIMARY KEY, title VARCHAR NOT NULL, slug VARCHAR UNIQUE, description TEXT, price FLOAT NOT NULL, tier INTEGER NOT NULL, is_active BOOLEAN DEFAULT TRUE, sort_order INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW())"))
-        conn.execute(text("CREATE TABLE IF NOT EXISTS course_purchases (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), course_id INTEGER REFERENCES courses(id), course_tier INTEGER, amount_paid FLOAT, payment_method VARCHAR DEFAULT 'wallet', tx_ref VARCHAR, created_at TIMESTAMP DEFAULT NOW())"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_course_purchases_user ON course_purchases(user_id)"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_course_purchases_tier ON course_purchases(user_id, course_tier)"))
-        conn.execute(text("CREATE TABLE IF NOT EXISTS course_commissions (id SERIAL PRIMARY KEY, purchase_id INTEGER REFERENCES course_purchases(id), buyer_id INTEGER REFERENCES users(id), earner_id INTEGER REFERENCES users(id), amount FLOAT, course_tier INTEGER, commission_type VARCHAR, pass_up_depth INTEGER DEFAULT 0, notes TEXT, created_at TIMESTAMP DEFAULT NOW())"))
-        conn.execute(text("CREATE TABLE IF NOT EXISTS course_passup_tracker (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), course_tier INTEGER, sales_count INTEGER DEFAULT 0, first_passed_up BOOLEAN DEFAULT FALSE, updated_at TIMESTAMP DEFAULT NOW())"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_passup_tracker_user_tier ON course_passup_tracker(user_id, course_tier)"))
-        # Seed default courses if empty
-        conn.execute(text("""
-            INSERT INTO courses (title, slug, description, price, tier, sort_order)
-            SELECT * FROM (VALUES
-                ('SuperAdPro Starter', 'starter', 'Master the fundamentals of digital advertising and affiliate marketing.', 100, 1, 1),
-                ('SuperAdPro Advanced', 'advanced', 'Advanced traffic strategies, funnel building and conversion optimisation.', 300, 2, 2),
-                ('SuperAdPro Elite', 'elite', 'Complete business-in-a-box: high-ticket sales, team building and scaling systems.', 500, 3, 3)
-            ) AS v(title, slug, description, price, tier, sort_order)
-            WHERE NOT EXISTS (SELECT 1 FROM courses LIMIT 1)
-        """))
-        # Add course_earnings column to users
-        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS course_earnings FLOAT DEFAULT 0.0"))
-        # Add slug column to ad_listings
-        conn.execute(text("ALTER TABLE ad_listings ADD COLUMN IF NOT EXISTS slug VARCHAR"))
-        conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS idx_ad_listings_slug ON ad_listings(slug) WHERE slug IS NOT NULL"))
-        # Mark existing users as onboarding complete (they don't need the wizard)
-        conn.execute(text("UPDATE users SET onboarding_completed = TRUE WHERE onboarding_completed IS NULL OR (created_at < NOW() - INTERVAL '1 hour')"))
-        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS avatar_data TEXT"))
-        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS btn_color VARCHAR"))
-        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS text_color VARCHAR"))
-        # ── LinkHub tables ──
-        conn.execute(text("CREATE TABLE IF NOT EXISTS linkhub_profiles (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, display_name VARCHAR, bio TEXT, avatar_url VARCHAR, theme VARCHAR DEFAULT 'dark', bg_color VARCHAR DEFAULT '#050d1a', accent_color VARCHAR DEFAULT '#00d4ff', font_family VARCHAR DEFAULT 'Rethink Sans', is_published BOOLEAN DEFAULT TRUE, total_views INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())"))
-        conn.execute(text("CREATE TABLE IF NOT EXISTS linkhub_links (id SERIAL PRIMARY KEY, profile_id INTEGER REFERENCES linkhub_profiles(id), user_id INTEGER REFERENCES users(id), title VARCHAR NOT NULL, url VARCHAR NOT NULL, icon VARCHAR DEFAULT '🔗', is_active BOOLEAN DEFAULT TRUE, sort_order INTEGER DEFAULT 0, click_count INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW())"))
-        conn.execute(text("CREATE TABLE IF NOT EXISTS linkhub_clicks (id SERIAL PRIMARY KEY, link_id INTEGER REFERENCES linkhub_links(id), profile_id INTEGER REFERENCES linkhub_profiles(id), referrer VARCHAR, device VARCHAR, country VARCHAR, clicked_at TIMESTAMP DEFAULT NOW())"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_linkhub_profiles_user ON linkhub_profiles(user_id)"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_linkhub_links_profile ON linkhub_links(profile_id)"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_linkhub_clicks_link ON linkhub_clicks(link_id)"))
-        conn.commit()
-        print("✅ Force migration: interests + targeting + onboarding + linkhub columns confirmed")
-except Exception as e:
-    print(f"⚠️ Force migration note: {e}")
+
+def run_force_migrations():
+    """Force critical column additions - called from startup event only."""
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS interests VARCHAR"))
+            conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_country VARCHAR"))
+            conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_interests VARCHAR"))
+            conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS priority_level INTEGER DEFAULT 0"))
+            conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS owner_tier INTEGER DEFAULT 1"))
+            conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_age_min INTEGER"))
+            conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_age_max INTEGER"))
+            conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_gender VARCHAR"))
+            conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE"))
+            conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS is_spotlight BOOLEAN DEFAULT FALSE"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS age_range VARCHAR"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS gender VARCHAR"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE"))
+            conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS social_posts_uses INTEGER DEFAULT 0"))
+            conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS social_posts_total INTEGER DEFAULT 0"))
+            conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS video_scripts_uses INTEGER DEFAULT 0"))
+            conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS video_scripts_total INTEGER DEFAULT 0"))
+            conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS swipe_file_uses INTEGER DEFAULT 0"))
+            conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS swipe_file_total INTEGER DEFAULT 0"))
+            conn.execute(text("CREATE TABLE IF NOT EXISTS ai_response_cache (id SERIAL PRIMARY KEY, tool VARCHAR, prompt_hash VARCHAR UNIQUE, response TEXT, hit_count INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), expires_at TIMESTAMP)"))
+            conn.execute(text("CREATE TABLE IF NOT EXISTS link_clicks (id SERIAL PRIMARY KEY, link_id INTEGER, link_type VARCHAR DEFAULT 'short', source VARCHAR, referrer TEXT, country VARCHAR, device VARCHAR, clicked_at TIMESTAMP DEFAULT NOW())"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS first_payment_to_company BOOLEAN DEFAULT FALSE"))
+            conn.execute(text("CREATE TABLE IF NOT EXISTS courses (id SERIAL PRIMARY KEY, title VARCHAR NOT NULL, slug VARCHAR UNIQUE, description TEXT, price FLOAT NOT NULL, tier INTEGER NOT NULL, is_active BOOLEAN DEFAULT TRUE, sort_order INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW())"))
+            conn.execute(text("CREATE TABLE IF NOT EXISTS course_purchases (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), course_id INTEGER REFERENCES courses(id), course_tier INTEGER, amount_paid FLOAT, payment_method VARCHAR DEFAULT 'wallet', tx_ref VARCHAR, created_at TIMESTAMP DEFAULT NOW())"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_course_purchases_user ON course_purchases(user_id)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_course_purchases_tier ON course_purchases(user_id, course_tier)"))
+            conn.execute(text("CREATE TABLE IF NOT EXISTS course_commissions (id SERIAL PRIMARY KEY, purchase_id INTEGER REFERENCES course_purchases(id), buyer_id INTEGER REFERENCES users(id), earner_id INTEGER REFERENCES users(id), amount FLOAT, course_tier INTEGER, commission_type VARCHAR, pass_up_depth INTEGER DEFAULT 0, notes TEXT, created_at TIMESTAMP DEFAULT NOW())"))
+            conn.execute(text("CREATE TABLE IF NOT EXISTS course_passup_tracker (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), course_tier INTEGER, sales_count INTEGER DEFAULT 0, first_passed_up BOOLEAN DEFAULT FALSE, updated_at TIMESTAMP DEFAULT NOW())"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_passup_tracker_user_tier ON course_passup_tracker(user_id, course_tier)"))
+            conn.execute(text("""
+                INSERT INTO courses (title, slug, description, price, tier, sort_order)
+                SELECT * FROM (VALUES
+                    ('SuperAdPro Starter', 'starter', 'Master the fundamentals of digital advertising and affiliate marketing.', 100, 1, 1),
+                    ('SuperAdPro Advanced', 'advanced', 'Advanced traffic strategies, funnel building and conversion optimisation.', 300, 2, 2),
+                    ('SuperAdPro Elite', 'elite', 'Complete business-in-a-box: high-ticket sales, team building and scaling systems.', 500, 3, 3)
+                ) AS v(title, slug, description, price, tier, sort_order)
+                WHERE NOT EXISTS (SELECT 1 FROM courses LIMIT 1)
+            """))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS course_earnings FLOAT DEFAULT 0.0"))
+            conn.execute(text("ALTER TABLE ad_listings ADD COLUMN IF NOT EXISTS slug VARCHAR"))
+            conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS idx_ad_listings_slug ON ad_listings(slug) WHERE slug IS NOT NULL"))
+            conn.execute(text("UPDATE users SET onboarding_completed = TRUE WHERE onboarding_completed IS NULL OR (created_at < NOW() - INTERVAL '1 hour')"))
+            conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS avatar_data TEXT"))
+            conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS btn_color VARCHAR"))
+            conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS text_color VARCHAR"))
+            conn.execute(text("CREATE TABLE IF NOT EXISTS linkhub_profiles (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, display_name VARCHAR, bio TEXT, avatar_url VARCHAR, theme VARCHAR DEFAULT 'dark', bg_color VARCHAR DEFAULT '#050d1a', accent_color VARCHAR DEFAULT '#00d4ff', font_family VARCHAR DEFAULT 'Rethink Sans', is_published BOOLEAN DEFAULT TRUE, total_views INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())"))
+            conn.execute(text("CREATE TABLE IF NOT EXISTS linkhub_links (id SERIAL PRIMARY KEY, profile_id INTEGER REFERENCES linkhub_profiles(id), user_id INTEGER REFERENCES users(id), title VARCHAR NOT NULL, url VARCHAR NOT NULL, icon VARCHAR DEFAULT '🔗', is_active BOOLEAN DEFAULT TRUE, sort_order INTEGER DEFAULT 0, click_count INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW())"))
+            conn.execute(text("CREATE TABLE IF NOT EXISTS linkhub_clicks (id SERIAL PRIMARY KEY, link_id INTEGER REFERENCES linkhub_profiles(id), profile_id INTEGER REFERENCES linkhub_profiles(id), referrer VARCHAR, device VARCHAR, country VARCHAR, clicked_at TIMESTAMP DEFAULT NOW())"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_linkhub_profiles_user ON linkhub_profiles(user_id)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_linkhub_links_profile ON linkhub_links(profile_id)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS idx_linkhub_clicks_link ON linkhub_clicks(link_id)"))
+            conn.commit()
+            print("✅ Force migrations complete")
+    except Exception as e:
+        print(f"⚠️ Force migration note: {e}")
