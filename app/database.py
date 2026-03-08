@@ -579,6 +579,11 @@ class LinkHubProfile(Base):
     is_published    = Column(Boolean, default=True)
     total_views     = Column(Integer, default=0)
     social_links    = Column(Text, nullable=True)          # JSON: [{platform, url}]
+    banner_image    = Column(Text, nullable=True)          # base64 header banner
+    bg_image        = Column(Text, nullable=True)          # base64 background image
+    bg_gradient     = Column(String, nullable=True)        # e.g. "135deg,#ff6b35,#f7c59f"
+    soc_icon_shape  = Column(String, default="circle")     # circle|square|pill
+    follower_count  = Column(String, nullable=True)        # e.g. "12.4K"
     created_at      = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow)
 
@@ -593,6 +598,10 @@ class LinkHubLink(Base):
     icon            = Column(String, default="🔗")         # emoji or icon key
     btn_style       = Column(String, default="filled")     # filled|pill|solid
     subtitle        = Column(String, nullable=True)        # optional sub-label
+    font_size       = Column(Integer, default=14)          # px
+    font_weight     = Column(String, default="semibold")   # normal|semibold|bold|black
+    text_align      = Column(String, default="center")     # left|center|right
+    thumbnail       = Column(Text, nullable=True)          # base64 link thumbnail
     is_active       = Column(Boolean, default=True)
     sort_order      = Column(Integer, default=0)
     click_count     = Column(Integer, default=0)
@@ -841,7 +850,17 @@ try:
         conn.execute(text("ALTER TABLE linkhub_links ADD COLUMN IF NOT EXISTS btn_style VARCHAR DEFAULT 'filled'"))
         conn.execute(text("ALTER TABLE linkhub_links ADD COLUMN IF NOT EXISTS subtitle VARCHAR"))
         conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS social_links TEXT"))
+        # LinkHub v2 enhanced editing columns
+        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS banner_image TEXT"))
+        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS bg_image TEXT"))
+        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS bg_gradient VARCHAR"))
+        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS soc_icon_shape VARCHAR DEFAULT 'circle'"))
+        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS follower_count VARCHAR"))
+        conn.execute(text("ALTER TABLE linkhub_links ADD COLUMN IF NOT EXISTS font_size INTEGER DEFAULT 14"))
+        conn.execute(text("ALTER TABLE linkhub_links ADD COLUMN IF NOT EXISTS font_weight VARCHAR DEFAULT 'semibold'"))
+        conn.execute(text("ALTER TABLE linkhub_links ADD COLUMN IF NOT EXISTS text_align VARCHAR DEFAULT 'center'"))
+        conn.execute(text("ALTER TABLE linkhub_links ADD COLUMN IF NOT EXISTS thumbnail TEXT"))
         conn.commit()
-        print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture columns confirmed")
+        print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 columns confirmed")
 except Exception as e:
     print(f"⚠️ Force migration note: {e}")

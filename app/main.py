@@ -7417,6 +7417,18 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
     profile.btn_color     = data.get("btn_color") or None
     profile.text_color    = data.get("text_color") or None
     profile.is_published  = bool(data.get("is_published", True))
+    profile.soc_icon_shape = data.get("soc_icon_shape", "circle")
+    profile.follower_count = data.get("follower_count", "")[:50] or None
+    # Banner / bg image — only overwrite if provided (non-empty)
+    if data.get("banner_image"):
+        profile.banner_image = data.get("banner_image")
+    elif data.get("clear_banner"):
+        profile.banner_image = None
+    if data.get("bg_image"):
+        profile.bg_image = data.get("bg_image")
+    elif data.get("clear_bg_image"):
+        profile.bg_image = None
+    profile.bg_gradient = data.get("bg_gradient") or None
     # Social icons — stored as JSON string
     import json as _json
     social_raw = data.get("social_links", [])
@@ -7442,6 +7454,10 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
             icon        = str(lk.get("icon", "🔗"))[:10],
             btn_style   = str(lk.get("btn_style", "filled")),
             subtitle    = str(lk.get("subtitle", ""))[:200] or None,
+            font_size   = int(lk.get("font_size", 14)),
+            font_weight = str(lk.get("font_weight", "semibold")),
+            text_align  = str(lk.get("text_align", "center")),
+            thumbnail   = lk.get("thumbnail") or None,
             is_active   = bool(lk.get("is_active", True)),
             sort_order  = idx,
             click_count = int(lk.get("click_count", 0)) if lk.get("id") else 0,

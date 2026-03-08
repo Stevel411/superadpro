@@ -5,14 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>LinkHub Editor — SuperAdPro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Raleway:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/mobile.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#1e293b;height:100vh;overflow:hidden;display:flex}
 .layout{display:flex;width:100%;height:100vh;overflow:hidden}
-
-/* ── SIDEBAR — platform standard #1c223d, do NOT redefine ── */
 .sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;min-height:72px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
 .nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:14px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
@@ -20,342 +18,380 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#1e293b;height:10
 .nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
 .nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-
-/* ── MAIN ── */
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
-
-/* ── TOPBAR — platform standard: #1c223d, 72px ── */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:72px;background:#1c223d;border-bottom:1px solid rgba(14,165,233,0.12);flex-shrink:0;z-index:50}
 .topbar-left{display:flex;align-items:center;gap:20px}
 .topbar-title{font-size:19px;font-weight:800;color:#fff}
 .topbar-title span{color:#38bdf8}
 .topbar-url{font-size:13px;color:#94a3b8;background:rgba(255,255,255,.06);padding:6px 14px;border-radius:20px;display:flex;align-items:center;gap:8px}
 .topbar-url a{color:#38bdf8;text-decoration:none;font-weight:600}
-.topbar-url a:hover{text-decoration:underline}
 .topbar-actions{display:flex;align-items:center;gap:10px}
-.btn-preview{padding:9px 18px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;text-decoration:none;display:flex;align-items:center;gap:6px}
-.btn-preview:hover{background:rgba(255,255,255,.18)}
-.btn-save{padding:9px 20px;background:linear-gradient(135deg,#0ea5e9,#6366f1);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;gap:6px;box-shadow:0 2px 10px rgba(14,165,233,.35)}
-.btn-save:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(14,165,233,.45)}
+.btn-outline{padding:9px 18px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;text-decoration:none;display:flex;align-items:center;gap:6px}
+.btn-outline:hover{background:rgba(255,255,255,.18)}
+.btn-primary{padding:9px 20px;background:linear-gradient(135deg,#0ea5e9,#6366f1);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;gap:6px;box-shadow:0 2px 10px rgba(14,165,233,.35)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(14,165,233,.45)}
+.workspace{flex:1;overflow:hidden;display:grid;grid-template-columns:1fr 300px;gap:0}
 
-/* ── WORKSPACE ── */
-.workspace{flex:1;overflow:hidden;display:grid;grid-template-columns:1fr 340px;gap:0}
-
-/* ── LEFT PANEL ── */
+/* LEFT PANEL */
 .left-panel{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid #c8d0de;background:#e4e9f2}
-
-/* ── TAB SCROLL WRAPPER ── */
-.tab-scroll{flex:1;overflow-y:auto;padding:0 18px 16px;scrollbar-width:thin;scrollbar-color:#c8d0de transparent}
+.lp-header{padding:14px 16px 0;flex-shrink:0}
+.stats-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat-chip{background:#fff;border:1px solid #d4dae6;border-radius:10px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.stat-num{font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:#0ea5e9}
+.stat-lbl{font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-top:2px}
+.editor-tabs{display:flex;gap:3px;background:#0ea5e9;border-radius:10px;padding:3px;margin-bottom:0;box-shadow:inset 0 2px 6px rgba(0,0,0,.2)}
+.editor-tab{flex:1;padding:8px 6px;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;background:rgba(255,255,255,.2);color:#fff;transition:all .15s}
+.editor-tab.active{background:#fff;color:#0ea5e9;border-color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.12);font-weight:800}
+.tab-scroll{flex:1;overflow-y:auto;padding:12px 16px 16px;scrollbar-width:thin;scrollbar-color:#c8d0de transparent}
 .tab-scroll::-webkit-scrollbar{width:4px}
 .tab-scroll::-webkit-scrollbar-thumb{background:#dde1ea;border-radius:4px}
-/* ── ANALYTICS FILL — takes full remaining height ── */
-.tab-fill{flex:1;overflow:hidden;display:flex;flex-direction:column;padding:0 18px 16px}
-/* ── TAB SCROLL WRAPPER ── */
-.tab-scroll{flex:1;overflow-y:auto;padding:0 18px 16px;scrollbar-width:thin;scrollbar-color:#c8d0de transparent}
-.tab-scroll::-webkit-scrollbar{width:4px}
-.tab-scroll::-webkit-scrollbar-thumb{background:#dde1ea;border-radius:4px}
-.tab-fill{flex:1;overflow:hidden;display:flex;flex-direction:column;padding:0 18px 16px}
-/* ── STATS STRIP ── */
-.stats-header{padding:16px 18px 0}.stats-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.stat-chip{background:#fff;border:1px solid #d4dae6;border-radius:12px;padding:14px 16px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.stat-num{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#0ea5e9}
-.stat-lbl{font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-top:3px}
+.tab-fill{flex:1;overflow:hidden;display:flex;flex-direction:column;padding:12px 16px 16px}
 
-/* ── TABS ── */
-.editor-tabs{display:flex;gap:4px;background:#0ea5e9;border-radius:12px;padding:4px;margin-bottom:14px;box-shadow:inset 0 2px 6px rgba(0,0,0,.2)}
-.editor-tab{flex:1;padding:9px 8px;border:1.5px solid rgba(255,255,255,.3);border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:rgba(255,255,255,.22);color:#fff;transition:all .18s}
-.editor-tab:hover:not(.active){background:rgba(255,255,255,.38)}
-.editor-tab.active{background:#fff;color:#0ea5e9;border-color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15);font-weight:800}
+/* SECTIONS */
+.sec{background:#fff;border:1.5px solid #d4dae6;border-radius:10px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;cursor:pointer;user-select:none}
+.sec-hdr:hover{background:#f8fafc}
+.sec-hdr-left{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:800;color:#1e293b}
+.sec-chev{font-size:13px;color:#94a3b8;transition:transform .2s}
+.sec-body{padding:0 12px 12px;border-top:1px solid #f1f5f9}
+.sec-body.hidden{display:none}
 
-/* ── SECTIONS ── */
-.section{background:#fff;border:1.5px solid #d4dae6;border-radius:12px;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,.05);overflow:hidden}
-.section-header{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer;background:#fff;user-select:none}
-.section-header:hover{background:#f8fafc}
-.section-header-left{display:flex;align-items:center;gap:8px}
-.section-icon{font-size:16px}
-.section-label{font-size:14px;font-weight:800;color:#1e293b}
-.section-chevron{font-size:14px;color:#94a3b8;transition:transform .2s}
-.section-body{padding:0 14px 14px;border-top:1px solid #d4dae6;background:#fff}
-.section-body.hidden{display:none}
-
-/* ── FORM FIELDS ── */
-.field{margin-bottom:11px}
+/* FIELDS */
+.field{margin-bottom:10px}
 .field:last-child{margin-bottom:0}
-.field label{display:block;font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
-.field input,.field textarea,.field select{width:100%;padding:9px 12px;border:1.5px solid #d4dae6;border-radius:8px;font-family:inherit;font-size:13px;color:#1e293b;background:#f8fafc}
+.field label{display:block;font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px}
+.field input,.field textarea,.field select{width:100%;padding:8px 10px;border:1.5px solid #d4dae6;border-radius:7px;font-family:inherit;font-size:13px;color:#1e293b;background:#f8fafc}
 .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:#0ea5e9;background:#fff}
-.field textarea{min-height:70px;resize:vertical}
+.field textarea{min-height:64px;resize:vertical}
 
-/* ── AVATAR ── */
-.avatar-row{display:flex;align-items:center;gap:14px;padding:14px 0 4px}
-.avatar-preview{width:66px;height:66px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:1.8rem;overflow:hidden;flex-shrink:0;border:3px solid #e2e8f0}
+/* AVATAR */
+.avatar-row{display:flex;align-items:center;gap:12px;padding:10px 0 4px}
+.avatar-preview{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:1.6rem;overflow:hidden;flex-shrink:0;border:3px solid #e2e8f0}
 .avatar-preview img{width:100%;height:100%;object-fit:cover}
-.avatar-btn{padding:7px 14px;background:#f1f5f9;border:1.5px solid #d4dae6;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;color:#475569;font-family:inherit}
-.avatar-btn:hover{background:#e2e8f0}
-#avatar-input{display:none}
+.upload-btn{padding:6px 12px;background:#f1f5f9;border:1.5px solid #d4dae6;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;color:#475569;font-family:inherit}
+.upload-btn:hover{background:#e2e8f0}
 
-/* ── PUBLISH TOGGLE ── */
-.publish-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border-radius:10px;border:1.5px solid #d4dae6;margin-top:12px}
-.publish-info h4{font-size:13px;font-weight:700;color:#1e293b}
-.publish-info p{font-size:11px;color:#94a3b8;margin-top:2px}
-.big-toggle{position:relative;width:48px;height:26px;cursor:pointer;flex-shrink:0}
-.big-toggle input{opacity:0;width:0;height:0}
-.big-track{position:absolute;inset:0;background:#cbd5e1;border-radius:26px;transition:.3s}
-.big-toggle input:checked + .big-track{background:#10b981}
-.big-track:before{content:'';position:absolute;height:18px;width:18px;left:4px;bottom:4px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.big-toggle input:checked + .big-track:before{transform:translateX(22px)}
+/* BANNER */
+.banner-preview{width:100%;height:64px;border-radius:8px;background:linear-gradient(135deg,#0ea5e9,#6366f1);margin-bottom:8px;overflow:hidden;position:relative;border:1.5px solid #d4dae6}
+.banner-preview img{width:100%;height:100%;object-fit:cover}
+.banner-clear{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.5);border:none;border-radius:4px;color:#fff;font-size:11px;cursor:pointer;padding:2px 6px}
 
-/* ── LINK ITEMS ── */
-.link-item{background:#f8fafc;border:1.5px solid #d4dae6;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:8px}
-.link-drag{color:#c0c8d8;cursor:grab;font-size:16px;padding-top:2px;flex-shrink:0}
-.link-icon-btn{width:34px;height:34px;border-radius:8px;background:#fff;border:1.5px solid #d4dae6;font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.link-fields{display:flex;gap:6px;margin-bottom:6px}
-.link-title,.link-url{flex:1;padding:7px 10px;border:1.5px solid #d4dae6;border-radius:7px;font-family:inherit;font-size:13px;color:#1e293b;background:#fff}
+/* PUBLISH TOGGLE */
+.pub-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f8fafc;border-radius:8px;border:1.5px solid #d4dae6;margin-top:10px}
+.pub-info h4{font-size:13px;font-weight:700;color:#1e293b}
+.pub-info p{font-size:11px;color:#94a3b8;margin-top:1px}
+.tog{position:relative;width:44px;height:24px;cursor:pointer;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0}
+.tog-track{position:absolute;inset:0;background:#cbd5e1;border-radius:24px;transition:.3s}
+.tog input:checked+.tog-track{background:#10b981}
+.tog-track:before{content:'';position:absolute;height:16px;width:16px;left:4px;bottom:4px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.tog input:checked+.tog-track:before{transform:translateX(20px)}
+
+/* LINK ITEMS */
+.link-item{background:#f8fafc;border:1.5px solid #d4dae6;border-radius:10px;padding:10px;margin-bottom:8px}
+.link-row1{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.link-drag{color:#c0c8d8;cursor:grab;font-size:16px;flex-shrink:0;touch-action:none}
+.link-drag:active{cursor:grabbing}
+.link-icon-btn{width:32px;height:32px;border-radius:7px;background:#fff;border:1.5px solid #d4dae6;font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.link-inputs{flex:1;display:flex;gap:5px}
+.link-title,.link-url{flex:1;padding:6px 9px;border:1.5px solid #d4dae6;border-radius:7px;font-family:inherit;font-size:12px;color:#1e293b;background:#fff;min-width:0}
 .link-title:focus,.link-url:focus{outline:none;border-color:#0ea5e9}
-.link-subtitle-input{width:100%;padding:6px 10px;border:1.5px solid #d4dae6;border-radius:7px;font-family:inherit;font-size:12px;color:#64748b;background:#fff;margin-bottom:6px}
-.link-subtitle-input:focus{outline:none;border-color:#0ea5e9}
-.style-picker{display:flex;gap:4px}
-.style-opt{padding:4px 10px;border:1.5px solid #d4dae6;border-radius:6px;background:#fff;font-size:11px;font-weight:700;color:#64748b;cursor:pointer;font-family:inherit;transition:all .15s}
-.style-opt.selected{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
-.link-meta{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0}
-.link-stats{font-size:10px;color:#94a3b8;font-weight:700;white-space:nowrap}
-.toggle-sw{position:relative;width:36px;height:20px;cursor:pointer;flex-shrink:0}
-.toggle-sw input{opacity:0;width:0;height:0}
-.toggle-track{position:absolute;inset:0;background:#cbd5e1;border-radius:20px;transition:.25s}
-.toggle-sw input:checked + .toggle-track{background:#10b981}
-.toggle-track:before{content:'';position:absolute;height:14px;width:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
-.toggle-sw input:checked + .toggle-track:before{transform:translateX(16px)}
-.link-del{background:none;border:none;color:#f87171;cursor:pointer;font-size:14px;padding:3px}
-.add-link-btn{width:100%;padding:10px;background:#f0f9ff;border:2px dashed #bae6fd;border-radius:10px;color:#0ea5e9;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;font-family:inherit;margin-top:4px}
+.link-meta{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.link-clicks{font-size:9px;color:#94a3b8;font-weight:700}
+.tog-sm{position:relative;width:32px;height:18px;cursor:pointer;flex-shrink:0}
+.tog-sm input{opacity:0;width:0;height:0}
+.tog-sm-track{position:absolute;inset:0;background:#cbd5e1;border-radius:18px;transition:.25s}
+.tog-sm input:checked+.tog-sm-track{background:#10b981}
+.tog-sm-track:before{content:'';position:absolute;height:12px;width:12px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.25s}
+.tog-sm input:checked+.tog-sm-track:before{transform:translateX(14px)}
+.link-del{background:none;border:none;color:#f87171;cursor:pointer;font-size:13px;padding:2px}
+
+/* LINK ADVANCED OPTIONS */
+.link-advanced{border-top:1px solid #f1f5f9;margin-top:8px;padding-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.link-advanced-full{grid-column:1/-1}
+.adv-label{font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px}
+.style-row{display:flex;gap:3px}
+.style-btn{flex:1;padding:5px 4px;border:1.5px solid #d4dae6;border-radius:6px;background:#fff;font-size:10px;font-weight:700;color:#64748b;cursor:pointer;font-family:inherit;text-align:center}
+.style-btn.sel{background:#0ea5e9;color:#fff;border-color:#0ea5e9}
+.align-row{display:flex;gap:3px}
+.align-btn{flex:1;padding:5px;border:1.5px solid #d4dae6;border-radius:6px;background:#fff;font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center}
+.align-btn.sel{background:#0ea5e9;border-color:#0ea5e9}
+.sz-row{display:flex;align-items:center;gap:6px}
+.sz-btn{width:26px;height:26px;border:1.5px solid #d4dae6;border-radius:6px;background:#fff;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#475569;flex-shrink:0}
+.sz-btn:hover{background:#f0f9ff;border-color:#0ea5e9}
+.sz-val{font-size:12px;font-weight:700;color:#1e293b;min-width:28px;text-align:center}
+.wt-row{display:flex;gap:3px}
+.wt-btn{flex:1;padding:5px 3px;border:1.5px solid #d4dae6;border-radius:6px;background:#fff;font-size:10px;cursor:pointer;font-family:inherit;text-align:center;color:#475569}
+.wt-btn.sel{background:#6366f1;color:#fff;border-color:#6366f1}
+.thumb-wrap{display:flex;align-items:center;gap:8px}
+.thumb-preview{width:48px;height:48px;border-radius:6px;background:#f1f5f9;border:1.5px solid #d4dae6;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px}
+.thumb-preview img{width:100%;height:100%;object-fit:cover}
+.subtitle-input{width:100%;padding:6px 9px;border:1.5px solid #d4dae6;border-radius:7px;font-family:inherit;font-size:12px;color:#64748b;background:#fff}
+.subtitle-input:focus{outline:none;border-color:#0ea5e9}
+.add-link-btn{width:100%;padding:9px;background:#f0f9ff;border:2px dashed #bae6fd;border-radius:9px;color:#0ea5e9;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;margin-top:2px}
 .add-link-btn:hover{background:#e0f2fe;border-color:#0ea5e9}
 
-/* ── SOCIAL ITEMS ── */
-.social-item{display:flex;align-items:center;gap:10px;background:#f8fafc;border:1.5px solid #d4dae6;border-radius:10px;padding:10px 12px;margin-bottom:8px}
-.soc-icon-wrap{width:34px;height:34px;flex-shrink:0;border-radius:8px;display:flex;align-items:center;justify-content:center}
-.soc-icon-wrap svg{width:18px;height:18px;fill:#fff}
-.soc-label{font-size:13px;font-weight:700;color:#1e293b;width:88px;flex-shrink:0}
-.soc-input{flex:1;padding:8px 11px;border:1.5px solid #d4dae6;border-radius:8px;font-family:inherit;font-size:13px;color:#1e293b;background:#fff}
-.soc-input:focus{outline:none;border-color:#0ea5e9}
-.soc-del{background:none;border:none;color:#f87171;cursor:pointer;font-size:14px;padding:4px;flex-shrink:0}
+/* SOCIAL */
+.soc-item{display:flex;align-items:center;gap:8px;background:#f8fafc;border:1.5px solid #d4dae6;border-radius:9px;padding:9px 10px;margin-bottom:7px}
+.soc-icon{width:30px;height:30px;flex-shrink:0;border-radius:7px;display:flex;align-items:center;justify-content:center}
+.soc-icon svg{width:16px;height:16px;fill:#fff}
+.soc-lbl{font-size:12px;font-weight:700;color:#1e293b;width:80px;flex-shrink:0}
+.soc-url{flex:1;padding:7px 10px;border:1.5px solid #d4dae6;border-radius:7px;font-family:inherit;font-size:12px;color:#1e293b;background:#fff}
+.soc-url:focus{outline:none;border-color:#0ea5e9}
+.soc-del{background:none;border:none;color:#f87171;cursor:pointer;font-size:13px;padding:3px;flex-shrink:0}
+.shape-row{display:flex;gap:4px;margin-bottom:10px}
+.shape-btn{flex:1;padding:8px 4px;border:2px solid #d4dae6;border-radius:8px;background:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;color:#475569;display:flex;flex-direction:column;align-items:center;gap:4px}
+.shape-btn.sel{border-color:#0ea5e9;background:#f0f9ff;color:#0ea5e9}
+.shape-demo{width:24px;height:24px;background:#0ea5e9;display:flex;align-items:center;justify-content:center}
+.shape-demo svg{width:14px;height:14px;fill:#fff}
 
-/* ── THEME GRID ── */
-.theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 12px}
-.theme-swatch{border:2px solid #d4dae6;border-radius:10px;cursor:pointer;overflow:hidden;transition:all .18s}
-.theme-swatch:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.14)}
-.theme-swatch.sel{border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,.2)}
-.sw-preview{height:44px}
-.sw-dark{background:#050d1a}
-.sw-light{background:#f0f4ff}
-.sw-grad{background:linear-gradient(135deg,#6366f1,#ec4899)}
-.sw-neon{background:#0a0a0a}
-.sw-dots{display:flex;gap:4px;padding:6px 6px 0}
-.sw-dot{width:14px;height:14px;border-radius:50%;border:1.5px solid rgba(0,0,0,.08)}
-.sw-label{font-size:11px;font-weight:800;padding:4px 4px 7px;text-align:center;color:#475569}
+/* DESIGN */
+.theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 12px}
+.theme-sw{border:2px solid #d4dae6;border-radius:9px;cursor:pointer;overflow:hidden;transition:all .18s}
+.theme-sw:hover{transform:translateY(-2px);box-shadow:0 3px 10px rgba(0,0,0,.12)}
+.theme-sw.sel{border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,.2)}
+.sw-prev{height:38px}
+.sw-dark{background:#050d1a}.sw-light{background:#f0f4ff}.sw-grad{background:linear-gradient(135deg,#6366f1,#ec4899)}.sw-neon{background:#0a0a0a}
+.sw-dots{display:flex;gap:3px;padding:5px 5px 0}
+.sw-dot{width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.08)}
+.sw-lbl{font-size:10px;font-weight:800;padding:3px 3px 6px;text-align:center;color:#475569}
+.accent-dots{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.acc-dot{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .15s}
+.acc-dot:hover{transform:scale(1.15)}
+.acc-dot.sel{border-color:#1e293b;transform:scale(1.1)}
+.col-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.col-row{background:#fff;border:1.5px solid #d4dae6;border-radius:7px;padding:7px 9px}
+.col-row label{font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px}
+.col-inner{display:flex;align-items:center;gap:7px}
+.col-inner input[type=color]{width:24px;height:24px;border:none;border-radius:4px;cursor:pointer;padding:0}
+.col-inner span{font-size:10px;color:#94a3b8;font-family:monospace}
+.reset-btn{width:100%;padding:7px;background:#f1f5f9;border:1.5px solid #d4dae6;border-radius:7px;font-size:11px;font-weight:700;color:#64748b;cursor:pointer;font-family:inherit;margin-top:8px}
+.font-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:8px 0}
+.font-btn{padding:8px 10px;border:2px solid #d4dae6;border-radius:7px;background:#fff;font-size:12px;cursor:pointer;text-align:center;color:#1e293b;transition:all .15s}
+.font-btn.sel{border-color:#0ea5e9;background:#f0f9ff}
+/* Gradient picker */
+.grad-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.grad-preview{flex:1;height:28px;border-radius:6px;border:1px solid #d4dae6}
+.grad-dir{width:100%;margin-top:6px}
 
-/* ── COLOUR CUSTOMISER ── */
-.colour-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;padding:10px;background:#f4f7fb;border-radius:9px;border:1px solid #c8d0de}
-.colour-row{background:#fff;border:1.5px solid #d4dae6;border-radius:7px;padding:7px 10px}
-.colour-row label{font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:5px}
-.colour-row-inner{display:flex;align-items:center;gap:8px}
-.colour-row-inner input[type=color]{width:26px;height:26px;border:none;border-radius:5px;cursor:pointer;padding:0;background:none}
-.colour-row-inner span{font-size:11px;color:#94a3b8;font-family:monospace}
-.accent-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.accent-dot{width:22px;height:22px;border-radius:50%;cursor:pointer;transition:transform .15s;border:2px solid transparent}
-.accent-dot:hover{transform:scale(1.15)}
-.accent-dot.selected{border-color:#1e293b;transform:scale(1.1)}
-.reset-btn{width:100%;padding:8px;background:#f1f5f9;border:1.5px solid #d4dae6;border-radius:8px;font-size:12px;font-weight:700;color:#64748b;cursor:pointer;font-family:inherit;margin-top:10px}
-.reset-btn:hover{background:#e2e8f0}
+/* BG IMAGE */
+.bg-img-preview{width:100%;height:56px;border-radius:8px;background:#f1f5f9;border:1.5px solid #d4dae6;overflow:hidden;margin-bottom:6px;position:relative}
+.bg-img-preview img{width:100%;height:100%;object-fit:cover}
+.overlay-row{display:flex;align-items:center;gap:8px;margin-top:6px}
+.overlay-row label{font-size:11px;font-weight:700;color:#475569;flex-shrink:0}
+.overlay-row input[type=range]{flex:1}
 
-/* ── ANALYTICS ── */
-.ana-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.ana-card{background:#fff;border:1px solid #d4dae6;border-radius:10px;padding:12px;text-align:center}
-.ana-val{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#0ea5e9}
-.ana-lbl{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+/* ANALYTICS */
+.ana-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px;flex-shrink:0}
+.ana-card{background:#fff;border:1px solid #d4dae6;border-radius:9px;padding:10px;text-align:center}
+.ana-val{font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:#0ea5e9}
+.ana-lbl{font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
 
-/* ── SAVE BAR ── */
-.save-bar{display:flex;align-items:center;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid #d4dae6}
-.save-msg{font-size:13px;font-weight:700;color:#10b981;opacity:0;transition:opacity .3s}
+/* SAVE BAR */
+.save-bar{display:flex;align-items:center;gap:8px;padding:10px 0 0;border-top:1px solid #d4dae6;flex-shrink:0}
+.save-msg{font-size:12px;font-weight:700;color:#10b981;opacity:0;transition:opacity .3s}
 .save-msg.show{opacity:1}
 
-/* ── RIGHT PANEL: PHONE PREVIEW ── */
-.right-panel{background:#1c223d;display:flex;flex-direction:column;align-items:center;padding:24px 20px;overflow:hidden;position:relative}
-.right-panel::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(56,189,248,0.08),transparent 70%);pointer-events:none}
-.phone-label{font-size:11px;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px}
-
-/* iPhone shell */
-.iphone{width:260px;background:#111;border-radius:44px;box-shadow:0 0 0 2px #333,0 0 0 4px #222,0 30px 80px rgba(0,0,0,.7);position:relative;overflow:hidden;flex-shrink:0}
-.iphone::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:80px;height:26px;background:#111;border-radius:0 0 16px 16px;z-index:20}
-.iphone-screen{border-radius:40px;overflow:hidden;background:#050d1a}
-.status-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 4px;font-size:11px;font-weight:700;color:#fff;background:#050d1a}
-.phone-content{overflow-y:auto;max-height:520px;scrollbar-width:none;background:#050d1a}
+/* RIGHT: PHONE */
+.right-panel{background:#1c223d;display:flex;flex-direction:column;align-items:center;padding:20px 16px;overflow:hidden;position:relative}
+.right-panel::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(56,189,248,.08),transparent 70%);pointer-events:none}
+.pv-label{font-size:10px;font-weight:800;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px}
+.iphone{width:240px;background:#111;border-radius:40px;box-shadow:0 0 0 2px #333,0 0 0 3px #222,0 24px 60px rgba(0,0,0,.7);position:relative;overflow:hidden;flex-shrink:0}
+.iphone::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:72px;height:22px;background:#111;border-radius:0 0 14px 14px;z-index:20}
+.iphone-screen{border-radius:36px;overflow:hidden;background:#050d1a}
+.status-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 18px 3px;font-size:10px;font-weight:700;color:#fff;background:#050d1a}
+.phone-content{overflow-y:auto;max-height:480px;scrollbar-width:none}
 .phone-content::-webkit-scrollbar{display:none}
-
-/* Preview inner */
-.pv-body{min-height:520px;padding:20px 16px 30px;display:flex;flex-direction:column;align-items:center;position:relative}
-.pv-avatar{width:76px;height:76px;border-radius:50%;border:3px solid #00d4ff;display:flex;align-items:center;justify-content:center;font-size:1.8rem;overflow:hidden;margin-bottom:10px;box-shadow:0 0 20px rgba(0,212,255,0.35)}
-.pv-name{font-size:16px;font-weight:800;color:#fff;margin-bottom:3px;text-align:center}
-.pv-username{font-size:12px;color:#64748b;margin-bottom:8px}
-.pv-bio{font-size:12px;color:#94a3b8;text-align:center;line-height:1.5;margin-bottom:12px;max-width:200px}
-.pv-social{display:flex;gap:8px;justify-content:center;margin-bottom:14px}
-.pv-soc-btn{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:none}
-.pv-soc-btn svg{width:16px;height:16px;fill:#fff}
-.pv-links{width:100%;display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
-.pv-link{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(15,31,61,.8)}
-.pv-link-icon{font-size:16px;flex-shrink:0}
-.pv-link-title{flex:1;font-size:13px;font-weight:600;color:#e2e8f0}
-.pv-link-arrow{font-size:14px;color:#00d4ff}
-.pv-empty{text-align:center;color:#475569;font-size:12px;padding:20px 0}
-.pv-powered{font-size:10px;color:#475569;margin-top:auto;padding-top:16px}
+.pv-body{min-height:480px;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden}
+.pv-banner{width:100%;height:80px;object-fit:cover;flex-shrink:0}
+.pv-avatar{width:68px;height:68px;border-radius:50%;border:3px solid #00d4ff;display:flex;align-items:center;justify-content:center;font-size:1.6rem;overflow:hidden;margin-bottom:8px;box-shadow:0 0 16px rgba(0,212,255,.35);margin-top:-34px;position:relative;z-index:2}
+.pv-avatar.no-banner{margin-top:16px}
+.pv-name{font-size:15px;font-weight:800;color:#fff;margin-bottom:2px;text-align:center;padding:0 12px}
+.pv-username{font-size:11px;color:#64748b;margin-bottom:4px}
+.pv-followers{font-size:11px;color:#94a3b8;margin-bottom:8px;font-weight:600}
+.pv-bio{font-size:11px;color:#94a3b8;text-align:center;line-height:1.5;margin-bottom:10px;max-width:190px;padding:0 10px}
+.pv-social{display:flex;gap:7px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+.pv-soc-btn{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:none;flex-shrink:0}
+.pv-soc-btn svg{width:15px;height:15px;fill:#fff}
+.pv-links{width:100%;display:flex;flex-direction:column;gap:7px;padding:0 12px;margin-bottom:14px}
+.pv-link{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.1);background:rgba(15,31,61,.8);cursor:pointer;position:relative;overflow:hidden}
+.pv-link-thumb{width:36px;height:36px;border-radius:5px;object-fit:cover;flex-shrink:0}
+.pv-link-icon{font-size:14px;flex-shrink:0}
+.pv-link-title{flex:1;font-weight:600;color:#e2e8f0}
+.pv-link-arrow{font-size:12px;color:#00d4ff;flex-shrink:0}
+.pv-empty{text-align:center;color:#475569;font-size:11px;padding:16px 0}
+.pv-powered{font-size:9px;color:#475569;text-align:center;padding:10px 0 16px}
 .pv-powered span{color:#00d4ff}
+.phone-url-strip{margin-top:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:7px 12px;display:flex;align-items:center;gap:8px;width:240px}
+.pu-label{font-size:9px;font-weight:800;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.8px;flex-shrink:0}
+.pu-text{flex:1;font-size:10px;color:#38bdf8;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pu-copy{padding:3px 9px;background:#0ea5e9;border:none;border-radius:6px;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0}
 
-/* URL strip */
-.phone-url-strip{margin-top:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:8px 14px;display:flex;align-items:center;gap:10px;width:260px}
-.phone-url-label{font-size:10px;font-weight:800;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.8px;flex-shrink:0}
-.phone-url-text{flex:1;font-size:11px;color:#38bdf8;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.phone-url-copy{padding:4px 10px;background:#0ea5e9;border:none;border-radius:7px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0}
-
-/* ── ICON MODAL ── */
+/* ICON MODAL */
 .icon-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center}
 .icon-modal.open{display:flex}
-.icon-box{background:#fff;border-radius:16px;padding:20px;width:320px;max-height:400px;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
-.icon-box h3{font-size:15px;font-weight:800;margin-bottom:14px;color:#1e293b}
-.icon-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
-.icon-cell{padding:8px;text-align:center;font-size:20px;cursor:pointer;border-radius:8px;border:2px solid transparent;transition:all .15s}
+.icon-box{background:#fff;border-radius:14px;padding:18px;width:300px;max-height:380px;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.icon-box h3{font-size:14px;font-weight:800;margin-bottom:12px;color:#1e293b}
+.icon-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}
+.icon-cell{padding:7px;text-align:center;font-size:18px;cursor:pointer;border-radius:7px;border:2px solid transparent;transition:all .12s}
 .icon-cell:hover{background:#f0f9ff}
 .icon-cell.selected{background:#e0f2fe;border-color:#0ea5e9}
 
-@media(max-width:900px){
-  .workspace{grid-template-columns:1fr}
-  .right-panel{display:none}
-}
+/* DRAG OVER STATE */
+.link-item.drag-over{border-color:#0ea5e9;background:#f0f9ff;opacity:.7}
+.link-item.dragging{opacity:.4}
+
+@media(max-width:1100px){.workspace{grid-template-columns:1fr}.right-panel{display:none}}
 </style>
 </head>
 <body>
 <div class="layout">
-
 {% include "_sidebar.html" %}
-
 <div class="main">
 
-  <!-- TOPBAR — #1c223d matches platform -->
   <div class="topbar">
     <div class="topbar-left">
       <div class="topbar-title">🔗 <span>LinkHub</span> Editor</div>
-      <div class="topbar-url">
-        Your page: <a href="/u/{{ current_user.username }}" target="_blank">superadpro.com/u/{{ current_user.username }}</a>
-      </div>
+      <div class="topbar-url">Your page: <a href="/u/{{ current_user.username }}" target="_blank">superadpro.com/u/{{ current_user.username }}</a></div>
     </div>
     <div class="topbar-actions">
-      <a class="btn-preview" href="/u/{{ current_user.username }}" target="_blank">👁 Open Live</a>
-      <button class="btn-save" onclick="saveProfile(this)">💾 Save Changes</button>
+      <a class="btn-outline" href="/u/{{ current_user.username }}" target="_blank">👁 Open Live</a>
+      <button class="btn-primary" onclick="saveProfile(this)">💾 Save Changes</button>
     </div>
   </div>
 
-  <!-- WORKSPACE -->
   <div class="workspace">
-
-    <!-- LEFT: EDITOR -->
+    <!-- LEFT PANEL -->
     <div class="left-panel">
-
-      <!-- Sticky header: stats + tabs -->
-      <div style="padding:16px 18px 0;flex-shrink:0">
-      <div class="stats-strip">
-        <div class="stat-chip">
-          <div class="stat-num">{{ profile.total_views if profile else 0 }}</div>
-          <div class="stat-lbl">Profile Views</div>
+      <div class="lp-header">
+        <div class="stats-strip">
+          <div class="stat-chip"><div class="stat-num">{{ profile.total_views if profile else 0 }}</div><div class="stat-lbl">Views</div></div>
+          <div class="stat-chip"><div class="stat-num">{{ links|length }}</div><div class="stat-lbl">Links</div></div>
+          <div class="stat-chip"><div class="stat-num">{{ total_clicks }}</div><div class="stat-lbl">Clicks</div></div>
         </div>
-        <div class="stat-chip">
-          <div class="stat-num">{{ links|length }}</div>
-          <div class="stat-lbl">Total Links</div>
-        </div>
-        <div class="stat-chip">
-          <div class="stat-num">{{ total_clicks }}</div>
-          <div class="stat-lbl">Total Clicks</div>
+        <div class="editor-tabs">
+          <button class="editor-tab active" onclick="switchTab(this,'t-links')">🔗 Links</button>
+          <button class="editor-tab" onclick="switchTab(this,'t-social')">📱 Social</button>
+          <button class="editor-tab" onclick="switchTab(this,'t-design')">🎨 Design</button>
+          <button class="editor-tab" onclick="switchTab(this,'t-analytics')">📊 Analytics</button>
         </div>
       </div>
-
-      <!-- Tabs -->
-      <div class="editor-tabs">
-        <button class="editor-tab active" onclick="switchTab(this,'t-links')">🔗 Links</button>
-        <button class="editor-tab" onclick="switchTab(this,'t-social')">📱 Social</button>
-        <button class="editor-tab" onclick="switchTab(this,'t-design')">🎨 Design</button>
-        <button class="editor-tab" onclick="switchTab(this,'t-analytics')">📊 Analytics</button>
-      </div><!-- /editor-tabs -->
-      </div><!-- /sticky-header -->
 
       <!-- ══ TAB: LINKS ══ -->
       <div id="t-links" class="tab-scroll">
 
-        <!-- Profile section -->
-        <div class="section">
-          <div class="section-header" onclick="toggleSection(this)">
-            <div class="section-header-left"><span class="section-icon">👤</span><span class="section-label">Profile</span></div>
-            <span class="section-chevron">▾</span>
+        <!-- Profile -->
+        <div class="sec">
+          <div class="sec-hdr" onclick="toggleSec(this)">
+            <div class="sec-hdr-left">👤 Profile</div><span class="sec-chev">▾</span>
           </div>
-          <div class="section-body" style="padding-top:4px">
+          <div class="sec-body" style="padding-top:4px">
             <div class="avatar-row">
               <div class="avatar-preview" id="avatar-preview">
-                {% if profile and profile.avatar_data %}
-                  <img src="{{ profile.avatar_data }}" id="avatar-img">
-                {% else %}
-                  <span>{{ (current_user.first_name[0] if current_user.first_name else current_user.username[0]) | upper }}</span>
-                {% endif %}
+                {% if profile and profile.avatar_data %}<img src="{{ profile.avatar_data }}">
+                {% else %}<span>{{ (current_user.first_name[0] if current_user.first_name else current_user.username[0])|upper }}</span>{% endif %}
               </div>
               <div>
-                <button class="avatar-btn" onclick="document.getElementById('avatar-input').click()">📷 Change Photo</button>
-                <input type="file" id="avatar-input" accept="image/*" onchange="handleAvatar(this)">
-                <div style="font-size:11px;color:#94a3b8;margin-top:5px">JPG, PNG up to 2MB</div>
+                <button class="upload-btn" onclick="document.getElementById('avatar-input').click()">📷 Change Photo</button>
+                <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="handleAvatar(this)">
+                <div style="font-size:10px;color:#94a3b8;margin-top:4px">JPG/PNG up to 2MB</div>
               </div>
             </div>
-            <div class="field">
-              <label>Display Name</label>
-              <input type="text" id="display-name" value="{{ profile.display_name if profile and profile.display_name else (current_user.first_name + ' ' + current_user.last_name if current_user.first_name else current_user.username) }}" placeholder="Your name or brand" oninput="schedulePreview()">
+            <div class="field"><label>Display Name</label>
+              <input type="text" id="display-name" value="{{ profile.display_name if profile and profile.display_name else (current_user.first_name + ' ' + current_user.last_name if current_user.first_name else current_user.username) }}" oninput="schedulePreview()">
             </div>
-            <div class="field">
-              <label>Bio</label>
-              <textarea id="bio" placeholder="Short bio — tell visitors who you are..." oninput="schedulePreview()">{{ profile.bio if profile and profile.bio else '' }}</textarea>
+            <div class="field"><label>Bio</label>
+              <textarea id="bio" oninput="schedulePreview()">{{ profile.bio if profile and profile.bio else '' }}</textarea>
             </div>
-            <div class="publish-row">
-              <div class="publish-info">
-                <h4>Page Published</h4>
-                <p>Your LinkHub is visible to the public</p>
-              </div>
-              <label class="big-toggle">
-                <input type="checkbox" id="is-published" {% if not profile or profile.is_published %}checked{% endif %} onchange="schedulePreview()">
-                <div class="big-track"></div>
-              </label>
+            <div class="field"><label>Follower / Subscriber Count <span style="color:#94a3b8;font-weight:400;font-size:9px">(e.g. 12.4K followers)</span></label>
+              <input type="text" id="follower-count" value="{{ profile.follower_count if profile and profile.follower_count else '' }}" placeholder="e.g. 12.4K followers" oninput="schedulePreview()">
+            </div>
+            <div class="pub-row">
+              <div class="pub-info"><h4>Published</h4><p>Visible to the public</p></div>
+              <label class="tog"><input type="checkbox" id="is-published" {% if not profile or profile.is_published %}checked{% endif %} onchange="schedulePreview()"><div class="tog-track"></div></label>
             </div>
           </div>
         </div>
 
-        <!-- Links section -->
-        <div class="section">
-          <div class="section-header" onclick="toggleSection(this)">
-            <div class="section-header-left"><span class="section-icon">🔗</span><span class="section-label">Links</span></div>
-            <span class="section-chevron">▾</span>
+        <!-- Links -->
+        <div class="sec">
+          <div class="sec-hdr" onclick="toggleSec(this)">
+            <div class="sec-hdr-left">🔗 Links</div><span class="sec-chev">▾</span>
           </div>
-          <div class="section-body" style="padding-top:12px">
+          <div class="sec-body" style="padding-top:10px">
             <div id="links-list">
               {% for link in links %}
-              <div class="link-item" data-id="{{ link.id }}" data-order="{{ link.sort_order }}">
-                <span class="link-drag">⠿</span>
-                <button class="link-icon-btn" onclick="openIconPicker(this)">{{ link.icon }}</button>
-                <div style="flex:1;min-width:0">
-                  <div class="link-fields">
-                    <input type="text" placeholder="Link title" value="{{ link.title }}" class="link-title" oninput="schedulePreview()">
+              <div class="link-item" draggable="true" data-id="{{ link.id }}" data-order="{{ link.sort_order }}">
+                <div class="link-row1">
+                  <span class="link-drag" title="Drag to reorder">⠿</span>
+                  <button class="link-icon-btn" onclick="openIconPicker(this)">{{ link.icon }}</button>
+                  <div class="link-inputs">
+                    <input type="text" placeholder="Title" value="{{ link.title }}" class="link-title" oninput="schedulePreview()">
                     <input type="url" placeholder="https://..." value="{{ link.url }}" class="link-url">
                   </div>
-                  <input class="link-subtitle-input" type="text" placeholder="Optional subtitle..." value="{{ link.subtitle or '' }}">
-                  <div class="style-picker">
-                    <button class="style-opt {% if not link.btn_style or link.btn_style == 'filled' %}selected{% endif %}" onclick="setStyle(this,'filled')">▭ Filled</button>
-                    <button class="style-opt {% if link.btn_style == 'pill' %}selected{% endif %}" onclick="setStyle(this,'pill')">⬭ Pill</button>
-                    <button class="style-opt {% if link.btn_style == 'solid' %}selected{% endif %}" onclick="setStyle(this,'solid')">■ Solid</button>
+                  <div class="link-meta">
+                    <span class="link-clicks">{{ link.click_count }}x</span>
+                    <label class="tog-sm"><input type="checkbox" {% if link.is_active %}checked{% endif %} class="link-active" onchange="schedulePreview()"><div class="tog-sm-track"></div></label>
+                    <button class="link-del" onclick="deleteLink(this)">✕</button>
                   </div>
                 </div>
-                <div class="link-meta">
-                  <div class="link-stats">{{ link.click_count }} clicks</div>
-                  <label class="toggle-sw"><input type="checkbox" {% if link.is_active %}checked{% endif %} class="link-active" onchange="schedulePreview()"><div class="toggle-track"></div></label>
-                  <button class="link-del" onclick="deleteLink(this)">✕</button>
+                <!-- Advanced options -->
+                <div class="link-advanced">
+                  <!-- Button style -->
+                  <div>
+                    <span class="adv-label">Style</span>
+                    <div class="style-row">
+                      <button class="style-btn {% if not link.btn_style or link.btn_style=='filled' %}sel{% endif %}" onclick="setStyle(this,'filled')">▭ Fill</button>
+                      <button class="style-btn {% if link.btn_style=='pill' %}sel{% endif %}" onclick="setStyle(this,'pill')">⬭ Pill</button>
+                      <button class="style-btn {% if link.btn_style=='solid' %}sel{% endif %}" onclick="setStyle(this,'solid')">□ Line</button>
+                    </div>
+                  </div>
+                  <!-- Text align -->
+                  <div>
+                    <span class="adv-label">Align</span>
+                    <div class="align-row">
+                      <button class="align-btn {% if not link.text_align or link.text_align=='center' %}sel{% endif %}" onclick="setAlign(this,'center')" title="Centre">≡</button>
+                      <button class="align-btn {% if link.text_align=='left' %}sel{% endif %}" onclick="setAlign(this,'left')" title="Left">☰</button>
+                      <button class="align-btn {% if link.text_align=='right' %}sel{% endif %}" onclick="setAlign(this,'right')" title="Right">≡</button>
+                    </div>
+                  </div>
+                  <!-- Font size -->
+                  <div>
+                    <span class="adv-label">Font Size</span>
+                    <div class="sz-row">
+                      <button class="sz-btn" onclick="adjSize(this,-1)">−</button>
+                      <span class="sz-val">{{ link.font_size or 14 }}</span>
+                      <button class="sz-btn" onclick="adjSize(this,1)">+</button>
+                    </div>
+                  </div>
+                  <!-- Font weight -->
+                  <div>
+                    <span class="adv-label">Weight</span>
+                    <div class="wt-row">
+                      <button class="wt-btn {% if not link.font_weight or link.font_weight=='semibold' %}sel{% endif %}" onclick="setWeight(this,'semibold')" style="font-weight:600">Semi</button>
+                      <button class="wt-btn {% if link.font_weight=='bold' %}sel{% endif %}" onclick="setWeight(this,'bold')" style="font-weight:700">Bold</button>
+                      <button class="wt-btn {% if link.font_weight=='black' %}sel{% endif %}" onclick="setWeight(this,'black')" style="font-weight:900">Black</button>
+                    </div>
+                  </div>
+                  <!-- Subtitle -->
+                  <div class="link-advanced-full">
+                    <span class="adv-label">Subtitle (optional)</span>
+                    <input type="text" class="subtitle-input" placeholder="Short description..." value="{{ link.subtitle or '' }}" oninput="schedulePreview()">
+                  </div>
+                  <!-- Thumbnail -->
+                  <div class="link-advanced-full">
+                    <span class="adv-label">Thumbnail Image</span>
+                    <div class="thumb-wrap">
+                      <div class="thumb-preview" id="thumb-{{ loop.index }}">
+                        {% if link.thumbnail %}<img src="{{ link.thumbnail }}">{% else %}🖼{% endif %}
+                      </div>
+                      <div>
+                        <button class="upload-btn" onclick="document.getElementById('thumb-inp-{{ loop.index }}').click()" style="font-size:11px">Upload</button>
+                        <input type="file" id="thumb-inp-{{ loop.index }}" accept="image/*" style="display:none" onchange="handleThumb(this,'thumb-{{ loop.index }}')">
+                        {% if link.thumbnail %}<button class="upload-btn" onclick="clearThumb('thumb-{{ loop.index }}')" style="margin-top:4px;color:#f87171">Remove</button>{% endif %}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               {% endfor %}
@@ -365,267 +401,244 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#1e293b;height:10
         </div>
 
         <div class="save-bar">
-          <button class="btn-save" onclick="saveProfile(this)">💾 Save Changes</button>
+          <button class="btn-primary" onclick="saveProfile(this)" style="font-size:12px;padding:8px 16px">💾 Save</button>
           <span class="save-msg" id="save-msg">✓ Saved!</span>
         </div>
-
       </div><!-- /t-links -->
 
       <!-- ══ TAB: SOCIAL ══ -->
       <div id="t-social" class="tab-scroll" style="display:none">
-        <div class="section">
-          <div class="section-header" onclick="toggleSection(this)">
-            <div class="section-header-left"><span class="section-icon">📱</span><span class="section-label">Social Icons</span></div>
-            <span class="section-chevron">▾</span>
+        <div class="sec">
+          <div class="sec-hdr" onclick="toggleSec(this)">
+            <div class="sec-hdr-left">🔘 Icon Shape</div><span class="sec-chev">▾</span>
           </div>
-          <div class="section-body" style="padding-top:12px">
-            <p style="font-size:12px;color:#64748b;margin-bottom:12px">Shown below your bio as icon buttons on your public page.</p>
+          <div class="sec-body" style="padding-top:10px">
+            <div class="shape-row">
+              {% set cur_shape = profile.soc_icon_shape if profile and profile.soc_icon_shape else 'circle' %}
+              <button class="shape-btn {% if cur_shape=='circle' %}sel{% endif %}" onclick="setShape(this,'circle')">
+                <div class="shape-demo" style="border-radius:50%"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg></div>
+                Circle
+              </button>
+              <button class="shape-btn {% if cur_shape=='square' %}sel{% endif %}" onclick="setShape(this,'square')">
+                <div class="shape-demo" style="border-radius:6px"><svg viewBox="0 0 24 24"><path d="M3 3h18v18H3z"/></svg></div>
+                Square
+              </button>
+              <button class="shape-btn {% if cur_shape=='pill' %}sel{% endif %}" onclick="setShape(this,'pill')">
+                <div class="shape-demo" style="border-radius:999px;width:40px"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg></div>
+                Pill
+              </button>
+            </div>
+            <input type="hidden" id="soc-shape-val" value="{{ cur_shape }}">
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-hdr" onclick="toggleSec(this)">
+            <div class="sec-hdr-left">📱 Social Icons</div><span class="sec-chev">▾</span>
+          </div>
+          <div class="sec-body" style="padding-top:10px">
+            <p style="font-size:11px;color:#64748b;margin-bottom:10px">These appear below your bio as icon buttons.</p>
             <div id="social-list">
               {% set soc_bg = {'instagram':'linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)','tiktok':'#010101','youtube':'#ff0000','facebook':'#1877f2','x':'#000000','twitter':'#000000','telegram':'#2aabee','linkedin':'#0a66c2','whatsapp':'#25d366'} %}
-              {% set soc_svgs = {
-                'instagram':'<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>',
-                'tiktok':'<svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.31 6.31 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.77a4.85 4.85 0 01-1.01-.08z"/></svg>',
-                'youtube':'<svg viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>',
-                'facebook':'<svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>',
-                'x':'<svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
-                'twitter':'<svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
-                'telegram':'<svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>',
-                'linkedin':'<svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>',
-                'whatsapp':'<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>'
-              } %}
+              {% set soc_svgs = {'instagram':'<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>','tiktok':'<svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.77a4.85 4.85 0 01-1.01-.08z"/></svg>','youtube':'<svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5a3 3 0 00-2.1 2.1A31 31 0 000 12a31 31 0 00.5 5.8 3 3 0 002.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 002.1-2.1A31 31 0 0024 12a31 31 0 00-.5-5.8zM9.7 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>','facebook':'<svg viewBox="0 0 24 24"><path d="M24 12.1C24 5.4 18.6 0 12 0S0 5.4 0 12.1C0 18 4.4 23 10.1 24v-8.4H7.1v-3.5h3v-2.7c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9v2.3h3.3l-.5 3.5h-2.8V24C19.6 23 24 18 24 12.1z"/></svg>','x':'<svg viewBox="0 0 24 24"><path d="M18.2 2.3h3.3l-7.2 8.3 8.5 11.2h-6.6l-4.7-6.2-5.4 6.2H2.7l7.7-8.8L1.3 2.3h6.8l4.3 5.6zm-1.2 17.5h1.8L7.1 4.1H5.1z"/></svg>','twitter':'<svg viewBox="0 0 24 24"><path d="M18.2 2.3h3.3l-7.2 8.3 8.5 11.2h-6.6l-4.7-6.2-5.4 6.2H2.7l7.7-8.8L1.3 2.3h6.8l4.3 5.6zm-1.2 17.5h1.8L7.1 4.1H5.1z"/></svg>','telegram':'<svg viewBox="0 0 24 24"><path d="M12 0a12 12 0 100 24A12 12 0 0012 0zm5 7.2l-2 9.6c-.1.6-.5.8-1 .5l-2.8-2-1.3 1.3c-.2.2-.4.3-.7.3l.2-2.8 4.7-4.3c.2-.2 0-.3-.3-.1L6.3 14.5l-2.7-.9c-.6-.2-.6-.6.1-.9l9.8-3.8c.6-.2 1 .1.9.9-.1-.6z"/></svg>','linkedin':'<svg viewBox="0 0 24 24"><path d="M20.4 20.5h-3.6v-5.6c0-1.3 0-3-1.8-3-1.9 0-2.1 1.4-2.1 2.9v5.7H9.4V9h3.4v1.6h.1c.5-.9 1.6-1.9 3.4-1.9 3.6 0 4.3 2.4 4.3 5.5v6.3zM5.3 7.4a2.1 2.1 0 110-4.2 2.1 2.1 0 010 4.2zm1.8 13.1H3.5V9h3.6v11.5zM22.2 0H1.8C.8 0 0 .8 0 1.7v20.5C0 23.2.8 24 1.8 24h20.4c1 0 1.8-.8 1.8-1.8V1.7C24 .8 23.2 0 22.2 0z"/></svg>','whatsapp':'<svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.4.2-.6.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.4.1-.6.1-.1.3-.3.4-.5.2-.2.2-.3.3-.5.1-.2.1-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.3zm-5.4 7.4h-.1a9.9 9.9 0 01-5-1.4l-.4-.2-3.7 1 1-3.6-.3-.4A9.9 9.9 0 012 12C2 6.5 6.5 2 12 2s10 4.5 10 10-4.5 10-10 10z"/></svg>'} %}
               {% for s in social_links %}
-              <div class="social-item">
-                <div class="soc-icon-wrap" style="background:{{ soc_bg.get(s.platform,'#64748b') }}">{{ soc_svgs.get(s.platform,'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>') | safe }}</div>
-                <span class="soc-label">{{ s.platform | title }}</span>
-                <input class="soc-input" type="url" placeholder="https://..." value="{{ s.url }}" data-platform="{{ s.platform }}">
-                <button class="soc-del" onclick="this.closest('.social-item').remove()">✕</button>
+              <div class="soc-item">
+                <div class="soc-icon" style="background:{{ soc_bg.get(s.platform,'#64748b') }}">{{ soc_svgs.get(s.platform,'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>')|safe }}</div>
+                <span class="soc-lbl">{{ s.platform|title }}</span>
+                <input class="soc-url" type="url" placeholder="https://..." value="{{ s.url }}" data-platform="{{ s.platform }}">
+                <button class="soc-del" onclick="this.closest('.soc-item').remove();schedulePreview()">✕</button>
               </div>
               {% endfor %}
             </div>
-            <select id="social-platform-select" style="width:100%;padding:9px 12px;border:1.5px solid #d4dae6;border-radius:8px;font-family:inherit;font-size:13px;color:#1e293b;background:#fff;margin-bottom:8px">
+            <select id="soc-select" style="width:100%;padding:8px 10px;border:1.5px solid #d4dae6;border-radius:7px;font-family:inherit;font-size:12px;background:#fff;margin-bottom:7px">
               <option value="">— Add a platform —</option>
-              <option value="instagram">Instagram</option>
-              <option value="tiktok">TikTok</option>
-              <option value="youtube">YouTube</option>
-              <option value="x">X / Twitter</option>
-              <option value="facebook">Facebook</option>
-              <option value="telegram">Telegram</option>
-              <option value="linkedin">LinkedIn</option>
-              <option value="whatsapp">WhatsApp</option>
+              <option value="instagram">Instagram</option><option value="tiktok">TikTok</option>
+              <option value="youtube">YouTube</option><option value="x">X / Twitter</option>
+              <option value="facebook">Facebook</option><option value="telegram">Telegram</option>
+              <option value="linkedin">LinkedIn</option><option value="whatsapp">WhatsApp</option>
             </select>
-            <button class="add-link-btn" onclick="addSocialIcon()">+ Add Social Icon</button>
+            <button class="add-link-btn" onclick="addSocial()">+ Add Social Icon</button>
           </div>
         </div>
       </div><!-- /t-social -->
 
       <!-- ══ TAB: DESIGN ══ -->
       <div id="t-design" class="tab-scroll" style="display:none">
-        <div class="section">
-          <div class="section-header" onclick="toggleSection(this)">
-            <div class="section-header-left"><span class="section-icon">🎨</span><span class="section-label">Theme & Colours</span></div>
-            <span class="section-chevron">▾</span>
-          </div>
-          <div class="section-body" style="padding-top:12px">
 
-            <div style="font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Choose a theme</div>
+        <!-- Profile banner -->
+        <div class="sec">
+          <div class="sec-hdr" onclick="toggleSec(this)">
+            <div class="sec-hdr-left">🖼 Header Banner</div><span class="sec-chev">▾</span>
+          </div>
+          <div class="sec-body" style="padding-top:10px">
+            <div class="banner-preview" id="banner-preview-wrap">
+              {% if profile and profile.banner_image %}<img src="{{ profile.banner_image }}" id="banner-img">
+              {% else %}<div style="width:100%;height:100%;background:linear-gradient(135deg,#0ea5e9,#6366f1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:11px">No banner</div>{% endif %}
+              <button class="banner-clear" onclick="clearBanner()" title="Remove banner">✕</button>
+            </div>
+            <button class="upload-btn" onclick="document.getElementById('banner-input').click()" style="width:100%;text-align:center">📸 Upload Banner Image</button>
+            <input type="file" id="banner-input" accept="image/*" style="display:none" onchange="handleBanner(this)">
+            <div style="font-size:10px;color:#94a3b8;margin-top:4px">Recommended: 1200×400px, JPG/PNG under 3MB</div>
+          </div>
+        </div>
+
+        <!-- Theme -->
+        <div class="sec">
+          <div class="sec-hdr" onclick="toggleSec(this)">
+            <div class="sec-hdr-left">🎨 Theme</div><span class="sec-chev">▾</span>
+          </div>
+          <div class="sec-body" style="padding-top:10px">
             <div class="theme-grid">
-              <div class="theme-swatch {% if (profile and profile.theme == 'dark') or not profile %}sel{% endif %}" onclick="selectTheme('dark',this)" data-val="dark">
-                <div class="sw-preview sw-dark"></div>
-                <div class="sw-dots">
-                  <div class="sw-dot" style="background:#050d1a"></div>
-                  <div class="sw-dot" style="background:#0f2040"></div>
-                  <div class="sw-dot" style="background:#00d4ff"></div>
-                  <div class="sw-dot" style="background:#6366f1"></div>
-                </div>
-                <div class="sw-label">Dark</div>
+              <div class="theme-sw {% if (profile and profile.theme=='dark') or not profile %}sel{% endif %}" onclick="selectTheme('dark',this)">
+                <div class="sw-prev sw-dark"></div><div class="sw-dots"><div class="sw-dot" style="background:#050d1a"></div><div class="sw-dot" style="background:#0f2040"></div><div class="sw-dot" style="background:#00d4ff"></div><div class="sw-dot" style="background:#6366f1"></div></div><div class="sw-lbl">Dark</div>
               </div>
-              <div class="theme-swatch {% if profile and profile.theme == 'light' %}sel{% endif %}" onclick="selectTheme('light',this)" data-val="light">
-                <div class="sw-preview sw-light"></div>
-                <div class="sw-dots">
-                  <div class="sw-dot" style="background:#f0f4ff"></div>
-                  <div class="sw-dot" style="background:#e8f0fe"></div>
-                  <div class="sw-dot" style="background:#0ea5e9"></div>
-                  <div class="sw-dot" style="background:#bfdbfe"></div>
-                </div>
-                <div class="sw-label">Light</div>
+              <div class="theme-sw {% if profile and profile.theme=='light' %}sel{% endif %}" onclick="selectTheme('light',this)">
+                <div class="sw-prev sw-light"></div><div class="sw-dots"><div class="sw-dot" style="background:#f0f4ff"></div><div class="sw-dot" style="background:#e8f0fe"></div><div class="sw-dot" style="background:#0ea5e9"></div><div class="sw-dot" style="background:#bfdbfe"></div></div><div class="sw-lbl">Light</div>
               </div>
-              <div class="theme-swatch {% if profile and profile.theme == 'gradient' %}sel{% endif %}" onclick="selectTheme('gradient',this)" data-val="gradient">
-                <div class="sw-preview sw-grad"></div>
-                <div class="sw-dots">
-                  <div class="sw-dot" style="background:#1e1b4b"></div>
-                  <div class="sw-dot" style="background:#6366f1"></div>
-                  <div class="sw-dot" style="background:#8b5cf6"></div>
-                  <div class="sw-dot" style="background:#ec4899"></div>
-                </div>
-                <div class="sw-label">Gradient</div>
+              <div class="theme-sw {% if profile and profile.theme=='gradient' %}sel{% endif %}" onclick="selectTheme('gradient',this)">
+                <div class="sw-prev sw-grad"></div><div class="sw-dots"><div class="sw-dot" style="background:#1e1b4b"></div><div class="sw-dot" style="background:#6366f1"></div><div class="sw-dot" style="background:#8b5cf6"></div><div class="sw-dot" style="background:#ec4899"></div></div><div class="sw-lbl">Gradient</div>
               </div>
-              <div class="theme-swatch {% if profile and profile.theme == 'neon' %}sel{% endif %}" onclick="selectTheme('neon',this)" data-val="neon">
-                <div class="sw-preview sw-neon"></div>
-                <div class="sw-dots">
-                  <div class="sw-dot" style="background:#0a0a0a"></div>
-                  <div class="sw-dot" style="background:#111"></div>
-                  <div class="sw-dot" style="background:#00ff88"></div>
-                  <div class="sw-dot" style="background:#00d4ff"></div>
-                </div>
-                <div class="sw-label">Neon</div>
+              <div class="theme-sw {% if profile and profile.theme=='neon' %}sel{% endif %}" onclick="selectTheme('neon',this)">
+                <div class="sw-prev sw-neon"></div><div class="sw-dots"><div class="sw-dot" style="background:#0a0a0a"></div><div class="sw-dot" style="background:#111"></div><div class="sw-dot" style="background:#00ff88"></div><div class="sw-dot" style="background:#00d4ff"></div></div><div class="sw-lbl">Neon</div>
               </div>
             </div>
             <input type="hidden" id="theme-val" value="{{ profile.theme if profile else 'dark' }}">
+          </div>
+        </div>
 
-            <div style="font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Accent colour</div>
-            <div class="accent-presets" id="accent-presets">
-              {% set accents = ['#00d4ff','#0ea5e9','#6366f1','#8b5cf6','#ec4899','#10b981','#f59e0b','#ef4444','#ff6b35','#ffffff'] %}
-              {% for c in accents %}
-              <div class="accent-dot {% if (profile and profile.accent_color == c) or (not profile and c == '#00d4ff') %}selected{% endif %}"
-                   style="background:{{ c }}{% if c == '#ffffff' %};border:2px solid #e2e8f0{% endif %}"
-                   onclick="selectAccent('{{ c }}', this)" data-val="{{ c }}"></div>
+        <!-- Font -->
+        <div class="sec">
+          <div class="sec-hdr" onclick="toggleSec(this)">
+            <div class="sec-hdr-left">🔤 Font</div><span class="sec-chev">▾</span>
+          </div>
+          <div class="sec-body" style="padding-top:8px">
+            {% set cur_font = profile.font_family if profile and profile.font_family else 'DM Sans' %}
+            <div class="font-grid">
+              {% set fonts = [('DM Sans','DM Sans'),('Inter','Inter'),('Poppins','Poppins'),('Outfit','Outfit'),('Nunito','Nunito'),('Raleway','Raleway'),('Space Grotesk','Space Grotesk'),('Sora','Sora')] %}
+              {% for fval, fname in fonts %}
+              <button class="font-btn {% if cur_font==fval %}sel{% endif %}" onclick="selectFont('{{ fval }}',this)" style="font-family:'{{ fval }}'">{{ fname }}</button>
               {% endfor %}
             </div>
+            <input type="hidden" id="font-val" value="{{ cur_font }}">
+          </div>
+        </div>
 
-            <div style="font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:0">Custom colours</div>
-            <div class="colour-grid">
-              <div class="colour-row">
-                <label>Background</label>
-                <div class="colour-row-inner">
-                  <input type="color" id="col-bg" oninput="onColourChange()">
-                  <span id="col-bg-hex">#050d1a</span>
-                </div>
-              </div>
-              <div class="colour-row">
-                <label>Button BG</label>
-                <div class="colour-row-inner">
-                  <input type="color" id="col-btn" oninput="onColourChange()">
-                  <span id="col-btn-hex">#0f1f3d</span>
-                </div>
-              </div>
-              <div class="colour-row">
-                <label>Text</label>
-                <div class="colour-row-inner">
-                  <input type="color" id="col-text" oninput="onColourChange()">
-                  <span id="col-text-hex">#e2e8f0</span>
-                </div>
-              </div>
-              <div class="colour-row">
-                <label>Accent</label>
-                <div class="colour-row-inner">
-                  <input type="color" id="col-accent" oninput="onAccentPickerChange(this)">
-                  <span id="col-accent-hex">#00d4ff</span>
-                </div>
-              </div>
+        <!-- Colours -->
+        <div class="sec">
+          <div class="sec-hdr" onclick="toggleSec(this)">
+            <div class="sec-hdr-left">🎨 Colours</div><span class="sec-chev">▾</span>
+          </div>
+          <div class="sec-body" style="padding-top:10px">
+            <div style="font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Accent</div>
+            <div class="accent-dots" id="accent-dots">
+              {% set accents = ['#00d4ff','#0ea5e9','#6366f1','#8b5cf6','#ec4899','#10b981','#f59e0b','#ef4444','#ff6b35','#ffffff'] %}
+              {% for c in accents %}
+              <div class="acc-dot {% if (profile and profile.accent_color==c) or (not profile and c=='#00d4ff') %}sel{% endif %}" style="background:{{ c }}{% if c=='#ffffff' %};border-color:#e2e8f0{% endif %}" onclick="selectAccent('{{ c }}',this)" data-val="{{ c }}"></div>
+              {% endfor %}
             </div>
-            <button class="reset-btn" onclick="resetThemeDefaults()">↺ Reset to theme defaults</button>
-
+            <div class="col-grid">
+              <div class="col-row"><label>Background</label><div class="col-inner"><input type="color" id="col-bg" oninput="onColour()"><span id="hex-bg">#050d1a</span></div></div>
+              <div class="col-row"><label>Button BG</label><div class="col-inner"><input type="color" id="col-btn" oninput="onColour()"><span id="hex-btn">#0f1f3d</span></div></div>
+              <div class="col-row"><label>Text</label><div class="col-inner"><input type="color" id="col-text" oninput="onColour()"><span id="hex-text">#e2e8f0</span></div></div>
+              <div class="col-row"><label>Accent</label><div class="col-inner"><input type="color" id="col-accent" oninput="onAccentPicker(this)"><span id="hex-accent">#00d4ff</span></div></div>
+            </div>
+            <button class="reset-btn" onclick="resetTheme()">↺ Reset to theme defaults</button>
             <input type="hidden" id="accent-val" value="{{ profile.accent_color if profile else '#00d4ff' }}">
             <input type="hidden" id="col-bg-val" value="{{ profile.bg_color if profile and profile.bg_color else '' }}">
             <input type="hidden" id="col-btn-val" value="{{ profile.btn_color if profile and profile.btn_color else '' }}">
             <input type="hidden" id="col-text-val" value="{{ profile.text_color if profile and profile.text_color else '' }}">
           </div>
         </div>
+
+        <!-- Background image -->
+        <div class="sec">
+          <div class="sec-hdr" onclick="toggleSec(this)">
+            <div class="sec-hdr-left">🌄 Background Image</div><span class="sec-chev">▾</span>
+          </div>
+          <div class="sec-body" style="padding-top:10px">
+            <div class="bg-img-preview" id="bg-preview-wrap">
+              {% if profile and profile.bg_image %}<img src="{{ profile.bg_image }}" id="bg-img">
+              {% else %}<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:11px">No image set</div>{% endif %}
+            </div>
+            <button class="upload-btn" onclick="document.getElementById('bg-input').click()" style="width:100%;text-align:center">🌄 Upload Background</button>
+            <input type="file" id="bg-input" accept="image/*" style="display:none" onchange="handleBgImage(this)">
+            {% if profile and profile.bg_image %}
+            <button class="upload-btn" onclick="clearBgImage()" style="width:100%;text-align:center;margin-top:4px;color:#f87171">Remove Background</button>
+            {% endif %}
+            <div class="overlay-row">
+              <label>Overlay opacity</label>
+              <input type="range" id="bg-overlay" min="0" max="90" value="60" step="5" oninput="schedulePreview()">
+              <span id="bg-overlay-val" style="font-size:11px;color:#64748b;min-width:28px">60%</span>
+            </div>
+            <div style="font-size:10px;color:#94a3b8;margin-top:4px">A dark overlay is applied so text remains readable.</div>
+          </div>
+        </div>
+
       </div><!-- /t-design -->
 
       <!-- ══ TAB: ANALYTICS ══ -->
       <div id="t-analytics" class="tab-fill" style="display:none">
-        <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;background:#fff;border:1.5px solid #d4dae6;border-radius:12px;margin-top:14px;box-shadow:0 2px 6px rgba(0,0,0,.05)">
-          <div style="padding:12px 14px;border-bottom:1px solid #d4dae6;flex-shrink:0;display:flex;align-items:center;gap:8px">
-            <span>📊</span><span style="font-size:14px;font-weight:800;color:#1e293b">Performance</span>
-          </div>
-          <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;padding:12px 14px">
-
+        <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;background:#fff;border:1.5px solid #d4dae6;border-radius:10px;margin-top:12px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
+          <div style="padding:10px 12px;border-bottom:1px solid #f1f5f9;flex-shrink:0;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:800;color:#1e293b"><span>📊</span>Performance</div>
+          <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;padding:10px 12px">
             {% set total_views = profile.total_views if profile else 0 %}
             {% set total_cls = total_clicks %}
-            {% set ctr = ((total_cls / total_views * 100) | round(1)) if total_views > 0 else 0 %}
-
+            {% set ctr = ((total_cls / total_views * 100)|round(1)) if total_views > 0 else 0 %}
             <div class="ana-cards">
               <div class="ana-card"><div class="ana-val">{{ total_views }}</div><div class="ana-lbl">Views</div></div>
               <div class="ana-card"><div class="ana-val">{{ total_cls }}</div><div class="ana-lbl">Clicks</div></div>
               <div class="ana-card"><div class="ana-val">{{ ctr }}%</div><div class="ana-lbl">CTR</div></div>
             </div>
-
             {% if total_views > 0 %}
-            <div style="font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Performance breakdown</div>
-            <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-              <div style="flex:1;display:flex;gap:0;min-height:0">
-                <!-- Y-axis -->
-                <div style="display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;padding-right:6px;padding-bottom:56px;flex-shrink:0">
-                  <div style="font-size:9px;color:#94a3b8;font-weight:600">100</div>
-                  <div style="font-size:9px;color:#94a3b8;font-weight:600">80</div>
-                  <div style="font-size:9px;color:#94a3b8;font-weight:600">60</div>
-                  <div style="font-size:9px;color:#94a3b8;font-weight:600">40</div>
-                  <div style="font-size:9px;color:#94a3b8;font-weight:600">20</div>
-                  <div style="font-size:9px;color:#94a3b8;font-weight:600">0</div>
+            <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:10px 10px 0">
+              <div style="display:flex;gap:0;flex:1;min-height:0">
+                <div style="display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;padding-right:5px;padding-bottom:50px;flex-shrink:0;font-size:8px;color:#94a3b8;font-weight:600">
+                  <span>100</span><span>80</span><span>60</span><span>40</span><span>20</span><span>0</span>
                 </div>
-                <!-- Chart area -->
-                <div style="flex:1;position:relative">
-                  <!-- Grid lines -->
-                  <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;z-index:0">
-                    <div style="border-top:1px dashed #e8edf5"></div>
-                    <div style="border-top:1px dashed #e8edf5"></div>
-                    <div style="border-top:1px dashed #e8edf5"></div>
-                    <div style="border-top:1px dashed #e8edf5"></div>
-                    <div style="border-top:1px dashed #e8edf5"></div>
-                    <div style="border-top:2px solid #d4dae6"></div>
+                <div style="flex:1;position:relative;min-height:0">
+                  <div style="position:absolute;top:0;left:0;right:0;bottom:50px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;z-index:0">
+                    <div style="border-top:1px dashed #e2e8f0"></div><div style="border-top:1px dashed #e2e8f0"></div><div style="border-top:1px dashed #e2e8f0"></div><div style="border-top:1px dashed #e2e8f0"></div><div style="border-top:1px dashed #e2e8f0"></div><div style="border-top:2px solid #d4dae6"></div>
                   </div>
-                  {% set d_total = ((device_stats.mobile + device_stats.desktop + device_stats.tablet) if device_stats else 0) or 1 %}
-                  {% set mob_pct = ((device_stats.mobile / d_total * 100) | round | int) if device_stats else 68 %}
-                  {% set desk_pct = ((device_stats.desktop / d_total * 100) | round | int) if device_stats else 27 %}
-                  {% set tab_pct = ((device_stats.tablet / d_total * 100) | round | int) if device_stats else 5 %}
-                  {% set max_clicks = (links | map(attribute='click_count') | max) if links else 1 %}
+                  {% set d_total = ((device_stats.mobile+device_stats.desktop+device_stats.tablet) if device_stats else 0) or 1 %}
+                  {% set mob_pct = ((device_stats.mobile/d_total*100)|round|int) if device_stats else 68 %}
+                  {% set desk_pct = ((device_stats.desktop/d_total*100)|round|int) if device_stats else 27 %}
+                  {% set tab_pct = ((device_stats.tablet/d_total*100)|round|int) if device_stats else 5 %}
+                  {% set max_clicks = (links|map(attribute='click_count')|max) if links else 1 %}
                   {% set max_clicks = max_clicks if max_clicks > 0 else 1 %}
-                  <!-- Bars -->
-                  <div style="position:relative;flex:1;display:flex;align-items:flex-end;gap:5px;padding:0 4px;z-index:1;min-height:0">
-                    <div style="flex:1;position:relative;height:100%">
-                      <div style="position:absolute;bottom:0;left:0;right:0;height:{{ mob_pct }}%;background:linear-gradient(180deg,#7dd3fc,#0ea5e9);border-radius:4px 4px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:5px">
-                        <span style="font-size:10px;font-weight:800;color:#fff">{{ mob_pct }}%</span>
-                      </div>
-                    </div>
-                    <div style="flex:1;position:relative;height:100%">
-                      <div style="position:absolute;bottom:0;left:0;right:0;height:{{ desk_pct }}%;background:linear-gradient(180deg,#a5b4fc,#6366f1);border-radius:4px 4px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:5px">
-                        <span style="font-size:10px;font-weight:800;color:#fff">{{ desk_pct }}%</span>
-                      </div>
-                    </div>
-                    <div style="flex:1;position:relative;height:100%">
-                      <div style="position:absolute;bottom:0;left:0;right:0;height:{{ [tab_pct, 2] | max }}%;background:linear-gradient(180deg,#fcd34d,#f59e0b);border-radius:4px 4px 0 0"></div>
-                    </div>
-                    <!-- Gap -->
-                    <div style="width:10px;flex-shrink:0"></div>
-                    <!-- Per-link bars -->
-                    {% set bar_colors = ['linear-gradient(180deg,#34d399,#059669)','linear-gradient(180deg,#5bc8f5,#2aabee)','linear-gradient(180deg,#f87171,#dc2626)','linear-gradient(180deg,#fb923c,#ea580c)','linear-gradient(180deg,#c084fc,#9333ea)'] %}
-                    {% for link in links | sort(attribute='click_count', reverse=True) %}
-                    {% set bar_h = [((link.click_count / max_clicks) * 100) | round | int, 5] | max %}
-                    <div style="flex:1;position:relative;height:100%">
-                      <div style="position:absolute;bottom:0;left:0;right:0;height:{{ bar_h }}%;background:{{ bar_colors[loop.index0 % 5] }};border-radius:4px 4px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:5px">
-                        <span style="font-size:10px;font-weight:800;color:#fff">{{ link.click_count }}</span>
-                      </div>
-                    </div>
+                  <div style="position:absolute;top:0;left:0;right:0;bottom:50px;display:flex;align-items:flex-end;gap:4px;padding:0 3px;z-index:1">
+                    <div style="flex:1;position:relative;height:100%"><div style="position:absolute;bottom:0;left:0;right:0;height:{{ mob_pct }}%;background:linear-gradient(180deg,#7dd3fc,#0ea5e9);border-radius:3px 3px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:4px"><span style="font-size:9px;font-weight:800;color:#fff">{{ mob_pct }}%</span></div></div>
+                    <div style="flex:1;position:relative;height:100%"><div style="position:absolute;bottom:0;left:0;right:0;height:{{ desk_pct }}%;background:linear-gradient(180deg,#a5b4fc,#6366f1);border-radius:3px 3px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:4px"><span style="font-size:9px;font-weight:800;color:#fff">{{ desk_pct }}%</span></div></div>
+                    <div style="flex:1;position:relative;height:100%"><div style="position:absolute;bottom:0;left:0;right:0;height:{{ [tab_pct,2]|max }}%;background:linear-gradient(180deg,#fcd34d,#f59e0b);border-radius:3px 3px 0 0"></div></div>
+                    <div style="width:8px;flex-shrink:0"></div>
+                    {% set bar_colors=['linear-gradient(180deg,#34d399,#059669)','linear-gradient(180deg,#5bc8f5,#2aabee)','linear-gradient(180deg,#f87171,#dc2626)','linear-gradient(180deg,#fb923c,#ea580c)','linear-gradient(180deg,#c084fc,#9333ea)'] %}
+                    {% for link in links|sort(attribute='click_count',reverse=True) %}
+                    {% set bh=[((link.click_count/max_clicks)*100)|round|int,4]|max %}
+                    <div style="flex:1;position:relative;height:100%"><div style="position:absolute;bottom:0;left:0;right:0;height:{{ bh }}%;background:{{ bar_colors[loop.index0%5] }};border-radius:3px 3px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:4px"><span style="font-size:9px;font-weight:800;color:#fff">{{ link.click_count }}</span></div></div>
                     {% endfor %}
                   </div>
-                  <!-- X labels -->
-                  <div style="display:flex;gap:5px;padding:6px 4px 0;border-top:2px solid #d4dae6">
-                    <div style="flex:1;text-align:center;font-size:9px;font-weight:700;color:#475569;line-height:1.3">📱<br>Mobile</div>
-                    <div style="flex:1;text-align:center;font-size:9px;font-weight:700;color:#475569;line-height:1.3">💻<br>Desktop</div>
-                    <div style="flex:1;text-align:center;font-size:9px;font-weight:700;color:#f59e0b;line-height:1.3">📲<br>Tablet</div>
-                    <div style="width:10px;flex-shrink:0"></div>
-                    {% for link in links | sort(attribute='click_count', reverse=True) %}
-                    <div style="flex:1;text-align:center;font-size:9px;font-weight:700;color:#475569;line-height:1.3">{{ link.icon }}<br>{{ link.title[:7] }}{% if link.title|length > 7 %}…{% endif %}</div>
+                  <div style="position:absolute;bottom:0;left:0;right:0;height:50px;display:flex;gap:4px;padding:6px 3px 0;border-top:2px solid #d4dae6">
+                    <div style="flex:1;text-align:center;font-size:8px;font-weight:700;color:#475569;line-height:1.3">📱<br>Mobile</div>
+                    <div style="flex:1;text-align:center;font-size:8px;font-weight:700;color:#475569;line-height:1.3">💻<br>Desktop</div>
+                    <div style="flex:1;text-align:center;font-size:8px;font-weight:700;color:#f59e0b;line-height:1.3">📲<br>Tablet</div>
+                    <div style="width:8px;flex-shrink:0"></div>
+                    {% for link in links|sort(attribute='click_count',reverse=True) %}
+                    <div style="flex:1;text-align:center;font-size:8px;font-weight:700;color:#475569;line-height:1.3">{{ link.icon }}<br>{{ link.title[:6] }}{% if link.title|length>6 %}…{% endif %}</div>
                     {% endfor %}
-                  </div>
-                  <!-- Legend -->
-                  <div style="display:flex;gap:14px;justify-content:center;padding:8px 0 12px">
-                    <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:2px;background:#0ea5e9"></div><span style="font-size:10px;color:#64748b;font-weight:600">Devices</span></div>
-                    <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:2px;background:#059669"></div><span style="font-size:10px;color:#64748b;font-weight:600">Link clicks</span></div>
                   </div>
                 </div>
               </div>
+              <div style="display:flex;gap:12px;justify-content:center;padding:8px 0 10px;flex-shrink:0">
+                <div style="display:flex;align-items:center;gap:4px"><div style="width:9px;height:9px;border-radius:2px;background:#0ea5e9"></div><span style="font-size:9px;color:#64748b;font-weight:600">Devices</span></div>
+                <div style="display:flex;align-items:center;gap:4px"><div style="width:9px;height:9px;border-radius:2px;background:#059669"></div><span style="font-size:9px;color:#64748b;font-weight:600">Link clicks</span></div>
+              </div>
             </div>
             {% else %}
-            <div style="text-align:center;padding:30px 20px;background:#fff;border-radius:12px;border:1px solid #d4dae6">
-              <div style="font-size:2rem;margin-bottom:10px">📊</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:20px">
+              <div style="font-size:2rem;margin-bottom:8px">📊</div>
               <div style="font-weight:700;color:#64748b;margin-bottom:4px">No data yet</div>
-              <div style="font-size:12px;color:#94a3b8">Share your LinkHub URL to start collecting views and clicks.</div>
-              <div style="margin-top:10px;font-size:12px;color:#0ea5e9;font-weight:600">superadpro.com/u/{{ current_user.username }}</div>
+              <div style="font-size:11px;color:#94a3b8">Share your URL to start collecting views and clicks.</div>
+              <div style="margin-top:8px;font-size:11px;color:#0ea5e9;font-weight:600">superadpro.com/u/{{ current_user.username }}</div>
             </div>
             {% endif %}
-
           </div>
         </div>
       </div><!-- /t-analytics -->
@@ -634,22 +647,17 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#1e293b;height:10
 
     <!-- RIGHT: PHONE PREVIEW -->
     <div class="right-panel">
-      <div class="phone-label">Live Preview</div>
+      <div class="pv-label">Live Preview</div>
       <div class="iphone">
         <div class="iphone-screen">
-          <div class="status-bar">
-            <span>9:41</span>
-            <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
-          </div>
-          <div class="phone-content">
-            <div id="live-preview"></div>
-          </div>
+          <div class="status-bar"><span>9:41</span><div style="display:flex;align-items:center;gap:3px;font-size:9px"><span>●●●</span><span>WiFi</span><span>🔋</span></div></div>
+          <div class="phone-content"><div id="live-preview"></div></div>
         </div>
       </div>
       <div class="phone-url-strip">
-        <span class="phone-url-label">URL</span>
-        <span class="phone-url-text">superadpro.com/u/{{ current_user.username }}</span>
-        <button class="phone-url-copy" onclick="copyUrl()">Copy</button>
+        <span class="pu-label">URL</span>
+        <span class="pu-text">superadpro.com/u/{{ current_user.username }}</span>
+        <button class="pu-copy" onclick="copyUrl()">Copy</button>
       </div>
     </div>
 
@@ -659,156 +667,196 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#1e293b;height:10
 
 <!-- Icon picker modal -->
 <div class="icon-modal" id="icon-modal">
-  <div class="icon-box">
-    <h3>Choose Icon</h3>
-    <div class="icon-grid" id="icon-grid"></div>
-  </div>
+  <div class="icon-box"><h3>Choose Icon</h3><div class="icon-grid" id="icon-grid"></div></div>
 </div>
 
 <script>
-const ICONS = ['🔗','🌐','📧','📱','💼','🎯','🚀','⭐','💡','📊','🎬','📸','🛒','💰','🏆','📣',
-  '🎵','🎮','📚','✍️','🤝','🌍','💻','🔥','❤️','🎁','📢','🔔','💎','⚡','🌟','👋',
-  '▶️','🐦','📘','🎤','📺','🎧','📰','📝','🏠','📍','🛡️','⚙️','🌈','🎪','🧲','🪄'];
+const ICONS=['🔗','🌐','📧','📱','💼','🎯','🚀','⭐','💡','📊','🎬','📸','🛒','💰','🏆','📣','🎵','🎮','📚','✍️','🤝','🌍','💻','🔥','❤️','🎁','📢','🔔','💎','⚡','🌟','👋','▶️','🐦','📘','🎤','📺','🎧','📰','📝','🏠','📍','🛡️','⚙️','🌈','🎪','🧲','🪄'];
 
-const SOC_SVG = {
-  instagram:'<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>',
-  tiktok:'<svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.31 6.31 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.77a4.85 4.85 0 01-1.01-.08z"/></svg>',
-  youtube:'<svg viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>',
-  facebook:'<svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>',
-  x:'<svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
-  twitter:'<svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
-  telegram:'<svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>',
-  linkedin:'<svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>',
-  whatsapp:'<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>'
-};
-const SOC_BG = {
-  instagram:'linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)',
-  tiktok:'#010101',youtube:'#ff0000',facebook:'#1877f2',
-  x:'#000000',twitter:'#000000',telegram:'#2aabee',linkedin:'#0a66c2',whatsapp:'#25d366'
+const SOC_SVG={instagram:'<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>',tiktok:'<svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.77a4.85 4.85 0 01-1.01-.08z"/></svg>',youtube:'<svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5a3 3 0 00-2.1 2.1A31 31 0 000 12a31 31 0 00.5 5.8 3 3 0 002.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 002.1-2.1A31 31 0 0024 12a31 31 0 00-.5-5.8zM9.7 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>',facebook:'<svg viewBox="0 0 24 24"><path d="M24 12.1C24 5.4 18.6 0 12 0S0 5.4 0 12.1C0 18 4.4 23 10.1 24v-8.4H7.1v-3.5h3v-2.7c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9v2.3h3.3l-.5 3.5h-2.8V24C19.6 23 24 18 24 12.1z"/></svg>',x:'<svg viewBox="0 0 24 24"><path d="M18.2 2.3h3.3l-7.2 8.3 8.5 11.2h-6.6l-4.7-6.2-5.4 6.2H2.7l7.7-8.8L1.3 2.3h6.8l4.3 5.6zm-1.2 17.5h1.8L7.1 4.1H5.1z"/></svg>',twitter:'<svg viewBox="0 0 24 24"><path d="M18.2 2.3h3.3l-7.2 8.3 8.5 11.2h-6.6l-4.7-6.2-5.4 6.2H2.7l7.7-8.8L1.3 2.3h6.8l4.3 5.6zm-1.2 17.5h1.8L7.1 4.1H5.1z"/></svg>',telegram:'<svg viewBox="0 0 24 24"><path d="M12 0a12 12 0 100 24A12 12 0 0012 0zm5 7.2l-2 9.6c-.1.6-.5.8-1 .5l-2.8-2-1.3 1.3c-.2.2-.4.3-.7.3l.2-2.8 4.7-4.3c.2-.2 0-.3-.3-.1L6.3 14.5l-2.7-.9c-.6-.2-.6-.6.1-.9l9.8-3.8c.6-.2 1 .1.9.9-.1-.6z"/></svg>',linkedin:'<svg viewBox="0 0 24 24"><path d="M20.4 20.5h-3.6v-5.6c0-1.3 0-3-1.8-3-1.9 0-2.1 1.4-2.1 2.9v5.7H9.4V9h3.4v1.6h.1c.5-.9 1.6-1.9 3.4-1.9 3.6 0 4.3 2.4 4.3 5.5v6.3zM5.3 7.4a2.1 2.1 0 110-4.2 2.1 2.1 0 010 4.2zm1.8 13.1H3.5V9h3.6v11.5zM22.2 0H1.8C.8 0 0 .8 0 1.7v20.5C0 23.2.8 24 1.8 24h20.4c1 0 1.8-.8 1.8-1.8V1.7C24 .8 23.2 0 22.2 0z"/></svg>',whatsapp:'<svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.4.2-.6.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.4.1-.6.1-.1.3-.3.4-.5.2-.2.2-.3.3-.5.1-.2.1-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.3zm-5.4 7.4h-.1a9.9 9.9 0 01-5-1.4l-.4-.2-3.7 1 1-3.6-.3-.4A9.9 9.9 0 012 12C2 6.5 6.5 2 12 2s10 4.5 10 10-4.5 10-10 10z"/></svg>'};
+const SOC_BG={instagram:'linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)',tiktok:'#010101',youtube:'#ff0000',facebook:'#1877f2',x:'#000000',twitter:'#000000',telegram:'#2aabee',linkedin:'#0a66c2',whatsapp:'#25d366'};
+
+const THEME_DEFAULTS={
+  dark:{bg:'#050d1a',accent:'#00d4ff',btn:'#0f1f3d',text:'#e2e8f0',sub:'#94a3b8',btnBorder:'rgba(255,255,255,.12)'},
+  light:{bg:'#f8fafc',accent:'#0ea5e9',btn:'#ffffff',text:'#1e293b',sub:'#64748b',btnBorder:'#e2e8f0'},
+  gradient:{bg:'#1e1b4b',accent:'#a78bfa',btn:'rgba(255,255,255,.12)',text:'#ffffff',sub:'rgba(255,255,255,.65)',btnBorder:'rgba(255,255,255,.22)'},
+  neon:{bg:'#0a0a0a',accent:'#00ff88',btn:'#111111',text:'#e2e8f0',sub:'#6b7280',btnBorder:null},
 };
 
-const THEME_DEFAULTS = {
-  dark:     {bg:'#050d1a',accent:'#00d4ff',btn:'#0f1f3d',text:'#e2e8f0',sub:'#94a3b8',btnBorder:'rgba(255,255,255,.12)'},
-  light:    {bg:'#f8fafc',accent:'#0ea5e9',btn:'#ffffff',text:'#1e293b',sub:'#64748b',btnBorder:'#e2e8f0'},
-  gradient: {bg:'#1e1b4b',accent:'#a78bfa',btn:'rgba(255,255,255,.12)',text:'#ffffff',sub:'rgba(255,255,255,.65)',btnBorder:'rgba(255,255,255,.22)'},
-  neon:     {bg:'#0a0a0a',accent:'#00ff88',btn:'#111111',text:'#e2e8f0',sub:'#6b7280',btnBorder:null},
+let colours={
+  bg:'{{ profile.bg_color if profile and profile.bg_color else "" }}'||THEME_DEFAULTS['{{ profile.theme if profile else "dark" }}'].bg,
+  accent:'{{ profile.accent_color if profile else "#00d4ff" }}',
+  btn:'{{ profile.btn_color if profile and profile.btn_color else "" }}'||THEME_DEFAULTS['{{ profile.theme if profile else "dark" }}'].btn,
+  text:'{{ profile.text_color if profile and profile.text_color else "" }}'||THEME_DEFAULTS['{{ profile.theme if profile else "dark" }}'].text,
 };
-
-let colours = {
-  bg:     '{{ profile.bg_color if profile and profile.bg_color else "" }}' || THEME_DEFAULTS['{{ profile.theme if profile else "dark" }}'].bg,
-  accent: '{{ profile.accent_color if profile else "#00d4ff" }}',
-  btn:    '{{ profile.btn_color if profile and profile.btn_color else "" }}' || THEME_DEFAULTS['{{ profile.theme if profile else "dark" }}'].btn,
-  text:   '{{ profile.text_color if profile and profile.text_color else "" }}' || THEME_DEFAULTS['{{ profile.theme if profile else "dark" }}'].text,
-};
-let previewAvatarSrc = null;
-let previewTimer;
-function schedulePreview(){clearTimeout(previewTimer);previewTimer=setTimeout(buildPreview,80);}
+let bannerData='{{ profile.banner_image if profile and profile.banner_image else "" }}';
+let bgImageData='{{ profile.bg_image if profile and profile.bg_image else "" }}';
+let previewAvatarSrc=null;
+let pvTimer;
+function schedulePreview(){clearTimeout(pvTimer);pvTimer=setTimeout(buildPreview,80);}
 
 function buildPreview(){
   const theme=document.getElementById('theme-val').value||'dark';
+  const font=document.getElementById('font-val').value||'DM Sans';
   const td=THEME_DEFAULTS[theme];
   const bg=colours.bg||td.bg, accent=colours.accent||td.accent;
   const btn=colours.btn||td.btn, text=colours.text||td.text;
   const sub=td.sub, border=theme==='neon'?accent:(td.btnBorder||accent+'44');
   const name=document.getElementById('display-name').value.trim()||'Your Name';
   const bio=document.getElementById('bio').value.trim();
-  const bodyBg=theme==='gradient'?`linear-gradient(135deg,${bg},${shiftColour(bg,30)},${shiftColour(bg,60)})`:bg;
+  const followers=document.getElementById('follower-count').value.trim();
+  const shape=document.getElementById('soc-shape-val').value||'circle';
+  const shapeRadius=shape==='circle'?'50%':shape==='pill'?'999px':'8px';
+  const bgOverlay=document.getElementById('bg-overlay').value;
+  document.getElementById('bg-overlay-val').textContent=bgOverlay+'%';
+
+  // Body background
+  let bodyBg=bg;
+  if(theme==='gradient') bodyBg=`linear-gradient(135deg,${bg},${shiftC(bg,30)},${shiftC(bg,60)})`;
+  let bodyStyle=`background:${bodyBg};font-family:'${font}',sans-serif;`;
+  if(bgImageData){bodyStyle=`background-image:url(${bgImageData});background-size:cover;background-position:center;font-family:'${font}',sans-serif;`;}
+
   const avatarPrev=document.querySelector('#avatar-preview img');
   const avatarSrc=previewAvatarSrc||(avatarPrev&&!avatarPrev.src.includes('undefined')?avatarPrev.src:null);
-  const avatarHtml=avatarSrc?`<img src="${avatarSrc}" style="width:100%;height:100%;object-fit:cover">`:`<span style="font-size:1.6rem;color:${accent}">${name[0].toUpperCase()}</span>`;
-  const avatarGlow=theme==='neon'?`box-shadow:0 0 18px ${accent}55`:'';
-  const neonGlow=theme==='neon'?`<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 110%,${accent}20,transparent 65%);pointer-events:none"></div>`:'';
+  const avatarHtml=avatarSrc?`<img src="${avatarSrc}" style="width:100%;height:100%;object-fit:cover">`:`<span style="font-size:1.5rem;color:${accent}">${name[0].toUpperCase()}</span>`;
+  const avatarGlow=theme==='neon'?`box-shadow:0 0 16px ${accent}55`:'';
+  const neonGlow=theme==='neon'?`<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 110%,${accent}20,transparent 65%);pointer-events:none;z-index:0"></div>`:'';
+  const bgOverlayDiv=bgImageData?`<div style="position:absolute;inset:0;background:rgba(0,0,0,${bgOverlay/100});z-index:0"></div>`:'';
 
-  // Social icons in preview
-  let socialHtml='';
-  document.querySelectorAll('.social-item').forEach(item=>{
-    const inp=item.querySelector('.soc-input');
-    const p=inp?inp.dataset.platform:'';
+  // Banner
+  const bannerHtml=bannerData?`<img class="pv-banner" src="${bannerData}" style="width:100%;height:76px;object-fit:cover;flex-shrink:0">`:'';
+  const avatarMarginClass=bannerData?'margin-top:-34px':'margin-top:16px';
+
+  // Social icons
+  let socHtml='';
+  document.querySelectorAll('.soc-item').forEach(item=>{
+    const inp=item.querySelector('.soc-url'),p=inp?inp.dataset.platform:'';
     if(!p)return;
     const bg2=SOC_BG[p]||'#64748b';
-    const svg=(SOC_SVG[p]||'').replace('<svg ','<svg style="width:16px;height:16px;fill:#fff" ');
-    socialHtml+=`<div class="pv-soc-btn" style="background:${bg2}">${svg}</div>`;
+    const svg=(SOC_SVG[p]||'').replace('<svg ','<svg style="width:14px;height:14px;fill:#fff" ');
+    socHtml+=`<div style="width:28px;height:28px;border-radius:${shapeRadius};background:${bg2};display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg}</div>`;
   });
-  const socialRow=socialHtml?`<div class="pv-social">${socialHtml}</div>`:'';
 
+  // Links
   let linksHtml='';
   document.querySelectorAll('.link-item').forEach(item=>{
     const title=item.querySelector('.link-title').value.trim();
     const active=item.querySelector('.link-active').checked;
     const icon=item.querySelector('.link-icon-btn').textContent;
-    const selStyleBtn=item.querySelector('.style-opt.selected');
-    const linkStyle=selStyleBtn?(selStyleBtn.getAttribute('onclick').split("'")[1]||'filled'):'filled';
+    const selSt=item.querySelector('.style-btn.sel');
+    const lStyle=selSt?(selSt.getAttribute('onclick').split("'")[1]||'filled'):'filled';
+    const selAl=item.querySelector('.align-btn.sel');
+    const lAlign=selAl?(selAl.getAttribute('onclick').split("'")[1]||'center'):'center';
+    const szEl=item.querySelector('.sz-val');
+    const lSize=szEl?parseInt(szEl.textContent)||14:14;
+    const selWt=item.querySelector('.wt-btn.sel');
+    const lWeight=selWt?(selWt.getAttribute('onclick').split("'")[1]||'semibold'):'semibold';
+    const subtitleEl=item.querySelector('.subtitle-input');
+    const subtitle=subtitleEl?subtitleEl.value.trim():'';
+    const thumbWrap=item.querySelector('.thumb-preview');
+    const thumbImg=thumbWrap?thumbWrap.querySelector('img'):null;
+    const thumbSrc=thumbImg?thumbImg.src:'';
     if(!title||!active)return;
-    const ns=theme==='neon'?`box-shadow:0 0 10px ${accent}33`:'';
-    let linkBg=btn, linkBorder=border, linkRadius='12px', linkBorderW='1px';
-    if(linkStyle==='pill'){linkRadius='999px';}
-    else if(linkStyle==='solid'){linkBg='transparent';linkBorder=accent;linkBorderW='2px';}
-    linksHtml+=`<div class="pv-link" style="background:${linkBg};border:${linkBorderW} solid ${linkBorder};border-radius:${linkRadius};${ns}"><span class="pv-link-icon">${icon}</span><span class="pv-link-title" style="color:${text}">${title}</span><span class="pv-link-arrow" style="color:${accent}">→</span></div>`;
+    const nsShadow=theme==='neon'?`box-shadow:0 0 8px ${accent}33`:'';
+    let lBg=btn,lBorderVal=border,lRadius='10px',lBorderW='1px';
+    if(lStyle==='pill'){lRadius='999px';}
+    else if(lStyle==='solid'){lBg='transparent';lBorderVal=accent;lBorderW='2px';}
+    const fwMap={normal:400,semibold:600,bold:700,black:900};
+    const fw=fwMap[lWeight]||600;
+    const thumbHtml=thumbSrc&&!thumbSrc.includes('🖼')?`<img src="${thumbSrc}" style="width:32px;height:32px;border-radius:4px;object-fit:cover;flex-shrink:0">`:`<span style="font-size:13px">${icon}</span>`;
+    const alignStyle=lAlign==='center'?'justify-content:center;':'lAlign==="left"?padding-left:4px;':'';
+    linksHtml+=`<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:${lRadius};border:${lBorderW} solid ${lBorderVal};background:${lBg};${nsShadow}">
+      ${thumbHtml}
+      <div style="flex:1;text-align:${lAlign}"><div style="font-size:${lSize}px;font-weight:${fw};color:${text};line-height:1.2">${title}</div>${subtitle?`<div style="font-size:10px;color:${sub};margin-top:2px">${subtitle}</div>`:''}</div>
+      <span style="font-size:11px;color:${accent};flex-shrink:0">→</span>
+    </div>`;
   });
-  if(!linksHtml)linksHtml=`<div class="pv-empty" style="color:${sub}">Your links appear here</div>`;
+  if(!linksHtml)linksHtml=`<div style="text-align:center;color:${sub};font-size:11px;padding:14px 0">Your links appear here</div>`;
 
-  document.getElementById('live-preview').innerHTML=`<div class="pv-body" style="background:${bodyBg};position:relative">${neonGlow}<div class="pv-avatar" style="border-color:${accent};${avatarGlow}">${avatarHtml}</div><div class="pv-name" style="color:${text}">${name}</div><div class="pv-username" style="color:${sub}">@{{ current_user.username }}</div>${bio?`<div class="pv-bio" style="color:${sub}">${bio}</div>`:''}${socialRow}<div class="pv-links">${linksHtml}</div><div class="pv-powered" style="color:${sub}">⚡ Powered by <span style="color:${accent}">SuperAdPro</span></div></div>`;
+  document.getElementById('live-preview').innerHTML=`
+    <div class="pv-body" style="${bodyStyle}position:relative">
+      ${bgOverlayDiv}${neonGlow}
+      ${bannerHtml}
+      <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%">
+        <div class="pv-avatar" style="border-color:${accent};${avatarGlow};${avatarMarginClass}">${avatarHtml}</div>
+        <div class="pv-name" style="color:${text}">${name}</div>
+        <div class="pv-username" style="color:${sub}">@{{ current_user.username }}</div>
+        ${followers?`<div class="pv-followers" style="color:${sub}">${followers}</div>`:''}
+        ${bio?`<div class="pv-bio" style="color:${sub}">${bio}</div>`:''}
+        ${socHtml?`<div class="pv-social">${socHtml}</div>`:''}
+        <div class="pv-links">${linksHtml}</div>
+        <div class="pv-powered" style="color:${sub}">⚡ Powered by <span style="color:${accent}">SuperAdPro</span></div>
+      </div>
+    </div>`;
 }
 
-function shiftColour(hex,a){try{const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return`#${Math.min(255,r+a).toString(16).padStart(2,'0')}${Math.min(255,g+a/2).toString(16).padStart(2,'0')}${Math.min(255,b+a*2).toString(16).padStart(2,'0')}`;}catch(e){return hex;}}
+function shiftC(hex,a){try{const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return`#${Math.min(255,r+a).toString(16).padStart(2,'0')}${Math.min(255,g+a/2).toString(16).padStart(2,'0')}${Math.min(255,b+a*2).toString(16).padStart(2,'0')}`;}catch(e){return hex;}}
 
-function syncColourPickers(){
-  ['bg','accent','btn','text'].forEach(k=>{
-    const el=document.getElementById('col-'+k),hex=document.getElementById('col-'+k+'-hex'),v=colours[k];
+function syncPickers(){
+  ['bg','btn','text'].forEach(k=>{
+    const el=document.getElementById('col-'+k),hex=document.getElementById('hex-'+k),v=colours[k];
     if(el&&v&&v.startsWith('#')&&v.length>=7){el.value=v.slice(0,7);if(hex)hex.textContent=v.slice(0,7);}
   });
+  const ae=document.getElementById('col-accent'),ah=document.getElementById('hex-accent');
+  if(ae&&colours.accent&&colours.accent.startsWith('#')){ae.value=colours.accent.slice(0,7);if(ah)ah.textContent=colours.accent.slice(0,7);}
   document.getElementById('col-bg-val').value=colours.bg;
   document.getElementById('col-btn-val').value=colours.btn;
   document.getElementById('col-text-val').value=colours.text;
   document.getElementById('accent-val').value=colours.accent;
 }
-function onColourChange(){
+function onColour(){
   colours.bg=document.getElementById('col-bg').value;
   colours.btn=document.getElementById('col-btn').value;
   colours.text=document.getElementById('col-text').value;
-  document.getElementById('col-bg-hex').textContent=colours.bg;
-  document.getElementById('col-btn-hex').textContent=colours.btn;
-  document.getElementById('col-text-hex').textContent=colours.text;
-  syncColourPickers();schedulePreview();
+  document.getElementById('hex-bg').textContent=colours.bg;
+  document.getElementById('hex-btn').textContent=colours.btn;
+  document.getElementById('hex-text').textContent=colours.text;
+  syncPickers();schedulePreview();
 }
-function onAccentPickerChange(input){
-  colours.accent=input.value;
-  document.getElementById('col-accent-hex').textContent=input.value;
-  document.getElementById('accent-val').value=input.value;
-  document.querySelectorAll('.accent-dot').forEach(d=>d.classList.remove('selected'));
-  syncColourPickers();schedulePreview();
+function onAccentPicker(inp){
+  colours.accent=inp.value;
+  document.getElementById('hex-accent').textContent=inp.value;
+  document.getElementById('accent-val').value=inp.value;
+  document.querySelectorAll('.acc-dot').forEach(d=>d.classList.remove('sel'));
+  syncPickers();schedulePreview();
 }
 function selectTheme(val,el){
-  document.querySelectorAll('.theme-swatch').forEach(o=>o.classList.remove('sel'));
-  el.classList.add('sel');
+  document.querySelectorAll('.theme-sw').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');
   document.getElementById('theme-val').value=val;
-  const td=THEME_DEFAULTS[val];
-  colours={bg:td.bg,accent:td.accent,btn:td.btn,text:td.text};
-  syncColourPickers();schedulePreview();
+  const td=THEME_DEFAULTS[val];colours={bg:td.bg,accent:td.accent,btn:td.btn,text:td.text};
+  syncPickers();schedulePreview();
 }
 function selectAccent(val,el){
-  document.querySelectorAll('.accent-dot').forEach(d=>d.classList.remove('selected'));
-  el.classList.add('selected');colours.accent=val;
-  document.getElementById('accent-val').value=val;
-  syncColourPickers();schedulePreview();
+  document.querySelectorAll('.acc-dot').forEach(d=>d.classList.remove('sel'));el.classList.add('sel');
+  colours.accent=val;document.getElementById('accent-val').value=val;syncPickers();schedulePreview();
 }
-function resetThemeDefaults(){
-  const theme=document.getElementById('theme-val').value||'dark';
-  const td=THEME_DEFAULTS[theme];
+function resetTheme(){
+  const td=THEME_DEFAULTS[document.getElementById('theme-val').value||'dark'];
   colours={bg:td.bg,accent:td.accent,btn:td.btn,text:td.text};
-  document.querySelectorAll('.accent-dot').forEach(d=>d.classList.toggle('selected',d.dataset.val===td.accent));
-  syncColourPickers();schedulePreview();
+  document.querySelectorAll('.acc-dot').forEach(d=>d.classList.toggle('sel',d.dataset.val===td.accent));
+  syncPickers();schedulePreview();
 }
+function selectFont(val,el){
+  document.querySelectorAll('.font-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');
+  document.getElementById('font-val').value=val;schedulePreview();
+}
+function setShape(el,val){
+  document.querySelectorAll('.shape-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');
+  document.getElementById('soc-shape-val').value=val;schedulePreview();
+}
+
+// Tab switching
 function switchTab(btn,tabId){
   document.querySelectorAll('.editor-tab').forEach(t=>t.classList.remove('active'));
-  ['t-links','t-social','t-design','t-analytics'].forEach(id=>{document.getElementById(id).style.display='none';});
-  btn.classList.add('active');document.getElementById(tabId).style.display='block';
+  ['t-links','t-social','t-design','t-analytics'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display='none';
+  });
+  btn.classList.add('active');document.getElementById(tabId).style.display='';
 }
-function toggleSection(header){
-  const body=header.nextElementSibling;
-  const chev=header.querySelector('.section-chevron');
-  const hidden=body.classList.toggle('hidden');
-  chev.style.transform=hidden?'rotate(-90deg)':'rotate(0deg)';
+function toggleSec(hdr){
+  const body=hdr.nextElementSibling,chev=hdr.querySelector('.sec-chev');
+  const h=body.classList.toggle('hidden');
+  chev.style.transform=h?'rotate(-90deg)':'rotate(0deg)';
 }
 
 // Icon picker
@@ -818,59 +866,158 @@ function openIconPicker(btn){
   const modal=document.getElementById('icon-modal'),grid=document.getElementById('icon-grid');
   grid.innerHTML='';
   ICONS.forEach(ic=>{
-    const div=document.createElement('div');div.className='icon-cell'+(ic===btn.textContent?' selected':'');
-    div.textContent=ic;div.onclick=()=>{btn.textContent=ic;modal.classList.remove('open');schedulePreview();};
-    grid.appendChild(div);
+    const d=document.createElement('div');d.className='icon-cell'+(ic===btn.textContent?' selected':'');
+    d.textContent=ic;d.onclick=()=>{btn.textContent=ic;modal.classList.remove('open');schedulePreview();};
+    grid.appendChild(d);
   });
   modal.classList.add('open');
 }
 document.getElementById('icon-modal').onclick=e=>{if(e.target===document.getElementById('icon-modal'))e.target.classList.remove('open');};
 
-// Add / delete links
-function addLink(){
-  const list=document.getElementById('links-list');
-  const item=document.createElement('div');item.className='link-item';item.dataset.id='new';
-  item.innerHTML=`<span class="link-drag">⠿</span><button class="link-icon-btn" onclick="openIconPicker(this)">🔗</button><div style="flex:1;min-width:0"><div class="link-fields"><input type="text" placeholder="Link title" class="link-title" oninput="schedulePreview()"><input type="url" placeholder="https://..." class="link-url"></div><input class="link-subtitle-input" type="text" placeholder="Optional subtitle..."><div class="style-picker"><button class="style-opt selected" onclick="setStyle(this,'filled')">▭ Filled</button><button class="style-opt" onclick="setStyle(this,'pill')">⬭ Pill</button><button class="style-opt" onclick="setStyle(this,'solid')">■ Solid</button></div></div><div class="link-meta"><div class="link-stats">0 clicks</div><label class="toggle-sw"><input type="checkbox" checked class="link-active" onchange="schedulePreview()"><div class="toggle-track"></div></label><button class="link-del" onclick="deleteLink(this)">✕</button></div>`;
-  list.appendChild(item);item.querySelector('.link-title').focus();schedulePreview();
+// Link style / align / size / weight
+function setStyle(btn,v){btn.closest('.style-row').querySelectorAll('.style-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');schedulePreview();}
+function setAlign(btn,v){btn.closest('.align-row').querySelectorAll('.align-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');schedulePreview();}
+function setWeight(btn,v){btn.closest('.wt-row').querySelectorAll('.wt-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');schedulePreview();}
+function adjSize(btn,delta){
+  const wrap=btn.closest('.sz-row'),valEl=wrap.querySelector('.sz-val');
+  let v=parseInt(valEl.textContent)||14;v=Math.min(24,Math.max(10,v+delta));
+  valEl.textContent=v;schedulePreview();
 }
-function setStyle(btn,style){btn.closest('.style-picker').querySelectorAll('.style-opt').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');schedulePreview();}
-function deleteLink(btn){if(confirm('Remove this link?')){btn.closest('.link-item').remove();schedulePreview();}}
 
-// Social
-function addSocialIcon(){
-  const sel=document.getElementById('social-platform-select');const platform=sel.value;
-  if(!platform){alert('Please choose a platform first');return;}
-  const list=document.getElementById('social-list');
-  const bg2=SOC_BG[platform]||'#64748b';const svg=SOC_SVG[platform]||'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>';
-  const item=document.createElement('div');item.className='social-item';
-  item.innerHTML=`<div class="soc-icon-wrap" style="background:${bg2}">${svg}</div><span class="soc-label">${platform.charAt(0).toUpperCase()+platform.slice(1)}</span><input class="soc-input" type="url" placeholder="https://..." data-platform="${platform}"><button class="soc-del" onclick="this.closest('.social-item').remove()">✕</button>`;
-  list.appendChild(item);sel.value='';item.querySelector('.soc-input').focus();schedulePreview();
+// Thumbnail per link
+function handleThumb(input,previewId){
+  const file=input.files[0];if(!file)return;
+  if(file.size>2*1024*1024){alert('Max 2MB');return;}
+  const r=new FileReader();
+  r.onload=e=>{
+    const wrap=document.getElementById(previewId);
+    wrap.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
+    schedulePreview();
+  };
+  r.readAsDataURL(file);
 }
-function collectSocialLinks(){
-  const result=[];
-  document.querySelectorAll('.social-item').forEach(item=>{
-    const inp=item.querySelector('.soc-input');
-    if(inp&&inp.value.trim()&&inp.dataset.platform)result.push({platform:inp.dataset.platform,url:inp.value.trim()});
-  });
-  return result;
+function clearThumb(previewId){
+  document.getElementById(previewId).innerHTML='🖼';schedulePreview();
+}
+
+// Banner
+function handleBanner(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>3*1024*1024){alert('Max 3MB');return;}
+  const r=new FileReader();
+  r.onload=e=>{
+    bannerData=e.target.result;
+    document.getElementById('banner-preview-wrap').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover"><button class="banner-clear" onclick="clearBanner()">✕</button>`;
+    schedulePreview();
+  };
+  r.readAsDataURL(file);
+}
+function clearBanner(){
+  bannerData='';
+  document.getElementById('banner-preview-wrap').innerHTML='<div style="width:100%;height:100%;background:linear-gradient(135deg,#0ea5e9,#6366f1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:11px">No banner</div><button class="banner-clear" onclick="clearBanner()">✕</button>';
+  schedulePreview();
+}
+
+// Background image
+function handleBgImage(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>3*1024*1024){alert('Max 3MB');return;}
+  const r=new FileReader();
+  r.onload=e=>{
+    bgImageData=e.target.result;
+    document.getElementById('bg-preview-wrap').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
+    schedulePreview();
+  };
+  r.readAsDataURL(file);
+}
+function clearBgImage(){
+  bgImageData='';
+  document.getElementById('bg-preview-wrap').innerHTML='<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:11px">No image set</div>';
+  schedulePreview();
 }
 
 // Avatar
 function handleAvatar(input){
   const file=input.files[0];if(!file)return;
-  if(file.size>2*1024*1024){alert('Max file size is 2MB');return;}
-  const reader=new FileReader();
-  reader.onload=async e=>{
+  if(file.size>2*1024*1024){alert('Max 2MB');return;}
+  const r=new FileReader();
+  r.onload=async e=>{
     previewAvatarSrc=e.target.result;
     document.getElementById('avatar-preview').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
     schedulePreview();
-    const fd=new FormData();fd.append('file',file);
-    try{await fetch('/linkhub/upload-avatar',{method:'POST',body:fd});}catch(err){}
+    try{const fd=new FormData();fd.append('file',input.files[0]);await fetch('/linkhub/upload-avatar',{method:'POST',body:fd});}catch(err){}
   };
-  reader.readAsDataURL(file);
+  r.readAsDataURL(file);
 }
 
-// Save
+// Social
+function addSocial(){
+  const sel=document.getElementById('soc-select'),p=sel.value;
+  if(!p){alert('Choose a platform first');return;}
+  const list=document.getElementById('social-list');
+  const bg2=SOC_BG[p]||'#64748b';const svg=SOC_SVG[p]||'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>';
+  const item=document.createElement('div');item.className='soc-item';
+  item.innerHTML=`<div class="soc-icon" style="background:${bg2}">${svg}</div><span class="soc-lbl">${p.charAt(0).toUpperCase()+p.slice(1)}</span><input class="soc-url" type="url" placeholder="https://..." data-platform="${p}"><button class="soc-del" onclick="this.closest('.soc-item').remove();schedulePreview()">✕</button>`;
+  list.appendChild(item);sel.value='';item.querySelector('.soc-url').focus();schedulePreview();
+}
+function collectSocial(){
+  return[...document.querySelectorAll('.soc-item')].map(item=>{const inp=item.querySelector('.soc-url');return inp&&inp.value.trim()&&inp.dataset.platform?{platform:inp.dataset.platform,url:inp.value.trim()}:null;}).filter(Boolean);
+}
+
+// Add link
+function addLink(){
+  const list=document.getElementById('links-list');
+  const idx=list.children.length+1;
+  const item=document.createElement('div');item.className='link-item';item.draggable=true;item.dataset.id='new';
+  item.innerHTML=`<div class="link-row1">
+    <span class="link-drag">⠿</span>
+    <button class="link-icon-btn" onclick="openIconPicker(this)">🔗</button>
+    <div class="link-inputs">
+      <input type="text" placeholder="Title" class="link-title" oninput="schedulePreview()">
+      <input type="url" placeholder="https://..." class="link-url">
+    </div>
+    <div class="link-meta">
+      <span class="link-clicks">0x</span>
+      <label class="tog-sm"><input type="checkbox" checked class="link-active" onchange="schedulePreview()"><div class="tog-sm-track"></div></label>
+      <button class="link-del" onclick="deleteLink(this)">✕</button>
+    </div>
+  </div>
+  <div class="link-advanced">
+    <div><span class="adv-label">Style</span><div class="style-row"><button class="style-btn sel" onclick="setStyle(this,'filled')">▭ Fill</button><button class="style-btn" onclick="setStyle(this,'pill')">⬭ Pill</button><button class="style-btn" onclick="setStyle(this,'solid')">□ Line</button></div></div>
+    <div><span class="adv-label">Align</span><div class="align-row"><button class="align-btn sel" onclick="setAlign(this,'center')">≡</button><button class="align-btn" onclick="setAlign(this,'left')">☰</button><button class="align-btn" onclick="setAlign(this,'right')">≡</button></div></div>
+    <div><span class="adv-label">Font Size</span><div class="sz-row"><button class="sz-btn" onclick="adjSize(this,-1)">−</button><span class="sz-val">14</span><button class="sz-btn" onclick="adjSize(this,1)">+</button></div></div>
+    <div><span class="adv-label">Weight</span><div class="wt-row"><button class="wt-btn sel" onclick="setWeight(this,'semibold')" style="font-weight:600">Semi</button><button class="wt-btn" onclick="setWeight(this,'bold')" style="font-weight:700">Bold</button><button class="wt-btn" onclick="setWeight(this,'black')" style="font-weight:900">Black</button></div></div>
+    <div class="link-advanced-full"><span class="adv-label">Subtitle</span><input type="text" class="subtitle-input" placeholder="Short description..." oninput="schedulePreview()"></div>
+    <div class="link-advanced-full"><span class="adv-label">Thumbnail</span><div class="thumb-wrap"><div class="thumb-preview" id="thumb-new-${idx}">🖼</div><button class="upload-btn" onclick="document.getElementById('thumb-inp-new-${idx}').click()" style="font-size:11px">Upload</button><input type="file" id="thumb-inp-new-${idx}" accept="image/*" style="display:none" onchange="handleThumb(this,'thumb-new-${idx}')"></div></div>
+  </div>`;
+  list.appendChild(item);
+  initDrag(item);
+  item.querySelector('.link-title').focus();schedulePreview();
+}
+function deleteLink(btn){if(confirm('Remove this link?')){btn.closest('.link-item').remove();schedulePreview();}}
+
+// ── DRAG TO REORDER ────────────────────────────────────────────
+let dragSrc=null;
+function initDrag(item){
+  item.addEventListener('dragstart',e=>{dragSrc=item;item.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+  item.addEventListener('dragend',()=>{dragSrc=null;document.querySelectorAll('.link-item').forEach(i=>i.classList.remove('dragging','drag-over'));});
+  item.addEventListener('dragover',e=>{e.preventDefault();if(dragSrc&&dragSrc!==item){item.classList.add('drag-over');}});
+  item.addEventListener('dragleave',()=>item.classList.remove('drag-over'));
+  item.addEventListener('drop',e=>{
+    e.preventDefault();item.classList.remove('drag-over');
+    if(dragSrc&&dragSrc!==item){
+      const list=document.getElementById('links-list');
+      const items=[...list.querySelectorAll('.link-item')];
+      const fromIdx=items.indexOf(dragSrc),toIdx=items.indexOf(item);
+      if(fromIdx<toIdx)list.insertBefore(dragSrc,item.nextSibling);
+      else list.insertBefore(dragSrc,item);
+      schedulePreview();
+    }
+  });
+}
+document.querySelectorAll('.link-item').forEach(initDrag);
+
+// ── SAVE ──────────────────────────────────────────────────────
 async function saveProfile(btn){
   btn.disabled=true;btn.textContent='Saving...';
   const links=[];
@@ -878,16 +1025,53 @@ async function saveProfile(btn){
     const title=item.querySelector('.link-title').value.trim();
     const url=item.querySelector('.link-url').value.trim();
     if(!title&&!url)return;
-    const selStyle=item.querySelector('.style-opt.selected');
-    const subtitleEl=item.querySelector('.link-subtitle-input');
-    links.push({id:item.dataset.id==='new'?null:parseInt(item.dataset.id),title,url,icon:item.querySelector('.link-icon-btn').textContent,btn_style:selStyle?(selStyle.getAttribute('onclick').split("'")[1]||'filled'):'filled',subtitle:subtitleEl?subtitleEl.value.trim():'',is_active:item.querySelector('.link-active').checked,sort_order:idx});
+    const selSt=item.querySelector('.style-btn.sel');
+    const selAl=item.querySelector('.align-btn.sel');
+    const selWt=item.querySelector('.wt-btn.sel');
+    const szEl=item.querySelector('.sz-val');
+    const subEl=item.querySelector('.subtitle-input');
+    const thumbImg=item.querySelector('.thumb-preview img');
+    links.push({
+      id:item.dataset.id==='new'?null:parseInt(item.dataset.id),
+      title,url,
+      icon:item.querySelector('.link-icon-btn').textContent,
+      btn_style:selSt?(selSt.getAttribute('onclick').split("'")[1]||'filled'):'filled',
+      text_align:selAl?(selAl.getAttribute('onclick').split("'")[1]||'center'):'center',
+      font_weight:selWt?(selWt.getAttribute('onclick').split("'")[1]||'semibold'):'semibold',
+      font_size:szEl?parseInt(szEl.textContent)||14:14,
+      subtitle:subEl?subEl.value.trim():'',
+      thumbnail:thumbImg?thumbImg.src:'',
+      is_active:item.querySelector('.link-active').checked,
+      sort_order:idx,
+      click_count:0
+    });
   });
-  const payload={display_name:document.getElementById('display-name').value.trim(),bio:document.getElementById('bio').value.trim(),theme:document.getElementById('theme-val').value,accent_color:colours.accent,bg_color:colours.bg,btn_color:colours.btn,text_color:colours.text,is_published:document.getElementById('is-published').checked,social_links:collectSocialLinks(),links};
-  const r=await fetch('/linkhub/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-  const d=await r.json();
-  btn.disabled=false;btn.textContent='💾 Save Changes';
-  if(d.ok){const msg=document.getElementById('save-msg');if(msg){msg.classList.add('show');setTimeout(()=>msg.classList.remove('show'),3000);}}
-  else{alert('Save failed: '+(d.error||'Unknown error'));}
+  const payload={
+    display_name:document.getElementById('display-name').value.trim(),
+    bio:document.getElementById('bio').value.trim(),
+    follower_count:document.getElementById('follower-count').value.trim(),
+    theme:document.getElementById('theme-val').value,
+    font_family:document.getElementById('font-val').value,
+    accent_color:colours.accent,
+    bg_color:colours.bg,
+    btn_color:colours.btn,
+    text_color:colours.text,
+    is_published:document.getElementById('is-published').checked,
+    soc_icon_shape:document.getElementById('soc-shape-val').value,
+    social_links:collectSocial(),
+    banner_image:bannerData||'',
+    clear_banner:!bannerData,
+    bg_image:bgImageData||'',
+    clear_bg_image:!bgImageData,
+    links
+  };
+  try{
+    const r=await fetch('/linkhub/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const d=await r.json();
+    btn.disabled=false;btn.textContent='💾 Save Changes';
+    if(d.ok){const msg=document.getElementById('save-msg');if(msg){msg.classList.add('show');setTimeout(()=>msg.classList.remove('show'),3000);}}
+    else alert('Save failed: '+(d.error||'Unknown error'));
+  }catch(err){btn.disabled=false;btn.textContent='💾 Save Changes';alert('Network error');}
 }
 
 function copyUrl(){
@@ -895,14 +1079,16 @@ function copyUrl(){
   event.target.textContent='✅';setTimeout(()=>event.target.textContent='Copy',1500);
 }
 
+// Boot
 document.addEventListener('DOMContentLoaded',()=>{
-  syncColourPickers();buildPreview();
+  syncPickers();buildPreview();
   document.getElementById('display-name').addEventListener('input',schedulePreview);
   document.getElementById('bio').addEventListener('input',schedulePreview);
+  document.getElementById('follower-count').addEventListener('input',schedulePreview);
   document.getElementById('links-list').addEventListener('input',schedulePreview);
   document.getElementById('links-list').addEventListener('change',schedulePreview);
-  document.getElementById('is-published').addEventListener('change',schedulePreview);
   document.getElementById('social-list').addEventListener('input',schedulePreview);
+  document.getElementById('bg-overlay').addEventListener('input',schedulePreview);
 });
 </script>
 {% include "_tawk.html" %}
