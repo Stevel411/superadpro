@@ -607,7 +607,12 @@ class LinkHubClick(Base):
     clicked_at      = Column(DateTime, default=datetime.utcnow)
 
 
-Base.metadata.create_all(bind=engine)
+def init_db():
+    """Create all tables - called from startup event only."""
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"⚠️ init_db note: {e}")
 
 # ── Auto-migration: add missing columns if they don't exist ──────────────
 def run_migrations():

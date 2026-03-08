@@ -87,7 +87,8 @@ JSONResponse.render = _decimal_safe_render
 
 @app.on_event("startup")
 async def startup_event():
-    from .database import run_migrations, run_force_migrations
+    from .database import init_db, run_migrations, run_force_migrations
+    init_db()
     run_migrations()
     run_force_migrations()
 templates = Jinja2Templates(directory="templates")
