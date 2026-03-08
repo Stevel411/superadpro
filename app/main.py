@@ -235,7 +235,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
 #  PUBLIC ROUTES
 # ═══════════════════════════════════════════════════════════════
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "join_url": get_join_url()})
 
