@@ -1,39 +1,48 @@
 # ═══════════════════════════════════════════════════════════════
 # SuperAdPro — Email Utilities
-# Uses Resend API for transactional email delivery
+# Uses Brevo SMTP for transactional email delivery
 # ═══════════════════════════════════════════════════════════════
 import os
 import logging
-import resend
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 logger = logging.getLogger(__name__)
 
-RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
-FROM_EMAIL     = os.getenv("FROM_EMAIL", "SuperAdPro <noreply@mail.superadpro.com>")
-SITE_URL       = os.getenv("SITE_URL", "https://superadpro.com")
+SMTP_HOST  = os.getenv("SMTP_HOST", "smtp-relay.brevo.com")
+SMTP_PORT  = int(os.getenv("SMTP_PORT", "587"))
+SMTP_USER  = os.getenv("SMTP_USER", "")
+SMTP_PASS  = os.getenv("SMTP_PASS", "")
+FROM_EMAIL = os.getenv("FROM_EMAIL", "superadpro@proton.me")
+SITE_URL   = os.getenv("SITE_URL", "https://superadpro-production.up.railway.app")
 
-if RESEND_API_KEY:
-    resend.api_key = RESEND_API_KEY
+FROM_DISPLAY = f"SuperAdPro <{FROM_EMAIL}>"
 
 
 def send_email(to_email: str, subject: str, html_body: str, text_body: str = "") -> bool:
-    """Send an email via Resend. Returns True on success."""
-    if not RESEND_API_KEY:
-        logger.warning(f"Resend not configured — would send to {to_email}: {subject}")
+    """Send an email via Brevo SMTP. Returns True on success."""
+    if not SMTP_USER or not SMTP_PASS:
+        logger.warning(f"SMTP not configured — would send to {to_email}: {subject}")
         return False
 
     try:
-        params = {
-            "from": FROM_EMAIL,
-            "to": [to_email],
-            "subject": subject,
-            "html": html_body,
-        }
-        if text_body:
-            params["text"] = text_body
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"]    = FROM_DISPLAY
+        msg["To"]      = to_email
 
-        result = resend.Emails.send(params)
-        logger.info(f"Email sent to {to_email}: {subject} (id: {result.get('id', 'n/a')})")
+        if text_body:
+            msg.attach(MIMEText(text_body, "plain"))
+        msg.attach(MIMEText(html_body, "html"))
+
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+            server.ehlo()
+            server.starttls()
+            server.login(SMTP_USER, SMTP_PASS)
+            server.sendmail(FROM_EMAIL, to_email, msg.as_string())
+
+        logger.info(f"Email sent to {to_email}: {subject}")
         return True
 
     except Exception as e:
