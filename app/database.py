@@ -607,7 +607,10 @@ class LinkHubClick(Base):
     clicked_at      = Column(DateTime, default=datetime.utcnow)
 
 
-Base.metadata.create_all(bind=engine)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"⚠️ create_all skipped: {e}")
 
 # ── Auto-migration: add missing columns if they don't exist ──────────────
 def run_migrations():
