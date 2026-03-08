@@ -6760,22 +6760,21 @@ AdBoost lets members promote their position for increased visibility:
 - Do not make up features or prices not listed above
 """
 
-class ChatRequest(BaseModel):
-    messages: list
-
 @app.post("/api/chat")
-async def api_ai_chat(req: ChatRequest, request: Request):
+async def api_ai_chat(request: Request):
     """SuperAdPro AI chat widget endpoint."""
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
     if not api_key:
         return JSONResponse({"reply": "AI chat is temporarily unavailable. Please contact support."})
 
     try:
+        body = await request.json()
+        raw_messages = body.get("messages", [])
         client = anthropic.Anthropic(api_key=api_key)
 
         # Sanitise and limit history
         messages = []
-        for m in req.messages[-10:]:  # last 10 messages max
+        for m in raw_messages[-10:]:  # last 10 messages max
             if isinstance(m, dict) and m.get("role") in ("user", "assistant") and m.get("content"):
                 messages.append({"role": m["role"], "content": str(m["content"])[:1000]})
 
