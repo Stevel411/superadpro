@@ -607,6 +607,19 @@ class LinkHubClick(Base):
     clicked_at      = Column(DateTime, default=datetime.utcnow)
 
 
+class NurtureSequence(Base):
+    """Tracks free members through the 5-email nurture campaign."""
+    __tablename__ = "nurture_sequences"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), unique=True, index=True)
+    next_email      = Column(Integer, default=1)           # 1-5, which email to send next
+    next_send_at    = Column(DateTime, nullable=True)      # when to send it
+    completed       = Column(Boolean, default=False)       # all 5 sent or cancelled
+    cancelled_at    = Column(DateTime, nullable=True)      # set when user pays
+    created_at      = Column(DateTime, default=datetime.utcnow)
+    last_sent_at    = Column(DateTime, nullable=True)
+
+
 try:
     Base.metadata.create_all(bind=engine)
 except Exception as e:
@@ -806,7 +819,22 @@ try:
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_linkhub_profiles_user ON linkhub_profiles(user_id)"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_linkhub_links_profile ON linkhub_links(profile_id)"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_linkhub_clicks_link ON linkhub_clicks(link_id)"))
+        # ── Nurture sequence table ──
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS nurture_sequences (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) UNIQUE,
+                next_email INTEGER DEFAULT 1,
+                next_send_at TIMESTAMP,
+                completed BOOLEAN DEFAULT FALSE,
+                cancelled_at TIMESTAMP,
+                created_at TIMESTAMP DEFAULT NOW(),
+                last_sent_at TIMESTAMP
+            )
+        """))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_nurture_user ON nurture_sequences(user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_nurture_send ON nurture_sequences(next_send_at) WHERE completed = FALSE AND cancelled_at IS NULL"))
         conn.commit()
-        print("✅ Force migration: interests + targeting + onboarding + linkhub columns confirmed")
+        print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture columns confirmed")
 except Exception as e:
     print(f"⚠️ Force migration note: {e}")

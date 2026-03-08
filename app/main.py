@@ -1710,6 +1710,19 @@ async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
                 logger.info(f"  → Auto-activated user {au.id} ({au.username}) at depth {depth}")
 
         logger.info(f"Coinbase: Membership activated for user {user_id}")
+
+        # Cancel nurture sequence immediately — they've paid
+        try:
+            from .database import NurtureSequence
+            nurture = db.query(NurtureSequence).filter(NurtureSequence.user_id == user_id).first()
+            if nurture and not nurture.cancelled_at:
+                nurture.cancelled_at = datetime.utcnow()
+                nurture.completed = True
+                db.commit()
+                logger.info(f"Nurture sequence cancelled for user {user_id} — membership paid")
+        except Exception as e:
+            logger.warning(f"Nurture cancel failed for user {user_id}: {e}")
+
         return {"status": "membership_activated", "user_id": user_id, "cascade_activations": len(activated_users)}
 
     elif payment_type == "grid_tier":
@@ -5478,6 +5491,20 @@ async def api_register(
         except Exception as e:
             logger.warning(f"Welcome email failed for {email}: {e}")
 
+        # Enrol in nurture sequence — first email fires 24hrs after registration
+        try:
+            from .database import NurtureSequence
+            from datetime import timedelta
+            nurture = NurtureSequence(
+                user_id     = user.id,
+                next_email  = 1,
+                next_send_at = datetime.utcnow() + timedelta(hours=24),
+            )
+            db.add(nurture)
+            db.commit()
+        except Exception as e:
+            logger.warning(f"Nurture enrol failed for {email}: {e}")
+
         response = JSONResponse({"success": True, "redirect": "/dashboard?new=1"})
         set_secure_cookie(response, user.id)
         return response
@@ -5744,6 +5771,95 @@ def niche_finder(request: Request, user: User = Depends(get_current_user),
     if not user.is_active: return RedirectResponse(url="/pay-membership")
     ctx = get_dashboard_context(request, user, db)
     return templates.TemplateResponse("niche-finder.html", ctx)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  CRON — Nurture sequence processor
+#  Called by Railway cron job daily at 00:15 UTC
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/cron/process-nurture")
+def cron_process_nurture(request: Request, db: Session = Depends(get_db)):
+    """Send due nurture emails to free members who haven't paid."""
+    from fastapi.responses import JSONResponse
+    from .database import NurtureSequence
+    from .email_utils import send_nurture_email
+
+    # DELAYS between emails (days after previous)
+    DELAYS = {1: 0, 2: 2, 3: 4, 4: 3, 5: 4}  # day 1=24hrs after reg, then +2,+4,+3,+4
+
+    cron_secret = os.environ.get("CRON_SECRET", "")
+    auth_header = request.headers.get("Authorization", "")
+    provided    = auth_header.replace("Bearer ", "").strip()
+
+    if not cron_secret or provided != cron_secret:
+        return JSONResponse({"error": "Unauthorised"}, status_code=401)
+
+    now = datetime.utcnow()
+    sent = []
+    errors = []
+
+    try:
+        due = db.query(NurtureSequence).filter(
+            NurtureSequence.completed == False,
+            NurtureSequence.cancelled_at == None,
+            NurtureSequence.next_send_at <= now,
+        ).all()
+
+        for seq in due:
+            try:
+                user = db.query(User).filter(User.id == seq.user_id).first()
+                if not user:
+                    seq.completed = True
+                    db.commit()
+                    continue
+
+                # Safety check — if they've since paid, cancel
+                if user.is_active:
+                    seq.cancelled_at = now
+                    seq.completed = True
+                    db.commit()
+                    continue
+
+                first_name = user.first_name or user.username
+                ok = send_nurture_email(user.email, first_name, seq.next_email)
+
+                if ok:
+                    sent.append({"user_id": user.id, "email_num": seq.next_email})
+                    seq.last_sent_at = now
+                    next_num = seq.next_email + 1
+                    if next_num > 5:
+                        seq.completed = True
+                    else:
+                        seq.next_email  = next_num
+                        delay_days = DELAYS.get(next_num, 3)
+                        seq.next_send_at = now + timedelta(days=delay_days)
+                    db.commit()
+                else:
+                    errors.append({"user_id": user.id, "email_num": seq.next_email, "error": "send failed"})
+
+            except Exception as e:
+                errors.append({"user_id": seq.user_id, "error": str(e)})
+                logger.error(f"Nurture email error for user {seq.user_id}: {e}")
+
+        return JSONResponse({
+            "success": True,
+            "run_at":  now.strftime("%Y-%m-%d %H:%M:%S UTC"),
+            "due":     len(due),
+            "sent":    len(sent),
+            "errors":  len(errors),
+            "detail":  sent,
+        })
+
+    except Exception as e:
+        logger.error(f"[CRON] process-nurture FAILED: {e}")
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
+
+@app.get("/cron/process-nurture")
+def cron_nurture_ping():
+    from fastapi.responses import JSONResponse
+    return JSONResponse({"status": "ready", "endpoint": "POST /cron/process-nurture", "schedule": "Daily at 00:15 UTC"})
 
 
 @app.post("/api/niche-finder/generate")
