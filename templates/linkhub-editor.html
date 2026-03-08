@@ -536,7 +536,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#1e293b;height:10
             <div style="background:#fff;border:1px solid #d4dae6;border-radius:12px;padding:14px 14px 0;box-shadow:0 2px 8px rgba(0,0,0,.06)">
               <div style="display:flex;gap:0">
                 <!-- Y-axis -->
-                <div style="display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;padding-right:6px;padding-bottom:56px;height:320px;flex-shrink:0">
+                <div style="display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;padding-right:6px;padding-bottom:56px;height:256px;flex-shrink:0">
                   <div style="font-size:9px;color:#94a3b8;font-weight:600">100</div>
                   <div style="font-size:9px;color:#94a3b8;font-weight:600">80</div>
                   <div style="font-size:9px;color:#94a3b8;font-weight:600">60</div>
@@ -547,7 +547,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#1e293b;height:10
                 <!-- Chart area -->
                 <div style="flex:1;position:relative">
                   <!-- Grid lines -->
-                  <div style="position:absolute;top:0;left:0;right:0;height:264px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;z-index:0">
+                  <div style="position:absolute;top:0;left:0;right:0;height:200px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;z-index:0">
                     <div style="border-top:1px dashed #e8edf5"></div>
                     <div style="border-top:1px dashed #e8edf5"></div>
                     <div style="border-top:1px dashed #e8edf5"></div>
@@ -562,26 +562,26 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#1e293b;height:10
                   {% set max_clicks = (links | map(attribute='click_count') | max) if links else 1 %}
                   {% set max_clicks = max_clicks if max_clicks > 0 else 1 %}
                   <!-- Bars -->
-                  <div style="position:relative;height:264px;display:flex;align-items:flex-end;gap:5px;padding:0 4px;z-index:1">
+                  <div style="position:relative;height:200px;display:flex;align-items:flex-end;gap:5px;padding:0 4px;z-index:1">
                     <div style="flex:1;position:relative;height:100%">
-                      <div style="position:absolute;bottom:0;left:0;right:0;height:{{ mob_pct * 264 // 100 }}px;background:linear-gradient(180deg,#7dd3fc,#0ea5e9);border-radius:4px 4px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:5px">
+                      <div style="position:absolute;bottom:0;left:0;right:0;height:{{ mob_pct  * 200 // 100 }}px;background:linear-gradient(180deg,#7dd3fc,#0ea5e9);border-radius:4px 4px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:5px">
                         <span style="font-size:10px;font-weight:800;color:#fff">{{ mob_pct }}%</span>
                       </div>
                     </div>
                     <div style="flex:1;position:relative;height:100%">
-                      <div style="position:absolute;bottom:0;left:0;right:0;height:{{ desk_pct * 264 // 100 }}px;background:linear-gradient(180deg,#a5b4fc,#6366f1);border-radius:4px 4px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:5px">
+                      <div style="position:absolute;bottom:0;left:0;right:0;height:{{ desk_pct  * 200 // 100 }}px;background:linear-gradient(180deg,#a5b4fc,#6366f1);border-radius:4px 4px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:5px">
                         <span style="font-size:10px;font-weight:800;color:#fff">{{ desk_pct }}%</span>
                       </div>
                     </div>
                     <div style="flex:1;position:relative;height:100%">
-                      <div style="position:absolute;bottom:0;left:0;right:0;height:{{ [tab_pct * 264 // 100, 14] | max }}px;background:linear-gradient(180deg,#fcd34d,#f59e0b);border-radius:4px 4px 0 0"></div>
+                      <div style="position:absolute;bottom:0;left:0;right:0;height:{{ [tab_pct  * 200 // 100, 14] | max }}px;background:linear-gradient(180deg,#fcd34d,#f59e0b);border-radius:4px 4px 0 0"></div>
                     </div>
                     <!-- Gap -->
                     <div style="width:10px;flex-shrink:0"></div>
                     <!-- Per-link bars -->
                     {% set bar_colors = ['linear-gradient(180deg,#34d399,#059669)','linear-gradient(180deg,#5bc8f5,#2aabee)','linear-gradient(180deg,#f87171,#dc2626)','linear-gradient(180deg,#fb923c,#ea580c)','linear-gradient(180deg,#c084fc,#9333ea)'] %}
                     {% for link in links | sort(attribute='click_count', reverse=True) %}
-                    {% set bar_h = [((link.click_count / max_clicks) * 264) | round | int, 14] | max %}
+                    {% set bar_h = [((link.click_count / max_clicks) * 200) | round | int, 14] | max %}
                     <div style="flex:1;position:relative;height:100%">
                       <div style="position:absolute;bottom:0;left:0;right:0;height:{{ bar_h }}px;background:{{ bar_colors[loop.index0 % 5] }};border-radius:4px 4px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:5px">
                         <span style="font-size:10px;font-weight:800;color:#fff">{{ link.click_count }}</span>
