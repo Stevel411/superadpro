@@ -49,7 +49,7 @@ def send_email(to_email: str, subject: str, html_body: str, text_body: str = "")
 # SHARED EMAIL HEADER & FOOTER — SuperAdPro branded
 # ═══════════════════════════════════════════════════════════════
 
-def _email_header(accent_color="#00c8e8", tagline="Video Advertising Platform"):
+def _email_header(accent_color="#0ea5e9", tagline="Video Advertising Platform"):
     """Branded header with inline SVG logo."""
     return f"""<!DOCTYPE html>
 <html>
@@ -60,28 +60,22 @@ def _email_header(accent_color="#00c8e8", tagline="Video Advertising Platform"):
 <tr><td align="center">
 <table width="580" cellpadding="0" cellspacing="0" style="max-width:580px;width:100%">
 
-  <!-- Logo bar -->
+  <!-- Logo bar — matches site exactly -->
   <tr><td align="center" style="padding-bottom:20px">
-    <table cellpadding="0" cellspacing="0">
-      <tr>
-        <td style="padding-right:10px;vertical-align:middle">
-          <!-- Inline SVG robot/play logo -->
-          <svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="22" cy="22" r="22" fill="#0a1628"/>
-            <circle cx="22" cy="22" r="20" fill="none" stroke="{accent_color}" stroke-width="1.5" opacity="0.4"/>
-            <!-- Play triangle -->
-            <polygon points="17,13 17,31 34,22" fill="{accent_color}" opacity="0.95"/>
-            <!-- Signal arcs -->
-            <path d="M8 10 Q3 22 8 34" stroke="{accent_color}" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5"/>
-            <path d="M5 13 Q-1 22 5 31" stroke="{accent_color}" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.3"/>
-          </svg>
-        </td>
-        <td style="vertical-align:middle">
-          <span style="font-size:26px;font-weight:900;color:#ffffff;letter-spacing:2px;text-transform:uppercase">Super</span><span style="font-size:26px;font-weight:900;color:{accent_color};letter-spacing:2px;text-transform:uppercase">Ad</span><span style="font-size:26px;font-weight:900;color:#ffffff;letter-spacing:2px;text-transform:uppercase">Pro</span>
-        </td>
-      </tr>
-    </table>
-    <div style="font-size:11px;color:rgba(0,200,232,0.5);letter-spacing:2px;text-transform:uppercase;margin-top:4px">{tagline}</div>
+    <table cellpadding="0" cellspacing="0"><tr>
+      <td style="padding-right:8px;vertical-align:middle">
+        <!-- Exact site logo: cyan circle + white play triangle -->
+        <svg width="36" height="36" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="16" cy="16" r="16" fill="#0ea5e9"/>
+          <path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/>
+        </svg>
+      </td>
+      <td style="vertical-align:middle">
+        <!-- Exact site wordmark: Super + Ad (cyan) + Pro, Sora font -->
+        <span style="font-family:Sora,'Helvetica Neue',Arial,sans-serif;font-size:24px;font-weight:800;color:#ffffff">Super</span><span style="font-family:Sora,'Helvetica Neue',Arial,sans-serif;font-size:24px;font-weight:800;color:#38bdf8">Ad</span><span style="font-family:Sora,'Helvetica Neue',Arial,sans-serif;font-size:24px;font-weight:800;color:#ffffff">Pro</span>
+      </td>
+    </tr></table>
+    <div style="font-size:11px;color:rgba(56,189,248,0.5);letter-spacing:2px;text-transform:uppercase;margin-top:6px">{tagline}</div>
   </td></tr>
 
   <!-- Main card -->
@@ -110,9 +104,9 @@ def _email_footer(to_email=""):
             <a href="{SITE_URL}" style="color:rgba(0,200,232,0.4);text-decoration:none">{SITE_URL}</a>{unsub}
           </td>
           <td align="right">
-            <svg width="28" height="28" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="22" cy="22" r="22" fill="#0d1f38"/>
-              <polygon points="17,13 17,31 34,22" fill="rgba(0,200,232,0.4)"/>
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="16" cy="16" r="16" fill="#0ea5e9" opacity="0.5"/>
+              <path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white" opacity="0.7"/>
             </svg>
           </td>
         </tr>
