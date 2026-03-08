@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════
 # SuperAdPro — Email Utilities
-# Uses Brevo HTTP API for transactional email delivery
+# Brevo HTTP API · Light theme · Warm & welcoming
 # ═══════════════════════════════════════════════════════════════
 import os
 import json
@@ -16,106 +16,121 @@ FROM_DISPLAY  = "SuperAdPro"
 
 
 def send_email(to_email: str, subject: str, html_body: str, text_body: str = "") -> bool:
-    """Send an email via Brevo HTTP API. Returns True on success."""
+    """Send via Brevo HTTP API."""
     if not BREVO_API_KEY:
-        logger.warning(f"BREVO_API_KEY not set — would send to {to_email}: {subject}")
+        logger.error("BREVO_API_KEY not set")
         return False
+    payload = json.dumps({
+        "sender":     {"name": FROM_DISPLAY, "email": FROM_EMAIL},
+        "to":         [{"email": to_email}],
+        "subject":    subject,
+        "htmlContent": html_body,
+        "textContent": text_body or subject,
+    }).encode("utf-8")
+    req = urllib.request.Request(
+        "https://api.brevo.com/v3/smtp/email",
+        data=payload,
+        headers={
+            "accept":       "application/json",
+            "api-key":      BREVO_API_KEY,
+            "content-type": "application/json",
+        },
+        method="POST",
+    )
     try:
-        payload = {
-            "sender":      {"name": FROM_DISPLAY, "email": FROM_EMAIL},
-            "to":          [{"email": to_email}],
-            "subject":     subject,
-            "htmlContent": html_body,
-        }
-        if text_body:
-            payload["textContent"] = text_body
-        data = json.dumps(payload).encode("utf-8")
-        req  = urllib.request.Request(
-            "https://api.brevo.com/v3/smtp/email",
-            data    = data,
-            headers = {
-                "Content-Type": "application/json",
-                "api-key":      BREVO_API_KEY,
-            },
-            method = "POST",
-        )
         with urllib.request.urlopen(req, timeout=10) as resp:
-            status = resp.status
-        logger.info(f"Email sent to {to_email}: {subject} (status {status})")
-        return status in (200, 201)
+            ok = resp.status in (200, 201)
+            logger.info(f"Email sent to {to_email}: {resp.status}")
+            return ok
     except Exception as e:
-        logger.error(f"Email send failed to {to_email}: {e}")
+        logger.error(f"Email failed to {to_email}: {e}")
         return False
 
 
 # ═══════════════════════════════════════════════════════════════
-# SHARED EMAIL HEADER & FOOTER — SuperAdPro branded
+# SHARED COMPONENTS
 # ═══════════════════════════════════════════════════════════════
 
-def _email_header(accent_color="#0ea5e9", tagline="Video Advertising Platform"):
-    """Branded header with inline SVG logo."""
+def _logo_html():
+    """SuperAdPro logo: cyan circle with play arrow + wordmark."""
+    return '''
+    <table cellpadding="0" cellspacing="0" align="center">
+      <tr>
+        <td style="padding-right:12px;vertical-align:middle">
+          <table cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="width:46px;height:46px;background:#0ea5e9;border-radius:50%;text-align:center;vertical-align:middle">
+                <span style="font-size:22px;color:#ffffff;font-weight:900;line-height:46px;display:block;padding-left:3px">&#9654;</span>
+              </td>
+            </tr>
+          </table>
+        </td>
+        <td style="vertical-align:middle">
+          <span style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:900;color:#1e293b;letter-spacing:-0.5px">SuperAd</span><span style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:900;color:#0ea5e9;letter-spacing:-0.5px">Pro</span>
+        </td>
+      </tr>
+    </table>'''
+
+
+def _email_shell(tagline: str, hero_bg: str, hero_content: str, body_content: str) -> str:
+    """Full email shell: white card, light grey outer."""
     return f"""<!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SuperAdPro</title></head>
-<body style="margin:0;padding:0;background:#050d1a;font-family:'Helvetica Neue',Arial,sans-serif">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#050d1a;padding:32px 16px">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SuperAdPro</title>
+</head>
+<body style="margin:0;padding:0;background:#e8edf5;font-family:'Helvetica Neue',Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#e8edf5;padding:36px 16px">
 <tr><td align="center">
 <table width="580" cellpadding="0" cellspacing="0" style="max-width:580px;width:100%">
 
-  <!-- Logo bar — matches site exactly -->
-  <tr><td align="center" style="padding-bottom:20px">
-    <table cellpadding="0" cellspacing="0"><tr>
-      <td style="padding-right:8px;vertical-align:middle">
-        <!-- Exact site logo: cyan circle + white play triangle -->
-        <svg width="36" height="36" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="16" cy="16" r="16" fill="#0ea5e9"/>
-          <path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/>
-        </svg>
-      </td>
-      <td style="vertical-align:middle">
-        <!-- Exact site wordmark: Super + Ad (cyan) + Pro, Sora font -->
-        <span style="font-family:Sora,'Helvetica Neue',Arial,sans-serif;font-size:24px;font-weight:800;color:#ffffff">SuperAd</span><span style="color:#38bdf8">Pro</span>
-      </td>
-    </tr></table>
-    <div style="font-size:11px;color:rgba(56,189,248,0.5);letter-spacing:2px;text-transform:uppercase;margin-top:6px">{tagline}</div>
-  </td></tr>
+  <!-- White card -->
+  <tr><td style="background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,0.04),0 20px 60px rgba(0,0,0,0.08)">
 
-  <!-- Main card -->
-  <tr><td style="background:#0a1628;border:1px solid rgba(0,200,232,0.15);border-radius:16px;overflow:hidden">
-    <!-- Top accent bar -->
-    <div style="height:3px;background:linear-gradient(90deg,{accent_color},#6d28d9,{accent_color})"></div>
+    <!-- Header: logo bar -->
     <table width="100%" cellpadding="0" cellspacing="0">
-    <tr><td style="padding:36px 36px 0">
-"""
+      <tr>
+        <td style="padding:28px 40px 24px;border-bottom:1px solid #f1f5f9">
+          <table width="100%" cellpadding="0" cellspacing="0"><tr>
+            <td>{_logo_html()}</td>
+            <td align="right" style="font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;vertical-align:middle">{tagline}</td>
+          </tr></table>
+        </td>
+      </tr>
+    </table>
 
-def _email_footer(to_email=""):
-    """Branded footer."""
-    unsub = f"<br>This email was sent to {to_email}." if to_email else ""
-    return f"""
-    </td></tr>
+    <!-- Hero banner -->
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr><td style="background:{hero_bg};padding:36px 40px 32px">{hero_content}</td></tr>
+    </table>
 
-    <!-- CTA divider -->
-    <tr><td style="padding:0 36px 36px"></td></tr>
+    <!-- Body -->
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr><td style="padding:32px 40px">{body_content}</td></tr>
+    </table>
 
     <!-- Footer -->
-    <tr><td style="background:rgba(0,0,0,0.35);padding:20px 36px;border-top:1px solid rgba(0,200,232,0.08)">
-      <table width="100%" cellpadding="0" cellspacing="0">
-        <tr>
-          <td style="font-size:11px;color:rgba(200,220,255,0.3);line-height:1.8">
-            <strong style="color:rgba(0,200,232,0.5)">SuperAdPro</strong> &middot; Video Advertising &amp; Affiliate Platform<br>
-            <a href="{SITE_URL}" style="color:rgba(0,200,232,0.4);text-decoration:none">{SITE_URL}</a>{unsub}
-          </td>
-          <td align="right">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="16" cy="16" r="16" fill="#0ea5e9" opacity="0.5"/>
-              <path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white" opacity="0.7"/>
-            </svg>
-          </td>
-        </tr>
-      </table>
-    </td></tr>
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr><td style="background:#f8fafc;border-top:1px solid #f1f5f9;padding:24px 40px;text-align:center">
+        <table cellpadding="0" cellspacing="0" align="center" style="margin-bottom:10px">
+          <tr>
+            <td style="padding-right:8px;vertical-align:middle">
+              <span style="display:inline-block;width:26px;height:26px;background:#0ea5e9;border-radius:50%;text-align:center;line-height:26px;font-size:13px;color:#fff;font-weight:900;padding-left:2px">&#9654;</span>
+            </td>
+            <td style="vertical-align:middle">
+              <span style="font-family:Georgia,serif;font-size:15px;font-weight:900;color:#64748b">SuperAd</span><span style="font-family:Georgia,serif;font-size:15px;font-weight:900;color:#0ea5e9">Pro</span>
+            </td>
+          </tr>
+        </table>
+        <div style="font-size:13px;color:#94a3b8;line-height:1.8">
+          Video Advertising &amp; Affiliate Platform<br>
+          <a href="{SITE_URL}" style="color:#0ea5e9;text-decoration:none">{SITE_URL}</a>
+        </div>
+      </td></tr>
     </table>
+
   </td></tr>
 
 </table>
@@ -125,248 +140,294 @@ def _email_footer(to_email=""):
 </html>"""
 
 
-def _cta_button(url, label, color="#00c8e8"):
-    return f"""<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 0 8px">
-      <a href="{url}" style="display:inline-block;background:linear-gradient(135deg,{color},#0077a8);color:#fff;font-size:15px;font-weight:700;text-decoration:none;padding:14px 40px;border-radius:8px;letter-spacing:0.5px">{label}</a>
-    </td></tr></table>"""
+def _cta_button(url: str, label: str, color: str = "#0ea5e9") -> str:
+    return f'''<table cellpadding="0" cellspacing="0" align="center" style="margin:8px auto 4px">
+      <tr><td style="background:{color};border-radius:50px;text-align:center">
+        <a href="{url}" style="display:inline-block;padding:17px 44px;font-family:Georgia,serif;font-size:17px;font-weight:700;color:#ffffff;text-decoration:none;letter-spacing:0.3px">{label}</a>
+      </td></tr>
+    </table>'''
 
 
-def _info_box(content, border_color="rgba(0,200,232,0.2)"):
-    return f"""<div style="background:rgba(0,200,232,0.05);border:1px solid {border_color};border-radius:10px;padding:18px 20px;margin:20px 0">{content}</div>"""
+def _info_card(content: str, bg: str = "#f8fafc", border: str = "#e2e8f0") -> str:
+    return f'''<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">
+      <tr><td style="background:{bg};border:1px solid {border};border-radius:14px;padding:24px">{content}</td></tr>
+    </table>'''
+
+
+def _checklist(*items) -> str:
+    rows = ""
+    for item in items:
+        rows += f'''<tr>
+          <td style="padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.04);vertical-align:top">
+            <table cellpadding="0" cellspacing="0"><tr>
+              <td style="color:#22c55e;font-weight:700;font-size:18px;padding-right:12px;vertical-align:top;line-height:1.5">&#10003;</td>
+              <td style="font-size:16px;color:#334155;line-height:1.5">{item}</td>
+            </tr></table>
+          </td>
+        </tr>'''
+    return f'<table width="100%" cellpadding="0" cellspacing="0">{rows}</table>'
 
 
 # ═══════════════════════════════════════════════════════════════
-# Welcome Email
+# EMAIL 1: WELCOME
 # ═══════════════════════════════════════════════════════════════
 def send_welcome_email(to_email: str, first_name: str, username: str) -> bool:
-    html_body = _email_header(tagline="Welcome to the Platform") + f"""
-      <p style="margin:0 0 6px;font-size:24px;font-weight:800;color:#ffffff">Welcome aboard, {first_name}! 🎉</p>
-      <p style="margin:0 0 24px;font-size:15px;color:rgba(200,220,255,0.7);line-height:1.7">
-        Your SuperAdPro account is ready. Here are your details:
+    hero = f"""
+      <div style="font-size:52px;line-height:1;margin-bottom:16px">&#127881;</div>
+      <p style="margin:0 0 10px;font-family:Georgia,serif;font-size:32px;font-weight:900;color:#1e293b;line-height:1.2">
+        Welcome to the community, <span style="color:#0ea5e9">{first_name}!</span>
       </p>
+      <p style="margin:0;font-size:17px;color:#475569;line-height:1.7">
+        Your SuperAdPro account is live and ready. You're now part of a growing community of digital marketers and advertisers.
+      </p>"""
 
-      {_info_box(f'''
-        <table width="100%" cellpadding="0" cellspacing="0">
-          <tr>
-            <td style="font-size:12px;color:rgba(200,220,255,0.45);padding-bottom:4px">USERNAME</td>
-            <td style="font-size:12px;color:rgba(200,220,255,0.45);padding-bottom:4px">EMAIL</td>
-          </tr>
-          <tr>
-            <td style="font-size:17px;font-weight:700;color:#00c8e8;padding-right:20px">{username}</td>
-            <td style="font-size:15px;font-weight:600;color:#e2eaf8">{to_email}</td>
-          </tr>
-        </table>
-      ''')}
-
-      <p style="margin:20px 0 12px;font-size:16px;font-weight:700;color:#ffffff">Get started in 4 steps:</p>
-
-      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:8px">
-        <tr>
-          <td width="32" valign="top" style="padding-top:2px">
-            <div style="width:24px;height:24px;border-radius:50%;background:rgba(0,200,232,0.15);border:1px solid rgba(0,200,232,0.3);text-align:center;line-height:24px;font-size:12px;font-weight:700;color:#00c8e8">1</div>
-          </td>
-          <td style="font-size:14px;color:rgba(200,220,255,0.75);line-height:1.6;padding-bottom:12px">
-            <strong style="color:#fff">Complete your profile</strong> — add your wallet address and country
-          </td>
-        </tr>
-        <tr>
-          <td width="32" valign="top" style="padding-top:2px">
-            <div style="width:24px;height:24px;border-radius:50%;background:rgba(0,200,232,0.15);border:1px solid rgba(0,200,232,0.3);text-align:center;line-height:24px;font-size:12px;font-weight:700;color:#00c8e8">2</div>
-          </td>
-          <td style="font-size:14px;color:rgba(200,220,255,0.75);line-height:1.6;padding-bottom:12px">
-            <strong style="color:#fff">Activate your membership</strong> — starting from just $20/month
-          </td>
-        </tr>
-        <tr>
-          <td width="32" valign="top" style="padding-top:2px">
-            <div style="width:24px;height:24px;border-radius:50%;background:rgba(0,200,232,0.15);border:1px solid rgba(0,200,232,0.3);text-align:center;line-height:24px;font-size:12px;font-weight:700;color:#00c8e8">3</div>
-          </td>
-          <td style="font-size:14px;color:rgba(200,220,255,0.75);line-height:1.6;padding-bottom:12px">
-            <strong style="color:#fff">Choose your campaign tier</strong> — launch your ad campaigns
-          </td>
-        </tr>
-        <tr>
-          <td width="32" valign="top" style="padding-top:2px">
-            <div style="width:24px;height:24px;border-radius:50%;background:rgba(0,200,232,0.15);border:1px solid rgba(0,200,232,0.3);text-align:center;line-height:24px;font-size:12px;font-weight:700;color:#00c8e8">4</div>
-          </td>
-          <td style="font-size:14px;color:rgba(200,220,255,0.75);line-height:1.6">
-            <strong style="color:#fff">Watch daily videos</strong> — stay qualified for commissions
-          </td>
-        </tr>
+    body = f"""
+      <!-- Cyan credential box -->
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">
+        <tr><td style="background:#0ea5e9;border-radius:14px;padding:22px 26px">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.25)">
+                <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                  <td style="font-size:15px;color:rgba(255,255,255,0.8);font-weight:500">Username</td>
+                  <td align="right" style="font-size:15px;color:#ffffff;font-weight:700">{username}</td>
+                </tr></table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.25)">
+                <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                  <td style="font-size:15px;color:rgba(255,255,255,0.8);font-weight:500">Status</td>
+                  <td align="right" style="font-size:15px;color:#86efac;font-weight:700">&#10003; Active</td>
+                </tr></table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:9px 0">
+                <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                  <td style="font-size:15px;color:rgba(255,255,255,0.8);font-weight:500">Dashboard</td>
+                  <td align="right" style="font-size:14px;color:#ffffff;font-weight:600">superadpro.com/dashboard</td>
+                </tr></table>
+              </td>
+            </tr>
+          </table>
+        </td></tr>
       </table>
 
-      {_cta_button(f"{SITE_URL}/dashboard", "Go to My Dashboard")}
-    """ + _email_footer(to_email)
+      <!-- What you can do -->
+      {_info_card(
+        '<p style="font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#0284c7;margin:0 0 14px">What you can do right now</p>' +
+        _checklist(
+            'Watch daily videos and qualify for commissions',
+            'Share your referral link and start earning $10/month per member',
+            'Access 9 AI marketing tools',
+            'Build and publish your own ad funnels',
+        ),
+        bg='#f0f9ff', border='#bae6fd'
+      )}
 
+      {_cta_button(f"{SITE_URL}/dashboard", "Go to My Dashboard &rarr;")}"""
+
+    html = _email_shell("Welcome", "linear-gradient(135deg,#f0f9ff,#e0f2fe)", hero, body)
     return send_email(
-        to_email  = to_email,
-        subject   = f"Welcome to SuperAdPro, {first_name}!",
-        html_body = html_body,
-        text_body = f"Welcome to SuperAdPro, {first_name}! Your username is {username}. Log in at {SITE_URL}/dashboard",
+        to_email=to_email,
+        subject=f"Welcome to SuperAdPro, {first_name}! 🎉",
+        html_body=html,
+        text_body=f"Welcome to SuperAdPro, {first_name}! Your username is {username}. Log in at {SITE_URL}/dashboard",
     )
 
 
 # ═══════════════════════════════════════════════════════════════
-# Password Reset Email
-# ═══════════════════════════════════════════════════════════════
-def send_password_reset_email(to_email: str, first_name: str, reset_token: str) -> bool:
-    reset_url = f"{SITE_URL}/reset-password?token={reset_token}"
-
-    html_body = _email_header(accent_color="#00c8e8", tagline="Account Security") + f"""
-      <p style="margin:0 0 6px;font-size:24px;font-weight:800;color:#ffffff">Password Reset Request</p>
-      <p style="margin:0 0 24px;font-size:15px;color:rgba(200,220,255,0.7);line-height:1.7">
-        Hi {first_name}, we received a request to reset your SuperAdPro password.
-        Click the button below to choose a new one.
-      </p>
-
-      {_cta_button(reset_url, "Reset My Password")}
-
-      <p style="margin:16px 0 8px;font-size:13px;color:rgba(200,220,255,0.45)">Or copy this link into your browser:</p>
-      <p style="margin:0 0 20px;font-size:12px;color:#00c8e8;word-break:break-all;background:rgba(0,200,232,0.05);border:1px solid rgba(0,200,232,0.1);border-radius:6px;padding:10px 12px">{reset_url}</p>
-
-      {_info_box('<p style="margin:0;font-size:13px;color:rgba(251,191,36,0.85);line-height:1.6">⏱ This link expires in <strong>1 hour</strong>. If you didn\'t request a password reset, you can safely ignore this email — your account is secure.</p>', border_color="rgba(251,191,36,0.2)")}
-    """ + _email_footer(to_email)
-
-    return send_email(
-        to_email  = to_email,
-        subject   = "Reset your SuperAdPro password",
-        html_body = html_body,
-        text_body = f"Hi {first_name}, reset your SuperAdPro password: {reset_url} (expires in 1 hour)",
-    )
-
-
-# ═══════════════════════════════════════════════════════════════
-# Commission Notification Email
+# EMAIL 2: CHA-CHING COMMISSION
 # ═══════════════════════════════════════════════════════════════
 def send_commission_email(to_email: str, first_name: str, commission_type: str = "Affiliate", from_username: str = "") -> bool:
-    from_line = f"from <strong style='color:#00c8e8'>{from_username}</strong>" if from_username else ""
+    from_line = f" &middot; from <strong>{from_username}</strong>" if from_username else ""
 
-    html_body = _email_header(accent_color="#22c55e", tagline="Commission Received") + f"""
-      <div style="text-align:center;padding:8px 0 20px">
-        <div style="font-size:52px;line-height:1">💰</div>
-        <p style="margin:12px 0 4px;font-size:28px;font-weight:900;color:#22c55e">Cha-Ching!</p>
-        <p style="margin:0;font-size:16px;color:rgba(200,220,255,0.8)">Hey {first_name}, you just earned a commission!</p>
-      </div>
-
-      {_info_box(f'''
-        <table width="100%" cellpadding="0" cellspacing="0">
-          <tr>
-            <td style="font-size:12px;color:rgba(200,220,255,0.45);padding-bottom:6px">COMMISSION TYPE</td>
-          </tr>
-          <tr>
-            <td style="font-size:18px;font-weight:700;color:#22c55e">{commission_type} {from_line}</td>
-          </tr>
-        </table>
-      ''', border_color="rgba(34,197,94,0.2)")}
-
-      <p style="margin:16px 0 0;font-size:14px;color:rgba(200,220,255,0.55);text-align:center;line-height:1.6">
-        Log in to your dashboard to see the full details and your updated wallet balance.
+    hero = f"""
+      <div style="font-size:52px;line-height:1;margin-bottom:16px">&#128176;</div>
+      <p style="margin:0 0 10px;font-family:Georgia,serif;font-size:32px;font-weight:900;color:#15803d;line-height:1.2">
+        Cha-Ching, <span style="color:#0ea5e9">{first_name}!</span>
       </p>
+      <p style="margin:0;font-size:17px;color:#166534;line-height:1.7">
+        Money just landed in your SuperAdPro wallet. Here's what came in:
+      </p>"""
 
-      {_cta_button(f"{SITE_URL}/dashboard", "View My Dashboard", color="#22c55e")}
-    """ + _email_footer(to_email)
+    body = f"""
+      <!-- Green money card -->
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">
+        <tr><td style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #bbf7d0;border-radius:16px;padding:32px;text-align:center">
+          <div style="font-size:38px;margin-bottom:12px">&#129689; &#129689; &#129689;</div>
+          <p style="margin:0 0 6px;font-family:Georgia,serif;font-size:22px;font-weight:900;color:#15803d">Commission Received!</p>
+          <p style="margin:0;font-size:16px;color:#16a34a;font-weight:600">{commission_type}{from_line}</p>
+        </td></tr>
+      </table>
 
+      <!-- Flow strip -->
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">
+        <tr><td style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:15px 20px;text-align:center">
+          <span style="font-size:22px">&#128179;</span>
+          <span style="font-size:15px;color:#94a3b8;margin:0 8px">&rarr;</span>
+          <span style="font-size:16px;color:#16a34a;font-weight:600">Added to your wallet balance</span>
+          <span style="font-size:15px;color:#94a3b8;margin:0 8px">&rarr;</span>
+          <span style="font-size:22px">&#127974;</span>
+        </td></tr>
+      </table>
+
+      {_info_card(
+        '<p style="margin:0;font-size:16px;color:#166534;line-height:1.7">Your earnings are building up in your wallet. Once you hit the <strong>$10 minimum</strong>, you can withdraw to your USDT wallet anytime — no waiting, no delays.</p>',
+        bg='#f0fdf4', border='#bbf7d0'
+      )}
+
+      {_cta_button(f"{SITE_URL}/wallet", "View My Wallet &#128176;", color="#22c55e")}"""
+
+    html = _email_shell("Commission Alert", "linear-gradient(135deg,#f0fdf4,#dcfce7)", hero, body)
     return send_email(
-        to_email  = to_email,
-        subject   = f"Cha-Ching! You received a {commission_type} commission on SuperAdPro!",
-        html_body = html_body,
+        to_email=to_email,
+        subject=f"Cha-Ching! You received a {commission_type} commission on SuperAdPro!",
+        html_body=html,
     )
 
 
 # ═══════════════════════════════════════════════════════════════
-# Membership Activation Email
+# EMAIL 3: PASSWORD RESET
+# ═══════════════════════════════════════════════════════════════
+def send_password_reset_email(to_email: str, first_name: str, reset_url: str) -> bool:
+    hero = f"""
+      <div style="font-size:52px;line-height:1;margin-bottom:16px">&#128272;</div>
+      <p style="margin:0 0 10px;font-family:Georgia,serif;font-size:32px;font-weight:900;color:#1e293b;line-height:1.2">
+        Reset your password, <span style="color:#0ea5e9">{first_name}</span>
+      </p>
+      <p style="margin:0;font-size:17px;color:#475569;line-height:1.7">
+        We received a request to reset your SuperAdPro password. Click the button below — it's only valid for <strong>1 hour</strong>.
+      </p>"""
+
+    body = f"""
+      <!-- Reset box -->
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">
+        <tr><td style="border:2px dashed #e2e8f0;border-radius:14px;padding:30px;text-align:center">
+          <p style="margin:0 0 20px;font-size:16px;color:#64748b">Click the button below to set your new password:</p>
+          {_cta_button(reset_url, "Reset My Password &rarr;")}
+          <p style="margin:16px 0 0;font-size:14px;color:#94a3b8">&#9201; This link expires in 1 hour</p>
+        </td></tr>
+      </table>
+
+      <!-- Warning -->
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px">
+        <tr><td style="background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:14px 18px">
+          <p style="margin:0;font-size:15px;color:#713f12;line-height:1.6">
+            &#128274; <strong>Didn't request this?</strong> You can safely ignore this email. Your password won't change unless you click the link above.
+          </p>
+        </td></tr>
+      </table>
+
+      <p style="margin:0;font-size:13px;color:#94a3b8;text-align:center;line-height:1.8">
+        If the button doesn't work, copy and paste this link into your browser:<br>
+        <span style="color:#0ea5e9;font-size:12px;word-break:break-all">{reset_url}</span>
+      </p>"""
+
+    html = _email_shell("Account Security", "#ffffff", hero, body)
+    return send_email(
+        to_email=to_email,
+        subject="Reset your SuperAdPro password",
+        html_body=html,
+        text_body=f"Hi {first_name}, reset your SuperAdPro password: {reset_url} (expires in 1 hour)",
+    )
+
+
+# ═══════════════════════════════════════════════════════════════
+# EMAIL 4: MEMBERSHIP ACTIVATED
 # ═══════════════════════════════════════════════════════════════
 def send_membership_activated_email(to_email: str, first_name: str) -> bool:
-    html_body = _email_header(tagline="Membership Activated") + f"""
-      <p style="margin:0 0 6px;font-size:24px;font-weight:800;color:#ffffff">You're all set, {first_name}! ✅</p>
-      <p style="margin:0 0 24px;font-size:15px;color:rgba(200,220,255,0.7);line-height:1.7">
-        Your $20/month SuperAdPro membership is now active. Here's what you've unlocked:
+    hero = f"""
+      <div style="font-size:52px;line-height:1;margin-bottom:16px">&#128640;</div>
+      <p style="margin:0 0 10px;font-family:Georgia,serif;font-size:32px;font-weight:900;color:#1e293b;line-height:1.2">
+        You're officially a member, <span style="color:#7c3aed">{first_name}!</span>
       </p>
+      <p style="margin:0;font-size:17px;color:#4c1d95;line-height:1.7">
+        Your $20/month SuperAdPro membership is now active. Here's everything you've just unlocked:
+      </p>"""
 
-      {_info_box('''
-        <table width="100%" cellpadding="0" cellspacing="0">
-          <tr><td style="font-size:14px;color:rgba(200,220,255,0.8);line-height:2;padding:2px 0">
-            <span style="color:#22c55e;font-weight:700">✓</span>&nbsp; Watch &amp; Earn daily videos<br>
-            <span style="color:#22c55e;font-weight:700">✓</span>&nbsp; Earn referral commissions<br>
-            <span style="color:#22c55e;font-weight:700">✓</span>&nbsp; Access campaign tiers and ad tools<br>
-            <span style="color:#22c55e;font-weight:700">✓</span>&nbsp; Full AI marketing suite
-          </td></tr>
-        </table>
-      ''')}
+    body = f"""
+      {_info_card(
+        _checklist(
+            'Watch &amp; Earn daily videos',
+            'Earn 50% referral commissions ($10/month per member you refer)',
+            'Access all 8 campaign tiers and ad tools',
+            'Full AI marketing suite — 9 tools included',
+            'Build unlimited funnel pages',
+            'Withdraw earnings via USDT anytime',
+        ),
+        bg='#faf5ff', border='#ddd6fe'
+      )}
 
-      {_cta_button(f"{SITE_URL}/dashboard", "Go to Dashboard")}
-    """ + _email_footer(to_email)
+      {_info_card(
+        '<p style="margin:0;font-size:16px;color:#166534;text-align:center;line-height:1.6">&#128161; <strong>Pro tip:</strong> Refer just 2 members and your membership pays for itself every month.</p>',
+        bg='#f0fdf4', border='#bbf7d0'
+      )}
 
+      {_cta_button(f"{SITE_URL}/dashboard", "Explore My Dashboard &rarr;", color="#7c3aed")}"""
+
+    html = _email_shell("You're In!", "linear-gradient(135deg,#faf5ff,#ede9fe)", hero, body)
     return send_email(
-        to_email  = to_email,
-        subject   = "Your SuperAdPro membership is active!",
-        html_body = html_body,
-        text_body = f"Hi {first_name}, your SuperAdPro membership is now active. Go to {SITE_URL}/dashboard",
+        to_email=to_email,
+        subject="Your SuperAdPro membership is active! 🚀",
+        html_body=html,
+        text_body=f"Hi {first_name}, your SuperAdPro membership is now active. Go to {SITE_URL}/dashboard",
     )
 
 
 # ═══════════════════════════════════════════════════════════════
-# Renewal Reminder Email
+# EMAIL 5: RENEWAL REMINDER
 # ═══════════════════════════════════════════════════════════════
 def send_renewal_reminder_email(to_email: str, first_name: str, days_left: int) -> bool:
     days_word = f"{days_left} day{'s' if days_left != 1 else ''}"
     urgency_color = "#ef4444" if days_left <= 3 else "#f59e0b"
 
-    html_body = _email_header(accent_color=urgency_color, tagline="Membership Renewal Reminder") + f"""
-      <p style="margin:0 0 6px;font-size:24px;font-weight:800;color:#ffffff">Heads up, {first_name}! ⏰</p>
-      <p style="margin:0 0 24px;font-size:15px;color:rgba(200,220,255,0.7);line-height:1.7">
-        Your SuperAdPro membership renews in <strong style="color:{urgency_color}">{days_word}</strong>.
-        Make sure you have at least <strong style="color:#22c55e">$20 USDT</strong> in your wallet
-        for auto-renewal, or your commissions will be paused.
+    hero = f"""
+      <div style="font-size:52px;line-height:1;margin-bottom:16px">&#9200;</div>
+      <p style="margin:0 0 10px;font-family:Georgia,serif;font-size:32px;font-weight:900;color:#92400e;line-height:1.2">
+        Your membership renews in <span style="color:{urgency_color}">{days_word}</span>
       </p>
+      <p style="margin:0;font-size:17px;color:#78350f;line-height:1.7">
+        Just a friendly heads up, {first_name} — your $20/month membership renewal is coming up. Make sure your wallet has enough to cover it!
+      </p>"""
 
-      {_info_box(f'<p style="margin:0;font-size:14px;color:rgba(200,220,255,0.75);line-height:1.6">Your membership renews in <strong style="color:{urgency_color}">{days_word}</strong>. Top up your wallet now to avoid any interruption to your account.</p>', border_color=f"rgba(245,158,11,0.25)")}
-
-      {_cta_button(f"{SITE_URL}/wallet", "Check My Wallet Balance", color=urgency_color)}
-    """ + _email_footer(to_email)
-
-    return send_email(
-        to_email  = to_email,
-        subject   = f"Your SuperAdPro membership renews in {days_word}",
-        html_body = html_body,
-        text_body = f"Hi {first_name}, your SuperAdPro membership renews in {days_word}. Check your balance: {SITE_URL}/wallet",
-    )
-
-
-# ═══════════════════════════════════════════════════════════════
-# VIP Waiting List Welcome Email
-# ═══════════════════════════════════════════════════════════════
-def send_vip_welcome_email(to_email: str, name: str) -> bool:
-    html_body = _email_header(accent_color="#00c8e8", tagline="VIP Early Access") + f"""
-      <div style="text-align:center;padding:4px 0 20px">
-        <div style="font-size:48px;line-height:1">🎉</div>
-        <p style="margin:12px 0 4px;font-size:26px;font-weight:900;color:#ffffff">You're on the VIP List!</p>
-        <p style="margin:0;font-size:15px;color:rgba(200,220,255,0.65)">
-          Welcome {name} — you've secured your early access spot.
-        </p>
-      </div>
-
-      {_info_box('''
-        <p style="margin:0 0 12px;font-size:15px;font-weight:700;color:#fff">What's coming at launch:</p>
-        <table width="100%" cellpadding="0" cellspacing="0">
-          <tr><td style="font-size:14px;color:rgba(200,220,255,0.75);line-height:2">
-            🎬&nbsp; <strong style="color:#00c8e8">Watch &amp; Earn</strong> — qualify by watching real video ads<br>
-            📣&nbsp; <strong style="color:#00c8e8">Real Ad Views</strong> — drive genuine engaged traffic<br>
-            ⚡&nbsp; <strong style="color:#00c8e8">Multiple Income Streams</strong> — memberships, commissions &amp; courses<br>
-            💰&nbsp; <strong style="color:#00c8e8">Instant Payouts</strong> — paid the moment it\'s earned via USDT<br>
-            🤖&nbsp; <strong style="color:#00c8e8">AI Marketing Suite</strong> — page builder, funnels &amp; AI content tools
+    body = f"""
+      {_info_card(
+        f'''<table width="100%" cellpadding="0" cellspacing="0">
+          <tr><td style="padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.06)">
+            <table width="100%" cellpadding="0" cellspacing="0"><tr>
+              <td style="font-size:16px;color:#475569">&#128197; Renewal date</td>
+              <td align="right" style="font-size:16px;color:#1e293b;font-weight:700">in {days_word}</td>
+            </tr></table>
           </td></tr>
-        </table>
-      ''')}
+          <tr><td style="padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.06)">
+            <table width="100%" cellpadding="0" cellspacing="0"><tr>
+              <td style="font-size:16px;color:#475569">&#128179; Amount needed</td>
+              <td align="right" style="font-size:16px;color:#1e293b;font-weight:700">$20 USDT</td>
+            </tr></table>
+          </td></tr>
+          <tr><td style="padding:10px 0">
+            <table width="100%" cellpadding="0" cellspacing="0"><tr>
+              <td style="font-size:16px;color:#475569">&#127974; Paid from</td>
+              <td align="right" style="font-size:16px;color:#1e293b;font-weight:700">your wallet balance</td>
+            </tr></table>
+          </td></tr>
+        </table>''',
+        bg='#fffbeb', border='#fde68a'
+      )}
 
-      {_info_box(f'<p style="margin:0;font-size:13px;color:rgba(251,191,36,0.85);line-height:1.6;text-align:center"><strong>Why VIP matters:</strong> The earlier you\'re in, the stronger your position in the network. You\'ll receive one email on launch day with your exclusive early access link.</p>', border_color="rgba(251,191,36,0.2)")}
+      {_info_card(
+        '<p style="margin:0;font-size:16px;color:#9a3412;line-height:1.6;text-align:center">&#9888;&#65039; If your wallet doesn\'t have enough funds, your commissions will pause until renewal is complete.</p>',
+        bg='#fff7ed', border='#fed7aa'
+      )}
 
-      {_cta_button(f"{SITE_URL}/compensation-plan", "Preview the Compensation Plan")}
-    """ + _email_footer(to_email)
+      {_cta_button(f"{SITE_URL}/wallet", "Check My Wallet Balance", color=urgency_color)}"""
 
+    html = _email_shell("Heads Up", "linear-gradient(135deg,#fffbeb,#fef3c7)", hero, body)
     return send_email(
-        to_email  = to_email,
-        subject   = f"🎉 You're on the VIP list, {name}!",
-        html_body = html_body,
-        text_body = f"Welcome {name}! You've secured your VIP spot on SuperAdPro. Preview the comp plan: {SITE_URL}/compensation-plan",
+        to_email=to_email,
+        subject=f"Your SuperAdPro membership renews in {days_word}",
+        html_body=html,
+        text_body=f"Hi {first_name}, your SuperAdPro membership renews in {days_word}. Check your balance: {SITE_URL}/wallet",
     )
