@@ -7512,7 +7512,11 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
 
         # Replace all links — cap at 20 to protect DB
         raw_links = data.get("links", [])[:20]
-        db.query(LinkHubLink).filter(LinkHubLink.profile_id == profile.id).delete()
+        # Delete click records first (foreign key on linkhub_links)
+        link_ids = [l.id for l in db.query(LinkHubLink.id).filter(LinkHubLink.profile_id == profile.id).all()]
+        if link_ids:
+            db.query(LinkHubClick).filter(LinkHubClick.link_id.in_(link_ids)).delete(synchronize_session=False)
+        db.query(LinkHubLink).filter(LinkHubLink.profile_id == profile.id).delete(synchronize_session=False)
         for idx, lk in enumerate(raw_links):
             title = str(lk.get("title", "")).strip()[:200]
             url   = str(lk.get("url", "")).strip()[:2000]
