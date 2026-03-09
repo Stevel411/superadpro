@@ -411,8 +411,8 @@ textarea.field-input{resize:vertical;min-height:64px}
                     <button class="dr-pill {% if link.font_weight=='bold' %}on{% endif %}" data-v="bold" onclick="pill(this)">Bold</button>
                     <button class="dr-pill {% if link.font_weight=='black' %}on{% endif %}" data-v="black" onclick="pill(this)">Black</button>
                   </div></div>
-                  <div><span class="dr-lbl">Size</span><div class="dr-range">
-                    <input type="range" min="11" max="22" value="{{ link.font_size or 14 }}" oninput="this.nextElementSibling.textContent=this.value+'px';pv()">
+                  <div><span class="dr-lbl">Size</span><div class="dr-range" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()">
+                    <input type="range" min="11" max="22" value="{{ link.font_size or 14 }}" oninput="this.nextElementSibling.textContent=this.value+'px';pv()" draggable="false">
                     <span class="dr-rv">{{ link.font_size or 14 }}px</span>
                   </div></div>
                 </div>
@@ -820,7 +820,7 @@ function addCard(){
     <div><span class="dr-lbl">Style</span><div class="dr-pills"><button class="dr-pill on" data-v="filled" onclick="pill(this)">Filled</button><button class="dr-pill" data-v="solid" onclick="pill(this)">Outline</button></div></div>
     <div><span class="dr-lbl">Align</span><div class="dr-pills"><button class="dr-pill" data-v="left" onclick="pill(this)">Left</button><button class="dr-pill on" data-v="center" onclick="pill(this)">Centre</button><button class="dr-pill" data-v="right" onclick="pill(this)">Right</button></div></div>
     <div><span class="dr-lbl">Weight</span><div class="dr-pills"><button class="dr-pill on" data-v="semibold" onclick="pill(this)">Semi</button><button class="dr-pill" data-v="bold" onclick="pill(this)">Bold</button><button class="dr-pill" data-v="black" onclick="pill(this)">Black</button></div></div>
-    <div><span class="dr-lbl">Size</span><div class="dr-range"><input type="range" min="11" max="22" value="14" oninput="this.nextElementSibling.textContent=this.value+'px';pv()"><span class="dr-rv">14px</span></div></div>
+    <div><span class="dr-lbl">Size</span><div class="dr-range" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()"><input type="range" min="11" max="22" value="14" oninput="this.nextElementSibling.textContent=this.value+'px';pv()" draggable="false"><span class="dr-rv">14px</span></div></div>
   </div>`;
   grid.appendChild(d);initDrag(d);d.querySelector('.lc-title').focus();pv();
 }
@@ -832,7 +832,11 @@ function delCard(btn){
 /* ── Drag reorder ── */
 let dragSrc=null;
 function initDrag(card){
-  card.addEventListener('dragstart',e=>{dragSrc=card;setTimeout(()=>card.classList.add('dragging'),0);e.dataTransfer.effectAllowed='move';});
+  card.addEventListener('dragstart',e=>{
+    // Don't drag when interacting with inputs/sliders
+    if(e.target.closest('.lc-drawer')||e.target.tagName==='INPUT'){e.preventDefault();return;}
+    dragSrc=card;setTimeout(()=>card.classList.add('dragging'),0);e.dataTransfer.effectAllowed='move';
+  });
   card.addEventListener('dragend',()=>{dragSrc=null;card.classList.remove('dragging');});
   card.addEventListener('dragover',e=>{e.preventDefault();if(dragSrc&&dragSrc!==card)card.classList.add('drag-over');});
   card.addEventListener('dragleave',()=>card.classList.remove('drag-over'));
