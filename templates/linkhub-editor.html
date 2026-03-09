@@ -294,6 +294,10 @@ textarea.field-input{resize:vertical;min-height:64px}
     <div class="editor">
       <div class="editor-scroll">
 
+        <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+          <button class="save-btn-main" id="save-btn" onclick="doSave(this)">💾 Save Changes</button>
+        </div>
+
         <!-- ─── PROFILE ─── -->
         <div class="sec collapsed" id="sec-profile">
           <div class="sec-head" onclick="toggleSec('sec-profile')">
@@ -584,10 +588,6 @@ textarea.field-input{resize:vertical;min-height:64px}
             </div>
             {% endif %}
           </div>
-        </div>
-
-        <div style="padding:8px 0 20px">
-          <button class="save-btn-main" id="save-btn" onclick="doSave(this)">💾 Save Changes</button>
         </div>
 
       </div><!-- /editor-scroll -->
