@@ -976,11 +976,18 @@ async function doSave(btn){
   };
   try{
     const r=await fetch('/linkhub/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(!r.ok){
+      const txt=await r.text();
+      btn.disabled=false;btn.textContent=orig;
+      toast('Save failed: HTTP '+r.status);
+      console.error('Save error:',r.status,txt.substring(0,500));
+      return;
+    }
     const d=await r.json();
     btn.disabled=false;btn.textContent=orig;
     if(d.ok){toast(d.capped?'✓ Saved (max 20 links — some trimmed)':'✓ Saved successfully');}
     else toast('Save failed: '+(d.error||'Unknown error'));
-  }catch(e){btn.disabled=false;btn.textContent=orig;toast('Network error — check connection');}
+  }catch(e){btn.disabled=false;btn.textContent=orig;toast('Save error: '+e.message);console.error('Save exception:',e);}
 }
 
 /* ── Copy URL ── */

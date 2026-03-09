@@ -7414,6 +7414,7 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
     profile.display_name  = _html.escape(data.get("display_name", "") or "")[:100]
     profile.bio           = _html.escape(data.get("bio", "") or "")[:300]
     profile.theme         = data.get("theme", "dark")
+    profile.font_family   = data.get("font_family", "DM Sans")[:50]
     profile.accent_color  = data.get("accent_color", "#00d4ff")
     profile.bg_color      = data.get("bg_color") or None
     profile.btn_color     = data.get("btn_color") or None
@@ -7522,7 +7523,12 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
         )
         db.add(link)
 
-    db.commit()
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"⚠️ LinkHub save DB error: {e}")
+        return JSONResponse({"ok": False, "error": f"Database error: {str(e)[:200]}"}, status_code=500)
     capped = len(data.get("links", [])) > 20
     return JSONResponse({"ok": True, "capped": capped, "saved_links": len(raw_links)})
 
