@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>LinkHub Editor — SuperAdPro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@700;800;900&family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Raleway:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/mobile.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--sidebar:224px;--accent:#0ea5e9;--bg:#e4e9f2;--border:#d4dae6;--text:#0f172a;--sub:#64748b;--muted:#94a3b8}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex}
+.layout{display:flex;width:100%;height:100vh;overflow:hidden}
+
+/* sidebar — do NOT redefine; _sidebar.html handles all nav styles */
+.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;min-height:72px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:14px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
+.nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
+.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
+.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+
+/* main */
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;min-width:0}
+
+/* topbar */
+.topbar{height:60px;background:#1c223d;border-bottom:1px solid rgba(14,165,233,0.12);display:flex;align-items:center;justify-content:space-between;padding:0 22px;flex-shrink:0;z-index:50}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.topbar-title{font-size:17px;font-weight:800;color:#fff}
+.topbar-title span{color:#38bdf8}
+.topbar-url{font-size:12px;color:#94a3b8;background:rgba(255,255,255,.06);padding:5px 12px;border-radius:20px;display:flex;align-items:center;gap:6px}
+.topbar-url a{color:#38bdf8;text-decoration:none;font-weight:600;font-size:12px}
+.topbar-actions{display:flex;align-items:center;gap:8px}
+.btn-preview{padding:8px 16px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-size:12px;font-weight:700;color:#e2e8f0;cursor:pointer;font-family:inherit;text-decoration:none;display:flex;align-items:center;gap:6px}
+.btn-preview:hover{background:rgba(255,255,255,.14)}
+.btn-save{padding:8px 18px;background:linear-gradient(135deg,#0ea5e9,#6366f1);border:none;border-radius:8px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;box-shadow:0 3px 10px rgba(14,165,233,0.35);display:flex;align-items:center;gap:6px}
+.btn-save:hover{transform:translateY(-1px)}
+
+/* workspace */
+.workspace{flex:1;display:grid;grid-template-columns:1fr 440px;overflow:hidden}
+
+/* left panel */
+.left-panel{overflow-y:auto;padding:16px 18px;border-right:1px solid #c8d0de;scrollbar-width:thin;scrollbar-color:#c8d0de transparent;background:#e4e9f2}
+.left-panel::-webkit-scrollbar{width:4px}
+.left-panel::-webkit-scrollbar-thumb{background:#dde1ea;border-radius:4px}
+
+/* stats strip */
+.stats-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat-chip{background:#fff;border:1px solid #c8d0de;border-radius:10px;padding:9px 12px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.stat-num{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:var(--accent);line-height:1}
+.stat-lbl{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+
+/* tabs */
+.editor-tabs{display:flex;gap:4px;background:#0ea5e9;border-radius:12px;padding:4px;margin-bottom:14px;box-shadow:inset 0 2px 6px rgba(0,0,0,.2)}
+.editor-tab{flex:1;padding:9px 8px;border:1.5px solid rgba(255,255,255,.3);border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:rgba(255,255,255,.25);color:#fff;transition:all .18s}
+.editor-tab:hover{background:#dde4f0;color:#334155;border-color:#a0aec0}
+.editor-tab.active{background:#fff;color:var(--accent);border-color:rgba(14,165,233,.3);box-shadow:0 2px 8px rgba(0,0,0,.14);font-weight:800}
+
+/* section accordion */
+.section{background:#fff;border:1px solid #c8d0de;border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,.09),0 1px 3px rgba(0,0,0,.06)}
+.section-header{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;cursor:pointer;user-select:none;background:#fafbfd}
+.section-header:hover{background:#f4f7fb}
+.section-header-left{display:flex;align-items:center;gap:8px}
+.section-icon{font-size:14px}
+.section-label{font-size:14px;font-weight:800;color:#0f172a}
+.section-chevron{font-size:11px;color:var(--muted);transition:transform .2s}
+.section-chevron.open{transform:rotate(0deg)}
+.section-chevron.closed{transform:rotate(-90deg)}
+.section-body{padding:0 14px 14px;border-top:1px solid #d4dae6;background:#fff}
+.section-body.hidden{display:none}
+
+/* fields */
+.field{margin-bottom:9px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:11px;font-weight:800;color:#7b91a8;margin-bottom:5px;text-transform:uppercase;letter-spacing:.6px}
+.field input,.field textarea,.field select{width:100%;padding:8px 11px;border:1.5px solid #c8d0de;border-radius:8px;font-family:inherit;font-size:14px;color:var(--text);background:#fff;box-shadow:inset 0 1px 3px rgba(0,0,0,.05)}
+.field textarea{min-height:56px;resize:vertical}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--accent)}
+
+/* avatar */
+.avatar-row{display:flex;align-items:center;gap:12px;padding-top:12px;margin-bottom:12px}
+.avatar-circle{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;border:2px solid #e2e8f0;overflow:hidden}
+.avatar-circle img{width:100%;height:100%;object-fit:cover}
+.avatar-change-btn{padding:6px 12px;background:#f1f5f9;border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:700;color:var(--sub);cursor:pointer;font-family:inherit;display:block;margin-bottom:4px}
+.avatar-change-btn:hover{background:#e2e8f0}
+
+/* publish row */
+.pub-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f4f7fb;border-radius:9px;border:1px solid #c8d0de;margin-top:12px;box-shadow:inset 0 1px 3px rgba(0,0,0,.04)}
+.pub-row h4{font-size:13px;font-weight:700;color:var(--text)}
+.pub-row span{font-size:11px;color:var(--muted);display:block;margin-top:1px}
+.big-toggle{position:relative;width:44px;height:24px;cursor:pointer;flex-shrink:0}
+.big-toggle input{opacity:0;width:0;height:0}
+.big-track{position:absolute;inset:0;background:#cbd5e1;border-radius:24px;transition:.3s}
+.big-toggle input:checked+.big-track{background:#10b981}
+.big-track:before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.big-toggle input:checked+.big-track:before{transform:translateX(20px)}
+
+/* link items */
+.links-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.link-item{background:#f4f7fb;border:1.5px solid #c8d0de;border-radius:10px;padding:10px 12px;box-shadow:0 1px 4px rgba(0,0,0,.05);display:flex;align-items:flex-start;gap:8px}
+.link-item:hover{border-color:#0ea5e9;background:#f0f9ff}
+.link-item.drag-over{border-color:#0ea5e9;background:#f0f9ff}
+.link-item.dragging{opacity:.4}
+.link-drag{color:var(--muted);font-size:16px;cursor:grab;padding-top:2px;flex-shrink:0}
+.link-drag:active{cursor:grabbing}
+.link-icon-btn{width:32px;height:32px;border-radius:7px;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;flex-shrink:0;padding:0}
+.link-body{flex:1;min-width:0}
+.link-inputs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.link-inputs input{padding:7px 10px;border:1.5px solid #c8d0de;border-radius:7px;font-family:inherit;font-size:13px;color:var(--text);background:#fff;width:100%;box-shadow:inset 0 1px 2px rgba(0,0,0,.04)}
+.link-inputs input:focus{outline:none;border-color:var(--accent)}
+.link-sub-input{width:100%;padding:6px 10px;border:1.5px solid #c8d0de;border-radius:7px;font-family:inherit;font-size:12px;color:var(--sub);background:#fff;margin-bottom:6px}
+.link-sub-input:focus{outline:none;border-color:var(--accent)}
+
+/* link advanced */
+.link-adv-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.link-adv-full{grid-column:1/-1}
+.adv-lbl{font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px}
+.style-pills,.align-pills,.wt-pills{display:flex;gap:4px}
+.style-pill,.align-pill,.wt-pill{flex:1;padding:5px 4px;border:1.5px solid #c8d0de;border-radius:7px;background:#fff;font-size:10px;font-weight:700;color:#64748b;cursor:pointer;font-family:inherit;text-align:center}
+.style-pill.active{border-color:var(--accent);color:var(--accent);background:#f0f9ff}
+.align-pill.active{border-color:var(--accent);color:var(--accent);background:#f0f9ff}
+.wt-pill.active{border-color:#6366f1;color:#6366f1;background:#f5f3ff}
+.sz-row{display:flex;align-items:center;gap:6px}
+.sz-btn{width:26px;height:26px;border:1.5px solid #c8d0de;border-radius:6px;background:#fff;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#475569;flex-shrink:0}
+.sz-btn:hover{background:#f0f9ff;border-color:var(--accent)}
+.sz-val{font-size:13px;font-weight:700;min-width:26px;text-align:center}
+.thumb-wrap{display:flex;align-items:center;gap:8px}
+.thumb-preview{width:40px;height:40px;border-radius:6px;background:#f1f5f9;border:1.5px solid #c8d0de;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px}
+.thumb-preview img{width:100%;height:100%;object-fit:cover}
+.link-actions{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0}
+.link-del{background:none;border:none;color:#f87171;cursor:pointer;font-size:15px;line-height:1}
+.sm-toggle{position:relative;width:32px;height:18px;cursor:pointer;flex-shrink:0}
+.sm-toggle input{opacity:0;width:0;height:0}
+.sm-track{position:absolute;inset:0;background:#cbd5e1;border-radius:18px;transition:.25s}
+.sm-toggle input:checked+.sm-track{background:#10b981}
+.sm-track:before{content:'';position:absolute;height:12px;width:12px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.25s}
+.sm-toggle input:checked+.sm-track:before{transform:translateX(14px)}
+.link-clicks{font-size:11px;color:var(--muted);white-space:nowrap;font-weight:600}
+.add-link-btn{width:100%;padding:9px;background:#f0f9ff;border:2px dashed #bae6fd;border-radius:9px;font-size:12px;font-weight:700;color:var(--accent);cursor:pointer;font-family:inherit}
+.add-link-btn:hover{background:#e0f2fe;border-color:var(--accent)}
+
+/* social */
+.social-item{display:flex;align-items:center;gap:8px;background:#f4f7fb;border:1.5px solid #c8d0de;border-radius:9px;padding:9px 11px;margin-bottom:7px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.soc-svg{width:34px;height:34px;flex-shrink:0;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.soc-svg svg{width:18px;height:18px;fill:#fff}
+.soc-label{font-size:13px;font-weight:700;color:var(--text);width:84px;flex-shrink:0}
+.soc-input{flex:1;padding:7px 10px;border:1.5px solid #c8d0de;border-radius:7px;font-size:13px;font-family:inherit;color:var(--sub);background:#fff}
+.soc-input:focus{outline:none;border-color:var(--accent)}
+.soc-del{background:none;border:none;color:#f87171;cursor:pointer;font-size:14px}
+.shape-row{display:flex;gap:6px;margin-bottom:12px}
+.shape-btn{flex:1;padding:8px 4px;border:2px solid #c8d0de;border-radius:9px;background:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;color:#475569;display:flex;flex-direction:column;align-items:center;gap:5px}
+.shape-btn.sel{border-color:var(--accent);background:#f0f9ff;color:var(--accent)}
+.shape-demo{width:24px;height:24px;background:var(--accent);display:flex;align-items:center;justify-content:center}
+.shape-demo svg{width:13px;height:13px;fill:#fff}
+
+/* design */
+.theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 8px}
+.theme-swatch{border-radius:9px;overflow:hidden;border:2px solid #c8d0de;cursor:pointer;transition:all .2s;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.theme-swatch:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.14)}
+.theme-swatch.sel{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,165,233,.18)}
+.sw-preview{height:44px;border-radius:6px 6px 0 0}
+.sw-colors{display:flex;gap:4px;padding:6px 6px 0}
+.sw-dot{width:14px;height:14px;border-radius:50%;border:1.5px solid rgba(0,0,0,.08);flex-shrink:0}
+.sw-label{font-size:11px;font-weight:800;padding:4px 4px 7px;text-align:center;color:#475569}
+.sw-dark{background:#050d1a}.sw-light{background:#f0f4ff}.sw-grad{background:linear-gradient(135deg,#6366f1,#ec4899)}.sw-neon{background:#0a0a0a}
+.accent-dots{display:flex;gap:6px;flex-wrap:wrap;padding:8px 0 12px}
+.acc-dot{width:24px;height:24px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all .18s}
+.acc-dot:hover{transform:scale(1.12)}
+.acc-dot.sel{border-color:#1e293b;box-shadow:0 0 0 2px var(--accent);transform:scale(1.1)}
+.col-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.col-card{background:#fff;border:1.5px solid #c8d0de;border-radius:8px;padding:8px 10px;box-shadow:inset 0 1px 2px rgba(0,0,0,.04)}
+.col-card .lbl{font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+.col-inner{display:flex;align-items:center;gap:6px}
+.col-inner input[type=color]{width:24px;height:24px;border:none;border-radius:4px;cursor:pointer;padding:0}
+.col-inner span{font-size:11px;color:#94a3b8;font-family:monospace}
+.reset-btn{width:100%;padding:8px;background:#f1f5f9;border:1.5px solid #c8d0de;border-radius:8px;font-size:12px;font-weight:700;color:#64748b;cursor:pointer;font-family:inherit;margin-bottom:12px}
+.font-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0 12px}
+.font-btn{padding:8px 10px;border:2px solid #c8d0de;border-radius:8px;background:#fff;font-size:12px;cursor:pointer;text-align:center;color:var(--text);transition:all .15s}
+.font-btn.sel{border-color:var(--accent);background:#f0f9ff}
+.banner-wrap{width:100%;height:64px;border-radius:9px;overflow:hidden;border:1.5px solid #c8d0de;margin-bottom:8px;background:linear-gradient(135deg,#0ea5e9,#6366f1);position:relative}
+.banner-wrap img{width:100%;height:100%;object-fit:cover}
+.banner-clear{position:absolute;top:4px;right:6px;background:rgba(0,0,0,.5);border:none;border-radius:4px;color:#fff;font-size:11px;cursor:pointer;padding:2px 6px}
+.bg-img-wrap{width:100%;height:54px;border-radius:8px;background:#f1f5f9;border:1.5px solid #c8d0de;overflow:hidden;margin-bottom:8px;position:relative}
+.bg-img-wrap img{width:100%;height:100%;object-fit:cover}
+.overlay-row{display:flex;align-items:center;gap:8px;margin-top:6px;margin-bottom:12px}
+.overlay-row label{font-size:11px;font-weight:700;color:#475569;flex-shrink:0}
+.overlay-row input[type=range]{flex:1}
+.section-upload-btn{padding:7px 12px;background:#f1f5f9;border:1px solid #c8d0de;border-radius:7px;font-size:12px;font-weight:700;color:#475569;cursor:pointer;font-family:inherit;margin-bottom:8px;width:100%;text-align:center}
+.section-upload-btn:hover{background:#e2e8f0}
+
+/* analytics */
+.ana-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.ana-card{background:#fff;border:1px solid #c8d0de;border-radius:10px;padding:12px;text-align:center}
+.ana-val{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:var(--accent)}
+.ana-lbl{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+
+/* save bar */
+.save-bar{display:flex;align-items:center;gap:10px;padding-top:12px}
+.save-msg{font-size:12px;font-weight:700;color:#10b981;opacity:0;transition:opacity .3s}
+.save-msg.show{opacity:1}
+
+/* right panel — big phone */
+.right-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1a1f2e;padding:20px;gap:14px;position:relative;overflow:hidden}
+.right-panel::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(14,165,233,0.12) 0%,transparent 65%);pointer-events:none}
+.phone-label{font-size:11px;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1.5px;display:flex;align-items:center;gap:8px}
+.phone-label::before,.phone-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.1);width:40px}
+.iphone{width:280px;height:580px;background:#1c1c1e;border-radius:48px;position:relative;flex-shrink:0;z-index:1;box-shadow:0 0 0 1.5px #3a3a3c,0 0 0 10px #1c1c1e,0 0 0 11.5px #3a3a3c,0 36px 70px rgba(0,0,0,.7),0 10px 28px rgba(0,0,0,.5)}
+.iphone::before{content:'';position:absolute;left:-12px;top:110px;width:4px;height:30px;background:#3a3a3c;border-radius:2px 0 0 2px;box-shadow:0 42px 0 #3a3a3c,0 80px 0 #3a3a3c}
+.iphone::after{content:'';position:absolute;right:-12px;top:140px;width:4px;height:60px;background:#3a3a3c;border-radius:0 2px 2px 0}
+.dyn-island{position:absolute;top:13px;left:50%;transform:translateX(-50%);width:110px;height:30px;background:#000;border-radius:18px;z-index:20}
+.iphone-screen{position:absolute;top:0;left:0;right:0;bottom:0;border-radius:48px;overflow:hidden;background:#050d1a}
+.status-bar{height:50px;padding:15px 24px 0;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:10}
+.status-time{font-size:13px;font-weight:700;color:#fff;font-family:'DM Sans',sans-serif}
+.status-icons{display:flex;align-items:center;gap:4px;font-size:11px;color:#fff}
+.phone-content{position:absolute;top:50px;left:0;right:0;bottom:0;overflow-y:auto;scrollbar-width:none;display:flex;flex-direction:column;align-items:center;padding:6px 16px 36px}
+.phone-content::-webkit-scrollbar{display:none}
+.ph-avatar-wrap{position:relative;margin-top:12px;margin-bottom:10px}
+.ph-avatar-ring{width:76px;height:76px;border-radius:50%;background:conic-gradient(from 0deg,#0ea5e9,#6366f1,#8b5cf6,#0ea5e9);padding:2.5px;box-shadow:0 0 24px rgba(14,165,233,.4)}
+.ph-avatar-inner{width:100%;height:100%;border-radius:50%;background:#0f1f3d;border:2.5px solid #050d1a;display:flex;align-items:center;justify-content:center;font-size:1.8rem;overflow:hidden}
+.ph-avatar-inner img{width:100%;height:100%;object-fit:cover}
+.ph-name{font-family:'Outfit',sans-serif;font-size:16px;font-weight:900;color:#fff;text-align:center;margin-bottom:2px}
+.ph-username{font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px}
+.ph-followers{font-size:10px;color:rgba(255,255,255,.55);margin-bottom:6px;font-weight:600}
+.ph-bio{font-size:10px;color:rgba(255,255,255,.55);text-align:center;line-height:1.6;max-width:220px;margin-bottom:12px}
+.ph-socials{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;justify-content:center}
+.ph-soc-btn{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:none}
+.ph-soc-btn svg{width:15px;height:15px;fill:#fff}
+.ph-links{width:100%;display:flex;flex-direction:column;gap:7px}
+.ph-powered{margin-top:14px;font-size:9px;color:rgba(255,255,255,.25);text-align:center}
+.ph-powered span{color:#0ea5e9;font-weight:700}
+.url-strip{background:rgba(14,165,233,.08);border:1px solid rgba(14,165,233,.2);border-radius:10px;padding:9px 16px;display:flex;align-items:center;gap:12px;z-index:1;width:280px}
+.url-strip-label{font-size:10px;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.8px;flex-shrink:0}
+.url-strip-link{font-size:11px;font-weight:700;color:#38bdf8;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.url-copy{background:rgba(14,165,233,.2);border:none;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;color:#38bdf8;cursor:pointer;font-family:inherit;flex-shrink:0}
+
+/* icon modal */
+.icon-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.icon-modal.open{display:flex}
+.icon-box{background:#fff;border-radius:14px;padding:20px;width:310px;max-height:390px;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.icon-box h3{font-size:14px;font-weight:800;margin-bottom:12px}
+.icon-grid-modal{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}
+.icon-cell{padding:7px;text-align:center;font-size:18px;cursor:pointer;border-radius:7px;border:2px solid transparent}
+.icon-cell:hover{background:#f0f9ff}
+.icon-cell.selected{background:#e0f2fe;border-color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="layout">
+{% include "_sidebar.html" %}
+<div class="main">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">🔗 <span>LinkHub</span> Editor</div>
+      <div class="topbar-url">Your page: <a href="/u/{{ current_user.username }}" target="_blank">superadpro.com/u/{{ current_user.username }}</a></div>
+    </div>
+    <div class="topbar-actions">
+      <a class="btn-preview" href="/u/{{ current_user.username }}" target="_blank">👁 Open Live</a>
+      <button class="btn-save" onclick="saveProfile(this)">💾 Save Changes</button>
+    </div>
+  </div>
+
+  <div class="workspace">
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+
+      <div class="stats-strip">
+        <div class="stat-chip"><div class="stat-num">{{ profile.total_views if profile else 0 }}</div><div class="stat-lbl">Profile Views</div></div>
+        <div class="stat-chip"><div class="stat-num">{{ total_clicks }}</div><div class="stat-lbl">Total Clicks</div></div>
+        <div class="stat-chip"><div class="stat-num">{% if profile and profile.total_views and profile.total_views > 0 %}{{ ((total_clicks / profile.total_views)*100)|round(1) }}%{% else %}0%{% endif %}</div><div class="stat-lbl">Click Rate</div></div>
+      </div>
+
+      <div class="editor-tabs">
+        <button class="editor-tab active" onclick="switchTab(this,'t-links')">🔗 Links</button>
+        <button class="editor-tab" onclick="switchTab(this,'t-social')">📱 Social</button>
+        <button class="editor-tab" onclick="switchTab(this,'t-design')">🎨 Design</button>
+        <button class="editor-tab" onclick="switchTab(this,'t-analytics')">📊 Analytics</button>
+      </div>
+
+      <!-- ── TAB: LINKS ── -->
+      <div id="t-links">
+
+        <div class="section">
+          <div class="section-header" onclick="toggleSection(this)">
+            <div class="section-header-left"><span class="section-icon">👤</span><span class="section-label">Profile Info</span></div>
+            <span class="section-chevron open">▾</span>
+          </div>
+          <div class="section-body">
+            <div class="avatar-row">
+              <div class="avatar-circle" id="avatar-preview">
+                {% if profile and profile.avatar_data %}<img src="{{ profile.avatar_data }}">
+                {% else %}<span>{{ (current_user.first_name[0] if current_user.first_name else current_user.username[0])|upper }}</span>{% endif %}
+              </div>
+              <div>
+                <button class="avatar-change-btn" onclick="document.getElementById('avatar-input').click()">📷 Change Photo</button>
+                <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="handleAvatar(this)">
+                <div style="font-size:10px;color:#94a3b8">JPG or PNG, max 2MB</div>
+              </div>
+            </div>
+            <div class="field"><label>Display Name</label><input type="text" id="display-name" value="{{ profile.display_name if profile and profile.display_name else (current_user.first_name + ' ' + current_user.last_name if current_user.first_name else current_user.username) }}" oninput="schedulePreview()"></div>
+            <div class="field"><label>Bio</label><textarea id="bio" placeholder="Short bio..." oninput="schedulePreview()">{{ profile.bio if profile and profile.bio else '' }}</textarea></div>
+            <div class="field"><label>Follower / Subscriber Count</label><input type="text" id="follower-count" value="{{ profile.follower_count if profile and profile.follower_count else '' }}" placeholder="e.g. 12.4K followers" oninput="schedulePreview()"></div>
+            <div class="pub-row">
+              <div><h4>Profile Published</h4><span>Visible to the public</span></div>
+              <label class="big-toggle"><input type="checkbox" id="is-published" {% if not profile or profile.is_published %}checked{% endif %}><div class="big-track"></div></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header" onclick="toggleSection(this)">
+            <div class="section-header-left"><span class="section-icon">🔗</span><span class="section-label">Links <span style="font-size:10px;color:#94a3b8;font-weight:500;margin-left:4px">{{ links|length }} active</span></span></div>
+            <span class="section-chevron open">▾</span>
+          </div>
+          <div class="section-body" style="padding-top:12px">
+            <div class="links-list" id="links-list">
+              {% for link in links %}
+              <div class="link-item" draggable="true" data-id="{{ link.id }}">
+                <span class="link-drag" title="Drag to reorder">⠿</span>
+                <button class="link-icon-btn" onclick="openIconPicker(this)">{{ link.icon }}</button>
+                <div class="link-body">
+                  <div class="link-inputs">
+                    <input type="text" placeholder="Title" value="{{ link.title }}" class="link-title" oninput="schedulePreview()">
+                    <input type="url" placeholder="https://..." value="{{ link.url }}" class="link-url">
+                  </div>
+                  <input type="text" class="link-sub-input" placeholder="Subtitle (optional)" value="{{ link.subtitle or '' }}" oninput="schedulePreview()">
+                  <div class="style-pills">
+                    <button class="style-pill {% if not link.btn_style or link.btn_style=='filled' %}active{% endif %}" onclick="setSP(this,'filled')">▭ Filled</button>
+                    <button class="style-pill {% if link.btn_style=='pill' %}active{% endif %}" onclick="setSP(this,'pill')">⬭ Pill</button>
+                    <button class="style-pill {% if link.btn_style=='solid' %}active{% endif %}" onclick="setSP(this,'solid')">□ Line</button>
+                  </div>
+                  <div class="link-adv-grid" style="margin-top:8px">
+                    <div>
+                      <span class="adv-lbl">Align</span>
+                      <div class="align-pills">
+                        <button class="align-pill {% if not link.text_align or link.text_align=='center' %}active{% endif %}" onclick="setAP(this,'center')">≡</button>
+                        <button class="align-pill {% if link.text_align=='left' %}active{% endif %}" onclick="setAP(this,'left')">☰</button>
+                        <button class="align-pill {% if link.text_align=='right' %}active{% endif %}" onclick="setAP(this,'right')">≡</button>
+                      </div>
+                    </div>
+                    <div>
+                      <span class="adv-lbl">Weight</span>
+                      <div class="wt-pills">
+                        <button class="wt-pill {% if not link.font_weight or link.font_weight=='semibold' %}active{% endif %}" onclick="setWP(this,'semibold')" style="font-weight:600">Semi</button>
+                        <button class="wt-pill {% if link.font_weight=='bold' %}active{% endif %}" onclick="setWP(this,'bold')" style="font-weight:700">Bold</button>
+                        <button class="wt-pill {% if link.font_weight=='black' %}active{% endif %}" onclick="setWP(this,'black')" style="font-weight:900">Black</button>
+                      </div>
+                    </div>
+                    <div>
+                      <span class="adv-lbl">Font Size</span>
+                      <div class="sz-row">
+                        <button class="sz-btn" onclick="adjSz(this,-1)">−</button>
+                        <span class="sz-val">{{ link.font_size or 14 }}</span>
+                        <button class="sz-btn" onclick="adjSz(this,1)">+</button>
+                      </div>
+                    </div>
+                    <div>
+                      <span class="adv-lbl">Thumbnail</span>
+                      <div class="thumb-wrap">
+                        <div class="thumb-preview" id="tpv-{{ loop.index }}">{% if link.thumbnail %}<img src="{{ link.thumbnail }}">{% else %}🖼{% endif %}</div>
+                        <button class="avatar-change-btn" onclick="document.getElementById('tinp-{{ loop.index }}').click()" style="font-size:11px;margin-bottom:0">Upload</button>
+                        <input type="file" id="tinp-{{ loop.index }}" accept="image/*" style="display:none" onchange="handleThumb(this,'tpv-{{ loop.index }}')">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="link-actions">
+                  <button class="link-del" onclick="deleteLink(this)">✕</button>
+                  <label class="sm-toggle"><input type="checkbox" class="link-active" {% if link.is_active %}checked{% endif %} onchange="schedulePreview()"><div class="sm-track"></div></label>
+                  <span class="link-clicks">{{ link.click_count }}x</span>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <button class="add-link-btn" onclick="addLink()">+ Add Link</button>
+            <div class="save-bar">
+              <button class="btn-save" onclick="saveProfile(this)" style="font-size:12px;padding:8px 16px">💾 Save</button>
+              <span class="save-msg" id="save-msg">✓ Saved!</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /t-links -->
+
+      <!-- ── TAB: SOCIAL ── -->
+      <div id="t-social" style="display:none">
+        <div class="section">
+          <div class="section-header" onclick="toggleSection(this)">
+            <div class="section-header-left"><span class="section-icon">🔘</span><span class="section-label">Icon Shape</span></div>
+            <span class="section-chevron open">▾</span>
+          </div>
+          <div class="section-body" style="padding-top:12px">
+            {% set cur_shape = profile.soc_icon_shape if profile and profile.soc_icon_shape else 'circle' %}
+            <div class="shape-row">
+              <button class="shape-btn {% if cur_shape=='circle' %}sel{% endif %}" onclick="setShape(this,'circle')">
+                <div class="shape-demo" style="border-radius:50%"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg></div>Circle
+              </button>
+              <button class="shape-btn {% if cur_shape=='square' %}sel{% endif %}" onclick="setShape(this,'square')">
+                <div class="shape-demo" style="border-radius:5px"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></div>Square
+              </button>
+              <button class="shape-btn {% if cur_shape=='pill' %}sel{% endif %}" onclick="setShape(this,'pill')">
+                <div class="shape-demo" style="border-radius:999px;width:38px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg></div>Pill
+              </button>
+            </div>
+            <input type="hidden" id="soc-shape-val" value="{{ cur_shape }}">
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-header" onclick="toggleSection(this)">
+            <div class="section-header-left"><span class="section-icon">📱</span><span class="section-label">Social Icons</span></div>
+            <span class="section-chevron open">▾</span>
+          </div>
+          <div class="section-body" style="padding-top:12px">
+            <p style="font-size:12px;color:#64748b;margin-bottom:12px">Appears below your bio as icon buttons.</p>
+            <div id="social-list">
+              {% set SOC_BG = {'instagram':'linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)','tiktok':'#010101','youtube':'#ff0000','facebook':'#1877f2','x':'#000000','twitter':'#000000','telegram':'#2aabee','linkedin':'#0a66c2','whatsapp':'#25d366'} %}
+              {% set SOC_SVG = {'instagram':'<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>','tiktok':'<svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.77a4.85 4.85 0 01-1.01-.08z"/></svg>','youtube':'<svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5a3 3 0 00-2.1 2.1A31 31 0 000 12a31 31 0 00.5 5.8 3 3 0 002.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 002.1-2.1A31 31 0 0024 12a31 31 0 00-.5-5.8zM9.7 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>','facebook':'<svg viewBox="0 0 24 24"><path d="M24 12.1C24 5.4 18.6 0 12 0S0 5.4 0 12.1C0 18 4.4 23 10.1 24v-8.4H7.1v-3.5h3v-2.7c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9v2.3h3.3l-.5 3.5h-2.8V24C19.6 23 24 18 24 12.1z"/></svg>','x':'<svg viewBox="0 0 24 24"><path d="M18.2 2.3h3.3l-7.2 8.3 8.5 11.2h-6.6l-4.7-6.2-5.4 6.2H2.7l7.7-8.8L1.3 2.3h6.8l4.3 5.6zm-1.2 17.5h1.8L7.1 4.1H5.1z"/></svg>','twitter':'<svg viewBox="0 0 24 24"><path d="M18.2 2.3h3.3l-7.2 8.3 8.5 11.2h-6.6l-4.7-6.2-5.4 6.2H2.7l7.7-8.8L1.3 2.3h6.8l4.3 5.6zm-1.2 17.5h1.8L7.1 4.1H5.1z"/></svg>','telegram':'<svg viewBox="0 0 24 24"><path d="M12 0a12 12 0 100 24A12 12 0 0012 0zm5 7.2l-2 9.6c-.1.6-.5.8-1 .5l-2.8-2-1.3 1.3c-.2.2-.4.3-.7.3l.2-2.8 4.7-4.3c.2-.2 0-.3-.3-.1L6.3 14.5l-2.7-.9c-.6-.2-.6-.6.1-.9l9.8-3.8c.6-.2 1 .1.9.9-.1-.6z"/></svg>','linkedin':'<svg viewBox="0 0 24 24"><path d="M20.4 20.5h-3.6v-5.6c0-1.3 0-3-1.8-3-1.9 0-2.1 1.4-2.1 2.9v5.7H9.4V9h3.4v1.6h.1c.5-.9 1.6-1.9 3.4-1.9 3.6 0 4.3 2.4 4.3 5.5v6.3zM5.3 7.4a2.1 2.1 0 110-4.2 2.1 2.1 0 010 4.2zm1.8 13.1H3.5V9h3.6v11.5zM22.2 0H1.8C.8 0 0 .8 0 1.7v20.5C0 23.2.8 24 1.8 24h20.4c1 0 1.8-.8 1.8-1.8V1.7C24 .8 23.2 0 22.2 0z"/></svg>','whatsapp':'<svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.4.2-.6.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.4.1-.6.1-.1.3-.3.4-.5.2-.2.2-.3.3-.5.1-.2.1-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.3zm-5.4 7.4h-.1a9.9 9.9 0 01-5-1.4l-.4-.2-3.7 1 1-3.6-.3-.4A9.9 9.9 0 012 12C2 6.5 6.5 2 12 2s10 4.5 10 10-4.5 10-10 10z"/></svg>'} %}
+              {% for s in social_links %}
+              <div class="social-item">
+                <div class="soc-svg" style="background:{{ SOC_BG.get(s.platform,'#64748b') }}">{{ SOC_SVG.get(s.platform,'')|safe }}</div>
+                <span class="soc-label">{{ s.platform|title }}</span>
+                <input class="soc-input" type="url" placeholder="https://..." value="{{ s.url }}" data-platform="{{ s.platform }}" oninput="schedulePreview()">
+                <button class="soc-del" onclick="this.closest('.social-item').remove();schedulePreview()">✕</button>
+              </div>
+              {% endfor %}
+            </div>
+            <select id="soc-select" style="width:100%;padding:8px 11px;border:1.5px solid #c8d0de;border-radius:8px;font-family:inherit;font-size:13px;background:#f8fafc;margin-bottom:8px">
+              <option value="">— Add a platform —</option>
+              <option value="instagram">Instagram</option><option value="tiktok">TikTok</option>
+              <option value="youtube">YouTube</option><option value="x">X / Twitter</option>
+              <option value="facebook">Facebook</option><option value="telegram">Telegram</option>
+              <option value="linkedin">LinkedIn</option><option value="whatsapp">WhatsApp</option>
+            </select>
+            <button class="add-link-btn" onclick="addSocial()">+ Add Social Icon</button>
+          </div>
+        </div>
+      </div><!-- /t-social -->
+
+      <!-- ── TAB: DESIGN ── -->
+      <div id="t-design" style="display:none">
+
+        <div class="section">
+          <div class="section-header" onclick="toggleSection(this)">
+            <div class="section-header-left"><span class="section-icon">🖼</span><span class="section-label">Header Banner</span></div>
+            <span class="section-chevron open">▾</span>
+          </div>
+          <div class="section-body" style="padding-top:12px">
+            <div class="banner-wrap" id="banner-wrap">
+              {% if profile and profile.banner_image %}<img src="{{ profile.banner_image }}">{% endif %}
+              <button class="banner-clear" onclick="clearBanner()">✕</button>
+            </div>
+            <button class="section-upload-btn" onclick="document.getElementById('banner-inp').click()">📸 Upload Banner Image</button>
+            <input type="file" id="banner-inp" accept="image/*" style="display:none" onchange="handleBanner(this)">
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header" onclick="toggleSection(this)">
+            <div class="section-header-left"><span class="section-icon">🎨</span><span class="section-label">Theme & Colours</span></div>
+            <span class="section-chevron open">▾</span>
+          </div>
+          <div class="section-body">
+            <div style="font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin:10px 0 6px">Theme</div>
+            <div class="theme-grid">
+              <div class="theme-swatch {% if (profile and profile.theme=='dark') or not profile %}sel{% endif %}" onclick="selectTheme('dark',this)">
+                <div class="sw-preview sw-dark"></div><div class="sw-colors"><div class="sw-dot" style="background:#050d1a"></div><div class="sw-dot" style="background:#0f2040"></div><div class="sw-dot" style="background:#00d4ff"></div><div class="sw-dot" style="background:#6366f1"></div></div><div class="sw-label">Dark</div>
+              </div>
+              <div class="theme-swatch {% if profile and profile.theme=='light' %}sel{% endif %}" onclick="selectTheme('light',this)">
+                <div class="sw-preview sw-light"></div><div class="sw-colors"><div class="sw-dot" style="background:#f0f4ff"></div><div class="sw-dot" style="background:#e8f0fe"></div><div class="sw-dot" style="background:#0ea5e9"></div><div class="sw-dot" style="background:#bfdbfe"></div></div><div class="sw-label">Light</div>
+              </div>
+              <div class="theme-swatch {% if profile and profile.theme=='gradient' %}sel{% endif %}" onclick="selectTheme('gradient',this)">
+                <div class="sw-preview sw-grad"></div><div class="sw-colors"><div class="sw-dot" style="background:#1e1b4b"></div><div class="sw-dot" style="background:#6366f1"></div><div class="sw-dot" style="background:#8b5cf6"></div><div class="sw-dot" style="background:#ec4899"></div></div><div class="sw-label">Gradient</div>
+              </div>
+              <div class="theme-swatch {% if profile and profile.theme=='neon' %}sel{% endif %}" onclick="selectTheme('neon',this)">
+                <div class="sw-preview sw-neon"></div><div class="sw-colors"><div class="sw-dot" style="background:#0a0a0a"></div><div class="sw-dot" style="background:#111"></div><div class="sw-dot" style="background:#00ff88"></div><div class="sw-dot" style="background:#00d4ff"></div></div><div class="sw-label">Neon</div>
+              </div>
+            </div>
+            <input type="hidden" id="theme-val" value="{{ profile.theme if profile else 'dark' }}">
+            <div style="font-size:10px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin:10px 0 4px">Accent Colour</div>
+            <div class="accent-dots">
+              {% for c in ['#00d4ff','#0ea5e9','#6366f1','#8b5cf6','#ec4899','#10b981','#f59e0b','#ef4444','#ff6b35','#ffffff'] %}
+              <div class="acc-dot {% if (profile and profile.accent_color==c) or (not profile and c=='#00d4ff') %}sel{% endif %}" style="background:{{ c }}{% if c=='#ffffff' %};border:2px solid #c8d0de{% endif %}" onclick="selectAccent('{{ c }}',this)" data-val="{{ c }}"></div>
+              {% endfor %}
+            </div>
+            <div class="col-grid">
+              <div class="col-card"><div class="lbl">Background</div><div class="col-inner"><input type="color" id="col-bg" oninput="onColour('bg')"><span id="hex-bg">#050d1a</span></div></div>
+              <div class="col-card"><div class="lbl">Button BG</div><div class="col-inner"><input type="color" id="col-btn" oninput="onColour('btn')"><span id="hex-btn">#0f1f3d</span></div></div>
+              <div class="col-card"><div class="lbl">Text</div><div class="col-inner"><input type="color" id="col-text" oninput="onColour('text')"><span id="hex-text">#e2e8f0</span></div></div>
+              <div class="col-card"><div class="lbl">Accent</div><div class="col-inner"><input type="color" id="col-accent" oninput="onAccentPicker(this)"><span id="hex-accent">#00d4ff</span></div></div>
+            </div>
+            <button class="reset-btn" onclick="resetTheme()">↺ Reset to theme defaults</button>
+            <input type="hidden" id="accent-val" value="{{ profile.accent_color if profile else '#00d4ff' }}">
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header" onclick="toggleSection(this)">
+            <div class="section-header-left"><span class="section-icon">🔤</span><span class="section-label">Font</span></div>
+            <span class="section-chevron open">▾</span>
+          </div>
+          <div class="section-body">
+            {% set cur_font = profile.font_family if profile and profile.font_family else 'DM Sans' %}
+            <div class="font-grid">
+              {% for fval in ['DM Sans','Inter','Poppins','Outfit','Nunito','Raleway','Space Grotesk','Sora'] %}
+              <button class="font-btn {% if cur_font==fval %}sel{% endif %}" onclick="selectFont('{{ fval }}',this)" style="font-family:'{{ fval }}'">{{ fval }}</button>
+              {% endfor %}
+            </div>
+            <input type="hidden" id="font-val" value="{{ cur_font }}">
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header" onclick="toggleSection(this)">
+            <div class="section-header-left"><span class="section-icon">🌄</span><span class="section-label">Background Image</span></div>
+            <span class="section-chevron open">▾</span>
+          </div>
+          <div class="section-body" style="padding-top:12px">
+            <div class="bg-img-wrap" id="bg-wrap">
+              {% if profile and profile.bg_image %}<img src="{{ profile.bg_image }}">{% else %}<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-size:11px">No image</div>{% endif %}
+            </div>
+            <button class="section-upload-btn" onclick="document.getElementById('bg-inp').click()">🌄 Upload Background</button>
+            <input type="file" id="bg-inp" accept="image/*" style="display:none" onchange="handleBgImage(this)">
+            <button class="section-upload-btn" onclick="clearBgImage()" style="color:#f87171">Remove Background</button>
+            <div class="overlay-row">
+              <label>Overlay</label>
+              <input type="range" id="bg-overlay" min="0" max="90" value="60" step="5" oninput="schedulePreview()">
+              <span id="overlay-lbl" style="font-size:11px;color:#64748b;min-width:30px">60%</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /t-design -->
+
+      <!-- ── TAB: ANALYTICS ── -->
+      <div id="t-analytics" style="display:none">
+        <div class="section">
+          <div class="section-header" onclick="toggleSection(this)">
+            <div class="section-header-left"><span class="section-icon">📊</span><span class="section-label">Performance</span></div>
+            <span class="section-chevron open">▾</span>
+          </div>
+          <div class="section-body" style="padding-top:12px">
+            {% set total_views = profile.total_views if profile else 0 %}
+            {% set ctr = ((total_clicks / total_views * 100)|round(1)) if total_views > 0 else 0 %}
+            <div class="ana-cards">
+              <div class="ana-card"><div class="ana-val">{{ total_views }}</div><div class="ana-lbl">Views</div></div>
+              <div class="ana-card"><div class="ana-val">{{ total_clicks }}</div><div class="ana-lbl">Clicks</div></div>
+              <div class="ana-card"><div class="ana-val">{{ ctr }}%</div><div class="ana-lbl">CTR</div></div>
+            </div>
+            {% if total_views > 0 %}
+            <div style="font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">📊 Performance Breakdown</div>
+            {% set d_total = ((device_stats.mobile+device_stats.desktop+device_stats.tablet) if device_stats else 0) or 1 %}
+            {% set mob_pct = ((device_stats.mobile/d_total*100)|round|int) if device_stats else 68 %}
+            {% set desk_pct = ((device_stats.desktop/d_total*100)|round|int) if device_stats else 27 %}
+            {% set tab_pct = ((device_stats.tablet/d_total*100)|round|int) if device_stats else 5 %}
+            {% set max_clicks = (links|map(attribute='click_count')|max) if links else 1 %}
+            {% set max_clicks = max_clicks if max_clicks > 0 else 1 %}
+            {% set bar_colors=['linear-gradient(180deg,#34d399,#059669)','linear-gradient(180deg,#5bc8f5,#2aabee)','linear-gradient(180deg,#f87171,#dc2626)','linear-gradient(180deg,#fb923c,#ea580c)','linear-gradient(180deg,#c084fc,#9333ea)'] %}
+            <div style="background:#fff;border:1px solid #c8d0de;border-radius:12px;padding:14px 14px 0;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+              <div style="display:flex;gap:0">
+                <div style="display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;padding-right:6px;padding-bottom:48px;height:280px;flex-shrink:0">
+                  <span style="font-size:9px;color:#94a3b8;font-weight:600">100</span>
+                  <span style="font-size:9px;color:#94a3b8;font-weight:600">75</span>
+                  <span style="font-size:9px;color:#94a3b8;font-weight:600">50</span>
+                  <span style="font-size:9px;color:#94a3b8;font-weight:600">25</span>
+                  <span style="font-size:9px;color:#94a3b8;font-weight:600">0</span>
+                </div>
+                <div style="flex:1;position:relative">
+                  <div style="position:absolute;top:0;left:0;right:0;height:232px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;z-index:0">
+                    <div style="border-top:1px dashed #e8edf5"></div><div style="border-top:1px dashed #e8edf5"></div><div style="border-top:1px dashed #e8edf5"></div><div style="border-top:1px dashed #e8edf5"></div><div style="border-top:2px solid #c8d0de"></div>
+                  </div>
+                  <div style="position:relative;height:232px;display:flex;align-items:flex-end;gap:5px;padding:0 4px;z-index:1">
+                    <div style="flex:1;position:relative;height:100%"><div style="position:absolute;bottom:0;left:0;right:0;height:{{ mob_pct }}%;background:linear-gradient(180deg,#7dd3fc,#0ea5e9);border-radius:3px 3px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:4px"><span style="font-size:9px;font-weight:800;color:#fff">{{ mob_pct }}%</span></div></div>
+                    <div style="flex:1;position:relative;height:100%"><div style="position:absolute;bottom:0;left:0;right:0;height:{{ desk_pct }}%;background:linear-gradient(180deg,#a5b4fc,#6366f1);border-radius:3px 3px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:4px"><span style="font-size:9px;font-weight:800;color:#fff">{{ desk_pct }}%</span></div></div>
+                    <div style="flex:1;position:relative;height:100%"><div style="position:absolute;bottom:0;left:0;right:0;height:{{ [tab_pct,3]|max }}%;background:linear-gradient(180deg,#fcd34d,#f59e0b);border-radius:3px 3px 0 0"></div></div>
+                    <div style="width:10px;flex-shrink:0"></div>
+                    {% for link in links|sort(attribute='click_count',reverse=True) %}
+                    {% set bh=[((link.click_count/max_clicks)*100)|round|int,3]|max %}
+                    <div style="flex:1;position:relative;height:100%"><div style="position:absolute;bottom:0;left:0;right:0;height:{{ bh }}%;background:{{ bar_colors[loop.index0%5] }};border-radius:3px 3px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:4px"><span style="font-size:9px;font-weight:800;color:#fff">{{ link.click_count }}</span></div></div>
+                    {% endfor %}
+                  </div>
+                  <div style="display:flex;gap:5px;padding:6px 4px 0;border-top:2px solid #c8d0de">
+                    <div style="flex:1;text-align:center;font-size:9px;font-weight:700;color:#475569;line-height:1.4">📱<br>Mobile</div>
+                    <div style="flex:1;text-align:center;font-size:9px;font-weight:700;color:#475569;line-height:1.4">💻<br>Desktop</div>
+                    <div style="flex:1;text-align:center;font-size:9px;font-weight:700;color:#f59e0b;line-height:1.4">📲<br>Tablet</div>
+                    <div style="width:10px;flex-shrink:0"></div>
+                    {% for link in links|sort(attribute='click_count',reverse=True) %}
+                    <div style="flex:1;text-align:center;font-size:9px;font-weight:700;color:#475569;line-height:1.4">{{ link.icon }}<br>{{ link.title[:6] }}{% if link.title|length>6 %}…{% endif %}</div>
+                    {% endfor %}
+                  </div>
+                  <div style="display:flex;gap:14px;justify-content:center;padding:8px 0 12px;flex-wrap:wrap">
+                    <div style="display:flex;align-items:center;gap:4px"><div style="width:9px;height:9px;border-radius:2px;background:#0ea5e9"></div><span style="font-size:10px;color:#64748b;font-weight:600">Devices</span></div>
+                    <div style="display:flex;align-items:center;gap:4px"><div style="width:9px;height:9px;border-radius:2px;background:#059669"></div><span style="font-size:10px;color:#64748b;font-weight:600">Link clicks</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% else %}
+            <div style="text-align:center;padding:24px 0;color:#94a3b8">
+              <div style="font-size:2.5rem;margin-bottom:8px">📊</div>
+              <div style="font-weight:700;color:#64748b;margin-bottom:4px">No data yet</div>
+              <div style="font-size:12px">Share your URL to start collecting views and clicks.</div>
+              <div style="margin-top:8px;font-size:12px;color:#0ea5e9;font-weight:600">superadpro.com/u/{{ current_user.username }}</div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div><!-- /t-analytics -->
+
+    </div><!-- /left-panel -->
+
+    <!-- RIGHT PANEL — BIG PHONE -->
+    <div class="right-panel">
+      <div class="phone-label">Live Preview</div>
+      <div class="iphone">
+        <div class="iphone-screen">
+          <div class="status-bar">
+            <span class="status-time">9:41</span>
+            <div class="status-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+          </div>
+          <div class="dyn-island"></div>
+          <div class="phone-content" id="phone-content">
+            <!-- built by buildPreview() -->
+          </div>
+        </div>
+      </div>
+      <div class="url-strip">
+        <span class="url-strip-label">URL</span>
+        <span class="url-strip-link">superadpro.com/u/{{ current_user.username }}</span>
+        <button class="url-copy" onclick="copyUrl()">Copy</button>
+      </div>
+    </div>
+
+  </div><!-- /workspace -->
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- Icon picker modal -->
+<div class="icon-modal" id="icon-modal">
+  <div class="icon-box"><h3>Choose Icon</h3><div class="icon-grid-modal" id="icon-grid-modal"></div></div>
+</div>
+
+<script>
+const ICONS=['🔗','🌐','📧','📱','💼','🎯','🚀','⭐','💡','📊','🎬','📸','🛒','💰','🏆','📣','🎵','🎮','📚','✍️','🤝','🌍','💻','🔥','❤️','🎁','📢','🔔','💎','⚡','🌟','👋','▶️','🐦','📘','🎤','📺','🎧','📰','📝','🏠','📍','🛡️','⚙️','🌈','🎪','🧲','🪄'];
+const SOC_SVG={instagram:'<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>',tiktok:'<svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.77a4.85 4.85 0 01-1.01-.08z"/></svg>',youtube:'<svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5a3 3 0 00-2.1 2.1A31 31 0 000 12a31 31 0 00.5 5.8 3 3 0 002.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 002.1-2.1A31 31 0 0024 12a31 31 0 00-.5-5.8zM9.7 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>',facebook:'<svg viewBox="0 0 24 24"><path d="M24 12.1C24 5.4 18.6 0 12 0S0 5.4 0 12.1C0 18 4.4 23 10.1 24v-8.4H7.1v-3.5h3v-2.7c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9v2.3h3.3l-.5 3.5h-2.8V24C19.6 23 24 18 24 12.1z"/></svg>',x:'<svg viewBox="0 0 24 24"><path d="M18.2 2.3h3.3l-7.2 8.3 8.5 11.2h-6.6l-4.7-6.2-5.4 6.2H2.7l7.7-8.8L1.3 2.3h6.8l4.3 5.6zm-1.2 17.5h1.8L7.1 4.1H5.1z"/></svg>',twitter:'<svg viewBox="0 0 24 24"><path d="M18.2 2.3h3.3l-7.2 8.3 8.5 11.2h-6.6l-4.7-6.2-5.4 6.2H2.7l7.7-8.8L1.3 2.3h6.8l4.3 5.6zm-1.2 17.5h1.8L7.1 4.1H5.1z"/></svg>',telegram:'<svg viewBox="0 0 24 24"><path d="M12 0a12 12 0 100 24A12 12 0 0012 0zm5 7.2l-2 9.6c-.1.6-.5.8-1 .5l-2.8-2-1.3 1.3c-.2.2-.4.3-.7.3l.2-2.8 4.7-4.3c.2-.2 0-.3-.3-.1L6.3 14.5l-2.7-.9c-.6-.2-.6-.6.1-.9l9.8-3.8c.6-.2 1 .1.9.9-.1-.6z"/></svg>',linkedin:'<svg viewBox="0 0 24 24"><path d="M20.4 20.5h-3.6v-5.6c0-1.3 0-3-1.8-3-1.9 0-2.1 1.4-2.1 2.9v5.7H9.4V9h3.4v1.6h.1c.5-.9 1.6-1.9 3.4-1.9 3.6 0 4.3 2.4 4.3 5.5v6.3zM5.3 7.4a2.1 2.1 0 110-4.2 2.1 2.1 0 010 4.2zm1.8 13.1H3.5V9h3.6v11.5zM22.2 0H1.8C.8 0 0 .8 0 1.7v20.5C0 23.2.8 24 1.8 24h20.4c1 0 1.8-.8 1.8-1.8V1.7C24 .8 23.2 0 22.2 0z"/></svg>',whatsapp:'<svg viewBox="0 0 24 24"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.4.2-.6.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.4.1-.6.1-.1.3-.3.4-.5.2-.2.2-.3.3-.5.1-.2.1-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.3zm-5.4 7.4h-.1a9.9 9.9 0 01-5-1.4l-.4-.2-3.7 1 1-3.6-.3-.4A9.9 9.9 0 012 12C2 6.5 6.5 2 12 2s10 4.5 10 10-4.5 10-10 10z"/></svg>'};
+const SOC_BG={instagram:'linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)',tiktok:'#010101',youtube:'#ff0000',facebook:'#1877f2',x:'#000000',twitter:'#000000',telegram:'#2aabee',linkedin:'#0a66c2',whatsapp:'#25d366'};
+const THEME_DEF={dark:{bg:'#050d1a',accent:'#00d4ff',btn:'#0f1f3d',text:'#e2e8f0',sub:'#94a3b8'},light:{bg:'#f8fafc',accent:'#0ea5e9',btn:'#ffffff',text:'#1e293b',sub:'#64748b'},gradient:{bg:'#1e1b4b',accent:'#a78bfa',btn:'rgba(255,255,255,.12)',text:'#ffffff',sub:'rgba(255,255,255,.6)'},neon:{bg:'#0a0a0a',accent:'#00ff88',btn:'#111',text:'#e2e8f0',sub:'#6b7280'}};
+
+let colours={
+  bg:'{{ profile.bg_color if profile and profile.bg_color else "" }}'||THEME_DEF['{{ profile.theme if profile else "dark" }}'].bg,
+  accent:'{{ profile.accent_color if profile else "#00d4ff" }}',
+  btn:'{{ profile.btn_color if profile and profile.btn_color else "" }}'||THEME_DEF['{{ profile.theme if profile else "dark" }}'].btn,
+  text:'{{ profile.text_color if profile and profile.text_color else "" }}'||THEME_DEF['{{ profile.theme if profile else "dark" }}'].text,
+};
+let bannerData='{{ profile.banner_image if profile and profile.banner_image else "" }}';
+let bgImageData='{{ profile.bg_image if profile and profile.bg_image else "" }}';
+let previewAvatarSrc=null;
+let pvTimer;
+function schedulePreview(){clearTimeout(pvTimer);pvTimer=setTimeout(buildPreview,100);}
+
+function buildPreview(){
+  const theme=document.getElementById('theme-val').value||'dark';
+  const font=document.getElementById('font-val').value||'DM Sans';
+  const td=THEME_DEF[theme];
+  const bg=colours.bg||td.bg, accent=colours.accent||td.accent;
+  const btn=colours.btn||td.btn, text=colours.text||td.text, sub=td.sub;
+  const name=document.getElementById('display-name').value.trim()||'Your Name';
+  const bio=document.getElementById('bio').value.trim();
+  const followers=document.getElementById('follower-count').value.trim();
+  const shape=document.getElementById('soc-shape-val').value||'circle';
+  const shR=shape==='circle'?'50%':shape==='pill'?'999px':'7px';
+  const overlay=parseInt(document.getElementById('bg-overlay').value)||60;
+  document.getElementById('overlay-lbl').textContent=overlay+'%';
+  let bodyBg=bg;
+  if(theme==='gradient')bodyBg=`linear-gradient(160deg,${bg},${bg.replace('#','#')},#2d1b69)`;
+  let bodyStyle=`background:${bodyBg};font-family:'${font}',sans-serif;`;
+  if(bgImageData)bodyStyle=`background-image:url(${bgImageData});background-size:cover;background-position:center;font-family:'${font}',sans-serif;`;
+  const bgOvDiv=bgImageData?`<div style="position:absolute;inset:0;background:rgba(0,0,0,${overlay/100})"></div>`:'';
+  const neoGlow=theme==='neon'?`<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 100%,${accent}18,transparent 60%);pointer-events:none"></div>`:'';
+  const avEl=document.querySelector('#avatar-preview img');
+  const avSrc=previewAvatarSrc||(avEl?avEl.src:'');
+  const avHtml=avSrc?`<img src="${avSrc}" style="width:100%;height:100%;object-fit:cover">`:`<span style="font-size:1.6rem;color:${accent}">${name[0].toUpperCase()}</span>`;
+  const bannerHtml=bannerData?`<img src="${bannerData}" style="width:100%;height:65px;object-fit:cover;flex-shrink:0;margin-bottom:6px">`:'';
+  const avMt=bannerData?'margin-top:-32px':'margin-top:10px';
+
+  let socHtml='';
+  document.querySelectorAll('.social-item').forEach(item=>{
+    const inp=item.querySelector('.soc-input'),p=inp?inp.dataset.platform:'';if(!p)return;
+    const bg2=SOC_BG[p]||'#64748b';const svg=(SOC_SVG[p]||'').replace('<svg ','<svg style="width:14px;height:14px;fill:#fff" ');
+    socHtml+=`<div style="width:28px;height:28px;border-radius:${shR};background:${bg2};display:flex;align-items:center;justify-content:center">${svg}</div>`;
+  });
+
+  let linksHtml='';
+  document.querySelectorAll('.link-item').forEach(item=>{
+    const title=item.querySelector('.link-title').value.trim();
+    if(!item.querySelector('.link-active').checked||!title)return;
+    const icon=item.querySelector('.link-icon-btn').textContent;
+    const lStyle=(item.querySelector('.style-pill.active')||{getAttribute:()=>"'filled'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'filled';
+    const lAlign=(item.querySelector('.align-pill.active')||{getAttribute:()=>"'center'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'center';
+    const lWeight=(item.querySelector('.wt-pill.active')||{getAttribute:()=>"'semibold'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'semibold';
+    const lSize=parseInt((item.querySelector('.sz-val')||{textContent:'14'}).textContent)||14;
+    const sub2=(item.querySelector('.link-sub-input')||{value:''}).value.trim();
+    const thumbImg=item.querySelector('.thumb-preview img');
+    const thumbSrc=thumbImg?thumbImg.src:'';
+    const fwMap={normal:400,semibold:600,bold:700,black:900};const fw=fwMap[lWeight]||600;
+    let lBg=btn,lBorder=`1px solid rgba(255,255,255,.1)`,lRadius='10px',lTextColor=text;
+    if(lStyle==='pill'){lRadius='999px';}
+    else if(lStyle==='solid'){lBg='transparent';lBorder=`2px solid ${accent}`;lTextColor=accent;}
+    const neoS=theme==='neon'?`box-shadow:0 0 8px ${accent}33;`:'';
+    const thumbEl=thumbSrc?`<img src="${thumbSrc}" style="width:36px;height:36px;border-radius:5px;object-fit:cover;flex-shrink:0">`:`<div style="width:36px;height:36px;border-radius:5px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${icon}</div>`;
+    linksHtml+=`<div style="display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:${lRadius};border:${lBorder};background:${lBg};${neoS}">
+      ${thumbEl}
+      <div style="flex:1;text-align:${lAlign}"><div style="font-size:${lSize}px;font-weight:${fw};color:${lTextColor};line-height:1.3">${title}</div>${sub2?`<div style="font-size:9px;color:${sub};margin-top:2px">${sub2}</div>`:''}</div>
+      <span style="font-size:11px;color:${accent};flex-shrink:0">→</span>
+    </div>`;
+  });
+  if(!linksHtml)linksHtml=`<div style="text-align:center;color:${sub};font-size:10px;padding:14px 0">Your links appear here</div>`;
+
+  document.getElementById('phone-content').innerHTML=`
+    <div style="${bodyStyle}width:100%;min-height:100%;position:relative;display:flex;flex-direction:column;align-items:center;padding:0 0 32px">
+      ${bgOvDiv}${neoGlow}
+      <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%">
+        ${bannerHtml}
+        <div class="ph-avatar-wrap" style="${avMt}">
+          <div class="ph-avatar-ring"><div class="ph-avatar-inner">${avHtml}</div></div>
+        </div>
+        <div class="ph-name" style="color:${text};font-family:'Outfit',sans-serif">${name}</div>
+        <div class="ph-username" style="color:${sub}">@{{ current_user.username }}</div>
+        ${followers?`<div class="ph-followers" style="color:${sub}">${followers}</div>`:''}
+        ${bio?`<div class="ph-bio" style="color:${sub}">${bio}</div>`:''}
+        ${socHtml?`<div class="ph-socials">${socHtml}</div>`:''}
+        <div class="ph-links" style="padding:0 14px">${linksHtml}</div>
+        <div class="ph-powered">⚡ Powered by <span>SuperAdPro</span></div>
+      </div>
+    </div>`;
+}
+
+// ── Tab switching ──
+function switchTab(btn,id){
+  document.querySelectorAll('.editor-tab').forEach(t=>t.classList.remove('active'));
+  ['t-links','t-social','t-design','t-analytics'].forEach(tid=>{document.getElementById(tid).style.display=tid===id?'block':'none';});
+  btn.classList.add('active');
+}
+function toggleSection(hdr){
+  const body=hdr.nextElementSibling,chev=hdr.querySelector('.section-chevron');
+  body.classList.toggle('hidden');
+  chev.classList.toggle('open',!body.classList.contains('hidden'));
+  chev.classList.toggle('closed',body.classList.contains('hidden'));
+}
+
+// ── Style/Align/Weight pills ──
+function setSP(btn,v){btn.closest('.style-pills').querySelectorAll('.style-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');schedulePreview();}
+function setAP(btn,v){btn.closest('.align-pills').querySelectorAll('.align-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');schedulePreview();}
+function setWP(btn,v){btn.closest('.wt-pills').querySelectorAll('.wt-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');schedulePreview();}
+function adjSz(btn,d){const el=btn.closest('.sz-row').querySelector('.sz-val');el.textContent=Math.min(24,Math.max(10,parseInt(el.textContent)||14)+d);schedulePreview();}
+
+// ── Icon picker ──
+let activeIconBtn=null;
+function openIconPicker(btn){
+  activeIconBtn=btn;const modal=document.getElementById('icon-modal'),grid=document.getElementById('icon-grid-modal');grid.innerHTML='';
+  ICONS.forEach(ic=>{const d=document.createElement('div');d.className='icon-cell'+(ic===btn.textContent?' selected':'');d.textContent=ic;d.onclick=()=>{btn.textContent=ic;modal.classList.remove('open');schedulePreview();};grid.appendChild(d);});
+  modal.classList.add('open');
+}
+document.getElementById('icon-modal').onclick=e=>{if(e.target===document.getElementById('icon-modal'))e.target.classList.remove('open');};
+
+// ── Colour controls ──
+function syncPickers(){
+  const map={bg:'col-bg',btn:'col-btn',text:'col-text'};
+  Object.entries(map).forEach(([k,id])=>{const el=document.getElementById(id),hex=document.getElementById('hex-'+k),v=colours[k];if(el&&v&&v.startsWith('#')){el.value=v.slice(0,7);if(hex)hex.textContent=v.slice(0,7);}});
+  const ae=document.getElementById('col-accent');if(ae&&colours.accent.startsWith('#'))ae.value=colours.accent.slice(0,7);
+  const ah=document.getElementById('hex-accent');if(ah)ah.textContent=colours.accent.slice(0,7);
+}
+function onColour(k){
+  const el=document.getElementById('col-'+k);colours[k]=el.value;document.getElementById('hex-'+k).textContent=el.value;schedulePreview();
+}
+function onAccentPicker(inp){colours.accent=inp.value;document.getElementById('hex-accent').textContent=inp.value;document.querySelectorAll('.acc-dot').forEach(d=>d.classList.remove('sel'));schedulePreview();}
+function selectTheme(val,el){
+  document.querySelectorAll('.theme-swatch').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');
+  document.getElementById('theme-val').value=val;
+  const td=THEME_DEF[val];colours={bg:td.bg,accent:td.accent,btn:td.btn,text:td.text};
+  syncPickers();schedulePreview();
+}
+function selectAccent(val,el){document.querySelectorAll('.acc-dot').forEach(d=>d.classList.remove('sel'));el.classList.add('sel');colours.accent=val;document.getElementById('accent-val').value=val;syncPickers();schedulePreview();}
+function resetTheme(){const td=THEME_DEF[document.getElementById('theme-val').value||'dark'];colours={bg:td.bg,accent:td.accent,btn:td.btn,text:td.text};syncPickers();schedulePreview();}
+function selectFont(val,el){document.querySelectorAll('.font-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');document.getElementById('font-val').value=val;schedulePreview();}
+function setShape(el,val){document.querySelectorAll('.shape-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');document.getElementById('soc-shape-val').value=val;schedulePreview();}
+
+// ── Image uploads ──
+function handleAvatar(input){const f=input.files[0];if(!f||f.size>2*1024*1024){alert('Max 2MB');return;}const r=new FileReader();r.onload=async e=>{previewAvatarSrc=e.target.result;document.getElementById('avatar-preview').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;schedulePreview();try{const fd=new FormData();fd.append('file',f);await fetch('/linkhub/upload-avatar',{method:'POST',body:fd});}catch(err){}};r.readAsDataURL(f);}
+function handleThumb(input,pid){const f=input.files[0];if(!f||f.size>2*1024*1024){alert('Max 2MB');return;}const r=new FileReader();r.onload=e=>{document.getElementById(pid).innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;schedulePreview();};r.readAsDataURL(f);}
+function handleBanner(input){const f=input.files[0];if(!f||f.size>3*1024*1024){alert('Max 3MB');return;}const r=new FileReader();r.onload=e=>{bannerData=e.target.result;const w=document.getElementById('banner-wrap');w.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover"><button class="banner-clear" onclick="clearBanner()">✕</button>`;schedulePreview();};r.readAsDataURL(f);}
+function clearBanner(){bannerData='';document.getElementById('banner-wrap').innerHTML='<button class="banner-clear" onclick="clearBanner()">✕</button>';schedulePreview();}
+function handleBgImage(input){const f=input.files[0];if(!f||f.size>3*1024*1024){alert('Max 3MB');return;}const r=new FileReader();r.onload=e=>{bgImageData=e.target.result;document.getElementById('bg-wrap').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;schedulePreview();};r.readAsDataURL(f);}
+function clearBgImage(){bgImageData='';document.getElementById('bg-wrap').innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-size:11px">No image</div>';schedulePreview();}
+
+// ── Social ──
+function addSocial(){
+  const sel=document.getElementById('soc-select'),p=sel.value;if(!p){alert('Choose a platform first');return;}
+  const list=document.getElementById('social-list');const item=document.createElement('div');item.className='social-item';
+  const svg=(SOC_SVG[p]||'').replace('<svg ','<svg style="width:18px;height:18px;fill:#fff" ');
+  item.innerHTML=`<div class="soc-svg" style="background:${SOC_BG[p]||'#64748b'}">${svg}</div><span class="soc-label">${p.charAt(0).toUpperCase()+p.slice(1)}</span><input class="soc-input" type="url" placeholder="https://..." data-platform="${p}" oninput="schedulePreview()"><button class="soc-del" onclick="this.closest('.social-item').remove();schedulePreview()">✕</button>`;
+  list.appendChild(item);sel.value='';item.querySelector('.soc-input').focus();schedulePreview();
+}
+function collectSocial(){return[...document.querySelectorAll('.social-item')].map(item=>{const inp=item.querySelector('.soc-input');return inp&&inp.value.trim()&&inp.dataset.platform?{platform:inp.dataset.platform,url:inp.value.trim()}:null;}).filter(Boolean);}
+
+// ── Links ──
+function addLink(){
+  const list=document.getElementById('links-list');const n=list.children.length+1;
+  const item=document.createElement('div');item.className='link-item';item.draggable=true;item.dataset.id='new';
+  item.innerHTML=`<span class="link-drag">⠿</span><button class="link-icon-btn" onclick="openIconPicker(this)">🔗</button>
+  <div class="link-body">
+    <div class="link-inputs"><input type="text" placeholder="Title" class="link-title" oninput="schedulePreview()"><input type="url" placeholder="https://..." class="link-url"></div>
+    <input type="text" class="link-sub-input" placeholder="Subtitle (optional)" oninput="schedulePreview()">
+    <div class="style-pills"><button class="style-pill active" onclick="setSP(this,'filled')">▭ Filled</button><button class="style-pill" onclick="setSP(this,'pill')">⬭ Pill</button><button class="style-pill" onclick="setSP(this,'solid')">□ Line</button></div>
+    <div class="link-adv-grid" style="margin-top:8px">
+      <div><span class="adv-lbl">Align</span><div class="align-pills"><button class="align-pill active" onclick="setAP(this,'center')">≡</button><button class="align-pill" onclick="setAP(this,'left')">☰</button><button class="align-pill" onclick="setAP(this,'right')">≡</button></div></div>
+      <div><span class="adv-lbl">Weight</span><div class="wt-pills"><button class="wt-pill active" onclick="setWP(this,'semibold')" style="font-weight:600">Semi</button><button class="wt-pill" onclick="setWP(this,'bold')" style="font-weight:700">Bold</button><button class="wt-pill" onclick="setWP(this,'black')" style="font-weight:900">Black</button></div></div>
+      <div><span class="adv-lbl">Font Size</span><div class="sz-row"><button class="sz-btn" onclick="adjSz(this,-1)">−</button><span class="sz-val">14</span><button class="sz-btn" onclick="adjSz(this,1)">+</button></div></div>
+      <div><span class="adv-lbl">Thumbnail</span><div class="thumb-wrap"><div class="thumb-preview" id="tpv-n${n}">🖼</div><button class="avatar-change-btn" onclick="document.getElementById('tinp-n${n}').click()" style="font-size:11px;margin-bottom:0">Upload</button><input type="file" id="tinp-n${n}" accept="image/*" style="display:none" onchange="handleThumb(this,'tpv-n${n}')"></div></div>
+    </div>
+  </div>
+  <div class="link-actions"><button class="link-del" onclick="deleteLink(this)">✕</button><label class="sm-toggle"><input type="checkbox" checked class="link-active" onchange="schedulePreview()"><div class="sm-track"></div></label><span class="link-clicks">0x</span></div>`;
+  list.appendChild(item);initDrag(item);item.querySelector('.link-title').focus();schedulePreview();
+}
+function deleteLink(btn){if(confirm('Remove this link?')){btn.closest('.link-item').remove();schedulePreview();}}
+
+// ── Drag to reorder ──
+let dragSrc=null;
+function initDrag(item){
+  item.addEventListener('dragstart',e=>{dragSrc=item;item.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+  item.addEventListener('dragend',()=>{dragSrc=null;document.querySelectorAll('.link-item').forEach(i=>i.classList.remove('dragging','drag-over'));});
+  item.addEventListener('dragover',e=>{e.preventDefault();if(dragSrc&&dragSrc!==item)item.classList.add('drag-over');});
+  item.addEventListener('dragleave',()=>item.classList.remove('drag-over'));
+  item.addEventListener('drop',e=>{e.preventDefault();item.classList.remove('drag-over');if(dragSrc&&dragSrc!==item){const list=document.getElementById('links-list');if([...list.children].indexOf(dragSrc)<[...list.children].indexOf(item))list.insertBefore(dragSrc,item.nextSibling);else list.insertBefore(dragSrc,item);schedulePreview();}});
+}
+document.querySelectorAll('.link-item').forEach(initDrag);
+
+// ── Save ──
+async function saveProfile(btn){
+  btn.disabled=true;const orig=btn.textContent;btn.textContent='Saving...';
+  const links=[];
+  document.querySelectorAll('.link-item').forEach((item,idx)=>{
+    const title=item.querySelector('.link-title').value.trim();
+    const url=item.querySelector('.link-url').value.trim();
+    if(!title&&!url)return;
+    const lStyle=(item.querySelector('.style-pill.active')||{getAttribute:()=>"'filled'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'filled';
+    const lAlign=(item.querySelector('.align-pill.active')||{getAttribute:()=>"'center'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'center';
+    const lWeight=(item.querySelector('.wt-pill.active')||{getAttribute:()=>"'semibold'"}).getAttribute('onclick').replace(/.*'(\w+)'.*/,'$1')||'semibold';
+    const szEl=item.querySelector('.sz-val');
+    const thumbImg=item.querySelector('.thumb-preview img');
+    links.push({id:item.dataset.id==='new'?null:parseInt(item.dataset.id),title,url,icon:item.querySelector('.link-icon-btn').textContent,btn_style:lStyle,text_align:lAlign,font_weight:lWeight,font_size:szEl?parseInt(szEl.textContent)||14:14,subtitle:(item.querySelector('.link-sub-input')||{value:''}).value.trim(),thumbnail:thumbImg?thumbImg.src:'',is_active:item.querySelector('.link-active').checked,sort_order:idx,click_count:0});
+  });
+  const payload={display_name:document.getElementById('display-name').value.trim(),bio:document.getElementById('bio').value.trim(),follower_count:document.getElementById('follower-count').value.trim(),theme:document.getElementById('theme-val').value,font_family:document.getElementById('font-val').value,accent_color:colours.accent,bg_color:colours.bg,btn_color:colours.btn,text_color:colours.text,is_published:document.getElementById('is-published').checked,soc_icon_shape:document.getElementById('soc-shape-val').value,social_links:collectSocial(),banner_image:bannerData||'',clear_banner:!bannerData,bg_image:bgImageData||'',clear_bg_image:!bgImageData,links};
+  try{
+    const r=await fetch('/linkhub/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const d=await r.json();btn.disabled=false;btn.textContent=orig;
+    if(d.ok){const msg=document.getElementById('save-msg');if(msg){msg.classList.add('show');setTimeout(()=>msg.classList.remove('show'),3000);}}
+    else alert('Save failed: '+(d.error||'Unknown'));
+  }catch(err){btn.disabled=false;btn.textContent=orig;alert('Network error');}
+}
+function copyUrl(){navigator.clipboard.writeText(window.location.origin+'/u/{{ current_user.username }}');event.target.textContent='✅';setTimeout(()=>event.target.textContent='Copy',1500);}
+
+document.addEventListener('DOMContentLoaded',()=>{syncPickers();buildPreview();});
+</script>
+{% include "_tawk.html" %}
+</body>
+</html>
