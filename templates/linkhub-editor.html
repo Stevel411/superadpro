@@ -283,34 +283,34 @@ textarea.field-input{resize:vertical;min-height:64px}
             <span class="sec-chev">‹</span>
           </div>
           <div class="sec-body">
-            <div class="avatar-row">
-              <div class="av-circle" id="av-circle" onclick="document.getElementById('av-inp').click()">
+            <!-- Avatar + Display Name on one row -->
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+              <div class="av-circle" id="av-circle" onclick="document.getElementById('av-inp').click()" style="width:56px;height:56px;flex-shrink:0">
                 {% if profile and (profile.avatar_r2_url or profile.avatar_data) %}
                   <img src="{{ profile.avatar_r2_url or profile.avatar_data }}" id="av-img">
                 {% else %}
                   <span class="av-letter" id="av-ltr">{{ (current_user.first_name[0] if current_user.first_name else current_user.username[0])|upper }}</span>
                 {% endif %}
                 <div class="av-overlay">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
                 </div>
                 <input type="file" id="av-inp" accept="image/*" style="display:none" onchange="handleAvatar(this)">
               </div>
-              <div class="av-info">
-                <div class="av-info-title">Profile Photo</div>
-                <div class="av-info-sub">Click to upload · Max 2MB</div>
+              <div style="flex:1;min-width:0">
+                <label class="field-label" style="margin-bottom:3px">Display Name</label>
+                <input class="field-input" type="text" id="display-name" value="{{ profile.display_name if profile and profile.display_name else (current_user.first_name + ' ' + current_user.last_name if current_user.first_name else current_user.username) }}" oninput="pv()" placeholder="Your name" style="padding:8px 12px">
               </div>
             </div>
-            <div class="field">
-              <label class="field-label">Display Name</label>
-              <input class="field-input" type="text" id="display-name" value="{{ profile.display_name if profile and profile.display_name else (current_user.first_name + ' ' + current_user.last_name if current_user.first_name else current_user.username) }}" oninput="pv()" placeholder="Your name">
-            </div>
-            <div class="field">
-              <label class="field-label">Bio</label>
-              <textarea class="field-input" id="bio" oninput="pv()" placeholder="Entrepreneur · Creator · Building something amazing">{{ profile.bio if profile and profile.bio else '' }}</textarea>
-            </div>
-            <div class="field">
-              <label class="field-label">Follower Count</label>
-              <input class="field-input" type="text" id="follower-count" value="{{ profile.follower_count if profile and profile.follower_count else '' }}" placeholder="e.g. 14.2K followers" oninput="pv()">
+            <!-- Bio + Follower Count side by side -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="field" style="margin-bottom:0">
+                <label class="field-label">Bio</label>
+                <textarea class="field-input" id="bio" oninput="pv()" placeholder="Entrepreneur · Creator" style="min-height:42px;height:42px;padding:8px 12px">{{ profile.bio if profile and profile.bio else '' }}</textarea>
+              </div>
+              <div class="field" style="margin-bottom:0">
+                <label class="field-label">Follower Count</label>
+                <input class="field-input" type="text" id="follower-count" value="{{ profile.follower_count if profile and profile.follower_count else '' }}" placeholder="e.g. 14.2K" oninput="pv()" style="padding:8px 12px">
+              </div>
             </div>
           </div>
         </div>
