@@ -65,6 +65,20 @@
 *{margin:0;padding:0;box-sizing:border-box}
 
 body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;min-height:100vh;display:flex;justify-content:center;position:relative;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ── Phone wrapper — full screen on mobile, phone frame on desktop ── */
+.phone-wrap{width:100%;min-height:100vh;position:relative;display:flex;flex-direction:column;align-items:center}
+
+@media(min-width:768px){
+  body{background:#e8ecf1;align-items:center;justify-content:center;overflow:hidden}
+  .phone-wrap{width:390px;height:844px;min-height:0;border-radius:48px;overflow-y:auto;overflow-x:hidden;position:relative;background:var(--bg);box-shadow:0 0 0 12px #1c1c1e,0 0 0 13px rgba(255,255,255,.08),0 30px 80px rgba(0,0,0,.35);scrollbar-width:none}
+  .phone-wrap::-webkit-scrollbar{display:none}
+  .phone-wrap::before{content:'';position:absolute;top:12px;left:50%;transform:translateX(-50%);width:120px;height:32px;background:#000;border-radius:20px;z-index:30;pointer-events:none}
+  .phone-wrap .atmos{position:absolute}
+  .phone-wrap .bg-img{position:absolute}
+  .phone-wrap .hub{max-width:100%;padding-top:60px}
+}
+
 {% if profile.bg_r2_url or profile.bg_image %}
 .bg-img{position:fixed;inset:0;z-index:0;background-image:url('{{ profile.bg_r2_url or profile.bg_image }}');background-size:cover;background-position:center}
 .bg-img::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.5)}
@@ -169,6 +183,9 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
 </style>
 </head>
 <body>
+
+<!-- Phone wrapper — CSS creates frame on desktop, invisible on mobile -->
+<div class="phone-wrap">
 
 <div class="atmos">
   <div class="atmos-orb orb1"></div>
@@ -281,7 +298,10 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
   </a>
 
 </div>
+</div>
 {% endif %}
+
+</div><!-- /phone-wrap -->
 
 </body>
 </html>
