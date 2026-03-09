@@ -604,7 +604,7 @@ textarea.field-input{resize:vertical;min-height:64px}
             </div>
           </div>
           <div class="ph-scroll">
-            <div class="ph-inner" id="ph-inner"></div>
+            <div class="ph-inner" id="ph-inner"><div style="color:#fff;padding:40px 20px;text-align:center;font-size:11px;opacity:.5">Loading preview…</div></div>
           </div>
         </div>
       </div>
@@ -1000,12 +1000,14 @@ function toast(msg){
 /* ── Init ── */
 document.addEventListener('DOMContentLoaded',()=>{
   buildSocDropdown();
-  // Force initial preview render
-  try{_pv();}catch(e){
-    console.error('Initial preview error:',e);
-    const ph=document.getElementById('ph-inner');
-    if(ph)ph.innerHTML='<div style="color:#fff;padding:20px;text-align:center;font-size:11px">Preview loading…</div>';
-  }
+  // Force initial preview render with small delay to ensure DOM is ready
+  setTimeout(()=>{
+    try{_pv();}catch(e){
+      console.error('Preview error:',e);
+      var ph=document.getElementById('ph-inner');
+      if(ph)ph.innerHTML='<div style="color:#ef4444;padding:20px;text-align:center;font-size:11px">Preview error: '+e.message+'</div>';
+    }
+  },50);
 });
 </script>
 {% include "_tawk.html" %}
