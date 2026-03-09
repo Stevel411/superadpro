@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="{{ bg_col if bg_col else '#050d1a' }}">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="/static/manifest.json">
+<link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 <title>{{ profile.display_name or user.username }} — LinkHub</title>
 <meta name="description" content="{{ profile.bio or 'Check out my links' }}">
 <meta property="og:title" content="{{ profile.display_name or user.username }} — LinkHub">
@@ -303,5 +308,6 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
 
 </div><!-- /phone-wrap -->
 
+<script>if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/static/sw.js').catch(()=>{}));</script>
 </body>
 </html>
