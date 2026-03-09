@@ -99,8 +99,6 @@ textarea.field-input{resize:vertical;min-height:64px}
 .soc-del:hover{color:#ef4444}
 .add-soc-row{display:flex;gap:8px;margin-top:10px;max-width:300px}
 .soc-select{flex:1;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:12.5px;background:#fff;outline:none;color:#1a1a2e}
-.soc-add-btn{padding:8px 16px;border-radius:8px;background:#1a1a2e;border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
-.soc-add-btn:hover{background:#2d2d4e}
 .soc-shape-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
 .soc-shape-row .field-label{margin-bottom:0;margin-right:auto}
 
@@ -341,7 +339,7 @@ textarea.field-input{resize:vertical;min-height:64px}
               {% endfor %}
             </div>
             <div class="add-soc-row">
-              <select class="soc-select" id="soc-select">
+              <select class="soc-select" id="soc-select" onchange="addSocial()">
                 <option value="">— Add platform —</option>
                 <option value="instagram">Instagram</option>
                 <option value="tiktok">TikTok</option>
@@ -352,7 +350,6 @@ textarea.field-input{resize:vertical;min-height:64px}
                 <option value="linkedin">LinkedIn</option>
                 <option value="whatsapp">WhatsApp</option>
               </select>
-              <button class="soc-add-btn" onclick="addSocial()">+ Add</button>
             </div>
           </div>
         </div>
