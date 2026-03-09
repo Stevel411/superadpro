@@ -7421,14 +7421,64 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
     profile.is_published  = bool(data.get("is_published", True))
     profile.soc_icon_shape = data.get("soc_icon_shape", "circle")
     profile.follower_count = data.get("follower_count", "")[:50] or None
-    # Banner / bg image — only overwrite if provided (non-empty)
+    # Banner / bg image — upload to R2 if available, otherwise store base64
+    from app.r2_storage import r2_available, upload_image, delete_image, is_base64_data, is_r2_url
+    _r2_ok = r2_available()
+
+    # ── Banner image ──
     if data.get("banner_image"):
-        profile.banner_image = data.get("banner_image")
+        raw_banner = data["banner_image"]
+        if is_base64_data(raw_banner) and _r2_ok:
+            try:
+                import base64 as _b64
+                header, b64str = raw_banner.split(",", 1)
+                bdata = _b64.b64decode(b64str)
+                bext = "jpg"
+                bmime = "image/jpeg"
+                if "png" in header: bext, bmime = "png", "image/png"
+                elif "webp" in header: bext, bmime = "webp", "image/webp"
+                elif "gif" in header: bext, bmime = "gif", "image/gif"
+                if profile.banner_r2_url: delete_image(profile.banner_r2_url)
+                profile.banner_r2_url = upload_image(bdata, "banners", bext, bmime)
+                profile.banner_image = None
+            except Exception as e:
+                print(f"⚠️ R2 banner upload failed: {e}")
+                profile.banner_image = raw_banner
+        elif is_r2_url(raw_banner):
+            pass  # already an R2 URL, keep it
+        else:
+            profile.banner_image = raw_banner
     elif data.get("clear_banner"):
+        if profile.banner_r2_url: delete_image(profile.banner_r2_url)
+        profile.banner_r2_url = None
         profile.banner_image = None
+
+    # ── Background image ──
     if data.get("bg_image"):
-        profile.bg_image = data.get("bg_image")
+        raw_bg = data["bg_image"]
+        if is_base64_data(raw_bg) and _r2_ok:
+            try:
+                import base64 as _b64
+                header, b64str = raw_bg.split(",", 1)
+                bgdata = _b64.b64decode(b64str)
+                bgext = "jpg"
+                bgmime = "image/jpeg"
+                if "png" in header: bgext, bgmime = "png", "image/png"
+                elif "webp" in header: bgext, bgmime = "webp", "image/webp"
+                elif "gif" in header: bgext, bgmime = "gif", "image/gif"
+                if profile.bg_r2_url: delete_image(profile.bg_r2_url)
+                profile.bg_r2_url = upload_image(bgdata, "backgrounds", bgext, bgmime)
+                profile.bg_image = None
+            except Exception as e:
+                print(f"⚠️ R2 bg upload failed: {e}")
+                profile.bg_image = raw_bg
+        elif is_r2_url(raw_bg):
+            pass  # already an R2 URL, keep it
+        else:
+            profile.bg_image = raw_bg
     elif data.get("clear_bg_image"):
+        if profile.bg_r2_url: delete_image(profile.bg_r2_url)
+        profile.bg_r2_url = None
         profile.bg_image = None
     profile.bg_gradient = data.get("bg_gradient") or None
     # Social icons — stored as JSON string
@@ -7478,7 +7528,7 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
 @app.post("/linkhub/upload-avatar")
 @limiter.limit("6/minute")
 async def linkhub_upload_avatar(request: Request, file: UploadFile = File(...), db: Session = Depends(get_db)):
-    """Upload avatar — stored as base64 data URL in DB (survives Railway redeploys)."""
+    """Upload avatar — stored in Cloudflare R2 (falls back to base64 in DB)."""
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"ok": False, "error": "Not logged in"}, status_code=401)
@@ -7493,18 +7543,34 @@ async def linkhub_upload_avatar(request: Request, file: UploadFile = File(...), 
         return JSONResponse({"ok": False, "error": "Invalid file type"}, status_code=400)
 
     mime = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "gif": "image/gif", "webp": "image/webp"}.get(ext, "image/jpeg")
-    import base64 as _b64
-    b64 = _b64.b64encode(content).decode("utf-8")
-    data_url = f"data:{mime};base64,{b64}"
 
-    # Save directly to profile
     profile = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
     if not profile:
         profile = LinkHubProfile(user_id=user.id)
         db.add(profile)
+        db.flush()
+
+    # Try R2 first, fall back to base64
+    from app.r2_storage import r2_available, upload_image, delete_image, is_r2_url
+    if r2_available():
+        try:
+            # Delete old R2 avatar if exists
+            if profile.avatar_r2_url:
+                delete_image(profile.avatar_r2_url)
+            url = upload_image(content, "avatars", ext, mime)
+            profile.avatar_r2_url = url
+            profile.avatar_data = None  # clear base64 to save DB space
+            db.commit()
+            return JSONResponse({"ok": True, "data_url": url})
+        except Exception as e:
+            print(f"⚠️ R2 upload failed, falling back to base64: {e}")
+
+    # Fallback: base64 in DB
+    import base64 as _b64
+    b64 = _b64.b64encode(content).decode("utf-8")
+    data_url = f"data:{mime};base64,{b64}"
     profile.avatar_data = data_url
     db.commit()
-
     return JSONResponse({"ok": True, "data_url": data_url})
 
 

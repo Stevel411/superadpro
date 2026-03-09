@@ -569,7 +569,10 @@ class LinkHubProfile(Base):
     user_id         = Column(Integer, ForeignKey("users.id"), unique=True, index=True)
     display_name    = Column(String, nullable=True)
     bio             = Column(Text, nullable=True)
-    avatar_data     = Column(Text, nullable=True)          # base64 data URL — survives ephemeral filesystem
+    avatar_data     = Column(Text, nullable=True)          # base64 data URL — legacy, migrating to R2
+    avatar_r2_url   = Column(String, nullable=True)        # R2 public URL for avatar
+    banner_r2_url   = Column(String, nullable=True)        # R2 public URL for banner
+    bg_r2_url       = Column(String, nullable=True)        # R2 public URL for background
     theme           = Column(String, default="dark")       # dark|light|gradient|neon|minimal
     bg_color        = Column(String, default="#050d1a")
     btn_color       = Column(String, nullable=True)
@@ -860,7 +863,13 @@ try:
         conn.execute(text("ALTER TABLE linkhub_links ADD COLUMN IF NOT EXISTS font_weight VARCHAR DEFAULT 'semibold'"))
         conn.execute(text("ALTER TABLE linkhub_links ADD COLUMN IF NOT EXISTS text_align VARCHAR DEFAULT 'center'"))
         conn.execute(text("ALTER TABLE linkhub_links ADD COLUMN IF NOT EXISTS thumbnail TEXT"))
+
+        # ── R2 image URL columns (2026-03-09) ──
+        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS avatar_r2_url VARCHAR"))
+        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS banner_r2_url VARCHAR"))
+        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS bg_r2_url VARCHAR"))
+
         conn.commit()
-        print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 columns confirmed")
+        print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 + R2 columns confirmed")
 except Exception as e:
     print(f"⚠️ Force migration note: {e}")

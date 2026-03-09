@@ -345,8 +345,8 @@ body::after {
   <div class="avatar-wrap">
     <div class="avatar-ring">
       <div class="avatar-inner">
-        {% if profile.avatar_data %}
-          <img src="{{ profile.avatar_data }}" alt="{{ profile.display_name }}">
+        {% if profile.avatar_r2_url or profile.avatar_data %}
+          <img src="{{ profile.avatar_r2_url or profile.avatar_data }}" alt="{{ profile.display_name }}">
         {% else %}
           {{ (profile.display_name or user.username)[0] | upper }}
         {% endif %}

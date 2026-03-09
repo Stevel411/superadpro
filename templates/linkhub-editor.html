@@ -282,8 +282,8 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#0f172a;height:10
         <!-- Profile banner -->
         <div class="profile-banner">
           <div class="pb-av" id="pb-av" onclick="document.getElementById('av-inp').click()">
-            {% if profile and profile.avatar_data %}
-              <img src="{{ profile.avatar_data }}" id="av-img">
+            {% if profile and (profile.avatar_r2_url or profile.avatar_data) %}
+              <img src="{{ profile.avatar_r2_url or profile.avatar_data }}" id="av-img">
             {% else %}
               <span id="av-ltr">{{ (current_user.first_name[0] if current_user.first_name else current_user.username[0])|upper }}</span>
             {% endif %}
@@ -424,7 +424,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#0f172a;height:10
             <div style="grid-column:1/-1">
               <span class="dr-lbl">Background Image</span>
               <div id="bg-wrap" style="width:100%;height:54px;border-radius:8px;background:#f1f5f9;border:1.5px solid #e8e8e5;overflow:hidden;margin:6px 0 6px;position:relative">
-                {% if profile and profile.bg_image %}<img src="{{ profile.bg_image }}" style="width:100%;height:100%;object-fit:cover">{% else %}<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#bbb;font-size:11px">No image set</div>{% endif %}
+                {% if profile and (profile.bg_r2_url or profile.bg_image) %}<img src="{{ profile.bg_r2_url or profile.bg_image }}" style="width:100%;height:100%;object-fit:cover">{% else %}<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#bbb;font-size:11px">No image set</div>{% endif %}
               </div>
               <label class="upload-row" onclick="document.getElementById('bg-inp').click()">🌄 Upload Background</label>
               <input type="file" id="bg-inp" accept="image/*" style="display:none" onchange="handleBgImage(this)">
@@ -493,13 +493,13 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#0f172a;height:10
         <!-- Header Banner image -->
         <div class="design-block">
           <div class="drow" id="drow-dbanner" onclick="expandRow('dbanner')" style="border-bottom:none">
-            <div class="drow-thumb" style="{% if profile and profile.banner_image %}background-image:url({{ profile.banner_image }});background-size:cover{% else %}background:linear-gradient(135deg,#0ea5e9,#6366f1){% endif %}"></div>
+            <div class="drow-thumb" style="{% if profile and (profile.banner_r2_url or profile.banner_image) %}background-image:url({{ profile.banner_r2_url or profile.banner_image }});background-size:cover{% else %}background:linear-gradient(135deg,#0ea5e9,#6366f1){% endif %}"></div>
             <div class="drow-info"><div class="drow-name">Header Banner</div><div class="drow-val">Optional top banner image</div></div>
             <span class="drow-chev">›</span>
           </div>
           <div id="dbanner" class="d-expand hidden" style="grid-template-columns:1fr">
             <div id="banner-wrap" style="width:100%;height:64px;border-radius:9px;overflow:hidden;border:1.5px solid #e8e8e5;margin-bottom:8px;background:linear-gradient(135deg,#0ea5e9,#6366f1);position:relative">
-              {% if profile and profile.banner_image %}<img src="{{ profile.banner_image }}" style="width:100%;height:100%;object-fit:cover">{% endif %}
+              {% if profile and (profile.banner_r2_url or profile.banner_image) %}<img src="{{ profile.banner_r2_url or profile.banner_image }}" style="width:100%;height:100%;object-fit:cover">{% endif %}
               <button onclick="clearBanner()" style="position:absolute;top:4px;right:6px;background:rgba(0,0,0,.5);border:none;border-radius:4px;color:#fff;font-size:11px;cursor:pointer;padding:2px 7px">✕ Remove</button>
             </div>
             <label class="upload-row" onclick="document.getElementById('banner-inp').click()">📸 Upload Banner</label>
@@ -644,8 +644,8 @@ let C={
   txt:'{{ profile.text_color if profile and profile.text_color else "" }}'||THEME_DEF['{{ profile.theme if profile else "dark" }}'].text,
   acc:'{{ profile.accent_color if profile and profile.accent_color else "#00d4ff" }}'
 };
-let bgImageData='{{ profile.bg_image if profile and profile.bg_image else "" }}';
-let bannerData='{{ profile.banner_image if profile and profile.banner_image else "" }}';
+let bgImageData='{{ profile.bg_r2_url or profile.bg_image if profile and (profile.bg_r2_url or profile.bg_image) else "" }}';
+let bannerData='{{ profile.banner_r2_url or profile.banner_image if profile and (profile.banner_r2_url or profile.banner_image) else "" }}';
 let previewAvatar=null;
 let pvT,iconTarget=null;
 

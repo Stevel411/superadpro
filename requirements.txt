@@ -67,4 +67,5 @@ coinbase-commerce>=1.0.1
 pyotp
 qrcode[pil]
 geoip2>=4.8.0
-# cache-bust: 20260306143301
+boto3>=1.34.0
+# cache-bust: 20260309R2
