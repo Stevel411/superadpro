@@ -605,6 +605,8 @@ class LinkHubLink(Base):
     font_weight     = Column(String, default="semibold")   # normal|semibold|bold|black
     text_align      = Column(String, default="center")     # left|center|right
     thumbnail       = Column(Text, nullable=True)          # base64 link thumbnail
+    btn_bg_color    = Column(String, nullable=True)        # per-link bg colour override
+    btn_text_color  = Column(String, nullable=True)        # per-link text colour override
     is_active       = Column(Boolean, default=True)
     sort_order      = Column(Integer, default=0)
     click_count     = Column(Integer, default=0)
@@ -868,6 +870,10 @@ try:
         conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS avatar_r2_url VARCHAR"))
         conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS banner_r2_url VARCHAR"))
         conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS bg_r2_url VARCHAR"))
+
+        # ── Per-link button colours (2026-03-09) ──
+        conn.execute(text("ALTER TABLE linkhub_links ADD COLUMN IF NOT EXISTS btn_bg_color VARCHAR"))
+        conn.execute(text("ALTER TABLE linkhub_links ADD COLUMN IF NOT EXISTS btn_text_color VARCHAR"))
 
         conn.commit()
         print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 + R2 columns confirmed")

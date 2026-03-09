@@ -132,6 +132,11 @@ textarea.field-input{resize:vertical;min-height:64px}
 .lc-bottom{display:flex;align-items:center;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9}
 .lc-stat{font-size:11px;color:#94a3b8;font-weight:500;flex:1;display:flex;align-items:center;gap:4px}
 .lc-stat-dot{width:5px;height:5px;border-radius:50%;background:#10b981;flex-shrink:0}
+.lc-colors{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.lc-swatch{width:22px;height:22px;border-radius:6px;border:1.5px solid #e5e7eb;cursor:pointer;overflow:hidden;position:relative;transition:.12s;flex-shrink:0}
+.lc-swatch:hover{border-color:#94a3b8;transform:scale(1.1)}
+.lc-swatch input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.lc-swatch-inner{width:100%;height:100%}
 .lc-btn{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:7px;border:1.5px solid #e5e7eb;background:#fff;font-size:11px;font-weight:600;color:#64748b;cursor:pointer;font-family:inherit;transition:.12s;white-space:nowrap}
 .lc-btn:hover{background:#f8fafc;border-color:#cbd5e1;color:#334155}
 .lc-btn-del{color:#94a3b8;border-color:#f1f5f9}
@@ -377,7 +382,7 @@ textarea.field-input{resize:vertical;min-height:64px}
                   <div class="lc-grip"><span></span><span></span><span></span></div>
                   <div class="lc-icon" onclick="openIcons(this)">{{ link.icon }}</div>
                   <div class="lc-fields">
-                    <input class="lc-title" type="text" value="{{ link.title }}" placeholder="Link title" oninput="pv()">
+                    <input class="lc-title" type="text" value="{{ link.title }}" placeholder="Button text…" oninput="pv()">
                     <input class="lc-url" type="url" value="{{ link.url }}" placeholder="https://...">
                   </div>
                   <div class="lc-actions">
@@ -386,6 +391,16 @@ textarea.field-input{resize:vertical;min-height:64px}
                 </div>
                 <div class="lc-bottom">
                   <span class="lc-stat"><span class="lc-stat-dot {% if not link.is_active %}off{% endif %}"></span>{{ link.click_count }} clicks</span>
+                  <div class="lc-colors">
+                    <div class="lc-swatch" title="Button colour">
+                      <div class="lc-swatch-inner lc-sw-bg" style="background:{{ link.btn_bg_color or '' }}"></div>
+                      <input type="color" class="lc-color-bg" value="{{ link.btn_bg_color or '#0ea5e9' }}" oninput="this.closest('.lc-swatch').querySelector('.lc-sw-bg').style.background=this.value;pv()">
+                    </div>
+                    <div class="lc-swatch" title="Text colour">
+                      <div class="lc-swatch-inner lc-sw-txt" style="background:{{ link.btn_text_color or '' }}"></div>
+                      <input type="color" class="lc-color-txt" value="{{ link.btn_text_color or '#ffffff' }}" oninput="this.closest('.lc-swatch').querySelector('.lc-sw-txt').style.background=this.value;pv()">
+                    </div>
+                  </div>
                   <button class="lc-btn lc-btn-del" onclick="delCard(this)">
                     <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6m4-6v6"/></svg>
                     Delete
@@ -661,8 +676,15 @@ function _pv(){
     const title=card.querySelector('.lc-title')?.value?.trim()||'';
     if(!title)return;
     const icon=card.querySelector('.lc-icon')?.textContent?.trim()||'🔗';
-    let lBg=C.btn,lBorder='1px solid rgba(255,255,255,.08)',lTc=C.txt;
-    if(gStyle==='solid'){lBg='transparent';lBorder=`2px solid ${C.acc}`;lTc=C.acc;}
+    // Per-link colours: use card picker if user has set one, else fall back to global
+    const cardBgInput=card.querySelector('.lc-color-bg');
+    const cardTxtInput=card.querySelector('.lc-color-txt');
+    const cardBgSet=card.querySelector('.lc-sw-bg')?.style?.background;
+    const cardTxtSet=card.querySelector('.lc-sw-txt')?.style?.background;
+    let lBg=cardBgSet||C.btn;
+    let lTc=cardTxtSet||C.txt;
+    let lBorder='1px solid rgba(255,255,255,.08)';
+    if(gStyle==='solid'){lBg='transparent';lBorder=`2px solid ${C.acc}`;lTc=cardTxtSet||C.acc;}
     linksH+=`<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;background:${lBg};border:${lBorder}">
       <span style="font-size:14px;flex-shrink:0">${icon}</span>
       <span style="flex:1;font-size:${gSize}px;font-weight:${gFw};color:${lTc};text-align:${gAlign};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'${font}',sans-serif">${title}</span>
@@ -791,7 +813,7 @@ function addCard(){
     <div class="lc-grip"><span></span><span></span><span></span></div>
     <div class="lc-icon" onclick="openIcons(this)">🔗</div>
     <div class="lc-fields">
-      <input class="lc-title" type="text" placeholder="Link title…" oninput="pv()">
+      <input class="lc-title" type="text" placeholder="Button text…" oninput="pv()">
       <input class="lc-url" type="url" placeholder="https://…">
     </div>
     <div class="lc-actions">
@@ -800,6 +822,10 @@ function addCard(){
   </div>
   <div class="lc-bottom">
     <span class="lc-stat"><span class="lc-stat-dot"></span>0 clicks</span>
+    <div class="lc-colors">
+      <div class="lc-swatch" title="Button colour"><div class="lc-swatch-inner lc-sw-bg"></div><input type="color" class="lc-color-bg" value="#0ea5e9" oninput="this.closest('.lc-swatch').querySelector('.lc-sw-bg').style.background=this.value;pv()"></div>
+      <div class="lc-swatch" title="Text colour"><div class="lc-swatch-inner lc-sw-txt" style="background:#ffffff"></div><input type="color" class="lc-color-txt" value="#ffffff" oninput="this.closest('.lc-swatch').querySelector('.lc-sw-txt').style.background=this.value;pv()"></div>
+    </div>
     <button class="lc-btn lc-btn-del" onclick="delCard(this)"><svg viewBox="0 0 24 24" width="12" height="12"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6m4-6v6"/></svg> Delete</button>
   </div>`;
   grid.appendChild(d);initDrag(d);d.querySelector('.lc-title').focus();pv();
@@ -868,6 +894,8 @@ async function doSave(btn){
       text_align:gTextAlign,
       font_weight:gFontWeight,
       font_size:gFontSize,
+      btn_bg_color:card.querySelector('.lc-color-bg')?.value||'',
+      btn_text_color:card.querySelector('.lc-color-txt')?.value||'',
       is_active:card.querySelector('.lc-toggle input')?.checked||false,
       sort_order:idx,click_count:0
     });
