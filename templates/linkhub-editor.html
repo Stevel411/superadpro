@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>LinkHub Editor — SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@700;800;900&family=Sora:wght@700;800&family=Poppins:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Raleway:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Space+Grotesk:wght@400;500;600;700&family=Lora:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@700;800;900&family=Sora:wght@700;800&family=Poppins:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&family=Raleway:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Space+Grotesk:wght@400;500;600;700&family=Lora:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Merriweather:wght@400;700&family=Crimson+Text:wght@400;600;700&family=Libre+Baskerville:wght@400;700&family=Source+Serif+4:wght@400;600;700&family=Work+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Figtree:wght@400;500;600;700&family=Lexend:wght@400;500;600;700&family=Karla:wght@400;500;600;700&family=Rubik:wght@400;500;600;700&family=Josefin+Sans:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&family=Comfortaa:wght@400;500;600;700&family=Architects+Daughter&family=Caveat:wght@400;500;600;700&family=Permanent+Marker&family=Satisfy&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/mobile.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -53,7 +53,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f3f9;color:#1a1a2e
 .workspace{flex:1;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;min-height:0}
 
 /* ── EDITOR PANEL ── */
-.editor{display:flex;flex-direction:column;overflow:hidden;background:#fafbfc}
+.editor{display:flex;flex-direction:column;overflow:hidden;background:#ffffff}
 .editor-scroll{flex:1;overflow-y:auto;padding:24px;scrollbar-width:thin;scrollbar-color:#ddd transparent}
 .editor-scroll::-webkit-scrollbar{width:5px}
 .editor-scroll::-webkit-scrollbar-thumb{background:#ddd;border-radius:4px}
@@ -61,7 +61,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f3f9;color:#1a1a2e
 /* Section headers */
 .sec{margin-bottom:24px}
 .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;cursor:pointer;user-select:none}
-.sec-title{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8}
+.sec-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#1e293b}
 .sec-chev{width:18px;height:18px;border-radius:6px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:11px;transition:.2s}
 .sec.collapsed .sec-chev{transform:rotate(-90deg)}
 .sec-body{transition:all .2s}
@@ -81,7 +81,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f3f9;color:#1a1a2e
 
 /* Form inputs */
 .field{margin-bottom:12px}
-.field-label{display:block;font-size:11.5px;font-weight:700;color:#64748b;margin-bottom:5px;letter-spacing:.3px}
+.field-label{display:block;font-size:11.5px;font-weight:700;color:#334155;margin-bottom:5px;letter-spacing:.3px}
 .field-input{width:100%;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:10px;font-family:inherit;font-size:13px;color:#1a1a2e;outline:none;transition:.15s;background:#fff}
 .field-input:focus{border-color:#94a3b8;box-shadow:0 0 0 3px rgba(148,163,184,.1)}
 .field-input::placeholder{color:#cbd5e1}
@@ -161,7 +161,7 @@ textarea.field-input{resize:vertical;min-height:64px}
 .color-info{flex:1}
 .color-name{font-size:12.5px;font-weight:700;color:#1a1a2e}
 .color-hex{font-size:11px;color:#94a3b8;font-family:'DM Sans',monospace}
-.font-select{width:100%;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;outline:none;cursor:pointer;background:#fff;color:#1a1a2e;appearance:auto;transition:.15s}
+.font-select{max-width:280px;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;outline:none;cursor:pointer;background:#fff;color:#1a1a2e;appearance:auto;transition:.15s}
 .font-select:focus{border-color:#94a3b8;box-shadow:0 0 0 3px rgba(148,163,184,.08)}
 .upload-compact{display:flex;align-items:center;gap:12px}
 .upload-preview{width:100px;height:44px;border-radius:8px;overflow:hidden;border:1.5px solid #e5e7eb;background:#f8fafc;flex-shrink:0;position:relative}
@@ -195,19 +195,19 @@ textarea.field-input{resize:vertical;min-height:64px}
 .preview::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(0,0,0,.04) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
 .pv-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(0,0,0,.25);position:relative;z-index:2;display:flex;align-items:center;gap:10px}
 .pv-lbl::before,.pv-lbl::after{content:'';width:28px;height:1px;background:rgba(0,0,0,.12)}
-.iphone{width:280px;height:580px;position:relative;flex-shrink:0;z-index:2}
-.iphone::before{content:'';position:absolute;inset:-10px;border-radius:56px;background:linear-gradient(145deg,#505052,#1f1f20,#3c3c3e);box-shadow:0 0 0 1px rgba(255,255,255,.07) inset,0 28px 60px rgba(0,0,0,.45),0 5px 18px rgba(0,0,0,.25)}
-.iphone-body{position:absolute;inset:0;background:#1c1c1e;border-radius:46px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.05) inset}
+.iphone{width:320px;height:660px;position:relative;flex-shrink:0;z-index:2}
+.iphone::before{content:'';position:absolute;inset:-10px;border-radius:58px;background:linear-gradient(145deg,#505052,#1f1f20,#3c3c3e);box-shadow:0 0 0 1px rgba(255,255,255,.07) inset,0 28px 60px rgba(0,0,0,.45),0 5px 18px rgba(0,0,0,.25)}
+.iphone-body{position:absolute;inset:0;background:#1c1c1e;border-radius:48px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.05) inset}
 .iphone-di{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:86px;height:25px;background:#000;border-radius:14px;z-index:20}
 .iphone-vol{position:absolute;left:-10px;top:102px;width:3px;height:27px;background:#2a2a2c;border-radius:2px 0 0 2px;box-shadow:0 33px 0 #2a2a2c,0 63px 0 #2a2a2c}
 .iphone-pwr{position:absolute;right:-10px;top:126px;width:3px;height:50px;background:#2a2a2c;border-radius:0 2px 2px 0}
-.iphone-screen{position:absolute;inset:0;border-radius:46px;overflow:hidden;background:#050d1a}
+.iphone-screen{position:absolute;inset:0;border-radius:48px;overflow:hidden;background:#050d1a}
 .ph-sb{height:48px;padding:13px 17px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:5}
 .ph-time{font-size:11.5px;font-weight:700;color:#fff}
 .ph-icons{display:flex;align-items:center;gap:4px}
 .ph-scroll{position:absolute;top:48px;left:0;right:0;bottom:0;overflow-y:auto;scrollbar-width:none}
 .ph-scroll::-webkit-scrollbar{display:none}
-.ph-inner{display:flex;flex-direction:column;align-items:center;min-height:100%;padding-bottom:28px}
+.ph-inner{display:flex;flex-direction:column;align-items:center;min-height:100%}
 .url-strip{background:#fff;border:1px solid #e5e7eb;border-radius:999px;padding:8px 15px;display:flex;align-items:center;gap:9px;width:250px;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .url-txt{flex:1;font-size:11.5px;font-weight:600;color:#1a1a2e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .url-txt strong{color:#6366f1}
@@ -325,7 +325,6 @@ textarea.field-input{resize:vertical;min-height:64px}
               <div style="display:flex;gap:4px">
                 <button class="dr-pill {% if cur_shape=='circle' %}on{% endif %}" onclick="setShape('circle',this)">Circle</button>
                 <button class="dr-pill {% if cur_shape=='square' %}on{% endif %}" onclick="setShape('square',this)">Square</button>
-                <button class="dr-pill {% if cur_shape=='pill' %}on{% endif %}" onclick="setShape('pill',this)">Pill</button>
               </div>
               <input type="hidden" id="soc-shape-val" value="{{ cur_shape }}">
             </div>
@@ -403,8 +402,8 @@ textarea.field-input{resize:vertical;min-height:64px}
                     <button class="dr-pill {% if link.btn_style=='solid' %}on{% endif %}" data-v="solid" onclick="pill(this)">Outline</button>
                   </div></div>
                   <div><span class="dr-lbl">Align</span><div class="dr-pills">
-                    <button class="dr-pill {% if not link.text_align or link.text_align=='center' %}on{% endif %}" data-v="center" onclick="pill(this)">Centre</button>
                     <button class="dr-pill {% if link.text_align=='left' %}on{% endif %}" data-v="left" onclick="pill(this)">Left</button>
+                    <button class="dr-pill {% if not link.text_align or link.text_align=='center' %}on{% endif %}" data-v="center" onclick="pill(this)">Centre</button>
                     <button class="dr-pill {% if link.text_align=='right' %}on{% endif %}" data-v="right" onclick="pill(this)">Right</button>
                   </div></div>
                   <div><span class="dr-lbl">Weight</span><div class="dr-pills">
@@ -489,7 +488,7 @@ textarea.field-input{resize:vertical;min-height:64px}
             <div class="field" style="margin-bottom:18px">
               <label class="field-label">Font</label>
               <select class="font-select" id="font-select" onchange="setFont(this.value)">
-                {% for f in ['DM Sans','Plus Jakarta Sans','Inter','Outfit','Poppins','Raleway','Nunito','Bricolage Grotesque','Space Grotesk','Sora','Lora','Playfair Display'] %}
+                {% for f in ['DM Sans','Plus Jakarta Sans','Inter','Outfit','Poppins','Raleway','Nunito','Bricolage Grotesque','Space Grotesk','Sora','Lora','Playfair Display','Merriweather','Crimson Text','Libre Baskerville','Source Serif 4','Work Sans','Manrope','Figtree','Lexend','Karla','Rubik','Josefin Sans','Quicksand','Comfortaa','Architects Daughter','Caveat','Permanent Marker','Satisfy'] %}
                 <option value="{{ f }}" style="font-family:'{{ f }}'" {% if (profile and profile.font_family==f) or (not profile and f=='DM Sans') %}selected{% endif %}>{{ f }}</option>
                 {% endfor %}
               </select>
@@ -672,10 +671,10 @@ function _pv(){
     const title=card.querySelector('.lc-title')?.value?.trim()||'';
     if(!title)return;
     const icon=card.querySelector('.lc-icon')?.textContent?.trim()||'🔗';
-    const pills=[...card.querySelectorAll('.lc-drawer .dr-pill.on[data-v]')];
-    const style=pills[0]?.dataset?.v||'filled';
-    const align=pills[1]?.dataset?.v||'center';
-    const weight=pills[2]?.dataset?.v||'semibold';
+    const drawGroups=[...card.querySelectorAll('.lc-drawer .dr-pills')];
+    const style=(drawGroups[0]?.querySelector('.dr-pill.on'))?.dataset?.v||'filled';
+    const align=(drawGroups[1]?.querySelector('.dr-pill.on'))?.dataset?.v||'center';
+    const weight=(drawGroups[2]?.querySelector('.dr-pill.on'))?.dataset?.v||'semibold';
     const size=card.querySelector('input[type=range]')?.value||14;
     const fwMap={semibold:600,bold:700,black:900};const fw=fwMap[weight]||600;
     let lBg=C.btn,lBorder='1px solid rgba(255,255,255,.08)',lTc=C.txt,lR='10px';
@@ -688,7 +687,7 @@ function _pv(){
   if(!linksH)linksH=`<div style="text-align:center;color:rgba(255,255,255,.2);font-size:10px;padding:18px 0">Your links appear here</div>`;
 
   document.getElementById('ph-inner').innerHTML=`
-    <div style="${bodyStyle};width:100%;min-height:100%;position:relative;display:flex;flex-direction:column;align-items:center;padding-bottom:24px;font-family:'${font}',sans-serif">
+    <div style="${bodyStyle};width:100%;height:100%;min-height:100%;position:relative;display:flex;flex-direction:column;align-items:center;padding-bottom:24px;font-family:'${font}',sans-serif">
       ${ovDiv}
       <div style="position:relative;z-index:1;width:100%;display:flex;flex-direction:column;align-items:center">
         ${bannerH}
@@ -699,7 +698,7 @@ function _pv(){
         <div style="font-size:9.5px;color:rgba(255,255,255,.4);margin-top:2px">@{{ current_user.username }}</div>
         ${followers?`<div style="font-size:9.5px;color:rgba(255,255,255,.45);font-weight:600;margin-top:2px">${followers}</div>`:''}
         ${bio?`<div style="font-size:9px;color:rgba(255,255,255,.5);text-align:center;line-height:1.5;max-width:188px;margin:5px 8px 7px">${bio}</div>`:''}
-        ${socH?`<div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-bottom:8px;padding:0 12px">${socH}</div>`:''}
+        ${socH?`<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:10px 12px 10px;padding:0">${socH}</div>`:''}
         <div style="width:100%;padding:0 11px;display:flex;flex-direction:column;gap:6px">${linksH}</div>
         <div style="margin-top:12px;font-size:8px;color:rgba(255,255,255,.18);font-weight:600">⚡ Powered by <span style="color:#38bdf8">SuperAdPro</span></div>
       </div>
@@ -819,7 +818,7 @@ function addCard(){
   </div>
   <div class="lc-drawer hidden">
     <div><span class="dr-lbl">Style</span><div class="dr-pills"><button class="dr-pill on" data-v="filled" onclick="pill(this)">Filled</button><button class="dr-pill" data-v="solid" onclick="pill(this)">Outline</button></div></div>
-    <div><span class="dr-lbl">Align</span><div class="dr-pills"><button class="dr-pill on" data-v="center" onclick="pill(this)">Centre</button><button class="dr-pill" data-v="left" onclick="pill(this)">Left</button><button class="dr-pill" data-v="right" onclick="pill(this)">Right</button></div></div>
+    <div><span class="dr-lbl">Align</span><div class="dr-pills"><button class="dr-pill" data-v="left" onclick="pill(this)">Left</button><button class="dr-pill on" data-v="center" onclick="pill(this)">Centre</button><button class="dr-pill" data-v="right" onclick="pill(this)">Right</button></div></div>
     <div><span class="dr-lbl">Weight</span><div class="dr-pills"><button class="dr-pill on" data-v="semibold" onclick="pill(this)">Semi</button><button class="dr-pill" data-v="bold" onclick="pill(this)">Bold</button><button class="dr-pill" data-v="black" onclick="pill(this)">Black</button></div></div>
     <div><span class="dr-lbl">Size</span><div class="dr-range"><input type="range" min="11" max="22" value="14" oninput="this.nextElementSibling.textContent=this.value+'px';pv()"><span class="dr-rv">14px</span></div></div>
   </div>`;
@@ -872,14 +871,14 @@ async function doSave(btn){
     const title=card.querySelector('.lc-title')?.value?.trim()||'';
     const url=card.querySelector('.lc-url')?.value?.trim()||'';
     if(!title&&!url)return;
-    const pills=[...card.querySelectorAll('.lc-drawer .dr-pill.on[data-v]')];
+    const pills=[...card.querySelectorAll('.lc-drawer .dr-pills')];
     links.push({
       id:card.dataset.id==='new'?null:parseInt(card.dataset.id),
       title,url,
       icon:card.querySelector('.lc-icon')?.textContent?.trim()||'🔗',
-      btn_style:pills[0]?.dataset?.v||'filled',
-      text_align:pills[1]?.dataset?.v||'center',
-      font_weight:pills[2]?.dataset?.v||'semibold',
+      btn_style:(pills[0]?.querySelector('.dr-pill.on'))?.dataset?.v||'filled',
+      text_align:(pills[1]?.querySelector('.dr-pill.on'))?.dataset?.v||'center',
+      font_weight:(pills[2]?.querySelector('.dr-pill.on'))?.dataset?.v||'semibold',
       font_size:parseInt(card.querySelector('input[type=range]')?.value)||14,
       is_active:card.querySelector('.lc-toggle input')?.checked||false,
       sort_order:idx,click_count:0
