@@ -151,14 +151,16 @@ textarea.field-input{resize:vertical;min-height:64px}
 .dr-rv{font-size:11px;font-weight:700;color:#1a1a2e;min-width:28px;text-align:right;font-variant-numeric:tabular-nums}
 
 /* ── Design section ── */
+.swatch-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.swatch-item{text-align:center}
+.swatch-well{width:100%;aspect-ratio:1;border-radius:14px;border:1.5px solid #e5e7eb;cursor:pointer;overflow:hidden;position:relative;transition:.15s;margin-bottom:8px}
+.swatch-well:hover{border-color:#94a3b8;box-shadow:0 2px 10px rgba(0,0,0,.08);transform:translateY(-1px)}
+.swatch-well-inner{width:100%;height:100%}
+.swatch-well input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.swatch-name{font-size:12.5px;font-weight:700;color:#1a1a2e}
+.swatch-hex{font-size:11px;color:#94a3b8;font-family:'DM Sans',monospace}
+.global-style-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:16px;margin-bottom:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .design-row{display:flex;align-items:center;gap:14px;margin-bottom:14px}
-.color-well{width:44px;height:44px;border-radius:10px;border:1.5px solid #e5e7eb;cursor:pointer;overflow:hidden;flex-shrink:0;transition:.15s;position:relative}
-.color-well:hover{border-color:#94a3b8;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.color-well-inner{width:100%;height:100%}
-.color-well input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.color-info{flex:1}
-.color-name{font-size:12.5px;font-weight:700;color:#1a1a2e}
-.color-hex{font-size:11px;color:#94a3b8;font-family:'DM Sans',monospace}
 .font-select{max-width:280px;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;outline:none;cursor:pointer;background:#fff;color:#1a1a2e;appearance:auto;transition:.15s}
 .font-select:focus{border-color:#94a3b8;box-shadow:0 0 0 3px rgba(148,163,184,.08)}
 .upload-compact{display:flex;align-items:center;gap:12px}
@@ -384,34 +386,10 @@ textarea.field-input{resize:vertical;min-height:64px}
                 </div>
                 <div class="lc-bottom">
                   <span class="lc-stat"><span class="lc-stat-dot {% if not link.is_active %}off{% endif %}"></span>{{ link.click_count }} clicks</span>
-                  <button class="lc-btn" onclick="toggleDrawer(this)">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke="currentColor" fill="none"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" stroke="currentColor"/></svg>
-                    Style
-                  </button>
                   <button class="lc-btn lc-btn-del" onclick="delCard(this)">
                     <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6m4-6v6"/></svg>
                     Delete
                   </button>
-                </div>
-                <div class="lc-drawer hidden">
-                  <div><span class="dr-lbl">Style</span><div class="dr-pills">
-                    <button class="dr-pill {% if not link.btn_style or link.btn_style=='filled' %}on{% endif %}" data-v="filled" onclick="pill(this)">Filled</button>
-                    <button class="dr-pill {% if link.btn_style=='solid' %}on{% endif %}" data-v="solid" onclick="pill(this)">Outline</button>
-                  </div></div>
-                  <div><span class="dr-lbl">Align</span><div class="dr-pills">
-                    <button class="dr-pill {% if link.text_align=='left' %}on{% endif %}" data-v="left" onclick="pill(this)">Left</button>
-                    <button class="dr-pill {% if not link.text_align or link.text_align=='center' %}on{% endif %}" data-v="center" onclick="pill(this)">Centre</button>
-                    <button class="dr-pill {% if link.text_align=='right' %}on{% endif %}" data-v="right" onclick="pill(this)">Right</button>
-                  </div></div>
-                  <div><span class="dr-lbl">Weight</span><div class="dr-pills">
-                    <button class="dr-pill {% if not link.font_weight or link.font_weight=='semibold' %}on{% endif %}" data-v="semibold" onclick="pill(this)">Semi</button>
-                    <button class="dr-pill {% if link.font_weight=='bold' %}on{% endif %}" data-v="bold" onclick="pill(this)">Bold</button>
-                    <button class="dr-pill {% if link.font_weight=='black' %}on{% endif %}" data-v="black" onclick="pill(this)">Black</button>
-                  </div></div>
-                  <div><span class="dr-lbl">Size</span><div class="dr-range" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()">
-                    <input type="range" min="11" max="22" value="{{ link.font_size or 14 }}" oninput="this.nextElementSibling.textContent=this.value+'px';pv()" draggable="false">
-                    <span class="dr-rv">{{ link.font_size or 14 }}px</span>
-                  </div></div>
                 </div>
               </div>
               {% endfor %}
@@ -432,53 +410,64 @@ textarea.field-input{resize:vertical;min-height:64px}
             <input type="hidden" id="font-val" value="{{ profile.font_family if profile and profile.font_family else 'DM Sans' }}">
             <input type="hidden" id="accent-val" value="{{ profile.accent_color if profile else '#00d4ff' }}">
 
-            <!-- Background colour -->
-            <div class="field-label" style="margin-bottom:10px">Colours</div>
-            <div class="design-row">
-              <div class="color-well">
-                <div class="color-well-inner" id="sw-bg" style="background:{{ profile.bg_color if profile and profile.bg_color else '#050d1a' }}"></div>
-                <input type="color" id="c-bg" value="{{ profile.bg_color if profile and profile.bg_color else '#050d1a' }}" oninput="setC('bg',this.value)">
+            <!-- Colour swatches — 4-column grid -->
+            <div class="field-label" style="margin-bottom:12px">Colours</div>
+            <div class="swatch-grid">
+              <div class="swatch-item">
+                <div class="swatch-well">
+                  <div class="swatch-well-inner" id="sw-bg" style="background:{{ profile.bg_color if profile and profile.bg_color else '#050d1a' }}"></div>
+                  <input type="color" id="c-bg" value="{{ profile.bg_color if profile and profile.bg_color else '#050d1a' }}" oninput="setC('bg',this.value)">
+                </div>
+                <div class="swatch-name">Background</div>
+                <div class="swatch-hex" id="hx-bg">{{ profile.bg_color if profile and profile.bg_color else '#050d1a' }}</div>
               </div>
-              <div class="color-info">
-                <div class="color-name">Background</div>
-                <div class="color-hex" id="hx-bg">{{ profile.bg_color if profile and profile.bg_color else '#050d1a' }}</div>
+              <div class="swatch-item">
+                <div class="swatch-well">
+                  <div class="swatch-well-inner" id="sw-btn" style="background:{{ profile.btn_color if profile and profile.btn_color else '#0ea5e9' }}"></div>
+                  <input type="color" id="c-btn" value="{{ profile.btn_color if profile and profile.btn_color else '#0ea5e9' }}" oninput="setC('btn',this.value)">
+                </div>
+                <div class="swatch-name">Button</div>
+                <div class="swatch-hex" id="hx-btn">{{ profile.btn_color if profile and profile.btn_color else '#0ea5e9' }}</div>
+              </div>
+              <div class="swatch-item">
+                <div class="swatch-well">
+                  <div class="swatch-well-inner" id="sw-txt" style="background:{{ profile.text_color if profile and profile.text_color else '#f1f5f9' }}"></div>
+                  <input type="color" id="c-txt" value="{{ profile.text_color if profile and profile.text_color else '#f1f5f9' }}" oninput="setC('txt',this.value)">
+                </div>
+                <div class="swatch-name">Text</div>
+                <div class="swatch-hex" id="hx-txt">{{ profile.text_color if profile and profile.text_color else '#f1f5f9' }}</div>
+              </div>
+              <div class="swatch-item">
+                <div class="swatch-well">
+                  <div class="swatch-well-inner" id="sw-acc" style="background:{{ profile.accent_color if profile and profile.accent_color else '#00d4ff' }}"></div>
+                  <input type="color" id="c-acc" value="{{ profile.accent_color if profile and profile.accent_color else '#00d4ff' }}" oninput="setC('acc',this.value)">
+                </div>
+                <div class="swatch-name">Accent</div>
+                <div class="swatch-hex" id="hx-acc">{{ profile.accent_color if profile and profile.accent_color else '#00d4ff' }}</div>
               </div>
             </div>
 
-            <!-- Button colour -->
-            <div class="design-row">
-              <div class="color-well">
-                <div class="color-well-inner" id="sw-btn" style="background:{{ profile.btn_color if profile and profile.btn_color else '#0ea5e9' }}"></div>
-                <input type="color" id="c-btn" value="{{ profile.btn_color if profile and profile.btn_color else '#0ea5e9' }}" oninput="setC('btn',this.value)">
-              </div>
-              <div class="color-info">
-                <div class="color-name">Button</div>
-                <div class="color-hex" id="hx-btn">{{ profile.btn_color if profile and profile.btn_color else '#0ea5e9' }}</div>
-              </div>
-            </div>
-
-            <!-- Text colour -->
-            <div class="design-row">
-              <div class="color-well">
-                <div class="color-well-inner" id="sw-txt" style="background:{{ profile.text_color if profile and profile.text_color else '#f1f5f9' }}"></div>
-                <input type="color" id="c-txt" value="{{ profile.text_color if profile and profile.text_color else '#f1f5f9' }}" oninput="setC('txt',this.value)">
-              </div>
-              <div class="color-info">
-                <div class="color-name">Text</div>
-                <div class="color-hex" id="hx-txt">{{ profile.text_color if profile and profile.text_color else '#f1f5f9' }}</div>
-              </div>
-            </div>
-
-            <!-- Accent colour -->
-            <div class="design-row" style="margin-bottom:18px">
-              <div class="color-well">
-                <div class="color-well-inner" id="sw-acc" style="background:{{ profile.accent_color if profile and profile.accent_color else '#00d4ff' }}"></div>
-                <input type="color" id="c-acc" value="{{ profile.accent_color if profile and profile.accent_color else '#00d4ff' }}" oninput="setC('acc',this.value)">
-              </div>
-              <div class="color-info">
-                <div class="color-name">Accent</div>
-                <div class="color-hex" id="hx-acc">{{ profile.accent_color if profile and profile.accent_color else '#00d4ff' }}</div>
-              </div>
+            <!-- Global link style card -->
+            {% set gs = links[0] if links else None %}
+            <div class="global-style-card" id="global-style">
+              <div><span class="dr-lbl">Style</span><div class="dr-pills">
+                <button class="dr-pill {% if not gs or not gs.btn_style or gs.btn_style=='filled' %}on{% endif %}" data-v="filled" onclick="pill(this)">Filled</button>
+                <button class="dr-pill {% if gs and gs.btn_style=='solid' %}on{% endif %}" data-v="solid" onclick="pill(this)">Outline</button>
+              </div></div>
+              <div><span class="dr-lbl">Align</span><div class="dr-pills">
+                <button class="dr-pill {% if gs and gs.text_align=='left' %}on{% endif %}" data-v="left" onclick="pill(this)">Left</button>
+                <button class="dr-pill {% if not gs or not gs.text_align or gs.text_align=='center' %}on{% endif %}" data-v="center" onclick="pill(this)">Centre</button>
+                <button class="dr-pill {% if gs and gs.text_align=='right' %}on{% endif %}" data-v="right" onclick="pill(this)">Right</button>
+              </div></div>
+              <div><span class="dr-lbl">Weight</span><div class="dr-pills">
+                <button class="dr-pill {% if not gs or not gs.font_weight or gs.font_weight=='semibold' %}on{% endif %}" data-v="semibold" onclick="pill(this)">Semi</button>
+                <button class="dr-pill {% if gs and gs.font_weight=='bold' %}on{% endif %}" data-v="bold" onclick="pill(this)">Bold</button>
+                <button class="dr-pill {% if gs and gs.font_weight=='black' %}on{% endif %}" data-v="black" onclick="pill(this)">Black</button>
+              </div></div>
+              <div><span class="dr-lbl">Size</span><div class="dr-range">
+                <input type="range" min="11" max="22" value="{{ gs.font_size if gs and gs.font_size else 14 }}" oninput="this.nextElementSibling.textContent=this.value+'px';pv()">
+                <span class="dr-rv">{{ gs.font_size if gs and gs.font_size else 14 }}px</span>
+              </div></div>
             </div>
 
             <!-- Font -->
@@ -662,23 +651,25 @@ function _pv(){
     socH+=`<div style="width:26px;height:26px;background:${SOC_BG_JS[p]};border-radius:${shR};display:flex;align-items:center;justify-content:center;flex-shrink:0">${(SOC_SVG_JS[p]||'').replace('<svg ','<svg style="width:12px;height:12px" ')}</div>`;
   });
 
+  // Read global style settings from Design section
+  const gsPills=[...document.querySelectorAll('#global-style .dr-pills')];
+  const gStyle=(gsPills[0]?.querySelector('.dr-pill.on'))?.dataset?.v||'filled';
+  const gAlign=(gsPills[1]?.querySelector('.dr-pill.on'))?.dataset?.v||'center';
+  const gWeight=(gsPills[2]?.querySelector('.dr-pill.on'))?.dataset?.v||'semibold';
+  const gSize=document.querySelector('#global-style input[type=range]')?.value||14;
+  const gFwMap={semibold:600,bold:700,black:900};const gFw=gFwMap[gWeight]||600;
+
   let linksH='';
   document.querySelectorAll('#cards-grid .lcard').forEach(card=>{
     if(!card.querySelector('.lc-toggle input')?.checked)return;
     const title=card.querySelector('.lc-title')?.value?.trim()||'';
     if(!title)return;
     const icon=card.querySelector('.lc-icon')?.textContent?.trim()||'🔗';
-    const drawGroups=[...card.querySelectorAll('.lc-drawer .dr-pills')];
-    const style=(drawGroups[0]?.querySelector('.dr-pill.on'))?.dataset?.v||'filled';
-    const align=(drawGroups[1]?.querySelector('.dr-pill.on'))?.dataset?.v||'center';
-    const weight=(drawGroups[2]?.querySelector('.dr-pill.on'))?.dataset?.v||'semibold';
-    const size=card.querySelector('input[type=range]')?.value||14;
-    const fwMap={semibold:600,bold:700,black:900};const fw=fwMap[weight]||600;
-    let lBg=C.btn,lBorder='1px solid rgba(255,255,255,.08)',lTc=C.txt,lR='10px';
-    if(style==='solid'){lBg='transparent';lBorder=`2px solid ${C.acc}`;lTc=C.acc;}
+    let lBg=C.btn,lBorder='1px solid rgba(255,255,255,.08)',lTc=C.txt;
+    if(gStyle==='solid'){lBg='transparent';lBorder=`2px solid ${C.acc}`;lTc=C.acc;}
     linksH+=`<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;background:${lBg};border:${lBorder}">
       <span style="font-size:14px;flex-shrink:0">${icon}</span>
-      <span style="flex:1;font-size:${size}px;font-weight:${fw};color:${lTc};text-align:${align};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'${font}',sans-serif">${title}</span>
+      <span style="flex:1;font-size:${gSize}px;font-weight:${gFw};color:${lTc};text-align:${gAlign};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'${font}',sans-serif">${title}</span>
     </div>`;
   });
   if(!linksH)linksH=`<div style="text-align:center;color:rgba(255,255,255,.2);font-size:10px;padding:18px 0">Your links appear here</div>`;
@@ -810,14 +801,7 @@ function addCard(){
   </div>
   <div class="lc-bottom">
     <span class="lc-stat"><span class="lc-stat-dot"></span>0 clicks</span>
-    <button class="lc-btn" onclick="toggleDrawer(this)"><svg viewBox="0 0 24 24" width="12" height="12"><circle cx="12" cy="12" r="3" stroke="currentColor" fill="none"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" stroke="currentColor"/></svg> Style</button>
     <button class="lc-btn lc-btn-del" onclick="delCard(this)"><svg viewBox="0 0 24 24" width="12" height="12"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6m4-6v6"/></svg> Delete</button>
-  </div>
-  <div class="lc-drawer hidden">
-    <div><span class="dr-lbl">Style</span><div class="dr-pills"><button class="dr-pill on" data-v="filled" onclick="pill(this)">Filled</button><button class="dr-pill" data-v="solid" onclick="pill(this)">Outline</button></div></div>
-    <div><span class="dr-lbl">Align</span><div class="dr-pills"><button class="dr-pill" data-v="left" onclick="pill(this)">Left</button><button class="dr-pill on" data-v="center" onclick="pill(this)">Centre</button><button class="dr-pill" data-v="right" onclick="pill(this)">Right</button></div></div>
-    <div><span class="dr-lbl">Weight</span><div class="dr-pills"><button class="dr-pill on" data-v="semibold" onclick="pill(this)">Semi</button><button class="dr-pill" data-v="bold" onclick="pill(this)">Bold</button><button class="dr-pill" data-v="black" onclick="pill(this)">Black</button></div></div>
-    <div><span class="dr-lbl">Size</span><div class="dr-range" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()"><input type="range" min="11" max="22" value="14" oninput="this.nextElementSibling.textContent=this.value+'px';pv()" draggable="false"><span class="dr-rv">14px</span></div></div>
   </div>`;
   grid.appendChild(d);initDrag(d);d.querySelector('.lc-title').focus();pv();
 }
@@ -868,19 +852,23 @@ function collectSocial(){
 async function doSave(btn){
   btn.disabled=true;const orig=btn.textContent;btn.textContent='Saving…';
   const links=[];
+  const gsPillsSave=[...document.querySelectorAll('#global-style .dr-pills')];
+  const gBtnStyle=(gsPillsSave[0]?.querySelector('.dr-pill.on'))?.dataset?.v||'filled';
+  const gTextAlign=(gsPillsSave[1]?.querySelector('.dr-pill.on'))?.dataset?.v||'center';
+  const gFontWeight=(gsPillsSave[2]?.querySelector('.dr-pill.on'))?.dataset?.v||'semibold';
+  const gFontSize=parseInt(document.querySelector('#global-style input[type=range]')?.value)||14;
   document.querySelectorAll('#cards-grid .lcard').forEach((card,idx)=>{
     const title=card.querySelector('.lc-title')?.value?.trim()||'';
     const url=card.querySelector('.lc-url')?.value?.trim()||'';
     if(!title&&!url)return;
-    const pills=[...card.querySelectorAll('.lc-drawer .dr-pills')];
     links.push({
       id:card.dataset.id==='new'?null:parseInt(card.dataset.id),
       title,url,
       icon:card.querySelector('.lc-icon')?.textContent?.trim()||'🔗',
-      btn_style:(pills[0]?.querySelector('.dr-pill.on'))?.dataset?.v||'filled',
-      text_align:(pills[1]?.querySelector('.dr-pill.on'))?.dataset?.v||'center',
-      font_weight:(pills[2]?.querySelector('.dr-pill.on'))?.dataset?.v||'semibold',
-      font_size:parseInt(card.querySelector('input[type=range]')?.value)||14,
+      btn_style:gBtnStyle,
+      text_align:gTextAlign,
+      font_weight:gFontWeight,
+      font_size:gFontSize,
       is_active:card.querySelector('.lc-toggle input')?.checked||false,
       sort_order:idx,click_count:0
     });
