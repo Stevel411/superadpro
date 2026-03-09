@@ -976,17 +976,15 @@ async function doSave(btn){
   };
   try{
     const r=await fetch('/linkhub/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    if(!r.ok){
-      const txt=await r.text();
+    let d;
+    try{d=await r.json();}catch(pe){
       btn.disabled=false;btn.textContent=orig;
-      toast('Save failed: HTTP '+r.status);
-      console.error('Save error:',r.status,txt.substring(0,500));
+      toast('Save failed: server returned invalid response (HTTP '+r.status+')');
       return;
     }
-    const d=await r.json();
     btn.disabled=false;btn.textContent=orig;
     if(d.ok){toast(d.capped?'✓ Saved (max 20 links — some trimmed)':'✓ Saved successfully');}
-    else toast('Save failed: '+(d.error||'Unknown error'));
+    else toast('Save failed: '+(d.error||'HTTP '+r.status));
   }catch(e){btn.disabled=false;btn.textContent=orig;toast('Save error: '+e.message);console.error('Save exception:',e);}
 }
 
