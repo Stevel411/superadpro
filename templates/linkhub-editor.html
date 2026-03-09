@@ -858,7 +858,6 @@ function addCard(){
   grid.appendChild(d);initDrag(d);d.querySelector('.lc-title').focus();pv();
 }
 function delCard(btn){
-  if(document.querySelectorAll('#cards-grid .lcard').length<=1){toast('Keep at least one link');return;}
   btn.closest('.lcard').remove();pv();
 }
 
