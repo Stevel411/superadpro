@@ -963,11 +963,11 @@ async function doSave(btn){
     display_name:document.getElementById('display-name')?.value?.trim()||'',
     bio:document.getElementById('bio')?.value?.trim()||'',
     follower_count:document.getElementById('follower-count')?.value?.trim()||'',
-    theme:document.getElementById('theme-val').value||'dark',
-    font_family:document.getElementById('font-val').value||'DM Sans',
+    theme:document.getElementById('theme-val')?.value||'dark',
+    font_family:document.getElementById('font-val')?.value||'DM Sans',
     accent_color:C.acc,bg_color:C.bg,btn_color:C.btn,text_color:C.txt,
-    is_published:!pubBadge.classList.contains('off'),
-    soc_icon_shape:document.getElementById('soc-shape-val').value||'circle',
+    is_published:pubBadge?!pubBadge.classList.contains('off'):true,
+    soc_icon_shape:document.getElementById('soc-shape-val')?.value||'circle',
     social_links:collectSocial(),
     banner_image:bannerData||'',clear_banner:!bannerData,
     bg_image:bgImageData||'',clear_bg_image:!bgImageData,
@@ -978,12 +978,12 @@ async function doSave(btn){
     let d;
     try{d=await r.json();}catch(pe){
       btn.disabled=false;btn.textContent=orig;
-      toast('Save failed: server returned invalid response (HTTP '+r.status+')');
+      toast('Save failed: invalid server response (HTTP '+r.status+')');
       return;
     }
     btn.disabled=false;btn.textContent=orig;
-    if(d.ok){toast(d.capped?'✓ Saved (max 20 links — some trimmed)':'✓ Saved successfully');}
-    else toast('Save failed: '+(d.error||'HTTP '+r.status));
+    if(d&&d.ok){toast(d.capped?'✓ Saved (max 20 links — some trimmed)':'✓ Saved successfully');}
+    else toast('Save failed: '+(d?.error||'HTTP '+r.status));
   }catch(e){btn.disabled=false;btn.textContent=orig;toast('Save error: '+e.message);console.error('Save exception:',e);}
 }
 
