@@ -151,9 +151,9 @@ textarea.field-input{resize:vertical;min-height:64px}
 .dr-rv{font-size:11px;font-weight:700;color:#1a1a2e;min-width:28px;text-align:right;font-variant-numeric:tabular-nums}
 
 /* ── Design section ── */
-.swatch-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.swatch-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
 .swatch-item{text-align:center}
-.swatch-well{width:100%;aspect-ratio:1;border-radius:14px;border:1.5px solid #e5e7eb;cursor:pointer;overflow:hidden;position:relative;transition:.15s;margin-bottom:8px}
+.swatch-well{width:100%;height:64px;border-radius:12px;border:1.5px solid #e5e7eb;cursor:pointer;overflow:hidden;position:relative;transition:.15s;margin-bottom:6px}
 .swatch-well:hover{border-color:#94a3b8;box-shadow:0 2px 10px rgba(0,0,0,.08);transform:translateY(-1px)}
 .swatch-well-inner{width:100%;height:100%}
 .swatch-well input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
@@ -205,9 +205,9 @@ textarea.field-input{resize:vertical;min-height:64px}
 .ph-sb{height:48px;padding:13px 17px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:5}
 .ph-time{font-size:11.5px;font-weight:700;color:#fff}
 .ph-icons{display:flex;align-items:center;gap:4px}
-.ph-scroll{position:absolute;top:48px;left:0;right:0;bottom:0;overflow-y:auto;scrollbar-width:none}
+.ph-scroll{position:absolute;top:48px;left:0;right:0;bottom:0;overflow-y:auto;scrollbar-width:none;display:flex;flex-direction:column}
 .ph-scroll::-webkit-scrollbar{display:none}
-.ph-inner{display:flex;flex-direction:column;align-items:center;min-height:100%}
+.ph-inner{display:flex;flex-direction:column;align-items:stretch;min-height:100%;height:100%}
 .url-strip{background:#fff;border:1px solid #e5e7eb;border-radius:999px;padding:8px 15px;display:flex;align-items:center;gap:9px;width:250px;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .url-txt{flex:1;font-size:11.5px;font-weight:600;color:#1a1a2e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .url-txt strong{color:#6366f1}
@@ -674,8 +674,11 @@ function _pv(){
   });
   if(!linksH)linksH=`<div style="text-align:center;color:rgba(255,255,255,.2);font-size:10px;padding:18px 0">Your links appear here</div>`;
 
+  const scrollEl=document.querySelector('.ph-scroll');
+  if(scrollEl)scrollEl.style.background=bgImageData?'':C.bg;
+
   document.getElementById('ph-inner').innerHTML=`
-    <div style="${bodyStyle};width:100%;height:100%;min-height:100%;position:relative;display:flex;flex-direction:column;align-items:center;padding-bottom:24px;font-family:'${font}',sans-serif">
+    <div style="${bodyStyle};width:100%;flex:1;min-height:100%;position:relative;display:flex;flex-direction:column;align-items:center;padding-bottom:24px;font-family:'${font}',sans-serif">
       ${ovDiv}
       <div style="position:relative;z-index:1;width:100%;display:flex;flex-direction:column;align-items:center">
         ${bannerH}
