@@ -132,9 +132,11 @@ textarea.field-input{resize:vertical;min-height:64px}
 .lc-bottom{display:flex;align-items:center;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9}
 .lc-stat{font-size:11px;color:#94a3b8;font-weight:500;flex:1;display:flex;align-items:center;gap:4px}
 .lc-stat-dot{width:5px;height:5px;border-radius:50%;background:#10b981;flex-shrink:0}
-.lc-colors{display:flex;align-items:center;gap:4px;flex-shrink:0}
-.lc-swatch{width:22px;height:22px;border-radius:6px;border:1.5px solid #e5e7eb;cursor:pointer;overflow:hidden;position:relative;transition:.12s;flex-shrink:0}
-.lc-swatch:hover{border-color:#94a3b8;transform:scale(1.1)}
+.lc-colors{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.lc-color-group{display:flex;flex-direction:column;align-items:center;gap:2px}
+.lc-color-label{font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.3px}
+.lc-swatch{width:28px;height:28px;border-radius:8px;border:1.5px solid #e5e7eb;cursor:pointer;overflow:hidden;position:relative;transition:.12s;flex-shrink:0}
+.lc-swatch:hover{border-color:#0ea5e9;transform:scale(1.1);box-shadow:0 2px 8px rgba(14,165,233,.2)}
 .lc-swatch input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 .lc-swatch-inner{width:100%;height:100%}
 .lc-btn{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:7px;border:1.5px solid #e5e7eb;background:#fff;font-size:11px;font-weight:600;color:#64748b;cursor:pointer;font-family:inherit;transition:.12s;white-space:nowrap}
@@ -392,13 +394,19 @@ textarea.field-input{resize:vertical;min-height:64px}
                 <div class="lc-bottom">
                   <span class="lc-stat"><span class="lc-stat-dot {% if not link.is_active %}off{% endif %}"></span>{{ link.click_count }} clicks</span>
                   <div class="lc-colors">
-                    <div class="lc-swatch" title="Button colour">
-                      <div class="lc-swatch-inner lc-sw-bg" style="background:{{ link.btn_bg_color or '' }}"></div>
-                      <input type="color" class="lc-color-bg" value="{{ link.btn_bg_color or '#0ea5e9' }}" oninput="this.closest('.lc-swatch').querySelector('.lc-sw-bg').style.background=this.value;pv()">
+                    <div class="lc-color-group">
+                      <span class="lc-color-label">Btn</span>
+                      <div class="lc-swatch" title="Button colour">
+                        <div class="lc-swatch-inner lc-sw-bg" style="background:{{ link.btn_bg_color if link.btn_bg_color else '#0ea5e9' }}"></div>
+                        <input type="color" class="lc-color-bg" value="{{ link.btn_bg_color or '#0ea5e9' }}" oninput="this.closest('.lc-swatch').querySelector('.lc-sw-bg').style.background=this.value;pv()">
+                      </div>
                     </div>
-                    <div class="lc-swatch" title="Text colour">
-                      <div class="lc-swatch-inner lc-sw-txt" style="background:{{ link.btn_text_color or '' }}"></div>
-                      <input type="color" class="lc-color-txt" value="{{ link.btn_text_color or '#ffffff' }}" oninput="this.closest('.lc-swatch').querySelector('.lc-sw-txt').style.background=this.value;pv()">
+                    <div class="lc-color-group">
+                      <span class="lc-color-label">Text</span>
+                      <div class="lc-swatch" title="Text colour">
+                        <div class="lc-swatch-inner lc-sw-txt" style="background:{{ link.btn_text_color if link.btn_text_color else '#ffffff' }}"></div>
+                        <input type="color" class="lc-color-txt" value="{{ link.btn_text_color or '#ffffff' }}" oninput="this.closest('.lc-swatch').querySelector('.lc-sw-txt').style.background=this.value;pv()">
+                      </div>
                     </div>
                   </div>
                   <button class="lc-btn lc-btn-del" onclick="delCard(this)">
@@ -823,8 +831,8 @@ function addCard(){
   <div class="lc-bottom">
     <span class="lc-stat"><span class="lc-stat-dot"></span>0 clicks</span>
     <div class="lc-colors">
-      <div class="lc-swatch" title="Button colour"><div class="lc-swatch-inner lc-sw-bg"></div><input type="color" class="lc-color-bg" value="#0ea5e9" oninput="this.closest('.lc-swatch').querySelector('.lc-sw-bg').style.background=this.value;pv()"></div>
-      <div class="lc-swatch" title="Text colour"><div class="lc-swatch-inner lc-sw-txt" style="background:#ffffff"></div><input type="color" class="lc-color-txt" value="#ffffff" oninput="this.closest('.lc-swatch').querySelector('.lc-sw-txt').style.background=this.value;pv()"></div>
+      <div class="lc-color-group"><span class="lc-color-label">Btn</span><div class="lc-swatch" title="Button colour"><div class="lc-swatch-inner lc-sw-bg" style="background:#0ea5e9"></div><input type="color" class="lc-color-bg" value="#0ea5e9" oninput="this.closest('.lc-swatch').querySelector('.lc-sw-bg').style.background=this.value;pv()"></div></div>
+      <div class="lc-color-group"><span class="lc-color-label">Text</span><div class="lc-swatch" title="Text colour"><div class="lc-swatch-inner lc-sw-txt" style="background:#ffffff"></div><input type="color" class="lc-color-txt" value="#ffffff" oninput="this.closest('.lc-swatch').querySelector('.lc-sw-txt').style.background=this.value;pv()"></div></div>
     </div>
     <button class="lc-btn lc-btn-del" onclick="delCard(this)"><svg viewBox="0 0 24 24" width="12" height="12"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6m4-6v6"/></svg> Delete</button>
   </div>`;
