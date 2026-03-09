@@ -2622,6 +2622,72 @@ def dev_reset_watch(db: Session = Depends(get_db), user: User = Depends(get_curr
     db.commit()
     return RedirectResponse(url="/watch", status_code=303)
 
+@app.get("/dev/seed-course")
+def dev_seed_course(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    """TEMPORARY — seed a test course with chapters and lessons, grant current user access."""
+    if not user: return RedirectResponse(url="/?login=1")
+
+    # Check if we already have a course with chapters
+    existing = db.query(CourseChapter).first()
+    if existing:
+        # Just ensure purchase exists
+        purchase = db.query(CoursePurchase).filter(CoursePurchase.user_id == user.id).first()
+        if not purchase:
+            course = db.query(Course).first()
+            if course:
+                db.add(CoursePurchase(user_id=user.id, course_id=course.id, course_tier=course.tier, amount_paid=0, payment_method="admin"))
+                db.commit()
+        course = db.query(Course).first()
+        return RedirectResponse(f"/courses/learn/{course.id}", status_code=303)
+
+    # Create or get course
+    course = db.query(Course).first()
+    if not course:
+        course = Course(title="Digital Marketing Mastery", slug="digital-marketing-mastery", description="Complete guide to digital marketing", price=97, tier=1, is_active=True, sort_order=1)
+        db.add(course)
+        db.flush()
+
+    # Seed chapters and lessons
+    chapters_data = [
+        ("Getting Started", [
+            ("Welcome & Course Overview", 4), ("Setting Up Your Workspace", 8),
+            ("Understanding Your Audience", 12), ("Creating Your Marketing Plan", 10),
+            ("Choosing Your Platforms", 9), ("Tools You'll Need", 9),
+        ]),
+        ("Traffic Generation", [
+            ("Organic vs Paid Traffic", 12), ("SEO Fundamentals", 15),
+            ("Content Marketing Strategy", 14), ("Facebook Ads: Targeting Your Ideal Audience", 18),
+            ("Google Ads for Beginners", 16), ("YouTube Marketing Deep Dive", 20),
+            ("TikTok & Short-Form Content", 14), ("Email List Building", 15),
+        ]),
+        ("Conversion Optimisation", [
+            ("Landing Page Anatomy", 14), ("Writing Copy That Converts", 12),
+            ("A/B Testing Fundamentals", 10), ("Retargeting Strategies", 11),
+            ("Analytics & KPIs", 11),
+        ]),
+        ("Scaling & Automation", [
+            ("Building Sales Funnels", 18), ("Email Automation Sequences", 16),
+            ("Scaling Paid Campaigns", 15), ("Outsourcing & Delegation", 14),
+            ("Final Project & Next Steps", 15),
+        ]),
+    ]
+
+    for ch_idx, (ch_title, lessons) in enumerate(chapters_data):
+        chapter = CourseChapter(course_id=course.id, title=ch_title, sort_order=ch_idx)
+        db.add(chapter)
+        db.flush()
+        for ls_idx, (ls_title, duration) in enumerate(lessons):
+            db.add(CourseLesson(course_id=course.id, chapter_id=chapter.id, title=ls_title, duration_mins=duration, sort_order=ls_idx))
+
+    # Grant access
+    purchase = db.query(CoursePurchase).filter(CoursePurchase.user_id == user.id, CoursePurchase.course_id == course.id).first()
+    if not purchase:
+        db.add(CoursePurchase(user_id=user.id, course_id=course.id, course_tier=course.tier, amount_paid=0, payment_method="admin"))
+
+    db.commit()
+    return RedirectResponse(f"/courses/learn/{course.id}", status_code=303)
+
+
 @app.get("/dev/test-coinbase")
 def dev_test_coinbase(request: Request, user: User = Depends(get_current_user)):
     """TEMPORARY — test Coinbase payment flow. Shows buttons for membership + each grid tier."""
