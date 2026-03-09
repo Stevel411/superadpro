@@ -65,6 +65,10 @@
 *{margin:0;padding:0;box-sizing:border-box}
 
 body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;min-height:100vh;display:flex;justify-content:center;position:relative;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+{% if profile.bg_r2_url or profile.bg_image %}
+.bg-img{position:fixed;inset:0;z-index:0;background-image:url('{{ profile.bg_r2_url or profile.bg_image }}');background-size:cover;background-position:center}
+.bg-img::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.5)}
+{% endif %}
 
 /* ── Atmosphere ── */
 .atmos{position:fixed;inset:0;pointer-events:none;z-index:0}
@@ -171,6 +175,10 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
   <div class="atmos-orb orb2"></div>
   {% if profile.theme == 'gradient' %}<div class="atmos-orb orb3"></div>{% endif %}
 </div>
+
+{% if profile.bg_r2_url or profile.bg_image %}
+<div class="bg-img"></div>
+{% endif %}
 
 {% if not profile.is_published %}
 <div class="offline">

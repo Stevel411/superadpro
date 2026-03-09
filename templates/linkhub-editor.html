@@ -721,8 +721,8 @@ function _pv(){
   const scrollEl=document.querySelector('.ph-scroll');
   const screenEl=document.querySelector('.iphone-screen');
   const phInner=document.getElementById('ph-inner');
-  if(scrollEl)scrollEl.style.background=bgImageData?'':C.bg;
-  if(screenEl)screenEl.style.background=bgImageData?'#000':C.bg;
+  if(scrollEl)scrollEl.style.background=bgImageData?'transparent':C.bg;
+  if(screenEl)screenEl.style.background=bgImageData?'transparent':C.bg;
   if(!phInner)return;
 
   phInner.innerHTML=`
