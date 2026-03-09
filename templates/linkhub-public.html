@@ -248,15 +248,15 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
     {% for link in links %}
     {% if link.is_active %}
       {% if link.btn_style == 'solid' %}
-      <a class="link-outline" href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener">
+      <a class="link-outline" href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener"{% if link.btn_bg_color %} style="border-color:{{ link.btn_bg_color }};color:{{ link.btn_bg_color }}"{% endif %}>
         <span>{{ link.icon }}</span>
-        <span>{{ link.title }}</span>
+        <span{% if link.btn_text_color %} style="color:{{ link.btn_text_color }}"{% endif %}>{{ link.title }}</span>
       </a>
       {% else %}
-      <a class="link-card" href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener">
-        <div class="lk-icon">{{ link.icon }}</div>
+      <a class="link-card" href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener"{% if link.btn_bg_color %} style="background:{{ link.btn_bg_color }};border-color:{{ link.btn_bg_color }}22"{% endif %}>
+        <div class="lk-icon"{% if link.btn_bg_color %} style="background:{{ link.btn_bg_color }}22;border-color:{{ link.btn_bg_color }}33"{% endif %}>{{ link.icon }}</div>
         <div class="lk-body">
-          <div class="lk-title">{{ link.title }}</div>
+          <div class="lk-title"{% if link.btn_text_color %} style="color:{{ link.btn_text_color }}"{% endif %}>{{ link.title }}</div>
           {% if link.subtitle %}<div class="lk-sub">{{ link.subtitle }}</div>{% endif %}
         </div>
         <span class="lk-arrow">→</span>
