@@ -197,6 +197,9 @@ textarea.field-input{resize:vertical;min-height:64px}
 .ov-row span{font-size:11px;color:#94a3b8;min-width:30px;text-align:right}
 
 /* Divider — removed, cards provide separation */
+.save-btn-main{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 28px;border-radius:10px;border:none;background:#0ea5e9;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;box-shadow:0 2px 8px rgba(14,165,233,.25);margin:0 auto}
+.save-btn-main:hover{background:#0891d4;box-shadow:0 4px 14px rgba(14,165,233,.35);transform:translateY(-1px)}
+.save-btn-main:disabled{opacity:.6;cursor:not-allowed;transform:none}
 
 /* ── Analytics mini ── */
 .stats-bar{display:flex;gap:8px;margin-bottom:8px}
@@ -281,7 +284,6 @@ textarea.field-input{resize:vertical;min-height:64px}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         View Live Page
       </a>
-      <button class="tb-save" id="save-btn" onclick="doSave(this)">Save Changes</button>
     </div>
   </header>
 
@@ -582,6 +584,10 @@ textarea.field-input{resize:vertical;min-height:64px}
             </div>
             {% endif %}
           </div>
+        </div>
+
+        <div style="padding:8px 0 20px">
+          <button class="save-btn-main" id="save-btn" onclick="doSave(this)">💾 Save Changes</button>
         </div>
 
       </div><!-- /editor-scroll -->

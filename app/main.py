@@ -7555,8 +7555,8 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
             tb = traceback.format_exc()
             print(f"⚠️ LinkHub save DB error: {e}\n{tb}")
             return JSONResponse({"ok": False, "error": f"Database error: {str(e)[:300]}"}, status_code=500)
-            capped = len(data.get("links", [])) > 20
-            return JSONResponse({"ok": True, "capped": capped, "saved_links": len(raw_links)})
+        capped = len(data.get("links", [])) > 20
+        return JSONResponse({"ok": True, "capped": capped, "saved_links": len(raw_links)})
     except Exception as ex:
         try: db.rollback()
         except: pass
