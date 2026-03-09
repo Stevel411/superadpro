@@ -60,7 +60,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f3f9;color:#1a1a2e
 
 /* Section headers */
 .sec{margin-bottom:24px}
-.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;cursor:pointer;user-select:none}
+.sec-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;cursor:pointer;user-select:none}
 .sec-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#1e293b}
 .sec-chev{width:18px;height:18px;border-radius:6px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:11px;transition:.2s}
 .sec.collapsed .sec-chev{transform:rotate(-90deg)}
@@ -97,7 +97,7 @@ textarea.field-input{resize:vertical;min-height:64px}
 .soc-inp:focus{border-color:#94a3b8;box-shadow:0 0 0 3px rgba(148,163,184,.08)}
 .soc-del{background:none;border:none;cursor:pointer;color:#cbd5e1;font-size:14px;padding:4px;transition:.12s}
 .soc-del:hover{color:#ef4444}
-.add-soc-row{display:flex;gap:8px;margin-top:10px}
+.add-soc-row{display:flex;gap:8px;margin-top:10px;max-width:300px}
 .soc-select{flex:1;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:12.5px;background:#fff;outline:none;color:#1a1a2e}
 .soc-add-btn{padding:8px 16px;border-radius:8px;background:#1a1a2e;border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
 .soc-add-btn:hover{background:#2d2d4e}
@@ -679,7 +679,7 @@ function _pv(){
     const fwMap={semibold:600,bold:700,black:900};const fw=fwMap[weight]||600;
     let lBg=C.btn,lBorder='1px solid rgba(255,255,255,.08)',lTc=C.txt,lR='10px';
     if(style==='solid'){lBg='transparent';lBorder=`2px solid ${C.acc}`;lTc=C.acc;}
-    linksH+=`<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:${lR};background:${lBg};border:${lBorder}">
+    linksH+=`<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;background:${lBg};border:${lBorder}">
       <span style="font-size:14px;flex-shrink:0">${icon}</span>
       <span style="flex:1;font-size:${size}px;font-weight:${fw};color:${lTc};text-align:${align};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'${font}',sans-serif">${title}</span>
     </div>`;
@@ -698,8 +698,8 @@ function _pv(){
         <div style="font-size:9.5px;color:rgba(255,255,255,.4);margin-top:2px">@{{ current_user.username }}</div>
         ${followers?`<div style="font-size:9.5px;color:rgba(255,255,255,.45);font-weight:600;margin-top:2px">${followers}</div>`:''}
         ${bio?`<div style="font-size:9px;color:rgba(255,255,255,.5);text-align:center;line-height:1.5;max-width:188px;margin:5px 8px 7px">${bio}</div>`:''}
-        ${socH?`<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:10px 12px 10px;padding:0">${socH}</div>`:''}
-        <div style="width:100%;padding:0 11px;display:flex;flex-direction:column;gap:6px">${linksH}</div>
+        ${socH?`<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:10px 12px 14px;padding:0">${socH}</div>`:''}
+        <div style="width:100%;padding:0 18px;display:flex;flex-direction:column;gap:7px">${linksH}</div>
         <div style="margin-top:12px;font-size:8px;color:rgba(255,255,255,.18);font-weight:600">⚡ Powered by <span style="color:#38bdf8">SuperAdPro</span></div>
       </div>
     </div>`;
