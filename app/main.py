@@ -7643,10 +7643,20 @@ def linkhub_public(username: str, request: Request, db: Session = Depends(get_db
         LinkHubLink.is_active == True
     ).order_by(LinkHubLink.sort_order).all()
 
+    # Parse social links JSON
+    import json as _json
+    social_links = []
+    if profile.social_links:
+        try:
+            social_links = _json.loads(profile.social_links)
+        except Exception:
+            social_links = []
+
     return templates.TemplateResponse("linkhub-public.html", {
         "request": request,
         "user": user,
         "profile": profile,
         "links": links,
+        "social_links": social_links,
     })
 
