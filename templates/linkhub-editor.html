@@ -840,6 +840,7 @@ function openIcons(btn){
 /* ── Add / Delete cards ── */
 function addCard(){
   const grid=document.getElementById('cards-grid');
+  if(grid.querySelectorAll('.lcard').length>=20){toast('Maximum 20 links reached');return;}
   const d=document.createElement('div');d.className='lcard';d.draggable=true;d.dataset.id='new';
   d.innerHTML=`<div class="lc-head">
     <div class="lc-icon" onclick="openIcons(this)">🔗</div>
@@ -944,7 +945,7 @@ async function doSave(btn){
     const r=await fetch('/linkhub/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const d=await r.json();
     btn.disabled=false;btn.textContent=orig;
-    if(d.ok)toast('✓ Saved successfully');
+    if(d.ok){toast(d.capped?'✓ Saved (max 20 links — some trimmed)':'✓ Saved successfully');}
     else toast('Save failed: '+(d.error||'Unknown error'));
   }catch(e){btn.disabled=false;btn.textContent=orig;toast('Network error — check connection');}
 }

@@ -7394,6 +7394,7 @@ def linkhub_editor(request: Request, db: Session = Depends(get_db)):
 
 
 @app.post("/linkhub/save")
+@limiter.limit("10/minute")
 async def linkhub_save(request: Request, db: Session = Depends(get_db)):
     """Save LinkHub profile + links."""
     user = get_current_user(request, db)
@@ -7409,8 +7410,9 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
         db.add(profile)
         db.flush()
 
-    profile.display_name  = data.get("display_name", "")[:100]
-    profile.bio           = data.get("bio", "")[:300]
+    import html as _html
+    profile.display_name  = _html.escape(data.get("display_name", "") or "")[:100]
+    profile.bio           = _html.escape(data.get("bio", "") or "")[:300]
     profile.theme         = data.get("theme", "dark")
     profile.accent_color  = data.get("accent_color", "#00d4ff")
     profile.bg_color      = data.get("bg_color") or None
@@ -7437,13 +7439,17 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
     from datetime import datetime as _dt
     profile.updated_at = _dt.utcnow()
 
-    # Replace all links
+    # Replace all links — cap at 20 to protect DB
+    raw_links = data.get("links", [])[:20]
     db.query(LinkHubLink).filter(LinkHubLink.profile_id == profile.id).delete()
-    for idx, lk in enumerate(data.get("links", [])):
+    for idx, lk in enumerate(raw_links):
         title = str(lk.get("title", "")).strip()[:200]
         url   = str(lk.get("url", "")).strip()[:2000]
         if not title or not url:
             continue
+        # Enforce safe URL schemes only
+        if url.startswith(("javascript:", "data:", "vbscript:", "file:")):
+            continue  # silently skip dangerous URLs
         if not url.startswith(("http://", "https://")):
             url = "https://" + url
         link = LinkHubLink(
@@ -7465,10 +7471,12 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
         db.add(link)
 
     db.commit()
-    return JSONResponse({"ok": True})
+    capped = len(data.get("links", [])) > 20
+    return JSONResponse({"ok": True, "capped": capped, "saved_links": len(raw_links)})
 
 
 @app.post("/linkhub/upload-avatar")
+@limiter.limit("6/minute")
 async def linkhub_upload_avatar(request: Request, file: UploadFile = File(...), db: Session = Depends(get_db)):
     """Upload avatar — stored as base64 data URL in DB (survives Railway redeploys)."""
     user = get_current_user(request, db)
@@ -7501,29 +7509,41 @@ async def linkhub_upload_avatar(request: Request, file: UploadFile = File(...), 
 
 
 @app.get("/linkhub/click/{link_id}")
+@limiter.limit("30/minute")
 def linkhub_track_click(link_id: int, request: Request, db: Session = Depends(get_db)):
     """Track a link click then redirect."""
     link = db.query(LinkHubLink).filter(LinkHubLink.id == link_id, LinkHubLink.is_active == True).first()
     if not link:
         return RedirectResponse("/", status_code=302)
 
-    # Record click
+    # Record click — deduplicate same IP on same link within 1 hour
     ua = request.headers.get("user-agent", "").lower()
-    device = "mobile" if any(x in ua for x in ("mobile", "android", "iphone")) else "tablet" if "tablet" in ua or "ipad" in ua else "desktop"
-    click = LinkHubClick(
-        link_id    = link.id,
-        profile_id = link.profile_id,
-        referrer   = request.headers.get("referer", "")[:500],
-        device     = device,
-    )
-    db.add(click)
-    link.click_count = (link.click_count or 0) + 1
-    db.commit()
+    _cbots = ("googlebot","bingbot","slurp","curl","python-requests","wget","scrapy","headlesschrome")
+    if not any(b in ua for b in _cbots):
+        client_ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "").split(",")[0].strip()
+        one_hour_ago = datetime.utcnow() - timedelta(hours=1)
+        recent = db.query(LinkHubClick).filter(
+            LinkHubClick.link_id == link.id,
+            LinkHubClick.referrer == client_ip,  # reuse referrer col to store IP temporarily
+            LinkHubClick.clicked_at >= one_hour_ago
+        ).first()
+        if not recent:
+            device = "mobile" if any(x in ua for x in ("mobile","android","iphone")) else "tablet" if "tablet" in ua or "ipad" in ua else "desktop"
+            click = LinkHubClick(
+                link_id    = link.id,
+                profile_id = link.profile_id,
+                referrer   = client_ip,
+                device     = device,
+            )
+            db.add(click)
+            link.click_count = (link.click_count or 0) + 1
+            db.commit()
 
     return RedirectResponse(link.url, status_code=302)
 
 
 @app.get("/u/{username}")
+@limiter.limit("60/minute")
 def linkhub_public(username: str, request: Request, db: Session = Depends(get_db)):
     """Public LinkHub profile page."""
     user = db.query(User).filter(User.username.ilike(username)).first()
@@ -7540,9 +7560,15 @@ def linkhub_public(username: str, request: Request, db: Session = Depends(get_db
         db.commit()
         db.refresh(profile)
 
-    # Count the view (skip preview mode)
+    # Count the view — skip preview mode and known bots/crawlers
     preview = request.query_params.get("preview") == "1"
-    if not preview and profile.is_published:
+    ua = request.headers.get("user-agent", "").lower()
+    _bots = ("googlebot", "bingbot", "slurp", "duckduckbot", "baiduspider",
+             "yandexbot", "sogou", "exabot", "facebot", "ia_archiver",
+             "semrush", "ahrefsbot", "mj12bot", "dotbot", "curl", "python-requests",
+             "wget", "scrapy", "headlesschrome", "phantomjs", "prerender")
+    is_bot = any(b in ua for b in _bots) or not ua
+    if not preview and not is_bot and profile.is_published:
         profile.total_views = (profile.total_views or 0) + 1
         db.commit()
 
