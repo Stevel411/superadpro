@@ -6592,6 +6592,22 @@ def admin_run_migrations(secret: str = "", db: Session = Depends(get_db)):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
+@app.get("/admin/linkhub-debug")
+def linkhub_debug(secret: str = "", db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import text as sqt
+    if secret != "superadpro-migrate-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    try:
+        cols = db.execute(sqt("SELECT column_name FROM information_schema.columns WHERE table_name='linkhub_links' ORDER BY ordinal_position")).fetchall()
+        col_names = [r[0] for r in cols]
+        profile_cols = db.execute(sqt("SELECT column_name FROM information_schema.columns WHERE table_name='linkhub_profiles' ORDER BY ordinal_position")).fetchall()
+        prof_col_names = [r[0] for r in profile_cols]
+        return JSONResponse({"linkhub_links_columns": col_names, "linkhub_profiles_columns": prof_col_names})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
 @app.get("/admin/db-check")
 def db_check(secret: str, db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
@@ -7401,136 +7417,148 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
     if not user:
         return JSONResponse({"ok": False, "error": "Not logged in"}, status_code=401)
 
-    data = await request.json()
-
-    # Upsert profile
-    profile = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
-    if not profile:
-        profile = LinkHubProfile(user_id=user.id)
-        db.add(profile)
-        db.flush()
-
-    import html as _html
-    profile.display_name  = _html.escape(data.get("display_name", "") or "")[:100]
-    profile.bio           = _html.escape(data.get("bio", "") or "")[:300]
-    profile.theme         = data.get("theme", "dark")
-    profile.font_family   = data.get("font_family", "DM Sans")[:50]
-    profile.accent_color  = data.get("accent_color", "#00d4ff")
-    profile.bg_color      = data.get("bg_color") or None
-    profile.btn_color     = data.get("btn_color") or None
-    profile.text_color    = data.get("text_color") or None
-    profile.is_published  = bool(data.get("is_published", True))
-    profile.soc_icon_shape = data.get("soc_icon_shape", "circle")
-    profile.follower_count = data.get("follower_count", "")[:50] or None
-    # Banner / bg image — upload to R2 if available, otherwise store base64
-    from app.r2_storage import r2_available, upload_image, delete_image, is_base64_data, is_r2_url
-    _r2_ok = r2_available()
-
-    # ── Banner image ──
-    if data.get("banner_image"):
-        raw_banner = data["banner_image"]
-        if is_base64_data(raw_banner) and _r2_ok:
-            try:
-                import base64 as _b64
-                header, b64str = raw_banner.split(",", 1)
-                bdata = _b64.b64decode(b64str)
-                bext = "jpg"
-                bmime = "image/jpeg"
-                if "png" in header: bext, bmime = "png", "image/png"
-                elif "webp" in header: bext, bmime = "webp", "image/webp"
-                elif "gif" in header: bext, bmime = "gif", "image/gif"
-                if profile.banner_r2_url: delete_image(profile.banner_r2_url)
-                profile.banner_r2_url = upload_image(bdata, "banners", bext, bmime)
-                profile.banner_image = None
-            except Exception as e:
-                print(f"⚠️ R2 banner upload failed: {e}")
-                profile.banner_image = raw_banner
-        elif is_r2_url(raw_banner):
-            pass  # already an R2 URL, keep it
-        else:
-            profile.banner_image = raw_banner
-    elif data.get("clear_banner"):
-        if profile.banner_r2_url: delete_image(profile.banner_r2_url)
-        profile.banner_r2_url = None
-        profile.banner_image = None
-
-    # ── Background image ──
-    if data.get("bg_image"):
-        raw_bg = data["bg_image"]
-        if is_base64_data(raw_bg) and _r2_ok:
-            try:
-                import base64 as _b64
-                header, b64str = raw_bg.split(",", 1)
-                bgdata = _b64.b64decode(b64str)
-                bgext = "jpg"
-                bgmime = "image/jpeg"
-                if "png" in header: bgext, bgmime = "png", "image/png"
-                elif "webp" in header: bgext, bgmime = "webp", "image/webp"
-                elif "gif" in header: bgext, bgmime = "gif", "image/gif"
-                if profile.bg_r2_url: delete_image(profile.bg_r2_url)
-                profile.bg_r2_url = upload_image(bgdata, "backgrounds", bgext, bgmime)
-                profile.bg_image = None
-            except Exception as e:
-                print(f"⚠️ R2 bg upload failed: {e}")
-                profile.bg_image = raw_bg
-        elif is_r2_url(raw_bg):
-            pass  # already an R2 URL, keep it
-        else:
-            profile.bg_image = raw_bg
-    elif data.get("clear_bg_image"):
-        if profile.bg_r2_url: delete_image(profile.bg_r2_url)
-        profile.bg_r2_url = None
-        profile.bg_image = None
-    profile.bg_gradient = data.get("bg_gradient") or None
-    # Social icons — stored as JSON string
-    import json as _json
-    social_raw = data.get("social_links", [])
-    profile.social_links = _json.dumps(social_raw) if social_raw else None
-    # avatar_data is saved directly by the upload endpoint — don't overwrite with None here
-    from datetime import datetime as _dt
-    profile.updated_at = _dt.utcnow()
-
-    # Replace all links — cap at 20 to protect DB
-    raw_links = data.get("links", [])[:20]
-    db.query(LinkHubLink).filter(LinkHubLink.profile_id == profile.id).delete()
-    for idx, lk in enumerate(raw_links):
-        title = str(lk.get("title", "")).strip()[:200]
-        url   = str(lk.get("url", "")).strip()[:2000]
-        if not title or not url:
-            continue
-        # Enforce safe URL schemes only
-        if url.startswith(("javascript:", "data:", "vbscript:", "file:")):
-            continue  # silently skip dangerous URLs
-        if not url.startswith(("http://", "https://")):
-            url = "https://" + url
-        link = LinkHubLink(
-            profile_id  = profile.id,
-            user_id     = user.id,
-            title       = title,
-            url         = url,
-            icon        = str(lk.get("icon", "🔗"))[:10],
-            btn_style   = str(lk.get("btn_style", "filled")),
-            subtitle    = str(lk.get("subtitle", ""))[:200] or None,
-            font_size   = int(lk.get("font_size", 14)),
-            font_weight = str(lk.get("font_weight", "semibold")),
-            text_align  = str(lk.get("text_align", "center")),
-            btn_bg_color = str(lk.get("btn_bg_color", ""))[:20] or None,
-            btn_text_color = str(lk.get("btn_text_color", ""))[:20] or None,
-            thumbnail   = lk.get("thumbnail") or None,
-            is_active   = bool(lk.get("is_active", True)),
-            sort_order  = idx,
-            click_count = int(lk.get("click_count", 0)) if lk.get("id") else 0,
-        )
-        db.add(link)
+    try:
+        data = await request.json()
+    except Exception:
+        return JSONResponse({"ok": False, "error": "Invalid JSON"}, status_code=400)
 
     try:
-        db.commit()
-    except Exception as e:
-        db.rollback()
-        print(f"⚠️ LinkHub save DB error: {e}")
-        return JSONResponse({"ok": False, "error": f"Database error: {str(e)[:200]}"}, status_code=500)
-    capped = len(data.get("links", [])) > 20
-    return JSONResponse({"ok": True, "capped": capped, "saved_links": len(raw_links)})
+            # Upsert profile
+        profile = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
+        if not profile:
+            profile = LinkHubProfile(user_id=user.id)
+            db.add(profile)
+            db.flush()
+
+        import html as _html
+        profile.display_name  = _html.escape(data.get("display_name", "") or "")[:100]
+        profile.bio           = _html.escape(data.get("bio", "") or "")[:300]
+        profile.theme         = data.get("theme", "dark")
+        profile.font_family   = data.get("font_family", "DM Sans")[:50]
+        profile.accent_color  = data.get("accent_color", "#00d4ff")
+        profile.bg_color      = data.get("bg_color") or None
+        profile.btn_color     = data.get("btn_color") or None
+        profile.text_color    = data.get("text_color") or None
+        profile.is_published  = bool(data.get("is_published", True))
+        profile.soc_icon_shape = data.get("soc_icon_shape", "circle")
+        profile.follower_count = data.get("follower_count", "")[:50] or None
+        # Banner / bg image — upload to R2 if available, otherwise store base64
+        from app.r2_storage import r2_available, upload_image, delete_image, is_base64_data, is_r2_url
+        _r2_ok = r2_available()
+
+        # ── Banner image ──
+        if data.get("banner_image"):
+            raw_banner = data["banner_image"]
+            if is_base64_data(raw_banner) and _r2_ok:
+                try:
+                    import base64 as _b64
+                    header, b64str = raw_banner.split(",", 1)
+                    bdata = _b64.b64decode(b64str)
+                    bext = "jpg"
+                    bmime = "image/jpeg"
+                    if "png" in header: bext, bmime = "png", "image/png"
+                    elif "webp" in header: bext, bmime = "webp", "image/webp"
+                    elif "gif" in header: bext, bmime = "gif", "image/gif"
+                    if profile.banner_r2_url: delete_image(profile.banner_r2_url)
+                    profile.banner_r2_url = upload_image(bdata, "banners", bext, bmime)
+                    profile.banner_image = None
+                except Exception as e:
+                    print(f"⚠️ R2 banner upload failed: {e}")
+                    profile.banner_image = raw_banner
+            elif is_r2_url(raw_banner):
+                pass  # already an R2 URL, keep it
+            else:
+                profile.banner_image = raw_banner
+        elif data.get("clear_banner"):
+            if profile.banner_r2_url: delete_image(profile.banner_r2_url)
+            profile.banner_r2_url = None
+            profile.banner_image = None
+
+        # ── Background image ──
+        if data.get("bg_image"):
+            raw_bg = data["bg_image"]
+            if is_base64_data(raw_bg) and _r2_ok:
+                try:
+                    import base64 as _b64
+                    header, b64str = raw_bg.split(",", 1)
+                    bgdata = _b64.b64decode(b64str)
+                    bgext = "jpg"
+                    bgmime = "image/jpeg"
+                    if "png" in header: bgext, bgmime = "png", "image/png"
+                    elif "webp" in header: bgext, bgmime = "webp", "image/webp"
+                    elif "gif" in header: bgext, bgmime = "gif", "image/gif"
+                    if profile.bg_r2_url: delete_image(profile.bg_r2_url)
+                    profile.bg_r2_url = upload_image(bgdata, "backgrounds", bgext, bgmime)
+                    profile.bg_image = None
+                except Exception as e:
+                    print(f"⚠️ R2 bg upload failed: {e}")
+                    profile.bg_image = raw_bg
+            elif is_r2_url(raw_bg):
+                pass  # already an R2 URL, keep it
+            else:
+                profile.bg_image = raw_bg
+        elif data.get("clear_bg_image"):
+            if profile.bg_r2_url: delete_image(profile.bg_r2_url)
+            profile.bg_r2_url = None
+            profile.bg_image = None
+        profile.bg_gradient = data.get("bg_gradient") or None
+        # Social icons — stored as JSON string
+        import json as _json
+        social_raw = data.get("social_links", [])
+        profile.social_links = _json.dumps(social_raw) if social_raw else None
+        # avatar_data is saved directly by the upload endpoint — don't overwrite with None here
+        from datetime import datetime as _dt
+        profile.updated_at = _dt.utcnow()
+
+        # Replace all links — cap at 20 to protect DB
+        raw_links = data.get("links", [])[:20]
+        db.query(LinkHubLink).filter(LinkHubLink.profile_id == profile.id).delete()
+        for idx, lk in enumerate(raw_links):
+            title = str(lk.get("title", "")).strip()[:200]
+            url   = str(lk.get("url", "")).strip()[:2000]
+            if not title or not url:
+                continue
+            # Enforce safe URL schemes only
+            if url.startswith(("javascript:", "data:", "vbscript:", "file:")):
+                continue  # silently skip dangerous URLs
+            if not url.startswith(("http://", "https://")):
+                url = "https://" + url
+            link = LinkHubLink(
+                profile_id  = profile.id,
+                user_id     = user.id,
+                title       = title,
+                url         = url,
+                icon        = str(lk.get("icon", "🔗"))[:10],
+                btn_style   = str(lk.get("btn_style", "filled")),
+                subtitle    = str(lk.get("subtitle", ""))[:200] or None,
+                font_size   = int(lk.get("font_size", 14)),
+                font_weight = str(lk.get("font_weight", "semibold")),
+                text_align  = str(lk.get("text_align", "center")),
+                btn_bg_color = str(lk.get("btn_bg_color", ""))[:20] or None,
+                btn_text_color = str(lk.get("btn_text_color", ""))[:20] or None,
+                thumbnail   = lk.get("thumbnail") or None,
+                is_active   = bool(lk.get("is_active", True)),
+                sort_order  = idx,
+                click_count = int(lk.get("click_count", 0)) if lk.get("id") else 0,
+            )
+            db.add(link)
+
+        try:
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            import traceback
+            tb = traceback.format_exc()
+            print(f"⚠️ LinkHub save DB error: {e}\n{tb}")
+            return JSONResponse({"ok": False, "error": f"Database error: {str(e)[:300]}"}, status_code=500)
+            capped = len(data.get("links", [])) > 20
+            return JSONResponse({"ok": True, "capped": capped, "saved_links": len(raw_links)})
+    except Exception as ex:
+        try: db.rollback()
+        except: pass
+        import traceback
+        print(f"⚠️ LinkHub save error: {ex}\n{traceback.format_exc()}")
+        return JSONResponse({"ok": False, "error": str(ex)[:300]}, status_code=500)
 
 
 @app.post("/linkhub/upload-avatar")
