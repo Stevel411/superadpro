@@ -98,7 +98,17 @@ textarea.field-input{resize:vertical;min-height:64px}
 .soc-del{background:none;border:none;cursor:pointer;color:#cbd5e1;font-size:14px;padding:4px;transition:.12s}
 .soc-del:hover{color:#ef4444}
 .add-soc-row{display:flex;gap:8px;margin-top:10px;max-width:300px}
-.soc-select{flex:1;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:12.5px;background:#fff;outline:none;color:#1a1a2e}
+.soc-dropdown{position:relative;flex:1}
+.soc-dropdown-trigger{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;cursor:pointer;font-family:inherit;font-size:12.5px;color:#94a3b8;transition:.15s;user-select:none}
+.soc-dropdown-trigger:hover{border-color:#0ea5e9}
+.soc-dropdown-trigger svg{margin-left:auto;width:12px;height:12px;stroke:#94a3b8;fill:none;stroke-width:2;flex-shrink:0;transition:.2s}
+.soc-dropdown.open .soc-dropdown-trigger svg{transform:rotate(180deg)}
+.soc-dropdown-menu{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:80;display:none;overflow:hidden}
+.soc-dropdown.open .soc-dropdown-menu{display:block}
+.soc-dropdown-item{display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;transition:.1s;font-size:12.5px;font-weight:600;color:#1a1a2e}
+.soc-dropdown-item:hover{background:#f0f9ff}
+.soc-dropdown-item .soc-dd-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.soc-dropdown-item .soc-dd-icon svg{width:13px;height:13px;fill:#fff}
 .soc-shape-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
 .soc-shape-row .field-label{margin-bottom:0;margin-right:auto}
 
@@ -348,17 +358,13 @@ textarea.field-input{resize:vertical;min-height:64px}
               {% endfor %}
             </div>
             <div class="add-soc-row">
-              <select class="soc-select" id="soc-select" onchange="addSocial()">
-                <option value="">— Add platform —</option>
-                <option value="instagram">Instagram</option>
-                <option value="tiktok">TikTok</option>
-                <option value="youtube">YouTube</option>
-                <option value="x">X / Twitter</option>
-                <option value="facebook">Facebook</option>
-                <option value="telegram">Telegram</option>
-                <option value="linkedin">LinkedIn</option>
-                <option value="whatsapp">WhatsApp</option>
-              </select>
+              <div class="soc-dropdown" id="soc-dropdown">
+                <div class="soc-dropdown-trigger" onclick="document.getElementById('soc-dropdown').classList.toggle('open')">
+                  <span>— Add platform —</span>
+                  <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="soc-dropdown-menu" id="soc-dropdown-menu"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -865,15 +871,40 @@ function initDrag(card){
 document.querySelectorAll('.lcard').forEach(initDrag);
 
 /* ── Social ── */
-function addSocial(){
-  const sel=document.getElementById('soc-select'),p=sel.value;
-  if(!p){toast('Choose a platform first');return;}
+const SOC_PLATFORMS=[
+  {key:'instagram',name:'Instagram'},
+  {key:'tiktok',name:'TikTok'},
+  {key:'youtube',name:'YouTube'},
+  {key:'x',name:'X / Twitter'},
+  {key:'facebook',name:'Facebook'},
+  {key:'telegram',name:'Telegram'},
+  {key:'linkedin',name:'LinkedIn'},
+  {key:'whatsapp',name:'WhatsApp'}
+];
+function buildSocDropdown(){
+  const menu=document.getElementById('soc-dropdown-menu');
+  menu.innerHTML='';
+  SOC_PLATFORMS.forEach(pl=>{
+    const svg=(SOC_SVG_JS[pl.key]||'').replace('<svg ','<svg style="width:13px;height:13px" ');
+    const bg=SOC_BG_JS[pl.key]||'#64748b';
+    const d=document.createElement('div');d.className='soc-dropdown-item';
+    d.innerHTML=`<div class="soc-dd-icon" style="background:${bg}">${svg}</div><span>${pl.name}</span>`;
+    d.onclick=()=>addSocial(pl.key);
+    menu.appendChild(d);
+  });
+}
+function addSocial(p){
+  if(!p)return;
+  document.getElementById('soc-dropdown').classList.remove('open');
   const list=document.getElementById('social-list');
   const item=document.createElement('div');item.className='soc-item';
   const svg=(SOC_SVG_JS[p]||'').replace('<svg ','<svg style="width:13px;height:13px" ');
-  item.innerHTML=`<div class="soc-ic" style="background:${SOC_BG_JS[p]||'#64748b'};border-radius:50%">${svg}</div><span class="soc-nm">${p.charAt(0).toUpperCase()+p.slice(1)}</span><input class="soc-inp" type="url" placeholder="https://..." data-platform="${p}" oninput="pv()"><button class="soc-del" onclick="this.closest('.soc-item').remove();pv()">✕</button>`;
-  list.appendChild(item);sel.value='';item.querySelector('.soc-inp').focus();pv();
+  const label=SOC_PLATFORMS.find(x=>x.key===p)?.name||p;
+  item.innerHTML=`<div class="soc-ic" style="background:${SOC_BG_JS[p]||'#64748b'};border-radius:50%">${svg}</div><span class="soc-nm">${label}</span><input class="soc-inp" type="url" placeholder="https://..." data-platform="${p}" oninput="pv()"><button class="soc-del" onclick="this.closest('.soc-item').remove();pv()">✕</button>`;
+  list.appendChild(item);item.querySelector('.soc-inp').focus();pv();
 }
+// Close dropdown when clicking outside
+document.addEventListener('click',e=>{if(!e.target.closest('.soc-dropdown'))document.getElementById('soc-dropdown')?.classList.remove('open');});
 function collectSocial(){
   return[...document.querySelectorAll('#social-list .soc-item')].map(item=>{
     const inp=item.querySelector('.soc-inp');
@@ -947,7 +978,7 @@ function toast(msg){
 }
 
 /* ── Init ── */
-document.addEventListener('DOMContentLoaded',()=>pv());
+document.addEventListener('DOMContentLoaded',()=>{buildSocDropdown();pv();});
 </script>
 {% include "_tawk.html" %}
 </body>
