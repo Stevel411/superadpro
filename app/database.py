@@ -177,7 +177,38 @@ class Course(Base):
     tier            = Column(Integer, nullable=False)         # 1, 2, 3
     is_active       = Column(Boolean, default=True)
     sort_order      = Column(Integer, default=0)
+    thumbnail_url   = Column(String, nullable=True)
     created_at      = Column(DateTime, default=datetime.utcnow)
+
+class CourseChapter(Base):
+    """Chapters within a course."""
+    __tablename__ = "course_chapters"
+    id              = Column(Integer, primary_key=True, index=True)
+    course_id       = Column(Integer, ForeignKey("courses.id"), index=True)
+    title           = Column(String, nullable=False)
+    sort_order      = Column(Integer, default=0)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+
+class CourseLesson(Base):
+    """Individual video lessons within a chapter."""
+    __tablename__ = "course_lessons"
+    id              = Column(Integer, primary_key=True, index=True)
+    course_id       = Column(Integer, ForeignKey("courses.id"), index=True)
+    chapter_id      = Column(Integer, ForeignKey("course_chapters.id"), index=True)
+    title           = Column(String, nullable=False)
+    video_url       = Column(String, nullable=True)       # YouTube/Vimeo embed URL
+    duration_mins   = Column(Integer, default=0)
+    sort_order      = Column(Integer, default=0)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+
+class CourseProgress(Base):
+    """Tracks which lessons a user has completed."""
+    __tablename__ = "course_progress"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), index=True)
+    course_id       = Column(Integer, ForeignKey("courses.id"), index=True)
+    lesson_id       = Column(Integer, ForeignKey("course_lessons.id"), index=True)
+    completed_at    = Column(DateTime, default=datetime.utcnow)
 
 class CoursePurchase(Base):
     """Records every course purchase by a user."""
@@ -889,7 +920,27 @@ try:
         conn.execute(text("ALTER TABLE linkhub_clicks ADD COLUMN IF NOT EXISTS utm_medium VARCHAR"))
         conn.execute(text("ALTER TABLE linkhub_clicks ADD COLUMN IF NOT EXISTS utm_campaign VARCHAR"))
 
+        # ── Course learning system (2026-03-09) ──
+        conn.execute(text("ALTER TABLE courses ADD COLUMN IF NOT EXISTS thumbnail_url VARCHAR"))
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS course_chapters (
+            id SERIAL PRIMARY KEY, course_id INTEGER REFERENCES courses(id),
+            title VARCHAR NOT NULL, sort_order INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT NOW())"""))
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS course_lessons (
+            id SERIAL PRIMARY KEY, course_id INTEGER REFERENCES courses(id),
+            chapter_id INTEGER REFERENCES course_chapters(id),
+            title VARCHAR NOT NULL, video_url VARCHAR, duration_mins INTEGER DEFAULT 0,
+            sort_order INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW())"""))
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS course_progress (
+            id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id),
+            course_id INTEGER REFERENCES courses(id),
+            lesson_id INTEGER REFERENCES course_lessons(id),
+            completed_at TIMESTAMP DEFAULT NOW())"""))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_course_chapters_course ON course_chapters(course_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_course_lessons_chapter ON course_lessons(chapter_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_course_progress_user ON course_progress(user_id, course_id)"))
+
         conn.commit()
-        print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 + R2 columns confirmed")
+        print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 + R2 + courses confirmed")
 except Exception as e:
     print(f"⚠️ Force migration note: {e}")

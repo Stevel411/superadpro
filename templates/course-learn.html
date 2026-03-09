@@ -4,216 +4,274 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>{{ course.title }} — SuperAdPro Academy</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/mobile.css">
 <style>
-
-/* ═══ SHARED LAYOUT ═══ */
-.layout{display:flex;min-height:100vh}
-.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:rgba(56,189,248,0.2);border-radius:4px}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.nav-scroll{flex:1;overflow-y:auto;padding:8px 0}
-.nav-item{display:flex;align-items:center;gap:11px;padding:11px 16px;margin:2px 10px;border-radius:10px;font-size:14px;font-weight:500;color:rgba(188,213,240,0.65);text-decoration:none;transition:all 0.18s}
-.nav-item:hover{background:rgba(0,200,255,0.08);color:rgba(188,213,240,0.95)}
-.nav-item.active{background:linear-gradient(90deg,rgba(0,200,255,0.2),rgba(0,200,255,0.06));color:#fff;font-weight:700}
-.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
-.nav-divider{height:1px;background:rgba(255,255,255,0.06);margin:8px 16px}
-.nav-group{overflow:hidden}
-.nav-header{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;font-size:14px;font-weight:800;color:#00c8ff;cursor:pointer;user-select:none;text-shadow:0 0 12px rgba(0,200,255,0.35)}
-.nav-chevron{font-size:14px;transition:transform 0.2s}
-.nav-group.open .nav-chevron{transform:rotate(90deg)}
-.nav-group:not(.open) .nav-children{display:none}
-.nav-children .nav-item{font-size:14px}
-.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,200,255,0.05);border:1px solid rgba(0,200,255,0.1);border-radius:10px}
-.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
-.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}}
-
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#ffffff;color:#0f172a;min-height:100vh}
-a{text-decoration:none;color:inherit}
+:root{
+  --white:#ffffff;--cyan:#0ea5e9;--cyan-light:#e0f2fe;
+  --green:#16a34a;--green-light:#dcfce7;
+  --text:#1a1a2e;--text2:#475569;--muted:#94a3b8;
+  --border:#e5e7eb;--bg-light:#f0f2f7;
+  --navy:#1c223d;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12);
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:var(--text);height:100vh;overflow:hidden}
+.app{display:flex;height:100vh;overflow:hidden}
 
-/* ── Topbar ── */
-.topbar{position:sticky;top:0;z-index:50;background:#1c223d;border-bottom:1px solid rgba(0,200,255,0.1);padding:0 28px;height:72px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 0 rgba(0,200,255,0.15),0 4px 20px rgba(0,0,0,0.3)}
-.back-btn{display:flex;align-items:center;gap:8px;color:#7b91a8;font-size:14px;font-weight:600;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
-.back-btn:hover{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
-.topbar-centre{text-align:center}
-.topbar-title{font-family:Sora,sans-serif;font-size:19px;font-weight:800;color:#fff;letter-spacing:-0.2px}
-.topbar-sub{font-size:12px;color:rgba(0,200,255,0.45);margin-top:2px}
-.topbar-right{display:flex;align-items:center;gap:14px;justify-content:flex-end}
+/* ── DARK COURSE SIDEBAR ── */
+.course-nav{width:300px;height:100vh;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0;padding:0 12px;overflow:hidden}
+.cn-top{display:flex;align-items:center;gap:10px;padding:16px 8px;flex-shrink:0}
+.cn-top a{text-decoration:none}
+.cn-top-brand{font-family:Sora,sans-serif;font-size:15px;font-weight:800;color:#fff}
+.cn-top-sub{font-size:10.5px;color:rgba(186,230,253,0.35);margin-top:1px}
 
-.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:10px 16px;background:#1c223d;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:101}
-.mobile-topbar-left{display:flex;align-items:center;gap:10px;text-decoration:none}
-.mobile-topbar-name{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff}
+.cn-header{background:var(--white);border-radius:10px;padding:14px 16px;margin-bottom:8px;flex-shrink:0}
+.cn-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:2px}
+.cn-meta{font-size:11px;color:var(--muted);margin-bottom:10px}
+.cn-progress{display:flex;align-items:center;gap:10px}
+.cn-bar{flex:1;height:5px;background:var(--bg-light);border-radius:99px;overflow:hidden}
+.cn-bar-fill{height:100%;background:linear-gradient(90deg,var(--cyan),#38bdf8);border-radius:99px}
+.cn-bar-text{font-size:12px;font-weight:700;color:var(--cyan);white-space:nowrap}
 
-.container{max-width:900px;margin:0 auto;padding:28px 28px 80px}
+.cn-content{flex:1;background:var(--white);border-radius:10px;display:flex;flex-direction:column;overflow:hidden;min-height:0;margin-bottom:12px}
+.cn-content-title{padding:12px 16px 8px;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);flex-shrink:0}
+.cn-lessons{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#e2e8f0 transparent}
+.cn-lessons::-webkit-scrollbar{width:4px}
+.cn-lessons::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:4px}
 
-/* ── Success Banner (styled like hero-main) ── */
-.success-banner{background:linear-gradient(135deg,#059669 0%,#10b981 40%,#34d399 100%);border-radius:24px;padding:32px 40px;position:relative;overflow:hidden;margin-bottom:28px;text-align:center}
-.success-banner::before{content:'';position:absolute;top:-40%;right:-20%;width:350px;height:350px;border-radius:50%;background:rgba(255,255,255,0.06);filter:blur(60px)}
-.success-banner h2{font-family:Sora,sans-serif;font-size:24px;font-weight:800;color:#fff;margin-bottom:6px;position:relative;z-index:1}
-.success-banner p{color:rgba(255,255,255,0.8);font-size:15px;position:relative;z-index:1}
+.ch{border-bottom:1px solid var(--border)}.ch:last-child{border-bottom:none}
+.ch-head{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;cursor:pointer;user-select:none;transition:background 0.1s}
+.ch-head:hover{background:var(--bg-light)}
+.ch-left{display:flex;align-items:center;gap:9px}
+.ch-num{width:26px;height:26px;border-radius:7px;background:var(--bg-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--muted);flex-shrink:0}
+.ch-num.done{background:var(--green-light);color:var(--green)}
+.ch-num.active{background:var(--cyan-light);color:var(--cyan)}
+.ch-name{font-size:12.5px;font-weight:700;color:var(--text)}
+.ch-count{font-size:10px;color:var(--muted);margin-top:1px}
+.ch-chev{font-size:12px;color:var(--muted);transition:transform 0.2s;flex-shrink:0}
+.ch.open .ch-chev{transform:rotate(90deg)}
+.ch-body{display:none;padding-bottom:4px}.ch.open .ch-body{display:block}
 
-/* ── Course Header Card ── */
-.header-card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:20px;overflow:hidden;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12)}
-.header-card-head{display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-bottom:1px solid rgba(15,25,60,.07)}
-.header-card-title{font-size:17px;font-weight:700;display:flex;align-items:center;gap:10px}
-.header-card-title .dot{width:10px;height:10px;border-radius:50%}
-.dot.tier-1{background:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,0.15)}
-.dot.tier-2{background:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,0.15)}
-.dot.tier-3{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,0.15)}
-.badge-owned{font-size:11px;font-weight:700;color:#10b981;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);padding:4px 12px;border-radius:20px}
-.header-card-body{padding:28px}
-.header-card-body p{font-size:15px;color:#3d5068;line-height:1.7}
+.lr{display:flex;align-items:center;gap:9px;padding:8px 16px 8px 22px;cursor:pointer;transition:all 0.1s;position:relative;text-decoration:none}
+.lr:hover{background:var(--bg-light)}
+.lr.active{background:rgba(14,165,233,0.05)}
+.lr.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--cyan);border-radius:0 3px 3px 0}
+.lr-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lr-check.done{background:var(--green);border-color:var(--green)}
+.lr-check.now{border-color:var(--cyan);background:rgba(14,165,233,0.08)}
+.lr-info{flex:1;min-width:0}
+.lr-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lr.active .lr-name{color:var(--cyan);font-weight:700}
+.lr-dur{font-size:10px;color:var(--muted);margin-top:1px}
+.lr-now{font-size:9px;font-weight:700;color:var(--cyan);margin-top:1px;display:none}
+.lr.active .lr-now{display:block}.lr.active .lr-dur{display:none}
 
-/* ── Module Cards (styled like grid cards) ── */
-.section-label{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#38bdf8;text-align:center;margin:28px 0 16px}
-.module-card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:20px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12);transition:all 0.2s}
-.module-card:hover{box-shadow:0 2px 6px rgba(15,25,60,.07),0 8px 28px rgba(15,25,60,.11)}
-.module-head{display:flex;align-items:center;gap:14px;padding:18px 24px;cursor:pointer;user-select:none}
-.module-num{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;flex-shrink:0}
-.module-num.tier-1{background:linear-gradient(135deg,#0ea5e9,#38bdf8)}
-.module-num.tier-2{background:linear-gradient(135deg,#7c3aed,#a78bfa)}
-.module-num.tier-3{background:linear-gradient(135deg,#f59e0b,#fbbf24)}
-.module-title{font-size:15px;font-weight:700;flex:1}
-.module-status{font-size:12px;color:#94a3b8;font-weight:600}
-.module-arrow{color:#94a3b8;transition:transform 0.2s;font-size:14px}
-.module-card.open .module-arrow{transform:rotate(180deg)}
-.module-body{display:none;padding:0 24px 18px 74px;font-size:14px;color:#3d5068;line-height:1.7}
-.module-card.open .module-body{display:block}
-.module-body .coming{color:#0ea5e9;font-weight:600;font-size:13px;margin-top:10px}
+/* ── WHITE VIDEO AREA ── */
+.video-main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--white)}
 
-/* ── Coming Soon Card ── */
-.coming-card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:20px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12);text-align:center;padding:48px 28px;margin-top:24px}
-.coming-card .icon{font-size:48px;margin-bottom:16px}
-.coming-card h3{font-family:Sora,sans-serif;font-size:22px;font-weight:800;margin-bottom:10px}
-.coming-card p{font-size:15px;color:#3d5068;max-width:480px;margin:0 auto;line-height:1.6}
+.vtop{height:52px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 40px;flex-shrink:0}
+.vtop-chapter{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(56,189,248,0.45)}
+.vtop-title{font-size:14px;font-weight:700;color:rgba(255,255,255,0.85);margin-top:1px}
+.vtop-meta{font-size:11.5px;color:rgba(200,220,255,0.3)}
 
-.footer{text-align:center;padding:24px;color:#94a3b8;font-size:12px;border-top:1px solid rgba(15,25,60,.08);margin-top:24px}
+.video-padded{flex:1;padding:32px 40px 0;display:flex;flex-direction:column;min-height:0;background:var(--white)}
+.video-card{flex:1;border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;min-height:0;background:#000}
+.video-frame{flex:1;position:relative;min-height:0}
+.video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+.video-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#0b1729,#132240,#0e1c30)}
+.play-btn{width:72px;height:72px;border-radius:50%;background:rgba(14,165,233,0.8);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.25s;box-shadow:0 0 40px rgba(14,165,233,0.3)}
+.play-btn:hover{transform:scale(1.1);background:var(--cyan)}
+.play-btn svg{margin-left:4px}
+.video-progress{height:4px;background:rgba(255,255,255,0.06);flex-shrink:0}
+.video-progress-fill{height:100%;background:linear-gradient(90deg,var(--cyan),#38bdf8);width:0%;transition:width 0.3s}
 
-@media(max-width:640px){
-  .topbar{display:none}.mobile-topbar{display:flex!important}
-  .container{padding:20px 16px 60px}
-  .header-card-head{flex-wrap:wrap;gap:10px}
-  .module-head{padding:14px 18px;gap:10px}
-  .module-body{padding:0 18px 14px 62px}
+.video-bottom{padding:20px 40px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--white)}
+.vb-left{display:flex;align-items:center;gap:10px}
+.vb-right{display:flex;align-items:center;gap:16px}
+.vb-stats{display:flex;align-items:center;gap:14px;padding:8px 16px;background:var(--bg-light);border:1px solid var(--border);border-radius:10px}
+.vb-ring{width:34px;height:34px;position:relative;flex-shrink:0}
+.vb-ring svg{transform:rotate(-90deg)}
+.vb-ring-bg{fill:none;stroke:var(--bg-light);stroke-width:4}
+.vb-ring-fill{fill:none;stroke:var(--cyan);stroke-width:4;stroke-linecap:round}
+.vb-ring-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;font-size:9px;font-weight:800;color:var(--text)}
+.vb-stat{text-align:center}
+.vb-stat-val{font-family:Sora,sans-serif;font-size:14px;font-weight:800;color:var(--text);line-height:1}
+.vb-stat-lbl{font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+
+.btn{display:flex;align-items:center;gap:7px;padding:11px 22px;border-radius:10px;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.btn-cyan{background:var(--cyan);color:#fff;box-shadow:0 2px 10px rgba(14,165,233,0.25)}
+.btn-cyan:hover{background:#0284c7;transform:translateY(-1px)}
+.btn-ghost{background:var(--white);color:var(--text2);border:1px solid var(--border);padding:10px 18px;font-size:12.5px}
+.btn-ghost:hover{background:var(--bg-light)}
+.btn-green{background:var(--green);color:#fff;box-shadow:0 2px 10px rgba(22,163,74,0.25)}
+.btn-green:hover{background:#15803d;transform:translateY(-1px)}
+.btn-green.completed{background:var(--green-light);color:var(--green);box-shadow:none}
+
+@media(max-width:900px){.course-nav{width:260px}}
+@media(max-width:768px){
+  .course-nav{display:none}
+  .video-main{width:100%}
+  .vtop{padding:0 16px;height:44px}
+  .video-padded{padding:16px}
+  .video-bottom{padding:12px 16px;flex-wrap:wrap;gap:10px}
 }
 </style>
 </head>
 <body>
+<div class="app">
 
-<div class="layout">
-  {% include "_sidebar.html" %}
-  <div class="main">
-
-
-<div class="mobile-topbar">
-  <a class="mobile-topbar-left" href="/courses">
-    <span class="mobile-topbar-name">← Back to Courses</span>
-  </a>
-</div>
-
-<div class="topbar">
-  <a href="/courses" class="back-btn">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-    Courses
-  </a>
-  <div><div class="topbar-title">📚 {{ course.title }}</div>
-    <div class="topbar-sub">Tier {{ course.tier }} · ${{ '%.0f'|format(course.price) }}</div>
-  </div>
-  <div class="topbar-right">
-    <a href="/courses/commissions" class="back-btn">💰 Commissions</a>
-    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-      <span style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff">SuperAd<span style="color:#38bdf8">Pro</span></span>
+<!-- ── DARK COURSE SIDEBAR ── -->
+<div class="course-nav">
+  <div class="cn-top">
+    <svg width="28" height="28" viewBox="0 0 100 100"><defs><linearGradient id="sg" x1="0" y1="0" x2="100" y2="100"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs><circle cx="50" cy="50" r="48" fill="url(#sg)"/><path d="M38 28l34 22-34 22V28z" fill="#fff"/></svg>
+    <a href="/dashboard">
+      <div class="cn-top-brand">SuperAdPro</div>
+      <div class="cn-top-sub">← Back to Dashboard</div>
     </a>
   </div>
-</div>
 
-<div class="container">
-
-  {% if just_purchased %}
-  <div class="success-banner">
-    <h2>🎉 Purchase Complete!</h2>
-    <p>You now own {{ course.title }}. Your commission earning ability is active at Tier {{ course.tier }}.</p>
+  <div class="cn-header">
+    <div class="cn-title">{{ course.title }}</div>
+    <div class="cn-meta">{{ total_lessons }} lessons · {{ total_mins }}m</div>
+    <div class="cn-progress">
+      <div class="cn-bar"><div class="cn-bar-fill" style="width:{{ ((completed_count / [total_lessons,1]|max) * 100)|round|int }}%"></div></div>
+      <div class="cn-bar-text">{{ completed_count }}/{{ total_lessons }}</div>
+    </div>
   </div>
-  {% endif %}
 
-  <!-- ── Course Header Card ── -->
-  <div class="header-card">
-    <div class="header-card-head">
-      <div class="header-card-title">
-        <div class="dot tier-{{ course.tier }}"></div>
-        Tier {{ course.tier }} · {{ course.title }}
+  <div class="cn-content">
+    <div class="cn-content-title">Course Content</div>
+    <div class="cn-lessons">
+      {% for chapter in chapters %}
+      {% set ch_lessons = chapter_lessons.get(chapter.id, []) %}
+      {% set ch_done = ch_lessons|selectattr('id','in',completed_ids)|list|length %}
+      {% set ch_all_done = ch_done == ch_lessons|length and ch_lessons|length > 0 %}
+      {% set ch_is_active = current_lesson and current_lesson.chapter_id == chapter.id %}
+      <div class="ch{% if ch_is_active or loop.index <= 2 %} open{% endif %}">
+        <div class="ch-head" onclick="this.parentElement.classList.toggle('open')">
+          <div class="ch-left">
+            <div class="ch-num{% if ch_all_done %} done{% elif ch_is_active %} active{% endif %}">
+              {% if ch_all_done %}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>{% else %}{{ loop.index }}{% endif %}
+            </div>
+            <div>
+              <div class="ch-name">{{ chapter.title }}</div>
+              <div class="ch-count">{{ ch_lessons|length }} lesson{{ 's' if ch_lessons|length != 1 }} · {{ ch_lessons|sum(attribute='duration_mins') }}m</div>
+            </div>
+          </div>
+          <span class="ch-chev">›</span>
+        </div>
+        <div class="ch-body">
+          {% for lesson in ch_lessons %}
+          {% set is_done = lesson.id in completed_ids %}
+          {% set is_current = current_lesson and lesson.id == current_lesson.id %}
+          <a class="lr{% if is_current %} active{% endif %}" href="/courses/learn/{{ course.id }}?lesson={{ lesson.id }}">
+            <div class="lr-check{% if is_done %} done{% elif is_current %} now{% endif %}">
+              {% if is_done %}<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              {% elif is_current %}<div style="width:7px;height:7px;border-radius:50%;background:var(--cyan)"></div>{% endif %}
+            </div>
+            <div class="lr-info">
+              <div class="lr-name">{{ lesson.title }}</div>
+              <div class="lr-dur">{{ lesson.duration_mins }} min</div>
+              <div class="lr-now">▶ Now Playing</div>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
       </div>
-      <span class="badge-owned">✓ OWNED</span>
+      {% endfor %}
     </div>
-    <div class="header-card-body">
-      <p>{{ course.description }}</p>
+  </div>
+</div>
+
+<!-- ── WHITE VIDEO AREA ── -->
+<div class="video-main">
+  <div class="vtop">
+    <div>
+      {% if current_lesson %}
+      {% for ch in chapters %}{% if ch.id == current_lesson.chapter_id %}<div class="vtop-chapter">Chapter {{ loop.index }} — {{ ch.title }}</div>{% endif %}{% endfor %}
+      <div class="vtop-title">{{ current_lesson.title }}</div>
+      {% else %}
+      <div class="vtop-title">{{ course.title }}</div>
+      {% endif %}
+    </div>
+    <div class="vtop-meta">{% if current_lesson %}{{ current_lesson.duration_mins }} min{% endif %}</div>
+  </div>
+
+  <div class="video-padded">
+    <div class="video-card">
+      <div class="video-frame">
+        {% if current_lesson and current_lesson.video_url %}
+        <iframe id="videoFrame" src="{{ current_lesson.video_url }}{% if '?' in current_lesson.video_url %}&{% else %}?{% endif %}autoplay=0&modestbranding=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        {% else %}
+        <div class="video-placeholder">
+          <div class="play-btn"><svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><polygon points="6 3 20 12 6 21"/></svg></div>
+        </div>
+        {% endif %}
+      </div>
+      <div class="video-progress"><div class="video-progress-fill" id="progressFill"></div></div>
     </div>
   </div>
 
-  <!-- ── Module List ── -->
-  <div class="section-label">Course Modules</div>
-
-  {% if course.tier == 1 %}
-    {% set modules = [
-      ("Introduction to Digital Advertising", "Understanding the landscape, key platforms, and how money flows in digital advertising."),
-      ("Affiliate Marketing Foundations", "How affiliate programs work, choosing the right offers, and tracking your results."),
-      ("Traffic Generation Basics", "Free and paid traffic sources — where to find your audience and how to drive clicks."),
-      ("Social Media Ad Strategies", "Running effective campaigns on Facebook, Instagram, TikTok and YouTube."),
-      ("Email Marketing Essentials", "Building your list, writing sequences that convert, and automation fundamentals.")
-    ] %}
-  {% elif course.tier == 2 %}
-    {% set modules = [
-      ("Advanced Funnel Architecture", "Multi-step funnels, tripwire offers, and maximising customer lifetime value."),
-      ("Conversion Rate Optimisation", "A/B testing, heatmaps, copy tweaks and design changes that double your conversions."),
-      ("Paid Traffic Mastery", "Scaling campaigns profitably across multiple platforms with proper budget allocation."),
-      ("Retargeting & Audience Building", "Pixel strategies, lookalike audiences, and warming cold traffic."),
-      ("Split Testing Frameworks", "Scientific testing methodology — what to test, how to measure, and when to scale."),
-      ("Analytics & Data-Driven Decisions", "Reading your numbers, attribution models, and making decisions based on data not feelings.")
-    ] %}
-  {% elif course.tier == 3 %}
-    {% set modules = [
-      ("High-Ticket Sales System", "Selling premium offers with confidence — scripts, objection handling, and closing techniques."),
-      ("Team Building & Leadership", "Recruiting, training and retaining a high-performing affiliate team."),
-      ("Scaling to Six Figures", "The systems, delegation, and mindset shifts needed to break through income plateaus."),
-      ("Automation & Systems", "Putting your business on autopilot — tools, workflows, and SOPs that run without you."),
-      ("Advanced Strategy Templates", "Done-for-you templates for campaigns, funnels, emails and ad creatives."),
-      ("Business-in-a-Box Masterclass", "Your complete playbook for building a sustainable, scalable online business.")
-    ] %}
-  {% endif %}
-
-  {% for title, desc in modules %}
-  <div class="module-card" onclick="this.classList.toggle('open')">
-    <div class="module-head">
-      <div class="module-num tier-{{ course.tier }}">{{ loop.index }}</div>
-      <div class="module-title">{{ title }}</div>
-      <span class="module-status">Coming Soon</span>
-      <span class="module-arrow">▾</span>
+  <div class="video-bottom">
+    <div class="vb-left">
+      {% if current_lesson %}
+      {% set lesson_list = lessons %}
+      {% set cur_idx = namespace(val=0) %}
+      {% for l in lesson_list %}{% if l.id == current_lesson.id %}{% set cur_idx.val = loop.index0 %}{% endif %}{% endfor %}
+      {% if cur_idx.val < lesson_list|length - 1 %}
+      <a class="btn btn-cyan" href="/courses/learn/{{ course.id }}?lesson={{ lesson_list[cur_idx.val + 1].id }}">Next Lesson <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+      {% endif %}
+      {% if cur_idx.val > 0 %}
+      <a class="btn btn-ghost" href="/courses/learn/{{ course.id }}?lesson={{ lesson_list[cur_idx.val - 1].id }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Previous</a>
+      {% endif %}
+      {% endif %}
     </div>
-    <div class="module-body">
-      <p>{{ desc }}</p>
-      <p class="coming">🎬 Video content is being produced and will be available soon.</p>
+    <div class="vb-right">
+      {% if current_lesson %}
+      <button class="btn btn-green{% if current_lesson.id in completed_ids %} completed{% endif %}" id="markBtn" onclick="markComplete({{ current_lesson.id }})">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="markText">{% if current_lesson.id in completed_ids %}Completed{% else %}Mark Complete{% endif %}</span>
+      </button>
+      {% endif %}
+      <div class="vb-stats">
+        {% set pct = ((completed_count / [total_lessons,1]|max) * 100)|round|int %}
+        <div class="vb-ring">
+          <svg width="34" height="34" viewBox="0 0 34 34"><circle class="vb-ring-bg" cx="17" cy="17" r="13"/><circle class="vb-ring-fill" cx="17" cy="17" r="13" stroke-dasharray="81.7" stroke-dashoffset="{{ 81.7 - (81.7 * pct / 100) }}"/></svg>
+          <div class="vb-ring-text">{{ pct }}%</div>
+        </div>
+        <div class="vb-stat"><div class="vb-stat-val" id="doneCount">{{ completed_count }}</div><div class="vb-stat-lbl">Done</div></div>
+        <div class="vb-stat"><div class="vb-stat-val" id="leftCount">{{ total_lessons - completed_count }}</div><div class="vb-stat-lbl">Left</div></div>
+        <div class="vb-stat"><div class="vb-stat-val">{{ remaining_mins }}m</div><div class="vb-stat-lbl">Remaining</div></div>
+      </div>
     </div>
   </div>
-  {% endfor %}
-
-  <!-- ── Coming Soon ── -->
-  <div class="coming-card">
-    <div class="icon">🎬</div>
-    <h3>Course Content Coming Soon</h3>
-    <p>Video modules are in production. You'll be notified when new content drops. In the meantime, your Tier {{ course.tier }} commission earning ability is fully active — start sharing your referral link!</p>
-  </div>
+</div>
 
 </div>
 
-<div class="footer">
-  © 2026 SuperAdPro. All rights reserved. · <a href="/">superadpro.com</a>
-</div>
-
-  </div><!-- /main -->
-</div><!-- /layout -->
-{% include "_tawk.html" %}
+<script>
+async function markComplete(lessonId) {
+  var btn = document.getElementById('markBtn');
+  var txt = document.getElementById('markText');
+  try {
+    var r = await fetch('/api/courses/lesson-complete/' + lessonId, {method:'POST'});
+    var d = await r.json();
+    if (d.success) {
+      if (d.action === 'completed') {
+        btn.classList.add('completed');
+        txt.textContent = 'Completed';
+      } else {
+        btn.classList.remove('completed');
+        txt.textContent = 'Mark Complete';
+      }
+      document.getElementById('doneCount').textContent = d.completed;
+      document.getElementById('leftCount').textContent = d.total - d.completed;
+      // Reload to update sidebar checkmarks
+      setTimeout(function(){ location.reload(); }, 600);
+    }
+  } catch(e) { console.error(e); }
+}
+</script>
 </body>
 </html>

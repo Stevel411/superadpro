@@ -20,7 +20,7 @@ from .database import (
     DIRECT_PCT, UNILEVEL_PCT, PER_LEVEL_PCT, PLATFORM_PCT,
     OWNER_PCT, UPLINE_PCT, LEVEL_PCT, COMPANY_PCT
 )
-from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker
+from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker, CourseChapter, CourseLesson, CourseProgress
 from .database import AdBoost, BOOST_TIERS, BOOST_SPONSOR_PCT, BOOST_COMPANY_PCT
 from .coinbase_commerce import create_charge as cb_create_charge, verify_webhook_signature as cb_verify_sig, parse_webhook_event as cb_parse_event, SANDBOX_MODE as CB_SANDBOX
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick
@@ -6741,8 +6741,8 @@ async def purchase_course(course_id: int, request: Request, db: Session = Depend
 
 
 @app.get("/courses/learn/{course_id}")
-async def course_learn(course_id: int, request: Request, purchased: int = 0, db: Session = Depends(get_db)):
-    """Course content/learning page (only accessible if purchased)."""
+async def course_learn(course_id: int, request: Request, lesson: int = 0, purchased: int = 0, db: Session = Depends(get_db)):
+    """Course player page with chapters, lessons, and progress tracking."""
     user = get_current_user(request, db)
     if not user:
         return RedirectResponse("/login?next=/courses", status_code=303)
@@ -6761,11 +6761,61 @@ async def course_learn(course_id: int, request: Request, purchased: int = 0, db:
     if not purchase:
         return RedirectResponse("/courses", status_code=303)
 
+    # Load chapters and lessons
+    chapters = db.query(CourseChapter).filter(
+        CourseChapter.course_id == course_id
+    ).order_by(CourseChapter.sort_order).all()
+
+    lessons = db.query(CourseLesson).filter(
+        CourseLesson.course_id == course_id
+    ).order_by(CourseLesson.sort_order).all()
+
+    # Build chapter -> lessons mapping
+    chapter_lessons = {}
+    for ch in chapters:
+        chapter_lessons[ch.id] = [l for l in lessons if l.chapter_id == ch.id]
+
+    # Get completed lesson IDs
+    completed = db.query(CourseProgress.lesson_id).filter(
+        CourseProgress.user_id == user.id,
+        CourseProgress.course_id == course_id
+    ).all()
+    completed_ids = {c[0] for c in completed}
+
+    # Current lesson
+    total_lessons = len(lessons)
+    current_lesson = None
+    if lesson and lesson > 0:
+        current_lesson = db.query(CourseLesson).filter(CourseLesson.id == lesson).first()
+    if not current_lesson and lessons:
+        # Find first incomplete lesson
+        for l in lessons:
+            if l.id not in completed_ids:
+                current_lesson = l
+                break
+        if not current_lesson:
+            current_lesson = lessons[0]  # All complete, show first
+
+    # Total duration
+    total_mins = sum(l.duration_mins or 0 for l in lessons)
+    completed_count = len(completed_ids)
+    remaining_mins = sum((l.duration_mins or 0) for l in lessons if l.id not in completed_ids)
+
     return templates.TemplateResponse("course-learn.html", {
         "request": request,
         "user": user,
         "course": course,
-        "just_purchased": purchased == 1
+        "chapters": chapters,
+        "chapter_lessons": chapter_lessons,
+        "lessons": lessons,
+        "completed_ids": completed_ids,
+        "current_lesson": current_lesson,
+        "total_lessons": total_lessons,
+        "total_mins": total_mins,
+        "completed_count": completed_count,
+        "remaining_mins": remaining_mins,
+        "just_purchased": purchased == 1,
+        "active_page": "courses"
     })
 
 
@@ -6838,6 +6888,50 @@ async def api_course_stats(request: Request, db: Session = Depends(get_db)):
 
     stats = get_user_course_stats(db, user.id)
     return JSONResponse(stats)
+
+
+@app.post("/api/courses/lesson-complete/{lesson_id}")
+async def api_lesson_complete(lesson_id: int, request: Request, db: Session = Depends(get_db)):
+    """Mark a lesson as complete (or uncomplete if already done)."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"success": False, "error": "Not authenticated"}, status_code=401)
+
+    lesson = db.query(CourseLesson).filter(CourseLesson.id == lesson_id).first()
+    if not lesson:
+        return JSONResponse({"success": False, "error": "Lesson not found"}, status_code=404)
+
+    # Check user owns this course
+    purchase = db.query(CoursePurchase).filter(
+        CoursePurchase.user_id == user.id,
+        CoursePurchase.course_id == lesson.course_id
+    ).first()
+    if not purchase:
+        return JSONResponse({"success": False, "error": "Course not purchased"}, status_code=403)
+
+    existing = db.query(CourseProgress).filter(
+        CourseProgress.user_id == user.id,
+        CourseProgress.lesson_id == lesson_id
+    ).first()
+
+    if existing:
+        db.delete(existing)
+        db.commit()
+        action = "uncompleted"
+    else:
+        progress = CourseProgress(user_id=user.id, course_id=lesson.course_id, lesson_id=lesson_id)
+        db.add(progress)
+        db.commit()
+        action = "completed"
+
+    # Return updated stats
+    completed = db.query(CourseProgress).filter(
+        CourseProgress.user_id == user.id,
+        CourseProgress.course_id == lesson.course_id
+    ).count()
+    total = db.query(CourseLesson).filter(CourseLesson.course_id == lesson.course_id).count()
+
+    return JSONResponse({"success": True, "action": action, "completed": completed, "total": total})
 
 @app.get("/page-builder-v2")
 async def page_builder_v2(request: Request):
