@@ -655,14 +655,16 @@ function toggleSec(id){document.getElementById(id).classList.toggle('collapsed')
 /* ── Preview ── */
 function pv(){clearTimeout(pvT);pvT=setTimeout(_pv,90)}
 function _pv(){
-  const theme=document.getElementById('theme-val').value||'dark';
-  const font=document.getElementById('font-val').value||'DM Sans';
-  const shape=document.getElementById('soc-shape-val').value||'circle';
+  try{
+  const theme=(document.getElementById('theme-val')||{}).value||'dark';
+  const font=(document.getElementById('font-val')||{}).value||'DM Sans';
+  const shape=(document.getElementById('soc-shape-val')||{}).value||'circle';
   const shR=shape==='circle'?'50%':shape==='pill'?'999px':'7px';
-  const overlay=parseInt(document.getElementById('bg-overlay').value)||60;
-  const name=(document.getElementById('display-name')||{value:''}).value||'{{ current_user.username }}';
-  const bio=(document.getElementById('bio')||{value:''}).value;
-  const followers=(document.getElementById('follower-count')||{value:''}).value;
+  const overlayEl=document.getElementById('bg-overlay');
+  const overlay=overlayEl?parseInt(overlayEl.value):60;
+  const name=(document.getElementById('display-name')||{}).value||'{{ current_user.username }}';
+  const bio=(document.getElementById('bio')||{}).value||'';
+  const followers=(document.getElementById('follower-count')||{}).value||'';
 
   const avEl=document.querySelector('#av-circle img');
   const avSrc=previewAvatar||(avEl?avEl.src:'');
@@ -712,10 +714,12 @@ function _pv(){
 
   const scrollEl=document.querySelector('.ph-scroll');
   const screenEl=document.querySelector('.iphone-screen');
+  const phInner=document.getElementById('ph-inner');
   if(scrollEl)scrollEl.style.background=bgImageData?'':C.bg;
   if(screenEl)screenEl.style.background=bgImageData?'#000':C.bg;
+  if(!phInner)return;
 
-  document.getElementById('ph-inner').innerHTML=`
+  phInner.innerHTML=`
     <div style="${bodyStyle};width:100%;flex:1;min-height:100%;position:relative;display:flex;flex-direction:column;align-items:center;padding-bottom:24px;font-family:'${font}',sans-serif">
       ${ovDiv}
       <div style="position:relative;z-index:1;width:100%;display:flex;flex-direction:column;align-items:center">
@@ -732,6 +736,7 @@ function _pv(){
         <div style="margin-top:12px;font-size:8px;color:rgba(255,255,255,.18);font-weight:600">⚡ Powered by <span style="color:#38bdf8">SuperAdPro</span></div>
       </div>
     </div>`;
+  }catch(err){console.error('Preview error:',err);}
 }
 
 /* ── Colour controls ── */
@@ -993,7 +998,15 @@ function toast(msg){
 }
 
 /* ── Init ── */
-document.addEventListener('DOMContentLoaded',()=>{buildSocDropdown();pv();});
+document.addEventListener('DOMContentLoaded',()=>{
+  buildSocDropdown();
+  // Force initial preview render
+  try{_pv();}catch(e){
+    console.error('Initial preview error:',e);
+    const ph=document.getElementById('ph-inner');
+    if(ph)ph.innerHTML='<div style="color:#fff;padding:20px;text-align:center;font-size:11px">Preview loading…</div>';
+  }
+});
 </script>
 {% include "_tawk.html" %}
 </body>
