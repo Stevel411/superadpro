@@ -7372,12 +7372,15 @@ def linkhub_editor(request: Request, db: Session = Depends(get_db)):
     total_clicks = 0
     click_30d = 0
     device_stats = {"mobile": 0, "desktop": 0, "tablet": 0}
+    country_stats = {}
+    source_stats = {}
+    browser_stats = {}
     if profile:
         links = db.query(LinkHubLink).filter(
             LinkHubLink.profile_id == profile.id
         ).order_by(LinkHubLink.sort_order).all()
         total_clicks = sum(l.click_count for l in links)
-        # Last 30 days clicks + device breakdown
+        # Last 30 days clicks + full breakdown
         from datetime import timedelta
         cutoff = datetime.utcnow() - timedelta(days=30)
         recent_clicks = db.query(LinkHubClick).filter(
@@ -7387,6 +7390,12 @@ def linkhub_editor(request: Request, db: Session = Depends(get_db)):
         click_30d = len(recent_clicks)
         for c in recent_clicks:
             device_stats[c.device or "desktop"] = device_stats.get(c.device or "desktop", 0) + 1
+            if c.country_name:
+                country_stats[c.country_name] = country_stats.get(c.country_name, 0) + 1
+            if c.source:
+                source_stats[c.source] = source_stats.get(c.source, 0) + 1
+            if c.browser:
+                browser_stats[c.browser] = browser_stats.get(c.browser, 0) + 1
 
     # Social links
     social_links = []
@@ -7404,6 +7413,9 @@ def linkhub_editor(request: Request, db: Session = Depends(get_db)):
         "total_clicks": total_clicks,
         "click_30d": click_30d,
         "device_stats": device_stats,
+        "country_stats": country_stats,
+        "source_stats": source_stats,
+        "browser_stats": browser_stats,
         "social_links": social_links,
         "active_page": "linkhub"
     })
@@ -7617,29 +7629,89 @@ async def linkhub_upload_avatar(request: Request, file: UploadFile = File(...), 
 @app.get("/linkhub/click/{link_id}")
 @limiter.limit("30/minute")
 def linkhub_track_click(link_id: int, request: Request, db: Session = Depends(get_db)):
-    """Track a link click then redirect."""
+    """Track a link click then redirect — full geo, device, browser, source & UTM tracking."""
     link = db.query(LinkHubLink).filter(LinkHubLink.id == link_id, LinkHubLink.is_active == True).first()
     if not link:
         return RedirectResponse("/", status_code=302)
 
     # Record click — deduplicate same IP on same link within 1 hour
-    ua = request.headers.get("user-agent", "").lower()
+    ua = (request.headers.get("user-agent", "") or "").lower()
     _cbots = ("googlebot","bingbot","slurp","curl","python-requests","wget","scrapy","headlesschrome")
     if not any(b in ua for b in _cbots):
-        client_ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "").split(",")[0].strip()
+        client_ip = (request.headers.get("cf-connecting-ip") or
+                     request.headers.get("x-forwarded-for", "").split(",")[0].strip() or
+                     (request.client.host if request.client else ""))
         one_hour_ago = datetime.utcnow() - timedelta(hours=1)
         recent = db.query(LinkHubClick).filter(
             LinkHubClick.link_id == link.id,
-            LinkHubClick.referrer == client_ip,  # reuse referrer col to store IP temporarily
+            LinkHubClick.referrer == client_ip,
             LinkHubClick.clicked_at >= one_hour_ago
         ).first()
         if not recent:
+            # ── Device detection ──
             device = "mobile" if any(x in ua for x in ("mobile","android","iphone")) else "tablet" if "tablet" in ua or "ipad" in ua else "desktop"
+
+            # ── Browser detection ──
+            if "edg" in ua:
+                browser = "edge"
+            elif "chrome" in ua and "chromium" not in ua:
+                browser = "chrome"
+            elif "firefox" in ua:
+                browser = "firefox"
+            elif "safari" in ua and "chrome" not in ua:
+                browser = "safari"
+            else:
+                browser = "other"
+
+            # ── Source from referrer ──
+            referrer_url = request.headers.get("referer", "") or ""
+            ref_lower = referrer_url.lower()
+            source = "direct"
+            for domain, label in [
+                ("facebook.com","facebook"),("fb.com","facebook"),("instagram.com","instagram"),
+                ("twitter.com","x"),("x.com","x"),("linkedin.com","linkedin"),("reddit.com","reddit"),
+                ("tiktok.com","tiktok"),("youtube.com","youtube"),("google.com","google"),("bing.com","bing"),
+                ("pinterest.com","pinterest"),("t.co","x"),("whatsapp.com","whatsapp"),("wa.me","whatsapp"),
+            ]:
+                if domain in ref_lower:
+                    source = label
+                    break
+            else:
+                if referrer_url and "superadpro" not in ref_lower:
+                    source = "other"
+
+            # ── UTM params ──
+            qs = request.query_params
+            utm_source   = qs.get("utm_source",   None)
+            utm_medium   = qs.get("utm_medium",   None)
+            utm_campaign = qs.get("utm_campaign", None)
+            if utm_source and source == "direct":
+                source = utm_source.lower()
+
+            # ── GeoIP lookup ──
+            country_code = None
+            country_name = None
+            try:
+                from app.database import _geoip_reader
+                if _geoip_reader and client_ip and client_ip not in ("127.0.0.1","::1","localhost"):
+                    geo = _geoip_reader.country(client_ip)
+                    country_code = geo.country.iso_code
+                    country_name = geo.country.name
+            except Exception:
+                pass
+
             click = LinkHubClick(
-                link_id    = link.id,
-                profile_id = link.profile_id,
-                referrer   = client_ip,
-                device     = device,
+                link_id      = link.id,
+                profile_id   = link.profile_id,
+                referrer     = client_ip,
+                device       = device,
+                browser      = browser,
+                country      = country_code,
+                country_name = country_name,
+                source       = source,
+                utm_source   = utm_source,
+                utm_medium   = utm_medium,
+                utm_campaign = utm_campaign,
             )
             db.add(click)
             link.click_count = (link.click_count or 0) + 1

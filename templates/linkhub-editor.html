@@ -202,7 +202,7 @@ textarea.field-input{resize:vertical;min-height:64px}
 .save-btn-main:disabled{opacity:.6;cursor:not-allowed;transform:none}
 
 /* ── Analytics mini ── */
-.stats-bar{display:flex;gap:8px;margin-bottom:8px}
+.stats-bar{display:flex;gap:8px;margin-bottom:12px}
 .stat-chip{flex:1;background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;padding:10px 12px;text-align:center}
 .stat-num{font-size:18px;font-weight:800;color:#1a1a2e;letter-spacing:-.5px}
 .stat-lbl{font-size:10.5px;color:#94a3b8;font-weight:600;margin-top:1px}
@@ -213,6 +213,14 @@ textarea.field-input{resize:vertical;min-height:64px}
 .perf-bar{width:60px;height:4px;background:#f1f5f9;border-radius:4px;flex-shrink:0}
 .perf-fill{height:100%;border-radius:4px}
 .perf-val{font-size:11px;font-weight:700;color:#1a1a2e;min-width:20px;text-align:right}
+.ana-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.ana-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;padding:10px 12px}
+.ana-card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;margin-bottom:8px}
+.ana-bar-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.ana-bar-label{font-size:11px;font-weight:600;color:#475569;width:65px;flex-shrink:0;text-transform:capitalize;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ana-bar-track{flex:1;height:4px;background:#f1f5f9;border-radius:4px;overflow:hidden}
+.ana-bar-fill{height:100%;border-radius:4px}
+.ana-bar-count{font-size:10px;font-weight:700;color:#1a1a2e;width:22px;text-align:right;flex-shrink:0}
 
 /* ── PHONE PREVIEW ── */
 .preview{background:#f1f3f8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:20px;position:relative;overflow:hidden;border-left:1px solid #e5e7eb}
@@ -553,9 +561,90 @@ textarea.field-input{resize:vertical;min-height:64px}
               <div class="stat-chip"><div class="stat-num">{{ total_clicks }}</div><div class="stat-lbl">Clicks</div></div>
               <div class="stat-chip"><div class="stat-num">{{ ctr }}%</div><div class="stat-lbl">CTR</div></div>
             </div>
+
+            <!-- Breakdowns (last 30 days) -->
+            <div class="ana-grid">
+              <!-- Traffic Sources -->
+              <div class="ana-card">
+                <div class="ana-card-title">Traffic Sources</div>
+                {% if source_stats %}
+                  {% set src_max = source_stats.values()|max %}
+                  {% for src, count in source_stats|dictsort(by='value', reverse=true) %}
+                  {% if loop.index <= 5 %}
+                  <div class="ana-bar-row">
+                    <div class="ana-bar-label">{{ src }}</div>
+                    <div class="ana-bar-track"><div class="ana-bar-fill" style="width:{{ ((count/src_max)*100)|round|int }}%;background:#0ea5e9"></div></div>
+                    <div class="ana-bar-count">{{ count }}</div>
+                  </div>
+                  {% endif %}
+                  {% endfor %}
+                {% else %}
+                  <div style="font-size:11px;color:#94a3b8;padding:4px 0">No data yet</div>
+                {% endif %}
+              </div>
+
+              <!-- Countries -->
+              <div class="ana-card">
+                <div class="ana-card-title">Countries</div>
+                {% if country_stats %}
+                  {% set geo_max = country_stats.values()|max %}
+                  {% for ctry, count in country_stats|dictsort(by='value', reverse=true) %}
+                  {% if loop.index <= 5 %}
+                  <div class="ana-bar-row">
+                    <div class="ana-bar-label">{{ ctry }}</div>
+                    <div class="ana-bar-track"><div class="ana-bar-fill" style="width:{{ ((count/geo_max)*100)|round|int }}%;background:#6366f1"></div></div>
+                    <div class="ana-bar-count">{{ count }}</div>
+                  </div>
+                  {% endif %}
+                  {% endfor %}
+                {% else %}
+                  <div style="font-size:11px;color:#94a3b8;padding:4px 0">No geo data yet</div>
+                {% endif %}
+              </div>
+
+              <!-- Devices -->
+              <div class="ana-card">
+                <div class="ana-card-title">Devices</div>
+                {% set dev_max = [device_stats.mobile, device_stats.desktop, device_stats.tablet, 1]|max %}
+                {% for dev_name, dev_count in device_stats.items() %}
+                {% if dev_count > 0 %}
+                <div class="ana-bar-row">
+                  <div class="ana-bar-label">{{ dev_name }}</div>
+                  <div class="ana-bar-track"><div class="ana-bar-fill" style="width:{{ ((dev_count/dev_max)*100)|round|int }}%;background:#16a34a"></div></div>
+                  <div class="ana-bar-count">{{ dev_count }}</div>
+                </div>
+                {% endif %}
+                {% endfor %}
+                {% if not (device_stats.mobile or device_stats.desktop or device_stats.tablet) %}
+                  <div style="font-size:11px;color:#94a3b8;padding:4px 0">No data yet</div>
+                {% endif %}
+              </div>
+
+              <!-- Browsers -->
+              <div class="ana-card">
+                <div class="ana-card-title">Browsers</div>
+                {% if browser_stats %}
+                  {% set br_max = browser_stats.values()|max %}
+                  {% for br, count in browser_stats|dictsort(by='value', reverse=true) %}
+                  {% if loop.index <= 5 %}
+                  <div class="ana-bar-row">
+                    <div class="ana-bar-label">{{ br }}</div>
+                    <div class="ana-bar-track"><div class="ana-bar-fill" style="width:{{ ((count/br_max)*100)|round|int }}%;background:#d97706"></div></div>
+                    <div class="ana-bar-count">{{ count }}</div>
+                  </div>
+                  {% endif %}
+                  {% endfor %}
+                {% else %}
+                  <div style="font-size:11px;color:#94a3b8;padding:4px 0">No data yet</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Top performing links -->
             {% if links %}
             {% set max_c = (links|map(attribute='click_count')|max) or 1 %}
             <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;padding:12px 14px">
+              <div class="ana-card-title" style="margin-bottom:6px">Top Links</div>
               {% for link in links|sort(attribute='click_count',reverse=True)|list|batch(5)|first %}
               <div class="perf-row">
                 <div class="perf-ic">{{ link.icon }}</div>

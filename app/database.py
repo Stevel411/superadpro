@@ -620,7 +620,13 @@ class LinkHubClick(Base):
     profile_id      = Column(Integer, ForeignKey("linkhub_profiles.id"), index=True)
     referrer        = Column(String, nullable=True)
     device          = Column(String, nullable=True)        # mobile|desktop|tablet
-    country         = Column(String, nullable=True)
+    browser         = Column(String, nullable=True)        # chrome|safari|firefox|edge|other
+    country         = Column(String, nullable=True)        # ISO code e.g. GB
+    country_name    = Column(String, nullable=True)        # Full name e.g. United Kingdom
+    source          = Column(String, nullable=True)        # facebook|google|direct|etc
+    utm_source      = Column(String, nullable=True)
+    utm_medium      = Column(String, nullable=True)
+    utm_campaign    = Column(String, nullable=True)
     clicked_at      = Column(DateTime, default=datetime.utcnow)
 
 
@@ -874,6 +880,14 @@ try:
         # ── Per-link button colours (2026-03-09) ──
         conn.execute(text("ALTER TABLE linkhub_links ADD COLUMN IF NOT EXISTS btn_bg_color VARCHAR"))
         conn.execute(text("ALTER TABLE linkhub_links ADD COLUMN IF NOT EXISTS btn_text_color VARCHAR"))
+
+        # ── LinkHub click analytics upgrade (2026-03-09) ──
+        conn.execute(text("ALTER TABLE linkhub_clicks ADD COLUMN IF NOT EXISTS browser VARCHAR"))
+        conn.execute(text("ALTER TABLE linkhub_clicks ADD COLUMN IF NOT EXISTS country_name VARCHAR"))
+        conn.execute(text("ALTER TABLE linkhub_clicks ADD COLUMN IF NOT EXISTS source VARCHAR"))
+        conn.execute(text("ALTER TABLE linkhub_clicks ADD COLUMN IF NOT EXISTS utm_source VARCHAR"))
+        conn.execute(text("ALTER TABLE linkhub_clicks ADD COLUMN IF NOT EXISTS utm_medium VARCHAR"))
+        conn.execute(text("ALTER TABLE linkhub_clicks ADD COLUMN IF NOT EXISTS utm_campaign VARCHAR"))
 
         conn.commit()
         print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 + R2 columns confirmed")
