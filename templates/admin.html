@@ -8,7 +8,7 @@
 <style>
 /* ═══ SHARED LAYOUT ═══ */
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0f172a;min-height:100vh}
+body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#ffffff;color:#0f172a;min-height:100vh}
 .layout{display:flex;min-height:100vh}
 .sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
 .sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:rgba(56,189,248,0.2);border-radius:4px}
@@ -42,7 +42,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .content{padding:24px 28px;flex:1;max-width:1400px;margin:0 auto;width:100%}
 
 /* Tabs — white card style */
-.tabs{display:flex;gap:6px;background:#fff;border:1px solid #d0d8e4;border-radius:12px;padding:5px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,40,100,0.06)}
+.tabs{display:flex;gap:6px;background:#fff;border:1px solid #d0d8e4;border-radius:12px;padding:5px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12)}
 .tab{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;transition:all 0.2s;border:none;background:none;font-family:inherit}
 .tab:hover{color:#0284c7;background:#f0f9ff}
 .tab.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;box-shadow:0 2px 8px rgba(14,165,233,0.25)}
@@ -65,7 +65,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#f0f2f8;color:#0
 .stat-icon{position:absolute;top:16px;right:16px;font-size:24px;opacity:0.15}
 
 /* Cards — white with border matching dashboard */
-.card{background:#fff;border:1px solid #d0d8e4;border-radius:14px;box-shadow:0 1px 4px rgba(0,40,100,0.06);overflow:hidden;margin-bottom:16px;transition:box-shadow 0.2s}
+.card{background:#fff;border:1px solid #d0d8e4;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12);overflow:hidden;margin-bottom:16px;transition:box-shadow 0.2s}
 .card:hover{box-shadow:0 4px 16px rgba(0,40,100,0.1)}
 .card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e4e9f1}
 .card-title{font-size:14px;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:8px}
