@@ -483,7 +483,6 @@ textarea.field-input{resize:vertical;min-height:64px}
               <div><span class="dr-lbl">Weight</span><div class="dr-pills">
                 <button class="dr-pill {% if not gs or not gs.font_weight or gs.font_weight=='semibold' %}on{% endif %}" data-v="semibold" onclick="pill(this)">Semi</button>
                 <button class="dr-pill {% if gs and gs.font_weight=='bold' %}on{% endif %}" data-v="bold" onclick="pill(this)">Bold</button>
-                <button class="dr-pill {% if gs and gs.font_weight=='black' %}on{% endif %}" data-v="black" onclick="pill(this)">Black</button>
               </div></div>
               <div><span class="dr-lbl">Size</span><div class="dr-range">
                 <input type="range" min="11" max="22" value="{{ gs.font_size if gs and gs.font_size else 14 }}" oninput="this.nextElementSibling.textContent=this.value+'px';pv()">
