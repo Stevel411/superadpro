@@ -17,35 +17,67 @@
   --shadow-sm:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12);
 }
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:var(--text);height:100vh;overflow:hidden}
-
-/* ── Standard platform layout ── */
 .layout{display:flex;height:100vh;overflow:hidden}
 
-/* ── Sidebar (shared via _sidebar.html include) ── */
-.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;min-height:72px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff;-webkit-text-fill-color:#fff}
-.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.nav-scroll{flex:1;overflow-y:auto;padding:8px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
-.nav-scroll::-webkit-scrollbar{width:4px}
-.nav-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:4px}
-.nav-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 12px}
-.nav-group{margin-bottom:2px}
-.nav-header{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;font-size:11.5px;font-weight:700;color:#0ea5e9;text-transform:uppercase;letter-spacing:.8px;cursor:pointer;user-select:none;transition:.15s}
-.nav-header:hover{background:rgba(14,165,233,.06)}
-.nav-chevron{font-size:14px;transition:transform .2s;color:rgba(255,255,255,.3)}
-.nav-group.open .nav-chevron{transform:rotate(90deg)}
-.nav-children{display:none;padding-bottom:4px}
-.nav-group.open .nav-children{display:block}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px 9px 22px;font-size:13px;color:rgba(200,220,255,.55);text-decoration:none;transition:.12s;cursor:pointer;font-weight:500}
-.nav-item:hover{background:rgba(14,165,233,.06);color:rgba(200,220,255,.85)}
-.nav-item.active{color:#38bdf8;font-weight:700;background:rgba(14,165,233,.08)}
-.nav-icon{font-size:15px;width:22px;text-align:center;flex-shrink:0}
-.nav-standalone{padding:10px 18px}
+/* ══ COURSE SIDEBAR (replaces _sidebar.html on this page only) ══ */
+.course-sidebar{width:224px;height:100vh;background:var(--navy);border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow:hidden}
 
+/* Logo area — matches _sidebar.html logo exactly */
+.cs-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;min-height:72px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.cs-logo:hover{background:rgba(14,165,233,0.04)}
+.cs-logo-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff}
+.cs-logo-sub{font-size:10px;color:rgba(186,230,253,0.35);margin-top:2px}
+
+/* White cards inside dark sidebar */
+.cs-header{background:var(--white);border-radius:10px;padding:12px 14px;margin:10px 10px 8px;flex-shrink:0}
+.cs-title{font-size:13px;font-weight:800;color:var(--text);margin-bottom:2px}
+.cs-meta{font-size:10.5px;color:var(--muted);margin-bottom:8px}
+.cs-progress{display:flex;align-items:center;gap:8px}
+.cs-bar{flex:1;height:4px;background:var(--bg-light);border-radius:99px;overflow:hidden}
+.cs-bar-fill{height:100%;background:linear-gradient(90deg,var(--cyan),#38bdf8);border-radius:99px}
+.cs-bar-text{font-size:11px;font-weight:700;color:var(--cyan);white-space:nowrap}
+
+.cs-content{flex:1;background:var(--white);border-radius:10px;margin:0 10px;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.cs-content-title{padding:10px 14px 6px;font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);flex-shrink:0}
+.cs-lessons{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#e2e8f0 transparent}
+.cs-lessons::-webkit-scrollbar{width:4px}
+.cs-lessons::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:4px}
+
+.cs-spacer{height:88px;flex-shrink:0}
+
+/* Chapters */
+.ch{border-bottom:1px solid var(--border)}.ch:last-child{border-bottom:none}
+.ch-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;user-select:none;transition:background 0.1s}
+.ch-head:hover{background:var(--bg-light)}
+.ch-left{display:flex;align-items:center;gap:8px}
+.ch-num{width:24px;height:24px;border-radius:6px;background:var(--bg-light);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--muted);flex-shrink:0}
+.ch-num.done{background:var(--green-light);color:var(--green)}
+.ch-num.active{background:var(--cyan-light);color:var(--cyan)}
+.ch-name{font-size:12px;font-weight:700;color:var(--text)}
+.ch-count{font-size:9.5px;color:var(--muted);margin-top:1px}
+.ch-chev{font-size:11px;color:var(--muted);transition:transform 0.2s;flex-shrink:0}
+.ch.open .ch-chev{transform:rotate(90deg)}
+.ch-body{display:none;padding-bottom:4px}.ch.open .ch-body{display:block}
+
+/* Lesson rows */
+.lr{display:flex;align-items:center;gap:8px;padding:7px 14px 7px 20px;cursor:pointer;transition:all 0.1s;position:relative;text-decoration:none}
+.lr:hover{background:var(--bg-light)}
+.lr.active{background:rgba(14,165,233,0.05)}
+.lr.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--cyan);border-radius:0 3px 3px 0}
+.lr-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lr-check.done{background:var(--green);border-color:var(--green)}
+.lr-check.now{border-color:var(--cyan);background:rgba(14,165,233,0.08)}
+.lr-info{flex:1;min-width:0}
+.lr-name{font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lr.active .lr-name{color:var(--cyan);font-weight:700}
+.lr-dur{font-size:9.5px;color:var(--muted);margin-top:1px}
+.lr-now{font-size:8.5px;font-weight:700;color:var(--cyan);margin-top:1px;display:none}
+.lr.active .lr-now{display:block}.lr.active .lr-dur{display:none}
+
+/* ══ MAIN AREA ══ */
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
-/* ── Dark Topbar (72px, matching other pages) ── */
+/* Dark Topbar — 72px, matches all other pages */
 .topbar{height:72px;background:var(--navy);border-bottom:1px solid rgba(14,165,233,0.12);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0;z-index:50}
 .tb-left{display:flex;align-items:center;gap:12px}
 .tb-icon{width:36px;height:36px;border-radius:10px;background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -53,62 +85,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 .tb-title{font-size:16px;font-weight:800;color:#fff;margin-top:1px}
 .tb-meta{font-size:12px;color:rgba(200,220,255,0.3)}
 
-/* ── Content: course panel + video ── */
-.content{flex:1;display:flex;overflow:hidden}
-
-/* ── Course lesson panel (left, inside content) ── */
-.course-panel{width:300px;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0;padding:16px 16px 0;overflow:hidden}
-
-.cp-header{background:var(--white);border-radius:10px;padding:14px 16px;margin-bottom:10px;flex-shrink:0}
-.cp-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:2px}
-.cp-meta{font-size:11px;color:var(--muted);margin-bottom:10px}
-.cp-progress{display:flex;align-items:center;gap:10px}
-.cp-bar{flex:1;height:5px;background:var(--bg-light);border-radius:99px;overflow:hidden}
-.cp-bar-fill{height:100%;background:linear-gradient(90deg,var(--cyan),#38bdf8);border-radius:99px}
-.cp-bar-text{font-size:12px;font-weight:700;color:var(--cyan);white-space:nowrap}
-
-.cp-content{flex:1;background:var(--white);border-radius:10px;display:flex;flex-direction:column;overflow:hidden;min-height:0}
-.cp-content-title{padding:12px 16px 8px;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);flex-shrink:0}
-.cp-lessons{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#e2e8f0 transparent}
-.cp-lessons::-webkit-scrollbar{width:4px}
-.cp-lessons::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:4px}
-
-/* Bottom spacer so lesson list doesn't go below video */
-.cp-spacer{height:88px;flex-shrink:0}
-
-/* Chapters */
-.ch{border-bottom:1px solid var(--border)}.ch:last-child{border-bottom:none}
-.ch-head{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;cursor:pointer;user-select:none;transition:background 0.1s}
-.ch-head:hover{background:var(--bg-light)}
-.ch-left{display:flex;align-items:center;gap:9px}
-.ch-num{width:26px;height:26px;border-radius:7px;background:var(--bg-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--muted);flex-shrink:0}
-.ch-num.done{background:var(--green-light);color:var(--green)}
-.ch-num.active{background:var(--cyan-light);color:var(--cyan)}
-.ch-name{font-size:12.5px;font-weight:700;color:var(--text)}
-.ch-count{font-size:10px;color:var(--muted);margin-top:1px}
-.ch-chev{font-size:12px;color:var(--muted);transition:transform 0.2s;flex-shrink:0}
-.ch.open .ch-chev{transform:rotate(90deg)}
-.ch-body{display:none;padding-bottom:4px}.ch.open .ch-body{display:block}
-
-/* Lesson rows */
-.lr{display:flex;align-items:center;gap:9px;padding:8px 16px 8px 22px;cursor:pointer;transition:all 0.1s;position:relative;text-decoration:none}
-.lr:hover{background:var(--bg-light)}
-.lr.active{background:rgba(14,165,233,0.05)}
-.lr.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--cyan);border-radius:0 3px 3px 0}
-.lr-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.lr-check.done{background:var(--green);border-color:var(--green)}
-.lr-check.now{border-color:var(--cyan);background:rgba(14,165,233,0.08)}
-.lr-info{flex:1;min-width:0}
-.lr-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lr.active .lr-name{color:var(--cyan);font-weight:700}
-.lr-dur{font-size:10px;color:var(--muted);margin-top:1px}
-.lr-now{font-size:9px;font-weight:700;color:var(--cyan);margin-top:1px;display:none}
-.lr.active .lr-now{display:block}.lr.active .lr-dur{display:none}
-
-/* ── Video area (right, white background) ── */
+/* ══ VIDEO AREA — white background, padded ══ */
 .video-area{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--white)}
-
-.video-padded{flex:1;padding:28px 48px 0;display:flex;flex-direction:column;min-height:0;background:var(--white)}
+.video-padded{flex:1;padding:28px 48px 0;display:flex;flex-direction:column;min-height:0}
 .video-card{flex:1;border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;min-height:0;background:#000}
 .video-frame{flex:1;position:relative;min-height:0}
 .video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
@@ -132,7 +111,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 .vb-stat-val{font-family:Sora,sans-serif;font-size:14px;font-weight:800;color:var(--text);line-height:1}
 .vb-stat-lbl{font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
 
-.btn{display:flex;align-items:center;gap:7px;padding:11px 22px;border-radius:10px;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.btn{display:flex;align-items:center;gap:7px;padding:11px 22px;border-radius:10px;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all 0.15s;text-decoration:none}
 .btn-cyan{background:var(--cyan);color:#fff;box-shadow:0 2px 10px rgba(14,165,233,0.25)}
 .btn-cyan:hover{background:#0284c7;transform:translateY(-1px)}
 .btn-ghost{background:var(--white);color:var(--text2);border:1px solid var(--border);padding:10px 18px;font-size:12.5px}
@@ -142,11 +121,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 .btn-green.completed{background:var(--green-light);color:var(--green);box-shadow:none}
 
 @media(max-width:768px){
-  .sidebar{display:none!important}
+  .course-sidebar{display:none!important}
   .main{margin-left:0!important}
   .topbar{display:none}
-  .course-panel{display:none}
-  .video-area{width:100%}
   .video-padded{padding:16px}
   .video-bottom{padding:12px 16px;flex-wrap:wrap;gap:10px}
 }
@@ -155,11 +132,73 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 <body>
 <div class="layout">
 
-{% include "_sidebar.html" %}
+<!-- ══ COURSE SIDEBAR (replaces platform sidebar on this page only) ══ -->
+<div class="course-sidebar">
+  <a class="cs-logo" href="/dashboard">
+    <svg width="28" height="28" viewBox="0 0 100 100"><defs><linearGradient id="sg" x1="0" y1="0" x2="100" y2="100"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs><circle cx="50" cy="50" r="48" fill="url(#sg)"/><path d="M38 28l34 22-34 22V28z" fill="#fff"/></svg>
+    <div>
+      <div class="cs-logo-brand">SuperAdPro</div>
+      <div class="cs-logo-sub">← Back to Dashboard</div>
+    </div>
+  </a>
 
+  <div class="cs-header">
+    <div class="cs-title">SuperAdPro Course Content</div>
+    <div class="cs-meta">{{ total_lessons }} lessons · {{ total_mins }}m</div>
+    <div class="cs-progress">
+      <div class="cs-bar"><div class="cs-bar-fill" style="width:{{ ((completed_count / [total_lessons,1]|max) * 100)|round|int }}%"></div></div>
+      <div class="cs-bar-text">{{ completed_count }}/{{ total_lessons }}</div>
+    </div>
+  </div>
+
+  <div class="cs-content">
+    <div class="cs-content-title">Course Content</div>
+    <div class="cs-lessons">
+      {% for chapter in chapters %}
+      {% set ch_lessons = chapter_lessons.get(chapter.id, []) %}
+      {% set ch_done = ch_lessons|selectattr('id','in',completed_ids)|list|length %}
+      {% set ch_all_done = ch_done == ch_lessons|length and ch_lessons|length > 0 %}
+      {% set ch_is_active = current_lesson and current_lesson.chapter_id == chapter.id %}
+      <div class="ch{% if ch_is_active or loop.index <= 2 %} open{% endif %}">
+        <div class="ch-head" onclick="this.parentElement.classList.toggle('open')">
+          <div class="ch-left">
+            <div class="ch-num{% if ch_all_done %} done{% elif ch_is_active %} active{% endif %}">
+              {% if ch_all_done %}<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>{% else %}{{ loop.index }}{% endif %}
+            </div>
+            <div>
+              <div class="ch-name">{{ chapter.title }}</div>
+              <div class="ch-count">{{ ch_lessons|length }} lesson{{ 's' if ch_lessons|length != 1 }} · {{ ch_lessons|sum(attribute='duration_mins') }}m</div>
+            </div>
+          </div>
+          <span class="ch-chev">›</span>
+        </div>
+        <div class="ch-body">
+          {% for lesson in ch_lessons %}
+          {% set is_done = lesson.id in completed_ids %}
+          {% set is_current = current_lesson and lesson.id == current_lesson.id %}
+          <a class="lr{% if is_current %} active{% endif %}" href="/courses/learn/{{ course.id }}?lesson={{ lesson.id }}">
+            <div class="lr-check{% if is_done %} done{% elif is_current %} now{% endif %}">
+              {% if is_done %}<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              {% elif is_current %}<div style="width:6px;height:6px;border-radius:50%;background:var(--cyan)"></div>{% endif %}
+            </div>
+            <div class="lr-info">
+              <div class="lr-name">{{ lesson.title }}</div>
+              <div class="lr-dur">{{ lesson.duration_mins }} min</div>
+              <div class="lr-now">▶ Now Playing</div>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="cs-spacer"></div>
+</div>
+
+<!-- ══ MAIN AREA ══ -->
 <div class="main">
 
-  <!-- ── Dark Topbar (matches other internal pages) ── -->
   <div class="topbar">
     <div class="tb-left">
       <div class="tb-icon">
@@ -177,121 +216,56 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
     <div class="tb-meta">{% if current_lesson %}{{ current_lesson.duration_mins }} min{% endif %}</div>
   </div>
 
-  <!-- ── Content: lesson panel + video ── -->
-  <div class="content">
-
-    <!-- ── Course lesson panel (left) ── -->
-    <div class="course-panel">
-
-      <div class="cp-header">
-        <div class="cp-title">SuperAdPro Course Content</div>
-        <div class="cp-meta">{{ total_lessons }} lessons · {{ total_mins }}m</div>
-        <div class="cp-progress">
-          <div class="cp-bar"><div class="cp-bar-fill" style="width:{{ ((completed_count / [total_lessons,1]|max) * 100)|round|int }}%"></div></div>
-          <div class="cp-bar-text">{{ completed_count }}/{{ total_lessons }}</div>
-        </div>
-      </div>
-
-      <div class="cp-content">
-        <div class="cp-content-title">Course Content</div>
-        <div class="cp-lessons">
-          {% for chapter in chapters %}
-          {% set ch_lessons = chapter_lessons.get(chapter.id, []) %}
-          {% set ch_done = ch_lessons|selectattr('id','in',completed_ids)|list|length %}
-          {% set ch_all_done = ch_done == ch_lessons|length and ch_lessons|length > 0 %}
-          {% set ch_is_active = current_lesson and current_lesson.chapter_id == chapter.id %}
-          <div class="ch{% if ch_is_active or loop.index <= 2 %} open{% endif %}">
-            <div class="ch-head" onclick="this.parentElement.classList.toggle('open')">
-              <div class="ch-left">
-                <div class="ch-num{% if ch_all_done %} done{% elif ch_is_active %} active{% endif %}">
-                  {% if ch_all_done %}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>{% else %}{{ loop.index }}{% endif %}
-                </div>
-                <div>
-                  <div class="ch-name">{{ chapter.title }}</div>
-                  <div class="ch-count">{{ ch_lessons|length }} lesson{{ 's' if ch_lessons|length != 1 }} · {{ ch_lessons|sum(attribute='duration_mins') }}m</div>
-                </div>
-              </div>
-              <span class="ch-chev">›</span>
-            </div>
-            <div class="ch-body">
-              {% for lesson in ch_lessons %}
-              {% set is_done = lesson.id in completed_ids %}
-              {% set is_current = current_lesson and lesson.id == current_lesson.id %}
-              <a class="lr{% if is_current %} active{% endif %}" href="/courses/learn/{{ course.id }}?lesson={{ lesson.id }}">
-                <div class="lr-check{% if is_done %} done{% elif is_current %} now{% endif %}">
-                  {% if is_done %}<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                  {% elif is_current %}<div style="width:7px;height:7px;border-radius:50%;background:var(--cyan)"></div>{% endif %}
-                </div>
-                <div class="lr-info">
-                  <div class="lr-name">{{ lesson.title }}</div>
-                  <div class="lr-dur">{{ lesson.duration_mins }} min</div>
-                  <div class="lr-now">▶ Now Playing</div>
-                </div>
-              </a>
-              {% endfor %}
-            </div>
+  <div class="video-area">
+    <div class="video-padded">
+      <div class="video-card">
+        <div class="video-frame">
+          {% if current_lesson and current_lesson.video_url %}
+          <iframe id="videoFrame" src="{{ current_lesson.video_url }}{% if '?' in current_lesson.video_url %}&{% else %}?{% endif %}autoplay=0&modestbranding=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          {% else %}
+          <div class="video-placeholder">
+            <div class="play-btn"><svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><polygon points="6 3 20 12 6 21"/></svg></div>
           </div>
-          {% endfor %}
+          {% endif %}
         </div>
+        <div class="video-progress"><div class="video-progress-fill" id="progressFill"></div></div>
       </div>
-      <div class="cp-spacer"></div>
     </div>
 
-    <!-- ── Video area (right, white) ── -->
-    <div class="video-area">
-
-      <div class="video-padded">
-        <div class="video-card">
-          <div class="video-frame">
-            {% if current_lesson and current_lesson.video_url %}
-            <iframe id="videoFrame" src="{{ current_lesson.video_url }}{% if '?' in current_lesson.video_url %}&{% else %}?{% endif %}autoplay=0&modestbranding=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-            {% else %}
-            <div class="video-placeholder">
-              <div class="play-btn"><svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><polygon points="6 3 20 12 6 21"/></svg></div>
-            </div>
-            {% endif %}
+    <div class="video-bottom">
+      <div class="vb-left">
+        {% if current_lesson %}
+        {% set lesson_list = lessons %}
+        {% set cur_idx = namespace(val=0) %}
+        {% for l in lesson_list %}{% if l.id == current_lesson.id %}{% set cur_idx.val = loop.index0 %}{% endif %}{% endfor %}
+        {% if cur_idx.val < lesson_list|length - 1 %}
+        <a class="btn btn-cyan" href="/courses/learn/{{ course.id }}?lesson={{ lesson_list[cur_idx.val + 1].id }}">Next Lesson <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        {% endif %}
+        {% if cur_idx.val > 0 %}
+        <a class="btn btn-ghost" href="/courses/learn/{{ course.id }}?lesson={{ lesson_list[cur_idx.val - 1].id }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Previous</a>
+        {% endif %}
+        {% endif %}
+      </div>
+      <div class="vb-right">
+        {% if current_lesson %}
+        <button class="btn btn-green{% if current_lesson.id in completed_ids %} completed{% endif %}" id="markBtn" onclick="markComplete({{ current_lesson.id }})">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <span id="markText">{% if current_lesson.id in completed_ids %}Completed{% else %}Mark Complete{% endif %}</span>
+        </button>
+        {% endif %}
+        <div class="vb-stats">
+          {% set pct = ((completed_count / [total_lessons,1]|max) * 100)|round|int %}
+          <div class="vb-ring">
+            <svg width="34" height="34" viewBox="0 0 34 34"><circle class="vb-ring-bg" cx="17" cy="17" r="13"/><circle class="vb-ring-fill" cx="17" cy="17" r="13" stroke-dasharray="81.7" stroke-dashoffset="{{ 81.7 - (81.7 * pct / 100) }}"/></svg>
+            <div class="vb-ring-text">{{ pct }}%</div>
           </div>
-          <div class="video-progress"><div class="video-progress-fill" id="progressFill"></div></div>
+          <div class="vb-stat"><div class="vb-stat-val" id="doneCount">{{ completed_count }}</div><div class="vb-stat-lbl">Done</div></div>
+          <div class="vb-stat"><div class="vb-stat-val" id="leftCount">{{ total_lessons - completed_count }}</div><div class="vb-stat-lbl">Left</div></div>
+          <div class="vb-stat"><div class="vb-stat-val">{{ remaining_mins }}m</div><div class="vb-stat-lbl">Remaining</div></div>
         </div>
       </div>
-
-      <div class="video-bottom">
-        <div class="vb-left">
-          {% if current_lesson %}
-          {% set lesson_list = lessons %}
-          {% set cur_idx = namespace(val=0) %}
-          {% for l in lesson_list %}{% if l.id == current_lesson.id %}{% set cur_idx.val = loop.index0 %}{% endif %}{% endfor %}
-          {% if cur_idx.val < lesson_list|length - 1 %}
-          <a class="btn btn-cyan" href="/courses/learn/{{ course.id }}?lesson={{ lesson_list[cur_idx.val + 1].id }}">Next Lesson <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
-          {% endif %}
-          {% if cur_idx.val > 0 %}
-          <a class="btn btn-ghost" href="/courses/learn/{{ course.id }}?lesson={{ lesson_list[cur_idx.val - 1].id }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg> Previous</a>
-          {% endif %}
-          {% endif %}
-        </div>
-        <div class="vb-right">
-          {% if current_lesson %}
-          <button class="btn btn-green{% if current_lesson.id in completed_ids %} completed{% endif %}" id="markBtn" onclick="markComplete({{ current_lesson.id }})">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            <span id="markText">{% if current_lesson.id in completed_ids %}Completed{% else %}Mark Complete{% endif %}</span>
-          </button>
-          {% endif %}
-          <div class="vb-stats">
-            {% set pct = ((completed_count / [total_lessons,1]|max) * 100)|round|int %}
-            <div class="vb-ring">
-              <svg width="34" height="34" viewBox="0 0 34 34"><circle class="vb-ring-bg" cx="17" cy="17" r="13"/><circle class="vb-ring-fill" cx="17" cy="17" r="13" stroke-dasharray="81.7" stroke-dashoffset="{{ 81.7 - (81.7 * pct / 100) }}"/></svg>
-              <div class="vb-ring-text">{{ pct }}%</div>
-            </div>
-            <div class="vb-stat"><div class="vb-stat-val" id="doneCount">{{ completed_count }}</div><div class="vb-stat-lbl">Done</div></div>
-            <div class="vb-stat"><div class="vb-stat-val" id="leftCount">{{ total_lessons - completed_count }}</div><div class="vb-stat-lbl">Left</div></div>
-            <div class="vb-stat"><div class="vb-stat-val">{{ remaining_mins }}m</div><div class="vb-stat-lbl">Remaining</div></div>
-          </div>
-        </div>
-      </div>
-
     </div>
-
-  </div><!-- /content -->
+  </div>
 
 </div><!-- /main -->
 </div><!-- /layout -->
@@ -304,13 +278,8 @@ async function markComplete(lessonId) {
     var r = await fetch('/api/courses/lesson-complete/' + lessonId, {method:'POST'});
     var d = await r.json();
     if (d.success) {
-      if (d.action === 'completed') {
-        btn.classList.add('completed');
-        txt.textContent = 'Completed';
-      } else {
-        btn.classList.remove('completed');
-        txt.textContent = 'Mark Complete';
-      }
+      if (d.action === 'completed') { btn.classList.add('completed'); txt.textContent = 'Completed'; }
+      else { btn.classList.remove('completed'); txt.textContent = 'Mark Complete'; }
       document.getElementById('doneCount').textContent = d.completed;
       document.getElementById('leftCount').textContent = d.total - d.completed;
       setTimeout(function(){ location.reload(); }, 600);
@@ -318,6 +287,5 @@ async function markComplete(lessonId) {
   } catch(e) { console.error(e); }
 }
 </script>
-{% include "_tawk.html" %}
 </body>
 </html>
