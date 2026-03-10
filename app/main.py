@@ -1066,6 +1066,7 @@ def account(request: Request, user: User = Depends(get_current_user),
             db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
     ctx = get_dashboard_context(request, user, db)
+    ctx["active_page"] = "account"
     return templates.TemplateResponse("account.html", ctx)
 
 @app.post("/save-wallet")
