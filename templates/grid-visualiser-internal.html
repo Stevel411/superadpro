@@ -60,9 +60,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 .ex-desc{font-size:14px;color:rgba(200,220,255,0.45);line-height:1.7;max-width:680px;position:relative;z-index:1;margin-bottom:16px}
 .ex-points{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;position:relative;z-index:1}
 .ex-pt{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px}
-.ex-pt-icon{font-size:18px;margin-bottom:6px}
-.ex-pt-title{font-size:12px;font-weight:700;color:rgba(200,220,255,0.8);margin-bottom:3px}
-.ex-pt-desc{font-size:11px;color:rgba(200,220,255,0.35);line-height:1.5}
+.ex-pt-icon{font-size:24px;margin-bottom:8px}
+.ex-pt-title{font-size:15px;font-weight:800;color:rgba(200,220,255,0.9);margin-bottom:4px}
+.ex-pt-desc{font-size:13px;color:rgba(200,220,255,0.45);line-height:1.6}
 
 /* ── Simulator layout ── */
 .sim-layout{display:grid;grid-template-columns:1fr 320px;gap:18px}
@@ -84,8 +84,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 .gc-pct{font-family:Sora,sans-serif;font-size:13px;font-weight:800;color:var(--cyan)}
 
 /* ── 8x8 Grid ── */
-.grid-8x8{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-bottom:12px}
-.g-cell{aspect-ratio:1;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);cursor:default;position:relative;overflow:hidden}
+.grid-8x8{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-bottom:12px;max-width:380px}
+.g-cell{aspect-ratio:1;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);cursor:default;position:relative;overflow:hidden}
 .g-cell.empty{background:var(--surface);border:1px dashed var(--border);color:var(--muted);font-size:8px}
 .g-cell.filled{color:#fff;border:none}
 .g-cell.pop{animation:cellPop 0.4s cubic-bezier(0.34,1.56,0.64,1)}
@@ -184,10 +184,9 @@ input[type=number]{width:48px;padding:5px 8px;border:1px solid var(--border);bor
 <div class="explainer">
   <div class="ex-title">Your Grid Fills From <span>Your Entire Network</span></div>
   <div class="ex-desc">Every person who joins anywhere in your downline fills a seat in your grid. Your direct referrals AND their referrals AND deeper — all the way down. One person, one seat, per advance.</div>
-  <div class="ex-points">
-    <div class="ex-pt"><div class="ex-pt-icon">💰</div><div class="ex-pt-title">40% Direct Sponsor</div><div class="ex-pt-desc">The person who made the referral gets 40% of the tier price.</div></div>
+  <div class="ex-points" style="grid-template-columns:1fr 1fr">
+    <div class="ex-pt"><div class="ex-pt-icon">💰</div><div class="ex-pt-title">40% Direct Sponsor</div><div class="ex-pt-desc">The person who made the referral gets 40% of the tier price on every sale.</div></div>
     <div class="ex-pt"><div class="ex-pt-icon">📊</div><div class="ex-pt-title">55% Uni-Level (8 Levels)</div><div class="ex-pt-desc">6.875% to each of the 8 levels above the buyer in the sponsor chain.</div></div>
-    <div class="ex-pt"><div class="ex-pt-icon">🏢</div><div class="ex-pt-title">5% Platform Fee</div><div class="ex-pt-desc">Keeps the platform running and pays for development.</div></div>
   </div>
 </div>
 
@@ -251,10 +250,6 @@ input[type=number]{width:48px;padding:5px 8px;border:1px solid var(--border);bor
       <div class="earn-row">
         <div class="er-left"><div class="er-dot" style="background:var(--green)"></div><div><div class="er-label">Uni-Level (6.875%)</div><div class="er-sub">From every seat in your grid</div></div></div>
         <div class="er-amount green" id="uniAmt">$0.00</div>
-      </div>
-      <div class="earn-row">
-        <div class="er-left"><div class="er-dot" style="background:var(--muted)"></div><div><div class="er-label">Platform Fee (5%)</div><div class="er-sub">Per seat</div></div></div>
-        <div class="er-amount muted" id="platAmt">$0.00</div>
       </div>
     </div>
 
@@ -409,7 +404,6 @@ function fillNext() {
   // Update panels
   bumpEl('directAmt', tDirect);
   bumpEl('uniAmt', tUni);
-  document.getElementById('platAmt').textContent = '$' + tPlat.toFixed(2);
   document.getElementById('totalAmt').textContent = '$' + (tDirect + tUni).toFixed(2);
   document.getElementById('msDirectCount').textContent = directFilled;
   document.getElementById('msSpillCount').textContent = spillFilled;
@@ -475,7 +469,6 @@ function updateUI() {
   document.getElementById('totalAmt').textContent = '$0.00';
   document.getElementById('directAmt').textContent = '$0.00';
   document.getElementById('uniAmt').textContent = '$0.00';
-  document.getElementById('platAmt').textContent = '$0.00';
   document.getElementById('msDirectCount').textContent = '0';
   document.getElementById('msSpillCount').textContent = '0';
   document.getElementById('msPerSeat').textContent = '$0.00';
