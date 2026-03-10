@@ -133,7 +133,7 @@ tr:last-child td{border-bottom:none}
   <div style="display:flex;align-items:center;gap:14px">
     <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px 14px;text-align:center">
       <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8">Balance</div>
-      <div><span style="font-size:15px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span><span style="font-size:11px;color:#94a3b8;margin-left:3px">USDT</span></div>
+      <div><span style="font-size:15px;font-weight:800;color:#16a34a">${{ '%.2f'|format(balance) }}</span></div>
     </div>
     <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none">
       <svg width="30" height="30" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="#0ea5e9"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/></svg>
@@ -361,7 +361,7 @@ function copyCaption() { navigator.clipboard.writeText(document.getElementById('
 var captions = [
   '🚀 I just discovered a platform where you earn real commissions by watching video ads and building an 8x8 Income Grid. Three income streams, 95% payouts, AI marketing tools included.\n\nNo selling, no guesswork — just real participation that pays.\n\nCheck it out 👇\n' + REF_LINK + '\n\n#SuperAdPro #PassiveIncome #VideoAds #OnlineIncome #SideHustle #IncomeGrid',
   '💰 What if you could earn just by watching video ads? SuperAdPro pays 95% of every dollar back to members through 3 income streams.\n\nSee for yourself 👇\n' + REF_LINK + '\n\n#SuperAdPro #MakeMoneyOnline #VideoMarketing #AffiliateMarketing',
-  '✅ Found something that actually pays — not a scam, not MLM hype.\n\nSuperAdPro: earn real USDT from 3 streams:\n• $10/month per referral\n• 40% grid commissions\n• 8 levels deep\n\nJoin here 👇\n' + REF_LINK + '\n\n#SuperAdPro #CryptoEarnings #USDT #PassiveIncome',
+  '✅ Found something that actually pays — not a scam, not MLM hype.\n\nSuperAdPro: earn real income from 4 streams:\n• $10/month per referral\n• 40% grid commissions\n• 8 levels deep\n\nJoin here 👇\n' + REF_LINK + '\n\n#SuperAdPro #OnlineIncome #PassiveIncome #SideHustle',
   '⏰ Still scrolling while others build income grids?\n\nSuperAdPro pays you to watch ads + 3 income streams:\n🔥 $10/month per referral\n🔥 Grid commissions 8 levels deep\n🔥 AI tools FREE\n\n' + REF_LINK + '\n\n#SuperAdPro #FOMO #SideHustle #FinancialFreedom'
 ];
 var capIdx = 0;
@@ -373,7 +373,7 @@ function switchCaption(idx, el) {
   el.classList.add('active');
 }
 var platformCaptions = {
-  instagram: '🚀 Earning from video ads is a thing now.\n\nSuperAdPro — 8x8 income grid, 3 streams, 95% payout in USDT.\n\n✅ Link in bio!\n\n#SuperAdPro #PassiveIncome #SideHustle #IncomeGrid',
+  instagram: '🚀 Earning from video ads is a thing now.\n\nSuperAdPro — 8x8 income grid, 3 streams, 95% payout rate.\n\n✅ Link in bio!\n\n#SuperAdPro #PassiveIncome #SideHustle #IncomeGrid',
   tiktok: 'Check out SuperAdPro — earn from video ads 🚀 Link in bio!\n\n' + REF_LINK + '\n\n#SuperAdPro #MakeMoneyOnline #TikTokBusiness #PassiveIncome',
   youtube: '🚀 SuperAdPro — The Video Ad Platform That Pays YOU\n\nEarn from 3 income streams. AI tools included FREE.\n\n👉 ' + REF_LINK + '\n\n#SuperAdPro #OnlineIncome #VideoAds'
 };

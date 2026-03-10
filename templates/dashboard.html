@@ -213,7 +213,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#ffffff;color:#0
       <div class="mobile-topbar-page">Dashboard</div>
     </div>
   </a>
-  <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDC</div>
+  <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }}</div>
 </div>
 
 <!-- SIDEBAR -->
@@ -232,7 +232,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#ffffff;color:#0
       <div class="balance-pill">
         <div>
           <div class="balance-label">Balance</div>
-          <div><span class="balance-val">${{ '%.2f'|format(balance) }}</span><span class="balance-unit">USDC</span></div>
+          <div><span class="balance-val">${{ '%.2f'|format(balance) }}</span></div>
         </div>
       </div>
       <span style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:6px 14px;border-radius:20px;{% if is_active %}background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.2);color:#4ade80{% else %}background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);color:#fbbf24{% endif %}">{% if is_active %}● Active Member{% else %}○ Inactive{% endif %}</span>
@@ -300,7 +300,7 @@ body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#ffffff;color:#0
       <div class="stat-card sc-blue">
         <div class="stat-label">Total Earned</div>
         <div class="stat-value">${{ '%.2f'|format(total_earned) }}</div>
-        <div class="stat-sub">All time USDC</div>
+        <div class="stat-sub">All time</div>
         <div class="stat-icon">💰</div>
       </div>
       <div class="stat-card sc-green">

@@ -172,7 +172,7 @@ body{font-family:'DM Sans',sans-serif;background:#ffffff;color:#0f172a;min-heigh
       <div class="mobile-topbar-page">My Campaigns</div>
     </div>
   </a>
-  <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }} USDT</div>
+  <div class="mobile-balance-chip">${{ '%.2f'|format(balance) }}</div>
 </div>
 
 <!-- Topbar -->
@@ -328,7 +328,7 @@ body{font-family:'DM Sans',sans-serif;background:#ffffff;color:#0f172a;min-heigh
       {% endfor %}
     </div>
     <button class="boost-confirm-btn" id="boostConfirmBtn" onclick="confirmBoost()" disabled>Select a tier above</button>
-    <div class="boost-balance">Your balance: <strong>${{ '%.2f'|format(balance) }}</strong> USDT</div>
+    <div class="boost-balance">Your balance: <strong>${{ '%.2f'|format(balance) }}</strong> </div>
     <div class="boost-commission">&#x1F4B0; 75% of every boost purchase goes to your sponsor</div>
   </div>
 </div>
@@ -409,7 +409,7 @@ function selectBoostTier(el, tier) {
   var price = el.dataset.price;
   var btn = document.getElementById('boostConfirmBtn');
   btn.disabled = false;
-  btn.textContent = 'Boost for $' + price + ' USDT';
+  btn.textContent = 'Boost for $' + price;
 }
 
 async function confirmBoost() {
