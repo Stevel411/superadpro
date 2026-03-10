@@ -3,305 +3,272 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Course Commissions — SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<title>My Network & Commissions — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/mobile.css">
 <style>
-
-/* ═══ SHARED LAYOUT ═══ */
-.layout{display:flex;min-height:100vh}
-.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:rgba(56,189,248,0.2);border-radius:4px}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.nav-scroll{flex:1;overflow-y:auto;padding:8px 0}
-.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:14px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
-.nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
-.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
-.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
-.nav-divider{height:1px;background:rgba(255,255,255,0.06);margin:8px 16px}
-.nav-group{overflow:hidden}
-.nav-header{display:flex;align-items:center;justify-content:space-between;padding:8px 18px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(200,220,255,0.35);cursor:pointer;user-select:none}
-.nav-chevron{font-size:14px;transition:transform 0.2s}
-.nav-group.open .nav-chevron{transform:rotate(90deg)}
-.nav-group:not(.open) .nav-children{display:none}
-.nav-children .nav-item{padding-left:28px;font-size:13px}
-.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(0,212,255,0.1);border-radius:8px}
-.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
-.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}}
-
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#ffffff;color:#0f172a;min-height:100vh}
-a{text-decoration:none;color:inherit}
-
-/* ── Topbar ── */
-.topbar{position:sticky;top:0;z-index:50;background:#1c223d;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 28px;height:72px;display:flex;align-items:center;justify-content:space-between}
-.back-btn{display:flex;align-items:center;gap:8px;color:#6b7d94;font-size:14px;font-weight:600;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
-.back-btn:hover{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
-.topbar-centre{text-align:center}
-.topbar-title{font-family:Sora,sans-serif;font-size:20px;font-weight:800;color:#fff}
-.topbar-sub{font-size:12px;color:rgba(148,163,184,0.6);margin-top:2px}
-.topbar-right{display:flex;align-items:center;gap:14px;justify-content:flex-end}
-.balance-chip{background:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:6px 14px;text-align:center}
-.balance-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8}
-.balance-val{font-size:15px;font-weight:800;color:#16a34a}
-.balance-unit{font-size:11px;color:#94a3b8;margin-left:3px}
-
-/* ── Mobile Topbar ── */
-.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:10px 16px;background:#1c223d;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:101}
-.mobile-topbar-left{display:flex;align-items:center;gap:10px;text-decoration:none}
-.mobile-topbar-name{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff}
-.mobile-balance-chip{font-size:16px;font-weight:800;color:#16a34a;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:8px;padding:6px 12px}
-
-.container{max-width:1140px;margin:0 auto;padding:28px 28px 80px}
-
-/* ── Hero ── */
-.hero{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;align-items:stretch}
-.hero-main{background:linear-gradient(135deg,#059669 0%,#10b981 40%,#34d399 100%);border-radius:24px;padding:40px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
-.hero-main::before{content:'';position:absolute;top:-40%;right:-20%;width:350px;height:350px;border-radius:50%;background:rgba(255,255,255,0.06);filter:blur(60px)}
-.hero-main::after{content:'';position:absolute;bottom:-30%;left:-10%;width:250px;height:250px;border-radius:50%;background:rgba(255,255,255,0.04);filter:blur(40px)}
-.hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:12px;position:relative;z-index:1}
-.hero-h1{font-family:Sora,sans-serif;font-size:36px;font-weight:800;color:#fff;line-height:1.1;margin-bottom:12px;position:relative;z-index:1}
-.hero-h1 span{color:#d1fae5}
-.hero-desc{font-size:15px;color:rgba(255,255,255,0.7);line-height:1.6;max-width:380px;position:relative;z-index:1}
-
-.hero-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;position:relative;overflow:hidden;transition:all 0.3s;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
-.stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,165,233,0.1)}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
-.stat-card.c1::before{background:linear-gradient(90deg,#10b981,#34d399)}
-.stat-card.c2::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}
-.stat-card.c3::before{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
-.stat-card.c4::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
-.stat-icon{font-size:24px;margin-bottom:10px}
-.stat-val{font-family:Sora,sans-serif;font-size:30px;font-weight:800;line-height:1}
-.stat-val.c1{color:#16a34a}.stat-val.c2{color:#0ea5e9}.stat-val.c3{color:#7c3aed}.stat-val.c4{color:#f59e0b}
-.stat-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#94a3b8;margin-top:4px}
-
-/* ── Tier Tracker Cards (styled like grid cards) ── */
-.section-title{font-family:Sora,sans-serif;font-size:18px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.tracker-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
-.tracker-card{background:#fff;border:1px solid #e2e8f0;border-radius:20px;overflow:hidden;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
-.tracker-card-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid #f1f5f9}
-.tracker-card-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
-.tracker-card-title .dot{width:10px;height:10px;border-radius:50%}
-.dot.t1{background:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,0.15)}
-.dot.t2{background:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,0.15)}
-.dot.t3{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,0.15)}
-.tracker-card-body{padding:18px 22px}
-.tracker-stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f8fafc}
-.tracker-stat:last-child{border-bottom:none}
-.tracker-stat .lbl{font-size:13px;color:#64748b}
-.tracker-stat .val{font-size:13px;font-weight:700;color:#0f172a}
-.badge-status{font-size:10px;font-weight:700;padding:3px 10px;border-radius:12px}
-.badge-earning{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:#10b981}
-.badge-waiting{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);color:#f59e0b}
-.badge-locked{background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.2);color:#94a3b8}
-
-/* ── Commission History Table (styled like grid card) ── */
-.table-card{background:#fff;border:1px solid #e2e8f0;border-radius:20px;overflow:hidden;box-shadow:0 1px 4px rgba(0,40,100,0.04)}
-.table-card-head{display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-bottom:1px solid #f1f5f9}
-.table-card-title{font-size:17px;font-weight:700;display:flex;align-items:center;gap:10px}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;padding:12px 20px;border-bottom:2px solid #e2e8f0;font-weight:700;color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px}
-td{padding:12px 20px;border-bottom:1px solid #f1f5f9}
-tr:last-child td{border-bottom:none}
-tr:hover{background:#f8fafc}
-.type-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;display:inline-block}
-.type-direct{background:rgba(16,185,129,0.08);color:#059669}
-.type-passup{background:rgba(124,58,237,0.08);color:#7c3aed}
-.type-platform{background:rgba(148,163,184,0.08);color:#64748b}
-.empty-state{text-align:center;padding:60px 24px}
-.empty-icon{font-size:48px;margin-bottom:16px}
-.empty-title{font-family:Sora,sans-serif;font-size:22px;font-weight:800;margin-bottom:10px}
-.empty-sub{font-size:15px;color:#64748b;max-width:480px;margin:0 auto 24px;line-height:1.6}
-.empty-cta{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff;font-size:15px;font-weight:700;padding:12px 28px;border-radius:12px;text-decoration:none;box-shadow:0 4px 14px rgba(124,58,237,0.3);transition:all 0.2s}
-.empty-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,58,237,0.35)}
-
-.footer{text-align:center;padding:24px;color:#94a3b8;font-size:12px;border-top:1px solid #e2e8f0;margin-top:24px}
-
-@media(max-width:900px){.hero{grid-template-columns:1fr}.tracker-row{grid-template-columns:1fr}}
-@media(max-width:640px){
-  .topbar{display:none}.mobile-topbar{display:flex!important}
-  .hero{grid-template-columns:1fr}.hero-main{padding:28px}.hero-h1{font-size:28px}
-  .hero-stats-grid{grid-template-columns:1fr 1fr}.stat-card{padding:16px}.stat-val{font-size:24px}
-  .container{padding:20px 16px 60px}
-  .tracker-row{grid-template-columns:1fr}
-  th,td{padding:10px 14px;font-size:12px}
+:root{
+  --white:#ffffff;--surface:#f8f9fb;--surface2:#f1f3f7;
+  --cyan:#0ea5e9;--cyan-light:#e0f2fe;
+  --green:#16a34a;--green-light:#dcfce7;
+  --purple:#6366f1;--purple-light:#ede9fe;
+  --amber:#d97706;--amber-light:#fef3c7;
+  --red:#dc2626;--red-light:#fef2f2;
+  --text:#1a1a2e;--text2:#475569;--muted:#94a3b8;
+  --border:#e5e7eb;--navy:#1c223d;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12);
+  --shadow-md:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16);
 }
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:var(--text);min-height:100vh}
+.layout{display:flex;min-height:100vh}
+
+/* ── Sidebar ── */
+.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;min-height:72px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff;-webkit-text-fill-color:#fff}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.nav-scroll{flex:1;overflow-y:auto;padding:8px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
+.nav-scroll::-webkit-scrollbar{width:4px}
+.nav-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:4px}
+.nav-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 12px}
+.nav-group{margin-bottom:2px}
+.nav-header{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;font-size:11.5px;font-weight:700;color:#0ea5e9;text-transform:uppercase;letter-spacing:.8px;cursor:pointer;user-select:none;transition:.15s}
+.nav-header:hover{background:rgba(14,165,233,.06)}
+.nav-chevron{font-size:14px;transition:transform .2s;color:rgba(255,255,255,.3)}
+.nav-group.open .nav-chevron{transform:rotate(90deg)}
+.nav-children{display:none;padding-bottom:4px}
+.nav-group.open .nav-children{display:block}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px 9px 22px;font-size:13px;color:rgba(200,220,255,.55);text-decoration:none;transition:.12s;cursor:pointer;font-weight:500}
+.nav-item:hover{background:rgba(14,165,233,.06);color:rgba(200,220,255,.85)}
+.nav-item.active{color:#38bdf8;font-weight:700;background:rgba(14,165,233,.08)}
+.nav-icon{font-size:15px;width:22px;text-align:center;flex-shrink:0}
+.nav-standalone{padding:10px 18px}
+
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+
+.topbar{height:72px;background:var(--navy);border-bottom:1px solid rgba(14,165,233,0.12);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:50}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-icon{width:36px;height:36px;border-radius:10px;background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.2);display:flex;align-items:center;justify-content:center}
+.tb-title{font-size:17px;font-weight:800;color:#fff}
+.tb-sub{font-size:12px;color:rgba(0,212,255,0.45);margin-top:1px}
+.tb-link{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:rgba(200,220,255,0.55);text-decoration:none;border:1px solid rgba(255,255,255,0.08)}
+.tb-link:hover{background:rgba(255,255,255,0.05);color:#fff}
+
+.content{padding:24px 28px;flex:1}
+
+/* Stats */
+.stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
+.stat-card.sc-green::before{background:var(--green)}.stat-card.sc-cyan::before{background:var(--cyan)}.stat-card.sc-purple::before{background:var(--purple)}.stat-card.sc-amber::before{background:var(--amber)}.stat-card.sc-red::before{background:var(--red)}
+.sc-val{font-family:Sora,sans-serif;font-size:24px;font-weight:800;color:var(--text)}
+.sc-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+
+/* Tabs */
+.tabs{display:flex;gap:8px;margin-bottom:20px}
+.tab{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--text2);transition:all 0.15s}
+.tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tab:hover:not(.active){background:var(--surface)}
+.panel{display:none}.panel.active{display:block}
+
+/* ── Network Tree ── */
+.tree-scroll{overflow-x:auto;padding:16px 0}
+.tree-node{display:inline-flex;flex-direction:column;align-items:center;margin:0 6px;vertical-align:top}
+.tree-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:10px 14px;box-shadow:var(--shadow-sm);min-width:140px;transition:all 0.15s}
+.tree-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.tree-card.you{border:2px solid var(--cyan);background:var(--cyan-light)}
+.tree-card.inactive{opacity:0.5;border-style:dashed}
+.tc-name{font-size:12px;font-weight:700;color:var(--text)}
+.tc-you-badge{font-size:9px;font-weight:700;color:var(--cyan);background:rgba(14,165,233,0.1);padding:1px 6px;border-radius:4px;margin-left:4px}
+.tc-meta{font-size:10px;color:var(--muted);margin-top:2px}
+.tc-stats{display:flex;gap:6px;margin-top:5px}
+.tc-tag{padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700}
+.tc-tag.earned{background:var(--green-light);color:var(--green)}
+.tc-tag.sales{background:var(--cyan-light);color:var(--cyan)}
+.tc-tiers{display:flex;gap:2px;margin-top:4px}
+.tc-tier{width:16px;height:16px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;color:#fff}
+.tc-tier.t1{background:var(--cyan)}.tc-tier.t2{background:var(--purple)}.tc-tier.t3{background:var(--amber)}.tc-tier.none{background:var(--border);color:var(--muted)}
+.tc-passup{font-size:8.5px;color:var(--purple);margin-top:2px;font-weight:600}
+.tree-line{width:1px;height:14px;background:var(--border);margin:0 auto}
+.tree-children{display:flex;justify-content:center;margin-top:0}
+
+/* ── Commission Table ── */
+.flow-table{width:100%;border-collapse:collapse}
+.flow-table th{text-align:left;padding:10px 14px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--border);background:var(--surface)}
+.flow-table td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--border)}
+.flow-table tr:hover{background:var(--surface)}
+.ft-type{padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;display:inline-block}
+.ft-direct{background:var(--green-light);color:var(--green)}
+.ft-passup{background:var(--cyan-light);color:var(--cyan)}
+.ft-amount{font-family:Sora,sans-serif;font-weight:800;color:var(--green)}
+.ft-tier{width:22px;height:22px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff}
+.ft-tier.t1{background:var(--cyan)}.ft-tier.t2{background:var(--purple)}.ft-tier.t3{background:var(--amber)}
+
+.loading{text-align:center;padding:40px;color:var(--muted);font-size:14px}
+.empty{text-align:center;padding:48px;color:var(--muted)}
+.empty-icon{font-size:36px;margin-bottom:12px;opacity:0.5}
+.empty-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
+.empty-sub{font-size:13px}
+
+@media(max-width:768px){.sidebar{display:none!important}.main{margin-left:0!important}.content{padding:16px}.stats-bar{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
-
 <div class="layout">
-  {% include "_sidebar.html" %}
-  <div class="main">
+{% include "_sidebar.html" %}
+<div class="main">
 
-
-<!-- ── Mobile Topbar ── -->
-<div class="mobile-topbar">
-  <a class="mobile-topbar-left" href="/dashboard">
-    <svg width="28" height="28" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#mlg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="mlg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#10b981"/><stop offset="1" stop-color="#34d399"/></linearGradient></defs></svg>
-    <span class="mobile-topbar-name">SuperAdPro</span>
-  </a>
-  <div class="mobile-balance-chip">${{ '%.2f'|format(user.balance) }} USDT</div>
-</div>
-
-<!-- ── Desktop Topbar ── -->
 <div class="topbar">
-  <a href="/courses" class="back-btn">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-    Courses
-  </a>
-  <div><div class="topbar-title">💰 Course <span style="color:#34d399">Commissions</span></div>
-    <div class="topbar-sub">Track your sales, pass-ups & earnings</div>
-  </div>
-  <div class="topbar-right">
-    <div class="balance-chip">
-      <div class="balance-label">Balance</div>
-      <div><span class="balance-val">${{ '%.2f'|format(user.balance) }}</span><span class="balance-unit">USDT</span></div>
+  <div class="tb-left">
+    <div class="tb-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
     </div>
-    
+    <div>
+      <div class="tb-title">My Network & Commissions</div>
+      <div class="tb-sub">Watch your team grow · Track every commission</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px">
+    <a class="tb-link" href="/courses/how-it-works">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+      How It Works
+    </a>
+    <a class="tb-link" href="/courses">← Courses</a>
   </div>
 </div>
 
-<div class="container">
+<div class="content">
 
-  <!-- ── Hero Section ── -->
-  <div class="hero">
-    <div class="hero-main">
-      <div class="hero-eyebrow">Commission Dashboard</div>
-      <div class="hero-h1">Your Course<br><span>Earnings</span> 💰</div>
-      <div class="hero-desc">Track every commission — direct sales and infinite pass-ups flowing from depth you didn't even build.</div>
-    </div>
-    <div class="hero-stats-grid">
-      <div class="stat-card c1">
-        <div class="stat-icon">💰</div>
-        <div class="stat-val c1">${{ '%.2f'|format(stats.total_earned) }}</div>
-        <div class="stat-label">Total Earned</div>
-      </div>
-      <div class="stat-card c2">
-        <div class="stat-icon">📈</div>
-        <div class="stat-val c2">{{ stats.total_sales }}</div>
-        <div class="stat-label">Total Sales</div>
-      </div>
-      <div class="stat-card c3">
-        <div class="stat-icon">🎯</div>
-        <div class="stat-val c3">{{ stats.direct_commissions }}</div>
-        <div class="stat-label">Direct</div>
-      </div>
-      <div class="stat-card c4">
-        <div class="stat-icon">🔄</div>
-        <div class="stat-val c4">{{ stats.passup_commissions }}</div>
-        <div class="stat-label">Pass-Ups</div>
-      </div>
-    </div>
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-card sc-green"><div class="sc-val" id="sEarned">—</div><div class="sc-lbl">Total Earned</div></div>
+    <div class="stat-card sc-cyan"><div class="sc-val" id="sDirect">—</div><div class="sc-lbl">Direct Sales</div></div>
+    <div class="stat-card sc-purple"><div class="sc-val" id="sPassup">—</div><div class="sc-lbl">Pass-Up Earnings</div></div>
+    <div class="stat-card sc-amber"><div class="sc-val" id="sSaleCount">—</div><div class="sc-lbl">Your Sale Count</div></div>
+    <div class="stat-card sc-red"><div class="sc-val" id="sTeam">—</div><div class="sc-lbl">Network Size</div></div>
   </div>
 
-  <!-- ── Per-Tier Tracker ── -->
-  <div class="section-title">📊 Sales Tracker by Tier</div>
-  <div class="tracker-row">
-    {% for tier_num in [1, 2, 3] %}
-    {% set tier_names = {1: 'Starter · $100', 2: 'Advanced · $300', 3: 'Elite · $500'} %}
-    <div class="tracker-card">
-      <div class="tracker-card-head">
-        <div class="tracker-card-title">
-          <div class="dot t{{ tier_num }}"></div>
-          Tier {{ tier_num }}
-        </div>
-        {% if tier_num in stats.owned_tiers %}
-          {% if tier_num in stats.trackers and stats.trackers[tier_num].passed_up %}
-            <span class="badge-status badge-earning">✓ Earning</span>
-          {% else %}
-            <span class="badge-status badge-waiting">Awaiting 1st Sale</span>
-          {% endif %}
-        {% else %}
-          <span class="badge-status badge-locked">🔒 Not Owned</span>
-        {% endif %}
-      </div>
-      <div class="tracker-card-body">
-        <div class="tracker-stat">
-          <span class="lbl">Course</span>
-          <span class="val">{{ tier_names[tier_num] }}</span>
-        </div>
-        <div class="tracker-stat">
-          <span class="lbl">Owned</span>
-          <span class="val">{{ '✓ Yes' if tier_num in stats.owned_tiers else '✗ No' }}</span>
-        </div>
-        <div class="tracker-stat">
-          <span class="lbl">Sales Made</span>
-          <span class="val">{{ stats.trackers[tier_num].sales if tier_num in stats.trackers else 0 }}</span>
-        </div>
-        <div class="tracker-stat">
-          <span class="lbl">1st Sale Passed Up</span>
-          <span class="val">{{ '✓ Yes' if tier_num in stats.trackers and stats.trackers[tier_num].passed_up else 'Not yet' }}</span>
-        </div>
-      </div>
-    </div>
-    {% endfor %}
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('tree',this)">My Network</div>
+    <div class="tab" onclick="showTab('log',this)">Commission History</div>
   </div>
 
-  <!-- ── Commission History ── -->
-  <div class="table-card">
-    <div class="table-card-head">
-      <div class="table-card-title">
-        📋 Recent Commission History
-      </div>
-      <span style="font-size:13px;color:#94a3b8">Last 50 transactions</span>
-    </div>
-    {% if commissions %}
-    <div style="overflow-x:auto">
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Buyer</th>
-            <th>Tier</th>
-            <th>Amount</th>
-            <th>Type</th>
-            <th>Depth</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for c in commissions %}
-          <tr>
-            <td>{{ c.date.strftime('%d %b %Y %H:%M') }}</td>
-            <td style="font-weight:600">{{ c.buyer }}</td>
-            <td>Tier {{ c.tier }}</td>
-            <td style="font-weight:800;color:#16a34a">${{ '%.2f'|format(c.amount) }}</td>
-            <td>
-              {% if c.type == 'direct_sale' %}
-                <span class="type-badge type-direct">Direct</span>
-              {% elif c.type == 'pass_up' %}
-                <span class="type-badge type-passup">Pass-Up</span>
-              {% else %}
-                <span class="type-badge type-platform">Platform</span>
-              {% endif %}
-            </td>
-            <td>{{ c.depth if c.depth > 0 else '—' }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <div class="empty-state">
-      <div class="empty-icon">📭</div>
-      <div class="empty-title">No Commissions Yet</div>
-      <div class="empty-sub">Purchase a course to qualify, then start referring. Your first sale at each tier passes up — then every sale after that is 100% yours.</div>
-      <a href="/courses" class="empty-cta">📚 Browse Courses →</a>
-    </div>
-    {% endif %}
+  <div class="panel active" id="panelTree">
+    <div class="loading" id="treeLoading">Loading your network...</div>
+    <div class="tree-scroll" id="treeContainer"></div>
+  </div>
+
+  <div class="panel" id="panelLog">
+    <div class="loading" id="logLoading">Loading commissions...</div>
+    <div id="logContainer"></div>
   </div>
 
 </div>
-
-<div class="footer">
-  © 2026 SuperAdPro. All rights reserved. · <a href="/">superadpro.com</a>
+</div>
 </div>
 
-  </div><!-- /main -->
-</div><!-- /layout -->
+<script>
+function showTab(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+  el.classList.add('active');
+}
+
+async function loadData() {
+  // Load flows
+  try {
+    const r = await fetch('/api/my-commission-flows');
+    const d = await r.json();
+    const flows = d.flows || [];
+    const stats = d.stats || {};
+
+    document.getElementById('sEarned').textContent = '$' + (stats.total_earned || 0).toFixed(0);
+    document.getElementById('sDirect').textContent = stats.direct_commissions || 0;
+    document.getElementById('sPassup').textContent = stats.passup_commissions || 0;
+    document.getElementById('sSaleCount').textContent = stats.course_sale_count || 0;
+
+    if (flows.length === 0) {
+      document.getElementById('logContainer').innerHTML = '<div class="empty"><div class="empty-icon">💰</div><div class="empty-title">No commissions yet</div><div class="empty-sub">When someone in your network purchases a course, your commissions will appear here.</div></div>';
+    } else {
+      let html = '<table class="flow-table"><thead><tr><th>Buyer</th><th>Amount</th><th>Tier</th><th>Type</th><th>Date</th></tr></thead><tbody>';
+      flows.forEach(f => {
+        const typeClass = f.type === 'direct_sale' ? 'ft-direct' : 'ft-passup';
+        const typeLabel = f.type === 'direct_sale' ? 'DIRECT' : 'PASS-UP';
+        const date = f.date ? new Date(f.date).toLocaleDateString() : '';
+        html += '<tr><td><strong>' + f.buyer + '</strong></td>' +
+          '<td class="ft-amount">+$' + f.amount + '</td>' +
+          '<td><span class="ft-tier t' + f.tier + '">' + f.tier + '</span></td>' +
+          '<td><span class="ft-type ' + typeClass + '">' + typeLabel + '</span></td>' +
+          '<td style="color:var(--muted);font-size:12px">' + date + '</td></tr>';
+      });
+      html += '</tbody></table>';
+      document.getElementById('logContainer').innerHTML = html;
+    }
+    document.getElementById('logLoading').style.display = 'none';
+  } catch(e) { console.error(e); }
+
+  // Load tree
+  try {
+    const r = await fetch('/api/my-network-tree');
+    const d = await r.json();
+    const nodes = d.nodes || [];
+    const root_id = d.root_id;
+
+    document.getElementById('sTeam').textContent = Math.max(nodes.length - 1, 0);
+
+    if (nodes.length <= 1) {
+      document.getElementById('treeContainer').innerHTML = '<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">Your network is empty</div><div class="empty-sub">Share your referral link to start building your team. Every person who joins grows your earning potential.</div></div>';
+      document.getElementById('treeLoading').style.display = 'none';
+      return;
+    }
+
+    const byId = {};
+    const children = {};
+    nodes.forEach(n => {
+      byId[n.id] = n;
+      if (!children[n.sponsor_id]) children[n.sponsor_id] = [];
+      if (n.sponsor_id) children[n.sponsor_id].push(n);
+    });
+
+    function renderNode(node, depth) {
+      if (depth > 6) return '';
+      const kids = children[node.id] || [];
+      let tiersHtml = '';
+      [1,2,3].forEach(t => {
+        tiersHtml += node.owned_tiers.includes(t)
+          ? '<div class="tc-tier t'+t+'">'+t+'</div>'
+          : '<div class="tc-tier none">✕</div>';
+      });
+
+      let html = '<div class="tree-node">';
+      html += '<div class="tree-card' + (node.is_you ? ' you' : '') + (!node.is_active ? ' inactive' : '') + '">';
+      html += '<div class="tc-name">' + node.username + (node.is_you ? '<span class="tc-you-badge">YOU</span>' : '') + '</div>';
+      html += '<div class="tc-stats"><span class="tc-tag earned">$' + node.course_earnings + '</span><span class="tc-tag sales">' + node.sale_count + ' sales</span></div>';
+      html += '<div class="tc-tiers">' + tiersHtml + '</div>';
+      if (node.pass_up_sponsor) html += '<div class="tc-passup">↑ ' + node.pass_up_sponsor + '</div>';
+      html += '</div>';
+
+      if (kids.length > 0) {
+        html += '<div class="tree-line"></div>';
+        html += '<div class="tree-children">';
+        kids.forEach(k => { html += renderNode(k, depth + 1); });
+        html += '</div>';
+      }
+      html += '</div>';
+      return html;
+    }
+
+    const root = byId[root_id] || nodes[0];
+    document.getElementById('treeContainer').innerHTML = renderNode(root, 0);
+    document.getElementById('treeLoading').style.display = 'none';
+  } catch(e) { console.error(e); }
+}
+
+loadData();
+</script>
 {% include "_tawk.html" %}
 </body>
 </html>

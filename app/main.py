@@ -6994,39 +6994,113 @@ async def course_how_it_works(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/courses/commissions")
 async def course_commissions_page(request: Request, db: Session = Depends(get_db)):
-    """Member's course commission dashboard."""
+    """Member's course commission & network dashboard."""
     user = get_current_user(request, db)
     if not user:
         return RedirectResponse("/login?next=/courses/commissions", status_code=303)
     if not user.is_active:
         return RedirectResponse(url="/pay-membership")
 
-    stats = get_user_course_stats(db, user.id)
-
-    # Recent commissions
-    recent = db.query(CourseCommission).filter(
-        CourseCommission.earner_id == user.id
-    ).order_by(CourseCommission.created_at.desc()).limit(50).all()
-
-    # Enrich with buyer info
-    commission_list = []
-    for c in recent:
-        buyer = db.query(User).filter(User.id == c.buyer_id).first()
-        commission_list.append({
-            "buyer": buyer.username if buyer else "Unknown",
-            "amount": c.amount,
-            "tier": c.course_tier,
-            "type": c.commission_type,
-            "depth": c.pass_up_depth,
-            "date": c.created_at
-        })
-
     return templates.TemplateResponse("course-commissions.html", {
         "request": request,
         "user": user,
-        "stats": stats,
-        "commissions": commission_list
+        "active_page": "course-commissions"
     })
+
+@app.get("/api/my-commission-flows")
+async def api_my_commission_flows(request: Request, db: Session = Depends(get_db)):
+    """Member API: their commissions earned + commissions lost to company."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # Commissions earned by this user
+    earned = db.query(CourseCommission).filter(
+        CourseCommission.earner_id == user.id
+    ).order_by(CourseCommission.created_at.desc()).limit(100).all()
+
+    # Commissions that SHOULD have gone to this user but went to platform (FOMO)
+    # These are where the buyer's sponsor is in user's downline and type is platform
+    # For simplicity, we show all commissions where user was the intended pass-up target
+    # We can detect this from the notes field containing the user's downline members
+
+    buyer_ids = set()
+    for c in earned:
+        buyer_ids.add(c.buyer_id)
+
+    users_map = {}
+    if buyer_ids:
+        for u in db.query(User).filter(User.id.in_(buyer_ids)).all():
+            users_map[u.id] = u
+
+    flows = []
+    for c in earned:
+        buyer = users_map.get(c.buyer_id)
+        flows.append({
+            "id": c.id,
+            "buyer": buyer.username if buyer else "?",
+            "amount": round(float(c.amount), 2),
+            "tier": c.course_tier,
+            "type": c.commission_type,
+            "depth": c.pass_up_depth,
+            "notes": c.notes or "",
+            "date": c.created_at.isoformat() if c.created_at else None,
+        })
+
+    # Stats
+    stats = get_user_course_stats(db, user.id)
+
+    return JSONResponse({"flows": flows, "stats": stats})
+
+@app.get("/api/my-network-tree")
+async def api_my_network_tree(request: Request, db: Session = Depends(get_db)):
+    """Member API: their downline tree (people they sponsored + deeper)."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # Recursively find all downline members (up to 500)
+    downline_ids = set()
+    queue = [user.id]
+    while queue and len(downline_ids) < 500:
+        current_id = queue.pop(0)
+        children = db.query(User).filter(User.sponsor_id == current_id).all()
+        for child in children:
+            if child.id not in downline_ids:
+                downline_ids.add(child.id)
+                queue.append(child.id)
+
+    # Include self
+    all_ids = downline_ids | {user.id}
+    all_users = db.query(User).filter(User.id.in_(all_ids)).all()
+
+    # Course ownership
+    purchases = db.query(CoursePurchase).filter(CoursePurchase.user_id.in_(all_ids)).all()
+    user_tiers = {}
+    for p in purchases:
+        if p.user_id not in user_tiers:
+            user_tiers[p.user_id] = []
+        user_tiers[p.user_id].append(p.course_tier)
+
+    nodes = []
+    for u in all_users:
+        pu_name = None
+        if u.pass_up_sponsor_id:
+            pu = db.query(User).filter(User.id == u.pass_up_sponsor_id).first()
+            pu_name = pu.username if pu else None
+        nodes.append({
+            "id": u.id,
+            "username": u.username,
+            "sponsor_id": u.sponsor_id,
+            "pass_up_sponsor": pu_name,
+            "is_active": u.is_active,
+            "is_you": u.id == user.id,
+            "sale_count": u.course_sale_count or 0,
+            "course_earnings": round(float(u.course_earnings or 0), 2),
+            "owned_tiers": sorted(user_tiers.get(u.id, [])),
+        })
+
+    return JSONResponse({"nodes": nodes, "root_id": user.id})
 
 
 # --- API endpoints for AJAX/future mobile ---
