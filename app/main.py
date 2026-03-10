@@ -830,7 +830,7 @@ async def generate_launch_funnel(request: Request, user: User = Depends(get_curr
         {"templateId": "testimonials", "data": {
             "title": "What Members Are Saying",
             "items": [
-                {"name": "Sarah M.", "role": "Marketer", "text": "Within my first month I made back my investment and then some.", "stars": 5},
+                {"name": "Sarah M.", "role": "Marketer", "text": "Within my first month I made back my membership cost and then some.", "stars": 5},
                 {"name": "James K.", "role": "Affiliate", "text": "The AI tools save me hours every single week.", "stars": 5},
                 {"name": "Maria L.", "role": "Entrepreneur", "text": "Finally something that actually works. Highly recommended.", "stars": 5}
             ]
@@ -3837,7 +3837,7 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
         "real-estate": {
             "title": "Real Estate Wealth Builder",
             "headline": "Build Wealth Through Property — Without Millions to Start",
-            "subheadline": "Discover digital real estate strategies and investment tools that create passive income from property markets.",
+            "subheadline": "Discover digital real estate strategies and property tools that create passive income from property markets.",
             "benefits_title": "Your Property Advantage",
             "benefits": [
                 {"icon": "🏠", "title": "Digital Real Estate", "desc": "Build online assets that generate income like physical property."},
@@ -3890,7 +3890,7 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
         "ecommerce": [{"num":"01","title":"Pick Your Niche","desc":"Use our AI niche finder to identify profitable product categories with high demand."},{"num":"02","title":"Launch Your Store","desc":"Build professional product pages with our drag-and-drop builder in minutes."},{"num":"03","title":"Scale with AI","desc":"Let AI write your ads, email campaigns, and product descriptions while you focus on growth."}],
         "ai-tech": [{"num":"01","title":"Access AI Tools","desc":"Get instant access to our suite of AI-powered marketing and business automation tools."},{"num":"02","title":"Automate Everything","desc":"Let AI create your content, build your funnels, write your emails, and manage your campaigns."},{"num":"03","title":"Scale & Earn","desc":"10x your output without 10x the work. Plus earn by referring others to the platform."}],
         "health-fitness": [{"num":"01","title":"Choose Your Focus","desc":"Whether it's weight loss, muscle building, or holistic wellness — pick your passion."},{"num":"02","title":"Get Your Toolkit","desc":"Access ready-made fitness funnels, content templates, and marketing materials."},{"num":"03","title":"Help Others & Earn","desc":"Share wellness solutions, build your audience, and earn recurring commissions."}],
-        "real-estate": [{"num":"01","title":"Learn the Strategies","desc":"Access training on digital real estate, property investment, and passive income methods."},{"num":"02","title":"Build Your Presence","desc":"Use our AI tools to create professional property funnels and investor content."},{"num":"03","title":"Generate Income","desc":"Earn through referrals, property leads, and team building in the real estate niche."}],
+        "real-estate": [{"num":"01","title":"Learn the Strategies","desc":"Access training on digital real estate, property markets, and passive income methods."},{"num":"02","title":"Build Your Presence","desc":"Use our AI tools to create professional property funnels and investor content."},{"num":"03","title":"Generate Income","desc":"Earn through referrals, property leads, and team building in the real estate niche."}],
         "personal-finance": [{"num":"01","title":"Get Your Blueprint","desc":"Access our complete financial freedom roadmap — budgeting, investing, and income building."},{"num":"02","title":"Build Income Streams","desc":"Set up multiple revenue sources using our proven system and AI-powered tools."},{"num":"03","title":"Achieve Freedom","desc":"Watch your income grow while helping others do the same. Earn monthly recurring commissions."}],
     }
     NICHE_TESTIMONIALS = {
@@ -3959,7 +3959,7 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
             {"image": "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=500&q=80", "title": "Fitness Community", "desc": "Connect with health-minded entrepreneurs who share tips, motivation, and support daily."},
         ],
         "real-estate": [
-            {"image": "https://images.unsplash.com/photo-1560520031-3a4dc4e9de0c?w=500&q=80", "title": "Property Analysis Tools", "desc": "Evaluate deals, estimate ROI, and identify investment opportunities with AI-powered property analysis."},
+            {"image": "https://images.unsplash.com/photo-1560520031-3a4dc4e9de0c?w=500&q=80", "title": "Property Analysis Tools", "desc": "Evaluate deals, estimate ROI, and identify opportunities with AI-powered property analysis."},
             {"image": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=500&q=80", "title": "Digital Real Estate", "desc": "Build online assets — websites, funnels, and content — that generate income like physical property rentals."},
             {"image": "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=500&q=80", "title": "Investor Network", "desc": "Connect with property investors, share deal flow, and grow your portfolio through our active community."},
         ],
