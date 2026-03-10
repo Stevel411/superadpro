@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Join SuperAdPro — {{ sponsor.first_name or sponsor.username }}'s Team</title>
-<meta name="description" content="Turn video ads into four income streams. AI-powered marketing tools, instant commissions, 95% payout. Join {{ sponsor.first_name or sponsor.username }}'s team.">
+<meta name="description" content="Your complete business in a box. Four income streams, nine AI marketing tools, instant commissions. Join {{ sponsor.first_name or sponsor.username }}'s team for $20.">
 <meta property="og:title" content="Join SuperAdPro — {{ sponsor.first_name or sponsor.username }}'s Team">
-<meta property="og:description" content="Four income streams. Nine AI marketing tools. Instant commissions. All for $20/month.">
+<meta property="og:description" content="Your complete business in a box. Four income streams. Nine AI tools. $20 to start.">
 <meta property="og:type" content="website">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -14,11 +14,15 @@
 :root{
   --bg:#050d1a;--surface:#0f1729;--surface2:#1a2040;
   --cyan:#0ea5e9;--cyan-bright:#38bdf8;--violet:#8b5cf6;
-  --green:#10b981;--amber:#f59e0b;--red:#f43f5e;
+  --green:#10b981;--amber:#f59e0b;--rose:#f43f5e;
   --text:#e2e8f0;--muted:#94a3b8;--dim:#64748b;
 }
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* ── Animated gradient top bar ── */
+.grad-bar{height:3px;background:linear-gradient(90deg,var(--rose),var(--amber),var(--green),var(--cyan),var(--violet),var(--rose));background-size:200% 100%;animation:gradSlide 4s linear infinite;position:fixed;top:0;left:0;right:0;z-index:200}
+@keyframes gradSlide{0%{background-position:0% 50%}100%{background-position:200% 50%}}
 
 /* ── Ambient ── */
 .glow-tl{position:fixed;top:-20%;left:-10%;width:50%;height:50%;background:radial-gradient(circle,rgba(14,165,233,0.07) 0%,transparent 70%);pointer-events:none;z-index:0}
@@ -26,98 +30,114 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .grid-bg{position:absolute;inset:0;opacity:0.03;background-image:linear-gradient(rgba(255,255,255,0.1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.1) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
 
 /* ── Nav ── */
-.fnav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(5,13,26,0.95) 0%,rgba(5,13,26,0) 100%)}
+.fnav{position:fixed;top:3px;left:0;right:0;z-index:100;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(5,13,26,0.95) 0%,rgba(5,13,26,0) 100%)}
 .fnav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
 .fnav-logo svg{width:28px;height:28px;flex-shrink:0}
 .fnav-brand{font-family:Sora,sans-serif;font-weight:800;font-size:17px;color:#fff}
-.fnav-brand span{color:var(--cyan-bright)}
+.fnav-brand em{color:var(--cyan-bright);font-style:normal}
 .fnav-right{font-size:13px;color:rgba(255,255,255,0.45)}
 .fnav-right strong{color:var(--cyan-bright);font-weight:600}
-.fnav-cta{padding:9px 22px;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;margin-left:16px;text-decoration:none}
+.fnav-cta{padding:10px 24px;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;margin-left:16px;text-decoration:none;transition:opacity .15s}
+.fnav-cta:hover{opacity:.9}
 
 /* ── Hero ── */
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:110px 24px 80px;text-align:center;position:relative}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.2);border-radius:100px;padding:8px 20px;margin-bottom:28px;font-size:13px;color:var(--cyan-bright);font-weight:600}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 24px 80px;text-align:center;position:relative}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.2);border-radius:100px;padding:8px 20px;margin-bottom:28px;font-size:13px;color:#fb7185;font-weight:600}
 .hero-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-.hero h1{font-family:Sora,sans-serif;font-size:clamp(32px,5vw,60px);font-weight:900;line-height:1.1;max-width:780px;margin-bottom:24px}
+.hero h1{font-family:Sora,sans-serif;font-size:clamp(34px,5vw,58px);font-weight:900;line-height:1.1;max-width:750px;margin-bottom:24px}
+.hero h1 .white{color:#fff}
 .hero h1 .grad{background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero h1 .white{background:linear-gradient(135deg,#fff 0%,#94a3b8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero-sub{font-size:17px;color:var(--muted);max-width:540px;line-height:1.75;margin-bottom:40px}
+.hero-sub{font-size:18px;color:var(--muted);max-width:520px;line-height:1.75;margin-bottom:44px}
 
 /* ── Video ── */
-.video-wrap{width:100%;max-width:720px;margin:0 auto 40px;aspect-ratio:16/9;border-radius:16px;background:linear-gradient(135deg,var(--surface),#1a1040);border:1px solid rgba(14,165,233,0.12);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 0 80px rgba(14,165,233,0.08),0 25px 60px rgba(0,0,0,0.5)}
-.play-btn{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--violet));display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(14,165,233,0.4);transition:transform .2s}
+.video-wrap{width:100%;max-width:740px;margin:0 auto 0;border-radius:20px;background:linear-gradient(135deg,var(--surface),#1a1040);border:1px solid rgba(14,165,233,0.12);overflow:hidden;box-shadow:0 0 80px rgba(14,165,233,0.08),0 25px 60px rgba(0,0,0,0.5)}
+.video-main{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.play-btn{width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--violet));display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(14,165,233,0.4);transition:transform .2s}
 .play-btn:hover{transform:scale(1.08)}
 .play-btn svg{width:28px;height:28px;fill:#fff;margin-left:3px}
-.video-label{position:absolute;bottom:16px;left:0;right:0;text-align:center;font-size:13px;color:rgba(255,255,255,0.35)}
+.video-strip{padding:14px 24px;border-top:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center}
+.video-strip-left{font-size:14px;color:rgba(255,255,255,0.45)}
+.video-strip-right{font-size:13px;color:var(--amber);font-weight:600}
 
 /* ── CTA Button ── */
-.cta{display:inline-block;padding:16px 48px;border-radius:12px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff;border:none;font-size:17px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif;box-shadow:0 0 40px rgba(14,165,233,0.25),0 8px 32px rgba(0,0,0,0.3);transition:transform .15s,box-shadow .15s;text-decoration:none}
-.cta:hover{transform:translateY(-2px);box-shadow:0 0 60px rgba(14,165,233,0.35),0 12px 40px rgba(0,0,0,0.35)}
+.cta{display:inline-block;padding:18px 56px;border-radius:14px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff;border:none;font-size:18px;font-weight:800;cursor:pointer;font-family:Sora,sans-serif;box-shadow:0 0 50px rgba(14,165,233,0.3),0 12px 40px rgba(0,0,0,0.3);transition:transform .15s,box-shadow .15s;text-decoration:none}
+.cta:hover{transform:translateY(-2px);box-shadow:0 0 70px rgba(14,165,233,0.4),0 16px 48px rgba(0,0,0,0.35)}
 .cta-sub{font-size:13px;color:var(--dim);margin-top:12px}
 
 /* ── Section ── */
 .section{padding:80px 24px;max-width:1000px;margin:0 auto;position:relative;z-index:1}
 .section-label{font-size:12px;font-weight:700;letter-spacing:2px;text-align:center;margin-bottom:12px}
-.section h2{font-family:Sora,sans-serif;font-size:clamp(28px,3.5vw,38px);font-weight:800;color:#fff;text-align:center;margin-bottom:16px}
-.section-desc{font-size:16px;color:var(--muted);max-width:540px;margin:0 auto 48px;text-align:center;line-height:1.75}
+.section h2{font-family:Sora,sans-serif;font-size:clamp(28px,3.5vw,38px);font-weight:900;color:#fff;text-align:center;margin-bottom:12px}
+.section h2 .grad{background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.section-desc{font-size:16px;color:var(--muted);max-width:480px;margin:0 auto 48px;text-align:center;line-height:1.75}
 
-/* ── Income Cards ── */
+/* ── Income Cards — gradient bordered ── */
 .income-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.income-card{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:28px;transition:border-color .3s}
-.income-card:hover{border-color:rgba(14,165,233,0.15)}
-.ic-icon{font-size:32px;margin-bottom:14px}
-.ic-title{font-family:Sora,sans-serif;font-size:18px;font-weight:700;color:#fff;margin-bottom:4px}
-.ic-amount{font-size:14px;font-weight:700;margin-bottom:10px}
-.ic-desc{font-size:14px;color:var(--muted);line-height:1.7}
+.income-card-wrap{border-radius:18px;padding:2px}
+.income-card{background:var(--bg);border-radius:16px;padding:28px;height:100%;display:flex;flex-direction:column}
+.ic-num{font-family:Sora,sans-serif;font-size:12px;font-weight:800;color:var(--dim);margin-bottom:10px}
+.ic-title{font-family:Sora,sans-serif;font-size:20px;font-weight:800;color:#fff;margin-bottom:4px}
+.ic-amount{font-size:15px;font-weight:700;margin-bottom:10px}
+.ic-desc{font-size:14px;color:var(--muted);line-height:1.7;flex:1}
 
 /* ── Tools Grid ── */
-.tools-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.tool-item{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px 18px;font-size:14px;font-weight:600;color:rgba(255,255,255,0.65);transition:border-color .3s}
-.tool-item:hover{border-color:rgba(14,165,233,0.15);color:rgba(255,255,255,0.85)}
+.tools-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:700px;margin:0 auto}
+.tool-item{padding:12px 20px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);font-size:14px;font-weight:600;color:rgba(255,255,255,0.65);transition:all .2s}
+.tool-item:hover{border-color:rgba(14,165,233,0.2);color:rgba(255,255,255,0.9);background:rgba(14,165,233,0.04)}
 
 /* ── Stats ── */
-.stats-row{display:flex;justify-content:center;gap:48px;padding:60px 24px}
+.stats-section{padding:48px 24px;border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05)}
+.stats-row{display:flex;justify-content:center;gap:56px;max-width:800px;margin:0 auto}
 .stat{text-align:center}
-.stat-val{font-family:Sora,sans-serif;font-size:36px;font-weight:900;color:var(--cyan)}
+.stat-val{font-family:Sora,sans-serif;font-size:38px;font-weight:900}
 .stat-label{font-size:13px;color:var(--dim);margin-top:4px}
 
 /* ── Final CTA ── */
-.final-cta{padding:80px 24px;text-align:center;background:linear-gradient(180deg,transparent,rgba(14,165,233,0.04))}
+.final-cta{padding:100px 24px;text-align:center;position:relative;z-index:1}
 
 /* ── Registration Modal ── */
-.reg-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(8px)}
+.reg-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(10px)}
 .reg-overlay.show{display:flex}
-.reg-box{background:var(--surface);border-radius:20px;padding:36px;width:440px;max-width:92vw;border:1px solid rgba(14,165,233,0.12);box-shadow:0 25px 80px rgba(0,0,0,0.5)}
-.reg-box h3{font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
+.reg-box{background:var(--surface);border-radius:24px;padding:40px;width:460px;max-width:92vw;border:1px solid rgba(14,165,233,0.12);box-shadow:0 30px 80px rgba(0,0,0,0.6);position:relative}
+.reg-box h3{font-family:Sora,sans-serif;font-size:24px;font-weight:900;color:#fff;margin-bottom:6px}
 .reg-field{margin-bottom:14px}
 .reg-field label{font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:6px}
-.reg-field input{width:100%;padding:12px 16px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:14px;font-family:inherit}
+.reg-field input{width:100%;padding:13px 16px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:14px;font-family:inherit}
 .reg-field input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(14,165,233,0.15)}
-.reg-submit{width:100%;padding:14px;border-radius:12px;margin-top:8px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif}
+.reg-submit{width:100%;padding:15px;border-radius:12px;margin-top:8px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff;border:none;font-size:17px;font-weight:800;cursor:pointer;font-family:Sora,sans-serif;transition:opacity .15s}
 .reg-submit:hover{opacity:.9}
 .reg-terms{text-align:center;font-size:11px;color:var(--dim);margin-top:12px}
-.reg-close{position:absolute;top:16px;right:20px;background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer}
+.reg-terms a{color:var(--cyan)}
+.reg-close{position:absolute;top:16px;right:20px;background:none;border:none;color:var(--muted);font-size:28px;cursor:pointer;line-height:1}
+.reg-close:hover{color:#fff}
 
 /* ── Animations ── */
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.fade-in{animation:fadeUp 0.6s ease-out forwards;opacity:0}
-.d1{animation-delay:0.1s}.d2{animation-delay:0.2s}.d3{animation-delay:0.3s}.d4{animation-delay:0.4s}.d5{animation-delay:0.5s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeUp 0.7s ease-out forwards;opacity:0}
+.d1{animation-delay:0.1s}.d2{animation-delay:0.2s}.d3{animation-delay:0.35s}.d4{animation-delay:0.5s}.d5{animation-delay:0.65s}
+
+/* ── Footer ── */
+.funnel-footer{text-align:center;padding:32px 24px;font-size:12px;color:var(--dim)}
+.funnel-footer a{color:var(--muted)}
 
 /* ── Mobile ── */
 @media(max-width:768px){
   .fnav{padding:12px 16px}
   .fnav-right{display:none}
   .hero{padding:100px 20px 60px}
+  .hero h1{font-size:clamp(28px,7vw,42px)}
   .income-grid{grid-template-columns:1fr}
-  .tools-grid{grid-template-columns:1fr 1fr}
   .stats-row{flex-wrap:wrap;gap:24px 40px}
-  .reg-box{padding:24px}
+  .reg-box{padding:28px 22px}
+  .cta{padding:16px 40px;font-size:16px}
 }
 </style>
 </head>
 <body>
+
+<!-- Animated gradient bar -->
+<div class="grad-bar"></div>
 
 <div class="glow-tl"></div>
 <div class="glow-br"></div>
@@ -126,11 +146,11 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 <nav class="fnav">
   <a href="/" class="fnav-logo">
     <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
-    <div class="fnav-brand">SuperAd<span>Pro</span></div>
+    <div class="fnav-brand">SuperAd<em>Pro</em></div>
   </a>
   <div style="display:flex;align-items:center">
     <div class="fnav-right">You've been invited by <strong>{{ sponsor.first_name or sponsor.username }}</strong></div>
-    <a href="#join" class="fnav-cta" onclick="openReg();return false">Join Now</a>
+    <a href="#" class="fnav-cta" onclick="openReg();return false">Join Now</a>
   </div>
 </nav>
 
@@ -140,69 +160,84 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 
   <div class="hero-badge fade-in d1">
     <span class="hero-dot"></span>
-    Live platform — members earning right now
+    Affiliates are earning right now — will you be next?
   </div>
 
   <h1 class="fade-in d2">
-    <span class="white">Turn Video Ads Into</span><br>
-    <span class="grad">Four Income Streams</span>
+    <span class="white">Your </span><span class="grad">Complete Business</span><br>
+    <span class="white">in a Box</span>
   </h1>
 
   <p class="hero-sub fade-in d3">
-    A video advertising platform where real people watch real ads — and 95% of every dollar flows back through the network. AI-powered tools. Instant commissions. No caps.
+    Four income streams. Nine AI marketing tools. Done-for-you sales funnels. Instant commissions. All for $20 a month.
   </p>
 
-  <!-- Video -->
+  <!-- Video with context strip -->
   <div class="video-wrap fade-in d4">
-    <div class="play-btn">
-      <svg viewBox="0 0 24 24"><path d="M8 5.14v14.72L19 12 8 5.14z"/></svg>
+    <div class="video-main">
+      <div class="play-btn">
+        <svg viewBox="0 0 24 24"><path d="M8 5.14v14.72L19 12 8 5.14z"/></svg>
+      </div>
     </div>
-    <div class="video-label">2:47 — Watch how it works</div>
+    <div class="video-strip">
+      <span class="video-strip-left">Watch the 3-minute overview</span>
+      <span class="video-strip-right">Must-watch before joining →</span>
+    </div>
   </div>
 
-  <a href="#join" class="cta fade-in d5" onclick="openReg();return false">Get Started — $20</a>
-  <div class="cta-sub fade-in d5">One referral pays for itself. Two and you're in profit.</div>
+  <div style="margin-top:40px" class="fade-in d5">
+    <a href="#" class="cta" onclick="openReg();return false">Get Started for $20 →</a>
+    <div class="cta-sub">One referral pays for itself. Two and you're in profit.</div>
+  </div>
 </section>
 
-<!-- ══════════ 4 INCOME STREAMS ══════════ -->
+<!-- ══════════ 4 INCOME STREAMS — gradient bordered cards ══════════ -->
 <div class="section">
   <div class="section-label" style="color:var(--cyan)">FOUR WAYS TO EARN</div>
-  <h2>Every Dollar Works Harder Here</h2>
-  <div class="section-desc">Four separate income streams that stack on top of each other. Each one pays commissions instantly — no waiting, no thresholds, no caps.</div>
+  <h2>Four Ways to <span class="grad">Stack Income</span></h2>
+  <div class="section-desc">Each stream pays instantly. No waiting, no thresholds, no caps. Stack all four and watch them compound.</div>
 
   <div class="income-grid">
-    <div class="income-card">
-      <div class="ic-icon">👥</div>
-      <div class="ic-title">Membership</div>
-      <div class="ic-amount" style="color:var(--green)">$10/referral every month</div>
-      <div class="ic-desc">50% commission on every $20/mo membership. Your first referral covers half your own cost. Two referrals and you're free.</div>
+    <div class="income-card-wrap" style="background:linear-gradient(135deg,var(--green),#059669)">
+      <div class="income-card">
+        <div class="ic-num">01</div>
+        <div class="ic-title">Membership</div>
+        <div class="ic-amount" style="color:var(--green)">$10/ref/month — recurring</div>
+        <div class="ic-desc">50% on every $20 membership. Two referrals = your membership is free. Your team's memberships pay you every single month.</div>
+      </div>
     </div>
-    <div class="income-card">
-      <div class="ic-icon">📊</div>
-      <div class="ic-title">8×8 Income Grid</div>
-      <div class="ic-amount" style="color:var(--cyan)">40% direct + 50% uni-level</div>
-      <div class="ic-desc">8 tiers from $20 to $1,000. Every downline purchase fills your grid and pays you instantly. Grid completion bonus up to $3,200.</div>
+    <div class="income-card-wrap" style="background:linear-gradient(135deg,var(--cyan),#0284c7)">
+      <div class="income-card">
+        <div class="ic-num">02</div>
+        <div class="ic-title">8×8 Income Grid</div>
+        <div class="ic-amount" style="color:var(--cyan)">40% direct + 50% uni-level</div>
+        <div class="ic-desc">8 tiers from $20 to $1,000. Spillover model — every downline purchase fills your grid. Completion bonuses up to $3,200. Auto-resets and starts again.</div>
+      </div>
     </div>
-    <div class="income-card">
-      <div class="ic-icon">🎓</div>
-      <div class="ic-title">Courses</div>
-      <div class="ic-amount" style="color:var(--violet)">Up to $500/sale</div>
-      <div class="ic-desc">Three course tiers with infinite pass-up commissions. The deeper your team grows, the more pass-ups cascade back to you.</div>
+    <div class="income-card-wrap" style="background:linear-gradient(135deg,var(--violet),#6d28d9)">
+      <div class="income-card">
+        <div class="ic-num">03</div>
+        <div class="ic-title">Courses</div>
+        <div class="ic-amount" style="color:var(--violet)">Up to $500 per sale</div>
+        <div class="ic-desc">Three tiers with infinite pass-up cascade. Your team's sales pay you — whether they referred the buyer directly or not.</div>
+      </div>
     </div>
-    <div class="income-card">
-      <div class="ic-icon">🚀</div>
-      <div class="ic-title">AdBoost Campaigns</div>
-      <div class="ic-amount" style="color:var(--amber)">Recurring revenue</div>
-      <div class="ic-desc">Real advertising campaigns with view targets. When complete, repurchase triggers fresh commissions across your entire upline. A recurring flywheel.</div>
+    <div class="income-card-wrap" style="background:linear-gradient(135deg,var(--amber),#d97706)">
+      <div class="income-card">
+        <div class="ic-num">04</div>
+        <div class="ic-title">AdBoost Campaigns</div>
+        <div class="ic-amount" style="color:var(--amber)">Recurring revenue flywheel</div>
+        <div class="ic-desc">Real ad campaigns with view targets up to 85,000. When complete, repurchase triggers fresh commissions across your entire upline. Rinse and repeat.</div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ══════════ TOOLS ══════════ -->
+<!-- ══════════ AI TOOLS ══════════ -->
 <div class="section">
   <div class="section-label" style="color:var(--violet)">INCLUDED WITH YOUR MEMBERSHIP</div>
-  <h2>A Complete Marketing Agency<br>Inside Your Dashboard</h2>
-  <div class="section-desc">Most affiliates pay $200+/month for tools like these separately. You get them all, powered by AI, the moment you activate.</div>
+  <h2>9 AI Marketing Tools. <span style="color:var(--amber)">$0 Extra.</span></h2>
+  <div class="section-desc">Everything you need to find prospects, create content, and close deals — powered by AI, included from day one.</div>
 
   <div class="tools-grid">
     <div class="tool-item">🎯 ProSeller AI Coach</div>
@@ -217,70 +252,82 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
   </div>
 </div>
 
-<!-- ══════════ STATS ══════════ -->
-<div class="stats-row">
-  <div class="stat">
-    <div class="stat-val">95%</div>
-    <div class="stat-label">Paid to Network</div>
-  </div>
-  <div class="stat">
-    <div class="stat-val">4</div>
-    <div class="stat-label">Income Streams</div>
-  </div>
-  <div class="stat">
-    <div class="stat-val" style="color:var(--green)">$20</div>
-    <div class="stat-label">To Get Started</div>
-  </div>
-  <div class="stat">
-    <div class="stat-val" style="color:var(--violet)">9</div>
-    <div class="stat-label">AI Marketing Tools</div>
+<!-- ══════════ STATS BAR ══════════ -->
+<div class="stats-section">
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-val" style="color:var(--rose,#f43f5e)">95%</div>
+      <div class="stat-label">Paid Out</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" style="color:var(--amber)">4</div>
+      <div class="stat-label">Income Streams</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" style="color:var(--green)">$20</div>
+      <div class="stat-label">To Start</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" style="color:var(--cyan)">9</div>
+      <div class="stat-label">AI Tools</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" style="color:var(--violet)">∞</div>
+      <div class="stat-label">Earning Potential</div>
+    </div>
   </div>
 </div>
 
 <!-- ══════════ FINAL CTA ══════════ -->
 <section class="final-cta">
-  <h2 style="font-family:Sora,sans-serif;font-size:clamp(28px,3.5vw,38px);font-weight:800;color:#fff;margin-bottom:16px">Ready to Start Earning?</h2>
-  <p style="font-size:16px;color:var(--muted);max-width:480px;margin:0 auto 32px;line-height:1.75">
-    Join {{ sponsor.first_name or sponsor.username }}'s team and get access to four income streams, AI-powered marketing tools, and a complete business system for just $20.
+  <h2 style="font-family:Sora,sans-serif;font-size:clamp(30px,4vw,42px);font-weight:900;color:#fff;margin-bottom:16px">Your Team Is Waiting.</h2>
+  <p style="font-size:17px;color:var(--muted);max-width:480px;margin:0 auto 36px;line-height:1.75">
+    {{ sponsor.first_name or sponsor.username }} invited you for a reason. $20 gets you in. One referral gets you paid. The rest is up to you.
   </p>
-  <a href="#join" class="cta" onclick="openReg();return false" style="font-size:18px;padding:18px 56px">Join SuperAdPro Now →</a>
-  <div style="font-size:12px;color:var(--dim);margin-top:16px">No contracts · Cancel anytime · Commissions are instant</div>
+  <a href="#" class="cta" onclick="openReg();return false" style="font-size:20px;padding:20px 64px">Join SuperAdPro Now →</a>
+  <div style="font-size:12px;color:var(--dim);margin-top:16px">No lock-in · Cancel anytime · Commissions are instant</div>
 </section>
 
-<div style="height:40px"></div>
+<!-- Footer -->
+<div class="funnel-footer">
+  &copy; 2026 SuperAdPro. All rights reserved. · <a href="/legal" target="_blank">Terms</a> · <a href="/legal#privacy" target="_blank">Privacy</a>
+</div>
 
 <!-- ══════════ REGISTRATION MODAL ══════════ -->
 <div class="reg-overlay" id="regModal">
-  <div class="reg-box" style="position:relative">
+  <div class="reg-box">
     <button class="reg-close" onclick="closeReg()">&times;</button>
-    <div style="text-align:center;margin-bottom:24px">
-      <h3>Create Your Account</h3>
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--cyan),var(--violet));display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M8 5.14v14.72L19 12 8 5.14z"/></svg>
+      </div>
+      <h3>Let's Go</h3>
       <p style="font-size:13px;color:var(--dim)">Joining <strong style="color:var(--cyan-bright)">{{ sponsor.first_name or sponsor.username }}</strong>'s team</p>
     </div>
     <form action="/register" method="POST">
       <input type="hidden" name="ref" value="{{ sponsor.username }}">
       <div class="reg-field">
         <label>First Name</label>
-        <input type="text" name="first_name" required placeholder="Your first name">
+        <input type="text" name="first_name" required placeholder="Your first name" autocomplete="given-name">
       </div>
       <div class="reg-field">
         <label>Username</label>
-        <input type="text" name="username" required placeholder="Choose a username" pattern="[a-zA-Z0-9_]{3,30}">
+        <input type="text" name="username" required placeholder="Choose a username" pattern="[a-zA-Z0-9_]{3,30}" autocomplete="username">
       </div>
       <div class="reg-field">
         <label>Email Address</label>
-        <input type="email" name="email" required placeholder="you@email.com">
+        <input type="email" name="email" required placeholder="you@email.com" autocomplete="email">
       </div>
       <div class="reg-field">
         <label>Password</label>
-        <input type="password" name="password" required minlength="8" placeholder="At least 8 characters">
+        <input type="password" name="password" required minlength="8" placeholder="At least 8 characters" autocomplete="new-password">
       </div>
       <div class="reg-field">
         <label>Confirm Password</label>
-        <input type="password" name="confirm_password" required minlength="8" placeholder="Confirm your password">
+        <input type="password" name="confirm_password" required minlength="8" placeholder="Confirm your password" autocomplete="new-password">
       </div>
-      <button type="submit" class="reg-submit">Join Now — $20/month</button>
-      <div class="reg-terms">By joining you agree to our <a href="/legal" style="color:var(--cyan)" target="_blank">Terms of Service</a></div>
+      <button type="submit" class="reg-submit">Activate — $20/month</button>
+      <div class="reg-terms">Instant access · Cancel anytime · <a href="/legal" target="_blank">Terms apply</a></div>
     </form>
   </div>
 </div>
@@ -289,6 +336,7 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 function openReg(){document.getElementById('regModal').classList.add('show')}
 function closeReg(){document.getElementById('regModal').classList.remove('show')}
 document.getElementById('regModal').addEventListener('click',function(e){if(e.target===this)closeReg()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeReg()});
 </script>
 </body>
 </html>
