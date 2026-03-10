@@ -8568,3 +8568,28 @@ async def api_proseller_prospect(request: Request, db: Session = Depends(get_db)
 
     return JSONResponse({"error": "Invalid action"}, status_code=400)
 
+
+# ═══════════════════════════════════════════════════════════════
+#  AFFILIATE SALES FUNNEL — /join/{username}
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/join/{username}")
+async def join_funnel(username: str, request: Request, db: Session = Depends(get_db)):
+    """
+    Personal affiliate sales funnel.
+    Every member gets a done-for-you funnel at /join/their_username.
+    Registration form is pre-tagged with their referral code.
+    """
+    sponsor = db.query(User).filter(User.username == username).first()
+    if not sponsor:
+        # Fallback: redirect to main register page
+        return RedirectResponse("/register", status_code=302)
+
+    # Set referral cookie so it persists
+    response = templates.TemplateResponse("join-funnel.html", {
+        "request": request,
+        "sponsor": sponsor,
+    })
+    response.set_cookie("ref", username, max_age=30*24*60*60)  # 30 days
+    return response
+
