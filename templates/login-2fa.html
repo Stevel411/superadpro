@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Two-Factor Authentication — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--cyan:#0ea5e9;--green:#16a34a;--red:#dc2626;--text:#1a1a2e;--muted:#94a3b8;--border:#e5e7eb;--navy:#1c223d}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.container{width:100%;max-width:420px;padding:20px}
+.logo{text-align:center;margin-bottom:32px}
+.logo svg{margin-bottom:12px}
+.logo-text{font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:var(--navy)}
+.logo-text span{color:#38bdf8}
+.card{background:#fff;border:1px solid var(--border);border-radius:20px;padding:36px;box-shadow:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12)}
+.card-icon{text-align:center;margin-bottom:20px;font-size:48px}
+.card-title{font-family:Sora,sans-serif;font-size:20px;font-weight:800;text-align:center;margin-bottom:6px}
+.card-desc{text-align:center;font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.6}
+.card-user{text-align:center;font-size:13px;color:var(--muted);margin-bottom:20px}
+.card-user strong{color:var(--text)}
+.error{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:13px;font-weight:600;color:var(--red);text-align:center}
+.code-input{width:100%;padding:16px;border:2px solid var(--border);border-radius:14px;font-size:28px;font-weight:800;text-align:center;letter-spacing:12px;font-family:Sora,sans-serif;color:var(--text);transition:border-color 0.2s;outline:none}
+.code-input:focus{border-color:var(--cyan);box-shadow:0 0 0 4px rgba(14,165,233,0.1)}
+.code-input::placeholder{font-size:16px;letter-spacing:4px;font-weight:400;color:var(--muted)}
+.btn{display:block;width:100%;padding:14px;border-radius:12px;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:inherit;margin-top:20px;transition:all 0.15s}
+.btn-primary{background:var(--cyan);color:#fff;box-shadow:0 4px 16px rgba(14,165,233,0.3)}
+.btn-primary:hover{background:#0284c7;transform:translateY(-2px)}
+.back-link{display:block;text-align:center;margin-top:16px;font-size:13px;color:var(--muted);text-decoration:none}
+.back-link:hover{color:var(--cyan)}
+.help-text{text-align:center;margin-top:20px;font-size:12px;color:var(--muted);line-height:1.6}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo">
+    <svg width="48" height="48" viewBox="0 0 100 100"><defs><linearGradient id="sg" x1="0" y1="0" x2="100" y2="100"><stop stop-color="#0ea5e9"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs><circle cx="50" cy="50" r="48" fill="url(#sg)"/><path d="M38 28l34 22-34 22V28z" fill="#fff"/></svg>
+    <div class="logo-text">SuperAd<span>Pro</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-icon">🔒</div>
+    <div class="card-title">Two-Factor Authentication</div>
+    <div class="card-desc">Open your authenticator app and enter the 6-digit code to verify your identity.</div>
+
+    {% if username %}
+    <div class="card-user">Logging in as <strong>{{ username }}</strong></div>
+    {% endif %}
+
+    {% if error %}
+    <div class="error">
+      {% if error == 'invalid_code' %}Invalid code. Please check your authenticator app and try again.{% else %}{{ error }}{% endif %}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/login/2fa">
+      <input class="code-input" type="text" name="totp_code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" inputmode="numeric" autofocus required autocomplete="one-time-code">
+      <button type="submit" class="btn btn-primary">Verify & Sign In</button>
+    </form>
+
+    <a href="/login" class="back-link">← Back to login</a>
+
+    <div class="help-text">Can't access your authenticator app?<br>Contact <a href="/support-public" style="color:var(--cyan);text-decoration:none">support</a> for help.</div>
+  </div>
+</div>
+
+</body>
+</html>

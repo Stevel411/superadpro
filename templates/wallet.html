@@ -240,6 +240,12 @@ tr:hover td{background:rgba(15,25,60,.02)}
             <label class="form-label" style="color:#64748b">Amount (USDC)</label>
             <input class="form-input" style="background:#f5f7fb;border-color:#e2e8f0;color:#0f172a" type="number" name="amount" min="10" max="{{ balance }}" step="0.01" placeholder="0.00" required>
           </div>
+          {% if user.totp_enabled %}
+          <div>
+            <label class="form-label" style="color:#64748b">2FA Code</label>
+            <input class="form-input" style="background:#f5f7fb;border-color:#e2e8f0;color:#0f172a;text-align:center;letter-spacing:6px;font-weight:700;font-size:18px" type="text" name="totp_code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" inputmode="numeric" required autocomplete="one-time-code">
+          </div>
+          {% endif %}
           <button type="submit" class="btn-primary" style="font-size:15px;padding:11px;width:100%">Withdraw →</button>
         </form>
         <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px">

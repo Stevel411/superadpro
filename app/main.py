@@ -700,6 +700,13 @@ def login_process(
     ).first()
     if user and verify_password(password, user.password):
         clear_failed_attempts(username)
+        # Check if 2FA is enabled — require code before granting session
+        if getattr(user, 'totp_enabled', False) and user.totp_secret:
+            # Store user ID in a temporary pre-auth cookie (not a full session)
+            response = RedirectResponse(url="/login/2fa", status_code=303)
+            response.set_cookie("pre_auth", str(user.id), max_age=300, httponly=True, samesite="lax")
+            return response
+        # No 2FA — log in directly
         response = RedirectResponse(url="/dashboard", status_code=303)
         set_secure_cookie(response, user.id)
         return response
@@ -736,6 +743,11 @@ async def api_login(
 
     if user and verify_password(password, user.password):
         clear_failed_attempts(username)
+        # Check 2FA
+        if getattr(user, 'totp_enabled', False) and user.totp_secret:
+            response = JSONResponse({"success": True, "requires_2fa": True, "redirect": "/login/2fa"})
+            response.set_cookie("pre_auth", str(user.id), max_age=300, httponly=True, samesite="lax")
+            return response
         response = JSONResponse({"success": True, "redirect": "/dashboard"})
         set_secure_cookie(response, user.id)
         return response
@@ -748,8 +760,53 @@ async def api_login(
 def logout():
     response = RedirectResponse(url="/")
     response.delete_cookie("session")
-    response.delete_cookie("user_id")  # Clear legacy cookie for migrating users
+    response.delete_cookie("user_id")
+    response.delete_cookie("pre_auth")
     return response
+
+
+@app.get("/login/2fa")
+def login_2fa_page(request: Request, db: Session = Depends(get_db)):
+    """Show the 2FA code entry page after username/password verified."""
+    pre_auth = request.cookies.get("pre_auth")
+    if not pre_auth:
+        return RedirectResponse(url="/login", status_code=303)
+    user = db.query(User).filter(User.id == int(pre_auth)).first()
+    if not user:
+        return RedirectResponse(url="/login", status_code=303)
+    return templates.TemplateResponse("login-2fa.html", {
+        "request": request,
+        "username": user.username,
+        "error": request.query_params.get("error")
+    })
+
+
+@app.post("/login/2fa")
+@limiter.limit("10/minute")
+def login_2fa_verify(
+    request: Request,
+    totp_code: str = Form(),
+    db: Session = Depends(get_db)
+):
+    """Verify 2FA code and complete login."""
+    import pyotp
+    pre_auth = request.cookies.get("pre_auth")
+    if not pre_auth:
+        return RedirectResponse(url="/login", status_code=303)
+
+    user = db.query(User).filter(User.id == int(pre_auth)).first()
+    if not user or not user.totp_secret:
+        return RedirectResponse(url="/login", status_code=303)
+
+    totp = pyotp.TOTP(user.totp_secret)
+    if totp.verify(totp_code.strip(), valid_window=1):
+        # Code valid — grant full session
+        response = RedirectResponse(url="/dashboard", status_code=303)
+        set_secure_cookie(response, user.id)
+        response.delete_cookie("pre_auth")
+        return response
+    else:
+        return RedirectResponse(url="/login/2fa?error=invalid_code", status_code=303)
 
 # ═══════════════════════════════════════════════════════════════
 #  PROTECTED DASHBOARD ROUTES
@@ -1846,15 +1903,24 @@ def payment_cancelled_page(request: Request, user: User = Depends(get_current_us
 def withdraw(
     request: Request,
     amount: float = Form(),
+    totp_code: str = Form(default=""),
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
     if not user: return RedirectResponse(url="/?login=1", status_code=302)
-    # ── KYC/2FA Gate ──
+    # ── KYC Gate ──
     if getattr(user, 'kyc_status', 'none') != 'approved':
         return RedirectResponse(url="/wallet?error=KYC_verification_required_before_withdrawal._Go_to_Account_to_complete.", status_code=303)
+    # ── 2FA Gate — must be enabled AND code must be valid ──
     if not getattr(user, 'totp_enabled', False):
         return RedirectResponse(url="/wallet?error=Two-factor_authentication_required_before_withdrawal._Go_to_Account_to_enable.", status_code=303)
+    import pyotp
+    if not totp_code or not totp_code.strip():
+        return RedirectResponse(url="/wallet?error=Please_enter_your_2FA_code_to_authorise_this_withdrawal.", status_code=303)
+    totp = pyotp.TOTP(user.totp_secret)
+    if not totp.verify(totp_code.strip(), valid_window=1):
+        return RedirectResponse(url="/wallet?error=Invalid_2FA_code._Please_try_again.", status_code=303)
+    # ── 2FA verified — process withdrawal ──
     result = request_withdrawal(db, user.id, amount)
     if result["success"]:
         tx = result.get("tx_hash", "")
