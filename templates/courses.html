@@ -3,313 +3,228 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Course Academy — SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<title>Course Library — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/mobile.css">
 <style>
-
-/* ═══ SHARED LAYOUT ═══ */
-.layout{display:flex;min-height:100vh}
-.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:rgba(56,189,248,0.2);border-radius:4px}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
-.nav-scroll{flex:1;overflow-y:auto;padding:8px 0}
-.nav-item{display:flex;align-items:center;gap:11px;padding:11px 16px;margin:2px 10px;border-radius:10px;font-size:14px;font-weight:500;color:rgba(188,213,240,0.65);text-decoration:none;transition:all 0.18s}
-.nav-item:hover{background:rgba(0,200,255,0.08);color:rgba(188,213,240,0.95)}
-.nav-item.active{background:linear-gradient(90deg,rgba(0,200,255,0.2),rgba(0,200,255,0.06));color:#fff;font-weight:700}
-.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
-.nav-divider{height:1px;background:rgba(255,255,255,0.06);margin:8px 16px}
-.nav-group{overflow:hidden}
-.nav-header{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;font-size:14px;font-weight:800;color:#00c8ff;cursor:pointer;user-select:none;text-shadow:0 0 12px rgba(0,200,255,0.35)}
-.nav-chevron{font-size:14px;transition:transform 0.2s}
-.nav-group.open .nav-chevron{transform:rotate(90deg)}
-.nav-group:not(.open) .nav-children{display:none}
-.nav-children .nav-item{font-size:14px}
-.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,200,255,0.05);border:1px solid rgba(0,200,255,0.1);border-radius:10px}
-.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
-.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}}
-
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans','Rethink Sans',sans-serif;background:#ffffff;color:#0f172a;min-height:100vh}
-a{text-decoration:none;color:inherit}
+:root{
+  --white:#ffffff;--bg:#ffffff;--surface:#f8f9fb;--surface2:#f1f3f7;
+  --cyan:#0ea5e9;--cyan-light:#e0f2fe;
+  --green:#16a34a;--green-light:#dcfce7;
+  --purple:#6366f1;--purple-light:#ede9fe;
+  --amber:#d97706;--amber-light:#fef3c7;
+  --text:#1a1a2e;--text2:#475569;--muted:#94a3b8;
+  --border:#e5e7eb;
+  --navy:#1c223d;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12);
+  --shadow-md:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16);
+  --radius:16px;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.layout{display:flex;min-height:100vh}
 
-/* ── Topbar (identical to Profit Grid) ── */
-.topbar{position:sticky;top:0;z-index:50;background:#1c223d;border-bottom:1px solid rgba(0,200,255,0.1);padding:0 28px;height:72px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 0 rgba(0,200,255,0.15),0 4px 20px rgba(0,0,0,0.3)}
-.back-btn{display:flex;align-items:center;gap:8px;color:#7b91a8;font-size:14px;font-weight:600;text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid rgba(148,163,184,0.15);transition:all 0.2s}
-.back-btn:hover{color:#38bdf8;border-color:rgba(56,189,248,0.3)}
-.topbar-centre{text-align:center}
-.topbar-title{font-family:Sora,sans-serif;font-size:19px;font-weight:800;color:#fff;letter-spacing:-0.2px}
-.topbar-sub{font-size:12px;color:rgba(0,200,255,0.45);margin-top:2px}
-.topbar-right{display:flex;align-items:center;gap:14px;justify-content:flex-end}
-.balance-chip{background:rgba(34,197,94,.09);border:1px solid rgba(34,197,94,.22);border-radius:10px;padding:7px 14px;text-align:center}
-.balance-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8}
-.balance-val{font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:#4ade80}
-.balance-unit{font-size:11px;color:#94a3b8;margin-left:3px}
+/* ── Sidebar CSS ── */
+.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;min-height:72px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff;-webkit-text-fill-color:#fff}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.nav-scroll{flex:1;overflow-y:auto;padding:8px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
+.nav-scroll::-webkit-scrollbar{width:4px}
+.nav-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:4px}
+.nav-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 12px}
+.nav-group{margin-bottom:2px}
+.nav-header{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;font-size:11.5px;font-weight:700;color:#0ea5e9;text-transform:uppercase;letter-spacing:.8px;cursor:pointer;user-select:none;transition:.15s}
+.nav-header:hover{background:rgba(14,165,233,.06)}
+.nav-chevron{font-size:14px;transition:transform .2s;color:rgba(255,255,255,.3)}
+.nav-group.open .nav-chevron{transform:rotate(90deg)}
+.nav-children{display:none;padding-bottom:4px}
+.nav-group.open .nav-children{display:block}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px 9px 22px;font-size:13px;color:rgba(200,220,255,.55);text-decoration:none;transition:.12s;cursor:pointer;font-weight:500}
+.nav-item:hover{background:rgba(14,165,233,.06);color:rgba(200,220,255,.85)}
+.nav-item.active{color:#38bdf8;font-weight:700;background:rgba(14,165,233,.08)}
+.nav-icon{font-size:15px;width:22px;text-align:center;flex-shrink:0}
+.nav-standalone{padding:10px 18px}
 
-/* ── Mobile Topbar ── */
-.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:10px 16px;background:#1c223d;border-bottom:1px solid rgba(14,165,233,0.12);position:sticky;top:0;z-index:101}
-.mobile-topbar-left{display:flex;align-items:center;gap:10px;text-decoration:none}
-.mobile-topbar-name{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff}
-.mobile-balance-chip{font-size:16px;font-weight:800;color:#16a34a;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:8px;padding:6px 12px}
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
 
-.container{max-width:1140px;margin:0 auto;padding:28px 28px 80px}
+/* ── Topbar ── */
+.topbar{height:72px;background:var(--navy);border-bottom:1px solid rgba(14,165,233,0.12);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:50}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-icon{width:36px;height:36px;border-radius:10px;background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tb-title{font-size:17px;font-weight:800;color:#fff;letter-spacing:-0.3px}
+.tb-sub{font-size:12px;color:rgba(0,212,255,0.45);margin-top:1px}
+.tb-right{display:flex;align-items:center;gap:10px}
+.tb-link{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:rgba(200,220,255,0.55);text-decoration:none;border:1px solid rgba(255,255,255,0.08);transition:.15s}
+.tb-link:hover{background:rgba(255,255,255,0.05);color:#fff}
 
-/* ── Hero (same layout as Profit Grid) ── */
-.hero{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;align-items:stretch}
-.hero-main{background:linear-gradient(135deg,#7c3aed 0%,#8b5cf6 40%,#a78bfa 100%);border-radius:24px;padding:40px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
-.hero-main::before{content:'';position:absolute;top:-40%;right:-20%;width:350px;height:350px;border-radius:50%;background:rgba(255,255,255,0.06);filter:blur(60px)}
-.hero-main::after{content:'';position:absolute;bottom:-30%;left:-10%;width:250px;height:250px;border-radius:50%;background:rgba(255,255,255,0.04);filter:blur(40px)}
-.hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:12px;position:relative;z-index:1}
-.hero-h1{font-family:Sora,sans-serif;font-size:36px;font-weight:800;color:#fff;line-height:1.1;margin-bottom:12px;position:relative;z-index:1}
-.hero-h1 span{color:#e9d5ff}
-.hero-desc{font-size:15px;color:rgba(255,255,255,0.7);line-height:1.6;max-width:380px;position:relative;z-index:1}
+/* ── Content ── */
+.content{padding:28px 32px;flex:1}
 
-.hero-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.stat-card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:16px;padding:24px;position:relative;overflow:hidden;transition:all 0.3s;box-shadow:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12)}
-.stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,165,233,0.1)}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
-.stat-card.c1::before{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
-.stat-card.c2::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}
-.stat-card.c3::before{background:linear-gradient(90deg,#10b981,#34d399)}
-.stat-card.c4::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
-.stat-icon{font-size:24px;margin-bottom:10px}
-.stat-val{font-family:Sora,sans-serif;font-size:30px;font-weight:800;line-height:1}
-.stat-val.c1{color:#7c3aed}.stat-val.c2{color:#0ea5e9}.stat-val.c3{color:#16a34a}.stat-val.c4{color:#f59e0b}
-.stat-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#7b91a8;margin-top:4px}
+/* ── Course Grid ── */
+.courses-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;align-items:stretch}
+
+/* ── Course Card ── */
+.course-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm);transition:all 0.2s;display:flex;flex-direction:column}
+.course-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+
+/* Thumbnail */
+.cc-thumb{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#0b1729,#132240,#0e1c30);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.cc-thumb-icon{width:56px;height:56px;border-radius:50%;background:rgba(14,165,233,0.7);display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(14,165,233,0.3)}
+.cc-thumb-icon svg{margin-left:3px}
+.cc-price-badge{position:absolute;top:14px;right:14px;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:5px 12px;font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#fff}
+.cc-owned-badge{position:absolute;top:14px;left:14px;background:rgba(22,163,74,0.9);border-radius:8px;padding:4px 12px;font-size:11px;font-weight:700;color:#fff;letter-spacing:0.5px}
+
+/* Card body */
+.cc-body{padding:20px;flex:1;display:flex;flex-direction:column}
+.cc-title{font-size:17px;font-weight:800;color:var(--text);margin-bottom:6px;letter-spacing:-0.2px}
+.cc-desc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px;flex:1}
+.cc-stats{display:flex;align-items:center;gap:16px;margin-bottom:16px;font-size:12px;color:var(--muted)}
+.cc-stat{display:flex;align-items:center;gap:4px}
+.cc-stat svg{flex-shrink:0}
+
+/* Progress bar for owned courses */
+.cc-progress{margin-bottom:16px}
+.cc-progress-bar{height:5px;background:var(--surface2);border-radius:99px;overflow:hidden;margin-bottom:4px}
+.cc-progress-fill{height:100%;background:linear-gradient(90deg,var(--cyan),#38bdf8);border-radius:99px}
+.cc-progress-text{font-size:11px;font-weight:700;color:var(--cyan)}
+
+/* CTA button */
+.cc-btn{display:block;width:100%;padding:12px;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;transition:all 0.15s}
+.cc-btn-buy{background:var(--text);color:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+.cc-btn-buy:hover{background:#2d2d4e;transform:translateY(-1px)}
+.cc-btn-continue{background:var(--cyan);color:#fff;box-shadow:0 2px 8px rgba(14,165,233,0.25)}
+.cc-btn-continue:hover{background:#0284c7;transform:translateY(-1px)}
+.cc-btn-login{background:var(--surface);color:var(--text2);border:1px solid var(--border)}
+.cc-btn-login:hover{background:var(--surface2)}
+
+/* ── Empty state ── */
+.empty-state{text-align:center;padding:80px 20px}
+.empty-icon{font-size:48px;margin-bottom:16px;opacity:0.5}
+.empty-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:6px}
+.empty-sub{font-size:14px;color:var(--muted)}
 
 /* ── Alert ── */
-.alert{max-width:1140px;margin:0 auto 20px;padding:14px 20px;border-radius:12px;font-weight:600;font-size:14px;text-align:center}
+.alert{padding:14px 20px;border-radius:12px;font-weight:600;font-size:14px;margin-bottom:20px}
 .alert-error{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
 
-/* ── Course Cards (styled like Grid Cards) ── */
-.course-card{background:#fff;border:1px solid rgba(15,25,60,.08);border-radius:20px;overflow:hidden;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12)}
-.course-card.owned{border-color:#86efac}
-.course-card-head{display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-bottom:1px solid rgba(15,25,60,.07)}
-.course-card-title{font-size:17px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:10px}
-.course-card-title .dot{width:10px;height:10px;border-radius:50%}
-.dot.tier-1{background:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,0.15)}
-.dot.tier-2{background:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,0.15)}
-.dot.tier-3{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,0.15)}
-.badge-price{font-family:Sora,sans-serif;font-size:22px;font-weight:800}
-.badge-price.tier-1{color:#0ea5e9}.badge-price.tier-2{color:#7c3aed}.badge-price.tier-3{color:#f59e0b}
-.badge-owned{font-size:11px;font-weight:700;color:#10b981;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);padding:4px 12px;border-radius:20px}
-
-.course-card-body{padding:28px}
-.course-desc{font-size:15px;color:#3d5068;line-height:1.7;margin-bottom:20px}
-
-/* Feature list styled like level rows */
-.feature-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(15,25,60,.05)}
-.feature-row:last-child{border-bottom:none}
-.feature-check{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
-.feature-check.tier-1{background:rgba(14,165,233,0.08);color:#0ea5e9}
-.feature-check.tier-2{background:rgba(124,58,237,0.08);color:#7c3aed}
-.feature-check.tier-3{background:rgba(245,158,11,0.08);color:#f59e0b}
-.feature-text{font-size:14px;font-weight:500;color:#334155;flex:1}
-
-.section-label{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#38bdf8;text-align:center;margin:28px 0 16px}
-
-/* Commission box inside card (styled like grid container) */
-.commission-container{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:16px;padding:24px;text-align:center;margin-bottom:24px}
-.commission-val{font-family:Sora,sans-serif;font-size:36px;font-weight:800;color:#059669}
-.commission-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#047857;margin-top:4px}
-.commission-sub{font-size:13px;color:#3d5068;margin-top:8px}
-
-/* CTA Buttons */
-.btn-purchase{display:block;width:100%;padding:14px;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;text-align:center}
-.btn-purchase:hover{transform:translateY(-2px)}
-.btn-purchase.tier-1{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;box-shadow:0 4px 14px rgba(14,165,233,0.3)}
-.btn-purchase.tier-1:hover{box-shadow:0 8px 24px rgba(14,165,233,0.35)}
-.btn-purchase.tier-2{background:linear-gradient(135deg,#7c3aed,#8b5cf6);color:#fff;box-shadow:0 4px 14px rgba(124,58,237,0.3)}
-.btn-purchase.tier-2:hover{box-shadow:0 8px 24px rgba(124,58,237,0.35)}
-.btn-purchase.tier-3{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#fff;box-shadow:0 4px 14px rgba(245,158,11,0.3)}
-.btn-purchase.tier-3:hover{box-shadow:0 8px 24px rgba(245,158,11,0.35)}
-.btn-owned{background:#d1fae5!important;color:#059669!important;cursor:default;pointer-events:none;box-shadow:none!important}
-.btn-login{background:linear-gradient(135deg,#1e293b,#334155);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.15)}
-
-/* ── Earnings Row (identical to Profit Grid) ── */
-.earnings-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:32px}
-.earn-card{background:linear-gradient(135deg,#6d28d9,#7c3aed,#a78bfa);border-radius:20px;padding:28px;position:relative;overflow:hidden}
-.earn-card::before{content:'';position:absolute;top:-30%;right:-10%;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.06)}
-.earn-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:rgba(255,255,255,0.15)}
-.earn-card-title{font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:8px;position:relative;z-index:1}
-.earn-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1);position:relative;z-index:1}
-.earn-row:last-child{border-bottom:none}
-.earn-label{font-size:14px;color:rgba(255,255,255,0.7)}
-.earn-val{font-size:14px;font-weight:700;color:#fff}
-.earn-val.total{font-size:20px;color:#fff;font-family:Sora,sans-serif}
-
-/* ── Footer ── */
-.footer{text-align:center;padding:24px;color:#94a3b8;font-size:12px;border-top:1px solid #e2e8f0;margin-top:24px}
-
-/* ── Responsive ── */
-@media(max-width:900px){.hero{grid-template-columns:1fr}.hero-stats-grid{grid-template-columns:1fr 1fr}.earnings-row{grid-template-columns:1fr}}
-@media(max-width:640px){
-  .topbar{display:none}.mobile-topbar{display:flex!important}
-  .hero{grid-template-columns:1fr}.hero-main{padding:28px}.hero-h1{font-size:28px}
-  .hero-stats-grid{grid-template-columns:1fr 1fr}.stat-card{padding:16px}.stat-val{font-size:24px}
-  .container{padding:20px 16px 60px}
-  .course-card-head{flex-wrap:wrap;gap:10px}.course-card-body{padding:20px 16px}
-  .earn-card{padding:20px}
+@media(max-width:768px){
+  .sidebar{display:none!important}
+  .main{margin-left:0!important}
+  .topbar{display:none}
+  .content{padding:16px}
+  .courses-grid{grid-template-columns:1fr}
 }
 </style>
-<link rel="stylesheet" href="/static/mobile.css">
 </head>
 <body>
 
 <div class="layout">
-  {% include "_sidebar.html" %}
-  <div class="main">
+{% include "_sidebar.html" %}
 
+<div class="main">
 
-<!-- ── Mobile Topbar ── -->
-<div class="mobile-topbar">
-  <a class="mobile-topbar-left" href="/dashboard">
-    <svg width="28" height="28" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="url(#mlg)"/><path d="M18 13l14 9-14 9V13z" fill="#fff"/><defs><linearGradient id="mlg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#7c3aed"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs></svg>
-    <span class="mobile-topbar-name">SuperAdPro</span>
-  </a>
-  {% if user %}
-  <div class="mobile-balance-chip">${{ '%.2f'|format(user.balance) }} USDT</div>
-  {% endif %}
-</div>
-
-<!-- ── Desktop Topbar ── -->
-<div class="topbar">
-  <div><div class="topbar-title">📚 Course <span style="color:#a78bfa">Academy</span></div>
-    <div class="topbar-sub">3-Tier Training · 100% Commissions · Infinite Pass-Up</div>
-  </div>
-  <div class="topbar-right">
-    {% if user %}
-    <a href="/courses/commissions" class="back-btn" style="gap:6px">💰 My Commissions</a>
-    <div class="balance-chip">
-      <div class="balance-label">Balance</div>
-      <div><span class="balance-val">${{ '%.2f'|format(user.balance) }}</span><span class="balance-unit">USDT</span></div>
-    </div>
-    {% endif %}
-    
-  </div>
-</div>
-
-<div class="container">
-
-  {% if error %}
-  <div class="alert alert-error" style="margin-bottom:24px">{{ error }}</div>
-  {% endif %}
-
-  <!-- ── Hero Section ── -->
-  <div class="hero">
-    <div class="hero-main">
-      <div class="hero-eyebrow">SuperAdPro Academy</div>
-      <div class="hero-h1">Master Digital<br>Marketing <span>& Earn</span> 💰</div>
-      <div class="hero-desc">Three powerful training tiers with 100% affiliate commissions. Your first sale at each tier passes up — then every sale after that is yours to keep. Forever.</div>
-    </div>
-    <div class="hero-stats-grid">
-      <div class="stat-card c1">
-        <div class="stat-icon">📚</div>
-        <div class="stat-val c1">{{ courses|length }}</div>
-        <div class="stat-label">Courses</div>
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
       </div>
-      <div class="stat-card c2">
-        <div class="stat-icon">✅</div>
-        <div class="stat-val c2">{{ owned_tiers|length }}</div>
-        <div class="stat-label">Owned</div>
-      </div>
-      <div class="stat-card c3">
-        <div class="stat-icon">💰</div>
-        <div class="stat-val c3">${{ '%.0f'|format(user.course_earnings if user and user.course_earnings else 0) }}</div>
-        <div class="stat-label">Course Earnings</div>
-      </div>
-      <div class="stat-card c4">
-        <div class="stat-icon">🏆</div>
-        <div class="stat-val c4">${{ '%.0f'|format(900) }}</div>
-        <div class="stat-label">Full Stack Value</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Course Cards ── -->
-  {% for course in courses %}
-  <div class="course-card {{ 'owned' if course.tier in owned_tiers else '' }}">
-    <div class="course-card-head">
-      <div class="course-card-title">
-        <div class="dot tier-{{ course.tier }}"></div>
-        Tier {{ course.tier }} · {{ course.title }}
-      </div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <span class="badge-price tier-{{ course.tier }}">${{ '%.0f'|format(course.price) }}</span>
-        {% if course.tier in owned_tiers %}
-        <span class="badge-owned">✓ OWNED</span>
-        {% endif %}
-      </div>
-    </div>
-    <div class="course-card-body">
-      <div class="course-desc">{{ course.description }}</div>
-
-      <div class="section-label">What You'll Learn</div>
       <div>
-        {% if course.tier == 1 %}
-          {% set features = ["Digital advertising fundamentals", "Affiliate marketing foundations", "Traffic generation basics", "Social media ad strategies", "Email marketing essentials"] %}
-        {% elif course.tier == 2 %}
-          {% set features = ["Everything in Starter, plus:", "Advanced funnel architecture", "Conversion rate optimisation", "Paid traffic mastery", "Retargeting & audience building", "Split testing frameworks"] %}
-        {% elif course.tier == 3 %}
-          {% set features = ["Everything in Advanced, plus:", "High-ticket sales system", "Team building & leadership", "Scaling to six figures", "Automation & systems", "Complete business-in-a-box"] %}
-        {% endif %}
-        {% for f in features %}
-        <div class="feature-row">
-          <div class="feature-check tier-{{ course.tier }}">✓</div>
-          <div class="feature-text">{{ f }}</div>
-        </div>
-        {% endfor %}
+        <div class="tb-title">Course Library</div>
+        <div class="tb-sub">Browse courses · Learn new skills · Track your progress</div>
       </div>
-
-      <div class="section-label">Commission Per Sale</div>
-      <div class="commission-container">
-        <div class="commission-val">${{ '%.0f'|format(course.price) }}</div>
-        <div class="commission-label">100% Commission · Infinite Depth</div>
-        <div class="commission-sub">Your 1st sale passes up to your upline — every sale after that, you keep 100%.</div>
-      </div>
-
-      <!-- CTA -->
-      {% if course.tier in owned_tiers %}
-        <a href="/courses/learn/{{ course.id }}" class="btn-purchase btn-owned">✓ Owned — Access Course →</a>
-      {% elif user %}
-        <form method="POST" action="/courses/purchase/{{ course.id }}" onsubmit="return confirm('Purchase {{ course.title }} for ${{ '%.0f'|format(course.price) }} from your wallet balance?')">
-          <button type="submit" class="btn-purchase tier-{{ course.tier }}">⚡ Buy Now — ${{ '%.0f'|format(course.price) }}</button>
-        </form>
-      {% else %}
-        <a href="/login?next=/courses" class="btn-purchase btn-login">🔒 Log In to Purchase</a>
+    </div>
+    <div class="tb-right">
+      {% if user %}
+      <a class="tb-link" href="/courses/commissions">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        My Commissions
+      </a>
       {% endif %}
     </div>
   </div>
-  {% endfor %}
 
-  <!-- ── Earnings Row (same as Profit Grid) ── -->
-  <div class="earnings-row">
-    <div class="earn-card">
-      <div class="earn-card-title">📊 Earnings Per Full-Stack Member</div>
-      <div class="earn-row"><span class="earn-label">Tier 1 — Starter</span><span class="earn-val">$100</span></div>
-      <div class="earn-row"><span class="earn-label">Tier 2 — Advanced</span><span class="earn-val">$300</span></div>
-      <div class="earn-row"><span class="earn-label">Tier 3 — Elite</span><span class="earn-val">$500</span></div>
-      <div class="earn-row" style="border-top:1px solid rgba(255,255,255,0.15);margin-top:4px;padding-top:12px"><span class="earn-label" style="color:#fff;font-weight:700">Total Per Member</span><span class="earn-val total">$900</span></div>
-    </div>
-    <div class="earn-card">
-      <div class="earn-card-title">🔄 How Infinite Pass-Up Works</div>
-      <div style="font-size:14px;color:rgba(255,255,255,0.7);line-height:1.7;position:relative;z-index:1">
-        <p style="margin-bottom:12px">Every affiliate's <strong style="color:#fff">first sale at each tier</strong> passes up to their qualified upline. After that, every sale is yours.</p>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="background:rgba(255,255,255,0.12);border-radius:6px;padding:3px 10px;font-weight:700;color:#fff;font-size:13px">1st</span><span>sale at each tier → passes up</span></div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span style="background:rgba(255,255,255,0.12);border-radius:6px;padding:3px 10px;font-weight:700;color:#fff;font-size:13px">2nd+</span><span>sales → you keep 100% forever</span></div>
-        <p>As your team grows, pass-ups flow from <strong style="color:#fff">people you've never met</strong> — creating recurring income from infinite depth.</p>
+  <div class="content">
+
+    {% if error is defined and error %}
+    <div class="alert alert-error">{{ error }}</div>
+    {% endif %}
+
+    {% if courses %}
+    <div class="courses-grid">
+      {% for course in courses %}
+      {% set owned = course.id in owned_ids %}
+      {% set stats = course_stats.get(course.id, {"lessons": 0, "chapters": 0, "mins": 0}) %}
+      {% set progress = course_progress.get(course.id, {"total": 0, "done": 0, "pct": 0}) %}
+      <div class="course-card">
+
+        <!-- Thumbnail -->
+        <div class="cc-thumb">
+          {% if course.thumbnail_url %}
+          <img src="{{ course.thumbnail_url }}" style="width:100%;height:100%;object-fit:cover" alt="{{ course.title }}">
+          {% else %}
+          <div class="cc-thumb-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><polygon points="6 3 20 12 6 21"/></svg>
+          </div>
+          {% endif %}
+          <div class="cc-price-badge">${{ '%.0f'|format(course.price) }}</div>
+          {% if owned %}
+          <div class="cc-owned-badge">✓ OWNED</div>
+          {% endif %}
+        </div>
+
+        <!-- Body -->
+        <div class="cc-body">
+          <div class="cc-title">{{ course.title }}</div>
+          <div class="cc-desc">{{ course.description or 'Master the skills you need to succeed in digital marketing and online business.' }}</div>
+
+          <div class="cc-stats">
+            <span class="cc-stat">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              {{ stats.chapters }} chapters
+            </span>
+            <span class="cc-stat">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              {{ stats.lessons }} lessons
+            </span>
+            <span class="cc-stat">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              {{ stats.mins }}m
+            </span>
+          </div>
+
+          {% if owned and progress.total > 0 %}
+          <div class="cc-progress">
+            <div class="cc-progress-bar"><div class="cc-progress-fill" style="width:{{ progress.pct }}%"></div></div>
+            <div class="cc-progress-text">{{ progress.done }}/{{ progress.total }} complete ({{ progress.pct }}%)</div>
+          </div>
+          {% endif %}
+
+          {% if owned %}
+          <a href="/courses/learn/{{ course.id }}" class="cc-btn cc-btn-continue">Continue Learning →</a>
+          {% elif user %}
+          <form method="POST" action="/courses/purchase/{{ course.id }}" onsubmit="return confirm('Purchase {{ course.title }} for ${{ '%.0f'|format(course.price) }} from your wallet balance?')">
+            <button type="submit" class="cc-btn cc-btn-buy">Buy Course — ${{ '%.0f'|format(course.price) }}</button>
+          </form>
+          {% else %}
+          <a href="/login?next=/courses" class="cc-btn cc-btn-login">Log in to purchase</a>
+          {% endif %}
+        </div>
+
       </div>
+      {% endfor %}
     </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📚</div>
+      <div class="empty-title">No courses available yet</div>
+      <div class="empty-sub">Check back soon — new courses are being added.</div>
+    </div>
+    {% endif %}
+
   </div>
 
-</div>
-
-<div class="footer">
-  © 2026 SuperAdPro. All rights reserved. · <a href="/">superadpro.com</a>
-</div>
-
-  </div><!-- /main -->
+</div><!-- /main -->
 </div><!-- /layout -->
 {% include "_tawk.html" %}
 </body>

@@ -6763,21 +6763,37 @@ def reset_account(secret: str, db: Session = Depends(get_db)):
 
 @app.get("/courses")
 async def courses_page(request: Request, db: Session = Depends(get_db)):
-    """Public course catalogue page."""
+    """Course library page."""
     user = get_current_user(request, db)
     courses = db.query(Course).filter(Course.is_active == True).order_by(Course.sort_order).all()
 
-    # Get user's owned tiers if logged in
-    owned_tiers = []
+    # Get user's purchases and progress if logged in
+    owned_ids = []
+    course_progress = {}
     if user:
         purchases = db.query(CoursePurchase).filter(CoursePurchase.user_id == user.id).all()
-        owned_tiers = [p.course_tier for p in purchases]
+        owned_ids = [p.course_id for p in purchases]
+        # Progress per course
+        for cid in owned_ids:
+            total = db.query(CourseLesson).filter(CourseLesson.course_id == cid).count()
+            done = db.query(CourseProgress).filter(CourseProgress.user_id == user.id, CourseProgress.course_id == cid).count()
+            course_progress[cid] = {"total": total, "done": done, "pct": round((done / max(total, 1)) * 100)}
+
+    # Lesson/chapter counts per course
+    course_stats = {}
+    for c in courses:
+        lesson_count = db.query(CourseLesson).filter(CourseLesson.course_id == c.id).count()
+        chapter_count = db.query(CourseChapter).filter(CourseChapter.course_id == c.id).count()
+        total_mins = db.query(func.coalesce(func.sum(CourseLesson.duration_mins), 0)).filter(CourseLesson.course_id == c.id).scalar()
+        course_stats[c.id] = {"lessons": lesson_count, "chapters": chapter_count, "mins": int(total_mins)}
 
     return templates.TemplateResponse("courses.html", {
         "request": request,
         "user": user,
         "courses": courses,
-        "owned_tiers": owned_tiers,
+        "owned_ids": owned_ids,
+        "course_progress": course_progress,
+        "course_stats": course_stats,
         "active_page": "courses"
     })
 
