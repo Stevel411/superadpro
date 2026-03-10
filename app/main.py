@@ -6908,7 +6908,7 @@ async def course_how_it_works(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse("course-how-it-works.html", {
         "request": request,
         "user": user,
-        "active_page": "courses"
+        "active_page": "course-how-it-works"
     })
 
 
