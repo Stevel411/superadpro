@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ProSeller AI — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/mobile.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#ffffff;--bg-page:#ffffff;--card:#ffffff;--card-inner:#f8f9fb;
+  --cyan:#0ea5e9;--cyan-light:#e0f2fe;--cyan-bright:#38bdf8;
+  --green:#16a34a;--green-light:#dcfce7;--red:#dc2626;--red-light:#fef2f2;
+  --purple:#6366f1;--purple-light:#ede9fe;--amber:#d97706;--amber-light:#fef3c7;
+  --text:#1a1a2e;--text2:#475569;--muted:#94a3b8;
+  --border:#e5e7eb;--border-focus:#94a3b8;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12);
+  --shadow-md:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16);
+  --radius:12px;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-page);color:var(--text);min-height:100vh}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;min-height:72px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.nav-scroll{flex:1;overflow-y:auto;padding:8px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
+.nav-scroll::-webkit-scrollbar{width:4px}
+.nav-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:4px}
+.nav-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 12px}
+.nav-group{margin-bottom:2px}
+.nav-header{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;font-size:11.5px;font-weight:700;color:#0ea5e9;text-transform:uppercase;letter-spacing:.8px;cursor:pointer;user-select:none;transition:.15s}
+.nav-header:hover{background:rgba(14,165,233,.06)}
+.nav-chevron{font-size:14px;transition:transform .2s;color:rgba(255,255,255,.3)}
+.nav-group.open .nav-chevron{transform:rotate(90deg)}
+.nav-children{display:none;padding-bottom:4px}
+.nav-group.open .nav-children{display:block}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px 9px 22px;font-size:13px;color:rgba(200,220,255,.55);text-decoration:none;transition:.12s;cursor:pointer;font-weight:500}
+.nav-item:hover{background:rgba(14,165,233,.06);color:rgba(200,220,255,.85)}
+.nav-item.active{color:#38bdf8;font-weight:700;background:rgba(14,165,233,.08)}
+.nav-icon{font-size:15px;width:22px;text-align:center;flex-shrink:0}
+.nav-standalone{padding:10px 18px}
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden}
+
+/* ── Topbar ── */
+.topbar{height:72px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:50}
+.topbar h1{font-family:Sora,sans-serif;font-size:20px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:10px}
+.topbar h1 span{font-size:22px}
+
+/* ── Content ── */
+.content{padding:28px 32px;flex:1}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:24px}
+.tab{background:none;border:none;padding:12px 22px;font-size:14px;font-weight:600;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;display:flex;align-items:center;gap:8px;transition:.15s}
+.tab:hover{color:var(--text2)}
+.tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.tab .badge{background:var(--red);color:#fff;border-radius:20px;padding:1px 7px;font-size:11px;font-weight:700}
+
+/* ── Stats ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--card);border-radius:14px;padding:20px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;align-items:stretch}
+.stat-label{font-size:12px;color:var(--muted);font-weight:500;margin-bottom:8px}
+.stat-val{font-size:30px;font-weight:800;font-family:Sora,sans-serif}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* ── Follow-up Alerts ── */
+.followup-alert{background:linear-gradient(135deg,#fef3c7,#fff7ed);border-radius:16px;padding:20px;margin-bottom:24px;border:1px solid #fde68a}
+.followup-title{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.followup-title span{font-size:15px;font-weight:700;color:#92400e}
+.followup-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid rgba(251,191,36,0.3)}
+.followup-item:first-child{border-top:none}
+
+/* ── Pipeline ── */
+.pipeline{display:flex;gap:14px;overflow-x:auto;padding-bottom:16px}
+.pipeline::-webkit-scrollbar{height:6px}
+.pipeline::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:4px}
+.pipeline-col{min-width:260px;background:var(--card-inner);border-radius:14px;padding:14px;border:1px solid var(--border);flex-shrink:0}
+.pipeline-header{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.pipeline-dot{width:10px;height:10px;border-radius:50%}
+.pipeline-count{background:#e2e8f0;border-radius:20px;padding:1px 8px;font-size:11px;font-weight:600;color:var(--muted);margin-left:auto}
+
+/* ── Prospect Cards ── */
+.prospect-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:8px;cursor:pointer;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.04);transition:transform .1s,box-shadow .15s}
+.prospect-card:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.prospect-card.hot{border-color:#86efac}
+.prospect-card.overdue{border-color:#fca5a5}
+.prospect-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.prospect-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.ptag{padding:3px 8px;border-radius:6px;font-size:10px;font-weight:600}
+
+/* ── Modal ── */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:20px;padding:28px;width:520px;max-height:85vh;overflow-y:auto;box-shadow:0 25px 80px rgba(0,0,0,0.2)}
+
+/* ── Coach Panel ── */
+.coach-container{max-width:700px;margin:0 auto}
+.coach-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.coach-btn{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px 16px;text-align:left;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.04);transition:all .15s}
+.coach-btn:hover{border-color:var(--cyan);box-shadow:var(--shadow-sm)}
+.coach-btn-icon{font-size:26px;margin-bottom:10px}
+.coach-btn-title{font-size:14px;font-weight:700;color:var(--text)}
+.coach-btn-desc{font-size:12px;color:var(--muted);margin-top:3px}
+
+/* ── AI Results ── */
+.ai-result{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.ai-result-text{font-size:14px;color:#334155;line-height:1.75;margin-bottom:14px}
+.ai-actions{display:flex;gap:8px}
+
+/* ── Platforms ── */
+.platform-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.platform-pill{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#fff;transition:.15s}
+.platform-pill.active{background:var(--cyan);color:#fff;border-color:var(--cyan)}
+
+/* ── Objection Buttons ── */
+.objection-btn{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;text-align:left;width:100%;margin-bottom:8px;transition:.15s}
+.objection-btn:hover{border-color:var(--cyan);background:#f8fafc}
+
+/* ── Add Prospect Form ── */
+.form-row{margin-bottom:16px}
+.form-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block}
+.form-input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;color:var(--text)}
+.form-input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(14,165,233,0.1)}
+textarea.form-input{min-height:80px;resize:vertical}
+
+/* ── Buttons ── */
+.btn{padding:10px 20px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
+.btn-primary{background:var(--cyan);color:#fff}
+.btn-primary:hover{background:#0284c7}
+.btn-gradient{background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff}
+.btn-gradient:hover{opacity:.9}
+.btn-ghost{background:#f1f5f9;color:var(--text2)}
+.btn-ghost:hover{background:#e2e8f0}
+.btn-sm{padding:7px 14px;font-size:12px}
+.btn-block{width:100%}
+.btn-amber{background:#f59e0b;color:#fff}
+.btn-amber:hover{background:#d97706}
+
+/* ── Loading spinner ── */
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .content{padding:16px}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .coach-grid{grid-template-columns:1fr}
+  .pipeline{flex-direction:column}
+  .pipeline-col{min-width:auto}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  {% include '_sidebar.html' %}
+
+  <div class="main">
+    <!-- Topbar -->
+    <div class="topbar">
+      <h1><span>🎯</span> ProSeller AI</h1>
+      <div style="display:flex;gap:10px;align-items:center">
+        <span style="font-size:12px;color:var(--muted)">{{ msgs_today }} messages today</span>
+        <button class="btn btn-gradient btn-sm" onclick="showAddProspect()">+ Add Prospect</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="pipeline" onclick="switchTab('pipeline')">📊 Pipeline</button>
+        <button class="tab" data-tab="coach" onclick="switchTab('coach')">🎯 AI Coach</button>
+        <button class="tab" data-tab="followups" onclick="switchTab('followups')">
+          ⚡ Follow-Ups
+          {% if followups_due|length > 0 %}<span class="badge">{{ followups_due|length }}</span>{% endif %}
+        </button>
+      </div>
+
+      <!-- ══════════ PIPELINE TAB ══════════ -->
+      <div id="tab-pipeline" class="tab-content">
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-label">Active Prospects</div>
+            <div class="stat-val" style="color:var(--cyan)">{{ total_prospects }}</div>
+            <div class="stat-sub">across all stages</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Hot Leads</div>
+            <div class="stat-val" style="color:#f97316">{{ stage_counts.get('hot', 0) + stage_counts.get('closing', 0) }}</div>
+            <div class="stat-sub">ready to close</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Conversions</div>
+            <div class="stat-val" style="color:var(--green)">{{ converted_count }}</div>
+            <div class="stat-sub">prospects signed up</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">AI Messages</div>
+            <div class="stat-val" style="color:var(--purple)">{{ msgs_today }}</div>
+            <div class="stat-sub">generated today</div>
+          </div>
+        </div>
+
+        <!-- Follow-up alerts -->
+        {% if followups_due|length > 0 %}
+        <div class="followup-alert">
+          <div class="followup-title">
+            <span style="font-size:18px">⚡</span>
+            <span>Follow-Ups Due Today</span>
+            <span style="background:#f59e0b;color:#fff;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;margin-left:auto">{{ followups_due|length }}</span>
+          </div>
+          {% for p in followups_due[:5] %}
+          <div class="followup-item">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:#78350f">{{ p.name }}</div>
+              <div style="font-size:12px;color:#a16207">{{ p.platform or 'Unknown' }} · {{ p.notes[:60] if p.notes else 'No notes' }}{{ '...' if p.notes and p.notes|length > 60 else '' }}</div>
+            </div>
+            <button class="btn btn-amber btn-sm" onclick="coachForProspect('followup', '{{ p.name }}', '{{ p.platform or 'instagram' }}')">AI Message →</button>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Pipeline kanban -->
+        <h3 style="font-family:Sora,sans-serif;font-size:17px;font-weight:800;color:var(--text);margin-bottom:16px">Prospect Pipeline</h3>
+        <div class="pipeline" id="pipelineBoard">
+          {% set stages = [
+            ('cold', 'Cold', '#94a3b8'),
+            ('contacted', 'Contacted', '#3b82f6'),
+            ('interested', 'Interested', '#f59e0b'),
+            ('objecting', 'Objecting', '#ef4444'),
+            ('hot', 'Hot Lead', '#f97316'),
+            ('closing', 'Closing', '#10b981')
+          ] %}
+          {% for stage_id, stage_name, stage_color in stages %}
+          <div class="pipeline-col">
+            <div class="pipeline-header">
+              <div class="pipeline-dot" style="background:{{ stage_color }}"></div>
+              <span style="font-size:13px;font-weight:700;color:#334155">{{ stage_name }}</span>
+              <span class="pipeline-count">{{ stage_counts.get(stage_id, 0) }}</span>
+            </div>
+            {% for p in prospects if p.stage == stage_id %}
+            <div class="prospect-card {{ 'hot' if p.stage in ['hot','closing'] else '' }} {{ 'overdue' if p.follow_up_at and p.follow_up_at < now else '' }}" onclick="showProspectDetail({{ p.id }})">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <div class="prospect-avatar" style="background:{{ 'linear-gradient(135deg,#10b981,#059669)' if p.stage in ['hot','closing'] else '#e2e8f0' }};color:{{ '#fff' if p.stage in ['hot','closing'] else '#64748b' }}">{{ p.name[:2].upper() }}</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:var(--text)">{{ p.name }}</div>
+                  <div style="font-size:11px;color:var(--muted)">{{ p.platform or 'Unknown' }}</div>
+                </div>
+              </div>
+              {% if p.notes %}
+              <div style="font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:8px">{{ p.notes[:80] }}{{ '...' if p.notes|length > 80 else '' }}</div>
+              {% endif %}
+              <div class="prospect-tags">
+                {% if p.link_clicks > 0 %}<span class="ptag" style="background:#eff6ff;color:#2563eb">🔗 {{ p.link_clicks }} clicks</span>{% endif %}
+                {% if p.stage in ['hot','closing'] %}<span class="ptag" style="background:#f0fdf4;color:#16a34a">🔥 Hot</span>{% endif %}
+              </div>
+            </div>
+            {% endfor %}
+            <button class="btn btn-ghost btn-sm btn-block" style="border:1px dashed #cbd5e1;margin-top:4px" onclick="showAddProspect('{{ stage_id }}')">+ Add prospect</button>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- ══════════ AI COACH TAB ══════════ -->
+      <div id="tab-coach" class="tab-content" style="display:none">
+        <div class="coach-container">
+          <!-- Main action card -->
+          <div style="background:linear-gradient(135deg,#0ea5e9,#6366f1);border-radius:16px;padding:24px;margin-bottom:24px;color:#fff;box-shadow:0 8px 32px rgba(14,165,233,0.25)">
+            <div style="font-size:11px;font-weight:600;letter-spacing:1px;opacity:0.8;margin-bottom:6px">AI SALES COACH</div>
+            <div style="font-size:17px;font-weight:700;margin-bottom:4px">Generate ready-to-send messages in seconds</div>
+            <div style="font-size:13px;opacity:0.8">Pick a scenario below, choose the platform, and get personalised copy you can paste straight into the conversation.</div>
+          </div>
+
+          <!-- Scenario grid -->
+          <div class="coach-grid">
+            <button class="coach-btn" onclick="startCoachFlow('cold_opener')">
+              <div class="coach-btn-icon">🧊</div>
+              <div class="coach-btn-title">Cold Opener</div>
+              <div class="coach-btn-desc">Generate a first message for someone new</div>
+            </button>
+            <button class="coach-btn" onclick="startCoachFlow('objection')">
+              <div class="coach-btn-icon">🛡️</div>
+              <div class="coach-btn-title">Handle Objection</div>
+              <div class="coach-btn-desc">They pushed back — get instant responses</div>
+            </button>
+            <button class="coach-btn" onclick="startCoachFlow('followup')">
+              <div class="coach-btn-icon">🔄</div>
+              <div class="coach-btn-title">Follow Up</div>
+              <div class="coach-btn-desc">They went quiet or said "let me think"</div>
+            </button>
+            <button class="coach-btn" onclick="startCoachFlow('closing')">
+              <div class="coach-btn-icon">🎯</div>
+              <div class="coach-btn-title">Close the Deal</div>
+              <div class="coach-btn-desc">They're interested — give the final nudge</div>
+            </button>
+          </div>
+
+          <!-- Coach flow area -->
+          <div id="coachFlow" style="display:none">
+            <div style="border-top:1px solid var(--border);padding-top:20px">
+              <!-- Step 1: Platform selection -->
+              <div id="coachStep1">
+                <h3 style="font-size:16px;font-weight:700;margin-bottom:4px">Where are you messaging?</h3>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px">We'll adapt the tone and length to match</p>
+                <div class="platform-pills" id="platformPills">
+                  <button class="platform-pill" data-platform="instagram" onclick="selectPlatform('instagram')">📸 Instagram</button>
+                  <button class="platform-pill" data-platform="whatsapp" onclick="selectPlatform('whatsapp')">💬 WhatsApp</button>
+                  <button class="platform-pill" data-platform="facebook" onclick="selectPlatform('facebook')">👤 Facebook</button>
+                  <button class="platform-pill" data-platform="linkedin" onclick="selectPlatform('linkedin')">💼 LinkedIn</button>
+                  <button class="platform-pill" data-platform="twitter" onclick="selectPlatform('twitter')">🐦 X / Twitter</button>
+                  <button class="platform-pill" data-platform="text" onclick="selectPlatform('text')">📱 Text / SMS</button>
+                </div>
+              </div>
+
+              <!-- Step 2a: Prospect description (cold opener) -->
+              <div id="coachColdInput" style="display:none">
+                <h3 style="font-size:16px;font-weight:700;margin-bottom:4px">Describe your prospect</h3>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:12px">The more detail, the better the opener</p>
+                <textarea id="prospectDesc" class="form-input" placeholder="e.g. Fitness coach on Instagram, 5k followers, posts about side income and building wealth..."></textarea>
+                <button class="btn btn-gradient btn-block" style="margin-top:12px" onclick="generateMessage()">✨ Generate Messages</button>
+              </div>
+
+              <!-- Step 2b: Objection selection -->
+              <div id="coachObjections" style="display:none">
+                <h3 style="font-size:16px;font-weight:700;margin-bottom:4px">What did they say?</h3>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Tap the objection you just heard</p>
+                <button class="objection-btn" onclick="selectObjection('scam')">"Is this a scam / pyramid scheme?"</button>
+                <button class="objection-btn" onclick="selectObjection('money')">"I don't have the money right now"</button>
+                <button class="objection-btn" onclick="selectObjection('time')">"I don't have time for this"</button>
+                <button class="objection-btn" onclick="selectObjection('think')">"I need to think about it"</button>
+                <button class="objection-btn" onclick="selectObjection('tried')">"I've tried these things before"</button>
+                <button class="objection-btn" onclick="selectObjection('spouse')">"I need to ask my partner first"</button>
+                <button class="objection-btn" onclick="selectObjection('skills')">"I'm not good at sales"</button>
+                <button class="objection-btn" onclick="selectObjection('saturated')">"Isn't the market saturated?"</button>
+              </div>
+
+              <!-- Step 2c: Follow-up / closing context -->
+              <div id="coachContextInput" style="display:none">
+                <h3 style="font-size:16px;font-weight:700;margin-bottom:4px" id="contextTitle">Any context?</h3>
+                <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Optional — helps the AI be more specific</p>
+                <textarea id="contextDesc" class="form-input" placeholder="e.g. They said they'd think about it 3 days ago, they're a mum of two looking for extra income..."></textarea>
+                <button class="btn btn-gradient btn-block" style="margin-top:12px" onclick="generateMessage()">✨ Generate Messages</button>
+              </div>
+
+              <!-- Results -->
+              <div id="coachResults" style="display:none;margin-top:20px">
+                <div style="font-size:11px;font-weight:600;letter-spacing:1px;color:var(--muted);margin-bottom:12px">AI-GENERATED MESSAGES</div>
+                <div id="resultsContainer"></div>
+                <button class="btn btn-ghost btn-block" style="margin-top:8px;border:1px dashed #cbd5e1" onclick="generateMessage()">🔄 Generate different messages</button>
+              </div>
+
+              <!-- Loading -->
+              <div id="coachLoading" style="display:none;text-align:center;padding:40px">
+                <div class="spinner" style="border-color:rgba(14,165,233,0.2);border-top-color:var(--cyan);width:32px;height:32px;margin:0 auto 12px"></div>
+                <div style="font-size:14px;color:var(--muted)">Crafting your message...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ FOLLOW-UPS TAB ══════════ -->
+      <div id="tab-followups" class="tab-content" style="display:none">
+        {% if followups_due|length == 0 %}
+        <div style="text-align:center;padding:60px 20px">
+          <div style="font-size:48px;margin-bottom:16px">✅</div>
+          <h3 style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px">All caught up!</h3>
+          <p style="color:var(--muted);font-size:14px">No follow-ups due right now. Add prospects and set follow-up dates to stay on top of your pipeline.</p>
+        </div>
+        {% else %}
+        <div style="max-width:700px">
+          {% for p in followups_due %}
+          <div style="background:#fff;border-radius:14px;padding:20px;margin-bottom:12px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:16px">
+            <div class="prospect-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;width:42px;height:42px;font-size:14px">{{ p.name[:2].upper() }}</div>
+            <div style="flex:1">
+              <div style="font-size:15px;font-weight:700;color:var(--text)">{{ p.name }}</div>
+              <div style="font-size:13px;color:var(--muted)">{{ p.platform or 'Unknown' }} · {{ p.notes[:60] if p.notes else 'No notes' }}</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-amber btn-sm" onclick="coachForProspect('followup','{{ p.name }}','{{ p.platform or 'instagram' }}')">AI Message</button>
+              <button class="btn btn-ghost btn-sm" onclick="updateProspectStage({{ p.id }},'contacted')">Mark Contacted</button>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ADD PROSPECT MODAL ══════════ -->
+<div class="modal-overlay" id="addProspectModal">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h3 style="font-family:Sora,sans-serif;font-size:18px;font-weight:800">Add Prospect</h3>
+      <button onclick="document.getElementById('addProspectModal').classList.remove('show')" style="background:none;border:none;font-size:24px;color:var(--muted);cursor:pointer">&times;</button>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Name *</label>
+      <input type="text" id="apName" class="form-input" placeholder="Their name">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Platform</label>
+      <select id="apPlatform" class="form-input">
+        <option value="">Select...</option>
+        <option value="instagram">Instagram</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="facebook">Facebook</option>
+        <option value="linkedin">LinkedIn</option>
+        <option value="twitter">X / Twitter</option>
+        <option value="text">Text / SMS</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Source</label>
+      <select id="apSource" class="form-input">
+        <option value="">Select...</option>
+        <option value="cold_dm">Cold DM</option>
+        <option value="fb_group">Facebook Group</option>
+        <option value="link_click">Clicked My Link</option>
+        <option value="referral">Referred by someone</option>
+        <option value="warm_market">Warm Market</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Notes</label>
+      <textarea id="apNotes" class="form-input" placeholder="What do you know about them? What's their situation?"></textarea>
+    </div>
+    <input type="hidden" id="apStage" value="cold">
+    <button class="btn btn-gradient btn-block" onclick="addProspect()">Add to Pipeline</button>
+  </div>
+</div>
+
+<!-- ══════════ PROSPECT DETAIL MODAL ══════════ -->
+<div class="modal-overlay" id="prospectDetailModal">
+  <div class="modal" id="prospectDetailContent"></div>
+</div>
+
+{% include '_chat_widget.html' %}
+
+<script>
+/* ── Tab switching ── */
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).style.display = 'block';
+  document.querySelector('[data-tab="' + tab + '"]').classList.add('active');
+}
+
+/* ── Add Prospect ── */
+function showAddProspect(stage) {
+  document.getElementById('apStage').value = stage || 'cold';
+  document.getElementById('addProspectModal').classList.add('show');
+}
+
+async function addProspect() {
+  const name = document.getElementById('apName').value.trim();
+  if (!name) return alert('Name is required');
+  const res = await fetch('/api/proseller/prospect', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      action: 'create',
+      name: name,
+      platform: document.getElementById('apPlatform').value,
+      source: document.getElementById('apSource').value,
+      stage: document.getElementById('apStage').value,
+      notes: document.getElementById('apNotes').value,
+    })
+  });
+  const data = await res.json();
+  if (data.success) location.reload();
+  else alert(data.error || 'Failed to add prospect');
+}
+
+/* ── Prospect Detail ── */
+function showProspectDetail(id) {
+  const modal = document.getElementById('prospectDetailModal');
+  const content = document.getElementById('prospectDetailContent');
+  // Simple detail view — in production this would fetch full data
+  content.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h3 style="font-family:Sora,sans-serif;font-size:18px;font-weight:800">Prospect Details</h3>
+      <button onclick="document.getElementById('prospectDetailModal').classList.remove('show')" style="background:none;border:none;font-size:24px;color:var(--muted);cursor:pointer">&times;</button>
+    </div>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Full prospect detail view with conversation timeline, AI suggestions, and stage management will load here.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary btn-sm" onclick="coachForProspect('followup','Prospect','instagram');document.getElementById('prospectDetailModal').classList.remove('show')">🎯 AI Message</button>
+      <button class="btn btn-ghost btn-sm" onclick="updateProspectStage(${id},'contacted')">Move to Contacted</button>
+      <button class="btn btn-ghost btn-sm" onclick="updateProspectStage(${id},'interested')">Move to Interested</button>
+      <button class="btn btn-ghost btn-sm" onclick="updateProspectStage(${id},'hot')">Move to Hot</button>
+      <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="deleteProspect(${id})">Delete</button>
+    </div>
+  `;
+  modal.classList.add('show');
+}
+
+async function updateProspectStage(id, stage) {
+  await fetch('/api/proseller/prospect', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ action: 'update', id: id, stage: stage })
+  });
+  location.reload();
+}
+
+async function deleteProspect(id) {
+  if (!confirm('Delete this prospect?')) return;
+  await fetch('/api/proseller/prospect', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ action: 'delete', id: id })
+  });
+  location.reload();
+}
+
+/* ── AI Coach Flow ── */
+let coachType = '';
+let coachPlatform = '';
+let coachObjection = '';
+
+function startCoachFlow(type) {
+  coachType = type;
+  coachPlatform = '';
+  coachObjection = '';
+  switchTab('coach');
+
+  document.getElementById('coachFlow').style.display = 'block';
+  document.getElementById('coachStep1').style.display = 'block';
+  document.getElementById('coachColdInput').style.display = 'none';
+  document.getElementById('coachObjections').style.display = 'none';
+  document.getElementById('coachContextInput').style.display = 'none';
+  document.getElementById('coachResults').style.display = 'none';
+  document.getElementById('coachLoading').style.display = 'none';
+
+  // Reset platform pills
+  document.querySelectorAll('.platform-pill').forEach(p => p.classList.remove('active'));
+}
+
+function selectPlatform(platform) {
+  coachPlatform = platform;
+  document.querySelectorAll('.platform-pill').forEach(p => p.classList.remove('active'));
+  document.querySelector('[data-platform="' + platform + '"]').classList.add('active');
+
+  // Show the right next step
+  document.getElementById('coachColdInput').style.display = coachType === 'cold_opener' ? 'block' : 'none';
+  document.getElementById('coachObjections').style.display = coachType === 'objection' ? 'block' : 'none';
+
+  if (coachType === 'followup' || coachType === 'closing') {
+    document.getElementById('coachContextInput').style.display = 'block';
+    document.getElementById('contextTitle').textContent = coachType === 'followup' ? 'Any context about this follow-up?' : 'Any context about this prospect?';
+  }
+}
+
+function selectObjection(key) {
+  coachObjection = key;
+  generateMessage();
+}
+
+function coachForProspect(type, name, platform) {
+  startCoachFlow(type);
+  selectPlatform(platform);
+  if (type !== 'objection') {
+    const field = coachType === 'cold_opener' ? 'prospectDesc' : 'contextDesc';
+    document.getElementById(field).value = 'Following up with ' + name;
+    generateMessage();
+  }
+}
+
+async function generateMessage() {
+  document.getElementById('coachResults').style.display = 'none';
+  document.getElementById('coachLoading').style.display = 'block';
+
+  const body = {
+    type: coachType,
+    platform: coachPlatform || 'instagram',
+    prospect_desc: document.getElementById('prospectDesc')?.value || document.getElementById('contextDesc')?.value || '',
+    objection: coachObjection,
+    situation: coachType,
+  };
+
+  try {
+    const res = await fetch('/api/proseller/generate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    const messages = data.messages || [];
+
+    const container = document.getElementById('resultsContainer');
+    container.innerHTML = '';
+    messages.forEach((msg, i) => {
+      const div = document.createElement('div');
+      div.className = 'ai-result';
+      div.innerHTML = `
+        <div class="ai-result-text">${msg.replace(/\n/g, '<br>')}</div>
+        <div class="ai-actions">
+          <button class="btn btn-primary btn-sm" style="flex:1" onclick="copyMsg(this, \`${msg.replace(/`/g, '\\`').replace(/\\/g, '\\\\')}\`)">Copy Message</button>
+          <button class="btn btn-ghost btn-sm" onclick="saveToProspect(\`${msg.replace(/`/g, '\\`').replace(/\\/g, '\\\\')}\`)">+ Save to Pipeline</button>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+
+    document.getElementById('coachLoading').style.display = 'none';
+    document.getElementById('coachResults').style.display = 'block';
+  } catch (e) {
+    document.getElementById('coachLoading').style.display = 'none';
+    alert('Failed to generate message. Please try again.');
+  }
+}
+
+function copyMsg(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.style.background = '#10b981';
+    setTimeout(() => { btn.textContent = 'Copy Message'; btn.style.background = ''; }, 2000);
+  });
+}
+
+function saveToProspect(msg) {
+  // Pre-fill add prospect with the generated message as notes
+  document.getElementById('apNotes').value = 'AI message: ' + msg.substring(0, 200);
+  showAddProspect('contacted');
+}
+
+/* ── Close modals on overlay click ── */
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('show');
+  });
+});
+</script>
+</body>
+</html>

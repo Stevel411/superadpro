@@ -710,6 +710,40 @@ class NurtureSequence(Base):
     last_sent_at    = Column(DateTime, nullable=True)
 
 
+class Prospect(Base):
+    """ProSeller CRM — prospect pipeline for affiliates."""
+    __tablename__ = "prospects"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), index=True)  # the affiliate
+    name            = Column(String, nullable=False)
+    platform        = Column(String, nullable=True)        # instagram/whatsapp/facebook/linkedin/twitter/text
+    source          = Column(String, nullable=True)        # how they found them: cold_dm, fb_group, referral, link_click, etc.
+    stage           = Column(String, default="cold")       # cold/contacted/interested/objecting/hot/closing/converted/lost
+    notes           = Column(Text, nullable=True)
+    link_clicks     = Column(Integer, default=0)           # how many times this prospect clicked the affiliate's link
+    last_contact_at = Column(DateTime, nullable=True)      # last time affiliate messaged them
+    follow_up_at    = Column(DateTime, nullable=True)      # next follow-up due date
+    is_converted    = Column(Boolean, default=False)       # True when they sign up
+    converted_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # their user ID if they joined
+    created_at      = Column(DateTime, default=datetime.utcnow)
+    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class ProSellerMessage(Base):
+    """Log of AI-generated messages for analytics and caching."""
+    __tablename__ = "proseller_messages"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), index=True)
+    prospect_id     = Column(Integer, ForeignKey("prospects.id"), nullable=True)
+    message_type    = Column(String)                       # cold_opener/objection/followup/closing
+    platform        = Column(String, nullable=True)        # target platform
+    situation       = Column(String, nullable=True)        # the scenario or objection key
+    prompt_context  = Column(Text, nullable=True)          # what the affiliate typed/selected
+    generated_text  = Column(Text, nullable=True)          # the AI response
+    was_copied      = Column(Boolean, default=False)       # did they copy it?
+    created_at      = Column(DateTime, default=datetime.utcnow)
+
+
 try:
     Base.metadata.create_all(bind=engine)
 except Exception as e:
@@ -985,6 +1019,26 @@ try:
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS is_completed BOOLEAN DEFAULT FALSE"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS purchase_number INTEGER DEFAULT 1"))
+
+        # ── ProSeller CRM (2026-03-10) ──
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS prospects (
+            id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id),
+            name VARCHAR NOT NULL, platform VARCHAR, source VARCHAR,
+            stage VARCHAR DEFAULT 'cold', notes TEXT,
+            link_clicks INTEGER DEFAULT 0, last_contact_at TIMESTAMP,
+            follow_up_at TIMESTAMP, is_converted BOOLEAN DEFAULT FALSE,
+            converted_user_id INTEGER REFERENCES users(id),
+            created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())"""))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_prospects_user ON prospects(user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_prospects_stage ON prospects(user_id, stage)"))
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS proseller_messages (
+            id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id),
+            prospect_id INTEGER REFERENCES prospects(id),
+            message_type VARCHAR, platform VARCHAR, situation VARCHAR,
+            prompt_context TEXT, generated_text TEXT,
+            was_copied BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT NOW())"""))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_proseller_msgs_user ON proseller_messages(user_id)"))
 
         conn.commit()
         print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 + R2 + courses confirmed")

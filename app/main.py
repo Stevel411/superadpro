@@ -8351,3 +8351,220 @@ def linkhub_public(username: str, request: Request, db: Session = Depends(get_db
         "social_links": social_links,
     })
 
+
+# ═══════════════════════════════════════════════════════════════
+#  PROSELLER — AI Sales Coach + Prospect CRM
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/proseller")
+async def proseller_page(request: Request, db: Session = Depends(get_db)):
+    """ProSeller CRM with AI coach — accessible from sidebar and standalone."""
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/proseller", status_code=302)
+
+    # Load prospects for this user
+    from .database import Prospect, ProSellerMessage
+    prospects = db.query(Prospect).filter(
+        Prospect.user_id == user.id
+    ).order_by(Prospect.updated_at.desc()).all()
+
+    # Stats
+    total_prospects = len(prospects)
+    stage_counts = {}
+    for p in prospects:
+        stage_counts[p.stage] = stage_counts.get(p.stage, 0) + 1
+
+    # Messages generated today
+    from datetime import datetime, timedelta
+    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    msgs_today = db.query(ProSellerMessage).filter(
+        ProSellerMessage.user_id == user.id,
+        ProSellerMessage.created_at >= today_start
+    ).count()
+
+    # Follow-ups due
+    now = datetime.utcnow()
+    followups_due = [p for p in prospects if p.follow_up_at and p.follow_up_at <= now and not p.is_converted]
+
+    return templates.TemplateResponse("proseller.html", {
+        "request": request,
+        "user": user,
+        "active_page": "proseller",
+        "prospects": prospects,
+        "total_prospects": total_prospects,
+        "stage_counts": stage_counts,
+        "msgs_today": msgs_today,
+        "followups_due": followups_due,
+        "converted_count": sum(1 for p in prospects if p.is_converted),
+        "now": now,
+    })
+
+
+@app.post("/api/proseller/generate")
+async def api_proseller_generate(request: Request, db: Session = Depends(get_db)):
+    """Generate an AI sales message for the given scenario."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return JSONResponse({"error": "AI unavailable"}, status_code=503)
+
+    body = await request.json()
+    msg_type = body.get("type", "cold_opener")       # cold_opener, objection, followup, closing
+    platform = body.get("platform", "instagram")
+    situation = body.get("situation", "")
+    prospect_desc = body.get("prospect_desc", "")
+    objection_key = body.get("objection", "")
+    prospect_id = body.get("prospect_id")
+
+    # Build the prompt
+    system_prompt = """You are ProSeller, an AI sales coach for SuperAdPro affiliates. SuperAdPro is a video advertising platform where:
+- Members watch real video ads and earn daily
+- 4 income streams: Membership ($20/mo, 50% to sponsor), 8×8 Income Grid (8 tiers $20-$1000, 40% direct + 50% uni-level across 8 levels), Courses, and AdBoost
+- 95% of every dollar is paid out to the network
+- Real advertising utility — advertisers pay for genuine video views from real people
+- AI-powered marketing tools built into the dashboard
+- Entry point is just $20
+
+Your job is to generate ready-to-send messages that:
+1. Sound natural and human — NOT salesy or "MLM bro" energy
+2. Are adapted to the specific platform (Instagram DMs are casual, LinkedIn is professional, WhatsApp is personal)
+3. Never use ALL CAPS, excessive emojis, or fake urgency
+4. Focus on genuine value and curiosity, not hype
+5. Are concise — people don't read walls of text in DMs
+
+Always generate exactly 2 message options — one shorter/casual and one slightly more detailed.
+Return ONLY a JSON array of 2 strings. No markdown, no explanation, just the JSON array."""
+
+    if msg_type == "cold_opener":
+        user_prompt = f"Generate 2 cold opening messages for {platform}."
+        if prospect_desc:
+            user_prompt += f" The prospect: {prospect_desc}"
+        else:
+            user_prompt += " Generic prospect, no details known."
+
+    elif msg_type == "objection":
+        objection_labels = {
+            "scam": "Is this a scam / pyramid scheme?",
+            "money": "I don't have the money right now",
+            "time": "I don't have time for this",
+            "think": "I need to think about it",
+            "tried": "I've tried these things before and they don't work",
+            "spouse": "I need to ask my partner first",
+            "skills": "I'm not good at sales / I can't sell",
+            "saturated": "Isn't the market already saturated?",
+        }
+        objection_text = objection_labels.get(objection_key, situation or "general objection")
+        user_prompt = f'Generate 2 responses to this objection on {platform}: "{objection_text}". Be empathetic, address the concern directly, and gently redirect to the value.'
+
+    elif msg_type == "followup":
+        user_prompt = f"Generate 2 follow-up messages for {platform}. The prospect said they'd think about it and hasn't replied in a few days. Be casual, not pushy."
+        if prospect_desc:
+            user_prompt += f" Context: {prospect_desc}"
+
+    elif msg_type == "closing":
+        user_prompt = f"Generate 2 closing messages for {platform}. The prospect is interested and ready — they just need the final nudge to sign up."
+        if prospect_desc:
+            user_prompt += f" Context: {prospect_desc}"
+
+    else:
+        user_prompt = f"Generate 2 helpful messages for {platform} for this situation: {situation}"
+
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+        response = client.messages.create(
+            model=AI_MODEL_HAIKU,
+            max_tokens=600,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_prompt}]
+        )
+        text = response.content[0].text if response.content else "[]"
+
+        # Parse JSON response
+        import json as _json2
+        # Strip markdown fencing if present
+        text = text.strip()
+        if text.startswith("```"):
+            text = text.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+        messages = _json2.loads(text)
+
+        # Log the generation
+        from .database import ProSellerMessage
+        for msg in messages:
+            log = ProSellerMessage(
+                user_id=user.id,
+                prospect_id=prospect_id,
+                message_type=msg_type,
+                platform=platform,
+                situation=objection_key or situation,
+                prompt_context=prospect_desc or user_prompt[:500],
+                generated_text=str(msg)[:2000],
+            )
+            db.add(log)
+        db.commit()
+
+        return JSONResponse({"messages": messages})
+
+    except Exception as e:
+        return JSONResponse({"messages": [
+            "Hey! I came across your profile and love what you're doing. I've been working with a platform that's been generating a solid second income for me — would you be open to a quick look?",
+            "Hi! Random question — have you ever looked into monetising what you're already doing online? I found something that's been working really well and thought of you."
+        ]})
+
+
+@app.post("/api/proseller/prospect")
+async def api_proseller_prospect(request: Request, db: Session = Depends(get_db)):
+    """Create or update a prospect."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+
+    from .database import Prospect
+    body = await request.json()
+    action = body.get("action", "create")
+
+    if action == "create":
+        p = Prospect(
+            user_id=user.id,
+            name=body.get("name", "Unknown"),
+            platform=body.get("platform"),
+            source=body.get("source"),
+            stage=body.get("stage", "cold"),
+            notes=body.get("notes"),
+        )
+        db.add(p)
+        db.commit()
+        db.refresh(p)
+        return JSONResponse({"success": True, "id": p.id})
+
+    elif action == "update":
+        pid = body.get("id")
+        p = db.query(Prospect).filter(Prospect.id == pid, Prospect.user_id == user.id).first()
+        if not p:
+            return JSONResponse({"error": "Not found"}, status_code=404)
+        for field in ["name", "platform", "source", "stage", "notes"]:
+            if field in body:
+                setattr(p, field, body[field])
+        if "follow_up_at" in body and body["follow_up_at"]:
+            from datetime import datetime
+            try:
+                p.follow_up_at = datetime.fromisoformat(body["follow_up_at"])
+            except:
+                pass
+        p.last_contact_at = datetime.utcnow()
+        db.commit()
+        return JSONResponse({"success": True})
+
+    elif action == "delete":
+        pid = body.get("id")
+        p = db.query(Prospect).filter(Prospect.id == pid, Prospect.user_id == user.id).first()
+        if p:
+            db.delete(p)
+            db.commit()
+        return JSONResponse({"success": True})
+
+    return JSONResponse({"error": "Invalid action"}, status_code=400)
+
