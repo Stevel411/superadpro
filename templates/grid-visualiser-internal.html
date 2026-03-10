@@ -14,22 +14,22 @@
   --green:#16a34a;--green-light:#dcfce7;
   --purple:#6366f1;--purple-light:#ede9fe;
   --amber:#d97706;--amber-light:#fef3c7;
+  --red:#dc2626;--red-light:#fef2f2;
   --text:#1a1a2e;--text2:#475569;--muted:#94a3b8;
   --border:#e5e7eb;--navy:#1c223d;
-  --shadow-sm:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12);
-  --shadow-md:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16);
+  --shadow-sm:0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12);
+  --shadow-md:0 6px 20px rgba(0,0,0,.22),0 12px 40px rgba(0,0,0,.16);
 }
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:var(--text);min-height:100vh}
 .layout{display:flex;min-height:100vh}
 
-/* Sidebar */
+/* Sidebar CSS */
 .sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
 .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;min-height:72px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
 .sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff;-webkit-text-fill-color:#fff}
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
 .nav-scroll{flex:1;overflow-y:auto;padding:8px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
-.nav-scroll::-webkit-scrollbar{width:4px}
-.nav-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:4px}
+.nav-scroll::-webkit-scrollbar{width:4px}.nav-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:4px}
 .nav-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 12px}
 .nav-group{margin-bottom:2px}
 .nav-header{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;font-size:11.5px;font-weight:700;color:#0ea5e9;text-transform:uppercase;letter-spacing:.8px;cursor:pointer;user-select:none;transition:.15s}
@@ -45,65 +45,125 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 .nav-standalone{padding:10px 18px}
 
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-
 .topbar{height:72px;background:var(--navy);border-bottom:1px solid rgba(14,165,233,0.12);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:50}
 .tb-left{display:flex;align-items:center;gap:12px}
 .tb-icon{width:36px;height:36px;border-radius:10px;background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.2);display:flex;align-items:center;justify-content:center}
 .tb-title{font-size:17px;font-weight:800;color:#fff}
 .tb-sub{font-size:12px;color:rgba(0,212,255,0.45);margin-top:1px}
+.content{padding:24px 28px;flex:1;overflow-y:auto}
 
-.content{padding:24px 28px;flex:1}
+/* ── Explainer section ── */
+.explainer{background:linear-gradient(135deg,#0b1729,#132240);border-radius:18px;padding:28px 32px;margin-bottom:24px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm)}
+.explainer::before{content:'';position:absolute;top:-50px;right:-30px;width:180px;height:180px;border-radius:50%;background:rgba(14,165,233,0.05)}
+.ex-title{font-family:Sora,sans-serif;font-size:20px;font-weight:800;color:#fff;margin-bottom:8px;position:relative;z-index:1}
+.ex-title span{color:#38bdf8}
+.ex-desc{font-size:14px;color:rgba(200,220,255,0.45);line-height:1.7;max-width:680px;position:relative;z-index:1;margin-bottom:16px}
+.ex-points{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;position:relative;z-index:1}
+.ex-pt{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px}
+.ex-pt-icon{font-size:18px;margin-bottom:6px}
+.ex-pt-title{font-size:12px;font-weight:700;color:rgba(200,220,255,0.8);margin-bottom:3px}
+.ex-pt-desc{font-size:11px;color:rgba(200,220,255,0.35);line-height:1.5}
 
-/* Tier selector */
-.tier-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-.tier-tab{padding:8px 16px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--text2);transition:all 0.15s}
-.tier-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
-.tier-tab:hover:not(.active){background:var(--surface)}
+/* ── Simulator layout ── */
+.sim-layout{display:grid;grid-template-columns:1fr 320px;gap:18px}
 
-/* Stats row */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-.stat{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow-sm);text-align:center}
-.stat-val{font-family:Sora,sans-serif;font-size:24px;font-weight:800;color:var(--text)}
-.stat-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+/* ── Tier selector ── */
+.tier-bar{display:flex;gap:4px;background:var(--white);border:1px solid var(--border);border-radius:10px;padding:5px 8px;margin-bottom:16px;flex-wrap:wrap}
+.tier-btn{padding:6px 12px;border-radius:7px;border:none;background:transparent;color:var(--muted);font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.15s}
+.tier-btn:hover{color:var(--cyan);background:rgba(14,165,233,0.05)}
+.tier-btn.active{background:var(--cyan);color:#fff;box-shadow:0 2px 8px rgba(14,165,233,0.25)}
 
-/* Grid card */
-.grid-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow-sm);margin-bottom:20px}
-.gc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.gc-title{font-size:16px;font-weight:800;color:var(--text)}
-.gc-advance{font-size:11px;font-weight:700;padding:4px 12px;border-radius:6px;background:var(--cyan-light);color:var(--cyan)}
-.gc-progress{display:flex;align-items:center;gap:12px;margin-bottom:20px}
-.gc-bar{flex:1;height:8px;background:var(--surface2);border-radius:99px;overflow:hidden}
-.gc-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width 0.5s}
-.gc-pct{font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:var(--cyan)}
+/* ── Grid card ── */
+.grid-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm);margin-bottom:16px}
+.gc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.gc-title{font-size:15px;font-weight:800;color:var(--text)}
+.gc-badge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:6px;background:var(--cyan-light);color:var(--cyan)}
+.gc-progress{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.gc-bar{flex:1;height:6px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.gc-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width 0.3s}
+.gc-pct{font-family:Sora,sans-serif;font-size:13px;font-weight:800;color:var(--cyan)}
 
-/* 8x8 grid */
-.grid-8x8{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-bottom:16px}
-.g-cell{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;transition:all 0.2s;cursor:default;position:relative}
-.g-cell.empty{background:var(--surface);border:1px dashed var(--border);color:transparent}
-.g-cell.filled{color:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.15)}
-.g-cell.d1{background:var(--cyan)}.g-cell.d2{background:var(--green)}.g-cell.d3{background:var(--purple)}.g-cell.d4{background:var(--amber)}.g-cell.d5{background:#ec4899}
-.g-cell:hover .g-tooltip{display:block}
-.g-tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:6px 10px;border-radius:7px;font-size:11px;font-weight:600;white-space:nowrap;z-index:10;box-shadow:var(--shadow-sm)}
-.g-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--navy)}
+/* ── 8x8 Grid ── */
+.grid-8x8{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-bottom:12px}
+.g-cell{aspect-ratio:1;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);cursor:default;position:relative;overflow:hidden}
+.g-cell.empty{background:var(--surface);border:1px dashed var(--border);color:var(--muted);font-size:8px}
+.g-cell.filled{color:#fff;border:none}
+.g-cell.pop{animation:cellPop 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes cellPop{0%{transform:scale(0.3);opacity:0}65%{transform:scale(1.15)}100%{transform:scale(1)}}
+.g-cell:hover .g-tip{display:block}
+.g-tip{display:none;position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:5px 8px;border-radius:6px;font-size:10px;font-weight:600;white-space:nowrap;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.g-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--navy)}
 
-/* Legend */
-.legend{display:flex;gap:16px;flex-wrap:wrap}
-.leg{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--text2)}
-.leg-dot{width:14px;height:14px;border-radius:5px;flex-shrink:0}
+.legend-row{display:flex;gap:12px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:var(--text2)}
+.leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
 
-/* How it works */
-.hiw{background:var(--surface);border-radius:14px;padding:20px 24px;margin-bottom:20px}
-.hiw-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:12px}
-.hiw-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
-.hiw-item:last-child{margin-bottom:0}
-.hiw-num{width:24px;height:24px;border-radius:7px;background:var(--cyan);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
-.hiw-text{font-size:13px;color:var(--text2);line-height:1.6}
-.hiw-text strong{color:var(--text)}
+/* Controls */
+.controls{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.btn{padding:8px 18px;border-radius:9px;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.15s}
+.btn-play{background:var(--cyan);color:#fff;box-shadow:0 2px 8px rgba(14,165,233,0.25)}
+.btn-play:hover{background:#0284c7;transform:translateY(-1px)}
+.btn-reset{background:var(--surface);color:var(--text2);border:1px solid var(--border)}
+.btn-reset:hover{background:var(--surface2)}
+.speed-wrap{display:flex;align-items:center;gap:6px;margin-left:auto}
+.speed-lbl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+input[type=range]{width:60px;accent-color:var(--cyan);cursor:pointer}
+.directs-wrap{display:flex;align-items:center;gap:8px}
+.directs-lbl{font-size:11px;font-weight:700;color:var(--text2)}
+input[type=number]{width:48px;padding:5px 8px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-weight:700;text-align:center;font-family:inherit}
 
-.loading{text-align:center;padding:40px;color:var(--muted)}
+/* ── Right panel: Earnings ── */
+.right-col{display:flex;flex-direction:column;gap:14px}
 
-@media(max-width:900px){.stats-row{grid-template-columns:1fr 1fr}}
-@media(max-width:768px){.sidebar{display:none!important}.main{margin-left:0!important}.content{padding:16px}.grid-8x8{gap:3px}.g-cell{font-size:8px;border-radius:5px}}
+.total-card{background:linear-gradient(135deg,#0b1729,#132240);border-radius:14px;padding:20px;text-align:center;box-shadow:var(--shadow-sm)}
+.tc-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(56,189,248,0.5);margin-bottom:4px}
+.tc-amount{font-family:Sora,sans-serif;font-size:32px;font-weight:800;color:#fff}
+.tc-sub{font-size:11px;color:rgba(200,220,255,0.35);margin-top:4px}
+
+.earn-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--shadow-sm)}
+.earn-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:10px}
+.earn-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.earn-row:last-child{border-bottom:none}
+.er-left{display:flex;align-items:center;gap:8px}
+.er-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.er-label{font-size:12px;font-weight:600;color:var(--text)}
+.er-sub{font-size:10px;color:var(--muted)}
+.er-amount{font-family:Sora,sans-serif;font-size:15px;font-weight:800}
+.er-amount.green{color:var(--green)}
+.er-amount.muted{color:var(--muted)}
+.bump-anim{animation:numBump 0.25s ease}
+@keyframes numBump{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mini-stat{background:var(--surface);border-radius:10px;padding:12px;text-align:center}
+.ms-val{font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:var(--text)}
+.ms-lbl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+
+/* Live log */
+.log-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--shadow-sm);max-height:220px;overflow-y:auto}
+.log-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}
+.log-item{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
+.log-item:last-child{border-bottom:none}
+.log-left{display:flex;align-items:center;gap:6px}
+.log-seat{font-weight:800;color:var(--text);font-family:monospace}
+.log-level{font-weight:600;color:var(--muted)}
+.log-tag{padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700}
+.log-tag.direct{background:var(--cyan-light);color:var(--cyan)}
+.log-tag.spill{background:var(--green-light);color:var(--green)}
+.log-amt{font-family:Sora,sans-serif;font-weight:800;font-size:12px}
+
+/* Advance overlay */
+.advance-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:200;align-items:center;justify-content:center}
+.advance-overlay.show{display:flex}
+.advance-box{background:var(--white);border-radius:20px;padding:36px;text-align:center;max-width:380px;box-shadow:var(--shadow-md)}
+.ab-icon{font-size:48px;margin-bottom:12px}
+.ab-title{font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:var(--text);margin-bottom:6px}
+.ab-earned{font-family:Sora,sans-serif;font-size:28px;font-weight:800;color:var(--green);margin-bottom:6px}
+.ab-sub{font-size:13px;color:var(--muted);margin-bottom:16px}
+.ab-btn{padding:10px 28px;border-radius:10px;border:none;background:var(--cyan);color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer}
+
+@media(max-width:1000px){.sim-layout{grid-template-columns:1fr}.ex-points{grid-template-columns:1fr}}
+@media(max-width:768px){.sidebar{display:none!important}.main{margin-left:0!important}.content{padding:16px}.grid-8x8{gap:3px}}
 </style>
 </head>
 <body>
@@ -113,122 +173,317 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 
 <div class="topbar">
   <div class="tb-left">
-    <div class="tb-icon">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-    </div>
-    <div>
-      <div class="tb-title">Grid Visualiser</div>
-      <div class="tb-sub">Watch your network fill your 8×8 grid in real time</div>
-    </div>
+    <div class="tb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+    <div><div class="tb-title">Grid Visualiser</div><div class="tb-sub">Spillover model — see your network fill your grid</div></div>
   </div>
 </div>
 
 <div class="content">
 
-  <!-- Tier Selector -->
-  <div class="tier-tabs" id="tierTabs">
-    <div class="tier-tab active" onclick="loadTier(1,this)">Tier 1 — $20</div>
-    <div class="tier-tab" onclick="loadTier(2,this)">Tier 2 — $50</div>
-    <div class="tier-tab" onclick="loadTier(3,this)">Tier 3 — $100</div>
-    <div class="tier-tab" onclick="loadTier(4,this)">Tier 4 — $200</div>
-    <div class="tier-tab" onclick="loadTier(5,this)">Tier 5 — $400</div>
-    <div class="tier-tab" onclick="loadTier(6,this)">Tier 6 — $600</div>
-    <div class="tier-tab" onclick="loadTier(7,this)">Tier 7 — $800</div>
-    <div class="tier-tab" onclick="loadTier(8,this)">Tier 8 — $1000</div>
+<!-- Explainer -->
+<div class="explainer">
+  <div class="ex-title">Your Grid Fills From <span>Your Entire Network</span></div>
+  <div class="ex-desc">Every person who joins anywhere in your downline fills a seat in your grid. Your direct referrals AND their referrals AND deeper — all the way down. One person, one seat, per advance.</div>
+  <div class="ex-points">
+    <div class="ex-pt"><div class="ex-pt-icon">💰</div><div class="ex-pt-title">40% Direct Sponsor</div><div class="ex-pt-desc">The person who made the referral gets 40% of the tier price.</div></div>
+    <div class="ex-pt"><div class="ex-pt-icon">📊</div><div class="ex-pt-title">55% Uni-Level (8 Levels)</div><div class="ex-pt-desc">6.875% to each of the 8 levels above the buyer in the sponsor chain.</div></div>
+    <div class="ex-pt"><div class="ex-pt-icon">🏢</div><div class="ex-pt-title">5% Platform Fee</div><div class="ex-pt-desc">Keeps the platform running and pays for development.</div></div>
+  </div>
+</div>
+
+<!-- Tier selector -->
+<div class="tier-bar" id="tierBar"></div>
+
+<!-- Controls -->
+<div class="controls">
+  <button class="btn btn-play" id="btnPlay" onclick="togglePlay()">▶ Simulate</button>
+  <button class="btn btn-reset" onclick="resetGrid()">↻ Reset</button>
+  <div class="directs-wrap">
+    <span class="directs-lbl">Your direct referrals:</span>
+    <input type="number" id="directsInput" value="8" min="1" max="30" onchange="updateDirects()">
+  </div>
+  <div class="speed-wrap">
+    <span class="speed-lbl">Speed</span>
+    <input type="range" id="speedSlider" min="1" max="10" value="5">
+  </div>
+</div>
+
+<div class="sim-layout">
+
+  <!-- LEFT: Grid -->
+  <div>
+    <div class="grid-card">
+      <div class="gc-head">
+        <div class="gc-title" id="gcTitle">Tier 1 — $20</div>
+        <div class="gc-badge" id="gcBadge">Advance #1</div>
+      </div>
+      <div class="gc-progress">
+        <div class="gc-bar"><div class="gc-bar-fill" id="gcBar" style="width:0%"></div></div>
+        <div class="gc-pct" id="gcPct">0 / 64</div>
+      </div>
+      <div class="grid-8x8" id="gridContainer"></div>
+      <div class="legend-row">
+        <div class="leg"><div class="leg-dot" style="background:var(--cyan)"></div>Direct (L1)</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--green)"></div>Level 2</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--purple)"></div>Level 3</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--amber)"></div>Level 4</div>
+        <div class="leg"><div class="leg-dot" style="background:#ec4899"></div>Level 5+</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--surface);border:1px dashed var(--border)"></div>Empty</div>
+      </div>
+    </div>
   </div>
 
-  <!-- Stats -->
-  <div class="stats-row">
-    <div class="stat"><div class="stat-val" id="sFilled">—</div><div class="stat-lbl">Seats Filled</div></div>
-    <div class="stat"><div class="stat-val" id="sRemaining">—</div><div class="stat-lbl">Seats Remaining</div></div>
-    <div class="stat"><div class="stat-val" id="sAdvance">—</div><div class="stat-lbl">Current Advance</div></div>
-    <div class="stat"><div class="stat-val" id="sCompleted">—</div><div class="stat-lbl">Completed</div></div>
+  <!-- RIGHT: Earnings -->
+  <div class="right-col">
+
+    <div class="total-card">
+      <div class="tc-label">Your Total Earnings</div>
+      <div class="tc-amount" id="totalAmt">$0.00</div>
+      <div class="tc-sub" id="totalSub">Per grid completion · Tier 1</div>
+    </div>
+
+    <div class="earn-card">
+      <div class="earn-title">Earnings Breakdown</div>
+      <div class="earn-row">
+        <div class="er-left"><div class="er-dot" style="background:var(--cyan)"></div><div><div class="er-label">Direct Sponsor (40%)</div><div class="er-sub">From your referrals only</div></div></div>
+        <div class="er-amount green" id="directAmt">$0.00</div>
+      </div>
+      <div class="earn-row">
+        <div class="er-left"><div class="er-dot" style="background:var(--green)"></div><div><div class="er-label">Uni-Level (6.875%)</div><div class="er-sub">From every seat in your grid</div></div></div>
+        <div class="er-amount green" id="uniAmt">$0.00</div>
+      </div>
+      <div class="earn-row">
+        <div class="er-left"><div class="er-dot" style="background:var(--muted)"></div><div><div class="er-label">Platform Fee (5%)</div><div class="er-sub">Per seat</div></div></div>
+        <div class="er-amount muted" id="platAmt">$0.00</div>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="mini-stat"><div class="ms-val" id="msDirectCount">0</div><div class="ms-lbl">Direct Fills</div></div>
+      <div class="mini-stat"><div class="ms-val" id="msSpillCount">0</div><div class="ms-lbl">Spillover Fills</div></div>
+      <div class="mini-stat"><div class="ms-val" id="msAdvance">1</div><div class="ms-lbl">Advance</div></div>
+      <div class="mini-stat"><div class="ms-val" id="msPerSeat">$0.00</div><div class="ms-lbl">Avg Per Seat</div></div>
+    </div>
+
+    <div class="log-card">
+      <div class="log-title">Live Commission Feed</div>
+      <div id="logList"><div style="font-size:12px;color:var(--muted);text-align:center;padding:12px;opacity:0.5">Press Simulate to start...</div></div>
+    </div>
+
   </div>
-
-  <!-- Grid -->
-  <div class="grid-card">
-    <div class="gc-head">
-      <div class="gc-title" id="gcTitle">Loading...</div>
-      <div class="gc-advance" id="gcAdvance">—</div>
-    </div>
-    <div class="gc-progress">
-      <div class="gc-bar"><div class="gc-bar-fill" id="gcBar" style="width:0%"></div></div>
-      <div class="gc-pct" id="gcPct">0%</div>
-    </div>
-
-    <div class="grid-8x8" id="gridContainer">
-      <div class="loading">Loading grid...</div>
-    </div>
-
-    <div class="legend">
-      <div class="leg"><div class="leg-dot" style="background:var(--cyan)"></div>Direct referrals (Level 1)</div>
-      <div class="leg"><div class="leg-dot" style="background:var(--green)"></div>Level 2 spillover</div>
-      <div class="leg"><div class="leg-dot" style="background:var(--purple)"></div>Level 3 spillover</div>
-      <div class="leg"><div class="leg-dot" style="background:var(--amber)"></div>Level 4 spillover</div>
-      <div class="leg"><div class="leg-dot" style="background:#ec4899"></div>Level 5+ deep</div>
-      <div class="leg"><div class="leg-dot" style="background:var(--surface);border:1px dashed var(--border)"></div>Empty</div>
-    </div>
-  </div>
-
-  <!-- How it Works -->
-  <div class="hiw">
-    <div class="hiw-title">How the Spillover Grid Works</div>
-    <div class="hiw-item"><div class="hiw-num">1</div><div class="hiw-text">When <strong>anyone in your network</strong> purchases this tier, they fill a seat in your grid — not just your personal referrals.</div></div>
-    <div class="hiw-item"><div class="hiw-num">2</div><div class="hiw-text">Colours show the depth: <strong>cyan = your direct referrals</strong>, green = their referrals, purple = level 3, and so on. Hover any seat to see who's there.</div></div>
-    <div class="hiw-item"><div class="hiw-num">3</div><div class="hiw-text">Each person fills <strong>one seat per grid per advance</strong>. You need 64 unique network members at this tier to complete.</div></div>
-    <div class="hiw-item"><div class="hiw-num">4</div><div class="hiw-text">When all 64 seats fill, a <strong>new advance auto-starts</strong> and the cycle repeats. Your grid grows as your network grows.</div></div>
-    <div class="hiw-item"><div class="hiw-num">5</div><div class="hiw-text"><strong>Commissions follow the sponsor chain</strong> — 40% to direct sponsor, 6.875% uni-level to 8 levels up, 5% platform. The grid is your visual progress tracker.</div></div>
-  </div>
+</div>
 
 </div>
 </div>
+</div>
+
+<!-- Advance Overlay -->
+<div class="advance-overlay" id="advOverlay">
+  <div class="advance-box">
+    <div class="ab-icon">🎉</div>
+    <div class="ab-title">Grid Complete!</div>
+    <div class="ab-earned" id="abEarned">$0.00</div>
+    <div class="ab-sub" id="abSub">Total earned from this advance</div>
+    <button class="ab-btn" onclick="closeAdvance()">Next Advance →</button>
+  </div>
 </div>
 
 <script>
-var depthColors = ['d1','d2','d3','d4','d5'];
+var TIERS = {1:20,2:50,3:100,4:200,5:400,6:600,7:800,8:1000};
+var DEPTH_COLORS = ['var(--cyan)','var(--green)','var(--purple)','var(--amber)','#ec4899'];
+var DEPTH_CLASSES = ['d1','d2','d3','d4','d5'];
 
-function loadTier(tier, el) {
-  document.querySelectorAll('.tier-tab').forEach(t => t.classList.remove('active'));
-  if (el) el.classList.add('active');
+var tier = 1, pkg = 20, filled = 0, playing = false, timer = null, advance = 1;
+var tDirect = 0, tUni = 0, tPlat = 0, directFilled = 0, spillFilled = 0;
+var directSeats = new Set();
+var numDirects = 8;
+var cells = [];
 
-  fetch('/api/grid-visualiser?tier=' + tier)
-    .then(r => r.json())
-    .then(d => {
-      var filled = d.filled || 0;
-      var total = d.total || 64;
-      var pct = Math.round((filled / total) * 100);
+// Build tier bar
+(function(){
+  var bar = document.getElementById('tierBar');
+  for (var t in TIERS) {
+    var b = document.createElement('button');
+    b.className = 'tier-btn' + (t=='1'?' active':'');
+    b.textContent = 'Tier '+t+' — $'+TIERS[t];
+    b.setAttribute('data-tier', t);
+    b.onclick = function(){ selectTier(this); };
+    bar.appendChild(b);
+  }
+})();
 
-      document.getElementById('sFilled').textContent = filled;
-      document.getElementById('sRemaining').textContent = total - filled;
-      document.getElementById('sAdvance').textContent = '#' + (d.advance || 1);
-      document.getElementById('sCompleted').textContent = d.completed_advances || 0;
-      document.getElementById('gcTitle').textContent = 'Tier ' + tier + ' Grid — $' + d.price;
-      document.getElementById('gcAdvance').textContent = 'Advance #' + (d.advance || 1);
-      document.getElementById('gcBar').style.width = pct + '%';
-      document.getElementById('gcPct').textContent = pct + '%';
-
-      var html = '';
-      for (var i = 0; i < 64; i++) {
-        var seat = d.seats[i];
-        if (seat) {
-          var depth = Math.min(seat.depth, 5);
-          var colorClass = depthColors[depth - 1] || depthColors[4];
-          html += '<div class="g-cell filled ' + colorClass + '">' +
-            seat.username.substring(0, 2).toUpperCase() +
-            '<div class="g-tooltip">' + seat.username + ' · Level ' + seat.depth + '</div></div>';
-        } else {
-          html += '<div class="g-cell empty">' + (i + 1) + '</div>';
-        }
-      }
-      document.getElementById('gridContainer').innerHTML = html;
-    })
-    .catch(function(e) {
-      console.error(e);
-      document.getElementById('gridContainer').innerHTML = '<div class="loading">Error loading grid data</div>';
-    });
+function selectTier(btn) {
+  document.querySelectorAll('.tier-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  tier = parseInt(btn.getAttribute('data-tier'));
+  pkg = TIERS[tier];
+  resetGrid();
 }
 
-loadTier(1, null);
+function updateDirects() {
+  numDirects = Math.max(1, Math.min(30, parseInt(document.getElementById('directsInput').value)||8));
+  resetGrid();
+}
+
+function buildGrid() {
+  var grid = document.getElementById('gridContainer');
+  grid.innerHTML = '';
+  cells = [];
+  // Cell 0 unused, cells[1..64]
+  for (var i = 1; i <= 64; i++) {
+    var cell = document.createElement('div');
+    cell.className = 'g-cell empty';
+    cell.textContent = i;
+    grid.appendChild(cell);
+    cells[i] = cell;
+  }
+  // Randomise which seats are direct referrals
+  directSeats = new Set();
+  var positions = [];
+  for (var i = 1; i <= 64; i++) positions.push(i);
+  for (var j = positions.length - 1; j > 0; j--) {
+    var k = Math.floor(Math.random() * (j + 1));
+    var tmp = positions[j]; positions[j] = positions[k]; positions[k] = tmp;
+  }
+  for (var d = 0; d < Math.min(numDirects, 64); d++) directSeats.add(positions[d]);
+}
+
+function getDelay() {
+  var s = document.getElementById('speedSlider').value;
+  return 800 - (s - 1) * 80; // 800ms to 80ms
+}
+
+function togglePlay() {
+  playing ? pause() : play();
+}
+
+function play() {
+  playing = true;
+  document.getElementById('btnPlay').textContent = '⏸ Pause';
+  tick();
+}
+
+function pause() {
+  playing = false;
+  clearTimeout(timer);
+  document.getElementById('btnPlay').textContent = '▶ Simulate';
+}
+
+function tick() {
+  if (!playing) return;
+  if (filled >= 64) { gridComplete(); return; }
+  fillNext();
+  timer = setTimeout(tick, getDelay());
+}
+
+function fillNext() {
+  filled++;
+  var cell = cells[filled];
+  var isDirect = directSeats.has(filled);
+  var depth = isDirect ? 1 : (filled <= numDirects * 3 ? 2 : (filled <= numDirects * 6 ? 3 : (filled <= 50 ? 4 : 5)));
+  var depthIdx = Math.min(depth - 1, 4);
+  var perLevel = pkg * 0.06875;
+
+  // Commission calc
+  var youEarnDirect = 0;
+  var youEarnUni = perLevel; // You always get one uni-level per seat (you're in the upline chain)
+  if (isDirect) {
+    youEarnDirect = pkg * 0.40;
+    tDirect += youEarnDirect;
+    directFilled++;
+  } else {
+    spillFilled++;
+  }
+  tUni += youEarnUni;
+  var platFee = pkg * 0.05;
+  tPlat += platFee;
+  var youTotal = youEarnDirect + youEarnUni;
+
+  // Style cell
+  cell.className = 'g-cell filled pop';
+  cell.style.background = DEPTH_COLORS[depthIdx];
+  cell.style.boxShadow = '0 2px 8px ' + DEPTH_COLORS[depthIdx] + '40';
+  cell.innerHTML = '+$' + youTotal.toFixed(2) + '<div class="g-tip">' + (isDirect ? 'Direct' : 'Spillover L' + depth) + ' · +$' + youTotal.toFixed(2) + '</div>';
+  setTimeout(function(){ cell.classList.remove('pop'); }, 400);
+
+  // Update panels
+  bumpEl('directAmt', tDirect);
+  bumpEl('uniAmt', tUni);
+  document.getElementById('platAmt').textContent = '$' + tPlat.toFixed(2);
+  document.getElementById('totalAmt').textContent = '$' + (tDirect + tUni).toFixed(2);
+  document.getElementById('msDirectCount').textContent = directFilled;
+  document.getElementById('msSpillCount').textContent = spillFilled;
+  document.getElementById('msPerSeat').textContent = '$' + ((tDirect + tUni) / filled).toFixed(2);
+
+  var pct = Math.round((filled / 64) * 100);
+  document.getElementById('gcBar').style.width = pct + '%';
+  document.getElementById('gcPct').textContent = filled + ' / 64';
+
+  // Log
+  addLog(filled, depth, isDirect, youTotal);
+}
+
+function bumpEl(id, val) {
+  var el = document.getElementById(id);
+  el.textContent = '$' + val.toFixed(2);
+  el.classList.remove('bump-anim');
+  void el.offsetWidth;
+  el.classList.add('bump-anim');
+}
+
+function addLog(seat, depth, isDirect, amt) {
+  var list = document.getElementById('logList');
+  if (list.querySelector('[style]')) list.innerHTML = '';
+  var item = document.createElement('div');
+  item.className = 'log-item';
+  item.innerHTML = '<div class="log-left"><span class="log-seat">#' + String(seat).padStart(2,'0') + '</span><span class="log-level">L' + depth + '</span><span class="log-tag ' + (isDirect ? 'direct' : 'spill') + '">' + (isDirect ? 'DIRECT' : 'SPILLOVER') + '</span></div><span class="log-amt" style="color:' + DEPTH_COLORS[Math.min(depth-1,4)] + '">+$' + amt.toFixed(2) + '</span>';
+  list.insertBefore(item, list.firstChild);
+  while (list.children.length > 12) list.removeChild(list.lastChild);
+}
+
+function gridComplete() {
+  pause();
+  document.getElementById('abEarned').textContent = '$' + (tDirect + tUni).toFixed(2);
+  document.getElementById('abSub').textContent = directFilled + ' direct + ' + spillFilled + ' spillover · Advance #' + advance;
+  document.getElementById('advOverlay').classList.add('show');
+}
+
+function closeAdvance() {
+  document.getElementById('advOverlay').classList.remove('show');
+  advance++;
+  filled = 0; tDirect = 0; tUni = 0; tPlat = 0; directFilled = 0; spillFilled = 0;
+  document.getElementById('msAdvance').textContent = advance;
+  document.getElementById('gcBadge').textContent = 'Advance #' + advance;
+  buildGrid();
+  updateUI();
+  play();
+}
+
+function resetGrid() {
+  pause();
+  advance = 1; filled = 0; tDirect = 0; tUni = 0; tPlat = 0; directFilled = 0; spillFilled = 0;
+  document.getElementById('msAdvance').textContent = 1;
+  document.getElementById('gcBadge').textContent = 'Advance #1';
+  document.getElementById('gcTitle').textContent = 'Tier ' + tier + ' — $' + pkg;
+  document.getElementById('totalSub').textContent = 'Per grid completion · Tier ' + tier;
+  buildGrid();
+  updateUI();
+  document.getElementById('logList').innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px;opacity:0.5">Press Simulate to start...</div>';
+}
+
+function updateUI() {
+  document.getElementById('totalAmt').textContent = '$0.00';
+  document.getElementById('directAmt').textContent = '$0.00';
+  document.getElementById('uniAmt').textContent = '$0.00';
+  document.getElementById('platAmt').textContent = '$0.00';
+  document.getElementById('msDirectCount').textContent = '0';
+  document.getElementById('msSpillCount').textContent = '0';
+  document.getElementById('msPerSeat').textContent = '$0.00';
+  document.getElementById('gcBar').style.width = '0%';
+  document.getElementById('gcPct').textContent = '0 / 64';
+}
+
+buildGrid();
 </script>
 {% include "_tawk.html" %}
 </body>
