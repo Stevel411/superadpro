@@ -6901,6 +6901,17 @@ async def course_learn(course_id: int, request: Request, lesson: int = 0, purcha
     })
 
 
+@app.get("/courses/how-it-works")
+async def course_how_it_works(request: Request, db: Session = Depends(get_db)):
+    """Course commission explainer page."""
+    user = get_current_user(request, db)
+    return templates.TemplateResponse("course-how-it-works.html", {
+        "request": request,
+        "user": user,
+        "active_page": "courses"
+    })
+
+
 @app.get("/courses/commissions")
 async def course_commissions_page(request: Request, db: Session = Depends(get_db)):
     """Member's course commission dashboard."""

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>How Course Commissions Work — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/mobile.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --white:#ffffff;--surface:#f8f9fb;--surface2:#f1f3f7;
+  --cyan:#0ea5e9;--cyan-light:#e0f2fe;
+  --green:#16a34a;--green-light:#dcfce7;
+  --purple:#6366f1;--purple-light:#ede9fe;
+  --amber:#d97706;
+  --red:#dc2626;--red-light:#fef2f2;
+  --text:#1a1a2e;--text2:#475569;--muted:#94a3b8;
+  --border:#e5e7eb;--navy:#1c223d;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12);
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:var(--text);min-height:100vh}
+.layout{display:flex;min-height:100vh}
+
+/* ── Sidebar CSS ── */
+.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;min-height:72px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff;-webkit-text-fill-color:#fff}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.nav-scroll{flex:1;overflow-y:auto;padding:8px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
+.nav-scroll::-webkit-scrollbar{width:4px}
+.nav-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:4px}
+.nav-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 12px}
+.nav-group{margin-bottom:2px}
+.nav-header{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;font-size:11.5px;font-weight:700;color:#0ea5e9;text-transform:uppercase;letter-spacing:.8px;cursor:pointer;user-select:none;transition:.15s}
+.nav-header:hover{background:rgba(14,165,233,.06)}
+.nav-chevron{font-size:14px;transition:transform .2s;color:rgba(255,255,255,.3)}
+.nav-group.open .nav-chevron{transform:rotate(90deg)}
+.nav-children{display:none;padding-bottom:4px}
+.nav-group.open .nav-children{display:block}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px 9px 22px;font-size:13px;color:rgba(200,220,255,.55);text-decoration:none;transition:.12s;cursor:pointer;font-weight:500}
+.nav-item:hover{background:rgba(14,165,233,.06);color:rgba(200,220,255,.85)}
+.nav-item.active{color:#38bdf8;font-weight:700;background:rgba(14,165,233,.08)}
+.nav-icon{font-size:15px;width:22px;text-align:center;flex-shrink:0}
+.nav-standalone{padding:10px 18px}
+
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+
+/* ── Topbar ── */
+.topbar{height:72px;background:var(--navy);border-bottom:1px solid rgba(14,165,233,0.12);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:50}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-icon{width:36px;height:36px;border-radius:10px;background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tb-title{font-size:17px;font-weight:800;color:#fff}
+.tb-sub{font-size:12px;color:rgba(0,212,255,0.45);margin-top:1px}
+.tb-right{display:flex;align-items:center;gap:10px}
+.tb-link{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:rgba(200,220,255,0.55);text-decoration:none;border:1px solid rgba(255,255,255,0.08);transition:.15s}
+.tb-link:hover{background:rgba(255,255,255,0.05);color:#fff}
+
+/* ── Content ── */
+.content{padding:32px;max-width:900px;margin:0 auto}
+
+/* ── Hero ── */
+.hero{text-align:center;margin-bottom:44px}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--green-light);border:1px solid rgba(22,163,74,0.2);border-radius:99px;padding:6px 16px;font-size:11px;font-weight:700;color:var(--green);letter-spacing:0.5px;margin-bottom:16px}
+.hero-title{font-family:Sora,sans-serif;font-size:32px;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:12px;letter-spacing:-0.5px}
+.hero-title span{background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-desc{font-size:16px;color:var(--text2);line-height:1.7;max-width:620px;margin:0 auto}
+
+/* ── Section ── */
+.section{margin-bottom:40px}
+.section-num{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;font-family:Sora,sans-serif;font-size:14px;font-weight:800;color:#fff;margin-bottom:12px}
+.section-title{font-family:Sora,sans-serif;font-size:20px;font-weight:800;color:var(--text);margin-bottom:8px;letter-spacing:-0.3px}
+.section-desc{font-size:15px;color:var(--text2);line-height:1.7;margin-bottom:20px}
+
+/* ── Tier Cards ── */
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:8px}
+.tier{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+.tier::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.tier.t1::before{background:linear-gradient(90deg,#0ea5e9,#38bdf8)}
+.tier.t2::before{background:linear-gradient(90deg,#6366f1,#818cf8)}
+.tier.t3::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.tier-name{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.tier-price{font-family:Sora,sans-serif;font-size:32px;font-weight:800;line-height:1;margin-bottom:4px}
+.t1 .tier-price{color:var(--cyan)}.t2 .tier-price{color:var(--purple)}.t3 .tier-price{color:var(--amber)}
+.tier-comm{font-size:13px;font-weight:700;color:var(--green)}
+
+/* ── Sale Pattern ── */
+.pattern-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.sale-chip{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:700}
+.sale-keep{background:var(--green-light);color:var(--green);border:1px solid rgba(22,163,74,0.15)}
+.sale-pass{background:var(--cyan-light);color:var(--cyan);border:1px solid rgba(14,165,233,0.15)}
+.sale-num{font-family:Sora,sans-serif;font-weight:800;font-size:14px}
+
+/* ── Flow Diagram ── */
+.flow{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:28px;box-shadow:var(--shadow-sm);margin-bottom:24px}
+.flow-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.flow-text{font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:20px}
+.flow-text strong{color:var(--text)}
+
+/* ── Cascade rows ── */
+.cascade{background:var(--surface);border-radius:12px;padding:18px 20px;margin-bottom:20px}
+.cascade-title{font-size:13px;font-weight:800;color:var(--text);margin-bottom:12px}
+.cascade-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.cascade-row:last-child{border-bottom:none}
+.cascade-level{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;width:40px;flex-shrink:0}
+.cascade-name{font-size:14px;font-weight:700;color:var(--text);flex:1}
+.cascade-action{font-size:12px;font-weight:700;padding:4px 10px;border-radius:6px}
+.cascade-keep{background:var(--green-light);color:var(--green)}
+.cascade-pass{background:var(--cyan-light);color:var(--cyan)}
+.cascade-target{font-size:12px;color:var(--green);font-weight:700;width:180px;text-align:right}
+
+/* ── Key Point Card ── */
+.key-point{background:linear-gradient(135deg,var(--cyan-light),#f0f9ff);border:1px solid rgba(14,165,233,0.15);border-radius:16px;padding:24px 28px;margin-bottom:24px}
+.kp-title{font-size:16px;font-weight:800;color:var(--cyan);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.kp-text{font-size:14px;color:var(--text2);line-height:1.7}
+.kp-text strong{color:var(--text)}
+
+/* ── FOMO Box ── */
+.fomo-box{background:linear-gradient(135deg,#fef2f2,#fff1f2);border:1px solid rgba(220,38,38,0.15);border-radius:16px;padding:24px 28px;margin-bottom:24px;display:flex;align-items:flex-start;gap:16px}
+.fomo-icon{width:48px;height:48px;border-radius:12px;background:var(--red-light);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.fomo-title{font-size:16px;font-weight:800;color:var(--red);margin-bottom:4px}
+.fomo-text{font-size:14px;color:var(--text2);line-height:1.7}
+.fomo-text strong{color:var(--text)}
+
+/* ── Visual flow ── */
+.vflow{display:flex;flex-direction:column;gap:0;margin-bottom:20px}
+.vf-person{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:12px}
+.vf-person.vf-deep{background:var(--purple-light);border:1px solid rgba(99,102,241,0.15)}
+.vf-person.vf-you{background:var(--surface);border:1px dashed var(--border);opacity:0.6}
+.vf-person.vf-co{background:var(--red-light);border:1px solid rgba(220,38,38,0.15)}
+.vf-av{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0}
+.vf-deep .vf-av{background:var(--purple)}.vf-you .vf-av{background:var(--muted)}.vf-co .vf-av{background:var(--red)}
+.vf-nm{font-size:14px;font-weight:700;color:var(--text)}
+.vf-rl{font-size:12px;color:var(--muted);margin-top:1px}
+.vf-rl.vf-bad{color:var(--red);font-weight:600}
+.vf-earn{font-family:Sora,sans-serif;font-size:16px;font-weight:800;margin-left:auto}
+.vf-deep .vf-earn{color:var(--purple)}.vf-you .vf-earn{color:var(--red)}.vf-co .vf-earn{color:var(--red)}
+.vf-arrow{text-align:center;padding:4px 0;color:var(--muted);font-size:11px;display:flex;align-items:center;justify-content:center;gap:6px}
+
+/* ── Smart Move ── */
+.smart{background:linear-gradient(135deg,var(--green-light),#ecfdf5);border:1px solid rgba(22,163,74,0.15);border-radius:16px;padding:24px 28px;margin-bottom:24px}
+.smart-title{font-size:16px;font-weight:800;color:var(--green);margin-bottom:8px}
+.smart-text{font-size:14px;color:var(--text2);line-height:1.7}
+.smart-text strong{color:var(--text)}
+
+/* ── Summary Points ── */
+.summary-item{display:flex;align-items:flex-start;gap:14px;padding:16px 20px;background:var(--surface);border-radius:14px;margin-bottom:12px}
+.summary-icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.summary-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.summary-desc{font-size:13px;color:var(--text2);line-height:1.6}
+
+/* ── CTA ── */
+.cta-box{text-align:center;padding:32px 0}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;text-decoration:none;transition:all 0.15s;border:none;cursor:pointer;font-family:inherit;background:var(--cyan);color:#fff;box-shadow:0 4px 16px rgba(14,165,233,0.3)}
+.cta-btn:hover{background:#0284c7;transform:translateY(-2px);box-shadow:0 6px 24px rgba(14,165,233,0.35)}
+
+@media(max-width:768px){.sidebar{display:none!important}.main{margin-left:0!important}.topbar{display:none}.content{padding:20px 16px}.tiers{grid-template-columns:1fr}.cascade-target{display:none}.hero-title{font-size:24px}}
+</style>
+</head>
+<body>
+
+<div class="layout">
+{% include "_sidebar.html" %}
+
+<div class="main">
+
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <div>
+        <div class="tb-title">How Course Commissions Work</div>
+        <div class="tb-sub">100% commissions · Infinite pass-up depth · Real FOMO</div>
+      </div>
+    </div>
+    <div class="tb-right">
+      <a class="tb-link" href="/courses">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        Back to Courses
+      </a>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── Hero ── -->
+    <div class="hero">
+      <div class="hero-badge">💰 100% Commission Structure</div>
+      <div class="hero-title">Earn <span>100% Commissions</span> From<br>People You've Never Even Met</div>
+      <div class="hero-desc">Our infinite pass-up system means commissions flow to you from deep within your network — not just from people you personally recruited. Here's exactly how it works.</div>
+    </div>
+
+    <!-- ── Section 1: Three Tiers ── -->
+    <div class="section">
+      <div class="section-num" style="background:var(--cyan)">1</div>
+      <div class="section-title">Three Course Tiers — 100% Commission Each</div>
+      <div class="section-desc">Every course sale pays 100% commission to the qualifying affiliate. There are no splits, no percentages — you earn the full price of the course on every sale you keep.</div>
+      <div class="tiers">
+        <div class="tier t1"><div class="tier-name">Starter</div><div class="tier-price">$100</div><div class="tier-comm">$100 per sale</div></div>
+        <div class="tier t2"><div class="tier-name">Advanced</div><div class="tier-price">$300</div><div class="tier-comm">$300 per sale</div></div>
+        <div class="tier t3"><div class="tier-name">Elite</div><div class="tier-price">$500</div><div class="tier-comm">$500 per sale</div></div>
+      </div>
+    </div>
+
+    <!-- ── Section 2: Sale Pattern ── -->
+    <div class="section">
+      <div class="section-num" style="background:var(--green)">2</div>
+      <div class="section-title">The Sale Pattern — Keep or Pass Up</div>
+      <div class="section-desc">Every sale you make is tracked with a single counter across all tiers. Some sales you keep, some pass up to your upline. After sale 8, you keep every commission forever.</div>
+      <div class="pattern-row">
+        <div class="sale-chip sale-keep"><span class="sale-num">1st</span> You Keep ✓</div>
+        <div class="sale-chip sale-pass"><span class="sale-num">2nd</span> Pass Up ↑</div>
+        <div class="sale-chip sale-keep"><span class="sale-num">3rd</span> You Keep ✓</div>
+        <div class="sale-chip sale-pass"><span class="sale-num">4th</span> Pass Up ↑</div>
+        <div class="sale-chip sale-keep"><span class="sale-num">5th</span> You Keep ✓</div>
+        <div class="sale-chip sale-pass"><span class="sale-num">6th</span> Pass Up ↑</div>
+        <div class="sale-chip sale-keep"><span class="sale-num">7th</span> You Keep ✓</div>
+        <div class="sale-chip sale-pass"><span class="sale-num">8th</span> Pass Up ↑</div>
+        <div class="sale-chip sale-keep"><span class="sale-num">9th+</span> You Keep Forever ✓</div>
+      </div>
+      <div class="key-point">
+        <div class="kp-title">💡 Key Takeaway</div>
+        <div class="kp-text">Out of your first 8 sales, you keep <strong>4 commissions</strong> and pass up <strong>4 commissions</strong> to your upline. From your <strong>9th sale onwards, you keep every single commission forever</strong>. The same pattern applies to everyone in your network.</div>
+      </div>
+    </div>
+
+    <!-- ── Section 3: Infinite Cascade ── -->
+    <div class="section">
+      <div class="section-num" style="background:var(--purple)">3</div>
+      <div class="section-title">The Infinite Pass-Up Cascade</div>
+      <div class="section-desc">This is where it gets powerful. When someone joins your network, their position in your referral sequence determines where their pass-ups go. Pass-up positions (2nd, 4th, 6th, 8th referral) create chains that cascade commissions upward through infinite levels.</div>
+
+      <div class="flow">
+        <div class="flow-title">📖 Real Example — Follow the Money</div>
+        <div class="flow-text">
+          Let's say <strong style="color:var(--green)">You</strong> sponsor <strong style="color:var(--cyan)">Alice</strong>. Alice is your <strong>1st referral</strong> (a kept position), so Alice's pass-up sponsor is set to <strong style="color:var(--green)">You</strong>.
+          <br><br>
+          Alice then goes out and builds her own team. She recruits Bob, Carol, Dave, and Emma:
+        </div>
+
+        <div class="cascade">
+          <div class="cascade-title">Alice's Referrals</div>
+          <div class="cascade-row"><div class="cascade-level">1st</div><div class="cascade-name">Bob</div><div class="cascade-action cascade-keep">Alice keeps</div><div class="cascade-target" style="color:var(--muted)">Pass-up sponsor = Alice</div></div>
+          <div class="cascade-row"><div class="cascade-level">2nd</div><div class="cascade-name">Carol</div><div class="cascade-action cascade-pass">Passes up</div><div class="cascade-target">Pass-up sponsor = You ✓</div></div>
+          <div class="cascade-row"><div class="cascade-level">3rd</div><div class="cascade-name">Dave</div><div class="cascade-action cascade-keep">Alice keeps</div><div class="cascade-target" style="color:var(--muted)">Pass-up sponsor = Alice</div></div>
+          <div class="cascade-row"><div class="cascade-level">4th</div><div class="cascade-name">Emma</div><div class="cascade-action cascade-pass">Passes up</div><div class="cascade-target">Pass-up sponsor = You ✓</div></div>
+        </div>
+
+        <div class="flow-text">
+          Now <strong>Carol</strong> (Alice's 2nd referral) has her pass-up sponsor set to <strong style="color:var(--green)">You</strong>. When Carol starts selling courses, her <strong>2nd, 4th, 6th, and 8th sales pass up to You</strong> — even though you never recruited Carol.
+          <br><br>
+          But it goes even deeper. Carol builds her own team:
+        </div>
+
+        <div class="cascade">
+          <div class="cascade-title">Carol's Referrals — You Earn From Level 3+</div>
+          <div class="cascade-row"><div class="cascade-level">1st</div><div class="cascade-name">Frank</div><div class="cascade-action cascade-keep">Carol keeps</div><div class="cascade-target" style="color:var(--muted)">Pass-up sponsor = Carol</div></div>
+          <div class="cascade-row"><div class="cascade-level">2nd</div><div class="cascade-name">Grace</div><div class="cascade-action cascade-pass">Passes up</div><div class="cascade-target">Pass-up sponsor = You ✓</div></div>
+          <div class="cascade-row"><div class="cascade-level">3rd</div><div class="cascade-name">Henry</div><div class="cascade-action cascade-keep">Carol keeps</div><div class="cascade-target" style="color:var(--muted)">Pass-up sponsor = Carol</div></div>
+          <div class="cascade-row"><div class="cascade-level">4th</div><div class="cascade-name">James</div><div class="cascade-action cascade-pass">Passes up</div><div class="cascade-target">Pass-up sponsor = You ✓</div></div>
+        </div>
+
+        <div class="key-point" style="margin-top:4px">
+          <div class="kp-title">🚀 The Power of Infinite Depth</div>
+          <div class="kp-text">Grace and James are <strong>three levels below you</strong> in the network. You never met them. You never recruited them. But because of the pass-up chain, <strong>their pass-up commissions flow directly to you</strong>. And when Grace builds HER team, her 2nd, 4th, 6th, and 8th referrals will ALSO have their pass-up sponsor set to you. <strong>This continues infinitely deep.</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Section 4: FOMO Rule ── -->
+    <div class="section">
+      <div class="section-num" style="background:var(--red)">4</div>
+      <div class="section-title">The Qualification Rule — Own It or Lose It</div>
+      <div class="section-desc">There's one critical rule that makes this system even more powerful.</div>
+
+      <div class="fomo-box">
+        <div class="fomo-icon">⚠️</div>
+        <div>
+          <div class="fomo-title">You Must Own the Course Tier to Earn Commissions on It</div>
+          <div class="fomo-text">If someone in your network purchases a Tier 2 course ($300) and you don't own Tier 2 yourself, <strong>that $300 commission goes to the company — not to you, and not to anyone else in the upline</strong>. It's gone. No second chances.<br><br>
+          This means every course you don't own is a potential $100, $300, or $500 commission you're leaving on the table every time someone in your network makes a purchase.</div>
+        </div>
+      </div>
+
+      <div class="flow" style="padding:24px">
+        <div class="flow-title">💸 Example — What Happens When You Don't Own the Tier</div>
+        <div class="vflow">
+          <div class="vf-person vf-deep"><div class="vf-av">C</div><div><div class="vf-nm">Carol (3 levels deep)</div><div class="vf-rl">Buys Tier 2 — Advanced ($300)</div></div><div class="vf-earn">-$300</div></div>
+          <div class="vf-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg> Commission flows to pass-up sponsor...</div>
+          <div class="vf-person vf-you"><div class="vf-av">Y</div><div><div class="vf-nm">You (don't own Tier 2)</div><div class="vf-rl vf-bad">❌ Not qualified — commission lost</div></div><div class="vf-earn">$0</div></div>
+          <div class="vf-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg> Commission goes to company</div>
+          <div class="vf-person vf-co"><div class="vf-av">$</div><div><div class="vf-nm">SuperAdPro (Company)</div><div class="vf-rl">Receives the commission</div></div><div class="vf-earn">+$300</div></div>
+        </div>
+      </div>
+
+      <div class="smart">
+        <div class="smart-title">✅ The Smart Move</div>
+        <div class="smart-text">Own all three tiers and you'll <strong>never miss a commission from anyone in your network</strong>, no matter what tier they purchase. The total investment is $900 — but a single full-stack member buying all three tiers earns you $900 back. <strong>One person pays for everything.</strong></div>
+      </div>
+    </div>
+
+    <!-- ── Section 5: Summary ── -->
+    <div class="section">
+      <div class="section-num" style="background:var(--text)">5</div>
+      <div class="section-title">Putting It All Together</div>
+      <div class="section-desc" style="margin-bottom:16px">Here's why this system is so powerful:</div>
+
+      <div class="summary-item"><div class="summary-icon">💰</div><div><div class="summary-title">100% Commissions</div><div class="summary-desc">No splits, no percentages. You earn the full course price on every sale you keep.</div></div></div>
+      <div class="summary-item"><div class="summary-icon">🔄</div><div><div class="summary-title">4 Pass-Ups Then Freedom</div><div class="summary-desc">You pass up your 2nd, 4th, 6th, and 8th sales. From sale 9 onwards, every commission is yours forever.</div></div></div>
+      <div class="summary-item"><div class="summary-icon">♾️</div><div><div class="summary-title">Infinite Depth Earnings</div><div class="summary-desc">Pass-up chains cascade through your network forever. You earn from people 3, 5, even 10+ levels deep that you've never met.</div></div></div>
+      <div class="summary-item"><div class="summary-icon">⚡</div><div><div class="summary-title">Own It or Lose It</div><div class="summary-desc">If you don't own the tier, the commission goes to the company. Every course you don't own is money left on the table.</div></div></div>
+    </div>
+
+    <!-- ── CTA ── -->
+    <div class="cta-box">
+      <a href="/courses" class="cta-btn">Browse Courses & Start Earning →</a>
+    </div>
+
+  </div>
+
+</div><!-- /main -->
+</div><!-- /layout -->
+{% include "_tawk.html" %}
+</body>
+</html>
