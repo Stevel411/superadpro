@@ -3261,6 +3261,86 @@ def admin_api_boosts(
 
 
 # ═══════════════════════════════════════════════════════════════
+#  ADMIN: Commission Flow Dashboard
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/admin/commission-flows")
+def admin_commission_flows(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user or not is_admin(user):
+        raise HTTPException(status_code=403, detail="Access denied")
+    return templates.TemplateResponse("admin-commission-flows.html", {
+        "request": request, "user": user, "active_page": "admin"
+    })
+
+@app.get("/admin/api/commission-flows")
+def admin_api_commission_flows(user: User = Depends(get_current_user), db: Session = Depends(get_db), limit: int = 100):
+    _require_admin(user)
+
+    # Get all course commissions with details
+    comms = db.query(CourseCommission).order_by(CourseCommission.id.desc()).limit(limit).all()
+    user_ids = set()
+    for c in comms:
+        if c.buyer_id: user_ids.add(c.buyer_id)
+        if c.earner_id: user_ids.add(c.earner_id)
+    users_map = {u.id: u for u in db.query(User).filter(User.id.in_(user_ids)).all()} if user_ids else {}
+
+    flows = []
+    for c in comms:
+        buyer = users_map.get(c.buyer_id)
+        earner = users_map.get(c.earner_id)
+        flows.append({
+            "id": c.id,
+            "buyer": buyer.username if buyer else "?",
+            "buyer_id": c.buyer_id,
+            "earner": earner.username if earner else "COMPANY",
+            "earner_id": c.earner_id,
+            "amount": round(float(c.amount), 2),
+            "tier": c.course_tier,
+            "type": c.commission_type,
+            "depth": c.pass_up_depth,
+            "notes": c.notes or "",
+            "date": c.created_at.isoformat() if c.created_at else None,
+        })
+    return {"flows": flows}
+
+@app.get("/admin/api/network-tree")
+def admin_api_network_tree(user: User = Depends(get_current_user), db: Session = Depends(get_db), root_id: int = 0):
+    _require_admin(user)
+
+    # Build network tree from a root user
+    if root_id == 0:
+        root = db.query(User).filter(User.is_admin == True).first()
+        if not root:
+            root = db.query(User).order_by(User.id).first()
+        root_id = root.id if root else 0
+
+    all_users = db.query(User).all()
+    # Get course ownership
+    purchases = db.query(CoursePurchase).all()
+    user_tiers = {}
+    for p in purchases:
+        if p.user_id not in user_tiers:
+            user_tiers[p.user_id] = []
+        user_tiers[p.user_id].append(p.course_tier)
+
+    nodes = []
+    for u in all_users:
+        nodes.append({
+            "id": u.id,
+            "username": u.username,
+            "sponsor_id": u.sponsor_id,
+            "pass_up_sponsor_id": u.pass_up_sponsor_id,
+            "is_admin": u.is_admin,
+            "is_active": u.is_active,
+            "sale_count": u.course_sale_count or 0,
+            "balance": round(float(u.balance or 0), 2),
+            "course_earnings": round(float(u.course_earnings or 0), 2),
+            "owned_tiers": sorted(user_tiers.get(u.id, [])),
+        })
+    return {"nodes": nodes, "root_id": root_id}
+
+
+# ═══════════════════════════════════════════════════════════════
 #  AI USAGE RATE LIMITING
 # ═══════════════════════════════════════════════════════════════
 
