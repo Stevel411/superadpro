@@ -31,17 +31,18 @@ GRID_LEVELS   = 8      # levels deep
 GRID_TOTAL    = 64     # 64 positions filled by referrals across 8 levels
 
 # ── Commission split (Stream 2 — Profit Engine Grid) ─────────
-# Per entry: 40% direct sponsor + 55% uni-level (variable) + 5% platform
+# Per entry: 40% direct sponsor + 50% uni-level + 5% platform + 5% bonus pool
 DIRECT_PCT    = 0.40   # 40% → to the person who personally referred the entrant
-UNILEVEL_PCT  = 0.55   # 55% → split across 8 uni-level positions (6.875% each)
-PER_LEVEL_PCT = 0.06875 # 6.875% → each of 8 levels in the upline chain
+UNILEVEL_PCT  = 0.50   # 50% → split across 8 uni-level positions (6.25% each)
+PER_LEVEL_PCT = 0.0625 # 6.25% → each of 8 levels in the upline chain
 PLATFORM_PCT  = 0.05   # 5%  → SuperAdPro platform fee
+BONUS_POOL_PCT = 0.05  # 5%  → Grid completion bonus pool
 
 
 # Legacy aliases
 OWNER_PCT     = DIRECT_PCT    # 0.40
-UPLINE_PCT    = UNILEVEL_PCT  # 0.55
-LEVEL_PCT     = PER_LEVEL_PCT # 0.06875
+UPLINE_PCT    = UNILEVEL_PCT  # 0.50
+LEVEL_PCT     = PER_LEVEL_PCT # 0.0625
 COMPANY_PCT   = PLATFORM_PCT  # 0.05
 
 # Package prices
@@ -65,6 +66,33 @@ GRID_TIER_NAMES = {
     6: "Premium",
     7: "Executive",
     8: "Ultimate",
+}
+
+# ── Grid Completion Bonus (paid from 5% bonus pool) ─────────
+# Total pool per grid = 64 seats × price × 5% = price × 3.2
+# Bonus pays out ONLY if grid owner has an active (unexpired) campaign at that tier
+GRID_COMPLETION_BONUS = {
+    1: 64.0,      # 64 × $20 × 0.05 = $64
+    2: 160.0,     # 64 × $50 × 0.05 = $160
+    3: 320.0,     # 64 × $100 × 0.05 = $320
+    4: 640.0,     # 64 × $200 × 0.05 = $640
+    5: 1280.0,    # 64 × $400 × 0.05 = $1,280
+    6: 1920.0,    # 64 × $600 × 0.05 = $1,920
+    7: 2560.0,    # 64 × $800 × 0.05 = $2,560
+    8: 3200.0,    # 64 × $1000 × 0.05 = $3,200
+}
+
+# ── Campaign View Targets per Tier ───────────────────────────
+# Views delivered per campaign purchase/repurchase cycle
+CAMPAIGN_VIEW_TARGETS = {
+    1: 1000,
+    2: 3000,
+    3: 8000,
+    4: 15000,
+    5: 30000,
+    6: 50000,
+    7: 65000,
+    8: 85000,
 }
 
 # ── Campaign Tier Features ────────────────────────────────────
@@ -112,6 +140,7 @@ class User(Base):
     onboarding_completed = Column(Boolean, default=False)              # launch wizard done
     first_payment_to_company = Column(Boolean, default=False)          # True after 1st month payment goes to company
     course_earnings         = Column(Money, default=0.0)               # lifetime earnings from course commissions
+    bonus_earnings          = Column(Money, default=0.0)               # lifetime grid completion bonus earnings
     # ── KYC fields ──
     kyc_status              = Column(String, default="none")               # none, pending, approved, rejected
     kyc_dob                 = Column(String, nullable=True)                # date of birth YYYY-MM-DD
@@ -130,12 +159,15 @@ class Grid(Base):
     id              = Column(Integer, primary_key=True, index=True)
     owner_id        = Column(Integer, ForeignKey("users.id"), index=True)
     package_tier    = Column(Integer)                      # 1-8
-    package_price   = Column(Money)                        # $10-$1000
+    package_price   = Column(Money)                        # $20-$1000
     advance_number    = Column(Integer, default=1)           # which advance (1,2,3...)
     positions_filled = Column(Integer, default=0)          # 0-64
     is_complete     = Column(Boolean, default=False)       # True when 64 filled
     owner_paid      = Column(Boolean, default=False)       # owner payout sent
     revenue_total   = Column(Money, default=0.0)           # total revenue collected
+    bonus_pool_accrued = Column(Money, default=0.0)        # 5% bonus pool accumulator
+    bonus_paid      = Column(Boolean, default=False)       # True if completion bonus paid
+    bonus_rolled_over = Column(Boolean, default=False)     # True if bonus rolled to next advance (no active campaign)
     created_at      = Column(DateTime, default=datetime.utcnow)
     completed_at    = Column(DateTime, nullable=True)
 
@@ -295,9 +327,13 @@ class VideoCampaign(Base):
     video_url       = Column(String, nullable=False)   # original URL pasted
     embed_url       = Column(String, nullable=False)   # cleaned iframe src
     video_id        = Column(String, nullable=True)    # platform video ID
-    status          = Column(String, default="active") # active/paused/deleted
-    views_target    = Column(Integer, default=0)       # from package tier
-    views_delivered = Column(Integer, default=0)       # simulated/tracked
+    status          = Column(String, default="active") # active/paused/completed/deleted
+    views_target    = Column(Integer, default=0)       # from CAMPAIGN_VIEW_TARGETS
+    views_delivered = Column(Integer, default=0)       # tracked via watch system
+    campaign_tier   = Column(Integer, default=1)       # which tier purchase this campaign is for
+    is_completed    = Column(Boolean, default=False)   # True when views_delivered >= views_target
+    completed_at    = Column(DateTime, nullable=True)  # when views target was reached
+    purchase_number = Column(Integer, default=1)       # which purchase/repurchase cycle (1,2,3...)
     # Targeting (Advanced tier and above)
     target_country  = Column(String, nullable=True)    # ISO country or null=worldwide
     target_interests = Column(String, nullable=True)   # comma-separated interest tags
@@ -939,6 +975,16 @@ try:
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_course_chapters_course ON course_chapters(course_id)"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_course_lessons_chapter ON course_lessons(chapter_id)"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_course_progress_user ON course_progress(user_id, course_id)"))
+
+        # ── New business model: 40/50/5/5 spillover + bonus pool (2026-03-10) ──
+        conn.execute(text("ALTER TABLE grids ADD COLUMN IF NOT EXISTS bonus_pool_accrued NUMERIC(18,6) DEFAULT 0.0"))
+        conn.execute(text("ALTER TABLE grids ADD COLUMN IF NOT EXISTS bonus_paid BOOLEAN DEFAULT FALSE"))
+        conn.execute(text("ALTER TABLE grids ADD COLUMN IF NOT EXISTS bonus_rolled_over BOOLEAN DEFAULT FALSE"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS bonus_earnings NUMERIC(18,6) DEFAULT 0.0"))
+        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS campaign_tier INTEGER DEFAULT 1"))
+        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS is_completed BOOLEAN DEFAULT FALSE"))
+        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP"))
+        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS purchase_number INTEGER DEFAULT 1"))
 
         conn.commit()
         print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 + R2 + courses confirmed")
