@@ -3,26 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Grid Visualiser - SuperAdPro</title>
-<link rel="manifest" href="/static/manifest.json">
-<meta name="theme-color" content="#1c223d">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<title>Grid Visualiser — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/mobile.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:#0f172a}
-
-/* Dashboard shell */
+:root{
+  --white:#ffffff;--surface:#f8f9fb;--surface2:#f1f3f7;
+  --cyan:#0ea5e9;--cyan-light:#e0f2fe;
+  --green:#16a34a;--green-light:#dcfce7;
+  --purple:#6366f1;--purple-light:#ede9fe;
+  --amber:#d97706;--amber-light:#fef3c7;
+  --text:#1a1a2e;--text2:#475569;--muted:#94a3b8;
+  --border:#e5e7eb;--navy:#1c223d;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12);
+  --shadow-md:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16);
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:var(--text);min-height:100vh}
 .layout{display:flex;min-height:100vh}
-.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+
+/* Sidebar */
+.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;min-height:72px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
 .sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff;-webkit-text-fill-color:#fff}
-.nav-item{display:flex;align-items:center;gap:11px;padding:12px 18px;font-size:14px;font-weight:500;color:rgba(200,220,255,0.75);text-decoration:none;border-left:2px solid transparent;transition:all 0.2s}
-.nav-item:hover{color:#38bdf8;background:rgba(56,189,248,0.06);border-left-color:rgba(56,189,248,0.3)}
-.nav-item.active{color:#38bdf8;background:rgba(56,189,248,0.07);border-left-color:#38bdf8}
-.nav-icon{font-size:16px;width:18px;text-align:center;flex-shrink:0}
 .sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
-.user-mini{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(56,189,248,0.05);border:1px solid rgba(56,189,248,0.1);border-radius:8px}
-.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0}
 .nav-scroll{flex:1;overflow-y:auto;padding:8px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
 .nav-scroll::-webkit-scrollbar{width:4px}
 .nav-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:4px}
@@ -34,443 +38,198 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:#0f172a}
 .nav-group.open .nav-chevron{transform:rotate(90deg)}
 .nav-children{display:none;padding-bottom:4px}
 .nav-group.open .nav-children{display:block}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px 9px 22px;font-size:13px;color:rgba(200,220,255,.55);text-decoration:none;transition:.12s;cursor:pointer;font-weight:500}
+.nav-item:hover{background:rgba(14,165,233,.06);color:rgba(200,220,255,.85)}
+.nav-item.active{color:#38bdf8;font-weight:700;background:rgba(14,165,233,.08)}
+.nav-icon{font-size:15px;width:22px;text-align:center;flex-shrink:0}
 .nav-standalone{padding:10px 18px}
+
 .main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-.topbar{position:sticky;top:0;z-index:50;background:#1c223d;border-bottom:1px solid rgba(14,165,233,0.12);padding:0 24px;height:72px;display:flex;align-items:center}
-.container{padding:12px 24px 40px}
-@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.topbar{display:none}}
 
-/* Tier bar */
-.pkg-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:8px}
-.pkg-btn{padding:8px 4px;border-radius:8px;border:none;background:#f8fafc;color:#64748b;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;text-align:center}
-.pkg-btn:hover{color:#0ea5e9;background:rgba(14,165,233,0.05)}
-.pkg-btn.active{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;box-shadow:0 4px 14px rgba(14,165,233,0.3)}
+.topbar{height:72px;background:var(--navy);border-bottom:1px solid rgba(14,165,233,0.12);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:50}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-icon{width:36px;height:36px;border-radius:10px;background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.2);display:flex;align-items:center;justify-content:center}
+.tb-title{font-size:17px;font-weight:800;color:#fff}
+.tb-sub{font-size:12px;color:rgba(0,212,255,0.45);margin-top:1px}
 
-/* 2-col layout - matches mockup exactly: 1fr 320px */
-.viz-layout{display:grid;grid-template-columns:1fr minmax(300px,420px);gap:14px}
-@media(max-width:900px){.viz-layout{grid-template-columns:1fr}}
+.content{padding:24px 28px;flex:1}
+
+/* Tier selector */
+.tier-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.tier-tab{padding:8px 16px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--text2);transition:all 0.15s}
+.tier-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tier-tab:hover:not(.active){background:var(--surface)}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow-sm);text-align:center}
+.stat-val{font-family:Sora,sans-serif;font-size:24px;font-weight:800;color:var(--text)}
+.stat-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
 
 /* Grid card */
-.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px}
-.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.card-eye{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#38bdf8}
-.card-ttl{font-size:14px;font-weight:800;color:#0f172a}
-.progress-mini{text-align:right}
-.progress-mini-text{font-size:11px;color:#94a3b8}
-.progress-mini-bar{height:4px;width:80px;background:#f1f5f9;border-radius:2px;margin-top:2px}
-.progress-mini-fill{height:4px;background:#38bdf8;border-radius:2px;transition:width 0.3s}
+.grid-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow-sm);margin-bottom:20px}
+.gc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.gc-title{font-size:16px;font-weight:800;color:var(--text)}
+.gc-advance{font-size:11px;font-weight:700;padding:4px 12px;border-radius:6px;background:var(--cyan-light);color:var(--cyan)}
+.gc-progress{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.gc-bar{flex:1;height:8px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.gc-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--cyan),var(--green));transition:width 0.5s}
+.gc-pct{font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:var(--cyan)}
 
-/* Grid - matches mockup: minHeight 32, gap 3, NO aspect-ratio */
-.level-labels{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-bottom:2px}
-.level-lbl{text-align:center;font-size:10px;font-weight:700;color:#38bdf8}
-.grid-wrap{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
-.cell{height:52px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;text-align:center;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);background:#f8fafc;border:1px dashed #e2e8f0;color:transparent;cursor:default;position:relative;overflow:hidden}
-.cell.owner{background:linear-gradient(135deg,#0ea5e9,#0e7490)!important;border:2px solid #38bdf8!important;color:#fff!important;box-shadow:0 0 16px rgba(0,212,255,0.4)}
-.cell.direct{color:#fff!important;border:2px solid rgba(52,211,153,0.7)!important;box-shadow:0 0 14px rgba(16,185,129,0.45)}
-.cell.overspill{color:rgba(255,255,255,0.9)!important}
-.cell.pop{animation:cellPop 0.45s cubic-bezier(0.34,1.56,0.64,1)}
-@keyframes cellPop{0%{transform:scale(0.25);opacity:0}65%{transform:scale(1.12)}100%{transform:scale(1)}}
+/* 8x8 grid */
+.grid-8x8{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-bottom:16px}
+.g-cell{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;transition:all 0.2s;cursor:default;position:relative}
+.g-cell.empty{background:var(--surface);border:1px dashed var(--border);color:transparent}
+.g-cell.filled{color:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.15)}
+.g-cell.d1{background:var(--cyan)}.g-cell.d2{background:var(--green)}.g-cell.d3{background:var(--purple)}.g-cell.d4{background:var(--amber)}.g-cell.d5{background:#ec4899}
+.g-cell:hover .g-tooltip{display:block}
+.g-tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:6px 10px;border-radius:7px;font-size:11px;font-weight:600;white-space:nowrap;z-index:10;box-shadow:var(--shadow-sm)}
+.g-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--navy)}
 
-/* Controls */
-.controls{display:flex;gap:8px;align-items:center;margin-top:10px}
-.btn{padding:7px 16px;border-radius:6px;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s}
-.btn-play{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff}
-.btn-play:hover{box-shadow:0 4px 16px rgba(14,165,233,0.3);transform:translateY(-1px)}
-.btn-reset{background:#f8fafc;color:#64748b;border:1px solid #e2e8f0}
-.btn-reset:hover{background:#f1f5f9;color:#0f172a}
-.speed-wrap{display:flex;align-items:center;gap:6px;margin-left:auto}
-.speed-label{font-size:9px;color:#94a3b8;letter-spacing:1px;text-transform:uppercase}
-input[type=range]{width:60px;accent-color:#0ea5e9;cursor:pointer}
+/* Legend */
+.legend{display:flex;gap:16px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--text2)}
+.leg-dot{width:14px;height:14px;border-radius:5px;flex-shrink:0}
 
-/* Direct slider */
-.direct-panel{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px}
-.direct-panel-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
-.direct-panel-label{font-size:12px;font-weight:700;color:#0f172a}
-.direct-panel-sub{font-size:10px;color:#94a3b8;margin-top:2px}
-.direct-count-big{font-size:22px;font-weight:800;color:#10b981;line-height:1}
-.direct-count-caption{font-size:11px;color:#94a3b8}
-.legend-row{display:flex;gap:16px;margin-top:6px}
-.legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:#64748b}
-.legend-swatch{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+/* How it works */
+.hiw{background:var(--surface);border-radius:14px;padding:20px 24px;margin-bottom:20px}
+.hiw-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:12px}
+.hiw-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.hiw-item:last-child{margin-bottom:0}
+.hiw-num{width:24px;height:24px;border-radius:7px;background:var(--cyan);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+.hiw-text{font-size:13px;color:var(--text2);line-height:1.6}
+.hiw-text strong{color:var(--text)}
 
-/* Info strip - 3 cards in left column */
-.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.info-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px}
-.info-card-t{font-size:12px;font-weight:700;margin-bottom:4px}
-.info-card-p{font-size:11px;color:#64748b;line-height:1.5}
-.mt{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px}
-.mt th{text-align:left;padding:4px 5px;color:#94a3b8;font-weight:600;border-bottom:1px solid #e2e8f0}
-.mt td{padding:4px 5px;font-weight:600;border-bottom:1px solid #f1f5f9}
-@media(max-width:768px){.info-grid{grid-template-columns:1fr}}
+.loading{text-align:center;padding:40px;color:var(--muted)}
 
-/* Right column */
-.right-col{display:flex;flex-direction:column;gap:10px;align-self:stretch}
-.total-card{background:linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8);border-radius:12px;padding:16px;text-align:center;color:#fff}
-.total-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:2px}
-.total-amount{font-size:28px;font-weight:800;color:#fff;-webkit-text-fill-color:#fff;transition:all 0.3s}
-.total-sub{font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px}
-.stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px}
-.eyebrow{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#38bdf8;margin-bottom:8px}
-.earn-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f1f5f9}
-.earn-row:last-child{border-bottom:none;padding-bottom:0}
-.earn-left{display:flex;align-items:center;gap:8px}
-.earn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.earn-label{font-size:11px;font-weight:600;color:#334155}
-.earn-sub{font-size:10px;color:#94a3b8;margin-top:1px}
-.earn-amount{font-size:14px;font-weight:700;transition:all 0.25s}
-.earn-amount.bump{animation:numBump 0.25s ease}
-@keyframes numBump{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.mini-stat{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px}
-.mini-stat-label{display:flex;align-items:center;gap:4px;font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-.mini-stat-val{font-size:16px;font-weight:800}
-.split-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px}
-.split-bar-wrap{display:flex;height:6px;border-radius:3px;overflow:hidden;gap:2px;margin:6px 0 8px}
-.split-seg{border-radius:2px}
-.split-legend{display:flex;justify-content:space-between;font-size:11px}
-.split-item{display:flex;align-items:center;gap:4px}
-.split-swatch{width:6px;height:6px;border-radius:2px;flex-shrink:0}
-.split-pct{font-weight:700}
-.log-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;flex:1;display:flex;flex-direction:column}
-.log-list{display:flex;flex-direction:column;flex:1;overflow-y:auto}
-.log-item{display:flex;align-items:center;font-size:11px;color:#64748b;animation:slideIn 0.22s ease;padding:4px 0;border-bottom:1px solid #f1f5f9}
-.log-item:last-child{border-bottom:none}
-@keyframes slideIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
-.log-seat{font-weight:700;color:#334155;min-width:52px;font-variant-numeric:tabular-nums}
-.log-level{color:#94a3b8;min-width:22px}
-.log-tag{font-size:8px;padding:2px 5px;border-radius:3px;font-weight:700;letter-spacing:0.5px;white-space:nowrap}
-.log-tag.direct{color:#10b981;border:1px solid rgba(16,185,129,0.35);background:rgba(16,185,129,0.08)}
-.log-tag.overspill{color:#38bdf8;border:1px solid rgba(56,189,248,0.15);background:rgba(14,165,233,0.04)}
-.log-amt{font-weight:700;font-size:11px;white-space:nowrap;margin-left:auto;font-variant-numeric:tabular-nums}
-.advance-banner{display:none;text-align:center;padding:12px;background:rgba(14,165,233,0.06);border:1px solid rgba(14,165,233,0.15);border-radius:8px;margin-top:8px}
-.advance-banner.show{display:block;animation:fadeUp 0.4s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.advance-title{font-size:12px;font-weight:700;color:#38bdf8;margin-bottom:2px}
-.advance-sub{font-size:11px;color:#64748b}
-
-/* Mobile nav */
-.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:#1c223d;border-top:1px solid rgba(56,189,248,0.1);padding:6px 0 env(safe-area-inset-bottom,0)}
-.mob-nav-inner{display:flex;justify-content:space-around}
-.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:#4a5a6e;font-size:10px;font-weight:600;padding:4px 8px;transition:color 0.2s}
-.mob-nav-item.active{color:#38bdf8}
-.mob-nav-icon{font-size:18px}
-@media(max-width:768px){.mob-nav{display:block}body{padding-bottom:72px}.viz-layout{grid-template-columns:1fr}}
+@media(max-width:900px){.stats-row{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){.sidebar{display:none!important}.main{margin-left:0!important}.content{padding:16px}.grid-8x8{gap:3px}.g-cell{font-size:8px;border-radius:5px}}
 </style>
 </head>
 <body>
 <div class="layout">
 {% include "_sidebar.html" %}
 <div class="main">
-<div class="topbar"><div><div style="font-size:16px;font-weight:800;color:#fff">&#x26A1; Grid Visualiser</div><div style="font-size:11px;color:#6b7d94;margin-top:1px">Watch your grid fill with direct referrals and upline overspill</div></div></div>
-<div class="container">
 
-<!-- 2-col layout -->
-<div class="viz-layout">
-  <!-- LEFT -->
-  <div style="display:flex;flex-direction:column;gap:12px">
-    <!-- Grid card -->
-    <div class="card">
-      <div class="card-head">
-        <div><div class="card-eye">Stream 02 &#x2014; Profit Engine Grid</div><div class="card-ttl" id="panelTitle">8&#xD7;8 GRID &#x2014; $100 PACKAGE</div></div>
-        <div class="progress-mini"><div class="progress-mini-text" id="progressVal">0 / 64 filled</div><div class="progress-mini-bar"><div class="progress-mini-fill" id="progressFill" style="width:0%"></div></div></div>
-      </div>
-      <div class="level-labels" id="levelLabels"></div>
-      <div class="grid-wrap" id="gridWrap"></div>
-      <div class="controls">
-        <button class="btn btn-play" id="playBtn" onclick="togglePlay()">&#x25B6; PLAY</button>
-        <button class="btn btn-reset" onclick="resetGrid()">&#x21BA; RESET</button>
-        <div class="speed-wrap"><span class="speed-label">Speed</span><input type="range" min="1" max="5" value="3" id="speedSlider"></div>
-      </div>
-      <div class="advance-banner" id="advanceBanner"><div class="advance-title">&#x26A1; GRID COMPLETE</div><div class="advance-sub" id="advanceSubText"></div></div>
+<div class="topbar">
+  <div class="tb-left">
+    <div class="tb-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
     </div>
-    <!-- Direct slider -->
-    <div class="direct-panel">
-      <div class="direct-panel-top">
-        <div><div class="direct-panel-label">Your Personal Direct Referrals</div><div class="direct-panel-sub">Randomly placed across all 8 levels</div></div>
-        <div style="text-align:right"><div class="direct-count-big" id="directCountDisplay">0</div><div class="direct-count-caption">of 64 positions</div></div>
-      </div>
-      <input type="range" min="0" max="64" value="0" id="directSlider" style="width:100%;accent-color:#10b981" oninput="updateDirectCount(this.value)">
-      <div class="legend-row">
-        <div class="legend-item"><div class="legend-swatch" style="background:linear-gradient(135deg,#10b981,#059669)"></div>Direct &#xB7; $<span id="legendDirect">33.75</span></div>
-        <div class="legend-item"><div class="legend-swatch" style="background:#3b82f6"></div>Overspill &#xB7; $<span id="legendOverspill">6.88</span>/level</div>
-      </div>
+    <div>
+      <div class="tb-title">Grid Visualiser</div>
+      <div class="tb-sub">Watch your network fill your 8×8 grid in real time</div>
     </div>
-    <!-- Info strip -->
-    <div class="info-grid">
-      <div class="info-card"><div style="font-size:14px;margin-bottom:4px">&#x267E;&#xFE0F;</div><div class="info-card-t" style="color:#38bdf8">Recurring Engine</div><div class="info-card-p">64 positions fill &#x2192; grid auto-advances &#x2192; commissions restart</div></div>
-      <div class="info-card"><div style="font-size:14px;margin-bottom:4px">&#x1F4A1;</div><div class="info-card-t" style="color:#10b981">How You Earn</div><div class="info-card-p">Every seat = 6.875% uni-level. Your referrals also get 40% sponsor bonus.</div></div>
-      <div class="info-card"><div class="info-card-t" style="color:#0ea5e9">Per Seat Earnings</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px"><div><table class="mt"><tr><th>Tier</th><th style="color:#10b981">Direct</th><th style="color:#38bdf8">Spill</th></tr><tr><td>$20</td><td>$9.38</td><td>$1.38</td></tr><tr><td>$50</td><td>$23.44</td><td>$3.44</td></tr><tr><td>$100</td><td>$46.88</td><td>$6.88</td></tr><tr><td>$200</td><td>$93.75</td><td>$13.75</td></tr></table></div><div><table class="mt"><tr><th>Tier</th><th style="color:#10b981">Direct</th><th style="color:#38bdf8">Spill</th></tr><tr><td>$400</td><td>$187.50</td><td>$27.50</td></tr><tr><td>$600</td><td>$281.25</td><td>$41.25</td></tr><tr><td>$800</td><td>$375.00</td><td>$55.00</td></tr><tr><td>$1,000</td><td>$468.75</td><td>$68.75</td></tr></table></div></div></div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- Tier Selector -->
+  <div class="tier-tabs" id="tierTabs">
+    <div class="tier-tab active" onclick="loadTier(1,this)">Tier 1 — $20</div>
+    <div class="tier-tab" onclick="loadTier(2,this)">Tier 2 — $50</div>
+    <div class="tier-tab" onclick="loadTier(3,this)">Tier 3 — $100</div>
+    <div class="tier-tab" onclick="loadTier(4,this)">Tier 4 — $200</div>
+    <div class="tier-tab" onclick="loadTier(5,this)">Tier 5 — $400</div>
+    <div class="tier-tab" onclick="loadTier(6,this)">Tier 6 — $600</div>
+    <div class="tier-tab" onclick="loadTier(7,this)">Tier 7 — $800</div>
+    <div class="tier-tab" onclick="loadTier(8,this)">Tier 8 — $1000</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat"><div class="stat-val" id="sFilled">—</div><div class="stat-lbl">Seats Filled</div></div>
+    <div class="stat"><div class="stat-val" id="sRemaining">—</div><div class="stat-lbl">Seats Remaining</div></div>
+    <div class="stat"><div class="stat-val" id="sAdvance">—</div><div class="stat-lbl">Current Advance</div></div>
+    <div class="stat"><div class="stat-val" id="sCompleted">—</div><div class="stat-lbl">Completed</div></div>
+  </div>
+
+  <!-- Grid -->
+  <div class="grid-card">
+    <div class="gc-head">
+      <div class="gc-title" id="gcTitle">Loading...</div>
+      <div class="gc-advance" id="gcAdvance">—</div>
+    </div>
+    <div class="gc-progress">
+      <div class="gc-bar"><div class="gc-bar-fill" id="gcBar" style="width:0%"></div></div>
+      <div class="gc-pct" id="gcPct">0%</div>
+    </div>
+
+    <div class="grid-8x8" id="gridContainer">
+      <div class="loading">Loading grid...</div>
+    </div>
+
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="background:var(--cyan)"></div>Direct referrals (Level 1)</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--green)"></div>Level 2 spillover</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--purple)"></div>Level 3 spillover</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--amber)"></div>Level 4 spillover</div>
+      <div class="leg"><div class="leg-dot" style="background:#ec4899"></div>Level 5+ deep</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--surface);border:1px dashed var(--border)"></div>Empty</div>
     </div>
   </div>
 
-  <!-- RIGHT -->
-  <div class="right-col">
-    <div class="total-card"><div class="total-label">Your Total This Advance</div><div class="total-amount" id="totalAmt">$0.00</div><div class="total-sub"><span id="directFilled">0</span> directs / <span id="overspillFilled">0</span> overspill</div></div>
-    <div class="stat-card"><div class="eyebrow">Live Earnings Tracker</div><div class="earn-row"><div class="earn-left"><div class="earn-dot" style="background:#10b981"></div><div><div class="earn-label">Direct Sponsor (40%)</div><div class="earn-sub">$<span id="directPerSeat">40.00</span> per referral</div></div></div><div class="earn-amount" id="sponsorAmt" style="color:#10b981">$0.00</div></div><div class="earn-row"><div class="earn-left"><div class="earn-dot" style="background:#38bdf8"></div><div><div class="earn-label">Uni-Level (6.875% &#xD7; 8)</div><div class="earn-sub">$<span id="uniPerSeat">6.88</span> per seat</div></div></div><div class="earn-amount" id="uniAmt" style="color:#38bdf8">$0.00</div></div></div>
-    <div class="stat-grid"><div class="mini-stat"><div class="mini-stat-label">&#x1F3AF; Directs</div><div class="mini-stat-val" id="infoDirectCount" style="color:#10b981">15 seats</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F504; Overspill</div><div class="mini-stat-val" id="infoOverspillCount" style="color:#3b82f6">48 seats</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F4B0; Est. Earnings</div><div class="mini-stat-val" id="infoMax" style="color:#f59e0b">$926.25</div></div><div class="mini-stat"><div class="mini-stat-label">&#x1F4CA; Active Tier</div><div class="mini-stat-val" id="infoPkg" style="color:#0ea5e9">$100 Pro</div></div></div>
-    <div class="split-card"><div class="eyebrow">Single Seat Payout &#x2014; $<span id="splitPrice">100</span></div><div class="split-bar-wrap"><div class="split-seg" style="width:42%;background:#10b981"></div><div class="split-seg" style="width:58%;background:linear-gradient(90deg,#3b82f6,#38bdf8)"></div></div><div class="split-legend"><div class="split-item"><div class="split-swatch" style="background:#10b981"></div><span style="color:#64748b">Sponsor</span> <span class="split-pct" id="sp1" style="color:#10b981">$40.00</span></div><div class="split-item"><div class="split-swatch" style="background:#3b82f6"></div><span style="color:#64748b">Uni-Level</span> <span class="split-pct" id="sp2" style="color:#38bdf8">$55.00</span></div></div><span style="display:none" id="sp2lvl">6.88</span></div>
-    <div class="pkg-bar" id="pkgBar"></div>
-    <div class="log-card"><div class="eyebrow">Activity Log</div><div class="log-list" id="logList"><div class="log-item"><span style="color:#94a3b8;font-size:11px">Waiting for grid to start...</span></div></div></div>
+  <!-- How it Works -->
+  <div class="hiw">
+    <div class="hiw-title">How the Spillover Grid Works</div>
+    <div class="hiw-item"><div class="hiw-num">1</div><div class="hiw-text">When <strong>anyone in your network</strong> purchases this tier, they fill a seat in your grid — not just your personal referrals.</div></div>
+    <div class="hiw-item"><div class="hiw-num">2</div><div class="hiw-text">Colours show the depth: <strong>cyan = your direct referrals</strong>, green = their referrals, purple = level 3, and so on. Hover any seat to see who's there.</div></div>
+    <div class="hiw-item"><div class="hiw-num">3</div><div class="hiw-text">Each person fills <strong>one seat per grid per advance</strong>. You need 64 unique network members at this tier to complete.</div></div>
+    <div class="hiw-item"><div class="hiw-num">4</div><div class="hiw-text">When all 64 seats fill, a <strong>new advance auto-starts</strong> and the cycle repeats. Your grid grows as your network grows.</div></div>
+    <div class="hiw-item"><div class="hiw-num">5</div><div class="hiw-text"><strong>Commissions follow the sponsor chain</strong> — 40% to direct sponsor, 6.875% uni-level to 8 levels up, 5% platform. The grid is your visual progress tracker.</div></div>
   </div>
-</div>
 
 </div>
 </div>
 </div>
+
 <script>
-// ── State ──────────────────────────────────────────────────────────────────
-let pkg         = 100;
-let cells       = [];
-let filled      = 0;
-let directFilled = 0;
-let playing     = false;
-let timer       = null;
-let directCount = 0;       // how many of the 64 positions are your personal referrals
-let directSeats = new Set(); // which seat indices (1–63) are directs — randomised each reset
+var depthColors = ['d1','d2','d3','d4','d5'];
 
-// Running totals
-let tSponsor = 0, tUni = 0;
+function loadTier(tier, el) {
+  document.querySelectorAll('.tier-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
 
+  fetch('/api/grid-visualiser?tier=' + tier)
+    .then(r => r.json())
+    .then(d => {
+      var filled = d.filled || 0;
+      var total = d.total || 64;
+      var pct = Math.round((filled / total) * 100);
 
-const LEVEL_COLOURS = [
-  '#38bdf8','#3b82f6','#6366f1','#0ea5e9',
-  '#0ea5e9','#38bdf8','#b197fc','#c4b5fd'
-];
+      document.getElementById('sFilled').textContent = filled;
+      document.getElementById('sRemaining').textContent = total - filled;
+      document.getElementById('sAdvance').textContent = '#' + (d.advance || 1);
+      document.getElementById('sCompleted').textContent = d.completed_advances || 0;
+      document.getElementById('gcTitle').textContent = 'Tier ' + tier + ' Grid — $' + d.price;
+      document.getElementById('gcAdvance').textContent = 'Advance #' + (d.advance || 1);
+      document.getElementById('gcBar').style.width = pct + '%';
+      document.getElementById('gcPct').textContent = pct + '%';
 
-// ── Randomise which positions are personal directs ─────────────────────────
-function randomiseDirects() {
-  directSeats.clear();
-  // Fisher-Yates shuffle of positions 0–63, pick first directCount
-  const pool = Array.from({length:64}, (_,i) => i);
-  for (let i = 63; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i+1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
-  }
-  for (let i = 0; i < directCount; i++) directSeats.add(pool[i]);
+      var html = '';
+      for (var i = 0; i < 64; i++) {
+        var seat = d.seats[i];
+        if (seat) {
+          var depth = Math.min(seat.depth, 5);
+          var colorClass = depthColors[depth - 1] || depthColors[4];
+          html += '<div class="g-cell filled ' + colorClass + '">' +
+            seat.username.substring(0, 2).toUpperCase() +
+            '<div class="g-tooltip">' + seat.username + ' · Level ' + seat.depth + '</div></div>';
+        } else {
+          html += '<div class="g-cell empty">' + (i + 1) + '</div>';
+        }
+      }
+      document.getElementById('gridContainer').innerHTML = html;
+    })
+    .catch(function(e) {
+      console.error(e);
+      document.getElementById('gridContainer').innerHTML = '<div class="loading">Error loading grid data</div>';
+    });
 }
 
-// ── Tier / direct-count controls ───────────────────────────────────────
-function selectPkg(btn) {
-  document.querySelectorAll('.pkg-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  pkg = parseFloat(btn.dataset.price);
-  updateSplitDisplay();
-  resetGrid();
-}
-
-function updateDirectCount(val) {
-  directCount = parseInt(val);
-  document.getElementById('directCountDisplay').textContent = directCount;
-  updateSplitDisplay();
-  resetGrid();
-}
-
-function updateSplitDisplay() {
-  const direct   = pkg * 0.40;
-  const uniTotal = pkg * 0.55;
-  const avgPerLevel = uniTotal / 8;
-  const overspill = 64 - directCount;
-  const est = (directCount * (direct + avgPerLevel)) + (overspill * avgPerLevel);
-
-  document.getElementById('splitPrice').textContent   = pkg.toLocaleString();
-  document.getElementById('sp1').textContent          = '$' + direct.toFixed(2);
-  document.getElementById('sp2lvl').textContent       = avgPerLevel.toFixed(2);
-  document.getElementById('sp2').textContent          = '$' + uniTotal.toFixed(2);
-  document.getElementById('infoPkg').textContent      = '$' + pkg.toLocaleString();
-  document.getElementById('infoDirectCount').textContent  = directCount + ' positions';
-  document.getElementById('infoOverspillCount').textContent = overspill + ' positions';
-  document.getElementById('infoMax').textContent      = '$' + est.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
-  document.getElementById('panelTitle').textContent   = `8×8 GRID — $${pkg.toLocaleString()} PACKAGE`;
-  document.getElementById('directPerSeat').textContent = direct.toFixed(2);
-  document.getElementById('uniPerSeat').textContent   = avgPerLevel.toFixed(2);
-  document.getElementById('legendDirect').textContent = (direct + avgPerLevel).toFixed(2);
-  document.getElementById('legendOverspill').textContent = avgPerLevel.toFixed(2);
-}
-
-// ── Build grid ─────────────────────────────────────────────────────────────
-function buildGrid() {
-  const wrap   = document.getElementById('gridWrap');
-  const labels = document.getElementById('levelLabels');
-  wrap.innerHTML = ''; labels.innerHTML = ''; cells = [];
-
-  for (let l = 0; l < 8; l++) {
-    const lbl = document.createElement('div');
-    lbl.className  = 'level-label';
-    lbl.textContent = 'L' + (l+1);
-    lbl.style.color = LEVEL_COLOURS[l] + '70';
-    labels.appendChild(lbl);
-  }
-
-  for (let i = 0; i < 64; i++) {
-    const c = document.createElement('div');
-    c.className = 'cell';
-    c.textContent = (i + 1);
-    wrap.appendChild(c);
-    cells.push(c);
-  }
-}
-
-// ── Playback ───────────────────────────────────────────────────────────────
-function togglePlay() { playing ? pause() : play(); }
-
-function play() {
-  playing = true;
-  document.getElementById('playBtn').textContent = '⏸ PAUSE';
-  tick();
-}
-
-function pause() {
-  playing = false;
-  clearTimeout(timer);
-  document.getElementById('playBtn').textContent = '▶ PLAY';
-}
-
-function getDelay() {
-  const v = parseInt(document.getElementById('speedSlider').value);
-  return Math.round(700 - (v-1) * 150); // 700ms (slow) → 100ms (fast)
-}
-
-function tick() {
-  if (!playing) return;
-  if (filled >= 64) { gridAdvance(); return; }
-  fillNext();
-  timer = setTimeout(tick, getDelay());
-}
-
-// ── Fill one position ──────────────────────────────────────────────────────
-function fillNext() {
-  const cell     = cells[filled];
-  const level    = Math.floor(filled / 8);  // 0 = L1 … 7 = L8
-  const isDirect = directSeats.has(filled);
-  const perLevel = pkg * 0.55 / 8;   // 6.875% flat per level
-
-  // ── COMMISSION LOGIC ──────────────────────────────────────────────────
-  // Uni-level commissions: 6.875% flat per level (55% / 8 levels).
-  // Each of 8 upline levels receives the same amount.
-  // If this position is YOUR personal direct referral, you also receive
-  // the 40% direct sponsor commission.
-  // ─────────────────────────────────────────────────────────────────────
-  let youEarn = perLevel;
-  if (isDirect) {
-    tSponsor += pkg * 0.40;
-    youEarn  += pkg * 0.40;
-    directFilled++;
-  }
-  tUni      += perLevel;
-
-  // Visual style
-  const col = LEVEL_COLOURS[level];
-  cell.classList.add('filled', isDirect ? 'direct' : 'overspill', 'pop');
-  if (isDirect) {
-    cell.style.background  = 'linear-gradient(135deg,#10b981,#059669)';
-    cell.style.borderColor = 'rgba(52,211,153,0.7)';
-    cell.style.boxShadow   = '0 0 18px rgba(16,185,129,0.55),0 0 36px rgba(16,185,129,0.18)';
-    cell.style.color       = '#fff';
-  } else {
-    cell.style.background  = col;
-    cell.style.borderColor = col + '40';
-    cell.style.boxShadow   = `0 0 10px ${col}45`;
-    cell.style.color       = 'rgba(255,255,255,0.9)';
-  }
-  cell.innerHTML = `+$${youEarn.toFixed(2)}`;
-  setTimeout(() => cell.classList.remove('pop'), 450);
-
-  // Update panels
-  bump('sponsorAmt', tSponsor);
-  bump('uniAmt',     tUni);
-  document.getElementById('totalAmt').textContent = '$' + (tSponsor + tUni).toFixed(2);
-  document.getElementById('directFilled').textContent   = directFilled;
-  document.getElementById('overspillFilled').textContent = (filled + 1) - directFilled;
-
-  filled++;
-  const pct = Math.round((filled / 64) * 100);
-  document.getElementById('progressVal').textContent = `${filled} / 64 positions filled`;
-  document.getElementById('progressFill').style.width = pct + '%';
-
-  addLog(filled, level+1, isDirect, youEarn, isDirect ? '#10b981' : col);
-}
-
-// ── Helpers ────────────────────────────────────────────────────────────────
-function bump(id, val) {
-  const el = document.getElementById(id);
-  el.textContent = '$' + val.toFixed(2);
-  el.classList.remove('bump');
-  void el.offsetWidth;
-  el.classList.add('bump');
-}
-
-function addLog(seat, level, isDirect, amt, col) {
-  const list = document.getElementById('logList');
-  if (list.querySelector('[style*="0.2"]')) list.innerHTML = '';
-  const tag   = isDirect
-    ? '<span class="log-tag direct">DIRECT</span>'
-    : '<span class="log-tag overspill">OVERSPILL</span>';
-  const item  = document.createElement('div');
-  item.className = 'log-item';
-  item.innerHTML = `<div class="log-left"><span class="log-seat">#${String(seat).padStart(2,'0')}</span><span class="log-level">L${level}</span>${tag}</div><span class="log-amt" style="color:${col}">+$${amt.toFixed(2)}</span>`;
-  list.insertBefore(item, list.firstChild);
-  while (list.children.length > 10) list.removeChild(list.lastChild);
-}
-
-// ── Advance complete ─────────────────────────────────────────────────────────
-function gridAdvance() {
-  pause();
-  const earned = (tSponsor + tUni).toFixed(2);
-  document.getElementById('advanceSubText').textContent =
-    `You earned $${earned} — ${directFilled} directs + ${63 - directFilled} overspill. New advance in 3 seconds with a fresh random mix...`;
-  document.getElementById('advanceBanner').classList.add('show');
-  setTimeout(() => {
-    document.getElementById('advanceBanner').classList.remove('show');
-    resetGrid();
-    setTimeout(play, 500);
-  }, 3500);
-}
-
-// ── Reset ──────────────────────────────────────────────────────────────────
-function resetGrid() {
-  pause();
-  filled = 0; directFilled = 0;
-  tSponsor = 0; tUni = 0;
-  randomiseDirects();
-  buildGrid();
-  ['sponsorAmt','uniAmt'].forEach(id =>
-    document.getElementById(id).textContent = '$0.00'
-  );
-  document.getElementById('totalAmt').textContent         = '$0.00';
-  document.getElementById('progressVal').textContent      = '0 / 64 positions filled';
-  document.getElementById('progressFill').style.width     = '0%';
-  document.getElementById('directFilled').textContent     = '0';
-  document.getElementById('overspillFilled').textContent  = '0';
-  document.getElementById('logList').innerHTML            =
-    '<div class="log-item"><span style="color:rgba(255,255,255,0.2);font-size:11px">Waiting for grid to start...</span></div>';
-  document.getElementById('advanceBanner').classList.remove('show');
-  document.getElementById('playBtn').textContent          = '▶ PLAY';
-}
-
-// ── Init ───────────────────────────────────────────────────────────────────
-// Build tier selector
-(function(){
-  const bar = document.getElementById('pkgBar');
-  const tiers = [
-    {label:'$20',price:20},{label:'$50',price:50},{label:'$100',price:100},
-    {label:'$200',price:200},{label:'$400',price:400},{label:'$600',price:600},
-    {label:'$800',price:800},{label:'$1,000',price:1000}
-  ];
-  tiers.forEach(function(t){
-    const b = document.createElement('button');
-    b.className = 'pkg-btn' + (t.price === pkg ? ' active' : '');
-    b.dataset.price = t.price;
-    b.textContent = t.label;
-    b.onclick = function(){ selectPkg(this); };
-    bar.appendChild(b);
-  });
-})();
-updateSplitDisplay();
-randomiseDirects();
-buildGrid();
+loadTier(1, null);
 </script>
-
-<div class="mob-nav"><div class="mob-nav-inner"><a href="/dashboard" class="mob-nav-item"><span class="mob-nav-icon">&#x229E;</span><span>Home</span></a><a href="/watch" class="mob-nav-item"><span class="mob-nav-icon">&#x25B6;</span><span>Watch</span></a><a href="/income-grid" class="mob-nav-item active"><span class="mob-nav-icon">&#x26A1;</span><span>Grid</span></a><a href="/wallet" class="mob-nav-item"><span class="mob-nav-icon">&#x25CE;</span><span>Wallet</span></a><a href="/account" class="mob-nav-item"><span class="mob-nav-icon">&#x25C9;</span><span>Account</span></a></div></div>
 {% include "_tawk.html" %}
 </body>
 </html>

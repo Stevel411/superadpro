@@ -384,11 +384,83 @@ def leaderboard_page(request: Request, tab: str = "referrals", user: User = Depe
     })
 
 @app.get("/grid-visualiser")
-def grid_visualiser(request: Request, user: User = Depends(get_current_user)):
-    ctx = {"request": request, "active_page": "grid-visualiser"}
-    if user:
-        ctx["user"] = user
+def grid_visualiser(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user: return RedirectResponse(url="/?login=1")
+    ctx = {"request": request, "active_page": "grid-visualiser", "user": user}
     return templates.TemplateResponse("grid-visualiser-internal.html", ctx)
+
+@app.get("/api/grid-visualiser")
+def api_grid_visualiser(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db), tier: int = 1):
+    """Return spillover grid data for the current user at a given tier."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # Recursively find all downline members
+    downline = []
+    queue = [user.id]
+    visited = {user.id}
+    depth_map = {user.id: 0}
+
+    while queue:
+        current_id = queue.pop(0)
+        children = db.query(User).filter(User.sponsor_id == current_id).all()
+        for child in children:
+            if child.id not in visited:
+                visited.add(child.id)
+                d = depth_map[current_id] + 1
+                depth_map[child.id] = d
+                # Check if this member has purchased this tier
+                has_tier = db.query(Payment).filter(
+                    Payment.from_user_id == child.id,
+                    Payment.payment_type == f"grid_tier_{tier}",
+                    Payment.status == "confirmed"
+                ).first() is not None
+                if has_tier:
+                    downline.append({
+                        "id": child.id,
+                        "username": child.username,
+                        "depth": d,
+                        "sponsor_id": child.sponsor_id,
+                    })
+                queue.append(child.id)
+
+    # Sort by depth then by id (join order)
+    downline.sort(key=lambda x: (x["depth"], x["id"]))
+
+    # Build the 8x8 grid (64 seats) from downline
+    grid_seats = []
+    for i, member in enumerate(downline[:64]):
+        grid_seats.append({
+            "position": i + 1,
+            "username": member["username"],
+            "depth": member["depth"],
+            "id": member["id"],
+        })
+
+    # Get actual grid record
+    grid_record = db.query(Grid).filter(
+        Grid.owner_id == user.id,
+        Grid.package_tier == tier,
+        Grid.is_complete == False
+    ).first()
+
+    # Completed advances
+    completed = db.query(Grid).filter(
+        Grid.owner_id == user.id,
+        Grid.package_tier == tier,
+        Grid.is_complete == True
+    ).count()
+
+    return JSONResponse({
+        "seats": grid_seats,
+        "filled": len(grid_seats),
+        "total": 64,
+        "tier": tier,
+        "price": GRID_PACKAGES.get(tier, 0),
+        "advance": grid_record.advance_number if grid_record else completed + 1,
+        "completed_advances": completed,
+        "total_downline": len(downline),
+    })
 
 @app.get("/passup-visualiser")
 def passup_visualiser(request: Request, user: User = Depends(get_current_user)):
