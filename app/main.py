@@ -200,7 +200,7 @@ def sanitize(v):          return bleach.clean(v.strip()) if v else ""
 def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
     stats = get_grid_stats(db, user.id)
 
-    # Recent commissions
+    # Recent commissions (general)
     commissions = get_user_commission_history(db, user.id, limit=10)
 
     # Sponsor username
@@ -218,6 +218,59 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
 
     renewal = get_renewal_status(db, user.id)
 
+    # ── Earnings breakdown by stream ──
+    membership_earned = 0
+    boost_earned = 0
+    gen_comms = db.query(Commission).filter(Commission.to_user_id == user.id).all()
+    for c in gen_comms:
+        ct = (c.commission_type or "").lower()
+        if "membership" in ct and "company" not in ct:
+            membership_earned += float(c.amount_usdt or 0)
+        elif ct == "boost":
+            boost_earned += float(c.amount_usdt or 0)
+
+    # ── Recent activity feed (last 8 from all streams) ──
+    activity = []
+    # Course commissions
+    course_recent = db.query(CourseCommission).filter(
+        CourseCommission.earner_id == user.id
+    ).order_by(CourseCommission.created_at.desc()).limit(5).all()
+    for c in course_recent:
+        buyer = db.query(User).filter(User.id == c.buyer_id).first()
+        activity.append({
+            "icon": "🎓", "color": "purple",
+            "title": f"{buyer.username if buyer else '?'} purchased Tier {c.course_tier}",
+            "sub": "Course " + ("direct sale" if c.commission_type == "direct_sale" else "pass-up"),
+            "amount": round(float(c.amount), 2),
+            "date": c.created_at
+        })
+    # General commissions
+    gen_recent = db.query(Commission).filter(
+        Commission.to_user_id == user.id,
+        Commission.commission_type.notin_(["admin_adjustment", "admin_fix", "boost_platform_fee", "membership_company"])
+    ).order_by(Commission.created_at.desc()).limit(5).all()
+    for c in gen_recent:
+        from_user = db.query(User).filter(User.id == c.from_user_id).first()
+        ct = (c.commission_type or "").lower()
+        if "membership" in ct:
+            icon, color, sub = "👥", "green", "Membership commission"
+        elif "boost" in ct:
+            icon, color, sub = "🚀", "amber", "AdBoost commission"
+        else:
+            icon, color, sub = "🔲", "cyan", "Grid commission"
+        activity.append({
+            "icon": icon, "color": color,
+            "title": f"{from_user.username if from_user else '?'}" + (" joined" if "membership" in ct else " — commission"),
+            "sub": sub,
+            "amount": round(float(c.amount_usdt or 0), 2),
+            "date": c.created_at
+        })
+    activity.sort(key=lambda x: x["date"] or datetime.min, reverse=True)
+    activity = activity[:6]
+
+    # Course stats
+    course_sale_count = user.course_sale_count or 0
+
     return {
         "request":           request,
         "user":              user,
@@ -229,22 +282,27 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "upline_earnings":   round(float(user.upline_earnings or 0), 2),
         "sponsor_earnings":  round(float(user.upline_earnings or 0), 2),
         "course_earnings":   round(float(user.course_earnings or 0), 2),
+        "membership_earned": round(membership_earned, 2),
+        "boost_earned":      round(boost_earned, 2),
         "personal_referrals":user.personal_referrals or 0,
         "total_team":        user.total_team or 0,
         "grid_stats":        stats,
         "active_grids":      active_grids,
         "recent_commissions":commissions,
+        "recent_activity":   activity,
         "sponsor_username":  sponsor_username,
         "wallet_address":    user.wallet_address or "",
         "total_withdrawn":    round(float(user.total_withdrawn or 0), 2),
         "is_active":         user.is_active,
         "member_id":         format_member_id(user.id),
+        "course_sale_count": course_sale_count,
         "GRID_PACKAGES":     GRID_PACKAGES,
         "GRID_TOTAL":        GRID_TOTAL,
         "OWNER_PCT":         OWNER_PCT,
         "UPLINE_PCT":        UPLINE_PCT,
         "LEVEL_PCT":         LEVEL_PCT,
         "renewal":           renewal,
+        "active_page":       "dashboard",
     }
 
 # ═══════════════════════════════════════════════════════════════
