@@ -166,7 +166,7 @@ body{font-family:'DM Sans',sans-serif;background:#ffffff;color:#0f172a;min-heigh
 {% set tier_grids = grid_stats.active_grids_detail|selectattr('tier','equalto',selected_tier)|list %}
 {% if tier_grids|length > 0 %}
   {% set g = tier_grids[0] %}
-  {% set per_seat_uni = (g.price|float) * 0.06875 %}
+  {% set per_seat_uni = (g.price|float) * 0.0625 %}
   {% set per_seat_direct = (g.price|float) * 0.40 %}
 {% else %}
   {% set g = none %}
@@ -220,12 +220,12 @@ body{font-family:'DM Sans',sans-serif;background:#ffffff;color:#0f172a;min-heigh
         <div class="earn-card-title">💡 How Grid Earnings Work</div>
         <div style="font-size:10px;color:#64748b;line-height:1.5;position:relative;z-index:1">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="background:#0ea5e9;border-radius:4px;padding:2px 6px;font-weight:700;color:#fff;font-size:10px">40%</span><span>Direct sponsor</span></div>
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="background:#0ea5e9;border-radius:4px;padding:2px 6px;font-weight:700;color:#fff;font-size:10px">6.875%</span><span>× 8 levels (55%)</span></div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="background:#0ea5e9;border-radius:4px;padding:2px 6px;font-weight:700;color:#fff;font-size:10px">6.25%</span><span>× 8 levels (55%)</span></div>
           <div style="font-size:9px;color:#94a3b8;margin-top:4px">64 positions fill → advance → earn again</div>
         </div>
       </div>
       <div class="info-card"><div style="font-size:14px;margin-bottom:3px">∞</div><div class="info-card-t" style="color:#10b981">Recurring Engine</div><div class="info-card-p">64 positions fill → grid auto-advances → commissions restart</div></div>
-      <div class="info-card"><div style="font-size:14px;margin-bottom:3px">💡</div><div class="info-card-t" style="color:#f59e0b">How You Earn</div><div class="info-card-p">Every seat = 6.875% uni-level. Your referrals also get 40% sponsor bonus.</div></div>
+      <div class="info-card"><div style="font-size:14px;margin-bottom:3px">💡</div><div class="info-card-t" style="color:#f59e0b">How You Earn</div><div class="info-card-p">Every seat = 6.25% uni-level. Your referrals also get 40% sponsor bonus.</div></div>
     </div>
   </div>
 
@@ -246,7 +246,7 @@ body{font-family:'DM Sans',sans-serif;background:#ffffff;color:#0f172a;min-heigh
       </div>
       <div style="display:flex;align-items:center;gap:8px;padding:6px 0">
         <div style="width:8px;height:8px;border-radius:50%;background:#38bdf8"></div>
-        <div style="flex:1"><div style="font-size:12px;font-weight:700">Uni-Level (6.875% × 8)</div><div style="font-size:9px;color:#94a3b8">${{ '%.2f'|format(per_seat_uni) if g else '0.00' }} per seat</div></div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:700">Uni-Level (6.25% × 8)</div><div style="font-size:9px;color:#94a3b8">${{ '%.2f'|format(per_seat_uni) if g else '0.00' }} per seat</div></div>
         <div style="font-size:15px;font-weight:800;color:#38bdf8">${{ '%.2f'|format(level_earnings) }}</div>
       </div>
     </div>

@@ -9,11 +9,12 @@ SuperAdPro — A video advertising platform with an 8×8 recurring grid affiliat
 - Stream 2: Profit Engine Grid (8×8) — 25% direct sponsor + 70% uni-level (8.75% × 8 levels) + 5% platform
 - Stream 3: Marketing Mastery Course — 100% commission + infinite pass-up (coming soon)
 
-## Commission Constants (CORRECT VALUES)
-- DIRECT_PCT    = 0.25   # 25% to direct sponsor instantly
-- UNILEVEL_PCT  = 0.70   # 70% split across 8 uni-levels (8.75% each)
-- PLATFORM_PCT  = 0.05   # 5% platform fee
-- PER_LEVEL_PCT = 0.0875 # 8.75% per uni-level position
+## Commission Constants (CORRECT VALUES — Updated 10 March 2026)
+- DIRECT_PCT     = 0.40   # 40% to direct sponsor instantly
+- UNILEVEL_PCT   = 0.50   # 50% split across 8 uni-levels (6.25% each)
+- PLATFORM_PCT   = 0.05   # 5% platform fee
+- BONUS_POOL_PCT = 0.05   # 5% grid completion bonus pool
+- PER_LEVEL_PCT  = 0.0625 # 6.25% per uni-level position
 
 ## Grid Structure
 - 8 columns × 8 rows = 64 seats total

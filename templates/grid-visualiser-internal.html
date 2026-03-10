@@ -186,7 +186,7 @@ input[type=number]{width:48px;padding:5px 8px;border:1px solid var(--border);bor
   <div class="ex-desc">Every person who joins anywhere in your downline fills a seat in your grid. Your direct referrals AND their referrals AND deeper — all the way down. One person, one seat, per advance.</div>
   <div class="ex-points" style="grid-template-columns:1fr 1fr">
     <div class="ex-pt"><div class="ex-pt-icon">💰</div><div class="ex-pt-title">40% Direct Sponsor</div><div class="ex-pt-desc">The person who made the referral gets 40% of the tier price on every sale.</div></div>
-    <div class="ex-pt"><div class="ex-pt-icon">📊</div><div class="ex-pt-title">55% Uni-Level (8 Levels)</div><div class="ex-pt-desc">6.875% to each of the 8 levels above the buyer in the sponsor chain.</div></div>
+    <div class="ex-pt"><div class="ex-pt-icon">📊</div><div class="ex-pt-title">50% Uni-Level (8 Levels)</div><div class="ex-pt-desc">6.25% to each of the 8 levels above the buyer in the sponsor chain.</div></div>
   </div>
 </div>
 
@@ -248,7 +248,7 @@ input[type=number]{width:48px;padding:5px 8px;border:1px solid var(--border);bor
         <div class="er-amount green" id="directAmt">$0.00</div>
       </div>
       <div class="earn-row">
-        <div class="er-left"><div class="er-dot" style="background:var(--green)"></div><div><div class="er-label">Uni-Level (6.875%)</div><div class="er-sub">From every seat in your grid</div></div></div>
+        <div class="er-left"><div class="er-dot" style="background:var(--green)"></div><div><div class="er-label">Uni-Level (6.25%)</div><div class="er-sub">From every seat in your grid</div></div></div>
         <div class="er-amount green" id="uniAmt">$0.00</div>
       </div>
     </div>
@@ -377,7 +377,7 @@ function fillNext() {
   var isDirect = directSeats.has(filled);
   var depth = isDirect ? 1 : (filled <= numDirects * 3 ? 2 : (filled <= numDirects * 6 ? 3 : (filled <= 50 ? 4 : 5)));
   var depthIdx = Math.min(depth - 1, 4);
-  var perLevel = pkg * 0.06875;
+  var perLevel = pkg * 0.0625;
 
   // Commission calc
   var youEarnDirect = 0;

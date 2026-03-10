@@ -280,8 +280,8 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:4px}
           <div class="sc-num">Stream 02</div>
           <div class="sc-icon si-c">⚡</div>
           <div class="sc-title">Profit Engine Grid</div>
-          <div class="sc-desc">Activate a campaign tier ($20–$1,000) and earn 40% direct commission plus 6.875% across 8 levels of your network on every entry.</div>
-          <div class="tag tag-c">40% direct + 55% uni-level (8 levels)</div>
+          <div class="sc-desc">Activate a campaign tier ($20–$1,000) and earn 40% direct commission plus 6.25% across 8 levels of your network on every entry.</div>
+          <div class="tag tag-c">40% direct + 50% uni-level (8 levels) + 5% grid bonus</div>
           <div class="badge-live">● Live Now</div>
         </div>
         <div class="sc sc-purple sc-dim">
@@ -348,7 +348,7 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:4px}
       </div>
       <div class="dcard">
         <div class="dcard-title">How Commissions Work</div>
-        <div class="dcard-sub">Every campaign entry splits 55% to your network and 45% to the platform.</div>
+        <div class="dcard-sub">Every campaign entry splits 50% to your network and 45% to the platform.</div>
         <div class="dist-bar"><div class="db-c"></div><div class="db-p"></div></div>
         <div class="split2">
           <div class="split-box" style="text-align:center">
@@ -358,10 +358,10 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:4px}
             <div class="comm-eg">Example: $100 tier → $40 to you</div>
           </div>
           <div class="split-box" style="text-align:center">
-            <div class="comm-pct" style="color:var(--purple)">6.875%</div>
+            <div class="comm-pct" style="color:var(--purple)">6.25%</div>
             <div class="comm-title">Uni-Level (8 Levels Deep)</div>
             <div class="comm-desc">Earn from every person in your network, 8 levels deep. Equal percentage on each level — no compression.</div>
-            <div class="comm-eg">Example: $100 tier → $6.875 per level</div>
+            <div class="comm-eg">Example: $100 tier → $6.25 per level</div>
           </div>
         </div>
       </div>
@@ -378,7 +378,7 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:4px}
         </div>
         <div class="prow">
           <div class="prow-left"><div class="pdot" style="background:#0284c7"></div><div><div class="pname">$100 Tier</div><div class="psub">Standard campaign</div></div></div>
-          <div style="text-align:right"><div class="pamount" style="color:var(--cyan)">$40 direct + $6.875/level</div><div class="ptiming">Per advance</div></div>
+          <div style="text-align:right"><div class="pamount" style="color:var(--cyan)">$40 direct + $6.25/level</div><div class="ptiming">Per advance</div></div>
         </div>
         <div class="prow">
           <div class="prow-left"><div class="pdot" style="background:#d97706"></div><div><div class="pname">$200 Tier</div><div class="psub">Growth campaign</div></div></div>
@@ -465,7 +465,7 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:4px}
             <div class="rval rv-g" id="r1">$0</div>
           </div>
           <div class="rrow">
-            <div><div class="rname">Stream 2 — Uni-Level Income</div><div class="rsub">64 positions × tier × 6.875% × advances</div></div>
+            <div><div class="rname">Stream 2 — Uni-Level Income</div><div class="rsub">64 positions × tier × 6.25% × advances</div></div>
             <div class="rval rv-c" id="r2uni">$0</div>
           </div>
           <div class="rrow">
@@ -478,7 +478,7 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:4px}
           </div>
           <div id="tierBreak" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px"></div>
         </div>
-        <div class="disclaimer">⚠️ <strong>Important:</strong> All commission figures shown are mathematically exact and represent the precise amounts distributed per entry. Uni-level payments are calculated as exactly 6.875% per level (55% ÷ 8) of the tier price. Earnings projections are illustrative only and based on full grid completion. Actual earnings depend entirely on your personal activity and network performance. Income is not guaranteed.</div>
+        <div class="disclaimer">⚠️ <strong>Important:</strong> All commission figures shown are mathematically exact and represent the precise amounts distributed per entry. Uni-level payments are calculated as exactly 6.25% per level (50% ÷ 8) of the tier price. Earnings projections are illustrative only and based on full grid completion. Actual earnings depend entirely on your personal activity and network performance. Income is not guaranteed.</div>
       </div>
     </div>
 
@@ -492,7 +492,7 @@ input[type=range]{width:100%;accent-color:var(--cyan);height:4px}
 <script>
 // ── Uni-level table ──
 const pkgs=[20,50,100,200,400,600,800,1000];
-const exact={20:'1.375',50:'3.4375',100:'6.875',200:'13.75',400:'27.50',600:'41.25',800:'55.00',1000:'68.75'};
+const exact={20:'1.25',50:'3.125',100:'6.25',200:'12.50',400:'25.00',600:'37.50',800:'50.00',1000:'62.50'};
 const colours=['#0ea5e9','#6366f1','#0284c7','#4f46e5','#0369a1','#7c3aed','#1d4ed8','#2563eb'];
 const tbody=document.getElementById('uniBody');
 for(let lvl=1;lvl<=8;lvl++){
@@ -528,7 +528,7 @@ function calc(){
   let s1=ref*10*12;
   let s2uni=0,s2dir=0;
   active.forEach(p=>{
-    s2uni+=8*64*(p*0.06875)*adv;
+    s2uni+=8*64*(p*0.0625)*adv;
     s2dir+=ref*(p*0.40)*adv;
   });
   const total=s1+s2uni+s2dir;
@@ -539,7 +539,7 @@ function calc(){
   const bd=document.getElementById('tierBreak');
   bd.innerHTML='';
   active.forEach(p=>{
-    const tv=8*64*(p*0.06875)*adv;
+    const tv=8*64*(p*0.0625)*adv;
     const d=document.createElement('div');
     d.style.cssText='background:rgba(14,165,233,0.06);border:1px solid rgba(14,165,233,0.15);border-radius:10px;padding:12px;text-align:center';
     d.innerHTML=`<div style="font-size:11px;font-weight:800;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:4px">$${p} Tier</div><div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:var(--cyan)">${fmt(tv)}</div>`;
