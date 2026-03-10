@@ -7009,46 +7009,87 @@ async def course_commissions_page(request: Request, db: Session = Depends(get_db
 
 @app.get("/api/my-commission-flows")
 async def api_my_commission_flows(request: Request, db: Session = Depends(get_db)):
-    """Member API: their commissions earned + commissions lost to company."""
+    """Member API: ALL commissions across all 4 income streams."""
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    # Commissions earned by this user
-    earned = db.query(CourseCommission).filter(
+    # ── 1. Course commissions (CourseCommission table) ──
+    course_comms = db.query(CourseCommission).filter(
         CourseCommission.earner_id == user.id
     ).order_by(CourseCommission.created_at.desc()).limit(100).all()
 
-    # Commissions that SHOULD have gone to this user but went to platform (FOMO)
-    # These are where the buyer's sponsor is in user's downline and type is platform
-    # For simplicity, we show all commissions where user was the intended pass-up target
-    # We can detect this from the notes field containing the user's downline members
+    # ── 2. General commissions (Commission table) — membership, boost, grid ──
+    general_comms = db.query(Commission).filter(
+        Commission.to_user_id == user.id,
+        Commission.commission_type.notin_(["admin_adjustment", "admin_fix", "boost_platform_fee", "membership_company"])
+    ).order_by(Commission.created_at.desc()).limit(200).all()
 
-    buyer_ids = set()
-    for c in earned:
-        buyer_ids.add(c.buyer_id)
+    # Collect user IDs for name lookups
+    user_ids = set()
+    for c in course_comms:
+        if c.buyer_id: user_ids.add(c.buyer_id)
+    for c in general_comms:
+        if c.from_user_id: user_ids.add(c.from_user_id)
+    users_map = {u.id: u for u in db.query(User).filter(User.id.in_(user_ids)).all()} if user_ids else {}
 
-    users_map = {}
-    if buyer_ids:
-        for u in db.query(User).filter(User.id.in_(buyer_ids)).all():
-            users_map[u.id] = u
-
+    # Build unified flow list
     flows = []
-    for c in earned:
+
+    for c in course_comms:
         buyer = users_map.get(c.buyer_id)
         flows.append({
-            "id": c.id,
-            "buyer": buyer.username if buyer else "?",
+            "from": buyer.username if buyer else "?",
             "amount": round(float(c.amount), 2),
-            "tier": c.course_tier,
+            "stream": "course",
             "type": c.commission_type,
-            "depth": c.pass_up_depth,
             "notes": c.notes or "",
             "date": c.created_at.isoformat() if c.created_at else None,
         })
 
-    # Stats
-    stats = get_user_course_stats(db, user.id)
+    for c in general_comms:
+        from_user = users_map.get(c.from_user_id)
+        # Determine stream
+        ct = c.commission_type or ""
+        if "membership" in ct.lower():
+            stream = "membership"
+        elif "boost" in ct.lower():
+            stream = "boost"
+        elif ct in ("direct_sponsor", "uni_level", "platform"):
+            stream = "grid"
+        else:
+            stream = "grid"
+
+        flows.append({
+            "from": from_user.username if from_user else "?",
+            "amount": round(float(c.amount_usdt or 0), 2),
+            "stream": stream,
+            "type": ct,
+            "notes": c.notes or "",
+            "date": c.created_at.isoformat() if c.created_at else None,
+        })
+
+    # Sort all by date descending
+    flows.sort(key=lambda x: x["date"] or "", reverse=True)
+
+    # ── Stats across all streams ──
+    membership_earned = sum(float(c.amount_usdt or 0) for c in general_comms if "membership" in (c.commission_type or "").lower())
+    grid_earned = sum(float(c.amount_usdt or 0) for c in general_comms if c.commission_type in ("direct_sponsor", "uni_level"))
+    boost_earned = sum(float(c.amount_usdt or 0) for c in general_comms if "boost" == (c.commission_type or "").lower())
+    course_earned = sum(float(c.amount or 0) for c in course_comms)
+    course_stats = get_user_course_stats(db, user.id)
+
+    stats = {
+        "total_earned": round(float(user.total_earned or 0), 2),
+        "membership_earned": round(membership_earned, 2),
+        "grid_earned": round(float(user.grid_earnings or 0), 2),
+        "boost_earned": round(boost_earned, 2),
+        "course_earned": round(float(user.course_earnings or 0), 2),
+        "course_sale_count": course_stats.get("course_sale_count", 0),
+        "direct_course_sales": course_stats.get("direct_commissions", 0),
+        "passup_course_sales": course_stats.get("passup_commissions", 0),
+        "personal_referrals": user.personal_referrals or 0,
+    }
 
     return JSONResponse({"flows": flows, "stats": stats})
 

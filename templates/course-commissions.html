@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>My Network & Commissions — SuperAdPro</title>
+<title>My Network & Earnings — SuperAdPro</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/mobile.css">
 <style>
@@ -57,15 +57,27 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 
 .content{padding:24px 28px;flex:1}
 
-/* Stats */
-.stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:24px}
-.stat-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
-.stat-card.sc-green::before{background:var(--green)}.stat-card.sc-cyan::before{background:var(--cyan)}.stat-card.sc-purple::before{background:var(--purple)}.stat-card.sc-amber::before{background:var(--amber)}.stat-card.sc-red::before{background:var(--red)}
-.sc-val{font-family:Sora,sans-serif;font-size:24px;font-weight:800;color:var(--text)}
-.sc-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+/* ── Total Earned Banner ── */
+.total-banner{background:linear-gradient(135deg,#0b1729,#132240);border-radius:16px;padding:24px 28px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow-sm)}
+.total-left{color:#fff}
+.total-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(56,189,248,0.5);margin-bottom:4px}
+.total-val{font-family:Sora,sans-serif;font-size:36px;font-weight:800;color:#fff}
+.total-referrals{font-size:13px;color:rgba(200,220,255,0.4);margin-top:4px}
 
-/* Tabs */
+/* ── 4 Income Stream Cards ── */
+.streams{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stream-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+.stream-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
+.stream-card.s-membership::before{background:var(--green)}
+.stream-card.s-grid::before{background:var(--cyan)}
+.stream-card.s-course::before{background:var(--purple)}
+.stream-card.s-boost::before{background:var(--amber)}
+.stream-icon{font-size:20px;margin-bottom:8px}
+.stream-val{font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:var(--text)}
+.stream-name{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+.stream-detail{font-size:11px;color:var(--muted);margin-top:6px}
+
+/* ── Tabs ── */
 .tabs{display:flex;gap:8px;margin-bottom:20px}
 .tab{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--text2);transition:all 0.15s}
 .tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
@@ -81,7 +93,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 .tree-card.inactive{opacity:0.5;border-style:dashed}
 .tc-name{font-size:12px;font-weight:700;color:var(--text)}
 .tc-you-badge{font-size:9px;font-weight:700;color:var(--cyan);background:rgba(14,165,233,0.1);padding:1px 6px;border-radius:4px;margin-left:4px}
-.tc-meta{font-size:10px;color:var(--muted);margin-top:2px}
 .tc-stats{display:flex;gap:6px;margin-top:5px}
 .tc-tag{padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700}
 .tc-tag.earned{background:var(--green-light);color:var(--green)}
@@ -91,19 +102,25 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 .tc-tier.t1{background:var(--cyan)}.tc-tier.t2{background:var(--purple)}.tc-tier.t3{background:var(--amber)}.tc-tier.none{background:var(--border);color:var(--muted)}
 .tc-passup{font-size:8.5px;color:var(--purple);margin-top:2px;font-weight:600}
 .tree-line{width:1px;height:14px;background:var(--border);margin:0 auto}
-.tree-children{display:flex;justify-content:center;margin-top:0}
+.tree-children{display:flex;justify-content:center}
 
 /* ── Commission Table ── */
 .flow-table{width:100%;border-collapse:collapse}
 .flow-table th{text-align:left;padding:10px 14px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--border);background:var(--surface)}
 .flow-table td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--border)}
 .flow-table tr:hover{background:var(--surface)}
-.ft-type{padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;display:inline-block}
-.ft-direct{background:var(--green-light);color:var(--green)}
-.ft-passup{background:var(--cyan-light);color:var(--cyan)}
+.ft-stream{padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;display:inline-block}
+.ft-membership{background:var(--green-light);color:var(--green)}
+.ft-grid{background:var(--cyan-light);color:var(--cyan)}
+.ft-course{background:var(--purple-light);color:var(--purple)}
+.ft-boost{background:var(--amber-light);color:var(--amber)}
 .ft-amount{font-family:Sora,sans-serif;font-weight:800;color:var(--green)}
-.ft-tier{width:22px;height:22px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff}
-.ft-tier.t1{background:var(--cyan)}.ft-tier.t2{background:var(--purple)}.ft-tier.t3{background:var(--amber)}
+
+/* ── Filter pills ── */
+.filters{display:flex;gap:6px;margin-bottom:16px}
+.filter-pill{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--text2);transition:all 0.15s}
+.filter-pill.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.filter-pill:hover:not(.active){background:var(--surface)}
 
 .loading{text-align:center;padding:40px;color:var(--muted);font-size:14px}
 .empty{text-align:center;padding:48px;color:var(--muted)}
@@ -111,7 +128,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 .empty-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
 .empty-sub{font-size:13px}
 
-@media(max-width:768px){.sidebar{display:none!important}.main{margin-left:0!important}.content{padding:16px}.stats-bar{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.streams{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){.sidebar{display:none!important}.main{margin-left:0!important}.content{padding:16px}.streams{grid-template-columns:1fr}.total-banner{flex-direction:column;gap:12px}}
 </style>
 </head>
 <body>
@@ -125,42 +143,76 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
     </div>
     <div>
-      <div class="tb-title">My Network & Commissions</div>
-      <div class="tb-sub">Watch your team grow · Track every commission</div>
+      <div class="tb-title">My Network & Earnings</div>
+      <div class="tb-sub">All 4 income streams · Network tree · Commission history</div>
     </div>
   </div>
   <div style="display:flex;gap:10px">
-    <a class="tb-link" href="/courses/how-it-works">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
-      How It Works
-    </a>
-    <a class="tb-link" href="/courses">← Courses</a>
+    <a class="tb-link" href="/courses/how-it-works">How It Works</a>
+    <a class="tb-link" href="/courses">Courses</a>
   </div>
 </div>
 
 <div class="content">
 
-  <!-- Stats -->
-  <div class="stats-bar">
-    <div class="stat-card sc-green"><div class="sc-val" id="sEarned">—</div><div class="sc-lbl">Total Earned</div></div>
-    <div class="stat-card sc-cyan"><div class="sc-val" id="sDirect">—</div><div class="sc-lbl">Direct Sales</div></div>
-    <div class="stat-card sc-purple"><div class="sc-val" id="sPassup">—</div><div class="sc-lbl">Pass-Up Earnings</div></div>
-    <div class="stat-card sc-amber"><div class="sc-val" id="sSaleCount">—</div><div class="sc-lbl">Your Sale Count</div></div>
-    <div class="stat-card sc-red"><div class="sc-val" id="sTeam">—</div><div class="sc-lbl">Network Size</div></div>
+  <!-- Total Earned Banner -->
+  <div class="total-banner">
+    <div class="total-left">
+      <div class="total-label">Total Lifetime Earnings</div>
+      <div class="total-val" id="totalEarned">$—</div>
+      <div class="total-referrals" id="totalRefs">— personal referrals</div>
+    </div>
+  </div>
+
+  <!-- 4 Income Stream Cards -->
+  <div class="streams">
+    <div class="stream-card s-membership">
+      <div class="stream-icon">👥</div>
+      <div class="stream-val" id="sMembership">$—</div>
+      <div class="stream-name">Membership</div>
+      <div class="stream-detail">$10 per referral (50%)</div>
+    </div>
+    <div class="stream-card s-grid">
+      <div class="stream-icon">🔲</div>
+      <div class="stream-val" id="sGrid">$—</div>
+      <div class="stream-name">Income Grid</div>
+      <div class="stream-detail">40% direct + uni-level</div>
+    </div>
+    <div class="stream-card s-course">
+      <div class="stream-icon">🎓</div>
+      <div class="stream-val" id="sCourse">$—</div>
+      <div class="stream-name">Course Sales</div>
+      <div class="stream-detail" id="sCourseDetail">100% with pass-ups</div>
+    </div>
+    <div class="stream-card s-boost">
+      <div class="stream-icon">🚀</div>
+      <div class="stream-val" id="sBoost">$—</div>
+      <div class="stream-name">AdBoost</div>
+      <div class="stream-detail">75% sponsor share</div>
+    </div>
   </div>
 
   <!-- Tabs -->
   <div class="tabs">
     <div class="tab active" onclick="showTab('tree',this)">My Network</div>
-    <div class="tab" onclick="showTab('log',this)">Commission History</div>
+    <div class="tab" onclick="showTab('log',this)">All Commissions</div>
   </div>
 
+  <!-- Network Tree -->
   <div class="panel active" id="panelTree">
     <div class="loading" id="treeLoading">Loading your network...</div>
     <div class="tree-scroll" id="treeContainer"></div>
   </div>
 
+  <!-- Commission Log -->
   <div class="panel" id="panelLog">
+    <div class="filters">
+      <div class="filter-pill active" onclick="filterFlows('all',this)">All</div>
+      <div class="filter-pill" onclick="filterFlows('membership',this)">Membership</div>
+      <div class="filter-pill" onclick="filterFlows('grid',this)">Grid</div>
+      <div class="filter-pill" onclick="filterFlows('course',this)">Courses</div>
+      <div class="filter-pill" onclick="filterFlows('boost',this)">AdBoost</div>
+    </div>
     <div class="loading" id="logLoading">Loading commissions...</div>
     <div id="logContainer"></div>
   </div>
@@ -170,6 +222,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 </div>
 
 <script>
+let allFlows = [];
+
 function showTab(name, el) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -177,36 +231,48 @@ function showTab(name, el) {
   el.classList.add('active');
 }
 
+function filterFlows(stream, el) {
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderFlows(stream === 'all' ? allFlows : allFlows.filter(f => f.stream === stream));
+}
+
+function renderFlows(flows) {
+  if (flows.length === 0) {
+    document.getElementById('logContainer').innerHTML = '<div class="empty"><div class="empty-icon">💰</div><div class="empty-title">No commissions in this category</div><div class="empty-sub">Commissions will appear here as your network grows.</div></div>';
+    return;
+  }
+  const streamLabels = {membership:'MEMBERSHIP',grid:'GRID',course:'COURSE',boost:'ADBOOST'};
+  const streamClasses = {membership:'ft-membership',grid:'ft-grid',course:'ft-course',boost:'ft-boost'};
+  let html = '<table class="flow-table"><thead><tr><th>From</th><th>Amount</th><th>Stream</th><th>Type</th><th>Date</th></tr></thead><tbody>';
+  flows.forEach(f => {
+    const date = f.date ? new Date(f.date).toLocaleDateString() : '';
+    html += '<tr><td><strong>' + f.from + '</strong></td>' +
+      '<td class="ft-amount">+$' + f.amount.toFixed(2) + '</td>' +
+      '<td><span class="ft-stream ' + (streamClasses[f.stream]||'') + '">' + (streamLabels[f.stream]||f.stream) + '</span></td>' +
+      '<td style="font-size:12px;color:var(--muted)">' + (f.type||'').replace(/_/g,' ') + '</td>' +
+      '<td style="color:var(--muted);font-size:12px">' + date + '</td></tr>';
+  });
+  html += '</tbody></table>';
+  document.getElementById('logContainer').innerHTML = html;
+}
+
 async function loadData() {
-  // Load flows
   try {
     const r = await fetch('/api/my-commission-flows');
     const d = await r.json();
-    const flows = d.flows || [];
-    const stats = d.stats || {};
+    allFlows = d.flows || [];
+    const s = d.stats || {};
 
-    document.getElementById('sEarned').textContent = '$' + (stats.total_earned || 0).toFixed(0);
-    document.getElementById('sDirect').textContent = stats.direct_commissions || 0;
-    document.getElementById('sPassup').textContent = stats.passup_commissions || 0;
-    document.getElementById('sSaleCount').textContent = stats.course_sale_count || 0;
+    document.getElementById('totalEarned').textContent = '$' + (s.total_earned || 0).toFixed(2);
+    document.getElementById('totalRefs').textContent = (s.personal_referrals || 0) + ' personal referrals';
+    document.getElementById('sMembership').textContent = '$' + (s.membership_earned || 0).toFixed(0);
+    document.getElementById('sGrid').textContent = '$' + (s.grid_earned || 0).toFixed(0);
+    document.getElementById('sCourse').textContent = '$' + (s.course_earned || 0).toFixed(0);
+    document.getElementById('sBoost').textContent = '$' + (s.boost_earned || 0).toFixed(0);
+    document.getElementById('sCourseDetail').textContent = (s.direct_course_sales||0) + ' direct · ' + (s.passup_course_sales||0) + ' pass-ups';
 
-    if (flows.length === 0) {
-      document.getElementById('logContainer').innerHTML = '<div class="empty"><div class="empty-icon">💰</div><div class="empty-title">No commissions yet</div><div class="empty-sub">When someone in your network purchases a course, your commissions will appear here.</div></div>';
-    } else {
-      let html = '<table class="flow-table"><thead><tr><th>Buyer</th><th>Amount</th><th>Tier</th><th>Type</th><th>Date</th></tr></thead><tbody>';
-      flows.forEach(f => {
-        const typeClass = f.type === 'direct_sale' ? 'ft-direct' : 'ft-passup';
-        const typeLabel = f.type === 'direct_sale' ? 'DIRECT' : 'PASS-UP';
-        const date = f.date ? new Date(f.date).toLocaleDateString() : '';
-        html += '<tr><td><strong>' + f.buyer + '</strong></td>' +
-          '<td class="ft-amount">+$' + f.amount + '</td>' +
-          '<td><span class="ft-tier t' + f.tier + '">' + f.tier + '</span></td>' +
-          '<td><span class="ft-type ' + typeClass + '">' + typeLabel + '</span></td>' +
-          '<td style="color:var(--muted);font-size:12px">' + date + '</td></tr>';
-      });
-      html += '</tbody></table>';
-      document.getElementById('logContainer').innerHTML = html;
-    }
+    renderFlows(allFlows);
     document.getElementById('logLoading').style.display = 'none';
   } catch(e) { console.error(e); }
 
@@ -217,52 +283,33 @@ async function loadData() {
     const nodes = d.nodes || [];
     const root_id = d.root_id;
 
-    document.getElementById('sTeam').textContent = Math.max(nodes.length - 1, 0);
-
     if (nodes.length <= 1) {
-      document.getElementById('treeContainer').innerHTML = '<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">Your network is empty</div><div class="empty-sub">Share your referral link to start building your team. Every person who joins grows your earning potential.</div></div>';
+      document.getElementById('treeContainer').innerHTML = '<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">Your network is empty</div><div class="empty-sub">Share your referral link to start building your team and earning across all 4 income streams.</div></div>';
       document.getElementById('treeLoading').style.display = 'none';
       return;
     }
 
     const byId = {};
     const children = {};
-    nodes.forEach(n => {
-      byId[n.id] = n;
-      if (!children[n.sponsor_id]) children[n.sponsor_id] = [];
-      if (n.sponsor_id) children[n.sponsor_id].push(n);
-    });
+    nodes.forEach(n => { byId[n.id] = n; if (!children[n.sponsor_id]) children[n.sponsor_id] = []; if (n.sponsor_id) children[n.sponsor_id].push(n); });
 
     function renderNode(node, depth) {
       if (depth > 6) return '';
       const kids = children[node.id] || [];
       let tiersHtml = '';
-      [1,2,3].forEach(t => {
-        tiersHtml += node.owned_tiers.includes(t)
-          ? '<div class="tc-tier t'+t+'">'+t+'</div>'
-          : '<div class="tc-tier none">✕</div>';
-      });
-
-      let html = '<div class="tree-node">';
-      html += '<div class="tree-card' + (node.is_you ? ' you' : '') + (!node.is_active ? ' inactive' : '') + '">';
-      html += '<div class="tc-name">' + node.username + (node.is_you ? '<span class="tc-you-badge">YOU</span>' : '') + '</div>';
+      [1,2,3].forEach(t => { tiersHtml += node.owned_tiers.includes(t) ? '<div class="tc-tier t'+t+'">'+t+'</div>' : '<div class="tc-tier none">✕</div>'; });
+      let html = '<div class="tree-node"><div class="tree-card' + (node.is_you?' you':'') + (!node.is_active?' inactive':'') + '">';
+      html += '<div class="tc-name">' + node.username + (node.is_you?'<span class="tc-you-badge">YOU</span>':'') + '</div>';
       html += '<div class="tc-stats"><span class="tc-tag earned">$' + node.course_earnings + '</span><span class="tc-tag sales">' + node.sale_count + ' sales</span></div>';
       html += '<div class="tc-tiers">' + tiersHtml + '</div>';
       if (node.pass_up_sponsor) html += '<div class="tc-passup">↑ ' + node.pass_up_sponsor + '</div>';
       html += '</div>';
-
-      if (kids.length > 0) {
-        html += '<div class="tree-line"></div>';
-        html += '<div class="tree-children">';
-        kids.forEach(k => { html += renderNode(k, depth + 1); });
-        html += '</div>';
-      }
+      if (kids.length > 0) { html += '<div class="tree-line"></div><div class="tree-children">'; kids.forEach(k => { html += renderNode(k, depth+1); }); html += '</div>'; }
       html += '</div>';
       return html;
     }
 
-    const root = byId[root_id] || nodes[0];
-    document.getElementById('treeContainer').innerHTML = renderNode(root, 0);
+    document.getElementById('treeContainer').innerHTML = renderNode(byId[root_id] || nodes[0], 0);
     document.getElementById('treeLoading').style.display = 'none';
   } catch(e) { console.error(e); }
 }
