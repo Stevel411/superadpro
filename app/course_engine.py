@@ -6,8 +6,8 @@ COMP PLAN:
   - 3 tiers: $100 (Starter), $300 (Advanced), $500 (Elite)
   - 100% commission on every course sale
   - Single counter per affiliate: course_sale_count (all tiers combined)
-  - Sales 1, 3, 5, 7+ → affiliate KEEPS 100%
-  - Sales 2, 4, 6 → 100% PASSES UP to pass_up_sponsor
+  - Sales 1, 3, 5, 7, 9+ → affiliate KEEPS 100%
+  - Sales 2, 4, 6, 8 → 100% PASSES UP to pass_up_sponsor
 
 PASS-UP SPONSOR ASSIGNMENT (set once, at registration):
   - If you are your sponsor's 1st, 3rd, or 5th referral (kept):
@@ -35,7 +35,7 @@ from app.database import (
 )
 
 
-PASSUP_POSITIONS = {2, 4, 6}
+PASSUP_POSITIONS = {2, 4, 6, 8}
 
 
 def is_passup_sale(sale_number: int) -> bool:
@@ -47,8 +47,8 @@ def assign_passup_sponsor(db: Session, new_user: User, sponsor: User):
     Set the new user's pass_up_sponsor based on their position
     in the sponsor's referral sequence. Call at registration time.
 
-    Position 1, 3, 5, 7+ (kept) -> pass_up_sponsor = direct sponsor
-    Position 2, 4, 6 (passed up) -> pass_up_sponsor = sponsor's pass_up_sponsor
+    Position 1, 3, 5, 7, 9+ (kept) -> pass_up_sponsor = direct sponsor
+    Position 2, 4, 6, 8 (passed up) -> pass_up_sponsor = sponsor's pass_up_sponsor
     """
     if not sponsor:
         new_user.pass_up_sponsor_id = None
