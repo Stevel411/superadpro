@@ -8805,7 +8805,7 @@ Return ONLY a valid JSON array. No markdown."""
 
 @app.get("/pro/funnel/{funnel_id}/edit")
 async def pro_funnel_edit(funnel_id: int, request: Request, db: Session = Depends(get_db)):
-    """Inline editor for an AI-generated funnel."""
+    """Redirect to the visual drag-and-drop editor. On first edit, convert AI funnel data to visual editor format."""
     user = get_current_user(request, db)
     if not user:
         return RedirectResponse("/login", status_code=302)
@@ -8816,34 +8816,142 @@ async def pro_funnel_edit(funnel_id: int, request: Request, db: Session = Depend
     if not page:
         return RedirectResponse("/pro/funnels", status_code=302)
 
-    import json as _json_edit
-    funnel_data = {}
-    try:
-        funnel_data = _json_edit.loads(page.sections_json) if page.sections_json else {}
-    except:
-        pass
+    # If no visual editor data exists yet, convert AI funnel data to visual editor elements
+    if not page.gjs_css or not page.gjs_css.strip():
+        import json as _json_conv
+        funnel_data = {}
+        try:
+            funnel_data = _json_conv.loads(page.sections_json) if page.sections_json else {}
+        except:
+            pass
 
-    # Load the email sequence if assigned
-    from .database import EmailSequence
-    sequence = None
-    seq_emails = []
-    if page.capture_sequence_id:
-        sequence = db.query(EmailSequence).filter(EmailSequence.id == page.capture_sequence_id).first()
-        if sequence and sequence.emails_json:
-            try:
-                seq_emails = _json_edit.loads(sequence.emails_json)
-            except:
-                pass
+        bg_color = funnel_data.get('colors', {}).get('bg', '#050d1a')
+        els = []
+        y_pos = 20  # running Y position
 
-    return templates.TemplateResponse("pro-funnel-editor.html", {
-        "request": request,
-        "user": user,
-        "active_page": "pro-funnels",
-        "page": page,
-        "funnel_data": funnel_data,
-        "sequence": sequence,
-        "seq_emails": seq_emails,
-    })
+        def make_el(etype, x, y, w, h, txt='', styles=None):
+            import secrets as _s
+            el = {'id': 'e' + _s.token_hex(6), 'type': etype, 'x': x, 'y': y, 'w': w, 'h': h, 'txt': txt, 's': styles or {}}
+            return el
+
+        # SuperAdPro logo bar
+        els.append(make_el('text', 20, y_pos, 300, 40,
+            f'<span style="font-family:Sora,sans-serif;font-weight:800;font-size:18px;color:#fff">SuperAd<span style="color:#38bdf8">Pro</span></span>',
+            {'color':'#fff'}))
+        els.append(make_el('text', 800, y_pos, 300, 30,
+            f'<span style="font-size:12px;color:rgba(255,255,255,0.4)">By <strong style="color:#38bdf8">{user.first_name or user.username}</strong></span>',
+            {'textAlign':'right','color':'rgba(255,255,255,0.4)'}))
+        y_pos += 60
+
+        # Convert sections to visual elements
+        sections = funnel_data.get('sections', [])
+        if not sections:
+            # Build from legacy fields
+            if funnel_data.get('headline'):
+                sections.append({'type':'heading','content':funnel_data['headline'],'color':'#ffffff','align':'center'})
+            if funnel_data.get('subheadline'):
+                sections.append({'type':'text','content':funnel_data['subheadline'],'color':'#94a3b8','align':'center','size':'17px'})
+            if page.video_url:
+                sections.append({'type':'video','url':page.video_url})
+            if funnel_data.get('capture_heading'):
+                sections.append({'type':'capture','heading':funnel_data.get('capture_heading',''),'subtext':funnel_data.get('capture_subtext',''),'btnText':'Get Access →','btnColor':'#0ea5e9','btnColor2':'#6366f1'})
+            if funnel_data.get('body_paragraphs'):
+                for p in funnel_data['body_paragraphs']:
+                    if p and p.strip():
+                        sections.append({'type':'text','content':p,'color':'#94a3b8','align':'left','size':'15px'})
+            if funnel_data.get('features'):
+                sections.append({'type':'features','items':funnel_data['features'],'checkColor':'#0ea5e9','textColor':'#94a3b8'})
+            if funnel_data.get('cta_text'):
+                sections.append({'type':'button','text':funnel_data['cta_text'],'color1':'#0ea5e9','color2':'#6366f1'})
+
+        for sec in sections:
+            stype = sec.get('type','text')
+
+            if stype == 'heading':
+                level = sec.get('level','h1')
+                fsize = '36px' if level == 'h1' else ('26px' if level == 'h2' else '20px')
+                h = 60 if level == 'h1' else 45
+                color = sec.get('color','#ffffff')
+                els.append(make_el('heading', 50, y_pos, 1100, h,
+                    sec.get('content',''),
+                    {'fontFamily':"'Sora',sans-serif",'fontWeight':'900','fontSize':fsize,'color':color,'textAlign':sec.get('align','center')}))
+                y_pos += h + 15
+
+            elif stype == 'text':
+                content = sec.get('content','')
+                fsize = sec.get('size','15px')
+                h = max(40, len(content) // 3)
+                els.append(make_el('text', 100, y_pos, 1000, h,
+                    content,
+                    {'fontFamily':"'Outfit',sans-serif",'fontSize':fsize,'color':sec.get('color','#94a3b8'),'textAlign':sec.get('align','left'),'lineHeight':'1.8'}))
+                y_pos += h + 15
+
+            elif stype == 'video':
+                from .video_utils import parse_video_url
+                url = sec.get('url','')
+                embed_url = ''
+                if url:
+                    parsed = parse_video_url(url)
+                    embed_url = parsed.get('embed_url', url) if parsed else url
+                els.append(make_el('video', 150, y_pos, 900, 500, embed_url, {}))
+                y_pos += 520
+
+            elif stype == 'button':
+                text = sec.get('text','Join Now')
+                c1 = sec.get('color1','#0ea5e9')
+                c2 = sec.get('color2','#6366f1')
+                els.append(make_el('button', 350, y_pos, 500, 56, text,
+                    {'background':f'linear-gradient(135deg,{c1},{c2})','color':'#fff','fontFamily':"'Sora',sans-serif",
+                     'fontWeight':'700','fontSize':'18px','textAlign':'center','borderRadius':'14px',
+                     'display':'flex','alignItems':'center','justifyContent':'center','cursor':'pointer'}))
+                y_pos += 80
+
+            elif stype == 'capture':
+                heading = sec.get('heading','Get Free Access')
+                subtext = sec.get('subtext','')
+                btn_text = sec.get('btnText','Get Access →')
+                c1 = sec.get('btnColor','#0ea5e9')
+                c2 = sec.get('btnColor2','#6366f1')
+                bg = sec.get('bgColor','#0f1729')
+                form_html = f'<div style="text-align:center"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">{heading}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">{subtext}</div><input placeholder="Your first name" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:8px"><input placeholder="Your email" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:10px"><div style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,{c1},{c2});color:#fff;font-weight:700;font-size:14px;text-align:center">{btn_text}</div></div>'
+                els.append(make_el('form', 300, y_pos, 600, 280, form_html,
+                    {'background':bg+'60','borderRadius':'18px','border':f'1px solid {c1}25','padding':'24px'}))
+                y_pos += 300
+
+            elif stype == 'features':
+                items = sec.get('items',[])
+                check_color = sec.get('checkColor','#0ea5e9')
+                text_color = sec.get('textColor','#94a3b8')
+                items_html = ''.join(f'<div style="display:flex;gap:10px;padding:8px 0;font-size:14px;color:{text_color};border-top:1px solid rgba(255,255,255,0.05)"><span style="color:{check_color};font-weight:700">✓</span>{item}</div>' for item in items)
+                h = len(items) * 38 + 20
+                els.append(make_el('text', 200, y_pos, 800, h, items_html, {'color':text_color}))
+                y_pos += h + 15
+
+            elif stype == 'testimonial':
+                quote = sec.get('quote','')
+                author = sec.get('author','')
+                bg = sec.get('bgColor','#1e293b')
+                color = sec.get('color','#e2e8f0')
+                html = f'<div style="font-size:15px;color:{color};line-height:1.7;font-style:italic;margin-bottom:12px">"{quote}"</div><div style="font-size:13px;color:#64748b;font-weight:600">— {author}</div>'
+                els.append(make_el('text', 200, y_pos, 800, 120, html,
+                    {'background':bg,'borderRadius':'16px','borderLeft':'4px solid #0ea5e9','padding':'24px'}))
+                y_pos += 140
+
+            elif stype == 'divider':
+                els.append(make_el('divider', 250, y_pos, 700, 2, '',
+                    {'background':sec.get('color','#334155'),'borderRadius':'1px'}))
+                y_pos += 20
+
+            elif stype == 'spacer':
+                y_pos += int(sec.get('height','40px').replace('px',''))
+
+        # Save the converted elements
+        page.gjs_css = _json_conv.dumps({'els': els, 'canvasBg': bg_color})
+        page.gjs_html = ''  # Will be generated on save in visual editor
+        db.commit()
+
+    # Redirect to the visual editor
+    return RedirectResponse(f"/funnels/visual/{funnel_id}", status_code=302)
 
 
 @app.post("/api/pro/funnel/{funnel_id}/save")
