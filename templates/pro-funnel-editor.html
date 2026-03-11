@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI Funnel Builder — {{ page.title }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800;900&family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&family=Raleway:wght@400;500;600;700;800;900&family=Lora:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800;900&family=Nunito:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700;800&family=Urbanist:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Barlow:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#0a0e1a;height:100vh;display:flex;flex-direction:column;overflow:hidden;color:#e2e8f0}
+
+/* ── Toolbar ── */
+.tb{height:48px;background:#13192b;border-bottom:1px solid #1e2d4a;display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;z-index:50}
+.tb-logo{font-family:Sora,sans-serif;font-weight:800;font-size:14px;color:#fff;flex-shrink:0}
+.tb-logo em{color:#38bdf8;font-style:normal}
+.tb-sep{width:1px;height:24px;background:#2d3a54}
+.tb-title{font-size:12px;color:#5a6a8a;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb-btn{padding:7px 14px;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;transition:.15s;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.tb-ghost{background:rgba(255,255,255,.06);color:#7a8aaa;border:1px solid #2d3a54}.tb-ghost:hover{background:rgba(255,255,255,.1);color:#fff}
+.tb-cyan{background:#0ea5e9;color:#fff}.tb-cyan:hover{background:#0284c7}
+.tb-green{background:#10b981;color:#fff}.tb-green:hover{background:#059669}
+
+/* ── Layout ── */
+.main{flex:1;display:flex;height:calc(100vh - 48px);overflow:hidden}
+
+/* ── Canvas area ── */
+#canvas-area{flex:1;background:#141a2e;overflow:auto;position:relative}
+#canvas-wrap{min-height:100%;overflow:auto;display:flex;justify-content:center;padding:20px}
+#canvas{width:1200px;position:relative;background:#050d1a;min-height:800px;box-shadow:0 0 60px rgba(0,0,0,.4);border-radius:4px}
+#canvas.dover{outline:3px dashed rgba(14,165,233,.5);outline-offset:-2px}
+#empty-hint{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#3d4a64;pointer-events:none}
+#empty-hint.hide{display:none}
+.eh-icon{font-size:42px;opacity:.5}
+.eh-title{font-size:16px;font-weight:700}
+.eh-sub{font-size:12px;max-width:300px;text-align:center;line-height:1.5}
+
+/* ── Elements on canvas ── */
+.el{position:absolute;cursor:move;user-select:none}
+.el:hover{outline:1px dashed rgba(14,165,233,.35);outline-offset:1px}
+.el.sel{outline:2px solid #0ea5e9;outline-offset:1px}
+.el[data-editing="1"]{cursor:text}
+.el-inner{width:100%;height:100%;display:flex;align-items:center;overflow:hidden;word-break:break-word}
+.el-inner[contenteditable=true]{cursor:text;outline:none}
+
+/* Resize handles */
+.rh{position:absolute;width:9px;height:9px;background:#0ea5e9;border:1.5px solid #fff;border-radius:2px;display:none;z-index:5}
+.el.sel .rh{display:block}
+.rh-nw{top:-5px;left:-5px;cursor:nw-resize}.rh-n{top:-5px;left:50%;margin-left:-5px;cursor:n-resize}
+.rh-ne{top:-5px;right:-5px;cursor:ne-resize}.rh-w{top:50%;margin-top:-5px;left:-5px;cursor:w-resize}
+.rh-e{top:50%;margin-top:-5px;right:-5px;cursor:e-resize}.rh-sw{bottom:-5px;left:-5px;cursor:sw-resize}
+.rh-s{bottom:-5px;left:50%;margin-left:-5px;cursor:s-resize}.rh-se{bottom:-5px;right:-5px;cursor:se-resize}
+
+/* Canvas BG control */
+.cv-bg-ctrl{position:absolute;top:8px;left:8px;z-index:10;display:flex;align-items:center;gap:6px;background:rgba(19,25,43,.92);border:1px solid #2d3a54;border-radius:8px;padding:5px 10px}
+.cv-bg-ctrl label{font-size:10px;color:#5a6a8a;font-weight:600}
+.cv-bg-ctrl input[type=color]{width:22px;height:22px;border:1px solid #3d4a64;border-radius:5px;cursor:pointer;padding:0;background:none}
+
+/* Hint bar */
+.hint-bar{position:absolute;bottom:0;left:0;right:0;padding:6px 14px;background:rgba(19,25,43,.9);border-top:1px solid #2d3a54;display:flex;gap:12px;align-items:center;font-size:10px;color:#5a6a8a;z-index:10}
+.htag{background:rgba(255,255,255,.04);border:1px solid #2d3a54;border-radius:5px;padding:3px 8px;font-weight:600}
+
+/* ── Right panel ── */
+.rpanel{width:320px;background:#f7f8fb;display:flex;flex-direction:column;height:100%;overflow:hidden;flex-shrink:0;border-left:1px solid #e2e8f0}
+
+/* Tabs */
+.rp-tabs{display:flex;background:#fff;border-bottom:1px solid #e2e8f0;flex-shrink:0}
+.rp-tab{flex:1;padding:10px 4px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#94a3b8;cursor:pointer;border-bottom:2px solid transparent;transition:.15s}
+.rp-tab:hover{color:#475569}
+.rp-tab.on{color:#0ea5e9;border-bottom-color:#0ea5e9}
+
+/* Panel content */
+.rp-body{flex:1;overflow-y:auto;min-height:0}
+.rp-body::-webkit-scrollbar{width:4px}.rp-body::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:4px}
+
+/* Blocks */
+.cat{font-size:9px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:#94a3b8;padding:14px 12px 6px}
+.bgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:0 10px 4px}
+.bc{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:9px 4px 7px;text-align:center;cursor:grab;display:flex;flex-direction:column;align-items:center;gap:3px;transition:.12s;user-select:none}
+.bc:hover{border-color:#0ea5e9;background:#f0f9ff;transform:translateY(-1px)}
+.bc:active{cursor:grabbing;transform:scale(.95)}
+.bi{font-size:17px;line-height:1}
+.bn{font-size:8px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:#64748b}
+
+/* Properties */
+.pp{padding:12px}
+.pp-title{font-size:12px;font-weight:800;color:#1a1a2e;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #e2e8f0}
+.pp-empty{text-align:center;padding:40px 16px;color:#94a3b8;font-size:12px}
+.pf{margin-bottom:10px}
+.pf-label{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:3px}
+.pf-input{width:100%;padding:7px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:12px;font-family:inherit;color:#1a1a2e;background:#fff}
+.pf-input:focus{outline:none;border-color:#0ea5e9;box-shadow:0 0 0 2px rgba(14,165,233,.1)}
+select.pf-input{background:#fff}
+textarea.pf-input{min-height:50px;resize:vertical}
+.pf-row{display:flex;gap:6px;align-items:center}
+.pf-swatch{width:26px;height:26px;border-radius:6px;border:1px solid #e2e8f0;flex-shrink:0;position:relative;overflow:hidden;cursor:pointer}
+.pf-swatch input[type=color]{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);border:none;cursor:pointer;padding:0}
+.pf-actions{display:flex;gap:4px;margin-top:10px;padding-top:10px;border-top:1px solid #e2e8f0}
+.pf-act{flex:1;padding:7px;border:1px solid #e2e8f0;border-radius:7px;background:#fff;font-size:10px;font-weight:700;color:#64748b;cursor:pointer;text-align:center;transition:.1s}
+.pf-act:hover{border-color:#0ea5e9;color:#0ea5e9}
+.pf-del{border-color:#fecaca;color:#dc2626;background:#fef2f2}.pf-del:hover{background:#fee2e2}
+
+/* Layers */
+.ly-item{padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;margin:0 10px 4px;cursor:pointer;background:#fff;font-size:11px;font-weight:600;color:#475569;display:flex;justify-content:space-between;align-items:center;transition:.1s}
+.ly-item:hover{border-color:#93c5fd}
+.ly-item.on{border-color:#0ea5e9;background:#eff6ff;color:#0ea5e9}
+.ly-del{width:18px;height:18px;border:none;background:#fee2e2;border-radius:4px;color:#dc2626;cursor:pointer;font-size:9px;display:flex;align-items:center;justify-content:center}
+
+/* ── AI Chat ── */
+.chat{border-top:1px solid #e2e8f0;flex-shrink:0;background:#fff;display:flex;flex-direction:column;max-height:35%;transition:max-height .2s}
+.chat.closed{max-height:34px}
+.chat-hdr{padding:8px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;flex-shrink:0}
+.chat-hdr h4{font-size:10px;font-weight:800;color:#0ea5e9;letter-spacing:.5px}
+.chat-hdr span{font-size:12px;color:#94a3b8;transition:transform .2s}
+.chat.closed .chat-hdr span{transform:rotate(180deg)}
+.chat-body{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+.chat.closed .chat-body{display:none}
+.chat-msgs{flex:1;overflow-y:auto;padding:6px 10px;display:flex;flex-direction:column;gap:5px;background:#f8fafc;min-height:0}
+.chat-msgs::-webkit-scrollbar{width:3px}.chat-msgs::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:4px}
+.cm{max-width:88%;padding:7px 10px;border-radius:10px;font-size:11px;line-height:1.5;word-wrap:break-word}
+.cm-ai{background:#fff;color:#1a1a2e;border:1px solid #e5e7eb;align-self:flex-start;border-bottom-left-radius:2px}
+.cm-user{background:#0ea5e9;color:#fff;align-self:flex-end;border-bottom-right-radius:2px}
+.chat-bar{display:flex;gap:5px;padding:6px 10px;border-top:1px solid #f1f5f9;flex-shrink:0}
+.chat-in{flex:1;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:11px;font-family:inherit;color:#1a1a2e;resize:none}
+.chat-in:focus{outline:none;border-color:#0ea5e9}
+.chat-in::placeholder{color:#94a3b8}
+.chat-go{width:30px;height:30px;border:none;border-radius:7px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chat-go:hover{opacity:.9}
+
+/* Toast */
+.toast{position:fixed;top:56px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:8px 20px;border-radius:8px;font-size:12px;font-weight:600;display:none;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.3);border:1px solid #10b981}
+.toast.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- ═══ TOOLBAR ═══ -->
+<div class="tb">
+  <div class="tb-logo">SuperAd<em>Pro</em></div>
+  <div class="tb-sep"></div>
+  <div class="tb-title">✨ AI Funnel Builder — {{ page.headline or page.title }}</div>
+  <a href="/pro/funnels" class="tb-btn tb-ghost">← Funnels</a>
+  <a href="/f/{{ page.slug }}" target="_blank" class="tb-btn tb-cyan">👁 Preview</a>
+  <button class="tb-btn tb-green" onclick="savePage()">💾 Save</button>
+</div>
+
+<div class="main">
+  <!-- ═══ CANVAS ═══ -->
+  <div id="canvas-area">
+    <div class="cv-bg-ctrl">
+      <label>BG</label>
+      <input type="color" id="cv-bg" value="#050d1a" oninput="setBg(this.value)">
+    </div>
+    <div id="canvas-wrap">
+      <div id="canvas">
+        <div id="empty-hint">
+          <div class="eh-icon">✦</div>
+          <div class="eh-title">Drag elements here</div>
+          <div class="eh-sub">Drag blocks from the right panel, or use the AI chat to add content</div>
+        </div>
+      </div>
+    </div>
+    <div class="hint-bar">
+      <span class="htag">🖱 Drag to move</span>
+      <span class="htag">✏️ Double-click to edit text</span>
+      <span class="htag">⬛ Handles to resize</span>
+      <span class="htag">Del to delete</span>
+    </div>
+  </div>
+
+  <!-- ═══ RIGHT PANEL ═══ -->
+  <div class="rpanel">
+    <div class="rp-tabs">
+      <div class="rp-tab on" onclick="openTab('blocks',this)">Blocks</div>
+      <div class="rp-tab" onclick="openTab('props',this)">Properties</div>
+      <div class="rp-tab" onclick="openTab('layers',this)">Layers</div>
+    </div>
+
+    <div class="rp-body" id="rp-body">
+      <!-- BLOCKS -->
+      <div id="tab-blocks">
+        <div class="cat">Text</div>
+        <div class="bgrid">
+          <div class="bc" draggable="true" data-t="heading" ondragstart="ds(event)"><span class="bi" style="font-family:Sora;font-weight:900;font-size:20px">H</span><span class="bn">Heading</span></div>
+          <div class="bc" draggable="true" data-t="subheading" ondragstart="ds(event)"><span class="bi" style="font-weight:800;font-size:14px">H2</span><span class="bn">Subhead</span></div>
+          <div class="bc" draggable="true" data-t="text" ondragstart="ds(event)"><span class="bi">¶</span><span class="bn">Text</span></div>
+          <div class="bc" draggable="true" data-t="label" ondragstart="ds(event)"><span class="bi" style="font-size:13px">Aa</span><span class="bn">Label</span></div>
+        </div>
+        <div class="cat">Media</div>
+        <div class="bgrid">
+          <div class="bc" draggable="true" data-t="image" ondragstart="ds(event)"><span class="bi">🖼</span><span class="bn">Image</span></div>
+          <div class="bc" draggable="true" data-t="video" ondragstart="ds(event)"><span class="bi">▶</span><span class="bn">Video</span></div>
+          <div class="bc" draggable="true" data-t="divider" ondragstart="ds(event)"><span class="bi">─</span><span class="bn">Divider</span></div>
+        </div>
+        <div class="cat">Actions</div>
+        <div class="bgrid">
+          <div class="bc" draggable="true" data-t="button" ondragstart="ds(event)"><span class="bi">⬤</span><span class="bn">Button</span></div>
+          <div class="bc" draggable="true" data-t="cta" ondragstart="ds(event)"><span class="bi">🔵</span><span class="bn">CTA Btn</span></div>
+          <div class="bc" draggable="true" data-t="form" ondragstart="ds(event)"><span class="bi">📋</span><span class="bn">Opt-In</span></div>
+        </div>
+        <div class="cat">Content</div>
+        <div class="bgrid">
+          <div class="bc" draggable="true" data-t="review" ondragstart="ds(event)"><span class="bi">💬</span><span class="bn">Review</span></div>
+          <div class="bc" draggable="true" data-t="badge" ondragstart="ds(event)"><span class="bi">🏷</span><span class="bn">Badge</span></div>
+          <div class="bc" draggable="true" data-t="timer" ondragstart="ds(event)"><span class="bi">⏱</span><span class="bn">Timer</span></div>
+        </div>
+        <div class="cat">Layout</div>
+        <div class="bgrid">
+          <div class="bc" draggable="true" data-t="box" ondragstart="ds(event)"><span class="bi">⬜</span><span class="bn">Box</span></div>
+          <div class="bc" draggable="true" data-t="spacer" ondragstart="ds(event)"><span class="bi">↕</span><span class="bn">Spacer</span></div>
+        </div>
+      </div>
+
+      <!-- PROPERTIES (hidden until element selected) -->
+      <div id="tab-props" style="display:none">
+        <div id="pp-content"><div class="pp-empty">🖱 Click an element on the canvas to edit its properties</div></div>
+      </div>
+
+      <!-- LAYERS -->
+      <div id="tab-layers" style="display:none">
+        <div style="padding:10px 0" id="layers-list"></div>
+      </div>
+    </div>
+
+    <!-- ── AI CHAT ── -->
+    <div class="chat" id="chatBox">
+      <div class="chat-hdr" onclick="toggleChat()">
+        <h4>✨ AI ASSISTANT</h4>
+        <span>▼</span>
+      </div>
+      <div class="chat-body">
+        <div class="chat-msgs" id="chatMsgs">
+          <div class="cm cm-ai">Tell me what to change — "add a testimonial", "change background to dark blue", etc.</div>
+        </div>
+        <div class="chat-bar">
+          <textarea class="chat-in" id="chatIn" rows="1" placeholder="Ask AI..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea>
+          <button class="chat-go" onclick="sendChat()">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PAGE_ID = {{ page.id }};
+const USERNAME = '{{ user.username }}';
+const UNAME = '{{ user.first_name or user.username }}';
+
+// ══════ STATE ══════
+let els = [];
+let selId = null;
+let canvasBg = '#050d1a';
+let _d = null, _r = null; // drag/resize state
+let dragType = null;
+const uid = () => 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+const CV = () => document.getElementById('canvas');
+const TEXT_ELS = new Set(['heading','subheading','text','label','button','cta','badge']);
+
+// ── Element defaults ──
+const DEFS = {
+  heading:    {w:600,h:70, txt:'Your Headline Here',    s:{fontSize:'42px',fontWeight:'900',fontFamily:"'Sora',sans-serif",color:'#ffffff',textAlign:'center',lineHeight:'1.1'}},
+  subheading: {w:500,h:50, txt:'Your Subheading',       s:{fontSize:'26px',fontWeight:'800',fontFamily:"'Sora',sans-serif",color:'#e2e8f0',textAlign:'center',lineHeight:'1.2'}},
+  text:       {w:600,h:80, txt:'Add your text here. Double-click to edit.', s:{fontSize:'16px',fontFamily:"'Outfit',sans-serif",color:'#94a3b8',textAlign:'left',lineHeight:'1.7'}},
+  label:      {w:190,h:32, txt:'LABEL',                 s:{fontSize:'11px',fontWeight:'700',fontFamily:"'DM Sans',sans-serif",color:'#64748b',letterSpacing:'1.5px',textTransform:'uppercase'}},
+  button:     {w:220,h:52, txt:'Click Here',            s:{fontSize:'15px',fontWeight:'800',fontFamily:"'Sora',sans-serif",color:'#fff',backgroundColor:'#0ea5e9',borderRadius:'10px',textAlign:'center'}},
+  cta:        {w:260,h:56, txt:'Get Started Free →',    s:{fontSize:'17px',fontWeight:'900',fontFamily:"'Sora',sans-serif",color:'#fff',backgroundImage:'linear-gradient(135deg,#0ea5e9,#6366f1)',borderRadius:'12px',textAlign:'center',boxShadow:'0 6px 20px rgba(14,165,233,.3)'}},
+  badge:      {w:150,h:34, txt:'🚀 New Feature',        s:{fontSize:'11px',fontWeight:'700',fontFamily:"'DM Sans',sans-serif",color:'#0ea5e9',backgroundColor:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.2)',borderRadius:'20px',textAlign:'center',padding:'4px 12px'}},
+  image:      {w:500,h:300,txt:'',                      s:{borderRadius:'12px',objectFit:'cover'}},
+  video:      {w:640,h:360,txt:'https://www.youtube.com/embed/dQw4w9WgXcQ', s:{borderRadius:'12px'}},
+  form:       {w:380,h:220,txt:'',                      s:{}},
+  divider:    {w:600,h:4,  txt:'',                      s:{backgroundColor:'#334155',borderRadius:'2px'}},
+  spacer:     {w:600,h:60, txt:'',                      s:{}},
+  box:        {w:400,h:250,txt:'',                      s:{backgroundColor:'rgba(255,255,255,.03)',borderRadius:'16px',border:'1px solid rgba(14,165,233,.1)'}},
+  review:     {w:400,h:140,txt:'',                      s:{backgroundColor:'#1e293b',borderRadius:'14px',borderLeft:'4px solid #0ea5e9',padding:'20px'}},
+  timer:      {w:280,h:70, txt:'',                      s:{backgroundColor:'#0f172a',borderRadius:'12px',border:'1px solid #1e293b'}},
+};
+
+// ══════ INIT: Load data ══════
+try {
+  const fd = {{ funnel_data|tojson|safe }};
+  if (fd.colors?.bg) canvasBg = fd.colors.bg;
+
+  // Convert sections to canvas elements
+  const secs = fd.sections || [];
+  if (secs.length > 0) {
+    let y = 30;
+    // Logo
+    els.push({id:uid(),type:'text',x:20,y:y,w:300,h:40,txt:`<span style="font-family:Sora,sans-serif;font-weight:800;font-size:18px;color:#fff">SuperAd<span style="color:#38bdf8">Pro</span></span>`,s:{color:'#fff'},vis:true});
+    els.push({id:uid(),type:'text',x:850,y:y,w:300,h:30,txt:`<span style="font-size:12px;color:rgba(255,255,255,0.4)">By <strong style="color:#38bdf8">${UNAME}</strong></span>`,s:{textAlign:'right',color:'rgba(255,255,255,0.4)'},vis:true});
+    y += 60;
+
+    secs.forEach(s => {
+      const t = s.type;
+      if (t === 'heading') {
+        const fs = s.level==='h1'?'38px':s.level==='h2'?'26px':'20px';
+        els.push({id:uid(),type:'heading',x:50,y,w:1100,h:65,txt:s.content||'',s:{fontSize:fs,fontWeight:'900',fontFamily:"'Sora',sans-serif",color:s.color||'#fff',textAlign:s.align||'center',lineHeight:'1.15'},vis:true});
+        y += 80;
+      } else if (t === 'text') {
+        const h = Math.max(50, (s.content||'').length / 2);
+        els.push({id:uid(),type:'text',x:100,y,w:1000,h,txt:s.content||'',s:{fontSize:s.size||'15px',fontFamily:"'Outfit',sans-serif",color:s.color||'#94a3b8',textAlign:s.align||'left',lineHeight:'1.8'},vis:true});
+        y += h + 15;
+      } else if (t === 'video') {
+        let url = s.url||'';
+        const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+        if (m) url = 'https://www.youtube.com/embed/' + m[1];
+        const m2 = url.match(/vimeo\.com\/(\d+)/);
+        if (m2) url = 'https://player.vimeo.com/video/' + m2[1];
+        els.push({id:uid(),type:'video',x:150,y,w:900,h:500,txt:url,s:{borderRadius:'12px'},vis:true});
+        y += 520;
+      } else if (t === 'button') {
+        const c1=s.color1||'#0ea5e9',c2=s.color2||'#6366f1';
+        els.push({id:uid(),type:'cta',x:400,y,w:400,h:56,txt:s.text||'Join Now',s:{fontSize:'17px',fontWeight:'900',fontFamily:"'Sora',sans-serif",color:'#fff',backgroundImage:`linear-gradient(135deg,${c1},${c2})`,borderRadius:'12px',textAlign:'center',boxShadow:`0 6px 20px ${c1}44`},vis:true});
+        y += 80;
+      } else if (t === 'capture') {
+        const c1=s.btnColor||'#0ea5e9',c2=s.btnColor2||'#6366f1',bg=s.bgColor||'#0f1729';
+        const html=`<div style="text-align:center"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">${s.heading||''}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:14px">${s.subtext||''}</div><input placeholder="Your first name" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;margin-bottom:8px;box-sizing:border-box"><input placeholder="Your email" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;margin-bottom:10px;box-sizing:border-box"><div style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,${c1},${c2});color:#fff;font-weight:700;font-size:14px;text-align:center">${s.btnText||'Get Access →'}</div></div>`;
+        els.push({id:uid(),type:'form',x:300,y,w:600,h:280,txt:html,s:{background:bg+'50',borderRadius:'18px',border:`1px solid ${c1}25`,padding:'24px'},vis:true});
+        y += 300;
+      } else if (t === 'features') {
+        const cc=s.checkColor||'#0ea5e9',tc=s.textColor||'#94a3b8';
+        const html = (s.items||[]).map(f=>`<div style="display:flex;gap:10px;padding:8px 0;font-size:14px;color:${tc};border-top:1px solid rgba(255,255,255,.05)"><span style="color:${cc};font-weight:700">✓</span>${f}</div>`).join('');
+        const h = (s.items||[]).length * 36 + 20;
+        els.push({id:uid(),type:'text',x:200,y,w:800,h,txt:html,s:{color:tc},vis:true});
+        y += h + 15;
+      } else if (t === 'testimonial') {
+        const html=`<div style="font-size:15px;color:${s.color||'#e2e8f0'};line-height:1.7;font-style:italic;margin-bottom:12px">"${s.quote||''}"</div><div style="font-size:13px;color:#64748b;font-weight:600">— ${s.author||''}</div>`;
+        els.push({id:uid(),type:'review',x:200,y,w:800,h:130,txt:html,s:{backgroundColor:s.bgColor||'#1e293b',borderRadius:'16px',borderLeft:'4px solid #0ea5e9',padding:'24px'},vis:true});
+        y += 150;
+      } else if (t === 'divider') {
+        els.push({id:uid(),type:'divider',x:250,y,w:700,h:3,txt:'',s:{backgroundColor:s.color||'#334155',borderRadius:'2px'},vis:true});
+        y += 20;
+      } else if (t === 'spacer') {
+        y += parseInt((s.height||'40px').replace('px',''));
+      }
+    });
+  }
+} catch(e) { console.error('Init:', e); }
+
+document.getElementById('cv-bg').value = canvasBg;
+
+// ══════ TABS ══════
+function openTab(name, el) {
+  ['blocks','props','layers'].forEach(k => document.getElementById('tab-'+k).style.display = 'none');
+  document.getElementById('tab-'+name).style.display = '';
+  document.querySelectorAll('.rp-tab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  if (name === 'layers') drawLayers();
+}
+
+function toggleChat() { document.getElementById('chatBox').classList.toggle('closed'); }
+
+// ══════ CANVAS BG ══════
+function setBg(c) { canvasBg = c; CV().style.background = c; }
+
+// ══════ RENDER ══════
+function renderAll() {
+  document.querySelectorAll('#canvas .el').forEach(e => e.remove());
+  CV().style.background = canvasBg;
+  els.forEach(e => { if (e.vis !== false) drawEl(e); });
+  checkEmpty();
+  if (document.getElementById('tab-layers').style.display !== 'none') drawLayers();
+}
+
+function checkEmpty() {
+  document.getElementById('empty-hint').classList.toggle('hide', els.filter(e => e.vis !== false).length > 0);
+}
+
+function drawEl(e) {
+  const div = document.createElement('div');
+  div.className = 'el' + (e.id === selId ? ' sel' : '');
+  div.id = e.id;
+  div.style.cssText = `left:${e.x}px;top:${e.y}px;width:${e.w}px;height:${e.h}px;`;
+
+  // Apply wrapper styles
+  if (!TEXT_ELS.has(e.type) || ['button','cta','badge'].includes(e.type)) {
+    ['backgroundColor','backgroundImage','borderRadius','border','boxShadow','padding','background'].forEach(k => {
+      if (e.s[k]) div.style[k] = e.s[k];
+    });
+  }
+
+  // Inner
+  const inner = document.createElement('div');
+  inner.className = 'el-inner';
+
+  if (e.type === 'image') {
+    if (e.txt) {
+      const img = document.createElement('img');
+      img.src = e.txt;
+      img.style.cssText = `width:100%;height:100%;object-fit:${e.s.objectFit||'cover'};border-radius:${e.s.borderRadius||'0'}`;
+      inner.appendChild(img);
+    } else {
+      inner.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#1e293b;border:1px dashed #334155;border-radius:12px;color:#475569;font-size:12px">Double-click to add image</div>';
+    }
+  } else if (e.type === 'video') {
+    if (e.txt) {
+      inner.innerHTML = `<iframe src="${e.txt}" style="width:100%;height:100%;border:none;border-radius:${e.s.borderRadius||'0'};pointer-events:none" allowfullscreen></iframe>`;
+    } else {
+      inner.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#0f1729;border:1px dashed #1e293b;border-radius:12px;color:#475569;font-size:12px">Double-click to add video URL</div>';
+    }
+  } else if (e.type === 'form') {
+    inner.innerHTML = e.txt || '<div style="padding:16px;text-align:center;color:#64748b;font-size:12px">Opt-in form</div>';
+    inner.style.overflow = 'hidden';
+  } else if (['divider','spacer','box'].includes(e.type)) {
+    // Empty visual elements
+  } else if (e.type === 'review') {
+    inner.innerHTML = e.txt || '<div style="padding:16px"><p style="font-style:italic;color:#e2e8f0;font-size:14px">"Great platform!"</p><div style="margin-top:8px;font-size:12px;color:#64748b;font-weight:600">— Happy Member</div></div>';
+    inner.style.overflow = 'hidden';
+  } else if (e.type === 'timer') {
+    inner.innerHTML = e.txt || '<div style="display:flex;align-items:center;justify-content:center;height:100%;gap:12px;color:#fff;font-family:Sora,sans-serif"><div style="text-align:center"><div style="font-size:24px;font-weight:900">03</div><div style="font-size:8px;color:#64748b;font-weight:600">DAYS</div></div><div style="font-size:20px;color:#334155">:</div><div style="text-align:center"><div style="font-size:24px;font-weight:900">14</div><div style="font-size:8px;color:#64748b;font-weight:600">HRS</div></div><div style="font-size:20px;color:#334155">:</div><div style="text-align:center"><div style="font-size:24px;font-weight:900">22</div><div style="font-size:8px;color:#64748b;font-weight:600">MIN</div></div></div>';
+    inner.style.overflow = 'hidden';
+  } else if (e.type === 'stat') {
+    inner.innerHTML = e.txt || '<div style="padding:12px;text-align:center"><div style="font-size:28px;font-weight:900;color:#0ea5e9;font-family:Sora,sans-serif">95%</div><div style="font-size:10px;color:#64748b;font-weight:600;margin-top:4px">PAYOUT RATE</div></div>';
+    inner.style.overflow = 'hidden';
+  } else {
+    // Text elements
+    inner.innerHTML = e.txt || '';
+    Object.entries(e.s).forEach(([k,v]) => { inner.style[k] = v; });
+    if (e.s.textAlign) {
+      inner.style.justifyContent = ({left:'flex-start',center:'center',right:'flex-end'})[e.s.textAlign] || 'flex-start';
+    }
+  }
+
+  div.appendChild(inner);
+
+  // Resize handles
+  ['nw','n','ne','w','e','sw','s','se'].forEach(dir => {
+    const h = document.createElement('div');
+    h.className = `rh rh-${dir}`;
+    h.dataset.dir = dir;
+    div.appendChild(h);
+  });
+
+  // Events
+  div.addEventListener('mousedown', onMouseDown);
+  div.addEventListener('dblclick', onDblClick);
+  div.querySelectorAll('.rh').forEach(h => h.addEventListener('mousedown', onResizeDown));
+
+  CV().appendChild(div);
+}
+
+// ══════ SELECTION ══════
+function select(id) {
+  if (selId) { endEdit(selId); document.getElementById(selId)?.classList.remove('sel'); }
+  selId = id;
+  document.getElementById(id)?.classList.add('sel');
+  drawProps();
+  if (document.getElementById('tab-layers').style.display !== 'none') drawLayers();
+}
+function deselect() {
+  if (selId) { endEdit(selId); document.getElementById(selId)?.classList.remove('sel'); }
+  selId = null;
+  document.getElementById('pp-content').innerHTML = '<div class="pp-empty">🖱 Click an element to edit</div>';
+}
+
+// ══════ DRAG ══════
+function onMouseDown(e) {
+  if (e.target.classList.contains('rh')) return;
+  if (e.target.closest('.el-inner[contenteditable=true]')) return;
+  if (e.button !== 0) return;
+  e.preventDefault(); e.stopPropagation();
+  const id = e.currentTarget.id;
+  select(id);
+  const el = els.find(x => x.id === id);
+  _d = { el, div: e.currentTarget, sx: e.clientX, sy: e.clientY, ox: el.x, oy: el.y };
+  CV().style.userSelect = 'none';
+}
+
+// ══════ RESIZE ══════
+function onResizeDown(e) {
+  e.preventDefault(); e.stopPropagation();
+  const div = e.currentTarget.closest('.el');
+  const id = div.id;
+  select(id);
+  const el = els.find(x => x.id === id);
+  _r = { el, div, dir: e.currentTarget.dataset.dir, sx: e.clientX, sy: e.clientY, ox: el.x, oy: el.y, ow: el.w, oh: el.h };
+  CV().style.userSelect = 'none';
+}
+
+document.addEventListener('mousemove', e => {
+  if (!_d && !_r) return;
+  if (_d) {
+    const dx = e.clientX - _d.sx, dy = e.clientY - _d.sy;
+    _d.el.x = Math.round(Math.max(0, _d.ox + dx));
+    _d.el.y = Math.round(Math.max(0, _d.oy + dy));
+    _d.div.style.left = _d.el.x + 'px';
+    _d.div.style.top = _d.el.y + 'px';
+  }
+  if (_r) {
+    const dx = e.clientX - _r.sx, dy = e.clientY - _r.sy;
+    const d = _r.dir;
+    let x = _r.ox, y = _r.oy, w = _r.ow, h = _r.oh;
+    if (d.includes('e')) w = Math.max(30, w + dx);
+    if (d.includes('s')) h = Math.max(20, h + dy);
+    if (d.includes('w')) { const nw = Math.max(30, w - dx); x += w - nw; w = nw; }
+    if (d.includes('n')) { const nh = Math.max(20, h - dy); y = Math.max(0, y + (h - nh)); h = nh; }
+    _r.el.x = Math.round(x); _r.el.y = Math.round(y);
+    _r.el.w = Math.round(w); _r.el.h = Math.round(h);
+    _r.div.style.left = x + 'px'; _r.div.style.top = y + 'px';
+    _r.div.style.width = w + 'px'; _r.div.style.height = h + 'px';
+  }
+});
+document.addEventListener('mouseup', () => { _d = null; _r = null; CV().style.userSelect = ''; drawProps(); });
+
+// ══════ TEXT EDITING ══════
+let editId = null;
+function onDblClick(e) {
+  const id = e.currentTarget.id;
+  const el = els.find(x => x.id === id);
+  if (el && TEXT_ELS.has(el.type)) { e.stopPropagation(); startEdit(id); }
+  else if (el?.type === 'image') { const url = prompt('Image URL:', el.txt || ''); if (url !== null) { el.txt = url.trim(); renderAll(); } }
+  else if (el?.type === 'video') { const url = prompt('Video URL (YouTube/Vimeo):', el.txt || ''); if (url !== null) { let u = url.trim(); const m = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/); if (m) u = 'https://www.youtube.com/embed/' + m[1]; const m2 = u.match(/vimeo\.com\/(\d+)/); if (m2) u = 'https://player.vimeo.com/video/' + m2[1]; el.txt = u; renderAll(); } }
+}
+function startEdit(id) {
+  if (editId) endEdit(editId);
+  editId = id;
+  const div = document.getElementById(id);
+  const inn = div?.querySelector('.el-inner');
+  if (!inn) return;
+  inn.contentEditable = 'true';
+  inn.style.cursor = 'text';
+  div.dataset.editing = '1';
+  inn.focus();
+}
+function endEdit(id) {
+  if (!id) return;
+  const div = document.getElementById(id);
+  const inn = div?.querySelector('.el-inner');
+  if (inn) {
+    const el = els.find(x => x.id === id);
+    if (el) el.txt = inn.innerHTML;
+    inn.contentEditable = 'false';
+    inn.style.cursor = '';
+    if (div) div.dataset.editing = '';
+  }
+  if (editId === id) editId = null;
+}
+document.addEventListener('mousedown', e => {
+  if (editId && !document.getElementById(editId)?.contains(e.target)) endEdit(editId);
+});
+
+// ══════ DRAG FROM PALETTE ══════
+function ds(ev) { dragType = ev.currentTarget.dataset.t; ev.dataTransfer.effectAllowed = 'copy'; ev.dataTransfer.setData('text/plain', dragType); }
+const canvas = document.getElementById('canvas');
+canvas.addEventListener('dragover', e => { e.preventDefault(); canvas.classList.add('dover'); });
+canvas.addEventListener('dragleave', e => { if (!canvas.contains(e.relatedTarget)) canvas.classList.remove('dover'); });
+canvas.addEventListener('drop', e => {
+  e.preventDefault(); canvas.classList.remove('dover');
+  const type = dragType || e.dataTransfer.getData('text/plain');
+  if (!type) return;
+  const r = canvas.getBoundingClientRect();
+  const def = DEFS[type] || DEFS.text;
+  const x = (e.clientX - r.left) - def.w / 2;
+  const y = (e.clientY - r.top) - def.h / 2;
+  addEl(type, Math.max(0, Math.round(x)), Math.max(0, Math.round(y)));
+  dragType = null;
+});
+canvas.addEventListener('click', e => {
+  if (e.target === canvas || e.target.id === 'empty-hint' || e.target.closest('#empty-hint')) deselect();
+});
+
+function addEl(type, x, y) {
+  const d = DEFS[type] || DEFS.text;
+  const e = { id: uid(), type, x: Math.round(x), y: Math.round(y), w: d.w, h: d.h, txt: d.txt, s: { ...d.s }, vis: true };
+  els.push(e);
+  drawEl(e);
+  select(e.id);
+  checkEmpty();
+  toast(type + ' added ✓');
+}
+
+function deleteEl(id) {
+  els = els.filter(e => e.id !== id);
+  document.getElementById(id)?.remove();
+  if (selId === id) { selId = null; deselect(); }
+  checkEmpty();
+  drawLayers();
+}
+
+// Delete key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Delete' && selId && !editId) { deleteEl(selId); }
+});
+
+// ══════ PROPERTIES PANEL ══════
+function drawProps() {
+  const el = els.find(x => x.id === selId);
+  const pp = document.getElementById('pp-content');
+  if (!el) { pp.innerHTML = '<div class="pp-empty">🖱 Click an element to edit</div>'; return; }
+
+  const labels = { heading:'Heading',subheading:'Subheading',text:'Text',label:'Label',button:'Button',cta:'CTA Button',badge:'Badge',image:'Image',video:'Video',form:'Opt-In Form',divider:'Divider',spacer:'Spacer',box:'Box',review:'Review',timer:'Timer',stat:'Stat' };
+  let h = `<div class="pp"><div class="pp-title">${labels[el.type]||el.type}</div>`;
+
+  if (TEXT_ELS.has(el.type)) {
+    h += pf_select('Font', 'fontFamily', el.s.fontFamily||"'Sora',sans-serif", [["'Sora',sans-serif",'Sora'],["'Outfit',sans-serif",'Outfit'],["'Plus Jakarta Sans',sans-serif",'Jakarta Sans'],["'DM Sans',sans-serif",'DM Sans'],["'Poppins',sans-serif",'Poppins'],["'Montserrat',sans-serif",'Montserrat'],["'Raleway',sans-serif",'Raleway'],["'Urbanist',sans-serif",'Urbanist'],["'Open Sans',sans-serif",'Open Sans'],["'Lora',serif",'Lora'],["'Playfair Display',serif",'Playfair']]);
+    h += pf_number('Size (px)', 'fontSize', parseInt(el.s.fontSize)||16);
+    h += pf_select('Weight', 'fontWeight', el.s.fontWeight||'400', [['400','Normal'],['600','Semi-Bold'],['700','Bold'],['800','Extra-Bold'],['900','Black']]);
+    h += pf_select('Align', 'textAlign', el.s.textAlign||'left', [['left','Left'],['center','Centre'],['right','Right']]);
+    h += pf_color('Text Colour', 'color', el.s.color||'#ffffff');
+  }
+
+  if (['button','cta','box','badge','review','timer'].includes(el.type)) {
+    h += pf_color('Background', 'backgroundColor', el.s.backgroundColor||'#0ea5e9');
+  }
+
+  if (el.type === 'image') {
+    h += pf_text('Image URL', '_txt', el.txt||'');
+  }
+  if (el.type === 'video') {
+    h += pf_text('Video URL', '_txt', el.txt||'');
+  }
+
+  h += pf_number('Width', '_w', el.w);
+  h += pf_number('Height', '_h', el.h);
+  h += pf_color('Border Radius', 'borderRadius', el.s.borderRadius||'0');
+
+  h += `<div class="pf-actions">
+    <div class="pf-act" onclick="dupEl()">⧉ Duplicate</div>
+    <div class="pf-act" onclick="bringFront()">↑ Front</div>
+    <div class="pf-act" onclick="sendBack()">↓ Back</div>
+    <div class="pf-act pf-del" onclick="deleteEl('${el.id}')">✕ Delete</div>
+  </div></div>`;
+
+  pp.innerHTML = h;
+
+  // Attach change listeners
+  pp.querySelectorAll('[data-prop]').forEach(inp => {
+    inp.addEventListener('change', () => {
+      const prop = inp.dataset.prop;
+      const val = inp.value;
+      if (prop === '_txt') { el.txt = val; renderAll(); select(el.id); }
+      else if (prop === '_w') { el.w = parseInt(val)||el.w; const d=document.getElementById(el.id); if(d)d.style.width=el.w+'px'; }
+      else if (prop === '_h') { el.h = parseInt(val)||el.h; const d=document.getElementById(el.id); if(d)d.style.height=el.h+'px'; }
+      else if (prop === 'fontSize') { el.s.fontSize = val+'px'; applyStyle(el); }
+      else if (prop === 'borderRadius') { el.s.borderRadius = val; applyStyle(el); }
+      else { el.s[prop] = val; applyStyle(el); }
+    });
+  });
+}
+
+function applyStyle(el) {
+  const div = document.getElementById(el.id);
+  if (!div) return;
+  const inn = div.querySelector('.el-inner');
+  if (TEXT_ELS.has(el.type) && inn) {
+    Object.entries(el.s).forEach(([k,v]) => { inn.style[k] = v; });
+    if (el.s.textAlign) inn.style.justifyContent = ({left:'flex-start',center:'center',right:'flex-end'})[el.s.textAlign]||'flex-start';
+  }
+  ['backgroundColor','backgroundImage','borderRadius','border','boxShadow','padding','background'].forEach(k => {
+    if (el.s[k]) div.style[k] = el.s[k];
+  });
+}
+
+function pf_text(label, prop, val) {
+  return `<div class="pf"><div class="pf-label">${label}</div><input class="pf-input" data-prop="${prop}" value="${val.replace(/"/g,'&quot;')}"></div>`;
+}
+function pf_number(label, prop, val) {
+  return `<div class="pf"><div class="pf-label">${label}</div><input class="pf-input" type="number" data-prop="${prop}" value="${val}"></div>`;
+}
+function pf_select(label, prop, val, opts) {
+  return `<div class="pf"><div class="pf-label">${label}</div><select class="pf-input" data-prop="${prop}">${opts.map(([v,l])=>`<option value="${v}"${v===val?' selected':''}>${l}</option>`).join('')}</select></div>`;
+}
+function pf_color(label, prop, val) {
+  return `<div class="pf"><div class="pf-label">${label}</div><div class="pf-row"><div class="pf-swatch"><input type="color" data-prop="${prop}" value="${toHex(val)}"></div><span style="font-size:10px;color:#64748b;font-family:monospace">${val}</span></div></div>`;
+}
+function toHex(c) {
+  if (!c) return '#000000';
+  if (c[0] === '#') return c.slice(0, 7);
+  return '#000000';
+}
+
+function dupEl() {
+  const el = els.find(x => x.id === selId);
+  if (!el) return;
+  const n = { ...JSON.parse(JSON.stringify(el)), id: uid(), x: el.x + 20, y: el.y + 20 };
+  els.push(n); drawEl(n); select(n.id); toast('Duplicated ✓');
+}
+function bringFront() {
+  const i = els.findIndex(x => x.id === selId); if (i < 0) return;
+  els.push(els.splice(i, 1)[0]); renderAll(); select(selId);
+}
+function sendBack() {
+  const i = els.findIndex(x => x.id === selId); if (i < 0) return;
+  els.unshift(els.splice(i, 1)[0]); renderAll(); select(selId);
+}
+
+// ══════ LAYERS ══════
+function drawLayers() {
+  const ll = document.getElementById('layers-list');
+  const labels = { heading:'H',subheading:'H2',text:'¶',label:'Aa',button:'⬤',cta:'🔵',badge:'🏷',image:'🖼',video:'▶',form:'📋',divider:'─',spacer:'↕',box:'⬜',review:'💬',timer:'⏱',stat:'📊' };
+  ll.innerHTML = [...els].reverse().map(e => {
+    const preview = (e.txt||'').replace(/<[^>]*>/g,'').substring(0,20);
+    return `<div class="ly-item${e.id===selId?' on':''}" onclick="select('${e.id}')"><span>${labels[e.type]||'•'} ${preview||e.type}</span><button class="ly-del" onclick="event.stopPropagation();deleteEl('${e.id}')">✕</button></div>`;
+  }).join('');
+}
+
+// ══════ AI CHAT ══════
+function addCM(text, role) {
+  const msgs = document.getElementById('chatMsgs');
+  const d = document.createElement('div');
+  d.className = 'cm cm-' + role;
+  d.textContent = text;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+async function sendChat() {
+  const inp = document.getElementById('chatIn');
+  const msg = inp.value.trim(); if (!msg) return;
+  inp.value = '';
+  addCM(msg, 'user');
+  try {
+    // Build sections from els for AI context
+    const secs = els.map(e => ({ type: e.type, txt: (e.txt||'').replace(/<[^>]*>/g,'').substring(0,50), x: e.x, y: e.y }));
+    const res = await fetch('/api/pro/funnel/' + PAGE_ID + '/chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg, sections: secs, pageStyle: { bg: canvasBg } })
+    });
+    const data = await res.json();
+    addCM(data.response || data.error || 'Done!', 'ai');
+    if (data.success && data.pageStyle?.bg) { canvasBg = data.pageStyle.bg; document.getElementById('cv-bg').value = canvasBg; CV().style.background = canvasBg; }
+  } catch (e) { addCM('Connection error.', 'ai'); }
+}
+
+// ══════ SAVE ══════
+async function savePage() {
+  // End any active editing
+  if (editId) endEdit(editId);
+
+  // Export HTML for public page render
+  let html = `<div style="background:${canvasBg};min-height:100vh;width:100%;font-family:'Outfit',sans-serif">`;
+  html += `<div style="position:relative;width:1200px;max-width:100%;margin:0 auto;min-height:800px">`;
+  els.forEach(e => {
+    if (e.vis === false) return;
+    const st = Object.entries({position:'absolute',left:e.x+'px',top:e.y+'px',width:e.w+'px',height:e.h+'px',...e.s,boxSizing:'border-box'}).map(([k,v])=>k.replace(/([A-Z])/g,'-$1').toLowerCase()+':'+v).join(';');
+    if (e.type === 'image' && e.txt) html += `<img src="${e.txt}" style="${st};object-fit:${e.s.objectFit||'cover'}">`;
+    else if (e.type === 'video') html += `<iframe src="${e.txt}" style="${st}" frameborder="0" allowfullscreen></iframe>`;
+    else if (['spacer','divider','box'].includes(e.type)) html += `<div style="${st}"></div>`;
+    else html += `<div style="${st}">${e.txt||''}</div>`;
+  });
+  const maxBot = els.length ? Math.max(...els.map(e => e.y + e.h)) + 60 : 800;
+  html = html.replace('min-height:800px', `min-height:${maxBot}px`);
+  html += '</div></div>';
+
+  const payload = {
+    id: PAGE_ID,
+    title: '{{ page.title }}',
+    gjs_html: html,
+    gjs_css: JSON.stringify({ els, canvasBg }),
+  };
+
+  try {
+    const r = await fetch('/api/funnels/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const d = await r.json();
+    toast(d.success || d.id ? 'Saved ✓' : 'Save failed');
+  } catch (e) { toast('Save error'); }
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ══════ INIT ══════
+renderAll();
+</script>
+</body>
+</html>
