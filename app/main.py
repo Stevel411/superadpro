@@ -8793,6 +8793,171 @@ Return ONLY a valid JSON array. No markdown."""
         return JSONResponse({"error": "Failed to generate funnel. Please try again."}, status_code=500)
 
 
+@app.get("/pro/funnel/{funnel_id}/edit")
+async def pro_funnel_edit(funnel_id: int, request: Request, db: Session = Depends(get_db)):
+    """Inline editor for an AI-generated funnel."""
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+        return RedirectResponse("/upgrade", status_code=302)
+
+    page = db.query(FunnelPage).filter(FunnelPage.id == funnel_id, FunnelPage.user_id == user.id).first()
+    if not page:
+        return RedirectResponse("/pro/funnels", status_code=302)
+
+    import json as _json_edit
+    funnel_data = {}
+    try:
+        funnel_data = _json_edit.loads(page.sections_json) if page.sections_json else {}
+    except:
+        pass
+
+    # Load the email sequence if assigned
+    from .database import EmailSequence
+    sequence = None
+    seq_emails = []
+    if page.capture_sequence_id:
+        sequence = db.query(EmailSequence).filter(EmailSequence.id == page.capture_sequence_id).first()
+        if sequence and sequence.emails_json:
+            try:
+                seq_emails = _json_edit.loads(sequence.emails_json)
+            except:
+                pass
+
+    return templates.TemplateResponse("pro-funnel-editor.html", {
+        "request": request,
+        "user": user,
+        "active_page": "pro-funnels",
+        "page": page,
+        "funnel_data": funnel_data,
+        "sequence": sequence,
+        "seq_emails": seq_emails,
+    })
+
+
+@app.post("/api/pro/funnel/{funnel_id}/save")
+async def api_pro_funnel_save(funnel_id: int, request: Request, db: Session = Depends(get_db)):
+    """Save inline edits to an AI funnel."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+
+    page = db.query(FunnelPage).filter(FunnelPage.id == funnel_id, FunnelPage.user_id == user.id).first()
+    if not page:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+
+    body = await request.json()
+    import json as _json_save
+
+    # Update funnel_data
+    funnel_data = {}
+    try:
+        funnel_data = _json_save.loads(page.sections_json) if page.sections_json else {}
+    except:
+        pass
+
+    # Apply edits
+    if "headline" in body:
+        funnel_data["headline"] = body["headline"]
+        page.headline = body["headline"]
+    if "subheadline" in body:
+        funnel_data["subheadline"] = body["subheadline"]
+        page.subheadline = body["subheadline"]
+    if "body_paragraphs" in body:
+        funnel_data["body_paragraphs"] = body["body_paragraphs"]
+    if "features" in body:
+        funnel_data["features"] = body["features"]
+    if "cta_text" in body:
+        funnel_data["cta_text"] = body["cta_text"]
+        page.cta_text = body["cta_text"]
+    if "capture_heading" in body:
+        funnel_data["capture_heading"] = body["capture_heading"]
+        page.capture_form_heading = body["capture_heading"]
+    if "capture_subtext" in body:
+        funnel_data["capture_subtext"] = body["capture_subtext"]
+        page.capture_form_subtext = body["capture_subtext"]
+    if "video_url" in body:
+        page.video_url = body["video_url"]
+    if "status" in body:
+        page.status = body["status"]
+
+    page.sections_json = _json_save.dumps(funnel_data)
+    db.commit()
+
+    return JSONResponse({"success": True})
+
+
+@app.post("/api/pro/funnel/{funnel_id}/regenerate")
+async def api_pro_funnel_regenerate(funnel_id: int, request: Request, db: Session = Depends(get_db)):
+    """Regenerate funnel copy with AI feedback."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+
+    page = db.query(FunnelPage).filter(FunnelPage.id == funnel_id, FunnelPage.user_id == user.id).first()
+    if not page:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return JSONResponse({"error": "AI unavailable"}, status_code=503)
+
+    body = await request.json()
+    feedback = body.get("feedback", "")
+    import json as _json_regen
+
+    current_data = {}
+    try:
+        current_data = _json_regen.loads(page.sections_json) if page.sections_json else {}
+    except:
+        pass
+
+    prompt = f"""You previously generated a landing page with this content:
+Headline: {current_data.get('headline', '')}
+Subheadline: {current_data.get('subheadline', '')}
+
+The user wants changes: "{feedback}"
+
+Original context: Niche: {page.ai_niche}, Audience: {page.ai_audience}, Tone: {page.ai_tone}
+
+Generate an updated version. Output ONLY a JSON object with keys: headline, subheadline, body_paragraphs (array), capture_heading, capture_subtext, features (array), cta_text.
+Follow the user's feedback. Keep it honest — no hype, no income promises.
+Return ONLY valid JSON."""
+
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+        resp = client.messages.create(
+            model=AI_MODEL_HAIKU,
+            max_tokens=800,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        text = resp.content[0].text.strip()
+        if text.startswith("```"):
+            text = text.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+
+        new_data = _json_regen.loads(text)
+
+        # Merge new data
+        for key in ["headline", "subheadline", "body_paragraphs", "features", "cta_text", "capture_heading", "capture_subtext"]:
+            if key in new_data:
+                current_data[key] = new_data[key]
+
+        page.headline = new_data.get("headline", page.headline)
+        page.subheadline = new_data.get("subheadline", page.subheadline)
+        page.cta_text = new_data.get("cta_text", page.cta_text)
+        page.capture_form_heading = new_data.get("capture_heading", page.capture_form_heading)
+        page.capture_form_subtext = new_data.get("capture_subtext", page.capture_form_subtext)
+        page.sections_json = _json_regen.dumps(current_data)
+        db.commit()
+
+        return JSONResponse({"success": True, "funnel_data": current_data})
+
+    except Exception as e:
+        logger.error(f"Funnel regeneration failed: {e}")
+        return JSONResponse({"error": "Regeneration failed"}, status_code=500)
+
+
 @app.post("/api/capture/{username}/{slug}")
 async def api_capture_lead(username: str, slug: str, request: Request, db: Session = Depends(get_db)):
     """Public endpoint — captures an email from a funnel form and starts the autoresponder."""
@@ -9051,4 +9216,83 @@ def _send_sequence_email(db, lead, email_index: int):
         lead.emails_sent = (lead.emails_sent or 0) + 1
         lead.status = "nurturing"
         db.commit()
+
+
+# ── Autoresponder Cron Job ──
+@app.post("/cron/process-autoresponder")
+async def cron_process_autoresponder(request: Request, db: Session = Depends(get_db)):
+    """
+    Cron endpoint — processes due autoresponder emails.
+    Checks each lead with an active sequence: if they're due their next email
+    based on send_delay_days, send it.
+    Run every 15 mins via cron-job.org.
+    """
+    # Auth check
+    auth = request.headers.get("authorization", "")
+    cron_secret = os.getenv("CRON_SECRET", "")
+    if cron_secret and auth != f"Bearer {cron_secret}":
+        return JSONResponse({"error": "Unauthorized"}, status_code=401)
+
+    from .database import MemberLead, EmailSequence, EmailSendLog
+    import json as _j_cron
+    from datetime import datetime, timedelta
+
+    now = datetime.utcnow()
+    sent_count = 0
+    errors = 0
+
+    # Get all leads that are currently nurturing
+    nurturing_leads = db.query(MemberLead).filter(
+        MemberLead.status == "nurturing",
+        MemberLead.email_sequence_id != None
+    ).all()
+
+    for lead in nurturing_leads:
+        try:
+            sequence = db.query(EmailSequence).filter(
+                EmailSequence.id == lead.email_sequence_id,
+                EmailSequence.is_active == True
+            ).first()
+            if not sequence or not sequence.emails_json:
+                continue
+
+            emails = _j_cron.loads(sequence.emails_json)
+            next_index = lead.emails_sent or 0
+
+            # All emails sent — mark complete
+            if next_index >= len(emails):
+                lead.status = "new" if not lead.is_hot else "hot"
+                continue
+
+            email_data = emails[next_index]
+            send_delay = email_data.get("send_delay_days", 0)
+
+            # Calculate when this email should be sent
+            due_at = lead.created_at + timedelta(days=send_delay)
+
+            if now >= due_at:
+                # Check if already sent this index
+                already_sent = db.query(EmailSendLog).filter(
+                    EmailSendLog.lead_id == lead.id,
+                    EmailSendLog.email_index == next_index
+                ).first()
+                if already_sent:
+                    # Already sent — increment counter and skip
+                    lead.emails_sent = next_index + 1
+                    continue
+
+                _send_sequence_email(db, lead, next_index)
+                sent_count += 1
+
+        except Exception as e:
+            logger.error(f"Autoresponder error for lead {lead.id}: {e}")
+            errors += 1
+
+    db.commit()
+    return JSONResponse({
+        "status": "ok",
+        "processed": len(nurturing_leads),
+        "sent": sent_count,
+        "errors": errors,
+    })
 

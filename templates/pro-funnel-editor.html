@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Edit Funnel — SuperAdPro Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/mobile.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f8fafc;--cyan:#0ea5e9;--violet:#6366f1;--green:#10b981;--amber:#d97706;--text:#1a1a2e;--text2:#475569;--muted:#94a3b8;--border:#e5e7eb;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12)}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* Layout: sidebar + toolbar + preview */
+.editor-layout{display:flex;min-height:100vh}
+.editor-sidebar{width:360px;background:#fff;border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;z-index:50;display:flex;flex-direction:column;overflow-y:auto}
+.editor-preview{margin-left:360px;flex:1;min-height:100vh;background:#1e293b;padding:24px;display:flex;justify-content:center;align-items:flex-start}
+.preview-frame{width:100%;max-width:900px;background:#050d1a;border-radius:12px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
+
+/* Sidebar sections */
+.es-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.es-header h2{font-family:Sora,sans-serif;font-size:16px;font-weight:800}
+.es-section{padding:18px 20px;border-bottom:1px solid #f1f5f9}
+.es-section-title{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:12px;text-transform:uppercase}
+.es-field{margin-bottom:14px}
+.es-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px;display:block}
+.es-input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);resize:vertical}
+.es-input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(14,165,233,0.1)}
+textarea.es-input{min-height:60px}
+
+.btn{padding:8px 16px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+.btn-primary{background:var(--cyan);color:#fff}.btn-primary:hover{background:#0284c7}
+.btn-gradient{background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff}.btn-gradient:hover{opacity:.9}
+.btn-ghost{background:#f1f5f9;color:var(--text2)}.btn-ghost:hover{background:#e2e8f0}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-block{width:100%}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#059669}
+
+/* Status badges */
+.status-pub{display:inline-flex;align-items:center;gap:4px;background:#dcfce7;color:#16a34a;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.status-draft{display:inline-flex;align-items:center;gap:4px;background:#fef3c7;color:#d97706;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}
+
+/* Tabs */
+.es-tabs{display:flex;border-bottom:1px solid var(--border)}
+.es-tab{flex:1;padding:10px;text-align:center;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent}
+.es-tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+
+/* Email sequence editor */
+.seq-card{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
+.seq-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.seq-day{font-size:11px;font-weight:600;color:var(--cyan)}
+.seq-subject{font-size:13px;font-weight:600;color:var(--text)}
+
+/* Regenerate */
+.regen-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px}
+.regen-box textarea{width:100%;border:1px solid #93c5fd;border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;min-height:50px;resize:vertical}
+
+/* Preview inner styles */
+.pv-nav{padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.pv-hero{padding:40px 24px;text-align:center;max-width:700px;margin:0 auto}
+.pv-hero h1{font-family:Sora,sans-serif;font-size:32px;font-weight:900;color:#fff;line-height:1.15;margin-bottom:12px}
+.pv-hero-sub{font-size:16px;color:#94a3b8;line-height:1.7}
+.pv-video{max-width:640px;margin:20px auto 30px;border-radius:12px;overflow:hidden;background:#0f1729;border:1px solid rgba(14,165,233,0.1)}
+.pv-video iframe{width:100%;aspect-ratio:16/9;border:none;display:block}
+.pv-capture{max-width:420px;margin:0 auto 32px;background:rgba(255,255,255,0.04);border:1px solid rgba(14,165,233,0.1);border-radius:16px;padding:24px;text-align:center}
+.pv-capture h3{font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:4px}
+.pv-capture p{font-size:13px;color:#94a3b8;margin-bottom:14px}
+.pv-body{max-width:640px;margin:0 auto;padding:24px}
+.pv-body p{font-size:14px;color:#94a3b8;line-height:1.8;margin-bottom:14px}
+.pv-features{list-style:none;padding:0;margin:24px 0}
+.pv-features li{display:flex;gap:10px;padding:10px 0;border-top:1px solid rgba(255,255,255,0.04);font-size:13px;color:rgba(255,255,255,0.7)}
+.pv-features li:first-child{border-top:none}
+.pv-cta{text-align:center;padding:32px 24px}
+.pv-cta-btn{display:inline-block;padding:14px 40px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-size:16px;font-weight:700;font-family:Sora,sans-serif}
+
+.toast{position:fixed;bottom:24px;right:24px;background:#0f172a;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;display:none;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.toast.show{display:block}
+
+@media(max-width:900px){.editor-sidebar{width:100%;position:relative;border-right:none;border-bottom:1px solid var(--border)}.editor-preview{margin-left:0}.editor-layout{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="editor-layout">
+  <!-- ══════════ SIDEBAR EDITOR ══════════ -->
+  <div class="editor-sidebar">
+    <div class="es-header">
+      <h2>✨ Edit Funnel</h2>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span class="{{ 'status-pub' if page.status == 'published' else 'status-draft' }}">{{ page.status }}</span>
+        <a href="/pro/funnels" class="btn btn-ghost btn-sm" style="text-decoration:none">← Back</a>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="es-tabs">
+      <div class="es-tab active" onclick="switchEditorTab('content')">Content</div>
+      <div class="es-tab" onclick="switchEditorTab('capture')">Capture</div>
+      <div class="es-tab" onclick="switchEditorTab('emails')">Emails</div>
+      <div class="es-tab" onclick="switchEditorTab('settings')">Settings</div>
+    </div>
+
+    <!-- ── CONTENT TAB ── -->
+    <div id="tab-content" class="tab-panel">
+      <div class="es-section">
+        <div class="es-section-title">Page Content</div>
+        <div class="es-field">
+          <label class="es-label">Headline</label>
+          <input type="text" id="edHeadline" class="es-input" value="{{ funnel_data.get('headline', page.headline or '') }}" oninput="updatePreview()">
+        </div>
+        <div class="es-field">
+          <label class="es-label">Subheadline</label>
+          <textarea id="edSubheadline" class="es-input" oninput="updatePreview()">{{ funnel_data.get('subheadline', page.subheadline or '') }}</textarea>
+        </div>
+        <div class="es-field">
+          <label class="es-label">Video URL (YouTube/Vimeo)</label>
+          <input type="text" id="edVideo" class="es-input" value="{{ page.video_url or '' }}" placeholder="Paste video link..." oninput="updatePreview()">
+        </div>
+        <div class="es-field">
+          <label class="es-label">Body Paragraphs (one per line)</label>
+          <textarea id="edBody" class="es-input" style="min-height:120px" oninput="updatePreview()">{% for p in funnel_data.get('body_paragraphs', []) %}{{ p }}{{ '\n' if not loop.last else '' }}{% endfor %}</textarea>
+        </div>
+        <div class="es-field">
+          <label class="es-label">Features (one per line)</label>
+          <textarea id="edFeatures" class="es-input" style="min-height:100px" oninput="updatePreview()">{% for f in funnel_data.get('features', []) %}{{ f }}{{ '\n' if not loop.last else '' }}{% endfor %}</textarea>
+        </div>
+        <div class="es-field">
+          <label class="es-label">CTA Button Text</label>
+          <input type="text" id="edCta" class="es-input" value="{{ funnel_data.get('cta_text', page.cta_text or 'Join Now') }}" oninput="updatePreview()">
+        </div>
+      </div>
+
+      <!-- Regenerate -->
+      <div class="es-section">
+        <div class="es-section-title">AI Regenerate</div>
+        <div class="regen-box">
+          <div style="font-size:12px;color:#1e40af;margin-bottom:8px;font-weight:600">Not happy with the copy? Tell the AI what to change:</div>
+          <textarea id="regenFeedback" placeholder="e.g. Make it more casual, focus on fitness angle, shorter paragraphs..."></textarea>
+          <button class="btn btn-primary btn-block" style="margin-top:8px" onclick="regenerate()" id="regenBtn">🔄 Regenerate Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CAPTURE TAB ── -->
+    <div id="tab-capture" class="tab-panel" style="display:none">
+      <div class="es-section">
+        <div class="es-section-title">Email Capture Form</div>
+        <div class="es-field">
+          <label class="es-label">Form Heading</label>
+          <input type="text" id="edCapHeading" class="es-input" value="{{ page.capture_form_heading or funnel_data.get('capture_heading', 'Get Free Access') }}" oninput="updatePreview()">
+        </div>
+        <div class="es-field">
+          <label class="es-label">Form Subtext</label>
+          <input type="text" id="edCapSubtext" class="es-input" value="{{ page.capture_form_subtext or funnel_data.get('capture_subtext', '') }}" oninput="updatePreview()">
+        </div>
+        <div style="font-size:12px;color:var(--muted);padding:10px 0">Captured leads will automatically enter the email sequence assigned to this funnel.</div>
+      </div>
+    </div>
+
+    <!-- ── EMAILS TAB ── -->
+    <div id="tab-emails" class="tab-panel" style="display:none">
+      <div class="es-section">
+        <div class="es-section-title">Nurture Sequence ({{ seq_emails|length }} emails)</div>
+        {% for email in seq_emails %}
+        <div class="seq-card">
+          <div class="seq-card-header">
+            <span class="seq-day">Day {{ email.get('send_delay_days', loop.index0) }}</span>
+            <span style="font-size:11px;color:var(--muted)">Email {{ loop.index }}</span>
+          </div>
+          <div class="seq-subject">{{ email.get('subject', 'Untitled') }}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.6">{{ email.get('body_html', '')|striptags|truncate(120) }}</div>
+        </div>
+        {% endfor %}
+        {% if seq_emails|length == 0 %}
+        <div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">No email sequence assigned. Regenerate the funnel to create one.</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ── SETTINGS TAB ── -->
+    <div id="tab-settings" class="tab-panel" style="display:none">
+      <div class="es-section">
+        <div class="es-section-title">Funnel Settings</div>
+        <div class="es-field">
+          <label class="es-label">Status</label>
+          <select id="edStatus" class="es-input">
+            <option value="published" {{ 'selected' if page.status == 'published' else '' }}>Published</option>
+            <option value="draft" {{ 'selected' if page.status == 'draft' else '' }}>Draft</option>
+          </select>
+        </div>
+        <div class="es-field">
+          <label class="es-label">Funnel URL</label>
+          <div style="background:#f1f5f9;border-radius:8px;padding:10px;font-size:12px;color:var(--cyan);word-break:break-all">/f/{{ page.slug }}</div>
+        </div>
+        <div class="es-field">
+          <label class="es-label">Niche</label>
+          <div style="font-size:13px;color:var(--text2)">{{ page.ai_niche or 'Not set' }}</div>
+        </div>
+        <div class="es-field">
+          <label class="es-label">Audience</label>
+          <div style="font-size:13px;color:var(--text2)">{{ page.ai_audience or 'Not set' }}</div>
+        </div>
+        <div class="es-field">
+          <label class="es-label">Stats</label>
+          <div style="font-size:13px;color:var(--text2)">{{ page.views or 0 }} views · {{ page.leads_captured or 0 }} leads</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save bar -->
+    <div style="padding:14px 20px;border-top:1px solid var(--border);background:#fff;position:sticky;bottom:0">
+      <button class="btn btn-green btn-block" onclick="saveFunnel()" style="padding:12px;font-size:14px">💾 Save Changes</button>
+    </div>
+  </div>
+
+  <!-- ══════════ LIVE PREVIEW ══════════ -->
+  <div class="editor-preview">
+    <div class="preview-frame" id="previewFrame">
+      <div class="pv-nav">
+        <div style="display:flex;align-items:center;gap:8px">
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
+          <span style="font-family:Sora,sans-serif;font-weight:800;font-size:15px;color:#fff">SuperAd<span style="color:#38bdf8">Pro</span></span>
+        </div>
+        <span style="font-size:12px;color:rgba(255,255,255,0.4)">By <strong style="color:#38bdf8">{{ user.first_name or user.username }}</strong></span>
+      </div>
+
+      <div class="pv-hero">
+        <h1 id="pvHeadline">{{ funnel_data.get('headline', page.headline or 'Your Headline') }}</h1>
+        <p class="pv-hero-sub" id="pvSubheadline">{{ funnel_data.get('subheadline', page.subheadline or '') }}</p>
+      </div>
+
+      <div class="pv-video" id="pvVideo" style="{{ '' if page.video_url else 'display:none' }}">
+        <iframe id="pvVideoFrame" src="{{ page.video_url or '' }}" allowfullscreen></iframe>
+      </div>
+
+      <div class="pv-capture">
+        <h3 id="pvCapHeading">{{ page.capture_form_heading or funnel_data.get('capture_heading', 'Get Free Access') }}</h3>
+        <p id="pvCapSubtext">{{ page.capture_form_subtext or funnel_data.get('capture_subtext', 'Enter your email to get started.') }}</p>
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;margin-bottom:8px;color:rgba(255,255,255,0.3);font-size:13px;text-align:left">Your first name</div>
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;margin-bottom:10px;color:rgba(255,255,255,0.3);font-size:13px;text-align:left">Your email address</div>
+        <div style="background:linear-gradient(135deg,#0ea5e9,#6366f1);border-radius:10px;padding:12px;color:#fff;font-weight:700;font-size:14px">Get Access →</div>
+      </div>
+
+      <div class="pv-body">
+        <div id="pvBody">
+          {% for p in funnel_data.get('body_paragraphs', []) %}
+          <p>{{ p }}</p>
+          {% endfor %}
+        </div>
+        <ul class="pv-features" id="pvFeatures">
+          {% for f in funnel_data.get('features', []) %}
+          <li><span style="color:#0ea5e9;font-weight:700">✓</span> {{ f }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="pv-cta">
+        <div class="pv-cta-btn" id="pvCta">{{ funnel_data.get('cta_text', page.cta_text or 'Join Now') }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const funnelId = {{ page.id }};
+
+function switchEditorTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.es-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).style.display = 'block';
+  event.target.classList.add('active');
+}
+
+function updatePreview() {
+  document.getElementById('pvHeadline').textContent = document.getElementById('edHeadline').value;
+  document.getElementById('pvSubheadline').textContent = document.getElementById('edSubheadline').value;
+  document.getElementById('pvCapHeading').textContent = document.getElementById('edCapHeading').value;
+  document.getElementById('pvCapSubtext').textContent = document.getElementById('edCapSubtext').value;
+  document.getElementById('pvCta').textContent = document.getElementById('edCta').value;
+
+  // Body paragraphs
+  const bodyLines = document.getElementById('edBody').value.split('\n').filter(l => l.trim());
+  document.getElementById('pvBody').innerHTML = bodyLines.map(l => '<p>' + l + '</p>').join('');
+
+  // Features
+  const featLines = document.getElementById('edFeatures').value.split('\n').filter(l => l.trim());
+  document.getElementById('pvFeatures').innerHTML = featLines.map(l => '<li><span style="color:#0ea5e9;font-weight:700">✓</span> ' + l + '</li>').join('');
+
+  // Video
+  const videoUrl = document.getElementById('edVideo').value.trim();
+  const pvVideo = document.getElementById('pvVideo');
+  if (videoUrl) {
+    pvVideo.style.display = 'block';
+    document.getElementById('pvVideoFrame').src = videoUrl;
+  } else {
+    pvVideo.style.display = 'none';
+  }
+}
+
+async function saveFunnel() {
+  const body = {
+    headline: document.getElementById('edHeadline').value,
+    subheadline: document.getElementById('edSubheadline').value,
+    body_paragraphs: document.getElementById('edBody').value.split('\n').filter(l => l.trim()),
+    features: document.getElementById('edFeatures').value.split('\n').filter(l => l.trim()),
+    cta_text: document.getElementById('edCta').value,
+    capture_heading: document.getElementById('edCapHeading').value,
+    capture_subtext: document.getElementById('edCapSubtext').value,
+    video_url: document.getElementById('edVideo').value,
+    status: document.getElementById('edStatus').value,
+  };
+
+  const res = await fetch('/api/pro/funnel/' + funnelId + '/save', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  if (data.success) showToast('✓ Saved!');
+  else showToast('Save failed: ' + (data.error || 'unknown'));
+}
+
+async function regenerate() {
+  const feedback = document.getElementById('regenFeedback').value.trim();
+  if (!feedback) { alert('Please describe what you want changed'); return; }
+
+  const btn = document.getElementById('regenBtn');
+  btn.disabled = true; btn.textContent = 'Regenerating...';
+
+  const res = await fetch('/api/pro/funnel/' + funnelId + '/regenerate', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({feedback: feedback})
+  });
+  const data = await res.json();
+  btn.disabled = false; btn.textContent = '🔄 Regenerate Copy';
+
+  if (data.success && data.funnel_data) {
+    const fd = data.funnel_data;
+    if (fd.headline) document.getElementById('edHeadline').value = fd.headline;
+    if (fd.subheadline) document.getElementById('edSubheadline').value = fd.subheadline;
+    if (fd.body_paragraphs) document.getElementById('edBody').value = fd.body_paragraphs.join('\n');
+    if (fd.features) document.getElementById('edFeatures').value = fd.features.join('\n');
+    if (fd.cta_text) document.getElementById('edCta').value = fd.cta_text;
+    if (fd.capture_heading) document.getElementById('edCapHeading').value = fd.capture_heading;
+    if (fd.capture_subtext) document.getElementById('edCapSubtext').value = fd.capture_subtext;
+    updatePreview();
+    showToast('✨ Regenerated! Review and save.');
+    document.getElementById('regenFeedback').value = '';
+  } else {
+    showToast('Regeneration failed — try again');
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
