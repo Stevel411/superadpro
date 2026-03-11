@@ -130,6 +130,11 @@ textarea.es-input{min-height:60px}
         </div>
       </div>
 
+      <!-- Save button -->
+      <div class="es-section" style="padding:14px 20px;border-bottom:none">
+        <button class="btn btn-green btn-block" onclick="saveFunnel()" style="padding:12px;font-size:14px">💾 Save Changes</button>
+      </div>
+
       <!-- Regenerate -->
       <div class="es-section">
         <div class="es-section-title">AI Regenerate</div>
@@ -206,11 +211,6 @@ textarea.es-input{min-height:60px}
         </div>
       </div>
     </div>
-
-    <!-- Save bar -->
-    <div style="padding:14px 20px;border-top:1px solid var(--border);background:#fff;position:sticky;bottom:0">
-      <button class="btn btn-green btn-block" onclick="saveFunnel()" style="padding:12px;font-size:14px">💾 Save Changes</button>
-    </div>
   </div>
 
   <!-- ══════════ LIVE PREVIEW ══════════ -->
@@ -230,7 +230,7 @@ textarea.es-input{min-height:60px}
       </div>
 
       <div class="pv-video" id="pvVideo" style="{{ '' if page.video_url else 'display:none' }}">
-        <iframe id="pvVideoFrame" src="{{ page.video_url or '' }}" allowfullscreen></iframe>
+        <iframe id="pvVideoFrame" src="" allowfullscreen></iframe>
       </div>
 
       <div class="pv-capture">
@@ -273,31 +273,74 @@ function switchEditorTab(tab) {
   event.target.classList.add('active');
 }
 
+function toEmbedUrl(url) {
+  if (!url) return '';
+  url = url.trim();
+  if (url.includes('youtube.com/watch')) {
+    const vid = url.split('v=')[1]?.split('&')[0];
+    return vid ? 'https://www.youtube.com/embed/' + vid : '';
+  }
+  if (url.includes('youtu.be/')) {
+    const vid = url.split('youtu.be/')[1]?.split('?')[0];
+    return vid ? 'https://www.youtube.com/embed/' + vid : '';
+  }
+  if (url.includes('vimeo.com/')) {
+    const vid = url.split('vimeo.com/')[1]?.split('?')[0];
+    return vid ? 'https://player.vimeo.com/video/' + vid : '';
+  }
+  return url;
+}
+
 function updatePreview() {
-  document.getElementById('pvHeadline').textContent = document.getElementById('edHeadline').value;
-  document.getElementById('pvSubheadline').textContent = document.getElementById('edSubheadline').value;
-  document.getElementById('pvCapHeading').textContent = document.getElementById('edCapHeading').value;
-  document.getElementById('pvCapSubtext').textContent = document.getElementById('edCapSubtext').value;
-  document.getElementById('pvCta').textContent = document.getElementById('edCta').value;
+  // Text content
+  const pvH = document.getElementById('pvHeadline');
+  const pvS = document.getElementById('pvSubheadline');
+  const pvCH = document.getElementById('pvCapHeading');
+  const pvCS = document.getElementById('pvCapSubtext');
+  const pvCta = document.getElementById('pvCta');
+
+  if (pvH) pvH.textContent = document.getElementById('edHeadline')?.value || '';
+  if (pvS) pvS.textContent = document.getElementById('edSubheadline')?.value || '';
+  if (pvCH) pvCH.textContent = document.getElementById('edCapHeading')?.value || '';
+  if (pvCS) pvCS.textContent = document.getElementById('edCapSubtext')?.value || '';
+  if (pvCta) pvCta.textContent = document.getElementById('edCta')?.value || '';
 
   // Body paragraphs
-  const bodyLines = document.getElementById('edBody').value.split('\n').filter(l => l.trim());
-  document.getElementById('pvBody').innerHTML = bodyLines.map(l => '<p>' + l + '</p>').join('');
+  const bodyEl = document.getElementById('edBody');
+  const pvBody = document.getElementById('pvBody');
+  if (bodyEl && pvBody) {
+    const lines = bodyEl.value.split('\n').filter(l => l.trim());
+    pvBody.innerHTML = lines.map(l => '<p>' + l.replace(/</g,'&lt;') + '</p>').join('');
+  }
 
   // Features
-  const featLines = document.getElementById('edFeatures').value.split('\n').filter(l => l.trim());
-  document.getElementById('pvFeatures').innerHTML = featLines.map(l => '<li><span style="color:#0ea5e9;font-weight:700">✓</span> ' + l + '</li>').join('');
+  const featEl = document.getElementById('edFeatures');
+  const pvFeat = document.getElementById('pvFeatures');
+  if (featEl && pvFeat) {
+    const lines = featEl.value.split('\n').filter(l => l.trim());
+    pvFeat.innerHTML = lines.map(l => '<li><span style="color:#0ea5e9;font-weight:700">✓</span> ' + l.replace(/</g,'&lt;') + '</li>').join('');
+  }
 
   // Video
-  const videoUrl = document.getElementById('edVideo').value.trim();
+  const videoUrl = document.getElementById('edVideo')?.value || '';
   const pvVideo = document.getElementById('pvVideo');
-  if (videoUrl) {
-    pvVideo.style.display = 'block';
-    document.getElementById('pvVideoFrame').src = videoUrl;
-  } else {
-    pvVideo.style.display = 'none';
+  const pvFrame = document.getElementById('pvVideoFrame');
+  if (pvVideo && pvFrame) {
+    const embedUrl = toEmbedUrl(videoUrl);
+    if (embedUrl) {
+      pvVideo.style.display = 'block';
+      if (pvFrame.src !== embedUrl) pvFrame.src = embedUrl;
+    } else {
+      pvVideo.style.display = 'none';
+      pvFrame.src = '';
+    }
   }
 }
+
+// Run once on load to set initial video embed
+document.addEventListener('DOMContentLoaded', function() {
+  updatePreview();
+});
 
 async function saveFunnel() {
   const body = {
