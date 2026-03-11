@@ -194,22 +194,35 @@ let pageStyle = { bg: '#050d1a', bgImage: '' };
 
 // ── Load initial data ──
 try {
-  const fd = JSON.parse({{ funnel_data|tojson|safe }});
+  const fd = {{ funnel_data|tojson|safe }};
+  console.log('Loaded funnel data:', fd);
+  console.log('Has sections?', !!fd.sections, fd.sections?.length);
+  
   if (fd.colors?.bg) pageStyle.bg = fd.colors.bg;
   if (fd.bgImage) pageStyle.bgImage = fd.bgImage;
-  if (fd.sections) {
+  
+  if (fd.sections && fd.sections.length > 0) {
     sections = fd.sections;
+    console.log('Using saved sections:', sections.length);
   } else {
+    console.log('Building sections from legacy fields');
     if (fd.headline) sections.push({type:'heading',content:fd.headline,level:'h1',color:fd.colors?.text||'#ffffff',align:'center'});
     if (fd.subheadline) sections.push({type:'text',content:fd.subheadline,color:fd.colors?.muted||'#94a3b8',align:'center',size:'17px'});
     const vu = '{{ page.video_url or "" }}';
     if (vu) sections.push({type:'video',url:vu});
-    sections.push({type:'capture',heading:fd.capture_heading||'Get Free Access',subtext:fd.capture_subtext||'',btnText:'Get Access →',btnColor:fd.colors?.btn||'#0ea5e9',btnColor2:fd.colors?.btn2||'#6366f1',bgColor:fd.colors?.card||'#0f1729'});
-    if (fd.body_paragraphs) fd.body_paragraphs.forEach(p=>sections.push({type:'text',content:p,color:fd.colors?.muted||'#94a3b8',align:'left',size:'15px'}));
-    if (fd.features) sections.push({type:'features',items:fd.features,checkColor:fd.colors?.btn||'#0ea5e9',textColor:fd.colors?.muted||'#94a3b8'});
-    sections.push({type:'button',text:fd.cta_text||'Join Now',url:'/register?ref='+USERNAME,color1:fd.colors?.btn||'#0ea5e9',color2:fd.colors?.btn2||'#6366f1',align:'center'});
+    if (fd.capture_heading || fd.capture_subtext) {
+      sections.push({type:'capture',heading:fd.capture_heading||'Get Free Access',subtext:fd.capture_subtext||'',btnText:'Get Access →',btnColor:fd.colors?.btn||'#0ea5e9',btnColor2:fd.colors?.btn2||'#6366f1',bgColor:fd.colors?.card||'#0f1729'});
+    }
+    if (fd.body_paragraphs && fd.body_paragraphs.length > 0) {
+      fd.body_paragraphs.forEach(p => {
+        if (p && p.trim()) sections.push({type:'text',content:p,color:fd.colors?.muted||'#94a3b8',align:'left',size:'15px'});
+      });
+    }
+    if (fd.features && fd.features.length > 0) sections.push({type:'features',items:fd.features,checkColor:fd.colors?.btn||'#0ea5e9',textColor:fd.colors?.muted||'#94a3b8'});
+    if (fd.cta_text) sections.push({type:'button',text:fd.cta_text||'Join Now',url:'/register?ref='+USERNAME,color1:fd.colors?.btn||'#0ea5e9',color2:fd.colors?.btn2||'#6366f1',align:'center'});
+    console.log('Built sections from legacy:', sections.length);
   }
-} catch(e) { console.error('Init:', e); }
+} catch(e) { console.error('Init error:', e); }
 
 // ── Helpers ──
 function toEmbed(u){if(!u)return '';u=u.trim();if(u.includes('youtube.com/watch')){const v=u.split('v=')[1]?.split('&')[0];return v?'https://www.youtube.com/embed/'+v:'';}if(u.includes('youtu.be/')){const v=u.split('youtu.be/')[1]?.split('?')[0];return v?'https://www.youtube.com/embed/'+v:'';}if(u.includes('vimeo.com/')&&!u.includes('player.vimeo')){const v=u.split('vimeo.com/')[1]?.split('?')[0];return v?'https://player.vimeo.com/video/'+v:'';}return u;}
