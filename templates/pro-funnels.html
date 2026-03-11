@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI Funnels — SuperAdPro Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/mobile.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#ffffff;--cyan:#0ea5e9;--violet:#6366f1;--green:#10b981;--amber:#d97706;--text:#1a1a2e;--text2:#475569;--muted:#94a3b8;--border:#e5e7eb;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12);--shadow-md:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16);--radius:12px}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;min-height:72px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.nav-scroll{flex:1;overflow-y:auto;padding:8px 0}.nav-scroll::-webkit-scrollbar{width:4px}.nav-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:4px}
+.nav-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 12px}.nav-group{margin-bottom:2px}
+.nav-header{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;font-size:11.5px;font-weight:700;color:#0ea5e9;text-transform:uppercase;letter-spacing:.8px;cursor:pointer;user-select:none;transition:.15s}
+.nav-header:hover{background:rgba(14,165,233,.06)}.nav-chevron{font-size:14px;transition:transform .2s;color:rgba(255,255,255,.3)}.nav-group.open .nav-chevron{transform:rotate(90deg)}
+.nav-children{display:none;padding-bottom:4px}.nav-group.open .nav-children{display:block}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px 9px 22px;font-size:13px;color:rgba(200,220,255,.55);text-decoration:none;transition:.12s;cursor:pointer;font-weight:500}
+.nav-item:hover{background:rgba(14,165,233,.06);color:rgba(200,220,255,.85)}.nav-item.active{color:#38bdf8;font-weight:700;background:rgba(14,165,233,.08)}
+.nav-icon{font-size:15px;width:22px;text-align:center;flex-shrink:0}.nav-standalone{padding:10px 18px}
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:72px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:50}
+.topbar h1{font-family:Sora,sans-serif;font-size:20px;font-weight:800;display:flex;align-items:center;gap:10px}
+.content{padding:28px 32px;flex:1}
+.btn{padding:10px 20px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
+.btn-gradient{background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff}.btn-gradient:hover{opacity:.9}
+.btn-ghost{background:#f1f5f9;color:var(--text2)}.btn-ghost:hover{background:#e2e8f0}
+.btn-sm{padding:7px 14px;font-size:12px}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+.stat-card{background:#fff;border-radius:14px;padding:20px;box-shadow:var(--shadow-sm)}
+.stat-label{font-size:12px;color:var(--muted);font-weight:500;margin-bottom:8px}
+.stat-val{font-size:30px;font-weight:800;font-family:Sora,sans-serif}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* Funnel cards */
+.funnels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.funnel-card{background:#fff;border-radius:14px;padding:0;box-shadow:var(--shadow-sm);overflow:hidden;border:1px solid var(--border);transition:transform .15s,box-shadow .15s;display:flex;flex-direction:column}
+.funnel-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.fc-preview{height:140px;background:linear-gradient(135deg,#050d1a,#0f1729);display:flex;align-items:center;justify-content:center;position:relative}
+.fc-badge{position:absolute;top:10px;right:10px;background:rgba(14,165,233,0.2);color:#38bdf8;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.fc-title-overlay{color:#fff;font-family:Sora,sans-serif;font-size:16px;font-weight:700;text-align:center;padding:0 20px;line-height:1.4}
+.fc-body{padding:18px;flex:1;display:flex;flex-direction:column}
+.fc-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.fc-tag{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600}
+.fc-stats{display:flex;gap:16px;margin-bottom:14px;font-size:13px;color:var(--muted)}
+.fc-stats span{display:flex;align-items:center;gap:4px}
+.fc-actions{display:flex;gap:8px;margin-top:auto}
+.fc-url{font-size:12px;color:var(--cyan);word-break:break-all;margin-bottom:10px}
+
+/* Create wizard */
+.wizard-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(6px)}
+.wizard-overlay.show{display:flex}
+.wizard{background:#fff;border-radius:20px;padding:36px;width:560px;max-width:94vw;max-height:90vh;overflow-y:auto;box-shadow:0 25px 80px rgba(0,0,0,0.2)}
+.wizard h2{font-family:Sora,sans-serif;font-size:22px;font-weight:800;margin-bottom:4px}
+.wizard-sub{font-size:14px;color:var(--muted);margin-bottom:24px}
+.form-row{margin-bottom:18px}
+.form-label{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block}
+.form-input{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;color:var(--text)}
+.form-input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(14,165,233,0.1)}
+select.form-input{background:#fff}
+textarea.form-input{min-height:80px;resize:vertical}
+.wizard-close{position:absolute;top:16px;right:20px;background:none;border:none;font-size:24px;color:var(--muted);cursor:pointer}
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Empty state */
+.empty{text-align:center;padding:80px 20px}
+.empty-icon{font-size:56px;margin-bottom:16px}
+.empty h3{font-size:20px;font-weight:700;margin-bottom:8px}
+.empty p{color:var(--muted);font-size:14px;max-width:400px;margin:0 auto 24px;line-height:1.7}
+
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:16px}.stats-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="layout">
+  {% include '_sidebar.html' %}
+  <div class="main">
+    <div class="topbar">
+      <h1><span style="font-size:22px">✨</span> AI Funnels</h1>
+      <button class="btn btn-gradient" onclick="openWizard()">+ Create Funnel</button>
+    </div>
+
+    <div class="content">
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Active Funnels</div>
+          <div class="stat-val" style="color:var(--cyan)">{{ funnels|length }}</div>
+          <div class="stat-sub">AI-generated pages</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Leads</div>
+          <div class="stat-val" style="color:var(--green)">{{ funnels|sum(attribute='leads_captured') if funnels else 0 }}</div>
+          <div class="stat-sub">emails captured</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Views</div>
+          <div class="stat-val" style="color:var(--violet)">{{ funnels|sum(attribute='views') if funnels else 0 }}</div>
+          <div class="stat-sub">page visits</div>
+        </div>
+      </div>
+
+      {% if funnels|length == 0 %}
+      <!-- Empty state -->
+      <div class="empty">
+        <div class="empty-icon">✨</div>
+        <h3>Create Your First AI Funnel</h3>
+        <p>Answer 4 simple questions and the AI will generate a complete landing page with email capture — personalised to your niche, ready to share.</p>
+        <button class="btn btn-gradient" onclick="openWizard()">Create Funnel</button>
+      </div>
+
+      {% else %}
+      <!-- Funnel cards -->
+      <div class="funnels-grid">
+        {% for f in funnels %}
+        <div class="funnel-card">
+          <div class="fc-preview">
+            <div class="fc-badge">{{ f.ai_niche or 'General' }}</div>
+            <div class="fc-title-overlay">{{ f.headline or f.title }}</div>
+          </div>
+          <div class="fc-body">
+            <div class="fc-meta">
+              {% if f.ai_niche %}<span class="fc-tag" style="background:#eff6ff;color:#2563eb">{{ f.ai_niche }}</span>{% endif %}
+              {% if f.ai_tone %}<span class="fc-tag" style="background:#f0fdf4;color:#16a34a">{{ f.ai_tone }}</span>{% endif %}
+              <span class="fc-tag" style="background:{{ '#dcfce7' if f.status == 'published' else '#fef3c7' }};color:{{ '#16a34a' if f.status == 'published' else '#d97706' }}">{{ f.status }}</span>
+            </div>
+            <div class="fc-url">/f/{{ f.slug }}</div>
+            <div class="fc-stats">
+              <span>👁️ {{ f.views or 0 }} views</span>
+              <span>📩 {{ f.leads_captured or 0 }} leads</span>
+            </div>
+            <div class="fc-actions">
+              <a href="/pro/funnel/{{ f.id }}/edit" class="btn btn-ghost btn-sm" style="flex:1;text-align:center;text-decoration:none">Edit</a>
+              <a href="/f/{{ f.slug }}" target="_blank" class="btn btn-gradient btn-sm" style="flex:1;text-align:center;text-decoration:none">View Live</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CREATE WIZARD ══════════ -->
+<div class="wizard-overlay" id="wizardOverlay">
+  <div class="wizard" style="position:relative">
+    <button class="wizard-close" onclick="closeWizard()">&times;</button>
+    <h2>✨ Create AI Funnel</h2>
+    <div class="wizard-sub">Answer a few questions and the AI will build your complete landing page with email capture.</div>
+
+    <div id="wizardForm">
+      <div class="form-row">
+        <label class="form-label">What's your niche? *</label>
+        <select id="fNiche" class="form-input">
+          <option value="">Select or type below...</option>
+          <option value="fitness">Fitness & Health</option>
+          <option value="crypto">Crypto & Finance</option>
+          <option value="personal-finance">Personal Finance</option>
+          <option value="side-hustle">Side Hustles</option>
+          <option value="parenting">Parenting & Family</option>
+          <option value="ecommerce">E-Commerce</option>
+          <option value="real-estate">Real Estate</option>
+          <option value="coaching">Coaching & Consulting</option>
+          <option value="travel">Travel & Lifestyle</option>
+          <option value="general">General / Broad Audience</option>
+        </select>
+        <input type="text" id="fNicheCustom" class="form-input" placeholder="Or type your own niche..." style="margin-top:8px">
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Who are you targeting? *</label>
+        <select id="fAudience" class="form-input">
+          <option value="beginners">Complete beginners</option>
+          <option value="experienced">Experienced marketers</option>
+          <option value="professionals">Professionals looking for extra income</option>
+          <option value="parents">Stay-at-home parents</option>
+          <option value="students">Students / young adults</option>
+          <option value="retirees">Retirees / semi-retired</option>
+          <option value="entrepreneurs">Existing business owners</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Your story (optional)</label>
+        <textarea id="fStory" class="form-input" placeholder="Tell your story in a few lines — why you joined, what changed for you. Or leave blank and the AI will write something generic."></textarea>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">This helps the AI personalise the page. You can also edit it after.</div>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Tone</label>
+        <select id="fTone" class="form-input">
+          <option value="professional">Professional</option>
+          <option value="casual">Casual & Friendly</option>
+          <option value="motivational">Motivational</option>
+          <option value="straight-talking">Straight-Talking</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Video URL (optional)</label>
+        <input type="text" id="fVideo" class="form-input" placeholder="Paste a YouTube or Vimeo link to embed in your funnel">
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Your HeyGen video works great here!</div>
+      </div>
+
+      <button class="btn btn-gradient" style="width:100%;padding:14px;font-size:16px;margin-top:8px" onclick="generateFunnel()" id="generateBtn">
+        ✨ Generate My Funnel
+      </button>
+    </div>
+
+    <!-- Loading state -->
+    <div id="wizardLoading" style="display:none;text-align:center;padding:60px 20px">
+      <div class="spinner" style="border-color:rgba(14,165,233,0.2);border-top-color:var(--cyan);width:40px;height:40px;margin:0 auto 16px"></div>
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Building your funnel...</div>
+      <div style="font-size:13px;color:var(--muted)">AI is generating your landing page, email capture form, and 5-email nurture sequence. This takes about 10 seconds.</div>
+    </div>
+
+    <!-- Success state -->
+    <div id="wizardSuccess" style="display:none;text-align:center;padding:40px 20px">
+      <div style="font-size:48px;margin-bottom:16px">🎉</div>
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px">Funnel Created!</div>
+      <div style="font-size:14px;color:var(--muted);margin-bottom:24px">Your AI-generated funnel is live and ready to share.</div>
+      <div id="successUrl" style="background:#f0f9ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px;font-size:14px;color:#2563eb;font-weight:600;margin-bottom:20px;word-break:break-all"></div>
+      <div style="display:flex;gap:10px">
+        <a id="successEditLink" href="#" class="btn btn-ghost" style="flex:1;text-align:center;text-decoration:none">Edit Funnel</a>
+        <a id="successViewLink" href="#" target="_blank" class="btn btn-gradient" style="flex:1;text-align:center;text-decoration:none">View Live →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include '_chat_widget.html' %}
+
+<script>
+function openWizard(){
+  document.getElementById('wizardOverlay').classList.add('show');
+  document.getElementById('wizardForm').style.display='block';
+  document.getElementById('wizardLoading').style.display='none';
+  document.getElementById('wizardSuccess').style.display='none';
+}
+function closeWizard(){document.getElementById('wizardOverlay').classList.remove('show')}
+document.getElementById('wizardOverlay').addEventListener('click',function(e){if(e.target===this)closeWizard()});
+
+async function generateFunnel(){
+  const niche = document.getElementById('fNicheCustom').value.trim() || document.getElementById('fNiche').value;
+  if(!niche){alert('Please select or type a niche');return}
+
+  document.getElementById('wizardForm').style.display='none';
+  document.getElementById('wizardLoading').style.display='block';
+
+  try{
+    const res = await fetch('/api/pro/generate-funnel',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        niche: niche,
+        audience: document.getElementById('fAudience').value,
+        story: document.getElementById('fStory').value,
+        tone: document.getElementById('fTone').value,
+        video_url: document.getElementById('fVideo').value,
+      })
+    });
+    const data = await res.json();
+    if(data.success){
+      document.getElementById('wizardLoading').style.display='none';
+      document.getElementById('wizardSuccess').style.display='block';
+      const siteUrl = window.location.origin;
+      document.getElementById('successUrl').textContent = siteUrl + data.funnel_url;
+      document.getElementById('successEditLink').href = '/pro/funnel/' + data.funnel_id + '/edit';
+      document.getElementById('successViewLink').href = data.funnel_url;
+    } else {
+      alert(data.error || 'Failed to generate. Please try again.');
+      document.getElementById('wizardLoading').style.display='none';
+      document.getElementById('wizardForm').style.display='block';
+    }
+  }catch(e){
+    alert('Something went wrong. Please try again.');
+    document.getElementById('wizardLoading').style.display='none';
+    document.getElementById('wizardForm').style.display='block';
+  }
+}
+</script>
+</body>
+</html>

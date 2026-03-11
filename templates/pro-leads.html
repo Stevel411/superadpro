@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My Leads — SuperAdPro Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/mobile.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#ffffff;--cyan:#0ea5e9;--violet:#6366f1;--green:#10b981;--amber:#d97706;--rose:#f43f5e;--text:#1a1a2e;--text2:#475569;--muted:#94a3b8;--border:#e5e7eb;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12)}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;min-height:72px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.nav-scroll{flex:1;overflow-y:auto;padding:8px 0}.nav-scroll::-webkit-scrollbar{width:4px}.nav-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:4px}
+.nav-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 12px}.nav-group{margin-bottom:2px}
+.nav-header{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;font-size:11.5px;font-weight:700;color:#0ea5e9;text-transform:uppercase;letter-spacing:.8px;cursor:pointer;user-select:none;transition:.15s}
+.nav-header:hover{background:rgba(14,165,233,.06)}.nav-chevron{font-size:14px;transition:transform .2s;color:rgba(255,255,255,.3)}.nav-group.open .nav-chevron{transform:rotate(90deg)}
+.nav-children{display:none;padding-bottom:4px}.nav-group.open .nav-children{display:block}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px 9px 22px;font-size:13px;color:rgba(200,220,255,.55);text-decoration:none;transition:.12s;cursor:pointer;font-weight:500}
+.nav-item:hover{background:rgba(14,165,233,.06);color:rgba(200,220,255,.85)}.nav-item.active{color:#38bdf8;font-weight:700;background:rgba(14,165,233,.08)}
+.nav-icon{font-size:15px;width:22px;text-align:center;flex-shrink:0}.nav-standalone{padding:10px 18px}
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:72px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;position:sticky;top:0;z-index:50}
+.topbar h1{font-family:Sora,sans-serif;font-size:20px;font-weight:800;display:flex;align-items:center;gap:10px}
+.content{padding:28px 32px;flex:1}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.stat-card{background:#fff;border-radius:14px;padding:20px;box-shadow:var(--shadow-sm)}
+.stat-label{font-size:12px;color:var(--muted);font-weight:500;margin-bottom:8px}
+.stat-val{font-size:30px;font-weight:800;font-family:Sora,sans-serif}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* Table */
+.leads-table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm)}
+.leads-table th{padding:14px 18px;text-align:left;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;background:#f8fafc;border-bottom:1px solid var(--border)}
+.leads-table td{padding:14px 18px;font-size:13px;color:var(--text2);border-bottom:1px solid #f1f5f9}
+.leads-table tr:last-child td{border-bottom:none}
+.leads-table tr:hover td{background:#f8fafc}
+
+.status-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block}
+.status-new{background:#eff6ff;color:#2563eb}
+.status-nurturing{background:#fef3c7;color:#d97706}
+.status-hot{background:#fef2f2;color:#dc2626}
+.status-converted{background:#dcfce7;color:#16a34a}
+.status-unsubscribed{background:#f1f5f9;color:#94a3b8}
+
+.hot-indicator{display:inline-flex;align-items:center;gap:4px;color:var(--rose);font-weight:700;font-size:12px}
+
+/* Empty */
+.empty{text-align:center;padding:80px 20px}
+.empty-icon{font-size:56px;margin-bottom:16px}
+
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:16px}.stats-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="layout">
+  {% include '_sidebar.html' %}
+  <div class="main">
+    <div class="topbar">
+      <h1><span style="font-size:22px">📩</span> My Leads</h1>
+    </div>
+
+    <div class="content">
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Leads</div>
+          <div class="stat-val" style="color:var(--cyan)">{{ total_leads }}</div>
+          <div class="stat-sub">emails captured</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Hot Leads</div>
+          <div class="stat-val" style="color:var(--rose)">{{ hot_leads }}</div>
+          <div class="stat-sub">engaged & ready</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Nurturing</div>
+          <div class="stat-val" style="color:var(--amber)">{{ nurturing_leads }}</div>
+          <div class="stat-sub">in email sequence</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Converted</div>
+          <div class="stat-val" style="color:var(--green)">{{ converted_leads }}</div>
+          <div class="stat-sub">signed up</div>
+        </div>
+      </div>
+
+      {% if leads|length == 0 %}
+      <div class="empty">
+        <div class="empty-icon">📩</div>
+        <h3 style="font-size:20px;font-weight:700;margin-bottom:8px">No leads yet</h3>
+        <p style="color:var(--muted);font-size:14px;max-width:400px;margin:0 auto 24px;line-height:1.7">Create an AI funnel and share the link. When people enter their email, they'll appear here with full tracking.</p>
+        <a href="/pro/funnels" style="color:var(--cyan);font-weight:600;text-decoration:none">Create an AI Funnel →</a>
+      </div>
+      {% else %}
+      <table class="leads-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Emails</th>
+            <th>Opens</th>
+            <th>Clicks</th>
+            <th>Captured</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for lead in leads %}
+          <tr>
+            <td style="font-weight:600;color:var(--text)">
+              {{ lead.name or 'Unknown' }}
+              {% if lead.is_hot %}<span class="hot-indicator">🔥 Hot</span>{% endif %}
+            </td>
+            <td>{{ lead.email }}</td>
+            <td>
+              <span class="status-badge status-{{ lead.status }}">{{ lead.status }}</span>
+            </td>
+            <td>{{ lead.emails_sent or 0 }}</td>
+            <td>{{ lead.emails_opened or 0 }}</td>
+            <td>{{ lead.emails_clicked or 0 }}</td>
+            <td style="font-size:12px;color:var(--muted)">{{ lead.created_at.strftime('%d %b') if lead.created_at else '' }}</td>
+            <td>
+              {% if lead.is_hot %}
+              <a href="/proseller" style="font-size:12px;color:var(--cyan);font-weight:600;text-decoration:none">AI Follow-up →</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% include '_chat_widget.html' %}
+</body>
+</html>
