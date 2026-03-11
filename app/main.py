@@ -8722,6 +8722,9 @@ Return ONLY a valid JSON array. No markdown."""
         funnel_text = funnel_resp.content[0].text.strip()
         if funnel_text.startswith("```"):
             funnel_text = funnel_text.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+        # Find JSON object boundaries
+        if "{" in funnel_text:
+            funnel_text = funnel_text[funnel_text.index("{"):funnel_text.rindex("}") + 1]
 
         import json as _json3
         funnel_data = _json3.loads(funnel_text)
@@ -8735,6 +8738,9 @@ Return ONLY a valid JSON array. No markdown."""
         seq_text = seq_resp.content[0].text.strip()
         if seq_text.startswith("```"):
             seq_text = seq_text.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+        # Find JSON array boundaries
+        if "[" in seq_text:
+            seq_text = seq_text[seq_text.index("["):seq_text.rindex("]") + 1]
 
         seq_data = _json3.loads(seq_text)
 
@@ -8792,7 +8798,9 @@ Return ONLY a valid JSON array. No markdown."""
 
     except Exception as e:
         logger.error(f"AI funnel generation failed: {e}")
-        return JSONResponse({"error": "Failed to generate funnel. Please try again."}, status_code=500)
+        import traceback
+        traceback.print_exc()
+        return JSONResponse({"error": f"Failed to generate funnel: {str(e)[:200]}"}, status_code=500)
 
 
 @app.get("/pro/funnel/{funnel_id}/edit")
