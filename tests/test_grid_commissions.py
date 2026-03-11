@@ -38,7 +38,7 @@ import sys, os
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, Float, DateTime, Text, ForeignKey
 from sqlalchemy.orm import sessionmaker, declarative_base
 
@@ -118,6 +118,7 @@ class VideoCampaign(TestBase):
     campaign_tier = Column(Integer, default=1)
     is_completed = Column(Boolean, default=False)
     completed_at = Column(DateTime, nullable=True)
+    grace_expires_at = Column(DateTime, nullable=True)
     purchase_number = Column(Integer, default=1)
     target_country = Column(String, nullable=True)
     target_interests = Column(String, nullable=True)
@@ -153,12 +154,14 @@ mock_db.PLATFORM_PCT = 0.05
 mock_db.BONUS_POOL_PCT = 0.05
 mock_db.GRID_PACKAGES = {1: 20.0, 2: 50.0, 3: 100.0, 4: 200.0, 5: 400.0, 6: 600.0, 7: 800.0, 8: 1000.0}
 mock_db.GRID_COMPLETION_BONUS = {1: 64.0, 2: 160.0, 3: 320.0, 4: 640.0, 5: 1280.0, 6: 1920.0, 7: 2560.0, 8: 3200.0}
+mock_db.CAMPAIGN_GRACE_DAYS = 14
 sys.modules["app.database"] = mock_db
 
 from app.grid import (
     process_tier_purchase, place_member_in_grid, get_grid_stats,
     record_campaign_view, check_campaign_completion,
-    get_or_create_active_grid, _owner_has_active_campaign
+    get_or_create_active_grid, _owner_has_active_campaign,
+    _user_is_qualified
 )
 
 PASS = "\033[92m✓ PASS\033[0m"
@@ -213,12 +216,14 @@ check("6.25% × 8 levels = 50%",
 # ═══════════════════════════════════════════════════════════════
 # TEST 2: Direct Sponsor Gets 40%
 # ═══════════════════════════════════════════════════════════════
-print("\n═══ TEST 2: Direct Sponsor Gets 40% ═══")
+print("\n═══ TEST 2: Direct Sponsor Gets 40% (Qualified) ═══")
 reset_db()
 db = Session()
 company = make_user(db, "company", is_admin=True)
 sponsor = make_user(db, "sponsor", sponsor=company)
 buyer = make_user(db, "buyer", sponsor=sponsor)
+# Sponsor must have active campaign at tier 1 to qualify
+make_campaign(db, sponsor.id, tier=1)
 db.commit()
 
 result = process_tier_purchase(db, buyer.id, 1)
@@ -238,7 +243,7 @@ db.close()
 # ═══════════════════════════════════════════════════════════════
 # TEST 3: Uni-Level Chain Pays 6.25% to 8 Levels
 # ═══════════════════════════════════════════════════════════════
-print("\n═══ TEST 3: Uni-Level Chain 6.25% × 8 Levels ═══")
+print("\n═══ TEST 3: Uni-Level Chain 6.25% × 8 Levels (All Qualified) ═══")
 reset_db()
 db = Session()
 # Build chain of 10: company → u1 → u2 → ... → u9 → buyer
@@ -246,6 +251,9 @@ chain = [make_user(db, "company", is_admin=True)]
 for i in range(1, 10):
     chain.append(make_user(db, f"u{i}", sponsor=chain[-1]))
 buyer = make_user(db, "buyer", sponsor=chain[-1])
+# Give all chain members active campaigns at tier 1
+for u in chain:
+    make_campaign(db, u.id, tier=1)
 db.commit()
 
 process_tier_purchase(db, buyer.id, 1)
@@ -265,12 +273,14 @@ db.close()
 # ═══════════════════════════════════════════════════════════════
 # TEST 4: Short Chain — Remaining Goes to Platform
 # ═══════════════════════════════════════════════════════════════
-print("\n═══ TEST 4: Short Chain — Platform Absorb ═══")
+print("\n═══ TEST 4: Short Chain — Qualified Paid, Rest Absorbed ═══")
 reset_db()
 db = Session()
 company = make_user(db, "company", is_admin=True)
 sponsor = make_user(db, "sponsor", sponsor=company)
 buyer = make_user(db, "buyer", sponsor=sponsor)
+# Only sponsor is qualified, company is not
+make_campaign(db, sponsor.id, tier=1)
 db.commit()
 
 process_tier_purchase(db, buyer.id, 1)
@@ -278,8 +288,8 @@ process_tier_purchase(db, buyer.id, 1)
 uni_comms = get_comms(db, "uni_level")
 paid_comms = [c for c in uni_comms if c.to_user_id is not None]
 platform_comms = [c for c in uni_comms if c.to_user_id is None]
-check("2 paid uni-level (sponsor + company)", len(paid_comms) == 2)
-check("6 platform-absorbed uni-level", len(platform_comms) == 6)
+check("1 paid uni-level (sponsor only)", len(paid_comms) == 1)
+check("7 company-absorbed uni-level (company unqualified + 6 empty chain)", len(platform_comms) == 7)
 db.close()
 
 # ═══════════════════════════════════════════════════════════════
@@ -536,11 +546,13 @@ db.close()
 print("\n═══ TEST 14: Commissions Total 95% (5% in bonus pool) ═══")
 reset_db()
 db = Session()
-# Full 8-level chain
+# Full 8-level chain — all qualified
 chain = [make_user(db, "root")]
 for i in range(1, 9):
     chain.append(make_user(db, f"u{i}", sponsor=chain[-1]))
 buyer = make_user(db, "buyer", sponsor=chain[-1])
+for u in chain:
+    make_campaign(db, u.id, tier=1)
 db.commit()
 
 process_tier_purchase(db, buyer.id, 1)
@@ -700,6 +712,7 @@ reset_db()
 db = Session()
 sponsor = make_user(db, "sponsor")
 buyer = make_user(db, "buyer", sponsor=sponsor)
+make_campaign(db, sponsor.id, tier=1)
 db.commit()
 
 result = process_tier_purchase(db, buyer.id, 1)
@@ -723,6 +736,174 @@ db.commit()
 result = process_tier_purchase(db, buyer.id, 99)
 check("Invalid tier returns error", result["success"] == False)
 check("Error message present", "Invalid" in result.get("error", ""))
+db.close()
+
+# ═══════════════════════════════════════════════════════════════
+# TEST 23: Unqualified Sponsor — 40% Goes to Company
+# ═══════════════════════════════════════════════════════════════
+print("\n═══ TEST 23: Unqualified Sponsor — 40% to Company ═══")
+reset_db()
+db = Session()
+sponsor = make_user(db, "sponsor")
+buyer = make_user(db, "buyer", sponsor=sponsor)
+# Sponsor has NO campaign — unqualified
+db.commit()
+
+process_tier_purchase(db, buyer.id, 1)
+
+db.refresh(sponsor)
+check("Sponsor earned $0 (unqualified)", abs(float(sponsor.grid_earnings)) < 0.01,
+      f"got ${float(sponsor.grid_earnings):.2f}")
+
+direct_comms = get_comms(db, "direct_sponsor")
+check("Direct commission recorded", len(direct_comms) == 1)
+check("Goes to company (to_user_id is None)", direct_comms[0].to_user_id is None)
+check("Notes mention unqualified", "unqualified" in (direct_comms[0].notes or "").lower())
+db.close()
+
+# ═══════════════════════════════════════════════════════════════
+# TEST 24: Unqualified Uni-Level — Company Absorbs
+# ═══════════════════════════════════════════════════════════════
+print("\n═══ TEST 24: Unqualified Uni-Level — Company Absorbs ═══")
+reset_db()
+db = Session()
+root = make_user(db, "root")
+mid = make_user(db, "mid", sponsor=root)   # NO campaign
+sponsor = make_user(db, "sponsor", sponsor=mid)
+buyer = make_user(db, "buyer", sponsor=sponsor)
+# Only sponsor and root qualified, mid is NOT
+make_campaign(db, sponsor.id, tier=1)
+make_campaign(db, root.id, tier=1)
+db.commit()
+
+process_tier_purchase(db, buyer.id, 1)
+
+db.refresh(mid)
+check("Mid earned $0 (unqualified at uni-level)", abs(float(mid.level_earnings)) < 0.01)
+
+db.refresh(sponsor)
+check("Sponsor earned direct (qualified)", float(sponsor.grid_earnings) > 0)
+
+db.refresh(root)
+check("Root earned uni-level (qualified)", float(root.level_earnings) > 0)
+db.close()
+
+# ═══════════════════════════════════════════════════════════════
+# TEST 25: Higher Tier Campaign Qualifies for Lower Tier
+# ═══════════════════════════════════════════════════════════════
+print("\n═══ TEST 25: Higher Tier Qualifies for Lower ═══")
+reset_db()
+db = Session()
+sponsor = make_user(db, "sponsor")
+buyer = make_user(db, "buyer", sponsor=sponsor)
+# Sponsor has tier 3 campaign — should qualify for tier 1
+make_campaign(db, sponsor.id, tier=3)
+db.commit()
+
+process_tier_purchase(db, buyer.id, 1)
+
+db.refresh(sponsor)
+check("Sponsor earned on tier 1 with tier 3 campaign", float(sponsor.grid_earnings) > 0,
+      f"got ${float(sponsor.grid_earnings):.2f}")
+db.close()
+
+# ═══════════════════════════════════════════════════════════════
+# TEST 26: Lower Tier Campaign Does NOT Qualify for Higher
+# ═══════════════════════════════════════════════════════════════
+print("\n═══ TEST 26: Lower Tier Does NOT Qualify for Higher ═══")
+reset_db()
+db = Session()
+sponsor = make_user(db, "sponsor")
+buyer = make_user(db, "buyer", sponsor=sponsor)
+# Sponsor has tier 1 campaign — should NOT qualify for tier 3
+make_campaign(db, sponsor.id, tier=1)
+db.commit()
+
+process_tier_purchase(db, buyer.id, 3)
+
+db.refresh(sponsor)
+check("Sponsor earned $0 on tier 3 with tier 1 campaign", abs(float(sponsor.grid_earnings)) < 0.01,
+      f"got ${float(sponsor.grid_earnings):.2f}")
+db.close()
+
+# ═══════════════════════════════════════════════════════════════
+# TEST 27: Grace Period — Still Qualified After Completion
+# ═══════════════════════════════════════════════════════════════
+print("\n═══ TEST 27: Grace Period — Qualified After Completion ═══")
+reset_db()
+db = Session()
+sponsor = make_user(db, "sponsor")
+buyer = make_user(db, "buyer", sponsor=sponsor)
+# Sponsor has completed campaign with grace period still active
+campaign = make_campaign(db, sponsor.id, tier=1, views_target=5)
+db.commit()
+
+# Complete the campaign
+for i in range(5):
+    record_campaign_view(db, campaign.id)
+
+db.refresh(campaign)
+check("Campaign completed", campaign.is_completed == True)
+check("Grace period set", campaign.grace_expires_at is not None)
+
+# Now buy — sponsor should still qualify during grace
+buyer2 = make_user(db, "buyer2", sponsor=sponsor)
+db.commit()
+process_tier_purchase(db, buyer2.id, 1)
+
+db.refresh(sponsor)
+check("Sponsor earned during grace period", float(sponsor.grid_earnings) > 0,
+      f"got ${float(sponsor.grid_earnings):.2f}")
+db.close()
+
+# ═══════════════════════════════════════════════════════════════
+# TEST 28: Grace Period Expired — No Longer Qualified
+# ═══════════════════════════════════════════════════════════════
+print("\n═══ TEST 28: Grace Expired — Not Qualified ═══")
+reset_db()
+db = Session()
+sponsor = make_user(db, "sponsor")
+buyer = make_user(db, "buyer", sponsor=sponsor)
+# Sponsor has completed campaign with expired grace period
+campaign = make_campaign(db, sponsor.id, tier=1, views_target=1)
+db.commit()
+
+record_campaign_view(db, campaign.id)
+
+# Manually expire the grace period
+db.refresh(campaign)
+campaign.grace_expires_at = datetime.utcnow() - timedelta(days=1)
+db.commit()
+
+# Now buy — sponsor should NOT qualify
+buyer2 = make_user(db, "buyer2", sponsor=sponsor)
+db.commit()
+process_tier_purchase(db, buyer2.id, 1)
+
+db.refresh(sponsor)
+check("Sponsor earned $0 (grace expired)", abs(float(sponsor.grid_earnings)) < 0.01,
+      f"got ${float(sponsor.grid_earnings):.2f}")
+db.close()
+
+# ═══════════════════════════════════════════════════════════════
+# TEST 29: Campaign Completion Sets Grace Period
+# ═══════════════════════════════════════════════════════════════
+print("\n═══ TEST 29: Completion Sets 14-Day Grace ═══")
+reset_db()
+db = Session()
+owner = make_user(db, "owner")
+campaign = make_campaign(db, owner.id, tier=1, views_target=3)
+db.commit()
+
+for i in range(3):
+    record_campaign_view(db, campaign.id)
+
+db.refresh(campaign)
+check("Campaign completed", campaign.is_completed == True)
+check("Grace expires set", campaign.grace_expires_at is not None)
+if campaign.grace_expires_at and campaign.completed_at:
+    diff = (campaign.grace_expires_at - campaign.completed_at).days
+    check(f"Grace period = 14 days (got {diff})", diff == 14)
 db.close()
 
 # ═══════════════════════════════════════════════════════════════

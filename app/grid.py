@@ -7,15 +7,19 @@
 #    5% → Platform Fee     (SuperAdPro)
 #    5% → Grid Completion Bonus Pool (accrues per seat, pays on grid completion)
 #
+# Qualification Rule:
+#   To earn commissions at a tier, the recipient must have an active
+#   (or in-grace) campaign at that SAME tier or HIGHER.
+#   If unqualified, the 40% direct goes to company (does NOT walk up).
+#   Uni-level: each level checked individually — unqualified = company absorb.
+#
 # Spillover Model:
 #   When a member purchases a tier, they fill ONE seat in EVERY upline
-#   grid at that tier. One person, one seat per advance. This means
-#   any downline purchase (not just direct referrals) fills grid seats.
+#   grid at that tier. One person, one seat per advance.
 #
-# Grid Completion Bonus:
-#   Pays out when all 64 seats fill, BUT only if the grid owner has
-#   an active (unexpired) campaign at that tier. If not, the bonus
-#   rolls into the next advance's bonus pool.
+# Campaign Lifecycle:
+#   Purchase tier → campaign active → views delivered → campaign expires
+#   → 14-day grace period → qualification drops → repurchase (any tier)
 #
 # Commissions paid per seat fill — no waiting for grid completion.
 # ═══════════════════════════════════════════════════════════════
@@ -24,9 +28,9 @@ from .database import (
     User, Grid, GridPosition, Commission, VideoCampaign,
     GRID_WIDTH, GRID_LEVELS, GRID_TOTAL,
     DIRECT_PCT, UNILEVEL_PCT, PER_LEVEL_PCT, PLATFORM_PCT, BONUS_POOL_PCT,
-    GRID_PACKAGES, GRID_COMPLETION_BONUS
+    GRID_PACKAGES, GRID_COMPLETION_BONUS, CAMPAIGN_GRACE_DAYS
 )
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 
@@ -252,23 +256,30 @@ def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: in
 
     if not buyer.sponsor_id:
         _record_commission(db, buyer.id, None, amount, "direct_sponsor",
-                           f"No sponsor — 40% platform absorb on ${price}",
+                           f"No sponsor — 40% company absorb on ${price}",
                            package_tier)
         return
 
     sponsor = db.query(User).filter(User.id == buyer.sponsor_id).first()
-    if sponsor:
+
+    # Check if sponsor is qualified at this tier or above
+    if sponsor and _user_is_qualified(db, sponsor.id, package_tier):
         sponsor.balance       += amount
         sponsor.total_earned  += amount
         sponsor.grid_earnings += amount
-
-    _record_commission(db, buyer.id, buyer.sponsor_id, amount, "direct_sponsor",
-                       f"Direct sponsor 40% — buyer {buyer.id} on ${price} package",
-                       package_tier)
+        _record_commission(db, buyer.id, sponsor.id, amount, "direct_sponsor",
+                           f"Direct sponsor 40% — buyer {buyer.id} on ${price} package",
+                           package_tier)
+    else:
+        # Sponsor unqualified — 40% goes to company, does NOT walk up
+        _record_commission(db, buyer.id, None, amount, "direct_sponsor",
+                           f"Sponsor unqualified at tier {package_tier} — 40% company absorb",
+                           package_tier)
 
 
 def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: int):
-    """6.25% to each of 8 sponsor chain levels above the buyer."""
+    """6.25% to each of 8 sponsor chain levels above the buyer.
+    Each level checked individually — if unqualified at this tier, company absorbs."""
     per_level = round(float(price) * PER_LEVEL_PCT, 6)
     current_id = buyer.id
 
@@ -277,20 +288,27 @@ def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: in
         if not current_user or not current_user.sponsor_id:
             for remaining in range(lvl, GRID_LEVELS + 1):
                 _record_commission(db, buyer.id, None, per_level, "uni_level",
-                                   f"Uni-level {remaining} — chain ended, platform absorb",
+                                   f"Uni-level {remaining} — chain ended, company absorb",
                                    package_tier)
             break
 
         upline_id = current_user.sponsor_id
         upline    = db.query(User).filter(User.id == upline_id).first()
-        if upline:
+
+        if upline and _user_is_qualified(db, upline_id, package_tier):
+            # Qualified — pay the commission
             upline.balance        += per_level
             upline.total_earned   += per_level
             upline.level_earnings += per_level
+            _record_commission(db, buyer.id, upline_id, per_level, "uni_level",
+                               f"Uni-level {lvl} — 6.25% of ${price}",
+                               package_tier)
+        else:
+            # Unqualified at this tier — company absorbs
+            _record_commission(db, buyer.id, None, per_level, "uni_level",
+                               f"Uni-level {lvl} — unqualified at tier {package_tier}, company absorb",
+                               package_tier)
 
-        _record_commission(db, buyer.id, upline_id, per_level, "uni_level",
-                           f"Uni-level {lvl} — 6.25% of ${price}",
-                           package_tier)
         current_id = upline_id
 
 
@@ -351,15 +369,42 @@ def _complete_grid(db: Session, grid: Grid):
     db.flush()
 
 
-def _owner_has_active_campaign(db: Session, owner_id: int, package_tier: int) -> bool:
-    """Check if the grid owner has an active (non-completed, non-deleted) campaign at this tier."""
-    campaign = db.query(VideoCampaign).filter(
-        VideoCampaign.user_id == owner_id,
-        VideoCampaign.campaign_tier == package_tier,
+def _user_is_qualified(db: Session, user_id: int, package_tier: int) -> bool:
+    """
+    Check if a user is qualified to earn commissions at this tier.
+    Qualified means: has an active campaign at this tier OR ABOVE,
+    OR has a completed campaign within the 14-day grace period at this tier or above.
+    """
+    now = datetime.utcnow()
+
+    # Check for active (non-completed) campaign at this tier or above
+    active = db.query(VideoCampaign).filter(
+        VideoCampaign.user_id == user_id,
+        VideoCampaign.campaign_tier >= package_tier,
         VideoCampaign.status.in_(["active", "paused"]),
         VideoCampaign.is_completed == False
     ).first()
-    return campaign is not None
+    if active:
+        return True
+
+    # Check for completed campaign still within grace period at this tier or above
+    in_grace = db.query(VideoCampaign).filter(
+        VideoCampaign.user_id == user_id,
+        VideoCampaign.campaign_tier >= package_tier,
+        VideoCampaign.is_completed == True,
+        VideoCampaign.grace_expires_at != None,
+        VideoCampaign.grace_expires_at > now
+    ).first()
+    if in_grace:
+        return True
+
+    return False
+
+
+def _owner_has_active_campaign(db: Session, owner_id: int, package_tier: int) -> bool:
+    """Check if the grid owner has an active or in-grace campaign at this tier or above.
+    Used for grid completion bonus eligibility."""
+    return _user_is_qualified(db, owner_id, package_tier)
 
 
 def _next_slot(db: Session, grid: Grid):
@@ -393,7 +438,7 @@ def _record_commission(db: Session, from_user_id: Optional[int], to_user_id: Opt
 def record_campaign_view(db: Session, campaign_id: int) -> dict:
     """
     Increment views_delivered on a campaign.
-    If views_target reached, mark campaign as completed.
+    If views_target reached, mark campaign as completed and set grace period.
     Returns status info.
     """
     campaign = db.query(VideoCampaign).filter(VideoCampaign.id == campaign_id).first()
@@ -409,6 +454,7 @@ def record_campaign_view(db: Session, campaign_id: int) -> dict:
     if campaign.views_target and campaign.views_delivered >= campaign.views_target:
         campaign.is_completed = True
         campaign.completed_at = datetime.utcnow()
+        campaign.grace_expires_at = datetime.utcnow() + timedelta(days=CAMPAIGN_GRACE_DAYS)
         campaign.status = "completed"
         completed = True
 
@@ -418,6 +464,7 @@ def record_campaign_view(db: Session, campaign_id: int) -> dict:
         "views_delivered": campaign.views_delivered,
         "views_target": campaign.views_target,
         "completed": completed,
+        "grace_expires_at": campaign.grace_expires_at.isoformat() if completed else None,
     }
 
 

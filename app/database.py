@@ -84,16 +84,21 @@ GRID_COMPLETION_BONUS = {
 
 # ── Campaign View Targets per Tier ───────────────────────────
 # Views delivered per campaign purchase/repurchase cycle
+# Campaign stays active until views are delivered, then expires
+# 14-day grace period after expiry before qualification drops
 CAMPAIGN_VIEW_TARGETS = {
-    1: 1000,
-    2: 3000,
-    3: 8000,
-    4: 15000,
-    5: 30000,
-    6: 50000,
-    7: 65000,
-    8: 85000,
+    1: 2000,
+    2: 6000,
+    3: 16000,
+    4: 30000,
+    5: 60000,
+    6: 100000,
+    7: 130000,
+    8: 170000,
 }
+
+# Grace period (days) after campaign expires before losing tier qualification
+CAMPAIGN_GRACE_DAYS = 14
 
 # ── Campaign Tier Features ────────────────────────────────────
 # Controls what each grid tier unlocks for video campaigns
@@ -333,6 +338,7 @@ class VideoCampaign(Base):
     campaign_tier   = Column(Integer, default=1)       # which tier purchase this campaign is for
     is_completed    = Column(Boolean, default=False)   # True when views_delivered >= views_target
     completed_at    = Column(DateTime, nullable=True)  # when views target was reached
+    grace_expires_at = Column(DateTime, nullable=True) # 14 days after completed_at — lose qualification after this
     purchase_number = Column(Integer, default=1)       # which purchase/repurchase cycle (1,2,3...)
     # Targeting (Advanced tier and above)
     target_country  = Column(String, nullable=True)    # ISO country or null=worldwide
@@ -1039,6 +1045,9 @@ try:
             was_copied BOOLEAN DEFAULT FALSE,
             created_at TIMESTAMP DEFAULT NOW())"""))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_proseller_msgs_user ON proseller_messages(user_id)"))
+
+        # ── Campaign grace period + qualification model (2026-03-11) ──
+        conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS grace_expires_at TIMESTAMP"))
 
         conn.commit()
         print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 + R2 + courses confirmed")
