@@ -74,10 +74,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#0f172a;color:#e2e8f0
 .pv-inner [contenteditable]:hover{outline:1px dashed rgba(14,165,233,.3);outline-offset:2px}
 .pv-inner [contenteditable]:focus{outline:2px solid #0ea5e9;outline-offset:2px;border-radius:4px}
 
-/* Video hover overlay */
-.vid-wrap{position:relative;cursor:pointer}
-.vid-wrap::after{content:'Click to change video';position:absolute;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;border-radius:12px}
-.vid-wrap:hover::after{display:flex}
+/* Video hover overlay removed — using explicit edit/delete buttons now */
 </style>
 </head>
 <body>
@@ -212,6 +209,9 @@ function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 // ── Render preview ──
 function renderPreview(){
   const wrap=document.getElementById('pvInner');
+  const panel=document.getElementById('pvPanel');
+  const scrollPos=panel.scrollTop;  // Save scroll position
+
   let bgCSS=`background:${pageStyle.bg};`;
   if(pageStyle.bgImage) bgCSS=`background:url('${pageStyle.bgImage}') center/cover no-repeat fixed;`;
   wrap.style.cssText=bgCSS+'min-height:100%;padding-bottom:20px;';
@@ -229,7 +229,15 @@ function renderPreview(){
         html+=`<div style="padding:8px 24px;max-width:700px;margin:0 auto;text-align:${s.align||'left'}"><div contenteditable="true" data-field="content" data-idx="${i}" style="font-family:Outfit,sans-serif;font-size:${s.size||'15px'};color:${s.color||'#94a3b8'};line-height:1.8">${s.content||''}</div></div>`;break;
       case 'video':
         const em=toEmbed(s.url);
-        html+=`<div style="padding:12px 24px;max-width:700px;margin:0 auto"><div class="vid-wrap" onclick="promptVideo(${i})" style="border-radius:12px;overflow:hidden;background:#0f1729;border:1px solid rgba(14,165,233,.1)">${em?`<iframe src="${em}" style="width:100%;aspect-ratio:16/9;border:none;display:block;pointer-events:none" allowfullscreen></iframe>`:'<div style="aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;color:#475569;font-size:13px">Click to add video URL</div>'}</div></div>`;break;
+        html+=`<div style="padding:12px 24px;max-width:700px;margin:0 auto;position:relative">
+          <div style="border-radius:12px;overflow:hidden;background:#0f1729;border:1px solid rgba(14,165,233,.1);position:relative">
+            ${em?`<iframe src="${em}" style="width:100%;aspect-ratio:16/9;border:none;display:block;pointer-events:none" allowfullscreen></iframe>`:'<div style="aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;color:#475569;font-size:13px">No video — click Edit to add a URL</div>'}
+            <div style="position:absolute;top:8px;right:8px;display:flex;gap:6px;z-index:5">
+              <button onclick="promptVideo(${i})" style="padding:6px 12px;border-radius:8px;background:rgba(14,165,233,.9);color:#fff;border:none;font-size:11px;font-weight:600;cursor:pointer">✏️ Edit</button>
+              <button onclick="removeSection(${i})" style="padding:6px 12px;border-radius:8px;background:rgba(220,38,38,.9);color:#fff;border:none;font-size:11px;font-weight:600;cursor:pointer">🗑 Delete</button>
+            </div>
+          </div>
+        </div>`;break;
       case 'button':
         html+=`<div style="padding:20px 24px;text-align:${s.align||'center'}"><span style="display:inline-block;padding:14px 40px;border-radius:12px;background:linear-gradient(135deg,${s.color1||'#0ea5e9'},${s.color2||'#6366f1'});color:#fff;font-family:Sora,sans-serif;font-size:${s.size||'16px'};font-weight:700;box-shadow:0 0 30px ${s.color1||'#0ea5e9'}33">${esc(s.text)}</span></div>`;break;
       case 'features':
@@ -252,6 +260,9 @@ function renderPreview(){
 
   html+=`<div style="text-align:center;padding:24px;font-size:11px;color:#475569">Income examples are illustrative. Results depend on individual effort.</div>`;
   wrap.innerHTML=html;
+
+  // Restore scroll position
+  panel.scrollTop=scrollPos;
 
   // Attach contenteditable handlers
   wrap.querySelectorAll('[contenteditable]').forEach(el=>{
