@@ -8905,6 +8905,91 @@ async def api_pro_funnel_save(funnel_id: int, request: Request, db: Session = De
 @app.post("/api/pro/funnel/{funnel_id}/regenerate")
 async def api_pro_funnel_regenerate(funnel_id: int, request: Request, db: Session = Depends(get_db)):
     """Regenerate funnel copy with AI feedback."""
+    # Kept for backward compat but chat endpoint is primary now
+    return JSONResponse({"error": "Use the chat endpoint instead"}, status_code=400)
+
+
+@app.post("/api/pro/funnel/{funnel_id}/chat")
+async def api_pro_funnel_chat(funnel_id: int, request: Request, db: Session = Depends(get_db)):
+    """AI chat endpoint — interprets natural language commands and modifies the funnel."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+        return JSONResponse({"error": "Pro tier required"}, status_code=403)
+
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return JSONResponse({"error": "AI unavailable"}, status_code=503)
+
+    body = await request.json()
+    message = body.get("message", "")
+    current_sections = body.get("sections", [])
+    current_style = body.get("pageStyle", {})
+
+    import json as _jchat
+
+    system_prompt = """You are the SuperAdPro AI Funnel Builder assistant. You modify landing page sections based on user commands.
+
+CURRENT PAGE STATE:
+- Sections: """ + _jchat.dumps(current_sections)[:3000] + """
+- Page style: """ + _jchat.dumps(current_style) + """
+
+AVAILABLE SECTION TYPES:
+- heading: {type:"heading", content:"text", level:"h1"|"h2"|"h3", color:"#hex", align:"left"|"center"|"right"}
+- text: {type:"text", content:"text", color:"#hex", align:"left"|"center"|"right", size:"15px"}
+- video: {type:"video", url:"youtube/vimeo url"}
+- button: {type:"button", text:"label", url:"/register?ref=""" + user.username + """", color1:"#hex", color2:"#hex", align:"center", size:"16px"}
+- features: {type:"features", items:["item1","item2"], checkColor:"#hex", textColor:"#hex"}
+- capture: {type:"capture", heading:"text", subtext:"text", btnText:"text", btnColor:"#hex", btnColor2:"#hex", bgColor:"#hex"}
+- testimonial: {type:"testimonial", quote:"text", author:"name", color:"#hex", bgColor:"#hex"}
+- divider: {type:"divider", color:"#hex", thickness:"1px", width:"60%"}
+- spacer: {type:"spacer", height:"40px"}
+- image: {type:"image", url:"image_url", width:"100%", borderRadius:"12px"}
+
+RULES:
+- Return ONLY valid JSON with keys: sections (array), pageStyle (object), response (string)
+- pageStyle can have: bg (hex colour), bgImage (url for background image)
+- If the user asks for a visual background (sunset, ocean, mountains etc), set bgImage to a relevant Unsplash URL like: https://images.unsplash.com/photo-XXXX?w=1920&q=80
+- For colour changes, modify the relevant section's colour properties
+- For adding sections, insert them at a logical position
+- For removing sections, remove them from the array
+- For text changes, modify the content of existing sections
+- Keep the response field short and friendly
+- No hype or income promises in any generated text
+- If you don't understand, ask for clarification in the response field
+- NEVER return markdown fencing — just raw JSON"""
+
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+        resp = client.messages.create(
+            model=AI_MODEL_HAIKU,
+            max_tokens=2000,
+            messages=[{"role": "user", "content": message}],
+            system=system_prompt,
+        )
+        text = resp.content[0].text.strip()
+        # Clean JSON
+        if text.startswith("```"):
+            text = text.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+        if "{" in text:
+            text = text[text.index("{"):text.rindex("}") + 1]
+
+        result = _jchat.loads(text)
+
+        return JSONResponse({
+            "success": True,
+            "sections": result.get("sections", current_sections),
+            "pageStyle": result.get("pageStyle", current_style),
+            "response": result.get("response", "Done!"),
+        })
+
+    except Exception as e:
+        logger.error(f"Funnel chat error: {e}")
+        return JSONResponse({
+            "success": False,
+            "error": f"I had trouble processing that. Try rephrasing: {str(e)[:100]}"
+        })
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"error": "Not logged in"}, status_code=401)

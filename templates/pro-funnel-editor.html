@@ -3,160 +3,139 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Edit Funnel — SuperAdPro Pro</title>
+<title>AI Funnel Builder — SuperAdPro Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#f8fafc;--cyan:#0ea5e9;--violet:#6366f1;--green:#10b981;--text:#1a1a2e;--text2:#475569;--muted:#94a3b8;--border:#e5e7eb}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:#1e293b;color:var(--text);min-height:100vh;overflow:hidden}
+:root{--cyan:#0ea5e9;--violet:#6366f1;--green:#10b981;--text:#1a1a2e;--muted:#94a3b8;--border:#e2e8f0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#0f172a;color:#e2e8f0;height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
-/* Layout */
-.ed-layout{display:flex;height:100vh}
-.ed-left{width:340px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:100vh}
-.ed-center{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;align-items:center}
+/* Top toolbar */
+.toolbar{height:52px;background:#1e293b;border-bottom:1px solid #334155;display:flex;align-items:center;padding:0 16px;gap:10px;flex-shrink:0;z-index:20}
+.tb-logo{font-family:Sora,sans-serif;font-weight:800;font-size:14px;color:#fff}
+.tb-logo em{color:#38bdf8;font-style:normal}
+.tb-sep{width:1px;height:28px;background:#334155}
+.tb-title{font-size:13px;color:var(--muted);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-btn{padding:6px 14px;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
+.tb-save{background:var(--green);color:#fff}.tb-save:hover{background:#059669}
+.tb-ghost{background:rgba(255,255,255,.08);color:#94a3b8}.tb-ghost:hover{background:rgba(255,255,255,.12);color:#fff}
+.tb-view{background:var(--cyan);color:#fff}.tb-view:hover{background:#0284c7}
 
-/* AI instruction bar */
-.ai-bar{width:100%;max-width:800px;margin-bottom:16px;display:flex;gap:8px;flex-shrink:0}
-.ai-input{flex:1;padding:11px 16px;border:1px solid #334155;border-radius:10px;background:#0f172a;color:#e2e8f0;font-size:13px;font-family:inherit}
-.ai-input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(14,165,233,.15)}
-.ai-input::placeholder{color:#475569}
-.ai-send{padding:11px 18px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.15s}
-.ai-send:hover{opacity:.9}
-.ai-send:disabled{opacity:.5;cursor:wait}
-.ed-right{width:260px;background:#fff;border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:100vh;overflow:hidden}
+/* Main area: preview + chat */
+.main-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
 
-/* Header */
-.ed-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.ed-header h2{font-family:Sora,sans-serif;font-size:15px;font-weight:800}
-.ed-btn{padding:7px 14px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
-.ed-btn-green{background:var(--green);color:#fff}.ed-btn-green:hover{background:#059669}
-.ed-btn-ghost{background:#f1f5f9;color:var(--text2)}.ed-btn-ghost:hover{background:#e2e8f0}
-.ed-btn-cyan{background:var(--cyan);color:#fff}.ed-btn-cyan:hover{background:#0284c7}
+/* Preview */
+.preview-wrap{flex:1;overflow-y:auto;position:relative}
+.preview-inner{max-width:900px;margin:0 auto;min-height:100%;position:relative}
 
-/* Left panel: element palette + sections list */
-.ed-panel-title{font-size:11px;font-weight:700;letter-spacing:.8px;color:var(--muted);padding:12px 16px 6px;text-transform:uppercase}
-.ed-scroll{flex:1;overflow-y:auto}
-.ed-scroll::-webkit-scrollbar{width:4px}.ed-scroll::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:4px}
+/* Floating controls */
+.float-color{position:fixed;top:64px;right:16px;z-index:30;display:flex;align-items:center;gap:8px;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:8px 12px}
+.float-color label{font-size:11px;color:var(--muted);font-weight:600}
+.float-color input[type=color]{width:32px;height:32px;border:2px solid #475569;border-radius:7px;cursor:pointer;padding:0;background:none}
 
-/* Element palette */
-.el-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;padding:0 12px 12px}
-.el-btn{padding:10px 6px;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:grab;text-align:center;font-size:11px;font-weight:600;color:var(--text2);transition:.15s;user-select:none}
-.el-btn:hover{border-color:var(--cyan);background:#f0f9ff}
-.el-btn:active{cursor:grabbing}
-.el-icon{font-size:18px;display:block;margin-bottom:4px}
+/* Inline text editing */
+[contenteditable]{outline:none;cursor:text}
+[contenteditable]:hover{outline:1px dashed rgba(14,165,233,.3);outline-offset:2px}
+[contenteditable]:focus{outline:2px solid #0ea5e9;outline-offset:2px;border-radius:4px}
 
-/* Section list */
-.sec-list{padding:0 12px 12px}
-.sec-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;background:#fff;cursor:grab;transition:.15s;user-select:none}
-.sec-item:hover{border-color:var(--cyan);background:#f0f9ff}
-.sec-item.selected{border-color:var(--cyan);background:#eff6ff;box-shadow:0 0 0 2px rgba(14,165,233,.15)}
-.sec-item.dragging{opacity:.5}
-.sec-handle{color:var(--muted);cursor:grab;font-size:14px;flex-shrink:0}
-.sec-info{flex:1;min-width:0}
-.sec-type{font-size:11px;font-weight:600;color:var(--cyan)}
-.sec-preview{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sec-actions{display:flex;gap:4px;flex-shrink:0}
-.sec-act{width:24px;height:24px;border:none;border-radius:6px;background:transparent;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:.1s}
-.sec-act:hover{background:#fee2e2;color:#dc2626}
-.sec-dup:hover{background:#dbeafe;color:#2563eb}
+/* Formatting toolbar */
+.fmt-bar{position:fixed;z-index:40;background:#1e293b;border:1px solid #475569;border-radius:10px;padding:6px;display:none;gap:2px;box-shadow:0 8px 24px rgba(0,0,0,.4);flex-wrap:wrap}
+.fmt-bar.show{display:flex}
+.fmt-btn{width:30px;height:30px;border:none;border-radius:6px;background:transparent;color:#94a3b8;cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:.1s}
+.fmt-btn:hover{background:rgba(14,165,233,.15);color:#38bdf8}
+.fmt-btn.active{background:rgba(14,165,233,.2);color:#38bdf8}
+.fmt-sep{width:1px;height:24px;background:#334155;margin:0 2px;align-self:center}
+.fmt-select{background:#0f172a;border:1px solid #475569;border-radius:6px;color:#94a3b8;font-size:11px;padding:4px 6px;cursor:pointer}
 
-/* Right panel: properties */
-.prop-scroll{flex:1;overflow-y:auto;padding:12px}
-.prop-section{margin-bottom:16px}
-.prop-label{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:5px;display:block}
-.prop-input{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:inherit;color:var(--text);resize:vertical}
-.prop-input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(14,165,233,.1)}
-textarea.prop-input{min-height:60px}
-select.prop-input{background:#fff}
+/* Video overlay */
+.vid-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:10;border-radius:12px;cursor:pointer}
+.vid-container:hover .vid-overlay{display:flex}
+.vid-edit-box{background:#1e293b;border:1px solid #475569;border-radius:10px;padding:16px;width:90%;max-width:400px}
+.vid-edit-input{width:100%;padding:10px;border:1px solid #475569;border-radius:8px;background:#0f172a;color:#fff;font-size:13px;font-family:inherit}
+.vid-edit-input:focus{outline:none;border-color:var(--cyan)}
 
-/* Colour swatch */
-.prop-color{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.prop-swatch{width:32px;height:32px;border-radius:7px;border:2px solid var(--border);cursor:pointer;position:relative;overflow:hidden;flex-shrink:0}
-.prop-swatch input[type=color]{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);border:none;cursor:pointer;padding:0}
-.prop-color-label{font-size:11px;font-weight:600;color:var(--text2)}
+/* Chat area */
+.chat-area{background:#1e293b;border-top:1px solid #334155;flex-shrink:0}
+.chat-messages{max-height:140px;overflow-y:auto;padding:10px 16px;display:flex;flex-direction:column;gap:6px}
+.chat-messages::-webkit-scrollbar{width:4px}.chat-messages::-webkit-scrollbar-thumb{background:#334155;border-radius:4px}
+.chat-msg{max-width:85%;padding:8px 12px;border-radius:10px;font-size:13px;line-height:1.5}
+.chat-user{background:#0ea5e920;color:#38bdf8;align-self:flex-end;border-bottom-right-radius:2px}
+.chat-ai{background:#334155;color:#e2e8f0;align-self:flex-start;border-bottom-left-radius:2px}
+.chat-input-wrap{display:flex;gap:8px;padding:10px 16px;border-top:1px solid #334155}
+.chat-input{flex:1;padding:10px 14px;border:1px solid #475569;border-radius:10px;background:#0f172a;color:#fff;font-size:13px;font-family:inherit}
+.chat-input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(14,165,233,.1)}
+.chat-input::placeholder{color:#475569}
+.chat-send{padding:10px 20px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;flex-shrink:0}
+.chat-send:hover{opacity:.9}
+.chat-send:disabled{opacity:.5;cursor:not-allowed}
 
-/* Preview frame */
-.pv-frame{width:100%;max-width:800px;border-radius:12px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.3);min-height:400px}
+.spinner-sm{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* Drop indicator */
-.drop-indicator{height:3px;background:var(--cyan);border-radius:2px;margin:4px 0}
-
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;display:none;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;display:none;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,.3);border:1px solid #334155}
 .toast.show{display:block}
-
-/* Empty state */
-.empty-hint{text-align:center;padding:40px 16px;color:var(--muted);font-size:12px;line-height:1.6}
 </style>
 </head>
 <body>
-<div class="ed-layout">
-  <!-- ══════ LEFT: Elements + Sections ══════ -->
-  <div class="ed-left">
-    <div class="ed-header">
-      <h2>✨ Funnel Editor</h2>
-      <div style="display:flex;gap:6px">
-        <a href="/pro/funnels" class="ed-btn ed-btn-ghost" style="text-decoration:none">← Back</a>
-        <button class="ed-btn ed-btn-green" onclick="save()">💾 Save</button>
-      </div>
-    </div>
 
-    <div class="ed-scroll">
-      <div class="ed-panel-title">Add Elements</div>
-      <div class="el-grid">
-        <div class="el-btn" onclick="addSection('heading')"><span class="el-icon">H</span>Heading</div>
-        <div class="el-btn" onclick="addSection('text')"><span class="el-icon">¶</span>Text</div>
-        <div class="el-btn" onclick="addSection('image')"><span class="el-icon">🖼️</span>Image</div>
-        <div class="el-btn" onclick="addSection('video')"><span class="el-icon">▶️</span>Video</div>
-        <div class="el-btn" onclick="addSection('button')"><span class="el-icon">🔘</span>Button</div>
-        <div class="el-btn" onclick="addSection('features')"><span class="el-icon">✓</span>Feature List</div>
-        <div class="el-btn" onclick="addSection('capture')"><span class="el-icon">📩</span>Email Capture</div>
-        <div class="el-btn" onclick="addSection('testimonial')"><span class="el-icon">💬</span>Testimonial</div>
-        <div class="el-btn" onclick="addSection('divider')"><span class="el-icon">—</span>Divider</div>
-        <div class="el-btn" onclick="addSection('spacer')"><span class="el-icon">↕️</span>Spacer</div>
-        <div class="el-btn" onclick="addSection('columns')"><span class="el-icon">▥</span>Two Columns</div>
-        <div class="el-btn" onclick="addSection('html')"><span class="el-icon">&lt;/&gt;</span>Custom HTML</div>
-      </div>
+<!-- Toolbar -->
+<div class="toolbar">
+  <div class="tb-logo">SuperAd<em>Pro</em></div>
+  <div class="tb-sep"></div>
+  <div class="tb-title">{{ page.headline or page.title }} — /f/{{ page.slug }}</div>
+  <button class="tb-btn tb-ghost" onclick="location.href='/pro/funnels'">← Funnels</button>
+  <a href="/f/{{ page.slug }}" target="_blank" class="tb-btn tb-view" style="text-decoration:none">View Live ↗</a>
+  <button class="tb-btn tb-save" onclick="save()">💾 Save</button>
+</div>
 
-      <div class="ed-panel-title">Page Sections</div>
-      <div class="sec-list" id="secList">
-        <!-- Populated by JS -->
-      </div>
-    </div>
+<!-- Floating colour picker -->
+<div class="float-color">
+  <label>BG</label>
+  <input type="color" id="pageBgColor" value="#050d1a" oninput="changeBg(this.value)" title="Page background colour">
+</div>
 
-    <div style="padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0">
-      <div class="ed-panel-title" style="padding:0 0 6px">Page Settings</div>
-      <div class="prop-color">
-        <div class="prop-swatch"><input type="color" id="pageBg" value="#050d1a" oninput="updatePageColor()"></div>
-        <span class="prop-color-label">Page Background</span>
-      </div>
-      <div style="display:flex;gap:6px">
-        <select id="pageStatus" class="prop-input" style="flex:1">
-          <option value="published" {{ 'selected' if page.status == 'published' else '' }}>Published</option>
-          <option value="draft" {{ 'selected' if page.status == 'draft' else '' }}>Draft</option>
-        </select>
-        <a href="/f/{{ page.slug }}" target="_blank" class="ed-btn ed-btn-cyan" style="text-decoration:none;white-space:nowrap">View Live ↗</a>
-      </div>
-    </div>
-  </div>
+<!-- Formatting toolbar (hidden, appears on text selection) -->
+<div class="fmt-bar" id="fmtBar">
+  <button class="fmt-btn" onclick="fmt('bold')" title="Bold"><b>B</b></button>
+  <button class="fmt-btn" onclick="fmt('italic')" title="Italic"><i>I</i></button>
+  <button class="fmt-btn" onclick="fmt('underline')" title="Underline"><u>U</u></button>
+  <div class="fmt-sep"></div>
+  <select class="fmt-select" onchange="fmtSize(this.value)" title="Font size">
+    <option value="">Size</option>
+    <option value="1">Small</option>
+    <option value="3">Normal</option>
+    <option value="5">Large</option>
+    <option value="7">XL</option>
+  </select>
+  <select class="fmt-select" onchange="fmtFont(this.value)" title="Font">
+    <option value="">Font</option>
+    <option value="Sora">Sora</option>
+    <option value="Outfit">Outfit</option>
+    <option value="Plus Jakarta Sans">Jakarta</option>
+    <option value="Georgia">Georgia</option>
+    <option value="monospace">Mono</option>
+  </select>
+  <div class="fmt-sep"></div>
+  <input type="color" class="fmt-btn" style="width:30px;height:30px;padding:2px;border:none;cursor:pointer" oninput="fmtColor(this.value)" title="Text colour">
+</div>
 
-  <!-- ══════ CENTER: Live Preview ══════ -->
-  <div class="ed-center" id="edCenter">
-    <div class="ai-bar">
-      <input type="text" class="ai-input" id="aiInput" placeholder="Tell the AI what to change... e.g. 'add a testimonial', 'make background dark green', 'add my YouTube video https://...'" onkeydown="if(event.key==='Enter')aiModify()">
-      <button class="ai-send" id="aiSendBtn" onclick="aiModify()">✨ Apply</button>
-    </div>
-    <div class="pv-frame" id="pvFrame">
+<!-- Main area -->
+<div class="main-area">
+  <!-- Preview -->
+  <div class="preview-wrap" id="previewWrap">
+    <div class="preview-inner" id="pvInner">
       <!-- Rendered by JS -->
     </div>
   </div>
 
-  <!-- ══════ RIGHT: Properties ══════ -->
-  <div class="ed-right">
-    <div class="ed-header" style="border-bottom:1px solid var(--border)">
-      <h2 id="propTitle">Properties</h2>
+  <!-- Chat -->
+  <div class="chat-area">
+    <div class="chat-messages" id="chatMsgs">
+      <div class="chat-msg chat-ai">Hi! I'm your funnel builder assistant. Tell me what you want to change — add sections, change colours, update text, generate backgrounds. Try: "add a testimonial" or "make the background a sunset over mountains"</div>
     </div>
-    <div class="prop-scroll" id="propPanel">
-      <div class="empty-hint">Click a section in the preview or the section list to edit its properties.</div>
+    <div class="chat-input-wrap">
+      <input type="text" class="chat-input" id="chatInput" placeholder="Type a command... e.g. 'add a testimonial section' or 'change heading to blue'" onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="chat-send" id="chatSendBtn" onclick="sendChat()">Send ✨</button>
     </div>
   </div>
 </div>
@@ -166,151 +145,79 @@ select.prop-input{background:#fff}
 <script>
 const FUNNEL_ID = {{ page.id }};
 const USERNAME = '{{ user.username }}';
-const SITE_URL = window.location.origin;
+const MEMBER_NAME = '{{ user.first_name or user.username }}';
 
-// ── Section data model ──
 let sections = [];
-let selectedIdx = -1;
-let pageColors = { bg: '#050d1a' };
+let pageStyle = { bg: '#050d1a', bgImage: '' };
 
-// ── Load initial data from server ──
+// ── Load initial data ──
 try {
-  const fd = JSON.parse('{{ (funnel_data|tojson)|safe }}'.replace(/\\n/g,'\\\\n'));
-  if (fd.colors && fd.colors.bg) pageColors.bg = fd.colors.bg;
-  // Convert old format to sections array
+  const fd = JSON.parse({{ funnel_data|tojson|safe }});
+  if (fd.colors?.bg) pageStyle.bg = fd.colors.bg;
+  if (fd.bgImage) pageStyle.bgImage = fd.bgImage;
   if (fd.sections) {
     sections = fd.sections;
   } else {
-    // Build sections from legacy fields
-    if (fd.headline) sections.push({ type:'heading', content:fd.headline, level:'h1', color:'#ffffff', align:'center' });
+    if (fd.headline) sections.push({ type:'heading', content:fd.headline, level:'h1', color:fd.colors?.text||'#ffffff', align:'center' });
     if (fd.subheadline) sections.push({ type:'text', content:fd.subheadline, color:fd.colors?.muted||'#94a3b8', align:'center', size:'17px' });
-    if ('{{ page.video_url or "" }}') sections.push({ type:'video', url:'{{ page.video_url or "" }}' });
+    const vidUrl = '{{ page.video_url or "" }}';
+    if (vidUrl) sections.push({ type:'video', url:vidUrl });
     sections.push({ type:'capture', heading:fd.capture_heading||'Get Free Access', subtext:fd.capture_subtext||'', btnText:'Get Access →', btnColor:fd.colors?.btn||'#0ea5e9', btnColor2:fd.colors?.btn2||'#6366f1', bgColor:fd.colors?.card||'#0f1729' });
     if (fd.body_paragraphs) fd.body_paragraphs.forEach(p => sections.push({ type:'text', content:p, color:fd.colors?.muted||'#94a3b8', align:'left', size:'15px' }));
     if (fd.features) sections.push({ type:'features', items:fd.features, checkColor:fd.colors?.btn||'#0ea5e9', textColor:fd.colors?.muted||'#94a3b8' });
     sections.push({ type:'button', text:fd.cta_text||'Join Now', url:'/register?ref='+USERNAME, color1:fd.colors?.btn||'#0ea5e9', color2:fd.colors?.btn2||'#6366f1', align:'center' });
   }
-} catch(e) { console.error('Init error', e); }
+} catch(e) { console.error('Init:', e); }
 
-document.getElementById('pageBg').value = pageColors.bg;
+document.getElementById('pageBgColor').value = pageStyle.bg;
 
-// ── Defaults for new sections ──
-const DEFAULTS = {
-  heading: { type:'heading', content:'New Heading', level:'h1', color:'#ffffff', align:'center' },
-  text: { type:'text', content:'Enter your text here...', color:'#94a3b8', align:'left', size:'15px' },
-  image: { type:'image', url:'', alt:'', width:'100%', borderRadius:'12px' },
-  video: { type:'video', url:'' },
-  button: { type:'button', text:'Click Here', url:'/register?ref='+USERNAME, color1:'#0ea5e9', color2:'#6366f1', align:'center', size:'16px' },
-  features: { type:'features', items:['Feature one','Feature two','Feature three'], checkColor:'#0ea5e9', textColor:'#94a3b8' },
-  capture: { type:'capture', heading:'Get Free Access', subtext:'Enter your email to learn more.', btnText:'Get Access →', btnColor:'#0ea5e9', btnColor2:'#6366f1', bgColor:'#0f1729' },
-  testimonial: { type:'testimonial', quote:'This platform changed everything for me.', author:'Happy Member', color:'#e2e8f0', bgColor:'#1e293b' },
-  divider: { type:'divider', color:'#334155', thickness:'1px', width:'60%' },
-  spacer: { type:'spacer', height:'40px' },
-  columns: { type:'columns', left:'Left column content', right:'Right column content', color:'#94a3b8' },
-  html: { type:'html', code:'<div style="text-align:center;color:#94a3b8;padding:20px;">Custom HTML here</div>' },
-};
-
-function addSection(type) {
-  const s = JSON.parse(JSON.stringify(DEFAULTS[type]));
-  if (selectedIdx >= 0 && selectedIdx < sections.length - 1) {
-    sections.splice(selectedIdx + 1, 0, s);
-    selectedIdx = selectedIdx + 1;
-  } else {
-    sections.push(s);
-    selectedIdx = sections.length - 1;
-  }
-  render();
-}
-
-function removeSection(idx) {
-  sections.splice(idx, 1);
-  if (selectedIdx >= sections.length) selectedIdx = sections.length - 1;
-  render();
-}
-
-function dupSection(idx) {
-  const copy = JSON.parse(JSON.stringify(sections[idx]));
-  sections.splice(idx + 1, 0, copy);
-  selectedIdx = idx + 1;
-  render();
-}
-
-function moveSection(from, to) {
-  if (to < 0 || to >= sections.length) return;
-  const [item] = sections.splice(from, 1);
-  sections.splice(to, 0, item);
-  selectedIdx = to;
-  render();
-}
-
-function selectSection(idx) {
-  selectedIdx = idx;
-  renderSecList();
-  renderProps();
-  // Scroll preview to section
-  const el = document.getElementById('pv-sec-' + idx);
-  if (el) el.scrollIntoView({ behavior:'smooth', block:'center' });
-}
-
-// ── YouTube/Vimeo embed ──
+// ── Render preview ──
 function toEmbed(u) {
   if (!u) return '';
   u = u.trim();
-  if (u.includes('youtube.com/watch')) { const v = u.split('v=')[1]?.split('&')[0]; return v ? 'https://www.youtube.com/embed/' + v : ''; }
-  if (u.includes('youtu.be/')) { const v = u.split('youtu.be/')[1]?.split('?')[0]; return v ? 'https://www.youtube.com/embed/' + v : ''; }
-  if (u.includes('vimeo.com/') && !u.includes('player.vimeo')) { const v = u.split('vimeo.com/')[1]?.split('?')[0]; return v ? 'https://player.vimeo.com/video/' + v : ''; }
+  if (u.includes('youtube.com/watch')) { const v=u.split('v=')[1]?.split('&')[0]; return v?'https://www.youtube.com/embed/'+v:''; }
+  if (u.includes('youtu.be/')) { const v=u.split('youtu.be/')[1]?.split('?')[0]; return v?'https://www.youtube.com/embed/'+v:''; }
+  if (u.includes('vimeo.com/')&&!u.includes('player.vimeo')) { const v=u.split('vimeo.com/')[1]?.split('?')[0]; return v?'https://player.vimeo.com/video/'+v:''; }
   return u;
 }
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ── Render everything ──
-function render() { renderPreview(); renderSecList(); renderProps(); }
-
-function updatePageColor() {
-  pageColors.bg = document.getElementById('pageBg').value;
-  document.getElementById('pvFrame').style.background = pageColors.bg;
-}
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function renderPreview() {
-  const frame = document.getElementById('pvFrame');
-  frame.style.background = pageColors.bg;
+  const wrap = document.getElementById('pvInner');
+  let bgStyle = `background:${pageStyle.bg};`;
+  if (pageStyle.bgImage) bgStyle = `background:url('${pageStyle.bgImage}') center/cover no-repeat fixed;`;
+  wrap.style.cssText = bgStyle + 'min-height:100%;padding-bottom:20px;';
+
   let html = '';
-  // Nav bar
-  html += `<div style="padding:14px 24px;display:flex;align-items:center;justify-content:space-between">
-    <div style="display:flex;align-items:center;gap:8px"><svg width="24" height="24" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg><span style="font-family:Sora,sans-serif;font-weight:800;font-size:15px;color:#fff">SuperAd<span style="color:#38bdf8">Pro</span></span></div>
-    <span style="font-size:12px;color:rgba(255,255,255,0.4)">By <strong style="color:#38bdf8">{{ user.first_name or user.username }}</strong></span></div>`;
+  // Nav
+  html += `<div style="padding:14px 24px;display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:8px"><svg width="24" height="24" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg><span style="font-family:Sora,sans-serif;font-weight:800;font-size:15px;color:#fff">SuperAd<span style="color:#38bdf8">Pro</span></span></div><span style="font-size:12px;color:rgba(255,255,255,0.4)">By <strong style="color:#38bdf8">${esc(MEMBER_NAME)}</strong></span></div>`;
 
   sections.forEach((s, i) => {
-    const sel = i === selectedIdx ? 'outline:2px solid #0ea5e9;outline-offset:2px;border-radius:8px;' : '';
-    const wrap = `<div id="pv-sec-${i}" style="cursor:pointer;${sel}" onclick="selectSection(${i})">`;
-    html += wrap;
+    html += `<div class="pv-section" data-idx="${i}">`;
     switch(s.type) {
       case 'heading':
-        const tag = s.level || 'h1';
-        const fs = tag==='h1'?'32px':tag==='h2'?'24px':'20px';
-        html += `<div style="padding:20px 24px;text-align:${s.align||'center'}"><${tag} style="font-family:Sora,sans-serif;font-size:${fs};font-weight:900;color:${s.color||'#fff'};line-height:1.2;margin:0">${esc(s.content)}</${tag}></div>`;
+        const fs = s.level==='h1'?'32px':s.level==='h2'?'24px':'20px';
+        html += `<div style="padding:20px 24px;text-align:${s.align||'center'}"><div contenteditable="true" data-field="content" data-idx="${i}" style="font-family:Sora,sans-serif;font-size:${fs};font-weight:900;color:${s.color||'#fff'};line-height:1.2;outline:none">${s.content||''}</div></div>`;
         break;
       case 'text':
-        html += `<div style="padding:8px 24px;max-width:700px;margin:0 auto;text-align:${s.align||'left'}"><p style="font-family:Outfit,sans-serif;font-size:${s.size||'15px'};color:${s.color||'#94a3b8'};line-height:1.8;margin:0">${esc(s.content)}</p></div>`;
-        break;
-      case 'image':
-        html += `<div style="padding:12px 24px;text-align:center">${s.url ? `<img src="${esc(s.url)}" alt="${esc(s.alt)}" style="max-width:${s.width||'100%'};border-radius:${s.borderRadius||'12px'};display:block;margin:0 auto">` : '<div style="background:#1e293b;border:1px dashed #334155;border-radius:12px;padding:40px;color:#64748b;font-size:13px">Image URL not set</div>'}</div>`;
+        html += `<div style="padding:8px 24px;max-width:700px;margin:0 auto;text-align:${s.align||'left'}"><div contenteditable="true" data-field="content" data-idx="${i}" style="font-family:Outfit,sans-serif;font-size:${s.size||'15px'};color:${s.color||'#94a3b8'};line-height:1.8;outline:none">${s.content||''}</div></div>`;
         break;
       case 'video':
         const embed = toEmbed(s.url);
-        html += `<div style="padding:12px 24px;max-width:700px;margin:0 auto">${embed ? `<div style="border-radius:12px;overflow:hidden;background:#0f1729;border:1px solid rgba(14,165,233,0.1)"><iframe src="${embed}" style="width:100%;aspect-ratio:16/9;border:none;display:block" allowfullscreen></iframe></div>` : '<div style="background:#1e293b;border:1px dashed #334155;border-radius:12px;padding:40px;text-align:center;color:#64748b;font-size:13px">Paste a YouTube or Vimeo URL</div>'}</div>`;
+        html += `<div style="padding:12px 24px;max-width:700px;margin:0 auto"><div class="vid-container" style="position:relative;border-radius:12px;overflow:hidden;background:#0f1729;border:1px solid rgba(14,165,233,0.1)">${embed?`<iframe src="${embed}" style="width:100%;aspect-ratio:16/9;border:none;display:block" allowfullscreen></iframe>`:'<div style="aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;color:#475569;font-size:13px">No video set</div>'}<div class="vid-overlay" onclick="editVideo(${i})"><div class="vid-edit-box" onclick="event.stopPropagation()"><div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600">Video URL</div><input class="vid-edit-input" id="vidInput${i}" value="${esc(s.url||'')}" placeholder="Paste YouTube or Vimeo URL" onkeydown="if(event.key==='Enter'){saveVideo(${i},this.value);event.preventDefault()}"><div style="margin-top:8px;display:flex;gap:6px"><button class="tb-btn tb-save" style="font-size:11px" onclick="saveVideo(${i},document.getElementById('vidInput${i}').value)">Apply</button><button class="tb-btn tb-ghost" style="font-size:11px" onclick="removeSection(${i})">Remove</button></div></div></div></div></div>`;
         break;
       case 'button':
-        html += `<div style="padding:20px 24px;text-align:${s.align||'center'}"><a href="${esc(s.url)}" style="display:inline-block;padding:14px 40px;border-radius:12px;background:linear-gradient(135deg,${s.color1||'#0ea5e9'},${s.color2||'#6366f1'});color:#fff;font-family:Sora,sans-serif;font-size:${s.size||'16px'};font-weight:700;text-decoration:none;box-shadow:0 0 30px ${s.color1||'#0ea5e9'}33">${esc(s.text)}</a></div>`;
+        html += `<div style="padding:20px 24px;text-align:${s.align||'center'}"><a style="display:inline-block;padding:14px 40px;border-radius:12px;background:linear-gradient(135deg,${s.color1||'#0ea5e9'},${s.color2||'#6366f1'});color:#fff;font-family:Sora,sans-serif;font-size:${s.size||'16px'};font-weight:700;text-decoration:none;box-shadow:0 0 30px ${s.color1||'#0ea5e9'}33;cursor:default">${esc(s.text)}</a></div>`;
         break;
       case 'features':
         html += `<div style="padding:12px 24px;max-width:650px;margin:0 auto"><ul style="list-style:none;padding:0">${(s.items||[]).map(f=>`<li style="display:flex;gap:10px;padding:10px 0;font-size:14px;color:${s.textColor||'#94a3b8'};border-top:1px solid rgba(255,255,255,0.05)"><span style="color:${s.checkColor||'#0ea5e9'};font-weight:700;flex-shrink:0">✓</span>${esc(f)}</li>`).join('')}</ul></div>`;
         break;
       case 'capture':
-        html += `<div style="max-width:420px;margin:12px auto;background:${s.bgColor||'#0f1729'}40;border:1px solid ${s.btnColor||'#0ea5e9'}20;border-radius:16px;padding:24px;text-align:center"><h3 style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff;margin:0 0 4px">${esc(s.heading)}</h3><p style="font-size:13px;color:#94a3b8;margin:0 0 14px">${esc(s.subtext)}</p><div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;margin-bottom:8px;color:rgba(255,255,255,0.3);font-size:13px;text-align:left">Your first name</div><div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;margin-bottom:10px;color:rgba(255,255,255,0.3);font-size:13px;text-align:left">Your email address</div><div style="background:linear-gradient(135deg,${s.btnColor||'#0ea5e9'},${s.btnColor2||'#6366f1'});border-radius:10px;padding:12px;color:#fff;font-weight:700;font-size:14px">${esc(s.btnText)}</div></div>`;
+        html += `<div style="max-width:420px;margin:12px auto;background:${s.bgColor||'#0f1729'}40;border:1px solid ${s.btnColor||'#0ea5e9'}20;border-radius:16px;padding:24px;text-align:center"><h3 contenteditable="true" data-field="heading" data-idx="${i}" style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff;margin:0 0 4px;outline:none">${s.heading||''}</h3><p contenteditable="true" data-field="subtext" data-idx="${i}" style="font-size:13px;color:#94a3b8;margin:0 0 14px;outline:none">${s.subtext||''}</p><div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;margin-bottom:8px;color:rgba(255,255,255,0.3);font-size:13px;text-align:left">Your first name</div><div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;margin-bottom:10px;color:rgba(255,255,255,0.3);font-size:13px;text-align:left">Your email address</div><div style="background:linear-gradient(135deg,${s.btnColor||'#0ea5e9'},${s.btnColor2||'#6366f1'});border-radius:10px;padding:12px;color:#fff;font-weight:700;font-size:14px">${esc(s.btnText)}</div></div>`;
         break;
       case 'testimonial':
-        html += `<div style="max-width:550px;margin:12px auto;padding:24px;background:${s.bgColor||'#1e293b'};border-radius:16px;border-left:4px solid #0ea5e9"><p style="font-size:15px;color:${s.color||'#e2e8f0'};line-height:1.7;margin:0 0 12px;font-style:italic">"${esc(s.quote)}"</p><div style="font-size:13px;color:#64748b;font-weight:600">— ${esc(s.author)}</div></div>`;
+        html += `<div style="max-width:550px;margin:12px auto;padding:24px;background:${s.bgColor||'#1e293b'};border-radius:16px;border-left:4px solid #0ea5e9"><p contenteditable="true" data-field="quote" data-idx="${i}" style="font-size:15px;color:${s.color||'#e2e8f0'};line-height:1.7;margin:0 0 12px;font-style:italic;outline:none">"${s.quote||''}"</p><div style="font-size:13px;color:#64748b;font-weight:600">— <span contenteditable="true" data-field="author" data-idx="${i}" style="outline:none">${s.author||''}</span></div></div>`;
         break;
       case 'divider':
         html += `<div style="padding:8px 24px"><hr style="border:none;height:${s.thickness||'1px'};background:${s.color||'#334155'};width:${s.width||'60%'};margin:0 auto"></div>`;
@@ -318,8 +225,8 @@ function renderPreview() {
       case 'spacer':
         html += `<div style="height:${s.height||'40px'}"></div>`;
         break;
-      case 'columns':
-        html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:12px 24px;max-width:700px;margin:0 auto"><div style="font-size:14px;color:${s.color||'#94a3b8'};line-height:1.7">${esc(s.left)}</div><div style="font-size:14px;color:${s.color||'#94a3b8'};line-height:1.7">${esc(s.right)}</div></div>`;
+      case 'image':
+        html += `<div style="padding:12px 24px;text-align:center">${s.url?`<img src="${esc(s.url)}" style="max-width:${s.width||'100%'};border-radius:${s.borderRadius||'12px'};display:block;margin:0 auto">`:'<div style="background:#1e293b;border:1px dashed #334155;border-radius:12px;padding:40px;color:#64748b;font-size:13px">Image — tell the AI to add one</div>'}</div>`;
         break;
       case 'html':
         html += `<div style="padding:12px 24px;max-width:700px;margin:0 auto">${s.code||''}</div>`;
@@ -330,234 +237,143 @@ function renderPreview() {
 
   // Disclaimer
   html += `<div style="text-align:center;padding:24px;font-size:11px;color:#475569">Income examples are illustrative. Results depend on individual effort.</div>`;
-  frame.innerHTML = html;
-}
+  wrap.innerHTML = html;
 
-function renderSecList() {
-  const list = document.getElementById('secList');
-  const typeLabels = { heading:'Heading', text:'Text', image:'Image', video:'Video', button:'Button', features:'Features', capture:'Email Capture', testimonial:'Testimonial', divider:'Divider', spacer:'Spacer', columns:'Two Columns', html:'Custom HTML' };
-  const typeIcons = { heading:'H', text:'¶', image:'🖼️', video:'▶️', button:'🔘', features:'✓', capture:'📩', testimonial:'💬', divider:'—', spacer:'↕️', columns:'▥', html:'</>' };
-
-  list.innerHTML = sections.map((s, i) => {
-    const preview = s.content || s.heading || s.text || s.url || s.quote || (s.items?s.items[0]:'') || '';
-    return `<div class="sec-item${i===selectedIdx?' selected':''}" onclick="selectSection(${i})" draggable="true" ondragstart="dragStart(event,${i})" ondragover="dragOver(event,${i})" ondrop="dropSec(event,${i})" ondragend="dragEnd(event)">
-      <span class="sec-handle">⠿</span>
-      <div class="sec-info"><div class="sec-type">${typeIcons[s.type]||'•'} ${typeLabels[s.type]||s.type}</div><div class="sec-preview">${esc(preview).substring(0,30)}</div></div>
-      <div class="sec-actions"><button class="sec-act sec-dup" onclick="event.stopPropagation();dupSection(${i})" title="Duplicate">⧉</button><button class="sec-act" onclick="event.stopPropagation();removeSection(${i})" title="Delete">✕</button></div>
-    </div>`;
-  }).join('');
-
-  if (sections.length === 0) {
-    list.innerHTML = '<div class="empty-hint">Add elements from the palette above to build your funnel.</div>';
-  }
-}
-
-// ── Drag & Drop ──
-let dragIdx = -1;
-function dragStart(e, i) { dragIdx = i; e.dataTransfer.effectAllowed = 'move'; e.target.classList.add('dragging'); }
-function dragOver(e, i) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
-function dropSec(e, i) { e.preventDefault(); if (dragIdx !== -1 && dragIdx !== i) moveSection(dragIdx, i); dragIdx = -1; }
-function dragEnd(e) { e.target.classList.remove('dragging'); dragIdx = -1; }
-
-// ── Properties panel ──
-function renderProps() {
-  const panel = document.getElementById('propPanel');
-  const title = document.getElementById('propTitle');
-
-  if (selectedIdx < 0 || selectedIdx >= sections.length) {
-    title.textContent = 'Properties';
-    panel.innerHTML = '<div class="empty-hint">Click a section to edit its properties.</div>';
-    return;
-  }
-
-  const s = sections[selectedIdx];
-  title.textContent = s.type.charAt(0).toUpperCase() + s.type.slice(1) + ' Properties';
-  let h = '';
-
-  // Move up/down buttons
-  h += `<div style="display:flex;gap:6px;margin-bottom:12px"><button class="ed-btn ed-btn-ghost" style="flex:1" onclick="moveSection(${selectedIdx},${selectedIdx-1})">↑ Up</button><button class="ed-btn ed-btn-ghost" style="flex:1" onclick="moveSection(${selectedIdx},${selectedIdx+1})">↓ Down</button></div>`;
-
-  switch(s.type) {
-    case 'heading':
-      h += field('Content', 'text', s.content, v => { s.content=v; render(); });
-      h += select('Level', s.level||'h1', [['h1','H1 Large'],['h2','H2 Medium'],['h3','H3 Small']], v => { s.level=v; render(); });
-      h += select('Align', s.align||'center', [['left','Left'],['center','Center'],['right','Right']], v => { s.align=v; render(); });
-      h += color('Text Colour', s.color||'#ffffff', v => { s.color=v; render(); });
-      break;
-    case 'text':
-      h += area('Content', s.content, v => { s.content=v; render(); });
-      h += select('Size', s.size||'15px', [['13px','Small'],['15px','Normal'],['17px','Large'],['20px','XL']], v => { s.size=v; render(); });
-      h += select('Align', s.align||'left', [['left','Left'],['center','Center'],['right','Right']], v => { s.align=v; render(); });
-      h += color('Text Colour', s.color||'#94a3b8', v => { s.color=v; render(); });
-      break;
-    case 'image':
-      h += field('Image URL', 'text', s.url||'', v => { s.url=v; render(); });
-      h += field('Alt Text', 'text', s.alt||'', v => { s.alt=v; });
-      h += field('Max Width', 'text', s.width||'100%', v => { s.width=v; render(); });
-      h += field('Border Radius', 'text', s.borderRadius||'12px', v => { s.borderRadius=v; render(); });
-      break;
-    case 'video':
-      h += field('YouTube / Vimeo URL', 'text', s.url||'', v => { s.url=v; render(); });
-      break;
-    case 'button':
-      h += field('Button Text', 'text', s.text, v => { s.text=v; render(); });
-      h += field('Link URL', 'text', s.url, v => { s.url=v; });
-      h += select('Size', s.size||'16px', [['14px','Small'],['16px','Normal'],['18px','Large']], v => { s.size=v; render(); });
-      h += select('Align', s.align||'center', [['left','Left'],['center','Center'],['right','Right']], v => { s.align=v; render(); });
-      h += color('Gradient Start', s.color1||'#0ea5e9', v => { s.color1=v; render(); });
-      h += color('Gradient End', s.color2||'#6366f1', v => { s.color2=v; render(); });
-      break;
-    case 'features':
-      h += area('Features (one per line)', (s.items||[]).join('\n'), v => { s.items=v.split('\n').filter(l=>l.trim()); render(); });
-      h += color('Check Colour', s.checkColor||'#0ea5e9', v => { s.checkColor=v; render(); });
-      h += color('Text Colour', s.textColor||'#94a3b8', v => { s.textColor=v; render(); });
-      break;
-    case 'capture':
-      h += field('Heading', 'text', s.heading, v => { s.heading=v; render(); });
-      h += field('Subtext', 'text', s.subtext, v => { s.subtext=v; render(); });
-      h += field('Button Text', 'text', s.btnText, v => { s.btnText=v; render(); });
-      h += color('Button Start', s.btnColor||'#0ea5e9', v => { s.btnColor=v; render(); });
-      h += color('Button End', s.btnColor2||'#6366f1', v => { s.btnColor2=v; render(); });
-      h += color('Form Background', s.bgColor||'#0f1729', v => { s.bgColor=v; render(); });
-      break;
-    case 'testimonial':
-      h += area('Quote', s.quote, v => { s.quote=v; render(); });
-      h += field('Author', 'text', s.author, v => { s.author=v; render(); });
-      h += color('Text Colour', s.color||'#e2e8f0', v => { s.color=v; render(); });
-      h += color('Background', s.bgColor||'#1e293b', v => { s.bgColor=v; render(); });
-      break;
-    case 'divider':
-      h += color('Colour', s.color||'#334155', v => { s.color=v; render(); });
-      h += field('Thickness', 'text', s.thickness||'1px', v => { s.thickness=v; render(); });
-      h += field('Width', 'text', s.width||'60%', v => { s.width=v; render(); });
-      break;
-    case 'spacer':
-      h += field('Height', 'text', s.height||'40px', v => { s.height=v; render(); });
-      break;
-    case 'columns':
-      h += area('Left Column', s.left, v => { s.left=v; render(); });
-      h += area('Right Column', s.right, v => { s.right=v; render(); });
-      h += color('Text Colour', s.color||'#94a3b8', v => { s.color=v; render(); });
-      break;
-    case 'html':
-      h += area('HTML Code', s.code, v => { s.code=v; render(); });
-      break;
-  }
-
-  panel.innerHTML = h;
-  // Attach event listeners
-  panel.querySelectorAll('[data-prop]').forEach(el => {
-    const fn = el._handler;
-    if (fn) {
-      el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', e => fn(e.target.value));
-    }
+  // Attach contenteditable blur handlers
+  wrap.querySelectorAll('[contenteditable]').forEach(el => {
+    el.addEventListener('blur', () => {
+      const idx = parseInt(el.dataset.idx);
+      const field = el.dataset.field;
+      if (idx >= 0 && sections[idx] && field) {
+        sections[idx][field] = el.innerHTML;
+      }
+    });
+    el.addEventListener('focus', () => showFmtBar(el));
   });
 }
 
-// ── Property field builders ──
-let _propId = 0;
-function field(label, type, value, onChange) {
-  const id = 'prop_' + (++_propId);
-  setTimeout(() => { const el = document.getElementById(id); if (el) { el._handler = onChange; el.addEventListener('input', e => onChange(e.target.value)); }}, 10);
-  return `<div class="prop-section"><label class="prop-label">${label}</label><input type="${type}" id="${id}" class="prop-input" value="${esc(value)}"></div>`;
+// ── Video editing ──
+function editVideo(idx) { /* overlay handles it */ }
+function saveVideo(idx, url) {
+  sections[idx].url = url.trim();
+  renderPreview();
+  showToast('Video updated');
 }
-function area(label, value, onChange) {
-  const id = 'prop_' + (++_propId);
-  setTimeout(() => { const el = document.getElementById(id); if (el) { el._handler = onChange; el.addEventListener('input', e => onChange(e.target.value)); }}, 10);
-  return `<div class="prop-section"><label class="prop-label">${label}</label><textarea id="${id}" class="prop-input" style="min-height:80px">${esc(value)}</textarea></div>`;
+function removeSection(idx) {
+  sections.splice(idx, 1);
+  renderPreview();
 }
-function select(label, value, options, onChange) {
-  const id = 'prop_' + (++_propId);
-  setTimeout(() => { const el = document.getElementById(id); if (el) el.addEventListener('change', e => onChange(e.target.value)); }, 10);
-  return `<div class="prop-section"><label class="prop-label">${label}</label><select id="${id}" class="prop-input">${options.map(([v,l])=>`<option value="${v}"${v===value?' selected':''}>${l}</option>`).join('')}</select></div>`;
+
+// ── Background ──
+function changeBg(color) {
+  pageStyle.bg = color;
+  pageStyle.bgImage = '';
+  renderPreview();
 }
-function color(label, value, onChange) {
-  const id = 'prop_' + (++_propId);
-  setTimeout(() => { const el = document.getElementById(id); if (el) el.addEventListener('input', e => onChange(e.target.value)); }, 10);
-  return `<div class="prop-color"><div class="prop-swatch"><input type="color" id="${id}" value="${value}"></div><span class="prop-color-label">${label}</span></div>`;
+
+// ── Formatting toolbar ──
+function showFmtBar(el) {
+  const bar = document.getElementById('fmtBar');
+  const rect = el.getBoundingClientRect();
+  bar.style.top = Math.max(56, rect.top - 44) + 'px';
+  bar.style.left = Math.min(rect.left, window.innerWidth - 300) + 'px';
+  bar.classList.add('show');
+  // Hide on click outside
+  const hide = (e) => { if (!bar.contains(e.target) && !el.contains(e.target)) { bar.classList.remove('show'); document.removeEventListener('mousedown', hide); }};
+  setTimeout(() => document.addEventListener('mousedown', hide), 100);
+}
+function fmt(cmd) { document.execCommand(cmd); }
+function fmtSize(val) { if (val) document.execCommand('fontSize', false, val); }
+function fmtFont(val) { if (val) document.execCommand('fontName', false, val); }
+function fmtColor(val) { document.execCommand('foreColor', false, val); }
+
+// ── Chat / AI commands ──
+function addChatMsg(text, role) {
+  const msgs = document.getElementById('chatMsgs');
+  const div = document.createElement('div');
+  div.className = 'chat-msg chat-' + role;
+  div.textContent = text;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  input.value = '';
+  addChatMsg(msg, 'user');
+
+  const btn = document.getElementById('chatSendBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-sm"></span>';
+
+  try {
+    const res = await fetch('/api/pro/funnel/' + FUNNEL_ID + '/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        message: msg,
+        sections: sections,
+        pageStyle: pageStyle,
+      })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      if (data.sections) sections = data.sections;
+      if (data.pageStyle) {
+        if (data.pageStyle.bg) { pageStyle.bg = data.pageStyle.bg; document.getElementById('pageBgColor').value = pageStyle.bg; }
+        if (data.pageStyle.bgImage) pageStyle.bgImage = data.pageStyle.bgImage;
+      }
+      addChatMsg(data.response || 'Done! Preview updated.', 'ai');
+      renderPreview();
+    } else {
+      addChatMsg(data.error || 'Something went wrong. Try again.', 'ai');
+    }
+  } catch(e) {
+    addChatMsg('Connection error. Please try again.', 'ai');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = 'Send ✨';
 }
 
 // ── Save ──
 async function save() {
-  const data = {
+  // Read back any contenteditable changes
+  document.querySelectorAll('[contenteditable]').forEach(el => {
+    const idx = parseInt(el.dataset.idx);
+    const field = el.dataset.field;
+    if (idx >= 0 && sections[idx] && field) {
+      sections[idx][field] = el.innerHTML;
+    }
+  });
+
+  const body = {
     sections: sections,
-    colors: { bg: pageColors.bg },
-    // Legacy fields for backward compat
+    colors: { bg: pageStyle.bg },
+    bgImage: pageStyle.bgImage,
     headline: sections.find(s=>s.type==='heading')?.content || '',
     subheadline: sections.find(s=>s.type==='text')?.content || '',
-    cta_text: sections.find(s=>s.type==='button')?.text || 'Join Now',
+    cta_text: sections.find(s=>s.type==='button')?.text || '',
     capture_heading: sections.find(s=>s.type==='capture')?.heading || '',
     capture_subtext: sections.find(s=>s.type==='capture')?.subtext || '',
     features: sections.find(s=>s.type==='features')?.items || [],
     body_paragraphs: sections.filter(s=>s.type==='text').map(s=>s.content),
-  };
-
-  // Find video URL
-  const vidSec = sections.find(s=>s.type==='video');
-
-  const body = {
-    headline: data.headline,
-    subheadline: data.subheadline,
-    body_paragraphs: data.body_paragraphs,
-    features: data.features,
-    cta_text: data.cta_text,
-    capture_heading: data.capture_heading,
-    capture_subtext: data.capture_subtext,
-    video_url: vidSec?.url || '',
-    status: document.getElementById('pageStatus').value,
-    colors: data.colors,
-    sections: sections,
+    video_url: sections.find(s=>s.type==='video')?.url || '',
+    status: 'published',
   };
 
   try {
     const res = await fetch('/api/pro/funnel/' + FUNNEL_ID + '/save', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
+      method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify(body)
     });
     const r = await res.json();
     showToast(r.success ? '✓ Saved!' : 'Save failed');
   } catch(e) { showToast('Save error'); }
-}
-
-async function aiModify() {
-  const input = document.getElementById('aiInput');
-  const btn = document.getElementById('aiSendBtn');
-  const instruction = input.value.trim();
-  if (!instruction) return;
-
-  btn.disabled = true;
-  btn.textContent = '⏳ Working...';
-
-  try {
-    const res = await fetch('/api/pro/funnel/' + FUNNEL_ID + '/ai-modify', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        instruction: instruction,
-        current_sections: sections,
-        page_bg: pageColors.bg
-      })
-    });
-    const data = await res.json();
-    if (data.success && data.sections) {
-      sections = data.sections;
-      if (data.page_bg) {
-        pageColors.bg = data.page_bg;
-        document.getElementById('pageBg').value = data.page_bg;
-      }
-      selectedIdx = -1;
-      render();
-      input.value = '';
-      showToast('✨ Applied!');
-    } else {
-      showToast(data.error || 'AI modification failed');
-    }
-  } catch(e) {
-    showToast('Connection error');
-  }
-
-  btn.disabled = false;
-  btn.textContent = '✨ Apply';
 }
 
 function showToast(msg) {
@@ -566,8 +382,8 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ── Init ──
-render();
+// Init
+renderPreview();
 </script>
 </body>
 </html>
