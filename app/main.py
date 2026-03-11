@@ -8972,6 +8972,95 @@ Return ONLY valid JSON."""
         return JSONResponse({"error": "Regeneration failed"}, status_code=500)
 
 
+@app.post("/api/pro/funnel/{funnel_id}/ai-modify")
+async def api_pro_funnel_ai_modify(funnel_id: int, request: Request, db: Session = Depends(get_db)):
+    """AI modifies funnel sections based on natural language instruction."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+        return JSONResponse({"error": "Pro tier required"}, status_code=403)
+
+    page = db.query(FunnelPage).filter(FunnelPage.id == funnel_id, FunnelPage.user_id == user.id).first()
+    if not page:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return JSONResponse({"error": "AI unavailable"}, status_code=503)
+
+    body = await request.json()
+    instruction = body.get("instruction", "")
+    current_sections = body.get("current_sections", [])
+    page_bg = body.get("page_bg", "#050d1a")
+
+    import json as _jmod
+
+    prompt = f"""You are editing a landing page funnel. The page is made of sections stored as a JSON array.
+
+CURRENT PAGE BACKGROUND: {page_bg}
+CURRENT SECTIONS:
+{_jmod.dumps(current_sections, indent=2)}
+
+USER INSTRUCTION: "{instruction}"
+
+Modify the sections array based on the user's instruction. You can:
+- Add new sections (insert at the appropriate position)
+- Remove sections
+- Modify existing section properties (text, colours, sizes, etc)
+- Reorder sections
+- Change the page background colour
+
+Section types and their properties:
+- heading: content, level (h1/h2/h3), color (hex), align (left/center/right)
+- text: content, color (hex), align, size (13px/15px/17px/20px)
+- image: url, alt, width, borderRadius
+- video: url (YouTube/Vimeo watch URL)
+- button: text, url, color1 (hex gradient start), color2 (hex gradient end), align, size
+- features: items (array of strings), checkColor (hex), textColor (hex)
+- capture: heading, subtext, btnText, btnColor (hex), btnColor2 (hex), bgColor (hex)
+- testimonial: quote, author, color (hex), bgColor (hex)
+- divider: color (hex), thickness, width
+- spacer: height
+- columns: left, right, color (hex)
+- html: code
+
+The affiliate's referral link is: /register?ref={user.username}
+
+Return ONLY a JSON object with:
+- "sections": the updated sections array
+- "page_bg": the page background colour (hex, include even if unchanged)
+
+No explanation, no markdown. ONLY valid JSON."""
+
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+        resp = client.messages.create(
+            model=AI_MODEL_HAIKU,
+            max_tokens=2000,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        text = resp.content[0].text.strip()
+        if text.startswith("```"):
+            text = text.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+        if "{" in text:
+            text = text[text.index("{"):text.rindex("}") + 1]
+
+        result = _jmod.loads(text)
+        new_sections = result.get("sections", current_sections)
+        new_bg = result.get("page_bg", page_bg)
+
+        return JSONResponse({
+            "success": True,
+            "sections": new_sections,
+            "page_bg": new_bg,
+        })
+
+    except Exception as e:
+        logger.error(f"AI funnel modify failed: {e}")
+        return JSONResponse({"error": f"AI modification failed: {str(e)[:100]}"}, status_code=500)
+
+
 @app.post("/api/capture/{username}/{slug}")
 async def api_capture_lead(username: str, slug: str, request: Request, db: Session = Depends(get_db)):
     """Public endpoint — captures an email from a funnel form and starts the autoresponder."""

@@ -13,7 +13,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1e293b;color:var(--t
 /* Layout */
 .ed-layout{display:flex;height:100vh}
 .ed-left{width:340px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:100vh}
-.ed-center{flex:1;overflow-y:auto;padding:24px;display:flex;justify-content:center}
+.ed-center{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;align-items:center}
+
+/* AI instruction bar */
+.ai-bar{width:100%;max-width:800px;margin-bottom:16px;display:flex;gap:8px;flex-shrink:0}
+.ai-input{flex:1;padding:11px 16px;border:1px solid #334155;border-radius:10px;background:#0f172a;color:#e2e8f0;font-size:13px;font-family:inherit}
+.ai-input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(14,165,233,.15)}
+.ai-input::placeholder{color:#475569}
+.ai-send{padding:11px 18px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.15s}
+.ai-send:hover{opacity:.9}
+.ai-send:disabled{opacity:.5;cursor:wait}
 .ed-right{width:260px;background:#fff;border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:100vh;overflow:hidden}
 
 /* Header */
@@ -132,6 +141,10 @@ select.prop-input{background:#fff}
 
   <!-- ══════ CENTER: Live Preview ══════ -->
   <div class="ed-center" id="edCenter">
+    <div class="ai-bar">
+      <input type="text" class="ai-input" id="aiInput" placeholder="Tell the AI what to change... e.g. 'add a testimonial', 'make background dark green', 'add my YouTube video https://...'" onkeydown="if(event.key==='Enter')aiModify()">
+      <button class="ai-send" id="aiSendBtn" onclick="aiModify()">✨ Apply</button>
+    </div>
     <div class="pv-frame" id="pvFrame">
       <!-- Rendered by JS -->
     </div>
@@ -504,6 +517,47 @@ async function save() {
     const r = await res.json();
     showToast(r.success ? '✓ Saved!' : 'Save failed');
   } catch(e) { showToast('Save error'); }
+}
+
+async function aiModify() {
+  const input = document.getElementById('aiInput');
+  const btn = document.getElementById('aiSendBtn');
+  const instruction = input.value.trim();
+  if (!instruction) return;
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Working...';
+
+  try {
+    const res = await fetch('/api/pro/funnel/' + FUNNEL_ID + '/ai-modify', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        instruction: instruction,
+        current_sections: sections,
+        page_bg: pageColors.bg
+      })
+    });
+    const data = await res.json();
+    if (data.success && data.sections) {
+      sections = data.sections;
+      if (data.page_bg) {
+        pageColors.bg = data.page_bg;
+        document.getElementById('pageBg').value = data.page_bg;
+      }
+      selectedIdx = -1;
+      render();
+      input.value = '';
+      showToast('✨ Applied!');
+    } else {
+      showToast(data.error || 'AI modification failed');
+    }
+  } catch(e) {
+    showToast('Connection error');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '✨ Apply';
 }
 
 function showToast(msg) {
