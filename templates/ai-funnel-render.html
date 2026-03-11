@@ -88,9 +88,9 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 </section>
 
 <!-- Video (if provided) -->
-{% if page.video_url %}
+{% if video_embed %}
 <div class="video-wrap">
-  <iframe src="{{ page.video_url }}" allowfullscreen loading="lazy"></iframe>
+  <iframe src="{{ video_embed }}" allowfullscreen loading="lazy"></iframe>
 </div>
 {% endif %}
 

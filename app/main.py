@@ -741,6 +741,7 @@ def dev_login(request: Request, db: Session = Depends(get_db)):
             user.upline_earnings=131.00; user.total_withdrawn=644.50
             user.personal_referrals=7; user.total_team=34
             user.is_active=True
+            user.membership_tier="pro"
             db.commit()
         response = RedirectResponse(url="/dashboard", status_code=303)
         set_secure_cookie(response, user.id)
@@ -8765,6 +8766,7 @@ Return ONLY a valid JSON array. No markdown."""
             body_copy=_json3.dumps(funnel_data.get("body_paragraphs", [])),
             cta_text=funnel_data.get("cta_text", "Join Now"),
             cta_url=f"/register?ref={user.username}",
+            video_url=body.get("video_url", ""),
             sections_json=_json3.dumps(funnel_data),
             has_capture_form=True,
             capture_form_heading=funnel_data.get("capture_heading", "Get Free Access"),
@@ -9064,6 +9066,24 @@ async def render_ai_funnel(username: str, slug: str, request: Request, db: Sessi
     except:
         pass
 
+    # Convert video URL to embed format if needed
+    video_embed = ""
+    if page.video_url:
+        vid_url = page.video_url.strip()
+        if "youtube.com/watch" in vid_url:
+            vid_id = vid_url.split("v=")[-1].split("&")[0]
+            video_embed = f"https://www.youtube.com/embed/{vid_id}"
+        elif "youtu.be/" in vid_url:
+            vid_id = vid_url.split("youtu.be/")[-1].split("?")[0]
+            video_embed = f"https://www.youtube.com/embed/{vid_id}"
+        elif "vimeo.com/" in vid_url:
+            vid_id = vid_url.split("vimeo.com/")[-1].split("?")[0]
+            video_embed = f"https://player.vimeo.com/video/{vid_id}"
+        elif "embed" in vid_url or "player" in vid_url:
+            video_embed = vid_url
+        else:
+            video_embed = vid_url
+
     # Track view
     page.views = (page.views or 0) + 1
     db.commit()
@@ -9073,6 +9093,7 @@ async def render_ai_funnel(username: str, slug: str, request: Request, db: Sessi
         "page": page,
         "owner": owner,
         "funnel_data": funnel_data,
+        "video_embed": video_embed,
     })
 
 
