@@ -141,6 +141,7 @@ textarea.form-input{min-height:80px;resize:vertical}
             <div class="fc-actions">
               <a href="/pro/funnel/{{ f.id }}/edit" class="btn btn-ghost btn-sm" style="flex:1;text-align:center;text-decoration:none">Edit</a>
               <a href="/f/{{ f.slug }}" target="_blank" class="btn btn-gradient btn-sm" style="flex:1;text-align:center;text-decoration:none">View Live</a>
+              <button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;flex-shrink:0" onclick="deleteFunnel({{ f.id }},'{{ f.headline or f.title }}')">🗑</button>
             </div>
           </div>
         </div>
@@ -286,6 +287,24 @@ async function generateFunnel(){
     alert('Something went wrong. Please try again.');
     document.getElementById('wizardLoading').style.display='none';
     document.getElementById('wizardForm').style.display='block';
+  }
+}
+
+async function deleteFunnel(id, title) {
+  if (!confirm('Delete "' + title + '"? This cannot be undone.')) return;
+  try {
+    const res = await fetch('/api/pro/funnel/' + id + '/delete', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'}
+    });
+    const data = await res.json();
+    if (data.success) {
+      location.reload();
+    } else {
+      alert(data.error || 'Delete failed');
+    }
+  } catch(e) {
+    alert('Connection error');
   }
 }
 </script>

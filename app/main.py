@@ -8904,6 +8904,22 @@ async def api_pro_funnel_save(funnel_id: int, request: Request, db: Session = De
     return JSONResponse({"success": True})
 
 
+@app.post("/api/pro/funnel/{funnel_id}/delete")
+async def api_pro_funnel_delete(funnel_id: int, request: Request, db: Session = Depends(get_db)):
+    """Delete an AI-generated funnel."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+
+    page = db.query(FunnelPage).filter(FunnelPage.id == funnel_id, FunnelPage.user_id == user.id).first()
+    if not page:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+
+    db.delete(page)
+    db.commit()
+    return JSONResponse({"success": True})
+
+
 @app.post("/api/pro/funnel/{funnel_id}/regenerate")
 async def api_pro_funnel_regenerate(funnel_id: int, request: Request, db: Session = Depends(get_db)):
     """Regenerate funnel copy with AI feedback."""
