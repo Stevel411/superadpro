@@ -122,20 +122,29 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#0f172a;color:#e2e8f0
 
         <div style="margin-top:12px;font-size:11px;font-weight:700;color:#6366f1;letter-spacing:.5px">CHANGE STYLE</div>
         <div class="chip-row">
-          <span class="chip" onclick="quickChat('Change background to dark blue')">Background colour</span>
-          <span class="chip" onclick="quickChat('Change button colours to green')">Button colours</span>
-          <span class="chip" onclick="quickChat('Change heading colour to gold')">Heading colour</span>
-          <span class="chip" onclick="quickChat('Change text colour to white')">Text colour</span>
-          <span class="chip" onclick="quickChat('Make the background a sunset over mountains')">AI Background</span>
+          <span class="chip" onclick="promptChip('Change background colour to ','dark blue')">Background colour</span>
+          <span class="chip" onclick="promptChip('Change button colours to ','green and teal')">Button colours</span>
+          <span class="chip" onclick="promptChip('Change heading colour to ','gold')">Heading colour</span>
+          <span class="chip" onclick="promptChip('Change text colour to ','light grey')">Text colour</span>
+          <span class="chip" onclick="promptChip('Make the background a ','sunset over mountains')">AI Background</span>
         </div>
 
-        <div style="margin-top:12px;font-size:11px;font-weight:700;color:#10b981;letter-spacing:.5px">EDIT CONTENT</div>
+        <div style="margin-top:12px;font-size:11px;font-weight:700;color:#10b981;letter-spacing:.5px">ADD ELEMENTS</div>
         <div class="chip-row">
-          <span class="chip" onclick="quickChat('Change the heading text')">Change heading</span>
-          <span class="chip" onclick="quickChat('Rewrite the body text to be more casual')">Change tone</span>
-          <span class="chip" onclick="quickChat('Change the button text')">Button text</span>
-          <span class="chip" onclick="quickChat('Change the capture form heading')">Form heading</span>
-          <span class="chip" onclick="quickChat('Remove the last section')">Remove section</span>
+          <span class="chip" onclick="promptChip('Add a ','blue')"> button</span>
+          <span class="chip" onclick="promptChip('Add a testimonial that says ','this platform is amazing')">Testimonial</span>
+          <span class="chip" onclick="promptChip('Add a video section','')">Video</span>
+          <span class="chip" onclick="promptChip('Add a heading that says ','Your Headline Here')">Heading</span>
+          <span class="chip" onclick="promptChip('Add a feature list with: ','AI tools, email capture, lead tracking')">Features</span>
+        </div>
+
+        <div style="margin-top:12px;font-size:11px;font-weight:700;color:#f59e0b;letter-spacing:.5px">EDIT CONTENT</div>
+        <div class="chip-row">
+          <span class="chip" onclick="promptChip('Change the heading to ','Your New Heading')">Change heading</span>
+          <span class="chip" onclick="promptChip('Rewrite the body text to be more ','casual and friendly')">Change tone</span>
+          <span class="chip" onclick="promptChip('Change the button text to ','Get Started Free')">Button text</span>
+          <span class="chip" onclick="promptChip('Change the capture form heading to ','Join Our Community')">Form heading</span>
+          <span class="chip" onclick="promptChip('Remove the ','last section')">Remove section</span>
         </div>
       </div>
 
@@ -323,7 +332,18 @@ function addAiMsg(html){
   const d=document.createElement('div');d.className='chat-msg chat-ai';d.innerHTML=html;
   msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
 }
-function quickChat(text){document.getElementById('chatInput').value=text;sendChat();}
+function promptChip(prefix, placeholder){
+  const input=document.getElementById('chatInput');
+  input.value=prefix+placeholder;
+  input.focus();
+  // Select just the placeholder text so user can type over it
+  if(placeholder){
+    const start=prefix.length;
+    const end=start+placeholder.length;
+    input.setSelectionRange(start,end);
+  }
+  autoGrow(input);
+}
 
 function handleKey(e){
   if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}
