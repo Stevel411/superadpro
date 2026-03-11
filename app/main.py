@@ -8358,10 +8358,14 @@ def linkhub_public(username: str, request: Request, db: Session = Depends(get_db
 
 @app.get("/proseller")
 async def proseller_page(request: Request, db: Session = Depends(get_db)):
-    """ProSeller CRM with AI coach — accessible from sidebar and standalone."""
+    """ProSeller CRM with AI coach — Pro tier only."""
     user = get_current_user(request, db)
     if not user:
         return RedirectResponse("/login?next=/proseller", status_code=302)
+
+    # Pro tier gate
+    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+        return RedirectResponse("/upgrade", status_code=302)
 
     # Load prospects for this user
     from .database import Prospect, ProSellerMessage
@@ -8592,4 +8596,459 @@ async def join_funnel(username: str, request: Request, db: Session = Depends(get
     })
     response.set_cookie("ref", username, max_age=30*24*60*60)  # 30 days
     return response
+
+
+# ═══════════════════════════════════════════════════════════════
+#  PRO TIER — Upgrade page + AI Funnel Generator + Leads
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/upgrade")
+async def upgrade_page(request: Request, db: Session = Depends(get_db)):
+    """Show the Pro tier upgrade page."""
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/upgrade", status_code=302)
+    return templates.TemplateResponse("upgrade.html", {
+        "request": request,
+        "user": user,
+        "active_page": "upgrade",
+    })
+
+
+@app.get("/pro/funnels")
+async def pro_funnels_page(request: Request, db: Session = Depends(get_db)):
+    """List the member's AI-generated funnels."""
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/pro/funnels", status_code=302)
+    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+        return RedirectResponse("/upgrade", status_code=302)
+
+    funnels = db.query(FunnelPage).filter(
+        FunnelPage.user_id == user.id,
+        FunnelPage.is_ai_generated == True
+    ).order_by(FunnelPage.created_at.desc()).all()
+
+    return templates.TemplateResponse("pro-funnels.html", {
+        "request": request,
+        "user": user,
+        "active_page": "pro-funnels",
+        "funnels": funnels,
+    })
+
+
+@app.post("/api/pro/generate-funnel")
+async def api_pro_generate_funnel(request: Request, db: Session = Depends(get_db)):
+    """AI generates a complete landing page + email sequence from 4 inputs."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+        return JSONResponse({"error": "Pro tier required"}, status_code=403)
+
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return JSONResponse({"error": "AI unavailable"}, status_code=503)
+
+    body = await request.json()
+    niche = body.get("niche", "general")
+    audience = body.get("audience", "beginners")
+    story = body.get("story", "")
+    tone = body.get("tone", "professional")
+
+    # ── Generate funnel page copy ──
+    funnel_prompt = f"""Generate a landing page for a SuperAdPro affiliate. Output ONLY a JSON object with these keys:
+- headline: A compelling headline (under 12 words)
+- subheadline: One sentence expanding on the headline
+- body_paragraphs: Array of 3-4 paragraphs of persuasive copy
+- capture_heading: Opt-in form heading (e.g. "Get Free Access")
+- capture_subtext: One line below the form heading
+- features: Array of 5-6 bullet points about what SuperAdPro offers
+- cta_text: Call to action button text
+
+Context:
+- Niche: {niche}
+- Target audience: {audience}
+- Member's story: {story or 'Not provided'}
+- Tone: {tone}
+
+Rules:
+- No hype, no income promises, no "passive income" or "get rich"
+- Honest and educational tone
+- Focus on the tools, the training, and the real advertising utility
+- The opt-in is to learn more (email sequence will nurture them)
+- Keep it natural and human
+
+Return ONLY valid JSON. No markdown, no explanation."""
+
+    # ── Generate email sequence ──
+    sequence_prompt = f"""Generate a 5-email nurture sequence for a SuperAdPro affiliate's leads. Output ONLY a JSON array of 5 objects, each with:
+- subject: Email subject line
+- body_html: Email body as simple HTML (paragraphs only, no complex styling)
+- send_delay_days: Days after capture to send (0, 2, 4, 7, 10)
+
+Context:
+- Niche: {niche}
+- Target audience: {audience}
+- Tone: {tone}
+
+Email structure:
+1. Welcome + what they'll learn (immediate)
+2. Value tip relevant to their niche (day 2)
+3. Introduce SuperAdPro and the 4 income streams briefly (day 4)
+4. Address common concerns for this audience (day 7)
+5. Direct invitation to join with a clear CTA (day 10)
+
+Rules:
+- No hype or income promises
+- Honest, helpful, educational
+- Each email should feel personal, not templated
+- Include {{referral_link}} placeholder where the join link should go
+- Include {{member_name}} placeholder for the affiliate's name
+- Keep each email under 200 words
+
+Return ONLY a valid JSON array. No markdown."""
+
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+
+        # Generate funnel copy
+        funnel_resp = client.messages.create(
+            model=AI_MODEL_HAIKU,
+            max_tokens=800,
+            messages=[{"role": "user", "content": funnel_prompt}]
+        )
+        funnel_text = funnel_resp.content[0].text.strip()
+        if funnel_text.startswith("```"):
+            funnel_text = funnel_text.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+
+        import json as _json3
+        funnel_data = _json3.loads(funnel_text)
+
+        # Generate email sequence
+        seq_resp = client.messages.create(
+            model=AI_MODEL_HAIKU,
+            max_tokens=1200,
+            messages=[{"role": "user", "content": sequence_prompt}]
+        )
+        seq_text = seq_resp.content[0].text.strip()
+        if seq_text.startswith("```"):
+            seq_text = seq_text.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+
+        seq_data = _json3.loads(seq_text)
+
+        # Save email sequence
+        from .database import EmailSequence
+        sequence = EmailSequence(
+            user_id=user.id,
+            title=f"{niche.title()} Nurture Sequence",
+            niche=niche,
+            tone=tone,
+            num_emails=len(seq_data),
+            emails_json=_json3.dumps(seq_data),
+        )
+        db.add(sequence)
+        db.flush()
+
+        # Save funnel page
+        import secrets as _secrets
+        slug = f"{niche.lower().replace(' ', '-')}-{_secrets.token_hex(3)}"
+
+        page = FunnelPage(
+            user_id=user.id,
+            slug=f"{user.username}/{slug}",
+            title=funnel_data.get("headline", "Join SuperAdPro"),
+            template_type="ai_funnel",
+            status="published",
+            headline=funnel_data.get("headline"),
+            subheadline=funnel_data.get("subheadline"),
+            body_copy=_json3.dumps(funnel_data.get("body_paragraphs", [])),
+            cta_text=funnel_data.get("cta_text", "Join Now"),
+            cta_url=f"/register?ref={user.username}",
+            sections_json=_json3.dumps(funnel_data),
+            has_capture_form=True,
+            capture_form_heading=funnel_data.get("capture_heading", "Get Free Access"),
+            capture_form_subtext=funnel_data.get("capture_subtext", ""),
+            capture_sequence_id=sequence.id,
+            is_ai_generated=True,
+            ai_niche=niche,
+            ai_audience=audience,
+            ai_story=story,
+            ai_tone=tone,
+        )
+        db.add(page)
+        db.commit()
+        db.refresh(page)
+
+        return JSONResponse({
+            "success": True,
+            "funnel_id": page.id,
+            "funnel_url": f"/f/{user.username}/{slug}",
+            "sequence_id": sequence.id,
+            "funnel_data": funnel_data,
+        })
+
+    except Exception as e:
+        logger.error(f"AI funnel generation failed: {e}")
+        return JSONResponse({"error": "Failed to generate funnel. Please try again."}, status_code=500)
+
+
+@app.post("/api/capture/{username}/{slug}")
+async def api_capture_lead(username: str, slug: str, request: Request, db: Session = Depends(get_db)):
+    """Public endpoint — captures an email from a funnel form and starts the autoresponder."""
+    body = await request.json()
+    lead_email = body.get("email", "").strip().lower()
+    lead_name = body.get("name", "").strip()
+
+    if not lead_email or "@" not in lead_email:
+        return JSONResponse({"error": "Valid email required"}, status_code=400)
+
+    # Find the funnel owner
+    owner = db.query(User).filter(User.username == username).first()
+    if not owner:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+
+    # Find the funnel page
+    full_slug = f"{username}/{slug}"
+    page = db.query(FunnelPage).filter(FunnelPage.slug == full_slug).first()
+
+    # Check for duplicate lead
+    from .database import MemberLead
+    existing = db.query(MemberLead).filter(
+        MemberLead.user_id == owner.id,
+        MemberLead.email == lead_email
+    ).first()
+    if existing:
+        return JSONResponse({"success": True, "message": "Already subscribed"})
+
+    # Create Brevo contact with member tag
+    brevo_contact_id = _create_brevo_contact(lead_email, lead_name, owner.id)
+
+    # Save the lead
+    lead = MemberLead(
+        user_id=owner.id,
+        email=lead_email,
+        name=lead_name,
+        source_funnel_id=page.id if page else None,
+        source_url=f"/f/{full_slug}",
+        brevo_contact_id=brevo_contact_id,
+        status="nurturing",
+        email_sequence_id=page.capture_sequence_id if page else None,
+    )
+    db.add(lead)
+
+    # Update funnel lead count
+    if page:
+        page.leads_captured = (page.leads_captured or 0) + 1
+
+    db.commit()
+    db.refresh(lead)
+
+    # Send the first email in the sequence immediately
+    if lead.email_sequence_id:
+        _send_sequence_email(db, lead, 0)
+
+    return JSONResponse({"success": True, "message": "Welcome! Check your inbox."})
+
+
+@app.get("/pro/leads")
+async def pro_leads_page(request: Request, db: Session = Depends(get_db)):
+    """Lead dashboard for Pro members."""
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse("/login?next=/pro/leads", status_code=302)
+    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+        return RedirectResponse("/upgrade", status_code=302)
+
+    from .database import MemberLead
+    leads = db.query(MemberLead).filter(
+        MemberLead.user_id == user.id
+    ).order_by(MemberLead.created_at.desc()).all()
+
+    total = len(leads)
+    hot = sum(1 for l in leads if l.is_hot)
+    nurturing = sum(1 for l in leads if l.status == "nurturing")
+    converted = sum(1 for l in leads if l.status == "converted")
+
+    return templates.TemplateResponse("pro-leads.html", {
+        "request": request,
+        "user": user,
+        "active_page": "pro-leads",
+        "leads": leads,
+        "total_leads": total,
+        "hot_leads": hot,
+        "nurturing_leads": nurturing,
+        "converted_leads": converted,
+    })
+
+
+@app.get("/f/{username}/{slug}")
+async def render_ai_funnel(username: str, slug: str, request: Request, db: Session = Depends(get_db)):
+    """Render an AI-generated funnel page — public facing."""
+    full_slug = f"{username}/{slug}"
+    page = db.query(FunnelPage).filter(FunnelPage.slug == full_slug, FunnelPage.status == "published").first()
+    if not page:
+        return RedirectResponse("/", status_code=302)
+
+    owner = db.query(User).filter(User.id == page.user_id).first()
+
+    import json as _json4
+    funnel_data = {}
+    try:
+        funnel_data = _json4.loads(page.sections_json) if page.sections_json else {}
+    except:
+        pass
+
+    # Track view
+    page.views = (page.views or 0) + 1
+    db.commit()
+
+    return templates.TemplateResponse("ai-funnel-render.html", {
+        "request": request,
+        "page": page,
+        "owner": owner,
+        "funnel_data": funnel_data,
+    })
+
+
+@app.post("/webhook/brevo")
+async def brevo_webhook(request: Request, db: Session = Depends(get_db)):
+    """Handle Brevo webhook events — opens, clicks, bounces."""
+    try:
+        body = await request.json()
+        event = body.get("event", "")
+        message_id = body.get("message-id", "") or body.get("messageId", "")
+
+        if not message_id:
+            return JSONResponse({"ok": True})
+
+        from .database import EmailSendLog, MemberLead
+        log_entry = db.query(EmailSendLog).filter(
+            EmailSendLog.brevo_message_id == message_id
+        ).first()
+
+        if not log_entry:
+            return JSONResponse({"ok": True})
+
+        now = datetime.utcnow()
+
+        if event == "opened":
+            log_entry.status = "opened"
+            log_entry.opened_at = now
+            # Update lead stats
+            lead = db.query(MemberLead).filter(MemberLead.id == log_entry.lead_id).first()
+            if lead:
+                lead.emails_opened = (lead.emails_opened or 0) + 1
+                lead.last_opened_at = now
+                # Hot lead detection: 2+ opens
+                if (lead.emails_opened or 0) >= 2:
+                    lead.is_hot = True
+                    lead.status = "hot"
+
+        elif event == "click":
+            log_entry.status = "clicked"
+            log_entry.clicked_at = now
+            lead = db.query(MemberLead).filter(MemberLead.id == log_entry.lead_id).first()
+            if lead:
+                lead.emails_clicked = (lead.emails_clicked or 0) + 1
+                lead.last_clicked_at = now
+                # Any click = hot lead
+                lead.is_hot = True
+                lead.status = "hot"
+
+        elif event in ("hard_bounce", "blocked"):
+            log_entry.status = "bounced"
+            lead = db.query(MemberLead).filter(MemberLead.id == log_entry.lead_id).first()
+            if lead:
+                lead.status = "unsubscribed"
+
+        elif event == "unsubscribed":
+            lead = db.query(MemberLead).filter(MemberLead.id == log_entry.lead_id).first()
+            if lead:
+                lead.status = "unsubscribed"
+
+        db.commit()
+        return JSONResponse({"ok": True})
+
+    except Exception as e:
+        logger.error(f"Brevo webhook error: {e}")
+        return JSONResponse({"ok": True})
+
+
+# ── Brevo helper: create contact with member tag ──
+def _create_brevo_contact(email: str, name: str, member_id: int) -> str:
+    """Create a contact in Brevo tagged with the member's ID."""
+    brevo_key = os.getenv("BREVO_API_KEY", "")
+    if not brevo_key:
+        return ""
+    try:
+        import json as _j
+        payload = _j.dumps({
+            "email": email,
+            "attributes": {"FIRSTNAME": name},
+            "listIds": [2],  # Default list — adjust in Brevo dashboard
+            "updateEnabled": True,
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            "https://api.brevo.com/v3/contacts",
+            data=payload,
+            headers={"accept": "application/json", "api-key": brevo_key, "content-type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = _j.loads(resp.read())
+            return str(data.get("id", ""))
+    except Exception as e:
+        logger.error(f"Brevo contact creation failed: {e}")
+        return ""
+
+
+# ── Helper: send a sequence email to a lead ──
+def _send_sequence_email(db, lead, email_index: int):
+    """Send a specific email from the lead's assigned sequence."""
+    from .database import EmailSequence, EmailSendLog
+    import json as _j5
+
+    if not lead.email_sequence_id:
+        return
+
+    sequence = db.query(EmailSequence).filter(EmailSequence.id == lead.email_sequence_id).first()
+    if not sequence or not sequence.emails_json:
+        return
+
+    try:
+        emails = _j5.loads(sequence.emails_json)
+    except:
+        return
+
+    if email_index >= len(emails):
+        return
+
+    email_data = emails[email_index]
+    subject = email_data.get("subject", "A message for you")
+    body_html = email_data.get("body_html", "")
+
+    # Replace placeholders
+    owner = db.query(User).filter(User.id == lead.user_id).first()
+    if owner:
+        ref_link = f"{os.getenv('SITE_URL', '')}/join/{owner.username}"
+        member_name = owner.first_name or owner.username
+        body_html = body_html.replace("{{referral_link}}", ref_link)
+        body_html = body_html.replace("{{member_name}}", member_name)
+
+    # Send via existing Brevo function
+    from .email_utils import send_email
+    success = send_email(lead.email, subject, body_html)
+
+    if success:
+        log = EmailSendLog(
+            lead_id=lead.id,
+            sequence_id=lead.email_sequence_id,
+            email_index=email_index,
+            status="sent",
+        )
+        db.add(log)
+        lead.emails_sent = (lead.emails_sent or 0) + 1
+        lead.status = "nurturing"
+        db.commit()
 

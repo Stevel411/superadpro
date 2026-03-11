@@ -127,6 +127,7 @@ class User(Base):
     wallet_address      = Column(String, nullable=True)
     is_admin            = Column(Boolean, default=False)
     is_active           = Column(Boolean, default=False)
+    membership_tier     = Column(String, default="basic")    # basic ($20/mo) or pro ($30/mo)
     balance             = Column(Money, default=0.0)      # available USDT balance
     total_earned        = Column(Money, default=0.0)      # lifetime earnings
     total_withdrawn     = Column(Money, default=0.0)      # lifetime withdrawals
@@ -750,6 +751,56 @@ class ProSellerMessage(Base):
     created_at      = Column(DateTime, default=datetime.utcnow)
 
 
+class EmailSequence(Base):
+    """AI-generated autoresponder sequences owned by each Pro member."""
+    __tablename__ = "email_sequences"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), index=True)
+    title           = Column(String, nullable=True)        # e.g. 'Fitness Niche Welcome Sequence'
+    niche           = Column(String, nullable=True)
+    tone            = Column(String, nullable=True)        # professional/casual/motivational/straight-talking
+    num_emails      = Column(Integer, default=5)
+    emails_json     = Column(Text, nullable=True)          # JSON: [{subject, body_html, send_delay_days}]
+    is_active       = Column(Boolean, default=True)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+
+
+class MemberLead(Base):
+    """Email leads captured by each member's funnel forms (Pro tier)."""
+    __tablename__ = "member_leads"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), index=True)   # the affiliate
+    email           = Column(String, nullable=False)
+    name            = Column(String, nullable=True)
+    source_funnel_id = Column(Integer, ForeignKey("funnel_pages.id"), nullable=True)
+    source_url      = Column(String, nullable=True)
+    brevo_contact_id = Column(String, nullable=True)       # Brevo's contact ID
+    status          = Column(String, default="new")        # new/nurturing/hot/converted/unsubscribed
+    email_sequence_id = Column(Integer, ForeignKey("email_sequences.id"), nullable=True)
+    emails_sent     = Column(Integer, default=0)
+    emails_opened   = Column(Integer, default=0)
+    emails_clicked  = Column(Integer, default=0)
+    last_opened_at  = Column(DateTime, nullable=True)
+    last_clicked_at = Column(DateTime, nullable=True)
+    is_hot          = Column(Boolean, default=False)       # auto-flagged: opens > 2 or clicks > 0
+    created_at      = Column(DateTime, default=datetime.utcnow)
+    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class EmailSendLog(Base):
+    """Tracks every email sent through a member's autoresponder."""
+    __tablename__ = "email_send_log"
+    id              = Column(Integer, primary_key=True, index=True)
+    lead_id         = Column(Integer, ForeignKey("member_leads.id"), index=True)
+    sequence_id     = Column(Integer, ForeignKey("email_sequences.id"))
+    email_index     = Column(Integer)                      # which email in the sequence (1, 2, 3...)
+    brevo_message_id = Column(String, nullable=True)       # from Brevo API response
+    status          = Column(String, default="sent")       # sent/opened/clicked/bounced
+    sent_at         = Column(DateTime, default=datetime.utcnow)
+    opened_at       = Column(DateTime, nullable=True)
+    clicked_at      = Column(DateTime, nullable=True)
+
+
 try:
     Base.metadata.create_all(bind=engine)
 except Exception as e:
@@ -1048,6 +1099,54 @@ try:
 
         # ── Campaign grace period + qualification model (2026-03-11) ──
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS grace_expires_at TIMESTAMP"))
+
+        # ── Pro Tier: membership_tier + email system (2026-03-11) ──
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_tier VARCHAR DEFAULT 'basic'"))
+
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS email_sequences (
+            id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id),
+            title VARCHAR, niche VARCHAR, tone VARCHAR,
+            num_emails INTEGER DEFAULT 5, emails_json TEXT,
+            is_active BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP DEFAULT NOW())"""))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_email_sequences_user ON email_sequences(user_id)"))
+
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS member_leads (
+            id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id),
+            email VARCHAR NOT NULL, name VARCHAR,
+            source_funnel_id INTEGER REFERENCES funnel_pages(id),
+            source_url VARCHAR, brevo_contact_id VARCHAR,
+            status VARCHAR DEFAULT 'new',
+            email_sequence_id INTEGER REFERENCES email_sequences(id),
+            emails_sent INTEGER DEFAULT 0, emails_opened INTEGER DEFAULT 0,
+            emails_clicked INTEGER DEFAULT 0,
+            last_opened_at TIMESTAMP, last_clicked_at TIMESTAMP,
+            is_hot BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())"""))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_member_leads_user ON member_leads(user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_member_leads_status ON member_leads(user_id, status)"))
+
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS email_send_log (
+            id SERIAL PRIMARY KEY,
+            lead_id INTEGER REFERENCES member_leads(id),
+            sequence_id INTEGER REFERENCES email_sequences(id),
+            email_index INTEGER, brevo_message_id VARCHAR,
+            status VARCHAR DEFAULT 'sent',
+            sent_at TIMESTAMP DEFAULT NOW(),
+            opened_at TIMESTAMP, clicked_at TIMESTAMP)"""))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_email_send_log_lead ON email_send_log(lead_id)"))
+
+        # New columns on funnel_pages for AI funnel generator
+        conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS has_capture_form BOOLEAN DEFAULT FALSE"))
+        conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS capture_form_heading VARCHAR"))
+        conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS capture_form_subtext VARCHAR"))
+        conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS capture_sequence_id INTEGER"))
+        conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS leads_captured INTEGER DEFAULT 0"))
+        conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS is_ai_generated BOOLEAN DEFAULT FALSE"))
+        conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS ai_niche VARCHAR"))
+        conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS ai_audience VARCHAR"))
+        conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS ai_story TEXT"))
+        conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS ai_tone VARCHAR"))
 
         conn.commit()
         print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 + R2 + courses confirmed")

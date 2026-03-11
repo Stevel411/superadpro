@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Upgrade to Pro — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/mobile.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#ffffff;--cyan:#0ea5e9;--violet:#6366f1;--green:#10b981;--amber:#f59e0b;--text:#1a1a2e;--text2:#475569;--muted:#94a3b8;--border:#e5e7eb;--shadow-sm:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12)}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;min-height:72px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}
+.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.nav-scroll{flex:1;overflow-y:auto;padding:8px 0}
+.nav-scroll::-webkit-scrollbar{width:4px}
+.nav-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:4px}
+.nav-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 12px}
+.nav-group{margin-bottom:2px}
+.nav-header{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;font-size:11.5px;font-weight:700;color:#0ea5e9;text-transform:uppercase;letter-spacing:.8px;cursor:pointer;user-select:none;transition:.15s}
+.nav-header:hover{background:rgba(14,165,233,.06)}
+.nav-chevron{font-size:14px;transition:transform .2s;color:rgba(255,255,255,.3)}
+.nav-group.open .nav-chevron{transform:rotate(90deg)}
+.nav-children{display:none;padding-bottom:4px}
+.nav-group.open .nav-children{display:block}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px 9px 22px;font-size:13px;color:rgba(200,220,255,.55);text-decoration:none;transition:.12s;cursor:pointer;font-weight:500}
+.nav-item:hover{background:rgba(14,165,233,.06);color:rgba(200,220,255,.85)}
+.nav-item.active{color:#38bdf8;font-weight:700;background:rgba(14,165,233,.08)}
+.nav-icon{font-size:15px;width:22px;text-align:center;flex-shrink:0}
+.nav-standalone{padding:10px 18px}
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:72px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;position:sticky;top:0;z-index:50}
+.topbar h1{font-family:Sora,sans-serif;font-size:20px;font-weight:800;color:var(--text)}
+.content{padding:40px 32px;flex:1;max-width:900px;margin:0 auto}
+.hero-card{background:linear-gradient(135deg,#0ea5e9,#6366f1);border-radius:20px;padding:48px;color:#fff;text-align:center;margin-bottom:40px;box-shadow:0 12px 48px rgba(14,165,233,0.25)}
+.hero-card h2{font-family:Sora,sans-serif;font-size:32px;font-weight:800;margin-bottom:12px}
+.hero-card p{font-size:17px;opacity:0.9;max-width:520px;margin:0 auto 24px;line-height:1.7}
+.price{font-family:Sora,sans-serif;font-size:48px;font-weight:900}
+.price-sub{font-size:15px;opacity:0.7;margin-top:4px}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px}
+.tier-card{background:#fff;border-radius:16px;padding:32px;border:2px solid var(--border);display:flex;flex-direction:column}
+.tier-card.pro{border-color:var(--cyan);box-shadow:0 8px 32px rgba(14,165,233,0.15)}
+.tier-label{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:8px}
+.tier-name{font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px}
+.tier-price{font-family:Sora,sans-serif;font-size:28px;font-weight:800;margin-bottom:20px}
+.tier-features{list-style:none;padding:0;flex:1}
+.tier-features li{padding:8px 0;font-size:14px;color:var(--text2);display:flex;align-items:flex-start;gap:10px;border-top:1px solid #f1f5f9}
+.tier-features li:first-child{border-top:none}
+.check{color:var(--green);font-weight:700;flex-shrink:0}
+.cross{color:#cbd5e1;flex-shrink:0}
+.btn-upgrade{display:block;width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif;margin-top:20px;text-align:center;text-decoration:none}
+.btn-upgrade:hover{opacity:.9}
+.btn-current{display:block;width:100%;padding:14px;border-radius:12px;background:#f1f5f9;color:var(--muted);border:none;font-size:14px;font-weight:600;margin-top:20px;text-align:center;cursor:default}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.content{padding:20px 16px}.compare{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="layout">
+  {% include '_sidebar.html' %}
+  <div class="main">
+    <div class="topbar"><h1>⚡ Upgrade to Pro</h1></div>
+    <div class="content">
+
+      <div class="hero-card">
+        <h2>Unlock the Full Marketing Machine</h2>
+        <p>AI-generated funnels, email autoresponder, lead tracking, and your personal sales coach — all powered by AI, all included in Pro.</p>
+        <div class="price">$30<span style="font-size:18px;opacity:0.7">/month</span></div>
+        <div class="price-sub">50% affiliate commission = $15 per Pro referral</div>
+      </div>
+
+      <div class="compare">
+        <!-- Basic -->
+        <div class="tier-card">
+          <div class="tier-label">CURRENT PLAN</div>
+          <div class="tier-name">Basic</div>
+          <div class="tier-price" style="color:var(--text)">$20<span style="font-size:14px;color:var(--muted)">/month</span></div>
+          <ul class="tier-features">
+            <li><span class="check">✓</span> Dashboard, Wallet, Account</li>
+            <li><span class="check">✓</span> Watch to Earn</li>
+            <li><span class="check">✓</span> AI Campaign Studio</li>
+            <li><span class="check">✓</span> Social Post Generator</li>
+            <li><span class="check">✓</span> Video Script Generator</li>
+            <li><span class="check">✓</span> Niche Finder</li>
+            <li><span class="check">✓</span> Swipe File + Email Swipes</li>
+            <li><span class="check">✓</span> Page Builder</li>
+            <li><span class="check">✓</span> LinkHub Bio Pages</li>
+            <li><span class="check">✓</span> Standard Sales Funnel</li>
+            <li><span class="check">✓</span> 4 Income Streams</li>
+            <li><span class="cross">✗</span> <span style="color:#cbd5e1">ProSeller AI Coach</span></li>
+            <li><span class="cross">✗</span> <span style="color:#cbd5e1">AI Funnel Generator</span></li>
+            <li><span class="cross">✗</span> <span style="color:#cbd5e1">Email Autoresponder</span></li>
+            <li><span class="cross">✗</span> <span style="color:#cbd5e1">Lead Dashboard + CRM</span></li>
+          </ul>
+          <div class="btn-current">Your Current Plan</div>
+        </div>
+
+        <!-- Pro -->
+        <div class="tier-card pro">
+          <div class="tier-label" style="color:var(--cyan)">RECOMMENDED</div>
+          <div class="tier-name">Pro</div>
+          <div class="tier-price" style="color:var(--cyan)">$30<span style="font-size:14px;color:var(--muted)">/month</span></div>
+          <ul class="tier-features">
+            <li><span class="check">✓</span> <strong>Everything in Basic</strong></li>
+            <li><span class="check">✓</span> <strong>ProSeller AI Coach</strong> — writes your outreach, handles objections</li>
+            <li><span class="check">✓</span> <strong>Prospect CRM</strong> — pipeline from cold to converted</li>
+            <li><span class="check">✓</span> <strong>AI Funnel Generator</strong> — custom landing pages from 4 questions</li>
+            <li><span class="check">✓</span> <strong>Email Capture Forms</strong> — built into your funnels</li>
+            <li><span class="check">✓</span> <strong>AI Autoresponder</strong> — 5-email nurture sequences, auto-generated</li>
+            <li><span class="check">✓</span> <strong>Lead Dashboard</strong> — opens, clicks, hot lead alerts</li>
+            <li><span class="check">✓</span> <strong>Hot Lead Detection</strong> — auto-flags engaged prospects</li>
+            <li><span class="check">✓</span> <strong>ProSeller + Leads</strong> — AI follow-up on hot leads</li>
+            <li><span class="check">✓</span> <strong>$15 Commission</strong> — earn 50% on Pro referrals</li>
+          </ul>
+          <a href="#" class="btn-upgrade" onclick="alert('Stripe integration coming next session — Pro upgrade will be available soon!');return false">Upgrade to Pro — $30/month</a>
+        </div>
+      </div>
+
+      <div style="text-align:center;padding:20px 0;color:var(--muted);font-size:13px">
+        Pro membership can be cancelled anytime. Your leads, funnels, and sequences are retained if you downgrade.
+      </div>
+
+    </div>
+  </div>
+</div>
+{% include '_chat_widget.html' %}
+</body>
+</html>
