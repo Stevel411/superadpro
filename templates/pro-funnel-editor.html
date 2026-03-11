@@ -20,19 +20,19 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#0f172a;color:#e2e8f0
 .tb-green{background:#10b981;color:#fff}.tb-green:hover{background:#059669}
 
 /* Split layout */
-.split{flex:1;display:flex;overflow:hidden}
+.split{flex:1;display:flex;overflow:hidden;height:calc(100vh - 48px)}
 
 /* Left: Preview */
 .pv-panel{flex:6;background:#1a1a2e;overflow-y:auto;border-right:1px solid #334155;position:relative}
 .pv-inner{max-width:100%;min-height:100%}
 
 /* Right: Chat */
-.chat-panel{flex:4;min-width:340px;max-width:480px;display:flex;flex-direction:column;background:#ffffff;overflow:hidden}
+.chat-panel{flex:4;min-width:340px;max-width:480px;display:flex;flex-direction:column;background:#ffffff;height:100%;overflow:hidden}
 .chat-header{padding:14px 18px;border-bottom:1px solid #e5e7eb;flex-shrink:0}
 .chat-header h3{font-family:Sora,sans-serif;font-size:14px;font-weight:800;color:#1a1a2e}
 .chat-header-sub{font-size:11px;color:#94a3b8;margin-top:2px}
 
-.chat-messages{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:10px;background:#f8fafc}
+.chat-messages{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:10px;background:#f8fafc;min-height:0}
 .chat-messages::-webkit-scrollbar{width:5px}.chat-messages::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:4px}
 
 .chat-msg{max-width:88%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.6;word-wrap:break-word}
@@ -230,11 +230,13 @@ function renderPreview(){
       case 'video':
         const em=toEmbed(s.url);
         html+=`<div style="padding:12px 24px;max-width:700px;margin:0 auto;position:relative">
-          <div style="border-radius:12px;overflow:hidden;background:#0f1729;border:1px solid rgba(14,165,233,.1);position:relative">
-            ${em?`<iframe src="${em}" style="width:100%;aspect-ratio:16/9;border:none;display:block;pointer-events:none" allowfullscreen></iframe>`:'<div style="aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;color:#475569;font-size:13px">No video — click Edit to add a URL</div>'}
-            <div style="position:absolute;top:8px;right:8px;display:flex;gap:6px;z-index:5">
-              <button onclick="promptVideo(${i})" style="padding:6px 12px;border-radius:8px;background:rgba(14,165,233,.9);color:#fff;border:none;font-size:11px;font-weight:600;cursor:pointer">✏️ Edit</button>
-              <button onclick="removeSection(${i})" style="padding:6px 12px;border-radius:8px;background:rgba(220,38,38,.9);color:#fff;border:none;font-size:11px;font-weight:600;cursor:pointer">🗑 Delete</button>
+          <div style="border-radius:12px;overflow:visible;background:#0f1729;border:1px solid rgba(14,165,233,.1);position:relative">
+            <div style="border-radius:12px;overflow:hidden">
+              ${em?`<iframe src="${em}" style="width:100%;aspect-ratio:16/9;border:none;display:block;pointer-events:none" allowfullscreen></iframe>`:'<div style="aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;color:#475569;font-size:13px">No video — click Edit to add a URL</div>'}
+            </div>
+            <div style="position:absolute;top:-10px;right:-4px;display:flex;gap:6px;z-index:10">
+              <button onclick="promptVideo(${i})" style="padding:6px 14px;border-radius:8px;background:#0ea5e9;color:#fff;border:none;font-size:11px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3)">✏️ Edit URL</button>
+              <button onclick="removeSection(${i})" style="padding:6px 14px;border-radius:8px;background:#dc2626;color:#fff;border:none;font-size:11px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3)">🗑 Delete</button>
             </div>
           </div>
         </div>`;break;
