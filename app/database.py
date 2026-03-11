@@ -482,6 +482,17 @@ class FunnelPage(Base):
     clicks          = Column(Integer, default=0)
     created_at      = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # AI Funnel Generator (Pro tier)
+    has_capture_form     = Column(Boolean, default=False)
+    capture_form_heading = Column(String, nullable=True)
+    capture_form_subtext = Column(String, nullable=True)
+    capture_sequence_id  = Column(Integer, nullable=True)      # FK to email_sequences
+    leads_captured       = Column(Integer, default=0)
+    is_ai_generated      = Column(Boolean, default=False)
+    ai_niche            = Column(String, nullable=True)
+    ai_audience         = Column(String, nullable=True)
+    ai_story            = Column(Text, nullable=True)
+    ai_tone             = Column(String, nullable=True)
 
 
 class VIPSignup(Base):
