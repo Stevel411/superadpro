@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#050d1a;--surface:#0f1729;--cyan:#0ea5e9;--cyan-bright:#38bdf8;--violet:#6366f1;--green:#10b981;--amber:#f59e0b;--text:#e2e8f0;--muted:#94a3b8;--dim:#64748b}
+:root{--bg:{{ funnel_data.get('colors', {}).get('bg', '#050d1a') }};--surface:{{ funnel_data.get('colors', {}).get('card', '#0f1729') }};--cyan:{{ funnel_data.get('colors', {}).get('btn', '#0ea5e9') }};--cyan-bright:{{ funnel_data.get('colors', {}).get('btn', '#38bdf8') }};--violet:{{ funnel_data.get('colors', {}).get('btn2', '#6366f1') }};--green:#10b981;--amber:#f59e0b;--text:{{ funnel_data.get('colors', {}).get('text', '#e2e8f0') }};--muted:{{ funnel_data.get('colors', {}).get('muted', '#94a3b8') }};--dim:#64748b}
 body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden}
 .glow-tl{position:fixed;top:-20%;left:-10%;width:50%;height:50%;background:radial-gradient(circle,rgba(14,165,233,0.07) 0%,transparent 70%);pointer-events:none}
 .glow-br{position:fixed;bottom:-20%;right:-10%;width:50%;height:50%;background:radial-gradient(circle,rgba(139,92,246,0.05) 0%,transparent 70%);pointer-events:none}

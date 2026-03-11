@@ -8891,6 +8891,8 @@ async def api_pro_funnel_save(funnel_id: int, request: Request, db: Session = De
         page.video_url = body["video_url"]
     if "status" in body:
         page.status = body["status"]
+    if "colors" in body:
+        funnel_data["colors"] = body["colors"]
 
     page.sections_json = _json_save.dumps(funnel_data)
     db.commit()
