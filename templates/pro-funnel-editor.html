@@ -257,7 +257,10 @@ function renderPreview(){
   wrap.querySelectorAll('[contenteditable]').forEach(el=>{
     el.addEventListener('blur',()=>{
       const idx=parseInt(el.dataset.idx),field=el.dataset.field;
-      if(idx>=0&&sections[idx]&&field) sections[idx][field]=el.innerHTML;
+      if(idx>=0&&sections[idx]&&field){
+        // Strip HTML tags for clean text storage
+        sections[idx][field]=el.innerText.trim();
+      }
     });
   });
 
@@ -354,18 +357,21 @@ async function save(){
   // Sync contenteditable
   document.querySelectorAll('[contenteditable]').forEach(el=>{
     const idx=parseInt(el.dataset.idx),field=el.dataset.field;
-    if(idx>=0&&sections[idx]&&field)sections[idx][field]=el.innerHTML;
+    if(idx>=0&&sections[idx]&&field)sections[idx][field]=el.innerText.trim();
   });
+
+  // Clean all section text of HTML tags before saving
+  function strip(s){return(s||'').replace(/<[^>]*>/g,'').trim();}
 
   const body={
     sections:sections,colors:{bg:pageStyle.bg},bgImage:pageStyle.bgImage||'',
-    headline:sections.find(s=>s.type==='heading')?.content?.replace(/<[^>]*>/g,'')||'',
-    subheadline:sections.find(s=>s.type==='text')?.content?.replace(/<[^>]*>/g,'')||'',
-    cta_text:sections.find(s=>s.type==='button')?.text||'',
-    capture_heading:sections.find(s=>s.type==='capture')?.heading||'',
-    capture_subtext:sections.find(s=>s.type==='capture')?.subtext||'',
+    headline:strip(sections.find(s=>s.type==='heading')?.content),
+    subheadline:strip(sections.find(s=>s.type==='text')?.content),
+    cta_text:strip(sections.find(s=>s.type==='button')?.text),
+    capture_heading:strip(sections.find(s=>s.type==='capture')?.heading),
+    capture_subtext:strip(sections.find(s=>s.type==='capture')?.subtext),
     features:sections.find(s=>s.type==='features')?.items||[],
-    body_paragraphs:sections.filter(s=>s.type==='text').map(s=>s.content?.replace(/<[^>]*>/g,'')),
+    body_paragraphs:sections.filter(s=>s.type==='text').map(s=>strip(s.content)),
     video_url:sections.find(s=>s.type==='video')?.url||'',
     status:'published',
   };

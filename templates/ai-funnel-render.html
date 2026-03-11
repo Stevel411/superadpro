@@ -8,71 +8,55 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:{{ funnel_data.get('colors', {}).get('bg', '#050d1a') }};--surface:{{ funnel_data.get('colors', {}).get('card', '#0f1729') }};--cyan:{{ funnel_data.get('colors', {}).get('btn', '#0ea5e9') }};--cyan-bright:{{ funnel_data.get('colors', {}).get('btn', '#38bdf8') }};--violet:{{ funnel_data.get('colors', {}).get('btn2', '#6366f1') }};--green:#10b981;--amber:#f59e0b;--text:{{ funnel_data.get('colors', {}).get('text', '#e2e8f0') }};--muted:{{ funnel_data.get('colors', {}).get('muted', '#94a3b8') }};--dim:#64748b}
-body{background:var(--bg);{% if bg_image %}background-image:url('{{ bg_image }}');background-size:cover;background-position:center;background-attachment:fixed;{% endif %}color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden}
-.glow-tl{position:fixed;top:-20%;left:-10%;width:50%;height:50%;background:radial-gradient(circle,rgba(14,165,233,0.07) 0%,transparent 70%);pointer-events:none}
-.glow-br{position:fixed;bottom:-20%;right:-10%;width:50%;height:50%;background:radial-gradient(circle,rgba(139,92,246,0.05) 0%,transparent 70%);pointer-events:none}
-
-/* Nav */
+{% set colors = funnel_data.get('colors', {}) %}
+{% set bg = colors.get('bg', '#050d1a') %}
+{% set bgImg = funnel_data.get('bgImage', '') %}
+:root{--bg:{{ bg }};--surface:#0f1729;--cyan:#0ea5e9;--cyan-bright:#38bdf8;--violet:#6366f1;--green:#10b981;--text:#e2e8f0;--muted:#94a3b8;--dim:#64748b}
+body{background:var(--bg);{% if bgImg %}background:url('{{ bgImg }}') center/cover no-repeat fixed;{% endif %}color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden}
+.glow-tl{position:fixed;top:-20%;left:-10%;width:50%;height:50%;background:radial-gradient(circle,rgba(14,165,233,.07) 0%,transparent 70%);pointer-events:none}
+.glow-br{position:fixed;bottom:-20%;right:-10%;width:50%;height:50%;background:radial-gradient(circle,rgba(139,92,246,.05) 0%,transparent 70%);pointer-events:none}
 .fnav{padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:10}
 .fnav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
 .fnav-logo svg{width:28px;height:28px}
 .fnav-brand{font-family:Sora,sans-serif;font-weight:800;font-size:17px;color:#fff}
 .fnav-brand em{color:var(--cyan-bright);font-style:normal}
-.fnav-right{font-size:13px;color:rgba(255,255,255,0.45)}
+.fnav-right{font-size:13px;color:rgba(255,255,255,.45)}
 .fnav-right strong{color:var(--cyan-bright)}
-
-/* Hero */
-.hero{max-width:800px;margin:0 auto;padding:60px 24px 40px;text-align:center;position:relative;z-index:1}
-.hero h1{font-family:Sora,sans-serif;font-size:clamp(28px,5vw,48px);font-weight:900;line-height:1.15;margin-bottom:16px;color:#fff}
-.hero-sub{font-size:17px;color:var(--muted);line-height:1.75;margin-bottom:32px}
-
-/* Video */
-.video-wrap{max-width:700px;margin:0 auto 40px;border-radius:16px;overflow:hidden;background:var(--surface);border:1px solid rgba(14,165,233,0.12);box-shadow:0 0 60px rgba(14,165,233,0.06),0 20px 50px rgba(0,0,0,0.4)}
-.video-wrap iframe{width:100%;aspect-ratio:16/9;border:none;display:block}
-
-/* Capture form */
-.capture-section{max-width:500px;margin:0 auto 48px;background:rgba(255,255,255,0.04);border:1px solid rgba(14,165,233,0.12);border-radius:20px;padding:32px;text-align:center}
+.section-wrap{max-width:800px;margin:0 auto;position:relative;z-index:1}
+.sec-heading{padding:20px 24px;margin:0}
+.sec-text{padding:8px 24px;max-width:700px;margin:0 auto}
+.sec-text p{line-height:1.85;margin:0}
+.video-wrap{max-width:700px;margin:0 auto;padding:12px 24px}
+.video-frame{border-radius:16px;overflow:hidden;background:var(--surface);border:1px solid rgba(14,165,233,.12);box-shadow:0 0 60px rgba(14,165,233,.06),0 20px 50px rgba(0,0,0,.4)}
+.video-frame iframe{width:100%;aspect-ratio:16/9;border:none;display:block}
+.capture-section{max-width:500px;margin:12px auto;background:rgba(255,255,255,.04);border:1px solid rgba(14,165,233,.12);border-radius:20px;padding:32px;text-align:center}
 .capture-heading{font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:6px}
 .capture-sub{font-size:14px;color:var(--muted);margin-bottom:20px}
-.capture-input{width:100%;padding:13px 16px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:14px;font-family:inherit;margin-bottom:10px}
-.capture-input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(14,165,233,0.15)}
-.capture-input::placeholder{color:rgba(255,255,255,0.3)}
-.capture-btn{width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif;transition:opacity .15s}
+.capture-input{width:100%;padding:13px 16px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:14px;font-family:inherit;margin-bottom:10px}
+.capture-input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(14,165,233,.15)}
+.capture-input::placeholder{color:rgba(255,255,255,.3)}
+.capture-btn{width:100%;padding:14px;border-radius:12px;color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:Sora,sans-serif;transition:opacity .15s}
 .capture-btn:hover{opacity:.9}
 .capture-success{display:none;text-align:center;padding:20px}
 .capture-success h3{color:var(--green);font-size:18px;margin-bottom:8px}
 .capture-privacy{font-size:11px;color:var(--dim);margin-top:12px}
-
-/* Content sections */
-.section{max-width:750px;margin:0 auto;padding:40px 24px;position:relative;z-index:1}
-.body-paragraph{font-size:16px;color:var(--muted);line-height:1.85;margin-bottom:20px}
-.features-list{list-style:none;padding:0;margin:32px 0}
-.features-list li{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-top:1px solid rgba(255,255,255,0.05);font-size:15px;color:rgba(255,255,255,0.75)}
+.features-list{list-style:none;padding:0;margin:24px 0;max-width:650px;margin-left:auto;margin-right:auto}
+.features-list li{display:flex;align-items:flex-start;gap:12px;padding:12px 24px;font-size:15px;border-top:1px solid rgba(255,255,255,.05)}
 .features-list li:first-child{border-top:none}
-.feat-check{color:var(--cyan);font-weight:700;flex-shrink:0;font-size:16px}
-
-/* CTA */
-.cta-section{text-align:center;padding:60px 24px;position:relative;z-index:1}
-.cta-btn{display:inline-block;padding:18px 56px;border-radius:14px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff;border:none;font-size:18px;font-weight:800;cursor:pointer;font-family:Sora,sans-serif;box-shadow:0 0 50px rgba(14,165,233,0.25);text-decoration:none;transition:transform .15s}
+.cta-section{text-align:center;padding:20px 24px}
+.cta-btn{display:inline-block;padding:18px 56px;border-radius:14px;color:#fff;border:none;font-size:18px;font-weight:800;cursor:pointer;font-family:Sora,sans-serif;text-decoration:none;transition:transform .15s}
 .cta-btn:hover{transform:translateY(-2px)}
-.cta-sub{font-size:12px;color:var(--dim);margin-top:12px}
-
-/* Footer */
+.testimonial-card{max-width:550px;margin:12px auto;padding:24px;border-radius:16px;border-left:4px solid var(--cyan)}
+.disclaimer{max-width:600px;margin:0 auto 24px;font-size:11px;color:var(--dim);text-align:center;line-height:1.6;padding:0 24px}
 .funnel-footer{text-align:center;padding:32px 24px;font-size:12px;color:var(--dim)}
 .funnel-footer a{color:var(--muted)}
-
-/* Disclaimer */
-.disclaimer{max-width:600px;margin:0 auto 24px;font-size:11px;color:var(--dim);text-align:center;line-height:1.6;padding:0 24px}
-
-@media(max-width:768px){.hero h1{font-size:28px}.capture-section{margin:0 16px 40px}.section{padding:24px 16px}}
+@media(max-width:768px){.sec-heading{padding:16px}.capture-section{margin:12px 16px}}
 </style>
 </head>
 <body>
 <div class="glow-tl"></div>
 <div class="glow-br"></div>
 
-<!-- Nav -->
 <nav class="fnav">
   <a href="/" class="fnav-logo">
     <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
@@ -81,88 +65,171 @@ body{background:var(--bg);{% if bg_image %}background-image:url('{{ bg_image }}'
   <div class="fnav-right">Presented by <strong>{{ owner.first_name or owner.username }}</strong></div>
 </nav>
 
-<!-- Hero -->
-<section class="hero">
-  <h1>{{ funnel_data.get('headline', page.headline or page.title) }}</h1>
-  <p class="hero-sub">{{ funnel_data.get('subheadline', page.subheadline or '') }}</p>
-</section>
+<div class="section-wrap">
+{% set secs = funnel_data.get('sections', []) %}
 
-<!-- Video (if provided) -->
-{% if video_embed %}
-<div class="video-wrap">
-  <iframe src="{{ video_embed }}" allowfullscreen loading="lazy"></iframe>
-</div>
-{% endif %}
+{% if secs %}
+  {# ── SECTIONS-BASED RENDER (new format from editor) ── #}
+  {% for s in secs %}
+    {% if s.type == 'heading' %}
+      {% set fs = '32px' if s.get('level','h1') == 'h1' else ('24px' if s.get('level') == 'h2' else '20px') %}
+      <div class="sec-heading" style="text-align:{{ s.get('align','center') }}">
+        <{{ s.get('level','h1') }} style="font-family:Sora,sans-serif;font-size:{{ fs }};font-weight:900;color:{{ s.get('color','#ffffff') }};line-height:1.15;margin:0">{{ s.get('content','') }}</{{ s.get('level','h1') }}>
+      </div>
 
-<!-- Email Capture Form -->
-{% if page.has_capture_form %}
-<div class="capture-section" id="captureSection">
-  <div id="captureForm">
-    <div class="capture-heading">{{ page.capture_form_heading or funnel_data.get('capture_heading', 'Get Free Access') }}</div>
-    <div class="capture-sub">{{ page.capture_form_subtext or funnel_data.get('capture_subtext', 'Enter your email and we\'ll send you everything you need to get started.') }}</div>
-    <input type="text" id="capName" class="capture-input" placeholder="Your first name">
-    <input type="email" id="capEmail" class="capture-input" placeholder="Your best email address">
-    <button class="capture-btn" onclick="captureEmail()">Get Access →</button>
-    <div class="capture-privacy">We respect your privacy. Unsubscribe anytime.</div>
+    {% elif s.type == 'text' %}
+      <div class="sec-text" style="text-align:{{ s.get('align','left') }}">
+        <p style="font-size:{{ s.get('size','15px') }};color:{{ s.get('color','#94a3b8') }}">{{ s.get('content','') }}</p>
+      </div>
+
+    {% elif s.type == 'video' %}
+      {% set vu = s.get('url','') %}
+      {% if vu %}
+        {% if 'youtube.com/watch' in vu %}
+          {% set vid = vu.split('v=')[1].split('&')[0] if 'v=' in vu else '' %}
+          {% set embed_url = 'https://www.youtube.com/embed/' ~ vid %}
+        {% elif 'youtu.be/' in vu %}
+          {% set vid = vu.split('youtu.be/')[1].split('?')[0] %}
+          {% set embed_url = 'https://www.youtube.com/embed/' ~ vid %}
+        {% elif 'vimeo.com/' in vu and 'player.vimeo' not in vu %}
+          {% set vid = vu.split('vimeo.com/')[1].split('?')[0] %}
+          {% set embed_url = 'https://player.vimeo.com/video/' ~ vid %}
+        {% else %}
+          {% set embed_url = vu %}
+        {% endif %}
+        <div class="video-wrap"><div class="video-frame"><iframe src="{{ embed_url }}" allowfullscreen loading="lazy"></iframe></div></div>
+      {% endif %}
+
+    {% elif s.type == 'button' %}
+      <div class="cta-section" style="text-align:{{ s.get('align','center') }}">
+        <a href="{{ s.get('url', '/register?ref=' ~ owner.username) }}" class="cta-btn" style="background:linear-gradient(135deg,{{ s.get('color1','#0ea5e9') }},{{ s.get('color2','#6366f1') }});box-shadow:0 0 50px {{ s.get('color1','#0ea5e9') }}33;font-size:{{ s.get('size','18px') }}">{{ s.get('text','Join Now') }}</a>
+      </div>
+
+    {% elif s.type == 'features' %}
+      <ul class="features-list">
+        {% for f in s.get('items', []) %}
+        <li style="color:{{ s.get('textColor','rgba(255,255,255,0.75)') }}"><span style="color:{{ s.get('checkColor','#0ea5e9') }};font-weight:700;flex-shrink:0">✓</span> {{ f }}</li>
+        {% endfor %}
+      </ul>
+
+    {% elif s.type == 'capture' %}
+      <div class="capture-section" style="background:{{ s.get('bgColor','#0f1729') }}40;border-color:{{ s.get('btnColor','#0ea5e9') }}20" id="captureSection">
+        <div id="captureForm">
+          <div class="capture-heading">{{ s.get('heading','Get Free Access') }}</div>
+          <div class="capture-sub">{{ s.get('subtext','') }}</div>
+          <input type="text" id="capName" class="capture-input" placeholder="Your first name">
+          <input type="email" id="capEmail" class="capture-input" placeholder="Your best email address">
+          <button class="capture-btn" onclick="captureEmail()" style="background:linear-gradient(135deg,{{ s.get('btnColor','#0ea5e9') }},{{ s.get('btnColor2','#6366f1') }})">{{ s.get('btnText','Get Access →') }}</button>
+          <div class="capture-privacy">We respect your privacy. Unsubscribe anytime.</div>
+        </div>
+        <div class="capture-success" id="captureSuccess">
+          <h3>✓ You're In!</h3>
+          <p style="color:var(--muted);font-size:14px">Check your inbox — your first email is on its way.</p>
+        </div>
+      </div>
+
+    {% elif s.type == 'testimonial' %}
+      <div class="testimonial-card" style="background:{{ s.get('bgColor','#1e293b') }}">
+        <p style="font-size:15px;color:{{ s.get('color','#e2e8f0') }};line-height:1.7;margin:0 0 12px;font-style:italic">"{{ s.get('quote','') }}"</p>
+        <div style="font-size:13px;color:#64748b;font-weight:600">— {{ s.get('author','') }}</div>
+      </div>
+
+    {% elif s.type == 'divider' %}
+      <div style="padding:8px 24px"><hr style="border:none;height:{{ s.get('thickness','1px') }};background:{{ s.get('color','#334155') }};width:{{ s.get('width','60%') }};margin:0 auto"></div>
+
+    {% elif s.type == 'spacer' %}
+      <div style="height:{{ s.get('height','40px') }}"></div>
+
+    {% elif s.type == 'image' %}
+      {% if s.get('url') %}
+      <div style="padding:12px 24px;text-align:center"><img src="{{ s.get('url') }}" alt="{{ s.get('alt','') }}" style="max-width:{{ s.get('width','100%') }};border-radius:{{ s.get('borderRadius','12px') }};display:block;margin:0 auto"></div>
+      {% endif %}
+
+    {% elif s.type == 'html' %}
+      <div style="padding:12px 24px;max-width:700px;margin:0 auto">{{ s.get('code','')|safe }}</div>
+
+    {% elif s.type == 'columns' %}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:12px 24px;max-width:700px;margin:0 auto">
+        <div style="font-size:14px;color:{{ s.get('color','#94a3b8') }};line-height:1.7">{{ s.get('left','') }}</div>
+        <div style="font-size:14px;color:{{ s.get('color','#94a3b8') }};line-height:1.7">{{ s.get('right','') }}</div>
+      </div>
+    {% endif %}
+  {% endfor %}
+
+{% else %}
+  {# ── LEGACY RENDER (old format, backward compat) ── #}
+  {% if funnel_data.get('headline') %}
+  <section style="padding:40px 24px;text-align:center;max-width:700px;margin:0 auto">
+    <h1 style="font-family:Sora,sans-serif;font-size:clamp(28px,5vw,48px);font-weight:900;line-height:1.15;color:#fff">{{ funnel_data.get('headline') }}</h1>
+    {% if funnel_data.get('subheadline') %}
+    <p style="font-size:17px;color:var(--muted);line-height:1.75;margin-top:16px">{{ funnel_data.get('subheadline') }}</p>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  {% if video_embed %}
+  <div class="video-wrap"><div class="video-frame"><iframe src="{{ video_embed }}" allowfullscreen loading="lazy"></iframe></div></div>
+  {% endif %}
+
+  {% if page.has_capture_form %}
+  <div class="capture-section" id="captureSection">
+    <div id="captureForm">
+      <div class="capture-heading">{{ page.capture_form_heading or funnel_data.get('capture_heading', 'Get Free Access') }}</div>
+      <div class="capture-sub">{{ page.capture_form_subtext or funnel_data.get('capture_subtext', '') }}</div>
+      <input type="text" id="capName" class="capture-input" placeholder="Your first name">
+      <input type="email" id="capEmail" class="capture-input" placeholder="Your best email address">
+      <button class="capture-btn" onclick="captureEmail()" style="background:linear-gradient(135deg,var(--cyan),var(--violet))">Get Access →</button>
+      <div class="capture-privacy">We respect your privacy. Unsubscribe anytime.</div>
+    </div>
+    <div class="capture-success" id="captureSuccess">
+      <h3>✓ You're In!</h3>
+      <p style="color:var(--muted);font-size:14px">Check your inbox — your first email is on its way.</p>
+    </div>
   </div>
-  <div class="capture-success" id="captureSuccess">
-    <h3>✓ You're In!</h3>
-    <p style="color:var(--muted);font-size:14px">Check your inbox — your first email is on its way. In the meantime, keep reading below to learn more.</p>
-  </div>
-</div>
-{% endif %}
+  {% endif %}
 
-<!-- Body copy -->
-<div class="section">
   {% if funnel_data.get('body_paragraphs') %}
+  <div style="max-width:750px;margin:0 auto;padding:40px 24px">
     {% for para in funnel_data.get('body_paragraphs', []) %}
-    <p class="body-paragraph">{{ para }}</p>
+    <p style="font-size:16px;color:var(--muted);line-height:1.85;margin-bottom:20px">{{ para }}</p>
     {% endfor %}
+  </div>
   {% endif %}
 
   {% if funnel_data.get('features') %}
   <ul class="features-list">
     {% for feat in funnel_data.get('features', []) %}
-    <li><span class="feat-check">✓</span> {{ feat }}</li>
+    <li style="color:rgba(255,255,255,0.75)"><span style="color:var(--cyan);font-weight:700;flex-shrink:0">✓</span> {{ feat }}</li>
     {% endfor %}
   </ul>
   {% endif %}
+
+  <div class="cta-section">
+    <a href="/register?ref={{ owner.username }}" class="cta-btn" style="background:linear-gradient(135deg,var(--cyan),var(--violet));box-shadow:0 0 50px rgba(14,165,233,.25)">{{ funnel_data.get('cta_text', page.cta_text or 'Join Now') }}</a>
+  </div>
+{% endif %}
 </div>
 
-<!-- CTA -->
-<section class="cta-section">
-  <a href="/register?ref={{ owner.username }}" class="cta-btn">{{ funnel_data.get('cta_text', page.cta_text or 'Join Now') }}</a>
-  <div class="cta-sub">No lock-in · Cancel anytime · Real tools for real marketers</div>
-</section>
-
-<div class="disclaimer">Income examples shown are illustrative and not guaranteed. Results depend on individual effort and activity. SuperAdPro does not guarantee any specific level of income.</div>
-
-<div class="funnel-footer">
-  &copy; 2026 SuperAdPro · <a href="/legal" target="_blank">Terms</a> · <a href="/legal#privacy" target="_blank">Privacy</a>
-</div>
+<div class="disclaimer">Income examples shown are illustrative and not guaranteed. Results depend on individual effort and activity.</div>
+<div class="funnel-footer">&copy; 2026 SuperAdPro · <a href="/legal" target="_blank">Terms</a> · <a href="/legal#privacy" target="_blank">Privacy</a></div>
 
 <script>
 async function captureEmail(){
-  const email = document.getElementById('capEmail').value.trim();
-  const name = document.getElementById('capName').value.trim();
-  if(!email || !email.includes('@')){alert('Please enter a valid email');return}
-
+  const email=document.getElementById('capEmail').value.trim();
+  const name=document.getElementById('capName').value.trim();
+  if(!email||!email.includes('@')){alert('Please enter a valid email');return}
   try{
-    const res = await fetch('/api/capture/{{ owner.username }}/{{ page.slug.split("/")[-1] if page.slug and "/" in page.slug else page.slug }}', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({email: email, name: name})
+    const slug='{{ page.slug }}'.split('/');
+    const res=await fetch('/api/capture/'+slug[0]+'/'+slug.slice(1).join('/'),{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:email,name:name})
     });
-    const data = await res.json();
+    const data=await res.json();
     if(data.success){
-      document.getElementById('captureForm').style.display = 'none';
-      document.getElementById('captureSuccess').style.display = 'block';
-    } else {
-      alert(data.error || 'Something went wrong. Please try again.');
-    }
-  }catch(e){
-    alert('Connection error. Please try again.');
-  }
+      document.getElementById('captureForm').style.display='none';
+      document.getElementById('captureSuccess').style.display='block';
+    }else{alert(data.error||'Something went wrong.');}
+  }catch(e){alert('Connection error.');}
 }
 </script>
 </body>
