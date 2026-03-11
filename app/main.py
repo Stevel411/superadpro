@@ -8948,23 +8948,26 @@ AVAILABLE SECTION TYPES:
 - image: {type:"image", url:"image_url", width:"100%", borderRadius:"12px"}
 
 RULES:
-- Return ONLY valid JSON with keys: sections (array), pageStyle (object), response (string)
-- pageStyle can have: bg (hex colour), bgImage (url for background image)
-- If the user asks for a visual background (sunset, ocean, mountains etc), set bgImage to a relevant Unsplash URL like: https://images.unsplash.com/photo-XXXX?w=1920&q=80
-- For colour changes, modify the relevant section's colour properties
-- For adding sections, insert them at a logical position
-- For removing sections, remove them from the array
-- For text changes, modify the content of existing sections
-- Keep the response field short and friendly
+- Return ONLY valid JSON with these keys:
+  sections: the COMPLETE updated sections array
+  pageStyle: {bg:"#hex", bgImage:"url or empty string"}
+  response: short friendly message explaining what you did
+  actions: array of {type:"added"|"changed"|"removed", label:"short description"}
+- For visual backgrounds (sunset, ocean, mountains), use real Unsplash URLs. Search unsplash.com mentally and use real photo IDs. Format: https://images.unsplash.com/photo-{id}?w=1920&q=80. Use IDs like: 1507525428034-b723cf961d3e (ocean), 1506905925346-21bda4d32df4 (mountains), 1495616811223-4d98c6e9c869 (sunset), 1441974231531-c6227db76b6e (forest), 1478760329108-5c3ed9d495a0 (night sky).
+- For colour changes, modify the section colour properties
+- For adding sections, insert at a logical position in the array
+- For removing, remove from array
+- Keep response field short and conversational
 - No hype or income promises in any generated text
-- If you don't understand, ask for clarification in the response field
+- If the user provides a video URL, put it in a video section's url field exactly as given
+- ALWAYS return the COMPLETE sections array, not just the changed parts
 - NEVER return markdown fencing — just raw JSON"""
 
     try:
         client = anthropic.Anthropic(api_key=api_key)
         resp = client.messages.create(
             model=AI_MODEL_HAIKU,
-            max_tokens=2000,
+            max_tokens=3000,
             messages=[{"role": "user", "content": message}],
             system=system_prompt,
         )
@@ -8982,6 +8985,7 @@ RULES:
             "sections": result.get("sections", current_sections),
             "pageStyle": result.get("pageStyle", current_style),
             "response": result.get("response", "Done!"),
+            "actions": result.get("actions", []),
         })
 
     except Exception as e:
@@ -9270,6 +9274,9 @@ async def render_ai_funnel(username: str, slug: str, request: Request, db: Sessi
         else:
             video_embed = vid_url
 
+    # Background image support
+    bg_image = funnel_data.get("bgImage", "")
+
     # Track view
     page.views = (page.views or 0) + 1
     db.commit()
@@ -9280,6 +9287,7 @@ async def render_ai_funnel(username: str, slug: str, request: Request, db: Sessi
         "owner": owner,
         "funnel_data": funnel_data,
         "video_embed": video_embed,
+        "bg_image": bg_image,
     })
 
 
