@@ -107,14 +107,38 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#0f172a;color:#e2e8f0
       <!-- Welcome message -->
       <div class="chat-msg chat-ai">
         <strong>Welcome to your AI Funnel Builder!</strong><br><br>
-        I can help you customise this funnel. Just tell me what you want in plain English. For example:
+        Tell me what you want in plain English, or use the quick actions below.
+
+        <div style="margin-top:12px;font-size:11px;font-weight:700;color:#0ea5e9;letter-spacing:.5px">ADD ELEMENTS</div>
         <div class="chip-row">
-          <span class="chip" onclick="quickChat('Change the heading')">Change the heading</span>
-          <span class="chip" onclick="quickChat('Add a testimonial')">Add a testimonial</span>
-          <span class="chip" onclick="quickChat('Change background colour')">Change background</span>
-          <span class="chip" onclick="quickChat('Add a video')">Add a video</span>
-          <span class="chip" onclick="quickChat('Change button colour')">Change button colour</span>
-          <span class="chip" onclick="quickChat('Change the tone')">Change the tone</span>
+          <span class="chip" onclick="quickChat('Add a heading')">+ Heading</span>
+          <span class="chip" onclick="quickChat('Add a text paragraph')">+ Text</span>
+          <span class="chip" onclick="quickChat('Add a button')">+ Button</span>
+          <span class="chip" onclick="quickChat('Add a testimonial')">+ Testimonial</span>
+          <span class="chip" onclick="quickChat('Add a feature list')">+ Features</span>
+          <span class="chip" onclick="quickChat('Add an email capture form')">+ Email Capture</span>
+          <span class="chip" onclick="quickChat('Add a divider')">+ Divider</span>
+          <span class="chip" onclick="quickChat('Add a spacer')">+ Spacer</span>
+          <span class="chip" onclick="quickChat('Add an image')">+ Image</span>
+          <span class="chip" onclick="quickChat('Add two columns')">+ Two Columns</span>
+        </div>
+
+        <div style="margin-top:12px;font-size:11px;font-weight:700;color:#6366f1;letter-spacing:.5px">CHANGE STYLE</div>
+        <div class="chip-row">
+          <span class="chip" onclick="quickChat('Change background to dark blue')">Background colour</span>
+          <span class="chip" onclick="quickChat('Change button colours to green')">Button colours</span>
+          <span class="chip" onclick="quickChat('Change heading colour to gold')">Heading colour</span>
+          <span class="chip" onclick="quickChat('Change text colour to white')">Text colour</span>
+          <span class="chip" onclick="quickChat('Make the background a sunset over mountains')">AI Background</span>
+        </div>
+
+        <div style="margin-top:12px;font-size:11px;font-weight:700;color:#10b981;letter-spacing:.5px">EDIT CONTENT</div>
+        <div class="chip-row">
+          <span class="chip" onclick="quickChat('Change the heading text')">Change heading</span>
+          <span class="chip" onclick="quickChat('Rewrite the body text to be more casual')">Change tone</span>
+          <span class="chip" onclick="quickChat('Change the button text')">Button text</span>
+          <span class="chip" onclick="quickChat('Change the capture form heading')">Form heading</span>
+          <span class="chip" onclick="quickChat('Remove the last section')">Remove section</span>
         </div>
       </div>
 
@@ -137,6 +161,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#0f172a;color:#e2e8f0
     </div>
 
     <div class="chat-input-area">
+      <!-- Video URL field -->
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <input type="text" id="videoUrlField" placeholder="Paste YouTube/Vimeo URL to add or swap video" style="flex:1;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:12px;font-family:inherit;color:#1a1a2e">
+        <button class="tb-btn tb-cyan" style="font-size:11px;padding:8px 12px" onclick="applyVideoUrl()">▶ Apply Video</button>
+      </div>
       <div class="chat-input-row">
         <textarea class="chat-input" id="chatInput" rows="1" placeholder="Tell me what to change..." onkeydown="handleKey(event)" oninput="autoGrow(this)"></textarea>
         <button class="chat-send" id="chatSendBtn" onclick="sendChat()" title="Send">➤</button>
@@ -241,7 +270,27 @@ function renderPreview(){
   document.getElementById('chatPreviewImg').style.background=pageStyle.bgImage?`url('${pageStyle.bgImage}') center/cover`:pageStyle.bg;
 }
 
-// ── Video prompt ──
+// ── Video URL field ──
+function applyVideoUrl(){
+  const url=document.getElementById('videoUrlField').value.trim();
+  if(!url){showToast('Paste a video URL first');return;}
+  // Find existing video section or add one
+  const vidIdx=sections.findIndex(s=>s.type==='video');
+  if(vidIdx>=0){
+    sections[vidIdx].url=url;
+  }else{
+    // Insert after first heading or at position 2
+    const headIdx=sections.findIndex(s=>s.type==='heading');
+    const insertAt=headIdx>=0?headIdx+1:Math.min(2,sections.length);
+    sections.splice(insertAt,0,{type:'video',url:url});
+  }
+  renderPreview();
+  document.getElementById('videoUrlField').value='';
+  addAiMsg('Video updated! The preview on the left has been refreshed.');
+  showToast('Video applied');
+}
+
+// ── Video prompt from preview ──
 function promptVideo(idx){
   const url=prompt('Paste YouTube or Vimeo URL:',sections[idx].url||'');
   if(url!==null){sections[idx].url=url.trim();renderPreview();addAiMsg('Video updated!');}
