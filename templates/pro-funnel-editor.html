@@ -5,208 +5,515 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Edit Funnel — SuperAdPro Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/mobile.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#f8fafc;--cyan:#0ea5e9;--violet:#6366f1;--green:#10b981;--text:#1a1a2e;--text2:#475569;--muted:#94a3b8;--border:#e5e7eb;--shadow-sm:0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-.editor-layout{display:flex;min-height:100vh}
-.editor-sidebar{width:360px;background:#fff;border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;z-index:50;display:flex;flex-direction:column}
-.editor-preview{margin-left:360px;flex:1;min-height:100vh;background:#1e293b;padding:24px;display:flex;justify-content:center;align-items:flex-start}
-.preview-frame{width:100%;max-width:900px;border-radius:12px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.3)}
-.es-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.es-header h2{font-family:Sora,sans-serif;font-size:16px;font-weight:800}
-.es-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
-.es-tab{flex:1;padding:10px;text-align:center;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.15s}
-.es-tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
-.es-tab:hover{color:var(--text2)}
-.es-scroll{flex:1;overflow-y:auto}
-.es-section{padding:18px 20px;border-bottom:1px solid #f1f5f9}
-.es-section-title{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:12px;text-transform:uppercase}
-.es-field{margin-bottom:14px}
-.es-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px;display:block}
-.es-input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);resize:vertical}
-.es-input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(14,165,233,.1)}
-textarea.es-input{min-height:60px}
-select.es-input{background:#fff}
-.color-row{display:flex;gap:10px;align-items:center;margin-bottom:12px}
-.color-swatch{width:36px;height:36px;border-radius:8px;border:2px solid var(--border);cursor:pointer;flex-shrink:0;position:relative;overflow:hidden}
-.color-swatch input[type=color]{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);border:none;cursor:pointer;padding:0}
-.color-label{font-size:12px;font-weight:600;color:var(--text2);flex:1}
-.color-hex{width:80px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:monospace;color:var(--text);text-align:center}
-.color-hex:focus{outline:none;border-color:var(--cyan)}
-.theme-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
-.theme-btn{height:40px;border-radius:8px;border:2px solid var(--border);cursor:pointer;position:relative;overflow:hidden;transition:.15s}
-.theme-btn:hover{border-color:var(--cyan)}
-.theme-btn.active{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(14,165,233,.2)}
-.theme-btn-label{position:absolute;bottom:2px;left:0;right:0;text-align:center;font-size:9px;font-weight:600;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
-.btn{padding:8px 16px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
-.btn-ghost{background:#f1f5f9;color:var(--text2)}.btn-ghost:hover{background:#e2e8f0}
-.btn-sm{padding:6px 12px;font-size:12px}
-.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#059669}
-.btn-block{width:100%}
-.status-pub{background:#dcfce7;color:#16a34a;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}
-.status-draft{background:#fef3c7;color:#d97706;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}
-.seq-card{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
-.seq-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.seq-day{font-size:11px;font-weight:600;color:var(--cyan)}
-.save-bar{padding:14px 20px;border-top:1px solid var(--border);background:#fff;flex-shrink:0}
-.toast{position:fixed;bottom:24px;right:24px;background:#0f172a;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;display:none;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+:root{--bg:#f8fafc;--cyan:#0ea5e9;--violet:#6366f1;--green:#10b981;--text:#1a1a2e;--text2:#475569;--muted:#94a3b8;--border:#e5e7eb}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#1e293b;color:var(--text);min-height:100vh;overflow:hidden}
+
+/* Layout */
+.ed-layout{display:flex;height:100vh}
+.ed-left{width:340px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:100vh}
+.ed-center{flex:1;overflow-y:auto;padding:24px;display:flex;justify-content:center}
+.ed-right{width:260px;background:#fff;border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:100vh;overflow:hidden}
+
+/* Header */
+.ed-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.ed-header h2{font-family:Sora,sans-serif;font-size:15px;font-weight:800}
+.ed-btn{padding:7px 14px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
+.ed-btn-green{background:var(--green);color:#fff}.ed-btn-green:hover{background:#059669}
+.ed-btn-ghost{background:#f1f5f9;color:var(--text2)}.ed-btn-ghost:hover{background:#e2e8f0}
+.ed-btn-cyan{background:var(--cyan);color:#fff}.ed-btn-cyan:hover{background:#0284c7}
+
+/* Left panel: element palette + sections list */
+.ed-panel-title{font-size:11px;font-weight:700;letter-spacing:.8px;color:var(--muted);padding:12px 16px 6px;text-transform:uppercase}
+.ed-scroll{flex:1;overflow-y:auto}
+.ed-scroll::-webkit-scrollbar{width:4px}.ed-scroll::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:4px}
+
+/* Element palette */
+.el-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;padding:0 12px 12px}
+.el-btn{padding:10px 6px;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:grab;text-align:center;font-size:11px;font-weight:600;color:var(--text2);transition:.15s;user-select:none}
+.el-btn:hover{border-color:var(--cyan);background:#f0f9ff}
+.el-btn:active{cursor:grabbing}
+.el-icon{font-size:18px;display:block;margin-bottom:4px}
+
+/* Section list */
+.sec-list{padding:0 12px 12px}
+.sec-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;background:#fff;cursor:grab;transition:.15s;user-select:none}
+.sec-item:hover{border-color:var(--cyan);background:#f0f9ff}
+.sec-item.selected{border-color:var(--cyan);background:#eff6ff;box-shadow:0 0 0 2px rgba(14,165,233,.15)}
+.sec-item.dragging{opacity:.5}
+.sec-handle{color:var(--muted);cursor:grab;font-size:14px;flex-shrink:0}
+.sec-info{flex:1;min-width:0}
+.sec-type{font-size:11px;font-weight:600;color:var(--cyan)}
+.sec-preview{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sec-actions{display:flex;gap:4px;flex-shrink:0}
+.sec-act{width:24px;height:24px;border:none;border-radius:6px;background:transparent;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:.1s}
+.sec-act:hover{background:#fee2e2;color:#dc2626}
+.sec-dup:hover{background:#dbeafe;color:#2563eb}
+
+/* Right panel: properties */
+.prop-scroll{flex:1;overflow-y:auto;padding:12px}
+.prop-section{margin-bottom:16px}
+.prop-label{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:5px;display:block}
+.prop-input{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:inherit;color:var(--text);resize:vertical}
+.prop-input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(14,165,233,.1)}
+textarea.prop-input{min-height:60px}
+select.prop-input{background:#fff}
+
+/* Colour swatch */
+.prop-color{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.prop-swatch{width:32px;height:32px;border-radius:7px;border:2px solid var(--border);cursor:pointer;position:relative;overflow:hidden;flex-shrink:0}
+.prop-swatch input[type=color]{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);border:none;cursor:pointer;padding:0}
+.prop-color-label{font-size:11px;font-weight:600;color:var(--text2)}
+
+/* Preview frame */
+.pv-frame{width:100%;max-width:800px;border-radius:12px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.3);min-height:400px}
+
+/* Drop indicator */
+.drop-indicator{height:3px;background:var(--cyan);border-radius:2px;margin:4px 0}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;display:none;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,.3)}
 .toast.show{display:block}
-.pv-nav{padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
-.pv-hero{padding:40px 24px;text-align:center;max-width:700px;margin:0 auto}
-.pv-hero h1{font-family:Sora,sans-serif;font-size:32px;font-weight:900;line-height:1.15;margin-bottom:12px}
-.pv-hero-sub{font-size:16px;line-height:1.7}
-.pv-video{max-width:640px;margin:20px auto 30px;border-radius:12px;overflow:hidden}
-.pv-video iframe{width:100%;aspect-ratio:16/9;border:none;display:block}
-.pv-capture{max-width:420px;margin:0 auto 32px;border-radius:16px;padding:24px;text-align:center}
-.pv-capture h3{font-family:Sora,sans-serif;font-size:18px;font-weight:800;margin-bottom:4px}
-.pv-capture p{font-size:13px;margin-bottom:14px}
-.pv-mock-input{border-radius:10px;padding:10px;margin-bottom:8px;font-size:13px;text-align:left}
-.pv-body{max-width:640px;margin:0 auto;padding:24px}
-.pv-body p{font-size:14px;line-height:1.8;margin-bottom:14px}
-.pv-features{list-style:none;padding:0;margin:24px 0}
-.pv-features li{display:flex;gap:10px;padding:10px 0;font-size:13px}
-.pv-cta{text-align:center;padding:32px 24px}
-.pv-cta-btn{display:inline-block;padding:14px 40px;border-radius:12px;font-size:16px;font-weight:700;font-family:Sora,sans-serif}
-@media(max-width:900px){.editor-sidebar{width:100%;position:relative;border-right:none;border-bottom:1px solid var(--border);max-height:50vh}.editor-preview{margin-left:0}.editor-layout{flex-direction:column}}
+
+/* Empty state */
+.empty-hint{text-align:center;padding:40px 16px;color:var(--muted);font-size:12px;line-height:1.6}
 </style>
 </head>
 <body>
-<div class="editor-layout">
-  <div class="editor-sidebar">
-    <div class="es-header">
-      <h2>✨ Edit Funnel</h2>
-      <div style="display:flex;gap:6px;align-items:center">
-        <span class="{{ 'status-pub' if page.status == 'published' else 'status-draft' }}">{{ page.status }}</span>
-        <a href="/pro/funnels" class="btn btn-ghost btn-sm" style="text-decoration:none">← Back</a>
+<div class="ed-layout">
+  <!-- ══════ LEFT: Elements + Sections ══════ -->
+  <div class="ed-left">
+    <div class="ed-header">
+      <h2>✨ Funnel Editor</h2>
+      <div style="display:flex;gap:6px">
+        <a href="/pro/funnels" class="ed-btn ed-btn-ghost" style="text-decoration:none">← Back</a>
+        <button class="ed-btn ed-btn-green" onclick="save()">💾 Save</button>
       </div>
     </div>
-    <div class="es-tabs">
-      <div class="es-tab active" onclick="switchTab('content',this)">Content</div>
-      <div class="es-tab" onclick="switchTab('style',this)">Style</div>
-      <div class="es-tab" onclick="switchTab('capture',this)">Capture</div>
-      <div class="es-tab" onclick="switchTab('emails',this)">Emails</div>
-      <div class="es-tab" onclick="switchTab('settings',this)">Settings</div>
-    </div>
-    <div class="es-scroll">
-      <div id="tab-content" class="tab-panel">
-        <div class="es-section">
-          <div class="es-section-title">Page Content</div>
-          <div class="es-field"><label class="es-label">Headline</label><input type="text" id="edHeadline" class="es-input" value="{{ funnel_data.get('headline', page.headline or '') }}" oninput="up()"></div>
-          <div class="es-field"><label class="es-label">Subheadline</label><textarea id="edSubheadline" class="es-input" oninput="up()">{{ funnel_data.get('subheadline', page.subheadline or '') }}</textarea></div>
-          <div class="es-field"><label class="es-label">Video URL (YouTube/Vimeo)</label><input type="text" id="edVideo" class="es-input" value="{{ page.video_url or '' }}" placeholder="Paste a YouTube or Vimeo link" oninput="up()"></div>
-          <div class="es-field"><label class="es-label">Body Paragraphs (one per line)</label><textarea id="edBody" class="es-input" style="min-height:120px" oninput="up()">{% for p in funnel_data.get('body_paragraphs', []) %}{{ p }}{{ '\n' if not loop.last else '' }}{% endfor %}</textarea></div>
-          <div class="es-field"><label class="es-label">Features (one per line)</label><textarea id="edFeatures" class="es-input" style="min-height:100px" oninput="up()">{% for f in funnel_data.get('features', []) %}{{ f }}{{ '\n' if not loop.last else '' }}{% endfor %}</textarea></div>
-          <div class="es-field"><label class="es-label">CTA Button Text</label><input type="text" id="edCta" class="es-input" value="{{ funnel_data.get('cta_text', page.cta_text or 'Join Now') }}" oninput="up()"></div>
-        </div>
+
+    <div class="ed-scroll">
+      <div class="ed-panel-title">Add Elements</div>
+      <div class="el-grid">
+        <div class="el-btn" onclick="addSection('heading')"><span class="el-icon">H</span>Heading</div>
+        <div class="el-btn" onclick="addSection('text')"><span class="el-icon">¶</span>Text</div>
+        <div class="el-btn" onclick="addSection('image')"><span class="el-icon">🖼️</span>Image</div>
+        <div class="el-btn" onclick="addSection('video')"><span class="el-icon">▶️</span>Video</div>
+        <div class="el-btn" onclick="addSection('button')"><span class="el-icon">🔘</span>Button</div>
+        <div class="el-btn" onclick="addSection('features')"><span class="el-icon">✓</span>Feature List</div>
+        <div class="el-btn" onclick="addSection('capture')"><span class="el-icon">📩</span>Email Capture</div>
+        <div class="el-btn" onclick="addSection('testimonial')"><span class="el-icon">💬</span>Testimonial</div>
+        <div class="el-btn" onclick="addSection('divider')"><span class="el-icon">—</span>Divider</div>
+        <div class="el-btn" onclick="addSection('spacer')"><span class="el-icon">↕️</span>Spacer</div>
+        <div class="el-btn" onclick="addSection('columns')"><span class="el-icon">▥</span>Two Columns</div>
+        <div class="el-btn" onclick="addSection('html')"><span class="el-icon">&lt;/&gt;</span>Custom HTML</div>
       </div>
-      <div id="tab-style" class="tab-panel" style="display:none">
-        <div class="es-section">
-          <div class="es-section-title">Preset Themes</div>
-          <div class="theme-row">
-            <div class="theme-btn" style="background:linear-gradient(135deg,#050d1a,#0f1729)" onclick="applyTheme('dark',this)" title="Dark"><div class="theme-btn-label">Dark</div></div>
-            <div class="theme-btn" style="background:linear-gradient(135deg,#0f172a,#1e3a5f)" onclick="applyTheme('navy',this)" title="Navy"><div class="theme-btn-label">Navy</div></div>
-            <div class="theme-btn" style="background:linear-gradient(135deg,#ffffff,#f1f5f9)" onclick="applyTheme('light',this)" title="Light"><div class="theme-btn-label" style="color:#334155">Light</div></div>
-            <div class="theme-btn" style="background:linear-gradient(135deg,#1a1a2e,#16213e)" onclick="applyTheme('midnight',this)" title="Midnight"><div class="theme-btn-label">Midnight</div></div>
-          </div>
-          <div class="theme-row">
-            <div class="theme-btn" style="background:linear-gradient(135deg,#064e3b,#065f46)" onclick="applyTheme('forest',this)" title="Forest"><div class="theme-btn-label">Forest</div></div>
-            <div class="theme-btn" style="background:linear-gradient(135deg,#7c2d12,#9a3412)" onclick="applyTheme('ember',this)" title="Ember"><div class="theme-btn-label">Ember</div></div>
-            <div class="theme-btn" style="background:linear-gradient(135deg,#312e81,#4338ca)" onclick="applyTheme('violet',this)" title="Violet"><div class="theme-btn-label">Violet</div></div>
-            <div class="theme-btn" style="background:linear-gradient(135deg,#78350f,#92400e)" onclick="applyTheme('gold',this)" title="Gold"><div class="theme-btn-label">Gold</div></div>
-          </div>
-        </div>
-        <div class="es-section">
-          <div class="es-section-title">Custom Colours</div>
-          <div class="color-row"><div class="color-swatch"><input type="color" id="colBg" value="#050d1a" oninput="syncHex('Bg');applyColor()"></div><span class="color-label">Background</span><input type="text" class="color-hex" id="hexBg" value="#050d1a" oninput="hexToCol('Bg')"></div>
-          <div class="color-row"><div class="color-swatch"><input type="color" id="colBtn" value="#0ea5e9" oninput="syncHex('Btn');applyColor()"></div><span class="color-label">Button / Accent</span><input type="text" class="color-hex" id="hexBtn" value="#0ea5e9" oninput="hexToCol('Btn')"></div>
-          <div class="color-row"><div class="color-swatch"><input type="color" id="colBtn2" value="#6366f1" oninput="syncHex('Btn2');applyColor()"></div><span class="color-label">Button Gradient End</span><input type="text" class="color-hex" id="hexBtn2" value="#6366f1" oninput="hexToCol('Btn2')"></div>
-          <div class="color-row"><div class="color-swatch"><input type="color" id="colText" value="#ffffff" oninput="syncHex('Text');applyColor()"></div><span class="color-label">Heading Text</span><input type="text" class="color-hex" id="hexText" value="#ffffff" oninput="hexToCol('Text')"></div>
-          <div class="color-row"><div class="color-swatch"><input type="color" id="colMuted" value="#94a3b8" oninput="syncHex('Muted');applyColor()"></div><span class="color-label">Body Text</span><input type="text" class="color-hex" id="hexMuted" value="#94a3b8" oninput="hexToCol('Muted')"></div>
-          <div class="color-row"><div class="color-swatch"><input type="color" id="colCard" value="#0f1729" oninput="syncHex('Card');applyColor()"></div><span class="color-label">Card / Form BG</span><input type="text" class="color-hex" id="hexCard" value="#0f1729" oninput="hexToCol('Card')"></div>
-        </div>
-      </div>
-      <div id="tab-capture" class="tab-panel" style="display:none">
-        <div class="es-section">
-          <div class="es-section-title">Email Capture Form</div>
-          <div class="es-field"><label class="es-label">Form Heading</label><input type="text" id="edCapHeading" class="es-input" value="{{ page.capture_form_heading or funnel_data.get('capture_heading', 'Get Free Access') }}" oninput="up()"></div>
-          <div class="es-field"><label class="es-label">Form Subtext</label><input type="text" id="edCapSubtext" class="es-input" value="{{ page.capture_form_subtext or funnel_data.get('capture_subtext', '') }}" oninput="up()"></div>
-          <div style="font-size:12px;color:var(--muted);padding:10px 0">Leads automatically enter the nurture sequence.</div>
-        </div>
-      </div>
-      <div id="tab-emails" class="tab-panel" style="display:none">
-        <div class="es-section">
-          <div class="es-section-title">Nurture Sequence ({{ seq_emails|length }} emails)</div>
-          {% for email in seq_emails %}
-          <div class="seq-card"><div class="seq-card-header"><span class="seq-day">Day {{ email.get('send_delay_days', loop.index0) }}</span><span style="font-size:11px;color:var(--muted)">Email {{ loop.index }}</span></div><div style="font-size:13px;font-weight:600;color:var(--text)">{{ email.get('subject', 'Untitled') }}</div><div style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.6">{{ email.get('body_html', '')|striptags|truncate(120) }}</div></div>
-          {% endfor %}
-          {% if seq_emails|length == 0 %}<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">No email sequence assigned.</div>{% endif %}
-        </div>
-      </div>
-      <div id="tab-settings" class="tab-panel" style="display:none">
-        <div class="es-section">
-          <div class="es-section-title">Funnel Settings</div>
-          <div class="es-field"><label class="es-label">Status</label><select id="edStatus" class="es-input"><option value="published" {{ 'selected' if page.status == 'published' else '' }}>Published</option><option value="draft" {{ 'selected' if page.status == 'draft' else '' }}>Draft</option></select></div>
-          <div class="es-field"><label class="es-label">Funnel URL</label><div style="background:#f1f5f9;border-radius:8px;padding:10px;font-size:12px;color:var(--cyan);word-break:break-all">/f/{{ page.slug }}</div></div>
-          <div class="es-field"><label class="es-label">Niche</label><div style="font-size:13px;color:var(--text2)">{{ page.ai_niche or 'Not set' }}</div></div>
-          <div class="es-field"><label class="es-label">Stats</label><div style="font-size:13px;color:var(--text2)">{{ page.views or 0 }} views · {{ page.leads_captured or 0 }} leads</div></div>
-        </div>
+
+      <div class="ed-panel-title">Page Sections</div>
+      <div class="sec-list" id="secList">
+        <!-- Populated by JS -->
       </div>
     </div>
-    <div class="save-bar"><button class="btn btn-green btn-block" onclick="saveFunnel()" style="padding:12px;font-size:14px">💾 Save Changes</button></div>
+
+    <div style="padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0">
+      <div class="ed-panel-title" style="padding:0 0 6px">Page Settings</div>
+      <div class="prop-color">
+        <div class="prop-swatch"><input type="color" id="pageBg" value="#050d1a" oninput="updatePageColor()"></div>
+        <span class="prop-color-label">Page Background</span>
+      </div>
+      <div style="display:flex;gap:6px">
+        <select id="pageStatus" class="prop-input" style="flex:1">
+          <option value="published" {{ 'selected' if page.status == 'published' else '' }}>Published</option>
+          <option value="draft" {{ 'selected' if page.status == 'draft' else '' }}>Draft</option>
+        </select>
+        <a href="/f/{{ page.slug }}" target="_blank" class="ed-btn ed-btn-cyan" style="text-decoration:none;white-space:nowrap">View Live ↗</a>
+      </div>
+    </div>
   </div>
 
-  <div class="editor-preview">
-    <div class="preview-frame" id="previewFrame">
-      <div class="pv-nav"><div style="display:flex;align-items:center;gap:8px"><svg width="24" height="24" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg><span style="font-family:Sora,sans-serif;font-weight:800;font-size:15px;color:#fff">SuperAd<span style="color:#38bdf8">Pro</span></span></div><span style="font-size:12px;color:rgba(255,255,255,0.4)">By <strong style="color:#38bdf8">{{ user.first_name or user.username }}</strong></span></div>
-      <div class="pv-hero"><h1 id="pvHeadline">{{ funnel_data.get('headline', page.headline or 'Your Headline') }}</h1><p class="pv-hero-sub" id="pvSubheadline">{{ funnel_data.get('subheadline', page.subheadline or '') }}</p></div>
-      <div class="pv-video" id="pvVideo" style="{{ '' if page.video_url else 'display:none' }}"><iframe id="pvVideoFrame" src="" allowfullscreen></iframe></div>
-      <div class="pv-capture" id="pvCapture"><h3 id="pvCapHeading">{{ page.capture_form_heading or funnel_data.get('capture_heading', 'Get Free Access') }}</h3><p id="pvCapSubtext">{{ page.capture_form_subtext or funnel_data.get('capture_subtext', 'Enter your email to get started.') }}</p><div class="pv-mock-input" id="pvInput1">Your first name</div><div class="pv-mock-input" id="pvInput2">Your email address</div><div id="pvCaptureBtn" style="border-radius:10px;padding:12px;color:#fff;font-weight:700;font-size:14px">Get Access →</div></div>
-      <div class="pv-body"><div id="pvBody">{% for p in funnel_data.get('body_paragraphs', []) %}<p>{{ p }}</p>{% endfor %}</div><ul class="pv-features" id="pvFeatures">{% for f in funnel_data.get('features', []) %}<li><span style="font-weight:700">✓</span> {{ f }}</li>{% endfor %}</ul></div>
-      <div class="pv-cta"><div class="pv-cta-btn" id="pvCta">{{ funnel_data.get('cta_text', page.cta_text or 'Join Now') }}</div></div>
+  <!-- ══════ CENTER: Live Preview ══════ -->
+  <div class="ed-center" id="edCenter">
+    <div class="pv-frame" id="pvFrame">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+
+  <!-- ══════ RIGHT: Properties ══════ -->
+  <div class="ed-right">
+    <div class="ed-header" style="border-bottom:1px solid var(--border)">
+      <h2 id="propTitle">Properties</h2>
+    </div>
+    <div class="prop-scroll" id="propPanel">
+      <div class="empty-hint">Click a section in the preview or the section list to edit its properties.</div>
     </div>
   </div>
 </div>
+
 <div class="toast" id="toast"></div>
+
 <script>
-const funnelId={{page.id}};
-let C={bg:'#050d1a',btn:'#0ea5e9',btn2:'#6366f1',text:'#ffffff',muted:'#94a3b8',card:'#0f1729'};
-try{const s=JSON.parse('{{ (funnel_data.get("colors",{})|tojson)|safe }}');if(s.bg)C.bg=s.bg;if(s.btn)C.btn=s.btn;if(s.btn2)C.btn2=s.btn2;if(s.text)C.text=s.text;if(s.muted)C.muted=s.muted;if(s.card)C.card=s.card;}catch(e){}
-const TH={dark:{bg:'#050d1a',btn:'#0ea5e9',btn2:'#6366f1',text:'#ffffff',muted:'#94a3b8',card:'#0f1729'},navy:{bg:'#0f172a',btn:'#38bdf8',btn2:'#818cf8',text:'#f1f5f9',muted:'#94a3b8',card:'#1e3a5f'},light:{bg:'#ffffff',btn:'#0ea5e9',btn2:'#6366f1',text:'#0f172a',muted:'#475569',card:'#f1f5f9'},midnight:{bg:'#1a1a2e',btn:'#e94560',btn2:'#533483',text:'#eaeaea',muted:'#a0a0b0',card:'#16213e'},forest:{bg:'#064e3b',btn:'#34d399',btn2:'#10b981',text:'#ecfdf5',muted:'#a7f3d0',card:'#065f46'},ember:{bg:'#7c2d12',btn:'#fb923c',btn2:'#f59e0b',text:'#fff7ed',muted:'#fed7aa',card:'#9a3412'},violet:{bg:'#312e81',btn:'#a78bfa',btn2:'#c084fc',text:'#f5f3ff',muted:'#c4b5fd',card:'#4338ca'},gold:{bg:'#78350f',btn:'#fbbf24',btn2:'#f59e0b',text:'#fffbeb',muted:'#fde68a',card:'#92400e'}};
-function applyTheme(n,el){const t=TH[n];if(!t)return;C={...t};syncInputs();applyColor();document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));if(el)el.classList.add('active');}
-function syncInputs(){['Bg','Btn','Btn2','Text','Muted','Card'].forEach(k=>{const key=k[0].toLowerCase()+k.slice(1);const c=document.getElementById('col'+k),h=document.getElementById('hex'+k);if(c)c.value=C[key];if(h)h.value=C[key];});}
-function syncHex(s){const c=document.getElementById('col'+s),h=document.getElementById('hex'+s);if(c&&h)h.value=c.value;const key=s[0].toLowerCase()+s.slice(1);C[key]=c.value;}
-function hexToCol(s){const h=document.getElementById('hex'+s),c=document.getElementById('col'+s);if(h&&c&&/^#[0-9a-fA-F]{6}$/.test(h.value)){c.value=h.value;const key=s[0].toLowerCase()+s.slice(1);C[key]=h.value;applyColor();}}
-function applyColor(){['Bg','Btn','Btn2','Text','Muted','Card'].forEach(k=>{const c=document.getElementById('col'+k);const key=k[0].toLowerCase()+k.slice(1);if(c)C[key]=c.value;});
-const f=document.getElementById('previewFrame');f.style.background=C.bg;
-const g=`linear-gradient(135deg,${C.btn},${C.btn2})`;
-document.getElementById('pvHeadline').style.color=C.text;
-document.getElementById('pvSubheadline').style.color=C.muted;
-document.getElementById('pvCaptureBtn').style.background=g;
-document.getElementById('pvCta').style.background=g;document.getElementById('pvCta').style.color='#fff';
-const cap=document.getElementById('pvCapture');cap.style.background=C.card+'40';cap.style.border='1px solid '+C.btn+'20';
-document.getElementById('pvCapHeading').style.color=C.text;
-document.getElementById('pvCapSubtext').style.color=C.muted;
-document.querySelectorAll('#pvBody p').forEach(p=>p.style.color=C.muted);
-document.querySelectorAll('#pvFeatures li').forEach(li=>{li.style.color=C.muted;li.style.borderTopColor=C.text+'0d';const s=li.querySelector('span');if(s)s.style.color=C.btn;});
-const vid=document.getElementById('pvVideo');vid.style.background=C.card;vid.style.border='1px solid '+C.btn+'18';
-['pvInput1','pvInput2'].forEach(id=>{const el=document.getElementById(id);if(el){el.style.background=C.text+'0a';el.style.border='1px solid '+C.text+'1a';el.style.color=C.text+'4d';}});}
-function toEmbed(u){if(!u)return'';u=u.trim();if(u.includes('youtube.com/watch')){const v=u.split('v=')[1]?.split('&')[0];return v?'https://www.youtube.com/embed/'+v:'';}if(u.includes('youtu.be/')){const v=u.split('youtu.be/')[1]?.split('?')[0];return v?'https://www.youtube.com/embed/'+v:'';}if(u.includes('vimeo.com/')){const v=u.split('vimeo.com/')[1]?.split('?')[0];return v?'https://player.vimeo.com/video/'+v:'';}return u;}
-function switchTab(t,el){document.querySelectorAll('.tab-panel').forEach(p=>p.style.display='none');document.querySelectorAll('.es-tab').forEach(t=>t.classList.remove('active'));document.getElementById('tab-'+t).style.display='block';el.classList.add('active');}
-function up(){const $=id=>document.getElementById(id);
-$('pvHeadline').textContent=$('edHeadline')?.value||'';$('pvHeadline').style.color=C.text;
-$('pvSubheadline').textContent=$('edSubheadline')?.value||'';$('pvSubheadline').style.color=C.muted;
-$('pvCapHeading').textContent=$('edCapHeading')?.value||'';$('pvCapHeading').style.color=C.text;
-$('pvCapSubtext').textContent=$('edCapSubtext')?.value||'';$('pvCapSubtext').style.color=C.muted;
-$('pvCta').textContent=$('edCta')?.value||'';
-const b=$('edBody'),pb=$('pvBody');if(b&&pb)pb.innerHTML=b.value.split('\n').filter(l=>l.trim()).map(l=>'<p style="color:'+C.muted+'">'+l.replace(/</g,'&lt;')+'</p>').join('');
-const fe=$('edFeatures'),pf=$('pvFeatures');if(fe&&pf)pf.innerHTML=fe.value.split('\n').filter(l=>l.trim()).map(l=>'<li style="color:'+C.muted+';border-top:1px solid '+C.text+'0d"><span style="color:'+C.btn+';font-weight:700">✓</span> '+l.replace(/</g,'&lt;')+'</li>').join('');
-const vu=$('edVideo')?.value||'',pv=$('pvVideo'),fr=$('pvVideoFrame');if(pv&&fr){const em=toEmbed(vu);if(em){pv.style.display='block';if(fr.src!==em)fr.src=em;}else{pv.style.display='none';fr.src='';}}}
-async function saveFunnel(){const body={headline:document.getElementById('edHeadline').value,subheadline:document.getElementById('edSubheadline').value,body_paragraphs:document.getElementById('edBody').value.split('\n').filter(l=>l.trim()),features:document.getElementById('edFeatures').value.split('\n').filter(l=>l.trim()),cta_text:document.getElementById('edCta').value,capture_heading:document.getElementById('edCapHeading').value,capture_subtext:document.getElementById('edCapSubtext').value,video_url:document.getElementById('edVideo').value,status:document.getElementById('edStatus').value,colors:C};
-const r=await fetch('/api/pro/funnel/'+funnelId+'/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json();showToast(d.success?'✓ Saved!':'Save failed');}
-function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
-document.addEventListener('DOMContentLoaded',()=>{syncInputs();applyColor();up();});
+const FUNNEL_ID = {{ page.id }};
+const USERNAME = '{{ user.username }}';
+const SITE_URL = window.location.origin;
+
+// ── Section data model ──
+let sections = [];
+let selectedIdx = -1;
+let pageColors = { bg: '#050d1a' };
+
+// ── Load initial data from server ──
+try {
+  const fd = JSON.parse('{{ (funnel_data|tojson)|safe }}'.replace(/\\n/g,'\\\\n'));
+  if (fd.colors && fd.colors.bg) pageColors.bg = fd.colors.bg;
+  // Convert old format to sections array
+  if (fd.sections) {
+    sections = fd.sections;
+  } else {
+    // Build sections from legacy fields
+    if (fd.headline) sections.push({ type:'heading', content:fd.headline, level:'h1', color:'#ffffff', align:'center' });
+    if (fd.subheadline) sections.push({ type:'text', content:fd.subheadline, color:fd.colors?.muted||'#94a3b8', align:'center', size:'17px' });
+    if ('{{ page.video_url or "" }}') sections.push({ type:'video', url:'{{ page.video_url or "" }}' });
+    sections.push({ type:'capture', heading:fd.capture_heading||'Get Free Access', subtext:fd.capture_subtext||'', btnText:'Get Access →', btnColor:fd.colors?.btn||'#0ea5e9', btnColor2:fd.colors?.btn2||'#6366f1', bgColor:fd.colors?.card||'#0f1729' });
+    if (fd.body_paragraphs) fd.body_paragraphs.forEach(p => sections.push({ type:'text', content:p, color:fd.colors?.muted||'#94a3b8', align:'left', size:'15px' }));
+    if (fd.features) sections.push({ type:'features', items:fd.features, checkColor:fd.colors?.btn||'#0ea5e9', textColor:fd.colors?.muted||'#94a3b8' });
+    sections.push({ type:'button', text:fd.cta_text||'Join Now', url:'/register?ref='+USERNAME, color1:fd.colors?.btn||'#0ea5e9', color2:fd.colors?.btn2||'#6366f1', align:'center' });
+  }
+} catch(e) { console.error('Init error', e); }
+
+document.getElementById('pageBg').value = pageColors.bg;
+
+// ── Defaults for new sections ──
+const DEFAULTS = {
+  heading: { type:'heading', content:'New Heading', level:'h1', color:'#ffffff', align:'center' },
+  text: { type:'text', content:'Enter your text here...', color:'#94a3b8', align:'left', size:'15px' },
+  image: { type:'image', url:'', alt:'', width:'100%', borderRadius:'12px' },
+  video: { type:'video', url:'' },
+  button: { type:'button', text:'Click Here', url:'/register?ref='+USERNAME, color1:'#0ea5e9', color2:'#6366f1', align:'center', size:'16px' },
+  features: { type:'features', items:['Feature one','Feature two','Feature three'], checkColor:'#0ea5e9', textColor:'#94a3b8' },
+  capture: { type:'capture', heading:'Get Free Access', subtext:'Enter your email to learn more.', btnText:'Get Access →', btnColor:'#0ea5e9', btnColor2:'#6366f1', bgColor:'#0f1729' },
+  testimonial: { type:'testimonial', quote:'This platform changed everything for me.', author:'Happy Member', color:'#e2e8f0', bgColor:'#1e293b' },
+  divider: { type:'divider', color:'#334155', thickness:'1px', width:'60%' },
+  spacer: { type:'spacer', height:'40px' },
+  columns: { type:'columns', left:'Left column content', right:'Right column content', color:'#94a3b8' },
+  html: { type:'html', code:'<div style="text-align:center;color:#94a3b8;padding:20px;">Custom HTML here</div>' },
+};
+
+function addSection(type) {
+  const s = JSON.parse(JSON.stringify(DEFAULTS[type]));
+  if (selectedIdx >= 0 && selectedIdx < sections.length - 1) {
+    sections.splice(selectedIdx + 1, 0, s);
+    selectedIdx = selectedIdx + 1;
+  } else {
+    sections.push(s);
+    selectedIdx = sections.length - 1;
+  }
+  render();
+}
+
+function removeSection(idx) {
+  sections.splice(idx, 1);
+  if (selectedIdx >= sections.length) selectedIdx = sections.length - 1;
+  render();
+}
+
+function dupSection(idx) {
+  const copy = JSON.parse(JSON.stringify(sections[idx]));
+  sections.splice(idx + 1, 0, copy);
+  selectedIdx = idx + 1;
+  render();
+}
+
+function moveSection(from, to) {
+  if (to < 0 || to >= sections.length) return;
+  const [item] = sections.splice(from, 1);
+  sections.splice(to, 0, item);
+  selectedIdx = to;
+  render();
+}
+
+function selectSection(idx) {
+  selectedIdx = idx;
+  renderSecList();
+  renderProps();
+  // Scroll preview to section
+  const el = document.getElementById('pv-sec-' + idx);
+  if (el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+// ── YouTube/Vimeo embed ──
+function toEmbed(u) {
+  if (!u) return '';
+  u = u.trim();
+  if (u.includes('youtube.com/watch')) { const v = u.split('v=')[1]?.split('&')[0]; return v ? 'https://www.youtube.com/embed/' + v : ''; }
+  if (u.includes('youtu.be/')) { const v = u.split('youtu.be/')[1]?.split('?')[0]; return v ? 'https://www.youtube.com/embed/' + v : ''; }
+  if (u.includes('vimeo.com/') && !u.includes('player.vimeo')) { const v = u.split('vimeo.com/')[1]?.split('?')[0]; return v ? 'https://player.vimeo.com/video/' + v : ''; }
+  return u;
+}
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Render everything ──
+function render() { renderPreview(); renderSecList(); renderProps(); }
+
+function updatePageColor() {
+  pageColors.bg = document.getElementById('pageBg').value;
+  document.getElementById('pvFrame').style.background = pageColors.bg;
+}
+
+function renderPreview() {
+  const frame = document.getElementById('pvFrame');
+  frame.style.background = pageColors.bg;
+  let html = '';
+  // Nav bar
+  html += `<div style="padding:14px 24px;display:flex;align-items:center;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:8px"><svg width="24" height="24" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg><span style="font-family:Sora,sans-serif;font-weight:800;font-size:15px;color:#fff">SuperAd<span style="color:#38bdf8">Pro</span></span></div>
+    <span style="font-size:12px;color:rgba(255,255,255,0.4)">By <strong style="color:#38bdf8">{{ user.first_name or user.username }}</strong></span></div>`;
+
+  sections.forEach((s, i) => {
+    const sel = i === selectedIdx ? 'outline:2px solid #0ea5e9;outline-offset:2px;border-radius:8px;' : '';
+    const wrap = `<div id="pv-sec-${i}" style="cursor:pointer;${sel}" onclick="selectSection(${i})">`;
+    html += wrap;
+    switch(s.type) {
+      case 'heading':
+        const tag = s.level || 'h1';
+        const fs = tag==='h1'?'32px':tag==='h2'?'24px':'20px';
+        html += `<div style="padding:20px 24px;text-align:${s.align||'center'}"><${tag} style="font-family:Sora,sans-serif;font-size:${fs};font-weight:900;color:${s.color||'#fff'};line-height:1.2;margin:0">${esc(s.content)}</${tag}></div>`;
+        break;
+      case 'text':
+        html += `<div style="padding:8px 24px;max-width:700px;margin:0 auto;text-align:${s.align||'left'}"><p style="font-family:Outfit,sans-serif;font-size:${s.size||'15px'};color:${s.color||'#94a3b8'};line-height:1.8;margin:0">${esc(s.content)}</p></div>`;
+        break;
+      case 'image':
+        html += `<div style="padding:12px 24px;text-align:center">${s.url ? `<img src="${esc(s.url)}" alt="${esc(s.alt)}" style="max-width:${s.width||'100%'};border-radius:${s.borderRadius||'12px'};display:block;margin:0 auto">` : '<div style="background:#1e293b;border:1px dashed #334155;border-radius:12px;padding:40px;color:#64748b;font-size:13px">Image URL not set</div>'}</div>`;
+        break;
+      case 'video':
+        const embed = toEmbed(s.url);
+        html += `<div style="padding:12px 24px;max-width:700px;margin:0 auto">${embed ? `<div style="border-radius:12px;overflow:hidden;background:#0f1729;border:1px solid rgba(14,165,233,0.1)"><iframe src="${embed}" style="width:100%;aspect-ratio:16/9;border:none;display:block" allowfullscreen></iframe></div>` : '<div style="background:#1e293b;border:1px dashed #334155;border-radius:12px;padding:40px;text-align:center;color:#64748b;font-size:13px">Paste a YouTube or Vimeo URL</div>'}</div>`;
+        break;
+      case 'button':
+        html += `<div style="padding:20px 24px;text-align:${s.align||'center'}"><a href="${esc(s.url)}" style="display:inline-block;padding:14px 40px;border-radius:12px;background:linear-gradient(135deg,${s.color1||'#0ea5e9'},${s.color2||'#6366f1'});color:#fff;font-family:Sora,sans-serif;font-size:${s.size||'16px'};font-weight:700;text-decoration:none;box-shadow:0 0 30px ${s.color1||'#0ea5e9'}33">${esc(s.text)}</a></div>`;
+        break;
+      case 'features':
+        html += `<div style="padding:12px 24px;max-width:650px;margin:0 auto"><ul style="list-style:none;padding:0">${(s.items||[]).map(f=>`<li style="display:flex;gap:10px;padding:10px 0;font-size:14px;color:${s.textColor||'#94a3b8'};border-top:1px solid rgba(255,255,255,0.05)"><span style="color:${s.checkColor||'#0ea5e9'};font-weight:700;flex-shrink:0">✓</span>${esc(f)}</li>`).join('')}</ul></div>`;
+        break;
+      case 'capture':
+        html += `<div style="max-width:420px;margin:12px auto;background:${s.bgColor||'#0f1729'}40;border:1px solid ${s.btnColor||'#0ea5e9'}20;border-radius:16px;padding:24px;text-align:center"><h3 style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff;margin:0 0 4px">${esc(s.heading)}</h3><p style="font-size:13px;color:#94a3b8;margin:0 0 14px">${esc(s.subtext)}</p><div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;margin-bottom:8px;color:rgba(255,255,255,0.3);font-size:13px;text-align:left">Your first name</div><div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;margin-bottom:10px;color:rgba(255,255,255,0.3);font-size:13px;text-align:left">Your email address</div><div style="background:linear-gradient(135deg,${s.btnColor||'#0ea5e9'},${s.btnColor2||'#6366f1'});border-radius:10px;padding:12px;color:#fff;font-weight:700;font-size:14px">${esc(s.btnText)}</div></div>`;
+        break;
+      case 'testimonial':
+        html += `<div style="max-width:550px;margin:12px auto;padding:24px;background:${s.bgColor||'#1e293b'};border-radius:16px;border-left:4px solid #0ea5e9"><p style="font-size:15px;color:${s.color||'#e2e8f0'};line-height:1.7;margin:0 0 12px;font-style:italic">"${esc(s.quote)}"</p><div style="font-size:13px;color:#64748b;font-weight:600">— ${esc(s.author)}</div></div>`;
+        break;
+      case 'divider':
+        html += `<div style="padding:8px 24px"><hr style="border:none;height:${s.thickness||'1px'};background:${s.color||'#334155'};width:${s.width||'60%'};margin:0 auto"></div>`;
+        break;
+      case 'spacer':
+        html += `<div style="height:${s.height||'40px'}"></div>`;
+        break;
+      case 'columns':
+        html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:12px 24px;max-width:700px;margin:0 auto"><div style="font-size:14px;color:${s.color||'#94a3b8'};line-height:1.7">${esc(s.left)}</div><div style="font-size:14px;color:${s.color||'#94a3b8'};line-height:1.7">${esc(s.right)}</div></div>`;
+        break;
+      case 'html':
+        html += `<div style="padding:12px 24px;max-width:700px;margin:0 auto">${s.code||''}</div>`;
+        break;
+    }
+    html += '</div>';
+  });
+
+  // Disclaimer
+  html += `<div style="text-align:center;padding:24px;font-size:11px;color:#475569">Income examples are illustrative. Results depend on individual effort.</div>`;
+  frame.innerHTML = html;
+}
+
+function renderSecList() {
+  const list = document.getElementById('secList');
+  const typeLabels = { heading:'Heading', text:'Text', image:'Image', video:'Video', button:'Button', features:'Features', capture:'Email Capture', testimonial:'Testimonial', divider:'Divider', spacer:'Spacer', columns:'Two Columns', html:'Custom HTML' };
+  const typeIcons = { heading:'H', text:'¶', image:'🖼️', video:'▶️', button:'🔘', features:'✓', capture:'📩', testimonial:'💬', divider:'—', spacer:'↕️', columns:'▥', html:'</>' };
+
+  list.innerHTML = sections.map((s, i) => {
+    const preview = s.content || s.heading || s.text || s.url || s.quote || (s.items?s.items[0]:'') || '';
+    return `<div class="sec-item${i===selectedIdx?' selected':''}" onclick="selectSection(${i})" draggable="true" ondragstart="dragStart(event,${i})" ondragover="dragOver(event,${i})" ondrop="dropSec(event,${i})" ondragend="dragEnd(event)">
+      <span class="sec-handle">⠿</span>
+      <div class="sec-info"><div class="sec-type">${typeIcons[s.type]||'•'} ${typeLabels[s.type]||s.type}</div><div class="sec-preview">${esc(preview).substring(0,30)}</div></div>
+      <div class="sec-actions"><button class="sec-act sec-dup" onclick="event.stopPropagation();dupSection(${i})" title="Duplicate">⧉</button><button class="sec-act" onclick="event.stopPropagation();removeSection(${i})" title="Delete">✕</button></div>
+    </div>`;
+  }).join('');
+
+  if (sections.length === 0) {
+    list.innerHTML = '<div class="empty-hint">Add elements from the palette above to build your funnel.</div>';
+  }
+}
+
+// ── Drag & Drop ──
+let dragIdx = -1;
+function dragStart(e, i) { dragIdx = i; e.dataTransfer.effectAllowed = 'move'; e.target.classList.add('dragging'); }
+function dragOver(e, i) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+function dropSec(e, i) { e.preventDefault(); if (dragIdx !== -1 && dragIdx !== i) moveSection(dragIdx, i); dragIdx = -1; }
+function dragEnd(e) { e.target.classList.remove('dragging'); dragIdx = -1; }
+
+// ── Properties panel ──
+function renderProps() {
+  const panel = document.getElementById('propPanel');
+  const title = document.getElementById('propTitle');
+
+  if (selectedIdx < 0 || selectedIdx >= sections.length) {
+    title.textContent = 'Properties';
+    panel.innerHTML = '<div class="empty-hint">Click a section to edit its properties.</div>';
+    return;
+  }
+
+  const s = sections[selectedIdx];
+  title.textContent = s.type.charAt(0).toUpperCase() + s.type.slice(1) + ' Properties';
+  let h = '';
+
+  // Move up/down buttons
+  h += `<div style="display:flex;gap:6px;margin-bottom:12px"><button class="ed-btn ed-btn-ghost" style="flex:1" onclick="moveSection(${selectedIdx},${selectedIdx-1})">↑ Up</button><button class="ed-btn ed-btn-ghost" style="flex:1" onclick="moveSection(${selectedIdx},${selectedIdx+1})">↓ Down</button></div>`;
+
+  switch(s.type) {
+    case 'heading':
+      h += field('Content', 'text', s.content, v => { s.content=v; render(); });
+      h += select('Level', s.level||'h1', [['h1','H1 Large'],['h2','H2 Medium'],['h3','H3 Small']], v => { s.level=v; render(); });
+      h += select('Align', s.align||'center', [['left','Left'],['center','Center'],['right','Right']], v => { s.align=v; render(); });
+      h += color('Text Colour', s.color||'#ffffff', v => { s.color=v; render(); });
+      break;
+    case 'text':
+      h += area('Content', s.content, v => { s.content=v; render(); });
+      h += select('Size', s.size||'15px', [['13px','Small'],['15px','Normal'],['17px','Large'],['20px','XL']], v => { s.size=v; render(); });
+      h += select('Align', s.align||'left', [['left','Left'],['center','Center'],['right','Right']], v => { s.align=v; render(); });
+      h += color('Text Colour', s.color||'#94a3b8', v => { s.color=v; render(); });
+      break;
+    case 'image':
+      h += field('Image URL', 'text', s.url||'', v => { s.url=v; render(); });
+      h += field('Alt Text', 'text', s.alt||'', v => { s.alt=v; });
+      h += field('Max Width', 'text', s.width||'100%', v => { s.width=v; render(); });
+      h += field('Border Radius', 'text', s.borderRadius||'12px', v => { s.borderRadius=v; render(); });
+      break;
+    case 'video':
+      h += field('YouTube / Vimeo URL', 'text', s.url||'', v => { s.url=v; render(); });
+      break;
+    case 'button':
+      h += field('Button Text', 'text', s.text, v => { s.text=v; render(); });
+      h += field('Link URL', 'text', s.url, v => { s.url=v; });
+      h += select('Size', s.size||'16px', [['14px','Small'],['16px','Normal'],['18px','Large']], v => { s.size=v; render(); });
+      h += select('Align', s.align||'center', [['left','Left'],['center','Center'],['right','Right']], v => { s.align=v; render(); });
+      h += color('Gradient Start', s.color1||'#0ea5e9', v => { s.color1=v; render(); });
+      h += color('Gradient End', s.color2||'#6366f1', v => { s.color2=v; render(); });
+      break;
+    case 'features':
+      h += area('Features (one per line)', (s.items||[]).join('\n'), v => { s.items=v.split('\n').filter(l=>l.trim()); render(); });
+      h += color('Check Colour', s.checkColor||'#0ea5e9', v => { s.checkColor=v; render(); });
+      h += color('Text Colour', s.textColor||'#94a3b8', v => { s.textColor=v; render(); });
+      break;
+    case 'capture':
+      h += field('Heading', 'text', s.heading, v => { s.heading=v; render(); });
+      h += field('Subtext', 'text', s.subtext, v => { s.subtext=v; render(); });
+      h += field('Button Text', 'text', s.btnText, v => { s.btnText=v; render(); });
+      h += color('Button Start', s.btnColor||'#0ea5e9', v => { s.btnColor=v; render(); });
+      h += color('Button End', s.btnColor2||'#6366f1', v => { s.btnColor2=v; render(); });
+      h += color('Form Background', s.bgColor||'#0f1729', v => { s.bgColor=v; render(); });
+      break;
+    case 'testimonial':
+      h += area('Quote', s.quote, v => { s.quote=v; render(); });
+      h += field('Author', 'text', s.author, v => { s.author=v; render(); });
+      h += color('Text Colour', s.color||'#e2e8f0', v => { s.color=v; render(); });
+      h += color('Background', s.bgColor||'#1e293b', v => { s.bgColor=v; render(); });
+      break;
+    case 'divider':
+      h += color('Colour', s.color||'#334155', v => { s.color=v; render(); });
+      h += field('Thickness', 'text', s.thickness||'1px', v => { s.thickness=v; render(); });
+      h += field('Width', 'text', s.width||'60%', v => { s.width=v; render(); });
+      break;
+    case 'spacer':
+      h += field('Height', 'text', s.height||'40px', v => { s.height=v; render(); });
+      break;
+    case 'columns':
+      h += area('Left Column', s.left, v => { s.left=v; render(); });
+      h += area('Right Column', s.right, v => { s.right=v; render(); });
+      h += color('Text Colour', s.color||'#94a3b8', v => { s.color=v; render(); });
+      break;
+    case 'html':
+      h += area('HTML Code', s.code, v => { s.code=v; render(); });
+      break;
+  }
+
+  panel.innerHTML = h;
+  // Attach event listeners
+  panel.querySelectorAll('[data-prop]').forEach(el => {
+    const fn = el._handler;
+    if (fn) {
+      el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', e => fn(e.target.value));
+    }
+  });
+}
+
+// ── Property field builders ──
+let _propId = 0;
+function field(label, type, value, onChange) {
+  const id = 'prop_' + (++_propId);
+  setTimeout(() => { const el = document.getElementById(id); if (el) { el._handler = onChange; el.addEventListener('input', e => onChange(e.target.value)); }}, 10);
+  return `<div class="prop-section"><label class="prop-label">${label}</label><input type="${type}" id="${id}" class="prop-input" value="${esc(value)}"></div>`;
+}
+function area(label, value, onChange) {
+  const id = 'prop_' + (++_propId);
+  setTimeout(() => { const el = document.getElementById(id); if (el) { el._handler = onChange; el.addEventListener('input', e => onChange(e.target.value)); }}, 10);
+  return `<div class="prop-section"><label class="prop-label">${label}</label><textarea id="${id}" class="prop-input" style="min-height:80px">${esc(value)}</textarea></div>`;
+}
+function select(label, value, options, onChange) {
+  const id = 'prop_' + (++_propId);
+  setTimeout(() => { const el = document.getElementById(id); if (el) el.addEventListener('change', e => onChange(e.target.value)); }, 10);
+  return `<div class="prop-section"><label class="prop-label">${label}</label><select id="${id}" class="prop-input">${options.map(([v,l])=>`<option value="${v}"${v===value?' selected':''}>${l}</option>`).join('')}</select></div>`;
+}
+function color(label, value, onChange) {
+  const id = 'prop_' + (++_propId);
+  setTimeout(() => { const el = document.getElementById(id); if (el) el.addEventListener('input', e => onChange(e.target.value)); }, 10);
+  return `<div class="prop-color"><div class="prop-swatch"><input type="color" id="${id}" value="${value}"></div><span class="prop-color-label">${label}</span></div>`;
+}
+
+// ── Save ──
+async function save() {
+  const data = {
+    sections: sections,
+    colors: { bg: pageColors.bg },
+    // Legacy fields for backward compat
+    headline: sections.find(s=>s.type==='heading')?.content || '',
+    subheadline: sections.find(s=>s.type==='text')?.content || '',
+    cta_text: sections.find(s=>s.type==='button')?.text || 'Join Now',
+    capture_heading: sections.find(s=>s.type==='capture')?.heading || '',
+    capture_subtext: sections.find(s=>s.type==='capture')?.subtext || '',
+    features: sections.find(s=>s.type==='features')?.items || [],
+    body_paragraphs: sections.filter(s=>s.type==='text').map(s=>s.content),
+  };
+
+  // Find video URL
+  const vidSec = sections.find(s=>s.type==='video');
+
+  const body = {
+    headline: data.headline,
+    subheadline: data.subheadline,
+    body_paragraphs: data.body_paragraphs,
+    features: data.features,
+    cta_text: data.cta_text,
+    capture_heading: data.capture_heading,
+    capture_subtext: data.capture_subtext,
+    video_url: vidSec?.url || '',
+    status: document.getElementById('pageStatus').value,
+    colors: data.colors,
+    sections: sections,
+  };
+
+  try {
+    const res = await fetch('/api/pro/funnel/' + FUNNEL_ID + '/save', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)
+    });
+    const r = await res.json();
+    showToast(r.success ? '✓ Saved!' : 'Save failed');
+  } catch(e) { showToast('Save error'); }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Init ──
+render();
 </script>
 </body>
 </html>
