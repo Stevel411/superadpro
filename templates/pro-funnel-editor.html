@@ -477,7 +477,7 @@ function renderAll() {
     div.id = el.id;
     div.style.cssText = `left:${el.x}px;top:${el.y}px;width:${el.w}px;height:${el.h}px;`;
     // Apply custom styles (background, border, padding, borderRadius)
-    const layoutStyles = ['background','borderRadius','border','padding','boxShadow','borderLeft','borderTop','borderRight','borderBottom'];
+    const layoutStyles = ['background','borderRadius','border','padding','boxShadow','borderLeft','borderTop','borderRight','borderBottom','opacity'];
     Object.entries(el.s||{}).forEach(([k,v])=>{
       if (layoutStyles.includes(k)) div.style[k] = v;
     });
@@ -541,6 +541,7 @@ function renderAll() {
     const editLabel = editLabels[el.type] || '✎ EDIT';
     bar.innerHTML = `
       ${isEditable ? `<button class="cb" onclick="event.stopPropagation();enterEditMode('${el.id}')" title="Edit" style="font-size:10px;font-weight:800;color:var(--accent);width:auto;padding:0 8px">${editLabel}</button><div class="cb-sep"></div>` : ''}
+      <button class="cb" onclick="event.stopPropagation();showStylePanel('${el.id}')" title="Style" style="font-size:10px;font-weight:800;color:#f59e0b;width:auto;padding:0 6px">🎨</button>
       <button class="cb" onclick="moveEl('${el.id}',-1)" title="Move back">↑</button>
       <button class="cb" onclick="moveEl('${el.id}',1)" title="Move forward">↓</button>
       <button class="cb" onclick="dupEl('${el.id}')" title="Duplicate">⧉</button>
@@ -1852,6 +1853,68 @@ document.addEventListener('keydown', e => {
 });
 
 // ═══ PAGE SETTINGS ═══
+
+// ═══ STYLE PANEL ═══
+function showStylePanel(id) {
+  if (Date.now() - _lastSelectTime < 300) return;
+  exitEditMode();
+  const el = els.find(x => x.id === id);
+  if (!el) return;
+  editMode = true;
+  const panel = document.getElementById('floatingEditor');
+  panel.style.display = 'flex';
+  document.getElementById('editorTargetName').textContent = 'Style';
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
+  const wrap = document.getElementById('tinyEditorWrap');
+  const s = el.s || {};
+  const borderMatch = (s.border || '').match(/(\d+)px\s+(solid|dashed|dotted)\s+(#[0-9a-fA-F]{3,8})/);
+  const borderW = borderMatch ? borderMatch[1] : '0';
+  const borderStyle = borderMatch ? borderMatch[2] : 'solid';
+  const borderColor = borderMatch ? borderMatch[3] : '#334155';
+  const opacity = s.opacity !== undefined ? Math.round(parseFloat(s.opacity) * 100) : 100;
+  const radius = parseInt(s.borderRadius) || 0;
+  const padding = parseInt(s.padding) || 0;
+  const hasShadow = s.boxShadow && s.boxShadow !== 'none' ? true : false;
+  wrap.innerHTML = '<div style="padding:18px 20px;background:#fff;max-height:60vh;overflow-y:auto"><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px"><div><label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Border Width</label><div style="display:flex;align-items:center;gap:8px"><input id="styBorderW" type="range" min="0" max="10" value="'+borderW+'" style="flex:1;accent-color:#0ea5e9" oninput="liveStyle(\''+id+'\')"><span id="styBorderWVal" style="font-size:12px;color:#475569;font-weight:700;width:28px;text-align:right">'+borderW+'px</span></div></div><div><label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Border Style</label><select id="styBorderStyle" style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;color:#475569;outline:none" onchange="liveStyle(\''+id+'\')"><option value="solid" '+(borderStyle==='solid'?'selected':'')+'>Solid</option><option value="dashed" '+(borderStyle==='dashed'?'selected':'')+'>Dashed</option><option value="dotted" '+(borderStyle==='dotted'?'selected':'')+'>Dotted</option></select></div><div><label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Border Colour</label><input id="styBorderColor" type="color" value="'+(borderColor.startsWith('#')?borderColor:'#334155')+'" style="width:44px;height:32px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0" oninput="liveStyle(\''+id+'\')"></div><div><label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Opacity</label><div style="display:flex;align-items:center;gap:8px"><input id="styOpacity" type="range" min="0" max="100" value="'+opacity+'" style="flex:1;accent-color:#0ea5e9" oninput="liveStyle(\''+id+'\')"><span id="styOpacityVal" style="font-size:12px;color:#475569;font-weight:700;width:32px;text-align:right">'+opacity+'%</span></div></div><div><label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Corner Radius</label><div style="display:flex;align-items:center;gap:8px"><input id="styRadius" type="range" min="0" max="50" value="'+radius+'" style="flex:1;accent-color:#0ea5e9" oninput="liveStyle(\''+id+'\')"><span id="styRadiusVal" style="font-size:12px;color:#475569;font-weight:700;width:28px;text-align:right">'+radius+'px</span></div></div><div><label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Padding</label><div style="display:flex;align-items:center;gap:8px"><input id="styPadding" type="range" min="0" max="60" value="'+padding+'" style="flex:1;accent-color:#0ea5e9" oninput="liveStyle(\''+id+'\')"><span id="styPaddingVal" style="font-size:12px;color:#475569;font-weight:700;width:28px;text-align:right">'+padding+'px</span></div></div></div><div style="margin-top:14px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input id="styShadow" type="checkbox" '+(hasShadow?'checked':'')+' onchange="liveStyle(\''+id+'\')" style="accent-color:#0ea5e9;width:16px;height:16px"><span style="font-size:12px;font-weight:700;color:#475569">Drop Shadow</span></label></div><button onclick="applyStyle(\''+id+'\')" style="margin-top:14px;padding:10px 24px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Apply Style</button></div>';
+  _activeEditorId = id;
+}
+function liveStyle(id) {
+  const dom = document.getElementById(id);
+  if (!dom) return;
+  const bw = document.getElementById('styBorderW').value || '0';
+  const bs = document.getElementById('styBorderStyle').value || 'solid';
+  const bc = document.getElementById('styBorderColor').value || '#334155';
+  const op = document.getElementById('styOpacity').value || '100';
+  const rad = document.getElementById('styRadius').value || '0';
+  const pad = document.getElementById('styPadding').value || '0';
+  const shadow = document.getElementById('styShadow').checked;
+  document.getElementById('styBorderWVal').textContent = bw+'px';
+  document.getElementById('styOpacityVal').textContent = op+'%';
+  document.getElementById('styRadiusVal').textContent = rad+'px';
+  document.getElementById('styPaddingVal').textContent = pad+'px';
+  dom.style.border = parseInt(bw) > 0 ? bw+'px '+bs+' '+bc : 'none';
+  dom.style.opacity = (parseInt(op) / 100).toString();
+  dom.style.borderRadius = rad + 'px';
+  dom.style.padding = pad + 'px';
+  dom.style.boxShadow = shadow ? '0 8px 30px rgba(0,0,0,.25)' : 'none';
+}
+function applyStyle(id) {
+  const el = els.find(x => x.id === id);
+  if (!el) return;
+  const bw = document.getElementById('styBorderW').value || '0';
+  const bs = document.getElementById('styBorderStyle').value || 'solid';
+  const bc = document.getElementById('styBorderColor').value || '#334155';
+  const op = parseInt(document.getElementById('styOpacity').value || '100');
+  const rad = document.getElementById('styRadius').value || '0';
+  const pad = document.getElementById('styPadding').value || '0';
+  const shadow = document.getElementById('styShadow').checked;
+  if (parseInt(bw) > 0) el.s.border = bw+'px '+bs+' '+bc; else delete el.s.border;
+  if (op < 100) el.s.opacity = (op / 100).toString(); else delete el.s.opacity;
+  el.s.borderRadius = rad + 'px';
+  if (parseInt(pad) > 0) el.s.padding = pad + 'px'; else delete el.s.padding;
+  if (shadow) el.s.boxShadow = '0 8px 30px rgba(0,0,0,.25)'; else delete el.s.boxShadow;
+  markDirty(); renderAll(); exitEditMode();
+}
 function showPageSettings() {
   const panel = document.getElementById('floatingEditor');
   panel.style.display = 'flex';
