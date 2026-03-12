@@ -407,10 +407,13 @@ function renderAll() {
       div.innerHTML = `<div contenteditable="true" style="width:100%;height:100%;overflow:hidden;outline:none;word-wrap:break-word">${el.txt||''}</div>`;
     }
 
-    // Toolbar — structural controls only
+    // Toolbar — Edit button + structural controls
     const bar = document.createElement('div');
     bar.className = 'cel-bar';
+    const isEditable = !['spacer','divider','box'].includes(el.type);
+    const editLabel = el.type === 'form' ? '✎ FORM' : el.type === 'video' ? '✎ VIDEO' : el.type === 'image' ? '✎ IMAGE' : (el.type === 'button' || el.type === 'cta') ? '✎ LINK' : '✎ EDIT';
     bar.innerHTML = `
+      ${isEditable ? `<button class="cb" onclick="event.stopPropagation();enterEditMode('${el.id}')" title="Edit" style="font-size:10px;font-weight:800;color:var(--accent);width:auto;padding:0 8px">${editLabel}</button><div class="cb-sep"></div>` : ''}
       <button class="cb" onclick="moveEl('${el.id}',-1)" title="Move back">↑</button>
       <button class="cb" onclick="moveEl('${el.id}',1)" title="Move forward">↓</button>
       <button class="cb" onclick="dupEl('${el.id}')" title="Duplicate">⧉</button>
@@ -450,14 +453,12 @@ let editMode = false;
 let dragState = null;
 
 function selectEl(id) {
-  // Always close any open editor when selecting
+  // Always close any open editor when selecting a different element
   if (editMode || _activeEditorId) {
     destroyTiny();
   }
   if (id === selId) return;
   editMode = false;
-  _lastClickId = null;
-  _lastClickTime = 0;
   selId = id;
   renderAll();
 }
@@ -895,24 +896,10 @@ document.getElementById('canvas').addEventListener('mousedown', e => {
 });
 
 // ═══ DRAG MOVE ═══
-let _lastClickId = null;
-let _lastClickTime = 0;
 
 function startDrag(e, id) {
   // Never drag if clicking on toolbar or resize handles
   if (e.target.closest('.cel-bar') || e.target.closest('.cel-resize')) return;
-  
-  // Double-click detection: if same element clicked within 400ms, enter edit mode
-  const now = Date.now();
-  if (id === _lastClickId && (now - _lastClickTime) < 400 && id === selId) {
-    _lastClickId = null;
-    _lastClickTime = 0;
-    e.preventDefault();
-    enterEditMode(id);
-    return;
-  }
-  _lastClickId = id;
-  _lastClickTime = now;
   
   // If clicking an unselected element — select it
   if (id !== selId) {
@@ -1225,9 +1212,6 @@ function exitEditMode() {
   _activeEditorId = null;
   _tinyReady = false;
   editMode = false;
-  // Reset double-click tracking so next click doesn't false-trigger
-  _lastClickId = null;
-  _lastClickTime = 0;
   _dirty = true;
 }
 
