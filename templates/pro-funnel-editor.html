@@ -72,7 +72,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .cel [contenteditable]{outline:none;cursor:text;min-height:1em}
 .cel [contenteditable]:focus{cursor:text}
 
-/* ── Formatting bar (floating, no longer used — controls in element toolbar) ── */
+/* ── Floating WYSIWYG — see inline styles + .wb classes at bottom ── */
 
 /* ── Right panel ── */
 .panel{width:280px;background:var(--panel);border-left:1px solid var(--panel-border);display:flex;flex-direction:column;height:100%;overflow:hidden;flex-shrink:0}
@@ -231,6 +231,58 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 
 <div class="toast" id="toast"></div>
 
+<!-- ═══ FLOATING WYSIWYG TOOLBAR ═══ -->
+<div id="wysiwygBar" style="
+  position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:200;
+  background:var(--panel);border:1px solid var(--panel-border);border-radius:12px;
+  padding:6px 10px;display:none;align-items:center;gap:4px;
+  box-shadow:0 8px 32px rgba(0,0,0,.15),0 2px 8px rgba(0,0,0,.08);
+  cursor:grab;user-select:none;
+">
+  <div style="font-size:9px;font-weight:800;color:var(--panel-muted);letter-spacing:.5px;margin-right:6px;pointer-events:none">TEXT</div>
+  <button class="wb" onmousedown="event.preventDefault()" onclick="fmt('bold')"><b>B</b></button>
+  <button class="wb" onmousedown="event.preventDefault()" onclick="fmt('italic')"><i>I</i></button>
+  <button class="wb" onmousedown="event.preventDefault()" onclick="fmt('underline')" style="text-decoration:underline">U</button>
+  <div class="wb-sep"></div>
+  <select class="wb-sel" onmousedown="event.stopPropagation()" onchange="fmt('fontSize',this.value);this.selectedIndex=0">
+    <option value="">Size</option>
+    <option value="1">XS</option><option value="2">Small</option><option value="3">Medium</option>
+    <option value="4">Large</option><option value="5">XL</option><option value="6">XXL</option><option value="7">3XL</option>
+  </select>
+  <select class="wb-sel" onmousedown="event.stopPropagation()" onchange="fmt('fontName',this.value);this.selectedIndex=0">
+    <option value="">Font</option>
+    <option value="Sora">Sora</option><option value="Outfit">Outfit</option>
+    <option value="DM Sans">DM Sans</option><option value="Georgia">Georgia</option>
+    <option value="monospace">Mono</option>
+  </select>
+  <div class="wb-sep"></div>
+  <button class="wb" onmousedown="event.preventDefault()" onclick="fmtAlign('left')" title="Left">◀</button>
+  <button class="wb" onmousedown="event.preventDefault()" onclick="fmtAlign('center')" title="Centre">●</button>
+  <button class="wb" onmousedown="event.preventDefault()" onclick="fmtAlign('right')" title="Right">▶</button>
+  <div class="wb-sep"></div>
+  <div style="width:28px;height:28px;border-radius:6px;border:2px solid var(--panel-border);overflow:hidden;position:relative;flex-shrink:0">
+    <input type="color" value="#ffffff" onmousedown="event.stopPropagation()" oninput="fmt('foreColor',this.value)"
+      style="position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);border:none;cursor:pointer;padding:0">
+  </div>
+  <div style="font-size:9px;color:var(--panel-muted);pointer-events:none;margin-left:2px">colour</div>
+</div>
+
+<style>
+.wb{
+  width:30px;height:30px;border:none;border-radius:7px;background:transparent;
+  color:var(--panel-text);cursor:pointer;font-size:13px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;transition:.12s;
+}
+.wb:hover{background:rgba(14,165,233,.1);color:var(--accent)}
+.wb-sep{width:1px;height:22px;background:var(--panel-border);margin:0 2px;flex-shrink:0}
+.wb-sel{
+  background:#fff;border:1px solid var(--panel-border);border-radius:7px;
+  color:var(--panel-text);font-size:11px;padding:5px 8px;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-weight:600;
+}
+.wb-sel:focus{outline:none;border-color:var(--accent)}
+</style>
+
 <script>
 // ═══════════════════════════════════════════════════
 // SuperAdPro Funnel Builder Engine
@@ -387,27 +439,10 @@ function renderAll() {
       div.innerHTML = `<div contenteditable="true" style="width:100%;height:100%;overflow:hidden;outline:none;word-wrap:break-word">${el.txt||''}</div>`;
     }
 
-    // Toolbar — includes WYSIWYG controls for text elements
+    // Toolbar — structural controls only (WYSIWYG is in floating bar)
     const bar = document.createElement('div');
     bar.className = 'cel-bar';
-    const hasText = !['video','image','spacer','divider','box'].includes(el.type);
     bar.innerHTML = `
-      ${hasText ? `
-      <button class="cb" onclick="_fe()&&fmt('bold')" title="Bold" style="font-weight:900">B</button>
-      <button class="cb" onclick="_fe()&&fmt('italic')" title="Italic" style="font-style:italic">I</button>
-      <button class="cb" onclick="_fe()&&fmt('underline')" title="Underline" style="text-decoration:underline">U</button>
-      <select class="cb" style="width:auto;padding:0 2px;font-size:10px;background:transparent;border:none;color:#8892a8;cursor:pointer" onchange="_fe()&&fmt('fontSize',this.value);this.selectedIndex=0" title="Size">
-        <option value="">Sz</option><option value="1">XS</option><option value="2">S</option><option value="3">M</option><option value="4">L</option><option value="5">XL</option><option value="6">2X</option><option value="7">3X</option>
-      </select>
-      <select class="cb" style="width:auto;padding:0 2px;font-size:10px;background:transparent;border:none;color:#8892a8;cursor:pointer" onchange="_fe()&&fmt('fontName',this.value);this.selectedIndex=0" title="Font">
-        <option value="">Fn</option><option value="Sora">Sora</option><option value="Outfit">Outfit</option><option value="DM Sans">DM Sans</option><option value="Georgia">Georgia</option>
-      </select>
-      <button class="cb" onclick="_fe()&&fmtAlign('left')" title="Left">⫷</button>
-      <button class="cb" onclick="_fe()&&fmtAlign('center')" title="Centre">☰</button>
-      <button class="cb" onclick="_fe()&&fmtAlign('right')" title="Right">⫸</button>
-      <div class="cb-color" title="Text colour"><input type="color" value="${el.s?.color||'#ffffff'}" oninput="_fe()&&fmt('foreColor',this.value)"></div>
-      <div class="cb-sep"></div>
-      ` : ''}
       <button class="cb" onclick="moveEl('${el.id}',-1)" title="Move back">↑</button>
       <button class="cb" onclick="moveEl('${el.id}',1)" title="Move forward">↓</button>
       <button class="cb" onclick="dupEl('${el.id}')" title="Duplicate">⧉</button>
@@ -651,7 +686,6 @@ function addElAt(type, x, y) {
 // ═══ FORMATTING ═══
 let _activeEditor = null;
 function _fe() {
-  // Ensure the contenteditable in the selected element is focused
   if (!selId) return false;
   const dom = document.getElementById(selId);
   if (!dom) return false;
@@ -660,17 +694,33 @@ function _fe() {
   return true;
 }
 function fmt(cmd, val) {
-  document.execCommand(cmd, false, val||null);
+  if (_activeEditor) {
+    // Don't lose focus — the mousedown preventDefault on buttons handles this
+    document.execCommand(cmd, false, val||null);
+  }
   return true;
 }
 function fmtAlign(align) {
-  if (align==='left') document.execCommand('justifyLeft');
-  else if (align==='center') document.execCommand('justifyCenter');
-  else if (align==='right') document.execCommand('justifyRight');
+  if (_activeEditor) {
+    if (align==='left') document.execCommand('justifyLeft');
+    else if (align==='center') document.execCommand('justifyCenter');
+    else if (align==='right') document.execCommand('justifyRight');
+  }
   return true;
 }
-function showFmt(el) { _activeEditor = el; }
-function hideFmt() { _activeEditor = null; }
+function showFmt(el) {
+  _activeEditor = el;
+  document.getElementById('wysiwygBar').style.display = 'flex';
+}
+function hideFmt() {
+  // Delay hiding to allow toolbar clicks to register
+  setTimeout(() => {
+    if (!_activeEditor || !document.activeElement?.closest('[contenteditable]')) {
+      document.getElementById('wysiwygBar').style.display = 'none';
+      _activeEditor = null;
+    }
+  }, 200);
+}
 function bgEl(id, color) {
   const el = els.find(x=>x.id===id);
   if (!el) return;
@@ -679,6 +729,30 @@ function bgEl(id, color) {
   if (dom) dom.style.background = color;
   _dirty = true;
 }
+
+// Make WYSIWYG bar draggable
+(function(){
+  const bar = document.getElementById('wysiwygBar');
+  if (!bar) return;
+  let dx=0, dy=0, dragging=false;
+  bar.addEventListener('mousedown', e => {
+    if (e.target.tagName==='SELECT' || e.target.tagName==='INPUT' || e.target.tagName==='BUTTON') return;
+    dragging = true;
+    dx = e.clientX - bar.getBoundingClientRect().left;
+    dy = e.clientY - bar.getBoundingClientRect().top;
+    bar.style.cursor = 'grabbing';
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    bar.style.left = (e.clientX - dx) + 'px';
+    bar.style.top = (e.clientY - dy) + 'px';
+    bar.style.transform = 'none';
+  });
+  document.addEventListener('mouseup', () => {
+    dragging = false;
+    bar.style.cursor = 'grab';
+  });
+})();
 
 // ═══ BACKGROUND ═══
 function setBg(c) {
