@@ -437,12 +437,8 @@ function renderAll() {
       div.appendChild(h);
     });
 
-    // Mouse events — drag handler checks editMode internally
-    div.addEventListener('mousedown', e => {
-      // If this element is being edited by TinyMCE, don't intercept ANY mouse events
-      if (div.classList.contains('editing')) return;
-      startDrag(e, el.id);
-    });
+    // Mouse events
+    div.addEventListener('mousedown', e => startDrag(e, el.id));
 
     // Contenteditable — save text on blur (don't hide WYSIWYG — that's handled by selection changes)
     const ce = div.querySelector('[contenteditable]');
@@ -490,9 +486,10 @@ function deselectAll() {
   renderAll();
 }
 
-// Click on canvas background deselects — but NOT if clicking inside an element or TinyMCE
+// Click on canvas background deselects
 document.getElementById('canvas').addEventListener('mousedown', e => {
-  if (e.target.closest('.cel') || e.target.closest('.tox') || e.target.closest('.mce-content-body')) return;
+  // Don't deselect if clicking inside an element
+  if (e.target.closest('.cel')) return;
   if (e.target.id === 'canvas' || e.target.closest('.canvas-empty')) {
     deselectAll();
   }
@@ -503,17 +500,8 @@ let _lastClickId = null;
 let _lastClickTime = 0;
 
 function startDrag(e, id) {
-  // Never drag if clicking on toolbar, resize handles, or TinyMCE UI
-  if (e.target.closest('.cel-bar') || e.target.closest('.cel-resize') || e.target.closest('.tox')) return;
-  
-  // If we're in edit mode on this element, pass everything to TinyMCE
-  if (editMode && id === selId) {
-    // Don't preventDefault, don't stopPropagation — let TinyMCE handle it
-    return;
-  }
-  
-  // If clicking on a TinyMCE-managed element (mce-content-body), don't drag
-  if (e.target.closest('.mce-content-body')) return;
+  // Never drag if clicking on toolbar or resize handles
+  if (e.target.closest('.cel-bar') || e.target.closest('.cel-resize')) return;
   
   // Double-click detection: if same element clicked within 400ms, enter edit mode
   const now = Date.now();
@@ -527,14 +515,14 @@ function startDrag(e, id) {
   _lastClickId = id;
   _lastClickTime = now;
   
-  // If clicking an unselected element — select it (enables dragging on next mousedown)
+  // If clicking an unselected element — select it
   if (id !== selId) {
     e.preventDefault();
     selectEl(id);
     return;
   }
   
-  // This element is already selected and NOT in edit mode — start drag
+  // This element is already selected — start drag
   e.preventDefault();
   const el = els.find(x=>x.id===id);
   if (!el) return;
@@ -698,8 +686,52 @@ function addElAt(type, x, y) {
   if (dom) dom.scrollIntoView({behavior:'smooth',block:'center'});
 }
 
-// ═══ TINYMCE INLINE EDITOR ═══
+// ═══ FLOATING TINYMCE EDITOR ═══
 let _activeEditorId = null;
+let _tinyReady = false;
+
+// Create the floating editor panel on page load
+(function createFloatingEditor() {
+  const panel = document.createElement('div');
+  panel.id = 'floatingEditor';
+  panel.style.cssText = 'position:fixed;top:58px;left:50%;transform:translateX(-50%);z-index:300;background:#fafbfd;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.15),0 4px 12px rgba(0,0,0,.08);display:none;flex-direction:column;overflow:hidden;min-width:700px;max-width:90vw;';
+  
+  // Drag handle
+  const handle = document.createElement('div');
+  handle.style.cssText = 'padding:6px 14px;background:#f0f2f7;border-bottom:1px solid #e2e8f0;cursor:grab;display:flex;align-items:center;justify-content:space-between;user-select:none;';
+  handle.innerHTML = '<span style="font-size:10px;font-weight:800;letter-spacing:.8px;color:#8892a8;text-transform:uppercase">✎ Text Editor</span><button onclick="exitEditMode()" style="background:none;border:none;font-size:16px;color:#8892a8;cursor:pointer;padding:2px 6px;border-radius:4px" title="Close editor">✕</button>';
+  panel.appendChild(handle);
+  
+  // TinyMCE will be placed inside this container
+  const editorWrap = document.createElement('div');
+  editorWrap.id = 'tinyEditorWrap';
+  editorWrap.style.cssText = 'padding:0;';
+  editorWrap.innerHTML = '<textarea id="tinyEditorArea" style="display:none"></textarea>';
+  panel.appendChild(editorWrap);
+  
+  document.body.appendChild(panel);
+  
+  // Make panel draggable by handle
+  let dx=0, dy=0, dragging=false;
+  handle.addEventListener('mousedown', e => {
+    dragging = true;
+    const rect = panel.getBoundingClientRect();
+    dx = e.clientX - rect.left;
+    dy = e.clientY - rect.top;
+    handle.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    panel.style.left = (e.clientX - dx) + 'px';
+    panel.style.top = (e.clientY - dy) + 'px';
+    panel.style.transform = 'none';
+  });
+  document.addEventListener('mouseup', () => {
+    dragging = false;
+    handle.style.cursor = 'grab';
+  });
+})();
 
 function initTinyOnElement(id) {
   const el = document.getElementById(id);
@@ -707,26 +739,24 @@ function initTinyOnElement(id) {
   const ce = el.querySelector('[contenteditable]');
   if (!ce) { console.error('initTiny: no contenteditable in', id); return; }
   
-  // Add editing class to restore pointer-events and hide element toolbar
+  // Add editing class
   el.classList.add('editing');
+  _activeEditorId = id;
   
-  // Give the contenteditable a unique ID for TinyMCE
-  const ceId = 'tce-' + id;
-  ce.id = ceId;
+  // Show the floating panel
+  const panel = document.getElementById('floatingEditor');
+  panel.style.display = 'flex';
   
-  // Destroy any existing instance
-  try {
-    const existing = tinymce.get(ceId);
-    if (existing) existing.remove();
-  } catch(e) { console.warn('Destroy existing:', e); }
+  // Destroy any existing TinyMCE instance
+  const existing = tinymce.get('tinyEditorArea');
+  if (existing) existing.remove();
   
-  _activeEditorId = ceId;
-  
-  console.log('Initialising TinyMCE on', ceId, ce);
+  // Set the textarea content from the element
+  document.getElementById('tinyEditorArea').value = ce.innerHTML;
   
   tinymce.init({
-    selector: '#' + ceId,
-    inline: true,
+    selector: '#tinyEditorArea',
+    height: 250,
     menubar: false,
     statusbar: false,
     license_key: 'gpl',
@@ -739,46 +769,66 @@ function initTinyOnElement(id) {
     line_height_formats: '1 1.2 1.4 1.5 1.6 1.8 2 2.4 3',
     plugins: 'lists charmap',
     toolbar_mode: 'wrap',
-    content_css: false,
-    content_style: 'body { margin:0; padding:0; } * { box-sizing:border-box; }',
+    content_style: `
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&display=swap');
+      body { font-family: Outfit, sans-serif; font-size: 15px; color: #e2e8f0; background: #0c1220; padding: 12px; margin: 0; }
+    `,
     setup: function(editor) {
       editor.on('init', function() {
-        console.log('TinyMCE ready on', ceId);
-        editor.focus();
+        _tinyReady = true;
+        console.log('TinyMCE ready');
       });
-      editor.on('blur', function() {
-        const elObj = els.find(x => x.id === id);
-        if (elObj) elObj.txt = editor.getContent();
-        _dirty = true;
+      // Live preview: update the canvas element as you type
+      editor.on('input change keyup', function() {
+        updateCanvasFromEditor();
+      });
+      editor.on('ExecCommand', function() {
+        setTimeout(updateCanvasFromEditor, 50);
       });
     }
-  }).then(function(editors) {
-    console.log('TinyMCE init resolved', editors.length, 'editors');
-  }).catch(function(err) {
-    console.error('TinyMCE init FAILED:', err);
   });
 }
 
-function destroyTiny() {
-  if (_activeEditorId) {
-    const ed = tinymce.get(_activeEditorId);
-    if (ed) {
-      const id = _activeEditorId.replace('tce-','');
-      const elObj = els.find(x => x.id === id);
-      if (elObj) elObj.txt = ed.getContent();
-      // Remove editing class
-      const dom = document.getElementById(id);
-      if (dom) dom.classList.remove('editing');
-      ed.remove();
-    }
-    _activeEditorId = null;
+function updateCanvasFromEditor() {
+  if (!_activeEditorId) return;
+  const editor = tinymce.get('tinyEditorArea');
+  if (!editor) return;
+  const content = editor.getContent();
+  // Update the canvas element live
+  const el = document.getElementById(_activeEditorId);
+  if (el) {
+    const ce = el.querySelector('[contenteditable]');
+    if (ce) ce.innerHTML = content;
   }
-  // Hide toolbar container
-  const tc = document.getElementById('tinyToolbarContainer');
-  if (tc) tc.innerHTML = '';
+  // Update the data model
+  const elObj = els.find(x => x.id === _activeEditorId);
+  if (elObj) elObj.txt = content;
 }
 
-// Legacy stubs (no longer needed but prevent errors)
+function exitEditMode() {
+  if (_activeEditorId) {
+    // Save final content
+    updateCanvasFromEditor();
+    // Remove editing class
+    const dom = document.getElementById(_activeEditorId);
+    if (dom) dom.classList.remove('editing');
+  }
+  // Destroy TinyMCE
+  const existing = tinymce.get('tinyEditorArea');
+  if (existing) existing.remove();
+  // Hide panel
+  document.getElementById('floatingEditor').style.display = 'none';
+  _activeEditorId = null;
+  _tinyReady = false;
+  editMode = false;
+  _dirty = true;
+}
+
+function destroyTiny() {
+  exitEditMode();
+}
+
+// Legacy stubs
 function showFmt() {}
 function hideFmt() { destroyTiny(); }
 
