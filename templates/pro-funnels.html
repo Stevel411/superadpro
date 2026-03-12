@@ -112,13 +112,28 @@ textarea.form-input{min-height:80px;resize:vertical}
         </div>
       </div>
 
+      <!-- Two creation options -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all .15s;position:relative;overflow:hidden" onclick="openWizard()" onmouseover="this.style.borderColor='#0ea5e9';this.style.boxShadow='0 4px 20px rgba(14,165,233,.1)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+          <div style="font-size:32px;margin-bottom:10px">✨</div>
+          <div style="font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:6px">AI Funnel Generator</div>
+          <div style="font-size:13px;color:#64748b;line-height:1.6;max-width:280px;margin:0 auto">Answer 4 questions and AI generates a complete landing page with email capture — personalised to your niche</div>
+          <div style="margin-top:14px;display:inline-block;padding:8px 20px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border-radius:8px;font-size:12px;font-weight:700">Create AI Funnel →</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all .15s;position:relative;overflow:hidden" onclick="createBlankPage()" onmouseover="this.style.borderColor='#10b981';this.style.boxShadow='0 4px 20px rgba(16,185,129,.1)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+          <div style="font-size:32px;margin-bottom:10px">🎨</div>
+          <div style="font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:6px">Go Direct to Page Builder</div>
+          <div style="font-size:13px;color:#64748b;line-height:1.6;max-width:280px;margin:0 auto">Start with a blank canvas and build your page from scratch using drag-and-drop elements and the WYSIWYG editor</div>
+          <div style="margin-top:14px;display:inline-block;padding:8px 20px;background:#10b981;color:#fff;border-radius:8px;font-size:12px;font-weight:700">Open Page Builder →</div>
+        </div>
+      </div>
+
       {% if funnels|length == 0 %}
       <!-- Empty state -->
       <div class="empty">
-        <div class="empty-icon">✨</div>
-        <h3>Create Your First AI Funnel</h3>
-        <p>Answer 4 simple questions and the AI will generate a complete landing page with email capture — personalised to your niche, ready to share.</p>
-        <button class="btn btn-gradient" onclick="openWizard()">Create Funnel</button>
+        <div class="empty-icon">📄</div>
+        <h3>No Pages Yet</h3>
+        <p>Choose an option above to create your first page — use AI for speed or the page builder for full creative control.</p>
       </div>
 
       {% else %}

@@ -8869,6 +8869,36 @@ async def pro_funnel_edit(funnel_id: int, request: Request, db: Session = Depend
     })
 
 
+@app.post("/api/pro/funnel/create-blank")
+async def api_pro_funnel_create_blank(request: Request, db: Session = Depends(get_db)):
+    """Create a blank funnel page and go straight to the page builder."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+        return JSONResponse({"error": "Pro tier required"}, status_code=403)
+
+    import secrets
+    slug_suffix = secrets.token_hex(3)
+    slug = f"{user.username}/blank-{slug_suffix}"
+    title = "Untitled Page"
+
+    page = FunnelPage(
+        user_id=user.id,
+        title=title,
+        slug=slug,
+        headline=title,
+        status="published",
+        page_type="ai_funnel",
+        sections_json="{}",
+    )
+    db.add(page)
+    db.commit()
+    db.refresh(page)
+
+    return JSONResponse({"success": True, "funnel_id": page.id, "slug": slug})
+
+
 @app.post("/api/pro/funnel/{funnel_id}/save")
 async def api_pro_funnel_save(funnel_id: int, request: Request, db: Session = Depends(get_db)):
     """Save inline edits to an AI funnel."""
@@ -8941,36 +8971,6 @@ async def api_pro_funnel_delete(funnel_id: int, request: Request, db: Session = 
     db.delete(page)
     db.commit()
     return JSONResponse({"success": True})
-
-
-@app.post("/api/pro/funnel/create-blank")
-async def api_pro_funnel_create_blank(request: Request, db: Session = Depends(get_db)):
-    """Create a blank funnel page and go straight to the page builder."""
-    user = get_current_user(request, db)
-    if not user:
-        return JSONResponse({"error": "Not logged in"}, status_code=401)
-    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
-        return JSONResponse({"error": "Pro tier required"}, status_code=403)
-
-    import secrets
-    slug_suffix = secrets.token_hex(3)
-    slug = f"{user.username}/blank-{slug_suffix}"
-    title = "Untitled Page"
-
-    page = FunnelPage(
-        user_id=user.id,
-        title=title,
-        slug=slug,
-        headline=title,
-        status="published",
-        page_type="ai_funnel",
-        sections_json="{}",
-    )
-    db.add(page)
-    db.commit()
-    db.refresh(page)
-
-    return JSONResponse({"success": True, "funnel_id": page.id, "slug": slug})
 
 
 @app.post("/api/pro/funnel/{funnel_id}/regenerate")
