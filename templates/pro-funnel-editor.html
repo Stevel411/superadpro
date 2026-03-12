@@ -451,6 +451,7 @@ function renderAll() {
 // ═══ SELECTION & EDIT MODE ═══
 let editMode = false;
 let dragState = null;
+let _lastSelectTime = 0;
 
 function selectEl(id) {
   // Always close any open editor when selecting a different element
@@ -460,10 +461,15 @@ function selectEl(id) {
   if (id === selId) return;
   editMode = false;
   selId = id;
+  _lastSelectTime = Date.now();
   renderAll();
 }
 
 function enterEditMode(id) {
+  // Guard: don't open editor if element was JUST selected (within 300ms)
+  // This prevents the Edit button from firing when renderAll places it under the cursor
+  if (Date.now() - _lastSelectTime < 300) return;
+  
   // Always close any existing editor first
   exitEditMode();
   
