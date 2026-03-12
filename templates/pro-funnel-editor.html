@@ -384,10 +384,16 @@ function renderAll() {
     div.className = 'cel' + (el.id===selId?' selected':'');
     div.id = el.id;
     div.style.cssText = `left:${el.x}px;top:${el.y}px;width:${el.w}px;height:${el.h}px;`;
-    // Apply custom styles
+    // Apply custom styles (background, border, padding, borderRadius)
+    const layoutStyles = ['background','borderRadius','border','padding','boxShadow'];
     Object.entries(el.s||{}).forEach(([k,v])=>{
-      div.style[k] = v;
+      if (layoutStyles.includes(k)) div.style[k] = v;
     });
+
+    // Build inline style string for text properties
+    const textStyles = ['fontFamily','fontSize','fontWeight','color','textAlign','lineHeight','letterSpacing','textTransform','fontStyle'];
+    let innerStyle = 'width:100%;height:100%;overflow:hidden;outline:none;word-wrap:break-word;';
+    textStyles.forEach(k => { if (el.s?.[k]) innerStyle += k.replace(/([A-Z])/g,'-$1').toLowerCase() + ':' + el.s[k] + ';'; });
 
     // Inner content
     if (el.type==='video' && el.txt) {
@@ -398,13 +404,19 @@ function renderAll() {
         div.innerHTML = `<div style="position:relative;width:100%;height:100%"><iframe src="${el.txt}" style="width:100%;height:100%;border:none;border-radius:12px;pointer-events:none" allowfullscreen></iframe><div style="position:absolute;inset:0;z-index:2;cursor:grab"></div></div>`;
       }
     } else if (el.type==='video' && !el.txt) {
-      div.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#0f1729;border-radius:12px;border:1px dashed #334155;color:#475569;font-size:13px">Double-click to add video URL</div>`;
+      div.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#0f1729;border-radius:12px;border:1px dashed #334155;color:#475569;font-size:13px">Click ✎ VIDEO to add a video</div>`;
     } else if (el.type==='image' && el.txt) {
       div.innerHTML = `<img src="${el.txt}" style="width:100%;height:100%;object-fit:cover;border-radius:${el.s?.borderRadius||'8px'}">`;
+    } else if (el.type==='image' && !el.txt) {
+      div.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#0f1729;border-radius:12px;border:1px dashed #334155;color:#475569;font-size:13px">Click ✎ IMAGE to upload</div>`;
     } else if (['spacer','divider','box'].includes(el.type) && !el.txt) {
       // Empty visual elements
+    } else if (el.type==='button' || el.type==='cta') {
+      // Render as styled button with text
+      const btnStyle = innerStyle + 'display:flex;align-items:center;justify-content:center;cursor:pointer;';
+      div.innerHTML = `<div style="${btnStyle}">${el.txt||'Button'}</div>`;
     } else {
-      div.innerHTML = `<div contenteditable="true" style="width:100%;height:100%;overflow:hidden;outline:none;word-wrap:break-word">${el.txt||''}</div>`;
+      div.innerHTML = `<div contenteditable="true" style="${innerStyle}">${el.txt||''}</div>`;
     }
 
     // Toolbar — Edit button + structural controls
@@ -1344,12 +1356,18 @@ function exportHTML() {
       } else {
         h+=`<iframe src="${el.txt}" style="${st};border:none;border-radius:12px" allowfullscreen></iframe>`;
       }
+    } else if (el.type==='video'&&!el.txt) {
+      // Skip empty video placeholders
     } else if (el.type==='image'&&el.txt) {
       h+=`<img src="${el.txt}" style="${st};object-fit:cover">`;
+    } else if (el.type==='image'&&!el.txt) {
+      // Skip empty image placeholders
     } else if (['spacer','divider','box'].includes(el.type)&&!el.txt) {
       h+=`<div style="${st}"></div>`;
     } else if ((el.type==='button'||el.type==='cta') && el.url) {
       h+=`<a href="${el.url}" style="${st};text-decoration:none;display:flex;align-items:center;justify-content:center">${el.txt||''}</a>`;
+    } else if ((el.type==='button'||el.type==='cta') && !el.url) {
+      h+=`<div style="${st};display:flex;align-items:center;justify-content:center">${el.txt||''}</div>`;
     } else {
       h+=`<div style="${st}">${el.txt||''}</div>`;
     }
