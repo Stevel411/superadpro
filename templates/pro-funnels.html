@@ -86,7 +86,10 @@ textarea.form-input{min-height:80px;resize:vertical}
   <div class="main">
     <div class="topbar">
       <h1><span style="font-size:22px">✨</span> AI Funnels</h1>
-      <button class="btn btn-gradient" onclick="openWizard()">+ Create Funnel</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="createBlankPage()" style="border:1px solid #e2e8f0">+ Blank Page</button>
+        <button class="btn btn-gradient" onclick="openWizard()">+ AI Funnel</button>
+      </div>
     </div>
 
     <div class="content">
@@ -302,6 +305,23 @@ async function deleteFunnel(id, title) {
       location.reload();
     } else {
       alert(data.error || 'Delete failed');
+    }
+  } catch(e) {
+    alert('Connection error');
+  }
+}
+
+async function createBlankPage() {
+  try {
+    const res = await fetch('/api/pro/funnel/create-blank', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'}
+    });
+    const data = await res.json();
+    if (data.success && data.funnel_id) {
+      window.location.href = '/pro/funnel/' + data.funnel_id + '/edit';
+    } else {
+      alert(data.error || 'Failed to create page');
     }
   } catch(e) {
     alert('Connection error');
