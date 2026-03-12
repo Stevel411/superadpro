@@ -3891,24 +3891,62 @@ async def funnel_upload_image(file: UploadFile = File(...), user: User = Depends
     if len(contents) > 5 * 1024 * 1024:
         return JSONResponse({"error": "Image too large. Maximum size is 5MB."}, status_code=400)
 
-    # Generate unique filename
     import uuid, os
-    ext = os.path.splitext(file.filename or "image.jpg")[1].lower()
-    if ext not in {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"}:
-        ext = ".jpg"
-    filename = f"{user.id}_{uuid.uuid4().hex[:12]}{ext}"
+    ext = os.path.splitext(file.filename or "image.jpg")[1].lower().lstrip(".")
+    if ext not in {"jpg", "jpeg", "png", "gif", "webp", "svg"}:
+        ext = "jpg"
 
-    # Ensure uploads directory exists
-    upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "uploads")
-    os.makedirs(upload_dir, exist_ok=True)
+    # Try R2 first, fall back to local storage
+    from app.r2_storage import r2_available, upload_image
+    if r2_available():
+        url = upload_image(contents, "funnel-images", ext, file.content_type)
+    else:
+        upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "uploads")
+        os.makedirs(upload_dir, exist_ok=True)
+        filename = f"{user.id}_{uuid.uuid4().hex[:12]}.{ext}"
+        filepath = os.path.join(upload_dir, filename)
+        with open(filepath, "wb") as f:
+            f.write(contents)
+        url = f"/static/uploads/{filename}"
 
-    # Save file
-    filepath = os.path.join(upload_dir, filename)
-    with open(filepath, "wb") as f:
-        f.write(contents)
+    return JSONResponse({"success": True, "url": url})
 
-    url = f"/static/uploads/{filename}"
-    return JSONResponse({"success": True, "url": url, "filename": filename})
+
+@app.post("/api/funnels/upload-video")
+async def funnel_upload_video(file: UploadFile = File(...), user: User = Depends(get_current_user),
+                               db: Session = Depends(get_db)):
+    """Upload a video (MP4) for use in funnel pages. Returns the public URL."""
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    allowed_types = {"video/mp4", "video/webm", "video/ogg"}
+    if file.content_type not in allowed_types:
+        return JSONResponse({"error": "Only MP4, WebM and OGG videos are allowed."}, status_code=400)
+
+    # Max 50MB for videos
+    contents = await file.read()
+    if len(contents) > 50 * 1024 * 1024:
+        return JSONResponse({"error": "Video too large. Maximum size is 50MB."}, status_code=400)
+
+    import uuid, os
+    ext = os.path.splitext(file.filename or "video.mp4")[1].lower().lstrip(".")
+    if ext not in {"mp4", "webm", "ogg"}:
+        ext = "mp4"
+
+    from app.r2_storage import r2_available, upload_image
+    if r2_available():
+        url = upload_image(contents, "funnel-videos", ext, file.content_type)
+    else:
+        upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "uploads")
+        os.makedirs(upload_dir, exist_ok=True)
+        filename = f"{user.id}_{uuid.uuid4().hex[:12]}.{ext}"
+        filepath = os.path.join(upload_dir, filename)
+        with open(filepath, "wb") as f:
+            f.write(contents)
+        url = f"/static/uploads/{filename}"
+
+    return JSONResponse({"success": True, "url": url})
 
 
 @app.post("/api/funnels/generate-copy")
