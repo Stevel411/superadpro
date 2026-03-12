@@ -72,17 +72,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .cel [contenteditable]{outline:none;cursor:text;min-height:1em}
 .cel [contenteditable]:focus{cursor:text}
 
-/* ── Formatting bar (appears above text being edited) ── */
-.fmt{
-  position:fixed;z-index:100;background:var(--shell2);border:1px solid var(--border);
-  border-radius:10px;padding:5px;display:none;gap:2px;align-items:center;
-  box-shadow:0 8px 28px rgba(0,0,0,.5);
-}
-.fmt.show{display:flex}
-.fmt-btn{width:28px;height:28px;border:none;border-radius:6px;background:transparent;color:#8892a8;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:.1s}
-.fmt-btn:hover{background:rgba(14,165,233,.12);color:var(--accent)}
-.fmt-sep{width:1px;height:20px;background:var(--border);margin:0 2px}
-.fmt-sel{background:var(--shell);border:1px solid var(--border);border-radius:6px;color:#8892a8;font-size:10px;padding:3px 6px;cursor:pointer;font-family:'DM Sans',sans-serif}
+/* ── Formatting bar (floating, no longer used — controls in element toolbar) ── */
 
 /* ── Right panel ── */
 .panel{width:280px;background:var(--panel);border-left:1px solid var(--panel-border);display:flex;flex-direction:column;height:100%;overflow:hidden;flex-shrink:0}
@@ -237,28 +227,6 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
       </div>
     </div>
   </div>
-</div>
-
-<!-- Formatting bar (floating, appears on text edit) -->
-<div class="fmt" id="fmtBar">
-  <button class="fmt-btn" onclick="fmt('bold')" title="Bold"><b>B</b></button>
-  <button class="fmt-btn" onclick="fmt('italic')" title="Italic"><i>I</i></button>
-  <button class="fmt-btn" onclick="fmt('underline')" title="Underline"><u>U</u></button>
-  <div class="fmt-sep"></div>
-  <select class="fmt-sel" onchange="fmt('fontSize',this.value);this.selectedIndex=0" title="Size">
-    <option value="">Size</option><option value="1">XS</option><option value="2">S</option><option value="3">M</option><option value="4">L</option><option value="5">XL</option><option value="6">XXL</option><option value="7">3XL</option>
-  </select>
-  <select class="fmt-sel" onchange="fmt('fontName',this.value);this.selectedIndex=0" title="Font">
-    <option value="">Font</option>
-    <option value="Sora">Sora</option><option value="Outfit">Outfit</option><option value="DM Sans">DM Sans</option>
-    <option value="Georgia">Georgia</option><option value="monospace">Mono</option>
-  </select>
-  <div class="fmt-sep"></div>
-  <select class="fmt-sel" onchange="fmtAlign(this.value);this.selectedIndex=0" title="Align">
-    <option value="">Align</option><option value="left">Left</option><option value="center">Centre</option><option value="right">Right</option>
-  </select>
-  <div class="fmt-sep"></div>
-  <div class="fmt-color-wrap" title="Text colour"><input type="color" value="#ffffff" oninput="fmt('foreColor',this.value)"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -419,15 +387,31 @@ function renderAll() {
       div.innerHTML = `<div contenteditable="true" style="width:100%;height:100%;overflow:hidden;outline:none;word-wrap:break-word">${el.txt||''}</div>`;
     }
 
-    // Toolbar
+    // Toolbar — includes WYSIWYG controls for text elements
     const bar = document.createElement('div');
     bar.className = 'cel-bar';
+    const hasText = !['video','image','spacer','divider','box'].includes(el.type);
     bar.innerHTML = `
+      ${hasText ? `
+      <button class="cb" onclick="_fe()&&fmt('bold')" title="Bold" style="font-weight:900">B</button>
+      <button class="cb" onclick="_fe()&&fmt('italic')" title="Italic" style="font-style:italic">I</button>
+      <button class="cb" onclick="_fe()&&fmt('underline')" title="Underline" style="text-decoration:underline">U</button>
+      <select class="cb" style="width:auto;padding:0 2px;font-size:10px;background:transparent;border:none;color:#8892a8;cursor:pointer" onchange="_fe()&&fmt('fontSize',this.value);this.selectedIndex=0" title="Size">
+        <option value="">Sz</option><option value="1">XS</option><option value="2">S</option><option value="3">M</option><option value="4">L</option><option value="5">XL</option><option value="6">2X</option><option value="7">3X</option>
+      </select>
+      <select class="cb" style="width:auto;padding:0 2px;font-size:10px;background:transparent;border:none;color:#8892a8;cursor:pointer" onchange="_fe()&&fmt('fontName',this.value);this.selectedIndex=0" title="Font">
+        <option value="">Fn</option><option value="Sora">Sora</option><option value="Outfit">Outfit</option><option value="DM Sans">DM Sans</option><option value="Georgia">Georgia</option>
+      </select>
+      <button class="cb" onclick="_fe()&&fmtAlign('left')" title="Left">⫷</button>
+      <button class="cb" onclick="_fe()&&fmtAlign('center')" title="Centre">☰</button>
+      <button class="cb" onclick="_fe()&&fmtAlign('right')" title="Right">⫸</button>
+      <div class="cb-color" title="Text colour"><input type="color" value="${el.s?.color||'#ffffff'}" oninput="_fe()&&fmt('foreColor',this.value)"></div>
+      <div class="cb-sep"></div>
+      ` : ''}
       <button class="cb" onclick="moveEl('${el.id}',-1)" title="Move back">↑</button>
       <button class="cb" onclick="moveEl('${el.id}',1)" title="Move forward">↓</button>
       <button class="cb" onclick="dupEl('${el.id}')" title="Duplicate">⧉</button>
-      <div class="cb-sep"></div>
-      <div class="cb-color"><input type="color" value="${el.s?.color||'#ffffff'}" oninput="colorEl('${el.id}',this.value)"></div>
+      <div class="cb-color" title="BG colour"><input type="color" value="${el.s?.background?.includes('#')?el.s.background:'#141829'}" oninput="bgEl('${el.id}',this.value)"></div>
       <div class="cb-sep"></div>
       <button class="cb cb-del" onclick="delEl('${el.id}')" title="Delete">✕</button>
     `;
@@ -650,27 +634,34 @@ function addElAt(type, x, y) {
 
 // ═══ FORMATTING ═══
 let _activeEditor = null;
+function _fe() {
+  // Ensure the contenteditable in the selected element is focused
+  if (!selId) return false;
+  const dom = document.getElementById(selId);
+  if (!dom) return false;
+  const ce = dom.querySelector('[contenteditable]');
+  if (ce) { ce.focus(); _activeEditor = ce; }
+  return true;
+}
 function fmt(cmd, val) {
-  if (_activeEditor) _activeEditor.focus();
   document.execCommand(cmd, false, val||null);
+  return true;
 }
 function fmtAlign(align) {
-  if (_activeEditor) _activeEditor.focus();
   if (align==='left') document.execCommand('justifyLeft');
   else if (align==='center') document.execCommand('justifyCenter');
   else if (align==='right') document.execCommand('justifyRight');
+  return true;
 }
-function showFmt(el) {
-  _activeEditor = el;
-  const bar = document.getElementById('fmtBar');
-  const rect = el.getBoundingClientRect();
-  bar.style.top = Math.max(52, rect.top - 44) + 'px';
-  bar.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - 380)) + 'px';
-  bar.classList.add('show');
-}
-function hideFmt() {
-  document.getElementById('fmtBar').classList.remove('show');
-  _activeEditor = null;
+function showFmt(el) { _activeEditor = el; }
+function hideFmt() { _activeEditor = null; }
+function bgEl(id, color) {
+  const el = els.find(x=>x.id===id);
+  if (!el) return;
+  el.s.background = color;
+  const dom = document.getElementById(id);
+  if (dom) dom.style.background = color;
+  _dirty = true;
 }
 
 // ═══ BACKGROUND ═══
