@@ -473,6 +473,9 @@ function enterEditMode(id) {
   const el = els.find(x => x.id === id);
   if (!el || ['video','image','spacer','divider','box'].includes(el.type)) return;
   editMode = true;
+  // Add editing class immediately to restore pointer-events on children
+  const dom = document.getElementById(id);
+  if (dom) dom.classList.add('editing');
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       initTinyOnElement(id);
