@@ -453,6 +453,8 @@ function selectEl(id) {
   if (id === selId) return;
   destroyTiny();
   editMode = false;
+  _lastClickId = null;
+  _lastClickTime = 0;
   selId = id;
   renderAll();
 }
@@ -1217,6 +1219,9 @@ function exitEditMode() {
   _activeEditorId = null;
   _tinyReady = false;
   editMode = false;
+  // Reset double-click tracking so next click doesn't false-trigger
+  _lastClickId = null;
+  _lastClickTime = 0;
   _dirty = true;
 }
 
