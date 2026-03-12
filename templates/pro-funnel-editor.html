@@ -204,7 +204,6 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
       <div class="pal-grid">
         <div class="pal-item" onclick="addEl('image')" draggable="true" ondragstart="palDrag(event,'image')"><span class="pal-ico">🖼</span><span class="pal-nm">Image</span></div>
         <div class="pal-item" onclick="addEl('video')" draggable="true" ondragstart="palDrag(event,'video')"><span class="pal-ico">▶</span><span class="pal-nm">Video</span></div>
-        <div class="pal-item" onclick="addEl('divider')" draggable="true" ondragstart="palDrag(event,'divider')"><span class="pal-ico">─</span><span class="pal-nm">Divider</span></div>
       </div>
       <div class="pal-cat">Actions</div>
       <div class="pal-grid">
@@ -216,10 +215,21 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
       <div class="pal-grid">
         <div class="pal-item" onclick="addEl('review')" draggable="true" ondragstart="palDrag(event,'review')"><span class="pal-ico">💬</span><span class="pal-nm">Review</span></div>
         <div class="pal-item" onclick="addEl('badge')" draggable="true" ondragstart="palDrag(event,'badge')"><span class="pal-ico">🏷</span><span class="pal-nm">Badge</span></div>
+        <div class="pal-item" onclick="addEl('testimonial')" draggable="true" ondragstart="palDrag(event,'testimonial')"><span class="pal-ico">⭐</span><span class="pal-nm">Testimonial</span></div>
+        <div class="pal-item" onclick="addEl('faq')" draggable="true" ondragstart="palDrag(event,'faq')"><span class="pal-ico">❓</span><span class="pal-nm">FAQ</span></div>
+        <div class="pal-item" onclick="addEl('stat')" draggable="true" ondragstart="palDrag(event,'stat')"><span class="pal-ico">📊</span><span class="pal-nm">Stat</span></div>
+        <div class="pal-item" onclick="addEl('progress')" draggable="true" ondragstart="palDrag(event,'progress')"><span class="pal-ico">📶</span><span class="pal-nm">Progress</span></div>
+      </div>
+      <div class="pal-cat">Layout</div>
+      <div class="pal-grid">
+        <div class="pal-item" onclick="addEl('countdown')" draggable="true" ondragstart="palDrag(event,'countdown')"><span class="pal-ico">⏳</span><span class="pal-nm">Countdown</span></div>
+        <div class="pal-item" onclick="addEl('socialicons')" draggable="true" ondragstart="palDrag(event,'socialicons')"><span class="pal-ico">📱</span><span class="pal-nm">Socials</span></div>
+        <div class="pal-item" onclick="addEl('icontext')" draggable="true" ondragstart="palDrag(event,'icontext')"><span class="pal-ico">✦</span><span class="pal-nm">Icon+Text</span></div>
+        <div class="pal-item" onclick="addEl('separator')" draggable="true" ondragstart="palDrag(event,'separator')"><span class="pal-ico">⋯</span><span class="pal-nm">Separator</span></div>
+        <div class="pal-item" onclick="addEl('logostrip')" draggable="true" ondragstart="palDrag(event,'logostrip')"><span class="pal-ico">🏢</span><span class="pal-nm">Logo Strip</span></div>
         <div class="pal-item" onclick="addEl('spacer')" draggable="true" ondragstart="palDrag(event,'spacer')"><span class="pal-ico">↕</span><span class="pal-nm">Spacer</span></div>
         <div class="pal-item" onclick="addEl('box')" draggable="true" ondragstart="palDrag(event,'box')"><span class="pal-ico">⬜</span><span class="pal-nm">Box</span></div>
-        <div class="pal-item" onclick="addEl('stat')" draggable="true" ondragstart="palDrag(event,'stat')"><span class="pal-ico">📊</span><span class="pal-nm">Stat</span></div>
-        <div class="pal-item" onclick="addEl('timer')" draggable="true" ondragstart="palDrag(event,'timer')"><span class="pal-ico">⏱</span><span class="pal-nm">Timer</span></div>
+        <div class="pal-item" onclick="addEl('divider')" draggable="true" ondragstart="palDrag(event,'divider')"><span class="pal-ico">─</span><span class="pal-nm">Divider</span></div>
       </div>
     </div>
 
@@ -412,9 +422,19 @@ function renderAll() {
     } else if (['spacer','divider','box'].includes(el.type) && !el.txt) {
       // Empty visual elements
     } else if (el.type==='button' || el.type==='cta') {
-      // Render as styled button with text
       const btnStyle = innerStyle + 'display:flex;align-items:center;justify-content:center;cursor:pointer;';
       div.innerHTML = `<div style="${btnStyle}">${el.txt||'Button'}</div>`;
+    } else if (el.type==='countdown') {
+      const td = el._targetDate || '';
+      div.innerHTML = `<div style="display:flex;gap:12px;justify-content:center;align-items:center;width:100%;height:100%">${['Days','Hrs','Min','Sec'].map(l=>`<div style="text-align:center"><div style="font-family:Sora,sans-serif;font-size:28px;font-weight:900;color:#fff;background:rgba(255,255,255,0.06);border-radius:10px;padding:8px 14px;min-width:50px;border:1px solid rgba(255,255,255,0.08)">00</div><div style="font-size:10px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">${l}</div></div>`).join('')}</div>`;
+    } else if (el.type==='progress') {
+      const pct = el._percent || 75;
+      const lbl = el._label || 'Progress';
+      const clr = el._color || '#0ea5e9';
+      div.innerHTML = `<div style="width:100%;height:100%;display:flex;flex-direction:column;justify-content:center"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;font-weight:600;color:#e2e8f0">${lbl}</span><span style="font-size:13px;font-weight:700;color:${clr}">${pct}%</span></div><div style="width:100%;height:10px;background:rgba(255,255,255,0.08);border-radius:5px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${clr};border-radius:5px;transition:width .3s"></div></div></div>`;
+    } else if (el.type==='socialicons') {
+      const svgs = {youtube:'M23.5 6.5a3 3 0 00-2.1-2.1C19.5 4 12 4 12 4s-7.5 0-9.4.4a3 3 0 00-2.1 2.1C0 8.4 0 12 0 12s0 3.6.5 5.5a3 3 0 002.1 2.1c1.9.4 9.4.4 9.4.4s7.5 0 9.4-.4a3 3 0 002.1-2.1c.5-1.9.5-5.5.5-5.5s0-3.6-.5-5.5zM9.5 15.5V8.5l6.3 3.5-6.3 3.5z',instagram:'M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.3 1 .4 2.2.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .3-2.2.4-1.3.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4a3.9 3.9 0 01-1.4-.9c-.4-.4-.7-.8-.9-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2M12 7a5 5 0 100 10 5 5 0 000-10zm0 8.2a3.2 3.2 0 110-6.4 3.2 3.2 0 010 6.4zm5.2-8.4a1.2 1.2 0 100 2.4 1.2 1.2 0 000-2.4z',tiktok:'M16.6 5.8A4.3 4.3 0 0113.4 4h-3v11.3a2.5 2.5 0 11-1.7-2.4V9.5a5.9 5.9 0 105.3 5.8V9.8a7.6 7.6 0 004.4 1.4V7.9a4.3 4.3 0 01-1.8-2.1z',facebook:'M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z',x:'M18.9 1.2h3.7l-8 9.1L24 22.8h-7.4l-5.8-7.6-6.6 7.6H.5l8.6-9.8L0 1.2h7.6l5.2 6.9 6.1-6.9zm-1.3 19.4h2L6.5 3.2H4.3l13.3 17.4z',linkedin:'M20.4 20.4h-3.5v-5.6c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.7H9.5V9h3.4v1.6h.1a3.7 3.7 0 013.4-1.9c3.6 0 4.3 2.4 4.3 5.5v6.2zM5.3 7.4a2 2 0 110-4.1 2 2 0 010 4.1zM7.1 20.4H3.6V9h3.5v11.4z'};
+      div.innerHTML = `<div style="display:flex;gap:14px;justify-content:center;align-items:center;width:100%;height:100%">${Object.keys(svgs).map(k=>`<svg viewBox="0 0 24 24" width="22" height="22" fill="#94a3b8" style="opacity:.7;cursor:pointer"><path d="${svgs[k]}"/></svg>`).join('')}</div>`;
     } else {
       div.innerHTML = `<div contenteditable="true" style="${innerStyle}">${el.txt||''}</div>`;
     }
@@ -423,7 +443,8 @@ function renderAll() {
     const bar = document.createElement('div');
     bar.className = 'cel-bar';
     const isEditable = !['spacer','divider','box'].includes(el.type);
-    const editLabel = el.type === 'form' ? '✎ FORM' : el.type === 'video' ? '✎ VIDEO' : el.type === 'image' ? '✎ IMAGE' : (el.type === 'button' || el.type === 'cta') ? '✎ LINK' : '✎ EDIT';
+    const editLabels = {form:'✎ FORM',video:'✎ VIDEO',image:'✎ IMAGE',button:'✎ LINK',cta:'✎ LINK',countdown:'✎ SET',progress:'✎ SET',socialicons:'✎ LINKS'};
+    const editLabel = editLabels[el.type] || '✎ EDIT';
     bar.innerHTML = `
       ${isEditable ? `<button class="cb" onclick="event.stopPropagation();enterEditMode('${el.id}')" title="Edit" style="font-size:10px;font-weight:800;color:var(--accent);width:auto;padding:0 8px">${editLabel}</button><div class="cb-sep"></div>` : ''}
       <button class="cb" onclick="moveEl('${el.id}',-1)" title="Move back">↑</button>
@@ -515,6 +536,24 @@ function enterEditMode(id) {
   // Form/capture — show form settings panel
   if (elType === 'form') {
     showFormEditor(id, el);
+    return;
+  }
+  
+  // Countdown timer
+  if (elType === 'countdown') {
+    showCountdownEditor(id, el);
+    return;
+  }
+  
+  // Progress bar
+  if (elType === 'progress') {
+    showProgressEditor(id, el);
+    return;
+  }
+  
+  // Social icons
+  if (elType === 'socialicons') {
+    showSocialEditor(id, el);
     return;
   }
   
@@ -967,6 +1006,97 @@ function applyForm(id) {
   exitEditMode();
 }
 
+// ═══ COUNTDOWN EDITOR ═══
+function showCountdownEditor(id, el) {
+  const panel = document.getElementById('floatingEditor');
+  panel.style.display = 'flex';
+  document.getElementById('editorTargetName').textContent = 'Countdown Timer';
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
+  const wrap = document.getElementById('tinyEditorWrap');
+  const td = el._targetDate || '';
+  wrap.innerHTML = `
+    <div style="padding:20px;background:#fff">
+      <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Target Date & Time</label>
+      <input id="countdownDate" type="datetime-local" value="${td}" style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:12px">
+      <div style="font-size:11px;color:#8892a8;margin-bottom:14px">The countdown will tick down to this date on the published page. When it reaches zero it shows 00:00:00:00.</div>
+      <button onclick="applyCountdown('${id}')" style="padding:10px 24px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Apply</button>
+    </div>`;
+  _activeEditorId = id;
+}
+function applyCountdown(id) {
+  const el = els.find(x=>x.id===id);
+  if (!el) return;
+  el._targetDate = document.getElementById('countdownDate')?.value || '';
+  _dirty = true; renderAll(); exitEditMode();
+}
+
+// ═══ PROGRESS EDITOR ═══
+function showProgressEditor(id, el) {
+  const panel = document.getElementById('floatingEditor');
+  panel.style.display = 'flex';
+  document.getElementById('editorTargetName').textContent = 'Progress Bar';
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
+  const wrap = document.getElementById('tinyEditorWrap');
+  wrap.innerHTML = `
+    <div style="padding:20px;background:#fff">
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;margin-bottom:14px">
+        <div>
+          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase">Label</label>
+          <input id="progLabel" type="text" value="${el._label||'Progress'}" style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none">
+        </div>
+        <div>
+          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase">Percentage</label>
+          <input id="progPct" type="number" min="0" max="100" value="${el._percent||75}" style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none">
+        </div>
+        <div>
+          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase">Colour</label>
+          <input id="progColor" type="color" value="${el._color||'#0ea5e9'}" style="width:44px;height:36px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0">
+        </div>
+      </div>
+      <button onclick="applyProgress('${id}')" style="padding:10px 24px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Apply</button>
+    </div>`;
+  _activeEditorId = id;
+}
+function applyProgress(id) {
+  const el = els.find(x=>x.id===id);
+  if (!el) return;
+  el._label = document.getElementById('progLabel')?.value || 'Progress';
+  el._percent = parseInt(document.getElementById('progPct')?.value) || 75;
+  el._color = document.getElementById('progColor')?.value || '#0ea5e9';
+  _dirty = true; renderAll(); exitEditMode();
+}
+
+// ═══ SOCIAL ICONS EDITOR ═══
+function showSocialEditor(id, el) {
+  const panel = document.getElementById('floatingEditor');
+  panel.style.display = 'flex';
+  document.getElementById('editorTargetName').textContent = 'Social Icons';
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
+  const wrap = document.getElementById('tinyEditorWrap');
+  const links = el._links || {youtube:'#',instagram:'#',tiktok:'#',facebook:'#',x:'#',linkedin:'#'};
+  const fields = [['youtube','YouTube','#ff0000'],['instagram','Instagram','#e4405f'],['tiktok','TikTok','#000'],['facebook','Facebook','#1877f2'],['x','X / Twitter','#000'],['linkedin','LinkedIn','#0a66c2']];
+  wrap.innerHTML = `
+    <div style="padding:20px;background:#fff;max-height:50vh;overflow-y:auto">
+      <div style="font-size:11px;color:#8892a8;margin-bottom:12px">Enter URLs for each platform. Leave blank or # to hide.</div>
+      ${fields.map(([k,label,c])=>`
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="width:80px;font-size:11px;font-weight:700;color:${c}">${label}</span>
+          <input id="social_${k}" type="text" value="${(links[k]||'#').replace(/"/g,'&quot;')}" placeholder="https://..." style="flex:1;padding:7px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none">
+        </div>`).join('')}
+      <button onclick="applySocial('${id}')" style="margin-top:8px;padding:10px 24px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Apply</button>
+    </div>`;
+  _activeEditorId = id;
+}
+function applySocial(id) {
+  const el = els.find(x=>x.id===id);
+  if (!el) return;
+  el._links = {};
+  ['youtube','instagram','tiktok','facebook','x','linkedin'].forEach(k=>{
+    el._links[k] = document.getElementById('social_'+k)?.value || '#';
+  });
+  _dirty = true; renderAll(); exitEditMode();
+}
+
 function deselectAll() {
   destroyTiny();
   selId = null;
@@ -1142,12 +1272,20 @@ function addElAt(type, x, y) {
     badge:    {w:200,h:30,txt:'⭐ PREMIUM',s:{fontFamily:'DM Sans,sans-serif',fontWeight:'700',fontSize:'12px',color:'#fbbf24',textAlign:'center',background:'rgba(251,191,36,0.1)',borderRadius:'20px',display:'flex',alignItems:'center',justifyContent:'center',border:'1px solid rgba(251,191,36,0.2)'}},
     stat:     {w:200,h:80,txt:'<div style="font-family:Sora,sans-serif;font-size:36px;font-weight:900;color:#0ea5e9">95%</div><div style="font-size:12px;color:#64748b;margin-top:2px">Paid Out</div>',s:{textAlign:'center'}},
     timer:    {w:300,h:40,txt:'⏱ Limited Time Offer',s:{fontFamily:'DM Sans,sans-serif',fontWeight:'700',fontSize:'16px',color:'#f59e0b',textAlign:'center'}},
+    countdown:{w:600,h:80,txt:'',s:{},_targetDate:''},
+    testimonial:{w:700,h:140,txt:'<div style="margin-bottom:8px"><span style="color:#fbbf24">★★★★★</span></div><div style="font-size:15px;color:#e2e8f0;line-height:1.7;font-style:italic;margin-bottom:10px">"This completely changed how I approach my business. The tools are incredible and the community is so supportive."</div><div style="font-size:13px;color:#64748b;font-weight:600">— Jane D., Online Coach</div>',s:{background:'#1e293b',borderRadius:'16px',borderLeft:'4px solid #fbbf24',padding:'24px'}},
+    faq:      {w:700,h:120,txt:'<div style="cursor:pointer"><div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.08)"><span style="font-family:Sora,sans-serif;font-weight:700;font-size:15px;color:#fff">How does this work?</span><span style="color:#64748b;font-size:18px">+</span></div><div style="padding:12px 18px;font-size:14px;color:#94a3b8;line-height:1.7;margin-top:4px">Click the edit button to customise the question and answer text for this FAQ item.</div></div>',s:{}},
+    progress: {w:500,h:50,txt:'',s:{},_percent:75,_label:'Progress',_color:'#0ea5e9'},
+    socialicons:{w:300,h:40,txt:'',s:{},_links:{youtube:'#',instagram:'#',tiktok:'#',facebook:'#',x:'#',linkedin:'#'}},
+    icontext: {w:700,h:70,txt:'<div style="display:flex;gap:16px;align-items:flex-start"><div style="font-size:28px;flex-shrink:0;width:40px;text-align:center">🚀</div><div><div style="font-family:Sora,sans-serif;font-weight:700;font-size:15px;color:#fff;margin-bottom:4px">Feature Heading</div><div style="font-size:13px;color:#94a3b8;line-height:1.6">Describe the benefit or feature here. Keep it clear and compelling.</div></div></div>',s:{}},
+    separator:{w:700,h:30,txt:'<div style="display:flex;align-items:center;gap:16px"><div style="flex:1;height:1px;background:rgba(255,255,255,0.1)"></div><span style="font-size:12px;color:#64748b;font-weight:600;white-space:nowrap">★ ★ ★</span><div style="flex:1;height:1px;background:rgba(255,255,255,0.1)"></div></div>',s:{}},
+    logostrip:{w:800,h:50,txt:'<div style="display:flex;align-items:center;justify-content:center;gap:32px"><span style="font-size:11px;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:1px">As seen in:</span><span style="font-size:14px;color:#64748b;font-weight:600;opacity:.6">Brand 1</span><span style="font-size:14px;color:#64748b;font-weight:600;opacity:.6">Brand 2</span><span style="font-size:14px;color:#64748b;font-weight:600;opacity:.6">Brand 3</span><span style="font-size:14px;color:#64748b;font-weight:600;opacity:.6">Brand 4</span></div>',s:{}},
   };
 
   const d = defaults[type] || defaults.text;
   const el = {
     id: uid(), type: type,
-    x: Math.max(0, type==='heading'||type==='text'||type==='cta' ? (cw-d.w)/2 : x),
+    x: Math.max(0, ['heading','text','cta','separator','logostrip','countdown','progress','socialicons'].includes(type) ? (cw-d.w)/2 : x),
     y: y, w: d.w, h: d.h,
     txt: d.txt, s: {...d.s}
   };
@@ -1420,11 +1558,34 @@ function exportHTML() {
       h+=`<a href="${el.url}" style="${st};text-decoration:none;display:flex;align-items:center;justify-content:center">${el.txt||''}</a>`;
     } else if ((el.type==='button'||el.type==='cta') && !el.url) {
       h+=`<div style="${st};display:flex;align-items:center;justify-content:center">${el.txt||''}</div>`;
+    } else if (el.type==='countdown') {
+      const td = el._targetDate || '';
+      const cdId = 'cd_' + el.id;
+      h+=`<div style="${st}"><div id="${cdId}" style="display:flex;gap:12px;justify-content:center;align-items:center;width:100%;height:100%">${['Days','Hrs','Min','Sec'].map((_,i)=>`<div style="text-align:center"><div class="cdv" style="font-family:Sora,sans-serif;font-size:28px;font-weight:900;color:#fff;background:rgba(255,255,255,0.06);border-radius:10px;padding:8px 14px;min-width:50px;border:1px solid rgba(255,255,255,0.08)">00</div><div style="font-size:10px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">${['Days','Hrs','Min','Sec'][i]}</div></div>`).join('')}</div></div>`;
+      // JS timer will be added to page wrapper
+    } else if (el.type==='progress') {
+      const pct = el._percent||75; const lbl = el._label||'Progress'; const clr = el._color||'#0ea5e9';
+      h+=`<div style="${st}"><div style="width:100%;height:100%;display:flex;flex-direction:column;justify-content:center"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;font-weight:600;color:#e2e8f0">${lbl}</span><span style="font-size:13px;font-weight:700;color:${clr}">${pct}%</span></div><div style="width:100%;height:10px;background:rgba(255,255,255,0.08);border-radius:5px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${clr};border-radius:5px"></div></div></div></div>`;
+    } else if (el.type==='socialicons') {
+      const links = el._links||{};
+      const svgs = {youtube:'M23.5 6.5a3 3 0 00-2.1-2.1C19.5 4 12 4 12 4s-7.5 0-9.4.4a3 3 0 00-2.1 2.1C0 8.4 0 12 0 12s0 3.6.5 5.5a3 3 0 002.1 2.1c1.9.4 9.4.4 9.4.4s7.5 0 9.4-.4a3 3 0 002.1-2.1c.5-1.9.5-5.5.5-5.5s0-3.6-.5-5.5zM9.5 15.5V8.5l6.3 3.5-6.3 3.5z',instagram:'M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.3 1 .4 2.2.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .3-2.2.4-1.3.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4a3.9 3.9 0 01-1.4-.9c-.4-.4-.7-.8-.9-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2M12 7a5 5 0 100 10 5 5 0 000-10zm0 8.2a3.2 3.2 0 110-6.4 3.2 3.2 0 010 6.4zm5.2-8.4a1.2 1.2 0 100 2.4 1.2 1.2 0 000-2.4z',tiktok:'M16.6 5.8A4.3 4.3 0 0113.4 4h-3v11.3a2.5 2.5 0 11-1.7-2.4V9.5a5.9 5.9 0 105.3 5.8V9.8a7.6 7.6 0 004.4 1.4V7.9a4.3 4.3 0 01-1.8-2.1z',facebook:'M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z',x:'M18.9 1.2h3.7l-8 9.1L24 22.8h-7.4l-5.8-7.6-6.6 7.6H.5l8.6-9.8L0 1.2h7.6l5.2 6.9 6.1-6.9zm-1.3 19.4h2L6.5 3.2H4.3l13.3 17.4z',linkedin:'M20.4 20.4h-3.5v-5.6c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.7H9.5V9h3.4v1.6h.1a3.7 3.7 0 013.4-1.9c3.6 0 4.3 2.4 4.3 5.5v6.2zM5.3 7.4a2 2 0 110-4.1 2 2 0 010 4.1zM7.1 20.4H3.6V9h3.5v11.4z'};
+      h+=`<div style="${st};display:flex;gap:14px;justify-content:center;align-items:center">${Object.entries(svgs).map(([k,d])=>{const url=links[k]||'#';return url&&url!=='#'?`<a href="${url}" target="_blank" style="display:inline-flex"><svg viewBox="0 0 24 24" width="22" height="22" fill="#94a3b8"><path d="${d}"/></svg></a>`:''}).join('')}</div>`;
     } else {
       h+=`<div style="${st}">${el.txt||''}</div>`;
     }
   });
   h += '</div></div>';
+  
+  // Add countdown JS if any countdown elements exist
+  const countdowns = els.filter(e=>e.type==='countdown'&&e._targetDate);
+  if (countdowns.length) {
+    h += '<script>';
+    countdowns.forEach(cd=>{
+      h += `(function(){var t=new Date('${cd._targetDate}').getTime();var el=document.getElementById('cd_${cd.id}');if(!el)return;var vs=el.querySelectorAll('.cdv');setInterval(function(){var n=t-Date.now();if(n<0)n=0;vs[0].textContent=String(Math.floor(n/86400000)).padStart(2,'0');vs[1].textContent=String(Math.floor(n%86400000/3600000)).padStart(2,'0');vs[2].textContent=String(Math.floor(n%3600000/60000)).padStart(2,'0');vs[3].textContent=String(Math.floor(n%60000/1000)).padStart(2,'0');},1000);})();`;
+    });
+    h += '<\/script>';
+  }
+  
   return h;
 }
 
