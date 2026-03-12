@@ -452,9 +452,33 @@ function selectEl(id) {
 
 function enterEditMode(id) {
   const el = els.find(x => x.id === id);
-  if (!el || ['video','image','spacer','divider','box'].includes(el.type)) return;
+  if (!el) return;
   editMode = true;
-  // Add editing class immediately to restore pointer-events on children
+  
+  const elType = el.type;
+  
+  // Non-editable types
+  if (['spacer','divider','box','image'].includes(elType)) return;
+  
+  // Video — show URL input panel
+  if (elType === 'video') {
+    showVideoEditor(id, el);
+    return;
+  }
+  
+  // Button/CTA — show text + URL panel
+  if (elType === 'button' || elType === 'cta') {
+    showButtonEditor(id, el);
+    return;
+  }
+  
+  // Form/capture — show form settings panel
+  if (elType === 'form') {
+    showFormEditor(id, el);
+    return;
+  }
+  
+  // Text elements — TinyMCE
   const dom = document.getElementById(id);
   if (dom) dom.classList.add('editing');
   requestAnimationFrame(() => {
@@ -462,6 +486,201 @@ function enterEditMode(id) {
       initTinyOnElement(id);
     });
   });
+}
+
+// ═══ VIDEO EDITOR ═══
+function showVideoEditor(id, el) {
+  const panel = document.getElementById('floatingEditor');
+  panel.style.display = 'flex';
+  document.getElementById('editorTargetName').textContent = 'Video';
+  
+  // Destroy TinyMCE if active
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
+  
+  const wrap = document.getElementById('tinyEditorWrap');
+  const currentUrl = el.txt || '';
+  wrap.innerHTML = `
+    <div style="padding:24px;background:#fff">
+      <label style="display:block;font-size:12px;font-weight:700;color:#2a2e3d;margin-bottom:8px">Video URL</label>
+      <input id="videoUrlInput" type="text" value="${currentUrl.replace(/"/g,'&quot;')}" placeholder="Paste YouTube or Vimeo URL..." 
+        style="width:100%;padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;transition:border .15s"
+        onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+      <div style="font-size:11px;color:#8892a8;margin-top:8px">Supports YouTube and Vimeo links. The video will embed automatically.</div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button onclick="applyVideoUrl('${id}')" style="padding:10px 24px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Apply Video</button>
+        <button onclick="clearVideoUrl('${id}')" style="padding:10px 24px;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Remove Video</button>
+      </div>
+    </div>
+  `;
+  _activeEditorId = id;
+}
+
+function applyVideoUrl(id) {
+  const input = document.getElementById('videoUrlInput');
+  if (!input) return;
+  let url = input.value.trim();
+  // Convert to embed URL
+  if (url.includes('youtube.com/watch')) { const v = url.split('v=')[1]?.split('&')[0]; if (v) url = 'https://www.youtube.com/embed/' + v; }
+  else if (url.includes('youtu.be/')) { const v = url.split('youtu.be/')[1]?.split('?')[0]; if (v) url = 'https://www.youtube.com/embed/' + v; }
+  else if (url.includes('vimeo.com/') && !url.includes('player.vimeo')) { const v = url.split('vimeo.com/')[1]?.split('?')[0]; if (v) url = 'https://player.vimeo.com/video/' + v; }
+  
+  const el = els.find(x => x.id === id);
+  if (el) { el.txt = url; _dirty = true; }
+  renderAll();
+  exitEditMode();
+}
+
+function clearVideoUrl(id) {
+  const el = els.find(x => x.id === id);
+  if (el) { el.txt = ''; _dirty = true; }
+  renderAll();
+  exitEditMode();
+}
+
+// ═══ BUTTON EDITOR ═══
+function showButtonEditor(id, el) {
+  const panel = document.getElementById('floatingEditor');
+  panel.style.display = 'flex';
+  document.getElementById('editorTargetName').textContent = el.type === 'cta' ? 'CTA Button' : 'Button';
+  
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
+  
+  const wrap = document.getElementById('tinyEditorWrap');
+  // Extract plain text from HTML
+  const tempDiv = document.createElement('div'); tempDiv.innerHTML = el.txt || ''; 
+  const btnText = tempDiv.textContent || el.txt || '';
+  const btnUrl = el.url || '/register?ref=' + USERNAME;
+  const c1 = el.s?.background?.match(/#[0-9a-fA-F]{6}/g)?.[0] || '#0ea5e9';
+  const c2 = el.s?.background?.match(/#[0-9a-fA-F]{6}/g)?.[1] || '#6366f1';
+  
+  wrap.innerHTML = `
+    <div style="padding:24px;background:#fff">
+      <label style="display:block;font-size:12px;font-weight:700;color:#2a2e3d;margin-bottom:6px">Button Text</label>
+      <input id="btnTextInput" type="text" value="${btnText.replace(/"/g,'&quot;')}" placeholder="e.g. Get Started Now →"
+        style="width:100%;padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:16px"
+        onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+      
+      <label style="display:block;font-size:12px;font-weight:700;color:#2a2e3d;margin-bottom:6px">Link URL</label>
+      <input id="btnUrlInput" type="text" value="${btnUrl.replace(/"/g,'&quot;')}" placeholder="https://... or /register?ref=username"
+        style="width:100%;padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:16px"
+        onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+      <div style="font-size:11px;color:#8892a8;margin-bottom:16px">Use /register?ref=${USERNAME} for your referral signup link</div>
+      
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:#8892a8;margin-bottom:4px">Colour 1</label>
+          <input id="btnColor1" type="color" value="${c1}" style="width:44px;height:36px;border:2px solid #e2e8f0;border-radius:8px;cursor:pointer;padding:0">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:#8892a8;margin-bottom:4px">Colour 2</label>
+          <input id="btnColor2" type="color" value="${c2}" style="width:44px;height:36px;border:2px solid #e2e8f0;border-radius:8px;cursor:pointer;padding:0">
+        </div>
+        <div style="font-size:11px;color:#8892a8;margin-top:16px">Gradient left → right</div>
+      </div>
+      
+      <button onclick="applyButton('${id}')" style="padding:10px 24px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Apply Changes</button>
+    </div>
+  `;
+  _activeEditorId = id;
+}
+
+function applyButton(id) {
+  const el = els.find(x => x.id === id);
+  if (!el) return;
+  const text = document.getElementById('btnTextInput')?.value || 'Click Here';
+  const url = document.getElementById('btnUrlInput')?.value || '';
+  const c1 = document.getElementById('btnColor1')?.value || '#0ea5e9';
+  const c2 = document.getElementById('btnColor2')?.value || '#6366f1';
+  
+  el.txt = text;
+  el.url = url;
+  el.s.background = `linear-gradient(135deg,${c1},${c2})`;
+  _dirty = true;
+  renderAll();
+  exitEditMode();
+}
+
+// ═══ FORM/CAPTURE EDITOR ═══
+function showFormEditor(id, el) {
+  const panel = document.getElementById('floatingEditor');
+  panel.style.display = 'flex';
+  document.getElementById('editorTargetName').textContent = 'Email Capture Form';
+  
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
+  
+  const wrap = document.getElementById('tinyEditorWrap');
+  
+  // Parse existing form content to extract fields
+  const tempDiv = document.createElement('div'); tempDiv.innerHTML = el.txt || '';
+  const heading = tempDiv.querySelector('[style*="font-weight:800"], [style*="font-weight: 800"], strong')?.textContent || 'Get Free Access';
+  const subtext = tempDiv.querySelectorAll('div')[1]?.textContent || '';
+  const btnEl = tempDiv.querySelector('[style*="gradient"]');
+  const btnText = btnEl?.textContent || 'Get Access →';
+  
+  // Extract colours from button gradient
+  const bgMatch = (btnEl?.getAttribute('style') || '').match(/#[0-9a-fA-F]{6}/g) || [];
+  const c1 = bgMatch[0] || '#0ea5e9';
+  const c2 = bgMatch[1] || '#6366f1';
+  
+  wrap.innerHTML = `
+    <div style="padding:24px;background:#fff">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:#16a34a;font-weight:600">
+        ✓ Connected to your Brevo autoresponder. Captured emails trigger your nurture sequence automatically.
+      </div>
+      
+      <label style="display:block;font-size:12px;font-weight:700;color:#2a2e3d;margin-bottom:6px">Form Heading</label>
+      <input id="formHeading" type="text" value="${heading.replace(/"/g,'&quot;')}" placeholder="e.g. Get Your Free Guide"
+        style="width:100%;padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:14px"
+        onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+      
+      <label style="display:block;font-size:12px;font-weight:700;color:#2a2e3d;margin-bottom:6px">Subtext</label>
+      <input id="formSubtext" type="text" value="${subtext.replace(/"/g,'&quot;')}" placeholder="e.g. Enter your email to learn more"
+        style="width:100%;padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:14px"
+        onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+      
+      <label style="display:block;font-size:12px;font-weight:700;color:#2a2e3d;margin-bottom:6px">Button Text</label>
+      <input id="formBtnText" type="text" value="${btnText.replace(/"/g,'&quot;')}" placeholder="e.g. Get Access →"
+        style="width:100%;padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:14px"
+        onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+      
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:#8892a8;margin-bottom:4px">Button Colour 1</label>
+          <input id="formColor1" type="color" value="${c1}" style="width:44px;height:36px;border:2px solid #e2e8f0;border-radius:8px;cursor:pointer;padding:0">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:#8892a8;margin-bottom:4px">Button Colour 2</label>
+          <input id="formColor2" type="color" value="${c2}" style="width:44px;height:36px;border:2px solid #e2e8f0;border-radius:8px;cursor:pointer;padding:0">
+        </div>
+      </div>
+      
+      <div style="display:flex;gap:8px">
+        <button onclick="applyForm('${id}')" style="padding:10px 24px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Apply Changes</button>
+        <button onclick="exitEditMode()" style="padding:10px 24px;background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Cancel</button>
+      </div>
+      
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e2e8f0">
+        <div style="font-size:11px;font-weight:700;color:#8892a8;margin-bottom:4px">CAPTURE ENDPOINT</div>
+        <code style="font-size:11px;color:#475569;background:#f1f5f9;padding:6px 10px;border-radius:6px;display:block">/api/capture/${SLUG}</code>
+      </div>
+    </div>
+  `;
+  _activeEditorId = id;
+}
+
+function applyForm(id) {
+  const el = els.find(x => x.id === id);
+  if (!el) return;
+  const heading = document.getElementById('formHeading')?.value || 'Get Free Access';
+  const subtext = document.getElementById('formSubtext')?.value || '';
+  const btnText = document.getElementById('formBtnText')?.value || 'Get Access →';
+  const c1 = document.getElementById('formColor1')?.value || '#0ea5e9';
+  const c2 = document.getElementById('formColor2')?.value || '#6366f1';
+  
+  el.txt = `<div style="text-align:center;padding:4px"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">${heading}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">${subtext}</div><input placeholder="Your first name" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:8px;box-sizing:border-box"><input placeholder="Your email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:10px;box-sizing:border-box"><div style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,${c1},${c2});color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box;cursor:pointer" onclick="captureEmail()">${btnText}</div></div>`;
+  _dirty = true;
+  renderAll();
+  exitEditMode();
 }
 
 function deselectAll() {
@@ -902,10 +1121,17 @@ function exportHTML() {
   els.forEach(el => {
     const styles = {position:'absolute',left:el.x+'px',top:el.y+'px',width:el.w+'px',height:el.h+'px',boxSizing:'border-box',...(el.s||{})};
     const st = Object.entries(styles).map(([k,v])=>k.replace(/([A-Z])/g,'-$1').toLowerCase()+':'+v).join(';');
-    if (el.type==='video'&&el.txt) h+=`<iframe src="${el.txt}" style="${st};border:none;border-radius:12px" allowfullscreen></iframe>`;
-    else if (el.type==='image'&&el.txt) h+=`<img src="${el.txt}" style="${st};object-fit:cover">`;
-    else if (['spacer','divider','box'].includes(el.type)&&!el.txt) h+=`<div style="${st}"></div>`;
-    else h+=`<div style="${st}">${el.txt||''}</div>`;
+    if (el.type==='video'&&el.txt) {
+      h+=`<iframe src="${el.txt}" style="${st};border:none;border-radius:12px" allowfullscreen></iframe>`;
+    } else if (el.type==='image'&&el.txt) {
+      h+=`<img src="${el.txt}" style="${st};object-fit:cover">`;
+    } else if (['spacer','divider','box'].includes(el.type)&&!el.txt) {
+      h+=`<div style="${st}"></div>`;
+    } else if ((el.type==='button'||el.type==='cta') && el.url) {
+      h+=`<a href="${el.url}" style="${st};text-decoration:none;display:flex;align-items:center;justify-content:center">${el.txt||''}</a>`;
+    } else {
+      h+=`<div style="${st}">${el.txt||''}</div>`;
+    }
   });
   h += '</div></div>';
   return h;
