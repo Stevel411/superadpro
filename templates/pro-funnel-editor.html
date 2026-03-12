@@ -811,30 +811,31 @@ function showFormEditor(id, el) {
           <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Heading</label>
           <input id="formHeading" type="text" value="${heading.replace(/"/g,'&quot;')}" placeholder="e.g. Get Your Free Guide"
             style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none"
-            onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+            onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'" oninput="livePreviewForm('${id}')">
         </div>
         <div>
           <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Button Text</label>
           <input id="formBtnText" type="text" value="${btnText.replace(/"/g,'&quot;')}" placeholder="Get Access →"
             style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none"
-            onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+            onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'" oninput="livePreviewForm('${id}')">
         </div>
       </div>
       
       <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Subtext</label>
       <input id="formSubtext" type="text" value="${subtext.replace(/"/g,'&quot;')}" placeholder="e.g. Enter your email to learn more"
         style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:10px"
-        onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+        onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'" oninput="livePreviewForm('${id}')">
       
       <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px">
         <div>
           <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px">Colour 1</label>
-          <input id="formColor1" type="color" value="${c1}" style="width:40px;height:32px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0">
+          <input id="formColor1" type="color" value="${c1}" style="width:40px;height:32px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0" oninput="livePreviewForm('${id}')">
         </div>
         <div>
           <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px">Colour 2</label>
-          <input id="formColor2" type="color" value="${c2}" style="width:40px;height:32px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0">
+          <input id="formColor2" type="color" value="${c2}" style="width:40px;height:32px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0" oninput="livePreviewForm('${id}')">
         </div>
+        <div style="background:linear-gradient(135deg,${c1},${c2});border-radius:6px;padding:6px 16px;color:#fff;font-weight:700;font-size:11px;white-space:nowrap" id="formBtnPreview">${btnText}</div>
         <button onclick="applyForm('${id}')" style="padding:8px 20px;background:#0ea5e9;color:#fff;border:none;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:DM Sans,sans-serif;margin-left:auto">Apply Changes</button>
       </div>
       
@@ -855,6 +856,36 @@ function showFormEditor(id, el) {
     </div>
   `;
   _activeEditorId = id;
+}
+
+function livePreviewForm(id) {
+  const c1 = document.getElementById('formColor1')?.value || '#0ea5e9';
+  const c2 = document.getElementById('formColor2')?.value || '#6366f1';
+  const btnText = document.getElementById('formBtnText')?.value || 'Get Access →';
+  const heading = document.getElementById('formHeading')?.value || '';
+  const subtext = document.getElementById('formSubtext')?.value || '';
+  
+  // Update the mini preview in the editor panel
+  const preview = document.getElementById('formBtnPreview');
+  if (preview) {
+    preview.style.background = `linear-gradient(135deg,${c1},${c2})`;
+    preview.textContent = btnText;
+  }
+  
+  // Update the actual canvas element live
+  const dom = document.getElementById(id);
+  if (dom) {
+    const gradientBtn = dom.querySelector('[style*="gradient"]');
+    if (gradientBtn) gradientBtn.style.background = `linear-gradient(135deg,${c1},${c2})`;
+    // Update heading
+    const headingEl = dom.querySelector('[style*="font-weight:800"]');
+    if (headingEl) headingEl.textContent = heading;
+    // Update subtext
+    const subtextEl = dom.querySelector('[style*="color:#94a3b8"]');
+    if (subtextEl) subtextEl.textContent = subtext;
+    // Update button text
+    if (gradientBtn) gradientBtn.textContent = btnText;
+  }
 }
 
 function applyForm(id) {
