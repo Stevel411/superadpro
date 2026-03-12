@@ -44,11 +44,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .funnels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
 
 /* Template cards */
-.tpl-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:all .15s;text-align:center}
-.tpl-card:hover{border-color:#0ea5e9;box-shadow:0 4px 20px rgba(14,165,233,.1);transform:translateY(-2px)}
-.tpl-icon{font-size:28px;margin-bottom:8px}
+.tpl-card{background:#fff;border:1px solid var(--border);border-radius:14px;cursor:pointer;transition:all .2s;overflow:hidden;display:flex;flex-direction:column}
+.tpl-card:hover{border-color:var(--tpl-c1);box-shadow:0 8px 30px rgba(0,0,0,.08);transform:translateY(-3px)}
+.tpl-preview{height:90px;background:linear-gradient(135deg,#050d1a 0%,#0f1729 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.tpl-preview::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--tpl-c1),var(--tpl-c2));opacity:.12}
+.tpl-icon-wrap{font-size:36px;position:relative;z-index:1;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}
+.tpl-body{padding:14px 16px;flex:1;display:flex;flex-direction:column}
 .tpl-name{font-family:Sora,sans-serif;font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:4px}
-.tpl-desc{font-size:11px;color:#94a3b8;line-height:1.5}
+.tpl-desc{font-size:11px;color:#94a3b8;line-height:1.5;flex:1}
+.tpl-use{margin-top:10px;font-size:11px;font-weight:700;color:var(--tpl-c1);opacity:0;transition:opacity .15s}
+.tpl-card:hover .tpl-use{opacity:1}
 .funnel-card{background:#fff;border-radius:14px;padding:0;box-shadow:var(--shadow-sm);overflow:hidden;border:1px solid var(--border);transition:transform .15s,box-shadow .15s;display:flex;flex-direction:column}
 .funnel-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
 .fc-preview{height:140px;background:linear-gradient(135deg,#050d1a,#0f1729);display:flex;align-items:center;justify-content:center;position:relative}
@@ -117,17 +122,17 @@ textarea.form-input{min-height:80px;resize:vertical}
 
       <!-- Two creation options -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all .15s;position:relative;overflow:hidden" onclick="openWizard()" onmouseover="this.style.borderColor='#0ea5e9';this.style.boxShadow='0 4px 20px rgba(14,165,233,.1)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+        <div style="background:linear-gradient(135deg,rgba(14,165,233,.04),rgba(99,102,241,.04));border:1px solid rgba(14,165,233,.15);border-radius:14px;padding:28px;text-align:center;cursor:pointer;transition:all .15s;position:relative;overflow:hidden" onclick="openWizard()" onmouseover="this.style.borderColor='#0ea5e9';this.style.boxShadow='0 8px 30px rgba(14,165,233,.12)'" onmouseout="this.style.borderColor='rgba(14,165,233,.15)';this.style.boxShadow='none'">
           <div style="font-size:32px;margin-bottom:10px">✨</div>
           <div style="font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:6px">AI Funnel Generator</div>
           <div style="font-size:13px;color:#64748b;line-height:1.6;max-width:280px;margin:0 auto">Answer 4 questions and AI generates a complete landing page with email capture — personalised to your niche</div>
-          <div style="margin-top:14px;display:inline-block;padding:8px 20px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border-radius:8px;font-size:12px;font-weight:700">Create AI Funnel →</div>
+          <div style="margin-top:14px;display:inline-block;padding:10px 24px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 4px 15px rgba(14,165,233,.25)">Create AI Funnel →</div>
         </div>
-        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all .15s;position:relative;overflow:hidden" onclick="createBlankPage()" onmouseover="this.style.borderColor='#10b981';this.style.boxShadow='0 4px 20px rgba(16,185,129,.1)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+        <div style="background:linear-gradient(135deg,rgba(16,185,129,.04),rgba(5,150,105,.04));border:1px solid rgba(16,185,129,.15);border-radius:14px;padding:28px;text-align:center;cursor:pointer;transition:all .15s;position:relative;overflow:hidden" onclick="createBlankPage()" onmouseover="this.style.borderColor='#10b981';this.style.boxShadow='0 8px 30px rgba(16,185,129,.12)'" onmouseout="this.style.borderColor='rgba(16,185,129,.15)';this.style.boxShadow='none'">
           <div style="font-size:32px;margin-bottom:10px">🎨</div>
           <div style="font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:6px">Go Direct to Page Builder</div>
           <div style="font-size:13px;color:#64748b;line-height:1.6;max-width:280px;margin:0 auto">Start with a blank canvas and build your page from scratch using drag-and-drop elements and the WYSIWYG editor</div>
-          <div style="margin-top:14px;display:inline-block;padding:8px 20px;background:#10b981;color:#fff;border-radius:8px;font-size:12px;font-weight:700">Open Page Builder →</div>
+          <div style="margin-top:14px;display:inline-block;padding:10px 24px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 4px 15px rgba(16,185,129,.25)">Open Page Builder →</div>
         </div>
       </div>
 
@@ -139,37 +144,62 @@ textarea.form-input{min-height:80px;resize:vertical}
             <div style="font-size:12px;color:#94a3b8;margin-top:2px">Professional layouts ready to customise in the page builder</div>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
-          <div class="tpl-card" onclick="useTemplate('Lead Capture')">
-            <div class="tpl-icon">📧</div>
-            <div class="tpl-name">Lead Capture</div>
-            <div class="tpl-desc">Email capture with headline, video, form and feature list</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+
+          <div class="tpl-card" onclick="useTemplate('Lead Capture')" style="--tpl-c1:#0ea5e9;--tpl-c2:#6366f1">
+            <div class="tpl-preview"><div class="tpl-icon-wrap">📧</div></div>
+            <div class="tpl-body">
+              <div class="tpl-name">Lead Capture</div>
+              <div class="tpl-desc">Email capture with headline, video, form and feature list</div>
+              <div class="tpl-use">Use Template →</div>
+            </div>
           </div>
-          <div class="tpl-card" onclick="useTemplate('Video Sales Letter')">
-            <div class="tpl-icon">🎬</div>
-            <div class="tpl-name">Video Sales Letter</div>
-            <div class="tpl-desc">Video-led page with attention headline, VSL and social proof</div>
+
+          <div class="tpl-card" onclick="useTemplate('Video Sales Letter')" style="--tpl-c1:#f59e0b;--tpl-c2:#f97316">
+            <div class="tpl-preview"><div class="tpl-icon-wrap">🎬</div></div>
+            <div class="tpl-body">
+              <div class="tpl-name">Video Sales Letter</div>
+              <div class="tpl-desc">Video-led page with attention headline, VSL and social proof</div>
+              <div class="tpl-use">Use Template →</div>
+            </div>
           </div>
-          <div class="tpl-card" onclick="useTemplate('Product Offer')">
-            <div class="tpl-icon">🛍️</div>
-            <div class="tpl-name">Product Offer</div>
-            <div class="tpl-desc">Sales page with pricing, features, guarantee and CTA</div>
+
+          <div class="tpl-card" onclick="useTemplate('Product Offer')" style="--tpl-c1:#10b981;--tpl-c2:#059669">
+            <div class="tpl-preview"><div class="tpl-icon-wrap">🛍️</div></div>
+            <div class="tpl-body">
+              <div class="tpl-name">Product Offer</div>
+              <div class="tpl-desc">Sales page with pricing, features, guarantee and CTA</div>
+              <div class="tpl-use">Use Template →</div>
+            </div>
           </div>
-          <div class="tpl-card" onclick="useTemplate('Webinar Registration')">
-            <div class="tpl-icon">🎤</div>
-            <div class="tpl-name">Webinar Registration</div>
-            <div class="tpl-desc">Event signup with date, urgency and registration form</div>
+
+          <div class="tpl-card" onclick="useTemplate('Webinar Registration')" style="--tpl-c1:#f43f5e;--tpl-c2:#e11d48">
+            <div class="tpl-preview"><div class="tpl-icon-wrap">🎤</div></div>
+            <div class="tpl-body">
+              <div class="tpl-name">Webinar Registration</div>
+              <div class="tpl-desc">Event signup with date, urgency and registration form</div>
+              <div class="tpl-use">Use Template →</div>
+            </div>
           </div>
-          <div class="tpl-card" onclick="useTemplate('Bio Link Page')">
-            <div class="tpl-icon">👤</div>
-            <div class="tpl-name">Bio Link Page</div>
-            <div class="tpl-desc">Personal bio with avatar and multiple link buttons</div>
+
+          <div class="tpl-card" onclick="useTemplate('Bio Link Page')" style="--tpl-c1:#8b5cf6;--tpl-c2:#6d28d9">
+            <div class="tpl-preview"><div class="tpl-icon-wrap">👤</div></div>
+            <div class="tpl-body">
+              <div class="tpl-name">Bio Link Page</div>
+              <div class="tpl-desc">Personal bio with avatar and multiple link buttons</div>
+              <div class="tpl-use">Use Template →</div>
+            </div>
           </div>
-          <div class="tpl-card" onclick="useTemplate('Affiliate Recruit')">
-            <div class="tpl-icon">🚀</div>
-            <div class="tpl-name">Affiliate Recruit</div>
-            <div class="tpl-desc">SuperAdPro recruitment page with video, stats and join CTA</div>
+
+          <div class="tpl-card" onclick="useTemplate('Affiliate Recruit')" style="--tpl-c1:#0ea5e9;--tpl-c2:#38bdf8">
+            <div class="tpl-preview"><div class="tpl-icon-wrap">🚀</div></div>
+            <div class="tpl-body">
+              <div class="tpl-name">Affiliate Recruit</div>
+              <div class="tpl-desc">SuperAdPro recruitment page with video, stats and join CTA</div>
+              <div class="tpl-use">Use Template →</div>
+            </div>
           </div>
+
         </div>
       </div>
 
