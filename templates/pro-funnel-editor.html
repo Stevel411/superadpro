@@ -201,21 +201,21 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 
   <!-- Right panel -->
   <div class="panel">
-    <div class="panel-head">
-      <h3>✦ Blocks</h3>
-      <p>Click or drag to add</p>
+    <div class="panel-head" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px">
+      <div>
+        <h3 style="margin:0">✦ Blocks</h3>
+        <p style="margin:2px 0 0">Click or drag to add</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="bg-sw"><input type="color" id="bgColor" value="#050d1a" oninput="setBg(this.value)"></div>
+        <div>
+          <div class="bg-label" style="font-size:8px">BG</div>
+          <span class="bg-hex" id="bgHex" style="font-size:9px">#050d1a</span>
+        </div>
+      </div>
     </div>
 
     <div class="pal" id="palette">
-      <!-- Page background colour -->
-      <div class="bg-ctrl" style="margin:-12px -12px 10px;padding:14px 16px;border-radius:0;border-bottom:1px solid var(--panel-border);border-top:none">
-        <div class="bg-sw"><input type="color" id="bgColor" value="#050d1a" oninput="setBg(this.value)"></div>
-        <div>
-          <div class="bg-label">Page Background</div>
-          <span class="bg-hex" id="bgHex">#050d1a</span>
-        </div>
-      </div>
-
       <div class="pal-cat">Text</div>
       <div class="pal-grid">
         <div class="pal-item" onclick="addEl('heading')" draggable="true" ondragstart="palDrag(event,'heading')"><span class="pal-ico" style="font-family:Sora;font-weight:900">H</span><span class="pal-nm">Heading</span></div>
