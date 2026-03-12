@@ -3,699 +3,669 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>AI Funnel Builder — {{ page.title }}</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800;900&family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&family=Raleway:wght@400;500;600;700;800;900&family=Lora:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800;900&family=Nunito:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700;800&family=Urbanist:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Barlow:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<title>Page Builder — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:#0a0e1a;height:100vh;display:flex;flex-direction:column;overflow:hidden;color:#e2e8f0}
+:root{
+  --shell:#0c0f1a;--shell2:#141829;--border:#1f2440;
+  --accent:#0ea5e9;--accent2:#6366f1;--green:#10b981;--rose:#f43f5e;
+  --panel:#fafbfd;--panel-border:#e8ecf2;--panel-text:#2a2e3d;--panel-muted:#8892a8;
+}
+html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--shell)}
 
-/* ── Toolbar ── */
-.tb{height:48px;background:#13192b;border-bottom:1px solid #1e2d4a;display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;z-index:50}
-.tb-logo{font-family:Sora,sans-serif;font-weight:800;font-size:14px;color:#fff;flex-shrink:0}
-.tb-logo em{color:#38bdf8;font-style:normal}
-.tb-sep{width:1px;height:24px;background:#2d3a54}
-.tb-title{font-size:12px;color:#5a6a8a;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ── Topbar ── */
+.topbar{height:50px;background:var(--shell2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;z-index:50}
+.tb-logo{font-family:Sora,sans-serif;font-weight:800;font-size:15px;color:#fff}.tb-logo em{color:var(--accent);font-style:normal}
+.tb-sep{width:1px;height:22px;background:var(--border)}
+.tb-title{font-size:12px;color:#5a6080;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tb-btn{padding:7px 14px;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;transition:.15s;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
-.tb-ghost{background:rgba(255,255,255,.06);color:#7a8aaa;border:1px solid #2d3a54}.tb-ghost:hover{background:rgba(255,255,255,.1);color:#fff}
-.tb-cyan{background:#0ea5e9;color:#fff}.tb-cyan:hover{background:#0284c7}
-.tb-green{background:#10b981;color:#fff}.tb-green:hover{background:#059669}
+.tb-ghost{background:rgba(255,255,255,.05);color:#6a7090;border:1px solid var(--border)}.tb-ghost:hover{background:rgba(255,255,255,.1);color:#fff}
+.tb-preview{background:var(--accent);color:#fff}.tb-preview:hover{background:#0284c7}
+.tb-save{background:var(--green);color:#fff}.tb-save:hover{background:#059669}
 
 /* ── Layout ── */
-.main{flex:1;display:flex;height:calc(100vh - 48px);overflow:hidden}
+.layout{display:flex;height:calc(100vh - 50px)}
 
 /* ── Canvas area ── */
-#canvas-area{flex:1;background:#141a2e;overflow:auto;position:relative}
-#canvas-wrap{min-height:100%;overflow:auto;display:flex;justify-content:center;padding:20px}
-#canvas{width:1200px;position:relative;background:#050d1a;min-height:800px;box-shadow:0 0 60px rgba(0,0,0,.4);border-radius:4px}
-#canvas.dover{outline:3px dashed rgba(14,165,233,.5);outline-offset:-2px}
-#empty-hint{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#3d4a64;pointer-events:none}
-#empty-hint.hide{display:none}
-.eh-icon{font-size:42px;opacity:.5}
-.eh-title{font-size:16px;font-weight:700}
-.eh-sub{font-size:12px;max-width:300px;text-align:center;line-height:1.5}
+.canvas-area{flex:1;background:#0e1220;overflow:auto;padding:20px;position:relative}
+.canvas-area::-webkit-scrollbar{width:6px;height:6px}
+.canvas-area::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
+.canvas{
+  width:1100px;min-height:900px;margin:0 auto;position:relative;
+  border-radius:6px;box-shadow:0 0 60px rgba(0,0,0,.3);transition:background .3s;
+}
 
 /* ── Elements on canvas ── */
-.el{position:absolute;cursor:move;user-select:none}
-.el:hover{outline:1px dashed rgba(14,165,233,.35);outline-offset:1px}
-.el.sel{outline:2px solid #0ea5e9;outline-offset:1px}
-.el[data-editing="1"]{cursor:text}
-.el-inner{width:100%;height:100%;display:flex;align-items:center;overflow:hidden;word-break:break-word}
-.el-inner[contenteditable=true]{cursor:text;outline:none}
+.cel{position:absolute;cursor:move;user-select:none;min-width:40px;min-height:20px}
+.cel:hover{outline:1px dashed rgba(14,165,233,.35);outline-offset:1px}
+.cel.selected{outline:2px solid var(--accent);outline-offset:1px}
+
+/* Element inline toolbar */
+.cel-bar{
+  position:absolute;top:-34px;left:50%;transform:translateX(-50%);display:none;
+  background:var(--shell2);border:1px solid var(--border);border-radius:8px;
+  padding:3px;gap:2px;box-shadow:0 4px 16px rgba(0,0,0,.5);white-space:nowrap;z-index:20;
+}
+.cel.selected .cel-bar{display:flex;align-items:center}
+.cb{width:26px;height:26px;border:none;border-radius:5px;background:transparent;color:#6a7090;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:.12s}
+.cb:hover{background:rgba(14,165,233,.15);color:var(--accent)}
+.cb-del:hover{background:rgba(244,63,94,.15);color:var(--rose)}
+.cb-sep{width:1px;height:18px;background:var(--border);margin:0 1px}
+.cb-color{width:22px;height:22px;border-radius:5px;border:2px solid var(--border);overflow:hidden;position:relative;cursor:pointer}
+.cb-color input[type=color]{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);border:none;cursor:pointer;padding:0}
 
 /* Resize handles */
-.rh{position:absolute;width:9px;height:9px;background:#0ea5e9;border:1.5px solid #fff;border-radius:2px;display:none;z-index:5}
-.el.sel .rh{display:block}
-.rh-nw{top:-5px;left:-5px;cursor:nw-resize}.rh-n{top:-5px;left:50%;margin-left:-5px;cursor:n-resize}
-.rh-ne{top:-5px;right:-5px;cursor:ne-resize}.rh-w{top:50%;margin-top:-5px;left:-5px;cursor:w-resize}
-.rh-e{top:50%;margin-top:-5px;right:-5px;cursor:e-resize}.rh-sw{bottom:-5px;left:-5px;cursor:sw-resize}
-.rh-s{bottom:-5px;left:50%;margin-left:-5px;cursor:s-resize}.rh-se{bottom:-5px;right:-5px;cursor:se-resize}
+.cel-resize{position:absolute;width:10px;height:10px;background:var(--accent);border:2px solid #fff;border-radius:2px;display:none;z-index:10}
+.cel.selected .cel-resize{display:block}
+.cel-resize.br{right:-5px;bottom:-5px;cursor:nwse-resize}
+.cel-resize.bl{left:-5px;bottom:-5px;cursor:nesw-resize}
+.cel-resize.r{right:-5px;top:50%;transform:translateY(-50%);cursor:ew-resize}
+.cel-resize.b{bottom:-5px;left:50%;transform:translateX(-50%);cursor:ns-resize}
 
-/* Canvas BG control */
-.cv-bg-ctrl{position:absolute;top:8px;left:8px;z-index:10;display:flex;align-items:center;gap:6px;background:rgba(19,25,43,.92);border:1px solid #2d3a54;border-radius:8px;padding:5px 10px}
-.cv-bg-ctrl label{font-size:10px;color:#5a6a8a;font-weight:600}
-.cv-bg-ctrl input[type=color]{width:22px;height:22px;border:1px solid #3d4a64;border-radius:5px;cursor:pointer;padding:0;background:none}
+/* Alignment guides */
+.guide{position:absolute;background:var(--accent);opacity:.5;pointer-events:none;z-index:5;display:none}
+.guide-h{height:1px;left:0;right:0}
+.guide-v{width:1px;top:0;bottom:0}
 
-/* Hint bar */
-.hint-bar{position:absolute;bottom:0;left:0;right:0;padding:6px 14px;background:rgba(19,25,43,.9);border-top:1px solid #2d3a54;display:flex;gap:12px;align-items:center;font-size:10px;color:#5a6a8a;z-index:10}
-.htag{background:rgba(255,255,255,.04);border:1px solid #2d3a54;border-radius:5px;padding:3px 8px;font-weight:600}
+/* ── Inline text editing ── */
+.cel [contenteditable]{outline:none;cursor:text;min-height:1em}
+.cel [contenteditable]:focus{cursor:text}
+
+/* ── Formatting bar (appears above text being edited) ── */
+.fmt{
+  position:fixed;z-index:100;background:var(--shell2);border:1px solid var(--border);
+  border-radius:10px;padding:5px;display:none;gap:2px;align-items:center;
+  box-shadow:0 8px 28px rgba(0,0,0,.5);
+}
+.fmt.show{display:flex}
+.fmt-btn{width:28px;height:28px;border:none;border-radius:6px;background:transparent;color:#8892a8;cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:.1s}
+.fmt-btn:hover{background:rgba(14,165,233,.12);color:var(--accent)}
+.fmt-sep{width:1px;height:20px;background:var(--border);margin:0 2px}
+.fmt-sel{background:var(--shell);border:1px solid var(--border);border-radius:6px;color:#8892a8;font-size:10px;padding:3px 6px;cursor:pointer;font-family:'DM Sans',sans-serif}
 
 /* ── Right panel ── */
-.rpanel{width:320px;background:#f7f8fb;display:flex;flex-direction:column;height:100%;overflow:hidden;flex-shrink:0;border-left:1px solid #e2e8f0}
+.panel{width:280px;background:var(--panel);border-left:1px solid var(--panel-border);display:flex;flex-direction:column;height:100%;overflow:hidden;flex-shrink:0}
+.panel-head{padding:14px 16px;border-bottom:1px solid var(--panel-border);flex-shrink:0}
+.panel-head h3{font-family:Sora,sans-serif;font-size:13px;font-weight:800;color:var(--panel-text)}
+.panel-head p{font-size:10px;color:var(--panel-muted);margin-top:2px}
 
-/* Tabs */
-.rp-tabs{display:flex;background:#fff;border-bottom:1px solid #e2e8f0;flex-shrink:0}
-.rp-tab{flex:1;padding:10px 4px;text-align:center;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#94a3b8;cursor:pointer;border-bottom:2px solid transparent;transition:.15s}
-.rp-tab:hover{color:#475569}
-.rp-tab.on{color:#0ea5e9;border-bottom-color:#0ea5e9}
+/* Block palette */
+.pal{flex:1;overflow-y:auto;padding:12px;min-height:0}
+.pal::-webkit-scrollbar{width:3px}.pal::-webkit-scrollbar-thumb{background:#d4d8e4;border-radius:3px}
+.pal-cat{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--panel-muted);padding:8px 0 4px}
+.pal-cat:first-child{padding-top:0}
+.pal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:2px}
+.pal-item{
+  background:#fff;border:1px solid var(--panel-border);border-radius:7px;
+  padding:8px 3px 6px;text-align:center;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;transition:.12s;user-select:none;
+}
+.pal-item:hover{border-color:var(--accent);background:#f0f9ff;transform:translateY(-1px)}
+.pal-item:active{transform:scale(.94)}
+.pal-ico{font-size:16px;line-height:1}
+.pal-nm{font-size:7px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:#6a7090}
 
-/* Panel content */
-.rp-body{flex:1;overflow-y:auto;min-height:0}
-.rp-body::-webkit-scrollbar{width:4px}.rp-body::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:4px}
+/* BG control */
+.bg-ctrl{padding:10px 16px;border-top:1px solid var(--panel-border);display:flex;align-items:center;gap:8px;flex-shrink:0;background:#fff}
+.bg-label{font-size:9px;font-weight:700;color:var(--panel-muted);text-transform:uppercase;letter-spacing:.5px}
+.bg-sw{width:28px;height:28px;border-radius:6px;border:2px solid var(--panel-border);overflow:hidden;position:relative;cursor:pointer;flex-shrink:0}
+.bg-sw input[type=color]{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);border:none;cursor:pointer;padding:0}
+.bg-hex{font-size:10px;font-family:monospace;color:var(--panel-muted)}
 
-/* Blocks */
-.cat{font-size:9px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:#94a3b8;padding:14px 12px 6px}
-.bgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:0 10px 4px}
-.bc{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:9px 4px 7px;text-align:center;cursor:grab;display:flex;flex-direction:column;align-items:center;gap:3px;transition:.12s;user-select:none}
-.bc:hover{border-color:#0ea5e9;background:#f0f9ff;transform:translateY(-1px)}
-.bc:active{cursor:grabbing;transform:scale(.95)}
-.bi{font-size:17px;line-height:1}
-.bn{font-size:8px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:#64748b}
-
-/* Properties */
-.pp{padding:12px}
-.pp-title{font-size:12px;font-weight:800;color:#1a1a2e;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #e2e8f0}
-.pp-empty{text-align:center;padding:40px 16px;color:#94a3b8;font-size:12px}
-.pf{margin-bottom:10px}
-.pf-label{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:3px}
-.pf-input{width:100%;padding:7px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:12px;font-family:inherit;color:#1a1a2e;background:#fff}
-.pf-input:focus{outline:none;border-color:#0ea5e9;box-shadow:0 0 0 2px rgba(14,165,233,.1)}
-select.pf-input{background:#fff}
-textarea.pf-input{min-height:50px;resize:vertical}
-.pf-row{display:flex;gap:6px;align-items:center}
-.pf-swatch{width:26px;height:26px;border-radius:6px;border:1px solid #e2e8f0;flex-shrink:0;position:relative;overflow:hidden;cursor:pointer}
-.pf-swatch input[type=color]{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);border:none;cursor:pointer;padding:0}
-.pf-actions{display:flex;gap:4px;margin-top:10px;padding-top:10px;border-top:1px solid #e2e8f0}
-.pf-act{flex:1;padding:7px;border:1px solid #e2e8f0;border-radius:7px;background:#fff;font-size:10px;font-weight:700;color:#64748b;cursor:pointer;text-align:center;transition:.1s}
-.pf-act:hover{border-color:#0ea5e9;color:#0ea5e9}
-.pf-del{border-color:#fecaca;color:#dc2626;background:#fef2f2}.pf-del:hover{background:#fee2e2}
-
-/* Layers */
-.ly-item{padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;margin:0 10px 4px;cursor:pointer;background:#fff;font-size:11px;font-weight:600;color:#475569;display:flex;justify-content:space-between;align-items:center;transition:.1s}
-.ly-item:hover{border-color:#93c5fd}
-.ly-item.on{border-color:#0ea5e9;background:#eff6ff;color:#0ea5e9}
-.ly-del{width:18px;height:18px;border:none;background:#fee2e2;border-radius:4px;color:#dc2626;cursor:pointer;font-size:9px;display:flex;align-items:center;justify-content:center}
-
-/* ── AI Chat ── */
-.chat{border-top:1px solid #e2e8f0;flex-shrink:0;background:#fff;display:flex;flex-direction:column;max-height:35%;transition:max-height .2s}
-.chat.closed{max-height:34px}
-.chat-hdr{padding:8px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;flex-shrink:0}
-.chat-hdr h4{font-size:10px;font-weight:800;color:#0ea5e9;letter-spacing:.5px}
-.chat-hdr span{font-size:12px;color:#94a3b8;transition:transform .2s}
-.chat.closed .chat-hdr span{transform:rotate(180deg)}
-.chat-body{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
-.chat.closed .chat-body{display:none}
-.chat-msgs{flex:1;overflow-y:auto;padding:6px 10px;display:flex;flex-direction:column;gap:5px;background:#f8fafc;min-height:0}
-.chat-msgs::-webkit-scrollbar{width:3px}.chat-msgs::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:4px}
-.cm{max-width:88%;padding:7px 10px;border-radius:10px;font-size:11px;line-height:1.5;word-wrap:break-word}
-.cm-ai{background:#fff;color:#1a1a2e;border:1px solid #e5e7eb;align-self:flex-start;border-bottom-left-radius:2px}
-.cm-user{background:#0ea5e9;color:#fff;align-self:flex-end;border-bottom-right-radius:2px}
-.chat-bar{display:flex;gap:5px;padding:6px 10px;border-top:1px solid #f1f5f9;flex-shrink:0}
-.chat-in{flex:1;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:11px;font-family:inherit;color:#1a1a2e;resize:none}
-.chat-in:focus{outline:none;border-color:#0ea5e9}
-.chat-in::placeholder{color:#94a3b8}
-.chat-go{width:30px;height:30px;border:none;border-radius:7px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.chat-go:hover{opacity:.9}
+/* AI Chat */
+.chat{border-top:1px solid var(--panel-border);flex-shrink:0;background:#fff;display:flex;flex-direction:column}
+.chat-head{padding:8px 14px;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between}
+.chat-head h4{font-size:9px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--accent)}
+.chat-head span{font-size:12px;color:var(--panel-muted);transition:transform .2s}
+.chat.closed .chat-body{display:none}.chat.closed .chat-head span{transform:rotate(180deg)}
+.chat-body{display:flex;flex-direction:column;max-height:180px;overflow:hidden}
+.chat-msgs{flex:1;overflow-y:auto;padding:6px 10px;display:flex;flex-direction:column;gap:4px;background:#f8f9fc;min-height:0}
+.chat-msgs::-webkit-scrollbar{width:2px}.chat-msgs::-webkit-scrollbar-thumb{background:#d4d8e4;border-radius:2px}
+.cm{max-width:88%;padding:6px 10px;border-radius:10px;font-size:11px;line-height:1.5;word-wrap:break-word}
+.cm-ai{background:#fff;color:var(--panel-text);align-self:flex-start;border:1px solid var(--panel-border);border-bottom-left-radius:2px}
+.cm-user{background:var(--accent);color:#fff;align-self:flex-end;border-bottom-right-radius:2px}
+.chat-input{display:flex;gap:5px;padding:6px 10px;border-top:1px solid #f0f2f6;flex-shrink:0}
+.chat-in{flex:1;padding:7px 10px;border:1px solid #d4d8e4;border-radius:8px;font-size:11px;font-family:'DM Sans',sans-serif;color:var(--panel-text);resize:none}
+.chat-in:focus{outline:none;border-color:var(--accent)}
+.chat-in::placeholder{color:#b0b8cc}
+.chat-send{width:32px;height:32px;border:none;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s}
+.chat-send:hover{opacity:.85}
 
 /* Toast */
-.toast{position:fixed;top:56px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:8px 20px;border-radius:8px;font-size:12px;font-weight:600;display:none;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.3);border:1px solid #10b981}
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--shell2);color:#fff;padding:8px 22px;border-radius:8px;font-size:12px;font-weight:600;display:none;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.4);border:1px solid var(--border)}
 .toast.show{display:block}
+
+/* Canvas empty state */
+.canvas-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;opacity:.6}
+.canvas-empty-icon{font-size:40px;margin-bottom:12px}
+.canvas-empty h3{font-family:Sora,sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:6px}
+.canvas-empty p{font-size:12px;color:#5a6080;max-width:280px;text-align:center;line-height:1.6}
 </style>
 </head>
 <body>
 
-<!-- ═══ TOOLBAR ═══ -->
-<div class="tb">
+<!-- ═══ TOPBAR ═══ -->
+<div class="topbar">
   <div class="tb-logo">SuperAd<em>Pro</em></div>
   <div class="tb-sep"></div>
-  <div class="tb-title">✨ AI Funnel Builder — {{ page.headline or page.title }}</div>
+  <div class="tb-title">✨ {{ page.headline or page.title }}</div>
   <a href="/pro/funnels" class="tb-btn tb-ghost">← Funnels</a>
-  <a href="/f/{{ page.slug }}" target="_blank" class="tb-btn tb-cyan">👁 Preview</a>
-  <button class="tb-btn tb-green" onclick="savePage()">💾 Save</button>
+  <a href="/f/{{ page.slug }}" target="_blank" class="tb-btn tb-preview">👁 Preview</a>
+  <button class="tb-btn tb-save" onclick="save()">💾 Save</button>
 </div>
 
-<div class="main">
-  <!-- ═══ CANVAS ═══ -->
-  <div id="canvas-area">
-    <div class="cv-bg-ctrl">
-      <label>BG</label>
-      <input type="color" id="cv-bg" value="#050d1a" oninput="setBg(this.value)">
-    </div>
-    <div id="canvas-wrap">
-      <div id="canvas">
-        <div id="empty-hint">
-          <div class="eh-icon">✦</div>
-          <div class="eh-title">Drag elements here</div>
-          <div class="eh-sub">Drag blocks from the right panel, or use the AI chat to add content</div>
-        </div>
+<!-- ═══ LAYOUT ═══ -->
+<div class="layout">
+  <!-- Canvas -->
+  <div class="canvas-area" id="canvasArea">
+    <div class="canvas" id="canvas"
+         ondragover="canvasDragOver(event)"
+         ondrop="canvasDrop(event)">
+      <!-- Alignment guides -->
+      <div class="guide guide-h" id="guideH"></div>
+      <div class="guide guide-v" id="guideV"></div>
+      <!-- Elements rendered by JS -->
+      <div class="canvas-empty" id="emptyState">
+        <div class="canvas-empty-icon">✦</div>
+        <h3>Start building</h3>
+        <p>Click any block from the right panel to add it, or drag it onto the canvas. Double-click text to edit.</p>
       </div>
-    </div>
-    <div class="hint-bar">
-      <span class="htag">🖱 Drag to move</span>
-      <span class="htag">✏️ Double-click to edit text</span>
-      <span class="htag">⬛ Handles to resize</span>
-      <span class="htag">Del to delete</span>
     </div>
   </div>
 
-  <!-- ═══ RIGHT PANEL ═══ -->
-  <div class="rpanel">
-    <div class="rp-tabs">
-      <div class="rp-tab on" onclick="openTab('blocks',this)">Blocks</div>
-      <div class="rp-tab" onclick="openTab('props',this)">Properties</div>
-      <div class="rp-tab" onclick="openTab('layers',this)">Layers</div>
+  <!-- Right panel -->
+  <div class="panel">
+    <div class="panel-head">
+      <h3>✦ Blocks</h3>
+      <p>Click or drag to add</p>
     </div>
 
-    <div class="rp-body" id="rp-body">
-      <!-- BLOCKS -->
-      <div id="tab-blocks">
-        <div class="cat">Text</div>
-        <div class="bgrid">
-          <div class="bc" draggable="true" data-t="heading" ondragstart="ds(event)"><span class="bi" style="font-family:Sora;font-weight:900;font-size:20px">H</span><span class="bn">Heading</span></div>
-          <div class="bc" draggable="true" data-t="subheading" ondragstart="ds(event)"><span class="bi" style="font-weight:800;font-size:14px">H2</span><span class="bn">Subhead</span></div>
-          <div class="bc" draggable="true" data-t="text" ondragstart="ds(event)"><span class="bi">¶</span><span class="bn">Text</span></div>
-          <div class="bc" draggable="true" data-t="label" ondragstart="ds(event)"><span class="bi" style="font-size:13px">Aa</span><span class="bn">Label</span></div>
-        </div>
-        <div class="cat">Media</div>
-        <div class="bgrid">
-          <div class="bc" draggable="true" data-t="image" ondragstart="ds(event)"><span class="bi">🖼</span><span class="bn">Image</span></div>
-          <div class="bc" draggable="true" data-t="video" ondragstart="ds(event)"><span class="bi">▶</span><span class="bn">Video</span></div>
-          <div class="bc" draggable="true" data-t="divider" ondragstart="ds(event)"><span class="bi">─</span><span class="bn">Divider</span></div>
-        </div>
-        <div class="cat">Actions</div>
-        <div class="bgrid">
-          <div class="bc" draggable="true" data-t="button" ondragstart="ds(event)"><span class="bi">⬤</span><span class="bn">Button</span></div>
-          <div class="bc" draggable="true" data-t="cta" ondragstart="ds(event)"><span class="bi">🔵</span><span class="bn">CTA Btn</span></div>
-          <div class="bc" draggable="true" data-t="form" ondragstart="ds(event)"><span class="bi">📋</span><span class="bn">Opt-In</span></div>
-        </div>
-        <div class="cat">Content</div>
-        <div class="bgrid">
-          <div class="bc" draggable="true" data-t="review" ondragstart="ds(event)"><span class="bi">💬</span><span class="bn">Review</span></div>
-          <div class="bc" draggable="true" data-t="badge" ondragstart="ds(event)"><span class="bi">🏷</span><span class="bn">Badge</span></div>
-          <div class="bc" draggable="true" data-t="timer" ondragstart="ds(event)"><span class="bi">⏱</span><span class="bn">Timer</span></div>
-        </div>
-        <div class="cat">Layout</div>
-        <div class="bgrid">
-          <div class="bc" draggable="true" data-t="box" ondragstart="ds(event)"><span class="bi">⬜</span><span class="bn">Box</span></div>
-          <div class="bc" draggable="true" data-t="spacer" ondragstart="ds(event)"><span class="bi">↕</span><span class="bn">Spacer</span></div>
-        </div>
+    <div class="pal" id="palette">
+      <div class="pal-cat">Text</div>
+      <div class="pal-grid">
+        <div class="pal-item" onclick="addEl('heading')" draggable="true" ondragstart="palDrag(event,'heading')"><span class="pal-ico" style="font-family:Sora;font-weight:900">H</span><span class="pal-nm">Heading</span></div>
+        <div class="pal-item" onclick="addEl('text')" draggable="true" ondragstart="palDrag(event,'text')"><span class="pal-ico">¶</span><span class="pal-nm">Text</span></div>
+        <div class="pal-item" onclick="addEl('label')" draggable="true" ondragstart="palDrag(event,'label')"><span class="pal-ico" style="font-size:13px;font-weight:800">Aa</span><span class="pal-nm">Label</span></div>
       </div>
-
-      <!-- PROPERTIES (hidden until element selected) -->
-      <div id="tab-props" style="display:none">
-        <div id="pp-content"><div class="pp-empty">🖱 Click an element on the canvas to edit its properties</div></div>
+      <div class="pal-cat">Media</div>
+      <div class="pal-grid">
+        <div class="pal-item" onclick="addEl('image')" draggable="true" ondragstart="palDrag(event,'image')"><span class="pal-ico">🖼</span><span class="pal-nm">Image</span></div>
+        <div class="pal-item" onclick="addEl('video')" draggable="true" ondragstart="palDrag(event,'video')"><span class="pal-ico">▶</span><span class="pal-nm">Video</span></div>
+        <div class="pal-item" onclick="addEl('divider')" draggable="true" ondragstart="palDrag(event,'divider')"><span class="pal-ico">─</span><span class="pal-nm">Divider</span></div>
       </div>
-
-      <!-- LAYERS -->
-      <div id="tab-layers" style="display:none">
-        <div style="padding:10px 0" id="layers-list"></div>
+      <div class="pal-cat">Actions</div>
+      <div class="pal-grid">
+        <div class="pal-item" onclick="addEl('button')" draggable="true" ondragstart="palDrag(event,'button')"><span class="pal-ico">⬤</span><span class="pal-nm">Button</span></div>
+        <div class="pal-item" onclick="addEl('form')" draggable="true" ondragstart="palDrag(event,'form')"><span class="pal-ico">📋</span><span class="pal-nm">Opt-In</span></div>
+        <div class="pal-item" onclick="addEl('cta')" draggable="true" ondragstart="palDrag(event,'cta')"><span class="pal-ico">🔵</span><span class="pal-nm">CTA</span></div>
+      </div>
+      <div class="pal-cat">Content</div>
+      <div class="pal-grid">
+        <div class="pal-item" onclick="addEl('review')" draggable="true" ondragstart="palDrag(event,'review')"><span class="pal-ico">💬</span><span class="pal-nm">Review</span></div>
+        <div class="pal-item" onclick="addEl('badge')" draggable="true" ondragstart="palDrag(event,'badge')"><span class="pal-ico">🏷</span><span class="pal-nm">Badge</span></div>
+        <div class="pal-item" onclick="addEl('spacer')" draggable="true" ondragstart="palDrag(event,'spacer')"><span class="pal-ico">↕</span><span class="pal-nm">Spacer</span></div>
+        <div class="pal-item" onclick="addEl('box')" draggable="true" ondragstart="palDrag(event,'box')"><span class="pal-ico">⬜</span><span class="pal-nm">Box</span></div>
+        <div class="pal-item" onclick="addEl('stat')" draggable="true" ondragstart="palDrag(event,'stat')"><span class="pal-ico">📊</span><span class="pal-nm">Stat</span></div>
+        <div class="pal-item" onclick="addEl('timer')" draggable="true" ondragstart="palDrag(event,'timer')"><span class="pal-ico">⏱</span><span class="pal-nm">Timer</span></div>
       </div>
     </div>
 
-    <!-- ── AI CHAT ── -->
+    <!-- BG colour -->
+    <div class="bg-ctrl">
+      <div class="bg-label">Page BG</div>
+      <div class="bg-sw"><input type="color" id="bgColor" value="#050d1a" oninput="setBg(this.value)"></div>
+      <span class="bg-hex" id="bgHex">#050d1a</span>
+    </div>
+
+    <!-- AI Chat -->
     <div class="chat" id="chatBox">
-      <div class="chat-hdr" onclick="toggleChat()">
-        <h4>✨ AI ASSISTANT</h4>
+      <div class="chat-head" onclick="toggleChat()">
+        <h4>✨ AI Assistant</h4>
         <span>▼</span>
       </div>
       <div class="chat-body">
         <div class="chat-msgs" id="chatMsgs">
-          <div class="cm cm-ai">Tell me what to change — "add a testimonial", "change background to dark blue", etc.</div>
+          <div class="cm cm-ai">Tell me what to change — "add a heading", "change background to navy"</div>
         </div>
-        <div class="chat-bar">
+        <div class="chat-input">
           <textarea class="chat-in" id="chatIn" rows="1" placeholder="Ask AI..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea>
-          <button class="chat-go" onclick="sendChat()">➤</button>
+          <button class="chat-send" onclick="sendChat()">➤</button>
         </div>
       </div>
     </div>
   </div>
+</div>
+
+<!-- Formatting bar (floating, appears on text edit) -->
+<div class="fmt" id="fmtBar">
+  <button class="fmt-btn" onclick="fmt('bold')" title="Bold"><b>B</b></button>
+  <button class="fmt-btn" onclick="fmt('italic')" title="Italic"><i>I</i></button>
+  <button class="fmt-btn" onclick="fmt('underline')" title="Underline"><u>U</u></button>
+  <div class="fmt-sep"></div>
+  <select class="fmt-sel" onchange="fmt('fontSize',this.value);this.selectedIndex=0" title="Size">
+    <option value="">Size</option><option value="1">XS</option><option value="2">S</option><option value="3">M</option><option value="4">L</option><option value="5">XL</option><option value="6">XXL</option><option value="7">3XL</option>
+  </select>
+  <select class="fmt-sel" onchange="fmt('fontName',this.value);this.selectedIndex=0" title="Font">
+    <option value="">Font</option>
+    <option value="Sora">Sora</option><option value="Outfit">Outfit</option><option value="DM Sans">DM Sans</option>
+    <option value="Georgia">Georgia</option><option value="monospace">Mono</option>
+  </select>
+  <div class="fmt-sep"></div>
+  <select class="fmt-sel" onchange="fmt('justifyLeft');if(this.value==='center')fmt('justifyCenter');if(this.value==='right')fmt('justifyRight');this.selectedIndex=0" title="Align">
+    <option value="">Align</option><option value="left">Left</option><option value="center">Centre</option><option value="right">Right</option>
+  </select>
+  <div class="fmt-sep"></div>
+  <div class="fmt-color-wrap" title="Text colour"><input type="color" value="#ffffff" oninput="fmt('foreColor',this.value)"></div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const PAGE_ID = {{ page.id }};
+// ═══════════════════════════════════════════════════
+// SuperAdPro Funnel Builder Engine
+// ═══════════════════════════════════════════════════
+const FUNNEL_ID = {{ page.id }};
 const USERNAME = '{{ user.username }}';
-const UNAME = '{{ user.first_name or user.username }}';
+const SLUG = '{{ page.slug }}';
 
-// ══════ STATE ══════
-let els = [];
-let selId = null;
+// ── State ──
+let els = [];        // array of element objects
+let selId = null;    // selected element ID
 let canvasBg = '#050d1a';
-let _d = null, _r = null; // drag/resize state
-let dragType = null;
+let _dirty = false;
+
+// ── UID generator ──
 const uid = () => 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2,5);
-const CV = () => document.getElementById('canvas');
-const TEXT_ELS = new Set(['heading','subheading','text','label','button','cta','badge']);
 
-// ── Element defaults ──
-const DEFS = {
-  heading:    {w:600,h:70, txt:'Your Headline Here',    s:{fontSize:'42px',fontWeight:'900',fontFamily:"'Sora',sans-serif",color:'#ffffff',textAlign:'center',lineHeight:'1.1'}},
-  subheading: {w:500,h:50, txt:'Your Subheading',       s:{fontSize:'26px',fontWeight:'800',fontFamily:"'Sora',sans-serif",color:'#e2e8f0',textAlign:'center',lineHeight:'1.2'}},
-  text:       {w:600,h:80, txt:'Add your text here. Double-click to edit.', s:{fontSize:'16px',fontFamily:"'Outfit',sans-serif",color:'#94a3b8',textAlign:'left',lineHeight:'1.7'}},
-  label:      {w:190,h:32, txt:'LABEL',                 s:{fontSize:'11px',fontWeight:'700',fontFamily:"'DM Sans',sans-serif",color:'#64748b',letterSpacing:'1.5px',textTransform:'uppercase'}},
-  button:     {w:220,h:52, txt:'Click Here',            s:{fontSize:'15px',fontWeight:'800',fontFamily:"'Sora',sans-serif",color:'#fff',backgroundColor:'#0ea5e9',borderRadius:'10px',textAlign:'center'}},
-  cta:        {w:260,h:56, txt:'Get Started Free →',    s:{fontSize:'17px',fontWeight:'900',fontFamily:"'Sora',sans-serif",color:'#fff',backgroundImage:'linear-gradient(135deg,#0ea5e9,#6366f1)',borderRadius:'12px',textAlign:'center',boxShadow:'0 6px 20px rgba(14,165,233,.3)'}},
-  badge:      {w:150,h:34, txt:'🚀 New Feature',        s:{fontSize:'11px',fontWeight:'700',fontFamily:"'DM Sans',sans-serif",color:'#0ea5e9',backgroundColor:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.2)',borderRadius:'20px',textAlign:'center',padding:'4px 12px'}},
-  image:      {w:500,h:300,txt:'',                      s:{borderRadius:'12px',objectFit:'cover'}},
-  video:      {w:640,h:360,txt:'https://www.youtube.com/embed/dQw4w9WgXcQ', s:{borderRadius:'12px'}},
-  form:       {w:380,h:220,txt:'',                      s:{}},
-  divider:    {w:600,h:4,  txt:'',                      s:{backgroundColor:'#334155',borderRadius:'2px'}},
-  spacer:     {w:600,h:60, txt:'',                      s:{}},
-  box:        {w:400,h:250,txt:'',                      s:{backgroundColor:'rgba(255,255,255,.03)',borderRadius:'16px',border:'1px solid rgba(14,165,233,.1)'}},
-  review:     {w:400,h:140,txt:'',                      s:{backgroundColor:'#1e293b',borderRadius:'14px',borderLeft:'4px solid #0ea5e9',padding:'20px'}},
-  timer:      {w:280,h:70, txt:'',                      s:{backgroundColor:'#0f172a',borderRadius:'12px',border:'1px solid #1e293b'}},
-};
-
-// ══════ INIT: Load data ══════
+// ── Load initial data ──
 try {
-  const fd = {{ funnel_data|tojson|safe }};
-  if (fd.colors?.bg) canvasBg = fd.colors.bg;
+  const raw = '{{ (page.gjs_css or "")|e }}';
+  if (raw && raw.trim()) {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) { els = parsed; }
+    else if (parsed.els) { els = parsed.els; if (parsed.canvasBg) canvasBg = parsed.canvasBg; }
+  }
+} catch(e) { console.log('No saved canvas data, will convert from AI data'); }
 
-  // Convert sections to canvas elements
-  const secs = fd.sections || [];
-  if (secs.length > 0) {
+// If no canvas elements, convert from AI funnel data
+if (els.length === 0) {
+  try {
+    const fd = {{ funnel_data|tojson|safe }};
+    if (fd.colors?.bg) canvasBg = fd.colors.bg;
     let y = 30;
-    // Logo
-    els.push({id:uid(),type:'text',x:20,y:y,w:300,h:40,txt:`<span style="font-family:Sora,sans-serif;font-weight:800;font-size:18px;color:#fff">SuperAd<span style="color:#38bdf8">Pro</span></span>`,s:{color:'#fff'},vis:true});
-    els.push({id:uid(),type:'text',x:850,y:y,w:300,h:30,txt:`<span style="font-size:12px;color:rgba(255,255,255,0.4)">By <strong style="color:#38bdf8">${UNAME}</strong></span>`,s:{textAlign:'right',color:'rgba(255,255,255,0.4)'},vis:true});
+    const CW = 1100;
+
+    // Logo bar
+    els.push({id:uid(),type:'text',x:20,y:y,w:300,h:35,txt:'<span style="font-family:Sora,sans-serif;font-weight:800;font-size:18px;color:#fff">SuperAd<span style="color:#38bdf8">Pro</span></span>',s:{}});
+    els.push({id:uid(),type:'text',x:750,y:y,w:320,h:30,txt:'<span style="font-size:12px;color:rgba(255,255,255,0.4)">By <strong style="color:#38bdf8">{{ user.first_name or user.username }}</strong></span>',s:{textAlign:'right'}});
     y += 60;
 
-    secs.forEach(s => {
-      const t = s.type;
-      if (t === 'heading') {
-        const fs = s.level==='h1'?'38px':s.level==='h2'?'26px':'20px';
-        els.push({id:uid(),type:'heading',x:50,y,w:1100,h:65,txt:s.content||'',s:{fontSize:fs,fontWeight:'900',fontFamily:"'Sora',sans-serif",color:s.color||'#fff',textAlign:s.align||'center',lineHeight:'1.15'},vis:true});
-        y += 80;
-      } else if (t === 'text') {
-        const h = Math.max(50, (s.content||'').length / 2);
-        els.push({id:uid(),type:'text',x:100,y,w:1000,h,txt:s.content||'',s:{fontSize:s.size||'15px',fontFamily:"'Outfit',sans-serif",color:s.color||'#94a3b8',textAlign:s.align||'left',lineHeight:'1.8'},vis:true});
-        y += h + 15;
-      } else if (t === 'video') {
-        let url = s.url||'';
-        const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-        if (m) url = 'https://www.youtube.com/embed/' + m[1];
-        const m2 = url.match(/vimeo\.com\/(\d+)/);
-        if (m2) url = 'https://player.vimeo.com/video/' + m2[1];
-        els.push({id:uid(),type:'video',x:150,y,w:900,h:500,txt:url,s:{borderRadius:'12px'},vis:true});
-        y += 520;
-      } else if (t === 'button') {
-        const c1=s.color1||'#0ea5e9',c2=s.color2||'#6366f1';
-        els.push({id:uid(),type:'cta',x:400,y,w:400,h:56,txt:s.text||'Join Now',s:{fontSize:'17px',fontWeight:'900',fontFamily:"'Sora',sans-serif",color:'#fff',backgroundImage:`linear-gradient(135deg,${c1},${c2})`,borderRadius:'12px',textAlign:'center',boxShadow:`0 6px 20px ${c1}44`},vis:true});
-        y += 80;
-      } else if (t === 'capture') {
-        const c1=s.btnColor||'#0ea5e9',c2=s.btnColor2||'#6366f1',bg=s.bgColor||'#0f1729';
-        const html=`<div style="text-align:center"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">${s.heading||''}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:14px">${s.subtext||''}</div><input placeholder="Your first name" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;margin-bottom:8px;box-sizing:border-box"><input placeholder="Your email" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;margin-bottom:10px;box-sizing:border-box"><div style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,${c1},${c2});color:#fff;font-weight:700;font-size:14px;text-align:center">${s.btnText||'Get Access →'}</div></div>`;
-        els.push({id:uid(),type:'form',x:300,y,w:600,h:280,txt:html,s:{background:bg+'50',borderRadius:'18px',border:`1px solid ${c1}25`,padding:'24px'},vis:true});
-        y += 300;
-      } else if (t === 'features') {
-        const cc=s.checkColor||'#0ea5e9',tc=s.textColor||'#94a3b8';
-        const html = (s.items||[]).map(f=>`<div style="display:flex;gap:10px;padding:8px 0;font-size:14px;color:${tc};border-top:1px solid rgba(255,255,255,.05)"><span style="color:${cc};font-weight:700">✓</span>${f}</div>`).join('');
-        const h = (s.items||[]).length * 36 + 20;
-        els.push({id:uid(),type:'text',x:200,y,w:800,h,txt:html,s:{color:tc},vis:true});
-        y += h + 15;
-      } else if (t === 'testimonial') {
-        const html=`<div style="font-size:15px;color:${s.color||'#e2e8f0'};line-height:1.7;font-style:italic;margin-bottom:12px">"${s.quote||''}"</div><div style="font-size:13px;color:#64748b;font-weight:600">— ${s.author||''}</div>`;
-        els.push({id:uid(),type:'review',x:200,y,w:800,h:130,txt:html,s:{backgroundColor:s.bgColor||'#1e293b',borderRadius:'16px',borderLeft:'4px solid #0ea5e9',padding:'24px'},vis:true});
-        y += 150;
-      } else if (t === 'divider') {
-        els.push({id:uid(),type:'divider',x:250,y,w:700,h:3,txt:'',s:{backgroundColor:s.color||'#334155',borderRadius:'2px'},vis:true});
-        y += 20;
-      } else if (t === 'spacer') {
-        y += parseInt((s.height||'40px').replace('px',''));
+    const sections = fd.sections || [];
+    // If no sections, build from legacy
+    const secs = sections.length > 0 ? sections : (function(){
+      const s = [];
+      if(fd.headline) s.push({type:'heading',content:fd.headline,color:'#fff',align:'center'});
+      if(fd.subheadline) s.push({type:'text',content:fd.subheadline,color:'#94a3b8',align:'center',size:'17px'});
+      const vu = '{{ page.video_url or "" }}';
+      if(vu) s.push({type:'video',url:vu});
+      if(fd.capture_heading) s.push({type:'capture',heading:fd.capture_heading||'',subtext:fd.capture_subtext||'',btnText:'Get Access →',btnColor:'#0ea5e9',btnColor2:'#6366f1'});
+      if(fd.body_paragraphs) fd.body_paragraphs.forEach(p=>{if(p&&p.trim())s.push({type:'text',content:p,color:'#94a3b8',align:'left',size:'15px'})});
+      if(fd.features&&fd.features.length) s.push({type:'features',items:fd.features,checkColor:'#0ea5e9',textColor:'#94a3b8'});
+      if(fd.cta_text) s.push({type:'button',text:fd.cta_text,color1:'#0ea5e9',color2:'#6366f1'});
+      return s;
+    })();
+
+    for (const sec of secs) {
+      switch(sec.type) {
+        case 'heading': {
+          const fs = sec.level==='h2'?'28px':sec.level==='h3'?'22px':'36px';
+          els.push({id:uid(),type:'heading',x:50,y:y,w:1000,h:55,
+            txt:sec.content||'Heading',
+            s:{fontFamily:'Sora,sans-serif',fontWeight:'900',fontSize:fs,color:sec.color||'#fff',textAlign:sec.align||'center'}});
+          y+=70; break;
+        }
+        case 'text': {
+          const content = sec.content||'';
+          const h = Math.max(35, Math.min(200, content.length / 2));
+          els.push({id:uid(),type:'text',x:100,y:y,w:900,h:h,
+            txt:content,
+            s:{fontFamily:'Outfit,sans-serif',fontSize:sec.size||'15px',color:sec.color||'#94a3b8',textAlign:sec.align||'left',lineHeight:'1.8'}});
+          y += h + 15; break;
+        }
+        case 'video': {
+          let embed = sec.url||'';
+          if(embed.includes('youtube.com/watch')){const v=embed.split('v=')[1]?.split('&')[0];embed=v?'https://www.youtube.com/embed/'+v:embed;}
+          else if(embed.includes('youtu.be/')){const v=embed.split('youtu.be/')[1]?.split('?')[0];embed=v?'https://www.youtube.com/embed/'+v:embed;}
+          else if(embed.includes('vimeo.com/')&&!embed.includes('player.vimeo')){const v=embed.split('vimeo.com/')[1]?.split('?')[0];embed=v?'https://player.vimeo.com/video/'+v:embed;}
+          els.push({id:uid(),type:'video',x:100,y:y,w:900,h:500,txt:embed,s:{}});
+          y+=520; break;
+        }
+        case 'button': {
+          const c1=sec.color1||'#0ea5e9',c2=sec.color2||'#6366f1';
+          els.push({id:uid(),type:'button',x:300,y:y,w:500,h:56,
+            txt:sec.text||'Join Now',
+            s:{background:`linear-gradient(135deg,${c1},${c2})`,color:'#fff',fontFamily:'Sora,sans-serif',fontWeight:'700',fontSize:'18px',textAlign:'center',borderRadius:'14px',display:'flex',alignItems:'center',justifyContent:'center'}});
+          y+=80; break;
+        }
+        case 'capture': {
+          const c1=sec.btnColor||'#0ea5e9',c2=sec.btnColor2||'#6366f1';
+          const h = sec.heading||'Get Free Access', st = sec.subtext||'', bt = sec.btnText||'Get Access →';
+          const html = `<div style="text-align:center;padding:4px"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">${h}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">${st}</div><input placeholder="Your first name" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:8px;box-sizing:border-box"><input placeholder="Your email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:10px;box-sizing:border-box"><div style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,${c1},${c2});color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box">${bt}</div></div>`;
+          els.push({id:uid(),type:'form',x:250,y:y,w:600,h:280,txt:html,
+            s:{background:'rgba(15,23,41,0.4)',borderRadius:'18px',border:`1px solid ${c1}25`,padding:'20px'}});
+          y+=310; break;
+        }
+        case 'features': {
+          const items = sec.items||[];
+          const cc = sec.checkColor||'#0ea5e9', tc = sec.textColor||'#94a3b8';
+          const html = items.map(f=>`<div style="display:flex;gap:10px;padding:8px 0;font-size:14px;color:${tc};border-top:1px solid rgba(255,255,255,0.05)"><span style="color:${cc};font-weight:700;flex-shrink:0">✓</span>${f}</div>`).join('');
+          els.push({id:uid(),type:'text',x:150,y:y,w:800,h:items.length*38+10,txt:html,s:{}});
+          y += items.length*38+25; break;
+        }
+        case 'testimonial': {
+          const html = `<div style="font-size:15px;color:${sec.color||'#e2e8f0'};line-height:1.7;font-style:italic;margin-bottom:12px">"${sec.quote||''}"</div><div style="font-size:13px;color:#64748b;font-weight:600">— ${sec.author||''}</div>`;
+          els.push({id:uid(),type:'text',x:150,y:y,w:800,h:130,txt:html,
+            s:{background:sec.bgColor||'#1e293b',borderRadius:'16px',borderLeft:'4px solid #0ea5e9',padding:'24px'}});
+          y+=150; break;
+        }
+        case 'divider':
+          els.push({id:uid(),type:'divider',x:200,y:y,w:700,h:2,txt:'',s:{background:sec.color||'#334155'}});
+          y+=20; break;
+        case 'spacer':
+          y += parseInt((sec.height||'40px').replace('px',''));
+          break;
       }
-    });
-  }
-} catch(e) { console.error('Init:', e); }
-
-document.getElementById('cv-bg').value = canvasBg;
-
-// ══════ TABS ══════
-function openTab(name, el) {
-  ['blocks','props','layers'].forEach(k => document.getElementById('tab-'+k).style.display = 'none');
-  document.getElementById('tab-'+name).style.display = '';
-  document.querySelectorAll('.rp-tab').forEach(t => t.classList.remove('on'));
-  el.classList.add('on');
-  if (name === 'layers') drawLayers();
+    }
+  } catch(e) { console.error('AI data conversion:', e); }
 }
 
-function toggleChat() { document.getElementById('chatBox').classList.toggle('closed'); }
+document.getElementById('bgColor').value = canvasBg;
+document.getElementById('bgHex').textContent = canvasBg;
 
-// ══════ CANVAS BG ══════
-function setBg(c) { canvasBg = c; CV().style.background = c; }
-
-// ══════ RENDER ══════
+// ═══ RENDERING ═══
 function renderAll() {
-  document.querySelectorAll('#canvas .el').forEach(e => e.remove());
-  CV().style.background = canvasBg;
-  els.forEach(e => { if (e.vis !== false) drawEl(e); });
-  checkEmpty();
-  if (document.getElementById('tab-layers').style.display !== 'none') drawLayers();
-}
+  const cv = document.getElementById('canvas');
+  cv.style.background = canvasBg;
+  // Remove old elements but keep guides and empty state
+  cv.querySelectorAll('.cel').forEach(e=>e.remove());
+  // Hide empty state
+  document.getElementById('emptyState').style.display = els.length ? 'none' : 'flex';
 
-function checkEmpty() {
-  document.getElementById('empty-hint').classList.toggle('hide', els.filter(e => e.vis !== false).length > 0);
-}
+  // Calculate canvas height
+  const maxY = els.length ? Math.max(...els.map(e=>e.y+e.h)) + 80 : 900;
+  cv.style.minHeight = Math.max(900, maxY) + 'px';
 
-function drawEl(e) {
-  const div = document.createElement('div');
-  div.className = 'el' + (e.id === selId ? ' sel' : '');
-  div.id = e.id;
-  div.style.cssText = `left:${e.x}px;top:${e.y}px;width:${e.w}px;height:${e.h}px;`;
-
-  // Apply wrapper styles
-  if (!TEXT_ELS.has(e.type) || ['button','cta','badge'].includes(e.type)) {
-    ['backgroundColor','backgroundImage','borderRadius','border','boxShadow','padding','background'].forEach(k => {
-      if (e.s[k]) div.style[k] = e.s[k];
+  els.forEach(el => {
+    const div = document.createElement('div');
+    div.className = 'cel' + (el.id===selId?' selected':'');
+    div.id = el.id;
+    div.style.cssText = `left:${el.x}px;top:${el.y}px;width:${el.w}px;height:${el.h}px;`;
+    // Apply custom styles
+    Object.entries(el.s||{}).forEach(([k,v])=>{
+      div.style[k] = v;
     });
-  }
 
-  // Inner
-  const inner = document.createElement('div');
-  inner.className = 'el-inner';
-
-  if (e.type === 'image') {
-    if (e.txt) {
-      const img = document.createElement('img');
-      img.src = e.txt;
-      img.style.cssText = `width:100%;height:100%;object-fit:${e.s.objectFit||'cover'};border-radius:${e.s.borderRadius||'0'}`;
-      inner.appendChild(img);
+    // Inner content
+    if (el.type==='video' && el.txt) {
+      div.innerHTML = `<iframe src="${el.txt}" style="width:100%;height:100%;border:none;border-radius:12px;pointer-events:${el.id===selId?'none':'auto'}" allowfullscreen></iframe>`;
+    } else if (el.type==='image' && el.txt) {
+      div.innerHTML = `<img src="${el.txt}" style="width:100%;height:100%;object-fit:cover;border-radius:${el.s?.borderRadius||'8px'}">`;
+    } else if (['spacer','divider','box'].includes(el.type) && !el.txt) {
+      // Empty visual elements
     } else {
-      inner.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#1e293b;border:1px dashed #334155;border-radius:12px;color:#475569;font-size:12px">Double-click to add image</div>';
+      div.innerHTML = `<div contenteditable="true" style="width:100%;height:100%;overflow:hidden;outline:none;word-wrap:break-word">${el.txt||''}</div>`;
     }
-  } else if (e.type === 'video') {
-    if (e.txt) {
-      inner.innerHTML = `<iframe src="${e.txt}" style="width:100%;height:100%;border:none;border-radius:${e.s.borderRadius||'0'};pointer-events:none" allowfullscreen></iframe>`;
-    } else {
-      inner.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#0f1729;border:1px dashed #1e293b;border-radius:12px;color:#475569;font-size:12px">Double-click to add video URL</div>';
-    }
-  } else if (e.type === 'form') {
-    inner.innerHTML = e.txt || '<div style="padding:16px;text-align:center;color:#64748b;font-size:12px">Opt-in form</div>';
-    inner.style.overflow = 'hidden';
-  } else if (['divider','spacer','box'].includes(e.type)) {
-    // Empty visual elements
-  } else if (e.type === 'review') {
-    inner.innerHTML = e.txt || '<div style="padding:16px"><p style="font-style:italic;color:#e2e8f0;font-size:14px">"Great platform!"</p><div style="margin-top:8px;font-size:12px;color:#64748b;font-weight:600">— Happy Member</div></div>';
-    inner.style.overflow = 'hidden';
-  } else if (e.type === 'timer') {
-    inner.innerHTML = e.txt || '<div style="display:flex;align-items:center;justify-content:center;height:100%;gap:12px;color:#fff;font-family:Sora,sans-serif"><div style="text-align:center"><div style="font-size:24px;font-weight:900">03</div><div style="font-size:8px;color:#64748b;font-weight:600">DAYS</div></div><div style="font-size:20px;color:#334155">:</div><div style="text-align:center"><div style="font-size:24px;font-weight:900">14</div><div style="font-size:8px;color:#64748b;font-weight:600">HRS</div></div><div style="font-size:20px;color:#334155">:</div><div style="text-align:center"><div style="font-size:24px;font-weight:900">22</div><div style="font-size:8px;color:#64748b;font-weight:600">MIN</div></div></div>';
-    inner.style.overflow = 'hidden';
-  } else if (e.type === 'stat') {
-    inner.innerHTML = e.txt || '<div style="padding:12px;text-align:center"><div style="font-size:28px;font-weight:900;color:#0ea5e9;font-family:Sora,sans-serif">95%</div><div style="font-size:10px;color:#64748b;font-weight:600;margin-top:4px">PAYOUT RATE</div></div>';
-    inner.style.overflow = 'hidden';
-  } else {
-    // Text elements
-    inner.innerHTML = e.txt || '';
-    Object.entries(e.s).forEach(([k,v]) => { inner.style[k] = v; });
-    if (e.s.textAlign) {
-      inner.style.justifyContent = ({left:'flex-start',center:'center',right:'flex-end'})[e.s.textAlign] || 'flex-start';
-    }
-  }
 
-  div.appendChild(inner);
+    // Toolbar
+    const bar = document.createElement('div');
+    bar.className = 'cel-bar';
+    bar.innerHTML = `
+      <button class="cb" onclick="moveEl('${el.id}',-1)" title="Move back">↑</button>
+      <button class="cb" onclick="moveEl('${el.id}',1)" title="Move forward">↓</button>
+      <button class="cb" onclick="dupEl('${el.id}')" title="Duplicate">⧉</button>
+      <div class="cb-sep"></div>
+      <div class="cb-color"><input type="color" value="${el.s?.color||'#ffffff'}" oninput="colorEl('${el.id}',this.value)"></div>
+      <div class="cb-sep"></div>
+      <button class="cb cb-del" onclick="delEl('${el.id}')" title="Delete">✕</button>
+    `;
+    div.appendChild(bar);
 
-  // Resize handles
-  ['nw','n','ne','w','e','sw','s','se'].forEach(dir => {
-    const h = document.createElement('div');
-    h.className = `rh rh-${dir}`;
-    h.dataset.dir = dir;
-    div.appendChild(h);
+    // Resize handles
+    ['br','r','b'].forEach(pos=>{
+      const h = document.createElement('div');
+      h.className = 'cel-resize ' + pos;
+      h.addEventListener('mousedown', e => startResize(e, el.id, pos));
+      div.appendChild(h);
+    });
+
+    // Mouse events
+    div.addEventListener('mousedown', e => startDrag(e, el.id));
+    div.addEventListener('click', e => { e.stopPropagation(); selectEl(el.id); });
+    div.addEventListener('dblclick', e => {
+      const ce = div.querySelector('[contenteditable]');
+      if (ce) { ce.focus(); showFmt(ce); }
+    });
+
+    // Contenteditable blur — save text back
+    const ce = div.querySelector('[contenteditable]');
+    if (ce) {
+      ce.addEventListener('blur', () => {
+        const elObj = els.find(x=>x.id===el.id);
+        if (elObj) elObj.txt = ce.innerHTML;
+        hideFmt();
+      });
+      ce.addEventListener('focus', () => showFmt(ce));
+    }
+
+    cv.appendChild(div);
   });
-
-  // Events
-  div.addEventListener('mousedown', onMouseDown);
-  div.addEventListener('dblclick', onDblClick);
-  div.querySelectorAll('.rh').forEach(h => h.addEventListener('mousedown', onResizeDown));
-
-  CV().appendChild(div);
 }
 
-// ══════ SELECTION ══════
-function select(id) {
-  if (selId) { endEdit(selId); document.getElementById(selId)?.classList.remove('sel'); }
+// ═══ SELECTION ═══
+function selectEl(id) {
   selId = id;
-  document.getElementById(id)?.classList.add('sel');
-  drawProps();
-  if (document.getElementById('tab-layers').style.display !== 'none') drawLayers();
+  renderAll();
 }
-function deselect() {
-  if (selId) { endEdit(selId); document.getElementById(selId)?.classList.remove('sel'); }
-  selId = null;
-  document.getElementById('pp-content').innerHTML = '<div class="pp-empty">🖱 Click an element to edit</div>';
-}
-
-// ══════ DRAG ══════
-function onMouseDown(e) {
-  if (e.target.classList.contains('rh')) return;
-  if (e.target.closest('.el-inner[contenteditable=true]')) return;
-  if (e.button !== 0) return;
-  e.preventDefault(); e.stopPropagation();
-  const id = e.currentTarget.id;
-  select(id);
-  const el = els.find(x => x.id === id);
-  _d = { el, div: e.currentTarget, sx: e.clientX, sy: e.clientY, ox: el.x, oy: el.y };
-  CV().style.userSelect = 'none';
-}
-
-// ══════ RESIZE ══════
-function onResizeDown(e) {
-  e.preventDefault(); e.stopPropagation();
-  const div = e.currentTarget.closest('.el');
-  const id = div.id;
-  select(id);
-  const el = els.find(x => x.id === id);
-  _r = { el, div, dir: e.currentTarget.dataset.dir, sx: e.clientX, sy: e.clientY, ox: el.x, oy: el.y, ow: el.w, oh: el.h };
-  CV().style.userSelect = 'none';
-}
-
-document.addEventListener('mousemove', e => {
-  if (!_d && !_r) return;
-  if (_d) {
-    const dx = e.clientX - _d.sx, dy = e.clientY - _d.sy;
-    _d.el.x = Math.round(Math.max(0, _d.ox + dx));
-    _d.el.y = Math.round(Math.max(0, _d.oy + dy));
-    _d.div.style.left = _d.el.x + 'px';
-    _d.div.style.top = _d.el.y + 'px';
-  }
-  if (_r) {
-    const dx = e.clientX - _r.sx, dy = e.clientY - _r.sy;
-    const d = _r.dir;
-    let x = _r.ox, y = _r.oy, w = _r.ow, h = _r.oh;
-    if (d.includes('e')) w = Math.max(30, w + dx);
-    if (d.includes('s')) h = Math.max(20, h + dy);
-    if (d.includes('w')) { const nw = Math.max(30, w - dx); x += w - nw; w = nw; }
-    if (d.includes('n')) { const nh = Math.max(20, h - dy); y = Math.max(0, y + (h - nh)); h = nh; }
-    _r.el.x = Math.round(x); _r.el.y = Math.round(y);
-    _r.el.w = Math.round(w); _r.el.h = Math.round(h);
-    _r.div.style.left = x + 'px'; _r.div.style.top = y + 'px';
-    _r.div.style.width = w + 'px'; _r.div.style.height = h + 'px';
+document.getElementById('canvas').addEventListener('click', e => {
+  if (e.target.id === 'canvas' || e.target.closest('.canvas-empty')) {
+    selId = null;
+    renderAll();
+    hideFmt();
   }
 });
-document.addEventListener('mouseup', () => { _d = null; _r = null; CV().style.userSelect = ''; drawProps(); });
 
-// ══════ TEXT EDITING ══════
-let editId = null;
-function onDblClick(e) {
-  const id = e.currentTarget.id;
-  const el = els.find(x => x.id === id);
-  if (el && TEXT_ELS.has(el.type)) { e.stopPropagation(); startEdit(id); }
-  else if (el?.type === 'image') { const url = prompt('Image URL:', el.txt || ''); if (url !== null) { el.txt = url.trim(); renderAll(); } }
-  else if (el?.type === 'video') { const url = prompt('Video URL (YouTube/Vimeo):', el.txt || ''); if (url !== null) { let u = url.trim(); const m = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/); if (m) u = 'https://www.youtube.com/embed/' + m[1]; const m2 = u.match(/vimeo\.com\/(\d+)/); if (m2) u = 'https://player.vimeo.com/video/' + m2[1]; el.txt = u; renderAll(); } }
-}
-function startEdit(id) {
-  if (editId) endEdit(editId);
-  editId = id;
-  const div = document.getElementById(id);
-  const inn = div?.querySelector('.el-inner');
-  if (!inn) return;
-  inn.contentEditable = 'true';
-  inn.style.cursor = 'text';
-  div.dataset.editing = '1';
-  inn.focus();
-}
-function endEdit(id) {
-  if (!id) return;
-  const div = document.getElementById(id);
-  const inn = div?.querySelector('.el-inner');
-  if (inn) {
-    const el = els.find(x => x.id === id);
-    if (el) el.txt = inn.innerHTML;
-    inn.contentEditable = 'false';
-    inn.style.cursor = '';
-    if (div) div.dataset.editing = '';
-  }
-  if (editId === id) editId = null;
-}
-document.addEventListener('mousedown', e => {
-  if (editId && !document.getElementById(editId)?.contains(e.target)) endEdit(editId);
-});
-
-// ══════ DRAG FROM PALETTE ══════
-function ds(ev) { dragType = ev.currentTarget.dataset.t; ev.dataTransfer.effectAllowed = 'copy'; ev.dataTransfer.setData('text/plain', dragType); }
-const canvas = document.getElementById('canvas');
-canvas.addEventListener('dragover', e => { e.preventDefault(); canvas.classList.add('dover'); });
-canvas.addEventListener('dragleave', e => { if (!canvas.contains(e.relatedTarget)) canvas.classList.remove('dover'); });
-canvas.addEventListener('drop', e => {
-  e.preventDefault(); canvas.classList.remove('dover');
-  const type = dragType || e.dataTransfer.getData('text/plain');
-  if (!type) return;
-  const r = canvas.getBoundingClientRect();
-  const def = DEFS[type] || DEFS.text;
-  const x = (e.clientX - r.left) - def.w / 2;
-  const y = (e.clientY - r.top) - def.h / 2;
-  addEl(type, Math.max(0, Math.round(x)), Math.max(0, Math.round(y)));
-  dragType = null;
-});
-canvas.addEventListener('click', e => {
-  if (e.target === canvas || e.target.id === 'empty-hint' || e.target.closest('#empty-hint')) deselect();
-});
-
-function addEl(type, x, y) {
-  const d = DEFS[type] || DEFS.text;
-  const e = { id: uid(), type, x: Math.round(x), y: Math.round(y), w: d.w, h: d.h, txt: d.txt, s: { ...d.s }, vis: true };
-  els.push(e);
-  drawEl(e);
-  select(e.id);
-  checkEmpty();
-  toast(type + ' added ✓');
-}
-
-function deleteEl(id) {
-  els = els.filter(e => e.id !== id);
-  document.getElementById(id)?.remove();
-  if (selId === id) { selId = null; deselect(); }
-  checkEmpty();
-  drawLayers();
-}
-
-// Delete key
-document.addEventListener('keydown', e => {
-  if (e.key === 'Delete' && selId && !editId) { deleteEl(selId); }
-});
-
-// ══════ PROPERTIES PANEL ══════
-function drawProps() {
-  const el = els.find(x => x.id === selId);
-  const pp = document.getElementById('pp-content');
-  if (!el) { pp.innerHTML = '<div class="pp-empty">🖱 Click an element to edit</div>'; return; }
-
-  const labels = { heading:'Heading',subheading:'Subheading',text:'Text',label:'Label',button:'Button',cta:'CTA Button',badge:'Badge',image:'Image',video:'Video',form:'Opt-In Form',divider:'Divider',spacer:'Spacer',box:'Box',review:'Review',timer:'Timer',stat:'Stat' };
-  let h = `<div class="pp"><div class="pp-title">${labels[el.type]||el.type}</div>`;
-
-  if (TEXT_ELS.has(el.type)) {
-    h += pf_select('Font', 'fontFamily', el.s.fontFamily||"'Sora',sans-serif", [["'Sora',sans-serif",'Sora'],["'Outfit',sans-serif",'Outfit'],["'Plus Jakarta Sans',sans-serif",'Jakarta Sans'],["'DM Sans',sans-serif",'DM Sans'],["'Poppins',sans-serif",'Poppins'],["'Montserrat',sans-serif",'Montserrat'],["'Raleway',sans-serif",'Raleway'],["'Urbanist',sans-serif",'Urbanist'],["'Open Sans',sans-serif",'Open Sans'],["'Lora',serif",'Lora'],["'Playfair Display',serif",'Playfair']]);
-    h += pf_number('Size (px)', 'fontSize', parseInt(el.s.fontSize)||16);
-    h += pf_select('Weight', 'fontWeight', el.s.fontWeight||'400', [['400','Normal'],['600','Semi-Bold'],['700','Bold'],['800','Extra-Bold'],['900','Black']]);
-    h += pf_select('Align', 'textAlign', el.s.textAlign||'left', [['left','Left'],['center','Centre'],['right','Right']]);
-    h += pf_color('Text Colour', 'color', el.s.color||'#ffffff');
-  }
-
-  if (['button','cta','box','badge','review','timer'].includes(el.type)) {
-    h += pf_color('Background', 'backgroundColor', el.s.backgroundColor||'#0ea5e9');
-  }
-
-  if (el.type === 'image') {
-    h += pf_text('Image URL', '_txt', el.txt||'');
-  }
-  if (el.type === 'video') {
-    h += pf_text('Video URL', '_txt', el.txt||'');
-  }
-
-  h += pf_number('Width', '_w', el.w);
-  h += pf_number('Height', '_h', el.h);
-  h += pf_color('Border Radius', 'borderRadius', el.s.borderRadius||'0');
-
-  h += `<div class="pf-actions">
-    <div class="pf-act" onclick="dupEl()">⧉ Duplicate</div>
-    <div class="pf-act" onclick="bringFront()">↑ Front</div>
-    <div class="pf-act" onclick="sendBack()">↓ Back</div>
-    <div class="pf-act pf-del" onclick="deleteEl('${el.id}')">✕ Delete</div>
-  </div></div>`;
-
-  pp.innerHTML = h;
-
-  // Attach change listeners
-  pp.querySelectorAll('[data-prop]').forEach(inp => {
-    inp.addEventListener('change', () => {
-      const prop = inp.dataset.prop;
-      const val = inp.value;
-      if (prop === '_txt') { el.txt = val; renderAll(); select(el.id); }
-      else if (prop === '_w') { el.w = parseInt(val)||el.w; const d=document.getElementById(el.id); if(d)d.style.width=el.w+'px'; }
-      else if (prop === '_h') { el.h = parseInt(val)||el.h; const d=document.getElementById(el.id); if(d)d.style.height=el.h+'px'; }
-      else if (prop === 'fontSize') { el.s.fontSize = val+'px'; applyStyle(el); }
-      else if (prop === 'borderRadius') { el.s.borderRadius = val; applyStyle(el); }
-      else { el.s[prop] = val; applyStyle(el); }
-    });
-  });
-}
-
-function applyStyle(el) {
-  const div = document.getElementById(el.id);
-  if (!div) return;
-  const inn = div.querySelector('.el-inner');
-  if (TEXT_ELS.has(el.type) && inn) {
-    Object.entries(el.s).forEach(([k,v]) => { inn.style[k] = v; });
-    if (el.s.textAlign) inn.style.justifyContent = ({left:'flex-start',center:'center',right:'flex-end'})[el.s.textAlign]||'flex-start';
-  }
-  ['backgroundColor','backgroundImage','borderRadius','border','boxShadow','padding','background'].forEach(k => {
-    if (el.s[k]) div.style[k] = el.s[k];
-  });
-}
-
-function pf_text(label, prop, val) {
-  return `<div class="pf"><div class="pf-label">${label}</div><input class="pf-input" data-prop="${prop}" value="${val.replace(/"/g,'&quot;')}"></div>`;
-}
-function pf_number(label, prop, val) {
-  return `<div class="pf"><div class="pf-label">${label}</div><input class="pf-input" type="number" data-prop="${prop}" value="${val}"></div>`;
-}
-function pf_select(label, prop, val, opts) {
-  return `<div class="pf"><div class="pf-label">${label}</div><select class="pf-input" data-prop="${prop}">${opts.map(([v,l])=>`<option value="${v}"${v===val?' selected':''}>${l}</option>`).join('')}</select></div>`;
-}
-function pf_color(label, prop, val) {
-  return `<div class="pf"><div class="pf-label">${label}</div><div class="pf-row"><div class="pf-swatch"><input type="color" data-prop="${prop}" value="${toHex(val)}"></div><span style="font-size:10px;color:#64748b;font-family:monospace">${val}</span></div></div>`;
-}
-function toHex(c) {
-  if (!c) return '#000000';
-  if (c[0] === '#') return c.slice(0, 7);
-  return '#000000';
-}
-
-function dupEl() {
-  const el = els.find(x => x.id === selId);
+// ═══ DRAG MOVE ═══
+let dragState = null;
+function startDrag(e, id) {
+  if (e.target.closest('.cel-bar') || e.target.closest('.cel-resize') || e.target.closest('[contenteditable]:focus')) return;
+  e.preventDefault();
+  const el = els.find(x=>x.id===id);
   if (!el) return;
-  const n = { ...JSON.parse(JSON.stringify(el)), id: uid(), x: el.x + 20, y: el.y + 20 };
-  els.push(n); drawEl(n); select(n.id); toast('Duplicated ✓');
-}
-function bringFront() {
-  const i = els.findIndex(x => x.id === selId); if (i < 0) return;
-  els.push(els.splice(i, 1)[0]); renderAll(); select(selId);
-}
-function sendBack() {
-  const i = els.findIndex(x => x.id === selId); if (i < 0) return;
-  els.unshift(els.splice(i, 1)[0]); renderAll(); select(selId);
+  selId = id;
+  renderAll();
+  const cv = document.getElementById('canvas');
+  const rect = cv.getBoundingClientRect();
+  dragState = { id, startX: e.clientX, startY: e.clientY, origX: el.x, origY: el.y };
+
+  const onMove = (e) => {
+    const dx = e.clientX - dragState.startX;
+    const dy = e.clientY - dragState.startY;
+    el.x = Math.max(0, dragState.origX + dx);
+    el.y = Math.max(0, dragState.origY + dy);
+    // Show alignment guides
+    showGuides(el);
+    // Snap to centre
+    const cw = 1100;
+    const elCx = el.x + el.w/2;
+    if (Math.abs(elCx - cw/2) < 8) { el.x = cw/2 - el.w/2; }
+    // Update position
+    const dom = document.getElementById(id);
+    if (dom) { dom.style.left = el.x+'px'; dom.style.top = el.y+'px'; }
+  };
+  const onUp = () => {
+    dragState = null;
+    hideGuides();
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    _dirty = true;
+  };
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
 }
 
-// ══════ LAYERS ══════
-function drawLayers() {
-  const ll = document.getElementById('layers-list');
-  const labels = { heading:'H',subheading:'H2',text:'¶',label:'Aa',button:'⬤',cta:'🔵',badge:'🏷',image:'🖼',video:'▶',form:'📋',divider:'─',spacer:'↕',box:'⬜',review:'💬',timer:'⏱',stat:'📊' };
-  ll.innerHTML = [...els].reverse().map(e => {
-    const preview = (e.txt||'').replace(/<[^>]*>/g,'').substring(0,20);
-    return `<div class="ly-item${e.id===selId?' on':''}" onclick="select('${e.id}')"><span>${labels[e.type]||'•'} ${preview||e.type}</span><button class="ly-del" onclick="event.stopPropagation();deleteEl('${e.id}')">✕</button></div>`;
-  }).join('');
+// ═══ RESIZE ═══
+function startResize(e, id, handle) {
+  e.preventDefault(); e.stopPropagation();
+  const el = els.find(x=>x.id===id);
+  if (!el) return;
+  const startX = e.clientX, startY = e.clientY;
+  const origW = el.w, origH = el.h;
+
+  const onMove = (e) => {
+    const dx = e.clientX - startX, dy = e.clientY - startY;
+    if (handle.includes('r') || handle==='br') el.w = Math.max(40, origW + dx);
+    if (handle.includes('b') || handle==='br') el.h = Math.max(20, origH + dy);
+    const dom = document.getElementById(id);
+    if (dom) { dom.style.width = el.w+'px'; dom.style.height = el.h+'px'; }
+  };
+  const onUp = () => {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    _dirty = true;
+  };
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
 }
 
-// ══════ AI CHAT ══════
-function addCM(text, role) {
+// ═══ ALIGNMENT GUIDES ═══
+function showGuides(el) {
+  const cw = 1100;
+  const gh = document.getElementById('guideH');
+  const gv = document.getElementById('guideV');
+  const cx = el.x + el.w/2;
+  // Vertical centre guide
+  if (Math.abs(cx - cw/2) < 12) {
+    gv.style.left = (cw/2)+'px'; gv.style.display = 'block';
+  } else { gv.style.display = 'none'; }
+  gh.style.display = 'none';
+}
+function hideGuides() {
+  document.getElementById('guideH').style.display = 'none';
+  document.getElementById('guideV').style.display = 'none';
+}
+
+// ═══ ELEMENT OPERATIONS ═══
+function delEl(id) {
+  els = els.filter(x=>x.id!==id);
+  if (selId===id) selId=null;
+  renderAll(); _dirty=true;
+}
+function dupEl(id) {
+  const el = els.find(x=>x.id===id);
+  if (!el) return;
+  const copy = JSON.parse(JSON.stringify(el));
+  copy.id = uid(); copy.x += 20; copy.y += 20;
+  els.push(copy); selId = copy.id;
+  renderAll(); _dirty=true;
+}
+function moveEl(id, dir) {
+  const i = els.findIndex(x=>x.id===id);
+  if (i<0) return;
+  const j = i+dir;
+  if (j<0||j>=els.length) return;
+  [els[i],els[j]] = [els[j],els[i]];
+  renderAll(); _dirty=true;
+}
+function colorEl(id, color) {
+  const el = els.find(x=>x.id===id);
+  if (!el) return;
+  el.s.color = color;
+  // Also update text colour inside contenteditable
+  const dom = document.getElementById(id);
+  if (dom) dom.style.color = color;
+  _dirty=true;
+}
+
+// ═══ ADD ELEMENTS ═══
+let palDragType = null;
+function palDrag(e, type) { palDragType = type; e.dataTransfer.setData('text/plain', type); }
+function canvasDragOver(e) { e.preventDefault(); }
+function canvasDrop(e) {
+  e.preventDefault();
+  if (!palDragType) return;
+  const cv = document.getElementById('canvas');
+  const rect = cv.getBoundingClientRect();
+  const x = Math.max(0, e.clientX - rect.left - 150);
+  const y = Math.max(0, e.clientY - rect.top + document.getElementById('canvasArea').scrollTop - 25);
+  addElAt(palDragType, x, y);
+  palDragType = null;
+}
+
+function addEl(type) {
+  // Calculate Y position — place below existing content
+  const maxY = els.length ? Math.max(...els.map(e=>e.y+e.h)) + 30 : 60;
+  addElAt(type, 50, maxY);
+}
+
+function addElAt(type, x, y) {
+  const cw = 1100;
+  const defaults = {
+    heading:  {w:800,h:50,txt:'Your Heading Here',s:{fontFamily:'Sora,sans-serif',fontWeight:'900',fontSize:'36px',color:'#ffffff',textAlign:'center'}},
+    text:     {w:800,h:60,txt:'Enter your text here. Double-click to edit.',s:{fontFamily:'Outfit,sans-serif',fontSize:'15px',color:'#94a3b8',lineHeight:'1.8'}},
+    label:    {w:300,h:30,txt:'LABEL TEXT',s:{fontFamily:'DM Sans,sans-serif',fontWeight:'700',fontSize:'12px',color:'#38bdf8',letterSpacing:'1px',textTransform:'uppercase'}},
+    image:    {w:600,h:350,txt:'',s:{background:'#1e293b',borderRadius:'12px',border:'1px dashed #334155',display:'flex',alignItems:'center',justifyContent:'center',color:'#475569',fontSize:'13px'}},
+    video:    {w:800,h:450,txt:'',s:{}},
+    button:   {w:400,h:50,txt:'Click Here →',s:{background:'linear-gradient(135deg,#0ea5e9,#6366f1)',color:'#fff',fontFamily:'Sora,sans-serif',fontWeight:'700',fontSize:'16px',textAlign:'center',borderRadius:'12px',display:'flex',alignItems:'center',justifyContent:'center'}},
+    cta:      {w:500,h:56,txt:'Get Started Now →',s:{background:'linear-gradient(135deg,#0ea5e9,#6366f1)',color:'#fff',fontFamily:'Sora,sans-serif',fontWeight:'800',fontSize:'18px',textAlign:'center',borderRadius:'14px',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 0 40px rgba(14,165,233,0.2)'}},
+    form:     {w:500,h:260,txt:'<div style="text-align:center;padding:4px"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:18px;color:#fff;margin-bottom:4px">Get Free Access</div><div style="font-size:12px;color:#94a3b8;margin-bottom:14px">Enter your email to learn more</div><input placeholder="Your name" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:6px;box-sizing:border-box"><input placeholder="Your email" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:8px;box-sizing:border-box"><div style="padding:10px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-weight:700;font-size:13px;text-align:center">Get Access →</div></div>',s:{background:'rgba(15,23,41,0.4)',borderRadius:'16px',border:'1px solid rgba(14,165,233,0.1)',padding:'20px'}},
+    review:   {w:700,h:120,txt:'<div style="font-size:15px;color:#e2e8f0;line-height:1.7;font-style:italic;margin-bottom:10px">"This platform changed everything for me."</div><div style="font-size:13px;color:#64748b;font-weight:600">— Happy Member</div>',s:{background:'#1e293b',borderRadius:'16px',borderLeft:'4px solid #0ea5e9',padding:'24px'}},
+    divider:  {w:700,h:2,txt:'',s:{background:'#334155',borderRadius:'1px'}},
+    spacer:   {w:100,h:40,txt:'',s:{background:'transparent'}},
+    box:      {w:400,h:200,txt:'',s:{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'16px'}},
+    badge:    {w:200,h:30,txt:'⭐ PREMIUM',s:{fontFamily:'DM Sans,sans-serif',fontWeight:'700',fontSize:'12px',color:'#fbbf24',textAlign:'center',background:'rgba(251,191,36,0.1)',borderRadius:'20px',display:'flex',alignItems:'center',justifyContent:'center',border:'1px solid rgba(251,191,36,0.2)'}},
+    stat:     {w:200,h:80,txt:'<div style="font-family:Sora,sans-serif;font-size:36px;font-weight:900;color:#0ea5e9">95%</div><div style="font-size:12px;color:#64748b;margin-top:2px">Paid Out</div>',s:{textAlign:'center'}},
+    timer:    {w:300,h:40,txt:'⏱ Limited Time Offer',s:{fontFamily:'DM Sans,sans-serif',fontWeight:'700',fontSize:'16px',color:'#f59e0b',textAlign:'center'}},
+  };
+
+  const d = defaults[type] || defaults.text;
+  const el = {
+    id: uid(), type: type,
+    x: Math.max(0, type==='heading'||type==='text'||type==='cta' ? (cw-d.w)/2 : x),
+    y: y, w: d.w, h: d.h,
+    txt: d.txt, s: {...d.s}
+  };
+  els.push(el);
+  selId = el.id;
+  renderAll();
+  _dirty = true;
+  // Scroll to new element
+  const dom = document.getElementById(el.id);
+  if (dom) dom.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+// ═══ FORMATTING ═══
+function fmt(cmd, val) { document.execCommand(cmd, false, val||null); }
+function showFmt(el) {
+  const bar = document.getElementById('fmtBar');
+  const rect = el.getBoundingClientRect();
+  bar.style.top = Math.max(52, rect.top - 42) + 'px';
+  bar.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - 350)) + 'px';
+  bar.classList.add('show');
+}
+function hideFmt() { document.getElementById('fmtBar').classList.remove('show'); }
+
+// ═══ BACKGROUND ═══
+function setBg(c) {
+  canvasBg = c;
+  document.getElementById('canvas').style.background = c;
+  document.getElementById('bgHex').textContent = c;
+  _dirty = true;
+}
+
+// ═══ CHAT ═══
+function toggleChat() { document.getElementById('chatBox').classList.toggle('closed'); }
+function addMsg(text, role) {
   const msgs = document.getElementById('chatMsgs');
   const d = document.createElement('div');
   d.className = 'cm cm-' + role;
@@ -704,65 +674,83 @@ function addCM(text, role) {
   msgs.scrollTop = msgs.scrollHeight;
 }
 async function sendChat() {
-  const inp = document.getElementById('chatIn');
-  const msg = inp.value.trim(); if (!msg) return;
-  inp.value = '';
-  addCM(msg, 'user');
+  const input = document.getElementById('chatIn');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  addMsg(msg, 'user');
   try {
-    // Build sections from els for AI context
-    const secs = els.map(e => ({ type: e.type, txt: (e.txt||'').replace(/<[^>]*>/g,'').substring(0,50), x: e.x, y: e.y }));
-    const res = await fetch('/api/pro/funnel/' + PAGE_ID + '/chat', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: msg, sections: secs, pageStyle: { bg: canvasBg } })
+    const res = await fetch('/api/pro/funnel/' + FUNNEL_ID + '/chat', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({message:msg, sections:[], pageStyle:{bg:canvasBg}})
     });
     const data = await res.json();
-    addCM(data.response || data.error || 'Done!', 'ai');
-    if (data.success && data.pageStyle?.bg) { canvasBg = data.pageStyle.bg; document.getElementById('cv-bg').value = canvasBg; CV().style.background = canvasBg; }
-  } catch (e) { addCM('Connection error.', 'ai'); }
+    addMsg(data.response || data.error || 'Done!', 'ai');
+    if (data.pageStyle?.bg) { setBg(data.pageStyle.bg); document.getElementById('bgColor').value = data.pageStyle.bg; }
+  } catch(e) { addMsg('Connection error.', 'ai'); }
 }
 
-// ══════ SAVE ══════
-async function savePage() {
-  // End any active editing
-  if (editId) endEdit(editId);
-
-  // Export HTML for public page render
-  let html = `<div style="background:${canvasBg};min-height:100vh;width:100%;font-family:'Outfit',sans-serif">`;
-  html += `<div style="position:relative;width:1200px;max-width:100%;margin:0 auto;min-height:800px">`;
-  els.forEach(e => {
-    if (e.vis === false) return;
-    const st = Object.entries({position:'absolute',left:e.x+'px',top:e.y+'px',width:e.w+'px',height:e.h+'px',...e.s,boxSizing:'border-box'}).map(([k,v])=>k.replace(/([A-Z])/g,'-$1').toLowerCase()+':'+v).join(';');
-    if (e.type === 'image' && e.txt) html += `<img src="${e.txt}" style="${st};object-fit:${e.s.objectFit||'cover'}">`;
-    else if (e.type === 'video') html += `<iframe src="${e.txt}" style="${st}" frameborder="0" allowfullscreen></iframe>`;
-    else if (['spacer','divider','box'].includes(e.type)) html += `<div style="${st}"></div>`;
-    else html += `<div style="${st}">${e.txt||''}</div>`;
+// ═══ SAVE ═══
+async function save() {
+  // Sync any focused contenteditable
+  document.querySelectorAll('.cel [contenteditable]').forEach(ce => {
+    const id = ce.closest('.cel')?.id;
+    const el = els.find(x=>x.id===id);
+    if (el) el.txt = ce.innerHTML;
   });
-  const maxBot = els.length ? Math.max(...els.map(e => e.y + e.h)) + 60 : 800;
-  html = html.replace('min-height:800px', `min-height:${maxBot}px`);
-  html += '</div></div>';
+
+  // Export HTML for public page
+  const html = exportHTML();
 
   const payload = {
-    id: PAGE_ID,
-    title: '{{ page.title }}',
+    id: FUNNEL_ID,
+    title: '{{ page.title|e }}',
     gjs_html: html,
-    gjs_css: JSON.stringify({ els, canvasBg }),
+    gjs_css: JSON.stringify({els, canvasBg}),
   };
 
   try {
-    const r = await fetch('/api/funnels/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    const d = await r.json();
-    toast(d.success || d.id ? 'Saved ✓' : 'Save failed');
-  } catch (e) { toast('Save error'); }
+    const res = await fetch('/api/funnels/save', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const d = await res.json();
+    if (d.success||d.id) { toast('✓ Saved!'); _dirty=false; }
+    else toast('Save failed');
+  } catch(e) { toast('Save error'); }
+}
+
+function exportHTML() {
+  let h = `<div style="background:${canvasBg};min-height:100vh;width:100%;font-family:'Outfit',sans-serif">`;
+  h += `<div style="position:relative;width:1100px;max-width:100%;margin:0 auto;min-height:${Math.max(900, els.length?Math.max(...els.map(e=>e.y+e.h))+80:900)}px;overflow-x:hidden">`;
+  els.forEach(el => {
+    const styles = {position:'absolute',left:el.x+'px',top:el.y+'px',width:el.w+'px',height:el.h+'px',boxSizing:'border-box',...(el.s||{})};
+    const st = Object.entries(styles).map(([k,v])=>k.replace(/([A-Z])/g,'-$1').toLowerCase()+':'+v).join(';');
+    if (el.type==='video'&&el.txt) h+=`<iframe src="${el.txt}" style="${st};border:none;border-radius:12px" allowfullscreen></iframe>`;
+    else if (el.type==='image'&&el.txt) h+=`<img src="${el.txt}" style="${st};object-fit:cover">`;
+    else if (['spacer','divider','box'].includes(el.type)&&!el.txt) h+=`<div style="${st}"></div>`;
+    else h+=`<div style="${st}">${el.txt||''}</div>`;
+  });
+  h += '</div></div>';
+  return h;
 }
 
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
-  clearTimeout(t._tid);
-  t._tid = setTimeout(() => t.classList.remove('show'), 2500);
+  setTimeout(()=>t.classList.remove('show'), 2500);
 }
 
-// ══════ INIT ══════
+// ═══ KEYBOARD ═══
+document.addEventListener('keydown', e => {
+  if (e.target.closest('[contenteditable]')) return; // Don't intercept text editing
+  if (e.key==='Delete'||e.key==='Backspace') { if(selId){delEl(selId);e.preventDefault();} }
+  if (e.key==='Escape') { selId=null; renderAll(); hideFmt(); }
+  if ((e.metaKey||e.ctrlKey)&&e.key==='s') { e.preventDefault(); save(); }
+  if ((e.metaKey||e.ctrlKey)&&e.key==='d') { e.preventDefault(); if(selId)dupEl(selId); }
+});
+
+// ═══ INIT ═══
 renderAll();
 </script>
 </body>
