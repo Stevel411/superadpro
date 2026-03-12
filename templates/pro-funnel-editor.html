@@ -1239,6 +1239,9 @@ function exitEditMode() {
     if (dom) dom.classList.remove('editing');
   }
   try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
+  // Always reset the editor wrap content and hide panel
+  const wrap = document.getElementById('tinyEditorWrap');
+  if (wrap) wrap.innerHTML = '<textarea id="tinyEditorArea"></textarea>';
   document.getElementById('floatingEditor').style.display = 'none';
   _activeEditorId = null;
   _tinyReady = false;
