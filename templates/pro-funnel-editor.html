@@ -34,8 +34,16 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .canvas-area::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
 .canvas{
   width:1100px;min-height:900px;margin:0 auto;position:relative;
-  border-radius:6px;box-shadow:0 0 60px rgba(0,0,0,.3);transition:background .3s;
+  border-radius:6px;box-shadow:0 0 60px rgba(0,0,0,.3);transition:width .4s ease,background .3s;
 }
+.canvas.tablet{width:768px}
+.canvas.mobile{width:390px}
+
+/* Device toggle */
+.tb-devices{display:flex;gap:2px;background:#f1f5f9;border-radius:8px;padding:2px;margin-right:8px}
+.tb-dev{background:none;border:none;font-size:16px;padding:5px 10px;border-radius:6px;cursor:pointer;transition:.15s;opacity:.5;line-height:1}
+.tb-dev:hover{opacity:.8;background:rgba(14,165,233,.08)}
+.tb-dev.active{opacity:1;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1)}
 
 /* ── Elements on canvas ── */
 .cel{position:absolute;cursor:grab;user-select:none;min-width:40px;min-height:20px}
@@ -154,6 +162,14 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   <div class="tb-logo">SuperAd<em>Pro</em></div>
   <div class="tb-sep"></div>
   <div class="tb-title">✨ {{ page.headline or page.title }}</div>
+  
+  <!-- Device preview toggle -->
+  <div class="tb-devices" id="deviceToggle">
+    <button class="tb-dev active" onclick="setDevice('desktop')" title="Desktop (1100px)" id="devDesktop">🖥</button>
+    <button class="tb-dev" onclick="setDevice('tablet')" title="Tablet (768px)" id="devTablet">📱</button>
+    <button class="tb-dev" onclick="setDevice('mobile')" title="Mobile (390px)" id="devMobile">📲</button>
+  </div>
+  
   <a href="/pro/funnels" class="tb-btn tb-ghost">← Funnels</a>
   <button class="tb-btn tb-save" onclick="save()">💾 Save</button>
   <a href="/f/{{ page.slug }}" target="_blank" class="tb-btn tb-preview">👁 Preview</a>
@@ -1821,6 +1837,19 @@ document.addEventListener('keydown', e => {
   if ((e.metaKey||e.ctrlKey)&&e.key==='z'&&!e.shiftKey) { e.preventDefault(); undo(); }
   if ((e.metaKey||e.ctrlKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))) { e.preventDefault(); redo(); }
 });
+
+// ═══ DEVICE PREVIEW ═══
+let currentDevice = 'desktop';
+function setDevice(device) {
+  currentDevice = device;
+  const cv = document.getElementById('canvas');
+  cv.classList.remove('tablet','mobile');
+  if (device === 'tablet') cv.classList.add('tablet');
+  if (device === 'mobile') cv.classList.add('mobile');
+  // Update toggle buttons
+  document.querySelectorAll('.tb-dev').forEach(b => b.classList.remove('active'));
+  document.getElementById('dev' + device.charAt(0).toUpperCase() + device.slice(1)).classList.add('active');
+}
 
 // ═══ INIT ═══
 renderAll();
