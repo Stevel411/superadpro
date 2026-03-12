@@ -255,7 +255,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         if "membership" in ct:
             icon, color, sub = "👥", "green", "Membership commission"
         elif "boost" in ct:
-            icon, color, sub = "🚀", "amber", "AdBoost commission"
+            icon, color, sub = "🚀", "amber", "Campaign commission"
         else:
             icon, color, sub = "🔲", "cyan", "Grid commission"
         activity.append({
@@ -1098,7 +1098,7 @@ async def generate_social_posts_wizard(request: Request, user: User = Depends(ge
         "facebook": f"🚀 I just discovered an incredible way to build income in {niche}. The AI does most of the heavy lifting — I'm genuinely impressed.\n\nIf you've been looking for something that actually works, check this out 👇\n{full_link}",
         "instagram": f"🔥 Building real income in {niche} just got a whole lot easier.\n\n✅ AI-powered tools\n✅ Step-by-step training\n✅ Multiple income streams\n✅ Works from anywhere\n\nLink in bio or DM me \"INFO\" 💬\n\n#OnlineIncome #{niche.replace(' ','')} #WorkFromAnywhere #PassiveIncome #Entrepreneur",
         "twitter": f"Just started building income in {niche} with an AI-powered platform that actually delivers. Multiple income streams from $20/month. Check it out:\n\n{full_link}",
-        "tiktok": f"POV: You just found a platform that uses AI to help you build real income in {niche} 🤯\n\nNo experience needed. Multiple income streams. From just $20/month.\n\nLink in bio! 👆\n\n#{niche.replace(' ','')} #makemoneyonline #sidehustle #passiveincome #ai",
+        "tiktok": f"POV: You just found a platform that uses AI to help you build real income in {niche} 🤯\n\nNo experience needed. Multiple income streams. From just $20/month.\n\nLink in bio! 👆\n\n#{niche.replace(' ','')} #makemoneyonline #sidehustle #onlineincome #ai",
         "whatsapp": f"Hey! 👋 I just found something amazing for building income in {niche}. It uses AI to do most of the work and it's only $20/month to get started. I'm already set up — check it out here: {full_link}"
     }
 
@@ -2688,7 +2688,7 @@ def dev_seed_campaigns(secret: str = "", db: Session = Depends(get_db)):
         },
         {
             "title": "How to Build Passive Income Online",
-            "description": "5 proven strategies for building passive income streams in 2026.",
+            "description": "5 proven strategies for building online income streams in 2026.",
             "category": "business",
             "platform": "youtube",
             "video_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
@@ -4101,7 +4101,7 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
                 {"icon": "⚡", "title": "Instant Commissions", "desc": "Get paid the moment your referral takes action — no waiting."}
             ],
             "cta_headline": "Start Earning Affiliate Commissions Today",
-            "cta_sub": "Join thousands of affiliates who are building real passive income.",
+            "cta_sub": "Join thousands of affiliates who are building real online income.",
             "bg": "dark", "accent": "#10b981"
         },
         "ecommerce": {
@@ -4158,7 +4158,7 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
         "real-estate": {
             "title": "Real Estate Wealth Builder",
             "headline": "Build Wealth Through Property — Without Millions to Start",
-            "subheadline": "Discover digital real estate strategies and property tools that create passive income from property markets.",
+            "subheadline": "Discover digital real estate strategies and property tools that create income from property markets.",
             "benefits_title": "Your Property Advantage",
             "benefits": [
                 {"icon": "🏠", "title": "Digital Real Estate", "desc": "Build online assets that generate income like physical property."},
@@ -4211,7 +4211,7 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
         "ecommerce": [{"num":"01","title":"Pick Your Niche","desc":"Use our AI niche finder to identify profitable product categories with high demand."},{"num":"02","title":"Launch Your Store","desc":"Build professional product pages with our drag-and-drop builder in minutes."},{"num":"03","title":"Scale with AI","desc":"Let AI write your ads, email campaigns, and product descriptions while you focus on growth."}],
         "ai-tech": [{"num":"01","title":"Access AI Tools","desc":"Get instant access to our suite of AI-powered marketing and business automation tools."},{"num":"02","title":"Automate Everything","desc":"Let AI create your content, build your funnels, write your emails, and manage your campaigns."},{"num":"03","title":"Scale & Earn","desc":"10x your output without 10x the work. Plus earn by referring others to the platform."}],
         "health-fitness": [{"num":"01","title":"Choose Your Focus","desc":"Whether it's weight loss, muscle building, or holistic wellness — pick your passion."},{"num":"02","title":"Get Your Toolkit","desc":"Access ready-made fitness funnels, content templates, and marketing materials."},{"num":"03","title":"Help Others & Earn","desc":"Share wellness solutions, build your audience, and earn recurring commissions."}],
-        "real-estate": [{"num":"01","title":"Learn the Strategies","desc":"Access training on digital real estate, property markets, and passive income methods."},{"num":"02","title":"Build Your Presence","desc":"Use our AI tools to create professional property funnels and investor content."},{"num":"03","title":"Generate Income","desc":"Earn through referrals, property leads, and team building in the real estate niche."}],
+        "real-estate": [{"num":"01","title":"Learn the Strategies","desc":"Access training on digital real estate, property markets, and income-building methods."},{"num":"02","title":"Build Your Presence","desc":"Use our AI tools to create professional property funnels and investor content."},{"num":"03","title":"Generate Income","desc":"Earn through referrals, property leads, and team building in the real estate niche."}],
         "personal-finance": [{"num":"01","title":"Get Your Blueprint","desc":"Access our complete financial freedom roadmap — budgeting, investing, and income building."},{"num":"02","title":"Build Income Streams","desc":"Set up multiple revenue sources using our proven system and AI-powered tools."},{"num":"03","title":"Achieve Freedom","desc":"Watch your income grow while helping others do the same. Earn monthly recurring commissions."}],
     }
     NICHE_TESTIMONIALS = {
@@ -4226,7 +4226,7 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
     }
     NICHE_FAQ = {
         "forex": [{"q":"Do I need trading experience?","a":"Not at all. Our training starts from absolute basics — candlestick patterns, risk management, and position sizing — all the way to advanced strategies."},{"q":"How much capital do I need to start trading?","a":"You can practise on a free demo account with zero risk. When ready, start live trading with as little as $50–100."},{"q":"Can I trade around a full-time job?","a":"Absolutely. The forex market runs 24 hours, 5 days a week. Many members trade before or after work."},{"q":"What about the affiliate income?","a":"Share the platform with other traders and earn commissions on every referral — monthly recurring income on top of your trading."}],
-        "crypto": [{"q":"Is crypto investing risky?","a":"All investing carries risk. Our training focuses heavily on risk management, diversification, and only investing what you can afford to lose."},{"q":"Do I need to understand blockchain?","a":"Our training covers everything from scratch. You'll understand blockchain, wallets, and DeFi step by step."},{"q":"How do I earn beyond just crypto gains?","a":"Our affiliate system pays you commissions every time someone you refer joins the platform — recurring monthly income."},{"q":"Is it too late to invest in crypto?","a":"The crypto market is still in its early growth phase. New opportunities emerge every month with emerging projects and protocols."}],
+        "crypto": [{"q":"Is crypto trading risky?","a":"All trading carries risk. Our training focuses heavily on risk management, diversification, and only using what you can afford to lose."},{"q":"Do I need to understand blockchain?","a":"Our training covers everything from scratch. You'll understand blockchain, wallets, and DeFi step by step."},{"q":"How do I earn beyond just crypto gains?","a":"Our affiliate system pays you commissions every time someone you refer joins the platform — recurring monthly income."},{"q":"Is it too late to get into crypto?","a":"The crypto market is still in its early growth phase. New opportunities emerge every month with emerging projects and protocols."}],
     }
     default_faq = [{"q":"How quickly can I start earning?","a":"Most members see their first results within the first week. The system is designed for fast implementation."},{"q":"Do I need any experience?","a":"None at all. Full step-by-step training, AI tools, and ready-made templates are included from day one."},{"q":"Is there a money-back guarantee?","a":"Yes. If you're not satisfied within 30 days, you can request a full refund."},{"q":"How much does it cost to get started?","a":"Membership starts at just $20/month with full access to all tools, training, and income opportunities."}]
 
@@ -4256,13 +4256,13 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
         ],
         "crypto": [
             {"image": "https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=500&q=80", "title": "Portfolio Tracking", "desc": "Monitor all your crypto holdings across multiple wallets and exchanges in one clean, real-time dashboard."},
-            {"image": "https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=500&q=80", "title": "DeFi Strategies", "desc": "Learn yield farming, liquidity pools, staking, and other DeFi strategies that generate passive crypto income."},
+            {"image": "https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=500&q=80", "title": "DeFi Strategies", "desc": "Learn yield farming, liquidity pools, staking, and other DeFi strategies that generate crypto income."},
             {"image": "https://images.unsplash.com/photo-1639762681057-408e52192e55?w=500&q=80", "title": "Research & Alerts", "desc": "Stay ahead of the market with AI-powered project analysis, on-chain data, and price alerts."},
         ],
         "affiliate-marketing": [
             {"image": "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=500&q=80", "title": "AI-Built Sales Funnels", "desc": "Professional landing pages created by AI in minutes. Just pick your niche, add your link, and start driving traffic."},
             {"image": "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=500&q=80", "title": "Marketing Automation", "desc": "Email sequences, social media posts, and ad copy — all generated by AI and ready to deploy instantly."},
-            {"image": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=500&q=80", "title": "Team Building Tools", "desc": "Track your referrals, manage your growing team, and watch your passive income scale month over month."},
+            {"image": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=500&q=80", "title": "Team Building Tools", "desc": "Track your referrals, manage your growing team, and watch your income scale month over month."},
         ],
         "ecommerce": [
             {"image": "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=500&q=80", "title": "Beautiful Storefront", "desc": "Launch a professional online store with our drag-and-drop builder. No coding or design experience needed."},
@@ -4293,7 +4293,7 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
     # Niche-specific image-text row content
     NICHE_IMAGE_TEXT = {
         "forex": {"title": "Trade Smarter, Not Harder", "text": "Our system combines Smart Money Concepts with institutional order flow analysis to give you a genuine edge in the forex market. No more guessing, no more emotional trading. Follow the rules, manage your risk, and let the probabilities work in your favour. Thousands of traders are already using this exact system to generate consistent daily income — working just 1-2 hours per session.", "image": "https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=700&q=80"},
-        "crypto": {"title": "The Smart Way to Invest in Crypto", "text": "Forget the hype and FOMO. Our structured approach to cryptocurrency investing focuses on fundamentals, risk management, and sustainable growth. Learn to evaluate projects properly, build a diversified portfolio, and generate passive income through DeFi — all while earning referral commissions by sharing the platform with others.", "image": "https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=700&q=80"},
+        "crypto": {"title": "The Smart Way to Learn About Crypto", "text": "Forget the hype and FOMO. Our structured approach to cryptocurrency education focuses on fundamentals, risk management, and sustainable growth. Learn to evaluate projects properly, build a diversified portfolio, and generate income through DeFi — all while earning referral commissions by sharing the platform with others.", "image": "https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=700&q=80"},
         "affiliate-marketing": {"title": "Your Link. Your Income. Your Freedom.", "text": "Imagine earning commissions every single month from work you did once. That's the power of affiliate marketing done right. We give you the tools, the funnels, the copy, and the training. All you need to do is share your link with people who want to improve their financial situation — and our system does the rest.", "image": "https://images.unsplash.com/photo-1552581234-26160f608093?w=700&q=80"},
         "ecommerce": {"title": "Your Store. Global Customers. Zero Limits.", "text": "The e-commerce revolution is happening right now, and there's never been a better time to launch your online store. Our AI-powered tools handle product research, description writing, and marketing automation — leaving you free to focus on scaling your business and maximising profits.", "image": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=700&q=80"},
         "ai-tech": {"title": "Let AI Do the Heavy Lifting", "text": "While others spend hours writing content, building funnels, and managing campaigns — you'll have AI doing it all in minutes. Our suite of AI tools automates the most time-consuming parts of running an online business, giving you 10x the output with a fraction of the effort. This is the future of entrepreneurship.", "image": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=700&q=80"},
@@ -6327,7 +6327,7 @@ IMPORTANT:
                 "competition": "Medium",
                 "income_speed": "2-4 weeks",
                 "content_ideas": [
-                    "How I earn passive income watching videos for $20/month",
+                    "How I earn income watching videos for $20/month",
                     "5 membership sites that actually pay you to be a member",
                     "My honest SuperAdPro income report — month 1",
                     "How the 8x8 grid system works and why it's genius"
@@ -6359,7 +6359,7 @@ IMPORTANT:
                 "content_ideas": [
                     "5 side hustles you can do at 3am in between shifts",
                     "How I earn $200/month online working night shifts",
-                    "The best passive income streams for people with no fixed schedule",
+                    "The best online income streams for people with no fixed schedule",
                     "Night shift to financial freedom — my 90-day plan"
                 ],
                 "starter_hook": "Working nights and tired of being broke when you get home? I found 3 ways to earn money online that fit perfectly around a night shift schedule — no alarm clocks, no fixed hours, no boss..."

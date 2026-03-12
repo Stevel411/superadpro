@@ -1083,7 +1083,7 @@ function addSection(type){
   } else if(type==='cta-banner'){
     const bg=mkEl('box',0,bot); bg.w=cW; bg.h=260; bg.s={backgroundImage:'linear-gradient(135deg,#1d4ed8,#6366f1)',borderRadius:'0',border:'none'};
     const h=mkEl('heading',100,bot+50); h.w=cW-200; h.s={...h.s,color:'#fff',textAlign:'center',fontSize:'38px'}; h.txt='Ready to Start Earning?';
-    const p=mkEl('text',250,bot+130); p.w=700; p.txt='Join thousands of members already earning passive income.'; p.s={...p.s,color:'rgba(255,255,255,0.8)',textAlign:'center',fontSize:'16px'};
+    const p=mkEl('text',250,bot+130); p.w=700; p.txt='Join thousands of members building real online income.'; p.s={...p.s,color:'rgba(255,255,255,0.8)',textAlign:'center',fontSize:'16px'};
     const b=mkEl('cta',(cW/2)-115,bot+185); b.s={...b.s,backgroundColor:'rgba(255,255,255,0.95)',color:'#1d4ed8',backgroundImage:'none'};
     [bg,h,p,b].forEach(add);
 
