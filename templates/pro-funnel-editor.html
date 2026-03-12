@@ -786,7 +786,7 @@ function showFormEditor(id, el) {
   wrap.innerHTML = `
     <div style="padding:24px;background:#fff">
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:#16a34a;font-weight:600">
-        ✓ Connected to your Brevo autoresponder. Captured emails trigger your nurture sequence automatically.
+        ✓ Connected to your SuperAdPro autoresponder. Captured emails trigger your nurture sequence automatically.
       </div>
       
       <label style="display:block;font-size:12px;font-weight:700;color:#2a2e3d;margin-bottom:6px">Form Heading</label>
@@ -822,7 +822,7 @@ function showFormEditor(id, el) {
       
       <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e2e8f0">
         <div style="font-size:11px;font-weight:700;color:#8892a8;margin-bottom:4px">CAPTURE ENDPOINT</div>
-        <code style="font-size:11px;color:#475569;background:#f1f5f9;padding:6px 10px;border-radius:6px;display:block">/api/capture/${SLUG}</code>
+        <code style="font-size:11px;color:#475569;background:#f1f5f9;padding:6px 10px;border-radius:6px;display:block">/api/capture/${USERNAME}/${SLUG.split('/').pop()}</code>
       </div>
     </div>
   `;
