@@ -3821,21 +3821,25 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
         page.slug = slug
 
     page.title = title
-    page.template_type = body.get("template_type", "opportunity")
-    page.headline = body.get("headline", "")
-    page.subheadline = body.get("subheadline", "")
-    page.body_copy = body.get("body_copy", "")
-    page.cta_text = body.get("cta_text", "Get Started Now")
-    page.cta_url = body.get("cta_url", "")
-    page.video_url = body.get("video_url", "")
-    page.image_url = body.get("image_url", "")
-    page.color_scheme = body.get("color_scheme", "dark")
-    page.accent_color = body.get("accent_color", "#00d4ff")
-    page.custom_bg = body.get("custom_bg", "")
-    page.status = body.get("status", "draft")
-    page.funnel_name = body.get("funnel_name", "")
-    page.font_family = body.get("font_family", "Rethink Sans")
-    page.meta_description = body.get("meta_description", "")
+
+    # Only update fields that are explicitly included in the payload
+    # This prevents the canvas editor (which only sends id/title/gjs_html/gjs_css/status)
+    # from wiping fields set by the AI generator or other editors
+    if "template_type" in body: page.template_type = body["template_type"]
+    if "headline" in body: page.headline = body["headline"]
+    if "subheadline" in body: page.subheadline = body["subheadline"]
+    if "body_copy" in body: page.body_copy = body["body_copy"]
+    if "cta_text" in body: page.cta_text = body["cta_text"]
+    if "cta_url" in body: page.cta_url = body["cta_url"]
+    if "video_url" in body: page.video_url = body["video_url"]
+    if "image_url" in body: page.image_url = body["image_url"]
+    if "color_scheme" in body: page.color_scheme = body["color_scheme"]
+    if "accent_color" in body: page.accent_color = body["accent_color"]
+    if "custom_bg" in body: page.custom_bg = body["custom_bg"]
+    if "status" in body: page.status = body["status"]
+    if "funnel_name" in body: page.funnel_name = body["funnel_name"]
+    if "font_family" in body: page.font_family = body["font_family"]
+    if "meta_description" in body: page.meta_description = body["meta_description"]
 
     # Section-based content
     import json

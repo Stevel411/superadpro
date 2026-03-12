@@ -264,14 +264,12 @@ const uid = () => 'e' + Date.now().toString(36) + Math.random().toString(36).sli
 // ── Load initial data ──
 try {
   const raw = {{ (page.gjs_css or "")|tojson|safe }};
-  console.log('gjs_css raw length:', raw ? raw.length : 0);
   if (raw && raw.trim()) {
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) { els = parsed; console.log('Loaded', els.length, 'elements (array format)'); }
-    else if (parsed.els) { els = parsed.els; if (parsed.canvasBg) canvasBg = parsed.canvasBg; console.log('Loaded', els.length, 'elements, bg:', canvasBg); }
-    else { console.log('gjs_css parsed but no els found:', Object.keys(parsed)); }
-  } else { console.log('gjs_css is empty'); }
-} catch(e) { console.log('gjs_css parse error:', e.message); }
+    if (Array.isArray(parsed)) { els = parsed; }
+    else if (parsed.els) { els = parsed.els; if (parsed.canvasBg) canvasBg = parsed.canvasBg; }
+  }
+} catch(e) { /* No saved canvas data, will convert from AI data */ }
 
 // If no canvas elements, convert from AI funnel data
 if (els.length === 0) {
@@ -387,7 +385,7 @@ function renderAll() {
     div.id = el.id;
     div.style.cssText = `left:${el.x}px;top:${el.y}px;width:${el.w}px;height:${el.h}px;`;
     // Apply custom styles (background, border, padding, borderRadius)
-    const layoutStyles = ['background','borderRadius','border','padding','boxShadow'];
+    const layoutStyles = ['background','borderRadius','border','padding','boxShadow','borderLeft','borderTop','borderRight','borderBottom'];
     Object.entries(el.s||{}).forEach(([k,v])=>{
       if (layoutStyles.includes(k)) div.style[k] = v;
     });
