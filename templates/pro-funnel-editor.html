@@ -392,9 +392,9 @@ function renderAll() {
   // Hide empty state
   document.getElementById('emptyState').style.display = els.length ? 'none' : 'flex';
 
-  // Calculate canvas height
-  const maxY = els.length ? Math.max(...els.map(e=>e.y+e.h)) + 80 : 900;
-  cv.style.minHeight = Math.max(900, maxY) + 'px';
+  // Calculate canvas height — always leave 500px below the lowest element
+  const maxY = els.length ? Math.max(...els.map(e=>e.y+e.h)) + 500 : 1200;
+  cv.style.minHeight = Math.max(1200, maxY) + 'px';
 
   els.forEach(el => {
     const div = document.createElement('div');
@@ -1253,15 +1253,17 @@ function startDrag(e, id) {
     const dy = e.clientY - dragState.startY;
     el.x = Math.max(0, dragState.origX + dx);
     el.y = Math.max(0, dragState.origY + dy);
-    // Show alignment guides
+    // Show alignment guides (includes snap logic)
     showGuides(el);
-    // Snap to centre
-    const cw = 1100;
-    const elCx = el.x + el.w/2;
-    if (Math.abs(elCx - cw/2) < 8) { el.x = cw/2 - el.w/2; }
     // Update position
     const dom = document.getElementById(id);
     if (dom) { dom.style.left = el.x+'px'; dom.style.top = el.y+'px'; }
+    // Grow canvas if element is near the bottom
+    const cv = document.getElementById('canvas');
+    const needed = el.y + el.h + 500;
+    if (needed > parseInt(cv.style.minHeight)) {
+      cv.style.minHeight = needed + 'px';
+    }
   };
   const onUp = () => {
     dragState = null;
