@@ -8889,7 +8889,6 @@ async def api_pro_funnel_create_blank(request: Request, db: Session = Depends(ge
         slug=slug,
         headline=title,
         status="published",
-        page_type="ai_funnel",
         sections_json="{}",
     )
     db.add(page)
@@ -8929,7 +8928,6 @@ async def api_pro_funnel_create_from_template(request: Request, db: Session = De
             slug=slug,
             headline=tpl['name'],
             status="published",
-            page_type="ai_funnel",
             sections_json="{}",
             gjs_css=_jtpl.dumps({"els": tpl['elements'], "canvasBg": tpl['bg_color']}),
         )
