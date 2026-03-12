@@ -3811,15 +3811,16 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
         page = FunnelPage(user_id=user.id)
         db.add(page)
 
-    # Generate slug from title + username
+    # Generate slug from title + username (only if new page or no slug yet)
     import re
     title = body.get("title", "My Page").strip()
-    slug = generate_unique_slug(db, user.username, title, exclude_page_id=page.id)
-    if slug is None:
-        return JSONResponse({"error": f"A page called '{title}' already exists. Please choose a different title."}, status_code=409)
+    if not page.slug:
+        slug = generate_unique_slug(db, user.username, title, exclude_page_id=page.id)
+        if slug is None:
+            return JSONResponse({"error": f"A page called '{title}' already exists. Please choose a different title."}, status_code=409)
+        page.slug = slug
 
     page.title = title
-    page.slug = slug
     page.template_type = body.get("template_type", "opportunity")
     page.headline = body.get("headline", "")
     page.subheadline = body.get("subheadline", "")
