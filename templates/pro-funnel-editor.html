@@ -263,7 +263,7 @@ const uid = () => 'e' + Date.now().toString(36) + Math.random().toString(36).sli
 
 // ── Load initial data ──
 try {
-  const raw = '{{ (page.gjs_css or "")|e }}';
+  const raw = {{ (page.gjs_css or "")|tojson|safe }};
   if (raw && raw.trim()) {
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) { els = parsed; }
