@@ -36,8 +36,18 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   width:1100px;min-height:900px;margin:0 auto;position:relative;
   border-radius:6px;box-shadow:0 0 60px rgba(0,0,0,.3);transition:background .3s;
 }
-.canvas.tablet{border-radius:12px;box-shadow:0 0 0 4px rgba(255,255,255,.06),0 0 80px rgba(0,0,0,.4);zoom:0.698}
-.canvas.mobile{border-radius:28px;box-shadow:0 0 0 6px rgba(255,255,255,.08),0 0 80px rgba(0,0,0,.4);zoom:0.354}
+
+/* Device preview frames */
+.canvas-area.tablet-mode .canvas{transform:scale(0.7);transform-origin:top center;margin-bottom:-30%}
+.canvas-area.mobile-mode .canvas{transform:scale(0.35);transform-origin:top center;margin-bottom:-60%}
+.canvas-area.tablet-mode,.canvas-area.mobile-mode{overflow-y:auto}
+
+/* Phone frame overlay */
+.device-frame{display:none;position:fixed;top:72px;left:224px;right:280px;bottom:0;z-index:4;pointer-events:none;align-items:flex-start;justify-content:center;padding-top:20px}
+.device-frame.show{display:flex}
+.phone-shell{width:410px;height:calc(100vh - 112px);border:4px solid rgba(255,255,255,.12);border-radius:36px;background:transparent;box-shadow:0 0 0 2px rgba(0,0,0,.3),0 20px 60px rgba(0,0,0,.4);position:relative}
+.phone-shell::before{content:'';position:absolute;top:8px;left:50%;transform:translateX(-50%);width:80px;height:5px;background:rgba(255,255,255,.15);border-radius:3px}
+.tablet-shell{width:780px;height:calc(100vh - 112px);border:4px solid rgba(255,255,255,.1);border-radius:20px;background:transparent;box-shadow:0 0 0 2px rgba(0,0,0,.3),0 20px 60px rgba(0,0,0,.4)}
 
 /* Device toggle */
 .tb-devices{display:flex;gap:2px;background:#f1f5f9;border-radius:8px;padding:2px;margin-right:8px}
@@ -178,6 +188,9 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 
 <!-- ═══ LAYOUT ═══ -->
 <div class="layout">
+  <!-- Device frame overlay -->
+  <div class="device-frame" id="deviceFrame"><div id="deviceShell"></div></div>
+  
   <!-- Canvas -->
   <div class="canvas-area" id="canvasArea">
     <div class="canvas" id="canvas"
@@ -1986,9 +1999,24 @@ let currentDevice = 'desktop';
 function setDevice(device) {
   currentDevice = device;
   const cv = document.getElementById('canvas');
-  cv.classList.remove('tablet','mobile');
-  if (device === 'tablet') cv.classList.add('tablet');
-  if (device === 'mobile') cv.classList.add('mobile');
+  const area = document.getElementById('canvasArea');
+  const frame = document.getElementById('deviceFrame');
+  const shell = document.getElementById('deviceShell');
+  
+  // Reset
+  area.classList.remove('tablet-mode','mobile-mode');
+  frame.classList.remove('show');
+  
+  if (device === 'tablet') {
+    area.classList.add('tablet-mode');
+    frame.classList.add('show');
+    shell.className = 'tablet-shell';
+  } else if (device === 'mobile') {
+    area.classList.add('mobile-mode');
+    frame.classList.add('show');
+    shell.className = 'phone-shell';
+  }
+  
   // Update toggle buttons
   document.querySelectorAll('.tb-dev').forEach(b => b.classList.remove('active'));
   document.getElementById('dev' + device.charAt(0).toUpperCase() + device.slice(1)).classList.add('active');
