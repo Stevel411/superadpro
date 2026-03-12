@@ -7,7 +7,7 @@ from urllib.parse import urlparse, parse_qs
 from typing import Optional
 
 
-ALLOWED_PLATFORMS = {"youtube", "rumble", "vimeo"}
+ALLOWED_PLATFORMS = {"youtube", "rumble", "vimeo", "direct"}
 
 
 def parse_video_url(url: str) -> Optional[dict]:
@@ -18,10 +18,6 @@ def parse_video_url(url: str) -> Optional[dict]:
     url = url.strip()
 
     # ── YouTube ──────────────────────────────────────────────
-    # youtube.com/watch?v=ID
-    # youtu.be/ID
-    # youtube.com/shorts/ID
-    # youtube.com/embed/ID  (already an embed — still valid)
     yt_patterns = [
         r'(?:youtube\.com/watch\?(?:.*&)?v=|youtu\.be/|youtube\.com/shorts/|youtube\.com/embed/)([a-zA-Z0-9_-]{11})',
     ]
@@ -36,8 +32,6 @@ def parse_video_url(url: str) -> Optional[dict]:
             }
 
     # ── Rumble ───────────────────────────────────────────────
-    # rumble.com/vXXXXX-title.html
-    # rumble.com/embed/vXXXXX/
     m = re.search(r'rumble\.com/(?:embed/)?([a-zA-Z0-9]+)(?:[/-]|\.html|$)', url)
     if m and 'rumble.com' in url:
         vid_id = m.group(1)
@@ -48,8 +42,6 @@ def parse_video_url(url: str) -> Optional[dict]:
         }
 
     # ── Vimeo ────────────────────────────────────────────────
-    # vimeo.com/VIDEO_ID
-    # player.vimeo.com/video/VIDEO_ID
     m = re.search(r'vimeo\.com/(?:video/)?(\d+)', url)
     if m:
         vid_id = m.group(1)
@@ -59,11 +51,19 @@ def parse_video_url(url: str) -> Optional[dict]:
             "embed_url": f"https://player.vimeo.com/video/{vid_id}?title=0&byline=0",
         }
 
+    # ── Direct MP4/WebM/OGG (uploaded to R2 or any URL) ──────
+    if url.endswith(('.mp4', '.webm', '.ogg')) or '/funnel-videos/' in url or '/static/uploads/' in url:
+        return {
+            "platform": "direct",
+            "video_id": url.split('/')[-1].split('.')[0],
+            "embed_url": url,
+        }
+
     return None
 
 
 def platform_label(platform: str) -> str:
-    return {"youtube": "YouTube", "rumble": "Rumble", "vimeo": "Vimeo"}.get(platform, platform.title())
+    return {"youtube": "YouTube", "rumble": "Rumble", "vimeo": "Vimeo", "direct": "Uploaded"}.get(platform, platform.title())
 
 
 def platform_colour(platform: str) -> str:
@@ -71,4 +71,5 @@ def platform_colour(platform: str) -> str:
         "youtube": "#ff0000",
         "rumble":  "#85c742",
         "vimeo":   "#1ab7ea",
+        "direct":  "#10b981",
     }.get(platform, "#00b4d8")

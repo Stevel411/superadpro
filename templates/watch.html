@@ -326,11 +326,18 @@ a{text-decoration:none;color:inherit}
 
       <!-- Full-width video -->
       <div class="video-wrap">
+        {% if content_type == 'video' and campaign and campaign.platform == 'direct' %}
+        <video id="videoPlayer" src="{{ campaign.embed_url }}" 
+          style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border:none"
+          autoplay muted controls playsinline></video>
+        <iframe id="videoFrame" style="display:none" allowfullscreen></iframe>
+        {% else %}
         <iframe id="videoFrame"
           src="{% if content_type == 'video' and campaign %}{{ campaign.embed_url }}{% if '?' in campaign.embed_url %}&{% else %}?{% endif %}autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&enablejsapi=1{% endif %}"
           style="{% if content_type == 'adboard' %}display:none{% endif %}"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen></iframe>
+        {% endif %}
 
         <!-- Ad board display -->
         <div id="adDisplayCard" style="display:{% if content_type == 'adboard' %}flex{% else %}none{% endif %}">
@@ -641,9 +648,32 @@ a{text-decoration:none;color:inherit}
       DURATION = {{ watch_duration }};
 
       adCard.style.display = 'none';
-      videoFrame.style.display = '';
-      var sep = c.embed_url.includes('?') ? '&' : '?';
-      videoFrame.src = c.embed_url + sep + 'autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&enablejsapi=1';
+      
+      // Handle direct MP4 vs iframe embed
+      var videoPlayer = document.getElementById('videoPlayer');
+      if (c.platform === 'direct' || c.embed_url.endsWith('.mp4') || c.embed_url.endsWith('.webm') || c.embed_url.includes('funnel-videos')) {
+        // Direct video — use <video> tag
+        if (!videoPlayer) {
+          videoPlayer = document.createElement('video');
+          videoPlayer.id = 'videoPlayer';
+          videoPlayer.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border:none';
+          videoPlayer.controls = true;
+          videoPlayer.playsInline = true;
+          videoFrame.parentNode.insertBefore(videoPlayer, videoFrame);
+        }
+        videoPlayer.src = c.embed_url;
+        videoPlayer.autoplay = true;
+        videoPlayer.muted = true;
+        videoPlayer.style.display = '';
+        videoFrame.style.display = 'none';
+        videoFrame.src = '';
+      } else {
+        // Iframe embed
+        if (videoPlayer) videoPlayer.style.display = 'none';
+        videoFrame.style.display = '';
+        var sep = c.embed_url.includes('?') ? '&' : '?';
+        videoFrame.src = c.embed_url + sep + 'autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&enablejsapi=1';
+      }
 
       document.getElementById('campaignTitle').textContent = c.title;
       document.getElementById('campaignMeta').textContent = (c.platform ? c.platform.charAt(0).toUpperCase() + c.platform.slice(1) : 'Video') + ' \u00B7 General';

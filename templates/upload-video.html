@@ -185,7 +185,7 @@ body{font-family:'DM Sans',sans-serif;background:#ffffff;color:#0f172a;min-heigh
               <input type="url" name="video_url" id="videoUrl"
                      placeholder="https://www.youtube.com/watch?v=..."
                      value="{{ prefill.video_url if prefill else '' }}"
-                     required oninput="previewVideo(this.value)">
+                     oninput="previewVideo(this.value)">
               <div class="hint">Paste the full URL from your browser or the video's share button</div>
               <div class="preview-wrap" id="previewWrap">
                 <iframe id="previewFrame" allowfullscreen></iframe>
@@ -193,12 +193,30 @@ body{font-family:'DM Sans',sans-serif;background:#ffffff;color:#0f172a;min-heigh
               <div class="preview-label" id="previewLabel">↑ Live preview</div>
             </div>
 
+            <div style="text-align:center;color:#64748b;font-size:12px;font-weight:700;padding:8px 0">— OR UPLOAD MP4 —</div>
+
+            <div class="field">
+              <label>Upload Video File</label>
+              <div id="mp4UploadZone" style="border:2px dashed rgba(14,165,233,.25);border-radius:12px;padding:24px;text-align:center;cursor:pointer;background:rgba(14,165,233,.03);transition:all .15s"
+                   onclick="document.getElementById('mp4FileInput').click()"
+                   ondragover="event.preventDefault();this.style.borderColor='#0ea5e9';this.style.background='rgba(14,165,233,.08)'"
+                   ondragleave="this.style.borderColor='rgba(14,165,233,.25)';this.style.background='rgba(14,165,233,.03)'"
+                   ondrop="handleMp4Drop(event)">
+                <div style="font-size:28px;margin-bottom:8px">📹</div>
+                <div style="font-size:13px;color:#e2e8f0;font-weight:600">Click to browse or drag & drop</div>
+                <div style="font-size:11px;color:#64748b;margin-top:4px">MP4, WebM — max 50MB</div>
+              </div>
+              <input id="mp4FileInput" type="file" accept="video/mp4,video/webm,video/ogg" style="display:none" onchange="uploadMp4(this.files[0])">
+              <div id="mp4Progress" style="display:none;margin-top:10px;text-align:center;font-size:13px;font-weight:600;color:#0ea5e9"></div>
+            </div>
+
             <!-- Info box -->
             <div class="info-box" style="margin-top:auto">
-              <div class="info-box-title">💡 Supported Platforms</div>
+              <div class="info-box-title">💡 Supported Formats</div>
               <div class="info-box-item"><div class="info-dot"></div>YouTube — paste any watch, shorts or share URL</div>
               <div class="info-box-item"><div class="info-dot"></div>Rumble — paste the video page URL</div>
               <div class="info-box-item"><div class="info-dot"></div>Vimeo — paste the video page URL</div>
+              <div class="info-box-item"><div class="info-dot"></div>MP4 Upload — drag & drop or browse (max 50MB)</div>
             </div>
 
           </div>
@@ -297,6 +315,51 @@ function previewVideo(url) {
   if(e){frame.src=e;wrap.style.display='block';label.style.display='block';}
   else{frame.src='';wrap.style.display='none';label.style.display='none';}
 }
+
+async function uploadMp4(file) {
+  if (!file) return;
+  const prog = document.getElementById('mp4Progress');
+  prog.style.display = 'block';
+  prog.style.color = '#0ea5e9';
+  prog.textContent = 'Uploading video... this may take a moment';
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const res = await fetch('/api/funnels/upload-video', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success && data.url) {
+      prog.textContent = '✓ Video uploaded successfully!';
+      prog.style.color = '#10b981';
+      // Set the URL input to the uploaded video URL
+      const urlInput = document.getElementById('videoUrl');
+      urlInput.value = data.url;
+      // Show preview as HTML5 video
+      const wrap = document.getElementById('previewWrap');
+      wrap.innerHTML = `<video src="${data.url}" style="width:100%;border-radius:12px" controls></video>`;
+      wrap.style.display = 'block';
+      document.getElementById('previewLabel').style.display = 'block';
+    } else {
+      prog.textContent = '✗ ' + (data.error || 'Upload failed');
+      prog.style.color = '#dc2626';
+    }
+  } catch(e) {
+    prog.textContent = '✗ Connection error. Please try again.';
+    prog.style.color = '#dc2626';
+  }
+}
+
+function handleMp4Drop(e) {
+  e.preventDefault();
+  e.currentTarget.style.borderColor = 'rgba(14,165,233,.25)';
+  e.currentTarget.style.background = 'rgba(14,165,233,.03)';
+  const file = e.dataTransfer.files[0];
+  if (file && (file.type.startsWith('video/') || file.name.endsWith('.mp4'))) {
+    uploadMp4(file);
+  }
+}
+
 window.addEventListener('load',()=>{const u=document.getElementById('videoUrl');if(u.value)previewVideo(u.value);});
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/static/sw.js').catch(()=>{});});}
 </script>
