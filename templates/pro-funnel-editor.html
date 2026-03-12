@@ -408,6 +408,7 @@ function renderAll() {
       <button class="cb" onclick="moveEl('${el.id}',1)" title="Move forward">↓</button>
       <button class="cb" onclick="dupEl('${el.id}')" title="Duplicate">⧉</button>
       <div class="cb-color" title="BG colour"><input type="color" value="${el.s?.background?.includes('#')?el.s.background:'#141829'}" oninput="bgEl('${el.id}',this.value)"></div>
+      <button class="cb" onclick="bgEl('${el.id}','transparent')" title="Clear background" style="font-size:14px;opacity:.7">◻</button>
       <div class="cb-sep"></div>
       <button class="cb cb-del" onclick="delEl('${el.id}')" title="Delete">✕</button>
     `;
