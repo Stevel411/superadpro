@@ -795,63 +795,57 @@ function showFormEditor(id, el) {
   const c2 = bgMatch[1] || '#6366f1';
   
   wrap.innerHTML = `
-    <div style="padding:24px;background:#fff;max-height:60vh;overflow-y:auto">
-      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:#16a34a;font-weight:600">
-        ✓ Connected to your SuperAdPro autoresponder. Captured emails trigger your nurture sequence automatically.
+    <div style="padding:16px 20px;background:#fff;max-height:65vh;overflow-y:auto">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#16a34a;font-weight:600">
+        ✓ Connected to SuperAdPro autoresponder
       </div>
       
-      <label style="display:block;font-size:12px;font-weight:700;color:#2a2e3d;margin-bottom:6px">Form Heading</label>
-      <input id="formHeading" type="text" value="${heading.replace(/"/g,'&quot;')}" placeholder="e.g. Get Your Free Guide"
-        style="width:100%;padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:14px"
-        onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div>
+          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Heading</label>
+          <input id="formHeading" type="text" value="${heading.replace(/"/g,'&quot;')}" placeholder="e.g. Get Your Free Guide"
+            style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none"
+            onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+        </div>
+        <div>
+          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Button Text</label>
+          <input id="formBtnText" type="text" value="${btnText.replace(/"/g,'&quot;')}" placeholder="Get Access →"
+            style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none"
+            onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+        </div>
+      </div>
       
-      <label style="display:block;font-size:12px;font-weight:700;color:#2a2e3d;margin-bottom:6px">Subtext</label>
+      <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Subtext</label>
       <input id="formSubtext" type="text" value="${subtext.replace(/"/g,'&quot;')}" placeholder="e.g. Enter your email to learn more"
-        style="width:100%;padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:14px"
+        style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:10px"
         onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
       
-      <label style="display:block;font-size:12px;font-weight:700;color:#2a2e3d;margin-bottom:6px">Button Text</label>
-      <input id="formBtnText" type="text" value="${btnText.replace(/"/g,'&quot;')}" placeholder="e.g. Get Access →"
-        style="width:100%;padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:14px"
-        onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
-      
-      <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
+      <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px">
         <div>
-          <label style="display:block;font-size:11px;font-weight:700;color:#8892a8;margin-bottom:4px">Button Colour 1</label>
-          <input id="formColor1" type="color" value="${c1}" style="width:44px;height:36px;border:2px solid #e2e8f0;border-radius:8px;cursor:pointer;padding:0">
+          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px">Colour 1</label>
+          <input id="formColor1" type="color" value="${c1}" style="width:40px;height:32px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0">
         </div>
         <div>
-          <label style="display:block;font-size:11px;font-weight:700;color:#8892a8;margin-bottom:4px">Button Colour 2</label>
-          <input id="formColor2" type="color" value="${c2}" style="width:44px;height:36px;border:2px solid #e2e8f0;border-radius:8px;cursor:pointer;padding:0">
+          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px">Colour 2</label>
+          <input id="formColor2" type="color" value="${c2}" style="width:40px;height:32px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0">
         </div>
+        <button onclick="applyForm('${id}')" style="padding:8px 20px;background:#0ea5e9;color:#fff;border:none;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:DM Sans,sans-serif;margin-left:auto">Apply Changes</button>
       </div>
       
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:16px">
-        <div style="font-size:12px;font-weight:800;color:#2a2e3d;margin-bottom:10px">📍 After Submit — Where should leads go?</div>
-        
-        <label style="display:block;font-size:11px;font-weight:700;color:#8892a8;margin-bottom:4px">Redirect URL (optional)</label>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:#2a2e3d;margin-bottom:6px">📍 After Submit</div>
+        <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:2px">Redirect URL (optional)</label>
         <input id="formRedirectUrl" type="text" value="${redirectUrl.replace(/"/g,'&quot;')}" 
-          placeholder="https://yoursite.com/thank-you or leave blank for message"
-          style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:8px"
+          placeholder="https://yoursite.com/thank-you"
+          style="width:100%;padding:7px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:6px"
           onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
-        <div style="font-size:10px;color:#8892a8;margin-bottom:12px">If set, leads are redirected to this page after submitting. Leave blank to show a thank-you message instead.</div>
-        
-        <label style="display:block;font-size:11px;font-weight:700;color:#8892a8;margin-bottom:4px">Thank You Message (if no redirect)</label>
+        <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:2px">Thank You Message (if no redirect)</label>
         <input id="formThankYou" type="text" value="${thankYouMsg.replace(/"/g,'&quot;')}" placeholder="You're in! Check your inbox."
-          style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none"
+          style="width:100%;padding:7px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none"
           onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
       </div>
 
-      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 16px;margin-bottom:16px">
-        <div style="font-size:12px;font-weight:800;color:#1e40af;margin-bottom:6px">📧 Email Sequence</div>
-        <div style="font-size:11px;color:#3b82f6;margin-bottom:8px">Your AI-generated nurture sequence sends automatically when someone subscribes.</div>
-        <a href="/pro/funnel/{{ page.id }}/sequence" target="_blank" style="display:inline-block;padding:8px 16px;background:#2563eb;color:#fff;border-radius:7px;font-size:12px;font-weight:700;text-decoration:none;font-family:DM Sans,sans-serif">✏️ Edit Email Sequence</a>
-      </div>
-      
-      <div style="display:flex;gap:8px">
-        <button onclick="applyForm('${id}')" style="padding:10px 24px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Apply Changes</button>
-        <button onclick="exitEditMode()" style="padding:10px 24px;background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Cancel</button>
-      </div>
+      <a href="/pro/funnel/{{ page.id }}/sequence" target="_blank" style="display:inline-block;padding:7px 14px;background:#2563eb;color:#fff;border-radius:6px;font-size:11px;font-weight:700;text-decoration:none;font-family:DM Sans,sans-serif">📧 Edit Email Sequence</a>
     </div>
   `;
   _activeEditorId = id;
