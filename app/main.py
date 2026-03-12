@@ -9191,6 +9191,84 @@ No explanation, no markdown. ONLY valid JSON."""
         return JSONResponse({"error": f"AI modification failed: {str(e)[:100]}"}, status_code=500)
 
 
+@app.get("/pro/funnel/{funnel_id}/sequence")
+async def pro_funnel_sequence(funnel_id: int, request: Request, db: Session = Depends(get_db)):
+    """Email sequence editor for a funnel."""
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    page = db.query(FunnelPage).filter(FunnelPage.id == funnel_id, FunnelPage.user_id == user.id).first()
+    if not page:
+        return RedirectResponse("/pro/funnels", status_code=302)
+
+    from .database import EmailSequence
+    import json as _jseq
+
+    sequence = None
+    emails = []
+    if page.capture_sequence_id:
+        sequence = db.query(EmailSequence).filter(EmailSequence.id == page.capture_sequence_id).first()
+        if sequence and sequence.emails_json:
+            try:
+                emails = _jseq.loads(sequence.emails_json)
+            except:
+                pass
+
+    if not sequence:
+        # Create a default empty sequence
+        sequence = EmailSequence(user_id=user.id, title=f"Sequence for {page.title}", num_emails=0)
+        db.add(sequence)
+        db.commit()
+        db.refresh(sequence)
+        page.capture_sequence_id = sequence.id
+        db.commit()
+
+    return templates.TemplateResponse("pro-sequence-editor.html", {
+        "request": request,
+        "user": user,
+        "active_page": "pro-funnels",
+        "page": page,
+        "sequence": sequence,
+        "emails": emails,
+    })
+
+
+@app.post("/api/pro/funnel/{funnel_id}/sequence/save")
+async def api_pro_funnel_sequence_save(funnel_id: int, request: Request, db: Session = Depends(get_db)):
+    """Save edited email sequence."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+
+    page = db.query(FunnelPage).filter(FunnelPage.id == funnel_id, FunnelPage.user_id == user.id).first()
+    if not page:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+
+    from .database import EmailSequence
+    import json as _jsave
+
+    body = await request.json()
+    emails = body.get("emails", [])
+
+    sequence = None
+    if page.capture_sequence_id:
+        sequence = db.query(EmailSequence).filter(EmailSequence.id == page.capture_sequence_id).first()
+
+    if not sequence:
+        sequence = EmailSequence(user_id=user.id, title=f"Sequence for {page.title}")
+        db.add(sequence)
+        db.commit()
+        db.refresh(sequence)
+        page.capture_sequence_id = sequence.id
+
+    sequence.emails_json = _jsave.dumps(emails)
+    sequence.num_emails = len(emails)
+    db.commit()
+
+    return JSONResponse({"success": True})
+
+
 @app.post("/api/capture/{username}/{slug}")
 async def api_capture_lead(username: str, slug: str, request: Request, db: Session = Depends(get_db)):
     """Public endpoint — captures an email from a funnel form and starts the autoresponder."""
@@ -9332,10 +9410,38 @@ async def render_ai_funnel(username: str, slug: str, request: Request, db: Sessi
         wrapped = f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>{title_text}</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=Raleway:wght@400;500;600;700;800;900&family=Open+Sans:wght@400;500;600;700;800&family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Bebas+Neue&family=Cinzel:wght@400;700;900&family=Dancing+Script:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
 <style>*{{margin:0;padding:0;box-sizing:border-box}}body{{min-height:100vh;overflow-x:hidden}}</style>
 </head><body>{page.gjs_html}
 <div style="text-align:center;padding:24px;font-size:11px;color:#475569;font-family:Outfit,sans-serif">Income examples are illustrative. Results depend on individual effort. &copy; 2026 SuperAdPro</div>
+<script>
+// Email capture — find all capture forms and wire up submit buttons
+document.querySelectorAll('[data-redirect],[data-thankyou]').forEach(function(form){{
+  var btn = form.querySelector('[style*="gradient"]');
+  if(btn) btn.addEventListener('click', function(){{
+    var inputs = form.querySelectorAll('input');
+    var name = '', email = '';
+    inputs.forEach(function(inp){{
+      if(inp.placeholder && inp.placeholder.toLowerCase().includes('name')) name = inp.value;
+      if(inp.placeholder && inp.placeholder.toLowerCase().includes('email')) email = inp.value;
+    }});
+    if(!email || !email.includes('@')){{ alert('Please enter a valid email'); return; }}
+    fetch('{cap_url}', {{
+      method:'POST', headers:{{'Content-Type':'application/json'}},
+      body:JSON.stringify({{email:email, name:name}})
+    }}).then(function(r){{ return r.json(); }}).then(function(data){{
+      if(data.success){{
+        var redirect = form.getAttribute('data-redirect');
+        if(redirect) {{ window.location.href = redirect; }}
+        else {{
+          var msg = form.getAttribute('data-thankyou') || "You're in! Check your inbox.";
+          form.innerHTML = '<div style="padding:20px;text-align:center"><div style="font-size:24px;margin-bottom:8px">✓</div><div style="font-family:Sora,sans-serif;font-weight:700;font-size:18px;color:#10b981">' + msg + '</div></div>';
+        }}
+      }} else {{ alert(data.error || 'Something went wrong.'); }}
+    }}).catch(function(){{ alert('Connection error.'); }});
+  }});
+}});
+</script>
 </body></html>"""
         return HTMLResponse(wrapped)
 

@@ -777,6 +777,8 @@ function showFormEditor(id, el) {
   const subtext = tempDiv.querySelectorAll('div')[1]?.textContent || '';
   const btnEl = tempDiv.querySelector('[style*="gradient"]');
   const btnText = btnEl?.textContent || 'Get Access →';
+  const redirectUrl = el.redirectUrl || '';
+  const thankYouMsg = el.thankYouMsg || "You're in! Check your inbox.";
   
   // Extract colours from button gradient
   const bgMatch = (btnEl?.getAttribute('style') || '').match(/#[0-9a-fA-F]{6}/g) || [];
@@ -784,7 +786,7 @@ function showFormEditor(id, el) {
   const c2 = bgMatch[1] || '#6366f1';
   
   wrap.innerHTML = `
-    <div style="padding:24px;background:#fff">
+    <div style="padding:24px;background:#fff;max-height:60vh;overflow-y:auto">
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:#16a34a;font-weight:600">
         ✓ Connected to your SuperAdPro autoresponder. Captured emails trigger your nurture sequence automatically.
       </div>
@@ -815,14 +817,31 @@ function showFormEditor(id, el) {
         </div>
       </div>
       
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:16px">
+        <div style="font-size:12px;font-weight:800;color:#2a2e3d;margin-bottom:10px">📍 After Submit — Where should leads go?</div>
+        
+        <label style="display:block;font-size:11px;font-weight:700;color:#8892a8;margin-bottom:4px">Redirect URL (optional)</label>
+        <input id="formRedirectUrl" type="text" value="${redirectUrl.replace(/"/g,'&quot;')}" 
+          placeholder="https://yoursite.com/thank-you or leave blank for message"
+          style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:8px"
+          onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+        <div style="font-size:10px;color:#8892a8;margin-bottom:12px">If set, leads are redirected to this page after submitting. Leave blank to show a thank-you message instead.</div>
+        
+        <label style="display:block;font-size:11px;font-weight:700;color:#8892a8;margin-bottom:4px">Thank You Message (if no redirect)</label>
+        <input id="formThankYou" type="text" value="${thankYouMsg.replace(/"/g,'&quot;')}" placeholder="You're in! Check your inbox."
+          style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none"
+          onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+      </div>
+
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 16px;margin-bottom:16px">
+        <div style="font-size:12px;font-weight:800;color:#1e40af;margin-bottom:6px">📧 Email Sequence</div>
+        <div style="font-size:11px;color:#3b82f6;margin-bottom:8px">Your AI-generated nurture sequence sends automatically when someone subscribes.</div>
+        <a href="/pro/funnel/{{ page.id }}/sequence" target="_blank" style="display:inline-block;padding:8px 16px;background:#2563eb;color:#fff;border-radius:7px;font-size:12px;font-weight:700;text-decoration:none;font-family:DM Sans,sans-serif">✏️ Edit Email Sequence</a>
+      </div>
+      
       <div style="display:flex;gap:8px">
         <button onclick="applyForm('${id}')" style="padding:10px 24px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Apply Changes</button>
         <button onclick="exitEditMode()" style="padding:10px 24px;background:#f1f5f9;color:#475569;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Cancel</button>
-      </div>
-      
-      <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e2e8f0">
-        <div style="font-size:11px;font-weight:700;color:#8892a8;margin-bottom:4px">CAPTURE ENDPOINT</div>
-        <code style="font-size:11px;color:#475569;background:#f1f5f9;padding:6px 10px;border-radius:6px;display:block">/api/capture/${USERNAME}/${SLUG.split('/').pop()}</code>
       </div>
     </div>
   `;
@@ -837,8 +856,15 @@ function applyForm(id) {
   const btnText = document.getElementById('formBtnText')?.value || 'Get Access →';
   const c1 = document.getElementById('formColor1')?.value || '#0ea5e9';
   const c2 = document.getElementById('formColor2')?.value || '#6366f1';
+  const redirectUrl = document.getElementById('formRedirectUrl')?.value?.trim() || '';
+  const thankYouMsg = document.getElementById('formThankYou')?.value || "You're in! Check your inbox.";
   
-  el.txt = `<div style="text-align:center;padding:4px"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">${heading}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">${subtext}</div><input placeholder="Your first name" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:8px;box-sizing:border-box"><input placeholder="Your email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:10px;box-sizing:border-box"><div style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,${c1},${c2});color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box;cursor:pointer" onclick="captureEmail()">${btnText}</div></div>`;
+  // Store redirect and thank you on the element object
+  el.redirectUrl = redirectUrl;
+  el.thankYouMsg = thankYouMsg;
+  
+  // Build the form HTML with data attributes for the redirect and thank you
+  el.txt = `<div style="text-align:center;padding:4px" data-redirect="${redirectUrl.replace(/"/g,'&quot;')}" data-thankyou="${thankYouMsg.replace(/"/g,'&quot;')}"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">${heading}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">${subtext}</div><input placeholder="Your first name" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:8px;box-sizing:border-box"><input placeholder="Your email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:10px;box-sizing:border-box"><div style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,${c1},${c2});color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box;cursor:pointer" onclick="captureEmail(this)">${btnText}</div></div>`;
   _dirty = true;
   renderAll();
   exitEditMode();
