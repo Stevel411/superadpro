@@ -430,7 +430,7 @@ function renderAll() {
     div.addEventListener('click', e => { e.stopPropagation(); selectEl(el.id); });
     div.addEventListener('dblclick', e => {
       const ce = div.querySelector('[contenteditable]');
-      if (ce) { ce.focus(); showFmt(ce); }
+      if (ce) { editMode = true; ce.focus(); }
     });
 
     // Contenteditable blur — save text back
@@ -450,12 +450,14 @@ function renderAll() {
 
 // ═══ SELECTION ═══
 function selectEl(id) {
+  if (id !== selId) editMode = false;
   selId = id;
   renderAll();
 }
 document.getElementById('canvas').addEventListener('click', e => {
   if (e.target.id === 'canvas' || e.target.closest('.canvas-empty')) {
     selId = null;
+    editMode = false;
     renderAll();
     hideFmt();
   }
@@ -463,9 +465,23 @@ document.getElementById('canvas').addEventListener('click', e => {
 
 // ═══ DRAG MOVE ═══
 let dragState = null;
+let editMode = false; // true when a contenteditable is being edited
+
 function startDrag(e, id) {
-  if (e.target.closest('.cel-bar') || e.target.closest('.cel-resize') || e.target.closest('[contenteditable]:focus')) return;
+  // Don't start drag if clicking on toolbar, resize handle, or contenteditable
+  if (e.target.closest('.cel-bar') || e.target.closest('.cel-resize')) return;
+  
+  // If this element is already selected and we're clicking inside its text area, enter edit mode instead of dragging
+  if (id === selId && (e.target.closest('[contenteditable]') || e.target.hasAttribute('contenteditable'))) {
+    editMode = true;
+    return; // Let the click go through to the contenteditable
+  }
+  
+  // If we're in edit mode on this element, don't drag
+  if (editMode && id === selId) return;
+  
   e.preventDefault();
+  editMode = false;
   const el = els.find(x=>x.id===id);
   if (!el) return;
   selId = id;
@@ -716,6 +732,7 @@ async function save() {
     title: '{{ page.title|e }}',
     gjs_html: html,
     gjs_css: JSON.stringify({els, canvasBg}),
+    status: 'published',
   };
 
   try {

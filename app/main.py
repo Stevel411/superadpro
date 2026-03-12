@@ -9246,7 +9246,7 @@ async def pro_leads_page(request: Request, db: Session = Depends(get_db)):
 async def render_ai_funnel(username: str, slug: str, request: Request, db: Session = Depends(get_db)):
     """Render an AI-generated funnel page — public facing."""
     full_slug = f"{username}/{slug}"
-    page = db.query(FunnelPage).filter(FunnelPage.slug == full_slug, FunnelPage.status == "published").first()
+    page = db.query(FunnelPage).filter(FunnelPage.slug == full_slug).first()
     if not page:
         return RedirectResponse("/", status_code=302)
 
