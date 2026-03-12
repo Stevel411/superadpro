@@ -1322,7 +1322,7 @@ function exportHTML() {
     if (el.type==='video'&&el.txt) {
       const isMP4 = el._isMP4 || el.txt.endsWith('.mp4') || el.txt.endsWith('.webm') || el.txt.endsWith('.ogg') || el.txt.includes('funnel-videos');
       if (isMP4) {
-        h+=`<video src="${el.txt}" style="${st};border-radius:12px;object-fit:cover" controls playsinline></video>`;
+        h+=`<video src="${el.txt}" style="${st};border-radius:12px;object-fit:cover" autoplay muted loop playsinline></video>`;
       } else {
         h+=`<iframe src="${el.txt}" style="${st};border:none;border-radius:12px" allowfullscreen></iframe>`;
       }
