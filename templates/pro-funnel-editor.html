@@ -425,16 +425,7 @@ function renderAll() {
     div.addEventListener('mousedown', e => startDrag(e, el.id));
     div.addEventListener('click', e => {
       e.stopPropagation();
-      if (el.id !== selId) {
-        // First click: select the element
-        selectEl(el.id);
-        // If it has text, immediately enter edit mode
-        const hasTextContent = !['video','image','spacer','divider','box'].includes(el.type);
-        if (hasTextContent) {
-          editMode = true;
-          initTinyOnElement(el.id);
-        }
-      }
+      if (el.id !== selId) selectEl(el.id);
     });
     div.addEventListener('dblclick', e => {
       if (div.querySelector('[contenteditable]')) {
@@ -463,6 +454,14 @@ function selectEl(id) {
   editMode = false;
   selId = id;
   renderAll();
+  
+  // Immediately init TinyMCE for text elements
+  const el = els.find(x => x.id === id);
+  if (el && !['video','image','spacer','divider','box'].includes(el.type)) {
+    editMode = true;
+    // Small delay to let renderAll finish DOM creation
+    setTimeout(() => initTinyOnElement(id), 50);
+  }
 }
 document.getElementById('canvas').addEventListener('mousedown', e => {
   if (e.target.id === 'canvas' || e.target.closest('.canvas-empty')) {
