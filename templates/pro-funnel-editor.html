@@ -413,10 +413,12 @@ function renderAll() {
       div.innerHTML = `<div contenteditable="true" style="width:100%;height:100%;overflow:hidden;outline:none;word-wrap:break-word">${el.txt||''}</div>`;
     }
 
-    // Toolbar — structural controls only (WYSIWYG is in floating bar)
+    // Toolbar — structural controls + Edit button for text elements
     const bar = document.createElement('div');
     bar.className = 'cel-bar';
+    const isTextEl = !['video','image','spacer','divider','box'].includes(el.type);
     bar.innerHTML = `
+      ${isTextEl ? `<button class="cb" onclick="event.stopPropagation();enterEditMode('${el.id}')" title="Edit text" style="font-size:10px;font-weight:800;color:var(--accent);width:auto;padding:0 8px">✎ EDIT</button><div class="cb-sep"></div>` : ''}
       <button class="cb" onclick="moveEl('${el.id}',-1)" title="Move back">↑</button>
       <button class="cb" onclick="moveEl('${el.id}',1)" title="Move forward">↓</button>
       <button class="cb" onclick="dupEl('${el.id}')" title="Duplicate">⧉</button>
