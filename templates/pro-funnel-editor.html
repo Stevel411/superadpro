@@ -486,8 +486,9 @@ function deselectAll() {
   renderAll();
 }
 
-// Click on canvas background deselects
+// Click on canvas background deselects — but NOT if clicking inside an element or TinyMCE
 document.getElementById('canvas').addEventListener('mousedown', e => {
+  if (e.target.closest('.cel') || e.target.closest('.tox') || e.target.closest('.mce-content-body')) return;
   if (e.target.id === 'canvas' || e.target.closest('.canvas-empty')) {
     deselectAll();
   }
@@ -501,8 +502,14 @@ function startDrag(e, id) {
   // Never drag if clicking on toolbar, resize handles, or TinyMCE UI
   if (e.target.closest('.cel-bar') || e.target.closest('.cel-resize') || e.target.closest('.tox')) return;
   
-  // If we're in edit mode on this element, let mouse events go to TinyMCE
-  if (editMode && id === selId) return;
+  // If we're in edit mode on this element, pass everything to TinyMCE
+  if (editMode && id === selId) {
+    // Don't preventDefault, don't stopPropagation — let TinyMCE handle it
+    return;
+  }
+  
+  // If clicking on a TinyMCE-managed element (mce-content-body), don't drag
+  if (e.target.closest('.mce-content-body')) return;
   
   // Double-click detection: if same element clicked within 400ms, enter edit mode
   const now = Date.now();
