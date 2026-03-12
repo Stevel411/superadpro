@@ -49,6 +49,19 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   padding:3px;gap:2px;box-shadow:0 4px 16px rgba(0,0,0,.5);white-space:nowrap;z-index:20;
 }
 .cel.selected .cel-bar{display:flex;align-items:center}
+.cel.editing .cel-bar{display:none!important}
+
+/* TinyMCE inline toolbar overrides */
+.tox-tinymce-inline{z-index:200!important;border-radius:10px!important;overflow:hidden!important;box-shadow:0 8px 32px rgba(0,0,0,.2),0 2px 8px rgba(0,0,0,.1)!important}
+.tox .tox-toolbar__primary{background:#fafbfd!important}
+.tox .tox-toolbar__overflow{background:#fafbfd!important}
+.tox .tox-tbtn{border-radius:6px!important}
+.tox .tox-tbtn:hover{background:rgba(14,165,233,.1)!important}
+.tox .tox-tbtn--enabled,.tox .tox-tbtn--enabled:hover{background:rgba(14,165,233,.18)!important;color:#0ea5e9!important}
+/* Constrain the colour picker dialog */
+.tox .tox-dialog{max-width:420px!important;max-height:480px!important}
+.tox .tox-dialog__body{max-height:400px!important;overflow-y:auto!important}
+.tox .tox-color-input .tox-rgba-preview{width:30px!important;height:30px!important}
 .cb{width:26px;height:26px;border:none;border-radius:5px;background:transparent;color:#6a7090;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:.12s}
 .cb:hover{background:rgba(14,165,233,.15);color:var(--accent)}
 .cb-del:hover{background:rgba(244,63,94,.15);color:var(--rose)}
@@ -73,15 +86,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .cel [contenteditable]{outline:none;cursor:text;min-height:1em}
 .cel [contenteditable]:focus{cursor:text}
 
-/* ── Floating WYSIWYG — see inline styles + .wb classes at bottom ── */
-
-/* TinyMCE inline toolbar overrides */
-.tox-tinymce-inline{z-index:200!important;border-radius:10px!important;overflow:hidden!important;box-shadow:0 8px 32px rgba(0,0,0,.2),0 2px 8px rgba(0,0,0,.1)!important}
-.tox .tox-toolbar__primary{background:#fafbfd!important}
-.tox .tox-toolbar__overflow{background:#fafbfd!important}
-.tox .tox-tbtn{border-radius:6px!important}
-.tox .tox-tbtn:hover{background:rgba(14,165,233,.1)!important}
-.tox .tox-tbtn--enabled,.tox .tox-tbtn--enabled:hover{background:rgba(14,165,233,.18)!important;color:#0ea5e9!important}
+/* ── TinyMCE overrides in main block above ── */
 
 /* ── Right panel ── */
 .panel{width:280px;background:var(--panel);border-left:1px solid var(--panel-border);display:flex;flex-direction:column;height:100%;overflow:hidden;flex-shrink:0}
@@ -657,6 +662,9 @@ function initTinyOnElement(id) {
   const ce = el.querySelector('[contenteditable]');
   if (!ce) return;
   
+  // Add editing class to hide the dark element toolbar
+  el.classList.add('editing');
+  
   // Give the contenteditable a unique ID for TinyMCE
   const ceId = 'tce-' + id;
   ce.id = ceId;
@@ -667,12 +675,21 @@ function initTinyOnElement(id) {
   
   _activeEditorId = ceId;
   
+  // Ensure the toolbar container exists
+  if (!document.getElementById('tinyToolbarContainer')) {
+    const container = document.createElement('div');
+    container.id = 'tinyToolbarContainer';
+    container.style.cssText = 'position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:200;';
+    document.body.appendChild(container);
+  }
+  
   tinymce.init({
     selector: '#' + ceId,
     inline: true,
     menubar: false,
     statusbar: false,
     license_key: 'gpl',
+    fixed_toolbar_container: '#tinyToolbarContainer',
     toolbar: [
       'undo redo | fontfamily fontsize lineheight | bold italic underline strikethrough | forecolor backcolor | removeformat',
       'alignleft aligncenter alignright | outdent indent | numlist bullist | subscript superscript | charmap'
@@ -683,13 +700,9 @@ function initTinyOnElement(id) {
     plugins: 'lists charmap',
     toolbar_mode: 'wrap',
     content_css: false,
-    content_style: `
-      body { margin:0; padding:0; }
-      * { box-sizing:border-box; }
-    `,
+    content_style: 'body { margin:0; padding:0; } * { box-sizing:border-box; }',
     setup: function(editor) {
       editor.on('blur', function() {
-        // Save content back to our element data
         const elObj = els.find(x => x.id === id);
         if (elObj) elObj.txt = editor.getContent();
         _dirty = true;
@@ -702,14 +715,19 @@ function destroyTiny() {
   if (_activeEditorId) {
     const ed = tinymce.get(_activeEditorId);
     if (ed) {
-      // Save before destroying
       const id = _activeEditorId.replace('tce-','');
       const elObj = els.find(x => x.id === id);
       if (elObj) elObj.txt = ed.getContent();
+      // Remove editing class
+      const dom = document.getElementById(id);
+      if (dom) dom.classList.remove('editing');
       ed.remove();
     }
     _activeEditorId = null;
   }
+  // Hide toolbar container
+  const tc = document.getElementById('tinyToolbarContainer');
+  if (tc) tc.innerHTML = '';
 }
 
 // Legacy stubs (no longer needed but prevent errors)
