@@ -77,9 +77,9 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .cel-resize.b{bottom:-5px;left:50%;transform:translateX(-50%);cursor:ns-resize}
 
 /* Alignment guides */
-.guide{position:absolute;background:var(--accent);opacity:.5;pointer-events:none;z-index:5;display:none}
-.guide-h{height:1px;left:0;right:0}
-.guide-v{width:1px;top:0;bottom:0}
+.guide{position:absolute;pointer-events:none;z-index:5;display:none}
+.guide-h{height:0;left:0;right:0;border-top:1px dashed var(--accent);opacity:.7}
+.guide-v{width:0;top:0;bottom:0;border-left:1px dashed var(--accent);opacity:.7}
 
 /* ── Inline text editing ── */
 .cel [contenteditable]{outline:none;cursor:text;min-height:1em}
@@ -167,8 +167,12 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
          ondragover="canvasDragOver(event)"
          ondrop="canvasDrop(event)">
       <!-- Alignment guides -->
-      <div class="guide guide-h" id="guideH"></div>
       <div class="guide guide-v" id="guideV"></div>
+      <div class="guide guide-h" id="guideHTop"></div>
+      <div class="guide guide-h" id="guideHMid"></div>
+      <div class="guide guide-h" id="guideHBot"></div>
+      <div class="guide guide-v" id="guideVLeft"></div>
+      <div class="guide guide-v" id="guideVRight"></div>
       <!-- Elements rendered by JS -->
       <div class="canvas-empty" id="emptyState">
         <div class="canvas-empty-icon">✦</div>
@@ -1297,18 +1301,61 @@ function startResize(e, id, handle) {
 // ═══ ALIGNMENT GUIDES ═══
 function showGuides(el) {
   const cw = 1100;
-  const gh = document.getElementById('guideH');
+  const SNAP = 6; // snap threshold in px
   const gv = document.getElementById('guideV');
-  const cx = el.x + el.w/2;
-  // Vertical centre guide
-  if (Math.abs(cx - cw/2) < 12) {
-    gv.style.left = (cw/2)+'px'; gv.style.display = 'block';
-  } else { gv.style.display = 'none'; }
-  gh.style.display = 'none';
+  const gvL = document.getElementById('guideVLeft');
+  const gvR = document.getElementById('guideVRight');
+  const ghT = document.getElementById('guideHTop');
+  const ghM = document.getElementById('guideHMid');
+  const ghB = document.getElementById('guideHBot');
+  
+  // Hide all guides first
+  [gv, gvL, gvR, ghT, ghM, ghB].forEach(g => g.style.display = 'none');
+  
+  const elCX = el.x + el.w / 2;  // element centre X
+  const elCY = el.y + el.h / 2;  // element centre Y
+  const elT = el.y;               // top
+  const elB = el.y + el.h;        // bottom
+  const elL = el.x;               // left
+  const elR = el.x + el.w;        // right
+  
+  // Canvas centre vertical guide (existing behavior)
+  if (Math.abs(elCX - cw / 2) < SNAP) {
+    gv.style.left = (cw / 2) + 'px'; gv.style.display = 'block';
+    el.x = cw / 2 - el.w / 2; // snap to centre
+  }
+  
+  // Check alignment against all other elements
+  els.forEach(other => {
+    if (other.id === el.id) return;
+    const oT = other.y;
+    const oB = other.y + other.h;
+    const oCY = other.y + other.h / 2;
+    const oL = other.x;
+    const oR = other.x + other.w;
+    const oCX = other.x + other.w / 2;
+    
+    // Horizontal guides (aligning tops, middles, bottoms)
+    if (Math.abs(elT - oT) < SNAP) { ghT.style.top = oT + 'px'; ghT.style.display = 'block'; el.y = oT; }
+    if (Math.abs(elCY - oCY) < SNAP) { ghM.style.top = oCY + 'px'; ghM.style.display = 'block'; el.y = oCY - el.h / 2; }
+    if (Math.abs(elB - oB) < SNAP) { ghB.style.top = oB + 'px'; ghB.style.display = 'block'; el.y = oB - el.h; }
+    // Top-to-bottom and bottom-to-top
+    if (Math.abs(elT - oB) < SNAP) { ghT.style.top = oB + 'px'; ghT.style.display = 'block'; el.y = oB; }
+    if (Math.abs(elB - oT) < SNAP) { ghB.style.top = oT + 'px'; ghB.style.display = 'block'; el.y = oT - el.h; }
+    
+    // Vertical guides (aligning lefts, centres, rights)
+    if (Math.abs(elL - oL) < SNAP) { gvL.style.left = oL + 'px'; gvL.style.display = 'block'; el.x = oL; }
+    if (Math.abs(elCX - oCX) < SNAP) { gv.style.left = oCX + 'px'; gv.style.display = 'block'; el.x = oCX - el.w / 2; }
+    if (Math.abs(elR - oR) < SNAP) { gvR.style.left = oR + 'px'; gvR.style.display = 'block'; el.x = oR - el.w; }
+    // Left-to-right and right-to-left
+    if (Math.abs(elL - oR) < SNAP) { gvL.style.left = oR + 'px'; gvL.style.display = 'block'; el.x = oR; }
+    if (Math.abs(elR - oL) < SNAP) { gvR.style.left = oL + 'px'; gvR.style.display = 'block'; el.x = oL - el.w; }
+  });
 }
 function hideGuides() {
-  document.getElementById('guideH').style.display = 'none';
-  document.getElementById('guideV').style.display = 'none';
+  ['guideV','guideVLeft','guideVRight','guideHTop','guideHMid','guideHBot'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
 }
 
 // ═══ ELEMENT OPERATIONS ═══
