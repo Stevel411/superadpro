@@ -42,6 +42,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 
 /* Funnel cards */
 .funnels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+
+/* Template cards */
+.tpl-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:all .15s;text-align:center}
+.tpl-card:hover{border-color:#0ea5e9;box-shadow:0 4px 20px rgba(14,165,233,.1);transform:translateY(-2px)}
+.tpl-icon{font-size:28px;margin-bottom:8px}
+.tpl-name{font-family:Sora,sans-serif;font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:4px}
+.tpl-desc{font-size:11px;color:#94a3b8;line-height:1.5}
 .funnel-card{background:#fff;border-radius:14px;padding:0;box-shadow:var(--shadow-sm);overflow:hidden;border:1px solid var(--border);transition:transform .15s,box-shadow .15s;display:flex;flex-direction:column}
 .funnel-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
 .fc-preview{height:140px;background:linear-gradient(135deg,#050d1a,#0f1729);display:flex;align-items:center;justify-content:center;position:relative}
@@ -125,6 +132,48 @@ textarea.form-input{min-height:80px;resize:vertical}
           <div style="font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:6px">Go Direct to Page Builder</div>
           <div style="font-size:13px;color:#64748b;line-height:1.6;max-width:280px;margin:0 auto">Start with a blank canvas and build your page from scratch using drag-and-drop elements and the WYSIWYG editor</div>
           <div style="margin-top:14px;display:inline-block;padding:8px 20px;background:#10b981;color:#fff;border-radius:8px;font-size:12px;font-weight:700">Open Page Builder →</div>
+        </div>
+      </div>
+
+      <!-- Template Gallery -->
+      <div style="margin-bottom:24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div>
+            <div style="font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#1a1a2e">📋 Start from a Template</div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:2px">Professional layouts ready to customise in the page builder</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+          <div class="tpl-card" onclick="useTemplate('Lead Capture')">
+            <div class="tpl-icon">📧</div>
+            <div class="tpl-name">Lead Capture</div>
+            <div class="tpl-desc">Email capture with headline, video, form and feature list</div>
+          </div>
+          <div class="tpl-card" onclick="useTemplate('Video Sales Letter')">
+            <div class="tpl-icon">🎬</div>
+            <div class="tpl-name">Video Sales Letter</div>
+            <div class="tpl-desc">Video-led page with attention headline, VSL and social proof</div>
+          </div>
+          <div class="tpl-card" onclick="useTemplate('Product Offer')">
+            <div class="tpl-icon">🛍️</div>
+            <div class="tpl-name">Product Offer</div>
+            <div class="tpl-desc">Sales page with pricing, features, guarantee and CTA</div>
+          </div>
+          <div class="tpl-card" onclick="useTemplate('Webinar Registration')">
+            <div class="tpl-icon">🎤</div>
+            <div class="tpl-name">Webinar Registration</div>
+            <div class="tpl-desc">Event signup with date, urgency and registration form</div>
+          </div>
+          <div class="tpl-card" onclick="useTemplate('Bio Link Page')">
+            <div class="tpl-icon">👤</div>
+            <div class="tpl-name">Bio Link Page</div>
+            <div class="tpl-desc">Personal bio with avatar and multiple link buttons</div>
+          </div>
+          <div class="tpl-card" onclick="useTemplate('Affiliate Recruit')">
+            <div class="tpl-icon">🚀</div>
+            <div class="tpl-name">Affiliate Recruit</div>
+            <div class="tpl-desc">SuperAdPro recruitment page with video, stats and join CTA</div>
+          </div>
         </div>
       </div>
 
@@ -337,6 +386,24 @@ async function createBlankPage() {
       window.location.href = '/pro/funnel/' + data.funnel_id + '/edit';
     } else {
       alert(data.error || 'Failed to create page');
+    }
+  } catch(e) {
+    alert('Connection error');
+  }
+}
+
+async function useTemplate(name) {
+  try {
+    const res = await fetch('/api/pro/funnel/create-from-template', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({template: name})
+    });
+    const data = await res.json();
+    if (data.success && data.funnel_id) {
+      window.location.href = '/pro/funnel/' + data.funnel_id + '/edit';
+    } else {
+      alert(data.error || 'Failed to create from template');
     }
   } catch(e) {
     alert('Connection error');

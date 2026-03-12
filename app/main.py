@@ -8899,6 +8899,55 @@ async def api_pro_funnel_create_blank(request: Request, db: Session = Depends(ge
     return JSONResponse({"success": True, "funnel_id": page.id, "slug": slug})
 
 
+@app.post("/api/pro/funnel/create-from-template")
+async def api_pro_funnel_create_from_template(request: Request, db: Session = Depends(get_db)):
+    """Create a funnel page from a pre-built template."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+        return JSONResponse({"error": "Pro tier required"}, status_code=403)
+
+    body = await request.json()
+    template_name = body.get("template", "")
+
+    from app.funnel_templates import get_templates
+    import json as _jtpl, secrets
+
+    templates = get_templates()
+    tpl = next((t for t in templates if t['name'] == template_name), None)
+    if not tpl:
+        return JSONResponse({"error": "Template not found"}, status_code=404)
+
+    slug_suffix = secrets.token_hex(3)
+    slug = f"{user.username}/{tpl['category']}-{slug_suffix}"
+
+    page = FunnelPage(
+        user_id=user.id,
+        title=tpl['name'],
+        slug=slug,
+        headline=tpl['name'],
+        status="published",
+        page_type="ai_funnel",
+        sections_json="{}",
+        gjs_css=_jtpl.dumps({"els": tpl['elements'], "canvasBg": tpl['bg_color']}),
+        gjs_html="",
+    )
+    db.add(page)
+    db.commit()
+    db.refresh(page)
+
+    return JSONResponse({"success": True, "funnel_id": page.id})
+
+
+@app.get("/api/pro/funnel/templates")
+async def api_pro_funnel_templates(request: Request, db: Session = Depends(get_db)):
+    """Return the list of available templates."""
+    from app.funnel_templates import get_templates
+    templates = get_templates()
+    return JSONResponse([{"name": t["name"], "description": t["description"], "category": t["category"], "icon": t["icon"]} for t in templates])
+
+
 @app.post("/api/pro/funnel/{funnel_id}/save")
 async def api_pro_funnel_save(funnel_id: int, request: Request, db: Session = Depends(get_db)):
     """Save inline edits to an AI funnel."""
