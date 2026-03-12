@@ -421,14 +421,11 @@ function renderAll() {
       div.appendChild(h);
     });
 
-    // Mouse events
+    // Mouse events  
     div.addEventListener('mousedown', e => startDrag(e, el.id));
-    div.addEventListener('click', e => {
-      e.stopPropagation();
-      if (el.id !== selId) selectEl(el.id);
-    });
     div.addEventListener('dblclick', e => {
-      if (div.querySelector('[contenteditable]')) {
+      // Double-click re-inits TinyMCE if needed
+      if (!['video','image','spacer','divider','box'].includes(el.type)) {
         editMode = true;
         initTinyOnElement(el.id);
       }
@@ -447,7 +444,10 @@ function renderAll() {
   });
 }
 
-// ═══ SELECTION ═══
+// ═══ SELECTION & EDIT MODE ═══
+let editMode = false;
+let dragState = null;
+
 function selectEl(id) {
   if (id === selId) return;
   destroyTiny();
@@ -455,54 +455,51 @@ function selectEl(id) {
   selId = id;
   renderAll();
   
-  // Immediately init TinyMCE for text elements
+  // Auto-init TinyMCE for text elements
   const el = els.find(x => x.id === id);
   if (el && !['video','image','spacer','divider','box'].includes(el.type)) {
     editMode = true;
-    // Small delay to let renderAll finish DOM creation
-    setTimeout(() => initTinyOnElement(id), 50);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        initTinyOnElement(id);
+      });
+    });
   }
 }
+
+function deselectAll() {
+  destroyTiny();
+  selId = null;
+  editMode = false;
+  renderAll();
+}
+
+// Click on canvas background deselects
 document.getElementById('canvas').addEventListener('mousedown', e => {
   if (e.target.id === 'canvas' || e.target.closest('.canvas-empty')) {
-    destroyTiny();
-    selId = null;
-    editMode = false;
-    renderAll();
+    deselectAll();
   }
 });
 
 // ═══ DRAG MOVE ═══
-let dragState = null;
-let editMode = false;
-
 function startDrag(e, id) {
-  // Never drag if clicking on toolbar or resize handles
-  if (e.target.closest('.cel-bar') || e.target.closest('.cel-resize')) return;
+  // Never drag if clicking on toolbar, resize handles, or TinyMCE
+  if (e.target.closest('.cel-bar') || e.target.closest('.cel-resize') || e.target.closest('.tox')) return;
   
-  // If we're in edit mode on this element, let all mouse events pass through to contenteditable
+  // If we're in edit mode on this element, let mouse events go to TinyMCE/contenteditable
   if (editMode && id === selId) return;
   
-  // If this element is already selected and click is on/inside contenteditable, enter edit mode
-  if (id === selId) {
-    const ce = e.target.closest('[contenteditable]') || e.target.querySelector?.('[contenteditable]');
-    if (ce || e.target.hasAttribute?.('contenteditable')) {
-      editMode = true;
-      initTinyOnElement(id);
-      return; // Don't drag — let the click go to the text
-    }
+  // If clicking an unselected element — select it, don't drag
+  if (id !== selId) {
+    e.preventDefault();
+    selectEl(id);
+    return;
   }
   
-  // Normal drag behavior
+  // This element is selected but not in edit mode (non-text elements) — allow drag
   e.preventDefault();
-  editMode = false;
-  destroyTiny();
   const el = els.find(x=>x.id===id);
   if (!el) return;
-  selId = id;
-  renderAll();
-  const cv = document.getElementById('canvas');
-  const rect = cv.getBoundingClientRect();
   dragState = { id, startX: e.clientX, startY: e.clientY, origX: el.x, origY: el.y };
 
   const onMove = (e) => {
