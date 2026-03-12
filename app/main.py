@@ -9492,9 +9492,27 @@ async def render_ai_funnel(username: str, slug: str, request: Request, db: Sessi
         cap_url = f"/api/capture/{capture_parts[0]}/{'/'.join(capture_parts[1:])}" if len(capture_parts) > 1 else ""
         owner_name = owner.first_name or owner.username if owner else 'Member'
         title_text = page.headline or page.title or 'SuperAdPro'
+        meta_desc = page.meta_description or f'{title_text} — powered by SuperAdPro'
+        og_image = page.image_url or ''
+        page_url = f"{request.base_url}f/{full_slug}"
+        og_tags = f'<meta name="description" content="{meta_desc}">'
+        og_tags += f'<meta property="og:title" content="{title_text}">'
+        og_tags += f'<meta property="og:description" content="{meta_desc}">'
+        og_tags += f'<meta property="og:url" content="{page_url}">'
+        og_tags += '<meta property="og:type" content="website">'
+        if og_image:
+            og_tags += f'<meta property="og:image" content="{og_image}">'
+            og_tags += '<meta name="twitter:card" content="summary_large_image">'
+        else:
+            og_tags += '<meta name="twitter:card" content="summary">'
+        og_tags += f'<meta name="twitter:title" content="{title_text}">'
+        og_tags += f'<meta name="twitter:description" content="{meta_desc}">'
+        if og_image:
+            og_tags += f'<meta name="twitter:image" content="{og_image}">'
         wrapped = f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>{title_text}</title>
+{og_tags}
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=Raleway:wght@400;500;600;700;800;900&family=Open+Sans:wght@400;500;600;700;800&family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Bebas+Neue&family=Cinzel:wght@400;700;900&family=Dancing+Script:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
 <style>*{{margin:0;padding:0;box-sizing:border-box}}body{{min-height:100vh;overflow-x:hidden}}</style>
 </head><body>{page.gjs_html}

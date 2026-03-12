@@ -171,6 +171,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   </div>
   
   <a href="/pro/funnels" class="tb-btn tb-ghost">← Funnels</a>
+  <button class="tb-btn tb-ghost" onclick="showPageSettings()" style="font-size:12px">⚙ Settings</button>
   <button class="tb-btn tb-save" onclick="save()">💾 Save</button>
   <a href="/f/{{ page.slug }}" target="_blank" class="tb-btn tb-preview">👁 Preview</a>
 </div>
@@ -290,6 +291,15 @@ let els = [];        // array of element objects
 let selId = null;    // selected element ID
 let canvasBg = '#050d1a';
 let _dirty = false;
+
+// Page settings
+let pageSettings = {
+  title: {{ (page.title or '')|tojson|safe }},
+  metaDescription: {{ (page.meta_description or '')|tojson|safe }},
+  ogImage: {{ (page.image_url or '')|tojson|safe }},
+  slug: {{ (page.slug or '')|tojson|safe }},
+  favicon: '',
+};
 
 // ═══ UNDO/REDO SYSTEM ═══
 const _history = [];
@@ -1737,7 +1747,10 @@ async function save() {
 
   const payload = {
     id: FUNNEL_ID,
-    title: '{{ page.title|e }}',
+    title: pageSettings.title || '{{ page.title|e }}',
+    headline: pageSettings.title || '{{ page.title|e }}',
+    meta_description: pageSettings.metaDescription || '',
+    image_url: pageSettings.ogImage || '',
     gjs_html: html,
     gjs_css: JSON.stringify({els, canvasBg}),
     status: 'published',
@@ -1837,6 +1850,73 @@ document.addEventListener('keydown', e => {
   if ((e.metaKey||e.ctrlKey)&&e.key==='z'&&!e.shiftKey) { e.preventDefault(); undo(); }
   if ((e.metaKey||e.ctrlKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))) { e.preventDefault(); redo(); }
 });
+
+// ═══ PAGE SETTINGS ═══
+function showPageSettings() {
+  const panel = document.getElementById('floatingEditor');
+  panel.style.display = 'flex';
+  document.getElementById('editorTargetName').textContent = 'Page Settings';
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
+  const wrap = document.getElementById('tinyEditorWrap');
+  wrap.innerHTML = `
+    <div style="padding:20px;background:#fff;max-height:65vh;overflow-y:auto">
+      <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Page Title</label>
+      <input id="setTitle" type="text" value="${pageSettings.title.replace(/"/g,'&quot;')}" placeholder="My Landing Page"
+        style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:12px">
+      
+      <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Meta Description</label>
+      <textarea id="setMetaDesc" placeholder="Brief description for search engines and social sharing..."
+        style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;min-height:60px;resize:vertical;margin-bottom:12px">${pageSettings.metaDescription.replace(/</g,'&lt;')}</textarea>
+      <div style="font-size:10px;color:#8892a8;margin-bottom:14px">Shown in Google results and when shared on social media. Keep under 160 characters.</div>
+      
+      <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Social Share Image (OG Image)</label>
+      <div style="display:flex;gap:8px;margin-bottom:4px">
+        <input id="setOgImage" type="text" value="${pageSettings.ogImage.replace(/"/g,'&quot;')}" placeholder="https://... or upload below"
+          style="flex:1;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none">
+        <button onclick="document.getElementById('ogImageFile').click()" style="padding:8px 14px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:#475569;white-space:nowrap">Upload</button>
+        <input id="ogImageFile" type="file" accept="image/*" style="display:none" onchange="uploadOgImage(this.files[0])">
+      </div>
+      <div id="ogUploadProgress" style="display:none;font-size:11px;color:#0ea5e9;font-weight:600;margin-bottom:8px"></div>
+      <div style="font-size:10px;color:#8892a8;margin-bottom:14px">Recommended: 1200×630px. Shows as preview when shared on Facebook, LinkedIn, X etc.</div>
+      ${pageSettings.ogImage ? `<div style="margin-bottom:14px"><img src="${pageSettings.ogImage}" style="max-width:100%;max-height:120px;border-radius:8px;border:1px solid #e2e8f0"></div>` : ''}
+      
+      <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Page URL</label>
+      <div style="padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;color:#475569;margin-bottom:14px;word-break:break-all">
+        ${window.location.origin}/f/${pageSettings.slug}
+      </div>
+      
+      <button onclick="applyPageSettings()" style="padding:10px 24px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Save Settings</button>
+    </div>`;
+  _activeEditorId = '__settings__';
+}
+
+async function uploadOgImage(file) {
+  if (!file) return;
+  const prog = document.getElementById('ogUploadProgress');
+  prog.style.display = 'block';
+  prog.textContent = 'Uploading...';
+  const formData = new FormData();
+  formData.append('file', file);
+  try {
+    const res = await fetch('/api/funnels/upload-image', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success && data.url) {
+      prog.textContent = '✓ Uploaded!';
+      document.getElementById('setOgImage').value = data.url;
+    } else { prog.textContent = '✗ ' + (data.error || 'Failed'); prog.style.color = '#dc2626'; }
+  } catch(e) { prog.textContent = '✗ Error'; prog.style.color = '#dc2626'; }
+}
+
+function applyPageSettings() {
+  pageSettings.title = document.getElementById('setTitle')?.value || 'Untitled';
+  pageSettings.metaDescription = document.getElementById('setMetaDesc')?.value || '';
+  pageSettings.ogImage = document.getElementById('setOgImage')?.value || '';
+  // Update the topbar title
+  document.querySelector('.tb-title').textContent = '✨ ' + pageSettings.title;
+  markDirty();
+  exitEditMode();
+  toast('✓ Settings saved');
+}
 
 // ═══ DEVICE PREVIEW ═══
 let currentDevice = 'desktop';
