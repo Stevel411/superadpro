@@ -395,6 +395,11 @@ async function useTemplate(name) {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({template: name})
     });
+    if (!res.ok) {
+      const text = await res.text();
+      try { const j = JSON.parse(text); alert(j.error || 'Error: ' + res.status); } catch(e) { alert('Server error: ' + res.status); }
+      return;
+    }
     const data = await res.json();
     if (data.success && data.funnel_id) {
       window.location.href = '/pro/funnel/' + data.funnel_id + '/edit';
@@ -402,7 +407,7 @@ async function useTemplate(name) {
       alert(data.error || 'Failed to create from template');
     }
   } catch(e) {
-    alert('Connection error');
+    alert('Connection error: ' + e.message);
   }
 }
 </script>
