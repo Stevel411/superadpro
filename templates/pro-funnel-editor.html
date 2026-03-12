@@ -275,6 +275,55 @@ let selId = null;    // selected element ID
 let canvasBg = '#050d1a';
 let _dirty = false;
 
+// ═══ UNDO/REDO SYSTEM ═══
+const _history = [];
+let _historyIdx = -1;
+const MAX_HISTORY = 50;
+
+function saveHistory() {
+  // Remove any future states if we're in the middle of the history
+  if (_historyIdx < _history.length - 1) {
+    _history.splice(_historyIdx + 1);
+  }
+  // Save a deep copy of current state
+  _history.push(JSON.stringify({ els, canvasBg, selId }));
+  if (_history.length > MAX_HISTORY) _history.shift();
+  _historyIdx = _history.length - 1;
+}
+
+function undo() {
+  if (_historyIdx <= 0) { toast('Nothing to undo'); return; }
+  _historyIdx--;
+  restoreHistory();
+}
+
+function redo() {
+  if (_historyIdx >= _history.length - 1) { toast('Nothing to redo'); return; }
+  _historyIdx++;
+  restoreHistory();
+}
+
+function restoreHistory() {
+  try {
+    const state = JSON.parse(_history[_historyIdx]);
+    els = state.els;
+    canvasBg = state.canvasBg;
+    selId = state.selId;
+    exitEditMode();
+    renderAll();
+    _dirty = true;
+    // Update bg picker
+    document.getElementById('bgColor').value = canvasBg;
+    document.getElementById('bgHex').textContent = canvasBg;
+  } catch(e) { console.error('Undo error:', e); }
+}
+
+// Call this instead of `markDirty()` to track changes for undo
+function markDirty() {
+  saveHistory();
+  _dirty = true;
+}
+
 // ── UID generator ──
 const uid = () => 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2,5);
 
@@ -658,7 +707,7 @@ async function uploadImage(file, id) {
     if (data.success && data.url) {
       prog.textContent = '✓ Upload complete!';
       const el = els.find(x => x.id === id);
-      if (el) { el.txt = data.url; _dirty = true; }
+      if (el) { el.txt = data.url; markDirty(); }
       setTimeout(() => { renderAll(); exitEditMode(); }, 500);
     } else {
       prog.textContent = '✗ ' + (data.error || 'Upload failed');
@@ -680,14 +729,14 @@ function applyImageUrl(id) {
   const url = document.getElementById('imageUrlInput')?.value?.trim();
   if (!url) return;
   const el = els.find(x => x.id === id);
-  if (el) { el.txt = url; _dirty = true; }
+  if (el) { el.txt = url; markDirty(); }
   renderAll();
   exitEditMode();
 }
 
 function clearImageUrl(id) {
   const el = els.find(x => x.id === id);
-  if (el) { el.txt = ''; _dirty = true; }
+  if (el) { el.txt = ''; markDirty(); }
   renderAll();
   exitEditMode();
 }
@@ -755,7 +804,7 @@ async function uploadVideo(file, id) {
     if (data.success && data.url) {
       prog.textContent = '✓ Upload complete!';
       const el = els.find(x => x.id === id);
-      if (el) { el.txt = data.url; el._isMP4 = true; _dirty = true; }
+      if (el) { el.txt = data.url; el._isMP4 = true; markDirty(); }
       setTimeout(() => { renderAll(); exitEditMode(); }, 500);
     } else {
       prog.textContent = '✗ ' + (data.error || 'Upload failed');
@@ -783,14 +832,14 @@ function applyVideoUrl(id) {
   else if (url.includes('vimeo.com/') && !url.includes('player.vimeo')) { const v = url.split('vimeo.com/')[1]?.split('?')[0]; if (v) url = 'https://player.vimeo.com/video/' + v; }
   
   const el = els.find(x => x.id === id);
-  if (el) { el.txt = url; _dirty = true; }
+  if (el) { el.txt = url; markDirty(); }
   renderAll();
   exitEditMode();
 }
 
 function clearVideoUrl(id) {
   const el = els.find(x => x.id === id);
-  if (el) { el.txt = ''; _dirty = true; }
+  if (el) { el.txt = ''; markDirty(); }
   renderAll();
   exitEditMode();
 }
@@ -898,7 +947,7 @@ function applyButton(id) {
   el.url = url;
   el.s.background = `linear-gradient(135deg,${c1},${c2})`;
   el.s.fontSize = fontSize;
-  _dirty = true;
+  markDirty();
   renderAll();
   exitEditMode();
 }
@@ -1032,7 +1081,7 @@ function applyForm(id) {
   
   // Build the form HTML with data attributes for the redirect and thank you
   el.txt = `<div style="text-align:center;padding:4px" data-redirect="${redirectUrl.replace(/"/g,'&quot;')}" data-thankyou="${thankYouMsg.replace(/"/g,'&quot;')}"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">${heading}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">${subtext}</div><input placeholder="Your first name" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:8px;box-sizing:border-box"><input placeholder="Your email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:10px;box-sizing:border-box"><div style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,${c1},${c2});color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box;cursor:pointer" onclick="captureEmail(this)">${btnText}</div></div>`;
-  _dirty = true;
+  markDirty();
   renderAll();
   exitEditMode();
 }
@@ -1058,7 +1107,7 @@ function applyCountdown(id) {
   const el = els.find(x=>x.id===id);
   if (!el) return;
   el._targetDate = document.getElementById('countdownDate')?.value || '';
-  _dirty = true; renderAll(); exitEditMode();
+  markDirty(); renderAll(); exitEditMode();
 }
 
 // ═══ PROGRESS EDITOR ═══
@@ -1094,7 +1143,7 @@ function applyProgress(id) {
   el._label = document.getElementById('progLabel')?.value || 'Progress';
   el._percent = parseInt(document.getElementById('progPct')?.value) || 75;
   el._color = document.getElementById('progColor')?.value || '#0ea5e9';
-  _dirty = true; renderAll(); exitEditMode();
+  markDirty(); renderAll(); exitEditMode();
 }
 
 // ═══ SOCIAL ICONS EDITOR ═══
@@ -1125,7 +1174,7 @@ function applySocial(id) {
   ['youtube','instagram','tiktok','facebook','x','linkedin'].forEach(k=>{
     el._links[k] = document.getElementById('social_'+k)?.value || '#';
   });
-  _dirty = true; renderAll(); exitEditMode();
+  markDirty(); renderAll(); exitEditMode();
 }
 
 // ═══ AUDIO EDITOR ═══
@@ -1163,12 +1212,12 @@ function applyAudio(id) {
   const el = els.find(x=>x.id===id);
   if (!el) return;
   el._audioUrl = document.getElementById('audioUrlInput')?.value?.trim() || '';
-  _dirty = true; renderAll(); exitEditMode();
+  markDirty(); renderAll(); exitEditMode();
 }
 function clearAudio(id) {
   const el = els.find(x=>x.id===id);
   if (el) el._audioUrl = '';
-  _dirty = true; renderAll(); exitEditMode();
+  markDirty(); renderAll(); exitEditMode();
 }
 async function uploadAudio(file, id) {
   if (!file) return;
@@ -1210,7 +1259,7 @@ function applyEmbed(id) {
   if (!el) return;
   const ta = document.getElementById('embedCodeInput');
   el._embedCode = ta?.value || '';
-  _dirty = true; renderAll(); exitEditMode();
+  markDirty(); renderAll(); exitEditMode();
 }
 
 function deselectAll() {
@@ -1270,7 +1319,7 @@ function startDrag(e, id) {
     hideGuides();
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onUp);
-    _dirty = true;
+    markDirty();
   };
   document.addEventListener('mousemove', onMove);
   document.addEventListener('mouseup', onUp);
@@ -1294,7 +1343,7 @@ function startResize(e, id, handle) {
   const onUp = () => {
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onUp);
-    _dirty = true;
+    markDirty();
   };
   document.addEventListener('mousemove', onMove);
   document.addEventListener('mouseup', onUp);
@@ -1455,7 +1504,7 @@ function addElAt(type, x, y) {
   els.push(el);
   selId = el.id;
   renderAll();
-  _dirty = true;
+  markDirty();
   // Scroll to new element
   const dom = document.getElementById(el.id);
   if (dom) dom.scrollIntoView({behavior:'smooth',block:'center'});
@@ -1604,7 +1653,7 @@ function exitEditMode() {
   _activeEditorId = null;
   _tinyReady = false;
   editMode = false;
-  _dirty = true;
+  markDirty();
 }
 
 function destroyTiny() { exitEditMode(); }
@@ -1617,7 +1666,7 @@ function bgEl(id, color) {
   el.s.background = color;
   const dom = document.getElementById(id);
   if (dom) dom.style.background = color;
-  _dirty = true;
+  markDirty();
 }
 
 // ═══ BACKGROUND ═══
@@ -1625,7 +1674,7 @@ function setBg(c) {
   canvasBg = c;
   document.getElementById('canvas').style.background = c;
   document.getElementById('bgHex').textContent = c;
-  _dirty = true;
+  markDirty();
 }
 
 // ═══ CHAT ═══
@@ -1764,15 +1813,25 @@ function toast(msg) {
 
 // ═══ KEYBOARD ═══
 document.addEventListener('keydown', e => {
-  if (e.target.closest('[contenteditable]')) return; // Don't intercept text editing
+  if (e.target.closest('[contenteditable]') || e.target.closest('textarea') || e.target.closest('input')) return;
   if (e.key==='Delete'||e.key==='Backspace') { if(selId){delEl(selId);e.preventDefault();} }
   if (e.key==='Escape') { selId=null; renderAll(); hideFmt(); }
   if ((e.metaKey||e.ctrlKey)&&e.key==='s') { e.preventDefault(); save(); }
   if ((e.metaKey||e.ctrlKey)&&e.key==='d') { e.preventDefault(); if(selId)dupEl(selId); }
+  if ((e.metaKey||e.ctrlKey)&&e.key==='z'&&!e.shiftKey) { e.preventDefault(); undo(); }
+  if ((e.metaKey||e.ctrlKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))) { e.preventDefault(); redo(); }
 });
 
 // ═══ INIT ═══
 renderAll();
+saveHistory(); // Save initial state for undo
+
+// Auto-save every 30 seconds if dirty
+setInterval(() => {
+  if (_dirty) {
+    save();
+  }
+}, 30000);
 </script>
 </body>
 </html>
