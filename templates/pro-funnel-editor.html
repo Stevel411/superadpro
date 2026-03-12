@@ -37,17 +37,29 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   border-radius:6px;box-shadow:0 0 60px rgba(0,0,0,.3);transition:background .3s;
 }
 
-/* Device preview frames */
-.canvas-area.tablet-mode .canvas{transform:scale(0.7);transform-origin:top center;margin-bottom:-30%}
-.canvas-area.mobile-mode .canvas{transform:scale(0.35);transform-origin:top center;margin-bottom:-60%}
-.canvas-area.tablet-mode,.canvas-area.mobile-mode{overflow-y:auto}
+/* Device preview — wrapper clips the canvas */
+.device-wrapper{display:none;margin:20px auto;position:relative;overflow:hidden}
+.device-wrapper.show{display:block}
+.device-wrapper.phone{width:390px;border-radius:36px;border:4px solid rgba(255,255,255,.12);box-shadow:0 0 0 2px rgba(0,0,0,.5),0 20px 60px rgba(0,0,0,.5);max-height:calc(100vh - 130px);overflow-y:auto}
+.device-wrapper.phone::-webkit-scrollbar{width:0}
+.device-wrapper.tablet{width:768px;border-radius:20px;border:4px solid rgba(255,255,255,.1);box-shadow:0 0 0 2px rgba(0,0,0,.4),0 16px 50px rgba(0,0,0,.4);max-height:calc(100vh - 130px);overflow-y:auto}
+.device-wrapper.tablet::-webkit-scrollbar{width:0}
+/* Notch for phone */
+.device-notch{display:none;height:28px;background:#000;position:sticky;top:0;z-index:3}
+.device-notch::after{content:'';position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:80px;height:5px;background:rgba(255,255,255,.2);border-radius:3px}
+.device-wrapper.phone .device-notch{display:block}
+/* Canvas inside device wrapper — scaled to fit */
+.device-canvas{overflow:hidden}
+.device-wrapper.phone .device-canvas{width:390px;overflow-y:auto;overflow-x:hidden;max-height:calc(100vh - 160px)}
+.device-wrapper.phone .device-canvas::-webkit-scrollbar{width:0}
+.device-wrapper.phone .canvas{transform:scale(0.3545);transform-origin:top left;width:1100px;min-height:2600px;border-radius:0;box-shadow:none;margin:0}
+.device-wrapper.tablet .device-canvas{width:768px;overflow-y:auto;overflow-x:hidden;max-height:calc(100vh - 140px)}
+.device-wrapper.tablet .device-canvas::-webkit-scrollbar{width:0}
+.device-wrapper.tablet .canvas{transform:scale(0.698);transform-origin:top left;width:1100px;min-height:1400px;border-radius:0;box-shadow:none;margin:0}
 
-/* Phone frame overlay */
-.device-frame{display:none;position:fixed;top:72px;left:224px;right:280px;bottom:0;z-index:4;pointer-events:none;align-items:flex-start;justify-content:center;padding-top:20px}
-.device-frame.show{display:flex}
-.phone-shell{width:410px;height:calc(100vh - 112px);border:4px solid rgba(255,255,255,.12);border-radius:36px;background:transparent;box-shadow:0 0 0 2px rgba(0,0,0,.3),0 20px 60px rgba(0,0,0,.4);position:relative}
-.phone-shell::before{content:'';position:absolute;top:8px;left:50%;transform:translateX(-50%);width:80px;height:5px;background:rgba(255,255,255,.15);border-radius:3px}
-.tablet-shell{width:780px;height:calc(100vh - 112px);border:4px solid rgba(255,255,255,.1);border-radius:20px;background:transparent;box-shadow:0 0 0 2px rgba(0,0,0,.3),0 20px 60px rgba(0,0,0,.4)}
+/* Hide normal canvas in device mode, show device wrapper */
+.canvas-area.device-mode>.canvas{display:none}
+.canvas-area:not(.device-mode) .device-wrapper{display:none!important}
 
 /* Device toggle */
 .tb-devices{display:flex;gap:2px;background:#f1f5f9;border-radius:8px;padding:2px;margin-right:8px}
@@ -188,9 +200,6 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 
 <!-- ═══ LAYOUT ═══ -->
 <div class="layout">
-  <!-- Device frame overlay -->
-  <div class="device-frame" id="deviceFrame"><div id="deviceShell"></div></div>
-  
   <!-- Canvas -->
   <div class="canvas-area" id="canvasArea">
     <div class="canvas" id="canvas"
@@ -209,6 +218,11 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
         <h3>Start building</h3>
         <p>Click any block from the right panel to add it, or drag it onto the canvas. Double-click text to edit.</p>
       </div>
+    </div>
+    <!-- Device preview wrapper -->
+    <div class="device-wrapper" id="deviceWrapper">
+      <div class="device-notch"></div>
+      <div class="device-canvas" id="deviceCanvas"></div>
     </div>
   </div>
 
@@ -1998,23 +2012,34 @@ function applyPageSettings() {
 let currentDevice = 'desktop';
 function setDevice(device) {
   currentDevice = device;
-  const cv = document.getElementById('canvas');
   const area = document.getElementById('canvasArea');
-  const frame = document.getElementById('deviceFrame');
-  const shell = document.getElementById('deviceShell');
+  const wrapper = document.getElementById('deviceWrapper');
+  const deviceCanvas = document.getElementById('deviceCanvas');
   
   // Reset
-  area.classList.remove('tablet-mode','mobile-mode');
-  frame.classList.remove('show');
+  area.classList.remove('device-mode');
+  wrapper.classList.remove('show','phone','tablet');
   
-  if (device === 'tablet') {
-    area.classList.add('tablet-mode');
-    frame.classList.add('show');
-    shell.className = 'tablet-shell';
-  } else if (device === 'mobile') {
-    area.classList.add('mobile-mode');
-    frame.classList.add('show');
-    shell.className = 'phone-shell';
+  if (device === 'desktop') {
+    // Show normal canvas
+    deviceCanvas.innerHTML = '';
+  } else {
+    // Clone the canvas HTML into device wrapper
+    const cv = document.getElementById('canvas');
+    const clone = cv.cloneNode(true);
+    clone.id = 'canvasClone';
+    clone.classList.add('canvas');
+    clone.style.background = canvasBg;
+    // Remove guides and resize handles from clone
+    clone.querySelectorAll('.guide,.cel-resize,.cel-bar,.canvas-empty').forEach(e=>e.remove());
+    // Remove selected state
+    clone.querySelectorAll('.cel.selected').forEach(e=>e.classList.remove('selected'));
+    
+    deviceCanvas.innerHTML = '';
+    deviceCanvas.appendChild(clone);
+    
+    wrapper.classList.add('show', device === 'mobile' ? 'phone' : 'tablet');
+    area.classList.add('device-mode');
   }
   
   // Update toggle buttons
