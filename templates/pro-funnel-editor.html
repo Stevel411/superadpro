@@ -468,15 +468,13 @@ function renderAll() {
       if (ce) { editMode = true; ce.focus(); }
     });
 
-    // Contenteditable blur — save text back
+    // Contenteditable — save text on blur (don't hide WYSIWYG — that's handled by selection changes)
     const ce = div.querySelector('[contenteditable]');
     if (ce) {
       ce.addEventListener('blur', () => {
         const elObj = els.find(x=>x.id===el.id);
         if (elObj) elObj.txt = ce.innerHTML;
-        hideFmt();
       });
-      ce.addEventListener('focus', () => showFmt(ce));
     }
 
     cv.appendChild(div);
@@ -485,38 +483,51 @@ function renderAll() {
 
 // ═══ SELECTION ═══
 function selectEl(id) {
-  if (id !== selId) editMode = false;
+  if (id === selId) return; // Already selected — don't re-render and kill edit mode
+  editMode = false;
   selId = id;
   renderAll();
 }
-document.getElementById('canvas').addEventListener('click', e => {
+document.getElementById('canvas').addEventListener('mousedown', e => {
+  // Only deselect if clicking directly on canvas background
   if (e.target.id === 'canvas' || e.target.closest('.canvas-empty')) {
     selId = null;
     editMode = false;
     renderAll();
-    hideFmt();
+    document.getElementById('wysiwygBar').style.display = 'none';
+    _activeEditor = null;
   }
 });
 
 // ═══ DRAG MOVE ═══
 let dragState = null;
-let editMode = false; // true when a contenteditable is being edited
+let editMode = false;
 
 function startDrag(e, id) {
-  // Don't start drag if clicking on toolbar, resize handle, or contenteditable
+  // Never drag if clicking on toolbar or resize handles
   if (e.target.closest('.cel-bar') || e.target.closest('.cel-resize')) return;
   
-  // If this element is already selected and we're clicking inside its text area, enter edit mode instead of dragging
-  if (id === selId && (e.target.closest('[contenteditable]') || e.target.hasAttribute('contenteditable'))) {
-    editMode = true;
-    return; // Let the click go through to the contenteditable
-  }
-  
-  // If we're in edit mode on this element, don't drag
+  // If we're in edit mode on this element, let all mouse events pass through to contenteditable
   if (editMode && id === selId) return;
   
+  // If this element is already selected and click is on/inside contenteditable, enter edit mode
+  if (id === selId) {
+    const ce = e.target.closest('[contenteditable]') || e.target.querySelector?.('[contenteditable]');
+    if (ce || e.target.hasAttribute?.('contenteditable')) {
+      editMode = true;
+      const target = ce || e.target;
+      target.focus();
+      _activeEditor = target;
+      document.getElementById('wysiwygBar').style.display = 'flex';
+      return; // Don't drag — let the click go to the text
+    }
+  }
+  
+  // Normal drag behavior
   e.preventDefault();
   editMode = false;
+  document.getElementById('wysiwygBar').style.display = 'none';
+  _activeEditor = null;
   const el = els.find(x=>x.id===id);
   if (!el) return;
   selId = id;
@@ -695,7 +706,6 @@ function _fe() {
 }
 function fmt(cmd, val) {
   if (_activeEditor) {
-    // Don't lose focus — the mousedown preventDefault on buttons handles this
     document.execCommand(cmd, false, val||null);
   }
   return true;
@@ -713,13 +723,8 @@ function showFmt(el) {
   document.getElementById('wysiwygBar').style.display = 'flex';
 }
 function hideFmt() {
-  // Delay hiding to allow toolbar clicks to register
-  setTimeout(() => {
-    if (!_activeEditor || !document.activeElement?.closest('[contenteditable]')) {
-      document.getElementById('wysiwygBar').style.display = 'none';
-      _activeEditor = null;
-    }
-  }, 200);
+  document.getElementById('wysiwygBar').style.display = 'none';
+  _activeEditor = null;
 }
 function bgEl(id, color) {
   const el = els.find(x=>x.id===id);
@@ -741,6 +746,7 @@ function bgEl(id, color) {
     dx = e.clientX - bar.getBoundingClientRect().left;
     dy = e.clientY - bar.getBoundingClientRect().top;
     bar.style.cursor = 'grabbing';
+    e.preventDefault(); // Prevent text deselection when grabbing the bar
   });
   document.addEventListener('mousemove', e => {
     if (!dragging) return;
@@ -750,7 +756,7 @@ function bgEl(id, color) {
   });
   document.addEventListener('mouseup', () => {
     dragging = false;
-    bar.style.cursor = 'grab';
+    if (bar) bar.style.cursor = 'grab';
   });
 })();
 
