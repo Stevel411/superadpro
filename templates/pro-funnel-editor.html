@@ -40,7 +40,9 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 /* ── Elements on canvas ── */
 .cel{position:absolute;cursor:grab;user-select:none;min-width:40px;min-height:20px}
 .cel:active{cursor:grabbing}
-.cel.editing{cursor:auto}
+.cel *{cursor:grab}
+.cel:active *{cursor:grabbing}
+.cel.editing,.cel.editing *{cursor:auto}
 .cel.editing [contenteditable]{cursor:text}
 .cel:hover{outline:1px dashed rgba(14,165,233,.35);outline-offset:1px}
 .cel.selected{outline:2px solid var(--accent);outline-offset:1px}
