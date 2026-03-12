@@ -8665,8 +8665,7 @@ async def pro_funnels_page(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse("/upgrade", status_code=302)
 
     funnels = db.query(FunnelPage).filter(
-        FunnelPage.user_id == user.id,
-        FunnelPage.is_ai_generated == True
+        FunnelPage.user_id == user.id
     ).order_by(FunnelPage.created_at.desc()).all()
 
     return templates.TemplateResponse("pro-funnels.html", {
