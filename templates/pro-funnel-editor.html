@@ -450,8 +450,11 @@ let editMode = false;
 let dragState = null;
 
 function selectEl(id) {
+  // Always close any open editor when selecting
+  if (editMode || _activeEditorId) {
+    destroyTiny();
+  }
   if (id === selId) return;
-  destroyTiny();
   editMode = false;
   _lastClickId = null;
   _lastClickTime = 0;
@@ -460,6 +463,9 @@ function selectEl(id) {
 }
 
 function enterEditMode(id) {
+  // Always close any existing editor first
+  exitEditMode();
+  
   const el = els.find(x => x.id === id);
   if (!el) return;
   editMode = true;
