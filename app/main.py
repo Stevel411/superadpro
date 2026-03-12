@@ -8919,25 +8919,29 @@ async def api_pro_funnel_create_from_template(request: Request, db: Session = De
     if not tpl:
         return JSONResponse({"error": "Template not found"}, status_code=404)
 
-    slug_suffix = secrets.token_hex(3)
-    slug = f"{user.username}/{tpl['category']}-{slug_suffix}"
+    try:
+        slug_suffix = secrets.token_hex(3)
+        slug = f"{user.username}/{tpl['category']}-{slug_suffix}"
 
-    page = FunnelPage(
-        user_id=user.id,
-        title=tpl['name'],
-        slug=slug,
-        headline=tpl['name'],
-        status="published",
-        page_type="ai_funnel",
-        sections_json="{}",
-        gjs_css=_jtpl.dumps({"els": tpl['elements'], "canvasBg": tpl['bg_color']}),
-        gjs_html="",
-    )
-    db.add(page)
-    db.commit()
-    db.refresh(page)
+        page = FunnelPage(
+            user_id=user.id,
+            title=tpl['name'],
+            slug=slug,
+            headline=tpl['name'],
+            status="published",
+            page_type="ai_funnel",
+            sections_json="{}",
+            gjs_css=_jtpl.dumps({"els": tpl['elements'], "canvasBg": tpl['bg_color']}),
+        )
+        db.add(page)
+        db.commit()
+        db.refresh(page)
 
-    return JSONResponse({"success": True, "funnel_id": page.id})
+        return JSONResponse({"success": True, "funnel_id": page.id})
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Template create error: {e}")
+        return JSONResponse({"error": f"Failed: {str(e)[:200]}"}, status_code=500)
 
 
 @app.get("/api/pro/funnel/templates")
