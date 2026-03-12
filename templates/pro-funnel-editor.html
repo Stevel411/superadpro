@@ -437,8 +437,12 @@ function renderAll() {
       div.appendChild(h);
     });
 
-    // Mouse events  
-    div.addEventListener('mousedown', e => startDrag(e, el.id));
+    // Mouse events — drag handler checks editMode internally
+    div.addEventListener('mousedown', e => {
+      // If this element is being edited by TinyMCE, don't intercept ANY mouse events
+      if (div.classList.contains('editing')) return;
+      startDrag(e, el.id);
+    });
 
     // Contenteditable — save text on blur (don't hide WYSIWYG — that's handled by selection changes)
     const ce = div.querySelector('[contenteditable]');
