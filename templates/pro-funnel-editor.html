@@ -437,12 +437,6 @@ function renderAll() {
 
     // Mouse events  
     div.addEventListener('mousedown', e => startDrag(e, el.id));
-    div.addEventListener('dblclick', e => {
-      e.stopPropagation();
-      if (el.id === selId) {
-        enterEditMode(el.id);
-      }
-    });
 
     // Contenteditable — save text on blur (don't hide WYSIWYG — that's handled by selection changes)
     const ce = div.querySelector('[contenteditable]');
@@ -498,12 +492,27 @@ document.getElementById('canvas').addEventListener('mousedown', e => {
 });
 
 // ═══ DRAG MOVE ═══
+let _lastClickId = null;
+let _lastClickTime = 0;
+
 function startDrag(e, id) {
   // Never drag if clicking on toolbar, resize handles, or TinyMCE UI
   if (e.target.closest('.cel-bar') || e.target.closest('.cel-resize') || e.target.closest('.tox')) return;
   
   // If we're in edit mode on this element, let mouse events go to TinyMCE
   if (editMode && id === selId) return;
+  
+  // Double-click detection: if same element clicked within 400ms, enter edit mode
+  const now = Date.now();
+  if (id === _lastClickId && (now - _lastClickTime) < 400 && id === selId) {
+    _lastClickId = null;
+    _lastClickTime = 0;
+    e.preventDefault();
+    enterEditMode(id);
+    return;
+  }
+  _lastClickId = id;
+  _lastClickTime = now;
   
   // If clicking an unselected element — select it (enables dragging on next mousedown)
   if (id !== selId) {
