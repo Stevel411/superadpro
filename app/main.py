@@ -9498,7 +9498,7 @@ async def render_ai_funnel(username: str, slug: str, request: Request, db: Sessi
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=Raleway:wght@400;500;600;700;800;900&family=Open+Sans:wght@400;500;600;700;800&family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Bebas+Neue&family=Cinzel:wght@400;700;900&family=Dancing+Script:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
 <style>*{{margin:0;padding:0;box-sizing:border-box}}body{{min-height:100vh;overflow-x:hidden}}</style>
 </head><body>{page.gjs_html}
-<div style="text-align:center;padding:24px;font-size:11px;color:#475569;font-family:Outfit,sans-serif">Income examples are illustrative. Results depend on individual effort. &copy; 2026 SuperAdPro</div>
+<div style="text-align:center;padding:24px;font-size:11px;color:rgba(255,255,255,0.25);font-family:Outfit,sans-serif;background:transparent">Income examples are illustrative. Results depend on individual effort. &copy; 2026 SuperAdPro</div>
 <script>
 // Email capture — find all capture forms and wire up submit buttons
 document.querySelectorAll('[data-redirect],[data-thankyou]').forEach(function(form){{
