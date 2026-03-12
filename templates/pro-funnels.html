@@ -104,7 +104,25 @@ textarea.form-input{min-height:80px;resize:vertical}
     </div>
 
     <div class="content">
-      <!-- Stats -->
+      <!-- Two creation options — TOP -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+        <div style="background:#1c223d;border-radius:18px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.15)" onclick="openWizard()" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 40px rgba(0,0,0,.25)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,.15)'">
+          <div style="position:absolute;top:-30%;left:-10%;width:60%;height:60%;background:radial-gradient(circle,rgba(14,165,233,.1) 0%,transparent 70%);pointer-events:none"></div>
+          <div style="font-size:36px;margin-bottom:12px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))">✨</div>
+          <div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:8px">AI Funnel Generator</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.6;max-width:280px;margin:0 auto">Answer 4 questions and AI generates a complete landing page with email capture</div>
+          <div style="margin-top:16px;display:inline-block;padding:10px 28px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 4px 15px rgba(14,165,233,.3)">Create AI Funnel →</div>
+        </div>
+        <div style="background:#1c223d;border-radius:18px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.15)" onclick="createBlankPage()" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 40px rgba(0,0,0,.25)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,.15)'">
+          <div style="position:absolute;top:-30%;left:-10%;width:60%;height:60%;background:radial-gradient(circle,rgba(16,185,129,.1) 0%,transparent 70%);pointer-events:none"></div>
+          <div style="font-size:36px;margin-bottom:12px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))">🎨</div>
+          <div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:8px">Go Direct to Page Builder</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.6;max-width:280px;margin:0 auto">Start with a blank canvas and build from scratch with drag-and-drop</div>
+          <div style="margin-top:16px;display:inline-block;padding:10px 28px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 4px 15px rgba(16,185,129,.3)">Open Page Builder →</div>
+        </div>
+      </div>
+
+      <!-- Stats — MIDDLE -->
       <div class="stats-row">
         <div class="stat-card">
           <div class="stat-label">Active Funnels</div>
@@ -123,7 +141,7 @@ textarea.form-input{min-height:80px;resize:vertical}
         </div>
       </div>
 
-      <!-- Template Gallery — FIRST -->
+      <!-- Template Gallery — BOTTOM -->
       <div style="margin-bottom:24px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
           <div>
@@ -158,24 +176,6 @@ textarea.form-input{min-height:80px;resize:vertical}
             <div class="tpl-body"><div class="tpl-name">Affiliate Recruit</div><div class="tpl-desc">SuperAdPro recruitment page with video, stats and join CTA</div><div class="tpl-use">Use Template →</div></div>
           </div>
 
-        </div>
-      </div>
-
-      <!-- Two creation options — SECOND, dark backgrounds -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px">
-        <div style="background:#1c223d;border-radius:18px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.15)" onclick="openWizard()" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 40px rgba(0,0,0,.25)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,.15)'">
-          <div style="position:absolute;top:-30%;left:-10%;width:60%;height:60%;background:radial-gradient(circle,rgba(14,165,233,.1) 0%,transparent 70%);pointer-events:none"></div>
-          <div style="font-size:36px;margin-bottom:12px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))">✨</div>
-          <div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:8px">AI Funnel Generator</div>
-          <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.6;max-width:280px;margin:0 auto">Answer 4 questions and AI generates a complete landing page with email capture</div>
-          <div style="margin-top:16px;display:inline-block;padding:10px 28px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 4px 15px rgba(14,165,233,.3)">Create AI Funnel →</div>
-        </div>
-        <div style="background:#1c223d;border-radius:18px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.15)" onclick="createBlankPage()" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 40px rgba(0,0,0,.25)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,.15)'">
-          <div style="position:absolute;top:-30%;left:-10%;width:60%;height:60%;background:radial-gradient(circle,rgba(16,185,129,.1) 0%,transparent 70%);pointer-events:none"></div>
-          <div style="font-size:36px;margin-bottom:12px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))">🎨</div>
-          <div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:8px">Go Direct to Page Builder</div>
-          <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.6;max-width:280px;margin:0 auto">Start with a blank canvas and build from scratch with drag-and-drop</div>
-          <div style="margin-top:16px;display:inline-block;padding:10px 28px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 4px 15px rgba(16,185,129,.3)">Open Page Builder →</div>
         </div>
       </div>
 
