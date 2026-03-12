@@ -100,14 +100,15 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .pal-cat:first-child{padding-top:0}
 .pal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:6px}
 .pal-item{
-  background:#fff;border:1px solid var(--panel-border);border-radius:9px;
+  background:linear-gradient(135deg,#a3c520,#8db41a);border:none;border-radius:10px;
   padding:14px 6px 10px;text-align:center;cursor:pointer;
-  display:flex;flex-direction:column;align-items:center;gap:5px;transition:.12s;user-select:none;
+  display:flex;flex-direction:column;align-items:center;gap:5px;transition:.15s;user-select:none;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);
 }
-.pal-item:hover{border-color:var(--accent);background:#f0f9ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(14,165,233,.1)}
+.pal-item:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(163,197,32,.3);background:linear-gradient(135deg,#b5d42a,#a3c520)}
 .pal-item:active{transform:scale(.94)}
-.pal-ico{font-size:22px;line-height:1}
-.pal-nm{font-size:9px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#6a7090}
+.pal-ico{font-size:22px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.15))}
+.pal-nm{font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:rgba(255,255,255,.9);text-shadow:0 1px 2px rgba(0,0,0,.1)}
 
 /* BG control */
 .bg-ctrl{padding:14px 16px;border-top:1px solid var(--panel-border);display:flex;align-items:center;gap:10px;flex-shrink:0;background:#fff}
