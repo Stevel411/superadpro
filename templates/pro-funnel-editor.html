@@ -692,11 +692,11 @@ let _activeEditorId = null;
 
 function initTinyOnElement(id) {
   const el = document.getElementById(id);
-  if (!el) return;
+  if (!el) { console.error('initTiny: element not found', id); return; }
   const ce = el.querySelector('[contenteditable]');
-  if (!ce) return;
+  if (!ce) { console.error('initTiny: no contenteditable in', id); return; }
   
-  // Add editing class to hide the dark element toolbar
+  // Add editing class to restore pointer-events and hide element toolbar
   el.classList.add('editing');
   
   // Give the contenteditable a unique ID for TinyMCE
@@ -704,18 +704,14 @@ function initTinyOnElement(id) {
   ce.id = ceId;
   
   // Destroy any existing instance
-  const existing = tinymce.get(ceId);
-  if (existing) existing.remove();
+  try {
+    const existing = tinymce.get(ceId);
+    if (existing) existing.remove();
+  } catch(e) { console.warn('Destroy existing:', e); }
   
   _activeEditorId = ceId;
   
-  // Ensure the toolbar container exists
-  if (!document.getElementById('tinyToolbarContainer')) {
-    const container = document.createElement('div');
-    container.id = 'tinyToolbarContainer';
-    container.style.cssText = 'position:fixed;top:58px;left:20px;right:300px;z-index:200;display:flex;justify-content:center;';
-    document.body.appendChild(container);
-  }
+  console.log('Initialising TinyMCE on', ceId, ce);
   
   tinymce.init({
     selector: '#' + ceId,
@@ -723,7 +719,6 @@ function initTinyOnElement(id) {
     menubar: false,
     statusbar: false,
     license_key: 'gpl',
-    fixed_toolbar_container: '#tinyToolbarContainer',
     toolbar: [
       'undo redo | fontfamily fontsize lineheight | bold italic underline strikethrough | forecolor backcolor | removeformat',
       'alignleft aligncenter alignright | outdent indent | numlist bullist | subscript superscript | charmap'
@@ -736,12 +731,20 @@ function initTinyOnElement(id) {
     content_css: false,
     content_style: 'body { margin:0; padding:0; } * { box-sizing:border-box; }',
     setup: function(editor) {
+      editor.on('init', function() {
+        console.log('TinyMCE ready on', ceId);
+        editor.focus();
+      });
       editor.on('blur', function() {
         const elObj = els.find(x => x.id === id);
         if (elObj) elObj.txt = editor.getContent();
         _dirty = true;
       });
     }
+  }).then(function(editors) {
+    console.log('TinyMCE init resolved', editors.length, 'editors');
+  }).catch(function(err) {
+    console.error('TinyMCE init FAILED:', err);
   });
 }
 
