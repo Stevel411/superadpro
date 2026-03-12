@@ -40,10 +40,18 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 /* ── Elements on canvas ── */
 .cel{position:absolute;cursor:grab;user-select:none;min-width:40px;min-height:20px}
 .cel:active{cursor:grabbing}
+/* Block all inner content from stealing mouse events until edit mode */
+.cel>*:not(.cel-bar):not(.cel-resize){pointer-events:none}
 .cel *{cursor:grab}
 .cel:active *{cursor:grabbing}
-.cel.editing,.cel.editing *{cursor:auto}
+/* In edit mode, restore pointer events and text cursor */
+.cel.editing{cursor:auto}
+.cel.editing>*{pointer-events:auto}
+.cel.editing *{cursor:auto}
 .cel.editing [contenteditable]{cursor:text}
+/* Element toolbar always interactive */
+.cel .cel-bar,.cel .cel-bar *{pointer-events:auto!important;cursor:pointer!important}
+.cel .cel-resize{pointer-events:auto!important}
 .cel:hover{outline:1px dashed rgba(14,165,233,.35);outline-offset:1px}
 .cel.selected{outline:2px solid var(--accent);outline-offset:1px}
 
