@@ -734,42 +734,85 @@ function showButtonEditor(id, el) {
   try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
   
   const wrap = document.getElementById('tinyEditorWrap');
-  // Extract plain text from HTML
   const tempDiv = document.createElement('div'); tempDiv.innerHTML = el.txt || ''; 
   const btnText = tempDiv.textContent || el.txt || '';
   const btnUrl = el.url || '/register?ref=' + USERNAME;
   const c1 = el.s?.background?.match(/#[0-9a-fA-F]{6}/g)?.[0] || '#0ea5e9';
   const c2 = el.s?.background?.match(/#[0-9a-fA-F]{6}/g)?.[1] || '#6366f1';
+  const fontSize = el.s?.fontSize || '18px';
+  const fontWeight = el.s?.fontWeight || '700';
   
   wrap.innerHTML = `
-    <div style="padding:24px;background:#fff">
-      <label style="display:block;font-size:12px;font-weight:700;color:#2a2e3d;margin-bottom:6px">Button Text</label>
-      <input id="btnTextInput" type="text" value="${btnText.replace(/"/g,'&quot;')}" placeholder="e.g. Get Started Now →"
-        style="width:100%;padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:16px"
-        onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+    <div style="padding:20px;background:#fff">
+      <div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:12px">
+        <div>
+          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Button Text</label>
+          <input id="btnTextInput" type="text" value="${btnText.replace(/"/g,'&quot;')}" placeholder="e.g. Get Started Now →"
+            style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none"
+            oninput="livePreviewButton('${id}')">
+        </div>
+        <div>
+          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Size</label>
+          <select id="btnFontSize" style="padding:10px 8px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;background:#fff" onchange="livePreviewButton('${id}')">
+            <option value="12px" ${fontSize==='12px'?'selected':''}>12</option>
+            <option value="14px" ${fontSize==='14px'?'selected':''}>14</option>
+            <option value="16px" ${fontSize==='16px'?'selected':''}>16</option>
+            <option value="18px" ${fontSize==='18px'?'selected':''}>18</option>
+            <option value="20px" ${fontSize==='20px'?'selected':''}>20</option>
+            <option value="22px" ${fontSize==='22px'?'selected':''}>22</option>
+            <option value="24px" ${fontSize==='24px'?'selected':''}>24</option>
+            <option value="28px" ${fontSize==='28px'?'selected':''}>28</option>
+            <option value="32px" ${fontSize==='32px'?'selected':''}>32</option>
+          </select>
+        </div>
+      </div>
       
-      <label style="display:block;font-size:12px;font-weight:700;color:#2a2e3d;margin-bottom:6px">Link URL</label>
+      <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Link URL</label>
       <input id="btnUrlInput" type="text" value="${btnUrl.replace(/"/g,'&quot;')}" placeholder="https://... or /register?ref=username"
-        style="width:100%;padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:16px"
-        onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
-      <div style="font-size:11px;color:#8892a8;margin-bottom:16px">Use /register?ref=${USERNAME} for your referral signup link</div>
+        style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:12px">
       
-      <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
+      <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:14px">
         <div>
-          <label style="display:block;font-size:11px;font-weight:700;color:#8892a8;margin-bottom:4px">Colour 1</label>
-          <input id="btnColor1" type="color" value="${c1}" style="width:44px;height:36px;border:2px solid #e2e8f0;border-radius:8px;cursor:pointer;padding:0">
+          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px">Colour 1</label>
+          <input id="btnColor1" type="color" value="${c1}" style="width:40px;height:32px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0" oninput="livePreviewButton('${id}')">
         </div>
         <div>
-          <label style="display:block;font-size:11px;font-weight:700;color:#8892a8;margin-bottom:4px">Colour 2</label>
-          <input id="btnColor2" type="color" value="${c2}" style="width:44px;height:36px;border:2px solid #e2e8f0;border-radius:8px;cursor:pointer;padding:0">
+          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px">Colour 2</label>
+          <input id="btnColor2" type="color" value="${c2}" style="width:40px;height:32px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0" oninput="livePreviewButton('${id}')">
         </div>
-        <div style="font-size:11px;color:#8892a8;margin-top:16px">Gradient left → right</div>
+        <div id="btnLivePreview" style="flex:1;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,${c1},${c2});color:#fff;font-weight:${fontWeight};font-size:${fontSize};text-align:center;font-family:Sora,sans-serif">${btnText}</div>
       </div>
       
       <button onclick="applyButton('${id}')" style="padding:10px 24px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Apply Changes</button>
     </div>
   `;
   _activeEditorId = id;
+}
+
+function livePreviewButton(id) {
+  const text = document.getElementById('btnTextInput')?.value || 'Button';
+  const c1 = document.getElementById('btnColor1')?.value || '#0ea5e9';
+  const c2 = document.getElementById('btnColor2')?.value || '#6366f1';
+  const fontSize = document.getElementById('btnFontSize')?.value || '18px';
+  
+  // Update mini preview in editor
+  const preview = document.getElementById('btnLivePreview');
+  if (preview) {
+    preview.style.background = `linear-gradient(135deg,${c1},${c2})`;
+    preview.style.fontSize = fontSize;
+    preview.textContent = text;
+  }
+  
+  // Update canvas element live
+  const dom = document.getElementById(id);
+  if (dom) {
+    dom.style.background = `linear-gradient(135deg,${c1},${c2})`;
+    const inner = dom.querySelector('div');
+    if (inner) {
+      inner.textContent = text;
+      inner.style.fontSize = fontSize;
+    }
+  }
 }
 
 function applyButton(id) {
@@ -779,10 +822,12 @@ function applyButton(id) {
   const url = document.getElementById('btnUrlInput')?.value || '';
   const c1 = document.getElementById('btnColor1')?.value || '#0ea5e9';
   const c2 = document.getElementById('btnColor2')?.value || '#6366f1';
+  const fontSize = document.getElementById('btnFontSize')?.value || '18px';
   
   el.txt = text;
   el.url = url;
   el.s.background = `linear-gradient(135deg,${c1},${c2})`;
+  el.s.fontSize = fontSize;
   _dirty = true;
   renderAll();
   exitEditMode();
@@ -1338,9 +1383,16 @@ async function save() {
       body: JSON.stringify(payload)
     });
     const d = await res.json();
-    if (d.success||d.id) { toast('✓ Saved!'); _dirty=false; }
-    else toast('Save failed');
-  } catch(e) { toast('Save error'); }
+    if (d.success||d.id) { 
+      toast('✓ Saved!'); 
+      _dirty=false;
+      // Update slug if it changed
+      if (d.slug && d.slug !== SLUG) {
+        document.querySelector('.tb-preview').href = '/f/' + d.slug;
+      }
+    }
+    else toast('Save failed: ' + (d.error || ''));
+  } catch(e) { toast('Save error: ' + e.message); }
 }
 
 function exportHTML() {
