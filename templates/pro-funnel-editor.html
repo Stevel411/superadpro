@@ -424,10 +424,9 @@ function renderAll() {
     // Mouse events  
     div.addEventListener('mousedown', e => startDrag(e, el.id));
     div.addEventListener('dblclick', e => {
-      // Double-click re-inits TinyMCE if needed
-      if (!['video','image','spacer','divider','box'].includes(el.type)) {
-        editMode = true;
-        initTinyOnElement(el.id);
+      e.stopPropagation();
+      if (el.id === selId) {
+        enterEditMode(el.id);
       }
     });
 
@@ -454,17 +453,17 @@ function selectEl(id) {
   editMode = false;
   selId = id;
   renderAll();
-  
-  // Auto-init TinyMCE for text elements
+}
+
+function enterEditMode(id) {
   const el = els.find(x => x.id === id);
-  if (el && !['video','image','spacer','divider','box'].includes(el.type)) {
-    editMode = true;
+  if (!el || ['video','image','spacer','divider','box'].includes(el.type)) return;
+  editMode = true;
+  requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        initTinyOnElement(id);
-      });
+      initTinyOnElement(id);
     });
-  }
+  });
 }
 
 function deselectAll() {
@@ -483,20 +482,20 @@ document.getElementById('canvas').addEventListener('mousedown', e => {
 
 // ═══ DRAG MOVE ═══
 function startDrag(e, id) {
-  // Never drag if clicking on toolbar, resize handles, or TinyMCE
+  // Never drag if clicking on toolbar, resize handles, or TinyMCE UI
   if (e.target.closest('.cel-bar') || e.target.closest('.cel-resize') || e.target.closest('.tox')) return;
   
-  // If we're in edit mode on this element, let mouse events go to TinyMCE/contenteditable
+  // If we're in edit mode on this element, let mouse events go to TinyMCE
   if (editMode && id === selId) return;
   
-  // If clicking an unselected element — select it, don't drag
+  // If clicking an unselected element — select it (enables dragging on next mousedown)
   if (id !== selId) {
     e.preventDefault();
     selectEl(id);
     return;
   }
   
-  // This element is selected but not in edit mode (non-text elements) — allow drag
+  // This element is already selected and NOT in edit mode — start drag
   e.preventDefault();
   const el = els.find(x=>x.id===id);
   if (!el) return;
