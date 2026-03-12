@@ -9544,6 +9544,22 @@ document.querySelectorAll('[data-redirect],[data-thankyou]').forEach(function(fo
     }}).catch(function(){{ alert('Connection error.'); }});
   }});
 }});
+// Countdown timers
+document.querySelectorAll('[id^="cd_"]').forEach(function(el){{
+  var vs=el.querySelectorAll('.cdv');
+  if(vs.length<4)return;
+  setInterval(function(){{
+    // Find the target date from data attribute or default to +7 days
+    var t=el.getAttribute('data-target');
+    if(!t)return;
+    var n=new Date(t).getTime()-Date.now();
+    if(n<0)n=0;
+    vs[0].textContent=String(Math.floor(n/86400000)).padStart(2,'0');
+    vs[1].textContent=String(Math.floor(n%86400000/3600000)).padStart(2,'0');
+    vs[2].textContent=String(Math.floor(n%3600000/60000)).padStart(2,'0');
+    vs[3].textContent=String(Math.floor(n%60000/1000)).padStart(2,'0');
+  }},1000);
+}});
 </script>
 </body></html>"""
         return HTMLResponse(wrapped)

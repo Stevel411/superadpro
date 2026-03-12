@@ -499,8 +499,10 @@ function renderAll() {
     div.className = 'cel' + (el.id===selId?' selected':'');
     div.id = el.id;
     div.style.cssText = `left:${el.x}px;top:${el.y}px;width:${el.w}px;height:${el.h}px;`;
-    // Apply custom styles (background, border, padding, borderRadius)
+    // Apply custom styles (background, border, padding, borderRadius — layout only)
     const layoutStyles = ['background','borderRadius','border','padding','boxShadow','borderLeft','borderTop','borderRight','borderBottom','opacity'];
+    // Styles that should NOT go on the outer .cel (they'd conflict with absolute positioning)
+    const skipOnOuter = ['display','alignItems','justifyContent'];
     Object.entries(el.s||{}).forEach(([k,v])=>{
       if (layoutStyles.includes(k)) div.style[k] = v;
     });
@@ -1130,7 +1132,7 @@ function applyForm(id) {
   el.thankYouMsg = thankYouMsg;
   
   // Build the form HTML with data attributes for the redirect and thank you
-  el.txt = `<div style="text-align:center;padding:4px" data-redirect="${redirectUrl.replace(/"/g,'&quot;')}" data-thankyou="${thankYouMsg.replace(/"/g,'&quot;')}"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">${heading}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">${subtext}</div><input placeholder="Your first name" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:8px;box-sizing:border-box"><input placeholder="Your email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:10px;box-sizing:border-box"><div style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,${c1},${c2});color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box;cursor:pointer" onclick="captureEmail(this)">${btnText}</div></div>`;
+  el.txt = `<div style="text-align:center;padding:4px" data-redirect="${redirectUrl.replace(/"/g,'&quot;')}" data-thankyou="${thankYouMsg.replace(/"/g,'&quot;')}"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">${heading}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">${subtext}</div><input placeholder="Your first name" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:8px;box-sizing:border-box"><input placeholder="Your email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;margin-bottom:10px;box-sizing:border-box"><div style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,${c1},${c2});color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box;cursor:pointer">${btnText}</div></div>`;
   markDirty();
   renderAll();
   exitEditMode();
@@ -1830,7 +1832,7 @@ function exportHTML() {
     } else if (el.type==='countdown') {
       const td = el._targetDate || '';
       const cdId = 'cd_' + el.id;
-      h+=`<div style="${st}"><div id="${cdId}" style="display:flex;gap:12px;justify-content:center;align-items:center;width:100%;height:100%">${['Days','Hrs','Min','Sec'].map((_,i)=>`<div style="text-align:center"><div class="cdv" style="font-family:Sora,sans-serif;font-size:28px;font-weight:900;color:#fff;background:rgba(255,255,255,0.06);border-radius:10px;padding:8px 14px;min-width:50px;border:1px solid rgba(255,255,255,0.08)">00</div><div style="font-size:10px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">${['Days','Hrs','Min','Sec'][i]}</div></div>`).join('')}</div></div>`;
+      h+=`<div style="${st}"><div id="${cdId}" data-target="${td}" style="display:flex;gap:12px;justify-content:center;align-items:center;width:100%;height:100%">${['Days','Hrs','Min','Sec'].map((_,i)=>`<div style="text-align:center"><div class="cdv" style="font-family:Sora,sans-serif;font-size:28px;font-weight:900;color:#fff;background:rgba(255,255,255,0.06);border-radius:10px;padding:8px 14px;min-width:50px;border:1px solid rgba(255,255,255,0.08)">00</div><div style="font-size:10px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:.5px">${['Days','Hrs','Min','Sec'][i]}</div></div>`).join('')}</div></div>`;
       // JS timer will be added to page wrapper
     } else if (el.type==='progress') {
       const pct = el._percent||75; const lbl = el._label||'Progress'; const clr = el._color||'#0ea5e9';
@@ -1844,17 +1846,6 @@ function exportHTML() {
     }
   });
   h += '</div></div>';
-  
-  // Add countdown JS if any countdown elements exist
-  const countdowns = els.filter(e=>e.type==='countdown'&&e._targetDate);
-  if (countdowns.length) {
-    h += '<script>';
-    countdowns.forEach(cd=>{
-      h += `(function(){var t=new Date('${cd._targetDate}').getTime();var el=document.getElementById('cd_${cd.id}');if(!el)return;var vs=el.querySelectorAll('.cdv');setInterval(function(){var n=t-Date.now();if(n<0)n=0;vs[0].textContent=String(Math.floor(n/86400000)).padStart(2,'0');vs[1].textContent=String(Math.floor(n%86400000/3600000)).padStart(2,'0');vs[2].textContent=String(Math.floor(n%3600000/60000)).padStart(2,'0');vs[3].textContent=String(Math.floor(n%60000/1000)).padStart(2,'0');},1000);})();`;
-    });
-    h += '<\/script>';
-  }
-  
   return h;
 }
 
@@ -1867,8 +1858,10 @@ function toast(msg) {
 // ═══ KEYBOARD ═══
 document.addEventListener('keydown', e => {
   if (e.target.closest('[contenteditable]') || e.target.closest('textarea') || e.target.closest('input')) return;
+  // Don't intercept when floating editor panel is visible (TinyMCE may be active)
+  if (e.target.closest('#floatingEditor') || e.target.closest('.tox')) return;
   if (e.key==='Delete'||e.key==='Backspace') { if(selId){delEl(selId);e.preventDefault();} }
-  if (e.key==='Escape') { selId=null; renderAll(); hideFmt(); }
+  if (e.key==='Escape') { if(editMode||_activeEditorId) exitEditMode(); else { selId=null; renderAll(); } }
   if ((e.metaKey||e.ctrlKey)&&e.key==='s') { e.preventDefault(); save(); }
   if ((e.metaKey||e.ctrlKey)&&e.key==='d') { e.preventDefault(); if(selId)dupEl(selId); }
   if ((e.metaKey||e.ctrlKey)&&e.key==='z'&&!e.shiftKey) { e.preventDefault(); undo(); }
@@ -2018,6 +2011,9 @@ function setDevice(device) {
   
   if (device === 'desktop') {
     deviceCanvas.innerHTML = '';
+    // Update toggle buttons
+    document.querySelectorAll('.tb-dev').forEach(b => b.classList.remove('active'));
+    document.getElementById('devDesktop').classList.add('active');
     return;
   }
   
