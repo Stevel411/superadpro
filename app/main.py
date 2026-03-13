@@ -495,6 +495,15 @@ def campaign_tiers(request: Request, user: User = Depends(get_current_user),
 def faq(request: Request):
     return templates.TemplateResponse("faq.html", {"request": request})
 
+@app.get("/membership")
+def membership(request: Request):
+    return templates.TemplateResponse("membership.html", {"request": request})
+
+@app.get("/pricing")
+def pricing(request: Request):
+    """Alias for /membership."""
+    return RedirectResponse(url="/membership", status_code=302)
+
 @app.get("/support-public")
 def support_public(request: Request):
     return templates.TemplateResponse("support.html", {"request": request})

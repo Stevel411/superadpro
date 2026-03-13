@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Membership — SuperAdPro</title>
+<meta name="description" content="Two plans, unlimited potential. Join SuperAdPro from $20/month and access AI marketing tools, multiple income streams, and a complete business platform.">
+<meta property="og:title" content="SuperAdPro Membership Plans">
+<meta property="og:description" content="Two plans. AI tools. Multiple income streams. From $20/month.">
+<meta property="og:type" content="website">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#050d1a;--surface:#0a1628;--surface2:#111d35;--surface3:#182444;
+  --cyan:#0ea5e9;--cyan-bright:#38bdf8;--violet:#8b5cf6;--violet-bright:#a78bfa;
+  --green:#10b981;--amber:#f59e0b;--rose:#f43f5e;--pink:#ec4899;
+  --text:#e2e8f0;--muted:#94a3b8;--dim:#64748b;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* Animated gradient top bar */
+.grad-bar{height:3px;background:linear-gradient(90deg,var(--rose),var(--amber),var(--green),var(--cyan),var(--violet),var(--rose));background-size:200% 100%;animation:gradSlide 4s linear infinite;position:fixed;top:0;left:0;right:0;z-index:200}
+@keyframes gradSlide{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+
+/* Ambient */
+.glow-tl{position:fixed;top:-20%;left:-10%;width:50%;height:50%;background:radial-gradient(circle,rgba(14,165,233,0.08) 0%,transparent 70%);pointer-events:none;z-index:0}
+.glow-br{position:fixed;bottom:-20%;right:-10%;width:50%;height:50%;background:radial-gradient(circle,rgba(139,92,246,0.06) 0%,transparent 70%);pointer-events:none;z-index:0}
+.glow-center{position:fixed;top:30%;left:50%;transform:translateX(-50%);width:80%;height:40%;background:radial-gradient(ellipse,rgba(236,72,153,0.04) 0%,transparent 70%);pointer-events:none;z-index:0}
+
+/* Nav */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;position:fixed;top:3px;left:0;right:0;z-index:100;background:rgba(5,13,26,0.8);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.04)}
+.nav-logo{font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:#fff;text-decoration:none}
+.nav-logo span{color:var(--cyan-bright)}
+.nav-links{display:flex;gap:24px;align-items:center}
+.nav-link{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;transition:.2s}
+.nav-link:hover{color:#fff}
+.nav-cta{padding:10px 24px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff;border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;transition:.2s;border:none;cursor:pointer}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(14,165,233,0.3)}
+
+/* Hero */
+.hero{text-align:center;padding:160px 20px 60px;position:relative;z-index:1}
+.hero-badge{display:inline-block;padding:8px 20px;border-radius:50px;background:linear-gradient(135deg,rgba(14,165,233,0.1),rgba(139,92,246,0.1));border:1px solid rgba(14,165,233,0.2);font-size:13px;font-weight:600;color:var(--cyan-bright);margin-bottom:24px;letter-spacing:0.5px}
+.hero h1{font-family:'Sora',sans-serif;font-size:clamp(36px,5vw,60px);font-weight:900;line-height:1.1;margin-bottom:20px}
+.hero h1 .gr{background:linear-gradient(135deg,var(--cyan-bright),var(--violet-bright),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:18px;color:var(--muted);max-width:600px;margin:0 auto;line-height:1.7}
+
+/* Pricing cards */
+.pricing{display:flex;gap:28px;justify-content:center;padding:40px 20px 60px;position:relative;z-index:1;max-width:1000px;margin:0 auto;align-items:stretch}
+.plan{flex:1;max-width:460px;border-radius:24px;padding:3px;position:relative;transition:transform .3s,box-shadow .3s}
+.plan:hover{transform:translateY(-6px)}
+.plan-inner{background:var(--surface);border-radius:22px;padding:40px 32px;height:100%;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.plan-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+
+/* Basic plan */
+.plan-basic{background:linear-gradient(135deg,rgba(14,165,233,0.3),rgba(14,165,233,0.1))}
+.plan-basic:hover{box-shadow:0 20px 60px rgba(14,165,233,0.15)}
+.plan-basic .plan-inner::before{background:linear-gradient(90deg,var(--cyan),var(--cyan-bright))}
+
+/* Pro plan */
+.plan-pro{background:linear-gradient(135deg,rgba(139,92,246,0.4),rgba(236,72,153,0.2));transform:scale(1.04)}
+.plan-pro:hover{transform:scale(1.04) translateY(-6px);box-shadow:0 20px 60px rgba(139,92,246,0.2)}
+.plan-pro .plan-inner::before{background:linear-gradient(90deg,var(--violet),var(--pink),var(--amber))}
+.plan-pro .plan-inner{background:linear-gradient(180deg,#111d35,#0a1628)}
+
+/* Popular badge */
+.pop-badge{position:absolute;top:14px;right:14px;padding:5px 14px;border-radius:20px;background:linear-gradient(135deg,var(--violet),var(--pink));font-size:11px;font-weight:800;color:#fff;letter-spacing:0.5px;text-transform:uppercase;z-index:2}
+
+.plan-name{font-family:'Sora',sans-serif;font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+.plan-basic .plan-name{color:var(--cyan-bright)}
+.plan-pro .plan-name{color:var(--violet-bright)}
+
+.plan-price{font-family:'Sora',sans-serif;font-size:52px;font-weight:900;color:#fff;line-height:1;margin-bottom:4px}
+.plan-price span{font-size:18px;font-weight:600;color:var(--dim)}
+.plan-sub{font-size:13px;color:var(--dim);margin-bottom:28px}
+
+.plan-btn{display:block;width:100%;padding:16px;border:none;border-radius:14px;font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:#fff;cursor:pointer;transition:.2s;text-align:center;text-decoration:none;margin-bottom:28px}
+.plan-basic .plan-btn{background:linear-gradient(135deg,var(--cyan),#0284c7)}
+.plan-basic .plan-btn:hover{box-shadow:0 8px 30px rgba(14,165,233,0.4);transform:translateY(-2px)}
+.plan-pro .plan-btn{background:linear-gradient(135deg,var(--violet),var(--pink));font-size:16px;padding:18px}
+.plan-pro .plan-btn:hover{box-shadow:0 8px 30px rgba(139,92,246,0.4);transform:translateY(-2px)}
+
+.plan-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);margin-bottom:24px}
+.plan-section{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--dim);margin-bottom:14px}
+
+.feat{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;font-size:14px;color:var(--muted);line-height:1.5}
+.feat .ck{flex-shrink:0;width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900}
+.plan-basic .feat .ck{background:rgba(14,165,233,0.12);color:var(--cyan-bright)}
+.plan-pro .feat .ck{background:rgba(139,92,246,0.12);color:var(--violet-bright)}
+.feat strong{color:#fff}
+
+/* Earn it free callout */
+.earn-free{text-align:center;padding:40px 20px 80px;position:relative;z-index:1;max-width:700px;margin:0 auto}
+.earn-card{background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(14,165,233,0.08));border:1px solid rgba(16,185,129,0.15);border-radius:20px;padding:36px 40px;position:relative;overflow:hidden}
+.earn-card::before{content:'';position:absolute;top:-50%;right:-20%;width:60%;height:100%;background:radial-gradient(circle,rgba(16,185,129,0.1) 0%,transparent 70%);pointer-events:none}
+.earn-card h3{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:8px}
+.earn-card .math{font-family:'Sora',sans-serif;font-size:36px;font-weight:900;background:linear-gradient(135deg,var(--green),var(--cyan-bright));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:16px 0}
+.earn-card p{font-size:15px;color:var(--muted);line-height:1.7}
+
+/* Feature comparison */
+.compare{padding:0 20px 80px;position:relative;z-index:1;max-width:900px;margin:0 auto}
+.compare h2{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:#fff;text-align:center;margin-bottom:32px}
+.compare-table{width:100%;border-collapse:separate;border-spacing:0;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.06)}
+.compare-table th{background:var(--surface2);padding:14px 20px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.06)}
+.compare-table th:first-child{text-align:left;color:var(--muted)}
+.compare-table th:nth-child(2){color:var(--cyan-bright)}
+.compare-table th:nth-child(3){color:var(--violet-bright)}
+.compare-table td{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:14px;text-align:center}
+.compare-table td:first-child{text-align:left;color:var(--muted);font-weight:500}
+.compare-table tr:last-child td{border-bottom:none}
+.compare-table tr:hover{background:rgba(255,255,255,0.02)}
+.compare-table .yes{color:var(--green);font-weight:800;font-size:16px}
+.compare-table .no{color:var(--dim);font-size:14px}
+
+/* FAQ */
+.faq{padding:0 20px 80px;position:relative;z-index:1;max-width:700px;margin:0 auto}
+.faq h2{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:#fff;text-align:center;margin-bottom:32px}
+.faq-item{background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:20px 24px;margin-bottom:12px;cursor:pointer;transition:.2s}
+.faq-item:hover{border-color:rgba(14,165,233,0.2);background:var(--surface2)}
+.faq-q{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:15px;color:#fff}
+.faq-q .arrow{color:var(--dim);font-size:18px;transition:.3s}
+.faq-item.open .faq-q .arrow{transform:rotate(180deg);color:var(--cyan)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s;font-size:14px;color:var(--muted);line-height:1.7}
+.faq-item.open .faq-a{max-height:200px;padding-top:14px}
+
+/* CTA bottom */
+.bottom-cta{text-align:center;padding:60px 20px 100px;position:relative;z-index:1}
+.bottom-cta h2{font-family:'Sora',sans-serif;font-size:32px;font-weight:900;color:#fff;margin-bottom:12px}
+.bottom-cta p{color:var(--muted);font-size:16px;margin-bottom:28px}
+.bottom-cta .cta-btn{display:inline-block;padding:18px 48px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff;font-family:'Sora',sans-serif;font-size:16px;font-weight:800;border-radius:14px;text-decoration:none;transition:.2s;border:none;cursor:pointer}
+.bottom-cta .cta-btn:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(14,165,233,0.3)}
+
+/* Footer */
+.footer{text-align:center;padding:32px 20px;border-top:1px solid rgba(255,255,255,0.04);font-size:12px;color:var(--dim)}
+.footer a{color:var(--dim);text-decoration:none}
+.footer a:hover{color:var(--cyan)}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.anim{opacity:0;animation:fadeUp .6s ease forwards}
+.d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.3s}.d4{animation-delay:.4s}.d5{animation-delay:.5s}
+
+/* Mobile */
+@media(max-width:768px){
+  .nav{padding:14px 20px}
+  .nav-links{gap:12px}
+  .pricing{flex-direction:column;align-items:center;padding:20px}
+  .plan,.plan-pro{max-width:400px;width:100%;transform:none!important}
+  .hero h1{font-size:32px}
+  .earn-card{padding:28px 24px}
+  .earn-card .math{font-size:28px}
+}
+</style>
+</head>
+<body>
+<div class="grad-bar"></div>
+<div class="glow-tl"></div>
+<div class="glow-br"></div>
+<div class="glow-center"></div>
+
+<!-- Nav -->
+<nav class="nav">
+  <a href="/" class="nav-logo">SuperAd<span>Pro</span></a>
+  <div class="nav-links">
+    <a href="/about" class="nav-link">About</a>
+    <a href="/for-advertisers" class="nav-link">Advertisers</a>
+    <a href="/legal" class="nav-link">Legal</a>
+    <a href="/?login=1" class="nav-link">Login</a>
+    <a href="/join" class="nav-cta">Join Now</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-badge anim d1">Choose Your Plan</div>
+  <h1 class="anim d2">Two plans.<br><span class="gr">Unlimited potential.</span></h1>
+  <p class="anim d3">Everything you need to build, market, and earn online — AI tools, multiple income streams, and a complete business platform. Start for $20/month.</p>
+</section>
+
+<!-- Pricing Cards -->
+<section class="pricing">
+  <!-- Basic -->
+  <div class="plan plan-basic anim d3">
+    <div class="plan-inner">
+      <div class="plan-name">Basic</div>
+      <div class="plan-price">$20<span>/mo</span></div>
+      <div class="plan-sub">Everything you need to start earning</div>
+      <a href="/join" class="plan-btn">Get Started →</a>
+      <div class="plan-divider"></div>
+      <div class="plan-section">Income Streams</div>
+      <div class="feat"><span class="ck">✓</span><span><strong>Watch to Earn</strong> — get paid to watch video campaigns</span></div>
+      <div class="feat"><span class="ck">✓</span><span><strong>8×8 Grid System</strong> — 8-tier campaign commissions</span></div>
+      <div class="feat"><span class="ck">✓</span><span><strong>Course Marketplace</strong> — sell and earn from courses</span></div>
+      <div class="feat"><span class="ck">✓</span><span><strong>Affiliate Commissions</strong> — 50% on every referral</span></div>
+      <div class="plan-divider"></div>
+      <div class="plan-section">Tools</div>
+      <div class="feat"><span class="ck">✓</span><span><strong>LinkHub Bio Pages</strong> — your personal link-in-bio tool</span></div>
+      <div class="feat"><span class="ck">✓</span><span><strong>Social Share</strong> — branded sharing tools</span></div>
+      <div class="feat"><span class="ck">✓</span><span><strong>Community Ad Board</strong> — post and share ads</span></div>
+      <div class="feat"><span class="ck">✓</span><span><strong>Niche Finder</strong> — discover your perfect niche</span></div>
+      <div class="feat"><span class="ck">✓</span><span><strong>Swipe File</strong> — ready-made marketing templates</span></div>
+    </div>
+  </div>
+
+  <!-- Pro -->
+  <div class="plan plan-pro anim d4">
+    <div class="plan-inner">
+      <div class="pop-badge">Most Popular</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">$30<span>/mo</span></div>
+      <div class="plan-sub">Full marketing suite + AI powertools</div>
+      <a href="/join" class="plan-btn">Go Pro →</a>
+      <div class="plan-divider"></div>
+      <div class="plan-section">Everything in Basic, plus</div>
+      <div class="feat"><span class="ck">✓</span><span><strong>AdStudio</strong> — drag-and-drop page builder with 25 elements</span></div>
+      <div class="feat"><span class="ck">✓</span><span><strong>AI Funnel Generator</strong> — answer 4 questions, get a complete landing page</span></div>
+      <div class="feat"><span class="ck">✓</span><span><strong>Email Autoresponder</strong> — automated 5-email nurture sequences</span></div>
+      <div class="feat"><span class="ck">✓</span><span><strong>ProSeller AI Coach</strong> — your personal marketing assistant</span></div>
+      <div class="feat"><span class="ck">✓</span><span><strong>Lead Dashboard</strong> — track every lead and conversion</span></div>
+      <div class="feat"><span class="ck">✓</span><span><strong>6 Pro Templates</strong> — lead capture, VSL, product offer and more</span></div>
+      <div class="feat"><span class="ck">✓</span><span><strong>OG Social Sharing</strong> — custom preview cards when sharing links</span></div>
+      <div class="feat"><span class="ck">✓</span><span><strong>Page Settings & SEO</strong> — meta titles, descriptions, social images</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Earn it free -->
+<section class="earn-free">
+  <div class="earn-card anim d4">
+    <h3>Your Pro membership can pay for itself</h3>
+    <div class="math">2 referrals × $15 = $30/mo ✓</div>
+    <p>Refer just two members and your 50% commission covers your entire Pro membership. Every referral after that is pure earnings.</p>
+  </div>
+</section>
+
+<!-- Feature Comparison -->
+<section class="compare">
+  <h2>Side by side</h2>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Feature</th><th>Basic $20</th><th>Pro $30</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Watch to Earn campaigns</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>8×8 Grid income system</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>Course marketplace</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>50% affiliate commissions</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>LinkHub Bio Pages</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>Social Share tools</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>Community Ad Board</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>Niche Finder</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>Swipe File templates</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>AdStudio page builder</td><td class="no">—</td><td class="yes">✓</td></tr>
+      <tr><td>AI Funnel Generator</td><td class="no">—</td><td class="yes">✓</td></tr>
+      <tr><td>Email Autoresponder</td><td class="no">—</td><td class="yes">✓</td></tr>
+      <tr><td>ProSeller AI Coach</td><td class="no">—</td><td class="yes">✓</td></tr>
+      <tr><td>Lead Dashboard</td><td class="no">—</td><td class="yes">✓</td></tr>
+      <tr><td>6 Pro templates</td><td class="no">—</td><td class="yes">✓</td></tr>
+      <tr><td>OG social sharing & SEO</td><td class="no">—</td><td class="yes">✓</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <h2>Common questions</h2>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Can I upgrade from Basic to Pro later?<span class="arrow">▾</span></div>
+    <div class="faq-a">Yes — upgrade anytime from your dashboard. Your new Pro features activate instantly. No setup required.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">How do commissions work?<span class="arrow">▾</span></div>
+    <div class="faq-a">You earn 50% commission on every member you refer — that's $10/month from Basic referrals and $15/month from Pro referrals. Commissions are recurring for as long as your referral stays active.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">What is the 8×8 Grid?<span class="arrow">▾</span></div>
+    <div class="faq-a">The grid is an 8-tier video campaign system. Each tier unlocks a new position in an 8×8 matrix, where you earn commissions from campaigns across 8 levels of depth.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Is there a contract or lock-in?<span class="arrow">▾</span></div>
+    <div class="faq-a">No contracts. Cancel anytime. Your membership is month-to-month with no long-term commitment.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">What's included in AdStudio?<span class="arrow">▾</span></div>
+    <div class="faq-a">AdStudio is our drag-and-drop page builder with 25 element types, 6 professional templates, alignment guides, undo/redo, device preview, style controls, and auto-save. Build professional landing pages and funnels without any coding.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Can I really get Pro for free?<span class="arrow">▾</span></div>
+    <div class="faq-a">Yes. With 50% commissions, just two Pro referrals ($15 × 2 = $30) covers your monthly Pro membership entirely. Many members achieve this in their first week.</div>
+  </div>
+</section>
+
+<!-- Bottom CTA -->
+<section class="bottom-cta">
+  <h2>Ready to start building?</h2>
+  <p>Join thousands of members using SuperAdPro to grow their online income.</p>
+  <a href="/join" class="cta-btn">Join SuperAdPro →</a>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>&copy; 2026 SuperAdPro. All rights reserved. Income examples are illustrative. Results depend on individual effort.</p>
+  <p style="margin-top:8px"><a href="/legal">Terms</a> &nbsp;·&nbsp; <a href="/legal#privacy">Privacy</a> &nbsp;·&nbsp; <a href="/legal#earnings">Earnings Disclaimer</a></p>
+</footer>
+
+</body>
+</html>
