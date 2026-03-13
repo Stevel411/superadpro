@@ -1656,9 +1656,14 @@ function addElAt(type, x, y) {
   };
 
   const d = defaults[type] || defaults.text;
+  // Centre wide elements, use drop position for others
+  const centreTypes = ['heading','text','cta','separator','logostrip','countdown','progress','socialicons','video','audio','embed','form','testimonial','faq','icontext','review'];
+  let finalX = centreTypes.includes(type) ? (cw - d.w) / 2 : x;
+  // Clamp: ensure element stays within canvas bounds
+  finalX = Math.max(0, Math.min(finalX, cw - d.w));
   const el = {
     id: uid(), type: type,
-    x: Math.max(0, ['heading','text','cta','separator','logostrip','countdown','progress','socialicons'].includes(type) ? (cw-d.w)/2 : x),
+    x: finalX,
     y: y, w: d.w, h: d.h,
     txt: d.txt, s: {...d.s}
   };
