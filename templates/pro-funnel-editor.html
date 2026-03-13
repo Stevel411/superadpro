@@ -190,6 +190,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   
   <a href="/pro/funnels" class="tb-btn tb-ghost">← Funnels</a>
   <button class="tb-btn tb-ghost" onclick="showPageSettings()" style="font-size:12px">⚙ Settings</button>
+  <button class="tb-btn tb-ghost" onclick="clearCanvas()" style="font-size:12px;color:#dc2626">🗑 Clear</button>
   <button class="tb-btn tb-save" onclick="save()">💾 Save</button>
   <a href="/f/{{ page.slug }}" target="_blank" class="tb-btn tb-preview">👁 Preview</a>
 </div>
@@ -2216,6 +2217,19 @@ function applyPageSettings() {
   markDirty();
   exitEditMode();
   toast('✓ Settings saved');
+}
+
+// ═══ CLEAR CANVAS ═══
+function clearCanvas() {
+  if (!confirm('Clear all elements and start over? This cannot be undone.')) return;
+  saveHistory(); // save current state so undo can restore it
+  els = [];
+  selId = null;
+  canvasBgImage = '';
+  exitEditMode();
+  renderAll();
+  markDirty();
+  toast('Canvas cleared');
 }
 
 // ═══ DEVICE PREVIEW ═══
