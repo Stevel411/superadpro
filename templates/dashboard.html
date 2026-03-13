@@ -15,6 +15,7 @@
   --green:#16a34a;--green-light:#dcfce7;
   --purple:#6366f1;--purple-light:#ede9fe;
   --amber:#d97706;--amber-light:#fef3c7;
+  --rose:#e11d48;--rose-light:#ffe4e6;
   --text:#1a1a2e;--text2:#475569;--muted:#94a3b8;
   --border:#e5e7eb;--navy:#1c223d;
   --shadow-sm:0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12);
@@ -134,16 +135,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 .fb-link{font-size:13px;font-weight:600;color:#0891b2;text-decoration:none}
 
 /* ══ 4 INCOME STREAMS ══ */
-.streams{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.streams{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px}
 .stream{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:all 0.2s}
 .stream:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
 .stream::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
-.stream.s1::before{background:var(--green)}.stream.s2::before{background:var(--cyan)}.stream.s3::before{background:var(--purple)}.stream.s4::before{background:var(--amber)}
+.stream.s1::before{background:var(--green)}.stream.s2::before{background:var(--cyan)}.stream.s3::before{background:var(--purple)}.stream.s4::before{background:var(--amber)}.stream.s5::before{background:var(--rose)}
 .stream-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .stream-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px}
-.s1 .stream-icon{background:var(--green-light)}.s2 .stream-icon{background:var(--cyan-light)}.s3 .stream-icon{background:var(--purple-light)}.s4 .stream-icon{background:var(--amber-light)}
+.s1 .stream-icon{background:var(--green-light)}.s2 .stream-icon{background:var(--cyan-light)}.s3 .stream-icon{background:var(--purple-light)}.s4 .stream-icon{background:var(--amber-light)}.s5 .stream-icon{background:var(--rose-light)}
 .stream-badge{font-size:9px;font-weight:700;padding:3px 8px;border-radius:5px;letter-spacing:0.3px}
-.s1 .stream-badge{background:var(--green-light);color:var(--green)}.s2 .stream-badge{background:var(--cyan-light);color:var(--cyan)}.s3 .stream-badge{background:var(--purple-light);color:var(--purple)}.s4 .stream-badge{background:var(--amber-light);color:var(--amber)}
+.s1 .stream-badge{background:var(--green-light);color:var(--green)}.s2 .stream-badge{background:var(--cyan-light);color:var(--cyan)}.s3 .stream-badge{background:var(--purple-light);color:var(--purple)}.s4 .stream-badge{background:var(--amber-light);color:var(--amber)}.s5 .stream-badge{background:var(--rose-light);color:var(--rose)}
 .stream-val{font-family:Sora,sans-serif;font-size:28px;font-weight:800;color:#16a34a;margin-bottom:2px}
 .stream-name{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:2px}
 .stream-detail{font-size:11px;color:var(--muted)}
@@ -192,7 +193,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 .ref-copy{padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:var(--white);font-size:11px;font-weight:700;color:var(--text2);cursor:pointer;flex-shrink:0;font-family:inherit}
 .ref-copy:hover{background:var(--surface2)}
 
-@media(max-width:1100px){.streams{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr 1fr}}
+@media(max-width:1100px){.streams{grid-template-columns:repeat(3,1fr)}.actions{grid-template-columns:1fr 1fr}}
 @media(max-width:768px){
   .sidebar{display:none!important}.main{margin-left:0!important}.topbar{display:none}
   .mobile-topbar{display:flex!important}
@@ -361,15 +362,22 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
         <div class="stream-name">Campaigns</div>
         <div class="stream-detail">Video campaign earnings</div>
       </div>
+      <div class="stream s5">
+        <div class="stream-top"><div class="stream-icon">🏪</div><span class="stream-badge">50/25/25</span></div>
+        <div class="stream-val" style="color:#16a34a">${{ '%.0f'|format(marketplace_earnings) }}</div>
+        <div class="stream-name">Marketplace</div>
+        <div class="stream-detail">{{ marketplace_sales }} sale{{ 's' if marketplace_sales != 1 }} · {{ marketplace_courses }} course{{ 's' if marketplace_courses != 1 }}</div>
+      </div>
     </div>
 
     <!-- Quick Actions -->
     <div class="actions-label">Quick Actions</div>
     <div class="actions">
       <a href="/courses" class="action"><div class="action-icon ai1">🎓</div><div class="action-name">Browse Courses</div><div class="action-desc">Learn skills & earn 100% commissions</div></a>
-      <a href="/campaign-tiers" class="action"><div class="action-icon ai2">⚡</div><div class="action-name">Campaign Tiers</div><div class="action-desc">Activate a tier to unlock the earning engine</div></a>
-      <a href="/campaign-studio" class="action"><div class="action-icon ai3">🤖</div><div class="action-name">AI Marketing</div><div class="action-desc">Generate campaigns, social posts & scripts</div></a>
-      <a href="/watch" class="action"><div class="action-icon ai4">👁️</div><div class="action-name">Watch to Earn</div><div class="action-desc">Watch daily videos for bonus earnings</div></a>
+      <a href="/courses/create" class="action"><div class="action-icon ai2">🏪</div><div class="action-name">Create Course</div><div class="action-desc">Build & sell courses on the marketplace</div></a>
+      <a href="/campaign-tiers" class="action"><div class="action-icon ai3">⚡</div><div class="action-name">Campaign Tiers</div><div class="action-desc">Activate a tier to unlock the earning engine</div></a>
+      <a href="/campaign-studio" class="action"><div class="action-icon ai4">🤖</div><div class="action-name">AI Marketing</div><div class="action-desc">Generate campaigns, social posts & scripts</div></a>
+      <a href="/watch" class="action"><div class="action-icon ai1">👁️</div><div class="action-name">Watch to Earn</div><div class="action-desc">Watch daily videos for bonus earnings</div></a>
     </div>
 
     <!-- Bottom Row -->

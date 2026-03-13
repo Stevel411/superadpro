@@ -286,6 +286,18 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
     # Course stats
     course_sale_count = user.course_sale_count or 0
 
+    # Marketplace stats
+    marketplace_earnings = round(float(user.marketplace_earnings or 0), 2)
+    marketplace_sales = db.query(MemberCoursePurchase).filter(
+        MemberCoursePurchase.course_id.in_(
+            db.query(MemberCourse.id).filter(MemberCourse.creator_id == user.id)
+        ),
+        MemberCoursePurchase.status == "completed"
+    ).count() if user else 0
+    marketplace_courses = db.query(MemberCourse).filter(
+        MemberCourse.creator_id == user.id, MemberCourse.status == "published"
+    ).count() if user else 0
+
     return {
         "request":           request,
         "user":              user,
@@ -311,6 +323,9 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "is_active":         user.is_active,
         "member_id":         format_member_id(user.id),
         "course_sale_count": course_sale_count,
+        "marketplace_earnings": marketplace_earnings,
+        "marketplace_sales": marketplace_sales,
+        "marketplace_courses": marketplace_courses,
         "GRID_PACKAGES":     GRID_PACKAGES,
         "GRID_TOTAL":        GRID_TOTAL,
         "OWNER_PCT":         OWNER_PCT,
@@ -11082,3 +11097,9 @@ def marketplace_course_detail(slug: str, request: Request, db: Session = Depends
         "chapters": chapters, "lessons_by_chapter": lessons_by_chapter,
         "user": user, "already_purchased": already_purchased,
     })
+
+
+@app.get("/courses/creator-agreement")
+def creator_agreement_page(request: Request):
+    """Course Creator Agreement — legal terms page."""
+    return templates.TemplateResponse("course-creator-agreement.html", {"request": request})
