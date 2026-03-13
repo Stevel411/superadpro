@@ -1590,18 +1590,29 @@ function canvasDrop(e) {
   if (!palDragType) return;
   const cv = document.getElementById('canvas');
   const rect = cv.getBoundingClientRect();
-  const x = Math.max(0, e.clientX - rect.left - 150);
-  const y = Math.max(0, e.clientY - rect.top + document.getElementById('canvasArea').scrollTop - 25);
+  // getBoundingClientRect is viewport-relative, clientX/Y is also viewport-relative
+  // so the difference gives us the exact position inside the canvas — no scroll adjustment needed
+  const x = Math.max(0, e.clientX - rect.left - 100);
+  const y = Math.max(0, e.clientY - rect.top);
   addElAt(palDragType, x, y);
   palDragType = null;
 }
 
 function addEl(type) {
-  // Place in the visible area of the canvas, not at the absolute bottom
-  const scrollTop = document.getElementById('canvasArea').scrollTop;
-  const viewH = document.getElementById('canvasArea').clientHeight;
-  const y = scrollTop + Math.max(60, viewH / 3);
-  addElAt(type, 50, y);
+  // Place in the visible area of the canvas
+  const area = document.getElementById('canvasArea');
+  const cv = document.getElementById('canvas');
+  const cvRect = cv.getBoundingClientRect();
+  const areaRect = area.getBoundingClientRect();
+  // How far down the canvas is the visible area's top?
+  const visibleTop = areaRect.top - cvRect.top;
+  const viewH = area.clientHeight;
+  const y = visibleTop + Math.max(60, viewH / 3);
+  // Centre horizontally
+  const cw = 1100;
+  const defaults = {heading:800,text:800,label:300,image:600,video:800,button:400,cta:400,form:500,countdown:600,progress:500,socialicons:300,audio:500,embed:600,testimonial:700,faq:700,icontext:700,separator:700,logostrip:800,review:300,badge:200,stat:200,timer:300,box:400,divider:700,spacer:100};
+  const w = defaults[type] || 400;
+  addElAt(type, Math.max(0, (cw - w) / 2), y);
 }
 
 function addElAt(type, x, y) {
