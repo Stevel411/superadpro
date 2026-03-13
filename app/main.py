@@ -10630,13 +10630,94 @@ async def api_submit_course(course_id: int, request: Request, user: User = Depen
     course.updated_at = datetime.utcnow()
     db.commit()
 
+    # ── Layer 2: AI Content Scan (async-safe) ──
+    ai_result = {"passed": True, "plagiarism_score": 0, "quality_score": 80, "flagged_issues": [], "summary": ""}
+    try:
+        import os, json as _json_ai
+        import httpx
+        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        if api_key:
+            # Gather all text content for scanning
+            all_text = f"Title: {course.title}\nDescription: {course.description or ''}\n\n"
+            for l in lessons:
+                all_text += f"Lesson: {l.title}\n{l.text_content or ''}\n\n"
+            all_text = all_text[:8000]  # Cap at ~8k chars to stay within limits
+
+            scan_prompt = f"""You are a course quality reviewer for an online marketplace. Analyse the following course content and return a JSON object with these fields:
+- "passed": boolean (true if acceptable, false if should be rejected)
+- "plagiarism_score": 0-100 (estimated likelihood of plagiarism, 0=original, 100=copied)
+- "quality_score": 0-100 (educational value, 0=worthless, 100=excellent)
+- "flagged_issues": array of objects with "type" (plagiarism|prohibited|misleading|trademark|quality), "severity" (high|medium|low), "description" (brief explanation)
+- "summary": one-sentence assessment
+
+Auto-fail criteria: plagiarism_score > 40, quality_score < 30, any high-severity issue, hate speech, explicit content, misleading income claims.
+
+Course content to review:
+{all_text}
+
+Respond ONLY with valid JSON, no other text."""
+
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                resp = await client.post(
+                    "https://api.anthropic.com/v1/messages",
+                    headers={"x-api-key": api_key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
+                    json={"model": "claude-sonnet-4-20250514", "max_tokens": 1000,
+                          "messages": [{"role": "user", "content": scan_prompt}]}
+                )
+                if resp.status_code == 200:
+                    resp_data = resp.json()
+                    ai_text = ""
+                    for block in resp_data.get("content", []):
+                        if block.get("type") == "text":
+                            ai_text += block.get("text", "")
+                    # Parse JSON from response
+                    ai_text = ai_text.strip()
+                    if ai_text.startswith("```"):
+                        ai_text = ai_text.split("```")[1]
+                        if ai_text.startswith("json"):
+                            ai_text = ai_text[4:]
+                    ai_result = _json_ai.loads(ai_text)
+    except Exception as e:
+        print(f"AI review error (non-fatal): {e}")
+        # If AI review fails, pass through to admin review
+        ai_result = {"passed": True, "plagiarism_score": 0, "quality_score": 50, "flagged_issues": [],
+                      "summary": "AI review unavailable — manual review required"}
+
+    # Store AI result
+    import json as _json_store
+    course.ai_review_result = _json_store.dumps(ai_result)
+    course.ai_reviewed_at = datetime.utcnow()
+
+    # Check auto-reject thresholds
+    if not ai_result.get("passed", True) or ai_result.get("plagiarism_score", 0) > 40 or ai_result.get("quality_score", 100) < 30:
+        course.status = "ai_rejected"
+        course.admin_notes = ai_result.get("summary", "Content did not meet quality standards")
+        db.commit()
+        # Notify creator
+        notif = Notification(
+            user_id=user.id, type="course_rejected",
+            icon="❌", title="Course review: changes needed",
+            message=f"'{course.title}' needs revisions. Check the feedback and resubmit.",
+            link=f"/courses/edit/{course.id}",
+        )
+        db.add(notif)
+        db.commit()
+        issues = [i.get("description", "") for i in ai_result.get("flagged_issues", [])]
+        if ai_result.get("summary"):
+            issues.insert(0, ai_result["summary"])
+        return JSONResponse({"error": "AI review: changes needed", "issues": issues, "ai_result": ai_result}, status_code=400)
+
+    # AI passed — move to admin review queue
+    course.status = "pending_review"
+    db.commit()
+
     # Create notification for admin
     admin = db.query(User).filter(User.is_admin == True).first()
     if admin:
         notif = Notification(
             user_id=admin.id, type="course_review",
             icon="📚", title="New course awaiting review",
-            message=f"{user.first_name or user.username} submitted '{course.title}' for review",
+            message=f"{user.first_name or user.username} submitted '{course.title}' (AI approved, score: {ai_result.get('quality_score', '?')}/100)",
             link="/admin/course-review",
         )
         db.add(notif)
@@ -10704,3 +10785,262 @@ def api_delete_course(course_id: int, user: User = Depends(get_current_user),
     db.delete(course)
     db.commit()
     return JSONResponse({"ok": True})
+
+
+# ═══════════════════════════════════════════════════════════════
+#  PHASE 4: ADMIN COURSE REVIEW QUEUE
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/admin/course-review")
+def admin_course_review(request: Request, user: User = Depends(get_current_user),
+                        db: Session = Depends(get_db)):
+    """Admin page — review queue for AI-approved courses."""
+    if not user or not user.is_admin:
+        return RedirectResponse(url="/dashboard")
+    courses = db.query(MemberCourse).filter(
+        MemberCourse.status.in_(["pending_review", "ai_rejected"])
+    ).order_by(MemberCourse.updated_at.desc()).all()
+    # Get creator info
+    creators = {}
+    creator_ids = list(set(c.creator_id for c in courses))
+    if creator_ids:
+        for u in db.query(User).filter(User.id.in_(creator_ids)).all():
+            creators[u.id] = u
+    # Get lesson counts
+    lesson_counts = {}
+    for c in courses:
+        lesson_counts[c.id] = db.query(MemberCourseLesson).filter(MemberCourseLesson.course_id == c.id).count()
+    return templates.TemplateResponse("admin-course-review.html", {
+        "request": request, "user": user, "courses": courses,
+        "creators": creators, "lesson_counts": lesson_counts,
+    })
+
+
+@app.post("/api/admin/course-review/{course_id}")
+async def admin_review_course(course_id: int, request: Request, user: User = Depends(get_current_user),
+                              db: Session = Depends(get_db)):
+    """Admin approves or rejects a course."""
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Not authorised"}, status_code=403)
+    course = db.query(MemberCourse).filter(MemberCourse.id == course_id).first()
+    if not course:
+        return JSONResponse({"error": "Course not found"}, status_code=404)
+    body = await request.json()
+    action = body.get("action")  # "approve" or "reject"
+    notes = body.get("notes", "")
+
+    if action == "approve":
+        course.status = "published"
+        course.admin_reviewed_at = datetime.utcnow()
+        course.admin_notes = notes or "Approved"
+        db.commit()
+        # Notify creator
+        notif = Notification(
+            user_id=course.creator_id, type="course_approved",
+            icon="✅", title="Course approved!",
+            message=f"'{course.title}' is now live on the marketplace!",
+            link=f"/marketplace/{course.slug}" if course.slug else "/courses/my-courses",
+        )
+        db.add(notif)
+        db.commit()
+        return JSONResponse({"ok": True, "status": "published"})
+
+    elif action == "reject":
+        course.status = "ai_rejected"  # reuse same status — creator can fix and resubmit
+        course.admin_reviewed_at = datetime.utcnow()
+        course.admin_notes = notes
+        db.commit()
+        # Notify creator
+        notif = Notification(
+            user_id=course.creator_id, type="course_rejected",
+            icon="❌", title="Course needs changes",
+            message=f"'{course.title}': {notes or 'Please review admin feedback.'}",
+            link=f"/courses/edit/{course.id}",
+        )
+        db.add(notif)
+        db.commit()
+        return JSONResponse({"ok": True, "status": "rejected"})
+
+    return JSONResponse({"error": "Invalid action"}, status_code=400)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  PHASE 6: COURSE MARKETPLACE COMMISSION ENGINE (50/25/25)
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/marketplace/purchase/{course_id}")
+async def purchase_marketplace_course(course_id: int, request: Request,
+                                      user: User = Depends(get_current_user),
+                                      db: Session = Depends(get_db)):
+    """Purchase a member-created course. Executes 50/25/25 commission split."""
+    course = db.query(MemberCourse).filter(
+        MemberCourse.id == course_id, MemberCourse.status == "published"
+    ).first()
+    if not course:
+        return JSONResponse({"error": "Course not found or not published"}, status_code=404)
+
+    # Block self-purchase
+    if user and user.id == course.creator_id:
+        return JSONResponse({"error": "You cannot purchase your own course"}, status_code=400)
+
+    # Check if already purchased (for logged-in users)
+    if user:
+        existing = db.query(MemberCoursePurchase).filter(
+            MemberCoursePurchase.course_id == course_id,
+            MemberCoursePurchase.buyer_id == user.id,
+            MemberCoursePurchase.status == "completed"
+        ).first()
+        if existing:
+            return JSONResponse({"error": "You already own this course"}, status_code=400)
+
+    body = await request.json()
+    payment_method = body.get("payment_method", "wallet")
+    price = float(course.price)
+
+    # ── Calculate 50/25/25 split ──
+    creator_share = round(price * 0.50, 2)
+    sponsor_share = round(price * 0.25, 2)
+    company_share = round(price - creator_share - sponsor_share, 2)  # Absorbs rounding
+
+    # ── Find creator's sponsor ──
+    creator = db.query(User).filter(User.id == course.creator_id).first()
+    sponsor_id = creator.sponsor_id if creator else None
+    # If no sponsor or sponsor is None, default to master affiliate (admin)
+    if not sponsor_id:
+        master = db.query(User).filter(User.is_admin == True).first()
+        sponsor_id = master.id if master else None
+
+    # ── Process payment ──
+    if payment_method == "wallet" and user:
+        if float(user.balance or 0) < price:
+            return JSONResponse({"error": "Insufficient wallet balance"}, status_code=400)
+        user.balance = float(user.balance or 0) - price
+    # TODO: Stripe payment flow for card payments and guest purchases
+
+    # ── Generate access token for guest purchases ──
+    import secrets
+    access_token = secrets.token_urlsafe(32) if not user else None
+
+    # ── Create purchase record ──
+    purchase = MemberCoursePurchase(
+        course_id=course_id,
+        buyer_id=user.id if user else None,
+        buyer_email=body.get("buyer_email", user.email if user else ""),
+        buyer_name=body.get("buyer_name", user.first_name if user else ""),
+        amount_paid=price,
+        creator_commission=creator_share,
+        sponsor_commission=sponsor_share,
+        company_commission=company_share,
+        sponsor_id=sponsor_id,
+        payment_method=payment_method,
+        payment_ref=body.get("payment_ref", ""),
+        status="completed",
+        access_token=access_token,
+    )
+    db.add(purchase)
+
+    # ── Credit commissions ──
+    # 50% to creator
+    if creator:
+        creator.balance = float(creator.balance or 0) + creator_share
+        creator.total_earned = float(creator.total_earned or 0) + creator_share
+        creator.marketplace_earnings = float(creator.marketplace_earnings or 0) + creator_share
+        creator.course_earnings = float(creator.course_earnings or 0) + creator_share
+
+    # 25% to creator's sponsor
+    sponsor = db.query(User).filter(User.id == sponsor_id).first() if sponsor_id else None
+    if sponsor:
+        sponsor.balance = float(sponsor.balance or 0) + sponsor_share
+        sponsor.total_earned = float(sponsor.total_earned or 0) + sponsor_share
+        sponsor.marketplace_earnings = float(sponsor.marketplace_earnings or 0) + sponsor_share
+
+    # 25% company — no wallet credit needed (revenue stays in system)
+
+    # ── Update course stats ──
+    course.total_sales = (course.total_sales or 0) + 1
+    course.total_revenue = float(course.total_revenue or 0) + price
+
+    # ── Notifications ──
+    if creator:
+        db.add(Notification(
+            user_id=creator.id, type="course_sale",
+            icon="💰", title="Course sale!",
+            message=f"Someone purchased '{course.title}' — you earned ${creator_share:.2f}",
+            link="/courses/my-courses",
+        ))
+    if sponsor and sponsor.id != (creator.id if creator else None):
+        db.add(Notification(
+            user_id=sponsor.id, type="course_sponsor_commission",
+            icon="🎓", title="Sponsor commission earned",
+            message=f"Your recruit's course '{course.title}' sold — you earned ${sponsor_share:.2f}",
+            link="/wallet",
+        ))
+
+    db.commit()
+
+    return JSONResponse({
+        "ok": True,
+        "purchase_id": purchase.id,
+        "access_token": access_token,
+        "creator_earned": creator_share,
+        "sponsor_earned": sponsor_share,
+        "company_earned": company_share,
+    })
+
+
+@app.post("/api/marketplace/refund/{purchase_id}")
+async def refund_marketplace_purchase(purchase_id: int, request: Request,
+                                      user: User = Depends(get_current_user),
+                                      db: Session = Depends(get_db)):
+    """Refund a marketplace purchase within 7 days. Reverses all commissions."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    purchase = db.query(MemberCoursePurchase).filter(MemberCoursePurchase.id == purchase_id).first()
+    if not purchase:
+        return JSONResponse({"error": "Purchase not found"}, status_code=404)
+
+    # Only buyer or admin can refund
+    if purchase.buyer_id != user.id and not user.is_admin:
+        return JSONResponse({"error": "Not authorised"}, status_code=403)
+
+    if purchase.status != "completed":
+        return JSONResponse({"error": "Purchase already refunded"}, status_code=400)
+
+    # Check 7-day window
+    if purchase.created_at:
+        days_since = (datetime.utcnow() - purchase.created_at).days
+        if days_since > 7 and not user.is_admin:
+            return JSONResponse({"error": "Refund window expired (7 days)"}, status_code=400)
+
+    # ── Reverse commissions ──
+    course = db.query(MemberCourse).filter(MemberCourse.id == purchase.course_id).first()
+    creator = db.query(User).filter(User.id == course.creator_id).first() if course else None
+    sponsor = db.query(User).filter(User.id == purchase.sponsor_id).first() if purchase.sponsor_id else None
+
+    if creator:
+        creator.balance = max(0, float(creator.balance or 0) - float(purchase.creator_commission))
+        creator.total_earned = max(0, float(creator.total_earned or 0) - float(purchase.creator_commission))
+        creator.marketplace_earnings = max(0, float(creator.marketplace_earnings or 0) - float(purchase.creator_commission))
+
+    if sponsor:
+        sponsor.balance = max(0, float(sponsor.balance or 0) - float(purchase.sponsor_commission))
+        sponsor.total_earned = max(0, float(sponsor.total_earned or 0) - float(purchase.sponsor_commission))
+        sponsor.marketplace_earnings = max(0, float(sponsor.marketplace_earnings or 0) - float(purchase.sponsor_commission))
+
+    # Refund buyer (wallet)
+    buyer = db.query(User).filter(User.id == purchase.buyer_id).first() if purchase.buyer_id else None
+    if buyer:
+        buyer.balance = float(buyer.balance or 0) + float(purchase.amount_paid)
+
+    # Update course stats
+    if course:
+        course.total_sales = max(0, (course.total_sales or 0) - 1)
+        course.total_revenue = max(0, float(course.total_revenue or 0) - float(purchase.amount_paid))
+
+    # Mark purchase as refunded
+    purchase.status = "refunded"
+    purchase.refunded_at = datetime.utcnow()
+
+    db.commit()
+    return JSONResponse({"ok": True, "refunded": float(purchase.amount_paid)})
