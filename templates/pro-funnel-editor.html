@@ -245,29 +245,29 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
         <div id="bgPanel" style="display:none;position:absolute;top:36px;right:0;width:260px;background:#1e2642;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,0.08);z-index:20;padding:14px">
           <div style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Background Type</div>
           <div style="display:flex;gap:4px;margin-bottom:12px">
-            <button id="bgTypeSolid" onclick="setBgType('solid')" style="flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #0ea5e9;background:#f0f9ff;color:#0ea5e9">Solid</button>
-            <button id="bgTypeGrad" onclick="setBgType('gradient')" style="flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:rgba(255,255,255,0.5)">Gradient</button>
-            <button id="bgTypeImage" onclick="setBgType('image')" style="flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:rgba(255,255,255,0.5)">Image</button>
+            <button id="bgTypeSolid" onclick="setBgType('solid')" style="flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #0ea5e9;background:rgba(14,165,233,0.15);color:#0ea5e9">Solid</button>
+            <button id="bgTypeGrad" onclick="setBgType('gradient')" style="flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5)">Gradient</button>
+            <button id="bgTypeImage" onclick="setBgType('image')" style="flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5)">Image</button>
           </div>
           <!-- Solid -->
           <div id="bgSolidCtrl">
-            <div style="font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px">Colour</div>
+            <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:4px">Colour</div>
             <input type="color" id="bgColor" value="#ffffff" oninput="applySolidBg(this.value)" style="width:100%;height:32px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0">
           </div>
           <!-- Gradient -->
           <div id="bgGradCtrl" style="display:none">
             <div style="display:flex;gap:8px;margin-bottom:8px">
               <div style="flex:1">
-                <div style="font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px">From</div>
+                <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px">From</div>
                 <input type="color" id="bgGrad1" value="#ffffff" oninput="applyGradBg()" style="width:100%;height:28px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0">
               </div>
               <div style="flex:1">
-                <div style="font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px">To</div>
+                <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px">To</div>
                 <input type="color" id="bgGrad2" value="#1a1a4e" oninput="applyGradBg()" style="width:100%;height:28px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0">
               </div>
             </div>
-            <div style="font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px">Direction</div>
-            <select id="bgGradDir" onchange="applyGradBg()" style="width:100%;padding:6px;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;color:#475569;outline:none">
+            <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px">Direction</div>
+            <select id="bgGradDir" onchange="applyGradBg()" style="width:100%;padding:6px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;font-size:11px;color:#e2e8f0;outline:none;background:rgba(255,255,255,0.05)">
               <option value="180deg">↓ Top to Bottom</option>
               <option value="135deg" selected>↘ Diagonal</option>
               <option value="90deg">→ Left to Right</option>
@@ -277,22 +277,22 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
           </div>
           <!-- Image -->
           <div id="bgImageCtrl" style="display:none">
-            <div style="font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px">Image URL</div>
-            <input type="text" id="bgImageUrl" placeholder="https://..." oninput="applyImageBg()" style="width:100%;padding:7px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;color:#475569;outline:none;margin-bottom:8px;font-family:DM Sans,sans-serif">
-            <div style="text-align:center;color:#8892a8;font-size:10px;font-weight:700;margin-bottom:8px">— OR —</div>
-            <div id="bgImgUploadZone" onclick="document.getElementById('bgImgFileInput').click()" style="border:2px dashed #d4d8e8;border-radius:10px;padding:14px;text-align:center;cursor:pointer;background:#f8fafc;transition:.2s" onmouseover="this.style.borderColor='#0ea5e9'" onmouseout="this.style.borderColor='#d4d8e8'">
+            <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:4px">Image URL</div>
+            <input type="text" id="bgImageUrl" placeholder="https://..." oninput="applyImageBg()" style="width:100%;padding:7px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;font-size:11px;color:#e2e8f0;outline:none;background:rgba(255,255,255,0.05);margin-bottom:8px;font-family:DM Sans,sans-serif">
+            <div style="text-align:center;color:rgba(255,255,255,0.3);font-size:10px;font-weight:700;margin-bottom:8px">— OR —</div>
+            <div id="bgImgUploadZone" onclick="document.getElementById('bgImgFileInput').click()" style="border:2px dashed rgba(255,255,255,0.12);border-radius:10px;padding:14px;text-align:center;cursor:pointer;background:rgba(255,255,255,0.03);transition:.2s" onmouseover="this.style.borderColor='#0ea5e9'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)'">
               <div style="font-size:16px;margin-bottom:2px">🖼</div>
-              <div style="font-size:11px;color:#475569;font-weight:600">Click to upload</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:600">Click to upload</div>
             </div>
             <input id="bgImgFileInput" type="file" accept="image/*" style="display:none" onchange="uploadBgImage(this.files[0])">
             <div id="bgImgProgress" style="display:none;margin-top:6px;text-align:center;font-size:11px;color:#0ea5e9;font-weight:600"></div>
             <div style="display:flex;gap:6px;margin-top:8px">
-              <select id="bgImgSize" onchange="applyImageBg()" style="flex:1;padding:5px;border:1px solid #e2e8f0;border-radius:6px;font-size:10px;color:#475569;outline:none">
+              <select id="bgImgSize" onchange="applyImageBg()" style="flex:1;padding:5px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;font-size:10px;color:#e2e8f0;outline:none;background:rgba(255,255,255,0.05)">
                 <option value="cover">Cover (fill)</option>
                 <option value="contain">Contain (fit)</option>
                 <option value="auto">Original size</option>
               </select>
-              <select id="bgImgPos" onchange="applyImageBg()" style="flex:1;padding:5px;border:1px solid #e2e8f0;border-radius:6px;font-size:10px;color:#475569;outline:none">
+              <select id="bgImgPos" onchange="applyImageBg()" style="flex:1;padding:5px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;font-size:10px;color:#e2e8f0;outline:none;background:rgba(255,255,255,0.05)">
                 <option value="center">Centre</option>
                 <option value="top">Top</option>
                 <option value="bottom">Bottom</option>
@@ -809,7 +809,7 @@ function showImageEditor(id, el) {
       <div id="imageUploadZone" style="border:2px dashed #d4d8e8;border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:border .15s;background:#f8fafc"
            onclick="document.getElementById('imageFileInput').click()"
            ondragover="event.preventDefault();this.style.borderColor='#0ea5e9';this.style.background='#f0f9ff'"
-           ondragleave="this.style.borderColor='#d4d8e8';this.style.background='#f8fafc'"
+           ondragleave="this.style.borderColor='rgba(255,255,255,0.12)';this.style.background='#f8fafc'"
            ondrop="handleImageDrop(event,'${id}')">
         <div style="font-size:24px;margin-bottom:8px">🖼</div>
         <div style="font-size:13px;color:#475569;font-weight:600">Click to browse or drag & drop</div>
@@ -915,7 +915,7 @@ function showVideoEditor(id, el) {
       <div id="videoUploadZone" style="border:2px dashed #d4d8e8;border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:border .15s;background:#f8fafc"
            onclick="document.getElementById('videoFileInput').click()"
            ondragover="event.preventDefault();this.style.borderColor='#0ea5e9';this.style.background='#f0f9ff'"
-           ondragleave="this.style.borderColor='#d4d8e8';this.style.background='#f8fafc'"
+           ondragleave="this.style.borderColor='rgba(255,255,255,0.12)';this.style.background='#f8fafc'"
            ondrop="handleVideoDrop(event,'${id}')">
         <div style="font-size:24px;margin-bottom:8px">📹</div>
         <div style="font-size:13px;color:#475569;font-weight:600">Click to browse or drag & drop</div>
@@ -1011,13 +1011,13 @@ function showButtonEditor(id, el) {
     <div style="padding:20px;background:#fff">
       <div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:12px">
         <div>
-          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Button Text</label>
+          <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Button Text</label>
           <input id="btnTextInput" type="text" value="${btnText.replace(/"/g,'&quot;')}" placeholder="e.g. Get Started Now →"
             style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none"
             oninput="livePreviewButton('${id}')">
         </div>
         <div>
-          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Size</label>
+          <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Size</label>
           <select id="btnFontSize" style="padding:10px 8px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;background:#fff" onchange="livePreviewButton('${id}')">
             <option value="12px" ${fontSize==='12px'?'selected':''}>12</option>
             <option value="14px" ${fontSize==='14px'?'selected':''}>14</option>
@@ -1032,17 +1032,17 @@ function showButtonEditor(id, el) {
         </div>
       </div>
       
-      <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Link URL</label>
+      <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Link URL</label>
       <input id="btnUrlInput" type="text" value="${btnUrl.replace(/"/g,'&quot;')}" placeholder="https://... or /register?ref=username"
         style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:12px">
       
       <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:14px">
         <div>
-          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px">Colour 1</label>
+          <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px">Colour 1</label>
           <input id="btnColor1" type="color" value="${c1}" style="width:40px;height:32px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0" oninput="livePreviewButton('${id}')">
         </div>
         <div>
-          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px">Colour 2</label>
+          <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px">Colour 2</label>
           <input id="btnColor2" type="color" value="${c2}" style="width:40px;height:32px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0" oninput="livePreviewButton('${id}')">
         </div>
         <div id="btnLivePreview" style="flex:1;padding:10px 16px;border-radius:10px;background:linear-gradient(135deg,${c1},${c2});color:#fff;font-weight:${fontWeight};font-size:${fontSize};text-align:center;font-family:Sora,sans-serif">${btnText}</div>
@@ -1130,31 +1130,31 @@ function showFormEditor(id, el) {
       
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
         <div>
-          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Heading</label>
+          <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Heading</label>
           <input id="formHeading" type="text" value="${heading.replace(/"/g,'&quot;')}" placeholder="e.g. Get Your Free Guide"
             style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none"
             onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'" oninput="livePreviewForm('${id}')">
         </div>
         <div>
-          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Button Text</label>
+          <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Button Text</label>
           <input id="formBtnText" type="text" value="${btnText.replace(/"/g,'&quot;')}" placeholder="Get Access →"
             style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none"
             onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'" oninput="livePreviewForm('${id}')">
         </div>
       </div>
       
-      <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Subtext</label>
+      <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Subtext</label>
       <input id="formSubtext" type="text" value="${subtext.replace(/"/g,'&quot;')}" placeholder="e.g. Enter your email to learn more"
         style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:10px"
         onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'" oninput="livePreviewForm('${id}')">
       
       <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px">
         <div>
-          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px">Colour 1</label>
+          <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px">Colour 1</label>
           <input id="formColor1" type="color" value="${c1}" style="width:40px;height:32px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0" oninput="livePreviewForm('${id}')">
         </div>
         <div>
-          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px">Colour 2</label>
+          <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px">Colour 2</label>
           <input id="formColor2" type="color" value="${c2}" style="width:40px;height:32px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0" oninput="livePreviewForm('${id}')">
         </div>
         <div style="background:linear-gradient(135deg,${c1},${c2});border-radius:6px;padding:6px 16px;color:#fff;font-weight:700;font-size:11px;white-space:nowrap" id="formBtnPreview">${btnText}</div>
@@ -1163,12 +1163,12 @@ function showFormEditor(id, el) {
       
       <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-bottom:10px">
         <div style="font-size:11px;font-weight:700;color:#2a2e3d;margin-bottom:6px">📍 After Submit</div>
-        <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:2px">Redirect URL (optional)</label>
+        <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:2px">Redirect URL (optional)</label>
         <input id="formRedirectUrl" type="text" value="${redirectUrl.replace(/"/g,'&quot;')}" 
           placeholder="https://yoursite.com/thank-you"
           style="width:100%;padding:7px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:6px"
           onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
-        <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:2px">Thank You Message (if no redirect)</label>
+        <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:2px">Thank You Message (if no redirect)</label>
         <input id="formThankYou" type="text" value="${thankYouMsg.replace(/"/g,'&quot;')}" placeholder="You're in! Check your inbox."
           style="width:100%;padding:7px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none"
           onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
@@ -1242,7 +1242,7 @@ function showCountdownEditor(id, el) {
   const td = el._targetDate || '';
   wrap.innerHTML = `
     <div style="padding:20px;background:#fff">
-      <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Target Date & Time</label>
+      <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Target Date & Time</label>
       <input id="countdownDate" type="datetime-local" value="${td}" style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:12px">
       <div style="font-size:11px;color:#8892a8;margin-bottom:14px">The countdown will tick down to this date on the published page. When it reaches zero it shows 00:00:00:00.</div>
       <button onclick="applyCountdown('${id}')" style="padding:10px 24px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Apply</button>
@@ -1267,15 +1267,15 @@ function showProgressEditor(id, el) {
     <div style="padding:20px;background:#fff">
       <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;margin-bottom:14px">
         <div>
-          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase">Label</label>
+          <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px;text-transform:uppercase">Label</label>
           <input id="progLabel" type="text" value="${el._label||'Progress'}" style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none">
         </div>
         <div>
-          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase">Percentage</label>
+          <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px;text-transform:uppercase">Percentage</label>
           <input id="progPct" type="number" min="0" max="100" value="${el._percent||75}" style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none">
         </div>
         <div>
-          <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase">Colour</label>
+          <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px;text-transform:uppercase">Colour</label>
           <input id="progColor" type="color" value="${el._color||'#0ea5e9'}" style="width:44px;height:36px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0">
         </div>
       </div>
@@ -1333,7 +1333,7 @@ function showAudioEditor(id, el) {
   const url = el._audioUrl || '';
   wrap.innerHTML = `
     <div style="padding:20px;background:#fff">
-      <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Audio URL (MP3, WAV, or OGG)</label>
+      <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Audio URL (MP3, WAV, or OGG)</label>
       <input id="audioUrlInput" type="text" value="${url.replace(/"/g,'&quot;')}" placeholder="https://example.com/audio.mp3"
         style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:12px">
       
@@ -1393,7 +1393,7 @@ function showEmbedEditor(id, el) {
   const code = el._embedCode || '';
   wrap.innerHTML = `
     <div style="padding:20px;background:#fff">
-      <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Paste HTML / Embed Code</label>
+      <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Paste HTML / Embed Code</label>
       <textarea id="embedCodeInput" style="width:100%;min-height:120px;padding:12px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-family:monospace;color:#2a2e3d;outline:none;resize:vertical;background:#f8fafc;line-height:1.5" placeholder="<iframe src=&quot;...&quot;></iframe>">${code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
       <div style="font-size:10px;color:#8892a8;margin:8px 0 12px">Paste embed codes from YouTube, Spotify, Calendly, Typeform, Google Maps, or any third-party widget.</div>
       <button onclick="applyEmbed('${id}')" style="padding:10px 24px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Apply</button>
@@ -1860,9 +1860,9 @@ function setBgType(type) {
   ['Solid','Grad','Image'].forEach(function(t) {
     var btn = document.getElementById('bgType'+t);
     var active = t.toLowerCase() === type || (t === 'Grad' && type === 'gradient');
-    btn.style.borderColor = active ? '#0ea5e9' : '#e2e8f0';
-    btn.style.background = active ? '#f0f9ff' : '#fff';
-    btn.style.color = active ? '#0ea5e9' : '#475569';
+    btn.style.borderColor = active ? '#0ea5e9' : 'rgba(255,255,255,0.1)';
+    btn.style.background = active ? 'rgba(14,165,233,0.15)' : 'rgba(255,255,255,0.05)';
+    btn.style.color = active ? '#0ea5e9' : 'rgba(255,255,255,0.5)';
   });
   if (type === 'gradient') applyGradBg();
   if (type === 'image') applyImageBg();
@@ -2118,7 +2118,7 @@ function showStylePanel(id) {
   const radius = parseInt(s.borderRadius) || 0;
   const padding = parseInt(s.padding) || 0;
   const hasShadow = s.boxShadow && s.boxShadow !== 'none' ? true : false;
-  wrap.innerHTML = '<div style="padding:18px 20px;background:#fff;max-height:60vh;overflow-y:auto"><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px"><div><label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Border Width</label><div style="display:flex;align-items:center;gap:8px"><input id="styBorderW" type="range" min="0" max="10" value="'+borderW+'" style="flex:1;accent-color:#0ea5e9" oninput="liveStyle(\''+id+'\')"><span id="styBorderWVal" style="font-size:12px;color:#475569;font-weight:700;width:28px;text-align:right">'+borderW+'px</span></div></div><div><label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Border Style</label><select id="styBorderStyle" style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;color:#475569;outline:none" onchange="liveStyle(\''+id+'\')"><option value="solid" '+(borderStyle==='solid'?'selected':'')+'>Solid</option><option value="dashed" '+(borderStyle==='dashed'?'selected':'')+'>Dashed</option><option value="dotted" '+(borderStyle==='dotted'?'selected':'')+'>Dotted</option></select></div><div><label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Border Colour</label><input id="styBorderColor" type="color" value="'+(borderColor.startsWith('#')?borderColor:'#334155')+'" style="width:44px;height:32px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0" oninput="liveStyle(\''+id+'\')"></div><div><label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Opacity</label><div style="display:flex;align-items:center;gap:8px"><input id="styOpacity" type="range" min="0" max="100" value="'+opacity+'" style="flex:1;accent-color:#0ea5e9" oninput="liveStyle(\''+id+'\')"><span id="styOpacityVal" style="font-size:12px;color:#475569;font-weight:700;width:32px;text-align:right">'+opacity+'%</span></div></div><div><label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Corner Radius</label><div style="display:flex;align-items:center;gap:8px"><input id="styRadius" type="range" min="0" max="50" value="'+radius+'" style="flex:1;accent-color:#0ea5e9" oninput="liveStyle(\''+id+'\')"><span id="styRadiusVal" style="font-size:12px;color:#475569;font-weight:700;width:28px;text-align:right">'+radius+'px</span></div></div><div><label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Padding</label><div style="display:flex;align-items:center;gap:8px"><input id="styPadding" type="range" min="0" max="60" value="'+padding+'" style="flex:1;accent-color:#0ea5e9" oninput="liveStyle(\''+id+'\')"><span id="styPaddingVal" style="font-size:12px;color:#475569;font-weight:700;width:28px;text-align:right">'+padding+'px</span></div></div></div><div style="margin-top:14px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input id="styShadow" type="checkbox" '+(hasShadow?'checked':'')+' onchange="liveStyle(\''+id+'\')" style="accent-color:#0ea5e9;width:16px;height:16px"><span style="font-size:12px;font-weight:700;color:#475569">Drop Shadow</span></label></div><button onclick="applyStyle(\''+id+'\')" style="margin-top:14px;padding:10px 24px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Apply Style</button></div>';
+  wrap.innerHTML = '<div style="padding:18px 20px;background:#fff;max-height:60vh;overflow-y:auto"><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px"><div><label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Border Width</label><div style="display:flex;align-items:center;gap:8px"><input id="styBorderW" type="range" min="0" max="10" value="'+borderW+'" style="flex:1;accent-color:#0ea5e9" oninput="liveStyle(\''+id+'\')"><span id="styBorderWVal" style="font-size:12px;color:#475569;font-weight:700;width:28px;text-align:right">'+borderW+'px</span></div></div><div><label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Border Style</label><select id="styBorderStyle" style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;color:#475569;outline:none" onchange="liveStyle(\''+id+'\')"><option value="solid" '+(borderStyle==='solid'?'selected':'')+'>Solid</option><option value="dashed" '+(borderStyle==='dashed'?'selected':'')+'>Dashed</option><option value="dotted" '+(borderStyle==='dotted'?'selected':'')+'>Dotted</option></select></div><div><label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Border Colour</label><input id="styBorderColor" type="color" value="'+(borderColor.startsWith('#')?borderColor:'#334155')+'" style="width:44px;height:32px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0" oninput="liveStyle(\''+id+'\')"></div><div><label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Opacity</label><div style="display:flex;align-items:center;gap:8px"><input id="styOpacity" type="range" min="0" max="100" value="'+opacity+'" style="flex:1;accent-color:#0ea5e9" oninput="liveStyle(\''+id+'\')"><span id="styOpacityVal" style="font-size:12px;color:#475569;font-weight:700;width:32px;text-align:right">'+opacity+'%</span></div></div><div><label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Corner Radius</label><div style="display:flex;align-items:center;gap:8px"><input id="styRadius" type="range" min="0" max="50" value="'+radius+'" style="flex:1;accent-color:#0ea5e9" oninput="liveStyle(\''+id+'\')"><span id="styRadiusVal" style="font-size:12px;color:#475569;font-weight:700;width:28px;text-align:right">'+radius+'px</span></div></div><div><label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Padding</label><div style="display:flex;align-items:center;gap:8px"><input id="styPadding" type="range" min="0" max="60" value="'+padding+'" style="flex:1;accent-color:#0ea5e9" oninput="liveStyle(\''+id+'\')"><span id="styPaddingVal" style="font-size:12px;color:#475569;font-weight:700;width:28px;text-align:right">'+padding+'px</span></div></div></div><div style="margin-top:14px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input id="styShadow" type="checkbox" '+(hasShadow?'checked':'')+' onchange="liveStyle(\''+id+'\')" style="accent-color:#0ea5e9;width:16px;height:16px"><span style="font-size:12px;font-weight:700;color:#475569">Drop Shadow</span></label></div><button onclick="applyStyle(\''+id+'\')" style="margin-top:14px;padding:10px 24px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;font-family:DM Sans,sans-serif">Apply Style</button></div>';
   _activeEditorId = id;
 }
 function liveStyle(id) {
@@ -2166,16 +2166,16 @@ function showPageSettings() {
   const wrap = document.getElementById('tinyEditorWrap');
   wrap.innerHTML = `
     <div style="padding:20px;background:#fff;max-height:65vh;overflow-y:auto">
-      <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Page Title</label>
+      <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Page Title</label>
       <input id="setTitle" type="text" value="${pageSettings.title.replace(/"/g,'&quot;')}" placeholder="My Landing Page"
         style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;margin-bottom:12px">
       
-      <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Meta Description</label>
+      <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Meta Description</label>
       <textarea id="setMetaDesc" placeholder="Brief description for search engines and social sharing..."
         style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none;min-height:60px;resize:vertical;margin-bottom:12px">${pageSettings.metaDescription.replace(/</g,'&lt;')}</textarea>
       <div style="font-size:10px;color:#8892a8;margin-bottom:14px">Shown in Google results and when shared on social media. Keep under 160 characters.</div>
       
-      <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Social Share Image (OG Image)</label>
+      <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Social Share Image (OG Image)</label>
       <div style="display:flex;gap:8px;margin-bottom:4px">
         <input id="setOgImage" type="text" value="${pageSettings.ogImage.replace(/"/g,'&quot;')}" placeholder="https://... or upload below"
           style="flex:1;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:DM Sans,sans-serif;color:#2a2e3d;outline:none">
@@ -2186,7 +2186,7 @@ function showPageSettings() {
       <div style="font-size:10px;color:#8892a8;margin-bottom:14px">Recommended: 1200×630px. Shows as preview when shared on Facebook, LinkedIn, X etc.</div>
       ${pageSettings.ogImage ? `<div style="margin-bottom:14px"><img src="${pageSettings.ogImage}" style="max-width:100%;max-height:120px;border-radius:8px;border:1px solid #e2e8f0"></div>` : ''}
       
-      <label style="display:block;font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Page URL</label>
+      <label style="display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px">Page URL</label>
       <div style="padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;color:#475569;margin-bottom:14px;word-break:break-all">
         ${window.location.origin}/f/${pageSettings.slug}
       </div>
