@@ -37,7 +37,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#0f172a;min-heigh
 .stat-mini{font-size:12px;color:#64748b}.stat-mini strong{color:#1e293b}
 
 /* Editor grid */
-.editor-wrap{display:grid;grid-template-columns:420px 1fr;flex:1;overflow:hidden}
+.editor-wrap{display:grid;grid-template-columns:1fr 400px;flex:1;overflow:hidden}
 
 /* Left panel */
 .panel{background:#fff;border-right:1px solid #e2e8f0;overflow-y:auto;height:calc(100vh - 72px - 37px)}
@@ -87,8 +87,8 @@ textarea.fi{min-height:70px;resize:vertical}
 .social-label{width:70px;font-size:12px;font-weight:600;color:#64748b;flex-shrink:0}
 
 /* Phone preview */
-.preview-area{display:flex;align-items:flex-start;justify-content:center;padding:24px 12px;overflow-y:auto;background:#f0f3f9;height:calc(100vh - 72px - 37px)}
-.phone-frame{width:100%;max-width:390px;min-height:720px;border-radius:48px;border:4px solid #c9cdd4;background:#f8f9fa;padding:16px;flex-shrink:0;box-shadow:0 24px 80px rgba(0,0,0,.08)}
+.preview-area{display:flex;align-items:flex-start;justify-content:center;padding:16px 8px;overflow-y:auto;background:#f0f3f9;height:calc(100vh - 72px - 37px)}
+.phone-frame{width:100%;max-width:370px;min-height:720px;border-radius:48px;border:4px solid #c9cdd4;background:#f8f9fa;padding:16px;flex-shrink:0;box-shadow:0 24px 80px rgba(0,0,0,.08)}
 .phone-notch{width:120px;height:28px;background:#c9cdd4;border-radius:0 0 16px 16px;margin:0 auto;position:relative;top:-16px}
 .phone-screen{border-radius:32px;overflow:hidden;min-height:650px}
 .prev-page{min-height:650px;padding:40px 24px 24px;text-align:center;transition:background .3s}
@@ -102,7 +102,7 @@ textarea.fi{min-height:70px;resize:vertical}
 .prev-footer{font-size:10px;opacity:.2;margin-top:24px}
 .prev-label{text-align:center;font-size:12px;color:#94a3b8;margin-top:14px}
 
-@media(max-width:1100px){.editor-wrap{grid-template-columns:1fr}.preview-area{display:none}}
+@media(max-width:900px){.editor-wrap{grid-template-columns:1fr}.preview-area{display:none}}
 @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}}
 </style>
 </head>
