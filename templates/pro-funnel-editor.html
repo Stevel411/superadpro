@@ -241,6 +241,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
           <div style="display:flex;gap:4px;margin-bottom:12px">
             <button id="bgTypeSolid" onclick="setBgType('solid')" style="flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #0ea5e9;background:#f0f9ff;color:#0ea5e9">Solid</button>
             <button id="bgTypeGrad" onclick="setBgType('gradient')" style="flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569">Gradient</button>
+            <button id="bgTypeImage" onclick="setBgType('image')" style="flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569">Image</button>
           </div>
           <!-- Solid -->
           <div id="bgSolidCtrl">
@@ -267,6 +268,32 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
               <option value="45deg">↗ Diagonal Up</option>
               <option value="0deg">↑ Bottom to Top</option>
             </select>
+          </div>
+          <!-- Image -->
+          <div id="bgImageCtrl" style="display:none">
+            <div style="font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px">Image URL</div>
+            <input type="text" id="bgImageUrl" placeholder="https://..." oninput="applyImageBg()" style="width:100%;padding:7px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;color:#475569;outline:none;margin-bottom:8px;font-family:DM Sans,sans-serif">
+            <div style="text-align:center;color:#8892a8;font-size:10px;font-weight:700;margin-bottom:8px">— OR —</div>
+            <div id="bgImgUploadZone" onclick="document.getElementById('bgImgFileInput').click()" style="border:2px dashed #d4d8e8;border-radius:10px;padding:14px;text-align:center;cursor:pointer;background:#f8fafc;transition:.2s" onmouseover="this.style.borderColor='#0ea5e9'" onmouseout="this.style.borderColor='#d4d8e8'">
+              <div style="font-size:16px;margin-bottom:2px">🖼</div>
+              <div style="font-size:11px;color:#475569;font-weight:600">Click to upload</div>
+            </div>
+            <input id="bgImgFileInput" type="file" accept="image/*" style="display:none" onchange="uploadBgImage(this.files[0])">
+            <div id="bgImgProgress" style="display:none;margin-top:6px;text-align:center;font-size:11px;color:#0ea5e9;font-weight:600"></div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <select id="bgImgSize" onchange="applyImageBg()" style="flex:1;padding:5px;border:1px solid #e2e8f0;border-radius:6px;font-size:10px;color:#475569;outline:none">
+                <option value="cover">Cover (fill)</option>
+                <option value="contain">Contain (fit)</option>
+                <option value="auto">Original size</option>
+              </select>
+              <select id="bgImgPos" onchange="applyImageBg()" style="flex:1;padding:5px;border:1px solid #e2e8f0;border-radius:6px;font-size:10px;color:#475569;outline:none">
+                <option value="center">Centre</option>
+                <option value="top">Top</option>
+                <option value="bottom">Bottom</option>
+              </select>
+            </div>
+            <div id="bgImgPreview" style="display:none;margin-top:8px;border-radius:8px;overflow:hidden;height:60px;background-size:cover;background-position:center;border:1px solid #e2e8f0"></div>
+            <button onclick="clearBgImage()" style="margin-top:6px;width:100%;padding:6px;background:#fee2e2;color:#dc2626;border:none;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;display:none" id="bgImgClearBtn">Remove Image</button>
           </div>
           <!-- Presets -->
           <div style="font-size:10px;font-weight:700;color:#8892a8;margin:10px 0 6px;text-transform:uppercase;letter-spacing:.5px">Presets</div>
@@ -363,6 +390,7 @@ const SLUG = '{{ page.slug }}';
 let els = [];        // array of element objects
 let selId = null;    // selected element ID
 let canvasBg = '#ffffff';
+let canvasBgImage = '';  // URL of background image
 let _dirty = false;
 
 // Page settings
@@ -385,7 +413,7 @@ function saveHistory() {
     _history.splice(_historyIdx + 1);
   }
   // Save a deep copy of current state
-  _history.push(JSON.stringify({ els, canvasBg, selId }));
+  _history.push(JSON.stringify({ els, canvasBg, canvasBgImage, selId }));
   if (_history.length > MAX_HISTORY) _history.shift();
   _historyIdx = _history.length - 1;
 }
@@ -407,6 +435,7 @@ function restoreHistory() {
     const state = JSON.parse(_history[_historyIdx]);
     els = state.els;
     canvasBg = state.canvasBg;
+    canvasBgImage = state.canvasBgImage || '';
     selId = state.selId;
     exitEditMode();
     renderAll();
@@ -433,7 +462,7 @@ try {
   if (raw && raw.trim()) {
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) { els = parsed; }
-    else if (parsed.els) { els = parsed.els; if (parsed.canvasBg) canvasBg = parsed.canvasBg; }
+    else if (parsed.els) { els = parsed.els; if (parsed.canvasBg) canvasBg = parsed.canvasBg; if (parsed.canvasBgImage) canvasBgImage = parsed.canvasBgImage; }
   }
 } catch(e) { /* No saved canvas data, will convert from AI data */ }
 
@@ -538,6 +567,14 @@ if (_bgPrev) _bgPrev.style.background = canvasBg;
 function renderAll() {
   const cv = document.getElementById('canvas');
   cv.style.background = canvasBg;
+  if (canvasBgImage) {
+    cv.style.backgroundImage = 'url(' + canvasBgImage + ')';
+    cv.style.backgroundSize = 'cover';
+    cv.style.backgroundPosition = 'center';
+    cv.style.backgroundRepeat = 'no-repeat';
+  } else {
+    cv.style.backgroundImage = 'none';
+  }
   // Remove old elements but keep guides and empty state
   cv.querySelectorAll('.cel').forEach(e=>e.remove());
   // Hide empty state
@@ -1802,13 +1839,16 @@ function setBgType(type) {
   _bgType = type;
   document.getElementById('bgSolidCtrl').style.display = type === 'solid' ? 'block' : 'none';
   document.getElementById('bgGradCtrl').style.display = type === 'gradient' ? 'block' : 'none';
-  document.getElementById('bgTypeSolid').style.borderColor = type === 'solid' ? '#0ea5e9' : '#e2e8f0';
-  document.getElementById('bgTypeSolid').style.background = type === 'solid' ? '#f0f9ff' : '#fff';
-  document.getElementById('bgTypeSolid').style.color = type === 'solid' ? '#0ea5e9' : '#475569';
-  document.getElementById('bgTypeGrad').style.borderColor = type === 'gradient' ? '#0ea5e9' : '#e2e8f0';
-  document.getElementById('bgTypeGrad').style.background = type === 'gradient' ? '#f0f9ff' : '#fff';
-  document.getElementById('bgTypeGrad').style.color = type === 'gradient' ? '#0ea5e9' : '#475569';
+  document.getElementById('bgImageCtrl').style.display = type === 'image' ? 'block' : 'none';
+  ['Solid','Grad','Image'].forEach(function(t) {
+    var btn = document.getElementById('bgType'+t);
+    var active = t.toLowerCase() === type || (t === 'Grad' && type === 'gradient');
+    btn.style.borderColor = active ? '#0ea5e9' : '#e2e8f0';
+    btn.style.background = active ? '#f0f9ff' : '#fff';
+    btn.style.color = active ? '#0ea5e9' : '#475569';
+  });
   if (type === 'gradient') applyGradBg();
+  if (type === 'image') applyImageBg();
 }
 
 function applySolidBg(c) { setBg(c); }
@@ -1823,7 +1863,6 @@ function applyGradBg() {
 function applyPreset(bg) {
   if (bg.startsWith('linear-gradient')) {
     setBgType('gradient');
-    // Parse gradient colours
     var m = bg.match(/#[0-9a-fA-F]{6}/g);
     if (m && m.length >= 2) {
       document.getElementById('bgGrad1').value = m[0];
@@ -1834,6 +1873,58 @@ function applyPreset(bg) {
     document.getElementById('bgColor').value = bg;
   }
   setBg(bg);
+}
+
+function applyImageBg() {
+  var url = document.getElementById('bgImageUrl')?.value?.trim();
+  if (!url) return;
+  var size = document.getElementById('bgImgSize')?.value || 'cover';
+  var pos = document.getElementById('bgImgPos')?.value || 'center';
+  canvasBgImage = url;
+  var cv = document.getElementById('canvas');
+  cv.style.backgroundImage = 'url(' + url + ')';
+  cv.style.backgroundSize = size;
+  cv.style.backgroundPosition = pos;
+  cv.style.backgroundRepeat = 'no-repeat';
+  // Update preview
+  var prev = document.getElementById('bgImgPreview');
+  prev.style.display = 'block';
+  prev.style.backgroundImage = 'url(' + url + ')';
+  document.getElementById('bgImgClearBtn').style.display = 'block';
+  document.getElementById('bgPreview').style.backgroundImage = 'url(' + url + ')';
+  document.getElementById('bgPreview').style.backgroundSize = 'cover';
+  document.getElementById('bgHex').textContent = 'Image';
+  markDirty();
+}
+
+async function uploadBgImage(file) {
+  if (!file) return;
+  var prog = document.getElementById('bgImgProgress');
+  prog.style.display = 'block';
+  prog.textContent = 'Uploading...';
+  var formData = new FormData();
+  formData.append('file', file);
+  try {
+    var res = await fetch('/api/funnels/upload-image', { method: 'POST', body: formData });
+    var data = await res.json();
+    if (data.success && data.url) {
+      prog.textContent = '✓ Uploaded!';
+      document.getElementById('bgImageUrl').value = data.url;
+      applyImageBg();
+    } else { prog.textContent = '✗ ' + (data.error || 'Failed'); prog.style.color = '#dc2626'; }
+  } catch(e) { prog.textContent = '✗ Error'; prog.style.color = '#dc2626'; }
+}
+
+function clearBgImage() {
+  canvasBgImage = '';
+  document.getElementById('bgImageUrl').value = '';
+  var cv = document.getElementById('canvas');
+  cv.style.backgroundImage = 'none';
+  document.getElementById('bgImgPreview').style.display = 'none';
+  document.getElementById('bgImgClearBtn').style.display = 'none';
+  document.getElementById('bgPreview').style.backgroundImage = 'none';
+  document.getElementById('bgHex').textContent = canvasBg;
+  markDirty();
 }
 
 // Init preview swatch
@@ -1895,7 +1986,7 @@ async function save() {
     meta_description: pageSettings.metaDescription || '',
     image_url: pageSettings.ogImage || '',
     gjs_html: html,
-    gjs_css: JSON.stringify({els, canvasBg}),
+    gjs_css: JSON.stringify({els, canvasBg, canvasBgImage}),
     status: 'published',
   };
 
@@ -1918,7 +2009,9 @@ async function save() {
 }
 
 function exportHTML() {
-  let h = `<div style="background:${canvasBg};min-height:100vh;width:100%;font-family:'Outfit',sans-serif">`;
+  let bgStyle = `background:${canvasBg};`;
+  if (canvasBgImage) bgStyle += `background-image:url(${canvasBgImage});background-size:cover;background-position:center;background-repeat:no-repeat;`;
+  let h = `<div style="${bgStyle}min-height:100vh;width:100%;font-family:'Outfit',sans-serif">`;
   h += `<div style="position:relative;width:1100px;max-width:100%;margin:0 auto;min-height:${Math.max(900, els.length?Math.max(...els.map(e=>e.y+e.h))+80:900)}px;overflow-x:hidden">`;
   els.forEach(el => {
     const styles = {position:'absolute',left:el.x+'px',top:el.y+'px',width:el.w+'px',height:el.h+'px',boxSizing:'border-box',...(el.s||{})};
