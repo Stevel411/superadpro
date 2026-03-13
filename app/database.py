@@ -715,6 +715,22 @@ class LinkHubClick(Base):
     clicked_at      = Column(DateTime, default=datetime.utcnow)
 
 
+class Notification(Base):
+    """Platform notifications for members."""
+    __tablename__ = "notifications"
+    id          = Column(Integer, primary_key=True, index=True)
+    user_id     = Column(Integer, ForeignKey("users.id"), index=True)
+    type        = Column(String, nullable=False)         # referral, commission, achievement, system
+    icon        = Column(String, default="🔔")
+    title       = Column(String, nullable=False)
+    message     = Column(String, nullable=False)
+    link        = Column(String, nullable=True)          # optional action URL
+    is_read     = Column(Boolean, default=False)
+    created_at  = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", backref="notifications")
+
+
 class NurtureSequence(Base):
     """Tracks free members through the 5-email nurture campaign."""
     __tablename__ = "nurture_sequences"
@@ -967,6 +983,8 @@ try:
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS age_range VARCHAR"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS gender VARCHAR"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE"))
+        conn.execute(text("CREATE TABLE IF NOT EXISTS notifications (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), type VARCHAR NOT NULL, icon VARCHAR DEFAULT '🔔', title VARCHAR NOT NULL, message VARCHAR NOT NULL, link VARCHAR, is_read BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, is_read, created_at DESC)"))
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS social_posts_uses INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS social_posts_total INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS video_scripts_uses INTEGER DEFAULT 0"))

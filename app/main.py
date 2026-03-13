@@ -23,7 +23,7 @@ from .database import (
 from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker, CourseChapter, CourseLesson, CourseProgress
 from .database import AdBoost, BOOST_TIERS, BOOST_SPONSOR_PCT, BOOST_COMPANY_PCT
 from .coinbase_commerce import create_charge as cb_create_charge, verify_webhook_signature as cb_verify_sig, parse_webhook_event as cb_parse_event, SANDBOX_MODE as CB_SANDBOX
-from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick
+from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick, Notification
 from .crud import create_user, verify_password
 from .grid import (
     get_grid_stats, get_user_grids, get_grid_positions,
@@ -1849,6 +1849,19 @@ async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
                     paid_at=datetime.utcnow(),
                     notes=f"Membership 50% sponsor share (${MEMBERSHIP_SPONSOR_SHARE})",
                 ))
+
+                # Notify sponsor
+                new_user = db.query(User).filter(User.id == user_id).first()
+                send_notification(db, sponsor.id, "commission", "💰",
+                    f"${float(sponsor_share):.0f} commission earned!",
+                    f"{new_user.username if new_user else 'A new member'} joined your team. You earned ${float(sponsor_share):.0f} in membership commission.",
+                    "/wallet"
+                )
+                send_notification(db, sponsor.id, "referral", "👥",
+                    "New team member!",
+                    f"{new_user.username if new_user else 'Someone'} just joined SuperAdPro through your referral link.",
+                    "/courses/commissions"
+                )
 
                 # Company share record
                 db.add(Commission(
@@ -6060,6 +6073,62 @@ def onboarding_complete(user: User = Depends(get_current_user), db: Session = De
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     user.onboarding_completed = True
+    db.commit()
+    return JSONResponse({"ok": True})
+
+
+# ═══════════════════════════════════════════════════════════════
+#  NOTIFICATION SYSTEM
+# ═══════════════════════════════════════════════════════════════
+
+def send_notification(db: Session, user_id: int, type: str, icon: str, title: str, message: str, link: str = None):
+    """Create a notification for a user."""
+    notif = Notification(user_id=user_id, type=type, icon=icon, title=title, message=message, link=link)
+    db.add(notif)
+
+
+@app.get("/api/notifications")
+def get_notifications(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Get recent notifications for current user."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    notifs = db.query(Notification).filter(
+        Notification.user_id == user.id
+    ).order_by(Notification.created_at.desc()).limit(20).all()
+    unread = db.query(Notification).filter(
+        Notification.user_id == user.id, Notification.is_read == False
+    ).count()
+    return JSONResponse({
+        "notifications": [{
+            "id": n.id,
+            "type": n.type,
+            "icon": n.icon,
+            "title": n.title,
+            "message": n.message,
+            "link": n.link,
+            "is_read": n.is_read,
+            "created_at": n.created_at.isoformat() if n.created_at else None,
+        } for n in notifs],
+        "unread_count": unread,
+    })
+
+
+@app.post("/api/notifications/read")
+async def mark_notifications_read(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Mark notifications as read."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    ids = body.get("ids", [])
+    if ids:
+        db.query(Notification).filter(
+            Notification.user_id == user.id, Notification.id.in_(ids)
+        ).update({Notification.is_read: True}, synchronize_session=False)
+    else:
+        # Mark all as read
+        db.query(Notification).filter(
+            Notification.user_id == user.id, Notification.is_read == False
+        ).update({Notification.is_read: True}, synchronize_session=False)
     db.commit()
     return JSONResponse({"ok": True})
 
