@@ -229,11 +229,61 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
         <h3 style="margin:0">✦ Blocks</h3>
         <p style="margin:2px 0 0">Click or drag to add</p>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div class="bg-sw"><input type="color" id="bgColor" value="#050d1a" oninput="setBg(this.value)"></div>
-        <div>
+      <div style="display:flex;align-items:center;gap:6px;position:relative">
+        <div id="bgPreview" style="width:28px;height:28px;border-radius:8px;border:2px solid rgba(255,255,255,0.15);cursor:pointer;flex-shrink:0" onclick="toggleBgPanel()"></div>
+        <div style="cursor:pointer" onclick="toggleBgPanel()">
           <div class="bg-label" style="font-size:8px">BG</div>
           <span class="bg-hex" id="bgHex" style="font-size:9px">#050d1a</span>
+        </div>
+        <!-- BG Panel dropdown -->
+        <div id="bgPanel" style="display:none;position:absolute;top:36px;right:0;width:260px;background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.2);border:1px solid #e2e8f0;z-index:20;padding:14px">
+          <div style="font-size:10px;font-weight:800;color:#8892a8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Background Type</div>
+          <div style="display:flex;gap:4px;margin-bottom:12px">
+            <button id="bgTypeSolid" onclick="setBgType('solid')" style="flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #0ea5e9;background:#f0f9ff;color:#0ea5e9">Solid</button>
+            <button id="bgTypeGrad" onclick="setBgType('gradient')" style="flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569">Gradient</button>
+          </div>
+          <!-- Solid -->
+          <div id="bgSolidCtrl">
+            <div style="font-size:10px;font-weight:700;color:#8892a8;margin-bottom:4px">Colour</div>
+            <input type="color" id="bgColor" value="#050d1a" oninput="applySolidBg(this.value)" style="width:100%;height:32px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0">
+          </div>
+          <!-- Gradient -->
+          <div id="bgGradCtrl" style="display:none">
+            <div style="display:flex;gap:8px;margin-bottom:8px">
+              <div style="flex:1">
+                <div style="font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px">From</div>
+                <input type="color" id="bgGrad1" value="#050d1a" oninput="applyGradBg()" style="width:100%;height:28px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0">
+              </div>
+              <div style="flex:1">
+                <div style="font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px">To</div>
+                <input type="color" id="bgGrad2" value="#1a1a4e" oninput="applyGradBg()" style="width:100%;height:28px;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;padding:0">
+              </div>
+            </div>
+            <div style="font-size:10px;font-weight:700;color:#8892a8;margin-bottom:3px">Direction</div>
+            <select id="bgGradDir" onchange="applyGradBg()" style="width:100%;padding:6px;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;color:#475569;outline:none">
+              <option value="180deg">↓ Top to Bottom</option>
+              <option value="135deg" selected>↘ Diagonal</option>
+              <option value="90deg">→ Left to Right</option>
+              <option value="45deg">↗ Diagonal Up</option>
+              <option value="0deg">↑ Bottom to Top</option>
+            </select>
+          </div>
+          <!-- Presets -->
+          <div style="font-size:10px;font-weight:700;color:#8892a8;margin:10px 0 6px;text-transform:uppercase;letter-spacing:.5px">Presets</div>
+          <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px">
+            <div onclick="applyPreset('#050d1a')" style="width:100%;aspect-ratio:1;border-radius:6px;cursor:pointer;background:#050d1a;border:1px solid rgba(255,255,255,0.1)"></div>
+            <div onclick="applyPreset('#0f172a')" style="width:100%;aspect-ratio:1;border-radius:6px;cursor:pointer;background:#0f172a;border:1px solid rgba(255,255,255,0.1)"></div>
+            <div onclick="applyPreset('#1e293b')" style="width:100%;aspect-ratio:1;border-radius:6px;cursor:pointer;background:#1e293b;border:1px solid #e2e8f0"></div>
+            <div onclick="applyPreset('#ffffff')" style="width:100%;aspect-ratio:1;border-radius:6px;cursor:pointer;background:#ffffff;border:1px solid #e2e8f0"></div>
+            <div onclick="applyPreset('#f8fafc')" style="width:100%;aspect-ratio:1;border-radius:6px;cursor:pointer;background:#f8fafc;border:1px solid #e2e8f0"></div>
+            <div onclick="applyPreset('#fef3c7')" style="width:100%;aspect-ratio:1;border-radius:6px;cursor:pointer;background:#fef3c7;border:1px solid #e2e8f0"></div>
+            <div onclick="applyPreset('linear-gradient(135deg,#0ea5e9,#6366f1)')" style="width:100%;aspect-ratio:1;border-radius:6px;cursor:pointer;background:linear-gradient(135deg,#0ea5e9,#6366f1);border:1px solid rgba(0,0,0,0.1)"></div>
+            <div onclick="applyPreset('linear-gradient(135deg,#8b5cf6,#ec4899)')" style="width:100%;aspect-ratio:1;border-radius:6px;cursor:pointer;background:linear-gradient(135deg,#8b5cf6,#ec4899);border:1px solid rgba(0,0,0,0.1)"></div>
+            <div onclick="applyPreset('linear-gradient(135deg,#10b981,#059669)')" style="width:100%;aspect-ratio:1;border-radius:6px;cursor:pointer;background:linear-gradient(135deg,#10b981,#059669);border:1px solid rgba(0,0,0,0.1)"></div>
+            <div onclick="applyPreset('linear-gradient(135deg,#f59e0b,#ef4444)')" style="width:100%;aspect-ratio:1;border-radius:6px;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#ef4444);border:1px solid rgba(0,0,0,0.1)"></div>
+            <div onclick="applyPreset('linear-gradient(180deg,#0f172a,#1e3a5f)')" style="width:100%;aspect-ratio:1;border-radius:6px;cursor:pointer;background:linear-gradient(180deg,#0f172a,#1e3a5f);border:1px solid rgba(0,0,0,0.1)"></div>
+            <div onclick="applyPreset('linear-gradient(135deg,#1a1a2e,#16213e)')" style="width:100%;aspect-ratio:1;border-radius:6px;cursor:pointer;background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid rgba(0,0,0,0.1)"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -362,8 +412,9 @@ function restoreHistory() {
     renderAll();
     _dirty = true;
     // Update bg picker
-    document.getElementById('bgColor').value = canvasBg;
-    document.getElementById('bgHex').textContent = canvasBg;
+    document.getElementById('bgColor').value = canvasBg.startsWith('#') ? canvasBg : '#050d1a';
+    document.getElementById('bgHex').textContent = canvasBg.startsWith('linear') ? 'Gradient' : canvasBg;
+    var _rp = document.getElementById('bgPreview'); if (_rp) _rp.style.background = canvasBg;
   } catch(e) { console.error('Undo error:', e); }
 }
 
@@ -478,8 +529,10 @@ if (els.length === 0) {
   } catch(e) { console.error('AI data conversion:', e); }
 }
 
-document.getElementById('bgColor').value = canvasBg;
-document.getElementById('bgHex').textContent = canvasBg;
+document.getElementById('bgColor').value = canvasBg.startsWith('#') ? canvasBg : '#050d1a';
+document.getElementById('bgHex').textContent = canvasBg.startsWith('linear') ? 'Gradient' : canvasBg;
+var _bgPrev = document.getElementById('bgPreview');
+if (_bgPrev) _bgPrev.style.background = canvasBg;
 
 // ═══ RENDERING ═══
 function renderAll() {
@@ -1723,9 +1776,75 @@ function bgEl(id, color) {
 function setBg(c) {
   canvasBg = c;
   document.getElementById('canvas').style.background = c;
-  document.getElementById('bgHex').textContent = c;
+  document.getElementById('bgPreview').style.background = c;
+  // Update hex label
+  if (c.startsWith('linear-gradient')) {
+    document.getElementById('bgHex').textContent = 'Gradient';
+  } else {
+    document.getElementById('bgHex').textContent = c;
+  }
   markDirty();
 }
+
+function toggleBgPanel() {
+  var p = document.getElementById('bgPanel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+// Close bg panel when clicking outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#bgPanel') && !e.target.closest('#bgPreview') && !e.target.closest('[onclick*="toggleBgPanel"]')) {
+    document.getElementById('bgPanel').style.display = 'none';
+  }
+});
+
+var _bgType = 'solid';
+function setBgType(type) {
+  _bgType = type;
+  document.getElementById('bgSolidCtrl').style.display = type === 'solid' ? 'block' : 'none';
+  document.getElementById('bgGradCtrl').style.display = type === 'gradient' ? 'block' : 'none';
+  document.getElementById('bgTypeSolid').style.borderColor = type === 'solid' ? '#0ea5e9' : '#e2e8f0';
+  document.getElementById('bgTypeSolid').style.background = type === 'solid' ? '#f0f9ff' : '#fff';
+  document.getElementById('bgTypeSolid').style.color = type === 'solid' ? '#0ea5e9' : '#475569';
+  document.getElementById('bgTypeGrad').style.borderColor = type === 'gradient' ? '#0ea5e9' : '#e2e8f0';
+  document.getElementById('bgTypeGrad').style.background = type === 'gradient' ? '#f0f9ff' : '#fff';
+  document.getElementById('bgTypeGrad').style.color = type === 'gradient' ? '#0ea5e9' : '#475569';
+  if (type === 'gradient') applyGradBg();
+}
+
+function applySolidBg(c) { setBg(c); }
+
+function applyGradBg() {
+  var c1 = document.getElementById('bgGrad1').value;
+  var c2 = document.getElementById('bgGrad2').value;
+  var dir = document.getElementById('bgGradDir').value;
+  setBg('linear-gradient(' + dir + ',' + c1 + ',' + c2 + ')');
+}
+
+function applyPreset(bg) {
+  if (bg.startsWith('linear-gradient')) {
+    setBgType('gradient');
+    // Parse gradient colours
+    var m = bg.match(/#[0-9a-fA-F]{6}/g);
+    if (m && m.length >= 2) {
+      document.getElementById('bgGrad1').value = m[0];
+      document.getElementById('bgGrad2').value = m[1];
+    }
+  } else {
+    setBgType('solid');
+    document.getElementById('bgColor').value = bg;
+  }
+  setBg(bg);
+}
+
+// Init preview swatch
+document.addEventListener('DOMContentLoaded', function() {
+  var p = document.getElementById('bgPreview');
+  if (p) p.style.background = canvasBg;
+  // Detect if current bg is gradient
+  if (canvasBg && canvasBg.startsWith('linear-gradient')) {
+    _bgType = 'gradient';
+  }
+});
 
 // ═══ CHAT ═══
 function toggleChat() { document.getElementById('chatBox').classList.toggle('closed'); }
