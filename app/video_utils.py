@@ -1,13 +1,13 @@
 # ═══════════════════════════════════════════════════════════════
 # SuperAdPro — Video URL Parser & Embed Generator
-# Supports: YouTube, Rumble, Vimeo
+# Supports: YouTube, Vimeo, Direct MP4
 # ═══════════════════════════════════════════════════════════════
 import re
 from urllib.parse import urlparse, parse_qs
 from typing import Optional
 
 
-ALLOWED_PLATFORMS = {"youtube", "rumble", "vimeo", "direct"}
+ALLOWED_PLATFORMS = {"youtube", "vimeo", "direct"}
 
 
 def parse_video_url(url: str) -> Optional[dict]:
@@ -31,16 +31,6 @@ def parse_video_url(url: str) -> Optional[dict]:
                 "embed_url": f"https://www.youtube.com/embed/{vid_id}?rel=0&modestbranding=1",
             }
 
-    # ── Rumble ───────────────────────────────────────────────
-    m = re.search(r'rumble\.com/(?:embed/)?([a-zA-Z0-9]+)(?:[/-]|\.html|$)', url)
-    if m and 'rumble.com' in url:
-        vid_id = m.group(1)
-        return {
-            "platform": "rumble",
-            "video_id": vid_id,
-            "embed_url": f"https://rumble.com/embed/{vid_id}/",
-        }
-
     # ── Vimeo ────────────────────────────────────────────────
     m = re.search(r'vimeo\.com/(?:video/)?(\d+)', url)
     if m:
@@ -63,13 +53,12 @@ def parse_video_url(url: str) -> Optional[dict]:
 
 
 def platform_label(platform: str) -> str:
-    return {"youtube": "YouTube", "rumble": "Rumble", "vimeo": "Vimeo", "direct": "Uploaded"}.get(platform, platform.title())
+    return {"youtube": "YouTube", "vimeo": "Vimeo", "direct": "Uploaded"}.get(platform, platform.title())
 
 
 def platform_colour(platform: str) -> str:
     return {
         "youtube": "#ff0000",
-        "rumble":  "#85c742",
         "vimeo":   "#1ab7ea",
         "direct":  "#10b981",
     }.get(platform, "#00b4d8")

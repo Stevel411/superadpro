@@ -1367,7 +1367,7 @@ def upload_video_post(
 
     parsed = parse_video_url(video_url)
     if not parsed:
-        return err("Unsupported video URL. Please paste a YouTube, Rumble, or Vimeo link.")
+        return err("Unsupported video URL. Please paste a YouTube or Vimeo link.")
 
     campaign = VideoCampaign(
         user_id     = user.id,

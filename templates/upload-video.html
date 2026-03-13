@@ -214,7 +214,7 @@ body{font-family:'DM Sans',sans-serif;background:#ffffff;color:#0f172a;min-heigh
             <div class="info-box" style="margin-top:auto">
               <div class="info-box-title">💡 Supported Formats</div>
               <div class="info-box-item"><div class="info-dot"></div>YouTube — paste any watch, shorts or share URL</div>
-              <div class="info-box-item"><div class="info-dot"></div>Rumble — paste the video page URL</div>
+              <div class="info-box-item"><div class="info-dot"></div></div>
               <div class="info-box-item"><div class="info-dot"></div>Vimeo — paste the video page URL</div>
               <div class="info-box-item"><div class="info-dot"></div>MP4 Upload — drag & drop or browse (max 50MB)</div>
             </div>
@@ -304,13 +304,11 @@ body{font-family:'DM Sans',sans-serif;background:#ffffff;color:#0f172a;min-heigh
 
 <script>
 const ytRegex = /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-const rmRegex = /rumble\.com\/(?:embed\/)?([a-zA-Z0-9]+)(?:[/-]|\.html|$)/;
 const viRegex = /vimeo\.com\/(?:video\/)?(\d+)/;
 function previewVideo(url) {
   const wrap=document.getElementById('previewWrap'),frame=document.getElementById('previewFrame'),label=document.getElementById('previewLabel');
   let e=null,m=url.match(ytRegex);
   if(m){e=`https://www.youtube.com/embed/${m[1]}?rel=0&modestbranding=1`;}
-  if(!e){m=url.match(rmRegex);if(m&&url.includes('rumble.com')){e=`https://rumble.com/embed/${m[1]}/`;}}
   if(!e){m=url.match(viRegex);if(m){e=`https://player.vimeo.com/video/${m[1]}?title=0&byline=0`;}}
   if(e){frame.src=e;wrap.style.display='block';label.style.display='block';}
   else{frame.src='';wrap.style.display='none';label.style.display='none';}
