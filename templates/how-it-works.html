@@ -1,1077 +1,434 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>How It Works — SuperAdPro</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Rethink+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { background:#050d1a; color:#e8f0fe; font-family:'DM Sans','Rethink Sans',sans-serif; min-height:100vh; }
-        body > div:not(.m-overlay), body > section { max-width:1100px; margin-left:auto; margin-right:auto; padding-left:32px; padding-right:32px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>How It Works — SuperAdPro</title>
+<meta name="description" content="SuperAdPro: earn, learn, and build your online business. Multiple income streams, course marketplace, AI-powered marketing tools.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050d1a;color:#f0f2f8;font-family:'DM Sans',sans-serif;overflow-x:hidden}
 
-        .bg { display:none; }
-        .grid { display:none; }
+/* ── Nav ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:72px;background:rgba(10,18,40,0.95);backdrop-filter:blur(18px);border-bottom:1px solid rgba(0,180,216,0.08)}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.nav-brand{font-family:Sora,sans-serif;font-weight:800;font-size:19px;color:#fff}
+.nav-brand span{color:#38bdf8}
+.nav-links{display:flex;align-items:center;gap:4px;list-style:none}
+.nav-links li a{font-size:14px;font-weight:600;color:rgba(200,220,255,0.6);text-decoration:none;padding:8px 16px;border-radius:8px;transition:.2s}
+.nav-links li a:hover{color:#fff;background:rgba(255,255,255,0.04)}
+.nav-drop{position:relative}
+.nav-drop-menu{display:none;position:absolute;top:100%;left:0;background:rgba(10,18,40,0.98);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:8px;min-width:180px;box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.nav-drop:hover .nav-drop-menu{display:block}
+.nav-drop-menu a{display:block;padding:10px 14px;font-size:13px;font-weight:600;color:rgba(200,220,255,0.7);text-decoration:none;border-radius:8px;transition:.15s}
+.nav-drop-menu a:hover{background:rgba(14,165,233,0.1);color:#fff}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-login{font-size:14px;font-weight:600;color:rgba(200,220,255,0.5);text-decoration:none;padding:8px 16px;border:1px solid rgba(255,255,255,0.08);border-radius:8px;transition:.2s}
+.nav-login:hover{color:#fff;border-color:rgba(255,255,255,0.15)}
+.nav-cta{font-size:14px;font-weight:700;color:#fff;background:#0ea5e9;padding:9px 22px;border-radius:10px;text-decoration:none;transition:.2s}
+.nav-cta:hover{background:#0284c7;transform:translateY(-1px)}
+.hamburger{display:none;background:none;border:none;color:#fff;font-size:22px;cursor:pointer}
+@media(max-width:768px){.nav-links{display:none}.hamburger{display:block}nav{padding:0 20px}}
 
-        nav { position:relative; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 36px; height:80px; background:rgba(10,18,40,0.95); border-bottom:1px solid rgba(0,180,216,0.12); box-shadow:0 1px 8px rgba(0,0,0,0.06); }
-        .nav-logo { display:flex; align-items:center; gap:9px; text-decoration:none; }
-        .nav-brand { font-family:'Sora',sans-serif; font-weight:800; font-size:19px; letter-spacing:0; text-transform:none; color:#fff; -webkit-text-fill-color:#fff; }
-        .nav-brand span { color:#38bdf8; -webkit-text-fill-color:#38bdf8; }
-        .nav-links { display:flex; align-items:center; gap:6px; list-style:none; }
-        .nav-links a { font-size:19px; font-weight:500; color:rgba(200,220,255,0.7); text-decoration:none; padding:4px 10px; transition:color 0.2s; }
-        .nav-links a:hover { color:#ffffff; }
-        .nav-cta { font-weight:600; font-size:15px; color:#fff; background:#0ea5e9; padding:9px 22px; border-radius:10px; text-decoration:none; box-shadow:0 2px 12px rgba(14,165,233,0.25); transition:all 0.3s; }
-        .nav-cta:hover { box-shadow:0 4px 24px rgba(0,180,216,0.35); transform:translateY(-1px); }
+/* ── Shared ── */
+.section{padding:100px 40px;max-width:1200px;margin:0 auto}
+.section-label{font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#0ea5e9;margin-bottom:12px;text-align:center}
+.section-title{font-family:Sora,sans-serif;font-size:clamp(28px,3.5vw,44px);font-weight:900;color:#fff;text-align:center;line-height:1.15;margin-bottom:16px}
+.section-sub{font-size:16px;color:rgba(200,220,255,0.45);text-align:center;max-width:640px;margin:0 auto 48px;line-height:1.7}
+.fade-up{opacity:0;transform:translateY(30px);transition:all .6s ease}
+.fade-up.visible{opacity:1;transform:translateY(0)}
 
-        .page { position:relative; z-index:10; max-width:1100px; margin:0 auto; padding:60px 32px 80px; }
+/* ── Hero ── */
+.hero{padding:140px 40px 80px;text-align:center;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(14,165,233,0.08) 0%,transparent 60%)}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#0ea5e9;border:1px solid rgba(14,165,233,0.2);border-radius:50px;padding:6px 18px;margin-bottom:20px}
+.hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:#0ea5e9;animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.hero h1{font-family:Sora,sans-serif;font-size:clamp(32px,5vw,64px);font-weight:900;color:#fff;line-height:1.08;margin-bottom:20px;letter-spacing:-1px}
+.hero h1 .accent{color:#0ea5e9}
+.hero h1 .green{color:#10b981}
+.hero-sub{font-size:18px;color:rgba(200,220,255,0.5);max-width:600px;margin:0 auto 32px;line-height:1.7}
+.hero-cta{display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.hero-cta a{padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;text-decoration:none;transition:.2s}
+.btn-primary{background:#0ea5e9;color:#fff;box-shadow:0 4px 20px rgba(14,165,233,0.3)}
+.btn-primary:hover{background:#0284c7;transform:translateY(-2px)}
+.btn-secondary{background:rgba(255,255,255,0.04);color:rgba(200,220,255,0.7);border:1px solid rgba(255,255,255,0.1)}
+.btn-secondary:hover{background:rgba(255,255,255,0.08);color:#fff}
 
-        /* Hero */
-        .hero { text-align:center; margin-bottom:72px; padding-top:56px; }
-        .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:19px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#0ea5e9; border:1px solid rgba(0,180,216,0.25); border-radius:50px; background:rgba(0,180,216,0.08); padding:5px 16px; margin-bottom:20px; }
-        .dot { width:6px; height:6px; border-radius:50%; background:#0ea5e9; animation:blink 2s infinite; }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-        h1 { font-weight:800; font-size:clamp(28px,4vw,54px); color:#ffffff; line-height:1.1; margin-bottom:16px; }
-        h1 .gold { color:#0284c7; }
-        .hero-sub { font-size:19px; color:rgba(200,220,255,0.7); max-width:620px; margin:0 auto; line-height:1.75; }
+/* ── Video Slot ── */
+.video-slot{max-width:800px;margin:0 auto;aspect-ratio:16/9;background:#0a1225;border-radius:16px;border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.video-slot-placeholder{text-align:center;color:rgba(200,220,255,0.3);font-size:14px;font-weight:600}
+.video-slot iframe{width:100%;height:100%;border:none}
 
-        /* Divider */
-        .divider { display:flex; align-items:center; gap:14px; margin:64px 0 36px; }
-        .div-line { flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(0,180,216,0.2),transparent); }
-        .div-text { font-size:19px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(220,242,230,0.4); white-space:nowrap; }
+/* ── 3 Pillars ── */
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+.pillar{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:36px 28px;text-align:center;transition:.25s;position:relative;overflow:hidden}
+.pillar:hover{transform:translateY(-4px);border-color:rgba(255,255,255,0.1);box-shadow:0 16px 48px rgba(0,0,0,.2)}
+.pillar-viz{height:120px;margin-bottom:20px;position:relative;display:flex;align-items:center;justify-content:center}
+.pillar-title{font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:10px}
+.pillar-desc{font-size:14px;color:rgba(200,220,255,0.45);line-height:1.7}
+@media(max-width:768px){.pillars{grid-template-columns:1fr}}
 
-        /* ===== AUDIENCE TABS ===== */
-        .tabs { display:flex; gap:0; border:1px solid rgba(0,180,216,0.15); border-radius:8px; overflow:hidden; margin-bottom:48px; }
-        .tab { flex:1; padding:18px 24px; text-align:center; cursor:pointer; border-right:1px solid rgba(0,180,216,0.12); transition:all 0.25s; background:rgba(2,16,9,0.8); }
-        .tab:last-child { border-right:none; }
-        .tab:hover { background:rgba(3,22,12,0.9); }
-        .tab.active { background:rgba(0,212,255,0.10); border-bottom:2px solid #38bdf8; border-bottom-width:2px; }
-        .tab-icon { font-size:32px; display:block; margin-bottom:6px; }
-        .tab-label { font-size:19px; font-weight:700; color:#ffffff; margin-bottom:3px; }
-        .tab-sub { font-size:19px; color:rgba(200,220,255,0.45); }
-        .tab.active .tab-sub { color:#38bdf8; }
+/* ── Earn Pillar: animated coin/commission flow ── */
+.pv-earn .pe-coin{position:absolute;width:14px;height:14px;border-radius:50%;background:#10b981;box-shadow:0 0 12px rgba(16,185,129,0.4)}
+.pv-earn .pe-c1{top:10px;left:50%;animation:peCoinDrop 2s ease-in-out infinite}
+.pv-earn .pe-c2{top:10px;left:40%;animation:peCoinDrop 2s ease-in-out infinite .4s}
+.pv-earn .pe-c3{top:10px;left:60%;animation:peCoinDrop 2s ease-in-out infinite .8s}
+.pv-earn .pe-bar{position:absolute;bottom:0;height:6px;border-radius:3px;background:linear-gradient(90deg,#10b981,#059669)}
+.pv-earn .pe-b1{width:80%;left:10%;bottom:20px;opacity:.3}.pv-earn .pe-b2{width:60%;left:20%;bottom:8px;opacity:.2}
+@keyframes peCoinDrop{0%{top:10px;opacity:0}20%{opacity:1}80%{opacity:1}100%{top:80px;opacity:0}}
 
-        /* ===== STEPS ===== */
-        .steps-panel { display:none; }
-        .steps-panel.active { display:block; }
+/* ── Learn Pillar: book/course stack ── */
+.pv-learn .pl-page{position:absolute;left:50%;transform:translateX(-50%);width:70%;height:14px;border-radius:4px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.12)}
+.pv-learn .pl-1{top:20px;width:65%}.pv-learn .pl-2{top:40px;width:70%}.pv-learn .pl-3{top:60px;width:75%}
+.pv-learn .pl-play{position:absolute;top:30px;left:50%;transform:translateX(-50%);width:24px;height:24px;border-radius:50%;background:rgba(139,92,246,0.2);border:1.5px solid rgba(139,92,246,0.3);display:flex;align-items:center;justify-content:center}
+.pv-learn .pl-play::after{content:'';width:0;height:0;border-left:8px solid rgba(139,92,246,0.7);border-top:5px solid transparent;border-bottom:5px solid transparent;margin-left:2px}
+.pv-learn .pl-glow{position:absolute;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,0.15),transparent 70%);top:10px;left:50%;transform:translateX(-50%);animation:plGlow 3s ease-in-out infinite}
+@keyframes plGlow{0%,100%{opacity:.4;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.2)}}
 
-        .step-row { display:grid; grid-template-columns:80px 1fr; gap:0; margin-bottom:0; }
-        .step-row:last-child .step-line { display:none; }
+/* ── Build Pillar: tool assembly ── */
+.pv-build .pb-block{position:absolute;border-radius:6px;border:1.5px solid rgba(14,165,233,0.2);background:rgba(14,165,233,0.04)}
+.pv-build .pb-1{width:60%;height:12px;top:16px;left:20%;animation:pbSlide .8s ease forwards}
+.pv-build .pb-2{width:40%;height:35px;top:38px;left:10%;animation:pbSlide .8s ease .2s forwards;opacity:0}
+.pv-build .pb-3{width:40%;height:35px;top:38px;left:52%;animation:pbSlide .8s ease .4s forwards;opacity:0}
+.pv-build .pb-4{width:50%;height:10px;top:84px;left:25%;border-radius:5px;background:rgba(14,165,233,0.12);animation:pbSlide .8s ease .6s forwards;opacity:0}
+.pv-build .pb-cursor{width:12px;height:12px;border:2px solid #0ea5e9;border-radius:50%;position:absolute;box-shadow:0 0 10px rgba(14,165,233,0.4);animation:pbCursor 4s ease-in-out infinite}
+@keyframes pbSlide{from{opacity:0;transform:scaleX(.3)}to{opacity:1;transform:scaleX(1)}}
+@keyframes pbCursor{0%,100%{top:20px;left:70%}25%{top:50px;left:30%}50%{top:80px;left:50%}75%{top:40px;left:65%}}
 
-        .step-left { display:flex; flex-direction:column; align-items:center; }
-        .step-circle { width:60px; height:60px; border-radius:50%; background:rgba(2,16,9,0.95); border:2px solid rgba(0,200,140,0.4); display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800; color:#0ea5e9; flex-shrink:0; box-shadow:0 0 20px rgba(0,200,140,0.2); position:relative; z-index:1; }
-        .step-line { width:2px; flex:1; background:linear-gradient(180deg,rgba(0,200,140,0.3),rgba(0,200,140,0.05)); min-height:40px; margin:6px 0; }
+/* ── Who It's For ── */
+.audience{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.aud-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:28px 20px;text-align:center;transition:.2s}
+.aud-card:hover{border-color:rgba(14,165,233,0.15);transform:translateY(-2px)}
+.aud-icon{font-size:28px;margin-bottom:12px}
+.aud-title{font-family:Sora,sans-serif;font-size:15px;font-weight:800;color:#fff;margin-bottom:6px}
+.aud-desc{font-size:12px;color:rgba(200,220,255,0.4);line-height:1.6}
+@media(max-width:768px){.audience{grid-template-columns:repeat(2,1fr)}}
 
-        .step-right { padding:0 0 48px 28px; }
-        .step-tag { font-size:19px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#0ea5e9; margin-bottom:6px; }
-        .step-title { font-size:22px; font-weight:800; color:#ffffff; margin-bottom:10px; line-height:1.2; }
-        .step-desc { font-size:19px; color:rgba(200,220,255,0.7); line-height:1.75; margin-bottom:16px; }
-        .step-points { list-style:none; display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
-        .step-points li { display:flex; align-items:flex-start; gap:10px; font-size:19px; color:rgba(220,242,230,0.75); line-height:1.5; }
-        .step-points li::before { content:'→'; color:#0ea5e9; font-weight:700; flex-shrink:0; margin-top:1px; }
-        .step-card { display:inline-flex; align-items:center; gap:8px; background:rgba(5,13,26,0.8); border:1px solid rgba(0,180,216,0.15); border-radius:6px; padding:10px 16px; font-size:19px; color:rgba(220,242,230,0.75); }
-        .step-card strong { color:#0284c7; }
+/* ── Income Streams ── */
+.streams-section{background:linear-gradient(180deg,rgba(16,185,129,0.03) 0%,rgba(16,185,129,0) 100%)}
+.streams{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.stream{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:28px;display:flex;gap:20px;align-items:flex-start;transition:.2s}
+.stream:hover{border-color:rgba(16,185,129,0.15);transform:translateY(-2px)}
+.stream-num{font-family:Sora,sans-serif;font-size:28px;font-weight:900;color:#10b981;opacity:.3;flex-shrink:0;width:40px}
+.stream-body{flex:1}
+.stream-title{font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:6px}
+.stream-desc{font-size:13px;color:rgba(200,220,255,0.4);line-height:1.6;margin-bottom:8px}
+.stream-tag{display:inline-block;font-size:11px;font-weight:700;color:#10b981;background:rgba(16,185,129,0.1);padding:3px 10px;border-radius:6px}
+@media(max-width:768px){.streams{grid-template-columns:1fr}}
 
-        /* ===== HOW PAYMENT FLOWS ===== */
-        .payment-flow { background:rgba(10,18,40,0.95); border:1px solid rgba(0,180,216,0.15); border-radius:10px; padding:36px; margin-bottom:56px; }
-        .pf-title { font-size:19px; font-weight:800; color:#ffffff; margin-bottom:6px; }
-        .pf-sub { font-size:19px; color:rgba(220,242,230,0.6); margin-bottom:28px; }
-        .pf-flow { display:flex; align-items:center; gap:0; flex-wrap:wrap; }
-        .pf-node { text-align:center; flex:1; min-width:120px; }
-        .pf-icon-wrap { width:64px; height:64px; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:22px; border:2px solid; }
-        .pf-node-label { font-size:19px; font-weight:700; color:#ffffff; margin-bottom:3px; }
-        .pf-node-sub { font-size:19px; color:rgba(200,220,255,0.45); }
-        .pf-arrow { font-size:22px; color:rgba(0,200,140,0.4); flex-shrink:0; padding:0 8px; margin-bottom:24px; }
-        .pf-pct { font-size:19px; font-weight:800; color:#0ea5e9; margin-top:4px; }
+/* ── Tools ── */
+.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tool{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:24px;text-align:center;transition:.2s}
+.tool:hover{border-color:rgba(14,165,233,0.12);transform:translateY(-2px)}
+.tool-icon{font-size:24px;margin-bottom:10px}
+.tool-name{font-family:Sora,sans-serif;font-size:14px;font-weight:800;color:#fff;margin-bottom:4px}
+.tool-desc{font-size:12px;color:rgba(200,220,255,0.4);line-height:1.5}
+@media(max-width:768px){.tools{grid-template-columns:repeat(2,1fr)}}
 
-        /* ===== GRID EXPLAINER ===== */
-        .grid-explainer { background:rgba(10,18,40,0.95); border:1px solid rgba(0,180,216,0.15); border-radius:10px; padding:36px; margin-bottom:56px; }
-        .me-grid { display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start; }
-        .me-title { font-size:19px; font-weight:800; color:#ffffff; margin-bottom:6px; }
-        .me-sub { font-size:19px; color:rgba(220,242,230,0.6); margin-bottom:20px; }
-        .me-points { list-style:none; display:flex; flex-direction:column; gap:12px; }
-        .me-point { display:flex; align-items:flex-start; gap:12px; font-size:19px; color:rgba(200,220,255,0.7); line-height:1.55; }
-        .me-num { width:26px; height:26px; border-radius:50%; background:rgba(0,200,140,0.1); border:1px solid rgba(0,180,216,0.3); display:flex; align-items:center; justify-content:center; font-size:19px; font-weight:800; color:#0ea5e9; flex-shrink:0; margin-top:1px; }
+/* ── Pricing ── */
+.pricing{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:800px;margin:0 auto}
+.price-card{border-radius:20px;padding:36px;text-align:center;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);transition:.2s}
+.price-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.15)}
+.price-card.pro{border-color:rgba(14,165,233,0.2);background:rgba(14,165,233,0.03)}
+.price-label{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.price-amount{font-family:Sora,sans-serif;font-size:48px;font-weight:900;color:#fff;margin-bottom:4px}
+.price-amount span{font-size:18px;font-weight:600;color:rgba(200,220,255,0.4)}
+.price-period{font-size:13px;color:rgba(200,220,255,0.35);margin-bottom:20px}
+.price-features{list-style:none;text-align:left;margin-bottom:24px}
+.price-features li{padding:6px 0;font-size:13px;color:rgba(200,220,255,0.55);display:flex;align-items:center;gap:8px}
+.price-features li::before{content:'✓';color:#10b981;font-weight:800;font-size:12px}
+.price-btn{display:block;padding:12px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;text-align:center;transition:.2s}
+@media(max-width:768px){.pricing{grid-template-columns:1fr}}
 
-        /* Grid tree visual */
-        .grid-tree { text-align:center; }
-        .mt-row { display:flex; justify-content:center; gap:8px; margin-bottom:4px; }
-        .mt-node { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:19px; border:2px solid; }
-        .mt-you { background:rgba(0,200,140,0.15); border-color:#0ea5e9; box-shadow:0 0 16px rgba(0,200,140,0.2); }
-        .mt-filled { background:rgba(0,180,216,0.08); border-color:rgba(0,180,216,0.3); }
-        .mt-open { background:rgba(5,13,26,0.8); border-color:rgba(0,180,216,0.15); border-style:dashed; color:rgba(220,242,230,0.3); font-size:19px; }
-        .mt-connector { display:flex; justify-content:center; margin-bottom:4px; }
-        .mt-line { width:1px; height:14px; background:rgba(0,180,216,0.3); }
-        .mt-label { font-size:19px; color:rgba(200,220,255,0.45); text-transform:uppercase; letter-spacing:1px; margin-top:4px; margin-bottom:16px; }
-        .mt-level-label { font-size:19px; color:rgba(0,220,150,0.5); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+/* ── Video Explainer Slot ── */
+.explainer-row{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;margin-top:48px}
+.explainer-text h3{font-family:Sora,sans-serif;font-size:24px;font-weight:800;color:#fff;margin-bottom:12px}
+.explainer-text p{font-size:14px;color:rgba(200,220,255,0.45);line-height:1.7}
+@media(max-width:768px){.explainer-row{grid-template-columns:1fr}}
 
-        /* ===== USD / BLOCKCHAIN SECTION ===== */
-        .blockchain-section { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:56px; }
-        .bc-card { background:rgba(10,18,40,0.95); border:1px solid rgba(0,180,216,0.15); border-radius:10px; padding:28px; }
-        .bc-icon { font-size:32px; margin-bottom:14px; display:block; }
-        .bc-title { font-size:19px; font-weight:800; color:#ffffff; margin-bottom:8px; }
-        .bc-desc { font-size:19px; color:rgba(220,242,230,0.68); line-height:1.7; margin-bottom:16px; }
-        .bc-points { list-style:none; display:flex; flex-direction:column; gap:8px; }
-        .bc-point { display:flex; align-items:flex-start; gap:9px; font-size:19px; color:rgba(200,220,255,0.7); }
-        .bc-point::before { content:'✓'; color:#0ea5e9; font-weight:700; flex-shrink:0; }
+/* ── Final CTA ── */
+.final-cta{text-align:center;padding:100px 40px;background:linear-gradient(180deg,transparent 0%,rgba(14,165,233,0.03) 50%,transparent 100%)}
+.final-cta h2{font-family:Sora,sans-serif;font-size:clamp(28px,3.5vw,42px);font-weight:900;color:#fff;margin-bottom:16px}
+.final-cta p{font-size:16px;color:rgba(200,220,255,0.4);margin-bottom:32px;max-width:500px;margin-left:auto;margin-right:auto}
 
-        /* ===== FAQ MINI ===== */
-        .faq-mini { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:56px; }
-        .faq-item { background:rgba(10,18,40,0.95); border:1px solid rgba(0,180,216,0.15); border-radius:8px; padding:20px 22px; }
-        .faq-q { font-size:19px; font-weight:700; color:#ffffff; margin-bottom:8px; display:flex; align-items:flex-start; gap:10px; }
-        .faq-q::before { content:'Q'; font-size:19px; font-weight:800; color:#0ea5e9; background:rgba(0,200,140,0.1); border:1px solid rgba(0,200,140,0.2); border-radius:3px; padding:1px 7px; flex-shrink:0; margin-top:2px; }
-        .faq-a { font-size:19px; color:rgba(220,242,230,0.68); line-height:1.65; padding-left:30px; }
-
-        /* CTA */
-        .cta { text-align:center; padding:56px 32px; background:rgba(10,18,40,0.95); border:1px solid rgba(0,180,216,0.15); border-radius:12px; }
-        .cta h2 { font-weight:800; font-size:clamp(24px,3vw,40px); color:#ffffff; margin-bottom:10px; }
-        .cta h2 .gold { color:#0284c7; }
-        .cta p { font-size:19px; color:rgba(220,242,230,0.65); margin-bottom:28px; }
-        .cta-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
-        .btn-gold { font-weight:700; font-size:19px; color:#f0f2f8; background:linear-gradient(135deg,#0ea5e9,#38bdf8); padding:14px 36px; border-radius:5px; text-decoration:none; transition:all 0.3s; }
-        .btn-gold:hover { box-shadow:0 0 40px rgba(0,180,216,0.4); transform:translateY(-2px); }
-        .btn-outline { font-weight:600; font-size:19px; color:rgba(220,242,230,0.8); padding:13px 36px; border-radius:5px; border:1px solid rgba(0,180,216,0.25); text-decoration:none; transition:all 0.3s; }
-        .btn-outline:hover { border-color:#0ea5e9; color:#ffffff; }
-
-        @media(max-width:800px) {
-            .tabs { flex-direction:column; }
-            .tab { border-right:none; border-bottom:1px solid rgba(0,180,216,0.12); }
-            .me-grid { grid-template-columns:1fr; }
-            .blockchain-section { grid-template-columns:1fr; }
-            .faq-mini { grid-template-columns:1fr; }
-            .pf-flow { justify-content:center; }
-        }
-    
-
-@media(max-width:500px){}
-
-
-@media(max-width:500px){}
-
-/* === MODAL STYLES === */
-.m-overlay{position:fixed;inset:0;background:rgba(2,6,18,0.88);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.2s ease}
-.m-overlay.open{opacity:1;pointer-events:all}
-.m-box{background:#111827;border:1px solid rgba(0,212,255,0.18);border-radius:16px;padding:36px 40px;width:100%;max-width:460px;position:relative;box-shadow:0 32px 80px rgba(0,0,0,0.7);transform:translateY(16px);transition:transform 0.2s ease}
-.m-overlay.open .m-box{transform:translateY(0)}
-.m-close{position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(148,163,184,0.6);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:6px;line-height:1;transition:color 0.15s}
-.m-close:hover{color:#fff}
-.m-title{font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
-.m-sub{font-size:16px;color:rgba(148,163,184,0.8);margin-bottom:22px}
-.m-err{display:none;padding:10px 14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;font-size:16px;font-weight:600;color:#f87171;margin-bottom:14px}
-.m-field{margin-bottom:14px}
-.m-label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(148,163,184,0.7);margin-bottom:6px}
-.m-input{width:100%;padding:10px 13px;border:1.5px solid rgba(0,212,255,0.14);border-radius:8px;background:rgba(0,212,255,0.04);color:#f1f5f9;font-size:16px;font-family:inherit;box-sizing:border-box;transition:border-color 0.15s}
-.m-input:focus{outline:none;border-color:rgba(0,212,255,0.5);background:rgba(56,189,248,0.07)}
-.m-input::placeholder{color:rgba(148,163,184,0.35)}
-.m-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.m-terms{display:flex;align-items:flex-start;gap:10px;margin-bottom:18px;font-size:16px;color:rgba(148,163,184,0.6);line-height:1.5}
-.m-terms input{width:14px;height:14px;flex-shrink:0;margin-top:1px;accent-color:#38bdf8;cursor:pointer}
-.m-terms a{color:rgba(0,212,255,0.8);text-decoration:none}
-.m-btn{width:100%;padding:12px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border:none;border-radius:9px;color:#fff;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:0.3px;transition:opacity 0.15s}
-.m-btn:hover{opacity:0.9}
-.m-btn:disabled{opacity:0.5;cursor:not-allowed}
-.m-foot{text-align:center;margin-top:14px;font-size:16px;color:rgba(148,163,184,0.5)}
-.m-foot a{color:rgba(0,212,255,0.8);text-decoration:none;font-weight:600}
-@media(max-width:520px){.m-box{padding:26px 20px}.m-row{grid-template-columns:1fr}}
-/* === END MODAL STYLES === */
-
-/* Hamburger + Mobile Menu */
-.hamburger{display:none;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:4px 8px}
-.mobile-menu{display:none;position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(5,13,26,0.98);backdrop-filter:blur(12px);z-index:99;overflow-y:auto}
-.mobile-menu.open{display:block}
-.mobile-menu-inner{padding:24px;display:flex;flex-direction:column;gap:4px}
-.mobile-menu-inner a{display:block;padding:14px 16px;font-size:16px;font-weight:600;color:rgba(200,220,255,0.8);text-decoration:none;border-radius:8px;transition:background 0.2s}
-.mobile-menu-inner a:hover{background:rgba(0,180,216,0.1);color:#fff}
-@media(max-width:900px){
-  .hamburger{display:block}
-  .nav-links{display:none!important}
-  nav{padding:0 16px}
-}
-@media(min-width:901px){.mobile-menu{display:none!important}}
-@media(max-width:600px){
-  nav{height:64px}
-  .nav-brand{font-size:16px!important}
-}
-
+/* ── Footer ── */
+footer{border-top:1px solid rgba(255,255,255,0.04);padding:40px;text-align:center}
+.footer-links{display:flex;justify-content:center;gap:24px;margin-bottom:16px}
+.footer-links a{font-size:13px;font-weight:600;color:rgba(200,220,255,0.35);text-decoration:none;transition:.2s}
+.footer-links a:hover{color:#fff}
+.footer-copy{font-size:11px;color:rgba(200,220,255,0.2)}
 </style>
 </head>
 <body>
 
-
-
-<svg width="0" height="0" style="position:absolute">
-  <defs>
-    <linearGradient id="ob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="30%" stop-color="#0284c7"/><stop offset="70%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient>
-    <linearGradient id="sf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a0a2e"/><stop offset="40%" stop-color="#06061a"/><stop offset="100%" stop-color="#03031a"/></linearGradient>
-    <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="25%" stop-color="#0ea5e9"/><stop offset="50%" stop-color="#0284c7"/><stop offset="75%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient>
-    <linearGradient id="hl" x1="0%" y1="0%" x2="60%" y2="100%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/><stop offset="100%" stop-color="#000000" stop-opacity="0.15"/></linearGradient>
-    <filter id="sg"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <symbol id="shield" viewBox="0 0 44 44">
-      <circle cx="22" cy="22" r="20" fill="url(#logo-grad-hw)"/>
-      <path d="M18 13l14 9-14 9V13z" fill="#fff"/>
-    </symbol>
-    <linearGradient id="logo-grad-hw" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0ea5e9"/>
-      <stop offset="1" stop-color="#38bdf8"/>
-    </linearGradient>
-  </defs>
-</svg>
-
+<!-- ═══ NAV ═══ -->
 <nav>
-    <a href="/" class="nav-logo">
-        <span class="nav-brand"><svg style="width:24px;height:24px;vertical-align:middle;margin-right:6px" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>SuperAd<span>Pro</span></span>
-    </a>
-    <ul class="nav-links">
-        <li><a href="/how-it-works" style="color:#fff">How It Works</a></li>
-        <li><span class="nav-sep">·</span></li>
-        <li><a href="/for-advertisers">Advertisers</a></li>
-        <li><span class="nav-sep">·</span></li>
-        <li><a href="/ads">Ad Board</a></li>
-        <li><span class="nav-sep">·</span></li>
-        <li><a href="/videos">Videos</a></li>
-        <li><span class="nav-sep">·</span></li>
-        <li><a href="/affiliates">Affiliates</a></li>
-        <li><span class="nav-sep">·</span></li>
-        <li><a href="/faq">FAQ</a></li>
-        <li><span class="nav-sep">·</span></li>
-        <li><a href="/support-public">Support</a></li>
-    </ul>
-    <div style="display:flex;align-items:center;gap:10px">
-        <a href="#" onclick="mOpen('mLogin');return false;" onclick="openLoginModal();return false;" onclick="openLoginModal();return false;" style="font-size:16px;font-weight:600;color:rgba(200,230,210,0.6);text-decoration:none;padding:7px 14px;border:1px solid rgba(255,255,255,0.1);border-radius:7px;transition:all 0.2s" onmouseover="this.style.color='rgba(200,230,210,0.9)'" onmouseout="this.style.color='rgba(200,230,210,0.6)'">Log In</a>
-        <a href="/?register=1" class="nav-cta" onclick="mOpen('mReg');return false;">Get started &rarr;</a>
-        <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">☰</button>
-    </div>
+  <a href="/" class="nav-logo">
+    <span class="nav-brand">SuperAd<span>Pro</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/how-it-works" style="color:rgba(200,220,255,0.9)">How It Works</a></li>
+    <li class="nav-drop">
+      <a href="#">Explore ▾</a>
+      <div class="nav-drop-menu">
+        <a href="/videos">📺 Watch Videos</a>
+        <a href="/ad-board">📋 Ad Board</a>
+      </div>
+    </li>
+  </ul>
+  <div class="nav-right">
+    <a href="/login" class="nav-login">Log In</a>
+    <a href="/register" class="nav-cta">Get Started →</a>
+    <button class="hamburger" onclick="document.getElementById('mobileMenu').classList.toggle('open')">☰</button>
+  </div>
 </nav>
 
-<!-- MOBILE MENU -->
-<div class="mobile-menu" id="mobileMenu">
-    <div class="mobile-menu-inner">
-        <a href="/how-it-works">How It Works</a>
-        <a href="/for-advertisers">Advertisers</a>
-        <a href="/affiliates">Affiliates</a>
-        <a href="/ads">Ad Board</a>
-        <a href="/faq">FAQ</a>
-        <a href="/support-public">Support</a>
-        <div style="border-top:1px solid rgba(0,180,216,0.15);margin:12px 0;padding-top:12px;display:flex;flex-direction:column;gap:10px">
-            <a href="#" onclick="mOpen('mLogin');toggleMobileMenu();return false;" style="color:#38bdf8">Log In</a>
-            <a href="#" onclick="mOpen('mReg');toggleMobileMenu();return false;" style="text-align:center;display:block;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;padding:12px;border-radius:8px;font-weight:700">Register Here</a>
-        </div>
-    </div>
-</div>
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-eyebrow"><span class="dot"></span> THE ALL-IN-ONE PLATFORM</div>
+  <h1><span class="accent">Earn.</span> Learn. <span class="green">Build.</span><br>Your Online Business.</h1>
+  <p class="hero-sub">SuperAdPro gives you the income streams, the courses, and the AI-powered tools to build a real online business — all in one place.</p>
+  <div class="hero-cta">
+    <a href="/register" class="btn-primary">Start Free →</a>
+    <a href="#pillars" class="btn-secondary">See How It Works</a>
+  </div>
 
-<!-- LOGIN MODAL -->
-<div class="m-overlay" id="mLogin" onclick="if(event.target===this)mClose('mLogin')">
-  <div class="m-box">
-    <button class="m-close" onclick="mClose('mLogin')">&#x2715;</button>
-    <div class="m-title">Log In</div>
-    <div class="m-sub">Welcome back &mdash; enter your details below</div>
-    <div id="loginErr" class="m-err"></div>
-    <form id="loginForm" onsubmit="doLogin(event)">
-      <div class="m-field">
-        <label class="m-label">Username or Email</label>
-        <input class="m-input" type="text" id="loginUser" placeholder="username or email" required autocomplete="username">
-      </div>
-      <div class="m-field" style="margin-bottom:6px">
-        <label class="m-label">Password</label>
-        <input class="m-input" type="password" id="loginPw" placeholder="Your password" required autocomplete="current-password">
-      </div>
-      <div style="text-align:right;margin-bottom:18px">
-        <a href="/forgot-password" style="font-size:16px;color:rgba(0,212,255,0.7);text-decoration:none">Forgot password?</a>
-      </div>
-      <button type="submit" class="m-btn" id="loginBtn">Log In &rarr;</button>
-    </form>
-    <div class="m-foot">Don't have an account? <a href="#" onclick="mClose('mLogin');mOpen('mReg');return false;">Register here &rarr;</a></div>
+  <!-- Video explainer slot -->
+  <div style="margin-top:48px">
+    <div class="video-slot">
+      <div class="video-slot-placeholder">🎬 Video explainer coming soon</div>
+      <!-- Replace placeholder with: <iframe src="YOUR_VIDEO_URL" allowfullscreen></iframe> -->
+    </div>
   </div>
 </div>
 
-<!-- REGISTER MODAL -->
-<div class="m-overlay" id="mReg" onclick="if(event.target===this)mClose('mReg')">
-  <div class="m-box">
-    <button class="m-close" onclick="mClose('mReg')">&#x2715;</button>
-    <div class="m-title">Create Your Free Account</div>
-    <div class="m-sub">Takes 60 seconds &middot; No credit card required</div>
-    <div id="regErr" class="m-err"></div>
-    <form id="regForm" onsubmit="doRegister(event)">
-      <input type="hidden" id="regRef" value="">
-      <div class="m-field">
-        <label class="m-label">First Name</label>
-        <input class="m-input" type="text" id="regFirst" placeholder="John" required autocomplete="given-name">
+<!-- ═══ 3 PILLARS ═══ -->
+<div class="section" id="pillars">
+  <div class="section-label">THE SUPERADPRO WAY</div>
+  <div class="section-title">Three Pillars. One Platform.</div>
+  <div class="section-sub">Everything you need to start earning, learning, and building — without juggling a dozen different tools and subscriptions.</div>
+
+  <div class="pillars">
+    <!-- EARN -->
+    <div class="pillar fade-up">
+      <div class="pillar-viz pv-earn">
+        <div class="pe-coin pe-c1"></div>
+        <div class="pe-coin pe-c2"></div>
+        <div class="pe-coin pe-c3"></div>
+        <div class="pe-bar pe-b1"></div>
+        <div class="pe-bar pe-b2"></div>
       </div>
-      <div class="m-field">
-        <label class="m-label">Email Address</label>
-        <input class="m-input" type="email" id="regEmail" placeholder="john@example.com" required autocomplete="email">
+      <div class="pillar-title" style="color:#10b981">Earn</div>
+      <div class="pillar-desc">Four income streams from day one. Affiliate commissions, campaign rewards, course sales, and your own course marketplace.</div>
+    </div>
+
+    <!-- LEARN -->
+    <div class="pillar fade-up" style="transition-delay:.15s">
+      <div class="pillar-viz pv-learn">
+        <div class="pl-glow"></div>
+        <div class="pl-page pl-1"></div>
+        <div class="pl-page pl-2"></div>
+        <div class="pl-page pl-3"></div>
       </div>
-      <div class="m-field">
-        <label class="m-label">Username</label>
-        <input class="m-input" type="text" id="regUser" placeholder="johnsmith99" required autocomplete="off" pattern="[a-zA-Z0-9_]{3,30}">
+      <div class="pillar-title" style="color:#8b5cf6">Learn</div>
+      <div class="pillar-desc">Browse our course library or create and sell your own courses. Learn skills that translate directly into income.</div>
+    </div>
+
+    <!-- BUILD -->
+    <div class="pillar fade-up" style="transition-delay:.3s">
+      <div class="pillar-viz pv-build">
+        <div class="pb-block pb-1"></div>
+        <div class="pb-block pb-2"></div>
+        <div class="pb-block pb-3"></div>
+        <div class="pb-block pb-4"></div>
+        <div class="pb-cursor"></div>
       </div>
-      <div class="m-row">
-        <div class="m-field">
-          <label class="m-label">Password</label>
-          <input class="m-input" type="password" id="regPw" placeholder="Min. 8 chars" required minlength="8" autocomplete="new-password">
-        </div>
-        <div class="m-field">
-          <label class="m-label">Confirm</label>
-          <input class="m-input" type="password" id="regPwC" placeholder="Repeat" required autocomplete="new-password">
-        </div>
-      </div>
-      <div class="m-field" id="regSponsorWrap" style="display:none">
-        <label class="m-label">Referred by</label>
-        <input class="m-input" type="text" id="regSponsorShow" readonly style="opacity:0.55;cursor:default">
-      </div>
-      <div class="m-terms">
-        <input type="checkbox" id="regTerms">
-        <div>I agree to the <a href="/legal" target="_blank">Terms of Service</a> and <a href="/legal" target="_blank">Privacy Policy</a>.</div>
-      </div>
-      <button type="submit" class="m-btn" id="regBtn">Register Here &rarr;</button>
-    </form>
-    <div class="m-foot">Already have an account? <a href="#" onclick="mClose('mReg');mOpen('mLogin');return false;">Log in here &rarr;</a></div>
+      <div class="pillar-title" style="color:#0ea5e9">Build</div>
+      <div class="pillar-desc">AI-powered page builder, LinkHub, funnel generator, email tools. Professional marketing tools without the professional price tag.</div>
+    </div>
   </div>
 </div>
 
-<!-- HERO -->
-    <div class="hero">
-        <div class="eyebrow"><div class="dot"></div>Simple · Transparent · Powerful</div>
-        <h1>Everything You Need to Know<br><span class="gold">About SuperAdPro.</span></h1>
-        <p class="hero-sub">Whether you're an advertiser looking for estimated video views or an affiliate building recurring income — here's exactly how SuperAdPro works for you.</p>
+<!-- ═══ WHO IT'S FOR ═══ -->
+<div class="section">
+  <div class="section-label">BUILT FOR YOU</div>
+  <div class="section-title">Who Is SuperAdPro For?</div>
+  <div class="section-sub">Whether you're just starting out or scaling up, SuperAdPro meets you where you are.</div>
+
+  <div class="audience">
+    <div class="aud-card fade-up">
+      <div class="aud-icon">📈</div>
+      <div class="aud-title">Marketers</div>
+      <div class="aud-desc">Run campaigns, build funnels, and drive traffic with AI-powered tools built for performance.</div>
     </div>
-
-    <!-- AUDIENCE TABS -->
-    <div class="tabs" style="grid-template-columns:1fr 1fr">
-        <div class="tab active" onclick="showTab('advertiser', this)">
-            <span class="tab-icon">🎬</span>
-            <div class="tab-label">For Advertisers</div>
-            <div class="tab-sub">Get your video seen</div>
-        </div>
-        <div class="tab" onclick="showTab('affiliate', this)">
-            <span class="tab-icon">🤝</span>
-            <div class="tab-label">For Affiliates</div>
-            <div class="tab-sub">Build recurring income</div>
-        </div>
+    <div class="aud-card fade-up" style="transition-delay:.1s">
+      <div class="aud-icon">🚀</div>
+      <div class="aud-title">Entrepreneurs</div>
+      <div class="aud-desc">Launch and grow your online business with multiple income streams and professional tools.</div>
     </div>
-
-    <!-- ADVERTISER STEPS -->
-    <div class="steps-panel active" id="panel-advertiser">
-        <div class="step-row">
-            <div class="step-left"><div class="step-circle">01</div><div class="step-line"></div></div>
-            <div class="step-right">
-                <div class="step-tag">Step One</div>
-                <div class="step-title">Create Your Free Account</div>
-                <div class="step-desc">Registration takes under 60 seconds. Enter your details, and you're in. No subscription, no hidden fees.</div>
-                <ul class="step-points">
-                    <li>Enter your name, email and username</li>
-                    <li>Set up your payment method</li>
-                </ul>
-                <div class="step-card">💳 Pay with card, crypto, or Apple Pay</div>
-            </div>
-        </div>
-        <div class="step-row">
-            <div class="step-left"><div class="step-circle">02</div><div class="step-line"></div></div>
-            <div class="step-right">
-                <div class="step-tag">Step Two</div>
-                <div class="step-title">Choose a Campaign Tier</div>
-                <div class="step-desc">Select from 8 campaign tiers ranging from $20 to $1,000. Each tier unlocks a set number of estimated video views delivered to real, engaged audiences.</div>
-                <ul class="step-points">
-                    <li>Starter ($20) — up to 10,000 estimated views</li>
-                    <li>Pro ($100) — up to 80,000 estimated views — most popular</li>
-                    <li>Ultimate ($1,000) — up to 1,200,000 estimated views</li>
-                </ul>
-                <div class="step-card">📦 All tiers include: <strong>AI optimisation + analytics dashboard</strong></div>
-            </div>
-        </div>
-        <div class="step-row">
-            <div class="step-left"><div class="step-circle">03</div><div class="step-line"></div></div>
-            <div class="step-right">
-                <div class="step-tag">Step Three</div>
-                <div class="step-title">Pay Securely</div>
-                <div class="step-desc">Activate your chosen tier by paying securely through Coinbase. Pay with card, Apple Pay, Google Pay, or crypto — your campaign is activated instantly once payment confirms.</div>
-                <ul class="step-points">
-                    <li>Pay securely via Coinbase Commerce (card, crypto, or Apple Pay)</li>
-                    <li>On-chain verification — no intermediaries</li>
-                    <li>Campaign activates automatically on confirmation</li>
-                </ul>
-                <div class="step-card">⚡ Average confirmation time: <strong>Under 30 seconds</strong></div>
-            </div>
-        </div>
-        <div class="step-row">
-            <div class="step-left"><div class="step-circle">04</div><div class="step-line"></div></div>
-            <div class="step-right">
-                <div class="step-tag">Step Four</div>
-                <div class="step-title">Upload Your Video & Set Your Audience</div>
-                <div class="step-desc">Upload your video ad directly to the SuperAdPro platform. Set your target audience preferences and our AI engine takes over — optimising delivery for maximum reach and engagement.</div>
-                <ul class="step-points">
-                    <li>Upload MP4 video directly to your dashboard</li>
-                    <li>Set audience targeting — interests, geography, demographics</li>
-                    <li>AI continuously optimises delivery throughout the campaign</li>
-                </ul>
-                <div class="step-card">🤖 AI optimisation runs: <strong>24/7 automatically</strong></div>
-            </div>
-        </div>
-        <div class="step-row">
-            <div class="step-left"><div class="step-circle">05</div></div>
-            <div class="step-right">
-                <div class="step-tag">Step Five</div>
-                <div class="step-title">Track Performance in Real Time</div>
-                <div class="step-desc">Your dashboard shows every view, click and engagement as it happens. Watch your view count climb in real time and download campaign reports whenever you need them.</div>
-                <ul class="step-points">
-                    <li>Live view counter and engagement metrics</li>
-                    <li>Click-through rate and audience breakdown</li>
-                    <li>Full campaign history and downloadable reports</li>
-                </ul>
-                <div class="step-card">📊 Dashboard updates: <strong>Every 60 seconds</strong></div>
-            </div>
-        </div>
+    <div class="aud-card fade-up" style="transition-delay:.2s">
+      <div class="aud-icon">🎓</div>
+      <div class="aud-title">Course Creators</div>
+      <div class="aud-desc">Create, publish, and sell your courses to a built-in marketplace. Keep 50% of every sale.</div>
     </div>
-
-    <!-- MARKETER STEPS -->
-
-    <!-- AFFILIATE STEPS -->
-    <div class="steps-panel" id="panel-affiliate">
-        <div class="step-row">
-            <div class="step-left"><div class="step-circle">01</div><div class="step-line"></div></div>
-            <div class="step-right">
-                <div class="step-tag">Step One</div>
-                <div class="step-title">Register &amp; Activate Your Membership</div>
-                <div class="step-desc">To participate in the affiliate programme, you simply need to be an active paid member at $20/month. Once active, you can earn commissions by referring others and optionally purchase additional services like campaign tiers, grid positions and courses to unlock even more income streams.</div>
-                <ul class="step-points">
-                    <li>Register free and set up your payment method</li>
-                    <li>Activate your $20/month membership to unlock affiliate earnings</li>
-                    <li>Optionally add campaign tiers, grid positions or courses for additional income streams</li>
-                </ul>
-                <div class="step-card">💡 Membership: <strong>$20/month</strong> — all you need to start earning</div>
-            </div>
-        </div>
-        <div class="step-row">
-            <div class="step-left"><div class="step-circle">02</div><div class="step-line"></div></div>
-            <div class="step-right">
-                <div class="step-tag">Step Two</div>
-                <div class="step-title">Share Your Unique Referral Link</div>
-                <div class="step-desc">Every member receives a unique referral link. Share it with advertisers, content creators, marketers and anyone who could benefit from the platform. Every time someone registers and activates through your link, you earn.</div>
-                <ul class="step-points">
-                    <li>Find your referral link in the Affiliate Tools section of your dashboard</li>
-                    <li>Share via email, social media, messaging apps or your website</li>
-                    <li>Track all clicks and conversions in real time</li>
-                </ul>
-                <div class="step-card">🔗 Your link: <strong>superadpro.com/ref/yourusername</strong></div>
-            </div>
-        </div>
-        <div class="step-row">
-            <div class="step-left"><div class="step-circle">03</div><div class="step-line"></div></div>
-            <div class="step-right">
-                <div class="step-tag">Step Three</div>
-                <div class="step-title">Earn Direct & Matching Commissions</div>
-                <div class="step-desc">When your grid fills and completes an advance, you earn 40% direct sponsor commission on every personal referral, plus 6.25% uni-level commissions from every entry in your grid — paid instantly per entry.</div>
-                <ul class="step-points">
-                    <li>40% direct sponsor + 50% uni-level (8 levels) — paid per grid entry</li>
-                    <li>50% Uni-Level — 6.25% per level, paid per grid entry across 8 levels</li>
-                    <li>No caps, no delays, no minimums</li>
-                </ul>
-                <div class="step-card">💰 Example: Referral activates $100 Pro → <strong>You earn $40.00 instantly</strong></div>
-            </div>
-        </div>
-        <div class="step-row">
-            <div class="step-left"><div class="step-circle">04</div></div>
-            <div class="step-right">
-                <div class="step-tag">Step Four</div>
-                <div class="step-title">Grow Your Grid & Earn Passively</div>
-                <div class="step-desc">As your network grows, your 8×8 Income Grid fills up across 10 levels. Every activation anywhere in your network generates earnings for you — even from members you never personally referred.</div>
-                <ul class="step-points">
-                    <li>40% goes to the direct sponsor + 50% splits across 8 uni-levels per entry</li>
-                    <li>50% split across 8 levels (6.25% each) — uni-level commissions</li>
-                    <li>Spillover from your upline fills your grid automatically</li>
-                </ul>
-                <div class="step-card">◈ Full 8×8 grid: <strong>64 positions, recurring every advance</strong></div>
-            </div>
-        </div>
+    <div class="aud-card fade-up" style="transition-delay:.3s">
+      <div class="aud-icon">💡</div>
+      <div class="aud-title">Online Business Builders</div>
+      <div class="aud-desc">Turn your skills and knowledge into income with tools, training, and a supportive community.</div>
     </div>
-
-    <!-- PAYMENT FLOW -->
-    <div class="divider"><div class="div-line"></div><div class="div-text">How Every Payment Is Distributed</div><div class="div-line"></div></div>
-    <div class="payment-flow">
-        <div class="pf-title">Where Your Tier Payment Goes</div>
-        <div class="pf-sub">Every time a member activates an campaign tier, the payment is split and distributed automatically.</div>
-        <div class="pf-flow">
-            <div class="pf-node">
-                <div class="pf-icon-wrap" style="background:rgba(0,200,140,0.1);border-color:rgba(0,200,140,0.3)">💳</div>
-                <div class="pf-node-label">Member Pays</div>
-                <div class="pf-node-sub">e.g. $100</div>
-            </div>
-            <div class="pf-arrow">→</div>
-            <div class="pf-node">
-                <div class="pf-icon-wrap" style="background:rgba(0,180,216,0.08);border-color:rgba(0,180,216,0.25)">🤝</div>
-                <div class="pf-node-label">Direct Sponsor</div>
-                <div class="pf-node-sub">Per grid entry</div>
-                <div class="pf-pct">40%</div>
-            </div>
-            <div class="pf-arrow">→</div>
-            <div class="pf-node">
-                <div class="pf-icon-wrap" style="background:rgba(0,200,210,0.1);border-color:rgba(0,200,210,0.3)">🔁</div>
-                <div class="pf-node-label">Uni-Level Pool</div>
-                <div class="pf-node-sub">8 levels deep</div>
-                <div class="pf-pct">50%</div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- GRID EXPLAINER -->
-    <div class="divider"><div class="div-line"></div><div class="div-text">Understanding the 8×8 Income Grid</div><div class="div-line"></div></div>
-    <div class="grid-explainer">
-        <div class="me-grid">
-            <!-- Left: How the Grid Works -->
-            <div>
-                <div class="me-title">How the 8×8 Income Grid Works</div>
-                <div class="me-sub">The 8×8 Income Grid is your personal recurring commission engine on SuperAdPro.</div>
-                <ul class="me-points">
-                    <li class="me-point"><div class="me-num">1</div>When you activate a tier, your personal 8×8 grid opens — 8 positions wide, 8 levels deep, totalling 64 positions.</li>
-                    <li class="me-point"><div class="me-num">2</div>Every time someone enters a position in your grid, commissions are distributed immediately — you earn on every grid entry, not just at completion.</li>
-                    <li class="me-point"><div class="me-num">3</div>Your uni-level commission flows from every entry across all 8 levels — so every new member filling any seat pays you instantly.</li>
-                    <li class="me-point"><div class="me-num">4</div>Spillover from your upline automatically fills positions in your grid — you can earn even without your own referrals.</li>
-                    <li class="me-point"><div class="me-num">5</div>Your upline earns their uni-level income instantly on every entry entry — just like you earn uni-level commissions from your downline's grids. When all 64 positions are filled, your grid auto-advances into a fresh advance — commissions flow on every entry, not just at completion.</li>
-                    <li class="me-point"><div class="me-num">6</div>Every advance is recurring — your grid resets automatically, meaning your income engine never stops.</li>
-                </ul>
-            </div>
-            <!-- Right: Visual grid diagram -->
-            <div>
-                <!-- Grid visual: 8x8 -->
-                <div style="text-align:center;margin-bottom:12px">
-                    <div style="font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,212,255,0.5);margin-bottom:8px">YOUR 8×8 GRID</div>
-                    <div style="font-size:19px;color:rgba(200,220,255,0.4);margin-bottom:6px;text-align:center">Example: $100 tier</div>
-                    <div id="gridViz" style="display:grid;grid-template-columns:repeat(8,1fr);gap:3px;max-width:320px;margin:0 auto 10px"></div>
-                    <div style="display:flex;justify-content:center;gap:16px;font-size:19px;color:rgba(200,220,255,0.5);margin-bottom:8px">
-                        <span style="color:#38bdf8">■ You (owner)</span>
-                        <span style="color:#10b981">■ Your referral (+$40)</span>
-                        <span style="color:rgba(0,212,255,0.7)">■ Overspill (+$6.88)</span>
-                        <span style="color:rgba(255,255,255,0.2)">□ Open</span>
-                    </div>
-                    <div style="background:rgba(0,0,0,0.2);border-radius:6px;padding:8px 12px;font-size:19px;max-width:320px;margin:0 auto;display:flex;flex-direction:column;gap:5px">
-                        <div style="display:flex;justify-content:space-between">
-                            <span style="color:rgba(200,220,255,0.5)">Direct Sponsor (40%):</span>
-                            <span id="sponsorEarned" style="color:#10b981;font-weight:700">$0.00</span>
-                        </div>
-                        <div style="display:flex;justify-content:space-between">
-                            <span style="color:rgba(200,220,255,0.5)">Uni-Level (6.25%):</span>
-                            <span id="poolEarned" style="color:#38bdf8;font-weight:700">$0.00</span>
-                        </div>
-                        <div style="display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.1);padding-top:5px;margin-top:2px">
-                            <span style="color:rgba(200,220,255,0.7);font-weight:700">Total earned:</span>
-                            <span id="totalEarned" style="color:#fff;font-weight:800">$0.00</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Commission breakdown -->
-                <div style="background:rgba(0,0,0,0.2);border:1px solid rgba(0,180,216,0.15);border-radius:8px;padding:16px;margin-top:12px">
-                    <div style="font-size:19px;color:rgba(200,220,255,0.5);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">On Each Grid Entry ($100 tier)</div>
-                    <div style="display:flex;flex-direction:column;gap:8px">
-                        <div style="display:flex;justify-content:space-between;align-items:center">
-                            <span style="font-size:19px;color:rgba(200,220,255,0.7)">Direct Sponsor (40%)</span>
-                            <span style="font-size:19px;font-weight:800;color:#10b981">$40.00 Instant ✓</span>
-                        </div>
-                        <div style="display:flex;justify-content:space-between;align-items:center">
-                            <span style="font-size:19px;color:rgba(200,220,255,0.7)">Uni-Level per level (6.25%)</span>
-                            <span style="font-size:19px;font-weight:800;color:#38bdf8">$6.88 Instant ✓</span>
-                        </div>
-                    </div>
-                </div>
-                <div style="margin-top:12px;background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:14px;text-align:center">
-                    <div style="font-size:19px;color:rgba(200,220,255,0.5);margin-bottom:4px">Seats per grid advance</div>
-                    <div style="font-size:32px;font-weight:800;color:#fff">64</div>
-                    <div style="font-size:19px;color:#38bdf8;text-transform:uppercase;letter-spacing:1px;margin-top:2px">8 levels × 8 positions — recurring</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-    (function(){
-        const g = document.getElementById('gridViz');
-        const poolEl = document.getElementById('poolEarned');
-        const sponsorEl = document.getElementById('sponsorEarned');
-        const totalEl = document.getElementById('totalEarned');
-        if(!g) return;
-
-        const PKG = 100;
-        const UNI_PER_SEAT = PKG * 0.55 / 8;  // avg uni-level
-        const DIRECT_BONUS = PKG * 0.40;      // $40.00
-
-        // 8 personal referrals scattered across the grid (realistic mix)
-        const DIRECT_SEATS = new Set([1, 5, 10, 18, 25, 33, 42, 55]);
-
-        const cells = [];
-        for(let i=0;i<64;i++){
-            const c = document.createElement('div');
-            c.style.cssText = 'position:relative;border-radius:3px;transition:background 0.4s;background:rgba(255,255,255,0.07);aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden';
-            g.appendChild(c); cells.push(c);
-        }
-
-        // Cell 0 = you (grid owner) — show direct sponsor commission you earn
-        cells[0].style.background = '#38bdf8';
-        cells[0].innerHTML = '<span style="font-size:7px;font-weight:800;color:#050d1a;line-height:1.2;text-align:center">YOU</span>';
-
-        let filled = 1;
-        let uniTotal = 0;
-        let sponsorTotal = 0;
-
-        function tick(){
-            if(filled >= 64){
-                setTimeout(()=>{
-                    cells.forEach((c,i)=>{
-                        if(i === 0){
-                            c.style.background = '#38bdf8';
-                            c.innerHTML = '<span style="font-size:7px;font-weight:800;color:#050d1a;line-height:1.2;text-align:center">YOU</span>';
-                        } else {
-                            c.style.background = 'rgba(255,255,255,0.07)';
-                            c.innerHTML = '';
-                        }
-                    });
-                    filled = 1;
-                    uniTotal = 0;
-                    sponsorTotal = 0;
-                    if(poolEl) poolEl.textContent = '$0.00';
-                    if(sponsorEl) sponsorEl.textContent = '$0.00';
-                    if(totalEl) totalEl.textContent = '$0.00';
-                    setTimeout(tick, 1000);
-                }, 2500);
-                return;
-            }
-
-            const isDirect = DIRECT_SEATS.has(filled);
-
-            // Everyone earns you uni-level
-            uniTotal += UNI_PER_SEAT;
-
-            if(isDirect){
-                // Personal referral — green, shows +$25 direct sponsor bonus
-                sponsorTotal += DIRECT_BONUS;
-                cells[filled].style.background = 'linear-gradient(135deg,#10b981,#059669)';
-                cells[filled].style.boxShadow = '0 0 8px rgba(16,185,129,0.4)';
-                cells[filled].innerHTML = '<span style="font-size:7px;font-weight:800;color:#fff;line-height:1;text-align:center">+$' + DIRECT_BONUS.toFixed(0) + '</span>';
-            } else {
-                // Overspill — cyan, shows uni-level amount
-                const opacity = 0.3 + (filled / 80);
-                cells[filled].style.background = 'rgba(0,212,255,' + Math.min(opacity,0.85) + ')';
-                cells[filled].innerHTML = '<span style="font-size:7px;font-weight:800;color:rgba(255,255,255,0.9);line-height:1;text-align:center">+$' + UNI_PER_SEAT.toFixed(2) + '</span>';
-            }
-
-            if(poolEl) poolEl.textContent = '$' + uniTotal.toFixed(2);
-            if(sponsorEl) sponsorEl.textContent = '$' + sponsorTotal.toFixed(2);
-            if(totalEl) totalEl.textContent = '$' + (uniTotal + sponsorTotal).toFixed(2);
-            filled++;
-            setTimeout(tick, 150);
-        }
-        setTimeout(tick, 800);
-    })();
-    </script>
-
-    <!-- USD & BLOCKCHAIN -->
-    <div class="divider"><div class="div-line"></div><div class="div-text">Payments & Blockchain</div><div class="div-line"></div></div>
-    <div class="blockchain-section">
-        <div class="bc-card">
-            <span class="bc-icon">🔗</span>
-            <div class="bc-title">How Payments Work</div>
-            <div class="bc-desc">SuperAdPro uses Coinbase Commerce for all payments. Members can pay with credit/debit card, Apple Pay, Google Pay, or cryptocurrency. All commissions are tracked in USD.</div>
-            <ul class="bc-points">
-                <li>Pay with card, Apple Pay, Google Pay, or crypto</li>
-                <li>All payments processed securely via Coinbase</li>
-                <li>All payments are publicly verifiable on-chain</li>
-                <li>No banks, no delays, no chargebacks</li>
-                <li>Receive earnings directly to your own wallet</li>
-            </ul>
-        </div>
-        <div class="bc-card">
-            <span class="bc-icon">⚡</span>
-            <div class="bc-title">How Payments Work</div>
-            <div class="bc-desc">When you activate a tier or earn a commission, your earnings are credited to your SuperAdPro wallet instantly. Withdraw anytime to your personal wallet.</div>
-            <ul class="bc-points">
-                <li>Withdrawals are sent directly to your personal wallet</li>
-                <li>Payments accepted via card, Apple Pay, Google Pay, or crypto</li>
-                <li>Commissions and grid earnings are sent to your wallet automatically</li>
-                <li>Withdrawals are processed on-chain — usually within minutes</li>
-                <li>Your wallet address is set at registration and can be updated in your profile</li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- FAQ MINI -->
-    <div class="divider"><div class="div-line"></div><div class="div-text">Quick Questions</div><div class="div-line"></div></div>
-    <div class="faq-mini">
-        <div class="faq-item">
-            <div class="faq-q">Do I need crypto experience?</div>
-            <div class="faq-a">No crypto experience needed — you can pay with a regular debit or credit card. If you want to withdraw earnings, we'll guide you through setting up a wallet.</div>
-        </div>
-        <div class="faq-item">
-            <div class="faq-q">Can I activate more than one tier?</div>
-            <div class="faq-a">Yes — you can activate multiple tiers to increase your view count and grid earnings potential. Each activation opens a new 8×8 grid position and unlocks additional ad views.</div>
-        </div>
-        <div class="faq-item">
-            <div class="faq-q">How quickly are views delivered?</div>
-            <div class="faq-a">Campaign delivery begins within 24 hours of activation. Views are spread over the campaign period to ensure natural engagement. AI optimisation runs continuously to maximise results.</div>
-        </div>
-        <div class="faq-item">
-            <div class="faq-q">What if I don't have a referral?</div>
-            <div class="faq-a">No problem — you can register without a sponsor. You'll still be placed in the grid and benefit from spillover. Having a sponsor simply means someone gets credit for referring you.</div>
-        </div>
-    </div>
-
-    <!-- CTA -->
-    <div class="cta">
-        <h2>Ready to Get <span class="gold">Started?</span></h2>
-        <p>Join advertisers and affiliates already signing up for SuperAdPro.</p>
-        <div class="cta-btns">
-            <a href="#" class="btn-gold" onclick="openRegModal();return false;">Create Free Account →</a>
-            <a href="/packages" class="btn-outline">View Campaign Tiers</a>
-        </div>
-    </div>
-
+  </div>
 </div>
 
+<!-- ═══ INCOME STREAMS ═══ -->
+<div class="streams-section">
+<div class="section">
+  <div class="section-label" style="color:#10b981">MULTIPLE WAYS TO EARN</div>
+  <div class="section-title">4 Income Streams. One Platform.</div>
+  <div class="section-sub">SuperAdPro isn't a single trick. It's a system with four distinct ways to generate income — and they compound as your network grows.</div>
+
+  <div class="streams">
+    <div class="stream fade-up">
+      <div class="stream-num">01</div>
+      <div class="stream-body">
+        <div class="stream-title">Membership Commissions</div>
+        <div class="stream-desc">Earn 50% commission every time someone you refer joins SuperAdPro. $10 per Basic referral, $15 per Pro referral — every single month they stay.</div>
+        <span class="stream-tag">50% recurring commission</span>
+      </div>
+    </div>
+    <div class="stream fade-up" style="transition-delay:.1s">
+      <div class="stream-num">02</div>
+      <div class="stream-body">
+        <div class="stream-title">8×8 Grid Campaigns</div>
+        <div class="stream-desc">Video advertising campaigns with an 8-tier grid system. Earn commissions as your network completes campaign tiers from $20 to $1,000. Powered by Watch to Earn viewing rewards.</div>
+        <span class="stream-tag">40/50/5/5 commission split</span>
+      </div>
+    </div>
+    <div class="stream fade-up" style="transition-delay:.2s">
+      <div class="stream-num">03</div>
+      <div class="stream-body">
+        <div class="stream-title">Course Commissions</div>
+        <div class="stream-desc">Refer someone to a platform course and earn 100% of the sale. Courses range from $25 to $1,000 across marketing, business, crypto, and more.</div>
+        <span class="stream-tag">100% commission</span>
+      </div>
+    </div>
+    <div class="stream fade-up" style="transition-delay:.3s">
+      <div class="stream-num">04</div>
+      <div class="stream-body">
+        <div class="stream-title">Course Marketplace</div>
+        <div class="stream-desc">Create and sell your own courses on SuperAdPro. You keep 50% of every sale, your sponsor earns 25%, and the platform takes 25%. Your course, your pricing, your income.</div>
+        <span class="stream-tag">50% creator earnings</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Video explainer slot -->
+  <div class="explainer-row" style="margin-top:48px">
+    <div class="video-slot" style="max-width:100%">
+      <div class="video-slot-placeholder">🎬 Income streams walkthrough video</div>
+    </div>
+    <div class="explainer-text">
+      <h3>Your membership can pay for itself.</h3>
+      <p>Refer just 2 Pro members and their $15/month commissions cover your $30/month Pro membership. Every referral after that is pure profit. This isn't theory — it's maths.</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ TOOLS ═══ -->
+<div class="section">
+  <div class="section-label">YOUR TOOLKIT</div>
+  <div class="section-title">Built-In Tools That Actually Work</div>
+  <div class="section-sub">No need to pay for a dozen subscriptions. SuperAdPro includes everything you need to market, build, and grow.</div>
+
+  <div class="tools">
+    <div class="tool fade-up"><div class="tool-icon">🚀</div><div class="tool-name">SuperPages</div><div class="tool-desc">Drag-and-drop page builder with 25 elements. Build professional landing pages in minutes.</div></div>
+    <div class="tool fade-up"><div class="tool-icon">🌐</div><div class="tool-name">LinkHub</div><div class="tool-desc">Your link-in-bio page. One link, all your content. Built for creators and marketers.</div></div>
+    <div class="tool fade-up"><div class="tool-icon">✨</div><div class="tool-name">AI Funnel Generator</div><div class="tool-desc">Answer 4 questions, get a complete landing page with email capture. AI does the heavy lifting.</div></div>
+    <div class="tool fade-up"><div class="tool-icon">📋</div><div class="tool-name">Ad Board</div><div class="tool-desc">Community marketplace. List your services, find opportunities, drive traffic.</div></div>
+    <div class="tool fade-up"><div class="tool-icon">📧</div><div class="tool-name">Email Autoresponder</div><div class="tool-desc">5-email nurture sequences that send automatically. Turn leads into customers on autopilot.</div></div>
+    <div class="tool fade-up"><div class="tool-icon">🔗</div><div class="tool-name">Link Tools</div><div class="tool-desc">Niche finder, swipe file, social share templates. Everything to supercharge your marketing.</div></div>
+  </div>
+</div>
+
+<!-- ═══ PRICING ═══ -->
+<div class="section">
+  <div class="section-label">SIMPLE PRICING</div>
+  <div class="section-title">Choose Your Plan</div>
+  <div class="section-sub">Start with Basic and upgrade anytime. Both plans include full access to income streams and the community.</div>
+
+  <div class="pricing">
+    <!-- Basic -->
+    <div class="price-card fade-up">
+      <div class="price-label" style="color:#0ea5e9">BASIC</div>
+      <div class="price-amount">$20<span>/mo</span></div>
+      <div class="price-period">Everything you need to start earning</div>
+      <ul class="price-features">
+        <li>4 income streams</li>
+        <li>50% membership commissions</li>
+        <li>100% course commissions</li>
+        <li>8×8 Grid Campaigns</li>
+        <li>Watch to Earn</li>
+        <li>Course library access</li>
+        <li>LinkHub</li>
+        <li>Social share tools</li>
+        <li>Ad Board access</li>
+        <li>Niche Finder & Swipe File</li>
+      </ul>
+      <a href="/register" class="price-btn" style="background:rgba(14,165,233,0.1);color:#0ea5e9;border:1px solid rgba(14,165,233,0.2)">Get Started →</a>
+    </div>
+
+    <!-- Pro -->
+    <div class="price-card pro fade-up" style="transition-delay:.15s">
+      <div class="price-label" style="color:#8b5cf6">PRO</div>
+      <div class="price-amount">$30<span>/mo</span></div>
+      <div class="price-period">Everything in Basic + pro marketing tools</div>
+      <ul class="price-features">
+        <li>Everything in Basic</li>
+        <li>SuperPages page builder (25 elements)</li>
+        <li>AI Funnel Generator</li>
+        <li>Email Autoresponder (5-email sequences)</li>
+        <li>ProSeller AI assistant</li>
+        <li>Lead Dashboard</li>
+        <li>Create & sell your own courses</li>
+        <li>6 professional page templates</li>
+        <li>OG sharing & SEO tools</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="/register" class="price-btn" style="background:#0ea5e9;color:#fff">Go Pro →</a>
+    </div>
+  </div>
+
+  <p style="text-align:center;margin-top:24px;font-size:13px;color:rgba(200,220,255,0.3)">2 Pro referrals = $30/month = your membership pays for itself</p>
+</div>
+
+<!-- ═══ FINAL CTA ═══ -->
+<div class="final-cta">
+  <div class="section-label">READY?</div>
+  <h2>Start Building Your Online Business Today</h2>
+  <p>Join SuperAdPro and get instant access to income streams, courses, and marketing tools. No experience required.</p>
+  <a href="/register" class="btn-primary" style="font-size:16px;padding:16px 40px">Get Started Free →</a>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-links">
+    <a href="/support-public">Support</a>
+    <a href="/faq">FAQ</a>
+    <a href="/legal">Legal</a>
+    <a href="/contact">Contact</a>
+  </div>
+  <div class="footer-copy">Income examples are illustrative. Results depend on individual effort. © 2026 SuperAdPro</div>
+</footer>
+
+<!-- Scroll animations -->
 <script>
-function showTab(id, el) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.steps-panel').forEach(p => p.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('panel-' + id).classList.add('active');
-}
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15 });
+document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
 </script>
-
-<script>
-
-function openLoginModal() {
-  var overlay = document.getElementById('loginOverlay');
-  if (!overlay) return;
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  setTimeout(function(){ var f=document.getElementById('loginUser'); if(f) f.focus(); }, 300);
-}
-function closeLoginModal() {
-  var overlay = document.getElementById('loginOverlay');
-  if (overlay) overlay.classList.remove('open');
-  document.body.style.overflow = '';
-}
-document.addEventListener('keydown', function(e){
-  if(e.key==='Escape'){ closeLoginModal(); closeRegModal && closeRegModal(); }
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-  var form = document.getElementById('loginModalForm');
-  if (!form) return;
-  form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    var err = document.getElementById('loginErr');
-    var btn = document.getElementById('loginBtn');
-    err.style.display = 'none';
-    btn.disabled = true;
-    btn.textContent = 'Logging in…';
-    try {
-      var res = await fetch('/api/login', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          username: document.getElementById('loginUser').value,
-          password: document.getElementById('loginPw').value
-        })
-      });
-      var data = await res.json();
-      if (data.success) {
-        window.location.href = data.redirect || '/dashboard';
-        return;
-      }
-      err.textContent = data.error || 'Login failed. Please try again.';
-      err.style.display = 'block';
-      btn.disabled = false;
-      btn.textContent = 'Log In →';
-    } catch(ex) {
-      err.textContent = 'Network error. Please try again.';
-      err.style.display = 'block';
-      btn.disabled = false;
-      btn.textContent = 'Log In →';
-    }
-  });
-});</script>
-<script>
-/* ── Modal JS ── */
-function openRegModal(sponsor) {
-  var o=document.getElementById('regOverlay'); if(!o)return;
-  if(sponsor){document.getElementById('regRef').value=sponsor;document.getElementById('regSponsor').value=sponsor;document.getElementById('regSponsorField').style.display='block';}
-  o.classList.add('open'); document.body.style.overflow='hidden';
-  setTimeout(function(){var f=document.getElementById('regFirstName');if(f)f.focus();},300);
-}
-function closeRegModal(){var o=document.getElementById('regOverlay');if(o)o.classList.remove('open');document.body.style.overflow='';}
-function openLoginModal(){
-  var o=document.getElementById('loginOverlay'); if(!o)return;
-  o.classList.add('open'); document.body.style.overflow='hidden';
-  setTimeout(function(){var f=document.getElementById('loginUser');if(f)f.focus();},300);
-}
-function closeLoginModal(){var o=document.getElementById('loginOverlay');if(o)o.classList.remove('open');document.body.style.overflow='';}
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeLoginModal();closeRegModal();}});
-
-document.addEventListener('DOMContentLoaded',function(){
-  /* Register form */
-  var rf=document.getElementById('regModalForm');
-  if(rf) rf.addEventListener('submit',async function(e){
-    e.preventDefault();
-    var err=document.getElementById('regErr'),btn=document.getElementById('regBtn');
-    err.style.display='none';
-    if(document.getElementById('regPw').value!==document.getElementById('regPwC').value){err.textContent='Passwords do not match.';err.style.display='block';return;}
-    if(!document.getElementById('regTerms').checked){err.textContent='Please agree to the Terms of Service.';err.style.display='block';return;}
-    btn.disabled=true; btn.textContent='Creating account…';
-    try{
-      var res=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        first_name:document.getElementById('regFirstName').value,
-        email:document.getElementById('regEmail').value,
-        username:document.getElementById('regUsername').value,
-        password:document.getElementById('regPw').value,
-        confirm_password:document.getElementById('regPwC').value,
-        ref:document.getElementById('regRef').value,
-      })});
-      var d=await res.json();
-      if(d.success){window.location.href=d.redirect||'/dashboard?new=1';return;}
-      err.textContent=d.error||'Something went wrong.';err.style.display='block';
-      btn.disabled=false;btn.textContent='Register Here →';
-    }catch(ex){err.textContent='Network error. Please try again.';err.style.display='block';btn.disabled=false;btn.textContent='Register Here →';}
-  });
-
-  /* Login form */
-  var lf=document.getElementById('loginModalForm');
-  if(lf) lf.addEventListener('submit',async function(e){
-    e.preventDefault();
-    var err=document.getElementById('loginErr'),btn=document.getElementById('loginBtn');
-    err.style.display='none'; btn.disabled=true; btn.textContent='Logging in…';
-    try{
-      var res=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        username:document.getElementById('loginUser').value,
-        password:document.getElementById('loginPw').value
-      })});
-      var d=await res.json();
-      if(d.success){window.location.href=d.redirect||'/dashboard';return;}
-      err.textContent=d.error||'Login failed.';err.style.display='block';
-      btn.disabled=false;btn.textContent='Log In →';
-    }catch(ex){err.textContent='Network error. Please try again.';err.style.display='block';btn.disabled=false;btn.textContent='Log In →';}
-  });
-
-  /* Auto-open from URL params */
-  var p=new URLSearchParams(window.location.search);
-  var sponsor=p.get('join')||p.get('ref')||'';
-  if(p.get('login')==='1'){openLoginModal();}
-  else if(sponsor||p.get('register')==='1'){openRegModal(sponsor);}
-});
-</script>
-<script>
-/* ── Register Modal ── */
-function openRegModal(sponsor) {
-  var o = document.getElementById('regOverlay');
-  if (!o) return;
-  if (sponsor) {
-    document.getElementById('regRef').value = sponsor;
-    document.getElementById('regSponsor').value = sponsor;
-    document.getElementById('regSponsorField').style.display = 'block';
-  }
-  o.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  setTimeout(function(){ var f=document.getElementById('regFirstName'); if(f) f.focus(); }, 300);
-}
-function closeRegModal() {
-  var o = document.getElementById('regOverlay');
-  if (o) o.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-/* ── Login Modal ── */
-function openLoginModal() {
-  var o = document.getElementById('loginOverlay');
-  if (!o) return;
-  o.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  setTimeout(function(){ var f=document.getElementById('loginUser'); if(f) f.focus(); }, 300);
-}
-function closeLoginModal() {
-  var o = document.getElementById('loginOverlay');
-  if (o) o.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-/* ── Keyboard close ── */
-document.addEventListener('keydown', function(e){
-  if (e.key === 'Escape') { closeRegModal(); closeLoginModal(); }
-});
-
-/* ── Register form submit ── */
-document.addEventListener('DOMContentLoaded', function() {
-  var rForm = document.getElementById('regModalForm');
-  if (rForm) {
-    rForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      var err = document.getElementById('regErr');
-      var btn = document.getElementById('regBtn');
-      err.style.display = 'none';
-      if (document.getElementById('regPw').value !== document.getElementById('regPwC').value) {
-        err.textContent = 'Passwords do not match.';
-        err.style.display = 'block'; return;
-      }
-      if (!document.getElementById('regTerms').checked) {
-        err.textContent = 'Please agree to the Terms of Service.';
-        err.style.display = 'block'; return;
-      }
-      btn.disabled = true; btn.textContent = 'Creating account\u2026';
-      try {
-        var res = await fetch('/api/register', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            first_name:       document.getElementById('regFirstName').value,
-            email:            document.getElementById('regEmail').value,
-            username:         document.getElementById('regUsername').value,
-            password:         document.getElementById('regPw').value,
-            confirm_password: document.getElementById('regPwC').value,
-            ref:              document.getElementById('regRef').value,
-          })
-        });
-        var data = await res.json();
-        if (data.success) { window.location.href = data.redirect || '/dashboard?new=1'; return; }
-        err.textContent = data.error || 'Something went wrong. Please try again.';
-        err.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Register Here \u2192';
-      } catch(ex) {
-        err.textContent = 'Network error. Please try again.';
-        err.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Register Here \u2192';
-      }
-    });
-  }
-
-  /* ── Login form submit ── */
-  var lForm = document.getElementById('loginModalForm');
-  if (lForm) {
-    lForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      var err = document.getElementById('loginErr');
-      var btn = document.getElementById('loginBtn');
-      err.style.display = 'none';
-      btn.disabled = true; btn.textContent = 'Logging in\u2026';
-      try {
-        var res = await fetch('/api/login', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            username: document.getElementById('loginUser').value,
-            password: document.getElementById('loginPw').value
-          })
-        });
-        var data = await res.json();
-        if (data.success) { window.location.href = data.redirect || '/dashboard'; return; }
-        err.textContent = data.error || 'Login failed. Please try again.';
-        err.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Log In \u2192';
-      } catch(ex) {
-        err.textContent = 'Network error. Please try again.';
-        err.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Log In \u2192';
-      }
-    });
-  }
-
-  /* ── Auto-open from URL params ── */
-  var p = new URLSearchParams(window.location.search);
-  var sponsor = p.get('join') || p.get('ref') || '';
-  if (p.get('login') === '1')  { openLoginModal(); }
-  else if (sponsor || p.get('register') === '1') { openRegModal(sponsor); }
-});
-</script>
-<script>
-/* === MODAL JS === */
-function mOpen(id, sponsor) {
-  var el = document.getElementById(id);
-  if (!el) return;
-  el.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  if (sponsor && id === 'mReg') {
-    document.getElementById('regRef').value = sponsor;
-    document.getElementById('regSponsorShow').value = sponsor;
-    document.getElementById('regSponsorWrap').style.display = 'block';
-  }
-  setTimeout(function() {
-    var f = el.querySelector('input:not([type=hidden])');
-    if (f) f.focus();
-  }, 250);
-}
-function mClose(id) {
-  var el = document.getElementById(id);
-  if (el) el.classList.remove('open');
-  document.body.style.overflow = '';
-}
-function openRegModal(s)  { mOpen('mReg', s); }
-function closeRegModal()  { mClose('mReg'); }
-function openLoginModal() { mOpen('mLogin'); }
-function closeLoginModal(){ mClose('mLogin'); }
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') { mClose('mReg'); mClose('mLogin'); }
-});
-
-async function doLogin(e) {
-  e.preventDefault();
-  var err = document.getElementById('loginErr');
-  var btn = document.getElementById('loginBtn');
-  err.style.display = 'none';
-  btn.disabled = true; btn.textContent = 'Logging in...';
-  try {
-    var r = await fetch('/api/login', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        username: document.getElementById('loginUser').value,
-        password: document.getElementById('loginPw').value
-      })
-    });
-    var d = await r.json();
-    if (d.success) { window.location.href = d.redirect || '/dashboard'; return; }
-    err.textContent = d.error || 'Login failed.';
-    err.style.display = 'block';
-  } catch(x) { err.textContent = 'Network error. Please try again.'; err.style.display = 'block'; }
-  btn.disabled = false; btn.textContent = 'Log In';
-}
-
-async function doRegister(e) {
-  e.preventDefault();
-  var err = document.getElementById('regErr');
-  var btn = document.getElementById('regBtn');
-  err.style.display = 'none';
-  if (document.getElementById('regPw').value !== document.getElementById('regPwC').value) {
-    err.textContent = 'Passwords do not match.'; err.style.display = 'block'; return;
-  }
-  if (!document.getElementById('regTerms').checked) {
-    err.textContent = 'Please tick the Terms checkbox.'; err.style.display = 'block'; return;
-  }
-  btn.disabled = true; btn.textContent = 'Creating account...';
-  try {
-    var r = await fetch('/api/register', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        first_name:       document.getElementById('regFirst').value,
-        email:            document.getElementById('regEmail').value,
-        username:         document.getElementById('regUser').value,
-        password:         document.getElementById('regPw').value,
-        confirm_password: document.getElementById('regPwC').value,
-        ref:              document.getElementById('regRef').value,
-      })
-    });
-    var d = await r.json();
-    if (d.success) { window.location.href = d.redirect || '/dashboard?new=1'; return; }
-    err.textContent = d.error || 'Something went wrong.';
-    err.style.display = 'block';
-  } catch(x) { err.textContent = 'Network error. Please try again.'; err.style.display = 'block'; }
-  btn.disabled = false; btn.textContent = 'Register Here';
-}
-
-/* Auto-open from URL params */
-(function() {
-  var p = new URLSearchParams(window.location.search);
-  var sponsor = p.get('join') || '';
-  if (p.get('login') === '1')       { mOpen('mLogin'); }
-  else if (p.get('register') === '1') { mOpen('mReg'); }
-  else if (sponsor)                   { mOpen('mReg', sponsor); }
-})();
-/* === END MODAL JS === */</script>
-{% include "_tawk.html" %}
 </body>
-
-<script>function toggleMobileMenu(){var m=document.getElementById('mobileMenu');if(m)m.classList.toggle('open');}</script>
 </html>
