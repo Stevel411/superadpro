@@ -10245,6 +10245,23 @@ def course_quality_guidelines(request: Request):
     return templates.TemplateResponse("course-guidelines.html", {"request": request})
 
 
+@app.get("/marketplace")
+def marketplace_page(request: Request, db: Session = Depends(get_db)):
+    """Public course marketplace — browse all published member courses."""
+    courses = db.query(MemberCourse).filter(
+        MemberCourse.status == "published", MemberCourse.is_public == True
+    ).order_by(MemberCourse.created_at.desc()).all()
+    # Get creator info for each course
+    creator_ids = list(set(c.creator_id for c in courses))
+    creators = {}
+    if creator_ids:
+        for u in db.query(User).filter(User.id.in_(creator_ids)).all():
+            creators[u.id] = u
+    return templates.TemplateResponse("marketplace.html", {
+        "request": request, "courses": courses, "creators": creators,
+    })
+
+
 @app.get("/courses/my-courses")
 def my_courses_page(request: Request, user: User = Depends(get_current_user),
                     db: Session = Depends(get_db)):

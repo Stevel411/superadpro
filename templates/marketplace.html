@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Course Marketplace — SuperAdPro</title>
+<meta name="description" content="Browse and buy courses from the SuperAdPro community. Marketing, business, crypto, fitness, tech, and more.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050d1a;color:#f0f2f8;font-family:'DM Sans',sans-serif}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:72px;background:rgba(10,18,40,0.95);backdrop-filter:blur(18px);border-bottom:1px solid rgba(0,180,216,0.08)}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.nav-brand{font-family:Sora,sans-serif;font-weight:800;font-size:19px;color:#fff}
+.nav-brand span{color:#38bdf8}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-cta{font-size:14px;font-weight:700;color:#fff;background:#0ea5e9;padding:9px 22px;border-radius:10px;text-decoration:none;transition:.2s}
+.nav-cta:hover{background:#0284c7}
+
+.container{max-width:1100px;margin:0 auto;padding:100px 24px 60px}
+
+/* Hero */
+.hero{text-align:center;margin-bottom:48px}
+.hero h1{font-family:Sora,sans-serif;font-size:clamp(28px,4vw,44px);font-weight:900;color:#fff;margin-bottom:12px}
+.hero p{font-size:16px;color:rgba(200,220,255,0.45);max-width:600px;margin:0 auto 24px}
+
+/* Filters */
+.filters{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:36px}
+.filter-btn{padding:8px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:rgba(200,220,255,0.5);cursor:pointer;transition:.2s}
+.filter-btn:hover,.filter-btn.active{background:rgba(14,165,233,0.1);border-color:rgba(14,165,233,0.2);color:#0ea5e9}
+
+/* Course Grid */
+.course-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.mc-card{border-radius:16px;overflow:hidden;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);transition:.3s}
+.mc-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.2);border-color:rgba(14,165,233,0.12)}
+.mc-thumb{height:180px;background:#0a1225;display:flex;align-items:center;justify-content:center;color:rgba(200,220,255,0.3);font-size:14px;position:relative}
+.mc-thumb img{width:100%;height:100%;object-fit:cover}
+.mc-cat{position:absolute;top:12px;left:12px;font-size:10px;font-weight:700;padding:4px 10px;border-radius:6px;background:rgba(14,165,233,0.15);color:#38bdf8;text-transform:uppercase;letter-spacing:.5px}
+.mc-body{padding:18px}
+.mc-title{font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:6px}
+.mc-desc{font-size:13px;color:rgba(200,220,255,0.4);line-height:1.6;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mc-meta{display:flex;align-items:center;gap:12px;font-size:12px;color:rgba(200,220,255,0.35);margin-bottom:14px}
+.mc-footer{display:flex;align-items:center;justify-content:space-between}
+.mc-price{font-family:Sora,sans-serif;font-size:22px;font-weight:900;color:#10b981}
+.mc-creator{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(200,220,255,0.4)}
+.mc-avatar{width:24px;height:24px;border-radius:50%;background:#1c223d;display:flex;align-items:center;justify-content:center;font-size:11px;color:#0ea5e9;font-weight:700}
+.mc-buy{padding:8px 20px;border-radius:8px;font-size:12px;font-weight:700;background:#0ea5e9;color:#fff;border:none;cursor:pointer;text-decoration:none;transition:.2s}
+.mc-buy:hover{background:#0284c7}
+
+/* Empty */
+.empty{text-align:center;padding:80px 20px}
+.empty h3{font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:8px}
+.empty p{font-size:14px;color:rgba(200,220,255,0.4);margin-bottom:24px}
+
+footer{border-top:1px solid rgba(255,255,255,0.04);padding:40px;text-align:center}
+.footer-links{display:flex;justify-content:center;gap:24px;margin-bottom:16px}
+.footer-links a{font-size:13px;color:rgba(200,220,255,0.35);text-decoration:none}.footer-links a:hover{color:#fff}
+.footer-copy{font-size:11px;color:rgba(200,220,255,0.2)}
+
+@media(max-width:768px){.course-grid{grid-template-columns:1fr}.container{padding:90px 16px 40px}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo"><span class="nav-brand">SuperAd<span>Pro</span></span></a>
+  <div class="nav-right">
+    <a href="/how-it-works" style="font-size:13px;font-weight:600;color:rgba(200,220,255,0.5);text-decoration:none;padding:8px 12px">How It Works</a>
+    <a href="/login" style="font-size:13px;font-weight:600;color:rgba(200,220,255,0.5);text-decoration:none;padding:8px 12px">Log In</a>
+    <a href="/register" class="nav-cta">Get Started →</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="hero">
+    <h1>Course Marketplace</h1>
+    <p>Learn from the SuperAdPro community. Courses created by real marketers, entrepreneurs, and creators — all reviewed for quality.</p>
+  </div>
+
+  <!-- Category Filters -->
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterCourses('all',this)">All</button>
+    <button class="filter-btn" onclick="filterCourses('marketing',this)">Marketing</button>
+    <button class="filter-btn" onclick="filterCourses('business',this)">Business</button>
+    <button class="filter-btn" onclick="filterCourses('crypto',this)">Crypto</button>
+    <button class="filter-btn" onclick="filterCourses('fitness',this)">Fitness</button>
+    <button class="filter-btn" onclick="filterCourses('tech',this)">Tech</button>
+    <button class="filter-btn" onclick="filterCourses('lifestyle',this)">Lifestyle</button>
+    <button class="filter-btn" onclick="filterCourses('creative',this)">Creative</button>
+  </div>
+
+  {% if courses|length > 0 %}
+  <div class="course-grid" id="courseGrid">
+    {% for c in courses %}
+    <div class="mc-card" data-category="{{ c.category or 'other' }}">
+      <div class="mc-thumb">
+        {% if c.thumbnail_url %}
+        <img src="{{ c.thumbnail_url }}" alt="{{ c.title }}">
+        {% else %}
+        🎓 {{ c.title }}
+        {% endif %}
+        <span class="mc-cat">{{ c.category or 'other' }}</span>
+      </div>
+      <div class="mc-body">
+        <div class="mc-title">{{ c.title }}</div>
+        <div class="mc-desc">{{ c.short_description or c.description or '' }}</div>
+        <div class="mc-meta">
+          <span>{{ c.lesson_count or 0 }} lessons</span>
+          <span>·</span>
+          <span>{{ c.total_duration_mins or 0 }} min</span>
+          <span>·</span>
+          <span>{{ c.difficulty_level or 'Beginner' }}</span>
+        </div>
+        <div class="mc-footer">
+          <div class="mc-price">${{ '%.0f'|format(c.price) }}</div>
+          <div class="mc-creator">
+            <div class="mc-avatar">{{ (creators.get(c.creator_id).first_name or creators.get(c.creator_id).username)[0]|upper if creators.get(c.creator_id) else '?' }}</div>
+            <span>By {{ creators.get(c.creator_id).first_name or creators.get(c.creator_id).username if creators.get(c.creator_id) else 'Member' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">
+    <div style="font-size:48px;margin-bottom:16px">🎓</div>
+    <h3>Marketplace coming soon</h3>
+    <p>Courses from the SuperAdPro community will appear here once published. Want to be one of the first creators?</p>
+    <a href="/courses/create" class="mc-buy" style="padding:12px 28px;font-size:14px">Create Your Course →</a>
+  </div>
+  {% endif %}
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="/support-public">Support</a>
+    <a href="/faq">FAQ</a>
+    <a href="/legal">Legal</a>
+    <a href="/contact">Contact</a>
+    <a href="/courses/quality-guidelines">Quality Guidelines</a>
+  </div>
+  <div class="footer-copy">© 2026 SuperAdPro</div>
+</footer>
+
+<script>
+function filterCourses(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.mc-card').forEach(function(card) {
+    if (cat === 'all' || card.dataset.category === cat) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+</script>
+</body>
+</html>
