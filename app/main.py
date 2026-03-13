@@ -9887,6 +9887,23 @@ async def render_ai_funnel(username: str, slug: str, request: Request, db: Sessi
 }}
 </style>
 <script>
+// Match body background to the canvas wrapper
+(function(){{
+  document.addEventListener('DOMContentLoaded',function(){{
+    var wrapper=document.querySelector('body>div[style]');
+    if(wrapper){{
+      var bg=wrapper.style.background||wrapper.style.backgroundColor;
+      if(bg) document.body.style.background=bg;
+      var bgImg=wrapper.style.backgroundImage;
+      if(bgImg&&bgImg!=='none'){{
+        document.body.style.backgroundImage=bgImg;
+        document.body.style.backgroundSize=wrapper.style.backgroundSize||'cover';
+        document.body.style.backgroundPosition=wrapper.style.backgroundPosition||'center';
+        document.body.style.backgroundRepeat='no-repeat';
+      }}
+    }}
+  }});
+}})();
 // Mobile responsive scaling — fits 1100px canvas to any screen width
 (function(){{
   function scaleCanvas(){{
