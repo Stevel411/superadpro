@@ -9834,13 +9834,13 @@ async def render_ai_funnel(username: str, slug: str, request: Request, db: Sessi
         vid_url = page.video_url.strip()
         if "youtube.com/watch" in vid_url:
             vid_id = vid_url.split("v=")[-1].split("&")[0]
-            video_embed = f"https://www.youtube.com/embed/{vid_id}"
+            video_embed = f"https://www.youtube.com/embed/{vid_id}?modestbranding=1&rel=0&showinfo=0&color=white&iv_load_policy=3"
         elif "youtu.be/" in vid_url:
             vid_id = vid_url.split("youtu.be/")[-1].split("?")[0]
-            video_embed = f"https://www.youtube.com/embed/{vid_id}"
+            video_embed = f"https://www.youtube.com/embed/{vid_id}?modestbranding=1&rel=0&showinfo=0&color=white&iv_load_policy=3"
         elif "vimeo.com/" in vid_url:
             vid_id = vid_url.split("vimeo.com/")[-1].split("?")[0]
-            video_embed = f"https://player.vimeo.com/video/{vid_id}"
+            video_embed = f"https://player.vimeo.com/video/{vid_id}?byline=0&portrait=0&title=0"
         elif "embed" in vid_url or "player" in vid_url:
             video_embed = vid_url
         else:
