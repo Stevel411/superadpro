@@ -46,17 +46,74 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 /* Funnel cards */
 .funnels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
 
-/* Template cards — modern minimal */
-.tpl-card{border-radius:14px;cursor:pointer;transition:all .2s;overflow:hidden;display:flex;flex-direction:column;position:relative;border:1px solid #e5e7eb;background:#fff}
-.tpl-card:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,0,0,.1);border-color:#d1d5db}
-.tpl-preview{height:120px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:#f8fafc}
-.tpl-icon-wrap{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;z-index:1}
-.tpl-icon-wrap svg{width:28px;height:28px;stroke-width:1.6}
-.tpl-body{padding:16px 18px;flex:1;display:flex;flex-direction:column;background:#fff}
-.tpl-name{font-family:Sora,sans-serif;font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:5px}
-.tpl-desc{font-size:11.5px;color:#64748b;line-height:1.55;flex:1}
-.tpl-use{margin-top:12px;font-size:11px;font-weight:700;padding:7px 16px;border-radius:8px;display:inline-block;width:fit-content;background:#0ea5e9;color:#fff;opacity:0;transform:translateY(4px);transition:all .2s}
+/* Template cards — unique animated previews */
+.tpl-card{border-radius:16px;cursor:pointer;transition:all .25s;overflow:hidden;display:flex;flex-direction:column;position:relative;border:1px solid rgba(0,0,0,0.06);background:#fff;box-shadow:0 2px 12px rgba(0,0,0,0.04)}
+.tpl-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,0.12);border-color:rgba(0,0,0,0.1)}
+.tpl-preview{height:140px;position:relative;overflow:hidden}
+.tpl-body{padding:18px 20px;flex:1;display:flex;flex-direction:column;background:#fff}
+.tpl-name{font-family:Sora,sans-serif;font-size:15px;font-weight:800;color:#1a1a2e;margin-bottom:5px}
+.tpl-desc{font-size:12px;color:#64748b;line-height:1.55;flex:1}
+.tpl-use{margin-top:12px;font-size:11px;font-weight:700;padding:8px 18px;border-radius:10px;display:inline-block;width:fit-content;color:#fff;opacity:0;transform:translateY(4px);transition:all .25s}
 .tpl-card:hover .tpl-use{opacity:1;transform:translateY(0)}
+
+/* ── Lead Capture: floating form lines ── */
+.tpl-lead{background:linear-gradient(135deg,#0c1b3a,#1a2f5a)}
+.tpl-lead .tl-line{position:absolute;left:50%;transform:translateX(-50%);height:8px;border-radius:4px;background:rgba(14,165,233,0.2);border:1px solid rgba(14,165,233,0.15)}
+.tpl-lead .tl-1{top:24px;width:60%}
+.tpl-lead .tl-2{top:44px;width:50%;background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.08)}
+.tpl-lead .tl-3{top:64px;width:50%;background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.08)}
+.tpl-lead .tl-btn{position:absolute;top:86px;left:50%;transform:translateX(-50%);width:40%;height:12px;border-radius:6px;background:linear-gradient(90deg,#0ea5e9,#6366f1)}
+.tpl-lead .tl-glow{position:absolute;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(14,165,233,0.25),transparent 70%);top:-20px;right:-20px;animation:tplPulse 3s ease-in-out infinite}
+
+/* ── Video Sales Letter: play button pulse ── */
+.tpl-vsl{background:linear-gradient(135deg,#1a0a00,#2d1600)}
+.tpl-vsl .tv-bars{position:absolute;bottom:0;left:0;right:0;display:flex;gap:2px;padding:0 20px;height:30px;align-items:flex-end}
+.tpl-vsl .tv-bar{flex:1;background:rgba(245,158,11,0.3);border-radius:2px 2px 0 0;animation:tplBar 1.5s ease-in-out infinite}
+.tpl-vsl .tv-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;background:rgba(245,158,11,0.15);border:2px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center}
+.tpl-vsl .tv-play::after{content:'';width:0;height:0;border-left:16px solid rgba(245,158,11,0.8);border-top:10px solid transparent;border-bottom:10px solid transparent;margin-left:3px}
+.tpl-vsl .tv-glow{position:absolute;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,0.2),transparent 70%);top:20px;left:50%;transform:translateX(-50%);animation:tplPulse 2.5s ease-in-out infinite}
+
+/* ── Product Offer: price tag float ── */
+.tpl-prod{background:linear-gradient(135deg,#021a0e,#0a3020)}
+.tpl-prod .tp-grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(3,1fr);gap:4px;padding:16px;opacity:0.3}
+.tpl-prod .tp-cell{border-radius:4px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.1)}
+.tpl-prod .tp-price{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:Sora,sans-serif;font-size:28px;font-weight:900;color:#10b981;text-shadow:0 0 30px rgba(16,185,129,0.4);letter-spacing:-1px}
+.tpl-prod .tp-badge{position:absolute;top:12px;right:12px;background:rgba(16,185,129,0.2);color:#34d399;font-size:9px;font-weight:800;padding:3px 8px;border-radius:4px;letter-spacing:.5px}
+
+/* ── Webinar: countdown rings ── */
+.tpl-webinar{background:linear-gradient(135deg,#1a0010,#2d0020)}
+.tpl-webinar .tw-ring{position:absolute;border-radius:50%;border:1.5px solid rgba(244,63,94,0.2)}
+.tpl-webinar .tw-r1{width:100px;height:100px;top:20px;left:50%;transform:translateX(-50%);animation:tplSpin 12s linear infinite}
+.tpl-webinar .tw-r2{width:70px;height:70px;top:35px;left:50%;transform:translateX(-50%);border-color:rgba(244,63,94,0.3);animation:tplSpin 8s linear infinite reverse}
+.tpl-webinar .tw-dot{position:absolute;width:6px;height:6px;border-radius:50%;background:#f43f5e;box-shadow:0 0 10px rgba(244,63,94,0.5)}
+.tpl-webinar .tw-d1{top:18px;left:50%;transform:translateX(-50%)}
+.tpl-webinar .tw-d2{top:55px;left:calc(50% + 28px)}
+.tpl-webinar .tw-d3{top:55px;left:calc(50% - 28px)}
+.tpl-webinar .tw-time{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-family:Sora,sans-serif;font-size:11px;font-weight:700;color:rgba(244,63,94,0.6);letter-spacing:3px}
+
+/* ── Bio Link: stacked link bars ── */
+.tpl-bio{background:linear-gradient(135deg,#0e0525,#1a0d3a)}
+.tpl-bio .tb-link{position:absolute;left:50%;transform:translateX(-50%);height:10px;border-radius:5px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.15)}
+.tpl-bio .tb-1{top:18px;width:30%;border-radius:50%;height:30px;width:30px;background:rgba(139,92,246,0.2);border:1.5px solid rgba(139,92,246,0.25)}
+.tpl-bio .tb-2{top:58px;width:65%}
+.tpl-bio .tb-3{top:76px;width:65%}
+.tpl-bio .tb-4{top:94px;width:65%}
+.tpl-bio .tb-5{top:112px;width:55%}
+.tpl-bio .tb-glow{position:absolute;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,0.2),transparent 70%);top:-10px;left:50%;transform:translateX(-50%);animation:tplPulse 4s ease-in-out infinite}
+
+/* ── Affiliate Recruit: network nodes ── */
+.tpl-affiliate{background:linear-gradient(135deg,#001a2e,#00304f)}
+.tpl-affiliate .ta-node{position:absolute;width:10px;height:10px;border-radius:50%;background:rgba(14,165,233,0.4);box-shadow:0 0 8px rgba(14,165,233,0.2)}
+.tpl-affiliate .ta-n1{top:30px;left:50%;transform:translateX(-50%);width:16px;height:16px;background:rgba(14,165,233,0.6)}
+.tpl-affiliate .ta-n2{top:65px;left:30%}.tpl-affiliate .ta-n3{top:65px;left:60%}
+.tpl-affiliate .ta-n4{top:95px;left:18%}.tpl-affiliate .ta-n5{top:95px;left:42%}.tpl-affiliate .ta-n6{top:95px;left:66%}.tpl-affiliate .ta-n7{top:95px;left:78%}
+.tpl-affiliate .ta-line{position:absolute;height:1px;background:rgba(14,165,233,0.2);transform-origin:left center}
+.tpl-affiliate .ta-pulse{position:absolute;width:60px;height:60px;border-radius:50%;border:1px solid rgba(14,165,233,0.15);top:10px;left:50%;transform:translateX(-50%);animation:tplPulse 3s ease-in-out infinite}
+
+/* ── Shared animations ── */
+@keyframes tplPulse{0%,100%{opacity:0.4;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.15)}}
+@keyframes tplBar{0%,100%{height:20%}50%{height:80%}}
+@keyframes tplSpin{from{transform:translateX(-50%) rotate(0deg)}to{transform:translateX(-50%) rotate(360deg)}}
 .funnel-card{background:#fff;border-radius:14px;padding:0;box-shadow:var(--shadow-sm);overflow:hidden;border:1px solid var(--border);transition:transform .15s,box-shadow .15s;display:flex;flex-direction:column}
 .funnel-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
 .fc-preview{height:140px;background:linear-gradient(135deg,#050d1a,#0f1729);display:flex;align-items:center;justify-content:center;position:relative}
@@ -152,28 +209,69 @@ textarea.form-input{min-height:80px;resize:vertical}
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
 
           <div class="tpl-card" onclick="useTemplate('Lead Capture')">
-            <div class="tpl-preview"><div class="tpl-icon-wrap" style="background:rgba(14,165,233,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3,7 12,13 21,7"/></svg></div></div>
-            <div class="tpl-body"><div class="tpl-name">Lead Capture</div><div class="tpl-desc">Email capture with headline, video, form and feature list</div><div class="tpl-use">Use Template →</div></div>
+            <div class="tpl-preview tpl-lead">
+              <div class="tl-glow"></div>
+              <div class="tl-line tl-1"></div>
+              <div class="tl-line tl-2"></div>
+              <div class="tl-line tl-3"></div>
+              <div class="tl-btn"></div>
+            </div>
+            <div class="tpl-body"><div class="tpl-name">Lead Capture</div><div class="tpl-desc">Email capture with headline, video, form and feature list</div><div class="tpl-use" style="background:#0ea5e9">Use Template →</div></div>
           </div>
           <div class="tpl-card" onclick="useTemplate('Video Sales Letter')">
-            <div class="tpl-preview"><div class="tpl-icon-wrap" style="background:rgba(245,158,11,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21"/></svg></div></div>
-            <div class="tpl-body"><div class="tpl-name">Video Sales Letter</div><div class="tpl-desc">Video-led page with attention headline, VSL and social proof</div><div class="tpl-use">Use Template →</div></div>
+            <div class="tpl-preview tpl-vsl">
+              <div class="tv-glow"></div>
+              <div class="tv-play"></div>
+              <div class="tv-bars"><div class="tv-bar" style="animation-delay:0s"></div><div class="tv-bar" style="animation-delay:.2s"></div><div class="tv-bar" style="animation-delay:.4s"></div><div class="tv-bar" style="animation-delay:.1s"></div><div class="tv-bar" style="animation-delay:.5s"></div><div class="tv-bar" style="animation-delay:.3s"></div><div class="tv-bar" style="animation-delay:.15s"></div><div class="tv-bar" style="animation-delay:.45s"></div></div>
+            </div>
+            <div class="tpl-body"><div class="tpl-name">Video Sales Letter</div><div class="tpl-desc">Video-led page with attention headline, VSL and social proof</div><div class="tpl-use" style="background:#f59e0b">Use Template →</div></div>
           </div>
           <div class="tpl-card" onclick="useTemplate('Product Offer')">
-            <div class="tpl-preview"><div class="tpl-icon-wrap" style="background:rgba(16,185,129,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div></div>
-            <div class="tpl-body"><div class="tpl-name">Product Offer</div><div class="tpl-desc">Sales page with pricing, features, guarantee and CTA</div><div class="tpl-use">Use Template →</div></div>
+            <div class="tpl-preview tpl-prod">
+              <div class="tp-grid"><div class="tp-cell"></div><div class="tp-cell"></div><div class="tp-cell"></div><div class="tp-cell"></div><div class="tp-cell"></div><div class="tp-cell"></div><div class="tp-cell"></div><div class="tp-cell"></div><div class="tp-cell"></div><div class="tp-cell"></div><div class="tp-cell"></div><div class="tp-cell"></div><div class="tp-cell"></div><div class="tp-cell"></div><div class="tp-cell"></div></div>
+              <div class="tp-price">$97</div>
+              <div class="tp-badge">BEST VALUE</div>
+            </div>
+            <div class="tpl-body"><div class="tpl-name">Product Offer</div><div class="tpl-desc">Sales page with pricing, features, guarantee and CTA</div><div class="tpl-use" style="background:#10b981">Use Template →</div></div>
           </div>
           <div class="tpl-card" onclick="useTemplate('Webinar Registration')">
-            <div class="tpl-preview"><div class="tpl-icon-wrap" style="background:rgba(244,63,94,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></div></div>
-            <div class="tpl-body"><div class="tpl-name">Webinar Registration</div><div class="tpl-desc">Event signup with date, urgency and registration form</div><div class="tpl-use">Use Template →</div></div>
+            <div class="tpl-preview tpl-webinar">
+              <div class="tw-ring tw-r1"></div>
+              <div class="tw-ring tw-r2"></div>
+              <div class="tw-dot tw-d1"></div>
+              <div class="tw-dot tw-d2"></div>
+              <div class="tw-dot tw-d3"></div>
+              <div class="tw-time">LIVE EVENT</div>
+            </div>
+            <div class="tpl-body"><div class="tpl-name">Webinar Registration</div><div class="tpl-desc">Event signup with date, urgency and registration form</div><div class="tpl-use" style="background:#f43f5e">Use Template →</div></div>
           </div>
           <div class="tpl-card" onclick="useTemplate('Bio Link Page')">
-            <div class="tpl-preview"><div class="tpl-icon-wrap" style="background:rgba(139,92,246,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div></div>
-            <div class="tpl-body"><div class="tpl-name">Bio Link Page</div><div class="tpl-desc">Personal bio with avatar and multiple link buttons</div><div class="tpl-use">Use Template →</div></div>
+            <div class="tpl-preview tpl-bio">
+              <div class="tb-glow"></div>
+              <div class="tb-link tb-1"></div>
+              <div class="tb-link tb-2"></div>
+              <div class="tb-link tb-3"></div>
+              <div class="tb-link tb-4"></div>
+              <div class="tb-link tb-5"></div>
+            </div>
+            <div class="tpl-body"><div class="tpl-name">Bio Link Page</div><div class="tpl-desc">Personal bio with avatar and multiple link buttons</div><div class="tpl-use" style="background:#8b5cf6">Use Template →</div></div>
           </div>
           <div class="tpl-card" onclick="useTemplate('Affiliate Recruit')">
-            <div class="tpl-preview"><div class="tpl-icon-wrap" style="background:rgba(14,165,233,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></div></div>
-            <div class="tpl-body"><div class="tpl-name">Affiliate Recruit</div><div class="tpl-desc">SuperAdPro recruitment page with video, stats and join CTA</div><div class="tpl-use">Use Template →</div></div>
+            <div class="tpl-preview tpl-affiliate">
+              <div class="ta-pulse"></div>
+              <div class="ta-node ta-n1"></div>
+              <div class="ta-node ta-n2"></div><div class="ta-node ta-n3"></div>
+              <div class="ta-node ta-n4"></div><div class="ta-node ta-n5"></div><div class="ta-node ta-n6"></div><div class="ta-node ta-n7"></div>
+              <svg style="position:absolute;inset:0;width:100%;height:100%;z-index:0" viewBox="0 0 300 140">
+                <line x1="150" y1="33" x2="95" y2="68" stroke="rgba(14,165,233,0.2)" stroke-width="1"/>
+                <line x1="150" y1="33" x2="185" y2="68" stroke="rgba(14,165,233,0.2)" stroke-width="1"/>
+                <line x1="95" y1="68" x2="58" y2="98" stroke="rgba(14,165,233,0.15)" stroke-width="1"/>
+                <line x1="95" y1="68" x2="130" y2="98" stroke="rgba(14,165,233,0.15)" stroke-width="1"/>
+                <line x1="185" y1="68" x2="200" y2="98" stroke="rgba(14,165,233,0.15)" stroke-width="1"/>
+                <line x1="185" y1="68" x2="238" y2="98" stroke="rgba(14,165,233,0.15)" stroke-width="1"/>
+              </svg>
+            </div>
+            <div class="tpl-body"><div class="tpl-name">Affiliate Recruit</div><div class="tpl-desc">SuperAdPro recruitment page with video, stats and join CTA</div><div class="tpl-use" style="background:#0ea5e9">Use Template →</div></div>
           </div>
 
         </div>
