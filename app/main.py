@@ -6126,6 +6126,19 @@ def get_notifications(user: User = Depends(get_current_user), db: Session = Depe
     })
 
 
+@app.post("/api/notifications/read-beacon")
+async def mark_notifications_read_beacon(request: Request, db: Session = Depends(get_db)):
+    """Mark all notifications as read via sendBeacon (no JSON body)."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    db.query(Notification).filter(
+        Notification.user_id == user.id, Notification.is_read == False
+    ).update({Notification.is_read: True}, synchronize_session=False)
+    db.commit()
+    return JSONResponse({"ok": True})
+
+
 @app.post("/api/notifications/read")
 async def mark_notifications_read(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Mark notifications as read."""

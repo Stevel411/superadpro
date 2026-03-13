@@ -290,16 +290,18 @@ function loadNotifications() {
 }
 
 function markAllRead() {
-  // Hide badge immediately for instant feedback
+  // Hide badge immediately
   document.getElementById('notifBadge').style.display = 'none';
-  // Mark read on server with keepalive so it completes even if user navigates away
-  fetch('/api/notifications/read',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({}),keepalive:true}).then(function(r){
-    return r.json();
-  }).then(function(){
-    // Store timestamp so badge check knows we just marked all read
-    sessionStorage.setItem('notif_read_at', Date.now().toString());
-    loadNotifications();
-  }).catch(function(){});
+  // Use sendBeacon — guaranteed to complete even during navigation
+  var ok = navigator.sendBeacon('/api/notifications/read-beacon');
+  if (!ok) {
+    // Fallback: synchronous XHR (blocks briefly but guarantees completion)
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/notifications/read', false);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send('{}');
+  }
+  loadNotifications();
 }
 
 function timeAgo(iso) {
@@ -317,9 +319,6 @@ function timeAgo(iso) {
 setInterval(function(){
   fetch('/api/notifications').then(function(r){return r.json()}).then(function(data){
     var badge = document.getElementById('notifBadge');
-    // Suppress badge for 5 seconds after marking all read (prevents flash on navigation)
-    var readAt = parseInt(sessionStorage.getItem('notif_read_at') || '0');
-    if (Date.now() - readAt < 5000) { badge.style.display = 'none'; return; }
     if (data.unread_count > 0) {
       badge.textContent = data.unread_count > 9 ? '9+' : data.unread_count;
       badge.style.display = 'flex';
@@ -332,11 +331,11 @@ setInterval(function(){
 setTimeout(function(){ 
   fetch('/api/notifications').then(function(r){return r.json()}).then(function(data){
     var badge = document.getElementById('notifBadge');
-    var readAt = parseInt(sessionStorage.getItem('notif_read_at') || '0');
-    if (Date.now() - readAt < 5000) { badge.style.display = 'none'; return; }
     if (data.unread_count > 0) {
       badge.textContent = data.unread_count > 9 ? '9+' : data.unread_count;
       badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
     }
   }).catch(function(){});
 }, 1000);
