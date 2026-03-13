@@ -11044,3 +11044,41 @@ async def refund_marketplace_purchase(purchase_id: int, request: Request,
 
     db.commit()
     return JSONResponse({"ok": True, "refunded": float(purchase.amount_paid)})
+
+
+@app.get("/marketplace/{slug:path}")
+def marketplace_course_detail(slug: str, request: Request, db: Session = Depends(get_db)):
+    """Public course detail page — view and purchase."""
+    course = db.query(MemberCourse).filter(
+        MemberCourse.slug == slug, MemberCourse.status == "published"
+    ).first()
+    if not course:
+        return RedirectResponse(url="/marketplace")
+    creator = db.query(User).filter(User.id == course.creator_id).first()
+    chapters = db.query(MemberCourseChapter).filter(
+        MemberCourseChapter.course_id == course.id
+    ).order_by(MemberCourseChapter.chapter_order).all()
+    lessons_by_chapter = {}
+    for ch in chapters:
+        lessons_by_chapter[ch.id] = db.query(MemberCourseLesson).filter(
+            MemberCourseLesson.chapter_id == ch.id
+        ).order_by(MemberCourseLesson.lesson_order).all()
+    # Check if current user already owns it
+    user = None
+    try:
+        user = get_current_user(request, db)
+    except:
+        pass
+    already_purchased = False
+    if user:
+        existing = db.query(MemberCoursePurchase).filter(
+            MemberCoursePurchase.course_id == course.id,
+            MemberCoursePurchase.buyer_id == user.id,
+            MemberCoursePurchase.status == "completed"
+        ).first()
+        already_purchased = existing is not None
+    return templates.TemplateResponse("marketplace-course.html", {
+        "request": request, "course": course, "creator": creator,
+        "chapters": chapters, "lessons_by_chapter": lessons_by_chapter,
+        "user": user, "already_purchased": already_purchased,
+    })
