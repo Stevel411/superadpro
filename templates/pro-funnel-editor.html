@@ -2221,15 +2221,16 @@ function applyPageSettings() {
 
 // ═══ CLEAR CANVAS ═══
 function clearCanvas() {
-  if (!confirm('Clear all elements and start over? This cannot be undone.')) return;
-  saveHistory(); // save current state so undo can restore it
+  if (!confirm('Remove all elements from this page?')) return;
+  saveHistory();
   els = [];
   selId = null;
-  canvasBgImage = '';
   exitEditMode();
   renderAll();
+  // Hide the empty state message — we don't need it after a deliberate clear
+  document.getElementById('emptyState').style.display = 'none';
   markDirty();
-  toast('Canvas cleared');
+  toast('All elements removed');
 }
 
 // ═══ DEVICE PREVIEW ═══
