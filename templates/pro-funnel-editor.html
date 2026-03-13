@@ -566,8 +566,6 @@ function renderAll() {
     bar.innerHTML = `
       ${isEditable ? `<button class="cb" onclick="event.stopPropagation();enterEditMode('${el.id}')" title="Edit" style="font-size:10px;font-weight:800;color:var(--accent);width:auto;padding:0 8px">${editLabel}</button><div class="cb-sep"></div>` : ''}
       <button class="cb" onclick="event.stopPropagation();showStylePanel('${el.id}')" title="Style" style="font-size:10px;font-weight:800;color:#f59e0b;width:auto;padding:0 6px">🎨</button>
-      <button class="cb" onclick="moveEl('${el.id}',-1)" title="Move back">↑</button>
-      <button class="cb" onclick="moveEl('${el.id}',1)" title="Move forward">↓</button>
       <button class="cb" onclick="dupEl('${el.id}')" title="Duplicate">⧉</button>
       <div class="cb-color" title="BG colour"><input type="color" value="${el.s?.background?.includes('#')?el.s.background:'#141829'}" oninput="bgEl('${el.id}',this.value)"></div>
       <button class="cb" onclick="bgEl('${el.id}','transparent')" title="Clear background" style="font-size:14px;opacity:.7">◻</button>
