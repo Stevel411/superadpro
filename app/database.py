@@ -147,6 +147,7 @@ class User(Base):
     first_payment_to_company = Column(Boolean, default=False)          # True after 1st month payment goes to company
     course_earnings         = Column(Money, default=0.0)               # lifetime earnings from course commissions
     bonus_earnings          = Column(Money, default=0.0)               # lifetime grid completion bonus earnings
+    marketplace_earnings    = Column(Money, default=0.0)               # lifetime earnings from course marketplace (creator + sponsor)
     # ── KYC fields ──
     kyc_status              = Column(String, default="none")               # none, pending, approved, rejected
     kyc_dob                 = Column(String, nullable=True)                # date of birth YYYY-MM-DD
@@ -866,6 +867,91 @@ class EmailSendLog(Base):
     clicked_at      = Column(DateTime, nullable=True)
 
 
+# ═══════════════════════════════════════════════════════════════
+#  MEMBER COURSE MARKETPLACE
+# ═══════════════════════════════════════════════════════════════
+
+class MemberCourse(Base):
+    """Course created by a Pro member for the marketplace."""
+    __tablename__ = "member_courses"
+    id                    = Column(Integer, primary_key=True, index=True)
+    creator_id            = Column(Integer, ForeignKey("users.id"), index=True)
+    title                 = Column(String(100), nullable=False)
+    slug                  = Column(String, unique=True, index=True)
+    description           = Column(Text, nullable=True)
+    short_description     = Column(String(160), nullable=True)
+    price                 = Column(Numeric(10, 2), nullable=False)
+    thumbnail_url         = Column(String, nullable=True)
+    category              = Column(String, nullable=True)       # marketing, crypto, fitness, business, tech, lifestyle, creative, other
+    difficulty_level      = Column(String, default="beginner")  # beginner, intermediate, advanced
+    status                = Column(String, default="draft")     # draft, pending_review, ai_rejected, approved, published, suspended
+    ai_review_result      = Column(Text, nullable=True)         # JSON: plagiarism score, flagged issues, pass/fail
+    ai_reviewed_at        = Column(DateTime, nullable=True)
+    admin_reviewed_at     = Column(DateTime, nullable=True)
+    admin_notes           = Column(Text, nullable=True)
+    total_sales           = Column(Integer, default=0)
+    total_revenue         = Column(Numeric(12, 2), default=0)
+    total_duration_mins   = Column(Integer, default=0)
+    lesson_count          = Column(Integer, default=0)
+    is_public             = Column(Boolean, default=True)
+    creator_agreed_terms_at = Column(DateTime, nullable=True)
+    created_at            = Column(DateTime, default=datetime.utcnow)
+    updated_at            = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    # Relationships
+    chapters              = relationship("MemberCourseChapter", back_populates="course", cascade="all, delete-orphan", order_by="MemberCourseChapter.chapter_order")
+
+
+class MemberCourseChapter(Base):
+    """Organises lessons into chapters within a member course."""
+    __tablename__ = "member_course_chapters"
+    id              = Column(Integer, primary_key=True, index=True)
+    course_id       = Column(Integer, ForeignKey("member_courses.id", ondelete="CASCADE"), index=True)
+    title           = Column(String, nullable=False)
+    chapter_order   = Column(Integer, default=0)
+    # Relationships
+    course          = relationship("MemberCourse", back_populates="chapters")
+    lessons         = relationship("MemberCourseLesson", back_populates="chapter", cascade="all, delete-orphan", order_by="MemberCourseLesson.lesson_order")
+
+
+class MemberCourseLesson(Base):
+    """Individual lesson within a chapter of a member course."""
+    __tablename__ = "member_course_lessons"
+    id              = Column(Integer, primary_key=True, index=True)
+    chapter_id      = Column(Integer, ForeignKey("member_course_chapters.id", ondelete="CASCADE"), index=True)
+    course_id       = Column(Integer, ForeignKey("member_courses.id"), index=True)    # denormalised for queries
+    title           = Column(String, nullable=False)
+    lesson_order    = Column(Integer, default=0)
+    content_type    = Column(String, default="text")   # video, text, pdf, mixed
+    video_url       = Column(String, nullable=True)
+    text_content    = Column(Text, nullable=True)       # rich text HTML
+    pdf_url         = Column(String, nullable=True)
+    duration_minutes = Column(Integer, default=0)
+    is_preview      = Column(Boolean, default=False)    # free preview lesson
+    # Relationships
+    chapter         = relationship("MemberCourseChapter", back_populates="lessons")
+
+
+class MemberCoursePurchase(Base):
+    """Records a purchase of a member-created course."""
+    __tablename__ = "member_course_purchases"
+    id                  = Column(Integer, primary_key=True, index=True)
+    course_id           = Column(Integer, ForeignKey("member_courses.id"), index=True)
+    buyer_id            = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)  # null for guest
+    buyer_email         = Column(String, nullable=True)
+    buyer_name          = Column(String, nullable=True)
+    amount_paid         = Column(Numeric(10, 2), nullable=False)
+    creator_commission  = Column(Numeric(10, 2), nullable=False)   # 50%
+    sponsor_commission  = Column(Numeric(10, 2), nullable=False)   # 25%
+    company_commission  = Column(Numeric(10, 2), nullable=False)   # 25%
+    sponsor_id          = Column(Integer, ForeignKey("users.id"), nullable=True)  # who got sponsor commission
+    payment_method      = Column(String, default="stripe")         # stripe, wallet, crypto
+    payment_ref         = Column(String, nullable=True)            # Stripe payment intent ID
+    status              = Column(String, default="completed")      # completed, refunded, disputed
+    access_token        = Column(String, unique=True, nullable=True)  # token-based access for guests
+    refunded_at         = Column(DateTime, nullable=True)
+    created_at          = Column(DateTime, default=datetime.utcnow)
+
+
 try:
     Base.metadata.create_all(bind=engine)
 except Exception as e:
@@ -1219,6 +1305,58 @@ try:
         conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS ai_audience VARCHAR"))
         conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS ai_story TEXT"))
         conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS ai_tone VARCHAR"))
+
+        # ── Member Course Marketplace tables ──
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS member_courses (
+            id SERIAL PRIMARY KEY, creator_id INTEGER REFERENCES users(id),
+            title VARCHAR(100) NOT NULL, slug VARCHAR UNIQUE,
+            description TEXT, short_description VARCHAR(160),
+            price NUMERIC(10,2) NOT NULL, thumbnail_url VARCHAR,
+            category VARCHAR, difficulty_level VARCHAR DEFAULT 'beginner',
+            status VARCHAR DEFAULT 'draft',
+            ai_review_result TEXT, ai_reviewed_at TIMESTAMP,
+            admin_reviewed_at TIMESTAMP, admin_notes TEXT,
+            total_sales INTEGER DEFAULT 0, total_revenue NUMERIC(12,2) DEFAULT 0,
+            total_duration_mins INTEGER DEFAULT 0, lesson_count INTEGER DEFAULT 0,
+            is_public BOOLEAN DEFAULT TRUE, creator_agreed_terms_at TIMESTAMP,
+            created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())"""))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_member_courses_creator ON member_courses(creator_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_member_courses_slug ON member_courses(slug)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_member_courses_status ON member_courses(status)"))
+
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS member_course_chapters (
+            id SERIAL PRIMARY KEY, course_id INTEGER REFERENCES member_courses(id) ON DELETE CASCADE,
+            title VARCHAR NOT NULL, chapter_order INTEGER DEFAULT 0)"""))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_mc_chapters_course ON member_course_chapters(course_id)"))
+
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS member_course_lessons (
+            id SERIAL PRIMARY KEY,
+            chapter_id INTEGER REFERENCES member_course_chapters(id) ON DELETE CASCADE,
+            course_id INTEGER REFERENCES member_courses(id),
+            title VARCHAR NOT NULL, lesson_order INTEGER DEFAULT 0,
+            content_type VARCHAR DEFAULT 'text',
+            video_url VARCHAR, text_content TEXT, pdf_url VARCHAR,
+            duration_minutes INTEGER DEFAULT 0, is_preview BOOLEAN DEFAULT FALSE)"""))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_mc_lessons_chapter ON member_course_lessons(chapter_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_mc_lessons_course ON member_course_lessons(course_id)"))
+
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS member_course_purchases (
+            id SERIAL PRIMARY KEY, course_id INTEGER REFERENCES member_courses(id),
+            buyer_id INTEGER REFERENCES users(id),
+            buyer_email VARCHAR, buyer_name VARCHAR,
+            amount_paid NUMERIC(10,2) NOT NULL,
+            creator_commission NUMERIC(10,2) NOT NULL,
+            sponsor_commission NUMERIC(10,2) NOT NULL,
+            company_commission NUMERIC(10,2) NOT NULL,
+            sponsor_id INTEGER REFERENCES users(id),
+            payment_method VARCHAR DEFAULT 'stripe', payment_ref VARCHAR,
+            status VARCHAR DEFAULT 'completed',
+            access_token VARCHAR UNIQUE, refunded_at TIMESTAMP,
+            created_at TIMESTAMP DEFAULT NOW())"""))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_mcp_course ON member_course_purchases(course_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_mcp_buyer ON member_course_purchases(buyer_id)"))
+
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS marketplace_earnings NUMERIC(18,6) DEFAULT 0"))
 
         conn.commit()
         print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 + R2 + courses confirmed")
