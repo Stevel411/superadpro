@@ -7687,7 +7687,7 @@ AdBoost lets members promote their position for increased visibility:
 75% of AdBoost fees go to the direct sponsor, 25% to the platform.
 
 ## MARKETING TOOLS INCLUDED
-- AdStudio (drag-and-drop page builder)
+- SuperPages (drag-and-drop page builder)
 - Funnel Builder
 - Link Tracker with analytics
 - QR Code Generator
@@ -9166,7 +9166,7 @@ def pro_funnel_analytics(funnel_id: int, request: Request,
 
 @app.post("/api/pro/funnel/create-blank")
 async def api_pro_funnel_create_blank(request: Request, db: Session = Depends(get_db)):
-    """Create a blank funnel page and go straight to AdStudio."""
+    """Create a blank funnel page and go straight to SuperPages."""
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"error": "Not logged in"}, status_code=401)
