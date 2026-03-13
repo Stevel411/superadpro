@@ -174,28 +174,30 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 /* Canvas empty state */
 .canvas-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;opacity:.6}
 
-/* TinyMCE modern overrides — Froala/CKEditor 5 inspired */
+/* TinyMCE modern overrides — 2-row toolbar, no blue borders */
 #floatingEditor .tox.tox-tinymce{border:none!important;border-radius:0!important}
 #floatingEditor .tox .tox-toolbar-overlord{background:#ffffff!important;border-bottom:1px solid #f0f1f3!important;padding:0!important}
-#floatingEditor .tox .tox-toolbar__primary{background:#ffffff!important;padding:4px 10px!important;gap:2px!important}
+#floatingEditor .tox .tox-toolbar__primary{background:#ffffff!important;padding:4px 10px!important;gap:2px!important;flex-wrap:wrap!important}
 #floatingEditor .tox .tox-toolbar__group{border-right:1px solid #eceef2!important;padding:0 8px!important;margin:0!important;display:flex!important;align-items:center!important;gap:1px!important}
 #floatingEditor .tox .tox-toolbar__group:last-child{border-right:none!important}
-#floatingEditor .tox .tox-tbtn{border-radius:8px!important;margin:0!important;color:#64748b!important;transition:all .15s ease!important;width:32px!important;height:32px!important}
+#floatingEditor .tox .tox-tbtn{border-radius:8px!important;margin:0!important;color:#64748b!important;transition:all .15s ease!important;width:34px!important;height:34px!important}
 #floatingEditor .tox .tox-tbtn:hover{background:#f1f5f9!important;color:#1e293b!important}
 #floatingEditor .tox .tox-tbtn--enabled,#floatingEditor .tox .tox-tbtn--enabled:hover{background:#eff6ff!important;color:#2563eb!important}
 #floatingEditor .tox .tox-tbtn svg{fill:#64748b!important;transition:fill .15s!important}
 #floatingEditor .tox .tox-tbtn:hover svg{fill:#1e293b!important}
 #floatingEditor .tox .tox-tbtn--enabled svg,#floatingEditor .tox .tox-tbtn--enabled:hover svg{fill:#2563eb!important}
-#floatingEditor .tox .tox-tbtn--select{min-width:auto!important;border-radius:8px!important;padding:0 8px!important;height:32px!important}
-#floatingEditor .tox .tox-tbtn--bespoke{border-radius:8px!important;height:32px!important;background:#f8fafc!important;border:1px solid #e5e7eb!important;min-width:90px!important}
+#floatingEditor .tox .tox-tbtn--select{min-width:auto!important;border-radius:8px!important;padding:0 8px!important;height:34px!important}
+#floatingEditor .tox .tox-tbtn--bespoke{border-radius:8px!important;height:34px!important;background:#f8fafc!important;border:1px solid #e5e7eb!important;min-width:90px!important}
 #floatingEditor .tox .tox-tbtn--bespoke:hover{background:#f1f5f9!important;border-color:#d1d5db!important}
 #floatingEditor .tox .tox-tbtn--bespoke .tox-tbtn__select-label{color:#374151!important;font-size:12px!important;font-weight:500!important}
 #floatingEditor .tox .tox-tbtn--bespoke .tox-tbtn__select-chevron svg{fill:#9ca3af!important}
 #floatingEditor .tox .tox-split-button{border-radius:8px!important;border:none!important}
 #floatingEditor .tox .tox-split-button:hover{box-shadow:none!important}
 #floatingEditor .tox .tox-split-button__chevron{width:18px!important}
-#floatingEditor .tox .tox-edit-area{border-top:1px solid #f0f1f3!important}
-#floatingEditor .tox .tox-edit-area__iframe{background:#fff!important}
+#floatingEditor .tox .tox-edit-area{border-top:1px solid #f0f1f3!important;border:none!important}
+#floatingEditor .tox .tox-edit-area__iframe{background:#fff!important;border:none!important;outline:none!important}
+#floatingEditor .tox .tox-sidebar-wrap{border:none!important}
+#floatingEditor .tox .tox-toolbar__overflow{display:none!important}
 .canvas-empty-icon{font-size:40px;margin-bottom:12px}
 .canvas-empty h3{font-family:Sora,sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:6px}
 .canvas-empty p{font-size:12px;color:#5a6080;max-width:280px;text-align:center;line-height:1.6}
@@ -1727,6 +1729,21 @@ let _tinyReady = false;
   `;
   panel.appendChild(handle);
   
+  // Font selection bar (separate from TinyMCE toolbar)
+  const fontBar = document.createElement('div');
+  fontBar.id = 'editorFontBar';
+  fontBar.style.cssText = 'padding:8px 14px;background:#fff;border-bottom:1px solid #f0f1f3;display:flex;align-items:center;gap:10px;';
+  fontBar.innerHTML = `
+    <select id="edFontFamily" onchange="applyEditorFont()" style="padding:6px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;color:#374151;outline:none;background:#f8fafc;min-width:130px;font-family:DM Sans,sans-serif;cursor:pointer">
+      <option value="Sora,sans-serif">Sora</option><option value="Outfit,sans-serif" selected>Outfit</option><option value="DM Sans,sans-serif">DM Sans</option><option value="Montserrat,sans-serif">Montserrat</option><option value="Poppins,sans-serif">Poppins</option><option value="Raleway,sans-serif">Raleway</option><option value="Open Sans,sans-serif">Open Sans</option><option value="Lato,sans-serif">Lato</option><option value="Roboto,sans-serif">Roboto</option><option value="Nunito,sans-serif">Nunito</option><option value="Work Sans,sans-serif">Work Sans</option><option value="Urbanist,sans-serif">Urbanist</option><option value="Plus Jakarta Sans,sans-serif">Plus Jakarta Sans</option><option value="Space Grotesk,sans-serif">Space Grotesk</option><option value="Barlow,sans-serif">Barlow</option><option value="Oswald,sans-serif">Oswald</option><option value="Anton,sans-serif">Anton</option><option value="Bebas Neue,sans-serif">Bebas Neue</option><option value="Cinzel,serif">Cinzel</option><option value="Playfair Display,serif">Playfair Display</option><option value="Georgia,serif">Georgia</option><option value="Merriweather,serif">Merriweather</option><option value="Dancing Script,cursive">Dancing Script</option><option value="Pacifico,cursive">Pacifico</option>
+    </select>
+    <select id="edFontSize" onchange="applyEditorSize()" style="padding:6px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;color:#374151;outline:none;background:#f8fafc;min-width:70px;font-family:DM Sans,sans-serif;cursor:pointer">
+      <option>10px</option><option>12px</option><option>14px</option><option selected>15px</option><option>16px</option><option>18px</option><option>20px</option><option>22px</option><option>24px</option><option>28px</option><option>32px</option><option>36px</option><option>40px</option><option>48px</option><option>56px</option><option>64px</option><option>72px</option><option>80px</option><option>96px</option><option>120px</option>
+    </select>
+    <span style="font-size:10px;color:#9ca3af;font-weight:600;margin-left:auto">Font & Size</span>
+  `;
+  panel.appendChild(fontBar);
+
   // TinyMCE editor area
   const editorWrap = document.createElement('div');
   editorWrap.id = 'tinyEditorWrap';
@@ -1836,19 +1853,21 @@ function initTinyOnElement(id) {
     branding: false,
     license_key: 'gpl',
     toolbar: [
-      'fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor removeformat | alignleft aligncenter alignright | lineheight | numlist bullist outdent indent | charmap | undo redo'
+      'bold italic underline strikethrough | forecolor backcolor removeformat | alignleft aligncenter alignright',
+      'lineheight | numlist bullist outdent indent | charmap | undo redo'
     ],
     font_family_formats: 'Sora=Sora,sans-serif;Outfit=Outfit,sans-serif;DM Sans=DM Sans,sans-serif;Montserrat=Montserrat,sans-serif;Poppins=Poppins,sans-serif;Raleway=Raleway,sans-serif;Open Sans=Open Sans,sans-serif;Lato=Lato,sans-serif;Roboto=Roboto,sans-serif;Nunito=Nunito,sans-serif;Work Sans=Work Sans,sans-serif;Urbanist=Urbanist,sans-serif;Plus Jakarta Sans=Plus Jakarta Sans,sans-serif;Space Grotesk=Space Grotesk,sans-serif;Barlow=Barlow,sans-serif;Oswald=Oswald,sans-serif;Anton=Anton,sans-serif;Bebas Neue=Bebas Neue,sans-serif;Righteous=Righteous,sans-serif;Josefin Sans=Josefin Sans,sans-serif;Cinzel=Cinzel,serif;Playfair Display=Playfair Display,serif;Georgia=Georgia,serif;Merriweather=Merriweather,serif;Lora=Lora,serif;PT Serif=PT Serif,serif;Abril Fatface=Abril Fatface,serif;Dancing Script=Dancing Script,cursive;Pacifico=Pacifico,cursive;Courier New=Courier New,monospace',
     font_size_formats: '8px 9px 10px 11px 12px 13px 14px 15px 16px 17px 18px 20px 22px 24px 26px 28px 30px 32px 36px 40px 44px 48px 52px 56px 60px 64px 72px 80px 88px 96px 104px 112px 120px',
     line_height_formats: '0.8 0.9 1 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 2 2.2 2.4 2.6 3',
     plugins: 'lists charmap',
-    toolbar_mode: 'scrolling',
+    toolbar_mode: 'wrap',
     skin: 'oxide',
     content_style: `
       @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=Raleway:wght@400;500;600;700;800;900&family=Open+Sans:wght@400;500;600;700;800&family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700;900&family=Nunito:wght@400;500;600;700;800;900&family=Work+Sans:wght@400;500;600;700;800;900&family=Urbanist:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Barlow:wght@400;500;600;700;800;900&family=Oswald:wght@400;500;600;700&family=Anton&family=Bebas+Neue&family=Righteous&family=Josefin+Sans:wght@400;500;600;700&family=Cinzel:wght@400;500;600;700;800;900&family=Playfair Display:wght@400;500;600;700;800;900&family=Merriweather:wght@400;700;900&family=Lora:wght@400;500;600;700&family=PT+Serif:wght@400;700&family=Abril+Fatface&family=Dancing+Script:wght@400;500;600;700&family=Pacifico&display=swap');
-      body { font-family: Outfit, sans-serif; font-size: 15px; color: #1a1a2e; background: #ffffff; padding: 18px 20px; margin: 0; line-height: 1.8; }
+      body { font-family: Outfit, sans-serif; font-size: 15px; color: #1a1a2e; background: #ffffff; padding: 18px 20px; margin: 0; line-height: 1.8; outline: none; border: none; }
       p { margin: 0 0 8px; }
       ::selection { background: #bfdbfe; color: #1e3a5f; }
+      *:focus { outline: none; }
     `,
     setup: function(editor) {
       editor.on('init', function() {
@@ -1876,6 +1895,22 @@ function updateCanvasFromEditor() {
   }
   const elObj = els.find(x => x.id === _activeEditorId);
   if (elObj) elObj.txt = content;
+}
+
+function applyEditorFont() {
+  const editor = tinymce.get('tinyEditorArea');
+  if (!editor) return;
+  const font = document.getElementById('edFontFamily').value;
+  editor.execCommand('FontName', false, font.split(',')[0].trim());
+  setTimeout(updateCanvasFromEditor, 50);
+}
+
+function applyEditorSize() {
+  const editor = tinymce.get('tinyEditorArea');
+  if (!editor) return;
+  const size = document.getElementById('edFontSize').value;
+  editor.execCommand('FontSize', false, size);
+  setTimeout(updateCanvasFromEditor, 50);
 }
 
 function exitEditMode() {
