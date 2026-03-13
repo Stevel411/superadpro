@@ -9363,7 +9363,7 @@ async def api_pro_funnel_save(funnel_id: int, request: Request, db: Session = De
 
 @app.post("/api/pro/funnel/{funnel_id}/delete")
 async def api_pro_funnel_delete(funnel_id: int, request: Request, db: Session = Depends(get_db)):
-    """Delete an AI-generated funnel."""
+    """Delete a funnel page and its related data."""
     user = get_current_user(request, db)
     if not user:
         return JSONResponse({"error": "Not logged in"}, status_code=401)
@@ -9372,9 +9372,20 @@ async def api_pro_funnel_delete(funnel_id: int, request: Request, db: Session = 
     if not page:
         return JSONResponse({"error": "Not found"}, status_code=404)
 
-    db.delete(page)
-    db.commit()
-    return JSONResponse({"success": True})
+    try:
+        # Delete A/B variant if exists
+        db.query(FunnelPage).filter(FunnelPage.ab_variant_of == funnel_id).delete()
+        # Delete related analytics events and leads
+        db.query(FunnelEvent).filter(FunnelEvent.page_id == funnel_id).delete()
+        db.query(FunnelLead).filter(FunnelLead.page_id == funnel_id).delete()
+        # Delete the page itself
+        db.delete(page)
+        db.commit()
+        return JSONResponse({"success": True})
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Funnel delete error: {e}")
+        return JSONResponse({"error": "Delete failed"}, status_code=500)
 
 
 @app.post("/api/pro/funnel/{funnel_id}/regenerate")
