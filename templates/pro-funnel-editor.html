@@ -1712,7 +1712,7 @@ let _tinyReady = false;
     background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;
     box-shadow:0 20px 60px rgba(0,0,0,.12),0 4px 16px rgba(0,0,0,.06);
     display:none;flex-direction:column;overflow:hidden;
-    width:740px;max-width:calc(100vw - 320px);
+    width:740px;max-width:calc(100vw - 320px);min-height:300px;
   `;
   
   // Drag handle
@@ -1724,7 +1724,6 @@ let _tinyReady = false;
     <div style="display:flex;gap:6px;align-items:center">
       <button onclick="exitEditMode()" style="background:none;border:none;cursor:pointer;font-size:16px;color:#9ca3af;padding:2px 6px;border-radius:4px;transition:.15s" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#9ca3af'">✕</button>
     </div>
-    <button onclick="exitEditMode()" style="background:none;border:none;font-size:18px;color:#8892a8;cursor:pointer;padding:2px 8px;border-radius:6px;line-height:1" title="Close">✕</button>
   `;
   panel.appendChild(handle);
   
@@ -1733,11 +1732,57 @@ let _tinyReady = false;
   editorWrap.id = 'tinyEditorWrap';
   editorWrap.innerHTML = '<textarea id="tinyEditorArea"></textarea>';
   panel.appendChild(editorWrap);
+
+  // Resize handle (bottom-right corner)
+  const resizeHandle = document.createElement('div');
+  resizeHandle.style.cssText = 'position:absolute;bottom:0;right:0;width:20px;height:20px;cursor:nwse-resize;z-index:10;display:flex;align-items:center;justify-content:center;';
+  resizeHandle.innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M9 1L1 9M9 5L5 9M9 9L9 9" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  panel.appendChild(resizeHandle);
+
+  // Resize handle (bottom-center bar)
+  const resizeBar = document.createElement('div');
+  resizeBar.style.cssText = 'position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:40px;height:4px;background:#e2e8f0;border-radius:2px;cursor:ns-resize;';
+  panel.appendChild(resizeBar);
   
   document.body.appendChild(panel);
   
   // Make panel draggable
   let dx=0, dy=0, dragging=false;
+
+  // Make panel resizable
+  let resizing=false, resizeDir='', startW=0, startH=0, startX=0, startY=0;
+  function startResize(e, dir) {
+    resizing = true;
+    resizeDir = dir;
+    const rect = panel.getBoundingClientRect();
+    startW = rect.width;
+    startH = rect.height;
+    startX = e.clientX;
+    startY = e.clientY;
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  resizeHandle.addEventListener('mousedown', e => startResize(e, 'both'));
+  resizeBar.addEventListener('mousedown', e => startResize(e, 'height'));
+  document.addEventListener('mousemove', e => {
+    if (!resizing) return;
+    if (resizeDir === 'both' || resizeDir === 'width') {
+      const newW = Math.max(500, startW + (e.clientX - startX));
+      panel.style.width = newW + 'px';
+    }
+    if (resizeDir === 'both' || resizeDir === 'height') {
+      const newH = Math.max(250, startH + (e.clientY - startY));
+      panel.style.height = newH + 'px';
+      // Resize TinyMCE iframe
+      const iframe = panel.querySelector('.tox-edit-area__iframe');
+      if (iframe) {
+        const toolbarH = panel.querySelector('.tox-toolbar-overlord')?.offsetHeight || 40;
+        const handleH = document.getElementById('editorHandle')?.offsetHeight || 40;
+        iframe.style.height = (newH - toolbarH - handleH - 20) + 'px';
+      }
+    }
+  });
+  document.addEventListener('mouseup', () => { resizing = false; });
   handle.addEventListener('mousedown', e => {
     if (e.target.tagName === 'BUTTON') return;
     dragging = true;
@@ -1810,10 +1855,11 @@ function initTinyOnElement(id) {
         _tinyReady = true;
         editor.focus();
       });
-      // Live preview on canvas
+      // Live preview on canvas — cover all formatting changes
       editor.on('input change keyup', function() { updateCanvasFromEditor(); });
       editor.on('ExecCommand', function() { setTimeout(updateCanvasFromEditor, 50); });
       editor.on('FormatApply FormatRemove', function() { setTimeout(updateCanvasFromEditor, 50); });
+      editor.on('NodeChange SetContent Undo Redo', function() { setTimeout(updateCanvasFromEditor, 50); });
     }
   });
 }
