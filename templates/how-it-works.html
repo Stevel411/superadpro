@@ -126,6 +126,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .tool-name{font-family:Sora,sans-serif;font-size:14px;font-weight:800;color:#fff;margin-bottom:4px}
 .tool-desc{font-size:12px;color:rgba(200,220,255,0.4);line-height:1.5}
 @media(max-width:768px){.tools{grid-template-columns:repeat(2,1fr)}}
+@keyframes toolFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes toolDot{0%{left:15%}100%{left:75%}}
 
 /* ── Pricing ── */
 .pricing{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:800px;margin:0 auto}
@@ -344,12 +346,64 @@ footer{border-top:1px solid rgba(255,255,255,0.04);padding:40px;text-align:cente
   <div class="section-sub">No need to pay for a dozen subscriptions. SuperAdPro includes everything you need to market, build, and grow.</div>
 
   <div class="tools">
-    <div class="tool fade-up"><div class="tool-icon">🚀</div><div class="tool-name">SuperPages</div><div class="tool-desc">Drag-and-drop page builder with 25 elements. Build professional landing pages in minutes.</div></div>
-    <div class="tool fade-up"><div class="tool-icon">🌐</div><div class="tool-name">LinkHub</div><div class="tool-desc">Your link-in-bio page. One link, all your content. Built for creators and marketers.</div></div>
-    <div class="tool fade-up"><div class="tool-icon">✨</div><div class="tool-name">AI Funnel Generator</div><div class="tool-desc">Answer 4 questions, get a complete landing page with email capture. AI does the heavy lifting.</div></div>
-    <div class="tool fade-up"><div class="tool-icon">📋</div><div class="tool-name">Ad Board</div><div class="tool-desc">Community marketplace. List your services, find opportunities, drive traffic.</div></div>
-    <div class="tool fade-up"><div class="tool-icon">📧</div><div class="tool-name">Email Autoresponder</div><div class="tool-desc">5-email nurture sequences that send automatically. Turn leads into customers on autopilot.</div></div>
-    <div class="tool fade-up"><div class="tool-icon">🔗</div><div class="tool-name">Link Tools</div><div class="tool-desc">Niche finder, swipe file, social share templates. Everything to supercharge your marketing.</div></div>
+    <div class="tool fade-up" style="overflow:hidden;position:relative">
+      <div style="position:absolute;inset:0;opacity:.15">
+        <div style="position:absolute;width:60%;height:10px;top:18px;left:20%;background:rgba(14,165,233,.25);border-radius:4px"></div>
+        <div style="position:absolute;width:40%;height:30px;top:36px;left:8%;background:rgba(14,165,233,.15);border-radius:6px;border:1px solid rgba(14,165,233,.1)"></div>
+        <div style="position:absolute;width:40%;height:30px;top:36px;left:52%;background:rgba(14,165,233,.15);border-radius:6px;border:1px solid rgba(14,165,233,.1)"></div>
+        <div style="position:absolute;width:50%;height:8px;top:76px;left:25%;background:rgba(14,165,233,.2);border-radius:4px"></div>
+      </div>
+      <div class="tool-icon">🚀</div><div class="tool-name">SuperPages</div><div class="tool-desc">Drag-and-drop page builder with 25 elements. Build professional landing pages in minutes.</div>
+    </div>
+    <div class="tool fade-up" style="overflow:hidden;position:relative">
+      <div style="position:absolute;inset:0;opacity:.15">
+        <div style="position:absolute;width:24px;height:24px;border-radius:50%;border:2px solid rgba(139,92,246,.4);top:16px;left:50%;transform:translateX(-50%)"></div>
+        <div style="position:absolute;width:55%;height:8px;top:50px;left:22%;background:rgba(139,92,246,.25);border-radius:4px"></div>
+        <div style="position:absolute;width:55%;height:8px;top:64px;left:22%;background:rgba(139,92,246,.2);border-radius:4px"></div>
+        <div style="position:absolute;width:55%;height:8px;top:78px;left:22%;background:rgba(139,92,246,.15);border-radius:4px"></div>
+      </div>
+      <div class="tool-icon">🌐</div><div class="tool-name">LinkHub</div><div class="tool-desc">Your link-in-bio page. One link, all your content. Built for creators and marketers.</div>
+    </div>
+    <div class="tool fade-up" style="overflow:hidden;position:relative">
+      <div style="position:absolute;inset:0;opacity:.12">
+        <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 200 120">
+          <line x1="40" y1="20" x2="100" y2="50" stroke="rgba(245,158,11,.4)" stroke-width="1"/><line x1="160" y1="20" x2="100" y2="50" stroke="rgba(245,158,11,.4)" stroke-width="1"/><line x1="100" y1="50" x2="60" y2="90" stroke="rgba(245,158,11,.3)" stroke-width="1"/><line x1="100" y1="50" x2="140" y2="90" stroke="rgba(245,158,11,.3)" stroke-width="1"/>
+          <circle cx="40" cy="20" r="4" fill="rgba(245,158,11,.5)"/><circle cx="160" cy="20" r="4" fill="rgba(245,158,11,.5)"/><circle cx="100" cy="50" r="6" fill="rgba(245,158,11,.6)"/><circle cx="60" cy="90" r="4" fill="rgba(245,158,11,.4)"/><circle cx="140" cy="90" r="4" fill="rgba(245,158,11,.4)"/>
+        </svg>
+      </div>
+      <div class="tool-icon">✨</div><div class="tool-name">AI Funnel Generator</div><div class="tool-desc">Answer 4 questions, get a complete landing page with email capture. AI does the heavy lifting.</div>
+    </div>
+    <div class="tool fade-up" style="overflow:hidden;position:relative">
+      <div style="position:absolute;inset:0;opacity:.12">
+        <div style="position:absolute;width:42%;height:24px;top:14px;left:5%;background:rgba(16,185,129,.2);border-radius:4px;border:1px solid rgba(16,185,129,.1);animation:toolFloat 3s ease-in-out infinite"></div>
+        <div style="position:absolute;width:42%;height:24px;top:14px;right:5%;background:rgba(16,185,129,.15);border-radius:4px;border:1px solid rgba(16,185,129,.08);animation:toolFloat 3s ease-in-out infinite .5s"></div>
+        <div style="position:absolute;width:42%;height:24px;top:46px;left:5%;background:rgba(16,185,129,.15);border-radius:4px;border:1px solid rgba(16,185,129,.08);animation:toolFloat 3s ease-in-out infinite 1s"></div>
+        <div style="position:absolute;width:42%;height:24px;top:46px;right:5%;background:rgba(16,185,129,.1);border-radius:4px;border:1px solid rgba(16,185,129,.06);animation:toolFloat 3s ease-in-out infinite 1.5s"></div>
+      </div>
+      <div class="tool-icon">📋</div><div class="tool-name">Ad Board</div><div class="tool-desc">Community marketplace. List your services, find opportunities, drive traffic.</div>
+    </div>
+    <div class="tool fade-up" style="overflow:hidden;position:relative">
+      <div style="position:absolute;inset:0;opacity:.12">
+        <div style="position:absolute;width:70%;height:1px;background:rgba(236,72,153,.3);top:25px;left:15%"></div>
+        <div style="position:absolute;width:6px;height:6px;border-radius:50%;background:rgba(236,72,153,.5);top:22px;left:15%;animation:toolDot 4s ease-in-out infinite"></div>
+        <div style="position:absolute;width:70%;height:1px;background:rgba(236,72,153,.25);top:45px;left:15%"></div>
+        <div style="position:absolute;width:6px;height:6px;border-radius:50%;background:rgba(236,72,153,.4);top:42px;left:15%;animation:toolDot 4s ease-in-out infinite .8s"></div>
+        <div style="position:absolute;width:70%;height:1px;background:rgba(236,72,153,.2);top:65px;left:15%"></div>
+        <div style="position:absolute;width:6px;height:6px;border-radius:50%;background:rgba(236,72,153,.3);top:62px;left:15%;animation:toolDot 4s ease-in-out infinite 1.6s"></div>
+      </div>
+      <div class="tool-icon">📧</div><div class="tool-name">Email Autoresponder</div><div class="tool-desc">5-email nurture sequences that send automatically. Turn leads into customers on autopilot.</div>
+    </div>
+    <div class="tool fade-up" style="overflow:hidden;position:relative">
+      <div style="position:absolute;inset:0;opacity:.12">
+        <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 200 120">
+          <circle cx="60" cy="40" r="16" stroke="rgba(14,165,233,.3)" fill="none" stroke-width="1.5" stroke-dasharray="4 3"><animateTransform attributeName="transform" type="rotate" values="0 60 40;360 60 40" dur="8s" repeatCount="indefinite"/></circle>
+          <circle cx="140" cy="40" r="16" stroke="rgba(14,165,233,.3)" fill="none" stroke-width="1.5" stroke-dasharray="4 3"><animateTransform attributeName="transform" type="rotate" values="360 140 40;0 140 40" dur="6s" repeatCount="indefinite"/></circle>
+          <line x1="76" y1="40" x2="124" y2="40" stroke="rgba(14,165,233,.2)" stroke-width="1.5"/>
+          <circle cx="100" cy="80" r="12" stroke="rgba(14,165,233,.25)" fill="none" stroke-width="1.5" stroke-dasharray="3 4"><animateTransform attributeName="transform" type="rotate" values="0 100 80;360 100 80" dur="10s" repeatCount="indefinite"/></circle>
+        </svg>
+      </div>
+      <div class="tool-icon">🔗</div><div class="tool-name">Link Tools</div><div class="tool-desc">Niche finder, swipe file, social share templates. Everything to supercharge your marketing.</div>
+    </div>
   </div>
 </div>
 
