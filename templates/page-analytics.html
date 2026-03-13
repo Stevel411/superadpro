@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="manifest" href="/static/manifest.json"><meta name="theme-color" content="#0ea5e9"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+<title>Analytics — {{ page.title }} — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#1a1a2e;min-height:100vh;display:flex}
+.layout{display:flex;width:100%;min-height:100vh}
+.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.nav-scroll{flex:1;overflow-y:auto;padding:8px 12px 16px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.06) transparent}
+.nav-group{margin-bottom:2px}.nav-header{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,0.35);cursor:pointer;user-select:none;border-radius:8px;transition:background 0.15s}.nav-header:hover{background:rgba(255,255,255,0.04)}.nav-chevron{font-size:12px;transition:transform 0.25s;color:rgba(255,255,255,0.25)}.nav-group.open .nav-chevron{transform:rotate(90deg)}.nav-children{max-height:0;overflow:hidden;transition:max-height 0.3s ease}.nav-group.open .nav-children{max-height:500px}.nav-divider{height:1px;background:rgba(255,255,255,0.06);margin:8px 12px}.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;color:rgba(255,255,255,0.55);font-size:13px;font-weight:500;text-decoration:none;border-radius:8px;transition:all 0.15s;margin:1px 0}.nav-item:hover{background:rgba(255,255,255,0.06);color:#fff}.nav-item.active{background:rgba(14,165,233,0.12);color:#38bdf8;font-weight:700}.nav-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}.nav-standalone{display:flex;align-items:center;gap:10px;padding:9px 12px;color:rgba(255,255,255,0.55);font-size:13px;font-weight:500;text-decoration:none;border-radius:8px;transition:all 0.15s;margin:1px 0}.nav-standalone:hover{background:rgba(255,255,255,0.06);color:#fff}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 18px;min-height:72px;border-bottom:1px solid rgba(255,255,255,0.06);text-decoration:none}.sidebar-brand{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff}.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06)}
+.content-wrap{margin-left:224px;flex:1;min-height:100vh}
+.topbar{height:72px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:50}
+.topbar h1{font-family:Sora,sans-serif;font-size:16px;font-weight:800;color:#1a1a2e}
+.tb-actions{display:flex;gap:8px;align-items:center}
+.tb-btn{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;transition:.2s;border:none;cursor:pointer}
+.tb-edit{background:#0ea5e9;color:#fff}.tb-edit:hover{background:#0284c7}
+.tb-view{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}.tb-view:hover{background:#e2e8f0}
+.content{padding:28px 32px;max-width:1100px}
+
+/* Stats cards */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat{background:#fff;border-radius:16px;padding:20px 24px;border:1px solid #e5e7eb;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;border-radius:4px 0 0 4px}
+.stat.cyan::before{background:#0ea5e9}
+.stat.green::before{background:#10b981}
+.stat.violet::before{background:#8b5cf6}
+.stat.amber::before{background:#f59e0b}
+.stat-label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px}
+.stat-val{font-family:Sora,sans-serif;font-size:32px;font-weight:900;margin-top:4px;color:#1a1a2e}
+.stat-sub{font-size:12px;color:#94a3b8;margin-top:2px}
+
+/* Chart area */
+.chart-card{background:#fff;border-radius:16px;padding:24px;border:1px solid #e5e7eb;margin-bottom:20px}
+.chart-title{font-family:Sora,sans-serif;font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:16px}
+.chart-bar{display:flex;align-items:flex-end;gap:6px;height:120px;padding-top:8px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{border-radius:4px 4px 0 0;min-height:2px;width:100%;transition:height .3s}
+.bar-label{font-size:9px;color:#94a3b8;font-weight:600}
+
+/* Two-column layout */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+
+/* Leads table */
+.leads-card{background:#fff;border-radius:16px;padding:24px;border:1px solid #e5e7eb}
+.leads-title{font-family:Sora,sans-serif;font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:16px}
+.lead-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9;gap:12px}
+.lead-row:last-child{border-bottom:none}
+.lead-avatar{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#0ea5e9,#6366f1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800;flex-shrink:0}
+.lead-info{flex:1;min-width:0}
+.lead-name{font-size:13px;font-weight:700;color:#1a1a2e}
+.lead-email{font-size:11px;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lead-time{font-size:10px;color:#94a3b8;font-weight:600;flex-shrink:0}
+.lead-empty{text-align:center;padding:30px;color:#94a3b8;font-size:13px}
+
+/* Source breakdown */
+.source-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9}
+.source-row:last-child{border-bottom:none}
+.source-name{font-size:13px;font-weight:600;color:#1a1a2e}
+.source-bar-wrap{flex:1;margin:0 16px;height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden}
+.source-bar{height:100%;border-radius:3px;background:linear-gradient(90deg,#0ea5e9,#6366f1)}
+.source-count{font-size:13px;font-weight:800;color:#475569;min-width:30px;text-align:right}
+
+/* Page info */
+.page-url{display:flex;align-items:center;gap:8px;padding:12px 16px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:20px}
+.page-url-text{flex:1;font-size:12px;color:#475569;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.page-url-copy{padding:6px 14px;background:#0ea5e9;color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="layout">
+{% include "_sidebar.html" %}
+
+<div class="content-wrap">
+  <div class="topbar">
+    <h1>📊 {{ page.title }}</h1>
+    <div class="tb-actions">
+      <a href="/pro/funnel/{{ page.id }}/edit" class="tb-btn tb-edit">✎ Edit Page</a>
+      <a href="/f/{{ page.slug }}" target="_blank" class="tb-btn tb-view">👁 View Live</a>
+      <a href="/pro/funnels" class="tb-btn tb-view">← All Pages</a>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- Page URL -->
+    <div class="page-url">
+      <span style="font-size:14px">🔗</span>
+      <span class="page-url-text" id="pageUrl">{{ base_url }}f/{{ page.slug }}</span>
+      <button class="page-url-copy" onclick="navigator.clipboard.writeText(document.getElementById('pageUrl').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2000)">Copy</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat cyan">
+        <div class="stat-label">Total Views</div>
+        <div class="stat-val">{{ views }}</div>
+        <div class="stat-sub">page loads</div>
+      </div>
+      <div class="stat green">
+        <div class="stat-label">Leads Captured</div>
+        <div class="stat-val">{{ leads_count }}</div>
+        <div class="stat-sub">email signups</div>
+      </div>
+      <div class="stat violet">
+        <div class="stat-label">Conversion Rate</div>
+        <div class="stat-val">{{ conversion_rate }}%</div>
+        <div class="stat-sub">views → leads</div>
+      </div>
+      <div class="stat amber">
+        <div class="stat-label">Views Today</div>
+        <div class="stat-val">{{ views_today }}</div>
+        <div class="stat-sub">last 24 hours</div>
+      </div>
+    </div>
+
+    <!-- Charts row -->
+    <div class="two-col">
+      <!-- Daily views chart (last 14 days) -->
+      <div class="chart-card">
+        <div class="chart-title">📈 Views — Last 14 Days</div>
+        <div class="chart-bar">
+          {% for day in daily_views %}
+          <div class="bar-col">
+            <div class="bar" style="height:{{ day.pct }}%;background:linear-gradient(180deg,#0ea5e9,#0284c7)"></div>
+            <div class="bar-label">{{ day.label }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Traffic sources -->
+      <div class="chart-card">
+        <div class="chart-title">🌐 Traffic Sources</div>
+        {% if sources %}
+        {% for src in sources %}
+        <div class="source-row">
+          <div class="source-name">{{ src.name }}</div>
+          <div class="source-bar-wrap"><div class="source-bar" style="width:{{ src.pct }}%"></div></div>
+          <div class="source-count">{{ src.count }}</div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="lead-empty">No traffic data yet</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Device breakdown + Recent leads -->
+    <div class="two-col">
+      <!-- Device breakdown -->
+      <div class="chart-card">
+        <div class="chart-title">📱 Devices</div>
+        {% if devices %}
+        {% for dev in devices %}
+        <div class="source-row">
+          <div class="source-name">{{ dev.icon }} {{ dev.name }}</div>
+          <div class="source-bar-wrap"><div class="source-bar" style="width:{{ dev.pct }}%;background:linear-gradient(90deg,#8b5cf6,#6d28d9)"></div></div>
+          <div class="source-count">{{ dev.count }}</div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="lead-empty">No device data yet</div>
+        {% endif %}
+      </div>
+
+      <!-- Recent leads -->
+      <div class="leads-card">
+        <div class="leads-title">📧 Recent Leads</div>
+        {% if recent_leads %}
+        {% for lead in recent_leads %}
+        <div class="lead-row">
+          <div class="lead-avatar">{{ lead.name[0]|upper if lead.name else '?' }}</div>
+          <div class="lead-info">
+            <div class="lead-name">{{ lead.name or 'Anonymous' }}</div>
+            <div class="lead-email">{{ lead.email }}</div>
+          </div>
+          <div class="lead-time">{{ lead.ago }}</div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="lead-empty">No leads captured yet. Share your page to start collecting emails.</div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+</body>
+</html>

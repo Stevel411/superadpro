@@ -210,6 +210,7 @@ textarea.form-input{min-height:80px;resize:vertical}
             </div>
             <div class="fc-actions">
               <a href="/pro/funnel/{{ f.id }}/edit" class="btn btn-ghost btn-sm" style="flex:1;text-align:center;text-decoration:none">Edit</a>
+              <a href="/pro/funnel/{{ f.id }}/analytics" class="btn btn-ghost btn-sm" style="flex-shrink:0;text-decoration:none" title="Analytics">📊</a>
               <a href="/f/{{ f.slug }}" target="_blank" class="btn btn-gradient btn-sm" style="flex:1;text-align:center;text-decoration:none">View Live</a>
               <button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;flex-shrink:0" onclick="deleteFunnel({{ f.id }},'{{ f.headline or f.title }}')">🗑</button>
             </div>

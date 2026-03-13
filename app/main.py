@@ -65,6 +65,20 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="SuperAdPro")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Cache headers for static assets — 1 year for images/fonts, 1 hour for CSS/JS
+from starlette.middleware.base import BaseHTTPMiddleware
+class CacheHeaderMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        path = request.url.path
+        if path.startswith("/static/"):
+            if any(path.endswith(ext) for ext in [".png",".jpg",".jpeg",".gif",".webp",".woff2",".woff",".ttf",".ico",".svg"]):
+                response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+            elif any(path.endswith(ext) for ext in [".css",".js",".json"]):
+                response.headers["Cache-Control"] = "public, max-age=3600"
+        return response
+app.add_middleware(CacheHeaderMiddleware)
+
 # Decimal-safe JSON — Numeric(18,6) columns return Decimal objects
 # which the default JSON encoder can't handle. This converts them to float.
 import decimal
@@ -8985,6 +8999,105 @@ async def pro_funnel_edit(funnel_id: int, request: Request, db: Session = Depend
     })
 
 
+@app.get("/pro/funnel/{funnel_id}/analytics")
+def pro_funnel_analytics(funnel_id: int, request: Request,
+                         user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Per-page analytics dashboard."""
+    if not user: return RedirectResponse(url="/?login=1")
+    page = db.query(FunnelPage).filter(FunnelPage.id == funnel_id, FunnelPage.user_id == user.id).first()
+    if not page: raise HTTPException(status_code=404, detail="Page not found")
+
+    from sqlalchemy import func, cast, Date
+    from datetime import timedelta
+
+    # Total views and leads
+    views = page.views or 0
+    leads_count = db.query(FunnelLead).filter(FunnelLead.page_id == page.id).count()
+    conversion_rate = round((leads_count / views * 100), 1) if views > 0 else 0
+
+    # Views today
+    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    views_today = db.query(FunnelEvent).filter(
+        FunnelEvent.page_id == page.id, FunnelEvent.event_type == "view",
+        FunnelEvent.created_at >= today_start
+    ).count()
+
+    # Daily views — last 14 days
+    daily_views = []
+    max_day_views = 1
+    for i in range(13, -1, -1):
+        day = datetime.utcnow().date() - timedelta(days=i)
+        day_start = datetime(day.year, day.month, day.day)
+        day_end = day_start + timedelta(days=1)
+        count = db.query(FunnelEvent).filter(
+            FunnelEvent.page_id == page.id, FunnelEvent.event_type == "view",
+            FunnelEvent.created_at >= day_start, FunnelEvent.created_at < day_end
+        ).count()
+        if count > max_day_views:
+            max_day_views = count
+        daily_views.append({"date": day, "count": count, "label": day.strftime("%d")})
+    for d in daily_views:
+        d["pct"] = round((d["count"] / max_day_views) * 100) if max_day_views > 0 else 0
+
+    # Traffic sources
+    source_data = db.query(FunnelEvent.referrer, func.count(FunnelEvent.id)).filter(
+        FunnelEvent.page_id == page.id, FunnelEvent.event_type == "view"
+    ).group_by(FunnelEvent.referrer).order_by(func.count(FunnelEvent.id).desc()).limit(6).all()
+    max_source = max((c for _, c in source_data), default=1)
+    sources = []
+    for ref, count in source_data:
+        name = "Direct"
+        if ref:
+            ref_lower = ref.lower()
+            if "facebook" in ref_lower or "fb." in ref_lower: name = "Facebook"
+            elif "instagram" in ref_lower: name = "Instagram"
+            elif "twitter" in ref_lower or "t.co" in ref_lower: name = "X (Twitter)"
+            elif "tiktok" in ref_lower: name = "TikTok"
+            elif "google" in ref_lower: name = "Google"
+            elif "youtube" in ref_lower: name = "YouTube"
+            elif "linkedin" in ref_lower: name = "LinkedIn"
+            else: name = ref[:30]
+        sources.append({"name": name, "count": count, "pct": round(count / max_source * 100)})
+
+    # Device breakdown
+    device_data = db.query(FunnelEvent.device, func.count(FunnelEvent.id)).filter(
+        FunnelEvent.page_id == page.id, FunnelEvent.event_type == "view"
+    ).group_by(FunnelEvent.device).order_by(func.count(FunnelEvent.id).desc()).all()
+    max_device = max((c for _, c in device_data), default=1)
+    device_icons = {"mobile": "📱", "desktop": "🖥", "tablet": "📋"}
+    devices = [{"name": (d or "Unknown").capitalize(), "icon": device_icons.get(d, "❓"), "count": c,
+                "pct": round(c / max_device * 100)} for d, c in device_data]
+
+    # Recent leads
+    recent_leads_raw = db.query(FunnelLead).filter(FunnelLead.page_id == page.id).order_by(
+        FunnelLead.created_at.desc()).limit(10).all()
+    recent_leads = []
+    for lead in recent_leads_raw:
+        ago = ""
+        if lead.created_at:
+            delta = (datetime.utcnow() - lead.created_at).total_seconds()
+            if delta < 3600: ago = f"{int(delta/60)}m ago"
+            elif delta < 86400: ago = f"{int(delta/3600)}h ago"
+            else: ago = f"{int(delta/86400)}d ago"
+        recent_leads.append({"name": lead.name, "email": lead.email, "ago": ago})
+
+    ctx = get_dashboard_context(request, user, db)
+    ctx.update({
+        "page": page,
+        "views": views,
+        "leads_count": leads_count,
+        "conversion_rate": conversion_rate,
+        "views_today": views_today,
+        "daily_views": daily_views,
+        "sources": sources,
+        "devices": devices,
+        "recent_leads": recent_leads,
+        "base_url": str(request.base_url),
+        "active_page": "funnels",
+    })
+    return templates.TemplateResponse("page-analytics.html", ctx)
+
+
 @app.post("/api/pro/funnel/create-blank")
 async def api_pro_funnel_create_blank(request: Request, db: Session = Depends(get_db)):
     """Create a blank funnel page and go straight to AdStudio."""
@@ -9595,6 +9708,15 @@ async def render_ai_funnel(username: str, slug: str, request: Request, db: Sessi
 
     # Track view
     page.views = (page.views or 0) + 1
+    # Record analytics event
+    referrer = request.headers.get("referer", "") or ""
+    user_agent = (request.headers.get("user-agent", "") or "").lower()
+    device = "mobile" if any(m in user_agent for m in ["iphone","android","mobile"]) else "tablet" if "ipad" in user_agent else "desktop"
+    client_ip = request.client.host if request.client else ""
+    db.add(FunnelEvent(
+        page_id=page.id, user_id=page.user_id,
+        event_type="view", referrer=referrer, device=device, ip_address=client_ip
+    ))
     db.commit()
 
     # If canvas editor has saved rendered HTML, use it directly
