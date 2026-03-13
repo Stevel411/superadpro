@@ -1878,6 +1878,26 @@ function initTinyOnElement(id) {
     setup: function(editor) {
       editor.on('init', function() {
         _tinyReady = true;
+        // Remove the blue focus outline from the content body
+        var body = editor.getBody();
+        if (body) {
+          body.style.outline = 'none';
+          body.style.border = 'none';
+          body.style.boxShadow = 'none';
+        }
+        // Also inject a style tag directly into the iframe
+        var doc = editor.getDoc();
+        if (doc) {
+          var style = doc.createElement('style');
+          style.textContent = 'body,body.mce-content-body,body:focus,body:active{outline:none!important;border:none!important;box-shadow:none!important}';
+          doc.head.appendChild(style);
+        }
+        // Remove outline from the iframe element itself
+        var iframe = document.querySelector('#floatingEditor .tox-edit-area__iframe');
+        if (iframe) {
+          iframe.style.outline = 'none';
+          iframe.style.border = 'none';
+        }
         editor.focus();
       });
       // Live preview on canvas — cover all formatting changes
