@@ -12,7 +12,7 @@
 :root{
   --shell:#0c0f1a;--shell2:#141829;--border:#1f2440;
   --accent:#0ea5e9;--accent2:#6366f1;--green:#10b981;--rose:#f43f5e;
-  --panel:#fafbfd;--panel-border:#e8ecf2;--panel-text:#2a2e3d;--panel-muted:#8892a8;
+  --panel:#161b30;--panel-border:rgba(255,255,255,0.06);--panel-text:#e2e8f0;--panel-muted:rgba(255,255,255,0.35);
 }
 html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--shell)}
 
@@ -122,20 +122,20 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 /* Block palette */
 .pal{flex:1;overflow-y:auto;padding:12px;min-height:0}
 .pal::-webkit-scrollbar{width:3px}.pal::-webkit-scrollbar-thumb{background:#d4d8e4;border-radius:3px}
-.pal-cat{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#64748b;padding:10px 0 6px}
+.pal-cat{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);padding:10px 0 6px}
 .pal-cat:first-child{padding-top:0}
 .pal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
 .pal-item{
-  background:linear-gradient(145deg,#ffffff,#f1f5f9);border:1px solid rgba(255,255,255,0.9);border-radius:12px;
+  background:linear-gradient(145deg,#1e2642,#171d35);border:1px solid rgba(255,255,255,0.06);border-radius:12px;
   padding:14px 6px 10px;text-align:center;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;gap:6px;transition:.2s;user-select:none;
-  box-shadow:0 1px 3px rgba(0,0,0,0.04),0 4px 12px rgba(0,0,0,0.03),inset 0 1px 0 rgba(255,255,255,1);
+  box-shadow:0 2px 8px rgba(0,0,0,0.15),inset 0 1px 0 rgba(255,255,255,0.04);
 }
-.pal-item:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(14,165,233,.15),0 2px 8px rgba(0,0,0,0.06),inset 0 1px 0 rgba(255,255,255,1);border-color:#0ea5e9;background:linear-gradient(145deg,#ffffff,#f0f9ff)}
+.pal-item:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(14,165,233,.2),0 2px 8px rgba(0,0,0,0.2);border-color:rgba(14,165,233,0.3);background:linear-gradient(145deg,#232b4a,#1a2140)}
 .pal-item:active{transform:scale(.94)}
 .pal-ico{width:28px;height:28px;display:flex;align-items:center;justify-content:center}
 .pal-ico svg{width:24px;height:24px;stroke-width:1.8}
-.pal-nm{font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:#475569}
+.pal-nm{font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:rgba(255,255,255,0.5)}
 
 /* BG control */
 .bg-ctrl{padding:14px 16px;border-top:1px solid var(--panel-border);display:flex;align-items:center;gap:10px;flex-shrink:0;background:#fff}
@@ -238,12 +238,12 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
           <span class="bg-hex" id="bgHex" style="font-size:9px">#050d1a</span>
         </div>
         <!-- BG Panel dropdown -->
-        <div id="bgPanel" style="display:none;position:absolute;top:36px;right:0;width:260px;background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.2);border:1px solid #e2e8f0;z-index:20;padding:14px">
-          <div style="font-size:10px;font-weight:800;color:#8892a8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Background Type</div>
+        <div id="bgPanel" style="display:none;position:absolute;top:36px;right:0;width:260px;background:#1e2642;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,0.08);z-index:20;padding:14px">
+          <div style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Background Type</div>
           <div style="display:flex;gap:4px;margin-bottom:12px">
             <button id="bgTypeSolid" onclick="setBgType('solid')" style="flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #0ea5e9;background:#f0f9ff;color:#0ea5e9">Solid</button>
-            <button id="bgTypeGrad" onclick="setBgType('gradient')" style="flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569">Gradient</button>
-            <button id="bgTypeImage" onclick="setBgType('image')" style="flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569">Image</button>
+            <button id="bgTypeGrad" onclick="setBgType('gradient')" style="flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:rgba(255,255,255,0.5)">Gradient</button>
+            <button id="bgTypeImage" onclick="setBgType('image')" style="flex:1;padding:6px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:rgba(255,255,255,0.5)">Image</button>
           </div>
           <!-- Solid -->
           <div id="bgSolidCtrl">
