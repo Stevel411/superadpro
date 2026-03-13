@@ -195,12 +195,16 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 #floatingEditor .tox .tox-split-button:hover{box-shadow:none!important}
 #floatingEditor .tox .tox-split-button__chevron{width:18px!important}
 #floatingEditor .tox .tox-edit-area{border:none!important;outline:none!important;padding:0!important}
+#floatingEditor .tox .tox-edit-area::before,#floatingEditor .tox .tox-edit-area::after{display:none!important}
 #floatingEditor .tox .tox-edit-area__iframe{background:#fff!important;border:none!important;outline:none!important;box-shadow:none!important}
 #floatingEditor .tox .tox-sidebar-wrap{border:none!important;outline:none!important}
 #floatingEditor .tox .tox-toolbar__overflow{display:none!important}
 #floatingEditor .tox.tox-tinymce--toolbar-sticky-on .tox-edit-area{border:none!important}
 #floatingEditor .tox .tox-editor-container{border:none!important;outline:none!important}
 #floatingEditor .tox .tox-editor-header{border:none!important;box-shadow:none!important}
+#floatingEditor .tox .tox-tinymce,#floatingEditor .tox .tox-tinymce *{border-color:transparent!important}
+#floatingEditor .tox .tox-edit-area,#floatingEditor .tox .tox-edit-area *,
+#floatingEditor .tox .tox-sidebar-wrap,#floatingEditor .tox .tox-sidebar-wrap *{border-color:transparent!important;outline-color:transparent!important}
 .canvas-empty-icon{font-size:40px;margin-bottom:12px}
 .canvas-empty h3{font-family:Sora,sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:6px}
 .canvas-empty p{font-size:12px;color:#5a6080;max-width:280px;text-align:center;line-height:1.6}
