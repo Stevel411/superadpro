@@ -3695,56 +3695,36 @@ def check_and_increment_ai_quota(db: Session, user_id: int, tool: str) -> dict:
 @app.get("/funnels")
 def funnels_page(request: Request, user: User = Depends(get_current_user),
                  db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/?login=1")
-    if not user.is_active: return RedirectResponse(url="/pay-membership")
-    ctx = get_dashboard_context(request, user, db)
-    pages = db.query(FunnelPage).filter(FunnelPage.user_id == user.id).order_by(FunnelPage.created_at.desc()).all()
-    ctx["pages"] = pages
-    return templates.TemplateResponse("funnels.html", ctx)
+    """Redirect to Pro funnels page."""
+    return RedirectResponse(url="/pro/funnels", status_code=302)
 
 
 @app.get("/funnels/new")
 def funnel_new(request: Request, user: User = Depends(get_current_user),
                db: Session = Depends(get_db)):
-    """Legacy route — redirects to visual builder."""
-    return RedirectResponse(url="/funnels/visual/new", status_code=302)
+    """Legacy route — redirects to Pro funnels."""
+    return RedirectResponse(url="/pro/funnels", status_code=302)
 
 
 @app.get("/funnels/edit/{page_id}")
 def funnel_edit(page_id: int, request: Request, user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
-    """Legacy route — redirects to visual builder."""
-    return RedirectResponse(url=f"/funnels/visual/{page_id}", status_code=302)
+    """Legacy route — redirects to Pro funnel editor."""
+    return RedirectResponse(url=f"/pro/funnel/{page_id}/edit", status_code=302)
 
 
 @app.get("/funnels/visual/new")
-def funnel_visual_new(request: Request, template_type: str = "optin",
-                      user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Create a new page and open the visual editor."""
-    if not user: return RedirectResponse(url="/?login=1")
-    page = FunnelPage(
-        user_id=user.id,
-        title="Untitled Page",
-        template_type=template_type,
-        status="draft",
-    )
-    db.add(page)
-    db.flush()  # get page.id
-    page.slug = f"{user.username.lower()}/untitled-page-{page.id}"
-    db.add(page)
-    db.commit()
-    db.refresh(page)
-    return RedirectResponse(f"/funnels/visual/{page.id}", status_code=303)
+def funnel_visual_new(request: Request, user: User = Depends(get_current_user),
+                      db: Session = Depends(get_db)):
+    """Legacy route — redirects to Pro funnels."""
+    return RedirectResponse(url="/pro/funnels", status_code=302)
 
 
 @app.get("/funnels/visual/{page_id}")
 def funnel_visual_editor(page_id: int, request: Request, user: User = Depends(get_current_user),
                          db: Session = Depends(get_db)):
-    """GrapesJS visual drag-and-drop editor."""
-    if not user: return RedirectResponse(url="/?login=1")
-    page = db.query(FunnelPage).filter(FunnelPage.id == page_id, FunnelPage.user_id == user.id).first()
-    if not page: raise HTTPException(status_code=404, detail="Page not found")
-    return templates.TemplateResponse("funnel-visual-editor.html", {"request": request, "user": user, "page": page})
+    """Legacy route — redirects to Pro funnel editor."""
+    return RedirectResponse(url=f"/pro/funnel/{page_id}/edit", status_code=302)
 
 
 @app.get("/api/funnels/load/{page_id}")
@@ -4540,21 +4520,8 @@ def funnel_page_analytics(page_id: int, user: User = Depends(get_current_user),
 @app.get("/funnels/analytics")
 def funnel_analytics_dashboard(request: Request, user: User = Depends(get_current_user),
                                db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/?login=1")
-    from sqlalchemy import func
-    pages = db.query(FunnelPage).filter(FunnelPage.user_id == user.id).order_by(FunnelPage.views.desc()).all()
-    total_leads = db.query(func.count(FunnelLead.id)).filter(FunnelLead.user_id == user.id).scalar() or 0
-    total_views = int(db.query(func.coalesce(func.sum(FunnelPage.views), 0)).filter(FunnelPage.user_id == user.id).scalar())
-    total_optins = db.query(func.count(FunnelEvent.id)).filter(
-        FunnelEvent.user_id == user.id, FunnelEvent.event_type == "optin").scalar() or 0
-    recent_leads = db.query(FunnelLead).filter(FunnelLead.user_id == user.id).order_by(
-        FunnelLead.created_at.desc()).limit(25).all()
-    balance = getattr(user, 'balance', 0) or 0
-    return templates.TemplateResponse("funnel-analytics.html", {
-        "request": request, "user": user, "pages": pages, "balance": balance,
-        "total_leads": total_leads, "total_views": total_views,
-        "total_optins": total_optins, "recent_leads": recent_leads,
-        "conversion_rate": round((total_optins / total_views * 100), 1) if total_views > 0 else 0})
+    """Legacy route — redirects to Pro funnels."""
+    return RedirectResponse(url="/pro/funnels", status_code=302)
 
 
 @app.get("/funnels/leads")
