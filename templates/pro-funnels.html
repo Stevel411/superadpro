@@ -110,7 +110,47 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .tpl-affiliate .ta-line{position:absolute;height:1px;background:rgba(14,165,233,0.2);transform-origin:left center}
 .tpl-affiliate .ta-pulse{position:absolute;width:60px;height:60px;border-radius:50%;border:1px solid rgba(14,165,233,0.15);top:10px;left:50%;transform:translateX(-50%);animation:tplPulse 3s ease-in-out infinite}
 
-/* ── Shared animations ── */
+/* ── Hero creation cards ── */
+.hero-card{border-radius:18px;padding:0;text-align:center;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.15);display:flex;flex-direction:column}
+.hero-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.25)}
+.hero-viz{height:180px;position:relative;overflow:hidden}
+.hero-body{padding:24px 28px 28px;background:#1c223d;flex:1}
+.hero-title{font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:8px}
+.hero-desc{font-size:13px;color:rgba(255,255,255,.45);line-height:1.6;max-width:300px;margin:0 auto}
+.hero-btn{margin-top:16px;display:inline-block;padding:11px 28px;color:#fff;border-radius:10px;font-size:13px;font-weight:700}
+
+/* ── AI Funnel Generator: neural spark network ── */
+.hz-ai{background:linear-gradient(160deg,#050d2a,#0c1d4a,#0a1535)}
+.hz-ai .ha-grid{position:absolute;inset:0;opacity:0.06;background-image:linear-gradient(rgba(14,165,233,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(14,165,233,.5) 1px,transparent 1px);background-size:30px 30px}
+.hz-ai .ha-orb{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,.4),transparent 70%)}
+.hz-ai .ha-o1{width:150px;height:150px;top:-30px;left:-20px;animation:haFloat 6s ease-in-out infinite}
+.hz-ai .ha-o2{width:100px;height:100px;bottom:-20px;right:10%;animation:haFloat 5s ease-in-out infinite 1s}
+.hz-ai .ha-o3{width:60px;height:60px;top:30px;right:20%;background:radial-gradient(circle,rgba(14,165,233,.3),transparent 70%);animation:haFloat 4s ease-in-out infinite 2s}
+.hz-ai .ha-spark{position:absolute;width:4px;height:4px;border-radius:50%;background:#fff}
+.hz-ai .ha-s1{top:25%;left:20%;animation:haSpark 3s ease-in-out infinite}.hz-ai .ha-s2{top:60%;left:45%;animation:haSpark 2.5s ease-in-out infinite .5s}
+.hz-ai .ha-s3{top:35%;left:70%;animation:haSpark 3.5s ease-in-out infinite 1s}.hz-ai .ha-s4{top:70%;left:25%;animation:haSpark 2s ease-in-out infinite 1.5s}
+.hz-ai .ha-s5{top:50%;left:85%;animation:haSpark 4s ease-in-out infinite 2s}
+.hz-ai .ha-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:36px;filter:drop-shadow(0 0 20px rgba(99,102,241,.6))}
+.hz-ai .ha-lines{position:absolute;inset:0}
+.hz-ai .ha-lines line{stroke:rgba(99,102,241,.15);stroke-width:1;animation:haLine 4s ease-in-out infinite}
+
+/* ── SuperPages: canvas builder blueprint ── */
+.hz-sp{background:linear-gradient(160deg,#001a12,#00301e,#002818)}
+.hz-sp .hs-dot-grid{position:absolute;inset:0;opacity:0.12;background-image:radial-gradient(circle,rgba(16,185,129,.8) 1px,transparent 1px);background-size:20px 20px}
+.hz-sp .hs-block{position:absolute;border-radius:6px;border:1.5px solid rgba(16,185,129,.2);background:rgba(16,185,129,.04)}
+.hz-sp .hs-b1{width:55%;height:14px;top:18px;left:22%;border-color:rgba(16,185,129,.3);animation:hsBuild .8s ease-out forwards}
+.hz-sp .hs-b2{width:35%;height:50px;top:44px;left:10%;animation:hsBuild .8s ease-out .2s forwards;opacity:0}
+.hz-sp .hs-b3{width:35%;height:50px;top:44px;left:55%;animation:hsBuild .8s ease-out .4s forwards;opacity:0}
+.hz-sp .hs-b4{width:70%;height:12px;top:108px;left:15%;border-radius:6px;background:rgba(16,185,129,.15);animation:hsBuild .8s ease-out .6s forwards;opacity:0}
+.hz-sp .hs-b5{width:40%;height:28px;top:134px;left:30%;border-radius:14px;background:linear-gradient(90deg,rgba(16,185,129,.2),rgba(5,150,105,.2));border-color:rgba(16,185,129,.3);animation:hsBuild .8s ease-out .8s forwards;opacity:0}
+.hz-sp .hs-cursor{position:absolute;width:14px;height:14px;border:2px solid #10b981;border-radius:50%;top:80px;left:60%;animation:hsCursor 4s ease-in-out infinite;box-shadow:0 0 12px rgba(16,185,129,.4)}
+.hz-sp .hs-cursor::after{content:'';position:absolute;top:50%;left:50%;width:4px;height:4px;border-radius:50%;background:#10b981;transform:translate(-50%,-50%)}
+
+@keyframes haFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes haSpark{0%,100%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(1.5)}}
+@keyframes haLine{0%,100%{opacity:0.1}50%{opacity:0.3}}
+@keyframes hsBuild{from{opacity:0;transform:scaleX(0.3)}to{opacity:1;transform:scaleX(1)}}
+@keyframes hsCursor{0%,100%{top:80px;left:60%}25%{top:40px;left:30%}50%{top:120px;left:50%}75%{top:60px;left:70%}}
 @keyframes tplPulse{0%,100%{opacity:0.4;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.15)}}
 @keyframes tplBar{0%,100%{height:20%}50%{height:80%}}
 @keyframes tplSpin{from{transform:translateX(-50%) rotate(0deg)}to{transform:translateX(-50%) rotate(360deg)}}
@@ -163,19 +203,44 @@ textarea.form-input{min-height:80px;resize:vertical}
     <div class="content">
       <!-- Two creation options — TOP -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
-        <div style="background:#1c223d;border-radius:18px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.15)" onclick="openWizard()" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 40px rgba(0,0,0,.25)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,.15)'">
-          <div style="position:absolute;top:-30%;left:-10%;width:60%;height:60%;background:radial-gradient(circle,rgba(14,165,233,.1) 0%,transparent 70%);pointer-events:none"></div>
-          <div style="font-size:36px;margin-bottom:12px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))">✨</div>
-          <div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:8px">AI Funnel Generator</div>
-          <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.6;max-width:280px;margin:0 auto">Answer 4 questions and AI generates a complete landing page with email capture</div>
-          <div style="margin-top:16px;display:inline-block;padding:10px 28px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 4px 15px rgba(14,165,233,.3)">Create AI Funnel →</div>
+        <div class="hero-card" onclick="openWizard()">
+          <div class="hero-viz hz-ai">
+            <div class="ha-grid"></div>
+            <div class="ha-orb ha-o1"></div>
+            <div class="ha-orb ha-o2"></div>
+            <div class="ha-orb ha-o3"></div>
+            <div class="ha-spark ha-s1"></div><div class="ha-spark ha-s2"></div><div class="ha-spark ha-s3"></div><div class="ha-spark ha-s4"></div><div class="ha-spark ha-s5"></div>
+            <svg class="ha-lines" viewBox="0 0 400 180">
+              <line x1="80" y1="45" x2="200" y2="90" style="animation-delay:0s"/>
+              <line x1="200" y1="90" x2="320" y2="55" style="animation-delay:.5s"/>
+              <line x1="120" y1="120" x2="200" y2="90" style="animation-delay:1s"/>
+              <line x1="200" y1="90" x2="280" y2="130" style="animation-delay:1.5s"/>
+              <line x1="60" y1="90" x2="140" y2="60" style="animation-delay:2s"/>
+              <line x1="260" y1="50" x2="340" y2="110" style="animation-delay:2.5s"/>
+            </svg>
+            <div class="ha-icon">✨</div>
+          </div>
+          <div class="hero-body">
+            <div class="hero-title">AI Funnel Generator</div>
+            <div class="hero-desc">Answer 4 questions and AI generates a complete landing page with email capture</div>
+            <div class="hero-btn" style="background:linear-gradient(135deg,#0ea5e9,#6366f1);box-shadow:0 4px 15px rgba(14,165,233,.3)">Create AI Funnel →</div>
+          </div>
         </div>
-        <div style="background:#1c223d;border-radius:18px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.15)" onclick="createBlankPage()" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 40px rgba(0,0,0,.25)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(0,0,0,.15)'">
-          <div style="position:absolute;top:-30%;left:-10%;width:60%;height:60%;background:radial-gradient(circle,rgba(16,185,129,.1) 0%,transparent 70%);pointer-events:none"></div>
-          <div style="font-size:36px;margin-bottom:12px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))">🎨</div>
-          <div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:8px">Go Direct to SuperPages</div>
-          <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.6;max-width:280px;margin:0 auto">Start with a blank canvas and build from scratch with drag-and-drop</div>
-          <div style="margin-top:16px;display:inline-block;padding:10px 28px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 4px 15px rgba(16,185,129,.3)">Open SuperPages →</div>
+        <div class="hero-card" onclick="createBlankPage()">
+          <div class="hero-viz hz-sp">
+            <div class="hs-dot-grid"></div>
+            <div class="hs-block hs-b1"></div>
+            <div class="hs-block hs-b2"></div>
+            <div class="hs-block hs-b3"></div>
+            <div class="hs-block hs-b4"></div>
+            <div class="hs-block hs-b5"></div>
+            <div class="hs-cursor"></div>
+          </div>
+          <div class="hero-body">
+            <div class="hero-title">Go Direct to SuperPages</div>
+            <div class="hero-desc">Start with a blank canvas and build from scratch with drag-and-drop</div>
+            <div class="hero-btn" style="background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 15px rgba(16,185,129,.3)">Open SuperPages →</div>
+          </div>
         </div>
       </div>
 
