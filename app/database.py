@@ -731,6 +731,41 @@ class Notification(Base):
     user = relationship("User", backref="notifications")
 
 
+class Achievement(Base):
+    """Badges and milestones earned by members."""
+    __tablename__ = "achievements"
+    id          = Column(Integer, primary_key=True, index=True)
+    user_id     = Column(Integer, ForeignKey("users.id"), index=True)
+    badge_id    = Column(String, nullable=False)          # unique key e.g. 'first_referral'
+    title       = Column(String, nullable=False)
+    icon        = Column(String, default="🏆")
+    earned_at   = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", backref="achievements")
+
+
+# Badge definitions — checked automatically
+BADGES = {
+    "first_login":      {"icon": "👋", "title": "Welcome!",           "desc": "Logged in for the first time"},
+    "profile_complete": {"icon": "🪪", "title": "Identity Set",       "desc": "Completed your profile"},
+    "first_referral":   {"icon": "🤝", "title": "First Referral",     "desc": "Referred your first member"},
+    "team_of_5":        {"icon": "👥", "title": "Squad Leader",       "desc": "Built a team of 5 members"},
+    "team_of_10":       {"icon": "🔥", "title": "Team Builder",       "desc": "Built a team of 10 members"},
+    "team_of_25":       {"icon": "⚡", "title": "Growth Machine",     "desc": "Built a team of 25 members"},
+    "team_of_50":       {"icon": "🚀", "title": "Empire Builder",     "desc": "Built a team of 50 members"},
+    "first_100":        {"icon": "💰", "title": "First $100",         "desc": "Earned your first $100"},
+    "earned_500":       {"icon": "💎", "title": "$500 Club",          "desc": "Earned $500 in total"},
+    "earned_1000":      {"icon": "🏆", "title": "$1,000 Milestone",   "desc": "Earned $1,000 in total"},
+    "earned_5000":      {"icon": "👑", "title": "$5,000 Legend",      "desc": "Earned $5,000 in total"},
+    "pro_member":       {"icon": "⭐", "title": "Pro Upgraded",       "desc": "Upgraded to Pro membership"},
+    "first_funnel":     {"icon": "📄", "title": "Funnel Creator",     "desc": "Created your first funnel page"},
+    "first_linkhub":    {"icon": "🔗", "title": "Link Master",        "desc": "Created your LinkHub page"},
+    "grid_tier_3":      {"icon": "📊", "title": "Grid Climber",       "desc": "Reached Campaign Tier 3"},
+    "grid_tier_5":      {"icon": "🎯", "title": "Grid Commander",     "desc": "Reached Campaign Tier 5"},
+    "grid_tier_8":      {"icon": "🌟", "title": "Grid Legend",        "desc": "Completed all 8 campaign tiers"},
+}
+
+
 class NurtureSequence(Base):
     """Tracks free members through the 5-email nurture campaign."""
     __tablename__ = "nurture_sequences"
@@ -985,6 +1020,9 @@ try:
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE"))
         conn.execute(text("CREATE TABLE IF NOT EXISTS notifications (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), type VARCHAR NOT NULL, icon VARCHAR DEFAULT '🔔', title VARCHAR NOT NULL, message VARCHAR NOT NULL, link VARCHAR, is_read BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, is_read, created_at DESC)"))
+        conn.execute(text("CREATE TABLE IF NOT EXISTS achievements (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), badge_id VARCHAR NOT NULL, title VARCHAR NOT NULL, icon VARCHAR DEFAULT '🏆', earned_at TIMESTAMP DEFAULT NOW())"))
+        conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS idx_achievements_user_badge ON achievements(user_id, badge_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_achievements_user ON achievements(user_id)"))
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS social_posts_uses INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS social_posts_total INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS video_scripts_uses INTEGER DEFAULT 0"))

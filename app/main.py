@@ -23,7 +23,7 @@ from .database import (
 from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker, CourseChapter, CourseLesson, CourseProgress
 from .database import AdBoost, BOOST_TIERS, BOOST_SPONSOR_PCT, BOOST_COMPANY_PCT
 from .coinbase_commerce import create_charge as cb_create_charge, verify_webhook_signature as cb_verify_sig, parse_webhook_event as cb_parse_event, SANDBOX_MODE as CB_SANDBOX
-from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick, Notification
+from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick, Notification, Achievement, BADGES
 from .crud import create_user, verify_password
 from .grid import (
     get_grid_stats, get_user_grids, get_grid_positions,
@@ -954,10 +954,9 @@ def dashboard(request: Request, user: User = Depends(get_current_user),
               db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
     if not user: return RedirectResponse(url="/?login=1")
-    # Redirect new users to launch wizard
-    if not user.onboarding_completed:
-        return RedirectResponse(url="/launch-wizard", status_code=302)
     try:
+        # Check achievements on dashboard load
+        check_achievements(db, user)
         ctx = get_dashboard_context(request, user, db)
         return templates.TemplateResponse("dashboard.html", ctx)
     except Exception as exc:
@@ -6131,6 +6130,62 @@ async def mark_notifications_read(request: Request, user: User = Depends(get_cur
         ).update({Notification.is_read: True}, synchronize_session=False)
     db.commit()
     return JSONResponse({"ok": True})
+
+
+# ═══════════════════════════════════════════════════════════════
+#  ACHIEVEMENT / BADGE SYSTEM
+# ═══════════════════════════════════════════════════════════════
+
+def check_achievements(db: Session, user: User):
+    """Check and award any new badges the user has earned."""
+    existing = {a.badge_id for a in db.query(Achievement).filter(Achievement.user_id == user.id).all()}
+    earned = float(user.total_earned or 0)
+    team = user.total_team or 0
+    new_badges = []
+
+    checks = {
+        "first_login": True,
+        "profile_complete": bool(getattr(user, 'avatar_url', None) and user.first_name),
+        "first_referral": team >= 1,
+        "team_of_5": team >= 5,
+        "team_of_10": team >= 10,
+        "team_of_25": team >= 25,
+        "team_of_50": team >= 50,
+        "first_100": earned >= 100,
+        "earned_500": earned >= 500,
+        "earned_1000": earned >= 1000,
+        "earned_5000": earned >= 5000,
+        "pro_member": getattr(user, 'membership_tier', None) == 'pro',
+        "first_funnel": db.query(FunnelPage).filter(FunnelPage.user_id == user.id).first() is not None,
+        "first_linkhub": db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first() is not None,
+    }
+
+    for badge_id, earned_it in checks.items():
+        if earned_it and badge_id not in existing and badge_id in BADGES:
+            b = BADGES[badge_id]
+            db.add(Achievement(user_id=user.id, badge_id=badge_id, title=b["title"], icon=b["icon"]))
+            send_notification(db, user.id, "achievement", b["icon"],
+                f'Badge earned: {b["title"]}!', b["desc"], "/achievements")
+            new_badges.append(badge_id)
+
+    if new_badges:
+        db.commit()
+    return new_badges
+
+
+@app.get("/achievements")
+def achievements_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Achievements / badges page."""
+    if not user: return RedirectResponse(url="/?login=1")
+    check_achievements(db, user)
+    earned = db.query(Achievement).filter(Achievement.user_id == user.id).order_by(Achievement.earned_at.desc()).all()
+    earned_ids = {a.badge_id for a in earned}
+    ctx = get_dashboard_context(request, user, db)
+    ctx["earned"] = earned
+    ctx["earned_ids"] = earned_ids
+    ctx["all_badges"] = BADGES
+    ctx["active_page"] = "achievements"
+    return templates.TemplateResponse("achievements.html", ctx)
 
 
 # ═══════════════════════════════════════════════════════════════
