@@ -16,6 +16,11 @@
   filter: drop-shadow(0 6px 18px rgba(0,200,232,0.45));
   transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), filter 0.2s;
 }
+@media(max-width:768px){
+  #sap-chat-btn{display:none!important}
+  #sap-chat-panel{display:none!important}
+  #sap-chat-label{display:none!important}
+}
 #sap-chat-btn:hover {
   transform: scale(1.1) translateY(-2px);
   filter: drop-shadow(0 10px 24px rgba(0,200,232,0.6));
