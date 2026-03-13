@@ -98,6 +98,21 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 .welcome{background:linear-gradient(135deg,#0b1729 0%,#132240 50%,#0e1c30 100%);border-radius:18px;padding:32px 36px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;box-shadow:var(--shadow-sm)}
 .welcome::before{content:'';position:absolute;top:-60px;right:-40px;width:220px;height:220px;border-radius:50%;background:rgba(14,165,233,0.06)}
 .welcome::after{content:'';position:absolute;bottom:-40px;left:30%;width:160px;height:160px;border-radius:50%;background:rgba(99,102,241,0.04)}
+.wb-orb{position:absolute;border-radius:50%;pointer-events:none;z-index:0}
+.wb-o1{width:180px;height:180px;top:-50px;right:15%;background:radial-gradient(circle,rgba(14,165,233,.1),transparent 70%);animation:wbPulse 4s ease-in-out infinite}
+.wb-o2{width:120px;height:120px;bottom:-30px;right:35%;background:radial-gradient(circle,rgba(99,102,241,.08),transparent 70%);animation:wbPulse 5s ease-in-out 1s infinite}
+.wb-o3{width:100px;height:100px;top:10px;right:5%;background:radial-gradient(circle,rgba(16,185,129,.06),transparent 70%);animation:wbPulse 6s ease-in-out 2s infinite}
+.wb-line{position:absolute;height:1px;background:linear-gradient(90deg,transparent,rgba(14,165,233,.12),transparent);pointer-events:none;z-index:0}
+.wb-l1{width:60%;top:25%;left:30%;animation:wbSlide 8s linear infinite}
+.wb-l2{width:40%;top:65%;left:40%;animation:wbSlide 10s linear 2s infinite}
+.wb-dot{position:absolute;width:3px;height:3px;border-radius:50%;pointer-events:none;z-index:0}
+.wb-d1{background:rgba(14,165,233,.35);top:20%;right:20%;animation:wbDrift 5s ease-in-out infinite}
+.wb-d2{background:rgba(16,185,129,.3);top:60%;right:30%;animation:wbDrift 6s ease-in-out 1s infinite}
+.wb-d3{background:rgba(139,92,246,.3);top:40%;right:10%;animation:wbDrift 7s ease-in-out 2s infinite}
+.wb-d4{background:rgba(245,158,11,.25);top:70%;right:15%;animation:wbDrift 5.5s ease-in-out .5s infinite}
+@keyframes wbPulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.15);opacity:1}}
+@keyframes wbSlide{0%{transform:translateX(-100%);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateX(100%);opacity:0}}
+@keyframes wbDrift{0%,100%{transform:translate(0,0);opacity:.3}25%{transform:translate(-8px,5px);opacity:.7}50%{transform:translate(4px,-6px);opacity:.5}75%{transform:translate(-3px,-3px);opacity:.8}}
 .w-left{position:relative;z-index:1}
 .w-greeting{font-size:13px;color:rgba(56,189,248,0.5);font-weight:600;margin-bottom:6px}
 .w-name{font-family:Sora,sans-serif;font-size:26px;font-weight:800;color:#fff;margin-bottom:8px}
@@ -300,12 +315,15 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 
     <!-- Welcome Banner -->
     <div class="welcome">
-      <div class="w-left">
+      <div class="wb-orb wb-o1"></div><div class="wb-orb wb-o2"></div><div class="wb-orb wb-o3"></div>
+      <div class="wb-line wb-l1"></div><div class="wb-line wb-l2"></div>
+      <div class="wb-dot wb-d1"></div><div class="wb-dot wb-d2"></div><div class="wb-dot wb-d3"></div><div class="wb-dot wb-d4"></div>
+      <div class="w-left" style="position:relative;z-index:1">
         <div class="w-greeting">Welcome back</div>
         <div class="w-name">{{ display_name }}</div>
         <div class="w-msg">You have {{ total_team }} members in your network{% if total_earned > 0 %} and earned ${{ '%.0f'|format(total_earned) }} across all income streams{% endif %}.</div>
       </div>
-      <div class="w-right">
+      <div class="w-right" style="position:relative;z-index:1">
         <a href="/affiliate" class="w-btn w-btn-primary">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
           Share & Earn
