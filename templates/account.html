@@ -143,10 +143,10 @@ select.fg-input{background:var(--surface)}
 <div class="content">
 
 {% if request.query_params.get('saved') %}
-<div class="toast toast-ok">✓ Saved successfully.</div>
+<script>document.addEventListener('DOMContentLoaded',function(){showToast('Settings saved successfully','ok')})</script>
 {% endif %}
 {% if request.query_params.get('error') %}
-<div class="toast toast-err">⚠ {{ request.query_params.get('error')|replace('_',' ')|title }}.</div>
+<script>document.addEventListener('DOMContentLoaded',function(){showToast('{{ request.query_params.get("error")|replace("_"," ")|title }}','err')})</script>
 {% endif %}
 
 <div class="profile-grid">

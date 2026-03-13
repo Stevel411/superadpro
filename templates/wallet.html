@@ -200,13 +200,7 @@ tr:hover td{background:rgba(15,25,60,.02)}
 {% endif %}
 
 {% if request.query_params.get('error') %}
-<div style="padding:13px 16px;background:#fef2f2;border:1px solid rgba(220,38,38,.2);border-radius:12px;margin-bottom:18px;display:flex;align-items:center;gap:10px">
-  <span style="font-size:20px">⚠️</span>
-  <div>
-    <div style="font-size:14px;font-weight:700;color:#dc2626">Withdrawal Failed</div>
-    <div style="font-size:13px;color:#b91c1c">{{ request.query_params.get('error') }}</div>
-  </div>
-</div>
+<script>document.addEventListener('DOMContentLoaded',function(){showToast('{{ request.query_params.get("error") }}','err')})</script>
 {% endif %}
 
 <div class="row row-3" style="margin-bottom:18px">
