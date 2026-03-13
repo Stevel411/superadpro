@@ -9626,7 +9626,39 @@ async def render_ai_funnel(username: str, slug: str, request: Request, db: Sessi
 <title>{title_text}</title>
 {og_tags}
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=Raleway:wght@400;500;600;700;800;900&family=Open+Sans:wght@400;500;600;700;800&family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Bebas+Neue&family=Cinzel:wght@400;700;900&family=Dancing+Script:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
-<style>*{{margin:0;padding:0;box-sizing:border-box}}body{{min-height:100vh;overflow-x:hidden}}</style>
+<style>*{{margin:0;padding:0;box-sizing:border-box}}body{{min-height:100vh;overflow-x:hidden}}
+/* Touch-friendly inputs on mobile */
+@media(max-width:768px){{
+  input,textarea{{font-size:16px!important;-webkit-appearance:none}}
+}}
+</style>
+<script>
+// Mobile responsive scaling — fits 1100px canvas to any screen width
+(function(){{
+  function scaleCanvas(){{
+    var divs=document.querySelectorAll('div[style*="width:1100px"],div[style*="width: 1100px"]');
+    if(!divs.length) return;
+    var inner=divs[0];
+    var vw=window.innerWidth;
+    if(vw<1100){{
+      var s=vw/1100;
+      inner.style.transform='scale('+s+')';
+      inner.style.transformOrigin='top left';
+      // Adjust parent height to prevent overflow
+      var parent=inner.parentElement;
+      if(parent){{
+        var h=inner.scrollHeight*s;
+        parent.style.minHeight=h+'px';
+        parent.style.overflow='hidden';
+      }}
+    }} else {{
+      inner.style.transform='none';
+    }}
+  }}
+  window.addEventListener('load',scaleCanvas);
+  window.addEventListener('resize',scaleCanvas);
+}})();
+</script>
 </head><body>{page.gjs_html}
 <div style="text-align:center;padding:24px;font-size:11px;color:rgba(255,255,255,0.25);font-family:Outfit,sans-serif;background:transparent">Income examples are illustrative. Results depend on individual effort. &copy; 2026 SuperAdPro</div>
 <script>
