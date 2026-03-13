@@ -2161,9 +2161,9 @@ function setDevice(device) {
 renderAll();
 saveHistory(); // Save initial state for undo
 
-// Auto-save every 30 seconds if dirty
+// Auto-save every 30 seconds if dirty AND not actively editing
 setInterval(() => {
-  if (_dirty) {
+  if (_dirty && !_activeEditorId && !editMode) {
     save();
   }
 }, 30000);
