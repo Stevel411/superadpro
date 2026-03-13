@@ -1596,9 +1596,13 @@ function canvasDrop(e) {
   if (!palDragType) return;
   const cv = document.getElementById('canvas');
   const rect = cv.getBoundingClientRect();
-  // getBoundingClientRect is viewport-relative, clientX/Y is also viewport-relative
-  // so the difference gives us the exact position inside the canvas — no scroll adjustment needed
-  const x = Math.max(0, e.clientX - rect.left - 100);
+  const cw = 1100;
+  // Get default width for this element type
+  const widths = {heading:800,text:800,label:300,image:600,video:800,button:400,cta:500,form:500,countdown:600,progress:500,socialicons:300,audio:500,embed:600,testimonial:700,faq:700,icontext:700,separator:700,logostrip:800,review:700,badge:200,stat:200,timer:300,box:400,divider:700,spacer:100};
+  const elW = widths[palDragType] || 400;
+  // Calculate position and clamp within canvas
+  let x = Math.max(0, e.clientX - rect.left - elW/2);
+  x = Math.min(x, cw - elW); // don't overflow right edge
   const y = Math.max(0, e.clientY - rect.top);
   addElAt(palDragType, x, y);
   palDragType = null;
