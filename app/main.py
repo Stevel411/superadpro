@@ -303,6 +303,8 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "LEVEL_PCT":         LEVEL_PCT,
         "renewal":           renewal,
         "active_page":       "dashboard",
+        "has_linkhub":       db.query(db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).exists()).scalar(),
+        "watch_count":       getattr(user, 'videos_watched', 0) or 0,
     }
 
 # ═══════════════════════════════════════════════════════════════
@@ -6050,6 +6052,16 @@ def totp_disable(
         return RedirectResponse(url="/account?saved=2fa_disabled", status_code=303)
     else:
         return RedirectResponse(url="/account?error=invalid_2fa_code", status_code=303)
+
+
+@app.post("/api/onboarding/complete")
+def onboarding_complete(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Mark onboarding wizard as completed."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    user.onboarding_completed = True
+    db.commit()
+    return JSONResponse({"ok": True})
 
 
 # ═══════════════════════════════════════════════════════════════

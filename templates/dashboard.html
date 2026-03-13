@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="manifest" href="/static/manifest.json"><meta name="theme-color" content="#0ea5e9"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 <title>Dashboard — SuperAdPro</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/mobile.css">
@@ -20,6 +21,33 @@
   --shadow-md:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16);
 }
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:var(--text);min-height:100vh;display:flex}
+
+/* Onboarding Wizard */
+.onboard{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:20px;padding:28px 32px;margin-bottom:20px;border:1px solid rgba(14,165,233,0.15);position:relative;overflow:hidden}
+.onboard::before{content:'';position:absolute;top:-40%;right:-10%;width:50%;height:80%;background:radial-gradient(circle,rgba(14,165,233,0.08) 0%,transparent 70%);pointer-events:none}
+.ob-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.ob-title{font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff}
+.ob-sub{font-size:13px;color:#64748b;margin-top:2px}
+.ob-progress{display:flex;align-items:center;gap:10px}
+.ob-bar{width:120px;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
+.ob-fill{height:100%;background:linear-gradient(90deg,#0ea5e9,#10b981);border-radius:3px;transition:width .5s ease}
+.ob-pct{font-size:12px;font-weight:800;color:#0ea5e9}
+.ob-steps{display:flex;gap:10px}
+.ob-step{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;transition:.2s;position:relative}
+.ob-step:hover{border-color:rgba(14,165,233,0.2);background:rgba(255,255,255,0.06)}
+.ob-step.done{border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.06)}
+.ob-num{width:32px;height:32px;border-radius:10px;background:rgba(14,165,233,0.12);display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;font-size:14px;font-weight:800;color:#0ea5e9;flex-shrink:0}
+.ob-step.done .ob-num{background:rgba(16,185,129,0.15);color:#10b981}
+.ob-step.done .ob-n{display:none}
+.ob-step:not(.done) .ob-check{display:none}
+.ob-name{font-size:13px;font-weight:700;color:#fff}
+.ob-desc{font-size:11px;color:#64748b;line-height:1.4}
+.ob-action{font-size:11px;font-weight:700;color:#0ea5e9;text-decoration:none;padding:5px 14px;border-radius:8px;background:rgba(14,165,233,0.1);transition:.2s;margin-top:auto}
+.ob-action:hover{background:rgba(14,165,233,0.2)}
+.ob-step.done .ob-action{color:#10b981;background:rgba(16,185,129,0.1)}
+.ob-footer{text-align:right;margin-top:16px}
+.ob-dismiss{background:none;border:none;color:#475569;font-size:12px;font-weight:600;cursor:pointer;padding:6px 12px;border-radius:6px;transition:.2s}
+.ob-dismiss:hover{color:#94a3b8;background:rgba(255,255,255,0.05)}
 .layout{display:flex;width:100%;min-height:100vh}
 
 /* Sidebar */
@@ -209,6 +237,67 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
     </div>
     {% endif %}
 
+    <!-- Onboarding Wizard — shows until completed -->
+    {% if not user.onboarding_completed %}
+    <div class="onboard" id="onboardWizard">
+      <div class="ob-header">
+        <div>
+          <div class="ob-title">🚀 Let's get you set up</div>
+          <div class="ob-sub">Complete these steps to start earning</div>
+        </div>
+        <div class="ob-progress">
+          <div class="ob-bar"><div class="ob-fill" id="obFill"></div></div>
+          <span class="ob-pct" id="obPct">0%</span>
+        </div>
+      </div>
+      <div class="ob-steps">
+        <div class="ob-step {% if user.avatar_url %}done{% endif %}" data-check="avatar">
+          <div class="ob-num"><span class="ob-check">✓</span><span class="ob-n">1</span></div>
+          <div class="ob-info">
+            <div class="ob-name">Set up your profile</div>
+            <div class="ob-desc">Add a photo and your name</div>
+          </div>
+          <a href="/account" class="ob-action">Go →</a>
+        </div>
+        <div class="ob-step {% if user.niche %}done{% endif %}" data-check="niche">
+          <div class="ob-num"><span class="ob-check">✓</span><span class="ob-n">2</span></div>
+          <div class="ob-info">
+            <div class="ob-name">Choose your niche</div>
+            <div class="ob-desc">Find the right market for you</div>
+          </div>
+          <a href="/niche-finder" class="ob-action">Go →</a>
+        </div>
+        <div class="ob-step {% if has_linkhub %}done{% endif %}" data-check="linkhub">
+          <div class="ob-num"><span class="ob-check">✓</span><span class="ob-n">3</span></div>
+          <div class="ob-info">
+            <div class="ob-name">Create your LinkHub</div>
+            <div class="ob-desc">Your personal link-in-bio page</div>
+          </div>
+          <a href="/linkhub/editor" class="ob-action">Go →</a>
+        </div>
+        <div class="ob-step {% if total_team > 0 %}done{% endif %}" data-check="share">
+          <div class="ob-num"><span class="ob-check">✓</span><span class="ob-n">4</span></div>
+          <div class="ob-info">
+            <div class="ob-name">Share your referral link</div>
+            <div class="ob-desc">Start building your team</div>
+          </div>
+          <a href="/affiliate" class="ob-action">Go →</a>
+        </div>
+        <div class="ob-step {% if watch_count and watch_count > 0 %}done{% endif %}" data-check="watch">
+          <div class="ob-num"><span class="ob-check">✓</span><span class="ob-n">5</span></div>
+          <div class="ob-info">
+            <div class="ob-name">Watch your first campaign</div>
+            <div class="ob-desc">Earn from video views</div>
+          </div>
+          <a href="/watch" class="ob-action">Go →</a>
+        </div>
+      </div>
+      <div class="ob-footer">
+        <button class="ob-dismiss" onclick="dismissOnboard()">I'll do this later</button>
+      </div>
+    </div>
+    {% endif %}
+
     <!-- Welcome Banner -->
     <div class="welcome">
       <div class="w-left">
@@ -322,6 +411,33 @@ function copyRef(){
     btn.textContent = 'Copied!';
     setTimeout(function(){ btn.textContent = 'Copy'; }, 2000);
   });
+}
+// Onboarding progress
+(function(){
+  var wiz = document.getElementById('onboardWizard');
+  if (!wiz) return;
+  var steps = wiz.querySelectorAll('.ob-step');
+  var done = wiz.querySelectorAll('.ob-step.done').length;
+  var pct = Math.round((done / steps.length) * 100);
+  var fill = document.getElementById('obFill');
+  var pctEl = document.getElementById('obPct');
+  if (fill) fill.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = pct + '%';
+  // If all done, auto-dismiss after 2 seconds
+  if (done === steps.length) {
+    setTimeout(function(){ dismissOnboard(); }, 2000);
+  }
+})();
+function dismissOnboard() {
+  var wiz = document.getElementById('onboardWizard');
+  if (wiz) {
+    wiz.style.transition = 'opacity .3s, transform .3s';
+    wiz.style.opacity = '0';
+    wiz.style.transform = 'translateY(-10px)';
+    setTimeout(function(){ wiz.remove(); }, 300);
+  }
+  // Mark as complete on server
+  fetch('/api/onboarding/complete', {method:'POST'}).catch(function(){});
 }
 </script>
 {% include "_tawk.html" %}

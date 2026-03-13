@@ -1,11 +1,11 @@
 {
   "name": "SuperAdPro",
   "short_name": "SuperAdPro",
-  "description": "Watch. Earn. Grow. Your video marketing income platform.",
-  "start_url": "/app",
+  "description": "AI marketing tools, multiple income streams, complete business platform.",
+  "start_url": "/dashboard",
   "display": "standalone",
-  "background_color": "#0a0a1a",
-  "theme_color": "#0a0a1a",
+  "background_color": "#050d1a",
+  "theme_color": "#0ea5e9",
   "orientation": "portrait-primary",
   "icons": [
     {
@@ -21,15 +21,7 @@
       "purpose": "any maskable"
     }
   ],
-  "screenshots": [
-    {
-      "src": "/static/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "form_factor": "narrow"
-    }
-  ],
-  "categories": ["finance", "business"],
-  "lang": "en-GB",
+  "categories": ["business", "productivity"],
+  "lang": "en",
   "scope": "/"
 }

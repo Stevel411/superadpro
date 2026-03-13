@@ -197,4 +197,6 @@ function showToast(message, type) {
 }
 // Alias for backwards compatibility
 if (typeof toast === 'undefined') { var toast = function(m){ showToast(m, 'ok'); }; }
+// Register service worker for PWA
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/static/sw.js').catch(function(){}); }
 </script>
