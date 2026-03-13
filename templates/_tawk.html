@@ -1,3 +1,4 @@
+{% if request and request.url.path in ['/', '/dashboard'] %}
 <!-- SuperAdPro AI Chat Widget -->
 <style>
 /* ── LAUNCHER BUTTON ── */
@@ -393,3 +394,4 @@ setTimeout(function() {
   }
 }, 8000);
 </script>
+{% endif %}
