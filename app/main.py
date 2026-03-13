@@ -6150,6 +6150,60 @@ async def mark_notifications_read(request: Request, user: User = Depends(get_cur
 #  ACHIEVEMENT / BADGE SYSTEM
 # ═══════════════════════════════════════════════════════════════
 
+# ── GDPR DATA EXPORT & DELETION ──
+@app.get("/api/account/export-data")
+def gdpr_export_data(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """GDPR: Export all user data as JSON."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    import json as _jgdpr
+    data = {
+        "user": {
+            "id": user.id, "username": user.username, "email": user.email,
+            "first_name": user.first_name, "last_name": user.last_name,
+            "niche": user.niche, "membership_tier": user.membership_tier,
+            "created_at": user.created_at.isoformat() if user.created_at else None,
+        },
+        "commissions": [{"amount": float(c.amount_usdt), "type": c.commission_type, "date": c.created_at.isoformat() if c.created_at else None}
+                        for c in db.query(Commission).filter(Commission.to_user_id == user.id).all()],
+        "withdrawals": [{"amount": float(w.amount_usdt), "status": w.status, "date": w.created_at.isoformat() if w.created_at else None}
+                        for w in db.query(Withdrawal).filter(Withdrawal.user_id == user.id).all()],
+        "notifications": [{"title": n.title, "message": n.message, "date": n.created_at.isoformat() if n.created_at else None}
+                          for n in db.query(Notification).filter(Notification.user_id == user.id).all()],
+        "achievements": [{"badge": a.badge_id, "title": a.title, "date": a.earned_at.isoformat() if a.earned_at else None}
+                         for a in db.query(Achievement).filter(Achievement.user_id == user.id).all()],
+        "funnel_pages": [{"title": p.title, "slug": p.slug, "views": p.views, "leads": p.leads_captured}
+                         for p in db.query(FunnelPage).filter(FunnelPage.user_id == user.id).all()],
+    }
+    return JSONResponse(data, headers={"Content-Disposition": f'attachment; filename="superadpro-data-{user.username}.json"'})
+
+
+@app.post("/api/account/delete-data")
+async def gdpr_delete_data(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """GDPR: Delete all user data. Requires confirmation."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    if body.get("confirm") != "DELETE_MY_DATA":
+        return JSONResponse({"error": "Please confirm by sending confirm: DELETE_MY_DATA"}, status_code=400)
+    # Delete user's data (keep commission records for financial audit)
+    db.query(Notification).filter(Notification.user_id == user.id).delete()
+    db.query(Achievement).filter(Achievement.user_id == user.id).delete()
+    db.query(FunnelPage).filter(FunnelPage.user_id == user.id).delete()
+    db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).delete()
+    # Anonymise the user record
+    user.email = f"deleted_{user.id}@removed.com"
+    user.username = f"deleted_{user.id}"
+    user.first_name = None
+    user.last_name = None
+    user.avatar_url = None
+    user.wallet_address = None
+    user.is_active = False
+    user.password_hash = "DELETED"
+    db.commit()
+    logger.info(f"GDPR deletion: user {user.id} data removed and anonymised")
+    return JSONResponse({"ok": True, "message": "Your data has been deleted and your account anonymised."})
+
 def check_achievements(db: Session, user: User):
     """Check and award any new badges the user has earned."""
     existing = {a.badge_id for a in db.query(Achievement).filter(Achievement.user_id == user.id).all()}
@@ -9081,6 +9135,15 @@ def pro_funnel_analytics(funnel_id: int, request: Request,
             else: ago = f"{int(delta/86400)}d ago"
         recent_leads.append({"name": lead.name, "email": lead.email, "ago": ago})
 
+    # A/B testing data
+    variant = db.query(FunnelPage).filter(FunnelPage.ab_variant_of == page.id).first()
+    ab_rate_a = conversion_rate
+    ab_rate_b = 0
+    if variant:
+        variant_leads = db.query(FunnelLead).filter(FunnelLead.page_id == variant.id).count()
+        variant_views = variant.views or 0
+        ab_rate_b = round((variant_leads / variant_views * 100), 1) if variant_views > 0 else 0
+
     ctx = get_dashboard_context(request, user, db)
     ctx.update({
         "page": page,
@@ -9094,6 +9157,9 @@ def pro_funnel_analytics(funnel_id: int, request: Request,
         "recent_leads": recent_leads,
         "base_url": str(request.base_url),
         "active_page": "funnels",
+        "variant": variant,
+        "ab_rate_a": ab_rate_a,
+        "ab_rate_b": ab_rate_b,
     })
     return templates.TemplateResponse("page-analytics.html", ctx)
 
@@ -9177,6 +9243,64 @@ async def api_pro_funnel_templates(request: Request, db: Session = Depends(get_d
     from app.funnel_templates import get_templates
     templates = get_templates()
     return JSONResponse([{"name": t["name"], "description": t["description"], "category": t["category"], "icon": t["icon"]} for t in templates])
+
+
+@app.post("/api/pro/funnel/{funnel_id}/create-ab-variant")
+async def create_ab_variant(funnel_id: int, request: Request,
+                            user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Create an A/B test variant of a funnel page."""
+    if not user:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+    original = db.query(FunnelPage).filter(FunnelPage.id == funnel_id, FunnelPage.user_id == user.id).first()
+    if not original:
+        return JSONResponse({"error": "Page not found"}, status_code=404)
+
+    # Check if variant already exists
+    existing = db.query(FunnelPage).filter(FunnelPage.ab_variant_of == funnel_id).first()
+    if existing:
+        return JSONResponse({"error": "A/B variant already exists", "variant_id": existing.id}, status_code=400)
+
+    # Clone the page as variant B
+    import json as _jab
+    variant = FunnelPage(
+        user_id=user.id,
+        title=f"{original.title} (Variant B)",
+        slug=f"{original.slug}-b",
+        headline=original.headline,
+        template_type=original.template_type,
+        status="published",
+        gjs_html=original.gjs_html,
+        gjs_css=original.gjs_css,
+        meta_description=original.meta_description,
+        image_url=original.image_url,
+        sections_json=original.sections_json,
+        has_capture_form=original.has_capture_form,
+        capture_form_heading=original.capture_form_heading,
+        capture_form_subtext=original.capture_form_subtext,
+        ab_variant_of=original.id,
+        ab_split_pct=50,
+    )
+    db.add(variant)
+    db.commit()
+    db.refresh(variant)
+    return JSONResponse({"success": True, "variant_id": variant.id})
+
+
+@app.post("/api/pro/funnel/{funnel_id}/ab-split")
+async def update_ab_split(funnel_id: int, request: Request,
+                          user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Update the A/B split percentage."""
+    if not user:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+    body = await request.json()
+    pct = body.get("split_pct", 50)
+    pct = max(10, min(90, int(pct)))
+    variant = db.query(FunnelPage).filter(FunnelPage.ab_variant_of == funnel_id, FunnelPage.user_id == user.id).first()
+    if not variant:
+        return JSONResponse({"error": "No variant found"}, status_code=404)
+    variant.ab_split_pct = pct
+    db.commit()
+    return JSONResponse({"success": True, "split_pct": pct})
 
 
 @app.post("/api/pro/funnel/{funnel_id}/save")
@@ -9670,11 +9794,19 @@ async def pro_leads_page(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/f/{username}/{slug}")
 async def render_ai_funnel(username: str, slug: str, request: Request, db: Session = Depends(get_db)):
-    """Render an AI-generated funnel page — public facing."""
+    """Render an AI-generated funnel page — public facing. Supports A/B testing."""
     full_slug = f"{username}/{slug}"
     page = db.query(FunnelPage).filter(FunnelPage.slug == full_slug).first()
     if not page:
         return RedirectResponse("/", status_code=302)
+
+    # A/B testing — if this page has a variant, randomly split traffic
+    import random
+    variant = db.query(FunnelPage).filter(FunnelPage.ab_variant_of == page.id, FunnelPage.status == "published").first()
+    if variant:
+        split_pct = variant.ab_split_pct or 50
+        if random.randint(1, 100) <= split_pct:
+            page = variant  # Show variant B
 
     owner = db.query(User).filter(User.id == page.user_id).first()
 

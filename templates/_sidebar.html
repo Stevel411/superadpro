@@ -166,6 +166,28 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- ═══ UNIFIED TOAST SYSTEM ═══ -->
 
 <!-- ═══ NOTIFICATION BELL ═══ -->
+
+<!-- ═══ GDPR COOKIE CONSENT ═══ -->
+<div id="cookieConsent" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:#1c223d;border-top:1px solid rgba(255,255,255,0.08);padding:14px 24px;box-shadow:0 -4px 20px rgba(0,0,0,.3)">
+  <div style="max-width:1000px;margin:0 auto;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <div style="flex:1;min-width:200px">
+      <span style="font-size:13px;color:#94a3b8;line-height:1.5">We use essential cookies to keep you logged in and improve your experience. By continuing, you agree to our <a href="/legal#privacy" style="color:#0ea5e9;text-decoration:none;font-weight:600">Privacy Policy</a>.</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0">
+      <button onclick="acceptCookies()" style="padding:8px 20px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">Accept</button>
+      <button onclick="acceptCookies()" style="padding:8px 20px;background:rgba(255,255,255,0.06);color:#94a3b8;border:1px solid rgba(255,255,255,0.08);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">Essential Only</button>
+    </div>
+  </div>
+</div>
+<script>
+if (!document.cookie.includes('cookie_consent=1')) {
+  document.getElementById('cookieConsent').style.display = 'block';
+}
+function acceptCookies() {
+  document.cookie = 'cookie_consent=1;path=/;max-age=31536000;SameSite=Lax';
+  document.getElementById('cookieConsent').style.display = 'none';
+}
+</script>
 <div id="notifBell" style="position:fixed;top:18px;right:300px;z-index:150;cursor:pointer" onclick="toggleNotifPanel()">
   <div style="position:relative;width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;transition:.2s;border:1px solid rgba(255,255,255,0.08)" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
     <span style="font-size:16px">🔔</span>

@@ -493,6 +493,9 @@ class FunnelPage(Base):
     ai_audience         = Column(String, nullable=True)
     ai_story            = Column(Text, nullable=True)
     ai_tone             = Column(String, nullable=True)
+    # A/B testing
+    ab_variant_of       = Column(Integer, ForeignKey("funnel_pages.id"), nullable=True)  # parent page ID
+    ab_split_pct        = Column(Integer, default=50)  # traffic % to variant B (this page)
 
 
 class VIPSignup(Base):
@@ -1023,6 +1026,8 @@ try:
         conn.execute(text("CREATE TABLE IF NOT EXISTS achievements (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), badge_id VARCHAR NOT NULL, title VARCHAR NOT NULL, icon VARCHAR DEFAULT '🏆', earned_at TIMESTAMP DEFAULT NOW())"))
         conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS idx_achievements_user_badge ON achievements(user_id, badge_id)"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_achievements_user ON achievements(user_id)"))
+        conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS ab_variant_of INTEGER REFERENCES funnel_pages(id)"))
+        conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS ab_split_pct INTEGER DEFAULT 50"))
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS social_posts_uses INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS social_posts_total INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS video_scripts_uses INTEGER DEFAULT 0"))

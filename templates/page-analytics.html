@@ -94,6 +94,69 @@ body{font-family:'DM Sans',sans-serif;background:#f0f3f9;color:#1a1a2e;min-heigh
       <button class="page-url-copy" onclick="navigator.clipboard.writeText(document.getElementById('pageUrl').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2000)">Copy</button>
     </div>
 
+    <!-- A/B Testing -->
+    <div class="chart-card" style="margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="chart-title" style="margin-bottom:0">🧪 A/B Testing</div>
+        {% if variant %}
+        <span style="font-size:11px;font-weight:700;color:#10b981;background:#dcfce7;padding:4px 12px;border-radius:6px">ACTIVE</span>
+        {% endif %}
+      </div>
+      {% if variant %}
+      <div style="margin-top:16px;display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:stretch">
+        <!-- Variant A -->
+        <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:11px;font-weight:800;color:#0ea5e9;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Variant A (Original)</div>
+          <div style="font-family:Sora,sans-serif;font-size:24px;font-weight:900;color:#1a1a2e">{{ page.views or 0 }}</div>
+          <div style="font-size:11px;color:#64748b">views</div>
+          <div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#10b981;margin-top:8px">{{ ab_rate_a }}%</div>
+          <div style="font-size:11px;color:#64748b">conversion</div>
+        </div>
+        <!-- VS -->
+        <div style="display:flex;align-items:center;font-family:Sora,sans-serif;font-size:14px;font-weight:800;color:#94a3b8">VS</div>
+        <!-- Variant B -->
+        <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:11px;font-weight:800;color:#8b5cf6;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Variant B</div>
+          <div style="font-family:Sora,sans-serif;font-size:24px;font-weight:900;color:#1a1a2e">{{ variant.views or 0 }}</div>
+          <div style="font-size:11px;color:#64748b">views</div>
+          <div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#10b981;margin-top:8px">{{ ab_rate_b }}%</div>
+          <div style="font-size:11px;color:#64748b">conversion</div>
+        </div>
+      </div>
+      <div style="margin-top:14px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:12px;font-weight:700;color:#475569">Traffic split:</span>
+        <input type="range" min="10" max="90" value="{{ variant.ab_split_pct or 50 }}" id="abSlider" style="flex:1;accent-color:#8b5cf6" oninput="document.getElementById('abPct').textContent=this.value+'% to B'">
+        <span id="abPct" style="font-size:12px;font-weight:700;color:#8b5cf6;min-width:70px">{{ variant.ab_split_pct or 50 }}% to B</span>
+        <button onclick="updateSplit()" style="padding:6px 16px;background:#8b5cf6;color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">Save</button>
+      </div>
+      <div style="margin-top:10px">
+        <a href="/pro/funnel/{{ variant.id }}/edit" style="font-size:12px;font-weight:700;color:#8b5cf6;text-decoration:none">✎ Edit Variant B →</a>
+      </div>
+      {% else %}
+      <p style="margin-top:12px;font-size:13px;color:#64748b">Test two versions of this page to see which converts better.</p>
+      <button onclick="createVariant()" style="margin-top:12px;padding:10px 20px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Create A/B Test →</button>
+      {% endif %}
+    </div>
+    <script>
+    function createVariant(){
+      fetch('/api/pro/funnel/{{ page.id }}/create-ab-variant',{method:'POST'})
+        .then(r=>r.json()).then(d=>{
+          if(d.success) window.location.reload();
+          else if(d.variant_id) window.location.reload();
+          else alert(d.error||'Failed');
+        });
+    }
+    function updateSplit(){
+      var pct=document.getElementById('abSlider').value;
+      fetch('/api/pro/funnel/{{ page.id }}/ab-split',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({split_pct:parseInt(pct)})
+      }).then(r=>r.json()).then(d=>{
+        if(d.success && typeof showToast==='function') showToast('Split updated to '+pct+'% to B','ok');
+      });
+    }
+    </script>
+
     <!-- Stats -->
     <div class="stats">
       <div class="stat cyan">
