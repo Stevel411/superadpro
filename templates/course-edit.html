@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Edit Course — SuperAdPro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+<!-- Reuses exact same CSS as course-create.html -->
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#fff;color:#0f172a;min-height:100vh}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:224px;height:100vh;background:#1c223d;border-right:1px solid rgba(0,212,255,0.08);position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;overflow-y:auto}
+.nav-scroll{flex:1;overflow-y:auto;padding:8px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
+.nav-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 12px}
+.nav-group{margin-bottom:2px}
+.nav-header{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;font-size:11.5px;font-weight:700;color:#0ea5e9;text-transform:uppercase;letter-spacing:.8px;cursor:pointer;user-select:none;transition:.15s}
+.nav-header:hover{background:rgba(14,165,233,.06)}
+.nav-chevron{font-size:14px;transition:transform .2s;color:rgba(255,255,255,.3)}
+.nav-group.open .nav-chevron{transform:rotate(90deg)}
+.nav-children{display:none;padding-bottom:4px}
+.nav-group.open .nav-children{display:block}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px 9px 22px;font-size:13px;color:rgba(200,220,255,.55);text-decoration:none;transition:.12s;cursor:pointer;font-weight:500}
+.nav-item:hover{background:rgba(14,165,233,.06);color:rgba(200,220,255,.85)}
+.nav-item.active{color:#38bdf8;font-weight:700;background:rgba(14,165,233,.08)}
+.nav-icon{font-size:15px;width:22px;text-align:center;flex-shrink:0}
+.nav-standalone{padding:10px 18px}
+.sidebar-footer{margin-top:auto;padding:14px 12px;border-top:1px solid rgba(255,255,255,.06)}
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:72px;background:#1c223d;border-bottom:1px solid rgba(0,200,255,0.1);position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(0,200,255,0.15),0 4px 20px rgba(0,0,0,0.3)}
+.topbar-title{font-family:Sora,sans-serif;font-size:17px;font-weight:800;color:#fff}
+.topbar-sub{font-size:12px;color:rgba(0,200,255,0.45);margin-top:2px}
+.content{padding:24px;flex:1;max-width:900px}
+.steps{display:flex;gap:4px;margin-bottom:24px}
+.step{flex:1;padding:10px 16px;background:#f1f5f9;border-radius:10px;text-align:center;font-size:12px;font-weight:700;color:#94a3b8;cursor:pointer;transition:.2s}
+.step.active{background:#0ea5e9;color:#fff}.step.completed{background:#10b981;color:#fff}
+.form-group{margin-bottom:20px}
+.form-label{display:block;font-size:12px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.form-input{width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;transition:.15s;outline:none;background:#fff}
+.form-input:focus{border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,.1)}
+textarea.form-input{min-height:100px;resize:vertical}
+.form-hint{font-size:11px;color:#94a3b8;margin-top:4px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.chapter-card{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:12px}
+.chapter-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.chapter-title{font-size:15px;font-weight:700;color:#1e293b}
+.ch-btn{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;border:none;cursor:pointer;transition:.15s}
+.ch-btn-add{background:#0ea5e9;color:#fff}.ch-btn-add:hover{background:#0284c7}
+.ch-btn-del{background:#fef2f2;color:#ef4444}.ch-btn-del:hover{background:#fee2e2}
+.lesson-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:13px}
+.lesson-row .l-title{flex:1;font-weight:600;color:#1e293b}
+.lesson-row .l-type{font-size:11px;color:#64748b;background:#f1f5f9;padding:2px 8px;border-radius:4px}
+.lesson-row .l-preview{font-size:10px;color:#0ea5e9;font-weight:700}
+.l-btn{width:24px;height:24px;border-radius:6px;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:.15s}
+.l-btn-edit{background:#f0f9ff;color:#0ea5e9}.l-btn-edit:hover{background:#e0f2fe}
+.l-btn-del{background:#fef2f2;color:#ef4444}.l-btn-del:hover{background:#fee2e2}
+.checklist{display:flex;flex-direction:column;gap:6px}
+.check-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600}
+.check-pass{background:#f0fdf4;color:#16a34a}.check-fail{background:#fef2f2;color:#dc2626}
+.summary-card{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:16px;padding:24px;margin-bottom:20px}
+.summary-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px}
+.summary-label{color:#64748b}.summary-value{font-weight:700;color:#1e293b}
+.wiz-btn{padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;border:none;cursor:pointer;transition:.2s}
+.wiz-btn-primary{background:#0ea5e9;color:#fff}.wiz-btn-primary:hover{background:#0284c7}
+.wiz-btn-ghost{background:#f1f5f9;color:#475569}.wiz-btn-ghost:hover{background:#e2e8f0}
+.thumb-area{width:100%;height:160px;border:2px dashed #e2e8f0;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;background:#f8fafc}
+.thumb-area:hover{border-color:#0ea5e9;background:#f0f9ff}
+.thumb-area img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.lesson-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;align-items:center;justify-content:center}
+.lesson-modal-overlay.open{display:flex}
+.lesson-modal{background:#fff;border-radius:16px;width:95%;max-width:560px;max-height:85vh;overflow-y:auto;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.lesson-modal h3{font-family:Sora,sans-serif;font-size:18px;font-weight:800;margin-bottom:16px}
+.status-banner{padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:16px}
+.status-banner.draft{background:#f1f5f9;color:#475569}
+.status-banner.pending_review{background:#fef3c7;color:#92400e}
+.status-banner.published{background:#f0fdf4;color:#16a34a}
+.status-banner.ai_rejected{background:#fef2f2;color:#dc2626}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.form-row{grid-template-columns:1fr}.content{padding:16px}}
+</style>
+</head>
+<body>
+<div class="layout">
+{% include '_sidebar.html' %}
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Edit: {{ course.title }}</div>
+      <div class="topbar-sub">Course ID #{{ course.id }} · Status: {{ course.status }}</div>
+    </div>
+    <a href="/courses/my-courses" style="font-size:13px;font-weight:700;color:rgba(200,220,255,.5);text-decoration:none">← My Courses</a>
+  </div>
+
+  <div class="content">
+    <div class="status-banner {{ course.status }}">
+      {% if course.status == 'draft' %}📝 Draft — not yet submitted for review
+      {% elif course.status == 'pending_review' %}⏳ Pending Review — submitted and awaiting approval
+      {% elif course.status == 'published' %}✅ Published — live on the marketplace
+      {% elif course.status == 'ai_rejected' %}❌ Rejected — {{ course.admin_notes or 'Please review AI feedback and fix issues' }}
+      {% elif course.status == 'suspended' %}⚠️ Suspended — this course has been removed from the marketplace
+      {% endif %}
+    </div>
+
+    <div class="steps" id="stepIndicators">
+      <div class="step active" onclick="goStep(1)">1. Course Details</div>
+      <div class="step" onclick="goStep(2)">2. Chapters & Lessons</div>
+      <div class="step" onclick="goStep(3)">3. Review & Submit</div>
+    </div>
+
+    <!-- Steps 1-3 identical to create page -->
+    <div class="builder-step" id="step1">
+      <div class="form-group"><label class="form-label">Course Title *</label><input class="form-input" id="courseTitle" maxlength="100"><div class="form-hint">10–100 characters</div></div>
+      <div class="form-group"><label class="form-label">Short Description *</label><input class="form-input" id="courseShortDesc" maxlength="160"><div class="form-hint">10–160 characters</div></div>
+      <div class="form-group"><label class="form-label">Full Description *</label><textarea class="form-input" id="courseDesc" style="min-height:140px"></textarea><div class="form-hint">Minimum 100 characters</div></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Category *</label><select class="form-input" id="courseCategory"><option value="marketing">Marketing</option><option value="business">Business</option><option value="crypto">Crypto & Web3</option><option value="fitness">Fitness & Health</option><option value="tech">Technology</option><option value="lifestyle">Lifestyle</option><option value="creative">Creative</option><option value="other">Other</option></select></div>
+        <div class="form-group"><label class="form-label">Difficulty</label><select class="form-input" id="courseDifficulty"><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Price (USD) *</label><input class="form-input" id="coursePrice" type="number" min="25" step="1"><div class="form-hint">Minimum $25. You keep 50%.</div></div>
+        <div class="form-group"><label class="form-label">Thumbnail</label><div class="thumb-area" id="thumbArea" onclick="document.getElementById('thumbFile').click()"><span style="color:#94a3b8;font-size:13px">Click to upload</span></div><input type="file" id="thumbFile" accept="image/*" style="display:none" onchange="handleThumb(this)"></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:16px"><button class="wiz-btn wiz-btn-primary" onclick="saveStep1()">Save & Continue →</button></div>
+    </div>
+
+    <div class="builder-step" id="step2" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div><h3 style="font-family:Sora,sans-serif;font-size:18px;font-weight:800">Chapters & Lessons</h3></div>
+        <button class="ch-btn ch-btn-add" onclick="addChapter()" style="padding:8px 18px;font-size:13px">+ Add Chapter</button>
+      </div>
+      <div id="chaptersContainer"></div>
+      <div id="chapterStats" style="padding:12px 16px;background:#f0f9ff;border-radius:10px;font-size:13px;color:#0369a1;font-weight:600;margin-top:12px">Loading...</div>
+      <div style="display:flex;justify-content:space-between;margin-top:20px">
+        <button class="wiz-btn wiz-btn-ghost" onclick="goStep(1)">← Back</button>
+        <button class="wiz-btn wiz-btn-primary" onclick="goStep(3)">Review & Submit →</button>
+      </div>
+    </div>
+
+    <div class="builder-step" id="step3" style="display:none">
+      <h3 style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;margin-bottom:16px">Review Your Course</h3>
+      <div class="summary-card" id="summaryCard"></div>
+      <h4 style="font-size:14px;font-weight:700;margin-bottom:10px;color:#475569">Quality Checklist</h4>
+      <div class="checklist" id="qualityChecklist"></div>
+      <div id="submitSection" style="margin-top:24px;text-align:center">
+        <button class="wiz-btn wiz-btn-primary" id="submitBtn" style="padding:14px 40px;font-size:15px" onclick="submitForReview()" disabled>Submit for Review</button>
+        <p style="font-size:12px;color:#94a3b8;margin-top:8px">Your course will be reviewed by AI and then by an admin.</p>
+      </div>
+      <div style="display:flex;justify-content:flex-start;margin-top:20px"><button class="wiz-btn wiz-btn-ghost" onclick="goStep(2)">← Back</button></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Lesson Modal -->
+<div class="lesson-modal-overlay" id="lessonModalOverlay" onclick="if(event.target===this)closeLessonModal()">
+  <div class="lesson-modal">
+    <h3 id="lessonModalTitle">Add Lesson</h3>
+    <input type="hidden" id="lmChapterId"><input type="hidden" id="lmLessonId">
+    <div class="form-group"><label class="form-label">Lesson Title *</label><input class="form-input" id="lmTitle"></div>
+    <div class="form-group"><label class="form-label">Content Type</label><select class="form-input" id="lmType" onchange="toggleLessonFields()"><option value="video">Video</option><option value="text">Text</option><option value="pdf">PDF</option><option value="mixed">Mixed</option></select></div>
+    <div class="form-group" id="lmVideoGroup"><label class="form-label">Video URL</label><input class="form-input" id="lmVideoUrl" placeholder="YouTube or Vimeo URL"></div>
+    <div class="form-group" id="lmTextGroup" style="display:none"><label class="form-label">Content</label><textarea class="form-input" id="lmTextContent" style="min-height:160px"></textarea><div class="form-hint" id="lmWordCount">0 words</div></div>
+    <div class="form-group" id="lmPdfGroup" style="display:none"><label class="form-label">PDF URL</label><input class="form-input" id="lmPdfUrl"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Duration (min)</label><input class="form-input" id="lmDuration" type="number" min="1" value="5"></div>
+      <div class="form-group"><label class="form-label">Free Preview?</label><select class="form-input" id="lmPreview"><option value="false">No</option><option value="true">Yes</option></select></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+      <button class="wiz-btn wiz-btn-ghost" onclick="closeLessonModal()">Cancel</button>
+      <button class="wiz-btn wiz-btn-primary" onclick="saveLesson()">Save Lesson</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var COURSE_ID = {{ course.id }};
+var chapters = [];
+var courseData = {};
+
+// Reuse all functions from course-create.html
+function goStep(n){document.querySelectorAll('.builder-step').forEach(s=>s.style.display='none');document.getElementById('step'+n).style.display='block';var ind=document.querySelectorAll('.step');ind.forEach((s,i)=>{s.classList.remove('active','completed');if(i<n-1)s.classList.add('completed');if(i===n-1)s.classList.add('active')});if(n===2)renderChapters();if(n===3)renderReview()}
+
+async function saveStep1(){var t=document.getElementById('courseTitle').value.trim();var sd=document.getElementById('courseShortDesc').value.trim();var d=document.getElementById('courseDesc').value.trim();var p=document.getElementById('coursePrice').value;if(t.length<10)return alert('Title must be at least 10 characters');if(sd.length<10)return alert('Short description must be at least 10 characters');if(d.length<100)return alert('Description must be at least 100 characters');if(parseFloat(p)<25)return alert('Minimum price is $25');courseData={title:t,short_description:sd,description:d,price:p,category:document.getElementById('courseCategory').value,difficulty_level:document.getElementById('courseDifficulty').value,thumbnail_url:courseData.thumbnail_url||''};var r=await fetch('/api/marketplace/courses/'+COURSE_ID,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(courseData)});var data=await r.json();if(!r.ok)return alert(data.error);goStep(2)}
+
+function handleThumb(input){if(!input.files||!input.files[0])return;var reader=new FileReader();reader.onload=function(e){document.getElementById('thumbArea').innerHTML='<img src="'+e.target.result+'">';courseData.thumbnail_url=e.target.result};reader.readAsDataURL(input.files[0])}
+
+async function addChapter(){var title=prompt('Chapter title:');if(!title||!title.trim())return;var r=await fetch('/api/marketplace/courses/'+COURSE_ID+'/chapters',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:title.trim()})});var d=await r.json();if(!r.ok)return alert(d.error);chapters.push({id:d.chapter_id,title:title.trim(),chapter_order:d.chapter_order,lessons:[]});renderChapters()}
+
+async function deleteChapter(chId){if(!confirm('Delete this chapter and all its lessons?'))return;await fetch('/api/marketplace/chapters/'+chId,{method:'DELETE'});chapters=chapters.filter(c=>c.id!==chId);renderChapters()}
+
+function renderChapters(){var c=document.getElementById('chaptersContainer');if(chapters.length===0){c.innerHTML='<div style="text-align:center;padding:40px;color:#94a3b8;font-size:14px">No chapters yet. Click "+ Add Chapter" to start.</div>'}else{c.innerHTML=chapters.map(function(ch){var lh=ch.lessons.map(function(l){return'<div class="lesson-row"><span class="l-title">'+l.title+'</span><span class="l-type">'+l.content_type+'</span>'+(l.is_preview?'<span class="l-preview">PREVIEW</span>':'')+'<span style="font-size:11px;color:#94a3b8">'+l.duration_minutes+'min</span><span class="l-actions"><button class="l-btn l-btn-edit" onclick="openLessonModal('+ch.id+','+l.id+')">✎</button><button class="l-btn l-btn-del" onclick="deleteLesson('+ch.id+','+l.id+')">✕</button></span></div>'}).join('');return'<div class="chapter-card"><div class="chapter-header"><span class="chapter-title">📁 '+ch.title+'</span><span class="chapter-actions" style="display:flex;gap:6px"><button class="ch-btn ch-btn-add" onclick="openLessonModal('+ch.id+')">+ Lesson</button><button class="ch-btn ch-btn-del" onclick="deleteChapter('+ch.id+')">Delete</button></span></div>'+(lh||'<div style="font-size:12px;color:#94a3b8;padding:8px 12px">No lessons yet</div>')+'</div>'}).join('')}updateStats()}
+
+function updateStats(){var tl=0,tm=0;chapters.forEach(function(ch){tl+=ch.lessons.length;ch.lessons.forEach(function(l){tm+=(l.duration_minutes||0)})});document.getElementById('chapterStats').textContent=chapters.length+' chapters · '+tl+' lessons · '+tm+' minutes total'}
+
+function openLessonModal(chId,lId){document.getElementById('lmChapterId').value=chId;document.getElementById('lmLessonId').value=lId||'';document.getElementById('lessonModalTitle').textContent=lId?'Edit Lesson':'Add Lesson';document.getElementById('lmTitle').value='';document.getElementById('lmType').value='video';document.getElementById('lmVideoUrl').value='';document.getElementById('lmTextContent').value='';document.getElementById('lmPdfUrl').value='';document.getElementById('lmDuration').value='5';document.getElementById('lmPreview').value='false';if(lId){var ch=chapters.find(c=>c.id===chId);var l=ch?ch.lessons.find(x=>x.id===lId):null;if(l){document.getElementById('lmTitle').value=l.title;document.getElementById('lmType').value=l.content_type;document.getElementById('lmVideoUrl').value=l.video_url||'';document.getElementById('lmTextContent').value=l.text_content||'';document.getElementById('lmPdfUrl').value=l.pdf_url||'';document.getElementById('lmDuration').value=l.duration_minutes||5;document.getElementById('lmPreview').value=l.is_preview?'true':'false'}}toggleLessonFields();document.getElementById('lessonModalOverlay').classList.add('open')}
+function closeLessonModal(){document.getElementById('lessonModalOverlay').classList.remove('open')}
+function toggleLessonFields(){var t=document.getElementById('lmType').value;document.getElementById('lmVideoGroup').style.display=(t==='video'||t==='mixed')?'block':'none';document.getElementById('lmTextGroup').style.display=(t==='text'||t==='mixed')?'block':'none';document.getElementById('lmPdfGroup').style.display=(t==='pdf')?'block':'none'}
+document.getElementById('lmTextContent').addEventListener('input',function(){var wc=this.value.trim().split(/\s+/).filter(Boolean).length;document.getElementById('lmWordCount').textContent=wc+' words'+(wc<100?' (min 100)':' ✓')});
+
+async function saveLesson(){var chId=parseInt(document.getElementById('lmChapterId').value);var lId=document.getElementById('lmLessonId').value;var title=document.getElementById('lmTitle').value.trim();if(!title)return alert('Lesson title required');var p={title:title,content_type:document.getElementById('lmType').value,video_url:document.getElementById('lmVideoUrl').value.trim(),text_content:document.getElementById('lmTextContent').value,pdf_url:document.getElementById('lmPdfUrl').value.trim(),duration_minutes:parseInt(document.getElementById('lmDuration').value)||5,is_preview:document.getElementById('lmPreview').value==='true'};if(lId){var r=await fetch('/api/marketplace/lessons/'+lId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});if(!r.ok){var d=await r.json();return alert(d.error)}var ch=chapters.find(c=>c.id===chId);if(ch){var idx=ch.lessons.findIndex(l=>l.id===parseInt(lId));if(idx>=0)ch.lessons[idx]={...ch.lessons[idx],...p}}}else{var r=await fetch('/api/marketplace/chapters/'+chId+'/lessons',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});var d=await r.json();if(!r.ok)return alert(d.error);var ch=chapters.find(c=>c.id===chId);if(ch)ch.lessons.push({id:d.lesson_id,...p})}closeLessonModal();renderChapters()}
+
+async function deleteLesson(chId,lId){if(!confirm('Delete this lesson?'))return;await fetch('/api/marketplace/lessons/'+lId,{method:'DELETE'});var ch=chapters.find(c=>c.id===chId);if(ch)ch.lessons=ch.lessons.filter(l=>l.id!==lId);renderChapters()}
+
+function renderReview(){var tl=0,tm=0,pc=0;chapters.forEach(function(ch){tl+=ch.lessons.length;ch.lessons.forEach(function(l){tm+=(l.duration_minutes||0);if(l.is_preview)pc++})});document.getElementById('summaryCard').innerHTML='<div class="summary-row"><span class="summary-label">Title</span><span class="summary-value">'+(courseData.title||'—')+'</span></div><div class="summary-row"><span class="summary-label">Price</span><span class="summary-value" style="color:#16a34a">$'+(courseData.price||'0')+'</span></div><div class="summary-row"><span class="summary-label">Category</span><span class="summary-value">'+(courseData.category||'—')+'</span></div><div class="summary-row"><span class="summary-label">Chapters</span><span class="summary-value">'+chapters.length+'</span></div><div class="summary-row"><span class="summary-label">Lessons</span><span class="summary-value">'+tl+'</span></div><div class="summary-row"><span class="summary-label">Duration</span><span class="summary-value">'+tm+' min</span></div><div class="summary-row"><span class="summary-label">Previews</span><span class="summary-value">'+pc+'</span></div>';var checks=[{label:'Title 10+ chars',pass:(courseData.title||'').length>=10},{label:'Description 100+ chars',pass:(courseData.description||'').length>=100},{label:'Price $25+',pass:parseFloat(courseData.price||0)>=25},{label:'3+ lessons',pass:tl>=3},{label:'10+ minutes',pass:tm>=10},{label:'1+ preview',pass:pc>=1},{label:'Thumbnail',pass:!!(courseData.thumbnail_url)}];var ap=checks.every(c=>c.pass);document.getElementById('qualityChecklist').innerHTML=checks.map(c=>'<div class="check-item '+(c.pass?'check-pass':'check-fail')+'"><span class="check-icon">'+(c.pass?'✓':'✗')+'</span> '+c.label+'</div>').join('');document.getElementById('submitBtn').disabled=!ap}
+
+async function submitForReview(){if(!confirm('Submit for review?'))return;var r=await fetch('/api/marketplace/courses/'+COURSE_ID+'/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});var d=await r.json();if(!r.ok){if(d.issues)return alert('Issues:\n\n'+d.issues.join('\n'));return alert(d.error)}alert('Submitted! You\'ll be notified when approved.');window.location.href='/courses/my-courses'}
+
+function toggleNav(group){var el=document.querySelector('[data-group="'+group+'"]');if(el)el.classList.toggle('open')}
+
+// Load course data on page load
+document.addEventListener('DOMContentLoaded', async function(){
+  document.querySelector('[data-group="courses"]')?.classList.add('open');
+  var r = await fetch('/api/marketplace/courses/'+COURSE_ID);
+  if (!r.ok) return;
+  var data = await r.json();
+  courseData = {title:data.title,short_description:data.short_description,description:data.description,price:data.price,category:data.category,difficulty_level:data.difficulty_level,thumbnail_url:data.thumbnail_url};
+  document.getElementById('courseTitle').value = data.title||'';
+  document.getElementById('courseShortDesc').value = data.short_description||'';
+  document.getElementById('courseDesc').value = data.description||'';
+  document.getElementById('coursePrice').value = data.price||25;
+  document.getElementById('courseCategory').value = data.category||'other';
+  document.getElementById('courseDifficulty').value = data.difficulty_level||'beginner';
+  if (data.thumbnail_url) document.getElementById('thumbArea').innerHTML = '<img src="'+data.thumbnail_url+'">';
+  chapters = data.chapters||[];
+});
+</script>
+</body>
+</html>

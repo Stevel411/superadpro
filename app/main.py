@@ -24,6 +24,7 @@ from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTrac
 from .database import AdBoost, BOOST_TIERS, BOOST_SPONSOR_PCT, BOOST_COMPANY_PCT
 from .coinbase_commerce import create_charge as cb_create_charge, verify_webhook_signature as cb_verify_sig, parse_webhook_event as cb_parse_event, SANDBOX_MODE as CB_SANDBOX
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick, Notification, Achievement, BADGES
+from .database import MemberCourse, MemberCourseChapter, MemberCourseLesson, MemberCoursePurchase
 from .crud import create_user, verify_password
 from .grid import (
     get_grid_stats, get_user_grids, get_grid_positions,
@@ -10233,3 +10234,456 @@ async def cron_process_autoresponder(request: Request, db: Session = Depends(get
         "errors": errors,
     })
 
+
+# ═══════════════════════════════════════════════════════════════
+#  MEMBER COURSE MARKETPLACE
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/courses/quality-guidelines")
+def course_quality_guidelines(request: Request):
+    """Public page — quality standards for course creators."""
+    return templates.TemplateResponse("course-guidelines.html", {"request": request})
+
+
+@app.get("/courses/my-courses")
+def my_courses_page(request: Request, user: User = Depends(get_current_user),
+                    db: Session = Depends(get_db)):
+    """Creator dashboard — list their courses, sales stats, edit."""
+    if not user: return RedirectResponse(url="/?login=1")
+    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+        return RedirectResponse(url="/upgrade")
+    courses = db.query(MemberCourse).filter(MemberCourse.creator_id == user.id).order_by(MemberCourse.created_at.desc()).all()
+    return templates.TemplateResponse("my-courses.html", {
+        "request": request, "user": user, "courses": courses,
+    })
+
+
+@app.get("/courses/create")
+def create_course_page(request: Request, user: User = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    """Course creation wizard — first-time onboarding + step-by-step builder."""
+    if not user: return RedirectResponse(url="/?login=1")
+    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+        return RedirectResponse(url="/upgrade")
+    # Check if user has accepted terms before
+    has_accepted_terms = db.query(MemberCourse).filter(
+        MemberCourse.creator_id == user.id,
+        MemberCourse.creator_agreed_terms_at.isnot(None)
+    ).first() is not None
+    return templates.TemplateResponse("course-create.html", {
+        "request": request, "user": user, "has_accepted_terms": has_accepted_terms,
+    })
+
+
+@app.get("/courses/edit/{course_id}")
+def edit_course_page(course_id: int, request: Request, user: User = Depends(get_current_user),
+                     db: Session = Depends(get_db)):
+    """Edit existing course."""
+    if not user: return RedirectResponse(url="/?login=1")
+    course = db.query(MemberCourse).filter(
+        MemberCourse.id == course_id, MemberCourse.creator_id == user.id
+    ).first()
+    if not course: return RedirectResponse(url="/courses/my-courses")
+    import json as _json_mc
+    chapters = db.query(MemberCourseChapter).filter(
+        MemberCourseChapter.course_id == course.id
+    ).order_by(MemberCourseChapter.chapter_order).all()
+    lessons_by_chapter = {}
+    for ch in chapters:
+        lessons_by_chapter[ch.id] = db.query(MemberCourseLesson).filter(
+            MemberCourseLesson.chapter_id == ch.id
+        ).order_by(MemberCourseLesson.lesson_order).all()
+    return templates.TemplateResponse("course-edit.html", {
+        "request": request, "user": user, "course": course,
+        "chapters": chapters, "lessons_by_chapter": lessons_by_chapter,
+    })
+
+
+# ── Marketplace API endpoints ──
+
+@app.post("/api/marketplace/courses")
+async def api_create_course(request: Request, user: User = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
+    """Create a new course (draft)."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+        return JSONResponse({"error": "Pro membership required"}, status_code=403)
+    body = await request.json()
+    title = (body.get("title") or "").strip()
+    if not title or len(title) < 10:
+        return JSONResponse({"error": "Title must be at least 10 characters"}, status_code=400)
+    if len(title) > 100:
+        return JSONResponse({"error": "Title must be under 100 characters"}, status_code=400)
+
+    # Generate slug
+    import re as _re_mc
+    raw_slug = _re_mc.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
+    slug = f"{user.username.lower()}/{raw_slug}"
+    # Check uniqueness
+    existing = db.query(MemberCourse).filter(MemberCourse.slug == slug).first()
+    if existing:
+        return JSONResponse({"error": "A course with this title already exists"}, status_code=400)
+
+    price_str = body.get("price", "25")
+    try:
+        price = float(price_str)
+    except (ValueError, TypeError):
+        return JSONResponse({"error": "Invalid price"}, status_code=400)
+    if price < 25:
+        return JSONResponse({"error": "Minimum price is $25"}, status_code=400)
+
+    # Check terms acceptance
+    agreed_terms = body.get("agreed_terms", False)
+    agreed_at = datetime.utcnow() if agreed_terms else None
+
+    course = MemberCourse(
+        creator_id=user.id,
+        title=title,
+        slug=slug,
+        description=body.get("description", ""),
+        short_description=body.get("short_description", ""),
+        price=price,
+        category=body.get("category", "other"),
+        difficulty_level=body.get("difficulty_level", "beginner"),
+        thumbnail_url=body.get("thumbnail_url", ""),
+        creator_agreed_terms_at=agreed_at,
+        status="draft",
+    )
+    db.add(course)
+    db.commit()
+    db.refresh(course)
+    return JSONResponse({"ok": True, "course_id": course.id, "slug": course.slug})
+
+
+@app.put("/api/marketplace/courses/{course_id}")
+async def api_update_course(course_id: int, request: Request, user: User = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
+    """Update course details."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    course = db.query(MemberCourse).filter(
+        MemberCourse.id == course_id, MemberCourse.creator_id == user.id
+    ).first()
+    if not course:
+        return JSONResponse({"error": "Course not found"}, status_code=404)
+    body = await request.json()
+
+    if "title" in body:
+        title = (body["title"] or "").strip()
+        if len(title) < 10 or len(title) > 100:
+            return JSONResponse({"error": "Title must be 10-100 characters"}, status_code=400)
+        course.title = title
+    if "description" in body:
+        course.description = body["description"]
+    if "short_description" in body:
+        sd = (body["short_description"] or "").strip()
+        if len(sd) > 160:
+            return JSONResponse({"error": "Short description must be under 160 characters"}, status_code=400)
+        course.short_description = sd
+    if "price" in body:
+        try:
+            price = float(body["price"])
+        except (ValueError, TypeError):
+            return JSONResponse({"error": "Invalid price"}, status_code=400)
+        if price < 25:
+            return JSONResponse({"error": "Minimum price is $25"}, status_code=400)
+        course.price = price
+    if "category" in body:
+        course.category = body["category"]
+    if "difficulty_level" in body:
+        course.difficulty_level = body["difficulty_level"]
+    if "thumbnail_url" in body:
+        course.thumbnail_url = body["thumbnail_url"]
+
+    course.updated_at = datetime.utcnow()
+    db.commit()
+    return JSONResponse({"ok": True})
+
+
+@app.post("/api/marketplace/courses/{course_id}/chapters")
+async def api_add_chapter(course_id: int, request: Request, user: User = Depends(get_current_user),
+                          db: Session = Depends(get_db)):
+    """Add a chapter to a course."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    course = db.query(MemberCourse).filter(
+        MemberCourse.id == course_id, MemberCourse.creator_id == user.id
+    ).first()
+    if not course:
+        return JSONResponse({"error": "Course not found"}, status_code=404)
+    body = await request.json()
+    title = (body.get("title") or "").strip()
+    if not title:
+        return JSONResponse({"error": "Chapter title required"}, status_code=400)
+    # Get next order
+    max_order = db.query(MemberCourseChapter).filter(
+        MemberCourseChapter.course_id == course_id
+    ).count()
+    chapter = MemberCourseChapter(
+        course_id=course_id, title=title, chapter_order=max_order + 1,
+    )
+    db.add(chapter)
+    db.commit()
+    db.refresh(chapter)
+    return JSONResponse({"ok": True, "chapter_id": chapter.id, "chapter_order": chapter.chapter_order})
+
+
+@app.put("/api/marketplace/chapters/{chapter_id}")
+async def api_update_chapter(chapter_id: int, request: Request, user: User = Depends(get_current_user),
+                             db: Session = Depends(get_db)):
+    """Update a chapter."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    chapter = db.query(MemberCourseChapter).filter(MemberCourseChapter.id == chapter_id).first()
+    if not chapter:
+        return JSONResponse({"error": "Chapter not found"}, status_code=404)
+    course = db.query(MemberCourse).filter(
+        MemberCourse.id == chapter.course_id, MemberCourse.creator_id == user.id
+    ).first()
+    if not course:
+        return JSONResponse({"error": "Not authorised"}, status_code=403)
+    body = await request.json()
+    if "title" in body:
+        chapter.title = (body["title"] or "").strip()
+    if "chapter_order" in body:
+        chapter.chapter_order = body["chapter_order"]
+    db.commit()
+    return JSONResponse({"ok": True})
+
+
+@app.delete("/api/marketplace/chapters/{chapter_id}")
+def api_delete_chapter(chapter_id: int, user: User = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    """Delete a chapter and all its lessons."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    chapter = db.query(MemberCourseChapter).filter(MemberCourseChapter.id == chapter_id).first()
+    if not chapter:
+        return JSONResponse({"error": "Chapter not found"}, status_code=404)
+    course = db.query(MemberCourse).filter(
+        MemberCourse.id == chapter.course_id, MemberCourse.creator_id == user.id
+    ).first()
+    if not course:
+        return JSONResponse({"error": "Not authorised"}, status_code=403)
+    db.delete(chapter)
+    db.commit()
+    return JSONResponse({"ok": True})
+
+
+@app.post("/api/marketplace/chapters/{chapter_id}/lessons")
+async def api_add_lesson(chapter_id: int, request: Request, user: User = Depends(get_current_user),
+                         db: Session = Depends(get_db)):
+    """Add a lesson to a chapter."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    chapter = db.query(MemberCourseChapter).filter(MemberCourseChapter.id == chapter_id).first()
+    if not chapter:
+        return JSONResponse({"error": "Chapter not found"}, status_code=404)
+    course = db.query(MemberCourse).filter(
+        MemberCourse.id == chapter.course_id, MemberCourse.creator_id == user.id
+    ).first()
+    if not course:
+        return JSONResponse({"error": "Not authorised"}, status_code=403)
+    body = await request.json()
+    title = (body.get("title") or "").strip()
+    if not title:
+        return JSONResponse({"error": "Lesson title required"}, status_code=400)
+    max_order = db.query(MemberCourseLesson).filter(
+        MemberCourseLesson.chapter_id == chapter_id
+    ).count()
+    lesson = MemberCourseLesson(
+        chapter_id=chapter_id,
+        course_id=chapter.course_id,
+        title=title,
+        lesson_order=max_order + 1,
+        content_type=body.get("content_type", "text"),
+        video_url=body.get("video_url", ""),
+        text_content=body.get("text_content", ""),
+        pdf_url=body.get("pdf_url", ""),
+        duration_minutes=int(body.get("duration_minutes", 0)),
+        is_preview=body.get("is_preview", False),
+    )
+    db.add(lesson)
+    db.commit()
+    db.refresh(lesson)
+    return JSONResponse({"ok": True, "lesson_id": lesson.id})
+
+
+@app.put("/api/marketplace/lessons/{lesson_id}")
+async def api_update_lesson(lesson_id: int, request: Request, user: User = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
+    """Update a lesson."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    lesson = db.query(MemberCourseLesson).filter(MemberCourseLesson.id == lesson_id).first()
+    if not lesson:
+        return JSONResponse({"error": "Lesson not found"}, status_code=404)
+    course = db.query(MemberCourse).filter(
+        MemberCourse.id == lesson.course_id, MemberCourse.creator_id == user.id
+    ).first()
+    if not course:
+        return JSONResponse({"error": "Not authorised"}, status_code=403)
+    body = await request.json()
+    if "title" in body:
+        lesson.title = (body["title"] or "").strip()
+    if "content_type" in body:
+        lesson.content_type = body["content_type"]
+    if "video_url" in body:
+        lesson.video_url = body["video_url"]
+    if "text_content" in body:
+        lesson.text_content = body["text_content"]
+    if "pdf_url" in body:
+        lesson.pdf_url = body["pdf_url"]
+    if "duration_minutes" in body:
+        lesson.duration_minutes = int(body.get("duration_minutes", 0))
+    if "is_preview" in body:
+        lesson.is_preview = body["is_preview"]
+    if "lesson_order" in body:
+        lesson.lesson_order = body["lesson_order"]
+    db.commit()
+    return JSONResponse({"ok": True})
+
+
+@app.delete("/api/marketplace/lessons/{lesson_id}")
+def api_delete_lesson(lesson_id: int, user: User = Depends(get_current_user),
+                      db: Session = Depends(get_db)):
+    """Delete a lesson."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    lesson = db.query(MemberCourseLesson).filter(MemberCourseLesson.id == lesson_id).first()
+    if not lesson:
+        return JSONResponse({"error": "Lesson not found"}, status_code=404)
+    course = db.query(MemberCourse).filter(
+        MemberCourse.id == lesson.course_id, MemberCourse.creator_id == user.id
+    ).first()
+    if not course:
+        return JSONResponse({"error": "Not authorised"}, status_code=403)
+    db.delete(lesson)
+    db.commit()
+    return JSONResponse({"ok": True})
+
+
+@app.post("/api/marketplace/courses/{course_id}/submit")
+async def api_submit_course(course_id: int, request: Request, user: User = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
+    """Submit course for review — runs quality checks."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    course = db.query(MemberCourse).filter(
+        MemberCourse.id == course_id, MemberCourse.creator_id == user.id
+    ).first()
+    if not course:
+        return JSONResponse({"error": "Course not found"}, status_code=404)
+
+    # Quality checks (Layer 1)
+    errors = []
+    chapters = db.query(MemberCourseChapter).filter(MemberCourseChapter.course_id == course_id).all()
+    lessons = db.query(MemberCourseLesson).filter(MemberCourseLesson.course_id == course_id).all()
+
+    if len(lessons) < 3:
+        errors.append("Minimum 3 lessons required")
+    total_duration = sum(l.duration_minutes or 0 for l in lessons)
+    if total_duration < 10:
+        errors.append("Minimum 10 minutes total duration required")
+    for l in lessons:
+        if l.content_type == 'text' and l.text_content:
+            word_count = len((l.text_content or "").split())
+            if word_count < 100:
+                errors.append(f"Lesson '{l.title}' has {word_count} words (minimum 100)")
+    preview_count = sum(1 for l in lessons if l.is_preview)
+    if preview_count == 0:
+        errors.append("At least 1 lesson must be marked as a free preview")
+    if not course.thumbnail_url:
+        errors.append("Course thumbnail is required")
+    if not course.description or len(course.description) < 100:
+        errors.append("Description must be at least 100 characters")
+    if course.price < 25:
+        errors.append("Minimum price is $25")
+    if not course.title or len(course.title) < 10:
+        errors.append("Title must be at least 10 characters")
+
+    if errors:
+        return JSONResponse({"error": "Quality checks failed", "issues": errors}, status_code=400)
+
+    # Update course stats
+    course.lesson_count = len(lessons)
+    course.total_duration_mins = total_duration
+    course.status = "pending_review"
+    course.updated_at = datetime.utcnow()
+    db.commit()
+
+    # Create notification for admin
+    admin = db.query(User).filter(User.is_admin == True).first()
+    if admin:
+        notif = Notification(
+            user_id=admin.id, type="course_review",
+            icon="📚", title="New course awaiting review",
+            message=f"{user.first_name or user.username} submitted '{course.title}' for review",
+            link="/admin/course-review",
+        )
+        db.add(notif)
+        db.commit()
+
+    return JSONResponse({"ok": True, "status": "pending_review"})
+
+
+@app.get("/api/marketplace/courses/{course_id}")
+def api_get_course(course_id: int, user: User = Depends(get_current_user),
+                   db: Session = Depends(get_db)):
+    """Get full course data for editing."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    course = db.query(MemberCourse).filter(
+        MemberCourse.id == course_id, MemberCourse.creator_id == user.id
+    ).first()
+    if not course:
+        return JSONResponse({"error": "Course not found"}, status_code=404)
+    chapters = db.query(MemberCourseChapter).filter(
+        MemberCourseChapter.course_id == course_id
+    ).order_by(MemberCourseChapter.chapter_order).all()
+    result_chapters = []
+    for ch in chapters:
+        lessons = db.query(MemberCourseLesson).filter(
+            MemberCourseLesson.chapter_id == ch.id
+        ).order_by(MemberCourseLesson.lesson_order).all()
+        result_chapters.append({
+            "id": ch.id, "title": ch.title, "chapter_order": ch.chapter_order,
+            "lessons": [{
+                "id": l.id, "title": l.title, "lesson_order": l.lesson_order,
+                "content_type": l.content_type, "video_url": l.video_url or "",
+                "text_content": l.text_content or "", "pdf_url": l.pdf_url or "",
+                "duration_minutes": l.duration_minutes or 0, "is_preview": l.is_preview,
+            } for l in lessons]
+        })
+    return JSONResponse({
+        "id": course.id, "title": course.title, "slug": course.slug,
+        "description": course.description or "", "short_description": course.short_description or "",
+        "price": float(course.price), "thumbnail_url": course.thumbnail_url or "",
+        "category": course.category or "other", "difficulty_level": course.difficulty_level or "beginner",
+        "status": course.status, "total_sales": course.total_sales or 0,
+        "total_revenue": float(course.total_revenue or 0),
+        "lesson_count": course.lesson_count or 0,
+        "total_duration_mins": course.total_duration_mins or 0,
+        "chapters": result_chapters,
+    })
+
+
+@app.delete("/api/marketplace/courses/{course_id}")
+def api_delete_course(course_id: int, user: User = Depends(get_current_user),
+                      db: Session = Depends(get_db)):
+    """Delete a course and all its chapters/lessons."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    course = db.query(MemberCourse).filter(
+        MemberCourse.id == course_id, MemberCourse.creator_id == user.id
+    ).first()
+    if not course:
+        return JSONResponse({"error": "Course not found"}, status_code=404)
+    # Don't allow deletion of published courses with sales
+    if course.status == "published" and (course.total_sales or 0) > 0:
+        return JSONResponse({"error": "Cannot delete a published course with sales. Unpublish it instead."}, status_code=400)
+    # Cascade delete handles chapters and lessons
+    db.delete(course)
+    db.commit()
+    return JSONResponse({"ok": True})
