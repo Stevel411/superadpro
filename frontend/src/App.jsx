@@ -13,6 +13,12 @@ import Affiliate from './pages/Affiliate';
 import CampaignTiers from './pages/CampaignTiers';
 import Marketplace from './pages/Marketplace';
 import MyCourses from './pages/MyCourses';
+import Watch from './pages/Watch';
+import Analytics from './pages/Analytics';
+import Support from './pages/Support';
+import Achievements from './pages/Achievements';
+import VideoLibrary from './pages/VideoLibrary';
+import Upgrade from './pages/Upgrade';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -46,11 +52,12 @@ function AppRoutes() {
       <Route path="/courses/create" element={<ProtectedRoute><PlaceholderPage title="Create Course" /></ProtectedRoute>} />
       <Route path="/campaign-studio" element={<ProtectedRoute><PlaceholderPage title="Campaign Studio" /></ProtectedRoute>} />
       <Route path="/linkhub" element={<ProtectedRoute><PlaceholderPage title="LinkHub Editor" /></ProtectedRoute>} />
-      <Route path="/analytics" element={<ProtectedRoute><PlaceholderPage title="Analytics" /></ProtectedRoute>} />
-      <Route path="/video-library" element={<ProtectedRoute><PlaceholderPage title="My Campaigns" /></ProtectedRoute>} />
-      <Route path="/watch" element={<ProtectedRoute><PlaceholderPage title="Watch to Earn" /></ProtectedRoute>} />
-      <Route path="/achievements" element={<ProtectedRoute><PlaceholderPage title="Achievements" /></ProtectedRoute>} />
-      <Route path="/support" element={<ProtectedRoute><PlaceholderPage title="Support" /></ProtectedRoute>} />
+      <Route path="/watch" element={<ProtectedRoute><Watch /></ProtectedRoute>} />
+      <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+      <Route path="/video-library" element={<ProtectedRoute><VideoLibrary /></ProtectedRoute>} />
+      <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
+      <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+      <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
       <Route path="/proseller" element={<ProtectedRoute><PlaceholderPage title="ProSeller AI" /></ProtectedRoute>} />
       <Route path="/pro/funnels" element={<ProtectedRoute><PlaceholderPage title="SuperPages" /></ProtectedRoute>} />
       <Route path="/pro/leads" element={<ProtectedRoute><PlaceholderPage title="My Leads" /></ProtectedRoute>} />
@@ -64,7 +71,6 @@ function AppRoutes() {
       <Route path="/courses/how-it-works" element={<ProtectedRoute><PlaceholderPage title="How Commissions Work" /></ProtectedRoute>} />
       <Route path="/compensation-plan" element={<ProtectedRoute><PlaceholderPage title="Compensation Plan" /></ProtectedRoute>} />
       <Route path="/ad-board" element={<ProtectedRoute><PlaceholderPage title="Ad Board" /></ProtectedRoute>} />
-      <Route path="/upgrade" element={<ProtectedRoute><PlaceholderPage title="Upgrade to Pro" /></ProtectedRoute>} />
 
       {/* Catch-all */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

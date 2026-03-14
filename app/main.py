@@ -11377,3 +11377,188 @@ def api_my_marketplace_courses(request: Request, user: User = Depends(get_curren
         "total_duration_mins": c.total_duration_mins or 0,
         "total_sales": c.total_sales or 0, "total_revenue": float(c.total_revenue or 0),
     } for c in courses]}
+
+
+@app.get("/api/watch")
+def api_watch_data(request: Request, user: User = Depends(get_current_user),
+                   db: Session = Depends(get_db)):
+    """JSON watch-to-earn data."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
+    today_str = datetime.utcnow().strftime("%Y-%m-%d")
+    watched_today = 0
+    if quota and quota.quota_date == today_str:
+        watched_today = quota.videos_watched_today or 0
+    daily_limit = 10
+    # Get available videos
+    campaigns = db.query(VideoCampaign).filter(
+        VideoCampaign.status == "active",
+        VideoCampaign.views_delivered < VideoCampaign.views_target
+    ).order_by(VideoCampaign.created_at.desc()).limit(20).all()
+    # Which ones has user watched today?
+    watched_ids = set()
+    if user:
+        today_watches = db.query(VideoWatch).filter(
+            VideoWatch.user_id == user.id,
+            VideoWatch.watched_at >= datetime.utcnow().replace(hour=0, minute=0, second=0)
+        ).all()
+        watched_ids = {w.campaign_id for w in today_watches}
+    return {
+        "watched_today": watched_today,
+        "daily_limit": daily_limit,
+        "quota_reached": watched_today >= daily_limit,
+        "earned_today": round(watched_today * 0.02, 2),
+        "total_minutes": (quota.total_watch_minutes or 0) if quota else 0,
+        "total_watch_earnings": round(float(quota.total_earned or 0), 2) if quota else 0,
+        "videos": [{
+            "id": c.id, "title": c.title, "platform": c.platform,
+            "category": c.category or "General", "embed_url": c.embed_url,
+            "is_watched": c.id in watched_ids,
+        } for c in campaigns],
+    }
+
+
+@app.get("/api/analytics")
+def api_analytics_data(request: Request, user: User = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    """JSON analytics data."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    campaigns = db.query(VideoCampaign).filter(VideoCampaign.user_id == user.id).all()
+    lh = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
+    total_views = (lh.total_views or 0) if lh else 0
+    total_clicks = 0
+    if lh:
+        links = db.query(LinkHubLink).filter(LinkHubLink.profile_id == lh.id).all()
+        total_clicks = sum(l.click_count or 0 for l in links)
+    return {
+        "total_views": total_views + sum(c.views_delivered or 0 for c in campaigns),
+        "total_clicks": total_clicks,
+        "conversions": user.personal_referrals or 0,
+        "revenue": round(float(user.total_earned or 0), 2),
+        "campaigns": [{
+            "id": c.id, "title": c.title, "platform": c.platform,
+            "category": c.category, "status": c.status,
+            "views_delivered": c.views_delivered or 0, "views_target": c.views_target or 0,
+        } for c in campaigns],
+        "sources": [],
+    }
+
+
+@app.get("/api/achievements")
+def api_achievements_data(request: Request, user: User = Depends(get_current_user),
+                          db: Session = Depends(get_db)):
+    """JSON achievements data."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    user_achievements = db.query(Achievement).filter(Achievement.user_id == user.id).all()
+    earned_keys = {a.badge_key for a in user_achievements}
+    earned = []
+    available = []
+    for key, badge in BADGES.items():
+        entry = {"key": key, "title": badge.get("title", key), "description": badge.get("description", ""),
+                 "icon": badge.get("icon", "🏅")}
+        if key in earned_keys:
+            earned.append(entry)
+        else:
+            entry["progress"] = 0
+            entry["target"] = badge.get("target", 1)
+            available.append(entry)
+    return {"earned": earned, "available": available}
+
+
+@app.get("/api/video-library")
+def api_video_library(request: Request, user: User = Depends(get_current_user),
+                      db: Session = Depends(get_db)):
+    """JSON video campaign library."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    campaigns = db.query(VideoCampaign).filter(
+        VideoCampaign.user_id == user.id
+    ).order_by(VideoCampaign.created_at.desc()).all()
+    active = sum(1 for c in campaigns if c.status == "active")
+    total_views = sum(c.views_delivered or 0 for c in campaigns)
+    return {
+        "total_campaigns": len(campaigns),
+        "active_campaigns": active,
+        "total_views": total_views,
+        "campaigns": [{
+            "id": c.id, "title": c.title, "platform": c.platform,
+            "category": c.category, "status": c.status,
+            "embed_url": c.embed_url, "video_url": c.video_url,
+            "views_delivered": c.views_delivered or 0, "views_target": c.views_target or 0,
+        } for c in campaigns],
+    }
+
+
+@app.post("/api/support/ticket")
+async def api_support_ticket(request: Request, user: User = Depends(get_current_user),
+                             db: Session = Depends(get_db)):
+    """Submit a support ticket."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    subject = (body.get("subject") or "").strip()[:200]
+    message = (body.get("message") or "").strip()[:5000]
+    if not subject or not message:
+        return JSONResponse({"error": "Subject and message required"}, status_code=400)
+    # Notify admin
+    admin = db.query(User).filter(User.is_admin == True).first()
+    if admin:
+        notif = Notification(
+            user_id=admin.id, type="support",
+            icon="🎧", title=f"Support: {subject}",
+            message=f"From {user.first_name or user.username}: {message[:200]}",
+            link="/admin",
+        )
+        db.add(notif)
+        db.commit()
+    return {"ok": True}
+
+
+@app.post("/api/watch/complete")
+async def api_watch_complete(request: Request, user: User = Depends(get_current_user),
+                             db: Session = Depends(get_db)):
+    """Mark a video as watched and credit the user."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    video_id = body.get("video_id")
+    if not video_id:
+        return JSONResponse({"error": "video_id required"}, status_code=400)
+    campaign = db.query(VideoCampaign).filter(VideoCampaign.id == video_id).first()
+    if not campaign:
+        return JSONResponse({"error": "Video not found"}, status_code=404)
+    # Check quota
+    today_str = datetime.utcnow().strftime("%Y-%m-%d")
+    quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
+    if not quota:
+        quota = WatchQuota(user_id=user.id, quota_date=today_str, videos_watched_today=0,
+                           total_watch_minutes=0, total_earned=0)
+        db.add(quota)
+        db.flush()
+    if quota.quota_date != today_str:
+        quota.quota_date = today_str
+        quota.videos_watched_today = 0
+    if (quota.videos_watched_today or 0) >= 10:
+        return JSONResponse({"error": "Daily limit reached"}, status_code=400)
+    # Check not already watched today
+    existing = db.query(VideoWatch).filter(
+        VideoWatch.user_id == user.id, VideoWatch.campaign_id == video_id,
+        VideoWatch.watched_at >= datetime.utcnow().replace(hour=0, minute=0, second=0)
+    ).first()
+    if existing:
+        return JSONResponse({"error": "Already watched today"}, status_code=400)
+    # Record watch
+    watch = VideoWatch(user_id=user.id, campaign_id=video_id)
+    db.add(watch)
+    campaign.views_delivered = (campaign.views_delivered or 0) + 1
+    quota.videos_watched_today = (quota.videos_watched_today or 0) + 1
+    quota.total_watch_minutes = (quota.total_watch_minutes or 0) + 2
+    earn = 0.02
+    quota.total_earned = float(quota.total_earned or 0) + earn
+    user.balance = float(user.balance or 0) + earn
+    user.total_earned = float(user.total_earned or 0) + earn
+    db.commit()
+    return {"ok": True, "earned": earn}
