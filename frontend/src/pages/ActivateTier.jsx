@@ -4,14 +4,14 @@ import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 
 const TIERS = {
-  1: { name:'Starter',     price:20,   views:'5,000',     monthly:'500',    color:'#16a34a' },
-  2: { name:'Builder',     price:50,   views:'15,000',    monthly:'1,500',  color:'#0ea5e9' },
-  3: { name:'Accelerator', price:100,  views:'35,000',    monthly:'5,000',  color:'#0284c7' },
-  4: { name:'Advanced',    price:200,  views:'80,000',    monthly:'10,000', color:'#d97706' },
-  5: { name:'Elite',       price:300,  views:'150,000',   monthly:'20,000', color:'#dc2626' },
-  6: { name:'Premium',     price:500,  views:'250,000',   monthly:'30,000', color:'#2563eb' },
-  7: { name:'Executive',   price:750,  views:'400,000',   monthly:'40,000', color:'#7c3aed' },
-  8: { name:'Ultimate',    price:1000, views:'600,000',   monthly:'50,000', color:'#059669' },
+  1: { name:'Starter',     price:20,   views:'5,000',     monthly:'500' },
+  2: { name:'Builder',     price:50,   views:'15,000',    monthly:'1,500' },
+  3: { name:'Accelerator', price:100,  views:'35,000',    monthly:'5,000' },
+  4: { name:'Advanced',    price:200,  views:'80,000',    monthly:'10,000' },
+  5: { name:'Elite',       price:300,  views:'150,000',   monthly:'20,000' },
+  6: { name:'Premium',     price:500,  views:'250,000',   monthly:'30,000' },
+  7: { name:'Executive',   price:750,  views:'400,000',   monthly:'40,000' },
+  8: { name:'Ultimate',    price:1000, views:'600,000',   monthly:'50,000' },
 };
 
 export default function ActivateTier() {
@@ -53,24 +53,42 @@ export default function ActivateTier() {
     <AppLayout title={`Activate ${t.name}`} subtitle="Review your campaign tier before purchase">
       <div style={{maxWidth:700,margin:'0 auto'}}>
 
-        {/* Tier summary card — dark theme */}
+        {/* Tier hero — dark theme with animations */}
         <div style={{
           background:'linear-gradient(135deg, #0b1729 0%, #132240 50%, #0e1c30 100%)',
           borderRadius:18, padding:'32px 36px', marginBottom:20,
           position:'relative', overflow:'hidden',
           boxShadow:'0 2px 8px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.15)',
         }}>
-          {/* Orbs */}
-          <div style={{position:'absolute',width:120,height:120,borderRadius:'50%',background:'radial-gradient(circle,rgba(14,165,233,0.2),transparent 70%)',top:-30,right:-20,pointerEvents:'none',animation:'orbP 4s ease-in-out infinite'}}/>
-          <div style={{position:'absolute',width:80,height:80,borderRadius:'50%',background:'radial-gradient(circle,rgba(99,102,241,0.15),transparent 70%)',bottom:-20,left:40,pointerEvents:'none',animation:'orbP 5s ease-in-out 1s infinite'}}/>
+          <div className="anim-orb ao1"/><div className="anim-orb ao2"/><div className="anim-orb ao3"/>
+          <div className="anim-line al1"/><div className="anim-line al2"/>
+          <div className="anim-dot ad1"/><div className="anim-dot ad2"/><div className="anim-dot ad3"/><div className="anim-dot ad4"/>
 
           <div style={{position:'relative',zIndex:1,textAlign:'center'}}>
             <div style={{fontSize:12,fontWeight:700,color:'rgba(56,189,248,0.5)',textTransform:'uppercase',letterSpacing:1.5,marginBottom:8}}>Campaign Tier</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:900,color:'#fff',marginBottom:4}}>{t.name}</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:48,fontWeight:900,color:'#4ade80',lineHeight:1,marginBottom:8}}>${t.price.toLocaleString()}</div>
-            <div style={{fontSize:13,color:'rgba(200,220,255,0.4)'}}>One-time activation fee</div>
+            <div style={{fontSize:13,color:'rgba(200,220,255,0.4)'}}>One-time activation · Up to {t.views} views</div>
           </div>
         </div>
+
+        {/* PAY BUTTON — right after the hero */}
+        {error && (
+          <div style={{padding:'12px 16px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:10,marginBottom:12,fontSize:13,fontWeight:600,color:'#dc2626'}}>{error}</div>
+        )}
+
+        <button onClick={handlePayment} disabled={paying} style={{
+          display:'flex',alignItems:'center',justifyContent:'center',gap:10,
+          width:'100%', padding:16, borderRadius:12,
+          fontSize:16, fontWeight:800, border:'none', cursor:paying?'wait':'pointer',
+          fontFamily:'inherit', marginBottom:24,
+          background:paying?'#94a3b8':'linear-gradient(135deg, #0ea5e9, #38bdf8)',
+          color:'#fff',
+          boxShadow:paying?'none':'0 4px 16px rgba(14,165,233,0.3)',
+          transition:'all 0.2s',
+        }}>
+          {paying ? 'Creating payment...' : `Pay $${t.price.toLocaleString()} — Activate ${t.name}`}
+        </button>
 
         {/* What you get */}
         <div style={{
@@ -110,18 +128,16 @@ export default function ActivateTier() {
             <div style={{fontSize:16,fontWeight:800,color:'#0f172a'}}>How Your Campaign Works</div>
           </div>
           <div style={{padding:'20px 24px'}}>
-            <div style={{display:'flex',gap:16,marginBottom:16}}>
-              <div style={{width:32,height:32,borderRadius:10,background:'rgba(14,165,233,0.1)',border:'1px solid rgba(14,165,233,0.2)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,color:'#0ea5e9',flexShrink:0}}>1</div>
-              <div><div style={{fontSize:14,fontWeight:700,color:'#0f172a'}}>Your campaign goes live immediately</div><div style={{fontSize:13,color:'#64748b',lineHeight:1.6}}>Members across the network start watching your video. Every qualified view is counted towards your {t.views} target.</div></div>
-            </div>
-            <div style={{display:'flex',gap:16,marginBottom:16}}>
-              <div style={{width:32,height:32,borderRadius:10,background:'rgba(16,185,129,0.1)',border:'1px solid rgba(16,185,129,0.2)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,color:'#059669',flexShrink:0}}>2</div>
-              <div><div style={{fontSize:14,fontWeight:700,color:'#0f172a'}}>Campaign completes when views are reached</div><div style={{fontSize:13,color:'#64748b',lineHeight:1.6}}>Once your campaign hits {t.views} verified views, it's complete. Your grid position remains active and continues earning commissions.</div></div>
-            </div>
-            <div style={{display:'flex',gap:16}}>
-              <div style={{width:32,height:32,borderRadius:10,background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.2)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,color:'#d97706',flexShrink:0}}>3</div>
-              <div><div style={{fontSize:14,fontWeight:700,color:'#0f172a'}}>Activate again to keep the momentum</div><div style={{fontSize:13,color:'#64748b',lineHeight:1.6}}>When your campaign finishes, activate the same or a higher tier to launch a new campaign. Your network and commissions keep growing — the more you activate, the more you earn.</div></div>
-            </div>
+            {[
+              { n:'1', bg:'rgba(14,165,233,0.1)', border:'rgba(14,165,233,0.2)', color:'#0ea5e9', title:'Your campaign goes live immediately', desc:`Members across the network start watching your video. Every qualified view is counted towards your ${t.views} target.` },
+              { n:'2', bg:'rgba(16,185,129,0.1)', border:'rgba(16,185,129,0.2)', color:'#059669', title:'Campaign completes when views are reached', desc:`Once your campaign hits ${t.views} verified views, it's complete. Your grid position remains active and continues earning commissions.` },
+              { n:'3', bg:'rgba(245,158,11,0.1)', border:'rgba(245,158,11,0.2)', color:'#d97706', title:'Activate again to keep the momentum', desc:'When your campaign finishes, activate the same or a higher tier to launch a new campaign. Your network and commissions keep growing — the more you activate, the more you earn.' },
+            ].map((s, i) => (
+              <div key={i} style={{display:'flex',gap:16,marginBottom:i<2?16:0}}>
+                <div style={{width:32,height:32,borderRadius:10,background:s.bg,border:`1px solid ${s.border}`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,color:s.color,flexShrink:0}}>{s.n}</div>
+                <div><div style={{fontSize:14,fontWeight:700,color:'#0f172a'}}>{s.title}</div><div style={{fontSize:13,color:'#64748b',lineHeight:1.6}}>{s.desc}</div></div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -155,31 +171,27 @@ export default function ActivateTier() {
           </div>
         </div>
 
-        {/* Pay button */}
-        {error && (
-          <div style={{padding:'12px 16px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:10,marginBottom:16,fontSize:13,fontWeight:600,color:'#dc2626'}}>{error}</div>
-        )}
-
-        <button onClick={handlePayment} disabled={paying} style={{
-          display:'flex',alignItems:'center',justifyContent:'center',gap:10,
-          width:'100%', padding:16, borderRadius:12,
-          fontSize:16, fontWeight:800, border:'none', cursor:paying?'wait':'pointer',
-          fontFamily:'inherit',
-          background:paying?'#94a3b8':'linear-gradient(135deg, #0ea5e9, #38bdf8)',
-          color:'#fff',
-          boxShadow:paying?'none':'0 4px 16px rgba(14,165,233,0.3)',
-          transition:'all 0.2s',
-        }}>
-          {paying ? 'Creating payment...' : `Pay $${t.price.toLocaleString()} — Activate ${t.name}`}
-        </button>
-
-        <div style={{textAlign:'center',marginTop:12}}>
+        <div style={{textAlign:'center'}}>
           <Link to="/campaign-tiers" style={{fontSize:13,color:'#94a3b8',textDecoration:'none'}}>← Back to Campaign Tiers</Link>
         </div>
       </div>
 
       <style>{`
-        @keyframes orbP { 0%,100%{transform:scale(1);opacity:.6} 50%{transform:scale(1.2);opacity:1} }
+        .anim-orb{position:absolute;border-radius:50%;pointer-events:none;z-index:0}
+        .ao1{width:200px;height:200px;top:-50px;right:15%;background:radial-gradient(circle,rgba(14,165,233,.3),transparent 70%);animation:aoPulse 4s ease-in-out infinite}
+        .ao2{width:140px;height:140px;bottom:-30px;right:35%;background:radial-gradient(circle,rgba(99,102,241,.25),transparent 70%);animation:aoPulse 5s ease-in-out 1s infinite}
+        .ao3{width:120px;height:120px;top:10px;right:5%;background:radial-gradient(circle,rgba(16,185,129,.2),transparent 70%);animation:aoPulse 6s ease-in-out 2s infinite}
+        .anim-line{position:absolute;height:1.5px;background:linear-gradient(90deg,transparent,rgba(14,165,233,.3),transparent);pointer-events:none;z-index:0}
+        .al1{width:60%;top:25%;left:30%;animation:aoSlide 8s linear infinite}
+        .al2{width:40%;top:65%;left:40%;animation:aoSlide 10s linear 2s infinite}
+        .anim-dot{position:absolute;width:5px;height:5px;border-radius:50%;pointer-events:none;z-index:0}
+        .ad1{background:rgba(14,165,233,.65);top:20%;right:20%;animation:aoDrift 5s ease-in-out infinite}
+        .ad2{background:rgba(16,185,129,.55);top:60%;right:30%;animation:aoDrift 6s ease-in-out 1s infinite}
+        .ad3{background:rgba(139,92,246,.55);top:40%;right:10%;animation:aoDrift 7s ease-in-out 2s infinite}
+        .ad4{background:rgba(245,158,11,.5);top:70%;right:15%;animation:aoDrift 5.5s ease-in-out .5s infinite}
+        @keyframes aoPulse{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.2);opacity:1}}
+        @keyframes aoSlide{0%{transform:translateX(-100%);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateX(100%);opacity:0}}
+        @keyframes aoDrift{0%,100%{transform:translate(0,0);opacity:.5}25%{transform:translate(-10px,6px);opacity:1}50%{transform:translate(5px,-7px);opacity:.7}75%{transform:translate(-4px,-4px);opacity:1}}
       `}</style>
     </AppLayout>
   );
