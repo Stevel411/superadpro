@@ -81,11 +81,11 @@ export default function Account() {
             :<>
               {kyc==='rejected'&&<div style={{padding:'8px 12px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:6,marginBottom:10,fontSize:11,color:'#dc2626',fontWeight:600}}>⚠ Rejected. Please resubmit.</div>}
               {kyc!=='rejected'&&<p style={{fontSize:12,color:'#64748b',marginBottom:10,lineHeight:1.5}}>Verify your identity to enable withdrawals.</p>}
-              <form method="POST" action="/account/kyc-submit" encType="multipart/form-data">
+              <form method="POST" action="/account/kyc-submit" encType="multipart/form-data" style={{display:'flex',flexDirection:'column',flex:1}}>
                 <FG><L>Date of Birth</L><I type="date" name="kyc_dob"/></FG>
                 <FG><L>ID Type</L><select name="kyc_id_type" style={iS}><option value="passport">Passport</option><option value="drivers_licence">Driver's Licence</option><option value="national_id">National ID</option></select></FG>
                 <FG><L>Upload ID (JPG/PNG/PDF)</L><input type="file" name="kyc_id_file" accept=".jpg,.jpeg,.png,.pdf" required style={{width:'100%',padding:8,border:'2px dashed #e5e7eb',borderRadius:8,fontSize:11,color:'#94a3b8',background:'#f8f9fb',cursor:'pointer',boxSizing:'border-box'}}/></FG>
-                <button type="submit" style={btn}>{kyc==='rejected'?'Resubmit':'Submit Verification'}</button>
+                <button type="submit" style={{...btn,marginTop:'auto'}}>{kyc==='rejected'?'Resubmit':'Submit Verification'}</button>
               </form>
             </>}
           </C>
@@ -94,19 +94,19 @@ export default function Account() {
           <C title="Two-Factor Auth" chip={user.totp_enabled?{t:'🔒 Enabled',c:'enabled'}:{t:'⬜ Disabled',c:'disabled'}}>
             {user.totp_enabled?<>
               <SC icon="🔒" title="2FA Active" desc="Your account is protected." tc="#16a34a"/>
-              <form method="POST" action="/account/2fa-disable">
+              <form method="POST" action="/account/2fa-disable" style={{marginTop:'auto'}}>
                 <FG><L>Enter 2FA code to disable</L><I type="text" name="totp_code" maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric" style={{...iS,textAlign:'center',letterSpacing:6,fontWeight:700}}/></FG>
                 <button type="submit" style={{...btn,background:'linear-gradient(135deg,#f59e0b,#ef4444)'}}>Disable 2FA</button>
               </form>
             </>:<>
               <SC icon="🔓" title="Not Enabled" desc="Required before withdrawals." tc="#94a3b8"/>
-              <a href="/account/2fa-setup" style={{...btn,display:'block',textAlign:'center',textDecoration:'none'}}>Setup 2FA →</a>
+              <div style={{marginTop:'auto'}}><a href="/account/2fa-setup" style={{...btn,display:'block',textAlign:'center',textDecoration:'none'}}>Setup 2FA →</a></div>
             </>}
           </C>
 
           {/* Wallet */}
           <C title="Withdrawal Wallet">
-            <form onSubmit={saveWallet}>
+            <form onSubmit={saveWallet} style={{marginTop:'auto'}}>
               <FG><L>Wallet Address (USDC on Base)</L><I value={walletAddr} onChange={e=>setWalletAddr(e.target.value)} placeholder="0x..." style={{...iS,fontFamily:'monospace',fontSize:11}}/></FG>
               <button type="submit" disabled={savingWallet} style={btn}>{savingWallet?'Saving...':'Save Wallet'}</button>
             </form>
@@ -123,12 +123,12 @@ export default function Account() {
 function C({title,chip,children}){
   const cc={none:{bg:'#f8f9fb',c:'#94a3b8',b:'#e5e7eb'},pending:{bg:'#fef3c7',c:'#d97706',b:'rgba(217,119,6,.2)'},approved:{bg:'#dcfce7',c:'#16a34a',b:'rgba(22,163,74,.2)'},rejected:{bg:'#fef2f2',c:'#dc2626',b:'rgba(220,38,38,.2)'},enabled:{bg:'#dcfce7',c:'#16a34a',b:'rgba(22,163,74,.2)'},disabled:{bg:'#f8f9fb',c:'#94a3b8',b:'#e5e7eb'}};
   const ch=chip?cc[chip.c]||cc.none:null;
-  return <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:8,boxShadow:'0 2px 8px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03)',overflow:'hidden'}}>
+  return <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:8,boxShadow:'0 2px 8px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03)',overflow:'hidden',display:'flex',flexDirection:'column'}}>
     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 14px',borderBottom:'1px solid #f1f3f7'}}>
       <div style={{fontSize:13,fontWeight:800,color:'#0f172a',display:'flex',alignItems:'center',gap:6}}><div style={{width:5,height:5,borderRadius:'50%',background:'#0ea5e9',flexShrink:0}}/>{title}</div>
       {chip&&<span style={{fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:4,background:ch.bg,color:ch.c,border:`1px solid ${ch.b}`}}>{chip.t}</span>}
     </div>
-    <div style={{padding:'12px 14px'}}>{children}</div>
+    <div style={{padding:'12px 14px',flex:1,display:'flex',flexDirection:'column'}}>{children}</div>
   </div>;
 }
 function IR({k,v,mono,last}){return<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'5px 0',borderBottom:last?'none':'1px solid #f5f6f8'}}><span style={{fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5}}>{k}</span><span style={{fontSize:12,fontWeight:600,color:mono?'#0ea5e9':'#0f172a',...(mono?{fontFamily:'monospace'}:{})}}>{v}</span></div>}
