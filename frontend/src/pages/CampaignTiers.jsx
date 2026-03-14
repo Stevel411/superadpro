@@ -26,10 +26,10 @@ export default function CampaignTiers() {
 
   return (
     <AppLayout title="Campaign Tiers" subtitle="Activate tiers to unlock advertising & earn commissions">
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:18,marginBottom:18}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:14}}>
         {TIERS.slice(0,4).map(t => <TierCard key={t.n} tier={t} active={activeTiers.includes(t.n)} />)}
       </div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:18}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14}}>
         {TIERS.slice(4).map(t => <TierCard key={t.n} tier={t} active={activeTiers.includes(t.n)} />)}
       </div>
 
@@ -52,14 +52,13 @@ export default function CampaignTiers() {
             transparent 80%
           );
           background-size: 200% 100%;
-          animation: shimmer 6s ease-in-out infinite;
+          animation: shimmer 4s ease-in-out infinite;
           pointer-events: none;
           z-index: 0;
-          opacity: 0;
-          transition: opacity 0.3s;
+          opacity: 0.5;
         }
         .tier-card-clean:hover::before {
-          opacity: 1;
+          opacity: 0.8;
         }
         .tier-card-clean:hover {
           transform: translateY(-4px);
@@ -80,7 +79,7 @@ function TierCard({ tier, active }) {
       background: '#fff',
       border: '1px solid #e8ecf2',
       borderRadius: 18,
-      padding: '32px 28px 28px',
+      padding: '20px 22px 20px',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -91,33 +90,33 @@ function TierCard({ tier, active }) {
     }}>
       {/* Lock icon */}
       <div style={{
-        width: 56, height: 56, borderRadius: '50%',
+        width: 48, height: 48, borderRadius: '50%',
         background: iconBg,
         border: `1px solid ${iconBorder}`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        marginBottom: 20, position: 'relative', zIndex: 1,
+        marginBottom: 12, position: 'relative', zIndex: 1,
       }}>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={t.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={t.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
         </svg>
       </div>
 
       {/* Campaign name */}
       <div style={{
-        fontSize: 18, fontWeight: 800, color: '#1a1a2e',
-        marginBottom: 8, position: 'relative', zIndex: 1,
+        fontSize: 16, fontWeight: 800, color: '#1a1a2e',
+        marginBottom: 4, position: 'relative', zIndex: 1,
       }}>{t.name}</div>
 
       {/* Price */}
       <div style={{
         fontFamily: 'Sora, sans-serif',
-        fontSize: 44, fontWeight: 900, color: t.color,
-        lineHeight: 1, marginBottom: 24,
+        fontSize: 38, fontWeight: 900, color: t.color,
+        lineHeight: 1, marginBottom: 16,
         position: 'relative', zIndex: 1,
       }}>${t.price.toLocaleString()}</div>
 
       {/* Specs */}
-      <div style={{ width: '100%', marginBottom: 24, position: 'relative', zIndex: 1 }}>
+      <div style={{ width: '100%', marginBottom: 16, position: 'relative', zIndex: 1 }}>
         {[
           { label: 'Direct', value: '40%' },
           { label: 'Uni-level', value: '50%' },
@@ -126,11 +125,11 @@ function TierCard({ tier, active }) {
         ].map((s, i) => (
           <div key={i} style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            padding: '8px 0',
+            padding: '5px 0',
             borderBottom: i < 3 ? '1px solid #f1f3f7' : 'none',
           }}>
-            <span style={{ fontSize: 14, color: '#64748b', fontWeight: 500 }}>{s.label}</span>
-            <span style={{ fontSize: 14, fontWeight: 700, color: '#1a1a2e' }}>{s.value}</span>
+            <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>{s.label}</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#1a1a2e' }}>{s.value}</span>
           </div>
         ))}
       </div>
@@ -138,15 +137,15 @@ function TierCard({ tier, active }) {
       {/* Button */}
       {active ? (
         <div style={{
-          width: '100%', padding: 14, borderRadius: 12,
-          fontSize: 15, fontWeight: 700, textAlign: 'center',
+          width: '100%', padding: 12, borderRadius: 10,
+          fontSize: 14, fontWeight: 700, textAlign: 'center',
           background: 'linear-gradient(135deg, #dcfce7, #bbf7d0)',
           color: '#059669', position: 'relative', zIndex: 1,
         }}>✓ Active</div>
       ) : (
         <a href={`/activate-grid?tier=${t.n}`} style={{
-          display: 'block', width: '100%', padding: 14, borderRadius: 12,
-          fontSize: 15, fontWeight: 700, textAlign: 'center', textDecoration: 'none',
+          display: 'block', width: '100%', padding: 12, borderRadius: 10,
+          fontSize: 14, fontWeight: 700, textAlign: 'center', textDecoration: 'none',
           background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)',
           color: '#fff', position: 'relative', zIndex: 1,
           boxShadow: '0 4px 14px rgba(14,165,233,0.25)',
