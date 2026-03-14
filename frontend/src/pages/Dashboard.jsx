@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
 import AppLayout from '../components/layout/AppLayout';
+import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye } from 'lucide-react';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -182,11 +183,11 @@ export default function Dashboard() {
       {/* 5 Income Streams */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
         {[
-          { color: '#16a34a', bg: '#dcfce7', icon: '👥', badge: '$10/referral', val: d.membership_earned, name: 'Membership', detail: `${d.personal_referrals || 0} personal referrals` },
-          { color: '#0ea5e9', bg: '#e0f2fe', icon: '🔲', badge: '40% + uni-level', val: d.grid_earnings, name: 'Income Grid', detail: `${d.grid_stats?.completed_advances || 0} advance${d.grid_stats?.completed_advances !== 1 ? 's' : ''} completed` },
-          { color: '#6366f1', bg: '#ede9fe', icon: '🎓', badge: '100% commission', val: d.course_earnings, name: 'Course Sales', detail: `${d.course_sale_count || 0} sale${d.course_sale_count !== 1 ? 's' : ''} made` },
-          { color: '#d97706', bg: '#fef3c7', icon: '🚀', badge: 'tier bonus', val: d.boost_earned, name: 'Campaigns', detail: 'Video campaign earnings' },
-          { color: '#e11d48', bg: '#ffe4e6', icon: '🏪', badge: '50/25/25', val: d.marketplace_earnings, name: 'Marketplace', detail: `${d.marketplace_sales || 0} sale${d.marketplace_sales !== 1 ? 's' : ''} · ${d.marketplace_courses || 0} course${d.marketplace_courses !== 1 ? 's' : ''}` },
+          { color: '#16a34a', bg: '#dcfce7', Icon: Users, badge: '$10/referral', val: d.membership_earned, name: 'Membership', detail: `${d.personal_referrals || 0} personal referrals` },
+          { color: '#0ea5e9', bg: '#e0f2fe', Icon: LayoutGrid, badge: '40% + uni-level', val: d.grid_earnings, name: 'Income Grid', detail: `${d.grid_stats?.completed_advances || 0} advance${d.grid_stats?.completed_advances !== 1 ? 's' : ''} completed` },
+          { color: '#6366f1', bg: '#ede9fe', Icon: GraduationCap, badge: '100% commission', val: d.course_earnings, name: 'Course Sales', detail: `${d.course_sale_count || 0} sale${d.course_sale_count !== 1 ? 's' : ''} made` },
+          { color: '#d97706', bg: '#fef3c7', Icon: Rocket, badge: 'tier bonus', val: d.boost_earned, name: 'Campaigns', detail: 'Video campaign earnings' },
+          { color: '#e11d48', bg: '#ffe4e6', Icon: Store, badge: '50/25/25', val: d.marketplace_earnings, name: 'Marketplace', detail: `${d.marketplace_sales || 0} sale${d.marketplace_sales !== 1 ? 's' : ''} · ${d.marketplace_courses || 0} course${d.marketplace_courses !== 1 ? 's' : ''}` },
         ].map((s, i) => (
           <div key={i} className="stream-card" style={{
             background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, padding: 22,
@@ -195,7 +196,9 @@ export default function Dashboard() {
           }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: s.color, borderRadius: '8px 8px 0 0' }} />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-              <div style={{ width: 40, height: 40, borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, background: s.bg }}>{s.icon}</div>
+              <div style={{ width: 40, height: 40, borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', background: s.bg }}>
+                <s.Icon size={20} color={s.color} strokeWidth={2} />
+              </div>
               <span style={{ fontSize: 9, fontWeight: 700, padding: '3px 8px', borderRadius: 5, letterSpacing: 0.3, background: s.bg, color: s.color }}>{s.badge}</span>
             </div>
             <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 800, color: '#16a34a', marginBottom: 2 }}>${Math.round(s.val || 0)}</div>
@@ -209,11 +212,11 @@ export default function Dashboard() {
       <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.2, textTransform: 'uppercase', color: '#94a3b8', marginBottom: 12 }}>Quick Actions</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
         {[
-          { icon: '🎓', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)', name: 'Browse Courses', desc: 'Learn skills & earn 100% commissions', link: '/courses' },
-          { icon: '🏪', bg: 'linear-gradient(135deg,#eff6ff,#dbeafe)', name: 'Create Course', desc: 'Build & sell courses on the marketplace', link: '/courses/create' },
-          { icon: '⚡', bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)', name: 'Campaign Tiers', desc: 'Activate a tier to unlock the earning engine', link: '/campaign-tiers' },
-          { icon: '🤖', bg: 'linear-gradient(135deg,#fffbeb,#fef3c7)', name: 'AI Marketing', desc: 'Generate campaigns, social posts & scripts', link: '/campaign-studio' },
-          { icon: '👁️', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)', name: 'Watch to Earn', desc: 'Watch daily videos for bonus earnings', link: '/watch' },
+          { Icon: BookOpen, color: '#6366f1', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)', name: 'Browse Courses', desc: 'Learn skills & earn 100% commissions', link: '/courses' },
+          { Icon: PenSquare, color: '#0ea5e9', bg: 'linear-gradient(135deg,#eff6ff,#dbeafe)', name: 'Create Course', desc: 'Build & sell courses on the marketplace', link: '/courses/create' },
+          { Icon: Zap, color: '#16a34a', bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)', name: 'Campaign Tiers', desc: 'Activate a tier to unlock the earning engine', link: '/campaign-tiers' },
+          { Icon: Bot, color: '#d97706', bg: 'linear-gradient(135deg,#fffbeb,#fef3c7)', name: 'AI Marketing', desc: 'Generate campaigns, social posts & scripts', link: '/campaign-studio' },
+          { Icon: Eye, color: '#6366f1', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)', name: 'Watch to Earn', desc: 'Watch daily videos for bonus earnings', link: '/watch' },
         ].map((a, i) => (
           <Link key={i} to={a.link} className="action-card" style={{
             background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, padding: 20,
@@ -221,7 +224,9 @@ export default function Dashboard() {
             textDecoration: 'none', transition: 'all 0.15s', display: 'flex', flexDirection: 'column',
             alignItems: 'center', textAlign: 'center', gap: 10,
           }}>
-            <div style={{ width: 48, height: 48, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, background: a.bg }}>{a.icon}</div>
+            <div style={{ width: 48, height: 48, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', background: a.bg }}>
+              <a.Icon size={24} color={a.color} strokeWidth={1.8} />
+            </div>
             <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a2e' }}>{a.name}</div>
             <div style={{ fontSize: 11, color: '#94a3b8', lineHeight: 1.4 }}>{a.desc}</div>
           </Link>
