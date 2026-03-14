@@ -271,11 +271,11 @@ export default function Watch() {
         </div>
 
         {/* ═══ RIGHT: Progress Panel ═══ */}
-        <div style={{display:'flex',flexDirection:'column',gap:12,position:'sticky',top:82}}>
+        <div style={{display:'flex',flexDirection:'column',gap:12,position:'sticky',top:82,marginTop:0}}>
 
           {/* Today's Progress */}
-          <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:8,padding:22,boxShadow:'0 2px 8px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03)'}}>
-            <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#7b91a8',marginBottom:14}}>Today's Progress</div>
+          <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:8,padding:'12px 22px 22px',boxShadow:'0 2px 8px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03)'}}>
+            <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#7b91a8',marginBottom:12}}>Today's Progress</div>
             <div style={{display:'flex',alignItems:'center',gap:18,marginBottom:16}}>
               <div style={{width:90,height:90,position:'relative',flexShrink:0}}>
                 <svg width="90" height="90" style={{transform:'rotate(-90deg)'}}>
