@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 
@@ -60,34 +61,6 @@ export default function CampaignTiers() {
 
 function TierCard({ tier, active, delay }) {
   const t = tier;
-  const [paying, setPaying] = useState(false);
-
-  const activateTier = async () => {
-    if (paying) return;
-    if (!confirm(`Activate ${t.name} tier for $${t.price.toLocaleString()}?`)) return;
-    setPaying(true);
-    try {
-      const res = await fetch('/api/coinbase/create-charge', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ payment_type: 'grid_tier', package_tier: t.n }),
-      });
-      const data = await res.json();
-      if (data.hosted_url) {
-        window.location.href = data.hosted_url;
-      } else if (data.error) {
-        alert(data.error);
-        setPaying(false);
-      } else {
-        // Fallback to old payment page
-        window.location.href = `/activate-grid?tier=${t.n}`;
-      }
-    } catch (e) {
-      // Fallback to old payment page
-      window.location.href = `/activate-grid?tier=${t.n}`;
-    }
-  };
 
   return (
     <div className="dark-tier" style={{
@@ -201,15 +174,14 @@ function TierCard({ tier, active, delay }) {
           color: '#4ade80', position: 'relative', zIndex: 1,
         }}>✓ Active</div>
       ) : (
-        <button onClick={activateTier} disabled={paying} style={{
+        <Link to={`/activate/${t.n}`} style={{
           display: 'block', width: '100%', padding: 11, borderRadius: 10,
-          fontSize: 14, fontWeight: 700, textAlign: 'center',
-          background: paying ? 'rgba(14,165,233,0.4)' : 'linear-gradient(135deg, #0ea5e9, #38bdf8)',
+          fontSize: 14, fontWeight: 700, textAlign: 'center', textDecoration: 'none',
+          background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)',
           color: '#fff', position: 'relative', zIndex: 1,
           boxShadow: '0 4px 14px rgba(14,165,233,0.3)',
-          border: 'none', cursor: paying ? 'wait' : 'pointer',
-          fontFamily: 'inherit',
-        }}>{paying ? 'Processing...' : 'Activate'}</button>
+          boxSizing: 'border-box',
+        }}>Activate</Link>
       )}
     </div>
   );

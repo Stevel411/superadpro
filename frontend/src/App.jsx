@@ -32,6 +32,7 @@ import Funnels from './pages/Funnels';
 import CourseCreate from './pages/CourseCreate';
 import LinkHubPage from './pages/LinkHub';
 import SuperPagesEditor from './pages/superpages/SuperPagesEditor';
+import ActivateTier from './pages/ActivateTier';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -58,6 +59,7 @@ function AppRoutes() {
       <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
       <Route path="/affiliate" element={<ProtectedRoute><Affiliate /></ProtectedRoute>} />
       <Route path="/campaign-tiers" element={<ProtectedRoute><CampaignTiers /></ProtectedRoute>} />
+      <Route path="/activate/:tierId" element={<ProtectedRoute><ActivateTier /></ProtectedRoute>} />
       <Route path="/marketplace" element={<Marketplace />} />
       <Route path="/courses/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
       <Route path="/watch" element={<ProtectedRoute><Watch /></ProtectedRoute>} />
