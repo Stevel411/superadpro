@@ -152,19 +152,63 @@ export default function Watch() {
 
   // ═══ QUOTA COMPLETE or ALL WATCHED ═══
   if (d.quota_reached || allWatched) {
-    const displayWatched = allWatched ? videos.length : watched;
+    const videosCompleted = Math.max(watched, videos.filter(v => v.is_watched).length);
     return (
       <AppLayout title="Watch to Earn" subtitle="Daily quota complete">
-        <div style={{maxWidth:700,margin:'0 auto'}}>
-          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:8,padding:'48px 36px',textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03)',position:'relative',overflow:'hidden'}}>
-            <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:'linear-gradient(90deg,#0ea5e9,#22c55e)'}}/>
-            <div style={{fontSize:52,marginBottom:14}}>🎉</div>
-            <div style={{display:'inline-block',fontSize:9,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',color:'#22c55e',background:'rgba(22,163,74,.08)',border:'1px solid rgba(22,163,74,.2)',padding:'4px 14px',borderRadius:8,marginBottom:12}}>✓ Fully Qualified</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'#0f172a',marginBottom:8}}>Today's Quota Complete!</div>
-            <div style={{fontSize:14,color:'#64748b',lineHeight:1.7,marginBottom:28}}>You've watched all {displayWatched} required videos today. Your commissions are fully qualified.</div>
-            <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:8,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:8,padding:'13px 32px',textDecoration:'none'}}>← Back to Dashboard</Link>
+        <div style={{maxWidth:750,margin:'0 auto'}}>
+          <div style={{background:'linear-gradient(135deg,#0b1729 0%,#132240 50%,#0e1c30 100%)',borderRadius:8,padding:'52px 40px',textAlign:'center',position:'relative',overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.2),0 8px 24px rgba(0,0,0,.15)'}}>
+            {/* Animated orbs */}
+            <div className="cmp-orb co1"/><div className="cmp-orb co2"/><div className="cmp-orb co3"/>
+            <div className="cmp-line cl1"/><div className="cmp-line cl2"/>
+            <div className="cmp-dot cd1"/><div className="cmp-dot cd2"/><div className="cmp-dot cd3"/>
+
+            <div style={{position:'relative',zIndex:1}}>
+              {/* Success icon */}
+              <div style={{width:80,height:80,borderRadius:'50%',background:'rgba(74,222,128,.12)',border:'2px solid rgba(74,222,128,.25)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px'}}>
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+
+              <div style={{display:'inline-block',fontSize:10,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',color:'#4ade80',background:'rgba(74,222,128,.1)',border:'1px solid rgba(74,222,128,.2)',padding:'5px 16px',borderRadius:8,marginBottom:16}}>✓ Fully Qualified</div>
+
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:900,color:'#fff',marginBottom:8}}>Today's Quota Complete!</div>
+              <div style={{fontSize:14,color:'rgba(200,220,255,.45)',lineHeight:1.7,marginBottom:32,maxWidth:440,margin:'0 auto 32px'}}>You've watched all {videosCompleted} required videos today. Your commissions are fully qualified. Come back tomorrow for your next session.</div>
+
+              {/* Stats row */}
+              <div style={{display:'flex',gap:14,justifyContent:'center',marginBottom:32}}>
+                {[
+                  {v:videosCompleted,l:'Videos Watched',c:'#4ade80'},
+                  {v:`${videosCompleted * 30}s`,l:'Watch Time',c:'#38bdf8'},
+                  {v:d.streak_days||0,l:'Day Streak',c:'#fbbf24'},
+                  {v:`Tier ${d.tier||1}`,l:'Your Level',c:'#a78bfa'},
+                ].map((s,i) => (
+                  <div key={i} style={{background:'rgba(255,255,255,.04)',border:'1px solid rgba(255,255,255,.08)',borderRadius:8,padding:'18px 22px',minWidth:100}}>
+                    <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:s.c}}>{s.v}</div>
+                    <div style={{fontSize:9,fontWeight:700,color:'rgba(200,220,255,.3)',textTransform:'uppercase',letterSpacing:1,marginTop:4}}>{s.l}</div>
+                  </div>
+                ))}
+              </div>
+
+              <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:8,fontSize:15,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:8,padding:'14px 36px',textDecoration:'none',boxShadow:'0 4px 16px rgba(14,165,233,.3)'}}>← Back to Dashboard</Link>
+            </div>
           </div>
         </div>
+
+        <style>{`
+          .cmp-orb{position:absolute;border-radius:50%;pointer-events:none;z-index:0}
+          .co1{width:200px;height:200px;top:-60px;right:10%;background:radial-gradient(circle,rgba(74,222,128,.2),transparent 70%);animation:cPulse 4s ease-in-out infinite}
+          .co2{width:150px;height:150px;bottom:-40px;left:15%;background:radial-gradient(circle,rgba(14,165,233,.2),transparent 70%);animation:cPulse 5s ease-in-out 1s infinite}
+          .co3{width:120px;height:120px;top:20%;left:5%;background:radial-gradient(circle,rgba(99,102,241,.15),transparent 70%);animation:cPulse 6s ease-in-out 2s infinite}
+          .cmp-line{position:absolute;height:1.5px;background:linear-gradient(90deg,transparent,rgba(74,222,128,.2),transparent);pointer-events:none;z-index:0}
+          .cl1{width:60%;top:30%;left:20%;animation:cSlide 8s linear infinite}
+          .cl2{width:40%;top:70%;left:35%;animation:cSlide 10s linear 2s infinite}
+          .cmp-dot{position:absolute;width:4px;height:4px;border-radius:50%;pointer-events:none;z-index:0}
+          .cd1{background:rgba(74,222,128,.6);top:20%;right:20%;animation:cDrift 5s ease-in-out infinite}
+          .cd2{background:rgba(14,165,233,.5);top:60%;left:25%;animation:cDrift 6s ease-in-out 1s infinite}
+          .cd3{background:rgba(251,191,36,.5);bottom:25%;right:30%;animation:cDrift 7s ease-in-out 2s infinite}
+          @keyframes cPulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.2);opacity:1}}
+          @keyframes cSlide{0%{transform:translateX(-100%);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateX(100%);opacity:0}}
+          @keyframes cDrift{0%,100%{transform:translate(0,0);opacity:.4}25%{transform:translate(-8px,5px);opacity:.9}50%{transform:translate(5px,-6px);opacity:.6}75%{transform:translate(-4px,-3px);opacity:.8}}
+        `}</style>
       </AppLayout>
     );
   }
