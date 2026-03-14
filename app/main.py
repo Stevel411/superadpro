@@ -11286,3 +11286,94 @@ def api_courses_list(request: Request, db: Session = Depends(get_db)):
             "total_duration": total_dur,
         })
     return {"courses": result}
+
+
+@app.get("/api/affiliate")
+def api_affiliate_data(request: Request, user: User = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    """JSON affiliate data for React frontend."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    referrals = db.query(User).filter(User.sponsor_id == user.id).all()
+    # Get LinkHub views
+    lh_profile = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
+    return {
+        "personal_referrals": user.personal_referrals or 0,
+        "total_team": user.total_team or 0,
+        "total_earned": round(float(user.total_earned or 0), 2),
+        "linkhub_views": lh_profile.total_views if lh_profile else 0,
+        "referrals": [{
+            "id": r.id, "username": r.username, "first_name": r.first_name,
+            "is_active": r.is_active, "membership_tier": r.membership_tier or "basic",
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+        } for r in referrals],
+    }
+
+
+@app.get("/api/leaderboard")
+def api_leaderboard(db: Session = Depends(get_db)):
+    """JSON leaderboard data."""
+    top_earners = db.query(User).filter(User.is_active == True).order_by(
+        User.total_earned.desc()).limit(20).all()
+    top_recruiters = db.query(User).filter(User.is_active == True).order_by(
+        User.personal_referrals.desc()).limit(20).all()
+    top_teams = db.query(User).filter(User.is_active == True).order_by(
+        User.total_team.desc()).limit(20).all()
+    def user_entry(u, val):
+        return {"username": u.username, "name": u.first_name or u.username, "value": val}
+    return {
+        "top_earners": [user_entry(u, round(float(u.total_earned or 0), 2)) for u in top_earners],
+        "top_recruiters": [user_entry(u, u.personal_referrals or 0) for u in top_recruiters],
+        "top_teams": [user_entry(u, u.total_team or 0) for u in top_teams],
+    }
+
+
+@app.get("/api/campaign-tiers")
+def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    """JSON campaign tier data."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    active_grids = db.query(Grid).filter(Grid.user_id == user.id, Grid.status == "active").all()
+    active_tiers = [g.tier for g in active_grids]
+    return {"active_tiers": active_tiers}
+
+
+@app.get("/api/marketplace/browse")
+def api_marketplace_browse(db: Session = Depends(get_db)):
+    """Public: browse published marketplace courses."""
+    courses = db.query(MemberCourse).filter(
+        MemberCourse.status == "published", MemberCourse.is_public == True
+    ).order_by(MemberCourse.created_at.desc()).all()
+    creator_ids = list(set(c.creator_id for c in courses))
+    creators = {}
+    if creator_ids:
+        for u in db.query(User).filter(User.id.in_(creator_ids)).all():
+            creators[u.id] = u
+    return {"courses": [{
+        "id": c.id, "title": c.title, "slug": c.slug,
+        "description": c.description or "", "short_description": c.short_description or "",
+        "price": float(c.price), "thumbnail_url": c.thumbnail_url or "",
+        "category": c.category or "other", "difficulty_level": c.difficulty_level or "beginner",
+        "lesson_count": c.lesson_count or 0, "total_duration_mins": c.total_duration_mins or 0,
+        "total_sales": c.total_sales or 0,
+        "creator_name": (creators[c.creator_id].first_name or creators[c.creator_id].username) if c.creator_id in creators else "Member",
+    } for c in courses]}
+
+
+@app.get("/api/marketplace/my-courses")
+def api_my_marketplace_courses(request: Request, user: User = Depends(get_current_user),
+                               db: Session = Depends(get_db)):
+    """JSON: current user's marketplace courses."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    courses = db.query(MemberCourse).filter(
+        MemberCourse.creator_id == user.id
+    ).order_by(MemberCourse.created_at.desc()).all()
+    return {"courses": [{
+        "id": c.id, "title": c.title, "slug": c.slug, "price": float(c.price),
+        "thumbnail_url": c.thumbnail_url or "", "category": c.category or "other",
+        "status": c.status, "lesson_count": c.lesson_count or 0,
+        "total_duration_mins": c.total_duration_mins or 0,
+        "total_sales": c.total_sales or 0, "total_revenue": float(c.total_revenue or 0),
+    } for c in courses]}

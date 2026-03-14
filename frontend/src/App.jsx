@@ -1,11 +1,18 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { Spinner } from './components/ui';
+import AppLayout from './components/layout/AppLayout';
+
+// Pages
 import Dashboard from './pages/Dashboard';
 import Wallet from './pages/Wallet';
 import Account from './pages/Account';
 import Courses from './pages/Courses';
-import AppLayout from './components/layout/AppLayout';
+import Leaderboard from './pages/Leaderboard';
+import Affiliate from './pages/Affiliate';
+import CampaignTiers from './pages/CampaignTiers';
+import Marketplace from './pages/Marketplace';
+import MyCourses from './pages/MyCourses';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -24,25 +31,42 @@ function ProtectedRoute({ children }) {
 function AppRoutes() {
   return (
     <Routes>
-      {/* Protected internal pages */}
+      {/* Fully migrated pages */}
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
       <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
-      <Route path="/courses/my-courses" element={<ProtectedRoute><PlaceholderPage title="My Courses" /></ProtectedRoute>} />
+      <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
+      <Route path="/affiliate" element={<ProtectedRoute><Affiliate /></ProtectedRoute>} />
+      <Route path="/campaign-tiers" element={<ProtectedRoute><CampaignTiers /></ProtectedRoute>} />
+      <Route path="/marketplace" element={<Marketplace />} />
+      <Route path="/courses/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
+
+      {/* Placeholder pages — next migration batch */}
       <Route path="/courses/create" element={<ProtectedRoute><PlaceholderPage title="Create Course" /></ProtectedRoute>} />
-      <Route path="/marketplace" element={<PlaceholderPage title="Marketplace" />} />
-      <Route path="/campaign-tiers" element={<ProtectedRoute><PlaceholderPage title="Campaign Tiers" /></ProtectedRoute>} />
       <Route path="/campaign-studio" element={<ProtectedRoute><PlaceholderPage title="Campaign Studio" /></ProtectedRoute>} />
-      <Route path="/affiliate" element={<ProtectedRoute><PlaceholderPage title="Social Share" /></ProtectedRoute>} />
       <Route path="/linkhub" element={<ProtectedRoute><PlaceholderPage title="LinkHub Editor" /></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><PlaceholderPage title="Analytics" /></ProtectedRoute>} />
       <Route path="/video-library" element={<ProtectedRoute><PlaceholderPage title="My Campaigns" /></ProtectedRoute>} />
-      <Route path="/leaderboard" element={<ProtectedRoute><PlaceholderPage title="Leaderboard" /></ProtectedRoute>} />
+      <Route path="/watch" element={<ProtectedRoute><PlaceholderPage title="Watch to Earn" /></ProtectedRoute>} />
       <Route path="/achievements" element={<ProtectedRoute><PlaceholderPage title="Achievements" /></ProtectedRoute>} />
       <Route path="/support" element={<ProtectedRoute><PlaceholderPage title="Support" /></ProtectedRoute>} />
+      <Route path="/proseller" element={<ProtectedRoute><PlaceholderPage title="ProSeller AI" /></ProtectedRoute>} />
+      <Route path="/pro/funnels" element={<ProtectedRoute><PlaceholderPage title="SuperPages" /></ProtectedRoute>} />
+      <Route path="/pro/leads" element={<ProtectedRoute><PlaceholderPage title="My Leads" /></ProtectedRoute>} />
+      <Route path="/link-tools" element={<ProtectedRoute><PlaceholderPage title="Link Tools" /></ProtectedRoute>} />
+      <Route path="/niche-finder" element={<ProtectedRoute><PlaceholderPage title="Niche Finder" /></ProtectedRoute>} />
+      <Route path="/social-post-generator" element={<ProtectedRoute><PlaceholderPage title="Social Posts" /></ProtectedRoute>} />
+      <Route path="/video-script-generator" element={<ProtectedRoute><PlaceholderPage title="Video Scripts" /></ProtectedRoute>} />
+      <Route path="/email-swipes" element={<ProtectedRoute><PlaceholderPage title="Email Swipes" /></ProtectedRoute>} />
+      <Route path="/passup-visualiser" element={<ProtectedRoute><PlaceholderPage title="Pass-Up Visualiser" /></ProtectedRoute>} />
+      <Route path="/courses/commissions" element={<ProtectedRoute><PlaceholderPage title="My Network" /></ProtectedRoute>} />
+      <Route path="/courses/how-it-works" element={<ProtectedRoute><PlaceholderPage title="How Commissions Work" /></ProtectedRoute>} />
+      <Route path="/compensation-plan" element={<ProtectedRoute><PlaceholderPage title="Compensation Plan" /></ProtectedRoute>} />
+      <Route path="/ad-board" element={<ProtectedRoute><PlaceholderPage title="Ad Board" /></ProtectedRoute>} />
+      <Route path="/upgrade" element={<ProtectedRoute><PlaceholderPage title="Upgrade to Pro" /></ProtectedRoute>} />
 
-      {/* Catch-all — redirect to dashboard for authenticated users */}
+      {/* Catch-all */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
