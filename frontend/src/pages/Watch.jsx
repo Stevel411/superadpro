@@ -189,19 +189,20 @@ export default function Watch() {
         </div>
       </>}>
 
+      {/* Title bar — above the grid */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,padding:'8px 16px',background:'#fff',border:'1px solid #e8ecf2',borderRadius:'8px 8px 0 0',boxShadow:'0 2px 8px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03)',marginBottom:0,maxWidth:1400,margin:'0 auto 0'}}>
+        <div style={{minWidth:0,display:'flex',alignItems:'center',gap:8}}>
+          <div style={{fontSize:14,fontWeight:700,color:'#0f172a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{current?.title || 'Loading...'}</div>
+          <div style={{fontSize:11,color:'#94a3b8',whiteSpace:'nowrap',flexShrink:0}}>{current?.platform || 'video'} · {current?.category || 'General'}</div>
+        </div>
+        <div style={{fontSize:8,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'#0ea5e9',background:'rgba(14,165,233,.06)',border:'1px solid rgba(14,165,233,.12)',padding:'4px 10px',borderRadius:6,whiteSpace:'nowrap'}}>▶ Now Playing</div>
+      </div>
+
       <div style={{display:'grid',gridTemplateColumns:'1fr 340px',gap:20,alignItems:'start',maxWidth:1400,margin:'0 auto'}}>
 
         {/* ═══ LEFT: Player ═══ */}
         <div style={{display:'flex',flexDirection:'column',gap:10}}>
-          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:8,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03)'}}>
-
-            <div style={{padding:'8px 16px',borderBottom:'1px solid #f1f3f7',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
-              <div style={{minWidth:0,display:'flex',alignItems:'center',gap:8}}>
-                <div style={{fontSize:14,fontWeight:700,color:'#0f172a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{current?.title || 'Loading...'}</div>
-                <div style={{fontSize:11,color:'#94a3b8',whiteSpace:'nowrap',flexShrink:0}}>{current?.platform || 'video'} · {current?.category || 'General'}</div>
-              </div>
-              <div style={{fontSize:8,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'#0ea5e9',background:'rgba(14,165,233,.06)',border:'1px solid rgba(14,165,233,.12)',padding:'4px 10px',borderRadius:6,whiteSpace:'nowrap'}}>▶ Now Playing</div>
-            </div>
+          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:'0 0 8px 8px',overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03)',borderTop:'none'}}>
 
             {/* Video — full width, no controls */}
             <div style={{position:'relative',width:'100%',aspectRatio:'16/9',background:'#000',overflow:'hidden'}}>
