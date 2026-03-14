@@ -22,12 +22,17 @@ export default function Watch() {
     apiGet('/api/watch').then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
-  // Auto-select first unwatched video on data load
+  // Auto-select first unwatched video on data load or after advance
   useEffect(() => {
     if (!data?.videos?.length) return;
-    if (currentIdx >= 0) return; // already selected
+    if (currentIdx >= 0) return; // already selected, wait for reset to -1
     const firstUnwatched = data.videos.findIndex(v => !v.is_watched);
-    setCurrentIdx(firstUnwatched >= 0 ? firstUnwatched : 0);
+    if (firstUnwatched >= 0) {
+      setCurrentIdx(firstUnwatched);
+    } else if (data.videos.length > 0) {
+      // All watched — show last one
+      setCurrentIdx(data.videos.length - 1);
+    }
   }, [data, currentIdx]);
 
   // Reset timer when switching to a new video
@@ -81,13 +86,16 @@ export default function Watch() {
     try {
       await apiPost('/api/watch/complete', { video_id: video.id });
       const newData = await apiGet('/api/watch');
-      setData(newData);
-      // Auto-advance to next unwatched
-      const nextIdx = newData.videos.findIndex((v, i) => i > currentIdx && !v.is_watched);
-      if (nextIdx >= 0) {
-        setCurrentIdx(nextIdx);
+      // Find next unwatched in the fresh data
+      const nextIdx = newData.videos.findIndex((v, i) => !v.is_watched);
+      if (nextIdx >= 0 && nextIdx !== currentIdx) {
+        // Force timer reset by setting index to -1 first, then to the new index
+        setCurrentIdx(-1);
+        setData(newData);
+        setTimeout(() => setCurrentIdx(nextIdx), 50);
       } else {
-        // All done or no more unwatched — stay on current but show as watched
+        // All watched or no more — update data to show current state
+        setData(newData);
         setSubmitted(false);
       }
     } catch (e) { setSubmitted(false); alert(e.message); }
