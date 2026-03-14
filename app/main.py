@@ -349,6 +349,74 @@ def home(request: Request):
 async def health_check():
     return {"status": "ok"}
 
+
+@app.get("/api/me")
+def api_me(request: Request, db: Session = Depends(get_db)):
+    """Return current user data for the React frontend."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    return {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "is_admin": user.is_admin,
+        "is_active": user.is_active,
+        "membership_tier": user.membership_tier or "basic",
+        "balance": round(float(user.balance or 0), 2),
+        "total_earned": round(float(user.total_earned or 0), 2),
+        "total_withdrawn": round(float(user.total_withdrawn or 0), 2),
+        "grid_earnings": round(float(user.grid_earnings or 0), 2),
+        "level_earnings": round(float(user.level_earnings or 0), 2),
+        "upline_earnings": round(float(user.upline_earnings or 0), 2),
+        "course_earnings": round(float(user.course_earnings or 0), 2),
+        "marketplace_earnings": round(float(user.marketplace_earnings or 0), 2),
+        "bonus_earnings": round(float(user.bonus_earnings or 0), 2),
+        "personal_referrals": user.personal_referrals or 0,
+        "total_team": user.total_team or 0,
+        "sponsor_id": user.sponsor_id,
+        "created_at": user.created_at.isoformat() if user.created_at else None,
+        "onboarding_completed": user.onboarding_completed,
+        "kyc_status": user.kyc_status,
+        "totp_enabled": user.totp_enabled,
+        "avatar_url": None,  # TODO: pull from LinkHub profile
+    }
+
+
+@app.get("/api/notifications")
+def api_notifications(request: Request, db: Session = Depends(get_db)):
+    """Return recent notifications for the current user."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    notifs = db.query(Notification).filter(
+        Notification.user_id == user.id
+    ).order_by(Notification.created_at.desc()).limit(20).all()
+    unread = sum(1 for n in notifs if not n.is_read)
+    return {
+        "notifications": [{
+            "id": n.id, "type": n.type, "icon": n.icon, "title": n.title,
+            "message": n.message, "link": n.link, "is_read": n.is_read,
+            "created_at": n.created_at.isoformat() if n.created_at else None,
+        } for n in notifs],
+        "unread_count": unread,
+    }
+
+
+@app.post("/api/notifications/mark-read")
+def api_mark_notifications_read(request: Request, db: Session = Depends(get_db)):
+    """Mark all notifications as read."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    db.query(Notification).filter(
+        Notification.user_id == user.id, Notification.is_read == False
+    ).update({"is_read": True})
+    db.commit()
+    return {"ok": True}
+
 @app.get("/how-it-works")
 def how_it_works(request: Request):
     return templates.TemplateResponse("how-it-works.html", {"request": request, "join_url": get_join_url()})
@@ -993,6 +1061,30 @@ def dashboard(request: Request, user: User = Depends(get_current_user),
         logger.error(f"Dashboard error for user {user.id}: {exc}", exc_info=True)
         return JSONResponse({"error": f"Dashboard error: {exc}"}, status_code=500)
 
+
+@app.get("/api/dashboard")
+def api_dashboard(request: Request, user: User = Depends(get_current_user),
+                  db: Session = Depends(get_db)):
+    """JSON dashboard data for React frontend."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    try:
+        check_achievements(db, user)
+        ctx = get_dashboard_context(request, user, db)
+        # Strip non-serialisable items
+        safe = {}
+        for k, v in ctx.items():
+            if k in ('request', 'user'):
+                continue
+            try:
+                json.dumps(v)
+                safe[k] = v
+            except (TypeError, ValueError):
+                safe[k] = str(v)
+        return safe
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
 @app.get("/launch-wizard")
 def launch_wizard(request: Request, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
@@ -1217,6 +1309,44 @@ def wallet(request: Request, user: User = Depends(get_current_user),
         "p2p_history": p2p_history,
     })
     return templates.TemplateResponse("wallet.html", ctx)
+
+
+@app.get("/api/wallet")
+def api_wallet_data(request: Request, user: User = Depends(get_current_user),
+                    db: Session = Depends(get_db)):
+    """JSON wallet data for React frontend."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    commissions = get_user_commission_history(db, user.id, limit=50)
+    withdrawals_raw = db.query(Withdrawal).filter(
+        Withdrawal.user_id == user.id
+    ).order_by(Withdrawal.requested_at.desc()).limit(20).all()
+    renewal = get_renewal_status(db, user.id)
+    p2p_history = get_p2p_history(db, user.id, limit=20)
+    for t in p2p_history:
+        if t.get("created_at"):
+            t["created_at"] = t["created_at"].strftime("%d %b %Y %H:%M")
+    withdrawals = [{
+        "id": w.id, "amount": float(w.amount_usdt or 0),
+        "status": w.status, "wallet_address": w.wallet_address,
+        "requested_at": w.requested_at.isoformat() if w.requested_at else None,
+        "processed_at": w.processed_at.isoformat() if w.processed_at else None,
+    } for w in withdrawals_raw]
+    return {
+        "balance": round(float(user.balance or 0), 2),
+        "total_earned": round(float(user.total_earned or 0), 2),
+        "total_withdrawn": round(float(user.total_withdrawn or 0), 2),
+        "grid_earnings": round(float(user.grid_earnings or 0), 2),
+        "course_earnings": round(float(user.course_earnings or 0), 2),
+        "marketplace_earnings": round(float(user.marketplace_earnings or 0), 2),
+        "membership_tier": user.membership_tier or "basic",
+        "wallet_address": user.wallet_address or "",
+        "commissions": commissions,
+        "withdrawals": withdrawals,
+        "renewal": renewal,
+        "p2p_history": p2p_history,
+    }
+
 
 @app.get("/affiliate")
 def affiliate(request: Request, user: User = Depends(get_current_user),
@@ -11103,3 +11233,56 @@ def marketplace_course_detail(slug: str, request: Request, db: Session = Depends
 def creator_agreement_page(request: Request):
     """Course Creator Agreement — legal terms page."""
     return templates.TemplateResponse("course-creator-agreement.html", {"request": request})
+
+# ═══════════════════════════════════════════════════════════════
+#  REACT SPA — Serve the built React frontend
+# ═══════════════════════════════════════════════════════════════
+import pathlib
+
+_react_index = pathlib.Path("static/app/index.html")
+
+@app.get("/app/{full_path:path}")
+async def serve_react_app(full_path: str):
+    """Serve the React SPA for all /app/* routes."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h2>React app not built yet. Run: cd frontend && npm run build</h2>", status_code=503)
+
+
+@app.post("/api/account/update")
+async def api_account_update(request: Request, user: User = Depends(get_current_user),
+                             db: Session = Depends(get_db)):
+    """Update user profile fields."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    if "first_name" in body:
+        user.first_name = (body["first_name"] or "").strip()[:100]
+    if "last_name" in body:
+        user.last_name = (body["last_name"] or "").strip()[:100]
+    if "email" in body:
+        email = (body["email"] or "").strip()[:200]
+        if email and "@" in email:
+            user.email = email
+    db.commit()
+    return {"ok": True}
+
+
+@app.get("/api/courses")
+def api_courses_list(request: Request, db: Session = Depends(get_db)):
+    """List platform courses for the course library."""
+    from .database import Course, CourseChapter, CourseLesson
+    courses = db.query(Course).order_by(Course.id).all()
+    result = []
+    for c in courses:
+        chapters = db.query(CourseChapter).filter(CourseChapter.course_id == c.id).count()
+        lessons = db.query(CourseLesson).filter(CourseLesson.course_id == c.id).count()
+        total_dur = sum(l.duration_minutes or 0 for l in db.query(CourseLesson).filter(CourseLesson.course_id == c.id).all())
+        result.append({
+            "id": c.id, "title": c.title, "description": c.description or "",
+            "price": float(c.price or 0), "thumbnail_url": c.thumbnail_url or "",
+            "category": c.category or "course",
+            "chapter_count": chapters, "lesson_count": lessons,
+            "total_duration": total_dur,
+        })
+    return {"courses": result}
