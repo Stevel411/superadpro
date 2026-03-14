@@ -6,7 +6,7 @@
 <link rel="manifest" href="/static/manifest.json"><meta name="theme-color" content="#0ea5e9"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 <title>SuperPages — SuperAdPro</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=Raleway:wght@400;500;600;700;800;900&family=Open+Sans:wght@400;500;600;700;800&family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700;900&family=Nunito:wght@400;500;600;700;800;900&family=Work+Sans:wght@400;500;600;700;800;900&family=Urbanist:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Barlow:wght@400;500;600;700;800;900&family=Oswald:wght@400;500;600;700&family=Anton&family=Bebas+Neue&family=Righteous&family=Josefin+Sans:wght@400;500;600;700&family=Cinzel:wght@400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Merriweather:wght@400;700;900&family=Lora:wght@400;500;600;700&family=PT+Serif:wght@400;700&family=Abril+Fatface&family=Dancing+Script:wght@400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
-<!-- TinyMCE removed — using native contentEditable inline editing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.6.1/tinymce.min.js" referrerpolicy="origin"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -76,7 +76,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .cel:hover{outline:1px dashed rgba(14,165,233,.35);outline-offset:1px}
 .cel.selected{outline:2px solid var(--accent);outline-offset:1px}
 
-/* Element inline toolbar — light theme */
+/* Element inline toolbar — light theme to match TinyMCE */
 .cel-bar{
   position:absolute;top:-38px;left:50%;transform:translateX(-50%);display:none;
   background:#fafbfd;border:1px solid #e2e8f0;border-radius:9px;
@@ -84,7 +84,9 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 }
 .cel.selected .cel-bar{display:flex;align-items:center}
 
-
+/* TinyMCE dialog constraint */
+.tox .tox-dialog{max-width:420px!important}
+.tox .tox-dialog-wrap__backdrop{background:rgba(0,0,0,.3)!important}
 .cb{width:28px;height:28px;border:none;border-radius:6px;background:transparent;color:#5a6070;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:.12s}
 .cb:hover{background:rgba(14,165,233,.1);color:var(--accent)}
 .cb-del:hover{background:rgba(244,63,94,.1);color:var(--rose)}
@@ -108,6 +110,8 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 /* ── Inline text editing ── */
 .cel [contenteditable]{outline:none;cursor:text;min-height:1em}
 .cel [contenteditable]:focus{cursor:text}
+
+/* ── TinyMCE overrides in main block above ── */
 
 /* ── Right panel ── */
 .panel{width:280px;background:var(--panel);border-left:1px solid var(--panel-border);display:flex;flex-direction:column;height:100%;overflow:hidden;flex-shrink:0}
@@ -170,28 +174,37 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 /* Canvas empty state */
 .canvas-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;opacity:.6}
 
-/* ── Inline Format Toolbar (Framer-style, floats above editing element) ── */
-#inlineFmtBar{
-  position:fixed;z-index:300;display:none;
-  background:#fff;border:1px solid #e2e8f0;border-radius:12px;
-  box-shadow:0 8px 32px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06);
-  padding:5px 6px;gap:3px;align-items:center;flex-wrap:wrap;
-  max-width:620px;
-}
-#inlineFmtBar.show{display:flex}
-#inlineFmtBar::after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:12px;height:12px;background:#fff;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;transform:translateX(-50%) rotate(45deg)}
-.fmt-btn{width:30px;height:30px;border:none;border-radius:7px;background:transparent;color:#64748b;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:.12s;flex-shrink:0;font-weight:600}
-.fmt-btn:hover{background:#f1f5f9;color:#1e293b}
-.fmt-btn.active{background:#eff6ff;color:#2563eb}
-.fmt-sep{width:1px;height:22px;background:#e2e8f0;margin:0 2px;flex-shrink:0}
-.fmt-select{padding:4px 6px;border:1px solid #e5e7eb;border-radius:7px;font-size:11px;color:#374151;background:#f8fafc;outline:none;cursor:pointer;font-family:'DM Sans',sans-serif;max-width:120px}
-.fmt-select:focus{border-color:#0ea5e9}
-.fmt-color{width:26px;height:26px;border-radius:6px;border:2px solid #e2e8f0;overflow:hidden;position:relative;cursor:pointer;flex-shrink:0}
-.fmt-color input[type=color]{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);border:none;cursor:pointer;padding:0}
-/* Inline edit mode — purple outline instead of cyan */
-.cel.inline-editing{outline:2px solid #8b5cf6!important;outline-offset:2px}
-.cel.inline-editing [contenteditable]{cursor:text!important;pointer-events:auto!important}
-.cel.inline-editing [contenteditable] *{cursor:text!important;pointer-events:auto!important}
+/* TinyMCE modern overrides — 2-row toolbar, no blue borders */
+#floatingEditor .tox.tox-tinymce{border:none!important;border-radius:0!important}
+#floatingEditor .tox .tox-toolbar-overlord{background:#ffffff!important;border-bottom:1px solid #f0f1f3!important;padding:0!important}
+#floatingEditor .tox .tox-toolbar__primary{background:#ffffff!important;padding:4px 10px!important;gap:2px!important;flex-wrap:wrap!important}
+#floatingEditor .tox .tox-toolbar__group{border-right:1px solid #eceef2!important;padding:0 8px!important;margin:0!important;display:flex!important;align-items:center!important;gap:1px!important}
+#floatingEditor .tox .tox-toolbar__group:last-child{border-right:none!important}
+#floatingEditor .tox .tox-tbtn{border-radius:8px!important;margin:0!important;color:#64748b!important;transition:all .15s ease!important;width:34px!important;height:34px!important}
+#floatingEditor .tox .tox-tbtn:hover{background:#f1f5f9!important;color:#1e293b!important}
+#floatingEditor .tox .tox-tbtn--enabled,#floatingEditor .tox .tox-tbtn--enabled:hover{background:#eff6ff!important;color:#2563eb!important}
+#floatingEditor .tox .tox-tbtn svg{fill:#64748b!important;transition:fill .15s!important}
+#floatingEditor .tox .tox-tbtn:hover svg{fill:#1e293b!important}
+#floatingEditor .tox .tox-tbtn--enabled svg,#floatingEditor .tox .tox-tbtn--enabled:hover svg{fill:#2563eb!important}
+#floatingEditor .tox .tox-tbtn--select{min-width:auto!important;border-radius:8px!important;padding:0 8px!important;height:34px!important}
+#floatingEditor .tox .tox-tbtn--bespoke{border-radius:8px!important;height:34px!important;background:#f8fafc!important;border:1px solid #e5e7eb!important;min-width:90px!important}
+#floatingEditor .tox .tox-tbtn--bespoke:hover{background:#f1f5f9!important;border-color:#d1d5db!important}
+#floatingEditor .tox .tox-tbtn--bespoke .tox-tbtn__select-label{color:#374151!important;font-size:12px!important;font-weight:500!important}
+#floatingEditor .tox .tox-tbtn--bespoke .tox-tbtn__select-chevron svg{fill:#9ca3af!important}
+#floatingEditor .tox .tox-split-button{border-radius:8px!important;border:none!important}
+#floatingEditor .tox .tox-split-button:hover{box-shadow:none!important}
+#floatingEditor .tox .tox-split-button__chevron{width:18px!important}
+#floatingEditor .tox .tox-edit-area{border:none!important;outline:none!important;padding:0!important}
+#floatingEditor .tox .tox-edit-area::before,#floatingEditor .tox .tox-edit-area::after{display:none!important}
+#floatingEditor .tox .tox-edit-area__iframe{background:#fff!important;border:none!important;outline:none!important;box-shadow:none!important}
+#floatingEditor .tox .tox-sidebar-wrap{border:none!important;outline:none!important}
+#floatingEditor .tox .tox-toolbar__overflow{display:none!important}
+#floatingEditor .tox.tox-tinymce--toolbar-sticky-on .tox-edit-area{border:none!important}
+#floatingEditor .tox .tox-editor-container{border:none!important;outline:none!important}
+#floatingEditor .tox .tox-editor-header{border:none!important;box-shadow:none!important}
+#floatingEditor .tox .tox-tinymce,#floatingEditor .tox .tox-tinymce *{border-color:transparent!important}
+#floatingEditor .tox .tox-edit-area,#floatingEditor .tox .tox-edit-area *,
+#floatingEditor .tox .tox-sidebar-wrap,#floatingEditor .tox .tox-sidebar-wrap *{border-color:transparent!important;outline-color:transparent!important}
 .canvas-empty-icon{font-size:40px;margin-bottom:12px}
 .canvas-empty h3{font-family:Sora,sans-serif;font-size:16px;font-weight:700;color:#fff;margin-bottom:6px}
 .canvas-empty p{font-size:12px;color:#5a6080;max-width:280px;text-align:center;line-height:1.6}
@@ -402,30 +415,6 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 </div>
 
 <div class="toast" id="toast"></div>
-
-<!-- ═══ INLINE FORMAT TOOLBAR (Framer-style) ═══ -->
-<div id="inlineFmtBar">
-  <select class="fmt-select" id="fmtFont" onchange="fmtCmd('fontName',this.value)" title="Font">
-    <option value="Sora,sans-serif">Sora</option><option value="Outfit,sans-serif" selected>Outfit</option><option value="DM Sans,sans-serif">DM Sans</option><option value="Montserrat,sans-serif">Montserrat</option><option value="Poppins,sans-serif">Poppins</option><option value="Raleway,sans-serif">Raleway</option><option value="Open Sans,sans-serif">Open Sans</option><option value="Lato,sans-serif">Lato</option><option value="Roboto,sans-serif">Roboto</option><option value="Nunito,sans-serif">Nunito</option><option value="Work Sans,sans-serif">Work Sans</option><option value="Urbanist,sans-serif">Urbanist</option><option value="Plus Jakarta Sans,sans-serif">Plus Jakarta Sans</option><option value="Space Grotesk,sans-serif">Space Grotesk</option><option value="Barlow,sans-serif">Barlow</option><option value="Oswald,sans-serif">Oswald</option><option value="Anton,sans-serif">Anton</option><option value="Bebas Neue,sans-serif">Bebas Neue</option><option value="Cinzel,serif">Cinzel</option><option value="Playfair Display,serif">Playfair Display</option><option value="Georgia,serif">Georgia</option><option value="Merriweather,serif">Merriweather</option><option value="Dancing Script,cursive">Dancing Script</option><option value="Pacifico,cursive">Pacifico</option>
-  </select>
-  <select class="fmt-select" id="fmtSize" onchange="fmtCmd('fontSize',this.value)" title="Size" style="width:60px">
-    <option value="1">10px</option><option value="2">13px</option><option value="3" selected>16px</option><option value="4">18px</option><option value="5">24px</option><option value="6">32px</option><option value="7">48px</option>
-  </select>
-  <div class="fmt-sep"></div>
-  <button class="fmt-btn" onclick="fmtCmd('bold')" title="Bold" id="fmtBold"><b>B</b></button>
-  <button class="fmt-btn" onclick="fmtCmd('italic')" title="Italic" id="fmtItalic"><i>I</i></button>
-  <button class="fmt-btn" onclick="fmtCmd('underline')" title="Underline" id="fmtUnderline"><u>U</u></button>
-  <button class="fmt-btn" onclick="fmtCmd('strikethrough')" title="Strikethrough" id="fmtStrike"><s>S</s></button>
-  <div class="fmt-sep"></div>
-  <div class="fmt-color" title="Text colour"><input type="color" id="fmtColor" value="#ffffff" oninput="fmtCmd('foreColor',this.value)"></div>
-  <div class="fmt-color" title="Highlight"><input type="color" id="fmtHighlight" value="#000000" oninput="fmtCmd('hiliteColor',this.value)"></div>
-  <div class="fmt-sep"></div>
-  <button class="fmt-btn" onclick="fmtCmd('justifyLeft')" title="Align left">⫷</button>
-  <button class="fmt-btn" onclick="fmtCmd('justifyCenter')" title="Align centre">☰</button>
-  <button class="fmt-btn" onclick="fmtCmd('justifyRight')" title="Align right">⫸</button>
-  <div class="fmt-sep"></div>
-  <button class="fmt-btn" onclick="fmtCmd('removeFormat')" title="Clear formatting" style="color:#dc2626">✕</button>
-</div>
 
 <script>
 // ═══════════════════════════════════════════════════
@@ -826,8 +815,14 @@ function enterEditMode(id) {
     return;
   }
   
-  // Text elements — inline contentEditable (Framer-style)
-  startInlineEdit(id);
+  // Text elements — TinyMCE
+  const dom = document.getElementById(id);
+  if (dom) dom.classList.add('editing');
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      initTinyOnElement(id);
+    });
+  });
 }
 
 // ═══ IMAGE EDITOR ═══
@@ -836,7 +831,7 @@ function showImageEditor(id, el) {
   panel.style.display = 'flex';
   document.getElementById('editorTargetName').textContent = 'Image';
   
-  exitInlineEdit(); // close any inline text edit
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
   
   const wrap = document.getElementById('tinyEditorWrap');
   const currentUrl = el.txt || '';
@@ -930,7 +925,7 @@ function showVideoEditor(id, el) {
   panel.style.display = 'flex';
   document.getElementById('editorTargetName').textContent = 'Video';
   
-  exitInlineEdit(); // close any inline text edit
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
   
   const wrap = document.getElementById('tinyEditorWrap');
   const currentUrl = el.txt || '';
@@ -1033,7 +1028,7 @@ function showButtonEditor(id, el) {
   panel.style.display = 'flex';
   document.getElementById('editorTargetName').textContent = el.type === 'cta' ? 'CTA Button' : 'Button';
   
-  exitInlineEdit(); // close any inline text edit
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
   
   const wrap = document.getElementById('tinyEditorWrap');
   const tempDiv = document.createElement('div'); tempDiv.innerHTML = el.txt || ''; 
@@ -1141,7 +1136,7 @@ function showFormEditor(id, el) {
   panel.style.display = 'flex';
   document.getElementById('editorTargetName').textContent = 'Email Capture Form';
   
-  exitInlineEdit(); // close any inline text edit
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
   
   const wrap = document.getElementById('tinyEditorWrap');
   
@@ -1274,7 +1269,7 @@ function showCountdownEditor(id, el) {
   const panel = document.getElementById('floatingEditor');
   panel.style.display = 'flex';
   document.getElementById('editorTargetName').textContent = 'Countdown Timer';
-  exitInlineEdit(); // close any inline text edit
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
   const wrap = document.getElementById('tinyEditorWrap');
   const td = el._targetDate || '';
   wrap.innerHTML = `
@@ -1298,7 +1293,7 @@ function showProgressEditor(id, el) {
   const panel = document.getElementById('floatingEditor');
   panel.style.display = 'flex';
   document.getElementById('editorTargetName').textContent = 'Progress Bar';
-  exitInlineEdit(); // close any inline text edit
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
   const wrap = document.getElementById('tinyEditorWrap');
   wrap.innerHTML = `
     <div style="padding:20px;background:#fff">
@@ -1334,7 +1329,7 @@ function showSocialEditor(id, el) {
   const panel = document.getElementById('floatingEditor');
   panel.style.display = 'flex';
   document.getElementById('editorTargetName').textContent = 'Social Icons';
-  exitInlineEdit(); // close any inline text edit
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
   const wrap = document.getElementById('tinyEditorWrap');
   const links = el._links || {youtube:'#',instagram:'#',tiktok:'#',facebook:'#',x:'#',linkedin:'#'};
   const fields = [['youtube','YouTube','#ff0000'],['instagram','Instagram','#e4405f'],['tiktok','TikTok','#000'],['facebook','Facebook','#1877f2'],['x','X / Twitter','#000'],['linkedin','LinkedIn','#0a66c2']];
@@ -1365,7 +1360,7 @@ function showAudioEditor(id, el) {
   const panel = document.getElementById('floatingEditor');
   panel.style.display = 'flex';
   document.getElementById('editorTargetName').textContent = 'Audio';
-  exitInlineEdit(); // close any inline text edit
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
   const wrap = document.getElementById('tinyEditorWrap');
   const url = el._audioUrl || '';
   wrap.innerHTML = `
@@ -1425,7 +1420,7 @@ function showEmbedEditor(id, el) {
   const panel = document.getElementById('floatingEditor');
   panel.style.display = 'flex';
   document.getElementById('editorTargetName').textContent = 'HTML Embed';
-  exitInlineEdit(); // close any inline text edit
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
   const wrap = document.getElementById('tinyEditorWrap');
   const code = el._embedCode || '';
   wrap.innerHTML = `
@@ -1466,8 +1461,6 @@ document.getElementById('canvas').addEventListener('mousedown', e => {
 function startDrag(e, id) {
   // Never drag if clicking on toolbar or resize handles
   if (e.target.closest('.cel-bar') || e.target.closest('.cel-resize')) return;
-  // Never drag if inline editing this element — let text selection work
-  if (_inlineEditId === id) return;
   
   // If clicking an unselected element — select it
   if (id !== selId) {
@@ -1836,159 +1829,131 @@ let _tinyReady = false;
   });
 })();
 
-// ═══ INLINE TEXT EDITING (Framer-style — no TinyMCE) ═══
-let _inlineEditId = null;
-
-function startInlineEdit(id) {
-  const dom = document.getElementById(id);
-  if (!dom) return;
-  const ce = dom.querySelector('[contenteditable]');
-  if (!ce) return;
-
-  _inlineEditId = id;
-  _activeEditorId = id;
-  editMode = true;
-
-  // Enable direct editing on the canvas element
-  dom.classList.add('inline-editing');
-  ce.contentEditable = 'true';
-  ce.style.cursor = 'text';
-  ce.style.pointerEvents = 'auto';
-  // Allow child elements to be interactive during editing
-  ce.querySelectorAll('*').forEach(el => { el.style.pointerEvents = 'auto'; el.style.cursor = 'text'; });
-
-  // Focus and place cursor
-  ce.focus();
-  // Move cursor to end
-  const sel = window.getSelection();
-  const range = document.createRange();
-  range.selectNodeContents(ce);
-  range.collapse(false);
-  sel.removeAllRanges();
-  sel.addRange(range);
-
-  // Show inline format toolbar
-  positionFmtBar(dom);
-  document.getElementById('inlineFmtBar').classList.add('show');
-
-  // Update toolbar state from element
-  const elObj = els.find(x => x.id === id);
-  if (elObj?.s?.fontFamily) {
-    const sel2 = document.getElementById('fmtFont');
-    for (let i = 0; i < sel2.options.length; i++) {
-      if (elObj.s.fontFamily.includes(sel2.options[i].value.split(',')[0])) { sel2.selectedIndex = i; break; }
-    }
-  }
-
-  // Listen for selection changes to update active states
-  ce.addEventListener('input', onInlineInput);
-  ce.addEventListener('keyup', onInlineSelChange);
-  ce.addEventListener('mouseup', onInlineSelChange);
-}
-
-function positionFmtBar(dom) {
-  const bar = document.getElementById('inlineFmtBar');
-  const rect = dom.getBoundingClientRect();
-  const barW = 620; // max-width
-  let left = rect.left + rect.width / 2 - barW / 2;
-  left = Math.max(8, Math.min(left, window.innerWidth - barW - 8));
-  let top = rect.top - 52;
-  if (top < 58) top = rect.bottom + 8; // below if no room above
-  bar.style.left = left + 'px';
-  bar.style.top = top + 'px';
-}
-
-function onInlineInput() {
-  // Sync content back to element state
-  if (!_inlineEditId) return;
-  const dom = document.getElementById(_inlineEditId);
-  const ce = dom?.querySelector('[contenteditable]');
-  const elObj = els.find(x => x.id === _inlineEditId);
-  if (ce && elObj) { elObj.txt = ce.innerHTML; _dirty = true; }
-}
-
-function onInlineSelChange() {
-  // Update toolbar button active states
-  try {
-    document.getElementById('fmtBold').classList.toggle('active', document.queryCommandState('bold'));
-    document.getElementById('fmtItalic').classList.toggle('active', document.queryCommandState('italic'));
-    document.getElementById('fmtUnderline').classList.toggle('active', document.queryCommandState('underline'));
-    document.getElementById('fmtStrike').classList.toggle('active', document.queryCommandState('strikethrough'));
-  } catch(e) {}
-}
-
-function fmtCmd(cmd, val) {
-  // Ensure focus is on the editing element
-  if (_inlineEditId) {
-    const dom = document.getElementById(_inlineEditId);
-    const ce = dom?.querySelector('[contenteditable]');
-    if (ce) ce.focus();
-  }
-  // Font name needs the first part only
-  if (cmd === 'fontName') {
-    document.execCommand('fontName', false, val.split(',')[0].trim());
-    // Also update the element style
-    const elObj = els.find(x => x.id === _inlineEditId);
-    if (elObj) { elObj.s.fontFamily = val; }
-  } else {
-    document.execCommand(cmd, false, val || null);
-  }
-  onInlineInput();
-  onInlineSelChange();
-}
-
-function exitInlineEdit() {
-  if (!_inlineEditId) return;
-  const dom = document.getElementById(_inlineEditId);
-  if (dom) {
-    dom.classList.remove('inline-editing');
-    const ce = dom.querySelector('[contenteditable]');
-    if (ce) {
-      // Save final content
-      const elObj = els.find(x => x.id === _inlineEditId);
-      if (elObj) elObj.txt = ce.innerHTML;
-      ce.contentEditable = 'false';
-      ce.removeEventListener('input', onInlineInput);
-      ce.removeEventListener('keyup', onInlineSelChange);
-      ce.removeEventListener('mouseup', onInlineSelChange);
-    }
-  }
-  document.getElementById('inlineFmtBar').classList.remove('show');
-  _inlineEditId = null;
-}
-
 function initTinyOnElement(id) {
-  // Legacy — redirects to inline edit
-  startInlineEdit(id);
+  const elDom = document.getElementById(id);
+  if (!elDom) return;
+  const ce = elDom.querySelector('[contenteditable]');
+  if (!ce) return;
+  
+  const elObj = els.find(x => x.id === id);
+  _activeEditorId = id;
+  
+  // Show the floating panel
+  const panel = document.getElementById('floatingEditor');
+  panel.style.display = 'flex';
+  
+  // Update panel title
+  const nameEl = document.getElementById('editorTargetName');
+  if (nameEl) nameEl.textContent = (elObj?.type || 'text').charAt(0).toUpperCase() + (elObj?.type || 'text').slice(1);
+  
+  // Destroy any existing TinyMCE instance
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
+  
+  // Load content into textarea
+  document.getElementById('tinyEditorArea').value = ce.innerHTML;
+  
+  tinymce.init({
+    selector: '#tinyEditorArea',
+    height: 280,
+    menubar: false,
+    statusbar: false,
+    branding: false,
+    license_key: 'gpl',
+    toolbar: [
+      'bold italic underline strikethrough | forecolor backcolor removeformat | alignleft aligncenter alignright',
+      'lineheight | numlist bullist outdent indent | charmap | undo redo'
+    ],
+    font_family_formats: 'Sora=Sora,sans-serif;Outfit=Outfit,sans-serif;DM Sans=DM Sans,sans-serif;Montserrat=Montserrat,sans-serif;Poppins=Poppins,sans-serif;Raleway=Raleway,sans-serif;Open Sans=Open Sans,sans-serif;Lato=Lato,sans-serif;Roboto=Roboto,sans-serif;Nunito=Nunito,sans-serif;Work Sans=Work Sans,sans-serif;Urbanist=Urbanist,sans-serif;Plus Jakarta Sans=Plus Jakarta Sans,sans-serif;Space Grotesk=Space Grotesk,sans-serif;Barlow=Barlow,sans-serif;Oswald=Oswald,sans-serif;Anton=Anton,sans-serif;Bebas Neue=Bebas Neue,sans-serif;Righteous=Righteous,sans-serif;Josefin Sans=Josefin Sans,sans-serif;Cinzel=Cinzel,serif;Playfair Display=Playfair Display,serif;Georgia=Georgia,serif;Merriweather=Merriweather,serif;Lora=Lora,serif;PT Serif=PT Serif,serif;Abril Fatface=Abril Fatface,serif;Dancing Script=Dancing Script,cursive;Pacifico=Pacifico,cursive;Courier New=Courier New,monospace',
+    font_size_formats: '8px 9px 10px 11px 12px 13px 14px 15px 16px 17px 18px 20px 22px 24px 26px 28px 30px 32px 36px 40px 44px 48px 52px 56px 60px 64px 72px 80px 88px 96px 104px 112px 120px',
+    line_height_formats: '0.8 0.9 1 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 2 2.2 2.4 2.6 3',
+    plugins: 'lists charmap',
+    toolbar_mode: 'wrap',
+    skin: 'oxide',
+    content_style: `
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=Raleway:wght@400;500;600;700;800;900&family=Open+Sans:wght@400;500;600;700;800&family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700;900&family=Nunito:wght@400;500;600;700;800;900&family=Work+Sans:wght@400;500;600;700;800;900&family=Urbanist:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Barlow:wght@400;500;600;700;800;900&family=Oswald:wght@400;500;600;700&family=Anton&family=Bebas+Neue&family=Righteous&family=Josefin+Sans:wght@400;500;600;700&family=Cinzel:wght@400;500;600;700;800;900&family=Playfair Display:wght@400;500;600;700;800;900&family=Merriweather:wght@400;700;900&family=Lora:wght@400;500;600;700&family=PT+Serif:wght@400;700&family=Abril+Fatface&family=Dancing+Script:wght@400;500;600;700&family=Pacifico&display=swap');
+      body { font-family: Outfit, sans-serif; font-size: 15px; color: #1a1a2e; background: #ffffff; padding: 18px 20px; margin: 0; line-height: 1.8; outline: none !important; border: none !important; }
+      body.mce-content-body { outline: none !important; border: none !important; box-shadow: none !important; }
+      body.mce-content-body:focus { outline: none !important; border: none !important; box-shadow: none !important; }
+      body.mce-content-body[data-mce-selected] { outline: none !important; }
+      p { margin: 0 0 8px; }
+      ::selection { background: #bfdbfe; color: #1e3a5f; }
+      *, *:focus, *:active { outline: none !important; }
+    `,
+    setup: function(editor) {
+      editor.on('init', function() {
+        _tinyReady = true;
+        // Remove the blue focus outline from the content body
+        var body = editor.getBody();
+        if (body) {
+          body.style.outline = 'none';
+          body.style.border = 'none';
+          body.style.boxShadow = 'none';
+        }
+        // Also inject a style tag directly into the iframe
+        var doc = editor.getDoc();
+        if (doc) {
+          var style = doc.createElement('style');
+          style.textContent = 'body,body.mce-content-body,body:focus,body:active{outline:none!important;border:none!important;box-shadow:none!important}';
+          doc.head.appendChild(style);
+        }
+        // Remove outline from the iframe element itself
+        var iframe = document.querySelector('#floatingEditor .tox-edit-area__iframe');
+        if (iframe) {
+          iframe.style.outline = 'none';
+          iframe.style.border = 'none';
+        }
+        editor.focus();
+      });
+      // Live preview on canvas — cover all formatting changes
+      editor.on('input change keyup', function() { updateCanvasFromEditor(); });
+      editor.on('ExecCommand', function() { setTimeout(updateCanvasFromEditor, 50); });
+      editor.on('FormatApply FormatRemove', function() { setTimeout(updateCanvasFromEditor, 50); });
+      editor.on('NodeChange SetContent Undo Redo', function() { setTimeout(updateCanvasFromEditor, 50); });
+    }
+  });
 }
 
 function updateCanvasFromEditor() {
-  // For inline editing, content is already on canvas — no-op
-  // For floating panel editors (image/video/etc), they handle their own updates
+  if (!_activeEditorId) return;
+  const editor = tinymce.get('tinyEditorArea');
+  if (!editor) return;
+  const content = editor.getContent();
+  const el = document.getElementById(_activeEditorId);
+  if (el) {
+    const ce = el.querySelector('[contenteditable]');
+    if (ce) ce.innerHTML = content;
+  }
+  const elObj = els.find(x => x.id === _activeEditorId);
+  if (elObj) elObj.txt = content;
 }
 
 function applyEditorFont() {
-  // Legacy — handled by fmtCmd now
+  const editor = tinymce.get('tinyEditorArea');
+  if (!editor) return;
+  const font = document.getElementById('edFontFamily').value;
+  editor.execCommand('FontName', false, font.split(',')[0].trim());
+  setTimeout(updateCanvasFromEditor, 50);
 }
 
 function applyEditorSize() {
-  // Legacy — handled by fmtCmd now
+  const editor = tinymce.get('tinyEditorArea');
+  if (!editor) return;
+  const size = document.getElementById('edFontSize').value;
+  editor.execCommand('FontSize', false, size);
+  setTimeout(updateCanvasFromEditor, 50);
 }
 
 function exitEditMode() {
-  // Exit inline text editing if active
-  exitInlineEdit();
-  // Close floating panel if open
   if (_activeEditorId) {
+    updateCanvasFromEditor();
     const dom = document.getElementById(_activeEditorId);
     if (dom) dom.classList.remove('editing');
   }
-  // Hide floating panel (used by image/video/audio/form/etc editors)
-  const panel = document.getElementById('floatingEditor');
-  if (panel) panel.style.display = 'none';
-  // Reset editor wrap if it exists
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
+  // Always reset the editor wrap content and hide panel
   const wrap = document.getElementById('tinyEditorWrap');
   if (wrap) wrap.innerHTML = '<textarea id="tinyEditorArea"></textarea>';
+  document.getElementById('floatingEditor').style.display = 'none';
   _activeEditorId = null;
   _tinyReady = false;
   editMode = false;
@@ -2165,7 +2130,7 @@ async function sendChat() {
 
 // ═══ SAVE ═══
 async function save() {
-  // Save and close any active editor first
+  // Save and destroy any active TinyMCE editor first
   destroyTiny();
   
   // Sync any contenteditable content
@@ -2274,14 +2239,8 @@ function toast(msg) {
 // ═══ KEYBOARD ═══
 document.addEventListener('keydown', e => {
   if (e.target.closest('[contenteditable]') || e.target.closest('textarea') || e.target.closest('input')) return;
-  // Don't intercept when floating editor panel or inline format toolbar is active
-  if (e.target.closest('#floatingEditor') || e.target.closest('#inlineFmtBar')) return;
-  // Don't intercept when inline editing text (let contentEditable handle it)
-  if (_inlineEditId && e.target.closest('[contenteditable="true"]')) {
-    // Only intercept Escape during inline edit
-    if (e.key === 'Escape') { exitEditMode(); e.preventDefault(); }
-    return;
-  }
+  // Don't intercept when floating editor panel is visible (TinyMCE may be active)
+  if (e.target.closest('#floatingEditor') || e.target.closest('.tox')) return;
   if (e.key==='Delete'||e.key==='Backspace') { if(selId){delEl(selId);e.preventDefault();} }
   if (e.key==='Escape') { if(editMode||_activeEditorId) exitEditMode(); else { selId=null; renderAll(); } }
   if ((e.metaKey||e.ctrlKey)&&e.key==='s') { e.preventDefault(); save(); }
@@ -2302,7 +2261,7 @@ function showStylePanel(id) {
   const panel = document.getElementById('floatingEditor');
   panel.style.display = 'flex';
   document.getElementById('editorTargetName').textContent = 'Style';
-  exitInlineEdit(); // close any inline text edit
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
   const wrap = document.getElementById('tinyEditorWrap');
   const s = el.s || {};
   const borderMatch = (s.border || '').match(/(\d+)px\s+(solid|dashed|dotted)\s+(#[0-9a-fA-F]{3,8})/);
@@ -2357,7 +2316,7 @@ function showPageSettings() {
   const panel = document.getElementById('floatingEditor');
   panel.style.display = 'flex';
   document.getElementById('editorTargetName').textContent = 'Page Settings';
-  exitInlineEdit(); // close any inline text edit
+  try { const ex = tinymce.get('tinyEditorArea'); if (ex) ex.remove(); } catch(e) {}
   const wrap = document.getElementById('tinyEditorWrap');
   wrap.innerHTML = `
     <div style="padding:20px;background:#fff;max-height:65vh;overflow-y:auto">
