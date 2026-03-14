@@ -241,6 +241,7 @@ export default function SuperPagesEditor() {
             setCanvasBgImage={setCanvasBgImage}
             markDirty={markDirty}
             onAddElement={(type) => addElement(type)}
+            pageId={pageId}
           />
         )}
       </div>
