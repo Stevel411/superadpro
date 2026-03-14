@@ -78,12 +78,22 @@ export default function Watch() {
   };
 
   const toggleMute = () => {
-    setMuted(!muted);
+    const newMuted = !muted;
+    setMuted(newMuted);
     try {
       const frame = iframeRef.current;
-      if (frame) {
-        const cmd = muted ? 'unMute' : 'mute';
-        frame.contentWindow.postMessage(`{"event":"command","func":"${cmd}Video","args":""}`, '*');
+      if (!frame) return;
+      const url = current?.embed_url || '';
+      if (url.includes('vimeo')) {
+        // Vimeo Player API
+        const cmd = newMuted
+          ? '{"method":"setVolume","value":0}'
+          : '{"method":"setVolume","value":1}';
+        frame.contentWindow.postMessage(cmd, '*');
+      } else {
+        // YouTube Player API
+        const func = newMuted ? 'mute' : 'unMute';
+        frame.contentWindow.postMessage(`{"event":"command","func":"${func}Video","args":""}`, '*');
       }
     } catch(e) {}
   };
@@ -106,6 +116,11 @@ export default function Watch() {
   // Build embed URL — autoplay, muted, no controls
   const buildEmbedUrl = (url) => {
     if (!url) return '';
+    if (url.includes('vimeo')) {
+      const sep = url.includes('?') ? '&' : '?';
+      return `${url}${sep}autoplay=1&muted=1&controls=0&title=0&byline=0&portrait=0`;
+    }
+    // YouTube / default
     const sep = url.includes('?') ? '&' : '?';
     return `${url}${sep}autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&enablejsapi=1`;
   };
@@ -163,14 +178,14 @@ export default function Watch() {
     <AppLayout title="Watch to Earn" subtitle="Complete your daily quota to stay commission-eligible"
       topbarActions={<>
         <div style={{background:'#f8f9fb',border:'1px solid #e8ecf2',borderRadius:8,padding:'5px 14px',textAlign:'center'}}>
-          <div style={{fontSize:9,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'#94a3b8'}}>Tier {d.tier || 1}</div>
-          <div style={{fontSize:12,fontWeight:800,color:'#0f172a'}}>{limit} videos/day</div>
+          <div style={{fontSize:9,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'#94a3b8'}}>Tier {d.tier}</div>
+          <div style={{fontSize:12,fontWeight:800,color:'#0f172a'}}>{d.daily_required} videos/day</div>
         </div>
         <span style={{fontSize:11,fontWeight:700,padding:'5px 14px',borderRadius:8,
           ...(watched>=limit ? {background:'rgba(22,163,74,.08)',border:'1px solid rgba(22,163,74,.15)',color:'#16a34a'} : {background:'rgba(14,165,233,.06)',border:'1px solid rgba(14,165,233,.12)',color:'#0ea5e9'}),
         }}>{watched>=limit ? '● Qualified' : '● Watching'}</span>
       </>}>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 320px',gap:18,alignItems:'start'}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 260px',gap:16,alignItems:'start'}}>
 
         {/* LEFT: Player */}
         <div style={{display:'flex',flexDirection:'column',gap:14}}>
