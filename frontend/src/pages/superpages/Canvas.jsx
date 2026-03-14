@@ -1,15 +1,86 @@
-import { useRef, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect, useState } from 'react';
 import { CANVAS_WIDTH, SNAP_THRESHOLD, SOCIAL_SVGS } from './elementDefaults';
+import InlineToolbar from './InlineToolbar';
 
 export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, markDirty, onEditElement }) {
   const canvasRef = useRef(null);
   const dragRef = useRef(null);
   const resizeRef = useRef(null);
   const guideRefs = useRef({});
+  const [editingId, setEditingId] = useState(null);
+  const [toolbarPos, setToolbarPos] = useState({ x: 0, y: 0 });
+  const editableRef = useRef(null);
+
+  const EDITABLE_TYPES = ['heading', 'text', 'label', 'review', 'testimonial', 'faq', 'stat', 'icontext', 'separator', 'logostrip', 'button', 'cta'];
 
   // ── Canvas height ──
   const maxElY = els.length > 0 ? Math.max(...els.map(e => e.y + e.h)) : 0;
   const canvasHeight = Math.max(1200, maxElY + 500);
+
+  // ── Inline editing ──
+  const startInlineEdit = useCallback((id) => {
+    const el = els.find(x => x.id === id);
+    if (!el || !EDITABLE_TYPES.includes(el.type)) return;
+    setEditingId(id);
+    // Position toolbar above element
+    const dom = document.getElementById(id);
+    if (dom) {
+      const rect = dom.getBoundingClientRect();
+      setToolbarPos({ x: rect.left + rect.width / 2, y: rect.top - 50 });
+    }
+    // Make content editable after state update
+    setTimeout(() => {
+      const ce = document.querySelector(`#${id} .cel-editable`);
+      if (ce) {
+        ce.contentEditable = 'true';
+        ce.style.pointerEvents = 'auto';
+        ce.style.cursor = 'text';
+        ce.style.outline = 'none';
+        ce.focus();
+        editableRef.current = ce;
+        // Select all text
+        const sel = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(ce);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    }, 50);
+  }, [els]);
+
+  const exitInlineEdit = useCallback(() => {
+    if (!editingId) return;
+    const ce = editableRef.current;
+    if (ce) {
+      const html = ce.innerHTML;
+      updateElement(editingId, { txt: html });
+      markDirty();
+      ce.contentEditable = 'false';
+      ce.style.pointerEvents = 'none';
+      ce.style.cursor = 'grab';
+    }
+    setEditingId(null);
+    editableRef.current = null;
+  }, [editingId, updateElement, markDirty]);
+
+  // Update toolbar position on scroll/resize
+  useEffect(() => {
+    if (!editingId) return;
+    const update = () => {
+      const dom = document.getElementById(editingId);
+      if (dom) {
+        const rect = dom.getBoundingClientRect();
+        setToolbarPos({ x: rect.left + rect.width / 2, y: Math.max(10, rect.top - 50) });
+      }
+    };
+    const area = document.querySelector('.sp-canvas-area');
+    if (area) area.addEventListener('scroll', update);
+    window.addEventListener('resize', update);
+    return () => {
+      if (area) area.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [editingId]);
 
   // ── Background style ──
   const bgStyle = {
@@ -167,6 +238,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
   // ── Canvas click deselect ──
   const handleCanvasClick = (e) => {
     if (e.target === canvasRef.current || e.target.closest('.canvas-empty')) {
+      exitInlineEdit();
       deselectAll();
     }
   };
@@ -201,7 +273,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     }
     if (['spacer', 'divider', 'box'].includes(el.type) && !el.txt) return null;
     if (el.type === 'button' || el.type === 'cta') {
-      return <div style={{ ...Object.fromEntries(textStyles.filter(k => el.s?.[k]).map(k => [k, el.s[k]])), width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>{el.txt || 'Button'}</div>;
+      return <div className="cel-editable" style={{ ...Object.fromEntries(textStyles.filter(k => el.s?.[k]).map(k => [k, el.s[k]])), width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} dangerouslySetInnerHTML={{__html: el.txt || 'Button'}} />;
     }
     if (el.type === 'countdown') {
       return <div style={{ display: 'flex', gap: 12, justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
@@ -248,7 +320,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,41,0.3)', borderRadius: 12, border: '1px dashed #334155', color: '#475569', fontSize: 13, gap: 8 }}>⟨/⟩ Click ✎ CODE to add HTML</div>;
     }
     // Default: contenteditable text
-    return <div dangerouslySetInnerHTML={{ __html: el.txt || '' }} style={Object.fromEntries(
+    return <div className="cel-editable" dangerouslySetInnerHTML={{ __html: el.txt || '' }} style={Object.fromEntries(
       innerStyle.split(';').filter(Boolean).map(s => { const [k, ...v] = s.split(':'); return [k.trim().replace(/-([a-z])/g, (_, c) => c.toUpperCase()), v.join(':').trim()]; })
     )} />;
   };
@@ -258,7 +330,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     const layoutStyles = ['background', 'borderRadius', 'border', 'padding', 'boxShadow', 'borderLeft', 'borderTop', 'borderRight', 'borderBottom', 'opacity'];
     const style = {
       position: 'absolute', left: el.x, top: el.y, width: el.w, height: el.h,
-      cursor: 'grab', userSelect: 'none', minWidth: 40, minHeight: 20,
+      cursor: editingId === el.id ? 'text' : 'grab', userSelect: editingId === el.id ? 'auto' : 'none', minWidth: 40, minHeight: 20,
     };
     layoutStyles.forEach(k => { if (el.s?.[k]) style[k] = el.s[k]; });
     return style;
@@ -308,12 +380,13 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
           <div
             key={el.id}
             id={el.id}
-            className={`cel${el.id === selId ? ' selected' : ''}`}
+            className={`cel${el.id === selId ? ' selected' : ''}${el.id === editingId ? ' editing' : ''}`}
             style={getOuterStyle(el)}
-            onMouseDown={e => startDrag(e, el.id)}
+            onMouseDown={e => { if (editingId === el.id) return; startDrag(e, el.id); }}
+            onDoubleClick={() => { if (EDITABLE_TYPES.includes(el.type)) { selectElement(el.id); startInlineEdit(el.id); } }}
           >
             {/* Inner content */}
-            <div style={{ pointerEvents: 'none' }}>{renderInner(el)}</div>
+            <div style={{ pointerEvents: editingId === el.id ? 'auto' : 'none' }}>{renderInner(el)}</div>
 
             {/* Toolbar */}
             <div className="cel-bar" style={{
@@ -358,10 +431,28 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       <style>{`
         .cel:hover { outline: 1px dashed rgba(14,165,233,0.35); outline-offset: 1px; }
         .cel.selected { outline: 2px solid #0ea5e9; outline-offset: 1px; }
+        .cel.editing { outline: 2px solid #6366f1; outline-offset: 1px; cursor: text !important; }
+        .cel.editing * { cursor: text !important; user-select: auto !important; }
         .cel > *:not(.cel-bar):not(.cel-resize) { pointer-events: none; }
+        .cel.editing > * { pointer-events: auto !important; }
         .cel .cel-bar, .cel .cel-bar * { pointer-events: auto !important; cursor: pointer !important; }
         .cel .cel-resize { pointer-events: auto !important; }
+        .cel-editable:focus { outline: none; }
+        .cel-editable::selection { background: rgba(14,165,233,0.2); }
       `}</style>
+
+      {/* Inline Formatting Toolbar */}
+      <InlineToolbar
+        visible={!!editingId}
+        position={toolbarPos}
+        onCommand={() => {
+          // Sync content back to state on every formatting change
+          if (editableRef.current && editingId) {
+            updateElement(editingId, { txt: editableRef.current.innerHTML });
+            markDirty();
+          }
+        }}
+      />
     </div>
   );
 }
