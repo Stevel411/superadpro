@@ -11385,38 +11385,43 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
     """JSON watch-to-earn data."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
-    today_str = datetime.utcnow().strftime("%Y-%m-%d")
-    watched_today = 0
-    if quota and quota.quota_date == today_str:
-        watched_today = quota.videos_watched_today or 0
-    daily_limit = 10
-    # Get available videos
-    campaigns = db.query(VideoCampaign).filter(
-        VideoCampaign.status == "active",
-        VideoCampaign.views_delivered < VideoCampaign.views_target
-    ).order_by(VideoCampaign.created_at.desc()).limit(20).all()
-    # Which ones has user watched today?
-    watched_ids = set()
-    if user:
-        today_watches = db.query(VideoWatch).filter(
-            VideoWatch.user_id == user.id,
-            VideoWatch.watched_at >= datetime.utcnow().replace(hour=0, minute=0, second=0)
-        ).all()
-        watched_ids = {w.campaign_id for w in today_watches}
-    return {
-        "watched_today": watched_today,
-        "daily_limit": daily_limit,
-        "quota_reached": watched_today >= daily_limit,
-        "earned_today": round(watched_today * 0.02, 2),
-        "total_minutes": (quota.total_watch_minutes or 0) if quota else 0,
-        "total_watch_earnings": round(float(quota.total_earned or 0), 2) if quota else 0,
-        "videos": [{
-            "id": c.id, "title": c.title, "platform": c.platform,
-            "category": c.category or "General", "embed_url": c.embed_url,
-            "is_watched": c.id in watched_ids,
-        } for c in campaigns],
-    }
+    try:
+        quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
+        today_str = datetime.utcnow().strftime("%Y-%m-%d")
+        watched_today = 0
+        if quota and getattr(quota, 'today_date', None) == today_str:
+            watched_today = getattr(quota, 'today_watched', 0) or 0
+        daily_limit = 10
+        # Get available videos
+        campaigns = db.query(VideoCampaign).filter(
+            VideoCampaign.status == "active",
+            VideoCampaign.views_delivered < VideoCampaign.views_target
+        ).order_by(VideoCampaign.created_at.desc()).limit(20).all()
+        # Which ones has user watched today?
+        watched_ids = set()
+        if user:
+            today_watches = db.query(VideoWatch).filter(
+                VideoWatch.user_id == user.id,
+                VideoWatch.watched_at >= datetime.utcnow().replace(hour=0, minute=0, second=0)
+            ).all()
+            watched_ids = {w.campaign_id for w in today_watches}
+        return {
+            "watched_today": watched_today,
+            "daily_limit": daily_limit,
+            "quota_reached": watched_today >= daily_limit,
+            "earned_today": round(watched_today * 0.02, 2),
+            "total_minutes": getattr(quota, 'total_watch_minutes', 0) or 0 if quota else 0,
+            "total_watch_earnings": round(float(getattr(quota, 'total_earned', 0) or 0), 2) if quota else 0,
+            "videos": [{
+                "id": c.id, "title": c.title, "platform": c.platform,
+                "category": c.category or "General", "embed_url": c.embed_url,
+                "is_watched": c.id in watched_ids,
+            } for c in campaigns],
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 
 @app.get("/api/analytics")
