@@ -11391,7 +11391,7 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
         watched_today = 0
         if quota and getattr(quota, 'today_date', None) == today_str:
             watched_today = getattr(quota, 'today_watched', 0) or 0
-        daily_limit = 10
+        daily_limit = getattr(quota, 'daily_required', 10) if quota else 10
         # Get available videos
         campaigns = db.query(VideoCampaign).filter(
             VideoCampaign.status == "active",

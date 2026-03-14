@@ -147,8 +147,12 @@ export default function Watch() {
   const statusText = isCurrentWatched ? '✓ Watched' : timerDone ? '✓ Complete — mark as watched' : paused ? '⏸ Paused — return to this tab' : '⏱ Watching — timer counting down';
   const statusColor = isCurrentWatched || timerDone ? '#16a34a' : paused ? '#d97706' : '#0ea5e9';
 
-  // ═══ QUOTA COMPLETE ═══
-  if (d.quota_reached) {
+  // Check if ALL available videos are already watched
+  const allWatched = videos.length > 0 && videos.every(v => v.is_watched);
+
+  // ═══ QUOTA COMPLETE or ALL WATCHED ═══
+  if (d.quota_reached || allWatched) {
+    const displayWatched = allWatched ? videos.length : watched;
     return (
       <AppLayout title="Watch to Earn" subtitle="Daily quota complete">
         <div style={{maxWidth:700,margin:'0 auto'}}>
@@ -157,7 +161,7 @@ export default function Watch() {
             <div style={{fontSize:52,marginBottom:14}}>🎉</div>
             <div style={{display:'inline-block',fontSize:9,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',color:'#22c55e',background:'rgba(22,163,74,.08)',border:'1px solid rgba(22,163,74,.2)',padding:'4px 14px',borderRadius:8,marginBottom:12}}>✓ Fully Qualified</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'#0f172a',marginBottom:8}}>Today's Quota Complete!</div>
-            <div style={{fontSize:14,color:'#64748b',lineHeight:1.7,marginBottom:28}}>You've watched all {limit} required videos today. Your commissions are fully qualified.</div>
+            <div style={{fontSize:14,color:'#64748b',lineHeight:1.7,marginBottom:28}}>You've watched all {displayWatched} required videos today. Your commissions are fully qualified.</div>
             <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:8,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:8,padding:'13px 32px',textDecoration:'none'}}>← Back to Dashboard</Link>
           </div>
         </div>
