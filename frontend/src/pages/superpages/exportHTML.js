@@ -18,6 +18,12 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
         h += `<video src="${el.txt}" style="${st};border-radius:12px;object-fit:cover" autoplay muted loop playsinline></video>`;
       } else {
         let embedUrl = el.txt;
+        // Convert watch URLs to embed URLs
+        const ytMatch = embedUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+        if (ytMatch) embedUrl = `https://www.youtube.com/embed/${ytMatch[1]}`;
+        const vmMatch = embedUrl.match(/(?:vimeo\.com\/)(\d+)/);
+        if (vmMatch && !embedUrl.includes('player.vimeo.com')) embedUrl = `https://player.vimeo.com/video/${vmMatch[1]}`;
+        
         if (embedUrl.includes('youtube.com/embed/') && !embedUrl.includes('modestbranding')) {
           embedUrl += (embedUrl.includes('?') ? '&' : '?') + 'modestbranding=1&rel=0&showinfo=0&color=white&iv_load_policy=3';
         } else if (embedUrl.includes('player.vimeo.com/') && !embedUrl.includes('byline=0')) {

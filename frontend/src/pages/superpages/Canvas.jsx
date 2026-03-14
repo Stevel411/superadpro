@@ -250,15 +250,22 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     textStyles.forEach(k => { if (el.s?.[k]) innerStyle += k.replace(/([A-Z])/g, '-$1').toLowerCase() + ':' + el.s[k] + ';'; });
 
     if (el.type === 'video' && el.txt) {
-      const isMP4 = el._isMP4 || /\.(mp4|webm|ogg)/.test(el.txt) || el.txt.includes('funnel-videos');
+      // Auto-convert YouTube/Vimeo watch URLs to embed URLs at render time
+      let videoSrc = el.txt;
+      const ytMatch = videoSrc.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+      if (ytMatch) videoSrc = `https://www.youtube.com/embed/${ytMatch[1]}`;
+      const vmMatch = videoSrc.match(/(?:vimeo\.com\/)(\d+)/);
+      if (vmMatch && !videoSrc.includes('player.vimeo.com')) videoSrc = `https://player.vimeo.com/video/${vmMatch[1]}`;
+
+      const isMP4 = el._isMP4 || /\.(mp4|webm|ogg)/.test(videoSrc) || videoSrc.includes('funnel-videos');
       if (isMP4) {
         return <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-          <video src={el.txt} style={{ width: '100%', height: '100%', borderRadius: 12, objectFit: 'cover', pointerEvents: 'none' }} controls />
+          <video src={videoSrc} style={{ width: '100%', height: '100%', borderRadius: 12, objectFit: 'cover', pointerEvents: 'none' }} controls />
           <div style={{ position: 'absolute', inset: 0, zIndex: 2, cursor: 'grab' }} />
         </div>;
       }
       return <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-        <iframe src={el.txt} style={{ width: '100%', height: '100%', border: 'none', borderRadius: 12, pointerEvents: 'none' }} allowFullScreen />
+        <iframe src={videoSrc} style={{ width: '100%', height: '100%', border: 'none', borderRadius: 12, pointerEvents: 'none' }} allowFullScreen />
         <div style={{ position: 'absolute', inset: 0, zIndex: 2, cursor: 'grab' }} />
       </div>;
     }
