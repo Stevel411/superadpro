@@ -271,7 +271,7 @@ export default function Watch() {
         </div>
 
         {/* ═══ RIGHT: Progress Panel ═══ */}
-        <div style={{display:'flex',flexDirection:'column',gap:12,position:'sticky',top:82,marginTop:37}}>
+        <div style={{display:'flex',flexDirection:'column',gap:12,position:'sticky',top:82}}>
 
           {/* Today's Progress */}
           <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:8,padding:22,boxShadow:'0 2px 8px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03)'}}>
