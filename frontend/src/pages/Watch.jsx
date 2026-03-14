@@ -96,16 +96,17 @@ export default function Watch() {
   const toggleMute = () => {
     const newMuted = !muted;
     setMuted(newMuted);
-    try {
-      const frame = iframeRef.current;
-      if (!frame) return;
-      const url = data?.videos?.[currentIdx]?.embed_url || '';
-      if (url.includes('vimeo')) {
-        frame.contentWindow.postMessage(JSON.stringify({method:'setVolume',value:newMuted?0:1}), '*');
-      } else {
-        frame.contentWindow.postMessage(`{"event":"command","func":"${newMuted?'mute':'unMute'}Video","args":""}`, '*');
-      }
-    } catch(e) {}
+    // Reload iframe with updated mute parameter
+    const frame = iframeRef.current;
+    if (!frame || !current?.embed_url) return;
+    const url = current.embed_url;
+    if (url.includes('vimeo')) {
+      const sep = url.includes('?') ? '&' : '?';
+      frame.src = `${url}${sep}autoplay=1&muted=${newMuted?1:0}&controls=0&title=0&byline=0&portrait=0`;
+    } else {
+      const sep = url.includes('?') ? '&' : '?';
+      frame.src = `${url}${sep}autoplay=1&mute=${newMuted?1:0}&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&enablejsapi=1`;
+    }
   };
 
   const buildEmbedUrl = (url) => {
@@ -191,15 +192,15 @@ export default function Watch() {
       <div style={{display:'grid',gridTemplateColumns:'1fr 340px',gap:20,alignItems:'start',maxWidth:1400,margin:'0 auto'}}>
 
         {/* ═══ LEFT: Player ═══ */}
-        <div style={{display:'flex',flexDirection:'column',gap:14}}>
+        <div style={{display:'flex',flexDirection:'column',gap:10}}>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:8,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03)'}}>
 
-            <div style={{padding:'14px 20px',borderBottom:'1px solid #f1f3f7',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
-              <div style={{minWidth:0}}>
-                <div style={{fontSize:15,fontWeight:700,color:'#0f172a'}}>{current?.title || 'Loading...'}</div>
-                <div style={{fontSize:12,color:'#94a3b8',marginTop:2}}>{current?.platform || 'video'} · {current?.category || 'General'}</div>
+            <div style={{padding:'8px 16px',borderBottom:'1px solid #f1f3f7',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
+              <div style={{minWidth:0,display:'flex',alignItems:'center',gap:8}}>
+                <div style={{fontSize:14,fontWeight:700,color:'#0f172a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{current?.title || 'Loading...'}</div>
+                <div style={{fontSize:11,color:'#94a3b8',whiteSpace:'nowrap',flexShrink:0}}>{current?.platform || 'video'} · {current?.category || 'General'}</div>
               </div>
-              <div style={{fontSize:9,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'#0ea5e9',background:'rgba(14,165,233,.06)',border:'1px solid rgba(14,165,233,.12)',padding:'5px 14px',borderRadius:8,whiteSpace:'nowrap'}}>▶ Now Playing</div>
+              <div style={{fontSize:8,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'#0ea5e9',background:'rgba(14,165,233,.06)',border:'1px solid rgba(14,165,233,.12)',padding:'4px 10px',borderRadius:6,whiteSpace:'nowrap'}}>▶ Now Playing</div>
             </div>
 
             {/* Video — full width, no controls */}
@@ -231,7 +232,7 @@ export default function Watch() {
             </div>
 
             {/* Footer */}
-            <div style={{padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:16,background:'#f8f9fb',borderTop:'1px solid #f1f3f7'}}>
+            <div style={{padding:'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:14,background:'#f8f9fb',borderTop:'1px solid #f1f3f7'}}>
               <div style={{display:'flex',alignItems:'center',gap:14}}>
                 <div style={{width:56,height:56,position:'relative',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
                   <svg width="56" height="56" style={{position:'absolute',top:0,left:0,transform:'rotate(-90deg)'}}>
@@ -270,7 +271,7 @@ export default function Watch() {
         </div>
 
         {/* ═══ RIGHT: Progress Panel ═══ */}
-        <div style={{display:'flex',flexDirection:'column',gap:14,position:'sticky',top:82}}>
+        <div style={{display:'flex',flexDirection:'column',gap:12,position:'sticky',top:82}}>
 
           {/* Today's Progress */}
           <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:8,padding:22,boxShadow:'0 2px 8px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03)'}}>
