@@ -11539,14 +11539,13 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
     today_str = datetime.utcnow().strftime("%Y-%m-%d")
     quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
     if not quota:
-        quota = WatchQuota(user_id=user.id, quota_date=today_str, videos_watched_today=0,
-                           total_watch_minutes=0, total_earned=0)
+        quota = WatchQuota(user_id=user.id, today_date=today_str, today_watched=0)
         db.add(quota)
         db.flush()
-    if quota.quota_date != today_str:
-        quota.quota_date = today_str
-        quota.videos_watched_today = 0
-    if (quota.videos_watched_today or 0) >= 10:
+    if (getattr(quota, 'today_date', None) or '') != today_str:
+        quota.today_date = today_str
+        quota.today_watched = 0
+    if (quota.today_watched or 0) >= 10:
         return JSONResponse({"error": "Daily limit reached"}, status_code=400)
     # Check not already watched today
     existing = db.query(VideoWatch).filter(
@@ -11559,10 +11558,8 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
     watch = VideoWatch(user_id=user.id, campaign_id=video_id)
     db.add(watch)
     campaign.views_delivered = (campaign.views_delivered or 0) + 1
-    quota.videos_watched_today = (quota.videos_watched_today or 0) + 1
-    quota.total_watch_minutes = (quota.total_watch_minutes or 0) + 2
+    quota.today_watched = (quota.today_watched or 0) + 1
     earn = 0.02
-    quota.total_earned = float(quota.total_earned or 0) + earn
     user.balance = float(user.balance or 0) + earn
     user.total_earned = float(user.total_earned or 0) + earn
     db.commit()
