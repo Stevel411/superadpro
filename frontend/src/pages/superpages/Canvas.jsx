@@ -398,9 +398,9 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
             }}>
               {!['spacer', 'divider', 'box'].includes(el.type) && (
                 <>
-                  <button onClick={e => { e.stopPropagation(); onEditElement(el.id); }}
-                    style={{ padding: '2px 8px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 800, color: '#0ea5e9' }}>
-                    {editLabel(el.type)}
+                  <button onClick={e => { e.stopPropagation(); if (EDITABLE_TYPES.includes(el.type)) { startInlineEdit(el.id); } else { onEditElement(el.id); } }}
+                    style={{ padding: '2px 8px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 800, color: EDITABLE_TYPES.includes(el.type) ? '#6366f1' : '#0ea5e9' }}>
+                    {EDITABLE_TYPES.includes(el.type) ? '✎ EDIT' : editLabel(el.type)}
                   </button>
                   <div style={{ width: 1, height: 14, background: '#e5e7eb' }} />
                 </>

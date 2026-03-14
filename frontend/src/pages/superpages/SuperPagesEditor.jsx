@@ -318,58 +318,18 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
   const actualEl = els.find(x => x.id === elId) || el;
   const [localTxt, setLocalTxt] = useState(actualEl.txt || '');
   const [localUrl, setLocalUrl] = useState(actualEl.url || '');
-  const [tinyReady, setTinyReady] = useState(false);
-  const tinyRef = useRef(null);
-  const isTextType = ['heading', 'text', 'label', 'review', 'testimonial', 'faq', 'stat', 'icontext', 'separator', 'logostrip'].includes(actualEl.type);
-
-  // Load TinyMCE from CDN and init
-  useEffect(() => {
-    if (!isTextType && actualEl.type !== 'form') return;
-    const loadAndInit = () => {
-      if (!window.tinymce) {
-        const s = document.createElement('script');
-        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.6.1/tinymce.min.js';
-        s.onload = () => initTiny();
-        document.head.appendChild(s);
-      } else { initTiny(); }
-    };
-    const initTiny = () => {
-      try { const ex = window.tinymce.get('spTinyArea'); if (ex) ex.remove(); } catch(e) {}
-      setTimeout(() => {
-        window.tinymce.init({
-          selector: '#spTinyArea',
-          height: 300,
-          menubar: false, statusbar: false, branding: false, license_key: 'gpl',
-          toolbar: [
-            'fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor removeformat',
-            'alignleft aligncenter alignright | lineheight | numlist bullist | charmap | undo redo'
-          ],
-          font_family_formats: 'Sora=Sora,sans-serif;Outfit=Outfit,sans-serif;DM Sans=DM Sans,sans-serif;Montserrat=Montserrat,sans-serif;Poppins=Poppins,sans-serif;Raleway=Raleway,sans-serif;Open Sans=Open Sans,sans-serif;Roboto=Roboto,sans-serif;Nunito=Nunito,sans-serif;Playfair Display=Playfair Display,serif;Georgia=Georgia,serif;Merriweather=Merriweather,serif;Dancing Script=Dancing Script,cursive;Pacifico=Pacifico,cursive',
-          font_size_formats: '10px 12px 14px 15px 16px 18px 20px 22px 24px 28px 32px 36px 40px 48px 56px 64px 72px 80px 96px 120px',
-          line_height_formats: '0.8 1 1.2 1.4 1.5 1.6 1.8 2 2.4 3',
-          plugins: 'lists charmap',
-          toolbar_mode: 'wrap', skin: 'oxide',
-          content_style: `@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Outfit:wght@400;600;700;800&family=DM+Sans:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap');body{font-family:Outfit,sans-serif;font-size:15px;color:#1a1a2e;background:#fff;padding:18px 20px;margin:0;line-height:1.8}p{margin:0 0 8px}`,
-          setup: (editor) => {
-            editor.on('init', () => { setTinyReady(true); tinyRef.current = editor; editor.focus(); });
-          }
-        });
-      }, 100);
-    };
-    loadAndInit();
-    return () => { try { const ex = window.tinymce?.get('spTinyArea'); if (ex) ex.remove(); } catch(e) {} };
-  }, [isTextType, actualEl.type]);
 
   const apply = () => {
-    let txt = localTxt;
-    if (tinyRef.current) txt = tinyRef.current.getContent();
-    updateElement(elId, { txt, url: localUrl });
+    updateElement(elId, { txt: localTxt, url: localUrl });
     markDirty();
-    try { const ex = window.tinymce?.get('spTinyArea'); if (ex) ex.remove(); } catch(e) {}
     onClose();
   };
 
   const type = actualEl.type;
+
+  // Text types are edited inline on canvas — skip modal
+  const isTextType = ['heading', 'text', 'label', 'review', 'testimonial', 'faq', 'stat', 'icontext', 'separator', 'logostrip'].includes(type);
+  if (isTextType) { onClose(); return null; }
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
@@ -383,15 +343,6 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: '#9ca3af' }}>✕</button>
         </div>
         <div style={{ padding: 20 }}>
-          {/* Text/Heading — TinyMCE rich text editor */}
-          {isTextType && (
-            <>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Content</label>
-              <textarea id="spTinyArea" defaultValue={localTxt}
-                style={{ width: '100%', minHeight: 200, boxSizing: 'border-box' }} />
-              {!tinyReady && <div style={{fontSize:12,color:'#94a3b8',padding:8}}>Loading editor...</div>}
-            </>
-          )}
 
           {/* Button/CTA */}
           {(type === 'button' || type === 'cta') && (
@@ -424,13 +375,13 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
             </>
           )}
 
-          {/* Form — TinyMCE rich editor */}
+          {/* Form — HTML editor */}
           {type === 'form' && (
             <>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Form Content</label>
-              <textarea id="spTinyArea" defaultValue={localTxt}
-                style={{ width: '100%', minHeight: 200, boxSizing: 'border-box' }} />
-              {!tinyReady && <div style={{fontSize:12,color:'#94a3b8',padding:8}}>Loading editor...</div>}
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Form HTML</label>
+              <textarea value={localTxt} onChange={e => setLocalTxt(e.target.value)}
+                rows={10}
+                style={{ width: '100%', padding: 12, border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 12, fontFamily: 'monospace', outline: 'none', resize: 'vertical', boxSizing: 'border-box', marginBottom: 12 }} />
             </>
           )}
 
