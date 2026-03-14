@@ -63,7 +63,7 @@ export default function Dashboard() {
           <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 16, fontWeight: 800, color: '#4ade80' }}>${d.balance?.toFixed(2)}</div>
         </div>
         <span style={{
-          fontSize: 11, fontWeight: 700, padding: '6px 14px', borderRadius: 20,
+          fontSize: 11, fontWeight: 700, padding: '6px 14px', borderRadius: 8,
           ...(d.is_active
             ? { background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.2)', color: '#4ade80' }
             : { background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', color: '#fbbf24' })
@@ -76,7 +76,7 @@ export default function Dashboard() {
       {!d.is_active && (
         <div style={{
           background: 'linear-gradient(135deg,#f0fdf4,#ecfeff)', border: '1px solid #bbf7d0',
-          borderRadius: 14, padding: '20px 24px', marginBottom: 20,
+          borderRadius: 8, padding: '20px 24px', marginBottom: 20,
           display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
         }}>
           <div style={{ flex: 1, minWidth: 240 }}>
@@ -98,7 +98,7 @@ export default function Dashboard() {
       {/* Onboarding Wizard */}
       {user && !user.onboarding_completed && (
         <div id="onboardWizard" style={{
-          background: 'linear-gradient(135deg,#0f172a,#1e293b)', borderRadius: 20,
+          background: 'linear-gradient(135deg,#0f172a,#1e293b)', borderRadius: 8,
           padding: '28px 32px', marginBottom: 20, border: '1px solid rgba(14,165,233,0.15)',
           position: 'relative', overflow: 'hidden',
         }}>
@@ -120,7 +120,7 @@ export default function Dashboard() {
               <div key={i} style={{
                 flex: 1, background: s.done ? 'rgba(16,185,129,0.06)' : 'rgba(255,255,255,0.04)',
                 border: `1px solid ${s.done ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.06)'}`,
-                borderRadius: 14, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 8,
+                borderRadius: 8, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 8,
               }}>
                 <div style={{
                   width: 32, height: 32, borderRadius: 10,
@@ -152,7 +152,7 @@ export default function Dashboard() {
       {/* Welcome Banner */}
       <div style={{
         background: 'linear-gradient(135deg,#0b1729 0%,#132240 50%,#0e1c30 100%)',
-        borderRadius: 18, padding: '32px 36px', marginBottom: 20,
+        borderRadius: 8, padding: '32px 36px', marginBottom: 20,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         position: 'relative', overflow: 'hidden',
         boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)',
@@ -189,11 +189,11 @@ export default function Dashboard() {
           { color: '#e11d48', bg: '#ffe4e6', icon: '🏪', badge: '50/25/25', val: d.marketplace_earnings, name: 'Marketplace', detail: `${d.marketplace_sales || 0} sale${d.marketplace_sales !== 1 ? 's' : ''} · ${d.marketplace_courses || 0} course${d.marketplace_courses !== 1 ? 's' : ''}` },
         ].map((s, i) => (
           <div key={i} className="stream-card" style={{
-            background: '#fff', border: '1px solid #e5e7eb', borderRadius: 16, padding: 22,
+            background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, padding: 22,
             boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)',
             position: 'relative', overflow: 'hidden', transition: 'all 0.2s',
           }}>
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: s.color, borderRadius: '16px 16px 0 0' }} />
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: s.color, borderRadius: '8px 8px 0 0' }} />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
               <div style={{ width: 40, height: 40, borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, background: s.bg }}>{s.icon}</div>
               <span style={{ fontSize: 9, fontWeight: 700, padding: '3px 8px', borderRadius: 5, letterSpacing: 0.3, background: s.bg, color: s.color }}>{s.badge}</span>
@@ -216,7 +216,7 @@ export default function Dashboard() {
           { icon: '👁️', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)', name: 'Watch to Earn', desc: 'Watch daily videos for bonus earnings', link: '/watch' },
         ].map((a, i) => (
           <Link key={i} to={a.link} className="action-card" style={{
-            background: '#fff', border: '1px solid #e5e7eb', borderRadius: 16, padding: 20,
+            background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, padding: 20,
             boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)',
             textDecoration: 'none', transition: 'all 0.15s', display: 'flex', flexDirection: 'column',
             alignItems: 'center', textAlign: 'center', gap: 10,
@@ -231,7 +231,7 @@ export default function Dashboard() {
       {/* Bottom Row */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'stretch' }}>
         {/* Recent Activity */}
-        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 16, padding: 22, boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, padding: 22, boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <div style={{ fontSize: 15, fontWeight: 800, color: '#1a1a2e' }}>Recent Activity</div>
             <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: '#0ea5e9', textDecoration: 'none' }}>View all →</Link>
@@ -254,7 +254,7 @@ export default function Dashboard() {
         </div>
 
         {/* Network Snapshot */}
-        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 16, padding: 22, boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, padding: 22, boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <div style={{ fontSize: 15, fontWeight: 800, color: '#1a1a2e' }}>Your Network</div>
             <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: '#0ea5e9', textDecoration: 'none' }}>Full network →</Link>
