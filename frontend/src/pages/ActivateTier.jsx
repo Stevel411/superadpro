@@ -4,14 +4,14 @@ import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 
 const TIERS = {
-  1: { name:'Starter',     price:20,   views:'5,000',     monthly:'500' },
-  2: { name:'Builder',     price:50,   views:'15,000',    monthly:'1,500' },
-  3: { name:'Accelerator', price:100,  views:'35,000',    monthly:'5,000' },
-  4: { name:'Advanced',    price:200,  views:'80,000',    monthly:'10,000' },
-  5: { name:'Elite',       price:300,  views:'150,000',   monthly:'20,000' },
-  6: { name:'Premium',     price:500,  views:'250,000',   monthly:'30,000' },
-  7: { name:'Executive',   price:750,  views:'400,000',   monthly:'40,000' },
-  8: { name:'Ultimate',    price:1000, views:'600,000',   monthly:'50,000' },
+  1: { name:'Starter',     price:20,   views:'5,000',     monthly:'500',    bonus:64 },
+  2: { name:'Builder',     price:50,   views:'15,000',    monthly:'1,500',  bonus:160 },
+  3: { name:'Accelerator', price:100,  views:'35,000',    monthly:'5,000',  bonus:320 },
+  4: { name:'Advanced',    price:200,  views:'80,000',    monthly:'10,000', bonus:640 },
+  5: { name:'Elite',       price:300,  views:'150,000',   monthly:'20,000', bonus:960 },
+  6: { name:'Premium',     price:500,  views:'250,000',   monthly:'30,000', bonus:1600 },
+  7: { name:'Executive',   price:750,  views:'400,000',   monthly:'40,000', bonus:2400 },
+  8: { name:'Ultimate',    price:1000, views:'600,000',   monthly:'50,000', bonus:3200 },
 };
 
 export default function ActivateTier() {
@@ -105,7 +105,7 @@ export default function ActivateTier() {
               { icon:'⚡', title:'8×8 Income Grid position activated', desc:'Your grid has 64 positions. As your network grows and fills positions, you earn commissions on every level.' },
               { icon:'💰', title:'40% direct sponsor commission', desc:'When someone you personally refer activates this same tier, you earn 40% of the tier price instantly.' },
               { icon:'🌐', title:'50% uni-level commissions across 8 levels', desc:'Earn on your entire network — not just direct referrals. 8 levels deep, compounding as your team grows.' },
-              { icon:'🏆', title:'5% bonus pool contribution', desc:'A portion funds the grid completion bonus pool, rewarding members who fill their grids.' },
+              { icon:'🏆', title:`$${t.bonus.toLocaleString()} grid completion bonus`, desc:`5% of every activation at this tier funds the bonus pool. Complete all 64 positions in your 8×8 grid to claim a $${t.bonus.toLocaleString()} bonus payout.` },
             ].map((item, i) => (
               <div key={i} style={{display:'flex',gap:14,alignItems:'flex-start',padding:'12px 0',borderBottom:i<4?'1px solid #f5f6f8':'none'}}>
                 <div style={{fontSize:20,flexShrink:0,marginTop:2}}>{item.icon}</div>
@@ -154,7 +154,7 @@ export default function ActivateTier() {
             {[
               { label:'Direct Sponsor', pct:'40%', amount:`$${(t.price * 0.4).toFixed(0)}`, desc:'Per referral who activates this tier' },
               { label:'Uni-Level (×8 levels)', pct:'50%', amount:`$${(t.price * 0.0625).toFixed(2)} each`, desc:'6.25% per level across 8 levels' },
-              { label:'Bonus Pool', pct:'5%', amount:`$${(t.price * 0.05).toFixed(2)}`, desc:'Grid completion bonus fund' },
+              { label:'Bonus Pool', pct:'5%', amount:`$${t.bonus.toLocaleString()} payout`, desc:'Complete your 8×8 grid to claim' },
               { label:'Platform', pct:'5%', amount:`$${(t.price * 0.05).toFixed(2)}`, desc:'Operations & development' },
             ].map((r, i) => (
               <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 0',borderBottom:i<3?'1px solid #f5f6f8':'none'}}>
