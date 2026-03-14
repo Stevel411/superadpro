@@ -67,6 +67,23 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
               {canvasBgImage?'Image':canvasBg?.startsWith('linear')?'Grad':canvasBg?.slice(0,7)}
             </div>
           </div>
+          {/* BG image upload */}
+          <label style={{width:24,height:24,borderRadius:6,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:11,color:'rgba(255,255,255,0.4)',flexShrink:0}} title="Upload background image">
+            🖼
+            <input type="file" accept="image/*" style={{display:'none'}} onChange={async e => {
+              const f = e.target.files?.[0]; if (!f) return;
+              const fd = new FormData(); fd.append('file', f);
+              try {
+                const r = await fetch('/api/funnels/upload-image', {method:'POST', body:fd, credentials:'include'});
+                const d = await r.json();
+                if (d.url) applyBgImage(d.url);
+              } catch(err) { console.error(err); }
+            }} />
+          </label>
+          {canvasBgImage && (
+            <button onClick={() => { setCanvasBgImage(''); setBgImageUrl(''); markDirty(); }}
+              style={{width:24,height:24,borderRadius:6,background:'rgba(220,38,38,0.1)',border:'1px solid rgba(220,38,38,0.2)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:10,color:'#dc2626',flexShrink:0}} title="Remove background image">✕</button>
+          )}
         </div>
       </div>
 

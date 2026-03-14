@@ -356,22 +356,52 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
             </>
           )}
 
-          {/* Image */}
+          {/* Image — URL or upload */}
           {type === 'image' && (
             <>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Image URL</label>
+              <label style={lS}>Image URL</label>
               <input value={localTxt} onChange={e => setLocalTxt(e.target.value)} placeholder="https://..."
-                style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 13, outline: 'none', marginBottom: 12, boxSizing: 'border-box' }} />
+                style={{...iS, marginBottom: 8}} />
+              <label style={{...lS, marginTop:4}}>Or upload an image</label>
+              <input type="file" accept="image/*" onChange={async e => {
+                const f = e.target.files?.[0]; if (!f) return;
+                const fd = new FormData(); fd.append('file', f);
+                try {
+                  const r = await fetch('/api/funnels/upload-image', {method:'POST', body:fd, credentials:'include'});
+                  const d = await r.json();
+                  if (d.url) setLocalTxt(d.url);
+                } catch(err) { alert('Upload failed'); }
+              }} style={{marginBottom:12, fontSize:12}} />
               {localTxt && <img src={localTxt} style={{ maxWidth: '100%', maxHeight: 150, borderRadius: 8, marginBottom: 12 }} alt="" />}
             </>
           )}
 
-          {/* Video */}
+          {/* Video — YouTube/Vimeo URL with auto-convert, or upload MP4 */}
           {type === 'video' && (
             <>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>YouTube / Vimeo URL or MP4 URL</label>
-              <input value={localTxt} onChange={e => setLocalTxt(e.target.value)} placeholder="Paste video URL..."
-                style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 13, outline: 'none', marginBottom: 12, boxSizing: 'border-box' }} />
+              <label style={lS}>YouTube or Vimeo URL</label>
+              <input value={localTxt} onChange={e => {
+                let v = e.target.value;
+                // Auto-convert YouTube watch URLs to embed
+                const ytMatch = v.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+                if (ytMatch) v = `https://www.youtube.com/embed/${ytMatch[1]}`;
+                // Auto-convert Vimeo URLs to embed
+                const vmMatch = v.match(/vimeo\.com\/(\d+)/);
+                if (vmMatch) v = `https://player.vimeo.com/video/${vmMatch[1]}`;
+                setLocalTxt(v);
+              }} placeholder="https://www.youtube.com/watch?v=... or https://vimeo.com/..."
+                style={{...iS, marginBottom: 8}} />
+              <label style={{...lS, marginTop:4}}>Or upload MP4/WebM</label>
+              <input type="file" accept="video/mp4,video/webm,video/ogg" onChange={async e => {
+                const f = e.target.files?.[0]; if (!f) return;
+                const fd = new FormData(); fd.append('file', f);
+                try {
+                  const r = await fetch('/api/funnels/upload-video', {method:'POST', body:fd, credentials:'include'});
+                  const d = await r.json();
+                  if (d.url) setLocalTxt(d.url);
+                } catch(err) { alert('Upload failed'); }
+              }} style={{marginBottom:12, fontSize:12}} />
+              {localTxt && <div style={{fontSize:11,color:'#16a34a',padding:'6px 10px',background:'#f0fdf4',border:'1px solid rgba(22,163,74,.2)',borderRadius:6,marginBottom:12,wordBreak:'break-all'}}>Embed: {localTxt}</div>}
             </>
           )}
 
@@ -465,9 +495,26 @@ function ProgressEditor({ elId, el, updateElement, markDirty, onClose }) {
 
 function AudioEditor({ elId, el, updateElement, markDirty, onClose }) {
   const [url, setUrl] = useState(el._audioUrl || '');
+  const [uploading, setUploading] = useState(false);
+  const upload = async (e) => {
+    const f = e.target.files?.[0]; if (!f) return;
+    setUploading(true);
+    const fd = new FormData(); fd.append('file', f);
+    try {
+      const r = await fetch('/api/funnels/upload-audio', {method:'POST', body:fd, credentials:'include'});
+      const d = await r.json();
+      if (d.url) setUrl(d.url);
+      else alert(d.error || 'Upload failed');
+    } catch(err) { alert('Upload failed'); }
+    setUploading(false);
+  };
   return <>
     <label style={lblStyle}>Audio URL (MP3, WAV, OGG)</label>
-    <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://..." style={{ ...inputStyle, marginBottom: 12 }} />
+    <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://..." style={{ ...inputStyle, marginBottom: 8 }} />
+    <label style={{...lblStyle, marginTop:4}}>Or upload audio file</label>
+    <input type="file" accept="audio/mpeg,audio/wav,audio/ogg,audio/mp3" onChange={upload} disabled={uploading} style={{marginBottom:12, fontSize:12}} />
+    {uploading && <div style={{fontSize:11,color:'#0ea5e9',marginBottom:8}}>Uploading...</div>}
+    {url && <div style={{fontSize:11,color:'#16a34a',padding:'6px 10px',background:'#f0fdf4',border:'1px solid rgba(22,163,74,.2)',borderRadius:6,marginBottom:12,wordBreak:'break-all'}}>Audio: {url}</div>}
     <BtnRow onApply={() => { updateElement(elId, { _audioUrl: url }); markDirty(); onClose(); }} onClose={onClose} />
   </>;
 }
@@ -509,4 +556,6 @@ function BtnRow({ onApply, onClose }) {
 }
 
 const lblStyle = { display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 };
+const lS = lblStyle;
 const inputStyle = { width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 13, outline: 'none', boxSizing: 'border-box' };
+const iS = inputStyle;

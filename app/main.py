@@ -4117,6 +4117,42 @@ async def funnel_upload_video(file: UploadFile = File(...), user: User = Depends
     return JSONResponse({"success": True, "url": url})
 
 
+@app.post("/api/funnels/upload-audio")
+async def funnel_upload_audio(file: UploadFile = File(...), user: User = Depends(get_current_user),
+                               db: Session = Depends(get_db)):
+    """Upload an audio file (MP3/WAV/OGG) for use in funnel pages."""
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    allowed_types = {"audio/mpeg", "audio/wav", "audio/ogg", "audio/mp3", "audio/x-wav"}
+    if file.content_type not in allowed_types:
+        return JSONResponse({"error": "Only MP3, WAV and OGG audio files are allowed."}, status_code=400)
+
+    contents = await file.read()
+    if len(contents) > 20 * 1024 * 1024:
+        return JSONResponse({"error": "Audio too large. Maximum size is 20MB."}, status_code=400)
+
+    import uuid, os
+    ext = os.path.splitext(file.filename or "audio.mp3")[1].lower().lstrip(".")
+    if ext not in {"mp3", "wav", "ogg"}:
+        ext = "mp3"
+
+    from app.r2_storage import r2_available, upload_image
+    if r2_available():
+        url = upload_image(contents, "funnel-audio", ext, file.content_type)
+    else:
+        upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "uploads")
+        os.makedirs(upload_dir, exist_ok=True)
+        filename = f"{user.id}_{uuid.uuid4().hex[:12]}.{ext}"
+        filepath = os.path.join(upload_dir, filename)
+        with open(filepath, "wb") as f:
+            f.write(contents)
+        url = f"/static/uploads/{filename}"
+
+    return JSONResponse({"success": True, "url": url})
+
+
 @app.post("/api/funnels/generate-copy")
 async def funnel_generate_copy(request: Request, user: User = Depends(get_current_user),
                                 db: Session = Depends(get_db)):
