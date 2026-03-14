@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
-import { Card, CardBody, Badge, PageLoading, EmptyState, Button } from '../components/ui';
+import { useAuth } from '../hooks/useAuth';
 import { apiGet } from '../utils/api';
-import { GraduationCap, Clock, BookOpen, Play } from 'lucide-react';
 
 export default function Courses() {
+  const { user } = useAuth();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -13,45 +13,68 @@ export default function Courses() {
     apiGet('/api/courses').then(d => { setCourses(d.courses || []); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
-  if (loading) return <AppLayout title="Course Library"><PageLoading /></AppLayout>;
+  if (loading) return <AppLayout title="Course Library"><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
 
   return (
-    <AppLayout title="Course Library" subtitle="Learn skills that earn you commissions">
-      {courses.length === 0 ? (
-        <EmptyState icon="🎓" title="No courses available yet"
-          description="Courses will appear here as they are added to the platform."
-          action={<Link to="/courses/create"><Button>Create a Course</Button></Link>} />
-      ) : (
-        <div className="grid grid-cols-3 gap-5">
+    <AppLayout title="Course Library" subtitle="Browse courses · Learn new skills · Track your progress"
+      topbarActions={<>
+        <Link to="/courses/how-it-works" style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:10,fontSize:12,fontWeight:600,color:'rgba(200,220,255,0.55)',textDecoration:'none',border:'1px solid rgba(255,255,255,0.08)'}}>How Commissions Work</Link>
+        <Link to="/courses/commissions" style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:10,fontSize:12,fontWeight:600,color:'rgba(200,220,255,0.55)',textDecoration:'none',border:'1px solid rgba(255,255,255,0.08)'}}>My Commissions</Link>
+      </>}
+    >
+      {courses.length > 0 ? (
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(320px,1fr))',gap:24,alignItems:'stretch'}}>
           {courses.map(c => (
-            <Link key={c.id} to={`/courses/${c.id}`} className="no-underline">
-              <Card className="h-full flex flex-col">
-                <div className="h-40 bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center relative">
-                  {c.thumbnail_url ? (
-                    <img src={c.thumbnail_url} alt={c.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <GraduationCap className="w-10 h-10 text-slate-300" />
-                  )}
-                  <Badge color="cyan" className="absolute top-3 left-3">{c.category || 'Course'}</Badge>
+            <div key={c.id} className="course-card" style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12)',transition:'all 0.2s',display:'flex',flexDirection:'column'}}>
+              {/* Thumbnail */}
+              <div style={{width:'100%',aspectRatio:'16/9',background:'linear-gradient(135deg,#0b1729,#132240,#0e1c30)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
+                {c.thumbnail_url ? (
+                  <img src={c.thumbnail_url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt={c.title}/>
+                ) : (
+                  <div style={{width:56,height:56,borderRadius:'50%',background:'rgba(14,165,233,0.7)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 0 30px rgba(14,165,233,0.3)'}}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><polygon points="6 3 20 12 6 21"/></svg>
+                  </div>
+                )}
+                <div style={{position:'absolute',top:14,right:14,background:'rgba(0,0,0,0.6)',backdropFilter:'blur(8px)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'5px 12px',fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#fff'}}>${Math.round(c.price)}</div>
+                {c.owned && <div style={{position:'absolute',top:14,left:14,background:'rgba(22,163,74,0.9)',borderRadius:8,padding:'4px 12px',fontSize:11,fontWeight:700,color:'#fff',letterSpacing:0.5}}>✓ OWNED</div>}
+              </div>
+              {/* Body */}
+              <div style={{padding:20,flex:1,display:'flex',flexDirection:'column'}}>
+                <div style={{fontSize:17,fontWeight:800,color:'#1a1a2e',marginBottom:6,letterSpacing:-0.2}}>{c.title}</div>
+                <div style={{fontSize:13,color:'#475569',lineHeight:1.6,marginBottom:16,flex:1}}>{c.description || 'Master the skills you need to succeed in digital marketing and online business.'}</div>
+                <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:16,fontSize:12,color:'#94a3b8'}}>
+                  <span style={{display:'flex',alignItems:'center',gap:4}}>📖 {c.chapter_count || 0} chapters</span>
+                  <span style={{display:'flex',alignItems:'center',gap:4}}>▶ {c.lesson_count || 0} lessons</span>
+                  <span style={{display:'flex',alignItems:'center',gap:4}}>⏱ {c.total_duration || 0}m</span>
                 </div>
-                <CardBody className="flex-1 flex flex-col">
-                  <h3 className="text-base font-bold text-slate-800 mb-1 line-clamp-2">{c.title}</h3>
-                  <p className="text-xs text-slate-400 mb-3 line-clamp-2 flex-1">{c.description}</p>
-                  <div className="flex items-center gap-3 text-xs text-slate-400">
-                    <span className="flex items-center gap-1"><BookOpen className="w-3.5 h-3.5" />{c.chapter_count || 0} chapters</span>
-                    <span className="flex items-center gap-1"><Play className="w-3.5 h-3.5" />{c.lesson_count || 0} lessons</span>
-                    <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{c.total_duration || 0}m</span>
+                {c.owned && c.progress_pct !== undefined && (
+                  <div style={{marginBottom:16}}>
+                    <div style={{height:5,background:'#f1f3f7',borderRadius:99,overflow:'hidden',marginBottom:4}}>
+                      <div style={{height:'100%',background:'linear-gradient(90deg,#0ea5e9,#38bdf8)',borderRadius:99,width:`${c.progress_pct}%`}}/>
+                    </div>
+                    <div style={{fontSize:11,fontWeight:700,color:'#0ea5e9'}}>{c.progress_done || 0}/{c.progress_total || 0} complete ({c.progress_pct}%)</div>
                   </div>
-                  <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
-                    <span className="font-display text-lg font-black text-emerald">${c.price}</span>
-                    <Badge color="green">100% commission</Badge>
-                  </div>
-                </CardBody>
-              </Card>
-            </Link>
+                )}
+                {c.owned ? (
+                  <a href={`/courses/learn/${c.id}`} style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontSize:14,fontWeight:700,textAlign:'center',textDecoration:'none',background:'#0ea5e9',color:'#fff',boxShadow:'0 2px 8px rgba(14,165,233,0.25)',boxSizing:'border-box'}}>Continue Learning →</a>
+                ) : (
+                  <form method="POST" action={`/courses/purchase/${c.id}`} onSubmit={e => { if(!confirm(`Purchase ${c.title} for $${Math.round(c.price)} from your wallet balance?`)) e.preventDefault(); }}>
+                    <button type="submit" style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontFamily:'inherit',fontSize:14,fontWeight:700,cursor:'pointer',textAlign:'center',background:'#1a1a2e',color:'#fff',boxShadow:'0 1px 3px rgba(0,0,0,0.1)',boxSizing:'border-box'}}>Buy Course — ${Math.round(c.price)}</button>
+                  </form>
+                )}
+              </div>
+            </div>
           ))}
         </div>
+      ) : (
+        <div style={{textAlign:'center',padding:'80px 20px'}}>
+          <div style={{fontSize:48,marginBottom:16,opacity:0.5}}>📚</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#1a1a2e',marginBottom:6}}>No courses available yet</div>
+          <div style={{fontSize:14,color:'#94a3b8'}}>Check back soon — new courses are being added.</div>
+        </div>
       )}
+
+      <style>{`.course-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16)!important;transform:translateY(-2px)}`}</style>
     </AppLayout>
   );
 }
