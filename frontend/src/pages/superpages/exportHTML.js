@@ -56,6 +56,23 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
         const href = tag === 'a' ? ` href="${url}" target="_blank"` : '';
         return `<${tag}${href} style="display:inline-flex"><svg viewBox="0 0 24 24" width="22" height="22" fill="#94a3b8"><path d="${d}"/></svg></${tag}>`;
       }).join('')}</div>`;
+    } else if (el.type === 'form') {
+      // Wrap in actual <form> tag and convert div submit buttons to real buttons
+      let formHtml = (el.txt || '').replace(
+        /<div([^>]*?)style="([^"]*?)"([^>]*)>(Get Access|Submit|Sign Up|Join|Download|Get Started|Subscribe|Claim|Register)[^<]*<\/div>/gi,
+        '<button type="submit" style="$2;border:none;cursor:pointer;font-family:inherit">$4</button>'
+      );
+      formHtml = formHtml.replace(
+        /placeholder="([^"]*?name[^"]*?)"/gi,
+        'placeholder="$1" name="name"'
+      ).replace(
+        /placeholder="([^"]*?email[^"]*?)"/gi,
+        'placeholder="$1" name="email" type="email"'
+      ).replace(
+        /placeholder="([^"]*?phone[^"]*?)"/gi,
+        'placeholder="$1" name="phone" type="tel"'
+      );
+      h += `<form style="${st}" onsubmit="return true">${formHtml}</form>`;
     } else {
       h += `<div style="${st}">${el.txt || ''}</div>`;
     }

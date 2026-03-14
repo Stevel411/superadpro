@@ -38,14 +38,14 @@ h2{font-size:clamp(22px,5vw,36px) !important}
 @media(max-width:480px){section{padding-left:16px !important;padding-right:16px !important}}
 
 /* Visual builder canvas responsive scaling */
-#gjsContent > div > div[style*="width:1200px"] {
+#gjsContent > div > div[style*="width:1100px"] {
   transform-origin: top left;
 }
-@media(max-width:1200px){
+@media(max-width:1100px){
   #gjsContent > div { overflow-x:hidden; }
-  #gjsContent > div > div[style*="width:1200px"] {
+  #gjsContent > div > div[style*="width:1100px"] {
     transform: scale(var(--canvas-scale, 1));
-    width: 1200px !important;
+    width: 1100px !important;
   }
 }
 </style>
@@ -341,12 +341,12 @@ if (sections.length > 0) {
 
 // Scale visual builder canvas to viewport
 (function(){
-  const wrap = document.querySelector('#gjsContent > div > div[style*="width:1200px"]');
+  const wrap = document.querySelector('#gjsContent > div > div[style*="width:1100px"]');
   if(!wrap) return;
   function applyScale(){
     const vw = document.documentElement.clientWidth;
-    if(vw < 1200){
-      const scale = vw / 1200;
+    if(vw < 1100){
+      const scale = vw / 1100;
       wrap.style.transform = `scale(${scale})`;
       wrap.style.transformOrigin = 'top left';
       // Shrink outer to match scaled height
@@ -361,6 +361,29 @@ if (sections.length > 0) {
 
 // Track page view
 fetch('/api/funnels/track-click/{{ page.id }}').catch(()=>{});
+
+// Countdown timers
+document.querySelectorAll('[data-target]').forEach(el => {
+  const target = el.getAttribute('data-target');
+  if (!target) return;
+  const targetDate = new Date(target).getTime();
+  const vals = el.querySelectorAll('.cdv');
+  if (vals.length < 4) return;
+  function update() {
+    const now = Date.now();
+    const diff = Math.max(0, targetDate - now);
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    vals[0].textContent = String(d).padStart(2, '0');
+    vals[1].textContent = String(h).padStart(2, '0');
+    vals[2].textContent = String(m).padStart(2, '0');
+    vals[3].textContent = String(s).padStart(2, '0');
+  }
+  update();
+  setInterval(update, 1000);
+});
 </script>
 {% include "_tawk.html" %}
 </body>
