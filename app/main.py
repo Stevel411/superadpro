@@ -11434,25 +11434,69 @@ def api_analytics_data(request: Request, user: User = Depends(get_current_user),
     """JSON analytics data."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    campaigns = db.query(VideoCampaign).filter(VideoCampaign.user_id == user.id).all()
-    lh = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
-    total_views = (lh.total_views or 0) if lh else 0
-    total_clicks = 0
-    if lh:
-        links = db.query(LinkHubLink).filter(LinkHubLink.profile_id == lh.id).all()
-        total_clicks = sum(l.click_count or 0 for l in links)
-    return {
-        "total_views": total_views + sum(c.views_delivered or 0 for c in campaigns),
-        "total_clicks": total_clicks,
-        "conversions": user.personal_referrals or 0,
-        "revenue": round(float(user.total_earned or 0), 2),
-        "campaigns": [{
-            "id": c.id, "title": c.title, "platform": c.platform,
-            "category": c.category, "status": c.status,
-            "views_delivered": c.views_delivered or 0, "views_target": c.views_target or 0,
-        } for c in campaigns],
-        "sources": [],
-    }
+    try:
+        campaigns = db.query(VideoCampaign).filter(VideoCampaign.user_id == user.id).all()
+        lh = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
+        total_views = (lh.total_views or 0) if lh else 0
+        total_clicks = 0
+        if lh:
+            links = db.query(LinkHubLink).filter(LinkHubLink.profile_id == lh.id).all()
+            total_clicks = sum(l.click_count or 0 for l in links)
+
+        # Commission breakdown
+        commissions = db.query(Commission).filter(Commission.to_user_id == user.id).all()
+        total_commissions = len(commissions)
+        commission_by_type = {}
+        for c in commissions:
+            t = c.commission_type or 'other'
+            commission_by_type[t] = commission_by_type.get(t, 0) + float(c.amount_usdt or 0)
+
+        # Network stats
+        direct_refs = db.query(User).filter(User.sponsor_id == user.id).count()
+        active_refs = db.query(User).filter(User.sponsor_id == user.id, User.is_active == True).count()
+
+        # Watch stats
+        watches = db.query(VideoWatch).filter(VideoWatch.user_id == user.id).count()
+        quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
+
+        # Campaign view completion percentages
+        campaign_data = []
+        for c in campaigns:
+            delivered = c.views_delivered or 0
+            target = c.views_target or 1
+            pct = min(100, round((delivered / target) * 100))
+            campaign_data.append({
+                "id": c.id, "title": c.title, "platform": c.platform or "youtube",
+                "category": c.category or "General", "status": c.status or "active",
+                "views_delivered": delivered, "views_target": target,
+                "completion_pct": pct,
+                "tier": c.campaign_tier or c.owner_tier or 1,
+            })
+
+        return {
+            "total_views": total_views + sum(c.views_delivered or 0 for c in campaigns),
+            "total_clicks": total_clicks,
+            "conversions": user.personal_referrals or 0,
+            "revenue": round(float(user.total_earned or 0), 2),
+            "balance": round(float(user.balance or 0), 2),
+            "membership_tier": user.membership_tier or "basic",
+            "grid_earnings": round(float(user.grid_earnings or 0), 2),
+            "course_earnings": round(float(user.course_earnings or 0), 2),
+            "marketplace_earnings": round(float(user.marketplace_earnings or 0), 2),
+            "total_commissions": total_commissions,
+            "commission_by_type": commission_by_type,
+            "direct_referrals": direct_refs,
+            "active_referrals": active_refs,
+            "total_team": user.total_team or 0,
+            "total_withdrawn": round(float(user.total_withdrawn or 0), 2),
+            "videos_watched": watches,
+            "watch_streak": getattr(quota, 'streak_days', 0) or 0 if quota else 0,
+            "watch_quota_met": bool(quota and getattr(quota, 'commissions_paused', False) == False) if quota else False,
+            "campaigns": campaign_data,
+        }
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 
 @app.get("/api/achievements")
