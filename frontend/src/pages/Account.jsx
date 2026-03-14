@@ -38,10 +38,8 @@ export default function Account() {
     <AppLayout title="My Profile" subtitle="Manage your account, security, and wallet">
       {toast && <div style={{borderRadius:8,padding:'8px 14px',marginBottom:12,fontSize:12,fontWeight:600,...(toast.type==='ok'?{background:'#dcfce7',border:'1px solid rgba(22,163,74,.2)',color:'#16a34a'}:{background:'#fef2f2',border:'1px solid #fecaca',color:'#dc2626'})}}>{toast.msg}</div>}
 
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,alignItems:'start'}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,alignItems:'start'}}>
 
-        {/* LEFT */}
-        <div style={{display:'flex',flexDirection:'column',gap:12}}>
           {/* Profile */}
           <C title="Profile">
             <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:10,paddingBottom:10,borderBottom:'1px solid #f1f3f7'}}>
@@ -73,10 +71,7 @@ export default function Account() {
               <button type="submit" style={{...btn,background:'linear-gradient(135deg,#f59e0b,#ef4444)'}}>Update Password</button>
             </form>
           </C>
-        </div>
 
-        {/* RIGHT */}
-        <div style={{display:'flex',flexDirection:'column',gap:12}}>
           {/* KYC */}
           <C title="Identity Verification (KYC)" chip={
             kyc==='none'?{t:'⬜ Not Started',c:'none'}:kyc==='pending'?{t:'⏳ Under Review',c:'pending'}:kyc==='approved'?{t:'✅ Verified',c:'approved'}:{t:'❌ Rejected',c:'rejected'}
@@ -119,7 +114,6 @@ export default function Account() {
               Coinbase · MetaMask · Trust Wallet · Rainbow — any USDC on Base wallet.
             </div>
           </C>
-        </div>
       </div>
     </AppLayout>
   );
