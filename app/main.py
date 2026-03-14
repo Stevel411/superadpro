@@ -11562,3 +11562,186 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
     user.total_earned = float(user.total_earned or 0) + earn
     db.commit()
     return {"ok": True, "earned": earn}
+
+
+# ═══════════════════════════════════════════════════════════════
+#  REACT MIGRATION: Remaining API endpoints
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/network")
+def api_network_data(request: Request, user: User = Depends(get_current_user),
+                     db: Session = Depends(get_db)):
+    """My Network & Earnings data."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    # Direct referrals with their earnings contribution
+    referrals = db.query(User).filter(User.sponsor_id == user.id).all()
+    # Commission history
+    commissions = get_user_commission_history(db, user.id, limit=30)
+    return {
+        "personal_referrals": user.personal_referrals or 0,
+        "total_team": user.total_team or 0,
+        "total_earned": round(float(user.total_earned or 0), 2),
+        "course_earnings": round(float(user.course_earnings or 0), 2),
+        "grid_earnings": round(float(user.grid_earnings or 0), 2),
+        "marketplace_earnings": round(float(user.marketplace_earnings or 0), 2),
+        "referrals": [{
+            "id": r.id, "username": r.username, "first_name": r.first_name,
+            "is_active": r.is_active, "membership_tier": r.membership_tier or "basic",
+            "total_earned": round(float(r.total_earned or 0), 2),
+            "personal_referrals": r.personal_referrals or 0,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+        } for r in referrals],
+        "commissions": commissions,
+    }
+
+
+@app.get("/api/leads")
+def api_leads_data(request: Request, user: User = Depends(get_current_user),
+                   db: Session = Depends(get_db)):
+    """My Leads data."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import MemberLead
+    leads = db.query(MemberLead).filter(
+        MemberLead.user_id == user.id
+    ).order_by(MemberLead.created_at.desc()).limit(100).all()
+    return {"leads": [{
+        "id": l.id, "email": l.email, "name": l.name or "",
+        "status": l.status or "new", "source_url": l.source_url or "",
+        "emails_sent": l.emails_sent or 0, "emails_opened": l.emails_opened or 0,
+        "is_hot": l.is_hot, "created_at": l.created_at.isoformat() if l.created_at else None,
+    } for l in leads], "total": len(leads)}
+
+
+@app.get("/api/link-tools")
+def api_link_tools_data(request: Request, user: User = Depends(get_current_user),
+                        db: Session = Depends(get_db)):
+    """Short links and rotators data."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    short_links = db.query(ShortLink).filter(ShortLink.user_id == user.id).order_by(ShortLink.created_at.desc()).all()
+    rotators = db.query(LinkRotator).filter(LinkRotator.user_id == user.id).order_by(LinkRotator.created_at.desc()).all()
+    return {
+        "short_links": [{
+            "id": s.id, "short_code": s.short_code, "destination_url": s.destination_url,
+            "click_count": s.click_count or 0, "created_at": s.created_at.isoformat() if s.created_at else None,
+        } for s in short_links],
+        "rotators": [{
+            "id": r.id, "name": r.name, "short_code": r.short_code,
+            "click_count": r.total_clicks or 0,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+        } for r in rotators],
+    }
+
+
+@app.get("/api/ad-board")
+def api_ad_board_data(db: Session = Depends(get_db)):
+    """Public ad board listings."""
+    ads = db.query(AdListing).filter(
+        AdListing.status == "active"
+    ).order_by(AdListing.created_at.desc()).limit(50).all()
+    return {"ads": [{
+        "id": a.id, "title": a.title, "description": a.description or "",
+        "category": a.category or "general", "link_url": a.link_url or "",
+        "icon": a.icon or "📢", "contact_info": a.contact_info or "",
+        "user_id": a.user_id, "created_at": a.created_at.isoformat() if a.created_at else None,
+    } for a in ads]}
+
+
+@app.get("/api/passup-visualiser")
+def api_passup_visualiser(request: Request, user: User = Depends(get_current_user),
+                          db: Session = Depends(get_db)):
+    """Pass-up chain visualisation data."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    # Build the chain upward
+    chain = []
+    current = user
+    for _ in range(10):  # max depth
+        sponsor = db.query(User).filter(User.id == current.sponsor_id).first() if current.sponsor_id else None
+        if not sponsor:
+            break
+        chain.append({
+            "id": sponsor.id, "username": sponsor.username, "first_name": sponsor.first_name,
+            "is_admin": sponsor.is_admin, "level": len(chain) + 1,
+        })
+        current = sponsor
+    # Direct downline
+    downline = db.query(User).filter(User.sponsor_id == user.id).all()
+    return {
+        "user": {"id": user.id, "username": user.username, "first_name": user.first_name},
+        "upline_chain": chain,
+        "direct_downline": [{
+            "id": d.id, "username": d.username, "first_name": d.first_name,
+            "is_active": d.is_active, "personal_referrals": d.personal_referrals or 0,
+        } for d in downline],
+    }
+
+
+@app.get("/api/funnels")
+def api_funnels_list(request: Request, user: User = Depends(get_current_user),
+                     db: Session = Depends(get_db)):
+    """List user's SuperPages/funnels."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import FunnelPage
+    funnels = db.query(FunnelPage).filter(
+        FunnelPage.user_id == user.id
+    ).order_by(FunnelPage.created_at.desc()).all()
+    return {"funnels": [{
+        "id": f.id, "title": f.title or "Untitled", "slug": f.slug or "",
+        "status": f.status or "draft", "views": f.views or 0,
+        "leads_captured": f.leads_captured or 0,
+        "is_ai_generated": f.is_ai_generated or False,
+        "created_at": f.created_at.isoformat() if f.created_at else None,
+    } for f in funnels]}
+
+
+@app.get("/api/linkhub-stats")
+def api_linkhub_stats(request: Request, user: User = Depends(get_current_user),
+                      db: Session = Depends(get_db)):
+    """LinkHub stats for React page."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    profile = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
+    links_count = 0
+    total_clicks = 0
+    if profile:
+        links = db.query(LinkHubLink).filter(LinkHubLink.profile_id == profile.id).all()
+        links_count = len(links)
+        total_clicks = sum(l.click_count or 0 for l in links)
+    return {
+        "views": profile.total_views if profile else 0,
+        "clicks": total_clicks,
+        "links": links_count,
+    }
+
+
+@app.post("/api/proseller/chat")
+async def api_proseller_chat(request: Request, user: User = Depends(get_current_user),
+                             db: Session = Depends(get_db)):
+    """ProSeller AI chat — sales assistant."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    message = body.get("message", "").strip()
+    if not message:
+        return JSONResponse({"error": "Message required"}, status_code=400)
+    history = body.get("history", [])
+    try:
+        client = anthropic.Anthropic()
+        messages = []
+        for h in history[-10:]:
+            if h.get("role") and h.get("content"):
+                messages.append({"role": h["role"], "content": h["content"]})
+        messages.append({"role": "user", "content": message})
+        resp = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=1024,
+            system="You are ProSeller AI, a sales assistant for SuperAdPro members. Help them write pitches, handle objections, create follow-up messages, and close more sales. Be practical, concise, and action-oriented. Focus on affiliate marketing, network marketing, and online sales techniques. The member's username is " + (user.username or ""),
+            messages=messages,
+        )
+        return {"response": resp.content[0].text}
+    except Exception as e:
+        return {"response": f"Sorry, I'm temporarily unavailable. Error: {str(e)[:100]}"}

@@ -19,6 +19,19 @@ import Support from './pages/Support';
 import Achievements from './pages/Achievements';
 import VideoLibrary from './pages/VideoLibrary';
 import Upgrade from './pages/Upgrade';
+import CompensationPlan from './pages/CompensationPlan';
+import AiTool from './pages/AiTool';
+import MyNetwork from './pages/MyNetwork';
+import HowCommissionsWork from './pages/HowCommissionsWork';
+import MyLeads from './pages/MyLeads';
+import LinkTools from './pages/LinkTools';
+import AdBoard from './pages/AdBoard';
+import PassupVisualiser from './pages/PassupVisualiser';
+import ProSeller from './pages/ProSeller';
+import Funnels from './pages/Funnels';
+import CourseCreate from './pages/CourseCreate';
+import LinkHubPage from './pages/LinkHub';
+import SuperPagesEditor from './pages/superpages/SuperPagesEditor';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -48,29 +61,39 @@ function AppRoutes() {
       <Route path="/marketplace" element={<Marketplace />} />
       <Route path="/courses/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
 
-      {/* Placeholder pages — next migration batch */}
-      <Route path="/courses/create" element={<ProtectedRoute><PlaceholderPage title="Create Course" /></ProtectedRoute>} />
-      <Route path="/campaign-studio" element={<ProtectedRoute><PlaceholderPage title="Campaign Studio" /></ProtectedRoute>} />
-      <Route path="/linkhub" element={<ProtectedRoute><PlaceholderPage title="LinkHub Editor" /></ProtectedRoute>} />
-      <Route path="/watch" element={<ProtectedRoute><Watch /></ProtectedRoute>} />
-      <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-      <Route path="/video-library" element={<ProtectedRoute><VideoLibrary /></ProtectedRoute>} />
-      <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
-      <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+      {/* AI Marketing Tools */}
+      <Route path="/campaign-studio" element={<ProtectedRoute><AiTool title="Campaign Studio" subtitle="AI-powered campaign generator" apiEndpoint="/api/ai/campaign-studio"
+        fields={[{key:'niche',label:'Your Niche',placeholder:'e.g. crypto trading, fitness, real estate'},{key:'audience',label:'Target Audience',placeholder:'e.g. beginners, professionals, women 25-45'},{key:'tone',label:'Tone',type:'select',options:['Professional','Casual','Urgent','Inspirational','Educational']},{key:'goal',label:'Campaign Goal',type:'select',options:['Lead Generation','Sales','Brand Awareness','Recruitment']}]}
+        resultLabel="Your Campaign" /></ProtectedRoute>} />
+      <Route path="/niche-finder" element={<ProtectedRoute><AiTool title="Niche Finder" subtitle="Discover profitable niches" apiEndpoint="/api/ai/niche-finder"
+        fields={[{key:'interests',label:'Your Interests',placeholder:'e.g. health, technology, finance'},{key:'budget',label:'Budget Range',type:'select',options:['Under $500','$500-$2000','$2000-$5000','$5000+']},{key:'experience',label:'Experience Level',type:'select',options:['Beginner','Intermediate','Advanced']}]}
+        resultLabel="Niche Recommendations" /></ProtectedRoute>} />
+      <Route path="/social-post-generator" element={<ProtectedRoute><AiTool title="Social Post Generator" subtitle="AI social media content" apiEndpoint="/api/ai/social-posts"
+        fields={[{key:'topic',label:'Topic',placeholder:'What do you want to post about?'},{key:'platform',label:'Platform',type:'select',options:['Facebook','Instagram','X / Twitter','LinkedIn','TikTok']},{key:'tone',label:'Tone',type:'select',options:['Professional','Casual','Funny','Inspirational','Educational']}]}
+        resultLabel="Your Social Post" /></ProtectedRoute>} />
+      <Route path="/video-script-generator" element={<ProtectedRoute><AiTool title="Video Script Generator" subtitle="AI video scripts" apiEndpoint="/api/ai/video-script"
+        fields={[{key:'topic',label:'Video Topic',placeholder:'What is the video about?'},{key:'duration',label:'Target Duration',type:'select',options:['30 seconds','1 minute','2 minutes','5 minutes','10 minutes']},{key:'style',label:'Style',type:'select',options:['Tutorial','Testimonial','Sales Pitch','Educational','Story']}]}
+        resultLabel="Your Video Script" /></ProtectedRoute>} />
+      <Route path="/email-swipes" element={<ProtectedRoute><AiTool title="Email Swipes" subtitle="AI email copy generator" apiEndpoint="/api/ai/email-swipes"
+        fields={[{key:'product',label:'Product/Service',placeholder:'What are you promoting?'},{key:'audience',label:'Target Audience',placeholder:'Who are you emailing?'},{key:'goal',label:'Email Goal',type:'select',options:['Welcome Sequence','Sales Email','Follow-Up','Re-engagement','Announcement']}]}
+        resultLabel="Your Email" /></ProtectedRoute>} />
+
+      {/* Info Pages */}
+      <Route path="/compensation-plan" element={<ProtectedRoute><CompensationPlan /></ProtectedRoute>} />
       <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
-      <Route path="/proseller" element={<ProtectedRoute><PlaceholderPage title="ProSeller AI" /></ProtectedRoute>} />
-      <Route path="/pro/funnels" element={<ProtectedRoute><PlaceholderPage title="SuperPages" /></ProtectedRoute>} />
-      <Route path="/pro/leads" element={<ProtectedRoute><PlaceholderPage title="My Leads" /></ProtectedRoute>} />
-      <Route path="/link-tools" element={<ProtectedRoute><PlaceholderPage title="Link Tools" /></ProtectedRoute>} />
-      <Route path="/niche-finder" element={<ProtectedRoute><PlaceholderPage title="Niche Finder" /></ProtectedRoute>} />
-      <Route path="/social-post-generator" element={<ProtectedRoute><PlaceholderPage title="Social Posts" /></ProtectedRoute>} />
-      <Route path="/video-script-generator" element={<ProtectedRoute><PlaceholderPage title="Video Scripts" /></ProtectedRoute>} />
-      <Route path="/email-swipes" element={<ProtectedRoute><PlaceholderPage title="Email Swipes" /></ProtectedRoute>} />
-      <Route path="/passup-visualiser" element={<ProtectedRoute><PlaceholderPage title="Pass-Up Visualiser" /></ProtectedRoute>} />
-      <Route path="/courses/commissions" element={<ProtectedRoute><PlaceholderPage title="My Network" /></ProtectedRoute>} />
-      <Route path="/courses/how-it-works" element={<ProtectedRoute><PlaceholderPage title="How Commissions Work" /></ProtectedRoute>} />
-      <Route path="/compensation-plan" element={<ProtectedRoute><PlaceholderPage title="Compensation Plan" /></ProtectedRoute>} />
-      <Route path="/ad-board" element={<ProtectedRoute><PlaceholderPage title="Ad Board" /></ProtectedRoute>} />
+
+      {/* Complex tools — full React pages */}
+      <Route path="/courses/create" element={<ProtectedRoute><CourseCreate /></ProtectedRoute>} />
+      <Route path="/linkhub" element={<ProtectedRoute><LinkHubPage /></ProtectedRoute>} />
+      <Route path="/proseller" element={<ProtectedRoute><ProSeller /></ProtectedRoute>} />
+      <Route path="/pro/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
+      <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><SuperPagesEditor /></ProtectedRoute>} />
+      <Route path="/pro/leads" element={<ProtectedRoute><MyLeads /></ProtectedRoute>} />
+      <Route path="/link-tools" element={<ProtectedRoute><LinkTools /></ProtectedRoute>} />
+      <Route path="/passup-visualiser" element={<ProtectedRoute><PassupVisualiser /></ProtectedRoute>} />
+      <Route path="/courses/commissions" element={<ProtectedRoute><MyNetwork /></ProtectedRoute>} />
+      <Route path="/courses/how-it-works" element={<ProtectedRoute><HowCommissionsWork /></ProtectedRoute>} />
+      <Route path="/ad-board" element={<ProtectedRoute><AdBoard /></ProtectedRoute>} />
 
       {/* Catch-all */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
