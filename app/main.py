@@ -4752,6 +4752,8 @@ def render_funnel_page(username: str, page_slug: str, request: Request,
     page = db.query(FunnelPage).filter(FunnelPage.slug == slug).first()
     if not page:
         raise HTTPException(status_code=404, detail="Page not found")
+    if page.status != 'published':
+        raise HTTPException(status_code=404, detail="This page is not published yet")
 
     # Track view (atomic increment to prevent race conditions)
     from sqlalchemy import text
@@ -11843,3 +11845,46 @@ def funnel_templates_list():
         {"key": "ecommerce", "title": "E-Commerce", "desc": "Online store opportunity page", "icon": "🛒", "color": "#f59e0b"},
         {"key": "real-estate", "title": "Real Estate", "desc": "Property investment opportunity page", "icon": "🏠", "color": "#e11d48"},
     ]}
+
+
+@app.post("/api/funnels/duplicate/{page_id}")
+def funnel_duplicate(page_id: int, request: Request, user: User = Depends(get_current_user),
+                     db: Session = Depends(get_db)):
+    """Duplicate an existing funnel page."""
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    original = db.query(FunnelPage).filter(FunnelPage.id == page_id, FunnelPage.user_id == user.id).first()
+    if not original:
+        return JSONResponse({"error": "Page not found"}, status_code=404)
+    import re as _re
+    new_page = FunnelPage(
+        user_id=user.id,
+        title=f"{original.title} (copy)",
+        template_type=original.template_type,
+        status="draft",
+        headline=original.headline,
+        subheadline=original.subheadline,
+        body_copy=original.body_copy,
+        cta_text=original.cta_text,
+        cta_url=original.cta_url,
+        video_url=original.video_url,
+        image_url=original.image_url,
+        sections_json=original.sections_json,
+        color_scheme=original.color_scheme,
+        accent_color=original.accent_color,
+        custom_bg=original.custom_bg,
+        font_family=original.font_family,
+        custom_css=original.custom_css,
+        gjs_components=original.gjs_components,
+        gjs_styles=original.gjs_styles,
+        gjs_html=original.gjs_html,
+        gjs_css=original.gjs_css,
+        meta_description=original.meta_description,
+    )
+    db.add(new_page)
+    db.flush()
+    slug_base = _re.sub(r'[^a-z0-9]+', '-', (original.title or 'page').lower()).strip('-')
+    new_page.slug = f"{user.username.lower()}/{slug_base}-copy-{new_page.id}"
+    db.commit()
+    return JSONResponse({"success": True, "id": new_page.id, "edit_url": f"/funnels/visual/{new_page.id}"})

@@ -59,11 +59,10 @@ export default function Funnels() {
 
   const duplicatePage = async (id) => {
     try {
-      const res = await apiPost('/api/funnels/from-template', { source_page_id: id });
-      if (res.edit_url) {
-        const newId = res.edit_url.split('/').pop();
-        navigate(`/pro/funnel/${newId}/edit`);
-      } else load();
+      const res = await apiPost(`/api/funnels/duplicate/${id}`, {});
+      if (res.id) {
+        navigate(`/pro/funnel/${res.id}/edit`);
+      } else { load(); }
     } catch (e) { alert(e.message); }
   };
 
