@@ -12,7 +12,7 @@ export default function MyCourses() {
       {courses.length > 0 ? (
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:20}}>
           {courses.map(c => (
-            <div key={c.id} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,padding:20,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)'}}>
+            <div key={c.id} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:20,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)'}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
                 <div style={{fontSize:16,fontWeight:800,color:'#0f172a'}}>{c.title}</div>
                 <span style={{fontSize:11,fontWeight:700,padding:'3px 10px',borderRadius:6,background:c.status==='published'?'rgba(22,163,74,.09)':'rgba(245,158,11,.09)',color:c.status==='published'?'#16a34a':'#d97706'}}>{c.status||'draft'}</span>

@@ -33,7 +33,7 @@ export default function Marketplace() {
       {filtered.length > 0 ? (
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:20,alignItems:'stretch'}}>
           {filtered.map(c => (
-            <div key={c.id} className="mp-card" style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',transition:'all .2s',display:'flex',flexDirection:'column'}}>
+            <div key={c.id} className="mp-card" style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',transition:'all .2s',display:'flex',flexDirection:'column'}}>
               <div style={{aspectRatio:'16/9',background:'linear-gradient(135deg,#0b1729,#132240)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative'}}>
                 {c.thumbnail_url ? <img src={c.thumbnail_url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/> : <div style={{fontSize:32}}>📚</div>}
                 <div style={{position:'absolute',top:12,right:12,background:'rgba(0,0,0,.6)',backdropFilter:'blur(8px)',borderRadius:8,padding:'4px 10px',fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,color:'#fff'}}>${Math.round(c.price || 0)}</div>

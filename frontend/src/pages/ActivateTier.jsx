@@ -56,7 +56,7 @@ export default function ActivateTier() {
         {/* Tier hero — dark theme with animations */}
         <div style={{
           background:'linear-gradient(135deg, #0b1729 0%, #132240 50%, #0e1c30 100%)',
-          borderRadius:18, padding:'32px 36px', marginBottom:20,
+          borderRadius:8, padding:'32px 36px', marginBottom:20,
           position:'relative', overflow:'hidden',
           boxShadow:'0 2px 8px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.15)',
         }}>
@@ -92,7 +92,7 @@ export default function ActivateTier() {
 
         {/* What you get */}
         <div style={{
-          background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,
+          background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,
           boxShadow:'0 2px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03)',
           overflow:'hidden', marginBottom:20,
         }}>
@@ -120,7 +120,7 @@ export default function ActivateTier() {
 
         {/* How the campaign works */}
         <div style={{
-          background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,
+          background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,
           boxShadow:'0 2px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03)',
           overflow:'hidden', marginBottom:20,
         }}>
@@ -143,7 +143,7 @@ export default function ActivateTier() {
 
         {/* Commission breakdown */}
         <div style={{
-          background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,
+          background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,
           boxShadow:'0 2px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03)',
           overflow:'hidden', marginBottom:24,
         }}>

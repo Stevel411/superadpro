@@ -17,7 +17,7 @@ export default function Analytics() {
     <AppLayout title="📊 Analytics" subtitle="Track your performance across all channels">
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16,marginBottom:24}}>
         {stats.map((s,i) => (
-          <div key={i} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,padding:22,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',position:'relative',overflow:'hidden'}}>
+          <div key={i} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:22,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',position:'relative',overflow:'hidden'}}>
             <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:s.color}}/>
             <div style={{fontSize:24,marginBottom:8}}>{s.icon}</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:s.color}}>{s.val}</div>
@@ -39,7 +39,7 @@ export default function Analytics() {
     </AppLayout>
   );
 }
-function CCard({title,dot,children}){return <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:16,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',overflow:'hidden'}}><div style={{padding:'15px 20px',borderBottom:'1px solid rgba(15,25,60,.07)',display:'flex',alignItems:'center',gap:8}}><div style={{width:7,height:7,borderRadius:'50%',background:dot}}/><span style={{fontSize:16,fontWeight:700,color:'#0f172a'}}>{title}</span></div><div style={{padding:'18px 20px'}}>{children}</div></div>}
+function CCard({title,dot,children}){return <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:8,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',overflow:'hidden'}}><div style={{padding:'15px 20px',borderBottom:'1px solid rgba(15,25,60,.07)',display:'flex',alignItems:'center',gap:8}}><div style={{width:7,height:7,borderRadius:'50%',background:dot}}/><span style={{fontSize:16,fontWeight:700,color:'#0f172a'}}>{title}</span></div><div style={{padding:'18px 20px'}}>{children}</div></div>}
 const thS={fontSize:11,fontWeight:800,color:'#7b91a8',textTransform:'uppercase',letterSpacing:1,padding:'11px 14px',borderBottom:'1px solid rgba(15,25,60,.08)',textAlign:'left',background:'#f6f8fc'};
 const tdS={padding:'12px 14px',borderBottom:'1px solid rgba(15,25,60,.05)',fontSize:14,color:'#0f172a'};
 function Spin(){return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>}

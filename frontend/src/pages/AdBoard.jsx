@@ -14,7 +14,7 @@ export default function AdBoard() {
       {filtered.length > 0 ? (
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))',gap:14}}>
           {filtered.map((a,i) => (
-            <a key={i} href={a.url||'#'} target="_blank" rel="noopener noreferrer" className="ad-card" style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:14,padding:16,textDecoration:'none',boxShadow:'0 2px 8px rgba(0,0,0,.12)',transition:'all .15s',display:'flex',flexDirection:'column',gap:8}}>
+            <a key={i} href={a.url||'#'} target="_blank" rel="noopener noreferrer" className="ad-card" style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:16,textDecoration:'none',boxShadow:'0 2px 8px rgba(0,0,0,.12)',transition:'all .15s',display:'flex',flexDirection:'column',gap:8}}>
               <div style={{display:'flex',alignItems:'center',gap:10}}>
                 <div style={{fontSize:24}}>{a.emoji||'📢'}</div>
                 <div style={{flex:1,minWidth:0}}>

@@ -25,7 +25,7 @@ export default function Courses() {
       {courses.length > 0 ? (
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(320px,1fr))',gap:24,alignItems:'stretch'}}>
           {courses.map(c => (
-            <div key={c.id} className="course-card" style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12)',transition:'all 0.2s',display:'flex',flexDirection:'column'}}>
+            <div key={c.id} className="course-card" style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,0.16),0 8px 24px rgba(0,0,0,0.12)',transition:'all 0.2s',display:'flex',flexDirection:'column'}}>
               {/* Thumbnail */}
               <div style={{width:'100%',aspectRatio:'16/9',background:'linear-gradient(135deg,#0b1729,#132240,#0e1c30)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
                 {c.thumbnail_url ? (

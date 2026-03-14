@@ -334,7 +334,7 @@ export default function Wallet() {
 function Card({ title, dotColor, badge, headerRight, flex, children }) {
   return (
     <div style={{
-      background: '#fff', border: '1px solid rgba(15,25,60,.08)', borderRadius: 16,
+      background: '#fff', border: '1px solid rgba(15,25,60,.08)', borderRadius: 8,
       boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)',
       overflow: 'hidden', transition: 'box-shadow .2s, border-color .2s',
       display: 'flex', flexDirection: 'column', ...(flex ? { flex: 1 } : {}),
@@ -355,7 +355,7 @@ function Card({ title, dotColor, badge, headerRight, flex, children }) {
 function StatPill({ value, label, gradient }) {
   return (
     <div style={{
-      background: '#fff', border: '1px solid rgba(15,25,60,.08)', borderRadius: 16, padding: 20, textAlign: 'center',
+      background: '#fff', border: '1px solid rgba(15,25,60,.08)', borderRadius: 8, padding: 20, textAlign: 'center',
       boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)',
       position: 'relative', overflow: 'hidden', transition: 'box-shadow .2s, transform .15s',
     }}>

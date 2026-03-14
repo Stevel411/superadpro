@@ -30,7 +30,7 @@ export default function Leaderboard() {
         {tabs.map(t => (
           <div key={t.key} onClick={() => setTab(t.key)} style={{
             background: tab === t.key ? '#fff' : '#f8f9fb', border: tab === t.key ? '2px solid #0ea5e9' : '1px solid #e5e7eb',
-            borderRadius: 14, padding: '16px 20px', cursor: 'pointer', transition: 'all .15s', textAlign: 'center',
+            borderRadius: 8, padding: '16px 20px', cursor: 'pointer', transition: 'all .15s', textAlign: 'center',
             boxShadow: tab === t.key ? '0 4px 12px rgba(14,165,233,0.15)' : 'none',
           }}>
             <div style={{ fontSize: 24, marginBottom: 4 }}>{t.icon}</div>
@@ -62,7 +62,7 @@ export default function Leaderboard() {
 
       {/* Table */}
       {leaders.length > 0 ? (
-        <div style={{ background: '#fff', border: '1px solid rgba(15,25,60,.08)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)' }}>
+        <div style={{ background: '#fff', border: '1px solid rgba(15,25,60,.08)', borderRadius: 8, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr>
               {['Rank', 'Member', 'Tier', activeTab.metricLabel].map((h, i) => (

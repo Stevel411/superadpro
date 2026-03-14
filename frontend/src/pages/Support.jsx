@@ -29,7 +29,7 @@ export default function Support() {
             {icon:'💰',title:'Compensation Plan',desc:'How earnings work',link:'/compensation-plan'},
             {icon:'🤝',title:'Community',desc:'Connect with members',link:'/ad-board'},
           ].map((q,i) => (
-            <Link key={i} to={q.link} className="sup-card" style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:14,padding:20,textDecoration:'none',textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',transition:'all .15s'}}>
+            <Link key={i} to={q.link} className="sup-card" style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:20,textDecoration:'none',textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',transition:'all .15s'}}>
               <div style={{fontSize:28,marginBottom:8}}>{q.icon}</div>
               <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:2}}>{q.title}</div>
               <div style={{fontSize:11,color:'#94a3b8'}}>{q.desc}</div>
@@ -38,7 +38,7 @@ export default function Support() {
         </div>
 
         {/* Contact Form */}
-        <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',overflow:'hidden'}}>
+        <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',overflow:'hidden'}}>
           <div style={{padding:'16px 20px',borderBottom:'1px solid #e5e7eb',display:'flex',alignItems:'center',gap:8}}>
             <div style={{width:6,height:6,borderRadius:'50%',background:'#0ea5e9'}}/>
             <span style={{fontSize:15,fontWeight:800,color:'#0f172a'}}>Submit a Ticket</span>

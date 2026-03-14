@@ -34,7 +34,7 @@ export default function Affiliate() {
   return (
     <AppLayout title="🤝 Social Share Hub" subtitle="Your referral link, captions & share tools">
       {/* Hero */}
-      <div style={{background:'linear-gradient(135deg,#0b1729,#132240,#0e1c30)',borderRadius:18,padding:'32px 36px',marginBottom:20,position:'relative',overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)'}}>
+      <div style={{background:'linear-gradient(135deg,#0b1729,#132240,#0e1c30)',borderRadius:8,padding:'32px 36px',marginBottom:20,position:'relative',overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)'}}>
         <div style={{position:'absolute',top:'-50px',right:'10%',width:200,height:200,borderRadius:'50%',background:'radial-gradient(circle,rgba(14,165,233,.15),transparent 70%)',pointerEvents:'none'}}/>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:24,position:'relative',zIndex:1}}>
           <div>
@@ -174,7 +174,7 @@ function HeroStat({val,lbl,color}) {
 }
 
 function WCard({title,dot,headerRight,flex,children}) {
-  return <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:16,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',overflow:'hidden',...(flex?{flex:1,display:'flex',flexDirection:'column'}:{})}}>
+  return <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:8,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',overflow:'hidden',...(flex?{flex:1,display:'flex',flexDirection:'column'}:{})}}>
     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'15px 20px',borderBottom:'1px solid rgba(15,25,60,.07)'}}>
       <div style={{fontSize:16,fontWeight:700,color:'#0f172a',display:'flex',alignItems:'center',gap:8}}>
         <div style={{width:7,height:7,borderRadius:'50%',background:dot,flexShrink:0}}/>{title}

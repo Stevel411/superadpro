@@ -87,10 +87,10 @@ export default function Watch() {
   if (quotaReached) {
     return (
       <AppLayout title="Watch to Earn" subtitle="Complete your daily quota to stay commission-eligible">
-        <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:18,padding:'48px 36px',textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',position:'relative',overflow:'hidden',maxWidth:900,margin:'0 auto'}}>
+        <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:8,padding:'48px 36px',textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',position:'relative',overflow:'hidden',maxWidth:900,margin:'0 auto'}}>
           <div style={{position:'absolute',top:0,left:0,right:0,height:4,background:'linear-gradient(90deg,#0ea5e9,#38bdf8,#22c55e)'}}/>
           <div style={{fontSize:52,marginBottom:14}}>🎉</div>
-          <div style={{display:'inline-block',fontSize:9,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',color:'#22c55e',background:'rgba(22,163,74,0.08)',border:'1px solid rgba(22,163,74,0.2)',padding:'4px 14px',borderRadius:20,marginBottom:12}}>✓ Daily Quota Complete</div>
+          <div style={{display:'inline-block',fontSize:9,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',color:'#22c55e',background:'rgba(22,163,74,0.08)',border:'1px solid rgba(22,163,74,0.2)',padding:'4px 14px',borderRadius:8,marginBottom:12}}>✓ Daily Quota Complete</div>
           <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,background:'linear-gradient(135deg,#0ea5e9,#22c55e)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',marginBottom:8}}>You're done for today!</div>
           <div style={{fontSize:14,color:'#3d5068',lineHeight:1.7,marginBottom:28,maxWidth:420,margin:'0 auto 28px'}}>You watched {d.watched_today} video{d.watched_today !== 1 ? 's' : ''} today. Come back tomorrow for your next quota.</div>
           <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap',marginBottom:28}}>
@@ -117,7 +117,7 @@ export default function Watch() {
   if (videos.length === 0) {
     return (
       <AppLayout title="Watch to Earn" subtitle="Complete your daily quota to stay commission-eligible">
-        <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:18,padding:'56px 32px',textAlign:'center',maxWidth:900,margin:'0 auto',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)'}}>
+        <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:8,padding:'56px 32px',textAlign:'center',maxWidth:900,margin:'0 auto',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)'}}>
           <div style={{fontSize:48,marginBottom:16,opacity:0.5}}>📺</div>
           <div style={{fontSize:18,fontWeight:800,color:'#0f172a',marginBottom:6}}>No campaigns available right now</div>
           <div style={{fontSize:14,color:'#7b91a8',marginBottom:24}}>Check back soon — advertisers are adding new video campaigns daily.</div>
@@ -132,14 +132,14 @@ export default function Watch() {
       <div style={{display:'grid',gridTemplateColumns:'1fr 300px',gap:20,alignItems:'start'}}>
         {/* Left: Player */}
         <div style={{display:'flex',flexDirection:'column',gap:14}}>
-          <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:16,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)'}}>
+          <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:8,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)'}}>
             {/* Header */}
             <div style={{padding:'14px 20px',borderBottom:'1px solid rgba(15,25,60,.06)',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
               <div>
                 <div style={{fontSize:15,fontWeight:700,color:'#0f172a'}}>{current?.title || 'Loading...'}</div>
                 <div style={{fontSize:12,color:'#7b91a8',marginTop:2}}>{current?.platform || 'Video'} · {current?.category || 'General'}</div>
               </div>
-              <div style={{fontSize:9,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'#0ea5e9',background:'rgba(14,165,233,0.08)',padding:'4px 12px',borderRadius:20,whiteSpace:'nowrap'}}>Campaign</div>
+              <div style={{fontSize:9,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'#0ea5e9',background:'rgba(14,165,233,0.08)',padding:'4px 12px',borderRadius:8,whiteSpace:'nowrap'}}>Campaign</div>
             </div>
             {/* Video */}
             <div style={{position:'relative',width:'100%',aspectRatio:'16/9',background:'#000',overflow:'hidden'}}>
@@ -193,7 +193,7 @@ export default function Watch() {
         </div>
 
         {/* Right: Progress Panel */}
-        <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:16,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',position:'sticky',top:90}}>
+        <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:8,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',position:'sticky',top:90}}>
           <div style={{padding:'16px 18px',borderBottom:'1px solid rgba(15,25,60,.06)'}}>
             <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>Today's Progress</div>
             <div style={{fontSize:12,color:'#7b91a8'}}>{d.watched_today || 0} of {d.daily_limit || 10} complete</div>

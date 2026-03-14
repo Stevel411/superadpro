@@ -21,7 +21,7 @@ export default function Achievements() {
         <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#16a34a',marginBottom:12}}>✓ Earned</div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:14,marginBottom:28}}>
           {earned.map((b,i) => (
-            <div key={i} style={{background:'#fff',border:'1px solid #bbf7d0',borderRadius:14,padding:20,textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.12)',position:'relative',overflow:'hidden'}}>
+            <div key={i} style={{background:'#fff',border:'1px solid #bbf7d0',borderRadius:8,padding:20,textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.12)',position:'relative',overflow:'hidden'}}>
               <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:'linear-gradient(90deg,#16a34a,#22c55e)'}}/>
               <div style={{fontSize:36,marginBottom:8}}>{b.icon || '🏆'}</div>
               <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>{b.name}</div>
@@ -43,7 +43,7 @@ export default function Achievements() {
           {icon:'🔥',name:'5 Referrals',description:'Build a team of 5 direct referrals',progress:0},
           {icon:'🏪',name:'First Sale',description:'Make your first marketplace sale',progress:0},
         ]).map((b,i) => (
-          <div key={i} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:14,padding:20,textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.12)',opacity:0.7}}>
+          <div key={i} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:20,textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.12)',opacity:0.7}}>
             <div style={{fontSize:36,marginBottom:8,filter:'grayscale(0.5)'}}>{b.icon || '🔒'}</div>
             <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>{b.name}</div>
             <div style={{fontSize:11,color:'#7b91a8',marginBottom:8}}>{b.description}</div>

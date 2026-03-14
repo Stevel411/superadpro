@@ -11,7 +11,7 @@ export default function MyLeads() {
   if (loading) return <AppLayout title={TITLES['MyLeads']}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
   return (
     <AppLayout title={TITLES['MyLeads']} subtitle={SUBS['MyLeads']}>
-      <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,padding:24,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)'}}>
+      <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:24,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)'}}>
         <pre style={{fontSize:13,color:'#475569',whiteSpace:'pre-wrap',fontFamily:'inherit',lineHeight:1.6}}>{d ? JSON.stringify(d, null, 2) : 'No data'}</pre>
       </div>
     </AppLayout>

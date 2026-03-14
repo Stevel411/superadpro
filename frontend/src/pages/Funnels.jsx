@@ -12,7 +12,7 @@ export default function Funnels() {
       {pages.length > 0 ? (
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:16}}>
           {pages.map(p => (
-            <div key={p.id} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,padding:20,boxShadow:'0 2px 8px rgba(0,0,0,.12)'}}>
+            <div key={p.id} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:20,boxShadow:'0 2px 8px rgba(0,0,0,.12)'}}>
               <div style={{fontSize:15,fontWeight:800,color:'#0f172a',marginBottom:4}}>{p.title||'Untitled'}</div>
               <div style={{fontSize:12,color:'#94a3b8',marginBottom:12}}>{p.views||0} views</div>
               <div style={{display:'flex',gap:8}}>

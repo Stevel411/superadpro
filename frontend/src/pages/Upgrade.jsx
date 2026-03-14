@@ -15,7 +15,7 @@ export default function Upgrade() {
     <AppLayout title="⚡ Upgrade" subtitle="Compare plans and unlock Pro features">
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:24,maxWidth:900,margin:'0 auto'}}>
         {plans.map((p,i) => (
-          <div key={i} style={{background:'#fff',border:p.highlight?'2px solid #0ea5e9':'1px solid #e5e7eb',borderRadius:18,padding:32,boxShadow:p.highlight?'0 0 0 4px rgba(14,165,233,.1),0 4px 20px rgba(14,165,233,.12)':'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',position:'relative',overflow:'hidden',display:'flex',flexDirection:'column'}}>
+          <div key={i} style={{background:'#fff',border:p.highlight?'2px solid #0ea5e9':'1px solid #e5e7eb',borderRadius:8,padding:32,boxShadow:p.highlight?'0 0 0 4px rgba(14,165,233,.1),0 4px 20px rgba(14,165,233,.12)':'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',position:'relative',overflow:'hidden',display:'flex',flexDirection:'column'}}>
             {p.highlight && <div style={{position:'absolute',top:14,right:14,background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontSize:9,fontWeight:800,letterSpacing:1,textTransform:'uppercase',padding:'4px 12px',borderRadius:20}}>★ Recommended</div>}
             <div style={{fontSize:12,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'#94a3b8',marginBottom:8}}>{p.name}</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:900,color:'#0f172a',marginBottom:4}}>{p.price}</div>

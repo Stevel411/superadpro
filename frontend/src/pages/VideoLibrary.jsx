@@ -11,7 +11,7 @@ export default function VideoLibrary() {
       {vids.length > 0 ? (
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(340px,1fr))',gap:20}}>
           {vids.map(v => (
-            <div key={v.id} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)'}}>
+            <div key={v.id} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)'}}>
               <div style={{aspectRatio:'16/9',background:'#000',position:'relative'}}>
                 {v.embed_url ? <iframe src={v.embed_url} style={{width:'100%',height:'100%',border:'none'}} allowFullScreen/> : <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',color:'#475569'}}>No preview</div>}
               </div>
