@@ -1,74 +1,29 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
-import { Card, CardBody, StatCard, Badge, Button, PageLoading, EmptyState } from '../components/ui';
 import { apiGet } from '../utils/api';
-import { Globe, Eye, Inbox, Plus, ExternalLink, PenLine, Sparkles } from 'lucide-react';
-
 export default function Funnels() {
-  const [data, setData] = useState(null);
+  const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    apiGet('/api/funnels').then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
-  }, []);
-
-  if (loading) return <AppLayout title="SuperPages"><PageLoading /></AppLayout>;
-  if (!data) return <AppLayout title="SuperPages"><div className="text-center py-20 text-slate-400">Unable to load</div></AppLayout>;
-
-  const funnels = data.funnels || [];
-  const totalViews = funnels.reduce((s, f) => s + (f.views || 0), 0);
-  const totalLeads = funnels.reduce((s, f) => s + (f.leads_captured || 0), 0);
-
+  useEffect(() => { apiGet('/api/funnels').then(d => { setPages(d.pages||[]); setLoading(false); }).catch(() => setLoading(false)); }, []);
+  if (loading) return <AppLayout title="🚀 SuperPages"><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
   return (
-    <AppLayout title="SuperPages" subtitle="Landing pages and funnels"
-      topbarActions={<Button size="sm"><Plus className="w-3.5 h-3.5" /> New Page</Button>}>
-
-      {funnels.length > 0 && (
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <StatCard icon={<Globe className="w-5 h-5 text-cyan" />} label="Total Pages"
-            value={funnels.length} className="[--icon-bg:#e0f2fe]" />
-          <StatCard icon={<Eye className="w-5 h-5 text-emerald" />} label="Total Views"
-            value={totalViews} className="[--icon-bg:#dcfce7]" />
-          <StatCard icon={<Inbox className="w-5 h-5 text-violet" />} label="Leads Captured"
-            value={totalLeads} className="[--icon-bg:#ede9fe]" />
-        </div>
-      )}
-
-      {funnels.length === 0 ? (
-        <EmptyState icon="🌐" title="No pages created yet"
-          description="Build landing pages to capture leads and promote your affiliate links. Use the AI funnel generator to create one in seconds."
-          action={<Button><Sparkles className="w-4 h-4" /> Create with AI</Button>} />
-      ) : (
-        <div className="grid grid-cols-2 gap-5">
-          {funnels.map(f => (
-            <Card key={f.id}>
-              <CardBody>
-                <div className="flex items-start justify-between mb-3">
-                  <div className="min-w-0">
-                    <h3 className="text-sm font-bold text-slate-800 truncate">{f.title}</h3>
-                    <div className="text-xs text-cyan truncate mt-0.5">superadpro.com/f/{f.slug}</div>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <Badge color={f.status === 'published' ? 'green' : 'slate'}>{f.status}</Badge>
-                    {f.is_ai_generated && <Badge color="violet">AI</Badge>}
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 text-xs text-slate-400 mb-4">
-                  <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {f.views || 0} views</span>
-                  <span className="flex items-center gap-1"><Inbox className="w-3.5 h-3.5" /> {f.leads_captured || 0} leads</span>
-                </div>
-                <div className="flex gap-2">
-                  <a href={`/pro/funnel-editor/${f.id}`} className="flex-1">
-                    <Button variant="secondary" size="sm" className="w-full"><PenLine className="w-3.5 h-3.5" /> Edit</Button>
-                  </a>
-                  <a href={`/f/${f.slug}`} target="_blank" rel="noopener noreferrer">
-                    <Button variant="ghost" size="sm"><ExternalLink className="w-3.5 h-3.5" /></Button>
-                  </a>
-                </div>
-              </CardBody>
-            </Card>
+    <AppLayout title="🚀 SuperPages" subtitle="Your landing pages and funnels">
+      {pages.length > 0 ? (
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:16}}>
+          {pages.map(p => (
+            <div key={p.id} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,padding:20,boxShadow:'0 2px 8px rgba(0,0,0,.12)'}}>
+              <div style={{fontSize:15,fontWeight:800,color:'#0f172a',marginBottom:4}}>{p.title||'Untitled'}</div>
+              <div style={{fontSize:12,color:'#94a3b8',marginBottom:12}}>{p.views||0} views</div>
+              <div style={{display:'flex',gap:8}}>
+                <Link to={`/pro/funnel/${p.id}/edit`} style={{flex:1,padding:10,borderRadius:10,fontSize:13,fontWeight:700,textAlign:'center',textDecoration:'none',background:'#0ea5e9',color:'#fff'}}>Edit</Link>
+                <a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" style={{flex:1,padding:10,borderRadius:10,fontSize:13,fontWeight:700,textAlign:'center',textDecoration:'none',background:'#f8f9fb',color:'#0f172a',border:'1px solid #e5e7eb'}}>View</a>
+              </div>
+            </div>
           ))}
         </div>
+      ) : (
+        <div style={{textAlign:'center',padding:'60px 20px'}}><div style={{fontSize:40,marginBottom:12,opacity:.5}}>🚀</div><div style={{fontSize:16,fontWeight:700,marginBottom:4}}>No pages yet</div><div style={{fontSize:13,color:'#94a3b8'}}>Create your first landing page.</div></div>
       )}
     </AppLayout>
   );

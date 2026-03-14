@@ -1,74 +1,36 @@
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
-import { Card, CardBody, Badge, PageLoading, EmptyState, Button } from '../components/ui';
 import { apiGet } from '../utils/api';
-import { ExternalLink, Search } from 'lucide-react';
-
-const CATEGORIES = ['all', 'business', 'marketing', 'crypto', 'health', 'education', 'services', 'other'];
-
 export default function AdBoard() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all');
+  const [ads, setAds] = useState([]);
   const [search, setSearch] = useState('');
-
-  useEffect(() => {
-    apiGet('/api/ad-board').then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
-  }, []);
-
-  if (loading) return <AppLayout title="Ad Board"><PageLoading /></AppLayout>;
-  if (!data) return <AppLayout title="Ad Board"><div className="text-center py-20 text-slate-400">Unable to load</div></AppLayout>;
-
-  const ads = (data.ads || []).filter(a => {
-    if (filter !== 'all' && a.category !== filter) return false;
-    if (search && !a.title.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
-
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { apiGet('/api/ad-board').then(d => { setAds(d.ads||[]); setLoading(false); }).catch(() => setLoading(false)); }, []);
+  const filtered = ads.filter(a => !search || a.title?.toLowerCase().includes(search.toLowerCase()));
+  if (loading) return <AppLayout title="📢 Ad Board"><Spin/></AppLayout>;
   return (
-    <AppLayout title="Ad Board" subtitle="Community marketplace — post and discover ads">
-      {/* Search + Filters */}
-      <div className="flex items-center gap-4 mb-5">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search ads..."
-            className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-cyan focus:ring-2 focus:ring-cyan/10 transition-all" />
-        </div>
-        <div className="flex gap-1.5 overflow-x-auto">
-          {CATEGORIES.map(cat => (
-            <button key={cat} onClick={() => setFilter(cat)}
-              className={`px-3.5 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all cursor-pointer border
-                ${filter === cat ? 'bg-cyan/10 text-cyan border-cyan/20' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`}>
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </button>
+    <AppLayout title="📢 Ad Board" subtitle="Community marketplace — browse and share ads">
+      <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search ads..." style={{width:'100%',padding:'10px 14px',border:'1px solid #e5e7eb',borderRadius:10,fontSize:14,fontFamily:'inherit',background:'#f8f9fb',marginBottom:20,boxSizing:'border-box'}}/>
+      {filtered.length > 0 ? (
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))',gap:14}}>
+          {filtered.map((a,i) => (
+            <a key={i} href={a.url||'#'} target="_blank" rel="noopener noreferrer" className="ad-card" style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:14,padding:16,textDecoration:'none',boxShadow:'0 2px 8px rgba(0,0,0,.12)',transition:'all .15s',display:'flex',flexDirection:'column',gap:8}}>
+              <div style={{display:'flex',alignItems:'center',gap:10}}>
+                <div style={{fontSize:24}}>{a.emoji||'📢'}</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:13,fontWeight:700,color:'#0f172a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{a.title}</div>
+                  <div style={{fontSize:11,color:'#94a3b8'}}>{a.category||'General'}</div>
+                </div>
+              </div>
+              {a.description && <div style={{fontSize:12,color:'#475569',lineHeight:1.4}}>{a.description.slice(0,80)}</div>}
+            </a>
           ))}
         </div>
-      </div>
-
-      {/* Ads Grid */}
-      {ads.length === 0 ? (
-        <EmptyState icon="📢" title={data.ads?.length === 0 ? 'No ads posted yet' : 'No ads match your search'}
-          description="The Ad Board is a community marketplace where members can post and discover ads." />
       ) : (
-        <div className="grid grid-cols-4 gap-4">
-          {ads.map(a => (
-            <Card key={a.id}>
-              <CardBody className="text-center">
-                <div className="text-3xl mb-2">{a.icon}</div>
-                <h3 className="text-sm font-bold text-slate-800 mb-1 line-clamp-2">{a.title}</h3>
-                <p className="text-[11px] text-slate-400 mb-3 line-clamp-3 leading-relaxed">{a.description}</p>
-                <Badge color="slate" className="mb-3">{a.category}</Badge>
-                {a.link_url && (
-                  <a href={a.link_url} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-1.5 text-xs font-bold text-cyan hover:text-cyan-dark no-underline transition-all">
-                    Visit <ExternalLink className="w-3 h-3" />
-                  </a>
-                )}
-              </CardBody>
-            </Card>
-          ))}
-        </div>
+        <div style={{textAlign:'center',padding:'60px 20px'}}><div style={{fontSize:40,marginBottom:12,opacity:.5}}>📢</div><div style={{fontSize:16,fontWeight:700,marginBottom:4}}>No ads yet</div><div style={{fontSize:13,color:'#94a3b8'}}>Community ads will appear here as members post them.</div></div>
       )}
+      <style>{`.ad-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.18)!important;transform:translateY(-2px)}`}</style>
     </AppLayout>
   );
 }
+function Spin(){return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>}

@@ -1,8 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
-import { Card, CardBody, Button } from '../components/ui';
 import { apiPost } from '../utils/api';
-import { Headphones, Send, MessageCircle, BookOpen, HelpCircle } from 'lucide-react';
 
 export default function Support() {
   const [subject, setSubject] = useState('');
@@ -11,87 +10,64 @@ export default function Support() {
   const [sent, setSent] = useState(false);
 
   const submit = async () => {
-    if (!subject.trim() || !message.trim()) return alert('Please fill in both fields');
+    if (!subject || !message) return;
     setSending(true);
     try {
       await apiPost('/api/support/ticket', { subject, message });
-      setSent(true);
-      setSubject('');
-      setMessage('');
+      setSent(true); setSubject(''); setMessage('');
     } catch (e) { alert(e.message); }
     setSending(false);
   };
 
   return (
-    <AppLayout title="Support" subtitle="We're here to help">
-      <div className="max-w-2xl">
+    <AppLayout title="💬 Support" subtitle="Get help, report issues, or contact the team">
+      <div style={{maxWidth:800,margin:'0 auto'}}>
         {/* Quick Links */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <a href="/faq" target="_blank" className="no-underline">
-            <Card className="h-full">
-              <CardBody className="text-center py-5">
-                <HelpCircle className="w-8 h-8 text-cyan mx-auto mb-2" />
-                <div className="text-sm font-bold text-slate-800">FAQ</div>
-                <div className="text-xs text-slate-400">Common questions</div>
-              </CardBody>
-            </Card>
-          </a>
-          <a href="/courses/how-it-works" className="no-underline">
-            <Card className="h-full">
-              <CardBody className="text-center py-5">
-                <BookOpen className="w-8 h-8 text-violet mx-auto mb-2" />
-                <div className="text-sm font-bold text-slate-800">How It Works</div>
-                <div className="text-xs text-slate-400">Commission guides</div>
-              </CardBody>
-            </Card>
-          </a>
-          <a href="/compensation-plan" className="no-underline">
-            <Card className="h-full">
-              <CardBody className="text-center py-5">
-                <MessageCircle className="w-8 h-8 text-emerald mx-auto mb-2" />
-                <div className="text-sm font-bold text-slate-800">Comp Plan</div>
-                <div className="text-xs text-slate-400">Full details</div>
-              </CardBody>
-            </Card>
-          </a>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:24}}>
+          {[
+            {icon:'📖',title:'FAQ & Guides',desc:'Browse common questions',link:'/courses/how-it-works'},
+            {icon:'💰',title:'Compensation Plan',desc:'How earnings work',link:'/compensation-plan'},
+            {icon:'🤝',title:'Community',desc:'Connect with members',link:'/ad-board'},
+          ].map((q,i) => (
+            <Link key={i} to={q.link} className="sup-card" style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:14,padding:20,textDecoration:'none',textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',transition:'all .15s'}}>
+              <div style={{fontSize:28,marginBottom:8}}>{q.icon}</div>
+              <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:2}}>{q.title}</div>
+              <div style={{fontSize:11,color:'#94a3b8'}}>{q.desc}</div>
+            </Link>
+          ))}
         </div>
 
         {/* Contact Form */}
-        <Card hover={false}>
-          <CardBody>
-            <h3 className="text-sm font-bold text-slate-700 mb-5 flex items-center gap-2">
-              <Headphones className="w-4 h-4 text-slate-400" /> Contact Support
-            </h3>
+        <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',overflow:'hidden'}}>
+          <div style={{padding:'16px 20px',borderBottom:'1px solid #e5e7eb',display:'flex',alignItems:'center',gap:8}}>
+            <div style={{width:6,height:6,borderRadius:'50%',background:'#0ea5e9'}}/>
+            <span style={{fontSize:15,fontWeight:800,color:'#0f172a'}}>Submit a Ticket</span>
+          </div>
+          <div style={{padding:20}}>
             {sent ? (
-              <div className="text-center py-8">
-                <div className="text-4xl mb-3">✅</div>
-                <h3 className="font-display text-lg font-extrabold text-slate-800 mb-2">Message Sent!</h3>
-                <p className="text-sm text-slate-500 mb-4">We'll get back to you as soon as possible.</p>
-                <Button onClick={() => setSent(false)} variant="secondary" size="sm">Send Another</Button>
+              <div style={{textAlign:'center',padding:'32px 0'}}>
+                <div style={{fontSize:40,marginBottom:12}}>✅</div>
+                <div style={{fontSize:16,fontWeight:700,color:'#16a34a',marginBottom:6}}>Ticket Submitted</div>
+                <div style={{fontSize:13,color:'#7b91a8',marginBottom:16}}>We'll get back to you within 24 hours.</div>
+                <button onClick={() => setSent(false)} style={{padding:'10px 20px',borderRadius:10,fontSize:13,fontWeight:700,border:'none',cursor:'pointer',background:'#0ea5e9',color:'#fff'}}>Submit Another</button>
               </div>
-            ) : (
-              <>
-                <div className="mb-4">
-                  <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Subject</label>
-                  <input value={subject} onChange={e => setSubject(e.target.value)}
-                    placeholder="What do you need help with?"
-                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-cyan focus:ring-2 focus:ring-cyan/10 transition-all" />
-                </div>
-                <div className="mb-4">
-                  <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Message</label>
-                  <textarea value={message} onChange={e => setMessage(e.target.value)}
-                    placeholder="Describe your issue in detail..."
-                    rows={6}
-                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-cyan focus:ring-2 focus:ring-cyan/10 transition-all resize-vertical" />
-                </div>
-                <Button onClick={submit} disabled={sending}>
-                  <Send className="w-4 h-4" /> {sending ? 'Sending...' : 'Send Message'}
-                </Button>
-              </>
-            )}
-          </CardBody>
-        </Card>
+            ) : (<>
+              <div style={{marginBottom:14}}>
+                <label style={{fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:5,display:'block'}}>Subject</label>
+                <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="What do you need help with?" style={{width:'100%',padding:'10px 14px',border:'1px solid #e5e7eb',borderRadius:10,fontSize:14,fontFamily:'inherit',background:'#f8f9fb',boxSizing:'border-box'}}/>
+              </div>
+              <div style={{marginBottom:14}}>
+                <label style={{fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:5,display:'block'}}>Message</label>
+                <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="Describe your issue or question..." rows={5} style={{width:'100%',padding:'10px 14px',border:'1px solid #e5e7eb',borderRadius:10,fontSize:14,fontFamily:'inherit',background:'#f8f9fb',resize:'vertical',boxSizing:'border-box'}}/>
+              </div>
+              <button onClick={submit} disabled={sending} style={{width:'100%',padding:'12px 20px',borderRadius:10,fontSize:14,fontWeight:700,border:'none',cursor:'pointer',background:'#0ea5e9',color:'#fff',opacity:sending?.6:1}}>
+                {sending ? 'Sending...' : 'Submit Ticket'}
+              </button>
+            </>)}
+          </div>
+        </div>
       </div>
+      <style>{`.sup-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.22),0 12px 40px rgba(0,0,0,.16)!important;transform:translateY(-2px)}`}</style>
     </AppLayout>
   );
 }

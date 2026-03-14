@@ -1,97 +1,26 @@
+import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
-import { Card, CardBody, Badge } from '../components/ui';
-import { DollarSign, Users, Grid3X3, GraduationCap, Store } from 'lucide-react';
-
-const STREAMS = [
-  { icon: <Users className="w-6 h-6" />, title: 'Membership Commissions', badge: '50%', color: 'bg-emerald/10 text-emerald',
-    desc: 'Earn 50% commission ($10 Basic, $15 Pro) on every member you personally refer. Paid instantly to your wallet.' },
-  { icon: <Grid3X3 className="w-6 h-6" />, title: 'Income Grid (8×8)', badge: '40/50/5/5', color: 'bg-cyan/10 text-cyan',
-    desc: '8 campaign tiers from $20 to $1,000. Each tier has a 64-position grid. Earn 40% direct, 50% uni-level, 5% bonus pool, 5% company.' },
-  { icon: <GraduationCap className="w-6 h-6" />, title: 'Platform Course Sales', badge: '100%', color: 'bg-violet/10 text-violet',
-    desc: 'Sell platform courses and earn 100% commission. First 2 sales pass up to your sponsor, then you keep everything.' },
-  { icon: <Store className="w-6 h-6" />, title: 'Course Marketplace', badge: '50/25/25', color: 'bg-rose/10 text-rose',
-    desc: 'Create your own courses: keep 50% of every sale. Your sponsor earns 25%. Platform takes 25%.' },
-];
-
-const GRID_TIERS = [
-  { tier: 1, price: '$20' }, { tier: 2, price: '$50' }, { tier: 3, price: '$100' }, { tier: 4, price: '$200' },
-  { tier: 5, price: '$300' }, { tier: 6, price: '$500' }, { tier: 7, price: '$750' }, { tier: 8, price: '$1,000' },
-];
-
 export default function CompensationPlan() {
   return (
-    <AppLayout title="Compensation Plan" subtitle="How you earn with SuperAdPro">
-      {/* Income Streams */}
-      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">4 Income Streams</h3>
-      <div className="grid grid-cols-2 gap-5 mb-8">
-        {STREAMS.map((s, i) => (
-          <Card key={i} hover={false}>
-            <CardBody className="flex gap-4">
-              <div className={`w-12 h-12 rounded-xl ${s.color} flex items-center justify-center shrink-0`}>
-                {s.icon}
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-sm font-bold text-slate-800">{s.title}</h3>
-                  <Badge color="cyan">{s.badge}</Badge>
-                </div>
-                <p className="text-xs text-slate-500 leading-relaxed">{s.desc}</p>
-              </div>
-            </CardBody>
-          </Card>
-        ))}
-      </div>
-
-      {/* Grid Tiers */}
-      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Campaign Tiers</h3>
-      <Card hover={false} className="mb-8">
-        <CardBody>
-          <div className="grid grid-cols-8 gap-3">
-            {GRID_TIERS.map(t => (
-              <div key={t.tier} className="text-center py-3 rounded-xl bg-slate-50">
-                <div className="text-xs text-slate-400 mb-0.5">Tier {t.tier}</div>
-                <div className="font-display text-lg font-black text-slate-800">{t.price}</div>
-              </div>
-            ))}
-          </div>
-          <div className="grid grid-cols-4 gap-4 mt-4 pt-4 border-t border-slate-100">
-            <SplitRow label="Direct Commission" value="40%" color="text-cyan" />
-            <SplitRow label="Uni-Level Pool" value="50%" color="text-emerald" />
-            <SplitRow label="Bonus Pool" value="5%" color="text-amber" />
-            <SplitRow label="Company" value="5%" color="text-slate-500" />
-          </div>
-        </CardBody>
-      </Card>
-
-      {/* Membership */}
-      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Membership Pricing</h3>
-      <div className="grid grid-cols-2 gap-5">
-        <Card hover={false}>
-          <CardBody className="text-center py-6">
-            <Badge color="slate" className="mb-3">Basic</Badge>
-            <div className="font-display text-3xl font-black text-slate-800 mb-1">$20<span className="text-lg text-slate-400">/mo</span></div>
-            <div className="text-sm text-slate-500 mb-3">Essential tools to get started</div>
-            <div className="text-xs text-slate-400">Commission: <strong className="text-emerald">$10 per referral</strong></div>
-          </CardBody>
-        </Card>
-        <Card hover={false} className="ring-2 ring-cyan/20">
-          <CardBody className="text-center py-6">
-            <Badge color="cyan" className="mb-3">Pro</Badge>
-            <div className="font-display text-3xl font-black text-slate-800 mb-1">$30<span className="text-lg text-slate-400">/mo</span></div>
-            <div className="text-sm text-slate-500 mb-3">Full access + AI tools + marketplace</div>
-            <div className="text-xs text-slate-400">Commission: <strong className="text-emerald">$15 per referral</strong></div>
-          </CardBody>
-        </Card>
+    <AppLayout title="📋 Compensation Plan" subtitle="Full breakdown of all income streams">
+      <div style={{maxWidth:900,margin:'0 auto'}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:28}}>
+          {[{icon:'🔑',title:'Membership',val:'$10/mo',desc:'50% per referral',color:'#16a34a'},{icon:'⚡',title:'Grid',val:'40%',desc:'Direct sponsor',color:'#0ea5e9'},{icon:'🌐',title:'Uni-Level',val:'6.25%',desc:'8 levels deep',color:'#6366f1'},{icon:'🎓',title:'Courses',val:'50/25/25',desc:'Creator/Affiliate/Passup',color:'#d97706'}].map((s,i) => (
+            <div key={i} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,padding:20,textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.12)',position:'relative',overflow:'hidden'}}>
+              <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:s.color}}/>
+              <div style={{fontSize:28,marginBottom:8}}>{s.icon}</div>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:s.color,marginBottom:2}}>{s.val}</div>
+              <div style={{fontSize:13,fontWeight:700,color:'#0f172a',marginBottom:2}}>{s.title}</div>
+              <div style={{fontSize:11,color:'#94a3b8'}}>{s.desc}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,padding:24,boxShadow:'0 2px 8px rgba(0,0,0,.12)'}}>
+          <h3 style={{fontSize:18,fontWeight:800,color:'#0f172a',marginBottom:16}}>8-Level Uni-Level Commission Table</h3>
+          <table style={{width:'100%',borderCollapse:'collapse'}}><thead><tr>{['Level','Rate','On $20','On $200','On $1,000'].map(h=><th key={h} style={{fontSize:11,fontWeight:800,color:'#7b91a8',textTransform:'uppercase',letterSpacing:1,padding:'10px 14px',borderBottom:'1px solid rgba(15,25,60,.08)',textAlign:'left',background:'#f6f8fc'}}>{h}</th>)}</tr></thead>
+          <tbody>{Array.from({length:8}).map((_,i)=><tr key={i}><td style={{padding:'10px 14px',borderBottom:'1px solid rgba(15,25,60,.05)',fontWeight:700}}>Level {i+1}</td><td style={{padding:'10px 14px',borderBottom:'1px solid rgba(15,25,60,.05)',color:'#0ea5e9',fontWeight:700}}>6.25%</td><td style={{padding:'10px 14px',borderBottom:'1px solid rgba(15,25,60,.05)',color:'#16a34a',fontWeight:700}}>$1.25</td><td style={{padding:'10px 14px',borderBottom:'1px solid rgba(15,25,60,.05)',color:'#16a34a',fontWeight:700}}>$12.50</td><td style={{padding:'10px 14px',borderBottom:'1px solid rgba(15,25,60,.05)',color:'#16a34a',fontWeight:700}}>$62.50</td></tr>)}</tbody></table>
+        </div>
       </div>
     </AppLayout>
-  );
-}
-
-function SplitRow({ label, value, color }) {
-  return (
-    <div className="text-center">
-      <div className={`font-display text-xl font-black ${color}`}>{value}</div>
-      <div className="text-xs text-slate-500 mt-0.5">{label}</div>
-    </div>
   );
 }

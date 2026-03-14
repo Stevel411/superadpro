@@ -1,97 +1,52 @@
 import { useState, useRef, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
-import { Card, CardBody, Button } from '../components/ui';
 import { apiPost } from '../utils/api';
-import { Bot, Send, User, Sparkles, RefreshCw } from 'lucide-react';
-
 export default function ProSeller() {
-  const [messages, setMessages] = useState([
-    { role: 'assistant', content: "Hi! I'm ProSeller AI, your personal sales assistant. I can help you craft pitches, handle objections, write follow-ups, and close more sales. What would you like to work on?" }
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const bottomRef = useRef(null);
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
+  const scrollRef = useRef(null);
+  useEffect(() => { scrollRef.current?.scrollIntoView({behavior:'smooth'}); }, [messages]);
   const send = async () => {
     if (!input.trim() || loading) return;
     const userMsg = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
+    setMessages(m => [...m, {role:'user',content:userMsg}]);
     setLoading(true);
     try {
-      const data = await apiPost('/api/proseller/chat', {
-        message: userMsg,
-        history: messages.slice(-10),
-      });
-      setMessages(prev => [...prev, { role: 'assistant', content: data.response || data.result || 'No response' }]);
-    } catch (e) {
-      setMessages(prev => [...prev, { role: 'assistant', content: `Sorry, I encountered an error: ${e.message}` }]);
-    }
+      const res = await apiPost('/api/proseller/chat', {message:userMsg,history:messages});
+      setMessages(m => [...m, {role:'assistant',content:res.reply||res.message||'Let me help you with that.'}]);
+    } catch { setMessages(m => [...m, {role:'assistant',content:'Sorry, please try again.'}]); }
     setLoading(false);
   };
-
-  const handleKey = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      send();
-    }
-  };
-
+  const prompts = ['How do I get my first referral?','Write a social media post','Explain the Income Grid','Best growth strategies'];
   return (
-    <AppLayout title="ProSeller AI" subtitle="Your AI-powered sales assistant">
-      <div className="max-w-3xl mx-auto flex flex-col" style={{ height: 'calc(100vh - 72px - 48px - 48px)' }}>
-
-        {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto mb-4 space-y-4">
-          {messages.map((m, i) => (
-            <div key={i} className={`flex gap-3 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${m.role === 'user' ? 'bg-cyan/10' : 'bg-violet/10'}`}>
-                {m.role === 'user' ? <User className="w-4 h-4 text-cyan" /> : <Bot className="w-4 h-4 text-violet" />}
-              </div>
-              <div className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed
-                ${m.role === 'user' ? 'bg-cyan text-white rounded-br-md' : 'bg-slate-100 text-slate-700 rounded-bl-md'}`}>
-                <div className="whitespace-pre-wrap">{m.content}</div>
-              </div>
-            </div>
-          ))}
-          {loading && (
-            <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-violet/10 flex items-center justify-center">
-                <RefreshCw className="w-4 h-4 text-violet animate-spin" />
-              </div>
-              <div className="bg-slate-100 rounded-2xl rounded-bl-md px-4 py-3 text-sm text-slate-400">
-                Thinking...
+    <AppLayout title="🤖 ProSeller AI" subtitle="Your AI-powered sales assistant">
+      <div style={{maxWidth:800,margin:'0 auto',display:'flex',flexDirection:'column',height:'calc(100vh - 200px)'}}>
+        <div style={{flex:1,overflowY:'auto',background:'#f8f9fb',borderRadius:'16px 16px 0 0',border:'1px solid #e5e7eb',borderBottom:'none',padding:20}}>
+          {messages.length === 0 && (
+            <div style={{textAlign:'center',padding:'40px 0'}}>
+              <div style={{fontSize:40,marginBottom:12}}>🤖</div>
+              <div style={{fontSize:18,fontWeight:800,color:'#0f172a',marginBottom:8}}>ProSeller AI</div>
+              <div style={{fontSize:13,color:'#94a3b8',marginBottom:24}}>Ask me anything about SuperAdPro or marketing.</div>
+              <div style={{display:'flex',flexWrap:'wrap',gap:8,justifyContent:'center'}}>
+                {prompts.map((p,i) => <button key={i} onClick={()=>setInput(p)} style={{padding:'8px 14px',borderRadius:10,fontSize:12,fontWeight:600,border:'1px solid #e5e7eb',background:'#fff',color:'#475569',cursor:'pointer',fontFamily:'inherit'}}>{p}</button>)}
               </div>
             </div>
           )}
-          <div ref={bottomRef} />
+          {messages.map((m,i) => (
+            <div key={i} style={{display:'flex',justifyContent:m.role==='user'?'flex-end':'flex-start',marginBottom:12}}>
+              <div style={{maxWidth:'75%',padding:'12px 16px',borderRadius:14,fontSize:14,lineHeight:1.6,whiteSpace:'pre-wrap',
+                ...(m.role==='user'?{background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',borderBottomRightRadius:4}:{background:'#fff',border:'1px solid #e5e7eb',color:'#0f172a',borderBottomLeftRadius:4})
+              }}>{m.content}</div>
+            </div>
+          ))}
+          {loading && <div style={{display:'flex',marginBottom:12}}><div style={{padding:'12px 16px',borderRadius:14,background:'#fff',border:'1px solid #e5e7eb',color:'#94a3b8'}}>Thinking...</div></div>}
+          <div ref={scrollRef}/>
         </div>
-
-        {/* Suggested Prompts */}
-        {messages.length <= 1 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {['Help me write a pitch for my affiliate link', 'How do I handle the "it\'s a pyramid scheme" objection?',
-              'Write a follow-up message for a cold lead', 'Create a DM sequence for Instagram'].map(p => (
-              <button key={p} onClick={() => { setInput(p); }}
-                className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-600 hover:border-cyan hover:text-cyan cursor-pointer transition-all">
-                {p}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Input */}
-        <div className="flex gap-3 items-end">
-          <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey}
-            placeholder="Ask ProSeller anything about sales..." rows={2}
-            className="flex-1 px-4 py-3 border border-slate-200 rounded-xl text-sm outline-none focus:border-cyan focus:ring-2 focus:ring-cyan/10 transition-all resize-none" />
-          <Button onClick={send} disabled={loading || !input.trim()} className="h-12">
-            <Send className="w-4 h-4" />
-          </Button>
+        <div style={{display:'flex',gap:10,padding:16,background:'#fff',borderRadius:'0 0 16px 16px',border:'1px solid #e5e7eb',borderTop:'none'}}>
+          <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')send()}} placeholder="Ask ProSeller AI..." style={{flex:1,padding:'12px 16px',border:'1px solid #e5e7eb',borderRadius:12,fontSize:14,fontFamily:'inherit',background:'#f8f9fb',boxSizing:'border-box'}}/>
+          <button onClick={send} disabled={loading||!input.trim()} style={{padding:'12px 24px',borderRadius:12,fontSize:14,fontWeight:700,border:'none',cursor:'pointer',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontFamily:'inherit'}}>Send</button>
         </div>
       </div>
     </AppLayout>

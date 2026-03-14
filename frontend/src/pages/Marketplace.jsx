@@ -1,92 +1,67 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
-import { Card, CardBody, Badge, PageLoading, EmptyState, Button } from '../components/ui';
 import { apiGet } from '../utils/api';
-import { Store, BookOpen, Clock, User, Search } from 'lucide-react';
-
-const CATEGORIES = ['all', 'marketing', 'business', 'crypto', 'fitness', 'tech', 'lifestyle', 'creative'];
 
 export default function Marketplace() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('all');
 
-  useEffect(() => {
-    apiGet('/api/marketplace/browse').then(d => { setCourses(d.courses || []); setLoading(false); }).catch(() => setLoading(false));
-  }, []);
+  useEffect(() => { apiGet('/api/marketplace/browse').then(d => { setCourses(d.courses || []); setLoading(false); }).catch(() => setLoading(false)); }, []);
 
   const filtered = courses.filter(c => {
-    if (filter !== 'all' && c.category !== filter) return false;
-    if (search && !c.title.toLowerCase().includes(search.toLowerCase())) return false;
+    if (search && !c.title?.toLowerCase().includes(search.toLowerCase())) return false;
+    if (category !== 'all' && c.category !== category) return false;
     return true;
   });
+  const categories = ['all', ...new Set(courses.map(c => c.category).filter(Boolean))];
 
-  if (loading) return <AppLayout title="Marketplace"><PageLoading /></AppLayout>;
+  if (loading) return <AppLayout title="🏪 Course Marketplace"><Spin/></AppLayout>;
 
   return (
-    <AppLayout title="Course Marketplace" subtitle="Courses created by the SuperAdPro community">
-
-      {/* Search + Filters */}
-      <div className="flex items-center gap-4 mb-5">
-        <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="Search courses..."
-            className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-cyan focus:ring-2 focus:ring-cyan/10 transition-all" />
-        </div>
-        <div className="flex gap-1.5 overflow-x-auto">
-          {CATEGORIES.map(cat => (
-            <button key={cat} onClick={() => setFilter(cat)}
-              className={`px-3.5 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all cursor-pointer border
-                ${filter === cat
-                  ? 'bg-cyan/10 text-cyan border-cyan/20'
-                  : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`}>
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </button>
-          ))}
-        </div>
+    <AppLayout title="🏪 Course Marketplace" subtitle="Community courses · 50% creator / 25% affiliate / 25% pass-up">
+      {/* Search + Filter */}
+      <div style={{display:'flex',gap:12,marginBottom:24,flexWrap:'wrap'}}>
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search courses..." style={{flex:1,minWidth:200,padding:'10px 14px',border:'1px solid #e5e7eb',borderRadius:10,fontSize:14,fontFamily:'inherit',background:'#f8f9fb'}}/>
+        <select value={category} onChange={e => setCategory(e.target.value)} style={{padding:'10px 14px',border:'1px solid #e5e7eb',borderRadius:10,fontSize:14,fontFamily:'inherit',background:'#f8f9fb',color:'#0f172a'}}>
+          {categories.map(c => <option key={c} value={c}>{c === 'all' ? 'All Categories' : c}</option>)}
+        </select>
       </div>
 
-      {/* Course Grid */}
-      {filtered.length === 0 ? (
-        <EmptyState icon="🏪" title={courses.length === 0 ? 'Marketplace coming soon' : 'No courses match your filters'}
-          description={courses.length === 0 ? 'Courses from the community will appear here once published.' : 'Try a different category or search term.'}
-          action={<Link to="/courses/create"><Button>Create a Course</Button></Link>} />
-      ) : (
-        <div className="grid grid-cols-3 gap-5">
+      {filtered.length > 0 ? (
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:20,alignItems:'stretch'}}>
           {filtered.map(c => (
-            <Card key={c.id} className="flex flex-col">
-              <div className="h-44 bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center relative overflow-hidden">
-                {c.thumbnail_url ? (
-                  <img src={c.thumbnail_url} alt={c.title} className="w-full h-full object-cover" />
-                ) : (
-                  <Store className="w-10 h-10 text-slate-300" />
-                )}
-                <Badge color="cyan" className="absolute top-3 left-3">{c.category || 'Other'}</Badge>
+            <div key={c.id} className="mp-card" style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',transition:'all .2s',display:'flex',flexDirection:'column'}}>
+              <div style={{aspectRatio:'16/9',background:'linear-gradient(135deg,#0b1729,#132240)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative'}}>
+                {c.thumbnail_url ? <img src={c.thumbnail_url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/> : <div style={{fontSize:32}}>📚</div>}
+                <div style={{position:'absolute',top:12,right:12,background:'rgba(0,0,0,.6)',backdropFilter:'blur(8px)',borderRadius:8,padding:'4px 10px',fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,color:'#fff'}}>${Math.round(c.price || 0)}</div>
+                <div style={{position:'absolute',bottom:12,left:12,display:'flex',gap:4}}>
+                  <span style={{fontSize:9,fontWeight:700,padding:'3px 8px',borderRadius:6,background:'rgba(22,163,74,.8)',color:'#fff'}}>50%</span>
+                  <span style={{fontSize:9,fontWeight:700,padding:'3px 8px',borderRadius:6,background:'rgba(14,165,233,.8)',color:'#fff'}}>25%</span>
+                  <span style={{fontSize:9,fontWeight:700,padding:'3px 8px',borderRadius:6,background:'rgba(139,92,246,.8)',color:'#fff'}}>25%</span>
+                </div>
               </div>
-              <CardBody className="flex-1 flex flex-col">
-                <h3 className="text-base font-bold text-slate-800 mb-1 line-clamp-2">{c.title}</h3>
-                <p className="text-xs text-slate-400 mb-3 line-clamp-2 flex-1">{c.short_description || c.description || ''}</p>
-                <div className="flex items-center gap-3 text-xs text-slate-400 mb-3">
-                  <span className="flex items-center gap-1"><BookOpen className="w-3.5 h-3.5" />{c.lesson_count || 0} lessons</span>
-                  <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{c.total_duration_mins || 0}m</span>
-                  <span className="flex items-center gap-1"><User className="w-3.5 h-3.5" />{c.creator_name || 'Member'}</span>
-                </div>
-                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                  <span className="font-display text-xl font-black text-emerald">${Math.round(c.price)}</span>
-                  <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-                    <span className="px-1.5 py-0.5 rounded bg-emerald/10 text-emerald font-bold">50%</span>
-                    <span className="px-1.5 py-0.5 rounded bg-cyan/10 text-cyan font-bold">25%</span>
-                    <span className="px-1.5 py-0.5 rounded bg-violet/10 text-violet font-bold">25%</span>
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
+              <div style={{padding:18,flex:1,display:'flex',flexDirection:'column'}}>
+                <div style={{fontSize:15,fontWeight:800,color:'#0f172a',marginBottom:4}}>{c.title}</div>
+                <div style={{fontSize:12,color:'#7b91a8',marginBottom:4}}>by {c.creator_name || 'Creator'}</div>
+                <div style={{fontSize:12,color:'#475569',lineHeight:1.5,marginBottom:12,flex:1}}>{c.description?.slice(0,100) || 'A community-created course.'}</div>
+                {c.category && <span style={{fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:6,background:'#f1f5f9',color:'#64748b',alignSelf:'flex-start',marginBottom:12}}>{c.category}</span>}
+                <a href={`/marketplace/course/${c.id}`} style={{display:'block',width:'100%',padding:11,borderRadius:10,fontSize:13,fontWeight:700,textAlign:'center',textDecoration:'none',background:'#1a1a2e',color:'#fff',boxSizing:'border-box'}}>View Course</a>
+              </div>
+            </div>
           ))}
         </div>
+      ) : (
+        <div style={{textAlign:'center',padding:'60px 20px'}}>
+          <div style={{fontSize:40,marginBottom:12,opacity:.5}}>🏪</div>
+          <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:4}}>No courses found</div>
+          <div style={{fontSize:13,color:'#94a3b8'}}>Try different search terms or check back later.</div>
+        </div>
       )}
+      <style>{`.mp-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.22),0 12px 40px rgba(0,0,0,.16)!important;transform:translateY(-2px)}`}</style>
     </AppLayout>
   );
 }
+function Spin() { return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>; }

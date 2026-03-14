@@ -1,96 +1,34 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
-import { Card, CardBody, StatCard, Badge, Button, PageLoading, EmptyState } from '../components/ui';
-import { apiGet, apiDelete } from '../utils/api';
-import { Package, DollarSign, ShoppingCart, BookOpen, PenLine, Trash2, Eye } from 'lucide-react';
-
-const STATUS_COLORS = {
-  draft: 'slate', pending_review: 'amber', ai_rejected: 'red',
-  approved: 'green', published: 'green', suspended: 'red',
-};
-
+import { apiGet } from '../utils/api';
 export default function MyCourses() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    apiGet('/api/marketplace/my-courses').then(d => { setCourses(d.courses || []); setLoading(false); }).catch(() => setLoading(false));
-  }, []);
-
-  const deleteCourse = async (id) => {
-    if (!confirm('Delete this course? This cannot be undone.')) return;
-    try {
-      await apiDelete(`/api/marketplace/courses/${id}`);
-      setCourses(prev => prev.filter(c => c.id !== id));
-    } catch (e) { alert(e.message); }
-  };
-
-  if (loading) return <AppLayout title="My Courses"><PageLoading /></AppLayout>;
-
-  const totalRevenue = courses.reduce((s, c) => s + (c.total_revenue || 0), 0);
-  const totalSales = courses.reduce((s, c) => s + (c.total_sales || 0), 0);
-  const published = courses.filter(c => c.status === 'published').length;
-
+  useEffect(() => { apiGet('/api/marketplace/my-courses').then(d => { setCourses(d.courses||[]); setLoading(false); }).catch(() => setLoading(false)); }, []);
+  if (loading) return <AppLayout title="📚 My Courses"><Spin/></AppLayout>;
   return (
-    <AppLayout title="My Courses" subtitle="Create, manage, and track your course sales"
-      topbarActions={<Link to="/courses/create"><Button size="sm">+ Create Course</Button></Link>}>
-
-      {courses.length > 0 && (
-        <div className="grid grid-cols-4 gap-4 mb-5">
-          <StatCard icon={<Package className="w-5 h-5 text-cyan" />} label="Total Courses"
-            value={courses.length} className="[--icon-bg:#e0f2fe]" />
-          <StatCard icon={<BookOpen className="w-5 h-5 text-emerald" />} label="Published"
-            value={published} className="[--icon-bg:#dcfce7]" />
-          <StatCard icon={<DollarSign className="w-5 h-5 text-emerald" />} label="Total Revenue"
-            value={`$${Math.round(totalRevenue)}`} valueColor="text-emerald" className="[--icon-bg:#dcfce7]" />
-          <StatCard icon={<ShoppingCart className="w-5 h-5 text-violet" />} label="Total Sales"
-            value={totalSales} className="[--icon-bg:#ede9fe]" />
-        </div>
-      )}
-
-      {courses.length === 0 ? (
-        <EmptyState icon="🎓" title="No courses yet"
-          description="Create your first course and start earning 50% of every sale on the marketplace."
-          action={<Link to="/courses/create"><Button>Create Your First Course</Button></Link>} />
-      ) : (
-        <div className="grid grid-cols-3 gap-5">
+    <AppLayout title="📚 My Courses" subtitle="Courses you've created on the marketplace">
+      {courses.length > 0 ? (
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:20}}>
           {courses.map(c => (
-            <Card key={c.id} className="flex flex-col">
-              <div className="h-36 bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center relative overflow-hidden">
-                {c.thumbnail_url ? (
-                  <img src={c.thumbnail_url} alt={c.title} className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-3xl">🎓</span>
-                )}
-                <Badge color={STATUS_COLORS[c.status] || 'slate'} className="absolute top-3 right-3">
-                  {(c.status || 'draft').replace('_', ' ')}
-                </Badge>
+            <div key={c.id} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,padding:20,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
+                <div style={{fontSize:16,fontWeight:800,color:'#0f172a'}}>{c.title}</div>
+                <span style={{fontSize:11,fontWeight:700,padding:'3px 10px',borderRadius:6,background:c.status==='published'?'rgba(22,163,74,.09)':'rgba(245,158,11,.09)',color:c.status==='published'?'#16a34a':'#d97706'}}>{c.status||'draft'}</span>
               </div>
-              <CardBody className="flex-1 flex flex-col">
-                <h3 className="text-sm font-bold text-slate-800 mb-1 line-clamp-2">{c.title}</h3>
-                <div className="text-xs text-slate-400 mb-3">
-                  {c.lesson_count || 0} lessons · {c.total_duration_mins || 0} min · {c.category || 'Other'}
-                </div>
-                <div className="font-display text-lg font-black text-emerald mb-3">${Math.round(c.price)}</div>
-                <div className="flex gap-2 mt-auto">
-                  <Link to={`/courses/edit/${c.id}`} className="flex-1">
-                    <Button variant="secondary" size="sm" className="w-full"><PenLine className="w-3.5 h-3.5" /> Edit</Button>
-                  </Link>
-                  {c.status === 'published' && (
-                    <Link to={`/marketplace/${c.slug}`}>
-                      <Button variant="ghost" size="sm"><Eye className="w-3.5 h-3.5" /></Button>
-                    </Link>
-                  )}
-                  <Button variant="danger" size="sm" onClick={() => deleteCourse(c.id)}>
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
-              </CardBody>
-            </Card>
+              <div style={{fontSize:12,color:'#7b91a8',marginBottom:12}}>${c.price||0} · {c.sales||0} sales · ${(c.earnings||0).toFixed(2)} earned</div>
+              <div style={{display:'flex',gap:8}}>
+                <a href={`/courses/create/${c.id}`} style={{flex:1,padding:10,borderRadius:10,fontSize:13,fontWeight:700,textAlign:'center',textDecoration:'none',background:'#0ea5e9',color:'#fff'}}>Edit</a>
+                <a href={`/marketplace/course/${c.id}`} style={{flex:1,padding:10,borderRadius:10,fontSize:13,fontWeight:700,textAlign:'center',textDecoration:'none',background:'#f8f9fb',color:'#0f172a',border:'1px solid #e5e7eb'}}>Preview</a>
+              </div>
+            </div>
           ))}
         </div>
+      ) : (
+        <div style={{textAlign:'center',padding:'60px 20px'}}><div style={{fontSize:40,marginBottom:12,opacity:.5}}>📚</div><div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:4}}>No courses created yet</div><div style={{fontSize:13,color:'#94a3b8',marginBottom:16}}>Create your first course and earn 50% on every sale.</div><Link to="/courses/create" style={{display:'inline-block',padding:'12px 24px',borderRadius:10,fontSize:14,fontWeight:700,textDecoration:'none',background:'#0ea5e9',color:'#fff'}}>Create Course</Link></div>
       )}
     </AppLayout>
   );
 }
+function Spin(){return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>}

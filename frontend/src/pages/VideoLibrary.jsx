@@ -1,70 +1,37 @@
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
-import { Card, CardBody, StatCard, Badge, Button, PageLoading, EmptyState } from '../components/ui';
 import { apiGet } from '../utils/api';
-import { Film, Eye, TrendingUp, Plus, Play, BarChart3 } from 'lucide-react';
-
 export default function VideoLibrary() {
-  const [data, setData] = useState(null);
+  const [vids, setVids] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    apiGet('/api/video-library').then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
-  }, []);
-
-  if (loading) return <AppLayout title="My Campaigns"><PageLoading /></AppLayout>;
-  if (!data) return <AppLayout title="My Campaigns"><div className="text-center py-20 text-slate-400">Unable to load</div></AppLayout>;
-
+  useEffect(() => { apiGet('/api/video-library').then(d => { setVids(d.campaigns||[]); setLoading(false); }).catch(() => setLoading(false)); }, []);
+  if (loading) return <AppLayout title="🎬 Video Library"><Spin/></AppLayout>;
   return (
-    <AppLayout title="My Campaigns" subtitle="Manage your video advertising campaigns"
-      topbarActions={<a href="/upload-video"><Button size="sm"><Plus className="w-3.5 h-3.5" /> Upload Video</Button></a>}>
-
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <StatCard icon={<Film className="w-5 h-5 text-cyan" />} label="Total Campaigns"
-          value={data.total_campaigns || 0} className="[--icon-bg:#e0f2fe]" />
-        <StatCard icon={<Eye className="w-5 h-5 text-emerald" />} label="Total Views"
-          value={data.total_views || 0} className="[--icon-bg:#dcfce7]" />
-        <StatCard icon={<TrendingUp className="w-5 h-5 text-violet" />} label="Active Now"
-          value={data.active_campaigns || 0} className="[--icon-bg:#ede9fe]" />
-      </div>
-
-      {(!data.campaigns || data.campaigns.length === 0) ? (
-        <EmptyState icon="🎬" title="No campaigns yet"
-          description="Upload a video to start your first campaign and get views from the SuperAdPro community."
-          action={<a href="/upload-video"><Button>Upload Your First Video</Button></a>} />
-      ) : (
-        <div className="grid grid-cols-2 gap-5">
-          {data.campaigns.map(c => (
-            <Card key={c.id}>
-              <div className="aspect-video bg-slate-900 relative flex items-center justify-center overflow-hidden">
-                {c.embed_url ? (
-                  <iframe src={c.embed_url} className="absolute inset-0 w-full h-full" allowFullScreen />
-                ) : (
-                  <Play className="w-10 h-10 text-white/40" />
-                )}
-                <Badge color={c.status === 'active' ? 'green' : 'slate'} className="absolute top-3 right-3">
-                  {c.status}
-                </Badge>
+    <AppLayout title="🎬 Video Library" subtitle="Your video campaigns and their performance">
+      {vids.length > 0 ? (
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(340px,1fr))',gap:20}}>
+          {vids.map(v => (
+            <div key={v.id} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)'}}>
+              <div style={{aspectRatio:'16/9',background:'#000',position:'relative'}}>
+                {v.embed_url ? <iframe src={v.embed_url} style={{width:'100%',height:'100%',border:'none'}} allowFullScreen/> : <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',color:'#475569'}}>No preview</div>}
               </div>
-              <CardBody>
-                <h3 className="text-sm font-bold text-slate-800 mb-1 line-clamp-2">{c.title}</h3>
-                <div className="text-xs text-slate-400 mb-3">{c.platform} · {c.category || 'General'}</div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-sm">
-                    <Eye className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="font-bold text-slate-800">{c.views_delivered || 0}</span>
-                    <span className="text-slate-400">/ {c.views_target || 0}</span>
-                  </div>
-                  <div className="h-1.5 flex-1 mx-3 bg-slate-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-cyan rounded-full transition-all"
-                      style={{ width: `${c.views_target ? Math.min(100, (c.views_delivered / c.views_target) * 100) : 0}%` }} />
-                  </div>
+              <div style={{padding:18}}>
+                <div style={{fontSize:15,fontWeight:800,color:'#0f172a',marginBottom:6}}>{v.title}</div>
+                <div style={{display:'flex',gap:16,fontSize:12,color:'#94a3b8',marginBottom:12}}>
+                  <span>👁️ {v.views||0} views</span><span>⏱ {v.duration||0}s</span>
                 </div>
-              </CardBody>
-            </Card>
+                <div style={{height:6,background:'#eef1f8',borderRadius:99,overflow:'hidden'}}>
+                  <div style={{height:'100%',background:'linear-gradient(90deg,#0ea5e9,#22c55e)',borderRadius:99,width:`${Math.min(100,((v.views||0)/(v.target_views||1))*100)}%`}}/>
+                </div>
+                <div style={{fontSize:11,color:'#7b91a8',marginTop:4}}>{v.views||0} / {v.target_views||0} target views</div>
+              </div>
+            </div>
           ))}
         </div>
+      ) : (
+        <div style={{textAlign:'center',padding:'60px 20px'}}><div style={{fontSize:40,marginBottom:12,opacity:.5}}>🎬</div><div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:4}}>No video campaigns yet</div><div style={{fontSize:13,color:'#94a3b8'}}>Activate a campaign tier to start promoting videos.</div></div>
       )}
     </AppLayout>
   );
 }
+function Spin(){return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>}

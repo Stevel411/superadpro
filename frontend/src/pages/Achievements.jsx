@@ -1,70 +1,61 @@
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
-import { Card, CardBody, PageLoading } from '../components/ui';
 import { apiGet } from '../utils/api';
-import { Award, Lock } from 'lucide-react';
 
 export default function Achievements() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    apiGet('/api/achievements').then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
-  }, []);
+  useEffect(() => { apiGet('/api/achievements').then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, []);
 
-  if (loading) return <AppLayout title="Achievements"><PageLoading /></AppLayout>;
-  if (!data) return <AppLayout title="Achievements"><div className="text-center py-20 text-slate-400">Unable to load</div></AppLayout>;
+  if (loading) return <AppLayout title="🏅 Achievements"><Spin/></AppLayout>;
 
-  const earned = data.earned || [];
-  const available = data.available || [];
+  const d = data || {};
+  const earned = d.earned || [];
+  const available = d.available || [];
 
   return (
-    <AppLayout title="Achievements" subtitle={`${earned.length} of ${earned.length + available.length} unlocked`}>
+    <AppLayout title="🏅 Achievements" subtitle="Track your milestones and unlock badges">
       {/* Earned */}
-      {earned.length > 0 && (
-        <>
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Unlocked</h3>
-          <div className="grid grid-cols-4 gap-4 mb-6">
-            {earned.map((a, i) => (
-              <Card key={i} hover={false} className="ring-2 ring-amber/20">
-                <CardBody className="text-center py-5">
-                  <div className="text-3xl mb-2">{a.icon || '🏅'}</div>
-                  <div className="text-sm font-bold text-slate-800 mb-0.5">{a.title}</div>
-                  <div className="text-[11px] text-slate-400">{a.description}</div>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
-        </>
-      )}
+      {earned.length > 0 && (<>
+        <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#16a34a',marginBottom:12}}>✓ Earned</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:14,marginBottom:28}}>
+          {earned.map((b,i) => (
+            <div key={i} style={{background:'#fff',border:'1px solid #bbf7d0',borderRadius:14,padding:20,textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.12)',position:'relative',overflow:'hidden'}}>
+              <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:'linear-gradient(90deg,#16a34a,#22c55e)'}}/>
+              <div style={{fontSize:36,marginBottom:8}}>{b.icon || '🏆'}</div>
+              <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>{b.name}</div>
+              <div style={{fontSize:11,color:'#7b91a8'}}>{b.description}</div>
+              <div style={{marginTop:8,fontSize:10,fontWeight:700,color:'#16a34a'}}>✓ Unlocked</div>
+            </div>
+          ))}
+        </div>
+      </>)}
 
       {/* Available */}
-      {available.length > 0 && (
-        <>
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Locked</h3>
-          <div className="grid grid-cols-4 gap-4">
-            {available.map((a, i) => (
-              <Card key={i} hover={false} className="opacity-50">
-                <CardBody className="text-center py-5">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-2">
-                    <Lock className="w-4 h-4 text-slate-400" />
-                  </div>
-                  <div className="text-sm font-bold text-slate-600 mb-0.5">{a.title}</div>
-                  <div className="text-[11px] text-slate-400">{a.description}</div>
-                  {a.progress !== undefined && (
-                    <div className="mt-2">
-                      <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-cyan rounded-full" style={{ width: `${Math.min(100, (a.progress / a.target) * 100)}%` }} />
-                      </div>
-                      <div className="text-[10px] text-slate-400 mt-1">{a.progress} / {a.target}</div>
-                    </div>
-                  )}
-                </CardBody>
-              </Card>
-            ))}
+      <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#94a3b8',marginBottom:12}}>🔒 Available</div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:14}}>
+        {(available.length > 0 ? available : [
+          {icon:'👥',name:'First Referral',description:'Refer your first member',progress:0},
+          {icon:'⚡',name:'Grid Starter',description:'Activate your first grid tier',progress:0},
+          {icon:'🎓',name:'Course Creator',description:'Publish a course on the marketplace',progress:0},
+          {icon:'💰',name:'$100 Earned',description:'Reach $100 in total earnings',progress:0},
+          {icon:'🔥',name:'5 Referrals',description:'Build a team of 5 direct referrals',progress:0},
+          {icon:'🏪',name:'First Sale',description:'Make your first marketplace sale',progress:0},
+        ]).map((b,i) => (
+          <div key={i} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:14,padding:20,textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.12)',opacity:0.7}}>
+            <div style={{fontSize:36,marginBottom:8,filter:'grayscale(0.5)'}}>{b.icon || '🔒'}</div>
+            <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>{b.name}</div>
+            <div style={{fontSize:11,color:'#7b91a8',marginBottom:8}}>{b.description}</div>
+            {b.progress !== undefined && b.progress > 0 && (
+              <div style={{height:4,background:'#eef1f8',borderRadius:99,overflow:'hidden'}}>
+                <div style={{height:'100%',background:'linear-gradient(90deg,#0ea5e9,#38bdf8)',borderRadius:99,width:`${Math.min(100,b.progress)}%`}}/>
+              </div>
+            )}
           </div>
-        </>
-      )}
+        ))}
+      </div>
     </AppLayout>
   );
 }
+function Spin() { return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>; }

@@ -1,82 +1,45 @@
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
-import { Card, CardBody, StatCard, PageLoading } from '../components/ui';
 import { apiGet } from '../utils/api';
-import { BarChart3, TrendingUp, Users, Eye, MousePointer, DollarSign } from 'lucide-react';
-
 export default function Analytics() {
-  const [data, setData] = useState(null);
+  const [d, setD] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    apiGet('/api/analytics').then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
-  }, []);
-
-  if (loading) return <AppLayout title="Analytics"><PageLoading /></AppLayout>;
-  if (!data) return <AppLayout title="Analytics"><div className="text-center py-20 text-slate-400">Unable to load analytics</div></AppLayout>;
-
+  useEffect(() => { apiGet('/api/analytics').then(r => { setD(r); setLoading(false); }).catch(() => setLoading(false)); }, []);
+  if (loading) return <AppLayout title="📊 Analytics"><Spin/></AppLayout>;
+  const data = d || {};
+  const stats = [
+    {icon:'👁️',val:data.total_views||0,lbl:'Total Views',color:'#0ea5e9'},
+    {icon:'🖱️',val:data.total_clicks||0,lbl:'Link Clicks',color:'#6366f1'},
+    {icon:'🔄',val:data.total_conversions||0,lbl:'Conversions',color:'#16a34a'},
+    {icon:'💰',val:`$${(data.total_revenue||0).toFixed(0)}`,lbl:'Revenue',color:'#d97706'},
+  ];
   return (
-    <AppLayout title="Analytics" subtitle="Track your performance across the platform">
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <StatCard icon={<Eye className="w-5 h-5 text-cyan" />} label="Total Views"
-          value={data.total_views || 0} className="[--icon-bg:#e0f2fe]" />
-        <StatCard icon={<MousePointer className="w-5 h-5 text-violet" />} label="Total Clicks"
-          value={data.total_clicks || 0} className="[--icon-bg:#ede9fe]" />
-        <StatCard icon={<Users className="w-5 h-5 text-emerald" />} label="Conversions"
-          value={data.conversions || 0} className="[--icon-bg:#dcfce7]" />
-        <StatCard icon={<DollarSign className="w-5 h-5 text-amber" />} label="Revenue"
-          value={`$${Math.round(data.revenue || 0)}`} className="[--icon-bg:#fef3c7]" />
+    <AppLayout title="📊 Analytics" subtitle="Track your performance across all channels">
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16,marginBottom:24}}>
+        {stats.map((s,i) => (
+          <div key={i} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:16,padding:22,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',position:'relative',overflow:'hidden'}}>
+            <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:s.color}}/>
+            <div style={{fontSize:24,marginBottom:8}}>{s.icon}</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:s.color}}>{s.val}</div>
+            <div style={{fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginTop:4}}>{s.lbl}</div>
+          </div>
+        ))}
       </div>
-
-      <div className="grid grid-cols-2 gap-5">
-        {/* Campaign Performance */}
-        <Card hover={false}>
-          <CardBody>
-            <h3 className="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-slate-400" /> Campaign Performance
-            </h3>
-            {(!data.campaigns || data.campaigns.length === 0) ? (
-              <div className="text-center py-8 text-sm text-slate-400">No active campaigns</div>
-            ) : (
-              <div className="divide-y divide-slate-50">
-                {data.campaigns.map((c, i) => (
-                  <div key={i} className="flex items-center justify-between py-3">
-                    <div className="min-w-0">
-                      <div className="text-sm font-semibold text-slate-800 truncate">{c.title}</div>
-                      <div className="text-xs text-slate-400">{c.platform} · {c.status}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-bold text-slate-800">{c.views_delivered || 0} views</div>
-                      <div className="text-xs text-slate-400">of {c.views_target || 0}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardBody>
-        </Card>
-
-        {/* Referral Sources */}
-        <Card hover={false}>
-          <CardBody>
-            <h3 className="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-slate-400" /> Top Sources
-            </h3>
-            {(!data.sources || data.sources.length === 0) ? (
-              <div className="text-center py-8 text-sm text-slate-400">No tracking data yet</div>
-            ) : (
-              <div className="divide-y divide-slate-50">
-                {data.sources.map((s, i) => (
-                  <div key={i} className="flex items-center justify-between py-3">
-                    <span className="text-sm text-slate-700">{s.source}</span>
-                    <span className="text-sm font-bold text-slate-800">{s.count} clicks</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardBody>
-        </Card>
-      </div>
+      {(data.campaigns||[]).length > 0 ? (
+        <CCard title="Campaign Performance" dot="#0ea5e9">
+          <table style={{width:'100%',borderCollapse:'collapse'}}>
+            <thead><tr>{['Campaign','Views','Clicks','CTR','Status'].map(h => <th key={h} style={thS}>{h}</th>)}</tr></thead>
+            <tbody>{data.campaigns.map((c,i) => (
+              <tr key={i}><td style={tdS}>{c.title}</td><td style={tdS}>{c.views||0}</td><td style={tdS}>{c.clicks||0}</td><td style={tdS}>{c.ctr||'0%'}</td>
+              <td style={tdS}><span style={{fontSize:11,fontWeight:700,padding:'3px 8px',borderRadius:6,background:c.status==='active'?'rgba(22,163,74,.09)':'#f8f9fb',color:c.status==='active'?'#16a34a':'#94a3b8'}}>{c.status||'—'}</span></td></tr>
+            ))}</tbody>
+          </table>
+        </CCard>
+      ) : <CCard title="Campaign Performance" dot="#0ea5e9"><div style={{textAlign:'center',padding:32,color:'#94a3b8'}}>No campaign data yet. Activate a tier to start advertising.</div></CCard>}
     </AppLayout>
   );
 }
+function CCard({title,dot,children}){return <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:16,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',overflow:'hidden'}}><div style={{padding:'15px 20px',borderBottom:'1px solid rgba(15,25,60,.07)',display:'flex',alignItems:'center',gap:8}}><div style={{width:7,height:7,borderRadius:'50%',background:dot}}/><span style={{fontSize:16,fontWeight:700,color:'#0f172a'}}>{title}</span></div><div style={{padding:'18px 20px'}}>{children}</div></div>}
+const thS={fontSize:11,fontWeight:800,color:'#7b91a8',textTransform:'uppercase',letterSpacing:1,padding:'11px 14px',borderBottom:'1px solid rgba(15,25,60,.08)',textAlign:'left',background:'#f6f8fc'};
+const tdS={padding:'12px 14px',borderBottom:'1px solid rgba(15,25,60,.05)',fontSize:14,color:'#0f172a'};
+function Spin(){return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>}

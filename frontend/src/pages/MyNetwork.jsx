@@ -1,92 +1,38 @@
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
-import { Card, CardBody, StatCard, Badge, PageLoading, EmptyState } from '../components/ui';
 import { apiGet } from '../utils/api';
-import { Users, DollarSign, Grid3X3, Store, TrendingUp } from 'lucide-react';
-
 export default function MyNetwork() {
-  const [data, setData] = useState(null);
+  const [d, setD] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    apiGet('/api/network').then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
-  }, []);
-
-  if (loading) return <AppLayout title="My Network & Earnings"><PageLoading /></AppLayout>;
-  if (!data) return <AppLayout title="My Network & Earnings"><div className="text-center py-20 text-slate-400">Unable to load</div></AppLayout>;
-
+  useEffect(() => { apiGet('/api/network').then(r => { setD(r); setLoading(false); }).catch(() => setLoading(false)); }, []);
+  if (loading) return <AppLayout title="🌐 My Network & Earnings"><Spin/></AppLayout>;
+  const data = d||{};
   return (
-    <AppLayout title="My Network & Earnings" subtitle="Track your team and commission history">
-      {/* Stats */}
-      <div className="grid grid-cols-5 gap-4 mb-6">
-        <StatCard icon={<Users className="w-5 h-5 text-cyan" />} label="Personal Referrals"
-          value={data.personal_referrals} className="[--icon-bg:#e0f2fe]" />
-        <StatCard icon={<Users className="w-5 h-5 text-violet" />} label="Total Network"
-          value={data.total_team} className="[--icon-bg:#ede9fe]" />
-        <StatCard icon={<DollarSign className="w-5 h-5 text-emerald" />} label="Total Earned"
-          value={`$${Math.round(data.total_earned)}`} valueColor="text-emerald" className="[--icon-bg:#dcfce7]" />
-        <StatCard icon={<Grid3X3 className="w-5 h-5 text-cyan" />} label="Grid Earnings"
-          value={`$${Math.round(data.grid_earnings)}`} className="[--icon-bg:#e0f2fe]" />
-        <StatCard icon={<Store className="w-5 h-5 text-rose" />} label="Marketplace"
-          value={`$${Math.round(data.marketplace_earnings)}`} className="[--icon-bg:#ffe4e6]" />
+    <AppLayout title="🌐 My Network & Earnings" subtitle="Your referrals and commission history">
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
+        {[{v:data.personal_referrals||0,l:'Direct Referrals',c:'#16a34a'},{v:data.total_team||0,l:'Total Network',c:'#0ea5e9'},{v:`$${(data.total_earned||0).toFixed(0)}`,l:'Lifetime Earned',c:'#6366f1'},{v:data.course_sales||0,l:'Course Sales',c:'#d97706'}].map((s,i) => (
+          <div key={i} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:14,padding:18,textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.12)'}}>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:s.c}}>{s.v}</div>
+            <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginTop:4}}>{s.l}</div>
+          </div>
+        ))}
       </div>
-
-      <div className="grid grid-cols-2 gap-5">
-        {/* Referral List */}
-        <Card hover={false}>
-          <CardBody>
-            <h3 className="text-sm font-bold text-slate-700 mb-4">Your Direct Referrals ({data.referrals?.length || 0})</h3>
-            {(!data.referrals || data.referrals.length === 0) ? (
-              <EmptyState icon="👥" title="No referrals yet" description="Share your link to build your network" />
-            ) : (
-              <div className="divide-y divide-slate-50 max-h-96 overflow-y-auto">
-                {data.referrals.map((r, i) => (
-                  <div key={i} className="flex items-center justify-between py-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-full bg-cyan/10 flex items-center justify-center text-sm font-bold text-cyan shrink-0">
-                        {(r.first_name || r.username || '?')[0].toUpperCase()}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-sm font-semibold text-slate-800 truncate">{r.first_name || r.username}</div>
-                        <div className="text-xs text-slate-400">@{r.username} · {r.personal_referrals} referrals</div>
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <Badge color={r.is_active ? 'green' : 'slate'}>{r.is_active ? 'Active' : 'Inactive'}</Badge>
-                      <div className="text-xs text-emerald font-bold mt-1">${Math.round(r.total_earned)} earned</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardBody>
-        </Card>
-
-        {/* Commission History */}
-        <Card hover={false}>
-          <CardBody>
-            <h3 className="text-sm font-bold text-slate-700 mb-4">Recent Commissions</h3>
-            {(!data.commissions || data.commissions.length === 0) ? (
-              <EmptyState icon="💰" title="No commissions yet" description="Earnings will appear here as your network grows" />
-            ) : (
-              <div className="divide-y divide-slate-50 max-h-96 overflow-y-auto">
-                {data.commissions.map((c, i) => (
-                  <div key={i} className="flex items-center justify-between py-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className="text-base shrink-0">{c.icon || '💰'}</span>
-                      <div className="min-w-0">
-                        <div className="text-sm font-semibold text-slate-800 truncate">{c.description || c.commission_type || 'Commission'}</div>
-                        <div className="text-xs text-slate-400">{c.date || ''}</div>
-                      </div>
-                    </div>
-                    <span className="text-sm font-bold text-emerald shrink-0">+${(c.amount || 0).toFixed(2)}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardBody>
-        </Card>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:18}}>
+        <CCard title="Direct Referrals" dot="#16a34a">
+          {(data.referrals||[]).length > 0 ? <table style={{width:'100%',borderCollapse:'collapse'}}><thead><tr>{['Name','Username','Status','Joined'].map(h=><th key={h} style={thS}>{h}</th>)}</tr></thead><tbody>
+            {data.referrals.map((r,i)=><tr key={i}><td style={tdS}>{r.first_name} {r.last_name||''}</td><td style={{...tdS,fontFamily:'monospace',fontSize:12,color:'#64748b'}}>@{r.username}</td><td style={tdS}><span style={{fontSize:11,fontWeight:700,padding:'3px 8px',borderRadius:6,...(r.is_active?{background:'rgba(22,163,74,.09)',color:'#16a34a'}:{background:'rgba(245,158,11,.09)',color:'#d97706'})}}>{r.is_active?'Active':'Inactive'}</span></td><td style={{...tdS,fontSize:12,color:'#7b91a8'}}>{r.created_at?new Date(r.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—'}</td></tr>)}
+          </tbody></table> : <div style={{textAlign:'center',padding:24,color:'#94a3b8',fontSize:13}}>No referrals yet</div>}
+        </CCard>
+        <CCard title="Commission History" dot="#0ea5e9">
+          {(data.commissions||[]).length > 0 ? <table style={{width:'100%',borderCollapse:'collapse'}}><thead><tr>{['Type','Amount','Status','Date'].map(h=><th key={h} style={thS}>{h}</th>)}</tr></thead><tbody>
+            {data.commissions.slice(0,15).map((c,i)=><tr key={i}><td style={{...tdS,fontSize:13}}>{(c.commission_type||'').replace(/_/g,' ')}</td><td style={{...tdS,fontWeight:800,color:'#16a34a'}}>+${(c.amount_usdt||c.amount||0).toFixed(2)}</td><td style={tdS}><span style={{fontSize:11,fontWeight:700,padding:'3px 8px',borderRadius:6,background:c.status==='paid'?'rgba(22,163,74,.09)':'rgba(245,158,11,.09)',color:c.status==='paid'?'#16a34a':'#d97706'}}>{c.status||'pending'}</span></td><td style={{...tdS,fontSize:12,color:'#7b91a8'}}>{c.created_at?new Date(c.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short'}):'—'}</td></tr>)}
+          </tbody></table> : <div style={{textAlign:'center',padding:24,color:'#94a3b8',fontSize:13}}>No commissions yet</div>}
+        </CCard>
       </div>
     </AppLayout>
   );
 }
+function CCard({title,dot,children}){return <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:16,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',overflow:'hidden'}}><div style={{padding:'15px 20px',borderBottom:'1px solid rgba(15,25,60,.07)',display:'flex',alignItems:'center',gap:8}}><div style={{width:7,height:7,borderRadius:'50%',background:dot}}/><span style={{fontSize:16,fontWeight:700,color:'#0f172a'}}>{title}</span></div><div style={{padding:0}}>{children}</div></div>}
+const thS={fontSize:11,fontWeight:800,color:'#7b91a8',textTransform:'uppercase',letterSpacing:1,padding:'11px 14px',borderBottom:'1px solid rgba(15,25,60,.08)',textAlign:'left',background:'#f6f8fc'};
+const tdS={padding:'12px 14px',borderBottom:'1px solid rgba(15,25,60,.05)',fontSize:14,color:'#0f172a'};
+function Spin(){return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>}
