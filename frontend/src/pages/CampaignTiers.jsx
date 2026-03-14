@@ -35,30 +35,34 @@ export default function CampaignTiers() {
 
       <style>{`
         @keyframes shimmer {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
+          0% { left: -60%; }
+          100% { left: 100%; }
         }
         .tier-card-clean { position: relative; overflow: hidden; }
         .tier-card-clean::before {
           content: '';
           position: absolute;
-          inset: 0;
+          top: 0;
+          left: -100%;
+          width: 60%;
+          height: 100%;
           background: linear-gradient(
-            110deg,
-            transparent 20%,
-            rgba(255,255,255,0.4) 40%,
-            rgba(255,255,255,0.6) 50%,
-            rgba(255,255,255,0.4) 60%,
-            transparent 80%
+            90deg,
+            transparent,
+            var(--shimmer-color, rgba(14,165,233,0.08)),
+            transparent
           );
-          background-size: 200% 100%;
-          animation: shimmer 4s ease-in-out infinite;
+          animation: shimmer 3s ease-in-out infinite;
           pointer-events: none;
           z-index: 0;
-          opacity: 0.5;
         }
         .tier-card-clean:hover::before {
-          opacity: 0.8;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            var(--shimmer-color-strong, rgba(14,165,233,0.15)),
+            transparent
+          );
         }
         .tier-card-clean:hover {
           transform: translateY(-4px);
@@ -87,6 +91,8 @@ function TierCard({ tier, active }) {
       boxShadow: '0 2px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03)',
       transition: 'all 0.3s ease',
       cursor: 'default',
+      '--shimmer-color': `${t.color}15`,
+      '--shimmer-color-strong': `${t.color}25`,
     }}>
       {/* Lock icon */}
       <div style={{
