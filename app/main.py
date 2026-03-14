@@ -817,7 +817,7 @@ def register_process(
         assign_passup_sponsor(db, user, sponsor_obj)
         db.commit()
 
-    response = RedirectResponse(url="/dashboard", status_code=303)
+    response = RedirectResponse(url="/app/dashboard", status_code=303)
     set_secure_cookie(response, user.id)
     response.delete_cookie("ref")
     return response
@@ -852,7 +852,7 @@ def dev_login(request: Request, db: Session = Depends(get_db)):
             user.is_active=True
             user.membership_tier="pro"
             db.commit()
-        response = RedirectResponse(url="/dashboard", status_code=303)
+        response = RedirectResponse(url="/app/dashboard", status_code=303)
         set_secure_cookie(response, user.id)
         return response
     except Exception as e:
@@ -889,7 +889,7 @@ def login_process(
             response.set_cookie("pre_auth", str(user.id), max_age=300, httponly=True, samesite="lax")
             return response
         # No 2FA — log in directly
-        response = RedirectResponse(url="/dashboard", status_code=303)
+        response = RedirectResponse(url="/app/dashboard", status_code=303)
         set_secure_cookie(response, user.id)
         return response
     record_failed_attempt(username)
@@ -983,7 +983,7 @@ def login_2fa_verify(
     totp = pyotp.TOTP(user.totp_secret)
     if totp.verify(totp_code.strip(), valid_window=1):
         # Code valid — grant full session
-        response = RedirectResponse(url="/dashboard", status_code=303)
+        response = RedirectResponse(url="/app/dashboard", status_code=303)
         set_secure_cookie(response, user.id)
         response.delete_cookie("pre_auth")
         return response
@@ -1785,7 +1785,7 @@ def active_boosts_api(
 @app.get("/pay-membership")
 def pay_membership_form(request: Request, user: User = Depends(get_current_user)):
     if not user: return RedirectResponse(url="/?login=1")
-    if user.is_active: return RedirectResponse(url="/dashboard")
+    if user.is_active: return RedirectResponse(url="/app/dashboard")
     return templates.TemplateResponse("pay-membership.html", {
         "request": request, "user": user, "amount": MEMBERSHIP_FEE,
         "company_wallet": COMPANY_WALLET,
@@ -8326,7 +8326,7 @@ def linkhub_editor(request: Request, db: Session = Depends(get_db)):
     if not user:
         return RedirectResponse("/login", status_code=302)
     if not user.is_active:
-        return RedirectResponse("/dashboard", status_code=302)
+        return RedirectResponse("/app/dashboard", status_code=302)
 
     import json as _json
     profile = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
@@ -10941,7 +10941,7 @@ def admin_course_review(request: Request, user: User = Depends(get_current_user)
                         db: Session = Depends(get_db)):
     """Admin page — review queue for AI-approved courses."""
     if not user or not user.is_admin:
-        return RedirectResponse(url="/dashboard")
+        return RedirectResponse(url="/app/dashboard")
     courses = db.query(MemberCourse).filter(
         MemberCourse.status.in_(["pending_review", "ai_rejected"])
     ).order_by(MemberCourse.updated_at.desc()).all()

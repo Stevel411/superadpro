@@ -120,7 +120,7 @@ function PlaceholderPage({ title }) {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/app">
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>
