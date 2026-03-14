@@ -4756,13 +4756,28 @@ def render_funnel_page(username: str, page_slug: str, request: Request,
     # Track view (atomic increment to prevent race conditions)
     from sqlalchemy import text
     db.execute(text("UPDATE funnel_pages SET views = COALESCE(views, 0) + 1 WHERE id = :pid"), {"pid": page.id})
+    
+    # Rate-limit event creation — only log unique IP per page per 5 minutes
+    client_ip = request.client.host if request.client else None
     ua = request.headers.get("user-agent", "").lower()
     device = "mobile" if any(d in ua for d in ["mobile", "android", "iphone"]) else "desktop"
-    view_event = FunnelEvent(
-        page_id=page.id, user_id=page.user_id, event_type="view",
-        referrer=request.headers.get("referer", ""), device=device,
-        ip_address=request.client.host if request.client else None)
-    db.add(view_event)
+    
+    recent_event = None
+    if client_ip:
+        five_min_ago = datetime.utcnow() - timedelta(minutes=5)
+        recent_event = db.query(FunnelEvent).filter(
+            FunnelEvent.page_id == page.id,
+            FunnelEvent.ip_address == client_ip,
+            FunnelEvent.event_type == "view",
+            FunnelEvent.created_at >= five_min_ago
+        ).first()
+    
+    if not recent_event:
+        view_event = FunnelEvent(
+            page_id=page.id, user_id=page.user_id, event_type="view",
+            referrer=request.headers.get("referer", ""), device=device,
+            ip_address=client_ip)
+        db.add(view_event)
 
     # Get page owner info for AI chatbot context
     owner = db.query(User).filter(User.id == page.user_id).first()
@@ -5453,6 +5468,26 @@ async def funnel_chat(page_id: int, request: Request, db: Session = Depends(get_
     history = body.get("history") or []
     if not message:
         return JSONResponse({"error": "Empty message"}, status_code=400)
+
+    # Rate limit: 20 messages per IP per hour
+    client_ip = request.client.host if request.client else "unknown"
+    if not hasattr(app.state, '_chat_limits'):
+        app.state._chat_limits = {}
+    limits = app.state._chat_limits
+    now = datetime.utcnow()
+    key = f"{client_ip}:{page_id}"
+    if key in limits:
+        entries = [t for t in limits[key] if (now - t).total_seconds() < 3600]
+        limits[key] = entries
+        if len(entries) >= 20:
+            return JSONResponse({"reply": "You've reached the chat limit for this hour. Please check back soon!"})
+        limits[key].append(now)
+    else:
+        limits[key] = [now]
+    # Clean old entries periodically (every 100th request)
+    if len(limits) > 1000:
+        cutoff = now - timedelta(hours=2)
+        app.state._chat_limits = {k: [t for t in v if t > cutoff] for k, v in limits.items() if any(t > cutoff for t in v)}
 
     # Get page and owner context
     page = db.query(FunnelPage).filter(FunnelPage.id == page_id).first()
@@ -11795,3 +11830,16 @@ async def api_proseller_chat(request: Request, user: User = Depends(get_current_
         return {"response": resp.content[0].text}
     except Exception as e:
         return {"response": f"Sorry, I'm temporarily unavailable. Error: {str(e)[:100]}"}
+
+
+@app.get("/api/funnels/templates")
+def funnel_templates_list():
+    """List available starter templates for new pages."""
+    return {"templates": [
+        {"key": "blank", "title": "Blank Page", "desc": "Start from scratch with a blank canvas", "icon": "📄", "color": "#94a3b8"},
+        {"key": "forex", "title": "Forex Trading", "desc": "Currency trading opportunity page", "icon": "📊", "color": "#0ea5e9"},
+        {"key": "crypto", "title": "Crypto Income", "desc": "Digital currency opportunity page", "icon": "₿", "color": "#a78bfa"},
+        {"key": "affiliate-marketing", "title": "Affiliate Marketing", "desc": "Affiliate income opportunity page", "icon": "🔗", "color": "#10b981"},
+        {"key": "ecommerce", "title": "E-Commerce", "desc": "Online store opportunity page", "icon": "🛒", "color": "#f59e0b"},
+        {"key": "real-estate", "title": "Real Estate", "desc": "Property investment opportunity page", "icon": "🏠", "color": "#e11d48"},
+    ]}

@@ -16,6 +16,9 @@ export default function SuperPagesEditor() {
   const [pageSettings, setPageSettings] = useState({ title: '', metaDescription: '', ogImage: '', slug: '' });
   const [showSettings, setShowSettings] = useState(false);
   const [editingElement, setEditingElement] = useState(null);
+  const [previewMode, setPreviewMode] = useState(false);
+  const [mobileView, setMobileView] = useState(false);
+  const [pageStatus, setPageStatus] = useState('draft');
   const updatedAtRef = useRef(null);
 
   const editor = useEditorState();
@@ -36,6 +39,7 @@ export default function SuperPagesEditor() {
     if (!pageId) { setLoading(false); return; }
     apiGet(`/api/funnels/load/${pageId}`).then(data => {
       setPageSettings({ title: data.title || '', metaDescription: data.meta_description || '', ogImage: data.image_url || '', slug: data.slug || '' });
+      setPageStatus(data.status || 'draft');
       updatedAtRef.current = data.updated_at;
       // Parse canvas data from gjs_css (our JSON state) or gjs_components
       try {
@@ -70,7 +74,7 @@ export default function SuperPagesEditor() {
         image_url: pageSettings.ogImage || '',
         gjs_html: html,
         gjs_css: JSON.stringify({ els, canvasBg, canvasBgImage }),
-        status: 'published',
+        status: pageStatus,
         updated_at: updatedAtRef.current,
       };
       const res = await apiPost('/api/funnels/save', payload);
@@ -147,6 +151,34 @@ export default function SuperPagesEditor() {
     showToast('All elements removed');
   };
 
+  const togglePublish = async () => {
+    const newStatus = pageStatus === 'published' ? 'draft' : 'published';
+    setSaving(true);
+    try {
+      const html = exportHTML(els, canvasBg, canvasBgImage);
+      const payload = {
+        id: parseInt(pageId),
+        title: pageSettings.title || 'Untitled',
+        headline: pageSettings.title || 'Untitled',
+        gjs_html: html,
+        gjs_css: JSON.stringify({ els, canvasBg, canvasBgImage }),
+        status: newStatus,
+        updated_at: updatedAtRef.current,
+      };
+      const res = await apiPost('/api/funnels/save', payload);
+      if (res.success || res.id) {
+        setPageStatus(newStatus);
+        setDirty(false);
+        if (res.slug) setPageSettings(prev => ({ ...prev, slug: res.slug }));
+        if (res.updated_at) updatedAtRef.current = res.updated_at;
+        showToast(newStatus === 'published' ? '✓ Published! Your page is live.' : '✓ Unpublished — page is now a draft.');
+      } else {
+        showToast('Error: ' + (res.error || ''));
+      }
+    } catch (e) { showToast('Error: ' + e.message); }
+    setSaving(false);
+  };
+
   if (loading) {
     return (
       <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0c0f1a', color: '#5a6080' }}>
@@ -162,33 +194,55 @@ export default function SuperPagesEditor() {
         slug={pageSettings.slug}
         saving={saving}
         dirty={dirty}
+        status={pageStatus}
         onSave={save}
         onClear={handleClear}
         onShowSettings={() => setShowSettings(true)}
         onUndo={undo}
         onRedo={redo}
-        onBack={() => navigate('/pro/funnels')}
+        onBack={() => navigate('/funnels')}
+        onTogglePublish={togglePublish}
+        onTogglePreview={() => setPreviewMode(!previewMode)}
+        previewMode={previewMode}
+        onToggleMobile={() => setMobileView(!mobileView)}
+        mobileView={mobileView}
       />
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        <Canvas
-          els={els}
-          selId={selId}
-          canvasBg={canvasBg}
-          canvasBgImage={canvasBgImage}
-          selectElement={selectElement}
-          deselectAll={deselectAll}
-          updateElement={updateElement}
-          markDirty={markDirty}
-          onEditElement={handleEditElement}
-        />
-        <BlockPalette
-          canvasBg={canvasBg}
-          canvasBgImage={canvasBgImage}
-          setCanvasBg={setCanvasBg}
-          setCanvasBgImage={setCanvasBgImage}
-          markDirty={markDirty}
-          onAddElement={(type) => addElement(type)}
-        />
+        {previewMode ? (
+          /* Preview mode — shows rendered HTML */
+          <div style={{flex:1,background:'#1a1a2e',overflow:'auto',display:'flex',justifyContent:'center',padding:20}}>
+            <div style={{width:mobileView?375:1100,transition:'width .3s',background:'#fff',borderRadius:8,overflow:'hidden',boxShadow:'0 0 60px rgba(0,0,0,.3)',minHeight:600}}>
+              <iframe
+                srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Outfit,sans-serif}img{max-width:100%;height:auto}${mobileView?`div[style*="width:1100px"]{transform:scale(${375/1100});transform-origin:top left;width:1100px!important}`:''}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage)}</body></html>`}
+                style={{width:'100%',height:'100%',border:'none',minHeight:800}}
+                title="Preview"
+              />
+            </div>
+          </div>
+        ) : (
+          <Canvas
+            els={els}
+            selId={selId}
+            canvasBg={canvasBg}
+            canvasBgImage={canvasBgImage}
+            selectElement={selectElement}
+            deselectAll={deselectAll}
+            updateElement={updateElement}
+            markDirty={markDirty}
+            onEditElement={handleEditElement}
+            mobileView={mobileView}
+          />
+        )}
+        {!previewMode && (
+          <BlockPalette
+            canvasBg={canvasBg}
+            canvasBgImage={canvasBgImage}
+            setCanvasBg={setCanvasBg}
+            setCanvasBgImage={setCanvasBgImage}
+            markDirty={markDirty}
+            onAddElement={(type) => addElement(type)}
+          />
+        )}
       </div>
 
       {/* Settings Modal */}
@@ -210,12 +264,17 @@ export default function SuperPagesEditor() {
               placeholder="https://..."
               style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 13, outline: 'none', marginBottom: 14, boxSizing: 'border-box' }} />
             {pageSettings.slug && (
-              <div style={{ padding: '10px 14px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 12, color: '#475569', marginBottom: 14, wordBreak: 'break-all' }}>
-                Page URL: {window.location.origin}/f/{pageSettings.slug}
+              <div style={{ padding: '10px 14px', background: '#f0fdf4', border: '1px solid rgba(22,163,74,.2)', borderRadius: 8, fontSize: 12, color: '#16a34a', marginBottom: 14, wordBreak: 'break-all' }}>
+                Live URL: {window.location.origin}/p/{pageSettings.slug}
               </div>
             )}
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Page Status</label>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+              <button onClick={() => setPageStatus('draft')} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: pageStatus === 'draft' ? '2px solid #0ea5e9' : '2px solid #e2e8f0', background: pageStatus === 'draft' ? 'rgba(14,165,233,.06)' : '#fff', color: pageStatus === 'draft' ? '#0ea5e9' : '#94a3b8' }}>○ Draft</button>
+              <button onClick={() => setPageStatus('published')} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: pageStatus === 'published' ? '2px solid #16a34a' : '2px solid #e2e8f0', background: pageStatus === 'published' ? 'rgba(22,163,74,.06)' : '#fff', color: pageStatus === 'published' ? '#16a34a' : '#94a3b8' }}>● Published</button>
+            </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={() => { markDirty(); setShowSettings(false); showToast('✓ Settings saved'); }}
+              <button onClick={() => { markDirty(); setShowSettings(false); save(); }}
                 style={{ padding: '10px 24px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                 Save Settings
               </button>

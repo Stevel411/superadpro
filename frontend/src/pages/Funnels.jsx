@@ -8,10 +8,37 @@ export default function Funnels() {
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [templates, setTemplates] = useState([]);
   const navigate = useNavigate();
 
   const load = () => apiGet('/api/funnels').then(d => { setPages(d.funnels||d.pages||[]); setLoading(false); }).catch(() => setLoading(false));
   useEffect(() => { load(); }, []);
+
+  const openTemplates = async () => {
+    setShowTemplates(true);
+    if (templates.length === 0) {
+      try { const d = await apiGet('/api/funnels/templates'); setTemplates(d.templates || []); } catch(e) {}
+    }
+  };
+
+  const createFromTemplate = async (key) => {
+    setCreating(true);
+    setShowTemplates(false);
+    try {
+      if (key === 'blank') {
+        const res = await apiPost('/api/funnels/save', { title: 'Untitled Page', status: 'draft' });
+        if (res.id) navigate(`/pro/funnel/${res.id}/edit`);
+      } else {
+        const res = await apiPost('/api/funnels/from-template', { niche: key });
+        if (res.edit_url) {
+          const newId = res.edit_url.split('/').pop();
+          navigate(`/pro/funnel/${newId}/edit`);
+        }
+      }
+    } catch (e) { alert(e.message); }
+    setCreating(false);
+  };
 
   const createNew = async () => {
     setCreating(true);
@@ -47,7 +74,7 @@ export default function Funnels() {
       {/* Create button */}
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
         <div style={{fontSize:12,color:'#94a3b8'}}>{pages.length} page{pages.length !== 1 ? 's' : ''}</div>
-        <button onClick={createNew} disabled={creating} style={{
+        <button onClick={openTemplates} disabled={creating} style={{
           display:'flex',alignItems:'center',gap:6,padding:'10px 20px',borderRadius:8,fontSize:13,fontWeight:700,
           border:'none',cursor:'pointer',fontFamily:'inherit',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',
           boxShadow:'0 4px 14px rgba(14,165,233,.3)',
@@ -109,10 +136,32 @@ export default function Funnels() {
           <div style={{width:64,height:64,borderRadius:'50%',background:'rgba(14,165,233,.08)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}><FileText size={28} color="#0ea5e9"/></div>
           <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0f172a',marginBottom:6}}>No pages yet</div>
           <div style={{fontSize:13,color:'#94a3b8',marginBottom:20}}>Create your first landing page to start capturing leads and driving conversions.</div>
-          <button onClick={createNew} disabled={creating} style={{
+          <button onClick={openTemplates} disabled={creating} style={{
             display:'inline-flex',alignItems:'center',gap:6,padding:'12px 28px',borderRadius:8,fontSize:14,fontWeight:700,
             border:'none',cursor:'pointer',fontFamily:'inherit',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',
           }}><Plus size={16}/> Create Your First Page</button>
+        </div>
+      )}
+      {/* Template Picker Modal */}
+      {showTemplates && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(4px)'}} onClick={() => setShowTemplates(false)}>
+          <div onClick={e => e.stopPropagation()} style={{background:'#fff',borderRadius:12,padding:24,width:600,maxHeight:'80vh',overflowY:'auto',boxShadow:'0 20px 60px rgba(0,0,0,.3)'}}>
+            <div style={{fontSize:18,fontWeight:800,color:'#0f172a',marginBottom:4}}>Choose a Template</div>
+            <div style={{fontSize:13,color:'#94a3b8',marginBottom:20}}>Start with a pre-built page or a blank canvas.</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10}}>
+              {templates.map(t => (
+                <button key={t.key} onClick={() => createFromTemplate(t.key)} disabled={creating} style={{
+                  background:'#f8f9fb',border:'1px solid #e8ecf2',borderRadius:8,padding:'20px 14px',cursor:'pointer',
+                  textAlign:'center',transition:'all .15s',fontFamily:'inherit',
+                }}>
+                  <div style={{fontSize:28,marginBottom:8}}>{t.icon}</div>
+                  <div style={{fontSize:13,fontWeight:700,color:'#0f172a',marginBottom:2}}>{t.title}</div>
+                  <div style={{fontSize:11,color:'#94a3b8',lineHeight:1.4}}>{t.desc}</div>
+                </button>
+              ))}
+            </div>
+            <button onClick={() => setShowTemplates(false)} style={{marginTop:16,width:'100%',padding:10,borderRadius:8,border:'1px solid #e8ecf2',background:'#fff',fontSize:13,fontWeight:600,color:'#64748b',cursor:'pointer',fontFamily:'inherit'}}>Cancel</button>
+          </div>
         </div>
       )}
     </AppLayout>

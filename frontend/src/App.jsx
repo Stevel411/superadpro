@@ -94,6 +94,7 @@ function AppRoutes() {
       <Route path="/linkhub" element={<ProtectedRoute><LinkHubPage /></ProtectedRoute>} />
       <Route path="/proseller" element={<ProtectedRoute><ProSeller /></ProtectedRoute>} />
       <Route path="/pro/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
+      <Route path="/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
       <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><SuperPagesEditor /></ProtectedRoute>} />
       <Route path="/pro/leads" element={<ProtectedRoute><MyLeads /></ProtectedRoute>} />
       <Route path="/link-tools" element={<ProtectedRoute><LinkTools /></ProtectedRoute>} />
