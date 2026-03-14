@@ -165,6 +165,20 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 
 /* ── Context-Sensitive Style Panel ── */
 #stylePanel{flex:1;overflow-y:auto;padding:12px;min-height:0;display:none}
+
+/* Publish toggle */
+.tb-publish{display:flex;align-items:center;gap:6px;padding:4px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.05);cursor:pointer;transition:.15s;font-size:11px;font-weight:700;color:#5a6080}
+.tb-publish:hover{background:rgba(255,255,255,.1)}
+.tb-publish.live{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.1);color:#10b981}
+.tb-dot{width:8px;height:8px;border-radius:50%;background:#5a6080;transition:.15s}
+.tb-publish.live .tb-dot{background:#10b981;box-shadow:0 0 8px rgba(16,185,129,.5)}
+.tb-open{padding:5px 10px;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;text-decoration:none;color:#10b981;background:rgba(16,185,129,.1);display:none;align-items:center;gap:3px;transition:.15s}
+.tb-open:hover{background:rgba(16,185,129,.2)}
+.tb-open.show{display:inline-flex}
+.tb-undo{padding:5px 10px;border:none;border-radius:7px;font-size:13px;cursor:pointer;background:rgba(255,255,255,.05);color:#5a6080;transition:.12s;line-height:1}
+.tb-undo:hover{background:rgba(255,255,255,.1);color:#fff}
+.tb-dirty{width:8px;height:8px;border-radius:50%;background:#f59e0b;display:none;flex-shrink:0}
+.tb-dirty.show{display:block}
 #stylePanel::-webkit-scrollbar{width:3px}#stylePanel::-webkit-scrollbar-thumb{background:#d4d8e4;border-radius:3px}
 .sp-back{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--accent);cursor:pointer;margin-bottom:10px;padding:4px 0;transition:.15s}
 .sp-back:hover{color:#38bdf8}
@@ -231,11 +245,39 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
     <button class="tb-dev" onclick="setDevice('mobile')" title="Mobile (390px)" id="devMobile">📲</button>
   </div>
   
-  <a href="/pro/funnels" class="tb-btn tb-ghost">← Funnels</a>
-  <button class="tb-btn tb-ghost" onclick="showPageSettings()" style="font-size:12px">⚙ Settings</button>
-  <button class="tb-btn tb-ghost" onclick="clearCanvas()" style="font-size:12px;color:#dc2626">🗑 Clear</button>
+  <a href="/pro/funnels" class="tb-btn tb-ghost">← Back</a>
+  <div class="tb-sep"></div>
+  <div class="tb-title">✨ {{ page.headline or page.title }}</div>
+  <div class="tb-dirty" id="dirtyDot" title="Unsaved changes"></div>
+  
+  <!-- Device preview toggle -->
+  <div class="tb-devices" id="deviceToggle">
+    <button class="tb-dev active" onclick="setDevice('desktop')" title="Desktop (1100px)" id="devDesktop">🖥</button>
+    <button class="tb-dev" onclick="setDevice('tablet')" title="Tablet (768px)" id="devTablet">📱</button>
+    <button class="tb-dev" onclick="setDevice('mobile')" title="Mobile (390px)" id="devMobile">📲</button>
+  </div>
+  <div class="tb-sep"></div>
+  
+  <!-- Undo / Redo -->
+  <button class="tb-undo" onclick="undo()" title="Undo (Ctrl+Z)">↩</button>
+  <button class="tb-undo" onclick="redo()" title="Redo (Ctrl+Y)">↪</button>
+  <div class="tb-sep"></div>
+  
+  <button class="tb-btn tb-ghost" onclick="showPageSettings()" style="font-size:12px">⚙</button>
+  <button class="tb-btn tb-ghost" onclick="clearCanvas()" style="font-size:12px;color:#dc2626">🗑</button>
+  <div class="tb-sep"></div>
+  
+  <!-- Save -->
   <button class="tb-btn tb-save" onclick="save()">💾 Save</button>
-  <a href="/f/{{ page.slug }}" target="_blank" class="tb-btn tb-preview">👁 Preview</a>
+  
+  <!-- Publish toggle -->
+  <div class="tb-publish {{ 'live' if page.status == 'published' else '' }}" id="publishToggle" onclick="togglePublish()">
+    <div class="tb-dot"></div>
+    <span id="publishLabel">{{ 'Published' if page.status == 'published' else 'Draft' }}</span>
+  </div>
+  
+  <!-- Open live page (only when published) -->
+  <a href="/f/{{ page.slug }}" target="_blank" class="tb-open {{ 'show' if page.status == 'published' else '' }}" id="openLink">Open ↗</a>
 </div>
 
 <!-- ═══ LAYOUT ═══ -->
@@ -552,6 +594,13 @@ let selId = null;    // selected element ID
 let canvasBg = '#ffffff';
 let canvasBgImage = '';  // URL of background image
 let _dirty = false;
+let _publishStatus = '{{ page.status or "draft" }}';
+
+// Update unsaved indicator dot
+function updateDirtyDot() {
+  const dot = document.getElementById('dirtyDot');
+  if (dot) dot.classList.toggle('show', _dirty);
+}
 
 // Page settings
 let pageSettings = {
@@ -611,6 +660,7 @@ function restoreHistory() {
 function markDirty() {
   saveHistory();
   _dirty = true;
+  updateDirtyDot();
 }
 
 // ── UID generator ──
@@ -2455,7 +2505,7 @@ async function save() {
     image_url: pageSettings.ogImage || '',
     gjs_html: html,
     gjs_css: JSON.stringify({els, canvasBg, canvasBgImage}),
-    status: 'published',
+    status: _publishStatus,
   };
 
   try {
@@ -2467,9 +2517,11 @@ async function save() {
     if (d.success||d.id) { 
       toast('✓ Saved!'); 
       _dirty=false;
+      updateDirtyDot();
       // Update slug if it changed
-      if (d.slug && d.slug !== SLUG) {
-        document.querySelector('.tb-preview').href = '/f/' + d.slug;
+      if (d.slug) {
+        const openLink = document.getElementById('openLink');
+        if (openLink) openLink.href = '/f/' + d.slug;
       }
     }
     else toast('Save failed: ' + (d.error || ''));
@@ -2538,6 +2590,33 @@ function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ═══ PUBLISH TOGGLE ═══
+async function togglePublish() {
+  const newStatus = _publishStatus === 'published' ? 'draft' : 'published';
+  _publishStatus = newStatus;
+  
+  // Update UI immediately
+  const toggle = document.getElementById('publishToggle');
+  const label = document.getElementById('publishLabel');
+  const openLink = document.getElementById('openLink');
+  
+  if (newStatus === 'published') {
+    toggle.classList.add('live');
+    label.textContent = 'Published';
+    openLink.classList.add('show');
+    toast('✓ Page published!');
+  } else {
+    toggle.classList.remove('live');
+    label.textContent = 'Draft';
+    openLink.classList.remove('show');
+    toast('Page unpublished');
+  }
+  
+  // Save with new status
+  _dirty = true;
+  save();
 }
 
 // ═══ KEYBOARD ═══
