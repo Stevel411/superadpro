@@ -50,10 +50,24 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
   return (
     <div style={{width:280,height:'calc(100vh - 50px)',background:'#161b30',borderLeft:'1px solid rgba(255,255,255,0.06)',display:'flex',flexDirection:'column',overflow:'hidden',flexShrink:0}}>
 
-      {/* Header */}
-      <div style={{padding:'14px 16px',borderBottom:'1px solid rgba(255,255,255,0.06)',flexShrink:0}}>
-        <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'#e2e8f0'}}>✦ Blocks</h3>
-        <p style={{margin:'2px 0 0',fontSize:10,color:'rgba(255,255,255,0.35)'}}>Click or drag to add</p>
+      {/* Header with BG control */}
+      <div style={{padding:'14px 16px',borderBottom:'1px solid rgba(255,255,255,0.06)',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div>
+          <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'#e2e8f0'}}>✦ Blocks</h3>
+          <p style={{margin:'2px 0 0',fontSize:10,color:'rgba(255,255,255,0.35)'}}>Click or drag to add</p>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:6}}>
+          <div style={{width:28,height:28,borderRadius:8,border:'2px solid rgba(255,255,255,0.15)',overflow:'hidden',position:'relative',cursor:'pointer',flexShrink:0,background:canvasBgImage?`url(${canvasBgImage}) center/cover`:canvasBg}}>
+            <input type="color" value={canvasBg?.startsWith('#')?canvasBg:'#ffffff'} onChange={e => applyBg(e.target.value)}
+              style={{position:'absolute',inset:-4,width:'calc(100% + 8px)',height:'calc(100% + 8px)',border:'none',cursor:'pointer',padding:0,...(canvasBgImage?{opacity:0}:{})}}/>
+          </div>
+          <div>
+            <div style={{fontSize:8,fontWeight:700,color:'rgba(255,255,255,0.4)'}}>BG</div>
+            <div style={{fontSize:9,fontFamily:'monospace',color:'rgba(255,255,255,0.35)'}}>
+              {canvasBgImage?'Image':canvasBg?.startsWith('linear')?'Grad':canvasBg?.slice(0,7)}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Block list */}
@@ -90,27 +104,6 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
             </div>
           </div>
         ))}
-      </div>
-
-      {/* BG Control */}
-      <div style={{padding:'12px 16px',borderTop:'1px solid rgba(255,255,255,0.06)',flexShrink:0,display:'flex',alignItems:'center',gap:10}}>
-        <div style={{width:36,height:36,borderRadius:8,border:'2px solid rgba(255,255,255,0.1)',overflow:'hidden',position:'relative',cursor:'pointer',flexShrink:0,background:canvasBgImage?`url(${canvasBgImage}) center/cover`:canvasBg}}>
-          <input type="color" value={canvasBg?.startsWith('#')?canvasBg:'#ffffff'} onChange={e => applyBg(e.target.value)}
-            style={{position:'absolute',inset:-4,width:'calc(100% + 8px)',height:'calc(100% + 8px)',border:'none',cursor:'pointer',padding:0,...(canvasBgImage?{opacity:0}:{})}}/>
-        </div>
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:10,fontWeight:800,color:'rgba(255,255,255,0.35)',textTransform:'uppercase',letterSpacing:0.5}}>Background</div>
-          <div style={{fontSize:11,fontFamily:'monospace',color:'rgba(255,255,255,0.35)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
-            {canvasBgImage?'Image':canvasBg?.startsWith('linear')?'Gradient':canvasBg}
-          </div>
-        </div>
-        {/* Presets */}
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:3}}>
-          {BG_PRESETS.slice(0,6).map((p,i) => (
-            <div key={i} onClick={() => { if(p.startsWith('linear')){setBgType('gradient');applyBg(p)}else{setBgType('solid');applyBg(p)} }}
-              style={{width:16,height:16,borderRadius:4,cursor:'pointer',background:p,border:'1px solid rgba(255,255,255,0.1)'}}/>
-          ))}
-        </div>
       </div>
 
       {/* AI Chat */}
