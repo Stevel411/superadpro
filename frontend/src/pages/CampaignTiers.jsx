@@ -65,7 +65,7 @@ function TierCard({ tier, active, delay }) {
   return (
     <div className="dark-tier" style={{
       background: 'linear-gradient(135deg, #0b1729 0%, #132240 50%, #0e1c30 100%)',
-      borderRadius: 0,
+      borderRadius: 8,
       padding: '22px 20px 20px',
       display: 'flex',
       flexDirection: 'column',
