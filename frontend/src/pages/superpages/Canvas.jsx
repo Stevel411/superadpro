@@ -191,19 +191,29 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     e.stopPropagation();
     const el = els.find(x => x.id === id);
     if (!el) return;
-    resizeRef.current = { id, handle, startX: e.clientX, startY: e.clientY, origW: el.w, origH: el.h };
+    resizeRef.current = { id, handle, startX: e.clientX, startY: e.clientY, origX: el.x, origY: el.y, origW: el.w, origH: el.h };
 
     const onMove = (ev) => {
       const r = resizeRef.current;
       if (!r) return;
       const dx = ev.clientX - r.startX;
       const dy = ev.clientY - r.startY;
-      let newW = r.origW, newH = r.origH;
-      if (r.handle.includes('r') || r.handle === 'br') newW = Math.max(40, r.origW + dx);
-      if (r.handle.includes('b') || r.handle === 'br') newH = Math.max(20, r.origH + dy);
-      // Direct DOM update
+      let newX = r.origX, newY = r.origY, newW = r.origW, newH = r.origH;
+
+      // Right edge
+      if (handle.includes('r')) newW = Math.max(40, r.origW + dx);
+      // Left edge — moves x and shrinks width
+      if (handle.includes('l')) { newW = Math.max(40, r.origW - dx); newX = r.origX + (r.origW - newW); }
+      // Bottom edge
+      if (handle.includes('b')) newH = Math.max(20, r.origH + dy);
+      // Top edge — moves y and shrinks height
+      if (handle.includes('t')) { newH = Math.max(20, r.origH - dy); newY = r.origY + (r.origH - newH); }
+
+      // Direct DOM update for smooth resize
       const dom = document.getElementById(r.id);
-      if (dom) { dom.style.width = newW + 'px'; dom.style.height = newH + 'px'; }
+      if (dom) { dom.style.width = newW + 'px'; dom.style.height = newH + 'px'; dom.style.left = newX + 'px'; dom.style.top = newY + 'px'; }
+      resizeRef.current.finalX = newX;
+      resizeRef.current.finalY = newY;
       resizeRef.current.finalW = newW;
       resizeRef.current.finalH = newH;
     };
@@ -211,7 +221,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     const onUp = () => {
       const r = resizeRef.current;
       if (r && r.finalW !== undefined) {
-        updateElement(r.id, { w: r.finalW, h: r.finalH });
+        updateElement(r.id, { x: r.finalX, y: r.finalY, w: r.finalW, h: r.finalH });
         markDirty();
       }
       resizeRef.current = null;
@@ -419,17 +429,20 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
                 style={{ padding: '2px 6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#dc2626' }} title="Delete">✕</button>
             </div>
 
-            {/* Resize handles */}
-            {el.id === selId && ['br', 'r', 'b'].map(pos => (
+            {/* Resize handles — all 8 directions */}
+            {el.id === selId && [
+              { pos: 'tl', style: { top: -4, left: -4, width: 10, height: 10, cursor: 'nwse-resize', borderRadius: 3 } },
+              { pos: 't',  style: { top: -3, left: '50%', width: 24, height: 6, transform: 'translateX(-50%)', cursor: 'ns-resize', borderRadius: 3 } },
+              { pos: 'tr', style: { top: -4, right: -4, width: 10, height: 10, cursor: 'nesw-resize', borderRadius: 3 } },
+              { pos: 'l',  style: { top: '50%', left: -3, width: 6, height: 24, transform: 'translateY(-50%)', cursor: 'ew-resize', borderRadius: 3 } },
+              { pos: 'r',  style: { top: '50%', right: -3, width: 6, height: 24, transform: 'translateY(-50%)', cursor: 'ew-resize', borderRadius: 3 } },
+              { pos: 'bl', style: { bottom: -4, left: -4, width: 10, height: 10, cursor: 'nesw-resize', borderRadius: 3 } },
+              { pos: 'b',  style: { bottom: -3, left: '50%', width: 24, height: 6, transform: 'translateX(-50%)', cursor: 'ns-resize', borderRadius: 3 } },
+              { pos: 'br', style: { bottom: -4, right: -4, width: 10, height: 10, cursor: 'nwse-resize', borderRadius: 3 } },
+            ].map(({ pos, style }) => (
               <div key={pos} className="cel-resize"
                 onMouseDown={e => startResize(e, el.id, pos)}
-                style={{
-                  position: 'absolute',
-                  ...(pos === 'br' ? { bottom: -4, right: -4, width: 10, height: 10, cursor: 'nwse-resize', borderRadius: 3, background: '#0ea5e9' } :
-                    pos === 'r' ? { top: '50%', right: -3, width: 6, height: 24, transform: 'translateY(-50%)', cursor: 'ew-resize', borderRadius: 3, background: '#0ea5e9' } :
-                    { bottom: -3, left: '50%', width: 24, height: 6, transform: 'translateX(-50%)', cursor: 'ns-resize', borderRadius: 3, background: '#0ea5e9' }),
-                  zIndex: 15,
-                }} />
+                style={{ position: 'absolute', background: '#0ea5e9', zIndex: 15, ...style }} />
             ))}
           </div>
         ))}
