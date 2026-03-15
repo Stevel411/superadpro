@@ -19,7 +19,7 @@ export default function SuperPagesEditor() {
   const [showHelp, setShowHelp] = useState(false);
   const [editingElement, setEditingElement] = useState(null);
   const [previewMode, setPreviewMode] = useState(false);
-  const [mobileView, setMobileView] = useState(false);
+  const [deviceView, setDeviceView] = useState('desktop');
   const [pageStatus, setPageStatus] = useState('draft');
   const updatedAtRef = useRef(null);
 
@@ -207,16 +207,16 @@ export default function SuperPagesEditor() {
         onTogglePublish={togglePublish}
         onTogglePreview={() => setPreviewMode(!previewMode)}
         previewMode={previewMode}
-        onToggleMobile={() => setMobileView(!mobileView)}
-        mobileView={mobileView}
+        deviceView={deviceView}
+        onSetDevice={setDeviceView}
       />
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {previewMode ? (
           /* Preview mode — shows rendered HTML */
           <div style={{flex:1,background:'#1a1a2e',overflow:'auto',display:'flex',justifyContent:'center',padding:20}}>
-            <div style={{width:mobileView?375:1100,transition:'width .3s',background:'#fff',borderRadius:8,overflow:'hidden',boxShadow:'0 0 60px rgba(0,0,0,.3)',minHeight:600}}>
+            <div style={{width:deviceView==='mobile'?390:deviceView==='tablet'?768:1100,transition:'width .3s',background:'#fff',borderRadius:8,overflow:'hidden',boxShadow:'0 0 60px rgba(0,0,0,.3)',minHeight:600}}>
               <iframe
-                srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Outfit,sans-serif}img{max-width:100%;height:auto}${mobileView?`div[style*="width:1100px"]{transform:scale(${375/1100});transform-origin:top left;width:1100px!important}`:''}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage)}</body></html>`}
+                srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Outfit,sans-serif}img{max-width:100%;height:auto}${deviceView!=='desktop'?`div[style*="width:1100px"]{transform:scale(${deviceView==='mobile'?390/1100:768/1100});transform-origin:top left;width:1100px!important}`:''}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage)}</body></html>`}
                 style={{width:'100%',height:'100%',border:'none',minHeight:800}}
                 title="Preview"
               />
@@ -233,7 +233,7 @@ export default function SuperPagesEditor() {
             updateElement={updateElement}
             markDirty={markDirty}
             onEditElement={handleEditElement}
-            mobileView={mobileView}
+            deviceView={deviceView}
           />
         )}
         {!previewMode && (

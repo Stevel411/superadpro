@@ -1,6 +1,6 @@
-import { Eye, Save, Undo2, Redo2, Settings, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, HelpCircle } from 'lucide-react';
+import { Eye, Save, Undo2, Redo2, Settings, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, Tablet, HelpCircle } from 'lucide-react';
 
-export default function EditorTopbar({ title, slug, saving, dirty, status, onSave, onClear, onShowSettings, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, onToggleMobile, mobileView, onShowHelp }) {
+export default function EditorTopbar({ title, slug, saving, dirty, status, onSave, onClear, onShowSettings, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, deviceView, onSetDevice, onShowHelp }) {
   const isPublished = status === 'published';
   return (
     <div style={{
@@ -17,9 +17,15 @@ export default function EditorTopbar({ title, slug, saving, dirty, status, onSav
         {dirty && <span style={{color:'#f59e0b',marginLeft:6}}>●</span>}
       </div>
 
-      {/* Device toggle */}
-      <button onClick={onToggleMobile} style={{...gh,background:mobileView?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:mobileView?'#38bdf8':'#6a7090'}} title={mobileView?'Desktop view':'Mobile view'}>
-        {mobileView ? <Monitor size={14}/> : <Smartphone size={14}/>}
+      {/* Device view toggles */}
+      <button onClick={() => onSetDevice('desktop')} style={{...gh,background:deviceView==='desktop'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='desktop'?'#38bdf8':'#6a7090'}} title="Desktop (1100px)">
+        <Monitor size={14}/>
+      </button>
+      <button onClick={() => onSetDevice('tablet')} style={{...gh,background:deviceView==='tablet'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='tablet'?'#38bdf8':'#6a7090'}} title="Tablet (768px)">
+        <Tablet size={14}/>
+      </button>
+      <button onClick={() => onSetDevice('mobile')} style={{...gh,background:deviceView==='mobile'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='mobile'?'#38bdf8':'#6a7090'}} title="Mobile (390px)">
+        <Smartphone size={14}/>
       </button>
 
       <div style={{width:1,height:22,background:'#1f2440'}}/>
