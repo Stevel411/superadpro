@@ -39,9 +39,9 @@ export default function Support() {
 
         {/* Contact Form */}
         <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',overflow:'hidden'}}>
-          <div style={{padding:'16px 20px',borderBottom:'1px solid #e5e7eb',display:'flex',alignItems:'center',gap:8}}>
+          <div style={{padding:'12px 20px',background:'#1c223d',display:'flex',alignItems:'center',gap:8}}>
             <div style={{width:6,height:6,borderRadius:'50%',background:'#0ea5e9'}}/>
-            <span style={{fontSize:15,fontWeight:800,color:'#0f172a'}}>Submit a Ticket</span>
+            <span style={{fontSize:14,fontWeight:800,color:'#fff'}}>Submit a Ticket</span>
           </div>
           <div style={{padding:20}}>
             {sent ? (

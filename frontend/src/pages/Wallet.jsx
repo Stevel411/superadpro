@@ -339,12 +339,12 @@ function Card({ title, dotColor, badge, headerRight, flex, children }) {
       overflow: 'hidden', transition: 'box-shadow .2s, border-color .2s',
       display: 'flex', flexDirection: 'column', ...(flex ? { flex: 1 } : {}),
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '15px 20px', borderBottom: '1px solid rgba(15,25,60,.07)' }}>
-        <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 7, height: 7, borderRadius: '50%', background: dotColor, flexShrink: 0 }} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', background: '#1c223d' }}>
+        <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: dotColor || '#0ea5e9', flexShrink: 0 }} />
           {title}
         </div>
-        {badge && <span style={{ fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: badge.bg, color: badge.color, border: `1px solid ${badge.border}` }}>{badge.text}</span>}
+        {badge && <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: badge.bg, color: badge.color, border: '1px solid ' + badge.border }}>{badge.text}</span>}
         {headerRight}
       </div>
       <div style={{ padding: '18px 20px', flex: 1 }}>{children}</div>
