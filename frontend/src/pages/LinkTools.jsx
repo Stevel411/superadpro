@@ -2,11 +2,12 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
 import QRCode from 'qrcode';
+import LinkToolsHelp from './LinkToolsHelp';
 import {
   Link2, Shuffle, Plus, Trash2, Copy, BarChart3, ExternalLink,
   Clock, Globe, MousePointer, ChevronDown, X, Edit3, QrCode,
   Tag, Lock, Calendar, Link as LinkIcon, Shield, Palette,
-  Download, Search, AlertCircle, Check
+  Download, Search, AlertCircle, Check, HelpCircle
 } from 'lucide-react';
 
 // ── Colour presets for tags ──
@@ -38,6 +39,7 @@ export default function LinkTools() {
   const [editLink, setEditLink] = useState(null);
   const [qrLink, setQrLink] = useState(null);
   const [showUtm, setShowUtm] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [tagLink, setTagLink] = useState(null);
 
   // ── Create link form ──
@@ -229,7 +231,11 @@ export default function LinkTools() {
   );
 
   return (
-    <AppLayout title="Link Tools" subtitle="Short links, rotators, QR codes & UTM tracking">
+    <AppLayout title="Link Tools" subtitle="Short links, rotators, QR codes & UTM tracking" topbarActions={
+      <button onClick={() => setShowHelp(true)} style={{display:'flex',alignItems:'center',gap:5,padding:'7px 14px',borderRadius:8,fontSize:12,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:'rgba(255,255,255,0.08)',color:'#38bdf8'}}>
+        <HelpCircle size={14}/> Help
+      </button>
+    }>
 
       {/* ── Stats row ── */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:24}}>
@@ -670,6 +676,9 @@ export default function LinkTools() {
       {toast && (
         <div style={{position:'fixed',bottom:24,left:'50%',transform:'translateX(-50%)',background:toast.includes('✓')?'#10b981':'#ef4444',color:'#fff',padding:'10px 24px',borderRadius:12,fontSize:13,fontWeight:700,boxShadow:'0 4px 20px rgba(0,0,0,.2)',zIndex:300}}>{toast}</div>
       )}
+
+      {/* ── Help Panel ── */}
+      <LinkToolsHelp visible={showHelp} onClose={() => setShowHelp(false)} />
     </AppLayout>
   );
 }
