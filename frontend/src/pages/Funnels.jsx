@@ -46,6 +46,9 @@ export default function Funnels() {
   const [creating,setCreating]=useState(false);
   const [creatingKey,setCreatingKey]=useState(null);
   const [confirmDelete,setConfirmDelete]=useState(null);
+  const [showAiWizard,setShowAiWizard]=useState(false);
+  const [aiForm,setAiForm]=useState({niche:'',audience:'',story:'',tone:'professional'});
+  const [aiGenerating,setAiGenerating]=useState(false);
   const navigate=useNavigate();
 
   const load=()=>apiGet('/api/funnels').then(d=>{setPages(d.funnels||d.pages||[]);setLoading(false)}).catch(()=>setLoading(false));
@@ -68,6 +71,18 @@ export default function Funnels() {
 
   const deletePage=async(id)=>{
     try{await apiPost(`/api/funnels/delete/${id}`,{});setPages(p=>p.filter(x=>x.id!==id));setConfirmDelete(null)}catch(e){alert(e.message)}
+  };
+
+  const generateAiFunnel=async()=>{
+    if(!aiForm.niche.trim()){alert('Please enter your niche');return}
+    setAiGenerating(true);
+    try{
+      const res=await apiPost('/api/pro/generate-funnel',aiForm);
+      if(res.id) window.location.href=`/pro/funnel/${res.id}/edit`;
+      else if(res.error) alert(res.error);
+      else alert('Generation failed — please try again');
+    }catch(e){alert(e.message)}
+    setAiGenerating(false);
   };
 
   const duplicatePage=async(id)=>{
@@ -98,7 +113,7 @@ export default function Funnels() {
           <Sparkles size={24} color="#0ea5e9" style={{marginBottom:10}}/>
           <h3 style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#fff',margin:'0 0 6px'}}>AI Funnel Generator</h3>
           <p style={{fontSize:12,color:'#94a3b8',lineHeight:1.6,marginBottom:16}}>Answer 4 questions and AI generates a complete landing page with email capture</p>
-          <button onClick={()=>navigate('/pro/ai-funnel')} style={{padding:'10px 22px',borderRadius:10,border:'none',cursor:'pointer',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontFamily:'Sora,sans-serif',fontSize:12,fontWeight:700,boxShadow:'0 4px 14px rgba(14,165,233,.3)'}}>Create AI Funnel →</button>
+          <button onClick={()=>setShowAiWizard(true)} style={{padding:'10px 22px',borderRadius:10,border:'none',cursor:'pointer',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontFamily:'Sora,sans-serif',fontSize:12,fontWeight:700,boxShadow:'0 4px 14px rgba(14,165,233,.3)'}}>Create AI Funnel →</button>
         </div>
         <div style={{background:'linear-gradient(135deg,#e8e5fb,#d8d4f7)',borderRadius:16,padding:24,position:'relative',overflow:'hidden',border:'1px solid rgba(99,102,241,.15)'}}>
           <div style={{position:'absolute',top:-20,right:-20,width:100,height:100,background:'radial-gradient(circle,rgba(99,102,241,.1),transparent 70%)',borderRadius:'50%'}}/>
@@ -198,6 +213,55 @@ export default function Funnels() {
         .tpl-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.04)!important;border-color:#cbd5e1!important}
         .tpl-card:active{transform:scale(.98)!important}
       `}</style>
+
+      {/* AI Funnel Wizard Modal */}
+      {showAiWizard && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(4px)'}} onClick={()=>!aiGenerating&&setShowAiWizard(false)}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'#fff',borderRadius:16,padding:28,width:500,maxHeight:'85vh',overflowY:'auto',boxShadow:'0 20px 60px rgba(0,0,0,.3)'}}>
+            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
+              <Sparkles size={20} color="#0ea5e9"/>
+              <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0f172a'}}>AI Funnel Generator</h3>
+            </div>
+            <p style={{fontSize:13,color:'#94a3b8',marginBottom:20}}>Answer 4 questions and AI will generate a complete landing page for you.</p>
+
+            <label style={{display:'block',fontSize:12,fontWeight:700,color:'#475569',marginBottom:4}}>1. What's your niche or industry?</label>
+            <input value={aiForm.niche} onChange={e=>setAiForm(p=>({...p,niche:e.target.value}))} placeholder="e.g. Forex trading, fitness coaching, crypto..."
+              style={{width:'100%',padding:'10px 14px',border:'2px solid #e2e8f0',borderRadius:10,fontSize:13,outline:'none',marginBottom:14,boxSizing:'border-box'}}/>
+
+            <label style={{display:'block',fontSize:12,fontWeight:700,color:'#475569',marginBottom:4}}>2. Who's your target audience?</label>
+            <input value={aiForm.audience} onChange={e=>setAiForm(p=>({...p,audience:e.target.value}))} placeholder="e.g. Beginners, working professionals, stay-at-home parents..."
+              style={{width:'100%',padding:'10px 14px',border:'2px solid #e2e8f0',borderRadius:10,fontSize:13,outline:'none',marginBottom:14,boxSizing:'border-box'}}/>
+
+            <label style={{display:'block',fontSize:12,fontWeight:700,color:'#475569',marginBottom:4}}>3. Your story or unique angle (optional)</label>
+            <textarea value={aiForm.story} onChange={e=>setAiForm(p=>({...p,story:e.target.value}))} placeholder="e.g. I went from broke to earning $5K/month in 6 months..."
+              rows={3} style={{width:'100%',padding:'10px 14px',border:'2px solid #e2e8f0',borderRadius:10,fontSize:13,outline:'none',marginBottom:14,boxSizing:'border-box',resize:'vertical',fontFamily:'inherit'}}/>
+
+            <label style={{display:'block',fontSize:12,fontWeight:700,color:'#475569',marginBottom:4}}>4. Tone of voice</label>
+            <div style={{display:'flex',gap:8,marginBottom:20}}>
+              {['professional','casual','urgent','inspirational'].map(t=>(
+                <button key={t} onClick={()=>setAiForm(p=>({...p,tone:t}))} style={{
+                  flex:1,padding:'8px 0',borderRadius:8,fontSize:11,fontWeight:700,cursor:'pointer',textTransform:'capitalize',
+                  border:aiForm.tone===t?'2px solid #0ea5e9':'2px solid #e2e8f0',
+                  background:aiForm.tone===t?'rgba(14,165,233,.06)':'#fff',
+                  color:aiForm.tone===t?'#0ea5e9':'#94a3b8',fontFamily:'inherit',
+                }}>{t}</button>
+              ))}
+            </div>
+
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={generateAiFunnel} disabled={aiGenerating} style={{
+                flex:1,padding:'12px',borderRadius:10,border:'none',cursor:'pointer',
+                background:aiGenerating?'#94a3b8':'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',
+                fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:700,
+              }}>{aiGenerating?'✨ Generating...':'Generate My Page →'}</button>
+              <button onClick={()=>setShowAiWizard(false)} disabled={aiGenerating} style={{
+                padding:'12px 20px',borderRadius:10,border:'1px solid #e2e8f0',cursor:'pointer',
+                background:'#fff',color:'#64748b',fontSize:13,fontWeight:600,fontFamily:'inherit',
+              }}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppLayout>
   );
 }
