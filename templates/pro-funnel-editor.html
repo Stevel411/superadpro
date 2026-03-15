@@ -104,6 +104,11 @@ body{margin:0;background:var(--sp-shell);font-family:'DM Sans',system-ui,sans-se
 /* Hide default GrapesJS panels — we use our own */
 .gjs-pn-panels{display:none!important}
 .gjs-pn-views,.gjs-pn-views-container{display:none!important}
+/* But show the managers themselves when inside our custom tabs */
+#tabStyle .gjs-sm-sectors,#tabStyle .gjs-clm-tags,#tabStyle .gjs-trt-traits,
+#tabLayers .gjs-layers{display:block!important;background:var(--sp-panel)!important}
+#tabStyle .gjs-sm-sectors{padding:8px!important}
+#tabLayers .gjs-layers{padding:0!important}
 /* Keep the canvas and frame */
 .gjs-frame-wrapper{background:transparent!important}
 /* Style manager theming (shown in our custom panel) */
@@ -264,7 +269,11 @@ var editor=grapesjs.init({
       {name:'Mobile',width:'375px',widthMedia:'480px'},
     ]
   },
+  selectorManager:{
+    appendTo:'#tabStyle'
+  },
   styleManager:{
+    appendTo:'#tabStyle',
     sectors:[
       {name:'Typography',open:true,properties:[
         {property:'font-family',type:'select',options:FONTS},
@@ -292,26 +301,14 @@ var editor=grapesjs.init({
       ]},
     ],
   },
+  layerManager:{
+    appendTo:'#tabLayers'
+  },
+  traitManager:{
+    appendTo:'#tabStyle'
+  },
   assetManager:{upload:'/api/funnels/upload-image',uploadName:'file',multiUpload:false,autoAdd:true},
 });
-
-// ═══ MOVE GRAPESJS PANELS INTO OUR CUSTOM UI ═══
-var sm=editor.Panels.getPanel('views-container');
-if(sm){
-  var smEl=sm.set('appendTo','#tabStyle').get('el');
-}
-// Move Style Manager
-var smC=document.querySelector('.gjs-sm-sectors');
-if(smC)document.getElementById('tabStyle').appendChild(smC);
-// Move Layer Manager
-var lm=document.querySelector('.gjs-layers');
-if(lm)document.getElementById('tabLayers').appendChild(lm);
-// Move Traits
-var tr=document.querySelector('.gjs-trt-traits');
-if(tr)document.getElementById('tabStyle').appendChild(tr);
-// Move Selectors
-var cls=document.querySelector('.gjs-clm-tags');
-if(cls)document.getElementById('tabStyle').insertBefore(cls,document.getElementById('tabStyle').firstChild);
 
 // ═══ TAB SWITCHING ═══
 function switchTab(tab){
@@ -321,9 +318,11 @@ function switchTab(tab){
   document.getElementById('tabLayers').classList.toggle('show',tab==='layers');
 }
 
-// Auto-switch to Style tab when element selected
+// Auto-switch to Style tab when element selected, back to Blocks when deselected
 editor.on('component:selected',function(){switchTab('style')});
-editor.on('selector:add',function(){switchTab('style')});
+editor.on('selection:end',function(){
+  if(!editor.getSelected())switchTab('blocks');
+});
 
 // ═══ WIRE CUSTOM BLOCKS TO GRAPESJS ═══
 document.querySelectorAll('.sp-bitem').forEach(function(el){
@@ -333,7 +332,15 @@ document.querySelectorAll('.sp-bitem').forEach(function(el){
     var block=editor.Blocks.get(blockId);
     if(block){
       var content=block.get('content');
-      editor.addComponents(content);
+      if(typeof content==='string'){
+        editor.addComponents(content);
+      }else{
+        editor.addComponents(content);
+      }
+    }else{
+      // Try built-in blocks (column1, column2, etc)
+      var builtIn=editor.Blocks.get(blockId);
+      if(builtIn){editor.addComponents(builtIn.get('content'))}
     }
   });
 });
@@ -376,9 +383,16 @@ bm.add('sa-spacer',{label:'Spacer',category:'SuperAdPro',
 
 // ═══ CANVAS BACKGROUND ═══
 function setCanvasBg(c){
+  // Set background on the canvas body element inside the iframe
   var wrapper=editor.DomComponents.getWrapper();
-  wrapper.setStyle({'background-color':c,'min-height':'100vh'});
+  wrapper.addStyle({'background-color':c,'background':c,'min-height':'100vh'});
+  // Also set on canvas frame body for immediate visual feedback
+  var frame=editor.Canvas.getFrameEl();
+  if(frame&&frame.contentDocument){
+    frame.contentDocument.body.style.background=c;
+  }
   document.getElementById('bgSwatch').style.background=c;
+  document.getElementById('bgPicker').value=c;
   _dirty=true;document.getElementById('dirtyDot').classList.add('show');
 }
 
