@@ -1,10 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, Palette, Type } from 'lucide-react';
 import { FONTS, FONT_SIZES } from './elementDefaults';
 
 export default function InlineToolbar({ visible, position, onCommand }) {
-  const [showColorPicker, setShowColorPicker] = useState(false);
-  const [showBgPicker, setShowBgPicker] = useState(false);
   const colorRef = useRef(null);
   const bgRef = useRef(null);
 
@@ -57,33 +55,25 @@ export default function InlineToolbar({ visible, position, onCommand }) {
 
       <Sep/>
 
-      {/* Text colour */}
+      {/* Text colour — click opens full colour picker directly */}
       <div style={{position:'relative'}}>
-        <TB onClick={() => { setShowColorPicker(!showColorPicker); setShowBgPicker(false); }} title="Text Colour">
+        <TB onClick={() => { if (colorRef.current) colorRef.current.click(); }} title="Text Colour">
           <Type size={14}/>
           <div style={{position:'absolute',bottom:2,left:6,right:6,height:3,background:'#0ea5e9',borderRadius:1}}/>
         </TB>
-        {showColorPicker && (
-          <input ref={colorRef} type="color" defaultValue="#ffffff"
-            onChange={e => cmd('foreColor', e.target.value)}
-            onBlur={() => setShowColorPicker(false)}
-            style={{position:'absolute',top:34,left:0,width:40,height:30,border:'none',padding:0,cursor:'pointer'}}
-            autoFocus/>
-        )}
+        <input ref={colorRef} type="color" defaultValue="#ffffff"
+          onChange={e => cmd('foreColor', e.target.value)}
+          style={{position:'absolute',top:0,left:0,width:1,height:1,opacity:0,pointerEvents:'none'}}/>
       </div>
 
-      {/* Highlight */}
+      {/* Highlight — click opens full colour picker directly */}
       <div style={{position:'relative'}}>
-        <TB onClick={() => { setShowBgPicker(!showBgPicker); setShowColorPicker(false); }} title="Highlight">
+        <TB onClick={() => { if (bgRef.current) bgRef.current.click(); }} title="Highlight">
           <Palette size={14}/>
         </TB>
-        {showBgPicker && (
-          <input ref={bgRef} type="color" defaultValue="#fbbf24"
-            onChange={e => cmd('hiliteColor', e.target.value)}
-            onBlur={() => setShowBgPicker(false)}
-            style={{position:'absolute',top:34,left:0,width:40,height:30,border:'none',padding:0,cursor:'pointer'}}
-            autoFocus/>
-        )}
+        <input ref={bgRef} type="color" defaultValue="#fbbf24"
+          onChange={e => cmd('hiliteColor', e.target.value)}
+          style={{position:'absolute',top:0,left:0,width:1,height:1,opacity:0,pointerEvents:'none'}}/>
       </div>
 
       <Sep/>
