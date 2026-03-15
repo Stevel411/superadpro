@@ -72,6 +72,15 @@ export default function LinkHub() {
   var parseIcon = function(icon) {
     if (!icon || icon === '') return { type: 'none', key: '', filled: false };
     if (typeof icon === 'object') return icon;
+    // If it starts with { it's JSON (or corrupted JSON) — never treat as emoji
+    if (icon.charAt(0) === '{') {
+      try {
+        var parsed = JSON.parse(icon);
+        if (parsed && parsed.type) return parsed;
+      } catch(e) {}
+      // Corrupted/truncated JSON — treat as no icon
+      return { type: 'none', key: '', filled: false };
+    }
     try {
       var parsed = JSON.parse(icon);
       if (parsed && parsed.type) return parsed;

@@ -8859,7 +8859,7 @@ def linkhub_public(username: str, request: Request, db: Session = Depends(get_db
                     icon_html = ""  # SVG icons handled via key lookup below
                 # type == "none" → icon_html stays empty
             except Exception:
-                icon_html = icon_raw  # fallback to raw string
+                icon_html = ""  # corrupted/truncated JSON — hide icon
         else:
             icon_html = icon_raw  # legacy emoji string
         parsed_links.append({
