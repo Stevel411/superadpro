@@ -78,8 +78,13 @@ export default function Sidebar() {
 
   var toggle = function(key) {
     setManualOpen(function(prev) {
-      var next = {};
-      next[key] = !prev[key];
+      var next = Object.assign({}, prev);
+      // If explicitly set, toggle it. If not set yet, close it (since it was auto-opened)
+      if (key in next) {
+        next[key] = !next[key];
+      } else {
+        next[key] = false;
+      }
       return next;
     });
   };
@@ -115,7 +120,7 @@ export default function Sidebar() {
 
           if (item.type === 'group') {
             var hasActiveChild = item.items.some(function(sub) { return isActive(sub.path); });
-            var isOpen = hasActiveChild || manualOpen[item.key];
+            var isOpen = (item.key in manualOpen) ? manualOpen[item.key] : (hasActiveChild || false);
 
             return (
               <div key={i}>
