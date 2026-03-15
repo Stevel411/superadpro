@@ -18,19 +18,23 @@ const TEMPLATES = [
 function TemplatePreview({ bg, accent, Icon }) {
   return (
     <div style={{width:'100%',height:'100%',background:bg,borderRadius:'10px 10px 0 0',position:'relative',overflow:'hidden'}}>
-      {/* Floating glow orb */}
-      <div style={{position:'absolute',top:'15%',right:'15%',width:80,height:80,borderRadius:'50%',background:`radial-gradient(circle,${accent}20 0%,transparent 70%)`,filter:'blur(8px)'}}/>
-      <div style={{position:'absolute',bottom:'10%',left:'10%',width:50,height:50,borderRadius:'50%',background:`radial-gradient(circle,${accent}15 0%,transparent 70%)`,filter:'blur(6px)'}}/>
-      {/* Floating card mockup */}
-      <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%) rotate(-2deg)',width:'70%',height:'60%',borderRadius:10,background:'rgba(255,255,255,.06)',border:`1px solid ${accent}30`,backdropFilter:'blur(4px)',boxShadow:`0 8px 32px ${accent}15`,display:'flex',flexDirection:'column',padding:'10%',gap:'8%'}}>
-        <div style={{width:'75%',height:4,borderRadius:2,background:accent,opacity:.8}}/>
-        <div style={{width:'55%',height:3,borderRadius:2,background:'rgba(255,255,255,.15)'}}/>
-        <div style={{flex:1,borderRadius:6,background:`${accent}12`,border:`1px solid ${accent}20`}}/>
-        <div style={{width:'45%',height:6,borderRadius:4,background:accent,opacity:.7,alignSelf:'center'}}/>
-      </div>
-      {/* Icon badge */}
-      <div style={{position:'absolute',bottom:10,left:10,width:28,height:28,borderRadius:7,background:`${accent}22`,border:`1px solid ${accent}40`,display:'flex',alignItems:'center',justifyContent:'center'}}>
-        <Icon size={13} color={accent}/>
+      {/* Large soft glow */}
+      <div style={{position:'absolute',top:'-20%',right:'-10%',width:140,height:140,borderRadius:'50%',background:`radial-gradient(circle,${accent}25 0%,transparent 65%)`}}/>
+      <div style={{position:'absolute',bottom:'-15%',left:'-5%',width:100,height:100,borderRadius:'50%',background:`radial-gradient(circle,${accent}18 0%,transparent 65%)`}}/>
+      {/* Floating bubbles */}
+      <div style={{position:'absolute',top:'18%',left:'20%',width:10,height:10,borderRadius:'50%',background:`${accent}40`,boxShadow:`0 0 12px ${accent}30`}}/>
+      <div style={{position:'absolute',top:'35%',right:'22%',width:14,height:14,borderRadius:'50%',background:`${accent}30`,boxShadow:`0 0 16px ${accent}25`}}/>
+      <div style={{position:'absolute',bottom:'30%',left:'35%',width:8,height:8,borderRadius:'50%',background:`${accent}35`,boxShadow:`0 0 10px ${accent}20`}}/>
+      <div style={{position:'absolute',top:'55%',right:'40%',width:6,height:6,borderRadius:'50%',background:`${accent}45`,boxShadow:`0 0 8px ${accent}30`}}/>
+      <div style={{position:'absolute',top:'25%',left:'55%',width:12,height:12,borderRadius:'50%',background:`${accent}25`,boxShadow:`0 0 14px ${accent}20`}}/>
+      <div style={{position:'absolute',bottom:'20%',right:'15%',width:9,height:9,borderRadius:'50%',background:`${accent}35`,boxShadow:`0 0 10px ${accent}25`}}/>
+      {/* Star sparkles */}
+      <div style={{position:'absolute',top:'22%',right:'35%',fontSize:16,color:accent,opacity:.5,textShadow:`0 0 8px ${accent}`}}>✦</div>
+      <div style={{position:'absolute',bottom:'35%',left:'18%',fontSize:12,color:accent,opacity:.4,textShadow:`0 0 6px ${accent}`}}>✦</div>
+      <div style={{position:'absolute',top:'50%',left:'45%',fontSize:20,color:accent,opacity:.3,textShadow:`0 0 10px ${accent}`}}>✦</div>
+      {/* Centre icon — large and prominent */}
+      <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:52,height:52,borderRadius:14,background:`${accent}18`,border:`1px solid ${accent}35`,display:'flex',alignItems:'center',justifyContent:'center',boxShadow:`0 8px 32px ${accent}20`}}>
+        <Icon size={24} color={accent} strokeWidth={1.5}/>
       </div>
     </div>
   );
