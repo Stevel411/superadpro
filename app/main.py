@@ -4249,7 +4249,39 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
     if not user: return {"error": "Not logged in"}
     body = await request.json()
     niche = body.get("niche", "affiliate-marketing")
-    import json, random, string
+    import json, random, string, re as _re
+
+    # ── NEW: SuperPages template builder (React editor format) ──
+    from app.template_builder import build_template, BUILDERS
+    if niche in BUILDERS:
+        tpl_data = build_template(niche, getattr(user, 'username', 'demo'))
+        TEMPLATE_TITLES = {
+            'lead-capture': 'Lead Capture Page',
+            'video-sales': 'Video Sales Letter',
+            'product-offer': 'Product Offer Page',
+            'network-opportunity': 'Business Opportunity',
+            'webinar-registration': 'Webinar Registration',
+            'coaching-program': 'Coaching Program',
+            'digital-product': 'Digital Product Page',
+            'affiliate-income': 'Affiliate Funnel',
+        }
+        title = TEMPLATE_TITLES.get(niche, 'New Page')
+        # Add short hash to prevent duplicate title errors
+        title_hash = ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))
+        page = FunnelPage(
+            user_id=user.id,
+            title=f"{title} {title_hash}",
+            headline=title,
+            template_type="landing",
+            status="draft",
+            gjs_css=json.dumps(tpl_data),
+        )
+        db.add(page)
+        db.flush()
+        slug_base = _re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
+        page.slug = f"{user.username.lower()}/{slug_base}-{page.id}"
+        db.commit()
+        return {"success": True, "id": page.id, "edit_url": f"/pro/funnel/{page.id}/edit"}
 
     NICHE_TEMPLATES = {
         "forex": {
