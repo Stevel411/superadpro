@@ -203,7 +203,7 @@ export default function SuperPagesEditor() {
         onShowHelp={() => setShowHelp(true)}
         onUndo={undo}
         onRedo={redo}
-        onBack={() => navigate('/funnels')}
+        onBack={() => navigate('/pro/funnels')}
         onTogglePublish={togglePublish}
         onTogglePreview={() => setPreviewMode(!previewMode)}
         previewMode={previewMode}
