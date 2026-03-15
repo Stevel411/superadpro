@@ -211,12 +211,17 @@ export default function SuperPagesEditor() {
         onSetDevice={setDeviceView}
       />
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        {previewMode ? (
-          /* Preview mode — shows rendered HTML */
-          <div style={{flex:1,background:'#1a1a2e',overflow:'auto',display:'flex',justifyContent:'center',padding:20}}>
-            <div style={{width:deviceView==='mobile'?390:deviceView==='tablet'?768:1100,transition:'width .3s',background:'#fff',borderRadius:8,overflow:'hidden',boxShadow:'0 0 60px rgba(0,0,0,.3)',minHeight:600}}>
+        {(previewMode || deviceView !== 'desktop') ? (
+          /* Preview mode — shows rendered HTML with responsive CSS */
+          <div style={{flex:1,background:'#1a1a2e',overflow:'auto',display:'flex',flexDirection:'column',alignItems:'center',padding:20}}>
+            {deviceView !== 'desktop' && !previewMode && (
+              <div style={{marginBottom:12,padding:'8px 16px',background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.2)',borderRadius:8,fontSize:11,color:'#38bdf8',fontWeight:600}}>
+                📱 Responsive Preview — switch to Desktop to edit elements
+              </div>
+            )}
+            <div style={{width:deviceView==='mobile'?390:deviceView==='tablet'?768:1100,transition:'width .3s',background:canvasBg||'#050d1a',borderRadius:8,overflow:'hidden',boxShadow:'0 0 60px rgba(0,0,0,.3)',minHeight:600}}>
               <iframe
-                srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Outfit,sans-serif}img{max-width:100%;height:auto}${deviceView!=='desktop'?`div[style*="width:1100px"]{transform:scale(${deviceView==='mobile'?390/1100:768/1100});transform-origin:top left;width:1100px!important}`:''}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage)}</body></html>`}
+                srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Outfit,sans-serif}img{max-width:100%;height:auto}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage)}</body></html>`}
                 style={{width:'100%',height:'100%',border:'none',minHeight:800}}
                 title="Preview"
               />
