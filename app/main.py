@@ -11906,6 +11906,59 @@ def api_linkhub_stats(request: Request, user: User = Depends(get_current_user),
     }
 
 
+@app.get("/api/linkhub/editor-data")
+def api_linkhub_editor_data(request: Request, user: User = Depends(get_current_user),
+                             db: Session = Depends(get_db)):
+    """Full LinkHub profile + links data for React editor."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    import json as _json
+    profile = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
+    links = []
+    total_clicks = 0
+    click_30d = 0
+    if profile:
+        db_links = db.query(LinkHubLink).filter(
+            LinkHubLink.profile_id == profile.id
+        ).order_by(LinkHubLink.sort_order).all()
+        links = [{
+            "id": l.id, "title": l.title, "url": l.url, "icon": l.icon or "🔗",
+            "is_active": l.is_active, "click_count": l.click_count or 0,
+            "sort_order": l.sort_order,
+        } for l in db_links]
+        total_clicks = sum(l.click_count or 0 for l in db_links)
+        from datetime import timedelta
+        cutoff = datetime.utcnow() - timedelta(days=30)
+        click_30d = db.query(LinkHubClick).filter(
+            LinkHubClick.profile_id == profile.id,
+            LinkHubClick.clicked_at >= cutoff
+        ).count()
+    social_links = []
+    if profile and profile.social_links:
+        try: social_links = _json.loads(profile.social_links)
+        except Exception: pass
+    return {
+        "username": user.username,
+        "first_name": user.first_name or user.username or "",
+        "profile": {
+            "display_name": profile.display_name if profile else (user.first_name or user.username or ""),
+            "bio": profile.bio if profile else "",
+            "avatar_url": (profile.avatar_r2_url or profile.avatar_data or "") if profile else "",
+            "bg_color": (profile.bg_color or "#0f172a") if profile else "#0f172a",
+            "text_color": (profile.text_color or "#ffffff") if profile else "#ffffff",
+            "btn_color": (profile.btn_color or "#0ea5e9") if profile else "#0ea5e9",
+            "accent_color": (profile.accent_color or "#ffffff") if profile else "#ffffff",
+            "font_family": (profile.font_family or "DM Sans") if profile else "DM Sans",
+            "is_published": profile.is_published if profile else True,
+            "total_views": profile.total_views if profile else 0,
+        } if True else None,
+        "links": links,
+        "social_links": social_links,
+        "total_clicks": total_clicks,
+        "click_30d": click_30d,
+    }
+
+
 @app.post("/api/proseller/chat")
 async def api_proseller_chat(request: Request, user: User = Depends(get_current_user),
                              db: Session = Depends(get_db)):
