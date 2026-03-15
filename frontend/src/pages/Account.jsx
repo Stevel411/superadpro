@@ -106,12 +106,12 @@ export default function Account() {
 
           {/* Wallet */}
           <C title="Withdrawal Wallet">
-            <form onSubmit={saveWallet} style={{marginTop:'auto'}}>
+            <div style={{flex:1,display:'flex',flexDirection:'column'}}>
               <FG><L>Wallet Address (USDC on Base)</L><I value={walletAddr} onChange={e=>setWalletAddr(e.target.value)} placeholder="0x..." style={{...iS,fontFamily:'monospace',fontSize:11}}/></FG>
-              <button type="submit" disabled={savingWallet} style={btn}>{savingWallet?'Saving...':'Save Wallet'}</button>
-            </form>
-            <div style={{padding:'8px 10px',background:'#f8f9fb',border:'1px solid rgba(14,165,233,.1)',borderRadius:6,marginTop:8,fontSize:10,color:'#64748b',lineHeight:1.5}}>
-              Coinbase · MetaMask · Trust Wallet · Rainbow — any USDC on Base wallet.
+              <div style={{padding:'8px 10px',background:'#f8f9fb',border:'1px solid rgba(14,165,233,.1)',borderRadius:6,marginBottom:10,fontSize:10,color:'#64748b',lineHeight:1.5}}>
+                Coinbase · MetaMask · Trust Wallet · Rainbow — any USDC on Base wallet.
+              </div>
+              <button onClick={saveWallet} disabled={savingWallet} style={{...btn,marginTop:'auto'}}>{savingWallet?'Saving...':'Save Wallet'}</button>
             </div>
           </C>
       </div>
@@ -121,11 +121,11 @@ export default function Account() {
 
 // Compact card
 function C({title,chip,children}){
-  const cc={none:{bg:'#f8f9fb',c:'#94a3b8',b:'#e5e7eb'},pending:{bg:'#fef3c7',c:'#d97706',b:'rgba(217,119,6,.2)'},approved:{bg:'#dcfce7',c:'#16a34a',b:'rgba(22,163,74,.2)'},rejected:{bg:'#fef2f2',c:'#dc2626',b:'rgba(220,38,38,.2)'},enabled:{bg:'#dcfce7',c:'#16a34a',b:'rgba(22,163,74,.2)'},disabled:{bg:'#f8f9fb',c:'#94a3b8',b:'#e5e7eb'}};
+  const cc={none:{bg:'#f8f9fb',c:'#94a3b8',b:'#e5e7eb'},pending:{bg:'rgba(217,119,6,.15)',c:'#fbbf24',b:'rgba(217,119,6,.3)'},approved:{bg:'rgba(22,163,74,.15)',c:'#4ade80',b:'rgba(22,163,74,.3)'},rejected:{bg:'rgba(220,38,38,.15)',c:'#f87171',b:'rgba(220,38,38,.3)'},enabled:{bg:'rgba(22,163,74,.15)',c:'#4ade80',b:'rgba(22,163,74,.3)'},disabled:{bg:'rgba(255,255,255,.1)',c:'rgba(255,255,255,.5)',b:'rgba(255,255,255,.15)'}};
   const ch=chip?cc[chip.c]||cc.none:null;
   return <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:8,boxShadow:'0 2px 8px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03)',overflow:'hidden',display:'flex',flexDirection:'column'}}>
-    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 14px',borderBottom:'1px solid #f1f3f7'}}>
-      <div style={{fontSize:13,fontWeight:800,color:'#0f172a',display:'flex',alignItems:'center',gap:6}}><div style={{width:5,height:5,borderRadius:'50%',background:'#0ea5e9',flexShrink:0}}/>{title}</div>
+    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 14px',background:'#1c223d'}}>
+      <div style={{fontSize:13,fontWeight:800,color:'#fff',display:'flex',alignItems:'center',gap:6}}><div style={{width:5,height:5,borderRadius:'50%',background:'#0ea5e9',flexShrink:0}}/>{title}</div>
       {chip&&<span style={{fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:4,background:ch.bg,color:ch.c,border:`1px solid ${ch.b}`}}>{chip.t}</span>}
     </div>
     <div style={{padding:'12px 14px',flex:1,display:'flex',flexDirection:'column'}}>{children}</div>
