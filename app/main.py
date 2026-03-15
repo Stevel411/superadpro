@@ -8845,11 +8845,36 @@ def linkhub_public(username: str, request: Request, db: Session = Depends(get_db
         except Exception:
             social_links = []
 
+    # Pre-process link icons — parse JSON icon data into renderable format
+    parsed_links = []
+    for lk in links:
+        icon_html = ""
+        icon_raw = lk.icon or ""
+        if icon_raw.startswith("{"):
+            try:
+                ic = _json.loads(icon_raw)
+                if ic.get("type") == "emoji":
+                    icon_html = ic.get("key", "")
+                elif ic.get("type") == "svg":
+                    icon_html = ""  # SVG icons handled via key lookup below
+                # type == "none" → icon_html stays empty
+            except Exception:
+                icon_html = icon_raw  # fallback to raw string
+        else:
+            icon_html = icon_raw  # legacy emoji string
+        parsed_links.append({
+            "id": lk.id, "title": lk.title, "url": lk.url,
+            "icon": icon_html, "icon_raw": icon_raw,
+            "subtitle": lk.subtitle, "is_active": lk.is_active,
+            "btn_style": lk.btn_style, "btn_bg_color": lk.btn_bg_color,
+            "btn_text_color": lk.btn_text_color, "thumbnail": lk.thumbnail,
+        })
+
     return templates.TemplateResponse("linkhub-public.html", {
         "request": request,
         "user": user,
         "profile": profile,
-        "links": links,
+        "links": parsed_links,
         "social_links": social_links,
     })
 
