@@ -1,28 +1,56 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import {
-  Home, User, Wallet, Headphones, Eye, Film, BarChart3, Megaphone, Link2, Globe,
-  GraduationCap, Package, PenLine, Store, Network, DollarSign, FileText, Users,
-  Target, Sparkles, Mail, ArrowUpCircle, Trophy, Award, LayoutGrid, Zap, Bot,
-  LogOut, ChevronRight, Play
+  Home, User, Wallet, Headphones, Eye, Zap, LayoutGrid, Link2,
+  Globe, GraduationCap, Store, PenLine, Network, FileText, Users,
+  Target, Mail, Trophy, Award, Bot, Megaphone, Film,
+  LogOut, ChevronRight, Play, Lock
 } from 'lucide-react';
 
-const NAV = [
+var NAV = [
   { type: 'standalone', label: 'Dashboard', icon: Home, path: '/dashboard' },
   { type: 'divider' },
+
   { type: 'group', label: 'Account', key: 'account', items: [
     { label: 'My Profile', icon: User, path: '/account' },
     { label: 'Wallet', icon: Wallet, path: '/wallet' },
     { label: 'Support', icon: Headphones, path: '/support' },
   ]},
   { type: 'divider' },
-  { type: 'group', label: 'Video Hub', key: 'video', items: [
+
+  { type: 'group', label: 'Earn', key: 'earn', items: [
     { label: 'Watch to Earn', icon: Eye, path: '/watch' },
-    { label: 'My Campaigns', icon: Film, path: '/video-library' },
-    { label: 'Analytics', icon: BarChart3, path: '/analytics' },
+    { label: 'Campaign Tiers', icon: Zap, path: '/campaign-tiers' },
+    { label: 'Ad Board', icon: LayoutGrid, path: '/ad-board' },
   ]},
   { type: 'divider' },
+
+  { type: 'group', label: 'Creator Tools', key: 'creator', items: [
+    { label: 'LinkHub', icon: LayoutGrid, path: '/linkhub' },
+    { label: 'Link Tools', icon: Link2, path: '/link-tools' },
+    { label: 'SuperPages', icon: Globe, path: '/pro/funnels', pro: true },
+  ]},
+  { type: 'divider' },
+
+  { type: 'group', label: 'Courses', key: 'courses', items: [
+    { label: 'Course Library', icon: GraduationCap, path: '/courses' },
+    { label: 'Marketplace', icon: Store, path: '/marketplace' },
+    { label: 'Create Course', icon: PenLine, path: '/courses/create', pro: true },
+  ]},
+  { type: 'divider' },
+
+  { type: 'group', label: 'Affiliate', key: 'affiliate', items: [
+    { label: 'My Network', icon: Network, path: '/network' },
+    { label: 'Comp Plan', icon: FileText, path: '/compensation-plan' },
+    { label: 'Social Share', icon: Users, path: '/affiliate' },
+    { label: 'ProSeller AI', icon: Target, path: '/proseller', pro: true },
+    { label: 'My Leads', icon: Mail, path: '/pro/leads', pro: true },
+    { label: 'Leaderboard', icon: Trophy, path: '/leaderboard' },
+    { label: 'Achievements', icon: Award, path: '/achievements' },
+  ]},
+  { type: 'divider' },
+
   { type: 'group', label: 'Marketing Suite', key: 'marketing', items: [
     { label: 'Campaign Studio', icon: Bot, path: '/campaign-studio' },
     { label: 'Niche Finder', icon: Target, path: '/niche-finder' },
@@ -30,44 +58,31 @@ const NAV = [
     { label: 'Video Scripts', icon: Film, path: '/video-script-generator' },
     { label: 'Email Swipes', icon: Mail, path: '/email-swipes' },
   ]},
-  { type: 'divider' },
-  { type: 'group', label: 'AdStudio', key: 'adstudio', items: [
-    { label: 'SuperPages', icon: Globe, path: '/pro/funnels' },
-    { label: 'Link Tools', icon: Link2, path: '/link-tools' },
-    { label: 'LinkHub', icon: LayoutGrid, path: '/linkhub' },
-  ]},
-  { type: 'divider' },
-  { type: 'group', label: 'Courses', key: 'courses', items: [
-    { label: 'Course Library', icon: GraduationCap, path: '/courses' },
-    { label: 'My Courses', icon: Package, path: '/courses/my-courses' },
-    { label: 'Create Course', icon: PenLine, path: '/courses/create' },
-    { label: 'Marketplace', icon: Store, path: '/marketplace' },
-  ]},
-  { type: 'divider' },
-  { type: 'group', label: 'Affiliate', key: 'affiliate', items: [
-    { label: 'My Network', icon: Network, path: '/courses/commissions' },
-    { label: 'Commissions', icon: DollarSign, path: '/courses/how-it-works' },
-    { label: 'Comp Plan', icon: FileText, path: '/compensation-plan' },
-    { label: 'Social Share', icon: Users, path: '/affiliate' },
-    { label: 'ProSeller AI', icon: Target, path: '/proseller' },
-    { label: 'AI Funnels', icon: Sparkles, path: '/pro/funnels' },
-    { label: 'My Leads', icon: Mail, path: '/pro/leads' },
-    { label: 'Pass-Up View', icon: ArrowUpCircle, path: '/passup-visualiser' },
-    { label: 'Leaderboard', icon: Trophy, path: '/leaderboard' },
-    { label: 'Achievements', icon: Award, path: '/achievements' },
-  ]},
-  { type: 'divider' },
-  { type: 'standalone', label: 'Campaign Tiers', icon: Zap, path: '/campaign-tiers' },
-  { type: 'standalone', label: 'Ad Board', icon: LayoutGrid, path: '/ad-board' },
 ];
 
 export default function Sidebar() {
-  const { user, logout } = useAuth();
-  const location = useLocation();
-  const [openGroups, setOpenGroups] = useState({});
+  var auth = useAuth();
+  var user = auth.user;
+  var logout = auth.logout;
+  var location = useLocation();
+  var [manualOpen, setManualOpen] = useState({});
 
-  const toggle = (key) => setOpenGroups(prev => ({ ...prev, [key]: !prev[key] }));
-  const isActive = (path) => location.pathname === path;
+  // Reset manual open state on navigation — groups auto-close
+  useEffect(function() {
+    setManualOpen({});
+  }, [location.pathname]);
+
+  var isActive = function(path) {
+    return location.pathname === path;
+  };
+
+  var toggle = function(key) {
+    setManualOpen(function(prev) {
+      var next = {};
+      next[key] = !prev[key];
+      return next;
+    });
+  };
 
   return (
     <aside className="w-56 h-screen bg-navy fixed top-0 left-0 z-50 flex flex-col border-r border-white/5 shrink-0">
@@ -83,39 +98,46 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-2 scrollbar-thin">
-        {NAV.map((item, i) => {
+        {NAV.map(function(item, i) {
           if (item.type === 'divider') return <div key={i} className="h-px bg-white/5 mx-3 my-1.5" />;
+
           if (item.type === 'standalone') {
-            const Icon = item.icon;
+            var Icon = item.icon;
             return (
               <Link key={i} to={item.path}
-                className={`flex items-center gap-2.5 px-5 py-2.5 text-[13px] font-medium no-underline transition-all duration-150
-                  ${isActive(item.path) ? 'text-cyan font-bold bg-cyan/8' : 'text-white/40 hover:text-white/70 hover:bg-cyan/5'}`}>
+                className={'flex items-center gap-2.5 px-5 py-2.5 text-[13px] font-medium no-underline transition-all duration-150 ' +
+                  (isActive(item.path) ? 'text-cyan font-bold bg-cyan/8' : 'text-white/40 hover:text-white/70 hover:bg-cyan/5')}>
                 <Icon className="w-4 h-4 shrink-0" />
                 {item.label}
               </Link>
             );
           }
+
           if (item.type === 'group') {
-            const isOpen = openGroups[item.key];
-            const hasActiveChild = item.items.some(i => isActive(i.path));
+            var hasActiveChild = item.items.some(function(sub) { return isActive(sub.path); });
+            var isOpen = hasActiveChild || manualOpen[item.key];
+
             return (
               <div key={i}>
-                <button onClick={() => toggle(item.key)}
+                <button onClick={function() { toggle(item.key); }}
                   className="w-full flex items-center justify-between px-5 py-2.5 text-[11.5px] font-bold text-cyan uppercase tracking-wider cursor-pointer hover:bg-cyan/5 transition-all border-none bg-transparent">
                   <span>{item.label}</span>
-                  <ChevronRight className={`w-3.5 h-3.5 text-white/20 transition-transform duration-200 ${isOpen || hasActiveChild ? 'rotate-90' : ''}`} />
+                  <ChevronRight className={'w-3.5 h-3.5 text-white/20 transition-transform duration-200 ' + (isOpen ? 'rotate-90' : '')} />
                 </button>
-                {(isOpen || hasActiveChild) && (
+                {isOpen && (
                   <div className="pb-1">
-                    {item.items.map((sub, j) => {
-                      const SubIcon = sub.icon;
+                    {item.items.map(function(sub, j) {
+                      var SubIcon = sub.icon;
+                      var isPro = sub.pro;
                       return (
                         <Link key={j} to={sub.path}
-                          className={`flex items-center gap-2.5 pl-6 pr-5 py-2 text-[13px] font-medium no-underline transition-all duration-150
-                            ${isActive(sub.path) ? 'text-cyan font-bold bg-cyan/8' : 'text-white/40 hover:text-white/70 hover:bg-cyan/5'}`}>
+                          className={'flex items-center gap-2.5 pl-6 pr-5 py-2 text-[13px] font-medium no-underline transition-all duration-150 ' +
+                            (isActive(sub.path) ? 'text-cyan font-bold bg-cyan/8' :
+                             isPro ? 'text-white/25 hover:text-white/40 hover:bg-cyan/5' :
+                             'text-white/40 hover:text-white/70 hover:bg-cyan/5')}>
                           <SubIcon className="w-4 h-4 shrink-0" />
-                          {sub.label}
+                          <span className="flex-1">{sub.label}</span>
+                          {isPro && <Lock className="w-3 h-3 text-white/20 shrink-0" />}
                         </Link>
                       );
                     })}
