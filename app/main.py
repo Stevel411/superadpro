@@ -8613,8 +8613,10 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
         for idx, lk in enumerate(raw_links):
             title = str(lk.get("title", "")).strip()[:200]
             url   = str(lk.get("url", "")).strip()[:2000]
-            if not title or not url:
+            if not title:
                 continue
+            if not url:
+                url = "#"
             # Enforce safe URL schemes only
             if url.startswith(("javascript:", "data:", "vbscript:", "file:")):
                 continue  # silently skip dangerous URLs

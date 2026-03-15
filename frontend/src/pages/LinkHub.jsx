@@ -525,7 +525,7 @@ export default function LinkHub() {
                   <div style={{width:40,height:2,borderRadius:2,background:'rgba(255,255,255,.15)',margin:'0 auto 24px'}}/>
                   {/* Links — card style matching public template */}
                   <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                    {links.filter(function(l) { return l.title; }).map(function(l, i) {
+                    {links.filter(function(l) { return l.title && l.title.trim(); }).map(function(l, i) {
                       var ic = parseIcon(l.icon);
                       var hasIcon = ic.type !== 'none';
                       var hasThumbnail = l.thumbnail && l.thumbnail.trim();
