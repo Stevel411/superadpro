@@ -37,6 +37,7 @@ export default function LinkHub() {
   var [bio, setBio] = useState('');
   var [avatarUrl, setAvatarUrl] = useState('');
   var [bgColor, setBgColor] = useState('#0f172a');
+  var [bgImage, setBgImage] = useState('');
   var [textColor, setTextColor] = useState('#ffffff');
   var [btnColor, setBtnColor] = useState('#0ea5e9');
   var [btnTextColor, setBtnTextColor] = useState('#ffffff');
@@ -56,6 +57,7 @@ export default function LinkHub() {
 
   var [dragIdx, setDragIdx] = useState(null);
   var fileRef = useRef(null);
+  var bgFileRef = useRef(null);
 
   var showToast = function(msg) { setToast(msg); setTimeout(function() { setToast(''); }, 3000); };
 
@@ -68,6 +70,7 @@ export default function LinkHub() {
       setBio(p.bio || '');
       setAvatarUrl(p.avatar_url || '');
       setBgColor(p.bg_color || '#0f172a');
+      setBgImage(p.bg_image_url || '');
       setTextColor(p.text_color || '#ffffff');
       setBtnColor(p.btn_color || '#0ea5e9');
       setBtnTextColor(p.accent_color || '#ffffff');
@@ -129,6 +132,19 @@ export default function LinkHub() {
     } catch(err) { showToast('Upload failed'); }
   };
 
+  // Background image — convert to base64 for save endpoint (R2 upload happens server-side)
+  var handleBgUpload = function(e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { showToast('Max file size is 5MB'); return; }
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      setBgImage(ev.target.result);
+      showToast('✓ Background image set — click Save to upload');
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Save
   var saveAll = async function() {
     setSaving(true);
@@ -144,6 +160,8 @@ export default function LinkHub() {
       display_name: displayName,
       bio: bio,
       bg_color: bgColor,
+      bg_image: bgImage && bgImage.startsWith('data:') ? bgImage : undefined,
+      clear_bg_image: !bgImage ? true : undefined,
       text_color: textColor,
       btn_color: btnColor,
       accent_color: btnTextColor,
@@ -271,6 +289,25 @@ export default function LinkHub() {
               <ColorPick label="Button background" value={btnColor} onChange={setBtnColor}/>
               <ColorPick label="Button text" value={btnTextColor} onChange={setBtnTextColor}/>
             </div>
+
+            {/* Background image */}
+            <div style={{marginBottom:16}}>
+              <FLabel>Background image (optional)</FLabel>
+              {bgImage ? (
+                <div style={{position:'relative',borderRadius:10,overflow:'hidden',border:'1.5px solid #e2e8f0',marginBottom:8}}>
+                  <img src={bgImage} style={{width:'100%',height:80,objectFit:'cover',display:'block'}} alt=""/>
+                  <button onClick={function() { setBgImage(''); }} style={{position:'absolute',top:6,right:6,width:24,height:24,borderRadius:12,background:'rgba(0,0,0,.6)',border:'none',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    <X size={12} color="#fff"/>
+                  </button>
+                </div>
+              ) : (
+                <button onClick={function() { bgFileRef.current && bgFileRef.current.click(); }}
+                  style={{width:'100%',padding:'14px',border:'2px dashed #e2e8f0',borderRadius:10,fontSize:12,fontWeight:600,color:'#94a3b8',background:'none',cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
+                  <Upload size={14}/> Upload background image
+                </button>
+              )}
+              <input ref={bgFileRef} type="file" accept="image/*" style={{display:'none'}} onChange={handleBgUpload}/>
+            </div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
               <div>
                 <FLabel>Font</FLabel>
@@ -304,13 +341,34 @@ export default function LinkHub() {
             {links.map(function(l, i) {
               return (
                 <div key={i} draggable onDragStart={function() { onDragStart(i); }} onDragOver={function(e) { onDragOver(e, i); }} onDragEnd={onDragEnd}
-                  style={{background:dragIdx===i?'#f0f9ff':'#f8fafc',border:'1.5px solid ' + (dragIdx===i?'#0ea5e9':'#e2e8f0'),borderRadius:12,padding:14,marginBottom:10,display:'flex',alignItems:'center',gap:10}}>
-                  <GripVertical size={18} color="#cbd5e1" style={{cursor:'grab',flexShrink:0}}/>
+                  style={{background:dragIdx===i?'#f0f9ff':'#f8fafc',border:'1.5px solid ' + (dragIdx===i?'#0ea5e9':'#e2e8f0'),borderRadius:12,padding:14,marginBottom:10,display:'flex',alignItems:'flex-start',gap:10}}>
+                  <GripVertical size={18} color="#cbd5e1" style={{cursor:'grab',flexShrink:0,marginTop:10}}/>
                   <div style={{flex:1,display:'flex',flexDirection:'column',gap:6}}>
-                    <FInput value={l.title} onChange={function(e) { updateLink(i,'title',e.target.value); }} placeholder="Link title" style={{marginBottom:0}}/>
+                    <div style={{display:'flex',gap:6}}>
+                      <div style={{position:'relative'}}>
+                        <button onClick={function() {
+                          var picker = document.getElementById('iconPicker-'+i);
+                          if (picker) picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
+                        }} style={{width:38,height:38,border:'1.5px solid #e2e8f0',borderRadius:8,background:'#fff',cursor:'pointer',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                          {l.icon || '🔗'}
+                        </button>
+                        <div id={'iconPicker-'+i} style={{display:'none',position:'absolute',top:42,left:0,background:'#fff',border:'1px solid #e2e8f0',borderRadius:10,padding:8,boxShadow:'0 8px 24px rgba(0,0,0,.15)',zIndex:10,width:200}}>
+                          <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
+                            {['🔗','🌐','📺','🎵','📱','💬','📧','🛒','💰','📚','🎯','🔥','⭐','💎','🚀','📸','🎮','🎤','📝','👤','💼','🏠','🎁','❤️'].map(function(emoji) {
+                              return <button key={emoji} onClick={function() {
+                                updateLink(i, 'icon', emoji);
+                                var picker = document.getElementById('iconPicker-'+i);
+                                if (picker) picker.style.display = 'none';
+                              }} style={{width:32,height:32,border:'none',borderRadius:6,background:l.icon===emoji?'#dbeafe':'transparent',cursor:'pointer',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>{emoji}</button>;
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                      <FInput value={l.title} onChange={function(e) { updateLink(i,'title',e.target.value); }} placeholder="Link title" style={{marginBottom:0,flex:1}}/>
+                    </div>
                     <FInput value={l.url} onChange={function(e) { updateLink(i,'url',e.target.value); }} placeholder="https://..." style={{marginBottom:0,fontSize:12,color:'#64748b'}}/>
                   </div>
-                  <button onClick={function() { removeLink(i); }} style={{cursor:'pointer',color:'#cbd5e1',background:'none',border:'none',padding:'4px 6px',flexShrink:0}}>
+                  <button onClick={function() { removeLink(i); }} style={{cursor:'pointer',color:'#cbd5e1',background:'none',border:'none',padding:'4px 6px',flexShrink:0,marginTop:6}}>
                     <Trash2 size={16}/>
                   </button>
                 </div>
@@ -357,7 +415,12 @@ export default function LinkHub() {
               <div style={{width:120,height:28,background:'#c9cdd4',borderRadius:'0 0 16px 16px',margin:'0 auto',position:'relative',top:-16}}/>
               {/* Screen */}
               <div style={{borderRadius:34,overflow:'hidden',minHeight:680}}>
-                <div style={{minHeight:680,padding:'44px 26px 24px',textAlign:'center',background:bgColor,fontFamily:fontFamily+',sans-serif',transition:'background .3s'}}>
+                <div style={{
+                  minHeight:680,padding:'44px 26px 24px',textAlign:'center',
+                  background: bgImage ? 'url(' + bgImage + ') center/cover no-repeat' : bgColor,
+                  backgroundColor: bgColor,
+                  fontFamily:fontFamily+',sans-serif',transition:'background .3s',
+                }}>
                   {/* Avatar */}
                   <div style={{width:80,height:80,borderRadius:'50%',margin:'0 auto 14px',background:'#334155',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',border:'3px solid rgba(255,255,255,.15)'}}>
                     {avatarUrl
@@ -368,18 +431,43 @@ export default function LinkHub() {
                   {/* Name */}
                   <div style={{fontSize:20,fontWeight:800,color:textColor,marginBottom:4,fontFamily:fontFamily+',sans-serif'}}>{displayName || 'Your Name'}</div>
                   {/* Bio */}
-                  <div style={{fontSize:13,color:textColor,opacity:.5,marginBottom:28,lineHeight:1.5}}>{bio || ''}</div>
-                  {/* Links */}
-                  {links.filter(function(l) { return l.title; }).map(function(l, i) {
-                    return <div key={i} style={getLinkStyle()}>{l.title}</div>;
-                  })}
-                  {/* Social icons */}
-                  <div style={{display:'flex',justifyContent:'center',gap:16,marginTop:28}}>
-                    {SOCIALS.filter(function(s) { return socials[s.key]; }).map(function(s) {
-                      var col = SOC_COLORS[s.key] || '#888';
+                  <div style={{fontSize:13,color:textColor,opacity:.5,marginBottom:6,lineHeight:1.5}}>{bio || ''}</div>
+                  {/* Social icons — above links like public template */}
+                  {SOCIALS.filter(function(s) { return socials[s.key]; }).length > 0 && (
+                    <div style={{display:'flex',justifyContent:'center',gap:8,marginBottom:24,marginTop:16}}>
+                      {SOCIALS.filter(function(s) { return socials[s.key]; }).map(function(s) {
+                        var col = SOC_COLORS[s.key] || '#888';
+                        return (
+                          <div key={s.key} style={{width:36,height:36,borderRadius:'50%',background:col+'22',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill={col}><path d={SOC_PATHS[s.key] || ''}/></svg>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {/* Separator */}
+                  <div style={{width:40,height:2,borderRadius:2,background:'rgba(255,255,255,.15)',margin:'0 auto 24px'}}/>
+                  {/* Links — card style matching public template */}
+                  <div style={{display:'flex',flexDirection:'column',gap:10,textAlign:'left'}}>
+                    {links.filter(function(l) { return l.title; }).map(function(l, i) {
+                      if (btnStyle === 'outline') {
+                        return (
+                          <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,width:'100%',padding:'13px 18px',background:'transparent',border:'1.5px solid ' + btnColor + '99',borderRadius:50,color:btnColor,fontSize:btnFontSize,fontWeight:700,fontFamily:fontFamily+',sans-serif',textAlign:'center'}}>
+                            {l.icon && <span>{l.icon}</span>}
+                            <span>{l.title}</span>
+                          </div>
+                        );
+                      }
+                      // Default: card style
                       return (
-                        <div key={s.key} style={{width:40,height:40,borderRadius:'50%',background:col+'22',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill={col}><path d={SOC_PATHS[s.key] || ''}/></svg>
+                        <div key={i} style={{display:'flex',alignItems:'center',width:'100%',background:'rgba(255,255,255,.06)',backdropFilter:'blur(12px)',border:'1px solid rgba(255,255,255,.1)',borderRadius:16,overflow:'hidden',color:textColor}}>
+                          <div style={{width:48,height:48,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem',flexShrink:0,background:btnColor+'0a',borderRight:'1px solid rgba(255,255,255,.1)'}}>
+                            {l.icon || '🔗'}
+                          </div>
+                          <div style={{flex:1,padding:'12px 14px',minWidth:0}}>
+                            <div style={{fontSize:btnFontSize,fontWeight:700,lineHeight:1.3,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',fontFamily:fontFamily+',sans-serif'}}>{l.title}</div>
+                          </div>
+                          <span style={{padding:'0 14px',color:btnColor+'88',fontSize:13,flexShrink:0}}>→</span>
                         </div>
                       );
                     })}

@@ -11887,6 +11887,7 @@ def api_linkhub_editor_data(request: Request, user: User = Depends(get_current_u
             "bio": profile.bio if profile else "",
             "avatar_url": (profile.avatar_r2_url or profile.avatar_data or "") if profile else "",
             "bg_color": (profile.bg_color or "#0f172a") if profile else "#0f172a",
+            "bg_image_url": (profile.bg_r2_url or profile.bg_image or "") if profile else "",
             "text_color": (profile.text_color or "#ffffff") if profile else "#ffffff",
             "btn_color": (profile.btn_color or "#0ea5e9") if profile else "#0ea5e9",
             "accent_color": (profile.accent_color or "#ffffff") if profile else "#ffffff",
