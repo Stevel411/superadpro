@@ -11811,7 +11811,7 @@ def api_link_tools_data(request: Request, user: User = Depends(get_current_user)
             "title": s.title or "", "click_count": s.clicks or 0,
             "expires_at": s.expires_at.isoformat() if s.expires_at else None,
             "click_cap": s.click_cap,
-            "has_password": bool(s.password_hash) if hasattr(s, 'password_hash') and s.password_hash else False,
+            "has_password": bool(getattr(s, 'password_hash', None) or False),
             "tags_json": s.tags_json if hasattr(s, 'tags_json') and s.tags_json else None,
             "created_at": s.created_at.isoformat() if s.created_at else None,
         } for s in short_links],
