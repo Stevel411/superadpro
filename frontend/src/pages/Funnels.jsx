@@ -200,3 +200,4 @@ export default function Funnels() {
     </AppLayout>
   );
 }
+// v2 inline delete
