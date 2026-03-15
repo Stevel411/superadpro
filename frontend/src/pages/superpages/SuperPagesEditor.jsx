@@ -411,14 +411,9 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
             </>
           )}
 
-          {/* Form — HTML editor */}
+          {/* Form — Visual editor */}
           {type === 'form' && (
-            <>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Form HTML</label>
-              <textarea value={localTxt} onChange={e => setLocalTxt(e.target.value)}
-                rows={10}
-                style={{ width: '100%', padding: 12, border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 12, fontFamily: 'monospace', outline: 'none', resize: 'vertical', boxSizing: 'border-box', marginBottom: 12 }} />
-            </>
+            <FormEditor elId={elId} el={actualEl} updateElement={updateElement} markDirty={markDirty} onClose={onClose} />
           )}
 
           {/* Countdown */}
@@ -447,7 +442,7 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
           )}
 
           {/* Apply button for text-based types */}
-          {!['countdown', 'progress', 'audio', 'embed', 'socialicons'].includes(type) && (
+          {!['countdown', 'progress', 'audio', 'embed', 'socialicons', 'form'].includes(type) && (
             <div style={{ display: 'flex', gap: 8 }}>
               <button onClick={apply}
                 style={{ padding: '10px 24px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
@@ -557,6 +552,92 @@ function SocialEditor({ elId, el, updateElement, markDirty, onClose }) {
       </div>
     ))}
     <BtnRow onApply={() => { updateElement(elId, { _links: links }); markDirty(); onClose(); }} onClose={onClose} />
+  </>;
+}
+
+function FormEditor({ elId, el, updateElement, markDirty, onClose }) {
+  const [heading, setHeading] = useState(el._formHeading || 'Get Free Access');
+  const [subtitle, setSubtitle] = useState(el._formSubtitle || 'Enter your details below');
+  const [showName, setShowName] = useState(el._formShowName !== false);
+  const [showPhone, setShowPhone] = useState(el._formShowPhone || false);
+  const [btnText, setBtnText] = useState(el._formBtnText || 'Get Access →');
+  const [btnColor, setBtnColor] = useState(el._formBtnColor || '#0ea5e9');
+  const [redirectUrl, setRedirectUrl] = useState(el._formRedirect || '');
+
+  const buildHTML = () => {
+    let fields = '';
+    if (showName) fields += `<input placeholder="Your first name" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#1a1a2e;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+    fields += `<input placeholder="Your email" type="email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#1a1a2e;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+    if (showPhone) fields += `<input placeholder="Your phone number" type="tel" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#1a1a2e;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+    return `<div style="text-align:center;padding:4px"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">${heading}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">${subtitle}</div>${fields}<div style="width:100%;padding:12px;border-radius:10px;background:${btnColor};color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box;cursor:pointer">${btnText}</div></div>`;
+  };
+
+  const apply = () => {
+    updateElement(elId, {
+      txt: buildHTML(),
+      _formHeading: heading, _formSubtitle: subtitle, _formShowName: showName,
+      _formShowPhone: showPhone, _formBtnText: btnText, _formBtnColor: btnColor, _formRedirect: redirectUrl,
+    });
+    markDirty(); onClose();
+  };
+
+  const L = lblStyle;
+  const I = inputStyle;
+
+  return <>
+    <label style={L}>Form Heading</label>
+    <input value={heading} onChange={e => setHeading(e.target.value)} style={{ ...I, marginBottom: 10 }} />
+
+    <label style={L}>Subtitle</label>
+    <input value={subtitle} onChange={e => setSubtitle(e.target.value)} style={{ ...I, marginBottom: 10 }} />
+
+    <label style={{ ...L, marginBottom: 8 }}>Form Fields</label>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+      <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#475569', cursor: 'pointer' }}>
+        <input type="checkbox" checked={showName} onChange={e => setShowName(e.target.checked)} style={{ width: 16, height: 16, accentColor: '#0ea5e9' }} />
+        First Name field
+      </label>
+      <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#94a3b8' }}>
+        <input type="checkbox" checked disabled style={{ width: 16, height: 16 }} />
+        Email field (always on)
+      </label>
+      <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#475569', cursor: 'pointer' }}>
+        <input type="checkbox" checked={showPhone} onChange={e => setShowPhone(e.target.checked)} style={{ width: 16, height: 16, accentColor: '#0ea5e9' }} />
+        Phone number field
+      </label>
+    </div>
+
+    <label style={L}>Button Text</label>
+    <input value={btnText} onChange={e => setBtnText(e.target.value)} style={{ ...I, marginBottom: 10 }} />
+
+    <label style={L}>Button Colour</label>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+      <div style={{ position: 'relative', width: 36, height: 36, borderRadius: 8, border: '2px solid #e2e8f0', overflow: 'hidden', background: btnColor }}>
+        <input type="color" value={btnColor} onChange={e => setBtnColor(e.target.value)}
+          style={{ position: 'absolute', inset: -4, width: 'calc(100% + 8px)', height: 'calc(100% + 8px)', border: 'none', cursor: 'pointer', padding: 0 }} />
+      </div>
+      <span style={{ fontSize: 12, fontFamily: 'monospace', color: '#94a3b8' }}>{btnColor}</span>
+      <div style={{ display: 'flex', gap: 4, marginLeft: 8 }}>
+        {['#0ea5e9','#10b981','#6366f1','#ef4444','#f59e0b','#ec4899'].map(c => (
+          <div key={c} onClick={() => setBtnColor(c)} style={{ width: 20, height: 20, borderRadius: 5, background: c, cursor: 'pointer', border: btnColor === c ? '2px solid #0f172a' : '1px solid #e2e8f0' }} />
+        ))}
+      </div>
+    </div>
+
+    <label style={L}>After Submit — Redirect URL (optional)</label>
+    <input value={redirectUrl} onChange={e => setRedirectUrl(e.target.value)} placeholder="https://your-thank-you-page.com" style={{ ...I, marginBottom: 12 }} />
+
+    {/* Preview */}
+    <div style={{ padding: 16, background: '#0f172a', borderRadius: 12, marginBottom: 14 }}>
+      <div style={{ textAlign: 'center', fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 16, color: '#fff', marginBottom: 4 }}>{heading}</div>
+      <div style={{ textAlign: 'center', fontSize: 11, color: '#94a3b8', marginBottom: 12 }}>{subtitle}</div>
+      {showName && <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: '#94a3b8', marginBottom: 6 }}>Your first name</div>}
+      <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: '#94a3b8', marginBottom: 6 }}>Your email</div>
+      {showPhone && <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: '#94a3b8', marginBottom: 6 }}>Your phone number</div>}
+      <div style={{ background: btnColor, borderRadius: 8, padding: '10px', textAlign: 'center', color: '#fff', fontWeight: 700, fontSize: 12 }}>{btnText}</div>
+    </div>
+
+    <BtnRow onApply={apply} onClose={onClose} />
   </>;
 }
 
