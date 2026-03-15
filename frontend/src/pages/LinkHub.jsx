@@ -319,14 +319,14 @@ export default function LinkHub() {
               </div>
               <input ref={fileRef} type="file" accept="image/*" style={{display:'none'}} onChange={handleAvatarUpload}/>
               <div style={{flex:1}}>
-                <label style={{display:'block',fontSize:12,fontWeight:600,color:'rgba(255,255,255,.6)',marginBottom:6}}>Display name</label>
+                <label style={{display:'block',fontSize:12,fontWeight:800,color:'#fff',marginBottom:6}}>Display name</label>
                 <input value={displayName} onChange={function(e) { setDisplayName(e.target.value); }} placeholder="Your name"
-                  style={{width:'100%',padding:'10px 14px',border:'1.5px solid #475569',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#0f172a',color:'#fff'}}/>
+                  style={{width:'100%',padding:'10px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff',color:'#475569'}}/>
               </div>
             </div>
-            <label style={{display:'block',fontSize:12,fontWeight:600,color:'rgba(255,255,255,.6)',marginBottom:6}}>Bio</label>
+            <label style={{display:'block',fontSize:12,fontWeight:800,color:'#fff',marginBottom:6}}>Bio</label>
             <textarea value={bio} onChange={function(e) { setBio(e.target.value); }} placeholder="Tell people about yourself..."
-              style={{width:'100%',padding:'11px 14px',border:'1.5px solid #475569',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',minHeight:70,resize:'vertical',boxSizing:'border-box',background:'#0f172a',color:'#fff'}}/>
+              style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',minHeight:70,resize:'vertical',boxSizing:'border-box',background:'#fff',color:'#475569'}}/>
           </Section>
 
           {/* Style */}
