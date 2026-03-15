@@ -485,14 +485,14 @@ export default function LinkHub() {
                       }
                       // Default: card style (3D / card)
                       return (
-                        <div key={i} style={{display:'flex',alignItems:'center',width:'100%',background:bgImage ? 'rgba(0,0,0,.45)' : 'rgba(255,255,255,.08)',backdropFilter:'blur(12px)',border:'1px solid ' + (bgImage ? 'rgba(255,255,255,.15)' : 'rgba(255,255,255,.1)'),borderRadius:16,overflow:'hidden',color:textColor}}>
-                          <div style={{width:48,height:48,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem',flexShrink:0,background:btnColor+'1a',borderRight:'1px solid ' + (bgImage ? 'rgba(255,255,255,.15)' : 'rgba(255,255,255,.1)')}}>
+                        <div key={i} style={{display:'flex',alignItems:'center',width:'100%',background:btnColor,borderRadius:parseInt(btnRadius)||12,overflow:'hidden',color:btnTextColor,boxShadow:'0 4px 0 ' + darken(btnColor,40) + ',0 6px 12px rgba(0,0,0,.2)',transform:'translateY(-1px)'}}>
+                          <div style={{width:48,height:48,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem',flexShrink:0,background:'rgba(0,0,0,.1)',borderRight:'1px solid rgba(255,255,255,.15)'}}>
                             {l.icon || '🔗'}
                           </div>
                           <div style={{flex:1,padding:'12px 14px',minWidth:0,textAlign:btnAlign}}>
                             <div style={{fontSize:btnFontSize,fontWeight:700,lineHeight:1.3,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',fontFamily:fontFamily+',sans-serif'}}>{l.title}</div>
                           </div>
-                          <span style={{padding:'0 14px',color:btnColor+'88',fontSize:13,flexShrink:0}}>→</span>
+                          <span style={{padding:'0 14px',color:'rgba(255,255,255,.5)',fontSize:13,flexShrink:0}}>→</span>
                         </div>
                       );
                     })}
