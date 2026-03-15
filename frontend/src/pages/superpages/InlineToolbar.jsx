@@ -13,16 +13,24 @@ export default function InlineToolbar({ visible, position, onCommand }) {
     if (onCommand) onCommand();
   };
 
-  const TB = ({children, onClick, title, active}) => (
-    <button onClick={onClick} title={title} style={{
+  // Prevent mousedown from stealing focus/selection from contentEditable
+  const noFocus = (e) => e.preventDefault();
+
+  const TB = ({children, onClick, title, active, onMouseDown}) => (
+    <button onMouseDown={onMouseDown || noFocus} onClick={onClick} title={title} style={{
       width:30,height:30,border:'none',borderRadius:6,background:active?'rgba(14,165,233,.15)':'transparent',
-      color:active?'#0ea5e9':'#5a6070',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'.12s',
+      color:active?'#0ea5e9':'#5a6070',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'.12s',position:'relative',
     }}>{children}</button>
   );
   const Sep = () => <div style={{width:1,height:20,background:'#e2e8f0',margin:'0 2px'}}/>;
 
+  // Open colour picker while preserving selection
+  const openPicker = (ref) => {
+    if (ref.current) ref.current.click();
+  };
+
   return (
-    <div style={{
+    <div onMouseDown={noFocus} style={{
       position:'fixed', left:position.x, top:position.y, zIndex:300,
       background:'#fafbfd', border:'1px solid #e2e8f0', borderRadius:10,
       padding:'4px 6px', display:'flex', alignItems:'center', gap:2,
@@ -30,14 +38,14 @@ export default function InlineToolbar({ visible, position, onCommand }) {
       whiteSpace:'nowrap', transform:'translateX(-50%)',
     }}>
       {/* Font family */}
-      <select onChange={e => cmd('fontName', e.target.value)} defaultValue=""
+      <select onMouseDown={e => e.stopPropagation()} onChange={e => cmd('fontName', e.target.value)} defaultValue=""
         style={{height:28,border:'1px solid #e2e8f0',borderRadius:6,fontSize:10,fontWeight:600,color:'#475569',background:'#fff',padding:'0 4px',maxWidth:90,cursor:'pointer',outline:'none'}}>
         <option value="" disabled>Font</option>
         {FONTS.map(f => <option key={f.value} value={f.value} style={{fontFamily:f.value}}>{f.label}</option>)}
       </select>
 
       {/* Font size */}
-      <select onChange={e => { const sz = e.target.value; cmd('fontSize', '7'); setTimeout(() => {
+      <select onMouseDown={e => e.stopPropagation()} onChange={e => { const sz = e.target.value; cmd('fontSize', '7'); setTimeout(() => {
           document.querySelectorAll('font[size="7"]').forEach(el => { el.removeAttribute('size'); el.style.fontSize = sz; });
           if (onCommand) onCommand();
         }, 10); }} defaultValue=""
@@ -55,25 +63,25 @@ export default function InlineToolbar({ visible, position, onCommand }) {
 
       <Sep/>
 
-      {/* Text colour — click opens full colour picker directly */}
+      {/* Text colour */}
       <div style={{position:'relative'}}>
-        <TB onClick={() => { if (colorRef.current) colorRef.current.click(); }} title="Text Colour">
-          <Type size={14}/>
-          <div style={{position:'absolute',bottom:2,left:6,right:6,height:3,background:'#0ea5e9',borderRadius:1}}/>
+        <TB onClick={() => openPicker(colorRef)} title="Text Colour">
+          <span style={{fontSize:10,fontWeight:800,color:'#475569'}}>A</span>
+          <div style={{position:'absolute',bottom:3,left:7,right:7,height:3,background:'#ef4444',borderRadius:1}}/>
         </TB>
         <input ref={colorRef} type="color" defaultValue="#ffffff"
           onChange={e => cmd('foreColor', e.target.value)}
-          style={{position:'absolute',top:0,left:0,width:1,height:1,opacity:0,pointerEvents:'none'}}/>
+          style={{position:'absolute',top:0,left:0,width:0,height:0,opacity:0,overflow:'hidden',border:'none',padding:0}}/>
       </div>
 
-      {/* Highlight — click opens full colour picker directly */}
+      {/* Background highlight */}
       <div style={{position:'relative'}}>
-        <TB onClick={() => { if (bgRef.current) bgRef.current.click(); }} title="Highlight">
-          <Palette size={14}/>
+        <TB onClick={() => openPicker(bgRef)} title="Background Highlight">
+          <span style={{fontSize:10,fontWeight:800,color:'#475569',background:'#fbbf24',padding:'1px 4px',borderRadius:3}}>A</span>
         </TB>
         <input ref={bgRef} type="color" defaultValue="#fbbf24"
           onChange={e => cmd('hiliteColor', e.target.value)}
-          style={{position:'absolute',top:0,left:0,width:1,height:1,opacity:0,pointerEvents:'none'}}/>
+          style={{position:'absolute',top:0,left:0,width:0,height:0,opacity:0,overflow:'hidden',border:'none',padding:0}}/>
       </div>
 
       <Sep/>
