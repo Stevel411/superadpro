@@ -311,21 +311,22 @@ export default function LinkHub() {
         <div style={{background:'#fff',borderRight:'1px solid #e2e8f0',overflowY:'auto',maxHeight:'calc(100vh - 200px)'}}>
 
           {/* Profile */}
-          <Section label="Profile">
+          <Section label="Profile" dark>
             <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:16}}>
               <div onClick={function() { fileRef.current && fileRef.current.click(); }}
-                style={{width:64,height:64,borderRadius:'50%',background:'#e2e8f0',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',cursor:'pointer',border:'2.5px solid #e2e8f0',flexShrink:0}}>
+                style={{width:64,height:64,borderRadius:'50%',background:'#334155',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',cursor:'pointer',border:'2.5px solid #475569',flexShrink:0}}>
                 {avatarUrl ? <img src={avatarUrl} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/> : <Upload size={20} color="#94a3b8"/>}
               </div>
               <input ref={fileRef} type="file" accept="image/*" style={{display:'none'}} onChange={handleAvatarUpload}/>
               <div style={{flex:1}}>
-                <FLabel>Display name</FLabel>
-                <FInput value={displayName} onChange={function(e) { setDisplayName(e.target.value); }} placeholder="Your name"/>
+                <label style={{display:'block',fontSize:12,fontWeight:600,color:'rgba(255,255,255,.6)',marginBottom:6}}>Display name</label>
+                <input value={displayName} onChange={function(e) { setDisplayName(e.target.value); }} placeholder="Your name"
+                  style={{width:'100%',padding:'10px 14px',border:'1.5px solid #475569',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#0f172a',color:'#fff'}}/>
               </div>
             </div>
-            <FLabel>Bio</FLabel>
+            <label style={{display:'block',fontSize:12,fontWeight:600,color:'rgba(255,255,255,.6)',marginBottom:6}}>Bio</label>
             <textarea value={bio} onChange={function(e) { setBio(e.target.value); }} placeholder="Tell people about yourself..."
-              style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',minHeight:70,resize:'vertical',boxSizing:'border-box'}}/>
+              style={{width:'100%',padding:'11px 14px',border:'1.5px solid #475569',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',minHeight:70,resize:'vertical',boxSizing:'border-box',background:'#0f172a',color:'#fff'}}/>
           </Section>
 
           {/* Style */}
@@ -615,10 +616,11 @@ export default function LinkHub() {
 // ── Reusable sub-components ──
 
 function Section(props) {
+  var isDark = props.dark;
   return (
-    <div style={{padding:'24px 28px',borderBottom:'1px solid #f1f5f9'}}>
+    <div style={{padding:'24px 28px',borderBottom:'1px solid ' + (isDark ? '#2a3154' : '#f1f5f9'), background: isDark ? '#1c223d' : 'transparent'}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
-        <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1}}>{props.label}</div>
+        <div style={{fontSize:11,fontWeight:800,color: isDark ? '#38bdf8' : '#94a3b8',textTransform:'uppercase',letterSpacing:1}}>{props.label}</div>
         {props.right || null}
       </div>
       {props.children}
