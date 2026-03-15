@@ -5,12 +5,28 @@ import { FONTS, FONT_SIZES } from './elementDefaults';
 export default function InlineToolbar({ visible, position, onCommand }) {
   const colorRef = useRef(null);
   const bgRef = useRef(null);
+  const savedRange = useRef(null);
 
   if (!visible) return null;
 
   const cmd = (command, value) => {
     document.execCommand(command, false, value);
     if (onCommand) onCommand();
+  };
+
+  // Save current text selection
+  const saveSelection = () => {
+    const sel = window.getSelection();
+    if (sel.rangeCount > 0) savedRange.current = sel.getRangeAt(0).cloneRange();
+  };
+
+  // Restore saved text selection
+  const restoreSelection = () => {
+    if (savedRange.current) {
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(savedRange.current);
+    }
   };
 
   // Prevent mousedown from stealing focus/selection from contentEditable
@@ -24,9 +40,16 @@ export default function InlineToolbar({ visible, position, onCommand }) {
   );
   const Sep = () => <div style={{width:1,height:20,background:'#e2e8f0',margin:'0 2px'}}/>;
 
-  // Open colour picker while preserving selection
+  // Open colour picker — save selection first, restore on change
   const openPicker = (ref) => {
+    saveSelection();
     if (ref.current) ref.current.click();
+  };
+
+  // Apply colour with selection restoration
+  const applyColor = (command, value) => {
+    restoreSelection();
+    cmd(command, value);
   };
 
   return (
@@ -70,7 +93,7 @@ export default function InlineToolbar({ visible, position, onCommand }) {
           <div style={{position:'absolute',bottom:3,left:7,right:7,height:3,background:'#ef4444',borderRadius:1}}/>
         </TB>
         <input ref={colorRef} type="color" defaultValue="#ffffff"
-          onChange={e => cmd('foreColor', e.target.value)}
+          onChange={e => applyColor('foreColor', e.target.value)}
           style={{position:'absolute',top:0,left:0,width:0,height:0,opacity:0,overflow:'hidden',border:'none',padding:0}}/>
       </div>
 
@@ -80,7 +103,7 @@ export default function InlineToolbar({ visible, position, onCommand }) {
           <span style={{fontSize:10,fontWeight:800,color:'#475569',background:'#fbbf24',padding:'1px 4px',borderRadius:3}}>A</span>
         </TB>
         <input ref={bgRef} type="color" defaultValue="#fbbf24"
-          onChange={e => cmd('hiliteColor', e.target.value)}
+          onChange={e => applyColor('hiliteColor', e.target.value)}
           style={{position:'absolute',top:0,left:0,width:0,height:0,opacity:0,overflow:'hidden',border:'none',padding:0}}/>
       </div>
 
