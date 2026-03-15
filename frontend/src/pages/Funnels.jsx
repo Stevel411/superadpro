@@ -118,12 +118,12 @@ export default function Funnels() {
           <div style={{marginBottom:12,display:'flex',alignItems:'center',gap:8}}>
             <h2 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'#0f172a'}}>Start from a Template</h2>
           </div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))',gap:14}}>
             {TEMPLATES.map(t=>{
               const Icon=t.icon;const isCreating=creating&&creatingKey===t.key;
               return (
                 <div key={t.key} className="tpl-card" onClick={()=>!creating&&createFromTemplate(t.key)} style={{background:'#fff',borderRadius:12,overflow:'hidden',border:'1px solid #e8ecf2',cursor:'pointer',boxShadow:'0 2px 8px rgba(0,0,0,.03)',transition:'all .2s',display:'flex',flexDirection:'column'}}>
-                  <div style={{height:130,position:'relative'}}>
+                  <div style={{height:180,position:'relative'}}>
                     <TemplatePreview bg={t.bg} accent={t.accent} Icon={t.icon}/>
                   </div>
                   <div style={{padding:'12px 14px',flex:1,display:'flex',flexDirection:'column'}}>
