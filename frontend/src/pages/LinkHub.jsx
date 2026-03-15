@@ -469,7 +469,7 @@ export default function LinkHub() {
 
                       if (btnStyle === 'outline') {
                         return (
-                          <div key={i} style={{display:'flex',alignItems:'center',justifyContent:alignStyle,gap:8,width:'100%',padding:'13px 18px',background:'rgba(0,0,0,.25)',border:'1.5px solid ' + btnColor + '99',borderRadius:50,color:btnColor,fontSize:btnFontSize,fontWeight:700,fontFamily:fontFamily+',sans-serif'}}>
+                          <div key={i} style={{display:'flex',alignItems:'center',justifyContent:alignStyle,gap:8,width:'100%',padding:'13px 18px',background:'rgba(0,0,0,.25)',border:'1.5px solid ' + btnColor + '99',borderRadius:parseInt(btnRadius)||12,color:btnColor,fontSize:btnFontSize,fontWeight:700,fontFamily:fontFamily+',sans-serif'}}>
                             {iconEl}
                             <span>{l.title}</span>
                           </div>
