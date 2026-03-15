@@ -281,7 +281,7 @@ def _coaching_program(username):
         els.append({'id': _uid(), 'type': 'review', 'x': ix, 'y': y, 'w': 320, 'h': 140,
             'txt': f'<div style="font-size:28px;margin-bottom:8px">{icon}</div><div style="font-family:Sora,sans-serif;font-weight:700;font-size:15px;color:#fff;margin-bottom:4px">{title}</div><div style="font-size:13px;color:#94a3b8;line-height:1.6">{desc}</div>',
             's': {'background': '#1e293b', 'borderRadius': '16px', 'borderLeft': '4px solid #6366f1', 'padding': '20px'}})
-    y += 140
+    y += 180
 
     # Testimonials
     els.append({'id': _uid(), 'type': 'heading', 'x': _centre(500), 'y': y, 'w': 500, 'h': 65, 'txt': 'What Our Clients Say', 's': {'fontFamily': 'Sora,sans-serif', 'fontWeight': '800', 'fontSize': '24px', 'color': '#fff', 'textAlign': 'center'}})
