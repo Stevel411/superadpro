@@ -360,7 +360,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
   };
 
   return (
-    <div className="sp-canvas-area" style={{ flex: 1, background: '#0e1220', overflow: 'auto', padding: 20, display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+    <div className="sp-canvas-area" style={{ flex: 1, background: '#0f1525', overflow: 'auto', padding: 20, display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
       <div
         ref={canvasRef}
         className="sp-canvas"

@@ -4,7 +4,7 @@ export default function EditorTopbar({ title, slug, saving, dirty, status, onSav
   const isPublished = status === 'published';
   return (
     <div style={{
-      height: 60, background: '#141829', borderBottom: '1px solid #1f2440',
+      height: 60, background: '#1c223d', borderBottom: '1px solid #1f2440',
       display: 'flex', alignItems: 'center', padding: '0 16px', gap: 10, flexShrink: 0, zIndex: 50,
     }}>
       {/* SuperPages Logo — Concept B */}
@@ -20,7 +20,7 @@ export default function EditorTopbar({ title, slug, saving, dirty, status, onSav
         </div>
       </div>
 
-      <div style={{width:1,height:28,background:'#1f2440'}}/>
+      <div style={{width:1,height:28,background:'rgba(255,255,255,0.06)'}}/>
 
       <div style={{fontSize:12,color:'#5a6080',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
         {title || 'Untitled Page'}
@@ -38,18 +38,18 @@ export default function EditorTopbar({ title, slug, saving, dirty, status, onSav
         <Smartphone size={14}/>
       </button>
 
-      <div style={{width:1,height:22,background:'#1f2440'}}/>
+      <div style={{width:1,height:22,background:'rgba(255,255,255,0.06)'}}/>
 
       <button onClick={onUndo} style={gh} title="Undo (Ctrl+Z)"><Undo2 size={14}/></button>
       <button onClick={onRedo} style={gh} title="Redo (Ctrl+Y)"><Redo2 size={14}/></button>
 
-      <div style={{width:1,height:22,background:'#1f2440'}}/>
+      <div style={{width:1,height:22,background:'rgba(255,255,255,0.06)'}}/>
 
       <button onClick={onShowSettings} style={gh}><Settings size={13}/> <span style={{marginLeft:2}}>Settings</span></button>
       <button onClick={onShowHelp} style={{...gh,color:'#38bdf8'}}><HelpCircle size={13}/> <span style={{marginLeft:2}}>Help</span></button>
       <button onClick={onClear} style={{...gh,color:'#dc2626'}}><Trash2 size={13}/></button>
 
-      <div style={{width:1,height:22,background:'#1f2440'}}/>
+      <div style={{width:1,height:22,background:'rgba(255,255,255,0.06)'}}/>
 
       {/* Preview */}
       <button onClick={onTogglePreview} style={{...btn,background:previewMode?'#6366f1':'rgba(99,102,241,.15)',color:previewMode?'#fff':'#818cf8'}}>

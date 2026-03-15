@@ -62,7 +62,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
   ];
 
   return (
-    <div style={{width:280,height:'calc(100vh - 60px)',background:'#161b30',borderLeft:'1px solid rgba(255,255,255,0.06)',display:'flex',flexDirection:'column',overflow:'hidden',flexShrink:0}}>
+    <div style={{width:280,height:'calc(100vh - 60px)',background:'#1c223d',borderLeft:'1px solid rgba(255,255,255,0.06)',display:'flex',flexDirection:'column',overflow:'hidden',flexShrink:0}}>
 
       {/* Header */}
       <div style={{padding:'14px 16px',borderBottom:'1px solid rgba(255,255,255,0.06)',flexShrink:0}}>
@@ -234,7 +234,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
       </div>
 
       {/* AI Chat */}
-      <div style={{borderTop:'1px solid rgba(255,255,255,0.06)',flexShrink:0,background:'#161b30',display:'flex',flexDirection:'column'}}>
+      <div style={{borderTop:'1px solid rgba(255,255,255,0.06)',flexShrink:0,background:'#1c223d',display:'flex',flexDirection:'column'}}>
         <div onClick={() => setChatOpen(!chatOpen)} style={{padding:'8px 14px',cursor:'pointer',userSelect:'none',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <span style={{fontSize:9,fontWeight:800,letterSpacing:0.7,textTransform:'uppercase',color:'#0ea5e9'}}>✨ AI Assistant</span>
           <span style={{fontSize:12,color:'rgba(255,255,255,0.7)',transition:'transform 0.2s',transform:chatOpen?'rotate(0)':'rotate(180deg)'}}>▼</span>
