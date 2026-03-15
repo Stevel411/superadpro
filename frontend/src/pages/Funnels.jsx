@@ -100,12 +100,13 @@ export default function Funnels() {
           <p style={{fontSize:12,color:'#94a3b8',lineHeight:1.6,marginBottom:16}}>Answer 4 questions and AI generates a complete landing page with email capture</p>
           <button onClick={()=>navigate('/pro/ai-funnel')} style={{padding:'10px 22px',borderRadius:10,border:'none',cursor:'pointer',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontFamily:'Sora,sans-serif',fontSize:12,fontWeight:700,boxShadow:'0 4px 14px rgba(14,165,233,.3)'}}>Create AI Funnel →</button>
         </div>
-        <div style={{background:'#f8f9fb',borderRadius:16,padding:24,position:'relative',overflow:'hidden',border:'1px solid #e8ecf2'}}>
-          <div style={{position:'absolute',top:10,right:10,width:70,height:70,border:'1px dashed #e2e8f0',borderRadius:12,opacity:.5}}/>
-          <LayoutGrid size={24} color="#94a3b8" style={{marginBottom:10}}/>
-          <h3 style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#0f172a',margin:'0 0 6px'}}>Blank Canvas</h3>
-          <p style={{fontSize:12,color:'#94a3b8',lineHeight:1.6,marginBottom:16}}>Start from scratch with drag-and-drop — full creative freedom</p>
-          <button onClick={()=>createFromTemplate('blank')} disabled={creating} style={{padding:'10px 22px',borderRadius:10,border:'1px solid #e2e8f0',cursor:'pointer',background:'#fff',color:'#0f172a',fontFamily:'Sora,sans-serif',fontSize:12,fontWeight:700}}>Open SuperPages →</button>
+        <div style={{background:'linear-gradient(135deg,#1e1b4b,#312e81)',borderRadius:16,padding:24,position:'relative',overflow:'hidden',border:'1px solid rgba(99,102,241,.15)'}}>
+          <div style={{position:'absolute',top:-20,right:-20,width:100,height:100,background:'radial-gradient(circle,rgba(99,102,241,.15),transparent 70%)',borderRadius:'50%'}}/>
+          <div style={{position:'absolute',bottom:10,right:10,width:70,height:70,border:'1px dashed rgba(99,102,241,.2)',borderRadius:12,opacity:.5}}/>
+          <LayoutGrid size={24} color="#818cf8" style={{marginBottom:10}}/>
+          <h3 style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#fff',margin:'0 0 6px'}}>Blank Canvas</h3>
+          <p style={{fontSize:12,color:'rgba(255,255,255,.6)',lineHeight:1.6,marginBottom:16}}>Start from scratch with drag-and-drop — full creative freedom</p>
+          <button onClick={()=>createFromTemplate('blank')} disabled={creating} style={{padding:'10px 22px',borderRadius:10,border:'none',cursor:'pointer',background:'rgba(99,102,241,.25)',color:'#c7d2fe',fontFamily:'Sora,sans-serif',fontSize:12,fontWeight:700,boxShadow:'0 4px 14px rgba(99,102,241,.2)'}}>Open SuperPages →</button>
         </div>
       </div>
 
