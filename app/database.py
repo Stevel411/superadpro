@@ -572,6 +572,8 @@ class ShortLink(Base):
     expires_at      = Column(DateTime, nullable=True)             # deactivate after date
     geo_redirect_json    = Column(Text, nullable=True)            # JSON: {country_code: url}
     device_redirect_json = Column(Text, nullable=True)            # JSON: {mobile: url, desktop: url}
+    password_hash   = Column(String, nullable=True)               # bcrypt hash for password-protected links
+    tags_json       = Column(Text, nullable=True)                 # JSON: ["tag1","tag2"]
     created_at      = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -1073,6 +1075,8 @@ def run_migrations():
         "ALTER TABLE short_links ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP",
         "ALTER TABLE short_links ADD COLUMN IF NOT EXISTS geo_redirect_json TEXT",
         "ALTER TABLE short_links ADD COLUMN IF NOT EXISTS device_redirect_json TEXT",
+        "ALTER TABLE short_links ADD COLUMN IF NOT EXISTS password_hash VARCHAR",
+        "ALTER TABLE short_links ADD COLUMN IF NOT EXISTS tags_json TEXT",
     ]
     results = []
     with engine.connect() as conn:

@@ -1,7 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
-import { Link2, Shuffle, Plus, Trash2, Copy, BarChart3, ExternalLink, Clock, Globe, MousePointer, ChevronDown, ChevronRight, X } from 'lucide-react';
+import QRCode from 'qrcode';
+import {
+  Link2, Shuffle, Plus, Trash2, Copy, BarChart3, ExternalLink,
+  Clock, Globe, MousePointer, ChevronDown, X, Edit3, QrCode,
+  Tag, Lock, Calendar, Link as LinkIcon, Shield, Palette,
+  Download, Search, AlertCircle, Check
+} from 'lucide-react';
+
+// ── Colour presets for tags ──
+const TAG_COLORS = [
+  { name:'Blue', bg:'#dbeafe', text:'#1d4ed8' },
+  { name:'Green', bg:'#dcfce7', text:'#15803d' },
+  { name:'Purple', bg:'#f3e8ff', text:'#7c3aed' },
+  { name:'Orange', bg:'#ffedd5', text:'#c2410c' },
+  { name:'Pink', bg:'#fce7f3', text:'#be185d' },
+  { name:'Cyan', bg:'#cffafe', text:'#0e7490' },
+  { name:'Red', bg:'#fee2e2', text:'#dc2626' },
+  { name:'Yellow', bg:'#fef9c3', text:'#a16207' },
+];
 
 export default function LinkTools() {
   const [links, setLinks] = useState([]);
@@ -16,18 +34,49 @@ export default function LinkTools() {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [toast, setToast] = useState('');
 
-  // Create link form
+  // ── Modals ──
+  const [editLink, setEditLink] = useState(null);
+  const [qrLink, setQrLink] = useState(null);
+  const [showUtm, setShowUtm] = useState(false);
+  const [tagLink, setTagLink] = useState(null);
+
+  // ── Create link form ──
   const [newUrl, setNewUrl] = useState('');
   const [newSlug, setNewSlug] = useState('');
   const [newTitle, setNewTitle] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newExpiry, setNewExpiry] = useState('');
+  const [newClickCap, setNewClickCap] = useState('');
   const [creating, setCreating] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
-  // Create rotator form
+  // ── Create rotator form ──
   const [rotName, setRotName] = useState('');
   const [rotSlug, setRotSlug] = useState('');
   const [rotMode, setRotMode] = useState('equal');
   const [rotDests, setRotDests] = useState([{url:'',weight:50},{url:'',weight:50}]);
   const [rotCreating, setRotCreating] = useState(false);
+
+  // ── Edit form ──
+  const [editDest, setEditDest] = useState('');
+  const [editTitle, setEditTitle] = useState('');
+  const [editExpiry, setEditExpiry] = useState('');
+  const [editClickCap, setEditClickCap] = useState('');
+  const [editPassword, setEditPassword] = useState('');
+  const [editSaving, setEditSaving] = useState(false);
+
+  // ── UTM Builder ──
+  const [utmUrl, setUtmUrl] = useState('');
+  const [utmSource, setUtmSource] = useState('');
+  const [utmMedium, setUtmMedium] = useState('');
+  const [utmCampaign, setUtmCampaign] = useState('');
+  const [utmTerm, setUtmTerm] = useState('');
+  const [utmContent, setUtmContent] = useState('');
+
+  // ── Tag editor ──
+  const [tagInput, setTagInput] = useState('');
+  const [tagColorIdx, setTagColorIdx] = useState(0);
+  const [editTags, setEditTags] = useState([]);
 
   const BASE = window.location.origin;
 
@@ -40,20 +89,39 @@ export default function LinkTools() {
   useEffect(() => { load(); }, []);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
-
   const copyToClip = (text) => { navigator.clipboard.writeText(text); showToast('✓ Copied to clipboard'); };
 
+  // ── Create Link ──
   const createLink = async () => {
     if (!newUrl.trim()) return;
     setCreating(true);
     try {
-      const res = await apiPost('/api/links/create', { destination_url: newUrl, slug: newSlug || undefined, title: newTitle || undefined });
-      if (res.success) { showToast('✓ Link created'); setNewUrl(''); setNewSlug(''); setNewTitle(''); setShowCreate(false); load(); }
-      else showToast(res.error || 'Failed');
+      const payload = {
+        destination_url: newUrl,
+        slug: newSlug || undefined,
+        title: newTitle || undefined,
+        expires_at: newExpiry || undefined,
+        click_cap: newClickCap ? parseInt(newClickCap) : undefined,
+      };
+      const res = await apiPost('/api/links/create', payload);
+      if (res.success) {
+        if (newPassword && res.slug) {
+          const freshData = await apiGet('/api/link-tools');
+          const linkObj = (freshData.short_links || []).find(l => l.short_code === res.slug);
+          if (linkObj) {
+            await apiPost('/api/links/edit/' + linkObj.id, { password: newPassword });
+          }
+        }
+        showToast('✓ Link created');
+        setNewUrl(''); setNewSlug(''); setNewTitle(''); setNewPassword('');
+        setNewExpiry(''); setNewClickCap(''); setShowCreate(false); setShowAdvanced(false);
+        load();
+      } else showToast(res.error || 'Failed');
     } catch(e) { showToast(e.message); }
     setCreating(false);
   };
 
+  // ── Create Rotator ──
   const createRotator = async () => {
     if (!rotName.trim()) return;
     const dests = rotDests.filter(d => d.url.trim());
@@ -67,36 +135,109 @@ export default function LinkTools() {
     setRotCreating(false);
   };
 
+  // ── Delete ──
   const deleteItem = async (id, type) => {
     try {
-      await apiPost(type === 'rotator' ? `/api/rotators/delete/${id}` : `/api/links/delete/${id}`, {});
-      showToast('✓ Deleted');
-      setConfirmDelete(null);
-      load();
+      await apiPost(type === 'rotator' ? '/api/rotators/delete/' + id : '/api/links/delete/' + id, {});
+      showToast('✓ Deleted'); setConfirmDelete(null); load();
     } catch(e) { showToast(e.message); }
   };
 
+  // ── Analytics ──
   const openAnalytics = async (id, type) => {
     setAnalyticsId(id); setAnalyticsType(type); setAnalytics(null);
     try {
-      const d = await apiGet(`/api/links/analytics/${id}?link_type=${type}`);
+      const d = await apiGet('/api/links/analytics/' + id + '?link_type=' + type);
       setAnalytics(d);
     } catch(e) { setAnalytics({error: e.message}); }
   };
 
-  const totalClicks = links.reduce((a,l) => a + (l.click_count||0), 0) + rotators.reduce((a,r) => a + (r.click_count||0), 0);
+  // ── Edit Link ──
+  const openEdit = (link) => {
+    setEditLink(link);
+    setEditDest(link.destination_url || '');
+    setEditTitle(link.title || '');
+    setEditExpiry(link.expires_at ? link.expires_at.slice(0,16) : '');
+    setEditClickCap(link.click_cap ? String(link.click_cap) : '');
+    setEditPassword('');
+  };
+  const saveEdit = async () => {
+    if (!editLink) return;
+    setEditSaving(true);
+    try {
+      const payload = {
+        destination_url: editDest,
+        title: editTitle,
+        expires_at: editExpiry || null,
+        click_cap: editClickCap ? parseInt(editClickCap) : null,
+      };
+      if (editPassword) payload.password = editPassword;
+      const res = await apiPost('/api/links/edit/' + editLink.id, payload);
+      if (res.success) { showToast('✓ Link updated'); setEditLink(null); load(); }
+      else showToast(res.error || 'Failed');
+    } catch(e) { showToast(e.message); }
+    setEditSaving(false);
+  };
 
-  if (loading) return <AppLayout title="Link Tools"><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
+  // ── Tags ──
+  const openTags = (link) => {
+    setTagLink(link);
+    try {
+      setEditTags(link.tags_json ? JSON.parse(link.tags_json) : []);
+    } catch(err) { setEditTags([]); }
+    setTagInput('');
+  };
+  const addTag = () => {
+    const t = tagInput.trim();
+    if (!t || editTags.some(et => et.name === t)) return;
+    setEditTags([...editTags, { name: t, color: tagColorIdx }]);
+    setTagInput('');
+  };
+  const removeTag = (idx) => setEditTags(editTags.filter((_, i) => i !== idx));
+  const saveTags = async () => {
+    if (!tagLink) return;
+    try {
+      const res = await apiPost('/api/links/edit/' + tagLink.id, { tags: editTags.length ? editTags : null });
+      if (res.success) { showToast('✓ Tags saved'); setTagLink(null); load(); }
+      else showToast(res.error || 'Failed');
+    } catch(e) { showToast(e.message); }
+  };
+
+  // ── UTM Builder ──
+  const utmResult = (() => {
+    if (!utmUrl.trim()) return '';
+    try {
+      const u = new URL(utmUrl.trim().startsWith('http') ? utmUrl.trim() : 'https://' + utmUrl.trim());
+      if (utmSource) u.searchParams.set('utm_source', utmSource);
+      if (utmMedium) u.searchParams.set('utm_medium', utmMedium);
+      if (utmCampaign) u.searchParams.set('utm_campaign', utmCampaign);
+      if (utmTerm) u.searchParams.set('utm_term', utmTerm);
+      if (utmContent) u.searchParams.set('utm_content', utmContent);
+      return u.toString();
+    } catch(err) { return ''; }
+  })();
+
+  const totalClicks = links.reduce((a, l) => a + (l.click_count || 0), 0) + rotators.reduce((a, r) => a + (r.click_count || 0), 0);
+
+  if (loading) return (
+    <AppLayout title="Link Tools">
+      <div style={{display:'flex',justifyContent:'center',padding:80}}>
+        <div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/>
+        <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
+      </div>
+    </AppLayout>
+  );
 
   return (
-    <AppLayout title="Link Tools" subtitle="Short links and rotators with click tracking">
+    <AppLayout title="Link Tools" subtitle="Short links, rotators, QR codes & UTM tracking">
 
-      {/* Stats row */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:24}}>
+      {/* ── Stats row ── */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:24}}>
         {[
           {label:'SHORT LINKS',val:links.length,color:'#0ea5e9',icon:Link2},
           {label:'ROTATORS',val:rotators.length,color:'#8b5cf6',icon:Shuffle},
           {label:'TOTAL CLICKS',val:totalClicks,color:'#10b981',icon:MousePointer},
+          {label:'PROTECTED',val:links.filter(l => l.has_password).length,color:'#f59e0b',icon:Shield},
         ].map((s,i) => (
           <div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,overflow:'hidden'}}>
             <div style={{padding:'10px 14px',background:'#1c223d',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
@@ -110,8 +251,8 @@ export default function LinkTools() {
         ))}
       </div>
 
-      {/* Tab bar */}
-      <div style={{display:'flex',gap:4,marginBottom:16}}>
+      {/* ── Tab bar ── */}
+      <div style={{display:'flex',gap:4,marginBottom:16,flexWrap:'wrap'}}>
         {[['links','Short Links',Link2],['rotators','Rotators',Shuffle]].map(([key,label,Icon]) => (
           <button key={key} onClick={() => setTab(key)} style={{
             display:'flex',alignItems:'center',gap:6,padding:'10px 20px',borderRadius:8,fontSize:13,fontWeight:700,
@@ -119,6 +260,10 @@ export default function LinkTools() {
             background:tab===key?'#0ea5e9':'#f1f5f9',color:tab===key?'#fff':'#64748b',
           }}><Icon size={14}/> {label}</button>
         ))}
+        <button onClick={() => setShowUtm(true)} style={{
+          display:'flex',alignItems:'center',gap:6,padding:'10px 20px',borderRadius:8,fontSize:13,fontWeight:700,
+          border:'none',cursor:'pointer',fontFamily:'inherit',background:'#f1f5f9',color:'#64748b',
+        }}><Search size={14}/> UTM Builder</button>
         <div style={{flex:1}}/>
         <button onClick={() => tab==='links'?setShowCreate(true):setShowRotatorCreate(true)} style={{
           display:'flex',alignItems:'center',gap:6,padding:'10px 20px',borderRadius:8,fontSize:13,fontWeight:700,
@@ -127,7 +272,7 @@ export default function LinkTools() {
         }}><Plus size={14}/> {tab==='links'?'New Short Link':'New Rotator'}</button>
       </div>
 
-      {/* SHORT LINKS TAB */}
+      {/* ── SHORT LINKS TAB ── */}
       {tab === 'links' && (
         <div style={{display:'flex',flexDirection:'column',gap:10}}>
           {links.length === 0 && (
@@ -137,44 +282,63 @@ export default function LinkTools() {
               <div style={{fontSize:12,color:'#94a3b8'}}>Create your first short link to start tracking clicks</div>
             </div>
           )}
-          {links.map(l => (
-            <div key={l.id} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,overflow:'hidden'}}>
-              <div style={{padding:'14px 16px',display:'flex',alignItems:'center',gap:12}}>
-                <div style={{width:36,height:36,borderRadius:8,background:'rgba(14,165,233,.08)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                  <Link2 size={16} color="#0ea5e9"/>
-                </div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:13,fontWeight:700,color:'#0ea5e9',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{BASE}/s/{l.short_code}</div>
-                  <div style={{fontSize:11,color:'#94a3b8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.destination_url}</div>
-                </div>
-                <div style={{display:'flex',alignItems:'center',gap:4,flexShrink:0}}>
-                  <div style={{textAlign:'center',padding:'4px 10px',background:'#f1f5f9',borderRadius:6}}>
+          {links.map(l => {
+            var tags = [];
+            try { tags = l.tags_json ? JSON.parse(l.tags_json) : []; } catch(err) { tags = []; }
+            var isExpired = l.expires_at && new Date(l.expires_at) < new Date();
+            return (
+              <div key={l.id} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,overflow:'hidden',opacity:isExpired?0.5:1}}>
+                <div style={{padding:'14px 16px',display:'flex',alignItems:'center',gap:12}}>
+                  <div style={{width:36,height:36,borderRadius:8,background: l.has_password ? 'rgba(245,158,11,.08)' : 'rgba(14,165,233,.08)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    {l.has_password ? <Lock size={16} color="#f59e0b"/> : <Link2 size={16} color="#0ea5e9"/>}
+                  </div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
+                      <span style={{fontSize:13,fontWeight:700,color:'#0ea5e9',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{BASE}/go/{l.short_code}</span>
+                      {l.has_password && <Lock size={11} color="#f59e0b"/>}
+                      {isExpired && <span style={{fontSize:9,fontWeight:700,background:'#fee2e2',color:'#dc2626',padding:'1px 6px',borderRadius:4}}>EXPIRED</span>}
+                      {l.expires_at && !isExpired && <span style={{fontSize:9,fontWeight:700,background:'#fef9c3',color:'#a16207',padding:'1px 6px',borderRadius:4}}>EXPIRES {new Date(l.expires_at).toLocaleDateString()}</span>}
+                    </div>
+                    <div style={{fontSize:11,color:'#94a3b8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.title ? l.title + ' — ' : ''}{l.destination_url}</div>
+                    {tags.length > 0 && (
+                      <div style={{display:'flex',gap:4,marginTop:4,flexWrap:'wrap'}}>
+                        {tags.map(function(t, i) {
+                          var c = TAG_COLORS[t.color] || TAG_COLORS[0];
+                          return <span key={i} style={{fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:10,background:c.bg,color:c.text}}>{t.name}</span>;
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{textAlign:'center',padding:'4px 10px',background:'#f1f5f9',borderRadius:6,flexShrink:0}}>
                     <div style={{fontSize:15,fontWeight:800,color:'#0f172a'}}>{l.click_count||0}</div>
                     <div style={{fontSize:8,color:'#94a3b8',fontWeight:600}}>CLICKS</div>
                   </div>
                 </div>
+                <div style={{padding:'8px 16px',borderTop:'1px solid #f1f3f7',display:'flex',gap:6,flexWrap:'wrap'}}>
+                  <button onClick={() => copyToClip(BASE + '/go/' + l.short_code)} style={smallBtn}><Copy size={12}/> Copy</button>
+                  <button onClick={() => openAnalytics(l.id, 'short')} style={smallBtn}><BarChart3 size={12}/> Analytics</button>
+                  <button onClick={() => openEdit(l)} style={smallBtn}><Edit3 size={12}/> Edit</button>
+                  <button onClick={() => setQrLink(l)} style={smallBtn}><QrCode size={12}/> QR</button>
+                  <button onClick={() => openTags(l)} style={smallBtn}><Tag size={12}/> Tags</button>
+                  <a href={'/go/' + l.short_code} target="_blank" rel="noopener noreferrer" style={{...smallBtn,textDecoration:'none'}}><ExternalLink size={12}/> Open</a>
+                  <div style={{flex:1}}/>
+                  {confirmDelete === 'link-' + l.id ? (
+                    <>
+                      <span style={{fontSize:11,fontWeight:600,color:'#dc2626',display:'flex',alignItems:'center'}}>Delete?</span>
+                      <button onClick={() => deleteItem(l.id,'short')} style={{...smallBtn,background:'#dc2626',color:'#fff',border:'none'}}>Yes</button>
+                      <button onClick={() => setConfirmDelete(null)} style={smallBtn}>No</button>
+                    </>
+                  ) : (
+                    <button onClick={() => setConfirmDelete('link-' + l.id)} style={{...smallBtn,color:'#dc2626',borderColor:'#fecaca'}}><Trash2 size={12}/></button>
+                  )}
+                </div>
               </div>
-              <div style={{padding:'8px 16px',borderTop:'1px solid #f1f3f7',display:'flex',gap:6}}>
-                <button onClick={() => copyToClip(`${BASE}/s/${l.short_code}`)} style={smallBtn}><Copy size={12}/> Copy</button>
-                <button onClick={() => openAnalytics(l.id, 'short')} style={smallBtn}><BarChart3 size={12}/> Analytics</button>
-                <a href={`/s/${l.short_code}`} target="_blank" rel="noopener noreferrer" style={{...smallBtn,textDecoration:'none'}}><ExternalLink size={12}/> Open</a>
-                <div style={{flex:1}}/>
-                {confirmDelete === `link-${l.id}` ? (
-                  <>
-                    <span style={{fontSize:11,fontWeight:600,color:'#dc2626',display:'flex',alignItems:'center'}}>Delete?</span>
-                    <button onClick={() => deleteItem(l.id,'short')} style={{...smallBtn,background:'#dc2626',color:'#fff',border:'none'}}>Yes</button>
-                    <button onClick={() => setConfirmDelete(null)} style={smallBtn}>No</button>
-                  </>
-                ) : (
-                  <button onClick={() => setConfirmDelete(`link-${l.id}`)} style={{...smallBtn,color:'#dc2626',borderColor:'#fecaca'}}><Trash2 size={12}/></button>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
-      {/* ROTATORS TAB */}
+      {/* ── ROTATORS TAB ── */}
       {tab === 'rotators' && (
         <div style={{display:'flex',flexDirection:'column',gap:10}}>
           {rotators.length === 0 && (
@@ -192,7 +356,7 @@ export default function LinkTools() {
                 </div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:14,fontWeight:800,color:'#0f172a'}}>{r.name}</div>
-                  <div style={{fontSize:12,color:'#8b5cf6',fontWeight:600}}>{BASE}/s/{r.short_code}</div>
+                  <div style={{fontSize:12,color:'#8b5cf6',fontWeight:600}}>{BASE}/go/{r.short_code}</div>
                 </div>
                 <div style={{textAlign:'center',padding:'4px 10px',background:'#f1f5f9',borderRadius:6}}>
                   <div style={{fontSize:15,fontWeight:800,color:'#0f172a'}}>{r.click_count||0}</div>
@@ -200,17 +364,17 @@ export default function LinkTools() {
                 </div>
               </div>
               <div style={{padding:'8px 16px',borderTop:'1px solid #f1f3f7',display:'flex',gap:6}}>
-                <button onClick={() => copyToClip(`${BASE}/s/${r.short_code}`)} style={smallBtn}><Copy size={12}/> Copy</button>
+                <button onClick={() => copyToClip(BASE + '/go/' + r.short_code)} style={smallBtn}><Copy size={12}/> Copy</button>
                 <button onClick={() => openAnalytics(r.id, 'rotator')} style={smallBtn}><BarChart3 size={12}/> Analytics</button>
                 <div style={{flex:1}}/>
-                {confirmDelete === `rot-${r.id}` ? (
+                {confirmDelete === 'rot-' + r.id ? (
                   <>
                     <span style={{fontSize:11,fontWeight:600,color:'#dc2626',display:'flex',alignItems:'center'}}>Delete?</span>
                     <button onClick={() => deleteItem(r.id,'rotator')} style={{...smallBtn,background:'#dc2626',color:'#fff',border:'none'}}>Yes</button>
                     <button onClick={() => setConfirmDelete(null)} style={smallBtn}>No</button>
                   </>
                 ) : (
-                  <button onClick={() => setConfirmDelete(`rot-${r.id}`)} style={{...smallBtn,color:'#dc2626',borderColor:'#fecaca'}}><Trash2 size={12}/></button>
+                  <button onClick={() => setConfirmDelete('rot-' + r.id)} style={{...smallBtn,color:'#dc2626',borderColor:'#fecaca'}}><Trash2 size={12}/></button>
                 )}
               </div>
             </div>
@@ -218,24 +382,51 @@ export default function LinkTools() {
         </div>
       )}
 
-      {/* CREATE SHORT LINK MODAL */}
+      {/* ── CREATE SHORT LINK MODAL ── */}
       {showCreate && (
-        <Modal onClose={() => setShowCreate(false)} title="Create Short Link" icon={<Link2 size={18} color="#0ea5e9"/>}>
+        <Modal onClose={() => { setShowCreate(false); setShowAdvanced(false); }} title="Create Short Link" icon={<Link2 size={18} color="#0ea5e9"/>}>
           <Label>Destination URL</Label>
           <Input value={newUrl} onChange={e => setNewUrl(e.target.value)} placeholder="https://your-long-url.com/page"/>
           <Label>Custom Slug (optional)</Label>
           <Input value={newSlug} onChange={e => setNewSlug(e.target.value)} placeholder="my-link"/>
-          {newSlug && <div style={{fontSize:11,color:'#64748b',marginTop:-6,marginBottom:10}}>Preview: {BASE}/s/{newSlug || '...'}</div>}
+          {newSlug && <div style={{fontSize:11,color:'#64748b',marginTop:-6,marginBottom:10}}>Preview: {BASE}/go/{newSlug || '...'}</div>}
           <Label>Title (optional)</Label>
           <Input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Campaign name or description"/>
+
+          <button onClick={() => setShowAdvanced(!showAdvanced)} style={{
+            display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:700,color:'#0ea5e9',
+            background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12,fontFamily:'inherit',
+          }}>
+            <ChevronDown size={14} style={{transform:showAdvanced?'rotate(180deg)':'none',transition:'transform .2s'}}/> Advanced Options
+          </button>
+
+          {showAdvanced && (
+            <div style={{background:'#f8f9fb',borderRadius:10,padding:16,marginBottom:14,border:'1px solid #e8ecf2'}}>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+                <div>
+                  <Label><Lock size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Password Protection</Label>
+                  <Input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Leave blank for none" style={{marginBottom:0}}/>
+                </div>
+                <div>
+                  <Label><Calendar size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Expiration Date</Label>
+                  <Input type="datetime-local" value={newExpiry} onChange={e => setNewExpiry(e.target.value)} style={{marginBottom:0}}/>
+                </div>
+              </div>
+              <div style={{marginTop:12}}>
+                <Label><MousePointer size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Click Cap (optional)</Label>
+                <Input type="number" value={newClickCap} onChange={e => setNewClickCap(e.target.value)} placeholder="Deactivate after N clicks" style={{marginBottom:0}}/>
+              </div>
+            </div>
+          )}
+
           <div style={{display:'flex',gap:8,marginTop:8}}>
-            <button onClick={createLink} disabled={creating} style={{flex:1,padding:'11px',borderRadius:10,border:'none',background:'#0ea5e9',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>{creating?'Creating...':'Create Link →'}</button>
-            <button onClick={() => setShowCreate(false)} style={{padding:'11px 20px',borderRadius:10,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>Cancel</button>
+            <button onClick={createLink} disabled={creating} style={btnPrimary('#0ea5e9')}>{creating?'Creating...':'Create Link →'}</button>
+            <button onClick={() => { setShowCreate(false); setShowAdvanced(false); }} style={btnSecondary}>Cancel</button>
           </div>
         </Modal>
       )}
 
-      {/* CREATE ROTATOR MODAL */}
+      {/* ── CREATE ROTATOR MODAL ── */}
       {showRotatorCreate && (
         <Modal onClose={() => setShowRotatorCreate(false)} title="Create Link Rotator" icon={<Shuffle size={18} color="#8b5cf6"/>}>
           <Label>Rotator Name</Label>
@@ -255,13 +446,13 @@ export default function LinkTools() {
           <Label>Destination URLs</Label>
           {rotDests.map((d,i) => (
             <div key={i} style={{display:'flex',gap:6,marginBottom:8}}>
-              <Input value={d.url} onChange={e => { const n=[...rotDests]; n[i].url=e.target.value; setRotDests(n); }} placeholder={`URL ${i+1}`} style={{flex:1,marginBottom:0}}/>
+              <Input value={d.url} onChange={e => { var n=[...rotDests]; n[i].url=e.target.value; setRotDests(n); }} placeholder={'URL ' + (i+1)} style={{flex:1,marginBottom:0}}/>
               {rotMode==='weighted' && (
-                <input type="number" value={d.weight} onChange={e => { const n=[...rotDests]; n[i].weight=parseInt(e.target.value)||0; setRotDests(n); }}
+                <input type="number" value={d.weight} onChange={e => { var n=[...rotDests]; n[i].weight=parseInt(e.target.value)||0; setRotDests(n); }}
                   style={{width:60,padding:'8px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:12,textAlign:'center'}} min={0} max={100}/>
               )}
               {rotDests.length > 2 && (
-                <button onClick={() => setRotDests(rotDests.filter((_,j) => j!==i))} style={{width:32,height:38,border:'1px solid #fecaca',borderRadius:8,background:'#fef2f2',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                <button onClick={() => setRotDests(rotDests.filter(function(_, j){ return j!==i; }))} style={{width:32,height:38,border:'1px solid #fecaca',borderRadius:8,background:'#fef2f2',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
                   <X size={12} color="#dc2626"/>
                 </button>
               )}
@@ -269,13 +460,156 @@ export default function LinkTools() {
           ))}
           <button onClick={() => setRotDests([...rotDests,{url:'',weight:50}])} style={{fontSize:11,fontWeight:600,color:'#0ea5e9',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12}}>+ Add another URL</button>
           <div style={{display:'flex',gap:8,marginTop:8}}>
-            <button onClick={createRotator} disabled={rotCreating} style={{flex:1,padding:'11px',borderRadius:10,border:'none',background:'#8b5cf6',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>{rotCreating?'Creating...':'Create Rotator →'}</button>
-            <button onClick={() => setShowRotatorCreate(false)} style={{padding:'11px 20px',borderRadius:10,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>Cancel</button>
+            <button onClick={createRotator} disabled={rotCreating} style={btnPrimary('#8b5cf6')}>{rotCreating?'Creating...':'Create Rotator →'}</button>
+            <button onClick={() => setShowRotatorCreate(false)} style={btnSecondary}>Cancel</button>
           </div>
         </Modal>
       )}
 
-      {/* ANALYTICS MODAL */}
+      {/* ── EDIT LINK MODAL ── */}
+      {editLink && (
+        <Modal onClose={() => setEditLink(null)} title="Edit Link" icon={<Edit3 size={18} color="#0ea5e9"/>}>
+          <div style={{fontSize:11,color:'#94a3b8',marginBottom:14,fontWeight:600}}>{BASE}/go/{editLink.short_code}</div>
+          <Label>Destination URL</Label>
+          <Input value={editDest} onChange={e => setEditDest(e.target.value)} placeholder="https://..."/>
+          <Label>Title</Label>
+          <Input value={editTitle} onChange={e => setEditTitle(e.target.value)} placeholder="Link title"/>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+            <div>
+              <Label><Calendar size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Expiration</Label>
+              <Input type="datetime-local" value={editExpiry} onChange={e => setEditExpiry(e.target.value)} style={{marginBottom:0}}/>
+            </div>
+            <div>
+              <Label><MousePointer size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Click Cap</Label>
+              <Input type="number" value={editClickCap} onChange={e => setEditClickCap(e.target.value)} placeholder="No limit" style={{marginBottom:0}}/>
+            </div>
+          </div>
+          <div style={{marginTop:12}}>
+            <Label><Lock size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Password {editLink.has_password && <span style={{fontSize:9,color:'#f59e0b'}}>(currently set)</span>}</Label>
+            <Input type="password" value={editPassword} onChange={e => setEditPassword(e.target.value)} placeholder={editLink.has_password ? 'Enter new password or leave blank' : 'Leave blank for none'}/>
+            {editLink.has_password && (
+              <button onClick={async () => {
+                await apiPost('/api/links/edit/' + editLink.id, { password: '' });
+                showToast('✓ Password removed'); setEditLink(null); load();
+              }} style={{fontSize:11,fontWeight:600,color:'#dc2626',background:'none',border:'none',cursor:'pointer',marginTop:-6,marginBottom:8,fontFamily:'inherit'}}>
+                Remove password protection
+              </button>
+            )}
+          </div>
+          <div style={{display:'flex',gap:8,marginTop:8}}>
+            <button onClick={saveEdit} disabled={editSaving} style={btnPrimary('#0ea5e9')}>{editSaving?'Saving...':'Save Changes →'}</button>
+            <button onClick={() => setEditLink(null)} style={btnSecondary}>Cancel</button>
+          </div>
+        </Modal>
+      )}
+
+      {/* ── QR CODE MODAL ── */}
+      {qrLink && (
+        <Modal onClose={() => setQrLink(null)} title="QR Code" icon={<QrCode size={18} color="#0ea5e9"/>}>
+          <QrCodeDisplay url={BASE + '/go/' + qrLink.short_code} slug={qrLink.short_code}/>
+        </Modal>
+      )}
+
+      {/* ── UTM BUILDER MODAL ── */}
+      {showUtm && (
+        <Modal onClose={() => setShowUtm(false)} title="UTM Tag Builder" icon={<Search size={18} color="#10b981"/>} wide>
+          <p style={{fontSize:12,color:'#64748b',marginBottom:16}}>Build campaign-tracked URLs with UTM parameters. Paste any URL and add your campaign tags.</p>
+          <Label>Base URL</Label>
+          <Input value={utmUrl} onChange={e => setUtmUrl(e.target.value)} placeholder="https://example.com/landing-page"/>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+            <div>
+              <Label>Source <span style={{color:'#dc2626'}}>*</span></Label>
+              <Input value={utmSource} onChange={e => setUtmSource(e.target.value)} placeholder="facebook, google, newsletter"/>
+            </div>
+            <div>
+              <Label>Medium</Label>
+              <Input value={utmMedium} onChange={e => setUtmMedium(e.target.value)} placeholder="cpc, email, social"/>
+            </div>
+            <div>
+              <Label>Campaign</Label>
+              <Input value={utmCampaign} onChange={e => setUtmCampaign(e.target.value)} placeholder="spring_sale, launch"/>
+            </div>
+            <div>
+              <Label>Term (optional)</Label>
+              <Input value={utmTerm} onChange={e => setUtmTerm(e.target.value)} placeholder="keyword"/>
+            </div>
+          </div>
+          <Label>Content (optional)</Label>
+          <Input value={utmContent} onChange={e => setUtmContent(e.target.value)} placeholder="banner_ad, text_link"/>
+
+          {utmResult && (
+            <div style={{background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:10,padding:14,marginTop:8}}>
+              <div style={{fontSize:10,fontWeight:700,color:'#15803d',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>Generated URL</div>
+              <div style={{fontSize:12,color:'#0f172a',wordBreak:'break-all',fontFamily:'monospace',lineHeight:1.6}}>{utmResult}</div>
+              <div style={{display:'flex',gap:8,marginTop:12}}>
+                <button onClick={() => copyToClip(utmResult)} style={{...smallBtn,background:'#10b981',color:'#fff',border:'none'}}><Copy size={12}/> Copy URL</button>
+                <button onClick={() => { setNewUrl(utmResult); setShowUtm(false); setShowCreate(true); }} style={{...smallBtn,background:'#0ea5e9',color:'#fff',border:'none'}}><Link2 size={12}/> Shorten This</button>
+              </div>
+            </div>
+          )}
+
+          <div style={{marginTop:16}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Quick Presets</div>
+            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {[
+                {label:'Facebook Ad',s:'facebook',m:'cpc',c:'fb_ad'},
+                {label:'Instagram',s:'instagram',m:'social',c:'ig_post'},
+                {label:'Email',s:'newsletter',m:'email',c:'email_blast'},
+                {label:'Google Ad',s:'google',m:'cpc',c:'google_ad'},
+                {label:'YouTube',s:'youtube',m:'video',c:'yt_desc'},
+                {label:'TikTok',s:'tiktok',m:'social',c:'tt_bio'},
+              ].map(function(p, i) {
+                return (
+                  <button key={i} onClick={() => { setUtmSource(p.s); setUtmMedium(p.m); setUtmCampaign(p.c); }}
+                    style={{fontSize:10,fontWeight:700,padding:'5px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'#475569',cursor:'pointer',fontFamily:'inherit'}}>
+                    {p.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* ── TAG EDITOR MODAL ── */}
+      {tagLink && (
+        <Modal onClose={() => setTagLink(null)} title="Edit Tags" icon={<Tag size={18} color="#8b5cf6"/>}>
+          <div style={{fontSize:11,color:'#94a3b8',marginBottom:14}}>{BASE}/go/{tagLink.short_code}</div>
+          {editTags.length > 0 && (
+            <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
+              {editTags.map(function(t, i) {
+                var c = TAG_COLORS[t.color] || TAG_COLORS[0];
+                return (
+                  <span key={i} style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,padding:'4px 10px',borderRadius:12,background:c.bg,color:c.text}}>
+                    {t.name}
+                    <button onClick={() => removeTag(i)} style={{background:'none',border:'none',cursor:'pointer',padding:0,display:'flex'}}><X size={10} color={c.text}/></button>
+                  </span>
+                );
+              })}
+            </div>
+          )}
+          <div style={{display:'flex',gap:6,marginBottom:10}}>
+            <Input value={tagInput} onChange={e => setTagInput(e.target.value)} placeholder="Tag name..." onKeyDown={e => { if(e.key==='Enter') addTag(); }} style={{flex:1,marginBottom:0}}/>
+            <button onClick={addTag} style={{...smallBtn,background:'#8b5cf6',color:'#fff',border:'none',padding:'8px 14px'}}>Add</button>
+          </div>
+          <div style={{display:'flex',gap:4,marginBottom:16}}>
+            {TAG_COLORS.map(function(c, i) {
+              return (
+                <button key={i} onClick={() => setTagColorIdx(i)} style={{
+                  width:24,height:24,borderRadius:12,background:c.bg,border:tagColorIdx===i?'2px solid ' + c.text:'2px solid transparent',
+                  cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',
+                }}>{tagColorIdx===i && <Check size={10} color={c.text}/>}</button>
+              );
+            })}
+          </div>
+          <div style={{display:'flex',gap:8}}>
+            <button onClick={saveTags} style={btnPrimary('#8b5cf6')}>Save Tags →</button>
+            <button onClick={() => setTagLink(null)} style={btnSecondary}>Cancel</button>
+          </div>
+        </Modal>
+      )}
+
+      {/* ── ANALYTICS MODAL ── */}
       {analyticsId !== null && (
         <Modal onClose={() => setAnalyticsId(null)} title="Click Analytics" icon={<BarChart3 size={18} color="#10b981"/>} wide>
           {!analytics ? (
@@ -289,44 +623,42 @@ export default function LinkTools() {
                 <StatBox label="Mobile" val={analytics.devices?.mobile||0} color="#0ea5e9"/>
                 <StatBox label="Desktop" val={analytics.devices?.desktop||0} color="#8b5cf6"/>
               </div>
-
-              {/* Timeline */}
               {analytics.timeline && analytics.timeline.length > 0 && (
                 <div style={{marginBottom:20}}>
                   <div style={{fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Clicks — Last 30 Days</div>
                   <div style={{display:'flex',alignItems:'flex-end',gap:2,height:80,background:'#f8f9fb',borderRadius:8,padding:'8px 4px'}}>
-                    {analytics.timeline.map((d,i) => {
-                      const max = Math.max(...analytics.timeline.map(t => t.clicks), 1);
-                      const h = Math.max(2, (d.clicks/max)*60);
-                      return <div key={i} title={`${d.date}: ${d.clicks} clicks`} style={{flex:1,height:h,background:d.clicks>0?'#0ea5e9':'#e2e8f0',borderRadius:2,minWidth:1}}/>;
+                    {analytics.timeline.map(function(d, i) {
+                      var max = Math.max.apply(null, analytics.timeline.map(function(t){ return t.clicks; }).concat([1]));
+                      var h = Math.max(2, (d.clicks/max)*60);
+                      return <div key={i} title={d.date + ': ' + d.clicks + ' clicks'} style={{flex:1,height:h,background:d.clicks>0?'#0ea5e9':'#e2e8f0',borderRadius:2,minWidth:1}}/>;
                     })}
                   </div>
                 </div>
               )}
-
-              {/* Sources */}
               {analytics.sources && Object.keys(analytics.sources).length > 0 && (
                 <div style={{marginBottom:16}}>
                   <div style={{fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Traffic Sources</div>
-                  {Object.entries(analytics.sources).sort((a,b) => b[1]-a[1]).map(([src,count]) => (
-                    <div key={src} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
-                      <span style={{fontSize:12,color:'#0f172a',fontWeight:600}}>{src}</span>
-                      <span style={{fontSize:12,color:'#64748b',fontWeight:700}}>{count}</span>
-                    </div>
-                  ))}
+                  {Object.entries(analytics.sources).sort(function(a,b){ return b[1]-a[1]; }).map(function(pair) {
+                    return (
+                      <div key={pair[0]} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
+                        <span style={{fontSize:12,color:'#0f172a',fontWeight:600}}>{pair[0]}</span>
+                        <span style={{fontSize:12,color:'#64748b',fontWeight:700}}>{pair[1]}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
-
-              {/* Countries */}
               {analytics.countries && Object.keys(analytics.countries).length > 0 && (
                 <div>
                   <div style={{fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Top Countries</div>
-                  {Object.entries(analytics.countries).map(([country,count]) => (
-                    <div key={country} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
-                      <span style={{fontSize:12,color:'#0f172a',fontWeight:600}}>{country}</span>
-                      <span style={{fontSize:12,color:'#64748b',fontWeight:700}}>{count}</span>
-                    </div>
-                  ))}
+                  {Object.entries(analytics.countries).map(function(pair) {
+                    return (
+                      <div key={pair[0]} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
+                        <span style={{fontSize:12,color:'#0f172a',fontWeight:600}}>{pair[0]}</span>
+                        <span style={{fontSize:12,color:'#64748b',fontWeight:700}}>{pair[1]}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </>
@@ -334,7 +666,7 @@ export default function LinkTools() {
         </Modal>
       )}
 
-      {/* Toast */}
+      {/* ── Toast ── */}
       {toast && (
         <div style={{position:'fixed',bottom:24,left:'50%',transform:'translateX(-50%)',background:toast.includes('✓')?'#10b981':'#ef4444',color:'#fff',padding:'10px 24px',borderRadius:12,fontSize:13,fontWeight:700,boxShadow:'0 4px 20px rgba(0,0,0,.2)',zIndex:300}}>{toast}</div>
       )}
@@ -342,12 +674,82 @@ export default function LinkTools() {
   );
 }
 
-// ── Reusable components ──
+
+// ── QR Code Display Component ──
+function QrCodeDisplay({ url, slug }) {
+  var canvasRef = useRef(null);
+  var [size, setSize] = useState(256);
+  var [fgColor, setFgColor] = useState('#0f172a');
+  var [bgColor, setBgColor] = useState('#ffffff');
+
+  var generate = useCallback(function() {
+    if (!canvasRef.current) return;
+    QRCode.toCanvas(canvasRef.current, url, {
+      width: size, margin: 2,
+      color: { dark: fgColor, light: bgColor },
+    });
+  }, [url, size, fgColor, bgColor]);
+
+  useEffect(function() { generate(); }, [generate]);
+
+  var download = function() {
+    if (!canvasRef.current) return;
+    var a = document.createElement('a');
+    a.download = 'qr-' + slug + '.png';
+    a.href = canvasRef.current.toDataURL('image/png');
+    a.click();
+  };
+
+  return (
+    <div style={{textAlign:'center'}}>
+      <canvas ref={canvasRef} style={{borderRadius:8,margin:'0 auto 16px',display:'block'}}/>
+      <div style={{fontSize:11,color:'#64748b',marginBottom:16,wordBreak:'break-all'}}>{url}</div>
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:16}}>
+        <div>
+          <Label>Size</Label>
+          <select value={size} onChange={e => setSize(parseInt(e.target.value))} style={{width:'100%',padding:'8px',border:'2px solid #e2e8f0',borderRadius:8,fontSize:12,fontFamily:'inherit'}}>
+            <option value={128}>128px</option>
+            <option value={256}>256px</option>
+            <option value={512}>512px</option>
+            <option value={1024}>1024px</option>
+          </select>
+        </div>
+        <div>
+          <Label>Foreground</Label>
+          <div style={{display:'flex',alignItems:'center',gap:6}}>
+            <input type="color" value={fgColor} onChange={e => setFgColor(e.target.value)} style={{width:32,height:32,border:'none',background:'none',cursor:'pointer',padding:0}}/>
+            <span style={{fontSize:11,color:'#64748b'}}>{fgColor}</span>
+          </div>
+        </div>
+        <div>
+          <Label>Background</Label>
+          <div style={{display:'flex',alignItems:'center',gap:6}}>
+            <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)} style={{width:32,height:32,border:'none',background:'none',cursor:'pointer',padding:0}}/>
+            <span style={{fontSize:11,color:'#64748b'}}>{bgColor}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style={{display:'flex',gap:8,justifyContent:'center'}}>
+        <button onClick={download} style={{...smallBtn,background:'#0ea5e9',color:'#fff',border:'none',padding:'10px 20px',fontSize:13,fontWeight:700}}>
+          <Download size={14}/> Download PNG
+        </button>
+        <button onClick={function() { navigator.clipboard.writeText(url); }} style={{...smallBtn,padding:'10px 20px',fontSize:13}}>
+          <Copy size={14}/> Copy URL
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
+// ── Reusable Components ──
 function Modal({ onClose, title, icon, wide, children }) {
   return (
     <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(4px)'}} onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} style={{background:'#fff',borderRadius:16,width:wide?600:480,maxHeight:'85vh',overflowY:'auto',boxShadow:'0 20px 60px rgba(0,0,0,.3)'}}>
-        <div style={{padding:'16px 20px',borderBottom:'1px solid #f1f3f7',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+      <div onClick={function(e){ e.stopPropagation(); }} style={{background:'#fff',borderRadius:16,width:wide?640:480,maxWidth:'95vw',maxHeight:'85vh',overflowY:'auto',boxShadow:'0 20px 60px rgba(0,0,0,.3)'}}>
+        <div style={{padding:'16px 20px',borderBottom:'1px solid #f1f3f7',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,background:'#fff',borderRadius:'16px 16px 0 0',zIndex:1}}>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
             {icon}
             <h3 style={{margin:0,fontSize:16,fontWeight:800,color:'#0f172a'}}>{title}</h3>
@@ -362,7 +764,7 @@ function Modal({ onClose, title, icon, wide, children }) {
 
 function StatBox({ label, val, color }) {
   return (
-    <div style={{background:'#f8f9fb',borderRadius:8,padding:'12px',borderLeft:`3px solid ${color}`}}>
+    <div style={{background:'#f8f9fb',borderRadius:8,padding:'12px',borderLeft:'3px solid ' + color}}>
       <div style={{fontSize:9,fontWeight:700,letterSpacing:.5,color:'#94a3b8',textTransform:'uppercase'}}>{label}</div>
       <div style={{fontSize:22,fontWeight:900,color:'#0f172a',fontFamily:'Sora,sans-serif'}}>{val}</div>
     </div>
@@ -370,10 +772,27 @@ function StatBox({ label, val, color }) {
 }
 
 function Label({ children }) { return <label style={{display:'block',fontSize:12,fontWeight:700,color:'#475569',marginBottom:4}}>{children}</label>; }
-function Input(props) { return <input {...props} style={{width:'100%',padding:'10px 14px',border:'2px solid #e2e8f0',borderRadius:10,fontSize:13,outline:'none',marginBottom:12,boxSizing:'border-box',fontFamily:'inherit',...(props.style||{})}}/>; }
+function Input(props) {
+  var extraStyle = props.style || {};
+  var rest = Object.assign({}, props);
+  delete rest.style;
+  return <input {...rest} style={{width:'100%',padding:'10px 14px',border:'2px solid #e2e8f0',borderRadius:10,fontSize:13,outline:'none',marginBottom:12,boxSizing:'border-box',fontFamily:'inherit',...extraStyle}}/>;
+}
 
-const smallBtn = {
+var smallBtn = {
   display:'inline-flex',alignItems:'center',gap:4,padding:'6px 10px',borderRadius:6,
   fontSize:11,fontWeight:600,border:'1px solid #e8ecf2',background:'#f8f9fb',
   color:'#475569',cursor:'pointer',fontFamily:'inherit',
+};
+
+var btnPrimary = function(bg) {
+  return {
+    flex:1,padding:'11px',borderRadius:10,border:'none',background:bg,color:'#fff',
+    fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',
+  };
+};
+
+var btnSecondary = {
+  padding:'11px 20px',borderRadius:10,border:'1px solid #e2e8f0',background:'#fff',
+  color:'#64748b',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',
 };

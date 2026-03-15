@@ -4966,6 +4966,62 @@ def delete_short_link(link_id: int, user: User = Depends(get_current_user),
     return {"success": True}
 
 
+@app.post("/api/links/edit/{link_id}")
+async def edit_short_link(link_id: int, request: Request,
+                          user: User = Depends(get_current_user),
+                          db: Session = Depends(get_db)):
+    """Edit destination, title, expiry, password, tags on an existing short link."""
+    if not user: return {"error": "Not logged in"}
+    link = db.query(ShortLink).filter(ShortLink.id == link_id, ShortLink.user_id == user.id).first()
+    if not link: return {"error": "Link not found"}
+    body = await request.json()
+    import json as _json
+    from datetime import datetime as _dt
+    if "destination_url" in body:
+        dest = body["destination_url"].strip()
+        if dest and dest.startswith("http"):
+            link.destination_url = dest
+    if "title" in body:
+        link.title = body["title"].strip() if body["title"] else None
+    if "expires_at" in body:
+        val = body["expires_at"]
+        if val:
+            try: link.expires_at = _dt.fromisoformat(val.replace("Z",""))
+            except Exception: pass
+        else:
+            link.expires_at = None
+    if "click_cap" in body:
+        link.click_cap = int(body["click_cap"]) if body["click_cap"] else None
+    if "password" in body:
+        pw = body["password"]
+        if pw:
+            import bcrypt
+            link.password_hash = bcrypt.hashpw(pw.encode(), bcrypt.gensalt()).decode()
+        else:
+            link.password_hash = None
+    if "tags" in body:
+        tags = body["tags"]
+        link.tags_json = _json.dumps(tags) if tags else None
+    link.updated_at = _dt.utcnow()
+    db.commit()
+    return {"success": True}
+
+
+@app.post("/go/{slug}/unlock")
+async def go_unlock_password(slug: str, request: Request, db: Session = Depends(get_db)):
+    """Verify password for a password-protected short link and redirect."""
+    link = db.query(ShortLink).filter(ShortLink.slug == slug).first()
+    if not link: raise HTTPException(status_code=404, detail="Link not found")
+    body = await request.json()
+    pw = body.get("password", "")
+    if not link.password_hash:
+        return {"success": True, "url": link.destination_url}
+    import bcrypt
+    if bcrypt.checkpw(pw.encode(), link.password_hash.encode()):
+        return {"success": True, "url": link.destination_url}
+    return {"error": "Incorrect password"}
+
+
 @app.get("/api/links/analytics/{link_id}")
 def link_analytics(link_id: int, link_type: str = "short",
                    user: User = Depends(get_current_user),
@@ -5451,6 +5507,27 @@ def go_redirect(slug: str, request: Request, db: Session = Depends(get_db)):
         # Smart rules: click cap
         if link.click_cap and (link.clicks or 0) >= link.click_cap:
             raise HTTPException(status_code=410, detail="This link has reached its click limit")
+
+        # Password protection — show gate page
+        if hasattr(link, 'password_hash') and link.password_hash:
+            return HTMLResponse(f"""<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Password Protected Link</title>
+<style>*{{margin:0;padding:0;box-sizing:border-box}}body{{font-family:'DM Sans',system-ui,sans-serif;background:#0f172a;display:flex;align-items:center;justify-content:center;min-height:100vh;color:#fff}}
+.card{{background:#1e293b;border-radius:16px;padding:40px;max-width:400px;width:90%;text-align:center;border:1px solid #334155}}
+h2{{font-size:20px;margin-bottom:8px}}p{{font-size:13px;color:#94a3b8;margin-bottom:24px}}
+input{{width:100%;padding:12px 16px;border:2px solid #334155;border-radius:10px;background:#0f172a;color:#fff;font-size:14px;margin-bottom:12px;outline:none}}
+input:focus{{border-color:#0ea5e9}}
+button{{width:100%;padding:12px;border:none;border-radius:10px;background:#0ea5e9;color:#fff;font-size:14px;font-weight:700;cursor:pointer}}
+.err{{color:#f87171;font-size:12px;margin-bottom:12px;display:none}}</style></head>
+<body><div class="card"><h2>🔒 Password Required</h2><p>This link is password protected.</p>
+<input type="password" id="pw" placeholder="Enter password" onkeydown="if(event.key==='Enter')go()">
+<div class="err" id="err">Incorrect password</div>
+<button onclick="go()">Unlock →</button></div>
+<script>async function go(){{const pw=document.getElementById('pw').value;
+const r=await fetch('/go/{slug}/unlock',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{password:pw}})}});
+const d=await r.json();if(d.success)window.location.href=d.url;
+else{{document.getElementById('err').style.display='block'}}}}</script></body></html>""")
 
         # Geo redirect
         dest_url = link.destination_url
@@ -11730,11 +11807,16 @@ def api_link_tools_data(request: Request, user: User = Depends(get_current_user)
     rotators = db.query(LinkRotator).filter(LinkRotator.user_id == user.id).order_by(LinkRotator.created_at.desc()).all()
     return {
         "short_links": [{
-            "id": s.id, "short_code": s.short_code, "destination_url": s.destination_url,
-            "click_count": s.click_count or 0, "created_at": s.created_at.isoformat() if s.created_at else None,
+            "id": s.id, "short_code": s.slug, "destination_url": s.destination_url,
+            "title": s.title or "", "click_count": s.clicks or 0,
+            "expires_at": s.expires_at.isoformat() if s.expires_at else None,
+            "click_cap": s.click_cap,
+            "has_password": bool(s.password_hash) if hasattr(s, 'password_hash') and s.password_hash else False,
+            "tags_json": s.tags_json if hasattr(s, 'tags_json') and s.tags_json else None,
+            "created_at": s.created_at.isoformat() if s.created_at else None,
         } for s in short_links],
         "rotators": [{
-            "id": r.id, "name": r.name, "short_code": r.short_code,
+            "id": r.id, "name": r.title, "short_code": r.slug,
             "click_count": r.total_clicks or 0,
             "created_at": r.created_at.isoformat() if r.created_at else None,
         } for r in rotators],
