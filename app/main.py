@@ -930,7 +930,7 @@ async def api_login(
             response = JSONResponse({"success": True, "requires_2fa": True, "redirect": "/login/2fa"})
             response.set_cookie("pre_auth", str(user.id), max_age=300, httponly=True, samesite="lax")
             return response
-        response = JSONResponse({"success": True, "redirect": "/dashboard"})
+        response = JSONResponse({"success": True, "redirect": "/app/dashboard"})
         set_secure_cookie(response, user.id)
         return response
 
@@ -1048,18 +1048,9 @@ def app_home(request: Request, user: User = Depends(get_current_user), db: Sessi
 
 
 @app.get("/dashboard")
-def dashboard(request: Request, user: User = Depends(get_current_user),
-              db: Session = Depends(get_db)):
-    from fastapi.responses import JSONResponse
-    if not user: return RedirectResponse(url="/?login=1")
-    try:
-        # Check achievements on dashboard load
-        check_achievements(db, user)
-        ctx = get_dashboard_context(request, user, db)
-        return templates.TemplateResponse("dashboard.html", ctx)
-    except Exception as exc:
-        logger.error(f"Dashboard error for user {user.id}: {exc}", exc_info=True)
-        return JSONResponse({"error": f"Dashboard error: {exc}"}, status_code=500)
+def dashboard(request: Request):
+    """Redirect to React dashboard."""
+    return RedirectResponse(url="/app/dashboard", status_code=302)
 
 
 @app.get("/api/dashboard")
@@ -1362,12 +1353,9 @@ def affiliate(request: Request, user: User = Depends(get_current_user),
     return templates.TemplateResponse("affiliate.html", ctx)
 
 @app.get("/account")
-def account(request: Request, user: User = Depends(get_current_user),
-            db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/?login=1")
-    ctx = get_dashboard_context(request, user, db)
-    ctx["active_page"] = "account"
-    return templates.TemplateResponse("account.html", ctx)
+def account(request: Request):
+    """Redirect to React account page."""
+    return RedirectResponse(url="/app/account", status_code=302)
 
 @app.post("/save-wallet")
 def save_wallet(
@@ -1378,10 +1366,10 @@ def save_wallet(
 ):
     if not user: return RedirectResponse(url="/?login=1", status_code=302)
     if wallet_address and not validate_wallet(wallet_address):
-        return RedirectResponse(url="/account?error=invalid_wallet", status_code=303)
+        return RedirectResponse(url="/app/account?error=invalid_wallet", status_code=303)
     user.wallet_address = wallet_address
     db.commit()
-    return RedirectResponse(url="/account?saved=true", status_code=303)
+    return RedirectResponse(url="/app/account?saved=true", status_code=303)
 
 @app.post("/api/wallet/connect")
 def api_wallet_connect(
@@ -3095,7 +3083,7 @@ def dev_test_coinbase(request: Request, user: User = Depends(get_current_user)):
     .back{{display:inline-block;color:#38bdf8;font-size:13px;margin-bottom:20px}}
     </style></head><body>
     <div class="wrap">
-    <a href="/dashboard" class="back">&larr; Back to Dashboard</a>
+    <a href="/app/dashboard" class="back">&larr; Back to Dashboard</a>
     <h1>&#x1F9EA; Coinbase Payment Test</h1>
     <div class="sub">Test the payment flow without affecting your account. Click any button to create a real Coinbase charge.</div>
 
@@ -6175,7 +6163,7 @@ def account_update_profile(
     user.last_name  = sanitize(last_name).strip()
     user.country    = sanitize(country).strip()
     db.commit()
-    return RedirectResponse(url="/account?saved=profile", status_code=303)
+    return RedirectResponse(url="/app/account?saved=profile", status_code=303)
 
 
 @app.post("/account/change-password")
@@ -6205,7 +6193,7 @@ def account_change_password(
 
     user.password = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
     db.commit()
-    return RR(url="/account?saved=password", status_code=303)
+    return RR(url="/app/account?saved=password", status_code=303)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -6232,18 +6220,18 @@ def kyc_submit(
     try:
         datetime.strptime(kyc_dob, "%Y-%m-%d")
     except ValueError:
-        return RedirectResponse(url="/account?error=invalid_date_format", status_code=303)
+        return RedirectResponse(url="/app/account?error=invalid_date_format", status_code=303)
     # Validate ID type
     if kyc_id_type not in ("passport", "drivers_licence", "national_id"):
-        return RedirectResponse(url="/account?error=invalid_id_type", status_code=303)
+        return RedirectResponse(url="/app/account?error=invalid_id_type", status_code=303)
     # Validate file (image or PDF, max 10MB)
     allowed_ext = (".jpg", ".jpeg", ".png", ".pdf")
     ext = os.path.splitext(kyc_id_file.filename or "")[1].lower()
     if ext not in allowed_ext:
-        return RedirectResponse(url="/account?error=invalid_file_type_use_jpg_png_or_pdf", status_code=303)
+        return RedirectResponse(url="/app/account?error=invalid_file_type_use_jpg_png_or_pdf", status_code=303)
     content = kyc_id_file.file.read()
     if len(content) > 10 * 1024 * 1024:
-        return RedirectResponse(url="/account?error=file_too_large_max_10mb", status_code=303)
+        return RedirectResponse(url="/app/account?error=file_too_large_max_10mb", status_code=303)
     # Save file
     safe_name = f"kyc_{user.id}_{uuid.uuid4().hex[:8]}{ext}"
     filepath = os.path.join(KYC_UPLOAD_DIR, safe_name)
@@ -6256,7 +6244,7 @@ def kyc_submit(
     user.kyc_status = "pending"
     user.kyc_submitted_at = datetime.utcnow()
     db.commit()
-    return RedirectResponse(url="/account?saved=kyc_submitted", status_code=303)
+    return RedirectResponse(url="/app/account?saved=kyc_submitted", status_code=303)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -6299,12 +6287,12 @@ def totp_verify(
     if not user: return RedirectResponse(url="/?login=1", status_code=302)
     import pyotp
     if not user.totp_secret:
-        return RedirectResponse(url="/account?error=setup_2fa_first", status_code=303)
+        return RedirectResponse(url="/app/account?error=setup_2fa_first", status_code=303)
     totp = pyotp.TOTP(user.totp_secret)
     if totp.verify(totp_code, valid_window=1):
         user.totp_enabled = True
         db.commit()
-        return RedirectResponse(url="/account?saved=2fa_enabled", status_code=303)
+        return RedirectResponse(url="/app/account?saved=2fa_enabled", status_code=303)
     else:
         return RedirectResponse(url="/account/2fa-setup?error=invalid_code", status_code=303)
 
@@ -6320,15 +6308,15 @@ def totp_disable(
     if not user: return RedirectResponse(url="/?login=1", status_code=302)
     import pyotp
     if not user.totp_secret or not user.totp_enabled:
-        return RedirectResponse(url="/account?error=2fa_not_enabled", status_code=303)
+        return RedirectResponse(url="/app/account?error=2fa_not_enabled", status_code=303)
     totp = pyotp.TOTP(user.totp_secret)
     if totp.verify(totp_code, valid_window=1):
         user.totp_enabled = False
         user.totp_secret = None
         db.commit()
-        return RedirectResponse(url="/account?saved=2fa_disabled", status_code=303)
+        return RedirectResponse(url="/app/account?saved=2fa_disabled", status_code=303)
     else:
-        return RedirectResponse(url="/account?error=invalid_2fa_code", status_code=303)
+        return RedirectResponse(url="/app/account?error=invalid_2fa_code", status_code=303)
 
 
 @app.post("/api/onboarding/complete")
