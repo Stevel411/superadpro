@@ -283,19 +283,22 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
   <div class="links">
     {% for link in links %}
     {% if link.is_active %}
+      {% set has_icon = link.icon and link.icon.strip() and link.icon != '🔗' or (link.icon and link.icon.strip()) %}
       {% if bstyle == 'outline' %}
       <a href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:{{ balign }};gap:8px;width:100%;padding:13px 18px;background:rgba(0,0,0,.25);border:1.5px solid {{ btn_bg }}99;border-radius:{{ bradius }};color:{{ btn_bg }};font-size:{{ bfsize }}px;font-weight:700;text-decoration:none;box-sizing:border-box;font-family:inherit;transition:all .25s">
-        <span>{{ link.icon }}</span>
+        {% if link.icon and link.icon.strip() %}<span>{{ link.icon }}</span>{% endif %}
         <span>{{ link.title }}</span>
       </a>
       {% elif bstyle == 'flat' %}
       <a href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:{{ balign }};gap:8px;width:100%;padding:14px 18px;background:{{ btn_bg }};border:none;border-radius:{{ bradius }};color:{{ btn_tx }};font-size:{{ bfsize }}px;font-weight:700;text-decoration:none;box-sizing:border-box;font-family:inherit;transition:all .25s">
-        <span>{{ link.icon }}</span>
+        {% if link.icon and link.icon.strip() %}<span>{{ link.icon }}</span>{% endif %}
         <span>{{ link.title }}</span>
       </a>
       {% else %}
       <a href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener" style="display:flex;align-items:center;width:100%;background:{{ btn_bg }};border-radius:{{ bradius }};box-shadow:0 4px 0 rgba(0,0,0,.25),0 6px 12px rgba(0,0,0,.2);transform:translateY(-1px);border:none;text-decoration:none;overflow:hidden;color:{{ btn_tx }};font-family:inherit;transition:all .25s">
+        {% if link.icon and link.icon.strip() %}
         <div style="width:54px;height:54px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;background:rgba(0,0,0,.1);border-right:1px solid rgba(255,255,255,.15)">{{ link.icon }}</div>
+        {% endif %}
         <div style="flex:1;padding:14px 16px;min-width:0;text-align:{{ balign }}">
           <div style="font-size:{{ bfsize }}px;font-weight:700;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ btn_tx }}">{{ link.title }}</div>
         </div>

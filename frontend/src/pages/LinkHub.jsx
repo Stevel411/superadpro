@@ -371,17 +371,17 @@ export default function LinkHub() {
                         <button onClick={function() {
                           var picker = document.getElementById('iconPicker-'+i);
                           if (picker) picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
-                        }} style={{width:38,height:38,border:'1.5px solid #e2e8f0',borderRadius:8,background:'#fff',cursor:'pointer',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                          {l.icon || '🔗'}
+                        }} style={{width:38,height:38,border:'1.5px solid #e2e8f0',borderRadius:8,background:'#fff',cursor:'pointer',fontSize:l.icon?16:11,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,color:l.icon?'inherit':'#94a3b8',fontWeight:l.icon?400:700}}>
+                          {l.icon || '⊘'}
                         </button>
                         <div id={'iconPicker-'+i} style={{display:'none',position:'absolute',top:42,left:0,background:'#fff',border:'1px solid #e2e8f0',borderRadius:10,padding:8,boxShadow:'0 8px 24px rgba(0,0,0,.15)',zIndex:10,width:200}}>
                           <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
-                            {['🔗','🌐','📺','🎵','📱','💬','📧','🛒','💰','📚','🎯','🔥','⭐','💎','🚀','📸','🎮','🎤','📝','👤','💼','🏠','🎁','❤️'].map(function(emoji) {
-                              return <button key={emoji} onClick={function() {
+                            {['','🔗','🌐','📺','🎵','📱','💬','📧','🛒','💰','📚','🎯','🔥','⭐','💎','🚀','📸','🎮','🎤','📝','👤','💼','🏠','🎁','❤️'].map(function(emoji) {
+                              return <button key={emoji||'none'} onClick={function() {
                                 updateLink(i, 'icon', emoji);
                                 var picker = document.getElementById('iconPicker-'+i);
                                 if (picker) picker.style.display = 'none';
-                              }} style={{width:32,height:32,border:'none',borderRadius:6,background:l.icon===emoji?'#dbeafe':'transparent',cursor:'pointer',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>{emoji}</button>;
+                              }} style={{width:32,height:32,border:'none',borderRadius:6,background:l.icon===emoji||((!l.icon)&&emoji==='')?'#dbeafe':'transparent',cursor:'pointer',fontSize:emoji?16:11,display:'flex',alignItems:'center',justifyContent:'center',color:'#94a3b8',fontWeight:700}}>{emoji || '⊘'}</button>;
                             })}
                           </div>
                         </div>
@@ -472,7 +472,8 @@ export default function LinkHub() {
                   {/* Links — card style matching public template */}
                   <div style={{display:'flex',flexDirection:'column',gap:10}}>
                     {links.filter(function(l) { return l.title; }).map(function(l, i) {
-                      var iconEl = <span style={{fontSize:'1.1rem'}}>{l.icon || '🔗'}</span>;
+                      var hasIcon = l.icon && l.icon.trim();
+                      var iconEl = hasIcon ? <span style={{fontSize:'1.1rem'}}>{l.icon}</span> : null;
                       var alignStyle = btnAlign === 'center' ? 'center' : btnAlign === 'right' ? 'flex-end' : 'flex-start';
 
                       if (btnStyle === 'outline') {
@@ -494,9 +495,11 @@ export default function LinkHub() {
                       // Default: card style (3D / card)
                       return (
                         <div key={i} style={{display:'flex',alignItems:'center',width:'100%',background:btnColor,borderRadius:parseInt(btnRadius)||12,overflow:'hidden',color:btnTextColor,boxShadow:'0 4px 0 ' + darken(btnColor,40) + ',0 6px 12px rgba(0,0,0,.2)',transform:'translateY(-1px)'}}>
-                          <div style={{width:48,height:48,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem',flexShrink:0,background:'rgba(0,0,0,.1)',borderRight:'1px solid rgba(255,255,255,.15)'}}>
-                            {l.icon || '🔗'}
-                          </div>
+                          {hasIcon && (
+                            <div style={{width:48,height:48,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem',flexShrink:0,background:'rgba(0,0,0,.1)',borderRight:'1px solid rgba(255,255,255,.15)'}}>
+                              {l.icon}
+                            </div>
+                          )}
                           <div style={{flex:1,padding:'12px 14px',minWidth:0,textAlign:btnAlign}}>
                             <div style={{fontSize:btnFontSize,fontWeight:700,lineHeight:1.3,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',fontFamily:fontFamily+',sans-serif'}}>{l.title}</div>
                           </div>
