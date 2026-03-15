@@ -50,7 +50,7 @@ export default function Funnels() {
     setCreating(true);setCreatingKey(key);
     try{
       if(key==='blank'){
-        const res=await apiPost('/api/funnels/save',{title:'Untitled Page',status:'draft'});
+        const res=await apiPost('/api/funnels/save',{title:`Untitled Page ${Date.now().toString(36).slice(-4)}`,status:'draft'});
         if(res.id) window.location.href=`/pro/funnel/${res.id}/edit`;
       } else {
         const res=await apiPost('/api/funnels/from-template',{niche:key});
