@@ -65,6 +65,14 @@ body{margin:0;background:var(--sp-shell);font-family:'DM Sans',system-ui,sans-se
 .gjs-frame-wrapper{background:transparent!important}
 .gjs-frame{background:transparent!important;border:none!important;width:calc(100% - 48px)!important;height:calc(100% - 40px)!important;top:20px!important;left:24px!important;right:24px!important;bottom:20px!important;box-shadow:0 4px 40px rgba(0,0,0,.4)!important;border-radius:6px!important}
 .gjs-rte-toolbar{display:none!important}
+/* Component toolbar — minimal style */
+.gjs-toolbar{background:var(--sp-shell2)!important;border:1px solid var(--sp-border2)!important;border-radius:8px!important;padding:2px!important;box-shadow:0 4px 16px rgba(0,0,0,.4)!important}
+.gjs-toolbar-item{width:28px!important;padding:5px!important;color:var(--sp-text2)!important;border-radius:5px!important;font-size:12px!important}
+.gjs-toolbar-item:hover{background:rgba(255,255,255,.08)!important;color:#fff!important}
+/* Resize handles — visible and styled */
+.gjs-resizer-h{border-color:var(--sp-accent)!important;background:var(--sp-shell2)!important;border-width:2px!important;width:8px!important;height:8px!important;border-radius:2px!important}
+/* Selected element highlight */
+.gjs-cv-canvas .gjs-highlighter-sel{outline-color:var(--sp-accent)!important}
 .gjs-editor ::-webkit-scrollbar{width:4px;height:4px}
 .gjs-editor ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
 #floatBar{display:none;position:fixed;z-index:200;background:var(--sp-shell2);border:1px solid var(--sp-border2);border-radius:12px;box-shadow:0 12px 48px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.03);padding:6px 8px;gap:4px;align-items:center;flex-wrap:wrap;max-width:720px}
@@ -184,6 +192,15 @@ editor.on('load',function(){
 editor.on('block:drag:stop',function(comp){
   if(comp){comp.addStyle({'position':'absolute'})}
 });
+// Fix toolbar: only show duplicate and delete (remove parent-select and move)
+editor.on('component:selected',function(comp){
+  if(comp){
+    comp.set('toolbar',[
+      {attributes:{class:'fa fa-clone',title:'Duplicate'},command:'tlb-clone'},
+      {attributes:{class:'fa fa-trash-o',title:'Delete'},command:'tlb-delete'}
+    ]);
+  }
+});
 var _dragFns={};
 editor.on('block:custom',function(p){_dragFns.dragStart=p.dragStart;_dragFns.dragStop=p.dragStop});
 document.querySelectorAll('.sp-bitem').forEach(function(el){
@@ -193,8 +210,8 @@ document.querySelectorAll('.sp-bitem').forEach(function(el){
   el.addEventListener('touchend',function(){if(_dragFns.dragStop)_dragFns.dragStop()});
 });
 var bm=editor.Blocks;
-bm.add('sa-heading',{label:'Heading',category:'SuperAdPro',content:'<h1 style="font-family:Sora,sans-serif;font-weight:900;font-size:42px;color:#fff;text-align:center;padding:20px 40px;margin:0">Your Headline Here</h1>'});
-bm.add('sa-text',{label:'Text',category:'SuperAdPro',content:'<p style="font-family:Outfit,sans-serif;font-size:16px;color:#94a3b8;line-height:1.8;padding:10px 40px;margin:0;max-width:800px">Enter your text here. Double-click to edit.</p>'});
+bm.add('sa-heading',{label:'Heading',category:'SuperAdPro',content:'<h1 style="font-family:Sora,sans-serif;font-weight:900;font-size:42px;color:#fff;text-align:center;padding:20px 30px;margin:0;display:inline-block">Your Headline Here</h1>'});
+bm.add('sa-text',{label:'Text',category:'SuperAdPro',content:'<p style="font-family:Outfit,sans-serif;font-size:16px;color:#94a3b8;line-height:1.8;padding:10px 20px;margin:0;max-width:600px;display:inline-block">Enter your text here. Double-click to edit.</p>'});
 bm.add('sa-label',{label:'Label',category:'SuperAdPro',content:'<span style="display:inline-block;font-family:DM Sans,sans-serif;font-weight:700;font-size:12px;color:#38bdf8;letter-spacing:1px;text-transform:uppercase;background:rgba(56,189,248,0.1);padding:6px 16px;border-radius:20px">LABEL TEXT</span>'});
 bm.add('sa-hero',{label:'Hero',category:'SuperAdPro',content:'<section style="padding:80px 40px;text-align:center;background:linear-gradient(135deg,#050d1a,#0f172a);min-height:500px;display:flex;flex-direction:column;align-items:center;justify-content:center"><h1 style="font-family:Sora,sans-serif;font-weight:900;font-size:48px;color:#fff;margin:0 0 16px;max-width:800px">Your Headline Goes Here</h1><p style="font-family:Outfit,sans-serif;font-size:18px;color:#94a3b8;max-width:600px;line-height:1.8;margin:0 0 32px">Describe your offer.</p><a style="display:inline-block;padding:16px 40px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-family:Sora,sans-serif;font-weight:700;font-size:17px;border-radius:12px;text-decoration:none">Get Started &#x2192;</a></section>'});
 bm.add('sa-testimonial',{label:'Testimonial',category:'SuperAdPro',content:'<div style="background:#1e293b;border-left:4px solid #0ea5e9;border-radius:16px;padding:28px 32px;max-width:700px;margin:20px auto"><div style="color:#fbbf24;font-size:18px;margin-bottom:12px">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</div><p style="font-family:Outfit,sans-serif;font-size:16px;color:#e2e8f0;line-height:1.7;font-style:italic;margin:0 0 16px">"This platform changed everything."</p><p style="font-family:DM Sans,sans-serif;font-size:13px;color:#64748b;font-weight:600;margin:0">&#x2014; Happy Member</p></div>'});
