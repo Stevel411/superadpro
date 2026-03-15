@@ -331,7 +331,7 @@ export default function LinkHub() {
                   })}
                 </div>
                 <FLabel style={{marginTop:12}}>Button text size — {btnFontSize}px</FLabel>
-                <input type="range" min={11} max={24} value={btnFontSize} onChange={function(e) { setBtnFontSize(parseInt(e.target.value)); }}
+                <input type="range" min={8} max={40} value={btnFontSize} onChange={function(e) { setBtnFontSize(parseInt(e.target.value)); }}
                   style={{width:'100%',accentColor:'#0ea5e9',cursor:'pointer'}}/>
                 <FLabel style={{marginTop:12}}>Text alignment</FLabel>
                 <div style={{display:'flex',gap:6}}>
