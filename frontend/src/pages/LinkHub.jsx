@@ -308,7 +308,7 @@ export default function LinkHub() {
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:0,border:'1px solid #e2e8f0',borderRadius:12,overflow:'hidden',minHeight:'calc(100vh - 200px)'}}>
 
         {/* ═══ LEFT PANEL ═══ */}
-        <div style={{background:'#fff',borderRight:'1px solid #e2e8f0',overflowY:'auto',maxHeight:'calc(100vh - 200px)'}}>
+        <div style={{background:'#fff',borderRight:'1px solid #e2e8f0',overflowY:'auto',maxHeight:'calc(100vh - 200px)',borderRadius:'12px 0 0 12px'}}>
 
           {/* Profile */}
           <Section label="Profile" dark>
