@@ -45,6 +45,7 @@ export default function Funnels() {
   const [loading,setLoading]=useState(true);
   const [creating,setCreating]=useState(false);
   const [creatingKey,setCreatingKey]=useState(null);
+  const [confirmDelete,setConfirmDelete]=useState(null);
   const navigate=useNavigate();
 
   const load=()=>apiGet('/api/funnels').then(d=>{setPages(d.funnels||d.pages||[]);setLoading(false)}).catch(()=>setLoading(false));
@@ -65,9 +66,8 @@ export default function Funnels() {
     setCreating(false);setCreatingKey(null);
   };
 
-  const deletePage=async(id,title)=>{
-    if(!confirm(`Delete "${title}"? This cannot be undone.`))return;
-    try{await apiPost(`/api/funnels/delete/${id}`,{});setPages(p=>p.filter(x=>x.id!==id))}catch(e){alert(e.message)}
+  const deletePage=async(id)=>{
+    try{await apiPost(`/api/funnels/delete/${id}`,{});setPages(p=>p.filter(x=>x.id!==id));setConfirmDelete(null)}catch(e){alert(e.message)}
   };
 
   const duplicatePage=async(id)=>{
@@ -171,10 +171,20 @@ export default function Funnels() {
                     {p.is_ai_generated&&<span style={{fontSize:8,fontWeight:700,color:'#6366f1',background:'rgba(99,102,241,.08)',padding:'2px 5px',borderRadius:4,marginLeft:'auto'}}>AI</span>}
                   </div>
                   <div style={{padding:'8px 14px',display:'flex',gap:5}}>
-                    <a href={`/pro/funnel/${p.id}/edit`} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:11,fontWeight:700,textDecoration:'none',background:'#0ea5e9',color:'#fff'}}><Pencil size={11}/> Edit</a>
-                    {p.status==='published'&&p.slug&&(<a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:11,fontWeight:700,textDecoration:'none',background:'#f8f9fb',color:'#0f172a',border:'1px solid #e8ecf2'}}><ExternalLink size={11}/> View</a>)}
-                    <button onClick={()=>duplicatePage(p.id)} title="Duplicate" style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #e8ecf2',background:'#f8f9fb',cursor:'pointer'}}><Copy size={12} color="#64748b"/></button>
-                    <button onClick={()=>deletePage(p.id,p.title)} title="Delete" style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #fecaca',background:'#fef2f2',cursor:'pointer'}}><Trash2 size={12} color="#dc2626"/></button>
+                    {confirmDelete===p.id ? (
+                      <>
+                        <div style={{flex:1,fontSize:11,fontWeight:700,color:'#dc2626',display:'flex',alignItems:'center'}}>Delete this page?</div>
+                        <button onClick={()=>deletePage(p.id)} style={{padding:'7px 14px',borderRadius:6,border:'none',background:'#dc2626',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer'}}>Yes</button>
+                        <button onClick={()=>setConfirmDelete(null)} style={{padding:'7px 14px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontSize:11,fontWeight:700,cursor:'pointer'}}>No</button>
+                      </>
+                    ) : (
+                      <>
+                        <a href={`/pro/funnel/${p.id}/edit`} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:11,fontWeight:700,textDecoration:'none',background:'#0ea5e9',color:'#fff'}}><Pencil size={11}/> Edit</a>
+                        {p.status==='published'&&p.slug&&(<a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:11,fontWeight:700,textDecoration:'none',background:'#f8f9fb',color:'#0f172a',border:'1px solid #e8ecf2'}}><ExternalLink size={11}/> View</a>)}
+                        <button onClick={()=>duplicatePage(p.id)} title="Duplicate" style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #e8ecf2',background:'#f8f9fb',cursor:'pointer'}}><Copy size={12} color="#64748b"/></button>
+                        <button onClick={()=>setConfirmDelete(p.id)} title="Delete" style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #fecaca',background:'#fef2f2',cursor:'pointer'}}><Trash2 size={12} color="#dc2626"/></button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
