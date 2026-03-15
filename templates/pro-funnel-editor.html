@@ -57,13 +57,13 @@ body{margin:0;background:var(--sp-shell);font-family:'DM Sans',system-ui,sans-se
 .sp-bico{width:28px;height:28px;display:flex;align-items:center;justify-content:center}
 .sp-bico svg{width:22px;height:22px;stroke-width:1.8;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
 .sp-bname{font-size:8px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:rgba(255,255,255,.4)}
-#gjsEditor{flex:1;border:none;position:relative;overflow:hidden;border-left:1px solid rgba(255,255,255,0.06)}
+#gjsEditor{flex:1;border:none;position:relative;overflow:hidden}
 .gjs-editor{background:var(--sp-shell)!important;height:100%!important}
-.gjs-cv-canvas{background:#161b2e!important;width:100%!important;height:100%!important}
+.gjs-cv-canvas{background:var(--sp-shell)!important;width:100%!important;height:100%!important}
 .gjs-pn-panels{display:none!important}
 .gjs-pn-views,.gjs-pn-views-container{display:none!important}
 .gjs-frame-wrapper{background:transparent!important}
-.gjs-frame{background:transparent!important;border:none!important;width:calc(100% - 48px)!important;height:calc(100% - 40px)!important;top:20px!important;left:24px!important;right:24px!important;bottom:20px!important;box-shadow:0 4px 40px rgba(0,0,0,.4)!important;border-radius:6px!important}
+.gjs-frame{border:none!important}
 .gjs-rte-toolbar{display:none!important}
 /* Component toolbar — minimal style */
 .gjs-toolbar{background:var(--sp-shell2)!important;border:1px solid var(--sp-border2)!important;border-radius:8px!important;padding:2px!important;box-shadow:0 4px 16px rgba(0,0,0,.4)!important}
@@ -73,6 +73,10 @@ body{margin:0;background:var(--sp-shell);font-family:'DM Sans',system-ui,sans-se
 .gjs-resizer-h{border-color:var(--sp-accent)!important;background:var(--sp-shell2)!important;border-width:2px!important;width:8px!important;height:8px!important;border-radius:2px!important}
 /* Selected element highlight */
 .gjs-cv-canvas .gjs-highlighter-sel{outline-color:var(--sp-accent)!important}
+/* Hide blue dashed outlines on body/wrapper */
+.gjs-com-dashed *{outline:none!important}
+.gjs-cv-canvas .gjs-highlighter{outline:none!important}
+.gjs-selected-parent{border:none!important}
 .gjs-editor ::-webkit-scrollbar{width:4px;height:4px}
 .gjs-editor ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
 #floatBar{display:none;position:fixed;z-index:200;background:var(--sp-shell2);border:1px solid var(--sp-border2);border-radius:12px;box-shadow:0 12px 48px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.03);padding:6px 8px;gap:4px;align-items:center;flex-wrap:wrap;max-width:720px}
@@ -175,16 +179,20 @@ var editor=grapesjs.init({container:'#gjsEditor',height:'100%',width:'auto',from
 // Set wrapper and body background on load
 editor.on('load',function(){
   var wrapper=editor.DomComponents.getWrapper();
-  wrapper.addStyle({'position':'relative','min-height':'100vh','overflow':'hidden'});
-  // Set the iframe body background directly
+  wrapper.addStyle({'position':'relative','min-height':'100vh'});
+  // Set the iframe body background and styling directly
   var frame=editor.Canvas.getFrameEl();
   if(frame&&frame.contentDocument){
     var body=frame.contentDocument.body;
     body.style.background='#050d1a';
     body.style.margin='0';
     body.style.minHeight='100vh';
+    body.style.overflow='auto';
+    // Add left border effect inside the body for visual framing
+    var style=frame.contentDocument.createElement('style');
+    style.textContent='body{background:#050d1a;margin:0;min-height:100vh}*:focus{outline:none}';
+    frame.contentDocument.head.appendChild(style);
   }
-  // Init the swatch to match
   document.getElementById('bgSwatch').style.background='#050d1a';
   document.getElementById('bgPicker').value='#050d1a';
 });
