@@ -33,7 +33,7 @@ def _lead_capture(username):
     y = 40
 
     els.append({'id': _uid(), 'type': 'label', 'x': _centre(200), 'y': y, 'w': 200, 'h': 30, 'txt': '🔒 FREE ACCESS', 's': {'fontFamily': 'DM Sans,sans-serif', 'fontWeight': '700', 'fontSize': '12px', 'color': '#0ea5e9', 'textAlign': 'center', 'background': 'rgba(14,165,233,0.1)', 'borderRadius': '20px', 'border': '1px solid rgba(14,165,233,0.2)'}})
-    y += 50
+    y += 65
 
     els.append({'id': _uid(), 'type': 'heading', 'x': _centre(900), 'y': y, 'w': 900, 'h': 90, 'txt': 'Start Building Your Online Income Today', 's': {'fontFamily': 'Sora,sans-serif', 'fontWeight': '900', 'fontSize': '42px', 'color': '#fff', 'textAlign': 'center'}})
     y += 100
@@ -77,10 +77,10 @@ def _lead_capture(username):
     y += 200
 
     # CTA
-    els.append({'id': _uid(), 'type': 'heading', 'x': _centre(800), 'y': y, 'w': 800, 'h': 75, 'txt': 'Ready to Start Earning?', 's': {'fontFamily': 'Sora,sans-serif', 'fontWeight': '800', 'fontSize': '28px', 'color': '#fff', 'textAlign': 'center'}})
-    y += 55
+    els.append({'id': _uid(), 'type': 'heading', 'x': _centre(800), 'y': y, 'w': 800, 'h': 50, 'txt': 'Ready to Start Earning?', 's': {'fontFamily': 'Sora,sans-serif', 'fontWeight': '800', 'fontSize': '28px', 'color': '#fff', 'textAlign': 'center'}})
+    y += 75
     els.append({'id': _uid(), 'type': 'text', 'x': _centre(600), 'y': y, 'w': 600, 'h': 50, 'txt': 'Join thousands of members building real income online — your spot is waiting.', 's': {'fontSize': '15px', 'color': '#64748b', 'textAlign': 'center'}})
-    y += 45
+    y += 65
     els.append({'id': _uid(), 'type': 'button', 'x': _centre(350), 'y': y, 'w': 350, 'h': 56, 'txt': 'Get Started Now →', 'url': f'/ref/{username}', 's': {'background': 'linear-gradient(135deg,#0ea5e9,#6366f1)', 'color': '#fff', 'fontFamily': 'Sora,sans-serif', 'fontWeight': '700', 'fontSize': '18px', 'textAlign': 'center', 'borderRadius': '14px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}})
 
     return {'els': els, 'canvasBg': '#050d1a'}
@@ -94,7 +94,7 @@ def _video_sales(username):
     y = 30
 
     els.append({'id': _uid(), 'type': 'label', 'x': _centre(220), 'y': y, 'w': 220, 'h': 30, 'txt': '⚡ WATCH THIS FIRST', 's': {'fontFamily': 'DM Sans,sans-serif', 'fontWeight': '700', 'fontSize': '12px', 'color': '#fbbf24', 'textAlign': 'center', 'background': 'rgba(251,191,36,0.1)', 'borderRadius': '20px', 'border': '1px solid rgba(251,191,36,0.2)'}})
-    y += 50
+    y += 65
 
     els.append({'id': _uid(), 'type': 'heading', 'x': _centre(950), 'y': y, 'w': 950, 'h': 110, 'txt': 'How Everyday People Are Earning $500–$5,000/Month From Their Phone', 's': {'fontFamily': 'Sora,sans-serif', 'fontWeight': '900', 'fontSize': '38px', 'color': '#fff', 'textAlign': 'center'}})
     y += 155
@@ -133,7 +133,7 @@ def _product_offer(username):
     y = 30
 
     els.append({'id': _uid(), 'type': 'label', 'x': _centre(180), 'y': y, 'w': 180, 'h': 30, 'txt': '🏆 BEST VALUE', 's': {'fontFamily': 'DM Sans,sans-serif', 'fontWeight': '700', 'fontSize': '12px', 'color': '#10b981', 'textAlign': 'center', 'background': 'rgba(16,185,129,0.1)', 'borderRadius': '20px', 'border': '1px solid rgba(16,185,129,0.2)'}})
-    y += 50
+    y += 65
 
     els.append({'id': _uid(), 'type': 'heading', 'x': _centre(900), 'y': y, 'w': 900, 'h': 90, 'txt': 'The Complete Online Business Toolkit', 's': {'fontFamily': 'Sora,sans-serif', 'fontWeight': '900', 'fontSize': '40px', 'color': '#fff', 'textAlign': 'center'}})
     y += 100
@@ -217,7 +217,7 @@ def _webinar_registration(username):
     y = 30
 
     els.append({'id': _uid(), 'type': 'label', 'x': _centre(250), 'y': y, 'w': 250, 'h': 30, 'txt': '🔴 FREE LIVE TRAINING', 's': {'fontFamily': 'DM Sans,sans-serif', 'fontWeight': '700', 'fontSize': '12px', 'color': '#ec4899', 'textAlign': 'center', 'background': 'rgba(236,72,153,0.1)', 'borderRadius': '20px', 'border': '1px solid rgba(236,72,153,0.2)'}})
-    y += 50
+    y += 65
 
     els.append({'id': _uid(), 'type': 'heading', 'x': _centre(900), 'y': y, 'w': 900, 'h': 110, 'txt': 'How to Build a $5,000/Month Online Business in 90 Days', 's': {'fontFamily': 'Sora,sans-serif', 'fontWeight': '900', 'fontSize': '38px', 'color': '#fff', 'textAlign': 'center'}})
     y += 155
@@ -238,7 +238,7 @@ def _webinar_registration(username):
 
     # What you'll learn
     els.append({'id': _uid(), 'type': 'heading', 'x': _centre(600), 'y': y, 'w': 600, 'h': 65, 'txt': 'In This Free Training You\'ll Discover:', 's': {'fontFamily': 'Sora,sans-serif', 'fontWeight': '800', 'fontSize': '24px', 'color': '#fff', 'textAlign': 'center'}})
-    y += 55
+    y += 75
 
     learns = [
         ('🎯', 'The 3-Step System', 'The exact framework our top earners use to generate $5K+ per month consistently'),
@@ -285,7 +285,7 @@ def _coaching_program(username):
 
     # Testimonials
     els.append({'id': _uid(), 'type': 'heading', 'x': _centre(500), 'y': y, 'w': 500, 'h': 65, 'txt': 'What Our Clients Say', 's': {'fontFamily': 'Sora,sans-serif', 'fontWeight': '800', 'fontSize': '24px', 'color': '#fff', 'textAlign': 'center'}})
-    y += 55
+    y += 75
 
     els.append({'id': _uid(), 'type': 'testimonial', 'x': 50, 'y': y, 'w': 500, 'h': 160,
         'txt': '<div style="margin-bottom:8px"><span style="color:#fbbf24">★★★★★</span></div><div style="font-size:14px;color:#e2e8f0;line-height:1.7;font-style:italic;margin-bottom:8px">"The coaching completely changed my approach. I went from struggling to earning consistently within 8 weeks."</div><div style="font-size:13px;color:#64748b;font-weight:600">— Emma T., Business Owner</div>',
@@ -306,7 +306,7 @@ def _digital_product(username):
     y = 40
 
     els.append({'id': _uid(), 'type': 'label', 'x': _centre(200), 'y': y, 'w': 200, 'h': 30, 'txt': '📚 INSTANT DOWNLOAD', 's': {'fontFamily': 'DM Sans,sans-serif', 'fontWeight': '700', 'fontSize': '12px', 'color': '#14b8a6', 'textAlign': 'center', 'background': 'rgba(20,184,166,0.1)', 'borderRadius': '20px', 'border': '1px solid rgba(20,184,166,0.2)'}})
-    y += 50
+    y += 65
 
     els.append({'id': _uid(), 'type': 'heading', 'x': _centre(900), 'y': y, 'w': 900, 'h': 90, 'txt': 'The Ultimate Guide to Online Income', 's': {'fontFamily': 'Sora,sans-serif', 'fontWeight': '900', 'fontSize': '40px', 'color': '#fff', 'textAlign': 'center'}})
     y += 100
@@ -316,7 +316,7 @@ def _digital_product(username):
 
     # What's inside
     els.append({'id': _uid(), 'type': 'heading', 'x': _centre(400), 'y': y, 'w': 400, 'h': 55, 'txt': 'What\'s Inside:', 's': {'fontFamily': 'Sora,sans-serif', 'fontWeight': '800', 'fontSize': '22px', 'color': '#14b8a6', 'textAlign': 'center'}})
-    y += 50
+    y += 65
 
     items = [
         '✓ Chapter 1: Choosing Your Niche (with AI research tool)',
@@ -347,7 +347,7 @@ def _affiliate_funnel(username):
     y = 40
 
     els.append({'id': _uid(), 'type': 'label', 'x': _centre(250), 'y': y, 'w': 250, 'h': 30, 'txt': '💰 EARN 50% COMMISSIONS', 's': {'fontFamily': 'DM Sans,sans-serif', 'fontWeight': '700', 'fontSize': '12px', 'color': '#ef4444', 'textAlign': 'center', 'background': 'rgba(239,68,68,0.1)', 'borderRadius': '20px', 'border': '1px solid rgba(239,68,68,0.2)'}})
-    y += 50
+    y += 65
 
     els.append({'id': _uid(), 'type': 'heading', 'x': _centre(900), 'y': y, 'w': 900, 'h': 110, 'txt': 'Turn Your Network Into a Money-Making Machine', 's': {'fontFamily': 'Sora,sans-serif', 'fontWeight': '900', 'fontSize': '40px', 'color': '#fff', 'textAlign': 'center'}})
     y += 155
@@ -357,7 +357,7 @@ def _affiliate_funnel(username):
 
     # Earnings potential
     els.append({'id': _uid(), 'type': 'heading', 'x': _centre(500), 'y': y, 'w': 500, 'h': 55, 'txt': 'Your Earning Potential:', 's': {'fontFamily': 'Sora,sans-serif', 'fontWeight': '800', 'fontSize': '22px', 'color': '#fff', 'textAlign': 'center'}})
-    y += 50
+    y += 65
 
     earnings = [('10 Referrals', '$150/mo', '#10b981'), ('50 Referrals', '$750/mo', '#0ea5e9'), ('100 Referrals', '$1,500/mo', '#8b5cf6'), ('500 Referrals', '$7,500/mo', '#ef4444')]
     for i, (refs, income, color) in enumerate(earnings):
