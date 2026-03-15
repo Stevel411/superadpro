@@ -58,7 +58,8 @@ export default function Funnels() {
         if(res.id) window.location.href=`/pro/funnel/${res.id}/edit`;
       } else {
         const res=await apiPost('/api/funnels/from-template',{niche:key});
-        if(res.edit_url){const newId=res.edit_url.split('/').pop();window.location.href=`/pro/funnel/${newId}/edit`;}
+        if(res.id){window.location.href=`/pro/funnel/${res.id}/edit`;}
+        else if(res.edit_url){const parts=res.edit_url.match(/\/(\d+)\//);if(parts)window.location.href=`/pro/funnel/${parts[1]}/edit`;}
       }
     }catch(e){alert(e.message)}
     setCreating(false);setCreatingKey(null);
