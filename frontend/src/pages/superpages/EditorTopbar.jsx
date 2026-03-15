@@ -4,14 +4,24 @@ export default function EditorTopbar({ title, slug, saving, dirty, status, onSav
   const isPublished = status === 'published';
   return (
     <div style={{
-      height: 50, background: '#141829', borderBottom: '1px solid #1f2440',
-      display: 'flex', alignItems: 'center', padding: '0 14px', gap: 8, flexShrink: 0, zIndex: 50,
+      height: 60, background: '#141829', borderBottom: '1px solid #1f2440',
+      display: 'flex', alignItems: 'center', padding: '0 16px', gap: 10, flexShrink: 0, zIndex: 50,
     }}>
-      <div onClick={onBack} style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:15,color:'#fff',cursor:'pointer',display:'flex',alignItems:'center',gap:6}}>
-        <ArrowLeft size={14} color="#5a6080"/>
-        SuperAd<em style={{color:'#0ea5e9',fontStyle:'normal'}}>Pro</em>
+      {/* SuperPages Logo — Concept B */}
+      <div onClick={onBack} style={{cursor:'pointer',display:'flex',alignItems:'center',gap:8,flexShrink:0}}>
+        <svg width="28" height="28" viewBox="0 0 48 48">
+          <rect x="6" y="6" width="16" height="16" rx="4" fill="#0ea5e9" opacity=".9"/>
+          <rect x="26" y="6" width="16" height="16" rx="4" fill="#6366f1" opacity=".7"/>
+          <rect x="6" y="26" width="16" height="16" rx="4" fill="#6366f1" opacity=".5"/>
+          <rect x="26" y="26" width="16" height="16" rx="4" fill="#0ea5e9" opacity=".3"/>
+        </svg>
+        <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:15,color:'#fff',lineHeight:1}}>
+          Super<span style={{color:'#0ea5e9'}}>Pages</span>
+        </div>
       </div>
-      <div style={{width:1,height:22,background:'#1f2440'}}/>
+
+      <div style={{width:1,height:28,background:'#1f2440'}}/>
+
       <div style={{fontSize:12,color:'#5a6080',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
         {title || 'Untitled Page'}
         {dirty && <span style={{color:'#f59e0b',marginLeft:6}}>●</span>}

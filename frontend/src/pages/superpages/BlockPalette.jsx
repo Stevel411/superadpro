@@ -48,7 +48,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
   };
 
   return (
-    <div style={{width:280,height:'calc(100vh - 50px)',background:'#161b30',borderLeft:'1px solid rgba(255,255,255,0.06)',display:'flex',flexDirection:'column',overflow:'hidden',flexShrink:0}}>
+    <div style={{width:280,height:'calc(100vh - 60px)',background:'#161b30',borderLeft:'1px solid rgba(255,255,255,0.06)',display:'flex',flexDirection:'column',overflow:'hidden',flexShrink:0}}>
 
       {/* Header with BG control */}
       <div style={{padding:'14px 16px',borderBottom:'1px solid rgba(255,255,255,0.06)',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
