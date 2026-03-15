@@ -316,21 +316,7 @@ export default function LinkHub() {
                   style={{width:'100%',padding:'10px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',background:'#fff'}}>
                   {FONTS.map(function(f) { return <option key={f} value={f}>{f}</option>; })}
                 </select>
-              </div>
-              <div>
-                <FLabel>Button shape</FLabel>
-                <div style={{display:'flex',gap:6}}>
-                  {[['6px','Square'],['12px','Rounded'],['50px','Pill']].map(function(pair) {
-                    return <ShapeBtn key={pair[0]} active={btnRadius===pair[0]} onClick={function() { setBtnRadius(pair[0]); }}>{pair[1]}</ShapeBtn>;
-                  })}
-                </div>
-                <FLabel style={{marginTop:12}}>Button style</FLabel>
-                <div style={{display:'flex',gap:6}}>
-                  {[['flat','Flat'],['3d','3D'],['outline','Outline']].map(function(pair) {
-                    return <ShapeBtn key={pair[0]} active={btnStyle===pair[0]} onClick={function() { setBtnStyle(pair[0]); }}>{pair[1]}</ShapeBtn>;
-                  })}
-                </div>
-                <FLabel style={{marginTop:12}}>Button text size — {btnFontSize}px</FLabel>
+                <FLabel style={{marginTop:12}}>Text size — {btnFontSize}px</FLabel>
                 <input type="range" min={8} max={40} value={btnFontSize} onChange={function(e) { setBtnFontSize(parseInt(e.target.value)); }}
                   style={{width:'100%',accentColor:'#0ea5e9',cursor:'pointer'}}/>
                 <FLabel style={{marginTop:12}}>Text alignment</FLabel>
@@ -344,6 +330,20 @@ export default function LinkHub() {
                       color: btnAlign===a[0] ? '#0ea5e9' : '#64748b',
                       background: btnAlign===a[0] ? '#f0f9ff' : '#fff',
                     }}><Icon size={13}/> {a[1]}</button>;
+                  })}
+                </div>
+              </div>
+              <div>
+                <FLabel>Button shape</FLabel>
+                <div style={{display:'flex',gap:6}}>
+                  {[['6px','Square'],['12px','Rounded'],['50px','Pill']].map(function(pair) {
+                    return <ShapeBtn key={pair[0]} active={btnRadius===pair[0]} onClick={function() { setBtnRadius(pair[0]); }}>{pair[1]}</ShapeBtn>;
+                  })}
+                </div>
+                <FLabel style={{marginTop:12}}>Button style</FLabel>
+                <div style={{display:'flex',gap:6}}>
+                  {[['flat','Flat'],['3d','3D'],['outline','Outline']].map(function(pair) {
+                    return <ShapeBtn key={pair[0]} active={btnStyle===pair[0]} onClick={function() { setBtnStyle(pair[0]); }}>{pair[1]}</ShapeBtn>;
                   })}
                 </div>
               </div>
