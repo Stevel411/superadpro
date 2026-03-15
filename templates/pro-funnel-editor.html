@@ -775,6 +775,9 @@ if (_bgPrev) _bgPrev.style.background = canvasBg;
 
 // ═══ RENDERING ═══
 function renderAll() {
+  // If inline editing is active, exit cleanly before re-rendering
+  if (_inlineEditId) exitInlineEdit();
+
   const cv = document.getElementById('canvas');
   cv.style.background = canvasBg;
   if (canvasBgImage) {
@@ -855,7 +858,7 @@ function renderAll() {
         div.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(15,23,41,0.3);border-radius:12px;border:1px dashed #334155;color:#475569;font-size:13px;gap:8px"><span style="font-size:16px">⟨/⟩</span> Click ✎ CODE to add HTML</div>`;
       }
     } else {
-      div.innerHTML = `<div contenteditable="true" style="${innerStyle}">${el.txt||''}</div>`;
+      div.innerHTML = `<div contenteditable="false" style="${innerStyle}">${el.txt||''}</div>`;
     }
 
     // Toolbar — Edit button + structural controls
@@ -885,6 +888,12 @@ function renderAll() {
 
     // Mouse events
     div.addEventListener('mousedown', e => startDrag(e, el.id));
+    div.addEventListener('dblclick', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (el.id !== selId) selectEl(el.id);
+      enterEditMode(el.id);
+    });
 
     // Contenteditable — save text on blur (don't hide WYSIWYG — that's handled by selection changes)
     const ce = div.querySelector('[contenteditable]');
@@ -1824,6 +1833,8 @@ function startDrag(e, id) {
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onUp);
     markDirty();
+    // Refresh style panel with new position
+    if (selId) showStylePanel(selId);
   };
   document.addEventListener('mousemove', onMove);
   document.addEventListener('mouseup', onUp);
@@ -1848,6 +1859,8 @@ function startResize(e, id, handle) {
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onUp);
     markDirty();
+    // Refresh style panel with new size
+    if (selId) showStylePanel(selId);
   };
   document.addEventListener('mousemove', onMove);
   document.addEventListener('mouseup', onUp);
