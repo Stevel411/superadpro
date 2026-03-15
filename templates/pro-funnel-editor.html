@@ -308,9 +308,50 @@ var editor=grapesjs.init({
     appendTo:'#tabStyle'
   },
   assetManager:{upload:'/api/funnels/upload-image',uploadName:'file',multiUpload:false,autoAdd:true},
+  blockManager:{
+    custom:true
+  },
 });
 
-// ═══ TAB SWITCHING ═══
+// ═══ WIRE DRAG-DROP FROM CUSTOM BLOCK CARDS ═══
+var _dragFns={};
+editor.on('block:custom',function(props){
+  _dragFns.dragStart=props.dragStart;
+  _dragFns.dragStop=props.dragStop;
+});
+
+document.querySelectorAll('.sp-bitem').forEach(function(el){
+  // Drag start — mousedown/touchstart
+  el.addEventListener('mousedown',function(e){
+    var blockId=this.dataset.block;
+    if(!blockId||!_dragFns.dragStart)return;
+    var block=editor.Blocks.get(blockId);
+    if(block)_dragFns.dragStart(block,e);
+  });
+  // Drag stop — mouseup/touchend
+  el.addEventListener('mouseup',function(){
+    if(_dragFns.dragStop)_dragFns.dragStop();
+  });
+  // Click fallback — add component directly if not dragged
+  el.addEventListener('click',function(){
+    var blockId=this.dataset.block;
+    if(!blockId)return;
+    var block=editor.Blocks.get(blockId);
+    if(block){
+      editor.addComponents(block.get('content'));
+    }
+  });
+  // Touch support
+  el.addEventListener('touchstart',function(e){
+    var blockId=this.dataset.block;
+    if(!blockId||!_dragFns.dragStart)return;
+    var block=editor.Blocks.get(blockId);
+    if(block)_dragFns.dragStart(block,e);
+  },{passive:true});
+  el.addEventListener('touchend',function(){
+    if(_dragFns.dragStop)_dragFns.dragStop();
+  });
+});
 function switchTab(tab){
   document.querySelectorAll('.sp-tab').forEach(function(t){t.classList.toggle('active',t.dataset.tab===tab)});
   document.getElementById('tabBlocks').classList.toggle('show',tab==='blocks');
@@ -322,27 +363,6 @@ function switchTab(tab){
 editor.on('component:selected',function(){switchTab('style')});
 editor.on('selection:end',function(){
   if(!editor.getSelected())switchTab('blocks');
-});
-
-// ═══ WIRE CUSTOM BLOCKS TO GRAPESJS ═══
-document.querySelectorAll('.sp-bitem').forEach(function(el){
-  el.addEventListener('click',function(){
-    var blockId=this.dataset.block;
-    if(!blockId)return;
-    var block=editor.Blocks.get(blockId);
-    if(block){
-      var content=block.get('content');
-      if(typeof content==='string'){
-        editor.addComponents(content);
-      }else{
-        editor.addComponents(content);
-      }
-    }else{
-      // Try built-in blocks (column1, column2, etc)
-      var builtIn=editor.Blocks.get(blockId);
-      if(builtIn){editor.addComponents(builtIn.get('content'))}
-    }
-  });
 });
 
 // ═══ CUSTOM SUPERADPRO BLOCKS ═══
