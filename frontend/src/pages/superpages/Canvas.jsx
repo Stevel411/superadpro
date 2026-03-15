@@ -403,7 +403,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
             onDoubleClick={() => { if (EDITABLE_TYPES.includes(el.type)) { selectElement(el.id); startInlineEdit(el.id); } }}
           >
             {/* Inner content */}
-            <div style={{ pointerEvents: editingId === el.id ? 'auto' : 'none' }}>{renderInner(el)}</div>
+            <div style={{ pointerEvents: editingId === el.id ? 'auto' : 'none', width: '100%', height: '100%' }}>{renderInner(el)}</div>
 
             {/* Toolbar */}
             <div className="cel-bar" style={{
