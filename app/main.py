@@ -8491,66 +8491,8 @@ os.makedirs(AVATAR_DIR, exist_ok=True)
 
 @app.get("/linkhub")
 def linkhub_editor(request: Request, db: Session = Depends(get_db)):
-    """LinkHub editor page — members only."""
-    user = get_current_user(request, db)
-    if not user:
-        return RedirectResponse("/login", status_code=302)
-    if not user.is_active:
-        return RedirectResponse("/app/dashboard", status_code=302)
-
-    import json as _json
-    profile = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
-    links = []
-    total_clicks = 0
-    click_30d = 0
-    device_stats = {"mobile": 0, "desktop": 0, "tablet": 0}
-    country_stats = {}
-    source_stats = {}
-    browser_stats = {}
-    if profile:
-        links = db.query(LinkHubLink).filter(
-            LinkHubLink.profile_id == profile.id
-        ).order_by(LinkHubLink.sort_order).all()
-        total_clicks = sum(l.click_count for l in links)
-        # Last 30 days clicks + full breakdown
-        from datetime import timedelta
-        cutoff = datetime.utcnow() - timedelta(days=30)
-        recent_clicks = db.query(LinkHubClick).filter(
-            LinkHubClick.profile_id == profile.id,
-            LinkHubClick.clicked_at >= cutoff
-        ).all()
-        click_30d = len(recent_clicks)
-        for c in recent_clicks:
-            device_stats[c.device or "desktop"] = device_stats.get(c.device or "desktop", 0) + 1
-            if c.country_name:
-                country_stats[c.country_name] = country_stats.get(c.country_name, 0) + 1
-            if c.source:
-                source_stats[c.source] = source_stats.get(c.source, 0) + 1
-            if c.browser:
-                browser_stats[c.browser] = browser_stats.get(c.browser, 0) + 1
-
-    # Social links
-    social_links = []
-    if profile and profile.social_links:
-        try:
-            social_links = _json.loads(profile.social_links)
-        except Exception:
-            social_links = []
-
-    return templates.TemplateResponse("linkhub-editor.html", {
-        "request": request,
-        "current_user": user,
-        "profile": profile,
-        "links": links,
-        "total_clicks": total_clicks,
-        "click_30d": click_30d,
-        "device_stats": device_stats,
-        "country_stats": country_stats,
-        "source_stats": source_stats,
-        "browser_stats": browser_stats,
-        "social_links": social_links,
-        "active_page": "linkhub"
-    })
+    """LinkHub editor — redirect to React app."""
+    return RedirectResponse("/app/linkhub", status_code=302)
 
 
 @app.post("/linkhub/save")
