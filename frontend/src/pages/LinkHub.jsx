@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
+import IconPicker, { LinkIcon, ArrowPicker } from './LinkHubIconPicker';
+import { ARROW_STYLES } from './LinkHubIcons';
 import {
   Link2, Plus, Trash2, GripVertical, Eye, Save, ExternalLink,
-  Upload, X, ChevronDown, HelpCircle, AlignLeft, AlignCenter, AlignRight
+  Upload, X, ChevronDown, HelpCircle, AlignLeft, AlignCenter, AlignRight, Image
 } from 'lucide-react';
 
 var FONTS = ['DM Sans','Sora','Poppins','Outfit','Space Grotesk','Playfair Display','Montserrat','Raleway','Inter','Lato','Roboto','Nunito','Merriweather','Caveat','Bebas Neue'];
@@ -46,6 +48,8 @@ export default function LinkHub() {
   var [btnStyle, setBtnStyle] = useState('3d');
   var [btnFontSize, setBtnFontSize] = useState(15);
   var [btnAlign, setBtnAlign] = useState('left');
+  var [arrowStyle, setArrowStyle] = useState('arrow');
+  var [iconPickerIdx, setIconPickerIdx] = useState(null); // index of link being edited, or null
 
   // Links
   var [links, setLinks] = useState([]);
@@ -61,6 +65,23 @@ export default function LinkHub() {
   var bgFileRef = useRef(null);
 
   var showToast = function(msg) { setToast(msg); setTimeout(function() { setToast(''); }, 3000); };
+
+  // Parse icon field — supports legacy emoji strings and new JSON objects
+  var parseIcon = function(icon) {
+    if (!icon || icon === '') return { type: 'none', key: '', filled: false };
+    if (typeof icon === 'object') return icon;
+    try {
+      var parsed = JSON.parse(icon);
+      if (parsed && parsed.type) return parsed;
+    } catch(e) {}
+    // Legacy emoji string
+    return { type: 'emoji', key: icon, filled: false };
+  };
+
+  var getArrowChar = function() {
+    var a = ARROW_STYLES.find(function(s) { return s.key === arrowStyle; });
+    return a ? a.char : '→';
+  };
 
   // Load data
   useEffect(function() {
@@ -80,6 +101,7 @@ export default function LinkHub() {
       setBtnRadius(p.btn_radius || '12px');
       setBtnFontSize(p.btn_font_size || 15);
       setBtnAlign(p.btn_align || 'center');
+      setArrowStyle(p.arrow_style || 'arrow');
       setLinks(d.links || []);
       setStats({views: p.total_views || 0, clicks: d.total_clicks || 0, click_30d: d.click_30d || 0});
       // Parse socials into object
@@ -178,6 +200,7 @@ export default function LinkHub() {
       btn_radius: btnRadius,
       btn_font_size: btnFontSize,
       btn_align: btnAlign,
+      arrow_style: arrowStyle,
       social_links: socialLinks,
       links: links.map(function(l, i) {
         return {
@@ -354,6 +377,8 @@ export default function LinkHub() {
                     return <ShapeBtn key={pair[0]} active={btnStyle===pair[0]} onClick={function() { setBtnStyle(pair[0]); }}>{pair[1]}</ShapeBtn>;
                   })}
                 </div>
+                <FLabel style={{marginTop:12}}>Arrow style</FLabel>
+                <ArrowPicker value={arrowStyle} onChange={setArrowStyle}/>
               </div>
             </div>
           </Section>
@@ -361,34 +386,42 @@ export default function LinkHub() {
           {/* Links */}
           <Section label="Links" right={<span style={{fontSize:12,color:'#94a3b8',fontWeight:600}}>{links.length} / 20</span>}>
             {links.map(function(l, i) {
+              var iconData = parseIcon(l.icon);
               return (
                 <div key={i} draggable onDragStart={function() { onDragStart(i); }} onDragOver={function(e) { onDragOver(e, i); }} onDragEnd={onDragEnd}
                   style={{background:dragIdx===i?'#f0f9ff':'#f8fafc',border:'1.5px solid ' + (dragIdx===i?'#0ea5e9':'#e2e8f0'),borderRadius:12,padding:14,marginBottom:10,display:'flex',alignItems:'flex-start',gap:10}}>
                   <GripVertical size={18} color="#cbd5e1" style={{cursor:'grab',flexShrink:0,marginTop:10}}/>
                   <div style={{flex:1,display:'flex',flexDirection:'column',gap:6}}>
-                    <div style={{display:'flex',gap:6}}>
-                      <div style={{position:'relative'}}>
-                        <button onClick={function() {
-                          var picker = document.getElementById('iconPicker-'+i);
-                          if (picker) picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
-                        }} style={{width:38,height:38,border:'1.5px solid #e2e8f0',borderRadius:8,background:'#fff',cursor:'pointer',fontSize:l.icon?16:11,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,color:l.icon?'inherit':'#94a3b8',fontWeight:l.icon?400:700}}>
-                          {l.icon || '⊘'}
-                        </button>
-                        <div id={'iconPicker-'+i} style={{display:'none',position:'absolute',top:42,left:0,background:'#fff',border:'1px solid #e2e8f0',borderRadius:10,padding:8,boxShadow:'0 8px 24px rgba(0,0,0,.15)',zIndex:10,width:200}}>
-                          <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
-                            {['','🔗','🌐','📺','🎵','📱','💬','📧','🛒','💰','📚','🎯','🔥','⭐','💎','🚀','📸','🎮','🎤','📝','👤','💼','🏠','🎁','❤️'].map(function(emoji) {
-                              return <button key={emoji||'none'} onClick={function() {
-                                updateLink(i, 'icon', emoji);
-                                var picker = document.getElementById('iconPicker-'+i);
-                                if (picker) picker.style.display = 'none';
-                              }} style={{width:32,height:32,border:'none',borderRadius:6,background:l.icon===emoji||((!l.icon)&&emoji==='')?'#dbeafe':'transparent',cursor:'pointer',fontSize:emoji?16:11,display:'flex',alignItems:'center',justifyContent:'center',color:'#94a3b8',fontWeight:700}}>{emoji || '⊘'}</button>;
-                            })}
-                          </div>
-                        </div>
-                      </div>
+                    <div style={{display:'flex',gap:6,alignItems:'center'}}>
+                      {/* Icon button — opens full picker */}
+                      <button onClick={function() { setIconPickerIdx(i); }}
+                        style={{width:38,height:38,border:'1.5px solid #e2e8f0',borderRadius:8,background:'#fff',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                        {iconData.type === 'none' ? <span style={{fontSize:11,color:'#94a3b8',fontWeight:700}}>⊘</span> :
+                         iconData.type === 'svg' ? <LinkIcon iconKey={iconData.key} size={18} filled={iconData.filled} color="#475569"/> :
+                         <span style={{fontSize:16}}>{iconData.key}</span>}
+                      </button>
                       <FInput value={l.title} onChange={function(e) { updateLink(i,'title',e.target.value); }} placeholder="Link title" style={{marginBottom:0,flex:1}}/>
                     </div>
                     <FInput value={l.url} onChange={function(e) { updateLink(i,'url',e.target.value); }} placeholder="https://..." style={{marginBottom:0,fontSize:12,color:'#64748b'}}/>
+                    {/* Thumbnail upload */}
+                    {l.thumbnail ? (
+                      <div style={{display:'flex',alignItems:'center',gap:8}}>
+                        <img src={l.thumbnail} style={{width:32,height:32,borderRadius:6,objectFit:'cover'}} alt=""/>
+                        <button onClick={function() { updateLink(i,'thumbnail',''); }} style={{fontSize:10,color:'#dc2626',background:'none',border:'none',cursor:'pointer',fontWeight:600}}>Remove image</button>
+                      </div>
+                    ) : (
+                      <label style={{display:'flex',alignItems:'center',gap:4,fontSize:10,color:'#94a3b8',cursor:'pointer',fontWeight:600}}>
+                        <Image size={12}/> Add thumbnail
+                        <input type="file" accept="image/*" style={{display:'none'}} onChange={function(e) {
+                          var file = e.target.files && e.target.files[0];
+                          if (!file) return;
+                          if (file.size > 2 * 1024 * 1024) { return; }
+                          var reader = new FileReader();
+                          reader.onload = function(ev) { updateLink(i, 'thumbnail', ev.target.result); };
+                          reader.readAsDataURL(file);
+                        }}/>
+                      </label>
+                    )}
                   </div>
                   <button onClick={function() { removeLink(i); }} style={{cursor:'pointer',color:'#cbd5e1',background:'none',border:'none',padding:'4px 6px',flexShrink:0,marginTop:6}}>
                     <Trash2 size={16}/>
@@ -472,38 +505,50 @@ export default function LinkHub() {
                   {/* Links — card style matching public template */}
                   <div style={{display:'flex',flexDirection:'column',gap:10}}>
                     {links.filter(function(l) { return l.title; }).map(function(l, i) {
-                      var hasIcon = l.icon && l.icon.trim();
-                      var iconEl = hasIcon ? <span style={{fontSize:'1.1rem'}}>{l.icon}</span> : null;
+                      var ic = parseIcon(l.icon);
+                      var hasIcon = ic.type !== 'none';
+                      var hasThumbnail = l.thumbnail && l.thumbnail.trim();
+                      var arrowChar = getArrowChar();
                       var alignStyle = btnAlign === 'center' ? 'center' : btnAlign === 'right' ? 'flex-end' : 'flex-start';
+
+                      // Render icon element
+                      var renderIcon = function(size, color) {
+                        if (hasThumbnail) return <img src={l.thumbnail} style={{width:size+8,height:size+8,borderRadius:4,objectFit:'cover'}} alt=""/>;
+                        if (!hasIcon) return null;
+                        if (ic.type === 'svg') return <LinkIcon iconKey={ic.key} size={size} filled={ic.filled} color={color}/>;
+                        return <span style={{fontSize:size}}>{ic.key}</span>;
+                      };
 
                       if (btnStyle === 'outline') {
                         return (
                           <div key={i} style={{display:'flex',alignItems:'center',justifyContent:alignStyle,gap:8,width:'100%',padding:'13px 18px',background:'rgba(0,0,0,.25)',border:'1.5px solid ' + btnColor + '99',borderRadius:parseInt(btnRadius)||12,color:btnColor,fontSize:btnFontSize,fontWeight:700,fontFamily:fontFamily+',sans-serif'}}>
-                            {iconEl}
-                            <span>{l.title}</span>
+                            {renderIcon(16, btnColor)}
+                            <span style={{flex:btnAlign==='center'?undefined:1}}>{l.title}</span>
+                            {arrowChar && <span style={{opacity:.5,fontSize:13}}>{arrowChar}</span>}
                           </div>
                         );
                       }
                       if (btnStyle === 'flat') {
                         return (
                           <div key={i} style={{display:'flex',alignItems:'center',justifyContent:alignStyle,gap:8,width:'100%',padding:'14px 18px',background:btnColor,border:'none',borderRadius:parseInt(btnRadius)||12,color:btnTextColor,fontSize:btnFontSize,fontWeight:700,fontFamily:fontFamily+',sans-serif',boxSizing:'border-box'}}>
-                            {iconEl}
-                            <span>{l.title}</span>
+                            {renderIcon(16, btnTextColor)}
+                            <span style={{flex:btnAlign==='center'?undefined:1}}>{l.title}</span>
+                            {arrowChar && <span style={{opacity:.5,fontSize:13}}>{arrowChar}</span>}
                           </div>
                         );
                       }
-                      // Default: card style (3D / card)
+                      // Default: card style (3D)
                       return (
                         <div key={i} style={{display:'flex',alignItems:'center',width:'100%',background:btnColor,borderRadius:parseInt(btnRadius)||12,overflow:'hidden',color:btnTextColor,boxShadow:'0 4px 0 ' + darken(btnColor,40) + ',0 6px 12px rgba(0,0,0,.2)',transform:'translateY(-1px)'}}>
-                          {hasIcon && (
-                            <div style={{width:48,height:48,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem',flexShrink:0,background:'rgba(0,0,0,.1)',borderRight:'1px solid rgba(255,255,255,.15)'}}>
-                              {l.icon}
+                          {(hasIcon || hasThumbnail) && (
+                            <div style={{width:48,height:48,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,background:'rgba(0,0,0,.1)',borderRight:'1px solid rgba(255,255,255,.15)'}}>
+                              {renderIcon(20, btnTextColor)}
                             </div>
                           )}
                           <div style={{flex:1,padding:'12px 14px',minWidth:0,textAlign:btnAlign}}>
                             <div style={{fontSize:btnFontSize,fontWeight:700,lineHeight:1.3,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',fontFamily:fontFamily+',sans-serif'}}>{l.title}</div>
                           </div>
-                          <span style={{padding:'0 14px',color:'rgba(255,255,255,.5)',fontSize:13,flexShrink:0}}>→</span>
+                          {arrowChar && <span style={{padding:'0 14px',color:'rgba(255,255,255,.5)',fontSize:13,flexShrink:0}}>{arrowChar}</span>}
                         </div>
                       );
                     })}
@@ -517,6 +562,22 @@ export default function LinkHub() {
           </div>
         </div>
       </div>
+
+      {/* Icon Picker Modal */}
+      {iconPickerIdx !== null && (
+        <IconPicker
+          value={parseIcon(links[iconPickerIdx] && links[iconPickerIdx].icon)}
+          onChange={function(iconObj) {
+            if (iconObj.type === 'none') {
+              updateLink(iconPickerIdx, 'icon', '');
+            } else {
+              updateLink(iconPickerIdx, 'icon', JSON.stringify(iconObj));
+            }
+            setIconPickerIdx(null);
+          }}
+          onClose={function() { setIconPickerIdx(null); }}
+        />
+      )}
 
       {/* Toast */}
       {toast && (

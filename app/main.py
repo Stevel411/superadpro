@@ -8531,6 +8531,7 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
         profile.btn_radius     = data.get("btn_radius", "12px")
         profile.btn_font_size  = int(data.get("btn_font_size", 15))
         profile.btn_align      = data.get("btn_align", "center")
+        profile.arrow_style    = data.get("arrow_style", "arrow")
         profile.follower_count = data.get("follower_count", "")[:50] or None
         # Banner / bg image — upload to R2 if available, otherwise store base64
         from app.r2_storage import r2_available, upload_image, delete_image, is_base64_data, is_r2_url
@@ -11900,6 +11901,7 @@ def api_linkhub_editor_data(request: Request, user: User = Depends(get_current_u
             "btn_radius": (getattr(profile, 'btn_radius', None) or "12px") if profile else "12px",
             "btn_font_size": (getattr(profile, 'btn_font_size', None) or 15) if profile else 15,
             "btn_align": (getattr(profile, 'btn_align', None) or "center") if profile else "center",
+            "arrow_style": (getattr(profile, 'arrow_style', None) or "arrow") if profile else "arrow",
             "is_published": profile.is_published if profile else True,
             "total_views": profile.total_views if profile else 0,
         } if True else None,
