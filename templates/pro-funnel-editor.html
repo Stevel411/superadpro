@@ -36,7 +36,7 @@ body{margin:0;background:var(--sp-shell);font-family:'DM Sans',system-ui,sans-se
 .sp-pub.live .sp-pubdot{background:var(--sp-green);box-shadow:0 0 8px rgba(16,185,129,.5)}
 .sp-open{padding:5px 12px;border:none;border-radius:7px;font-size:11px;font-weight:700;text-decoration:none;color:var(--sp-green);background:rgba(16,185,129,.08);display:none;align-items:center;gap:3px}
 .sp-open.show{display:inline-flex}
-.sp-layout{display:flex;height:calc(100vh - 54px)}
+.sp-layout{display:flex;height:calc(100vh - 54px);background:#0d1117}
 .sp-panel{width:280px;background:var(--sp-panel);border-left:1px solid var(--sp-border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;z-index:10}
 .sp-panel-head{padding:14px 16px;border-bottom:1px solid var(--sp-border);display:flex;align-items:center;justify-content:space-between}
 .sp-panel-head h3{font-family:Sora,sans-serif;font-size:13px;font-weight:800;color:var(--sp-text);display:flex;align-items:center;gap:6px}
@@ -57,7 +57,7 @@ body{margin:0;background:var(--sp-shell);font-family:'DM Sans',system-ui,sans-se
 .sp-bico{width:28px;height:28px;display:flex;align-items:center;justify-content:center}
 .sp-bico svg{width:22px;height:22px;stroke-width:1.8;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
 .sp-bname{font-size:8px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:rgba(255,255,255,.4)}
-#gjsEditor{flex:1;border:none;position:relative;overflow:hidden}
+#gjsEditor{flex:1;position:relative;overflow:hidden;margin:12px;border-radius:8px;box-shadow:0 0 0 1px rgba(255,255,255,0.04),0 8px 32px rgba(0,0,0,.3)}
 .gjs-editor{background:var(--sp-shell)!important;height:100%!important}
 .gjs-cv-canvas{background:var(--sp-shell)!important;width:100%!important;height:100%!important}
 .gjs-pn-panels{display:none!important}
@@ -196,9 +196,31 @@ editor.on('load',function(){
   document.getElementById('bgSwatch').style.background='#050d1a';
   document.getElementById('bgPicker').value='#050d1a';
 });
-// Make dropped blocks absolute positioned
+// Make dropped blocks absolute positioned, resizable, and freely draggable
 editor.on('block:drag:stop',function(comp){
-  if(comp){comp.addStyle({'position':'absolute'})}
+  if(comp){
+    comp.addStyle({'position':'absolute'});
+    comp.set('resizable',true);
+    comp.set('dmode','absolute');
+  }
+});
+// Also ensure all loaded components are draggable and resizable
+editor.on('load',function(){
+  setTimeout(function(){
+    editor.getComponents().forEach(function(c){
+      c.set('resizable',true);
+      c.set('dmode','absolute');
+      // Recursively set on children
+      function setDeep(comp){
+        comp.components().forEach(function(child){
+          child.set('resizable',true);
+          child.set('dmode','absolute');
+          setDeep(child);
+        });
+      }
+      setDeep(c);
+    });
+  },500);
 });
 // Fix toolbar: only show duplicate and delete (remove parent-select and move)
 editor.on('component:selected',function(comp){
