@@ -167,7 +167,7 @@ export default function LinkHub() {
     try {
       var resp = await fetch('/linkhub/upload-avatar', {method:'POST', body:fd, credentials:'include'});
       var d = await resp.json();
-      if (d.ok && d.url) { setAvatarUrl(d.url); showToast('✓ Avatar uploaded'); }
+      if (d.ok && d.data_url) { setAvatarUrl(d.data_url); showToast('✓ Avatar uploaded'); }
       else showToast(d.error || 'Upload failed');
     } catch(err) { showToast('Upload failed'); }
   };
