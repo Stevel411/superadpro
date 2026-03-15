@@ -6,7 +6,7 @@ import {
   Upload, X, ChevronDown, HelpCircle
 } from 'lucide-react';
 
-var FONTS = ['DM Sans','Sora','Poppins','Outfit','Space Grotesk','Playfair Display'];
+var FONTS = ['DM Sans','Sora','Poppins','Outfit','Space Grotesk','Playfair Display','Montserrat','Raleway','Inter','Lato','Roboto','Nunito','Merriweather','Caveat','Bebas Neue'];
 var SOCIALS = [
   {key:'youtube',label:'YouTube',color:'#ff0000',placeholder:'youtube.com/@yourname'},
   {key:'x',label:'𝕏 / Twitter',color:'#000000',placeholder:'x.com/yourname'},
@@ -43,6 +43,7 @@ export default function LinkHub() {
   var [fontFamily, setFontFamily] = useState('DM Sans');
   var [btnRadius, setBtnRadius] = useState('12px');
   var [btnStyle, setBtnStyle] = useState('3d');
+  var [btnFontSize, setBtnFontSize] = useState(15);
 
   // Links
   var [links, setLinks] = useState([]);
@@ -186,7 +187,7 @@ export default function LinkHub() {
   // Button style generator for preview
   var getLinkStyle = function() {
     var base = {
-      display:'block', padding:'14px 18px', marginBottom:12, fontSize:15,
+      display:'block', padding:'14px 18px', marginBottom:12, fontSize:btnFontSize,
       fontWeight:600, textDecoration:'none', textAlign:'center',
       borderRadius: btnRadius, fontFamily: fontFamily + ',sans-serif',
       transition: '.15s', cursor:'pointer',
@@ -218,9 +219,9 @@ export default function LinkHub() {
   );
 
   return (
-    <AppLayout title="LinkHub Editor" subtitle={'superadpro.com/l/' + username} topbarActions={
+    <AppLayout title="LinkHub Editor" subtitle={'superadpro.com/u/' + username} topbarActions={
       <div style={{display:'flex',gap:8}}>
-        <a href={'/l/' + username + '?preview=1'} target="_blank" rel="noopener noreferrer"
+        <a href={'/u/' + username + '?preview=1'} target="_blank" rel="noopener noreferrer"
           style={{display:'flex',alignItems:'center',gap:5,padding:'7px 16px',borderRadius:8,fontSize:12,fontWeight:700,textDecoration:'none',background:'rgba(255,255,255,0.08)',color:'#fff',border:'1px solid rgba(255,255,255,.1)'}}>
           <Eye size={14}/> Preview
         </a>
@@ -291,6 +292,9 @@ export default function LinkHub() {
                     return <ShapeBtn key={pair[0]} active={btnStyle===pair[0]} onClick={function() { setBtnStyle(pair[0]); }}>{pair[1]}</ShapeBtn>;
                   })}
                 </div>
+                <FLabel style={{marginTop:12}}>Button text size — {btnFontSize}px</FLabel>
+                <input type="range" min={11} max={24} value={btnFontSize} onChange={function(e) { setBtnFontSize(parseInt(e.target.value)); }}
+                  style={{width:'100%',accentColor:'#0ea5e9',cursor:'pointer'}}/>
               </div>
             </div>
           </Section>
@@ -338,7 +342,7 @@ export default function LinkHub() {
             <FLabel>Your LinkHub URL</FLabel>
             <div style={{display:'flex',alignItems:'center'}}>
               <span style={{fontSize:13,color:'#64748b',background:'#f1f5f9',padding:'11px 12px',border:'1.5px solid #e2e8f0',borderRight:'none',borderRadius:'10px 0 0 10px',whiteSpace:'nowrap',fontWeight:600}}>
-                superadpro.com/l/
+                superadpro.com/u/
               </span>
               <input value={username} readOnly style={{flex:1,padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:'0 10px 10px 0',fontSize:13,fontFamily:'inherit',outline:'none',background:'#f8fafc',color:'#94a3b8',boxSizing:'border-box'}}/>
             </div>
