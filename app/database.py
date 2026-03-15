@@ -683,6 +683,8 @@ class LinkHubProfile(Base):
     btn_font_size   = Column(Integer, default=15)          # 8-40px
     btn_align       = Column(String, default="center")     # left|center|right
     arrow_style     = Column(String, default="arrow")      # none|arrow|chevron|double|triangle|circle|dash
+    icon_size       = Column(Integer, default=22)          # 12-36px
+    arrow_size      = Column(Integer, default=16)          # 10-32px
     created_at      = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow)
 
@@ -1206,6 +1208,8 @@ try:
         conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS btn_font_size INTEGER DEFAULT 15"))
         conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS btn_align VARCHAR DEFAULT 'center'"))
         conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS arrow_style VARCHAR DEFAULT 'arrow'"))
+        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS icon_size INTEGER DEFAULT 22"))
+        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS arrow_size INTEGER DEFAULT 16"))
 
         # ── Per-link button colours (2026-03-09) ──
         conn.execute(text("ALTER TABLE linkhub_links ADD COLUMN IF NOT EXISTS btn_bg_color VARCHAR"))

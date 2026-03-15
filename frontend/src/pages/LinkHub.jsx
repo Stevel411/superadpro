@@ -49,6 +49,8 @@ export default function LinkHub() {
   var [btnFontSize, setBtnFontSize] = useState(15);
   var [btnAlign, setBtnAlign] = useState('left');
   var [arrowStyle, setArrowStyle] = useState('arrow');
+  var [iconSize, setIconSize] = useState(22);
+  var [arrowSize, setArrowSize] = useState(16);
   var [iconPickerIdx, setIconPickerIdx] = useState(null); // index of link being edited, or null
 
   // Links
@@ -102,6 +104,8 @@ export default function LinkHub() {
       setBtnFontSize(p.btn_font_size || 15);
       setBtnAlign(p.btn_align || 'center');
       setArrowStyle(p.arrow_style || 'arrow');
+      setIconSize(p.icon_size || 22);
+      setArrowSize(p.arrow_size || 16);
       setLinks(d.links || []);
       setStats({views: p.total_views || 0, clicks: d.total_clicks || 0, click_30d: d.click_30d || 0});
       // Parse socials into object
@@ -201,6 +205,8 @@ export default function LinkHub() {
       btn_font_size: btnFontSize,
       btn_align: btnAlign,
       arrow_style: arrowStyle,
+      icon_size: iconSize,
+      arrow_size: arrowSize,
       social_links: socialLinks,
       links: links.map(function(l, i) {
         return {
@@ -379,6 +385,12 @@ export default function LinkHub() {
                 </div>
                 <FLabel style={{marginTop:12}}>Arrow style</FLabel>
                 <ArrowPicker value={arrowStyle} onChange={setArrowStyle}/>
+                <FLabel style={{marginTop:12}}>Icon size — {iconSize}px</FLabel>
+                <input type="range" min={12} max={36} value={iconSize} onChange={function(e) { setIconSize(parseInt(e.target.value)); }}
+                  style={{width:'100%',accentColor:'#0ea5e9',cursor:'pointer'}}/>
+                <FLabel style={{marginTop:12}}>Arrow size — {arrowSize}px</FLabel>
+                <input type="range" min={10} max={32} value={arrowSize} onChange={function(e) { setArrowSize(parseInt(e.target.value)); }}
+                  style={{width:'100%',accentColor:'#0ea5e9',cursor:'pointer'}}/>
               </div>
             </div>
           </Section>
@@ -512,43 +524,46 @@ export default function LinkHub() {
                       var alignStyle = btnAlign === 'center' ? 'center' : btnAlign === 'right' ? 'flex-end' : 'flex-start';
 
                       // Render icon element
-                      var renderIcon = function(size, color) {
-                        if (hasThumbnail) return <img src={l.thumbnail} style={{width:size+8,height:size+8,borderRadius:4,objectFit:'cover'}} alt=""/>;
+                      var renderIcon = function(color) {
+                        if (hasThumbnail) return <img src={l.thumbnail} style={{width:iconSize+8,height:iconSize+8,borderRadius:4,objectFit:'cover'}} alt=""/>;
                         if (!hasIcon) return null;
-                        if (ic.type === 'svg') return <LinkIcon iconKey={ic.key} size={size} filled={ic.filled} color={color}/>;
-                        return <span style={{fontSize:size}}>{ic.key}</span>;
+                        if (ic.type === 'svg') return <LinkIcon iconKey={ic.key} size={iconSize} filled={ic.filled} color={color}/>;
+                        return <span style={{fontSize:iconSize}}>{ic.key}</span>;
                       };
+
+                      var arrowEl = arrowChar ? <span style={{display:'flex',alignItems:'center',justifyContent:'center',fontSize:arrowSize,lineHeight:1,flexShrink:0,opacity:.6}}>{arrowChar}</span> : null;
 
                       if (btnStyle === 'outline') {
                         return (
-                          <div key={i} style={{display:'flex',alignItems:'center',justifyContent:alignStyle,gap:8,width:'100%',padding:'13px 18px',background:'rgba(0,0,0,.25)',border:'1.5px solid ' + btnColor + '99',borderRadius:parseInt(btnRadius)||12,color:btnColor,fontSize:btnFontSize,fontWeight:700,fontFamily:fontFamily+',sans-serif'}}>
-                            {renderIcon(16, btnColor)}
-                            <span style={{flex:btnAlign==='center'?undefined:1}}>{l.title}</span>
-                            {arrowChar && <span style={{opacity:.5,fontSize:13}}>{arrowChar}</span>}
+                          <div key={i} style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'13px 18px',background:'rgba(0,0,0,.25)',border:'1.5px solid ' + btnColor + '99',borderRadius:parseInt(btnRadius)||12,color:btnColor,fontSize:btnFontSize,fontWeight:700,fontFamily:fontFamily+',sans-serif'}}>
+                            {(hasIcon || hasThumbnail) && <span style={{display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{renderIcon(btnColor)}</span>}
+                            <span style={{flex:1,textAlign:btnAlign}}>{l.title}</span>
+                            {arrowEl}
                           </div>
                         );
                       }
                       if (btnStyle === 'flat') {
                         return (
-                          <div key={i} style={{display:'flex',alignItems:'center',justifyContent:alignStyle,gap:8,width:'100%',padding:'14px 18px',background:btnColor,border:'none',borderRadius:parseInt(btnRadius)||12,color:btnTextColor,fontSize:btnFontSize,fontWeight:700,fontFamily:fontFamily+',sans-serif',boxSizing:'border-box'}}>
-                            {renderIcon(16, btnTextColor)}
-                            <span style={{flex:btnAlign==='center'?undefined:1}}>{l.title}</span>
-                            {arrowChar && <span style={{opacity:.5,fontSize:13}}>{arrowChar}</span>}
+                          <div key={i} style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'14px 18px',background:btnColor,border:'none',borderRadius:parseInt(btnRadius)||12,color:btnTextColor,fontSize:btnFontSize,fontWeight:700,fontFamily:fontFamily+',sans-serif',boxSizing:'border-box'}}>
+                            {(hasIcon || hasThumbnail) && <span style={{display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{renderIcon(btnTextColor)}</span>}
+                            <span style={{flex:1,textAlign:btnAlign}}>{l.title}</span>
+                            {arrowEl}
                           </div>
                         );
                       }
                       // Default: card style (3D)
+                      var iconPanelSize = Math.max(48, iconSize + 20);
                       return (
-                        <div key={i} style={{display:'flex',alignItems:'center',width:'100%',background:btnColor,borderRadius:parseInt(btnRadius)||12,overflow:'hidden',color:btnTextColor,boxShadow:'0 4px 0 ' + darken(btnColor,40) + ',0 6px 12px rgba(0,0,0,.2)',transform:'translateY(-1px)'}}>
+                        <div key={i} style={{display:'flex',alignItems:'stretch',width:'100%',background:btnColor,borderRadius:parseInt(btnRadius)||12,overflow:'hidden',color:btnTextColor,boxShadow:'0 4px 0 ' + darken(btnColor,40) + ',0 6px 12px rgba(0,0,0,.2)',transform:'translateY(-1px)'}}>
                           {(hasIcon || hasThumbnail) && (
-                            <div style={{width:48,height:48,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,background:'rgba(0,0,0,.1)',borderRight:'1px solid rgba(255,255,255,.15)'}}>
-                              {renderIcon(20, btnTextColor)}
+                            <div style={{width:iconPanelSize,minHeight:iconPanelSize,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,background:'rgba(0,0,0,.1)',borderRight:'1px solid rgba(255,255,255,.15)'}}>
+                              {renderIcon(btnTextColor)}
                             </div>
                           )}
-                          <div style={{flex:1,padding:'12px 14px',minWidth:0,textAlign:btnAlign}}>
-                            <div style={{fontSize:btnFontSize,fontWeight:700,lineHeight:1.3,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',fontFamily:fontFamily+',sans-serif'}}>{l.title}</div>
+                          <div style={{flex:1,padding:'12px 14px',minWidth:0,display:'flex',alignItems:'center'}}>
+                            <div style={{flex:1,fontSize:btnFontSize,fontWeight:700,lineHeight:1.3,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',fontFamily:fontFamily+',sans-serif',textAlign:btnAlign}}>{l.title}</div>
                           </div>
-                          {arrowChar && <span style={{padding:'0 14px',color:'rgba(255,255,255,.5)',fontSize:13,flexShrink:0}}>{arrowChar}</span>}
+                          {arrowEl && <div style={{display:'flex',alignItems:'center',padding:'0 14px',flexShrink:0}}>{arrowEl}</div>}
                         </div>
                       );
                     })}
