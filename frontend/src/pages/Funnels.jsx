@@ -5,116 +5,33 @@ import { apiGet, apiPost } from '../utils/api';
 import { Plus, Eye, Pencil, Trash2, Copy, ExternalLink, FileText, Sparkles, LayoutGrid, Zap, TrendingUp, Users, Target, DollarSign, BookOpen, Video, ShoppingBag, Megaphone, Award } from 'lucide-react';
 
 const TEMPLATES = [
-  {
-    key: 'lead-capture', title: 'Lead Capture', desc: 'Email capture with headline, video, form and feature list',
-    icon: Target, color: '#0ea5e9', gradient: 'linear-gradient(135deg,#0c1222,#1e3a5f)',
-    preview: [
-      { t:'h',y:8,w:80,h:6,c:'#fff' },{ t:'t',y:17,w:60,h:3,c:'#64748b' },
-      { t:'b',y:24,w:70,h:22,c:'rgba(14,165,233,.15)',bc:'#0ea5e9' },
-      { t:'r',y:50,w:40,h:4,c:'#0ea5e9' },{ t:'r',y:50,x:55,w:40,h:4,c:'#0ea5e9' },
-      { t:'t',y:58,w:30,h:2.5,c:'#334155' },{ t:'t',y:58,x:36,w:30,h:2.5,c:'#334155' },
-    ],
-  },
-  {
-    key: 'video-sales', title: 'Video Sales Letter', desc: 'Video-led page with attention headline, VSL and social proof',
-    icon: Video, color: '#8b5cf6', gradient: 'linear-gradient(135deg,#1a1a2e,#2d1b69)',
-    preview: [
-      { t:'t',y:5,w:20,h:2.5,c:'#fbbf24' },{ t:'h',y:10,w:85,h:7,c:'#fff' },
-      { t:'v',y:21,w:80,h:35,c:'#0f0f1a',bc:'#8b5cf6' },
-      { t:'r',y:60,w:50,h:5,c:'linear-gradient(135deg,#8b5cf6,#ec4899)' },
-      { t:'s',y:70,w:30,h:3,c:'#fbbf24' },{ t:'t',y:76,w:70,h:6,c:'#475569' },
-    ],
-  },
-  {
-    key: 'product-offer', title: 'Product Offer', desc: 'Sales page with pricing, features, guarantee and CTA',
-    icon: ShoppingBag, color: '#10b981', gradient: 'linear-gradient(135deg,#0f172a,#14532d)',
-    preview: [
-      { t:'t',y:4,w:22,h:2.5,c:'#10b981' },{ t:'h',y:9,w:75,h:6,c:'#fff' },
-      { t:'t',y:18,w:60,h:3,c:'#64748b' },
-      { t:'b',y:25,w:40,h:30,c:'rgba(16,185,129,.08)',bc:'#10b981' },
-      { t:'h',y:28,x:15,w:20,h:8,c:'#10b981' },
-      { t:'b',y:25,x:50,w:40,h:30,c:'rgba(255,255,255,.03)',bc:'#334155' },
-      { t:'r',y:60,w:50,h:5,c:'#10b981' },
-    ],
-  },
-  {
-    key: 'network-opportunity', title: 'Business Opportunity', desc: 'Network marketing recruitment page with income potential',
-    icon: Users, color: '#f59e0b', gradient: 'linear-gradient(135deg,#1a1a2e,#422006)',
-    preview: [
-      { t:'h',y:6,w:80,h:7,c:'#fff' },{ t:'t',y:16,w:65,h:3,c:'#94a3b8' },
-      { t:'r',y:23,w:45,h:5,c:'linear-gradient(135deg,#f59e0b,#ef4444)' },
-      { t:'b',y:32,w:28,h:18,c:'rgba(245,158,11,.08)',bc:'#f59e0b' },
-      { t:'b',y:32,x:35,w:28,h:18,c:'rgba(245,158,11,.08)',bc:'#f59e0b' },
-      { t:'b',y:32,x:68,w:28,h:18,c:'rgba(245,158,11,.08)',bc:'#f59e0b' },
-      { t:'s',y:56,w:30,h:3,c:'#fbbf24' },{ t:'t',y:62,w:70,h:8,c:'#475569' },
-    ],
-  },
-  {
-    key: 'webinar-registration', title: 'Webinar Registration', desc: 'Event signup with countdown timer, speaker bio and urgency',
-    icon: Megaphone, color: '#ec4899', gradient: 'linear-gradient(135deg,#1a1a2e,#4a0e2b)',
-    preview: [
-      { t:'t',y:4,w:30,h:2.5,c:'#ec4899' },{ t:'h',y:9,w:80,h:7,c:'#fff' },
-      { t:'t',y:19,w:55,h:3,c:'#94a3b8' },
-      { t:'b',y:26,w:15,h:10,c:'rgba(236,72,153,.1)',bc:'#ec4899' },
-      { t:'b',y:26,x:22,w:15,h:10,c:'rgba(236,72,153,.1)',bc:'#ec4899' },
-      { t:'b',y:26,x:44,w:15,h:10,c:'rgba(236,72,153,.1)',bc:'#ec4899' },
-      { t:'b',y:26,x:66,w:15,h:10,c:'rgba(236,72,153,.1)',bc:'#ec4899' },
-      { t:'r',y:42,w:50,h:5,c:'linear-gradient(135deg,#ec4899,#8b5cf6)' },
-      { t:'b',y:52,w:80,h:20,c:'rgba(255,255,255,.03)',bc:'#334155' },
-    ],
-  },
-  {
-    key: 'coaching-program', title: 'Coaching Program', desc: 'Personal brand page with bio, testimonials and booking CTA',
-    icon: Award, color: '#6366f1', gradient: 'linear-gradient(135deg,#0f172a,#1e1b4b)',
-    preview: [
-      { t:'b',y:5,x:5,w:25,h:35,c:'rgba(99,102,241,.1)',bc:'#6366f1' },
-      { t:'h',y:8,x:38,w:55,h:6,c:'#fff' },{ t:'t',y:17,x:38,w:50,h:8,c:'#94a3b8' },
-      { t:'r',y:28,x:38,w:35,h:5,c:'#6366f1' },
-      { t:'b',y:45,w:28,h:22,c:'rgba(255,255,255,.03)',bc:'#334155' },
-      { t:'b',y:45,x:35,w:28,h:22,c:'rgba(255,255,255,.03)',bc:'#334155' },
-      { t:'b',y:45,x:68,w:28,h:22,c:'rgba(255,255,255,.03)',bc:'#334155' },
-    ],
-  },
-  {
-    key: 'digital-product', title: 'Digital Product', desc: 'Ebook, course or download page with feature stack and pricing',
-    icon: BookOpen, color: '#14b8a6', gradient: 'linear-gradient(135deg,#0c1222,#0f3d3b)',
-    preview: [
-      { t:'h',y:6,w:75,h:6,c:'#fff' },{ t:'t',y:15,w:60,h:3,c:'#94a3b8' },
-      { t:'b',y:22,x:5,w:40,h:35,c:'rgba(20,184,166,.08)',bc:'#14b8a6' },
-      { t:'t',y:25,x:52,w:40,h:2,c:'#14b8a6' },
-      { t:'t',y:30,x:52,w:38,h:2,c:'#475569' },{ t:'t',y:35,x:52,w:38,h:2,c:'#475569' },
-      { t:'t',y:40,x:52,w:38,h:2,c:'#475569' },{ t:'t',y:45,x:52,w:38,h:2,c:'#475569' },
-      { t:'r',y:52,x:52,w:35,h:5,c:'#14b8a6' },
-    ],
-  },
-  {
-    key: 'affiliate-income', title: 'Affiliate Funnel', desc: 'Commission income page with earnings calculator and signup',
-    icon: DollarSign, color: '#ef4444', gradient: 'linear-gradient(135deg,#1a1a2e,#450a0a)',
-    preview: [
-      { t:'t',y:4,w:25,h:2.5,c:'#ef4444' },{ t:'h',y:9,w:80,h:7,c:'#fff' },
-      { t:'t',y:19,w:60,h:3,c:'#94a3b8' },
-      { t:'b',y:26,w:85,h:20,c:'rgba(239,68,68,.06)',bc:'#ef4444' },
-      { t:'h',y:30,x:10,w:15,h:6,c:'#10b981' },{ t:'h',y:30,x:35,w:15,h:6,c:'#10b981' },
-      { t:'h',y:30,x:62,w:15,h:6,c:'#10b981' },
-      { t:'r',y:52,w:50,h:5,c:'linear-gradient(135deg,#ef4444,#f59e0b)' },
-    ],
-  },
+  { key: 'lead-capture', title: 'Lead Capture', desc: 'Email capture with headline, video, form and feature list', icon: Target, color: '#0ea5e9', bg: '#0c1222', accent: '#0ea5e9' },
+  { key: 'video-sales', title: 'Video Sales Letter', desc: 'Video-led page with attention headline, VSL and social proof', icon: Video, color: '#8b5cf6', bg: '#1a1a2e', accent: '#8b5cf6' },
+  { key: 'product-offer', title: 'Product Offer', desc: 'Sales page with pricing, features, guarantee and CTA', icon: ShoppingBag, color: '#10b981', bg: '#0f172a', accent: '#10b981' },
+  { key: 'network-opportunity', title: 'Business Opportunity', desc: 'Network marketing recruitment page with income potential', icon: Users, color: '#f59e0b', bg: '#1a1a2e', accent: '#f59e0b' },
+  { key: 'webinar-registration', title: 'Webinar Registration', desc: 'Event signup with countdown timer, speaker bio and urgency', icon: Megaphone, color: '#ec4899', bg: '#1a1a2e', accent: '#ec4899' },
+  { key: 'coaching-program', title: 'Coaching Program', desc: 'Personal brand page with bio, testimonials and booking CTA', icon: Award, color: '#6366f1', bg: '#0f172a', accent: '#6366f1' },
+  { key: 'digital-product', title: 'Digital Product', desc: 'Ebook, course or download page with feature stack and pricing', icon: BookOpen, color: '#14b8a6', bg: '#0c1222', accent: '#14b8a6' },
+  { key: 'affiliate-income', title: 'Affiliate Funnel', desc: 'Commission income page with earnings calculator and signup', icon: DollarSign, color: '#ef4444', bg: '#1a1a2e', accent: '#ef4444' },
 ];
 
-function TemplatePreview({ items, gradient }) {
+function TemplatePreview({ bg, accent, Icon }) {
   return (
-    <div style={{width:'100%',height:'100%',background:gradient,borderRadius:'10px 10px 0 0',position:'relative',overflow:'hidden'}}>
-      {items.map((item,i) => {
-        const x = item.x||((100-item.w)/2);
-        const s = {position:'absolute',left:`${x}%`,top:`${item.y}%`,width:`${item.w}%`,height:`${item.h}%`};
-        if(item.t==='h') return <div key={i} style={{...s,background:item.c,opacity:.9,borderRadius:2}}/>;
-        if(item.t==='t') return <div key={i} style={{...s,background:item.c,opacity:.4,borderRadius:2}}/>;
-        if(item.t==='r') return <div key={i} style={{...s,background:item.c,borderRadius:6}}/>;
-        if(item.t==='b') return <div key={i} style={{...s,background:item.c,border:`1px solid ${item.bc||'transparent'}`,borderRadius:6}}/>;
-        if(item.t==='v') return <div key={i} style={{...s,background:item.c,border:`1px solid ${item.bc||'transparent'}`,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center'}}><div style={{width:0,height:0,borderLeft:'8px solid rgba(255,255,255,.3)',borderTop:'5px solid transparent',borderBottom:'5px solid transparent'}}/></div>;
-        if(item.t==='s') return <div key={i} style={{...s,display:'flex',gap:2,alignItems:'center',justifyContent:'center'}}>{[0,1,2,3,4].map(j=><div key={j} style={{width:4,height:4,background:item.c,borderRadius:1}}/>)}</div>;
-        return null;
-      })}
+    <div style={{width:'100%',height:'100%',background:bg,borderRadius:'10px 10px 0 0',position:'relative',overflow:'hidden'}}>
+      {/* Floating glow orb */}
+      <div style={{position:'absolute',top:'15%',right:'15%',width:80,height:80,borderRadius:'50%',background:`radial-gradient(circle,${accent}20 0%,transparent 70%)`,filter:'blur(8px)'}}/>
+      <div style={{position:'absolute',bottom:'10%',left:'10%',width:50,height:50,borderRadius:'50%',background:`radial-gradient(circle,${accent}15 0%,transparent 70%)`,filter:'blur(6px)'}}/>
+      {/* Floating card mockup */}
+      <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%) rotate(-2deg)',width:'70%',height:'60%',borderRadius:10,background:'rgba(255,255,255,.06)',border:`1px solid ${accent}30`,backdropFilter:'blur(4px)',boxShadow:`0 8px 32px ${accent}15`,display:'flex',flexDirection:'column',padding:'10%',gap:'8%'}}>
+        <div style={{width:'75%',height:4,borderRadius:2,background:accent,opacity:.8}}/>
+        <div style={{width:'55%',height:3,borderRadius:2,background:'rgba(255,255,255,.15)'}}/>
+        <div style={{flex:1,borderRadius:6,background:`${accent}12`,border:`1px solid ${accent}20`}}/>
+        <div style={{width:'45%',height:6,borderRadius:4,background:accent,opacity:.7,alignSelf:'center'}}/>
+      </div>
+      {/* Icon badge */}
+      <div style={{position:'absolute',bottom:10,left:10,width:28,height:28,borderRadius:7,background:`${accent}22`,border:`1px solid ${accent}40`,display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <Icon size={13} color={accent}/>
+      </div>
     </div>
   );
 }
@@ -201,10 +118,7 @@ export default function Funnels() {
               return (
                 <div key={t.key} className="tpl-card" onClick={()=>!creating&&createFromTemplate(t.key)} style={{background:'#fff',borderRadius:12,overflow:'hidden',border:'1px solid #e8ecf2',cursor:'pointer',boxShadow:'0 2px 8px rgba(0,0,0,.03)',transition:'all .2s',display:'flex',flexDirection:'column'}}>
                   <div style={{height:130,position:'relative'}}>
-                    <TemplatePreview items={t.preview} gradient={t.gradient}/>
-                    <div style={{position:'absolute',inset:0,background:'linear-gradient(180deg,transparent 40%,rgba(0,0,0,.45) 100%)',borderRadius:'10px 10px 0 0',display:'flex',alignItems:'flex-end',padding:10}}>
-                      <div style={{width:26,height:26,borderRadius:6,background:`${t.color}22`,border:`1px solid ${t.color}44`,display:'flex',alignItems:'center',justifyContent:'center'}}><Icon size={13} color={t.color}/></div>
-                    </div>
+                    <TemplatePreview bg={t.bg} accent={t.accent} Icon={t.icon}/>
                   </div>
                   <div style={{padding:'12px 14px',flex:1,display:'flex',flexDirection:'column'}}>
                     <div style={{fontSize:13,fontWeight:800,color:'#0f172a',marginBottom:3}}>{t.title}</div>
