@@ -11,7 +11,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
   const [toolbarPos, setToolbarPos] = useState({ x: 0, y: 0 });
   const editableRef = useRef(null);
 
-  const EDITABLE_TYPES = ['heading', 'text', 'label', 'review', 'testimonial', 'faq', 'stat', 'icontext', 'separator', 'logostrip', 'button', 'cta'];
+  const EDITABLE_TYPES = ['heading', 'text', 'label', 'review', 'testimonial', 'faq', 'stat', 'icontext', 'separator', 'logostrip'];
 
   // ── Canvas height ──
   const maxElY = els.length > 0 ? Math.max(...els.map(e => e.y + e.h)) : 0;
