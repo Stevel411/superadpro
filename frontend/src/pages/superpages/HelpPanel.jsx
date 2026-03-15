@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Search, ChevronDown, ChevronRight } from 'lucide-react';
 
 const HELP_SECTIONS = [
@@ -89,7 +89,12 @@ const HELP_SECTIONS = [
 
 export default function HelpPanel({ visible, onClose }) {
   const [search, setSearch] = useState('');
-  const [expanded, setExpanded] = useState({ 0: true });
+  const [expanded, setExpanded] = useState({});
+
+  // Reset everything when panel opens
+  useEffect(() => {
+    if (visible) { setExpanded({}); setSearch(''); }
+  }, [visible]);
 
   if (!visible) return null;
 
