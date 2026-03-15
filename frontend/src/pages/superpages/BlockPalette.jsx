@@ -1,13 +1,13 @@
 import { useState, useRef } from 'react';
 import { PALETTE, BG_PRESETS } from './elementDefaults';
-import { Type, AlignLeft, Tag, ImageIcon, Play, Music, RectangleHorizontal, FormInput, ArrowUpRight,
+import { Type, AlignLeft, Tag, ImageIcon, Play, Music, RectangleHorizontal, FormInput, Bell,
   MessageSquareQuote, Star, Quote, HelpCircle, BarChart3, Minus,
   Timer, Share2, FileText, SeparatorHorizontal, LayoutGrid, MoveVertical, Square, GripHorizontal, Code, Send } from 'lucide-react';
 
 const BLOCK_ICONS = {
   heading: Type, text: AlignLeft, label: Tag,
   image: ImageIcon, video: Play, audio: Music,
-  button: RectangleHorizontal, form: FormInput, cta: ArrowUpRight,
+  button: RectangleHorizontal, form: FormInput, announcement: Bell,
   review: MessageSquareQuote, badge: Star, testimonial: Quote, faq: HelpCircle, stat: BarChart3, progress: Minus,
   countdown: Timer, socialicons: Share2, icontext: FileText, separator: SeparatorHorizontal, logostrip: LayoutGrid, spacer: MoveVertical, box: Square, divider: GripHorizontal, embed: Code,
 };

@@ -81,7 +81,7 @@ def _lead_capture(username):
     y += 55
     els.append({'id': _uid(), 'type': 'text', 'x': _centre(600), 'y': y, 'w': 600, 'h': 50, 'txt': 'Join thousands of members building real income online — your spot is waiting.', 's': {'fontSize': '15px', 'color': '#64748b', 'textAlign': 'center'}})
     y += 45
-    els.append({'id': _uid(), 'type': 'cta', 'x': _centre(350), 'y': y, 'w': 350, 'h': 56, 'txt': 'Get Started Now →', 'url': f'/ref/{username}', 's': {'background': 'linear-gradient(135deg,#0ea5e9,#6366f1)', 'color': '#fff', 'fontFamily': 'Sora,sans-serif', 'fontWeight': '700', 'fontSize': '18px', 'textAlign': 'center', 'borderRadius': '14px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}})
+    els.append({'id': _uid(), 'type': 'button', 'x': _centre(350), 'y': y, 'w': 350, 'h': 56, 'txt': 'Get Started Now →', 'url': f'/ref/{username}', 's': {'background': 'linear-gradient(135deg,#0ea5e9,#6366f1)', 'color': '#fff', 'fontFamily': 'Sora,sans-serif', 'fontWeight': '700', 'fontSize': '18px', 'textAlign': 'center', 'borderRadius': '14px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}})
 
     return {'els': els, 'canvasBg': '#050d1a'}
 
@@ -105,7 +105,7 @@ def _video_sales(username):
     els.append({'id': _uid(), 'type': 'video', 'x': _centre(800), 'y': y, 'w': 800, 'h': 450, 'txt': '', 's': {'borderRadius': '16px'}})
     y += 480
 
-    els.append({'id': _uid(), 'type': 'cta', 'x': _centre(400), 'y': y, 'w': 400, 'h': 60, 'txt': 'Yes! Show Me How →', 'url': f'/ref/{username}', 's': {'background': 'linear-gradient(135deg,#8b5cf6,#ec4899)', 'color': '#fff', 'fontFamily': 'Sora,sans-serif', 'fontWeight': '700', 'fontSize': '20px', 'textAlign': 'center', 'borderRadius': '14px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}})
+    els.append({'id': _uid(), 'type': 'button', 'x': _centre(400), 'y': y, 'w': 400, 'h': 60, 'txt': 'Yes! Show Me How →', 'url': f'/ref/{username}', 's': {'background': 'linear-gradient(135deg,#8b5cf6,#ec4899)', 'color': '#fff', 'fontFamily': 'Sora,sans-serif', 'fontWeight': '700', 'fontSize': '20px', 'textAlign': 'center', 'borderRadius': '14px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}})
     y += 155
 
     # Social proof stats
@@ -150,7 +150,7 @@ def _product_offer(username):
         els.append({'id': _uid(), 'type': 'text', 'x': _centre(350), 'y': y + 95 + i * 25, 'w': 350, 'h': 22,
             'txt': feat, 's': {'fontSize': '14px', 'color': '#e2e8f0', 'textAlign': 'center'}})
 
-    els.append({'id': _uid(), 'type': 'cta', 'x': _centre(300), 'y': y + 250, 'w': 300, 'h': 50, 'txt': 'Get Started — $30/mo', 'url': f'/ref/{username}', 's': {'background': '#10b981', 'color': '#fff', 'fontFamily': 'Sora,sans-serif', 'fontWeight': '700', 'fontSize': '16px', 'textAlign': 'center', 'borderRadius': '12px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}})
+    els.append({'id': _uid(), 'type': 'button', 'x': _centre(300), 'y': y + 250, 'w': 300, 'h': 50, 'txt': 'Get Started — $30/mo', 'url': f'/ref/{username}', 's': {'background': '#10b981', 'color': '#fff', 'fontFamily': 'Sora,sans-serif', 'fontWeight': '700', 'fontSize': '16px', 'textAlign': 'center', 'borderRadius': '12px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}})
     y += 320
 
     # Guarantee
@@ -172,7 +172,7 @@ def _business_opportunity(username):
     els.append({'id': _uid(), 'type': 'text', 'x': _centre(700), 'y': y, 'w': 700, 'h': 75, 'txt': 'Discover how thousands of ordinary people are building extraordinary income from home — with a simple, proven system that anyone can follow.', 's': {'fontSize': '16px', 'color': '#94a3b8', 'textAlign': 'center', 'lineHeight': '1.8'}})
     y += 100
 
-    els.append({'id': _uid(), 'type': 'cta', 'x': _centre(350), 'y': y, 'w': 350, 'h': 56, 'txt': 'Learn How It Works →', 'url': f'/ref/{username}', 's': {'background': 'linear-gradient(135deg,#f59e0b,#ef4444)', 'color': '#fff', 'fontFamily': 'Sora,sans-serif', 'fontWeight': '700', 'fontSize': '18px', 'textAlign': 'center', 'borderRadius': '14px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}})
+    els.append({'id': _uid(), 'type': 'button', 'x': _centre(350), 'y': y, 'w': 350, 'h': 56, 'txt': 'Learn How It Works →', 'url': f'/ref/{username}', 's': {'background': 'linear-gradient(135deg,#f59e0b,#ef4444)', 'color': '#fff', 'fontFamily': 'Sora,sans-serif', 'fontWeight': '700', 'fontSize': '18px', 'textAlign': 'center', 'borderRadius': '14px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}})
     y += 155
 
     # Income stats
@@ -267,7 +267,7 @@ def _coaching_program(username):
     els.append({'id': _uid(), 'type': 'text', 'x': _centre(650), 'y': y, 'w': 650, 'h': 75, 'txt': 'Personalised 1-on-1 coaching to help you build a thriving online business. Get clarity, accountability, and a proven roadmap to your income goals.', 's': {'fontSize': '16px', 'color': '#94a3b8', 'textAlign': 'center', 'lineHeight': '1.8'}})
     y += 100
 
-    els.append({'id': _uid(), 'type': 'cta', 'x': _centre(300), 'y': y, 'w': 300, 'h': 50, 'txt': 'Book a Free Call →', 'url': f'/ref/{username}', 's': {'background': '#6366f1', 'color': '#fff', 'fontFamily': 'Sora,sans-serif', 'fontWeight': '700', 'fontSize': '16px', 'textAlign': 'center', 'borderRadius': '12px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}})
+    els.append({'id': _uid(), 'type': 'button', 'x': _centre(300), 'y': y, 'w': 300, 'h': 50, 'txt': 'Book a Free Call →', 'url': f'/ref/{username}', 's': {'background': '#6366f1', 'color': '#fff', 'fontFamily': 'Sora,sans-serif', 'fontWeight': '700', 'fontSize': '16px', 'textAlign': 'center', 'borderRadius': '12px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}})
     y += 155
 
     # What's included boxes
@@ -331,7 +331,7 @@ def _digital_product(username):
             'txt': item, 's': {'fontSize': '15px', 'color': '#e2e8f0', 'textAlign': 'center'}})
     y += len(items) * 30 + 30
 
-    els.append({'id': _uid(), 'type': 'cta', 'x': _centre(350), 'y': y, 'w': 350, 'h': 56, 'txt': 'Download Now — Free', 'url': f'/ref/{username}', 's': {'background': '#14b8a6', 'color': '#fff', 'fontFamily': 'Sora,sans-serif', 'fontWeight': '700', 'fontSize': '18px', 'textAlign': 'center', 'borderRadius': '14px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}})
+    els.append({'id': _uid(), 'type': 'button', 'x': _centre(350), 'y': y, 'w': 350, 'h': 56, 'txt': 'Download Now — Free', 'url': f'/ref/{username}', 's': {'background': '#14b8a6', 'color': '#fff', 'fontFamily': 'Sora,sans-serif', 'fontWeight': '700', 'fontSize': '18px', 'textAlign': 'center', 'borderRadius': '14px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}})
     y += 100
 
     els.append({'id': _uid(), 'type': 'text', 'x': _centre(400), 'y': y, 'w': 400, 'h': 25, 'txt': '⚡ Instant delivery to your inbox — no spam, ever.', 's': {'fontSize': '13px', 'color': '#64748b', 'textAlign': 'center'}})
@@ -367,7 +367,7 @@ def _affiliate_funnel(username):
             's': {'textAlign': 'center'}})
     y += 145
 
-    els.append({'id': _uid(), 'type': 'cta', 'x': _centre(400), 'y': y, 'w': 400, 'h': 56, 'txt': 'Start Earning Now →', 'url': f'/ref/{username}', 's': {'background': 'linear-gradient(135deg,#ef4444,#f59e0b)', 'color': '#fff', 'fontFamily': 'Sora,sans-serif', 'fontWeight': '700', 'fontSize': '18px', 'textAlign': 'center', 'borderRadius': '14px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}})
+    els.append({'id': _uid(), 'type': 'button', 'x': _centre(400), 'y': y, 'w': 400, 'h': 56, 'txt': 'Start Earning Now →', 'url': f'/ref/{username}', 's': {'background': 'linear-gradient(135deg,#ef4444,#f59e0b)', 'color': '#fff', 'fontFamily': 'Sora,sans-serif', 'fontWeight': '700', 'fontSize': '18px', 'textAlign': 'center', 'borderRadius': '14px', 'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center'}})
     y += 155
 
     # How it works

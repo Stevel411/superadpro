@@ -289,7 +289,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,41,0.3)', borderRadius: 12, border: '1px dashed #334155', color: '#475569', fontSize: 13 }}>Click ✎ IMAGE to upload</div>;
     }
     if (['spacer', 'divider', 'box'].includes(el.type) && !el.txt) return null;
-    if (el.type === 'button' || el.type === 'cta') {
+    if (el.type === 'button' || el.type === 'announcement') {
       return <div className="cel-editable" style={{ ...Object.fromEntries(textStyles.filter(k => el.s?.[k]).map(k => [k, el.s[k]])), width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} dangerouslySetInnerHTML={{__html: el.txt || 'Button'}} />;
     }
     if (el.type === 'countdown') {
@@ -355,7 +355,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
 
   // Edit label per type
   const editLabel = (type) => {
-    const labels = { form: '✎ FORM', video: '✎ VIDEO', image: '✎ IMAGE', button: '✎ LINK', cta: '✎ LINK', countdown: '✎ SET', progress: '✎ SET', socialicons: '✎ LINKS', audio: '✎ AUDIO', embed: '✎ CODE' };
+    const labels = { form: '✎ FORM', video: '✎ VIDEO', image: '✎ IMAGE', button: '✎ LINK', announcement: '✎ BANNER', countdown: '✎ SET', progress: '✎ SET', socialicons: '✎ LINKS', audio: '✎ AUDIO', embed: '✎ CODE' };
     return labels[type] || '✎ EDIT';
   };
 

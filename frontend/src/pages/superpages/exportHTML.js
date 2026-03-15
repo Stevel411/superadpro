@@ -42,9 +42,9 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
       // Skip empty image placeholders
     } else if (['spacer', 'divider', 'box'].includes(el.type) && !el.txt) {
       h += `<div class="${elClass}" style="${st}"></div>`;
-    } else if ((el.type === 'button' || el.type === 'cta') && el.url) {
+    } else if ((el.type === 'button' || el.type === 'announcement') && el.url) {
       h += `<a class="${elClass}" href="${el.url}" style="${st};text-decoration:none;display:flex;align-items:center;justify-content:center">${el.txt || ''}</a>`;
-    } else if ((el.type === 'button' || el.type === 'cta') && !el.url) {
+    } else if ((el.type === 'button' || el.type === 'announcement') && !el.url) {
       h += `<div class="${elClass}" style="${st};display:flex;align-items:center;justify-content:center">${el.txt || ''}</div>`;
     } else if (el.type === 'audio' && el._audioUrl) {
       h += `<audio class="${elClass}" src="${el._audioUrl}" style="${st};border-radius:12px" controls></audio>`;
@@ -97,7 +97,7 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
   .sp-heading *{font-size:inherit!important}
   .sp-text{font-size:14px!important}
   .sp-text *{font-size:inherit!important}
-  .sp-button,.sp-cta{width:100%!important;max-width:400px!important;height:50px!important}
+  .sp-button,.sp-announcement{width:100%!important;max-width:400px!important;height:50px!important}
   .sp-form{width:100%!important;max-width:450px!important;height:auto!important;min-height:200px}
   .sp-form input{width:100%!important;box-sizing:border-box!important}
   .sp-video,.sp-video iframe,.sp-video video{width:100%!important;height:auto!important;min-height:200px;aspect-ratio:16/9}

@@ -355,16 +355,9 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
         </div>
         <div style={{ padding: 20 }}>
 
-          {/* Button/CTA */}
-          {(type === 'button' || type === 'cta') && (
-            <>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Button Text</label>
-              <input value={localTxt} onChange={e => setLocalTxt(e.target.value)}
-                style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 14, outline: 'none', marginBottom: 12, boxSizing: 'border-box' }} />
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Link URL</label>
-              <input value={localUrl} onChange={e => setLocalUrl(e.target.value)} placeholder="https://..."
-                style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 13, outline: 'none', marginBottom: 12, boxSizing: 'border-box' }} />
-            </>
+          {/* Button / Announcement Bar */}
+          {(type === 'button' || type === 'announcement') && (
+            <ButtonEditor elId={elId} el={actualEl} type={type} updateElement={updateElement} markDirty={markDirty} onClose={onClose} />
           )}
 
           {/* Image — URL or upload */}
@@ -447,7 +440,7 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
           )}
 
           {/* Apply button for text-based types */}
-          {!['countdown', 'progress', 'audio', 'embed', 'socialicons', 'form'].includes(type) && (
+          {!['countdown', 'progress', 'audio', 'embed', 'socialicons', 'form', 'button', 'announcement'].includes(type) && (
             <div style={{ display: 'flex', gap: 8 }}>
               <button onClick={apply}
                 style={{ padding: '10px 24px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
@@ -557,6 +550,82 @@ function SocialEditor({ elId, el, updateElement, markDirty, onClose }) {
       </div>
     ))}
     <BtnRow onApply={() => { updateElement(elId, { _links: links }); markDirty(); onClose(); }} onClose={onClose} />
+  </>;
+}
+
+function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
+  const [txt, setTxt] = useState(el.txt || (type === 'announcement' ? '🔥 LIMITED TIME OFFER — Join Now and Save 50%!' : 'Join Now'));
+  const [url, setUrl] = useState(el.url || '');
+  const [bgColor, setBgColor] = useState(el.s?.background || '#0ea5e9');
+  const [txtColor, setTxtColor] = useState(el.s?.color || '#fff');
+
+  const apply = () => {
+    updateElement(elId, {
+      txt, url,
+      s: { ...el.s, background: bgColor, color: txtColor }
+    });
+    markDirty(); onClose();
+  };
+
+  const PRESETS = [
+    { bg: '#0ea5e9', label: 'Cyan' },
+    { bg: '#10b981', label: 'Green' },
+    { bg: '#6366f1', label: 'Indigo' },
+    { bg: '#ef4444', label: 'Red' },
+    { bg: '#f59e0b', label: 'Amber' },
+    { bg: '#ec4899', label: 'Pink' },
+    { bg: 'linear-gradient(135deg,#0ea5e9,#6366f1)', label: 'Cyan→Indigo' },
+    { bg: 'linear-gradient(135deg,#8b5cf6,#ec4899)', label: 'Purple→Pink' },
+    { bg: 'linear-gradient(135deg,#ef4444,#f59e0b)', label: 'Red→Amber' },
+    { bg: 'linear-gradient(135deg,#10b981,#0ea5e9)', label: 'Green→Cyan' },
+  ];
+
+  return <>
+    <label style={lblStyle}>{type === 'announcement' ? 'Banner Text' : 'Button Text'}</label>
+    <input value={txt} onChange={e => setTxt(e.target.value)} style={{ ...inputStyle, marginBottom: 10 }} />
+
+    {type === 'button' && <>
+      <label style={lblStyle}>Link URL</label>
+      <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://..." style={{ ...inputStyle, marginBottom: 10 }} />
+    </>}
+
+    <label style={lblStyle}>Background Colour</label>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+      <div style={{ position: 'relative', width: 36, height: 36, borderRadius: 8, border: '2px solid #e2e8f0', overflow: 'hidden', background: bgColor }}>
+        <input type="color" value={bgColor.startsWith('#') ? bgColor : '#0ea5e9'} onChange={e => setBgColor(e.target.value)}
+          style={{ position: 'absolute', inset: -4, width: 'calc(100% + 8px)', height: 'calc(100% + 8px)', border: 'none', cursor: 'pointer', padding: 0 }} />
+      </div>
+      <span style={{ fontSize: 11, fontFamily: 'monospace', color: '#94a3b8' }}>{bgColor.startsWith('#') ? bgColor : 'Gradient'}</span>
+    </div>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 12 }}>
+      {PRESETS.map((p, i) => (
+        <div key={i} onClick={() => setBgColor(p.bg)} title={p.label} style={{
+          width: 26, height: 26, borderRadius: 6, background: p.bg, cursor: 'pointer',
+          border: bgColor === p.bg ? '2px solid #0f172a' : '1px solid #e2e8f0',
+        }} />
+      ))}
+    </div>
+
+    <label style={lblStyle}>Text Colour</label>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+      {['#ffffff', '#000000', '#0f172a', '#fbbf24', '#0ea5e9'].map(c => (
+        <div key={c} onClick={() => setTxtColor(c)} style={{
+          width: 24, height: 24, borderRadius: 5, background: c, cursor: 'pointer',
+          border: txtColor === c ? '2px solid #0ea5e9' : '1px solid #e2e8f0',
+        }} />
+      ))}
+      <div style={{ position: 'relative', width: 24, height: 24, borderRadius: 5, border: '1px solid #e2e8f0', overflow: 'hidden', background: txtColor }}>
+        <input type="color" value={txtColor} onChange={e => setTxtColor(e.target.value)}
+          style={{ position: 'absolute', inset: -4, width: 'calc(100% + 8px)', height: 'calc(100% + 8px)', border: 'none', cursor: 'pointer', padding: 0 }} />
+      </div>
+    </div>
+
+    {/* Preview */}
+    <div style={{ padding: 16, background: '#0f172a', borderRadius: 12, marginBottom: 14, textAlign: 'center' }}>
+      <div style={{ display: 'inline-block', padding: type === 'announcement' ? '10px 24px' : '12px 32px', borderRadius: type === 'announcement' ? 8 : 12, background: bgColor, color: txtColor, fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: type === 'announcement' ? 13 : 16 }}>{txt}</div>
+    </div>
+
+    <BtnRow onApply={apply} onClose={onClose} />
   </>;
 }
 

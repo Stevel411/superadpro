@@ -15,7 +15,7 @@ export const ELEMENT_TYPES = {
   // ── Actions ──
   button: { w: 500, h: 56, txt: 'Join Now', s: { background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff', fontFamily: 'Sora,sans-serif', fontWeight: '700', fontSize: '18px', textAlign: 'center', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' } },
   form: { w: 600, h: 280, txt: '<div style="text-align:center;padding:4px"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">Get Free Access</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">Enter your details below</div><input placeholder="Your first name" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#1a1a2e;font-size:13px;margin-bottom:8px;box-sizing:border-box"><input placeholder="Your email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#1a1a2e;font-size:13px;margin-bottom:10px;box-sizing:border-box"><div style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box">Get Access →</div></div>', s: { background: 'rgba(15,23,41,0.4)', borderRadius: '18px', border: '1px solid rgba(14,165,233,0.15)', padding: '20px' } },
-  cta: { w: 500, h: 56, txt: 'Get Started Now →', s: { background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff', fontFamily: 'Sora,sans-serif', fontWeight: '700', fontSize: '18px', textAlign: 'center', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' } },
+  announcement: { w: 1100, h: 44, txt: '🔥 LIMITED TIME OFFER — Join Now and Save 50%!', s: { background: 'linear-gradient(135deg,#ef4444,#f59e0b)', color: '#fff', fontFamily: 'DM Sans,sans-serif', fontWeight: '700', 'fontSize': '14px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' } },
 
   // ── Content ──
   review: { w: 700, h: 100, txt: '<div style="margin-bottom:8px"><span style="color:#fbbf24">★★★★★</span></div><div style="font-size:15px;color:#e2e8f0;line-height:1.7;font-style:italic">"This platform is amazing!"</div><div style="font-size:13px;color:#64748b;font-weight:600;margin-top:6px">— Happy Customer</div>', s: { background: '#1e293b', borderRadius: '16px', borderLeft: '4px solid #0ea5e9', padding: '24px' } },
@@ -39,7 +39,7 @@ export const ELEMENT_TYPES = {
 
 // Types that should auto-centre on the canvas
 export const CENTRE_TYPES = [
-  'heading', 'text', 'cta', 'separator', 'logostrip', 'countdown', 'progress',
+  'heading', 'text', 'announcement', 'separator', 'logostrip', 'countdown', 'progress',
   'socialicons', 'video', 'audio', 'embed', 'form', 'testimonial', 'faq', 'icontext', 'review'
 ];
 
@@ -58,7 +58,7 @@ export const PALETTE = [
   { label: 'Actions', items: [
     { type: 'button', name: 'Button', color: '#10b981' },
     { type: 'form', name: 'Opt-In', color: '#10b981' },
-    { type: 'cta', name: 'CTA', color: '#10b981' },
+    { type: 'announcement', name: 'Banner', color: '#10b981' },
   ]},
   { label: 'Content', items: [
     { type: 'review', name: 'Review', color: '#f59e0b' },
