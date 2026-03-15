@@ -165,7 +165,7 @@ export default function LinkHub() {
       display_name: displayName,
       bio: bio,
       bg_color: bgColor,
-      bg_image: bgImage && bgImage.startsWith('data:') ? bgImage : undefined,
+      bg_image: bgImage || undefined,
       clear_bg_image: !bgImage ? true : undefined,
       text_color: textColor,
       btn_color: btnColor,
