@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SuperPages — SuperAdPro</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=Raleway:wght@400;500;600;700;800;900&family=Open+Sans:wght@400;500;600;700;800&family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700;900&family=Nunito:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=Rubik:wght@400;500;600;700;800;900&family=Quicksand:wght@400;500;600;700&family=Mulish:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Figtree:wght@400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Merriweather:wght@400;700;900&family=Lora:wght@400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=Pacifico&family=Caveat:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Anton&family=Bebas+Neue&family=Cinzel:wght@400;600;700;800;900&family=Libre+Baskerville:wght@400;700&family=Cormorant+Garamond:wght@400;500;600;700&family=Fira+Sans:wght@400;500;600;700&family=Karla:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=Raleway:wght@400;500;600;700;800;900&family=Open+Sans:wght@400;500;600;700;800&family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700;900&family=Nunito:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=Rubik:wght@400;500;600;700;800;900&family=Quicksand:wght@400;500;600;700&family=Mulish:wght@400;500;600;700;800;900&family=Lexend:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Figtree:wght@400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Merriweather:wght@400;700;900&family=Lora:wght@400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=Pacifico&family=Caveat:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Anton&family=Bebas+Neue&family=Cinzel:wght@400;600;700;800;900&family=Libre+Baskerville:wght@400;700&family=Cormorant+Garamond:wght@400;500;600;700&family=Fira+Sans:wght@400;500;600;700&family=Karla:wght@400;500;600;700;800&family=Josefin+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700;800;900&family=Archivo:wght@400;500;600;700;800;900&family=Barlow:wght@400;500;600;700;800;900&family=Abril+Fatface&family=Righteous&family=Permanent+Marker&family=Bangers&family=Satisfy&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/grapesjs/dist/css/grapes.min.css">
 <script src="https://unpkg.com/grapesjs"></script>
 <script src="https://unpkg.com/grapesjs-blocks-basic"></script>
@@ -12,14 +12,11 @@
 <script src="https://unpkg.com/grapesjs-plugin-forms"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--sp-shell:#0a0e1a;--sp-shell2:#111627;--sp-panel:#131830;--sp-panel2:#1a2040;--sp-border:rgba(255,255,255,0.06);--sp-border2:rgba(255,255,255,0.1);--sp-accent:#0ea5e9;--sp-accent2:#6366f1;--sp-green:#10b981;--sp-rose:#f43f5e;--sp-amber:#f59e0b;--sp-text:#e8eaf0;--sp-text2:#8b92a8;--sp-text3:#565e78}
+:root{--sp-shell:#0a0e1a;--sp-shell2:#111627;--sp-panel:#131830;--sp-border:rgba(255,255,255,0.06);--sp-border2:rgba(255,255,255,0.1);--sp-accent:#0ea5e9;--sp-accent2:#6366f1;--sp-green:#10b981;--sp-rose:#f43f5e;--sp-amber:#f59e0b;--sp-text:#e8eaf0;--sp-text2:#8b92a8;--sp-text3:#565e78}
 body{margin:0;background:var(--sp-shell);font-family:'DM Sans',system-ui,sans-serif;overflow:hidden;height:100vh;color:var(--sp-text)}
 ::selection{background:#0ea5e940}
-
-/* ═══ TOPBAR ═══ */
 .sp-topbar{height:54px;background:var(--sp-shell2);border-bottom:1px solid var(--sp-border);display:flex;align-items:center;padding:0 16px;gap:8px;z-index:100;flex-shrink:0}
 .sp-brand{display:flex;align-items:center;gap:10px;padding-right:12px;border-right:1px solid var(--sp-border);margin-right:4px;text-decoration:none}
-.sp-brand svg{flex-shrink:0}
 .sp-brand-text{font-family:Sora,sans-serif;font-weight:800;font-size:16px;color:#fff;letter-spacing:-.3px}
 .sp-brand-text span{color:var(--sp-accent)}
 .sp-title{font-size:13px;color:var(--sp-text3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -34,122 +31,60 @@ body{margin:0;background:var(--sp-shell);font-family:'DM Sans',system-ui,sans-se
 .sp-tundo{padding:5px 10px;border:none;border-radius:7px;font-size:15px;cursor:pointer;background:rgba(255,255,255,.04);color:var(--sp-text3);transition:.12s;line-height:1}
 .sp-tundo:hover{background:rgba(255,255,255,.08);color:#fff}
 .sp-pub{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:1px solid var(--sp-border);background:rgba(255,255,255,.03);cursor:pointer;font-size:11px;font-weight:700;color:var(--sp-text3);transition:.15s}
-.sp-pub:hover{background:rgba(255,255,255,.06)}
 .sp-pub.live{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.08);color:var(--sp-green)}
 .sp-pubdot{width:7px;height:7px;border-radius:50%;background:var(--sp-text3);transition:.2s}
 .sp-pub.live .sp-pubdot{background:var(--sp-green);box-shadow:0 0 8px rgba(16,185,129,.5)}
-.sp-open{padding:5px 12px;border:none;border-radius:7px;font-size:11px;font-weight:700;text-decoration:none;color:var(--sp-green);background:rgba(16,185,129,.08);display:none;align-items:center;gap:3px;cursor:pointer;transition:.15s}
-.sp-open:hover{background:rgba(16,185,129,.15)}
+.sp-open{padding:5px 12px;border:none;border-radius:7px;font-size:11px;font-weight:700;text-decoration:none;color:var(--sp-green);background:rgba(16,185,129,.08);display:none;align-items:center;gap:3px}
 .sp-open.show{display:inline-flex}
-
-/* ═══ MAIN LAYOUT ═══ */
 .sp-layout{display:flex;height:calc(100vh - 54px)}
-
-/* ═══ CUSTOM RIGHT PANEL ═══ */
 .sp-panel{width:280px;background:var(--sp-panel);border-left:1px solid var(--sp-border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;z-index:10}
 .sp-panel-head{padding:14px 16px;border-bottom:1px solid var(--sp-border);display:flex;align-items:center;justify-content:space-between}
 .sp-panel-head h3{font-family:Sora,sans-serif;font-size:13px;font-weight:800;color:var(--sp-text);display:flex;align-items:center;gap:6px}
-.sp-panel-head-r{display:flex;align-items:center;gap:6px}
+.sp-panel-head p{font-size:10px;color:var(--sp-text3);margin-top:2px}
 .sp-bg-sw{width:28px;height:28px;border-radius:8px;border:2px solid var(--sp-border2);overflow:hidden;position:relative;cursor:pointer}
 .sp-bg-sw:hover{border-color:var(--sp-accent)}
 .sp-bg-sw input[type=color]{position:absolute;inset:-6px;width:calc(100% + 12px);height:calc(100% + 12px);border:none;cursor:pointer;padding:0}
-
-/* Tabs: Blocks | Style | Layers */
-.sp-tabs{display:flex;border-bottom:1px solid var(--sp-border);flex-shrink:0}
-.sp-tab{flex:1;padding:9px 0;font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;text-align:center;color:var(--sp-text3);cursor:pointer;transition:.15s;border-bottom:2px solid transparent}
-.sp-tab:hover{color:var(--sp-text2)}
-.sp-tab.active{color:var(--sp-accent);border-bottom-color:var(--sp-accent)}
-
-/* Blocks tab */
-.sp-blocks{flex:1;overflow-y:auto;padding:10px;display:none}
-.sp-blocks.show{display:block}
+.sp-blocks{flex:1;overflow-y:auto;padding:10px}
 .sp-blocks::-webkit-scrollbar{width:3px}.sp-blocks::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
-.sp-bcat{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:8px 2px 5px;display:flex;align-items:center;gap:6px}
+.sp-bcat{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:8px 2px 5px}
 .sp-bcat:first-child{padding-top:2px}
-.sp-bcat-text{color:var(--sp-accent)}
-.sp-bcat-media{color:#8b5cf6}
-.sp-bcat-actions{color:var(--sp-green)}
-.sp-bcat-content{color:var(--sp-amber)}
-.sp-bcat-layout{color:#ec4899}
-.sp-bcat-super{color:var(--sp-accent)}
+.sp-bcat-text{color:var(--sp-accent)}.sp-bcat-media{color:#8b5cf6}.sp-bcat-actions{color:var(--sp-green)}.sp-bcat-content{color:var(--sp-amber)}.sp-bcat-layout{color:#ec4899}
 .sp-bgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:6px}
-.sp-bitem{
-  background:linear-gradient(160deg,rgba(46,56,98,.55) 0%,rgba(35,41,82,.55) 50%,rgba(29,35,69,.55) 100%);
-  border:1px solid rgba(255,255,255,.07);border-radius:12px;
-  padding:14px 4px 10px;text-align:center;cursor:grab;
-  display:flex;flex-direction:column;align-items:center;gap:5px;
-  transition:all .2s;user-select:none;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
-  position:relative;overflow:hidden;
-}
+.sp-bitem{background:linear-gradient(160deg,rgba(46,56,98,.55),rgba(35,41,82,.55),rgba(29,35,69,.55));border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px 4px 10px;text-align:center;cursor:grab;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .2s;user-select:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.07);position:relative;overflow:hidden}
 .sp-bitem::before{content:'';position:absolute;top:-40%;left:-40%;width:180%;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent);border-radius:50%;pointer-events:none}
 .sp-bitem:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(14,165,233,.18),0 0 0 1px rgba(14,165,233,.3),inset 0 1px 0 rgba(255,255,255,.1);border-color:rgba(14,165,233,.3)}
 .sp-bitem:active{transform:scale(.94)}
 .sp-bico{width:28px;height:28px;display:flex;align-items:center;justify-content:center}
 .sp-bico svg{width:22px;height:22px;stroke-width:1.8;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
 .sp-bname{font-size:8px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:rgba(255,255,255,.4)}
-
-/* Style tab — GrapesJS Style Manager injected here */
-.sp-style{flex:1;overflow-y:auto;display:none}
-.sp-style.show{display:block}
-
-/* Layers tab — GrapesJS Layer Manager injected here */
-.sp-layers{flex:1;overflow-y:auto;display:none}
-.sp-layers.show{display:block}
-
-/* ═══ GRAPESJS OVERRIDES ═══ */
 #gjsEditor{flex:1;border:none;position:relative}
 .gjs-editor{background:var(--sp-shell)!important}
 .gjs-cv-canvas{background:radial-gradient(ellipse at center,#111828,#0a0e1a)!important}
-/* Hide default GrapesJS panels — we use our own */
 .gjs-pn-panels{display:none!important}
 .gjs-pn-views,.gjs-pn-views-container{display:none!important}
-/* But show the managers themselves when inside our custom tabs */
-#tabStyle .gjs-sm-sectors,#tabStyle .gjs-clm-tags,#tabStyle .gjs-trt-traits,
-#tabLayers .gjs-layers{display:block!important;background:var(--sp-panel)!important}
-#tabStyle .gjs-sm-sectors{padding:8px!important}
-#tabLayers .gjs-layers{padding:0!important}
-/* Keep the canvas and frame */
 .gjs-frame-wrapper{background:transparent!important}
-/* Style manager theming (shown in our custom panel) */
-.gjs-sm-sector .gjs-sm-sector-title{background:var(--sp-panel)!important;color:var(--sp-text2)!important;border-color:var(--sp-border)!important;font-weight:700!important;font-size:11px!important;font-family:'DM Sans',sans-serif!important}
-.gjs-sm-sector .gjs-sm-property{color:var(--sp-text2)!important}
-.gjs-sm-sector .gjs-sm-property .gjs-sm-label{color:var(--sp-text3)!important;font-size:10px!important}
-.gjs-field{background:rgba(255,255,255,.04)!important;border-color:rgba(255,255,255,.1)!important;color:var(--sp-text)!important;border-radius:6px!important}
-.gjs-field:focus-within{border-color:var(--sp-accent)!important}
-.gjs-radio-item{border-color:rgba(255,255,255,.1)!important;color:var(--sp-text3)!important}
-.gjs-sm-composite .gjs-sm-property{border-bottom:none!important}
-.gjs-clm-tags{background:var(--sp-panel)!important;border-color:var(--sp-border)!important}
-.gjs-clm-tags .gjs-clm-tag{background:rgba(14,165,233,.1)!important;color:var(--sp-accent)!important;border-radius:4px!important}
-.gjs-layers{background:var(--sp-panel)!important}
-.gjs-layer{background:transparent!important;border-bottom:1px solid var(--sp-border)!important}
-.gjs-layer:hover{background:rgba(255,255,255,.03)!important}
-.gjs-layer-name{color:var(--sp-text2)!important;font-size:11px!important}
-.gjs-layer.gjs-selected .gjs-layer-name{color:var(--sp-accent)!important}
-.gjs-trt-traits{background:var(--sp-panel)!important}
-.gjs-trt-trait{color:var(--sp-text2)!important;border-bottom:1px solid var(--sp-border)!important}
-/* Scrollbars */
+.gjs-rte-toolbar{display:none!important}
 .gjs-editor ::-webkit-scrollbar{width:4px;height:4px}
 .gjs-editor ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
-/* RTE toolbar */
-.gjs-rte-toolbar{background:var(--sp-shell2)!important;border:1px solid var(--sp-border2)!important;border-radius:10px!important;box-shadow:0 8px 32px rgba(0,0,0,.3)!important;padding:4px!important}
-.gjs-rte-toolbar .gjs-rte-btn{color:var(--sp-text2)!important;border-radius:5px!important;padding:4px 8px!important}
-.gjs-rte-toolbar .gjs-rte-btn:hover{background:rgba(255,255,255,.08)!important;color:#fff!important}
-.gjs-rte-toolbar .gjs-rte-active{background:rgba(14,165,233,.15)!important;color:var(--sp-accent)!important}
-
-/* Toast */
+#floatBar{display:none;position:fixed;z-index:200;background:var(--sp-shell2);border:1px solid var(--sp-border2);border-radius:12px;box-shadow:0 12px 48px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.03);padding:6px 8px;gap:4px;align-items:center;flex-wrap:wrap;max-width:720px}
+#floatBar.show{display:flex}
+#floatBar select,#floatBar input[type=number]{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--sp-text);padding:5px 6px;font-size:11px;font-family:inherit;outline:none}
+#floatBar select:focus,#floatBar input:focus{border-color:var(--sp-accent)}
+#floatBar select{max-width:140px}
+#floatBar input[type=number]{width:48px;text-align:center}
+.fb-sep{width:1px;height:22px;background:rgba(255,255,255,.08);margin:0 2px;flex-shrink:0}
+.fb-btn{width:30px;height:30px;border:none;border-radius:6px;background:transparent;color:var(--sp-text2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.12s;flex-shrink:0}
+.fb-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+.fb-color{width:28px;height:28px;border-radius:6px;border:2px solid rgba(255,255,255,.12);overflow:hidden;position:relative;cursor:pointer;flex-shrink:0}
+.fb-color:hover{border-color:var(--sp-accent)}
+.fb-color input[type=color]{position:absolute;inset:-6px;width:calc(100% + 12px);height:calc(100% + 12px);border:none;cursor:pointer;padding:0}
 .sp-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--sp-shell2);color:#fff;padding:10px 24px;border-radius:10px;font-size:12px;font-weight:600;opacity:0;z-index:300;box-shadow:0 8px 32px rgba(0,0,0,.4);border:1px solid var(--sp-border);transition:all .3s;pointer-events:none}
 .sp-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
-
-<!-- ═══ TOPBAR ═══ -->
 <div class="sp-topbar">
-  <a href="/pro/funnels" class="sp-brand">
-    <svg width="28" height="28" viewBox="0 0 48 48"><rect x="6" y="6" width="16" height="16" rx="4" fill="#0ea5e9" opacity=".9"/><rect x="26" y="6" width="16" height="16" rx="4" fill="#6366f1" opacity=".7"/><rect x="6" y="26" width="16" height="16" rx="4" fill="#6366f1" opacity=".5"/><rect x="26" y="26" width="16" height="16" rx="4" fill="#0ea5e9" opacity=".3"/><path d="M18 14l-4 4m0-4l4 4" stroke="#fff" stroke-width="2" stroke-linecap="round"/><rect x="30" y="11" width="8" height="2" rx="1" fill="#fff" opacity=".8"/><rect x="30" y="15" width="5" height="2" rx="1" fill="#fff" opacity=".5"/></svg>
-    <div class="sp-brand-text">Super<span>Pages</span></div>
-  </a>
+  <a href="/pro/funnels" class="sp-brand"><svg width="28" height="28" viewBox="0 0 48 48"><rect x="6" y="6" width="16" height="16" rx="4" fill="#0ea5e9" opacity=".9"/><rect x="26" y="6" width="16" height="16" rx="4" fill="#6366f1" opacity=".7"/><rect x="6" y="26" width="16" height="16" rx="4" fill="#6366f1" opacity=".5"/><rect x="26" y="26" width="16" height="16" rx="4" fill="#0ea5e9" opacity=".3"/><path d="M18 14l-4 4m0-4l4 4" stroke="#fff" stroke-width="2" stroke-linecap="round"/><rect x="30" y="11" width="8" height="2" rx="1" fill="#fff" opacity=".8"/><rect x="30" y="15" width="5" height="2" rx="1" fill="#fff" opacity=".5"/></svg><div class="sp-brand-text">Super<span>Pages</span></div></a>
   <div class="sp-title"><strong>{{ page.headline or page.title }}</strong></div>
   <div class="sp-dirty" id="dirtyDot"></div>
   <div class="sp-sep"></div>
@@ -157,321 +92,117 @@ body{margin:0;background:var(--sp-shell);font-family:'DM Sans',system-ui,sans-se
   <button class="sp-tundo" onclick="editor.UndoManager.redo()" title="Redo">&#x21aa;</button>
   <div class="sp-sep"></div>
   <button class="sp-tbtn sp-tghost" onclick="editor.runCommand('core:preview')">Preview</button>
-  <button class="sp-tbtn sp-tghost" onclick="editor.runCommand('core:fullscreen')">&#x26F6;</button>
   <div class="sp-sep"></div>
   <button class="sp-tbtn sp-tsave" onclick="editorSave()">Save</button>
   <div class="sp-pub" id="pubToggle" onclick="togglePub()"><div class="sp-pubdot"></div><span id="pubLabel">Draft</span></div>
   <a href="/f/{{ page.slug }}" target="_blank" class="sp-open" id="openLink">Open &#x2197;</a>
 </div>
-
-<!-- ═══ MAIN LAYOUT ═══ -->
+<div id="floatBar">
+  <select id="fbFont" onchange="fbStyle('font-family',this.value)" title="Font"></select>
+  <input type="number" id="fbSize" min="8" max="120" value="16" onchange="fbStyle('font-size',this.value+'px')" title="Size">
+  <div class="fb-sep"></div>
+  <button class="fb-btn" onclick="fbExec('bold')" title="Bold"><b>B</b></button>
+  <button class="fb-btn" onclick="fbExec('italic')" title="Italic"><i>I</i></button>
+  <button class="fb-btn" onclick="fbExec('underline')" title="Underline"><u>U</u></button>
+  <div class="fb-sep"></div>
+  <button class="fb-btn" onclick="fbStyle('text-align','left')" title="Left">&#x2261;</button>
+  <button class="fb-btn" onclick="fbStyle('text-align','center')" title="Center">&#x2550;</button>
+  <button class="fb-btn" onclick="fbStyle('text-align','right')" title="Right">&#x2262;</button>
+  <div class="fb-sep"></div>
+  <div class="fb-color" title="Text Colour"><input type="color" id="fbTextColor" value="#ffffff" oninput="fbStyle('color',this.value)"></div>
+  <div class="fb-color" title="Background"><input type="color" id="fbBgColor" value="#000000" oninput="fbStyle('background-color',this.value)"></div>
+  <div class="fb-sep"></div>
+  <button class="fb-btn" onclick="fbDuplicate()" title="Duplicate">&#x2750;</button>
+  <button class="fb-btn" onclick="fbDelete()" title="Delete" style="color:var(--sp-rose)">&#x2715;</button>
+</div>
 <div class="sp-layout">
-  <!-- GrapesJS Canvas -->
   <div id="gjsEditor"></div>
-
-  <!-- Custom Right Panel -->
   <div class="sp-panel">
-    <div class="sp-panel-head">
-      <h3><svg width="16" height="16" viewBox="0 0 48 48"><rect x="6" y="6" width="16" height="16" rx="4" fill="#0ea5e9" opacity=".9"/><rect x="26" y="6" width="16" height="16" rx="4" fill="#6366f1" opacity=".7"/><rect x="6" y="26" width="16" height="16" rx="4" fill="#6366f1" opacity=".5"/><rect x="26" y="26" width="16" height="16" rx="4" fill="#0ea5e9" opacity=".3"/></svg> SuperPages</h3>
-      <div class="sp-panel-head-r">
-        <div class="sp-bg-sw" id="bgSwatch"><input type="color" id="bgPicker" value="#050d1a" oninput="setCanvasBg(this.value)"></div>
-      </div>
-    </div>
-    <div class="sp-tabs">
-      <div class="sp-tab active" data-tab="blocks" onclick="switchTab('blocks')">Blocks</div>
-      <div class="sp-tab" data-tab="style" onclick="switchTab('style')">Style</div>
-      <div class="sp-tab" data-tab="layers" onclick="switchTab('layers')">Layers</div>
-    </div>
-
-    <!-- BLOCKS TAB -->
-    <div class="sp-blocks show" id="tabBlocks">
-      <div class="sp-bcat sp-bcat-text">Text</div>
-      <div class="sp-bgrid">
+    <div class="sp-panel-head"><div><h3><svg width="16" height="16" viewBox="0 0 48 48"><rect x="6" y="6" width="16" height="16" rx="4" fill="#0ea5e9" opacity=".9"/><rect x="26" y="6" width="16" height="16" rx="4" fill="#6366f1" opacity=".7"/><rect x="6" y="26" width="16" height="16" rx="4" fill="#6366f1" opacity=".5"/><rect x="26" y="26" width="16" height="16" rx="4" fill="#0ea5e9" opacity=".3"/></svg> Blocks</h3><p>Click or drag to canvas</p></div><div class="sp-panel-head-r"><div class="sp-bg-sw" id="bgSwatch"><input type="color" id="bgPicker" value="#050d1a" oninput="setCanvasBg(this.value)"></div></div></div>
+    <div class="sp-blocks">
+      <div class="sp-bcat sp-bcat-text">Text</div><div class="sp-bgrid">
         <div class="sp-bitem" data-block="sa-heading"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16"/><path d="M20 4v16"/><path d="M4 12h16"/></svg></span><span class="sp-bname">Heading</span></div>
         <div class="sp-bitem" data-block="sa-text"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h10"/></svg></span><span class="sp-bname">Text</span></div>
-        <div class="sp-bitem" data-block="sa-label"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 10h10"/></svg></span><span class="sp-bname">Label</span></div>
-      </div>
-      <div class="sp-bcat sp-bcat-media">Media</div>
-      <div class="sp-bgrid">
+        <div class="sp-bitem" data-block="sa-label"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 10h10"/></svg></span><span class="sp-bname">Label</span></div></div>
+      <div class="sp-bcat sp-bcat-media">Media</div><div class="sp-bgrid">
         <div class="sp-bitem" data-block="image"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></span><span class="sp-bname">Image</span></div>
         <div class="sp-bitem" data-block="video"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21"/></svg></span><span class="sp-bname">Video</span></div>
-        <div class="sp-bitem" data-block="map"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span class="sp-bname">Audio</span></div>
-      </div>
-      <div class="sp-bcat sp-bcat-actions">Actions</div>
-      <div class="sp-bgrid">
+        <div class="sp-bitem" data-block="map"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span class="sp-bname">Audio</span></div></div>
+      <div class="sp-bcat sp-bcat-actions">Actions</div><div class="sp-bgrid">
         <div class="sp-bitem" data-block="sa-cta-button"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="10" rx="5"/><path d="M8 12h8"/></svg></span><span class="sp-bname">Button</span></div>
-        <div class="sp-bitem" data-block="sa-optin"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 8h10"/><path d="M7 12h10"/><path d="M9 16h6"/></svg></span><span class="sp-bname">Opt-In</span></div>
-        <div class="sp-bitem" data-block="link"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/></svg></span><span class="sp-bname">Link</span></div>
-      </div>
-      <div class="sp-bcat sp-bcat-content">Content</div>
-      <div class="sp-bgrid">
+        <div class="sp-bitem" data-block="sa-optin"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 8h10M7 12h10M9 16h6"/></svg></span><span class="sp-bname">Opt-In</span></div>
+        <div class="sp-bitem" data-block="link"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14L21 3"/><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/></svg></span><span class="sp-bname">Link</span></div></div>
+      <div class="sp-bcat sp-bcat-content">Content</div><div class="sp-bgrid">
         <div class="sp-bitem" data-block="sa-testimonial"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/></svg></span><span class="sp-bname">Review</span></div>
         <div class="sp-bitem" data-block="sa-stat"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="14" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="12" rx="1"/><rect x="16" y="4" width="4" height="17" rx="1"/></svg></span><span class="sp-bname">Stat</span></div>
-        <div class="sp-bitem" data-block="sa-features"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span class="sp-bname">Features</span></div>
-      </div>
-      <div class="sp-bcat sp-bcat-layout">Layout</div>
-      <div class="sp-bgrid">
-        <div class="sp-bitem" data-block="column1"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></span><span class="sp-bname">1 Column</span></div>
-        <div class="sp-bitem" data-block="column2"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="18" rx="2"/><rect x="13" y="3" width="8" height="18" rx="2"/></svg></span><span class="sp-bname">2 Columns</span></div>
-        <div class="sp-bitem" data-block="column3"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="6" height="18" rx="1"/><rect x="9" y="3" width="6" height="18" rx="1"/><rect x="16" y="3" width="6" height="18" rx="1"/></svg></span><span class="sp-bname">3 Columns</span></div>
-      </div>
-      <div class="sp-bgrid" style="margin-top:6px">
+        <div class="sp-bitem" data-block="sa-features"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span class="sp-bname">Features</span></div></div>
+      <div class="sp-bcat sp-bcat-layout">Layout</div><div class="sp-bgrid">
+        <div class="sp-bitem" data-block="column1"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></span><span class="sp-bname">1 Col</span></div>
+        <div class="sp-bitem" data-block="column2"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="18" rx="2"/><rect x="13" y="3" width="8" height="18" rx="2"/></svg></span><span class="sp-bname">2 Col</span></div>
+        <div class="sp-bitem" data-block="column3"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="6" height="18" rx="1"/><rect x="9" y="3" width="6" height="18" rx="1"/><rect x="16" y="3" width="6" height="18" rx="1"/></svg></span><span class="sp-bname">3 Col</span></div></div>
+      <div class="sp-bgrid" style="margin-top:4px">
         <div class="sp-bitem" data-block="sa-hero"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 12h8M10 8h4"/></svg></span><span class="sp-bname">Hero</span></div>
         <div class="sp-bitem" data-block="sa-divider"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-linecap="round"><path d="M3 12h18"/></svg></span><span class="sp-bname">Divider</span></div>
-        <div class="sp-bitem" data-block="sa-spacer"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span><span class="sp-bname">Spacer</span></div>
-      </div>
+        <div class="sp-bitem" data-block="sa-spacer"><span class="sp-bico"><svg viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span><span class="sp-bname">Spacer</span></div></div>
     </div>
-
-    <!-- STYLE TAB (GrapesJS Style Manager renders here) -->
-    <div class="sp-style" id="tabStyle"></div>
-
-    <!-- LAYERS TAB (GrapesJS Layer Manager renders here) -->
-    <div class="sp-layers" id="tabLayers"></div>
   </div>
 </div>
-
 <div class="sp-toast" id="spToast"></div>
-
 <script>
 const PAGE_ID={{page.id}},SLUG='{{page.slug}}';
 let _pub='{{page.status or "draft"}}',_dirty=false;
-
 if(_pub==='published'){document.getElementById('pubToggle').classList.add('live');document.getElementById('pubLabel').textContent='Live';document.getElementById('openLink').classList.add('show')}
-
-const FONTS=[
-  'Outfit','Sora','DM Sans','Montserrat','Poppins','Raleway','Open Sans','Lato','Roboto',
-  'Nunito','Inter','Rubik','Quicksand','Mulish','Lexend','Manrope','Figtree',
-  'Playfair Display','Merriweather','Lora','Dancing Script','Pacifico','Caveat',
-  'Oswald','Anton','Bebas Neue','Cinzel','Libre Baskerville','Cormorant Garamond',
-  'Fira Sans','Karla','Arial','Georgia','Times New Roman','Courier New'
-].map(function(f){return{value:f,name:f}});
-
-// ═══ INIT GRAPESJS ═══
-var editor=grapesjs.init({
-  container:'#gjsEditor',
-  height:'100%',
-  width:'auto',
-  fromElement:false,
-  storageManager:false,
-  panels:{defaults:[]},
-  canvas:{
-    styles:['https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap']
-  },
+var FONT_LIST=['Outfit','Sora','DM Sans','Montserrat','Poppins','Raleway','Open Sans','Lato','Roboto','Nunito','Inter','Rubik','Quicksand','Mulish','Lexend','Manrope','Figtree','Playfair Display','Merriweather','Lora','Dancing Script','Pacifico','Caveat','Oswald','Anton','Bebas Neue','Cinzel','Libre Baskerville','Cormorant Garamond','Fira Sans','Karla','Josefin Sans','Space Grotesk','Plus Jakarta Sans','Work Sans','Archivo','Barlow','IBM Plex Sans','Source Sans 3','Bitter','Crimson Text','Spectral','Abril Fatface','Righteous','Permanent Marker','Bangers','Satisfy','Arial','Georgia','Times New Roman','Courier New','Verdana','Impact'];
+var fbFontEl=document.getElementById('fbFont');
+FONT_LIST.forEach(function(f){var o=document.createElement('option');o.value=f;o.textContent=f;o.style.fontFamily=f;fbFontEl.appendChild(o)});
+var editor=grapesjs.init({container:'#gjsEditor',height:'100%',width:'auto',fromElement:false,storageManager:false,panels:{defaults:[]},
+  canvas:{styles:['https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=Josefin+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700;800;900&family=Barlow:wght@400;500;600;700;800;900&family=Abril+Fatface&family=Righteous&family=Permanent+Marker&family=Bangers&family=Satisfy&display=swap']},
   plugins:['gjs-blocks-basic','gjs-preset-webpage','gjs-plugin-forms'],
-  pluginsOpts:{
-    'gjs-blocks-basic':{flexGrid:true},
-    'gjs-preset-webpage':{formsOpts:false},
-  },
-  deviceManager:{
-    devices:[
-      {name:'Desktop',width:''},
-      {name:'Tablet',width:'768px',widthMedia:'992px'},
-      {name:'Mobile',width:'375px',widthMedia:'480px'},
-    ]
-  },
-  selectorManager:{
-    appendTo:'#tabStyle'
-  },
-  styleManager:{
-    appendTo:'#tabStyle',
-    sectors:[
-      {name:'Typography',open:true,properties:[
-        {property:'font-family',type:'select',options:FONTS},
-        {property:'font-size'},{property:'font-weight'},{property:'letter-spacing'},
-        {property:'color'},{property:'line-height'},{property:'text-align'},
-        {property:'text-decoration'},{property:'text-transform'},
-      ]},
-      {name:'Layout',properties:[
-        {property:'display'},{property:'width'},{property:'height'},
-        {property:'max-width'},{property:'min-height'},
-        {property:'margin'},{property:'padding'},
-      ]},
-      {name:'Appearance',properties:[
-        {property:'background-color'},{property:'background'},
-        {property:'opacity'},{property:'border-radius'},
-        {property:'border'},{property:'box-shadow'},
-      ]},
-      {name:'Position',properties:[
-        {property:'position'},{property:'top'},{property:'right'},
-        {property:'bottom'},{property:'left'},{property:'z-index'},
-      ]},
-      {name:'Flex',properties:[
-        {property:'flex-direction'},{property:'justify-content'},
-        {property:'align-items'},{property:'gap'},{property:'flex-wrap'},
-      ]},
-    ],
-  },
-  layerManager:{
-    appendTo:'#tabLayers'
-  },
-  traitManager:{
-    appendTo:'#tabStyle'
-  },
-  assetManager:{upload:'/api/funnels/upload-image',uploadName:'file',multiUpload:false,autoAdd:true},
-  blockManager:{
-    custom:true
-  },
-});
-
-// ═══ WIRE DRAG-DROP FROM CUSTOM BLOCK CARDS ═══
+  pluginsOpts:{'gjs-blocks-basic':{flexGrid:true},'gjs-preset-webpage':{formsOpts:false}},
+  deviceManager:{devices:[{name:'Desktop',width:''},{name:'Tablet',width:'768px',widthMedia:'992px'},{name:'Mobile',width:'375px',widthMedia:'480px'}]},
+  blockManager:{custom:true},
+  assetManager:{upload:'/api/funnels/upload-image',uploadName:'file',multiUpload:false,autoAdd:true}});
 var _dragFns={};
-editor.on('block:custom',function(props){
-  _dragFns.dragStart=props.dragStart;
-  _dragFns.dragStop=props.dragStop;
-});
-
+editor.on('block:custom',function(p){_dragFns.dragStart=p.dragStart;_dragFns.dragStop=p.dragStop});
 document.querySelectorAll('.sp-bitem').forEach(function(el){
-  // Drag start — mousedown/touchstart
-  el.addEventListener('mousedown',function(e){
-    var blockId=this.dataset.block;
-    if(!blockId||!_dragFns.dragStart)return;
-    var block=editor.Blocks.get(blockId);
-    if(block)_dragFns.dragStart(block,e);
-  });
-  // Drag stop — mouseup/touchend
-  el.addEventListener('mouseup',function(){
-    if(_dragFns.dragStop)_dragFns.dragStop();
-  });
-  // Click fallback — add component directly if not dragged
-  el.addEventListener('click',function(){
-    var blockId=this.dataset.block;
-    if(!blockId)return;
-    var block=editor.Blocks.get(blockId);
-    if(block){
-      editor.addComponents(block.get('content'));
-    }
-  });
-  // Touch support
-  el.addEventListener('touchstart',function(e){
-    var blockId=this.dataset.block;
-    if(!blockId||!_dragFns.dragStart)return;
-    var block=editor.Blocks.get(blockId);
-    if(block)_dragFns.dragStart(block,e);
-  },{passive:true});
-  el.addEventListener('touchend',function(){
-    if(_dragFns.dragStop)_dragFns.dragStop();
-  });
+  el.addEventListener('mousedown',function(e){var b=editor.Blocks.get(this.dataset.block);if(b&&_dragFns.dragStart)_dragFns.dragStart(b,e)});
+  el.addEventListener('mouseup',function(){if(_dragFns.dragStop)_dragFns.dragStop()});
+  el.addEventListener('click',function(){var b=editor.Blocks.get(this.dataset.block);if(b)editor.addComponents(b.get('content'))});
+  el.addEventListener('touchstart',function(e){var b=editor.Blocks.get(this.dataset.block);if(b&&_dragFns.dragStart)_dragFns.dragStart(b,e)},{passive:true});
+  el.addEventListener('touchend',function(){if(_dragFns.dragStop)_dragFns.dragStop()});
 });
-function switchTab(tab){
-  document.querySelectorAll('.sp-tab').forEach(function(t){t.classList.toggle('active',t.dataset.tab===tab)});
-  document.getElementById('tabBlocks').classList.toggle('show',tab==='blocks');
-  document.getElementById('tabStyle').classList.toggle('show',tab==='style');
-  document.getElementById('tabLayers').classList.toggle('show',tab==='layers');
-}
-
-// Auto-switch to Style tab when element selected, back to Blocks when deselected
-editor.on('component:selected',function(){switchTab('style')});
-editor.on('selection:end',function(){
-  if(!editor.getSelected())switchTab('blocks');
-});
-
-// ═══ CUSTOM SUPERADPRO BLOCKS ═══
 var bm=editor.Blocks;
-
-bm.add('sa-heading',{label:'Heading',category:'SuperAdPro',
-  content:'<h1 style="font-family:Sora,sans-serif;font-weight:900;font-size:42px;color:#fff;text-align:center;padding:20px 40px;margin:0">Your Headline Here</h1>'});
-
-bm.add('sa-text',{label:'Text',category:'SuperAdPro',
-  content:'<p style="font-family:Outfit,sans-serif;font-size:16px;color:#94a3b8;line-height:1.8;padding:10px 40px;margin:0;max-width:800px">Enter your text here. Double-click to edit this content and make it your own.</p>'});
-
-bm.add('sa-label',{label:'Label',category:'SuperAdPro',
-  content:'<span style="display:inline-block;font-family:DM Sans,sans-serif;font-weight:700;font-size:12px;color:#38bdf8;letter-spacing:1px;text-transform:uppercase;background:rgba(56,189,248,0.1);padding:6px 16px;border-radius:20px">LABEL TEXT</span>'});
-
-bm.add('sa-hero',{label:'Hero',category:'SuperAdPro',
-  content:'<section style="padding:80px 40px;text-align:center;background:linear-gradient(135deg,#050d1a,#0f172a);min-height:500px;display:flex;flex-direction:column;align-items:center;justify-content:center"><h1 style="font-family:Sora,sans-serif;font-weight:900;font-size:48px;color:#fff;margin:0 0 16px;max-width:800px">Your Headline Goes Here</h1><p style="font-family:Outfit,sans-serif;font-size:18px;color:#94a3b8;max-width:600px;line-height:1.8;margin:0 0 32px">Describe your offer in a compelling way.</p><a style="display:inline-block;padding:16px 40px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-family:Sora,sans-serif;font-weight:700;font-size:17px;border-radius:12px;text-decoration:none">Get Started Now &#x2192;</a></section>'});
-
-bm.add('sa-testimonial',{label:'Testimonial',category:'SuperAdPro',
-  content:'<div style="background:#1e293b;border-left:4px solid #0ea5e9;border-radius:16px;padding:28px 32px;max-width:700px;margin:20px auto"><div style="color:#fbbf24;font-size:18px;margin-bottom:12px">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</div><p style="font-family:Outfit,sans-serif;font-size:16px;color:#e2e8f0;line-height:1.7;font-style:italic;margin:0 0 16px">"This platform completely changed how I approach my business."</p><p style="font-family:DM Sans,sans-serif;font-size:13px;color:#64748b;font-weight:600;margin:0">&#x2014; Happy Member</p></div>'});
-
-bm.add('sa-stat',{label:'Stat',category:'SuperAdPro',
-  content:'<div style="text-align:center;padding:40px 20px"><div style="font-family:Sora,sans-serif;font-weight:900;font-size:56px;color:#0ea5e9;line-height:1">95%</div><div style="font-family:Outfit,sans-serif;font-size:14px;color:#64748b;margin-top:8px;letter-spacing:1px;text-transform:uppercase">Paid Out</div></div>'});
-
-bm.add('sa-cta-button',{label:'CTA Button',category:'SuperAdPro',
-  content:'<div style="text-align:center;padding:20px"><a href="#" style="display:inline-block;padding:16px 48px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-family:Sora,sans-serif;font-weight:700;font-size:18px;border-radius:14px;text-decoration:none;box-shadow:0 4px 20px rgba(14,165,233,0.3)">Join SuperAdPro Now &#x2192;</a></div>'});
-
-bm.add('sa-optin',{label:'Opt-In',category:'SuperAdPro',
-  content:'<div style="background:rgba(15,23,41,0.5);border:1px solid rgba(14,165,233,0.15);border-radius:20px;padding:32px;max-width:500px;margin:20px auto;text-align:center"><h3 style="font-family:Sora,sans-serif;font-weight:800;font-size:22px;color:#fff;margin:0 0 8px">Get Free Access</h3><p style="font-family:Outfit,sans-serif;font-size:14px;color:#94a3b8;margin:0 0 20px">Enter your details below</p><input type="text" placeholder="Your name" style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#1a1a2e;font-size:14px;margin-bottom:10px;box-sizing:border-box"><input type="email" placeholder="Your email" style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#1a1a2e;font-size:14px;margin-bottom:14px;box-sizing:border-box"><button style="width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-family:Sora,sans-serif;font-weight:700;font-size:15px;cursor:pointer">Get Access &#x2192;</button></div>'});
-
-bm.add('sa-features',{label:'Features',category:'SuperAdPro',
-  content:'<div style="max-width:700px;margin:20px auto;padding:20px"><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:#0ea5e9;font-weight:700;font-size:16px">&#x2713;</span><span style="font-family:Outfit,sans-serif;font-size:15px;color:#94a3b8;line-height:1.6">Four income streams that stack</span></div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:#0ea5e9;font-weight:700;font-size:16px">&#x2713;</span><span style="font-family:Outfit,sans-serif;font-size:15px;color:#94a3b8;line-height:1.6">Nine AI marketing tools included</span></div><div style="display:flex;gap:12px;padding:12px 0"><span style="color:#0ea5e9;font-weight:700;font-size:16px">&#x2713;</span><span style="font-family:Outfit,sans-serif;font-size:15px;color:#94a3b8;line-height:1.6">Instant commissions to your wallet</span></div></div>'});
-
-bm.add('sa-divider',{label:'Divider',category:'SuperAdPro',
-  content:'<div style="padding:20px 0"><hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);max-width:700px;margin:0 auto"></div>'});
-
-bm.add('sa-spacer',{label:'Spacer',category:'SuperAdPro',
-  content:'<div style="height:60px"></div>'});
-
-// ═══ CANVAS BACKGROUND ═══
-function setCanvasBg(c){
-  // Set background on the canvas body element inside the iframe
-  var wrapper=editor.DomComponents.getWrapper();
-  wrapper.addStyle({'background-color':c,'background':c,'min-height':'100vh'});
-  // Also set on canvas frame body for immediate visual feedback
-  var frame=editor.Canvas.getFrameEl();
-  if(frame&&frame.contentDocument){
-    frame.contentDocument.body.style.background=c;
-  }
-  document.getElementById('bgSwatch').style.background=c;
-  document.getElementById('bgPicker').value=c;
-  _dirty=true;document.getElementById('dirtyDot').classList.add('show');
-}
-
-// ═══ TOAST ═══
+bm.add('sa-heading',{label:'Heading',category:'SuperAdPro',content:'<h1 style="font-family:Sora,sans-serif;font-weight:900;font-size:42px;color:#fff;text-align:center;padding:20px 40px;margin:0">Your Headline Here</h1>'});
+bm.add('sa-text',{label:'Text',category:'SuperAdPro',content:'<p style="font-family:Outfit,sans-serif;font-size:16px;color:#94a3b8;line-height:1.8;padding:10px 40px;margin:0;max-width:800px">Enter your text here. Double-click to edit.</p>'});
+bm.add('sa-label',{label:'Label',category:'SuperAdPro',content:'<span style="display:inline-block;font-family:DM Sans,sans-serif;font-weight:700;font-size:12px;color:#38bdf8;letter-spacing:1px;text-transform:uppercase;background:rgba(56,189,248,0.1);padding:6px 16px;border-radius:20px">LABEL TEXT</span>'});
+bm.add('sa-hero',{label:'Hero',category:'SuperAdPro',content:'<section style="padding:80px 40px;text-align:center;background:linear-gradient(135deg,#050d1a,#0f172a);min-height:500px;display:flex;flex-direction:column;align-items:center;justify-content:center"><h1 style="font-family:Sora,sans-serif;font-weight:900;font-size:48px;color:#fff;margin:0 0 16px;max-width:800px">Your Headline Goes Here</h1><p style="font-family:Outfit,sans-serif;font-size:18px;color:#94a3b8;max-width:600px;line-height:1.8;margin:0 0 32px">Describe your offer.</p><a style="display:inline-block;padding:16px 40px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-family:Sora,sans-serif;font-weight:700;font-size:17px;border-radius:12px;text-decoration:none">Get Started &#x2192;</a></section>'});
+bm.add('sa-testimonial',{label:'Testimonial',category:'SuperAdPro',content:'<div style="background:#1e293b;border-left:4px solid #0ea5e9;border-radius:16px;padding:28px 32px;max-width:700px;margin:20px auto"><div style="color:#fbbf24;font-size:18px;margin-bottom:12px">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</div><p style="font-family:Outfit,sans-serif;font-size:16px;color:#e2e8f0;line-height:1.7;font-style:italic;margin:0 0 16px">"This platform changed everything."</p><p style="font-family:DM Sans,sans-serif;font-size:13px;color:#64748b;font-weight:600;margin:0">&#x2014; Happy Member</p></div>'});
+bm.add('sa-stat',{label:'Stat',category:'SuperAdPro',content:'<div style="text-align:center;padding:40px 20px"><div style="font-family:Sora,sans-serif;font-weight:900;font-size:56px;color:#0ea5e9;line-height:1">95%</div><div style="font-family:Outfit,sans-serif;font-size:14px;color:#64748b;margin-top:8px;letter-spacing:1px;text-transform:uppercase">Paid Out</div></div>'});
+bm.add('sa-cta-button',{label:'CTA',category:'SuperAdPro',content:'<div style="text-align:center;padding:20px"><a href="#" style="display:inline-block;padding:16px 48px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-family:Sora,sans-serif;font-weight:700;font-size:18px;border-radius:14px;text-decoration:none;box-shadow:0 4px 20px rgba(14,165,233,0.3)">Join Now &#x2192;</a></div>'});
+bm.add('sa-optin',{label:'Opt-In',category:'SuperAdPro',content:'<div style="background:rgba(15,23,41,0.5);border:1px solid rgba(14,165,233,0.15);border-radius:20px;padding:32px;max-width:500px;margin:20px auto;text-align:center"><h3 style="font-family:Sora,sans-serif;font-weight:800;font-size:22px;color:#fff;margin:0 0 8px">Get Free Access</h3><p style="font-family:Outfit,sans-serif;font-size:14px;color:#94a3b8;margin:0 0 20px">Enter your details below</p><input type="text" placeholder="Your name" style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#1a1a2e;font-size:14px;margin-bottom:10px;box-sizing:border-box"><input type="email" placeholder="Your email" style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#1a1a2e;font-size:14px;margin-bottom:14px;box-sizing:border-box"><button style="width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-family:Sora,sans-serif;font-weight:700;font-size:15px;cursor:pointer">Get Access &#x2192;</button></div>'});
+bm.add('sa-features',{label:'Features',category:'SuperAdPro',content:'<div style="max-width:700px;margin:20px auto;padding:20px"><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:#0ea5e9;font-weight:700">&#x2713;</span><span style="font-family:Outfit,sans-serif;font-size:15px;color:#94a3b8;line-height:1.6">Four income streams that stack</span></div><div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:#0ea5e9;font-weight:700">&#x2713;</span><span style="font-family:Outfit,sans-serif;font-size:15px;color:#94a3b8;line-height:1.6">Nine AI tools included</span></div><div style="display:flex;gap:12px;padding:12px 0"><span style="color:#0ea5e9;font-weight:700">&#x2713;</span><span style="font-family:Outfit,sans-serif;font-size:15px;color:#94a3b8;line-height:1.6">Instant commissions</span></div></div>'});
+bm.add('sa-divider',{label:'Divider',category:'SuperAdPro',content:'<div style="padding:20px 0"><hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);max-width:700px;margin:0 auto"></div>'});
+bm.add('sa-spacer',{label:'Spacer',category:'SuperAdPro',content:'<div style="height:60px"></div>'});
+var floatBar=document.getElementById('floatBar');
+function showFloatBar(comp){if(!comp){floatBar.classList.remove('show');return}floatBar.classList.add('show');var s=comp.getStyle();var ff=s['font-family']||'';if(ff)fbFontEl.value=ff.replace(/['"]/g,'').split(',')[0].trim();document.getElementById('fbSize').value=parseInt(s['font-size'])||16;document.getElementById('fbTextColor').value=rgbHex(s['color']||'#ffffff');document.getElementById('fbBgColor').value=rgbHex(s['background-color']||s['background']||'#000000');posBar(comp)}
+function posBar(comp){if(!comp)return;var el=comp.getEl();if(!el)return;var cv=editor.Canvas;var r=cv.getElementPos(el);var o=cv.getOffset();var x=o.left+r.left;var y=o.top+r.top-50;if(y<60)y=o.top+r.top+r.height+8;floatBar.style.left=Math.max(10,Math.min(x,window.innerWidth-740))+'px';floatBar.style.top=Math.max(60,y)+'px'}
+function rgbHex(c){if(!c)return'#000000';if(c.charAt(0)==='#')return c.length>7?c.slice(0,7):c;var m=c.match(/\d+/g);if(!m||m.length<3)return'#000000';return'#'+((1<<24)+(+m[0]<<16)+(+m[1]<<8)+ +m[2]).toString(16).slice(1)}
+function fbStyle(p,v){var c=editor.getSelected();if(!c)return;c.addStyle({[p]:v});_dirty=true;document.getElementById('dirtyDot').classList.add('show')}
+function fbExec(cmd){var f=editor.Canvas.getFrameEl();if(f&&f.contentDocument)f.contentDocument.execCommand(cmd,false,null);_dirty=true;document.getElementById('dirtyDot').classList.add('show')}
+function fbDuplicate(){var c=editor.getSelected();if(!c)return;var p=c.parent();if(p){var cl=c.clone();p.append(cl,{at:c.index()+1});editor.select(cl)}}
+function fbDelete(){var c=editor.getSelected();if(c)c.remove();floatBar.classList.remove('show')}
+editor.on('component:selected',function(c){showFloatBar(c)});
+editor.on('component:deselected',function(){floatBar.classList.remove('show')});
+editor.on('component:dragged',function(){var c=editor.getSelected();if(c)posBar(c)});
+editor.on('canvas:scroll',function(){var c=editor.getSelected();if(c)posBar(c)});
+window.addEventListener('resize',function(){var c=editor.getSelected();if(c)posBar(c)});
+function setCanvasBg(c){var w=editor.DomComponents.getWrapper();w.addStyle({'background-color':c,'background':c,'min-height':'100vh'});var f=editor.Canvas.getFrameEl();if(f&&f.contentDocument)f.contentDocument.body.style.background=c;document.getElementById('bgSwatch').style.background=c;document.getElementById('bgPicker').value=c;_dirty=true;document.getElementById('dirtyDot').classList.add('show')}
 function spToast(m){var t=document.getElementById('spToast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2500)}
-
-// ═══ SAVE ═══
-async function editorSave(){
-  var components=JSON.stringify(editor.getComponents());
-  var styles=JSON.stringify(editor.getStyle());
-  var html=editor.getHtml();
-  var css=editor.getCss();
-  var payload={
-    id:PAGE_ID,title:'{{page.title|e}}',headline:'{{page.headline or page.title|e}}',
-    gjs_components:components,gjs_styles:styles,
-    gjs_html:'<style>'+css+'</style>'+html,
-    gjs_css:JSON.stringify({v:'grapes',components:components,styles:styles}),
-    status:_pub,
-  };
-  try{
-    var r=await fetch('/api/funnels/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    var d=await r.json();
-    if(d.success||d.id){_dirty=false;document.getElementById('dirtyDot').classList.remove('show');spToast('Saved!');if(d.slug)document.getElementById('openLink').href='/f/'+d.slug}
-    else spToast('Error: '+(d.error||''));
-  }catch(e){spToast('Save error')}
-}
-
-// ═══ LOAD ═══
-(function loadPage(){
-  try{
-    var raw={{(page.gjs_css or '')|tojson|safe}};
-    if(raw&&raw.trim()){
-      var p=JSON.parse(raw);
-      if(p.v==='grapes'&&p.components){editor.setComponents(JSON.parse(p.components));if(p.styles)editor.setStyle(JSON.parse(p.styles));return}
-      if(p.objects){var h='<div style="max-width:1100px;margin:0 auto;padding:40px 20px;min-height:600px">';(p.objects||[]).forEach(function(o){if(o.type==='textbox'){h+='<div style="font-family:'+(o.fontFamily||'Outfit')+';font-size:'+(o.fontSize||16)+'px;font-weight:'+(o.fontWeight||400)+';color:'+(o.fill||'#e2e8f0')+';text-align:'+(o.textAlign||'left')+';line-height:'+(o.lineHeight||1.4)+';'+(o.backgroundColor?'background:'+o.backgroundColor+';':'')+';margin-bottom:20px">'+(o.text||'').replace(/\n/g,'<br>')+'</div>'}});h+='</div>';editor.setComponents(h);return}
-      if(p.els&&Array.isArray(p.els)){var h2='<div style="max-width:1100px;margin:0 auto;padding:40px 20px;min-height:600px;background:'+(p.canvasBg||'#050d1a')+'">';p.els.forEach(function(el){var s=el.s||{};if(['heading','text','label','button','cta','testimonial','stat','faq','form','review','badge','icontext','logostrip','separator'].indexOf(el.type)>=0){h2+='<div style="font-family:'+((s.fontFamily||'Outfit').split(',')[0])+';font-size:'+(s.fontSize||'16px')+';font-weight:'+(s.fontWeight||'400')+';color:'+(s.color||'#e2e8f0')+';text-align:'+(s.textAlign||'left')+';line-height:'+(s.lineHeight||'1.4')+';'+(s.background?'background:'+s.background+';':'')+';'+(s.padding?'padding:'+s.padding+';':'')+';margin-bottom:20px">'+(el.txt||'')+'</div>'}else if(el.type==='divider'){h2+='<hr style="border:none;border-top:2px solid '+(s.background||'#334155')+';margin:20px 0">'}else if(el.type==='video'&&el.txt){h2+='<div style="margin:20px 0"><iframe src="'+el.txt+'" style="width:100%;height:450px;border:none;border-radius:12px" allowfullscreen></iframe></div>'}else if(el.type==='image'&&el.txt){h2+='<img src="'+el.txt+'" style="max-width:100%;border-radius:12px;margin:20px 0">'}});h2+='</div>';editor.setComponents(h2);return}
-    }
-    var savedHtml={{(page.gjs_html or '')|tojson|safe}};
-    if(savedHtml&&savedHtml.trim()){editor.setComponents(savedHtml);return}
-  }catch(e){console.error('Load:',e)}
-  editor.setComponents('<section style="padding:80px 40px;text-align:center;background:#050d1a;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center"><h1 style="font-family:Sora,sans-serif;font-weight:900;font-size:42px;color:#fff;margin:0 0 16px">Start Building Your Page</h1><p style="font-family:Outfit,sans-serif;font-size:16px;color:#94a3b8;max-width:500px;line-height:1.7;margin:0">Drag blocks from the right panel to build your page. Double-click any text to edit.</p></section>');
-})();
-
-// ═══ PUBLISH ═══
-function togglePub(){
-  _pub=_pub==='published'?'draft':'published';
-  var tg=document.getElementById('pubToggle'),lb=document.getElementById('pubLabel'),lk=document.getElementById('openLink');
-  if(_pub==='published'){tg.classList.add('live');lb.textContent='Live';lk.classList.add('show');spToast('Published!')}
-  else{tg.classList.remove('live');lb.textContent='Draft';lk.classList.remove('show');spToast('Unpublished')}
-  _dirty=true;editorSave();
-}
-
-// ═══ DIRTY TRACKING ═══
+async function editorSave(){var components=JSON.stringify(editor.getComponents());var styles=JSON.stringify(editor.getStyle());var html=editor.getHtml();var css=editor.getCss();var payload={id:PAGE_ID,title:'{{page.title|e}}',headline:'{{page.headline or page.title|e}}',gjs_components:components,gjs_styles:styles,gjs_html:'<style>'+css+'</style>'+html,gjs_css:JSON.stringify({v:'grapes',components:components,styles:styles}),status:_pub};try{var r=await fetch('/api/funnels/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});var d=await r.json();if(d.success||d.id){_dirty=false;document.getElementById('dirtyDot').classList.remove('show');spToast('Saved!');if(d.slug)document.getElementById('openLink').href='/f/'+d.slug}else spToast('Error: '+(d.error||''))}catch(e){spToast('Save error')}}
+(function loadPage(){try{var raw={{(page.gjs_css or '')|tojson|safe}};if(raw&&raw.trim()){var p=JSON.parse(raw);if(p.v==='grapes'&&p.components){editor.setComponents(JSON.parse(p.components));if(p.styles)editor.setStyle(JSON.parse(p.styles));return}if(p.objects){var h='<div style="max-width:1100px;margin:0 auto;padding:40px 20px;min-height:600px">';(p.objects||[]).forEach(function(o){if(o.type==='textbox'){h+='<div style="font-family:'+(o.fontFamily||'Outfit')+';font-size:'+(o.fontSize||16)+'px;font-weight:'+(o.fontWeight||400)+';color:'+(o.fill||'#e2e8f0')+';text-align:'+(o.textAlign||'left')+';line-height:'+(o.lineHeight||1.4)+';margin-bottom:20px">'+(o.text||'').replace(/\n/g,'<br>')+'</div>'}});h+='</div>';editor.setComponents(h);return}if(p.els&&Array.isArray(p.els)){var h2='<div style="max-width:1100px;margin:0 auto;padding:40px 20px;min-height:600px;background:'+(p.canvasBg||'#050d1a')+'">';p.els.forEach(function(el){var s=el.s||{};if(['heading','text','label','button','cta','testimonial','stat','faq','form','review','badge','icontext','logostrip','separator'].indexOf(el.type)>=0){h2+='<div style="font-family:'+((s.fontFamily||'Outfit').split(',')[0])+';font-size:'+(s.fontSize||'16px')+';font-weight:'+(s.fontWeight||'400')+';color:'+(s.color||'#e2e8f0')+';text-align:'+(s.textAlign||'left')+';line-height:'+(s.lineHeight||'1.4')+';'+(s.background?'background:'+s.background+';':'')+';margin-bottom:20px">'+(el.txt||'')+'</div>'}else if(el.type==='divider'){h2+='<hr style="border:none;border-top:2px solid '+(s.background||'#334155')+';margin:20px 0">'}});h2+='</div>';editor.setComponents(h2);return}}var savedHtml={{(page.gjs_html or '')|tojson|safe}};if(savedHtml&&savedHtml.trim()){editor.setComponents(savedHtml);return}}catch(e){console.error('Load:',e)}editor.setComponents('<section style="padding:80px 40px;text-align:center;background:#050d1a;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center"><h1 style="font-family:Sora,sans-serif;font-weight:900;font-size:42px;color:#fff;margin:0 0 16px">Start Building Your Page</h1><p style="font-family:Outfit,sans-serif;font-size:16px;color:#94a3b8;max-width:500px;line-height:1.7;margin:0">Drag blocks from the right panel. Double-click text to edit.</p></section>')})();
+function togglePub(){_pub=_pub==='published'?'draft':'published';var tg=document.getElementById('pubToggle'),lb=document.getElementById('pubLabel'),lk=document.getElementById('openLink');if(_pub==='published'){tg.classList.add('live');lb.textContent='Live';lk.classList.add('show');spToast('Published!')}else{tg.classList.remove('live');lb.textContent='Draft';lk.classList.remove('show');spToast('Unpublished')}_dirty=true;editorSave()}
 editor.on('change:changesCount',function(){_dirty=true;document.getElementById('dirtyDot').classList.add('show')});
-
-// ═══ KEYBOARD ═══
 document.addEventListener('keydown',function(e){if((e.metaKey||e.ctrlKey)&&e.key==='s'){e.preventDefault();editorSave()}});
-
-// ═══ AUTO-SAVE ═══
 setInterval(function(){if(_dirty)editorSave()},30000);
 </script>
 </body>
