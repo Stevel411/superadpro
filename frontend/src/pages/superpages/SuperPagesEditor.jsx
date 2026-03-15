@@ -530,7 +530,17 @@ function EmbedEditor({ elId, el, updateElement, markDirty, onClose }) {
 }
 
 function SocialEditor({ elId, el, updateElement, markDirty, onClose }) {
-  const [links, setLinks] = useState(el._links || { youtube: '', instagram: '', tiktok: '', facebook: '', x: '', linkedin: '' });
+  // Clean up legacy '#' values — treat them as empty
+  const cleanLinks = (raw) => {
+    const clean = {};
+    const defaults = { youtube: '', instagram: '', tiktok: '', facebook: '', x: '', linkedin: '' };
+    Object.keys(defaults).forEach(k => {
+      const val = raw?.[k];
+      clean[k] = (val && val !== '#') ? val : '';
+    });
+    return clean;
+  };
+  const [links, setLinks] = useState(cleanLinks(el._links));
   const platforms = [['youtube', 'YouTube', '#ff0000'], ['instagram', 'Instagram', '#e4405f'], ['tiktok', 'TikTok', '#000'], ['facebook', 'Facebook', '#1877f2'], ['x', 'X / Twitter', '#000'], ['linkedin', 'LinkedIn', '#0a66c2']];
   return <>
     {platforms.map(([key, label, color]) => (
