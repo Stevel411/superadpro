@@ -3,7 +3,7 @@ import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
 import {
   Link2, Plus, Trash2, GripVertical, Eye, Save, ExternalLink,
-  Upload, X, ChevronDown, HelpCircle
+  Upload, X, ChevronDown, HelpCircle, AlignLeft, AlignCenter, AlignRight
 } from 'lucide-react';
 
 var FONTS = ['DM Sans','Sora','Poppins','Outfit','Space Grotesk','Playfair Display','Montserrat','Raleway','Inter','Lato','Roboto','Nunito','Merriweather','Caveat','Bebas Neue'];
@@ -45,6 +45,7 @@ export default function LinkHub() {
   var [btnRadius, setBtnRadius] = useState('12px');
   var [btnStyle, setBtnStyle] = useState('3d');
   var [btnFontSize, setBtnFontSize] = useState(15);
+  var [btnAlign, setBtnAlign] = useState('left');
 
   // Links
   var [links, setLinks] = useState([]);
@@ -332,6 +333,19 @@ export default function LinkHub() {
                 <FLabel style={{marginTop:12}}>Button text size — {btnFontSize}px</FLabel>
                 <input type="range" min={11} max={24} value={btnFontSize} onChange={function(e) { setBtnFontSize(parseInt(e.target.value)); }}
                   style={{width:'100%',accentColor:'#0ea5e9',cursor:'pointer'}}/>
+                <FLabel style={{marginTop:12}}>Text alignment</FLabel>
+                <div style={{display:'flex',gap:6}}>
+                  {[['left','Left',AlignLeft],['center','Center',AlignCenter],['right','Right',AlignRight]].map(function(a) {
+                    var Icon = a[2];
+                    return <button key={a[0]} onClick={function() { setBtnAlign(a[0]); }} style={{
+                      flex:1,padding:8,fontSize:11,fontWeight:700,cursor:'pointer',textAlign:'center',
+                      borderRadius:8,fontFamily:'inherit',display:'flex',alignItems:'center',justifyContent:'center',gap:4,
+                      border: btnAlign===a[0] ? '1.5px solid #0ea5e9' : '1.5px solid #e2e8f0',
+                      color: btnAlign===a[0] ? '#0ea5e9' : '#64748b',
+                      background: btnAlign===a[0] ? '#f0f9ff' : '#fff',
+                    }}><Icon size={13}/> {a[1]}</button>;
+                  })}
+                </div>
               </div>
             </div>
           </Section>
@@ -448,23 +462,34 @@ export default function LinkHub() {
                   {/* Separator */}
                   <div style={{width:40,height:2,borderRadius:2,background:'rgba(255,255,255,.15)',margin:'0 auto 24px'}}/>
                   {/* Links — card style matching public template */}
-                  <div style={{display:'flex',flexDirection:'column',gap:10,textAlign:'left'}}>
+                  <div style={{display:'flex',flexDirection:'column',gap:10}}>
                     {links.filter(function(l) { return l.title; }).map(function(l, i) {
+                      var iconEl = <span style={{fontSize:'1.1rem'}}>{l.icon || '🔗'}</span>;
+                      var alignStyle = btnAlign === 'center' ? 'center' : btnAlign === 'right' ? 'flex-end' : 'flex-start';
+
                       if (btnStyle === 'outline') {
                         return (
-                          <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,width:'100%',padding:'13px 18px',background:'transparent',border:'1.5px solid ' + btnColor + '99',borderRadius:50,color:btnColor,fontSize:btnFontSize,fontWeight:700,fontFamily:fontFamily+',sans-serif',textAlign:'center'}}>
-                            {l.icon && <span>{l.icon}</span>}
+                          <div key={i} style={{display:'flex',alignItems:'center',justifyContent:alignStyle,gap:8,width:'100%',padding:'13px 18px',background:'rgba(0,0,0,.25)',border:'1.5px solid ' + btnColor + '99',borderRadius:50,color:btnColor,fontSize:btnFontSize,fontWeight:700,fontFamily:fontFamily+',sans-serif'}}>
+                            {iconEl}
                             <span>{l.title}</span>
                           </div>
                         );
                       }
-                      // Default: card style
+                      if (btnStyle === 'flat') {
+                        return (
+                          <div key={i} style={{display:'flex',alignItems:'center',justifyContent:alignStyle,gap:8,width:'100%',padding:'14px 18px',background:btnColor,border:'none',borderRadius:parseInt(btnRadius)||12,color:btnTextColor,fontSize:btnFontSize,fontWeight:700,fontFamily:fontFamily+',sans-serif',boxSizing:'border-box'}}>
+                            {iconEl}
+                            <span>{l.title}</span>
+                          </div>
+                        );
+                      }
+                      // Default: card style (3D / card)
                       return (
-                        <div key={i} style={{display:'flex',alignItems:'center',width:'100%',background:'rgba(255,255,255,.06)',backdropFilter:'blur(12px)',border:'1px solid rgba(255,255,255,.1)',borderRadius:16,overflow:'hidden',color:textColor}}>
-                          <div style={{width:48,height:48,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem',flexShrink:0,background:btnColor+'0a',borderRight:'1px solid rgba(255,255,255,.1)'}}>
+                        <div key={i} style={{display:'flex',alignItems:'center',width:'100%',background:bgImage ? 'rgba(0,0,0,.45)' : 'rgba(255,255,255,.08)',backdropFilter:'blur(12px)',border:'1px solid ' + (bgImage ? 'rgba(255,255,255,.15)' : 'rgba(255,255,255,.1)'),borderRadius:16,overflow:'hidden',color:textColor}}>
+                          <div style={{width:48,height:48,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.1rem',flexShrink:0,background:btnColor+'1a',borderRight:'1px solid ' + (bgImage ? 'rgba(255,255,255,.15)' : 'rgba(255,255,255,.1)')}}>
                             {l.icon || '🔗'}
                           </div>
-                          <div style={{flex:1,padding:'12px 14px',minWidth:0}}>
+                          <div style={{flex:1,padding:'12px 14px',minWidth:0,textAlign:btnAlign}}>
                             <div style={{fontSize:btnFontSize,fontWeight:700,lineHeight:1.3,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',fontFamily:fontFamily+',sans-serif'}}>{l.title}</div>
                           </div>
                           <span style={{padding:'0 14px',color:btnColor+'88',fontSize:13,flexShrink:0}}>→</span>
