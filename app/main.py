@@ -3879,35 +3879,35 @@ def check_and_increment_ai_quota(db: Session, user_id: int, tool: str) -> dict:
 def funnels_page(request: Request, user: User = Depends(get_current_user),
                  db: Session = Depends(get_db)):
     """Redirect to Pro funnels page."""
-    return RedirectResponse(url="/pro/funnels", status_code=302)
+    return RedirectResponse(url="/app/superpages", status_code=302)
 
 
 @app.get("/funnels/new")
 def funnel_new(request: Request, user: User = Depends(get_current_user),
                db: Session = Depends(get_db)):
     """Legacy route — redirects to Pro funnels."""
-    return RedirectResponse(url="/pro/funnels", status_code=302)
+    return RedirectResponse(url="/app/superpages", status_code=302)
 
 
 @app.get("/funnels/edit/{page_id}")
 def funnel_edit(page_id: int, request: Request, user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
     """Legacy route — redirects to Pro funnel editor."""
-    return RedirectResponse(url=f"/pro/funnel/{page_id}/edit", status_code=302)
+    return RedirectResponse(url=f"/app/pro/funnel/{page_id}/edit", status_code=302)
 
 
 @app.get("/funnels/visual/new")
 def funnel_visual_new(request: Request, user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
     """Legacy route — redirects to Pro funnels."""
-    return RedirectResponse(url="/pro/funnels", status_code=302)
+    return RedirectResponse(url="/app/superpages", status_code=302)
 
 
 @app.get("/funnels/visual/{page_id}")
 def funnel_visual_editor(page_id: int, request: Request, user: User = Depends(get_current_user),
                          db: Session = Depends(get_db)):
     """Legacy route — redirects to Pro funnel editor."""
-    return RedirectResponse(url=f"/pro/funnel/{page_id}/edit", status_code=302)
+    return RedirectResponse(url=f"/app/pro/funnel/{page_id}/edit", status_code=302)
 
 
 @app.get("/api/funnels/load/{page_id}")
@@ -4740,7 +4740,7 @@ def funnel_page_analytics(page_id: int, user: User = Depends(get_current_user),
 def funnel_analytics_dashboard(request: Request, user: User = Depends(get_current_user),
                                db: Session = Depends(get_db)):
     """Legacy route — redirects to Pro funnels."""
-    return RedirectResponse(url="/pro/funnels", status_code=302)
+    return RedirectResponse(url="/app/superpages", status_code=302)
 
 
 @app.get("/funnels/leads")
@@ -9073,23 +9073,8 @@ async def upgrade_page(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/pro/funnels")
 async def pro_funnels_page(request: Request, db: Session = Depends(get_db)):
-    """List the member's AI-generated funnels."""
-    user = get_current_user(request, db)
-    if not user:
-        return RedirectResponse("/login?next=/pro/funnels", status_code=302)
-    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
-        return RedirectResponse("/upgrade", status_code=302)
-
-    funnels = db.query(FunnelPage).filter(
-        FunnelPage.user_id == user.id
-    ).order_by(FunnelPage.created_at.desc()).all()
-
-    return templates.TemplateResponse("pro-funnels.html", {
-        "request": request,
-        "user": user,
-        "active_page": "pro-funnels",
-        "funnels": funnels,
-    })
+    """Redirect to React SuperPages listing."""
+    return RedirectResponse("/app/superpages", status_code=302)
 
 
 @app.post("/api/pro/generate-funnel")
@@ -9259,30 +9244,8 @@ Return ONLY a valid JSON array. No markdown."""
 
 @app.get("/pro/funnel/{funnel_id}/edit")
 async def pro_funnel_edit(funnel_id: int, request: Request, db: Session = Depends(get_db)):
-    """Custom AI Funnel Builder — purpose-built canvas editor."""
-    user = get_current_user(request, db)
-    if not user:
-        return RedirectResponse("/login", status_code=302)
-    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
-        return RedirectResponse("/upgrade", status_code=302)
-
-    page = db.query(FunnelPage).filter(FunnelPage.id == funnel_id, FunnelPage.user_id == user.id).first()
-    if not page:
-        return RedirectResponse("/pro/funnels", status_code=302)
-
-    import json as _json_edit
-    funnel_data = {}
-    try:
-        funnel_data = _json_edit.loads(page.sections_json) if page.sections_json else {}
-    except:
-        pass
-
-    return templates.TemplateResponse("pro-funnel-editor.html", {
-        "request": request,
-        "user": user,
-        "page": page,
-        "funnel_data": funnel_data,
-    })
+    """Redirect to React editor."""
+    return RedirectResponse(f"/app/pro/funnel/{funnel_id}/edit", status_code=302)
 
 
 @app.get("/pro/funnel/{funnel_id}/analytics")
@@ -9877,7 +9840,7 @@ async def pro_funnel_sequence(funnel_id: int, request: Request, db: Session = De
 
     page = db.query(FunnelPage).filter(FunnelPage.id == funnel_id, FunnelPage.user_id == user.id).first()
     if not page:
-        return RedirectResponse("/pro/funnels", status_code=302)
+        return RedirectResponse("/app/superpages", status_code=302)
 
     from .database import EmailSequence
     import json as _jseq

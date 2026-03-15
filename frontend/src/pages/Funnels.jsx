@@ -28,12 +28,12 @@ export default function Funnels() {
     try {
       if (key === 'blank') {
         const res = await apiPost('/api/funnels/save', { title: 'Untitled Page', status: 'draft' });
-        if (res.id) navigate(`/pro/funnel/${res.id}/edit`);
+        if (res.id) window.location.href = `/pro/funnel/${res.id}/edit`;
       } else {
         const res = await apiPost('/api/funnels/from-template', { niche: key });
         if (res.edit_url) {
           const newId = res.edit_url.split('/').pop();
-          navigate(`/pro/funnel/${newId}/edit`);
+          window.location.href = `/pro/funnel/${newId}/edit`;
         }
       }
     } catch (e) { alert(e.message); }
@@ -44,7 +44,7 @@ export default function Funnels() {
     setCreating(true);
     try {
       const res = await apiPost('/api/funnels/save', { title: 'Untitled Page', status: 'draft' });
-      if (res.id) navigate(`/pro/funnel/${res.id}/edit`);
+      if (res.id) window.location.href = `/pro/funnel/${res.id}/edit`;
       else setCreating(false);
     } catch (e) { alert(e.message); setCreating(false); }
   };
@@ -61,7 +61,7 @@ export default function Funnels() {
     try {
       const res = await apiPost(`/api/funnels/duplicate/${id}`, {});
       if (res.id) {
-        navigate(`/pro/funnel/${res.id}/edit`);
+        window.location.href = `/pro/funnel/${res.id}/edit`;
       } else { load(); }
     } catch (e) { alert(e.message); }
   };
@@ -112,9 +112,9 @@ export default function Funnels() {
 
               {/* Actions */}
               <div style={{padding:'10px 16px',display:'flex',gap:6,marginTop:'auto'}}>
-                <Link to={`/pro/funnel/${p.id}/edit`} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:5,padding:'8px 12px',borderRadius:6,fontSize:12,fontWeight:700,textDecoration:'none',background:'#0ea5e9',color:'#fff'}}>
+                <a href={`/pro/funnel/${p.id}/edit`} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:5,padding:'8px 12px',borderRadius:6,fontSize:12,fontWeight:700,textDecoration:'none',background:'#0ea5e9',color:'#fff'}}>
                   <Pencil size={13}/> Edit
-                </Link>
+                </a>
                 {p.status === 'published' && p.slug && (
                   <a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:5,padding:'8px 12px',borderRadius:6,fontSize:12,fontWeight:700,textDecoration:'none',background:'#f8f9fb',color:'#0f172a',border:'1px solid #e8ecf2'}}>
                     <ExternalLink size={13}/> View
