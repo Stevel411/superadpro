@@ -678,6 +678,10 @@ class LinkHubProfile(Base):
     bg_gradient     = Column(String, nullable=True)        # e.g. "135deg,#ff6b35,#f7c59f"
     soc_icon_shape  = Column(String, default="circle")     # circle|square|pill
     follower_count  = Column(String, nullable=True)        # e.g. "12.4K"
+    btn_style_type  = Column(String, default="3d")         # flat|3d|outline
+    btn_radius      = Column(String, default="12px")       # 6px|12px|50px
+    btn_font_size   = Column(Integer, default=15)          # 8-40px
+    btn_align       = Column(String, default="center")     # left|center|right
     created_at      = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow)
 
@@ -1196,6 +1200,10 @@ try:
         conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS avatar_r2_url VARCHAR"))
         conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS banner_r2_url VARCHAR"))
         conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS bg_r2_url VARCHAR"))
+        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS btn_style_type VARCHAR DEFAULT '3d'"))
+        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS btn_radius VARCHAR DEFAULT '12px'"))
+        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS btn_font_size INTEGER DEFAULT 15"))
+        conn.execute(text("ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS btn_align VARCHAR DEFAULT 'center'"))
 
         # ── Per-link button colours (2026-03-09) ──
         conn.execute(text("ALTER TABLE linkhub_links ADD COLUMN IF NOT EXISTS btn_bg_color VARCHAR"))

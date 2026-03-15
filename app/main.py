@@ -8527,6 +8527,10 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
         profile.text_color    = data.get("text_color") or None
         profile.is_published  = bool(data.get("is_published", True))
         profile.soc_icon_shape = data.get("soc_icon_shape", "circle")
+        profile.btn_style_type = data.get("btn_style_type", "3d")
+        profile.btn_radius     = data.get("btn_radius", "12px")
+        profile.btn_font_size  = int(data.get("btn_font_size", 15))
+        profile.btn_align      = data.get("btn_align", "center")
         profile.follower_count = data.get("follower_count", "")[:50] or None
         # Banner / bg image — upload to R2 if available, otherwise store base64
         from app.r2_storage import r2_available, upload_image, delete_image, is_base64_data, is_r2_url
@@ -11892,6 +11896,10 @@ def api_linkhub_editor_data(request: Request, user: User = Depends(get_current_u
             "btn_color": (profile.btn_color or "#0ea5e9") if profile else "#0ea5e9",
             "accent_color": (profile.accent_color or "#ffffff") if profile else "#ffffff",
             "font_family": (profile.font_family or "DM Sans") if profile else "DM Sans",
+            "btn_style_type": (getattr(profile, 'btn_style_type', None) or "3d") if profile else "3d",
+            "btn_radius": (getattr(profile, 'btn_radius', None) or "12px") if profile else "12px",
+            "btn_font_size": (getattr(profile, 'btn_font_size', None) or 15) if profile else 15,
+            "btn_align": (getattr(profile, 'btn_align', None) or "center") if profile else "center",
             "is_published": profile.is_published if profile else True,
             "total_views": profile.total_views if profile else 0,
         } if True else None,

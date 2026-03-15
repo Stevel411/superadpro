@@ -76,6 +76,10 @@ export default function LinkHub() {
       setBtnColor(p.btn_color || '#0ea5e9');
       setBtnTextColor(p.accent_color || '#ffffff');
       setFontFamily(p.font_family || 'DM Sans');
+      setBtnStyle(p.btn_style_type || '3d');
+      setBtnRadius(p.btn_radius || '12px');
+      setBtnFontSize(p.btn_font_size || 15);
+      setBtnAlign(p.btn_align || 'center');
       setLinks(d.links || []);
       setStats({views: p.total_views || 0, clicks: d.total_clicks || 0, click_30d: d.click_30d || 0});
       // Parse socials into object
@@ -170,6 +174,10 @@ export default function LinkHub() {
       theme: 'dark',
       is_published: true,
       soc_icon_shape: 'circle',
+      btn_style_type: btnStyle,
+      btn_radius: btnRadius,
+      btn_font_size: btnFontSize,
+      btn_align: btnAlign,
       social_links: socialLinks,
       links: links.map(function(l, i) {
         return {
