@@ -1,6 +1,6 @@
-import { Eye, Save, Undo2, Redo2, Settings, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor } from 'lucide-react';
+import { Eye, Save, Undo2, Redo2, Settings, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, HelpCircle } from 'lucide-react';
 
-export default function EditorTopbar({ title, slug, saving, dirty, status, onSave, onClear, onShowSettings, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, onToggleMobile, mobileView }) {
+export default function EditorTopbar({ title, slug, saving, dirty, status, onSave, onClear, onShowSettings, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, onToggleMobile, mobileView, onShowHelp }) {
   const isPublished = status === 'published';
   return (
     <div style={{
@@ -30,6 +30,7 @@ export default function EditorTopbar({ title, slug, saving, dirty, status, onSav
       <div style={{width:1,height:22,background:'#1f2440'}}/>
 
       <button onClick={onShowSettings} style={gh}><Settings size={13}/> <span style={{marginLeft:2}}>Settings</span></button>
+      <button onClick={onShowHelp} style={{...gh,color:'#38bdf8'}}><HelpCircle size={13}/> <span style={{marginLeft:2}}>Help</span></button>
       <button onClick={onClear} style={{...gh,color:'#dc2626'}}><Trash2 size={13}/></button>
 
       <div style={{width:1,height:22,background:'#1f2440'}}/>

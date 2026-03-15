@@ -4,6 +4,7 @@ import useEditorState from './useEditorState';
 import Canvas from './Canvas';
 import BlockPalette from './BlockPalette';
 import EditorTopbar from './EditorTopbar';
+import HelpPanel from './HelpPanel';
 import exportHTML from './exportHTML';
 import { apiGet, apiPost } from '../../utils/api';
 
@@ -15,6 +16,7 @@ export default function SuperPagesEditor() {
   const [toast, setToast] = useState('');
   const [pageSettings, setPageSettings] = useState({ title: '', metaDescription: '', ogImage: '', slug: '' });
   const [showSettings, setShowSettings] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [editingElement, setEditingElement] = useState(null);
   const [previewMode, setPreviewMode] = useState(false);
   const [mobileView, setMobileView] = useState(false);
@@ -198,6 +200,7 @@ export default function SuperPagesEditor() {
         onSave={save}
         onClear={handleClear}
         onShowSettings={() => setShowSettings(true)}
+        onShowHelp={() => setShowHelp(true)}
         onUndo={undo}
         onRedo={redo}
         onBack={() => navigate('/funnels')}
@@ -309,6 +312,9 @@ export default function SuperPagesEditor() {
           boxShadow: '0 4px 20px rgba(0,0,0,0.3)', zIndex: 300, transition: 'opacity 0.3s',
         }}>{toast}</div>
       )}
+
+      {/* Knowledge Base Help Panel */}
+      <HelpPanel visible={showHelp} onClose={() => setShowHelp(false)} />
     </div>
   );
 }
