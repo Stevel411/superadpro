@@ -530,13 +530,13 @@ function EmbedEditor({ elId, el, updateElement, markDirty, onClose }) {
 }
 
 function SocialEditor({ elId, el, updateElement, markDirty, onClose }) {
-  const [links, setLinks] = useState(el._links || { youtube: '#', instagram: '#', tiktok: '#', facebook: '#', x: '#', linkedin: '#' });
+  const [links, setLinks] = useState(el._links || { youtube: '', instagram: '', tiktok: '', facebook: '', x: '', linkedin: '' });
   const platforms = [['youtube', 'YouTube', '#ff0000'], ['instagram', 'Instagram', '#e4405f'], ['tiktok', 'TikTok', '#000'], ['facebook', 'Facebook', '#1877f2'], ['x', 'X / Twitter', '#000'], ['linkedin', 'LinkedIn', '#0a66c2']];
   return <>
     {platforms.map(([key, label, color]) => (
       <div key={key} style={{ marginBottom: 8 }}>
         <label style={{ ...lblStyle, color }}>{label}</label>
-        <input value={links[key] || ''} onChange={e => setLinks(p => ({ ...p, [key]: e.target.value }))} placeholder="https://..."
+        <input value={links[key] || ''} onChange={e => setLinks(p => ({ ...p, [key]: e.target.value }))} placeholder="Add your URL"
           style={inputStyle} />
       </div>
     ))}
