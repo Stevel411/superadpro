@@ -78,10 +78,11 @@ export default function Funnels() {
     setAiGenerating(true);
     try{
       const res=await apiPost('/api/pro/generate-funnel',aiForm);
-      if(res.id) window.location.href=`/pro/funnel/${res.id}/edit`;
+      const pageId = res.id || res.funnel_id;
+      if(pageId) { window.location.href=`/pro/funnel/${pageId}/edit`; }
       else if(res.error) alert(res.error);
       else alert('Generation failed — please try again');
-    }catch(e){alert(e.message)}
+    }catch(e){alert('Error: ' + e.message)}
     setAiGenerating(false);
   };
 
