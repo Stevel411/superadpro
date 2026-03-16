@@ -374,7 +374,13 @@ def _user_is_qualified(db: Session, user_id: int, package_tier: int) -> bool:
     Check if a user is qualified to earn commissions at this tier.
     Qualified means: has an active campaign at this tier OR ABOVE,
     OR has a completed campaign within the 14-day grace period at this tier or above.
+    Admin/master affiliate always qualifies.
     """
+    # Master affiliate bypass — qualifies for all tiers
+    user = db.query(User).filter(User.id == user_id).first()
+    if user and user.is_admin:
+        return True
+
     now = datetime.utcnow()
 
     # Check for active (non-completed) campaign at this tier or above

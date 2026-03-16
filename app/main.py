@@ -350,7 +350,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "wallet_address":    user.wallet_address or "",
         "total_withdrawn":    round(float(user.total_withdrawn or 0), 2),
         "is_active":         user.is_active,
-        "member_id":         format_member_id(user.id),
+        "member_id":         format_member_id(user.id, user.is_admin),
         "course_sale_count": course_sale_count,
         "marketplace_earnings": marketplace_earnings,
         "marketplace_sales": marketplace_sales,
@@ -2645,7 +2645,7 @@ def watch_page(request: Request, user: User = Depends(get_current_user), db: Ses
         "grace_days":     GRACE_DAYS,
         "balance":        round(float(user.balance or 0), 2),
         "display_name":   user.first_name or user.username,
-        "member_id":      format_member_id(user.id),
+        "member_id":      format_member_id(user.id, user.is_admin),
         "is_active":      user.is_active,
     })
 
@@ -3835,7 +3835,10 @@ TIER_AI_MULTIPLIERS = {
 }
 
 def get_user_highest_tier(db: Session, user_id: int) -> int:
-    """Return the user's highest active grid tier (0 if none)."""
+    """Return the user's highest active grid tier (0 if none). Admin = all tiers."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if user and user.is_admin:
+        return 8  # Master affiliate — qualified for all tiers
     highest = db.query(Grid).filter(
         Grid.owner_id == user_id, Grid.is_complete == False
     ).order_by(Grid.package_tier.desc()).first()
@@ -6088,7 +6091,9 @@ IMPORTANT RULES:
 #  MEMBER ID HELPER
 # ═══════════════════════════════════════════════════════════════
 
-def format_member_id(user_id: int) -> str:
+def format_member_id(user_id: int, is_admin: bool = False) -> str:
+    if is_admin:
+        return "SAP-00001"
     return f"SAP-{user_id:05d}"
 
 
