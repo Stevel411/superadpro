@@ -608,8 +608,10 @@ function GridVisSection() {
   var [selectedTier, setSelectedTier] = useState(3);
   var [running, setRunning] = useState(false);
   var [speed, setSpeed] = useState(3);
-  var cellsRef = useRef([]); // mutable: [{filled, depth, isDirect, name}]
+  var [numDirects, setNumDirects] = useState(8);
+  var cellsRef = useRef([]);
   var filledRef = useRef(0);
+  var directSeatsRef = useRef(new Set());
   var statsRef = useRef({direct:0,network:0,earned:0,bonus:0,directAmt:0});
   var logRef = useRef([]);
   var [tick, setTick] = useState(0);
@@ -624,6 +626,16 @@ function GridVisSection() {
     if (timerRef.current) clearInterval(timerRef.current);
     cellsRef.current = Array.from({length:64}).map(function() { return {filled:false,depth:0,isDirect:false,name:''}; });
     filledRef.current = 0;
+    // Randomise which seats are direct referrals
+    var positions = [];
+    for (var i = 0; i < 64; i++) positions.push(i);
+    for (var j = positions.length - 1; j > 0; j--) {
+      var k = Math.floor(Math.random() * (j + 1));
+      var tmp = positions[j]; positions[j] = positions[k]; positions[k] = tmp;
+    }
+    var ds = new Set();
+    for (var d = 0; d < Math.min(numDirects, 64); d++) ds.add(positions[d]);
+    directSeatsRef.current = ds;
     statsRef.current = {direct:0,network:0,earned:0,bonus:0,directAmt:0};
     logRef.current = [];
     setComplete(false);
@@ -631,7 +643,7 @@ function GridVisSection() {
     setTick(function(t) { return t+1; });
   }
 
-  useEffect(function() { initSim(); }, [selectedTier]);
+  useEffect(function() { initSim(); }, [selectedTier, numDirects]);
   useEffect(function() { return function() { if (timerRef.current) clearInterval(timerRef.current); }; }, []);
 
   function processStep() {
@@ -643,8 +655,8 @@ function GridVisSection() {
       return;
     }
 
-    var depth = idx < 8 ? 1 : idx < 24 ? 2 : idx < 48 ? 3 : 4;
-    var isDirect = depth === 1;
+    var isDirect = directSeatsRef.current.has(idx);
+    var depth = isDirect ? 1 : (idx < numDirects * 3 ? 2 : (idx < numDirects * 6 ? 3 : (idx < 50 ? 4 : 5)));
     var name = NAMES[idx % NAMES.length];
 
     cellsRef.current[idx] = {filled:true, depth:depth, isDirect:isDirect, name:name};
@@ -734,7 +746,13 @@ function GridVisSection() {
               <div style={{fontSize:15,fontWeight:800,color:'#fff'}}>${PRICE} {tier.name} Grid</div>
             </div>
             <div style={{display:'flex',gap:6,alignItems:'center'}}>
-              <div style={{display:'flex',alignItems:'center',gap:4,fontSize:9,color:'#64748b',letterSpacing:1}}>
+              <div style={{display:'flex',alignItems:'center',gap:4,fontSize:9,color:'#94a3b8',letterSpacing:1,background:'rgba(255,255,255,.08)',padding:'5px 10px',borderRadius:6}}>
+                <span style={{color:'#fff',fontWeight:700}}>DIRECTS</span>
+                <input type="number" min={1} max={30} value={numDirects}
+                  onChange={function(e) { var v = parseInt(e.target.value); if (v >= 1 && v <= 30) setNumDirects(v); }}
+                  style={{width:38,padding:'3px 4px',borderRadius:4,border:'1px solid rgba(255,255,255,.2)',background:'rgba(255,255,255,.1)',color:'#fff',fontSize:12,fontWeight:800,fontFamily:'inherit',textAlign:'center'}}/>
+              </div>
+              <div style={{display:'flex',alignItems:'center',gap:4,fontSize:9,color:'#94a3b8',letterSpacing:1}}>
                 <span>SPEED</span>
                 <input type="range" min={1} max={5} value={speed} onChange={function(e) { setSpeed(parseInt(e.target.value)); }}
                   style={{width:50,accentColor:'#0ea5e9',cursor:'pointer'}}/>
@@ -900,7 +918,7 @@ function GridVisSection() {
           )}
 
           <div style={{padding:'10px 12px',background:'#fffbeb',borderRadius:8,border:'1px solid #fef3c7',fontSize:10,color:'#92400e',lineHeight:1.5}}>
-            <strong>Note:</strong> Direct fills assume first 8 seats are your personal referrals. Actual amounts depend on your referral activity. Income is not guaranteed.
+            <strong>Note:</strong> Adjust the DIRECTS control to set how many of the 64 seats are your personal referrals. Direct referrals earn you 40% sponsor commission on top of the 6.25% uni-level. Income is not guaranteed.
           </div>
         </div>
       </div>
