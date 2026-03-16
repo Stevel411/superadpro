@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import {
   DollarSign, Users, Zap, GraduationCap, Eye, Link2, LayoutGrid,
   Target, Megaphone, Mail, Bot, Globe, Shield, Trophy, Award,
-  ChevronRight, Star, Check, Lock, Sparkles, ArrowRight
+  ChevronRight, Star, Check, Lock, Sparkles, ArrowRight, BarChart3
 } from 'lucide-react';
 
 // ── Animated counter hook ──
@@ -46,11 +47,13 @@ var TABS = [
   { key: 'membership', label: 'Membership', icon: DollarSign, color: '#16a34a' },
   { key: 'grid', label: 'Profit Grid', icon: Zap, color: '#0ea5e9' },
   { key: 'courses', label: 'Courses & SuperMarket', icon: GraduationCap, color: '#8b5cf6' },
-  { key: 'calculator', label: 'Calculator', icon: Target, color: '#f59e0b', soon: true },
+  { key: 'calculator', label: 'Calculator', icon: Target, color: '#f59e0b' },
+  { key: 'visualiser', label: 'Visualiser', icon: BarChart3, color: '#ec4899', link: '/passup-visualiser' },
 ];
 
 export default function CompensationPlan() {
   var [tab, setTab] = useState('membership');
+  var navigate = useNavigate();
 
   return (
     <AppLayout title="Compensation Plan" subtitle="Your complete guide to earning with SuperAdPro">
@@ -61,7 +64,7 @@ export default function CompensationPlan() {
           var Icon = t.icon;
           var active = tab === t.key;
           return (
-            <button key={t.key} onClick={function() { if (!t.soon) setTab(t.key); }}
+            <button key={t.key} onClick={function() { if (t.link) { navigate(t.link); } else if (!t.soon) { setTab(t.key); } }}
               style={{
                 display:'flex',alignItems:'center',gap:6,padding:'12px 20px',fontSize:13,fontWeight:active?800:600,
                 border:'none',borderBottom:active?'3px solid '+t.color:'3px solid transparent',
@@ -85,7 +88,7 @@ export default function CompensationPlan() {
       {/* ── Placeholder for future tabs ── */}
       {tab === 'grid' && <GridSection />}
       {tab === 'courses' && <CoursesSection />}
-      {tab === 'calculator' && <ComingSoon label="Calculator" />}
+      {tab === 'calculator' && <CalculatorSection />}
 
     </AppLayout>
   );
@@ -1374,6 +1377,250 @@ function PassUpAnimator(props) {
           <div style={{fontSize:8,fontWeight:700,color:'#475569'}}>PASSED UP</div>
           <div style={{fontSize:16,fontWeight:800,color:'#f59e0b'}}>{passed}</div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// ── CALCULATOR SECTION ──
+// ══════════════════════════════════════════════════════════════
+
+var CALC_TIERS = [
+  {n:1,name:'Starter',price:20,color:'#4ade80'},
+  {n:2,name:'Builder',price:50,color:'#38bdf8'},
+  {n:3,name:'Pro',price:100,color:'#0ea5e9'},
+  {n:4,name:'Advanced',price:200,color:'#6366f1'},
+  {n:5,name:'Elite',price:400,color:'#8b5cf6'},
+  {n:6,name:'Premium',price:600,color:'#f59e0b'},
+  {n:7,name:'Executive',price:800,color:'#f97316'},
+  {n:8,name:'Ultimate',price:1000,color:'#ec4899'},
+];
+
+function CalculatorSection() {
+  var [heroRef, heroVis] = useInView(0.1);
+  var [activeTiers, setActiveTiers] = useState([3]); // $100 tier on by default
+  var [directRefs, setDirectRefs] = useState(15);
+  var [gridAdvances, setGridAdvances] = useState(1);
+  var [memberPlan, setMemberPlan] = useState('mixed'); // basic, pro, mixed
+
+  function toggleTier(n) {
+    setActiveTiers(function(prev) {
+      if (prev.indexOf(n) >= 0) return prev.filter(function(t) { return t !== n; });
+      return prev.concat([n]);
+    });
+  }
+
+  // ── Calculate earnings ──
+  var commPerRef = memberPlan === 'pro' ? 15 : memberPlan === 'basic' ? 10 : 12.5;
+  var s1Monthly = directRefs * commPerRef;
+  var s1Annual = s1Monthly * 12;
+
+  var s2Direct = 0;
+  var s2UniLevel = 0;
+  var s2Bonus = 0;
+  activeTiers.forEach(function(n) {
+    var tier = CALC_TIERS.find(function(t) { return t.n === n; });
+    if (!tier) return;
+    var p = tier.price;
+    s2Direct += directRefs * (p * 0.40) * gridAdvances;
+    s2UniLevel += (p * 0.0625) * 64 * gridAdvances;
+    s2Bonus += (p * 0.05) * 64 * gridAdvances;
+  });
+  var s2Total = s2Direct + s2UniLevel + s2Bonus;
+
+  var grandTotal = s1Annual + s2Total;
+
+  function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+
+  return (
+    <div>
+      {/* ── Hero ── */}
+      <div ref={heroRef} style={{
+        background:'linear-gradient(135deg,#78350f,#d97706,#f59e0b)',
+        borderRadius:16,padding:'48px 40px',marginBottom:28,position:'relative',overflow:'hidden',
+        opacity:heroVis?1:0,transform:heroVis?'translateY(0)':'translateY(30px)',
+        transition:'all .8s cubic-bezier(.16,1,.3,1)',
+      }}>
+        <div style={{position:'absolute',top:-50,right:-50,width:220,height:220,borderRadius:'50%',background:'rgba(255,255,255,.05)'}}/>
+        <div style={{position:'relative',zIndex:1}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
+            <Target size={20} color="rgba(255,255,255,.7)"/>
+            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>Earnings Calculator</span>
+          </div>
+          <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:'#fff',margin:'0 0 12px',lineHeight:1.2}}>
+            Estimate Your Income Potential
+          </h2>
+          <p style={{fontSize:16,color:'rgba(255,255,255,.7)',maxWidth:560,lineHeight:1.7,margin:0}}>
+            Select your active campaign tiers, set your referral numbers, and see projected earnings across all income streams. Adjust the sliders to explore different scenarios.
+          </p>
+        </div>
+      </div>
+
+      {/* ── Controls + Results ── */}
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,marginBottom:28}}>
+
+        {/* LEFT — Controls */}
+        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
+          <div style={{background:'#1c223d',padding:'16px 24px'}}>
+            <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>Your Scenario</div>
+          </div>
+          <div style={{padding:'24px'}}>
+
+            {/* Tier selector */}
+            <div style={{marginBottom:24}}>
+              <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:10}}>Active Campaign Tiers</div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6}}>
+                {CALC_TIERS.map(function(t) {
+                  var on = activeTiers.indexOf(t.n) >= 0;
+                  return (
+                    <button key={t.n} onClick={function() { toggleTier(t.n); }}
+                      style={{padding:'10px 6px',borderRadius:8,border:on?'2px solid '+t.color:'2px solid #e8ecf2',
+                        background:on?t.color+'15':'#f8f9fb',cursor:'pointer',fontFamily:'inherit',transition:'all .15s'}}>
+                      <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:on?t.color:'#94a3b8'}}>${t.price}</div>
+                      <div style={{fontSize:9,fontWeight:700,color:on?t.color:'#cbd5e1'}}>{t.name}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Direct referrals slider */}
+            <div style={{marginBottom:20}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+                <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1}}>Direct Referrals</div>
+                <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0ea5e9'}}>{directRefs}</div>
+              </div>
+              <input type="range" min={1} max={100} value={directRefs} onChange={function(e) { setDirectRefs(parseInt(e.target.value)); }}
+                style={{width:'100%',accentColor:'#0ea5e9',cursor:'pointer'}}/>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'#cbd5e1',fontWeight:600}}>
+                <span>1</span><span>100</span>
+              </div>
+            </div>
+
+            {/* Grid advances slider */}
+            <div style={{marginBottom:20}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+                <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1}}>Grid Advances</div>
+                <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#6366f1'}}>{gridAdvances}</div>
+              </div>
+              <input type="range" min={1} max={10} value={gridAdvances} onChange={function(e) { setGridAdvances(parseInt(e.target.value)); }}
+                style={{width:'100%',accentColor:'#6366f1',cursor:'pointer'}}/>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'#cbd5e1',fontWeight:600}}>
+                <span>1</span><span>10</span>
+              </div>
+            </div>
+
+            {/* Member plan type */}
+            <div>
+              <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Referral Mix</div>
+              <div style={{display:'flex',gap:6}}>
+                {[
+                  {key:'basic',label:'All Basic ($10)',color:'#16a34a'},
+                  {key:'mixed',label:'Mixed ($12.50)',color:'#0ea5e9'},
+                  {key:'pro',label:'All Pro ($15)',color:'#8b5cf6'},
+                ].map(function(o) {
+                  var on = memberPlan === o.key;
+                  return (
+                    <button key={o.key} onClick={function() { setMemberPlan(o.key); }}
+                      style={{flex:1,padding:'8px 6px',borderRadius:8,fontSize:11,fontWeight:700,fontFamily:'inherit',
+                        border:on?'2px solid '+o.color:'2px solid #e8ecf2',cursor:'pointer',
+                        background:on?o.color+'12':'#f8f9fb',color:on?o.color:'#94a3b8',transition:'all .15s'}}>
+                      {o.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT — Results */}
+        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)',display:'flex',flexDirection:'column'}}>
+          <div style={{background:'#1c223d',padding:'16px 24px'}}>
+            <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>Projected Earnings</div>
+          </div>
+          <div style={{padding:'24px',flex:1,display:'flex',flexDirection:'column'}}>
+
+            {/* Stream 1 */}
+            <div style={{padding:'16px',background:'#f0fdf4',borderRadius:12,border:'1px solid #dcfce7',marginBottom:12}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+                <div style={{fontSize:11,fontWeight:800,color:'#16a34a',letterSpacing:1}}>STREAM 1 — MEMBERSHIP</div>
+                <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#16a34a'}}>{fmt(s1Annual)}</div>
+              </div>
+              <div style={{fontSize:11,color:'#64748b'}}>{directRefs} referrals × {fmt(commPerRef)}/mo × 12 months</div>
+              <div style={{fontSize:10,color:'#94a3b8',marginTop:2}}>Monthly: {fmt(s1Monthly)}</div>
+            </div>
+
+            {/* Stream 2 */}
+            <div style={{padding:'16px',background:'#f0f9ff',borderRadius:12,border:'1px solid #bae6fd',marginBottom:12}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                <div style={{fontSize:11,fontWeight:800,color:'#0ea5e9',letterSpacing:1}}>STREAM 2 — PROFIT GRID</div>
+                <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0ea5e9'}}>{fmt(s2Total)}</div>
+              </div>
+              <div style={{display:'flex',flexDirection:'column',gap:4}}>
+                <div style={{display:'flex',justifyContent:'space-between',fontSize:11}}>
+                  <span style={{color:'#64748b'}}>Direct sponsor (40%)</span>
+                  <span style={{fontWeight:700,color:'#0ea5e9'}}>{fmt(s2Direct)}</span>
+                </div>
+                <div style={{display:'flex',justifyContent:'space-between',fontSize:11}}>
+                  <span style={{color:'#64748b'}}>Uni-level (6.25% × 64 seats)</span>
+                  <span style={{fontWeight:700,color:'#6366f1'}}>{fmt(s2UniLevel)}</span>
+                </div>
+                <div style={{display:'flex',justifyContent:'space-between',fontSize:11}}>
+                  <span style={{color:'#64748b'}}>Grid completion bonus (5%)</span>
+                  <span style={{fontWeight:700,color:'#10b981'}}>{fmt(s2Bonus)}</span>
+                </div>
+              </div>
+              <div style={{fontSize:10,color:'#94a3b8',marginTop:6}}>{activeTiers.length} tier{activeTiers.length!==1?'s':''} active × {gridAdvances} advance{gridAdvances!==1?'s':''}</div>
+            </div>
+
+            {/* Grand total */}
+            <div style={{marginTop:'auto',padding:'20px',background:'linear-gradient(135deg,#0f172a,#1e293b)',borderRadius:12,textAlign:'center'}}>
+              <div style={{fontSize:10,fontWeight:800,color:'#94a3b8',letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>Total Projected Annual Income</div>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:800,color:'#4ade80',lineHeight:1,transition:'all .3s ease'}}>
+                {fmt(grandTotal)}
+              </div>
+              <div style={{fontSize:11,color:'#64748b',marginTop:8}}>Across all selected tiers and streams</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Per-tier breakdown ── */}
+      {activeTiers.length > 0 && (
+        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
+          <div style={{background:'#1c223d',padding:'16px 24px'}}>
+            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Breakdown by Tier</div>
+          </div>
+          <div style={{padding:'20px 24px'}}>
+            <div style={{display:'grid',gridTemplateColumns:'repeat('+Math.min(activeTiers.length,4)+',1fr)',gap:12}}>
+              {activeTiers.map(function(n) {
+                var tier = CALC_TIERS.find(function(t) { return t.n === n; });
+                if (!tier) return null;
+                var p = tier.price;
+                var tDirect = directRefs * (p * 0.40) * gridAdvances;
+                var tUni = (p * 0.0625) * 64 * gridAdvances;
+                var tBonus = (p * 0.05) * 64 * gridAdvances;
+                var tTotal = tDirect + tUni + tBonus;
+                return (
+                  <div key={n} style={{padding:16,borderRadius:12,background:tier.color+'08',border:'1px solid '+tier.color+'20',textAlign:'center'}}>
+                    <div style={{fontSize:10,fontWeight:800,color:tier.color,letterSpacing:1,textTransform:'uppercase'}}>${p} {tier.name}</div>
+                    <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:tier.color,margin:'6px 0'}}>{fmt(tTotal)}</div>
+                    <div style={{fontSize:10,color:'#94a3b8'}}>
+                      Direct: {fmt(tDirect)} · Uni: {fmt(tUni)} · Bonus: {fmt(tBonus)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Disclaimer ── */}
+      <div style={{padding:'16px 20px',background:'#fffbeb',borderRadius:12,border:'1px solid #fef3c7',fontSize:12,color:'#92400e',lineHeight:1.6}}>
+        <strong>⚠️ Important:</strong> All figures are projections based on your selected scenario. Uni-level calculations assume full grid completion (64 seats) per advance. Direct sponsor commissions assume all referrals activate the selected tiers. Actual earnings depend entirely on your personal activity and network performance. Income is not guaranteed.
       </div>
     </div>
   );
