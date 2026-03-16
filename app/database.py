@@ -1376,6 +1376,9 @@ try:
 
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS marketplace_earnings NUMERIC(18,6) DEFAULT 0"))
 
+        # Master affiliate username
+        conn.execute(text("UPDATE users SET username = 'SuperAdPro' WHERE is_admin = true AND username != 'SuperAdPro'"))
+
         conn.commit()
         print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 + R2 + courses confirmed")
 except Exception as e:
