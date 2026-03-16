@@ -122,16 +122,17 @@ function PassUpSection() {
     var you = mk('YOU', sp.id, 'root'); you.visible = true; you.puId = sp.id;
     sp.ch.push(you.id); sp.rc++;
 
-    // Your 9 direct referrals
-    for (var i = 0; i < 9; i++) {
+    // Your 10 direct referrals (triggers pass-ups at positions 2,4,6,8)
+    for (var i = 0; i < 10; i++) {
       var c = mk(NAMES[ni++ % NAMES.length], YOU_ID);
       you.ch.push(c.id); you.rc++;
       c.puId = PU.has(you.rc) ? you.puId : YOU_ID;
     }
 
-    // First 5 directs each get 4 referrals (L2)
-    for (var d = 0; d < 5; d++) {
-      var parent = all[you.ch[d]];
+    // All 10 directs each get 4 referrals (L2 = 40 members)
+    var yourDirects = all.filter(function(n) { return n.pid === YOU_ID; });
+    for (var d = 0; d < yourDirects.length; d++) {
+      var parent = yourDirects[d];
       for (var j = 0; j < 4; j++) {
         var child = mk(NAMES[ni++ % NAMES.length], parent.id);
         parent.ch.push(child.id); parent.rc++;
@@ -139,13 +140,28 @@ function PassUpSection() {
       }
     }
 
-    // First 8 L2 members each get 2 referrals (L3)
+    // First 16 L2 members each get 3 referrals (L3 = 48 members)
     var l2 = all.filter(function(n) { return n.pid !== null && all[n.pid] && all[n.pid].pid === YOU_ID; });
-    for (var k = 0; k < Math.min(8, l2.length); k++) {
-      for (var m = 0; m < 2; m++) {
+    for (var k = 0; k < Math.min(16, l2.length); k++) {
+      for (var m = 0; m < 3; m++) {
         var l3 = mk(NAMES[ni++ % NAMES.length], l2[k].id);
         l2[k].ch.push(l3.id); l2[k].rc++;
         l3.puId = PU.has(l2[k].rc) ? l2[k].puId : l2[k].id;
+      }
+    }
+
+    // First 12 L3 members each get 2 referrals (L4 = 24 members — shows deep cascade)
+    var l3all = all.filter(function(n) {
+      if (n.pid === null) return false;
+      var p = all[n.pid]; if (!p || p.pid === null) return false;
+      var gp = all[p.pid]; if (!gp) return false;
+      return gp.pid === YOU_ID;
+    });
+    for (var q = 0; q < Math.min(12, l3all.length); q++) {
+      for (var r = 0; r < 2; r++) {
+        var l4 = mk(NAMES[ni++ % NAMES.length], l3all[q].id);
+        l3all[q].ch.push(l4.id); l3all[q].rc++;
+        l4.puId = PU.has(l3all[q].rc) ? l3all[q].puId : l3all[q].id;
       }
     }
 
@@ -156,22 +172,35 @@ function PassUpSection() {
     var stps = [];
     var you = tree[YOU_ID];
 
-    // Phase 1: Your 9 directs join
+    // Phase 1: Your 10 directs join
     you.ch.forEach(function(cid) { stps.push({ nodeId: cid, spId: YOU_ID }); });
 
-    // Phase 2: First 5 directs recruit (interleaved)
+    // Phase 2: All directs recruit (interleaved rounds)
     for (var round = 0; round < 4; round++) {
-      you.ch.slice(0, 5).forEach(function(did) {
+      you.ch.forEach(function(did) {
         var d = tree[did];
         if (d.ch[round] !== undefined) stps.push({ nodeId: d.ch[round], spId: did });
       });
     }
 
-    // Phase 3: L2 recruit
+    // Phase 3: L2 recruit (interleaved)
     var l2 = tree.filter(function(n) { return n.pid !== null && tree[n.pid] && tree[n.pid].pid === YOU_ID; });
-    for (var r2 = 0; r2 < 2; r2++) {
-      l2.slice(0, 8).forEach(function(n) {
+    for (var r2 = 0; r2 < 3; r2++) {
+      l2.slice(0, 16).forEach(function(n) {
         if (n.ch[r2] !== undefined) stps.push({ nodeId: n.ch[r2], spId: n.id });
+      });
+    }
+
+    // Phase 4: L3 recruit — deep cascade visible
+    var l3 = tree.filter(function(n) {
+      if (n.pid === null) return false;
+      var p = tree[n.pid]; if (!p || p.pid === null) return false;
+      var gp = tree[p.pid]; if (!gp) return false;
+      return gp.pid === YOU_ID;
+    });
+    for (var r3 = 0; r3 < 2; r3++) {
+      l3.slice(0, 12).forEach(function(n) {
+        if (n.ch[r3] !== undefined) stps.push({ nodeId: n.ch[r3], spId: n.id });
       });
     }
 
@@ -371,7 +400,7 @@ function PassUpSection() {
             </div>
           </div>
 
-          <div style={{padding:'20px',minHeight:380,overflow:'auto',background:'#fafbfc',position:'relative'}} ref={canvasRef}>
+          <div style={{padding:'16px',minHeight:500,overflow:'auto',background:'#fafbfc',position:'relative'}} ref={canvasRef}>
             {/* SVG overlay for lines and flow dots */}
             <svg ref={svgRef} style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:0}}/>
 
@@ -400,12 +429,12 @@ function PassUpSection() {
               );
             })}
 
-            <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:20,position:'relative',zIndex:1}} ref={treeRef}>
+            <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:14,position:'relative',zIndex:1}} ref={treeRef}>
               {Array.from({length: maxLv + 1}).map(function(_, lv) {
                 var lvNodes = levels[lv] || [];
                 if (!lvNodes.length) return null;
                 return (
-                  <div key={lv} style={{display:'flex',gap:6,justifyContent:'center',flexWrap:'wrap'}}>
+                  <div key={lv} style={{display:'flex',gap:4,justifyContent:'center',flexWrap:'wrap'}}>
                     {lvNodes.map(function(n) {
                       var isRoot = n.cls === 'root';
                       var isSponsor = n.cls === 'sponsor';
@@ -416,22 +445,22 @@ function PassUpSection() {
                       var bg = '#f0f9ff';
                       var borderC = 'rgba(14,165,233,.2)';
                       var textColor = '#0f172a';
-                      var w = 50; var h = 36;
+                      var w = 42; var h = 28;
 
-                      if (isSponsor) { bg = '#6366f1'; borderC = '#818cf8'; textColor = '#fff'; w = 58; h = 44; }
-                      else if (isRoot) { bg = '#0ea5e9'; borderC = '#38bdf8'; textColor = '#fff'; w = 58; h = 44; }
+                      if (isSponsor) { bg = '#6366f1'; borderC = '#818cf8'; textColor = '#fff'; w = 52; h = 36; }
+                      else if (isRoot) { bg = '#0ea5e9'; borderC = '#38bdf8'; textColor = '#fff'; w = 52; h = 36; }
                       else if (isKept) { bg = '#d1fae5'; borderC = '#10b981'; textColor = '#065f46'; }
                       else if (isPassup) { bg = '#fef3c7'; borderC = '#f59e0b'; textColor = '#92400e'; }
 
                       return (
                         <div key={n.id} data-nid={n.id} style={{
-                          width:w,height:h,borderRadius:8,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',
-                          background:bg,border:'2px solid '+borderC,transition:'all .3s ease',
+                          width:w,height:h,borderRadius:6,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',
+                          background:bg,border:'1.5px solid '+borderC,transition:'all .3s ease',
                           boxShadow:isGlowing?'0 0 20px '+(isPassup?'rgba(245,158,11,.5)':'rgba(16,185,129,.5)'):'none',
-                          transform:isGlowing?'scale(1.12)':'scale(1)',
+                          transform:isGlowing?'scale(1.15)':'scale(1)',
                         }}>
-                          <div style={{fontSize:isRoot||isSponsor?10:8,fontWeight:800,color:textColor,lineHeight:1.2}}>{n.nm}</div>
-                          {n.sc > 0 && <div style={{fontSize:6,color:isSponsor||isRoot?'rgba(255,255,255,.6)':'#94a3b8'}}>{n.sc} sale{n.sc!==1?'s':''}</div>}
+                          <div style={{fontSize:isRoot||isSponsor?9:7,fontWeight:800,color:textColor,lineHeight:1.1}}>{n.nm}</div>
+                          {n.sc > 0 && <div style={{fontSize:5,color:isSponsor||isRoot?'rgba(255,255,255,.6)':'#94a3b8'}}>{n.sc}</div>}
                         </div>
                       );
                     })}
