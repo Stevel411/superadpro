@@ -860,33 +860,33 @@ function GridSimulator(props) {
       </div>
 
       {/* RIGHT — Animation (constrained) */}
-      <div style={{padding:'28px 24px',background:'#0a0f1e',borderLeft:'1px solid #1e293b',display:'flex',flexDirection:'column',justifyContent:'center'}}>
+      <div style={{padding:'20px 20px',background:'#0a0f1e',borderLeft:'1px solid #1e293b',display:'flex',flexDirection:'column',justifyContent:'center'}}>
         {/* Header + controls */}
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
-          <div style={{fontSize:13,fontWeight:800,color:'#fff'}}>$100 Tier Grid</div>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+          <div style={{fontSize:12,fontWeight:800,color:'#fff'}}>$100 Tier Grid</div>
           <div style={{display:'flex',gap:6}}>
             <button onClick={startSim} disabled={running}
-              style={{padding:'6px 14px',borderRadius:6,fontSize:11,fontWeight:800,border:'none',cursor:running?'default':'pointer',
+              style={{padding:'5px 12px',borderRadius:6,fontSize:10,fontWeight:800,border:'none',cursor:running?'default':'pointer',
                 background:running?'#334155':'#0ea5e9',color:'#fff',fontFamily:'inherit',opacity:running?0.5:1,transition:'all .2s'}}>
               {filled===0?'▶ Start':running?'Running...':'▶ Replay'}
             </button>
-            {filled>0&&!running&&<button onClick={resetSim} style={{padding:'6px 10px',borderRadius:6,fontSize:11,fontWeight:700,border:'1px solid #334155',cursor:'pointer',background:'transparent',color:'#64748b',fontFamily:'inherit'}}>Reset</button>}
+            {filled>0&&!running&&<button onClick={resetSim} style={{padding:'5px 8px',borderRadius:6,fontSize:10,fontWeight:700,border:'1px solid #334155',cursor:'pointer',background:'transparent',color:'#64748b',fontFamily:'inherit'}}>Reset</button>}
           </div>
         </div>
 
-        {/* 8×8 grid — constrained */}
-        <div style={{maxWidth:240,margin:'0 auto 14px',width:'100%'}}>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:2}}>
+        {/* 8×8 grid — fills available width */}
+        <div style={{marginBottom:12}}>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:3}}>
             {Array.from({length:64}).map(function(_, i) {
               var isFilled = i < filled;
               var isLatest = i === filled - 1 && running;
               return (
                 <div key={i} style={{
-                  aspectRatio:'1',borderRadius:3,
+                  aspectRatio:'1',borderRadius:4,
                   background:isFilled?(isLatest?'#22d3ee':'#0ea5e9'):'#1e293b',
                   border:'1px solid '+(isFilled?'#0ea5e999':'#293548'),
                   transition:'all .12s ease',
-                  transform:isLatest?'scale(1.2)':'scale(1)',
+                  transform:isLatest?'scale(1.15)':'scale(1)',
                   boxShadow:isLatest?'0 0 10px rgba(14,165,233,.5)':'none',
                 }}/>
               );
@@ -894,49 +894,49 @@ function GridSimulator(props) {
           </div>
         </div>
 
-        {/* Live stats — 2×2 grid */}
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:12}}>
-          <div style={{textAlign:'center',padding:'10px 6px',background:'#1e293b',borderRadius:8}}>
-            <div style={{fontSize:9,fontWeight:700,color:'#64748b',marginBottom:2}}>SEATS</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#fff'}}>{filled}<span style={{fontSize:11,color:'#475569'}}>/64</span></div>
+        {/* Compact inline stats */}
+        <div style={{display:'flex',gap:6,marginBottom:10}}>
+          <div style={{flex:1,textAlign:'center',padding:'6px 4px',background:'#1e293b',borderRadius:6}}>
+            <div style={{fontSize:8,fontWeight:700,color:'#475569'}}>SEATS</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'#fff'}}>{filled}<span style={{fontSize:9,color:'#475569'}}>/64</span></div>
           </div>
-          <div style={{textAlign:'center',padding:'10px 6px',background:'#1e293b',borderRadius:8}}>
-            <div style={{fontSize:9,fontWeight:700,color:'#64748b',marginBottom:2}}>UNI-LEVEL</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#6366f1'}}>${earned.toFixed(0)}</div>
+          <div style={{flex:1,textAlign:'center',padding:'6px 4px',background:'#1e293b',borderRadius:6}}>
+            <div style={{fontSize:8,fontWeight:700,color:'#475569'}}>UNI-LEVEL</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'#6366f1'}}>${earned.toFixed(0)}</div>
           </div>
-          <div style={{textAlign:'center',padding:'10px 6px',background:'#1e293b',borderRadius:8}}>
-            <div style={{fontSize:9,fontWeight:700,color:'#64748b',marginBottom:2}}>BONUS POOL</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#10b981'}}>${bonus.toFixed(0)}</div>
+          <div style={{flex:1,textAlign:'center',padding:'6px 4px',background:'#1e293b',borderRadius:6}}>
+            <div style={{fontSize:8,fontWeight:700,color:'#475569'}}>BONUS</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'#10b981'}}>${bonus.toFixed(0)}</div>
           </div>
-          <div style={{textAlign:'center',padding:'10px 6px',background:'#1e293b',borderRadius:8}}>
-            <div style={{fontSize:9,fontWeight:700,color:'#64748b',marginBottom:2}}>STATUS</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:12,fontWeight:800,color:complete?'#4ade80':filled===0?'#475569':'#f59e0b',marginTop:3}}>
-              {complete?'✅ COMPLETE':filled===0?'READY':'FILLING...'}
+          <div style={{flex:1,textAlign:'center',padding:'6px 4px',background:'#1e293b',borderRadius:6}}>
+            <div style={{fontSize:8,fontWeight:700,color:'#475569'}}>STATUS</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:10,fontWeight:800,color:complete?'#4ade80':filled===0?'#475569':'#f59e0b',marginTop:2}}>
+              {complete?'COMPLETE':filled===0?'READY':'FILLING...'}
             </div>
           </div>
         </div>
 
-        {/* Completion summary */}
+        {/* Completion summary — compact */}
         {complete && (
           <div style={{
-            textAlign:'center',padding:'14px 12px',
+            textAlign:'center',padding:'10px',
             background:'linear-gradient(135deg,rgba(74,222,128,.08),rgba(14,165,233,.08))',
-            borderRadius:10,border:'1px solid rgba(74,222,128,.15)',
+            borderRadius:8,border:'1px solid rgba(74,222,128,.15)',
             animation:'fadeSlideUp .5s ease',
           }}>
-            <div style={{fontSize:14,fontWeight:800,color:'#4ade80',marginBottom:8}}>🎉 Grid Complete</div>
-            <div style={{display:'flex',justifyContent:'center',gap:16}}>
+            <div style={{fontSize:12,fontWeight:800,color:'#4ade80',marginBottom:6}}>🎉 Grid Complete</div>
+            <div style={{display:'flex',justifyContent:'center',gap:14}}>
               <div>
-                <div style={{fontSize:9,fontWeight:700,color:'#64748b'}}>UNI-LEVEL</div>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#6366f1'}}>$400</div>
+                <div style={{fontSize:8,fontWeight:700,color:'#64748b'}}>UNI-LEVEL</div>
+                <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'#6366f1'}}>$400</div>
               </div>
               <div>
-                <div style={{fontSize:9,fontWeight:700,color:'#64748b'}}>BONUS</div>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#10b981'}}>$320</div>
+                <div style={{fontSize:8,fontWeight:700,color:'#64748b'}}>BONUS</div>
+                <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'#10b981'}}>$320</div>
               </div>
               <div>
-                <div style={{fontSize:9,fontWeight:700,color:'#64748b'}}>TOTAL</div>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#4ade80'}}>$720</div>
+                <div style={{fontSize:8,fontWeight:700,color:'#64748b'}}>TOTAL</div>
+                <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'#4ade80'}}>$720</div>
               </div>
             </div>
           </div>
