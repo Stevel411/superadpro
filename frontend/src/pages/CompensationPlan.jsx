@@ -799,19 +799,13 @@ function GridSimulator(props) {
   var [earned, setEarned] = useState(0);
   var [bonus, setBonus] = useState(0);
   var [complete, setComplete] = useState(false);
-  var [showComplete, setShowComplete] = useState(false);
   var timerRef = useRef(null);
-  var PRICE = 100; // $100 tier as demo
-  var PER_SEAT_UNI = PRICE * 0.0625; // $6.25
-  var PER_SEAT_BONUS = PRICE * 0.05; // $5
+  var PRICE = 100;
+  var PER_SEAT_UNI = PRICE * 0.0625;
+  var PER_SEAT_BONUS = PRICE * 0.05;
 
   function startSim() {
-    setRunning(true);
-    setFilled(0);
-    setEarned(0);
-    setBonus(0);
-    setComplete(false);
-    setShowComplete(false);
+    setRunning(true); setFilled(0); setEarned(0); setBonus(0); setComplete(false);
     var seat = 0;
     timerRef.current = setInterval(function() {
       seat++;
@@ -820,125 +814,136 @@ function GridSimulator(props) {
         setEarned(function(p) { return p + PER_SEAT_UNI; });
         setBonus(function(p) { return p + PER_SEAT_BONUS; });
       }
-      if (seat === 64) {
-        setComplete(true);
-        setTimeout(function() { setShowComplete(true); }, 400);
-      }
-      if (seat >= 66) {
-        clearInterval(timerRef.current);
-        setRunning(false);
-      }
+      if (seat === 64) { setComplete(true); }
+      if (seat >= 66) { clearInterval(timerRef.current); setRunning(false); }
     }, 80);
   }
 
   function resetSim() {
     if (timerRef.current) clearInterval(timerRef.current);
-    setRunning(false);
-    setFilled(0);
-    setEarned(0);
-    setBonus(0);
-    setComplete(false);
-    setShowComplete(false);
+    setRunning(false); setFilled(0); setEarned(0); setBonus(0); setComplete(false);
   }
 
   useEffect(function() { return function() { if (timerRef.current) clearInterval(timerRef.current); }; }, []);
 
   return (
-    <div style={{padding:24,background:'#0f172a',borderRadius:14,marginBottom:0}}>
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20}}>
-        <div>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>Live Simulation</div>
-          <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>Watch a $100 Grid Fill in Real Time</div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:0,background:'#0f172a',borderRadius:14,overflow:'hidden',marginBottom:0}}>
+
+      {/* LEFT — Explainer text */}
+      <div style={{padding:'32px 28px',display:'flex',flexDirection:'column',justifyContent:'center'}}>
+        <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:10}}>How the Grid Works</div>
+        <h3 style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#fff',margin:'0 0 14px',lineHeight:1.3}}>
+          Every new member fills a seat in your grid
+        </h3>
+
+        <div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:20}}>
+          {[
+            {num:'1',text:'When someone in your network activates a campaign tier, they fill one seat in your grid at that tier.',color:'#0ea5e9'},
+            {num:'2',text:'You earn 6.25% uni-level commission on every seat filled — that\'s $6.25 per seat on the $100 tier.',color:'#6366f1'},
+            {num:'3',text:'5% of each entry accrues in a bonus pool. When all 64 seats are filled, the bonus is paid to you.',color:'#10b981'},
+            {num:'4',text:'The grid then advances. New commissions require new members to join and activate the same tier.',color:'#f59e0b'},
+          ].map(function(s, i) {
+            return (
+              <div key={i} style={{display:'flex',gap:10,alignItems:'flex-start'}}>
+                <div style={{width:22,height:22,borderRadius:6,background:s.color,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:11,fontWeight:800,color:'#fff'}}>{s.num}</div>
+                <div style={{fontSize:12,color:'rgba(255,255,255,.6)',lineHeight:1.6}}>{s.text}</div>
+              </div>
+            );
+          })}
         </div>
-        <div style={{display:'flex',gap:8}}>
-          <button onClick={startSim} disabled={running}
-            style={{padding:'8px 20px',borderRadius:8,fontSize:12,fontWeight:800,border:'none',cursor:running?'default':'pointer',
-              background:running?'#334155':'#0ea5e9',color:'#fff',fontFamily:'inherit',opacity:running?0.5:1,transition:'all .2s'}}>
-            {filled === 0 ? '▶ Start' : running ? '⏳ Running...' : '▶ Replay'}
-          </button>
-          {filled > 0 && !running && (
-            <button onClick={resetSim}
-              style={{padding:'8px 16px',borderRadius:8,fontSize:12,fontWeight:700,border:'1px solid #334155',cursor:'pointer',
-                background:'transparent',color:'#94a3b8',fontFamily:'inherit'}}>
-              Reset
+
+        <div style={{padding:'12px 14px',background:'rgba(255,255,255,.04)',borderRadius:8,border:'1px solid rgba(255,255,255,.06)'}}>
+          <div style={{fontSize:11,color:'rgba(255,255,255,.4)',lineHeight:1.5}}>
+            <strong style={{color:'rgba(255,255,255,.6)'}}>Important:</strong> Earnings shown are based on the $100 tier example. Actual income depends entirely on your network activity and is not guaranteed.
+          </div>
+        </div>
+      </div>
+
+      {/* RIGHT — Animation */}
+      <div style={{padding:'28px 24px',background:'#0a0f1e',borderLeft:'1px solid #1e293b'}}>
+        {/* Header + controls */}
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+          <div style={{fontSize:13,fontWeight:800,color:'#fff'}}>$100 Tier Grid</div>
+          <div style={{display:'flex',gap:6}}>
+            <button onClick={startSim} disabled={running}
+              style={{padding:'6px 14px',borderRadius:6,fontSize:11,fontWeight:800,border:'none',cursor:running?'default':'pointer',
+                background:running?'#334155':'#0ea5e9',color:'#fff',fontFamily:'inherit',opacity:running?0.5:1,transition:'all .2s'}}>
+              {filled===0?'▶ Start':running?'Running...':'▶ Replay'}
             </button>
-          )}
-        </div>
-      </div>
-
-      {/* Grid visualisation */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:3,marginBottom:20}}>
-        {Array.from({length:64}).map(function(_, i) {
-          var isFilled = i < filled;
-          var isLatest = i === filled - 1 && running;
-          return (
-            <div key={i} style={{
-              aspectRatio:'1',borderRadius:4,
-              background:isFilled ? (isLatest ? '#22d3ee' : '#0ea5e9') : '#1e293b',
-              border:'1px solid ' + (isFilled ? '#0ea5e9' : '#334155'),
-              transition:'all .15s ease',
-              transform:isLatest ? 'scale(1.15)' : 'scale(1)',
-              boxShadow:isLatest ? '0 0 12px rgba(14,165,233,.5)' : 'none',
-            }}/>
-          );
-        })}
-      </div>
-
-      {/* Stats bar */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
-        <div style={{textAlign:'center',padding:'12px 8px',background:'#1e293b',borderRadius:10}}>
-          <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',marginBottom:4}}>SEATS FILLED</div>
-          <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'#fff'}}>{filled}<span style={{fontSize:12,color:'#64748b'}}>/64</span></div>
-        </div>
-        <div style={{textAlign:'center',padding:'12px 8px',background:'#1e293b',borderRadius:10}}>
-          <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',marginBottom:4}}>UNI-LEVEL EARNED</div>
-          <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'#6366f1'}}>${earned.toFixed(0)}</div>
-        </div>
-        <div style={{textAlign:'center',padding:'12px 8px',background:'#1e293b',borderRadius:10}}>
-          <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',marginBottom:4}}>BONUS ACCRUED</div>
-          <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'#10b981'}}>${bonus.toFixed(0)}</div>
-        </div>
-        <div style={{textAlign:'center',padding:'12px 8px',background:'#1e293b',borderRadius:10}}>
-          <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',marginBottom:4}}>GRID STATUS</div>
-          <div style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,color:complete?'#4ade80':'#f59e0b',marginTop:4}}>
-            {complete ? '✅ COMPLETE' : filled === 0 ? '⏸ Ready' : '⏳ Filling...'}
+            {filled>0&&!running&&<button onClick={resetSim} style={{padding:'6px 10px',borderRadius:6,fontSize:11,fontWeight:700,border:'1px solid #334155',cursor:'pointer',background:'transparent',color:'#64748b',fontFamily:'inherit'}}>Reset</button>}
           </div>
         </div>
-      </div>
 
-      {/* Completion celebration */}
-      {showComplete && (
-        <div style={{
-          textAlign:'center',padding:'20px',background:'linear-gradient(135deg,rgba(74,222,128,.1),rgba(14,165,233,.1))',
-          borderRadius:12,border:'1px solid rgba(74,222,128,.2)',
-          animation:'fadeSlideUp .5s ease',
-        }}>
-          <div style={{fontSize:28,marginBottom:8}}>🎉</div>
-          <div style={{fontSize:16,fontWeight:800,color:'#4ade80',marginBottom:4}}>Grid Complete!</div>
-          <div style={{fontSize:13,color:'#94a3b8',marginBottom:12}}>64 seats filled on the $100 tier</div>
-          <div style={{display:'flex',justifyContent:'center',gap:20}}>
-            <div>
-              <div style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>UNI-LEVEL TOTAL</div>
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#6366f1'}}>$400</div>
-            </div>
-            <div style={{width:1,background:'#334155'}}/>
-            <div>
-              <div style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>COMPLETION BONUS</div>
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#10b981'}}>$320</div>
-            </div>
-            <div style={{width:1,background:'#334155'}}/>
-            <div>
-              <div style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>TOTAL EARNED</div>
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#4ade80'}}>$720</div>
+        {/* 8×8 grid */}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:2,marginBottom:16}}>
+          {Array.from({length:64}).map(function(_, i) {
+            var isFilled = i < filled;
+            var isLatest = i === filled - 1 && running;
+            return (
+              <div key={i} style={{
+                aspectRatio:'1',borderRadius:3,
+                background:isFilled?(isLatest?'#22d3ee':'#0ea5e9'):'#1e293b',
+                border:'1px solid '+(isFilled?'#0ea5e999':'#293548'),
+                transition:'all .12s ease',
+                transform:isLatest?'scale(1.2)':'scale(1)',
+                boxShadow:isLatest?'0 0 10px rgba(14,165,233,.5)':'none',
+              }}/>
+            );
+          })}
+        </div>
+
+        {/* Live stats — 2×2 grid */}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:12}}>
+          <div style={{textAlign:'center',padding:'10px 6px',background:'#1e293b',borderRadius:8}}>
+            <div style={{fontSize:9,fontWeight:700,color:'#64748b',marginBottom:2}}>SEATS</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#fff'}}>{filled}<span style={{fontSize:11,color:'#475569'}}>/64</span></div>
+          </div>
+          <div style={{textAlign:'center',padding:'10px 6px',background:'#1e293b',borderRadius:8}}>
+            <div style={{fontSize:9,fontWeight:700,color:'#64748b',marginBottom:2}}>UNI-LEVEL</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#6366f1'}}>${earned.toFixed(0)}</div>
+          </div>
+          <div style={{textAlign:'center',padding:'10px 6px',background:'#1e293b',borderRadius:8}}>
+            <div style={{fontSize:9,fontWeight:700,color:'#64748b',marginBottom:2}}>BONUS POOL</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#10b981'}}>${bonus.toFixed(0)}</div>
+          </div>
+          <div style={{textAlign:'center',padding:'10px 6px',background:'#1e293b',borderRadius:8}}>
+            <div style={{fontSize:9,fontWeight:700,color:'#64748b',marginBottom:2}}>STATUS</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:12,fontWeight:800,color:complete?'#4ade80':filled===0?'#475569':'#f59e0b',marginTop:3}}>
+              {complete?'✅ COMPLETE':filled===0?'READY':'FILLING...'}
             </div>
           </div>
-          <div style={{fontSize:11,color:'#64748b',marginTop:12}}>Grid advances to the next round. Future earnings depend on new members activating this tier.</div>
         </div>
-      )}
+
+        {/* Completion summary */}
+        {complete && (
+          <div style={{
+            textAlign:'center',padding:'14px 12px',
+            background:'linear-gradient(135deg,rgba(74,222,128,.08),rgba(14,165,233,.08))',
+            borderRadius:10,border:'1px solid rgba(74,222,128,.15)',
+            animation:'fadeSlideUp .5s ease',
+          }}>
+            <div style={{fontSize:14,fontWeight:800,color:'#4ade80',marginBottom:8}}>🎉 Grid Complete</div>
+            <div style={{display:'flex',justifyContent:'center',gap:16}}>
+              <div>
+                <div style={{fontSize:9,fontWeight:700,color:'#64748b'}}>UNI-LEVEL</div>
+                <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#6366f1'}}>$400</div>
+              </div>
+              <div>
+                <div style={{fontSize:9,fontWeight:700,color:'#64748b'}}>BONUS</div>
+                <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#10b981'}}>$320</div>
+              </div>
+              <div>
+                <div style={{fontSize:9,fontWeight:700,color:'#64748b'}}>TOTAL</div>
+                <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#4ade80'}}>$720</div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       <style>{'\
         @keyframes fadeSlideUp {\
-          from { opacity:0; transform:translateY(15px); }\
+          from { opacity:0; transform:translateY(10px); }\
           to { opacity:1; transform:translateY(0); }\
         }\
       '}</style>
