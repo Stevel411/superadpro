@@ -43,6 +43,7 @@ function buildNav(t) {
       { label: t('nav.compPlan'), icon: FileText, path: '/compensation-plan' },
       { label: t('nav.socialShare'), icon: Users, path: '/affiliate' },
       { label: t('nav.proSellerAi'), icon: Target, path: '/proseller', pro: true },
+      { label: 'SuperSeller', icon: Zap, path: '/superseller', pro: true },
       { label: t('nav.myLeads'), icon: Mail, path: '/pro/leads', pro: true },
       { label: t('nav.leaderboard'), icon: Trophy, path: '/leaderboard' },
       { label: t('nav.achievements'), icon: Award, path: '/achievements' },

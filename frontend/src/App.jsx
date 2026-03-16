@@ -29,6 +29,7 @@ import LinkTools from './pages/LinkTools';
 import AdBoard from './pages/AdBoard';
 import PassupVisualiser from './pages/PassupVisualiser';
 import ProSeller from './pages/ProSeller';
+import SuperSeller from './pages/SuperSeller';
 import Funnels from './pages/Funnels';
 import CourseCreate from './pages/CourseCreate';
 import LinkHubPage from './pages/LinkHub';
@@ -94,6 +95,7 @@ function AppRoutes() {
       <Route path="/courses/create" element={<ProtectedRoute><CourseCreate /></ProtectedRoute>} />
       <Route path="/linkhub" element={<ProtectedRoute><LinkHubPage /></ProtectedRoute>} />
       <Route path="/proseller" element={<ProtectedRoute><ProSeller /></ProtectedRoute>} />
+      <Route path="/superseller" element={<ProtectedRoute><SuperSeller /></ProtectedRoute>} />
       <Route path="/pro/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
       <Route path="/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
       <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><SuperPagesEditor /></ProtectedRoute>} />

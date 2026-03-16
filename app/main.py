@@ -11435,6 +11435,272 @@ def creator_agreement_page(request: Request):
     """Course Creator Agreement — legal terms page."""
     return templates.TemplateResponse("course-creator-agreement.html", {"request": request})
 
+
+# ═══════════════════════════════════════════════════════════════
+#  SUPERSELLER — AI Sales Autopilot API
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/superseller/create")
+async def api_superseller_create(request: Request, user: User = Depends(get_current_user),
+                                  db: Session = Depends(get_db)):
+    """Create a new SuperSeller campaign — triggers AI generation pipeline."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if user.membership_tier != "pro" and not user.is_admin:
+        return JSONResponse({"error": "SuperSeller requires Pro membership"}, status_code=403)
+
+    body = await request.json()
+    niche = (body.get("niche") or "").strip()[:200]
+    audience = (body.get("audience") or "").strip()[:500]
+    tone = (body.get("tone") or "professional").strip()[:50]
+    goal = (body.get("goal") or "lead_generation").strip()[:50]
+
+    if not niche:
+        return JSONResponse({"error": "Niche is required"}, status_code=400)
+
+    # Build funnel URL
+    funnel_url = f"{os.getenv('BASE_URL', 'https://superadpro-production.up.railway.app')}/join/{user.username}"
+
+    # Create campaign record
+    from .database import SuperSellerCampaign
+    campaign = SuperSellerCampaign(
+        user_id=user.id,
+        niche=niche, audience=audience, tone=tone, goal=goal,
+        funnel_url=funnel_url, status="generating"
+    )
+    db.add(campaign)
+    db.commit()
+    db.refresh(campaign)
+
+    # Generate all assets via AI
+    import json as _json
+    try:
+        base_context = f"""You are generating marketing content for a SuperAdPro member.
+SuperAdPro is a video advertising and AI marketing platform. Members pay $20-30/month for:
+- Video ad campaigns with real engaged viewers
+- AI marketing tools (campaign studio, social posts, funnels, email)
+- Course marketplace (create and sell courses)
+- Affiliate network (earn commissions by referring others)
+
+Member's niche: {niche}
+Target audience: {audience}
+Tone: {tone}
+Goal: {goal}
+Funnel URL: {funnel_url}
+
+IMPORTANT: Never make income guarantees. Focus on the tools and platform value.
+All CTAs should point to: {funnel_url}"""
+
+        # Generate social posts (30 days)
+        social_prompt = f"""{base_context}
+
+Generate 30 social media posts (one per day for 30 days). Return ONLY valid JSON array.
+Mix: 70% value/educational, 20% soft CTA, 10% direct CTA.
+Each post: {{"day": 1, "platform": "facebook|instagram|x|linkedin|tiktok", "content": "post text with emojis", "hashtags": "#tag1 #tag2", "type": "value|soft_cta|direct_cta"}}
+Rotate platforms. Keep posts natural and engaging, not salesy."""
+
+        social_resp = await _call_ai(social_prompt, model="claude-sonnet-4-20250514")
+        campaign.social_posts_json = _extract_json(social_resp)
+
+        # Generate email sequence (5 emails)
+        email_prompt = f"""{base_context}
+
+Generate a 5-email nurture sequence. Return ONLY valid JSON array.
+Sequence: Welcome (day 0) → Value (day 1) → Social Proof (day 3) → Urgency (day 5) → Final CTA (day 7)
+Each email: {{"email_num": 1, "subject": "subject line", "preview": "preview text", "body": "full email HTML body", "delay_days": 0, "type": "welcome|value|social_proof|urgency|final_cta"}}
+Professional HTML emails with inline styles. Include the funnel URL as CTA button."""
+
+        email_resp = await _call_ai(email_prompt, model="claude-sonnet-4-20250514")
+        campaign.email_sequence_json = _extract_json(email_resp)
+
+        # Generate video scripts (3)
+        video_prompt = f"""{base_context}
+
+Generate 3 video scripts for short-form content. Return ONLY valid JSON array.
+Durations: 30 seconds, 60 seconds, 2 minutes.
+Each: {{"title": "title", "duration": "30s|60s|2min", "hook": "first 3 seconds - attention grabber", "body": "main content", "cta": "call to action mentioning the link", "platform": "tiktok|reels|shorts"}}
+Hook must grab attention immediately. Use problem-agitation-solution framework."""
+
+        video_resp = await _call_ai(video_prompt, model="claude-sonnet-4-20250514")
+        campaign.video_scripts_json = _extract_json(video_resp)
+
+        # Generate ad copy (3 platforms)
+        ad_prompt = f"""{base_context}
+
+Generate ad copy for 3 platforms. Return ONLY valid JSON array.
+Platforms: Facebook, Instagram, Google.
+Each: {{"platform": "facebook|instagram|google", "headline": "headline", "body": "ad body text", "cta_text": "button text", "description": "ad description"}}
+Keep each platform's copy format appropriate for that platform."""
+
+        ad_resp = await _call_ai(ad_prompt, model="claude-haiku-4-5-20251001")
+        campaign.ad_copy_json = _extract_json(ad_resp)
+
+        # Generate strategy doc
+        strategy_prompt = f"""{base_context}
+
+Generate a 30-day campaign strategy. Return ONLY valid JSON object with:
+{{"overview": "strategy summary", "daily_plan": [{{"day": 1, "task": "what to do", "platform": "where", "tip": "helpful tip"}}], "best_practices": ["tip1", "tip2"], "posting_times": {{"facebook": "best time", "instagram": "best time", "tiktok": "best time"}}, "hashtag_strategy": "approach to hashtags", "engagement_tips": ["tip1", "tip2"]}}"""
+
+        strategy_resp = await _call_ai(strategy_prompt, model="claude-sonnet-4-20250514")
+        campaign.strategy_json = _extract_json(strategy_resp)
+
+        campaign.status = "active"
+        db.commit()
+
+        return {"success": True, "campaign_id": campaign.id, "status": "active"}
+
+    except Exception as e:
+        logger.error(f"SuperSeller generation failed for user {user.id}: {e}")
+        campaign.status = "failed"
+        db.commit()
+        return JSONResponse({"error": f"Generation failed: {str(e)}"}, status_code=500)
+
+
+@app.get("/api/superseller/campaigns")
+def api_superseller_campaigns(request: Request, user: User = Depends(get_current_user),
+                               db: Session = Depends(get_db)):
+    """List user's SuperSeller campaigns."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import SuperSellerCampaign
+    campaigns = db.query(SuperSellerCampaign).filter(
+        SuperSellerCampaign.user_id == user.id
+    ).order_by(SuperSellerCampaign.created_at.desc()).all()
+    return {"campaigns": [{
+        "id": c.id, "niche": c.niche, "audience": c.audience,
+        "tone": c.tone, "goal": c.goal, "funnel_url": c.funnel_url,
+        "status": c.status, "leads_count": c.leads_count or 0,
+        "conversions_count": c.conversions_count or 0,
+        "link_clicks": c.link_clicks or 0,
+        "created_at": c.created_at.isoformat() if c.created_at else None,
+    } for c in campaigns]}
+
+
+@app.get("/api/superseller/campaign/{campaign_id}")
+def api_superseller_detail(campaign_id: int, request: Request,
+                            user: User = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
+    """Get full campaign detail with all generated assets."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import SuperSellerCampaign
+    import json as _json
+    c = db.query(SuperSellerCampaign).filter(
+        SuperSellerCampaign.id == campaign_id,
+        SuperSellerCampaign.user_id == user.id
+    ).first()
+    if not c:
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+
+    def safe_json(s):
+        if not s: return None
+        try: return _json.loads(s)
+        except: return s
+
+    return {
+        "id": c.id, "niche": c.niche, "audience": c.audience,
+        "tone": c.tone, "goal": c.goal, "funnel_url": c.funnel_url,
+        "status": c.status,
+        "social_posts": safe_json(c.social_posts_json),
+        "email_sequence": safe_json(c.email_sequence_json),
+        "video_scripts": safe_json(c.video_scripts_json),
+        "ad_copy": safe_json(c.ad_copy_json),
+        "strategy": safe_json(c.strategy_json),
+        "landing_page_html": c.landing_page_html,
+        "leads_count": c.leads_count or 0,
+        "conversions_count": c.conversions_count or 0,
+        "link_clicks": c.link_clicks or 0,
+        "page_views": c.page_views or 0,
+        "created_at": c.created_at.isoformat() if c.created_at else None,
+    }
+
+
+@app.get("/api/superseller/today/{campaign_id}")
+def api_superseller_today(campaign_id: int, request: Request,
+                           user: User = Depends(get_current_user),
+                           db: Session = Depends(get_db)):
+    """Get today's scheduled content for the active campaign."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import SuperSellerCampaign
+    import json as _json
+    c = db.query(SuperSellerCampaign).filter(
+        SuperSellerCampaign.id == campaign_id,
+        SuperSellerCampaign.user_id == user.id
+    ).first()
+    if not c:
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+
+    # Calculate which day of the campaign we're on
+    from datetime import datetime
+    days_active = (datetime.utcnow() - c.created_at).days + 1
+    day_num = min(days_active, 30)
+
+    posts = []
+    try:
+        all_posts = _json.loads(c.social_posts_json) if c.social_posts_json else []
+        posts = [p for p in all_posts if p.get("day") == day_num]
+    except: pass
+
+    return {
+        "campaign_id": c.id,
+        "day": day_num,
+        "posts": posts,
+        "funnel_url": c.funnel_url,
+        "total_days": 30,
+    }
+
+
+async def _call_ai(prompt: str, model: str = "claude-sonnet-4-20250514") -> str:
+    """Call Claude API for SuperSeller generation."""
+    import httpx
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        raise Exception("ANTHROPIC_API_KEY not set")
+    async with httpx.AsyncClient(timeout=120) as client:
+        resp = await client.post("https://api.anthropic.com/v1/messages", headers={
+            "x-api-key": api_key, "anthropic-version": "2023-06-01", "content-type": "application/json",
+        }, json={
+            "model": model, "max_tokens": 8000,
+            "messages": [{"role": "user", "content": prompt}],
+        })
+        data = resp.json()
+        if "content" in data and len(data["content"]) > 0:
+            return data["content"][0].get("text", "")
+        raise Exception(f"AI response error: {data}")
+
+
+def _extract_json(text: str) -> str:
+    """Extract JSON from AI response — handles markdown code blocks."""
+    import json as _json
+    t = text.strip()
+    if t.startswith("```"):
+        t = t.split("\n", 1)[1] if "\n" in t else t[3:]
+        if t.endswith("```"): t = t[:-3].strip()
+    # Validate it's valid JSON
+    try:
+        _json.loads(t)
+        return t
+    except:
+        # Try to find JSON array or object in the text
+        for start_char in ['[', '{']:
+            idx = text.find(start_char)
+            if idx >= 0:
+                end_char = ']' if start_char == '[' else '}'
+                # Find matching end
+                depth = 0
+                for i in range(idx, len(text)):
+                    if text[i] == start_char: depth += 1
+                    elif text[i] == end_char: depth -= 1
+                    if depth == 0:
+                        candidate = text[idx:i+1]
+                        try:
+                            _json.loads(candidate)
+                            return candidate
+                        except: break
+        return t
+
+
 # ═══════════════════════════════════════════════════════════════
 #  REACT SPA — Serve the built React frontend
 # ═══════════════════════════════════════════════════════════════

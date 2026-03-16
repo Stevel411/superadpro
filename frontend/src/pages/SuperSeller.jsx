@@ -1,0 +1,602 @@
+import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import AppLayout from '../components/layout/AppLayout';
+import { apiGet, apiPost } from '../utils/api';
+import { Wand2, Zap, Copy, Check, ChevronRight, Calendar, Mail, Film, FileText, BarChart3, MessageCircle, RefreshCw, Lock, Sparkles, Target, Users, Globe, Play } from 'lucide-react';
+
+var NICHES = ['Digital Marketing','Health & Fitness','Crypto & Trading','Real Estate','Make Money Online','Personal Finance','Travel','Beauty & Skincare','E-Commerce','Education','Technology','Coaching','Food & Nutrition','Parenting','Self Improvement'];
+var AUDIENCES = ['Beginners looking to earn online','Small business owners','Stay-at-home parents','Students & young adults','Retirees','Side hustlers','Content creators','Freelancers'];
+var TONES = ['Professional','Casual & Friendly','Inspirational & Motivational','Urgent & Direct','Educational'];
+var GOALS = ['Lead Generation','Direct Sales','Affiliate Recruitment','Brand Awareness'];
+
+export default function SuperSeller() {
+  var { t } = useTranslation();
+  var [campaigns, setCampaigns] = useState([]);
+  var [loading, setLoading] = useState(true);
+  var [view, setView] = useState('list'); // list, wizard, dashboard
+  var [activeCampaign, setActiveCampaign] = useState(null);
+
+  useEffect(function() {
+    apiGet('/api/superseller/campaigns').then(function(r) {
+      setCampaigns(r.campaigns || []);
+      setLoading(false);
+    }).catch(function() { setLoading(false); });
+  }, []);
+
+  function onCampaignCreated(id) {
+    apiGet('/api/superseller/campaign/' + id).then(function(r) {
+      setActiveCampaign(r);
+      setView('dashboard');
+      // Refresh list
+      apiGet('/api/superseller/campaigns').then(function(r2) { setCampaigns(r2.campaigns || []); });
+    });
+  }
+
+  function openCampaign(id) {
+    apiGet('/api/superseller/campaign/' + id).then(function(r) {
+      setActiveCampaign(r);
+      setView('dashboard');
+    });
+  }
+
+  if (loading) return <AppLayout title="SuperSeller"><Spin/></AppLayout>;
+
+  return (
+    <AppLayout title="SuperSeller" subtitle="AI Sales Autopilot — your complete marketing pipeline">
+      {view === 'list' && <CampaignList campaigns={campaigns} onCreate={function() { setView('wizard'); }} onOpen={openCampaign} />}
+      {view === 'wizard' && <SetupWizard onComplete={onCampaignCreated} onCancel={function() { setView('list'); }} />}
+      {view === 'dashboard' && activeCampaign && <CampaignDashboard campaign={activeCampaign} onBack={function() { setView('list'); }} />}
+    </AppLayout>
+  );
+}
+
+// ══════════════════════════════════════════════════════════
+// CAMPAIGN LIST
+// ══════════════════════════════════════════════════════════
+
+function CampaignList({ campaigns, onCreate, onOpen }) {
+  return (
+    <div>
+      {/* Hero banner */}
+      <div style={{background:'linear-gradient(135deg,#1c223d,#0f172a)',borderRadius:16,padding:'36px 40px',marginBottom:24,position:'relative',overflow:'hidden'}}>
+        <div style={{position:'absolute',top:-40,right:-40,width:200,height:200,borderRadius:'50%',background:'rgba(139,92,246,.06)'}}/>
+        <div style={{position:'absolute',bottom:-20,right:80,width:120,height:120,borderRadius:'50%',background:'rgba(14,165,233,.04)'}}/>
+        <div style={{position:'relative',zIndex:1}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
+            <Zap size={18} color="#a78bfa"/>
+            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#a78bfa'}}>AI Sales Autopilot</span>
+          </div>
+          <h2 style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'#fff',margin:'0 0 10px'}}>SuperSeller</h2>
+          <p style={{fontSize:14,color:'rgba(255,255,255,.5)',maxWidth:500,lineHeight:1.7,margin:'0 0 20px'}}>
+            Answer 4 questions. AI generates your complete sales pipeline — landing page, 30 social posts, email sequence, video scripts, ad copy, and strategy. One link that sells for you 24/7.
+          </p>
+          <button onClick={onCreate}
+            style={{display:'flex',alignItems:'center',gap:8,padding:'14px 28px',borderRadius:12,border:'none',cursor:'pointer',
+              background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:15,fontWeight:800,fontFamily:'inherit',
+              boxShadow:'0 4px 20px rgba(139,92,246,.35)',transition:'all .2s'}}>
+            <Wand2 size={18}/> Create New Campaign
+          </button>
+        </div>
+      </div>
+
+      {/* Campaign list */}
+      {campaigns.length > 0 ? (
+        <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:14}}>
+          {campaigns.map(function(c) {
+            var statusColors = {active:{bg:'rgba(22,163,74,.08)',color:'#16a34a'},generating:{bg:'rgba(14,165,233,.08)',color:'#0ea5e9'},paused:{bg:'rgba(245,158,11,.08)',color:'#f59e0b'},failed:{bg:'rgba(239,68,68,.08)',color:'#ef4444'}};
+            var sc = statusColors[c.status] || statusColors.active;
+            return (
+              <div key={c.id} onClick={function() { onOpen(c.id); }}
+                style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',cursor:'pointer',transition:'all .2s',boxShadow:'0 2px 12px rgba(0,0,0,.04)'}}
+                onMouseEnter={function(e) { e.currentTarget.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'; }}
+                onMouseLeave={function(e) { e.currentTarget.style.boxShadow='0 2px 12px rgba(0,0,0,.04)'; }}>
+                <div style={{background:'#1c223d',padding:'14px 18px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                  <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{c.niche}</div>
+                  <span style={{fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:4,background:sc.bg,color:sc.color,textTransform:'capitalize'}}>{c.status}</span>
+                </div>
+                <div style={{padding:'16px 18px'}}>
+                  <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:12}}>
+                    <div style={{textAlign:'center'}}>
+                      <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0ea5e9'}}>{c.link_clicks || 0}</div>
+                      <div style={{fontSize:9,fontWeight:700,color:'#94a3b8'}}>CLICKS</div>
+                    </div>
+                    <div style={{textAlign:'center'}}>
+                      <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#16a34a'}}>{c.leads_count || 0}</div>
+                      <div style={{fontSize:9,fontWeight:700,color:'#94a3b8'}}>LEADS</div>
+                    </div>
+                    <div style={{textAlign:'center'}}>
+                      <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#8b5cf6'}}>{c.conversions_count || 0}</div>
+                      <div style={{fontSize:9,fontWeight:700,color:'#94a3b8'}}>CONVERTS</div>
+                    </div>
+                  </div>
+                  <div style={{fontSize:11,color:'#94a3b8'}}>Created {c.created_at ? new Date(c.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—'}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div style={{textAlign:'center',padding:'60px 20px',background:'#fff',borderRadius:14,border:'1px solid #e8ecf2'}}>
+          <div style={{fontSize:48,marginBottom:12,opacity:.3}}>🚀</div>
+          <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:4}}>No campaigns yet</div>
+          <div style={{fontSize:13,color:'#94a3b8',marginBottom:16}}>Create your first SuperSeller campaign and let AI build your sales pipeline</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════
+// SETUP WIZARD
+// ══════════════════════════════════════════════════════════
+
+function SetupWizard({ onComplete, onCancel }) {
+  var [step, setStep] = useState(1);
+  var [niche, setNiche] = useState('');
+  var [customNiche, setCustomNiche] = useState('');
+  var [audience, setAudience] = useState([]);
+  var [customAudience, setCustomAudience] = useState('');
+  var [tone, setTone] = useState('Professional');
+  var [goal, setGoal] = useState('Lead Generation');
+  var [generating, setGenerating] = useState(false);
+  var [genStep, setGenStep] = useState('');
+  var [error, setError] = useState('');
+
+  function generate() {
+    var finalNiche = niche === 'Other' ? customNiche : niche;
+    if (!finalNiche) { setError('Please select a niche'); return; }
+    setGenerating(true); setError('');
+
+    var steps = ['Analyzing your niche...','Building your landing page...','Writing 30 social posts...','Crafting email sequence...','Creating video scripts...','Generating ad copy...','Building your strategy...','Finalizing your campaign...'];
+    var si = 0;
+    var interval = setInterval(function() { si++; if (si < steps.length) setGenStep(steps[si]); }, 4000);
+    setGenStep(steps[0]);
+
+    var audienceStr = audience.join(', ') + (customAudience ? ', ' + customAudience : '');
+
+    apiPost('/api/superseller/create', {
+      niche: finalNiche, audience: audienceStr, tone: tone, goal: goal,
+    }).then(function(r) {
+      clearInterval(interval);
+      if (r.success) { onComplete(r.campaign_id); }
+      else { setError(r.error || 'Generation failed'); setGenerating(false); }
+    }).catch(function(e) {
+      clearInterval(interval);
+      setError(e.message || 'Generation failed');
+      setGenerating(false);
+    });
+  }
+
+  if (generating) {
+    return (
+      <div style={{textAlign:'center',padding:'80px 20px'}}>
+        <div style={{width:64,height:64,borderRadius:16,background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 24px',animation:'pulse 2s ease-in-out infinite'}}>
+          <Sparkles size={28} color="#fff"/>
+        </div>
+        <h2 style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'#0f172a',margin:'0 0 8px'}}>SuperSeller is building your campaign</h2>
+        <p style={{fontSize:14,color:'#64748b',marginBottom:24}}>{genStep}</p>
+        <div style={{width:200,height:4,background:'#e8ecf2',borderRadius:2,margin:'0 auto',overflow:'hidden'}}>
+          <div style={{height:'100%',background:'linear-gradient(90deg,#8b5cf6,#0ea5e9)',borderRadius:2,animation:'progress 30s linear'}}/>
+        </div>
+        <p style={{fontSize:11,color:'#94a3b8',marginTop:16}}>This usually takes 30-60 seconds</p>
+        <style>{'@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}} @keyframes progress{0%{width:0%}100%{width:100%}}'}</style>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{maxWidth:700,margin:'0 auto'}}>
+      {/* Progress bar */}
+      <div style={{display:'flex',gap:4,marginBottom:24}}>
+        {[1,2,3,4].map(function(s) {
+          return <div key={s} style={{flex:1,height:4,borderRadius:2,background:s<=step?'#8b5cf6':'#e8ecf2',transition:'all .3s'}}/>;
+        })}
+      </div>
+
+      <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
+        <div style={{background:'#1c223d',padding:'16px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <Wand2 size={16} color="#a78bfa"/>
+            <span style={{fontSize:14,fontWeight:800,color:'#fff'}}>SuperSeller Setup — Step {step} of 4</span>
+          </div>
+          <button onClick={onCancel} style={{fontSize:12,fontWeight:600,color:'rgba(255,255,255,.4)',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit'}}>Cancel</button>
+        </div>
+        <div style={{padding:'28px'}}>
+          {error && <div style={{padding:'10px 14px',background:'#fef2f2',borderRadius:8,border:'1px solid #fecaca',marginBottom:16,fontSize:12,fontWeight:700,color:'#dc2626'}}>{error}</div>}
+
+          {/* Step 1: Niche */}
+          {step === 1 && (
+            <div>
+              <h3 style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px'}}>What's your niche?</h3>
+              <p style={{fontSize:13,color:'#64748b',marginBottom:20}}>Choose the market you want to target. SuperSeller will create content tailored to this audience.</p>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
+                {NICHES.concat(['Other']).map(function(n) {
+                  var on = niche === n;
+                  return (
+                    <button key={n} onClick={function() { setNiche(n); }}
+                      style={{padding:'12px 10px',borderRadius:10,border:on?'2px solid #8b5cf6':'2px solid #e8ecf2',
+                        background:on?'rgba(139,92,246,.06)':'#fff',cursor:'pointer',fontFamily:'inherit',
+                        fontSize:12,fontWeight:on?800:600,color:on?'#8b5cf6':'#64748b',transition:'all .15s',textAlign:'center'}}>
+                      {n}
+                    </button>
+                  );
+                })}
+              </div>
+              {niche === 'Other' && (
+                <input value={customNiche} onChange={function(e) { setCustomNiche(e.target.value); }}
+                  placeholder="Enter your niche..."
+                  style={{width:'100%',padding:'12px 16px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box',marginTop:12,background:'#f8f9fb'}}/>
+              )}
+            </div>
+          )}
+
+          {/* Step 2: Audience */}
+          {step === 2 && (
+            <div>
+              <h3 style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px'}}>Who's your target audience?</h3>
+              <p style={{fontSize:13,color:'#64748b',marginBottom:20}}>Select one or more. The more specific, the better your content will perform.</p>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:8}}>
+                {AUDIENCES.map(function(a) {
+                  var on = audience.indexOf(a) >= 0;
+                  return (
+                    <button key={a} onClick={function() { setAudience(function(prev) { return on ? prev.filter(function(x){return x!==a;}) : prev.concat([a]); }); }}
+                      style={{padding:'12px 14px',borderRadius:10,border:on?'2px solid #0ea5e9':'2px solid #e8ecf2',
+                        background:on?'rgba(14,165,233,.06)':'#fff',cursor:'pointer',fontFamily:'inherit',
+                        fontSize:12,fontWeight:on?700:500,color:on?'#0ea5e9':'#64748b',transition:'all .15s',textAlign:'left'}}>
+                      {on ? '✓ ' : ''}{a}
+                    </button>
+                  );
+                })}
+              </div>
+              <input value={customAudience} onChange={function(e) { setCustomAudience(e.target.value); }}
+                placeholder="Add custom audience description (optional)..."
+                style={{width:'100%',padding:'12px 16px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',marginTop:12,background:'#f8f9fb'}}/>
+            </div>
+          )}
+
+          {/* Step 3: Tone */}
+          {step === 3 && (
+            <div>
+              <h3 style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px'}}>What tone should your content use?</h3>
+              <p style={{fontSize:13,color:'#64748b',marginBottom:20}}>This sets the voice for all your posts, emails, and scripts.</p>
+              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                {TONES.map(function(t) {
+                  var on = tone === t;
+                  return (
+                    <button key={t} onClick={function() { setTone(t); }}
+                      style={{padding:'16px 18px',borderRadius:10,border:on?'2px solid #8b5cf6':'2px solid #e8ecf2',
+                        background:on?'rgba(139,92,246,.06)':'#fff',cursor:'pointer',fontFamily:'inherit',
+                        fontSize:14,fontWeight:on?800:500,color:on?'#8b5cf6':'#475569',transition:'all .15s',textAlign:'left'}}>
+                      {on ? '● ' : '○ '}{t}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Goal + Generate */}
+          {step === 4 && (
+            <div>
+              <h3 style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px'}}>What's your primary goal?</h3>
+              <p style={{fontSize:13,color:'#64748b',marginBottom:20}}>This shapes the CTA strategy across all your content.</p>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:8,marginBottom:24}}>
+                {GOALS.map(function(g) {
+                  var on = goal === g;
+                  var icons = {'Lead Generation': Target, 'Direct Sales': Zap, 'Affiliate Recruitment': Users, 'Brand Awareness': Globe};
+                  var Icon = icons[g] || Target;
+                  return (
+                    <button key={g} onClick={function() { setGoal(g); }}
+                      style={{padding:'18px 16px',borderRadius:10,border:on?'2px solid #8b5cf6':'2px solid #e8ecf2',
+                        background:on?'rgba(139,92,246,.06)':'#fff',cursor:'pointer',fontFamily:'inherit',
+                        fontSize:13,fontWeight:on?800:500,color:on?'#8b5cf6':'#475569',transition:'all .15s',textAlign:'center',
+                        display:'flex',flexDirection:'column',alignItems:'center',gap:6}}>
+                      <Icon size={20} color={on?'#8b5cf6':'#94a3b8'}/>
+                      {g}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Summary */}
+              <div style={{padding:'16px',background:'#f8f9fb',borderRadius:10,border:'1px solid #e8ecf2',marginBottom:20}}>
+                <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Campaign Summary</div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,fontSize:12}}>
+                  <div><span style={{fontWeight:700,color:'#0f172a'}}>Niche:</span> <span style={{color:'#64748b'}}>{niche === 'Other' ? customNiche : niche}</span></div>
+                  <div><span style={{fontWeight:700,color:'#0f172a'}}>Tone:</span> <span style={{color:'#64748b'}}>{tone}</span></div>
+                  <div><span style={{fontWeight:700,color:'#0f172a'}}>Audience:</span> <span style={{color:'#64748b'}}>{audience.length > 0 ? audience.join(', ') : 'General'}</span></div>
+                  <div><span style={{fontWeight:700,color:'#0f172a'}}>Goal:</span> <span style={{color:'#64748b'}}>{goal}</span></div>
+                </div>
+              </div>
+
+              <div style={{fontSize:11,color:'#94a3b8',marginBottom:12}}>SuperSeller will generate: landing page, 30 social posts, 5-email sequence, 3 video scripts, ad copy, and a 30-day strategy document.</div>
+            </div>
+          )}
+
+          {/* Navigation */}
+          <div style={{display:'flex',justifyContent:'space-between',marginTop:24}}>
+            <button onClick={function() { if (step > 1) setStep(step - 1); else onCancel(); }}
+              style={{padding:'10px 20px',borderRadius:8,border:'1px solid #e8ecf2',background:'#fff',cursor:'pointer',fontFamily:'inherit',fontSize:13,fontWeight:600,color:'#64748b'}}>
+              {step === 1 ? 'Cancel' : '← Back'}
+            </button>
+            {step < 4 ? (
+              <button onClick={function() { if (step === 1 && !niche && !customNiche) { setError('Please select a niche'); return; } setError(''); setStep(step + 1); }}
+                style={{display:'flex',alignItems:'center',gap:4,padding:'10px 24px',borderRadius:8,border:'none',cursor:'pointer',
+                  background:'#8b5cf6',color:'#fff',fontFamily:'inherit',fontSize:13,fontWeight:800}}>
+                Next <ChevronRight size={14}/>
+              </button>
+            ) : (
+              <button onClick={generate}
+                style={{display:'flex',alignItems:'center',gap:8,padding:'12px 28px',borderRadius:10,border:'none',cursor:'pointer',
+                  background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontFamily:'inherit',fontSize:14,fontWeight:800,
+                  boxShadow:'0 4px 16px rgba(139,92,246,.3)'}}>
+                <Wand2 size={16}/> Generate My Campaign
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════
+// CAMPAIGN DASHBOARD
+// ══════════════════════════════════════════════════════════
+
+function CampaignDashboard({ campaign, onBack }) {
+  var [tab, setTab] = useState('calendar');
+  var [copied, setCopied] = useState(false);
+  var c = campaign;
+
+  function copyLink() {
+    navigator.clipboard.writeText(c.funnel_url || '');
+    setCopied(true);
+    setTimeout(function() { setCopied(false); }, 2000);
+  }
+
+  var tabs = [
+    {key:'calendar',label:'Content Calendar',icon:Calendar},
+    {key:'emails',label:'Email Sequence',icon:Mail},
+    {key:'videos',label:'Video Scripts',icon:Film},
+    {key:'ads',label:'Ad Copy',icon:FileText},
+    {key:'strategy',label:'Strategy',icon:BarChart3},
+  ];
+
+  return (
+    <div>
+      {/* Back button */}
+      <button onClick={onBack} style={{display:'flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'#94a3b8',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit',marginBottom:12}}>
+        ← Back to campaigns
+      </button>
+
+      {/* Funnel link banner */}
+      <div style={{background:'linear-gradient(135deg,#1c223d,#0f172a)',borderRadius:14,padding:'20px 24px',marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div>
+          <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>Your SuperSeller Funnel Link</div>
+          <div style={{fontSize:14,fontWeight:600,color:'rgba(255,255,255,.6)',fontFamily:'monospace'}}>{c.funnel_url}</div>
+        </div>
+        <button onClick={copyLink}
+          style={{display:'flex',alignItems:'center',gap:6,padding:'10px 20px',borderRadius:10,border:'none',cursor:'pointer',
+            background:copied?'#16a34a':'#8b5cf6',color:'#fff',fontSize:13,fontWeight:800,fontFamily:'inherit',transition:'all .2s'}}>
+          {copied ? <><Check size={14}/> Copied!</> : <><Copy size={14}/> Copy Link</>}
+        </button>
+      </div>
+
+      {/* Stats row */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
+        {[
+          {value:c.link_clicks||0,label:'Link Clicks',color:'#0ea5e9'},
+          {value:c.page_views||0,label:'Page Views',color:'#6366f1'},
+          {value:c.leads_count||0,label:'Leads Captured',color:'#16a34a'},
+          {value:c.conversions_count||0,label:'Conversions',color:'#8b5cf6'},
+        ].map(function(s,i) {
+          return (
+            <div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:16,textAlign:'center'}}>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:s.color}}>{s.value}</div>
+              <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',marginTop:2}}>{s.label}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Tab navigation */}
+      <div style={{display:'flex',gap:4,marginBottom:16,borderBottom:'2px solid #e8ecf2',paddingBottom:0}}>
+        {tabs.map(function(t) {
+          var Icon = t.icon;
+          var on = tab === t.key;
+          return (
+            <button key={t.key} onClick={function() { setTab(t.key); }}
+              style={{display:'flex',alignItems:'center',gap:5,padding:'10px 16px',fontSize:12,fontWeight:on?800:600,
+                border:'none',borderBottom:on?'3px solid #8b5cf6':'3px solid transparent',
+                cursor:'pointer',fontFamily:'inherit',background:on?'rgba(139,92,246,.04)':'transparent',
+                color:on?'#8b5cf6':'#94a3b8',marginBottom:-2,borderRadius:'6px 6px 0 0',transition:'all .15s'}}>
+              <Icon size={13}/>{t.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Tab content */}
+      {tab === 'calendar' && <CalendarTab posts={c.social_posts} funnel={c.funnel_url} created={c.created_at}/>}
+      {tab === 'emails' && <EmailsTab emails={c.email_sequence}/>}
+      {tab === 'videos' && <VideosTab scripts={c.video_scripts}/>}
+      {tab === 'ads' && <AdsTab ads={c.ad_copy}/>}
+      {tab === 'strategy' && <StrategyTab strategy={c.strategy}/>}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════
+// TAB COMPONENTS
+// ══════════════════════════════════════════════════════════
+
+function CalendarTab({ posts, funnel, created }) {
+  var [copiedIdx, setCopiedIdx] = useState(-1);
+  var allPosts = Array.isArray(posts) ? posts : [];
+
+  var daysActive = created ? Math.floor((Date.now() - new Date(created).getTime()) / 86400000) + 1 : 1;
+  var today = Math.min(daysActive, 30);
+
+  function copyPost(text, idx) {
+    navigator.clipboard.writeText(text);
+    setCopiedIdx(idx);
+    setTimeout(function() { setCopiedIdx(-1); }, 2000);
+  }
+
+  var platformColors = {facebook:'#1877f2',instagram:'#e4405f',x:'#0f172a',linkedin:'#0a66c2',tiktok:'#010101'};
+
+  return (
+    <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
+      <div style={{background:'#1c223d',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>30-Day Content Calendar</div>
+        <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.4)'}}>Day {today} of 30</div>
+      </div>
+      <div style={{maxHeight:600,overflowY:'auto'}}>
+        {allPosts.length > 0 ? allPosts.map(function(p, i) {
+          var isToday = p.day === today;
+          var pc = platformColors[(p.platform||'').toLowerCase()] || '#64748b';
+          return (
+            <div key={i} style={{padding:'14px 20px',borderBottom:'1px solid #f5f6f8',background:isToday?'rgba(139,92,246,.03)':'transparent'}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
+                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                  {isToday && <span style={{fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:3,background:'#8b5cf6',color:'#fff'}}>TODAY</span>}
+                  <span style={{fontSize:11,fontWeight:700,color:'#0f172a'}}>Day {p.day}</span>
+                  <span style={{fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:4,background:pc+'12',color:pc,textTransform:'capitalize',border:'1px solid '+pc+'20'}}>{p.platform}</span>
+                  {p.type && <span style={{fontSize:9,fontWeight:600,color:'#94a3b8'}}>{p.type}</span>}
+                </div>
+                <button onClick={function() { copyPost(p.content + (p.hashtags ? '\n\n' + p.hashtags : ''), i); }}
+                  style={{display:'flex',alignItems:'center',gap:3,fontSize:10,fontWeight:700,color:copiedIdx===i?'#16a34a':'#94a3b8',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit'}}>
+                  {copiedIdx===i ? <><Check size={11}/> Copied</> : <><Copy size={11}/> Copy</>}
+                </button>
+              </div>
+              <div style={{fontSize:13,color:'#334155',lineHeight:1.7,whiteSpace:'pre-wrap'}}>{p.content}</div>
+              {p.hashtags && <div style={{fontSize:11,color:'#0ea5e9',marginTop:4}}>{p.hashtags}</div>}
+            </div>
+          );
+        }) : <div style={{padding:'40px 20px',textAlign:'center',color:'#94a3b8',fontSize:13}}>Generating social posts...</div>}
+      </div>
+    </div>
+  );
+}
+
+function EmailsTab({ emails }) {
+  var [expanded, setExpanded] = useState(0);
+  var allEmails = Array.isArray(emails) ? emails : [];
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:10}}>
+      {allEmails.map(function(e, i) {
+        var isOpen = expanded === i;
+        return (
+          <div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,overflow:'hidden'}}>
+            <div onClick={function() { setExpanded(isOpen ? -1 : i); }}
+              style={{padding:'14px 18px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'space-between',background:isOpen?'#1c223d':'#f8f9fb'}}>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <Mail size={14} color={isOpen?'#a78bfa':'#94a3b8'}/>
+                <span style={{fontSize:13,fontWeight:800,color:isOpen?'#fff':'#0f172a'}}>Email {e.email_num || i+1}: {e.subject}</span>
+              </div>
+              <span style={{fontSize:10,fontWeight:600,color:isOpen?'rgba(255,255,255,.4)':'#94a3b8'}}>Day {e.delay_days || i*2}</span>
+            </div>
+            {isOpen && (
+              <div style={{padding:'18px',fontSize:13,color:'#334155',lineHeight:1.8,whiteSpace:'pre-wrap'}} dangerouslySetInnerHTML={{__html: e.body || e.content || ''}}/>
+            )}
+          </div>
+        );
+      })}
+      {allEmails.length === 0 && <div style={{padding:'40px',textAlign:'center',color:'#94a3b8',fontSize:13}}>Generating email sequence...</div>}
+    </div>
+  );
+}
+
+function VideosTab({ scripts }) {
+  var allScripts = Array.isArray(scripts) ? scripts : [];
+  return (
+    <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14}}>
+      {allScripts.map(function(v, i) {
+        var colors = ['#0ea5e9','#8b5cf6','#16a34a'];
+        return (
+          <div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,overflow:'hidden'}}>
+            <div style={{background:colors[i%3],padding:'18px 16px',textAlign:'center'}}>
+              <Film size={24} color="#fff"/>
+              <div style={{fontSize:13,fontWeight:800,color:'#fff',marginTop:6}}>{v.duration || v.title}</div>
+            </div>
+            <div style={{padding:'16px'}}>
+              <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>Hook</div>
+              <div style={{fontSize:12,color:'#0f172a',fontWeight:700,marginBottom:12,lineHeight:1.5}}>{v.hook}</div>
+              <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>Script</div>
+              <div style={{fontSize:12,color:'#475569',lineHeight:1.7,marginBottom:12,whiteSpace:'pre-wrap'}}>{v.body}</div>
+              <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:4}}>CTA</div>
+              <div style={{fontSize:12,color:'#8b5cf6',fontWeight:700}}>{v.cta}</div>
+            </div>
+          </div>
+        );
+      })}
+      {allScripts.length === 0 && <div style={{gridColumn:'1/-1',padding:'40px',textAlign:'center',color:'#94a3b8',fontSize:13}}>Generating video scripts...</div>}
+    </div>
+  );
+}
+
+function AdsTab({ ads }) {
+  var allAds = Array.isArray(ads) ? ads : [];
+  return (
+    <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14}}>
+      {allAds.map(function(a, i) {
+        var pColors = {facebook:'#1877f2',instagram:'#e4405f',google:'#4285f4'};
+        var color = pColors[(a.platform||'').toLowerCase()] || '#64748b';
+        return (
+          <div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,overflow:'hidden'}}>
+            <div style={{background:color,padding:'14px 16px',textAlign:'center'}}>
+              <div style={{fontSize:14,fontWeight:800,color:'#fff',textTransform:'capitalize'}}>{a.platform}</div>
+            </div>
+            <div style={{padding:'16px'}}>
+              <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:8}}>{a.headline}</div>
+              <div style={{fontSize:12,color:'#475569',lineHeight:1.7,marginBottom:12}}>{a.body}</div>
+              <div style={{padding:'8px 14px',background:color+'12',borderRadius:6,textAlign:'center',fontSize:12,fontWeight:700,color:color}}>{a.cta_text || 'Learn More'}</div>
+            </div>
+          </div>
+        );
+      })}
+      {allAds.length === 0 && <div style={{gridColumn:'1/-1',padding:'40px',textAlign:'center',color:'#94a3b8',fontSize:13}}>Generating ad copy...</div>}
+    </div>
+  );
+}
+
+function StrategyTab({ strategy }) {
+  var s = strategy || {};
+  var daily = Array.isArray(s.daily_plan) ? s.daily_plan : [];
+  return (
+    <div>
+      {s.overview && (
+        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:14}}>
+          <div style={{background:'#1c223d',padding:'14px 20px'}}>
+            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Strategy Overview</div>
+          </div>
+          <div style={{padding:'18px 20px',fontSize:13,color:'#334155',lineHeight:1.8}}>{s.overview}</div>
+        </div>
+      )}
+      {daily.length > 0 && (
+        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
+          <div style={{background:'#1c223d',padding:'14px 20px'}}>
+            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>30-Day Action Plan</div>
+          </div>
+          <div style={{maxHeight:500,overflowY:'auto'}}>
+            {daily.map(function(d, i) {
+              return (
+                <div key={i} style={{padding:'12px 20px',borderBottom:'1px solid #f5f6f8',display:'flex',alignItems:'flex-start',gap:12}}>
+                  <div style={{width:28,height:28,borderRadius:8,background:'rgba(139,92,246,.08)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,color:'#8b5cf6',flexShrink:0}}>{d.day}</div>
+                  <div>
+                    <div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>{d.task}</div>
+                    {d.tip && <div style={{fontSize:11,color:'#94a3b8',marginTop:2}}>{d.tip}</div>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      {!s.overview && daily.length === 0 && <div style={{padding:'40px',textAlign:'center',color:'#94a3b8',fontSize:13}}>Generating strategy...</div>}
+    </div>
+  );
+}
+
+function Spin() { return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#8b5cf6',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div>; }

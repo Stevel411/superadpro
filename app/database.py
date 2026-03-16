@@ -961,6 +961,41 @@ class MemberCoursePurchase(Base):
     created_at          = Column(DateTime, default=datetime.utcnow)
 
 
+# ═══════════════════════════════════════════════════════════════
+# SUPERSELLER — AI Sales Autopilot
+# ═══════════════════════════════════════════════════════════════
+
+class SuperSellerCampaign(Base):
+    __tablename__ = "superseller_campaigns"
+    id              = Column(Integer, primary_key=True, autoincrement=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    # Setup wizard inputs
+    niche           = Column(String(200), nullable=False)
+    audience        = Column(Text)
+    tone            = Column(String(50), default="professional")
+    goal            = Column(String(50), default="lead_generation")
+    # Generated assets (JSON)
+    landing_page_html = Column(Text)           # Full HTML for the funnel page
+    social_posts_json = Column(Text)           # 30 posts [{day, platform, content, hashtags, cta}]
+    email_sequence_json = Column(Text)         # 5 emails [{subject, body, delay_days, brevo_template_id}]
+    video_scripts_json = Column(Text)          # 3 scripts [{title, duration, hook, body, cta}]
+    ad_copy_json    = Column(Text)             # 3 ad sets [{platform, headline, body, cta}]
+    strategy_json   = Column(Text)             # 30-day playbook
+    # Funnel & tracking
+    funnel_url      = Column(String(500))      # The member's funnel link
+    landing_page_id = Column(Integer, nullable=True)  # FK to superpages if using SuperPages
+    brevo_list_id   = Column(Integer, nullable=True)   # Brevo contact list for this campaign
+    # Stats
+    leads_count     = Column(Integer, default=0)
+    conversions_count = Column(Integer, default=0)
+    link_clicks     = Column(Integer, default=0)
+    page_views      = Column(Integer, default=0)
+    # Status
+    status          = Column(String(20), default="generating")  # generating, active, paused, completed
+    created_at      = Column(DateTime, default=datetime.utcnow)
+    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
 try:
     Base.metadata.create_all(bind=engine)
 except Exception as e:
@@ -1378,6 +1413,32 @@ try:
 
         # Master affiliate username
         conn.execute(text("UPDATE users SET username = 'SuperAdPro' WHERE is_admin = true AND username != 'SuperAdPro'"))
+
+        # SuperSeller campaigns table
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS superseller_campaigns (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id),
+            niche VARCHAR(200) NOT NULL,
+            audience TEXT,
+            tone VARCHAR(50) DEFAULT 'professional',
+            goal VARCHAR(50) DEFAULT 'lead_generation',
+            landing_page_html TEXT,
+            social_posts_json TEXT,
+            email_sequence_json TEXT,
+            video_scripts_json TEXT,
+            ad_copy_json TEXT,
+            strategy_json TEXT,
+            funnel_url VARCHAR(500),
+            landing_page_id INTEGER,
+            brevo_list_id INTEGER,
+            leads_count INTEGER DEFAULT 0,
+            conversions_count INTEGER DEFAULT 0,
+            link_clicks INTEGER DEFAULT 0,
+            page_views INTEGER DEFAULT 0,
+            status VARCHAR(20) DEFAULT 'generating',
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW())"""))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ss_user ON superseller_campaigns(user_id)"))
 
         conn.commit()
         print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 + R2 + courses confirmed")
