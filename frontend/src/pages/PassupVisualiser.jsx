@@ -63,8 +63,52 @@ function PassUpSection() {
   var timerRef = useRef(null);
   var statsRef = useRef({ kept: 0, passups: 0, keptAmt: 0, passupAmt: 0, totalSales: 0 });
 
+  var canvasRef = useRef(null);
+  var svgRef = useRef(null);
+  var treeRef = useRef(null);
+  var [flowDots, setFlowDots] = useState([]);
+  var [floats, setFloats] = useState([]);
+  var [glowId, setGlowId] = useState(null);
+  var flowKeyRef = useRef(0);
+
   var YOU_ID = 1;
   var SPONSOR_ID = 0;
+
+  // Draw connector lines after each render
+  useEffect(function() {
+    if (!canvasRef.current || !svgRef.current) return;
+    var canvas = canvasRef.current;
+    var svg = svgRef.current;
+    var cr = canvas.getBoundingClientRect();
+    svg.setAttribute('width', canvas.scrollWidth);
+    svg.setAttribute('height', canvas.scrollHeight);
+    svg.innerHTML = '';
+    var tree = treeRef.current ? null : null; // just trigger
+    (treeRef2.current || []).forEach(function(n) {
+      if (!n || !n.visible || n.pid === null) return;
+      var parent = treeRef2.current[n.pid];
+      if (!parent || !parent.visible) return;
+      var nel = canvasRef.current.querySelector('[data-nid="'+n.id+'"]');
+      var pel = canvasRef.current.querySelector('[data-nid="'+n.pid+'"]');
+      if (!nel || !pel) return;
+      var nr = nel.getBoundingClientRect();
+      var pr = pel.getBoundingClientRect();
+      var x1 = pr.left + pr.width/2 - cr.left;
+      var y1 = pr.top + pr.height - cr.top;
+      var x2 = nr.left + nr.width/2 - cr.left;
+      var y2 = nr.top - cr.top;
+      var my = (y1 + y2) / 2;
+      var path = document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d','M'+x1+','+y1+' C'+x1+','+my+' '+x2+','+my+' '+x2+','+y2);
+      path.setAttribute('fill','none');
+      path.setAttribute('stroke','#e2e8f0');
+      path.setAttribute('stroke-width','1.5');
+      svg.appendChild(path);
+    });
+  });
+
+  // Alias treeRef for line drawing (treeRef used for DOM, treeRef2 for data)
+  var treeRef2 = useRef(null);
 
   function buildTree() {
     var all = []; var id = 0; var ni = 0;
@@ -137,12 +181,16 @@ function PassUpSection() {
   function initSim() {
     if (timerRef.current) clearInterval(timerRef.current);
     var tree = buildTree();
+    treeRef2.current = tree;
     treeRef.current = tree;
     stepsRef.current = buildSteps(tree);
     siRef.current = 0;
     statsRef.current = { kept: 0, passups: 0, keptAmt: 0, passupAmt: 0, totalSales: 0 };
     setPlaying(false);
     setLog([]);
+    setFlowDots([]);
+    setFloats([]);
+    setGlowId(null);
     setTick(function(t) { return t + 1; });
   }
 
@@ -185,6 +233,8 @@ function PassUpSection() {
       setLog(function(l) {
         return [{ who: nn.nm, sale: saleNum, action: '↑ PASS UP → ' + recipient.nm, color: '#f59e0b', type: 'passup', amt: tier }].concat(l).slice(0, 20);
       });
+      // Animate flow from sponsor to recipient
+      animateFlow(sp.id, recipient.id, '#f59e0b', tier);
     } else {
       if (sp.id === YOU_ID) {
         statsRef.current.kept++;
@@ -194,10 +244,54 @@ function PassUpSection() {
       setLog(function(l) {
         return [{ who: nn.nm, sale: saleNum, action: 'KEPT ✓ ' + sp.nm, color: '#10b981', type: 'kept', amt: tier }].concat(l).slice(0, 20);
       });
+      // Animate kept indicator on sponsor
+      animateFlow(nn.id, sp.id, '#10b981', tier);
     }
 
     siRef.current = si + 1;
     setTick(function(t) { return t + 1; });
+  }
+
+  function animateFlow(fromId, toId, color, amt) {
+    if (!canvasRef.current) return;
+    var cr = canvasRef.current.getBoundingClientRect();
+    var fromEl = canvasRef.current.querySelector('[data-nid="'+fromId+'"]');
+    var toEl = canvasRef.current.querySelector('[data-nid="'+toId+'"]');
+    if (!fromEl || !toEl) return;
+
+    var fr = fromEl.getBoundingClientRect();
+    var tr = toEl.getBoundingClientRect();
+    var sx = fr.left + fr.width/2 - cr.left;
+    var sy = fr.top + fr.height/2 - cr.top;
+    var ex = tr.left + tr.width/2 - cr.left;
+    var ey = tr.top + tr.height/2 - cr.top;
+
+    // Animated dot
+    var key = ++flowKeyRef.current;
+    var steps = 8;
+    var step = 0;
+    function moveDot() {
+      if (step > steps) {
+        setFlowDots(function(d) { return d.filter(function(dd) { return dd.key !== key; }); });
+        // Show float-up amount on recipient
+        setFloats(function(f) { return f.concat([{key:key, x:ex, y:ey-20, color:color, amt:amt}]); });
+        setTimeout(function() { setFloats(function(f) { return f.filter(function(ff) { return ff.key !== key; }); }); }, 1200);
+        // Glow recipient
+        setGlowId(toId);
+        setTimeout(function() { setGlowId(null); }, 600);
+        return;
+      }
+      var t = step / steps;
+      var cx = sx + (ex - sx) * t;
+      var cy = sy + (ey - sy) * t;
+      setFlowDots(function(d) {
+        var filtered = d.filter(function(dd) { return dd.key !== key; });
+        return filtered.concat([{key:key, x:cx, y:cy, color:color}]);
+      });
+      step++;
+      setTimeout(moveDot, 50);
+    }
+    moveDot();
   }
 
   function togglePlay() {
@@ -277,8 +371,36 @@ function PassUpSection() {
             </div>
           </div>
 
-          <div style={{padding:'20px',minHeight:380,overflow:'auto',background:'#fafbfc'}}>
-            <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:20}}>
+          <div style={{padding:'20px',minHeight:380,overflow:'auto',background:'#fafbfc',position:'relative'}} ref={canvasRef}>
+            {/* SVG overlay for lines and flow dots */}
+            <svg ref={svgRef} style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:0}}/>
+
+            {/* Flow animations */}
+            {flowDots.map(function(fd, i) {
+              return (
+                <div key={fd.key} style={{
+                  position:'absolute',width:12,height:12,borderRadius:'50%',
+                  background:fd.color,boxShadow:'0 0 12px '+fd.color+'99, 0 0 24px '+fd.color+'44',
+                  zIndex:20,pointerEvents:'none',
+                  left:fd.x-6,top:fd.y-6,
+                  animation:'flowPulse .3s ease infinite alternate',
+                }}/>
+              );
+            })}
+
+            {/* Float-up amounts */}
+            {floats.map(function(f) {
+              return (
+                <div key={f.key} style={{
+                  position:'absolute',left:f.x,top:f.y,
+                  fontSize:12,fontWeight:800,color:f.color,whiteSpace:'nowrap',
+                  pointerEvents:'none',zIndex:25,
+                  animation:'floatUp 1.2s ease forwards',transform:'translateX(-50%)',
+                }}>${f.amt}</div>
+              );
+            })}
+
+            <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:20,position:'relative',zIndex:1}} ref={treeRef}>
               {Array.from({length: maxLv + 1}).map(function(_, lv) {
                 var lvNodes = levels[lv] || [];
                 if (!lvNodes.length) return null;
@@ -289,6 +411,7 @@ function PassUpSection() {
                       var isSponsor = n.cls === 'sponsor';
                       var isKept = n.saleType === 'kept';
                       var isPassup = n.saleType === 'passup';
+                      var isGlowing = glowId === n.id;
 
                       var bg = '#f0f9ff';
                       var borderC = 'rgba(14,165,233,.2)';
@@ -301,9 +424,11 @@ function PassUpSection() {
                       else if (isPassup) { bg = '#fef3c7'; borderC = '#f59e0b'; textColor = '#92400e'; }
 
                       return (
-                        <div key={n.id} style={{
+                        <div key={n.id} data-nid={n.id} style={{
                           width:w,height:h,borderRadius:8,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',
                           background:bg,border:'2px solid '+borderC,transition:'all .3s ease',
+                          boxShadow:isGlowing?'0 0 20px '+(isPassup?'rgba(245,158,11,.5)':'rgba(16,185,129,.5)'):'none',
+                          transform:isGlowing?'scale(1.12)':'scale(1)',
                         }}>
                           <div style={{fontSize:isRoot||isSponsor?10:8,fontWeight:800,color:textColor,lineHeight:1.2}}>{n.nm}</div>
                           {n.sc > 0 && <div style={{fontSize:6,color:isSponsor||isRoot?'rgba(255,255,255,.6)':'#94a3b8'}}>{n.sc} sale{n.sc!==1?'s':''}</div>}
@@ -331,6 +456,10 @@ function PassUpSection() {
               );
             })}
           </div>
+          <style>{'\
+            @keyframes floatUp { 0%{opacity:1;transform:translateX(-50%) translateY(0)} 100%{opacity:0;transform:translateX(-50%) translateY(-24px)} }\
+            @keyframes flowPulse { 0%{transform:scale(1)} 100%{transform:scale(1.3)} }\
+          '}</style>
         </div>
 
         {/* RIGHT — Stats */}
