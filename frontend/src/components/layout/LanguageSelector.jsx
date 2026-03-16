@@ -33,8 +33,7 @@ export default function LanguageSelector({ compact }) {
       </button>
 
       {open && (
-        <div style={{position:'absolute',bottom:compact?'100%':'auto',top:compact?'auto':'100%',
-          left:0,marginTop:4,marginBottom:4,width:200,maxHeight:320,overflowY:'auto',
+        <div style={{position:'absolute',top:'100%',right:0,marginTop:6,width:200,maxHeight:360,overflowY:'auto',
           background:'#1c223d',border:'1px solid rgba(255,255,255,.1)',borderRadius:10,
           boxShadow:'0 12px 40px rgba(0,0,0,.4)',zIndex:999,padding:4}}>
           {LANGUAGES.map(function(lang) {

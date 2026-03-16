@@ -2,6 +2,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { Bell, Menu } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { apiGet, apiPost } from '../../utils/api';
+import LanguageSelector from './LanguageSelector';
 
 export default function Topbar({ title, subtitle, children }) {
   const { user } = useAuth();
@@ -34,6 +35,8 @@ export default function Topbar({ title, subtitle, children }) {
       </div>
       <div className="flex items-center gap-3">
         {children}
+        {/* Language Selector */}
+        <LanguageSelector />
         {/* Notification Bell */}
         <div className="relative">
           <button onClick={markRead}

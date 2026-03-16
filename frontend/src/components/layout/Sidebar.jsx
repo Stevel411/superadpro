@@ -162,9 +162,6 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div className="mt-auto px-3 py-3 border-t border-white/5">
-        <div className="mb-2">
-          <LanguageSelector compact />
-        </div>
         <button onClick={logout}
           className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-red-400/60 hover:text-red-400 hover:bg-red-500/5 rounded-lg transition-all cursor-pointer border-none bg-transparent">
           <LogOut className="w-4 h-4" />
