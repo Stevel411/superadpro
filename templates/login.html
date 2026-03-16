@@ -103,8 +103,8 @@ body { display:flex; flex-direction:column; }
   <div class="box">
     <div class="left">
       <div class="eyebrow">⬡ Member Access</div>
-      <div class="form-title">Welcome Back</div>
-      <div class="form-sub">Sign in to your SuperAdPro dashboard</div>
+      <div class="form-title"data-i18n="login.title">Welcome Back</div>
+      <div class="form-sub"data-i18n="login.sub">Sign in to your SuperAdPro dashboard</div>
       <div class="error-msg" id="errorMsg">Invalid username or password. Please try again.</div>
       <form action="/login" method="POST">
         <div class="form-group">
@@ -151,5 +151,6 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 {% include "_tawk.html" %}
+<script src="/static/js/public-i18n.js"></script>
 </body>
 </html>
