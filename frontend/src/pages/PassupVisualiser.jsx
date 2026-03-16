@@ -445,191 +445,304 @@ function GridVisSection() {
     {n:7,name:'Executive',price:800,color:'#f97316'},
     {n:8,name:'Ultimate',price:1000,color:'#ec4899'},
   ];
+  var DEPTH_COLORS = ['#0ea5e9','#22c55e','#8b5cf6','#f59e0b','#ec4899','#06b6d4','#f97316','#6366f1'];
 
   var [selectedTier, setSelectedTier] = useState(3);
   var [running, setRunning] = useState(false);
-  var [filled, setFilled] = useState(0);
-  var [earned, setEarned] = useState(0);
-  var [bonus, setBonus] = useState(0);
-  var [directEarned, setDirectEarned] = useState(0);
+  var [speed, setSpeed] = useState(3);
+  var cellsRef = useRef([]); // mutable: [{filled, depth, isDirect, name}]
+  var filledRef = useRef(0);
+  var statsRef = useRef({direct:0,network:0,earned:0,bonus:0,directAmt:0});
+  var logRef = useRef([]);
+  var [tick, setTick] = useState(0);
   var [complete, setComplete] = useState(false);
   var timerRef = useRef(null);
 
   var tier = TIERS.find(function(t) { return t.n === selectedTier; }) || TIERS[2];
   var PRICE = tier.price;
-  var PER_SEAT_UNI = PRICE * 0.0625;
-  var PER_SEAT_BONUS = PRICE * 0.05;
-  var DIRECT_PER = PRICE * 0.40;
+  var NAMES = ['Alex','Beth','Carl','Dana','Eric','Faye','Gina','Hugo','Iris','Jake','Kate','Leo','Mia','Nate','Olga','Paul','Quinn','Rosa','Sam','Tina','Uma','Vic','Wendy','Xena','Yara','Zoe'];
 
-  function startSim() {
-    setRunning(true); setFilled(0); setEarned(0); setBonus(0); setDirectEarned(0); setComplete(false);
-    var seat = 0;
-    timerRef.current = setInterval(function() {
-      seat++;
-      if (seat <= 64) {
-        setFilled(seat);
-        setEarned(function(p) { return p + PER_SEAT_UNI; });
-        setBonus(function(p) { return p + PER_SEAT_BONUS; });
-        // Simulate ~25% are your direct referrals
-        if (seat % 4 === 0) setDirectEarned(function(p) { return p + DIRECT_PER; });
-      }
-      if (seat === 64) { setComplete(true); }
-      if (seat >= 66) { clearInterval(timerRef.current); setRunning(false); }
-    }, 80);
-  }
-
-  function resetSim() {
+  function initSim() {
     if (timerRef.current) clearInterval(timerRef.current);
-    setRunning(false); setFilled(0); setEarned(0); setBonus(0); setDirectEarned(0); setComplete(false);
+    cellsRef.current = Array.from({length:64}).map(function() { return {filled:false,depth:0,isDirect:false,name:''}; });
+    filledRef.current = 0;
+    statsRef.current = {direct:0,network:0,earned:0,bonus:0,directAmt:0};
+    logRef.current = [];
+    setComplete(false);
+    setRunning(false);
+    setTick(function(t) { return t+1; });
   }
 
-  function changeTier(n) {
-    resetSim();
-    setSelectedTier(n);
-  }
-
+  useEffect(function() { initSim(); }, [selectedTier]);
   useEffect(function() { return function() { if (timerRef.current) clearInterval(timerRef.current); }; }, []);
 
-  var totalGrid = earned + bonus + directEarned;
+  function processStep() {
+    var idx = filledRef.current;
+    if (idx >= 64) {
+      setComplete(true);
+      setRunning(false);
+      if (timerRef.current) clearInterval(timerRef.current);
+      return;
+    }
+
+    var depth = idx < 8 ? 1 : idx < 24 ? 2 : idx < 48 ? 3 : 4;
+    var isDirect = depth === 1;
+    var name = NAMES[idx % NAMES.length];
+
+    cellsRef.current[idx] = {filled:true, depth:depth, isDirect:isDirect, name:name};
+    filledRef.current = idx + 1;
+
+    var uniAmt = PRICE * 0.0625;
+    var bonusAmt = PRICE * 0.05;
+    var directAmt = isDirect ? PRICE * 0.40 : 0;
+
+    statsRef.current.earned += uniAmt;
+    statsRef.current.bonus += bonusAmt;
+    if (isDirect) { statsRef.current.direct++; statsRef.current.directAmt += directAmt; }
+    else { statsRef.current.network++; }
+
+    logRef.current = [{
+      name: name,
+      seat: idx + 1,
+      depth: depth,
+      isDirect: isDirect,
+      uniAmt: uniAmt,
+      directAmt: directAmt,
+    }].concat(logRef.current).slice(0, 20);
+
+    setTick(function(t) { return t+1; });
+  }
+
+  function togglePlay() {
+    if (running) {
+      setRunning(false);
+      if (timerRef.current) clearInterval(timerRef.current);
+    } else {
+      if (filledRef.current >= 64) { initSim(); setTimeout(startPlay, 100); return; }
+      startPlay();
+    }
+  }
+
+  function startPlay() {
+    setRunning(true);
+    var delay = Math.round(500 - (speed - 1) * 100);
+    timerRef.current = setInterval(processStep, delay);
+  }
+
+  var cells = cellsRef.current;
+  var filled = filledRef.current;
+  var st = statsRef.current;
+  var logs = logRef.current;
+  var totalEarned = st.earned + st.bonus + st.directAmt;
+  var pct = Math.round((filled / 64) * 100);
 
   return (
     <div>
+      {/* Explainer banner */}
+      <div style={{background:'linear-gradient(135deg,#0f172a,#1e293b)',borderRadius:14,padding:'28px 32px',marginBottom:20,position:'relative',overflow:'hidden'}}>
+        <div style={{position:'absolute',top:-30,right:-30,width:160,height:160,borderRadius:'50%',background:'rgba(14,165,233,.05)'}}/>
+        <div style={{position:'relative',zIndex:1}}>
+          <h2 style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#fff',margin:'0 0 8px'}}>
+            Your grid fills from <span style={{color:'#38bdf8'}}>your entire network</span>
+          </h2>
+          <p style={{fontSize:13,color:'rgba(255,255,255,.5)',maxWidth:560,lineHeight:1.7,margin:0}}>
+            Every person who joins anywhere in your downline fills a seat in your grid. Your direct referrals AND their referrals AND deeper — all the way down. One person, one seat, per advance.
+          </p>
+        </div>
+      </div>
+
       {/* Tier selector */}
       <div style={{display:'flex',gap:4,marginBottom:16,flexWrap:'wrap'}}>
         {TIERS.map(function(t) {
           var on = selectedTier === t.n;
           return (
-            <button key={t.n} onClick={function() { changeTier(t.n); }}
-              style={{padding:'8px 14px',borderRadius:8,border:on?'2px solid '+t.color:'2px solid #e8ecf2',
+            <button key={t.n} onClick={function() { setSelectedTier(t.n); }}
+              style={{padding:'8px 16px',borderRadius:8,border:on?'2px solid '+t.color:'2px solid #e8ecf2',
                 background:on?t.color+'12':'#fff',cursor:'pointer',fontFamily:'inherit',
-                fontSize:12,fontWeight:700,color:on?t.color:'#94a3b8',transition:'all .15s'}}>
-              ${t.price}
+                fontSize:13,fontWeight:700,color:on?t.color:'#94a3b8',transition:'all .15s'}}>
+              ${t.price} {t.name}
             </button>
           );
         })}
       </div>
 
-      <div style={{display:'grid',gridTemplateColumns:'1fr 340px',gap:16}}>
-        {/* LEFT — Grid + explainer */}
-        <div style={{display:'grid',gridTemplateColumns:'55fr 45fr',gap:0,background:'#0f172a',borderRadius:14,overflow:'hidden'}}>
-          {/* Explainer */}
-          <div style={{padding:'28px 24px',display:'flex',flexDirection:'column',justifyContent:'center'}}>
-            <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:8}}>8×8 Profit Engine</div>
-            <h3 style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#fff',margin:'0 0 14px',lineHeight:1.3}}>
-              ${tier.name} Grid — ${PRICE}
-            </h3>
-            <div style={{display:'flex',flexDirection:'column',gap:10}}>
-              {[
-                {text:'Each seat pays you 6.25% uni-level ($' + PER_SEAT_UNI.toFixed(2) + ')',color:'#6366f1'},
-                {text:'Direct referrals also pay 40% ($' + DIRECT_PER.toFixed(0) + ')',color:'#0ea5e9'},
-                {text:'5% per seat ($' + PER_SEAT_BONUS.toFixed(2) + ') accrues in the bonus pool',color:'#10b981'},
-                {text:'Grid completes at 64 seats. Bonus pool paid on completion',color:'#f59e0b'},
-              ].map(function(s, i) {
-                return (
-                  <div key={i} style={{display:'flex',gap:8,alignItems:'flex-start'}}>
-                    <div style={{width:5,height:5,borderRadius:3,background:s.color,flexShrink:0,marginTop:6}}/>
-                    <div style={{fontSize:12,color:'rgba(255,255,255,.6)',lineHeight:1.6}}>{s.text}</div>
-                  </div>
-                );
-              })}
+      {/* Main 2-col layout */}
+      <div style={{display:'grid',gridTemplateColumns:'1fr 360px',gap:16}}>
+        {/* LEFT — Grid */}
+        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
+          <div style={{background:'#1c223d',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+            <div>
+              <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8'}}>8×8 Profit Engine</div>
+              <div style={{fontSize:15,fontWeight:800,color:'#fff'}}>${PRICE} {tier.name} Grid</div>
+            </div>
+            <div style={{display:'flex',gap:6,alignItems:'center'}}>
+              <div style={{display:'flex',alignItems:'center',gap:4,fontSize:9,color:'#64748b',letterSpacing:1}}>
+                <span>SPEED</span>
+                <input type="range" min={1} max={5} value={speed} onChange={function(e) { setSpeed(parseInt(e.target.value)); }}
+                  style={{width:50,accentColor:'#0ea5e9',cursor:'pointer'}}/>
+              </div>
+              <button onClick={togglePlay}
+                style={{display:'flex',alignItems:'center',gap:4,padding:'7px 16px',borderRadius:8,border:'none',cursor:'pointer',
+                  background:running?'#334155':'#0ea5e9',color:'#fff',fontSize:12,fontWeight:800,fontFamily:'inherit'}}>
+                {running ? <><Pause size={13}/> Pause</> : <><Play size={13}/> {filled>=64?'Replay':'Simulate'}</>}
+              </button>
+              <button onClick={initSim}
+                style={{display:'flex',alignItems:'center',gap:4,padding:'7px 12px',borderRadius:8,border:'1px solid #e8ecf2',cursor:'pointer',
+                  background:'#fff',color:'#64748b',fontSize:12,fontWeight:700,fontFamily:'inherit'}}>
+                <RotateCcw size={13}/>
+              </button>
             </div>
           </div>
 
-          {/* Grid animation */}
-          <div style={{padding:'20px',background:'#0a0f1e',borderLeft:'1px solid #1e293b',display:'flex',flexDirection:'column',justifyContent:'center'}}>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
-              <div style={{fontSize:12,fontWeight:800,color:'#fff'}}>${PRICE} Grid</div>
-              <div style={{display:'flex',gap:6}}>
-                <button onClick={startSim} disabled={running}
-                  style={{padding:'5px 12px',borderRadius:6,fontSize:10,fontWeight:800,border:'none',cursor:running?'default':'pointer',
-                    background:running?'#334155':'#0ea5e9',color:'#fff',fontFamily:'inherit',opacity:running?0.5:1}}>
-                  {filled===0?'▶ Start':running?'Running...':'▶ Replay'}
-                </button>
-                {filled>0&&!running&&<button onClick={resetSim} style={{padding:'5px 8px',borderRadius:6,fontSize:10,fontWeight:700,border:'1px solid #334155',cursor:'pointer',background:'transparent',color:'#64748b',fontFamily:'inherit'}}>Reset</button>}
+          <div style={{padding:'20px'}}>
+            {/* Progress bar */}
+            <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
+              <div style={{flex:1,height:8,background:'#f1f5f9',borderRadius:4,overflow:'hidden'}}>
+                <div style={{height:'100%',borderRadius:4,background:'linear-gradient(90deg,'+tier.color+',#22c55e)',width:pct+'%',transition:'width .3s'}}/>
               </div>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:tier.color,minWidth:50,textAlign:'right'}}>{filled} / 64</div>
             </div>
-            <div style={{maxWidth:300,margin:'0 auto 10px',width:'100%'}}>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:3}}>
-                {Array.from({length:64}).map(function(_, i) {
-                  var isFilled = i < filled;
-                  var isLatest = i === filled - 1 && running;
-                  return (
-                    <div key={i} style={{
-                      aspectRatio:'1',borderRadius:4,
-                      background:isFilled?(isLatest?'#22d3ee':tier.color):'#1e293b',
-                      border:'1px solid '+(isFilled?tier.color+'99':'#293548'),
-                      transition:'all .12s ease',
-                      transform:isLatest?'scale(1.15)':'scale(1)',
-                      boxShadow:isLatest?'0 0 10px '+tier.color+'77':'none',
-                    }}/>
-                  );
-                })}
-              </div>
-            </div>
-            <div style={{display:'flex',gap:6}}>
-              {[
-                {label:'SEATS',val:filled+'/64',color:'#fff'},
-                {label:'UNI-LEVEL',val:'$'+Math.round(earned),color:'#6366f1'},
-                {label:'BONUS',val:'$'+Math.round(bonus),color:'#10b981'},
-              ].map(function(s, i) {
+
+            {/* 8×8 Grid — large cells */}
+            <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:5,marginBottom:16}}>
+              {cells.map(function(c, i) {
+                var isLatest = i === filled - 1 && running;
+                var bg = c.filled ? DEPTH_COLORS[c.depth - 1] : '#f1f5f9';
+                var borderStyle = c.filled ? '2px solid ' + DEPTH_COLORS[c.depth - 1] : '1px dashed #d1d5db';
                 return (
-                  <div key={i} style={{flex:1,textAlign:'center',padding:'5px 3px',background:'#1e293b',borderRadius:6}}>
-                    <div style={{fontSize:7,fontWeight:700,color:'#475569'}}>{s.label}</div>
-                    <div style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,color:s.color}}>{s.val}</div>
+                  <div key={i} style={{
+                    height:44,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',
+                    background:c.filled?bg:'#f8f9fb',border:borderStyle,
+                    fontSize:c.filled?10:8,fontWeight:800,color:c.filled?'#fff':'#cbd5e1',
+                    transition:'all .3s cubic-bezier(.34,1.56,.64,1)',
+                    transform:isLatest?'scale(1.12)':'scale(1)',
+                    boxShadow:isLatest?'0 0 16px '+DEPTH_COLORS[c.depth-1]+'66':'none',
+                    cursor:'default',position:'relative',
+                  }}>
+                    {c.filled ? c.name.slice(0,3) : (i+1)}
                   </div>
                 );
               })}
             </div>
-            {complete && (
-              <div style={{textAlign:'center',padding:'8px',background:'rgba(74,222,128,.08)',borderRadius:8,border:'1px solid rgba(74,222,128,.15)',marginTop:8}}>
-                <div style={{fontSize:11,fontWeight:800,color:'#4ade80'}}>Grid Complete!</div>
-              </div>
-            )}
+
+            {/* Legend */}
+            <div style={{display:'flex',gap:14,flexWrap:'wrap'}}>
+              {[
+                {label:'Direct (L1)',color:DEPTH_COLORS[0]},
+                {label:'Level 2',color:DEPTH_COLORS[1]},
+                {label:'Level 3',color:DEPTH_COLORS[2]},
+                {label:'Level 4',color:DEPTH_COLORS[3]},
+                {label:'Level 5+',color:DEPTH_COLORS[4]},
+              ].map(function(l, i) {
+                return (
+                  <div key={i} style={{display:'flex',alignItems:'center',gap:5,fontSize:11,fontWeight:600,color:'#64748b'}}>
+                    <div style={{width:10,height:10,borderRadius:3,background:l.color,flexShrink:0}}/>{l.label}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {/* RIGHT — Stats */}
+        {/* RIGHT — Stats + Log */}
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
-          <div style={{background:'linear-gradient(135deg,#0c4a6e,#0284c7)',borderRadius:14,padding:20,textAlign:'center',color:'#fff'}}>
-            <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.5)',marginBottom:4}}>Grid Total</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:800}}>${Math.round(totalGrid).toLocaleString()}</div>
-            <div style={{fontSize:11,color:'rgba(255,255,255,.5)',marginTop:4}}>{filled}/64 seats · ${tier.name} tier</div>
+          {/* Total hero */}
+          <div style={{background:'linear-gradient(135deg,#0b1729,#132240)',borderRadius:14,padding:20,textAlign:'center',color:'#fff'}}>
+            <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'rgba(56,189,248,.5)',marginBottom:4}}>Your Total Earnings</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:34,fontWeight:800}}>${Math.round(totalEarned).toLocaleString()}</div>
+            <div style={{fontSize:11,color:'rgba(200,220,255,.35)',marginTop:4}}>Per grid completion · {tier.name} tier</div>
           </div>
 
+          {/* Commission split bar */}
+          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16}}>
+            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#0ea5e9',marginBottom:8}}>Per Seat — ${PRICE}</div>
+            <div style={{height:8,borderRadius:4,overflow:'hidden',display:'flex',gap:2,marginBottom:8}}>
+              <div style={{flex:40,background:'#0ea5e9',borderRadius:3}}/>
+              <div style={{flex:50,background:'#6366f1',borderRadius:3}}/>
+              <div style={{flex:5,background:'#f59e0b',borderRadius:3}}/>
+              <div style={{flex:5,background:'#10b981',borderRadius:3}}/>
+            </div>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:11}}>
+              <span style={{color:'#0ea5e9',fontWeight:700}}>40% Sponsor</span>
+              <span style={{color:'#6366f1',fontWeight:700}}>50% Uni-Level</span>
+              <span style={{color:'#f59e0b',fontWeight:600}}>5%</span>
+              <span style={{color:'#10b981',fontWeight:600}}>5%</span>
+            </div>
+          </div>
+
+          {/* 2x2 mini stats */}
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+            <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0ea5e9'}}>{st.direct}</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>Direct Fills</div>
+            </div>
+            <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#22c55e'}}>{st.network}</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>Network Fills</div>
+            </div>
+            <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#6366f1'}}>${Math.round(st.earned)}</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>Uni-Level</div>
+            </div>
+            <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#10b981'}}>${Math.round(st.bonus)}</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>Bonus Pool</div>
+            </div>
+          </div>
+
+          {/* Earnings breakdown */}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16}}>
             <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#0ea5e9',marginBottom:10}}>Earnings Breakdown</div>
             {[
-              {label:'Direct Sponsor (40%)',val:'$'+Math.round(directEarned),sub:'~16 personal referrals',color:'#0ea5e9'},
-              {label:'Uni-Level (6.25% × 64)',val:'$'+Math.round(earned),sub:'All 64 seats',color:'#6366f1'},
-              {label:'Completion Bonus (5%)',val:'$'+Math.round(bonus),sub:complete?'Paid on completion':'Accruing...',color:'#10b981'},
+              {label:'Direct Sponsor (40%)',val:'$'+Math.round(st.directAmt),color:'#0ea5e9'},
+              {label:'Uni-Level (6.25% × '+filled+')',val:'$'+Math.round(st.earned),color:'#6366f1'},
+              {label:'Bonus Pool (5% × '+filled+')',val:'$'+Math.round(st.bonus),color:'#10b981'},
             ].map(function(e, i) {
               return (
-                <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0',borderBottom:i<2?'1px solid #f5f6f8':'none'}}>
-                  <div>
-                    <div style={{fontSize:12,fontWeight:700,color:'#0f172a'}}>{e.label}</div>
-                    <div style={{fontSize:10,color:'#94a3b8'}}>{e.sub}</div>
-                  </div>
-                  <div style={{fontSize:18,fontWeight:800,color:e.color}}>{e.val}</div>
+                <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'7px 0',borderBottom:i<2?'1px solid #f5f6f8':'none'}}>
+                  <span style={{fontSize:12,fontWeight:600,color:'#475569'}}>{e.label}</span>
+                  <span style={{fontSize:16,fontWeight:800,color:e.color}}>{e.val}</span>
                 </div>
               );
             })}
           </div>
 
-          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16}}>
-            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#0ea5e9',marginBottom:10}}>Commission Split</div>
-            <div style={{height:24,borderRadius:6,overflow:'hidden',display:'flex',gap:2}}>
-              <div style={{width:'40%',background:'#0ea5e9',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:800,color:'#fff'}}>40%</div>
-              <div style={{width:'50%',background:'#6366f1',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:800,color:'#fff'}}>50%</div>
-              <div style={{width:'5%',background:'#f59e0b'}}/>
-              <div style={{width:'5%',background:'#10b981'}}/>
-            </div>
-            <div style={{display:'flex',justifyContent:'space-between',marginTop:6,fontSize:10,color:'#64748b'}}>
-              <span>Sponsor</span><span>Uni-Level</span><span>Platform</span><span>Bonus</span>
+          {/* Live commission log */}
+          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16,flex:1,minHeight:180}}>
+            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#0ea5e9',marginBottom:10}}>Live Commission Feed</div>
+            <div style={{display:'flex',flexDirection:'column',gap:4,maxHeight:280,overflowY:'auto'}}>
+              {logs.length === 0 && <div style={{fontSize:11,color:'#94a3b8',textAlign:'center',padding:12}}>Press Simulate to start...</div>}
+              {logs.map(function(l, i) {
+                var color = DEPTH_COLORS[l.depth - 1];
+                return (
+                  <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'5px 0',borderBottom:'1px solid #f5f6f8',fontSize:12}}>
+                    <div style={{display:'flex',alignItems:'center',gap:6}}>
+                      <span style={{display:'inline-block',width:8,height:8,borderRadius:3,background:color,flexShrink:0}}/>
+                      <span style={{fontWeight:700,color:'#0f172a'}}>{l.name}</span>
+                      <span style={{fontSize:10,color:'#94a3b8'}}>#{l.seat}</span>
+                      <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:3,color:color,
+                        background:color+'12',border:'1px solid '+color+'25'}}>
+                        {l.isDirect?'DIRECT':'L'+l.depth}
+                      </span>
+                    </div>
+                    <span style={{fontWeight:700,color:color,fontSize:12}}>+${(l.uniAmt + l.directAmt).toFixed(2)}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
+          {/* Completion banner */}
+          {complete && (
+            <div style={{textAlign:'center',padding:16,background:'linear-gradient(135deg,rgba(74,222,128,.08),rgba(14,165,233,.08))',borderRadius:12,border:'1px solid rgba(74,222,128,.15)'}}>
+              <div style={{fontSize:16,fontWeight:800,color:'#4ade80',marginBottom:6}}>Grid Complete!</div>
+              <div style={{fontSize:12,color:'#64748b'}}>64 seats filled. Total earned: <strong style={{color:'#0ea5e9'}}>${Math.round(totalEarned).toLocaleString()}</strong></div>
+              <div style={{fontSize:11,color:'#94a3b8',marginTop:4}}>Grid advances to the next round. Future earnings require new network activity.</div>
+            </div>
+          )}
+
           <div style={{padding:'10px 12px',background:'#fffbeb',borderRadius:8,border:'1px solid #fef3c7',fontSize:10,color:'#92400e',lineHeight:1.5}}>
-            <strong>Note:</strong> Direct sponsor earnings assume ~25% of seats are your personal referrals. Actual amounts depend on your referral activity.
+            <strong>Note:</strong> Direct fills assume first 8 seats are your personal referrals. Actual amounts depend on your referral activity. Income is not guaranteed.
           </div>
         </div>
       </div>
