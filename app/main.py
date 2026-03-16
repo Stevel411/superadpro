@@ -54,7 +54,10 @@ load_dotenv()
 # HMAC-signed cookie prevents user_id tampering/impersonation.
 # Set SESSION_SECRET in Railway env vars. Falls back to random key
 # (which invalidates sessions on restart — acceptable for dev).
-SESSION_SECRET = os.getenv("SESSION_SECRET", secrets.token_hex(32))
+SESSION_SECRET = os.getenv("SESSION_SECRET") or secrets.token_hex(32)
+if not os.getenv("SESSION_SECRET"):
+    import warnings
+    warnings.warn("⚠️ SESSION_SECRET not set — sessions will reset on every deploy. Set it in Railway env vars!")
 session_serializer = URLSafeTimedSerializer(SESSION_SECRET, salt="superadpro-session")
 
 logging.basicConfig(
@@ -131,13 +134,39 @@ limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+# ── CORS — locked to our domain ──
+ALLOWED_ORIGINS = [
+    "https://superadpro-production.up.railway.app",
+    "https://superadpro.com",
+    "https://www.superadpro.com",
+]
+if os.getenv("RAILWAY_ENVIRONMENT") == "development" or os.getenv("DEV_MODE"):
+    ALLOWED_ORIGINS.append("http://localhost:5173")
+    ALLOWED_ORIGINS.append("http://localhost:8080")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
     allow_methods=["GET", "POST", "HEAD", "OPTIONS"],
-    allow_headers=["*"]
+    allow_headers=["Content-Type", "Authorization"]
 )
+
+# ── Security Headers Middleware ──
+from starlette.middleware.base import BaseHTTPMiddleware
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "SAMEORIGIN"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        return response
+
+app.add_middleware(SecurityHeadersMiddleware)
 
 # ── Rate limit / lockout ──────────────────────────────────────
 failed_attempts  = {}
@@ -4889,6 +4918,7 @@ def link_tools_page(request: Request, user: User = Depends(get_current_user),
     return templates.TemplateResponse("link-tools.html", ctx)
 
 
+@limiter.limit("30/minute")
 @app.post("/api/links/create")
 async def create_short_link(request: Request, user: User = Depends(get_current_user),
                              db: Session = Depends(get_db)):
@@ -4966,6 +4996,7 @@ def delete_short_link(link_id: int, user: User = Depends(get_current_user),
     return {"success": True}
 
 
+@limiter.limit("30/minute")
 @app.post("/api/links/edit/{link_id}")
 async def edit_short_link(link_id: int, request: Request,
                           user: User = Depends(get_current_user),
@@ -5007,6 +5038,7 @@ async def edit_short_link(link_id: int, request: Request,
     return {"success": True}
 
 
+@limiter.limit("10/minute")
 @app.post("/go/{slug}/unlock")
 async def go_unlock_password(slug: str, request: Request, db: Session = Depends(get_db)):
     """Verify password for a password-protected short link and redirect."""
@@ -11998,6 +12030,7 @@ def api_linkhub_editor_data(request: Request, user: User = Depends(get_current_u
     }
 
 
+@limiter.limit("20/minute")
 @app.post("/api/proseller/chat")
 async def api_proseller_chat(request: Request, user: User = Depends(get_current_user),
                              db: Session = Depends(get_db)):

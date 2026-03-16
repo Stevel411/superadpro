@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuperMarket Logo</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:wght@500;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 60px;
+  background: #0a0e1a;
+  font-family: 'DM Sans', sans-serif;
+  padding: 40px;
+}
+.variant-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.25);
+  margin-bottom: 16px;
+}
+.row {
+  display: flex;
+  gap: 60px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.logo-card {
+  padding: 40px 50px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.dark-bg { background: #0f1629; border: 1px solid rgba(255,255,255,.06); }
+.light-bg { background: #ffffff; border: 1px solid #e8ecf2; }
+.tagline {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 12px;
+}
+.tagline-dark { color: rgba(255,255,255,.3); }
+.tagline-light { color: #94a3b8; }
+</style>
+</head>
+<body>
+
+<!-- ═══ VARIANT 1: Primary — Full colour on dark ═══ -->
+<div>
+  <div class="variant-label" style="text-align:center">Primary — Dark Background</div>
+  <div class="logo-card dark-bg">
+    <svg width="380" height="72" viewBox="0 0 380 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Icon: Shopping bag with upward arrow / rocket -->
+      <defs>
+        <linearGradient id="grd1" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#0ea5e9"/>
+          <stop offset="100%" stop-color="#6366f1"/>
+        </linearGradient>
+        <linearGradient id="grd2" x1="16" y1="16" x2="40" y2="50" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#38bdf8"/>
+          <stop offset="100%" stop-color="#0ea5e9"/>
+        </linearGradient>
+      </defs>
+      <!-- Bag shape -->
+      <rect x="4" y="18" width="48" height="42" rx="10" fill="url(#grd1)"/>
+      <!-- Bag handle -->
+      <path d="M18 18 V14 C18 8 22 4 28 4 C34 4 38 8 38 14 V18" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+      <!-- Upward arrow inside bag -->
+      <path d="M28 52 V32" stroke="white" stroke-width="3" stroke-linecap="round"/>
+      <path d="M21 39 L28 32 L35 39" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Dollar sparkle -->
+      <circle cx="48" cy="10" r="8" fill="#f59e0b" opacity="0.9"/>
+      <text x="48" y="14.5" font-family="Sora,sans-serif" font-size="12" font-weight="800" fill="white" text-anchor="middle">$</text>
+
+      <!-- Text: Super -->
+      <text x="68" y="49" font-family="Sora,sans-serif" font-size="42" font-weight="800" fill="white" letter-spacing="-1">Super</text>
+      <!-- Text: Market -->
+      <text x="227" y="49" font-family="Sora,sans-serif" font-size="42" font-weight="800" fill="#0ea5e9" letter-spacing="-1">Market</text>
+    </svg>
+    <div class="tagline tagline-dark">Digital Product Marketplace</div>
+  </div>
+</div>
+
+<!-- ═══ VARIANT 2: Primary — Full colour on light ═══ -->
+<div>
+  <div class="variant-label" style="text-align:center">Primary — Light Background</div>
+  <div class="logo-card light-bg">
+    <svg width="380" height="72" viewBox="0 0 380 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="grd3" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#0ea5e9"/>
+          <stop offset="100%" stop-color="#6366f1"/>
+        </linearGradient>
+      </defs>
+      <rect x="4" y="18" width="48" height="42" rx="10" fill="url(#grd3)"/>
+      <path d="M18 18 V14 C18 8 22 4 28 4 C34 4 38 8 38 14 V18" stroke="#0ea5e9" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+      <path d="M28 52 V32" stroke="white" stroke-width="3" stroke-linecap="round"/>
+      <path d="M21 39 L28 32 L35 39" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="48" cy="10" r="8" fill="#f59e0b" opacity="0.9"/>
+      <text x="48" y="14.5" font-family="Sora,sans-serif" font-size="12" font-weight="800" fill="white" text-anchor="middle">$</text>
+      <text x="68" y="49" font-family="Sora,sans-serif" font-size="42" font-weight="800" fill="#0f172a" letter-spacing="-1">Super</text>
+      <text x="227" y="49" font-family="Sora,sans-serif" font-size="42" font-weight="800" fill="#0ea5e9" letter-spacing="-1">Market</text>
+    </svg>
+    <div class="tagline tagline-light">Digital Product Marketplace</div>
+  </div>
+</div>
+
+<!-- ═══ VARIANT 3: Compact / Icon + text ═══ -->
+<div>
+  <div class="variant-label" style="text-align:center">Compact — Sidebar / Navbar</div>
+  <div class="row">
+    <div class="logo-card dark-bg">
+      <svg width="240" height="44" viewBox="0 0 240 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="grd4" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#0ea5e9"/>
+            <stop offset="100%" stop-color="#6366f1"/>
+          </linearGradient>
+        </defs>
+        <rect x="2" y="10" width="32" height="28" rx="7" fill="url(#grd4)"/>
+        <path d="M12 10 V8 C12 4.5 14.7 2 18 2 C21.3 2 24 4.5 24 8 V10" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M18 34 V20" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M13 25 L18 20 L23 25" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="32" cy="6" r="5.5" fill="#f59e0b" opacity="0.9"/>
+        <text x="32" y="9.5" font-family="Sora,sans-serif" font-size="8" font-weight="800" fill="white" text-anchor="middle">$</text>
+        <text x="44" y="30" font-family="Sora,sans-serif" font-size="26" font-weight="800" fill="white" letter-spacing="-0.5">Super</text>
+        <text x="146" y="30" font-family="Sora,sans-serif" font-size="26" font-weight="800" fill="#0ea5e9" letter-spacing="-0.5">Market</text>
+      </svg>
+    </div>
+    <div class="logo-card light-bg">
+      <svg width="240" height="44" viewBox="0 0 240 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="grd5" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#0ea5e9"/>
+            <stop offset="100%" stop-color="#6366f1"/>
+          </linearGradient>
+        </defs>
+        <rect x="2" y="10" width="32" height="28" rx="7" fill="url(#grd5)"/>
+        <path d="M12 10 V8 C12 4.5 14.7 2 18 2 C21.3 2 24 4.5 24 8 V10" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M18 34 V20" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M13 25 L18 20 L23 25" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="32" cy="6" r="5.5" fill="#f59e0b" opacity="0.9"/>
+        <text x="32" y="9.5" font-family="Sora,sans-serif" font-size="8" font-weight="800" fill="white" text-anchor="middle">$</text>
+        <text x="44" y="30" font-family="Sora,sans-serif" font-size="26" font-weight="800" fill="#0f172a" letter-spacing="-0.5">Super</text>
+        <text x="146" y="30" font-family="Sora,sans-serif" font-size="26" font-weight="800" fill="#0ea5e9" letter-spacing="-0.5">Market</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ VARIANT 4: Icon only ═══ -->
+<div>
+  <div class="variant-label" style="text-align:center">Icon Only — Favicon / App Icon</div>
+  <div class="row">
+    <div class="logo-card dark-bg">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="grd6" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#0ea5e9"/>
+            <stop offset="100%" stop-color="#6366f1"/>
+          </linearGradient>
+        </defs>
+        <rect width="64" height="64" rx="16" fill="url(#grd6)"/>
+        <path d="M22 24 V20 C22 14 26 10 32 10 C38 10 42 14 42 20 V24" stroke="rgba(255,255,255,.5)" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <rect x="14" y="24" width="36" height="30" rx="8" fill="rgba(255,255,255,.15)"/>
+        <path d="M32 50 V34" stroke="white" stroke-width="3" stroke-linecap="round"/>
+        <path d="M26 40 L32 34 L38 40" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="logo-card light-bg">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="grd7" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#0ea5e9"/>
+            <stop offset="100%" stop-color="#6366f1"/>
+          </linearGradient>
+        </defs>
+        <rect width="64" height="64" rx="16" fill="url(#grd7)"/>
+        <path d="M22 24 V20 C22 14 26 10 32 10 C38 10 42 14 42 20 V24" stroke="rgba(255,255,255,.5)" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <rect x="14" y="24" width="36" height="30" rx="8" fill="rgba(255,255,255,.15)"/>
+        <path d="M32 50 V34" stroke="white" stroke-width="3" stroke-linecap="round"/>
+        <path d="M26 40 L32 34 L38 40" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <!-- Larger app icon -->
+    <div class="logo-card dark-bg">
+      <svg width="120" height="120" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="grd8" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#0ea5e9"/>
+            <stop offset="100%" stop-color="#6366f1"/>
+          </linearGradient>
+        </defs>
+        <rect width="64" height="64" rx="16" fill="url(#grd8)"/>
+        <path d="M22 24 V20 C22 14 26 10 32 10 C38 10 42 14 42 20 V24" stroke="rgba(255,255,255,.5)" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <rect x="14" y="24" width="36" height="30" rx="8" fill="rgba(255,255,255,.15)"/>
+        <path d="M32 50 V34" stroke="white" stroke-width="3" stroke-linecap="round"/>
+        <path d="M26 40 L32 34 L38 40" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
