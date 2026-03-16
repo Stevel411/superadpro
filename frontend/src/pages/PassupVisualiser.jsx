@@ -48,72 +48,60 @@ var NAMES = ['Alex','Beth','Carl','Dana','Eric','Faye','Gina','Hugo','Iris','Jak
              'Uma','Vic','Wendy','Xena','Yara','Zoe'];
 
 function PassUpSection() {
+  var PU = new Set([2, 4, 6, 8]);
+  var NAMES = ['Alex','Beth','Carl','Dana','Eric','Faye','Gina','Hugo','Iris','Jake',
+               'Kate','Leo','Mia','Nate','Olga','Paul','Quinn','Rosa','Sam','Tina',
+               'Uma','Vic','Wendy','Xena','Yara','Zoe'];
+
   var [tier, setTier] = useState(100);
+  var [tick, setTick] = useState(0); // render trigger
   var [playing, setPlaying] = useState(false);
-  var [nodes, setNodes] = useState([]);
-  var [steps, setSteps] = useState([]);
-  var [stepIdx, setStepIdx] = useState(0);
-  var [stats, setStats] = useState({ kept: 0, passups: 0, keptAmt: 0, passupAmt: 0, totalSales: 0 });
   var [log, setLog] = useState([]);
-  var [activeFlow, setActiveFlow] = useState(null); // {from, to, type}
+  var treeRef = useRef(null);
+  var stepsRef = useRef([]);
+  var siRef = useRef(0);
   var timerRef = useRef(null);
-  var nameIdx = useRef(0);
+  var statsRef = useRef({ kept: 0, passups: 0, keptAmt: 0, passupAmt: 0, totalSales: 0 });
 
   var YOU_ID = 1;
   var SPONSOR_ID = 0;
 
-  function nextName() {
-    var n = NAMES[nameIdx.current % NAMES.length];
-    nameIdx.current++;
-    return n;
-  }
-
   function buildTree() {
-    nameIdx.current = 0;
-    var all = [];
-    var id = 0;
-
+    var all = []; var id = 0; var ni = 0;
     function mk(nm, pid, cls) {
-      var n = { id: id++, nm: nm, pid: pid, puId: null, saleCount: 0, refCount: 0, children: [], visible: false, cls: cls || '', saleType: null };
+      var n = { id: id++, nm: nm, pid: pid, puId: null, sc: 0, rc: 0, ch: [], visible: false, cls: cls || '', saleType: null };
       all.push(n);
       return n;
     }
 
-    // Sponsor → You
-    var sponsor = mk('SPONSOR', null, 'sponsor'); sponsor.visible = true;
-    var you = mk('YOU', 0, 'root'); you.visible = true; you.puId = 0;
-    sponsor.children.push(1); sponsor.refCount = 1;
+    var sp = mk('SPONSOR', null, 'sponsor'); sp.visible = true;
+    var you = mk('YOU', sp.id, 'root'); you.visible = true; you.puId = sp.id;
+    sp.ch.push(you.id); sp.rc++;
 
-    // Your 9 direct referrals (enough to trigger all 4 pass-up positions: 2,4,6,8)
+    // Your 9 direct referrals
     for (var i = 0; i < 9; i++) {
-      var c = mk(nextName(), YOU_ID);
-      you.children.push(c.id);
-      you.refCount++;
-      // Pass-up sponsor assignment based on referral position
-      c.puId = PASSUP_SET.has(you.refCount) ? you.puId : YOU_ID;
+      var c = mk(NAMES[ni++ % NAMES.length], YOU_ID);
+      you.ch.push(c.id); you.rc++;
+      c.puId = PU.has(you.rc) ? you.puId : YOU_ID;
     }
 
-    // First 5 directs each get 4 referrals (L2) — shows cascade depth
-    var yourDirects = all.filter(function(n) { return n.pid === YOU_ID; });
-    for (var d = 0; d < Math.min(5, yourDirects.length); d++) {
-      var parent = yourDirects[d];
+    // First 5 directs each get 4 referrals (L2)
+    for (var d = 0; d < 5; d++) {
+      var parent = all[you.ch[d]];
       for (var j = 0; j < 4; j++) {
-        var child = mk(nextName(), parent.id);
-        parent.children.push(child.id);
-        parent.refCount++;
-        child.puId = PASSUP_SET.has(parent.refCount) ? parent.puId : parent.id;
+        var child = mk(NAMES[ni++ % NAMES.length], parent.id);
+        parent.ch.push(child.id); parent.rc++;
+        child.puId = PU.has(parent.rc) ? parent.puId : parent.id;
       }
     }
 
-    // First 8 L2 members each get 2 referrals (L3) — shows deep cascade
-    var l2Members = all.filter(function(n) { return n.pid !== null && all[n.pid] && all[n.pid].pid === YOU_ID; });
-    for (var k = 0; k < Math.min(8, l2Members.length); k++) {
-      var l2 = l2Members[k];
+    // First 8 L2 members each get 2 referrals (L3)
+    var l2 = all.filter(function(n) { return n.pid !== null && all[n.pid] && all[n.pid].pid === YOU_ID; });
+    for (var k = 0; k < Math.min(8, l2.length); k++) {
       for (var m = 0; m < 2; m++) {
-        var l3 = mk(nextName(), l2.id);
-        l2.children.push(l3.id);
-        l2.refCount++;
-        l3.puId = PASSUP_SET.has(l2.refCount) ? l2.puId : l2.id;
+        var l3 = mk(NAMES[ni++ % NAMES.length], l2[k].id);
+        l2[k].ch.push(l3.id); l2[k].rc++;
+        l3.puId = PU.has(l2[k].rc) ? l2[k].puId : l2[k].id;
       }
     }
 
@@ -124,14 +112,14 @@ function PassUpSection() {
     var stps = [];
     var you = tree[YOU_ID];
 
-    // Phase 1: Your directs join
-    you.children.forEach(function(cid) { stps.push({ nodeId: cid, sponsorId: YOU_ID }); });
+    // Phase 1: Your 9 directs join
+    you.ch.forEach(function(cid) { stps.push({ nodeId: cid, spId: YOU_ID }); });
 
-    // Phase 2: L1 directs recruit (interleaved)
-    var yourDirects = tree.filter(function(n) { return n.pid === YOU_ID; });
+    // Phase 2: First 5 directs recruit (interleaved)
     for (var round = 0; round < 4; round++) {
-      yourDirects.slice(0, 5).forEach(function(d) {
-        if (d.children[round] !== undefined) stps.push({ nodeId: d.children[round], sponsorId: d.id });
+      you.ch.slice(0, 5).forEach(function(did) {
+        var d = tree[did];
+        if (d.ch[round] !== undefined) stps.push({ nodeId: d.ch[round], spId: did });
       });
     }
 
@@ -139,7 +127,7 @@ function PassUpSection() {
     var l2 = tree.filter(function(n) { return n.pid !== null && tree[n.pid] && tree[n.pid].pid === YOU_ID; });
     for (var r2 = 0; r2 < 2; r2++) {
       l2.slice(0, 8).forEach(function(n) {
-        if (n.children[r2] !== undefined) stps.push({ nodeId: n.children[r2], sponsorId: n.id });
+        if (n.ch[r2] !== undefined) stps.push({ nodeId: n.ch[r2], spId: n.id });
       });
     }
 
@@ -147,83 +135,69 @@ function PassUpSection() {
   }
 
   function initSim() {
-    var tree = buildTree();
-    var stps = buildSteps(tree);
-    setNodes(tree);
-    setSteps(stps);
-    setStepIdx(0);
-    setStats({ kept: 0, passups: 0, keptAmt: 0, passupAmt: 0, totalSales: 0 });
-    setLog([]);
-    setActiveFlow(null);
-    setPlaying(false);
     if (timerRef.current) clearInterval(timerRef.current);
+    var tree = buildTree();
+    treeRef.current = tree;
+    stepsRef.current = buildSteps(tree);
+    siRef.current = 0;
+    statsRef.current = { kept: 0, passups: 0, keptAmt: 0, passupAmt: 0, totalSales: 0 };
+    setPlaying(false);
+    setLog([]);
+    setTick(function(t) { return t + 1; });
   }
 
   useEffect(function() { initSim(); }, [tier]);
   useEffect(function() { return function() { if (timerRef.current) clearInterval(timerRef.current); }; }, []);
 
   function processStep() {
-    setStepIdx(function(si) {
-      if (si >= steps.length) {
-        setPlaying(false);
-        if (timerRef.current) clearInterval(timerRef.current);
-        return si;
+    var tree = treeRef.current;
+    var steps = stepsRef.current;
+    var si = siRef.current;
+
+    if (si >= steps.length) {
+      setPlaying(false);
+      if (timerRef.current) clearInterval(timerRef.current);
+      return;
+    }
+
+    var step = steps[si];
+    var nn = tree[step.nodeId];
+    var sp = tree[step.spId];
+
+    // Reveal node
+    nn.visible = true;
+
+    // Sponsor gets a sale
+    sp.sc++;
+    var saleNum = sp.sc;
+    var isPassUp = PU.has(saleNum);
+
+    nn.saleType = isPassUp ? 'passup' : 'kept';
+
+    if (isPassUp) {
+      var recipientId = sp.puId;
+      var recipient = recipientId != null ? tree[recipientId] : tree[SPONSOR_ID];
+      if (recipient.id === YOU_ID) {
+        statsRef.current.passups++;
+        statsRef.current.passupAmt += tier;
       }
-
-      var step = steps[si];
-      var newNodes = nodes.slice();
-      var nn = Object.assign({}, newNodes[step.nodeId]);
-      var sp = Object.assign({}, newNodes[step.sponsorId]);
-
-      // Reveal node
-      nn.visible = true;
-
-      // Sponsor gets a sale
-      sp.saleCount++;
-      var saleNum = sp.saleCount;
-      var isPassUp = PASSUP_SET.has(saleNum);
-
-      nn.saleType = isPassUp ? 'passup' : 'kept';
-
-      newNodes[step.nodeId] = nn;
-      newNodes[step.sponsorId] = sp;
-
-      if (isPassUp) {
-        // Find pass-up recipient
-        var recipientId = sp.puId;
-        var recipient = recipientId != null ? newNodes[recipientId] : newNodes[SPONSOR_ID];
-        setActiveFlow({ from: sp.id, to: recipient.id, type: 'passup' });
-        setStats(function(s) {
-          var isYou = recipient.id === YOU_ID;
-          return {
-            kept: s.kept, passups: s.passups + (isYou ? 1 : 0),
-            keptAmt: s.keptAmt, passupAmt: s.passupAmt + (isYou ? tier : 0),
-            totalSales: s.totalSales + 1
-          };
-        });
-        setLog(function(l) {
-          return [{ who: nn.nm, sale: saleNum, action: '↑ PASS UP to ' + recipient.nm, color: '#f59e0b', type: 'passup', amt: tier }].concat(l).slice(0, 15);
-        });
-      } else {
-        setActiveFlow({ from: nn.id, to: sp.id, type: 'kept' });
-        setStats(function(s) {
-          var isYou = sp.id === YOU_ID;
-          return {
-            kept: s.kept + (isYou ? 1 : 0), passups: s.passups,
-            keptAmt: s.keptAmt + (isYou ? tier : 0), passupAmt: s.passupAmt,
-            totalSales: s.totalSales + 1
-          };
-        });
-        setLog(function(l) {
-          return [{ who: nn.nm, sale: saleNum, action: 'KEPT ✓ by ' + sp.nm, color: '#10b981', type: 'kept', amt: tier }].concat(l).slice(0, 15);
-        });
+      statsRef.current.totalSales++;
+      setLog(function(l) {
+        return [{ who: nn.nm, sale: saleNum, action: '↑ PASS UP → ' + recipient.nm, color: '#f59e0b', type: 'passup', amt: tier }].concat(l).slice(0, 20);
+      });
+    } else {
+      if (sp.id === YOU_ID) {
+        statsRef.current.kept++;
+        statsRef.current.keptAmt += tier;
       }
+      statsRef.current.totalSales++;
+      setLog(function(l) {
+        return [{ who: nn.nm, sale: saleNum, action: 'KEPT ✓ ' + sp.nm, color: '#10b981', type: 'kept', amt: tier }].concat(l).slice(0, 20);
+      });
+    }
 
-      setNodes(newNodes);
-      setTimeout(function() { setActiveFlow(null); }, 500);
-
-      return si + 1;
-    });
+    siRef.current = si + 1;
+    setTick(function(t) { return t + 1; });
   }
 
   function togglePlay() {
@@ -231,39 +205,38 @@ function PassUpSection() {
       setPlaying(false);
       if (timerRef.current) clearInterval(timerRef.current);
     } else {
-      if (stepIdx >= steps.length) {
+      if (siRef.current >= stepsRef.current.length) {
         initSim();
-        setTimeout(function() { startPlaying(); }, 100);
+        setTimeout(function() { startPlay(); }, 100);
         return;
       }
-      startPlaying();
+      startPlay();
     }
   }
 
-  function startPlaying() {
+  function startPlay() {
     setPlaying(true);
-    timerRef.current = setInterval(function() {
-      processStep();
-    }, 900);
+    timerRef.current = setInterval(processStep, 900);
   }
 
-  // Get visible nodes grouped by level
+  // Build level map for rendering
+  var tree = treeRef.current || [];
   function getLevel(n) {
     var lv = 0; var cur = n;
-    while (cur.pid !== null && nodes[cur.pid]) { lv++; cur = nodes[cur.pid]; }
+    while (cur.pid !== null && tree[cur.pid]) { lv++; cur = tree[cur.pid]; }
     return lv;
   }
-
   var levels = {};
-  nodes.forEach(function(n) {
-    if (!n.visible) return;
+  tree.forEach(function(n) {
+    if (!n || !n.visible) return;
     var lv = getLevel(n);
     if (!levels[lv]) levels[lv] = [];
     levels[lv].push(n);
   });
   var maxLv = Math.max.apply(null, Object.keys(levels).map(Number).concat([0]));
 
-  var totalAmt = stats.keptAmt + stats.passupAmt;
+  var st = statsRef.current;
+  var totalAmt = st.keptAmt + st.passupAmt;
 
   return (
     <div>
@@ -283,7 +256,7 @@ function PassUpSection() {
       </div>
 
       <div style={{display:'grid',gridTemplateColumns:'1fr 340px',gap:16}}>
-        {/* LEFT — Tree visualisation */}
+        {/* LEFT — Tree */}
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
           <div style={{background:'#1c223d',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div>
@@ -304,9 +277,8 @@ function PassUpSection() {
             </div>
           </div>
 
-          {/* Tree */}
-          <div style={{padding:'20px',minHeight:340,overflow:'auto'}}>
-            <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
+          <div style={{padding:'20px',minHeight:380,overflow:'auto',background:'#fafbfc'}}>
+            <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:20}}>
               {Array.from({length: maxLv + 1}).map(function(_, lv) {
                 var lvNodes = levels[lv] || [];
                 if (!lvNodes.length) return null;
@@ -317,31 +289,24 @@ function PassUpSection() {
                       var isSponsor = n.cls === 'sponsor';
                       var isKept = n.saleType === 'kept';
                       var isPassup = n.saleType === 'passup';
-                      var isFlowTarget = activeFlow && activeFlow.to === n.id;
 
                       var bg = '#f0f9ff';
-                      var border = '1.5px solid rgba(14,165,233,.2)';
+                      var borderC = 'rgba(14,165,233,.2)';
                       var textColor = '#0f172a';
+                      var w = 50; var h = 36;
 
-                      if (isSponsor) { bg = 'linear-gradient(135deg,#6366f1,#4f46e5)'; border = '2px solid #818cf8'; textColor = '#fff'; }
-                      else if (isRoot) { bg = 'linear-gradient(135deg,#0ea5e9,#0284c7)'; border = '2px solid #38bdf8'; textColor = '#fff'; }
-                      else if (isKept) { bg = '#d1fae5'; border = '2px solid #10b981'; textColor = '#065f46'; }
-                      else if (isPassup) { bg = '#fef3c7'; border = '2px solid #f59e0b'; textColor = '#92400e'; }
+                      if (isSponsor) { bg = '#6366f1'; borderC = '#818cf8'; textColor = '#fff'; w = 58; h = 44; }
+                      else if (isRoot) { bg = '#0ea5e9'; borderC = '#38bdf8'; textColor = '#fff'; w = 58; h = 44; }
+                      else if (isKept) { bg = '#d1fae5'; borderC = '#10b981'; textColor = '#065f46'; }
+                      else if (isPassup) { bg = '#fef3c7'; borderC = '#f59e0b'; textColor = '#92400e'; }
 
                       return (
                         <div key={n.id} style={{
-                          width: isRoot ? 56 : isSponsor ? 52 : 48,
-                          height: isRoot ? 42 : isSponsor ? 40 : 34,
-                          borderRadius:8,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',
-                          background: bg, border: border,
-                          boxShadow: isFlowTarget ? '0 0 16px rgba(139,92,246,.4)' : 'none',
-                          transform: isFlowTarget ? 'scale(1.1)' : 'scale(1)',
-                          transition: 'all .3s ease',
+                          width:w,height:h,borderRadius:8,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',
+                          background:bg,border:'2px solid '+borderC,transition:'all .3s ease',
                         }}>
-                          <div style={{fontSize: isRoot||isSponsor ? 10 : 8, fontWeight:800, color: textColor, lineHeight:1.2}}>{n.nm}</div>
-                          <div style={{fontSize:6,color: isSponsor||isRoot ? 'rgba(255,255,255,.6)' : '#94a3b8'}}>
-                            {n.saleCount > 0 ? n.saleCount + ' sale' + (n.saleCount !== 1 ? 's' : '') : ''}
-                          </div>
+                          <div style={{fontSize:isRoot||isSponsor?10:8,fontWeight:800,color:textColor,lineHeight:1.2}}>{n.nm}</div>
+                          {n.sc > 0 && <div style={{fontSize:6,color:isSponsor||isRoot?'rgba(255,255,255,.6)':'#94a3b8'}}>{n.sc} sale{n.sc!==1?'s':''}</div>}
                         </div>
                       );
                     })}
@@ -351,11 +316,10 @@ function PassUpSection() {
             </div>
           </div>
 
-          {/* Legend */}
           <div style={{padding:'12px 20px',borderTop:'1px solid #e8ecf2',display:'flex',gap:14,flexWrap:'wrap'}}>
             {[
-              {label:'Your Sponsor',bg:'linear-gradient(135deg,#6366f1,#4f46e5)',border:'#818cf8'},
-              {label:'You',bg:'linear-gradient(135deg,#0ea5e9,#0284c7)',border:'#38bdf8'},
+              {label:'Your Sponsor',bg:'#6366f1',border:'#818cf8'},
+              {label:'You',bg:'#0ea5e9',border:'#38bdf8'},
               {label:'Keeps Commission',bg:'#d1fae5',border:'#10b981'},
               {label:'Pass-Up',bg:'#fef3c7',border:'#f59e0b'},
             ].map(function(l, i) {
@@ -369,16 +333,14 @@ function PassUpSection() {
           </div>
         </div>
 
-        {/* RIGHT — Stats panel */}
+        {/* RIGHT — Stats */}
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
-          {/* Total */}
           <div style={{background:'linear-gradient(135deg,#4c1d95,#7c3aed)',borderRadius:14,padding:20,textAlign:'center',color:'#fff'}}>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.5)',marginBottom:4}}>Your Total This Round</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:800}}>${totalAmt.toLocaleString()}</div>
-            <div style={{fontSize:12,color:'rgba(255,255,255,.5)',marginTop:4}}>{stats.kept} kept · {stats.passups} pass-ups received</div>
+            <div style={{fontSize:12,color:'rgba(255,255,255,.5)',marginTop:4}}>{st.kept} kept · {st.passups} pass-ups received</div>
           </div>
 
-          {/* Earnings breakdown */}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16}}>
             <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:10}}>Live Earnings</div>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0',borderBottom:'1px solid #f5f6f8'}}>
@@ -386,30 +348,29 @@ function PassUpSection() {
                 <div style={{width:8,height:8,borderRadius:4,background:'#10b981'}}/>
                 <div><div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>Direct Sales Kept</div><div style={{fontSize:10,color:'#94a3b8'}}>Your sales 1,3,5,7,9+</div></div>
               </div>
-              <div style={{fontSize:18,fontWeight:800,color:'#10b981'}}>${stats.keptAmt.toLocaleString()}</div>
+              <div style={{fontSize:18,fontWeight:800,color:'#10b981'}}>${st.keptAmt.toLocaleString()}</div>
             </div>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0'}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
                 <div style={{width:8,height:8,borderRadius:4,background:'#f59e0b'}}/>
                 <div><div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>Pass-Ups Received</div><div style={{fontSize:10,color:'#94a3b8'}}>Team's 2nd, 4th, 6th, 8th</div></div>
               </div>
-              <div style={{fontSize:18,fontWeight:800,color:'#f59e0b'}}>${stats.passupAmt.toLocaleString()}</div>
+              <div style={{fontSize:18,fontWeight:800,color:'#f59e0b'}}>${st.passupAmt.toLocaleString()}</div>
             </div>
           </div>
 
-          {/* Quick stats */}
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>DIRECT SALES</div>
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#10b981'}}>{stats.kept}</div>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#10b981'}}>{st.kept}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>PASS-UPS</div>
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#f59e0b'}}>{stats.passups}</div>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#f59e0b'}}>{st.passups}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>TEAM SALES</div>
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#0ea5e9'}}>{stats.totalSales}</div>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#0ea5e9'}}>{st.totalSales}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>TIER</div>
@@ -417,7 +378,6 @@ function PassUpSection() {
             </div>
           </div>
 
-          {/* How it works */}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16}}>
             <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:10}}>4 Pass-Up Routes</div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
@@ -425,7 +385,7 @@ function PassUpSection() {
                 {n:'1',title:'Keep',desc:'Sales 1,3,5,7,9+',color:'#10b981'},
                 {n:'2',title:'Pass Up',desc:'Sales 2,4,6,8',color:'#f59e0b'},
                 {n:'3',title:'Cascade',desc:'Received pass-ups count in your pattern',color:'#8b5cf6'},
-                {n:'4',title:'Infinite',desc:'No level cap — cascades forever',color:'#ec4899'},
+                {n:'4',title:'Infinite',desc:'No level cap on cascades',color:'#ec4899'},
               ].map(function(s, i) {
                 return (
                   <div key={i} style={{padding:10,background:'#f8f9fb',borderRadius:8,border:'1px solid #e8ecf2',textAlign:'center'}}>
@@ -438,32 +398,30 @@ function PassUpSection() {
             </div>
           </div>
 
-          {/* Activity log */}
-          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16,flex:1,minHeight:200}}>
+          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16,flex:1,minHeight:180}}>
             <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:10}}>Activity Log</div>
             <div style={{display:'flex',flexDirection:'column',gap:4,maxHeight:300,overflowY:'auto'}}>
               {log.length === 0 && <div style={{fontSize:11,color:'#94a3b8'}}>Press Play to watch your team build...</div>}
               {log.map(function(l, i) {
                 return (
                   <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'5px 0',borderBottom:'1px solid #f5f6f8',fontSize:12}}>
-                    <div style={{display:'flex',alignItems:'center',gap:6}}>
-                      <span style={{fontWeight:700,color:'#0f172a',minWidth:40}}>{l.who}</span>
-                      <span style={{color:'#94a3b8',fontSize:10}}>#{l.sale}</span>
-                      <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:3,
+                    <div style={{display:'flex',alignItems:'center',gap:6,minWidth:0,overflow:'hidden'}}>
+                      <span style={{fontWeight:700,color:'#0f172a',minWidth:36,flexShrink:0}}>{l.who}</span>
+                      <span style={{color:'#94a3b8',fontSize:10,flexShrink:0}}>#{l.sale}</span>
+                      <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:3,whiteSpace:'nowrap',flexShrink:0,
                         color:l.type==='kept'?'#10b981':'#f59e0b',
                         background:l.type==='kept'?'rgba(16,185,129,.06)':'rgba(245,158,11,.06)',
                         border:'1px solid '+(l.type==='kept'?'rgba(16,185,129,.2)':'rgba(245,158,11,.2)')}}>{l.action}</span>
                     </div>
-                    <span style={{fontWeight:700,color:l.color,fontSize:12}}>${l.amt}</span>
+                    <span style={{fontWeight:700,color:l.color,fontSize:12,flexShrink:0,marginLeft:6}}>${l.amt}</span>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          {/* Disclaimer */}
           <div style={{padding:'10px 12px',background:'#fffbeb',borderRadius:8,border:'1px solid #fef3c7',fontSize:10,color:'#92400e',lineHeight:1.5}}>
-            <strong>Disclaimer:</strong> This is a simulation for educational purposes. Actual earnings depend entirely on personal activity and network performance. Income is not guaranteed.
+            <strong>Disclaimer:</strong> Simulation for educational purposes only. Actual earnings depend on personal activity and network performance. Income is not guaranteed.
           </div>
         </div>
       </div>
