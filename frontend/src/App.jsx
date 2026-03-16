@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { Spinner } from './components/ui';
 import AppLayout from './components/layout/AppLayout';
+import './i18n';
 
 // Pages
 import Dashboard from './pages/Dashboard';
