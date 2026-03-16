@@ -44,7 +44,7 @@ function useInView(threshold) {
 // ── Tab definitions ──
 var TABS = [
   { key: 'membership', label: 'Membership', icon: DollarSign, color: '#16a34a' },
-  { key: 'grid', label: 'Profit Grid', icon: Zap, color: '#0ea5e9', soon: true },
+  { key: 'grid', label: 'Profit Grid', icon: Zap, color: '#0ea5e9' },
   { key: 'courses', label: 'Courses', icon: GraduationCap, color: '#8b5cf6', soon: true },
   { key: 'calculator', label: 'Calculator', icon: Target, color: '#f59e0b', soon: true },
 ];
@@ -83,7 +83,7 @@ export default function CompensationPlan() {
       {tab === 'membership' && <MembershipSection />}
 
       {/* ── Placeholder for future tabs ── */}
-      {tab === 'grid' && <ComingSoon label="Profit Grid" />}
+      {tab === 'grid' && <GridSection />}
       {tab === 'courses' && <ComingSoon label="Courses" />}
       {tab === 'calculator' && <ComingSoon label="Calculator" />}
 
@@ -451,6 +451,329 @@ function MilestoneTracker(props) {
     </div>
   );
 }
+
+
+// ══════════════════════════════════════════════════════════════
+// ── PROFIT GRID SECTION ──
+// ══════════════════════════════════════════════════════════════
+
+var TIERS = [
+  {n:1,name:'Starter',price:20,color:'#4ade80'},
+  {n:2,name:'Builder',price:50,color:'#38bdf8'},
+  {n:3,name:'Pro',price:100,color:'#0ea5e9'},
+  {n:4,name:'Advanced',price:200,color:'#6366f1'},
+  {n:5,name:'Elite',price:400,color:'#8b5cf6'},
+  {n:6,name:'Premium',price:600,color:'#f59e0b'},
+  {n:7,name:'Executive',price:800,color:'#f97316'},
+  {n:8,name:'Ultimate',price:1000,color:'#ec4899'},
+];
+
+function GridSection() {
+  var [heroRef, heroVis] = useInView(0.1);
+  var [splitRef, splitVis] = useInView(0.1);
+  var [tierRef, tierVis] = useInView(0.1);
+  var [uniRef, uniVis] = useInView(0.1);
+  var [spillRef, spillVis] = useInView(0.1);
+  var [bonusRef, bonusVis] = useInView(0.1);
+
+  var d40 = useCountUp(40, 1000, splitVis);
+  var d50 = useCountUp(50, 1000, splitVis);
+  var d5a = useCountUp(5, 800, splitVis);
+  var d5b = useCountUp(5, 800, splitVis);
+
+  return (
+    <div>
+      {/* ── Hero ── */}
+      <div ref={heroRef} style={{
+        background:'linear-gradient(135deg,#0c4a6e,#0284c7,#0ea5e9)',
+        borderRadius:16,padding:'48px 40px',marginBottom:28,position:'relative',overflow:'hidden',
+        opacity:heroVis?1:0,transform:heroVis?'translateY(0)':'translateY(30px)',
+        transition:'all .8s cubic-bezier(.16,1,.3,1)',
+      }}>
+        <div style={{position:'absolute',top:-50,right:-50,width:220,height:220,borderRadius:'50%',background:'rgba(255,255,255,.05)'}}/>
+        <div style={{position:'absolute',bottom:-40,left:-20,width:160,height:160,borderRadius:'50%',background:'rgba(255,255,255,.04)'}}/>
+        <div style={{position:'relative',zIndex:1}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
+            <Zap size={20} color="rgba(255,255,255,.7)"/>
+            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>Stream 02</span>
+          </div>
+          <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:'#fff',margin:'0 0 12px',lineHeight:1.2}}>
+            8×8 Profit Engine Grid
+          </h2>
+          <p style={{fontSize:16,color:'rgba(255,255,255,.7)',maxWidth:560,lineHeight:1.7,margin:0}}>
+            Activate campaign tiers from $20 to $1,000 and earn commissions from your entire network — 8 levels deep. Every entry pays you instantly.
+          </p>
+        </div>
+      </div>
+
+      {/* ── Commission Split (40/50/5/5) ── */}
+      <div ref={splitRef} style={{
+        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
+        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
+        opacity:splitVis?1:0,transform:splitVis?'translateY(0)':'translateY(30px)',
+        transition:'all .7s cubic-bezier(.16,1,.3,1)',
+      }}>
+        <div style={{background:'#1c223d',padding:'20px 24px'}}>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>Commission Architecture</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>How Every Dollar is Split</div>
+        </div>
+        <div style={{padding:'28px 24px'}}>
+          {/* Animated bar */}
+          <div style={{height:40,borderRadius:10,overflow:'hidden',display:'flex',marginBottom:24}}>
+            {[
+              {pct:40,color:'#0ea5e9',label:'40% Sponsor'},
+              {pct:50,color:'#6366f1',label:'50% Uni-Level'},
+              {pct:5,color:'#f59e0b',label:'5% Platform'},
+              {pct:5,color:'#10b981',label:'5% Bonus Pool'},
+            ].map(function(s, i) {
+              return (
+                <div key={i} style={{
+                  width:splitVis?s.pct+'%':'0%',transition:'width 1s cubic-bezier(.16,1,.3,1)',transitionDelay:(0.2+i*0.15)+'s',
+                  background:s.color,display:'flex',alignItems:'center',justifyContent:'center',
+                  fontSize:s.pct>=10?11:0,fontWeight:800,color:'#fff',whiteSpace:'nowrap',overflow:'hidden',
+                }}>{s.pct >= 10 ? s.label : ''}</div>
+              );
+            })}
+          </div>
+
+          {/* 4 split cards */}
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14}}>
+            {[
+              {pct:d40,label:'Direct Sponsor',desc:'Paid instantly when someone you personally referred activates any tier',color:'#0ea5e9',icon:'💰'},
+              {pct:d50,label:'Uni-Level Pool',desc:'6.25% × 8 levels in the entrant\'s upline chain. Equal pay per level',color:'#6366f1',icon:'🌐'},
+              {pct:d5a,label:'Platform Fee',desc:'SuperAdPro operational costs, development, and support',color:'#f59e0b',icon:'🏢'},
+              {pct:d5b,label:'Bonus Pool',desc:'Accrues per seat fill. Paid to grid owner on grid completion (64 seats)',color:'#10b981',icon:'🎁'},
+            ].map(function(s, i) {
+              return (
+                <div key={i} style={{
+                  textAlign:'center',padding:20,borderRadius:12,border:'1px solid #e8ecf2',background:'#f8f9fb',
+                  opacity:splitVis?1:0,transform:splitVis?'translateY(0)':'translateY(20px)',
+                  transition:'all .6s ease',transitionDelay:(0.4+i*0.1)+'s',
+                }}>
+                  <div style={{fontSize:24,marginBottom:8}}>{s.icon}</div>
+                  <div style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:800,color:s.color,lineHeight:1}}>{s.pct}%</div>
+                  <div style={{fontSize:12,fontWeight:800,color:'#0f172a',marginTop:6,marginBottom:4}}>{s.label}</div>
+                  <div style={{fontSize:11,color:'#94a3b8',lineHeight:1.5}}>{s.desc}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* ── 8 Tier Cards ── */}
+      <div ref={tierRef} style={{
+        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
+        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
+        opacity:tierVis?1:0,transform:tierVis?'translateY(0)':'translateY(30px)',
+        transition:'all .7s cubic-bezier(.16,1,.3,1)',
+      }}>
+        <div style={{background:'#1c223d',padding:'20px 24px'}}>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>Campaign Tiers</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>8 Levels from $20 to $1,000</div>
+        </div>
+        <div style={{padding:'24px'}}>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
+            {TIERS.map(function(t, i) {
+              var direct = (t.price * 0.40);
+              var perLevel = (t.price * 0.0625);
+              return (
+                <div key={i} style={{
+                  borderRadius:12,border:'1px solid #e8ecf2',overflow:'hidden',
+                  opacity:tierVis?1:0,transform:tierVis?'scale(1)':'scale(.9)',
+                  transition:'all .5s ease',transitionDelay:(0.1+i*0.06)+'s',
+                }}>
+                  <div style={{background:t.color,padding:'14px 16px',textAlign:'center'}}>
+                    <div style={{fontSize:10,fontWeight:800,color:'rgba(255,255,255,.7)',letterSpacing:1,textTransform:'uppercase'}}>Campaign {t.n}</div>
+                    <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'#fff'}}>${t.price}</div>
+                    <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.8)'}}>{t.name}</div>
+                  </div>
+                  <div style={{padding:'12px 14px'}}>
+                    <div style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
+                      <span style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>DIRECT 40%</span>
+                      <span style={{fontSize:12,fontWeight:800,color:'#0ea5e9'}}>${direct.toFixed(2)}</span>
+                    </div>
+                    <div style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
+                      <span style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>PER LEVEL</span>
+                      <span style={{fontSize:12,fontWeight:800,color:'#6366f1'}}>${perLevel.toFixed(2)}</span>
+                    </div>
+                    <div style={{display:'flex',justifyContent:'space-between',padding:'6px 0'}}>
+                      <span style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>8 LEVELS</span>
+                      <span style={{fontSize:12,fontWeight:800,color:'#16a34a'}}>${(perLevel*8).toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Uni-Level Payout Table ── */}
+      <div ref={uniRef} style={{
+        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
+        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
+        opacity:uniVis?1:0,transform:uniVis?'translateY(0)':'translateY(30px)',
+        transition:'all .7s cubic-bezier(.16,1,.3,1)',
+      }}>
+        <div style={{background:'#1c223d',padding:'20px 24px'}}>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>Uni-Level Commissions</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>6.25% Per Level — 8 Levels Deep</div>
+        </div>
+        <div style={{padding:'24px'}}>
+          <div style={{overflowX:'auto'}}>
+            <table style={{width:'100%',borderCollapse:'collapse',minWidth:700}}>
+              <thead>
+                <tr>
+                  <th style={thStyle}>Level</th>
+                  {TIERS.map(function(t) {
+                    return <th key={t.n} style={Object.assign({},thStyle,{color:t.color})}>${t.price}</th>;
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {[1,2,3,4,5,6,7,8].map(function(lvl, i) {
+                  var colors = ['#0ea5e9','#6366f1','#0284c7','#4f46e5','#0369a1','#7c3aed','#1d4ed8','#2563eb'];
+                  return (
+                    <tr key={lvl} style={{
+                      opacity:uniVis?1:0,transform:uniVis?'translateX(0)':'translateX(-20px)',
+                      transition:'all .5s ease',transitionDelay:(0.1+i*0.06)+'s',
+                    }}>
+                      <td style={Object.assign({},tdStyle,{fontWeight:800,color:colors[i]})}>Level {lvl}</td>
+                      {TIERS.map(function(t) {
+                        var amt = (t.price * 0.0625).toFixed(2);
+                        return <td key={t.n} style={Object.assign({},tdStyle,{color:colors[i],fontWeight:700})}>${amt}</td>;
+                      })}
+                    </tr>
+                  );
+                })}
+                {/* Total row */}
+                <tr style={{background:'#f0f9ff'}}>
+                  <td style={Object.assign({},tdStyle,{fontWeight:800,color:'#0f172a'})}>Total (×8)</td>
+                  {TIERS.map(function(t) {
+                    return <td key={t.n} style={Object.assign({},tdStyle,{fontWeight:800,color:'#16a34a'})}>${(t.price*0.50).toFixed(2)}</td>;
+                  })}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style={{marginTop:12,fontSize:11,color:'#94a3b8',lineHeight:1.6}}>
+            Each level pays exactly 6.25% of the tier price (50% ÷ 8 levels). Commissions are paid per seat fill — no waiting for grid completion.
+          </div>
+        </div>
+      </div>
+
+      {/* ── Spillover Model ── */}
+      <div ref={spillRef} style={{
+        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
+        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
+        opacity:spillVis?1:0,transform:spillVis?'translateY(0)':'translateY(30px)',
+        transition:'all .7s cubic-bezier(.16,1,.3,1)',
+      }}>
+        <div style={{background:'#1c223d',padding:'20px 24px'}}>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>How It Works</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>Spillover Placement Model</div>
+        </div>
+        <div style={{padding:'28px 24px'}}>
+          {/* Step flow */}
+          <div style={{display:'flex',flexDirection:'column',gap:16,marginBottom:28}}>
+            {[
+              {step:'1',title:'Member Purchases a Tier',desc:'E.g. $100 Pro tier. Payment goes to the platform.',color:'#0ea5e9',icon:'💳'},
+              {step:'2',title:'40% Paid to Direct Sponsor',desc:'$40 instantly credited to the person who referred them.',color:'#16a34a',icon:'💰'},
+              {step:'3',title:'50% Split Across 8 Upline Levels',desc:'$6.25 paid to each of the 8 people above in the upline chain.',color:'#6366f1',icon:'🌐'},
+              {step:'4',title:'One Seat Filled in Every Upline Grid',desc:'The new member fills one position in each upline member\'s grid at that tier.',color:'#f59e0b',icon:'📊'},
+              {step:'5',title:'64 Unique Members to Complete',desc:'Each grid needs 64 unique members to fill all 8 levels × 8 positions.',color:'#ec4899',icon:'🎯'},
+            ].map(function(s, i) {
+              return (
+                <div key={i} style={{
+                  display:'flex',alignItems:'flex-start',gap:16,
+                  opacity:spillVis?1:0,transform:spillVis?'translateX(0)':'translateX(-30px)',
+                  transition:'all .6s ease',transitionDelay:(0.2+i*0.12)+'s',
+                }}>
+                  <div style={{width:44,height:44,borderRadius:12,background:s.color,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:20,boxShadow:'0 4px 12px '+s.color+'33'}}>
+                    {s.icon}
+                  </div>
+                  <div style={{flex:1,paddingTop:4}}>
+                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
+                      <span style={{fontSize:10,fontWeight:800,color:s.color,background:s.color+'15',padding:'2px 8px',borderRadius:4}}>STEP {s.step}</span>
+                      <span style={{fontSize:14,fontWeight:800,color:'#0f172a'}}>{s.title}</span>
+                    </div>
+                    <div style={{fontSize:12,color:'#64748b',lineHeight:1.6}}>{s.desc}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Qualification rule */}
+          <div style={{padding:'16px 20px',background:'#fffbeb',borderRadius:12,border:'1px solid #fef3c7',display:'flex',alignItems:'flex-start',gap:12}}>
+            <div style={{fontSize:20,flexShrink:0}}>⚠️</div>
+            <div>
+              <div style={{fontSize:13,fontWeight:800,color:'#92400e',marginBottom:4}}>Qualification Rule</div>
+              <div style={{fontSize:12,color:'#a16207',lineHeight:1.6}}>
+                To earn commissions at a tier, you must have an active (or in-grace) campaign at that same tier or higher. If unqualified, the commission goes to the platform. Each upline level is checked individually.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Grid Completion Bonus ── */}
+      <div ref={bonusRef} style={{
+        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
+        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
+        opacity:bonusVis?1:0,transform:bonusVis?'translateY(0)':'translateY(30px)',
+        transition:'all .7s cubic-bezier(.16,1,.3,1)',
+      }}>
+        <div style={{background:'linear-gradient(135deg,#1c223d,#0f4c3a)',padding:'20px 24px'}}>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#4ade80',marginBottom:4}}>Bonus Reward</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>Grid Completion Bonus Pool</div>
+        </div>
+        <div style={{padding:'28px 24px'}}>
+          <p style={{fontSize:13,color:'#64748b',lineHeight:1.7,marginBottom:24,maxWidth:600}}>
+            5% of every tier entry accrues in a bonus pool for that grid. When all 64 positions are filled, the grid owner receives the accumulated bonus. Larger tiers = bigger bonus pools.
+          </p>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
+            {TIERS.map(function(t, i) {
+              var bonus = (t.price * 0.05 * 64);
+              return (
+                <div key={i} style={{
+                  textAlign:'center',padding:16,borderRadius:12,
+                  background:'linear-gradient(135deg,'+t.color+'08,'+t.color+'15)',
+                  border:'1px solid '+t.color+'22',
+                  opacity:bonusVis?1:0,transform:bonusVis?'scale(1)':'scale(.85)',
+                  transition:'all .5s ease',transitionDelay:(0.1+i*0.06)+'s',
+                }}>
+                  <div style={{fontSize:10,fontWeight:800,color:t.color,letterSpacing:1,textTransform:'uppercase',marginBottom:4}}>${t.price} Tier</div>
+                  <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:t.color}}>${bonus.toLocaleString()}</div>
+                  <div style={{fontSize:10,color:'#94a3b8',marginTop:2}}>on completion</div>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{marginTop:20,display:'flex',gap:14}}>
+            {[
+              {icon:'🔄',title:'Per Advance',desc:'Each grid advance accrues its own pool — you can earn this bonus multiple times'},
+              {icon:'⏱️',title:'64 Seats',desc:'Grid completes when 64 unique members have each filled one seat'},
+              {icon:'💎',title:'Up to $3,200',desc:'The $1,000 Ultimate tier pays the maximum completion bonus'},
+            ].map(function(p, i) {
+              return (
+                <div key={i} style={{flex:1,padding:16,background:'#f8f9fb',borderRadius:10,border:'1px solid #e8ecf2'}}>
+                  <div style={{fontSize:20,marginBottom:6}}>{p.icon}</div>
+                  <div style={{fontSize:12,fontWeight:800,color:'#0f172a',marginBottom:4}}>{p.title}</div>
+                  <div style={{fontSize:11,color:'#64748b',lineHeight:1.5}}>{p.desc}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+var thStyle = {fontSize:10,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,padding:'12px 10px',borderBottom:'2px solid #e8ecf2',textAlign:'center',background:'#f8f9fb'};
+var tdStyle = {padding:'10px',borderBottom:'1px solid #f5f6f8',textAlign:'center',fontSize:12};
 
 
 // ── Coming Soon placeholder ──
