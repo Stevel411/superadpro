@@ -570,16 +570,21 @@ function GridSection() {
       }}>
         <div style={{background:'#1c223d',padding:'20px 24px'}}>
           <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>Campaign Tiers</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>8 Levels from $20 to $1,000</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>8 Tiers — Full Grid Earnings Breakdown</div>
         </div>
         <div style={{padding:'24px'}}>
+          <p style={{fontSize:13,color:'#64748b',lineHeight:1.7,marginBottom:20,maxWidth:650}}>
+            Each tier has its own 8×8 grid (64 seats). As members join and fill seats, you accumulate uni-level commissions on every single entry. When all 64 seats are filled, the grid completes, you receive the bonus pool, and the grid advances to the next cycle — where you earn it all again.
+          </p>
           <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
             {TIERS.map(function(t, i) {
-              var direct = (t.price * 0.40);
-              var perLevel = (t.price * 0.0625);
+              var directPer = (t.price * 0.40);
+              var uniTotal = (t.price * 0.0625 * 64);
+              var bonusPool = (t.price * 0.05 * 64);
+              var gridTotal = uniTotal + bonusPool;
               return (
                 <div key={i} style={{
-                  borderRadius:12,border:'1px solid #e8ecf2',overflow:'hidden',
+                  borderRadius:12,border:'1px solid #e8ecf2',overflow:'hidden',display:'flex',flexDirection:'column',
                   opacity:tierVis?1:0,transform:tierVis?'scale(1)':'scale(.9)',
                   transition:'all .5s ease',transitionDelay:(0.1+i*0.06)+'s',
                 }}>
@@ -588,19 +593,33 @@ function GridSection() {
                     <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'#fff'}}>${t.price}</div>
                     <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.8)'}}>{t.name}</div>
                   </div>
-                  <div style={{padding:'12px 14px'}}>
+                  <div style={{padding:'12px 14px',flex:1,display:'flex',flexDirection:'column'}}>
+                    {/* Direct per referral */}
                     <div style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
                       <span style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>DIRECT 40%</span>
-                      <span style={{fontSize:12,fontWeight:800,color:'#0ea5e9'}}>${direct.toFixed(2)}</span>
+                      <span style={{fontSize:12,fontWeight:800,color:'#0ea5e9'}}>${directPer.toFixed(0)} <span style={{fontSize:9,fontWeight:600,color:'#94a3b8'}}>per ref</span></span>
                     </div>
+                    {/* Uni-level full grid */}
                     <div style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
-                      <span style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>PER LEVEL</span>
-                      <span style={{fontSize:12,fontWeight:800,color:'#6366f1'}}>${perLevel.toFixed(2)}</span>
+                      <span style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>UNI-LEVEL ×64</span>
+                      <span style={{fontSize:12,fontWeight:800,color:'#6366f1'}}>${uniTotal.toLocaleString()}</span>
                     </div>
-                    <div style={{display:'flex',justifyContent:'space-between',padding:'6px 0'}}>
-                      <span style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>8 LEVELS</span>
-                      <span style={{fontSize:12,fontWeight:800,color:'#16a34a'}}>${(perLevel*8).toFixed(2)}</span>
+                    {/* Bonus pool */}
+                    <div style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
+                      <span style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>BONUS POOL</span>
+                      <span style={{fontSize:12,fontWeight:800,color:'#10b981'}}>${bonusPool.toLocaleString()}</span>
                     </div>
+                    {/* Total per grid */}
+                    <div style={{marginTop:'auto',paddingTop:10}}>
+                      <div style={{textAlign:'center',padding:'10px 8px',background:'linear-gradient(135deg,'+t.color+'10,'+t.color+'20)',borderRadius:8}}>
+                        <div style={{fontSize:9,fontWeight:800,color:t.color,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Per Grid Completion</div>
+                        <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:t.color}}>${gridTotal.toLocaleString()}</div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Advance note */}
+                  <div style={{padding:'8px 14px',background:'#f8f9fb',borderTop:'1px solid #e8ecf2',textAlign:'center'}}>
+                    <span style={{fontSize:9,fontWeight:700,color:'#94a3b8'}}>🔄 Repeats on every advance</span>
                   </div>
                 </div>
               );
