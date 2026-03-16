@@ -69,19 +69,19 @@ function AppRoutes() {
       <Route path="/video-library" element={<ProtectedRoute><VideoLibrary /></ProtectedRoute>} />
 
       {/* AI Marketing Tools */}
-      <Route path="/campaign-studio" element={<ProtectedRoute><AiTool title="Campaign Studio" subtitle="AI-powered campaign generator" apiEndpoint="/api/ai/campaign-studio"
+      <Route path="/campaign-studio" element={<ProtectedRoute><AiTool title="Campaign Studio" subtitle="AI-powered campaign generator" apiEndpoint="/api/campaign-studio/generate"
         fields={[{key:'niche',label:'Your Niche',placeholder:'e.g. crypto trading, fitness, real estate'},{key:'audience',label:'Target Audience',placeholder:'e.g. beginners, professionals, women 25-45'},{key:'tone',label:'Tone',type:'select',options:['Professional','Casual','Urgent','Inspirational','Educational']},{key:'goal',label:'Campaign Goal',type:'select',options:['Lead Generation','Sales','Brand Awareness','Recruitment']}]}
         resultLabel="Your Campaign" /></ProtectedRoute>} />
-      <Route path="/niche-finder" element={<ProtectedRoute><AiTool title="Niche Finder" subtitle="Discover profitable niches" apiEndpoint="/api/ai/niche-finder"
+      <Route path="/niche-finder" element={<ProtectedRoute><AiTool title="Niche Finder" subtitle="Discover profitable niches" apiEndpoint="/api/niche-finder/generate"
         fields={[{key:'interests',label:'Your Interests',placeholder:'e.g. health, technology, finance'},{key:'budget',label:'Budget Range',type:'select',options:['Under $500','$500-$2000','$2000-$5000','$5000+']},{key:'experience',label:'Experience Level',type:'select',options:['Beginner','Intermediate','Advanced']}]}
         resultLabel="Niche Recommendations" /></ProtectedRoute>} />
-      <Route path="/social-post-generator" element={<ProtectedRoute><AiTool title="Social Post Generator" subtitle="AI social media content" apiEndpoint="/api/ai/social-posts"
+      <Route path="/social-post-generator" element={<ProtectedRoute><AiTool title="Social Post Generator" subtitle="AI social media content" apiEndpoint="/api/social-posts/generate"
         fields={[{key:'topic',label:'Topic',placeholder:'What do you want to post about?'},{key:'platform',label:'Platform',type:'select',options:['Facebook','Instagram','X / Twitter','LinkedIn','TikTok']},{key:'tone',label:'Tone',type:'select',options:['Professional','Casual','Funny','Inspirational','Educational']}]}
         resultLabel="Your Social Post" /></ProtectedRoute>} />
-      <Route path="/video-script-generator" element={<ProtectedRoute><AiTool title="Video Script Generator" subtitle="AI video scripts" apiEndpoint="/api/ai/video-script"
+      <Route path="/video-script-generator" element={<ProtectedRoute><AiTool title="Video Script Generator" subtitle="AI video scripts" apiEndpoint="/api/video-scripts/generate"
         fields={[{key:'topic',label:'Video Topic',placeholder:'What is the video about?'},{key:'duration',label:'Target Duration',type:'select',options:['30 seconds','1 minute','2 minutes','5 minutes','10 minutes']},{key:'style',label:'Style',type:'select',options:['Tutorial','Testimonial','Sales Pitch','Educational','Story']}]}
         resultLabel="Your Video Script" /></ProtectedRoute>} />
-      <Route path="/email-swipes" element={<ProtectedRoute><AiTool title="Email Swipes" subtitle="AI email copy generator" apiEndpoint="/api/ai/email-swipes"
+      <Route path="/email-swipes" element={<ProtectedRoute><AiTool title="Email Swipes" subtitle="AI email copy generator" apiEndpoint="/api/swipe-file/generate"
         fields={[{key:'product',label:'Product/Service',placeholder:'What are you promoting?'},{key:'audience',label:'Target Audience',placeholder:'Who are you emailing?'},{key:'goal',label:'Email Goal',type:'select',options:['Welcome Sequence','Sales Email','Follow-Up','Re-engagement','Announcement']}]}
         resultLabel="Your Email" /></ProtectedRoute>} />
 
