@@ -99,6 +99,7 @@ function AppRoutes() {
       <Route path="/pro/leads" element={<ProtectedRoute><MyLeads /></ProtectedRoute>} />
       <Route path="/link-tools" element={<ProtectedRoute><LinkTools /></ProtectedRoute>} />
       <Route path="/passup-visualiser" element={<ProtectedRoute><PassupVisualiser /></ProtectedRoute>} />
+      <Route path="/network" element={<ProtectedRoute><MyNetwork /></ProtectedRoute>} />
       <Route path="/courses/commissions" element={<ProtectedRoute><MyNetwork /></ProtectedRoute>} />
       <Route path="/courses/how-it-works" element={<ProtectedRoute><HowCommissionsWork /></ProtectedRoute>} />
       <Route path="/ad-board" element={<ProtectedRoute><AdBoard /></ProtectedRoute>} />
