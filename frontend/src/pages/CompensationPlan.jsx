@@ -1018,7 +1018,7 @@ function CoursesSection() {
               <div style={{display:'flex',flexDirection:'column',gap:12}}>
                 {[
                   {text:'When you sell a course, you earn 100% of the sale price. No platform deduction on kept sales.',color:'#8b5cf6'},
-                  {text:'Sales 1, 3, 5, 7... (odd numbers) pass up to your direct sponsor. Sales 2, 4, 6, 8... are yours to keep.',color:'#f59e0b'},
+                  {text:'You keep your 1st, 3rd, 5th sale (odd numbers). Sales 2, 4, 6, 8... (even numbers) pass up to your direct sponsor.',color:'#f59e0b'},
                   {text:'When your sponsor receives a pass-up, it counts toward their own pattern — triggering their next pass-up upward.',color:'#10b981'},
                   {text:'This creates an infinite cascading chain. There is no level cap on pass-ups.',color:'#ec4899'},
                 ].map(function(s, i) {
@@ -1310,14 +1310,14 @@ function PassUpAnimator(props) {
   var timerRef = useRef(null);
 
   var sales = [
-    {n:1,action:'PASS UP',to:'Sponsor',color:'#f59e0b',kept:false},
-    {n:2,action:'YOU KEEP',to:'You',color:'#8b5cf6',kept:true},
-    {n:3,action:'PASS UP',to:'Sponsor',color:'#f59e0b',kept:false},
-    {n:4,action:'YOU KEEP',to:'You',color:'#8b5cf6',kept:true},
-    {n:5,action:'PASS UP',to:'Sponsor',color:'#f59e0b',kept:false},
-    {n:6,action:'YOU KEEP',to:'You',color:'#8b5cf6',kept:true},
-    {n:7,action:'PASS UP',to:'Sponsor',color:'#f59e0b',kept:false},
-    {n:8,action:'YOU KEEP',to:'You',color:'#8b5cf6',kept:true},
+    {n:1,action:'YOU KEEP',to:'You',color:'#8b5cf6',kept:true},
+    {n:2,action:'PASS UP',to:'Sponsor',color:'#f59e0b',kept:false},
+    {n:3,action:'YOU KEEP',to:'You',color:'#8b5cf6',kept:true},
+    {n:4,action:'PASS UP',to:'Sponsor',color:'#f59e0b',kept:false},
+    {n:5,action:'YOU KEEP',to:'You',color:'#8b5cf6',kept:true},
+    {n:6,action:'PASS UP',to:'Sponsor',color:'#f59e0b',kept:false},
+    {n:7,action:'YOU KEEP',to:'You',color:'#8b5cf6',kept:true},
+    {n:8,action:'PASS UP',to:'Sponsor',color:'#f59e0b',kept:false},
   ];
 
   function startAnim() {
