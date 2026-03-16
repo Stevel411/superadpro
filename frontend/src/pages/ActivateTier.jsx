@@ -6,11 +6,11 @@ import { useAuth } from '../hooks/useAuth';
 const TIERS = {
   1: { name:'Starter',     price:20,   views:'5,000',     monthly:'500',    bonus:64 },
   2: { name:'Builder',     price:50,   views:'15,000',    monthly:'1,500',  bonus:160 },
-  3: { name:'Accelerator', price:100,  views:'35,000',    monthly:'5,000',  bonus:320 },
+  3: { name:'Pro',         price:100,  views:'35,000',    monthly:'5,000',  bonus:320 },
   4: { name:'Advanced',    price:200,  views:'80,000',    monthly:'10,000', bonus:640 },
-  5: { name:'Elite',       price:300,  views:'150,000',   monthly:'20,000', bonus:960 },
-  6: { name:'Premium',     price:500,  views:'250,000',   monthly:'30,000', bonus:1600 },
-  7: { name:'Executive',   price:750,  views:'400,000',   monthly:'40,000', bonus:2400 },
+  5: { name:'Elite',       price:400,  views:'150,000',   monthly:'20,000', bonus:1280 },
+  6: { name:'Premium',     price:600,  views:'250,000',   monthly:'30,000', bonus:1920 },
+  7: { name:'Executive',   price:800,  views:'400,000',   monthly:'40,000', bonus:2560 },
   8: { name:'Ultimate',    price:1000, views:'600,000',   monthly:'50,000', bonus:3200 },
 };
 
@@ -96,8 +96,8 @@ export default function ActivateTier() {
           boxShadow:'0 2px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03)',
           overflow:'hidden', marginBottom:20,
         }}>
-          <div style={{padding:'16px 24px',borderBottom:'1px solid #f1f3f7'}}>
-            <div style={{fontSize:16,fontWeight:800,color:'#0f172a'}}>What You Get</div>
+          <div style={{background:'#1c223d',padding:'16px 24px'}}>
+            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>What You Get</div>
           </div>
           <div style={{padding:'20px 24px'}}>
             {[
@@ -124,8 +124,8 @@ export default function ActivateTier() {
           boxShadow:'0 2px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03)',
           overflow:'hidden', marginBottom:20,
         }}>
-          <div style={{padding:'16px 24px',borderBottom:'1px solid #f1f3f7'}}>
-            <div style={{fontSize:16,fontWeight:800,color:'#0f172a'}}>How Your Campaign Works</div>
+          <div style={{background:'#1c223d',padding:'16px 24px'}}>
+            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>How Your Campaign Works</div>
           </div>
           <div style={{padding:'20px 24px'}}>
             {[
@@ -147,8 +147,8 @@ export default function ActivateTier() {
           boxShadow:'0 2px 8px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03)',
           overflow:'hidden', marginBottom:24,
         }}>
-          <div style={{padding:'16px 24px',borderBottom:'1px solid #f1f3f7'}}>
-            <div style={{fontSize:16,fontWeight:800,color:'#0f172a'}}>Commission Breakdown</div>
+          <div style={{background:'#1c223d',padding:'16px 24px'}}>
+            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Commission Breakdown</div>
           </div>
           <div style={{padding:'16px 24px'}}>
             {[
