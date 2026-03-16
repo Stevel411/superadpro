@@ -2,11 +2,49 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
 import en from './locales/en.json';
+import es from './locales/es.json';
+import fr from './locales/fr.json';
+import pt from './locales/pt.json';
+import de from './locales/de.json';
+import it from './locales/it.json';
+import nl from './locales/nl.json';
+import ru from './locales/ru.json';
+import ar from './locales/ar.json';
+import zh from './locales/zh.json';
+import hi from './locales/hi.json';
+import ja from './locales/ja.json';
+import ko from './locales/ko.json';
+import tr from './locales/tr.json';
+import pl from './locales/pl.json';
+import vi from './locales/vi.json';
+import th from './locales/th.json';
+import id from './locales/id.json';
+import tl from './locales/tl.json';
+import sw from './locales/sw.json';
 
-// Language files will be loaded dynamically
-var resources = { en: { translation: en } };
+var resources = {
+  en: { translation: en },
+  es: { translation: es },
+  fr: { translation: fr },
+  pt: { translation: pt },
+  de: { translation: de },
+  it: { translation: it },
+  nl: { translation: nl },
+  ru: { translation: ru },
+  ar: { translation: ar },
+  zh: { translation: zh },
+  hi: { translation: hi },
+  ja: { translation: ja },
+  ko: { translation: ko },
+  tr: { translation: tr },
+  pl: { translation: pl },
+  vi: { translation: vi },
+  th: { translation: th },
+  id: { translation: id },
+  tl: { translation: tl },
+  sw: { translation: sw },
+};
 
-// Detect saved language or default to English
 var savedLang = 'en';
 try { savedLang = localStorage.getItem('superadpro-lang') || 'en'; } catch(e) {}
 
@@ -18,24 +56,9 @@ i18n.use(initReactI18next).init({
   react: { useSuspense: false },
 });
 
-// Dynamic language loader — loads language files on demand
-var loadedLangs = { en: true };
-
 export function changeLanguage(code) {
-  if (loadedLangs[code]) {
-    i18n.changeLanguage(code);
-    try { localStorage.setItem('superadpro-lang', code); } catch(e) {}
-    return Promise.resolve();
-  }
-  return import('./locales/' + code + '.json').then(function(mod) {
-    i18n.addResourceBundle(code, 'translation', mod.default || mod);
-    loadedLangs[code] = true;
-    i18n.changeLanguage(code);
-    try { localStorage.setItem('superadpro-lang', code); } catch(e) {}
-  }).catch(function(err) {
-    console.warn('Language file not found:', code, err);
-    i18n.changeLanguage('en');
-  });
+  i18n.changeLanguage(code);
+  try { localStorage.setItem('superadpro-lang', code); } catch(e) {}
 }
 
 export var LANGUAGES = [
