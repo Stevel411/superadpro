@@ -361,6 +361,7 @@ function CampaignDashboard({ campaign, onBack }) {
     {key:'videos',label:'Video Scripts',icon:Film},
     {key:'ads',label:'Ad Copy',icon:FileText},
     {key:'strategy',label:'Strategy',icon:BarChart3},
+    {key:'agent',label:'AI Sales Agent',icon:MessageCircle},
   ];
 
   return (
@@ -423,6 +424,7 @@ function CampaignDashboard({ campaign, onBack }) {
       {tab === 'videos' && <VideosTab scripts={c.video_scripts}/>}
       {tab === 'ads' && <AdsTab ads={c.ad_copy}/>}
       {tab === 'strategy' && <StrategyTab strategy={c.strategy}/>}
+      {tab === 'agent' && <AgentTab campaignId={c.id} funnelUrl={c.funnel_url}/>}
     </div>
   );
 }
@@ -595,6 +597,129 @@ function StrategyTab({ strategy }) {
         </div>
       )}
       {!s.overview && daily.length === 0 && <div style={{padding:'40px',textAlign:'center',color:'#94a3b8',fontSize:13}}>Generating strategy...</div>}
+    </div>
+  );
+}
+
+function AgentTab({ campaignId, funnelUrl }) {
+  var [messages, setMessages] = useState([
+    {role:'assistant', content:"Hi there! 👋 I'm the SuperAdPro assistant. I can answer any questions about the platform, tools, pricing, or how it all works. What would you like to know?"}
+  ]);
+  var [input, setInput] = useState('');
+  var [sending, setSending] = useState(false);
+  var [codeCopied, setCodeCopied] = useState(false);
+
+  var embedCode = '<script src="' + window.location.origin + '/static/js/superseller-chat.js" data-campaign="' + campaignId + '"><\/script>';
+
+  function send() {
+    if (!input.trim() || sending) return;
+    var msg = input.trim();
+    setInput('');
+    setMessages(function(prev) { return prev.concat([{role:'user', content:msg}]); });
+    setSending(true);
+
+    fetch('/api/superseller/chat/' + campaignId, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({message:msg, history:messages}),
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      setMessages(function(prev) { return prev.concat([{role:'assistant', content:data.reply || 'Sorry, try again.'}]); });
+      setSending(false);
+    }).catch(function() {
+      setMessages(function(prev) { return prev.concat([{role:'assistant', content:'Had a hiccup — try again!'}]); });
+      setSending(false);
+    });
+  }
+
+  function copyCode() {
+    navigator.clipboard.writeText(embedCode);
+    setCodeCopied(true);
+    setTimeout(function() { setCodeCopied(false); }, 2000);
+  }
+
+  return (
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,alignItems:'start'}}>
+      {/* Left — Live test chat */}
+      <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
+        <div style={{background:'linear-gradient(135deg,#1c223d,#0f172a)',padding:'14px 18px',display:'flex',alignItems:'center',gap:8}}>
+          <MessageCircle size={16} color="#a78bfa"/>
+          <span style={{fontSize:14,fontWeight:800,color:'#fff'}}>Test Your AI Sales Agent</span>
+        </div>
+        <div style={{height:340,overflowY:'auto',padding:14,display:'flex',flexDirection:'column',gap:8,background:'#f8f9fb'}}>
+          {messages.map(function(m,i) {
+            var isBot = m.role === 'assistant';
+            return (
+              <div key={i} style={{alignSelf:isBot?'flex-start':'flex-end',maxWidth:'85%',padding:'10px 14px',borderRadius:12,
+                background:isBot?'#fff':'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:isBot?'#334155':'#fff',
+                border:isBot?'1px solid #e8ecf2':'none',fontSize:13,lineHeight:1.6,
+                borderBottomLeftRadius:isBot?4:12,borderBottomRightRadius:isBot?12:4}}>
+                {m.content}
+              </div>
+            );
+          })}
+          {sending && (
+            <div style={{alignSelf:'flex-start',padding:'10px 14px',background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,borderBottomLeftRadius:4,display:'flex',gap:4}}>
+              <span style={{width:6,height:6,borderRadius:'50%',background:'#94a3b8',animation:'bounce .6s infinite'}}/>
+              <span style={{width:6,height:6,borderRadius:'50%',background:'#94a3b8',animation:'bounce .6s infinite .15s'}}/>
+              <span style={{width:6,height:6,borderRadius:'50%',background:'#94a3b8',animation:'bounce .6s infinite .3s'}}/>
+            </div>
+          )}
+        </div>
+        <div style={{display:'flex',gap:8,padding:12,borderTop:'1px solid #e8ecf2'}}>
+          <input value={input} onChange={function(e) { setInput(e.target.value); }}
+            onKeyDown={function(e) { if (e.key === 'Enter') send(); }}
+            placeholder="Ask a question as a prospect would..."
+            style={{flex:1,padding:'10px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,outline:'none',fontFamily:'inherit'}}/>
+          <button onClick={send} disabled={sending}
+            style={{padding:'10px 18px',borderRadius:10,border:'none',background:'#8b5cf6',color:'#fff',fontSize:12,fontWeight:700,cursor:sending?'default':'pointer',fontFamily:'inherit',opacity:sending?0.5:1}}>
+            Send
+          </button>
+        </div>
+        <style>{'@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}'}</style>
+      </div>
+
+      {/* Right — Setup info and embed code */}
+      <div style={{display:'flex',flexDirection:'column',gap:14}}>
+        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
+          <div style={{background:'#1c223d',padding:'14px 18px'}}>
+            <span style={{fontSize:14,fontWeight:800,color:'#fff'}}>How the AI Agent Works</span>
+          </div>
+          <div style={{padding:'18px'}}>
+            {[
+              {icon:'💬',title:'24/7 Sales Conversations',desc:'The AI agent answers prospect questions instantly — pricing, features, how it works, objections — all trained on SuperAdPro.'},
+              {icon:'🎯',title:'Tailored to Your Campaign',desc:'The agent knows your niche, audience, and funnel URL. It guides prospects naturally toward signing up through YOUR link.'},
+              {icon:'🛡️',title:'Compliance Built In',desc:'Never makes income guarantees. Focuses on platform value and tools. Honest, helpful, and professional.'},
+              {icon:'⚡',title:'Powered by Claude AI',desc:'Uses the same AI technology behind this platform — fast, accurate, and conversational.'},
+            ].map(function(item,i) {
+              return (
+                <div key={i} style={{display:'flex',gap:12,marginBottom:i<3?14:0}}>
+                  <div style={{fontSize:20,flexShrink:0}}>{item.icon}</div>
+                  <div>
+                    <div style={{fontSize:13,fontWeight:800,color:'#0f172a',marginBottom:2}}>{item.title}</div>
+                    <div style={{fontSize:12,color:'#64748b',lineHeight:1.6}}>{item.desc}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
+          <div style={{background:'#1c223d',padding:'14px 18px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+            <span style={{fontSize:14,fontWeight:800,color:'#fff'}}>Embed Code</span>
+            <button onClick={copyCode}
+              style={{display:'flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,color:codeCopied?'#4ade80':'rgba(255,255,255,.5)',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit'}}>
+              {codeCopied ? <><Check size={12}/> Copied</> : <><Copy size={12}/> Copy</>}
+            </button>
+          </div>
+          <div style={{padding:'14px 18px'}}>
+            <div style={{fontSize:11,color:'#64748b',marginBottom:8}}>Add this script to any webpage to enable the AI chatbot:</div>
+            <div style={{padding:'12px',background:'#0f172a',borderRadius:8,fontFamily:'monospace',fontSize:11,color:'#38bdf8',lineHeight:1.6,wordBreak:'break-all'}}>
+              {embedCode}
+            </div>
+            <div style={{fontSize:10,color:'#94a3b8',marginTop:8}}>The chatbot automatically appears as a floating bubble on the bottom-right of the page. It's already active on your join funnel link.</div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -11702,6 +11702,240 @@ def _extract_json(text: str) -> str:
 
 
 # ═══════════════════════════════════════════════════════════════
+#  SUPERSELLER PHASE 2 — Brevo Email Automation
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/superseller/campaign/{campaign_id}/activate-emails")
+async def api_superseller_activate_emails(campaign_id: int, request: Request,
+                                           user: User = Depends(get_current_user),
+                                           db: Session = Depends(get_db)):
+    """Create Brevo contact list and set up email automation for this campaign."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import SuperSellerCampaign
+    import json as _json
+
+    c = db.query(SuperSellerCampaign).filter(
+        SuperSellerCampaign.id == campaign_id,
+        SuperSellerCampaign.user_id == user.id
+    ).first()
+    if not c:
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+
+    brevo_key = os.getenv("BREVO_API_KEY", "")
+    if not brevo_key:
+        return JSONResponse({"error": "Email service not configured"}, status_code=503)
+
+    try:
+        # Create a Brevo contact list for this campaign
+        list_name = f"SuperSeller-{user.username}-{c.niche[:30]}-{c.id}"
+        list_payload = json.dumps({"name": list_name, "folderId": 1}).encode("utf-8")
+        req = urllib.request.Request(
+            "https://api.brevo.com/v3/contacts/lists",
+            data=list_payload,
+            headers={"accept": "application/json", "api-key": brevo_key, "content-type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            list_data = json.loads(resp.read())
+            c.brevo_list_id = list_data.get("id")
+            db.commit()
+
+        return {"success": True, "brevo_list_id": c.brevo_list_id, "list_name": list_name}
+    except Exception as e:
+        logger.error(f"SuperSeller Brevo list creation failed: {e}")
+        return JSONResponse({"error": f"Email setup failed: {str(e)}"}, status_code=500)
+
+
+@app.post("/api/superseller/lead-capture/{campaign_id}")
+async def api_superseller_lead_capture(campaign_id: int, request: Request,
+                                        db: Session = Depends(get_db)):
+    """Capture a lead from a SuperSeller funnel page — adds to Brevo + tracks."""
+    from .database import SuperSellerCampaign, MemberLead
+    import json as _json
+
+    body = await request.json()
+    email = (body.get("email") or "").strip().lower()
+    name = (body.get("name") or "").strip()[:100]
+
+    if not email or "@" not in email:
+        return JSONResponse({"error": "Valid email required"}, status_code=400)
+
+    c = db.query(SuperSellerCampaign).filter(SuperSellerCampaign.id == campaign_id).first()
+    if not c:
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+
+    # Create lead record
+    lead = MemberLead(
+        user_id=c.user_id, email=email, name=name,
+        source_url=f"superseller-{campaign_id}", status="new", is_hot=False,
+    )
+    db.add(lead)
+    c.leads_count = (c.leads_count or 0) + 1
+    db.commit()
+
+    # Add to Brevo contact list
+    brevo_key = os.getenv("BREVO_API_KEY", "")
+    if brevo_key and c.brevo_list_id:
+        try:
+            list_ids = [c.brevo_list_id]
+            contact_payload = json.dumps({
+                "email": email,
+                "attributes": {"FIRSTNAME": name, "SUPERSELLER_CAMPAIGN": str(c.id), "NICHE": c.niche},
+                "listIds": list_ids, "updateEnabled": True,
+            }).encode("utf-8")
+            req = urllib.request.Request(
+                "https://api.brevo.com/v3/contacts",
+                data=contact_payload,
+                headers={"accept": "application/json", "api-key": brevo_key, "content-type": "application/json"},
+                method="POST",
+            )
+            urllib.request.urlopen(req, timeout=10)
+        except Exception as e:
+            logger.error(f"SuperSeller Brevo contact add failed: {e}")
+
+    # Trigger email sequence (send welcome email immediately)
+    try:
+        emails = _json.loads(c.email_sequence_json) if c.email_sequence_json else []
+        if emails and len(emails) > 0:
+            _send_superseller_email(email, name, emails[0], c, db)
+    except Exception as e:
+        logger.error(f"SuperSeller welcome email failed: {e}")
+
+    # Notify the campaign owner
+    send_notification(db, c.user_id, "lead", "🎯",
+        f"New lead captured: {name or email}",
+        f"A new lead signed up through your SuperSeller funnel for '{c.niche}'. Check your SuperSeller dashboard.")
+
+    return {"success": True, "message": "Lead captured"}
+
+
+def _send_superseller_email(to_email: str, to_name: str, email_data: dict,
+                             campaign, db):
+    """Send a SuperSeller sequence email via Brevo transactional API."""
+    brevo_key = os.getenv("BREVO_API_KEY", "")
+    if not brevo_key:
+        return
+
+    subject = email_data.get("subject", "Welcome")
+    body = email_data.get("body", email_data.get("content", ""))
+
+    # Replace funnel URL placeholder
+    if campaign.funnel_url:
+        body = body.replace("{{funnel_url}}", campaign.funnel_url)
+        body = body.replace("{funnel_url}", campaign.funnel_url)
+
+    try:
+        payload = json.dumps({
+            "sender": {"name": "SuperAdPro", "email": os.getenv("BREVO_SENDER_EMAIL", "hello@superadpro.com")},
+            "to": [{"email": to_email, "name": to_name}],
+            "subject": subject,
+            "htmlContent": body,
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            "https://api.brevo.com/v3/smtp/email",
+            data=payload,
+            headers={"accept": "application/json", "api-key": brevo_key, "content-type": "application/json"},
+            method="POST",
+        )
+        urllib.request.urlopen(req, timeout=15)
+    except Exception as e:
+        logger.error(f"SuperSeller email send failed: {e}")
+
+
+# ═══════════════════════════════════════════════════════════════
+#  SUPERSELLER PHASE 3 — AI Sales Agent Chatbot
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/superseller/chat/{campaign_id}")
+async def api_superseller_chat(campaign_id: int, request: Request,
+                                db: Session = Depends(get_db)):
+    """AI Sales Agent — responds to prospect questions about SuperAdPro.
+    This endpoint is PUBLIC (no auth) — prospects use it from the funnel page."""
+    from .database import SuperSellerCampaign
+
+    body = await request.json()
+    message = (body.get("message") or "").strip()[:2000]
+    history = body.get("history", [])[:20]  # Max 20 previous messages
+
+    if not message:
+        return JSONResponse({"error": "Message required"}, status_code=400)
+
+    c = db.query(SuperSellerCampaign).filter(SuperSellerCampaign.id == campaign_id).first()
+    if not c:
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+
+    # Get campaign owner info
+    owner = db.query(User).filter(User.id == c.user_id).first()
+    owner_name = owner.first_name or owner.username if owner else "a SuperAdPro member"
+
+    system_prompt = f"""You are the AI Sales Assistant for SuperAdPro, helping prospects who are
+considering joining the platform. You're embedded on {owner_name}'s referral page.
+
+ABOUT SUPERADPRO:
+- Video advertising and AI marketing platform
+- Members get: video ad campaigns (8 tiers, $20-$1,000), AI marketing tools (Campaign Studio,
+  Social Post Generator, Video Script Writer, Niche Finder, Email Swipes), SuperPages landing
+  page builder, LinkHub link-in-bio tool, Link Tools (short links, QR codes, UTM tracking),
+  course marketplace (create and sell courses)
+- Basic plan: $20/month — all core tools
+- Pro plan: $30/month — adds SuperSeller AI autopilot, SuperPages, ProSeller AI, My Leads dashboard,
+  course creation
+- Affiliate commissions: 50% recurring on membership referrals, 40% direct sponsor on grid tiers,
+  6.25% uni-level across 8 levels, 100% on course sales (pass-up model)
+- The platform is designed for entrepreneurs, marketers, content creators, and anyone looking to
+  advertise their business or earn additional income online
+
+CAMPAIGN CONTEXT:
+- Niche: {c.niche}
+- Target audience: {c.audience}
+- Funnel URL: {c.funnel_url}
+
+YOUR ROLE:
+- Be helpful, honest, and enthusiastic but NOT pushy or misleading
+- Answer questions about the platform, pricing, tools, and how it works
+- NEVER make income guarantees or promise specific earnings
+- If asked about earnings, explain the commission structure factually and add that results depend on individual effort
+- Encourage the prospect to sign up through the funnel link: {c.funnel_url}
+- Keep responses concise (2-4 sentences usually) unless they ask for detail
+- If you don't know something, say so honestly
+- Be conversational and natural — not robotic or overly formal"""
+
+    # Build conversation messages
+    messages = []
+    for h in history[-10:]:  # Last 10 messages for context
+        if h.get("role") in ("user", "assistant"):
+            messages.append({"role": h["role"], "content": h["content"][:1000]})
+    messages.append({"role": "user", "content": message})
+
+    try:
+        reply = await _call_ai_with_system(system_prompt, messages, model="claude-haiku-4-5-20251001")
+        return {"reply": reply}
+    except Exception as e:
+        logger.error(f"SuperSeller AI chat failed: {e}")
+        return {"reply": "I'm having a moment — could you try asking again? I'm here to help you learn about SuperAdPro!"}
+
+
+async def _call_ai_with_system(system: str, messages: list, model: str = "claude-haiku-4-5-20251001") -> str:
+    """Call Claude API with system prompt and conversation history."""
+    import httpx
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return "Our AI assistant is being set up. Please check back shortly!"
+    async with httpx.AsyncClient(timeout=30) as client:
+        resp = await client.post("https://api.anthropic.com/v1/messages", headers={
+            "x-api-key": api_key, "anthropic-version": "2023-06-01", "content-type": "application/json",
+        }, json={
+            "model": model, "max_tokens": 500, "system": system,
+            "messages": messages,
+        })
+        data = resp.json()
+        if "content" in data and len(data["content"]) > 0:
+            return data["content"][0].get("text", "")
+        return "I'm here to help! What would you like to know about SuperAdPro?"
+
+
+# ═══════════════════════════════════════════════════════════════
 #  REACT SPA — Serve the built React frontend
 # ═══════════════════════════════════════════════════════════════
 import pathlib
