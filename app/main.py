@@ -11449,6 +11449,30 @@ async def api_superseller_create(request: Request, user: User = Depends(get_curr
     if user.membership_tier != "pro" and not user.is_admin:
         return JSONResponse({"error": "SuperSeller requires Pro membership"}, status_code=403)
 
+    from .database import SuperSellerCampaign
+
+    # ── Rate limits ──
+    MAX_AGENTS = 5
+    MAX_GENERATIONS_PER_MONTH = 5
+
+    # Check total agents
+    total_agents = db.query(SuperSellerCampaign).filter(
+        SuperSellerCampaign.user_id == user.id,
+        SuperSellerCampaign.status != "failed"
+    ).count()
+    if total_agents >= MAX_AGENTS and not user.is_admin:
+        return JSONResponse({"error": f"Maximum {MAX_AGENTS} campaigns allowed. Delete an existing campaign to create a new one."}, status_code=429)
+
+    # Check monthly generation limit
+    from datetime import datetime, timedelta
+    month_ago = datetime.utcnow() - timedelta(days=30)
+    recent_gens = db.query(SuperSellerCampaign).filter(
+        SuperSellerCampaign.user_id == user.id,
+        SuperSellerCampaign.created_at >= month_ago
+    ).count()
+    if recent_gens >= MAX_GENERATIONS_PER_MONTH and not user.is_admin:
+        return JSONResponse({"error": f"Maximum {MAX_GENERATIONS_PER_MONTH} campaign generations per month. Try again next month or delete unused campaigns."}, status_code=429)
+
     body = await request.json()
     niche = (body.get("niche") or "").strip()[:200]
     audience = (body.get("audience") or "").strip()[:500]
@@ -11569,9 +11593,13 @@ def api_superseller_campaigns(request: Request, user: User = Depends(get_current
     return {"campaigns": [{
         "id": c.id, "niche": c.niche, "audience": c.audience,
         "tone": c.tone, "goal": c.goal, "funnel_url": c.funnel_url,
+        "campaign_type": c.campaign_type or "superadpro",
+        "offer_name": c.offer_name, "offer_url": c.offer_url,
+        "agent_name": c.agent_name,
         "status": c.status, "leads_count": c.leads_count or 0,
         "conversions_count": c.conversions_count or 0,
         "link_clicks": c.link_clicks or 0,
+        "chat_conversations": c.chat_conversations or 0,
         "created_at": c.created_at.isoformat() if c.created_at else None,
     } for c in campaigns]}
 
@@ -11600,6 +11628,13 @@ def api_superseller_detail(campaign_id: int, request: Request,
     return {
         "id": c.id, "niche": c.niche, "audience": c.audience,
         "tone": c.tone, "goal": c.goal, "funnel_url": c.funnel_url,
+        "campaign_type": c.campaign_type or "superadpro",
+        "offer_name": c.offer_name, "offer_url": c.offer_url,
+        "offer_description": c.offer_description,
+        "offer_pricing": c.offer_pricing,
+        "offer_benefits": c.offer_benefits,
+        "agent_name": c.agent_name,
+        "agent_greeting": c.agent_greeting,
         "status": c.status,
         "social_posts": safe_json(c.social_posts_json),
         "email_sequence": safe_json(c.email_sequence_json),
@@ -11611,6 +11646,7 @@ def api_superseller_detail(campaign_id: int, request: Request,
         "conversions_count": c.conversions_count or 0,
         "link_clicks": c.link_clicks or 0,
         "page_views": c.page_views or 0,
+        "chat_conversations": c.chat_conversations or 0,
         "created_at": c.created_at.isoformat() if c.created_at else None,
     }
 
@@ -11649,6 +11685,25 @@ def api_superseller_today(campaign_id: int, request: Request,
         "funnel_url": c.funnel_url,
         "total_days": 30,
     }
+
+
+@app.delete("/api/superseller/campaign/{campaign_id}")
+def api_superseller_delete(campaign_id: int, request: Request,
+                            user: User = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
+    """Delete a SuperSeller campaign to free up a slot."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import SuperSellerCampaign
+    c = db.query(SuperSellerCampaign).filter(
+        SuperSellerCampaign.id == campaign_id,
+        SuperSellerCampaign.user_id == user.id
+    ).first()
+    if not c:
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+    db.delete(c)
+    db.commit()
+    return {"success": True, "message": "Campaign deleted"}
 
 
 async def _call_ai(prompt: str, model: str = "claude-sonnet-4-20250514") -> str:
@@ -11847,16 +11902,76 @@ def _send_superseller_email(to_email: str, to_name: str, email_data: dict,
 #  SUPERSELLER PHASE 3 — AI Sales Agent Chatbot
 # ═══════════════════════════════════════════════════════════════
 
+@app.post("/api/superseller/create-custom-agent")
+async def api_superseller_create_custom_agent(request: Request, user: User = Depends(get_current_user),
+                                               db: Session = Depends(get_db)):
+    """Create a custom AI sales agent for ANY offer — not just SuperAdPro."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if user.membership_tier != "pro" and not user.is_admin:
+        return JSONResponse({"error": "Custom AI Agents require Pro membership"}, status_code=403)
+
+    from .database import SuperSellerCampaign
+
+    # ── Rate limits (shared with SuperAdPro campaigns) ──
+    MAX_AGENTS = 5
+    total_agents = db.query(SuperSellerCampaign).filter(
+        SuperSellerCampaign.user_id == user.id,
+        SuperSellerCampaign.status != "failed"
+    ).count()
+    if total_agents >= MAX_AGENTS and not user.is_admin:
+        return JSONResponse({"error": f"Maximum {MAX_AGENTS} agents/campaigns allowed. Delete an existing one to create a new one."}, status_code=429)
+
+    body = await request.json()
+    offer_name = (body.get("offer_name") or "").strip()[:200]
+    offer_url = (body.get("offer_url") or "").strip()[:500]
+    offer_description = (body.get("offer_description") or "").strip()[:5000]
+    offer_pricing = (body.get("offer_pricing") or "").strip()[:1000]
+    offer_benefits = (body.get("offer_benefits") or "").strip()[:3000]
+    offer_objections = (body.get("offer_objections") or "").strip()[:3000]
+    offer_extra = (body.get("offer_extra_context") or "").strip()[:3000]
+    agent_name = (body.get("agent_name") or "AI Assistant").strip()[:100]
+    agent_greeting = (body.get("agent_greeting") or "").strip()[:500]
+    tone = (body.get("tone") or "professional").strip()[:50]
+    niche = (body.get("niche") or offer_name).strip()[:200]
+
+    if not offer_name:
+        return JSONResponse({"error": "Offer name is required"}, status_code=400)
+    if not offer_url:
+        return JSONResponse({"error": "Offer URL is required"}, status_code=400)
+    if not offer_description:
+        return JSONResponse({"error": "Offer description is required"}, status_code=400)
+
+    from .database import SuperSellerCampaign
+    campaign = SuperSellerCampaign(
+        user_id=user.id, campaign_type="custom",
+        niche=niche, tone=tone, goal="direct_sales",
+        offer_name=offer_name, offer_url=offer_url,
+        offer_description=offer_description, offer_pricing=offer_pricing,
+        offer_benefits=offer_benefits, offer_objections=offer_objections,
+        offer_extra_context=offer_extra,
+        agent_name=agent_name,
+        agent_greeting=agent_greeting or f"Hi! 👋 I'm here to answer any questions about {offer_name}. What would you like to know?",
+        funnel_url=offer_url, status="active",
+    )
+    db.add(campaign)
+    db.commit()
+    db.refresh(campaign)
+
+    return {"success": True, "campaign_id": campaign.id, "status": "active"}
+
+
 @app.post("/api/superseller/chat/{campaign_id}")
 async def api_superseller_chat(campaign_id: int, request: Request,
                                 db: Session = Depends(get_db)):
-    """AI Sales Agent — responds to prospect questions about SuperAdPro.
-    This endpoint is PUBLIC (no auth) — prospects use it from the funnel page."""
+    """AI Sales Agent — responds to prospect questions.
+    Supports both SuperAdPro campaigns AND custom offer agents.
+    This endpoint is PUBLIC (no auth) — prospects use it from any page."""
     from .database import SuperSellerCampaign
 
     body = await request.json()
     message = (body.get("message") or "").strip()[:2000]
-    history = body.get("history", [])[:20]  # Max 20 previous messages
+    history = body.get("history", [])[:20]
 
     if not message:
         return JSONResponse({"error": "Message required"}, status_code=400)
@@ -11865,26 +11980,70 @@ async def api_superseller_chat(campaign_id: int, request: Request,
     if not c:
         return JSONResponse({"error": "Campaign not found"}, status_code=404)
 
-    # Get campaign owner info
-    owner = db.query(User).filter(User.id == c.user_id).first()
-    owner_name = owner.first_name or owner.username if owner else "a SuperAdPro member"
+    # ── Daily chat rate limit: 50 messages per agent per day ──
+    MAX_CHATS_PER_DAY = 50
+    from datetime import datetime, timedelta
+    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    # Use chat_conversations as a simple daily counter — resets conceptually per day
+    # For a more precise approach we'd track per-message timestamps, but this is cost-effective
+    daily_count = c.chat_conversations or 0
+    # Reset counter if it's a new day (check updated_at)
+    if c.updated_at and c.updated_at < today_start:
+        c.chat_conversations = 0
+        daily_count = 0
+        db.commit()
 
-    system_prompt = f"""You are the AI Sales Assistant for SuperAdPro, helping prospects who are
+    if daily_count >= MAX_CHATS_PER_DAY:
+        return {"reply": "I've been really busy today! Please come back tomorrow or visit the offer page directly to learn more."}
+
+    # Track conversation count
+    c.chat_conversations = (c.chat_conversations or 0) + 1
+    db.commit()
+
+    owner = db.query(User).filter(User.id == c.user_id).first()
+    owner_name = owner.first_name or owner.username if owner else "a member"
+
+    # Build system prompt based on campaign type
+    if c.campaign_type == "custom":
+        system_prompt = f"""You are "{c.agent_name or 'AI Assistant'}", a helpful sales assistant for {c.offer_name}.
+You're embedded on a page by {owner_name} to help prospects learn about this offer.
+
+ABOUT THE OFFER:
+Name: {c.offer_name}
+URL: {c.offer_url}
+Description: {c.offer_description or 'Not provided'}
+Pricing: {c.offer_pricing or 'Contact for pricing'}
+Key Benefits: {c.offer_benefits or 'Not specified'}
+
+COMMON OBJECTIONS & ANSWERS:
+{c.offer_objections or 'Handle objections by focusing on the benefits and value.'}
+
+ADDITIONAL CONTEXT:
+{c.offer_extra_context or 'None provided.'}
+
+YOUR ROLE:
+- Be helpful, honest, and enthusiastic but NOT pushy
+- Answer questions about the offer naturally and conversationally
+- If you don't know something specific, be honest and suggest they check the offer page
+- Guide prospects to take action via this link: {c.offer_url}
+- Keep responses concise (2-4 sentences) unless asked for detail
+- Use a {c.tone or 'professional'} tone
+- NEVER invent features or pricing that weren't provided to you
+- NEVER make income or results guarantees"""
+    else:
+        # SuperAdPro campaign (original behavior)
+        system_prompt = f"""You are the AI Sales Assistant for SuperAdPro, helping prospects who are
 considering joining the platform. You're embedded on {owner_name}'s referral page.
 
 ABOUT SUPERADPRO:
 - Video advertising and AI marketing platform
 - Members get: video ad campaigns (8 tiers, $20-$1,000), AI marketing tools (Campaign Studio,
   Social Post Generator, Video Script Writer, Niche Finder, Email Swipes), SuperPages landing
-  page builder, LinkHub link-in-bio tool, Link Tools (short links, QR codes, UTM tracking),
-  course marketplace (create and sell courses)
+  page builder, LinkHub link-in-bio tool, Link Tools, course marketplace
 - Basic plan: $20/month — all core tools
-- Pro plan: $30/month — adds SuperSeller AI autopilot, SuperPages, ProSeller AI, My Leads dashboard,
-  course creation
-- Affiliate commissions: 50% recurring on membership referrals, 40% direct sponsor on grid tiers,
+- Pro plan: $30/month — adds SuperSeller AI autopilot, SuperPages, ProSeller AI, custom AI agents
+- Affiliate commissions: 50% recurring on membership, 40% direct on grid tiers,
   6.25% uni-level across 8 levels, 100% on course sales (pass-up model)
-- The platform is designed for entrepreneurs, marketers, content creators, and anyone looking to
-  advertise their business or earn additional income online
 
 CAMPAIGN CONTEXT:
 - Niche: {c.niche}
@@ -11892,18 +12051,15 @@ CAMPAIGN CONTEXT:
 - Funnel URL: {c.funnel_url}
 
 YOUR ROLE:
-- Be helpful, honest, and enthusiastic but NOT pushy or misleading
+- Be helpful, honest, and enthusiastic but NOT pushy
 - Answer questions about the platform, pricing, tools, and how it works
 - NEVER make income guarantees or promise specific earnings
-- If asked about earnings, explain the commission structure factually and add that results depend on individual effort
-- Encourage the prospect to sign up through the funnel link: {c.funnel_url}
-- Keep responses concise (2-4 sentences usually) unless they ask for detail
-- If you don't know something, say so honestly
-- Be conversational and natural — not robotic or overly formal"""
+- Encourage the prospect to sign up through: {c.funnel_url}
+- Keep responses concise (2-4 sentences) unless asked for detail
+- Be conversational and natural"""
 
-    # Build conversation messages
     messages = []
-    for h in history[-10:]:  # Last 10 messages for context
+    for h in history[-10:]:
         if h.get("role") in ("user", "assistant"):
             messages.append({"role": h["role"], "content": h["content"][:1000]})
     messages.append({"role": "user", "content": message})
@@ -11913,7 +12069,7 @@ YOUR ROLE:
         return {"reply": reply}
     except Exception as e:
         logger.error(f"SuperSeller AI chat failed: {e}")
-        return {"reply": "I'm having a moment — could you try asking again? I'm here to help you learn about SuperAdPro!"}
+        return {"reply": "I'm having a moment — could you try asking again?"}
 
 
 async def _call_ai_with_system(system: str, messages: list, model: str = "claude-haiku-4-5-20251001") -> str:

@@ -43,8 +43,9 @@ export default function SuperSeller() {
 
   return (
     <AppLayout title="SuperSeller" subtitle="AI Sales Autopilot — your complete marketing pipeline">
-      {view === 'list' && <CampaignList campaigns={campaigns} onCreate={function() { setView('wizard'); }} onOpen={openCampaign} />}
+      {view === 'list' && <CampaignList campaigns={campaigns} onCreate={function() { setView('wizard'); }} onCreateCustom={function() { setView('custom'); }} onOpen={openCampaign} />}
       {view === 'wizard' && <SetupWizard onComplete={onCampaignCreated} onCancel={function() { setView('list'); }} />}
+      {view === 'custom' && <CustomAgentWizard onComplete={onCampaignCreated} onCancel={function() { setView('list'); }} />}
       {view === 'dashboard' && activeCampaign && <CampaignDashboard campaign={activeCampaign} onBack={function() { setView('list'); }} />}
     </AppLayout>
   );
@@ -54,7 +55,7 @@ export default function SuperSeller() {
 // CAMPAIGN LIST
 // ══════════════════════════════════════════════════════════
 
-function CampaignList({ campaigns, onCreate, onOpen }) {
+function CampaignList({ campaigns, onCreate, onCreateCustom, onOpen }) {
   return (
     <div>
       {/* Hero banner */}
@@ -74,7 +75,13 @@ function CampaignList({ campaigns, onCreate, onOpen }) {
             style={{display:'flex',alignItems:'center',gap:8,padding:'14px 28px',borderRadius:12,border:'none',cursor:'pointer',
               background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:15,fontWeight:800,fontFamily:'inherit',
               boxShadow:'0 4px 20px rgba(139,92,246,.35)',transition:'all .2s'}}>
-            <Wand2 size={18}/> Create New Campaign
+            <Wand2 size={18}/> SuperAdPro Campaign
+          </button>
+          <button onClick={onCreateCustom}
+            style={{display:'flex',alignItems:'center',gap:8,padding:'14px 28px',borderRadius:12,border:'2px solid rgba(14,165,233,.3)',cursor:'pointer',
+              background:'rgba(14,165,233,.06)',color:'#38bdf8',fontSize:15,fontWeight:800,fontFamily:'inherit',
+              transition:'all .2s',marginLeft:12}}>
+            <MessageCircle size={18}/> Custom AI Agent
           </button>
         </div>
       </div>
@@ -91,7 +98,10 @@ function CampaignList({ campaigns, onCreate, onOpen }) {
                 onMouseEnter={function(e) { e.currentTarget.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'; }}
                 onMouseLeave={function(e) { e.currentTarget.style.boxShadow='0 2px 12px rgba(0,0,0,.04)'; }}>
                 <div style={{background:'#1c223d',padding:'14px 18px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                  <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{c.niche}</div>
+                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                    <span style={{fontSize:14,fontWeight:800,color:'#fff'}}>{c.offer_name || c.niche}</span>
+                    {c.campaign_type === 'custom' && <span style={{fontSize:8,fontWeight:800,padding:'2px 6px',borderRadius:3,background:'rgba(14,165,233,.15)',color:'#38bdf8'}}>CUSTOM</span>}
+                  </div>
                   <span style={{fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:4,background:sc.bg,color:sc.color,textTransform:'capitalize'}}>{c.status}</span>
                 </div>
                 <div style={{padding:'16px 18px'}}>
@@ -341,11 +351,190 @@ function SetupWizard({ onComplete, onCancel }) {
 }
 
 // ══════════════════════════════════════════════════════════
+// CUSTOM AI AGENT WIZARD
+// ══════════════════════════════════════════════════════════
+
+function CustomAgentWizard({ onComplete, onCancel }) {
+  var [step, setStep] = useState(1);
+  var [form, setForm] = useState({
+    offer_name:'', offer_url:'', offer_description:'', offer_pricing:'',
+    offer_benefits:'', offer_objections:'', offer_extra_context:'',
+    agent_name:'AI Assistant', agent_greeting:'', tone:'Professional', niche:'',
+  });
+  var [creating, setCreating] = useState(false);
+  var [error, setError] = useState('');
+
+  function upd(field) { return function(e) { setForm(function(f) { var n=Object.assign({},f); n[field]=e.target.value; return n; }); }; }
+
+  function create() {
+    if (!form.offer_name) { setError('Offer name is required'); return; }
+    if (!form.offer_url) { setError('Offer URL is required'); return; }
+    if (!form.offer_description) { setError('Please describe what the offer is'); return; }
+    setCreating(true); setError('');
+    apiPost('/api/superseller/create-custom-agent', form).then(function(r) {
+      if (r.success) onComplete(r.campaign_id);
+      else { setError(r.error || 'Failed'); setCreating(false); }
+    }).catch(function(e) { setError(e.message); setCreating(false); });
+  }
+
+  if (creating) {
+    return (
+      <div style={{textAlign:'center',padding:'80px 20px'}}>
+        <div style={{width:64,height:64,borderRadius:16,background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 24px'}}>
+          <MessageCircle size={28} color="#fff"/>
+        </div>
+        <h2 style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'#0f172a',margin:'0 0 8px'}}>Creating your AI Sales Agent</h2>
+        <p style={{fontSize:14,color:'#64748b'}}>Training on your offer details...</p>
+      </div>
+    );
+  }
+
+  var inputStyle = {width:'100%',padding:'12px 16px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#f8f9fb'};
+  var textareaStyle = Object.assign({}, inputStyle, {minHeight:100,resize:'vertical'});
+  var labelStyle = {fontSize:12,fontWeight:800,color:'#0f172a',marginBottom:6,display:'block'};
+
+  return (
+    <div style={{maxWidth:700,margin:'0 auto'}}>
+      <div style={{display:'flex',gap:4,marginBottom:24}}>
+        {[1,2,3].map(function(s) {
+          return <div key={s} style={{flex:1,height:4,borderRadius:2,background:s<=step?'#0ea5e9':'#e8ecf2',transition:'all .3s'}}/>;
+        })}
+      </div>
+
+      <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
+        <div style={{background:'linear-gradient(135deg,#0c1e4a,#1c223d)',padding:'16px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <MessageCircle size={16} color="#38bdf8"/>
+            <span style={{fontSize:14,fontWeight:800,color:'#fff'}}>Custom AI Agent — Step {step} of 3</span>
+          </div>
+          <button onClick={onCancel} style={{fontSize:12,fontWeight:600,color:'rgba(255,255,255,.4)',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit'}}>Cancel</button>
+        </div>
+        <div style={{padding:28}}>
+          {error && <div style={{padding:'10px 14px',background:'#fef2f2',borderRadius:8,border:'1px solid #fecaca',marginBottom:16,fontSize:12,fontWeight:700,color:'#dc2626'}}>{error}</div>}
+
+          {/* Step 1: Offer Details */}
+          {step === 1 && (
+            <div>
+              <h3 style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px'}}>Tell us about the offer</h3>
+              <p style={{fontSize:13,color:'#64748b',marginBottom:20}}>The AI agent will be trained on everything you provide here. The more detail, the better it sells.</p>
+
+              <label style={labelStyle}>Offer Name *</label>
+              <input value={form.offer_name} onChange={upd('offer_name')} placeholder="e.g. Crypto Mastery Course, FitLife Pro, SaaS Analytics Tool" style={Object.assign({},inputStyle,{marginBottom:14})}/>
+
+              <label style={labelStyle}>Offer URL (Your Affiliate Link) *</label>
+              <input value={form.offer_url} onChange={upd('offer_url')} placeholder="https://example.com/your-affiliate-link" style={Object.assign({},inputStyle,{marginBottom:14})}/>
+
+              <label style={labelStyle}>What does this offer do? *</label>
+              <textarea value={form.offer_description} onChange={upd('offer_description')} placeholder="Describe the product/service in detail. What problem does it solve? What do customers get? The AI will use this to answer prospect questions." style={Object.assign({},textareaStyle,{marginBottom:14})}/>
+
+              <label style={labelStyle}>Pricing</label>
+              <input value={form.offer_pricing} onChange={upd('offer_pricing')} placeholder="e.g. $97 one-time, $29/month, Free trial then $49/mo" style={inputStyle}/>
+            </div>
+          )}
+
+          {/* Step 2: Benefits & Objections */}
+          {step === 2 && (
+            <div>
+              <h3 style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px'}}>Benefits & Objections</h3>
+              <p style={{fontSize:13,color:'#64748b',marginBottom:20}}>Help your AI agent sell effectively by listing the key benefits and common objections it should handle.</p>
+
+              <label style={labelStyle}>Key Benefits (what makes this offer great?)</label>
+              <textarea value={form.offer_benefits} onChange={upd('offer_benefits')} placeholder={"List the main benefits, one per line:\n• Proven step-by-step system\n• Access to private community\n• 30-day money back guarantee\n• Works for complete beginners"} style={Object.assign({},textareaStyle,{marginBottom:14})}/>
+
+              <label style={labelStyle}>Common Objections & How to Handle Them</label>
+              <textarea value={form.offer_objections} onChange={upd('offer_objections')} placeholder={"What do prospects usually worry about? How should the AI respond?\n\n• 'Is this a scam?' → Explain the product value and guarantee\n• 'Too expensive' → Break down the ROI and what's included\n• 'Will it work for me?' → Highlight the beginner-friendly approach"} style={Object.assign({},textareaStyle,{marginBottom:14})}/>
+
+              <label style={labelStyle}>Any Extra Context (optional)</label>
+              <textarea value={form.offer_extra_context} onChange={upd('offer_extra_context')} placeholder="Anything else the AI should know — company history, testimonials, special offers, limited-time deals, etc." style={textareaStyle}/>
+            </div>
+          )}
+
+          {/* Step 3: Agent Personality */}
+          {step === 3 && (
+            <div>
+              <h3 style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px'}}>Customize Your Agent</h3>
+              <p style={{fontSize:13,color:'#64748b',marginBottom:20}}>Give your agent a personality that matches your brand.</p>
+
+              <label style={labelStyle}>Agent Name</label>
+              <input value={form.agent_name} onChange={upd('agent_name')} placeholder="e.g. CryptoBot, FitCoach, SalesHelper" style={Object.assign({},inputStyle,{marginBottom:14})}/>
+
+              <label style={labelStyle}>Welcome Message</label>
+              <textarea value={form.agent_greeting} onChange={upd('agent_greeting')} placeholder={"Leave blank for auto-generated, or write your own:\ne.g. 'Hey! 👋 Curious about Crypto Mastery? I can answer any questions — ask me anything!'"} style={Object.assign({},textareaStyle,{marginBottom:14})}/>
+
+              <label style={labelStyle}>Tone</label>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:20}}>
+                {['Professional','Casual & Friendly','Inspirational','Urgent & Direct','Educational'].map(function(t) {
+                  var on = form.tone === t;
+                  return (
+                    <button key={t} onClick={function() { setForm(function(f) { return Object.assign({},f,{tone:t}); }); }}
+                      style={{padding:'10px',borderRadius:8,border:on?'2px solid #0ea5e9':'2px solid #e8ecf2',
+                        background:on?'rgba(14,165,233,.06)':'#fff',cursor:'pointer',fontFamily:'inherit',
+                        fontSize:12,fontWeight:on?800:500,color:on?'#0ea5e9':'#64748b',transition:'all .15s'}}>
+                      {t}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Preview card */}
+              <div style={{padding:16,background:'#f0f3f9',borderRadius:12,border:'1px solid #e8ecf2'}}>
+                <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Agent Preview</div>
+                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+                  <div style={{width:32,height:32,borderRadius:'50%',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    <MessageCircle size={14} color="#fff"/>
+                  </div>
+                  <div>
+                    <div style={{fontSize:13,fontWeight:800,color:'#0f172a'}}>{form.agent_name || 'AI Assistant'}</div>
+                    <div style={{fontSize:10,color:'#16a34a',display:'flex',alignItems:'center',gap:3}}>
+                      <span style={{width:5,height:5,borderRadius:'50%',background:'#16a34a',display:'inline-block'}}/>Online
+                    </div>
+                  </div>
+                </div>
+                <div style={{padding:'10px 14px',background:'#fff',borderRadius:10,borderBottomLeftRadius:4,fontSize:12,color:'#334155',lineHeight:1.6,border:'1px solid #e8ecf2'}}>
+                  {form.agent_greeting || ('Hi! 👋 I\'m here to answer any questions about ' + (form.offer_name || 'this offer') + '. What would you like to know?')}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Navigation */}
+          <div style={{display:'flex',justifyContent:'space-between',marginTop:24}}>
+            <button onClick={function() { if (step > 1) setStep(step - 1); else onCancel(); }}
+              style={{padding:'10px 20px',borderRadius:8,border:'1px solid #e8ecf2',background:'#fff',cursor:'pointer',fontFamily:'inherit',fontSize:13,fontWeight:600,color:'#64748b'}}>
+              {step === 1 ? 'Cancel' : '← Back'}
+            </button>
+            {step < 3 ? (
+              <button onClick={function() {
+                if (step === 1 && !form.offer_name) { setError('Offer name is required'); return; }
+                if (step === 1 && !form.offer_url) { setError('Offer URL is required'); return; }
+                if (step === 1 && !form.offer_description) { setError('Please describe the offer'); return; }
+                setError(''); setStep(step + 1);
+              }}
+                style={{display:'flex',alignItems:'center',gap:4,padding:'10px 24px',borderRadius:8,border:'none',cursor:'pointer',
+                  background:'#0ea5e9',color:'#fff',fontFamily:'inherit',fontSize:13,fontWeight:800}}>
+                Next <ChevronRight size={14}/>
+              </button>
+            ) : (
+              <button onClick={create}
+                style={{display:'flex',alignItems:'center',gap:8,padding:'12px 28px',borderRadius:10,border:'none',cursor:'pointer',
+                  background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontFamily:'inherit',fontSize:14,fontWeight:800,
+                  boxShadow:'0 4px 16px rgba(14,165,233,.3)'}}>
+                <Sparkles size={16}/> Create AI Agent
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// ══════════════════════════════════════════════════════════
 // CAMPAIGN DASHBOARD
 // ══════════════════════════════════════════════════════════
 
 function CampaignDashboard({ campaign, onBack }) {
-  var [tab, setTab] = useState('calendar');
   var [copied, setCopied] = useState(false);
   var c = campaign;
 
@@ -355,7 +544,10 @@ function CampaignDashboard({ campaign, onBack }) {
     setTimeout(function() { setCopied(false); }, 2000);
   }
 
-  var tabs = [
+  var isCustom = c.campaign_type === 'custom';
+  var tabs = isCustom ? [
+    {key:'agent',label:'AI Sales Agent',icon:MessageCircle},
+  ] : [
     {key:'calendar',label:'Content Calendar',icon:Calendar},
     {key:'emails',label:'Email Sequence',icon:Mail},
     {key:'videos',label:'Video Scripts',icon:Film},
@@ -363,6 +555,9 @@ function CampaignDashboard({ campaign, onBack }) {
     {key:'strategy',label:'Strategy',icon:BarChart3},
     {key:'agent',label:'AI Sales Agent',icon:MessageCircle},
   ];
+
+  // Default tab for custom agents
+  var [tab, setTab] = useState(isCustom ? 'agent' : 'calendar');
 
   return (
     <div>
@@ -374,7 +569,7 @@ function CampaignDashboard({ campaign, onBack }) {
       {/* Funnel link banner */}
       <div style={{background:'linear-gradient(135deg,#1c223d,#0f172a)',borderRadius:14,padding:'20px 24px',marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <div>
-          <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>Your SuperSeller Funnel Link</div>
+          <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>{isCustom ? 'Your Offer Link' : 'Your SuperSeller Funnel Link'}</div>
           <div style={{fontSize:14,fontWeight:600,color:'rgba(255,255,255,.6)',fontFamily:'monospace'}}>{c.funnel_url}</div>
         </div>
         <button onClick={copyLink}

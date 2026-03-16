@@ -969,29 +969,42 @@ class SuperSellerCampaign(Base):
     __tablename__ = "superseller_campaigns"
     id              = Column(Integer, primary_key=True, autoincrement=True)
     user_id         = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    # Campaign type: 'superadpro' (default full pipeline) or 'custom' (custom offer agent)
+    campaign_type   = Column(String(20), default="superadpro")
     # Setup wizard inputs
     niche           = Column(String(200), nullable=False)
     audience        = Column(Text)
     tone            = Column(String(50), default="professional")
     goal            = Column(String(50), default="lead_generation")
     # Generated assets (JSON)
-    landing_page_html = Column(Text)           # Full HTML for the funnel page
-    social_posts_json = Column(Text)           # 30 posts [{day, platform, content, hashtags, cta}]
-    email_sequence_json = Column(Text)         # 5 emails [{subject, body, delay_days, brevo_template_id}]
-    video_scripts_json = Column(Text)          # 3 scripts [{title, duration, hook, body, cta}]
-    ad_copy_json    = Column(Text)             # 3 ad sets [{platform, headline, body, cta}]
-    strategy_json   = Column(Text)             # 30-day playbook
+    landing_page_html = Column(Text)
+    social_posts_json = Column(Text)
+    email_sequence_json = Column(Text)
+    video_scripts_json = Column(Text)
+    ad_copy_json    = Column(Text)
+    strategy_json   = Column(Text)
     # Funnel & tracking
-    funnel_url      = Column(String(500))      # The member's funnel link
-    landing_page_id = Column(Integer, nullable=True)  # FK to superpages if using SuperPages
-    brevo_list_id   = Column(Integer, nullable=True)   # Brevo contact list for this campaign
+    funnel_url      = Column(String(500))
+    landing_page_id = Column(Integer, nullable=True)
+    brevo_list_id   = Column(Integer, nullable=True)
+    # Custom AI Agent fields
+    offer_name      = Column(String(200))          # "Crypto Mastery Course"
+    offer_url       = Column(String(500))           # The affiliate link
+    offer_description = Column(Text)                # What the product does
+    offer_pricing   = Column(Text)                  # Pricing details
+    offer_benefits  = Column(Text)                  # Key benefits (JSON or text)
+    offer_objections = Column(Text)                 # Common objections + answers (JSON or text)
+    offer_extra_context = Column(Text)              # Any extra info the agent should know
+    agent_name      = Column(String(100))           # Custom agent name e.g. "CryptoBot"
+    agent_greeting  = Column(Text)                  # Custom welcome message
     # Stats
     leads_count     = Column(Integer, default=0)
     conversions_count = Column(Integer, default=0)
     link_clicks     = Column(Integer, default=0)
     page_views      = Column(Integer, default=0)
+    chat_conversations = Column(Integer, default=0)
     # Status
-    status          = Column(String(20), default="generating")  # generating, active, paused, completed
+    status          = Column(String(20), default="generating")
     created_at      = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -1439,6 +1452,19 @@ try:
             created_at TIMESTAMP DEFAULT NOW(),
             updated_at TIMESTAMP DEFAULT NOW())"""))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ss_user ON superseller_campaigns(user_id)"))
+
+        # Custom AI Agent columns
+        conn.execute(text("ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS campaign_type VARCHAR(20) DEFAULT 'superadpro'"))
+        conn.execute(text("ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS offer_name VARCHAR(200)"))
+        conn.execute(text("ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS offer_url VARCHAR(500)"))
+        conn.execute(text("ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS offer_description TEXT"))
+        conn.execute(text("ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS offer_pricing TEXT"))
+        conn.execute(text("ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS offer_benefits TEXT"))
+        conn.execute(text("ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS offer_objections TEXT"))
+        conn.execute(text("ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS offer_extra_context TEXT"))
+        conn.execute(text("ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS agent_name VARCHAR(100)"))
+        conn.execute(text("ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS agent_greeting TEXT"))
+        conn.execute(text("ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS chat_conversations INTEGER DEFAULT 0"))
 
         conn.commit()
         print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 + R2 + courses confirmed")
