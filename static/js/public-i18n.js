@@ -104,6 +104,21 @@
       "register.haveAccount": "Already have an account?",
       "register.login": "Sign in here",
       "register.referredBy": "Referred by",
+      
+      // Join Funnel
+      "join.heroLine1": "Start Earning With",
+      "join.heroLine2": "SuperAdPro",
+      "join.getStarted": "Get Started for $20 →",
+      "join.fourWays": "Four Ways to",
+      "join.stackIncome": "Stack Income",
+      "join.aiTools": "9 AI Marketing Tools.",
+      "join.zeroExtra": "$0 Extra.",
+      "join.teamWaiting": "Your Team Is Waiting.",
+      "join.joinNow": "Join SuperAdPro Now →",
+      
+      // How It Works
+      "hiw.title": "How SuperAdPro Works",
+      "hiw.sub": "Everything you need to know about earning, learning, and building with SuperAdPro",
     },
     
     es: {
@@ -180,6 +195,17 @@
       "register.haveAccount": "¿Ya tienes cuenta?",
       "register.login": "Inicia sesión aquí",
       "register.referredBy": "Referido por",
+      "join.heroLine1": "Empieza a Ganar Con",
+      "join.heroLine2": "SuperAdPro",
+      "join.getStarted": "Empezar por $20 →",
+      "join.fourWays": "Cuatro Formas de",
+      "join.stackIncome": "Acumular Ingresos",
+      "join.aiTools": "9 Herramientas de Marketing IA.",
+      "join.zeroExtra": "$0 Extra.",
+      "join.teamWaiting": "Tu Equipo Te Espera.",
+      "join.joinNow": "Únete a SuperAdPro Ahora →",
+      "hiw.title": "Cómo Funciona SuperAdPro",
+      "hiw.sub": "Todo lo que necesitas saber sobre ganar, aprender y construir con SuperAdPro",
     },
 
     fr: {
@@ -352,41 +378,218 @@
       "register.title": "SuperAdPro'ya Katıl",
       "register.btn": "Hesap Oluştur →",
     },
+
+    it: {
+      "nav.howItWorks": "Come Funziona",
+      "nav.login": "Accedi",
+      "nav.register": "Inizia",
+      "nav.getStarted": "Inizia Ora →",
+      "hero.eyebrow": "La Piattaforma All-in-One",
+      "hero.title1": "Guadagna. Impara. Costruisci.",
+      "hero.title2": "Il Tuo Business Online.",
+      "hero.sub": "SuperAdPro ti offre 4 fonti di reddito, un marketplace di corsi e strumenti marketing AI — tutto in una piattaforma.",
+      "cta.title": "Pronto per Iniziare?",
+      "cta.btn": "Crea il Tuo Account Gratuito →",
+      "login.title": "Bentornato",
+      "login.btn": "Accedi",
+      "register.title": "Unisciti a SuperAdPro",
+      "register.btn": "Crea Account →",
+    },
+
+    nl: {
+      "nav.howItWorks": "Hoe Het Werkt",
+      "nav.login": "Inloggen",
+      "nav.register": "Starten",
+      "nav.getStarted": "Start Nu →",
+      "hero.eyebrow": "Het Alles-in-Één Platform",
+      "hero.title1": "Verdien. Leer. Bouw.",
+      "hero.title2": "Jouw Online Business.",
+      "hero.sub": "SuperAdPro biedt je 4 inkomstenbronnen, een cursusmarktplaats en AI-marketingtools — alles op één platform.",
+      "cta.title": "Klaar om te Beginnen?",
+      "cta.btn": "Maak Je Gratis Account →",
+      "login.title": "Welkom Terug",
+      "login.btn": "Inloggen",
+      "register.title": "Word Lid van SuperAdPro",
+      "register.btn": "Account Aanmaken →",
+    },
+
+    pl: {
+      "hero.title1": "Zarabiaj. Ucz się. Buduj.",
+      "hero.title2": "Swój Biznes Online.",
+      "cta.title": "Gotowy, żeby Zacząć?",
+      "cta.btn": "Utwórz Darmowe Konto →",
+      "login.title": "Witamy Ponownie",
+      "login.btn": "Zaloguj się",
+      "register.title": "Dołącz do SuperAdPro",
+      "register.btn": "Utwórz Konto →",
+    },
+
+    vi: {
+      "hero.title1": "Kiếm tiền. Học hỏi. Xây dựng.",
+      "hero.title2": "Doanh nghiệp Online của bạn.",
+      "cta.title": "Sẵn sàng bắt đầu?",
+      "cta.btn": "Tạo Tài Khoản Miễn Phí →",
+      "login.title": "Chào mừng trở lại",
+      "login.btn": "Đăng nhập",
+      "register.title": "Tham gia SuperAdPro",
+      "register.btn": "Tạo Tài Khoản →",
+    },
+
+    th: {
+      "hero.title1": "สร้างรายได้ เรียนรู้ สร้างสรรค์",
+      "hero.title2": "ธุรกิจออนไลน์ของคุณ",
+      "cta.title": "พร้อมที่จะเริ่มต้นหรือยัง?",
+      "cta.btn": "สร้างบัญชีฟรี →",
+      "login.title": "ยินดีต้อนรับกลับ",
+      "login.btn": "เข้าสู่ระบบ",
+      "register.title": "สมัครสมาชิก SuperAdPro",
+      "register.btn": "สร้างบัญชี →",
+    },
+
+    id: {
+      "hero.title1": "Hasilkan. Pelajari. Bangun.",
+      "hero.title2": "Bisnis Online Anda.",
+      "cta.title": "Siap untuk Memulai?",
+      "cta.btn": "Buat Akun Gratis →",
+      "login.title": "Selamat Datang Kembali",
+      "login.btn": "Masuk",
+      "register.title": "Bergabung dengan SuperAdPro",
+      "register.btn": "Buat Akun →",
+    },
+
+    tl: {
+      "hero.title1": "Kumita. Matuto. Bumuo.",
+      "hero.title2": "Ng Iyong Online Business.",
+      "cta.title": "Handa na ba?",
+      "cta.btn": "Gumawa ng Libreng Account →",
+      "login.title": "Maligayang Pagbabalik",
+      "login.btn": "Mag-sign In",
+      "register.title": "Sumali sa SuperAdPro",
+      "register.btn": "Gumawa ng Account →",
+    },
+
+    sw: {
+      "hero.title1": "Pata Pesa. Jifunze. Jenga.",
+      "hero.title2": "Biashara Yako ya Mtandaoni.",
+      "cta.title": "Uko Tayari Kuanza?",
+      "cta.btn": "Fungua Akaunti Bure →",
+      "login.title": "Karibu Tena",
+      "login.btn": "Ingia",
+      "register.title": "Jiunge na SuperAdPro",
+      "register.btn": "Fungua Akaunti →",
+    },
   };
 
+  var LANGS = [
+    {code:'en',name:'English',flag:'🇬🇧'},{code:'es',name:'Español',flag:'🇪🇸'},
+    {code:'fr',name:'Français',flag:'🇫🇷'},{code:'pt',name:'Português',flag:'🇧🇷'},
+    {code:'de',name:'Deutsch',flag:'🇩🇪'},{code:'it',name:'Italiano',flag:'🇮🇹'},
+    {code:'nl',name:'Nederlands',flag:'🇳🇱'},{code:'ru',name:'Русский',flag:'🇷🇺'},
+    {code:'ar',name:'العربية',flag:'🇸🇦'},{code:'zh',name:'中文',flag:'🇨🇳'},
+    {code:'hi',name:'हिन्दी',flag:'🇮🇳'},{code:'ja',name:'日本語',flag:'🇯🇵'},
+    {code:'ko',name:'한국어',flag:'🇰🇷'},{code:'tr',name:'Türkçe',flag:'🇹🇷'},
+    {code:'pl',name:'Polski',flag:'🇵🇱'},{code:'vi',name:'Tiếng Việt',flag:'🇻🇳'},
+    {code:'th',name:'ไทย',flag:'🇹🇭'},{code:'id',name:'Bahasa Indonesia',flag:'🇮🇩'},
+    {code:'tl',name:'Filipino',flag:'🇵🇭'},{code:'sw',name:'Kiswahili',flag:'🇰🇪'},
+  ];
+
+  function getLang() {
+    try { return localStorage.getItem('superadpro-lang') || 'en'; } catch(e) { return 'en'; }
+  }
+
+  function setLang(code) {
+    try { localStorage.setItem('superadpro-lang', code); } catch(e) {}
+    translate();
+    updateSelectorFlag();
+  }
+
   function translate() {
-    var lang = 'en';
-    try { lang = localStorage.getItem('superadpro-lang') || 'en'; } catch(e) {}
-    
-    if (lang === 'en') return; // English is the default in HTML
-    
+    var lang = getLang();
     var dict = T[lang] || {};
     var els = document.querySelectorAll('[data-i18n]');
     els.forEach(function(el) {
       var key = el.getAttribute('data-i18n');
-      if (dict[key]) {
-        // Check if it's an input placeholder
-        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-          el.setAttribute('placeholder', dict[key]);
-        } else {
-          el.textContent = dict[key];
-        }
+      var text = (dict[key]) || (T.en[key]);
+      if (!text) return;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        el.setAttribute('placeholder', text);
+      } else {
+        el.textContent = text;
       }
     });
-
-    // Set html lang attribute
     document.documentElement.lang = lang;
+    if (lang === 'ar') { document.documentElement.dir = 'rtl'; } 
+    else { document.documentElement.dir = 'ltr'; }
+  }
+
+  function updateSelectorFlag() {
+    var btn = document.getElementById('sapLangBtn');
+    if (!btn) return;
+    var lang = getLang();
+    var found = LANGS.find(function(l) { return l.code === lang; }) || LANGS[0];
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg> ' + found.flag;
+  }
+
+  function injectSelector() {
+    // Find the nav element
+    var nav = document.querySelector('nav');
+    if (!nav) return;
+    var links = nav.querySelector('.nav-links') || nav.querySelector('ul');
+    if (!links) return;
+
+    // Create language button
+    var wrap = document.createElement('li');
+    wrap.style.cssText = 'position:relative;list-style:none;margin-left:6px';
     
-    // RTL for Arabic
-    if (lang === 'ar') {
-      document.documentElement.dir = 'rtl';
-    }
+    var btn = document.createElement('button');
+    btn.id = 'sapLangBtn';
+    btn.style.cssText = 'display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s';
+    
+    var dropdown = document.createElement('div');
+    dropdown.id = 'sapLangDrop';
+    dropdown.style.cssText = 'display:none;position:absolute;top:100%;right:0;margin-top:8px;width:200px;max-height:340px;overflow-y:auto;background:rgba(10,18,40,.98);backdrop-filter:blur(16px);border:1px solid rgba(56,189,248,.15);border-radius:10px;box-shadow:0 16px 48px rgba(0,0,0,.5);z-index:9999;padding:4px';
+
+    LANGS.forEach(function(l) {
+      var item = document.createElement('button');
+      var isActive = l.code === getLang();
+      item.style.cssText = 'display:flex;align-items:center;gap:8px;width:100%;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-family:inherit;font-size:12px;text-align:left;transition:all .1s;background:' + (isActive ? 'rgba(14,165,233,.12)' : 'transparent') + ';color:' + (isActive ? '#38bdf8' : 'rgba(255,255,255,.6)') + ';font-weight:' + (isActive ? '800' : '500');
+      item.innerHTML = '<span style="font-size:15px">' + l.flag + '</span> ' + l.name + (isActive ? ' <span style="margin-left:auto;font-size:10px;color:#38bdf8">✓</span>' : '');
+      item.onmouseover = function() { if (l.code !== getLang()) this.style.background = 'rgba(255,255,255,.05)'; };
+      item.onmouseout = function() { if (l.code !== getLang()) this.style.background = 'transparent'; };
+      item.onclick = function(e) {
+        e.stopPropagation();
+        setLang(l.code);
+        dropdown.style.display = 'none';
+        // Rebuild dropdown active states
+        injectSelector();
+      };
+      dropdown.appendChild(item);
+    });
+
+    btn.onclick = function(e) {
+      e.stopPropagation();
+      dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    };
+
+    document.addEventListener('click', function() { dropdown.style.display = 'none'; });
+
+    wrap.appendChild(btn);
+    wrap.appendChild(dropdown);
+
+    // Remove old selector if re-injecting
+    var old = document.getElementById('sapLangWrap');
+    if (old) old.remove();
+    wrap.id = 'sapLangWrap';
+
+    links.appendChild(wrap);
+    updateSelectorFlag();
   }
 
   // Run on DOM ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', translate);
+    document.addEventListener('DOMContentLoaded', function() { translate(); injectSelector(); });
   } else {
     translate();
+    injectSelector();
   }
 })();
