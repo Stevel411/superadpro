@@ -779,27 +779,49 @@ function GridVisSection() {
               <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:tier.color,minWidth:50,textAlign:'right'}}>{filled} / 64</div>
             </div>
 
-            {/* 8×8 Grid — large cells */}
-            <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:5,marginBottom:16}}>
+            {/* 8×8 Grid — large cells with person icons */}
+            <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:6,marginBottom:16}}>
               {cells.map(function(c, i) {
                 var isLatest = i === filled - 1 && running;
-                var bg = c.filled ? DEPTH_COLORS[c.depth - 1] : '#f1f5f9';
-                var borderStyle = c.filled ? '2px solid ' + DEPTH_COLORS[c.depth - 1] : '1px dashed #d1d5db';
+                var depthColor = c.filled ? DEPTH_COLORS[Math.min(c.depth - 1, 4)] : '#cbd5e1';
                 return (
                   <div key={i} style={{
-                    height:44,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',
-                    background:c.filled?bg:'#f8f9fb',border:borderStyle,
-                    fontSize:c.filled?10:8,fontWeight:800,color:c.filled?'#fff':'#cbd5e1',
-                    transition:'all .3s cubic-bezier(.34,1.56,.64,1)',
-                    transform:isLatest?'scale(1.12)':'scale(1)',
-                    boxShadow:isLatest?'0 0 16px '+DEPTH_COLORS[c.depth-1]+'66':'none',
-                    cursor:'default',position:'relative',
+                    height:64,borderRadius:10,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:2,
+                    background:c.filled?depthColor+'18':'#f8f9fb',
+                    border:c.filled?'2px solid '+depthColor:'1.5px dashed #d1d5db',
+                    transition:'all .4s cubic-bezier(.34,1.56,.64,1)',
+                    transform:isLatest?'scale(1.08)':'scale(1)',
+                    boxShadow:isLatest?'0 0 20px '+depthColor+'55, 0 4px 12px '+depthColor+'33':'none',
+                    cursor:'default',position:'relative',overflow:'hidden',
                   }}>
-                    {c.filled ? c.name.slice(0,3) : (i+1)}
+                    {c.filled ? (
+                      <>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{
+                          animation: isLatest ? 'personPop .5s cubic-bezier(.34,1.56,.64,1)' : 'none',
+                        }}>
+                          <circle cx="12" cy="8" r="4" fill={depthColor}/>
+                          <path d="M4 21v-1a6 6 0 0112 0v1" fill={depthColor} opacity=".7"/>
+                          {c.isDirect && <circle cx="19" cy="5" r="4" fill="#f59e0b"/>}
+                          {c.isDirect && <text x="19" y="7" textAnchor="middle" fontSize="5" fontWeight="800" fill="#fff">$</text>}
+                        </svg>
+                        <div style={{fontSize:8,fontWeight:800,color:depthColor,lineHeight:1}}>{c.name.slice(0,4)}</div>
+                      </>
+                    ) : (
+                      <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:1}}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" opacity=".25">
+                          <circle cx="12" cy="8" r="4" stroke="#94a3b8" strokeWidth="2" strokeDasharray="3 3"/>
+                          <path d="M4 21v-1a6 6 0 0112 0v1" stroke="#94a3b8" strokeWidth="2" strokeDasharray="3 3"/>
+                        </svg>
+                        <div style={{fontSize:7,color:'#cbd5e1',fontWeight:600}}>{i+1}</div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
             </div>
+            <style>{'\
+              @keyframes personPop { 0%{transform:scale(0) rotate(-20deg);opacity:0} 50%{transform:scale(1.3) rotate(5deg);opacity:1} 100%{transform:scale(1) rotate(0deg);opacity:1} }\
+            '}</style>
 
             {/* Legend */}
             <div style={{display:'flex',gap:14,flexWrap:'wrap'}}>
