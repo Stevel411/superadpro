@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 import { Film, Eye, Play, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
 export default function VideoLibrary() {
+  var { t } = useTranslation();
   var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);
 
@@ -11,7 +13,7 @@ export default function VideoLibrary() {
     apiGet('/api/video-library').then(function(r) { setData(r); setLoading(false); }).catch(function() { setLoading(false); });
   }, []);
 
-  if (loading) return <AppLayout title="My Campaigns"><Spin/></AppLayout>;
+  if (loading) return <AppLayout title={t("videos.title")}><Spin/></AppLayout>;
 
   var d = data || {};
   var campaigns = d.campaigns || [];
@@ -29,7 +31,7 @@ export default function VideoLibrary() {
   };
 
   return (
-    <AppLayout title="My Campaigns" subtitle="Your video advertising campaigns">
+    <AppLayout title={t("videos.title")} subtitle={t("videos.subtitle")}>
       {/* Stats */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:24}}>
         {[

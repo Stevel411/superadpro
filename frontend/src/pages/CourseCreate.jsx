@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
@@ -5,6 +6,7 @@ import { apiPost } from '../utils/api';
 import { PenLine, Save, BookOpen, DollarSign, FileText, Lock } from 'lucide-react';
 
 export default function CourseCreate() {
+  var { t } = useTranslation();
   var [title, setTitle] = useState('');
   var [description, setDescription] = useState('');
   var [price, setPrice] = useState('');
@@ -30,7 +32,7 @@ export default function CourseCreate() {
   }
 
   return (
-    <AppLayout title="Create Course" subtitle="Build and sell your own course on the marketplace">
+    <AppLayout title={t("courseCreate.title")} subtitle={t("courseCreate.subtitle")}>
       <div style={{maxWidth:700,margin:'0 auto'}}>
 
         {/* Pro badge */}

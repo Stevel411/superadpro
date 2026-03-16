@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 import LanguageSelector from './LanguageSelector';
 import {
   Home, User, Wallet, Headphones, Eye, Zap, LayoutGrid, Link2,
@@ -9,63 +10,62 @@ import {
   LogOut, ChevronRight, Play, Lock
 } from 'lucide-react';
 
-var NAV = [
-  { type: 'standalone', label: 'Dashboard', icon: Home, path: '/dashboard' },
-  { type: 'divider' },
-
-  { type: 'group', label: 'Account', key: 'account', items: [
-    { label: 'My Profile', icon: User, path: '/account' },
-    { label: 'Wallet', icon: Wallet, path: '/wallet' },
-    { label: 'Support', icon: Headphones, path: '/support' },
-  ]},
-  { type: 'divider' },
-
-  { type: 'group', label: 'Earn', key: 'earn', items: [
-    { label: 'Watch to Earn', icon: Eye, path: '/watch' },
-    { label: 'Campaign Tiers', icon: Zap, path: '/campaign-tiers' },
-    { label: 'Ad Board', icon: LayoutGrid, path: '/ad-board' },
-  ]},
-  { type: 'divider' },
-
-  { type: 'group', label: 'Creator Tools', key: 'creator', items: [
-    { label: 'LinkHub', icon: LayoutGrid, path: '/linkhub' },
-    { label: 'Link Tools', icon: Link2, path: '/link-tools' },
-    { label: 'SuperPages', icon: Globe, path: '/pro/funnels', pro: true },
-  ]},
-  { type: 'divider' },
-
-  { type: 'group', label: 'Courses', key: 'courses', items: [
-    { label: 'Course Library', icon: GraduationCap, path: '/courses' },
-    { label: 'Marketplace', icon: Store, path: '/marketplace' },
-    { label: 'Create Course', icon: PenLine, path: '/courses/create', pro: true },
-  ]},
-  { type: 'divider' },
-
-  { type: 'group', label: 'Affiliate', key: 'affiliate', items: [
-    { label: 'My Network', icon: Network, path: '/network' },
-    { label: 'Comp Plan', icon: FileText, path: '/compensation-plan' },
-    { label: 'Social Share', icon: Users, path: '/affiliate' },
-    { label: 'ProSeller AI', icon: Target, path: '/proseller', pro: true },
-    { label: 'My Leads', icon: Mail, path: '/pro/leads', pro: true },
-    { label: 'Leaderboard', icon: Trophy, path: '/leaderboard' },
-    { label: 'Achievements', icon: Award, path: '/achievements' },
-  ]},
-  { type: 'divider' },
-
-  { type: 'group', label: 'Marketing Suite', key: 'marketing', items: [
-    { label: 'Campaign Studio', icon: Bot, path: '/campaign-studio' },
-    { label: 'Niche Finder', icon: Target, path: '/niche-finder' },
-    { label: 'Social Posts', icon: Megaphone, path: '/social-post-generator' },
-    { label: 'Video Scripts', icon: Film, path: '/video-script-generator' },
-    { label: 'Email Swipes', icon: Mail, path: '/email-swipes' },
-  ]},
-];
+function buildNav(t) {
+  return [
+    { type: 'standalone', label: t('nav.dashboard'), icon: Home, path: '/dashboard' },
+    { type: 'divider' },
+    { type: 'group', label: t('nav.account'), key: 'account', items: [
+      { label: t('nav.myProfile'), icon: User, path: '/account' },
+      { label: t('nav.wallet'), icon: Wallet, path: '/wallet' },
+      { label: t('nav.support'), icon: Headphones, path: '/support' },
+    ]},
+    { type: 'divider' },
+    { type: 'group', label: t('nav.earn'), key: 'earn', items: [
+      { label: t('nav.watchToEarn'), icon: Eye, path: '/watch' },
+      { label: t('nav.campaignTiers'), icon: Zap, path: '/campaign-tiers' },
+      { label: t('nav.adBoard'), icon: LayoutGrid, path: '/ad-board' },
+    ]},
+    { type: 'divider' },
+    { type: 'group', label: t('nav.creatorTools'), key: 'creator', items: [
+      { label: t('nav.linkHub'), icon: LayoutGrid, path: '/linkhub' },
+      { label: t('nav.linkTools'), icon: Link2, path: '/link-tools' },
+      { label: t('nav.superPages'), icon: Globe, path: '/pro/funnels', pro: true },
+    ]},
+    { type: 'divider' },
+    { type: 'group', label: t('nav.courses'), key: 'courses', items: [
+      { label: t('nav.courseLibrary'), icon: GraduationCap, path: '/courses' },
+      { label: t('nav.marketplace'), icon: Store, path: '/marketplace' },
+      { label: t('nav.createCourse'), icon: PenLine, path: '/courses/create', pro: true },
+    ]},
+    { type: 'divider' },
+    { type: 'group', label: t('nav.affiliate'), key: 'affiliate', items: [
+      { label: t('nav.myNetwork'), icon: Network, path: '/network' },
+      { label: t('nav.compPlan'), icon: FileText, path: '/compensation-plan' },
+      { label: t('nav.socialShare'), icon: Users, path: '/affiliate' },
+      { label: t('nav.proSellerAi'), icon: Target, path: '/proseller', pro: true },
+      { label: t('nav.myLeads'), icon: Mail, path: '/pro/leads', pro: true },
+      { label: t('nav.leaderboard'), icon: Trophy, path: '/leaderboard' },
+      { label: t('nav.achievements'), icon: Award, path: '/achievements' },
+    ]},
+    { type: 'divider' },
+    { type: 'group', label: t('nav.marketingSuite'), key: 'marketing', items: [
+      { label: t('nav.campaignStudio'), icon: Bot, path: '/campaign-studio' },
+      { label: t('nav.nicheFinder'), icon: Target, path: '/niche-finder' },
+      { label: t('nav.socialPosts'), icon: Megaphone, path: '/social-post-generator' },
+      { label: t('nav.videoScripts'), icon: Film, path: '/video-script-generator' },
+      { label: t('nav.emailSwipes'), icon: Mail, path: '/email-swipes' },
+    ]},
+  ];
+}
 
 export default function Sidebar() {
   var auth = useAuth();
   var user = auth.user;
   var logout = auth.logout;
   var location = useLocation();
+  var { t } = useTranslation();
+
+  var NAV = buildNav(t);
   var [manualOpen, setManualOpen] = useState({});
 
   // Reset manual open state on navigation — groups auto-close
@@ -168,7 +168,7 @@ export default function Sidebar() {
         <button onClick={logout}
           className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-red-400/60 hover:text-red-400 hover:bg-red-500/5 rounded-lg transition-all cursor-pointer border-none bg-transparent">
           <LogOut className="w-4 h-4" />
-          Sign Out
+          {t('common.signOut')}
         </button>
       </div>
     </aside>

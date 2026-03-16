@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiPost } from '../utils/api';
 import { Bot, Sparkles, Copy, Check, RefreshCw, Wand2 } from 'lucide-react';
 
 export default function AiTool({ title, subtitle, apiEndpoint, fields, resultLabel }) {
+  var { t } = useTranslation();
   var [values, setValues] = useState({});
   var [result, setResult] = useState('');
   var [loading, setLoading] = useState(false);

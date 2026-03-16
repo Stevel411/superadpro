@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 import { GraduationCap, BookOpen, CheckCircle, Clock } from 'lucide-react';
 
 export default function MyCourses() {
+  var { t } = useTranslation();
   var [stats, setStats] = useState(null);
   var [courses, setCourses] = useState([]);
   var [loading, setLoading] = useState(true);
@@ -19,13 +21,13 @@ export default function MyCourses() {
     });
   }, []);
 
-  if (loading) return <AppLayout title="My Courses"><Spin/></AppLayout>;
+  if (loading) return <AppLayout title={t("courses.myCourses")}><Spin/></AppLayout>;
 
   var st = stats || {};
   var owned = st.owned_tiers || [];
 
   return (
-    <AppLayout title="My Courses" subtitle="Your purchased courses and learning progress">
+    <AppLayout title={t("courses.myCourses")} subtitle={t("courses.title")}>
       {/* Stats */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
         {[

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
@@ -7,6 +8,7 @@ var CATEGORIES = ['All','Business','Crypto','Health','Tech','Education','Finance
 var CAT_COLORS = {business:'#0ea5e9',crypto:'#f59e0b',health:'#16a34a',tech:'#6366f1',education:'#8b5cf6',finance:'#0284c7',marketing:'#ec4899',lifestyle:'#f97316',general:'#64748b'};
 
 export default function AdBoard() {
+  var { t } = useTranslation();
   var [ads, setAds] = useState([]);
   var [loading, setLoading] = useState(true);
   var [filter, setFilter] = useState('All');
@@ -17,10 +19,10 @@ export default function AdBoard() {
 
   var filtered = filter === 'All' ? ads : ads.filter(function(a) { return (a.category || '').toLowerCase() === filter.toLowerCase(); });
 
-  if (loading) return <AppLayout title="Ad Board"><Spin/></AppLayout>;
+  if (loading) return <AppLayout title={t("adBoard.title")}><Spin/></AppLayout>;
 
   return (
-    <AppLayout title="Ad Board" subtitle="Community marketplace — browse and share listings">
+    <AppLayout title={t("adBoard.title")} subtitle={t("adBoard.subtitle")}>
       {/* Category filter */}
       <div style={{display:'flex',gap:4,marginBottom:20,flexWrap:'wrap'}}>
         {CATEGORIES.map(function(c) {

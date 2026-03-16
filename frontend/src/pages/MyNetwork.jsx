@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 import { Users, DollarSign, TrendingUp, Award, ChevronDown, ChevronUp, Copy, Check } from 'lucide-react';
 
 export default function MyNetwork() {
+  var { t } = useTranslation();
   var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);
   var [commView, setCommView] = useState('all');
@@ -13,7 +15,7 @@ export default function MyNetwork() {
     apiGet('/api/network').then(function(r) { setData(r); setLoading(false); }).catch(function() { setLoading(false); });
   }, []);
 
-  if (loading) return <AppLayout title="My Network & Earnings"><Spin/></AppLayout>;
+  if (loading) return <AppLayout title={t('network.title')}><Spin/></AppLayout>;
 
   var d = data || {};
   var referrals = d.referrals || [];
@@ -38,7 +40,7 @@ export default function MyNetwork() {
   }
 
   return (
-    <AppLayout title="My Network & Earnings" subtitle="Your referrals, team, and commission history">
+    <AppLayout title={t('network.title')} subtitle={t('network.subtitle')}>
 
       {/* ── Referral Link Banner ── */}
       <div style={{background:'linear-gradient(135deg,#1c223d,#0f172a)',borderRadius:14,padding:'20px 24px',marginBottom:20,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
@@ -51,17 +53,17 @@ export default function MyNetwork() {
         <button onClick={copyLink}
           style={{display:'flex',alignItems:'center',gap:6,padding:'10px 20px',borderRadius:10,border:'none',cursor:'pointer',
             background:copied?'#16a34a':'#0ea5e9',color:'#fff',fontSize:13,fontWeight:800,fontFamily:'inherit',transition:'all .2s'}}>
-          {copied ? <><Check size={14}/> Copied!</> : <><Copy size={14}/> Copy Link</>}
+          {copied ? <><Check size={14}/> Copied!</> : <><Copy size={14}/> {t('network.copyLink')}</>}
         </button>
       </div>
 
       {/* ── Hero Stats ── */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:20}}>
         {[
-          {icon: Users, value: d.personal_referrals || 0, label: 'Direct Referrals', sub: activeRefs + ' active · ' + inactiveRefs + ' inactive', color: '#16a34a', bg: '#f0fdf4', border: '#dcfce7'},
-          {icon: TrendingUp, value: d.total_team || 0, label: 'Total Network', sub: 'All levels combined', color: '#0ea5e9', bg: '#f0f9ff', border: '#bae6fd'},
-          {icon: DollarSign, value: '$' + (d.total_earned || 0).toFixed(0), label: 'Lifetime Earned', sub: 'All streams combined', color: '#6366f1', bg: '#f5f3ff', border: '#e9d5ff'},
-          {icon: Award, value: '$' + ((d.grid_earnings || 0) + (d.course_earnings || 0) + (d.marketplace_earnings || 0)).toFixed(0), label: 'This Month', sub: 'Membership + Grid + Courses', color: '#f59e0b', bg: '#fffbeb', border: '#fef3c7'},
+          {icon: Users, value: d.personal_referrals || 0, label: t('network.directReferrals'), sub: activeRefs + ' active · ' + inactiveRefs + ' inactive', color: '#16a34a', bg: '#f0fdf4', border: '#dcfce7'},
+          {icon: TrendingUp, value: d.total_team || 0, label: t('network.totalNetwork'), sub: 'All levels combined', color: '#0ea5e9', bg: '#f0f9ff', border: '#bae6fd'},
+          {icon: DollarSign, value: '$' + (d.total_earned || 0).toFixed(0), label: t('network.lifetimeEarned'), sub: 'All streams combined', color: '#6366f1', bg: '#f5f3ff', border: '#e9d5ff'},
+          {icon: Award, value: '$' + ((d.grid_earnings || 0) + (d.course_earnings || 0) + (d.marketplace_earnings || 0)).toFixed(0), label: t('network.thisMonth'), sub: 'Membership + Grid + Courses', color: '#f59e0b', bg: '#fffbeb', border: '#fef3c7'},
         ].map(function(s, i) {
           var Icon = s.icon;
           return (

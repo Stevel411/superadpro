@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { Zap, GraduationCap, Play, Pause, RotateCcw, ArrowRight } from 'lucide-react';
@@ -12,10 +13,11 @@ var TABS = [
 ];
 
 export default function PassupVisualiser() {
+  var { t } = useTranslation();
   var [tab, setTab] = useState('passup');
 
   return (
-    <AppLayout title="Visualiser" subtitle="Watch your income streams come to life">
+    <AppLayout title={t("visualiser.title")} subtitle={t("visualiser.subtitle")}>
       <div style={{display:'flex',gap:6,marginBottom:24,borderBottom:'2px solid #e8ecf2',paddingBottom:0}}>
         {TABS.map(function(t) {
           var Icon = t.icon;

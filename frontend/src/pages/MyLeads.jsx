@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 import { Mail, Flame, UserPlus, MailOpen, Send, Filter } from 'lucide-react';
 
 export default function MyLeads() {
+  var { t } = useTranslation();
   var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);
   var [filter, setFilter] = useState('all');
@@ -12,7 +14,7 @@ export default function MyLeads() {
     apiGet('/api/leads').then(function(r) { setData(r); setLoading(false); }).catch(function() { setLoading(false); });
   }, []);
 
-  if (loading) return <AppLayout title="My Leads"><Spin/></AppLayout>;
+  if (loading) return <AppLayout title={t("leads.title")}><Spin/></AppLayout>;
 
   var d = data || {};
   var leads = d.leads || [];
@@ -25,7 +27,7 @@ export default function MyLeads() {
     leads.filter(function(l) { return l.status === filter; });
 
   return (
-    <AppLayout title="My Leads" subtitle="Track and nurture your captured leads">
+    <AppLayout title={t("leads.title")} subtitle={t("leads.subtitle")}>
       {/* Stats */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
         {[
