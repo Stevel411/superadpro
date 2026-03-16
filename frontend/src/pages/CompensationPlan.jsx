@@ -827,16 +827,16 @@ function GridSimulator(props) {
   useEffect(function() { return function() { if (timerRef.current) clearInterval(timerRef.current); }; }, []);
 
   return (
-    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:0,background:'#0f172a',borderRadius:14,overflow:'hidden',marginBottom:0}}>
+    <div style={{display:'grid',gridTemplateColumns:'55fr 45fr',gap:0,background:'#0f172a',borderRadius:14,overflow:'hidden',marginBottom:0}}>
 
       {/* LEFT — Explainer text */}
-      <div style={{padding:'32px 28px',display:'flex',flexDirection:'column',justifyContent:'center'}}>
+      <div style={{padding:'36px 32px',display:'flex',flexDirection:'column',justifyContent:'center'}}>
         <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:10}}>How the Grid Works</div>
-        <h3 style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#fff',margin:'0 0 14px',lineHeight:1.3}}>
+        <h3 style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#fff',margin:'0 0 16px',lineHeight:1.3}}>
           Every new member fills a seat in your grid
         </h3>
 
-        <div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:20}}>
+        <div style={{display:'flex',flexDirection:'column',gap:14,marginBottom:24}}>
           {[
             {num:'1',text:'When someone in your network activates a campaign tier, they fill one seat in your grid at that tier.',color:'#0ea5e9'},
             {num:'2',text:'You earn 6.25% uni-level commission on every seat filled — that\'s $6.25 per seat on the $100 tier.',color:'#6366f1'},
@@ -844,23 +844,23 @@ function GridSimulator(props) {
             {num:'4',text:'The grid then advances. New commissions require new members to join and activate the same tier.',color:'#f59e0b'},
           ].map(function(s, i) {
             return (
-              <div key={i} style={{display:'flex',gap:10,alignItems:'flex-start'}}>
-                <div style={{width:22,height:22,borderRadius:6,background:s.color,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:11,fontWeight:800,color:'#fff'}}>{s.num}</div>
-                <div style={{fontSize:12,color:'rgba(255,255,255,.6)',lineHeight:1.6}}>{s.text}</div>
+              <div key={i} style={{display:'flex',gap:12,alignItems:'flex-start'}}>
+                <div style={{width:26,height:26,borderRadius:7,background:s.color,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:12,fontWeight:800,color:'#fff'}}>{s.num}</div>
+                <div style={{fontSize:13,color:'rgba(255,255,255,.65)',lineHeight:1.7,paddingTop:2}}>{s.text}</div>
               </div>
             );
           })}
         </div>
 
-        <div style={{padding:'12px 14px',background:'rgba(255,255,255,.04)',borderRadius:8,border:'1px solid rgba(255,255,255,.06)'}}>
-          <div style={{fontSize:11,color:'rgba(255,255,255,.4)',lineHeight:1.5}}>
+        <div style={{padding:'14px 16px',background:'rgba(255,255,255,.04)',borderRadius:10,border:'1px solid rgba(255,255,255,.06)'}}>
+          <div style={{fontSize:11,color:'rgba(255,255,255,.4)',lineHeight:1.6}}>
             <strong style={{color:'rgba(255,255,255,.6)'}}>Important:</strong> Earnings shown are based on the $100 tier example. Actual income depends entirely on your network activity and is not guaranteed.
           </div>
         </div>
       </div>
 
-      {/* RIGHT — Animation */}
-      <div style={{padding:'28px 24px',background:'#0a0f1e',borderLeft:'1px solid #1e293b'}}>
+      {/* RIGHT — Animation (constrained) */}
+      <div style={{padding:'28px 24px',background:'#0a0f1e',borderLeft:'1px solid #1e293b',display:'flex',flexDirection:'column',justifyContent:'center'}}>
         {/* Header + controls */}
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
           <div style={{fontSize:13,fontWeight:800,color:'#fff'}}>$100 Tier Grid</div>
@@ -874,22 +874,24 @@ function GridSimulator(props) {
           </div>
         </div>
 
-        {/* 8×8 grid */}
-        <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:2,marginBottom:16}}>
-          {Array.from({length:64}).map(function(_, i) {
-            var isFilled = i < filled;
-            var isLatest = i === filled - 1 && running;
-            return (
-              <div key={i} style={{
-                aspectRatio:'1',borderRadius:3,
-                background:isFilled?(isLatest?'#22d3ee':'#0ea5e9'):'#1e293b',
-                border:'1px solid '+(isFilled?'#0ea5e999':'#293548'),
-                transition:'all .12s ease',
-                transform:isLatest?'scale(1.2)':'scale(1)',
-                boxShadow:isLatest?'0 0 10px rgba(14,165,233,.5)':'none',
-              }}/>
-            );
-          })}
+        {/* 8×8 grid — constrained */}
+        <div style={{maxWidth:240,margin:'0 auto 14px',width:'100%'}}>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:2}}>
+            {Array.from({length:64}).map(function(_, i) {
+              var isFilled = i < filled;
+              var isLatest = i === filled - 1 && running;
+              return (
+                <div key={i} style={{
+                  aspectRatio:'1',borderRadius:3,
+                  background:isFilled?(isLatest?'#22d3ee':'#0ea5e9'):'#1e293b',
+                  border:'1px solid '+(isFilled?'#0ea5e999':'#293548'),
+                  transition:'all .12s ease',
+                  transform:isLatest?'scale(1.2)':'scale(1)',
+                  boxShadow:isLatest?'0 0 10px rgba(14,165,233,.5)':'none',
+                }}/>
+              );
+            })}
+          </div>
         </div>
 
         {/* Live stats — 2×2 grid */}
