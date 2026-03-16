@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 
 from .database import (
-    User, Grid, Payment, Commission, Withdrawal, AdBoost, WatchdogLog,
+    User, Grid, Payment, Commission, Withdrawal, WatchdogLog,
     GRID_TOTAL, get_db
 )
 
@@ -113,21 +113,7 @@ def run_health_check(db: Session) -> dict:
     report["checks"].append({"name": "Grid advance integrity", "status": "error" if overfilled else "ok",
                               "detail": f"{len(overfilled)} stuck" if overfilled else "All clear"})
 
-    # ── 4. Expired boosts still active ──
-    expired_boosts = db.query(AdBoost).filter(
-        AdBoost.status == "active",
-        AdBoost.expires_at < datetime.utcnow()
-    ).all()
-    if expired_boosts:
-        report["issues"].append({
-            "type": "expired_boosts",
-            "severity": "low",
-            "count": len(expired_boosts)
-        })
-    report["checks"].append({"name": "Expired boosts cleanup", "status": "warn" if expired_boosts else "ok",
-                              "detail": f"{len(expired_boosts)} expired" if expired_boosts else "All clear"})
-
-    # ── 5. Pending withdrawals (> 24 hours) ──
+    # ── 4. Pending withdrawals (> 24 hours) ──
     day_ago = datetime.utcnow() - timedelta(hours=24)
     old_withdrawals = db.query(Withdrawal).filter(
         Withdrawal.status == "pending",
@@ -185,15 +171,6 @@ def auto_fix(db: Session, report: dict) -> dict:
             )
             db.commit()
             fixed.append({"type": itype, "action": f"Reset {count} negative balances to $0"})
-
-        # Fix expired boosts → mark inactive
-        elif itype == "expired_boosts":
-            count = db.query(AdBoost).filter(
-                AdBoost.status == "active",
-                AdBoost.expires_at < datetime.utcnow()
-            ).update({AdBoost.status: "expired"}, synchronize_session=False)
-            db.commit()
-            fixed.append({"type": itype, "action": f"Marked {count} expired boosts as inactive"})
 
         # Fix overfilled grids → force advance
         elif itype == "overfilled_grids":

@@ -247,7 +247,7 @@ function renderFlows(flows) {
     document.getElementById('logContainer').innerHTML = '<div class="empty"><div class="empty-icon">💰</div><div class="empty-title">No commissions in this category</div><div class="empty-sub">Commissions will appear here as your network grows.</div></div>';
     return;
   }
-  const streamLabels = {membership:'MEMBERSHIP',grid:'GRID',course:'COURSE',boost:'ADBOOST'};
+  const streamLabels = {membership:'MEMBERSHIP',grid:'GRID',course:'COURSE',};
   const streamClasses = {membership:'ft-membership',grid:'ft-grid',course:'ft-course',boost:'ft-boost'};
   let html = '<table class="flow-table"><thead><tr><th>From</th><th>Amount</th><th>Stream</th><th>Type</th><th>Date</th></tr></thead><tbody>';
   flows.forEach(f => {

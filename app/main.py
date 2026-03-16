@@ -21,7 +21,6 @@ from .database import (
     OWNER_PCT, UPLINE_PCT, LEVEL_PCT, COMPANY_PCT
 )
 from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker, CourseChapter, CourseLesson, CourseProgress
-from .database import AdBoost, BOOST_TIERS, BOOST_SPONSOR_PCT, BOOST_COMPANY_PCT
 from .coinbase_commerce import create_charge as cb_create_charge, verify_webhook_signature as cb_verify_sig, parse_webhook_event as cb_parse_event, SANDBOX_MODE as CB_SANDBOX
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick, Notification, Achievement, BADGES
 from .database import MemberCourse, MemberCourseChapter, MemberCourseLesson, MemberCoursePurchase
@@ -1437,13 +1436,6 @@ def video_library(request: Request, user: User = Depends(get_current_user),
         "platform_label": platform_label,
         "platform_colour": platform_colour,
         "added": request.query_params.get("added", ""),
-        "boost_tiers": BOOST_TIERS,
-        "active_boosts": {b.target_id: b for b in db.query(AdBoost).filter(
-            AdBoost.user_id == user.id,
-            AdBoost.boost_type == "video",
-            AdBoost.status == "active",
-            AdBoost.expires_at > datetime.utcnow()
-        ).all()},
     })
     return templates.TemplateResponse("video-library.html", ctx)
 
@@ -1577,225 +1569,6 @@ def upload_video_post(
 
     return RedirectResponse(url="/video-library?added=1", status_code=303)
 
-# ═══════════════════════════════════════════════════════════════
-#  ADBOOST ROUTES
-# ═══════════════════════════════════════════════════════════════
-
-@app.get("/api/boost/tiers")
-def boost_tiers_api():
-    """Return available boost tiers and pricing."""
-    return {"tiers": BOOST_TIERS}
-
-
-@app.post("/api/boost/purchase")
-async def purchase_boost(
-    request: Request,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """Purchase a boost for a video campaign or ad board listing.
-    Body: { boost_type: "video"|"adboard", target_id: int, tier: "spark"|"flame"|"blaze"|"inferno" }
-    Commission: 75% to direct sponsor, 25% to platform.
-    """
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-
-    body = await request.json()
-    boost_type = body.get("boost_type", "")
-    target_id  = body.get("target_id", 0)
-    tier_key   = body.get("tier", "")
-
-    # Validate tier
-    if tier_key not in BOOST_TIERS:
-        return JSONResponse({"error": f"Invalid boost tier: {tier_key}"}, status_code=400)
-
-    tier = BOOST_TIERS[tier_key]
-    price = tier["price"]
-
-    # Validate boost type and target ownership
-    if boost_type == "video":
-        target = db.query(VideoCampaign).filter(
-            VideoCampaign.id == target_id,
-            VideoCampaign.user_id == user.id,
-            VideoCampaign.status == "active"
-        ).first()
-        if not target:
-            return JSONResponse({"error": "Campaign not found or not active"}, status_code=404)
-    elif boost_type == "adboard":
-        target = db.query(AdListing).filter(
-            AdListing.id == target_id,
-            AdListing.user_id == user.id,
-            AdListing.is_active == True
-        ).first()
-        if not target:
-            return JSONResponse({"error": "Ad listing not found or not active"}, status_code=404)
-    else:
-        return JSONResponse({"error": "boost_type must be 'video' or 'adboard'"}, status_code=400)
-
-    # Check for existing active boost on same target
-    existing = db.query(AdBoost).filter(
-        AdBoost.target_id == target_id,
-        AdBoost.boost_type == boost_type,
-        AdBoost.user_id == user.id,
-        AdBoost.status == "active",
-        AdBoost.expires_at > datetime.utcnow()
-    ).first()
-    if existing:
-        return JSONResponse({
-            "error": f"This {boost_type} already has an active {existing.tier.title()} boost until {existing.expires_at.strftime('%d %b %Y %H:%M')} UTC"
-        }, status_code=400)
-
-    # Check balance
-    balance = float(user.balance or 0)
-    if balance < price:
-        return JSONResponse({
-            "error": f"Insufficient balance. Need ${price:.2f}, you have ${balance:.2f}"
-        }, status_code=400)
-
-    # Deduct balance
-    user.balance = float(user.balance or 0) - price
-    expires = datetime.utcnow() + timedelta(hours=tier["hours"])
-
-    # Create boost record
-    boost = AdBoost(
-        user_id=user.id,
-        boost_type=boost_type,
-        target_id=target_id,
-        tier=tier_key,
-        price_paid=price,
-        multiplier=tier["multiplier"],
-        starts_at=datetime.utcnow(),
-        expires_at=expires,
-        status="active"
-    )
-    db.add(boost)
-
-    # Pay sponsor commission (75%)
-    sponsor_payout = round(price * BOOST_SPONSOR_PCT, 2)
-    platform_fee = round(price * BOOST_COMPANY_PCT, 2)
-
-    if user.sponsor_id:
-        sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
-        if sponsor:
-            sponsor.balance = float(sponsor.balance or 0) + sponsor_payout
-            sponsor.total_earned = float(sponsor.total_earned or 0) + sponsor_payout
-            boost.sponsor_earned = sponsor_payout
-
-            # Record sponsor commission
-            comm = Commission(
-                to_user_id=sponsor.id,
-                from_user_id=user.id,
-                amount_usdt=sponsor_payout,
-                commission_type="boost",
-                notes=f"AdBoost {tier['label']} ({boost_type}) — 75% of ${price:.2f}",
-                grid_id=None,
-                package_tier=0, status="paid"
-            )
-            db.add(comm)
-    else:
-        # No sponsor — 75% goes to platform revenue (absorbed as company income)
-        boost.sponsor_earned = 0
-        logger.info(f"AdBoost: no sponsor for user {user.id}, ${sponsor_payout:.2f} sponsor share absorbed as platform revenue")
-
-    # Record platform fee (25%) — always logged for audit trail
-    platform_comm = Commission(
-        to_user_id=user.id,
-        from_user_id=user.id,
-        amount_usdt=platform_fee,
-        commission_type="boost_platform_fee",
-        notes=f"AdBoost {tier['label']} ({boost_type}) — platform 25% of ${price:.2f}",
-        grid_id=None,
-        package_tier=0, status="paid"
-    )
-    db.add(platform_comm)
-
-    # Apply boost effect
-    if boost_type == "video":
-        # Set priority_level based on multiplier (maps to scoring algorithm)
-        target.priority_level = max(target.priority_level or 0, tier["multiplier"])
-    elif boost_type == "adboard":
-        target.is_featured = True
-
-    db.commit()
-
-    return {
-        "success": True,
-        "boost_id": boost.id,
-        "tier": tier_key,
-        "label": tier["label"],
-        "multiplier": tier["multiplier"],
-        "expires_at": expires.strftime("%d %b %Y %H:%M UTC"),
-        "price": price,
-        "sponsor_earned": sponsor_payout if user.sponsor_id else 0,
-        "new_balance": round(float(user.balance), 2)
-    }
-
-
-@app.get("/api/boost/active")
-def active_boosts_api(
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """Return user's currently active boosts."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-
-    # Expire any that have passed
-    expired = db.query(AdBoost).filter(
-        AdBoost.user_id == user.id,
-        AdBoost.status == "active",
-        AdBoost.expires_at <= datetime.utcnow()
-    ).all()
-    for b in expired:
-        b.status = "expired"
-        # Reset priority if video boost
-        if b.boost_type == "video":
-            camp = db.query(VideoCampaign).filter(VideoCampaign.id == b.target_id).first()
-            if camp:
-                # Check if another active boost exists
-                other = db.query(AdBoost).filter(
-                    AdBoost.target_id == b.target_id,
-                    AdBoost.boost_type == "video",
-                    AdBoost.status == "active",
-                    AdBoost.expires_at > datetime.utcnow(),
-                    AdBoost.id != b.id
-                ).first()
-                if not other:
-                    camp.priority_level = 0
-        elif b.boost_type == "adboard":
-            ad = db.query(AdListing).filter(AdListing.id == b.target_id).first()
-            if ad:
-                other = db.query(AdBoost).filter(
-                    AdBoost.target_id == b.target_id,
-                    AdBoost.boost_type == "adboard",
-                    AdBoost.status == "active",
-                    AdBoost.expires_at > datetime.utcnow(),
-                    AdBoost.id != b.id
-                ).first()
-                if not other:
-                    ad.is_featured = False
-    if expired:
-        db.commit()
-
-    active = db.query(AdBoost).filter(
-        AdBoost.user_id == user.id,
-        AdBoost.status == "active",
-        AdBoost.expires_at > datetime.utcnow()
-    ).order_by(AdBoost.expires_at.asc()).all()
-
-    return {"boosts": [{
-        "id": b.id,
-        "boost_type": b.boost_type,
-        "target_id": b.target_id,
-        "tier": b.tier,
-        "label": BOOST_TIERS.get(b.tier, {}).get("label", b.tier),
-        "multiplier": b.multiplier,
-        "expires_at": b.expires_at.strftime("%d %b %Y %H:%M UTC"),
-        "price_paid": b.price_paid
-    } for b in active]}
-
-
-# ═══════════════════════════════════════════════════════════════
 #  PAYMENT ROUTES
 # ═══════════════════════════════════════════════════════════════
 
@@ -3634,29 +3407,6 @@ def admin_api_fix(
     logger.info(f"Admin auto-fix '{issue_type}': {len(fixed)} items fixed")
     return {"success": True, "issue_type": issue_type, "fixed_count": len(fixed), "details": fixed}
 
-# ── Boosts ───────────────────────────────────────────────────
-@app.get("/admin/api/boosts")
-def admin_api_boosts(
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    _require_admin(user)
-    boosts = db.query(AdBoost).order_by(AdBoost.starts_at.desc()).limit(100).all()
-    user_ids = {b.user_id for b in boosts}
-    users_map = {u.id: u.username for u in db.query(User).filter(User.id.in_(user_ids)).all()} if user_ids else {}
-    return {
-        "boosts": [{
-            "id": b.id, "user_id": b.user_id,
-            "username": users_map.get(b.user_id, "?"),
-            "type": b.boost_type, "tier": b.tier,
-            "price": round(float(b.price_paid or 0), 2),
-            "multiplier": b.multiplier, "status": b.status,
-            "sponsor_earned": round(float(b.sponsor_earned or 0), 2),
-            "starts": b.starts_at.isoformat() if b.starts_at else None,
-            "expires": b.expires_at.isoformat() if b.expires_at else None,
-        } for b in boosts]
-    }
-
 
 # ═══════════════════════════════════════════════════════════════
 #  ADMIN: Commission Flow Dashboard
@@ -5349,13 +5099,6 @@ def my_ads_page(request: Request, user: User = Depends(get_current_user), db: Se
         "user": user,
         "listings": listings,
         "categories": AD_CATEGORIES,
-        "boost_tiers": BOOST_TIERS,
-        "active_boosts": {b.target_id: b for b in db.query(AdBoost).filter(
-            AdBoost.user_id == user.id,
-            AdBoost.boost_type == "adboard",
-            AdBoost.status == "active",
-            AdBoost.expires_at > datetime.utcnow()
-        ).all()},
         "balance": round(float(user.balance or 0), 2),
     })
 
@@ -8044,14 +7787,6 @@ Higher tiers unlock larger ad campaigns and greater earning potential.
 4. **Platform fee**: 5% on transactions
 5. **Course Sales**: 100% commission on course sales with 5 pass-ups (2nd, 4th, 6th, 8th, 10th sales pass up to your sponsor)
 
-## ADBOOST SYSTEM
-AdBoost lets members promote their position for increased visibility:
-- Spark: $5 / 24 hours / 2x boost
-- Flame: $15 / 72 hours / 3x boost
-- Blaze: $40 / 168 hours / 5x boost
-- Inferno: $100 / 336 hours / 10x boost
-75% of AdBoost fees go to the direct sponsor, 25% to the platform.
-
 ## MARKETING TOOLS INCLUDED
 - SuperPages (drag-and-drop page builder)
 - Funnel Builder
@@ -8221,7 +7956,7 @@ def admin_adjust_balance(
     """
     Manually adjust a user's balance (positive to credit, negative to debit).
 
-    Usage: /admin/adjust-balance?secret=superadpro-owner-2026&username=master&amount=5.00&reason=Refund+lost+AdBoost
+    Usage: /admin/adjust-balance?secret=superadpro-owner-2026&username=master&amount=5.00&reason=Refund+adjustment
     """
     from fastapi.responses import JSONResponse
 
@@ -9048,7 +8783,7 @@ async def api_proseller_generate(request: Request, db: Session = Depends(get_db)
     # Build the prompt
     system_prompt = """You are ProSeller, an AI sales coach for SuperAdPro affiliates. SuperAdPro is a video advertising platform where:
 - Members watch real video ads and earn daily
-- 4 income streams: Membership ($20/mo, 50% to sponsor), 8×8 Income Grid (8 tiers $20-$1000, 40% direct + 50% uni-level across 8 levels), Courses, and AdBoost
+- 4 income streams: Membership ($20/mo, 50% to sponsor), 8×8 Income Grid (8 tiers $20-$1000, 40% direct + 50% uni-level across 8 levels), and Courses
 - 95% of every dollar is paid out to the network
 - Real advertising utility — advertisers pay for genuine video views from real people
 - AI-powered marketing tools built into the dashboard
