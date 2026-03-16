@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 
 export default function Achievements() {
+  var { t } = useTranslation();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 

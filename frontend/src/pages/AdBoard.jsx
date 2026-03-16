@@ -71,8 +71,8 @@ export default function AdBoard() {
       ) : (
         <div style={{textAlign:'center',padding:'60px 20px'}}>
           <div style={{fontSize:40,marginBottom:12,opacity:.3}}>📢</div>
-          <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:4}}>No listings yet</div>
-          <div style={{fontSize:13,color:'#94a3b8'}}>The ad board will fill up as members share their offers</div>
+          <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:4}}>{t('adBoard.noListingsYet')}</div>
+          <div style={{fontSize:13,color:'#94a3b8'}}>{t('adBoard.adBoardWillFill')}</div>
         </div>
       )}
     </AppLayout>

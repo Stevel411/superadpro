@@ -75,9 +75,9 @@ export default function AiTool({ title, subtitle, apiEndpoint, fields, resultLab
                   boxShadow:loading?'none':'0 4px 14px rgba(14,165,233,.3)',transition:'all .2s',
                   opacity:loading?0.7:1}}>
                 {loading ? (
-                  <><RefreshCw size={16} style={{animation:'spin .8s linear infinite'}}/> Generating...</>
+                  <><RefreshCw size={16} style={{animation:'spin .8s linear infinite'}}/> {t('common.generating')}</>
                 ) : (
-                  <><Wand2 size={16}/> Generate</>
+                  <><Wand2 size={16}/> {t('common.generate')}</>
                 )}
               </button>
             </div>
@@ -96,7 +96,7 @@ export default function AiTool({ title, subtitle, apiEndpoint, fields, resultLab
                 style={{display:'flex',alignItems:'center',gap:4,padding:'5px 12px',borderRadius:6,border:'none',cursor:'pointer',
                   background:copied?'rgba(22,163,74,.2)':'rgba(255,255,255,.1)',color:copied?'#4ade80':'rgba(255,255,255,.6)',
                   fontSize:11,fontWeight:700,fontFamily:'inherit',transition:'all .2s'}}>
-                {copied ? <><Check size={12}/> Copied</> : <><Copy size={12}/> Copy</>}
+                {copied ? <><Check size={12}/> {t('common.copied')}</> : <><Copy size={12}/> {t('common.copy')}</>}
               </button>
             )}
           </div>
@@ -115,8 +115,8 @@ export default function AiTool({ title, subtitle, apiEndpoint, fields, resultLab
                 <div style={{width:48,height:48,borderRadius:14,background:'#f8f9fb',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px'}}>
                   <Bot size={24} color="#cbd5e1"/>
                 </div>
-                <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:4}}>Ready to generate</div>
-                <div style={{fontSize:12,color:'#94a3b8'}}>Fill in the form and click Generate</div>
+                <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:4}}>{t('marketing.readyToGenerate')}</div>
+                <div style={{fontSize:12,color:'#94a3b8'}}>{t('marketing.fillInForm')}</div>
               </div>
             )}
           </div>

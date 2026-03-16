@@ -31,10 +31,10 @@ export default function MyLeads() {
       {/* Stats */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
         {[
-          {value:d.total||0,label:'Total Leads',color:'#0ea5e9',bg:'#f0f9ff',border:'#bae6fd',icon:UserPlus},
-          {value:hotCount,label:'Hot Leads',color:'#ef4444',bg:'#fef2f2',border:'#fecaca',icon:Flame},
-          {value:totalEmails,label:'Emails Sent',color:'#6366f1',bg:'#f5f3ff',border:'#e9d5ff',icon:Send},
-          {value:totalOpens,label:'Emails Opened',color:'#16a34a',bg:'#f0fdf4',border:'#dcfce7',icon:MailOpen},
+          {value:d.total||0,label:t('leads.totalLeads'),color:'#0ea5e9',bg:'#f0f9ff',border:'#bae6fd',icon:UserPlus},
+          {value:hotCount,label:t('leads.hotLeads'),color:'#ef4444',bg:'#fef2f2',border:'#fecaca',icon:Flame},
+          {value:totalEmails,label:t('leads.emailsSent'),color:'#6366f1',bg:'#f5f3ff',border:'#e9d5ff',icon:Send},
+          {value:totalOpens,label:t('leads.emailsOpened'),color:'#16a34a',bg:'#f0fdf4',border:'#dcfce7',icon:MailOpen},
         ].map(function(s, i) {
           var Icon = s.icon;
           return (
@@ -54,14 +54,14 @@ export default function MyLeads() {
         <div style={{background:'#1c223d',padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
             <Mail size={16} color="#38bdf8"/>
-            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Lead Database</div>
+            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('leads.leadDatabase')}</div>
           </div>
           <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.4)'}}>{filtered.length} leads</div>
         </div>
 
         {/* Filters */}
         <div style={{display:'flex',gap:4,padding:'12px 20px',borderBottom:'1px solid #f1f5f9'}}>
-          {[{key:'all',label:'All'},{key:'new',label:'New'},{key:'contacted',label:'Contacted'},{key:'hot',label:'Hot'}].map(function(f) {
+          {[{key:'all',label:t('common.all')},{key:'new',label:t('common.new')},{key:'contacted',label:t('leads.contacted')},{key:'hot',label:t('leads.hot')}].map(function(f) {
             var on = filter === f.key;
             return (
               <button key={f.key} onClick={function() { setFilter(f.key); }}
@@ -79,7 +79,7 @@ export default function MyLeads() {
             <table style={{width:'100%',borderCollapse:'collapse'}}>
               <thead>
                 <tr>
-                  {['Lead','Status','Emails','Source','Captured'].map(function(h) {
+                  {[t('leads.lead'),t('common.status'),t('leads.emails'),t('leads.source'),t('leads.captured')].map(function(h) {
                     return <th key={h} style={{fontSize:10,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,padding:'11px 16px',borderBottom:'2px solid #e8ecf2',textAlign:'left',background:'#f8f9fb'}}>{h}</th>;
                   })}
                 </tr>
@@ -120,8 +120,8 @@ export default function MyLeads() {
         ) : (
           <div style={{textAlign:'center',padding:'60px 20px'}}>
             <div style={{fontSize:40,marginBottom:12,opacity:.3}}>📧</div>
-            <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:4}}>No leads captured yet</div>
-            <div style={{fontSize:13,color:'#94a3b8'}}>Use SuperPages and funnels to capture leads</div>
+            <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:4}}>{t('leads.noLeadsYet')}</div>
+            <div style={{fontSize:13,color:'#94a3b8'}}>{t('leads.useSuperpages')}</div>
           </div>
         )}
       </div>

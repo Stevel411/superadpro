@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
@@ -5,6 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { apiPost } from '../utils/api';
 
 export default function Account() {
+  var { t } = useTranslation();
   const { user, refreshUser } = useAuth();
   const [toast, setToast] = useState(null);
   const [firstName, setFirstName] = useState(user?.first_name || '');
@@ -35,7 +37,7 @@ export default function Account() {
   const kyc = user.kyc_status || 'none';
 
   return (
-    <AppLayout title="My Profile" subtitle="Manage your account, security, and wallet">
+    <AppLayout title={t("account.title")} subtitle="Manage your account, security, and wallet">
       {toast && <div style={{borderRadius:8,padding:'8px 14px',marginBottom:12,fontSize:12,fontWeight:600,...(toast.type==='ok'?{background:'#dcfce7',border:'1px solid rgba(22,163,74,.2)',color:'#16a34a'}:{background:'#fef2f2',border:'1px solid #fecaca',color:'#dc2626'})}}>{toast.msg}</div>}
 
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,alignItems:'stretch'}}>

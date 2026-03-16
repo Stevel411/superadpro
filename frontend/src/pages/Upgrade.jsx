@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Upgrade() {
+  var { t } = useTranslation();
   const { user } = useAuth();
   const isPro = user?.membership_tier === 'pro';
 

@@ -38,14 +38,14 @@ export default function CourseCreate() {
         {/* Pro badge */}
         <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:20,padding:'12px 16px',background:'rgba(139,92,246,.04)',borderRadius:10,border:'1px solid rgba(139,92,246,.1)'}}>
           <Lock size={14} color="#8b5cf6"/>
-          <span style={{fontSize:12,fontWeight:700,color:'#8b5cf6'}}>Pro Feature</span>
-          <span style={{fontSize:12,color:'#64748b'}}>— Course creation is available to Pro members ($30/mo)</span>
+          <span style={{fontSize:12,fontWeight:700,color:'#8b5cf6'}}>{t('compPlan.proFeature')}</span>
+          <span style={{fontSize:12,color:'#64748b'}}>— {t('courseCreate.proFeatureNote')}</span>
         </div>
 
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
           <div style={{background:'#1c223d',padding:'16px 24px',display:'flex',alignItems:'center',gap:8}}>
             <PenLine size={16} color="#a78bfa"/>
-            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Course Details</div>
+            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('courseCreate.courseDetails')}</div>
           </div>
           <div style={{padding:'24px'}}>
             {error && (
@@ -57,7 +57,7 @@ export default function CourseCreate() {
             {/* Title */}
             <div style={{marginBottom:18}}>
               <label style={{display:'flex',alignItems:'center',gap:6,fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>
-                <BookOpen size={12}/> Course Title
+                <BookOpen size={12}/> {t('courseCreate.courseTitle')}
               </label>
               <input value={title} onChange={function(e) { setTitle(e.target.value); }}
                 placeholder="e.g. Digital Marketing Mastery"
@@ -67,7 +67,7 @@ export default function CourseCreate() {
             {/* Description */}
             <div style={{marginBottom:18}}>
               <label style={{display:'flex',alignItems:'center',gap:6,fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>
-                <FileText size={12}/> Description
+                <FileText size={12}/> {t('courseCreate.description')}
               </label>
               <textarea value={description} onChange={function(e) { setDescription(e.target.value); }}
                 placeholder="What will students learn? What makes this course unique?"
@@ -79,14 +79,14 @@ export default function CourseCreate() {
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:24}}>
               <div>
                 <label style={{display:'flex',alignItems:'center',gap:6,fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>
-                  <DollarSign size={12}/> Price (USD)
+                  <DollarSign size={12}/> {t('courseCreate.priceUsd')}
                 </label>
                 <input type="number" value={price} onChange={function(e) { setPrice(e.target.value); }}
                   placeholder="e.g. 100"
                   style={{width:'100%',padding:'12px 16px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#f8f9fb'}}/>
               </div>
               <div>
-                <label style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6,display:'block'}}>Course Tier</label>
+                <label style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6,display:'block'}}>{t('courseCreate.courseTier')}</label>
                 <div style={{display:'flex',gap:6}}>
                   {[{t:1,name:'Starter',price:'$100',color:'#16a34a'},{t:2,name:'Advanced',price:'$300',color:'#0ea5e9'},{t:3,name:'Elite',price:'$500',color:'#8b5cf6'}].map(function(o) {
                     var on = tier === o.t;
@@ -106,7 +106,7 @@ export default function CourseCreate() {
 
             {/* Commission info */}
             <div style={{padding:'14px 16px',background:'#f8f9fb',borderRadius:10,border:'1px solid #e8ecf2',marginBottom:20}}>
-              <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>Commission Structure</div>
+              <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>{t('courseCreate.commissionStructure')}</div>
               <div style={{fontSize:12,color:'#475569',lineHeight:1.7}}>
                 When your course sells: you keep 100% on odd sales (1st, 3rd, 5th...) and pass up even sales (2nd, 4th, 6th, 8th) to your sponsor. Your sponsor must own the same tier to receive the pass-up.
               </div>

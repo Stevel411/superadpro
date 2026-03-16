@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
@@ -41,6 +42,7 @@ function TemplatePreview({ bg, accent, Icon }) {
 }
 
 export default function Funnels() {
+  var { t } = useTranslation();
   const [pages,setPages]=useState([]);
   const [loading,setLoading]=useState(true);
   const [creating,setCreating]=useState(false);

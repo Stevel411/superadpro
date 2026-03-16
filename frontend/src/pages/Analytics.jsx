@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 import { Eye, MousePointer, Users, DollarSign, TrendingUp, Target, Tv, Award, Wallet, BarChart3, PieChart, Activity } from 'lucide-react';
 
 export default function Analytics() {
+  var { t } = useTranslation();
   const [d, setD] = useState(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => { apiGet('/api/analytics').then(r => { setD(r); setLoading(false); }).catch(() => setLoading(false)); }, []);

@@ -385,14 +385,14 @@ function PassUpSection() {
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
           <div style={{background:'#1c223d',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div>
-              <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa'}}>Infinite Pass-Up</div>
+              <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa'}}>{t('visualiser.infinitePassUp')}</div>
               <div style={{fontSize:15,fontWeight:800,color:'#fff'}}>${tier} {tier===100?'Starter':tier===300?'Advanced':'Elite'} Tier</div>
             </div>
             <div style={{display:'flex',gap:6}}>
               <button onClick={togglePlay}
                 style={{display:'flex',alignItems:'center',gap:4,padding:'7px 16px',borderRadius:8,border:'none',cursor:'pointer',
                   background:playing?'#334155':'#8b5cf6',color:'#fff',fontSize:12,fontWeight:800,fontFamily:'inherit'}}>
-                {playing ? <><Pause size={13}/> Pause</> : <><Play size={13}/> Play</>}
+                {playing ? <><Pause size={13}/> {t('common.pause')}</> : <><Play size={13}/> {t('common.play')}</>}
               </button>
               <button onClick={initSim}
                 style={{display:'flex',alignItems:'center',gap:4,padding:'7px 12px',borderRadius:8,border:'1px solid #e8ecf2',cursor:'pointer',
@@ -496,24 +496,24 @@ function PassUpSection() {
         {/* RIGHT — Stats */}
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
           <div style={{background:'linear-gradient(135deg,#4c1d95,#7c3aed)',borderRadius:14,padding:20,textAlign:'center',color:'#fff'}}>
-            <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.5)',marginBottom:4}}>Your Total This Round</div>
+            <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.5)',marginBottom:4}}>{t('visualiser.yourTotalThisRound')}</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:800}}>${totalAmt.toLocaleString()}</div>
             <div style={{fontSize:12,color:'rgba(255,255,255,.5)',marginTop:4}}>{st.kept} kept · {st.passups} pass-ups received</div>
           </div>
 
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16}}>
-            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:10}}>Live Earnings</div>
+            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:10}}>{t('visualiser.liveEarnings')}</div>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0',borderBottom:'1px solid #f5f6f8'}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
                 <div style={{width:8,height:8,borderRadius:4,background:'#10b981'}}/>
-                <div><div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>Direct Sales Kept</div><div style={{fontSize:10,color:'#94a3b8'}}>Your sales 1,3,5,7,9+</div></div>
+                <div><div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>{t('visualiser.directSalesKept')}</div><div style={{fontSize:10,color:'#94a3b8'}}>Your sales 1,3,5,7,9+</div></div>
               </div>
               <div style={{fontSize:18,fontWeight:800,color:'#10b981'}}>${st.keptAmt.toLocaleString()}</div>
             </div>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0'}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
                 <div style={{width:8,height:8,borderRadius:4,background:'#f59e0b'}}/>
-                <div><div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>Pass-Ups Received</div><div style={{fontSize:10,color:'#94a3b8'}}>Team's 2nd, 4th, 6th, 8th</div></div>
+                <div><div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>{t('visualiser.passUpsReceived')}</div><div style={{fontSize:10,color:'#94a3b8'}}>Team's 2nd, 4th, 6th, 8th</div></div>
               </div>
               <div style={{fontSize:18,fontWeight:800,color:'#f59e0b'}}>${st.passupAmt.toLocaleString()}</div>
             </div>
@@ -521,25 +521,25 @@ function PassUpSection() {
 
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
-              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>DIRECT SALES</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>{t('visualiser.directSales')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#10b981'}}>{st.kept}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
-              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>PASS-UPS</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>{t('visualiser.passUps')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#f59e0b'}}>{st.passups}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
-              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>TEAM SALES</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>{t('visualiser.teamSales')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#0ea5e9'}}>{st.totalSales}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
-              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>TIER</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>{t('visualiser.tier')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#8b5cf6'}}>${tier}</div>
             </div>
           </div>
 
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16}}>
-            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:10}}>4 Pass-Up Routes</div>
+            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:10}}>{t('visualiser.fourPassUpRoutes')}</div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
               {[
                 {n:'1',title:'Keep',desc:'Sales 1,3,5,7,9+',color:'#10b981'},
@@ -559,9 +559,9 @@ function PassUpSection() {
           </div>
 
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16,flex:1,minHeight:180}}>
-            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:10}}>Activity Log</div>
+            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:10}}>{t('visualiser.activityLog')}</div>
             <div style={{display:'flex',flexDirection:'column',gap:4,maxHeight:300,overflowY:'auto'}}>
-              {log.length === 0 && <div style={{fontSize:11,color:'#94a3b8'}}>Press Play to watch your team build...</div>}
+              {log.length === 0 && <div style={{fontSize:11,color:'#94a3b8'}}>{t('visualiser.pressPlayToWatch')}</div>}
               {log.map(function(l, i) {
                 return (
                   <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'5px 0',borderBottom:'1px solid #f5f6f8',fontSize:12}}>
@@ -744,25 +744,25 @@ function GridVisSection() {
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
           <div style={{background:'#1c223d',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div>
-              <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8'}}>8×8 Profit Engine</div>
+              <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8'}}>{t('visualiser.profitEngine')}</div>
               <div style={{fontSize:15,fontWeight:800,color:'#fff'}}>${PRICE} {tier.name} Grid</div>
             </div>
             <div style={{display:'flex',gap:6,alignItems:'center'}}>
               <div style={{display:'flex',alignItems:'center',gap:4,fontSize:9,color:'#94a3b8',letterSpacing:1,background:'rgba(255,255,255,.08)',padding:'5px 10px',borderRadius:6}}>
-                <span style={{color:'#fff',fontWeight:700}}>DIRECTS</span>
+                <span style={{color:'#fff',fontWeight:700}}>{t('visualiser.directs')}</span>
                 <input type="number" min={1} max={30} value={numDirects}
                   onChange={function(e) { var v = parseInt(e.target.value); if (v >= 1 && v <= 30) setNumDirects(v); }}
                   style={{width:38,padding:'3px 4px',borderRadius:4,border:'1px solid rgba(255,255,255,.2)',background:'rgba(255,255,255,.1)',color:'#fff',fontSize:12,fontWeight:800,fontFamily:'inherit',textAlign:'center'}}/>
               </div>
               <div style={{display:'flex',alignItems:'center',gap:4,fontSize:9,color:'#94a3b8',letterSpacing:1}}>
-                <span>SPEED</span>
+                <span>{t('visualiser.speed')}</span>
                 <input type="range" min={1} max={5} value={speed} onChange={function(e) { setSpeed(parseInt(e.target.value)); }}
                   style={{width:50,accentColor:'#0ea5e9',cursor:'pointer'}}/>
               </div>
               <button onClick={togglePlay}
                 style={{display:'flex',alignItems:'center',gap:4,padding:'7px 16px',borderRadius:8,border:'none',cursor:'pointer',
                   background:running?'#334155':'#0ea5e9',color:'#fff',fontSize:12,fontWeight:800,fontFamily:'inherit'}}>
-                {running ? <><Pause size={13}/> Pause</> : <><Play size={13}/> {filled>=64?'Replay':'Simulate'}</>}
+                {running ? <><Pause size={13}/> {t('common.pause')}</> : <><Play size={13}/> {filled>=64?'Replay':'Simulate'}</>}
               </button>
               <button onClick={initSim}
                 style={{display:'flex',alignItems:'center',gap:4,padding:'7px 12px',borderRadius:8,border:'1px solid #e8ecf2',cursor:'pointer',
@@ -848,7 +848,7 @@ function GridVisSection() {
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
           {/* Total hero */}
           <div style={{background:'linear-gradient(135deg,#0b1729,#132240)',borderRadius:14,padding:20,textAlign:'center',color:'#fff'}}>
-            <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'rgba(56,189,248,.5)',marginBottom:4}}>Your Total Earnings</div>
+            <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'rgba(56,189,248,.5)',marginBottom:4}}>{t('visualiser.yourTotalEarnings')}</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:34,fontWeight:800}}>${Math.round(totalEarned).toLocaleString()}</div>
             <div style={{fontSize:11,color:'rgba(200,220,255,.35)',marginTop:4}}>Per grid completion · {tier.name} tier</div>
           </div>
@@ -874,19 +874,19 @@ function GridVisSection() {
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0ea5e9'}}>{st.direct}</div>
-              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>Direct Fills</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>{t('visualiser.directFills')}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#22c55e'}}>{st.network}</div>
-              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>Network Fills</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>{t('visualiser.networkFills')}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#6366f1'}}>${Math.round(st.earned)}</div>
-              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>Uni-Level</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>{t('visualiser.uniLevel')}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#10b981'}}>${Math.round(st.bonus)}</div>
-              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>Bonus Pool</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>{t('visualiser.bonus')}</div>
             </div>
           </div>
 
@@ -909,9 +909,9 @@ function GridVisSection() {
 
           {/* Live commission log */}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16,flex:1,minHeight:180}}>
-            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#0ea5e9',marginBottom:10}}>Live Commission Feed</div>
+            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#0ea5e9',marginBottom:10}}>{t('visualiser.liveCommissionFeed')}</div>
             <div style={{display:'flex',flexDirection:'column',gap:4,maxHeight:280,overflowY:'auto'}}>
-              {logs.length === 0 && <div style={{fontSize:11,color:'#94a3b8',textAlign:'center',padding:12}}>Press Simulate to start...</div>}
+              {logs.length === 0 && <div style={{fontSize:11,color:'#94a3b8',textAlign:'center',padding:12}}>{t('visualiser.pressSimulateToStart')}</div>}
               {logs.map(function(l, i) {
                 var color = DEPTH_COLORS[l.depth - 1];
                 return (
@@ -935,7 +935,7 @@ function GridVisSection() {
           {/* Completion banner */}
           {complete && (
             <div style={{textAlign:'center',padding:16,background:'linear-gradient(135deg,rgba(74,222,128,.08),rgba(14,165,233,.08))',borderRadius:12,border:'1px solid rgba(74,222,128,.15)'}}>
-              <div style={{fontSize:16,fontWeight:800,color:'#4ade80',marginBottom:6}}>Grid Complete!</div>
+              <div style={{fontSize:16,fontWeight:800,color:'#4ade80',marginBottom:6}}>{t('visualiser.gridComplete')}</div>
               <div style={{fontSize:12,color:'#64748b'}}>64 seats filled. Total earned: <strong style={{color:'#0ea5e9'}}>${Math.round(totalEarned).toLocaleString()}</strong></div>
               <div style={{fontSize:11,color:'#94a3b8',marginTop:4}}>Grid advances to the next round. Future earnings require new network activity.</div>
             </div>

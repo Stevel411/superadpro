@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
@@ -15,6 +16,7 @@ const TIERS = [
 ];
 
 export default function CampaignTiers() {
+  var { t } = useTranslation();
   const [activeTiers, setActiveTiers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -22,10 +24,10 @@ export default function CampaignTiers() {
     apiGet('/api/campaign-tiers').then(d => { setActiveTiers(d.active_tiers || []); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
-  if (loading) return <AppLayout title="Campaign Tiers"><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
+  if (loading) return <AppLayout title={t("nav.campaignTiers")}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
 
   return (
-    <AppLayout title="Campaign Tiers" subtitle="Activate tiers to unlock advertising & earn commissions">
+    <AppLayout title={t("nav.campaignTiers")} subtitle="Activate tiers to unlock advertising & earn commissions">
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:14}}>
         {TIERS.slice(0,4).map((t,i) => <TierCard key={t.n} tier={t} active={activeTiers.includes(t.n)} delay={i * 0.5} />)}
       </div>

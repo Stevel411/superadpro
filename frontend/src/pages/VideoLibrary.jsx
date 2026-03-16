@@ -35,9 +35,9 @@ export default function VideoLibrary() {
       {/* Stats */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:24}}>
         {[
-          {value:d.total_campaigns||0,label:'Total Campaigns',color:'#0ea5e9',bg:'#f0f9ff',border:'#bae6fd',icon:Film},
-          {value:d.active_campaigns||0,label:'Active',color:'#16a34a',bg:'#f0fdf4',border:'#dcfce7',icon:Play},
-          {value:(d.total_views||0).toLocaleString(),label:'Total Views Delivered',color:'#6366f1',bg:'#f5f3ff',border:'#e9d5ff',icon:Eye},
+          {value:d.total_campaigns||0,label:t('videos.totalCampaigns'),color:'#0ea5e9',bg:'#f0f9ff',border:'#bae6fd',icon:Film},
+          {value:d.active_campaigns||0,label:t('videos.activeCampaigns'),color:'#16a34a',bg:'#f0fdf4',border:'#dcfce7',icon:Play},
+          {value:(d.total_views||0).toLocaleString(),label:t('videos.totalViewsDelivered'),color:'#6366f1',bg:'#f5f3ff',border:'#e9d5ff',icon:Eye},
         ].map(function(s, i) {
           var Icon = s.icon;
           return (
@@ -57,7 +57,7 @@ export default function VideoLibrary() {
         <div style={{background:'#1c223d',padding:'16px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
             <Film size={16} color="#38bdf8"/>
-            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Your Campaigns</div>
+            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('videos.yourCampaigns')}</div>
           </div>
           <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.4)'}}>{campaigns.length} campaigns</div>
         </div>
@@ -65,7 +65,7 @@ export default function VideoLibrary() {
           <table style={{width:'100%',borderCollapse:'collapse'}}>
             <thead>
               <tr>
-                {['Campaign','Platform','Status','Views','Progress'].map(function(h) {
+                {[t('videos.campaign'),t('videos.platform'),t('common.status'),t('videos.views'),t('videos.progress')].map(function(h) {
                   return <th key={h} style={{fontSize:10,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,padding:'12px 16px',borderBottom:'2px solid #e8ecf2',textAlign:'left',background:'#f8f9fb'}}>{h}</th>;
                 })}
               </tr>
@@ -106,8 +106,8 @@ export default function VideoLibrary() {
         ) : (
           <div style={{textAlign:'center',padding:'60px 20px'}}>
             <div style={{fontSize:40,marginBottom:12,opacity:.3}}>🎬</div>
-            <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:4}}>No campaigns yet</div>
-            <div style={{fontSize:13,color:'#94a3b8'}}>Activate a campaign tier to start advertising</div>
+            <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:4}}>{t('videos.noCampaignsYet')}</div>
+            <div style={{fontSize:13,color:'#94a3b8'}}>{t('videos.activateATier')}</div>
           </div>
         )}
       </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -6,6 +7,7 @@ import AppLayout from '../components/layout/AppLayout';
 import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye } from 'lucide-react';
 
 export default function Dashboard() {
+  var { t } = useTranslation();
   const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,14 +20,14 @@ export default function Dashboard() {
   }, []);
 
   if (loading) {
-    return <AppLayout title="Dashboard"><div style={{ display: 'flex', justifyContent: 'center', padding: 80 }}>
+    return <AppLayout title={t("dashboard.title")}><div style={{ display: 'flex', justifyContent: 'center', padding: 80 }}>
       <div style={{ width: 40, height: 40, border: '3px solid #e5e7eb', borderTopColor: '#0ea5e9', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
     </div></AppLayout>;
   }
 
   if (!data) {
-    return <AppLayout title="Dashboard"><div style={{ textAlign: 'center', padding: 80, color: '#94a3b8' }}>Unable to load dashboard data</div></AppLayout>;
+    return <AppLayout title={t("dashboard.title")}><div style={{ textAlign: 'center', padding: 80, color: '#94a3b8' }}>Unable to load dashboard data</div></AppLayout>;
   }
 
   const d = data;
@@ -56,7 +58,7 @@ export default function Dashboard() {
 
   return (
     <AppLayout
-      title="Dashboard"
+      title={t("dashboard.title")}
       subtitle={`Good ${greeting}, ${d.display_name || user?.first_name || user?.username} 👋`}
       topbarActions={<>
         <div style={{ background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: 10, padding: '7px 16px' }}>

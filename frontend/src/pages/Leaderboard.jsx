@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet } from '../utils/api';
 
 export default function Leaderboard() {
+  var { t } = useTranslation();
   const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);

@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { apiPost } from '../utils/api';
 
 export default function Support() {
+  var { t } = useTranslation();
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
@@ -20,7 +22,7 @@ export default function Support() {
   };
 
   return (
-    <AppLayout title="💬 Support" subtitle="Get help, report issues, or contact the team">
+    <AppLayout title="💬 Support" subtitle={t("support.subtitle")}>
       <div style={{maxWidth:800,margin:'0 auto'}}>
         {/* Quick Links */}
         <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:24}}>

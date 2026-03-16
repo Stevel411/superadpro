@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
@@ -5,6 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
 
 export default function Watch() {
+  var { t } = useTranslation();
   const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -127,8 +129,8 @@ export default function Watch() {
     return `${url}${sep}autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&enablejsapi=1`;
   };
 
-  if (loading) return <AppLayout title="Watch to Earn"><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
-  if (!data) return <AppLayout title="Watch to Earn"><div style={{textAlign:'center',padding:80,color:'#94a3b8'}}>Unable to load</div></AppLayout>;
+  if (loading) return <AppLayout title={t("watch.title")}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
+  if (!data) return <AppLayout title={t("watch.title")}><div style={{textAlign:'center',padding:80,color:'#94a3b8'}}>Unable to load</div></AppLayout>;
 
   const d = data;
   const videos = d.videos || [];
@@ -154,7 +156,7 @@ export default function Watch() {
   if (d.quota_reached || allWatched) {
     const videosCompleted = Math.max(watched, videos.filter(v => v.is_watched).length);
     return (
-      <AppLayout title="Watch to Earn" subtitle="Daily quota complete">
+      <AppLayout title={t("watch.title")} subtitle="Daily quota complete">
         <div style={{maxWidth:750,margin:'0 auto'}}>
           <div style={{background:'linear-gradient(135deg,#0b1729 0%,#132240 50%,#0e1c30 100%)',borderRadius:8,padding:'52px 40px',textAlign:'center',position:'relative',overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.2),0 8px 24px rgba(0,0,0,.15)'}}>
             {/* Animated orbs */}
@@ -216,7 +218,7 @@ export default function Watch() {
   // ═══ NO VIDEOS ═══
   if (videos.length === 0) {
     return (
-      <AppLayout title="Watch to Earn" subtitle="No active campaigns">
+      <AppLayout title={t("watch.title")} subtitle="No active campaigns">
         <div style={{maxWidth:700,margin:'0 auto'}}>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:8,padding:'56px 32px',textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03)'}}>
             <div style={{fontSize:48,marginBottom:16,opacity:.5}}>📭</div>
@@ -231,7 +233,7 @@ export default function Watch() {
 
   // ═══ WATCH SESSION ═══
   return (
-    <AppLayout title="Watch to Earn" subtitle="Complete your daily quota to stay commission-eligible"
+    <AppLayout title={t("watch.title")} subtitle="Complete your daily quota to stay commission-eligible"
       topbarActions={<>
         <div style={{background:'rgba(14,165,233,.12)',border:'1px solid rgba(14,165,233,.2)',borderRadius:8,padding:'6px 14px',textAlign:'center'}}>
           <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'#38bdf8'}}>Tier {d.tier}</div>

@@ -45,7 +45,7 @@ export default function MyNetwork() {
       {/* ── Referral Link Banner ── */}
       <div style={{background:'linear-gradient(135deg,#1c223d,#0f172a)',borderRadius:14,padding:'20px 24px',marginBottom:20,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <div>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>Your Referral Link</div>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('network.yourReferralLink')}</div>
           <div style={{fontSize:14,fontWeight:600,color:'rgba(255,255,255,.6)',fontFamily:'monospace'}}>
             {window.location.origin}/join/{d.username || 'member'}
           </div>
@@ -53,7 +53,7 @@ export default function MyNetwork() {
         <button onClick={copyLink}
           style={{display:'flex',alignItems:'center',gap:6,padding:'10px 20px',borderRadius:10,border:'none',cursor:'pointer',
             background:copied?'#16a34a':'#0ea5e9',color:'#fff',fontSize:13,fontWeight:800,fontFamily:'inherit',transition:'all .2s'}}>
-          {copied ? <><Check size={14}/> Copied!</> : <><Copy size={14}/> {t('network.copyLink')}</>}
+          {copied ? <><Check size={14}/> {t('common.copied')}</> : <><Copy size={14}/> {t('network.copyLink')}</>}
         </button>
       </div>
 
@@ -61,9 +61,9 @@ export default function MyNetwork() {
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:20}}>
         {[
           {icon: Users, value: d.personal_referrals || 0, label: t('network.directReferrals'), sub: activeRefs + ' active · ' + inactiveRefs + ' inactive', color: '#16a34a', bg: '#f0fdf4', border: '#dcfce7'},
-          {icon: TrendingUp, value: d.total_team || 0, label: t('network.totalNetwork'), sub: 'All levels combined', color: '#0ea5e9', bg: '#f0f9ff', border: '#bae6fd'},
-          {icon: DollarSign, value: '$' + (d.total_earned || 0).toFixed(0), label: t('network.lifetimeEarned'), sub: 'All streams combined', color: '#6366f1', bg: '#f5f3ff', border: '#e9d5ff'},
-          {icon: Award, value: '$' + ((d.grid_earnings || 0) + (d.course_earnings || 0) + (d.marketplace_earnings || 0)).toFixed(0), label: t('network.thisMonth'), sub: 'Membership + Grid + Courses', color: '#f59e0b', bg: '#fffbeb', border: '#fef3c7'},
+          {icon: TrendingUp, value: d.total_team || 0, label: t('network.totalNetwork'), sub: t('network.allLevelsCombined'), color: '#0ea5e9', bg: '#f0f9ff', border: '#bae6fd'},
+          {icon: DollarSign, value: '$' + (d.total_earned || 0).toFixed(0), label: t('network.lifetimeEarned'), sub: t('network.allStreamsCombined'), color: '#6366f1', bg: '#f5f3ff', border: '#e9d5ff'},
+          {icon: Award, value: '$' + ((d.grid_earnings || 0) + (d.course_earnings || 0) + (d.marketplace_earnings || 0)).toFixed(0), label: t('network.thisMonth'), sub: t('network.membershipGridCourses'), color: '#f59e0b', bg: '#fffbeb', border: '#fef3c7'},
         ].map(function(s, i) {
           var Icon = s.icon;
           return (
@@ -82,13 +82,13 @@ export default function MyNetwork() {
       {/* ── Earnings by Stream ── */}
       <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:20,boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
         <div style={{background:'#1c223d',padding:'16px 24px'}}>
-          <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Earnings by Stream</div>
+          <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('network.earningsByStream')}</div>
         </div>
         <div style={{padding:'20px 24px',display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14}}>
           {[
-            {label:'Membership Residual',value:'$'+(d.membership_earnings || d.total_earned * 0.3 || 0).toFixed(0),color:'#16a34a',desc:'50% per referral per month'},
-            {label:'Grid / Campaigns',value:'$'+(d.grid_earnings || 0).toFixed(0),color:'#0ea5e9',desc:'40% direct + 6.25% uni-level'},
-            {label:'Courses & SuperMarket',value:'$'+((d.course_earnings || 0) + (d.marketplace_earnings || 0)).toFixed(0),color:'#8b5cf6',desc:'Pass-ups + 50/25/25 marketplace'},
+            {label:t('network.membershipResidual'),value:'$'+(d.membership_earnings || d.total_earned * 0.3 || 0).toFixed(0),color:'#16a34a',desc:t('network.fiftyPercentPerReferral')},
+            {label:t('network.gridCampaigns'),value:'$'+(d.grid_earnings || 0).toFixed(0),color:'#0ea5e9',desc:t('network.fortyDirectUniLevel')},
+            {label:t('network.coursesSuperMarket'),value:'$'+((d.course_earnings || 0) + (d.marketplace_earnings || 0)).toFixed(0),color:'#8b5cf6',desc:t('network.passUpsMarketplace')},
           ].map(function(s, i) {
             return (
               <div key={i} style={{padding:18,borderRadius:12,background:'#f8f9fb',border:'1px solid #e8ecf2',textAlign:'center'}}>
@@ -109,7 +109,7 @@ export default function MyNetwork() {
           <div style={{background:'#1c223d',padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
               <div style={{width:6,height:6,borderRadius:3,background:'#16a34a'}}/>
-              <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Direct Referrals</div>
+              <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('network.directReferrals')}</div>
             </div>
             <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.4)'}}>{referrals.length} total</div>
           </div>
@@ -118,7 +118,7 @@ export default function MyNetwork() {
               <table style={{width:'100%',borderCollapse:'collapse'}}>
                 <thead>
                   <tr>
-                    {['Member','Status','Referrals','Joined'].map(function(h) {
+                    {[t('network.member'),t('common.status'),t('network.referrals'),t('network.joined')].map(function(h) {
                       return <th key={h} style={thStyle}>{h}</th>;
                     })}
                   </tr>
@@ -161,8 +161,8 @@ export default function MyNetwork() {
             ) : (
               <div style={{textAlign:'center',padding:'40px 20px'}}>
                 <div style={{fontSize:32,marginBottom:8,opacity:.3}}>👥</div>
-                <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:4}}>No referrals yet</div>
-                <div style={{fontSize:12,color:'#94a3b8'}}>Share your referral link to start building your network</div>
+                <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:4}}>{t('network.noReferralsYet')}</div>
+                <div style={{fontSize:12,color:'#94a3b8'}}>{t('network.shareYourLink')}</div>
               </div>
             )}
           </div>
@@ -173,7 +173,7 @@ export default function MyNetwork() {
           <div style={{background:'#1c223d',padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
               <div style={{width:6,height:6,borderRadius:3,background:'#0ea5e9'}}/>
-              <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Commission History</div>
+              <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('network.commissionHistory')}</div>
             </div>
             <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.4)'}}>{commissions.length} entries</div>
           </div>
@@ -181,10 +181,10 @@ export default function MyNetwork() {
           {/* Filter tabs */}
           <div style={{display:'flex',gap:4,padding:'12px 20px',borderBottom:'1px solid #f1f5f9'}}>
             {[
-              {key:'all',label:'All'},
-              {key:'membership',label:'Membership'},
-              {key:'grid',label:'Grid'},
-              {key:'courses',label:'Courses'},
+              {key:'all',label:t('common.all')},
+              {key:'membership',label:t('network.membership')},
+              {key:'grid',label:t('network.grid')},
+              {key:'courses',label:t('nav.courses')},
             ].map(function(f) {
               var on = commView === f.key;
               return (
@@ -204,7 +204,7 @@ export default function MyNetwork() {
               <table style={{width:'100%',borderCollapse:'collapse'}}>
                 <thead>
                   <tr>
-                    {['Type','Amount','Status','Date'].map(function(h) {
+                    {[t('common.type'),t('common.amount'),t('common.status'),t('common.date')].map(function(h) {
                       return <th key={h} style={thStyle}>{h}</th>;
                     })}
                   </tr>
@@ -247,8 +247,8 @@ export default function MyNetwork() {
             ) : (
               <div style={{textAlign:'center',padding:'40px 20px'}}>
                 <div style={{fontSize:32,marginBottom:8,opacity:.3}}>💰</div>
-                <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:4}}>No commissions yet</div>
-                <div style={{fontSize:12,color:'#94a3b8'}}>Commissions appear here as your network grows</div>
+                <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:4}}>{t('network.noCommissionsYet')}</div>
+                <div style={{fontSize:12,color:'#94a3b8'}}>{t('network.commissionsAppear')}</div>
               </div>
             )}
           </div>
