@@ -45,7 +45,7 @@ function useInView(threshold) {
 var TABS = [
   { key: 'membership', label: 'Membership', icon: DollarSign, color: '#16a34a' },
   { key: 'grid', label: 'Profit Grid', icon: Zap, color: '#0ea5e9' },
-  { key: 'courses', label: 'Courses', icon: GraduationCap, color: '#8b5cf6', soon: true },
+  { key: 'courses', label: 'Courses & SuperMarket', icon: GraduationCap, color: '#8b5cf6' },
   { key: 'calculator', label: 'Calculator', icon: Target, color: '#f59e0b', soon: true },
 ];
 
@@ -84,7 +84,7 @@ export default function CompensationPlan() {
 
       {/* ── Placeholder for future tabs ── */}
       {tab === 'grid' && <GridSection />}
-      {tab === 'courses' && <ComingSoon label="Courses" />}
+      {tab === 'courses' && <CoursesSection />}
       {tab === 'calculator' && <ComingSoon label="Calculator" />}
 
     </AppLayout>
@@ -949,6 +949,432 @@ function GridSimulator(props) {
           to { opacity:1; transform:translateY(0); }\
         }\
       '}</style>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// ── COURSES & SUPERMARKET SECTION ──
+// ══════════════════════════════════════════════════════════════
+
+function CoursesSection() {
+  var [heroRef, heroVis] = useInView(0.1);
+  var [passRef, passVis] = useInView(0.1);
+  var [flowRef, flowVis] = useInView(0.1);
+  var [createRef, createVis] = useInView(0.1);
+  var [marketRef, marketVis] = useInView(0.1);
+  var [splitRef, splitVis] = useInView(0.1);
+  var [compareRef, compareVis] = useInView(0.1);
+
+  var c50 = useCountUp(50, 1000, splitVis);
+  var c25a = useCountUp(25, 1000, splitVis);
+  var c25b = useCountUp(25, 1000, splitVis);
+
+  return (
+    <div>
+      {/* ── Hero ── */}
+      <div ref={heroRef} style={{
+        background:'linear-gradient(135deg,#4c1d95,#7c3aed,#a78bfa)',
+        borderRadius:16,padding:'48px 40px',marginBottom:28,position:'relative',overflow:'hidden',
+        opacity:heroVis?1:0,transform:heroVis?'translateY(0)':'translateY(30px)',
+        transition:'all .8s cubic-bezier(.16,1,.3,1)',
+      }}>
+        <div style={{position:'absolute',top:-50,right:-50,width:220,height:220,borderRadius:'50%',background:'rgba(255,255,255,.05)'}}/>
+        <div style={{position:'absolute',bottom:-40,left:-20,width:160,height:160,borderRadius:'50%',background:'rgba(255,255,255,.04)'}}/>
+        <div style={{position:'relative',zIndex:1}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
+            <GraduationCap size={20} color="rgba(255,255,255,.7)"/>
+            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>Stream 03</span>
+          </div>
+          <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:'#fff',margin:'0 0 12px',lineHeight:1.2}}>
+            Courses & SuperMarket
+          </h2>
+          <p style={{fontSize:16,color:'rgba(255,255,255,.7)',maxWidth:560,lineHeight:1.7,margin:0}}>
+            Two powerful ways to earn — sell courses with 100% commissions through the pass-up system, or list digital products on SuperMarket and let the entire network promote them for you.
+          </p>
+        </div>
+      </div>
+
+      {/* ══ PART 1: COURSE PASS-UP SYSTEM ══ */}
+
+      {/* ── Pass-Up Explainer ── */}
+      <div ref={passRef} style={{
+        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
+        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
+        opacity:passVis?1:0,transform:passVis?'translateY(0)':'translateY(30px)',
+        transition:'all .7s cubic-bezier(.16,1,.3,1)',
+      }}>
+        <div style={{background:'#1c223d',padding:'20px 24px'}}>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>Course Commissions</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>The 100% Pass-Up System</div>
+        </div>
+        <div style={{padding:'28px 24px'}}>
+          <div style={{display:'grid',gridTemplateColumns:'55fr 45fr',gap:0,background:'#0f172a',borderRadius:14,overflow:'hidden',marginBottom:24}}>
+            {/* Left — explanation */}
+            <div style={{padding:'28px 24px',display:'flex',flexDirection:'column',justifyContent:'center'}}>
+              <h3 style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#fff',margin:'0 0 14px',lineHeight:1.3}}>
+                Keep 100% of your sales — pass odd sales to your sponsor
+              </h3>
+              <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                {[
+                  {text:'When you sell a course, you earn 100% of the sale price. No platform deduction on kept sales.',color:'#8b5cf6'},
+                  {text:'Sales 1, 3, 5, 7... (odd numbers) pass up to your direct sponsor. Sales 2, 4, 6, 8... are yours to keep.',color:'#f59e0b'},
+                  {text:'When your sponsor receives a pass-up, it counts toward their own pattern — triggering their next pass-up upward.',color:'#10b981'},
+                  {text:'This creates an infinite cascading chain. There is no level cap on pass-ups.',color:'#ec4899'},
+                ].map(function(s, i) {
+                  return (
+                    <div key={i} style={{display:'flex',gap:10,alignItems:'flex-start'}}>
+                      <div style={{width:6,height:6,borderRadius:3,background:s.color,flexShrink:0,marginTop:7}}/>
+                      <div style={{fontSize:12,color:'rgba(255,255,255,.6)',lineHeight:1.7}}>{s.text}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            {/* Right — animated pass-up visual */}
+            <div style={{padding:'24px 20px',background:'#0a0f1e',borderLeft:'1px solid #1e293b',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <PassUpAnimator visible={passVis}/>
+            </div>
+          </div>
+
+          {/* Key rules */}
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14}}>
+            {[
+              {icon:'💯',title:'100% Commission',desc:'Full course price on every kept sale — zero platform fees'},
+              {icon:'♾️',title:'Infinite Pass-Up',desc:'No cap on how far up the chain pass-ups can travel'},
+              {icon:'🔄',title:'Cascading Pattern',desc:'Received pass-ups count in the recipient\'s own pattern'},
+              {icon:'🔑',title:'Active Sub Required',desc:'Must have active $20/mo membership to earn course commissions'},
+            ].map(function(p, i) {
+              return (
+                <div key={i} style={{
+                  padding:16,background:'#f8f9fb',borderRadius:12,border:'1px solid #e8ecf2',
+                  opacity:passVis?1:0,transform:passVis?'scale(.95)':'scale(.95)',
+                  transition:'all .5s ease',transitionDelay:(0.3+i*0.08)+'s',
+                  ...(passVis?{opacity:1,transform:'scale(1)'}:{}),
+                }}>
+                  <div style={{fontSize:20,marginBottom:6}}>{p.icon}</div>
+                  <div style={{fontSize:12,fontWeight:800,color:'#0f172a',marginBottom:4}}>{p.title}</div>
+                  <div style={{fontSize:11,color:'#64748b',lineHeight:1.5}}>{p.desc}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Create & Sell Your Own Courses ── */}
+      <div ref={createRef} style={{
+        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
+        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
+        opacity:createVis?1:0,transform:createVis?'translateY(0)':'translateY(30px)',
+        transition:'all .7s cubic-bezier(.16,1,.3,1)',
+      }}>
+        <div style={{background:'#1c223d',padding:'20px 24px'}}>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>Pro Feature</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>Create & Sell Your Own Courses</div>
+        </div>
+        <div style={{padding:'28px 24px'}}>
+          <p style={{fontSize:13,color:'#64748b',lineHeight:1.7,marginBottom:20,maxWidth:600}}>
+            Pro members ($30/mo) can create their own courses and list them on the SuperAdPro marketplace. Other members promote your course through their affiliate links, and you earn on every sale.
+          </p>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:12,flexWrap:'wrap'}}>
+            {[
+              {label:'Create your course',icon:'📝',color:'#8b5cf6'},
+              {label:'List on marketplace',icon:'🏪',color:'#0ea5e9'},
+              {label:'Members promote it',icon:'📣',color:'#f59e0b'},
+              {label:'You earn on every sale',icon:'💰',color:'#16a34a'},
+            ].map(function(s, i) {
+              return (
+                <div key={i} style={{display:'flex',alignItems:'center',gap:12}}>
+                  <div style={{
+                    textAlign:'center',padding:'14px 16px',background:'#f8f9fb',borderRadius:12,border:'1px solid #e8ecf2',minWidth:130,
+                    opacity:createVis?1:0,transform:createVis?'translateY(0)':'translateY(15px)',
+                    transition:'all .6s ease',transitionDelay:(0.15+i*0.12)+'s',
+                  }}>
+                    <div style={{fontSize:22,marginBottom:4}}>{s.icon}</div>
+                    <div style={{fontSize:11,fontWeight:700,color:'#475569',lineHeight:1.3}}>{s.label}</div>
+                  </div>
+                  {i < 3 && <ArrowRight size={16} color="#cbd5e1"/>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* ══ PART 2: SUPERMARKET ══ */}
+
+      {/* ── SuperMarket Hero ── */}
+      <div ref={marketRef} style={{
+        background:'linear-gradient(135deg,#0f172a,#1e293b)',
+        borderRadius:16,padding:'40px',marginBottom:28,position:'relative',overflow:'hidden',
+        border:'1px solid #334155',
+        opacity:marketVis?1:0,transform:marketVis?'translateY(0)':'translateY(30px)',
+        transition:'all .8s cubic-bezier(.16,1,.3,1)',
+      }}>
+        <div style={{position:'absolute',top:-30,right:-30,width:180,height:180,borderRadius:'50%',background:'rgba(14,165,233,.05)'}}/>
+        <div style={{position:'relative',zIndex:1}}>
+          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
+            <div style={{padding:'6px 12px',background:'linear-gradient(135deg,#0ea5e9,#6366f1)',borderRadius:8,fontSize:11,fontWeight:800,color:'#fff',letterSpacing:1}}>NEW</div>
+            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.4)'}}>Digital Product Marketplace</span>
+          </div>
+          <h2 style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'#fff',margin:'0 0 12px',lineHeight:1.2}}>
+            Super<span style={{color:'#0ea5e9'}}>Market</span>
+          </h2>
+          <p style={{fontSize:15,color:'rgba(255,255,255,.5)',maxWidth:520,lineHeight:1.7,margin:'0 0 20px'}}>
+            A JVZoo-style digital product marketplace built right into SuperAdPro. Members create digital products, list them on SuperMarket, and the entire network promotes them for commissions.
+          </p>
+          <div style={{display:'flex',gap:8}}>
+            <span style={{fontSize:11,fontWeight:700,padding:'6px 14px',borderRadius:20,background:'rgba(14,165,233,.1)',color:'#38bdf8',border:'1px solid rgba(14,165,233,.2)'}}>eBooks</span>
+            <span style={{fontSize:11,fontWeight:700,padding:'6px 14px',borderRadius:20,background:'rgba(139,92,246,.1)',color:'#a78bfa',border:'1px solid rgba(139,92,246,.2)'}}>Software</span>
+            <span style={{fontSize:11,fontWeight:700,padding:'6px 14px',borderRadius:20,background:'rgba(245,158,11,.1)',color:'#fbbf24',border:'1px solid rgba(245,158,11,.2)'}}>Templates</span>
+            <span style={{fontSize:11,fontWeight:700,padding:'6px 14px',borderRadius:20,background:'rgba(16,185,129,.1)',color:'#34d399',border:'1px solid rgba(16,185,129,.2)'}}>Courses</span>
+            <span style={{fontSize:11,fontWeight:700,padding:'6px 14px',borderRadius:20,background:'rgba(236,72,153,.1)',color:'#f472b6',border:'1px solid rgba(236,72,153,.2)'}}>Tools</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 50/25/25 Split ── */}
+      <div ref={splitRef} style={{
+        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
+        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
+        opacity:splitVis?1:0,transform:splitVis?'translateY(0)':'translateY(30px)',
+        transition:'all .7s cubic-bezier(.16,1,.3,1)',
+      }}>
+        <div style={{background:'#1c223d',padding:'20px 24px'}}>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>SuperMarket Commission Split</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>50 / 25 / 25 — Three-Way Split</div>
+        </div>
+        <div style={{padding:'28px 24px'}}>
+          {/* Animated bar */}
+          <div style={{height:44,borderRadius:12,overflow:'hidden',display:'flex',marginBottom:28}}>
+            {[
+              {pct:50,color:'#8b5cf6',label:'50% Product Owner'},
+              {pct:25,color:'#0ea5e9',label:'25% Sponsor'},
+              {pct:25,color:'#16a34a',label:'25% Platform'},
+            ].map(function(s, i) {
+              return (
+                <div key={i} style={{
+                  width:splitVis?s.pct+'%':'0%',transition:'width 1s cubic-bezier(.16,1,.3,1)',transitionDelay:(0.2+i*0.15)+'s',
+                  background:s.color,display:'flex',alignItems:'center',justifyContent:'center',
+                  fontSize:12,fontWeight:800,color:'#fff',whiteSpace:'nowrap',overflow:'hidden',
+                }}>{s.label}</div>
+              );
+            })}
+          </div>
+
+          {/* 3 split cards */}
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16}}>
+            {[
+              {pct:c50,label:'Product Owner',desc:'The member who created the digital product earns 50% of every sale. Create once, earn on every purchase.',color:'#8b5cf6',icon:'🏗️'},
+              {pct:c25a,label:'Affiliate Sponsor',desc:'The member who referred the buyer earns 25%. Promote other people\'s products and earn commissions.',color:'#0ea5e9',icon:'🤝'},
+              {pct:c25b,label:'SuperAdPro',desc:'25% goes to the platform for hosting, payment processing, support, and continued development.',color:'#16a34a',icon:'🏢'},
+            ].map(function(s, i) {
+              return (
+                <div key={i} style={{
+                  textAlign:'center',padding:24,borderRadius:14,border:'1px solid #e8ecf2',background:'#f8f9fb',
+                  opacity:splitVis?1:0,transform:splitVis?'translateY(0)':'translateY(20px)',
+                  transition:'all .6s ease',transitionDelay:(0.5+i*0.12)+'s',
+                }}>
+                  <div style={{fontSize:28,marginBottom:10}}>{s.icon}</div>
+                  <div style={{fontFamily:'Sora,sans-serif',fontSize:42,fontWeight:800,color:s.color,lineHeight:1}}>{s.pct}%</div>
+                  <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginTop:8,marginBottom:6}}>{s.label}</div>
+                  <div style={{fontSize:12,color:'#64748b',lineHeight:1.6}}>{s.desc}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* ── How SuperMarket Works ── */}
+      <div style={{
+        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
+        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
+      }}>
+        <div style={{background:'#1c223d',padding:'20px 24px'}}>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>The Flywheel</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>Everyone Benefits from Every Sale</div>
+        </div>
+        <div style={{padding:'28px 24px'}}>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
+            {/* For Creators */}
+            <div style={{padding:24,background:'linear-gradient(135deg,rgba(139,92,246,.03),rgba(139,92,246,.08))',borderRadius:14,border:'1px solid rgba(139,92,246,.12)'}}>
+              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:10}}>For Product Creators</div>
+              <h4 style={{fontSize:16,fontWeight:800,color:'#0f172a',margin:'0 0 14px'}}>Create Once, Earn Forever</h4>
+              <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                {[
+                  'Upload any digital product — eBooks, templates, software, tools',
+                  'Set your own price point',
+                  'Earn 50% on every single sale',
+                  'The entire SuperAdPro network becomes your sales force',
+                  'No marketing costs — affiliates promote for you',
+                ].map(function(t, i) {
+                  return (
+                    <div key={i} style={{display:'flex',gap:8,alignItems:'flex-start'}}>
+                      <Check size={14} color="#8b5cf6" style={{marginTop:2,flexShrink:0}}/>
+                      <div style={{fontSize:12,color:'#475569',lineHeight:1.5}}>{t}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            {/* For Affiliates */}
+            <div style={{padding:24,background:'linear-gradient(135deg,rgba(14,165,233,.03),rgba(14,165,233,.08))',borderRadius:14,border:'1px solid rgba(14,165,233,.12)'}}>
+              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#0ea5e9',marginBottom:10}}>For Affiliates</div>
+              <h4 style={{fontSize:16,fontWeight:800,color:'#0f172a',margin:'0 0 14px'}}>Promote & Earn 25%</h4>
+              <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                {[
+                  'Browse hundreds of digital products on the marketplace',
+                  'Share your unique affiliate link for any product',
+                  'Earn 25% commission on every sale you generate',
+                  'No need to create anything yourself',
+                  'Stack with your membership and grid income',
+                ].map(function(t, i) {
+                  return (
+                    <div key={i} style={{display:'flex',gap:8,alignItems:'flex-start'}}>
+                      <Check size={14} color="#0ea5e9" style={{marginTop:2,flexShrink:0}}/>
+                      <div style={{fontSize:12,color:'#475569',lineHeight:1.5}}>{t}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Flywheel note */}
+          <div style={{marginTop:20,padding:'16px 20px',background:'#f8f9fb',borderRadius:12,border:'1px solid #e8ecf2',textAlign:'center'}}>
+            <div style={{fontSize:13,fontWeight:800,color:'#0f172a',marginBottom:4}}>The Self-Sustaining Flywheel</div>
+            <div style={{fontSize:12,color:'#64748b',lineHeight:1.6,maxWidth:500,margin:'0 auto'}}>
+              More products attract more affiliates. More affiliates drive more sales. More sales attract more creators. Every participant benefits from every sale — creator, affiliate, and platform.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Comparison: Courses vs SuperMarket ── */}
+      <div ref={compareRef} style={{
+        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
+        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
+        opacity:compareVis?1:0,transform:compareVis?'translateY(0)':'translateY(30px)',
+        transition:'all .7s cubic-bezier(.16,1,.3,1)',
+      }}>
+        <div style={{background:'#1c223d',padding:'20px 24px'}}>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>At a Glance</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>Course Pass-Up vs SuperMarket</div>
+        </div>
+        <div style={{padding:'24px'}}>
+          <table style={{width:'100%',borderCollapse:'collapse'}}>
+            <thead>
+              <tr>
+                <th style={{fontSize:10,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,padding:'12px 16px',borderBottom:'2px solid #e8ecf2',textAlign:'left',background:'#f8f9fb'}}></th>
+                <th style={{fontSize:10,fontWeight:800,color:'#8b5cf6',textTransform:'uppercase',letterSpacing:1,padding:'12px 16px',borderBottom:'2px solid #e8ecf2',textAlign:'center',background:'#f8f9fb'}}>Course Pass-Up</th>
+                <th style={{fontSize:10,fontWeight:800,color:'#0ea5e9',textTransform:'uppercase',letterSpacing:1,padding:'12px 16px',borderBottom:'2px solid #e8ecf2',textAlign:'center',background:'#f8f9fb'}}>SuperMarket</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                {label:'Commission Model',course:'100% kept / odd sales pass up',market:'50% creator / 25% sponsor / 25% platform'},
+                {label:'Product Type',course:'Courses only',market:'Any digital product'},
+                {label:'Who Can Create',course:'Pro members ($30/mo)',market:'All members'},
+                {label:'Who Earns',course:'Seller + sponsor chain (pass-up)',market:'Creator + referring affiliate + platform'},
+                {label:'Network Effect',course:'Infinite cascading pass-ups',market:'Entire network promotes all products'},
+                {label:'Best For',course:'High-ticket course creators',market:'Digital product sellers & affiliate promoters'},
+              ].map(function(r, i) {
+                return (
+                  <tr key={i} style={{
+                    opacity:compareVis?1:0,transform:compareVis?'translateX(0)':'translateX(-15px)',
+                    transition:'all .5s ease',transitionDelay:(0.1+i*0.06)+'s',
+                  }}>
+                    <td style={{padding:'12px 16px',borderBottom:'1px solid #f5f6f8',fontSize:12,fontWeight:800,color:'#0f172a'}}>{r.label}</td>
+                    <td style={{padding:'12px 16px',borderBottom:'1px solid #f5f6f8',fontSize:12,color:'#64748b',textAlign:'center'}}>{r.course}</td>
+                    <td style={{padding:'12px 16px',borderBottom:'1px solid #f5f6f8',fontSize:12,color:'#64748b',textAlign:'center'}}>{r.market}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <div style={{marginTop:16,padding:'12px 16px',background:'#fffbeb',borderRadius:10,border:'1px solid #fef3c7',fontSize:11,color:'#92400e',lineHeight:1.6}}>
+            <strong>Note:</strong> SuperMarket is coming soon. Course commissions are active now. Both systems can be used simultaneously — they are independent income streams.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Pass-Up Animator ──
+function PassUpAnimator(props) {
+  var [step, setStep] = useState(0);
+  var [running, setRunning] = useState(false);
+  var timerRef = useRef(null);
+
+  var sales = [
+    {n:1,action:'PASS UP',to:'Sponsor',color:'#f59e0b',kept:false},
+    {n:2,action:'YOU KEEP',to:'You',color:'#8b5cf6',kept:true},
+    {n:3,action:'PASS UP',to:'Sponsor',color:'#f59e0b',kept:false},
+    {n:4,action:'YOU KEEP',to:'You',color:'#8b5cf6',kept:true},
+    {n:5,action:'PASS UP',to:'Sponsor',color:'#f59e0b',kept:false},
+    {n:6,action:'YOU KEEP',to:'You',color:'#8b5cf6',kept:true},
+    {n:7,action:'PASS UP',to:'Sponsor',color:'#f59e0b',kept:false},
+    {n:8,action:'YOU KEEP',to:'You',color:'#8b5cf6',kept:true},
+  ];
+
+  function startAnim() {
+    setRunning(true); setStep(0);
+    var s = 0;
+    timerRef.current = setInterval(function() {
+      s++;
+      if (s <= 8) { setStep(s); }
+      if (s >= 10) { clearInterval(timerRef.current); setRunning(false); }
+    }, 600);
+  }
+
+  useEffect(function() { return function() { if (timerRef.current) clearInterval(timerRef.current); }; }, []);
+
+  var kept = sales.filter(function(s) { return s.kept && s.n <= step; }).length;
+  var passed = sales.filter(function(s) { return !s.kept && s.n <= step; }).length;
+
+  return (
+    <div style={{width:'100%',maxWidth:260}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+        <div style={{fontSize:11,fontWeight:800,color:'#fff'}}>Pass-Up Pattern</div>
+        <button onClick={startAnim} disabled={running}
+          style={{padding:'4px 12px',borderRadius:6,fontSize:10,fontWeight:800,border:'none',cursor:running?'default':'pointer',
+            background:running?'#334155':'#8b5cf6',color:'#fff',fontFamily:'inherit',opacity:running?0.5:1}}>
+          {step===0?'▶ Play':running?'...':'▶ Replay'}
+        </button>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:4,marginBottom:12}}>
+        {sales.map(function(s, i) {
+          var active = s.n <= step;
+          var isLatest = s.n === step && running;
+          return (
+            <div key={i} style={{
+              textAlign:'center',padding:'8px 4px',borderRadius:6,
+              background:active?s.color+'20':'#1e293b',
+              border:'1px solid '+(active?s.color+'44':'#293548'),
+              transition:'all .2s ease',
+              transform:isLatest?'scale(1.08)':'scale(1)',
+            }}>
+              <div style={{fontSize:9,fontWeight:800,color:active?s.color:'#475569'}}>Sale {s.n}</div>
+              <div style={{fontSize:8,fontWeight:700,color:active?(s.kept?'#a78bfa':'#fbbf24'):'#334155',marginTop:2}}>
+                {active?s.action:'—'}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{display:'flex',gap:8}}>
+        <div style={{flex:1,textAlign:'center',padding:'6px',background:'#1e293b',borderRadius:6}}>
+          <div style={{fontSize:8,fontWeight:700,color:'#475569'}}>KEPT</div>
+          <div style={{fontSize:16,fontWeight:800,color:'#8b5cf6'}}>{kept}</div>
+        </div>
+        <div style={{flex:1,textAlign:'center',padding:'6px',background:'#1e293b',borderRadius:6}}>
+          <div style={{fontSize:8,fontWeight:700,color:'#475569'}}>PASSED UP</div>
+          <div style={{fontSize:16,fontWeight:800,color:'#f59e0b'}}>{passed}</div>
+        </div>
+      </div>
     </div>
   );
 }
