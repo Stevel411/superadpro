@@ -874,8 +874,8 @@ function GridSimulator(props) {
           </div>
         </div>
 
-        {/* 8×8 grid — fills available width */}
-        <div style={{marginBottom:12}}>
+        {/* 8×8 grid — balanced size */}
+        <div style={{maxWidth:300,margin:'0 auto 12px',width:'100%'}}>
           <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:3}}>
             {Array.from({length:64}).map(function(_, i) {
               var isFilled = i < filled;
