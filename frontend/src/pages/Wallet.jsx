@@ -19,7 +19,7 @@ export default function Wallet() {
   }, []);
 
   const copyMemberId = () => {
-    const id = `SAP-${String(user?.id || 0).padStart(5, '0')}`;
+    const id = user?.is_admin ? 'SAP-00001' : `SAP-${String(user?.id || 0).padStart(5, '0')}`;
     navigator.clipboard.writeText(id);
     setMemberIdCopied(true);
     setTimeout(() => setMemberIdCopied(false), 2000);
@@ -51,7 +51,7 @@ export default function Wallet() {
   if (!data) return <AppLayout title="◎ Wallet"><div style={{ textAlign: 'center', padding: 80, color: '#94a3b8' }}>Unable to load wallet</div></AppLayout>;
 
   const d = data;
-  const memberId = `SAP-${String(user?.id || 0).padStart(5, '0')}`;
+  const memberId = user?.is_admin ? 'SAP-00001' : `SAP-${String(user?.id || 0).padStart(5, '0')}`;
   const renewal = d.renewal || {};
 
   return (

@@ -32,7 +32,7 @@ export default function Account() {
   };
 
   if (!user) return null;
-  const memberId = `SAP-${String(user.id||0).padStart(5,'0')}`;
+  const memberId = user.is_admin ? 'SAP-00001' : (user.member_id || `SAP-${String(user.id||0).padStart(5,'0')}`);
   const initials = ((user.first_name||'')[0]||'')+((user.last_name||user.username||'')[0]||'');
   const kyc = user.kyc_status || 'none';
 
