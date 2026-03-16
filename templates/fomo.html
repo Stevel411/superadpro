@@ -200,7 +200,7 @@ body{font-family:'Outfit',sans-serif;background:var(--deep);color:#e2e8f0;overfl
     {% if user and not user.is_active %}
     <div class="missed-banner">
       <div class="missed-title">&#x23F0; Since you signed up, <span id="missedPositions">0</span> positions have been filled</div>
-      <div class="missed-sub">That's $<span id="missedEarnings">0</span> in potential spillover earnings you've missed</div>
+      <div class="missed-sub">That's $<span id="missedEarnings">0</span> in potential network placement earnings you've missed</div>
     </div>
     {% endif %}
     <div style="text-align:center;margin-top:20px">
@@ -322,7 +322,7 @@ function renderFeed(){
       '<div class="fi-avatar '+(isJ?'join':'earn')+'">'+ini+'<span class="fi-flag">'+(a.flag||'')+'</span></div>'+
       '<div style="flex:1;min-width:0"><div class="fi-name">'+a.name+
         '<span class="fi-tag '+(isJ?'join':'earn')+'">'+(isJ?'POSITION #'+a.pos:'EARNED '+a.tier)+'</span></div>'+
-        '<div class="fi-desc">'+(isJ?'Activated '+a.tier+' grid \xB7 Position '+a.pos:'Received '+a.tier+' commission from spillover')+'</div></div>'+
+        '<div class="fi-desc">'+(isJ?'Activated '+a.tier+' grid \xB7 Position '+a.pos:'Received '+a.tier+' commission from network placement')+'</div></div>'+
       '<div class="fi-time">'+a.time+'</div></div>';
   }).join('');
 }

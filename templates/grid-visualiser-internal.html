@@ -174,7 +174,7 @@ input[type=number]{width:48px;padding:5px 8px;border:1px solid var(--border);bor
 <div class="topbar">
   <div class="tb-left">
     <div class="tb-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
-    <div><div class="tb-title">Grid Visualiser</div><div class="tb-sub">Spillover model — see your network fill your grid</div></div>
+    <div><div class="tb-title">Grid Visualiser</div><div class="tb-sub">Network placement model — see your network fill your grid</div></div>
   </div>
 </div>
 
@@ -255,7 +255,7 @@ input[type=number]{width:48px;padding:5px 8px;border:1px solid var(--border);bor
 
     <div class="stat-grid">
       <div class="mini-stat"><div class="ms-val" id="msDirectCount">0</div><div class="ms-lbl">Direct Fills</div></div>
-      <div class="mini-stat"><div class="ms-val" id="msSpillCount">0</div><div class="ms-lbl">Spillover Fills</div></div>
+      <div class="mini-stat"><div class="ms-val" id="msSpillCount">0</div><div class="ms-lbl">Network Fills</div></div>
       <div class="mini-stat"><div class="ms-val" id="msAdvance">1</div><div class="ms-lbl">Advance</div></div>
       <div class="mini-stat"><div class="ms-val" id="msPerSeat">$0.00</div><div class="ms-lbl">Avg Per Seat</div></div>
     </div>
@@ -398,7 +398,7 @@ function fillNext() {
   cell.className = 'g-cell filled pop';
   cell.style.background = DEPTH_COLORS[depthIdx];
   cell.style.boxShadow = '0 2px 8px ' + DEPTH_COLORS[depthIdx] + '40';
-  cell.innerHTML = '+$' + youTotal.toFixed(2) + '<div class="g-tip">' + (isDirect ? 'Direct' : 'Spillover L' + depth) + ' · +$' + youTotal.toFixed(2) + '</div>';
+  cell.innerHTML = '+$' + youTotal.toFixed(2) + '<div class="g-tip">' + (isDirect ? 'Direct' : 'Network L' + depth) + ' · +$' + youTotal.toFixed(2) + '</div>';
   setTimeout(function(){ cell.classList.remove('pop'); }, 400);
 
   // Update panels
@@ -430,7 +430,7 @@ function addLog(seat, depth, isDirect, amt) {
   if (list.querySelector('[style]')) list.innerHTML = '';
   var item = document.createElement('div');
   item.className = 'log-item';
-  item.innerHTML = '<div class="log-left"><span class="log-seat">#' + String(seat).padStart(2,'0') + '</span><span class="log-level">L' + depth + '</span><span class="log-tag ' + (isDirect ? 'direct' : 'spill') + '">' + (isDirect ? 'DIRECT' : 'SPILLOVER') + '</span></div><span class="log-amt" style="color:' + DEPTH_COLORS[Math.min(depth-1,4)] + '">+$' + amt.toFixed(2) + '</span>';
+  item.innerHTML = '<div class="log-left"><span class="log-seat">#' + String(seat).padStart(2,'0') + '</span><span class="log-level">L' + depth + '</span><span class="log-tag ' + (isDirect ? 'direct' : 'spill') + '">' + (isDirect ? 'DIRECT' : 'NETWORK') + '</span></div><span class="log-amt" style="color:' + DEPTH_COLORS[Math.min(depth-1,4)] + '">+$' + amt.toFixed(2) + '</span>';
   list.insertBefore(item, list.firstChild);
   while (list.children.length > 12) list.removeChild(list.lastChild);
 }
@@ -438,7 +438,7 @@ function addLog(seat, depth, isDirect, amt) {
 function gridComplete() {
   pause();
   document.getElementById('abEarned').textContent = '$' + (tDirect + tUni).toFixed(2);
-  document.getElementById('abSub').textContent = directFilled + ' direct + ' + spillFilled + ' spillover · Advance #' + advance;
+  document.getElementById('abSub').textContent = directFilled + ' direct + ' + spillFilled + ' network placement · Advance #' + advance;
   document.getElementById('advOverlay').classList.add('show');
 }
 

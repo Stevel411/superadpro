@@ -683,7 +683,7 @@ function GridSection() {
         </div>
       </div>
 
-      {/* ── Spillover Model ── */}
+      {/* ── Network Placement Model ── */}
       <div ref={spillRef} style={{
         background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
         boxShadow:'0 4px 20px rgba(0,0,0,.06)',
@@ -692,7 +692,7 @@ function GridSection() {
       }}>
         <div style={{background:'#1c223d',padding:'20px 24px'}}>
           <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>How It Works</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>Spillover Placement Model</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>Network Placement Model</div>
         </div>
         <div style={{padding:'28px 24px'}}>
           {/* Step flow */}
