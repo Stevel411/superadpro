@@ -576,7 +576,8 @@ function GridSection() {
           <p style={{fontSize:13,color:'#64748b',lineHeight:1.7,marginBottom:20,maxWidth:650}}>
             Each tier has its own 8×8 grid (64 seats). As members join and fill seats, you accumulate uni-level commissions on every entry. When all 64 seats are filled, the grid completes and you receive the bonus pool. The grid then advances to the next round. Future earnings depend entirely on continued network activity — new members must join and activate the same tier for commissions to be generated.
           </p>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
+          <GridSimulator visible={tierVis}/>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginTop:28}}>
             {TIERS.map(function(t, i) {
               var directPer = (t.price * 0.40);
               var uniTotal = (t.price * 0.0625 * 64);
@@ -787,6 +788,160 @@ function GridSection() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── Grid Flow Simulator ──
+function GridSimulator(props) {
+  var [running, setRunning] = useState(false);
+  var [filled, setFilled] = useState(0);
+  var [earned, setEarned] = useState(0);
+  var [bonus, setBonus] = useState(0);
+  var [complete, setComplete] = useState(false);
+  var [showComplete, setShowComplete] = useState(false);
+  var timerRef = useRef(null);
+  var PRICE = 100; // $100 tier as demo
+  var PER_SEAT_UNI = PRICE * 0.0625; // $6.25
+  var PER_SEAT_BONUS = PRICE * 0.05; // $5
+
+  function startSim() {
+    setRunning(true);
+    setFilled(0);
+    setEarned(0);
+    setBonus(0);
+    setComplete(false);
+    setShowComplete(false);
+    var seat = 0;
+    timerRef.current = setInterval(function() {
+      seat++;
+      if (seat <= 64) {
+        setFilled(seat);
+        setEarned(function(p) { return p + PER_SEAT_UNI; });
+        setBonus(function(p) { return p + PER_SEAT_BONUS; });
+      }
+      if (seat === 64) {
+        setComplete(true);
+        setTimeout(function() { setShowComplete(true); }, 400);
+      }
+      if (seat >= 66) {
+        clearInterval(timerRef.current);
+        setRunning(false);
+      }
+    }, 80);
+  }
+
+  function resetSim() {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setRunning(false);
+    setFilled(0);
+    setEarned(0);
+    setBonus(0);
+    setComplete(false);
+    setShowComplete(false);
+  }
+
+  useEffect(function() { return function() { if (timerRef.current) clearInterval(timerRef.current); }; }, []);
+
+  return (
+    <div style={{padding:24,background:'#0f172a',borderRadius:14,marginBottom:0}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20}}>
+        <div>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>Live Simulation</div>
+          <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>Watch a $100 Grid Fill in Real Time</div>
+        </div>
+        <div style={{display:'flex',gap:8}}>
+          <button onClick={startSim} disabled={running}
+            style={{padding:'8px 20px',borderRadius:8,fontSize:12,fontWeight:800,border:'none',cursor:running?'default':'pointer',
+              background:running?'#334155':'#0ea5e9',color:'#fff',fontFamily:'inherit',opacity:running?0.5:1,transition:'all .2s'}}>
+            {filled === 0 ? '▶ Start' : running ? '⏳ Running...' : '▶ Replay'}
+          </button>
+          {filled > 0 && !running && (
+            <button onClick={resetSim}
+              style={{padding:'8px 16px',borderRadius:8,fontSize:12,fontWeight:700,border:'1px solid #334155',cursor:'pointer',
+                background:'transparent',color:'#94a3b8',fontFamily:'inherit'}}>
+              Reset
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Grid visualisation */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:3,marginBottom:20}}>
+        {Array.from({length:64}).map(function(_, i) {
+          var isFilled = i < filled;
+          var isLatest = i === filled - 1 && running;
+          return (
+            <div key={i} style={{
+              aspectRatio:'1',borderRadius:4,
+              background:isFilled ? (isLatest ? '#22d3ee' : '#0ea5e9') : '#1e293b',
+              border:'1px solid ' + (isFilled ? '#0ea5e9' : '#334155'),
+              transition:'all .15s ease',
+              transform:isLatest ? 'scale(1.15)' : 'scale(1)',
+              boxShadow:isLatest ? '0 0 12px rgba(14,165,233,.5)' : 'none',
+            }}/>
+          );
+        })}
+      </div>
+
+      {/* Stats bar */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
+        <div style={{textAlign:'center',padding:'12px 8px',background:'#1e293b',borderRadius:10}}>
+          <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',marginBottom:4}}>SEATS FILLED</div>
+          <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'#fff'}}>{filled}<span style={{fontSize:12,color:'#64748b'}}>/64</span></div>
+        </div>
+        <div style={{textAlign:'center',padding:'12px 8px',background:'#1e293b',borderRadius:10}}>
+          <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',marginBottom:4}}>UNI-LEVEL EARNED</div>
+          <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'#6366f1'}}>${earned.toFixed(0)}</div>
+        </div>
+        <div style={{textAlign:'center',padding:'12px 8px',background:'#1e293b',borderRadius:10}}>
+          <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',marginBottom:4}}>BONUS ACCRUED</div>
+          <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'#10b981'}}>${bonus.toFixed(0)}</div>
+        </div>
+        <div style={{textAlign:'center',padding:'12px 8px',background:'#1e293b',borderRadius:10}}>
+          <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',marginBottom:4}}>GRID STATUS</div>
+          <div style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,color:complete?'#4ade80':'#f59e0b',marginTop:4}}>
+            {complete ? '✅ COMPLETE' : filled === 0 ? '⏸ Ready' : '⏳ Filling...'}
+          </div>
+        </div>
+      </div>
+
+      {/* Completion celebration */}
+      {showComplete && (
+        <div style={{
+          textAlign:'center',padding:'20px',background:'linear-gradient(135deg,rgba(74,222,128,.1),rgba(14,165,233,.1))',
+          borderRadius:12,border:'1px solid rgba(74,222,128,.2)',
+          animation:'fadeSlideUp .5s ease',
+        }}>
+          <div style={{fontSize:28,marginBottom:8}}>🎉</div>
+          <div style={{fontSize:16,fontWeight:800,color:'#4ade80',marginBottom:4}}>Grid Complete!</div>
+          <div style={{fontSize:13,color:'#94a3b8',marginBottom:12}}>64 seats filled on the $100 tier</div>
+          <div style={{display:'flex',justifyContent:'center',gap:20}}>
+            <div>
+              <div style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>UNI-LEVEL TOTAL</div>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#6366f1'}}>$400</div>
+            </div>
+            <div style={{width:1,background:'#334155'}}/>
+            <div>
+              <div style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>COMPLETION BONUS</div>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#10b981'}}>$320</div>
+            </div>
+            <div style={{width:1,background:'#334155'}}/>
+            <div>
+              <div style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>TOTAL EARNED</div>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#4ade80'}}>$720</div>
+            </div>
+          </div>
+          <div style={{fontSize:11,color:'#64748b',marginTop:12}}>Grid advances to the next round. Future earnings depend on new members activating this tier.</div>
+        </div>
+      )}
+
+      <style>{'\
+        @keyframes fadeSlideUp {\
+          from { opacity:0; transform:translateY(15px); }\
+          to { opacity:1; transform:translateY(0); }\
+        }\
+      '}</style>
     </div>
   );
 }
