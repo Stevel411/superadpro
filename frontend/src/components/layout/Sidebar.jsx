@@ -79,12 +79,16 @@ export default function Sidebar() {
   var toggle = function(key) {
     setManualOpen(function(prev) {
       var next = Object.assign({}, prev);
-      // If explicitly set, toggle it. If not set yet, close it (since it was auto-opened)
-      if (key in next) {
-        next[key] = !next[key];
-      } else {
-        next[key] = false;
-      }
+      var hasActive = false;
+      NAV.forEach(function(item) {
+        if (item.key === key && item.items) {
+          hasActive = item.items.some(function(sub) { return location.pathname === sub.path; });
+        }
+      });
+      // Determine current visual state
+      var currentlyOpen = (key in prev) ? prev[key] : hasActive;
+      // Toggle it
+      next[key] = !currentlyOpen;
       return next;
     });
   };
