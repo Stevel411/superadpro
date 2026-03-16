@@ -574,7 +574,7 @@ function GridSection() {
         </div>
         <div style={{padding:'24px'}}>
           <p style={{fontSize:13,color:'#64748b',lineHeight:1.7,marginBottom:20,maxWidth:650}}>
-            Each tier has its own 8×8 grid (64 seats). As members join and fill seats, you accumulate uni-level commissions on every single entry. When all 64 seats are filled, the grid completes, you receive the bonus pool, and the grid advances to the next cycle — where you earn it all again.
+            Each tier has its own 8×8 grid (64 seats). As members join and fill seats, you accumulate uni-level commissions on every entry. When all 64 seats are filled, the grid completes and you receive the bonus pool. The grid then advances to the next round. Future earnings depend entirely on continued network activity — new members must join and activate the same tier for commissions to be generated.
           </p>
           <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
             {TIERS.map(function(t, i) {
