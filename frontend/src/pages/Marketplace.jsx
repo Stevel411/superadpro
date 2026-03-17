@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import AppLayout from '../components/layout/AppLayout';
-import { apiGet, apiPost } from '../utils/api';
+import { apiGet, apiPost, apiDelete } from '../utils/api';
 import { Store, Search, Users, DollarSign, TrendingUp, Copy, Check, ShoppingCart, Star, Tag, Download, Plus, Eye, Package, Award, ExternalLink } from 'lucide-react';
 
 var CATEGORIES = [
@@ -57,7 +57,7 @@ export default function SuperMarket() {
     <AppLayout title="SuperMarket" subtitle="Digital Product Marketplace — Sell & Promote Downloads">
       {view === 'browse' && <BrowseView products={filtered} allProducts={products} search={search} setSearch={setSearch} category={category} setCategory={setCategory} sortBy={sortBy} setSortBy={setSortBy} onOpen={openDetail} onMyProducts={loadMyProducts} onCreate={function(){navigate('/supermarket/create');}}/>}
       {view === 'detail' && selectedProduct && <ProductDetail product={selectedProduct} onBack={function(){setView('browse');}} currentUserId={currentUserId}/>}
-      {view === 'my-products' && <MyProducts products={myProducts} onBack={function(){setView('browse');}} onCreate={function(){navigate('/supermarket/create');}}/>}
+      {view === 'my-products' && <MyProducts products={myProducts} onBack={function(){setView('browse');}} onCreate={function(){navigate('/supermarket/create');}} onReload={loadMyProducts}/>}
     </AppLayout>
   );
 }
@@ -296,7 +296,19 @@ function ProductDetail({ product, onBack, currentUserId }) {
   );
 }
 
-function MyProducts({ products, onBack, onCreate }) {
+function MyProducts({ products, onBack, onCreate, onReload }) {
+  var [deleting, setDeleting] = useState('');
+
+  function handleDelete(id, title, hasSales) {
+    if (hasSales) {
+      if (!confirm('This product has sales. Deleting will remove it from the marketplace. Are you sure?')) return;
+    } else {
+      if (!confirm('Delete "' + title + '"? This cannot be undone.')) return;
+    }
+    setDeleting(id);
+    apiDelete('/api/supermarket/products/' + id).then(function() { setDeleting(''); if (onReload) onReload(); }).catch(function(e) { alert(e.message || 'Failed to delete'); setDeleting(''); });
+  }
+
   return (
     <div>
       <button onClick={onBack} style={{display:'flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'#94a3b8',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit',marginBottom:16}}>← Back to SuperMarket</button>
@@ -317,13 +329,17 @@ function MyProducts({ products, onBack, onCreate }) {
                   <div style={{fontSize:14,fontWeight:700,color:'#0f172a'}}>{p.title}</div>
                   <div style={{display:'flex',gap:8,marginTop:3}}>
                     <span style={{fontSize:11,fontWeight:700,color:'#0f172a'}}>${Math.round(p.price||0)}</span>
-                    <span style={{fontSize:10,fontWeight:700,padding:'1px 6px',borderRadius:3,background:sc.bg,color:sc.color,textTransform:'capitalize'}}>{p.status}</span>
+                    <span style={{fontSize:10,fontWeight:700,padding:'1px 6px',borderRadius:3,background:sc.bg,color:sc.color,textTransform:'capitalize'}}>{p.status.replace('_',' ')}</span>
                   </div>
                 </div>
               </div>
               <div style={{display:'flex',alignItems:'center',gap:16}}>
                 <div style={{textAlign:'center'}}><div style={{fontSize:16,fontWeight:800,color:'#0ea5e9'}}>{p.total_sales||0}</div><div style={{fontSize:9,color:'#94a3b8'}}>Sales</div></div>
                 <div style={{textAlign:'center'}}><div style={{fontSize:16,fontWeight:800,color:'#16a34a'}}>${Math.round(p.total_revenue||0)}</div><div style={{fontSize:9,color:'#94a3b8'}}>Revenue</div></div>
+                <button onClick={function(){handleDelete(p.id,p.title,(p.total_sales||0)>0);}} disabled={deleting===p.id}
+                  style={{padding:'6px 12px',borderRadius:6,border:'1px solid #fecaca',background:'#fff',color:'#dc2626',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit',opacity:deleting===p.id?0.5:1}}>
+                  {deleting===p.id?'...':'Delete'}
+                </button>
               </div>
             </div>
           );

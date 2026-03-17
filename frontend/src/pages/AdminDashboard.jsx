@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
-import { apiGet, apiPost } from '../utils/api';
+import { apiGet, apiPost, apiDelete } from '../utils/api';
 import { Shield, Users, DollarSign, TrendingUp, AlertTriangle, CheckCircle, XCircle, Search, ChevronRight, Eye, Ban, CreditCard, Activity, FileText, UserCheck, Clock, RefreshCw, ArrowUpDown } from 'lucide-react';
 
 var TABS = [
@@ -563,6 +563,11 @@ function SuperMarketTab() {
                 <button onClick={function() { setRejectId(rejectId === p.id ? null : p.id); }}
                   style={{padding:'8px 20px',borderRadius:8,border:'1px solid #fecaca',background:'#fff',color:'#dc2626',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
                   ✗ Reject
+                </button>
+                <button onClick={function() { if(!confirm('Permanently delete "'+p.title+'"?')) return; setActing('del-'+p.id); apiDelete('/api/supermarket/products/'+p.id).then(function(){load();setActing('');}).catch(function(){setActing('');}); }}
+                  disabled={acting==='del-'+p.id}
+                  style={{padding:'8px 20px',borderRadius:8,border:'1px solid #e8ecf2',background:'#f8f9fb',color:'#64748b',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+                  {acting==='del-'+p.id?'...':'🗑 Delete'}
                 </button>
               </div>
             </div>

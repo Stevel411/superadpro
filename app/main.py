@@ -12291,16 +12291,21 @@ Respond ONLY with valid JSON, no other text."""
 @app.delete("/api/supermarket/products/{product_id}")
 def api_supermarket_delete(product_id: int, user: User = Depends(get_current_user),
                             db: Session = Depends(get_db)):
-    """Delete a SuperMarket product (only drafts)."""
+    """Delete a SuperMarket product. Admin can delete any. Creator can delete own."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    p = db.query(DigitalProduct).filter(
-        DigitalProduct.id == product_id, DigitalProduct.creator_id == user.id
-    ).first()
+    if user.is_admin:
+        p = db.query(DigitalProduct).filter(DigitalProduct.id == product_id).first()
+    else:
+        p = db.query(DigitalProduct).filter(
+            DigitalProduct.id == product_id, DigitalProduct.creator_id == user.id
+        ).first()
     if not p:
         return JSONResponse({"error": "Product not found"}, status_code=404)
-    if p.status == "published" and p.total_sales > 0:
-        return JSONResponse({"error": "Cannot delete a product with sales"}, status_code=400)
+    # Delete related records first
+    db.query(DigitalProductReview).filter(DigitalProductReview.product_id == product_id).delete()
+    db.query(DigitalProductAffiliate).filter(DigitalProductAffiliate.product_id == product_id).delete()
+    db.query(DigitalProductPurchase).filter(DigitalProductPurchase.product_id == product_id).delete()
     db.delete(p)
     db.commit()
     return {"ok": True}
