@@ -934,6 +934,111 @@ class MemberCoursePurchase(Base):
 
 
 # ═══════════════════════════════════════════════════════════════
+# SUPERMARKET — Digital Product Marketplace (50/25/25)
+# ═══════════════════════════════════════════════════════════════
+
+class DigitalProduct(Base):
+    """A digital product listed on SuperMarket for download/sale."""
+    __tablename__ = "digital_products"
+    id                    = Column(Integer, primary_key=True, index=True)
+    creator_id            = Column(Integer, ForeignKey("users.id"), index=True)
+    title                 = Column(String(120), nullable=False)
+    slug                  = Column(String, unique=True, index=True)
+    short_description     = Column(String(200), nullable=True)
+    description           = Column(Text, nullable=True)              # rich text sales page content
+    price                 = Column(Numeric(10, 2), nullable=False)
+    compare_price         = Column(Numeric(10, 2), nullable=True)    # original price for "was $X" display
+    banner_url            = Column(Text, nullable=True)              # product banner/thumbnail
+    category              = Column(String, default="other")          # ebook, template, software, audio, graphics, other
+    tags                  = Column(String, nullable=True)            # comma-separated tags for search
+    # Product files
+    file_url              = Column(Text, nullable=True)              # main downloadable file (base64 or R2 URL)
+    file_name             = Column(String, nullable=True)            # original filename for display
+    file_size_bytes       = Column(Integer, nullable=True)           # file size for display
+    bonus_file_url        = Column(Text, nullable=True)              # optional bonus file
+    bonus_file_name       = Column(String, nullable=True)
+    # Sales page extras
+    features_json         = Column(Text, nullable=True)              # JSON array of feature bullet points
+    faq_json              = Column(Text, nullable=True)              # JSON array of {q, a} FAQ items
+    demo_url              = Column(String, nullable=True)            # link to demo/preview
+    video_url             = Column(String, nullable=True)            # sales video (YouTube/Vimeo)
+    # Affiliate settings
+    affiliate_commission  = Column(Integer, default=25)              # affiliate % (default 25%)
+    affiliate_approved_only = Column(Boolean, default=False)         # require approval to promote
+    promo_materials_json  = Column(Text, nullable=True)              # JSON: email swipes, banners, social posts
+    # Review & compliance
+    status                = Column(String, default="draft")          # draft, pending_review, approved, published, suspended
+    ai_review_result      = Column(Text, nullable=True)              # JSON scan results
+    ai_reviewed_at        = Column(DateTime, nullable=True)
+    admin_reviewed_at     = Column(DateTime, nullable=True)
+    admin_notes           = Column(Text, nullable=True)
+    creator_agreed_terms  = Column(Boolean, default=False)
+    creator_agreed_at     = Column(DateTime, nullable=True)
+    # Stats
+    total_sales           = Column(Integer, default=0)
+    total_revenue         = Column(Numeric(12, 2), default=0)
+    total_affiliates      = Column(Integer, default=0)
+    conversion_rate       = Column(Numeric(5, 2), default=0)         # sales/clicks %
+    total_clicks          = Column(Integer, default=0)
+    total_refunds         = Column(Integer, default=0)
+    avg_rating            = Column(Numeric(3, 2), default=0)
+    review_count          = Column(Integer, default=0)
+    is_featured           = Column(Boolean, default=False)
+    # Timestamps
+    created_at            = Column(DateTime, default=datetime.utcnow)
+    updated_at            = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    published_at          = Column(DateTime, nullable=True)
+
+
+class DigitalProductPurchase(Base):
+    """Records a purchase of a SuperMarket digital product."""
+    __tablename__ = "digital_product_purchases"
+    id                  = Column(Integer, primary_key=True, index=True)
+    product_id          = Column(Integer, ForeignKey("digital_products.id"), index=True)
+    buyer_id            = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    buyer_email         = Column(String, nullable=True)
+    buyer_name          = Column(String, nullable=True)
+    amount_paid         = Column(Numeric(10, 2), nullable=False)
+    creator_commission  = Column(Numeric(10, 2), nullable=False)     # 50%
+    affiliate_commission = Column(Numeric(10, 2), nullable=False)    # 25%
+    platform_commission = Column(Numeric(10, 2), nullable=False)     # 25%
+    affiliate_id        = Column(Integer, ForeignKey("users.id"), nullable=True)  # who referred the sale
+    payment_method      = Column(String, default="stripe")
+    payment_ref         = Column(String, nullable=True)
+    status              = Column(String, default="completed")        # completed, refunded, disputed
+    download_token      = Column(String, unique=True, nullable=True) # token for download access
+    download_count      = Column(Integer, default=0)
+    refunded_at         = Column(DateTime, nullable=True)
+    created_at          = Column(DateTime, default=datetime.utcnow)
+
+
+class DigitalProductReview(Base):
+    """Buyer review/rating for a SuperMarket product."""
+    __tablename__ = "digital_product_reviews"
+    id          = Column(Integer, primary_key=True, index=True)
+    product_id  = Column(Integer, ForeignKey("digital_products.id"), index=True)
+    buyer_id    = Column(Integer, ForeignKey("users.id"), index=True)
+    rating      = Column(Integer, nullable=False)           # 1-5 stars
+    title       = Column(String(100), nullable=True)
+    comment     = Column(Text, nullable=True)
+    is_verified = Column(Boolean, default=True)             # verified purchase
+    created_at  = Column(DateTime, default=datetime.utcnow)
+
+
+class DigitalProductAffiliate(Base):
+    """Tracks which affiliates are approved to promote a product."""
+    __tablename__ = "digital_product_affiliates"
+    id          = Column(Integer, primary_key=True, index=True)
+    product_id  = Column(Integer, ForeignKey("digital_products.id"), index=True)
+    user_id     = Column(Integer, ForeignKey("users.id"), index=True)
+    status      = Column(String, default="approved")        # pending, approved, rejected
+    clicks      = Column(Integer, default=0)
+    sales       = Column(Integer, default=0)
+    earnings    = Column(Numeric(10, 2), default=0)
+    created_at  = Column(DateTime, default=datetime.utcnow)
+
+
+# ═══════════════════════════════════════════════════════════════
 # SUPERSELLER — AI Sales Autopilot
 # ═══════════════════════════════════════════════════════════════
 
@@ -1396,6 +1501,51 @@ try:
 
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS marketplace_earnings NUMERIC(18,6) DEFAULT 0"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT"))
+
+        # ── SuperMarket digital products ──
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS digital_products (
+            id SERIAL PRIMARY KEY, creator_id INTEGER REFERENCES users(id),
+            title VARCHAR(120) NOT NULL, slug VARCHAR UNIQUE, short_description VARCHAR(200),
+            description TEXT, price NUMERIC(10,2) NOT NULL, compare_price NUMERIC(10,2),
+            banner_url TEXT, category VARCHAR DEFAULT 'other', tags VARCHAR,
+            file_url TEXT, file_name VARCHAR, file_size_bytes INTEGER,
+            bonus_file_url TEXT, bonus_file_name VARCHAR,
+            features_json TEXT, faq_json TEXT, demo_url VARCHAR, video_url VARCHAR,
+            affiliate_commission INTEGER DEFAULT 25, affiliate_approved_only BOOLEAN DEFAULT FALSE,
+            promo_materials_json TEXT,
+            status VARCHAR DEFAULT 'draft', ai_review_result TEXT, ai_reviewed_at TIMESTAMP,
+            admin_reviewed_at TIMESTAMP, admin_notes TEXT,
+            creator_agreed_terms BOOLEAN DEFAULT FALSE, creator_agreed_at TIMESTAMP,
+            total_sales INTEGER DEFAULT 0, total_revenue NUMERIC(12,2) DEFAULT 0,
+            total_affiliates INTEGER DEFAULT 0, conversion_rate NUMERIC(5,2) DEFAULT 0,
+            total_clicks INTEGER DEFAULT 0, total_refunds INTEGER DEFAULT 0,
+            avg_rating NUMERIC(3,2) DEFAULT 0, review_count INTEGER DEFAULT 0,
+            is_featured BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW(),
+            published_at TIMESTAMP
+        )"""))
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS digital_product_purchases (
+            id SERIAL PRIMARY KEY, product_id INTEGER REFERENCES digital_products(id),
+            buyer_id INTEGER REFERENCES users(id), buyer_email VARCHAR, buyer_name VARCHAR,
+            amount_paid NUMERIC(10,2) NOT NULL, creator_commission NUMERIC(10,2) NOT NULL,
+            affiliate_commission NUMERIC(10,2) NOT NULL, platform_commission NUMERIC(10,2) NOT NULL,
+            affiliate_id INTEGER REFERENCES users(id), payment_method VARCHAR DEFAULT 'stripe',
+            payment_ref VARCHAR, status VARCHAR DEFAULT 'completed',
+            download_token VARCHAR UNIQUE, download_count INTEGER DEFAULT 0,
+            refunded_at TIMESTAMP, created_at TIMESTAMP DEFAULT NOW()
+        )"""))
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS digital_product_reviews (
+            id SERIAL PRIMARY KEY, product_id INTEGER REFERENCES digital_products(id),
+            buyer_id INTEGER REFERENCES users(id), rating INTEGER NOT NULL,
+            title VARCHAR(100), comment TEXT, is_verified BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP DEFAULT NOW()
+        )"""))
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS digital_product_affiliates (
+            id SERIAL PRIMARY KEY, product_id INTEGER REFERENCES digital_products(id),
+            user_id INTEGER REFERENCES users(id), status VARCHAR DEFAULT 'approved',
+            clicks INTEGER DEFAULT 0, sales INTEGER DEFAULT 0,
+            earnings NUMERIC(10,2) DEFAULT 0, created_at TIMESTAMP DEFAULT NOW()
+        )"""))
 
         # Master affiliate username
         conn.execute(text("UPDATE users SET username = 'SuperAdPro' WHERE is_admin = true AND username != 'SuperAdPro'"))
