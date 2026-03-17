@@ -1411,7 +1411,8 @@ function CalculatorSection() {
   var [activeTiers, setActiveTiers] = useState([3]); // $100 tier on by default
   var [directRefs, setDirectRefs] = useState(15);
   var [gridAdvances, setGridAdvances] = useState(1);
-  var [memberPlan, setMemberPlan] = useState('mixed'); // basic, pro, mixed
+  var [memberPlan] = useState('mixed');
+  var commPerRef = 12.5; // blended average of Basic ($10) and Pro ($15)
 
   function toggleTier(n) {
     setActiveTiers(function(prev) {
@@ -1421,7 +1422,6 @@ function CalculatorSection() {
   }
 
   // ── Calculate earnings ──
-  var commPerRef = memberPlan === 'pro' ? 15 : memberPlan === 'basic' ? 10 : 12.5;
   var s1Monthly = directRefs * commPerRef;
   var s1Annual = s1Monthly * 12;
 
@@ -1520,27 +1520,6 @@ function CalculatorSection() {
               </div>
             </div>
 
-            {/* Member plan type */}
-            <div>
-              <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>{t('compPlan.referralMix')}</div>
-              <div style={{display:'flex',gap:6}}>
-                {[
-                  {key:'basic',label:'All Basic ($10)',color:'#16a34a'},
-                  {key:'mixed',label:'Mixed ($12.50)',color:'#0ea5e9'},
-                  {key:'pro',label:'All Pro ($15)',color:'#8b5cf6'},
-                ].map(function(o) {
-                  var on = memberPlan === o.key;
-                  return (
-                    <button key={o.key} onClick={function() { setMemberPlan(o.key); }}
-                      style={{flex:1,padding:'8px 6px',borderRadius:8,fontSize:11,fontWeight:700,fontFamily:'inherit',
-                        border:on?'2px solid '+o.color:'2px solid #e8ecf2',cursor:'pointer',
-                        background:on?o.color+'12':'#f8f9fb',color:on?o.color:'#94a3b8',transition:'all .15s'}}>
-                      {o.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
           </div>
         </div>
 

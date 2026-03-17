@@ -16,8 +16,23 @@ export default function Account() {
   const [pwError, setPwError] = useState('');
   const [walletAddr, setWalletAddr] = useState(user?.wallet_address || '');
   const [savingWallet, setSavingWallet] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || '');
 
   const showToast = (msg, type = 'ok') => { setToast({ msg, type }); setTimeout(() => setToast(null), 4000); };
+
+  const handleAvatarUpload = async (e) => {
+    var file = e.target.files[0]; if (!file) return;
+    var reader = new FileReader();
+    reader.onload = async function(ev) {
+      setAvatarUrl(ev.target.result);
+      try {
+        await apiPost('/api/account/update', { avatar_url: ev.target.result });
+        await refreshUser();
+        showToast('Profile photo updated', 'ok');
+      } catch(err) { showToast('Upload failed', 'err'); }
+    };
+    reader.readAsDataURL(file);
+  };
   const saveProfile = async () => {
     setSavingProfile(true);
     try { await apiPost('/api/account/update', { first_name: firstName, last_name: lastName, country }); await refreshUser(); showToast('Settings saved', 'ok'); }
@@ -45,7 +60,15 @@ export default function Account() {
           {/* Profile */}
           <C title="Profile">
             <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:10,paddingBottom:10,borderBottom:'1px solid #f1f3f7'}}>
-              <div style={{width:42,height:42,borderRadius:8,background:'linear-gradient(135deg,#0284c7,#0ea5e9)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:800,color:'#fff',flexShrink:0}}>{initials.toUpperCase()}</div>
+              <label style={{cursor:'pointer',position:'relative',flexShrink:0}}>
+                <div style={{width:52,height:52,borderRadius:12,background:'linear-gradient(135deg,#0284c7,#0ea5e9)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:800,color:'#fff',overflow:'hidden'}}>
+                  {avatarUrl ? <img src={avatarUrl} style={{width:'100%',height:'100%',objectFit:'cover'}} alt="" onError={function(e){e.target.style.display='none';}}/> : initials.toUpperCase()}
+                </div>
+                <div style={{position:'absolute',bottom:-2,right:-2,width:18,height:18,borderRadius:'50%',background:'#0ea5e9',border:'2px solid #fff',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <span style={{fontSize:10,color:'#fff',fontWeight:800}}>+</span>
+                </div>
+                <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{display:'none'}}/>
+              </label>
               <div>
                 <div style={{fontSize:15,fontWeight:800,color:'#0f172a'}}>{user.first_name||''} {user.last_name||''}</div>
                 <div style={{fontSize:11,color:'#94a3b8'}}>@{user.username}</div>

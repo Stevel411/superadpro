@@ -159,6 +159,7 @@ class User(Base):
     # ── 2FA fields ──
     totp_secret             = Column(String, nullable=True)                # base32-encoded TOTP secret
     totp_enabled            = Column(Boolean, default=False)               # True once user confirms setup
+    avatar_url              = Column(Text, nullable=True)                  # profile photo URL or base64
 
 class Grid(Base):
     """One grid instance per user per package tier."""
@@ -1394,6 +1395,7 @@ try:
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_mcp_buyer ON member_course_purchases(buyer_id)"))
 
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS marketplace_earnings NUMERIC(18,6) DEFAULT 0"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT"))
 
         # Master affiliate username
         conn.execute(text("UPDATE users SET username = 'SuperAdPro' WHERE is_admin = true AND username != 'SuperAdPro'"))

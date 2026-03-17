@@ -409,7 +409,7 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "onboarding_completed": user.onboarding_completed,
         "kyc_status": user.kyc_status,
         "totp_enabled": user.totp_enabled,
-        "avatar_url": None,  # TODO: pull from LinkHub profile
+        "avatar_url": user.avatar_url or None,
     }
 
 
@@ -11788,6 +11788,10 @@ async def api_account_update(request: Request, user: User = Depends(get_current_
         email = (body["email"] or "").strip()[:200]
         if email and "@" in email:
             user.email = email
+    if "avatar_url" in body:
+        user.avatar_url = body["avatar_url"]
+    if "country" in body:
+        user.country = (body["country"] or "").strip()[:100]
     db.commit()
     return {"ok": True}
 
