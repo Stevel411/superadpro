@@ -12899,7 +12899,8 @@ def api_leads_data(request: Request, user: User = Depends(get_current_user),
         "id": l.id, "email": l.email, "name": l.name or "",
         "status": l.status or "new", "source_url": l.source_url or "",
         "emails_sent": l.emails_sent or 0, "emails_opened": l.emails_opened or 0,
-        "is_hot": l.is_hot, "created_at": l.created_at.isoformat() if l.created_at else None,
+        "is_hot": l.is_hot, "list_id": l.list_id, "sequence_id": l.email_sequence_id,
+        "created_at": l.created_at.isoformat() if l.created_at else None,
     } for l in leads], "total": len(leads)}
 
 
@@ -12986,6 +12987,7 @@ async def api_upload_leads_csv(request: Request, user: User = Depends(get_curren
     if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
     body = await request.json()
     leads_data = body.get("leads") or []  # [{email, name}]
+    list_id = body.get("list_id")  # optional — assign to specific list
     if not leads_data: return JSONResponse({"error": "No leads provided"}, status_code=400)
 
     # Check lead limit
@@ -13011,7 +13013,7 @@ async def api_upload_leads_csv(request: Request, user: User = Depends(get_curren
             continue
         lead = MemberLead(
             user_id=user.id, email=email, name=(ld.get("name") or "").strip(),
-            source_url="CSV Upload", status="new",
+            source_url="CSV Upload", status="new", list_id=list_id,
         )
         db.add(lead)
         imported += 1
@@ -13100,6 +13102,7 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
     subject = (body.get("subject") or "").strip()
     html_content = body.get("html_content") or ""
     filter_status = body.get("filter_status", "all")  # all, new, nurturing, hot
+    filter_list_id = body.get("list_id")  # optional — broadcast to specific list only
     if not subject: return JSONResponse({"error": "Subject required"}, status_code=400)
     if not html_content: return JSONResponse({"error": "Email content required"}, status_code=400)
 
@@ -13107,6 +13110,8 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
     from .brevo_service import send_email, wrap_email_html
 
     q = db.query(MemberLead).filter(MemberLead.user_id == user.id, MemberLead.status != "unsubscribed")
+    if filter_list_id:
+        q = q.filter(MemberLead.list_id == filter_list_id)
     if filter_status != "all":
         if filter_status == "hot":
             q = q.filter(MemberLead.is_hot == True)
@@ -13147,6 +13152,76 @@ def api_leads_stats(request: Request, user: User = Depends(get_current_user), db
     hot = db.query(MemberLead).filter(MemberLead.user_id == user.id, MemberLead.is_hot == True).count()
     return {"total": total, "limit": limit, "remaining": max(0, limit - total), "hot": hot,
             "tier": getattr(user, 'membership_tier', 'basic')}
+
+
+# ── Lead Lists ──
+
+@app.get("/api/leads/lists")
+def api_leads_lists(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Get all lead lists for this user."""
+    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import LeadList
+    lists = db.query(LeadList).filter(LeadList.user_id == user.id).order_by(LeadList.created_at.desc()).all()
+    # Update lead counts
+    for lst in lists:
+        lst.lead_count = db.query(MemberLead).filter(MemberLead.user_id == user.id, MemberLead.list_id == lst.id).count()
+    db.commit()
+    return {"lists": [{
+        "id": l.id, "name": l.name, "description": l.description or "",
+        "color": l.color or "#0ea5e9", "lead_count": l.lead_count or 0,
+        "sequence_id": l.sequence_id,
+        "created_at": l.created_at.isoformat() if l.created_at else None,
+    } for l in lists]}
+
+
+@app.post("/api/leads/lists")
+async def api_create_lead_list(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Create a new lead list."""
+    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    from .database import LeadList
+    name = (body.get("name") or "").strip()
+    if not name: return JSONResponse({"error": "List name required"}, status_code=400)
+    lst = LeadList(
+        user_id=user.id, name=name[:100],
+        description=(body.get("description") or "")[:300],
+        color=body.get("color", "#0ea5e9"),
+        sequence_id=body.get("sequence_id"),
+    )
+    db.add(lst)
+    db.commit()
+    db.refresh(lst)
+    return {"ok": True, "list_id": lst.id}
+
+
+@app.put("/api/leads/lists/{list_id}")
+async def api_update_lead_list(list_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Update a lead list."""
+    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import LeadList
+    lst = db.query(LeadList).filter(LeadList.id == list_id, LeadList.user_id == user.id).first()
+    if not lst: return JSONResponse({"error": "Not found"}, status_code=404)
+    body = await request.json()
+    if "name" in body: lst.name = (body["name"] or "")[:100]
+    if "description" in body: lst.description = (body["description"] or "")[:300]
+    if "color" in body: lst.color = body["color"]
+    if "sequence_id" in body: lst.sequence_id = body.get("sequence_id")
+    db.commit()
+    return {"ok": True}
+
+
+@app.delete("/api/leads/lists/{list_id}")
+def api_delete_lead_list(list_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Delete a lead list (leads move to unsorted)."""
+    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import LeadList
+    lst = db.query(LeadList).filter(LeadList.id == list_id, LeadList.user_id == user.id).first()
+    if not lst: return JSONResponse({"error": "Not found"}, status_code=404)
+    # Unassign leads from this list (don't delete them)
+    db.query(MemberLead).filter(MemberLead.list_id == list_id).update({"list_id": None})
+    db.delete(lst)
+    db.commit()
+    return {"ok": True}
 
 
 @app.get("/api/link-tools")

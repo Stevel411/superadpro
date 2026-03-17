@@ -812,6 +812,19 @@ class EmailSequence(Base):
     created_at      = Column(DateTime, default=datetime.utcnow)
 
 
+class LeadList(Base):
+    """Named lists for organizing leads by campaign/source/niche."""
+    __tablename__ = "lead_lists"
+    id          = Column(Integer, primary_key=True, index=True)
+    user_id     = Column(Integer, ForeignKey("users.id"), index=True)
+    name        = Column(String(100), nullable=False)
+    description = Column(String(300), nullable=True)
+    color       = Column(String(10), default="#0ea5e9")    # hex colour for visual tag
+    lead_count  = Column(Integer, default=0)
+    sequence_id = Column(Integer, ForeignKey("email_sequences.id"), nullable=True)  # default sequence for this list
+    created_at  = Column(DateTime, default=datetime.utcnow)
+
+
 class MemberLead(Base):
     """Email leads captured by each member's funnel forms (Pro tier)."""
     __tablename__ = "member_leads"
@@ -821,6 +834,7 @@ class MemberLead(Base):
     name            = Column(String, nullable=True)
     source_funnel_id = Column(Integer, ForeignKey("funnel_pages.id"), nullable=True)
     source_url      = Column(String, nullable=True)
+    list_id         = Column(Integer, ForeignKey("lead_lists.id"), nullable=True, index=True)
     brevo_contact_id = Column(String, nullable=True)       # Brevo's contact ID
     status          = Column(String, default="new")        # new/nurturing/hot/converted/unsubscribed
     email_sequence_id = Column(Integer, ForeignKey("email_sequences.id"), nullable=True)
@@ -1436,6 +1450,15 @@ try:
             sent_at TIMESTAMP DEFAULT NOW(),
             opened_at TIMESTAMP, clicked_at TIMESTAMP)"""))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_email_send_log_lead ON email_send_log(lead_id)"))
+
+        # Lead Lists
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS lead_lists (
+            id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id),
+            name VARCHAR(100) NOT NULL, description VARCHAR(300),
+            color VARCHAR(10) DEFAULT '#0ea5e9', lead_count INTEGER DEFAULT 0,
+            sequence_id INTEGER REFERENCES email_sequences(id),
+            created_at TIMESTAMP DEFAULT NOW())"""))
+        conn.execute(text("ALTER TABLE member_leads ADD COLUMN IF NOT EXISTS list_id INTEGER REFERENCES lead_lists(id)"))
 
         # New columns on funnel_pages for AI funnel generator
         conn.execute(text("ALTER TABLE funnel_pages ADD COLUMN IF NOT EXISTS has_capture_form BOOLEAN DEFAULT FALSE"))
