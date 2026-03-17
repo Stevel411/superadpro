@@ -49,7 +49,7 @@ export default function CourseCreate() {
       thumbnail_url: thumbnailUrl.trim(),
       agreed_terms: true,
     }).then(function(r) {
-      if (r.ok) { navigate('/marketplace'); }
+      if (r.ok) { navigate('/courses/edit/' + r.course_id); }
       else { setError(r.error || 'Failed to create course'); setSaving(false); }
     }).catch(function(e) { setError(e.message || 'Failed to create course'); setSaving(false); });
   }

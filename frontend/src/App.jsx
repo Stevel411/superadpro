@@ -53,6 +53,7 @@ import SuperSeller from './pages/SuperSeller';
 import AdminDashboard from './pages/AdminDashboard';
 import Funnels from './pages/Funnels';
 import CourseCreate from './pages/CourseCreate';
+import CourseEditor from './pages/CourseEditor';
 import LinkHubPage from './pages/LinkHub';
 import SuperPagesEditor from './pages/superpages/SuperPagesEditor';
 import ActivateTier from './pages/ActivateTier';
@@ -115,6 +116,7 @@ function AppRoutes() {
 
       {/* Complex tools — full React pages */}
       <Route path="/courses/create" element={<ProtectedRoute><CourseCreate /></ProtectedRoute>} />
+      <Route path="/courses/edit/:id" element={<ProtectedRoute><CourseEditor /></ProtectedRoute>} />
       <Route path="/linkhub" element={<ProtectedRoute><LinkHubPage /></ProtectedRoute>} />
       <Route path="/proseller" element={<ProtectedRoute><ProSeller /></ProtectedRoute>} />
       <Route path="/superseller" element={<ProtectedRoute><SuperSeller /></ProtectedRoute>} />
