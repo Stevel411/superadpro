@@ -53,7 +53,8 @@ export default function LinkHub() {
   var [saved, setSaved] = useState(false);
   var [copied, setCopied] = useState(false);
   var [stats, setStats] = useState({total_clicks:0,click_30d:0,total_views:0});
-  var [emojiPicker, setEmojiPicker] = useState(null); // link id or null
+  var [emojiPicker, setEmojiPicker] = useState(null);
+  var [phoneDrag, setPhoneDrag] = useState(-1);
 
   useEffect(function() {
     apiGet('/api/linkhub/editor-data').then(function(d) {
@@ -175,12 +176,34 @@ export default function LinkHub() {
               </div>
               <div style={{fontSize:20,fontWeight:800,color:style.text_color}}>{profile.display_name||'Your Name'}</div>
               <div style={{fontSize:13,color:style.bio_color||style.text_color,opacity:style.bio_color?1:.6,marginBottom:28,lineHeight:1.5,marginTop:4}}>{profile.bio||'Your bio here'}</div>
-              {/* Links */}
+              {/* Links — draggable in phone preview */}
               <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                {links.filter(function(l){return l.is_active;}).map(function(link) {
+                {links.filter(function(l){return l.is_active;}).map(function(link, visIdx) {
                   var isFilled = style.btn_style_type!=='outline';
+                  var isDragging = phoneDrag === visIdx;
+                  // Map visible index back to full array index for reorder
+                  var fullIdx = links.indexOf(link);
                   return (
-                    <div key={link.id} style={{padding:'14px 18px',borderRadius:btnRadius,background:isFilled?style.btn_color:'transparent',border:isFilled?'none':'2px solid '+style.btn_color,display:'flex',alignItems:'center',gap:10,textAlign:style.btn_align||'center'}}>
+                    <div key={link.id} draggable
+                      onDragStart={function(){setPhoneDrag(visIdx);}}
+                      onDragOver={function(e){
+                        e.preventDefault();
+                        if (phoneDrag === visIdx || phoneDrag < 0) return;
+                        // Get the active links, reorder them, then rebuild full list
+                        var activeLinks = links.filter(function(l){return l.is_active;});
+                        var inactiveLinks = links.filter(function(l){return !l.is_active;});
+                        var item = activeLinks.splice(phoneDrag, 1)[0];
+                        activeLinks.splice(visIdx, 0, item);
+                        setLinks(activeLinks.concat(inactiveLinks));
+                        setPhoneDrag(visIdx);
+                      }}
+                      onDragEnd={function(){setPhoneDrag(-1);}}
+                      style={{padding:'14px 18px',borderRadius:btnRadius,
+                        background:isFilled?style.btn_color:'transparent',
+                        border:isFilled?(isDragging?'2px solid '+style.accent_color:'none'):'2px solid '+style.btn_color,
+                        display:'flex',alignItems:'center',gap:10,textAlign:style.btn_align||'center',
+                        cursor:'grab',opacity:isDragging?0.7:1,transition:'opacity .15s',
+                        boxShadow:isDragging?'0 4px 16px rgba(0,0,0,.3)':'none'}}>
                       <span style={{fontSize:18}}>{parseIcon(link.icon)}</span>
                       <span style={{fontSize:style.btn_font_size||14,fontWeight:600,flex:1,textAlign:style.btn_align||'center',color:style.btn_text_color||style.text_color}}>{link.title||'Untitled'}</span>
                       {arrowObj.render && arrowObj.render(style.btn_text_color||style.text_color)}
