@@ -16,7 +16,7 @@ export default function PassupVisualiser() {
   var { t } = useTranslation();
   var [tab, setTab] = useState('passup');
 
-  var visBg = {background:'linear-gradient(135deg,#042f1a,#0a1f14,#071a10)',minHeight:'100vh'};
+  var visBg = {background:'linear-gradient(160deg,#065f46,#047857,#059669,#047857,#065f46)',minHeight:'100vh'};
 
   return (
     <AppLayout title={t("visualiser.title")} subtitle={t("visualiser.subtitle")} bgStyle={visBg}>
@@ -385,8 +385,8 @@ function PassUpSection() {
 
       <div style={{display:'grid',gridTemplateColumns:'1fr 340px',gap:16}}>
         {/* LEFT — Tree */}
-        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
-          <div style={{background:'#1c223d',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div style={{background:'rgba(236,253,245,.92)',border:'1px solid rgba(16,185,129,.2)',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
+          <div style={{background:'#064e3b',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div>
               <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa'}}>{t('visualiser.infinitePassUp')}</div>
               <div style={{fontSize:15,fontWeight:800,color:'#fff'}}>${tier} {tier===100?'Starter':tier===300?'Advanced':'Elite'} Tier</div>
@@ -398,7 +398,7 @@ function PassUpSection() {
                 {playing ? <><Pause size={13}/> {t('common.pause')}</> : <><Play size={13}/> {t('common.play')}</>}
               </button>
               <button onClick={initSim}
-                style={{display:'flex',alignItems:'center',gap:4,padding:'7px 12px',borderRadius:8,border:'1px solid #e8ecf2',cursor:'pointer',
+                style={{display:'flex',alignItems:'center',gap:4,padding:'7px 12px',borderRadius:8,border:'1px solid rgba(16,185,129,.2)',cursor:'pointer',
                   background:'#fff',color:'#64748b',fontSize:12,fontWeight:700,fontFamily:'inherit'}}>
                 <RotateCcw size={13}/> Reset
               </button>
@@ -504,7 +504,7 @@ function PassUpSection() {
             <div style={{fontSize:12,color:'rgba(255,255,255,.5)',marginTop:4}}>{st.kept} kept · {st.passups} pass-ups received</div>
           </div>
 
-          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16}}>
+          <div style={{background:'rgba(236,253,245,.92)',border:'1px solid rgba(16,185,129,.2)',borderRadius:14,padding:16}}>
             <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:10}}>{t('visualiser.liveEarnings')}</div>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0',borderBottom:'1px solid #f5f6f8'}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
@@ -523,25 +523,25 @@ function PassUpSection() {
           </div>
 
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-            <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
+            <div style={{background:'rgba(236,253,245,.92)',border:'1px solid rgba(16,185,129,.2)',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>{t('visualiser.directSales')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#10b981'}}>{st.kept}</div>
             </div>
-            <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
+            <div style={{background:'rgba(236,253,245,.92)',border:'1px solid rgba(16,185,129,.2)',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>{t('visualiser.passUps')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#f59e0b'}}>{st.passups}</div>
             </div>
-            <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
+            <div style={{background:'rgba(236,253,245,.92)',border:'1px solid rgba(16,185,129,.2)',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>{t('visualiser.teamSales')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#0ea5e9'}}>{st.totalSales}</div>
             </div>
-            <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
+            <div style={{background:'rgba(236,253,245,.92)',border:'1px solid rgba(16,185,129,.2)',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>{t('visualiser.tier')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#8b5cf6'}}>${tier}</div>
             </div>
           </div>
 
-          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16}}>
+          <div style={{background:'rgba(236,253,245,.92)',border:'1px solid rgba(16,185,129,.2)',borderRadius:14,padding:16}}>
             <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:10}}>{t('visualiser.fourPassUpRoutes')}</div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
               {[
@@ -551,7 +551,7 @@ function PassUpSection() {
                 {n:'4',title:'Infinite',desc:'No level cap on cascades',color:'#ec4899'},
               ].map(function(s, i) {
                 return (
-                  <div key={i} style={{padding:10,background:'#f8f9fb',borderRadius:8,border:'1px solid #e8ecf2',textAlign:'center'}}>
+                  <div key={i} style={{padding:10,background:'rgba(209,250,229,.6)',borderRadius:8,border:'1px solid rgba(16,185,129,.2)',textAlign:'center'}}>
                     <div style={{width:22,height:22,borderRadius:'50%',background:s.color+'15',color:s.color,fontSize:11,fontWeight:800,display:'inline-flex',alignItems:'center',justifyContent:'center',marginBottom:4}}>{s.n}</div>
                     <div style={{fontSize:11,fontWeight:800,color:'#0f172a'}}>{s.title}</div>
                     <div style={{fontSize:9,color:'#64748b',lineHeight:1.4}}>{s.desc}</div>
@@ -561,7 +561,7 @@ function PassUpSection() {
             </div>
           </div>
 
-          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16,flex:1,minHeight:180}}>
+          <div style={{background:'rgba(236,253,245,.92)',border:'1px solid rgba(16,185,129,.2)',borderRadius:14,padding:16,flex:1,minHeight:180}}>
             <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:10}}>{t('visualiser.activityLog')}</div>
             <div style={{display:'flex',flexDirection:'column',gap:4,maxHeight:300,overflowY:'auto'}}>
               {log.length === 0 && <div style={{fontSize:11,color:'#94a3b8'}}>{t('visualiser.pressPlayToWatch')}</div>}
@@ -745,8 +745,8 @@ function GridVisSection() {
       {/* Main 2-col layout */}
       <div style={{display:'grid',gridTemplateColumns:'1fr 360px',gap:16}}>
         {/* LEFT — Grid */}
-        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
-          <div style={{background:'#1c223d',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div style={{background:'rgba(236,253,245,.92)',border:'1px solid rgba(16,185,129,.2)',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
+          <div style={{background:'#064e3b',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div>
               <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8'}}>{t('visualiser.profitEngine')}</div>
               <div style={{fontSize:15,fontWeight:800,color:'#fff'}}>${PRICE} {tier.name} Grid</div>
@@ -769,7 +769,7 @@ function GridVisSection() {
                 {running ? <><Pause size={13}/> {t('common.pause')}</> : <><Play size={13}/> {filled>=64?'Replay':'Simulate'}</>}
               </button>
               <button onClick={initSim}
-                style={{display:'flex',alignItems:'center',gap:4,padding:'7px 12px',borderRadius:8,border:'1px solid #e8ecf2',cursor:'pointer',
+                style={{display:'flex',alignItems:'center',gap:4,padding:'7px 12px',borderRadius:8,border:'1px solid rgba(16,185,129,.2)',cursor:'pointer',
                   background:'#fff',color:'#64748b',fontSize:12,fontWeight:700,fontFamily:'inherit'}}>
                 <RotateCcw size={13}/>
               </button>
@@ -779,7 +779,7 @@ function GridVisSection() {
           <div style={{padding:'20px'}}>
             {/* Progress bar */}
             <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
-              <div style={{flex:1,height:8,background:'#f1f5f9',borderRadius:4,overflow:'hidden'}}>
+              <div style={{flex:1,height:8,background:'rgba(209,250,229,.5)',borderRadius:4,overflow:'hidden'}}>
                 <div style={{height:'100%',borderRadius:4,background:'linear-gradient(90deg,'+tier.color+',#22c55e)',width:pct+'%',transition:'width .3s'}}/>
               </div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:tier.color,minWidth:50,textAlign:'right'}}>{filled} / 64</div>
@@ -858,7 +858,7 @@ function GridVisSection() {
           </div>
 
           {/* Commission split bar */}
-          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16}}>
+          <div style={{background:'rgba(236,253,245,.92)',border:'1px solid rgba(16,185,129,.2)',borderRadius:14,padding:16}}>
             <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#0ea5e9',marginBottom:8}}>Per Seat — ${PRICE}</div>
             <div style={{height:8,borderRadius:4,overflow:'hidden',display:'flex',gap:2,marginBottom:8}}>
               <div style={{flex:40,background:'#0ea5e9',borderRadius:3}}/>
@@ -876,26 +876,26 @@ function GridVisSection() {
 
           {/* 2x2 mini stats */}
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-            <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
+            <div style={{background:'rgba(236,253,245,.92)',border:'1px solid rgba(16,185,129,.2)',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0ea5e9'}}>{st.direct}</div>
               <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>{t('visualiser.directFills')}</div>
             </div>
-            <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
+            <div style={{background:'rgba(236,253,245,.92)',border:'1px solid rgba(16,185,129,.2)',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#22c55e'}}>{st.network}</div>
               <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>{t('visualiser.networkFills')}</div>
             </div>
-            <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
+            <div style={{background:'rgba(236,253,245,.92)',border:'1px solid rgba(16,185,129,.2)',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#6366f1'}}>${Math.round(st.earned)}</div>
               <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>{t('visualiser.uniLevel')}</div>
             </div>
-            <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
+            <div style={{background:'rgba(236,253,245,.92)',border:'1px solid rgba(16,185,129,.2)',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#10b981'}}>${Math.round(st.bonus)}</div>
               <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>{t('visualiser.bonus')}</div>
             </div>
           </div>
 
           {/* Earnings breakdown */}
-          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16}}>
+          <div style={{background:'rgba(236,253,245,.92)',border:'1px solid rgba(16,185,129,.2)',borderRadius:14,padding:16}}>
             <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#0ea5e9',marginBottom:10}}>Earnings Breakdown</div>
             {[
               {label:'Direct Sponsor (40%)',val:'$'+Math.round(st.directAmt),color:'#0ea5e9'},
@@ -912,7 +912,7 @@ function GridVisSection() {
           </div>
 
           {/* Live commission log */}
-          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16,flex:1,minHeight:180}}>
+          <div style={{background:'rgba(236,253,245,.92)',border:'1px solid rgba(16,185,129,.2)',borderRadius:14,padding:16,flex:1,minHeight:180}}>
             <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#0ea5e9',marginBottom:10}}>{t('visualiser.liveCommissionFeed')}</div>
             <div style={{display:'flex',flexDirection:'column',gap:4,maxHeight:280,overflowY:'auto'}}>
               {logs.length === 0 && <div style={{fontSize:11,color:'#94a3b8',textAlign:'center',padding:12}}>{t('visualiser.pressSimulateToStart')}</div>}
