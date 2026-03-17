@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
 import { Store, Search, Users, DollarSign, TrendingUp, Copy, Check, ShoppingCart, Star, Tag, Download, Plus, Eye, Package, Award, ExternalLink } from 'lucide-react';
@@ -27,6 +28,8 @@ export default function SuperMarket() {
   var [sortBy, setSortBy] = useState('newest');
   var [selectedProduct, setSelectedProduct] = useState(null);
   var navigate = useNavigate();
+  var auth = useAuth();
+  var currentUserId = auth.user ? auth.user.id : null;
 
   useEffect(function() {
     apiGet('/api/supermarket/browse').then(function(d) { setProducts(d.products || []); setLoading(false); }).catch(function() { setLoading(false); });
@@ -53,7 +56,7 @@ export default function SuperMarket() {
   return (
     <AppLayout title="SuperMarket" subtitle="Digital Product Marketplace — Sell & Promote Downloads">
       {view === 'browse' && <BrowseView products={filtered} allProducts={products} search={search} setSearch={setSearch} category={category} setCategory={setCategory} sortBy={sortBy} setSortBy={setSortBy} onOpen={openDetail} onMyProducts={loadMyProducts} onCreate={function(){navigate('/supermarket/create');}}/>}
-      {view === 'detail' && selectedProduct && <ProductDetail product={selectedProduct} onBack={function(){setView('browse');}}/>}
+      {view === 'detail' && selectedProduct && <ProductDetail product={selectedProduct} onBack={function(){setView('browse');}} currentUserId={currentUserId}/>}
       {view === 'my-products' && <MyProducts products={myProducts} onBack={function(){setView('browse');}} onCreate={function(){navigate('/supermarket/create');}}/>}
     </AppLayout>
   );
@@ -197,9 +200,10 @@ function ProductCard({ product, onOpen }) {
   );
 }
 
-function ProductDetail({ product, onBack }) {
+function ProductDetail({ product, onBack, currentUserId }) {
   var [copied, setCopied] = useState(false);
   var p = product;
+  var isOwner = currentUserId && p.creator_id === currentUserId;
   var earnPerSale = ((p.price||0)*0.25).toFixed(2);
   var affLink = window.location.origin + '/supermarket/product/' + p.id;
 
@@ -244,10 +248,17 @@ function ProductDetail({ product, onBack }) {
                 {p.compare_price && <span style={{fontSize:16,color:'#94a3b8',textDecoration:'line-through'}}>${Math.round(p.compare_price)}</span>}
               </div>
               {p.avg_rating > 0 && <div style={{display:'flex',alignItems:'center',gap:4,marginBottom:12}}>{[1,2,3,4,5].map(function(s){return <Star key={s} size={14} color={s<=Math.round(p.avg_rating)?'#f59e0b':'#e2e8f0'} fill={s<=Math.round(p.avg_rating)?'#f59e0b':'none'}/>;})}<span style={{fontSize:11,color:'#94a3b8'}}>({p.review_count} reviews)</span></div>}
-              <button style={{width:'100%',padding:'14px',borderRadius:10,border:'none',cursor:'pointer',background:'#16a34a',color:'#fff',fontSize:15,fontWeight:800,fontFamily:'inherit',marginBottom:8,boxShadow:'0 4px 14px rgba(22,163,74,.3)'}}>
-                <Download size={16} style={{verticalAlign:'middle',marginRight:6}}/> Buy & Download — ${Math.round(p.price||0)}
-              </button>
-              <div style={{fontSize:10,color:'#94a3b8',textAlign:'center'}}>Instant download after purchase</div>
+              {isOwner ? (
+                <div style={{textAlign:'center',padding:'14px',borderRadius:10,background:'linear-gradient(135deg,rgba(139,92,246,.06),rgba(139,92,246,.02))',border:'1px solid rgba(139,92,246,.15)',marginBottom:8}}>
+                  <div style={{fontSize:14,fontWeight:800,color:'#8b5cf6'}}>Your Product</div>
+                  <div style={{fontSize:11,color:'#94a3b8',marginTop:2}}>This is your listing — {p.total_sales||0} sales so far</div>
+                </div>
+              ) : (
+                <button style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'14px',borderRadius:10,border:'none',cursor:'pointer',background:'#16a34a',color:'#fff',fontSize:15,fontWeight:800,fontFamily:'inherit',marginBottom:8,boxShadow:'0 4px 14px rgba(22,163,74,.3)'}}>
+                  <Download size={16}/> Buy & Download — ${Math.round(p.price||0)}
+                </button>
+              )}
+              <div style={{fontSize:10,color:'#94a3b8',textAlign:'center'}}>{isOwner?'Manage from My Products':'Instant download after purchase'}</div>
             </div>
           </div>
           {/* Promote card */}
