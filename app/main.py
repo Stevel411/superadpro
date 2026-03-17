@@ -2954,33 +2954,7 @@ def admin_panel(request: Request, user: User = Depends(get_current_user),
     if not user or not is_admin(user):
         logger.warning(f"Unauthorised admin access — IP: {request.client.host}")
         raise HTTPException(status_code=403, detail="Access denied")
-
-    total_users    = db.query(User).count()
-    active_users   = db.query(User).filter(User.is_active == True).count()
-    total_grids    = db.query(Grid).count()
-    completed_grids= db.query(Grid).filter(Grid.is_complete == True).count()
-    total_revenue  = db.query(Payment).filter(Payment.status == "confirmed").all()
-    revenue_sum    = sum(p.amount_usdt for p in total_revenue)
-    pending_w      = db.query(Withdrawal).filter(Withdrawal.status == "pending").all()
-    vip_count      = db.query(VIPSignup).count()
-    vip_signups    = db.query(VIPSignup).order_by(VIPSignup.created_at.desc()).limit(50).all()
-    users          = db.query(User).order_by(User.id.desc()).limit(100).all()
-    total_commissions = db.query(Commission).count()
-
-    return templates.TemplateResponse("admin.html", {
-        "request":         request,
-        "user":            user,
-        "total_users":     total_users,
-        "active_users":    active_users,
-        "total_grids":     total_grids,
-        "completed_grids": completed_grids,
-        "revenue_sum":     round(revenue_sum, 2),
-        "pending_withdrawals": pending_w,
-        "vip_count":       vip_count,
-        "vip_signups":     vip_signups,
-        "users":           users,
-        "total_commissions": total_commissions,
-    })
+    return RedirectResponse(url="/app/admin", status_code=302)
 
 
 # ═══════════════════════════════════════════════════════════════
