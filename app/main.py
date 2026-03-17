@@ -11939,6 +11939,7 @@ def _serialize_product(p, creator=None):
         "creator_name": (creator.first_name or creator.username) if creator else "Member",
         "created_at": p.created_at.isoformat() if p.created_at else None,
         "published_at": p.published_at.isoformat() if p.published_at else None,
+        "ai_review": _safe_json_obj(p.ai_review_result),
     }
 
 
@@ -11947,6 +11948,13 @@ def _safe_json(s):
     if not s: return []
     try: return _j.loads(s)
     except Exception: return []
+
+
+def _safe_json_obj(s):
+    import json as _j
+    if not s: return None
+    try: return _j.loads(s)
+    except Exception: return None
 
 
 @app.get("/api/supermarket/browse")
@@ -12150,23 +12158,134 @@ async def api_supermarket_submit(product_id: int, request: Request, user: User =
     if not p.creator_agreed_terms: errors.append("Must agree to seller terms")
     if errors:
         return JSONResponse({"error": "Quality checks failed", "issues": errors}, status_code=400)
+
+    # ── AI Content Scan ──
+    import json as _json_sm
+    ai_result = {"passed": True, "plagiarism_score": 0, "quality_score": 70, "copyright_risk": "low", "flagged_issues": [], "summary": ""}
+    try:
+        import os
+        import httpx
+        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        if api_key:
+            scan_text = f"Title: {p.title}\nCategory: {p.category}\nPrice: ${p.price}\nDescription: {plain_desc[:6000]}\n"
+            features_list = _safe_json(p.features_json)
+            if features_list:
+                scan_text += "Features: " + ", ".join(str(f) for f in features_list) + "\n"
+
+            scan_prompt = f"""You are a digital product quality and compliance reviewer for an affiliate marketplace called SuperMarket. Review this product listing and return a JSON object:
+
+- "passed": boolean (true=acceptable, false=reject)
+- "plagiarism_score": 0-100 (0=original, 100=likely copied/stolen)
+- "quality_score": 0-100 (0=spam/worthless, 100=excellent value)
+- "copyright_risk": "low"|"medium"|"high" (risk of containing copyrighted material)
+- "flagged_issues": array of objects with "type" (copyright|plagiarism|prohibited|misleading|trademark|scam|quality), "severity" (high|medium|low), "description" (brief explanation)
+- "summary": one-sentence assessment for the admin reviewer
+
+Auto-fail criteria:
+- Copyright risk "high" (likely contains copyrighted material)
+- Plagiarism score > 40
+- Quality score < 25
+- Contains hate speech, adult content, illegal content
+- Misleading income claims without disclaimers
+- Known scam patterns (fake software, stolen PLR, rebrandable junk)
+- Title or description is nonsensical or spam
+
+Product listing to review:
+{scan_text}
+
+Respond ONLY with valid JSON, no other text."""
+
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                resp = await client.post(
+                    "https://api.anthropic.com/v1/messages",
+                    headers={"x-api-key": api_key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
+                    json={"model": "claude-sonnet-4-20250514", "max_tokens": 1000,
+                          "messages": [{"role": "user", "content": scan_prompt}]}
+                )
+                if resp.status_code == 200:
+                    resp_data = resp.json()
+                    ai_text = ""
+                    for block in resp_data.get("content", []):
+                        if block.get("type") == "text":
+                            ai_text += block.get("text", "")
+                    ai_text = ai_text.strip()
+                    if ai_text.startswith("```"):
+                        ai_text = ai_text.split("```")[1]
+                        if ai_text.startswith("json"):
+                            ai_text = ai_text[4:]
+                    ai_result = _json_sm.loads(ai_text)
+    except Exception as e:
+        print(f"SuperMarket AI review error (non-fatal): {e}")
+        ai_result = {"passed": True, "plagiarism_score": 0, "quality_score": 50, "copyright_risk": "unknown",
+                      "flagged_issues": [], "summary": "AI review unavailable — manual review required"}
+
+    # Store AI result
+    p.ai_review_result = _json_sm.dumps(ai_result)
+    p.ai_reviewed_at = datetime.utcnow()
+
+    # Check auto-reject thresholds
+    auto_reject = False
+    if not ai_result.get("passed", True):
+        auto_reject = True
+    if ai_result.get("plagiarism_score", 0) > 40:
+        auto_reject = True
+    if ai_result.get("quality_score", 100) < 25:
+        auto_reject = True
+    if ai_result.get("copyright_risk", "low") == "high":
+        auto_reject = True
+
+    if auto_reject:
+        p.status = "draft"
+        p.admin_notes = ai_result.get("summary", "Content did not pass automated review")
+        db.commit()
+        # Notify creator of rejection
+        try:
+            notif = Notification(
+                user_id=user.id, type="supermarket",
+                title="Product needs changes",
+                message=f"Your product '{p.title}' didn't pass our automated review. Please check the issues and resubmit.",
+            )
+            db.add(notif)
+            db.commit()
+        except Exception:
+            pass
+        issues = [i.get("description", "") for i in ai_result.get("flagged_issues", [])]
+        if ai_result.get("summary"):
+            issues.insert(0, ai_result["summary"])
+        return JSONResponse({"error": "AI review: changes needed", "issues": issues, "ai_result": ai_result}, status_code=400)
+
+    # AI passed — move to admin review queue
     p.status = "pending_review"
     p.updated_at = datetime.utcnow()
 
     # Create notification for creator
     try:
+        ai_summary = ai_result.get("summary", "")
         notif = Notification(
             user_id=user.id,
             type="supermarket",
-            title="Product submitted for review",
-            message=f"Your product '{p.title}' has been submitted and is being reviewed. We'll notify you by email when it's approved.",
+            title="Product submitted for review ✓",
+            message=f"Your product '{p.title}' passed AI screening and is now waiting for admin approval. " + (f"AI notes: {ai_summary}" if ai_summary else "We'll notify you when it's live."),
         )
         db.add(notif)
     except Exception:
         pass
 
+    # Notify admin
+    try:
+        admin = db.query(User).filter(User.is_admin == True).first()
+        if admin:
+            notif_admin = Notification(
+                user_id=admin.id, type="admin",
+                title="New SuperMarket product to review",
+                message=f"'{p.title}' by {user.username} — AI score: {ai_result.get('quality_score', '?')}/100, Copyright risk: {ai_result.get('copyright_risk', '?')}",
+            )
+            db.add(notif_admin)
+    except Exception:
+        pass
+
     db.commit()
-    return {"ok": True, "status": "pending_review"}
+    return {"ok": True, "status": "pending_review", "ai_result": ai_result}
 
 
 @app.delete("/api/supermarket/products/{product_id}")

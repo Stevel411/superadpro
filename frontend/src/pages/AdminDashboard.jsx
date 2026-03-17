@@ -546,6 +546,14 @@ function SuperMarketTab() {
                 <div style={{fontSize:12,color:'#94a3b8',marginBottom:4}}>by {p.creator_name} · {p.category} · ${parseFloat(p.price).toFixed(0)}</div>
                 <div style={{fontSize:12,color:'#475569',lineHeight:1.6}}>{(p.short_description || '').slice(0, 150)}</div>
                 {p.file_name && <div style={{fontSize:10,color:'#10b981',fontWeight:700,marginTop:4}}>📎 {p.file_name}</div>}
+                {p.ai_review && (
+                  <div style={{display:'flex',gap:8,marginTop:6}}>
+                    <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:4,background:p.ai_review.quality_score>=60?'#dcfce7':'#fef3c7',color:p.ai_review.quality_score>=60?'#16a34a':'#d97706'}}>Quality: {p.ai_review.quality_score}/100</span>
+                    <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:4,background:p.ai_review.copyright_risk==='low'?'#dcfce7':p.ai_review.copyright_risk==='medium'?'#fef3c7':'#fef2f2',color:p.ai_review.copyright_risk==='low'?'#16a34a':p.ai_review.copyright_risk==='medium'?'#d97706':'#dc2626'}}>Copyright: {p.ai_review.copyright_risk}</span>
+                    <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:4,background:p.ai_review.plagiarism_score<20?'#dcfce7':'#fef3c7',color:p.ai_review.plagiarism_score<20?'#16a34a':'#d97706'}}>Plagiarism: {p.ai_review.plagiarism_score}%</span>
+                    {p.ai_review.summary && <span style={{fontSize:9,color:'#64748b',fontStyle:'italic'}}>{p.ai_review.summary}</span>}
+                  </div>
+                )}
               </div>
               <div style={{display:'flex',flexDirection:'column',gap:6,flexShrink:0}}>
                 <button onClick={function() { approve(p.id); }} disabled={acting === 'approve-' + p.id}
