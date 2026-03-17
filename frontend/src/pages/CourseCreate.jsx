@@ -185,11 +185,26 @@ export default function CourseCreate() {
             {/* Thumbnail */}
             <div style={{marginBottom:18}}>
               <label style={{display:'flex',alignItems:'center',gap:6,fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>
-                <Image size={12}/> Thumbnail URL
+                <Image size={12}/> Course Thumbnail
               </label>
-              <input value={thumbnailUrl} onChange={function(e){setThumbnailUrl(e.target.value);}}
-                placeholder="https://... (required for publishing)"
-                style={{width:'100%',padding:'12px 16px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#f8f9fb'}}/>
+              {thumbnailUrl && (
+                <div style={{width:'100%',height:140,borderRadius:10,marginBottom:8,backgroundImage:'url('+thumbnailUrl+')',backgroundSize:'cover',backgroundPosition:'center',border:'1px solid #e2e8f0',position:'relative'}}>
+                  <button onClick={function(){setThumbnailUrl('');}} style={{position:'absolute',top:6,right:6,width:24,height:24,borderRadius:'50%',border:'none',background:'rgba(0,0,0,.6)',color:'#fff',fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>×</button>
+                </div>
+              )}
+              <label style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'20px',borderRadius:10,border:'2px dashed #d1d5db',background:'#f8f9fb',cursor:'pointer',transition:'all .15s'}}
+                onMouseEnter={function(e){e.currentTarget.style.borderColor='#8b5cf6';e.currentTarget.style.background='rgba(139,92,246,.03)';}}
+                onMouseLeave={function(e){e.currentTarget.style.borderColor='#d1d5db';e.currentTarget.style.background='#f8f9fb';}}>
+                <Image size={18} color="#94a3b8"/>
+                <span style={{fontSize:13,fontWeight:600,color:'#64748b'}}>{thumbnailUrl ? 'Change image' : 'Upload thumbnail image'}</span>
+                <input type="file" accept="image/*" onChange={function(e){
+                  var file=e.target.files[0]; if(!file) return;
+                  var reader=new FileReader();
+                  reader.onload=function(ev){setThumbnailUrl(ev.target.result);};
+                  reader.readAsDataURL(file);
+                }} style={{display:'none'}}/>
+              </label>
+              <div style={{fontSize:10,color:'#94a3b8',marginTop:4}}>Recommended: 1280×720px (16:9 ratio). Required for publishing.</div>
             </div>
 
             {/* Commission explainer */}
