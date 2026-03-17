@@ -11868,11 +11868,37 @@ async def api_account_update(request: Request, user: User = Depends(get_current_
         user.avatar_url = body["avatar_url"]
     if "country" in body:
         user.country = (body["country"] or "").strip()[:100]
+    if "wallet_address" in body:
+        wa = (body["wallet_address"] or "").strip()
+        if wa and not validate_wallet(wa):
+            return JSONResponse({"error": "Invalid wallet address"}, status_code=400)
+        user.wallet_address = wa
     db.commit()
     return {"ok": True}
 
 
-@app.get("/api/courses")
+@app.post("/api/account/change-password")
+async def api_change_password(request: Request, user: User = Depends(get_current_user),
+                               db: Session = Depends(get_db)):
+    """Change password via JSON API."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    import bcrypt
+    body = await request.json()
+    current = body.get("current_password", "")
+    new_pw = body.get("new_password", "")
+    confirm = body.get("confirm_password", "")
+
+    if not bcrypt.checkpw(current.encode(), user.password.encode()):
+        return JSONResponse({"error": "Current password is incorrect"}, status_code=400)
+    if len(new_pw) < 8:
+        return JSONResponse({"error": "New password must be at least 8 characters"}, status_code=400)
+    if new_pw != confirm:
+        return JSONResponse({"error": "New passwords do not match"}, status_code=400)
+
+    user.password = bcrypt.hashpw(new_pw.encode(), bcrypt.gensalt()).decode()
+    db.commit()
+    return {"ok": True}
 def api_courses_list(request: Request, db: Session = Depends(get_db)):
     """List platform courses for the course library."""
     from .database import Course, CourseChapter, CourseLesson
