@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import RichTextEditor from '../components/editor/RichTextEditor';
 import { apiGet, apiPost, apiPut, apiDelete } from '../utils/api';
-import { Mail, Flame, UserPlus, Send, Upload, Trash2, Plus, CheckCircle, AlertTriangle, X, Zap, FolderOpen, Tag, Edit3 } from 'lucide-react';
+import { Mail, Flame, UserPlus, Send, Upload, Trash2, Plus, CheckCircle, AlertTriangle, X, Zap, FolderOpen, Tag, Edit3, Rocket } from 'lucide-react';
 
-var TABS = [{key:'leads',label:'Leads',icon:UserPlus},{key:'lists',label:'Lists',icon:FolderOpen},{key:'sequences',label:'Sequences',icon:Zap},{key:'broadcast',label:'Broadcast',icon:Send},{key:'upload',label:'Import',icon:Upload}];
+var TABS = [{key:'leads',label:'Leads',icon:UserPlus},{key:'lists',label:'Lists',icon:FolderOpen},{key:'sequences',label:'Sequences',icon:Zap},{key:'broadcast',label:'Broadcast',icon:Send},{key:'upload',label:'Import',icon:Upload},{key:'boost',label:'Email Boost',icon:Rocket}];
 var LIST_COLORS = ['#0ea5e9','#8b5cf6','#ef4444','#16a34a','#f59e0b','#ec4899','#06b6d4','#6366f1'];
 
 export default function MyLeads() {
@@ -13,6 +13,7 @@ export default function MyLeads() {
   var [lists, setLists] = useState([]);
   var [sequences, setSequences] = useState([]);
   var [stats, setStats] = useState({});
+  var [emailStats, setEmailStats] = useState({});
   var [loading, setLoading] = useState(true);
   var [toast, setToast] = useState(null);
   function showToast(m,t){setToast({m,t});setTimeout(function(){setToast(null);},3000);}
@@ -22,16 +23,39 @@ export default function MyLeads() {
       apiGet('/api/leads').catch(function(){return {leads:[]};}),
       apiGet('/api/leads/lists').catch(function(){return {lists:[]};}),
       apiGet('/api/leads/sequences').catch(function(){return {sequences:[]};}),
-      apiGet('/api/leads/stats').catch(function(){return {};})
-    ]).then(function(r){setLeads(r[0].leads||[]);setLists(r[1].lists||[]);setSequences(r[2].sequences||[]);setStats(r[3]);setLoading(false);});
+      apiGet('/api/leads/stats').catch(function(){return {};}),
+      apiGet('/api/leads/email-stats').catch(function(){return {};})
+    ]).then(function(r){setLeads(r[0].leads||[]);setLists(r[1].lists||[]);setSequences(r[2].sequences||[]);setStats(r[3]);setEmailStats(r[4]);setLoading(false);});
   }
   useEffect(loadAll,[]);
 
   if(loading) return <AppLayout title="My Leads" subtitle="CRM & Autoresponder"><Spin/></AppLayout>;
 
+  var dailyPct = emailStats.daily_limit ? Math.min(100, Math.round(((emailStats.sent_today||0) / emailStats.daily_limit) * 100)) : 0;
+
   return(
     <AppLayout title="My Leads" subtitle="CRM & Autoresponder">
       {toast&&<div style={{padding:'10px 16px',borderRadius:10,marginBottom:14,fontSize:13,fontWeight:700,background:toast.t==='ok'?'#dcfce7':'#fef2f2',color:toast.t==='ok'?'#16a34a':'#dc2626',display:'flex',alignItems:'center',gap:6}}>{toast.t==='ok'?<CheckCircle size={14}/>:<AlertTriangle size={14}/>}{toast.m}</div>}
+
+      {/* Email usage bar */}
+      <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:'14px 20px',marginBottom:16,display:'flex',alignItems:'center',gap:20}}>
+        <div style={{flex:1}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+            <span style={{fontSize:11,fontWeight:700,color:'#334155'}}>Daily Emails: {emailStats.sent_today||0} / {emailStats.daily_limit||200}</span>
+            <span style={{fontSize:10,color:'#94a3b8'}}>{emailStats.free_remaining||0} free remaining today</span>
+          </div>
+          <div style={{height:6,borderRadius:3,background:'#e8ecf2',overflow:'hidden'}}>
+            <div style={{height:'100%',borderRadius:3,background:dailyPct>80?'#ef4444':dailyPct>50?'#f59e0b':'#0ea5e9',width:dailyPct+'%',transition:'width .3s'}}/>
+          </div>
+        </div>
+        <div style={{borderLeft:'1px solid #e8ecf2',paddingLeft:20,textAlign:'center'}}>
+          <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#8b5cf6'}}>{emailStats.boost_credits||0}</div>
+          <div style={{fontSize:9,fontWeight:700,color:'#94a3b8'}}>Boost Credits</div>
+        </div>
+        <button onClick={function(){setTab('boost');}} style={{padding:'8px 16px',borderRadius:8,border:'none',background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 10px rgba(139,92,246,.2)',whiteSpace:'nowrap'}}>
+          <Rocket size={12} style={{verticalAlign:'middle',marginRight:4}}/>Buy Boost
+        </button>
+      </div>
 
       {/* Stats */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:12,marginBottom:20}}>
@@ -54,6 +78,7 @@ export default function MyLeads() {
       {tab==='sequences'&&<SequencesTab sequences={sequences} onReload={loadAll} showToast={showToast}/>}
       {tab==='broadcast'&&<BroadcastTab leads={leads} lists={lists} showToast={showToast}/>}
       {tab==='upload'&&<UploadTab stats={stats} lists={lists} onReload={loadAll} showToast={showToast}/>}
+      {tab==='boost'&&<BoostTab emailStats={emailStats} onReload={loadAll} showToast={showToast}/>}
     </AppLayout>
   );
 }
@@ -371,6 +396,100 @@ function UploadTab({stats,lists,onReload,showToast}){
         <button onClick={doUpload} disabled={uploading||!parsed.length} style={{display:'flex',alignItems:'center',gap:5,padding:'11px 24px',borderRadius:10,border:'none',background:(uploading||!parsed.length)?'#cbd5e1':'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontSize:13,fontWeight:800,cursor:(uploading||!parsed.length)?'default':'pointer',fontFamily:'Sora,sans-serif'}}><Upload size={13}/>{uploading?'Importing...':'Import '+parsed.length+' Leads'}</button>
       </div>
     </div>);
+}
+
+// ═══════════════ EMAIL BOOST ═══════════════
+function BoostTab({emailStats,onReload,showToast}){
+  var [buying,setBuying]=useState('');
+  var packs=emailStats.boost_packs||[];
+
+  function buyPack(packId){
+    setBuying(packId);
+    apiPost('/api/leads/buy-boost',{pack_id:packId}).then(function(r){
+      setBuying('');
+      if(r.ok){showToast('Added '+r.credits_added+' email credits! New balance: $'+r.new_balance.toFixed(2),'ok');onReload();}
+      else{showToast(r.error||'Failed','err');}
+    }).catch(function(e){setBuying('');showToast(e.message||'Failed','err');});
+  }
+
+  var dailyPct=emailStats.daily_limit?Math.min(100,Math.round(((emailStats.sent_today||0)/emailStats.daily_limit)*100)):0;
+
+  return(
+    <div>
+      {/* Current usage card */}
+      <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:20}}>
+        <div style={{background:'linear-gradient(135deg,#1a103d,#2d1b69)',padding:'28px 32px'}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}><Rocket size={20} color="#a78bfa"/><span style={{fontSize:12,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#a78bfa'}}>Email Boost</span></div>
+          <h3 style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:900,color:'#fff',margin:'0 0 6px'}}>Supercharge Your Email Outreach</h3>
+          <p style={{fontSize:14,color:'rgba(255,255,255,.5)',margin:0}}>200 free emails/day included. Need more? Purchase boost credits.</p>
+        </div>
+        <div style={{padding:'24px 32px'}}>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:16,marginBottom:20}}>
+            <div style={{background:'#f0f9ff',border:'1px solid #bae6fd',borderRadius:12,padding:'18px',textAlign:'center'}}>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'#0ea5e9'}}>{emailStats.sent_today||0}</div>
+              <div style={{fontSize:11,fontWeight:700,color:'#64748b',marginTop:2}}>Sent Today</div>
+              <div style={{height:4,borderRadius:2,background:'#e0f2fe',marginTop:8,overflow:'hidden'}}><div style={{height:'100%',borderRadius:2,background:dailyPct>80?'#ef4444':'#0ea5e9',width:dailyPct+'%'}}/></div>
+              <div style={{fontSize:9,color:'#94a3b8',marginTop:4}}>{emailStats.free_remaining||0} free remaining</div>
+            </div>
+            <div style={{background:'#f5f3ff',border:'1px solid #ddd6fe',borderRadius:12,padding:'18px',textAlign:'center'}}>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'#8b5cf6'}}>{emailStats.boost_credits||0}</div>
+              <div style={{fontSize:11,fontWeight:700,color:'#64748b',marginTop:2}}>Boost Credits</div>
+              <div style={{fontSize:9,color:'#94a3b8',marginTop:8}}>Never expire</div>
+            </div>
+            <div style={{background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:12,padding:'18px',textAlign:'center'}}>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'#16a34a'}}>{emailStats.total_available||0}</div>
+              <div style={{fontSize:11,fontWeight:700,color:'#64748b',marginTop:2}}>Total Available</div>
+              <div style={{fontSize:9,color:'#94a3b8',marginTop:8}}>Free + boost combined</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Boost packs */}
+      <h3 style={{fontSize:16,fontWeight:800,color:'#0f172a',margin:'0 0 14px'}}>Purchase Email Boost Packs</h3>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14}}>
+        {packs.map(function(p){
+          var isBuying=buying===p.id;
+          return(
+            <div key={p.id} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',transition:'all .2s',cursor:'pointer'}}
+              onMouseEnter={function(e){e.currentTarget.style.transform='translateY(-3px)';e.currentTarget.style.boxShadow='0 8px 28px rgba(0,0,0,.1)';}}
+              onMouseLeave={function(e){e.currentTarget.style.transform='';e.currentTarget.style.boxShadow='none';}}>
+              <div style={{background:'linear-gradient(135deg,#1a103d,#2d1b69)',padding:'20px',textAlign:'center'}}>
+                <div style={{fontSize:28,marginBottom:6}}>{p.label.split(' ')[0]}</div>
+                <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:900,color:'#fff'}}>{p.credits.toLocaleString()}</div>
+                <div style={{fontSize:11,color:'rgba(255,255,255,.5)'}}>email credits</div>
+              </div>
+              <div style={{padding:'18px',textAlign:'center'}}>
+                <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:900,color:'#0f172a',marginBottom:2}}>${p.price}</div>
+                <div style={{fontSize:10,color:'#94a3b8',marginBottom:4}}>${(p.price/p.credits*1000).toFixed(2)} per 1,000 emails</div>
+                <div style={{fontSize:11,color:'#64748b',marginBottom:12}}>{p.desc}</div>
+                <button onClick={function(){buyPack(p.id);}} disabled={isBuying}
+                  style={{width:'100%',padding:'11px',borderRadius:10,border:'none',
+                    background:isBuying?'#cbd5e1':'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',
+                    fontSize:13,fontWeight:800,cursor:isBuying?'default':'pointer',fontFamily:'Sora,sans-serif',
+                    boxShadow:isBuying?'none':'0 4px 14px rgba(139,92,246,.25)'}}>
+                  {isBuying?'Processing...':'Buy with Wallet'}
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Info */}
+      <div style={{marginTop:20,background:'#f8f9fb',border:'1px solid #e8ecf2',borderRadius:12,padding:'16px 20px'}}>
+        <div style={{fontSize:12,fontWeight:700,color:'#334155',marginBottom:6}}>How Email Boost Works</div>
+        <div style={{fontSize:11,color:'#64748b',lineHeight:1.8}}>
+          <div>• You get <strong>200 free emails per day</strong> included with Pro</div>
+          <div>• Free emails reset at midnight UTC each day</div>
+          <div>• When free emails run out, <strong>boost credits</strong> are used automatically</div>
+          <div>• Boost credits <strong>never expire</strong> — use them at your own pace</div>
+          <div>• Credits are purchased from your <strong>wallet balance</strong></div>
+          <div>• Applies to both sequence sends and broadcasts</div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function Spin(){return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div>;}
