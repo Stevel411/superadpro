@@ -12917,6 +12917,53 @@ def _lead_limit(user):
     return 0  # Basic members cannot use leads/autoresponder
 
 
+DAILY_EMAIL_LIMIT = 200  # Free emails per day for Pro members
+EMAIL_BOOST_PACKS = [
+    {"id": "boost_1k", "credits": 1000, "price": 5.00, "label": "🚀 1,000 Emails", "desc": "Perfect for a targeted campaign"},
+    {"id": "boost_5k", "credits": 5000, "price": 19.00, "label": "⚡ 5,000 Emails", "desc": "Run multiple sequences"},
+    {"id": "boost_10k", "credits": 10000, "price": 29.00, "label": "🔥 10,000 Emails", "desc": "Scale your outreach"},
+    {"id": "boost_50k", "credits": 50000, "price": 99.00, "label": "💎 50,000 Emails", "desc": "Enterprise-level volume"},
+]
+
+
+def _check_email_allowance(user, db, count=1):
+    """Check if user can send emails. Returns (allowed, reason).
+    Uses daily free limit first, then boost credits."""
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    # Reset daily counter if new day
+    if getattr(user, 'emails_sent_today_date', None) != today:
+        user.emails_sent_today = 0
+        user.emails_sent_today_date = today
+
+    sent_today = user.emails_sent_today or 0
+    free_remaining = max(0, DAILY_EMAIL_LIMIT - sent_today)
+    boost_credits = user.email_credits or 0
+
+    if free_remaining + boost_credits < count:
+        return False, f"Email limit reached. {sent_today}/{DAILY_EMAIL_LIMIT} free used today, {boost_credits} boost credits remaining. Purchase an Email Boost pack for more."
+
+    return True, ""
+
+
+def _deduct_email_send(user, db, count=1):
+    """Deduct from daily free first, then boost credits."""
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    if getattr(user, 'emails_sent_today_date', None) != today:
+        user.emails_sent_today = 0
+        user.emails_sent_today_date = today
+
+    sent_today = user.emails_sent_today or 0
+    free_remaining = max(0, DAILY_EMAIL_LIMIT - sent_today)
+
+    if count <= free_remaining:
+        user.emails_sent_today = sent_today + count
+    else:
+        # Use all remaining free, then boost
+        user.emails_sent_today = DAILY_EMAIL_LIMIT
+        boost_needed = count - free_remaining
+        user.email_credits = max(0, (user.email_credits or 0) - boost_needed)
+
+
 @app.get("/api/leads/sequences")
 def api_leads_sequences(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get all email sequences for this user."""
@@ -13071,6 +13118,12 @@ async def api_send_sequence_email(request: Request, user: User = Depends(get_cur
             MemberLead.status.in_(["new", "nurturing"])
         ).all()
 
+    # Rate limit check
+    sendable = [l for l in leads if (l.emails_sent or 0) < len(emails)]
+    allowed, reason = _check_email_allowance(user, db, len(sendable))
+    if not allowed:
+        return JSONResponse({"error": reason}, status_code=429)
+
     sent_count = 0
     for lead in leads:
         # Determine which email to send (next in sequence)
@@ -13093,6 +13146,7 @@ async def api_send_sequence_email(request: Request, user: User = Depends(get_cur
             db.add(log)
             sent_count += 1
 
+    _deduct_email_send(user, db, sent_count)
     db.commit()
     return {"ok": True, "sent": sent_count, "total_leads": len(leads)}
 
@@ -13122,6 +13176,11 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
             q = q.filter(MemberLead.status == filter_status)
     leads = q.all()
 
+    # Rate limit check
+    allowed, reason = _check_email_allowance(user, db, len(leads))
+    if not allowed:
+        return JSONResponse({"error": reason}, status_code=429)
+
     member_name = user.first_name or user.username or "SuperAdPro Member"
     wrapped = wrap_email_html(html_content, member_name)
     sent = 0
@@ -13129,6 +13188,7 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
         result = await send_email(lead.email, lead.name or "", subject, wrapped)
         if result.get("ok"):
             sent += 1
+    _deduct_email_send(user, db, sent)
     return {"ok": True, "sent": sent, "total": len(leads)}
 
 
@@ -13155,6 +13215,49 @@ def api_leads_stats(request: Request, user: User = Depends(get_current_user), db
     hot = db.query(MemberLead).filter(MemberLead.user_id == user.id, MemberLead.is_hot == True).count()
     return {"total": total, "limit": limit, "remaining": max(0, limit - total), "hot": hot,
             "tier": getattr(user, 'membership_tier', 'basic')}
+
+
+@app.get("/api/leads/email-stats")
+def api_email_stats(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Get email sending stats + boost credit balance."""
+    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    sent_today = user.emails_sent_today or 0
+    if getattr(user, 'emails_sent_today_date', None) != today:
+        sent_today = 0
+    return {
+        "daily_limit": DAILY_EMAIL_LIMIT,
+        "sent_today": sent_today,
+        "free_remaining": max(0, DAILY_EMAIL_LIMIT - sent_today),
+        "boost_credits": user.email_credits or 0,
+        "total_available": max(0, DAILY_EMAIL_LIMIT - sent_today) + (user.email_credits or 0),
+        "boost_packs": EMAIL_BOOST_PACKS,
+    }
+
+
+@app.post("/api/leads/buy-boost")
+async def api_buy_email_boost(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Purchase an email boost pack using wallet balance."""
+    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    pack_id = body.get("pack_id")
+    pack = None
+    for p in EMAIL_BOOST_PACKS:
+        if p["id"] == pack_id:
+            pack = p
+            break
+    if not pack: return JSONResponse({"error": "Invalid boost pack"}, status_code=400)
+
+    # Deduct from wallet balance
+    balance = float(user.balance or 0)
+    if balance < pack["price"]:
+        return JSONResponse({"error": f"Insufficient balance. Need ${pack['price']:.2f}, you have ${balance:.2f}"}, status_code=400)
+
+    user.balance = balance - pack["price"]
+    user.email_credits = (user.email_credits or 0) + pack["credits"]
+    db.commit()
+
+    return {"ok": True, "credits_added": pack["credits"], "total_credits": user.email_credits, "new_balance": float(user.balance)}
 
 
 # ── Lead Lists ──

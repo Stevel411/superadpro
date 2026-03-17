@@ -160,6 +160,10 @@ class User(Base):
     totp_secret             = Column(String, nullable=True)                # base32-encoded TOTP secret
     totp_enabled            = Column(Boolean, default=False)               # True once user confirms setup
     avatar_url              = Column(Text, nullable=True)                  # profile photo URL or base64
+    # Email credits for autoresponder boost
+    email_credits           = Column(Integer, default=0)                    # purchased boost credits
+    emails_sent_today       = Column(Integer, default=0)                    # daily counter (resets daily)
+    emails_sent_today_date  = Column(String, nullable=True)                 # date string for reset check
 
 class Grid(Base):
     """One grid instance per user per package tier."""
@@ -1524,6 +1528,9 @@ try:
 
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS marketplace_earnings NUMERIC(18,6) DEFAULT 0"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS email_credits INTEGER DEFAULT 0"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS emails_sent_today INTEGER DEFAULT 0"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS emails_sent_today_date VARCHAR"))
 
         # ── SuperMarket digital products ──
         conn.execute(text("""CREATE TABLE IF NOT EXISTS digital_products (
