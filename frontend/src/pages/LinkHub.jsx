@@ -5,11 +5,33 @@ import { Copy, Check, Trash2, Plus, ExternalLink, ChevronUp, ChevronDown, Upload
 
 var FONTS = ['DM Sans','Sora','Inter','Poppins','Playfair Display','Space Grotesk','Nunito','Raleway',
   'Montserrat','Lato','Roboto','Open Sans','Oswald','Merriweather','Outfit','Quicksand','Rubik',
-  'Barlow','Josefin Sans','Abril Fatface','Bebas Neue','Comfortaa','Righteous','Pacifico'];
+  'Barlow','Josefin Sans','Abril Fatface','Bebas Neue','Comfortaa','Righteous','Pacifico',
+  'Manrope','Plus Jakarta Sans','Clash Display','Satoshi','General Sans','Cabinet Grotesk',
+  'Bricolage Grotesque','Instrument Sans','Geist','Figtree','Onest'];
 
-var EMOJIS = ['🔗','🌐','📺','📘','📞','💬','🛍️','🎵','📷','✉️','🏠','👤','📚','💻','🛒','🎁',
-  '☕','🔥','🚀','⚡','✅','❤️','⭐','🎯','💡','📈','🎨','🎬','🏆','💎','🌟','📱','🎧','💰',
-  '🤝','📝','🎓','💪','🧠','🌈'];
+var EMOJIS = [
+  // Links & Web
+  '🔗','🌐','🖥️','📱','💻','🌍','🔒',
+  // Social & Communication
+  '📺','🎥','🎬','📸','📷','🎵','🎶','🎧','🎤','📻',
+  '💬','✉️','📩','📞','☎️','💌',
+  // Business & Money
+  '💰','💵','💎','📈','📊','💼','🏦','💳','🪙','📋',
+  // Shopping & Products
+  '🛍️','🛒','🎁','🏷️','📦','🎀',
+  // Education & Creative
+  '📚','📘','📖','🎓','✏️','🖊️','📝','🎨','🖌️','🎭',
+  // People & Lifestyle
+  '👤','👥','🤝','💪','🧠','❤️','🩷','💜','💙','💚',
+  // Nature & Fun
+  '🌟','⭐','✨','🔥','⚡','🚀','🎯','💡','🌈','☀️',
+  // Food & Drink
+  '☕','🍕','🍔','🥂','🍷','🧁',
+  // Status & Achievement
+  '🏆','🥇','✅','🎉','🎊','👑','🦄','🔮','🧿','🪄',
+  // Misc Modern
+  '🏠','🗺️','✈️','🏖️','🎮','🕹️','📍','🔔','💬','🫶',
+];
 
 var ARROW_STYLES = [
   {key:'none',label:'None',render:function(){return null;}},
@@ -137,11 +159,15 @@ export default function LinkHub() {
           })}
         </div>
 
-        {/* Tabs */}
-        <div style={{display:'flex',borderBottom:'1px solid #e5e7eb',flexShrink:0}}>
-          {[{k:'links',l:'🔗 Links'},{k:'style',l:'🎨 Style'},{k:'profile',l:'👤 Profile'}].map(function(tb) {
+        {/* Tabs — pastel coloured */}
+        <div style={{display:'flex',gap:0,flexShrink:0}}>
+          {[
+            {k:'links',l:'🔗 Links',bg:'#ede9fe',bgOn:'#8b5cf6',color:'#7c3aed'},
+            {k:'style',l:'🎨 Style',bg:'#fce7f3',bgOn:'#ec4899',color:'#db2777'},
+            {k:'profile',l:'👤 Profile',bg:'#dbeafe',bgOn:'#3b82f6',color:'#2563eb'},
+          ].map(function(tb) {
             var on=panel===tb.k;
-            return <button key={tb.k} onClick={function(){setPanel(tb.k);}} style={{flex:1,padding:'12px 0',border:'none',borderBottom:on?'3px solid #8b5cf6':'3px solid transparent',cursor:'pointer',fontFamily:'inherit',fontSize:13,fontWeight:on?800:500,color:on?'#8b5cf6':'#94a3b8',background:on?'rgba(139,92,246,.03)':'transparent'}}>{tb.l}</button>;
+            return <button key={tb.k} onClick={function(){setPanel(tb.k);}} style={{flex:1,padding:'14px 0',border:'none',borderBottom:'none',cursor:'pointer',fontFamily:'inherit',fontSize:14,fontWeight:800,letterSpacing:.3,color:on?'#fff':tb.color,background:on?tb.bgOn:tb.bg,transition:'all .2s'}}>{tb.l}</button>;
           })}
         </div>
 
@@ -319,10 +345,26 @@ function StylePanel({ style, setStyle }) {
         );
       })}
 
-      {/* Background image */}
+      {/* Background image — upload or URL */}
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:5}}>Background Image URL</label>
-        <input value={style.bg_image_url||''} onChange={upd('bg_image_url')} placeholder="https://... (leave blank for solid colour)" style={{width:'100%',padding:'8px 10px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:11,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/>
+        <label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:5}}>Background Image</label>
+        {style.bg_image_url && (
+          <div style={{width:'100%',height:60,borderRadius:8,marginBottom:6,backgroundImage:'url('+style.bg_image_url+')',backgroundSize:'cover',backgroundPosition:'center',border:'1px solid #e5e7eb',position:'relative'}}>
+            <button onClick={function(){setStyle(function(s){return Object.assign({},s,{bg_image_url:''});});}} style={{position:'absolute',top:4,right:4,width:20,height:20,borderRadius:'50%',border:'none',background:'rgba(0,0,0,.6)',color:'#fff',fontSize:12,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>×</button>
+          </div>
+        )}
+        <div style={{display:'flex',gap:6}}>
+          <label style={{display:'flex',alignItems:'center',gap:4,padding:'8px 14px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',cursor:'pointer',fontSize:11,fontWeight:600,color:'#64748b',whiteSpace:'nowrap'}}>
+            <Upload size={12}/> Upload
+            <input type="file" accept="image/*" onChange={function(e){
+              var file=e.target.files[0]; if(!file) return;
+              var reader=new FileReader();
+              reader.onload=function(ev){setStyle(function(s){return Object.assign({},s,{bg_image_url:ev.target.result});});};
+              reader.readAsDataURL(file);
+            }} style={{display:'none'}}/>
+          </label>
+          <input value={style.bg_image_url||''} onChange={upd('bg_image_url')} placeholder="or paste URL..." style={{flex:1,padding:'8px 10px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:10,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/>
+        </div>
       </div>
 
       {/* Font */}
