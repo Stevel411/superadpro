@@ -6,11 +6,7 @@ export async function api(path, opts = {}) {
     headers: { 'Content-Type': 'application/json', ...opts.headers },
     ...opts,
   });
-  if (res.status === 401) {
-    window.location.href = '/login';
-    return null;
-  }
-  const data = await res.json();
+  const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || data.detail || 'Request failed');
   return data;
 }

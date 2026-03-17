@@ -8,13 +8,19 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    var done = false;
     fetch('/api/me', { credentials: 'include' })
-      .then(res => {
-        if (res.status === 401) { setUser(null); setLoading(false); return null; }
+      .then(function(res) {
+        if (!res.ok) { if (!done) { done=true; setUser(null); setLoading(false); } return null; }
         return res.json();
       })
-      .then(data => { if (data && !data.error) { setUser(data); } setLoading(false); })
-      .catch(() => { setUser(null); setLoading(false); });
+      .then(function(data) {
+        if (done) return;
+        done = true;
+        if (data && data.id) { setUser(data); } else { setUser(null); }
+        setLoading(false);
+      })
+      .catch(function() { if (!done) { done=true; setUser(null); setLoading(false); } });
   }, []);
 
   const logout = async () => {
@@ -25,8 +31,9 @@ export function AuthProvider({ children }) {
 
   const refreshUser = async () => {
     try {
-      const data = await apiGet('/api/me');
-      setUser(data);
+      const res = await fetch('/api/me', { credentials: 'include' });
+      if (res.ok) { const data = await res.json(); if (data && data.id) setUser(data); else setUser(null); }
+      else setUser(null);
     } catch { setUser(null); }
   };
 
