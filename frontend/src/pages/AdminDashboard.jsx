@@ -408,20 +408,34 @@ function KYCTab() {
           </div>
           {pending.map(function(u,i) {
             return (
-              <div key={u.id} style={{padding:'16px 20px',borderBottom:'1px solid #f5f6f8',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                <div>
-                  <div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>{u.first_name||''} {u.last_name||''} (@{u.username})</div>
-                  <div style={{fontSize:10,color:'#94a3b8'}}>ID Type: {u.kyc_id_type || '—'} · Submitted: {u.kyc_submitted ? new Date(u.kyc_submitted).toLocaleDateString('en-GB') : '—'}</div>
+              <div key={u.id} style={{padding:'16px 20px',borderBottom:'1px solid #f5f6f8'}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
+                  <div>
+                    <div style={{fontSize:14,fontWeight:700,color:'#0f172a'}}>{u.first_name||''} {u.last_name||''} <span style={{fontWeight:400,color:'#94a3b8'}}>@{u.username}</span></div>
+                    <div style={{fontSize:11,color:'#64748b',marginTop:2}}>{u.email}</div>
+                  </div>
+                  <div style={{display:'flex',gap:6}}>
+                    <button onClick={function() { reviewKYC(u.id, 'approve'); }}
+                      style={{padding:'8px 18px',borderRadius:8,border:'none',background:'#16a34a',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+                      ✓ Approve
+                    </button>
+                    <button onClick={function() { reviewKYC(u.id, 'reject'); }}
+                      style={{padding:'8px 18px',borderRadius:8,border:'1px solid #fecaca',background:'#fff',color:'#dc2626',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+                      ✗ Reject
+                    </button>
+                  </div>
                 </div>
-                <div style={{display:'flex',gap:6}}>
-                  <button onClick={function() { reviewKYC(u.id, 'approve'); }}
-                    style={{padding:'6px 14px',borderRadius:6,border:'none',background:'#16a34a',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
-                    Approve
-                  </button>
-                  <button onClick={function() { reviewKYC(u.id, 'reject'); }}
-                    style={{padding:'6px 14px',borderRadius:6,border:'none',background:'#dc2626',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
-                    Reject
-                  </button>
+                <div style={{display:'flex',gap:16,fontSize:11,color:'#475569',flexWrap:'wrap'}}>
+                  <span><strong>ID Type:</strong> {(u.kyc_id_type||'—').replace('_',' ')}</span>
+                  <span><strong>DOB:</strong> {u.kyc_dob||'—'}</span>
+                  <span><strong>Country:</strong> {u.country||'—'}</span>
+                  <span><strong>Submitted:</strong> {u.submitted_at ? new Date(u.submitted_at).toLocaleDateString('en-GB') : '—'}</span>
+                  {u.kyc_id_filename && (
+                    <a href={'/admin/api/kyc-document/'+u.kyc_id_filename} target="_blank" rel="noopener noreferrer"
+                      style={{color:'#0ea5e9',fontWeight:700,textDecoration:'none'}}>
+                      📎 View Document
+                    </a>
+                  )}
                 </div>
               </div>
             );

@@ -3223,11 +3223,14 @@ def admin_kyc_pending(db: Session = Depends(get_db), user: User = Depends(get_cu
 
 
 @app.post("/admin/api/kyc-review/{user_id}")
-def admin_kyc_review(user_id: int, action: str = Form(), reason: str = Form(""),
+async def admin_kyc_review(user_id: int, request: Request,
                      db: Session = Depends(get_db), admin: User = Depends(get_current_user)):
     """Approve or reject KYC. action = 'approve' or 'reject'."""
     if not admin or not admin.is_admin: raise HTTPException(403)
     from datetime import datetime
+    body = await request.json()
+    action = body.get("action", "")
+    reason = body.get("reason", "")
     target = db.query(User).filter(User.id == user_id).first()
     if not target: raise HTTPException(404)
     if action == "approve":
