@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { Zap, GraduationCap, Play, Pause, RotateCcw, ArrowRight } from 'lucide-react';
 
@@ -18,6 +19,7 @@ export default function PassupVisualiser() {
 
   return (
     <AppLayout title={t("visualiser.title")} subtitle={t("visualiser.subtitle")}>
+      <Link to="/compensation-plan" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'#94a3b8',textDecoration:'none',marginBottom:14}} onMouseEnter={function(e){e.currentTarget.style.color='#0ea5e9';}} onMouseLeave={function(e){e.currentTarget.style.color='#94a3b8';}}>← Back to Compensation Plan</Link>
       <div style={{display:'flex',gap:6,marginBottom:24,borderBottom:'2px solid #e8ecf2',paddingBottom:0}}>
         {TABS.map(function(t) {
           var Icon = t.icon;
