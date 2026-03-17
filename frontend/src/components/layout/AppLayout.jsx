@@ -1,7 +1,7 @@
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 
-export default function AppLayout({ title, subtitle, topbarActions, children }) {
+export default function AppLayout({ title, subtitle, topbarActions, children, bgStyle }) {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -9,7 +9,7 @@ export default function AppLayout({ title, subtitle, topbarActions, children }) 
         <Topbar title={title} subtitle={subtitle}>
           {topbarActions}
         </Topbar>
-        <main className="flex-1 p-6 bg-white overflow-y-auto">
+        <main className="flex-1 p-6 overflow-y-auto" style={Object.assign({background:'#fff'}, bgStyle || {})}>
           {children}
         </main>
       </div>
