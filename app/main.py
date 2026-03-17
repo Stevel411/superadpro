@@ -6005,6 +6005,7 @@ def kyc_submit(
     user: User = Depends(get_current_user)
 ):
     if not user: return RedirectResponse(url="/?login=1", status_code=302)
+    import uuid
     from datetime import datetime
     # Validate DOB format
     try:
