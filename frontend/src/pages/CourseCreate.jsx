@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
-import { apiPost } from '../utils/api';
+import { apiPost, apiPut } from '../utils/api';
 import { GraduationCap, DollarSign, Tag, Image, AlertTriangle, CheckCircle, ChevronRight, ChevronLeft, Sparkles, BookOpen, Users, BarChart3 } from 'lucide-react';
 
 var CATEGORIES = [
@@ -55,9 +55,20 @@ export default function CourseCreate() {
     apiPost('/api/marketplace/courses',{
       title:title.trim(),description:description.trim(),short_description:shortDesc.trim(),
       price:parseFloat(price),category:category,difficulty_level:difficulty,
-      thumbnail_url:bannerUrl,agreed_terms:true,
+      agreed_terms:true,
     }).then(function(r){
-      if(r.ok){navigate('/courses/edit/'+r.course_id);}
+      if(r.ok){
+        // Upload banner separately if present
+        if(bannerUrl){
+          apiPut('/api/marketplace/courses/'+r.course_id,{thumbnail_url:bannerUrl}).then(function(){
+            navigate('/courses/edit/'+r.course_id);
+          }).catch(function(){
+            navigate('/courses/edit/'+r.course_id);
+          });
+        } else {
+          navigate('/courses/edit/'+r.course_id);
+        }
+      }
       else{setError(r.error||'Failed');setSaving(false);}
     }).catch(function(e){setError(e.message||'Failed');setSaving(false);});
   }
