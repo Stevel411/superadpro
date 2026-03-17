@@ -12888,9 +12888,11 @@ def api_network_data(request: Request, user: User = Depends(get_current_user),
 @app.get("/api/leads")
 def api_leads_data(request: Request, user: User = Depends(get_current_user),
                    db: Session = Depends(get_db)):
-    """My Leads data."""
+    """My Leads data. Pro only."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
+        return JSONResponse({"error": "Pro membership required", "upgrade": True}, status_code=403)
     from .database import MemberLead
     leads = db.query(MemberLead).filter(
         MemberLead.user_id == user.id
@@ -12909,9 +12911,10 @@ def api_leads_data(request: Request, user: User = Depends(get_current_user),
 # ═══════════════════════════════════════════════════════════════
 
 def _lead_limit(user):
-    """Return max leads allowed for this user's tier."""
+    """Return max leads allowed. Pro only feature — Basic gets 0."""
     tier = getattr(user, 'membership_tier', 'basic')
-    return 500 if tier == 'pro' else 100
+    if tier == 'pro': return 5000
+    return 0  # Basic members cannot use leads/autoresponder
 
 
 @app.get("/api/leads/sequences")
