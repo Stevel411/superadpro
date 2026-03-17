@@ -24,6 +24,7 @@ from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTrac
 from .coinbase_commerce import create_charge as cb_create_charge, verify_webhook_signature as cb_verify_sig, parse_webhook_event as cb_parse_event, SANDBOX_MODE as CB_SANDBOX
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick, Notification, Achievement, BADGES
 from .database import DigitalProduct, DigitalProductPurchase, DigitalProductReview, DigitalProductAffiliate
+from .database import MemberLead
 from .database import MemberCourse, MemberCourseChapter, MemberCourseLesson, MemberCoursePurchase
 from .crud import create_user, verify_password
 from .grid import (
@@ -4420,6 +4421,52 @@ async def capture_lead(request: Request, db: Session = Depends(get_db)):
     event = FunnelEvent(page_id=page.id, user_id=page.user_id, event_type="optin",
         referrer=referrer, device=device, ip_address=request.client.host if request.client else None)
     db.add(event)
+
+    # ── Auto-add to CRM (MemberLead) for autoresponder ──
+    try:
+        existing_crm = db.query(MemberLead).filter(
+            MemberLead.user_id == page.user_id, MemberLead.email == email.lower()
+        ).first()
+        if not existing_crm:
+            crm_lead = MemberLead(
+                user_id=page.user_id, email=email.lower(),
+                name=body.get("name", "").strip(),
+                source_funnel_id=page.id,
+                source_url=f"/p/{page.slug}" if page.slug else "SuperPage",
+                status="new",
+            )
+            db.add(crm_lead)
+
+            # Auto-assign default sequence if the page owner has one set
+            from .database import EmailSequence
+            default_seq = db.query(EmailSequence).filter(
+                EmailSequence.user_id == page.user_id, EmailSequence.is_active == True
+            ).order_by(EmailSequence.created_at.desc()).first()
+            if default_seq:
+                crm_lead.email_sequence_id = default_seq.id
+                crm_lead.status = "nurturing"
+
+            # Send first email in sequence if Brevo is configured
+            if default_seq:
+                try:
+                    import json as _j_auto
+                    emails_list = _j_auto.loads(default_seq.emails_json or "[]")
+                    if emails_list:
+                        from .brevo_service import send_email as brevo_send, wrap_email_html
+                        first_email = emails_list[0]
+                        owner = db.query(User).filter(User.id == page.user_id).first()
+                        member_name = (owner.first_name or owner.username) if owner else "SuperAdPro"
+                        wrapped = wrap_email_html(first_email.get("body_html", ""), member_name)
+                        await brevo_send(email, body.get("name", ""), first_email.get("subject", "Welcome!"), wrapped)
+                        crm_lead.emails_sent = 1
+                        from .database import EmailSendLog
+                        log = EmailSendLog(lead_id=crm_lead.id, sequence_id=default_seq.id, email_index=0, status="sent")
+                        db.add(log)
+                except Exception as e:
+                    print(f"[AutoResponder] First email send error: {e}")
+    except Exception as e:
+        print(f"[CRM] Lead sync error: {e}")
+
     db.commit()
     redirect_url = None
     if page.next_page_id:
