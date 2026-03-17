@@ -6,8 +6,14 @@ export async function api(path, opts = {}) {
     headers: { 'Content-Type': 'application/json', ...opts.headers },
     ...opts,
   });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || data.detail || 'Request failed');
+  var text = '';
+  try { text = await res.text(); } catch(e) {}
+  var data = {};
+  try { data = JSON.parse(text); } catch(e) {}
+  if (!res.ok) {
+    var msg = data.error || data.detail || ('HTTP ' + res.status + ': ' + (text || '').slice(0, 200));
+    throw new Error(msg);
+  }
   return data;
 }
 
