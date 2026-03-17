@@ -5,6 +5,32 @@ import { Copy, Check, Eye, Trash2, GripVertical, Plus, ExternalLink, BarChart3 }
 
 var FONTS = ['DM Sans','Sora','Inter','Poppins','Playfair Display','Space Grotesk','Nunito','Raleway','Montserrat','Lato'];
 
+// Convert legacy SVG icon JSON to emoji fallback
+function parseIcon(icon) {
+  if (!icon) return '🔗';
+  if (typeof icon === 'string') {
+    // Check if it's a JSON string
+    if (icon.startsWith('{')) {
+      try {
+        var obj = JSON.parse(icon);
+        // Map known SVG keys to emojis
+        var map = {heart:'❤️',star:'⭐',link:'🔗',globe:'🌍',play:'▶️',music:'🎵',camera:'📷',
+          mail:'✉️',phone:'📞',home:'🏠',user:'👤',book:'📚',code:'💻',cart:'🛒',
+          gift:'🎁',coffee:'☕',fire:'🔥',rocket:'🚀',bolt:'⚡',check:'✅'};
+        return map[obj.key] || '🔗';
+      } catch(e) { return '🔗'; }
+    }
+    // Already an emoji or text
+    return icon;
+  }
+  if (typeof icon === 'object' && icon.key) {
+    var map2 = {heart:'❤️',star:'⭐',link:'🔗',globe:'🌍',play:'▶️',music:'🎵',camera:'📷',
+      mail:'✉️',phone:'📞',home:'🏠',user:'👤',book:'📚',code:'💻',cart:'🛒'};
+    return map2[icon.key] || '🔗';
+  }
+  return '🔗';
+}
+
 export default function LinkHub() {
   var { t } = useTranslation();
   var [data, setData] = useState(null);
@@ -191,7 +217,7 @@ export default function LinkHub() {
                         color:style.text_color,
                         display:'flex',alignItems:'center',gap:10,cursor:'pointer',
                         transition:'all .2s'}}>
-                      <span style={{fontSize:18}}>{link.icon}</span>
+                      <span style={{fontSize:18}}>{parseIcon(link.icon)}</span>
                       <span style={{fontSize:14,fontWeight:600,flex:1,textAlign:'left'}}>{link.title || 'Untitled'}</span>
                       <span style={{fontSize:12,opacity:.4}}>→</span>
                     </div>
@@ -239,7 +265,7 @@ function LinksPanel({ links, addLink, updateLink, removeLink, toggleLink, onDrag
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
                 <div style={{display:'flex',alignItems:'center',gap:6}}>
                   <GripVertical size={14} color="#c4c4c4" style={{cursor:'grab'}}/>
-                  <span style={{fontSize:16}}>{link.icon}</span>
+                  <span style={{fontSize:16}}>{parseIcon(link.icon)}</span>
                   <span style={{fontSize:12,fontWeight:700,color:'#0f172a'}}>{link.title||'Untitled'}</span>
                   {link.click_count > 0 && <span style={{fontSize:9,color:'#94a3b8'}}>{link.click_count} clicks</span>}
                 </div>
