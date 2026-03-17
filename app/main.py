@@ -446,6 +446,30 @@ def api_mark_notifications_read(request: Request, db: Session = Depends(get_db))
     db.commit()
     return {"ok": True}
 
+
+@app.post("/api/notifications/clear-all")
+def api_clear_all_notifications(request: Request, db: Session = Depends(get_db)):
+    """Delete all notifications for the current user."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    db.query(Notification).filter(Notification.user_id == user.id).delete()
+    db.commit()
+    return {"ok": True}
+
+
+@app.delete("/api/notifications/{notif_id}")
+def api_delete_notification(notif_id: int, request: Request, db: Session = Depends(get_db)):
+    """Delete a single notification."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    n = db.query(Notification).filter(Notification.id == notif_id, Notification.user_id == user.id).first()
+    if n:
+        db.delete(n)
+        db.commit()
+    return {"ok": True}
+
 @app.get("/how-it-works")
 def how_it_works(request: Request):
     return templates.TemplateResponse("how-it-works.html", {"request": request, "join_url": get_join_url()})
@@ -11941,6 +11965,7 @@ def _serialize_product(p, creator=None):
         "created_at": p.created_at.isoformat() if p.created_at else None,
         "published_at": p.published_at.isoformat() if p.published_at else None,
         "ai_review": _safe_json_obj(p.ai_review_result),
+        "admin_notes": p.admin_notes or "",
     }
 
 

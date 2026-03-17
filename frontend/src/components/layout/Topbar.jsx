@@ -1,7 +1,7 @@
 import { useAuth } from '../../hooks/useAuth';
-import { Bell, Menu } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { apiGet, apiPost } from '../../utils/api';
+import { Bell, X } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { apiGet, apiPost, apiDelete } from '../../utils/api';
 import LanguageSelector from './LanguageSelector';
 
 export default function Topbar({ title, subtitle, children }) {
@@ -9,22 +9,48 @@ export default function Topbar({ title, subtitle, children }) {
   const [notifications, setNotifications] = useState([]);
   const [showNotifs, setShowNotifs] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const dropdownRef = useRef(null);
 
-  useEffect(() => {
+  function loadNotifs() {
     apiGet('/api/notifications')
       .then(data => {
         setNotifications(data.notifications || []);
         setUnreadCount(data.unread_count || 0);
       })
       .catch(() => {});
-  }, []);
+  }
 
-  const markRead = async () => {
-    if (unreadCount > 0) {
+  useEffect(() => { loadNotifs(); }, []);
+
+  // Click outside to close
+  useEffect(() => {
+    if (!showNotifs) return;
+    function handleClick(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowNotifs(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showNotifs]);
+
+  const toggleNotifs = async () => {
+    if (!showNotifs && unreadCount > 0) {
       await apiPost('/api/notifications/mark-read', {}).catch(() => {});
       setUnreadCount(0);
     }
     setShowNotifs(!showNotifs);
+  };
+
+  const clearAll = async () => {
+    await apiPost('/api/notifications/clear-all', {}).catch(() => {});
+    setNotifications([]);
+    setUnreadCount(0);
+  };
+
+  const dismissOne = async (id) => {
+    await apiDelete('/api/notifications/' + id).catch(() => {});
+    setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
   return (
@@ -35,11 +61,11 @@ export default function Topbar({ title, subtitle, children }) {
       </div>
       <div className="flex items-center gap-3">
         {children}
-        {/* Language Selector */}
         <LanguageSelector />
+
         {/* Notification Bell */}
-        <div className="relative">
-          <button onClick={markRead}
+        <div className="relative" ref={dropdownRef}>
+          <button onClick={toggleNotifs}
             className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer border-none relative">
             <Bell className="w-4 h-4 text-white/50" />
             {unreadCount > 0 && (
@@ -48,27 +74,59 @@ export default function Topbar({ title, subtitle, children }) {
               </span>
             )}
           </button>
+
           {showNotifs && (
-            <div className="absolute right-0 top-12 w-80 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden z-50">
-              <div className="px-4 py-3 border-b border-slate-100 font-semibold text-sm text-slate-700">Notifications</div>
-              <div className="max-h-80 overflow-y-auto">
+            <div className="absolute right-0 top-12 w-[340px] bg-white rounded-xl border border-slate-200 overflow-hidden z-50"
+              style={{boxShadow:'0 20px 60px rgba(0,0,0,.2)'}}>
+              {/* Header */}
+              <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                <span className="font-bold text-sm text-slate-700">Notifications</span>
+                <div className="flex items-center gap-2">
+                  {notifications.length > 0 && (
+                    <button onClick={clearAll}
+                      className="text-[10px] font-bold text-slate-400 hover:text-red-500 cursor-pointer border-none bg-transparent transition-colors px-1">
+                      Clear all
+                    </button>
+                  )}
+                  <button onClick={() => setShowNotifs(false)}
+                    className="w-6 h-6 rounded-md hover:bg-slate-100 flex items-center justify-center cursor-pointer border-none bg-transparent transition-all">
+                    <X className="w-3.5 h-3.5 text-slate-400" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Notification list */}
+              <div className="max-h-[380px] overflow-y-auto">
                 {notifications.length === 0 ? (
-                  <div className="px-4 py-8 text-center text-sm text-slate-400">No notifications</div>
-                ) : notifications.map((n, i) => (
-                  <div key={i} className={`px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-all ${!n.is_read ? 'bg-cyan/5' : ''}`}>
-                    <div className="flex items-start gap-2.5">
+                  <div className="px-4 py-12 text-center">
+                    <div className="text-2xl opacity-20 mb-2">🔔</div>
+                    <div className="text-sm text-slate-400">No notifications</div>
+                  </div>
+                ) : notifications.map((n) => (
+                  <div key={n.id} className={'group px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-all relative ' + (!n.is_read ? 'bg-blue-50/50' : '')}>
+                    <div className="flex items-start gap-2.5 pr-6">
                       <span className="text-base shrink-0 mt-0.5">{n.icon || '🔔'}</span>
                       <div className="min-w-0">
-                        <div className="text-sm font-semibold text-slate-800 truncate">{n.title}</div>
-                        <div className="text-xs text-slate-500 mt-0.5 line-clamp-2">{n.message}</div>
+                        <div className="text-[13px] font-semibold text-slate-800">{n.title}</div>
+                        <div className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">{n.message}</div>
+                        {n.created_at && (
+                          <div className="text-[9px] text-slate-300 mt-1">{new Date(n.created_at).toLocaleDateString()}</div>
+                        )}
                       </div>
                     </div>
+                    {/* Dismiss X — appears on hover */}
+                    <button onClick={(e) => { e.stopPropagation(); dismissOne(n.id); }}
+                      className="absolute top-3 right-3 w-5 h-5 rounded-md hover:bg-red-50 flex items-center justify-center cursor-pointer border-none opacity-0 group-hover:opacity-100 transition-all"
+                      style={{background:'transparent'}}>
+                      <X className="w-3 h-3 text-slate-300" style={{}} />
+                    </button>
                   </div>
                 ))}
               </div>
             </div>
           )}
         </div>
+
         {/* User Avatar */}
         <div className="w-8 h-8 rounded-full bg-cyan/20 flex items-center justify-center text-xs font-bold text-cyan">
           {(user?.first_name || user?.username || '?')[0].toUpperCase()}

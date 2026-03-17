@@ -554,6 +554,19 @@ function SuperMarketTab() {
                     {p.ai_review.summary && <span style={{fontSize:9,color:'#64748b',fontStyle:'italic'}}>{p.ai_review.summary}</span>}
                   </div>
                 )}
+                {p.ai_review && p.ai_review.flagged_issues && p.ai_review.flagged_issues.length > 0 && (
+                  <div style={{marginTop:6,padding:'8px 10px',background:'#fef2f2',borderRadius:6,border:'1px solid #fecaca'}}>
+                    <div style={{fontSize:9,fontWeight:800,color:'#dc2626',marginBottom:4}}>⚠️ AI Flagged Issues:</div>
+                    {p.ai_review.flagged_issues.map(function(iss,j){
+                      return <div key={j} style={{fontSize:10,color:'#dc2626',marginBottom:2}}>
+                        <span style={{fontWeight:700,textTransform:'capitalize'}}>[{iss.severity||'medium'}]</span> {iss.type}: {iss.description}
+                      </div>;
+                    })}
+                  </div>
+                )}
+                {p.admin_notes && (
+                  <div style={{marginTop:6,fontSize:10,color:'#f59e0b',fontWeight:600}}>Admin notes: {p.admin_notes}</div>
+                )}
               </div>
               <div style={{display:'flex',flexDirection:'column',gap:6,flexShrink:0}}>
                 <button onClick={function() { approve(p.id); }} disabled={acting === 'approve-' + p.id}
