@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import {
@@ -44,39 +45,40 @@ function useInView(threshold) {
 
 // ── Tab definitions ──
 var TABS = [
-  { key: 'membership', label: 'Membership', icon: DollarSign, color: '#16a34a' },
-  { key: 'grid', label: 'Profit Grid', icon: Zap, color: '#0ea5e9' },
-  { key: 'courses', label: 'Courses & SuperMarket', icon: GraduationCap, color: '#8b5cf6' },
-  { key: 'calculator', label: 'Calculator', icon: Target, color: '#f59e0b' },
-  { key: 'visualiser', label: 'Visualiser', icon: BarChart3, color: '#ec4899', link: '/passup-visualiser' },
+  { key: 'membership', label: 'membership', icon: DollarSign, color: '#16a34a' },
+  { key: 'grid', label: 'profitGrid', icon: Zap, color: '#0ea5e9' },
+  { key: 'courses', label: 'coursesSuperMarket', icon: GraduationCap, color: '#8b5cf6' },
+  { key: 'calculator', label: 'calculator', icon: Target, color: '#f59e0b' },
+  { key: 'visualiser', label: 'visualiser', icon: BarChart3, color: '#ec4899', link: '/passup-visualiser' },
 ];
 
 export default function CompensationPlan() {
+  var { t } = useTranslation();
   var [tab, setTab] = useState('membership');
   var navigate = useNavigate();
 
   return (
-    <AppLayout title="Compensation Plan" subtitle="Your complete guide to earning with SuperAdPro">
+    <AppLayout title={t("compPlan.title")} subtitle={t("compPlan.subtitle")}>
 
       {/* ── Tab Navigation ── */}
       <div style={{display:'flex',gap:6,marginBottom:28,borderBottom:'2px solid #e8ecf2',paddingBottom:0,flexWrap:'wrap'}}>
-        {TABS.map(function(t) {
-          var Icon = t.icon;
-          var active = tab === t.key;
+        {TABS.map(function(tb) {
+          var Icon = tb.icon;
+          var active = tab === tb.key;
           return (
-            <button key={t.key} onClick={function() { if (t.link) { navigate(t.link); } else if (!t.soon) { setTab(t.key); } }}
+            <button key={tb.key} onClick={function() { if (tb.link) { navigate(tb.link); } else if (!tb.soon) { setTab(tb.key); } }}
               style={{
                 display:'flex',alignItems:'center',gap:6,padding:'12px 20px',fontSize:13,fontWeight:active?800:600,
-                border:'none',borderBottom:active?'3px solid '+t.color:'3px solid transparent',
-                cursor:t.soon?'default':'pointer',fontFamily:'inherit',
+                border:'none',borderBottom:active?'3px solid '+tb.color:'3px solid transparent',
+                cursor:tb.soon?'default':'pointer',fontFamily:'inherit',
                 background:active?'rgba(14,165,233,.04)':'transparent',
-                color:active?t.color:t.soon?'#cbd5e1':'#64748b',
+                color:active?tb.color:tb.soon?'#cbd5e1':'#64748b',
                 marginBottom:-2,borderRadius:'8px 8px 0 0',transition:'all .2s',
-                opacity:t.soon?0.5:1,
+                opacity:tb.soon?0.5:1,
               }}>
               <Icon size={15}/>
-              {t.label}
-              {t.soon && <span style={{fontSize:9,fontWeight:700,background:'#f1f5f9',color:'#94a3b8',padding:'2px 6px',borderRadius:4}}>SOON</span>}
+              {t('compPlan.' + tb.label)}
+              {tb.soon && <span style={{fontSize:9,fontWeight:700,background:'#f1f5f9',color:'#94a3b8',padding:'2px 6px',borderRadius:4}}>SOON</span>}
             </button>
           );
         })}
@@ -100,6 +102,7 @@ export default function CompensationPlan() {
 // ══════════════════════════════════════════════════════════════
 
 function MembershipSection() {
+  var { t } = useTranslation();
   var [heroRef, heroVisible] = useInView(0.1);
   var [plansRef, plansVisible] = useInView(0.15);
   var [basicRef, basicVisible] = useInView(0.1);
@@ -125,7 +128,7 @@ function MembershipSection() {
         <div style={{position:'relative',zIndex:1}}>
           <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
             <DollarSign size={20} color="rgba(255,255,255,.7)"/>
-            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>Stream 01</span>
+            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>{t('compPlan.stream01')}</span>
           </div>
           <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:'#fff',margin:'0 0 12px',lineHeight:1.2}}>
             Membership Affiliate Income
@@ -148,7 +151,7 @@ function MembershipSection() {
         }}>
           <div style={{background:'#1c223d',padding:'20px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div>
-              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>Basic Plan</div>
+              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('compPlan.basicPlan')}</div>
               <div style={{display:'flex',alignItems:'baseline',gap:4}}>
                 <span style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:800,color:'#fff'}}>$20</span>
                 <span style={{fontSize:13,color:'rgba(255,255,255,.4)'}}>/month</span>
@@ -205,7 +208,7 @@ function MembershipSection() {
           </div>
           <div style={{background:'linear-gradient(135deg,#1c223d,#2d1b69)',padding:'20px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div>
-              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>Pro Plan</div>
+              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>{t('compPlan.proPlan')}</div>
               <div style={{display:'flex',alignItems:'baseline',gap:4}}>
                 <span style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:800,color:'#fff'}}>$30</span>
                 <span style={{fontSize:13,color:'rgba(255,255,255,.4)'}}>/month</span>
@@ -257,15 +260,15 @@ function MembershipSection() {
         transition:'all .7s cubic-bezier(.16,1,.3,1)',
       }}>
         <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>Affiliate Commissions</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>What You Earn Per Referral</div>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('compPlan.affiliateCommissions')}</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>{t('compPlan.whatYouEarnPerReferral')}</div>
         </div>
         <div style={{padding:'28px 24px'}}>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,marginBottom:28}}>
 
             {/* Basic Commission */}
             <div style={{textAlign:'center',padding:24,background:'#f8fffe',borderRadius:12,border:'1px solid #dcfce7'}}>
-              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#16a34a',marginBottom:8}}>Basic Referral</div>
+              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#16a34a',marginBottom:8}}>{t('compPlan.basicReferral')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:48,fontWeight:800,color:'#16a34a',lineHeight:1}}>
                 ${basicComm}
               </div>
@@ -278,7 +281,7 @@ function MembershipSection() {
 
             {/* Pro Commission */}
             <div style={{textAlign:'center',padding:24,background:'#faf5ff',borderRadius:12,border:'1px solid #e9d5ff'}}>
-              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:8}}>Pro Referral</div>
+              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:8}}>{t('compPlan.proReferral')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:48,fontWeight:800,color:'#8b5cf6',lineHeight:1}}>
                 ${proComm}
               </div>
@@ -346,8 +349,8 @@ function MembershipSection() {
         transition:'all .7s cubic-bezier(.16,1,.3,1)',
       }}>
         <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>Income Projection</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>Residual Income Potential</div>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('compPlan.incomeProjection')}</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>{t('compPlan.residualIncomePotential')}</div>
         </div>
         <div style={{padding:'24px'}}>
           <div style={{overflowX:'auto'}}>
@@ -394,6 +397,7 @@ function MembershipSection() {
 
 // ── Milestone Progress Tracker ──
 function MilestoneTracker(props) {
+  var { t } = useTranslation();
   var [ref, inView] = useInView(0.2);
   var milestones = [
     {n:5,label:'Starter',color:'#94a3b8',basic:50,pro:75},
@@ -412,8 +416,8 @@ function MilestoneTracker(props) {
       transition:'all .7s cubic-bezier(.16,1,.3,1)',
     }}>
       <div style={{background:'#1c223d',padding:'20px 24px'}}>
-        <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>Milestones</div>
-        <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>Your Path to Financial Freedom</div>
+        <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('compPlan.milestones')}</div>
+        <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>{t('compPlan.yourPathToFinancialFreedom')}</div>
       </div>
       <div style={{padding:'28px 24px'}}>
         <div style={{display:'flex',flexDirection:'column',gap:16}}>
@@ -472,6 +476,7 @@ var TIERS = [
 ];
 
 function GridSection() {
+  var { t } = useTranslation();
   var [heroRef, heroVis] = useInView(0.1);
   var [splitRef, splitVis] = useInView(0.1);
   var [tierRef, tierVis] = useInView(0.1);
@@ -498,7 +503,7 @@ function GridSection() {
         <div style={{position:'relative',zIndex:1}}>
           <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
             <Zap size={20} color="rgba(255,255,255,.7)"/>
-            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>Stream 02</span>
+            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>{t('compPlan.stream02')}</span>
           </div>
           <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:'#fff',margin:'0 0 12px',lineHeight:1.2}}>
             8×8 Profit Engine Grid
@@ -517,8 +522,8 @@ function GridSection() {
         transition:'all .7s cubic-bezier(.16,1,.3,1)',
       }}>
         <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>Commission Architecture</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>How Every Dollar is Split</div>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('compPlan.commissionArchitecture')}</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>{t('compPlan.howEveryDollarIsSplit')}</div>
         </div>
         <div style={{padding:'28px 24px'}}>
           {/* Animated bar */}
@@ -572,7 +577,7 @@ function GridSection() {
         transition:'all .7s cubic-bezier(.16,1,.3,1)',
       }}>
         <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>Campaign Tiers</div>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('compPlan.campaignTiers')}</div>
           <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>8 Tiers — Full Grid Earnings Breakdown</div>
         </div>
         <div style={{padding:'24px'}}>
@@ -640,7 +645,7 @@ function GridSection() {
         transition:'all .7s cubic-bezier(.16,1,.3,1)',
       }}>
         <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>Uni-Level Commissions</div>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('compPlan.uniLevelCommissions')}</div>
           <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>6.25% Per Level — 8 Levels Deep</div>
         </div>
         <div style={{padding:'24px'}}>
@@ -695,7 +700,7 @@ function GridSection() {
       }}>
         <div style={{background:'#1c223d',padding:'20px 24px'}}>
           <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>How It Works</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>Network Placement Model</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>{t('compPlan.networkPlacementModel')}</div>
         </div>
         <div style={{padding:'28px 24px'}}>
           {/* Step flow */}
@@ -732,7 +737,7 @@ function GridSection() {
           <div style={{padding:'16px 20px',background:'#fffbeb',borderRadius:12,border:'1px solid #fef3c7',display:'flex',alignItems:'flex-start',gap:12}}>
             <div style={{fontSize:20,flexShrink:0}}>⚠️</div>
             <div>
-              <div style={{fontSize:13,fontWeight:800,color:'#92400e',marginBottom:4}}>Qualification Rule</div>
+              <div style={{fontSize:13,fontWeight:800,color:'#92400e',marginBottom:4}}>{t('compPlan.qualificationRule')}</div>
               <div style={{fontSize:12,color:'#a16207',lineHeight:1.6}}>
                 To earn commissions at a tier, you must have an active (or in-grace) campaign at that same tier or higher. If unqualified, the commission goes to the platform. Each upline level is checked individually.
               </div>
@@ -750,7 +755,7 @@ function GridSection() {
       }}>
         <div style={{background:'linear-gradient(135deg,#1c223d,#0f4c3a)',padding:'20px 24px'}}>
           <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#4ade80',marginBottom:4}}>Bonus Reward</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>Grid Completion Bonus Pool</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>{t('compPlan.gridCompletionBonusPool')}</div>
         </div>
         <div style={{padding:'28px 24px'}}>
           <p style={{fontSize:13,color:'#64748b',lineHeight:1.7,marginBottom:24,maxWidth:600}}>
@@ -797,6 +802,7 @@ function GridSection() {
 
 // ── Grid Flow Simulator ──
 function GridSimulator(props) {
+  var { t } = useTranslation();
   var [running, setRunning] = useState(false);
   var [filled, setFilled] = useState(0);
   var [earned, setEarned] = useState(0);
@@ -834,7 +840,7 @@ function GridSimulator(props) {
 
       {/* LEFT — Explainer text */}
       <div style={{padding:'36px 32px',display:'flex',flexDirection:'column',justifyContent:'center'}}>
-        <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:10}}>How the Grid Works</div>
+        <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:10}}>{t('compPlan.howTheGridWorks')}</div>
         <h3 style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#fff',margin:'0 0 16px',lineHeight:1.3}}>
           Every new member fills a seat in your grid
         </h3>
@@ -961,6 +967,7 @@ function GridSimulator(props) {
 // ══════════════════════════════════════════════════════════════
 
 function CoursesSection() {
+  var { t } = useTranslation();
   var [heroRef, heroVis] = useInView(0.1);
   var [passRef, passVis] = useInView(0.1);
   var [flowRef, flowVis] = useInView(0.1);
@@ -987,7 +994,7 @@ function CoursesSection() {
         <div style={{position:'relative',zIndex:1}}>
           <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
             <GraduationCap size={20} color="rgba(255,255,255,.7)"/>
-            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>Stream 03</span>
+            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>{t('compPlan.stream03')}</span>
           </div>
           <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:'#fff',margin:'0 0 12px',lineHeight:1.2}}>
             Courses & SuperMarket
@@ -1008,8 +1015,8 @@ function CoursesSection() {
         transition:'all .7s cubic-bezier(.16,1,.3,1)',
       }}>
         <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>Course Commissions</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>The 100% Pass-Up System</div>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>{t('compPlan.courseCommissions')}</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>{t('compPlan.theHundredPercentPassUpSystem')}</div>
         </div>
         <div style={{padding:'28px 24px'}}>
           <div style={{display:'grid',gridTemplateColumns:'55fr 45fr',gap:0,background:'#0f172a',borderRadius:14,overflow:'hidden',marginBottom:24}}>
@@ -1073,7 +1080,7 @@ function CoursesSection() {
         transition:'all .7s cubic-bezier(.16,1,.3,1)',
       }}>
         <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>Pro Feature</div>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>{t('compPlan.proFeature')}</div>
           <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>Create & Sell Your Own Courses</div>
         </div>
         <div style={{padding:'28px 24px'}}>
@@ -1119,7 +1126,7 @@ function CoursesSection() {
         <div style={{position:'relative',zIndex:1}}>
           <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
             <div style={{padding:'6px 12px',background:'linear-gradient(135deg,#0ea5e9,#6366f1)',borderRadius:8,fontSize:11,fontWeight:800,color:'#fff',letterSpacing:1}}>NEW</div>
-            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.4)'}}>Digital Product Marketplace</span>
+            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.4)'}}>{t('compPlan.digitalProductMarketplace')}</span>
           </div>
           <h2 style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'#fff',margin:'0 0 12px',lineHeight:1.2}}>
             Super<span style={{color:'#0ea5e9'}}>Market</span>
@@ -1196,7 +1203,7 @@ function CoursesSection() {
         boxShadow:'0 4px 20px rgba(0,0,0,.06)',
       }}>
         <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>The Flywheel</div>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('compPlan.theFlywheel')}</div>
           <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>Everyone Benefits from Every Sale</div>
         </div>
         <div style={{padding:'28px 24px'}}>
@@ -1272,7 +1279,7 @@ function CoursesSection() {
               <tr>
                 <th style={{fontSize:10,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,padding:'12px 16px',borderBottom:'2px solid #e8ecf2',textAlign:'left',background:'#f8f9fb'}}></th>
                 <th style={{fontSize:10,fontWeight:800,color:'#8b5cf6',textTransform:'uppercase',letterSpacing:1,padding:'12px 16px',borderBottom:'2px solid #e8ecf2',textAlign:'center',background:'#f8f9fb'}}>Course Pass-Up</th>
-                <th style={{fontSize:10,fontWeight:800,color:'#0ea5e9',textTransform:'uppercase',letterSpacing:1,padding:'12px 16px',borderBottom:'2px solid #e8ecf2',textAlign:'center',background:'#f8f9fb'}}>SuperMarket</th>
+                <th style={{fontSize:10,fontWeight:800,color:'#0ea5e9',textTransform:'uppercase',letterSpacing:1,padding:'12px 16px',borderBottom:'2px solid #e8ecf2',textAlign:'center',background:'#f8f9fb'}}>{t('compPlan.superMarket')}</th>
               </tr>
             </thead>
             <tbody>
@@ -1308,6 +1315,7 @@ function CoursesSection() {
 
 // ── Pass-Up Animator ──
 function PassUpAnimator(props) {
+  var { t } = useTranslation();
   var [step, setStep] = useState(0);
   var [running, setRunning] = useState(false);
   var timerRef = useRef(null);
@@ -1398,6 +1406,7 @@ var CALC_TIERS = [
 ];
 
 function CalculatorSection() {
+  var { t } = useTranslation();
   var [heroRef, heroVis] = useInView(0.1);
   var [activeTiers, setActiveTiers] = useState([3]); // $100 tier on by default
   var [directRefs, setDirectRefs] = useState(15);
@@ -1446,7 +1455,7 @@ function CalculatorSection() {
         <div style={{position:'relative',zIndex:1}}>
           <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
             <Target size={20} color="rgba(255,255,255,.7)"/>
-            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>Earnings Calculator</span>
+            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>{t('compPlan.earningsCalculator')}</span>
           </div>
           <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:'#fff',margin:'0 0 12px',lineHeight:1.2}}>
             Estimate Your Income Potential
@@ -1463,13 +1472,13 @@ function CalculatorSection() {
         {/* LEFT — Controls */}
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
           <div style={{background:'#1c223d',padding:'16px 24px'}}>
-            <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>Your Scenario</div>
+            <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>{t('compPlan.yourScenario')}</div>
           </div>
           <div style={{padding:'24px'}}>
 
             {/* Tier selector */}
             <div style={{marginBottom:24}}>
-              <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:10}}>Active Campaign Tiers</div>
+              <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:10}}>{t('compPlan.activeCampaignTiers')}</div>
               <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6}}>
                 {CALC_TIERS.map(function(t) {
                   var on = activeTiers.indexOf(t.n) >= 0;
@@ -1488,7 +1497,7 @@ function CalculatorSection() {
             {/* Direct referrals slider */}
             <div style={{marginBottom:20}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
-                <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1}}>Direct Referrals</div>
+                <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1}}>{t('compPlan.directReferralsSlider')}</div>
                 <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0ea5e9'}}>{directRefs}</div>
               </div>
               <input type="range" min={1} max={100} value={directRefs} onChange={function(e) { setDirectRefs(parseInt(e.target.value)); }}
@@ -1501,7 +1510,7 @@ function CalculatorSection() {
             {/* Grid advances slider */}
             <div style={{marginBottom:20}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
-                <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1}}>Grid Advances</div>
+                <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1}}>{t('compPlan.gridAdvances')}</div>
                 <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#6366f1'}}>{gridAdvances}</div>
               </div>
               <input type="range" min={1} max={10} value={gridAdvances} onChange={function(e) { setGridAdvances(parseInt(e.target.value)); }}
@@ -1513,7 +1522,7 @@ function CalculatorSection() {
 
             {/* Member plan type */}
             <div>
-              <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Referral Mix</div>
+              <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>{t('compPlan.referralMix')}</div>
               <div style={{display:'flex',gap:6}}>
                 {[
                   {key:'basic',label:'All Basic ($10)',color:'#16a34a'},
@@ -1538,7 +1547,7 @@ function CalculatorSection() {
         {/* RIGHT — Results */}
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)',display:'flex',flexDirection:'column'}}>
           <div style={{background:'#1c223d',padding:'16px 24px'}}>
-            <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>Projected Earnings</div>
+            <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>{t('compPlan.projectedEarnings')}</div>
           </div>
           <div style={{padding:'24px',flex:1,display:'flex',flexDirection:'column'}}>
 
@@ -1591,7 +1600,7 @@ function CalculatorSection() {
       {activeTiers.length > 0 && (
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
           <div style={{background:'#1c223d',padding:'16px 24px'}}>
-            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Breakdown by Tier</div>
+            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('compPlan.breakdownByTier')}</div>
           </div>
           <div style={{padding:'20px 24px'}}>
             <div style={{display:'grid',gridTemplateColumns:'repeat('+Math.min(activeTiers.length,4)+',1fr)',gap:12}}>
@@ -1632,6 +1641,7 @@ var tdStyle = {padding:'10px',borderBottom:'1px solid #f5f6f8',textAlign:'center
 
 // ── Coming Soon placeholder ──
 function ComingSoon(props) {
+  var { t } = useTranslation();
   return (
     <div style={{textAlign:'center',padding:'80px 20px'}}>
       <div style={{fontSize:40,marginBottom:12,opacity:.3}}>🚧</div>
