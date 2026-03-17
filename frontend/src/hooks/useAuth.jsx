@@ -8,8 +8,12 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiGet('/api/me')
-      .then(data => { setUser(data); setLoading(false); })
+    fetch('/api/me', { credentials: 'include' })
+      .then(res => {
+        if (res.status === 401) { setUser(null); setLoading(false); return null; }
+        return res.json();
+      })
+      .then(data => { if (data && !data.error) { setUser(data); } setLoading(false); })
       .catch(() => { setUser(null); setLoading(false); });
   }, []);
 

@@ -45,8 +45,9 @@ function ProtectedRoute({ children }) {
     </div>
   );
   if (!user) {
-    window.location.href = '/login';
-    return null;
+    // Use replace to avoid back-button loops
+    window.location.replace('/?login=1');
+    return <div className="flex items-center justify-center min-h-screen"><Spinner size="lg" /></div>;
   }
   return children;
 }
