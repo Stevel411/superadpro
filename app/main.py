@@ -22,6 +22,8 @@ from .database import (
 )
 from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker, CourseChapter, CourseLesson, CourseProgress
 from .coinbase_commerce import create_charge as cb_create_charge, verify_webhook_signature as cb_verify_sig, parse_webhook_event as cb_parse_event, SANDBOX_MODE as CB_SANDBOX
+from . import stripe_service
+from .stripe_service import BOOST_PACKS as STRIPE_BOOST_PACKS, STRIPE_PUBLISHABLE_KEY
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick, Notification, Achievement, BADGES
 from .database import DigitalProduct, DigitalProductPurchase, DigitalProductReview, DigitalProductAffiliate
 from .database import MemberLead
@@ -1931,6 +1933,407 @@ def payment_cancelled_page(request: Request, user: User = Depends(get_current_us
         "request": request, "user": user, "success": False,
     })
 
+
+
+
+# ═══════════════════════════════════════════════════════════════
+#  STRIPE PAYMENTS
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/stripe/create-membership-checkout")
+async def stripe_membership_checkout(request: Request, db: Session = Depends(get_db),
+                                      user: User = Depends(get_current_user)):
+    """Create Stripe Checkout session for membership subscription."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    tier = body.get("tier", "basic")
+    if tier not in ("basic", "pro"):
+        return JSONResponse({"error": "Invalid tier"}, status_code=400)
+    result = stripe_service.create_membership_checkout(user.id, tier, user.email)
+    if result["success"]:
+        return {"url": result["url"]}
+    return JSONResponse({"error": result["error"]}, status_code=400)
+
+
+@app.post("/api/stripe/create-grid-checkout")
+async def stripe_grid_checkout(request: Request, db: Session = Depends(get_db),
+                                user: User = Depends(get_current_user)):
+    """Create Stripe Checkout session for a Campaign Tier purchase."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not user.is_active:
+        return JSONResponse({"error": "Active membership required"}, status_code=400)
+    body = await request.json()
+    package_tier = int(body.get("package_tier", 0))
+    from .database import GRID_PACKAGES, GRID_TIER_NAMES
+    price = GRID_PACKAGES.get(package_tier)
+    tier_name = GRID_TIER_NAMES.get(package_tier, f"Tier {package_tier}")
+    if not price:
+        return JSONResponse({"error": "Invalid package tier"}, status_code=400)
+    result = stripe_service.create_grid_checkout(user.id, package_tier, price, tier_name, user.email)
+    if result["success"]:
+        return {"url": result["url"]}
+    return JSONResponse({"error": result["error"]}, status_code=400)
+
+
+@app.post("/api/stripe/create-boost-checkout")
+async def stripe_boost_checkout(request: Request, db: Session = Depends(get_db),
+                                 user: User = Depends(get_current_user)):
+    """Create Stripe Checkout session for an email boost pack."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    pack_key = body.get("pack_key", "")
+    result = stripe_service.create_boost_checkout(user.id, pack_key, user.email)
+    if result["success"]:
+        return {"url": result["url"]}
+    return JSONResponse({"error": result["error"]}, status_code=400)
+
+
+@app.post("/api/webhook/stripe")
+async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
+    """Handle Stripe webhook events."""
+    payload = await request.body()
+    sig_header = request.headers.get("stripe-signature", "")
+    event = stripe_service.verify_webhook(payload, sig_header)
+    if not event:
+        return JSONResponse({"error": "Invalid signature"}, status_code=400)
+
+    event_type = event["type"]
+
+    # ── Checkout completed ────────────────────────────────────
+    if event_type == "checkout.session.completed":
+        session = event["data"]["object"]
+        meta = session.get("metadata", {})
+        user_id = int(meta.get("user_id", 0))
+        payment_type = meta.get("payment_type", "")
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return {"received": True}
+
+        if payment_type == "membership":
+            tier = meta.get("tier", "basic")
+            _stripe_activate_membership(db, user, tier, session.get("subscription"))
+
+        elif payment_type == "grid":
+            package_tier = int(meta.get("package_tier", 1))
+            price_usd = float(meta.get("price_usd", 0))
+            _stripe_process_grid(db, user, package_tier, price_usd, session["id"])
+
+        elif payment_type == "email_boost":
+            pack_key = meta.get("pack_key", "")
+            emails = int(meta.get("emails", 0))
+            if emails > 0:
+                user.email_credits = (user.email_credits or 0) + emails
+                payment = Payment(
+                    from_user_id=user_id, to_user_id=None,
+                    amount_usdt=float(STRIPE_BOOST_PACKS.get(pack_key, {}).get("price", 0)),
+                    payment_type="email_boost", tx_hash=session["id"], status="confirmed",
+                )
+                db.add(payment)
+                db.commit()
+
+        elif payment_type == "course":
+            course_id = int(meta.get("course_id", 0))
+            tx_ref = f"stripe_{session['id'][:20]}"
+            result = process_course_purchase(db, user_id, course_id,
+                                             payment_method="stripe", tx_ref=tx_ref)
+            # process_course_purchase handles its own db.commit()
+
+        elif payment_type == "supermarket":
+            product_id = int(meta.get("product_id", 0))
+            affiliate_id = meta.get("affiliate_id")
+            affiliate_id = int(affiliate_id) if affiliate_id else None
+            _stripe_process_supermarket(db, user, product_id, session["id"], affiliate_id)
+
+    # ── Subscription renewed (monthly) ───────────────────────
+    elif event_type == "invoice.payment_succeeded":
+        invoice = event["data"]["object"]
+        if invoice.get("billing_reason") == "subscription_cycle":
+            sub_id = invoice.get("subscription")
+            if sub_id:
+                sub = stripe_service.get_subscription(sub_id)
+                if sub:
+                    user_id = int(sub.get("metadata", {}).get("user_id", 0))
+                    tier = sub.get("metadata", {}).get("tier", "basic")
+                    user = db.query(User).filter(User.id == user_id).first()
+                    if user:
+                        _stripe_renew_membership(db, user, tier, sub_id)
+
+    # ── Subscription cancelled / payment failed ───────────────
+    elif event_type in ("customer.subscription.deleted", "invoice.payment_failed"):
+        obj = event["data"]["object"]
+        sub_id = obj.get("id") if event_type == "customer.subscription.deleted" else obj.get("subscription")
+        if sub_id:
+            user = db.query(User).filter(User.stripe_subscription_id == sub_id).first()
+            if user:
+                user.is_active = False
+                user.membership_tier = "basic"
+                db.commit()
+
+    return {"received": True}
+
+
+
+
+def _stripe_process_supermarket(db, user, product_id, session_id, affiliate_id=None):
+    """Complete a SuperMarket purchase after Stripe payment confirmed."""
+    import secrets as _secrets
+    p = db.query(DigitalProduct).filter(
+        DigitalProduct.id == product_id, DigitalProduct.status == "published"
+    ).first()
+    if not p:
+        return
+
+    # Prevent duplicates
+    existing = db.query(DigitalProductPurchase).filter(
+        DigitalProductPurchase.product_id == product_id,
+        DigitalProductPurchase.buyer_id == user.id,
+        DigitalProductPurchase.status == "completed"
+    ).first()
+    if existing:
+        return
+
+    token = _secrets.token_urlsafe(32)
+    creator_amt   = round(float(p.price) * 0.50, 2)
+    affiliate_amt = round(float(p.price) * 0.25, 2)
+    platform_amt  = round(float(p.price) * 0.25, 2)
+
+    purchase = DigitalProductPurchase(
+        product_id=p.id, buyer_id=user.id, buyer_email=user.email,
+        buyer_name=user.first_name or user.username,
+        amount_paid=float(p.price),
+        creator_commission=creator_amt, affiliate_commission=affiliate_amt,
+        platform_commission=platform_amt, affiliate_id=affiliate_id,
+        download_token=token, status="completed",
+    )
+    db.add(purchase)
+
+    creator = db.query(User).filter(User.id == p.creator_id).first()
+    if creator:
+        creator.balance = (creator.balance or 0) + creator_amt
+        creator.total_earned = (creator.total_earned or 0) + creator_amt
+        creator.marketplace_earnings = (creator.marketplace_earnings or 0) + creator_amt
+
+    if affiliate_id:
+        affiliate = db.query(User).filter(User.id == affiliate_id).first()
+        if affiliate:
+            affiliate.balance = (affiliate.balance or 0) + affiliate_amt
+            affiliate.total_earned = (affiliate.total_earned or 0) + affiliate_amt
+            affiliate.marketplace_earnings = (affiliate.marketplace_earnings or 0) + affiliate_amt
+            aff_rec = db.query(DigitalProductAffiliate).filter(
+                DigitalProductAffiliate.product_id == p.id,
+                DigitalProductAffiliate.user_id == affiliate_id
+            ).first()
+            if aff_rec:
+                aff_rec.sales = (aff_rec.sales or 0) + 1
+                aff_rec.earnings = (aff_rec.earnings or 0) + affiliate_amt
+
+    p.total_sales = (p.total_sales or 0) + 1
+    p.total_revenue = (p.total_revenue or 0) + float(p.price)
+    db.commit()
+
+def _stripe_activate_membership(db, user, tier, subscription_id):
+    """Activate or upgrade membership after Stripe payment."""
+    from .database import GRID_TIER_NAMES
+    from datetime import datetime, timedelta
+    import uuid
+
+    fee = 30.0 if tier == "pro" else 20.0
+    sponsor_share = fee * 0.50  # 50% to sponsor
+    company_share = fee * 0.50  # 50% to company
+
+    # Activate user
+    user.is_active = True
+    user.membership_tier = tier
+    user.membership_expires_at = datetime.utcnow() + timedelta(days=31)
+    if subscription_id:
+        user.stripe_subscription_id = subscription_id
+
+    # Record payment
+    tx_ref = f"stripe_{uuid.uuid4().hex[:16]}"
+    payment = Payment(
+        from_user_id=user.id, to_user_id=None,
+        amount_usdt=fee, payment_type="membership",
+        tx_hash=tx_ref, status="confirmed",
+    )
+    db.add(payment)
+    db.flush()
+
+    # Credit sponsor commission
+    if user.sponsor_id:
+        sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
+        if sponsor:
+            sponsor.balance = (sponsor.balance or 0) + sponsor_share
+            sponsor.total_earned = (sponsor.total_earned or 0) + sponsor_share
+            sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
+            comm = Commission(
+                user_id=sponsor.id, from_user_id=user.id,
+                amount_usdt=sponsor_share, commission_type="membership_sponsor",
+                description=f"Membership commission from {user.username}",
+                status="credited",
+            )
+            db.add(comm)
+
+    # Send welcome email
+    try:
+        from .email_utils import send_membership_activated_email
+        send_membership_activated_email(user)
+    except Exception:
+        pass
+
+    db.commit()
+
+
+def _stripe_renew_membership(db, user, tier, subscription_id):
+    """Process monthly renewal."""
+    from datetime import datetime, timedelta
+    import uuid
+    fee = 30.0 if tier == "pro" else 20.0
+    user.is_active = True
+    user.membership_expires_at = datetime.utcnow() + timedelta(days=31)
+    tx_ref = f"stripe_renew_{uuid.uuid4().hex[:12]}"
+    payment = Payment(
+        from_user_id=user.id, to_user_id=None,
+        amount_usdt=fee, payment_type="membership_renewal",
+        tx_hash=tx_ref, status="confirmed",
+    )
+    db.add(payment)
+    db.commit()
+
+
+def _stripe_process_grid(db, user, package_tier, price_usd, session_id):
+    """Place member in grid after Stripe campaign tier payment."""
+    from .grid import place_member_in_grid
+    from .database import GRID_PACKAGES
+    import uuid
+
+    # Record payment
+    tx_ref = f"stripe_grid_{uuid.uuid4().hex[:12]}"
+    payment = Payment(
+        from_user_id=user.id, to_user_id=None,
+        amount_usdt=price_usd, payment_type=f"grid_tier_{package_tier}",
+        tx_hash=tx_ref, status="confirmed",
+    )
+    db.add(payment)
+    db.flush()
+
+    # Place in grid
+    sponsor_id = user.sponsor_id
+    if not sponsor_id:
+        admin = db.query(User).filter(User.is_admin == True).first()
+        sponsor_id = admin.id if admin else 1
+
+    result = place_member_in_grid(
+        db=db, member_id=user.id, owner_id=sponsor_id, package_tier=package_tier,
+    )
+    if not result["success"]:
+        from .payment import _find_overspill_placement
+        result = _find_overspill_placement(db, user.id, sponsor_id, package_tier)
+
+    # Distribute commissions (40/50/5/5 split)
+    price = GRID_PACKAGES.get(package_tier, price_usd)
+    direct_share   = price * 0.40
+    upline_share   = price * 0.50
+    bonus_pool     = price * 0.05
+    company_share  = price * 0.05
+
+    if user.sponsor_id:
+        sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
+        if sponsor:
+            sponsor.balance = (sponsor.balance or 0) + direct_share
+            sponsor.total_earned = (sponsor.total_earned or 0) + direct_share
+            sponsor.grid_earnings = (sponsor.grid_earnings or 0) + direct_share
+            comm = Commission(
+                user_id=sponsor.id, from_user_id=user.id,
+                amount_usdt=direct_share, commission_type="grid_direct",
+                description=f"Grid Tier {package_tier} direct commission",
+                status="credited",
+            )
+            db.add(comm)
+
+    db.commit()
+
+
+
+
+@app.post("/api/stripe/create-course-checkout")
+async def stripe_course_checkout(request: Request, db: Session = Depends(get_db),
+                                  user: User = Depends(get_current_user)):
+    """Create Stripe Checkout session for a course purchase."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    course_id = int(body.get("course_id", 0))
+    from .database import Course
+    course = db.query(Course).filter(Course.id == course_id, Course.is_active == True).first()
+    if not course:
+        return JSONResponse({"error": "Course not found"}, status_code=404)
+    result = stripe_service.create_course_checkout(
+        user.id, course.id, course.title, course.tier, float(course.price), user.email
+    )
+    if result["success"]:
+        return {"url": result["url"]}
+    return JSONResponse({"error": result["error"]}, status_code=400)
+
+
+@app.post("/api/stripe/create-supermarket-checkout")
+async def stripe_supermarket_checkout(request: Request, db: Session = Depends(get_db),
+                                       user: User = Depends(get_current_user)):
+    """Create Stripe Checkout session for a SuperMarket product."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    product_id = int(body.get("product_id", 0))
+    affiliate_id = body.get("affiliate_id")
+    p = db.query(DigitalProduct).filter(
+        DigitalProduct.id == product_id, DigitalProduct.status == "published"
+    ).first()
+    if not p:
+        return JSONResponse({"error": "Product not found"}, status_code=404)
+    if p.creator_id == user.id:
+        return JSONResponse({"error": "Cannot purchase your own product"}, status_code=400)
+    # Check not already purchased
+    from .database import DigitalProductPurchase
+    existing = db.query(DigitalProductPurchase).filter(
+        DigitalProductPurchase.product_id == product_id,
+        DigitalProductPurchase.buyer_id == user.id,
+        DigitalProductPurchase.status == "completed"
+    ).first()
+    if existing:
+        return JSONResponse({"error": "Already purchased", "download_token": existing.download_token}, status_code=400)
+    result = stripe_service.create_supermarket_checkout(
+        user.id, p.id, p.title, float(p.price), user.email, affiliate_id
+    )
+    if result["success"]:
+        return {"url": result["url"]}
+    return JSONResponse({"error": result["error"]}, status_code=400)
+
+@app.get("/api/stripe/config")
+def stripe_config(user: User = Depends(get_current_user)):
+    """Return Stripe publishable key for frontend."""
+    return {
+        "publishable_key": STRIPE_PUBLISHABLE_KEY,
+        "configured": stripe_service.is_configured(),
+    }
+
+
+@app.post("/api/stripe/cancel-subscription")
+async def cancel_stripe_subscription(request: Request, db: Session = Depends(get_db),
+                                      user: User = Depends(get_current_user)):
+    """Cancel a member's Stripe subscription."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    sub_id = getattr(user, "stripe_subscription_id", None)
+    if not sub_id:
+        return JSONResponse({"error": "No active subscription found"}, status_code=400)
+    success = stripe_service.cancel_subscription(sub_id)
+    if success:
+        user.stripe_subscription_id = None
+        db.commit()
+        return {"ok": True, "message": "Subscription cancelled"}
+    return JSONResponse({"error": "Cancellation failed"}, status_code=400)
 
 @app.post("/withdraw")
 def withdraw(

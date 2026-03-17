@@ -47,6 +47,7 @@ import HowCommissionsWork from './pages/HowCommissionsWork';
 import MyLeads from './pages/MyLeads';
 import LinkTools from './pages/LinkTools';
 import AdBoard from './pages/AdBoard';
+import PaymentSuccess from './pages/PaymentSuccess';
 import PassupVisualiser from './pages/PassupVisualiser';
 import ProSeller from './pages/ProSeller';
 import SuperSeller from './pages/SuperSeller';
@@ -135,6 +136,7 @@ function AppRoutes() {
       <Route path="/ad-board" element={<ProtectedRoute><AdBoard /></ProtectedRoute>} />
 
       {/* Catch-all */}
+      <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );

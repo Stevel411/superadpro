@@ -164,6 +164,9 @@ class User(Base):
     email_credits           = Column(Integer, default=0)                    # purchased boost credits
     emails_sent_today       = Column(Integer, default=0)                    # daily counter (resets daily)
     emails_sent_today_date  = Column(String, nullable=True)                 # date string for reset check
+    # Stripe
+    stripe_subscription_id  = Column(String, nullable=True)                 # active Stripe subscription ID
+    membership_expires_at   = Column(DateTime, nullable=True)               # next renewal date
 
 class Grid(Base):
     """One grid instance per user per package tier."""
@@ -1531,6 +1534,9 @@ try:
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS email_credits INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS emails_sent_today INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS emails_sent_today_date VARCHAR"))
+        # ── Stripe ──
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_subscription_id VARCHAR"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_expires_at TIMESTAMP"))
 
         # ── SuperMarket digital products ──
         conn.execute(text("""CREATE TABLE IF NOT EXISTS digital_products (
