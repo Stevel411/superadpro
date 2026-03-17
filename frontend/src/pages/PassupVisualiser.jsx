@@ -50,6 +50,7 @@ var NAMES = ['Alex','Beth','Carl','Dana','Eric','Faye','Gina','Hugo','Iris','Jak
              'Uma','Vic','Wendy','Xena','Yara','Zoe'];
 
 function PassUpSection() {
+  var { t } = useTranslation();
   var PU = new Set([2, 4, 6, 8]);
   var NAMES = ['Alex','Beth','Carl','Dana','Eric','Faye','Gina','Hugo','Iris','Jake',
                'Kate','Leo','Mia','Nate','Olga','Paul','Quinn','Rosa','Sam','Tina',
@@ -595,6 +596,7 @@ function PassUpSection() {
 // ══════════════════════════════════════════════════════════════
 
 function GridVisSection() {
+  var { t } = useTranslation();
   var TIERS = [
     {n:1,name:'Starter',price:20,color:'#4ade80'},
     {n:2,name:'Builder',price:50,color:'#38bdf8'},
