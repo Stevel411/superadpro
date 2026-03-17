@@ -243,8 +243,8 @@ export default function Dashboard() {
             <div style={{ fontSize: 15, fontWeight: 800, color: '#1a1a2e' }}>Recent Activity</div>
             <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: '#0ea5e9', textDecoration: 'none' }}>View all →</Link>
           </div>
-          {(!d.recent_activity || d.recent_activity.length === 0) ? (
-            <div style={{ textAlign: 'center', padding: 24, color: '#94a3b8', fontSize: 13 }}>No commissions yet. Share your link to start earning!</div>
+          {(!Array.isArray(d.recent_activity) || d.recent_activity.length === 0) ? (
+            <div style={{ textAlign: 'center', padding: 24, color: '#94a3b8', fontSize: 13 }}>No recent activity yet. Share your link to start earning!</div>
           ) : d.recent_activity.map((a, i) => {
             const colorMap = { green: '#dcfce7', cyan: '#e0f2fe', purple: '#ede9fe', amber: '#fef3c7' };
             return (
