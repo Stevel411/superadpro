@@ -12093,6 +12093,8 @@ async def api_supermarket_upload_file(product_id: int, request: Request, user: U
     if file_type == "bonus":
         p.bonus_file_url = file_data
         p.bonus_file_name = file_name
+    elif file_type == "banner":
+        p.banner_url = file_data
     else:
         p.file_url = file_data
         p.file_name = file_name

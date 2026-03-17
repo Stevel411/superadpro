@@ -69,19 +69,22 @@ export default function SuperMarketCreate() {
     apiPost('/api/supermarket/products', {
       title:title.trim(), short_description:shortDesc.trim(), description:description,
       price:parseFloat(price), compare_price:parseFloat(comparePrice)||null,
-      category:category, tags:tags, video_url:videoUrl, demo_url:demoUrl, banner_url:bannerUrl,
+      category:category, tags:tags, video_url:videoUrl, demo_url:demoUrl,
       features:features.filter(function(f){return f.trim();}), agreed_terms:true,
     }).then(function(r) {
-      if (!r.ok){setError(r.error||'Failed');setSaving(false);return;}
+      if (!r.ok){setError(r.error||'Failed to create product');setSaving(false);return;}
       var pid = r.product_id;
       var uploads = [];
-      if (mainFile) uploads.push(apiPost('/api/supermarket/products/'+pid+'/upload', {type:'main',data:mainFile.data,name:mainFile.name,size:mainFile.size}));
-      if (bonusFile) uploads.push(apiPost('/api/supermarket/products/'+pid+'/upload', {type:'bonus',data:bonusFile.data,name:bonusFile.name,size:bonusFile.size}));
+      if (bannerUrl) uploads.push(apiPost('/api/supermarket/products/'+pid+'/upload', {type:'banner',data:bannerUrl,name:'banner'}).catch(function(e){console.error('Banner upload:',e);}));
+      if (mainFile) uploads.push(apiPost('/api/supermarket/products/'+pid+'/upload', {type:'main',data:mainFile.data,name:mainFile.name,size:mainFile.size}).catch(function(e){console.error('File upload:',e);}));
+      if (bonusFile) uploads.push(apiPost('/api/supermarket/products/'+pid+'/upload', {type:'bonus',data:bonusFile.data,name:bonusFile.name,size:bonusFile.size}).catch(function(e){console.error('Bonus upload:',e);}));
       Promise.all(uploads).then(function(){
-        // Auto-submit for review
-        apiPost('/api/supermarket/products/'+pid+'/submit',{}).then(function(){navigate('/marketplace');}).catch(function(){navigate('/marketplace');});
-      }).catch(function(){navigate('/marketplace');});
-    }).catch(function(e){setError(e.message||'Failed');setSaving(false);});
+        apiPost('/api/supermarket/products/'+pid+'/submit',{}).then(function(sr){
+          if(sr.ok) navigate('/marketplace');
+          else {setError('Product created but review submission failed: '+(sr.error||'Check requirements'));setSaving(false);}
+        }).catch(function(e){setError('Product created! Review submission failed — you can submit later from My Products.');setSaving(false);});
+      }).catch(function(){setError('Product created but file upload had issues.');setSaving(false);});
+    }).catch(function(e){setError(e.message||'Failed to create product');setSaving(false);});
   }
 
   var currentStep = STEPS[step];
