@@ -1,119 +1,227 @@
-import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet } from '../utils/api';
+import { Trophy, Users, Zap, GraduationCap, Crown, TrendingUp } from 'lucide-react';
+
+var TABS = [
+  { key: 'referrals', label: 'Members Referred', icon: Users,        color: '#0ea5e9', grad: 'linear-gradient(135deg,#0284c7,#38bdf8)', metric: function(u){ return u.personal_referrals || 0; }, metricLabel: 'Referrals' },
+  { key: 'grid',      label: 'Grid Members',     icon: Zap,           color: '#10b981', grad: 'linear-gradient(135deg,#059669,#34d399)', metric: function(u){ return u._grid_count || u.grid_count || 0; }, metricLabel: 'Grid' },
+  { key: 'courses',   label: 'Course Sales',     icon: GraduationCap, color: '#8b5cf6', grad: 'linear-gradient(135deg,#7c3aed,#a78bfa)', metric: function(u){ return u.course_sale_count || u._course_count || 0; }, metricLabel: 'Sales' },
+];
+
+var RANK_STYLES = [
+  { bg: 'linear-gradient(135deg,#fef3c7,#fde68a)', color: '#92400e', border: '#fcd34d', glow: 'rgba(251,191,36,0.4)' },
+  { bg: 'linear-gradient(135deg,#f1f5f9,#e2e8f0)', color: '#475569', border: '#cbd5e1', glow: 'rgba(148,163,184,0.4)' },
+  { bg: 'linear-gradient(135deg,#fed7aa,#fdba74)', color: '#9a3412', border: '#fb923c', glow: 'rgba(251,146,60,0.4)' },
+];
+
+function PodiumCard({ user, place, tab }) {
+  var heights = { 1: 110, 2: 80, 3: 60 };
+  var sizes =   { 1: 68,  2: 56, 3: 52 };
+  var medals =  { 1: '🥇', 2: '🥈', 3: '🥉' };
+  var rs = RANK_STYLES[place - 1];
+  var val = tab.metric(user);
+  var isFirst = place === 1;
+  return (
+    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', flex: isFirst ? '0 0 180px' : '0 0 150px' }}>
+      {isFirst ? <div style={{ fontSize:26, marginBottom:6, animation:'float 3s ease-in-out infinite' }}>👑</div> : <div style={{ height:38 }}/>}
+      <div style={{ position:'relative', marginBottom:10 }}>
+        <div style={{
+          width:sizes[place], height:sizes[place], borderRadius:sizes[place]*0.28,
+          background:tab.grad, display:'flex', alignItems:'center', justifyContent:'center',
+          fontSize:sizes[place]*0.42, fontWeight:800, color:'#fff', fontFamily:'Sora,sans-serif',
+          border:`3px solid ${rs.border}`, boxShadow:`0 0 ${isFirst?28:16}px ${rs.glow}`,
+        }}>{(user.first_name||user.username||'U')[0].toUpperCase()}</div>
+        <div style={{ position:'absolute', bottom:-8, right:-8, fontSize:isFirst?22:16 }}>{medals[place]}</div>
+      </div>
+      <div style={{ fontWeight:800, fontSize:isFirst?14:12, color:'#0f172a', textAlign:'center', marginBottom:2, maxWidth:130, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+        {user.first_name||user.username}
+      </div>
+      <div style={{ fontFamily:'Sora,sans-serif', fontSize:isFirst?20:15, fontWeight:900, color:tab.color, marginBottom:12 }}>{val}</div>
+      <div style={{ width:'100%', height:heights[place], background:`linear-gradient(180deg,${tab.color}20,${tab.color}06)`, border:`1px solid ${tab.color}25`, borderBottom:'none', borderRadius:'12px 12px 0 0', display:'flex', alignItems:'center', justifyContent:'center' }}>
+        <span style={{ fontFamily:'Sora,sans-serif', fontSize:isFirst?48:36, fontWeight:900, color:`${tab.color}18` }}>{place}</span>
+      </div>
+    </div>
+  );
+}
+
+function Spin() {
+  return <div style={{ display:'flex', justifyContent:'center', padding:80 }}><div style={{ width:40, height:40, border:'3px solid #e5e7eb', borderTopColor:'#0ea5e9', borderRadius:'50%', animation:'spin .8s linear infinite' }}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div>;
+}
 
 export default function Leaderboard() {
-  var { t } = useTranslation();
-  const { user } = useAuth();
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState('referrals');
+  var { user } = useAuth();
+  var [data, setData] = useState(null);
+  var [loading, setLoading] = useState(true);
+  var [tab, setTab] = useState('referrals');
 
-  useEffect(() => { apiGet('/api/leaderboard').then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, []);
+  useEffect(function() {
+    apiGet('/api/leaderboard').then(function(d){ setData(d); setLoading(false); }).catch(function(){ setLoading(false); });
+  }, []);
 
-  if (loading) return <AppLayout title="🏆 Affiliate Leaderboard"><Spin/></AppLayout>;
+  if (loading) return <AppLayout title="Leaderboard"><Spin/></AppLayout>;
 
-  const d = data || {};
-  const tabs = [
-    { key: 'referrals', icon: '👥', label: 'Members Referred', data: d.ref_leaders || [], metric: u => u.personal_referrals, metricLabel: 'Referrals', barColor: 'linear-gradient(90deg,#0ea5e9,#38bdf8)' },
-    { key: 'grid', icon: '⚡', label: 'Grid Members', data: d.grid_users || [], metric: u => u._grid_count || u.grid_count || 0, metricLabel: 'Grid Members', barColor: 'linear-gradient(90deg,#10b981,#059669)' },
-    { key: 'courses', icon: '🎓', label: 'Course Sales', data: d.course_users || [], metric: u => u.course_sale_count || u._course_count || 0, metricLabel: 'Sales', barColor: 'linear-gradient(90deg,#6366f1,#818cf8)' },
-  ];
-  const activeTab = tabs.find(t => t.key === tab) || tabs[0];
-  const leaders = activeTab.data;
-  const maxVal = leaders.length > 0 ? Math.max(1, activeTab.metric(leaders[0])) : 1;
+  var d = data || {};
+  var allData = { referrals: d.ref_leaders||[], grid: d.grid_users||[], courses: d.course_users||[] };
+  var activeTab = TABS.find(function(t){ return t.key===tab; })||TABS[0];
+  var leaders = allData[tab]||[];
+  var maxVal = leaders.length>0 ? Math.max(1, activeTab.metric(leaders[0])) : 1;
+  var myRank = leaders.findIndex(function(u){ return u.id===user?.id; });
 
   return (
-    <AppLayout title="🏆 Affiliate Leaderboard" subtitle="Top performers across the SuperAdPro network">
-      {/* Tabs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 24 }}>
-        {tabs.map(t => (
-          <div key={t.key} onClick={() => setTab(t.key)} style={{
-            background: tab === t.key ? '#fff' : '#f8f9fb', border: tab === t.key ? '2px solid #0ea5e9' : '1px solid #e5e7eb',
-            borderRadius: 8, padding: '16px 20px', cursor: 'pointer', transition: 'all .15s', textAlign: 'center',
-            boxShadow: tab === t.key ? '0 4px 12px rgba(14,165,233,0.15)' : 'none',
-          }}>
-            <div style={{ fontSize: 24, marginBottom: 4 }}>{t.icon}</div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: tab === t.key ? '#0f172a' : '#7b91a8' }}>{t.label}</div>
-            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{t.data.length} on the board</div>
-          </div>
-        ))}
-      </div>
+    <AppLayout title="Leaderboard" subtitle="Top performers across the SuperAdPro network">
+      <style>{`
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+      `}</style>
 
-      {/* Podium */}
-      {leaders.length >= 3 && (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 16, marginBottom: 24 }}>
-          {[{ idx: 1, w: 150, h: 80, color: '#94a3b8', medal: '🥈' }, { idx: 0, w: 170, h: 110, color: '#fbbf24', medal: '🥇' }, { idx: 2, w: 150, h: 60, color: '#d97706', medal: '🥉' }].map(p => {
-            const u = leaders[p.idx];
+      {/* ── Hero ── */}
+      <div style={{ background:'linear-gradient(135deg,#0c1a3a 0%,#1a1050 50%,#0c1a3a 100%)', borderRadius:20, padding:'32px 36px', marginBottom:24, position:'relative', overflow:'hidden' }}>
+        {[...Array(8)].map(function(_,i){
+          return <div key={i} style={{ position:'absolute', borderRadius:'50%', width:[6,8,5,10,6,4,8,5][i], height:[6,8,5,10,6,4,8,5][i], background:activeTab.color, opacity:0.12+(i%3)*0.08, left:`${[8,18,35,55,70,82,90,45][i]}%`, top:`${[20,70,40,15,60,30,75,85][i]}%`, animation:`float ${2.5+i*0.4}s ease-in-out infinite`, animationDelay:`${i*0.3}s` }}/>;
+        })}
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:16, position:'relative' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:16 }}>
+            <div style={{ width:56, height:56, borderRadius:16, background:'linear-gradient(135deg,#fbbf24,#f59e0b)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 24px rgba(251,191,36,0.4)' }}>
+              <Trophy size={28} color="#fff"/>
+            </div>
+            <div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:900, color:'#fff' }}>Affiliate <span style={{ color:'#fbbf24' }}>Leaderboard</span></div>
+              <div style={{ fontSize:13, color:'rgba(255,255,255,0.5)', marginTop:2 }}>Top performers across the SuperAdPro network</div>
+            </div>
+          </div>
+          {myRank>=0 && (
+            <div style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:14, padding:'12px 20px', textAlign:'center' }}>
+              <div style={{ fontSize:10, fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:1, textTransform:'uppercase', marginBottom:4 }}>Your Rank</div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#fbbf24' }}>#{myRank+1}</div>
+              <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:2 }}>of {leaders.length}</div>
+            </div>
+          )}
+        </div>
+
+        {/* Category tabs inside hero */}
+        <div style={{ display:'flex', gap:10, marginTop:24, position:'relative' }}>
+          {TABS.map(function(t){
+            var count=(allData[t.key]||[]).length;
+            var Icon=t.icon;
+            var isActive=tab===t.key;
             return (
-              <div key={p.idx} style={{ width: p.w, textAlign: 'center' }}>
-                <div style={{ fontSize: 20, marginBottom: 4 }}>🌍</div>
-                <div style={{ width: 48, height: 48, borderRadius: 14, background: 'linear-gradient(135deg,#0284c7,#0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 800, color: '#fff', margin: '0 auto 8px' }}>{p.idx + 1}</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 2 }}>{u.first_name || u.username}</div>
-                <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, color: '#0ea5e9', marginBottom: 8 }}>{activeTab.metric(u)}</div>
-                <div style={{ height: p.h, background: `linear-gradient(180deg,${p.color}22,${p.color}11)`, borderRadius: '12px 12px 0 0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ fontSize: p.idx === 0 ? 32 : 26, fontWeight: 800, color: `${p.color}50` }}>{p.idx + 1}</span>
+              <div key={t.key} onClick={function(){ setTab(t.key); }} style={{ flex:1, background:isActive?'rgba(255,255,255,0.1)':'rgba(255,255,255,0.04)', border:isActive?`1px solid ${t.color}60`:'1px solid rgba(255,255,255,0.06)', borderRadius:12, padding:'14px 16px', cursor:'pointer', transition:'all .2s', boxShadow:isActive?`0 0 20px ${t.color}20`:'none' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
+                  <div style={{ width:28, height:28, borderRadius:8, background:isActive?t.grad:'rgba(255,255,255,0.06)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <Icon size={14} color={isActive?'#fff':'rgba(255,255,255,0.3)'}/>
+                  </div>
+                  <span style={{ fontSize:11, fontWeight:700, color:isActive?'#fff':'rgba(255,255,255,0.4)' }}>{t.label}</span>
                 </div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:900, color:isActive?t.color:'rgba(255,255,255,0.2)' }}>{count}</div>
+                <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:2 }}>on the board</div>
               </div>
             );
           })}
         </div>
-      )}
+      </div>
 
-      {/* Table */}
-      {leaders.length > 0 ? (
-        <div style={{ background: '#fff', border: '1px solid rgba(15,25,60,.08)', borderRadius: 8, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead><tr>
-              {['Rank', 'Member', 'Tier', activeTab.metricLabel].map((h, i) => (
-                <th key={h} style={{ fontSize: 11, fontWeight: 800, color: '#7b91a8', textTransform: 'uppercase', letterSpacing: 1, padding: '11px 14px', borderBottom: '1px solid rgba(15,25,60,.08)', textAlign: i === 3 ? 'right' : 'left', background: '#f6f8fc', ...(i === 0 ? { width: 60 } : {}) }}>{h}</th>
-              ))}
-            </tr></thead>
-            <tbody>
-              {leaders.slice(0, 20).map((u, i) => {
-                const isMe = u.id === user?.id;
-                const val = activeTab.metric(u);
-                const rankColors = { 0: { bg: 'linear-gradient(135deg,#fef3c7,#fde68a)', color: '#b45309', border: '#fcd34d' }, 1: { bg: 'linear-gradient(135deg,#f1f5f9,#e2e8f0)', color: '#64748b', border: '#cbd5e1' }, 2: { bg: 'linear-gradient(135deg,#fed7aa,#fdba74)', color: '#9a3412', border: '#fb923c' } };
-                const rc = rankColors[i] || { bg: '#f8f9fb', color: '#94a3b8', border: '#e5e7eb' };
-                return (
-                  <tr key={u.id || i} style={{ background: isMe ? 'rgba(14,165,233,.04)' : 'transparent' }}>
-                    <td style={{ padding: '10px 14px', borderBottom: '1px solid rgba(15,25,60,.05)' }}>
-                      <div style={{ width: 32, height: 32, borderRadius: 8, background: rc.bg, border: `1px solid ${rc.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Sora,sans-serif', fontSize: 13, fontWeight: 800, color: rc.color }}>{i + 1}</div>
-                    </td>
-                    <td style={{ padding: '10px 14px', borderBottom: '1px solid rgba(15,25,60,.05)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#0284c7,#0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#fff', flexShrink: 0 }}>{(u.first_name || u.username || 'U')[0].toUpperCase()}</div>
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{u.first_name || u.username}{isMe && <span style={{ fontSize: 12, color: '#f59e0b' }}> (You)</span>}</div>
-                          <div style={{ fontSize: 11, color: '#94a3b8' }}>@{u.username}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: '10px 14px', borderBottom: '1px solid rgba(15,25,60,.05)' }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 6, background: 'rgba(14,165,233,.08)', color: '#0284c7' }}>Tier {u.grid_tier || 0}</span>
-                    </td>
-                    <td style={{ padding: '10px 14px', borderBottom: '1px solid rgba(15,25,60,.05)', textAlign: 'right' }}>
-                      <span style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: '#0f172a' }}>{val}</span>
-                      <div style={{ height: 4, background: '#eef1f8', borderRadius: 99, marginTop: 4, overflow: 'hidden' }}>
-                        <div style={{ height: '100%', background: activeTab.barColor, borderRadius: 99, width: `${(val / maxVal) * 100}%` }} />
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+      {leaders.length===0 ? (
+        <div style={{ textAlign:'center', padding:'64px 32px', background:'#fff', borderRadius:16, border:'1px solid #e8ecf2' }}>
+          <div style={{ fontSize:56, marginBottom:12, opacity:0.25 }}>🏆</div>
+          <div style={{ fontSize:18, fontWeight:800, color:'#0f172a', marginBottom:6 }}>No activity yet</div>
+          <div style={{ fontSize:13, color:'#94a3b8' }}>Be the first to appear on this leaderboard!</div>
         </div>
       ) : (
-        <div style={{ textAlign: 'center', padding: 48, color: '#94a3b8' }}>
-          <div style={{ fontSize: 36, marginBottom: 8 }}>{activeTab.icon}</div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: '#3d5068', marginBottom: 4 }}>No activity yet</div>
-          <div style={{ fontSize: 13, color: '#7b91a8' }}>Be the first to appear on this leaderboard!</div>
-        </div>
+        <>
+          {/* ── Podium ── */}
+          {leaders.length>=3 && (
+            <div style={{ background:'#fff', borderRadius:20, border:'1px solid #e8ecf2', padding:'28px 24px 0', marginBottom:20, overflow:'hidden', boxShadow:'0 4px 24px rgba(0,0,0,0.06)' }}>
+              <div style={{ textAlign:'center', marginBottom:20 }}>
+                <span style={{ fontSize:11, fontWeight:800, letterSpacing:2, textTransform:'uppercase', color:'#94a3b8' }}>Top Performers</span>
+              </div>
+              <div style={{ display:'flex', justifyContent:'center', alignItems:'flex-end', gap:8 }}>
+                <PodiumCard user={leaders[1]} place={2} tab={activeTab}/>
+                <PodiumCard user={leaders[0]} place={1} tab={activeTab}/>
+                <PodiumCard user={leaders[2]} place={3} tab={activeTab}/>
+              </div>
+            </div>
+          )}
+
+          {/* ── Rankings Table ── */}
+          <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e8ecf2', overflow:'hidden', boxShadow:'0 4px 24px rgba(0,0,0,0.06)', animation:'fadeUp .3s ease-out' }}>
+            <div style={{ padding:'16px 20px', borderBottom:'1px solid #f1f5f9', display:'flex', alignItems:'center', gap:8 }}>
+              <TrendingUp size={16} color={activeTab.color}/>
+              <span style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'#0f172a' }}>Full Rankings</span>
+              <span style={{ fontSize:11, color:'#94a3b8', marginLeft:4 }}>— {activeTab.label}</span>
+            </div>
+            <table style={{ width:'100%', borderCollapse:'collapse' }}>
+              <thead>
+                <tr style={{ background:'#f8f9fb' }}>
+                  {['Rank','Member','Tier',activeTab.metricLabel,'Progress'].map(function(h,i){
+                    return <th key={h} style={{ fontSize:10, fontWeight:800, color:'#94a3b8', textTransform:'uppercase', letterSpacing:1, padding:'10px 16px', borderBottom:'1px solid #e8ecf2', textAlign:i>=3?'right':'left' }}>{h}</th>;
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {leaders.slice(0,20).map(function(u,i){
+                  var isMe=u.id===user?.id;
+                  var val=activeTab.metric(u);
+                  var pct=Math.round((val/maxVal)*100);
+                  var rs=RANK_STYLES[i]||null;
+                  var medals=['🥇','🥈','🥉'];
+                  return (
+                    <tr key={u.id||i}
+                      style={{ background:isMe?`${activeTab.color}08`:'transparent', borderLeft:isMe?`3px solid ${activeTab.color}`:'3px solid transparent', transition:'background .15s' }}
+                      onMouseEnter={function(e){if(!isMe)e.currentTarget.style.background='#fafbfc';}}
+                      onMouseLeave={function(e){if(!isMe)e.currentTarget.style.background='transparent';}}
+                    >
+                      <td style={{ padding:'12px 16px', borderBottom:'1px solid #f5f6f8' }}>
+                        {i<3 ? (
+                          <div style={{ width:34, height:34, borderRadius:10, background:rs.bg, border:`1px solid ${rs.border}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, boxShadow:`0 2px 8px ${rs.glow}` }}>{medals[i]}</div>
+                        ) : (
+                          <div style={{ width:34, height:34, borderRadius:10, background:'#f8f9fb', border:'1px solid #e8ecf2', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Sora,sans-serif', fontSize:13, fontWeight:800, color:'#94a3b8' }}>{i+1}</div>
+                        )}
+                      </td>
+                      <td style={{ padding:'12px 16px', borderBottom:'1px solid #f5f6f8' }}>
+                        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                          <div style={{ width:38, height:38, borderRadius:11, background:i<3?activeTab.grad:'linear-gradient(135deg,#e2e8f0,#cbd5e1)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, fontWeight:800, color:i<3?'#fff':'#64748b', flexShrink:0, fontFamily:'Sora,sans-serif', boxShadow:i<3?`0 2px 8px ${activeTab.color}30`:'none' }}>
+                            {(u.first_name||u.username||'U')[0].toUpperCase()}
+                          </div>
+                          <div>
+                            <div style={{ fontSize:13, fontWeight:700, color:'#0f172a', display:'flex', alignItems:'center', gap:6 }}>
+                              {u.first_name||u.username}
+                              {isMe && <span style={{ fontSize:10, fontWeight:700, padding:'2px 7px', borderRadius:5, background:`${activeTab.color}15`, color:activeTab.color }}>You</span>}
+                              {i===0 && <Crown size={12} color="#f59e0b"/>}
+                            </div>
+                            <div style={{ fontSize:11, color:'#94a3b8' }}>@{u.username}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ padding:'12px 16px', borderBottom:'1px solid #f5f6f8' }}>
+                        <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:`${activeTab.color}10`, color:activeTab.color, border:`1px solid ${activeTab.color}20` }}>Tier {u.grid_tier||0}</span>
+                      </td>
+                      <td style={{ padding:'12px 16px', borderBottom:'1px solid #f5f6f8', textAlign:'right' }}>
+                        <span style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:900, color:i<3?activeTab.color:'#0f172a' }}>{val}</span>
+                        <div style={{ fontSize:9, color:'#94a3b8', fontWeight:600, marginTop:1 }}>{activeTab.metricLabel}</div>
+                      </td>
+                      <td style={{ padding:'12px 16px', borderBottom:'1px solid #f5f6f8', textAlign:'right', width:140 }}>
+                        <div style={{ display:'flex', alignItems:'center', gap:8, justifyContent:'flex-end' }}>
+                          <div style={{ flex:1, height:6, background:'#f1f5f9', borderRadius:99, overflow:'hidden', minWidth:80 }}>
+                            <div style={{ height:'100%', borderRadius:99, background:i<3?activeTab.grad:`${activeTab.color}60`, width:`${pct}%`, transition:'width .8s ease-out' }}/>
+                          </div>
+                          <span style={{ fontSize:10, fontWeight:700, color:'#94a3b8', minWidth:28, textAlign:'right' }}>{pct}%</span>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {leaders.length>20 && (
+              <div style={{ padding:'12px 20px', textAlign:'center', fontSize:12, color:'#94a3b8', borderTop:'1px solid #f1f5f9' }}>
+                Showing top 20 of {leaders.length} members
+              </div>
+            )}
+          </div>
+        </>
       )}
     </AppLayout>
   );
 }
-function Spin() { return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>; }
