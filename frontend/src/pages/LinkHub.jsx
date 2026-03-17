@@ -177,7 +177,7 @@ export default function LinkHub() {
               <div style={{fontSize:20,fontWeight:800,color:style.text_color}}>{profile.display_name||'Your Name'}</div>
               <div style={{fontSize:13,color:style.bio_color||style.text_color,opacity:style.bio_color?1:.6,marginBottom:28,lineHeight:1.5,marginTop:4}}>{profile.bio||'Your bio here'}</div>
               {/* Links — draggable in phone preview */}
-              <div style={{display:'flex',flexDirection:'column',gap:10}}>
+              <div style={{display:'flex',flexDirection:'column',gap:10,maxWidth:280,margin:'0 auto'}}>
                 {links.filter(function(l){return l.is_active;}).map(function(link, visIdx) {
                   var isFilled = style.btn_style_type!=='outline';
                   var isDragging = phoneDrag === visIdx;
@@ -198,7 +198,7 @@ export default function LinkHub() {
                         setPhoneDrag(visIdx);
                       }}
                       onDragEnd={function(){setPhoneDrag(-1);}}
-                      style={{padding:'14px 18px',borderRadius:btnRadius,
+                      style={{padding:'12px 16px',borderRadius:btnRadius,
                         background:isFilled?style.btn_color:'transparent',
                         border:isFilled?(isDragging?'2px solid '+style.accent_color:'none'):'2px solid '+style.btn_color,
                         display:'flex',alignItems:'center',gap:10,textAlign:style.btn_align||'center',
