@@ -16,11 +16,11 @@ export default function PassupVisualiser() {
   var { t } = useTranslation();
   var [tab, setTab] = useState('passup');
 
-  var visBg = {background:'linear-gradient(135deg,#1a0a2e,#120828,#0f0620)',minHeight:'100vh'};
+  var visBg = {background:'linear-gradient(135deg,#042f1a,#0a1f14,#071a10)',minHeight:'100vh'};
 
   return (
     <AppLayout title={t("visualiser.title")} subtitle={t("visualiser.subtitle")} bgStyle={visBg}>
-      <div style={{display:'flex',gap:6,marginBottom:24,borderBottom:'2px solid rgba(139,92,246,.2)',paddingBottom:0}}>
+      <div style={{display:'flex',gap:6,marginBottom:24,borderBottom:'2px solid rgba(16,185,129,.2)',paddingBottom:0}}>
         {TABS.map(function(t) {
           var Icon = t.icon;
           var active = tab === t.key;
@@ -28,7 +28,7 @@ export default function PassupVisualiser() {
             <button key={t.key} onClick={function() { setTab(t.key); }}
               style={{display:'flex',alignItems:'center',gap:6,padding:'12px 20px',fontSize:13,fontWeight:active?800:600,
                 border:'none',borderBottom:active?'3px solid '+t.color:'3px solid transparent',
-                cursor:'pointer',fontFamily:'inherit',background:active?'rgba(139,92,246,.1)':'transparent',
+                cursor:'pointer',fontFamily:'inherit',background:active?'rgba(16,185,129,.1)':'transparent',
                 color:active?t.color:'rgba(255,255,255,.4)',marginBottom:-2,borderRadius:'8px 8px 0 0',transition:'all .2s'}}>
               <Icon size={15}/>{t.label}
             </button>
