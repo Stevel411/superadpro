@@ -55,6 +55,7 @@ import Funnels from './pages/Funnels';
 import CourseCreate from './pages/CourseCreate';
 import CourseEditor from './pages/CourseEditor';
 import LinkHubPage from './pages/LinkHub';
+import SuperMarketCreate from './pages/SuperMarketCreate';
 import SuperPagesEditor from './pages/superpages/SuperPagesEditor';
 import ActivateTier from './pages/ActivateTier';
 
@@ -86,6 +87,7 @@ function AppRoutes() {
       <Route path="/campaign-tiers" element={<ProtectedRoute><CampaignTiers /></ProtectedRoute>} />
       <Route path="/activate/:tierId" element={<ProtectedRoute><ActivateTier /></ProtectedRoute>} />
       <Route path="/marketplace" element={<Marketplace />} />
+      <Route path="/supermarket/create" element={<ProtectedRoute><SuperMarketCreate /></ProtectedRoute>} />
       <Route path="/courses/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
       <Route path="/watch" element={<ProtectedRoute><Watch /></ProtectedRoute>} />
       <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />

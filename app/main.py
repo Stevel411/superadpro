@@ -23,6 +23,7 @@ from .database import (
 from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker, CourseChapter, CourseLesson, CourseProgress
 from .coinbase_commerce import create_charge as cb_create_charge, verify_webhook_signature as cb_verify_sig, parse_webhook_event as cb_parse_event, SANDBOX_MODE as CB_SANDBOX
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick, Notification, Achievement, BADGES
+from .database import DigitalProduct, DigitalProductPurchase, DigitalProductReview, DigitalProductAffiliate
 from .database import MemberCourse, MemberCourseChapter, MemberCourseLesson, MemberCoursePurchase
 from .crud import create_user, verify_password
 from .grid import (
@@ -11905,6 +11906,428 @@ def api_my_marketplace_courses(request: Request, user: User = Depends(get_curren
         "total_duration_mins": c.total_duration_mins or 0,
         "total_sales": c.total_sales or 0, "total_revenue": float(c.total_revenue or 0),
     } for c in courses]}
+
+
+# ═══════════════════════════════════════════════════════════════
+#  SUPERMARKET — Digital Product Marketplace APIs (50/25/25)
+# ═══════════════════════════════════════════════════════════════
+
+def _serialize_product(p, creator=None):
+    """Serialize a DigitalProduct for API response."""
+    import json as _j
+    return {
+        "id": p.id, "title": p.title, "slug": p.slug,
+        "short_description": p.short_description or "",
+        "description": p.description or "",
+        "price": float(p.price), "compare_price": float(p.compare_price) if p.compare_price else None,
+        "banner_url": p.banner_url or "", "category": p.category or "other",
+        "tags": (p.tags or "").split(",") if p.tags else [],
+        "file_name": p.file_name or "", "file_size_bytes": p.file_size_bytes or 0,
+        "bonus_file_name": p.bonus_file_name or "",
+        "features": _safe_json(p.features_json), "faq": _safe_json(p.faq_json),
+        "demo_url": p.demo_url or "", "video_url": p.video_url or "",
+        "affiliate_commission": p.affiliate_commission or 25,
+        "affiliate_approved_only": p.affiliate_approved_only or False,
+        "promo_materials": _safe_json(p.promo_materials_json),
+        "status": p.status, "total_sales": p.total_sales or 0,
+        "total_revenue": float(p.total_revenue or 0),
+        "total_clicks": p.total_clicks or 0,
+        "conversion_rate": float(p.conversion_rate or 0),
+        "avg_rating": float(p.avg_rating or 0), "review_count": p.review_count or 0,
+        "is_featured": p.is_featured or False,
+        "creator_id": p.creator_id,
+        "creator_name": (creator.first_name or creator.username) if creator else "Member",
+        "created_at": p.created_at.isoformat() if p.created_at else None,
+        "published_at": p.published_at.isoformat() if p.published_at else None,
+    }
+
+
+def _safe_json(s):
+    import json as _j
+    if not s: return []
+    try: return _j.loads(s)
+    except Exception: return []
+
+
+@app.get("/api/supermarket/browse")
+def api_supermarket_browse(db: Session = Depends(get_db)):
+    """Public: browse published SuperMarket digital products."""
+    products = db.query(DigitalProduct).filter(
+        DigitalProduct.status == "published"
+    ).order_by(DigitalProduct.created_at.desc()).all()
+    creators = {}
+    cids = list(set(p.creator_id for p in products))
+    if cids:
+        for u in db.query(User).filter(User.id.in_(cids)).all():
+            creators[u.id] = u
+    return {"products": [_serialize_product(p, creators.get(p.creator_id)) for p in products]}
+
+
+@app.get("/api/supermarket/product/{product_id}")
+def api_supermarket_product(product_id: int, db: Session = Depends(get_db)):
+    """Get full product detail."""
+    p = db.query(DigitalProduct).filter(DigitalProduct.id == product_id).first()
+    if not p:
+        return JSONResponse({"error": "Product not found"}, status_code=404)
+    creator = db.query(User).filter(User.id == p.creator_id).first()
+    data = _serialize_product(p, creator)
+    # Add reviews
+    reviews = db.query(DigitalProductReview).filter(
+        DigitalProductReview.product_id == product_id
+    ).order_by(DigitalProductReview.created_at.desc()).limit(20).all()
+    data["reviews"] = [{
+        "id": r.id, "rating": r.rating, "title": r.title or "", "comment": r.comment or "",
+        "is_verified": r.is_verified, "created_at": r.created_at.isoformat() if r.created_at else None,
+    } for r in reviews]
+    return data
+
+
+@app.get("/api/supermarket/my-products")
+def api_supermarket_my_products(request: Request, user: User = Depends(get_current_user),
+                                 db: Session = Depends(get_db)):
+    """List current user's SuperMarket products."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    products = db.query(DigitalProduct).filter(
+        DigitalProduct.creator_id == user.id
+    ).order_by(DigitalProduct.created_at.desc()).all()
+    return {"products": [_serialize_product(p) for p in products]}
+
+
+@app.post("/api/supermarket/products")
+async def api_supermarket_create(request: Request, user: User = Depends(get_current_user),
+                                  db: Session = Depends(get_db)):
+    """Create a new SuperMarket digital product (draft)."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    title = (body.get("title") or "").strip()
+    if not title or len(title) < 5:
+        return JSONResponse({"error": "Title must be at least 5 characters"}, status_code=400)
+    price = float(body.get("price", 0))
+    if price < 5:
+        return JSONResponse({"error": "Minimum price is $5"}, status_code=400)
+
+    import re as _re_dp, json as _j_dp
+    raw_slug = _re_dp.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
+    slug = f"{user.username.lower()}/{raw_slug}"
+    existing = db.query(DigitalProduct).filter(DigitalProduct.slug == slug).first()
+    if existing:
+        return JSONResponse({"error": "A product with this title already exists"}, status_code=400)
+
+    p = DigitalProduct(
+        creator_id=user.id, title=title, slug=slug,
+        short_description=(body.get("short_description") or "")[:200],
+        description=body.get("description") or "",
+        price=price,
+        compare_price=float(body.get("compare_price", 0)) or None,
+        banner_url=body.get("banner_url") or "",
+        category=body.get("category") or "other",
+        tags=body.get("tags") or "",
+        video_url=body.get("video_url") or "",
+        demo_url=body.get("demo_url") or "",
+        features_json=_j_dp.dumps(body.get("features") or []),
+        faq_json=_j_dp.dumps(body.get("faq") or []),
+        affiliate_commission=int(body.get("affiliate_commission", 25)),
+        creator_agreed_terms=body.get("agreed_terms", False),
+        creator_agreed_at=datetime.utcnow() if body.get("agreed_terms") else None,
+        status="draft",
+    )
+    db.add(p)
+    db.commit()
+    db.refresh(p)
+    return {"ok": True, "product_id": p.id, "slug": p.slug}
+
+
+@app.put("/api/supermarket/products/{product_id}")
+async def api_supermarket_update(product_id: int, request: Request, user: User = Depends(get_current_user),
+                                  db: Session = Depends(get_db)):
+    """Update a SuperMarket product."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    p = db.query(DigitalProduct).filter(
+        DigitalProduct.id == product_id, DigitalProduct.creator_id == user.id
+    ).first()
+    if not p:
+        return JSONResponse({"error": "Product not found"}, status_code=404)
+    import json as _j_up
+    body = await request.json()
+    for field in ["title","short_description","description","category","tags","video_url","demo_url","banner_url"]:
+        if field in body:
+            setattr(p, field, (body[field] or "").strip() if isinstance(body.get(field), str) else body.get(field))
+    if "price" in body:
+        p.price = max(5, float(body["price"]))
+    if "compare_price" in body:
+        p.compare_price = float(body["compare_price"]) if body["compare_price"] else None
+    if "features" in body:
+        p.features_json = _j_up.dumps(body["features"])
+    if "faq" in body:
+        p.faq_json = _j_up.dumps(body["faq"])
+    if "affiliate_commission" in body:
+        p.affiliate_commission = max(0, min(100, int(body["affiliate_commission"])))
+    if "affiliate_approved_only" in body:
+        p.affiliate_approved_only = bool(body["affiliate_approved_only"])
+    p.updated_at = datetime.utcnow()
+    db.commit()
+    return {"ok": True}
+
+
+@app.post("/api/supermarket/products/{product_id}/upload")
+async def api_supermarket_upload_file(product_id: int, request: Request, user: User = Depends(get_current_user),
+                                       db: Session = Depends(get_db)):
+    """Upload the main product file or bonus file."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    p = db.query(DigitalProduct).filter(
+        DigitalProduct.id == product_id, DigitalProduct.creator_id == user.id
+    ).first()
+    if not p:
+        return JSONResponse({"error": "Product not found"}, status_code=404)
+    body = await request.json()
+    file_type = body.get("type", "main")  # main or bonus
+    file_data = body.get("data")          # base64
+    file_name = body.get("name", "file")
+    file_size = body.get("size", 0)
+    if not file_data:
+        return JSONResponse({"error": "No file data"}, status_code=400)
+    if file_type == "bonus":
+        p.bonus_file_url = file_data
+        p.bonus_file_name = file_name
+    else:
+        p.file_url = file_data
+        p.file_name = file_name
+        p.file_size_bytes = file_size
+    p.updated_at = datetime.utcnow()
+    db.commit()
+    return {"ok": True, "file_name": file_name}
+
+
+@app.post("/api/supermarket/products/{product_id}/submit")
+async def api_supermarket_submit(product_id: int, request: Request, user: User = Depends(get_current_user),
+                                  db: Session = Depends(get_db)):
+    """Submit product for review."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    p = db.query(DigitalProduct).filter(
+        DigitalProduct.id == product_id, DigitalProduct.creator_id == user.id
+    ).first()
+    if not p:
+        return JSONResponse({"error": "Product not found"}, status_code=404)
+    errors = []
+    if not p.title or len(p.title) < 5: errors.append("Title too short")
+    if not p.description or len(p.description) < 50: errors.append("Description must be 50+ characters")
+    if not p.file_url: errors.append("Product file is required")
+    if not p.banner_url: errors.append("Banner image is required")
+    if p.price < 5: errors.append("Minimum price is $5")
+    if not p.creator_agreed_terms: errors.append("Must agree to seller terms")
+    if errors:
+        return JSONResponse({"error": "Quality checks failed", "issues": errors}, status_code=400)
+    p.status = "pending_review"
+    p.updated_at = datetime.utcnow()
+    db.commit()
+    return {"ok": True, "status": "pending_review"}
+
+
+@app.delete("/api/supermarket/products/{product_id}")
+def api_supermarket_delete(product_id: int, user: User = Depends(get_current_user),
+                            db: Session = Depends(get_db)):
+    """Delete a SuperMarket product (only drafts)."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    p = db.query(DigitalProduct).filter(
+        DigitalProduct.id == product_id, DigitalProduct.creator_id == user.id
+    ).first()
+    if not p:
+        return JSONResponse({"error": "Product not found"}, status_code=404)
+    if p.status == "published" and p.total_sales > 0:
+        return JSONResponse({"error": "Cannot delete a product with sales"}, status_code=400)
+    db.delete(p)
+    db.commit()
+    return {"ok": True}
+
+
+@app.post("/api/supermarket/purchase/{product_id}")
+async def api_supermarket_purchase(product_id: int, request: Request,
+                                    user: User = Depends(get_current_user),
+                                    db: Session = Depends(get_db)):
+    """Purchase a SuperMarket digital product."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    p = db.query(DigitalProduct).filter(DigitalProduct.id == product_id, DigitalProduct.status == "published").first()
+    if not p:
+        return JSONResponse({"error": "Product not found"}, status_code=404)
+    body = await request.json()
+    affiliate_id = body.get("affiliate_id")
+
+    import secrets
+    token = secrets.token_urlsafe(32)
+    creator_amt = round(float(p.price) * 0.50, 2)
+    affiliate_amt = round(float(p.price) * 0.25, 2)
+    platform_amt = round(float(p.price) * 0.25, 2)
+
+    purchase = DigitalProductPurchase(
+        product_id=p.id, buyer_id=user.id, buyer_email=user.email,
+        buyer_name=user.first_name or user.username,
+        amount_paid=float(p.price),
+        creator_commission=creator_amt, affiliate_commission=affiliate_amt,
+        platform_commission=platform_amt, affiliate_id=affiliate_id,
+        download_token=token, status="completed",
+    )
+    db.add(purchase)
+
+    # Credit commissions
+    creator = db.query(User).filter(User.id == p.creator_id).first()
+    if creator:
+        creator.balance = (creator.balance or 0) + creator_amt
+        creator.total_earned = (creator.total_earned or 0) + creator_amt
+        creator.marketplace_earnings = (creator.marketplace_earnings or 0) + creator_amt
+    if affiliate_id:
+        affiliate = db.query(User).filter(User.id == affiliate_id).first()
+        if affiliate:
+            affiliate.balance = (affiliate.balance or 0) + affiliate_amt
+            affiliate.total_earned = (affiliate.total_earned or 0) + affiliate_amt
+            affiliate.marketplace_earnings = (affiliate.marketplace_earnings or 0) + affiliate_amt
+            # Update affiliate stats
+            aff_rec = db.query(DigitalProductAffiliate).filter(
+                DigitalProductAffiliate.product_id == p.id,
+                DigitalProductAffiliate.user_id == affiliate_id
+            ).first()
+            if aff_rec:
+                aff_rec.sales = (aff_rec.sales or 0) + 1
+                aff_rec.earnings = (aff_rec.earnings or 0) + affiliate_amt
+
+    p.total_sales = (p.total_sales or 0) + 1
+    p.total_revenue = (p.total_revenue or 0) + float(p.price)
+    db.commit()
+    return {"ok": True, "download_token": token}
+
+
+@app.get("/api/supermarket/download/{token}")
+def api_supermarket_download(token: str, user: User = Depends(get_current_user),
+                              db: Session = Depends(get_db)):
+    """Get download URL for a purchased product."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    purchase = db.query(DigitalProductPurchase).filter(
+        DigitalProductPurchase.download_token == token,
+        DigitalProductPurchase.buyer_id == user.id,
+        DigitalProductPurchase.status == "completed"
+    ).first()
+    if not purchase:
+        return JSONResponse({"error": "Invalid download token"}, status_code=404)
+    product = db.query(DigitalProduct).filter(DigitalProduct.id == purchase.product_id).first()
+    if not product or not product.file_url:
+        return JSONResponse({"error": "File not available"}, status_code=404)
+    purchase.download_count = (purchase.download_count or 0) + 1
+    db.commit()
+    return {
+        "file_url": product.file_url, "file_name": product.file_name or "download",
+        "bonus_file_url": product.bonus_file_url or None,
+        "bonus_file_name": product.bonus_file_name or None,
+    }
+
+
+@app.post("/api/supermarket/products/{product_id}/review")
+async def api_supermarket_review(product_id: int, request: Request,
+                                  user: User = Depends(get_current_user),
+                                  db: Session = Depends(get_db)):
+    """Submit a review for a purchased product."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    # Verify purchase
+    purchase = db.query(DigitalProductPurchase).filter(
+        DigitalProductPurchase.product_id == product_id,
+        DigitalProductPurchase.buyer_id == user.id,
+        DigitalProductPurchase.status == "completed"
+    ).first()
+    if not purchase:
+        return JSONResponse({"error": "Must purchase product to review"}, status_code=403)
+    # Check if already reviewed
+    existing = db.query(DigitalProductReview).filter(
+        DigitalProductReview.product_id == product_id,
+        DigitalProductReview.buyer_id == user.id
+    ).first()
+    if existing:
+        return JSONResponse({"error": "Already reviewed"}, status_code=400)
+    body = await request.json()
+    rating = max(1, min(5, int(body.get("rating", 5))))
+    review = DigitalProductReview(
+        product_id=product_id, buyer_id=user.id, rating=rating,
+        title=(body.get("title") or "")[:100],
+        comment=(body.get("comment") or "")[:1000],
+        is_verified=True,
+    )
+    db.add(review)
+    # Update product avg rating
+    p = db.query(DigitalProduct).filter(DigitalProduct.id == product_id).first()
+    if p:
+        all_reviews = db.query(DigitalProductReview).filter(DigitalProductReview.product_id == product_id).all()
+        total = sum(r.rating for r in all_reviews) + rating
+        count = len(all_reviews) + 1
+        p.avg_rating = round(total / count, 2)
+        p.review_count = count
+    db.commit()
+    return {"ok": True}
+
+
+@app.get("/api/supermarket/affiliate/{product_id}")
+def api_supermarket_affiliate_link(product_id: int, user: User = Depends(get_current_user),
+                                    db: Session = Depends(get_db)):
+    """Get or create affiliate link for a product."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    p = db.query(DigitalProduct).filter(DigitalProduct.id == product_id).first()
+    if not p:
+        return JSONResponse({"error": "Product not found"}, status_code=404)
+    # Check if approved (if required)
+    if p.affiliate_approved_only:
+        aff = db.query(DigitalProductAffiliate).filter(
+            DigitalProductAffiliate.product_id == product_id,
+            DigitalProductAffiliate.user_id == user.id
+        ).first()
+        if not aff or aff.status != "approved":
+            return JSONResponse({"error": "Affiliate approval required"}, status_code=403)
+    # Create affiliate record if not exists
+    aff = db.query(DigitalProductAffiliate).filter(
+        DigitalProductAffiliate.product_id == product_id,
+        DigitalProductAffiliate.user_id == user.id
+    ).first()
+    if not aff:
+        aff = DigitalProductAffiliate(product_id=product_id, user_id=user.id, status="approved")
+        db.add(aff)
+        p.total_affiliates = (p.total_affiliates or 0) + 1
+        db.commit()
+    return {
+        "affiliate_link": f"/supermarket/product/{product_id}?ref={user.username}",
+        "commission": p.affiliate_commission or 25,
+        "clicks": aff.clicks or 0, "sales": aff.sales or 0,
+        "earnings": float(aff.earnings or 0),
+        "promo_materials": _safe_json(p.promo_materials_json),
+    }
+
+
+# Admin: approve/reject SuperMarket products
+@app.post("/api/supermarket/admin/review/{product_id}")
+async def api_supermarket_admin_review(product_id: int, request: Request,
+                                        user: User = Depends(get_current_user),
+                                        db: Session = Depends(get_db)):
+    """Admin: approve or reject a SuperMarket product."""
+    _require_admin(user)
+    p = db.query(DigitalProduct).filter(DigitalProduct.id == product_id).first()
+    if not p:
+        return JSONResponse({"error": "Product not found"}, status_code=404)
+    body = await request.json()
+    action = body.get("action", "approve")
+    if action == "approve":
+        p.status = "published"
+        p.published_at = datetime.utcnow()
+        p.admin_reviewed_at = datetime.utcnow()
+    elif action == "reject":
+        p.status = "draft"
+        p.admin_notes = body.get("reason", "")
+        p.admin_reviewed_at = datetime.utcnow()
+    db.commit()
+    return {"ok": True, "status": p.status}
 
 
 @app.get("/api/watch")
