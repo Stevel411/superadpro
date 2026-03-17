@@ -11995,18 +11995,25 @@ def api_supermarket_my_products(request: Request, user: User = Depends(get_curre
 
 
 @app.post("/api/supermarket/products")
+@limiter.limit("10/minute")
 async def api_supermarket_create(request: Request, user: User = Depends(get_current_user),
                                   db: Session = Depends(get_db)):
     """Create a new SuperMarket digital product (draft)."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     body = await request.json()
-    title = (body.get("title") or "").strip()
+    import html as _html_sm
+    title = _html_sm.escape((body.get("title") or "").strip())[:120]
     if not title or len(title) < 5:
         return JSONResponse({"error": "Title must be at least 5 characters"}, status_code=400)
-    price = float(body.get("price", 0))
+    try:
+        price = float(body.get("price", 0))
+    except (ValueError, TypeError):
+        return JSONResponse({"error": "Invalid price"}, status_code=400)
     if price < 5:
         return JSONResponse({"error": "Minimum price is $5"}, status_code=400)
+    if price > 10000:
+        return JSONResponse({"error": "Maximum price is $10,000"}, status_code=400)
 
     import re as _re_dp, json as _j_dp
     raw_slug = _re_dp.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
@@ -12015,20 +12022,33 @@ async def api_supermarket_create(request: Request, user: User = Depends(get_curr
     if existing:
         return JSONResponse({"error": "A product with this title already exists"}, status_code=400)
 
+    # Sanitise text fields
+    short_desc = _html_sm.escape((body.get("short_description") or "")[:200])
+    category = (body.get("category") or "other")[:30]
+    tags = _html_sm.escape((body.get("tags") or "")[:500])
+    video_url = (body.get("video_url") or "")[:500]
+    demo_url = (body.get("demo_url") or "")[:500]
+
+    # Validate compare price
+    compare_price = None
+    if body.get("compare_price"):
+        try:
+            compare_price = float(body["compare_price"])
+            if compare_price <= price: compare_price = None
+        except (ValueError, TypeError):
+            compare_price = None
+
     p = DigitalProduct(
         creator_id=user.id, title=title, slug=slug,
-        short_description=(body.get("short_description") or "")[:200],
+        short_description=short_desc,
         description=body.get("description") or "",
         price=price,
-        compare_price=float(body.get("compare_price", 0)) or None,
-        banner_url=body.get("banner_url") or "",
-        category=body.get("category") or "other",
-        tags=body.get("tags") or "",
-        video_url=body.get("video_url") or "",
-        demo_url=body.get("demo_url") or "",
+        compare_price=compare_price,
+        category=category, tags=tags,
+        video_url=video_url, demo_url=demo_url,
         features_json=_j_dp.dumps(body.get("features") or []),
         faq_json=_j_dp.dumps(body.get("faq") or []),
-        affiliate_commission=int(body.get("affiliate_commission", 25)),
+        affiliate_commission=max(0, min(100, int(body.get("affiliate_commission", 25)))),
         creator_agreed_terms=body.get("agreed_terms", False),
         creator_agreed_at=datetime.utcnow() if body.get("agreed_terms") else None,
         status="draft",
@@ -12090,6 +12110,9 @@ async def api_supermarket_upload_file(product_id: int, request: Request, user: U
     file_size = body.get("size", 0)
     if not file_data:
         return JSONResponse({"error": "No file data"}, status_code=400)
+    # File size check — max 50MB base64 (~37MB raw)
+    if len(file_data) > 50 * 1024 * 1024:
+        return JSONResponse({"error": "File too large. Maximum 50MB."}, status_code=400)
     if file_type == "bonus":
         p.bonus_file_url = file_data
         p.bonus_file_name = file_name
@@ -12116,16 +12139,32 @@ async def api_supermarket_submit(product_id: int, request: Request, user: User =
     if not p:
         return JSONResponse({"error": "Product not found"}, status_code=404)
     errors = []
-    if not p.title or len(p.title) < 5: errors.append("Title too short")
-    if not p.description or len(p.description) < 50: errors.append("Description must be 50+ characters")
-    if not p.file_url: errors.append("Product file is required")
-    if not p.banner_url: errors.append("Banner image is required")
+    if not p.title or len(p.title) < 5: errors.append("Title too short (min 5 chars)")
+    # Strip HTML tags for description length check
+    import re as _re_strip
+    plain_desc = _re_strip.sub(r'<[^>]+>', '', p.description or '')
+    if len(plain_desc.strip()) < 50: errors.append("Description must be 50+ characters of actual text")
+    if not p.file_url: errors.append("Product file is required — upload in step 3")
+    if not p.banner_url: errors.append("Banner image is required — upload in step 2")
     if p.price < 5: errors.append("Minimum price is $5")
     if not p.creator_agreed_terms: errors.append("Must agree to seller terms")
     if errors:
         return JSONResponse({"error": "Quality checks failed", "issues": errors}, status_code=400)
     p.status = "pending_review"
     p.updated_at = datetime.utcnow()
+
+    # Create notification for creator
+    try:
+        notif = Notification(
+            user_id=user.id,
+            type="supermarket",
+            title="Product submitted for review",
+            message=f"Your product '{p.title}' has been submitted and is being reviewed. We'll notify you by email when it's approved.",
+        )
+        db.add(notif)
+    except Exception:
+        pass
+
     db.commit()
     return {"ok": True, "status": "pending_review"}
 
@@ -12157,7 +12196,18 @@ async def api_supermarket_purchase(product_id: int, request: Request,
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     p = db.query(DigitalProduct).filter(DigitalProduct.id == product_id, DigitalProduct.status == "published").first()
     if not p:
-        return JSONResponse({"error": "Product not found"}, status_code=404)
+        return JSONResponse({"error": "Product not found or not available"}, status_code=404)
+    # Prevent self-purchase
+    if p.creator_id == user.id:
+        return JSONResponse({"error": "You cannot purchase your own product"}, status_code=400)
+    # Prevent duplicate purchase
+    existing_purchase = db.query(DigitalProductPurchase).filter(
+        DigitalProductPurchase.product_id == product_id,
+        DigitalProductPurchase.buyer_id == user.id,
+        DigitalProductPurchase.status == "completed"
+    ).first()
+    if existing_purchase:
+        return JSONResponse({"error": "Already purchased", "download_token": existing_purchase.download_token}, status_code=400)
     body = await request.json()
     affiliate_id = body.get("affiliate_id")
 
@@ -12308,6 +12358,23 @@ def api_supermarket_affiliate_link(product_id: int, user: User = Depends(get_cur
     }
 
 
+# Admin: list pending SuperMarket products
+@app.get("/api/supermarket/admin/pending")
+def api_supermarket_admin_pending(user: User = Depends(get_current_user),
+                                   db: Session = Depends(get_db)):
+    """Admin: list products pending review."""
+    _require_admin(user)
+    products = db.query(DigitalProduct).filter(
+        DigitalProduct.status == "pending_review"
+    ).order_by(DigitalProduct.updated_at.desc()).all()
+    creators = {}
+    cids = list(set(p.creator_id for p in products))
+    if cids:
+        for u in db.query(User).filter(User.id.in_(cids)).all():
+            creators[u.id] = u
+    return {"products": [_serialize_product(p, creators.get(p.creator_id)) for p in products]}
+
+
 # Admin: approve/reject SuperMarket products
 @app.post("/api/supermarket/admin/review/{product_id}")
 async def api_supermarket_admin_review(product_id: int, request: Request,
@@ -12324,10 +12391,29 @@ async def api_supermarket_admin_review(product_id: int, request: Request,
         p.status = "published"
         p.published_at = datetime.utcnow()
         p.admin_reviewed_at = datetime.utcnow()
+        # Notify creator — approved
+        try:
+            notif = Notification(
+                user_id=p.creator_id, type="supermarket",
+                title="Product approved! 🎉",
+                message=f"Your product '{p.title}' has been approved and is now live on SuperMarket. Affiliates can start promoting it.",
+            )
+            db.add(notif)
+        except Exception: pass
     elif action == "reject":
         p.status = "draft"
         p.admin_notes = body.get("reason", "")
         p.admin_reviewed_at = datetime.utcnow()
+        # Notify creator — rejected
+        try:
+            reason = body.get("reason", "Please review the product guidelines.")
+            notif = Notification(
+                user_id=p.creator_id, type="supermarket",
+                title="Product needs changes",
+                message=f"Your product '{p.title}' needs some changes before it can be listed: {reason}",
+            )
+            db.add(notif)
+        except Exception: pass
     db.commit()
     return {"ok": True, "status": p.status}
 

@@ -41,6 +41,7 @@ export default function SuperMarketCreate() {
   var [bonusFile, setBonusFile] = useState(null);
   var [agreedTerms, setAgreedTerms] = useState(false);
   var [saving, setSaving] = useState(false);
+  var [success, setSuccess] = useState(false);
   var [error, setError] = useState('');
   var navigate = useNavigate();
 
@@ -80,7 +81,7 @@ export default function SuperMarketCreate() {
       if (bonusFile) uploads.push(apiPost('/api/supermarket/products/'+pid+'/upload', {type:'bonus',data:bonusFile.data,name:bonusFile.name,size:bonusFile.size}).catch(function(e){console.error('Bonus upload:',e);}));
       Promise.all(uploads).then(function(){
         apiPost('/api/supermarket/products/'+pid+'/submit',{}).then(function(sr){
-          if(sr.ok) navigate('/marketplace');
+          if(sr.ok) { setSuccess(true); setSaving(false); }
           else {setError('Product created but review submission failed: '+(sr.error||'Check requirements'));setSaving(false);}
         }).catch(function(e){setError('Product created! Review submission failed — you can submit later from My Products.');setSaving(false);});
       }).catch(function(){setError('Product created but file upload had issues.');setSaving(false);});
@@ -93,6 +94,31 @@ export default function SuperMarketCreate() {
   return (
     <AppLayout title="Sell a Product" subtitle="List your digital product on SuperMarket">
       <div style={{maxWidth:780,margin:'0 auto'}}>
+
+        {/* Success screen */}
+        {success && (
+          <div style={{textAlign:'center',padding:'60px 20px'}}>
+            <div style={{width:80,height:80,borderRadius:'50%',background:'#dcfce7',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px',fontSize:36}}>✅</div>
+            <h2 style={{fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:900,color:'#0f172a',margin:'0 0 10px'}}>Product Submitted!</h2>
+            <p style={{fontSize:15,color:'#64748b',lineHeight:1.7,maxWidth:480,margin:'0 auto 24px'}}>
+              Your product has been submitted for review. Our team will review it and you'll receive a notification and email when it's approved and listed on SuperMarket.
+            </p>
+            <div style={{background:'#eff6ff',border:'1px solid #bfdbfe',borderRadius:12,padding:'16px 20px',maxWidth:440,margin:'0 auto 24px',textAlign:'left'}}>
+              <div style={{fontSize:13,fontWeight:700,color:'#1d4ed8',marginBottom:6}}>📋 What happens next:</div>
+              <div style={{fontSize:12,color:'#475569',lineHeight:1.8}}>
+                <div>1. Our AI scans your product for quality and compliance</div>
+                <div>2. An admin reviews and approves your listing</div>
+                <div>3. You'll be notified by email when it goes live</div>
+                <div>4. Affiliates can then start promoting your product</div>
+              </div>
+            </div>
+            <button onClick={function(){navigate('/marketplace');}} style={{padding:'12px 32px',borderRadius:10,border:'none',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontSize:14,fontWeight:800,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 4px 16px rgba(14,165,233,.3)'}}>
+              Go to SuperMarket
+            </button>
+          </div>
+        )}
+
+        {!success && <>
 
         {/* Progress bar */}
         <div style={{marginBottom:32}}>
@@ -413,6 +439,7 @@ export default function SuperMarketCreate() {
             </button>
           )}
         </div>
+        </>}
       </div>
     </AppLayout>
   );
