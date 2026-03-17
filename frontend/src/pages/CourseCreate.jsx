@@ -185,7 +185,7 @@ export default function CourseCreate() {
             {/* Thumbnail */}
             <div style={{marginBottom:18}}>
               <label style={{display:'flex',alignItems:'center',gap:6,fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>
-                <Image size={12}/> Course Thumbnail
+                <Image size={12}/> Course Banner Image
               </label>
               {thumbnailUrl && (
                 <div style={{width:'100%',height:140,borderRadius:10,marginBottom:8,backgroundImage:'url('+thumbnailUrl+')',backgroundSize:'cover',backgroundPosition:'center',border:'1px solid #e2e8f0',position:'relative'}}>
@@ -196,7 +196,7 @@ export default function CourseCreate() {
                 onMouseEnter={function(e){e.currentTarget.style.borderColor='#8b5cf6';e.currentTarget.style.background='rgba(139,92,246,.03)';}}
                 onMouseLeave={function(e){e.currentTarget.style.borderColor='#d1d5db';e.currentTarget.style.background='#f8f9fb';}}>
                 <Image size={18} color="#94a3b8"/>
-                <span style={{fontSize:13,fontWeight:600,color:'#64748b'}}>{thumbnailUrl ? 'Change image' : 'Upload thumbnail image'}</span>
+                <span style={{fontSize:13,fontWeight:600,color:'#64748b'}}>{thumbnailUrl ? 'Change banner' : 'Upload banner image'}</span>
                 <input type="file" accept="image/*" onChange={function(e){
                   var file=e.target.files[0]; if(!file) return;
                   var reader=new FileReader();
@@ -204,7 +204,7 @@ export default function CourseCreate() {
                   reader.readAsDataURL(file);
                 }} style={{display:'none'}}/>
               </label>
-              <div style={{fontSize:10,color:'#94a3b8',marginTop:4}}>Recommended: 1280×720px (16:9 ratio). Required for publishing.</div>
+              <div style={{fontSize:10,color:'#94a3b8',marginTop:4}}>Recommended: 1280×720px (16:9). This displays at the top of your course card in the marketplace.</div>
             </div>
 
             {/* Commission explainer */}
