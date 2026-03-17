@@ -10,6 +10,7 @@ var TABS = [
   {key:'withdrawals',label:'Withdrawals',icon:CreditCard},
   {key:'kyc',label:'KYC Queue',icon:UserCheck},
   {key:'commissions',label:'Commissions',icon:TrendingUp},
+  {key:'supermarket',label:'SuperMarket',icon:Shield},
   {key:'health',label:'System Health',icon:Shield},
 ];
 
@@ -38,6 +39,7 @@ export default function AdminDashboard() {
       {tab === 'withdrawals' && <WithdrawalsTab/>}
       {tab === 'kyc' && <KYCTab/>}
       {tab === 'commissions' && <CommissionsTab/>}
+      {tab === 'supermarket' && <SuperMarketTab/>}
       {tab === 'health' && <HealthTab/>}
     </AppLayout>
   );
@@ -488,6 +490,90 @@ function CommissionsTab() {
     </div>
   );
 }
+
+// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+// SUPERMARKET PRODUCT REVIEW
+// ══════════════════════════════════════════════════════════
+
+function SuperMarketTab() {
+  var [products, setProducts] = useState([]);
+  var [loading, setLoading] = useState(true);
+  var [acting, setActing] = useState('');
+  var [rejectId, setRejectId] = useState(null);
+  var [rejectReason, setRejectReason] = useState('');
+
+  function load() {
+    apiGet('/api/supermarket/admin/pending').then(function(d) { setProducts(d.products || []); setLoading(false); }).catch(function() { setLoading(false); });
+  }
+  useEffect(function() { load(); }, []);
+
+  function approve(id) {
+    setActing('approve-' + id);
+    apiPost('/api/supermarket/admin/review/' + id, { action: 'approve' }).then(function() { load(); setActing(''); }).catch(function() { setActing(''); });
+  }
+  function reject(id) {
+    setActing('reject-' + id);
+    apiPost('/api/supermarket/admin/review/' + id, { action: 'reject', reason: rejectReason }).then(function() { load(); setActing(''); setRejectId(null); setRejectReason(''); }).catch(function() { setActing(''); });
+  }
+
+  if (loading) return <div style={{textAlign:'center',padding:40,color:'#94a3b8'}}>Loading...</div>;
+
+  return (
+    <div>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+        <div>
+          <div style={{fontSize:16,fontWeight:800,color:'#0f172a'}}>SuperMarket Product Review</div>
+          <div style={{fontSize:12,color:'#94a3b8'}}>{products.length} product{products.length !== 1 ? 's' : ''} pending review</div>
+        </div>
+      </div>
+
+      {products.length === 0 ? (
+        <div style={{textAlign:'center',padding:'60px 20px',background:'#f8f9fb',borderRadius:12}}>
+          <div style={{fontSize:32,opacity:.3,marginBottom:8}}>✅</div>
+          <div style={{fontSize:14,fontWeight:700,color:'#0f172a'}}>All clear</div>
+          <div style={{fontSize:12,color:'#94a3b8'}}>No products waiting for review</div>
+        </div>
+      ) : products.map(function(p) {
+        return (
+          <div key={p.id} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,marginBottom:12,overflow:'hidden'}}>
+            <div style={{display:'flex',gap:16,padding:'16px 20px'}}>
+              <div style={{width:120,height:80,borderRadius:8,background:'linear-gradient(135deg,#0b1729,#132240)',overflow:'hidden',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                {p.banner_url ? <img src={p.banner_url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/> : <span style={{fontSize:28,opacity:.2}}>📦</span>}
+              </div>
+              <div style={{flex:1}}>
+                <div style={{fontSize:15,fontWeight:800,color:'#0f172a',marginBottom:2}}>{p.title}</div>
+                <div style={{fontSize:12,color:'#94a3b8',marginBottom:4}}>by {p.creator_name} · {p.category} · ${parseFloat(p.price).toFixed(0)}</div>
+                <div style={{fontSize:12,color:'#475569',lineHeight:1.6}}>{(p.short_description || '').slice(0, 150)}</div>
+                {p.file_name && <div style={{fontSize:10,color:'#10b981',fontWeight:700,marginTop:4}}>📎 {p.file_name}</div>}
+              </div>
+              <div style={{display:'flex',flexDirection:'column',gap:6,flexShrink:0}}>
+                <button onClick={function() { approve(p.id); }} disabled={acting === 'approve-' + p.id}
+                  style={{padding:'8px 20px',borderRadius:8,border:'none',background:'#10b981',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+                  {acting === 'approve-' + p.id ? '...' : '✓ Approve'}
+                </button>
+                <button onClick={function() { setRejectId(rejectId === p.id ? null : p.id); }}
+                  style={{padding:'8px 20px',borderRadius:8,border:'1px solid #fecaca',background:'#fff',color:'#dc2626',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+                  ✗ Reject
+                </button>
+              </div>
+            </div>
+            {rejectId === p.id && (
+              <div style={{padding:'12px 20px',borderTop:'1px solid #f1f3f7',background:'#fef2f2'}}>
+                <input value={rejectReason} onChange={function(e) { setRejectReason(e.target.value); }} placeholder="Reason for rejection..." style={{width:'100%',padding:'8px 12px',border:'1px solid #fecaca',borderRadius:8,fontSize:12,fontFamily:'inherit',outline:'none',boxSizing:'border-box',marginBottom:8}}/>
+                <button onClick={function() { reject(p.id); }} disabled={acting === 'reject-' + p.id}
+                  style={{padding:'6px 16px',borderRadius:6,border:'none',background:'#dc2626',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+                  {acting === 'reject-' + p.id ? '...' : 'Confirm Reject'}
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 
 // ══════════════════════════════════════════════════════════
 // SYSTEM HEALTH

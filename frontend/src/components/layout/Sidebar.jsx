@@ -7,11 +7,11 @@ import {
   Home, User, Wallet, Headphones, Eye, Zap, LayoutGrid, Link2,
   Globe, GraduationCap, Store, PenLine, Network, FileText, Users,
   Target, Mail, Trophy, Award, Bot, Megaphone, Film,
-  LogOut, ChevronRight, Play, Lock, Sparkles
+  LogOut, ChevronRight, Play, Lock, Sparkles, Shield
 } from 'lucide-react';
 
-function buildNav(t) {
-  return [
+function buildNav(t, isAdmin) {
+  var items = [
     { type: 'standalone', label: t('nav.dashboard'), icon: Home, path: '/dashboard' },
     { type: 'divider' },
     { type: 'group', label: t('nav.account'), key: 'account', items: [
@@ -60,6 +60,15 @@ function buildNav(t) {
       { label: t('nav.emailSwipes'), icon: Mail, path: '/email-swipes' },
     ]},
   ];
+
+  if (isAdmin) {
+    items.push({ type: 'divider' });
+    items.push({ type: 'group', label: 'ADMIN', key: 'admin', items: [
+      { label: 'Admin Dashboard', icon: Shield, path: '/admin' },
+    ]});
+  }
+
+  return items;
 }
 
 export default function Sidebar() {
@@ -69,7 +78,7 @@ export default function Sidebar() {
   var location = useLocation();
   var { t } = useTranslation();
 
-  var NAV = buildNav(t);
+  var NAV = buildNav(t, user && user.is_admin);
   var [manualOpen, setManualOpen] = useState({});
 
   // Reset manual open state on navigation — groups auto-close
