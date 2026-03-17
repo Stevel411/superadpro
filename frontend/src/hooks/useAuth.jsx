@@ -9,18 +9,21 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     var done = false;
+    console.log('[Auth] Checking /api/me...');
     fetch('/api/me', { credentials: 'include' })
       .then(function(res) {
-        if (!res.ok) { if (!done) { done=true; setUser(null); setLoading(false); } return null; }
+        console.log('[Auth] /api/me status:', res.status);
+        if (!res.ok) { if (!done) { done=true; console.log('[Auth] Not authenticated, status:', res.status); setUser(null); setLoading(false); } return null; }
         return res.json();
       })
       .then(function(data) {
         if (done) return;
         done = true;
+        console.log('[Auth] User data:', data ? 'id='+data.id+' active='+data.is_active : 'null');
         if (data && data.id) { setUser(data); } else { setUser(null); }
         setLoading(false);
       })
-      .catch(function() { if (!done) { done=true; setUser(null); setLoading(false); } });
+      .catch(function(e) { console.error('[Auth] Error:', e); if (!done) { done=true; setUser(null); setLoading(false); } });
   }, []);
 
   const logout = async () => {

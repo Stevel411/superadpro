@@ -3,6 +3,26 @@ import { AuthProvider, useAuth } from './hooks/useAuth';
 import { Spinner } from './components/ui';
 import AppLayout from './components/layout/AppLayout';
 import './i18n';
+import { Component } from 'react';
+
+// Error boundary to catch crashes
+class ErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { hasError: false, error: null }; }
+  static getDerivedStateFromError(error) { return { hasError: true, error }; }
+  componentDidCatch(error, info) { console.error('React crash:', error, info); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{padding:40,textAlign:'center',fontFamily:'DM Sans,sans-serif'}}>
+          <h2 style={{color:'#dc2626'}}>Something went wrong</h2>
+          <p style={{color:'#64748b',marginBottom:16}}>{this.state.error?.message || 'Unknown error'}</p>
+          <button onClick={function(){window.location.reload();}} style={{padding:'10px 20px',borderRadius:8,border:'none',background:'#0ea5e9',color:'#fff',fontSize:14,fontWeight:700,cursor:'pointer'}}>Reload Page</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // Pages
 import Dashboard from './pages/Dashboard';
@@ -130,10 +150,12 @@ function PlaceholderPage({ title }) {
 
 export default function App() {
   return (
-    <BrowserRouter basename="/app">
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter basename="/app">
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
