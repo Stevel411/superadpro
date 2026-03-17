@@ -62,7 +62,36 @@ function CampaignList({ campaigns, onCreate, onCreateCustom, onOpen }) {
       <div style={{background:'linear-gradient(135deg,#042f1a,#0a1f14,#0d2818)',borderRadius:16,padding:'40px 44px',marginBottom:24,position:'relative',overflow:'hidden',border:'1px solid rgba(16,185,129,.15)'}}>
         <div style={{position:'absolute',top:-50,right:-50,width:240,height:240,borderRadius:'50%',background:'rgba(16,185,129,.06)'}}/>
         <div style={{position:'absolute',bottom:-30,right:100,width:150,height:150,borderRadius:'50%',background:'rgba(52,211,153,.04)'}}/>
-        <div style={{position:'absolute',top:20,right:30,fontSize:80,opacity:.04,fontWeight:900,fontFamily:'Sora,sans-serif',color:'#10b981'}}>⚡</div>
+        {/* Floating dollar signs */}
+        {[
+          {left:'75%',size:22,delay:0,dur:6,opacity:.08},
+          {left:'85%',size:16,delay:1.5,dur:7,opacity:.06},
+          {left:'65%',size:28,delay:3,dur:8,opacity:.07},
+          {left:'90%',size:14,delay:0.5,dur:5.5,opacity:.05},
+          {left:'70%',size:20,delay:4,dur:7.5,opacity:.09},
+          {left:'80%',size:24,delay:2,dur:6.5,opacity:.06},
+          {left:'60%',size:18,delay:5,dur:8.5,opacity:.07},
+          {left:'95%',size:12,delay:1,dur:5,opacity:.04},
+          {left:'55%',size:26,delay:3.5,dur:9,opacity:.05},
+          {left:'78%',size:15,delay:2.5,dur:6,opacity:.08},
+        ].map(function(d, i) {
+          return (
+            <div key={i} style={{
+              position:'absolute',bottom:-30,left:d.left,fontSize:d.size,fontWeight:900,
+              color:'#10b981',opacity:d.opacity,fontFamily:'Sora,sans-serif',
+              animation:'floatUp '+d.dur+'s ease-in-out '+d.delay+'s infinite',
+              pointerEvents:'none',zIndex:0,
+            }}>$</div>
+          );
+        })}
+        <style>{`
+          @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-260px) rotate(25deg); opacity: 0; }
+          }
+        `}</style>
         <div style={{position:'relative',zIndex:1}}>
           <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
             <div style={{width:32,height:32,borderRadius:8,background:'rgba(16,185,129,.15)',display:'flex',alignItems:'center',justifyContent:'center'}}>
