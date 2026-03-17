@@ -12856,6 +12856,252 @@ def api_leads_data(request: Request, user: User = Depends(get_current_user),
     } for l in leads], "total": len(leads)}
 
 
+# ═══════════════════════════════════════════════════════════════
+#  MY LEADS — CRM + Autoresponder APIs
+# ═══════════════════════════════════════════════════════════════
+
+def _lead_limit(user):
+    """Return max leads allowed for this user's tier."""
+    tier = getattr(user, 'membership_tier', 'basic')
+    return 500 if tier == 'pro' else 100
+
+
+@app.get("/api/leads/sequences")
+def api_leads_sequences(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Get all email sequences for this user."""
+    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import EmailSequence
+    seqs = db.query(EmailSequence).filter(EmailSequence.user_id == user.id).order_by(EmailSequence.created_at.desc()).all()
+    import json as _j
+    return {"sequences": [{
+        "id": s.id, "title": s.title or "", "niche": s.niche or "", "tone": s.tone or "",
+        "num_emails": s.num_emails or 0, "is_active": s.is_active,
+        "emails": _safe_json(s.emails_json),
+        "created_at": s.created_at.isoformat() if s.created_at else None,
+    } for s in seqs]}
+
+
+@app.post("/api/leads/sequences")
+async def api_create_sequence(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Create a new email sequence."""
+    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    import json as _j
+    title = (body.get("title") or "").strip()
+    if not title: return JSONResponse({"error": "Title required"}, status_code=400)
+    emails = body.get("emails") or []
+    seq = EmailSequence(
+        user_id=user.id, title=title, niche=body.get("niche", ""),
+        tone=body.get("tone", "professional"), num_emails=len(emails),
+        emails_json=_j.dumps(emails), is_active=True,
+    )
+    db.add(seq)
+    db.commit()
+    db.refresh(seq)
+    return {"ok": True, "sequence_id": seq.id}
+
+
+@app.put("/api/leads/sequences/{seq_id}")
+async def api_update_sequence(seq_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Update an email sequence."""
+    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import EmailSequence
+    seq = db.query(EmailSequence).filter(EmailSequence.id == seq_id, EmailSequence.user_id == user.id).first()
+    if not seq: return JSONResponse({"error": "Not found"}, status_code=404)
+    body = await request.json()
+    import json as _j
+    if "title" in body: seq.title = (body["title"] or "").strip()
+    if "emails" in body:
+        seq.emails_json = _j.dumps(body["emails"])
+        seq.num_emails = len(body["emails"])
+    if "is_active" in body: seq.is_active = bool(body["is_active"])
+    if "tone" in body: seq.tone = body["tone"]
+    if "niche" in body: seq.niche = body["niche"]
+    db.commit()
+    return {"ok": True}
+
+
+@app.delete("/api/leads/sequences/{seq_id}")
+def api_delete_sequence(seq_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Delete an email sequence."""
+    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import EmailSequence
+    seq = db.query(EmailSequence).filter(EmailSequence.id == seq_id, EmailSequence.user_id == user.id).first()
+    if not seq: return JSONResponse({"error": "Not found"}, status_code=404)
+    db.delete(seq)
+    db.commit()
+    return {"ok": True}
+
+
+@app.post("/api/leads/upload-csv")
+async def api_upload_leads_csv(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Upload leads from CSV. Enforces lead limits per tier."""
+    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    leads_data = body.get("leads") or []  # [{email, name}]
+    if not leads_data: return JSONResponse({"error": "No leads provided"}, status_code=400)
+
+    # Check lead limit
+    from .database import MemberLead
+    current_count = db.query(MemberLead).filter(MemberLead.user_id == user.id).count()
+    limit = _lead_limit(user)
+    remaining = max(0, limit - current_count)
+
+    if remaining == 0:
+        return JSONResponse({"error": f"Lead limit reached ({limit}). Upgrade to Pro for 500 leads or purchase additional lead packs.", "limit": limit, "current": current_count}, status_code=400)
+
+    # Import up to remaining limit
+    to_import = leads_data[:remaining]
+    imported = 0
+    duplicates = 0
+    for ld in to_import:
+        email = (ld.get("email") or "").strip().lower()
+        if not email or "@" not in email: continue
+        # Check duplicate
+        existing = db.query(MemberLead).filter(MemberLead.user_id == user.id, MemberLead.email == email).first()
+        if existing:
+            duplicates += 1
+            continue
+        lead = MemberLead(
+            user_id=user.id, email=email, name=(ld.get("name") or "").strip(),
+            source_url="CSV Upload", status="new",
+        )
+        db.add(lead)
+        imported += 1
+
+    db.commit()
+    skipped = len(leads_data) - len(to_import)
+    return {
+        "ok": True, "imported": imported, "duplicates": duplicates,
+        "skipped_over_limit": skipped,
+        "total_leads": current_count + imported, "limit": limit,
+    }
+
+
+@app.post("/api/leads/{lead_id}/assign-sequence")
+async def api_assign_sequence(lead_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Assign a lead to an email sequence."""
+    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import MemberLead
+    lead = db.query(MemberLead).filter(MemberLead.id == lead_id, MemberLead.user_id == user.id).first()
+    if not lead: return JSONResponse({"error": "Lead not found"}, status_code=404)
+    body = await request.json()
+    lead.email_sequence_id = body.get("sequence_id")
+    lead.status = "nurturing"
+    db.commit()
+    return {"ok": True}
+
+
+@app.post("/api/leads/send-sequence-email")
+async def api_send_sequence_email(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Send the next email in a sequence to a lead (or send to all leads in a sequence)."""
+    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    lead_id = body.get("lead_id")
+    sequence_id = body.get("sequence_id")
+
+    from .database import MemberLead, EmailSequence, EmailSendLog
+    from .brevo_service import send_email, wrap_email_html
+    import json as _j
+
+    seq = db.query(EmailSequence).filter(EmailSequence.id == sequence_id, EmailSequence.user_id == user.id).first()
+    if not seq: return JSONResponse({"error": "Sequence not found"}, status_code=404)
+    emails = _safe_json(seq.emails_json)
+    if not emails: return JSONResponse({"error": "Sequence has no emails"}, status_code=400)
+
+    # Get leads to send to
+    if lead_id:
+        leads = [db.query(MemberLead).filter(MemberLead.id == lead_id, MemberLead.user_id == user.id).first()]
+        leads = [l for l in leads if l]
+    else:
+        leads = db.query(MemberLead).filter(
+            MemberLead.user_id == user.id, MemberLead.email_sequence_id == sequence_id,
+            MemberLead.status.in_(["new", "nurturing"])
+        ).all()
+
+    sent_count = 0
+    for lead in leads:
+        # Determine which email to send (next in sequence)
+        email_idx = lead.emails_sent or 0
+        if email_idx >= len(emails): continue  # Sequence complete for this lead
+
+        email_data = emails[email_idx]
+        subject = email_data.get("subject", f"Email {email_idx + 1}")
+        body_html = email_data.get("body_html", "")
+        member_name = user.first_name or user.username or "SuperAdPro Member"
+        wrapped = wrap_email_html(body_html, member_name)
+
+        result = await send_email(lead.email, lead.name or "", subject, wrapped)
+        if result.get("ok"):
+            lead.emails_sent = (lead.emails_sent or 0) + 1
+            log = EmailSendLog(
+                lead_id=lead.id, sequence_id=seq.id, email_index=email_idx,
+                brevo_message_id=result.get("message_id", ""), status="sent",
+            )
+            db.add(log)
+            sent_count += 1
+
+    db.commit()
+    return {"ok": True, "sent": sent_count, "total_leads": len(leads)}
+
+
+@app.post("/api/leads/broadcast")
+async def api_broadcast_email(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Send a one-off broadcast email to all leads or a filtered set."""
+    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    subject = (body.get("subject") or "").strip()
+    html_content = body.get("html_content") or ""
+    filter_status = body.get("filter_status", "all")  # all, new, nurturing, hot
+    if not subject: return JSONResponse({"error": "Subject required"}, status_code=400)
+    if not html_content: return JSONResponse({"error": "Email content required"}, status_code=400)
+
+    from .database import MemberLead
+    from .brevo_service import send_email, wrap_email_html
+
+    q = db.query(MemberLead).filter(MemberLead.user_id == user.id, MemberLead.status != "unsubscribed")
+    if filter_status != "all":
+        if filter_status == "hot":
+            q = q.filter(MemberLead.is_hot == True)
+        else:
+            q = q.filter(MemberLead.status == filter_status)
+    leads = q.all()
+
+    member_name = user.first_name or user.username or "SuperAdPro Member"
+    wrapped = wrap_email_html(html_content, member_name)
+    sent = 0
+    for lead in leads:
+        result = await send_email(lead.email, lead.name or "", subject, wrapped)
+        if result.get("ok"):
+            sent += 1
+    return {"ok": True, "sent": sent, "total": len(leads)}
+
+
+@app.delete("/api/leads/{lead_id}")
+def api_delete_lead(lead_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Delete a single lead."""
+    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import MemberLead, EmailSendLog
+    lead = db.query(MemberLead).filter(MemberLead.id == lead_id, MemberLead.user_id == user.id).first()
+    if not lead: return JSONResponse({"error": "Not found"}, status_code=404)
+    db.query(EmailSendLog).filter(EmailSendLog.lead_id == lead_id).delete()
+    db.delete(lead)
+    db.commit()
+    return {"ok": True}
+
+
+@app.get("/api/leads/stats")
+def api_leads_stats(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Get lead stats + limit info."""
+    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import MemberLead
+    total = db.query(MemberLead).filter(MemberLead.user_id == user.id).count()
+    limit = _lead_limit(user)
+    hot = db.query(MemberLead).filter(MemberLead.user_id == user.id, MemberLead.is_hot == True).count()
+    return {"total": total, "limit": limit, "remaining": max(0, limit - total), "hot": hot,
+            "tier": getattr(user, 'membership_tier', 'basic')}
+
+
 @app.get("/api/link-tools")
 def api_link_tools_data(request: Request, user: User = Depends(get_current_user),
                         db: Session = Depends(get_db)):
