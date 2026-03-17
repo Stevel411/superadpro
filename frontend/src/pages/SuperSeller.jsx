@@ -58,31 +58,44 @@ export default function SuperSeller() {
 function CampaignList({ campaigns, onCreate, onCreateCustom, onOpen }) {
   return (
     <div>
-      {/* Hero banner */}
-      <div style={{background:'linear-gradient(135deg,#1c223d,#0f172a)',borderRadius:16,padding:'36px 40px',marginBottom:24,position:'relative',overflow:'hidden'}}>
-        <div style={{position:'absolute',top:-40,right:-40,width:200,height:200,borderRadius:'50%',background:'rgba(139,92,246,.06)'}}/>
-        <div style={{position:'absolute',bottom:-20,right:80,width:120,height:120,borderRadius:'50%',background:'rgba(14,165,233,.04)'}}/>
+      {/* Hero banner — SuperSeller Emerald Theme */}
+      <div style={{background:'linear-gradient(135deg,#042f1a,#0a1f14,#0d2818)',borderRadius:16,padding:'40px 44px',marginBottom:24,position:'relative',overflow:'hidden',border:'1px solid rgba(16,185,129,.15)'}}>
+        <div style={{position:'absolute',top:-50,right:-50,width:240,height:240,borderRadius:'50%',background:'rgba(16,185,129,.06)'}}/>
+        <div style={{position:'absolute',bottom:-30,right:100,width:150,height:150,borderRadius:'50%',background:'rgba(52,211,153,.04)'}}/>
+        <div style={{position:'absolute',top:20,right:30,fontSize:80,opacity:.04,fontWeight:900,fontFamily:'Sora,sans-serif',color:'#10b981'}}>⚡</div>
         <div style={{position:'relative',zIndex:1}}>
-          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
-            <Zap size={18} color="#a78bfa"/>
-            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#a78bfa'}}>AI Sales Autopilot</span>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
+            <div style={{width:32,height:32,borderRadius:8,background:'rgba(16,185,129,.15)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <Zap size={18} color="#34d399"/>
+            </div>
+            <span style={{fontSize:12,fontWeight:800,letterSpacing:2.5,textTransform:'uppercase',color:'#34d399'}}>AI Sales Autopilot</span>
           </div>
-          <h2 style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'#fff',margin:'0 0 10px'}}>SuperSeller</h2>
-          <p style={{fontSize:14,color:'rgba(255,255,255,.5)',maxWidth:500,lineHeight:1.7,margin:'0 0 20px'}}>
-            Answer 4 questions. AI generates your complete sales pipeline — landing page, 30 social posts, email sequence, video scripts, ad copy, and strategy. One link that sells for you 24/7.
+          <h2 style={{fontFamily:'Sora,sans-serif',fontSize:34,fontWeight:900,color:'#fff',margin:'0 0 16px',letterSpacing:-.5}}>SuperSeller</h2>
+          <p style={{fontSize:17,color:'rgba(255,255,255,.7)',maxWidth:540,lineHeight:1.8,margin:'0 0 10px',fontWeight:500}}>
+            Answer 4 simple questions and AI builds your complete sales pipeline:
           </p>
-          <button onClick={onCreate}
-            style={{display:'flex',alignItems:'center',gap:8,padding:'14px 28px',borderRadius:12,border:'none',cursor:'pointer',
-              background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:15,fontWeight:800,fontFamily:'inherit',
-              boxShadow:'0 4px 20px rgba(139,92,246,.35)',transition:'all .2s'}}>
-            <Wand2 size={18}/> SuperAdPro Campaign
-          </button>
-          <button onClick={onCreateCustom}
-            style={{display:'flex',alignItems:'center',gap:8,padding:'14px 28px',borderRadius:12,border:'2px solid rgba(14,165,233,.3)',cursor:'pointer',
-              background:'rgba(14,165,233,.06)',color:'#38bdf8',fontSize:15,fontWeight:800,fontFamily:'inherit',
-              transition:'all .2s',marginLeft:12}}>
-            <MessageCircle size={18}/> Custom AI Agent
-          </button>
+          <div style={{display:'flex',flexWrap:'wrap',gap:8,marginBottom:24}}>
+            {['Landing Page','30 Social Posts','5-Email Sequence','3 Video Scripts','Ad Copy','Strategy Doc'].map(function(item) {
+              return <span key={item} style={{padding:'5px 12px',borderRadius:6,background:'rgba(16,185,129,.1)',border:'1px solid rgba(16,185,129,.2)',fontSize:12,fontWeight:700,color:'#34d399'}}>{item}</span>;
+            })}
+          </div>
+          <p style={{fontSize:14,color:'rgba(255,255,255,.4)',maxWidth:440,lineHeight:1.6,margin:'0 0 28px'}}>
+            One link that sells for you 24/7. Your AI agent handles objections while you sleep.
+          </p>
+          <div style={{display:'flex',gap:14,flexWrap:'wrap'}}>
+            <button onClick={onCreate}
+              style={{display:'flex',alignItems:'center',gap:10,padding:'16px 32px',borderRadius:12,border:'none',cursor:'pointer',
+                background:'linear-gradient(135deg,#10b981,#34d399)',color:'#fff',fontSize:16,fontWeight:800,fontFamily:'inherit',
+                boxShadow:'0 4px 24px rgba(16,185,129,.4)',transition:'all .2s'}}>
+              <Wand2 size={20}/> Create SuperAdPro Campaign
+            </button>
+            <button onClick={onCreateCustom}
+              style={{display:'flex',alignItems:'center',gap:10,padding:'16px 32px',borderRadius:12,border:'2px solid rgba(52,211,153,.3)',cursor:'pointer',
+                background:'rgba(16,185,129,.06)',color:'#34d399',fontSize:16,fontWeight:800,fontFamily:'inherit',
+                transition:'all .2s'}}>
+              <MessageCircle size={20}/> Train Custom AI Agent
+            </button>
+          </div>
         </div>
       </div>
 

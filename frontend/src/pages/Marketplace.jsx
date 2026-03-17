@@ -64,22 +64,24 @@ export default function SuperMarket() {
 function BrowseView({ courses, allCourses, search, setSearch, category, setCategory, sortBy, setSortBy, onOpen, onMyProducts }) {
   return (
     <div>
-      {/* Hero */}
-      <div style={{background:'linear-gradient(135deg,#1c223d,#0f172a)',borderRadius:16,padding:'28px 32px',marginBottom:24,position:'relative',overflow:'hidden'}}>
-        <div style={{position:'absolute',top:-30,right:-30,width:160,height:160,borderRadius:'50%',background:'rgba(16,185,129,.05)'}}/>
+      {/* Hero — SuperMarket Cyan Theme */}
+      <div style={{background:'linear-gradient(135deg,#042a36,#0a1e2a,#0d2530)',borderRadius:16,padding:'28px 32px',marginBottom:24,position:'relative',overflow:'hidden',border:'1px solid rgba(14,165,233,.15)'}}>
+        <div style={{position:'absolute',top:-30,right:-30,width:160,height:160,borderRadius:'50%',background:'rgba(14,165,233,.06)'}}/>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:20}}>
           <div>
             <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-              <Store size={20} color="#10b981"/>
-              <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#10b981'}}>SuperMarket</span>
+              <div style={{width:28,height:28,borderRadius:7,background:'rgba(14,165,233,.15)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                <Store size={16} color="#38bdf8"/>
+              </div>
+              <span style={{fontSize:12,fontWeight:800,letterSpacing:2.5,textTransform:'uppercase',color:'#38bdf8'}}>SuperMarket</span>
             </div>
-            <h2 style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'#fff',margin:'0 0 6px'}}>Digital Product Marketplace</h2>
-            <p style={{fontSize:13,color:'rgba(255,255,255,.45)',margin:0}}>Browse products, promote with your affiliate link, earn 25% on every sale</p>
+            <h2 style={{fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:900,color:'#fff',margin:'0 0 6px'}}>Digital Product Marketplace</h2>
+            <p style={{fontSize:14,color:'rgba(255,255,255,.5)',margin:0,fontWeight:500}}>Browse products, promote with your affiliate link, earn 25% on every sale</p>
           </div>
           <div style={{display:'flex',gap:10}}>
-            <StatBox value={allCourses.length} label="Products" color="#10b981"/>
+            <StatBox value={allCourses.length} label="Products" color="#38bdf8"/>
             <StatBox value="25%" label="Commission" color="#0ea5e9"/>
-            <button onClick={onMyProducts} style={{padding:'12px 20px',borderRadius:10,border:'1px solid rgba(139,92,246,.3)',background:'rgba(139,92,246,.08)',color:'#a78bfa',fontSize:12,fontWeight:800,cursor:'pointer',fontFamily:'inherit'}}>My Products</button>
+            <button onClick={onMyProducts} style={{padding:'12px 20px',borderRadius:10,border:'1px solid rgba(14,165,233,.3)',background:'rgba(14,165,233,.08)',color:'#38bdf8',fontSize:12,fontWeight:800,cursor:'pointer',fontFamily:'inherit'}}>My Products</button>
           </div>
         </div>
       </div>
