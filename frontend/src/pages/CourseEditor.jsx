@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost, apiPut, apiDelete } from '../utils/api';
 import { Plus, Trash2, ChevronDown, ChevronRight, Save, Send, BookOpen, Video, FileText, Eye, EyeOff, Clock, GripVertical } from 'lucide-react';
+import RichTextEditor from '../components/editor/RichTextEditor';
 
 export default function CourseEditor() {
   var params = useParams();
@@ -247,59 +248,94 @@ function LessonEditor({ lesson, onSave, onReload }) {
   var [contentType, setContentType] = useState(lesson.content_type||'text');
   var [videoUrl, setVideoUrl] = useState(lesson.video_url||'');
   var [textContent, setTextContent] = useState(lesson.text_content||'');
+  var [pdfUrl, setPdfUrl] = useState(lesson.pdf_url||'');
   var [duration, setDuration] = useState(lesson.duration_minutes||0);
   var [isPreview, setIsPreview] = useState(lesson.is_preview||false);
+  var [saved, setSaved] = useState(false);
 
   function save() {
-    onSave({title:title,content_type:contentType,video_url:videoUrl,text_content:textContent,duration_minutes:parseInt(duration)||0,is_preview:isPreview});
+    onSave({title:title,content_type:contentType,video_url:videoUrl,text_content:textContent,pdf_url:pdfUrl,duration_minutes:parseInt(duration)||0,is_preview:isPreview});
+    setSaved(true); setTimeout(function(){setSaved(false);},2000);
     onReload();
   }
 
   return (
-    <div style={{padding:'14px 16px 14px 36px',background:'#f8f9fb',borderTop:'1px solid #e8ecf2'}}>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:10}}>
+    <div style={{padding:'18px 20px 18px 36px',background:'#f8f9fb',borderTop:'1px solid #e8ecf2'}}>
+      {/* Row 1: Title + Type + Duration */}
+      <div style={{display:'grid',gridTemplateColumns:'2fr 1fr 1fr',gap:10,marginBottom:14}}>
         <div>
           <label style={{fontSize:10,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>Lesson Title</label>
-          <input value={title} onChange={function(e){setTitle(e.target.value);}} style={{width:'100%',padding:'8px 10px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:12,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/>
+          <input value={title} onChange={function(e){setTitle(e.target.value);}} style={{width:'100%',padding:'10px 12px',border:'1.5px solid #e2e8f0',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff'}}/>
         </div>
-        <div style={{display:'flex',gap:8}}>
-          <div style={{flex:1}}>
-            <label style={{fontSize:10,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>Type</label>
-            <select value={contentType} onChange={function(e){setContentType(e.target.value);}} style={{width:'100%',padding:'8px 10px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:12,fontFamily:'inherit',outline:'none',background:'#fff'}}>
-              <option value="text">Text</option>
-              <option value="video">Video</option>
-              <option value="pdf">PDF</option>
-            </select>
-          </div>
-          <div style={{flex:1}}>
-            <label style={{fontSize:10,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>Duration (min)</label>
-            <input type="number" value={duration} onChange={function(e){setDuration(e.target.value);}} style={{width:'100%',padding:'8px 10px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:12,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/>
-          </div>
+        <div>
+          <label style={{fontSize:10,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>Content Type</label>
+          <select value={contentType} onChange={function(e){setContentType(e.target.value);}} style={{width:'100%',padding:'10px 12px',border:'1.5px solid #e2e8f0',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',background:'#fff'}}>
+            <option value="text">Rich Text</option>
+            <option value="video">Video + Text</option>
+            <option value="pdf">PDF + Text</option>
+          </select>
+        </div>
+        <div>
+          <label style={{fontSize:10,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>Duration (min)</label>
+          <input type="number" min="0" value={duration} onChange={function(e){setDuration(e.target.value);}} style={{width:'100%',padding:'10px 12px',border:'1.5px solid #e2e8f0',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff'}}/>
         </div>
       </div>
 
-      {contentType === 'video' && (
-        <div style={{marginBottom:10}}>
-          <label style={{fontSize:10,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>Video URL (YouTube, Vimeo, etc.)</label>
-          <input value={videoUrl} onChange={function(e){setVideoUrl(e.target.value);}} placeholder="https://youtube.com/watch?v=..." style={{width:'100%',padding:'8px 10px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:12,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/>
+      {/* Video URL */}
+      {(contentType === 'video') && (
+        <div style={{marginBottom:14}}>
+          <label style={{fontSize:10,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>Video URL (YouTube, Vimeo, Loom, etc.)</label>
+          <input value={videoUrl} onChange={function(e){setVideoUrl(e.target.value);}} placeholder="https://youtube.com/watch?v=..."
+            style={{width:'100%',padding:'10px 12px',border:'1.5px solid #e2e8f0',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff'}}/>
+          {videoUrl && videoUrl.includes('youtu') && (
+            <div style={{marginTop:8,borderRadius:8,overflow:'hidden',aspectRatio:'16/9',maxWidth:400}}>
+              <iframe src={'https://www.youtube.com/embed/' + (videoUrl.split('v=')[1]||videoUrl.split('/').pop()||'').split('&')[0]}
+                style={{width:'100%',height:'100%',border:'none'}} allowFullScreen/>
+            </div>
+          )}
         </div>
       )}
 
-      {contentType === 'text' && (
-        <div style={{marginBottom:10}}>
-          <label style={{fontSize:10,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>Lesson Content</label>
-          <textarea value={textContent} onChange={function(e){setTextContent(e.target.value);}} rows={6} placeholder="Write your lesson content here..." style={{width:'100%',padding:'10px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:12,fontFamily:'inherit',outline:'none',resize:'vertical',boxSizing:'border-box'}}/>
+      {/* PDF URL */}
+      {(contentType === 'pdf') && (
+        <div style={{marginBottom:14}}>
+          <label style={{fontSize:10,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>PDF URL or Upload</label>
+          <div style={{display:'flex',gap:6}}>
+            <label style={{display:'flex',alignItems:'center',gap:4,padding:'8px 14px',borderRadius:8,border:'1px solid #e2e8f0',background:'#fff',cursor:'pointer',fontSize:11,fontWeight:600,color:'#64748b',whiteSpace:'nowrap'}}>
+              📁 Upload PDF
+              <input type="file" accept=".pdf" onChange={function(e){
+                var file=e.target.files[0]; if(!file) return;
+                var reader=new FileReader();
+                reader.onload=function(ev){setPdfUrl(ev.target.result);};
+                reader.readAsDataURL(file);
+              }} style={{display:'none'}}/>
+            </label>
+            <input value={pdfUrl} onChange={function(e){setPdfUrl(e.target.value);}} placeholder="or paste PDF URL..."
+              style={{flex:1,padding:'8px 10px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:11,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff'}}/>
+          </div>
         </div>
       )}
 
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-        <label style={{display:'flex',alignItems:'center',gap:6,cursor:'pointer',fontSize:11,fontWeight:600,color:isPreview?'#16a34a':'#94a3b8'}}>
-          <input type="checkbox" checked={isPreview} onChange={function(){setIsPreview(!isPreview);}} style={{accentColor:'#16a34a'}}/>
-          {isPreview ? <Eye size={12}/> : <EyeOff size={12}/>}
-          Free Preview
+      {/* Rich Text Content */}
+      <div style={{marginBottom:14}}>
+        <label style={{fontSize:10,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>
+          {contentType === 'video' ? 'Lesson Notes & Supplementary Content' : contentType === 'pdf' ? 'Description & Context' : 'Lesson Content'}
         </label>
-        <button onClick={save} style={{display:'flex',alignItems:'center',gap:4,padding:'6px 16px',borderRadius:8,border:'none',background:'#8b5cf6',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
-          <Save size={12}/> Save Lesson
+        <RichTextEditor content={textContent} onChange={function(html){setTextContent(html);}} placeholder="Write your lesson content here... Use the toolbar for formatting, images, and links."/>
+      </div>
+
+      {/* Bottom bar: preview toggle + save */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <label style={{display:'flex',alignItems:'center',gap:6,cursor:'pointer',fontSize:12,fontWeight:600,color:isPreview?'#16a34a':'#94a3b8',padding:'6px 12px',borderRadius:8,border:isPreview?'1px solid #bbf7d0':'1px solid #e2e8f0',background:isPreview?'#f0fdf4':'transparent'}}>
+          <input type="checkbox" checked={isPreview} onChange={function(){setIsPreview(!isPreview);}} style={{accentColor:'#16a34a'}}/>
+          {isPreview ? <Eye size={13}/> : <EyeOff size={13}/>}
+          {isPreview ? 'Free Preview — visible to everyone' : 'Premium — requires purchase'}
+        </label>
+        <button onClick={save}
+          style={{display:'flex',alignItems:'center',gap:5,padding:'10px 24px',borderRadius:8,border:'none',
+            background:saved?'#16a34a':'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:12,fontWeight:800,cursor:'pointer',fontFamily:'inherit',
+            boxShadow:'0 2px 10px rgba(139,92,246,.2)',transition:'all .2s'}}>
+          <Save size={13}/> {saved ? '✓ Saved!' : 'Save Lesson'}
         </button>
       </div>
     </div>
