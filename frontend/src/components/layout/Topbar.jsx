@@ -128,8 +128,11 @@ export default function Topbar({ title, subtitle, children }) {
         </div>
 
         {/* User Avatar */}
-        <div className="w-8 h-8 rounded-full bg-cyan/20 flex items-center justify-center text-xs font-bold text-cyan">
-          {(user?.first_name || user?.username || '?')[0].toUpperCase()}
+        <div className="w-8 h-8 rounded-full bg-cyan/20 flex items-center justify-center text-xs font-bold text-cyan overflow-hidden" style={{flexShrink:0}}>
+          {user?.avatar_url
+            ? <img src={user.avatar_url} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} onError={function(e){e.target.style.display='none';}}/>
+            : (user?.first_name || user?.username || '?')[0].toUpperCase()
+          }
         </div>
       </div>
     </header>

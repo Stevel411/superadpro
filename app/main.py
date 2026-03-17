@@ -412,6 +412,9 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "kyc_status": user.kyc_status,
         "totp_enabled": user.totp_enabled,
         "avatar_url": user.avatar_url or None,
+        "country": user.country or "",
+        "wallet_address": user.wallet_address or "",
+        "member_id": getattr(user, "member_id", None),
     }
 
 

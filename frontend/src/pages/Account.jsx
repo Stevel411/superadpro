@@ -25,6 +25,11 @@ export default function Account() {
   var [walletAddr, setWalletAddr] = useState(user?.wallet_address || '');
   var [savingWallet, setSavingWallet] = useState(false);
 
+  var [kycDob, setKycDob] = useState('');
+  var [kycIdType, setKycIdType] = useState('passport');
+  var [kycFile, setKycFile] = useState(null);
+  var [savingKyc, setSavingKyc] = useState(false);
+
   function showToast(msg, type) { setToast({msg, type}); setTimeout(function(){setToast(null);}, 4000); }
 
   function handleAvatarUpload(e) {
@@ -37,6 +42,12 @@ export default function Account() {
       }).catch(function(err) { showToast(err.message || 'Upload failed', 'err'); });
     };
     reader.readAsDataURL(file);
+  }
+
+  function removeAvatar() {
+    apiPost('/api/account/update', {avatar_url: ''}).then(function() {
+      setAvatarUrl(''); refreshUser(); showToast('Profile photo removed', 'ok');
+    }).catch(function(err) { showToast(err.message || 'Failed', 'err'); });
   }
 
   function saveProfile() {
@@ -62,6 +73,22 @@ export default function Account() {
     }).catch(function(e) { showToast(e.message || 'Failed', 'err'); setSavingWallet(false); });
   }
 
+  function submitKyc() {
+    if (!kycDob) { showToast('Date of birth required', 'err'); return; }
+    if (!kycFile) { showToast('ID document required', 'err'); return; }
+    setSavingKyc(true);
+    var fd = new FormData();
+    fd.append('kyc_dob', kycDob);
+    fd.append('kyc_id_type', kycIdType);
+    fd.append('kyc_id_file', kycFile);
+    fetch('/account/kyc-submit', {method:'POST', body:fd, credentials:'include'})
+      .then(function(r) {
+        setSavingKyc(false);
+        if (r.ok || r.redirected) { refreshUser(); showToast('Verification submitted — under review within 24-48hrs', 'ok'); setKycDob(''); setKycFile(null); }
+        else { showToast('Submission failed — please try again', 'err'); }
+      }).catch(function() { setSavingKyc(false); showToast('Submission failed', 'err'); });
+  }
+
   if (!user) return null;
   var memberId = user.is_admin ? 'SAP-00001' : (user.member_id || ('SAP-' + String(user.id||0).padStart(5,'0')));
   var initials = ((user.first_name||'')[0]||'')+((user.last_name||user.username||'')[0]||'');
@@ -79,13 +106,16 @@ export default function Account() {
 
         <Card title="Profile">
           <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:14,paddingBottom:14,borderBottom:'1px solid #f1f3f7'}}>
-            <label style={{cursor:'pointer',position:'relative',flexShrink:0}}>
+            <div style={{position:'relative',flexShrink:0}}>
+              <label style={{cursor:'pointer',position:'relative',display:'block'}}>
               <div style={{width:56,height:56,borderRadius:14,background:'linear-gradient(135deg,#0284c7,#0ea5e9)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,fontWeight:800,color:'#fff',overflow:'hidden'}}>
                 {avatarUrl ? <img src={avatarUrl} style={{width:'100%',height:'100%',objectFit:'cover'}} alt="" onError={function(e){e.target.style.display='none';}}/> : initials.toUpperCase()}
               </div>
               <div style={{position:'absolute',bottom:-2,right:-2,width:20,height:20,borderRadius:'50%',background:'#0ea5e9',border:'2px solid #fff',display:'flex',alignItems:'center',justifyContent:'center'}}><span style={{fontSize:11,color:'#fff',fontWeight:800}}>+</span></div>
               <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{display:'none'}}/>
-            </label>
+              </label>
+              {avatarUrl && <button onClick={removeAvatar} title="Remove photo" style={{position:'absolute',top:-4,right:-4,width:18,height:18,borderRadius:'50%',background:'#ef4444',border:'2px solid #fff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:10,color:'#fff',fontWeight:800,lineHeight:1,padding:0,zIndex:2}}>✕</button>}
+            </div>
             <div>
               <div style={{fontSize:16,fontWeight:800,color:'#0f172a'}}>{user.first_name||''} {user.last_name||''}</div>
               <div style={{fontSize:11,color:'#94a3b8'}}>@{user.username}</div>
@@ -114,12 +144,17 @@ export default function Account() {
           :kyc==='pending'?<div style={{textAlign:'center',padding:'20px 0'}}><div style={{fontSize:32,marginBottom:6}}>⏳</div><div style={{fontSize:14,fontWeight:700,color:'#f59e0b'}}>Under Review</div><div style={{fontSize:11,color:'#94a3b8'}}>Usually 24–48 hours</div></div>
           :<>
             {kyc==='rejected'&&<div style={{padding:'8px 12px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:8,marginBottom:10,fontSize:11,color:'#dc2626',fontWeight:600}}>Rejected — please resubmit with clear documents</div>}
-            <form method="POST" action="/account/kyc-submit" encType="multipart/form-data">
-              <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Date of Birth</label><input type="date" name="kyc_dob" required style={iS}/></div>
-              <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>ID Type</label><select name="kyc_id_type" style={iS}><option value="passport">Passport</option><option value="drivers_licence">Driver's Licence</option><option value="national_id">National ID</option></select></div>
-              <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Upload ID</label><input type="file" name="kyc_id_file" accept=".jpg,.jpeg,.png,.pdf" required style={{width:'100%',padding:10,border:'2px dashed #d1d5db',borderRadius:10,fontSize:11,color:'#64748b',background:'#fafbfc',cursor:'pointer',boxSizing:'border-box'}}/></div>
-              <button type="submit" style={Object.assign({},btnS,{background:'#0ea5e9'})}>{kyc==='rejected'?'Resubmit':'Submit Verification'}</button>
-            </form>
+            <div>
+              <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Date of Birth</label><input type="date" value={kycDob} onChange={function(e){setKycDob(e.target.value);}} required style={iS} onFocus={foc} onBlur={blu}/></div>
+              <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>ID Type</label><select value={kycIdType} onChange={function(e){setKycIdType(e.target.value);}} style={iS}><option value="passport">Passport</option><option value="drivers_licence">Driver's Licence</option><option value="national_id">National ID</option></select></div>
+              <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Upload ID</label>
+                <label style={{display:'block',width:'100%',padding:10,border:kycFile?'2px solid #0ea5e9':'2px dashed #d1d5db',borderRadius:10,fontSize:11,color:kycFile?'#0ea5e9':'#64748b',background:'#fafbfc',cursor:'pointer',boxSizing:'border-box',textAlign:'center'}}>
+                  {kycFile ? '✓ '+kycFile.name : '📎 Choose file (JPG, PNG or PDF, max 10MB)'}
+                  <input type="file" accept=".jpg,.jpeg,.png,.pdf" onChange={function(e){setKycFile(e.target.files[0]||null);}} style={{display:'none'}}/>
+                </label>
+              </div>
+              <button onClick={submitKyc} disabled={savingKyc} style={Object.assign({},btnS,{background:'#0ea5e9'})}>{savingKyc?'Submitting...':(kyc==='rejected'?'Resubmit':'Submit Verification')}</button>
+            </div>
           </>}
         </Card>
 
