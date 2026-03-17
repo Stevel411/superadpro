@@ -1,263 +1,267 @@
-import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { apiPost } from '../utils/api';
-import { PenLine, Save, BookOpen, DollarSign, FileText, Lock, Shield, CheckCircle, AlertTriangle, Tag, Image } from 'lucide-react';
+import { GraduationCap, DollarSign, Tag, Image, AlertTriangle, CheckCircle, ChevronRight, ChevronLeft, Sparkles, BookOpen, Users, BarChart3 } from 'lucide-react';
 
 var CATEGORIES = [
-  {key:'marketing',label:'Marketing & Advertising'},
-  {key:'business',label:'Business & Entrepreneurship'},
-  {key:'crypto',label:'Crypto & Trading'},
-  {key:'fitness',label:'Health & Fitness'},
-  {key:'tech',label:'Software & Technology'},
-  {key:'creative',label:'Creative & Design'},
-  {key:'lifestyle',label:'Lifestyle & Personal Development'},
-  {key:'education',label:'Education & Training'},
-  {key:'other',label:'Other'},
+  {key:'marketing',label:'Marketing & Ads',icon:'📣'},
+  {key:'business',label:'Business',icon:'💼'},
+  {key:'crypto',label:'Crypto & Trading',icon:'📈'},
+  {key:'fitness',label:'Health & Fitness',icon:'💪'},
+  {key:'tech',label:'Software & Tech',icon:'💻'},
+  {key:'creative',label:'Creative & Design',icon:'🎨'},
+  {key:'lifestyle',label:'Lifestyle',icon:'🌱'},
+  {key:'education',label:'Education',icon:'🎓'},
+  {key:'other',label:'Other',icon:'📦'},
 ];
 
+var STEPS = [{key:'basics',label:'Course Info',num:1},{key:'details',label:'Description & Banner',num:2},{key:'review',label:'Terms & Create',num:3}];
+
 export default function CourseCreate() {
-  var { t } = useTranslation();
+  var [step, setStep] = useState(0);
   var [title, setTitle] = useState('');
-  var [description, setDescription] = useState('');
   var [shortDesc, setShortDesc] = useState('');
+  var [description, setDescription] = useState('');
   var [price, setPrice] = useState('');
-  var [category, setCategory] = useState('other');
+  var [category, setCategory] = useState('');
   var [difficulty, setDifficulty] = useState('beginner');
-  var [thumbnailUrl, setThumbnailUrl] = useState('');
+  var [bannerUrl, setBannerUrl] = useState('');
   var [agreedTerms, setAgreedTerms] = useState(false);
   var [saving, setSaving] = useState(false);
   var [error, setError] = useState('');
   var navigate = useNavigate();
 
-  function handleSave() {
-    if (!title.trim() || title.trim().length < 10) { setError('Course title must be at least 10 characters'); return; }
-    if (!description.trim() || description.trim().length < 100) { setError('Description must be at least 100 characters'); return; }
-    var p = parseFloat(price);
-    if (!p || p < 20) { setError('Minimum course price is $20'); return; }
-    if (!agreedTerms) { setError('You must agree to the Creator Terms before creating a course'); return; }
-    setSaving(true);
+  function handleBanner(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){setBannerUrl(ev.target.result);};r.readAsDataURL(f);}
+
+  var iS={width:'100%',padding:'14px 18px',border:'2px solid #e8ecf2',borderRadius:12,fontSize:15,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff',transition:'border .2s'};
+  function foc(e){e.target.style.borderColor='#8b5cf6';}
+  function blu(e){e.target.style.borderColor='#e8ecf2';}
+
+  function nextStep(){
     setError('');
-    apiPost('/api/marketplace/courses', {
-      title: title.trim(),
-      description: description.trim(),
-      short_description: shortDesc.trim(),
-      price: p,
-      category: category,
-      difficulty_level: difficulty,
-      thumbnail_url: thumbnailUrl.trim(),
-      agreed_terms: true,
-    }).then(function(r) {
-      if (r.ok) { navigate('/courses/edit/' + r.course_id); }
-      else { setError(r.error || 'Failed to create course'); setSaving(false); }
-    }).catch(function(e) { setError(e.message || 'Failed to create course'); setSaving(false); });
+    if(step===0){
+      if(!title.trim()||title.length<10){setError('Course title must be at least 10 characters');return;}
+      if(!category){setError('Please select a category');return;}
+      if(!parseFloat(price)||parseFloat(price)<20){setError('Minimum course price is $20');return;}
+    }
+    if(step===1&&(!description||description.trim().length<100)){setError('Description must be at least 100 characters');return;}
+    setStep(step+1);
   }
 
-  return (
-    <AppLayout title="Create a Course" subtitle="Build, price, and sell your own course — earn 100% commissions">
-      <div style={{maxWidth:760,margin:'0 auto'}}>
+  function handleCreate(){
+    if(!agreedTerms){setError('You must agree to the Creator Terms');return;}
+    setSaving(true);setError('');
+    apiPost('/api/marketplace/courses',{
+      title:title.trim(),description:description.trim(),short_description:shortDesc.trim(),
+      price:parseFloat(price),category:category,difficulty_level:difficulty,
+      thumbnail_url:bannerUrl,agreed_terms:true,
+    }).then(function(r){
+      if(r.ok){navigate('/courses/edit/'+r.course_id);}
+      else{setError(r.error||'Failed');setSaving(false);}
+    }).catch(function(e){setError(e.message||'Failed');setSaving(false);});
+  }
 
-        {/* Hero — 100% commissions highlight */}
-        <div style={{background:'linear-gradient(135deg,#1c223d,#0f172a)',borderRadius:14,padding:'28px 32px',marginBottom:20,position:'relative',overflow:'hidden',border:'1px solid rgba(139,92,246,.15)'}}>
-          <div style={{position:'absolute',top:-30,right:-30,width:160,height:160,borderRadius:'50%',background:'rgba(139,92,246,.06)'}}/>
-          <div style={{position:'relative',zIndex:1}}>
-            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
-              <DollarSign size={20} color="#a78bfa"/>
-              <span style={{fontSize:12,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#a78bfa'}}>100% Commissions</span>
-            </div>
-            <h3 style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:900,color:'#fff',margin:'0 0 8px'}}>Set Your Own Price. Keep Every Dollar.</h3>
-            <p style={{fontSize:14,color:'rgba(255,255,255,.55)',lineHeight:1.7,margin:0,maxWidth:520}}>
-              Price your course at any amount from $20 upwards. You earn 100% commission on every sale through the pass-up system. No platform fees, no hidden cuts.
-            </p>
-            <div style={{display:'flex',gap:8,marginTop:14}}>
-              {['$20+','$50','$100','$200','$500','Any Price'].map(function(p) {
-                return <span key={p} style={{padding:'4px 10px',borderRadius:5,background:'rgba(139,92,246,.1)',border:'1px solid rgba(139,92,246,.2)',fontSize:11,fontWeight:700,color:'#a78bfa'}}>{p}</span>;
-              })}
-            </div>
+  var catObj=CATEGORIES.find(function(c){return c.key===category;});
+
+  return(
+    <AppLayout title="Create a Course" subtitle="Build and sell your own course — 100% commissions">
+      <div style={{display:'grid',gridTemplateColumns:'1fr 340px',gap:24,maxWidth:1100,margin:'0 auto',alignItems:'start'}}>
+
+        {/* LEFT — Wizard */}
+        <div>
+          {/* Steps */}
+          <div style={{display:'flex',alignItems:'center',gap:0,marginBottom:28}}>
+            {STEPS.map(function(s,i){
+              var done=i<step;var on=i===step;
+              return(<div key={s.key} style={{display:'flex',alignItems:'center',flex:1}}>
+                <div style={{width:32,height:32,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:800,
+                  background:done?'#8b5cf6':on?'linear-gradient(135deg,#8b5cf6,#a78bfa)':'#e8ecf2',
+                  color:done||on?'#fff':'#94a3b8',boxShadow:on?'0 4px 14px rgba(139,92,246,.3)':'none',transition:'all .3s'}}>
+                  {done?'✓':s.num}
+                </div>
+                {i<STEPS.length-1&&<div style={{flex:1,height:2,background:done?'#8b5cf6':'#e8ecf2',margin:'0 6px',transition:'all .3s'}}/>}
+              </div>);
+            })}
           </div>
-        </div>
 
-        {/* Review process info */}
-        <div style={{display:'flex',gap:12,marginBottom:20}}>
-          {[
-            {icon:PenLine,label:'Create',desc:'Build your course with lessons and content',color:'#8b5cf6'},
-            {icon:Shield,label:'AI Review',desc:'Content scanned for quality and copyright',color:'#0ea5e9'},
-            {icon:CheckCircle,label:'Approval',desc:'Admin reviews before publishing',color:'#16a34a'},
-          ].map(function(s,i) {
-            var Icon = s.icon;
-            return (
-              <div key={i} style={{flex:1,background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:'16px',textAlign:'center'}}>
-                <div style={{width:36,height:36,borderRadius:10,background:s.color+'12',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 8px'}}><Icon size={18} color={s.color}/></div>
-                <div style={{fontSize:13,fontWeight:800,color:'#0f172a'}}>{s.label}</div>
-                <div style={{fontSize:10,color:'#94a3b8',marginTop:2}}>{s.desc}</div>
+          {error&&<div style={{display:'flex',alignItems:'center',gap:8,padding:'12px 16px',background:'linear-gradient(135deg,#fef2f2,#fff1f2)',borderRadius:12,border:'1px solid #fecaca',marginBottom:20}}><AlertTriangle size={16} color="#dc2626"/><div style={{fontSize:13,fontWeight:600,color:'#dc2626'}}>{error}</div></div>}
+
+          {/* STEP 1 — Course basics */}
+          {step===0&&(
+            <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
+              <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
+                <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>What's your course about?</h3>
+                <p style={{fontSize:13,color:'#94a3b8',margin:0}}>The basics — you can always change these later</p>
               </div>
-            );
-          })}
-        </div>
+              <div style={{padding:'28px 32px'}}>
+                <div style={{marginBottom:22}}>
+                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Course Title</label>
+                  <input value={title} onChange={function(e){setTitle(e.target.value);}} placeholder="e.g. Digital Marketing Mastery for Beginners" style={iS} onFocus={foc} onBlur={blu}/>
+                  <div style={{fontSize:10,color:'#cbd5e1',marginTop:4}}>Minimum 10 characters</div>
+                </div>
 
-        {/* Form card */}
-        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
-          <div style={{background:'#1c223d',padding:'16px 24px',display:'flex',alignItems:'center',gap:8}}>
-            <PenLine size={16} color="#a78bfa"/>
-            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Course Details</div>
-          </div>
-          <div style={{padding:'24px'}}>
-            {error && (
-              <div style={{display:'flex',alignItems:'center',gap:8,padding:'10px 14px',background:'#fef2f2',borderRadius:8,border:'1px solid #fecaca',marginBottom:16}}>
-                <AlertTriangle size={14} color="#dc2626"/>
-                <div style={{fontSize:12,fontWeight:700,color:'#dc2626'}}>{error}</div>
+                <div style={{marginBottom:22}}>
+                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Category</label>
+                  <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6}}>
+                    {CATEGORIES.map(function(c){var on=category===c.key;return(
+                      <button key={c.key} onClick={function(){setCategory(c.key);}} style={{padding:'12px',borderRadius:10,cursor:'pointer',fontFamily:'inherit',textAlign:'center',border:on?'2px solid #8b5cf6':'2px solid #f1f3f7',background:on?'rgba(139,92,246,.04)':'#fafbfc',transition:'all .15s'}}>
+                        <div style={{fontSize:20,marginBottom:2}}>{c.icon}</div>
+                        <div style={{fontSize:11,fontWeight:on?800:600,color:on?'#8b5cf6':'#64748b'}}>{c.label}</div>
+                      </button>);
+                    })}
+                  </div>
+                </div>
+
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:22}}>
+                  <div>
+                    <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Price</label>
+                    <div style={{position:'relative'}}><span style={{position:'absolute',left:16,top:14,fontSize:18,fontWeight:800,color:'#cbd5e1'}}>$</span><input type="number" min="20" value={price} onChange={function(e){setPrice(e.target.value);}} placeholder="49" style={Object.assign({},iS,{paddingLeft:34,fontSize:20,fontWeight:800,fontFamily:'Sora,sans-serif'})} onFocus={foc} onBlur={blu}/></div>
+                    <div style={{fontSize:11,color:'#16a34a',fontWeight:700,marginTop:6}}>You keep 100% = ${parseFloat(price||0).toFixed(0)} per kept sale</div>
+                  </div>
+                  <div>
+                    <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Difficulty</label>
+                    <div style={{display:'flex',gap:4,marginTop:4}}>
+                      {[{k:'beginner',l:'Beginner',icon:'🟢'},{k:'intermediate',l:'Intermediate',icon:'🟡'},{k:'advanced',l:'Advanced',icon:'🔴'}].map(function(d){
+                        var on=difficulty===d.k;
+                        return <button key={d.k} onClick={function(){setDifficulty(d.k);}} style={{flex:1,padding:'12px 8px',borderRadius:10,cursor:'pointer',fontFamily:'inherit',textAlign:'center',border:on?'2px solid #8b5cf6':'2px solid #f1f3f7',background:on?'rgba(139,92,246,.04)':'#fafbfc'}}>
+                          <div style={{fontSize:14}}>{d.icon}</div>
+                          <div style={{fontSize:10,fontWeight:on?800:600,color:on?'#8b5cf6':'#94a3b8',marginTop:2}}>{d.l}</div>
+                        </button>;
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Short Summary</label>
+                  <input value={shortDesc} onChange={function(e){setShortDesc(e.target.value);}} maxLength={160} placeholder="One line that sells your course" style={iS} onFocus={foc} onBlur={blu}/>
+                  <div style={{textAlign:'right',fontSize:10,color:'#cbd5e1',marginTop:4}}>{shortDesc.length}/160</div>
+                </div>
               </div>
-            )}
-
-            {/* Title */}
-            <div style={{marginBottom:18}}>
-              <label style={{display:'flex',alignItems:'center',gap:6,fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>
-                <BookOpen size={12}/> Course Title
-              </label>
-              <input value={title} onChange={function(e){setTitle(e.target.value);}}
-                placeholder="e.g. Digital Marketing Mastery for Beginners"
-                style={{width:'100%',padding:'12px 16px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#f8f9fb'}}/>
-              <div style={{fontSize:10,color:'#94a3b8',marginTop:4}}>Minimum 10 characters</div>
             </div>
+          )}
 
-            {/* Short description */}
-            <div style={{marginBottom:18}}>
-              <label style={{display:'flex',alignItems:'center',gap:6,fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>
-                Short Description
-              </label>
-              <input value={shortDesc} onChange={function(e){setShortDesc(e.target.value);}}
-                placeholder="One-line summary shown in marketplace cards"
-                maxLength={160}
-                style={{width:'100%',padding:'12px 16px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#f8f9fb'}}/>
-              <div style={{fontSize:10,color:'#94a3b8',marginTop:4}}>{shortDesc.length}/160 characters</div>
-            </div>
-
-            {/* Description */}
-            <div style={{marginBottom:18}}>
-              <label style={{display:'flex',alignItems:'center',gap:6,fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>
-                <FileText size={12}/> Full Description
-              </label>
-              <textarea value={description} onChange={function(e){setDescription(e.target.value);}}
-                placeholder="What will students learn? What makes this course unique? Who is it for?"
-                rows={5}
-                style={{width:'100%',padding:'12px 16px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',resize:'vertical',boxSizing:'border-box',background:'#f8f9fb'}}/>
-              <div style={{fontSize:10,color:'#94a3b8',marginTop:4}}>Minimum 100 characters · {description.length} written</div>
-            </div>
-
-            {/* Price + Category + Difficulty row */}
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:14,marginBottom:18}}>
-              <div>
-                <label style={{display:'flex',alignItems:'center',gap:6,fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>
-                  <DollarSign size={12}/> Price (USD)
-                </label>
-                <input type="number" min="20" step="1" value={price} onChange={function(e){setPrice(e.target.value);}}
-                  placeholder="Min. $20"
-                  style={{width:'100%',padding:'12px 16px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#f8f9fb'}}/>
-                <div style={{fontSize:10,color:'#16a34a',fontWeight:700,marginTop:4}}>You earn 100% on every kept sale</div>
+          {/* STEP 2 — Description & Banner */}
+          {step===1&&(
+            <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
+              <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
+                <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Describe Your Course</h3>
+                <p style={{fontSize:13,color:'#94a3b8',margin:0}}>Help students understand what they'll learn</p>
               </div>
-              <div>
-                <label style={{display:'flex',alignItems:'center',gap:6,fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>
-                  <Tag size={12}/> Category
-                </label>
-                <select value={category} onChange={function(e){setCategory(e.target.value);}}
-                  style={{width:'100%',padding:'12px 16px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#f8f9fb'}}>
-                  {CATEGORIES.map(function(c){return <option key={c.key} value={c.key}>{c.label}</option>;})}
-                </select>
+              <div style={{padding:'28px 32px'}}>
+                <div style={{marginBottom:22}}>
+                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Course Banner</label>
+                  {bannerUrl?(<div style={{width:'100%',height:180,borderRadius:12,backgroundImage:'url('+bannerUrl+')',backgroundSize:'cover',backgroundPosition:'center',position:'relative',marginBottom:8}}><button onClick={function(){setBannerUrl('');}} style={{position:'absolute',top:8,right:8,width:28,height:28,borderRadius:'50%',border:'none',background:'rgba(0,0,0,.6)',color:'#fff',fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>×</button></div>):(
+                    <label style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8,padding:'36px',borderRadius:12,border:'2px dashed #d1d5db',cursor:'pointer',transition:'all .2s'}} onMouseEnter={function(e){e.currentTarget.style.borderColor='#8b5cf6';e.currentTarget.style.background='rgba(139,92,246,.02)';}} onMouseLeave={function(e){e.currentTarget.style.borderColor='#d1d5db';e.currentTarget.style.background='transparent';}}>
+                      <Image size={28} color="#8b5cf6"/><div style={{fontSize:14,fontWeight:600,color:'#475569'}}>Drop image or click to upload</div><div style={{fontSize:11,color:'#cbd5e1'}}>1280×720 recommended</div><input type="file" accept="image/*" onChange={handleBanner} style={{display:'none'}}/>
+                    </label>)}
+                </div>
+
+                <div>
+                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Full Description</label>
+                  <textarea value={description} onChange={function(e){setDescription(e.target.value);}} rows={8} placeholder="What will students learn? What makes this course unique? Who is it for? What's included?"
+                    style={Object.assign({},iS,{resize:'vertical',lineHeight:1.7})} onFocus={foc} onBlur={blu}/>
+                  <div style={{fontSize:10,color:description.length>=100?'#10b981':'#cbd5e1',marginTop:4}}>{description.length}/100 minimum</div>
+                </div>
               </div>
-              <div>
-                <label style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6,display:'block'}}>Difficulty</label>
-                <div style={{display:'flex',gap:4}}>
-                  {['beginner','intermediate','advanced'].map(function(d) {
-                    var on = difficulty === d;
-                    return (
-                      <button key={d} onClick={function(){setDifficulty(d);}}
-                        style={{flex:1,padding:'10px 4px',borderRadius:8,cursor:'pointer',fontFamily:'inherit',fontSize:10,fontWeight:on?800:600,textTransform:'capitalize',
-                          border:on?'2px solid #8b5cf6':'2px solid #e8ecf2',background:on?'rgba(139,92,246,.06)':'#f8f9fb',color:on?'#8b5cf6':'#94a3b8'}}>
-                        {d}
-                      </button>
-                    );
+            </div>
+          )}
+
+          {/* STEP 3 — Terms & Create */}
+          {step===2&&(
+            <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
+              <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
+                <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Review & Create</h3>
+                <p style={{fontSize:13,color:'#94a3b8',margin:0}}>After creating, you'll add chapters and lessons in the editor</p>
+              </div>
+              <div style={{padding:'28px 32px'}}>
+                {/* Checklist */}
+                <div style={{marginBottom:20}}>
+                  {[{ok:title.length>=10,l:'Course title (10+ chars)'},{ok:!!category,l:'Category selected'},{ok:parseFloat(price)>=20,l:'Price set ($20+)'},{ok:description.length>=100,l:'Description (100+ chars)'},{ok:!!difficulty,l:'Difficulty level'}].map(function(c,i){
+                    return <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 0'}}><div style={{width:20,height:20,borderRadius:'50%',background:c.ok?'#dcfce7':'#fef2f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:800,color:c.ok?'#10b981':'#dc2626'}}>{c.ok?'✓':'✗'}</div><span style={{fontSize:13,color:c.ok?'#334155':'#94a3b8',fontWeight:c.ok?600:400}}>{c.l}</span></div>;
                   })}
                 </div>
+
+                {/* What happens next */}
+                <div style={{background:'rgba(139,92,246,.03)',border:'1px solid rgba(139,92,246,.1)',borderRadius:12,padding:'16px 20px',marginBottom:20}}>
+                  <div style={{fontSize:13,fontWeight:700,color:'#8b5cf6',marginBottom:8}}>What happens after you create:</div>
+                  <div style={{fontSize:12,color:'#475569',lineHeight:1.9}}>
+                    <div>1. You'll land in the <strong>Course Editor</strong> to add chapters & lessons</div>
+                    <div>2. Use the rich text editor, videos, and PDFs</div>
+                    <div>3. When ready, click <strong>Submit for Review</strong></div>
+                    <div>4. AI scans for quality & copyright, then admin approves</div>
+                  </div>
+                </div>
+
+                {/* Terms */}
+                <div style={{background:'#f8f9fb',borderRadius:12,padding:'18px 20px',marginBottom:20}}>
+                  <div style={{fontSize:13,fontWeight:700,color:'#0f172a',marginBottom:8}}>Creator Terms</div>
+                  <div style={{fontSize:11,color:'#64748b',lineHeight:1.9}}>
+                    <div>1. All content must be your own original work</div>
+                    <div>2. No hate speech, illegal, or misleading content</div>
+                    <div>3. Income/business courses require appropriate disclaimers</div>
+                    <div>4. You indemnify SuperAdPro from content claims</div>
+                    <div>5. Courses undergo AI scan + admin review before publishing</div>
+                    <div>6. 30-day refund policy — commissions deducted</div>
+                  </div>
+                </div>
+
+                <label style={{display:'flex',alignItems:'flex-start',gap:10,cursor:'pointer',padding:'14px 16px',borderRadius:12,border:agreedTerms?'2px solid #8b5cf6':'2px solid #e8ecf2',background:agreedTerms?'rgba(139,92,246,.02)':'transparent',transition:'all .15s'}}>
+                  <input type="checkbox" checked={agreedTerms} onChange={function(){setAgreedTerms(!agreedTerms);}} style={{marginTop:2,accentColor:'#8b5cf6',width:18,height:18}}/>
+                  <span style={{fontSize:13,fontWeight:600,color:'#0f172a',lineHeight:1.6}}>I agree to the Creator Terms and confirm my content is original</span>
+                </label>
               </div>
             </div>
+          )}
 
-            {/* Thumbnail */}
-            <div style={{marginBottom:18}}>
-              <label style={{display:'flex',alignItems:'center',gap:6,fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>
-                <Image size={12}/> Course Banner Image
-              </label>
-              {thumbnailUrl && (
-                <div style={{width:'100%',height:140,borderRadius:10,marginBottom:8,backgroundImage:'url('+thumbnailUrl+')',backgroundSize:'cover',backgroundPosition:'center',border:'1px solid #e2e8f0',position:'relative'}}>
-                  <button onClick={function(){setThumbnailUrl('');}} style={{position:'absolute',top:6,right:6,width:24,height:24,borderRadius:'50%',border:'none',background:'rgba(0,0,0,.6)',color:'#fff',fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>×</button>
-                </div>
-              )}
-              <label style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'20px',borderRadius:10,border:'2px dashed #d1d5db',background:'#f8f9fb',cursor:'pointer',transition:'all .15s'}}
-                onMouseEnter={function(e){e.currentTarget.style.borderColor='#8b5cf6';e.currentTarget.style.background='rgba(139,92,246,.03)';}}
-                onMouseLeave={function(e){e.currentTarget.style.borderColor='#d1d5db';e.currentTarget.style.background='#f8f9fb';}}>
-                <Image size={18} color="#94a3b8"/>
-                <span style={{fontSize:13,fontWeight:600,color:'#64748b'}}>{thumbnailUrl ? 'Change banner' : 'Upload banner image'}</span>
-                <input type="file" accept="image/*" onChange={function(e){
-                  var file=e.target.files[0]; if(!file) return;
-                  var reader=new FileReader();
-                  reader.onload=function(ev){setThumbnailUrl(ev.target.result);};
-                  reader.readAsDataURL(file);
-                }} style={{display:'none'}}/>
-              </label>
-              <div style={{fontSize:10,color:'#94a3b8',marginTop:4}}>Recommended: 1280×720px (16:9). This displays at the top of your course card in the marketplace.</div>
-            </div>
+          {/* Nav */}
+          <div style={{display:'flex',justifyContent:'space-between',marginTop:20,paddingBottom:30}}>
+            {step>0?<button onClick={function(){setError('');setStep(step-1);}} style={{display:'flex',alignItems:'center',gap:4,padding:'12px 24px',borderRadius:10,border:'2px solid #e8ecf2',background:'#fff',color:'#64748b',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}><ChevronLeft size={16}/>Back</button>:<div/>}
+            {step<2?<button onClick={nextStep} style={{display:'flex',alignItems:'center',gap:4,padding:'12px 28px',borderRadius:10,border:'none',background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:14,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',boxShadow:'0 4px 14px rgba(139,92,246,.25)'}}>Continue<ChevronRight size={16}/></button>:(
+              <button onClick={handleCreate} disabled={saving||!agreedTerms} style={{display:'flex',alignItems:'center',gap:6,padding:'14px 32px',borderRadius:10,border:'none',cursor:(saving||!agreedTerms)?'default':'pointer',fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,background:(saving||!agreedTerms)?'#cbd5e1':'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',boxShadow:(saving||!agreedTerms)?'none':'0 4px 16px rgba(139,92,246,.3)'}}>
+                {saving?'Creating...':<><Sparkles size={16}/>Create Course</>}
+              </button>)}
+          </div>
+        </div>
 
-            {/* Commission explainer */}
-            <div style={{padding:'16px 18px',background:'linear-gradient(135deg,#f0fdf4,#ecfdf5)',borderRadius:10,border:'1px solid #bbf7d0',marginBottom:18}}>
-              <div style={{fontSize:12,fontWeight:800,color:'#16a34a',marginBottom:6}}>💰 How You Earn — 100% Pass-Up System</div>
-              <div style={{fontSize:12,color:'#475569',lineHeight:1.7}}>
-                You keep 100% of the full course price on your 1st, 3rd, 5th sale (odd numbers). Your 2nd, 4th, 6th, 8th sales (even numbers) pass up 100% to your direct sponsor. Pass-ups cascade — when your sponsor receives a pass-up, it counts in their own odd/even pattern. No platform fees. No caps.
+        {/* RIGHT — Live Preview */}
+        <div style={{position:'sticky',top:24}}>
+          <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Live Preview</div>
+          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.06)'}}>
+            <div style={{aspectRatio:'16/9',background:'linear-gradient(135deg,#1a103d,#2d1b69)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
+              {bannerUrl?<img src={bannerUrl} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>:<div style={{fontSize:36,opacity:.15}}>{catObj?catObj.icon:'🎓'}</div>}
+              <div style={{position:'absolute',top:8,right:8,background:'rgba(0,0,0,.7)',backdropFilter:'blur(8px)',borderRadius:8,padding:'4px 10px'}}>
+                <span style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#fff'}}>${parseFloat(price||0).toFixed(0)||'0'}</span>
+              </div>
+              <div style={{position:'absolute',bottom:8,left:8,display:'flex',gap:3}}>
+                <span style={{fontSize:7,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(139,92,246,.85)',color:'#fff'}}>100% Commission</span>
+                {difficulty&&<span style={{fontSize:7,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(255,255,255,.2)',color:'#fff',textTransform:'capitalize'}}>{difficulty}</span>}
               </div>
             </div>
-
-            {/* Legal disclaimers & terms */}
-            <div style={{padding:'16px 18px',background:'#f8f9fb',borderRadius:10,border:'1px solid #e8ecf2',marginBottom:20}}>
-              <div style={{fontSize:12,fontWeight:800,color:'#0f172a',marginBottom:8}}>⚖️ Creator Terms & Legal Agreement</div>
-              <div style={{fontSize:11,color:'#64748b',lineHeight:1.8,marginBottom:12}}>
-                By creating a course on SuperAdPro, you agree to the following:
+            <div style={{padding:'16px'}}>
+              <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:3,lineHeight:1.3}}>{title||'Your Course Title'}</div>
+              <div style={{fontSize:11,color:'#94a3b8',marginBottom:6}}>by You</div>
+              <div style={{fontSize:12,color:'#475569',lineHeight:1.6,marginBottom:10}}>{shortDesc||'Your one-line summary appears here'}</div>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                {catObj&&<span style={{fontSize:9,fontWeight:700,padding:'3px 8px',borderRadius:5,background:'#f1f5f9',color:'#64748b'}}>{catObj.icon} {catObj.label}</span>}
               </div>
-              <div style={{fontSize:11,color:'#475569',lineHeight:1.8}}>
-                <div style={{marginBottom:6}}>
-                  <strong>1. Original Content:</strong> All course material must be your own original work. You must not upload content that infringes on any third party's copyright, trademark, or intellectual property rights.
-                </div>
-                <div style={{marginBottom:6}}>
-                  <strong>2. No Prohibited Content:</strong> Courses must not contain hate speech, violence, illegal activity guidance, adult content, misleading health/financial claims, or any content that violates applicable laws.
-                </div>
-                <div style={{marginBottom:6}}>
-                  <strong>3. Income Disclaimer:</strong> If your course relates to earning money, trading, investing, or business, you must include appropriate disclaimers. No guaranteed income promises.
-                </div>
-                <div style={{marginBottom:6}}>
-                  <strong>4. Indemnification:</strong> You agree to indemnify and hold SuperAdPro harmless from any claims, damages, or expenses arising from your course content.
-                </div>
-                <div style={{marginBottom:6}}>
-                  <strong>5. Review Process:</strong> All courses undergo AI-powered content scanning and manual admin review before publishing. SuperAdPro reserves the right to reject or remove courses that violate these terms.
-                </div>
-                <div>
-                  <strong>6. Refund Policy:</strong> SuperAdPro may process refunds within 30 days of purchase. Refunded commissions will be deducted from your balance.
-                </div>
-              </div>
-              <label style={{display:'flex',alignItems:'flex-start',gap:10,marginTop:14,cursor:'pointer'}}>
-                <input type="checkbox" checked={agreedTerms} onChange={function(){setAgreedTerms(!agreedTerms);}}
-                  style={{marginTop:2,accentColor:'#8b5cf6',width:18,height:18}}/>
-                <span style={{fontSize:12,fontWeight:700,color:'#0f172a',lineHeight:1.5}}>
-                  I confirm that all content is my original work, I have read and agree to the Creator Terms above, and I understand my course will be reviewed before publishing.
-                </span>
-              </label>
             </div>
+          </div>
 
-            {/* Create button */}
-            <button onClick={handleSave} disabled={saving || !agreedTerms}
-              style={{display:'block',margin:'0 auto',padding:'14px 40px',borderRadius:10,border:'none',
-                cursor:(saving||!agreedTerms)?'default':'pointer',fontFamily:'inherit',fontSize:15,fontWeight:800,
-                background:(saving||!agreedTerms)?'#cbd5e1':'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',
-                boxShadow:(saving||!agreedTerms)?'none':'0 4px 14px rgba(139,92,246,.3)',transition:'all .2s'}}>
-              {saving ? 'Creating...' : 'Create Course'}
-            </button>
+          {/* Earnings */}
+          <div style={{marginTop:12,background:'linear-gradient(135deg,#f5f3ff,#ede9fe)',border:'1px solid #ddd6fe',borderRadius:12,padding:'14px 16px'}}>
+            <div style={{fontSize:11,fontWeight:800,color:'#8b5cf6',marginBottom:6}}>💰 100% Pass-Up System</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:900,color:'#8b5cf6'}}>${parseFloat(price||0).toFixed(0)}</div>
+            <div style={{fontSize:10,color:'#64748b',marginTop:4,lineHeight:1.6}}>per kept sale (1st, 3rd, 5th...). Even sales pass up to your sponsor. No platform fees.</div>
+          </div>
+
+          {/* What's next */}
+          <div style={{marginTop:12,background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:'14px 16px'}}>
+            <div style={{fontSize:11,fontWeight:800,color:'#334155',marginBottom:8}}>After Creating:</div>
+            {['Add chapters & lessons','Rich text + video content','Submit for AI review','Admin approves → live'].map(function(s,i){
+              return <div key={i} style={{display:'flex',gap:6,padding:'3px 0',fontSize:11,color:'#64748b'}}><span style={{color:'#8b5cf6',fontWeight:800}}>{i+1}.</span>{s}</div>;
+            })}
           </div>
         </div>
       </div>
