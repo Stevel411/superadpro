@@ -10360,8 +10360,8 @@ async def api_create_course(request: Request, user: User = Depends(get_current_u
         price = float(price_str)
     except (ValueError, TypeError):
         return JSONResponse({"error": "Invalid price"}, status_code=400)
-    if price < 25:
-        return JSONResponse({"error": "Minimum price is $25"}, status_code=400)
+    if price < 20:
+        return JSONResponse({"error": "Minimum price is $20"}, status_code=400)
 
     # Check terms acceptance
     agreed_terms = body.get("agreed_terms", False)
@@ -10416,8 +10416,8 @@ async def api_update_course(course_id: int, request: Request, user: User = Depen
             price = float(body["price"])
         except (ValueError, TypeError):
             return JSONResponse({"error": "Invalid price"}, status_code=400)
-        if price < 25:
-            return JSONResponse({"error": "Minimum price is $25"}, status_code=400)
+        if price < 20:
+            return JSONResponse({"error": "Minimum price is $20"}, status_code=400)
         course.price = price
     if "category" in body:
         course.category = body["category"]
@@ -10629,7 +10629,7 @@ async def api_submit_course(course_id: int, request: Request, user: User = Depen
     if not course.description or len(course.description) < 100:
         errors.append("Description must be at least 100 characters")
     if course.price < 25:
-        errors.append("Minimum price is $25")
+        errors.append("Minimum price is $20")
     if not course.title or len(course.title) < 10:
         errors.append("Title must be at least 10 characters")
 
