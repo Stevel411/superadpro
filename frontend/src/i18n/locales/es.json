@@ -84,7 +84,11 @@
     "nicheFinder": "Buscador de Nichos",
     "socialPosts": "Posts Sociales",
     "videoScripts": "Guiones de Video",
-    "emailSwipes": "Plantillas de Email"
+    "emailSwipes": "Plantillas de Email",
+    "adHub": "Centro de Anuncios",
+    "superProducts": "Productos Super",
+    "superSeller": "SuperSeller",
+    "superMarket": "SuperMarket"
   },
   "dashboard": {
     "title": "Panel",

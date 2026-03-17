@@ -7,7 +7,7 @@ import {
   Home, User, Wallet, Headphones, Eye, Zap, LayoutGrid, Link2,
   Globe, GraduationCap, Store, PenLine, Network, FileText, Users,
   Target, Mail, Trophy, Award, Bot, Megaphone, Film,
-  LogOut, ChevronRight, Play, Lock
+  LogOut, ChevronRight, Play, Lock, Sparkles
 } from 'lucide-react';
 
 function buildNav(t) {
@@ -20,21 +20,27 @@ function buildNav(t) {
       { label: t('nav.support'), icon: Headphones, path: '/support' },
     ]},
     { type: 'divider' },
-    { type: 'group', label: t('nav.earn'), key: 'earn', items: [
+    { type: 'group', label: t('nav.adHub'), key: 'adhub', items: [
       { label: t('nav.watchToEarn'), icon: Eye, path: '/watch' },
       { label: t('nav.campaignTiers'), icon: Zap, path: '/campaign-tiers' },
       { label: t('nav.adBoard'), icon: LayoutGrid, path: '/ad-board' },
     ]},
     { type: 'divider' },
     { type: 'group', label: t('nav.creatorTools'), key: 'creator', items: [
-      { label: t('nav.linkHub'), icon: LayoutGrid, path: '/linkhub' },
-      { label: t('nav.linkTools'), icon: Link2, path: '/link-tools' },
+      { label: t('nav.linkHub'), icon: Link2, path: '/linkhub' },
+      { label: t('nav.linkTools'), icon: LayoutGrid, path: '/link-tools' },
+    ]},
+    { type: 'divider' },
+    { type: 'group', label: t('nav.superProducts'), key: 'super', items: [
       { label: t('nav.superPages'), icon: Globe, path: '/pro/funnels', pro: true },
+      { label: t('nav.superSeller'), icon: Zap, path: '/superseller', pro: true },
+      { label: t('nav.superMarket'), icon: Store, path: '/marketplace' },
+      { label: t('nav.proSellerAi'), icon: Target, path: '/proseller', pro: true },
+      { label: t('nav.myLeads'), icon: Mail, path: '/pro/leads', pro: true },
     ]},
     { type: 'divider' },
     { type: 'group', label: t('nav.courses'), key: 'courses', items: [
       { label: t('nav.courseLibrary'), icon: GraduationCap, path: '/courses' },
-      { label: t('nav.marketplace'), icon: Store, path: '/marketplace' },
       { label: t('nav.createCourse'), icon: PenLine, path: '/courses/create', pro: true },
     ]},
     { type: 'divider' },
@@ -42,9 +48,6 @@ function buildNav(t) {
       { label: t('nav.myNetwork'), icon: Network, path: '/network' },
       { label: t('nav.compPlan'), icon: FileText, path: '/compensation-plan' },
       { label: t('nav.socialShare'), icon: Users, path: '/affiliate' },
-      { label: t('nav.proSellerAi'), icon: Target, path: '/proseller', pro: true },
-      { label: 'SuperSeller', icon: Zap, path: '/superseller', pro: true },
-      { label: t('nav.myLeads'), icon: Mail, path: '/pro/leads', pro: true },
       { label: t('nav.leaderboard'), icon: Trophy, path: '/leaderboard' },
       { label: t('nav.achievements'), icon: Award, path: '/achievements' },
     ]},
