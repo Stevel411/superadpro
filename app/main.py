@@ -10613,8 +10613,8 @@ async def api_submit_course(course_id: int, request: Request, user: User = Depen
     chapters = db.query(MemberCourseChapter).filter(MemberCourseChapter.course_id == course_id).all()
     lessons = db.query(MemberCourseLesson).filter(MemberCourseLesson.course_id == course_id).all()
 
-    if len(lessons) < 3:
-        errors.append("Minimum 3 lessons required")
+    if len(lessons) < 1:
+        errors.append("At least 1 lecture required")
     total_duration = sum(l.duration_minutes or 0 for l in lessons)
     if total_duration < 10:
         errors.append("Minimum 10 minutes total duration required")

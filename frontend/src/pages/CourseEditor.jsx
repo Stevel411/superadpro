@@ -199,7 +199,7 @@ export default function CourseEditor() {
             <div style={{padding:'18px 20px'}}>
               <div style={{marginBottom:14}}>
                 {[
-                  {ok:totalLectures>=3,l:'At least 3 lectures'},
+                  {ok:totalLectures>=1,l:'At least 1 lecture'},
                   {ok:totalDuration>=10,l:'10+ minutes total'},
                   {ok:hasPreview,l:'1+ free preview lecture'},
                   {ok:!!(course.thumbnail_url),l:'Course banner uploaded'},
