@@ -97,7 +97,7 @@ function CampaignList({ campaigns, onCreate, onCreateCustom, onOpen }) {
             <div style={{width:32,height:32,borderRadius:8,background:'rgba(16,185,129,.15)',display:'flex',alignItems:'center',justifyContent:'center'}}>
               <Zap size={18} color="#34d399"/>
             </div>
-            <span style={{fontSize:12,fontWeight:800,letterSpacing:2.5,textTransform:'uppercase',color:'#34d399'}}>AI Sales Autopilot</span>
+            <span style={{fontSize:12,fontWeight:800,letterSpacing:2.5,textTransform:'uppercase'}}><span style={{color:'#fff'}}>Super</span><span style={{color:'#34d399'}}>Seller</span></span>
           </div>
           <h2 style={{fontFamily:'Sora,sans-serif',fontSize:34,fontWeight:900,color:'#fff',margin:'0 0 16px',letterSpacing:-.5}}>SuperSeller</h2>
           <p style={{fontSize:17,color:'rgba(255,255,255,.7)',maxWidth:540,lineHeight:1.8,margin:'0 0 10px',fontWeight:500}}>

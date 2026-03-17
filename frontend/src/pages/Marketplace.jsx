@@ -65,23 +65,47 @@ function BrowseView({ courses, allCourses, search, setSearch, category, setCateg
   return (
     <div>
       {/* Hero — SuperMarket Cyan Theme */}
-      <div style={{background:'linear-gradient(135deg,#042a36,#0a1e2a,#0d2530)',borderRadius:16,padding:'28px 32px',marginBottom:24,position:'relative',overflow:'hidden',border:'1px solid rgba(14,165,233,.15)'}}>
-        <div style={{position:'absolute',top:-30,right:-30,width:160,height:160,borderRadius:'50%',background:'rgba(14,165,233,.06)'}}/>
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:20}}>
-          <div>
-            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-              <div style={{width:28,height:28,borderRadius:7,background:'rgba(14,165,233,.15)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                <Store size={16} color="#38bdf8"/>
+      <div style={{background:'linear-gradient(135deg,#042a36,#0a1e2a,#0d2530)',borderRadius:16,padding:'40px 44px',marginBottom:24,position:'relative',overflow:'hidden',border:'1px solid rgba(14,165,233,.15)'}}>
+        <div style={{position:'absolute',top:-50,right:-50,width:240,height:240,borderRadius:'50%',background:'rgba(14,165,233,.06)'}}/>
+        <div style={{position:'absolute',bottom:-30,right:100,width:150,height:150,borderRadius:'50%',background:'rgba(56,189,248,.04)'}}/>
+        {/* Floating shopping/money icons */}
+        {[
+          {left:'70%',icon:'🛒',size:20,delay:0,dur:6.5,opacity:.07},
+          {left:'82%',icon:'💰',size:16,delay:1.5,dur:7,opacity:.06},
+          {left:'60%',icon:'🛍️',size:24,delay:3,dur:8,opacity:.07},
+          {left:'90%',icon:'💎',size:14,delay:0.5,dur:5.5,opacity:.05},
+          {left:'75%',icon:'📦',size:18,delay:4,dur:7.5,opacity:.08},
+          {left:'85%',icon:'🛒',size:22,delay:2,dur:6,opacity:.06},
+          {left:'55%',icon:'💰',size:16,delay:5,dur:8.5,opacity:.05},
+          {left:'92%',icon:'🛍️',size:12,delay:1,dur:5,opacity:.04},
+        ].map(function(d, i) {
+          return <div key={i} style={{position:'absolute',bottom:-30,left:d.left,fontSize:d.size,opacity:d.opacity,animation:'smFloat '+d.dur+'s ease-in-out '+d.delay+'s infinite',pointerEvents:'none',zIndex:0}}>{d.icon}</div>;
+        })}
+        <style>{`@keyframes smFloat{0%{transform:translateY(0) rotate(0deg);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-240px) rotate(-15deg);opacity:0}}`}</style>
+        <div style={{position:'relative',zIndex:1}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:20}}>
+            <div>
+              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
+                <div style={{width:32,height:32,borderRadius:8,background:'rgba(14,165,233,.15)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <Store size={18} color="#38bdf8"/>
+                </div>
+                <span style={{fontSize:12,fontWeight:800,letterSpacing:2.5,textTransform:'uppercase'}}><span style={{color:'#fff'}}>Super</span><span style={{color:'#38bdf8'}}>Market</span></span>
               </div>
-              <span style={{fontSize:12,fontWeight:800,letterSpacing:2.5,textTransform:'uppercase',color:'#38bdf8'}}>SuperMarket</span>
+              <h2 style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:900,color:'#fff',margin:'0 0 10px',letterSpacing:-.5}}>Digital Product Marketplace</h2>
+              <p style={{fontSize:15,color:'rgba(255,255,255,.6)',margin:'0 0 14px',fontWeight:500,maxWidth:480,lineHeight:1.7}}>
+                Browse products, promote with your affiliate link, earn 25% commission on every sale
+              </p>
+              <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+                {['Browse & Discover','One-Click Promote','25% Commission','Instant Tracking'].map(function(item) {
+                  return <span key={item} style={{padding:'5px 12px',borderRadius:6,background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.2)',fontSize:11,fontWeight:700,color:'#38bdf8'}}>{item}</span>;
+                })}
+              </div>
             </div>
-            <h2 style={{fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:900,color:'#fff',margin:'0 0 6px'}}>Digital Product Marketplace</h2>
-            <p style={{fontSize:14,color:'rgba(255,255,255,.5)',margin:0,fontWeight:500}}>Browse products, promote with your affiliate link, earn 25% on every sale</p>
-          </div>
-          <div style={{display:'flex',gap:10}}>
-            <StatBox value={allCourses.length} label="Products" color="#38bdf8"/>
-            <StatBox value="25%" label="Commission" color="#0ea5e9"/>
-            <button onClick={onMyProducts} style={{padding:'12px 20px',borderRadius:10,border:'1px solid rgba(14,165,233,.3)',background:'rgba(14,165,233,.08)',color:'#38bdf8',fontSize:12,fontWeight:800,cursor:'pointer',fontFamily:'inherit'}}>My Products</button>
+            <div style={{display:'flex',gap:10,alignItems:'center'}}>
+              <StatBox value={allCourses.length} label="Products" color="#38bdf8"/>
+              <StatBox value="25%" label="Commission" color="#0ea5e9"/>
+              <button onClick={onMyProducts} style={{padding:'14px 22px',borderRadius:10,border:'1px solid rgba(14,165,233,.3)',background:'rgba(14,165,233,.08)',color:'#38bdf8',fontSize:13,fontWeight:800,cursor:'pointer',fontFamily:'inherit'}}>My Products</button>
+            </div>
           </div>
         </div>
       </div>
