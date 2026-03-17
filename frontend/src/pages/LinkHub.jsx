@@ -98,13 +98,13 @@ export default function LinkHub() {
   function onDragEnd() { setDragIdx(-1); }
 
   function copyLink() {
-    var url = window.location.origin + '/link/' + (data?.username || 'me');
+    var url = window.location.origin + '/u/' + (data?.username || 'me');
     navigator.clipboard.writeText(url);
     setCopied(true); setTimeout(function() { setCopied(false); }, 2000);
   }
 
   var btnRadius = style.btn_style_type==='rounded'?50:style.btn_style_type==='soft'?12:4;
-  var linkUrl = window.location.origin + '/link/' + (data?.username || 'me');
+  var linkUrl = window.location.origin + '/u/' + (data?.username || 'me');
 
   if (!data) return <div style={{display:'flex',height:'100vh',alignItems:'center',justifyContent:'center',background:'#f5f6fa'}}><Spin/></div>;
 
@@ -236,7 +236,7 @@ export default function LinkHub() {
         {/* URL bar below phone */}
         <div style={{position:'absolute',bottom:20,left:'50%',transform:'translateX(-50%)',background:'#fff',borderRadius:8,padding:'8px 16px',boxShadow:'0 2px 8px rgba(0,0,0,.1)',display:'flex',alignItems:'center',gap:6}}>
           <div style={{width:6,height:6,borderRadius:'50%',background:'#16a34a'}}/>
-          <span style={{fontSize:11,fontWeight:600,color:'#64748b'}}>{window.location.host}/link/</span>
+          <span style={{fontSize:11,fontWeight:600,color:'#64748b'}}>{window.location.host}/u/</span>
           <span style={{fontSize:11,fontWeight:800,color:'#0f172a'}}>{data?.username || 'yourname'}</span>
         </div>
       </div>
