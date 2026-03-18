@@ -810,10 +810,10 @@ def fomo_stats_api(db: Session = Depends(get_db)):
 
 @app.get("/register")
 def register_form(request: Request, ref: str = ""):
-    """Registration is now handled by modal — redirect to home."""
-    sponsor = ref or request.cookies.get("ref", "")
-    url = f"/?join={sponsor}" if sponsor else "/?register=1"
-    return RedirectResponse(url=url, status_code=302)
+    """Phase 2: serve React SPA — React Router handles /register."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/?register=1", status_code=302)
 
 @app.post("/register")
 @limiter.limit("5/minute")
@@ -928,8 +928,10 @@ def dev_login(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/login")
 def login_form(request: Request):
-    """Redirect to home page — login is now handled by modal."""
-    return RedirectResponse(url="/?login=1", status_code=302)
+    """Phase 2: serve React SPA — React Router handles /login."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/", status_code=302)
 
 @app.post("/login")
 @limiter.limit("10/minute")
@@ -1012,23 +1014,152 @@ def logout():
     response.delete_cookie("user_id")
     response.delete_cookie("pre_auth")
     return response
+@app.post("/api/2fa/verify-login")
+@limiter.limit("10/minute")
+async def api_2fa_verify_login(request: Request, db: Session = Depends(get_db)):
+    """JSON: verify 2FA code during login flow."""
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    import pyotp
+    pre_auth = request.cookies.get("pre_auth")
+    if not pre_auth:
+        return JSONResponse({"error": "Session expired. Please log in again."}, status_code=401)
+
+    user = db.query(User).filter(User.id == int(pre_auth)).first()
+    if not user or not user.totp_secret:
+        return JSONResponse({"error": "Invalid session."}, status_code=401)
+
+    code = body.get("code", "").strip()
+    totp = pyotp.TOTP(user.totp_secret)
+    if totp.verify(code, valid_window=1):
+        response = JSONResponse({"success": True, "redirect": "/app/dashboard"})
+        set_secure_cookie(response, user.id)
+        response.delete_cookie("pre_auth")
+        return response
+    record_failed_attempt(user.username)
+    return JSONResponse({"error": "Invalid code. Please try again."}, status_code=400)
+
+
+@app.get("/api/2fa/setup")
+async def api_2fa_setup(request: Request, user: User = Depends(get_current_user),
+                         db: Session = Depends(get_db)):
+    """JSON: generate TOTP secret and QR code for setup."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    import pyotp, qrcode, io, base64
+    if not user.totp_secret or user.totp_enabled:
+        secret = pyotp.random_base32()
+        user.totp_secret = secret
+        db.commit()
+    else:
+        secret = user.totp_secret
+    totp = pyotp.TOTP(secret)
+    uri = totp.provisioning_uri(name=user.email or user.username, issuer_name="SuperAdPro")
+    img = qrcode.make(uri)
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    qr_b64 = base64.b64encode(buf.getvalue()).decode()
+    return {"qr_b64": qr_b64, "secret": secret, "email": user.email or user.username}
+
+
+@app.post("/api/2fa/confirm-setup")
+async def api_2fa_confirm_setup(request: Request, user: User = Depends(get_current_user),
+                                  db: Session = Depends(get_db)):
+    """JSON: confirm 2FA setup with a valid code."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    import pyotp
+    body = await request.json()
+    code = body.get("code", "").strip()
+    if not user.totp_secret:
+        return JSONResponse({"error": "No secret generated. Please start setup again."}, status_code=400)
+    totp = pyotp.TOTP(user.totp_secret)
+    if totp.verify(code, valid_window=1):
+        user.totp_enabled = True
+        db.commit()
+        return {"success": True, "message": "2FA enabled successfully"}
+    return JSONResponse({"error": "Invalid code. Please try again."}, status_code=400)
+
+
+@app.post("/api/forgot-password")
+@limiter.limit("3/minute")
+async def api_forgot_password(request: Request, db: Session = Depends(get_db)):
+    """JSON: request a password reset email."""
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+    email = sanitize(body.get("email", "").strip().lower())
+    # Always return success — prevents email enumeration
+    if not validate_email(email):
+        return JSONResponse({"error": "Please enter a valid email address."}, status_code=400)
+    user = db.query(User).filter(User.email == email).first()
+    if user:
+        db.query(PasswordResetToken).filter(
+            PasswordResetToken.user_id == user.id,
+            PasswordResetToken.used == False
+        ).delete()
+        token = secrets.token_hex(32)
+        reset_token = PasswordResetToken(
+            user_id=user.id, token=token,
+            expires_at=datetime.utcnow() + timedelta(hours=1),
+        )
+        db.add(reset_token)
+        db.commit()
+        send_password_reset_email(
+            to_email=user.email,
+            first_name=user.first_name or user.username,
+            reset_token=token,
+        )
+    return {"success": True, "message": "If that email is registered, a reset link has been sent."}
+
+
+@app.post("/api/reset-password")
+@limiter.limit("5/minute")
+async def api_reset_password(request: Request, db: Session = Depends(get_db)):
+    """JSON: reset password using a valid token."""
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+    token = body.get("token", "").strip()
+    password = body.get("password", "")
+    confirm = body.get("confirm_password", "")
+    if not token:
+        return JSONResponse({"error": "Invalid reset link."}, status_code=400)
+    reset = db.query(PasswordResetToken).filter(
+        PasswordResetToken.token == token,
+        PasswordResetToken.used == False
+    ).first()
+    if not reset or reset.expires_at < datetime.utcnow():
+        return JSONResponse({"error": "This reset link has expired. Please request a new one."}, status_code=400)
+    if len(password) < 8:
+        return JSONResponse({"error": "Password must be at least 8 characters."}, status_code=400)
+    if len(password.encode("utf-8")) > 72:
+        return JSONResponse({"error": "Password must be 72 characters or less."}, status_code=400)
+    if password != confirm:
+        return JSONResponse({"error": "Passwords do not match."}, status_code=400)
+    import bcrypt
+    user = db.query(User).filter(User.id == reset.user_id).first()
+    if not user:
+        return JSONResponse({"error": "User not found."}, status_code=400)
+    user.password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    reset.used = True
+    db.commit()
+    return {"success": True, "message": "Password reset successfully. You can now log in."}
+
+
 
 
 @app.get("/login/2fa")
-def login_2fa_page(request: Request, db: Session = Depends(get_db)):
-    """Show the 2FA code entry page after username/password verified."""
-    pre_auth = request.cookies.get("pre_auth")
-    if not pre_auth:
-        return RedirectResponse(url="/login", status_code=303)
-    user = db.query(User).filter(User.id == int(pre_auth)).first()
-    if not user:
-        return RedirectResponse(url="/login", status_code=303)
-    return templates.TemplateResponse("login-2fa.html", {
-        "request": request,
-        "username": user.username,
-        "error": request.query_params.get("error")
-    })
-
+def login_2fa_form(request: Request):
+    """Phase 2: serve React SPA — React Router handles /login/2fa."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/login", status_code=302)
 
 @app.post("/login/2fa")
 @limiter.limit("10/minute")
@@ -2861,7 +2992,10 @@ def withdraw(
 
 @app.get("/forgot-password")
 def forgot_password_form(request: Request):
-    return templates.TemplateResponse("forgot-password.html", {"request": request})
+    """Phase 2: serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/", status_code=302)
 
 
 @app.post("/forgot-password")
@@ -2918,27 +3052,11 @@ def forgot_password_process(
 
 
 @app.get("/reset-password")
-def reset_password_form(request: Request, token: str = "", db: Session = Depends(get_db)):
-    if not token:
-        return templates.TemplateResponse("forgot-password.html", {
-            "request": request,
-            "error": "Invalid reset link. Please request a new one."
-        })
-
-    reset = db.query(PasswordResetToken).filter(
-        PasswordResetToken.token == token,
-        PasswordResetToken.used  == False
-    ).first()
-
-    if not reset or reset.expires_at < datetime.utcnow():
-        return templates.TemplateResponse("reset-password.html", {
-            "request": request, "expired": True
-        })
-
-    return templates.TemplateResponse("reset-password.html", {
-        "request": request, "token": token
-    })
-
+def reset_password_form(request: Request):
+    """Phase 2: serve React SPA — React reads token from query params."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/", status_code=302)
 
 @app.post("/reset-password")
 @limiter.limit("5/minute")
@@ -7010,28 +7128,11 @@ def kyc_submit(
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/account/2fa-setup")
-def totp_setup_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Generate TOTP secret and QR code for setup."""
-    if not user: return RedirectResponse(url="/?login=1")
-    import pyotp, qrcode, io, base64
-    # Generate new secret if not already set (or if re-setting up)
-    if not user.totp_secret or user.totp_enabled:
-        secret = pyotp.random_base32()
-        user.totp_secret = secret
-        db.commit()
-    else:
-        secret = user.totp_secret
-    # Generate QR code
-    totp = pyotp.TOTP(secret)
-    uri = totp.provisioning_uri(name=user.email or user.username, issuer_name="SuperAdPro")
-    img = qrcode.make(uri)
-    buf = io.BytesIO()
-    img.save(buf, format="PNG")
-    qr_b64 = base64.b64encode(buf.getvalue()).decode()
-    return templates.TemplateResponse("2fa-setup.html", {
-        "request": request, "user": user, "qr_b64": qr_b64, "secret": secret,
-        "active_page": "account"
-    })
+def totp_setup_page(request: Request):
+    """Phase 2: serve React SPA — 2FA setup is at /2fa-setup in React."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/app/account", status_code=302)
 
 
 @app.post("/account/2fa-verify")

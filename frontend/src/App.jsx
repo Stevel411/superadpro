@@ -60,6 +60,14 @@ import SuperMarketCreate from './pages/SuperMarketCreate';
 import SuperPagesEditor from './pages/superpages/SuperPagesEditor';
 import ActivateTier from './pages/ActivateTier';
 
+// Auth pages
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import TwoFactorLogin from './pages/auth/TwoFactorLogin';
+import TwoFactorSetup from './pages/auth/TwoFactorSetup';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
+
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return (
@@ -69,7 +77,7 @@ function ProtectedRoute({ children }) {
   );
   if (!user) {
     // Use replace to avoid back-button loops
-    window.location.replace('/?login=1');
+    window.location.replace('/login');
     return <div className="flex items-center justify-center min-h-screen"><Spinner size="lg" /></div>;
   }
   return children;
@@ -134,6 +142,14 @@ function AppRoutes() {
       <Route path="/courses/commissions" element={<ProtectedRoute><MyNetwork /></ProtectedRoute>} />
       <Route path="/courses/how-it-works" element={<ProtectedRoute><HowCommissionsWork /></ProtectedRoute>} />
       <Route path="/ad-board" element={<ProtectedRoute><AdBoard /></ProtectedRoute>} />
+
+      {/* Auth pages — no sidebar, no auth required */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/login/2fa" element={<TwoFactorLogin />} />
+      <Route path="/2fa-setup" element={<ProtectedRoute><TwoFactorSetup /></ProtectedRoute>} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Catch-all */}
       <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
