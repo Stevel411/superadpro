@@ -209,7 +209,7 @@ export default function PassiveIncome({ d }) {
         <div style={{ position:'relative', zIndex:1 }}>
           <div style={S.heroBadge}>
             <div style={{ width:6, height:6, borderRadius:'50%', background:'#6366f1', animation:'sapPulse 2s ease-in-out infinite' }}/>
-            Passive Income Engine
+            Recurring Income Engine
           </div>
           <div style={S.heroTitle}>
             Your Money Works<br/>
@@ -305,7 +305,7 @@ export default function PassiveIncome({ d }) {
 
         {/* Passive Score */}
         <div style={S.darkCard}>
-          <div style={S.sectionTitle}>Passive Income Score</div>
+          <div style={S.sectionTitle}>Recurring Income Score</div>
           <div style={S.sectionSub}>How automated your earnings are</div>
           <div style={{ display:'flex', alignItems:'center', gap:20 }}>
             <div style={{ position:'relative', flexShrink:0 }}>
@@ -320,7 +320,7 @@ export default function PassiveIncome({ d }) {
                 <span style={{ fontSize:20 }}>{passiveLevel.emoji}</span>
                 <div>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:passiveLevel.color }}>{passiveLevel.label} Level</div>
-                  <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)' }}>{passiveScore}% of your income is passive</div>
+                  <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)' }}>{passiveScore}% of your income is recurring</div>
                 </div>
               </div>
               <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
@@ -414,7 +414,7 @@ export default function PassiveIncome({ d }) {
         ) : (
           <div style={{ textAlign:'center', padding:'32px 0', color:'rgba(255,255,255,0.2)' }}>
             <div style={{ fontSize:36, marginBottom:8 }}>💤</div>
-            <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.4)', marginBottom:4 }}>No passive earnings yet</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.4)', marginBottom:4 }}>No recurring earnings yet</div>
             <div style={{ fontSize:12, color:'rgba(255,255,255,0.25)' }}>Build your team and activate a campaign tier to start earning on autopilot</div>
           </div>
         )}

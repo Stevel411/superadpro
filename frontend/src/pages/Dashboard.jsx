@@ -158,7 +158,7 @@ export default function Dashboard() {
       <div style={{ display:'flex', gap:6, marginBottom:20 }}>
         {[
           { key:'overview', label:'Overview', icon:'📊' },
-          { key:'passive',  label:'Passive Income', icon:'💸' },
+          { key:'passive',  label:'Recurring Income', icon:'💸' },
         ].map(function(t) {
           var on = dashTab === t.key;
           return (
@@ -176,7 +176,7 @@ export default function Dashboard() {
         })}
       </div>
 
-      {/* ── Passive Income Tab ── */}
+      {/* ── Recurring Income Tab ── */}
       {dashTab === 'passive' && <PassiveIncome d={d} />}
 
       {/* ── Overview Tab ── */}
