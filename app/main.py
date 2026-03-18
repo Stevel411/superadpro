@@ -14345,3 +14345,4 @@ def funnel_duplicate(page_id: int, request: Request, user: User = Depends(get_cu
     new_page.slug = f"{user.username.lower()}/{slug_base}-copy-{new_page.id}"
     db.commit()
     return JSONResponse({"success": True, "id": new_page.id, "edit_url": f"/funnels/visual/{new_page.id}"})
+# deploy trigger Wed Mar 18 01:46:38 UTC 2026
