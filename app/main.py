@@ -2799,7 +2799,7 @@ def _stripe_activate_membership(db, user, tier, subscription_id):
     # Send welcome email
     try:
         from .email_utils import send_membership_activated_email
-        send_membership_activated_email(user)
+        send_membership_activated_email(user.email, user.first_name or user.username)
     except Exception:
         pass
 
