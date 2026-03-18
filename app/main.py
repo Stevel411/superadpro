@@ -495,8 +495,8 @@ def affiliates_public(request: Request):
 def compensation_plan(request: Request, user: User = Depends(get_current_user)):
     """Phase 1 migration: redirect to React for members, keep public page for non-members."""
     if user:
-        return RedirectResponse(url="/app/compensation-plan", status_code=302)
-    return RedirectResponse(url="/app/compensation-plan", status_code=302)
+        return RedirectResponse(url="/compensation-plan", status_code=302)
+    return RedirectResponse(url="/compensation-plan", status_code=302)
 
 def _old_compensation_plan_DISABLED(request: Request, user: User = Depends(get_current_user)):
     ctx = {
@@ -898,7 +898,7 @@ def register_process(
         assign_passup_sponsor(db, user, sponsor_obj)
         db.commit()
 
-    response = RedirectResponse(url="/app/dashboard", status_code=303)
+    response = RedirectResponse(url="/dashboard", status_code=303)
     set_secure_cookie(response, user.id)
     response.delete_cookie("ref")
     return response
@@ -933,7 +933,7 @@ def dev_login(request: Request, db: Session = Depends(get_db)):
             user.is_active=True
             user.membership_tier="pro"
             db.commit()
-        response = RedirectResponse(url="/app/dashboard", status_code=303)
+        response = RedirectResponse(url="/dashboard", status_code=303)
         set_secure_cookie(response, user.id)
         return response
     except Exception as e:
@@ -969,7 +969,7 @@ def login_process(
             response.set_cookie("pre_auth", str(user.id), max_age=300, httponly=True, samesite="lax")
             return response
         # No 2FA — log in directly
-        response = RedirectResponse(url="/app/dashboard", status_code=303)
+        response = RedirectResponse(url="/dashboard", status_code=303)
         set_secure_cookie(response, user.id)
         return response
     record_failed_attempt(username)
@@ -1008,7 +1008,7 @@ async def api_login(
             response = JSONResponse({"success": True, "requires_2fa": True, "redirect": "/login/2fa"})
             response.set_cookie("pre_auth", str(user.id), max_age=300, httponly=True, samesite="lax")
             return response
-        response = JSONResponse({"success": True, "redirect": "/app/dashboard"})
+        response = JSONResponse({"success": True, "redirect": "/dashboard"})
         set_secure_cookie(response, user.id)
         return response
 
@@ -1044,7 +1044,7 @@ async def api_2fa_verify_login(request: Request, db: Session = Depends(get_db)):
     code = body.get("code", "").strip()
     totp = pyotp.TOTP(user.totp_secret)
     if totp.verify(code, valid_window=1):
-        response = JSONResponse({"success": True, "redirect": "/app/dashboard"})
+        response = JSONResponse({"success": True, "redirect": "/dashboard"})
         set_secure_cookie(response, user.id)
         response.delete_cookie("pre_auth")
         return response
@@ -1190,7 +1190,7 @@ def login_2fa_verify(
     totp = pyotp.TOTP(user.totp_secret)
     if totp.verify(totp_code.strip(), valid_window=1):
         # Code valid — grant full session
-        response = RedirectResponse(url="/app/dashboard", status_code=303)
+        response = RedirectResponse(url="/dashboard", status_code=303)
         set_secure_cookie(response, user.id)
         response.delete_cookie("pre_auth")
         return response
@@ -1248,7 +1248,7 @@ def launch_wizard(request: Request):
     """Phase 4: serve React SPA."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/app/dashboard", status_code=302)
+    return RedirectResponse(url="/dashboard", status_code=302)
 
 @app.post("/api/launch-wizard/complete")
 def complete_launch_wizard(request: Request, user: User = Depends(get_current_user),
@@ -1448,7 +1448,7 @@ def grid_detail(grid_id: int, request: Request,
     ctx.update({"grid": grid, "positions": positions, "GRID_PACKAGES": GRID_PACKAGES})
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/app/dashboard", status_code=302)
+    return RedirectResponse(url="/dashboard", status_code=302)
 
 @app.get("/wallet")
 def wallet(request: Request):
@@ -1551,10 +1551,10 @@ def save_wallet(
 ):
     if not user: return RedirectResponse(url="/?login=1", status_code=302)
     if wallet_address and not validate_wallet(wallet_address):
-        return RedirectResponse(url="/app/account?error=invalid_wallet", status_code=303)
+        return RedirectResponse(url="/account?error=invalid_wallet", status_code=303)
     user.wallet_address = wallet_address
     db.commit()
-    return RedirectResponse(url="/app/account?saved=true", status_code=303)
+    return RedirectResponse(url="/account?saved=true", status_code=303)
 
 @app.post("/api/wallet/connect")
 def api_wallet_connect(
@@ -1732,8 +1732,8 @@ def upload_video_post(
 @app.get("/pay-membership")
 def pay_membership_form(request: Request, user: User = Depends(get_current_user)):
     if not user: return RedirectResponse(url="/?login=1")
-    if user.is_active: return RedirectResponse(url="/app/dashboard")
-    return RedirectResponse(url="/app/upgrade", status_code=302)
+    if user.is_active: return RedirectResponse(url="/dashboard")
+    return RedirectResponse(url="/upgrade", status_code=302)
 
 def _old_pay_membership_DISABLED_1(request=None):
     pass  # Old pay-membership form — replaced by Stripe checkout
@@ -3375,7 +3375,7 @@ def watch_page(request: Request):
 
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/app/watch", status_code=302)
+    return RedirectResponse(url="/watch", status_code=302)
 
 def _old_watch_template_DISABLED(request=None, user=None, quota=None, campaign=None,
         ad_listing=None, content_type=None, warning=None):
@@ -3850,7 +3850,7 @@ def dev_test_coinbase(request: Request, user: User = Depends(get_current_user)):
     .back{{display:inline-block;color:#38bdf8;font-size:13px;margin-bottom:20px}}
     </style></head><body>
     <div class="wrap">
-    <a href="/app/dashboard" class="back">&larr; Back to Dashboard</a>
+    <a href="/dashboard" class="back">&larr; Back to Dashboard</a>
     <h1>&#x1F9EA; Coinbase Payment Test</h1>
     <div class="sub">Test the payment flow without affecting your account. Click any button to create a real Coinbase charge.</div>
 
@@ -3919,7 +3919,7 @@ def admin_panel(request: Request, user: User = Depends(get_current_user),
     if not user or not is_admin(user):
         logger.warning(f"Unauthorised admin access — IP: {request.client.host}")
         raise HTTPException(status_code=403, detail="Access denied")
-    return RedirectResponse(url="/app/admin", status_code=302)
+    return RedirectResponse(url="/admin", status_code=302)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -4591,35 +4591,35 @@ def check_and_increment_ai_quota(db: Session, user_id: int, tool: str) -> dict:
 def funnels_page(request: Request, user: User = Depends(get_current_user),
                  db: Session = Depends(get_db)):
     """Redirect to Pro funnels page."""
-    return RedirectResponse(url="/app/superpages", status_code=302)
+    return RedirectResponse(url="/pro/funnels", status_code=302)
 
 
 @app.get("/funnels/new")
 def funnel_new(request: Request, user: User = Depends(get_current_user),
                db: Session = Depends(get_db)):
     """Legacy route — redirects to Pro funnels."""
-    return RedirectResponse(url="/app/superpages", status_code=302)
+    return RedirectResponse(url="/pro/funnels", status_code=302)
 
 
 @app.get("/funnels/edit/{page_id}")
 def funnel_edit(page_id: int, request: Request, user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
     """Legacy route — redirects to Pro funnel editor."""
-    return RedirectResponse(url=f"/app/pro/funnel/{page_id}/edit", status_code=302)
+    return RedirectResponse(url=f"/pro/funnel/{page_id}/edit", status_code=302)
 
 
 @app.get("/funnels/visual/new")
 def funnel_visual_new(request: Request, user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
     """Legacy route — redirects to Pro funnels."""
-    return RedirectResponse(url="/app/superpages", status_code=302)
+    return RedirectResponse(url="/pro/funnels", status_code=302)
 
 
 @app.get("/funnels/visual/{page_id}")
 def funnel_visual_editor(page_id: int, request: Request, user: User = Depends(get_current_user),
                          db: Session = Depends(get_db)):
     """Legacy route — redirects to Pro funnel editor."""
-    return RedirectResponse(url=f"/app/pro/funnel/{page_id}/edit", status_code=302)
+    return RedirectResponse(url=f"/pro/funnel/{page_id}/edit", status_code=302)
 
 
 @app.get("/api/funnels/load/{page_id}")
@@ -5530,7 +5530,7 @@ def funnel_page_analytics(page_id: int, user: User = Depends(get_current_user),
 def funnel_analytics_dashboard(request: Request, user: User = Depends(get_current_user),
                                db: Session = Depends(get_db)):
     """Legacy route — redirects to Pro funnels."""
-    return RedirectResponse(url="/app/superpages", status_code=302)
+    return RedirectResponse(url="/pro/funnels", status_code=302)
 
 
 @app.get("/funnels/leads")
@@ -5664,7 +5664,7 @@ def link_tools_page(request: Request, user: User = Depends(get_current_user),
     ctx["base_url"] = base_url
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/app/dashboard", status_code=302)
+    return RedirectResponse(url="/dashboard", status_code=302)
 
 
 @limiter.limit("30/minute")
@@ -6104,7 +6104,7 @@ def my_ads_page(request: Request):
     """Phase 4: serve React SPA."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/app/ad-board", status_code=302)
+    return RedirectResponse(url="/ads", status_code=302)
 
 @app.post("/api/ads/create")
 async def create_ad(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -7031,7 +7031,7 @@ def account_update_profile(
     user.last_name  = sanitize(last_name).strip()
     user.country    = sanitize(country).strip()
     db.commit()
-    return RedirectResponse(url="/app/account?saved=profile", status_code=303)
+    return RedirectResponse(url="/account?saved=profile", status_code=303)
 
 
 @app.post("/account/change-password")
@@ -7089,18 +7089,18 @@ def kyc_submit(
     try:
         datetime.strptime(kyc_dob, "%Y-%m-%d")
     except ValueError:
-        return RedirectResponse(url="/app/account?error=invalid_date_format", status_code=303)
+        return RedirectResponse(url="/account?error=invalid_date_format", status_code=303)
     # Validate ID type
     if kyc_id_type not in ("passport", "drivers_licence", "national_id"):
-        return RedirectResponse(url="/app/account?error=invalid_id_type", status_code=303)
+        return RedirectResponse(url="/account?error=invalid_id_type", status_code=303)
     # Validate file (image or PDF, max 10MB)
     allowed_ext = (".jpg", ".jpeg", ".png", ".pdf")
     ext = os.path.splitext(kyc_id_file.filename or "")[1].lower()
     if ext not in allowed_ext:
-        return RedirectResponse(url="/app/account?error=invalid_file_type_use_jpg_png_or_pdf", status_code=303)
+        return RedirectResponse(url="/account?error=invalid_file_type_use_jpg_png_or_pdf", status_code=303)
     content = kyc_id_file.file.read()
     if len(content) > 10 * 1024 * 1024:
-        return RedirectResponse(url="/app/account?error=file_too_large_max_10mb", status_code=303)
+        return RedirectResponse(url="/account?error=file_too_large_max_10mb", status_code=303)
     # Save file
     safe_name = f"kyc_{user.id}_{uuid.uuid4().hex[:8]}{ext}"
     filepath = os.path.join(KYC_UPLOAD_DIR, safe_name)
@@ -7113,7 +7113,7 @@ def kyc_submit(
     user.kyc_status = "pending"
     user.kyc_submitted_at = datetime.utcnow()
     db.commit()
-    return RedirectResponse(url="/app/account?saved=kyc_submitted", status_code=303)
+    return RedirectResponse(url="/account?saved=kyc_submitted", status_code=303)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -7125,7 +7125,7 @@ def totp_setup_page(request: Request):
     """Phase 2: serve React SPA — 2FA setup is at /2fa-setup in React."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/app/account", status_code=302)
+    return RedirectResponse(url="/account", status_code=302)
 
 
 @app.post("/account/2fa-verify")
@@ -7139,12 +7139,12 @@ def totp_verify(
     if not user: return RedirectResponse(url="/?login=1", status_code=302)
     import pyotp
     if not user.totp_secret:
-        return RedirectResponse(url="/app/account?error=setup_2fa_first", status_code=303)
+        return RedirectResponse(url="/account?error=setup_2fa_first", status_code=303)
     totp = pyotp.TOTP(user.totp_secret)
     if totp.verify(totp_code, valid_window=1):
         user.totp_enabled = True
         db.commit()
-        return RedirectResponse(url="/app/account?saved=2fa_enabled", status_code=303)
+        return RedirectResponse(url="/account?saved=2fa_enabled", status_code=303)
     else:
         return RedirectResponse(url="/account/2fa-setup?error=invalid_code", status_code=303)
 
@@ -7160,15 +7160,15 @@ def totp_disable(
     if not user: return RedirectResponse(url="/?login=1", status_code=302)
     import pyotp
     if not user.totp_secret or not user.totp_enabled:
-        return RedirectResponse(url="/app/account?error=2fa_not_enabled", status_code=303)
+        return RedirectResponse(url="/account?error=2fa_not_enabled", status_code=303)
     totp = pyotp.TOTP(user.totp_secret)
     if totp.verify(totp_code, valid_window=1):
         user.totp_enabled = False
         user.totp_secret = None
         db.commit()
-        return RedirectResponse(url="/app/account?saved=2fa_disabled", status_code=303)
+        return RedirectResponse(url="/account?saved=2fa_disabled", status_code=303)
     else:
-        return RedirectResponse(url="/app/account?error=invalid_2fa_code", status_code=303)
+        return RedirectResponse(url="/account?error=invalid_2fa_code", status_code=303)
 
 
 @app.post("/api/onboarding/complete")
@@ -8431,7 +8431,7 @@ def course_learn_page(course_id: int, request: Request):
     del course_id
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/app/courses", status_code=302)
+    return RedirectResponse(url="/courses", status_code=302)
 
 async def _old_course_learn_DISABLED(course_id: int, request: Request,
                                       lesson: int = 0, purchased: int = 0,
@@ -8466,7 +8466,7 @@ async def course_commissions_page(request: Request, db: Session = Depends(get_db
 
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/app/dashboard", status_code=302)
+    return RedirectResponse(url="/dashboard", status_code=302)
 
 def _old_course_commissions_DISABLED(request=None, db=None):
     return templates.TemplateResponse("course-commissions.html", {
@@ -8691,7 +8691,7 @@ async def api_lesson_complete(lesson_id: int, request: Request, db: Session = De
 
 @app.get("/page-builder-v2")
 async def page_builder_v2(request: Request):
-    return RedirectResponse(url="/app/pro/funnels", status_code=302)
+    return RedirectResponse(url="/pro/funnels", status_code=302)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -9202,7 +9202,7 @@ os.makedirs(AVATAR_DIR, exist_ok=True)
 @app.get("/linkhub")
 def linkhub_editor(request: Request, db: Session = Depends(get_db)):
     """LinkHub editor — redirect to React app."""
-    return RedirectResponse("/app/linkhub", status_code=302)
+    return RedirectResponse("/linkhub", status_code=302)
 
 
 @app.post("/linkhub/save")
@@ -10092,7 +10092,7 @@ async def _old_upgrade_DISABLED(request: Request, db: Session = Depends(get_db))
 @app.get("/pro/funnels")
 async def pro_funnels_page(request: Request, db: Session = Depends(get_db)):
     """Redirect to React SuperPages listing."""
-    return RedirectResponse("/app/superpages", status_code=302)
+    return RedirectResponse("/pro/funnels", status_code=302)
 
 
 @app.post("/api/pro/generate-funnel")
@@ -10263,14 +10263,14 @@ Return ONLY a valid JSON array. No markdown."""
 @app.get("/pro/funnel/{funnel_id}/edit")
 async def pro_funnel_edit(funnel_id: int, request: Request, db: Session = Depends(get_db)):
     """Redirect to React editor."""
-    return RedirectResponse(f"/app/pro/funnel/{funnel_id}/edit", status_code=302)
+    return RedirectResponse(f"/pro/funnel/{funnel_id}/edit", status_code=302)
 
 
 @app.get("/pro/funnel/{funnel_id}/analytics")
 def pro_funnel_analytics(funnel_id: int, request: Request):
     """Phase 4: redirect to React funnels."""
     del funnel_id
-    return RedirectResponse(url="/app/pro/funnels", status_code=302)
+    return RedirectResponse(url="/pro/funnels", status_code=302)
 
 def _old_pro_funnel_analytics_DISABLED(funnel_id: int, request: Request,
                          user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -10863,7 +10863,7 @@ async def pro_funnel_sequence(funnel_id: int, request: Request, db: Session = De
 
     page = db.query(FunnelPage).filter(FunnelPage.id == funnel_id, FunnelPage.user_id == user.id).first()
     if not page:
-        return RedirectResponse("/app/superpages", status_code=302)
+        return RedirectResponse("/pro/funnels", status_code=302)
 
     from .database import EmailSequence
     import json as _jseq
@@ -10887,7 +10887,7 @@ async def pro_funnel_sequence(funnel_id: int, request: Request, db: Session = De
         page.capture_sequence_id = sequence.id
         db.commit()
 
-    return RedirectResponse(url="/app/pro/funnels", status_code=302)
+    return RedirectResponse(url="/pro/funnels", status_code=302)
 
 def _old_sequence_editor_DISABLED(request=None):
     return templates.TemplateResponse("pro-sequence-editor.html", {
@@ -11456,7 +11456,7 @@ def course_quality_guidelines(request: Request):
     """Public page — quality standards for course creators."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/app/dashboard", status_code=302)
+    return RedirectResponse(url="/dashboard", status_code=302)
 
 def _old_course_guidelines_DISABLED(request=None):
     return templates.TemplateResponse("course-guidelines.html", {"request": request})
@@ -11474,7 +11474,7 @@ def marketplace_page(request: Request, db: Session = Depends(get_db)):
     if creator_ids:
         for u in db.query(User).filter(User.id.in_(creator_ids)).all():
             creators[u.id] = u
-    return RedirectResponse(url="/app/marketplace", status_code=302)
+    return RedirectResponse(url="/marketplace", status_code=302)
 
 def _old_marketplace_DISABLED(request=None, db=None):
     return templates.TemplateResponse("marketplace.html", {
@@ -11542,7 +11542,7 @@ def edit_course_page(course_id: int, request: Request, user: User = Depends(get_
         ).order_by(MemberCourseLesson.lesson_order).all()
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/app/dashboard", status_code=302)
+    return RedirectResponse(url="/dashboard", status_code=302)
 
 def _old_course_edit_DISABLED(course_id=None, request=None, db=None):
     return templates.TemplateResponse("course-edit.html", {
@@ -12031,7 +12031,7 @@ def admin_course_review(request: Request, user: User = Depends(get_current_user)
                         db: Session = Depends(get_db)):
     """Admin page — review queue for AI-approved courses."""
     if not user or not user.is_admin:
-        return RedirectResponse(url="/app/dashboard")
+        return RedirectResponse(url="/dashboard")
     courses = db.query(MemberCourse).filter(
         MemberCourse.status.in_(["pending_review", "ai_rejected"])
     ).order_by(MemberCourse.updated_at.desc()).all()
@@ -12314,7 +12314,7 @@ def marketplace_course_detail(slug: str, request: Request, db: Session = Depends
         already_purchased = existing is not None
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/app/dashboard", status_code=302)
+    return RedirectResponse(url="/dashboard", status_code=302)
 
 def _old_marketplace_course_DISABLED(slug=None, request=None, db=None):
     return templates.TemplateResponse("marketplace-course.html", {
@@ -12329,7 +12329,7 @@ def creator_agreement_page(request: Request):
     """Course Creator Agreement — legal terms page."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/app/dashboard", status_code=302)
+    return RedirectResponse(url="/dashboard", status_code=302)
 
 def _old_creator_agreement_DISABLED(request=None):
     return templates.TemplateResponse("course-creator-agreement.html", {"request": request})
