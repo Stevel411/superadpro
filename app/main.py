@@ -2648,18 +2648,20 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     logger.warning(f"Stripe webhook received: {event_type}")
     if event_type == "checkout.session.completed":
         try:
-            session = event["data"]["object"]
-            meta = session.get("metadata", {})
-            user_id = int(meta.get("user_id", 0))
-            payment_type = meta.get("payment_type", "")
-            logger.warning(f"Stripe webhook: {payment_type} for user_id={user_id} sponsor_id={None}")
+            # Stripe >= 7 returns StripeObject — convert to plain dict for safety
+            import json as _j
+            session = _j.loads(_j.dumps(dict(event["data"]["object"])))
+            meta = session.get("metadata") or {}
+            user_id = int(meta.get("user_id") or 0)
+            payment_type = meta.get("payment_type") or ""
+            logger.warning(f"Stripe webhook: {payment_type} for user_id={user_id}")
             user = db.query(User).filter(User.id == user_id).first()
             if not user:
                 logger.warning(f"Stripe webhook: user {user_id} not found")
                 return {"received": True}
 
             if payment_type == "membership":
-                tier = meta.get("tier", "basic")
+                tier = meta.get("tier") or "basic"
                 _stripe_activate_membership(db, user, tier, session.get("subscription"))
 
             elif payment_type == "grid":
