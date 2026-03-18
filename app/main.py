@@ -704,9 +704,7 @@ async def support_post(
     db: Session = Depends(get_db)
 ):
     logger.warning(f"Support ticket: {email} | {category} | {subject}")
-    return templates.TemplateResponse("support.html", {
-        "request": request, "success": True
-    })
+    return JSONResponse({"success": True, "message": "Support ticket received. We'll be in touch shortly."})
 
 @app.get("/legal")
 def legal(request: Request):
@@ -750,10 +748,7 @@ def fomo_page(request: Request, ref: str = "", user: User = Depends(get_current_
     if sponsor:
         sponsor_user = db.query(User).filter(User.username == sponsor).first()
 
-    response = templates.TemplateResponse("fomo.html", {
-        "request": request, "user": user, "active_page": "momentum",
-        "sponsor": sponsor_user, "ref": sponsor
-    })
+    response = HTMLResponse(_react_index.read_text()) if _react_index.exists() else RedirectResponse(url="/register")
     # Set referral cookie so it persists through to registration
     if sponsor:
         response.set_cookie(key="ref", value=sponsor, max_age=60*60*24*30,
@@ -850,15 +845,7 @@ def register_process(
     ref        = sanitize(ref)
 
     def err(msg):
-        return templates.TemplateResponse("register.html", {
-            "request": request, "error": msg, "sponsor": ref,
-            "prefill": {
-                "first_name": first_name,
-                "username":   username,
-                "email":      email,
-                "ref":        ref,
-            }
-        })
+        return JSONResponse({"error": msg}, status_code=400)
 
     if not first_name.strip():
         return err("Please enter your first name.")
@@ -959,10 +946,7 @@ def login_process(
 ):
     username = sanitize(username)
     if is_locked_out(username):
-        return templates.TemplateResponse("login.html", {
-            "request": request,
-            "error": f"Account locked — too many failed attempts. Try again in {LOCKOUT_MINUTES} minutes."
-        })
+        return JSONResponse({"error": f"Account locked — too many failed attempts. Try again in {LOCKOUT_MINUTES} minutes."}, status_code=429)
     user = db.query(User).filter(
         (User.username == username) | (User.email == username)
     ).first()
@@ -979,9 +963,7 @@ def login_process(
         set_secure_cookie(response, user.id)
         return response
     record_failed_attempt(username)
-    return templates.TemplateResponse("login.html", {
-        "request": request, "error": "Invalid username or password."
-    })
+    return JSONResponse({"error": "Invalid username or password."}, status_code=401)
 
 
 @app.post("/api/login")
@@ -1450,7 +1432,9 @@ def grid_detail(grid_id: int, request: Request,
     positions = get_grid_positions(db, grid_id)
     ctx = get_dashboard_context(request, user, db)
     ctx.update({"grid": grid, "positions": positions, "GRID_PACKAGES": GRID_PACKAGES})
-    return templates.TemplateResponse("grid-detail.html", ctx)
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/app/dashboard", status_code=302)
 
 @app.get("/wallet")
 def wallet(request: Request):
@@ -1619,17 +1603,9 @@ def upload_video(request: Request):
     """Phase 4: redirect to React video library."""
     return RedirectResponse(url="/app/video-library", status_code=302)
 
-def _old_upload_DISABLED(request: Request, user: User = Depends(get_current_user),
-                 db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/?login=1")
-    if not user.is_active: return RedirectResponse(url="/pay-membership")
-    ctx = get_dashboard_context(request, user, db)
-    # Get user's highest active tier for targeting UI
-    highest_grid = db.query(Grid).filter(
-        Grid.owner_id == user.id, Grid.is_complete == False
-    ).order_by(Grid.package_tier.desc()).first()
-    ctx["user_tier"] = highest_grid.package_tier if highest_grid else 0
-    return templates.TemplateResponse("upload-video.html", ctx)
+def _old_upload_DISABLED(request=None, user=None, db=None):
+    """Phase 4: upload video moved to React VideoLibrary."""
+    pass
 
 
 @app.post("/upload")
@@ -1657,12 +1633,8 @@ def upload_video_post(
             "title": title, "video_url": video_url,
             "category": category, "description": description
         }})
-        return templates.TemplateResponse("upload-video.html", ctx)
+        return JSONResponse({"error": msg}, status_code=400)
 
-    if not title:
-        return err("Please enter a campaign title.")
-
-    # Determine user's highest active tier and features
     highest_grid = db.query(Grid).filter(
         Grid.owner_id == user.id,
         Grid.is_complete == False
@@ -1737,10 +1709,10 @@ def upload_video_post(
 def pay_membership_form(request: Request, user: User = Depends(get_current_user)):
     if not user: return RedirectResponse(url="/?login=1")
     if user.is_active: return RedirectResponse(url="/app/dashboard")
-    return templates.TemplateResponse("pay-membership.html", {
-        "request": request, "user": user, "amount": MEMBERSHIP_FEE,
-        "company_wallet": COMPANY_WALLET,
-    })
+    return RedirectResponse(url="/app/upgrade", status_code=302)
+
+def _old_pay_membership_DISABLED_1(request=None):
+    pass  # Old pay-membership form — replaced by Stripe checkout
 
 @app.post("/verify-membership")
 def verify_membership(
@@ -1759,11 +1731,7 @@ def verify_membership(
         if result.get("sponsor_auto_activated"):
             redirect_url = "/dashboard?auto_activated=true"
         return RedirectResponse(url=redirect_url, status_code=303)
-    return templates.TemplateResponse("pay-membership.html", {
-        "request": request, "user": user,
-        "amount": MEMBERSHIP_FEE, "error": result["error"],
-        "company_wallet": COMPANY_WALLET,
-    })
+    return JSONResponse({"error": result["error"]}, status_code=400)
 
 @app.get("/activate-grid")
 def activate_grid_form(
@@ -1782,35 +1750,7 @@ def activate_grid_form(
         "company_wallet": COMPANY_WALLET,
         "GRID_PACKAGES": GRID_PACKAGES,
     })
-    return templates.TemplateResponse("pay-tier.html", ctx)
-
-@app.post("/verify-grid-payment")
-def verify_grid_payment(
-    request: Request,
-    tx_hash: str = Form(),
-    package_tier: int = Form(),
-    db: Session = Depends(get_db),
-    user: User = Depends(get_current_user)
-):
-    if not user: return RedirectResponse(url="/?login=1", status_code=302)
-    if not user.is_active: return RedirectResponse(url="/pay-membership", status_code=303)
-
-    result = process_grid_payment(db, user.id, package_tier, tx_hash)
-
-    if result["success"]:
-        return RedirectResponse(
-            url=f"/income-grid?activated={package_tier}", status_code=303
-        )
-
-    price = GRID_PACKAGES.get(package_tier, 10)
-    ctx = get_dashboard_context(request, user, db)
-    ctx.update({
-        "tier": package_tier, "price": price,
-        "company_wallet": COMPANY_WALLET,
-        "GRID_PACKAGES": GRID_PACKAGES,
-        "error": result["error"]
-    })
-    return templates.TemplateResponse("pay-tier.html", ctx)
+    return JSONResponse({"error": "Payment failed."}, status_code=400)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -3028,16 +2968,10 @@ def forgot_password_process(
 
     # Always show success — prevents email enumeration attacks
     def success_response():
-        return templates.TemplateResponse("forgot-password.html", {
-            "request": request, "sent": True, "email": email
-        })
+        return JSONResponse({"success": True, "message": "If that email is registered, a reset link has been sent."})
 
     if not validate_email(email):
-        return templates.TemplateResponse("forgot-password.html", {
-            "request": request,
-            "error": "Please enter a valid email address.",
-            "email": email
-        })
+        return JSONResponse({"error": "Please enter a valid email address."}, status_code=400)
 
     user = db.query(User).filter(User.email == email).first()
     if not user:
@@ -3087,9 +3021,7 @@ def reset_password_process(
     db: Session = Depends(get_db)
 ):
     def form_error(msg):
-        return templates.TemplateResponse("reset-password.html", {
-            "request": request, "token": token, "error": msg
-        })
+        return JSONResponse({"error": msg}, status_code=400)
 
     if not token:
         return form_error("Invalid reset link.")
@@ -3100,9 +3032,7 @@ def reset_password_process(
     ).first()
 
     if not reset or reset.expires_at < datetime.utcnow():
-        return templates.TemplateResponse("reset-password.html", {
-            "request": request, "expired": True
-        })
+        return JSONResponse({"error": "This reset link has expired. Please request a new one."}, status_code=400)
 
     if len(password) < 8:
         return form_error("Password must be at least 8 characters.")
@@ -3128,9 +3058,7 @@ def reset_password_process(
     # Invalidate any active session
     logger.warning(f"Password reset completed for user_id: {user.id}")
 
-    return templates.TemplateResponse("reset-password.html", {
-        "request": request, "success": True
-    })
+    return JSONResponse({"success": True, "message": "Password reset successfully. You can now log in."})
 
 # ═══════════════════════════════════════════════════════════════
 
@@ -3415,22 +3343,16 @@ def watch_page(request: Request):
     if quota.commissions_paused:
         warning = "🔴 Your commissions are currently paused. Complete today's video quota to reactivate."
 
-    return templates.TemplateResponse("watch.html", {
-        "request":        request,
-        "user":           user,
-        "quota":          quota,
-        "campaign":       campaign,
-        "ad_listing":     ad_listing,
-        "content_type":   content_type,
-        "watch_duration": WATCH_DURATION,
-        "ad_duration":    15,  # seconds for ad board display cards
-        "warning":        warning,
-        "grace_days":     GRACE_DAYS,
-        "balance":        round(float(user.balance or 0), 2),
-        "display_name":   user.first_name or user.username,
-        "member_id":      format_member_id(user.id, user.is_admin),
-        "is_active":      user.is_active,
-    })
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/app/watch", status_code=302)
+
+def _old_watch_template_DISABLED(request=None, user=None, quota=None, campaign=None,
+        ad_listing=None, content_type=None, warning=None):
+    return None  # replaced by React
+
+def _dead_code_watch():
+    pass  # old watch template data — removed
 
 
 @app.post("/api/record-watch")
@@ -3592,6 +3514,9 @@ def public_videos(request: Request, category: str = "", db: Session = Depends(ge
     spotlight = [c for c in campaigns if getattr(c, 'is_spotlight', False)]
     featured = [c for c in campaigns if getattr(c, 'is_featured', False) and not getattr(c, 'is_spotlight', False)]
 
+    return RedirectResponse(url="/", status_code=302)
+
+def _old_public_videos_DISABLED(request: Request, category: str = "", db = None):
     return templates.TemplateResponse("public-videos.html", {
         "request": request,
         "campaigns": campaigns,
@@ -5705,7 +5630,9 @@ def link_tools_page(request: Request, user: User = Depends(get_current_user),
     ctx["links"] = links
     ctx["rotators"] = rotators
     ctx["base_url"] = base_url
-    return templates.TemplateResponse("link-tools.html", ctx)
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/app/dashboard", status_code=302)
 
 
 @limiter.limit("30/minute")
@@ -8441,14 +8368,7 @@ async def purchase_course(course_id: int, request: Request, db: Session = Depend
     result = process_course_purchase(db, user.id, course_id, payment_method="wallet")
 
     if not result["success"]:
-        # Redirect back with error
-        return templates.TemplateResponse("courses.html", {
-            "request": request,
-            "user": user,
-            "courses": db.query(Course).filter(Course.is_active == True).order_by(Course.sort_order).all(),
-            "owned_tiers": [p.course_tier for p in db.query(CoursePurchase).filter(CoursePurchase.user_id == user.id).all()],
-            "error": result["error"]
-        })
+        return JSONResponse({"error": result["error"]}, status_code=400)
 
     return RedirectResponse(f"/courses/learn/{course_id}?purchased=1", status_code=303)
 
@@ -8490,6 +8410,11 @@ async def course_commissions_page(request: Request, db: Session = Depends(get_db
     if not user.is_active:
         return RedirectResponse(url="/pay-membership")
 
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/app/dashboard", status_code=302)
+
+def _old_course_commissions_DISABLED(request=None, db=None):
     return templates.TemplateResponse("course-commissions.html", {
         "request": request,
         "user": user,
@@ -8712,7 +8637,7 @@ async def api_lesson_complete(lesson_id: int, request: Request, db: Session = De
 
 @app.get("/page-builder-v2")
 async def page_builder_v2(request: Request):
-    return templates.TemplateResponse("page-builder-v2.html", {"request": request})
+    return RedirectResponse(url="/app/pro/funnels", status_code=302)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -10904,6 +10829,9 @@ async def pro_funnel_sequence(funnel_id: int, request: Request, db: Session = De
         page.capture_sequence_id = sequence.id
         db.commit()
 
+    return RedirectResponse(url="/app/pro/funnels", status_code=302)
+
+def _old_sequence_editor_DISABLED(request=None):
     return templates.TemplateResponse("pro-sequence-editor.html", {
         "request": request,
         "user": user,
@@ -11466,6 +11394,11 @@ async def cron_process_autoresponder(request: Request, db: Session = Depends(get
 @app.get("/courses/quality-guidelines")
 def course_quality_guidelines(request: Request):
     """Public page — quality standards for course creators."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/app/dashboard", status_code=302)
+
+def _old_course_guidelines_DISABLED(request=None):
     return templates.TemplateResponse("course-guidelines.html", {"request": request})
 
 
@@ -11481,6 +11414,9 @@ def marketplace_page(request: Request, db: Session = Depends(get_db)):
     if creator_ids:
         for u in db.query(User).filter(User.id.in_(creator_ids)).all():
             creators[u.id] = u
+    return RedirectResponse(url="/app/marketplace", status_code=302)
+
+def _old_marketplace_DISABLED(request=None, db=None):
     return templates.TemplateResponse("marketplace.html", {
         "request": request, "courses": courses, "creators": creators,
     })
@@ -11540,6 +11476,11 @@ def edit_course_page(course_id: int, request: Request, user: User = Depends(get_
         lessons_by_chapter[ch.id] = db.query(MemberCourseLesson).filter(
             MemberCourseLesson.chapter_id == ch.id
         ).order_by(MemberCourseLesson.lesson_order).all()
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/app/dashboard", status_code=302)
+
+def _old_course_edit_DISABLED(course_id=None, request=None, db=None):
     return templates.TemplateResponse("course-edit.html", {
         "request": request, "user": user, "course": course,
         "chapters": chapters, "lessons_by_chapter": lessons_by_chapter,
@@ -12307,6 +12248,11 @@ def marketplace_course_detail(slug: str, request: Request, db: Session = Depends
             MemberCoursePurchase.status == "completed"
         ).first()
         already_purchased = existing is not None
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/app/dashboard", status_code=302)
+
+def _old_marketplace_course_DISABLED(slug=None, request=None, db=None):
     return templates.TemplateResponse("marketplace-course.html", {
         "request": request, "course": course, "creator": creator,
         "chapters": chapters, "lessons_by_chapter": lessons_by_chapter,
@@ -12317,6 +12263,11 @@ def marketplace_course_detail(slug: str, request: Request, db: Session = Depends
 @app.get("/courses/creator-agreement")
 def creator_agreement_page(request: Request):
     """Course Creator Agreement — legal terms page."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/app/dashboard", status_code=302)
+
+def _old_creator_agreement_DISABLED(request=None):
     return templates.TemplateResponse("course-creator-agreement.html", {"request": request})
 
 
