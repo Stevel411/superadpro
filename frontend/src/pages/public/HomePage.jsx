@@ -9,6 +9,9 @@ var CSS = `
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 @keyframes hpFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
 @keyframes hpGlow { 0%,100%{opacity:.4;transform:translateX(-50%) scale(1)} 50%{opacity:1;transform:translateX(-50%) scale(1.2)} }
+@keyframes missionPulse { 0%{width:50px;height:50px;opacity:.4;margin:-25px 0 0 -25px} 100%{width:280px;height:280px;opacity:0;margin:-140px 0 0 -140px} }
+@keyframes missionDrift { 0%{opacity:0;transform:scale(.5)} 20%{opacity:.7;transform:scale(1)} 80%{opacity:.3} 100%{opacity:0;transform:scale(.5) translate(20px,-15px)} }
+@keyframes missionFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
 .hp-fade1{opacity:0;animation:fadeUp .8s ease forwards .1s}
 .hp-fade2{opacity:0;animation:fadeUp .8s ease forwards .2s}
 .hp-fade3{opacity:0;animation:fadeUp .8s ease forwards .3s}
@@ -365,16 +368,83 @@ export default function HomePage(){
             })}
           </div>
           <div>
+            {/* Global network visual */}
+            <div style={{position:'relative',width:'100%',maxWidth:420,aspectRatio:'1/.95',margin:'0 auto 20px'}}>
+              <div style={{width:'100%',height:'100%',position:'relative',borderRadius:16,overflow:'hidden',background:'radial-gradient(ellipse at 50% 50%,rgba(56,189,248,.04),transparent 65%)'}}>
+
+                {/* Animated connection lines */}
+                <svg style={{position:'absolute',inset:0,zIndex:1}} viewBox="0 0 420 400" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="mlc"><stop offset="0%" stopColor="rgba(56,189,248,0)"/><stop offset="50%" stopColor="rgba(56,189,248,0.2)"/><stop offset="100%" stopColor="rgba(56,189,248,0)"/></linearGradient>
+                    <linearGradient id="mlg"><stop offset="0%" stopColor="rgba(16,185,129,0)"/><stop offset="50%" stopColor="rgba(16,185,129,0.18)"/><stop offset="100%" stopColor="rgba(16,185,129,0)"/></linearGradient>
+                    <linearGradient id="mlp"><stop offset="0%" stopColor="rgba(168,85,247,0)"/><stop offset="50%" stopColor="rgba(168,85,247,0.18)"/><stop offset="100%" stopColor="rgba(168,85,247,0)"/></linearGradient>
+                  </defs>
+                  {[
+                    ["210","180","210","60","mlc","2s"],["210","180","298","96","mlg","2.3s"],
+                    ["210","180","336","180","mlp","1.8s"],["210","180","298","264","mlc","2.5s"],
+                    ["210","180","210","300","mlg","2.1s"],["210","180","122","264","mlp","1.9s"],
+                    ["210","180","84","180","mlc","2.4s"],["210","180","122","96","mlg","2.2s"],
+                  ].map(function([x1,y1,x2,y2,grad,dur],i){
+                    return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={"url(#"+grad+")"} strokeWidth="1" strokeDasharray="4,4"><animate attributeName="strokeDashoffset" values="0;-8" dur={dur} repeatCount="indefinite"/></line>;
+                  })}
+                </svg>
+
+                {/* Pulse rings */}
+                {[0,1.5,3].map(function(delay){
+                  return <div key={delay} style={{position:'absolute',borderRadius:'50%',border:'1px solid rgba(56,189,248,.1)',animation:'missionPulse 4.5s ease-out '+delay+'s infinite',zIndex:0,pointerEvents:'none',top:'47.5%',left:'50%'}}/>;
+                })}
+
+                {/* YOU — centre */}
+                <div style={{position:'absolute',display:'flex',flexDirection:'column',alignItems:'center',zIndex:5,left:'50%',top:'42%',marginLeft:-33,animation:'missionFloat 4s ease-in-out infinite',filter:'drop-shadow(0 3px 8px rgba(0,0,0,.4))'}}>
+                  <div style={{position:'absolute',bottom:-8,left:'50%',transform:'translateX(-50%)',width:52,height:14,borderRadius:'50%',filter:'blur(6px)',zIndex:-1,background:'rgba(56,189,248,.45)'}}/>
+                  <div style={{width:66,height:66,borderRadius:'50%',overflow:'hidden',border:'2.5px solid rgba(56,189,248,.6)',background:'#0a1628',boxShadow:'0 0 16px rgba(56,189,248,.25)'}}>
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" alt="You" style={{width:'100%',height:'100%',objectFit:'cover',objectPosition:'center top'}}/>
+                  </div>
+                  <div style={{fontSize:7,fontWeight:800,letterSpacing:1.5,color:'#38bdf8',textTransform:'uppercase',marginTop:2}}>YOU</div>
+                </div>
+
+                {/* Members around the network */}
+                {[
+                  {photo:'1506794778202-cad84cf45f1d',flag:'🇳🇬',color:'rgba(16,185,129,.5)',left:'29%',top:'24%',delay:'0.3s',dur:'5.2s'},
+                  {photo:'1573496359142-b8d87734a5a2',flag:'🇬🇧',color:'rgba(168,85,247,.5)',left:'71%',top:'24%',delay:'0.8s',dur:'5.8s'},
+                  {photo:'1580489944761-15a19d654956',flag:'🇵🇭',color:'rgba(56,189,248,.4)',left:'20%',top:'45%',delay:'0.5s',dur:'6.1s'},
+                  {photo:'1500648767791-00dcc994a43e',flag:'🇺🇸',color:'rgba(245,158,11,.5)',left:'80%',top:'45%',delay:'1s',dur:'5.5s'},
+                  {photo:'1544005313-94ddf0286df2',flag:'🇮🇳',color:'rgba(99,102,241,.5)',left:'50%',top:'75%',delay:'0.2s',dur:'6.4s'},
+                  {photo:'1552058544-f2b08422138a',flag:'🇧🇷',color:'rgba(16,185,129,.5)',left:'71%',top:'66%',delay:'0.6s',dur:'5.7s'},
+                  {photo:'1438761681033-6461ffad8d80',flag:'🇰🇪',color:'rgba(168,85,247,.5)',left:'50%',top:'15%',delay:'1.2s',dur:'6.2s'},
+                  {photo:'1472099645785-5658abf4ff4e',flag:'🇩🇪',color:'rgba(245,158,11,.5)',left:'29%',top:'66%',delay:'0.9s',dur:'5.4s'},
+                ].map(function(m,i){
+                  return (
+                    <div key={i} style={{position:'absolute',display:'flex',flexDirection:'column',alignItems:'center',zIndex:3,left:m.left,top:m.top,marginLeft:-33,animation:'missionFloat '+m.dur+' ease-in-out '+m.delay+' infinite',filter:'drop-shadow(0 3px 8px rgba(0,0,0,.4))'}}>
+                      <div style={{position:'absolute',bottom:-6,left:'50%',transform:'translateX(-50%)',width:36,height:10,borderRadius:'50%',filter:'blur(5px)',zIndex:-1,background:m.color.replace('.5','.35')}}/>
+                      <div style={{width:52,height:52,borderRadius:'50%',overflow:'hidden',border:'2px solid '+m.color,background:'#0a1628'}}>
+                        <img src={'https://images.unsplash.com/photo-'+m.photo+'?w=120&h=120&fit=crop&crop=face'} alt="Member" style={{width:'100%',height:'100%',objectFit:'cover',objectPosition:'center top'}}/>
+                      </div>
+                      <div style={{fontSize:14,marginTop:2}}>{m.flag}</div>
+                    </div>
+                  );
+                })}
+
+                {/* Data particles */}
+                {[['30%','36%','#38bdf8','3s'],['55%','64%','#10b981','3.5s,1s'],['38%','22%','#a855f7','4s,.5s'],['60%','74%','#38bdf8','3.2s,1.5s']].map(function([top,left,color,dur],i){
+                  return <div key={i} style={{position:'absolute',top:top,left:left,width:3,height:3,borderRadius:'50%',background:color,zIndex:1,animation:'missionDrift '+dur+' linear infinite'}}/>;
+                })}
+              </div>
+            </div>
+
+            {/* Quote */}
             <div style={{background:'rgba(5,13,26,.8)',border:'1px solid rgba(56,189,248,.12)',borderRadius:16,padding:24,marginBottom:16}}>
               <p style={{fontSize:14,fontStyle:'italic',color:'rgba(200,220,255,.55)',lineHeight:1.7,marginBottom:8}}>"This platform exists because we believe the people who create value should be the ones who capture it. Not venture capitalists. Not platform owners. The people."</p>
               <div style={{fontSize:11,fontWeight:700,color:'rgba(56,189,248,.6)'}}>— SuperAdPro Founding Vision</div>
             </div>
+
+            {/* Stats */}
             <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8}}>
-              {[['50%','Membership\nCommission'],['$20','Unlocks\neverything'],['6+','Pro marketing\ntools'],['4','Income\nstreams']].map(function([val,label]){
+              {[['50%','Membership Commission'],['$20','Unlocks everything'],['6+','Pro marketing tools'],['4','Income streams']].map(function([val,label]){
                 return (
                   <div key={val} style={{background:'rgba(56,189,248,.04)',border:'1px solid rgba(56,189,248,.08)',borderRadius:10,padding:'10px 6px',textAlign:'center'}}>
                     <div style={{fontFamily:"'Sora',sans-serif",fontSize:16,fontWeight:800,color:'#38bdf8',marginBottom:2}}>{val}</div>
-                    <div style={{fontSize:9,color:'rgba(200,220,255,.35)',lineHeight:1.3,whiteSpace:'pre-line'}}>{label}</div>
+                    <div style={{fontSize:9,color:'rgba(200,220,255,.35)',lineHeight:1.3}}>{label}</div>
                   </div>
                 );
               })}
