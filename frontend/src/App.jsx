@@ -68,6 +68,12 @@ import TwoFactorSetup from './pages/auth/TwoFactorSetup';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
 
+// Public pages
+import HomePage from './pages/public/HomePage';
+import HowItWorks from './pages/public/HowItWorks';
+import JoinFunnel from './pages/public/JoinFunnel';
+import { FAQ, Legal, ForAdvertisers } from './pages/public/PublicPages';
+
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return (
@@ -143,6 +149,19 @@ function AppRoutes() {
       <Route path="/courses/how-it-works" element={<ProtectedRoute><HowCommissionsWork /></ProtectedRoute>} />
       <Route path="/ad-board" element={<ProtectedRoute><AdBoard /></ProtectedRoute>} />
 
+      {/* Public pages — no auth required, no sidebar */}
+      <Route path="/" element={<HomePage />} />
+      <Route path="/how-it-works" element={<HowItWorks />} />
+      <Route path="/for-advertisers" element={<ForAdvertisers />} />
+      <Route path="/faq" element={<FAQ />} />
+      <Route path="/legal" element={<Legal />} />
+      <Route path="/affiliates" element={<Navigate to="/register" replace />} />
+      <Route path="/membership" element={<Navigate to="/register" replace />} />
+      <Route path="/packages" element={<Navigate to="/register" replace />} />
+      <Route path="/what-you-get" element={<HowItWorks />} />
+      <Route path="/vip" element={<Navigate to="/register" replace />} />
+      <Route path="/join/:username" element={<JoinFunnel />} />
+
       {/* Auth pages — no sidebar, no auth required */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -153,7 +172,7 @@ function AppRoutes() {
 
       {/* Catch-all */}
       <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

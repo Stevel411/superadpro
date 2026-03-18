@@ -376,7 +376,9 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
 
 @app.api_route("/", methods=["GET", "HEAD"])
 def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request, "join_url": get_join_url()})
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>SuperAdPro</h1>")
 
 @app.get("/health")
 async def health_check():
@@ -479,11 +481,15 @@ def api_delete_notification(notif_id: int, request: Request, db: Session = Depen
 
 @app.get("/how-it-works")
 def how_it_works(request: Request):
-    return templates.TemplateResponse("how-it-works.html", {"request": request, "join_url": get_join_url()})
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/", status_code=302)
 
 @app.get("/affiliates")
 def affiliates_public(request: Request):
-    return templates.TemplateResponse("affiliates.html", {"request": request, "join_url": get_join_url()})
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/register", status_code=302)
 
 @app.get("/compensation-plan")
 def compensation_plan(request: Request, user: User = Depends(get_current_user)):
@@ -638,10 +644,9 @@ def passup_visualiser(request: Request):
 
 @app.get("/packages")
 def packages(request: Request):
-    return templates.TemplateResponse("packages.html", {
-        "request": request,
-        "GRID_PACKAGES": GRID_PACKAGES,
-    })
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/", status_code=302)
 
 @app.get("/campaign-tiers")
 def campaign_tiers(request: Request):
@@ -663,11 +668,15 @@ def _old_campaign_tiers_DISABLED(request: Request, user: User = Depends(get_curr
 
 @app.get("/faq")
 def faq(request: Request):
-    return templates.TemplateResponse("faq.html", {"request": request})
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/", status_code=302)
 
 @app.get("/membership")
 def membership(request: Request):
-    return templates.TemplateResponse("membership.html", {"request": request})
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/register", status_code=302)
 
 @app.get("/pricing")
 def pricing(request: Request):
@@ -676,7 +685,9 @@ def pricing(request: Request):
 
 @app.get("/support-public")
 def support_public(request: Request):
-    return templates.TemplateResponse("support.html", {"request": request})
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/", status_code=302)
 
 @app.get("/support")
 def support_get(request: Request):
@@ -699,15 +710,21 @@ async def support_post(
 
 @app.get("/legal")
 def legal(request: Request):
-    return templates.TemplateResponse("legal.html", {"request": request})
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/", status_code=302)
 
 @app.get("/contact")
 def contact(request: Request):
-    return templates.TemplateResponse("support.html", {"request": request})
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/", status_code=302)
 
 @app.get("/for-advertisers")
 def for_advertisers(request: Request):
-    return templates.TemplateResponse("for-advertisers.html", {"request": request})
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/register", status_code=302)
 
 # ── Referral link ─────────────────────────────────────────────
 @app.get("/ref/{username}")
@@ -5952,7 +5969,9 @@ def delete_rotator(rotator_id: int, user: User = Depends(get_current_user),
 # ═══════════════════════════════════════════════════
 @app.get("/what-you-get")
 def what_you_get(request: Request):
-    return templates.TemplateResponse("what-you-get.html", {"request": request})
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/", status_code=302)
 
 
 
@@ -6177,7 +6196,9 @@ async def delete_ad(ad_id: int, user: User = Depends(get_current_user), db: Sess
 # ═══════════════════════════════════════════════════
 @app.get("/vip")
 def vip_page(request: Request):
-    return templates.TemplateResponse("vip-waitlist.html", {"request": request})
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/register", status_code=302)
 
 @app.post("/api/vip/signup")
 async def vip_signup(request: Request, db: Session = Depends(get_db)):
@@ -9928,6 +9949,22 @@ async def api_proseller_prospect(request: Request, db: Session = Depends(get_db)
     return JSONResponse({"error": "Invalid action"}, status_code=400)
 
 
+
+@app.get("/api/join/{username}")
+async def api_join_funnel(username: str, db: Session = Depends(get_db)):
+    """Public: return sponsor data for the join funnel page."""
+    sponsor = db.query(User).filter(User.username == username).first()
+    if not sponsor:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    total_members = db.query(User).filter(User.is_active == True).count()
+    return {
+        "username": sponsor.username,
+        "first_name": sponsor.first_name or sponsor.username,
+        "avatar_url": sponsor.avatar_url or "",
+        "total_members": total_members,
+        "ref": username,
+    }
+
 # ═══════════════════════════════════════════════════════════════
 #  AFFILIATE SALES FUNNEL — /join/{username}
 # ═══════════════════════════════════════════════════════════════
@@ -9945,11 +9982,8 @@ async def join_funnel(username: str, request: Request, db: Session = Depends(get
         return RedirectResponse("/register", status_code=302)
 
     # Set referral cookie so it persists
-    response = templates.TemplateResponse("join-funnel.html", {
-        "request": request,
-        "sponsor": sponsor,
-    })
-    response.set_cookie("ref", username, max_age=30*24*60*60)  # 30 days
+    response = HTMLResponse(_react_index.read_text()) if _react_index.exists() else RedirectResponse(url="/register")
+    response.set_cookie("ref", username, max_age=30*24*60*60, httponly=False, samesite="lax")
     return response
 
 
