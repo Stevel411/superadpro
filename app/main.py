@@ -2862,8 +2862,9 @@ def _stripe_activate_membership(db, user, tier, subscription_id):
 def _stripe_renew_membership(db, user, tier, subscription_id):
     """Process monthly renewal."""
     from datetime import datetime, timedelta
+    from decimal import Decimal
     import uuid
-    fee = 30.0 if tier == "pro" else 20.0
+    fee = Decimal("30.00") if tier == "pro" else Decimal("20.00")
     user.is_active = True
     user.membership_expires_at = datetime.utcnow() + timedelta(days=31)
     tx_ref = f"stripe_renew_{uuid.uuid4().hex[:12]}"
@@ -12218,7 +12219,7 @@ async def purchase_marketplace_course(course_id: int, request: Request,
     if payment_method == "wallet" and user:
         if float(user.balance or 0) < price:
             return JSONResponse({"error": "Insufficient wallet balance"}, status_code=400)
-        user.balance = float(user.balance or 0) - price
+        user.balance = (user.balance or 0) - price
     # TODO: Stripe payment flow for card payments and guest purchases
 
     # ── Generate access token for guest purchases ──
@@ -12246,16 +12247,16 @@ async def purchase_marketplace_course(course_id: int, request: Request,
     # ── Credit commissions ──
     # 50% to creator
     if creator:
-        creator.balance = float(creator.balance or 0) + creator_share
-        creator.total_earned = float(creator.total_earned or 0) + creator_share
+        creator.balance = (creator.balance or 0) + creator_share
+        creator.total_earned = (creator.total_earned or 0) + creator_share
         creator.marketplace_earnings = float(creator.marketplace_earnings or 0) + creator_share
         creator.course_earnings = float(creator.course_earnings or 0) + creator_share
 
     # 25% to creator's sponsor
     sponsor = db.query(User).filter(User.id == sponsor_id).first() if sponsor_id else None
     if sponsor:
-        sponsor.balance = float(sponsor.balance or 0) + sponsor_share
-        sponsor.total_earned = float(sponsor.total_earned or 0) + sponsor_share
+        sponsor.balance = (sponsor.balance or Decimal("0")) + Decimal(str(sponsor_share))
+        sponsor.total_earned = (sponsor.total_earned or 0) + sponsor_share
         sponsor.marketplace_earnings = float(sponsor.marketplace_earnings or 0) + sponsor_share
 
     # 25% company — no wallet credit needed (revenue stays in system)
@@ -12328,14 +12329,14 @@ async def refund_marketplace_purchase(purchase_id: int, request: Request,
         creator.marketplace_earnings = max(0, float(creator.marketplace_earnings or 0) - float(purchase.creator_commission))
 
     if sponsor:
-        sponsor.balance = max(0, float(sponsor.balance or 0) - float(purchase.sponsor_commission))
+        sponsor.balance = max(Decimal("0"), (sponsor.balance or Decimal("0")) - (purchase.sponsor_commission or Decimal("0")))
         sponsor.total_earned = max(0, float(sponsor.total_earned or 0) - float(purchase.sponsor_commission))
         sponsor.marketplace_earnings = max(0, float(sponsor.marketplace_earnings or 0) - float(purchase.sponsor_commission))
 
     # Refund buyer (wallet)
     buyer = db.query(User).filter(User.id == purchase.buyer_id).first() if purchase.buyer_id else None
     if buyer:
-        buyer.balance = float(buyer.balance or 0) + float(purchase.amount_paid)
+        buyer.balance = (buyer.balance or 0) + (purchase.amount_paid or 0)
 
     # Update course stats
     if course:
@@ -14112,8 +14113,8 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
     campaign.views_delivered = (campaign.views_delivered or 0) + 1
     quota.today_watched = (quota.today_watched or 0) + 1
     earn = 0.02
-    user.balance = float(user.balance or 0) + earn
-    user.total_earned = float(user.total_earned or 0) + earn
+    user.balance = (user.balance or 0) + earn
+    user.total_earned = (user.total_earned or 0) + earn
     db.commit()
     return {"ok": True, "earned": earn}
 
