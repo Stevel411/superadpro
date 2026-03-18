@@ -56,7 +56,7 @@ export default function CoursePlayer() {
   useEffect(function() {
     apiGet('/api/courses/learn/' + courseId)
       .then(function(d) {
-        if (d.error) { navigate('/app/courses'); return; }
+        if (d.error) { navigate('/courses'); return; }
         setData(d);
         // Auto-select first incomplete lesson
         var allLessons = [];
@@ -66,7 +66,7 @@ export default function CoursePlayer() {
         if (first) setActiveLesson(first);
         setLoading(false);
       })
-      .catch(function() { navigate('/app/courses'); });
+      .catch(function() { navigate('/courses'); });
   }, [courseId]);
 
   function markComplete(lesson) {
@@ -114,7 +114,7 @@ export default function CoursePlayer() {
         <div style={{ padding: 24, borderRight: '1px solid #e8ecf2' }}>
           {/* Breadcrumb */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, fontSize: 13, color: '#94a3b8' }}>
-            <Link to="/app/courses" style={{ color: '#0ea5e9', textDecoration: 'none' }}>Courses</Link>
+            <Link to="/courses" style={{ color: '#0ea5e9', textDecoration: 'none' }}>Courses</Link>
             <span>›</span>
             <span style={{ color: '#0f172a', fontWeight: 600 }}>{data.course.title}</span>
           </div>

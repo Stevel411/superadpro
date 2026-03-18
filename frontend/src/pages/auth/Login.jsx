@@ -11,7 +11,7 @@ export default function Login() {
 
   // Pre-fill ref from URL
   const params = new URLSearchParams(window.location.search);
-  const next = params.get('next') || '/app/dashboard';
+  const next = params.get('next') || '/dashboard';
 
   function set(k) { return function(e) { setForm(f => ({ ...f, [k]: e.target.value })); setError(''); }; }
 

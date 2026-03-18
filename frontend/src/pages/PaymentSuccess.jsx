@@ -113,7 +113,7 @@ export default function PaymentSuccess() {
               </button>
 
               <button
-                onClick={function() { navigate('/app/dashboard'); }}
+                onClick={function() { navigate('/dashboard'); }}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 10, border: '1px solid #e8ecf2', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', width: '100%', justifyContent: 'center' }}
               >
                 <Home size={14} /> Back to Dashboard

@@ -191,7 +191,7 @@ export default function CoPilot() {
                       return (
                         <Link
                           key={i}
-                          to={action.link || '/app/dashboard'}
+                          to={action.link || '/dashboard'}
                           className="cp-action"
                           style={{
                             display: 'block', textDecoration: 'none',

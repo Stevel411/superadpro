@@ -33,7 +33,7 @@ export default function Register() {
         ref: form.ref.trim(),
       });
       await refreshUser();
-      window.location.href = '/app/dashboard';
+      window.location.href = '/dashboard';
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');
     } finally {

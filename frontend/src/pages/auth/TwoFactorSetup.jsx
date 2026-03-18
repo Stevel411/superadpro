@@ -19,7 +19,7 @@ export default function TwoFactorSetup() {
       setEmail(d.email);
       setStep(2);
     }).catch(() => {
-      window.location.href = '/app/account';
+      window.location.href = '/account';
     });
   }, []);
 
@@ -75,7 +75,7 @@ export default function TwoFactorSetup() {
         <div style={styles.successIcon}>✅</div>
         <h1 style={styles.heading}>2FA Enabled!</h1>
         <p style={styles.sub}>Your account is now protected with two-factor authentication. You'll be asked for your authenticator code each time you log in.</p>
-        <a href="/app/account" style={styles.btn}>Back to Account</a>
+        <a href="/account" style={styles.btn}>Back to Account</a>
       </div>
     </div>
   );
@@ -161,7 +161,7 @@ export default function TwoFactorSetup() {
         )}
 
         <div style={{ textAlign: 'center', marginTop: 20 }}>
-          <a href="/app/account" style={styles.cancelLink}>Cancel — return to account</a>
+          <a href="/account" style={styles.cancelLink}>Cancel — return to account</a>
         </div>
       </div>
     </div>

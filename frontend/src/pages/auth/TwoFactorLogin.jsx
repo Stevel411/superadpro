@@ -47,7 +47,7 @@ export default function TwoFactorLogin() {
     try {
       await apiPost('/api/2fa/verify-login', { code: c });
       await refreshUser();
-      window.location.href = '/app/dashboard';
+      window.location.href = '/dashboard';
     } catch (err) {
       setError(err.message || 'Invalid code. Please try again.');
       setCode(['', '', '', '', '', '']);
