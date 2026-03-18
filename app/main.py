@@ -1953,14 +1953,14 @@ def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
     if float(target.balance or 0) > 0:
         return JSONResponse({"error": f"User has ${target.balance} balance — withdraw or zero first"}, status_code=400)
 
+    from .database import (MemberLead, EmailSequence, EmailSendLog, LeadList,
+                            CoPilotBriefing, AIUsageQuota, NurtureSequence)
     username = target.username
-    # Clean up related records
     try:
         db.query(Commission).filter((Commission.from_user_id == user_id) | (Commission.to_user_id == user_id)).delete()
         db.query(Notification).filter(Notification.user_id == user_id).delete()
         db.query(Achievement).filter(Achievement.user_id == user_id).delete()
-        db.query(NurtureSeq).filter(NurtureSeq.user_id == user_id).delete()
-        from .database import MemberLead, EmailSequence, EmailSendLog, LeadList, CoPilotBriefing, AIUsageQuota, NurtureSequence as NurtureSeq
+        db.query(NurtureSequence).filter(NurtureSequence.user_id == user_id).delete()
         db.query(MemberLead).filter(MemberLead.member_id == user_id).delete()
         db.query(EmailSequence).filter(EmailSequence.user_id == user_id).delete()
         db.query(LeadList).filter(LeadList.user_id == user_id).delete()
