@@ -11,6 +11,8 @@ export default function CoPilot() {
   var [question, setQuestion] = useState('');
   var [asking, setAsking] = useState(false);
   var [reply, setReply] = useState(null);
+  var [remaining, setRemaining] = useState(10);
+  var [limitReached, setLimitReached] = useState(false);
 
   useEffect(function() { fetchBriefing(); }, []);
 
@@ -30,11 +32,21 @@ export default function CoPilot() {
   }
 
   function ask() {
-    if (!question.trim() || asking) return;
+    if (!question.trim() || asking || limitReached) return;
     setAsking(true);
     setReply(null);
     apiPost('/api/copilot/ask', { question: question.trim() })
-      .then(function(d) { setReply(d.reply); setAsking(false); setQuestion(''); })
+      .then(function(d) {
+        if (d.limit_reached) {
+          setLimitReached(true);
+          setReply(d.error);
+        } else {
+          setReply(d.reply);
+          if (typeof d.remaining === 'number') setRemaining(d.remaining);
+        }
+        setAsking(false);
+        setQuestion('');
+      })
       .catch(function() { setAsking(false); });
   }
 
@@ -252,7 +264,8 @@ export default function CoPilot() {
                     value={question}
                     onChange={function(e) { setQuestion(e.target.value); }}
                     onKeyDown={function(e) { if (e.key === 'Enter') ask(); }}
-                    placeholder="e.g. How do I get my next grid completion faster?"
+                    disabled={limitReached}
+                    placeholder={limitReached ? 'Daily limit reached — back tomorrow' : 'e.g. How do I get my next grid completion faster?'}
                     style={{
                       flex: 1, background: 'rgba(255,255,255,0.05)',
                       border: '1px solid rgba(255,255,255,0.08)',

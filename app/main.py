@@ -2185,19 +2185,41 @@ async def refresh_copilot_briefing(request: Request, db: Session = Depends(get_d
     }
 
 
+COPILOT_DAILY_ASK_LIMIT = 10  # Max questions per member per day
+
 @app.post("/api/copilot/ask")
 async def copilot_ask(request: Request, db: Session = Depends(get_db),
                        user: User = Depends(get_current_user)):
-    """Ask the Co-Pilot a specific question about your account."""
+    """Ask the Co-Pilot a business-focused question about your account. Haiku-powered, 10/day limit."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     if getattr(user, "membership_tier", "basic") != "pro" and not user.is_admin:
         return JSONResponse({"error": "Pro membership required"}, status_code=403)
 
     body = await request.json()
-    question = (body.get("question") or "").strip()[:500]
+    question = (body.get("question") or "").strip()[:300]
     if not question:
         return JSONResponse({"error": "Question required"}, status_code=400)
+
+    # ── Daily usage limit ──
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    quota = db.query(AIUsageQuota).filter(AIUsageQuota.user_id == user.id).first()
+    if not quota:
+        quota = AIUsageQuota(user_id=user.id, quota_date=today)
+        db.add(quota)
+        db.flush()
+
+    copilot_asks_today = getattr(quota, "copilot_asks", 0) or 0
+    quota_date = getattr(quota, "quota_date", None)
+    if quota_date != today:
+        copilot_asks_today = 0
+
+    if copilot_asks_today >= COPILOT_DAILY_ASK_LIMIT:
+        return JSONResponse({
+            "error": f"You've used all {COPILOT_DAILY_ASK_LIMIT} Co-Pilot questions for today. Come back tomorrow for a fresh set.",
+            "limit_reached": True,
+            "remaining": 0,
+        }, status_code=429)
 
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
     if not api_key:
@@ -2206,20 +2228,39 @@ async def copilot_ask(request: Request, db: Session = Depends(get_db),
     ctx = _build_copilot_context(user, db)
     client = anthropic.Anthropic(api_key=api_key)
 
-    system = f"""You are the SuperAdPro AI Co-Pilot — a sharp personal business advisor for {ctx['name']}.
+    system = f"""You are the SuperAdPro AI Co-Pilot — a focused business advisor for {ctx['name']}.
 
-Their account: team={ctx['total_team']}, earned=${ctx['total_earned']}, this week=${ctx['earned_this_week']}, balance=${ctx['balance']}, hot_leads={ctx['hot_leads']}, uncontacted={ctx['uncontacted_leads']}, grids={ctx['active_grids']} active/{ctx['completions']} completed, expiring_team={ctx['expiring_team_members']}.
+Their account data: team={ctx['total_team']} members, earned=${ctx['total_earned']} lifetime, this week=${ctx['earned_this_week']}, balance=${ctx['balance']}, hot_leads={ctx['hot_leads']}, uncontacted_leads={ctx['uncontacted_leads']}, active_grids={ctx['active_grids']}, completions={ctx['completions']}, expiring_team_members={ctx['expiring_team_members']}.
 
-Answer their question concisely in 2-4 sentences. Be specific to their numbers. No markdown formatting. Conversational tone."""
+STRICT RULES — you must follow these without exception:
+1. ONLY answer questions directly related to: their SuperAdPro earnings, grid progress, team building, leads, campaigns, memberships, income growth, or platform features.
+2. If the question is off-topic (weather, news, general chat, coding, recipes, anything unrelated to their business) — respond ONLY with: "I'm your SuperAdPro business advisor. I can only help with your earnings, grid, team, and platform strategy."
+3. Answer in 2-3 sentences maximum. Be specific to their actual numbers where relevant.
+4. No markdown. No bullet points. Plain conversational sentences only.
+5. Never engage in small talk or general conversation."""
 
     try:
         resp = client.messages.create(
-            model=AI_MODEL_SONNET,
-            max_tokens=300,
+            model=AI_MODEL_HAIKU,
+            max_tokens=150,
             system=system,
             messages=[{"role": "user", "content": question}]
         )
-        return {"reply": resp.content[0].text.strip()}
+        reply = resp.content[0].text.strip()
+
+        # Increment usage counter
+        try:
+            if not hasattr(quota, 'copilot_asks') or quota_date != today:
+                quota.quota_date = today
+                quota.copilot_asks_today = 1
+            else:
+                quota.copilot_asks_today = copilot_asks_today + 1
+            db.commit()
+        except Exception:
+            db.rollback()
+
+        remaining = max(0, COPILOT_DAILY_ASK_LIMIT - (copilot_asks_today + 1))
+        return {"reply": reply, "remaining": remaining}
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 

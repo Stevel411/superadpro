@@ -1544,6 +1544,7 @@ try:
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS email_credits INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS emails_sent_today INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS emails_sent_today_date VARCHAR"))
+        conn.execute(text("ALTER TABLE ai_usage_quotas ADD COLUMN IF NOT EXISTS copilot_asks_today INTEGER DEFAULT 0"))
         # ── Co-Pilot ──
         conn.execute(text("""CREATE TABLE IF NOT EXISTS copilot_briefings (
             id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE,
