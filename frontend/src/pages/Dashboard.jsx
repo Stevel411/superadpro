@@ -6,6 +6,7 @@ import { apiGet, apiPost } from '../utils/api';
 import AppLayout from '../components/layout/AppLayout';
 import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye, TrendingUp } from 'lucide-react';
 import PassiveIncome from './PassiveIncome';
+import CoPilot from './CoPilot';
 
 export default function Dashboard() {
   var { t } = useTranslation();

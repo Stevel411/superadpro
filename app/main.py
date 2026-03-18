@@ -26,6 +26,7 @@ from . import stripe_service
 from .stripe_service import BOOST_PACKS as STRIPE_BOOST_PACKS, STRIPE_PUBLISHABLE_KEY
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick, Notification, Achievement, BADGES
 from .database import DigitalProduct, DigitalProductPurchase, DigitalProductReview, DigitalProductAffiliate
+from .database import CoPilotBriefing
 from .database import MemberLead
 from .database import MemberCourse, MemberCourseChapter, MemberCourseLesson, MemberCoursePurchase
 from .crud import create_user, verify_password
@@ -1934,6 +1935,293 @@ def payment_cancelled_page(request: Request, user: User = Depends(get_current_us
     })
 
 
+
+
+
+# ═══════════════════════════════════════════════════════════════
+#  AI CO-PILOT — Pro Only
+# ═══════════════════════════════════════════════════════════════
+
+def _build_copilot_context(user, db) -> dict:
+    """Gather all account data needed for a personalised briefing."""
+    from .grid import get_grid_stats
+    from datetime import date
+
+    grid_stats = get_grid_stats(db, user.id)
+    active_grids = grid_stats.get("active_grids_detail", [])
+
+    # Hot leads count
+    hot_leads = 0
+    uncontacted_leads = 0
+    try:
+        from .database import MemberLead
+        hot_leads = db.query(MemberLead).filter(
+            MemberLead.member_id == user.id, MemberLead.is_hot == True
+        ).count()
+        # Leads with no emails sent
+        uncontacted_leads = db.query(MemberLead).filter(
+            MemberLead.member_id == user.id, MemberLead.emails_sent == 0
+        ).count()
+    except Exception:
+        pass
+
+    # Expiring team members (next 7 days)
+    expiring_soon = 0
+    try:
+        from datetime import timedelta
+        cutoff = datetime.utcnow() + timedelta(days=7)
+        expiring_soon = db.query(User).filter(
+            User.sponsor_id == user.id,
+            User.is_active == True,
+            User.membership_expires_at != None,
+            User.membership_expires_at <= cutoff
+        ).count()
+    except Exception:
+        pass
+
+    # Recent commissions (last 7 days)
+    recent_earned = 0.0
+    try:
+        week_ago = datetime.utcnow() - timedelta(days=7)
+        comms = db.query(Commission).filter(
+            Commission.to_user_id == user.id,
+            Commission.created_at >= week_ago
+        ).all()
+        recent_earned = sum(float(c.amount_usdt or 0) for c in comms)
+    except Exception:
+        pass
+
+    # Closest grid to completion
+    closest_grid = None
+    if active_grids:
+        closest_grid = max(active_grids, key=lambda g: g.get("pct", 0))
+
+    return {
+        "name": user.first_name or user.username,
+        "tier": user.membership_tier or "pro",
+        "total_earned": round(float(user.total_earned or 0), 2),
+        "balance": round(float(user.balance or 0), 2),
+        "total_team": user.total_team or 0,
+        "personal_referrals": user.personal_referrals or 0,
+        "grid_earnings": round(float(user.grid_earnings or 0), 2),
+        "bonus_earnings": round(float(user.bonus_earnings or 0), 2),
+        "level_earnings": round(float(user.level_earnings or 0), 2),
+        "course_earnings": round(float(user.course_earnings or 0), 2),
+        "active_grids": len(active_grids),
+        "completions": grid_stats.get("completed_advances", 0),
+        "closest_grid": closest_grid,
+        "hot_leads": hot_leads,
+        "uncontacted_leads": uncontacted_leads,
+        "expiring_team_members": expiring_soon,
+        "earned_this_week": round(recent_earned, 2),
+        "today": date.today().strftime("%A, %d %B %Y"),
+    }
+
+
+def _generate_copilot_briefing(ctx: dict) -> dict:
+    """Call Claude Sonnet to generate a personalised briefing + action cards."""
+    import json as _json
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return {"narrative": "AI Co-Pilot is not configured.", "actions": []}
+
+    client = anthropic.Anthropic(api_key=api_key)
+
+    grid_info = ""
+    if ctx.get("closest_grid"):
+        g = ctx["closest_grid"]
+        BONUSES = {1:64,2:160,3:640,4:1280,5:3200,6:4800,7:6400,8:10000}
+        bonus = BONUSES.get(g.get("tier",1), 64)
+        grid_info = f"Their closest active grid is Campaign {g.get('tier')} at {g.get('pct')}% full ({g.get('filled')}/64 positions, ${bonus} completion bonus waiting)."
+
+    prompt = f"""You are the SuperAdPro AI Co-Pilot — a sharp, encouraging personal business advisor for {ctx['name']}.
+
+Today is {ctx['today']}.
+
+Here is {ctx['name']}'s account snapshot:
+- Team size: {ctx['total_team']} members ({ctx['personal_referrals']} direct referrals)
+- Total earned all-time: ${ctx['total_earned']}
+- Earned this week: ${ctx['earned_this_week']}
+- Balance: ${ctx['balance']}
+- Grid earnings: ${ctx['grid_earnings']} | Bonus earnings: ${ctx['bonus_earnings']}
+- Uni-level earnings: ${ctx['level_earnings']} | Course earnings: ${ctx['course_earnings']}
+- Active grids: {ctx['active_grids']} | Completed: {ctx['completions']}
+- {grid_info}
+- Hot leads in CRM: {ctx['hot_leads']}
+- Uncontacted leads: {ctx['uncontacted_leads']}
+- Team members expiring soon (7 days): {ctx['expiring_team_members']}
+
+Write a brief, punchy morning briefing (3-4 sentences max) that:
+1. Highlights the most important opportunity or risk right now
+2. Is specific to their actual numbers — no generic advice
+3. Has energy and momentum — make them want to take action
+4. Feels like a trusted advisor, not a chatbot
+
+Then generate 2-3 specific action cards. Each action card should be a concrete task they can do TODAY based on their data.
+
+Respond ONLY with valid JSON in this exact format, no markdown, no preamble:
+{{
+  "narrative": "Your morning briefing here...",
+  "actions": [
+    {{
+      "emoji": "⚡",
+      "title": "Short action title",
+      "description": "Specific description referencing their data",
+      "link": "/app/campaign-tiers",
+      "color": "#6366f1",
+      "priority": "high"
+    }}
+  ]
+}}
+
+Available links: /app/campaign-tiers, /app/pro/leads, /app/network, /app/affiliate, /app/courses, /app/wallet, /app/dashboard"""
+
+    try:
+        resp = client.messages.create(
+            model=AI_MODEL_SONNET,
+            max_tokens=800,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        raw = resp.content[0].text.strip()
+        # Strip markdown fences if present
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+        return _json.loads(raw.strip())
+    except Exception as e:
+        return {
+            "narrative": f"Your network has {ctx['total_team']} members and you've earned ${ctx['total_earned']} in total. Keep building — consistency compounds.",
+            "actions": [
+                {"emoji": "⚡", "title": "Check your grid progress", "description": "See how close your next completion bonus is", "link": "/app/campaign-tiers", "color": "#6366f1", "priority": "high"},
+                {"emoji": "👥", "title": "Share your referral link", "description": "Every new member grows your recurring income", "link": "/app/affiliate", "color": "#10b981", "priority": "medium"},
+            ]
+        }
+
+
+@app.get("/api/copilot/briefing")
+async def get_copilot_briefing(request: Request, db: Session = Depends(get_db),
+                                user: User = Depends(get_current_user)):
+    """Get today's Co-Pilot briefing. Generates once per day, cached after that."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if getattr(user, "membership_tier", "basic") != "pro" and not user.is_admin:
+        return JSONResponse({"error": "Pro membership required"}, status_code=403)
+
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    cached = db.query(CoPilotBriefing).filter(CoPilotBriefing.user_id == user.id).first()
+
+    if cached and cached.briefing_date == today:
+        import json as _json
+        return {
+            "narrative": cached.narrative,
+            "actions": _json.loads(cached.actions or "[]"),
+            "generated_at": cached.generated_at.isoformat() if cached.generated_at else None,
+            "cached": True,
+        }
+
+    # Generate fresh briefing
+    ctx = _build_copilot_context(user, db)
+    result = _generate_copilot_briefing(ctx)
+    import json as _json
+
+    if cached:
+        cached.briefing_date = today
+        cached.narrative = result.get("narrative", "")
+        cached.actions = _json.dumps(result.get("actions", []))
+        cached.generated_at = datetime.utcnow()
+    else:
+        cached = CoPilotBriefing(
+            user_id=user.id,
+            briefing_date=today,
+            narrative=result.get("narrative", ""),
+            actions=_json.dumps(result.get("actions", [])),
+        )
+        db.add(cached)
+    db.commit()
+
+    return {
+        "narrative": cached.narrative,
+        "actions": result.get("actions", []),
+        "generated_at": cached.generated_at.isoformat(),
+        "cached": False,
+    }
+
+
+@app.post("/api/copilot/refresh")
+async def refresh_copilot_briefing(request: Request, db: Session = Depends(get_db),
+                                    user: User = Depends(get_current_user)):
+    """Force-regenerate the Co-Pilot briefing on demand."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if getattr(user, "membership_tier", "basic") != "pro" and not user.is_admin:
+        return JSONResponse({"error": "Pro membership required"}, status_code=403)
+
+    import json as _json
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    ctx = _build_copilot_context(user, db)
+    result = _generate_copilot_briefing(ctx)
+
+    cached = db.query(CoPilotBriefing).filter(CoPilotBriefing.user_id == user.id).first()
+    if cached:
+        cached.briefing_date = today
+        cached.narrative = result.get("narrative", "")
+        cached.actions = _json.dumps(result.get("actions", []))
+        cached.generated_at = datetime.utcnow()
+    else:
+        cached = CoPilotBriefing(
+            user_id=user.id, briefing_date=today,
+            narrative=result.get("narrative", ""),
+            actions=_json.dumps(result.get("actions", [])),
+        )
+        db.add(cached)
+    db.commit()
+
+    return {
+        "narrative": cached.narrative,
+        "actions": result.get("actions", []),
+        "generated_at": cached.generated_at.isoformat(),
+        "cached": False,
+    }
+
+
+@app.post("/api/copilot/ask")
+async def copilot_ask(request: Request, db: Session = Depends(get_db),
+                       user: User = Depends(get_current_user)):
+    """Ask the Co-Pilot a specific question about your account."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if getattr(user, "membership_tier", "basic") != "pro" and not user.is_admin:
+        return JSONResponse({"error": "Pro membership required"}, status_code=403)
+
+    body = await request.json()
+    question = (body.get("question") or "").strip()[:500]
+    if not question:
+        return JSONResponse({"error": "Question required"}, status_code=400)
+
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return JSONResponse({"error": "AI not configured"}, status_code=500)
+
+    ctx = _build_copilot_context(user, db)
+    client = anthropic.Anthropic(api_key=api_key)
+
+    system = f"""You are the SuperAdPro AI Co-Pilot — a sharp personal business advisor for {ctx['name']}.
+
+Their account: team={ctx['total_team']}, earned=${ctx['total_earned']}, this week=${ctx['earned_this_week']}, balance=${ctx['balance']}, hot_leads={ctx['hot_leads']}, uncontacted={ctx['uncontacted_leads']}, grids={ctx['active_grids']} active/{ctx['completions']} completed, expiring_team={ctx['expiring_team_members']}.
+
+Answer their question concisely in 2-4 sentences. Be specific to their numbers. No markdown formatting. Conversational tone."""
+
+    try:
+        resp = client.messages.create(
+            model=AI_MODEL_SONNET,
+            max_tokens=300,
+            system=system,
+            messages=[{"role": "user", "content": question}]
+        )
+        return {"reply": resp.content[0].text.strip()}
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 
 # ═══════════════════════════════════════════════════════════════

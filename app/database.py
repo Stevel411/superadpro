@@ -1063,6 +1063,16 @@ class DigitalProductAffiliate(Base):
 # SUPERSELLER — AI Sales Autopilot
 # ═══════════════════════════════════════════════════════════════
 
+class CoPilotBriefing(Base):
+    """Daily AI Co-Pilot briefing cached per user."""
+    __tablename__ = "copilot_briefings"
+    id           = Column(Integer, primary_key=True, index=True)
+    user_id      = Column(Integer, ForeignKey("users.id"), unique=True, index=True)
+    briefing_date = Column(String, nullable=False)          # YYYY-MM-DD
+    narrative    = Column(Text, nullable=True)               # AI morning briefing text
+    actions      = Column(Text, nullable=True)               # JSON list of action cards
+    generated_at = Column(DateTime, default=datetime.utcnow)
+
 class SuperSellerCampaign(Base):
     __tablename__ = "superseller_campaigns"
     id              = Column(Integer, primary_key=True, autoincrement=True)
@@ -1534,6 +1544,12 @@ try:
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS email_credits INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS emails_sent_today INTEGER DEFAULT 0"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS emails_sent_today_date VARCHAR"))
+        # ── Co-Pilot ──
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS copilot_briefings (
+            id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE,
+            briefing_date VARCHAR, narrative TEXT, actions TEXT,
+            generated_at TIMESTAMP DEFAULT NOW()
+        """))
         # ── Stripe ──
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_subscription_id VARCHAR"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_expires_at TIMESTAMP"))
