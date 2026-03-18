@@ -2624,48 +2624,54 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
 
     # ── Checkout completed ────────────────────────────────────
     if event_type == "checkout.session.completed":
-        session = event["data"]["object"]
-        meta = session.get("metadata", {})
-        user_id = int(meta.get("user_id", 0))
-        payment_type = meta.get("payment_type", "")
-        user = db.query(User).filter(User.id == user_id).first()
-        if not user:
-            return {"received": True}
+        try:
+            session = event["data"]["object"]
+            meta = session.get("metadata", {})
+            user_id = int(meta.get("user_id", 0))
+            payment_type = meta.get("payment_type", "")
+            logger.warning(f"Stripe webhook: {payment_type} for user_id={user_id}")
+            user = db.query(User).filter(User.id == user_id).first()
+            if not user:
+                logger.warning(f"Stripe webhook: user {user_id} not found")
+                return {"received": True}
 
-        if payment_type == "membership":
-            tier = meta.get("tier", "basic")
-            _stripe_activate_membership(db, user, tier, session.get("subscription"))
+            if payment_type == "membership":
+                tier = meta.get("tier", "basic")
+                _stripe_activate_membership(db, user, tier, session.get("subscription"))
 
-        elif payment_type == "grid":
-            package_tier = int(meta.get("package_tier", 1))
-            price_usd = float(meta.get("price_usd", 0))
-            _stripe_process_grid(db, user, package_tier, price_usd, session["id"])
+            elif payment_type == "grid":
+                package_tier = int(meta.get("package_tier", 1))
+                price_usd = float(meta.get("price_usd", 0))
+                _stripe_process_grid(db, user, package_tier, price_usd, session["id"])
 
-        elif payment_type == "email_boost":
-            pack_key = meta.get("pack_key", "")
-            emails = int(meta.get("emails", 0))
-            if emails > 0:
-                user.email_credits = (user.email_credits or 0) + emails
-                payment = Payment(
-                    from_user_id=user_id, to_user_id=None,
-                    amount_usdt=float(STRIPE_BOOST_PACKS.get(pack_key, {}).get("price", 0)),
-                    payment_type="email_boost", tx_hash=session["id"], status="confirmed",
-                )
-                db.add(payment)
-                db.commit()
+            elif payment_type == "email_boost":
+                pack_key = meta.get("pack_key", "")
+                emails = int(meta.get("emails", 0))
+                if emails > 0:
+                    user.email_credits = (user.email_credits or 0) + emails
+                    payment = Payment(
+                        from_user_id=user_id, to_user_id=None,
+                        amount_usdt=float(STRIPE_BOOST_PACKS.get(pack_key, {}).get("price", 0)),
+                        payment_type="email_boost", tx_hash=session["id"], status="confirmed",
+                    )
+                    db.add(payment)
+                    db.commit()
 
-        elif payment_type == "course":
-            course_id = int(meta.get("course_id", 0))
-            tx_ref = f"stripe_{session['id'][:20]}"
-            result = process_course_purchase(db, user_id, course_id,
-                                             payment_method="stripe", tx_ref=tx_ref)
-            # process_course_purchase handles its own db.commit()
+            elif payment_type == "course":
+                course_id = int(meta.get("course_id", 0))
+                tx_ref = f"stripe_{session['id'][:20]}"
+                result = process_course_purchase(db, user_id, course_id,
+                                                 payment_method="stripe", tx_ref=tx_ref)
 
-        elif payment_type == "supermarket":
-            product_id = int(meta.get("product_id", 0))
-            affiliate_id = meta.get("affiliate_id")
-            affiliate_id = int(affiliate_id) if affiliate_id else None
-            _stripe_process_supermarket(db, user, product_id, session["id"], affiliate_id)
+            elif payment_type == "supermarket":
+                product_id = int(meta.get("product_id", 0))
+                affiliate_id = meta.get("affiliate_id")
+                affiliate_id = int(affiliate_id) if affiliate_id else None
+                _stripe_process_supermarket(db, user, product_id, session["id"], affiliate_id)
+
+        except Exception as e:
+            logger.error(f"Stripe webhook checkout error: {e}", exc_info=True)
+            return JSONResponse({"error": str(e)}, status_code=500)
 
     # ── Subscription renewed (monthly) ───────────────────────
     elif event_type == "invoice.payment_succeeded":
