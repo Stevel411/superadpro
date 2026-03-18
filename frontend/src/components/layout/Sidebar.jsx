@@ -128,8 +128,8 @@ export default function Sidebar() {
             var Icon = item.icon;
             return (
               <Link key={i} to={item.path}
-                className={'flex items-center gap-2.5 px-5 py-2.5 text-[13px] font-medium no-underline transition-all duration-150 ' +
-                  (isActive(item.path) ? 'text-cyan font-bold bg-cyan/8' : 'text-white/40 hover:text-white/70 hover:bg-cyan/5')}>
+                className={'flex items-center gap-2.5 px-5 py-2.5 text-[13.5px] font-medium no-underline transition-all duration-150 ' +
+                  (isActive(item.path) ? 'text-cyan font-bold bg-cyan/8' : 'text-white/55 hover:text-white/85 hover:bg-cyan/5')}>
                 <Icon className="w-4 h-4 shrink-0" />
                 {item.label}
               </Link>
@@ -143,7 +143,7 @@ export default function Sidebar() {
             return (
               <div key={i}>
                 <button onClick={function() { toggle(item.key); }}
-                  className="w-full flex items-center justify-between px-5 py-2.5 text-[11.5px] font-bold text-cyan uppercase tracking-wider cursor-pointer hover:bg-cyan/5 transition-all border-none bg-transparent">
+                  className="w-full flex items-center justify-between px-5 py-2.5 text-[11px] font-bold text-cyan/70 uppercase tracking-wider cursor-pointer hover:bg-cyan/5 transition-all border-none bg-transparent">
                   <span>{item.label}</span>
                   <ChevronRight className={'w-3.5 h-3.5 text-white/20 transition-transform duration-200 ' + (isOpen ? 'rotate-90' : '')} />
                 </button>
@@ -154,10 +154,10 @@ export default function Sidebar() {
                       var isPro = sub.pro;
                       return (
                         <Link key={j} to={sub.path}
-                          className={'flex items-center gap-2.5 pl-6 pr-5 py-2 text-[13px] font-medium no-underline transition-all duration-150 ' +
+                          className={'flex items-center gap-2.5 pl-6 pr-5 py-2 text-[13px] font-semibold no-underline transition-all duration-150 ' +
                             (isActive(sub.path) ? 'text-cyan font-bold bg-cyan/8' :
-                             isPro ? 'text-white/25 hover:text-white/40 hover:bg-cyan/5' :
-                             'text-white/40 hover:text-white/70 hover:bg-cyan/5')}>
+                             isPro ? 'text-white/30 hover:text-white/45 hover:bg-cyan/5' :
+                             'text-white/55 hover:text-white/85 hover:bg-cyan/5')}>
                           <SubIcon className="w-4 h-4 shrink-0" />
                           <span className="flex-1">{sub.label}</span>
                           {isPro && <Lock className="w-3 h-3 text-white/20 shrink-0" />}

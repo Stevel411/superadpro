@@ -56,8 +56,8 @@ export default function Topbar({ title, subtitle, children }) {
   return (
     <header className="flex items-center justify-between px-7 h-[72px] bg-navy border-b border-cyan/10 sticky top-0 z-40 shadow-topbar shrink-0">
       <div className="min-w-0">
-        <h1 className="font-display text-[17px] font-extrabold text-white truncate">{title}</h1>
-        {subtitle && <p className="text-xs text-cyan/40 mt-0.5 truncate">{subtitle}</p>}
+        <h1 className="font-display text-[18px] font-extrabold text-white truncate">{title}</h1>
+        {subtitle && <p className="text-xs text-cyan/60 mt-0.5 truncate font-medium">{subtitle}</p>}
       </div>
       <div className="flex items-center gap-3">
         {children}
@@ -67,7 +67,7 @@ export default function Topbar({ title, subtitle, children }) {
         <div className="relative" ref={dropdownRef}>
           <button onClick={toggleNotifs}
             className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer border-none relative">
-            <Bell className="w-4 h-4 text-white/50" />
+            <Bell className="w-4 h-4 text-white/60" />
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 w-[18px] h-[18px] bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center">
                 {unreadCount > 9 ? '9+' : unreadCount}
@@ -107,8 +107,8 @@ export default function Topbar({ title, subtitle, children }) {
                     <div className="flex items-start gap-2.5 pr-6">
                       <span className="text-base shrink-0 mt-0.5">{n.icon || '🔔'}</span>
                       <div className="min-w-0">
-                        <div className="text-[13px] font-semibold text-slate-800">{n.title}</div>
-                        <div className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">{n.message}</div>
+                        <div className="text-[13px] font-bold text-slate-900">{n.title}</div>
+                        <div className="text-[12px] text-slate-600 mt-0.5 leading-relaxed">{n.message}</div>
                         {n.created_at && (
                           <div className="text-[9px] text-slate-300 mt-1">{new Date(n.created_at).toLocaleDateString()}</div>
                         )}
@@ -128,7 +128,7 @@ export default function Topbar({ title, subtitle, children }) {
         </div>
 
         {/* User Avatar */}
-        <div className="w-8 h-8 rounded-full bg-cyan/20 flex items-center justify-center text-xs font-bold text-cyan overflow-hidden" style={{flexShrink:0}}>
+        <div className="w-9 h-9 rounded-full bg-cyan/20 flex items-center justify-center text-xs font-bold text-cyan overflow-hidden" style={{flexShrink:0}}>
           {user?.avatar_url
             ? <img src={user.avatar_url} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} onError={function(e){e.target.style.display='none';}}/>
             : (user?.first_name || user?.username || '?')[0].toUpperCase()

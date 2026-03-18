@@ -9,7 +9,7 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
         <Topbar title={title} subtitle={subtitle}>
           {topbarActions}
         </Topbar>
-        <main className="flex-1 p-6 overflow-y-auto" style={Object.assign({background:'#fff'}, bgStyle || {})}>
+        <main className="flex-1 p-6 overflow-y-auto" style={Object.assign({background:'#f0f3f9'}, bgStyle || {})}>
           {children}
         </main>
       </div>
