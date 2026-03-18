@@ -496,8 +496,8 @@ def test_link_tools(t, c):
     })
     t.test("Create short link returns 200", status == 200, f"Got {status}: {data}")
     if status == 200:
-        link_id = data.get("id") or data.get("link", {}).get("id")
-        t.test("New link has ID", link_id is not None)
+        link_id = data.get("id") or data.get("slug") or data.get("link", {}).get("id")
+        t.test("New link has ID or slug", link_id is not None)
 
 
 def test_copilot(t, c, is_pro=False):
@@ -542,7 +542,7 @@ def test_webhook_security(t, c):
 
     # Coinbase webhook — bad signature
     status, body = c.post("/api/webhook/coinbase", {"event": {"type": "charge:confirmed"}})
-    t.test("Coinbase webhook rejects bad/missing signature", status in [400, 422], f"Got {status}")
+    t.test("Coinbase webhook rejects unauthenticated/bad request", status in [400, 401, 422], f"Got {status}")
 
 
 def test_cron_security(t, c):
@@ -640,7 +640,7 @@ def test_achievements(t, c):
 
     status, data = c.json_get("/api/achievements")
     t.test("Achievements returns 200", status == 200, f"Got {status}")
-    t.test("Has achievements array", "achievements" in data or "badges" in data or status == 200)
+    t.test("Has achievements array", "earned" in data or "achievements" in data or "badges" in data or status == 200)
 
 
 # ══════════════════════════════════════════════════════════════

@@ -12699,9 +12699,23 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
     """JSON campaign tier data."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    active_grids = db.query(Grid).filter(Grid.user_id == user.id, Grid.status == "active").all()
-    active_tiers = [g.tier for g in active_grids]
-    return {"active_tiers": active_tiers}
+    from .database import GRID_PACKAGES, GRID_TIER_NAMES
+    active_grids = db.query(Grid).filter(Grid.owner_id == user.id, Grid.is_complete == False).all()
+    completed_grids = db.query(Grid).filter(Grid.owner_id == user.id, Grid.is_complete == True).all()
+    return {
+        "active_tiers": [g.package_tier for g in active_grids],
+        "active_grids": [{
+            "tier": g.package_tier,
+            "tier_name": GRID_TIER_NAMES.get(g.package_tier, f"Tier {g.package_tier}"),
+            "price": float(g.package_price or 0),
+            "filled": g.positions_filled or 0,
+            "pct": round((g.positions_filled or 0) / 64 * 100),
+            "advance": g.advance_number or 1,
+        } for g in active_grids],
+        "completed_count": len(completed_grids),
+        "packages": {str(k): v for k,v in GRID_PACKAGES.items()},
+        "tier_names": {str(k): v for k,v in GRID_TIER_NAMES.items()},
+    }
 
 
 @app.get("/api/marketplace/browse")
@@ -13506,7 +13520,7 @@ def api_achievements_data(request: Request, user: User = Depends(get_current_use
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     user_achievements = db.query(Achievement).filter(Achievement.user_id == user.id).all()
-    earned_keys = {a.badge_key for a in user_achievements}
+    earned_keys = {a.badge_id for a in user_achievements}
     earned = []
     available = []
     for key, badge in BADGES.items():
