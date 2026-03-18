@@ -2070,6 +2070,22 @@ def payment_cancelled_page(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+@app.get("/payment-success")
+def payment_success_dash(request: Request):
+    """Stripe redirects here after payment — serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/payment-cancelled")
+def payment_cancelled_dash(request: Request):
+    """Stripe redirects here on cancel — serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 
 
 

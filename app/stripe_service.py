@@ -10,7 +10,7 @@ from typing import Optional
 STRIPE_SECRET_KEY       = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET   = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 STRIPE_PUBLISHABLE_KEY  = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
-SITE_URL                = os.getenv("SITE_URL", "https://superadpro-production.up.railway.app")
+SITE_URL                = os.getenv("SITE_URL", "https://www.superadpro.com")
 
 # Membership price IDs — set these in Railway env vars after creating
 # products in Stripe dashboard
@@ -44,8 +44,8 @@ def create_membership_checkout(user_id: int, tier: str, email: str) -> dict:
             mode="subscription",
             customer_email=email,
             line_items=[{"price": price_id, "quantity": 1}],
-            success_url=f"{SITE_URL}/app/payment-success?session_id={{CHECKOUT_SESSION_ID}}&type=membership&tier={tier}",
-            cancel_url=f"{SITE_URL}/app/upgrade?cancelled=1",
+            success_url=f"{SITE_URL}/payment-success?session_id={{CHECKOUT_SESSION_ID}}&type=membership&tier={tier}",
+            cancel_url=f"{SITE_URL}/upgrade?cancelled=1",
             metadata={
                 "user_id": str(user_id),
                 "payment_type": "membership",
@@ -88,8 +88,8 @@ def create_grid_checkout(user_id: int, package_tier: int, price_usd: float, tier
                 },
                 "quantity": 1,
             }],
-            success_url=f"{SITE_URL}/app/payment-success?session_id={{CHECKOUT_SESSION_ID}}&type=grid&tier={package_tier}",
-            cancel_url=f"{SITE_URL}/app/campaign-tiers?cancelled=1",
+            success_url=f"{SITE_URL}/payment-success?session_id={{CHECKOUT_SESSION_ID}}&type=grid&tier={package_tier}",
+            cancel_url=f"{SITE_URL}/campaign-tiers?cancelled=1",
             metadata={
                 "user_id": str(user_id),
                 "payment_type": "grid",
@@ -133,8 +133,8 @@ def create_boost_checkout(user_id: int, pack_key: str, email: str) -> dict:
                 },
                 "quantity": 1,
             }],
-            success_url=f"{SITE_URL}/app/my-leads?boost_success=1&pack={pack_key}",
-            cancel_url=f"{SITE_URL}/app/my-leads?tab=boost&cancelled=1",
+            success_url=f"{SITE_URL}/pro/leads?boost_success=1&pack={pack_key}",
+            cancel_url=f"{SITE_URL}/pro/leads?tab=boost&cancelled=1",
             metadata={
                 "user_id": str(user_id),
                 "payment_type": "email_boost",
@@ -213,8 +213,8 @@ def create_course_checkout(user_id: int, course_id: int, course_title: str,
                 },
                 "quantity": 1,
             }],
-            success_url=f"{SITE_URL}/app/payment-success?session_id={{CHECKOUT_SESSION_ID}}&type=course&course_id={course_id}",
-            cancel_url=f"{SITE_URL}/app/courses?cancelled=1",
+            success_url=f"{SITE_URL}/payment-success?session_id={{CHECKOUT_SESSION_ID}}&type=course&course_id={course_id}",
+            cancel_url=f"{SITE_URL}/courses?cancelled=1",
             metadata={
                 "user_id": str(user_id),
                 "payment_type": "course",
@@ -250,8 +250,8 @@ def create_supermarket_checkout(user_id: int, product_id: int, product_title: st
                 },
                 "quantity": 1,
             }],
-            success_url=f"{SITE_URL}/app/payment-success?session_id={{CHECKOUT_SESSION_ID}}&type=supermarket&product_id={product_id}",
-            cancel_url=f"{SITE_URL}/app/supermarket?cancelled=1",
+            success_url=f"{SITE_URL}/payment-success?session_id={{CHECKOUT_SESSION_ID}}&type=supermarket&product_id={product_id}",
+            cancel_url=f"{SITE_URL}/marketplace?cancelled=1",
             metadata={
                 "user_id": str(user_id),
                 "payment_type": "supermarket",
