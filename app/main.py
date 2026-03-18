@@ -1953,23 +1953,65 @@ def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
     if float(target.balance or 0) > 0:
         return JSONResponse({"error": f"User has ${target.balance} balance — withdraw or zero first"}, status_code=400)
 
-    from .database import (MemberLead, EmailSequence, EmailSendLog, LeadList,
-                            CoPilotBriefing, AIUsageQuota, NurtureSequence)
+    from .database import (
+        MemberLead, EmailSequence, EmailSendLog, LeadList,
+        CoPilotBriefing, AIUsageQuota, NurtureSequence,
+        VideoWatch, WatchQuota, FunnelLead, FunnelEvent,
+        LinkHubLink, LinkHubClick, ProSellerMessage, Prospect,
+        SuperSellerCampaign
+    )
+
     username = target.username
     try:
-        db.query(Commission).filter((Commission.from_user_id == user_id) | (Commission.to_user_id == user_id)).delete()
-        db.query(Notification).filter(Notification.user_id == user_id).delete()
-        db.query(Achievement).filter(Achievement.user_id == user_id).delete()
-        db.query(NurtureSequence).filter(NurtureSequence.user_id == user_id).delete()
-        db.query(MemberLead).filter(MemberLead.member_id == user_id).delete()
+        # ── Step 1: Delete grandchildren first (tables that reference other user-owned tables) ──
+
+        # EmailSendLog references member_leads — delete via lead_id join
+        lead_ids = [r.id for r in db.query(MemberLead).filter(MemberLead.user_id == user_id).all()]
+        if lead_ids:
+            db.query(EmailSendLog).filter(EmailSendLog.lead_id.in_(lead_ids)).delete(synchronize_session=False)
+
+        # LinkHubClick references linkhub_profiles
+        profile = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user_id).first()
+        if profile:
+            from .database import LinkHubClick
+            db.query(LinkHubClick).filter(LinkHubClick.profile_id == profile.id).delete()
+            db.query(LinkHubLink).filter(LinkHubLink.user_id == user_id).delete()
+
+        # FunnelEvent, FunnelLead reference funnel_pages
+        funnel_ids = [r.id for r in db.query(FunnelPage).filter(FunnelPage.user_id == user_id).all()]
+        if funnel_ids:
+            db.query(FunnelEvent).filter(FunnelEvent.page_id.in_(funnel_ids)).delete(synchronize_session=False)
+            db.query(FunnelLead).filter(FunnelLead.page_id.in_(funnel_ids)).delete(synchronize_session=False)
+
+        # GridPosition references grids
+        from .database import Grid, GridPosition
+        grid_ids = [r.id for r in db.query(Grid).filter(Grid.owner_id == user_id).all()]
+        if grid_ids:
+            db.query(GridPosition).filter(GridPosition.grid_id.in_(grid_ids)).delete(synchronize_session=False)
+
+        # ── Step 2: Delete direct children (tables with user_id or equivalent) ──
+        db.query(MemberLead).filter(MemberLead.user_id == user_id).delete()
         db.query(EmailSequence).filter(EmailSequence.user_id == user_id).delete()
         db.query(LeadList).filter(LeadList.user_id == user_id).delete()
-        db.query(EmailSendLog).filter(EmailSendLog.user_id == user_id).delete()
-        db.query(CoPilotBriefing).filter(CoPilotBriefing.user_id == user_id).delete()
-        db.query(AIUsageQuota).filter(AIUsageQuota.user_id == user_id).delete()
+        db.query(NurtureSequence).filter(NurtureSequence.user_id == user_id).delete()
+        db.query(Commission).filter((Commission.from_user_id == user_id) | (Commission.to_user_id == user_id)).delete()
+        db.query(Payment).filter((Payment.from_user_id == user_id) | (Payment.to_user_id == user_id)).delete()
+        db.query(Withdrawal).filter(Withdrawal.user_id == user_id).delete()
+        db.query(Notification).filter(Notification.user_id == user_id).delete()
+        db.query(Achievement).filter(Achievement.user_id == user_id).delete()
         db.query(ShortLink).filter(ShortLink.user_id == user_id).delete()
         db.query(FunnelPage).filter(FunnelPage.user_id == user_id).delete()
         db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user_id).delete()
+        db.query(VideoWatch).filter(VideoWatch.user_id == user_id).delete()
+        db.query(WatchQuota).filter(WatchQuota.user_id == user_id).delete()
+        db.query(Grid).filter(Grid.owner_id == user_id).delete()
+        db.query(CoPilotBriefing).filter(CoPilotBriefing.user_id == user_id).delete()
+        db.query(AIUsageQuota).filter(AIUsageQuota.user_id == user_id).delete()
+        db.query(ProSellerMessage).filter(ProSellerMessage.user_id == user_id).delete()
+        db.query(Prospect).filter(Prospect.user_id == user_id).delete()
+        db.query(SuperSellerCampaign).filter(SuperSellerCampaign.user_id == user_id).delete()
+
+        # ── Step 3: Delete the user ──
         db.delete(target)
         db.commit()
         return {"ok": True, "message": f"User {username} deleted successfully"}
