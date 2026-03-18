@@ -148,8 +148,8 @@ export default function EarnPage() {
         {/* Live stats strip */}
         <div className="earn-fade5" style={{display:'flex',justifyContent:'center',gap:0,maxWidth:700,margin:'0 auto',border:'1px solid rgba(56,189,248,.12)',borderRadius:12,overflow:'hidden',background:'rgba(5,13,26,.7)',backdropFilter:'blur(10px)',position:'relative'}}>
           {[
-            {val:50,suffix:'%',label:'Membership Commission'},
-            {val:3200,prefix:'$',label:'Max Grid Cycle Payout'},
+            {val:50,suffix:'%',label:'Referral Commission'},
+            {val:3200,prefix:'$',label:'Max Grid Bonus Payout'},
             {val:9,suffix:'+',label:'AI Marketing Tools'},
             {val:20,prefix:'$',label:'Monthly Membership'},
           ].map(function(s,i,arr){
@@ -178,15 +178,15 @@ export default function EarnPage() {
             {
               icon:'💰', color:'#4ade80', bg:'rgba(22,163,74,.1)', border:'rgba(74,222,128,.15)',
               title:'Membership Commissions',
-              value:'$10/month per referral',
-              desc:'Earn 50% of every membership fee from people you refer — every single month they stay active. Refer 10 people = $100/month passive income. Refer 50 = $500/month. It compounds as your network grows.',
+              value:'50% commission per referral',
+              desc:'Earn 50% of every membership fee from people you refer — every single month they remain active. The more people you refer, the more you earn. It compounds as your network grows.',
               tag:'Recurring Monthly',
             },
             {
               icon:'⚡', color:'#38bdf8', bg:'rgba(14,165,233,.1)', border:'rgba(56,189,248,.15)',
               title:'Campaign Grid Earnings',
-              value:'Up to $3,200 per cycle',
-              desc:'Join a campaign tier and earn commissions as your grid fills with members. The 8×8 grid model means 40% direct commissions plus uni-level earnings flowing up through your network — up to $3,200 when a grid completes.',
+              value:'Up to $3,200 in grid bonuses',
+              desc:'Join a campaign tier and earn commissions as your network grows. The 8×8 grid model pays 40% direct commissions plus multi-level earnings flowing through your network — with total bonus potential up to $3,200.',
               tag:'40% Direct + Uni-Level',
             },
             {
@@ -234,7 +234,7 @@ export default function EarnPage() {
           {[
             {num:'1',title:'Create Your Free Account',desc:'Sign up in 60 seconds. No credit card required. You get a personal referral link and access to the member dashboard immediately.',color:'#38bdf8'},
             {num:'2',title:'Activate Your Membership',desc:'Choose Basic ($20/mo) or Pro ($30/mo) to unlock all four income streams, AI marketing tools, and your affiliate earnings.',color:'#10b981'},
-            {num:'3',title:'Share & Start Earning',desc:'Share your referral link anywhere. Every person who joins and activates earns you $10/month — recurring, every month they stay.',color:'#a5b4fc'},
+            {num:'3',title:'Share & Start Earning',desc:'Share your referral link anywhere. Every person who joins and activates earns you 50% commissionnth — recurring, every month they stay.',color:'#a5b4fc'},
           ].map(function(s) {
             return (
               <div key={s.num} className="earn-card" style={{background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.07)',borderRadius:16,padding:'28px 24px',textAlign:'center'}}>
@@ -274,8 +274,8 @@ export default function EarnPage() {
 
               {/* Mini bullets */}
               {[
-                {emoji:'💰',text:'$10/month per referral',color:'#4ade80'},
-                {emoji:'⚡',text:'Up to $3,200 grid payout',color:'#38bdf8'},
+                {emoji:'💰',text:'50% commission per referral',color:'#4ade80'},
+                {emoji:'⚡',text:'Up to $3,200 grid bonus',color:'#38bdf8'},
                 {emoji:'🎓',text:'100% course commissions',color:'#a5b4fc'},
                 {emoji:'🤖',text:'9 AI marketing tools',color:'#fbbf24'},
               ].map(function(b) {

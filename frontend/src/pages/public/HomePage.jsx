@@ -358,7 +358,7 @@ export default function HomePage(){
               <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'#38bdf8',marginBottom:14}}>💰 Affiliate Programme</div>
               <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,42px)',fontWeight:900,color:'#fff',lineHeight:1.1,marginBottom:16}}>
                 Earn With SuperAdPro.<br/>
-                <span style={{background:'linear-gradient(135deg,#38bdf8,#10b981)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>$10/Month Per Referral.</span>
+                <span style={{background:'linear-gradient(135deg,#38bdf8,#10b981)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>50% Referral Commission.</span>
               </h2>
               <p style={{fontSize:15,color:'rgba(200,220,255,.55)',lineHeight:1.75,marginBottom:28,maxWidth:520}}>
                 Refer members and earn 50% of their monthly subscription — recurring, every month. Build your network, activate campaign tiers, sell courses. Four income streams running on autopilot.
@@ -366,8 +366,8 @@ export default function HomePage(){
               {/* Mini income bullets */}
               <div style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:28}}>
                 {[
-                  {emoji:'💰',text:'$10/mo per referral',color:'#4ade80'},
-                  {emoji:'⚡',text:'Up to $3,200 grid cycle',color:'#38bdf8'},
+                  {emoji:'💰',text:'50% commission',color:'#4ade80'},
+                  {emoji:'⚡',text:'Up to $3,200 grid bonus',color:'#38bdf8'},
                   {emoji:'🎓',text:'100% course commissions',color:'#a5b4fc'},
                   {emoji:'🤖',text:'9 AI marketing tools',color:'#fbbf24'},
                 ].map(function(b){
@@ -394,7 +394,7 @@ export default function HomePage(){
                 <div style={{fontFamily:"'Sora',sans-serif",fontSize:13,fontWeight:900,color:'#fff',marginBottom:12,lineHeight:1.2}}>
                   Earn With<br/><span style={{color:'#38bdf8'}}>SuperAdPro</span>
                 </div>
-                {[['💰','$10/mo','per referral'],['⚡','$3,200','grid cycle'],['🎓','100%','commissions']].map(function([e,v,l]){
+                {[['💰','50% commission','per referral'],['⚡','$3,200','grid bonus'],['🎓','100%','commissions']].map(function([e,v,l]){
                   return (
                     <div key={l} style={{display:'flex',alignItems:'center',gap:8,padding:'6px 0',borderBottom:'1px solid rgba(255,255,255,.05)'}}>
                       <span style={{fontSize:13}}>{e}</span>
