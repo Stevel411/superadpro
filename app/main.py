@@ -2789,10 +2789,10 @@ def _stripe_activate_membership(db, user, tier, subscription_id):
             sponsor.total_earned = (sponsor.total_earned or 0) + sponsor_share
             sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
             comm = Commission(
-                user_id=sponsor.id, from_user_id=user.id,
+                to_user_id=sponsor.id, from_user_id=user.id,
                 amount_usdt=sponsor_share, commission_type="membership_sponsor",
-                description=f"Membership commission from {user.username}",
-                status="credited",
+                notes=f"Membership commission from {user.username}",
+                status="pending",
             )
             db.add(comm)
 
