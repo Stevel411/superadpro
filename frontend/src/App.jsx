@@ -201,7 +201,7 @@ function PlaceholderPage({ title }) {
 export default function App() {
   return (
     <ErrorBoundary>
-      <BrowserRouter basename="/app">
+      <BrowserRouter>
         <AuthProvider>
           <AppRoutes />
         </AuthProvider>
