@@ -135,8 +135,8 @@ export default function Dashboard() {
                   fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 800,
                   color: s.done ? '#10b981' : '#0ea5e9',
                 }}>{s.done ? '✓' : s.num}</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{s.name}</div>
-                <div style={{ fontSize: 11, color: '#64748b', lineHeight: 1.4 }}>{s.desc}</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>{s.name}</div>
+                <div style={{ fontSize: 12, color: '#475569', lineHeight: 1.5 }}>{s.desc}</div>
                 <Link to={s.link} style={{
                   fontSize: 11, fontWeight: 700, color: s.done ? '#10b981' : '#0ea5e9',
                   textDecoration: 'none', padding: '5px 14px', borderRadius: 8,
@@ -197,7 +197,7 @@ export default function Dashboard() {
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ fontSize: 13, color: 'rgba(56,189,248,0.5)', fontWeight: 600, marginBottom: 6 }}>Welcome back</div>
           <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 26, fontWeight: 800, color: '#fff', marginBottom: 8 }}>{d.display_name || user?.username}</div>
-          <div style={{ fontSize: 14, color: 'rgba(200,220,255,0.45)', lineHeight: 1.6, maxWidth: 420 }}>
+          <div style={{ fontSize: 14, color: 'rgba(200,220,255,0.65)', lineHeight: 1.6, maxWidth: 420 }}>
             You have {d.total_team || 0} members in your network{(d.total_earned || 0) > 0 && ` and earned $${Math.round(d.total_earned)} across all income streams`}.
           </div>
         </div>
@@ -232,17 +232,17 @@ export default function Dashboard() {
               <div style={{ width: 40, height: 40, borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', background: s.bg }}>
                 <s.Icon size={20} color={s.color} strokeWidth={2} />
               </div>
-              <span style={{ fontSize: 9, fontWeight: 700, padding: '3px 8px', borderRadius: 5, letterSpacing: 0.3, background: s.bg, color: s.color }}>{s.badge}</span>
+              <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 5, letterSpacing: 0.3, background: s.bg, color: s.color }}>{s.badge}</span>
             </div>
-            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 800, color: '#16a34a', marginBottom: 2 }}>${Math.round(s.val || 0)}</div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', marginBottom: 2 }}>{s.name}</div>
-            <div style={{ fontSize: 11, color: '#94a3b8' }}>{s.detail}</div>
+            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 30, fontWeight: 900, color: '#16a34a', marginBottom: 2 }}>${Math.round(s.val || 0)}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#475569', marginBottom: 2 }}>{s.name}</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>{s.detail}</div>
           </div>
         ))}
       </div>
 
       {/* Quick Actions */}
-      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.2, textTransform: 'uppercase', color: '#94a3b8', marginBottom: 12 }}>Quick Actions</div>
+      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 14 }}>Quick Actions</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           { Icon: BookOpen, color: '#6366f1', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)', name: 'Browse Courses', desc: 'Learn skills & earn 100% commissions', link: '/courses' },
@@ -260,8 +260,8 @@ export default function Dashboard() {
             <div style={{ width: 48, height: 48, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', background: a.bg }}>
               <a.Icon size={24} color={a.color} strokeWidth={1.8} />
             </div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a2e' }}>{a.name}</div>
-            <div style={{ fontSize: 11, color: '#94a3b8', lineHeight: 1.4 }}>{a.desc}</div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#0f172a' }}>{a.name}</div>
+            <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>{a.desc}</div>
           </Link>
         ))}
       </div>
@@ -271,19 +271,19 @@ export default function Dashboard() {
         {/* Recent Activity */}
         <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, padding: 22, boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#1a1a2e' }}>Recent Activity</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a' }}>Recent Activity</div>
             <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: '#0ea5e9', textDecoration: 'none' }}>View all →</Link>
           </div>
           {(!Array.isArray(d.recent_activity) || d.recent_activity.length === 0) ? (
-            <div style={{ textAlign: 'center', padding: 24, color: '#94a3b8', fontSize: 13 }}>No recent activity yet. Share your link to start earning!</div>
+            <div style={{ textAlign: 'center', padding: 24, color: '#64748b', fontSize: 13 }}>No recent activity yet. Share your link to start earning!</div>
           ) : d.recent_activity.map((a, i) => {
             const colorMap = { green: '#dcfce7', cyan: '#e0f2fe', purple: '#ede9fe', amber: '#fef3c7' };
             return (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < d.recent_activity.length - 1 ? '1px solid #e5e7eb' : 'none' }}>
                 <div style={{ width: 32, height: 32, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0, background: colorMap[a.color] || '#f1f5f9' }}>{a.icon}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a2e' }}>{a.title}</div>
-                  <div style={{ fontSize: 11, color: '#94a3b8' }}>{a.sub}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{a.title}</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{a.sub}</div>
                 </div>
                 <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 800, color: '#16a34a' }}>+${Math.round(a.amount || 0)}</div>
               </div>
@@ -294,7 +294,7 @@ export default function Dashboard() {
         {/* Network Snapshot */}
         <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, padding: 22, boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#1a1a2e' }}>Your Network</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a' }}>Your Network</div>
             <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: '#0ea5e9', textDecoration: 'none' }}>Full network →</Link>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
@@ -304,16 +304,16 @@ export default function Dashboard() {
               { val: `$${Math.round(d.total_earned || 0)}`, lbl: 'Lifetime Earned' },
               { val: d.course_sale_count || 0, lbl: 'Course Sales' },
             ].map((s, i) => (
-              <div key={i} style={{ background: '#f8f9fb', borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
-                <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 800, color: '#16a34a' }}>{s.val}</div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>{s.lbl}</div>
+              <div key={i} style={{ background: '#f1f5f9', borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
+                <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 24, fontWeight: 800, color: '#16a34a' }}>{s.val}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>{s.lbl}</div>
               </div>
             ))}
           </div>
-          <div style={{ background: '#f8f9fb', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ background: '#f1f5f9', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8' }}>Your Referral Link</div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#0ea5e9', wordBreak: 'break-all' }}>superadpro.com/ref/{user?.username}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#475569' }}>Your Referral Link</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0ea5e9', wordBreak: 'break-all' }}>superadpro.com/ref/{user?.username}</div>
             </div>
             <button onClick={copyRef} style={{
               padding: '6px 12px', borderRadius: 7, border: '1px solid #e5e7eb', background: '#fff',
