@@ -213,8 +213,13 @@ def generate_unique_slug(db, username: str, title: str, exclude_page_id: int = N
 # ── DB / Auth helpers ─────────────────────────────────────────
 def get_db():
     db = SessionLocal()
-    try: yield db
-    finally: db.close()
+    try:
+        yield db
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
 
 def get_current_user(request: Request, db: Session = Depends(get_db)):
     token = request.cookies.get("session")
@@ -2804,15 +2809,21 @@ def _stripe_activate_membership(db, user, tier, subscription_id):
     if subscription_id:
         user.stripe_subscription_id = subscription_id
 
-    # Record payment
-    tx_ref = f"stripe_{uuid.uuid4().hex[:16]}"
-    payment = Payment(
-        from_user_id=user.id, to_user_id=None,
-        amount_usdt=fee, payment_type="membership",
-        tx_hash=tx_ref, status="confirmed",
-    )
-    db.add(payment)
-    db.flush()
+    # Record payment (idempotent — skip if already activated)
+    existing = db.query(Payment).filter(
+        Payment.from_user_id == user.id,
+        Payment.payment_type == "membership",
+        Payment.status == "confirmed"
+    ).first()
+    if not existing:
+        tx_ref = f"stripe_{uuid.uuid4().hex[:16]}"
+        payment = Payment(
+            from_user_id=user.id, to_user_id=None,
+            amount_usdt=fee, payment_type="membership",
+            tx_hash=tx_ref, status="confirmed",
+        )
+        db.add(payment)
+        db.flush()
 
     # Credit sponsor commission
     if user.sponsor_id:
