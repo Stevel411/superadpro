@@ -733,6 +733,14 @@ def contact(request: Request):
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse(url="/", status_code=302)
 
+@app.get("/earn")
+def earn_page(request: Request):
+    """Affiliate recruitment landing page."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 @app.get("/for-advertisers")
 def for_advertisers(request: Request):
     if _react_index.exists():

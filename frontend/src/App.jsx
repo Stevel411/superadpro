@@ -73,6 +73,7 @@ import HomePage from './pages/public/HomePage';
 import HowItWorks from './pages/public/HowItWorks';
 import JoinFunnel from './pages/public/JoinFunnel';
 import { FAQ, Legal, ForAdvertisers } from './pages/public/PublicPages';
+import EarnPage from './pages/public/EarnPage';
 import PublicAdBoard from './pages/public/AdBoard';
 import { AdDetail, AdBoardManage } from './pages/AdPages';
 import CoursePlayer from './pages/CoursePlayer';
@@ -172,6 +173,7 @@ function AppRoutes() {
       <Route path="/vip" element={<Navigate to="/register" replace />} />
       <Route path="/join/:username" element={<JoinFunnel />} />
       <Route path="/ads" element={<PublicAdBoard />} />
+      <Route path="/earn" element={<EarnPage />} />
       <Route path="/ads/listing/:slug" element={<AdDetail />} />
 
       {/* Phase 4 member pages */}
