@@ -7,7 +7,7 @@ export default function Register() {
   const params = new URLSearchParams(window.location.search);
   const refCode = params.get('ref') || params.get('r') || '';
 
-  const [form, setForm] = useState({ first_name: '', username: '', email: '', password: '', confirm_password: '', ref: refCode });
+  const [form, setForm] = useState({ first_name: '', last_name: '', username: '', email: '', password: '', confirm_password: '', ref: refCode });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
@@ -26,6 +26,7 @@ export default function Register() {
     try {
       await apiPost('/api/register', {
         first_name: form.first_name.trim(),
+        last_name: form.last_name.trim(),
         username: form.username.trim().toLowerCase(),
         email: form.email.trim().toLowerCase(),
         password: form.password,
@@ -76,9 +77,14 @@ export default function Register() {
               <input value={form.first_name} onChange={set('first_name')} placeholder="John" autoFocus style={styles.input} />
             </div>
             <div style={styles.field}>
-              <label style={styles.label}>Username</label>
-              <input value={form.username} onChange={set('username')} placeholder="john_doe" autoComplete="username" style={styles.input} />
+              <label style={styles.label}>Last Name</label>
+              <input value={form.last_name} onChange={set('last_name')} placeholder="Smith" style={styles.input} />
             </div>
+          </div>
+
+          <div style={styles.field}>
+            <label style={styles.label}>Username</label>
+            <input value={form.username} onChange={set('username')} placeholder="john_smith" autoComplete="username" style={styles.input} />
           </div>
 
           <div style={styles.field}>
