@@ -2798,9 +2798,10 @@ def _stripe_activate_membership(db, user, tier, subscription_id):
     from datetime import datetime, timedelta
     import uuid
 
-    fee = 30.0 if tier == "pro" else 20.0
-    sponsor_share = fee * 0.50  # 50% to sponsor
-    company_share = fee * 0.50  # 50% to company
+    from decimal import Decimal
+    fee = Decimal("30.00") if tier == "pro" else Decimal("20.00")
+    sponsor_share = fee * Decimal("0.50")  # 50% to sponsor
+    company_share = fee * Decimal("0.50")  # 50% to company
 
     # Activate user
     user.is_active = True
