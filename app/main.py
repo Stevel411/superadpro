@@ -515,8 +515,10 @@ def _old_compensation_plan_DISABLED(request: Request, user: User = Depends(get_c
 
 @app.get("/leaderboard")
 def leaderboard_page(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/leaderboard", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_leaderboard_DISABLED(request: Request, tab: str = "referrals", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not user:
@@ -561,8 +563,10 @@ def _old_leaderboard_DISABLED(request: Request, tab: str = "referrals", user: Us
 
 @app.get("/grid-visualiser")
 def grid_visualiser(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/dashboard", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/api/grid-visualiser")
 def api_grid_visualiser(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db), tier: int = 1):
@@ -639,8 +643,10 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
 
 @app.get("/passup-visualiser")
 def passup_visualiser(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/passup-visualiser", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/packages")
 def packages(request: Request):
@@ -650,8 +656,10 @@ def packages(request: Request):
 
 @app.get("/campaign-tiers")
 def campaign_tiers(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/campaign-tiers", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_campaign_tiers_DISABLED(request: Request, user: User = Depends(get_current_user),
                    db: Session = Depends(get_db)):
@@ -691,8 +699,10 @@ def support_public(request: Request):
 
 @app.get("/support")
 def support_get(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/support", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 @app.post("/support")
 async def support_post(
@@ -1204,8 +1214,10 @@ def app_home(request: Request):
 
 @app.get("/dashboard")
 def dashboard(request: Request):
-    """Redirect to React dashboard."""
-    return RedirectResponse(url="/app/dashboard", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 
 @app.get("/api/dashboard")
@@ -1402,8 +1414,10 @@ Keep each platform-appropriate. Include the link. Be genuine, not spammy."""}]
 
 @app.get("/income-grid")
 def income_grid(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/campaign-tiers", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_income_grid_DISABLED(request: Request, user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
@@ -1438,8 +1452,10 @@ def grid_detail(grid_id: int, request: Request,
 
 @app.get("/wallet")
 def wallet(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/wallet", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_wallet_DISABLED(request: Request, user: User = Depends(get_current_user),
            db: Session = Depends(get_db)):
@@ -1503,8 +1519,10 @@ def api_wallet_data(request: Request, user: User = Depends(get_current_user),
 
 @app.get("/affiliate")
 def affiliate(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/affiliate", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_affiliate_DISABLED(request: Request, user: User = Depends(get_current_user),
               db: Session = Depends(get_db)):
@@ -1519,8 +1537,10 @@ def _old_affiliate_DISABLED(request: Request, user: User = Depends(get_current_u
 
 @app.get("/account")
 def account(request: Request):
-    """Redirect to React account page."""
-    return RedirectResponse(url="/app/account", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 @app.post("/save-wallet")
 def save_wallet(
@@ -1560,8 +1580,10 @@ def api_wallet_connect(
 
 @app.get("/video-library")
 def video_library(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/video-library", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_video_library_DISABLED(request: Request, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
@@ -1600,8 +1622,10 @@ def delete_campaign(
 
 @app.get("/upload")
 def upload_video(request: Request):
-    """Phase 4: redirect to React video library."""
-    return RedirectResponse(url="/app/video-library", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_upload_DISABLED(request=None, user=None, db=None):
     """Phase 4: upload video moved to React VideoLibrary."""
@@ -2033,13 +2057,17 @@ async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/payment/success")
 def payment_success_page(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/payment-success?type=membership", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 @app.get("/payment/cancelled")
 def payment_cancelled_page(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/dashboard?cancelled=1", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 
 
@@ -3318,8 +3346,10 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
 
 @app.get("/watch")
 def watch_page(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/watch", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
     if not has_grid and not user.is_admin:
         return RedirectResponse(url="/income-grid?need_grid=1")
 
@@ -5505,8 +5535,10 @@ def funnel_analytics_dashboard(request: Request, user: User = Depends(get_curren
 
 @app.get("/funnels/leads")
 def funnel_leads_page(request: Request):
-    """Phase 4 migration: redirect to React."""
-    return RedirectResponse(url="/app/pro/leads", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_funnel_leads_DISABLED(request: Request, user: User = Depends(get_current_user),
                                 db: Session = Depends(get_db)):
@@ -5930,8 +5962,10 @@ AD_CATEGORIES = [
 
 @app.get("/ads")
 def ad_board_public(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/ad-board", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_ad_board_DISABLED(request: Request, category: str = None, page: int = 1,
                     user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -6467,8 +6501,10 @@ YOUR PERSONALITY & RULES:
 
 @app.get("/analytics")
 def analytics_page(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/analytics", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_analytics_DISABLED(request: Request, user: User = Depends(get_current_user),
                    db: Session = Depends(get_db)):
@@ -6616,8 +6652,10 @@ Keep recommendations concise, specific and immediately actionable. Use a friendl
 
 @app.get("/campaign-studio")
 def campaign_studio(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/campaign-studio", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 
 @app.post("/api/campaign-studio/generate")
@@ -7309,8 +7347,10 @@ def check_achievements(db: Session, user: User):
 
 @app.get("/achievements")
 def achievements_page(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/achievements", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_achievements_DISABLED(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
@@ -7402,8 +7442,10 @@ def cron_process_renewals_ping(request: Request):
 
 @app.get("/niche-finder")
 def niche_finder(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/niche-finder", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -7643,8 +7685,10 @@ IMPORTANT:
 
 @app.get("/social-post-generator")
 def social_post_generator_page(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/social-post-generator", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 
 @app.post("/api/social-posts/generate")
@@ -7737,8 +7781,10 @@ Return ONLY the posts, no preamble or explanation."""
 
 @app.get("/email-swipes")
 def email_swipes_page(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/email-swipes", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -7747,8 +7793,10 @@ def email_swipes_page(request: Request):
 
 @app.get("/video-script-generator")
 def video_script_generator_page(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/video-script-generator", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 
 @app.post("/api/video-scripts/generate")
@@ -7857,8 +7905,10 @@ RULES:
 
 @app.get("/swipe-file")
 def swipe_file(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/email-swipes", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 
 @app.post("/api/swipe-file/generate")
@@ -8318,8 +8368,10 @@ def reset_account(secret: str, db: Session = Depends(get_db)):
 
 @app.get("/courses")
 def courses_page(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/courses", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 async def _old_courses_DISABLED(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
@@ -8389,8 +8441,10 @@ async def _old_course_learn_DISABLED(course_id: int, request: Request,
 
 @app.get("/courses/how-it-works")
 def course_how_it_works(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/courses/how-it-works", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 async def _old_course_how_it_works_DISABLED(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
@@ -9598,8 +9652,10 @@ def linkhub_public(username: str, request: Request, db: Session = Depends(get_db
 
 @app.get("/proseller")
 def proseller_page(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/proseller", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 async def _old_proseller_DISABLED(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
@@ -10017,8 +10073,10 @@ async def join_funnel(username: str, request: Request, db: Session = Depends(get
 
 @app.get("/upgrade")
 def upgrade_page(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/upgrade", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 async def _old_upgrade_DISABLED(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
@@ -10937,8 +10995,10 @@ async def api_capture_lead(username: str, slug: str, request: Request, db: Sessi
 
 @app.get("/pro/leads")
 def pro_leads_page(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/pro/leads", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 async def _old_pro_leads_DISABLED(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
@@ -11424,8 +11484,10 @@ def _old_marketplace_DISABLED(request=None, db=None):
 
 @app.get("/courses/my-courses")
 def my_courses_page(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/courses/my-courses", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_my_courses_DISABLED(request: Request, user: User = Depends(get_current_user),
                     db: Session = Depends(get_db)):
@@ -11440,8 +11502,10 @@ def _old_my_courses_DISABLED(request: Request, user: User = Depends(get_current_
 
 @app.get("/courses/create")
 def create_course_page(request: Request):
-    """Phase 1 migration: redirect to React."""
-    return RedirectResponse(url="/app/courses/create", status_code=302)
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_create_course_DISABLED(request: Request, user: User = Depends(get_current_user),
                        db: Session = Depends(get_db)):
