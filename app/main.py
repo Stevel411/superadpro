@@ -487,6 +487,12 @@ def affiliates_public(request: Request):
 
 @app.get("/compensation-plan")
 def compensation_plan(request: Request, user: User = Depends(get_current_user)):
+    """Phase 1 migration: redirect to React for members, keep public page for non-members."""
+    if user:
+        return RedirectResponse(url="/app/compensation-plan", status_code=302)
+    return RedirectResponse(url="/app/compensation-plan", status_code=302)
+
+def _old_compensation_plan_DISABLED(request: Request, user: User = Depends(get_current_user)):
     ctx = {
         "request": request,
         "GRID_PACKAGES": GRID_PACKAGES,
@@ -502,7 +508,11 @@ def compensation_plan(request: Request, user: User = Depends(get_current_user)):
     return templates.TemplateResponse("compensation-plan.html", ctx)
 
 @app.get("/leaderboard")
-def leaderboard_page(request: Request, tab: str = "referrals", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def leaderboard_page(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/leaderboard", status_code=302)
+
+def _old_leaderboard_DISABLED(request: Request, tab: str = "referrals", user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not user:
         return RedirectResponse("/login", status_code=302)
     from sqlalchemy import func, desc
@@ -544,10 +554,9 @@ def leaderboard_page(request: Request, tab: str = "referrals", user: User = Depe
     })
 
 @app.get("/grid-visualiser")
-def grid_visualiser(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/?login=1")
-    ctx = {"request": request, "active_page": "grid-visualiser", "user": user}
-    return templates.TemplateResponse("grid-visualiser-internal.html", ctx)
+def grid_visualiser(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/dashboard", status_code=302)
 
 @app.get("/api/grid-visualiser")
 def api_grid_visualiser(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db), tier: int = 1):
@@ -623,11 +632,9 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
     })
 
 @app.get("/passup-visualiser")
-def passup_visualiser(request: Request, user: User = Depends(get_current_user)):
-    ctx = {"request": request, "active_page": "passup-visualiser"}
-    if user:
-        ctx["user"] = user
-    return templates.TemplateResponse("passup-visualiser.html", ctx)
+def passup_visualiser(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/passup-visualiser", status_code=302)
 
 @app.get("/packages")
 def packages(request: Request):
@@ -637,10 +644,13 @@ def packages(request: Request):
     })
 
 @app.get("/campaign-tiers")
-def campaign_tiers(request: Request, user: User = Depends(get_current_user),
+def campaign_tiers(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/campaign-tiers", status_code=302)
+
+def _old_campaign_tiers_DISABLED(request: Request, user: User = Depends(get_current_user),
                    db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/login", status_code=302)
-    # Get user's active grids to show which tiers they already have
     user_grids = db.query(Grid).filter(Grid.owner_id == user.id).all()
     active_tiers = set(g.package_tier for g in user_grids if not g.is_complete)
     return templates.TemplateResponse("campaign-tiers.html", {
@@ -669,12 +679,9 @@ def support_public(request: Request):
     return templates.TemplateResponse("support.html", {"request": request})
 
 @app.get("/support")
-def support_get(request: Request, user: User = Depends(get_current_user)):
-    ctx = {"request": request}
-    if user:
-        ctx["user"] = user
-        return templates.TemplateResponse("support-internal.html", ctx)
-    return templates.TemplateResponse("support.html", ctx)
+def support_get(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/support", status_code=302)
 
 @app.post("/support")
 async def support_post(
@@ -1266,9 +1273,12 @@ Keep each platform-appropriate. Include the link. Be genuine, not spammy."""}]
     return {"success": True, "posts": posts}
 
 @app.get("/income-grid")
-def income_grid(request: Request, user: User = Depends(get_current_user),
+def income_grid(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/campaign-tiers", status_code=302)
+
+def _old_income_grid_DISABLED(request: Request, user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
-    from fastapi.responses import JSONResponse
     if not user: return RedirectResponse(url="/?login=1")
     if not user.is_active: return RedirectResponse(url="/pay-membership")
     try:
@@ -1297,7 +1307,11 @@ def grid_detail(grid_id: int, request: Request,
     return templates.TemplateResponse("grid-detail.html", ctx)
 
 @app.get("/wallet")
-def wallet(request: Request, user: User = Depends(get_current_user),
+def wallet(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/wallet", status_code=302)
+
+def _old_wallet_DISABLED(request: Request, user: User = Depends(get_current_user),
            db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
     ctx = get_dashboard_context(request, user, db)
@@ -1358,11 +1372,14 @@ def api_wallet_data(request: Request, user: User = Depends(get_current_user),
 
 
 @app.get("/affiliate")
-def affiliate(request: Request, user: User = Depends(get_current_user),
+def affiliate(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/affiliate", status_code=302)
+
+def _old_affiliate_DISABLED(request: Request, user: User = Depends(get_current_user),
               db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
     ctx = get_dashboard_context(request, user, db)
-    # Direct referrals list
     referrals = db.query(User).filter(User.sponsor_id == user.id).all()
     ctx.update({
         "referrals": referrals,
@@ -1412,7 +1429,11 @@ def api_wallet_connect(
     return JSONResponse({"error": "Invalid wallet address"}, status_code=400)
 
 @app.get("/video-library")
-def video_library(request: Request, user: User = Depends(get_current_user),
+def video_library(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/video-library", status_code=302)
+
+def _old_video_library_DISABLED(request: Request, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
     if not user.is_active: return RedirectResponse(url="/pay-membership")
@@ -1921,18 +1942,14 @@ async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
 
 
 @app.get("/payment/success")
-def payment_success_page(request: Request, user: User = Depends(get_current_user)):
-    """Landing page after successful Coinbase payment."""
-    return templates.TemplateResponse("payment-result.html", {
-        "request": request, "user": user, "success": True,
-    })
+def payment_success_page(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/payment-success?type=membership", status_code=302)
 
 @app.get("/payment/cancelled")
-def payment_cancelled_page(request: Request, user: User = Depends(get_current_user)):
-    """Landing page after cancelled Coinbase payment."""
-    return templates.TemplateResponse("payment-result.html", {
-        "request": request, "user": user, "success": False,
-    })
+def payment_cancelled_page(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/dashboard?cancelled=1", status_code=302)
 
 
 
@@ -3235,12 +3252,9 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
 
 
 @app.get("/watch")
-def watch_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if not user:     return RedirectResponse(url="/?login=1")
-    if not user.is_active: return RedirectResponse(url="/pay-membership")
-
-    # Require at least one active grid to access Watch to Earn
-    has_grid = db.query(Grid).filter(Grid.owner_id == user.id).first()
+def watch_page(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/watch", status_code=302)
     if not has_grid and not user.is_admin:
         return RedirectResponse(url="/income-grid?need_grid=1")
 
@@ -5845,9 +5859,12 @@ AD_CATEGORIES = [
 ]
 
 @app.get("/ads")
-def ad_board_public(request: Request, category: str = None, page: int = 1,
+def ad_board_public(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/ad-board", status_code=302)
+
+def _old_ad_board_DISABLED(request: Request, category: str = None, page: int = 1,
                     user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    from fastapi.responses import JSONResponse
     try:
         query = db.query(AdListing).filter(AdListing.is_active == True)
         if category:
@@ -6376,7 +6393,11 @@ YOUR PERSONALITY & RULES:
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/analytics")
-def analytics_page(request: Request, user: User = Depends(get_current_user),
+def analytics_page(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/analytics", status_code=302)
+
+def _old_analytics_DISABLED(request: Request, user: User = Depends(get_current_user),
                    db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
     if not user.is_active: return RedirectResponse(url="/pay-membership")
@@ -6521,12 +6542,9 @@ Keep recommendations concise, specific and immediately actionable. Use a friendl
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/campaign-studio")
-def campaign_studio(request: Request, user: User = Depends(get_current_user),
-                    db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/?login=1")
-    if not user.is_active: return RedirectResponse(url="/pay-membership")
-    ctx = get_dashboard_context(request, user, db)
-    return templates.TemplateResponse("campaign-studio.html", ctx)
+def campaign_studio(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/campaign-studio", status_code=302)
 
 
 @app.post("/api/campaign-studio/generate")
@@ -7234,8 +7252,11 @@ def check_achievements(db: Session, user: User):
 
 
 @app.get("/achievements")
-def achievements_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Achievements / badges page."""
+def achievements_page(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/achievements", status_code=302)
+
+def _old_achievements_DISABLED(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
     check_achievements(db, user)
     earned = db.query(Achievement).filter(Achievement.user_id == user.id).order_by(Achievement.earned_at.desc()).all()
@@ -7324,12 +7345,9 @@ def cron_process_renewals_ping(request: Request):
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/niche-finder")
-def niche_finder(request: Request, user: User = Depends(get_current_user),
-                 db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/?login=1")
-    if not user.is_active: return RedirectResponse(url="/pay-membership")
-    ctx = get_dashboard_context(request, user, db)
-    return templates.TemplateResponse("niche-finder.html", ctx)
+def niche_finder(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/niche-finder", status_code=302)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -7568,12 +7586,9 @@ IMPORTANT:
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/social-post-generator")
-def social_post_generator_page(request: Request, user: User = Depends(get_current_user),
-                                db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/?login=1")
-    if not user.is_active: return RedirectResponse(url="/pay-membership")
-    ctx = get_dashboard_context(request, user, db)
-    return templates.TemplateResponse("social-post-generator.html", ctx)
+def social_post_generator_page(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/social-post-generator", status_code=302)
 
 
 @app.post("/api/social-posts/generate")
@@ -7665,12 +7680,9 @@ Return ONLY the posts, no preamble or explanation."""
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/email-swipes")
-def email_swipes_page(request: Request, user: User = Depends(get_current_user),
-                       db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/?login=1")
-    if not user.is_active: return RedirectResponse(url="/pay-membership")
-    ctx = get_dashboard_context(request, user, db)
-    return templates.TemplateResponse("email-swipes.html", ctx)
+def email_swipes_page(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/email-swipes", status_code=302)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -7678,12 +7690,9 @@ def email_swipes_page(request: Request, user: User = Depends(get_current_user),
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/video-script-generator")
-def video_script_generator_page(request: Request, user: User = Depends(get_current_user),
-                                 db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/?login=1")
-    if not user.is_active: return RedirectResponse(url="/pay-membership")
-    ctx = get_dashboard_context(request, user, db)
-    return templates.TemplateResponse("video-script-generator.html", ctx)
+def video_script_generator_page(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/video-script-generator", status_code=302)
 
 
 @app.post("/api/video-scripts/generate")
@@ -7791,12 +7800,9 @@ RULES:
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/swipe-file")
-def swipe_file(request: Request, user: User = Depends(get_current_user),
-               db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/?login=1")
-    if not user.is_active: return RedirectResponse(url="/pay-membership")
-    ctx = get_dashboard_context(request, user, db)
-    return templates.TemplateResponse("swipe-file.html", ctx)
+def swipe_file(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/email-swipes", status_code=302)
 
 
 @app.post("/api/swipe-file/generate")
@@ -8255,8 +8261,11 @@ def reset_account(secret: str, db: Session = Depends(get_db)):
 # ═══════════════════════════════════════════════════════════════════
 
 @app.get("/courses")
-async def courses_page(request: Request, db: Session = Depends(get_db)):
-    """Course library page."""
+def courses_page(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/courses", status_code=302)
+
+async def _old_courses_DISABLED(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
     courses = db.query(Course).filter(Course.is_active == True).order_by(Course.sort_order).all()
 
@@ -8395,8 +8404,11 @@ async def course_learn(course_id: int, request: Request, lesson: int = 0, purcha
 
 
 @app.get("/courses/how-it-works")
-async def course_how_it_works(request: Request, db: Session = Depends(get_db)):
-    """Course commission explainer page."""
+def course_how_it_works(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/courses/how-it-works", status_code=302)
+
+async def _old_course_how_it_works_DISABLED(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
     return templates.TemplateResponse("course-how-it-works.html", {
         "request": request,
@@ -9596,8 +9608,11 @@ def linkhub_public(username: str, request: Request, db: Session = Depends(get_db
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/proseller")
-async def proseller_page(request: Request, db: Session = Depends(get_db)):
-    """ProSeller CRM with AI coach — Pro tier only."""
+def proseller_page(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/proseller", status_code=302)
+
+async def _old_proseller_DISABLED(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
     if not user:
         return RedirectResponse("/login?next=/proseller", status_code=302)
@@ -9842,8 +9857,11 @@ async def join_funnel(username: str, request: Request, db: Session = Depends(get
 # ═══════════════════════════════════════════════════════════════
 
 @app.get("/upgrade")
-async def upgrade_page(request: Request, db: Session = Depends(get_db)):
-    """Show the Pro tier upgrade page."""
+def upgrade_page(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/upgrade", status_code=302)
+
+async def _old_upgrade_DISABLED(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
     if not user:
         return RedirectResponse("/login?next=/upgrade", status_code=302)
@@ -10751,8 +10769,11 @@ async def api_capture_lead(username: str, slug: str, request: Request, db: Sessi
 
 
 @app.get("/pro/leads")
-async def pro_leads_page(request: Request, db: Session = Depends(get_db)):
-    """Lead dashboard for Pro members."""
+def pro_leads_page(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/pro/leads", status_code=302)
+
+async def _old_pro_leads_DISABLED(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
     if not user:
         return RedirectResponse("/login?next=/pro/leads", status_code=302)
@@ -11227,9 +11248,12 @@ def marketplace_page(request: Request, db: Session = Depends(get_db)):
 
 
 @app.get("/courses/my-courses")
-def my_courses_page(request: Request, user: User = Depends(get_current_user),
+def my_courses_page(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/courses/my-courses", status_code=302)
+
+def _old_my_courses_DISABLED(request: Request, user: User = Depends(get_current_user),
                     db: Session = Depends(get_db)):
-    """Creator dashboard — list their courses, sales stats, edit."""
     if not user: return RedirectResponse(url="/?login=1")
     if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
         return RedirectResponse(url="/upgrade")
@@ -11240,9 +11264,12 @@ def my_courses_page(request: Request, user: User = Depends(get_current_user),
 
 
 @app.get("/courses/create")
-def create_course_page(request: Request, user: User = Depends(get_current_user),
+def create_course_page(request: Request):
+    """Phase 1 migration: redirect to React."""
+    return RedirectResponse(url="/app/courses/create", status_code=302)
+
+def _old_create_course_DISABLED(request: Request, user: User = Depends(get_current_user),
                        db: Session = Depends(get_db)):
-    """Course creation wizard — first-time onboarding + step-by-step builder."""
     if not user: return RedirectResponse(url="/?login=1")
     if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
         return RedirectResponse(url="/upgrade")
