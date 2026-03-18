@@ -2611,6 +2611,24 @@ async def stripe_boost_checkout(request: Request, db: Session = Depends(get_db),
     return JSONResponse({"error": result["error"]}, status_code=400)
 
 
+
+@app.post("/api/test/stripe-activate/{user_id}")
+async def test_stripe_activate(user_id: int, request: Request,
+                                db: Session = Depends(get_db),
+                                user: User = Depends(get_current_user)):
+    """Admin test: manually trigger membership activation to debug webhook."""
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": "User not found"}, status_code=404)
+    try:
+        _stripe_activate_membership(db, target, "basic", None)
+        return {"ok": True, "message": f"Activated {target.username}"}
+    except Exception as e:
+        import traceback
+        return JSONResponse({"error": str(e), "traceback": traceback.format_exc()}, status_code=500)
+
 @app.post("/api/webhook/stripe")
 async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     """Handle Stripe webhook events."""
