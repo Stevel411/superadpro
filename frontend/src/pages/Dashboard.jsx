@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
 import AppLayout from '../components/layout/AppLayout';
-import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye } from 'lucide-react';
+import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye, TrendingUp } from 'lucide-react';
+import PassiveIncome from './PassiveIncome';
 
 export default function Dashboard() {
   var { t } = useTranslation();
@@ -12,6 +13,7 @@ export default function Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refCopied, setRefCopied] = useState(false);
+  const [dashTab, setDashTab] = useState('overview');
 
   useEffect(() => {
     apiGet('/api/dashboard')
@@ -151,6 +153,34 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* ── Dashboard Tabs ── */}
+      <div style={{ display:'flex', gap:6, marginBottom:20 }}>
+        {[
+          { key:'overview', label:'Overview', icon:'📊' },
+          { key:'passive',  label:'Passive Income', icon:'💸' },
+        ].map(function(t) {
+          var on = dashTab === t.key;
+          return (
+            <button key={t.key} onClick={function(){ setDashTab(t.key); }} style={{
+              display:'flex', alignItems:'center', gap:6, padding:'9px 18px',
+              borderRadius:10, cursor:'pointer', fontFamily:'inherit', fontSize:12, fontWeight:700,
+              border: on ? '2px solid #6366f1' : '2px solid #e8ecf2',
+              background: on ? 'rgba(99,102,241,0.08)' : '#fff',
+              color: on ? '#6366f1' : '#64748b', transition:'all .15s',
+            }}>
+              <span>{t.icon}</span>{t.label}
+              {t.key === 'passive' && <span style={{ fontSize:9, fontWeight:800, padding:'2px 6px', borderRadius:99, background:'linear-gradient(135deg,#fbbf24,#f59e0b)', color:'#fff', marginLeft:2 }}>NEW</span>}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── Passive Income Tab ── */}
+      {dashTab === 'passive' && <PassiveIncome d={d} />}
+
+      {/* ── Overview Tab ── */}
+      {dashTab === 'overview' && <>
 
       {/* Welcome Banner */}
       <div style={{
@@ -312,6 +342,8 @@ export default function Dashboard() {
         .stream-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16)!important;transform:translateY(-2px)}
         .action-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16)!important;transform:translateY(-3px)}
       `}</style>
+      </>
+    }
     </AppLayout>
   );
 }
