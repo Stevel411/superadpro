@@ -1938,6 +1938,46 @@ def payment_cancelled_page(request: Request, user: User = Depends(get_current_us
 
 
 
+@app.delete("/admin/api/user/{user_id}")
+def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
+                      db: Session = Depends(get_db)):
+    """Admin: permanently delete a user and all their data."""
+    _require_admin(user)
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        return JSONResponse({"error": "User not found"}, status_code=404)
+    if target.is_admin:
+        return JSONResponse({"error": "Cannot delete admin accounts"}, status_code=400)
+    if target.id == user.id:
+        return JSONResponse({"error": "Cannot delete your own account"}, status_code=400)
+    if float(target.balance or 0) > 0:
+        return JSONResponse({"error": f"User has ${target.balance} balance — withdraw or zero first"}, status_code=400)
+
+    username = target.username
+    # Clean up related records
+    try:
+        db.query(Commission).filter((Commission.from_user_id == user_id) | (Commission.to_user_id == user_id)).delete()
+        db.query(Notification).filter(Notification.user_id == user_id).delete()
+        db.query(Achievement).filter(Achievement.user_id == user_id).delete()
+        db.query(NurtureSequence).filter(NurtureSequence.user_id == user_id).delete()
+        from .database import MemberLead, EmailSequence, EmailSendLog, LeadList, CoPilotBriefing, AIUsageQuota
+        db.query(MemberLead).filter(MemberLead.member_id == user_id).delete()
+        db.query(EmailSequence).filter(EmailSequence.user_id == user_id).delete()
+        db.query(LeadList).filter(LeadList.user_id == user_id).delete()
+        db.query(EmailSendLog).filter(EmailSendLog.user_id == user_id).delete()
+        db.query(CoPilotBriefing).filter(CoPilotBriefing.user_id == user_id).delete()
+        db.query(AIUsageQuota).filter(AIUsageQuota.user_id == user_id).delete()
+        db.query(ShortLink).filter(ShortLink.user_id == user_id).delete()
+        db.query(FunnelPage).filter(FunnelPage.user_id == user_id).delete()
+        db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user_id).delete()
+        db.delete(target)
+        db.commit()
+        return {"ok": True, "message": f"User {username} deleted successfully"}
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
 # ═══════════════════════════════════════════════════════════════
 #  AI CO-PILOT — Pro Only
 # ═══════════════════════════════════════════════════════════════

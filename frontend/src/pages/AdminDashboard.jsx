@@ -233,9 +233,23 @@ function UsersTab() {
               {/* Toggle active */}
               <button onClick={toggleActive}
                 style={{width:'100%',padding:'10px',borderRadius:8,border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,
-                  background:detail.is_active?'#fef2f2':'#dcfce7',color:detail.is_active?'#dc2626':'#16a34a',marginBottom:12}}>
+                  background:detail.is_active?'#fef2f2':'#dcfce7',color:detail.is_active?'#dc2626':'#16a34a',marginBottom:8}}>
                 {detail.is_active ? '⛔ Deactivate Account' : '✅ Activate Account'}
               </button>
+
+              {/* Delete user */}
+              {!detail.is_admin && (
+                <button onClick={function() {
+                  if (!window.confirm('PERMANENTLY DELETE ' + detail.username + '? This cannot be undone.')) return;
+                  apiDelete('/admin/api/user/' + selected).then(function(r) {
+                    if (r.ok) { setMsg('User deleted'); setSelected(null); setDetail(null); load(); }
+                    else setMsg(r.error || 'Delete failed');
+                  }).catch(function(e) { setMsg(e.message || 'Delete failed'); });
+                }}
+                style={{width:'100%',padding:'10px',borderRadius:8,border:'1px solid #fecaca',cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,background:'#fff',color:'#dc2626',marginBottom:12}}>
+                  🗑 Delete User Permanently
+                </button>
+              )}
 
               {/* Adjust balance */}
               <div style={{fontSize:11,fontWeight:700,color:'#64748b',marginBottom:6}}>Adjust Balance</div>
