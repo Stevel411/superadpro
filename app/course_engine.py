@@ -140,7 +140,7 @@ def process_course_purchase(db: Session, buyer_id: int, course_id: int,
 def _distribute_commission(db: Session, purchase: CoursePurchase,
                            buyer: User, course: Course) -> dict:
     sponsor_id = buyer.sponsor_id
-    commission_amount = float(course.price)
+    commission_amount = course.price  # Decimal from DB — no float conversion needed
 
     if not sponsor_id:
         return _credit_platform(db, purchase, course, commission_amount,
@@ -257,7 +257,7 @@ def get_user_course_stats(db: Session, user_id: int) -> dict:
     commissions = db.query(CourseCommission).filter(
         CourseCommission.earner_id == user_id
     ).all()
-    total_earned = sum(float(c.amount) for c in commissions)
+    total_earned = sum((c.amount or 0) for c in commissions)
     direct_count = sum(1 for c in commissions if c.commission_type == "direct_sale")
     passup_count = sum(1 for c in commissions if c.commission_type == "pass_up")
 

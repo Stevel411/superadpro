@@ -2754,14 +2754,15 @@ def _stripe_process_supermarket(db, user, product_id, session_id, affiliate_id=N
         return
 
     token = _secrets.token_urlsafe(32)
-    creator_amt   = round(float(p.price) * 0.50, 2)
-    affiliate_amt = round(float(p.price) * 0.25, 2)
-    platform_amt  = round(float(p.price) * 0.25, 2)
+    from decimal import Decimal
+    creator_amt   = (p.price or Decimal("0")) * Decimal("0.50")
+    affiliate_amt = (p.price or Decimal("0")) * Decimal("0.25")
+    platform_amt  = (p.price or Decimal("0")) * Decimal("0.25")
 
     purchase = DigitalProductPurchase(
         product_id=p.id, buyer_id=user.id, buyer_email=user.email,
         buyer_name=user.first_name or user.username,
-        amount_paid=float(p.price),
+        amount_paid=p.price,
         creator_commission=creator_amt, affiliate_commission=affiliate_amt,
         platform_commission=platform_amt, affiliate_id=affiliate_id,
         download_token=token, status="completed",
@@ -2789,7 +2790,7 @@ def _stripe_process_supermarket(db, user, product_id, session_id, affiliate_id=N
                 aff_rec.earnings = (aff_rec.earnings or 0) + affiliate_amt
 
     p.total_sales = (p.total_sales or 0) + 1
-    p.total_revenue = (p.total_revenue or 0) + float(p.price)
+    p.total_revenue = (p.total_revenue or Decimal("0")) + (p.price or Decimal("0"))
     db.commit()
 
 def _stripe_activate_membership(db, user, tier, subscription_id):
@@ -2907,23 +2908,25 @@ def _stripe_process_grid(db, user, package_tier, price_usd, session_id):
         result = _find_overspill_placement(db, user.id, sponsor_id, package_tier)
 
     # Distribute commissions (40/50/5/5 split)
-    price = GRID_PACKAGES.get(package_tier, price_usd)
-    direct_share   = price * 0.40
-    upline_share   = price * 0.50
-    bonus_pool     = price * 0.05
-    company_share  = price * 0.05
+    from decimal import Decimal
+    price = Decimal(str(GRID_PACKAGES.get(package_tier, price_usd)))
+    direct_share   = price * Decimal("0.40")
+    upline_share   = price * Decimal("0.50")
+    bonus_pool     = price * Decimal("0.05")
+    company_share  = price * Decimal("0.05")
 
     if user.sponsor_id:
         sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
         if sponsor:
-            sponsor.balance = (sponsor.balance or 0) + direct_share
+            sponsor.balance     = (sponsor.balance or 0) + direct_share
             sponsor.total_earned = (sponsor.total_earned or 0) + direct_share
             sponsor.grid_earnings = (sponsor.grid_earnings or 0) + direct_share
             comm = Commission(
-                user_id=sponsor.id, from_user_id=user.id,
+                to_user_id=sponsor.id, from_user_id=user.id,
                 amount_usdt=direct_share, commission_type="grid_direct",
-                description=f"Grid Tier {package_tier} direct commission",
-                status="credited",
+                package_tier=package_tier,
+                notes=f"Grid Tier {package_tier} direct commission",
+                status="pending",
             )
             db.add(comm)
 
