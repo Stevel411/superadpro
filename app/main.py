@@ -1250,13 +1250,11 @@ def api_dashboard(request: Request, user: User = Depends(get_current_user),
         return JSONResponse({"error": str(exc)}, status_code=500)
 
 @app.get("/launch-wizard")
-def launch_wizard(request: Request, user: User = Depends(get_current_user),
-                  db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/?login=1")
-    return templates.TemplateResponse("launch-wizard.html", {
-        "request": request,
-        "user": user,
-    })
+def launch_wizard(request: Request):
+    """Phase 4: serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/app/dashboard", status_code=302)
 
 @app.post("/api/launch-wizard/complete")
 def complete_launch_wizard(request: Request, user: User = Depends(get_current_user),
@@ -1617,7 +1615,11 @@ def delete_campaign(
     return RedirectResponse(url="/video-library", status_code=303)
 
 @app.get("/upload")
-def upload_video(request: Request, user: User = Depends(get_current_user),
+def upload_video(request: Request):
+    """Phase 4: redirect to React video library."""
+    return RedirectResponse(url="/app/video-library", status_code=302)
+
+def _old_upload_DISABLED(request: Request, user: User = Depends(get_current_user),
                  db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
     if not user.is_active: return RedirectResponse(url="/pay-membership")
@@ -5577,8 +5579,12 @@ def funnel_analytics_dashboard(request: Request, user: User = Depends(get_curren
 
 
 @app.get("/funnels/leads")
-def funnel_leads_page(request: Request, user: User = Depends(get_current_user),
-                      db: Session = Depends(get_db)):
+def funnel_leads_page(request: Request):
+    """Phase 4 migration: redirect to React."""
+    return RedirectResponse(url="/app/pro/leads", status_code=302)
+
+def _old_funnel_leads_DISABLED(request: Request, user: User = Depends(get_current_user),
+                                db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
     leads = db.query(FunnelLead).filter(FunnelLead.user_id == user.id).order_by(
         FunnelLead.created_at.desc()).limit(200).all()
@@ -6041,6 +6047,13 @@ def _old_ad_board_DISABLED(request: Request, category: str = None, page: int = 1
 
 @app.get("/ads/listing/{slug}")
 def ad_detail_page(slug: str, request: Request, db: Session = Depends(get_db)):
+    """Phase 4: serve React SPA — React calls /api/ads/listing/:slug."""
+    del slug
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/ads", status_code=302)
+
+def _old_ad_detail_DISABLED(slug: str, request: Request, db: Session = Depends(get_db)):
     """Individual ad page — SEO-indexable, shareable, with OG tags"""
     listing = db.query(AdListing).filter(AdListing.slug == slug, AdListing.is_active == True).first()
     if not listing:
@@ -6126,17 +6139,11 @@ Sitemap: {base_url}/sitemap.xml
     return Response(content=content, media_type="text/plain")
 
 @app.get("/ads/my")
-def my_ads_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if not user:
-        return RedirectResponse("/login", status_code=302)
-    listings = db.query(AdListing).filter(AdListing.user_id == user.id).order_by(AdListing.created_at.desc()).all()
-    return templates.TemplateResponse("ad-board-manage.html", {
-        "request": request,
-        "user": user,
-        "listings": listings,
-        "categories": AD_CATEGORIES,
-        "balance": round(float(user.balance or 0), 2),
-    })
+def my_ads_page(request: Request):
+    """Phase 4: serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/app/ad-board", status_code=302)
 
 @app.post("/api/ads/create")
 async def create_ad(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -8447,82 +8454,17 @@ async def purchase_course(course_id: int, request: Request, db: Session = Depend
 
 
 @app.get("/courses/learn/{course_id}")
-async def course_learn(course_id: int, request: Request, lesson: int = 0, purchased: int = 0, db: Session = Depends(get_db)):
-    """Course player page with chapters, lessons, and progress tracking."""
-    user = get_current_user(request, db)
-    if not user:
-        return RedirectResponse("/login?next=/courses", status_code=303)
-    if not user.is_active:
-        return RedirectResponse(url="/pay-membership")
+def course_learn_page(course_id: int, request: Request):
+    """Phase 4: serve React SPA — React calls /api/courses/learn/:id."""
+    del course_id
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/app/courses", status_code=302)
 
-    course = db.query(Course).filter(Course.id == course_id).first()
-    if not course:
-        return RedirectResponse("/courses", status_code=303)
-
-    # Check ownership
-    purchase = db.query(CoursePurchase).filter(
-        CoursePurchase.user_id == user.id,
-        CoursePurchase.course_id == course_id
-    ).first()
-    if not purchase:
-        return RedirectResponse("/courses", status_code=303)
-
-    # Load chapters and lessons
-    chapters = db.query(CourseChapter).filter(
-        CourseChapter.course_id == course_id
-    ).order_by(CourseChapter.sort_order).all()
-
-    lessons = db.query(CourseLesson).filter(
-        CourseLesson.course_id == course_id
-    ).order_by(CourseLesson.sort_order).all()
-
-    # Build chapter -> lessons mapping
-    chapter_lessons = {}
-    for ch in chapters:
-        chapter_lessons[ch.id] = [l for l in lessons if l.chapter_id == ch.id]
-
-    # Get completed lesson IDs
-    completed = db.query(CourseProgress.lesson_id).filter(
-        CourseProgress.user_id == user.id,
-        CourseProgress.course_id == course_id
-    ).all()
-    completed_ids = {c[0] for c in completed}
-
-    # Current lesson
-    total_lessons = len(lessons)
-    current_lesson = None
-    if lesson and lesson > 0:
-        current_lesson = db.query(CourseLesson).filter(CourseLesson.id == lesson).first()
-    if not current_lesson and lessons:
-        # Find first incomplete lesson
-        for l in lessons:
-            if l.id not in completed_ids:
-                current_lesson = l
-                break
-        if not current_lesson:
-            current_lesson = lessons[0]  # All complete, show first
-
-    # Total duration
-    total_mins = sum(l.duration_mins or 0 for l in lessons)
-    completed_count = len(completed_ids)
-    remaining_mins = sum((l.duration_mins or 0) for l in lessons if l.id not in completed_ids)
-
-    return templates.TemplateResponse("course-learn.html", {
-        "request": request,
-        "user": user,
-        "course": course,
-        "chapters": chapters,
-        "chapter_lessons": chapter_lessons,
-        "lessons": lessons,
-        "completed_ids": completed_ids,
-        "current_lesson": current_lesson,
-        "total_lessons": total_lessons,
-        "total_mins": total_mins,
-        "completed_count": completed_count,
-        "remaining_mins": remaining_mins,
-        "just_purchased": purchased == 1,
-        "active_page": "courses"
-    })
+async def _old_course_learn_DISABLED(course_id: int, request: Request,
+                                      lesson: int = 0, purchased: int = 0,
+                                      db: Session = Depends(get_db)):
+    pass
 
 
 @app.get("/courses/how-it-works")
@@ -9965,6 +9907,163 @@ async def api_join_funnel(username: str, db: Session = Depends(get_db)):
         "ref": username,
     }
 
+
+# ═══════════════════════════════════════════════════════════════
+#  PHASE 4 API ENDPOINTS — Ad Board, Course Player
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/ads")
+def api_ad_board(category: str = "", page: int = 1, db: Session = Depends(get_db)):
+    """Public: list active ad listings."""
+    query = db.query(AdListing).filter(AdListing.is_active == True)
+    if category:
+        query = query.filter(AdListing.category == category)
+    total = query.count()
+    per_page = 20
+    listings = query.order_by(AdListing.is_featured.desc(), AdListing.created_at.desc())                    .offset((page - 1) * per_page).limit(per_page).all()
+    owner_ids = list(set(l.user_id for l in listings))
+    owners = {u.id: u.username for u in db.query(User).filter(User.id.in_(owner_ids)).all()}
+    return {
+        "listings": [{
+            "id": l.id, "title": l.title, "slug": l.slug or str(l.id),
+            "description": l.description, "category": l.category,
+            "link_url": l.link_url, "image_url": l.image_url or "",
+            "is_featured": l.is_featured, "views": l.views or 0, "clicks": l.clicks or 0,
+            "owner": owners.get(l.user_id, "Member"),
+            "created_at": l.created_at.isoformat() if l.created_at else None,
+        } for l in listings],
+        "total": total,
+        "page": page,
+        "total_pages": max(1, (total + per_page - 1) // per_page),
+        "categories": AD_CATEGORIES,
+    }
+
+
+@app.get("/api/ads/listing/{slug}")
+def api_ad_detail(slug: str, db: Session = Depends(get_db)):
+    """Public: single ad listing by slug."""
+    listing = db.query(AdListing).filter(AdListing.slug == slug, AdListing.is_active == True).first()
+    if not listing:
+        # Try by ID
+        try:
+            listing = db.query(AdListing).filter(AdListing.id == int(slug)).first()
+        except Exception:
+            pass
+    if not listing:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    owner = db.query(User).filter(User.id == listing.user_id).first()
+    related = db.query(AdListing).filter(
+        AdListing.category == listing.category,
+        AdListing.id != listing.id,
+        AdListing.is_active == True
+    ).limit(4).all()
+    return {
+        "id": listing.id, "title": listing.title, "slug": listing.slug or str(listing.id),
+        "description": listing.description, "category": listing.category,
+        "link_url": listing.link_url, "image_url": listing.image_url or "",
+        "is_featured": listing.is_featured, "views": listing.views or 0, "clicks": listing.clicks or 0,
+        "owner": owner.username if owner else "Member",
+        "created_at": listing.created_at.isoformat() if listing.created_at else None,
+        "related": [{"id": r.id, "title": r.title, "slug": r.slug or str(r.id),
+                     "category": r.category, "image_url": r.image_url or ""} for r in related],
+        "categories": AD_CATEGORIES,
+    }
+
+
+@app.get("/api/ads/my")
+def api_my_ads(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Member: list own ad listings."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    listings = db.query(AdListing).filter(AdListing.user_id == user.id)                 .order_by(AdListing.created_at.desc()).all()
+    return {
+        "listings": [{
+            "id": l.id, "title": l.title, "slug": l.slug or str(l.id),
+            "description": l.description, "category": l.category,
+            "link_url": l.link_url, "image_url": l.image_url or "",
+            "is_active": l.is_active, "is_featured": l.is_featured,
+            "views": l.views or 0, "clicks": l.clicks or 0,
+            "created_at": l.created_at.isoformat() if l.created_at else None,
+        } for l in listings],
+        "categories": AD_CATEGORIES,
+    }
+
+
+@app.get("/api/courses/learn/{course_id}")
+async def api_course_player(course_id: int, request: Request,
+                              db: Session = Depends(get_db)):
+    """Member: load course player data — chapters, lessons, progress."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    course = db.query(Course).filter(Course.id == course_id).first()
+    if not course:
+        return JSONResponse({"error": "Course not found"}, status_code=404)
+    purchase = db.query(CoursePurchase).filter(
+        CoursePurchase.user_id == user.id,
+        CoursePurchase.course_id == course_id
+    ).first()
+    if not purchase:
+        return JSONResponse({"error": "Course not purchased"}, status_code=403)
+    chapters = db.query(CourseChapter).filter(
+        CourseChapter.course_id == course_id
+    ).order_by(CourseChapter.sort_order).all()
+    lessons = db.query(CourseLesson).filter(
+        CourseLesson.course_id == course_id
+    ).order_by(CourseLesson.sort_order).all()
+    completed_ids = {
+        p.lesson_id for p in db.query(CourseProgress).filter(
+            CourseProgress.user_id == user.id,
+            CourseProgress.course_id == course_id
+        ).all()
+    }
+    chapter_map = {}
+    for lesson in lessons:
+        cid = lesson.chapter_id or 0
+        if cid not in chapter_map:
+            chapter_map[cid] = []
+        chapter_map[cid].append({
+            "id": lesson.id, "title": lesson.title,
+            "video_url": lesson.video_url or "",
+            "duration_mins": lesson.duration_mins or 0,
+            "sort_order": lesson.sort_order,
+            "completed": lesson.id in completed_ids,
+        })
+    return {
+        "course": {
+            "id": course.id, "title": course.title,
+            "description": course.description or "",
+            "thumbnail_url": course.thumbnail_url or "",
+        },
+        "chapters": [{
+            "id": ch.id, "title": ch.title, "sort_order": ch.sort_order,
+            "lessons": chapter_map.get(ch.id, []),
+        } for ch in chapters],
+        "uncategorised": chapter_map.get(0, []),
+        "total_lessons": len(lessons),
+        "completed_count": len(completed_ids),
+    }
+
+
+@app.post("/api/courses/learn/{course_id}/complete/{lesson_id}")
+async def api_mark_lesson_complete(course_id: int, lesson_id: int,
+                                    request: Request, db: Session = Depends(get_db)):
+    """Member: mark a lesson as complete."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    existing = db.query(CourseProgress).filter(
+        CourseProgress.user_id == user.id,
+        CourseProgress.course_id == course_id,
+        CourseProgress.lesson_id == lesson_id,
+    ).first()
+    if not existing:
+        db.add(CourseProgress(
+            user_id=user.id, course_id=course_id, lesson_id=lesson_id
+        ))
+        db.commit()
+    return {"ok": True}
+
 # ═══════════════════════════════════════════════════════════════
 #  AFFILIATE SALES FUNNEL — /join/{username}
 # ═══════════════════════════════════════════════════════════════
@@ -10185,7 +10284,12 @@ async def pro_funnel_edit(funnel_id: int, request: Request, db: Session = Depend
 
 
 @app.get("/pro/funnel/{funnel_id}/analytics")
-def pro_funnel_analytics(funnel_id: int, request: Request,
+def pro_funnel_analytics(funnel_id: int, request: Request):
+    """Phase 4: redirect to React funnels."""
+    del funnel_id
+    return RedirectResponse(url="/app/pro/funnels", status_code=302)
+
+def _old_pro_funnel_analytics_DISABLED(funnel_id: int, request: Request,
                          user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Per-page analytics dashboard."""
     if not user: return RedirectResponse(url="/?login=1")
