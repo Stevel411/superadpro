@@ -92,7 +92,7 @@ export default function Dashboard() {
             </p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-end', flexShrink: 0 }}>
-            <a href="/pay-membership" style={{
+            <a href="/upgrade" style={{
               fontSize: 14, fontWeight: 700, color: '#fff', background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)',
               padding: '11px 22px', borderRadius: 9, textDecoration: 'none', boxShadow: '0 4px 14px rgba(14,165,233,0.3)',
             }}>Activate Now — $20 →</a>
