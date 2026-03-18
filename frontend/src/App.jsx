@@ -92,6 +92,13 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+function SmartHome() {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (user) return <Navigate to="/dashboard" replace />;
+  return <HomePage />;
+}
+
 function AppRoutes() {
   return (
     <Routes>
@@ -153,7 +160,7 @@ function AppRoutes() {
       <Route path="/ad-board" element={<ProtectedRoute><AdBoard /></ProtectedRoute>} />
 
       {/* Public pages — no auth required, no sidebar */}
-      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<SmartHome />} />
       <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/for-advertisers" element={<ForAdvertisers />} />
       <Route path="/faq" element={<FAQ />} />
