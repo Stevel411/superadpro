@@ -2815,10 +2815,18 @@ def _stripe_activate_membership(db, user, tier, subscription_id):
             comm = Commission(
                 to_user_id=sponsor.id, from_user_id=user.id,
                 amount_usdt=sponsor_share, commission_type="membership_sponsor",
+                package_tier=0,
                 notes=f"Membership commission from {user.username}",
                 status="pending",
+                paid_at=datetime.utcnow(),
             )
             db.add(comm)
+
+    # Create renewal record
+    try:
+        initialise_renewal_record(db, user.id, source="stripe")
+    except Exception:
+        pass
 
     # Send welcome email
     try:
