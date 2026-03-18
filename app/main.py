@@ -1959,8 +1959,8 @@ def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
         db.query(Commission).filter((Commission.from_user_id == user_id) | (Commission.to_user_id == user_id)).delete()
         db.query(Notification).filter(Notification.user_id == user_id).delete()
         db.query(Achievement).filter(Achievement.user_id == user_id).delete()
-        db.query(NurtureSequence).filter(NurtureSequence.user_id == user_id).delete()
-        from .database import MemberLead, EmailSequence, EmailSendLog, LeadList, CoPilotBriefing, AIUsageQuota
+        db.query(NurtureSeq).filter(NurtureSeq.user_id == user_id).delete()
+        from .database import MemberLead, EmailSequence, EmailSendLog, LeadList, CoPilotBriefing, AIUsageQuota, NurtureSequence as NurtureSeq
         db.query(MemberLead).filter(MemberLead.member_id == user_id).delete()
         db.query(EmailSequence).filter(EmailSequence.user_id == user_id).delete()
         db.query(LeadList).filter(LeadList.user_id == user_id).delete()
