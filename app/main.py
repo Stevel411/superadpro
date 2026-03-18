@@ -2033,10 +2033,8 @@ def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
         if prospect_ids:
             db.query(ProSellerMessage).filter(ProSellerMessage.prospect_id.in_(prospect_ids)).delete(synchronize_session=False)
 
-        # VideoWatch → references video_campaigns
-        campaign_ids = [r.id for r in db.query(VideoCampaign).filter(VideoCampaign.user_id == user_id).all()]
-        if campaign_ids:
-            db.query(VideoWatch).filter(VideoWatch.campaign_id.in_(campaign_ids)).delete(synchronize_session=False)
+        # VideoWatch has user_id directly — delete all watches BY this user
+        db.query(VideoWatch).filter(VideoWatch.user_id == user_id).delete()
 
         # ── LAYER 2: Direct children of users (all verified field names) ──
         db.query(MembershipRenewal).filter(MembershipRenewal.user_id == user_id).delete()
