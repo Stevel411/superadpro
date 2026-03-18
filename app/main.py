@@ -2645,13 +2645,14 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     event_type = event["type"]
 
     # ── Checkout completed ────────────────────────────────────
+    logger.warning(f"Stripe webhook received: {event_type}")
     if event_type == "checkout.session.completed":
         try:
             session = event["data"]["object"]
             meta = session.get("metadata", {})
             user_id = int(meta.get("user_id", 0))
             payment_type = meta.get("payment_type", "")
-            logger.warning(f"Stripe webhook: {payment_type} for user_id={user_id}")
+            logger.warning(f"Stripe webhook: {payment_type} for user_id={user_id} sponsor_id={None}")
             user = db.query(User).filter(User.id == user_id).first()
             if not user:
                 logger.warning(f"Stripe webhook: user {user_id} not found")
@@ -2692,8 +2693,10 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 _stripe_process_supermarket(db, user, product_id, session["id"], affiliate_id)
 
         except Exception as e:
-            logger.error(f"Stripe webhook checkout error: {e}", exc_info=True)
-            return JSONResponse({"error": str(e)}, status_code=500)
+            import traceback
+            tb = traceback.format_exc()
+            logger.error(f"Stripe webhook checkout error: {e}\n{tb}")
+            return JSONResponse({"error": str(e), "detail": tb}, status_code=500)
 
     # ── Subscription renewed (monthly) ───────────────────────
     elif event_type == "invoice.payment_succeeded":
