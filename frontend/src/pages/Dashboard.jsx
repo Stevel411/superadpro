@@ -65,11 +65,11 @@ export default function Dashboard() {
       subtitle={`Good ${greeting}, ${d.display_name || user?.first_name || user?.username} 👋`}
       topbarActions={<>
         <div style={{ background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: 10, padding: '7px 16px' }}>
-          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: 'rgba(148,163,184,0.5)' }}>Balance</div>
-          <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 16, fontWeight: 800, color: '#4ade80' }}>${d.balance?.toFixed(2)}</div>
+          <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.2, textTransform: 'uppercase', color: '#64748b' }}>Balance</div>
+          <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 17, fontWeight: 900, color: '#16a34a' }}>${d.balance?.toFixed(2)}</div>
         </div>
         <span style={{
-          fontSize: 11, fontWeight: 700, padding: '6px 14px', borderRadius: 8,
+          fontSize: 11, fontWeight: 700, padding: '7px 14px', borderRadius: 8,
           ...(d.is_active
             ? { background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.2)', color: '#4ade80' }
             : { background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', color: '#fbbf24' })
@@ -186,7 +186,7 @@ export default function Dashboard() {
       {/* Welcome Banner */}
       <div style={{
         background: 'linear-gradient(135deg,#0b1729 0%,#132240 50%,#0e1c30 100%)',
-        borderRadius: 8, padding: '32px 36px', marginBottom: 20,
+        borderRadius: 14, padding: '30px 32px', marginBottom: 20,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         position: 'relative', overflow: 'hidden',
         boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)',
@@ -195,8 +195,8 @@ export default function Dashboard() {
         <div className="wb-line wb-l1" /><div className="wb-line wb-l2" />
         <div className="wb-dot wb-d1" /><div className="wb-dot wb-d2" /><div className="wb-dot wb-d3" /><div className="wb-dot wb-d4" />
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ fontSize: 13, color: 'rgba(56,189,248,0.5)', fontWeight: 600, marginBottom: 6 }}>Welcome back</div>
-          <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 26, fontWeight: 800, color: '#fff', marginBottom: 8 }}>{d.display_name || user?.username}</div>
+          <div style={{ fontSize: 13, color: 'rgba(56,189,248,0.8)', fontWeight: 600, marginBottom: 6 }}>Welcome back</div>
+          <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 900, color: '#fff', marginBottom: 8 }}>{d.display_name || user?.username}</div>
           <div style={{ fontSize: 14, color: 'rgba(200,220,255,0.65)', lineHeight: 1.6, maxWidth: 420 }}>
             You have {d.total_team || 0} members in your network{(d.total_earned || 0) > 0 && ` and earned $${Math.round(d.total_earned)} across all income streams`}.
           </div>
@@ -223,8 +223,8 @@ export default function Dashboard() {
           { color: '#e11d48', bg: '#ffe4e6', Icon: Store, badge: '50/25/25', val: d.marketplace_earnings, name: 'Marketplace', detail: `${d.marketplace_sales || 0} sale${d.marketplace_sales !== 1 ? 's' : ''} · ${d.marketplace_courses || 0} course${d.marketplace_courses !== 1 ? 's' : ''}` },
         ].map((s, i) => (
           <div key={i} className="stream-card" style={{
-            background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, padding: 22,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)',
+            background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 22,
+            boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
             position: 'relative', overflow: 'hidden', transition: 'all 0.2s',
           }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: s.color, borderRadius: '8px 8px 0 0' }} />
@@ -252,12 +252,12 @@ export default function Dashboard() {
           { Icon: Eye, color: '#6366f1', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)', name: 'Watch to Earn', desc: 'Watch daily videos for bonus earnings', link: '/watch' },
         ].map((a, i) => (
           <Link key={i} to={a.link} className="action-card" style={{
-            background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, padding: 20,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)',
+            background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 20,
+            boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
             textDecoration: 'none', transition: 'all 0.15s', display: 'flex', flexDirection: 'column',
             alignItems: 'center', textAlign: 'center', gap: 10,
           }}>
-            <div style={{ width: 48, height: 48, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', background: a.bg }}>
+            <div style={{ width: 50, height: 50, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', background: a.bg }}>
               <a.Icon size={24} color={a.color} strokeWidth={1.8} />
             </div>
             <div style={{ fontSize: 14, fontWeight: 800, color: '#0f172a' }}>{a.name}</div>
@@ -269,7 +269,7 @@ export default function Dashboard() {
       {/* Bottom Row */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'stretch' }}>
         {/* Recent Activity */}
-        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, padding: 22, boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 22, boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a' }}>Recent Activity</div>
             <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: '#0ea5e9', textDecoration: 'none' }}>View all →</Link>
@@ -292,7 +292,7 @@ export default function Dashboard() {
         </div>
 
         {/* Network Snapshot */}
-        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, padding: 22, boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 22, boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a' }}>Your Network</div>
             <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: '#0ea5e9', textDecoration: 'none' }}>Full network →</Link>
