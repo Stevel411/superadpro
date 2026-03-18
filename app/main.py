@@ -2634,7 +2634,11 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     """Handle Stripe webhook events."""
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature", "")
-    event = stripe_service.verify_webhook(payload, sig_header)
+    try:
+        event = stripe_service.verify_webhook(payload, sig_header)
+    except Exception as e:
+        logger.error(f"Stripe webhook verify error: {e}")
+        return JSONResponse({"error": f"Verify error: {str(e)}"}, status_code=500)
     if not event:
         return JSONResponse({"error": "Invalid signature"}, status_code=400)
 
