@@ -204,9 +204,12 @@ function UsersTab() {
           {msg && <div style={{padding:'8px 12px',borderRadius:8,fontSize:12,fontWeight:700,background:msg.includes('adjust')||msg.includes('toggle')?'#dcfce7':'#fef2f2',color:msg.includes('adjust')||msg.includes('toggle')?'#16a34a':'#dc2626'}}>{msg}</div>}
 
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
-            <div style={{background:'#1c223d',padding:'14px 20px'}}>
-              <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{detail.first_name || detail.username} {detail.last_name || ''}</div>
-              <div style={{fontSize:11,color:'rgba(255,255,255,.4)'}}>@{detail.username} · SAP-{String(detail.id).padStart(5,'0')}</div>
+            <div style={{background:'#1c223d',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div>
+                <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{detail.first_name || detail.username} {detail.last_name || ''}</div>
+                <div style={{fontSize:11,color:'rgba(255,255,255,.4)'}}>@{detail.username} · SAP-{String(detail.id).padStart(5,'0')}</div>
+              </div>
+              <button onClick={function(){setSelected(null);setDetail(null);}} style={{background:'rgba(255,255,255,.1)',border:'none',borderRadius:6,color:'#fff',fontSize:11,fontWeight:700,padding:'4px 10px',cursor:'pointer',fontFamily:'inherit'}}>✕ Close</button>
             </div>
             <div style={{padding:'16px 20px'}}>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,fontSize:12}}>
