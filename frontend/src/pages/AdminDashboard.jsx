@@ -128,7 +128,17 @@ function UsersTab() {
   }, []);
 
   function openUser(id) {
-    apiGet('/admin/api/user/' + id).then(function(d) { setDetail(d); setSelected(id); });
+    apiGet('/admin/api/user/' + id).then(function(d) {
+      // API returns {user: {...}, grids: [], commissions: []}
+      // Flatten so detail = user object with extra arrays attached
+      var u = d.user || d;
+      u._grids = d.grids || [];
+      u._commissions = d.recent_commissions || [];
+      u._payments = d.payments || [];
+      u._withdrawals = d.withdrawals || [];
+      setDetail(u);
+      setSelected(id);
+    });
   }
 
   function adjustBalance() {
@@ -218,9 +228,9 @@ function UsersTab() {
                 <div><span style={{fontWeight:700,color:'#64748b'}}>Balance:</span> <span style={{color:'#16a34a',fontWeight:800}}>${(detail.balance||0).toFixed(2)}</span></div>
                 <div><span style={{fontWeight:700,color:'#64748b'}}>Total Earned:</span> <span style={{color:'#0ea5e9',fontWeight:800}}>${(detail.total_earned||0).toFixed(2)}</span></div>
                 <div><span style={{fontWeight:700,color:'#64748b'}}>Status:</span> <span style={{color:detail.is_active?'#16a34a':'#dc2626',fontWeight:700}}>{detail.is_active?'Active':'Inactive'}</span></div>
-                <div><span style={{fontWeight:700,color:'#64748b'}}>Sponsor:</span> <span style={{color:'#0f172a'}}>{detail.sponsor_username || 'Direct'}</span></div>
-                <div><span style={{fontWeight:700,color:'#64748b'}}>Referrals:</span> <span style={{color:'#0f172a'}}>{detail.referral_count || 0}</span></div>
-                <div><span style={{fontWeight:700,color:'#64748b'}}>Joined:</span> <span style={{color:'#0f172a'}}>{detail.joined ? new Date(detail.joined).toLocaleDateString('en-GB') : '—'}</span></div>
+                <div><span style={{fontWeight:700,color:'#64748b'}}>Sponsor:</span> <span style={{color:'#0f172a'}}>{detail.sponsor_id ? '#'+detail.sponsor_id : 'Direct'}</span></div>
+                <div><span style={{fontWeight:700,color:'#64748b'}}>Referrals:</span> <span style={{color:'#0f172a'}}>{detail.personal_referrals || 0}</span></div>
+                <div><span style={{fontWeight:700,color:'#64748b'}}>Joined:</span> <span style={{color:'#0f172a'}}>{detail.created_at ? new Date(detail.created_at).toLocaleDateString('en-GB') : '—'}</span></div>
                 <div><span style={{fontWeight:700,color:'#64748b'}}>KYC:</span> <span style={{color:'#0f172a',textTransform:'capitalize'}}>{detail.kyc_status || 'none'}</span></div>
                 <div><span style={{fontWeight:700,color:'#64748b'}}>2FA:</span> <span style={{color:detail.two_factor_enabled?'#16a34a':'#94a3b8'}}>{detail.two_factor_enabled?'Enabled':'Off'}</span></div>
               </div>
