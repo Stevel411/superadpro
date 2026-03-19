@@ -4016,12 +4016,13 @@ def dev_test_coinbase(request: Request, user: User = Depends(get_current_user)):
     return HTMLResponse(html)
 
 @app.get("/admin")
-def admin_panel(request: Request, user: User = Depends(get_current_user),
-                db: Session = Depends(get_db)):
+def admin_panel(request: Request, user: User = Depends(get_current_user)):
     if not user or not is_admin(user):
         logger.warning(f"Unauthorised admin access — IP: {request.client.host}")
         raise HTTPException(status_code=403, detail="Access denied")
-    return RedirectResponse(url="/admin", status_code=302)
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/dashboard")
 
 
 # ═══════════════════════════════════════════════════════════════
