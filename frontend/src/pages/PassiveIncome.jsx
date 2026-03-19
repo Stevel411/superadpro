@@ -154,17 +154,17 @@ export default function PassiveIncome({ d }) {
     bottomGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 },
     darkCard: {
       background: 'linear-gradient(135deg,#0f1729,#0c1a3a)',
-      border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: '24px',
+      border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: '32px',
     },
 
     // Activity
     activityCard: {
       background: 'linear-gradient(135deg,#0f1729,#0c1a3a)',
-      border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: '24px',
+      border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: '32px',
     },
 
-    sectionTitle: { fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 4 },
-    sectionSub: { fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 18 },
+    sectionTitle: { fontFamily: 'Sora,sans-serif', fontSize: 20, fontWeight: 800, color: '#fff', marginBottom: 6 },
+    sectionSub: { fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 },
   };
 
   // Find closest grid to completion
@@ -312,18 +312,18 @@ export default function PassiveIncome({ d }) {
           <div style={S.sectionSub}>How automated your earnings are</div>
           <div style={{ display:'flex', alignItems:'center', gap:20 }}>
             <div style={{ position:'relative', flexShrink:0 }}>
-              <Ring pct={passiveScore} color={passiveLevel.color} size={100}/>
+              <Ring pct={passiveScore} color={passiveLevel.color} size={150}/>
               <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:900, color:'#fff', lineHeight:1 }}>{passiveScore}</div>
-                <div style={{ fontSize:8, fontWeight:700, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:1, marginTop:2 }}>Score</div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:38, fontWeight:900, color:'#fff', lineHeight:1 }}>{passiveScore}</div>
+                <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:1, marginTop:4 }}>Score</div>
               </div>
             </div>
             <div style={{ flex:1 }}>
-              <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
-                <span style={{ fontSize:20 }}>{passiveLevel.emoji}</span>
+              <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16 }}>
+                <span style={{ fontSize:32 }}>{passiveLevel.emoji}</span>
                 <div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:passiveLevel.color }}>{passiveLevel.label} Level</div>
-                  <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)' }}>{passiveScore}% of your income is recurring</div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:passiveLevel.color }}>{passiveLevel.label} Level</div>
+                  <div style={{ fontSize:13, color:'rgba(255,255,255,0.4)', marginTop:3 }}>{passiveScore}% of your income is recurring</div>
                 </div>
               </div>
               <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
@@ -334,11 +334,11 @@ export default function PassiveIncome({ d }) {
                   { name:'Course royalties', done: courseEarnings > 0, color:'#8b5cf6' },
                 ].map(function(item,i) {
                   return (
-                    <div key={i} style={{ display:'flex', alignItems:'center', gap:8 }}>
-                      <div style={{ width:16, height:16, borderRadius:5, display:'flex', alignItems:'center', justifyContent:'center', background: item.done ? item.color+'20' : 'rgba(255,255,255,0.05)', border:`1px solid ${item.done ? item.color+'50' : 'rgba(255,255,255,0.08)'}`, fontSize:9, color: item.done ? item.color : 'rgba(255,255,255,0.2)', fontWeight:800 }}>
+                    <div key={i} style={{ display:'flex', alignItems:'center', gap:10 }}>
+                      <div style={{ width:22, height:22, borderRadius:7, display:'flex', alignItems:'center', justifyContent:'center', background: item.done ? item.color+'20' : 'rgba(255,255,255,0.05)', border:`1px solid ${item.done ? item.color+'50' : 'rgba(255,255,255,0.08)'}`, fontSize:12, color: item.done ? item.color : 'rgba(255,255,255,0.2)', fontWeight:800, flexShrink:0 }}>
                         {item.done ? '✓' : '·'}
                       </div>
-                      <span style={{ fontSize:11, color: item.done ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.25)' }}>{item.name}</span>
+                      <span style={{ fontSize:14, color: item.done ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.25)' }}>{item.name}</span>
                     </div>
                   );
                 })}
@@ -355,11 +355,11 @@ export default function PassiveIncome({ d }) {
               <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)' }}>Based on your historical earnings</div>
             </div>
             <div style={{ textAlign:'right' }}>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:900, color:'#10b981', lineHeight:1 }}>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:48, fontWeight:900, color:'#10b981', lineHeight:1 }}>
                 $<CountUp target={monthlyProjection} duration={1800}/>
               </div>
-              <div style={{ fontSize:10, color:'rgba(255,255,255,0.35)', marginTop:2 }}>estimated / month</div>
-              <div style={{ fontSize:10, color:'#fbbf24', fontWeight:700, marginTop:2 }}>
+              <div style={{ fontSize:13, color:'rgba(255,255,255,0.35)', marginTop:4 }}>estimated / month</div>
+              <div style={{ fontSize:12, color:'#fbbf24', fontWeight:700, marginTop:4 }}>
                 ~$<CountUp target={monthlyProjection*12} duration={2000}/>/yr estimated
               </div>
             </div>
@@ -367,13 +367,13 @@ export default function PassiveIncome({ d }) {
           <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
             {streams.map(function(s,i) {
               return (
-                <div key={i} style={{ display:'flex', alignItems:'center', gap:10 }}>
-                  <div style={{ fontSize:13 }}>{s.emoji}</div>
-                  <div style={{ fontSize:11, color:'rgba(255,255,255,0.45)', width:90, flexShrink:0 }}>{s.name}</div>
+                <div key={i} style={{ display:'flex', alignItems:'center', gap:12 }}>
+                  <div style={{ fontSize:18 }}>{s.emoji}</div>
+                  <div style={{ fontSize:13, color:'rgba(255,255,255,0.5)', width:100, flexShrink:0 }}>{s.name}</div>
                   <div style={{ flex:1 }}>
-                    <Bar pct={maxStream > 0 ? (s.val/maxStream)*100 : 0} gradient={s.grad} height={6}/>
+                    <Bar pct={maxStream > 0 ? (s.val/maxStream)*100 : 0} gradient={s.grad} height={10}/>
                   </div>
-                  <div style={{ fontSize:11, fontWeight:700, color:'#fff', width:40, textAlign:'right', flexShrink:0 }}>
+                  <div style={{ fontSize:14, fontWeight:700, color:'#fff', width:44, textAlign:'right', flexShrink:0 }}>
                     ${Math.round(s.val)}
                   </div>
                 </div>
@@ -403,16 +403,16 @@ export default function PassiveIncome({ d }) {
               var c = colors[item.color] || '#6366f1';
               return (
                 <div key={i} className="sap-activity" style={{ display:'flex', alignItems:'center', gap:14, padding:'11px 8px', borderBottom: i < activity.length-1 ? '1px solid rgba(255,255,255,0.04)' : 'none', borderRadius:8, transition:'background .15s' }}>
-                  <div style={{ width:36, height:36, borderRadius:10, background:`${c}18`, border:`1px solid ${c}25`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0 }}>
+                  <div style={{ width:46, height:46, borderRadius:13, background:`${c}18`, border:`1px solid ${c}25`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, flexShrink:0 }}>
                     {item.icon}
                   </div>
                   <div style={{ flex:1 }}>
-                    <div style={{ fontSize:13, fontWeight:600, color:'#fff', marginBottom:2 }}>{item.title}</div>
-                    <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)' }}>{item.sub}</div>
+                    <div style={{ fontSize:15, fontWeight:600, color:'#fff', marginBottom:3 }}>{item.title}</div>
+                    <div style={{ fontSize:13, color:'rgba(255,255,255,0.35)' }}>{item.sub}</div>
                   </div>
                   <div style={{ textAlign:'right' }}>
-                    <div style={{ fontFamily:'Sora,sans-serif', fontSize:15, fontWeight:800, color:c }}>+${item.amount?.toFixed(2)}</div>
-                    <div style={{ fontSize:10, color:'rgba(255,255,255,0.25)', marginTop:2 }}>
+                    <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:c }}>+${item.amount?.toFixed(2)}</div>
+                    <div style={{ fontSize:11, color:'rgba(255,255,255,0.25)', marginTop:2 }}>
                       {item.date ? new Date(item.date).toLocaleDateString('en-GB', {day:'numeric',month:'short'}) : ''}
                     </div>
                   </div>
