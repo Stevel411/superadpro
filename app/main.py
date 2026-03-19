@@ -9255,9 +9255,13 @@ AVATAR_DIR = "static/uploads/avatars"
 os.makedirs(AVATAR_DIR, exist_ok=True)
 
 @app.get("/linkhub")
-def linkhub_editor(request: Request, db: Session = Depends(get_db)):
-    """LinkHub editor — redirect to React app."""
-    return RedirectResponse("/linkhub", status_code=302)
+def linkhub_editor(request: Request, user: User = Depends(get_current_user)):
+    """LinkHub editor — serve React SPA."""
+    if not user:
+        return RedirectResponse("/?login=1", status_code=302)
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse("/dashboard", status_code=302)
 
 
 @app.post("/linkhub/save")
