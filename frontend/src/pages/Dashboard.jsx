@@ -155,59 +155,52 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ── Dashboard Tabs ── */}
-      <div style={{ display:'flex', gap:6, marginBottom:20 }}>
-        {[
-          { key:'overview', label:'Overview', icon:'📊' },
-          { key:'passive',  label:'Recurring Income', icon:'💸' },
-        ].map(function(t) {
-          var on = dashTab === t.key;
-          return (
-            <button key={t.key} onClick={function(){ setDashTab(t.key); }} style={{
-              display:'flex', alignItems:'center', gap:6, padding:'9px 18px',
-              borderRadius:10, cursor:'pointer', fontFamily:'inherit', fontSize:12, fontWeight:700,
-              border: on ? '2px solid #6366f1' : '2px solid #e8ecf2',
-              background: on ? 'rgba(99,102,241,0.08)' : '#fff',
-              color: on ? '#6366f1' : '#64748b', transition:'all .15s',
-            }}>
-              <span>{t.icon}</span>{t.label}
-              {t.key === 'passive' && <span style={{ fontSize:9, fontWeight:800, padding:'2px 6px', borderRadius:99, background:'linear-gradient(135deg,#fbbf24,#f59e0b)', color:'#fff', marginLeft:2 }}>NEW</span>}
-            </button>
-          );
-        })}
-      </div>
+      {/* ── Recurring Income (tab bar removed — single view) ── */}
+      <>
 
-      {/* ── Recurring Income Tab ── */}
-      {dashTab === 'passive' && <PassiveIncome d={d} />}
-
-      {/* ── Overview Tab ── */}
-      {dashTab === 'overview' && <>
-
-      {/* Welcome Banner */}
+      {/* Welcome Banner — Cosmic Purple */}
       <div style={{
-        background: 'linear-gradient(135deg,#0b1729 0%,#132240 50%,#0e1c30 100%)',
-        borderRadius: 14, padding: '30px 32px', marginBottom: 20,
+        background: 'linear-gradient(135deg,#1e1b4b,#2d2a7a,#4338ca)',
+        borderRadius: 18, padding: '30px 34px', marginBottom: 20,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         position: 'relative', overflow: 'hidden',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)',
+        boxShadow: '0 8px 32px rgba(67,56,202,0.35)',
       }}>
-        <div className="wb-orb wb-o1" /><div className="wb-orb wb-o2" /><div className="wb-orb wb-o3" />
-        <div className="wb-line wb-l1" /><div className="wb-line wb-l2" />
-        <div className="wb-dot wb-d1" /><div className="wb-dot wb-d2" /><div className="wb-dot wb-d3" /><div className="wb-dot wb-d4" />
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ fontSize: 13, color: 'rgba(56,189,248,0.8)', fontWeight: 600, marginBottom: 6 }}>Welcome back</div>
-          <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 900, color: '#fff', marginBottom: 8 }}>{d.display_name || user?.username}</div>
-          <div style={{ fontSize: 14, color: 'rgba(200,220,255,0.65)', lineHeight: 1.6, maxWidth: 420 }}>
+        {/* Shimmer sweep */}
+        <div style={{ position:'absolute', top:0, bottom:0, width:'60%', background:'linear-gradient(105deg,transparent 35%,rgba(255,255,255,0.07) 50%,transparent 65%)', animation:'wbShimmer 3.5s ease-in-out infinite', pointerEvents:'none' }} />
+
+        {/* Radar rings + money bag */}
+        <div style={{ position:'absolute', right:44, top:'50%', transform:'translateY(-50%)', pointerEvents:'none' }}>
+          <div style={{ width:110, height:110, borderRadius:'50%', border:'1px solid rgba(196,181,253,0.2)', position:'relative' }}>
+            <div style={{ position:'absolute', inset:16, borderRadius:'50%', border:'1px solid rgba(196,181,253,0.3)' }}>
+              <div style={{ position:'absolute', inset:14, borderRadius:'50%', background:'rgba(139,92,246,0.2)', border:'1px solid rgba(196,181,253,0.45)' }} />
+            </div>
+            <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <span style={{ fontSize:42, opacity:0.45, animation:'wbBag 7.6s ease-in-out infinite', display:'inline-block' }}>💰</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Twinkling stars */}
+        {[[15,35,2.1,0],[60,55,2.8,0.6],[28,72,1.9,1.2],[75,28,3,0.9],[45,82,2.5,1.8],[20,65,2.2,0.4]].map(function([t,l,dur,delay],i){
+          return <div key={i} style={{ position:'absolute', width: i%3===0?5:i%3===1?3:4, height: i%3===0?5:i%3===1?3:4, borderRadius:'50%', background: i%2===0?'#fff':'#c4b5fd', top:`${t}%`, right:`${l*0.5+2}%`, animation:`wbStar ${dur}s ease-in-out infinite`, animationDelay:`${delay}s`, pointerEvents:'none' }} />;
+        })}
+
+        <div style={{ position:'relative', zIndex:2 }}>
+          <div style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,0.65)', marginBottom:8 }}>Welcome back</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#fff', marginBottom:8 }}>{d.display_name || user?.username}</div>
+          <div style={{ fontSize:14, color:'rgba(255,255,255,0.6)', lineHeight:1.6, maxWidth:420 }}>
             You have {d.total_team || 0} members in your network{(d.total_earned || 0) > 0 && ` and earned $${Math.round(d.total_earned)} across all income streams`}.
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 10, position: 'relative', zIndex: 1 }}>
-          <Link to="/affiliate" style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '12px 22px', borderRadius: 11, fontSize: 13, fontWeight: 700, textDecoration: 'none', background: '#0ea5e9', color: '#fff', boxShadow: '0 4px 16px rgba(14,165,233,0.3)' }}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+
+        <div style={{ display:'flex', gap:8, position:'relative', zIndex:2, marginRight:140 }}>
+          <Link to="/affiliate" style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:8, fontSize:12, fontWeight:700, textDecoration:'none', background:'#7c3aed', color:'#fff' }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
             Share & Earn
           </Link>
-          <Link to="/wallet" style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '12px 22px', borderRadius: 11, fontSize: 13, fontWeight: 700, textDecoration: 'none', background: 'rgba(255,255,255,0.06)', color: 'rgba(200,220,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <Link to="/wallet" style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:8, fontSize:12, fontWeight:700, textDecoration:'none', background:'rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.8)', border:'1px solid rgba(255,255,255,0.2)' }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             Withdraw
           </Link>
         </div>
@@ -447,21 +440,9 @@ export default function Dashboard() {
 
       {/* Welcome banner animations */}
       <style>{`
-        .wb-orb{position:absolute;border-radius:50%;pointer-events:none;z-index:0}
-        .wb-o1{width:200px;height:200px;top:-50px;right:15%;background:radial-gradient(circle,rgba(14,165,233,.3),transparent 70%);animation:wbPulse 4s ease-in-out infinite}
-        .wb-o2{width:140px;height:140px;bottom:-30px;right:35%;background:radial-gradient(circle,rgba(99,102,241,.25),transparent 70%);animation:wbPulse 5s ease-in-out 1s infinite}
-        .wb-o3{width:120px;height:120px;top:10px;right:5%;background:radial-gradient(circle,rgba(16,185,129,.2),transparent 70%);animation:wbPulse 6s ease-in-out 2s infinite}
-        .wb-line{position:absolute;height:1.5px;background:linear-gradient(90deg,transparent,rgba(14,165,233,.3),transparent);pointer-events:none;z-index:0}
-        .wb-l1{width:60%;top:25%;left:30%;animation:wbSlide 8s linear infinite}
-        .wb-l2{width:40%;top:65%;left:40%;animation:wbSlide 10s linear 2s infinite}
-        .wb-dot{position:absolute;width:5px;height:5px;border-radius:50%;pointer-events:none;z-index:0}
-        .wb-d1{background:rgba(14,165,233,.65);top:20%;right:20%;animation:wbDrift 5s ease-in-out infinite}
-        .wb-d2{background:rgba(16,185,129,.55);top:60%;right:30%;animation:wbDrift 6s ease-in-out 1s infinite}
-        .wb-d3{background:rgba(139,92,246,.55);top:40%;right:10%;animation:wbDrift 7s ease-in-out 2s infinite}
-        .wb-d4{background:rgba(245,158,11,.5);top:70%;right:15%;animation:wbDrift 5.5s ease-in-out .5s infinite}
-        @keyframes wbPulse{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.2);opacity:1}}
-        @keyframes wbSlide{0%{transform:translateX(-100%);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateX(100%);opacity:0}}
-        @keyframes wbDrift{0%,100%{transform:translate(0,0);opacity:.5}25%{transform:translate(-10px,6px);opacity:1}50%{transform:translate(5px,-7px);opacity:.7}75%{transform:translate(-4px,-4px);opacity:1}}
+        @keyframes wbShimmer{0%{left:-100%}100%{left:200%}}
+        @keyframes wbBag{0%,100%{transform:rotate(-5deg)}50%{transform:translateY(-10px) rotate(3deg)}}
+        @keyframes wbStar{0%,100%{opacity:0}50%{opacity:1}}
         .stream-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16)!important;transform:translateY(-2px)}
         .action-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16)!important;transform:translateY(-3px)}
         @media(max-width:767px){
