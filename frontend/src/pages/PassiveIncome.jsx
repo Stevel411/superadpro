@@ -50,8 +50,8 @@ function Bar({ pct, gradient, height = 8 }) {
 
 // ── Main component ────────────────────────────────────────
 export default function PassiveIncome({ d }) {
-  var gridStats = d?.grid_stats || {};
-  var activeGrids = gridStats.active_grids_detail || [];
+  var gridStats = (d?.grid_stats && typeof d.grid_stats === 'object' && !Array.isArray(d.grid_stats)) ? d.grid_stats : {};
+  var activeGrids = Array.isArray(gridStats.active_grids_detail) ? gridStats.active_grids_detail : [];
   var totalBonus = d?.bonus_earnings || 0;
   var gridEarnings = d?.grid_earnings || 0;
   var membershipEarned = d?.membership_earned || 0;
@@ -94,10 +94,10 @@ export default function PassiveIncome({ d }) {
     { name: 'SuperMarket',   val: marketEarnings,    color: '#0ea5e9', grad: 'linear-gradient(90deg,#0ea5e9,#38bdf8)', emoji: '🛒', tag: 'Digital products' },
   ];
 
-  var maxStream = Math.max(1, ...streams.map(function(s) { return s.val; }));
+  var maxStream = Math.max(1, ...streams.map(function(s) { return Number(s.val) || 0; }));
 
   // Activity from recent_activity
-  var activity = (d?.recent_activity || []).slice(0, 5);
+  var activity = Array.isArray(d?.recent_activity) ? d.recent_activity.slice(0, 5) : [];
 
   var S = {
     page: { position: 'relative', minHeight: 600 },
