@@ -71,7 +71,7 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
       </div>
       <div className="flex items-center gap-3">
         {children}
-        <LanguageSelector />
+        <span className="hidden md:block"><LanguageSelector /></span>
 
         {/* Notification Bell */}
         <div className="relative" ref={dropdownRef}>

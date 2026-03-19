@@ -214,7 +214,7 @@ export default function Dashboard() {
       </div>
 
       {/* 5 Income Streams */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
+      <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           { color: '#16a34a', bg: '#dcfce7', Icon: Users, badge: '$10/referral', val: d.membership_earned, name: 'Membership', detail: `${d.personal_referrals || 0} personal referrals` },
           { color: '#0ea5e9', bg: '#e0f2fe', Icon: LayoutGrid, badge: '40% + uni-level', val: d.grid_earnings, name: 'Income Grid', detail: `${d.grid_stats?.completed_advances || 0} advance${d.grid_stats?.completed_advances !== 1 ? 's' : ''} completed` },
@@ -243,7 +243,7 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 14 }}>Quick Actions</div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
+      <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           { Icon: BookOpen, color: '#6366f1', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)', name: 'Browse Courses', desc: 'Learn skills & earn 100% commissions', link: '/courses' },
           { Icon: PenSquare, color: '#0ea5e9', bg: 'linear-gradient(135deg,#eff6ff,#dbeafe)', name: 'Create Course', desc: 'Build & sell courses on the marketplace', link: '/courses/create' },
@@ -267,7 +267,7 @@ export default function Dashboard() {
       </div>
 
       {/* Bottom Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'stretch' }}>
+      <div className="bottom-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'stretch' }}>
         {/* Recent Activity */}
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 22, boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -341,6 +341,12 @@ export default function Dashboard() {
         @keyframes wbSlide{0%{transform:translateX(-100%);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateX(100%);opacity:0}}
         @keyframes wbDrift{0%,100%{transform:translate(0,0);opacity:.5}25%{transform:translate(-10px,6px);opacity:1}50%{transform:translate(5px,-7px);opacity:.7}75%{transform:translate(-4px,-4px);opacity:1}}
         .stream-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16)!important;transform:translateY(-2px)}
+        .action-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16)!important;transform:translateY(-3px)}
+        @media(max-width:767px){
+          .income-grid{grid-template-columns:repeat(2,1fr)!important}
+          .actions-grid{grid-template-columns:repeat(2,1fr)!important}
+          .bottom-grid{grid-template-columns:1fr!important}
+        }
         .action-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16)!important;transform:translateY(-3px)}
       `}</style>
       </>
