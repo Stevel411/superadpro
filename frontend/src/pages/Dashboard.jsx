@@ -155,8 +155,10 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ── Recurring Income (tab bar removed — single view) ── */}
-      <>
+      {/* ── Recurring Income toggle ── */}
+      {dashTab === 'passive' && <PassiveIncome d={d} />}
+
+      {dashTab !== 'passive' && <>
 
       {/* Welcome Banner — Cosmic Purple */}
       <div style={{
@@ -166,8 +168,6 @@ export default function Dashboard() {
         position: 'relative', overflow: 'hidden',
         boxShadow: '0 8px 32px rgba(67,56,202,0.35)',
       }}>
-        {/* Shimmer sweep */}
-        <div style={{ position:'absolute', top:0, bottom:0, width:'60%', background:'linear-gradient(105deg,transparent 35%,rgba(255,255,255,0.07) 50%,transparent 65%)', animation:'wbShimmer 3.5s ease-in-out infinite', pointerEvents:'none' }} />
 
         {/* Radar rings + money bag */}
         <div style={{ position:'absolute', right:44, top:'50%', transform:'translateY(-50%)', pointerEvents:'none' }}>
@@ -192,6 +192,10 @@ export default function Dashboard() {
           <div style={{ fontSize:14, color:'rgba(255,255,255,0.6)', lineHeight:1.6, maxWidth:420 }}>
             You have {d.total_team || 0} members in your network{(d.total_earned || 0) > 0 && ` and earned $${Math.round(d.total_earned)} across all income streams`}.
           </div>
+          <button onClick={function(){ setDashTab(dashTab === 'passive' ? 'overview' : 'passive'); }} style={{ display:'inline-flex', alignItems:'center', gap:7, marginTop:14, padding:'8px 16px', borderRadius:8, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit', background:'rgba(167,139,250,0.15)', color:'#c4b5fd', border:'1px solid rgba(167,139,250,0.35)', transition:'all .15s' }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            {dashTab === 'passive' ? '← Back to Dashboard' : 'View Recurring Income →'}
+          </button>
         </div>
 
         <div style={{ display:'flex', gap:8, position:'relative', zIndex:2, marginRight:140 }}>
@@ -440,7 +444,6 @@ export default function Dashboard() {
 
       {/* Welcome banner animations */}
       <style>{`
-        @keyframes wbShimmer{0%{left:-100%}100%{left:200%}}
         @keyframes wbBag{0%,100%{transform:rotate(-5deg)}50%{transform:translateY(-10px) rotate(3deg)}}
 
         @keyframes wbStar{0%,100%{opacity:0}50%{opacity:1}}
