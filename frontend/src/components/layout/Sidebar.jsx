@@ -7,7 +7,7 @@ import {
   Home, User, Wallet, Headphones, Eye, Zap, LayoutGrid, Link2,
   Globe, GraduationCap, Store, PenLine, Network, FileText, Users,
   Target, Mail, Trophy, Award, Bot, Megaphone, Film,
-  LogOut, ChevronRight, Play, Lock, Sparkles, Shield
+  LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
@@ -71,24 +71,22 @@ function buildNav(t, isAdmin) {
   return items;
 }
 
-export default function Sidebar() {
+export default function Sidebar({ open, onClose }) {
   var auth = useAuth();
   var user = auth.user;
   var logout = auth.logout;
   var location = useLocation();
   var { t } = useTranslation();
-
   var NAV = buildNav(t, user && user.is_admin);
   var [manualOpen, setManualOpen] = useState({});
 
-  // Reset manual open state on navigation — groups auto-close
+  // Close sidebar on route change (mobile)
   useEffect(function() {
     setManualOpen({});
+    if (onClose) onClose();
   }, [location.pathname]);
 
-  var isActive = function(path) {
-    return location.pathname === path;
-  };
+  var isActive = function(path) { return location.pathname === path; };
 
   var toggle = function(key) {
     setManualOpen(function(prev) {
@@ -99,88 +97,146 @@ export default function Sidebar() {
           hasActive = item.items.some(function(sub) { return location.pathname === sub.path; });
         }
       });
-      // Determine current visual state
       var currentlyOpen = (key in prev) ? prev[key] : hasActive;
-      // Toggle it
       next[key] = !currentlyOpen;
       return next;
     });
   };
 
   return (
-    <aside className="w-56 h-screen bg-navy fixed top-0 left-0 z-50 flex flex-col border-r border-white/5 shrink-0">
-      {/* Logo */}
-      <Link to="/dashboard" className="flex items-center gap-2.5 px-5 min-h-[72px] h-[72px] border-b border-white/5 no-underline shrink-0">
-        <div className="w-7 h-7 rounded-full bg-cyan flex items-center justify-center shrink-0">
-          <Play className="w-3.5 h-3.5 text-white fill-white ml-0.5" />
+    <>
+      {/* Sidebar panel */}
+      <aside style={{
+        position: 'fixed',
+        top: 0, left: 0, bottom: 0,
+        width: 224,
+        background: '#0f172a',
+        zIndex: 50,
+        display: 'flex',
+        flexDirection: 'column',
+        borderRight: '1px solid rgba(255,255,255,0.05)',
+        transition: 'transform 0.28s cubic-bezier(0.4,0,0.2,1)',
+        // On mobile: slide in/out. On desktop: always visible.
+        transform: undefined,
+        willChange: 'transform',
+      }}
+        className={open ? 'sidebar-open' : 'sidebar-closed'}
+      >
+        {/* Logo + mobile close button */}
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',minHeight:72,padding:'0 20px',borderBottom:'1px solid rgba(255,255,255,0.05)',flexShrink:0}}>
+          <Link to="/dashboard" style={{textDecoration:'none',display:'flex',alignItems:'center',gap:10}}>
+            <div style={{width:28,height:28,borderRadius:'50%',background:'#0ea5e9',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+              <Play style={{width:12,height:12,color:'#fff',fill:'#fff',marginLeft:2}}/>
+            </div>
+            <span style={{fontFamily:"'Sora',sans-serif",fontSize:17,fontWeight:800,color:'#fff',lineHeight:1}}>
+              SuperAd<span style={{color:'#38bdf8'}}>Pro</span>
+            </span>
+          </Link>
+          {/* Close button — mobile only */}
+          <button
+            onClick={onClose}
+            className="sidebar-close-btn"
+            style={{background:'none',border:'none',color:'rgba(255,255,255,0.4)',cursor:'pointer',padding:4,borderRadius:6,display:'none'}}
+          >
+            <X style={{width:20,height:20}}/>
+          </button>
         </div>
-        <span className="font-display text-[17px] font-extrabold text-white leading-tight">
-          SuperAd<span className="text-cyan">Pro</span>
-        </span>
-      </Link>
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-2 scrollbar-thin">
-        {NAV.map(function(item, i) {
-          if (item.type === 'divider') return <div key={i} className="h-px bg-white/5 mx-3 my-1.5" />;
+        {/* Navigation */}
+        <nav style={{flex:1,overflowY:'auto',padding:'8px 0'}}>
+          {NAV.map(function(item, i) {
+            if (item.type === 'divider') {
+              return <div key={i} style={{height:1,background:'rgba(255,255,255,0.05)',margin:'6px 12px'}}/>;
+            }
 
-          if (item.type === 'standalone') {
-            var Icon = item.icon;
-            return (
-              <Link key={i} to={item.path}
-                className={'flex items-center gap-2.5 px-5 py-2.5 text-[13.5px] font-medium no-underline transition-all duration-150 ' +
-                  (isActive(item.path) ? 'text-cyan font-bold bg-cyan/8' : 'text-white/55 hover:text-white/85 hover:bg-cyan/5')}>
-                <Icon className="w-4 h-4 shrink-0" />
-                {item.label}
-              </Link>
-            );
-          }
+            if (item.type === 'standalone') {
+              var Icon = item.icon;
+              var active = isActive(item.path);
+              return (
+                <Link key={i} to={item.path} style={{
+                  display:'flex', alignItems:'center', gap:10,
+                  padding:'10px 20px', fontSize:13.5, fontWeight: active ? 700 : 500,
+                  color: active ? '#38bdf8' : 'rgba(255,255,255,0.55)',
+                  textDecoration:'none', transition:'all .15s',
+                  background: active ? 'rgba(56,189,248,0.08)' : 'transparent',
+                }}>
+                  <Icon style={{width:16,height:16,flexShrink:0}}/>
+                  {item.label}
+                </Link>
+              );
+            }
 
-          if (item.type === 'group') {
-            var hasActiveChild = item.items.some(function(sub) { return isActive(sub.path); });
-            var isOpen = (item.key in manualOpen) ? manualOpen[item.key] : (hasActiveChild || false);
+            if (item.type === 'group') {
+              var hasActiveChild = item.items.some(function(sub) { return isActive(sub.path); });
+              var isOpen = (item.key in manualOpen) ? manualOpen[item.key] : (hasActiveChild || false);
+              return (
+                <div key={i}>
+                  <button onClick={function() { toggle(item.key); }} style={{
+                    width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between',
+                    padding:'10px 20px', fontSize:11, fontWeight:700,
+                    color:'rgba(56,189,248,0.7)', textTransform:'uppercase', letterSpacing:'0.07em',
+                    cursor:'pointer', border:'none', background:'transparent', transition:'all .15s',
+                    fontFamily:'inherit',
+                  }}>
+                    <span>{item.label}</span>
+                    <ChevronRight style={{width:14,height:14,color:'rgba(255,255,255,0.2)',transform:isOpen?'rotate(90deg)':'none',transition:'transform .2s'}}/>
+                  </button>
+                  {isOpen && (
+                    <div style={{paddingBottom:4}}>
+                      {item.items.map(function(sub, j) {
+                        var SubIcon = sub.icon;
+                        var isPro = sub.pro;
+                        var subActive = isActive(sub.path);
+                        return (
+                          <Link key={j} to={sub.path} style={{
+                            display:'flex', alignItems:'center', gap:10,
+                            padding:'9px 20px 9px 24px', fontSize:13, fontWeight: subActive ? 700 : 600,
+                            color: subActive ? '#38bdf8' : isPro ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.55)',
+                            textDecoration:'none', transition:'all .15s',
+                            background: subActive ? 'rgba(56,189,248,0.08)' : 'transparent',
+                          }}>
+                            <SubIcon style={{width:15,height:15,flexShrink:0}}/>
+                            <span style={{flex:1}}>{sub.label}</span>
+                            {isPro && <Lock style={{width:11,height:11,color:'rgba(255,255,255,0.2)',flexShrink:0}}/>}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+            return null;
+          })}
+        </nav>
 
-            return (
-              <div key={i}>
-                <button onClick={function() { toggle(item.key); }}
-                  className="w-full flex items-center justify-between px-5 py-2.5 text-[11px] font-bold text-cyan/70 uppercase tracking-wider cursor-pointer hover:bg-cyan/5 transition-all border-none bg-transparent">
-                  <span>{item.label}</span>
-                  <ChevronRight className={'w-3.5 h-3.5 text-white/20 transition-transform duration-200 ' + (isOpen ? 'rotate-90' : '')} />
-                </button>
-                {isOpen && (
-                  <div className="pb-1">
-                    {item.items.map(function(sub, j) {
-                      var SubIcon = sub.icon;
-                      var isPro = sub.pro;
-                      return (
-                        <Link key={j} to={sub.path}
-                          className={'flex items-center gap-2.5 pl-6 pr-5 py-2 text-[13px] font-semibold no-underline transition-all duration-150 ' +
-                            (isActive(sub.path) ? 'text-cyan font-bold bg-cyan/8' :
-                             isPro ? 'text-white/30 hover:text-white/45 hover:bg-cyan/5' :
-                             'text-white/55 hover:text-white/85 hover:bg-cyan/5')}>
-                          <SubIcon className="w-4 h-4 shrink-0" />
-                          <span className="flex-1">{sub.label}</span>
-                          {isPro && <Lock className="w-3 h-3 text-white/20 shrink-0" />}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          }
-          return null;
-        })}
-      </nav>
+        {/* Footer */}
+        <div style={{marginTop:'auto',padding:'12px',borderTop:'1px solid rgba(255,255,255,0.05)'}}>
+          <button onClick={logout} style={{
+            width:'100%', display:'flex', alignItems:'center', gap:10,
+            padding:'8px 12px', fontSize:13, fontWeight:500,
+            color:'rgba(248,113,113,0.6)', cursor:'pointer',
+            border:'none', background:'transparent', borderRadius:8,
+            fontFamily:'inherit', transition:'all .15s',
+          }}>
+            <LogOut style={{width:15,height:15}}/>
+            {t('common.signOut')}
+          </button>
+        </div>
+      </aside>
 
-      {/* Footer */}
-      <div className="mt-auto px-3 py-3 border-t border-white/5">
-        <button onClick={logout}
-          className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium text-red-400/60 hover:text-red-400 hover:bg-red-500/5 rounded-lg transition-all cursor-pointer border-none bg-transparent">
-          <LogOut className="w-4 h-4" />
-          {t('common.signOut')}
-        </button>
-      </div>
-    </aside>
+      {/* Responsive CSS */}
+      <style>{`
+        @media(min-width:768px){
+          .sidebar-open, .sidebar-closed { transform: translateX(0) !important; }
+          .sidebar-close-btn { display: none !important; }
+        }
+        @media(max-width:767px){
+          .sidebar-open { transform: translateX(0) !important; }
+          .sidebar-closed { transform: translateX(-100%) !important; }
+          .sidebar-close-btn { display: flex !important; align-items: center; justify-content: center; }
+        }
+      `}</style>
+    </>
   );
 }

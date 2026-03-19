@@ -1,10 +1,10 @@
 import { useAuth } from '../../hooks/useAuth';
-import { Bell, X } from 'lucide-react';
+import { Bell, X, Menu } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { apiGet, apiPost, apiDelete } from '../../utils/api';
 import LanguageSelector from './LanguageSelector';
 
-export default function Topbar({ title, subtitle, children }) {
+export default function Topbar({ title, subtitle, children, onMenuClick }) {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [showNotifs, setShowNotifs] = useState(false);
@@ -54,10 +54,20 @@ export default function Topbar({ title, subtitle, children }) {
   };
 
   return (
-    <header className="flex items-center justify-between px-7 h-[72px] bg-navy border-b border-cyan/10 sticky top-0 z-40 shadow-topbar shrink-0">
-      <div className="min-w-0">
-        <h1 className="font-display text-[18px] font-extrabold text-white truncate">{title}</h1>
-        {subtitle && <p className="text-xs text-cyan/60 mt-0.5 truncate font-medium">{subtitle}</p>}
+    <header className="flex items-center justify-between px-5 h-[72px] bg-navy border-b border-cyan/10 sticky top-0 z-40 shadow-topbar shrink-0">
+      <div className="flex items-center gap-3 min-w-0">
+        {/* Hamburger — mobile only */}
+        <button
+          onClick={onMenuClick}
+          className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 transition-all border-none cursor-pointer flex-shrink-0"
+          aria-label="Open menu"
+        >
+          <Menu className="w-5 h-5 text-white/70" />
+        </button>
+        <div className="min-w-0">
+          <h1 className="font-display text-[18px] font-extrabold text-white truncate">{title}</h1>
+          {subtitle && <p className="text-xs text-cyan/60 mt-0.5 truncate font-medium">{subtitle}</p>}
+        </div>
       </div>
       <div className="flex items-center gap-3">
         {children}
