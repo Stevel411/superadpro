@@ -244,12 +244,12 @@ export default function Dashboard() {
                   </div>
                   <span style={{ fontSize:10, fontWeight:700, padding:'3px 9px', borderRadius:20, background:'rgba(255,255,255,0.2)', color:'rgba(255,255,255,0.92)', border:'1px solid rgba(255,255,255,0.18)', letterSpacing:0.3 }}>{s.badge}</span>
                 </div>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:700, color:'#fff', lineHeight:1, marginBottom:4 }}>${'{'}Math.round(s.val || 0){'}'}</div>
-                <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.92)', marginBottom:2 }}>{'{'}s.name{'}'}</div>
-                <div style={{ fontSize:11, color:'rgba(255,255,255,0.6)' }}>{'{'}s.detail{'}'}</div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:700, color:'#fff', lineHeight:1, marginBottom:4 }}>${Math.round(s.val || 0)}</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.92)', marginBottom:2 }}>{s.name}</div>
+                <div style={{ fontSize:11, color:'rgba(255,255,255,0.6)' }}>{s.detail}</div>
               </div>
               <div style={{ borderTop:'1px solid rgba(255,255,255,0.15)', paddingTop:10, marginTop:10, fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.75)', display:'flex', alignItems:'center', gap:4 }}>
-                {'{'}s.cta{'}'} →
+                {s.cta} →
               </div>
             </div>
           </Link>
@@ -283,9 +283,9 @@ export default function Dashboard() {
               <div style={{ width:52, height:52, borderRadius:14, background:'rgba(255,255,255,0.35)', border:'1px solid rgba(255,255,255,0.5)', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:12, position:'relative' }}>
                 <a.Icon size={24} color={a.iconStroke} strokeWidth={2} />
               </div>
-              <div style={{ fontSize:13, fontWeight:700, color:'rgba(0,0,0,0.7)', marginBottom:5 }}>{'{'}a.name{'}'}</div>
-              <div style={{ fontSize:11, color:'rgba(0,0,0,0.45)', lineHeight:1.5, marginBottom:10 }}>{'{'}a.desc{'}'}</div>
-              <div style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:20, background:'rgba(255,255,255,0.4)', border:'1px solid rgba(255,255,255,0.5)', color:'rgba(0,0,0,0.55)' }}>{'{'}a.pill{'}'}</div>
+              <div style={{ fontSize:13, fontWeight:700, color:'rgba(0,0,0,0.7)', marginBottom:5 }}>{a.name}</div>
+              <div style={{ fontSize:11, color:'rgba(0,0,0,0.45)', lineHeight:1.5, marginBottom:10 }}>{a.desc}</div>
+              <div style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:20, background:'rgba(255,255,255,0.4)', border:'1px solid rgba(255,255,255,0.5)', color:'rgba(0,0,0,0.55)' }}>{a.pill}</div>
             </div>
           </Link>
         ))}
