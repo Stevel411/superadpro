@@ -617,8 +617,11 @@ function CampaignDashboard({ campaign, onBack, onRefresh }) {
   var [deleteConfirm, setDeleteConfirm] = useState(false);
   var c = campaign;
 
+  var shareUrl = c.tracked_url || c.funnel_url || '';
+  var landingUrl = c.landing_page_url || (window.location.origin + '/superseller/page/' + c.id);
+
   function copyLink() {
-    navigator.clipboard.writeText(c.funnel_url || '');
+    navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     setTimeout(function() { setCopied(false); }, 2000);
   }
@@ -654,7 +657,7 @@ function CampaignDashboard({ campaign, onBack, onRefresh }) {
           ← Back
         </button>
         <div style={{display:'flex',gap:8}}>
-          <a href={'/superseller/page/' + c.id} target="_blank" rel="noopener noreferrer"
+          <a href={landingUrl} target="_blank" rel="noopener noreferrer"
             style={{display:'flex',alignItems:'center',gap:6,padding:'8px 16px',borderRadius:8,border:'1px solid #e8ecf2',background:'#fff',textDecoration:'none',fontSize:12,fontWeight:700,color:'#475569',cursor:'pointer'}}>
             <ExternalLink size={13}/> View Page
           </a>
@@ -671,13 +674,13 @@ function CampaignDashboard({ campaign, onBack, onRefresh }) {
       <div style={{background:'linear-gradient(135deg,#1c223d,#0f172a)',borderRadius:14,padding:'18px 24px',marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between',gap:16}}>
         <div style={{minWidth:0,flex:1}}>
           <div style={{fontSize:9,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>{isCustom?'Your Offer Link':'Your SuperSeller Funnel Link'}</div>
-          <div style={{fontSize:13,fontWeight:600,color:'rgba(255,255,255,.55)',fontFamily:'monospace',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.funnel_url}</div>
+          <div style={{fontSize:13,fontWeight:600,color:'rgba(255,255,255,.55)',fontFamily:'monospace',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{shareUrl}</div>
         </div>
         <div style={{display:'flex',gap:8,flexShrink:0}}>
           <button onClick={copyLink} style={{display:'flex',alignItems:'center',gap:6,padding:'10px 18px',borderRadius:9,border:'none',cursor:'pointer',background:copied?'#16a34a':'#8b5cf6',color:'#fff',fontSize:12,fontWeight:800,fontFamily:'inherit',transition:'all .2s',whiteSpace:'nowrap'}}>
             {copied?<><Check size={13}/> Copied!</>:<><Copy size={13}/> Copy Link</>}
           </button>
-          <a href={'https://wa.me/?text='+encodeURIComponent('Check this out: '+(c.funnel_url||''))} target="_blank" rel="noopener noreferrer"
+          <a href={'https://wa.me/?text='+encodeURIComponent('Check this out: '+shareUrl)} target="_blank" rel="noopener noreferrer"
             style={{display:'flex',alignItems:'center',gap:5,padding:'10px 16px',borderRadius:9,border:'1px solid rgba(255,255,255,.15)',background:'rgba(255,255,255,.08)',color:'rgba(255,255,255,.7)',textDecoration:'none',fontSize:12,fontWeight:700,whiteSpace:'nowrap'}}>
             <Share2 size={13}/> Share
           </a>
@@ -723,7 +726,7 @@ function CampaignDashboard({ campaign, onBack, onRefresh }) {
       </div>
 
       {/* Tab content */}
-      {tab === 'landing' && <LandingPageTab campaign={c} onRegen={regenLanding} regenLoading={regenLoading}/>}
+      {tab === 'landing' && <LandingPageTab campaign={c} landingUrl={landingUrl} onRegen={regenLanding} regenLoading={regenLoading}/>}
       {tab === 'calendar' && <CalendarTab posts={c.social_posts} funnel={c.funnel_url} created={c.created_at}/>}
       {tab === 'emails' && <EmailsTab emails={c.email_sequence}/>}
       {tab === 'videos' && <VideosTab scripts={c.video_scripts}/>}
@@ -787,9 +790,9 @@ function CalendarTab({ posts, funnel, created }) {
   );
 }
 
-function LandingPageTab({ campaign, onRegen, regenLoading }) {
+function LandingPageTab({ campaign, landingUrl, onRegen, regenLoading }) {
   var [copied, setCopied] = useState(false);
-  var pageUrl = window.location.origin + '/superseller/page/' + campaign.id;
+  var pageUrl = landingUrl || (window.location.origin + '/superseller/page/' + campaign.id);
 
   function copyUrl() {
     navigator.clipboard.writeText(pageUrl);

@@ -12557,6 +12557,7 @@ Generate a 30-day campaign strategy. Return ONLY valid JSON object with:
         campaign.strategy_json = _extract_json(strategy_resp)
 
         # Generate landing page HTML
+        tracked_cta_url = f"{os.getenv('BASE_URL','https://superadpro-production.up.railway.app')}/superseller/go/{campaign.id}"
         landing_prompt = f"""{base_context}
 
 Generate a complete, beautiful, mobile-responsive HTML landing page for this SuperAdPro campaign.
@@ -12564,7 +12565,7 @@ The page should:
 - Have a compelling hero section with headline and subheadline tailored to the niche
 - Show the platform benefits (video ads, AI tools, affiliate income, courses)
 - Include a lead capture form (name + email fields) that POSTs to /api/superseller/lead-capture/{campaign.id}
-- Have a clear CTA button linking to {funnel_url}
+- Have a clear CTA button linking to {tracked_cta_url}
 - Use a dark professional theme (#050d1a background, cyan #38bdf8 accents)
 - Include social proof section and FAQ
 - Be completely self-contained HTML with embedded CSS and JS
@@ -12636,9 +12637,12 @@ def api_superseller_detail(campaign_id: int, request: Request,
         try: return _json.loads(s)
         except: return s
 
+    base = os.getenv('BASE_URL', 'https://superadpro-production.up.railway.app')
     return {
         "id": c.id, "niche": c.niche, "audience": c.audience,
         "tone": c.tone, "goal": c.goal, "funnel_url": c.funnel_url,
+        "tracked_url": f"{base}/superseller/go/{c.id}",
+        "landing_page_url": f"{base}/superseller/page/{c.id}",
         "campaign_type": c.campaign_type or "superadpro",
         "offer_name": c.offer_name, "offer_url": c.offer_url,
         "offer_description": c.offer_description,
@@ -12860,13 +12864,47 @@ async def api_superseller_lead_capture(campaign_id: int, request: Request,
         except Exception as e:
             logger.error(f"SuperSeller Brevo contact add failed: {e}")
 
-    # Trigger email sequence (send welcome email immediately)
+    # Wire lead into the drip email system
     try:
-        emails = _json.loads(c.email_sequence_json) if c.email_sequence_json else []
-        if emails and len(emails) > 0:
-            _send_superseller_email(email, name, emails[0], c, db)
+        emails_raw = _json.loads(c.email_sequence_json) if c.email_sequence_json else []
+        if emails_raw:
+            # Transform SuperSeller email format → EmailSequence format
+            from .database import EmailSequence
+            seq_emails = []
+            delay_map = {0: 0, 1: 1, 2: 3, 3: 5, 4: 7}  # email index → send delay days
+            for idx, em in enumerate(emails_raw):
+                seq_emails.append({
+                    "subject": em.get("subject", f"Email {idx+1}"),
+                    "body_html": em.get("body", em.get("content", "")),
+                    "send_delay_days": em.get("delay_days", delay_map.get(idx, idx * 2)),
+                })
+
+            # Check if this campaign already has a sequence, else create one
+            seq_title = f"SuperSeller - {c.niche} - Campaign {c.id}"
+            seq = db.query(EmailSequence).filter(
+                EmailSequence.user_id == c.user_id,
+                EmailSequence.title == seq_title
+            ).first()
+            if not seq:
+                seq = EmailSequence(
+                    user_id=c.user_id,
+                    title=seq_title,
+                    niche=c.niche,
+                    tone=c.tone or "professional",
+                    num_emails=len(seq_emails),
+                    emails_json=_json.dumps(seq_emails),
+                    is_active=True,
+                )
+                db.add(seq)
+                db.flush()
+
+            # Assign sequence to lead and set to nurturing
+            lead.email_sequence_id = seq.id
+            lead.status = "nurturing"
+            lead.emails_sent = 0
+            db.commit()
     except Exception as e:
-        logger.error(f"SuperSeller welcome email failed: {e}")
+        logger.error(f"SuperSeller drip setup failed: {e}")
 
     # Notify the campaign owner
     send_notification(db, c.user_id, "lead", "🎯",
@@ -12972,6 +13010,19 @@ async def api_superseller_create_custom_agent(request: Request, user: User = Dep
     return {"success": True, "campaign_id": campaign.id, "status": "active"}
 
 
+@app.get("/superseller/go/{campaign_id}")
+def api_superseller_tracked_click(campaign_id: int, request: Request,
+                                    db: Session = Depends(get_db)):
+    """Tracked redirect — increments link_clicks then redirects to funnel URL."""
+    from .database import SuperSellerCampaign
+    c = db.query(SuperSellerCampaign).filter(SuperSellerCampaign.id == campaign_id).first()
+    if not c:
+        return RedirectResponse(url="/", status_code=302)
+    c.link_clicks = (c.link_clicks or 0) + 1
+    db.commit()
+    return RedirectResponse(url=c.funnel_url or "/", status_code=302)
+
+
 @app.get("/superseller/page/{campaign_id}")
 def api_superseller_landing_page(campaign_id: int, request: Request,
                                    db: Session = Depends(get_db)):
@@ -13001,10 +13052,11 @@ async def api_superseller_regen_landing(campaign_id: int, request: Request,
     if not c:
         return JSONResponse({"error": "Campaign not found"}, status_code=404)
     funnel_url = c.funnel_url or f"{os.getenv('BASE_URL','https://superadpro-production.up.railway.app')}/join/{user.username}"
+    tracked_url = f"{os.getenv('BASE_URL','https://superadpro-production.up.railway.app')}/superseller/go/{campaign_id}"
     prompt = f"""Niche: {c.niche}. Audience: {c.audience}. Tone: {c.tone}. Goal: {c.goal}. Funnel: {funnel_url}.
 Generate a complete beautiful mobile-responsive HTML landing page for SuperAdPro.
 Dark theme #050d1a background, cyan #38bdf8 accents. Lead capture form POSTing to /api/superseller/lead-capture/{campaign_id}.
-CTA button to {funnel_url}. Include <script src="/static/js/superseller-chat.js" data-campaign="{campaign_id}"></script> before </body>.
+CTA buttons link to {tracked_url} (this is the tracked affiliate link). Include <script src="/static/js/superseller-chat.js" data-campaign="{campaign_id}"></script> before </body>.
 Return ONLY complete HTML starting with <!DOCTYPE html>. No markdown."""
     try:
         resp = await _call_ai(prompt, model="claude-sonnet-4-20250514")
