@@ -84,8 +84,8 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
   .phone-wrap .hub{max-width:100%;padding-top:60px}
 }
 
-{% if profile.bg_r2_url or profile.bg_image %}
-.bg-img{position:fixed;inset:0;z-index:0;background-image:url('{{ profile.bg_r2_url or profile.bg_image }}');background-size:cover;background-position:center}
+{% if profile.bg_image %}
+.bg-img{position:fixed;inset:0;z-index:0;background-image:url('{{ profile.bg_image }}');background-size:cover;background-position:center}
 .bg-img::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.5)}
 {% endif %}
 
@@ -198,7 +198,7 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
   {% if profile.theme == 'gradient' %}<div class="atmos-orb orb3"></div>{% endif %}
 </div>
 
-{% if profile.bg_r2_url or profile.bg_image %}
+{% if profile.bg_image %}
 <div class="bg-img"></div>
 {% endif %}
 

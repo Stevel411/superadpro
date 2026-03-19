@@ -9696,25 +9696,28 @@ def linkhub_public(username: str, request: Request, db: Session = Depends(get_db
     for lk in links:
         icon_html = ""
         icon_raw = lk.icon or ""
-        if icon_raw.startswith("{"):
+        if not icon_raw or icon_raw == "none":
+            icon_html = ""  # no icon
+        elif icon_raw.startswith("{"):
             try:
                 ic = _json.loads(icon_raw)
                 if ic.get("type") == "emoji":
                     icon_html = ic.get("key", "")
                 elif ic.get("type") == "svg":
                     svg_key = ic.get("key", "")
-                    is_filled = ic.get("filled", False)
                     path_d = _SVG_PATHS.get(svg_key, "")
                     if path_d:
-                        if is_filled:
-                            icon_html = f'<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="{path_d}"/></svg>'
-                        else:
-                            icon_html = f'<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{path_d}"/></svg>'
-                # type == "none" → icon_html stays empty
+                        icon_html = f'<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{path_d}"/></svg>'
             except Exception:
-                icon_html = ""  # corrupted/truncated JSON — hide icon
-        else:
+                icon_html = ""
+        elif icon_raw in _SVG_PATHS:
+            # New system: plain string ID like 'instagram', 'tiktok', etc.
+            path_d = _SVG_PATHS[icon_raw]
+            icon_html = f'<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="{path_d}"/></svg>'
+        elif len(icon_raw) <= 4:
             icon_html = icon_raw  # legacy emoji string
+        else:
+            icon_html = ""  # unknown — hide
         parsed_links.append({
             "id": lk.id, "title": lk.title, "url": lk.url,
             "icon": icon_html, "icon_raw": icon_raw,
