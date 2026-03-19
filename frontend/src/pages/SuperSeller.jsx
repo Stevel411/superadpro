@@ -244,9 +244,37 @@ function SetupWizard({ onComplete, onCancel }) {
     apiPost('/api/superseller/create', {
       niche: finalNiche, audience: audienceStr, tone: tone, goal: goal,
     }).then(function(r) {
-      clearInterval(interval);
-      if (r.success) { onComplete(r.campaign_id); }
-      else { setError(r.error || 'Generation failed'); setGenerating(false); }
+      if (!r.success) {
+        clearInterval(interval);
+        setError(r.error || 'Generation failed');
+        setGenerating(false);
+        return;
+      }
+      // Campaign created — poll until status is active or failed
+      var campaignId = r.campaign_id;
+      var pollCount = 0;
+      var pollInterval = setInterval(function() {
+        pollCount++;
+        if (pollCount > 60) { // 5 min timeout
+          clearInterval(pollInterval);
+          clearInterval(interval);
+          setError('Generation timed out. Please try again.');
+          setGenerating(false);
+          return;
+        }
+        apiGet('/api/superseller/campaign/' + campaignId).then(function(d) {
+          if (d.status === 'active') {
+            clearInterval(pollInterval);
+            clearInterval(interval);
+            onComplete(campaignId);
+          } else if (d.status === 'failed') {
+            clearInterval(pollInterval);
+            clearInterval(interval);
+            setError('Generation failed. Please try again.');
+            setGenerating(false);
+          }
+        }).catch(function(){});
+      }, 5000); // poll every 5 seconds
     }).catch(function(e) {
       clearInterval(interval);
       setError(e.message || 'Generation failed');

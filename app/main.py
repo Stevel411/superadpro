@@ -5,7 +5,7 @@ import json
 import logging
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request, Form, Depends, HTTPException, UploadFile, File
+from fastapi import FastAPI, Request, Form, Depends, HTTPException, UploadFile, File, BackgroundTasks
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -12429,9 +12429,10 @@ def _old_creator_agreement_DISABLED(request=None):
 # ═══════════════════════════════════════════════════════════════
 
 @app.post("/api/superseller/create")
-async def api_superseller_create(request: Request, user: User = Depends(get_current_user),
+async def api_superseller_create(request: Request, background_tasks: BackgroundTasks,
+                                  user: User = Depends(get_current_user),
                                   db: Session = Depends(get_db)):
-    """Create a new SuperSeller campaign — triggers AI generation pipeline."""
+    """Create a new SuperSeller campaign — fires AI generation in background."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     if user.membership_tier != "pro" and not user.is_admin:
@@ -12484,112 +12485,119 @@ async def api_superseller_create(request: Request, user: User = Depends(get_curr
     db.commit()
     db.refresh(campaign)
 
-    # Generate all assets via AI
+    # Fire generation in background — return immediately to avoid timeout
     import json as _json
-    try:
-        base_context = f"""You are generating marketing content for a SuperAdPro member.
+
+    async def _run_generation(campaign_id: int, niche_: str, audience_: str,
+                               tone_: str, goal_: str, funnel_url_: str, user_id_: int):
+        """Background task: generate all SuperSeller assets."""
+        from .database import SessionLocal, SuperSellerCampaign as SSC
+        bg_db = SessionLocal()
+        bg_c = None
+        try:
+            bg_c = bg_db.query(SSC).filter(SSC.id == campaign_id).first()
+            if not bg_c:
+                return
+
+            base_ctx = f"""You are generating marketing content for a SuperAdPro member.
 SuperAdPro is a video advertising and AI marketing platform. Members pay $20-30/month for:
 - Video ad campaigns with real engaged viewers
 - AI marketing tools (campaign studio, social posts, funnels, email)
 - Course marketplace (create and sell courses)
 - Affiliate network (earn commissions by referring others)
 
-Member's niche: {niche}
-Target audience: {audience}
-Tone: {tone}
-Goal: {goal}
-Funnel URL: {funnel_url}
+Member niche: {niche_}
+Target audience: {audience_}
+Tone: {tone_}
+Goal: {goal_}
+Funnel URL: {funnel_url_}
 
 IMPORTANT: Never make income guarantees. Focus on the tools and platform value.
-All CTAs should point to: {funnel_url}"""
+All CTAs should point to: {funnel_url_}"""
 
-        # Generate social posts (30 days)
-        social_prompt = f"""{base_context}
+            # Social posts
+            s_resp = await _call_ai(f"""{base_ctx}
 
 Generate 30 social media posts (one per day for 30 days). Return ONLY valid JSON array.
 Mix: 70% value/educational, 20% soft CTA, 10% direct CTA.
 Each post: {{"day": 1, "platform": "facebook|instagram|x|linkedin|tiktok", "content": "post text with emojis", "hashtags": "#tag1 #tag2", "type": "value|soft_cta|direct_cta"}}
-Rotate platforms. Keep posts natural and engaging, not salesy."""
+Rotate platforms. Keep posts natural and engaging, not salesy.""", model="claude-sonnet-4-20250514")
+            bg_c.social_posts_json = _extract_json(s_resp)
+            bg_db.commit()
 
-        social_resp = await _call_ai(social_prompt, model="claude-sonnet-4-20250514")
-        campaign.social_posts_json = _extract_json(social_resp)
-
-        # Generate email sequence (5 emails)
-        email_prompt = f"""{base_context}
+            # Email sequence
+            e_resp = await _call_ai(f"""{base_ctx}
 
 Generate a 5-email nurture sequence. Return ONLY valid JSON array.
-Sequence: Welcome (day 0) → Value (day 1) → Social Proof (day 3) → Urgency (day 5) → Final CTA (day 7)
+Sequence: Welcome (day 0) -> Value (day 1) -> Social Proof (day 3) -> Urgency (day 5) -> Final CTA (day 7)
 Each email: {{"email_num": 1, "subject": "subject line", "preview": "preview text", "body": "full email HTML body", "delay_days": 0, "type": "welcome|value|social_proof|urgency|final_cta"}}
-Professional HTML emails with inline styles. Include the funnel URL as CTA button."""
+Professional HTML emails with inline styles. Include the funnel URL as CTA button.""", model="claude-sonnet-4-20250514")
+            bg_c.email_sequence_json = _extract_json(e_resp)
+            bg_db.commit()
 
-        email_resp = await _call_ai(email_prompt, model="claude-sonnet-4-20250514")
-        campaign.email_sequence_json = _extract_json(email_resp)
-
-        # Generate video scripts (3)
-        video_prompt = f"""{base_context}
+            # Video scripts
+            v_resp = await _call_ai(f"""{base_ctx}
 
 Generate 3 video scripts for short-form content. Return ONLY valid JSON array.
 Durations: 30 seconds, 60 seconds, 2 minutes.
-Each: {{"title": "title", "duration": "30s|60s|2min", "hook": "first 3 seconds - attention grabber", "body": "main content", "cta": "call to action mentioning the link", "platform": "tiktok|reels|shorts"}}
-Hook must grab attention immediately. Use problem-agitation-solution framework."""
+Each: {{"title": "title", "duration": "30s|60s|2min", "hook": "first 3 seconds", "body": "main content", "cta": "call to action", "platform": "tiktok|reels|shorts"}}
+Hook must grab attention immediately. Use problem-agitation-solution framework.""", model="claude-sonnet-4-20250514")
+            bg_c.video_scripts_json = _extract_json(v_resp)
+            bg_db.commit()
 
-        video_resp = await _call_ai(video_prompt, model="claude-sonnet-4-20250514")
-        campaign.video_scripts_json = _extract_json(video_resp)
-
-        # Generate ad copy (3 platforms)
-        ad_prompt = f"""{base_context}
+            # Ad copy
+            a_resp = await _call_ai(f"""{base_ctx}
 
 Generate ad copy for 3 platforms. Return ONLY valid JSON array.
 Platforms: Facebook, Instagram, Google.
-Each: {{"platform": "facebook|instagram|google", "headline": "headline", "body": "ad body text", "cta_text": "button text", "description": "ad description"}}
-Keep each platform's copy format appropriate for that platform."""
+Each: {{"platform": "facebook|instagram|google", "headline": "headline", "body": "ad body text", "cta_text": "button text", "description": "ad description"}}""", model="claude-haiku-4-5-20251001")
+            bg_c.ad_copy_json = _extract_json(a_resp)
+            bg_db.commit()
 
-        ad_resp = await _call_ai(ad_prompt, model="claude-haiku-4-5-20251001")
-        campaign.ad_copy_json = _extract_json(ad_resp)
-
-        # Generate strategy doc
-        strategy_prompt = f"""{base_context}
+            # Strategy
+            st_resp = await _call_ai(f"""{base_ctx}
 
 Generate a 30-day campaign strategy. Return ONLY valid JSON object with:
-{{"overview": "strategy summary", "daily_plan": [{{"day": 1, "task": "what to do", "platform": "where", "tip": "helpful tip"}}], "best_practices": ["tip1", "tip2"], "posting_times": {{"facebook": "best time", "instagram": "best time", "tiktok": "best time"}}, "hashtag_strategy": "approach to hashtags", "engagement_tips": ["tip1", "tip2"]}}"""
+{{"overview": "strategy summary", "daily_plan": [{{"day": 1, "task": "what to do", "platform": "where", "tip": "helpful tip"}}], "best_practices": ["tip1"], "posting_times": {{"facebook": "best time", "instagram": "best time", "tiktok": "best time"}}, "hashtag_strategy": "approach", "engagement_tips": ["tip1"]}}""", model="claude-sonnet-4-20250514")
+            bg_c.strategy_json = _extract_json(st_resp)
+            bg_db.commit()
 
-        strategy_resp = await _call_ai(strategy_prompt, model="claude-sonnet-4-20250514")
-        campaign.strategy_json = _extract_json(strategy_resp)
+            # Landing page
+            tracked_url = f"{os.getenv('BASE_URL','https://superadpro-production.up.railway.app')}/superseller/go/{campaign_id}"
+            lp_resp = await _call_ai(f"""{base_ctx}
 
-        # Generate landing page HTML
-        tracked_cta_url = f"{os.getenv('BASE_URL','https://superadpro-production.up.railway.app')}/superseller/go/{campaign.id}"
-        landing_prompt = f"""{base_context}
+Generate a complete beautiful mobile-responsive HTML landing page for SuperAdPro.
+- Compelling hero with niche-tailored headline
+- Platform benefits section
+- Lead capture form (name + email) POSTing to /api/superseller/lead-capture/{campaign_id}
+- CTA button linking to {tracked_url}
+- Dark theme #050d1a background, cyan #38bdf8 accents
+- Social proof and FAQ sections
+- Self-contained HTML with embedded CSS/JS
+- Add before </body>: <script src="/static/js/superseller-chat.js" data-campaign="{campaign_id}"></script>
+Return ONLY complete HTML starting with <!DOCTYPE html>. No markdown.""", model="claude-sonnet-4-20250514")
+            lp = lp_resp.strip()
+            if lp.startswith("```"): lp = lp.split("\n", 1)[1] if "\n" in lp else lp[3:]
+            if lp.endswith("```"): lp = lp[:-3].strip()
+            bg_c.landing_page_html = lp
 
-Generate a complete, beautiful, mobile-responsive HTML landing page for this SuperAdPro campaign.
-The page should:
-- Have a compelling hero section with headline and subheadline tailored to the niche
-- Show the platform benefits (video ads, AI tools, affiliate income, courses)
-- Include a lead capture form (name + email fields) that POSTs to /api/superseller/lead-capture/{campaign.id}
-- Have a clear CTA button linking to {tracked_cta_url}
-- Use a dark professional theme (#050d1a background, cyan #38bdf8 accents)
-- Include social proof section and FAQ
-- Be completely self-contained HTML with embedded CSS and JS
-- Include the SuperSeller AI chat widget at bottom: <script src="/static/js/superseller-chat.js" data-campaign="{campaign.id}"></script>
+            bg_c.status = "active"
+            bg_db.commit()
+            logger.info(f"SuperSeller campaign {campaign_id} generated successfully")
 
-Return ONLY the complete HTML document starting with <!DOCTYPE html>. No markdown, no explanation.""".replace('{{', '{{').replace('}}', '}}')
+        except Exception as e:
+            logger.error(f"SuperSeller generation failed for campaign {campaign_id}: {e}")
+            if bg_c:
+                try:
+                    bg_c.status = "failed"
+                    bg_db.commit()
+                except Exception:
+                    pass
+        finally:
+            bg_db.close()
 
-        landing_resp = await _call_ai(landing_prompt, model="claude-sonnet-4-20250514")
-        # Strip any markdown wrapping
-        lp = landing_resp.strip()
-        if lp.startswith("```"): lp = lp.split("\n", 1)[1] if "\n" in lp else lp[3:]
-        if lp.endswith("```"): lp = lp[:-3].strip()
-        campaign.landing_page_html = lp
-
-        campaign.status = "active"
-        db.commit()
-
-        return {"success": True, "campaign_id": campaign.id, "status": "active"}
-
-    except Exception as e:
-        logger.error(f"SuperSeller generation failed for user {user.id}: {e}")
-        campaign.status = "failed"
-        db.commit()
-        return JSONResponse({"error": f"Generation failed: {str(e)}"}, status_code=500)
+    background_tasks.add_task(_run_generation, campaign.id, niche, audience, tone, goal, funnel_url, user.id)
+    return {"success": True, "campaign_id": campaign.id, "status": "generating"}
 
 
 @app.get("/api/superseller/campaigns")
