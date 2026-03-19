@@ -225,7 +225,11 @@ export default function LinkHub() {
         <div style={{flex:1,overflowY:'auto',padding:20}}>
           {panel==='links' && <LinksPanel links={links} addLink={addLink} updateLink={updateLink} removeLink={removeLink} toggleLink={toggleLink} moveLink={moveLink} emojiPicker={emojiPicker} setEmojiPicker={setEmojiPicker}/>}
           {panel==='style' && <StylePanel style={style} setStyle={setStyle}/>}
-          {panel==='profile' && <ProfilePanel profile={profile} setProfile={setProfile}/>}
+          {panel==='profile' && <ProfilePanel profile={profile} setProfile={setProfile} onRemoveAvatar={function(){
+  setProfile(function(p){return Object.assign({},p,{avatar_url:''});});
+  var payload = Object.assign({},style,{display_name:profile.display_name,bio:profile.bio,avatar_url:'',is_published:true,links:links.map(function(l,i){return {id:l.id>9999999?undefined:l.id,title:l.title,url:l.url,icon:l.icon||'link',is_active:l.is_active,sort_order:i};})});
+  apiPost('/linkhub/save', payload).catch(function(){});
+}}/>}
         </div>
 
         {/* Save */}
@@ -523,7 +527,7 @@ function StylePanel({ style, setStyle }) {
 // PROFILE PANEL — Fix #7: bg image, #8: avatar upload
 // ═══════════════════════════════════════════════════
 
-function ProfilePanel({ profile, setProfile }) {
+function ProfilePanel({ profile, setProfile, onRemoveAvatar }) {
   function upd(f) { return function(e){setProfile(function(p){return Object.assign({},p,{[f]:e.target.value});});}; }
   var inputStyle = {width:'100%',padding:'12px 14px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'};
 
@@ -557,10 +561,17 @@ function ProfilePanel({ profile, setProfile }) {
         <div style={{width:80,height:80,borderRadius:'50%',margin:'0 auto 10px',overflow:'hidden',border:'3px solid #8b5cf6',background:'#e8ecf2'}}>
           {profile.avatar_url ? <img src={profile.avatar_url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt="" onError={function(e){e.target.style.display='none';}}/> : <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:28,color:'#94a3b8'}}>{(profile.display_name||'?')[0]}</div>}
         </div>
-        <label style={{display:'inline-flex',alignItems:'center',gap:4,padding:'6px 14px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',cursor:'pointer',fontSize:11,fontWeight:600,color:'#64748b'}}>
-          <Upload size={12}/> Upload Photo
-          <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{display:'none'}}/>
-        </label>
+        <div style={{display:'flex',gap:8,justifyContent:'center',alignItems:'center'}}>
+          <label style={{display:'inline-flex',alignItems:'center',gap:4,padding:'6px 14px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',cursor:'pointer',fontSize:11,fontWeight:600,color:'#64748b'}}>
+            <Upload size={12}/> Upload Photo
+            <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{display:'none'}}/>
+          </label>
+          {profile.avatar_url && (
+            <button onClick={onRemoveAvatar} style={{display:'inline-flex',alignItems:'center',gap:4,padding:'6px 12px',borderRadius:8,border:'1px solid #fecaca',background:'#fef2f2',cursor:'pointer',fontSize:11,fontWeight:600,color:'#dc2626',fontFamily:'inherit'}}>
+              ✕ Remove
+            </button>
+          )}
+        </div>
       </div>
 
       <div style={{marginBottom:14}}>
