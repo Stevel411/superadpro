@@ -30,15 +30,15 @@ export default function ActivateTier() {
     setPaying(true);
     setError('');
     try {
-      const res = await fetch('/api/coinbase/create-charge', {
+      const res = await fetch('/api/stripe/create-grid-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ payment_type: 'grid_tier', package_tier: n }),
+        body: JSON.stringify({ package_tier: n }),
       });
       const data = await res.json();
-      if (data.hosted_url) {
-        window.location.href = data.hosted_url;
+      if (data.url) {
+        window.location.href = data.url;
       } else {
         setError(data.error || 'Payment service unavailable. Please try again.');
         setPaying(false);
