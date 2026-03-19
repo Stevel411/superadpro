@@ -237,92 +237,82 @@ export default function LinkTools() {
       </button>
     }>
 
-      {/* ── Animated Stats Cards ── */}
+      {/* ── Stats Cards + Controls ── */}
       <style>{`
-        @keyframes ltPulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.15);opacity:1}}
-        @keyframes ltFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-        @keyframes ltShimmer{0%{background-position:-200% center}100%{background-position:200% center}}
-        @keyframes ltCount{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes ltOrb{0%,100%{transform:scale(1) rotate(0deg);opacity:.15}50%{transform:scale(1.3) rotate(180deg);opacity:.25}}
-        .lt-card{transition:all .25s cubic-bezier(.4,0,.2,1)}
-        .lt-card:hover{transform:translateY(-4px);box-shadow:0 20px 48px rgba(0,0,0,.14)!important}
-        .lt-tab{transition:all .2s ease}
-        .lt-tab:hover{transform:translateY(-1px)}
-        .lt-new-btn{transition:all .2s ease}
-        .lt-new-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,165,233,.4)!important}
+        @keyframes ltSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+        @keyframes ltPop{0%{opacity:0;transform:scale(.92) translateY(12px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+        @keyframes ltShine{0%{left:-120%}100%{left:200%}}
+        @keyframes ltPulseRing{0%,100%{transform:scale(.95);opacity:.5}50%{transform:scale(1.08);opacity:.9}}
+        @keyframes ltFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-10px) rotate(3deg)}}
+        @keyframes ltCount{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+        .lt-stat{transition:all .28s cubic-bezier(.34,1.56,.64,1);animation:ltPop .55s ease both}
+        .lt-stat:hover{transform:translateY(-6px) scale(1.02)!important}
+        .lt-action-btn{transition:all .18s ease}
+        .lt-action-btn:hover{background:#f0f9ff!important;color:#0ea5e9!important;border-color:#bae6fd!important}
+        .lt-create-btn{transition:all .2s cubic-bezier(.34,1.56,.64,1)}
+        .lt-create-btn:hover{transform:translateY(-3px) scale(1.04)!important}
       `}</style>
 
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16,marginBottom:28}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:18,marginBottom:24}}>
         {[
-          {label:'Short Links',val:links.length,color:'#0ea5e9',gFrom:'#0ea5e9',gTo:'#38bdf8',icon:Link2,desc:'Active links',bg:'rgba(14,165,233,0.08)'},
-          {label:'Rotators',val:rotators.length,color:'#8b5cf6',gFrom:'#8b5cf6',gTo:'#a78bfa',icon:Shuffle,desc:'Traffic splitters',bg:'rgba(139,92,246,0.08)'},
-          {label:'Total Clicks',val:totalClicks,color:'#10b981',gFrom:'#10b981',gTo:'#34d399',icon:MousePointer,desc:'All time',bg:'rgba(16,185,129,0.08)'},
-          {label:'Protected',val:links.filter(l => l.has_password).length,color:'#f59e0b',gFrom:'#f59e0b',gTo:'#fbbf24',icon:Shield,desc:'Password locked',bg:'rgba(245,158,11,0.08)'},
+          {label:'Short Links',val:links.length,sub:'active links',grad:'linear-gradient(135deg,#0284c7 0%,#0ea5e9 50%,#38bdf8 100%)',shadow:'rgba(14,165,233,.45)',icon:Link2,emoji:'🔗',delay:0},
+          {label:'Rotators',val:rotators.length,sub:'traffic splitters',grad:'linear-gradient(135deg,#6d28d9 0%,#8b5cf6 50%,#a78bfa 100%)',shadow:'rgba(139,92,246,.45)',icon:Shuffle,emoji:'🔀',delay:.08},
+          {label:'Total Clicks',val:totalClicks,sub:'all time',grad:'linear-gradient(135deg,#065f46 0%,#10b981 50%,#34d399 100%)',shadow:'rgba(16,185,129,.45)',icon:MousePointer,emoji:'👆',delay:.16},
+          {label:'Protected',val:links.filter(l=>l.has_password).length,sub:'password locked',grad:'linear-gradient(135deg,#92400e 0%,#f59e0b 50%,#fbbf24 100%)',shadow:'rgba(245,158,11,.45)',icon:Shield,emoji:'🔒',delay:.24},
         ].map((s,i) => (
-          <div key={i} className="lt-card" style={{
-            background:'#fff',borderRadius:16,padding:'22px 24px',
-            border:'1px solid #e8ecf2',
-            boxShadow:'0 4px 16px rgba(0,0,0,.06)',
-            position:'relative',overflow:'hidden',
-            animationDelay:i*0.08+'s',
+          <div key={i} className="lt-stat" style={{
+            background:s.grad,borderRadius:20,padding:'28px 26px 24px',
+            boxShadow:`0 12px 40px ${s.shadow},0 4px 12px rgba(0,0,0,.1)`,
+            position:'relative',overflow:'hidden',cursor:'default',
+            animationDelay:s.delay+'s',
           }}>
-            {/* Animated orb */}
-            <div style={{
-              position:'absolute',width:120,height:120,borderRadius:'50%',
-              background:`radial-gradient(circle,${s.gFrom}33,transparent 70%)`,
-              right:-30,bottom:-30,
-              animation:'ltOrb 6s ease-in-out infinite',
-              animationDelay:i*1.5+'s',
-              pointerEvents:'none',
-            }}/>
-            {/* Icon badge */}
-            <div style={{
-              width:44,height:44,borderRadius:12,background:s.bg,
-              display:'flex',alignItems:'center',justifyContent:'center',
-              marginBottom:16,border:`1px solid ${s.color}22`,
-            }}>
-              <s.icon size={20} color={s.color}/>
+            {/* Shine sweep */}
+            <div style={{position:'absolute',top:0,bottom:0,width:'45%',background:'linear-gradient(105deg,transparent 35%,rgba(255,255,255,.18) 50%,transparent 65%)',animation:'ltShine 3s ease-in-out infinite',animationDelay:i*.8+'s',pointerEvents:'none'}}/>
+            {/* Big decorative emoji */}
+            <div style={{position:'absolute',right:16,top:16,fontSize:52,opacity:.18,animation:'ltFloat '+(5+i)+'s ease-in-out infinite',animationDelay:i*1.2+'s',pointerEvents:'none',userSelect:'none'}}>{s.emoji}</div>
+            {/* Pulse ring */}
+            <div style={{position:'absolute',right:18,top:18,width:56,height:56,borderRadius:'50%',border:'2px solid rgba(255,255,255,.25)',animation:'ltPulseRing 3s ease-in-out infinite',animationDelay:i*.5+'s',pointerEvents:'none'}}/>
+            {/* Icon */}
+            <div style={{width:48,height:48,borderRadius:14,background:'rgba(255,255,255,.2)',backdropFilter:'blur(8px)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:18,border:'1px solid rgba(255,255,255,.3)'}}>
+              <s.icon size={22} color="#fff"/>
             </div>
-            {/* Value */}
-            <div style={{
-              fontFamily:'Sora,sans-serif',fontSize:40,fontWeight:900,
-              color:'#0f172a',lineHeight:1,marginBottom:6,
-              animation:'ltCount .5s ease both',animationDelay:i*0.1+'s',
-            }}>{s.val}</div>
-            {/* Label */}
-            <div style={{fontSize:13,fontWeight:700,color:'#0f172a',marginBottom:2}}>{s.label}</div>
-            <div style={{fontSize:11,color:'#94a3b8',fontWeight:500}}>{s.desc}</div>
-            {/* Bottom accent bar */}
-            <div style={{
-              position:'absolute',bottom:0,left:0,right:0,height:3,
-              background:`linear-gradient(90deg,${s.gFrom},${s.gTo})`,
-            }}/>
+            {/* Number */}
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:52,fontWeight:900,color:'#fff',lineHeight:1,marginBottom:6,animation:'ltCount .6s ease both',animationDelay:s.delay+.1+'s',textShadow:'0 2px 8px rgba(0,0,0,.15)'}}>{s.val}</div>
+            {/* Labels */}
+            <div style={{fontSize:15,fontWeight:800,color:'rgba(255,255,255,.95)',marginBottom:3,letterSpacing:.2}}>{s.label}</div>
+            <div style={{fontSize:11,color:'rgba(255,255,255,.65)',fontWeight:600,textTransform:'uppercase',letterSpacing:.8}}>{s.sub}</div>
           </div>
         ))}
       </div>
 
-      {/* ── Tab bar ── */}
-      <div style={{display:'flex',gap:6,marginBottom:20,alignItems:'center',background:'#fff',padding:'6px',borderRadius:12,border:'1px solid #e8ecf2',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
-        {[['links','Short Links',Link2,'#0ea5e9'],['rotators','Rotators',Shuffle,'#8b5cf6']].map(([key,label,Icon,color]) => (
-          <button key={key} onClick={() => setTab(key)} className="lt-tab" style={{
-            display:'flex',alignItems:'center',gap:7,padding:'10px 20px',borderRadius:8,fontSize:13,fontWeight:700,
-            border:'none',cursor:'pointer',fontFamily:'inherit',flex:'0 0 auto',
-            background:tab===key?`linear-gradient(135deg,${color},${color}cc)`:'transparent',
-            color:tab===key?'#fff':'#64748b',
-            boxShadow:tab===key?`0 4px 12px ${color}44`:'none',
-          }}><Icon size={14}/> {label}</button>
-        ))}
-        <button onClick={() => setShowUtm(true)} className="lt-tab" style={{
-          display:'flex',alignItems:'center',gap:7,padding:'10px 20px',borderRadius:8,fontSize:13,fontWeight:700,
-          border:'none',cursor:'pointer',fontFamily:'inherit',background:'transparent',color:'#64748b',
+      {/* ── Action bar ── */}
+      <div style={{display:'flex',gap:8,marginBottom:20,alignItems:'center'}}>
+        {/* Tabs */}
+        <div style={{display:'flex',gap:0,background:'#fff',borderRadius:12,border:'1px solid #e2e8f0',padding:4,boxShadow:'0 2px 8px rgba(0,0,0,.05)'}}>
+          {[['links','Short Links',Link2,'#0ea5e9'],['rotators','Rotators',Shuffle,'#8b5cf6']].map(([key,label,Icon,color]) => (
+            <button key={key} onClick={() => setTab(key)} style={{
+              display:'flex',alignItems:'center',gap:7,padding:'10px 20px',borderRadius:9,fontSize:13,fontWeight:700,
+              border:'none',cursor:'pointer',fontFamily:'inherit',
+              background:tab===key?`linear-gradient(135deg,${color}ee,${color}bb)`:'transparent',
+              color:tab===key?'#fff':'#64748b',
+              boxShadow:tab===key?`0 4px 14px ${color}55`:'none',
+              transition:'all .18s ease',
+            }}><Icon size={14}/> {label}</button>
+          ))}
+        </div>
+        <button onClick={() => setShowUtm(true)} style={{
+          display:'flex',alignItems:'center',gap:7,padding:'10px 18px',borderRadius:10,fontSize:13,fontWeight:700,
+          border:'1px solid #e2e8f0',cursor:'pointer',fontFamily:'inherit',background:'#fff',color:'#64748b',
+          boxShadow:'0 2px 6px rgba(0,0,0,.05)',transition:'all .18s ease',
         }}><Search size={14}/> UTM Builder</button>
         <div style={{flex:1}}/>
-        <button onClick={() => tab==='links'?setShowCreate(true):setShowRotatorCreate(true)} className="lt-new-btn" style={{
-          display:'flex',alignItems:'center',gap:7,padding:'10px 22px',borderRadius:9,fontSize:13,fontWeight:700,
+        <button onClick={() => tab==='links'?setShowCreate(true):setShowRotatorCreate(true)} className="lt-create-btn" style={{
+          display:'flex',alignItems:'center',gap:8,padding:'12px 28px',borderRadius:12,fontSize:14,fontWeight:800,
           border:'none',cursor:'pointer',fontFamily:'inherit',
-          background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',
-          boxShadow:'0 4px 16px rgba(14,165,233,.3)',
-        }}><Plus size={14}/> {tab==='links'?'New Short Link':'New Rotator'}</button>
+          background:'linear-gradient(135deg,#0284c7,#0ea5e9,#38bdf8)',color:'#fff',
+          boxShadow:'0 8px 24px rgba(14,165,233,.4)',
+          letterSpacing:.2,
+        }}><Plus size={16}/> {tab==='links'?'New Short Link':'New Rotator'}</button>
       </div>
 
       {/* ── SHORT LINKS TAB ── */}
