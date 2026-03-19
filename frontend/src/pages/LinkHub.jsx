@@ -149,7 +149,7 @@ export default function LinkHub() {
     <AppLayout title="LinkHub" subtitle="Your link-in-bio editor">
     <div style={{display:'flex',height:'calc(100vh - 72px)',fontFamily:'DM Sans,sans-serif',background:'#f0f3f9',overflow:'hidden',margin:'-24px',borderRadius:0}}>
       {/* ═══ LEFT PANEL ═══ */}
-      <div style={{width:420,background:'#fff',borderRight:'1px solid #e5e7eb',display:'flex',flexDirection:'column',overflow:'hidden'}}>
+      <div style={{width:500,minWidth:500,background:'#fff',borderRight:'1px solid #e5e7eb',display:'flex',flexDirection:'column',overflow:'hidden'}}>
         {/* Header */}
         <div style={{padding:'14px 20px',borderBottom:'1px solid #e5e7eb',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
           <div>
@@ -202,13 +202,14 @@ export default function LinkHub() {
       </div>
 
       {/* ═══ RIGHT — PHONE PREVIEW ═══ */}
-      <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',background:'#f0f1f5',position:'relative'}}>
-        <div style={{position:'absolute',inset:0,backgroundImage:'radial-gradient(circle,#d1d5db 1px,transparent 1px)',backgroundSize:'24px 24px',opacity:.25}}/>
-        <div style={{position:'relative',zIndex:1,width:375,borderRadius:40,background:'#1a1a1a',padding:'12px',boxShadow:'0 20px 60px rgba(0,0,0,.2)'}}>
-          <div style={{position:'absolute',top:14,left:'50%',transform:'translateX(-50%)',width:120,height:28,borderRadius:14,background:'#0a0a0a',zIndex:10}}/>
-          <div style={{borderRadius:30,overflow:'hidden',minHeight:680,fontFamily:style.font_family+',sans-serif',position:'relative',background:style.bg_color}}>
-            {/* Background image */}
-            {style.bg_image_url && <div style={{position:'absolute',inset:0,backgroundImage:'url('+style.bg_image_url+')',backgroundSize:'cover',backgroundPosition:'center',opacity:.3}}/>}
+      <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',background:'#f0f1f5',position:'relative',overflow:'hidden'}}>
+        <div style={{position:'absolute',inset:0,backgroundImage:'radial-gradient(circle,#d1d5db 1px,transparent 1px)',backgroundSize:'24px 24px',opacity:.25,pointerEvents:'none'}}/>
+        <div style={{position:'relative',zIndex:1,transform:'scale(0.78)',transformOrigin:'center center'}}>
+        <div style={{width:320,borderRadius:40,background:'#1a1a1a',padding:'10px',boxShadow:'0 20px 60px rgba(0,0,0,.25)'}}>
+          <div style={{position:'absolute',top:12,left:'50%',transform:'translateX(-50%)',width:100,height:24,borderRadius:12,background:'#0a0a0a',zIndex:10}}/>
+          <div style={{borderRadius:28,overflow:'hidden',minHeight:580,maxHeight:580,overflowY:'auto',fontFamily:style.font_family+',sans-serif',position:'relative',background:style.bg_color}}>
+            {/* Background image — clipped inside phone */}
+            {style.bg_image_url && <div style={{position:'absolute',inset:0,backgroundImage:'url('+style.bg_image_url+')',backgroundSize:'cover',backgroundPosition:'center',opacity:.35,pointerEvents:'none'}}/>}
             <div style={{position:'relative',padding:'60px 24px 40px',textAlign:'center'}}>
               {/* Avatar */}
               <div style={{width:80,height:80,borderRadius:'50%',margin:'0 auto 14px',overflow:'hidden',border:'3px solid '+style.accent_color,background:profile.avatar_url?'transparent':'linear-gradient(135deg,'+style.accent_color+','+style.btn_color+')'}}>
@@ -255,7 +256,8 @@ export default function LinkHub() {
             </div>
           </div>
         </div>
-        <div style={{position:'absolute',bottom:20,left:'50%',transform:'translateX(-50%)',background:'#fff',borderRadius:8,padding:'8px 16px',boxShadow:'0 2px 8px rgba(0,0,0,.1)',display:'flex',alignItems:'center',gap:6}}>
+        </div>
+        <div style={{position:'absolute',bottom:16,left:'50%',transform:'translateX(-50%)',background:'#fff',borderRadius:8,padding:'6px 14px',boxShadow:'0 2px 8px rgba(0,0,0,.1)',display:'flex',alignItems:'center',gap:6,whiteSpace:'nowrap'}}>
           <div style={{width:6,height:6,borderRadius:'50%',background:'#16a34a'}}/>
           <span style={{fontSize:11,fontWeight:600,color:'#64748b'}}>{window.location.host}/u/</span>
           <span style={{fontSize:11,fontWeight:800,color:'#0f172a'}}>{data?.username||'yourname'}</span>
@@ -460,11 +462,22 @@ function ProfilePanel({ profile, setProfile }) {
   function handleAvatarUpload(e) {
     var file = e.target.files[0];
     if (!file) return;
+    // Show local preview immediately
     var reader = new FileReader();
     reader.onload = function(ev) {
       setProfile(function(p) { return Object.assign({},p,{avatar_url:ev.target.result}); });
     };
     reader.readAsDataURL(file);
+    // Upload to R2 in background
+    var fd = new FormData();
+    fd.append('avatar', file);
+    fetch('/linkhub/upload-avatar', {method:'POST', body:fd, credentials:'include'})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if (d.avatar_url) {
+          setProfile(function(p) { return Object.assign({},p,{avatar_url:d.avatar_url}); });
+        }
+      }).catch(function(){});
   }
 
   return (
