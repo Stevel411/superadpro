@@ -140,7 +140,7 @@ export default function LinkHub() {
     var payload = Object.assign({}, style, {
       display_name:profile.display_name, bio:profile.bio, avatar_url:profile.avatar_url,
       is_published:true,
-      links:links.map(function(l,i) { return {id:l.id>9999999?undefined:l.id,title:l.title,url:l.url,icon:l.icon||'🔗',is_active:l.is_active,sort_order:i}; }),
+      links:links.map(function(l,i) { return {id:l.id>9999999?undefined:l.id,title:l.title,url:l.url,icon:l.icon||'🔗',is_active:l.is_active,sort_order:i,btn_bg_color:l.btn_bg_color||''}; }),
     });
     apiPost('/linkhub/save', payload).then(function(r) {
       setSaving(false);
@@ -155,14 +155,14 @@ export default function LinkHub() {
       // Auto-save immediately after deletion
       var payload = {
         display_name: profile.display_name, bio: profile.bio,
-        links: updated.map(function(l, i) { return {id:l.id>9999999?undefined:l.id, title:l.title, url:l.url, icon:l.icon||'🔗', is_active:l.is_active, sort_order:i}; }),
+        links: updated.map(function(l, i) { return {id:l.id>9999999?undefined:l.id, title:l.title, url:l.url, icon:l.icon||'🔗', is_active:l.is_active, sort_order:i, btn_bg_color:l.btn_bg_color||''}; }),
         style: style,
       };
       apiPost('/linkhub/save', payload).catch(function() {});
       return updated;
     });
   }
-  function addLink() { setLinks(function(p){return p.concat([{id:Date.now(),title:'New Link',url:'',icon:'link',is_active:true,click_count:0}]);}); }
+  function addLink() { setLinks(function(p){return p.concat([{id:Date.now(),title:'New Link',url:'',icon:'link',is_active:true,click_count:0,btn_bg_color:''}]);}); }
   function toggleLink(id) { var lk=links.find(function(l){return l.id===id;}); if(lk) updateLink(id,'is_active',!lk.is_active); }
   function moveLink(idx, dir) {
     var ni = idx + dir;
@@ -257,7 +257,7 @@ export default function LinkHub() {
           {panel==='style' && <StylePanel style={style} setStyle={setStyle}/>}
           {panel==='profile' && <ProfilePanel profile={profile} setProfile={setProfile} onRemoveAvatar={function(){
   setProfile(function(p){return Object.assign({},p,{avatar_url:''});});
-  var payload = Object.assign({},style,{display_name:profile.display_name,bio:profile.bio,avatar_url:'',is_published:true,links:links.map(function(l,i){return {id:l.id>9999999?undefined:l.id,title:l.title,url:l.url,icon:l.icon||'link',is_active:l.is_active,sort_order:i};})});
+  var payload = Object.assign({},style,{display_name:profile.display_name,bio:profile.bio,avatar_url:'',is_published:true,links:links.map(function(l,i){return {id:l.id>9999999?undefined:l.id,title:l.title,url:l.url,icon:l.icon||'link',is_active:l.is_active,sort_order:i,btn_bg_color:l.btn_bg_color||''};})});
   apiPost('/linkhub/save', payload).catch(function(){});
 }}/>}
         </div>
@@ -310,8 +310,8 @@ export default function LinkHub() {
                       }}
                       onDragEnd={function(){setPhoneDrag(-1);}}
                       style={{padding:'12px 16px',borderRadius:btnRadius,
-                        background:isFilled?style.btn_color:'transparent',
-                        border:isFilled?(isDragging?'2px solid '+style.accent_color:'none'):'2px solid '+style.btn_color,
+                        background:isFilled?(link.btn_bg_color||style.btn_color):'transparent',
+                        border:isFilled?(isDragging?'2px solid '+style.accent_color:'none'):'2px solid '+(link.btn_bg_color||style.btn_color),
                         display:'flex',alignItems:'center',gap:10,textAlign:style.btn_align||'center',
                         cursor:'grab',opacity:isDragging?0.7:1,transition:'opacity .15s',
                         boxShadow:isDragging?'0 4px 16px rgba(0,0,0,.3)':'none'}}>
@@ -417,6 +417,20 @@ function LinksPanel({ links, addLink, updateLink, removeLink, toggleLink, moveLi
               )}
               <input value={link.title} onChange={function(e){updateLink(link.id,'title',e.target.value);}} placeholder="Link title" style={{width:'100%',padding:'10px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',marginBottom:6,background:'#fff'}}/>
               <input value={link.url} onChange={function(e){updateLink(link.id,'url',e.target.value);}} placeholder="https://..." style={{width:'100%',padding:'10px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff',color:'#64748b'}}/>
+              {/* Per-link button colour */}
+              <div style={{display:'flex',alignItems:'center',gap:8,marginTop:8}}>
+                <label style={{fontSize:11,fontWeight:600,color:'#94a3b8',whiteSpace:'nowrap'}}>Button colour</label>
+                <input type="color" value={link.btn_bg_color||style.btn_color||'#8b5cf6'}
+                  onChange={function(e){updateLink(link.id,'btn_bg_color',e.target.value);}}
+                  style={{width:28,height:28,padding:2,border:'1px solid #e5e7eb',borderRadius:6,cursor:'pointer',background:'none'}}/>
+                <span style={{fontSize:11,color:'#64748b',fontFamily:'monospace'}}>{link.btn_bg_color||'(global)'}</span>
+                {link.btn_bg_color && (
+                  <button onClick={function(){updateLink(link.id,'btn_bg_color','');}}
+                    style={{fontSize:10,color:'#94a3b8',background:'none',border:'none',cursor:'pointer',padding:'2px 6px',borderRadius:4,fontFamily:'inherit'}}>
+                    ✕ Reset
+                  </button>
+                )}
+              </div>
             </div>
           );
         })}
