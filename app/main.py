@@ -929,40 +929,7 @@ def register_process(
     return response
 
 
-@app.get("/dev-login")
-def dev_login(request: Request, db: Session = Depends(get_db)):
-    """Dev preview — instant demo login, no password needed."""
-    import bcrypt
-    demo_username = "demo_preview"
-    try:
-        user = db.query(User).filter(User.username == demo_username).first()
-        if not user:
-            hashed = bcrypt.hashpw(b"DevPass2026!", bcrypt.gensalt()).decode()
-            user = User(
-                username="demo_preview", email="demo@superadpro.dev",
-                password=hashed, first_name="Demo", last_name="Preview",
-                wallet_address="0xDEAD000000000000000000000000000000000001",
-                is_active=True, balance=247.50, total_earned=892.00,
-                grid_earnings=547.20, level_earnings=213.80,
-                upline_earnings=131.00, total_withdrawn=644.50,
-                personal_referrals=7, total_team=34,
-            )
-            db.add(user)
-            db.commit()
-            db.refresh(user)
-        else:
-            user.balance=247.50; user.total_earned=892.00
-            user.grid_earnings=547.20; user.level_earnings=213.80
-            user.upline_earnings=131.00; user.total_withdrawn=644.50
-            user.personal_referrals=7; user.total_team=34
-            user.is_active=True
-            user.membership_tier="pro"
-            db.commit()
-        response = RedirectResponse(url="/dashboard", status_code=303)
-        set_secure_cookie(response, user.id)
-        return response
-    except Exception as e:
-        return HTMLResponse(f"<h2>Dev login error: {e}</h2><p>Check Railway logs.</p>", status_code=500)
+
 
 
 @app.get("/login")
@@ -2646,22 +2613,7 @@ async def stripe_boost_checkout(request: Request, db: Session = Depends(get_db),
 
 
 
-@app.post("/api/test/stripe-activate/{user_id}")
-async def test_stripe_activate(user_id: int, request: Request,
-                                db: Session = Depends(get_db),
-                                user: User = Depends(get_current_user)):
-    """Admin test: manually trigger membership activation to debug webhook."""
-    if not user or not user.is_admin:
-        return JSONResponse({"error": "Admin only"}, status_code=403)
-    target = db.query(User).filter(User.id == user_id).first()
-    if not target:
-        return JSONResponse({"error": "User not found"}, status_code=404)
-    try:
-        _stripe_activate_membership(db, target, "basic", None)
-        return {"ok": True, "message": f"Activated {target.username}"}
-    except Exception as e:
-        import traceback
-        return JSONResponse({"error": str(e), "traceback": traceback.format_exc()}, status_code=500)
+
 
 @app.post("/api/webhook/stripe")
 async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
