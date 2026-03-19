@@ -156,7 +156,13 @@ export default function Dashboard() {
       )}
 
       {/* ── Recurring Income toggle ── */}
-      {dashTab === 'passive' && <PassiveIncome d={d} />}
+      {dashTab === 'passive' && <>
+        <button onClick={function(){ setDashTab('overview'); }} style={{ display:'inline-flex', alignItems:'center', gap:7, marginBottom:16, padding:'8px 16px', borderRadius:8, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit', background:'#fff', color:'#6366f1', border:'1px solid #e2e8f0' }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to Dashboard
+        </button>
+        <PassiveIncome d={d} />
+      </>}
 
       {dashTab !== 'passive' && <>
 
