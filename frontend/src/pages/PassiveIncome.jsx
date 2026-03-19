@@ -140,7 +140,7 @@ export default function PassiveIncome({ d }) {
     streamsRow: { display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 12, marginBottom: 20 },
     streamCard: {
       background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
-      borderRadius: 16, padding: '18px 14px', textAlign: 'center', transition: 'all .2s', cursor: 'default',
+      borderRadius: 16, padding: '24px 18px', textAlign: 'center', transition: 'all .2s', cursor: 'default',
     },
 
     // Next completion
@@ -254,13 +254,13 @@ export default function PassiveIncome({ d }) {
         {streams.map(function(s,i) {
           return (
             <div key={i} className="sap-stream" style={{ ...S.streamCard, animationDelay:`${i*0.1}s` }}>
-              <div style={{ fontSize:26, marginBottom:8 }}>{s.emoji}</div>
-              <div style={{ fontSize:9, fontWeight:800, textTransform:'uppercase', letterSpacing:1, color:'rgba(255,255,255,0.35)', marginBottom:6 }}>{s.name}</div>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:900, color:s.color, marginBottom:6 }}>
+              <div style={{ fontSize:42, marginBottom:12 }}>{s.emoji}</div>
+              <div style={{ fontSize:11, fontWeight:800, textTransform:'uppercase', letterSpacing:1, color:'rgba(255,255,255,0.35)', marginBottom:8 }}>{s.name}</div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:900, color:s.color, marginBottom:10 }}>
                 $<CountUp target={s.val} duration={1600}/>
               </div>
-              <Bar pct={maxStream > 0 ? (s.val/maxStream)*100 : 0} gradient={s.grad} height={4}/>
-              <div style={{ fontSize:9, color:'rgba(255,255,255,0.25)', marginTop:6 }}>{s.tag}</div>
+              <Bar pct={maxStream > 0 ? (s.val/maxStream)*100 : 0} gradient={s.grad} height={8}/>
+              <div style={{ fontSize:11, color:'rgba(255,255,255,0.25)', marginTop:8 }}>{s.tag}</div>
             </div>
           );
         })}
@@ -290,18 +290,7 @@ export default function PassiveIncome({ d }) {
             <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)' }}>Completion bonus</div>
           </div>
         </div>
-      ) : (
-        <div style={{ ...S.nextCard, justifyContent:'center', textAlign:'center' }}>
-          <div>
-            <div style={{ fontSize:36, marginBottom:8 }}>🎯</div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#fff', marginBottom:6 }}>Activate a Campaign Tier to unlock grid bonuses</div>
-            <div style={{ fontSize:12, color:'rgba(255,255,255,0.4)', marginBottom:16 }}>Each time 64 positions fill, you earn a completion bonus — with no cap on completions.</div>
-            <Link to="/campaign-tiers" style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'10px 20px', borderRadius:10, background:'#10b981', color:'#fff', fontSize:12, fontWeight:700, textDecoration:'none' }}>
-              View Campaign Tiers →
-            </Link>
-          </div>
-        </div>
-      )}
+      ) : null}
 
       {/* ── Bottom row ── */}
       <div style={S.bottomGrid}>
