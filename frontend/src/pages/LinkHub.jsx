@@ -204,10 +204,10 @@ export default function LinkHub() {
       {/* ═══ RIGHT — PHONE PREVIEW ═══ */}
       <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',background:'#f0f1f5',position:'relative',overflow:'hidden'}}>
         <div style={{position:'absolute',inset:0,backgroundImage:'radial-gradient(circle,#d1d5db 1px,transparent 1px)',backgroundSize:'24px 24px',opacity:.25,pointerEvents:'none'}}/>
-        <div style={{position:'relative',zIndex:1,transform:'scale(0.94)',transformOrigin:'center center'}}>
-        <div style={{width:340,borderRadius:40,background:'#1a1a1a',padding:'10px',boxShadow:'0 20px 60px rgba(0,0,0,.25)'}}>
-          <div style={{position:'absolute',top:12,left:'50%',transform:'translateX(-50%)',width:100,height:24,borderRadius:12,background:'#0a0a0a',zIndex:10}}/>
-          <div style={{borderRadius:28,overflow:'hidden',minHeight:580,maxHeight:580,overflowY:'auto',fontFamily:style.font_family+',sans-serif',position:'relative',background:style.bg_color}}>
+        <div style={{position:'relative',zIndex:1,width:380,flexShrink:0}}>
+        <div style={{width:380,borderRadius:44,background:'#1a1a1a',padding:'12px',boxShadow:'0 32px 80px rgba(0,0,0,.35)'}}>
+          <div style={{position:'absolute',top:14,left:'50%',transform:'translateX(-50%)',width:120,height:28,borderRadius:14,background:'#0a0a0a',zIndex:10}}/>
+          <div style={{borderRadius:32,overflow:'hidden',minHeight:680,maxHeight:'calc(100vh - 160px)',overflowY:'auto',fontFamily:style.font_family+',sans-serif',position:'relative',background:style.bg_color}}>
             {/* Background image — clipped inside phone */}
             {style.bg_image_url && <div style={{position:'absolute',inset:0,backgroundImage:'url('+style.bg_image_url+')',backgroundSize:'cover',backgroundPosition:'center',opacity:.35,pointerEvents:'none'}}/>}
             <div style={{position:'relative',padding:'60px 24px 40px',textAlign:'center'}}>
@@ -255,7 +255,6 @@ export default function LinkHub() {
               <div style={{marginTop:32,fontSize:10,color:style.text_color,opacity:.2}}>Powered by SuperAdPro LinkHub</div>
             </div>
           </div>
-        </div>
         </div>
         <div style={{position:'absolute',bottom:16,left:'50%',transform:'translateX(-50%)',background:'#fff',borderRadius:8,padding:'6px 14px',boxShadow:'0 2px 8px rgba(0,0,0,.1)',display:'flex',alignItems:'center',gap:6,whiteSpace:'nowrap'}}>
           <div style={{width:6,height:6,borderRadius:'50%',background:'#16a34a'}}/>
