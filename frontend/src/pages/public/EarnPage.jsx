@@ -275,7 +275,7 @@ export default function EarnPage() {
               {/* Mini bullets */}
               {[
                 {emoji:'💰',text:'50% commission per referral',color:'#4ade80'},
-                {emoji:'⚡',text:'Up to $3,200 grid bonus',color:'#38bdf8'},
+                {emoji:'⚡',text:'Unlimited Earning Potential',color:'#38bdf8'},
                 {emoji:'🎓',text:'100% course commissions',color:'#a5b4fc'},
                 {emoji:'🤖',text:'9 AI marketing tools',color:'#fbbf24'},
               ].map(function(b) {
