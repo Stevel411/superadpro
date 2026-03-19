@@ -54,7 +54,7 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
   };
 
   return (
-    <header className="flex items-center justify-between px-5 h-[72px] border-b border-purple-500/20 sticky top-0 z-40 shrink-0" style={{background:"linear-gradient(90deg,#1e1b4b 0%,#2d2a7a 40%,#3730a3 100%)"}}>
+    <header className="flex items-center justify-between px-5 h-[72px] bg-navy border-b border-cyan/10 sticky top-0 z-40 shadow-topbar shrink-0">
       <div className="flex items-center gap-3 min-w-0">
         {/* Hamburger — mobile only */}
         <button
@@ -138,7 +138,7 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
         </div>
 
         {/* User Avatar */}
-        <div className="w-9 h-9 rounded-full bg-purple-500/20 flex items-center justify-center text-xs font-bold text-purple-300 overflow-hidden" style={{flexShrink:0}}>
+        <div className="w-9 h-9 rounded-full bg-cyan/20 flex items-center justify-center text-xs font-bold text-cyan overflow-hidden" style={{flexShrink:0}}>
           {user?.avatar_url
             ? <img src={user.avatar_url} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} onError={function(e){e.target.style.display='none';}}/>
             : (user?.first_name || user?.username || '?')[0].toUpperCase()

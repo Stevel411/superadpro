@@ -5,7 +5,7 @@ export default {
     extend: {
       colors: {
         // SuperAdPro brand
-        navy: { DEFAULT: '#2d2a7a', dark: '#1e1b4b', light: '#3730a3' },
+        navy: { DEFAULT: '#1c223d', dark: '#0f1525', light: '#272e4d' },
         cyan: { DEFAULT: '#0ea5e9', light: '#e0f2fe', dark: '#0284c7' },
         // Semantic
         surface: { DEFAULT: '#f8f9fb', '2': '#f1f3f7' },

@@ -110,7 +110,7 @@ export default function Sidebar({ open, onClose }) {
         position: 'fixed',
         top: 0, left: 0, bottom: 0,
         width: 224,
-        background: 'linear-gradient(180deg,#1e1b4b 0%,#2d2a7a 60%,#1e1b4b 100%)',
+        background: '#0f172a',
         zIndex: 50,
         display: 'flex',
         flexDirection: 'column',
@@ -125,11 +125,11 @@ export default function Sidebar({ open, onClose }) {
         {/* Logo + mobile close button */}
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',minHeight:72,padding:'0 20px',borderBottom:'1px solid rgba(255,255,255,0.05)',flexShrink:0}}>
           <Link to="/dashboard" style={{textDecoration:'none',display:'flex',alignItems:'center',gap:10}}>
-            <div style={{width:28,height:28,borderRadius:'50%',background:'#7c3aed',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            <div style={{width:28,height:28,borderRadius:'50%',background:'#0ea5e9',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
               <Play style={{width:12,height:12,color:'#fff',fill:'#fff',marginLeft:2}}/>
             </div>
             <span style={{fontFamily:"'Sora',sans-serif",fontSize:17,fontWeight:800,color:'#fff',lineHeight:1}}>
-              SuperAd<span style={{color:'#a78bfa'}}>Pro</span>
+              SuperAd<span style={{color:'#38bdf8'}}>Pro</span>
             </span>
           </Link>
           {/* Close button — mobile only */}
@@ -156,9 +156,9 @@ export default function Sidebar({ open, onClose }) {
                 <Link key={i} to={item.path} style={{
                   display:'flex', alignItems:'center', gap:10,
                   padding:'10px 20px', fontSize:13.5, fontWeight: active ? 700 : 500,
-                  color: active ? '#a78bfa' : 'rgba(255,255,255,0.55)',
+                  color: active ? '#38bdf8' : 'rgba(255,255,255,0.55)',
                   textDecoration:'none', transition:'all .15s',
-                  background: active ? 'rgba(139,92,246,0.18)' : 'transparent',
+                  background: active ? 'rgba(56,189,248,0.08)' : 'transparent',
                 }}>
                   <Icon style={{width:16,height:16,flexShrink:0}}/>
                   {item.label}
@@ -174,7 +174,7 @@ export default function Sidebar({ open, onClose }) {
                   <button onClick={function() { toggle(item.key); }} style={{
                     width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between',
                     padding:'10px 20px', fontSize:11, fontWeight:700,
-                    color:'rgba(167,139,250,0.7)', textTransform:'uppercase', letterSpacing:'0.07em',
+                    color:'rgba(56,189,248,0.7)', textTransform:'uppercase', letterSpacing:'0.07em',
                     cursor:'pointer', border:'none', background:'transparent', transition:'all .15s',
                     fontFamily:'inherit',
                   }}>
@@ -191,9 +191,9 @@ export default function Sidebar({ open, onClose }) {
                           <Link key={j} to={sub.path} style={{
                             display:'flex', alignItems:'center', gap:10,
                             padding:'9px 20px 9px 24px', fontSize:13, fontWeight: subActive ? 700 : 600,
-                            color: subActive ? '#a78bfa' : isPro ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.55)',
+                            color: subActive ? '#38bdf8' : isPro ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.55)',
                             textDecoration:'none', transition:'all .15s',
-                            background: subActive ? 'rgba(139,92,246,0.15)' : 'transparent',
+                            background: subActive ? 'rgba(56,189,248,0.08)' : 'transparent',
                           }}>
                             <SubIcon style={{width:15,height:15,flexShrink:0}}/>
                             <span style={{flex:1}}>{sub.label}</span>
