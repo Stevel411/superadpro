@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiGet, apiPost } from '../utils/api';
 import { Copy, Check, Trash2, Plus, ExternalLink, ChevronUp, ChevronDown, Upload, AlignLeft, AlignCenter, AlignRight, ChevronRight, ArrowRight, ArrowUpRight, MoveRight } from 'lucide-react';
+import AppLayout from '../components/layout/AppLayout';
 
 var FONTS = ['DM Sans','Sora','Inter','Poppins','Playfair Display','Space Grotesk','Nunito','Raleway',
   'Montserrat','Lato','Roboto','Open Sans','Oswald','Merriweather','Outfit','Quicksand','Rubik',
@@ -130,10 +131,11 @@ export default function LinkHub() {
   var arrowObj = ARROW_STYLES.find(function(a){return a.key===style.arrow_style;}) || ARROW_STYLES[0];
   var pubUrl = window.location.origin + '/u/' + (data?.username || 'me');
 
-  if (!data) return <div style={{display:'flex',height:'100vh',alignItems:'center',justifyContent:'center',background:'#f5f6fa'}}><Spin/></div>;
+  if (!data) return <AppLayout title="LinkHub" subtitle="Your link-in-bio editor"><div style={{display:'flex',height:'60vh',alignItems:'center',justifyContent:'center'}}><Spin/></div></AppLayout>;
 
   return (
-    <div style={{display:'flex',height:'100vh',fontFamily:'DM Sans,sans-serif',background:'#f5f6fa',overflow:'hidden'}}>
+    <AppLayout title="LinkHub" subtitle="Your link-in-bio editor">
+    <div style={{display:'flex',height:'calc(100vh - 72px)',fontFamily:'DM Sans,sans-serif',background:'#f0f3f9',overflow:'hidden',margin:'-24px',borderRadius:0}}>
       {/* ═══ LEFT PANEL ═══ */}
       <div style={{width:420,background:'#fff',borderRight:'1px solid #e5e7eb',display:'flex',flexDirection:'column',overflow:'hidden'}}>
         {/* Header */}
@@ -248,6 +250,7 @@ export default function LinkHub() {
         </div>
       </div>
     </div>
+    </AppLayout>
   );
 }
 
