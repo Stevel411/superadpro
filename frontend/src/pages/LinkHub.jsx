@@ -331,11 +331,15 @@ function LinksPanel({ links, addLink, updateLink, removeLink, toggleLink, moveLi
                     <button onClick={function(){moveLink(idx,-1);}} disabled={idx===0} style={{border:'none',background:'none',cursor:idx===0?'default':'pointer',padding:0,opacity:idx===0?.3:1}}><ChevronUp size={14} color="#94a3b8"/></button>
                     <button onClick={function(){moveLink(idx,1);}} disabled={idx===links.length-1} style={{border:'none',background:'none',cursor:idx===links.length-1?'default':'pointer',padding:0,opacity:idx===links.length-1?.3:1}}><ChevronDown size={14} color="#94a3b8"/></button>
                   </div>
-                  {/* Emoji icon — click to change */}
-                  <button onClick={function(){setEmojiPicker(showEmoji?null:link.id);}} style={{fontSize:20,background:'none',border:'1px solid transparent',borderRadius:6,cursor:'pointer',padding:'2px 4px',transition:'all .15s'}}
+                  {/* Icon button — always visible, shows icon or + placeholder */}
+                  <button onClick={function(){setEmojiPicker(showEmoji?null:link.id);}}
+                    title={parseIcon(link.icon) ? 'Change icon' : 'Add icon'}
+                    style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',background:parseIcon(link.icon)?'none':'#f1f5f9',border:parseIcon(link.icon)?'1px solid transparent':'1px dashed #cbd5e1',borderRadius:6,cursor:'pointer',padding:0,transition:'all .15s',flexShrink:0}}
                     onMouseEnter={function(e){e.currentTarget.style.borderColor='#8b5cf6';e.currentTarget.style.background='rgba(139,92,246,.06)';}}
-                    onMouseLeave={function(e){e.currentTarget.style.borderColor='transparent';e.currentTarget.style.background='none';}}>
-                    <IconDisplay icon={parseIcon(link.icon)} color='#475569' size={20}/>
+                    onMouseLeave={function(e){e.currentTarget.style.borderColor=parseIcon(link.icon)?'transparent':'#cbd5e1';e.currentTarget.style.background=parseIcon(link.icon)?'none':'#f1f5f9';}}>
+                    {parseIcon(link.icon)
+                      ? <IconDisplay icon={parseIcon(link.icon)} color='#475569' size={18}/>
+                      : <span style={{fontSize:16,color:'#94a3b8',lineHeight:1}}>＋</span>}
                   </button>
                   <span style={{fontSize:12,fontWeight:700,color:'#0f172a'}}>{link.title||'Untitled'}</span>
                   {link.click_count > 0 && <span style={{fontSize:9,color:'#94a3b8',background:'#f1f5f9',padding:'1px 5px',borderRadius:3}}>{link.click_count} clicks</span>}
