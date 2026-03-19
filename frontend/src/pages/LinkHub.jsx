@@ -149,12 +149,12 @@ export default function LinkHub() {
     <AppLayout title="LinkHub" subtitle="Your link-in-bio editor">
     <div style={{display:'flex',height:'calc(100vh - 72px)',fontFamily:'DM Sans,sans-serif',background:'#f0f3f9',overflow:'hidden',margin:'-24px',borderRadius:0}}>
       {/* ═══ LEFT PANEL ═══ */}
-      <div style={{width:500,minWidth:500,background:'#fff',borderRight:'1px solid #e5e7eb',display:'flex',flexDirection:'column',overflow:'hidden'}}>
+      <div style={{width:620,minWidth:620,background:'#fff',borderRight:'1px solid #e5e7eb',display:'flex',flexDirection:'column',overflow:'hidden'}}>
         {/* Header */}
         <div style={{padding:'14px 20px',borderBottom:'1px solid #e5e7eb',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
           <div>
-            <div style={{fontSize:18,fontWeight:800,color:'#0f172a'}}>LinkHub</div>
-            <div style={{fontSize:11,color:'#94a3b8'}}>Edit your link-in-bio page</div>
+            <div style={{fontSize:20,fontWeight:800,color:'#0f172a'}}>LinkHub</div>
+            <div style={{fontSize:12,color:'#94a3b8'}}>Edit your link-in-bio page</div>
           </div>
           <div style={{display:'flex',gap:6}}>
             <button onClick={copyUrl} style={{display:'flex',alignItems:'center',gap:4,padding:'6px 12px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',cursor:'pointer',fontFamily:'inherit',fontSize:11,fontWeight:600,color:copied?'#16a34a':'#64748b'}}>
@@ -169,7 +169,7 @@ export default function LinkHub() {
         {/* Stats */}
         <div style={{display:'flex',borderBottom:'1px solid #e5e7eb',flexShrink:0}}>
           {[{v:stats.total_views,l:'Views'},{v:stats.total_clicks,l:'Clicks'},{v:stats.click_30d,l:'30d'}].map(function(s,i) {
-            return <div key={i} style={{flex:1,padding:'10px 0',textAlign:'center',borderRight:i<2?'1px solid #e5e7eb':'none'}}><div style={{fontSize:16,fontWeight:800,color:'#0f172a'}}>{s.v}</div><div style={{fontSize:9,fontWeight:600,color:'#94a3b8',textTransform:'uppercase'}}>{s.l}</div></div>;
+            return <div key={i} style={{flex:1,padding:'10px 0',textAlign:'center',borderRight:i<2?'1px solid #e5e7eb':'none'}}><div style={{fontSize:20,fontWeight:800,color:'#0f172a'}}>{s.v}</div><div style={{fontSize:11,fontWeight:600,color:'#94a3b8',textTransform:'uppercase'}}>{s.l}</div></div>;
           })}
         </div>
 
@@ -181,7 +181,7 @@ export default function LinkHub() {
             {k:'profile',l:'👤 Profile',bg:'#dbeafe',bgOn:'#3b82f6',color:'#2563eb'},
           ].map(function(tb) {
             var on=panel===tb.k;
-            return <button key={tb.k} onClick={function(){setPanel(tb.k);}} style={{flex:1,padding:'14px 0',border:'none',borderBottom:'none',cursor:'pointer',fontFamily:'inherit',fontSize:14,fontWeight:800,letterSpacing:.3,color:on?'#fff':tb.color,background:on?tb.bgOn:tb.bg,transition:'all .2s'}}>{tb.l}</button>;
+            return <button key={tb.k} onClick={function(){setPanel(tb.k);}} style={{flex:1,padding:'14px 0',border:'none',borderBottom:'none',cursor:'pointer',fontFamily:'inherit',fontSize:15,fontWeight:800,letterSpacing:.3,color:on?'#fff':tb.color,background:on?tb.bgOn:tb.bg,transition:'all .2s'}}>{tb.l}</button>;
           })}
         </div>
 
@@ -195,7 +195,7 @@ export default function LinkHub() {
         {/* Save */}
         <div style={{padding:'14px 20px',borderTop:'1px solid #e5e7eb',flexShrink:0}}>
           <button onClick={save} disabled={saving}
-            style={{width:'100%',padding:'13px',borderRadius:10,border:'none',background:saved?'#16a34a':'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:14,fontWeight:800,cursor:saving?'default':'pointer',fontFamily:'inherit',boxShadow:'0 4px 14px rgba(139,92,246,.3)',opacity:saving?0.6:1}}>
+            style={{width:'100%',padding:'15px',borderRadius:10,border:'none',background:saved?'#16a34a':'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:14,fontWeight:800,cursor:saving?'default':'pointer',fontFamily:'inherit',boxShadow:'0 4px 14px rgba(139,92,246,.3)',opacity:saving?0.6:1}}>
             {saving?'Saving...':saved?'✓ Saved!':'Save & Publish'}
           </button>
         </div>
@@ -204,8 +204,8 @@ export default function LinkHub() {
       {/* ═══ RIGHT — PHONE PREVIEW ═══ */}
       <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',background:'#f0f1f5',position:'relative',overflow:'hidden'}}>
         <div style={{position:'absolute',inset:0,backgroundImage:'radial-gradient(circle,#d1d5db 1px,transparent 1px)',backgroundSize:'24px 24px',opacity:.25,pointerEvents:'none'}}/>
-        <div style={{position:'relative',zIndex:1,transform:'scale(0.78)',transformOrigin:'center center'}}>
-        <div style={{width:320,borderRadius:40,background:'#1a1a1a',padding:'10px',boxShadow:'0 20px 60px rgba(0,0,0,.25)'}}>
+        <div style={{position:'relative',zIndex:1,transform:'scale(0.94)',transformOrigin:'center center'}}>
+        <div style={{width:340,borderRadius:40,background:'#1a1a1a',padding:'10px',boxShadow:'0 20px 60px rgba(0,0,0,.25)'}}>
           <div style={{position:'absolute',top:12,left:'50%',transform:'translateX(-50%)',width:100,height:24,borderRadius:12,background:'#0a0a0a',zIndex:10}}/>
           <div style={{borderRadius:28,overflow:'hidden',minHeight:580,maxHeight:580,overflowY:'auto',fontFamily:style.font_family+',sans-serif',position:'relative',background:style.bg_color}}>
             {/* Background image — clipped inside phone */}
@@ -276,14 +276,14 @@ function LinksPanel({ links, addLink, updateLink, removeLink, toggleLink, moveLi
   return (
     <div>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
-        <h3 style={{fontSize:16,fontWeight:800,color:'#0f172a',margin:0}}>Your Links</h3>
-        <button onClick={addLink} style={{display:'flex',alignItems:'center',gap:4,padding:'8px 16px',borderRadius:8,border:'none',background:'#8b5cf6',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}><Plus size={14}/> Add Link</button>
+        <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:0}}>Your Links</h3>
+        <button onClick={addLink} style={{display:'flex',alignItems:'center',gap:4,padding:'10px 20px',borderRadius:8,border:'none',background:'#8b5cf6',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}><Plus size={14}/> Add Link</button>
       </div>
       <div style={{display:'flex',flexDirection:'column',gap:10}}>
         {links.map(function(link, idx) {
           var showEmoji = emojiPicker === link.id;
           return (
-            <div key={link.id} style={{background:'#f8f9fb',border:'1px solid #e5e7eb',borderRadius:12,padding:14}}>
+            <div key={link.id} style={{background:'#f8f9fb',border:'1px solid #e5e7eb',borderRadius:12,padding:18}}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
                 <div style={{display:'flex',alignItems:'center',gap:6}}>
                   {/* Up/Down reorder buttons instead of drag */}
@@ -315,8 +315,8 @@ function LinksPanel({ links, addLink, updateLink, removeLink, toggleLink, moveLi
                   })}
                 </div>
               )}
-              <input value={link.title} onChange={function(e){updateLink(link.id,'title',e.target.value);}} placeholder="Link title" style={{width:'100%',padding:'8px 10px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:12,fontFamily:'inherit',outline:'none',boxSizing:'border-box',marginBottom:6,background:'#fff'}}/>
-              <input value={link.url} onChange={function(e){updateLink(link.id,'url',e.target.value);}} placeholder="https://..." style={{width:'100%',padding:'8px 10px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:12,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff',color:'#64748b'}}/>
+              <input value={link.title} onChange={function(e){updateLink(link.id,'title',e.target.value);}} placeholder="Link title" style={{width:'100%',padding:'10px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',marginBottom:6,background:'#fff'}}/>
+              <input value={link.url} onChange={function(e){updateLink(link.id,'url',e.target.value);}} placeholder="https://..." style={{width:'100%',padding:'10px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff',color:'#64748b'}}/>
             </div>
           );
         })}
@@ -345,13 +345,13 @@ function StylePanel({ style, setStyle }) {
 
   return (
     <div>
-      <h3 style={{fontSize:16,fontWeight:800,color:'#0f172a',margin:'0 0 16px'}}>Customize Style</h3>
+      <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 20px'}}>Customize Style</h3>
 
       {/* Colours */}
       {colours.map(function(c) {
         return (
           <div key={c.key} style={{marginBottom:14}}>
-            <label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:5}}>{c.label}</label>
+            <label style={{fontSize:13,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>{c.label}</label>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
               <input type="color" value={style[c.key]||'#ffffff'} onChange={upd(c.key)} style={{width:36,height:36,border:'2px solid #e5e7eb',borderRadius:8,cursor:'pointer',padding:0}}/>
               <input value={style[c.key]||''} onChange={upd(c.key)} style={{flex:1,padding:'7px 10px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:11,fontFamily:'monospace',outline:'none'}}/>
@@ -364,7 +364,7 @@ function StylePanel({ style, setStyle }) {
 
       {/* Background image — upload or URL */}
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:5}}>Background Image</label>
+        <label style={{fontSize:13,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Background Image</label>
         {style.bg_image_url && (
           <div style={{width:'100%',height:60,borderRadius:8,marginBottom:6,backgroundImage:'url('+style.bg_image_url+')',backgroundSize:'cover',backgroundPosition:'center',border:'1px solid #e5e7eb',position:'relative'}}>
             <button onClick={function(){setStyle(function(s){return Object.assign({},s,{bg_image_url:''});});}} style={{position:'absolute',top:4,right:4,width:20,height:20,borderRadius:'50%',border:'none',background:'rgba(0,0,0,.6)',color:'#fff',fontSize:12,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>×</button>
@@ -386,7 +386,7 @@ function StylePanel({ style, setStyle }) {
 
       {/* Font */}
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:5}}>Font Family</label>
+        <label style={{fontSize:13,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Font Family</label>
         <select value={style.font_family} onChange={upd('font_family')} style={{width:'100%',padding:'9px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:style.font_family+',sans-serif',outline:'none',background:'#fff'}}>
           {FONTS.map(function(f){return <option key={f} value={f} style={{fontFamily:f}}>{f}</option>;})}
         </select>
@@ -394,13 +394,13 @@ function StylePanel({ style, setStyle }) {
 
       {/* Button text size */}
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:5}}>Button Text Size: {style.btn_font_size||14}px</label>
+        <label style={{fontSize:13,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Button Text Size: {style.btn_font_size||14}px</label>
         <input type="range" min="10" max="22" value={style.btn_font_size||14} onChange={updNum('btn_font_size')} style={{width:'100%',accentColor:'#8b5cf6'}}/>
       </div>
 
       {/* Button shape */}
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:5}}>Button Shape</label>
+        <label style={{fontSize:13,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Button Shape</label>
         <div style={{display:'flex',gap:6}}>
           {[{k:'rounded',r:20,label:'Rounded'},{k:'soft',r:8,label:'Soft'},{k:'sharp',r:2,label:'Sharp'},{k:'outline',r:20,label:'Outline'}].map(function(bs) {
             var on = style.btn_style_type===bs.k;
@@ -417,7 +417,7 @@ function StylePanel({ style, setStyle }) {
 
       {/* Text alignment */}
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:5}}>Button Text Alignment</label>
+        <label style={{fontSize:13,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Button Text Alignment</label>
         <div style={{display:'flex',gap:6}}>
           {[{k:'left',Icon:AlignLeft},{k:'center',Icon:AlignCenter},{k:'right',Icon:AlignRight}].map(function(a) {
             var on = style.btn_align===a.k;
@@ -433,7 +433,7 @@ function StylePanel({ style, setStyle }) {
 
       {/* Arrow style */}
       <div>
-        <label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:5}}>Button Arrow</label>
+        <label style={{fontSize:13,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Button Arrow</label>
         <div style={{display:'flex',gap:6}}>
           {ARROW_STYLES.map(function(a) {
             var on = style.arrow_style===a.key;
@@ -457,7 +457,7 @@ function StylePanel({ style, setStyle }) {
 
 function ProfilePanel({ profile, setProfile }) {
   function upd(f) { return function(e){setProfile(function(p){return Object.assign({},p,{[f]:e.target.value});});}; }
-  var inputStyle = {width:'100%',padding:'10px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box'};
+  var inputStyle = {width:'100%',padding:'12px 14px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'};
 
   function handleAvatarUpload(e) {
     var file = e.target.files[0];
@@ -482,7 +482,7 @@ function ProfilePanel({ profile, setProfile }) {
 
   return (
     <div>
-      <h3 style={{fontSize:16,fontWeight:800,color:'#0f172a',margin:'0 0 16px'}}>Profile</h3>
+      <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 20px'}}>Profile</h3>
 
       {/* Avatar */}
       <div style={{marginBottom:18,textAlign:'center'}}>
