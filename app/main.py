@@ -2159,6 +2159,15 @@ def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
 
     username = target.username
     try:
+        # ── LAYER 0: Null out sponsor references to prevent orphaned downline ──
+        # Members who had this user as their sponsor keep their account but lose the upline link
+        db.query(User).filter(User.sponsor_id == user_id).update(
+            {"sponsor_id": None}, synchronize_session=False
+        )
+        db.query(User).filter(User.pass_up_sponsor_id == user_id).update(
+            {"pass_up_sponsor_id": None}, synchronize_session=False
+        )
+
         # ── LAYER 1: Deepest grandchildren (reference child tables, not users directly) ──
 
         # EmailSendLog → references member_leads and email_sequences
