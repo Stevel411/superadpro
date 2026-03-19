@@ -213,80 +213,177 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* 5 Income Streams — glossy coloured cards */}
+      {/* 5 Income Streams */}
       <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
         {[
-          { grad: 'linear-gradient(135deg,#16a34a 0%,#15803d 60%,#166534 100%)', shadow: 'rgba(22,163,74,0.38)', Icon: Users, badge: '$10 / referral', val: d.membership_earned, name: 'Membership', detail: `${d.personal_referrals || 0} personal referrals`, cta: 'Invite more', link: '/affiliate' },
-          { grad: 'linear-gradient(135deg,#0ea5e9 0%,#0284c7 60%,#0369a1 100%)', shadow: 'rgba(14,165,233,0.38)', Icon: LayoutGrid, badge: '40% + uni-level', val: d.grid_earnings, name: 'Income Grid', detail: `${d.grid_stats?.completed_advances || 0} advances completed`, cta: 'Activate grid', link: '/campaign-tiers' },
-          { grad: 'linear-gradient(135deg,#818cf8 0%,#6366f1 60%,#4f46e5 100%)', shadow: 'rgba(99,102,241,0.38)', Icon: GraduationCap, badge: '100% commission', val: d.course_earnings, name: 'Course Sales', detail: `${d.course_sale_count || 0} sale${d.course_sale_count !== 1 ? 's' : ''} made`, cta: 'Create course', link: '/courses/create' },
-          { grad: 'linear-gradient(135deg,#f59e0b 0%,#d97706 60%,#b45309 100%)', shadow: 'rgba(217,119,6,0.38)', Icon: Rocket, badge: 'tier bonus', val: d.boost_earned, name: 'Campaigns', detail: 'Video campaign earnings', cta: 'Launch now', link: '/campaign-tiers' },
-          { grad: 'linear-gradient(135deg,#fb7185 0%,#e11d48 60%,#be123c 100%)', shadow: 'rgba(225,29,72,0.38)', Icon: Store, badge: '50 / 25 / 25', val: d.marketplace_earnings, name: 'Marketplace', detail: `${d.marketplace_sales || 0} sales · ${d.marketplace_courses || 0} courses`, cta: 'Visit store', link: '/supermarket' },
+          {
+            color: '#16a34a', bg: '#dcfce7', badge: '$10 / referral',
+            val: d.membership_earned, name: 'Membership',
+            detail: `${d.personal_referrals || 0} personal referrals`,
+            icon: (
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <circle cx="9" cy="7" r="4" fill="#16a34a" opacity="0.9"/>
+                <path d="M2 21v-1a7 7 0 0 1 14 0v1" stroke="#16a34a" strokeWidth="2" strokeLinecap="round"/>
+                <circle cx="19" cy="8" r="2.5" fill="#4ade80"/>
+                <path d="M22 21v-.5a4.5 4.5 0 0 0-6-4.24" stroke="#4ade80" strokeWidth="1.8" strokeLinecap="round"/>
+              </svg>
+            )
+          },
+          {
+            color: '#0ea5e9', bg: '#e0f2fe', badge: '40% + uni-level',
+            val: d.grid_earnings, name: 'Income Grid',
+            detail: `${d.grid_stats?.completed_advances || 0} advances completed`,
+            icon: (
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="7" height="7" rx="1.5" fill="#0ea5e9"/>
+                <rect x="14" y="3" width="7" height="7" rx="1.5" fill="#38bdf8"/>
+                <rect x="3" y="14" width="7" height="7" rx="1.5" fill="#38bdf8"/>
+                <rect x="14" y="14" width="7" height="7" rx="1.5" fill="#0ea5e9"/>
+              </svg>
+            )
+          },
+          {
+            color: '#6366f1', bg: '#ede9fe', badge: '100% commission',
+            val: d.course_earnings, name: 'Course Sales',
+            detail: `${d.course_sale_count || 0} sale${d.course_sale_count !== 1 ? 's' : ''} made`,
+            icon: (
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <path d="M12 3L2 8l10 5 10-5-10-5z" fill="#6366f1"/>
+                <path d="M2 16l10 5 10-5" stroke="#818cf8" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M2 12l10 5 10-5" stroke="#a5b4fc" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            )
+          },
+          {
+            color: '#d97706', bg: '#fef3c7', badge: 'tier bonus',
+            val: d.boost_earned, name: 'Campaigns',
+            detail: 'Video campaign earnings',
+            icon: (
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="#f59e0b"/>
+                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="url(#zapGrad)"/>
+                <defs>
+                  <linearGradient id="zapGrad" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#fbbf24"/>
+                    <stop offset="1" stopColor="#d97706"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            )
+          },
+          {
+            color: '#e11d48', bg: '#ffe4e6', badge: '50 / 25 / 25',
+            val: d.marketplace_earnings, name: 'Marketplace',
+            detail: `${d.marketplace_sales || 0} sales · ${d.marketplace_courses || 0} courses`,
+            icon: (
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <path d="M3 6h18l-2 10H5L3 6z" fill="#fb7185" opacity="0.85"/>
+                <path d="M3 6l-1-3H1" stroke="#e11d48" strokeWidth="2" strokeLinecap="round"/>
+                <circle cx="9" cy="20" r="1.5" fill="#e11d48"/>
+                <circle cx="17" cy="20" r="1.5" fill="#e11d48"/>
+                <path d="M9 10v4M12 9v5M15 10v4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            )
+          },
         ].map((s, i) => (
-          <Link key={i} to={s.link} style={{ textDecoration: 'none' }}>
-            <div className="stream-card" style={{
-              background: s.grad, borderRadius: 18, padding: '18px 16px 14px',
-              boxShadow: `0 8px 28px ${s.shadow}`,
-              border: '1px solid rgba(255,255,255,0.18)',
-              position: 'relative', overflow: 'hidden',
-              transition: 'transform 0.18s, box-shadow 0.18s',
-              minHeight: 170, display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-              cursor: 'pointer',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)'; e.currentTarget.style.boxShadow = `0 14px 36px ${s.shadow}`; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = `0 8px 28px ${s.shadow}`; }}
-            >
-              <div style={{ position:'absolute', top:0, left:0, right:0, height:'52%', background:'linear-gradient(180deg,rgba(255,255,255,0.2) 0%,rgba(255,255,255,0) 100%)', borderRadius:'18px 18px 0 0', pointerEvents:'none' }} />
-              <div style={{ position:'absolute', inset:0, borderRadius:18, border:'1px solid rgba(255,255,255,0.22)', pointerEvents:'none' }} />
-              <div>
-                <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:12 }}>
-                  <div style={{ width:42, height:42, borderRadius:12, background:'rgba(255,255,255,0.18)', border:'1px solid rgba(255,255,255,0.25)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                    <s.Icon size={20} color="rgba(255,255,255,0.95)" strokeWidth={2} />
-                  </div>
-                  <span style={{ fontSize:10, fontWeight:700, padding:'3px 9px', borderRadius:20, background:'rgba(255,255,255,0.2)', color:'rgba(255,255,255,0.92)', border:'1px solid rgba(255,255,255,0.18)', letterSpacing:0.3 }}>{s.badge}</span>
-                </div>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:700, color:'#fff', lineHeight:1, marginBottom:4 }}>${Math.round(s.val || 0)}</div>
-                <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.92)', marginBottom:2 }}>{s.name}</div>
-                <div style={{ fontSize:11, color:'rgba(255,255,255,0.6)' }}>{s.detail}</div>
+          <div key={i} className="stream-card" style={{
+            background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 20,
+            boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
+            position: 'relative', overflow: 'hidden', transition: 'all 0.2s',
+          }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${s.color}, ${s.bg})`, borderRadius: '14px 14px 0 0' }} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <div style={{ width: 46, height: 46, borderRadius: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', background: s.bg }}>
+                {s.icon}
               </div>
-              <div style={{ borderTop:'1px solid rgba(255,255,255,0.15)', paddingTop:10, marginTop:10, fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.75)', display:'flex', alignItems:'center', gap:4 }}>
-                {s.cta} →
-              </div>
+              <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 9px', borderRadius: 20, letterSpacing: 0.3, background: s.bg, color: s.color }}>{s.badge}</span>
             </div>
-          </Link>
+            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 34, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 6 }}>${Math.round(s.val || 0)}</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#0f172a', marginBottom: 3 }}>{s.name}</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>{s.detail}</div>
+          </div>
         ))}
       </div>
 
-      {/* Quick Actions — glossy pastel cards */}
+      {/* Quick Actions */}
       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 14 }}>Quick Actions</div>
       <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
         {[
-          { Icon: BookOpen,  grad: 'linear-gradient(145deg,#c7d2fe 0%,#a5b4fc 50%,#818cf8 100%)', shadow: 'rgba(129,140,248,0.28)', iconStroke: 'rgba(67,56,202,0.85)',  pill: '100% yours',    name: 'Browse Courses',  desc: 'Learn skills & earn 100% commissions',        link: '/courses' },
-          { Icon: PenSquare, grad: 'linear-gradient(145deg,#bae6fd 0%,#7dd3fc 50%,#38bdf8 100%)', shadow: 'rgba(56,189,248,0.28)',  iconStroke: 'rgba(3,105,161,0.85)',   pill: 'passive income', name: 'Create Course',   desc: 'Build & sell courses on the marketplace',     link: '/courses/create' },
-          { Icon: Zap,       grad: 'linear-gradient(145deg,#bbf7d0 0%,#86efac 50%,#4ade80 100%)', shadow: 'rgba(74,222,128,0.28)',  iconStroke: 'rgba(22,101,52,0.85)',   pill: 'from $20',       name: 'Campaign Tiers', desc: 'Activate a tier to unlock the earning engine', link: '/campaign-tiers' },
-          { Icon: Bot,       grad: 'linear-gradient(145deg,#fde68a 0%,#fcd34d 50%,#fbbf24 100%)', shadow: 'rgba(251,191,36,0.28)',  iconStroke: 'rgba(120,53,15,0.85)',   pill: 'AI powered',     name: 'AI Marketing',   desc: 'Campaigns, social posts & scripts on demand', link: '/campaign-studio' },
-          { Icon: Eye,       grad: 'linear-gradient(145deg,#e9d5ff 0%,#d8b4fe 50%,#c084fc 100%)', shadow: 'rgba(192,132,252,0.28)', iconStroke: 'rgba(109,40,217,0.85)',  pill: 'daily rewards',  name: 'Watch to Earn',  desc: 'Watch daily videos for bonus earnings',       link: '/watch' },
+          {
+            name: 'Browse Courses', desc: 'Learn skills & earn 100% commissions', link: '/courses',
+            color: '#6366f1', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
+            icon: (
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <path d="M4 19V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v13" stroke="#6366f1" strokeWidth="1.8"/>
+                <path d="M4 19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2" stroke="#6366f1" strokeWidth="1.8"/>
+                <line x1="9" y1="9" x2="15" y2="9" stroke="#818cf8" strokeWidth="1.8" strokeLinecap="round"/>
+                <line x1="9" y1="12" x2="15" y2="12" stroke="#a5b4fc" strokeWidth="1.8" strokeLinecap="round"/>
+                <line x1="9" y1="15" x2="12" y2="15" stroke="#a5b4fc" strokeWidth="1.8" strokeLinecap="round"/>
+              </svg>
+            )
+          },
+          {
+            name: 'Create Course', desc: 'Build & sell courses on the marketplace', link: '/courses/create',
+            color: '#0ea5e9', bg: 'linear-gradient(135deg,#eff6ff,#dbeafe)',
+            icon: (
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="18" height="18" rx="3" fill="#dbeafe" stroke="#0ea5e9" strokeWidth="1.5"/>
+                <path d="M8 12h8M12 8v8" stroke="#0ea5e9" strokeWidth="2.2" strokeLinecap="round"/>
+              </svg>
+            )
+          },
+          {
+            name: 'Campaign Tiers', desc: 'Activate a tier to unlock the earning engine', link: '/campaign-tiers',
+            color: '#16a34a', bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)',
+            icon: (
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="#16a34a"/>
+                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="url(#qaZap)"/>
+                <defs>
+                  <linearGradient id="qaZap" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#4ade80"/>
+                    <stop offset="1" stopColor="#16a34a"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            )
+          },
+          {
+            name: 'AI Marketing', desc: 'Generate campaigns, social posts & scripts', link: '/campaign-studio',
+            color: '#d97706', bg: 'linear-gradient(135deg,#fffbeb,#fef3c7)',
+            icon: (
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="8" width="18" height="13" rx="2.5" fill="#fef3c7" stroke="#d97706" strokeWidth="1.5"/>
+                <circle cx="12" cy="14" r="2.5" fill="#f59e0b"/>
+                <path d="M8 8V6a4 4 0 0 1 8 0v2" stroke="#d97706" strokeWidth="1.8" strokeLinecap="round"/>
+                <circle cx="12" cy="14" r="1" fill="#fff"/>
+              </svg>
+            )
+          },
+          {
+            name: 'Watch to Earn', desc: 'Watch daily videos for bonus earnings', link: '/watch',
+            color: '#7c3aed', bg: 'linear-gradient(135deg,#faf5ff,#ede9fe)',
+            icon: (
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <rect x="2" y="5" width="20" height="14" rx="3" fill="#ede9fe" stroke="#7c3aed" strokeWidth="1.5"/>
+                <polygon points="10,9 10,15 16,12" fill="#7c3aed"/>
+                <circle cx="19" cy="7" r="3" fill="#f59e0b"/>
+                <text x="19" y="9" textAnchor="middle" fontSize="4" fontWeight="bold" fill="#fff">$</text>
+              </svg>
+            )
+          },
         ].map((a, i) => (
-          <Link key={i} to={a.link} style={{ textDecoration: 'none' }}>
-            <div className="action-card" style={{
-              background: a.grad, borderRadius: 18, padding: '20px 14px 16px',
-              boxShadow: `0 6px 20px ${a.shadow}`,
-              border: '1px solid rgba(255,255,255,0.35)',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-              position: 'relative', overflow: 'hidden',
-              transition: 'transform 0.18s, box-shadow 0.18s', cursor: 'pointer',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)'; e.currentTarget.style.boxShadow = `0 12px 28px ${a.shadow}`; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = `0 6px 20px ${a.shadow}`; }}
-            >
-              <div style={{ position:'absolute', top:0, left:0, right:0, height:'50%', background:'linear-gradient(180deg,rgba(255,255,255,0.28) 0%,rgba(255,255,255,0) 100%)', borderRadius:'18px 18px 0 0', pointerEvents:'none' }} />
-              <div style={{ position:'absolute', inset:0, borderRadius:18, border:'1px solid rgba(255,255,255,0.4)', pointerEvents:'none' }} />
-              <div style={{ width:52, height:52, borderRadius:14, background:'rgba(255,255,255,0.35)', border:'1px solid rgba(255,255,255,0.5)', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:12, position:'relative' }}>
-                <a.Icon size={24} color={a.iconStroke} strokeWidth={2} />
-              </div>
-              <div style={{ fontSize:13, fontWeight:700, color:'rgba(0,0,0,0.7)', marginBottom:5 }}>{a.name}</div>
-              <div style={{ fontSize:11, color:'rgba(0,0,0,0.45)', lineHeight:1.5, marginBottom:10 }}>{a.desc}</div>
-              <div style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:20, background:'rgba(255,255,255,0.4)', border:'1px solid rgba(255,255,255,0.5)', color:'rgba(0,0,0,0.55)' }}>{a.pill}</div>
+          <Link key={i} to={a.link} className="action-card" style={{
+            background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 20,
+            boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
+            textDecoration: 'none', transition: 'all 0.15s', display: 'flex', flexDirection: 'column',
+            alignItems: 'center', textAlign: 'center', gap: 8,
+          }}>
+            <div style={{ width: 56, height: 56, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', background: a.bg }}>
+              {a.icon}
             </div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#0f172a' }}>{a.name}</div>
+            <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>{a.desc}</div>
           </Link>
         ))}
       </div>
