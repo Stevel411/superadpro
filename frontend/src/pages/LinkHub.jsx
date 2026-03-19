@@ -189,35 +189,64 @@ export default function LinkHub() {
         {/* Header */}
         <div style={{padding:'14px 20px',borderBottom:'1px solid #e5e7eb',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
           <div>
-            <div style={{fontSize:20,fontWeight:800,color:'#0f172a'}}>LinkHub</div>
-            <div style={{fontSize:12,color:'#94a3b8'}}>Edit your link-in-bio page</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:900,color:'#0f172a'}}>LinkHub</div>
+            <div style={{fontSize:12,color:'#94a3b8',fontWeight:500}}>Edit your link-in-bio page</div>
           </div>
           <div style={{display:'flex',gap:6}}>
-            <button onClick={copyUrl} style={{display:'flex',alignItems:'center',gap:4,padding:'6px 12px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',cursor:'pointer',fontFamily:'inherit',fontSize:11,fontWeight:600,color:copied?'#16a34a':'#64748b'}}>
-              {copied ? <><Check size={12}/> Copied</> : <><Copy size={12}/> Copy URL</>}
+            <button onClick={copyUrl} style={{display:'flex',alignItems:'center',gap:5,padding:'8px 14px',borderRadius:8,border:copied?'1px solid #bbf7d0':'1px solid #e5e7eb',background:copied?'#f0fdf4':'#fff',cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,color:copied?'#16a34a':'#475569',transition:'all .15s'}}>
+              {copied ? <><Check size={13}/> Copied!</> : <><Copy size={13}/> Copy URL</>}
             </button>
-            <a href={pubUrl} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',gap:4,padding:'6px 12px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',textDecoration:'none',fontSize:11,fontWeight:600,color:'#64748b'}}>
-              <ExternalLink size={12}/> Preview
+            <a href={pubUrl} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',gap:5,padding:'8px 14px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',textDecoration:'none',fontSize:12,fontWeight:700,color:'#475569',transition:'all .15s'}}>
+              <ExternalLink size={13}/> Preview
             </a>
           </div>
         </div>
 
-        {/* Stats */}
-        <div style={{display:'flex',borderBottom:'1px solid #e5e7eb',flexShrink:0}}>
-          {[{v:stats.total_views,l:'Views'},{v:stats.total_clicks,l:'Clicks'},{v:stats.click_30d,l:'30d'}].map(function(s,i) {
-            return <div key={i} style={{flex:1,padding:'10px 0',textAlign:'center',borderRight:i<2?'1px solid #e5e7eb':'none'}}><div style={{fontSize:20,fontWeight:800,color:'#0f172a'}}>{s.v}</div><div style={{fontSize:11,fontWeight:600,color:'#94a3b8',textTransform:'uppercase'}}>{s.l}</div></div>;
+        {/* Stats — bold colour cards */}
+        <style>{`
+          @keyframes lhShine{0%{left:-120%}100%{left:200%}}
+          @keyframes lhPop{0%{opacity:0;transform:scale(.94)}100%{opacity:1;transform:scale(1)}}
+          @keyframes lhFloat{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-7px) rotate(4deg)}}
+          @keyframes lhCount{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+          .lh-stat{transition:transform .2s ease,box-shadow .2s ease;animation:lhPop .4s ease both}
+          .lh-stat:hover{transform:translateY(-3px) scale(1.03)!important}
+        `}</style>
+        <div style={{display:'flex',gap:8,padding:'10px 12px',borderBottom:'1px solid #e5e7eb',flexShrink:0}}>
+          {[
+            {v:stats.total_views,l:'Views',sub:'all time',grad:'linear-gradient(135deg,#0284c7,#38bdf8)',shadow:'rgba(14,165,233,.4)',emoji:'👁️',delay:0},
+            {v:stats.total_clicks,l:'Clicks',sub:'total',grad:'linear-gradient(135deg,#6d28d9,#a78bfa)',shadow:'rgba(139,92,246,.4)',emoji:'🖱️',delay:.07},
+            {v:stats.click_30d,l:'Last 30d',sub:'clicks',grad:'linear-gradient(135deg,#065f46,#34d399)',shadow:'rgba(16,185,129,.4)',emoji:'📈',delay:.14},
+          ].map(function(s,i) {
+            return (
+              <div key={i} className="lh-stat" style={{
+                flex:1,borderRadius:12,padding:'12px 10px',position:'relative',overflow:'hidden',
+                background:s.grad,boxShadow:'0 6px 20px '+s.shadow,
+                animationDelay:s.delay+'s',
+              }}>
+                {/* Shine */}
+                <div style={{position:'absolute',top:0,bottom:0,width:'50%',background:'linear-gradient(105deg,transparent 35%,rgba(255,255,255,.2) 50%,transparent 65%)',animation:'lhShine 3.5s ease-in-out infinite',animationDelay:i*.9+'s',pointerEvents:'none'}}/>
+                {/* Emoji */}
+                <div style={{position:'absolute',right:6,top:6,fontSize:18,opacity:.2,animation:'lhFloat '+(5+i)+'s ease-in-out infinite',animationDelay:i*1.3+'s',pointerEvents:'none',userSelect:'none'}}>{s.emoji}</div>
+                {/* Value */}
+                <div style={{fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:900,color:'#fff',lineHeight:1,animation:'lhCount .5s ease both',animationDelay:s.delay+.1+'s',textShadow:'0 2px 6px rgba(0,0,0,.15)'}}>{s.v}</div>
+                <div style={{fontSize:11,fontWeight:800,color:'rgba(255,255,255,.9)',marginTop:3,letterSpacing:.2}}>{s.l}</div>
+                <div style={{fontSize:9,color:'rgba(255,255,255,.55)',fontWeight:600,textTransform:'uppercase',letterSpacing:.6,marginTop:1}}>{s.sub}</div>
+                {/* Bottom bar */}
+                <div style={{position:'absolute',bottom:0,left:0,right:0,height:2,background:'rgba(255,255,255,.3)'}}/>
+              </div>
+            );
           })}
         </div>
 
         {/* Tabs — pastel coloured */}
         <div style={{display:'flex',gap:0,flexShrink:0}}>
           {[
-            {k:'links',l:'🔗 Links',bg:'#ede9fe',bgOn:'#8b5cf6',color:'#7c3aed'},
-            {k:'style',l:'🎨 Style',bg:'#fce7f3',bgOn:'#ec4899',color:'#db2777'},
-            {k:'profile',l:'👤 Profile',bg:'#dbeafe',bgOn:'#3b82f6',color:'#2563eb'},
+            {k:'links',l:'🔗 Links',bg:'#f5f3ff',bgOn:'linear-gradient(135deg,#7c3aed,#8b5cf6)',color:'#7c3aed',shadow:'rgba(124,58,237,.35)'},
+            {k:'style',l:'🎨 Style',bg:'#fdf2f8',bgOn:'linear-gradient(135deg,#db2777,#ec4899)',color:'#db2777',shadow:'rgba(219,39,119,.35)'},
+            {k:'profile',l:'👤 Profile',bg:'#eff6ff',bgOn:'linear-gradient(135deg,#2563eb,#3b82f6)',color:'#2563eb',shadow:'rgba(37,99,235,.35)'},
           ].map(function(tb) {
             var on=panel===tb.k;
-            return <button key={tb.k} onClick={function(){setPanel(tb.k);}} style={{flex:1,padding:'14px 0',border:'none',borderBottom:'none',cursor:'pointer',fontFamily:'inherit',fontSize:15,fontWeight:800,letterSpacing:.3,color:on?'#fff':tb.color,background:on?tb.bgOn:tb.bg,transition:'all .2s'}}>{tb.l}</button>;
+            return <button key={tb.k} onClick={function(){setPanel(tb.k);}} style={{flex:1,padding:'15px 0',border:'none',borderBottom:'none',cursor:'pointer',fontFamily:'inherit',fontSize:14,fontWeight:800,letterSpacing:.2,color:on?'#fff':tb.color,background:on?tb.bgOn:tb.bg,transition:'all .2s',boxShadow:on?'inset 0 -3px 0 rgba(255,255,255,.3)':'none'}}>{tb.l}</button>;
           })}
         </div>
 
