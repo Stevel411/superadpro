@@ -1,73 +1,72 @@
-// SuperAdPro Service Worker
-// Handles offline caching and PWA installation
-
-const CACHE_NAME = 'superadpro-v1';
-
-// Static assets to cache immediately on install
-const PRECACHE_URLS = [
-  '/static/mobile.css',
+// SuperAdPro Service Worker v2
+var CACHE = 'superadpro-v2';
+var STATIC = [
+  '/',
   '/static/manifest.json',
-  '/login',
+  '/static/icons/icon-192.png',
+  '/static/icons/icon-512.png',
+  '/static/icons/apple-touch-icon.png',
 ];
 
-// ── Install ────────────────────────────────────────────────────
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(PRECACHE_URLS).catch(() => {
-        // Don't fail install if precache has issues
-        return Promise.resolve();
-      });
+// Install — cache static assets
+self.addEventListener('install', function(e) {
+  self.skipWaiting();
+  e.waitUntil(
+    caches.open(CACHE).then(function(cache) {
+      return cache.addAll(STATIC).catch(function() {});
     })
   );
-  self.skipWaiting();
 });
 
-// ── Activate ───────────────────────────────────────────────────
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-      )
-    )
+// Activate — clean old caches
+self.addEventListener('activate', function(e) {
+  e.waitUntil(
+    caches.keys().then(function(keys) {
+      return Promise.all(
+        keys.filter(function(k) { return k !== CACHE; })
+            .map(function(k) { return caches.delete(k); })
+      );
+    }).then(function() { return self.clients.claim(); })
   );
-  self.clients.claim();
 });
 
-// ── Fetch Strategy ─────────────────────────────────────────────
-// Network first for all requests (keeps watch tracking live)
-// Falls back to cache if offline
-self.addEventListener('fetch', event => {
-  // Skip non-GET and cross-origin requests
-  if (event.request.method !== 'GET') return;
-  if (!event.request.url.startsWith(self.location.origin)) return;
+// Fetch strategy:
+// - API calls: network only (never cache)
+// - Static assets: cache first, fallback network
+// - HTML pages: network first, fallback cache
+self.addEventListener('fetch', function(e) {
+  var url = e.request.url;
 
-  // Skip API calls — always need live data
-  if (event.request.url.includes('/api/')) return;
+  // Skip non-GET
+  if (e.request.method !== 'GET') return;
 
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // Cache static assets
-        if (event.request.url.includes('/static/')) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        }
-        return response;
-      })
-      .catch(() => {
-        // Offline fallback — return from cache
-        return caches.match(event.request).then(cached => {
-          if (cached) return cached;
-          // If no cache and offline, return a simple offline message for pages
-          if (event.request.headers.get('Accept').includes('text/html')) {
-            return new Response(
-              '<html><body style="font-family:sans-serif;text-align:center;padding:40px;background:#0a0a1a;color:#fff"><h2>You are offline</h2><p style="color:#94a3b8">Please check your connection and try again.</p><a href="/" style="color:#00d4ff">Retry</a></body></html>',
-              { headers: { 'Content-Type': 'text/html' } }
-            );
-          }
+  // API calls — always network
+  if (url.includes('/api/')) return;
+
+  // Static assets — cache first
+  if (url.includes('/static/')) {
+    e.respondWith(
+      caches.match(e.request).then(function(cached) {
+        return cached || fetch(e.request).then(function(response) {
+          var clone = response.clone();
+          caches.open(CACHE).then(function(c) { c.put(e.request, clone); });
+          return response;
         });
       })
+    );
+    return;
+  }
+
+  // HTML pages — network first, cache fallback
+  e.respondWith(
+    fetch(e.request).then(function(response) {
+      var clone = response.clone();
+      caches.open(CACHE).then(function(c) { c.put(e.request, clone); });
+      return response;
+    }).catch(function() {
+      return caches.match(e.request).then(function(cached) {
+        return cached || caches.match('/');
+      });
+    })
   );
 });

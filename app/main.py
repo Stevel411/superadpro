@@ -733,6 +733,18 @@ def contact(request: Request):
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse(url="/", status_code=302)
 
+@app.get("/apple-touch-icon.png")
+@app.get("/apple-touch-icon-precomposed.png")
+def apple_touch_icon():
+    """iOS looks for touch icon at root level."""
+    from fastapi.responses import FileResponse
+    import os
+    icon_path = Path("static/icons/apple-touch-icon.png")
+    if icon_path.exists():
+        return FileResponse(str(icon_path), media_type="image/png")
+    return FileResponse(str(Path("static/icons/icon-192.png")), media_type="image/png")
+
+
 @app.get("/earn")
 def earn_page(request: Request):
     """Affiliate recruitment landing page."""
