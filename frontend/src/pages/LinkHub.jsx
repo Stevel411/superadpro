@@ -183,9 +183,10 @@ export default function LinkHub() {
 
   return (
     <AppLayout title="LinkHub" subtitle="Your link-in-bio editor">
-    <div style={{display:'flex',height:'calc(100vh - 72px)',fontFamily:'DM Sans,sans-serif',background:'#f0f3f9',overflow:'hidden',margin:'-24px',borderRadius:0}}>
+    <div style={{display:'flex',height:'calc(100vh - 72px)',fontFamily:'DM Sans,sans-serif',background:'#f0f3f9',overflow:'hidden',margin:'-24px',borderRadius:0,gap:0}}>
       {/* ═══ LEFT PANEL ═══ */}
-      <div style={{width:620,minWidth:620,background:'#fff',borderRight:'1px solid #e5e7eb',display:'flex',flexDirection:'column',overflow:'hidden'}}>
+      <div style={{width:16,flexShrink:0,background:'#f0f3f9'}}/>
+      <div style={{width:620,minWidth:620,background:'#fff',border:'1px solid #e5e7eb',borderRadius:'12px 12px 0 0',display:'flex',flexDirection:'column',overflow:'hidden',marginTop:16,boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
         {/* Header */}
         <div style={{padding:'14px 20px',borderBottom:'1px solid #e5e7eb',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
           <div>
@@ -238,15 +239,15 @@ export default function LinkHub() {
           })}
         </div>
 
-        {/* Tabs — pastel coloured */}
-        <div style={{display:'flex',gap:0,flexShrink:0}}>
+        {/* Tabs — pill buttons */}
+        <div style={{display:'flex',gap:6,flexShrink:0,padding:'10px 12px',background:'#f8f9fb',borderBottom:'1px solid #e5e7eb'}}>
           {[
             {k:'links',l:'🔗 Links',bg:'#f5f3ff',bgOn:'linear-gradient(135deg,#7c3aed,#8b5cf6)',color:'#7c3aed',shadow:'rgba(124,58,237,.35)'},
             {k:'style',l:'🎨 Style',bg:'#fdf2f8',bgOn:'linear-gradient(135deg,#db2777,#ec4899)',color:'#db2777',shadow:'rgba(219,39,119,.35)'},
             {k:'profile',l:'👤 Profile',bg:'#eff6ff',bgOn:'linear-gradient(135deg,#2563eb,#3b82f6)',color:'#2563eb',shadow:'rgba(37,99,235,.35)'},
           ].map(function(tb) {
             var on=panel===tb.k;
-            return <button key={tb.k} onClick={function(){setPanel(tb.k);}} style={{flex:1,padding:'15px 0',border:'none',borderBottom:'none',cursor:'pointer',fontFamily:'inherit',fontSize:14,fontWeight:800,letterSpacing:.2,color:on?'#fff':tb.color,background:on?tb.bgOn:tb.bg,transition:'all .2s',boxShadow:on?'inset 0 -3px 0 rgba(255,255,255,.3)':'none'}}>{tb.l}</button>;
+            return <button key={tb.k} onClick={function(){setPanel(tb.k);}} style={{flex:1,padding:'11px 0',border:'none',borderRadius:9,cursor:'pointer',fontFamily:'inherit',fontSize:13,fontWeight:800,letterSpacing:.2,color:on?'#fff':tb.color,background:on?tb.bgOn:'transparent',transition:'all .2s',boxShadow:on?'0 4px 12px rgba(0,0,0,.15)':'none'}}>{tb.l}</button>;
           })}
         </div>
 
