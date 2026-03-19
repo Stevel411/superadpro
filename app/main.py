@@ -4283,13 +4283,24 @@ async def admin_kyc_review(user_id: int, request: Request,
 
 @app.get("/admin/api/kyc-document/{filename}")
 def admin_kyc_document(filename: str, user: User = Depends(get_current_user)):
-    """Serve uploaded KYC document (admin only)."""
+    """Serve uploaded KYC document (admin only) — reads from R2 or /tmp fallback."""
     if not user or not user.is_admin: raise HTTPException(403)
-    import os
-    filepath = os.path.join("/tmp/kyc-uploads", filename)
-    if not os.path.exists(filepath): raise HTTPException(404)
-    from fastapi.responses import FileResponse
-    return FileResponse(filepath)
+    from .r2_storage import r2_available, _get_client, R2_BUCKET
+    from fastapi.responses import StreamingResponse, FileResponse
+    import io
+    if r2_available():
+        try:
+            client = _get_client()
+            obj = client.get_object(Bucket=R2_BUCKET, Key=f"kyc/{filename}")
+            content_type = obj.get("ContentType", "application/octet-stream")
+            return StreamingResponse(io.BytesIO(obj["Body"].read()), media_type=content_type,
+                headers={"Content-Disposition": f"inline; filename={filename}"})
+        except Exception:
+            raise HTTPException(404, detail="Document not found in storage")
+    else:
+        filepath = os.path.join("/tmp/kyc-uploads", filename)
+        if not os.path.exists(filepath): raise HTTPException(404)
+        return FileResponse(filepath)
 
 
 @app.get("/admin/api/health")
@@ -7156,11 +7167,27 @@ def kyc_submit(
     content = kyc_id_file.file.read()
     if len(content) > 10 * 1024 * 1024:
         return RedirectResponse(url="/account?error=file_too_large_max_10mb", status_code=303)
-    # Save file
+    # Save file to R2 (private kyc/ folder)
+    from .r2_storage import r2_available, _get_client, R2_BUCKET
     safe_name = f"kyc_{user.id}_{uuid.uuid4().hex[:8]}{ext}"
-    filepath = os.path.join(KYC_UPLOAD_DIR, safe_name)
-    with open(filepath, "wb") as f:
-        f.write(content)
+    if r2_available():
+        try:
+            ct_map = {".jpg":"image/jpeg",".jpeg":"image/jpeg",".png":"image/png",".pdf":"application/pdf"}
+            client = _get_client()
+            client.put_object(
+                Bucket=R2_BUCKET,
+                Key=f"kyc/{safe_name}",
+                Body=content,
+                ContentType=ct_map.get(ext, "application/octet-stream"),
+            )
+        except Exception as e:
+            logger.error(f"KYC R2 upload failed: {e}")
+            return RedirectResponse(url="/account?error=upload_failed_please_try_again", status_code=303)
+    else:
+        # Fallback to /tmp if R2 not configured
+        filepath = os.path.join(KYC_UPLOAD_DIR, safe_name)
+        with open(filepath, "wb") as f:
+            f.write(content)
     # Update user
     user.kyc_dob = kyc_dob
     user.kyc_id_type = kyc_id_type

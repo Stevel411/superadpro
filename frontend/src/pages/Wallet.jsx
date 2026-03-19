@@ -74,6 +74,24 @@ export default function Wallet() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18, marginBottom: 18, alignItems: 'stretch' }}>
         {/* Col 1: Withdraw */}
         <Card title="Withdraw USDC" dotColor="#16a34a">
+          {/* KYC gate */}
+          {d.kyc_status !== 'approved' && (
+            <div style={{ padding: '12px 14px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 10, marginBottom: 14 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#d97706', marginBottom: 4 }}>
+                {d.kyc_status === 'pending' ? '⏳ KYC Under Review' : '🔒 Identity Verification Required'}
+              </div>
+              <div style={{ fontSize: 12, color: '#92400e', lineHeight: 1.6 }}>
+                {d.kyc_status === 'pending'
+                  ? 'Your documents are being reviewed. Withdrawals will be enabled once approved (usually 24-48 hours).'
+                  : 'You must complete identity verification (KYC) before your first withdrawal. Go to Account to submit your documents.'}
+              </div>
+              {d.kyc_status !== 'pending' && (
+                <a href="/account" style={{ display: 'inline-block', marginTop: 8, fontSize: 12, fontWeight: 700, color: '#0ea5e9', textDecoration: 'none' }}>
+                  Go to Account → Verify Identity
+                </a>
+              )}
+            </div>
+          )}
           {d.wallet_address ? (
             d.balance >= 10 ? (
               <form method="POST" action="/withdraw" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

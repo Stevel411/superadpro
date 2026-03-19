@@ -54,27 +54,68 @@ export function FAQ() {
   );
 }
 
+function LegalSection({ title, children }) {
+  var hS = { fontFamily: "'Sora',sans-serif", fontSize: 22, fontWeight: 800, color: '#38bdf8', marginBottom: 14 };
+  var wS = { fontSize: 15, color: 'rgba(255,255,255,0.55)', lineHeight: 1.85 };
+  return (
+    <div style={{ marginBottom: 44 }}>
+      <h2 style={hS}>{title}</h2>
+      <div style={wS}>{children}</div>
+    </div>
+  );
+}
+
 export function Legal() {
+  var p = { marginBottom: 14 };
+  var bold = { marginBottom: 14, fontWeight: 700, color: 'rgba(255,255,255,0.8)' };
   return (
     <PublicLayout>
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '60px 24px' }}>
         <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 40, fontWeight: 900, marginBottom: 8 }}>Legal</h1>
         <p style={{ color: 'rgba(255,255,255,0.4)', marginBottom: 48 }}>Last updated: March 2026</p>
 
-        {[
-          { title: 'Terms of Service', content: 'By using SuperAdPro, you agree to these terms. SuperAdPro is a video advertising and affiliate marketing platform. Members earn commissions by referring others and participating in campaign grids. Membership fees are non-refundable after the billing period begins. We reserve the right to terminate accounts that violate our policies.' },
-          { title: 'Earnings Disclaimer', content: 'Income examples shown on this platform are illustrative only. Individual results will vary based on effort, network size, market conditions, and other factors. SuperAdPro does not guarantee any specific level of income. Participation in the platform involves financial risk and should be treated as a business venture.' },
-          { title: 'Privacy Policy', content: 'We collect the minimum data necessary to operate the platform — your name, email, username, and transaction history. We do not sell your data to third parties. We use industry-standard encryption to protect your information. You may request deletion of your data at any time by contacting support.' },
-          { title: 'Acceptable Use', content: 'Members may not use SuperAdPro to promote illegal products or services, spam other members, create fake accounts, or manipulate the referral system. Violations may result in immediate account termination and forfeiture of earnings.' },
-          { title: 'Cryptocurrency Payments', content: 'All earnings are paid in USDT on the Base blockchain. Cryptocurrency transactions are irreversible. SuperAdPro is not responsible for losses due to incorrect wallet addresses provided by members. Exchange rates and network fees are the responsibility of the member.' },
-        ].map(function(s) {
-          return (
-            <div key={s.title} style={{ marginBottom: 40 }}>
-              <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 22, fontWeight: 800, color: '#38bdf8', marginBottom: 12 }}>{s.title}</h2>
-              <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.55)', lineHeight: 1.8 }}>{s.content}</p>
-            </div>
-          );
-        })}
+        <LegalSection title="Terms of Service">
+          <p style={p}>By using SuperAdPro, you agree to these terms. SuperAdPro is a video advertising and affiliate marketing platform. Members earn commissions by referring others and participating in campaign grids.</p>
+          <p style={p}>Membership fees are non-refundable after the billing period begins. We reserve the right to terminate accounts that violate our policies. Continued use of the platform constitutes acceptance of these terms.</p>
+        </LegalSection>
+
+        <LegalSection title="Earnings Disclaimer">
+          <p style={p}>Income examples shown on this platform are illustrative only. Individual results will vary based on effort, network size, market conditions, and other factors. SuperAdPro does not guarantee any specific level of income.</p>
+          <p style={p}>Participation in the platform involves financial risk and should be treated as a business venture. Past performance of other members is not indicative of your own results.</p>
+        </LegalSection>
+
+        <LegalSection title="Privacy Policy">
+          <p style={p}>We collect the minimum data necessary to operate the platform - your name, email, username, transaction history, and identity documents where required for withdrawal verification.</p>
+          <p style={p}>We do not sell your data to third parties. We use industry-standard encryption to protect your information. You may request access to, correction of, or deletion of your data at any time by contacting support.</p>
+        </LegalSection>
+
+        <LegalSection title="Acceptable Use">
+          <p style={p}>Members may not use SuperAdPro to promote illegal products or services, spam other members, create fake accounts, or manipulate the referral system. Violations may result in immediate account termination and forfeiture of earnings.</p>
+        </LegalSection>
+
+        <LegalSection title="Cryptocurrency & Payments">
+          <p style={p}>All earnings are paid in USDT on the Base blockchain. Cryptocurrency transactions are irreversible. SuperAdPro is not responsible for losses due to incorrect wallet addresses provided by members. Exchange rates and network fees are the responsibility of the member.</p>
+        </LegalSection>
+
+        <LegalSection title="Identity Verification (KYC) Policy">
+          <p style={p}>SuperAdPro is required to verify the identity of members before processing withdrawals, in compliance with anti-money laundering (AML) regulations. Identity verification (Know Your Customer, or KYC) is completed once, before your first withdrawal.</p>
+          <p style={bold}>What we collect</p>
+          <p style={p}>Full legal name, date of birth, and a government-issued photo ID - passport, driver's licence, or national ID card.</p>
+          <p style={bold}>How we use it</p>
+          <p style={p}>Your documents are used solely to verify your identity and comply with our legal obligations. We do not share your documents with third parties except where required by law.</p>
+          <p style={bold}>How we store it</p>
+          <p style={p}>Documents are encrypted and stored securely in Cloudflare R2 object storage. Access is restricted to authorised staff only. Documents are retained for a minimum of 5 years as required by UK AML regulations.</p>
+          <p style={bold}>Your rights</p>
+          <p style={p}>You have the right to request access to your personal data, request correction of inaccuracies, or request deletion (subject to legal retention requirements). Contact our support team to exercise these rights.</p>
+          <p style={bold}>Processing time</p>
+          <p style={p}>KYC applications are typically reviewed within 24-48 hours. You will be notified once a decision has been made.</p>
+        </LegalSection>
+
+        <LegalSection title="Anti-Money Laundering (AML) Policy">
+          <p style={p}>SuperAdPro is committed to preventing money laundering and the financing of illegal activities. We operate in compliance with applicable UK AML legislation including the Proceeds of Crime Act 2002 and the Money Laundering, Terrorist Financing and Transfer of Funds Regulations 2017.</p>
+          <p style={p}>We monitor transactions for suspicious activity and reserve the right to suspend or terminate accounts, withhold funds, and report activity to relevant authorities where required by law.</p>
+          <p style={p}>Members are prohibited from using SuperAdPro to launder funds, obscure the origins of payments, or facilitate any illegal financial activity. Violation of this policy will result in immediate account termination and may be reported to law enforcement.</p>
+        </LegalSection>
 
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 32, fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>
           Questions about our legal terms? <Link to="/support" style={{ color: '#38bdf8', textDecoration: 'none' }}>Contact us</Link>
@@ -83,6 +124,7 @@ export function Legal() {
     </PublicLayout>
   );
 }
+
 
 export function ForAdvertisers() {
   return (
