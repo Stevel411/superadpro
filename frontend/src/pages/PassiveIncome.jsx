@@ -232,7 +232,7 @@ export default function PassiveIncome({ d }) {
                 { val: totalTeam, lbl: 'Team Members' },
                 { val: completions, lbl: 'Completions' },
                 { val: personalReferrals, lbl: 'Direct Referrals' },
-                { val: monthlyProjection, lbl: 'Monthly Est.', prefix: '$' },
+                { val: monthlyProjection, lbl: 'Est. Monthly*', prefix: '$' },
               ].map(function(s,i) {
                 return (
                   <div key={i} style={S.totalStat}>
@@ -242,6 +242,9 @@ export default function PassiveIncome({ d }) {
                 );
               })}
             </div>
+          </div>
+          <div style={{ marginTop:14, fontSize:10, color:'rgba(255,255,255,0.2)', fontStyle:'italic' }}>
+            * Monthly estimate based on historical earnings and assumed renewal rates. Not a guarantee of future income.
           </div>
         </div>
       </div>
@@ -348,16 +351,16 @@ export default function PassiveIncome({ d }) {
         <div style={S.darkCard}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:18 }}>
             <div>
-              <div style={S.sectionTitle}>Monthly Projection</div>
-              <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)' }}>Based on current team activity</div>
+              <div style={S.sectionTitle}>Monthly Estimate *</div>
+              <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)' }}>Based on your historical earnings</div>
             </div>
             <div style={{ textAlign:'right' }}>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:900, color:'#10b981', lineHeight:1 }}>
                 $<CountUp target={monthlyProjection} duration={1800}/>
               </div>
-              <div style={{ fontSize:10, color:'rgba(255,255,255,0.35)', marginTop:2 }}>projected / month</div>
+              <div style={{ fontSize:10, color:'rgba(255,255,255,0.35)', marginTop:2 }}>estimated / month</div>
               <div style={{ fontSize:10, color:'#fbbf24', fontWeight:700, marginTop:2 }}>
-                ~$<CountUp target={monthlyProjection*12} duration={2000}/>/yr
+                ~$<CountUp target={monthlyProjection*12} duration={2000}/>/yr estimated
               </div>
             </div>
           </div>
@@ -376,6 +379,12 @@ export default function PassiveIncome({ d }) {
                 </div>
               );
             })}
+          </div>
+          {/* Disclaimer */}
+          <div style={{ marginTop:16, padding:'10px 14px', borderRadius:10, background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ fontSize:10, color:'rgba(255,255,255,0.25)', lineHeight:1.7 }}>
+              * <strong style={{ color:'rgba(255,255,255,0.35)' }}>Estimate only.</strong> This figure is calculated from your historical earnings using assumed renewal rates (80% membership, 40% grid, 30% courses). It does not guarantee future income. Actual earnings depend on member renewals, network activity, and market conditions. Past performance is not indicative of future results.
+            </div>
           </div>
         </div>
       </div>
