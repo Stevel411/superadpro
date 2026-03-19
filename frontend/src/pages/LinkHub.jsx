@@ -56,6 +56,14 @@ var ICON_CATEGORIES = [
 // Flatten all icons for lookup
 var ALL_ICONS = ICON_CATEGORIES.reduce(function(a,c){return a.concat(c.icons);}, []);
 
+var ARROW_STYLES = [
+  {key:'none',label:'None',render:function(){return null;}},
+  {key:'arrow',label:'→',render:function(c){return <span style={{fontSize:14,color:c,opacity:.5}}>→</span>;}},
+  {key:'chevron',label:'›',render:function(c){return <ChevronRight size={16} color={c} style={{opacity:.5}}/>;}},
+  {key:'arrowRight',label:'⟶',render:function(c){return <ArrowRight size={14} color={c} style={{opacity:.5}}/>;}},
+  {key:'external',label:'↗',render:function(c){return <ArrowUpRight size={14} color={c} style={{opacity:.5}}/>;}},
+];
+
 function parseIcon(icon) {
   if (!icon || icon === 'none') return null;
   if (typeof icon === 'string') {
