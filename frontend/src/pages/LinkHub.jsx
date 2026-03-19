@@ -113,7 +113,19 @@ export default function LinkHub() {
   }
 
   function updateLink(id,f,v) { setLinks(function(p){return p.map(function(l){return l.id===id?Object.assign({},l,{[f]:v}):l;});}); }
-  function removeLink(id) { setLinks(function(p){return p.filter(function(l){return l.id!==id;});}); }
+  function removeLink(id) {
+    setLinks(function(p) {
+      var updated = p.filter(function(l) { return l.id !== id; });
+      // Auto-save immediately after deletion
+      var payload = {
+        display_name: profile.display_name, bio: profile.bio,
+        links: updated.map(function(l, i) { return {id:l.id>9999999?undefined:l.id, title:l.title, url:l.url, icon:l.icon||'🔗', is_active:l.is_active, sort_order:i}; }),
+        style: style,
+      };
+      apiPost('/linkhub/save', payload).catch(function() {});
+      return updated;
+    });
+  }
   function addLink() { setLinks(function(p){return p.concat([{id:Date.now(),title:'New Link',url:'',icon:'🔗',is_active:true,click_count:0}]);}); }
   function toggleLink(id) { var lk=links.find(function(l){return l.id===id;}); if(lk) updateLink(id,'is_active',!lk.is_active); }
   function moveLink(idx, dir) {
