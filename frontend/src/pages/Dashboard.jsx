@@ -213,55 +213,80 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* 5 Income Streams */}
+      {/* 5 Income Streams — glossy coloured cards */}
       <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
         {[
-          { color: '#16a34a', bg: '#dcfce7', Icon: Users, badge: '$10/referral', val: d.membership_earned, name: 'Membership', detail: `${d.personal_referrals || 0} personal referrals` },
-          { color: '#0ea5e9', bg: '#e0f2fe', Icon: LayoutGrid, badge: '40% + uni-level', val: d.grid_earnings, name: 'Income Grid', detail: `${d.grid_stats?.completed_advances || 0} advance${d.grid_stats?.completed_advances !== 1 ? 's' : ''} completed` },
-          { color: '#6366f1', bg: '#ede9fe', Icon: GraduationCap, badge: '100% commission', val: d.course_earnings, name: 'Course Sales', detail: `${d.course_sale_count || 0} sale${d.course_sale_count !== 1 ? 's' : ''} made` },
-          { color: '#d97706', bg: '#fef3c7', Icon: Rocket, badge: 'tier bonus', val: d.boost_earned, name: 'Campaigns', detail: 'Video campaign earnings' },
-          { color: '#e11d48', bg: '#ffe4e6', Icon: Store, badge: '50/25/25', val: d.marketplace_earnings, name: 'Marketplace', detail: `${d.marketplace_sales || 0} sale${d.marketplace_sales !== 1 ? 's' : ''} · ${d.marketplace_courses || 0} course${d.marketplace_courses !== 1 ? 's' : ''}` },
+          { grad: 'linear-gradient(135deg,#16a34a 0%,#15803d 60%,#166534 100%)', shadow: 'rgba(22,163,74,0.38)', Icon: Users, badge: '$10 / referral', val: d.membership_earned, name: 'Membership', detail: `${d.personal_referrals || 0} personal referrals`, cta: 'Invite more', link: '/affiliate' },
+          { grad: 'linear-gradient(135deg,#0ea5e9 0%,#0284c7 60%,#0369a1 100%)', shadow: 'rgba(14,165,233,0.38)', Icon: LayoutGrid, badge: '40% + uni-level', val: d.grid_earnings, name: 'Income Grid', detail: `${d.grid_stats?.completed_advances || 0} advances completed`, cta: 'Activate grid', link: '/campaign-tiers' },
+          { grad: 'linear-gradient(135deg,#818cf8 0%,#6366f1 60%,#4f46e5 100%)', shadow: 'rgba(99,102,241,0.38)', Icon: GraduationCap, badge: '100% commission', val: d.course_earnings, name: 'Course Sales', detail: `${d.course_sale_count || 0} sale${d.course_sale_count !== 1 ? 's' : ''} made`, cta: 'Create course', link: '/courses/create' },
+          { grad: 'linear-gradient(135deg,#f59e0b 0%,#d97706 60%,#b45309 100%)', shadow: 'rgba(217,119,6,0.38)', Icon: Rocket, badge: 'tier bonus', val: d.boost_earned, name: 'Campaigns', detail: 'Video campaign earnings', cta: 'Launch now', link: '/campaign-tiers' },
+          { grad: 'linear-gradient(135deg,#fb7185 0%,#e11d48 60%,#be123c 100%)', shadow: 'rgba(225,29,72,0.38)', Icon: Store, badge: '50 / 25 / 25', val: d.marketplace_earnings, name: 'Marketplace', detail: `${d.marketplace_sales || 0} sales · ${d.marketplace_courses || 0} courses`, cta: 'Visit store', link: '/supermarket' },
         ].map((s, i) => (
-          <div key={i} className="stream-card" style={{
-            background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 22,
-            boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
-            position: 'relative', overflow: 'hidden', transition: 'all 0.2s',
-          }}>
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: s.color, borderRadius: '8px 8px 0 0' }} />
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-              <div style={{ width: 40, height: 40, borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', background: s.bg }}>
-                <s.Icon size={20} color={s.color} strokeWidth={2} />
+          <Link key={i} to={s.link} style={{ textDecoration: 'none' }}>
+            <div className="stream-card" style={{
+              background: s.grad, borderRadius: 18, padding: '18px 16px 14px',
+              boxShadow: `0 8px 28px ${s.shadow}`,
+              border: '1px solid rgba(255,255,255,0.18)',
+              position: 'relative', overflow: 'hidden',
+              transition: 'transform 0.18s, box-shadow 0.18s',
+              minHeight: 170, display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+              cursor: 'pointer',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)'; e.currentTarget.style.boxShadow = `0 14px 36px ${s.shadow}`; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = `0 8px 28px ${s.shadow}`; }}
+            >
+              <div style={{ position:'absolute', top:0, left:0, right:0, height:'52%', background:'linear-gradient(180deg,rgba(255,255,255,0.2) 0%,rgba(255,255,255,0) 100%)', borderRadius:'18px 18px 0 0', pointerEvents:'none' }} />
+              <div style={{ position:'absolute', inset:0, borderRadius:18, border:'1px solid rgba(255,255,255,0.22)', pointerEvents:'none' }} />
+              <div>
+                <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:12 }}>
+                  <div style={{ width:42, height:42, borderRadius:12, background:'rgba(255,255,255,0.18)', border:'1px solid rgba(255,255,255,0.25)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <s.Icon size={20} color="rgba(255,255,255,0.95)" strokeWidth={2} />
+                  </div>
+                  <span style={{ fontSize:10, fontWeight:700, padding:'3px 9px', borderRadius:20, background:'rgba(255,255,255,0.2)', color:'rgba(255,255,255,0.92)', border:'1px solid rgba(255,255,255,0.18)', letterSpacing:0.3 }}>{s.badge}</span>
+                </div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:700, color:'#fff', lineHeight:1, marginBottom:4 }}>${'{'}Math.round(s.val || 0){'}'}</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.92)', marginBottom:2 }}>{'{'}s.name{'}'}</div>
+                <div style={{ fontSize:11, color:'rgba(255,255,255,0.6)' }}>{'{'}s.detail{'}'}</div>
               </div>
-              <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 5, letterSpacing: 0.3, background: s.bg, color: s.color }}>{s.badge}</span>
+              <div style={{ borderTop:'1px solid rgba(255,255,255,0.15)', paddingTop:10, marginTop:10, fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.75)', display:'flex', alignItems:'center', gap:4 }}>
+                {'{'}s.cta{'}'} →
+              </div>
             </div>
-            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 30, fontWeight: 900, color: '#16a34a', marginBottom: 2 }}>${Math.round(s.val || 0)}</div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#475569', marginBottom: 2 }}>{s.name}</div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>{s.detail}</div>
-          </div>
+          </Link>
         ))}
       </div>
 
-      {/* Quick Actions */}
+      {/* Quick Actions — glossy pastel cards */}
       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 14 }}>Quick Actions</div>
       <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
         {[
-          { Icon: BookOpen, color: '#6366f1', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)', name: 'Browse Courses', desc: 'Learn skills & earn 100% commissions', link: '/courses' },
-          { Icon: PenSquare, color: '#0ea5e9', bg: 'linear-gradient(135deg,#eff6ff,#dbeafe)', name: 'Create Course', desc: 'Build & sell courses on the marketplace', link: '/courses/create' },
-          { Icon: Zap, color: '#16a34a', bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)', name: 'Campaign Tiers', desc: 'Activate a tier to unlock the earning engine', link: '/campaign-tiers' },
-          { Icon: Bot, color: '#d97706', bg: 'linear-gradient(135deg,#fffbeb,#fef3c7)', name: 'AI Marketing', desc: 'Generate campaigns, social posts & scripts', link: '/campaign-studio' },
-          { Icon: Eye, color: '#6366f1', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)', name: 'Watch to Earn', desc: 'Watch daily videos for bonus earnings', link: '/watch' },
+          { Icon: BookOpen,  grad: 'linear-gradient(145deg,#c7d2fe 0%,#a5b4fc 50%,#818cf8 100%)', shadow: 'rgba(129,140,248,0.28)', iconStroke: 'rgba(67,56,202,0.85)',  pill: '100% yours',    name: 'Browse Courses',  desc: 'Learn skills & earn 100% commissions',        link: '/courses' },
+          { Icon: PenSquare, grad: 'linear-gradient(145deg,#bae6fd 0%,#7dd3fc 50%,#38bdf8 100%)', shadow: 'rgba(56,189,248,0.28)',  iconStroke: 'rgba(3,105,161,0.85)',   pill: 'passive income', name: 'Create Course',   desc: 'Build & sell courses on the marketplace',     link: '/courses/create' },
+          { Icon: Zap,       grad: 'linear-gradient(145deg,#bbf7d0 0%,#86efac 50%,#4ade80 100%)', shadow: 'rgba(74,222,128,0.28)',  iconStroke: 'rgba(22,101,52,0.85)',   pill: 'from $20',       name: 'Campaign Tiers', desc: 'Activate a tier to unlock the earning engine', link: '/campaign-tiers' },
+          { Icon: Bot,       grad: 'linear-gradient(145deg,#fde68a 0%,#fcd34d 50%,#fbbf24 100%)', shadow: 'rgba(251,191,36,0.28)',  iconStroke: 'rgba(120,53,15,0.85)',   pill: 'AI powered',     name: 'AI Marketing',   desc: 'Campaigns, social posts & scripts on demand', link: '/campaign-studio' },
+          { Icon: Eye,       grad: 'linear-gradient(145deg,#e9d5ff 0%,#d8b4fe 50%,#c084fc 100%)', shadow: 'rgba(192,132,252,0.28)', iconStroke: 'rgba(109,40,217,0.85)',  pill: 'daily rewards',  name: 'Watch to Earn',  desc: 'Watch daily videos for bonus earnings',       link: '/watch' },
         ].map((a, i) => (
-          <Link key={i} to={a.link} className="action-card" style={{
-            background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 20,
-            boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
-            textDecoration: 'none', transition: 'all 0.15s', display: 'flex', flexDirection: 'column',
-            alignItems: 'center', textAlign: 'center', gap: 10,
-          }}>
-            <div style={{ width: 50, height: 50, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', background: a.bg }}>
-              <a.Icon size={24} color={a.color} strokeWidth={1.8} />
+          <Link key={i} to={a.link} style={{ textDecoration: 'none' }}>
+            <div className="action-card" style={{
+              background: a.grad, borderRadius: 18, padding: '20px 14px 16px',
+              boxShadow: `0 6px 20px ${a.shadow}`,
+              border: '1px solid rgba(255,255,255,0.35)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+              position: 'relative', overflow: 'hidden',
+              transition: 'transform 0.18s, box-shadow 0.18s', cursor: 'pointer',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)'; e.currentTarget.style.boxShadow = `0 12px 28px ${a.shadow}`; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = `0 6px 20px ${a.shadow}`; }}
+            >
+              <div style={{ position:'absolute', top:0, left:0, right:0, height:'50%', background:'linear-gradient(180deg,rgba(255,255,255,0.28) 0%,rgba(255,255,255,0) 100%)', borderRadius:'18px 18px 0 0', pointerEvents:'none' }} />
+              <div style={{ position:'absolute', inset:0, borderRadius:18, border:'1px solid rgba(255,255,255,0.4)', pointerEvents:'none' }} />
+              <div style={{ width:52, height:52, borderRadius:14, background:'rgba(255,255,255,0.35)', border:'1px solid rgba(255,255,255,0.5)', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:12, position:'relative' }}>
+                <a.Icon size={24} color={a.iconStroke} strokeWidth={2} />
+              </div>
+              <div style={{ fontSize:13, fontWeight:700, color:'rgba(0,0,0,0.7)', marginBottom:5 }}>{'{'}a.name{'}'}</div>
+              <div style={{ fontSize:11, color:'rgba(0,0,0,0.45)', lineHeight:1.5, marginBottom:10 }}>{'{'}a.desc{'}'}</div>
+              <div style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:20, background:'rgba(255,255,255,0.4)', border:'1px solid rgba(255,255,255,0.5)', color:'rgba(0,0,0,0.55)' }}>{'{'}a.pill{'}'}</div>
             </div>
-            <div style={{ fontSize: 14, fontWeight: 800, color: '#0f172a' }}>{a.name}</div>
-            <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>{a.desc}</div>
           </Link>
         ))}
       </div>
