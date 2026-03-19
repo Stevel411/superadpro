@@ -176,7 +176,7 @@ export default function Dashboard() {
               <div style={{ position:'absolute', inset:14, borderRadius:'50%', background:'rgba(139,92,246,0.2)', border:'1px solid rgba(196,181,253,0.45)' }} />
             </div>
             <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
-              <span style={{ fontSize:42, opacity:0.45, animation:'wbBag 7.6s ease-in-out infinite', display:'inline-block' }}>💰</span>
+              <span style={{ fontSize:42, opacity:0.45, animation:'wbBag 15.2s ease-in-out infinite', display:'inline-block' }}>💰</span>
             </div>
           </div>
         </div>
@@ -442,6 +442,7 @@ export default function Dashboard() {
       <style>{`
         @keyframes wbShimmer{0%{left:-100%}100%{left:200%}}
         @keyframes wbBag{0%,100%{transform:rotate(-5deg)}50%{transform:translateY(-10px) rotate(3deg)}}
+
         @keyframes wbStar{0%,100%{opacity:0}50%{opacity:1}}
         .stream-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16)!important;transform:translateY(-2px)}
         .action-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16)!important;transform:translateY(-3px)}
