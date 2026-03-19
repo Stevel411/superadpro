@@ -261,6 +261,7 @@ export default function LinkHub() {
           <span style={{fontSize:11,fontWeight:600,color:'#64748b'}}>{window.location.host}/u/</span>
           <span style={{fontSize:11,fontWeight:800,color:'#0f172a'}}>{data?.username||'yourname'}</span>
         </div>
+        </div>
       </div>
     </div>
     </AppLayout>
