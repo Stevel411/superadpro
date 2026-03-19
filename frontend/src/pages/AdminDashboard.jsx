@@ -123,9 +123,11 @@ function UsersTab() {
   var [adjustReason, setAdjustReason] = useState('');
   var [msg, setMsg] = useState('');
 
-  useEffect(function() {
+  function loadUsers() {
     apiGet('/admin/api/users').then(function(d) { setUsers(d.users || []); }).catch(function(){});
-  }, []);
+  }
+
+  useEffect(function() { loadUsers(); }, []);
 
   function openUser(id) {
     apiGet('/admin/api/user/' + id).then(function(d) {
@@ -255,7 +257,7 @@ function UsersTab() {
                 <button onClick={function() {
                   if (!window.confirm('PERMANENTLY DELETE ' + detail.username + '? This cannot be undone.')) return;
                   apiDelete('/admin/api/user/' + selected).then(function(r) {
-                    if (r.ok) { setMsg('User deleted'); setSelected(null); setDetail(null); load(); }
+                    if (r.ok) { setMsg('User deleted'); setSelected(null); setDetail(null); loadUsers(); }
                     else setMsg(r.error || 'Delete failed');
                   }).catch(function(e) { setMsg(e.message || 'Delete failed'); });
                 }}
