@@ -12556,6 +12556,29 @@ Generate a 30-day campaign strategy. Return ONLY valid JSON object with:
         strategy_resp = await _call_ai(strategy_prompt, model="claude-sonnet-4-20250514")
         campaign.strategy_json = _extract_json(strategy_resp)
 
+        # Generate landing page HTML
+        landing_prompt = f"""{base_context}
+
+Generate a complete, beautiful, mobile-responsive HTML landing page for this SuperAdPro campaign.
+The page should:
+- Have a compelling hero section with headline and subheadline tailored to the niche
+- Show the platform benefits (video ads, AI tools, affiliate income, courses)
+- Include a lead capture form (name + email fields) that POSTs to /api/superseller/lead-capture/{campaign.id}
+- Have a clear CTA button linking to {funnel_url}
+- Use a dark professional theme (#050d1a background, cyan #38bdf8 accents)
+- Include social proof section and FAQ
+- Be completely self-contained HTML with embedded CSS and JS
+- Include the SuperSeller AI chat widget at bottom: <script src="/static/js/superseller-chat.js" data-campaign="{campaign.id}"></script>
+
+Return ONLY the complete HTML document starting with <!DOCTYPE html>. No markdown, no explanation.""".replace('{{', '{{').replace('}}', '}}')
+
+        landing_resp = await _call_ai(landing_prompt, model="claude-sonnet-4-20250514")
+        # Strip any markdown wrapping
+        lp = landing_resp.strip()
+        if lp.startswith("```"): lp = lp.split("\n", 1)[1] if "\n" in lp else lp[3:]
+        if lp.endswith("```"): lp = lp[:-3].strip()
+        campaign.landing_page_html = lp
+
         campaign.status = "active"
         db.commit()
 
@@ -12947,6 +12970,52 @@ async def api_superseller_create_custom_agent(request: Request, user: User = Dep
     db.refresh(campaign)
 
     return {"success": True, "campaign_id": campaign.id, "status": "active"}
+
+
+@app.get("/superseller/page/{campaign_id}")
+def api_superseller_landing_page(campaign_id: int, request: Request,
+                                   db: Session = Depends(get_db)):
+    """Serve the AI-generated SuperSeller landing page. Public."""
+    from .database import SuperSellerCampaign
+    c = db.query(SuperSellerCampaign).filter(SuperSellerCampaign.id == campaign_id).first()
+    if not c or not c.landing_page_html:
+        return HTMLResponse("""<!DOCTYPE html><html><head><meta charset="UTF-8"><title>SuperAdPro</title>
+        <style>body{font-family:sans-serif;background:#050d1a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center}</style>
+        </head><body><h2 style="color:#38bdf8">Landing page generating...</h2><p>Check back in a moment.</p></body></html>""")
+    c.page_views = (c.page_views or 0) + 1
+    db.commit()
+    return HTMLResponse(c.landing_page_html)
+
+
+@app.post("/api/superseller/regenerate-landing/{campaign_id}")
+async def api_superseller_regen_landing(campaign_id: int, request: Request,
+                                          user: User = Depends(get_current_user),
+                                          db: Session = Depends(get_db)):
+    """Regenerate the landing page for an existing campaign."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import SuperSellerCampaign
+    c = db.query(SuperSellerCampaign).filter(
+        SuperSellerCampaign.id == campaign_id, SuperSellerCampaign.user_id == user.id
+    ).first()
+    if not c:
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+    funnel_url = c.funnel_url or f"{os.getenv('BASE_URL','https://superadpro-production.up.railway.app')}/join/{user.username}"
+    prompt = f"""Niche: {c.niche}. Audience: {c.audience}. Tone: {c.tone}. Goal: {c.goal}. Funnel: {funnel_url}.
+Generate a complete beautiful mobile-responsive HTML landing page for SuperAdPro.
+Dark theme #050d1a background, cyan #38bdf8 accents. Lead capture form POSTing to /api/superseller/lead-capture/{campaign_id}.
+CTA button to {funnel_url}. Include <script src="/static/js/superseller-chat.js" data-campaign="{campaign_id}"></script> before </body>.
+Return ONLY complete HTML starting with <!DOCTYPE html>. No markdown."""
+    try:
+        resp = await _call_ai(prompt, model="claude-sonnet-4-20250514")
+        lp = resp.strip()
+        if lp.startswith("```"): lp = lp.split("\n",1)[1] if "\n" in lp else lp[3:]
+        if lp.endswith("```"): lp = lp[:-3].strip()
+        c.landing_page_html = lp
+        db.commit()
+        return {"success": True}
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 
 @app.post("/api/superseller/chat/{campaign_id}")

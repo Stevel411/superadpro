@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
-import { Wand2, Zap, Copy, Check, ChevronRight, Calendar, Mail, Film, FileText, BarChart3, MessageCircle, RefreshCw, Lock, Sparkles, Target, Users, Globe, Play } from 'lucide-react';
+import { Wand2, Zap, Copy, Check, ChevronRight, Calendar, Mail, Film, FileText, BarChart3, MessageCircle, RefreshCw, Lock, Sparkles, Target, Users, Globe, Play, Trash2, ExternalLink, AlertTriangle, Layout, Share2, RefreshCcw } from 'lucide-react';
 
 var NICHES = ['Digital Marketing','Health & Fitness','Crypto & Trading','Real Estate','Make Money Online','Personal Finance','Travel','Beauty & Skincare','E-Commerce','Education','Technology','Coaching','Food & Nutrition','Parenting','Self Improvement'];
 var AUDIENCES = ['Beginners looking to earn online','Small business owners','Stay-at-home parents','Students & young adults','Retirees','Side hustlers','Content creators','Freelancers'];
@@ -39,14 +39,28 @@ export default function SuperSeller() {
     });
   }
 
+  function deleteCampaign(id) {
+    fetch('/api/superseller/campaign/' + id, {method:'DELETE',credentials:'include'})
+      .then(function(r){return r.json();})
+      .then(function(){
+        setCampaigns(function(p){return p.filter(function(c){return c.id!==id;});});
+      }).catch(function(){});
+  }
+
+  function refreshCampaign(id) {
+    apiGet('/api/superseller/campaign/' + id).then(function(r) {
+      setActiveCampaign(r);
+    });
+  }
+
   if (loading) return <AppLayout title="SuperSeller"><Spin/></AppLayout>;
 
   return (
     <AppLayout title="SuperSeller" subtitle="AI Sales Autopilot — your complete marketing pipeline">
-      {view === 'list' && <CampaignList campaigns={campaigns} onCreate={function() { setView('wizard'); }} onCreateCustom={function() { setView('custom'); }} onOpen={openCampaign} />}
+      {view === 'list' && <CampaignList campaigns={campaigns} onCreate={function() { setView('wizard'); }} onCreateCustom={function() { setView('custom'); }} onOpen={openCampaign} onDelete={deleteCampaign} />}
       {view === 'wizard' && <SetupWizard onComplete={onCampaignCreated} onCancel={function() { setView('list'); }} />}
       {view === 'custom' && <CustomAgentWizard onComplete={onCampaignCreated} onCancel={function() { setView('list'); }} />}
-      {view === 'dashboard' && activeCampaign && <CampaignDashboard campaign={activeCampaign} onBack={function() { setView('list'); }} />}
+      {view === 'dashboard' && activeCampaign && <CampaignDashboard campaign={activeCampaign} onBack={function() { setView('list'); }} onRefresh={function(){refreshCampaign(activeCampaign.id);}} />}
     </AppLayout>
   );
 }
@@ -55,7 +69,22 @@ export default function SuperSeller() {
 // CAMPAIGN LIST
 // ══════════════════════════════════════════════════════════
 
-function CampaignList({ campaigns, onCreate, onCreateCustom, onOpen }) {
+function DeleteCampaignBtn({ id, onDelete }) {
+  var [confirm, setConfirm] = useState(false);
+  if (confirm) return (
+    <div style={{display:'flex',gap:4}}>
+      <button onClick={function(){onDelete(id);}} style={{padding:'9px 12px',borderRadius:8,border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:11,fontWeight:700,background:'#dc2626',color:'#fff'}}>Delete</button>
+      <button onClick={function(){setConfirm(false);}} style={{padding:'9px 12px',borderRadius:8,border:'1px solid #e8ecf2',cursor:'pointer',fontFamily:'inherit',fontSize:11,fontWeight:600,background:'#fff',color:'#64748b'}}>Cancel</button>
+    </div>
+  );
+  return (
+    <button onClick={function(){setConfirm(true);}} title="Delete campaign" style={{width:36,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:8,border:'1px solid #fecaca',cursor:'pointer',background:'#fef2f2',color:'#dc2626',padding:0,height:36}}>
+      <Trash2 size={14}/>
+    </button>
+  );
+}
+
+function CampaignList({ campaigns, onCreate, onCreateCustom, onOpen, onDelete }) {
   return (
     <div>
       {/* Hero banner — SuperSeller Emerald Theme */}
@@ -135,8 +164,8 @@ function CampaignList({ campaigns, onCreate, onCreateCustom, onOpen }) {
             var statusColors = {active:{bg:'rgba(22,163,74,.08)',color:'#16a34a'},generating:{bg:'rgba(14,165,233,.08)',color:'#0ea5e9'},paused:{bg:'rgba(245,158,11,.08)',color:'#f59e0b'},failed:{bg:'rgba(239,68,68,.08)',color:'#ef4444'}};
             var sc = statusColors[c.status] || statusColors.active;
             return (
-              <div key={c.id} onClick={function() { onOpen(c.id); }}
-                style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',cursor:'pointer',transition:'all .2s',boxShadow:'0 2px 12px rgba(0,0,0,.04)'}}
+              <div key={c.id}
+                style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',transition:'all .2s',boxShadow:'0 2px 12px rgba(0,0,0,.04)',cursor:'default'}}
                 onMouseEnter={function(e) { e.currentTarget.style.boxShadow='0 8px 24px rgba(0,0,0,.1)'; }}
                 onMouseLeave={function(e) { e.currentTarget.style.boxShadow='0 2px 12px rgba(0,0,0,.04)'; }}>
                 <div style={{background:'#1c223d',padding:'14px 18px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
@@ -161,7 +190,13 @@ function CampaignList({ campaigns, onCreate, onCreateCustom, onOpen }) {
                       <div style={{fontSize:9,fontWeight:700,color:'#94a3b8'}}>CONVERTS</div>
                     </div>
                   </div>
-                  <div style={{fontSize:11,color:'#94a3b8'}}>Created {c.created_at ? new Date(c.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—'}</div>
+                  <div style={{fontSize:11,color:'#94a3b8',marginBottom:12}}>Created {c.created_at ? new Date(c.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—'}</div>
+                  <div style={{display:'flex',gap:8}}>
+                    <button onClick={function(e){e.stopPropagation();onOpen(c.id);}} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:5,padding:'9px 0',borderRadius:8,border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff'}}>
+                      Open Campaign
+                    </button>
+                    <DeleteCampaignBtn id={c.id} onDelete={onDelete}/>
+                  </div>
                 </div>
               </div>
             );
@@ -576,8 +611,10 @@ function CustomAgentWizard({ onComplete, onCancel }) {
 // CAMPAIGN DASHBOARD
 // ══════════════════════════════════════════════════════════
 
-function CampaignDashboard({ campaign, onBack }) {
+function CampaignDashboard({ campaign, onBack, onRefresh }) {
   var [copied, setCopied] = useState(false);
+  var [regenLoading, setRegenLoading] = useState(false);
+  var [deleteConfirm, setDeleteConfirm] = useState(false);
   var c = campaign;
 
   function copyLink() {
@@ -586,10 +623,19 @@ function CampaignDashboard({ campaign, onBack }) {
     setTimeout(function() { setCopied(false); }, 2000);
   }
 
+  function regenLanding() {
+    setRegenLoading(true);
+    apiPost('/api/superseller/regenerate-landing/' + c.id, {}).then(function() {
+      setRegenLoading(false);
+      if (onRefresh) onRefresh();
+    }).catch(function(){ setRegenLoading(false); });
+  }
+
   var isCustom = c.campaign_type === 'custom';
   var tabs = isCustom ? [
     {key:'agent',label:'AI Sales Agent',icon:MessageCircle},
   ] : [
+    {key:'landing',label:'Landing Page',icon:Layout},
     {key:'calendar',label:'Content Calendar',icon:Calendar},
     {key:'emails',label:'Email Sequence',icon:Mail},
     {key:'videos',label:'Video Scripts',icon:Film},
@@ -598,41 +644,62 @@ function CampaignDashboard({ campaign, onBack }) {
     {key:'agent',label:'AI Sales Agent',icon:MessageCircle},
   ];
 
-  // Default tab for custom agents
-  var [tab, setTab] = useState(isCustom ? 'agent' : 'calendar');
+  var [tab, setTab] = useState(isCustom ? 'agent' : 'landing');
 
   return (
     <div>
-      {/* Back button */}
-      <button onClick={onBack} style={{display:'flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'#94a3b8',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit',marginBottom:12}}>
-        ← Back to campaigns
-      </button>
-
-      {/* Funnel link banner */}
-      <div style={{background:'linear-gradient(135deg,#1c223d,#0f172a)',borderRadius:14,padding:'20px 24px',marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-        <div>
-          <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>{isCustom ? 'Your Offer Link' : 'Your SuperSeller Funnel Link'}</div>
-          <div style={{fontSize:14,fontWeight:600,color:'rgba(255,255,255,.6)',fontFamily:'monospace'}}>{c.funnel_url}</div>
-        </div>
-        <button onClick={copyLink}
-          style={{display:'flex',alignItems:'center',gap:6,padding:'10px 20px',borderRadius:10,border:'none',cursor:'pointer',
-            background:copied?'#16a34a':'#8b5cf6',color:'#fff',fontSize:13,fontWeight:800,fontFamily:'inherit',transition:'all .2s'}}>
-          {copied ? <><Check size={14}/> Copied!</> : <><Copy size={14}/> Copy Link</>}
+      {/* Back + header */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+        <button onClick={onBack} style={{display:'flex',alignItems:'center',gap:6,fontSize:13,fontWeight:700,color:'#64748b',background:'#fff',border:'1px solid #e8ecf2',borderRadius:8,cursor:'pointer',fontFamily:'inherit',padding:'8px 16px',boxShadow:'0 1px 4px rgba(0,0,0,.05)'}}>
+          ← Back
         </button>
+        <div style={{display:'flex',gap:8}}>
+          <a href={'/superseller/page/' + c.id} target="_blank" rel="noopener noreferrer"
+            style={{display:'flex',alignItems:'center',gap:6,padding:'8px 16px',borderRadius:8,border:'1px solid #e8ecf2',background:'#fff',textDecoration:'none',fontSize:12,fontWeight:700,color:'#475569',cursor:'pointer'}}>
+            <ExternalLink size={13}/> View Page
+          </a>
+          {!isCustom && (
+            <button onClick={regenLanding} disabled={regenLoading}
+              style={{display:'flex',alignItems:'center',gap:6,padding:'8px 16px',borderRadius:8,border:'1px solid #ddd6fe',background:'#faf5ff',fontSize:12,fontWeight:700,color:'#7c3aed',cursor:regenLoading?'default':'pointer',fontFamily:'inherit',opacity:regenLoading?.6:1}}>
+              <RefreshCcw size={13} style={{animation:regenLoading?'spin .8s linear infinite':'none'}}/> {regenLoading?'Regenerating...':'Regen Page'}
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Stats row */}
+      {/* Funnel link banner */}
+      <div style={{background:'linear-gradient(135deg,#1c223d,#0f172a)',borderRadius:14,padding:'18px 24px',marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between',gap:16}}>
+        <div style={{minWidth:0,flex:1}}>
+          <div style={{fontSize:9,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>{isCustom?'Your Offer Link':'Your SuperSeller Funnel Link'}</div>
+          <div style={{fontSize:13,fontWeight:600,color:'rgba(255,255,255,.55)',fontFamily:'monospace',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.funnel_url}</div>
+        </div>
+        <div style={{display:'flex',gap:8,flexShrink:0}}>
+          <button onClick={copyLink} style={{display:'flex',alignItems:'center',gap:6,padding:'10px 18px',borderRadius:9,border:'none',cursor:'pointer',background:copied?'#16a34a':'#8b5cf6',color:'#fff',fontSize:12,fontWeight:800,fontFamily:'inherit',transition:'all .2s',whiteSpace:'nowrap'}}>
+            {copied?<><Check size={13}/> Copied!</>:<><Copy size={13}/> Copy Link</>}
+          </button>
+          <a href={'https://wa.me/?text='+encodeURIComponent('Check this out: '+(c.funnel_url||''))} target="_blank" rel="noopener noreferrer"
+            style={{display:'flex',alignItems:'center',gap:5,padding:'10px 16px',borderRadius:9,border:'1px solid rgba(255,255,255,.15)',background:'rgba(255,255,255,.08)',color:'rgba(255,255,255,.7)',textDecoration:'none',fontSize:12,fontWeight:700,whiteSpace:'nowrap'}}>
+            <Share2 size={13}/> Share
+          </a>
+        </div>
+      </div>
+
+      {/* Stats row — bold gradient cards */}
+      <style>{`.ss-stat{transition:transform .2s ease}.ss-stat:hover{transform:translateY(-3px)}@keyframes ssSpin{to{transform:rotate(360deg)}}@keyframes ssCount{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}`}</style>
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
         {[
-          {value:c.link_clicks||0,label:'Link Clicks',color:'#0ea5e9'},
-          {value:c.page_views||0,label:'Page Views',color:'#6366f1'},
-          {value:c.leads_count||0,label:'Leads Captured',color:'#16a34a'},
-          {value:c.conversions_count||0,label:'Conversions',color:'#8b5cf6'},
+          {value:c.link_clicks||0,label:'Link Clicks',sub:'all time',grad:'linear-gradient(135deg,#0284c7,#38bdf8)',shadow:'rgba(14,165,233,.4)',emoji:'🔗'},
+          {value:c.page_views||0,label:'Page Views',sub:'total',grad:'linear-gradient(135deg,#4338ca,#818cf8)',shadow:'rgba(99,102,241,.4)',emoji:'👁️'},
+          {value:c.leads_count||0,label:'Leads',sub:'captured',grad:'linear-gradient(135deg,#065f46,#34d399)',shadow:'rgba(16,185,129,.4)',emoji:'🎯'},
+          {value:c.conversions_count||0,label:'Conversions',sub:'total',grad:'linear-gradient(135deg,#6d28d9,#a78bfa)',shadow:'rgba(139,92,246,.4)',emoji:'💰'},
         ].map(function(s,i) {
           return (
-            <div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:16,textAlign:'center'}}>
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:s.color}}>{s.value}</div>
-              <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',marginTop:2}}>{s.label}</div>
+            <div key={i} className="ss-stat" style={{borderRadius:14,padding:'16px 14px',position:'relative',overflow:'hidden',background:s.grad,boxShadow:'0 6px 20px '+s.shadow}}>
+              <div style={{position:'absolute',right:8,top:8,fontSize:22,opacity:.2,pointerEvents:'none',userSelect:'none'}}>{s.emoji}</div>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:900,color:'#fff',lineHeight:1,animation:'ssCount .5s ease both',animationDelay:i*.08+'s',textShadow:'0 2px 6px rgba(0,0,0,.15)'}}>{s.value}</div>
+              <div style={{fontSize:13,fontWeight:800,color:'rgba(255,255,255,.9)',marginTop:4}}>{s.label}</div>
+              <div style={{fontSize:9,color:'rgba(255,255,255,.55)',fontWeight:600,textTransform:'uppercase',letterSpacing:.6,marginTop:1}}>{s.sub}</div>
+              <div style={{position:'absolute',bottom:0,left:0,right:0,height:2,background:'rgba(255,255,255,.25)'}}/>
             </div>
           );
         })}
@@ -656,6 +723,7 @@ function CampaignDashboard({ campaign, onBack }) {
       </div>
 
       {/* Tab content */}
+      {tab === 'landing' && <LandingPageTab campaign={c} onRegen={regenLanding} regenLoading={regenLoading}/>}
       {tab === 'calendar' && <CalendarTab posts={c.social_posts} funnel={c.funnel_url} created={c.created_at}/>}
       {tab === 'emails' && <EmailsTab emails={c.email_sequence}/>}
       {tab === 'videos' && <VideosTab scripts={c.video_scripts}/>}
@@ -715,6 +783,72 @@ function CalendarTab({ posts, funnel, created }) {
           );
         }) : <div style={{padding:'40px 20px',textAlign:'center',color:'#94a3b8',fontSize:13}}>Generating social posts...</div>}
       </div>
+    </div>
+  );
+}
+
+function LandingPageTab({ campaign, onRegen, regenLoading }) {
+  var [copied, setCopied] = useState(false);
+  var pageUrl = window.location.origin + '/superseller/page/' + campaign.id;
+
+  function copyUrl() {
+    navigator.clipboard.writeText(pageUrl);
+    setCopied(true);
+    setTimeout(function(){setCopied(false);}, 2000);
+  }
+
+  return (
+    <div>
+      {/* URL bar */}
+      <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'16px 20px',marginBottom:16,display:'flex',alignItems:'center',gap:12,boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#94a3b8',marginBottom:4}}>Live Landing Page URL</div>
+          <div style={{fontSize:13,fontWeight:600,color:'#0ea5e9',fontFamily:'monospace',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{pageUrl}</div>
+        </div>
+        <div style={{display:'flex',gap:8,flexShrink:0}}>
+          <button onClick={copyUrl} style={{display:'flex',alignItems:'center',gap:5,padding:'9px 16px',borderRadius:8,border:'1px solid #bae6fd',background:'#f0f9ff',cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,color:'#0284c7',transition:'all .15s'}}>
+            {copied?<><Check size={12}/> Copied!</>:<><Copy size={12}/> Copy URL</>}
+          </button>
+          <a href={pageUrl} target="_blank" rel="noopener noreferrer"
+            style={{display:'flex',alignItems:'center',gap:5,padding:'9px 16px',borderRadius:8,border:'1px solid #e8ecf2',background:'#fff',textDecoration:'none',fontSize:12,fontWeight:700,color:'#475569'}}>
+            <ExternalLink size={12}/> Open Page
+          </a>
+          <button onClick={onRegen} disabled={regenLoading}
+            style={{display:'flex',alignItems:'center',gap:5,padding:'9px 14px',borderRadius:8,border:'1px solid #ddd6fe',background:'#faf5ff',cursor:regenLoading?'default':'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,color:'#7c3aed',opacity:regenLoading?.6:1}}>
+            <RefreshCcw size={12} style={{animation:regenLoading?'ssSpin .8s linear infinite':'none'}}/> {regenLoading?'Working...':'Regenerate'}
+          </button>
+        </div>
+      </div>
+
+      {/* Preview iframe */}
+      {campaign.landing_page_html ? (
+        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
+          <div style={{background:'#1c223d',padding:'10px 16px',display:'flex',alignItems:'center',gap:8}}>
+            <div style={{display:'flex',gap:5}}>
+              <div style={{width:10,height:10,borderRadius:'50%',background:'#ef4444'}}/>
+              <div style={{width:10,height:10,borderRadius:'50%',background:'#f59e0b'}}/>
+              <div style={{width:10,height:10,borderRadius:'50%',background:'#22c55e'}}/>
+            </div>
+            <div style={{flex:1,background:'rgba(255,255,255,.08)',borderRadius:4,padding:'3px 10px',fontSize:11,color:'rgba(255,255,255,.4)',fontFamily:'monospace'}}>{pageUrl}</div>
+          </div>
+          <iframe
+            srcDoc={campaign.landing_page_html}
+            style={{width:'100%',height:600,border:'none',display:'block'}}
+            title="Landing Page Preview"
+            sandbox="allow-forms allow-scripts allow-same-origin"
+          />
+        </div>
+      ) : (
+        <div style={{background:'#fff',border:'2px dashed #e8ecf2',borderRadius:14,padding:'60px 20px',textAlign:'center'}}>
+          <Layout size={40} color="#cbd5e1" style={{marginBottom:12}}/>
+          <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:6}}>Landing page not yet generated</div>
+          <div style={{fontSize:13,color:'#94a3b8',marginBottom:20}}>This campaign was created before the landing page feature. Click below to generate one now.</div>
+          <button onClick={onRegen} disabled={regenLoading}
+            style={{display:'inline-flex',alignItems:'center',gap:8,padding:'12px 28px',borderRadius:10,border:'none',cursor:regenLoading?'default':'pointer',fontFamily:'inherit',fontSize:14,fontWeight:800,background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',boxShadow:'0 4px 16px rgba(139,92,246,.3)',opacity:regenLoading?.6:1}}>
+            <Wand2 size={16}/> {regenLoading?'Generating...':'Generate Landing Page'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
