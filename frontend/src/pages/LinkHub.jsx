@@ -429,7 +429,13 @@ function StylePanel({ style, setStyle }) {
         <label style={{fontSize:13,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Background Image</label>
         {style.bg_image_url && (
           <div style={{width:'100%',height:60,borderRadius:8,marginBottom:6,backgroundImage:'url('+style.bg_image_url+')',backgroundSize:'cover',backgroundPosition:'center',border:'1px solid #e5e7eb',position:'relative'}}>
-            <button onClick={function(){setStyle(function(s){return Object.assign({},s,{bg_image_url:''});});}} style={{position:'absolute',top:4,right:4,width:20,height:20,borderRadius:'50%',border:'none',background:'rgba(0,0,0,.6)',color:'#fff',fontSize:12,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>×</button>
+            <button onClick={function(){
+              var newStyle = Object.assign({},style,{bg_image_url:''});
+              setStyle(newStyle);
+              apiPost('/linkhub/save', Object.assign({},newStyle,{display_name:profile.display_name,bio:profile.bio,avatar_url:profile.avatar_url,is_published:true,links:links.map(function(l,i){return {id:l.id>9999999?undefined:l.id,title:l.title,url:l.url,icon:l.icon||'link',is_active:l.is_active,sort_order:i};})})).catch(function(){});
+            }} style={{position:'absolute',top:6,right:6,padding:'4px 10px',borderRadius:6,border:'none',background:'rgba(220,38,38,.85)',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:3,fontFamily:'inherit'}}>
+              ✕ Remove
+            </button>
           </div>
         )}
         <div style={{display:'flex',gap:6}}>
