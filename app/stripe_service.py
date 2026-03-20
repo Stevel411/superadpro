@@ -15,7 +15,7 @@ SITE_URL                = os.getenv("SITE_URL", "https://www.superadpro.com")
 # Membership price IDs — set these in Railway env vars after creating
 # products in Stripe dashboard
 STRIPE_BASIC_PRICE_ID   = os.getenv("STRIPE_BASIC_PRICE_ID", "")   # $20/mo recurring
-STRIPE_PRO_PRICE_ID     = os.getenv("STRIPE_PRO_PRICE_ID", "")     # $35/mo recurring
+STRIPE_PRO_PRICE_ID     = os.getenv("STRIPE_PRO_PRICE_ID", "")     # $35/mo recurring — price_1TD1KEBxEFGz0qoH2yZNibw1
 
 
 def get_stripe():
