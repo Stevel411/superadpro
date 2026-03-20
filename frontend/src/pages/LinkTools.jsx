@@ -290,7 +290,7 @@ export default function LinkTools() {
             animationDelay:s.delay+'s',
           }}>
             {/* Shine sweep */}
-            <div style={{position:'absolute',top:0,bottom:0,width:'45%',background:'linear-gradient(105deg,transparent 35%,rgba(255,255,255,.18) 50%,transparent 65%)',animation:'ltShine 3s ease-in-out infinite',animationDelay:i*.8+'s',pointerEvents:'none'}}/>
+            <div style={{position:'absolute',top:0,bottom:0,width:'45%',background:'linear-gradient(105deg,transparent 35%,rgba(255,255,255,.18) 50%,transparent 65%)',animation:'ltShine 4.5s ease-in-out infinite',animationDelay:i*.8+'s',pointerEvents:'none'}}/>
             {/* Big decorative emoji */}
             <div style={{position:'absolute',right:16,top:16,fontSize:52,opacity:.18,animation:'ltFloat '+(5+i)+'s ease-in-out infinite',animationDelay:i*1.2+'s',pointerEvents:'none',userSelect:'none'}}>{s.emoji}</div>
             {/* Pulse ring */}
