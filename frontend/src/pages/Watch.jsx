@@ -160,12 +160,23 @@ export default function Watch() {
     const frame = iframeRef.current;
     if (!frame || !current?.embed_url) return;
     const url = current.embed_url;
+    // Use postMessage to control the player without reloading the iframe
     if (url.includes('vimeo')) {
-      const sep = url.includes('?') ? '&' : '?';
-      frame.src = `${url}${sep}autoplay=1&muted=${newMuted?1:0}&controls=0&title=0&byline=0&portrait=0`;
-    } else {
-      const sep = url.includes('?') ? '&' : '?';
-      frame.src = `${url}${sep}autoplay=1&mute=${newMuted?1:0}&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&enablejsapi=1`;
+      // Vimeo Player API via postMessage
+      frame.contentWindow.postMessage(JSON.stringify({
+        method: 'setVolume', value: newMuted ? 0 : 0.8
+      }), '*');
+    } else if (url.includes('youtube') || url.includes('youtu.be')) {
+      // YouTube iframe API via postMessage
+      if (newMuted) {
+        frame.contentWindow.postMessage(JSON.stringify({
+          event: 'command', func: 'mute', args: []
+        }), '*');
+      } else {
+        frame.contentWindow.postMessage(JSON.stringify({
+          event: 'command', func: 'unMute', args: []
+        }), '*');
+      }
     }
   };
 
