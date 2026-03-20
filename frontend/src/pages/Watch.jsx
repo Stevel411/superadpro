@@ -56,7 +56,8 @@ var CSS = `
   .watch-desktop-panel { display: none !important; }
   .watch-hint { display: none !important; }
   .watch-video-card { border-radius: 0 !important; border-left: none !important; border-right: none !important; }
-  .watch-player-card { border-radius: 0 !important; border-left: none !important; border-right: none !important; }
+  .watch-player-card { border-radius: 0 !important; border: none !important; box-shadow: none !important; margin: 0 !important; }
+  .watch-layout { overflow-x: hidden; }
 }
 
 .mark-btn {
