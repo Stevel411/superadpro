@@ -22,136 +22,71 @@
    ═══════════════════════════════════════════════════════════ */
 
 @media (max-width: 767px) {
-  /* Grid helpers — class-based */
+  /* ── Grid collapses ── */
+  /* Class-based (pages that use helper classes) */
   .grid-5-col { grid-template-columns: repeat(2, 1fr) !important; }
   .grid-4-col { grid-template-columns: repeat(2, 1fr) !important; }
-  .grid-3-col { grid-template-columns: 1fr !important; }
+  .grid-3-col { grid-template-columns: 1fr 1fr !important; }
   .grid-2-col { grid-template-columns: 1fr 1fr !important; }
 
-  /* Force ALL inline-styled multi-column grids to stack or 2-col */
-  main [style*="grid-template-columns: repeat(5"],
-  main [style*="grid-template-columns: repeat(4"],
-  main [style*="gridTemplateColumns"] {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
+  /* Inline-style overrides (React renders camelCase as kebab-case in DOM) */
+  main [style*="grid-template-columns: repeat(5"] { grid-template-columns: repeat(2, 1fr) !important; }
+  main [style*="grid-template-columns: repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
+  main [style*="grid-template-columns: 1fr 1fr 1fr"] { grid-template-columns: 1fr 1fr !important; }
+  main [style*="grid-template-columns: 1fr 1fr;"] { grid-template-columns: 1fr !important; }
 
-  /* Force 3-col and wider grids in main content to 2-col */
-  main [style*="grid-template-columns: 1fr 1fr 1fr"] {
-    grid-template-columns: 1fr 1fr !important;
-  }
-
-  /* Topbar */
+  /* ── Topbar ── */
   header h1 { font-size: 15px !important; }
   header p { display: none !important; }
 
-  /* Content area */
+  /* ── Content area ── */
   main { overflow-x: hidden !important; }
-  
-  /* Tables: horizontal scroll */
+  main > div { max-width: 100% !important; }
+
+  /* ── Tables ── */
   table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  main [style*="min-width: 700"] { min-width: 0 !important; }
 
-  /* Cards and containers — prevent overflow */
-  main > div { max-width: 100% !important; overflow-x: hidden; }
+  /* ── Fixed-width elements ── */
+  main [style*="width: 620px"] { width: 100% !important; min-width: 0 !important; }
+  main [style*="min-width: 620"] { min-width: 0 !important; }
 
-  /* Fixed-width elements — force fluid */
-  main [style*="width: 620px"],
-  main [style*="width:620px"],
-  main [style*="min-width: 620"],
-  main [style*="minWidth:620"],
-  main [style*="minWidth: 620"] {
-    width: 100% !important;
-    min-width: 0 !important;
-  }
+  /* ── Max-width containers ── */
+  main [style*="max-width: 900px"] { max-width: 100% !important; }
+  main [style*="max-width: 700px"] { max-width: 100% !important; }
 
-  /* Large max-widths — let them breathe */
-  main [style*="maxWidth: 900"],
-  main [style*="max-width: 900"],
-  main [style*="maxWidth:900"] {
-    max-width: 100% !important;
-  }
+  /* ── Dashboard hero ── */
+  main [style*="margin-right: 140px"] { margin-right: 0 !important; }
 
-  /* Hero sections with absolute positioned elements — contain them */
-  main [style*="position: relative"][style*="overflow: hidden"] {
-    overflow: hidden !important;
-  }
+  /* ── Large text ── */
+  main [style*="font-size: 36px"] { font-size: 26px !important; }
+  main [style*="font-size: 32px"] { font-size: 24px !important; }
+  main [style*="font-size: 28px"] { font-size: 22px !important; }
 
-  /* Font sizes — clamp large text */
-  main [style*="fontSize: 36"],
-  main [style*="fontSize:36"],
-  main [style*="font-size: 36px"] {
-    font-size: 26px !important;
-  }
-
-  main [style*="fontSize: 32"],
-  main [style*="fontSize:32"],
-  main [style*="font-size: 32px"] {
-    font-size: 24px !important;
-  }
-
-  /* Buttons side by side — stack vertically */
-  main [style*="display: flex"][style*="gap"] > a[style*="padding"],
-  main [style*="display:flex"][style*="gap"] > a[style*="padding"] {
-    font-size: 11px !important;
-    padding: 8px 12px !important;
-  }
-
-  /* Notification dropdown — full width on mobile */
-  .notif-dropdown,
-  [class*="absolute"][class*="right-0"][class*="w-[340px]"] {
+  /* ── Notifications ── */
+  header [style*="width: 340px"],
+  header [class*="w-[340px]"] {
     width: calc(100vw - 32px) !important;
     right: -60px !important;
   }
 
-  /* Upgrade page — stack plan cards */
-  main [style*="gridTemplateColumns: '1fr 1fr'"],
-  main [style*="grid-template-columns: 1fr 1fr"] {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Crypto checkout modal — fit screen */
-  [style*="max-width: 480px"],
-  [style*="maxWidth: 480"],
-  [style*="maxWidth:480"] {
-    max-width: calc(100vw - 32px) !important;
-  }
-
-  /* Dashboard hero buttons — reduce margin */
-  main [style*="marginRight:140"],
-  main [style*="marginRight: 140"] {
-    margin-right: 0 !important;
-  }
-
-  /* Flex wrap for stat rows */
-  main [style*="display: 'flex'"][style*="gap"],
-  main [style*="display:'flex'"][style*="gap"] {
-    flex-wrap: wrap;
-  }
+  /* ── Crypto checkout ── */
+  [style*="max-width: 480px"] { max-width: calc(100vw - 32px) !important; }
+  [style*="max-width: 440px"] { max-width: calc(100vw - 32px) !important; }
 }
 
 @media (max-width: 480px) {
-  /* Extra small screens — single column everything */
+  /* ── Extra small — single column everything ── */
   .grid-2-col { grid-template-columns: 1fr !important; }
-  
-  main [style*="grid-template-columns: repeat(2"],
-  main [style*="gridTemplateColumns"] {
-    grid-template-columns: 1fr !important;
-  }
+  .grid-5-col { grid-template-columns: 1fr !important; }
+  .grid-4-col { grid-template-columns: 1fr !important; }
+
+  main [style*="grid-template-columns: repeat("] { grid-template-columns: 1fr !important; }
+  main [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
 
   main { padding: 12px !important; }
 
-  /* Stack upgrade plan cards */
-  main [style*="gridTemplateColumns"] {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Smaller padding on cards */
-  main [style*="padding: 32px"],
-  main [style*="padding:32px"] {
-    padding: 18px !important;
-  }
-
-  main [style*="padding: 24px"],
-  main [style*="padding:24px"] {
-    padding: 14px !important;
-  }
+  /* ── Smaller padding on cards ── */
+  main [style*="padding: 32px"] { padding: 18px !important; }
+  main [style*="padding: 28px"] { padding: 16px !important; }
 }
