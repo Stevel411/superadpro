@@ -207,10 +207,21 @@ function PlaceholderPage({ title }) {
   );
 }
 
+// Strip /app prefix so both /dashboard and /app/dashboard work
+function AppPrefixRedirect() {
+  const loc = window.location;
+  if (loc.pathname.startsWith('/app/') || loc.pathname === '/app') {
+    const clean = loc.pathname.replace(/^\/app/, '') || '/';
+    window.history.replaceState(null, '', clean + loc.search + loc.hash);
+  }
+  return null;
+}
+
 export default function App() {
   return (
     <ErrorBoundary>
-      <BrowserRouter basename="/app">
+      <BrowserRouter>
+        <AppPrefixRedirect />
         <AuthProvider>
           <AppRoutes />
         </AuthProvider>
