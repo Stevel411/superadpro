@@ -1117,6 +1117,27 @@ class SuperSellerCampaign(Base):
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+class CryptoPaymentOrder(Base):
+    """Pending crypto payment orders — matched to incoming USDT transfers."""
+    __tablename__ = "crypto_payment_orders"
+    id              = Column(Integer, primary_key=True, autoincrement=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    # Product info
+    product_type    = Column(String(50), nullable=False)   # membership, grid, course, supermarket, email_boost
+    product_key     = Column(String(100), nullable=False)  # membership_basic, grid_3, course_42, etc.
+    product_meta    = Column(Text, nullable=True)           # JSON: extra info (course_id, tier, etc.)
+    # Payment
+    base_amount     = Column(Numeric(18, 6), nullable=False)  # e.g. 20.000000
+    unique_amount   = Column(Numeric(18, 6), nullable=False, unique=True)  # e.g. 20.004200
+    # Status
+    status          = Column(String(20), default="pending")  # pending / confirmed / expired / cancelled
+    tx_hash         = Column(String(100), nullable=True)
+    from_address    = Column(String(50), nullable=True)
+    confirmed_at    = Column(DateTime, nullable=True)
+    expires_at      = Column(DateTime, nullable=False)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+
+
 try:
     Base.metadata.create_all(bind=engine)
 except Exception as e:
@@ -1641,6 +1662,28 @@ try:
         conn.execute(text("ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS agent_name VARCHAR(100)"))
         conn.execute(text("ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS agent_greeting TEXT"))
         conn.execute(text("ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS chat_conversations INTEGER DEFAULT 0"))
+
+        # ── Crypto payment orders table ──
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS crypto_payment_orders (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                product_type VARCHAR(50) NOT NULL,
+                product_key VARCHAR(100) NOT NULL,
+                product_meta TEXT,
+                base_amount NUMERIC(18,6) NOT NULL,
+                unique_amount NUMERIC(18,6) NOT NULL UNIQUE,
+                status VARCHAR(20) DEFAULT 'pending',
+                tx_hash VARCHAR(100),
+                from_address VARCHAR(50),
+                confirmed_at TIMESTAMP,
+                expires_at TIMESTAMP NOT NULL,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        """))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_crypto_orders_user ON crypto_payment_orders(user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_crypto_orders_status ON crypto_payment_orders(status)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_crypto_orders_amount ON crypto_payment_orders(unique_amount)"))
 
         conn.commit()
         print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 + R2 + courses confirmed")

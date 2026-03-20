@@ -2914,6 +2914,454 @@ def _stripe_process_grid(db, user, package_tier, price_usd, session_id):
     db.commit()
 
 
+# ═══════════════════════════════════════════════════════════════
+#  CRYPTO PAYMENTS — USDT on Polygon via Alchemy
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/crypto/create-checkout")
+async def crypto_create_checkout(request: Request, db: Session = Depends(get_db),
+                                  user: User = Depends(get_current_user)):
+    """Create a crypto payment order. Returns wallet address + unique amount."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from .database import CryptoPaymentOrder
+    from .crypto_payments import (
+        TREASURY_WALLET, PRODUCT_PRICES, ORDER_EXPIRY_MINUTES,
+        generate_unique_amount, usdt_to_raw
+    )
+    from datetime import datetime, timedelta
+    import json as _json
+
+    body = await request.json()
+    product_key = body.get("product_key", "")  # e.g. "membership_basic", "grid_3"
+    product_meta = body.get("meta", {})        # optional extra data
+
+    # Validate product
+    if product_key not in PRODUCT_PRICES:
+        # Check if it's a course or supermarket (dynamic pricing)
+        if product_key.startswith("course_"):
+            course_id = int(product_key.split("_")[1])
+            from .database import MemberCourse
+            course = db.query(MemberCourse).filter(MemberCourse.id == course_id).first()
+            if not course:
+                return JSONResponse({"error": "Course not found"}, status_code=404)
+            base_price = Decimal(str(course.price or 0))
+            product_type = "course"
+        elif product_key.startswith("supermarket_"):
+            prod_id = int(product_key.split("_")[1])
+            from .database import DigitalProduct
+            product = db.query(DigitalProduct).filter(DigitalProduct.id == prod_id).first()
+            if not product:
+                return JSONResponse({"error": "Product not found"}, status_code=404)
+            base_price = Decimal(str(product.price or 0))
+            product_type = "supermarket"
+        else:
+            return JSONResponse({"error": f"Unknown product: {product_key}"}, status_code=400)
+    else:
+        base_price = PRODUCT_PRICES[product_key]
+        if product_key.startswith("membership"):
+            product_type = "membership"
+        elif product_key.startswith("grid"):
+            product_type = "grid"
+        elif product_key.startswith("email_boost"):
+            product_type = "email_boost"
+        else:
+            product_type = "other"
+
+    if base_price <= 0:
+        return JSONResponse({"error": "Invalid price"}, status_code=400)
+
+    # Expire any old pending orders for this user + product
+    db.query(CryptoPaymentOrder).filter(
+        CryptoPaymentOrder.user_id == user.id,
+        CryptoPaymentOrder.product_key == product_key,
+        CryptoPaymentOrder.status == "pending",
+    ).update({"status": "cancelled"})
+    db.flush()
+
+    # Create order with placeholder amount first (to get the ID)
+    order = CryptoPaymentOrder(
+        user_id=user.id,
+        product_type=product_type,
+        product_key=product_key,
+        product_meta=_json.dumps(product_meta) if product_meta else None,
+        base_amount=base_price,
+        unique_amount=base_price,  # temporary — will update
+        status="pending",
+        expires_at=datetime.utcnow() + timedelta(minutes=ORDER_EXPIRY_MINUTES),
+    )
+    db.add(order)
+    db.flush()  # get the ID
+
+    # Now generate the unique amount using the order ID
+    unique_amount = generate_unique_amount(base_price, user.id, order.id)
+
+    # Ensure uniqueness — if collision, try again with offset
+    existing = db.query(CryptoPaymentOrder).filter(
+        CryptoPaymentOrder.unique_amount == unique_amount,
+        CryptoPaymentOrder.status == "pending",
+        CryptoPaymentOrder.id != order.id,
+    ).first()
+    if existing:
+        unique_amount = generate_unique_amount(base_price, user.id, order.id + 10000)
+
+    order.unique_amount = unique_amount
+    db.commit()
+
+    return {
+        "order_id": order.id,
+        "wallet_address": TREASURY_WALLET,
+        "amount_usdt": str(unique_amount),
+        "amount_raw": usdt_to_raw(unique_amount),
+        "chain": "Polygon",
+        "chain_id": 137,
+        "token": "USDT",
+        "token_contract": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+        "expires_at": order.expires_at.isoformat(),
+        "expires_in_seconds": ORDER_EXPIRY_MINUTES * 60,
+    }
+
+
+@app.get("/api/crypto/order/{order_id}")
+async def crypto_order_status(order_id: int, request: Request,
+                               db: Session = Depends(get_db),
+                               user: User = Depends(get_current_user)):
+    """Check the status of a crypto payment order."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from .database import CryptoPaymentOrder
+    order = db.query(CryptoPaymentOrder).filter(
+        CryptoPaymentOrder.id == order_id,
+        CryptoPaymentOrder.user_id == user.id,
+    ).first()
+
+    if not order:
+        return JSONResponse({"error": "Order not found"}, status_code=404)
+
+    # Check if expired
+    from datetime import datetime
+    if order.status == "pending" and order.expires_at < datetime.utcnow():
+        order.status = "expired"
+        db.commit()
+
+    return {
+        "order_id": order.id,
+        "status": order.status,
+        "product_key": order.product_key,
+        "amount_usdt": str(order.unique_amount),
+        "tx_hash": order.tx_hash,
+        "confirmed_at": order.confirmed_at.isoformat() if order.confirmed_at else None,
+        "expires_at": order.expires_at.isoformat(),
+    }
+
+
+@app.post("/api/crypto/verify-payment")
+async def crypto_verify_payment(request: Request, db: Session = Depends(get_db),
+                                 user: User = Depends(get_current_user)):
+    """
+    Member submits their tx_hash after sending USDT.
+    Backend verifies the transaction on Polygon and activates the product.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from .database import CryptoPaymentOrder
+    from .crypto_payments import check_usdt_transfer, TREASURY_WALLET
+    from decimal import Decimal
+    from datetime import datetime
+    import json as _json
+
+    body = await request.json()
+    order_id = int(body.get("order_id", 0))
+    tx_hash = (body.get("tx_hash") or "").strip()
+
+    if not tx_hash or not tx_hash.startswith("0x"):
+        return JSONResponse({"error": "Invalid transaction hash"}, status_code=400)
+
+    order = db.query(CryptoPaymentOrder).filter(
+        CryptoPaymentOrder.id == order_id,
+        CryptoPaymentOrder.user_id == user.id,
+        CryptoPaymentOrder.status == "pending",
+    ).first()
+
+    if not order:
+        return JSONResponse({"error": "Order not found or already processed"}, status_code=404)
+
+    # Check if expired
+    if order.expires_at < datetime.utcnow():
+        order.status = "expired"
+        db.commit()
+        return JSONResponse({"error": "Order expired"}, status_code=400)
+
+    # Check if tx_hash already used
+    existing = db.query(CryptoPaymentOrder).filter(
+        CryptoPaymentOrder.tx_hash == tx_hash,
+        CryptoPaymentOrder.status == "confirmed",
+    ).first()
+    if existing:
+        return JSONResponse({"error": "Transaction already used for another order"}, status_code=400)
+
+    # Verify on Polygon via Alchemy
+    try:
+        result = check_usdt_transfer(tx_hash)
+    except Exception as e:
+        logger.error(f"Alchemy verification failed: {e}")
+        return JSONResponse({"error": "Could not verify transaction. Try again in a moment."}, status_code=503)
+
+    if not result.get("confirmed"):
+        return JSONResponse({
+            "error": result.get("error", "Transaction not confirmed yet"),
+            "status": "pending",
+        }, status_code=202)
+
+    # Verify the transfer went to OUR treasury wallet
+    if result["to_address"].lower() != TREASURY_WALLET.lower():
+        return JSONResponse({"error": "Payment was sent to the wrong address"}, status_code=400)
+
+    # Verify the amount matches (allow tiny tolerance for rounding)
+    received = result["amount_usdt"]
+    expected = order.unique_amount
+    tolerance = Decimal("0.001")  # $0.001 tolerance
+
+    if abs(received - expected) > tolerance:
+        return JSONResponse({
+            "error": f"Amount mismatch. Expected {expected} USDT, received {received} USDT",
+        }, status_code=400)
+
+    # ── Payment verified! Activate the product ──
+    order.status = "confirmed"
+    order.tx_hash = tx_hash
+    order.from_address = result["from_address"]
+    order.confirmed_at = datetime.utcnow()
+    db.flush()
+
+    meta = _json.loads(order.product_meta) if order.product_meta else {}
+
+    # Record the payment in the main payments table
+    import uuid
+    payment = Payment(
+        from_user_id=user.id, to_user_id=None,
+        amount_usdt=order.base_amount,
+        payment_type=f"crypto_{order.product_type}",
+        tx_hash=tx_hash, status="confirmed",
+    )
+    db.add(payment)
+    db.flush()
+
+    # Activate the product based on type
+    activation_result = _crypto_activate_product(db, user, order, meta)
+
+    db.commit()
+
+    return {
+        "success": True,
+        "status": "confirmed",
+        "order_id": order.id,
+        "tx_hash": tx_hash,
+        "product_type": order.product_type,
+        "product_key": order.product_key,
+        "message": activation_result.get("message", "Payment confirmed and product activated!"),
+    }
+
+
+def _crypto_activate_product(db, user, order, meta):
+    """Activate the correct product after crypto payment is confirmed."""
+    from datetime import datetime, timedelta
+    from decimal import Decimal
+    import uuid
+
+    product_key = order.product_key
+
+    # ── Membership ──
+    if order.product_type == "membership":
+        tier = "pro" if "pro" in product_key else "basic"
+        fee = order.base_amount
+        sponsor_share = fee * Decimal("0.50")
+
+        user.is_active = True
+        user.membership_tier = tier
+        user.membership_expires_at = datetime.utcnow() + timedelta(days=31)
+
+        # Credit sponsor commission
+        if user.sponsor_id:
+            sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
+            if sponsor:
+                sponsor.balance = (sponsor.balance or 0) + sponsor_share
+                sponsor.total_earned = (sponsor.total_earned or 0) + sponsor_share
+                sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
+                comm = Commission(
+                    to_user_id=sponsor.id, from_user_id=user.id,
+                    amount_usdt=sponsor_share, commission_type="membership_sponsor",
+                    package_tier=0,
+                    notes=f"Crypto membership commission from {user.username}",
+                    status="pending", paid_at=datetime.utcnow(),
+                )
+                db.add(comm)
+
+        try:
+            initialise_renewal_record(db, user.id, source="crypto")
+        except Exception:
+            pass
+
+        return {"message": f"{tier.title()} membership activated! Expires {user.membership_expires_at.strftime('%d %b %Y')}."}
+
+    # ── Grid / Campaign Tier ──
+    elif order.product_type == "grid":
+        package_tier = int(product_key.split("_")[1])
+        price = order.base_amount
+
+        from .grid import place_member_in_grid
+        from .database import GRID_PACKAGES
+
+        sponsor_id = user.sponsor_id
+        if not sponsor_id:
+            admin = db.query(User).filter(User.is_admin == True).first()
+            sponsor_id = admin.id if admin else 1
+
+        result = place_member_in_grid(db=db, member_id=user.id, owner_id=sponsor_id, package_tier=package_tier)
+
+        # Commission split 40/50/5/5
+        direct_share  = price * Decimal("0.40")
+        if user.sponsor_id:
+            sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
+            if sponsor:
+                sponsor.balance = (sponsor.balance or 0) + direct_share
+                sponsor.total_earned = (sponsor.total_earned or 0) + direct_share
+                sponsor.grid_earnings = (sponsor.grid_earnings or 0) + direct_share
+                comm = Commission(
+                    to_user_id=sponsor.id, from_user_id=user.id,
+                    amount_usdt=direct_share, commission_type="grid_direct",
+                    package_tier=package_tier,
+                    notes=f"Crypto Grid Tier {package_tier} direct commission",
+                    status="pending",
+                )
+                db.add(comm)
+
+        return {"message": f"Campaign Tier {package_tier} activated!"}
+
+    # ── Email Boost ──
+    elif order.product_type == "email_boost":
+        pack_map = {
+            "email_boost_1000": 1000,
+            "email_boost_5000": 5000,
+            "email_boost_10000": 10000,
+            "email_boost_50000": 50000,
+        }
+        credits = pack_map.get(product_key, 0)
+        if credits:
+            user.email_credits = (user.email_credits or 0) + credits
+        return {"message": f"{credits:,} email credits added!"}
+
+    # ── Course ──
+    elif order.product_type == "course":
+        course_id = int(product_key.split("_")[1])
+        tx_ref = f"crypto_{order.tx_hash[:20]}" if order.tx_hash else f"crypto_{uuid.uuid4().hex[:12]}"
+        try:
+            process_course_purchase(db, user.id, course_id, payment_method="crypto", tx_ref=tx_ref)
+        except Exception as e:
+            logger.error(f"Course activation failed: {e}")
+        return {"message": "Course purchased successfully!"}
+
+    # ── SuperMarket ──
+    elif order.product_type == "supermarket":
+        product_id = int(product_key.split("_")[1])
+        affiliate_id = meta.get("affiliate_id")
+        affiliate_id = int(affiliate_id) if affiliate_id else None
+        _stripe_process_supermarket(db, user, product_id,
+                                     order.tx_hash or f"crypto_{uuid.uuid4().hex[:12]}",
+                                     affiliate_id)
+        return {"message": "Product purchased!"}
+
+    return {"message": "Payment confirmed!"}
+
+
+@app.post("/api/crypto/poll-payments")
+async def crypto_poll_payments(request: Request, db: Session = Depends(get_db)):
+    """
+    Cron endpoint — polls Alchemy for recent USDT transfers to treasury
+    and auto-confirms matching pending orders.
+    Protected by CRON_SECRET bearer token.
+    """
+    import os
+    auth = request.headers.get("Authorization", "")
+    secret = os.environ.get("CRON_SECRET", "")
+    if not auth.endswith(secret):
+        return JSONResponse({"error": "Forbidden"}, status_code=403)
+
+    from .database import CryptoPaymentOrder
+    from .crypto_payments import get_recent_usdt_transfers, TREASURY_WALLET
+    from decimal import Decimal
+    from datetime import datetime
+
+    # Get pending orders
+    pending = db.query(CryptoPaymentOrder).filter(
+        CryptoPaymentOrder.status == "pending",
+        CryptoPaymentOrder.expires_at > datetime.utcnow(),
+    ).all()
+
+    if not pending:
+        return {"matched": 0, "message": "No pending orders"}
+
+    # Build lookup by unique amount
+    amount_map = {}
+    for o in pending:
+        key = str(o.unique_amount.quantize(Decimal("0.000001")))
+        amount_map[key] = o
+
+    # Fetch recent transfers from Alchemy
+    try:
+        transfers = get_recent_usdt_transfers(from_block="latest")
+    except Exception as e:
+        logger.error(f"Alchemy poll failed: {e}")
+        return JSONResponse({"error": str(e)}, status_code=503)
+
+    matched = 0
+    for t in transfers:
+        amount_key = str(t["amount_usdt"].quantize(Decimal("0.000001")))
+        if amount_key in amount_map:
+            order = amount_map[amount_key]
+            # Verify not already used
+            if order.status != "pending":
+                continue
+
+            order.status = "confirmed"
+            order.tx_hash = t["tx_hash"]
+            order.from_address = t["from_address"]
+            order.confirmed_at = datetime.utcnow()
+            db.flush()
+
+            # Activate product
+            user = db.query(User).filter(User.id == order.user_id).first()
+            if user:
+                import json as _json
+                meta = _json.loads(order.product_meta) if order.product_meta else {}
+                _crypto_activate_product(db, user, order, meta)
+                matched += 1
+
+    db.commit()
+    return {"matched": matched, "pending_count": len(pending)}
+
+
+@app.get("/api/crypto/treasury-balance")
+async def crypto_treasury_balance(request: Request, user: User = Depends(get_current_user)):
+    """Admin-only: check treasury USDT balance."""
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Forbidden"}, status_code=403)
+
+    from .crypto_payments import get_treasury_usdt_balance, TREASURY_WALLET
+    try:
+        balance = get_treasury_usdt_balance()
+        return {
+            "wallet": TREASURY_WALLET,
+            "balance_usdt": str(balance),
+            "chain": "Polygon",
+        }
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=503)
+
+
 
 
 @app.post("/api/stripe/create-course-checkout")
