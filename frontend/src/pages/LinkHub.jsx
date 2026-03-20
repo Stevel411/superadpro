@@ -253,7 +253,7 @@ export default function LinkHub() {
 
         {/* Content */}
         <div style={{flex:1,overflowY:'auto',padding:20}}>
-          {panel==='links' && <LinksPanel links={links} addLink={addLink} updateLink={updateLink} removeLink={removeLink} toggleLink={toggleLink} moveLink={moveLink} emojiPicker={emojiPicker} setEmojiPicker={setEmojiPicker}/>}
+          {panel==='links' && <LinksPanel links={links} style={style} addLink={addLink} updateLink={updateLink} removeLink={removeLink} toggleLink={toggleLink} moveLink={moveLink} emojiPicker={emojiPicker} setEmojiPicker={setEmojiPicker}/>}
           {panel==='style' && <StylePanel style={style} setStyle={setStyle}/>}
           {panel==='profile' && <ProfilePanel profile={profile} setProfile={setProfile} onRemoveAvatar={function(){
   setProfile(function(p){return Object.assign({},p,{avatar_url:''});});
@@ -342,7 +342,7 @@ export default function LinkHub() {
 // LINKS PANEL — Fix #1: Copy URL renamed, #2: up/down not drag, #3: emoji picker, #4: click count
 // ═══════════════════════════════════════════════════
 
-function LinksPanel({ links, addLink, updateLink, removeLink, toggleLink, moveLink, emojiPicker, setEmojiPicker }) {
+function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink, moveLink, emojiPicker, setEmojiPicker }) {
   return (
     <div>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
