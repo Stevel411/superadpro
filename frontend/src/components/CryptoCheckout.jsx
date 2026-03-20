@@ -20,6 +20,7 @@ export default function CryptoCheckout({ productKey, productLabel, meta, onSucce
   var [error, setError] = useState('');
   var [countdown, setCountdown] = useState(0);
   var [pollCount, setPollCount] = useState(0);
+  var [showManual, setShowManual] = useState(false);
   var intervalRef = useRef(null);
   var pollRef = useRef(null);
 
@@ -268,45 +269,50 @@ export default function CryptoCheckout({ productKey, productLabel, meta, onSucce
             </div>
           </div>
 
-          {/* Divider */}
-          <div style={{ borderTop: '1px solid #e5e7eb', margin: '20px 0', position: 'relative' }}>
-            <span style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', background: '#fff', padding: '0 12px', fontSize: 11, fontWeight: 700, color: '#94a3b8', letterSpacing: 1, textTransform: 'uppercase' }}>After Sending</span>
-          </div>
-
-          {/* TX hash input */}
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Paste Your Transaction Hash</div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <input
-                type="text"
-                value={txHash}
-                onChange={function (e) { setTxHash(e.target.value.trim()); }}
-                placeholder="0x..."
-                disabled={step === 'verifying'}
-                style={{ flex: 1, padding: '12px 14px', borderRadius: 10, border: '1px solid #d1d5db', fontSize: 13, fontFamily: 'monospace', outline: 'none', background: step === 'verifying' ? '#f1f5f9' : '#fff' }}
-              />
-              <button
-                onClick={submitTxHash}
-                disabled={step === 'verifying' || !txHash}
-                style={{ padding: '12px 20px', borderRadius: 10, border: 'none', background: step === 'verifying' ? '#94a3b8' : cyan, color: '#fff', fontWeight: 700, fontSize: 13, cursor: step === 'verifying' ? 'wait' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}
-              >
-                {step === 'verifying' ? <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> Verifying...</> : <><Shield size={14} /> Verify</>}
-              </button>
+          {/* Waiting for payment */}
+          <div style={{ textAlign: 'center', padding: '16px 0 8px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 10, padding: '12px 20px', marginBottom: 12 }}>
+              <Loader2 size={16} color="#0ea5e9" style={{ animation: 'spin 1.5s linear infinite' }} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#0369a1' }}>Waiting for your payment...</span>
             </div>
-            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>Find your tx hash in your wallet&apos;s transaction history or on <a href="https://polygonscan.com" target="_blank" rel="noopener noreferrer" style={{ color: cyan }}>PolygonScan</a></div>
+            <div style={{ fontSize: 12, color: '#94a3b8' }}>Once you send the USDT, your payment will be detected automatically.</div>
           </div>
 
           {/* Error message */}
           {error && (
-            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#dc2626', marginBottom: 16 }}>
+            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#dc2626', marginTop: 12 }}>
               {error}
             </div>
           )}
 
-          {/* Auto-detection note */}
-          <div style={{ textAlign: 'center', fontSize: 11, color: '#94a3b8', padding: '8px 0' }}>
-            <Loader2 size={10} style={{ display: 'inline', animation: 'spin 2s linear infinite', verticalAlign: 'middle', marginRight: 4 }} />
-            Auto-detecting payments... You can also paste your tx hash above for instant verification.
+          {/* Collapsed manual verify */}
+          <div style={{ textAlign: 'center', marginTop: 16, paddingTop: 12, borderTop: '1px solid #f1f5f9' }}>
+            {!showManual ? (
+              <button onClick={function () { setShowManual(true); }} style={{ background: 'none', border: 'none', fontSize: 11, color: '#94a3b8', cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline' }}>
+                Payment not detected? Verify manually
+              </button>
+            ) : (
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Paste Your Transaction Hash</div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    type="text"
+                    value={txHash}
+                    onChange={function (e) { setTxHash(e.target.value.trim()); }}
+                    placeholder="0x..."
+                    disabled={step === 'verifying'}
+                    style={{ flex: 1, padding: '10px 12px', borderRadius: 8, border: '1px solid #d1d5db', fontSize: 12, fontFamily: 'monospace', outline: 'none', background: step === 'verifying' ? '#f1f5f9' : '#fff' }}
+                  />
+                  <button
+                    onClick={submitTxHash}
+                    disabled={step === 'verifying' || !txHash}
+                    style={{ padding: '10px 16px', borderRadius: 8, border: 'none', background: step === 'verifying' ? '#94a3b8' : cyan, color: '#fff', fontWeight: 700, fontSize: 12, cursor: step === 'verifying' ? 'wait' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}
+                  >
+                    {step === 'verifying' ? <><Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> Checking...</> : <><Shield size={12} /> Verify</>}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
