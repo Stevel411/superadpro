@@ -102,7 +102,7 @@ export default function Account() {
     <AppLayout title={t("account.title")} subtitle="Manage your account, security, and wallet">
       {toast && <div style={{borderRadius:10,padding:'10px 16px',marginBottom:14,fontSize:13,fontWeight:700,...(toast.type==='ok'?{background:'#dcfce7',color:'#16a34a'}:{background:'#fef2f2',color:'#dc2626'})}}>{toast.msg}</div>}
 
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:14,alignItems:'stretch'}}>
+      <div className="grid-3-col" style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:14,alignItems:'stretch'}}>
 
         <Card title="Profile">
           <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:14,paddingBottom:14,borderBottom:'1px solid #f1f3f7'}}>

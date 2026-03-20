@@ -217,7 +217,7 @@ export default function Dashboard() {
       </div>
 
       {/* 5 Income Streams */}
-      <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
+      <div className="income-grid grid-5-col" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
             color: '#16a34a', bg: '#dcfce7', badge: '$10 / referral',
@@ -310,7 +310,7 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 14 }}>Quick Actions</div>
-      <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
+      <div className="actions-grid grid-5-col" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
             name: 'Browse Courses', desc: 'Learn skills & earn 100% commissions', link: '/courses',
@@ -392,7 +392,7 @@ export default function Dashboard() {
       </div>
 
       {/* Bottom Row */}
-      <div className="bottom-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'stretch' }}>
+      <div className="bottom-grid grid-2-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'stretch' }}>
         {/* Recent Activity */}
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 22, boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>

@@ -53,7 +53,7 @@ export default function Upgrade() {
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+        <div className="grid-2-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
           {plans.map(function(p) {
             return (
               <div key={p.id} style={{ background: '#fff', border: p.highlight ? '2px solid #0ea5e9' : '1px solid #e5e7eb', borderRadius: 12, padding: 32, boxShadow: p.highlight ? '0 0 0 4px rgba(14,165,233,.1),0 4px 20px rgba(14,165,233,.12)' : '0 2px 8px rgba(0,0,0,.08)', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>

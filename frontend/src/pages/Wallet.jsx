@@ -64,14 +64,14 @@ export default function Wallet() {
       </>}
     >
       {/* 3 Stat Pills */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
+      <div className="grid-3-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
         <StatPill value={`$${d.balance?.toFixed(2)}`} label="Available Balance" gradient="linear-gradient(90deg,#16a34a,#22c55e)" />
         <StatPill value={`$${d.total_earned?.toFixed(2)}`} label="Total Earned" gradient="linear-gradient(90deg,#0ea5e9,#38bdf8)" />
         <StatPill value={`$${d.total_withdrawn?.toFixed(2)}`} label="Total Withdrawn" gradient="linear-gradient(90deg,#6366f1,#818cf8)" />
       </div>
 
       {/* Row 1: 3 columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18, marginBottom: 18, alignItems: 'stretch' }}>
+      <div className="grid-3-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18, marginBottom: 18, alignItems: 'stretch' }}>
         {/* Col 1: Withdraw */}
         <Card title="Withdraw USDC" dotColor="#16a34a">
           {/* KYC gate */}
@@ -236,7 +236,7 @@ export default function Wallet() {
             {renewal.status === 'warning' && !renewal.in_grace_period && (
               <div style={{ background: '#fefce8', border: '1px solid rgba(234,179,8,.25)', borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 13, color: '#b45309', fontWeight: 600 }}>⏱ Renewal in {renewal.days_remaining} day{renewal.days_remaining !== 1 ? 's' : ''} — {renewal.can_afford ? "you're covered ✓" : 'top up needed'}</div>
             )}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 14 }}>
+            <div className="grid-3-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 14 }}>
               <MiniStat val={`${renewal.days_remaining || 0}d`} lbl="Until Renewal" />
               <MiniStat val={`$${renewal.balance || 0}`} lbl="Wallet Balance" />
               <MiniStat val={renewal.total_renewals || 0} lbl="Total Renewals" />

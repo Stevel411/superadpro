@@ -28,10 +28,10 @@ export default function CampaignTiers() {
 
   return (
     <AppLayout title={t("nav.campaignTiers")} subtitle="Activate tiers to unlock advertising & earn commissions">
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:14}}>
+      <div className="grid-4-col" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:14}}>
         {TIERS.slice(0,4).map((t,i) => <TierCard key={t.n} tier={t} active={activeTiers.includes(t.n)} delay={i * 0.5} />)}
       </div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14}}>
+      <div className="grid-4-col" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14}}>
         {TIERS.slice(4).map((t,i) => <TierCard key={t.n} tier={t} active={activeTiers.includes(t.n)} delay={(i + 4) * 0.5} />)}
       </div>
 
