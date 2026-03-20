@@ -14717,42 +14717,49 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
     """Mark a video as watched and credit the user."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    body = await request.json()
-    video_id = body.get("video_id")
-    if not video_id:
-        return JSONResponse({"error": "video_id required"}, status_code=400)
-    campaign = db.query(VideoCampaign).filter(VideoCampaign.id == video_id).first()
-    if not campaign:
-        return JSONResponse({"error": "Video not found"}, status_code=404)
-    # Check quota
-    today_str = datetime.utcnow().strftime("%Y-%m-%d")
-    quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
-    if not quota:
-        quota = WatchQuota(user_id=user.id, today_date=today_str, today_watched=0)
-        db.add(quota)
-        db.flush()
-    if (getattr(quota, 'today_date', None) or '') != today_str:
-        quota.today_date = today_str
-        quota.today_watched = 0
-    if (quota.today_watched or 0) >= 10:
-        return JSONResponse({"error": "Daily limit reached"}, status_code=400)
-    # Check not already watched today
-    existing = db.query(VideoWatch).filter(
-        VideoWatch.user_id == user.id, VideoWatch.campaign_id == video_id,
-        VideoWatch.watched_at >= datetime.utcnow().replace(hour=0, minute=0, second=0)
-    ).first()
-    if existing:
-        return JSONResponse({"error": "Already watched today"}, status_code=400)
-    # Record watch
-    watch = VideoWatch(user_id=user.id, campaign_id=video_id)
-    db.add(watch)
-    campaign.views_delivered = (campaign.views_delivered or 0) + 1
-    quota.today_watched = (quota.today_watched or 0) + 1
-    earn = 0.02
-    user.balance = (user.balance or 0) + earn
-    user.total_earned = (user.total_earned or 0) + earn
-    db.commit()
-    return {"ok": True, "earned": earn}
+    try:
+        from decimal import Decimal
+        body = await request.json()
+        video_id = body.get("video_id")
+        if not video_id:
+            return JSONResponse({"error": "video_id required"}, status_code=400)
+        campaign = db.query(VideoCampaign).filter(VideoCampaign.id == video_id).first()
+        if not campaign:
+            return JSONResponse({"error": "Video not found"}, status_code=404)
+        # Check quota
+        today_str = datetime.utcnow().strftime("%Y-%m-%d")
+        quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
+        if not quota:
+            quota = WatchQuota(user_id=user.id, today_date=today_str, today_watched=0)
+            db.add(quota)
+            db.flush()
+        if (getattr(quota, 'today_date', None) or '') != today_str:
+            quota.today_date = today_str
+            quota.today_watched = 0
+        if (quota.today_watched or 0) >= 10:
+            return JSONResponse({"error": "Daily limit reached"}, status_code=400)
+        # Check not already watched today
+        existing = db.query(VideoWatch).filter(
+            VideoWatch.user_id == user.id, VideoWatch.campaign_id == video_id,
+            VideoWatch.watched_at >= datetime.utcnow().replace(hour=0, minute=0, second=0)
+        ).first()
+        if existing:
+            return JSONResponse({"error": "Already watched today"}, status_code=400)
+        # Record watch
+        watch = VideoWatch(user_id=user.id, campaign_id=video_id)
+        db.add(watch)
+        campaign.views_delivered = (campaign.views_delivered or 0) + 1
+        quota.today_watched = (quota.today_watched or 0) + 1
+        earn = Decimal("0.02")
+        user.balance = Decimal(str(user.balance or 0)) + earn
+        user.total_earned = Decimal(str(user.total_earned or 0)) + earn
+        db.commit()
+        return {"ok": True, "earned": 0.02}
+    except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        logger.error(f"Watch complete error: {e}\n{tb}")
+        return JSONResponse({"error": str(e), "detail": tb}, status_code=500)
 
 
 # ═══════════════════════════════════════════════════════════════
