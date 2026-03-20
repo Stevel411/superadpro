@@ -210,7 +210,7 @@ function MembershipSection() {
             <div>
               <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>{t('compPlan.proPlan')}</div>
               <div style={{display:'flex',alignItems:'baseline',gap:4}}>
-                <span style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:800,color:'#fff'}}>$30</span>
+                <span style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:800,color:'#fff'}}>$35</span>
                 <span style={{fontSize:13,color:'rgba(255,255,255,.4)'}}>/month</span>
               </div>
             </div>
@@ -287,7 +287,7 @@ function MembershipSection() {
               </div>
               <div style={{fontSize:13,color:'#64748b',fontWeight:600,marginTop:4}}>/month per member</div>
               <div style={{marginTop:12,display:'flex',justifyContent:'center',gap:4}}>
-                <span style={{fontSize:11,fontWeight:700,background:'#e9d5ff',color:'#8b5cf6',padding:'3px 10px',borderRadius:20}}>50% of $30</span>
+                <span style={{fontSize:11,fontWeight:700,background:'#e9d5ff',color:'#8b5cf6',padding:'3px 10px',borderRadius:20}}>50% of $35</span>
                 <span style={{fontSize:11,fontWeight:700,background:'#f5f3ff',color:'#8b5cf6',padding:'3px 10px',borderRadius:20}}>Recurring</span>
               </div>
             </div>
@@ -1085,7 +1085,7 @@ function CoursesSection() {
         </div>
         <div style={{padding:'28px 24px'}}>
           <p style={{fontSize:13,color:'#64748b',lineHeight:1.7,marginBottom:20,maxWidth:600}}>
-            Pro members ($30/mo) can create their own courses and list them on the SuperAdPro marketplace. Other members promote your course through their affiliate links, and you earn on every sale.
+            Pro members ($35/mo) can create their own courses and list them on the SuperAdPro marketplace. Other members promote your course through their affiliate links, and you earn on every sale.
           </p>
           <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:12,flexWrap:'wrap'}}>
             {[
@@ -1286,7 +1286,7 @@ function CoursesSection() {
               {[
                 {label:'Commission Model',course:'100% kept / odd sales pass up',market:'50% creator / 25% sponsor / 25% platform'},
                 {label:'Product Type',course:'Courses only',market:'Any digital product'},
-                {label:'Who Can Create',course:'Pro members ($30/mo)',market:'All members'},
+                {label:'Who Can Create',course:'Pro members ($35/mo)',market:'All members'},
                 {label:'Who Earns',course:'Seller + sponsor chain (pass-up)',market:'Creator + referring affiliate + platform'},
                 {label:'Network Effect',course:'Infinite cascading pass-ups',market:'Entire network promotes all products'},
                 {label:'Best For',course:'High-ticket course creators',market:'Digital product sellers & affiliate promoters'},
@@ -1412,7 +1412,7 @@ function CalculatorSection() {
   var [directRefs, setDirectRefs] = useState(15);
   var [gridAdvances, setGridAdvances] = useState(1);
   var [memberPlan] = useState('mixed');
-  var commPerRef = 12.5; // blended average of Basic ($10) and Pro ($15)
+  var commPerRef = 13.75; // blended average of Basic ($10) and Pro ($17.50)
 
   function toggleTier(n) {
     setActiveTiers(function(prev) {

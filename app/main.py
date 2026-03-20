@@ -12500,7 +12500,7 @@ async def api_superseller_create(request: Request, background_tasks: BackgroundT
                 return
 
             base_ctx = f"""You are generating marketing content for a SuperAdPro member.
-SuperAdPro is a video advertising and AI marketing platform. Members pay $20-30/month for:
+SuperAdPro is a video advertising and AI marketing platform. Members pay $20-35/month for:
 - Video ad campaigns with real engaged viewers
 - AI marketing tools (campaign studio, social posts, funnels, email)
 - Course marketplace (create and sell courses)
@@ -13158,7 +13158,7 @@ ABOUT SUPERADPRO:
   Social Post Generator, Video Script Writer, Niche Finder, Email Swipes), SuperPages landing
   page builder, LinkHub link-in-bio tool, Link Tools, course marketplace
 - Basic plan: $20/month — all core tools
-- Pro plan: $30/month — adds SuperSeller AI autopilot, SuperPages, ProSeller AI, custom AI agents
+- Pro plan: $35/month — adds SuperSeller AI autopilot, SuperPages, ProSeller AI, custom AI agents
 - Affiliate commissions: 50% recurring on membership, 40% direct on grid tiers,
   6.25% uni-level across 8 levels, 100% on course sales (pass-up model)
 

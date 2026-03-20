@@ -16,9 +16,9 @@ function FAQItem({ q, a }) {
 }
 
 var faqs = [
-  { q: 'Is SuperAdPro free to join?', a: 'Yes — registering is completely free. You pay for membership ($20/mo Basic or $30/mo Pro) to activate your earning ability and access the platform features.' },
+  { q: 'Is SuperAdPro free to join?', a: 'Yes — registering is completely free. You pay for membership ($20/mo Basic or $35/mo Pro) to activate your earning ability and access the platform features.' },
   { q: 'When do I get paid?', a: 'Commissions are credited to your platform wallet instantly when they\'re earned. You can withdraw to your crypto wallet at any time, subject to a minimum withdrawal threshold.' },
-  { q: 'What\'s the difference between Basic and Pro?', a: 'Basic ($20/mo) gives you full affiliate earnings, campaign grid access, and your affiliate link. Pro ($30/mo) adds AI Co-Pilot, SuperLeads CRM, SuperSeller automation, SuperPages builder, email autoresponder, and lead analytics.' },
+  { q: 'What\'s the difference between Basic and Pro?', a: 'Basic ($20/mo) gives you full affiliate earnings, campaign grid access, and your affiliate link. Pro ($35/mo) adds AI Co-Pilot, SuperLeads CRM, SuperSeller automation, SuperPages builder, email autoresponder, and lead analytics.' },
   { q: 'Do I have to recruit people to earn?', a: 'Not exclusively. While referring others accelerates income through membership commissions, you also earn grid completion bonuses driven by your whole team\'s activity — not just people you personally recruited.' },
   { q: 'How does the campaign grid work?', a: 'Each campaign tier has an 8×8 grid with 64 positions. As members across your network join that tier, positions fill. When all 64 fill, a completion bonus is triggered and paid to the grid owner. A single campaign can complete multiple times.' },
   { q: 'What are uni-level commissions?', a: 'When anyone in your network (up to 8 levels deep) makes a grid purchase, you earn 6.25% of that purchase automatically. This means a large team generates passive income for you without any additional effort.' },

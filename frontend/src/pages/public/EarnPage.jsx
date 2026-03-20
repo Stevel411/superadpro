@@ -233,7 +233,7 @@ export default function EarnPage() {
         <div className="earn-three" style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:20}}>
           {[
             {num:'1',title:'Create Your Free Account',desc:'Sign up in 60 seconds. No credit card required. You get a personal referral link and access to the member dashboard immediately.',color:'#38bdf8'},
-            {num:'2',title:'Activate Your Membership',desc:'Choose Basic ($20/mo) or Pro ($30/mo) to unlock all four income streams, AI marketing tools, and your affiliate earnings.',color:'#10b981'},
+            {num:'2',title:'Activate Your Membership',desc:'Choose Basic ($20/mo) or Pro ($35/mo) to unlock all four income streams, AI marketing tools, and your affiliate earnings.',color:'#10b981'},
             {num:'3',title:'Share & Start Earning',desc:'Share your referral link anywhere. Every person who joins and activates earns you 50% commissionnth — recurring, every month they stay.',color:'#a5b4fc'},
           ].map(function(s) {
             return (
@@ -357,7 +357,7 @@ export default function EarnPage() {
         <div className="earn-two" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,maxWidth:700,margin:'0 auto 32px'}}>
           {[
             {name:'Basic',price:'$20',period:'/month',features:['Affiliate commissions','Income Grid access','Watch to Earn','Course marketplace','LinkHub page','Community Ad Board','Basic support'],highlight:false},
-            {name:'Pro',price:'$30',period:'/month',features:['Everything in Basic','ProSeller AI assistant','AI Funnel Generator','SuperLeads CRM','Campaign Studio','Niche Finder AI','Social Post Generator','Video Script Generator','Priority support'],highlight:true},
+            {name:'Pro',price:'$35',period:'/month',features:['Everything in Basic','ProSeller AI assistant','AI Funnel Generator','SuperLeads CRM','Campaign Studio','Niche Finder AI','Social Post Generator','Video Script Generator','Priority support'],highlight:true},
           ].map(function(p) {
             return (
               <div key={p.name} className="earn-card" style={{background:p.highlight?'rgba(14,165,233,.06)':'rgba(255,255,255,.03)',border:p.highlight?'1.5px solid rgba(56,189,248,.25)':'1px solid rgba(255,255,255,.08)',borderRadius:16,padding:'28px 24px',position:'relative',textAlign:'left'}}>

@@ -424,7 +424,7 @@ export default function HomePage(){
               <span style={{background:'linear-gradient(135deg,#38bdf8,#7c9fff,#0ea5e9)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>The People's Platform.</span>
             </h2>
             <p style={{fontSize:15,color:'rgba(200,220,255,.55)',lineHeight:1.75,marginBottom:28}}>We created SuperAdPro with a simple belief: that ordinary people deserve genuine opportunities to build additional income — especially in difficult and uncertain times. Not hype. Not false promises. A real platform with real tools, transparent earnings, and a community where 95% of every dollar flows back to the members who make it work.</p>
-            {[['🔓','Low barrier to entry.','From $20/month (Basic) or $30/month (Pro) — unlocking four income streams, AI marketing tools, and a global community.'],
+            {[['🔓','Low barrier to entry.','From $20/month (Basic) or $35/month (Pro) — unlocking four income streams, AI marketing tools, and a global community.'],
               ['🤝','Built to share, not to hoard.','The majority of all revenue flows back to members through commissions, course sales, and grid payouts.'],
               ['🛠️','Tools that do the heavy lifting.','Not everyone knows how to market. Every member gets AI-powered tools to find their niche, write content, and build funnels.']
             ].map(function([icon,strong,text]){

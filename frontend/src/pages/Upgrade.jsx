@@ -37,7 +37,7 @@ export default function Upgrade() {
     {
       id: 'pro',
       name: 'Pro',
-      price: '$30/mo',
+      price: '$35/mo',
       features: ['Everything in Basic', 'ProSeller AI assistant', 'AI Funnel Generator', 'SuperLeads CRM', 'Campaign Studio', 'Niche Finder AI', 'Social Post Generator', 'Video Script Generator', 'Email Swipes', 'Lead dashboard', 'Priority support'],
       current: isPro,
       highlight: true,

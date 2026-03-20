@@ -71,7 +71,7 @@ export default function JoinFunnel() {
         {/* 3 income streams */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 20, marginBottom: 48 }}>
           {[
-            { icon: '💰', title: '50% Membership Commission', desc: 'Earn $10–$15/month for every member you refer, as long as they stay active.' },
+            { icon: '💰', title: '50% Membership Commission', desc: 'Earn $10–$17.50/month for every member you refer, as long as they stay active.' },
             { icon: '⚡', title: 'Grid Completion Bonuses', desc: 'Campaign grids pay $64–$3,200 when 64 positions fill. Teams make this happen fast.' },
             { icon: '🎓', title: 'Course Sales Pass-Up', desc: 'Sell courses and earn direct commissions with a powerful pass-up chain.' },
           ].map(function(s) {
@@ -103,7 +103,7 @@ export default function JoinFunnel() {
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
           <h3 style={{ fontFamily: "'Sora',sans-serif", fontSize: 20, fontWeight: 900, marginBottom: 20, textAlign: 'center' }}>Quick answers</h3>
           {[
-            ['Is it free to join?', 'Yes — creating an account is completely free. You activate membership ($20/mo Basic or $30/mo Pro) to start earning commissions.'],
+            ['Is it free to join?', 'Yes — creating an account is completely free. You activate membership ($20/mo Basic or $35/mo Pro) to start earning commissions.'],
             ['When do I get paid?', 'Commissions are credited instantly to your platform wallet. Withdraw anytime to your crypto wallet.'],
             ['Do I need to recruit to earn?', 'No. You can earn from campaign grid completions driven by your whole team\'s activity, not just people you personally referred.'],
           ].map(function([q, a]) {

@@ -21,7 +21,7 @@ export default function HowItWorks() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {[
               { n: '01', title: 'Register for free', desc: 'Create your account in under 60 seconds. You get an affiliate link immediately — no payment needed to join.', color: '#38bdf8' },
-              { n: '02', title: 'Activate membership', desc: 'Choose Basic ($20/mo) or Pro ($30/mo). This activates your earning ability and commissions start flowing when you refer others.', color: '#818cf8' },
+              { n: '02', title: 'Activate membership', desc: 'Choose Basic ($20/mo) or Pro ($35/mo). This activates your earning ability and commissions start flowing when you refer others.', color: '#818cf8' },
               { n: '03', title: 'Share your link', desc: 'Every member gets a personalised join page at superadpro.com/join/yourusername — share it everywhere.', color: '#10b981' },
               { n: '04', title: 'Build your team', desc: 'When someone joins through your link, they\'re in your network. You earn 50% of their membership fee every month.', color: '#f59e0b' },
               { n: '05', title: 'Join campaign grids', desc: 'Each campaign tier has an 8×8 grid of 64 positions. Your team\'s activity fills positions and triggers completion bonuses.', color: '#ef4444' },

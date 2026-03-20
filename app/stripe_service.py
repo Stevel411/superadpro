@@ -15,7 +15,7 @@ SITE_URL                = os.getenv("SITE_URL", "https://www.superadpro.com")
 # Membership price IDs — set these in Railway env vars after creating
 # products in Stripe dashboard
 STRIPE_BASIC_PRICE_ID   = os.getenv("STRIPE_BASIC_PRICE_ID", "")   # $20/mo recurring
-STRIPE_PRO_PRICE_ID     = os.getenv("STRIPE_PRO_PRICE_ID", "")     # $30/mo recurring
+STRIPE_PRO_PRICE_ID     = os.getenv("STRIPE_PRO_PRICE_ID", "")     # $35/mo recurring
 
 
 def get_stripe():
@@ -29,7 +29,7 @@ def get_stripe():
 def create_membership_checkout(user_id: int, tier: str, email: str) -> dict:
     """
     Create a Stripe Checkout Session for membership subscription.
-    tier: 'basic' ($20/mo) or 'pro' ($30/mo)
+    tier: 'basic' ($20/mo) or 'pro' ($35/mo)
     Returns: {success, url} or {success, error}
     """
     s = get_stripe()
