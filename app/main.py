@@ -15041,23 +15041,3 @@ def funnel_duplicate(page_id: int, request: Request, user: User = Depends(get_cu
     db.commit()
     return JSONResponse({"success": True, "id": new_page.id, "edit_url": f"/funnels/visual/{new_page.id}"})
 # deploy trigger Wed Mar 18 01:46:38 UTC 2026
-
-
-# ════════════════════════════════════════════════════════════
-# TEMPORARY: One-time password reset — REMOVE AFTER USE
-# ════════════════════════════════════════════════════════════
-@app.post("/api/temp-reset-admin-pw")
-async def temp_reset_admin_pw(request: Request, db: Session = Depends(get_db)):
-    """Temporary endpoint to reset admin password. REMOVE AFTER USE."""
-    import bcrypt
-    body = await request.json()
-    secret = body.get("secret", "")
-    if secret != "sap-temp-reset-2026-X9kQ":
-        return JSONResponse({"error": "Forbidden"}, status_code=403)
-    user = db.query(User).filter(User.username == "SuperAdPro").first()
-    if not user:
-        return JSONResponse({"error": "User not found"}, status_code=404)
-    new_pw = "SuperAdPro@1411"
-    user.password = bcrypt.hashpw(new_pw.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-    db.commit()
-    return JSONResponse({"success": True, "message": "Password reset to SuperAdPro@1411"})
