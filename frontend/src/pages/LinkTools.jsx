@@ -37,6 +37,11 @@ export default function LinkTools() {
 
   // ── Modals ──
   const [editLink, setEditLink] = useState(null);
+  const [editRotator, setEditRotator] = useState(null);
+  const [editRotDests, setEditRotDests] = useState([]);
+  const [editRotName, setEditRotName] = useState('');
+  const [editRotMode, setEditRotMode] = useState('equal');
+  const [editRotSaving, setEditRotSaving] = useState(false);
   const [qrLink, setQrLink] = useState(null);
   const [showUtm, setShowUtm] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
@@ -104,16 +109,10 @@ export default function LinkTools() {
         title: newTitle || undefined,
         expires_at: newExpiry || undefined,
         click_cap: newClickCap ? parseInt(newClickCap) : undefined,
+        password: newPassword || undefined,
       };
       const res = await apiPost('/api/links/create', payload);
       if (res.success) {
-        if (newPassword && res.slug) {
-          const freshData = await apiGet('/api/link-tools');
-          const linkObj = (freshData.short_links || []).find(l => l.short_code === res.slug);
-          if (linkObj) {
-            await apiPost('/api/links/edit/' + linkObj.id, { password: newPassword });
-          }
-        }
         showToast('✓ Link created');
         setNewUrl(''); setNewSlug(''); setNewTitle(''); setNewPassword('');
         setNewExpiry(''); setNewClickCap(''); setShowCreate(false); setShowAdvanced(false);
@@ -155,6 +154,30 @@ export default function LinkTools() {
   };
 
   // ── Edit Link ──
+  const openEditRotator = (r) => {
+    setEditRotator(r);
+    setEditRotName(r.name || '');
+    setEditRotMode(r.mode || 'equal');
+    try {
+      var dests = r.destinations_json ? JSON.parse(r.destinations_json) : [];
+      setEditRotDests(dests.length >= 2 ? dests : [{url:'',weight:50},{url:'',weight:50}]);
+    } catch(e) { setEditRotDests([{url:'',weight:50},{url:'',weight:50}]); }
+  };
+  const saveEditRotator = async () => {
+    if (!editRotator) return;
+    var dests = editRotDests.filter(d => d.url.trim());
+    if (dests.length < 2) { showToast('Need at least 2 URLs'); return; }
+    setEditRotSaving(true);
+    try {
+      var res = await apiPost('/api/rotators/edit/' + editRotator.id, {
+        title: editRotName, mode: editRotMode, destinations: dests,
+      });
+      if (res.success) { showToast('✓ Rotator updated'); setEditRotator(null); load(); }
+      else showToast(res.error || 'Failed');
+    } catch(e) { showToast(e.message); }
+    setEditRotSaving(false);
+  };
+
   const openEdit = (link) => {
     setEditLink(link);
     setEditDest(link.destination_url || '');
@@ -352,9 +375,14 @@ export default function LinkTools() {
                       </div>
                     )}
                   </div>
-                  <div style={{textAlign:'center',padding:'8px 14px',background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)',borderRadius:10,flexShrink:0,border:'1px solid #bae6fd'}}>
-                    <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:900,color:'#0284c7',lineHeight:1}}>{l.click_count||0}</div>
+                  <div style={{textAlign:'center',padding:'8px 14px',background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)',borderRadius:10,flexShrink:0,border:'1px solid #bae6fd',minWidth:64}}>
+                    <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:900,color:'#0284c7',lineHeight:1}}>{l.click_count||0}{l.click_cap ? <span style={{fontSize:11,fontWeight:600,color:'#94a3b8'}}>/{l.click_cap}</span> : null}</div>
                     <div style={{fontSize:8,color:'#0ea5e9',fontWeight:700,letterSpacing:.5,marginTop:2}}>CLICKS</div>
+                    {l.click_cap && (
+                      <div style={{height:3,background:'#e0f2fe',borderRadius:2,marginTop:4,overflow:'hidden'}}>
+                        <div style={{height:'100%',background:((l.click_count||0)/l.click_cap)>0.8?'#ef4444':'#0ea5e9',borderRadius:2,width:Math.min(100,Math.round(((l.click_count||0)/l.click_cap)*100))+'%'}}/>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div style={{padding:'8px 16px',borderTop:'1px solid #f1f5f9',display:'flex',gap:6,flexWrap:'wrap',padding:'10px 20px'}}>
@@ -542,6 +570,44 @@ export default function LinkTools() {
           <div style={{display:'flex',gap:8,marginTop:8}}>
             <button onClick={saveEdit} disabled={editSaving} style={btnPrimary('#0ea5e9')}>{editSaving?'Saving...':'Save Changes →'}</button>
             <button onClick={() => setEditLink(null)} style={btnSecondary}>Cancel</button>
+          </div>
+        </Modal>
+      )}
+
+      {/* ── EDIT ROTATOR MODAL ── */}
+      {editRotator && (
+        <Modal onClose={() => setEditRotator(null)} title="Edit Rotator" icon={<Shuffle size={18} color="#8b5cf6"/>}>
+          <Label>Rotator Name</Label>
+          <Input value={editRotName} onChange={e => setEditRotName(e.target.value)} placeholder="Rotator name"/>
+          <Label>Rotation Mode</Label>
+          <div style={{display:'flex',gap:6,marginBottom:14}}>
+            {[['equal','Equal Split'],['weighted','Weighted'],['sequential','Sequential']].map(([k,l]) => (
+              <button key={k} onClick={() => setEditRotMode(k)} style={{
+                flex:1,padding:'8px',borderRadius:8,fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit',
+                border:editRotMode===k?'2px solid #8b5cf6':'2px solid #e2e8f0',
+                background:editRotMode===k?'rgba(139,92,246,.06)':'#fff',color:editRotMode===k?'#8b5cf6':'#94a3b8',
+              }}>{l}</button>
+            ))}
+          </div>
+          <Label>Destination URLs</Label>
+          {editRotDests.map((d,i) => (
+            <div key={i} style={{display:'flex',gap:6,marginBottom:8}}>
+              <Input value={d.url} onChange={e => { var n=[...editRotDests]; n[i]={...n[i],url:e.target.value}; setEditRotDests(n); }} placeholder={'URL ' + (i+1)} style={{flex:1,marginBottom:0}}/>
+              {editRotMode==='weighted' && (
+                <input type="number" value={d.weight||50} onChange={e => { var n=[...editRotDests]; n[i]={...n[i],weight:parseInt(e.target.value)||0}; setEditRotDests(n); }}
+                  style={{width:60,padding:'8px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:12,textAlign:'center'}} min={0} max={100}/>
+              )}
+              {editRotDests.length > 2 && (
+                <button onClick={() => setEditRotDests(editRotDests.filter(function(_,j){ return j!==i; }))} style={{width:32,height:38,border:'1px solid #fecaca',borderRadius:8,background:'#fef2f2',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <X size={12} color="#dc2626"/>
+                </button>
+              )}
+            </div>
+          ))}
+          <button onClick={() => setEditRotDests([...editRotDests,{url:'',weight:50,clicks:0}])} style={{fontSize:11,fontWeight:600,color:'#8b5cf6',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12}}>+ Add URL</button>
+          <div style={{display:'flex',gap:8,marginTop:8}}>
+            <button onClick={saveEditRotator} disabled={editRotSaving} style={btnPrimary('#8b5cf6')}>{editRotSaving?'Saving...':'Save Changes →'}</button>
+            <button onClick={() => setEditRotator(null)} style={btnSecondary}>Cancel</button>
           </div>
         </Modal>
       )}

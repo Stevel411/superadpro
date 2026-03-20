@@ -5785,6 +5785,8 @@ async def create_short_link(request: Request, user: User = Depends(get_current_u
         except Exception:
             pass
 
+    password = body.get("password", "").strip() if body.get("password") else None
+
     link = ShortLink(
         user_id=user.id,
         slug=slug,
@@ -5795,9 +5797,12 @@ async def create_short_link(request: Request, user: User = Depends(get_current_u
         geo_redirect_json=_json.dumps(geo_redirect) if geo_redirect else None,
         device_redirect_json=_json.dumps(device_redirect) if device_redirect else None,
     )
+    if password:
+        import bcrypt
+        link.password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     db.add(link)
     db.commit()
-    return {"success": True, "slug": slug}
+    return {"success": True, "slug": slug, "id": link.id}
 
 
 @app.post("/api/links/delete/{link_id}")
@@ -5982,6 +5987,41 @@ async def create_rotator(request: Request, user: User = Depends(get_current_user
     db.add(rotator)
     db.commit()
     return {"success": True, "slug": slug}
+
+
+@app.post("/api/rotators/edit/{rotator_id}")
+async def edit_rotator(rotator_id: int, request: Request,
+                        user: User = Depends(get_current_user),
+                        db: Session = Depends(get_db)):
+    """Edit rotator title, mode and destinations."""
+    if not user: return {"error": "Not logged in"}
+    rot = db.query(LinkRotator).filter(LinkRotator.id == rotator_id, LinkRotator.user_id == user.id).first()
+    if not rot: return {"error": "Rotator not found"}
+    body = await request.json()
+    import json as _json
+    from datetime import datetime as _dt
+    if "title" in body and body["title"].strip():
+        rot.title = body["title"].strip()
+    if "mode" in body:
+        rot.mode = body["mode"]
+    if "destinations" in body:
+        dests = body["destinations"]
+        if isinstance(dests, list) and len(dests) >= 2:
+            # Preserve existing click counts where URLs match
+            existing = {}
+            try:
+                for d in _json.loads(rot.destinations_json or '[]'):
+                    existing[d['url']] = d.get('clicks', 0)
+            except Exception:
+                pass
+            rot.destinations_json = _json.dumps([
+                {"url": d["url"], "weight": d.get("weight", 50),
+                 "clicks": existing.get(d["url"], 0)}
+                for d in dests if d.get("url")
+            ])
+    rot.updated_at = _dt.utcnow()
+    db.commit()
+    return {"success": True}
 
 
 @app.post("/api/rotators/delete/{rotator_id}")
@@ -14765,6 +14805,8 @@ def api_link_tools_data(request: Request, user: User = Depends(get_current_user)
         "rotators": [{
             "id": r.id, "name": r.title, "short_code": r.slug,
             "click_count": r.total_clicks or 0,
+            "mode": r.mode or "equal",
+            "destinations_json": r.destinations_json,
             "created_at": r.created_at.isoformat() if r.created_at else None,
         } for r in rotators],
     }
