@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
+import { CreditCard, Coins } from 'lucide-react';
+import CryptoCheckout from '../components/CryptoCheckout';
 
 const TIERS = {
   1: { name:'Starter',     price:20,   views:'5,000',     monthly:'500',    bonus:64 },
@@ -19,6 +21,7 @@ export default function ActivateTier() {
   const { user } = useAuth();
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState('');
+  const [cryptoCheckout, setCryptoCheckout] = useState(false);
 
   const n = parseInt(tierId);
   const t = TIERS[n];
@@ -81,14 +84,40 @@ export default function ActivateTier() {
           display:'flex',alignItems:'center',justifyContent:'center',gap:10,
           width:'100%', padding:16, borderRadius:12,
           fontSize:16, fontWeight:800, border:'none', cursor:paying?'wait':'pointer',
-          fontFamily:'inherit', marginBottom:24,
+          fontFamily:'inherit', marginBottom:10,
           background:paying?'#94a3b8':'linear-gradient(135deg, #0ea5e9, #38bdf8)',
           color:'#fff',
           boxShadow:paying?'none':'0 4px 16px rgba(14,165,233,0.3)',
           transition:'all 0.2s',
         }}>
-          {paying ? 'Creating payment...' : `Pay $${t.price.toLocaleString()} — Activate ${t.name}`}
+          <CreditCard size={18} />
+          {paying ? 'Creating payment...' : `Pay with Card — $${t.price.toLocaleString()}`}
         </button>
+
+        <button onClick={function(){ setCryptoCheckout(true); }} style={{
+          display:'flex',alignItems:'center',justifyContent:'center',gap:10,
+          width:'100%', padding:16, borderRadius:12,
+          fontSize:16, fontWeight:800, cursor:'pointer',
+          fontFamily:'inherit', marginBottom:24,
+          background:'#fff', color:'#1e293b',
+          border:'2px solid #e2e8f0',
+          transition:'all 0.2s',
+        }}
+          onMouseOver={function(e){ e.currentTarget.style.borderColor='#8b5cf6'; e.currentTarget.style.color='#7c3aed'; }}
+          onMouseOut={function(e){ e.currentTarget.style.borderColor='#e2e8f0'; e.currentTarget.style.color='#1e293b'; }}
+        >
+          <Coins size={18} />
+          Pay with Crypto (USDT)
+        </button>
+
+        {cryptoCheckout && (
+          <CryptoCheckout
+            productKey={'grid_' + n}
+            productLabel={t.name + ' Campaign — $' + t.price.toLocaleString()}
+            onSuccess={function(){ setCryptoCheckout(false); window.location.href='/app/campaign-tiers'; }}
+            onCancel={function(){ setCryptoCheckout(false); }}
+          />
+        )}
 
         {/* What you get */}
         <div style={{
