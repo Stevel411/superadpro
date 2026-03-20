@@ -46,7 +46,7 @@ var CSS = `
 /* On mobile — single column */
 @media(max-width:767px){
   .watch-layout {
-    margin: -24px;
+    margin: -16px;
   }
   .watch-player-col { display: flex; flex-direction: column; }
   .watch-panel-col { display: none; }
@@ -54,7 +54,7 @@ var CSS = `
   .watch-mobile-progress { display: block !important; }
   .watch-mobile-stats { display: grid !important; }
   .watch-desktop-panel { display: none !important; }
-  .watch-hint { display: none; }
+  .watch-hint { display: none !important; }
   .watch-video-card { border-radius: 0 !important; border-left: none !important; border-right: none !important; }
   .watch-player-card { border-radius: 0 !important; border-left: none !important; border-right: none !important; }
 }
