@@ -288,23 +288,24 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
   <div class="links">
     {% for link in links %}
     {% if link.is_active %}
+      {% set link_btn_bg = link.btn_bg_color if link.btn_bg_color else btn_bg %}
       {% set ic = link.icon if link.icon and link.icon.strip() else '' %}
       {% set has_thumb = link.thumbnail if link.thumbnail else '' %}
       {% if bstyle == 'outline' %}
-      <a href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;width:100%;padding:13px 18px;background:rgba(0,0,0,.25);border:1.5px solid {{ btn_bg }}99;border-radius:{{ bradius }};color:{{ btn_bg }};font-size:{{ bfsize }}px;font-weight:700;text-decoration:none;box-sizing:border-box;font-family:inherit;transition:all .25s">
+      <a href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;width:100%;padding:13px 18px;background:rgba(0,0,0,.25);border:1.5px solid {{ link_btn_bg }}99;border-radius:{{ bradius }};color:{{ link_btn_bg }};font-size:{{ bfsize }}px;font-weight:700;text-decoration:none;box-sizing:border-box;font-family:inherit;transition:all .25s">
         {% if has_thumb %}<img src="{{ has_thumb }}" style="width:{{ ic_size + 8 }}px;height:{{ ic_size + 8 }}px;border-radius:4px;object-fit:cover;flex-shrink:0" alt="">{% elif ic %}<span style="font-size:{{ ic_size }}px;flex-shrink:0;display:flex;align-items:center">{{ ic|safe }}</span>{% endif %}
         <span style="flex:1;text-align:{{ balign }}">{{ link.title }}</span>
         {% if ar_char %}<span style="font-size:{{ ar_size }}px;opacity:.6;flex-shrink:0;display:flex;align-items:center">{{ ar_char }}</span>{% endif %}
       </a>
       {% elif bstyle == 'flat' %}
-      <a href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;width:100%;padding:14px 18px;background:{{ btn_bg }};border:none;border-radius:{{ bradius }};color:{{ btn_tx }};font-size:{{ bfsize }}px;font-weight:700;text-decoration:none;box-sizing:border-box;font-family:inherit;transition:all .25s">
+      <a href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;width:100%;padding:14px 18px;background:{{ link_btn_bg }};border:none;border-radius:{{ bradius }};color:{{ btn_tx }};font-size:{{ bfsize }}px;font-weight:700;text-decoration:none;box-sizing:border-box;font-family:inherit;transition:all .25s">
         {% if has_thumb %}<img src="{{ has_thumb }}" style="width:{{ ic_size + 8 }}px;height:{{ ic_size + 8 }}px;border-radius:4px;object-fit:cover;flex-shrink:0" alt="">{% elif ic %}<span style="font-size:{{ ic_size }}px;flex-shrink:0;display:flex;align-items:center">{{ ic|safe }}</span>{% endif %}
         <span style="flex:1;text-align:{{ balign }}">{{ link.title }}</span>
         {% if ar_char %}<span style="font-size:{{ ar_size }}px;opacity:.6;flex-shrink:0;display:flex;align-items:center">{{ ar_char }}</span>{% endif %}
       </a>
       {% else %}
       {% set panel_size = [48, ic_size + 20] | max %}
-      <a href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener" style="display:flex;align-items:stretch;width:100%;background:{{ btn_bg }};border-radius:{{ bradius }};box-shadow:0 4px 0 rgba(0,0,0,.25),0 6px 12px rgba(0,0,0,.2);transform:translateY(-1px);border:none;text-decoration:none;overflow:hidden;color:{{ btn_tx }};font-family:inherit;transition:all .25s">
+      <a href="/linkhub/click/{{ link.id }}" target="_blank" rel="noopener" style="display:flex;align-items:stretch;width:100%;background:{{ link_btn_bg }};border-radius:{{ bradius }};box-shadow:0 4px 0 rgba(0,0,0,.25),0 6px 12px rgba(0,0,0,.2);transform:translateY(-1px);border:none;text-decoration:none;overflow:hidden;color:{{ btn_tx }};font-family:inherit;transition:all .25s">
         {% if has_thumb or ic %}
         <div style="width:{{ panel_size }}px;min-height:{{ panel_size }}px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(0,0,0,.1);border-right:1px solid rgba(255,255,255,.15)">
           {% if has_thumb %}<img src="{{ has_thumb }}" style="width:{{ ic_size + 8 }}px;height:{{ ic_size + 8 }}px;border-radius:4px;object-fit:cover" alt="">{% elif ic %}<span style="font-size:{{ ic_size }}px">{{ ic|safe }}</span>{% endif %}
