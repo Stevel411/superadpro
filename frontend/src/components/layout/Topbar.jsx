@@ -70,7 +70,7 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
         </div>
       </div>
       <div className="flex items-center gap-3">
-        {children}
+        <span className="hidden md:flex items-center gap-3">{children}</span>
         <span className="hidden md:block"><LanguageSelector /></span>
 
         {/* Notification Bell */}
