@@ -46,11 +46,7 @@ var CSS = `
 /* On mobile — single column, full bleed */
 @media(max-width:767px){
   .watch-layout {
-    margin-left: -16px;
-    margin-right: -16px;
-    margin-top: -16px;
-    width: calc(100% + 32px);
-    overflow-x: hidden;
+    width: 100%;
   }
   .watch-player-col { display: flex; flex-direction: column; }
   .watch-panel-col { display: none; }
@@ -60,7 +56,7 @@ var CSS = `
   .watch-desktop-panel { display: none !important; }
   .watch-hint { display: none !important; }
   .watch-video-card { border-radius: 0 !important; border: none !important; }
-  .watch-player-card { border-radius: 0 !important; border: none !important; box-shadow: none !important; margin: 0 !important; }
+  .watch-player-card { border-radius: 0 !important; border: none !important; box-shadow: none !important; }
 }
 
 .mark-btn {
@@ -318,6 +314,7 @@ export default function Watch() {
   // ── MAIN WATCH SESSION ──
   return (
     <AppLayout title={t('watch.title')} subtitle="Complete your daily quota to stay commission-eligible"
+      bgStyle={window.innerWidth < 768 ? {padding: 0, paddingBottom: 80} : {}}
       topbarActions={<>
         <div style={{background:'rgba(14,165,233,.12)',border:'1px solid rgba(14,165,233,.2)',borderRadius:8,padding:'6px 14px',textAlign:'center'}}>
           <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'#38bdf8'}}>Tier {d.tier}</div>
