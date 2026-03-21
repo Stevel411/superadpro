@@ -277,16 +277,17 @@ export default function Watch() {
       <AppLayout title={t('watch.title')} subtitle="Daily quota complete">
         <style>{CSS}</style>
         <style>{`
-@keyframes confFall1{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(500px) rotate(720deg);opacity:0}}
-@keyframes confFall2{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(520px) rotate(-540deg);opacity:0}}
-@keyframes confFall3{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(480px) rotate(360deg);opacity:0}}
+@keyframes confFall1{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(600px) rotate(720deg);opacity:0}}
+@keyframes confFall2{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(620px) rotate(-540deg);opacity:0}}
+@keyframes confFall3{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(580px) rotate(360deg);opacity:0}}
 @keyframes glowPulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.4}50%{transform:translate(-50%,-50%) scale(1.3);opacity:.8}}
 @keyframes trophyBounce{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 @keyframes badgeSlide{0%{transform:translateY(10px);opacity:0}100%{transform:translateY(0);opacity:1}}
 @keyframes fadeUp{0%{transform:translateY(16px);opacity:0}100%{transform:translateY(0);opacity:1}}
         `}</style>
-        <div style={{maxWidth:750,margin:'0 auto'}}>
-          <div style={{background:'linear-gradient(145deg,#ecfeff,#e0f7fa,#ecfdf5)',borderRadius:14,padding:'48px 28px',textAlign:'center',position:'relative',overflow:'hidden',border:'1px solid rgba(6,182,212,.12)'}}>
+        <div style={{minHeight:'calc(100vh - 140px)',display:'flex',alignItems:'center',justifyContent:'center',padding:'20px 0'}}>
+          <div style={{width:'100%',maxWidth:800,margin:'0 auto'}}>
+            <div style={{background:'linear-gradient(145deg,#ecfeff,#e0f7fa,#ecfdf5)',borderRadius:16,padding:'56px 32px',textAlign:'center',position:'relative',overflow:'hidden',border:'1px solid rgba(6,182,212,.12)',minHeight:500}}>
 
             {/* Confetti particles */}
             <div style={{position:'absolute',inset:0,pointerEvents:'none',overflow:'hidden'}}>
@@ -343,10 +344,10 @@ export default function Watch() {
                 ))}
               </div>
 
-              {/* 8 completed circles */}
+              {/* Completed circles — one per required video */}
               <div style={{display:'flex',gap:8,justifyContent:'center',marginBottom:28,animation:'fadeUp 1.4s ease-out'}}>
-                {Array.from({length:done}).map((_,i)=>(
-                  <div key={i} style={{width:32,height:32,borderRadius:'50%',background:'linear-gradient(135deg,#06b6d4,#0891b2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff',boxShadow:'0 2px 8px rgba(6,182,212,.3)'}}>✓</div>
+                {Array.from({length:limit}).map((_,i)=>(
+                  <div key={i} style={{width:34,height:34,borderRadius:'50%',background:'linear-gradient(135deg,#06b6d4,#0891b2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff',boxShadow:'0 2px 8px rgba(6,182,212,.3)'}}>✓</div>
                 ))}
               </div>
 
@@ -365,6 +366,7 @@ export default function Watch() {
                 <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:8,fontSize:15,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#06b6d4,#0891b2)',borderRadius:12,padding:'14px 36px',textDecoration:'none',boxShadow:'0 4px 16px rgba(6,182,212,.3)'}}>← Back to Dashboard</Link>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </AppLayout>
