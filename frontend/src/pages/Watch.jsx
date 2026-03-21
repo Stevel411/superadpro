@@ -276,32 +276,97 @@ export default function Watch() {
     return (
       <AppLayout title={t('watch.title')} subtitle="Daily quota complete">
         <style>{CSS}</style>
+        <style>{`
+@keyframes confFall1{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(500px) rotate(720deg);opacity:0}}
+@keyframes confFall2{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(520px) rotate(-540deg);opacity:0}}
+@keyframes confFall3{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(480px) rotate(360deg);opacity:0}}
+@keyframes glowPulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.4}50%{transform:translate(-50%,-50%) scale(1.3);opacity:.8}}
+@keyframes trophyBounce{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes badgeSlide{0%{transform:translateY(10px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes fadeUp{0%{transform:translateY(16px);opacity:0}100%{transform:translateY(0);opacity:1}}
+        `}</style>
         <div style={{maxWidth:750,margin:'0 auto'}}>
-          <div style={{background:'linear-gradient(135deg,#0b1729 0%,#132240 50%,#0e1c30 100%)',borderRadius:12,padding:'52px 40px',textAlign:'center',position:'relative',overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.2)'}}>
-            <div className="cmp-orb co1"/><div className="cmp-orb co2"/><div className="cmp-orb co3"/>
-            <div className="cmp-line cl1"/><div className="cmp-line cl2"/>
+          <div style={{background:'linear-gradient(145deg,#ecfeff,#e0f7fa,#ecfdf5)',borderRadius:14,padding:'48px 28px',textAlign:'center',position:'relative',overflow:'hidden',border:'1px solid rgba(6,182,212,.12)'}}>
+
+            {/* Confetti particles */}
+            <div style={{position:'absolute',inset:0,pointerEvents:'none',overflow:'hidden'}}>
+              {[
+                {w:8,h:8,bg:'#f59e0b',t:'12%',l:'8%',a:'confFall1',d:'3s',dl:'0s',r:'45deg'},
+                {w:6,h:10,bg:'#0ea5e9',t:'6%',l:'18%',a:'confFall2',d:'2.6s',dl:'0.3s',r:'0deg'},
+                {w:9,h:6,bg:'#22c55e',t:'4%',l:'32%',a:'confFall3',d:'3.2s',dl:'0.7s',r:'30deg'},
+                {w:6,h:8,bg:'#ec4899',t:'9%',l:'46%',a:'confFall1',d:'2.8s',dl:'0.5s',r:'60deg'},
+                {w:8,h:5,bg:'#8b5cf6',t:'7%',l:'58%',a:'confFall2',d:'3.4s',dl:'1s',r:'15deg'},
+                {w:7,h:7,bg:'#f97316',t:'11%',l:'70%',a:'confFall3',d:'2.5s',dl:'0.2s',r:'0deg'},
+                {w:5,h:9,bg:'#06b6d4',t:'14%',l:'82%',a:'confFall1',d:'3.1s',dl:'1.2s',r:'75deg'},
+                {w:8,h:5,bg:'#eab308',t:'3%',l:'92%',a:'confFall2',d:'2.9s',dl:'0.8s',r:'40deg'},
+                {w:6,h:8,bg:'#ef4444',t:'8%',l:'25%',a:'confFall3',d:'3.3s',dl:'0.4s',r:'55deg'},
+                {w:7,h:6,bg:'#14b8a6',t:'16%',l:'55%',a:'confFall1',d:'3s',dl:'0.6s',r:'20deg'},
+                {w:5,h:7,bg:'#a855f7',t:'5%',l:'42%',a:'confFall2',d:'2.7s',dl:'1.1s',r:'70deg'},
+                {w:8,h:6,bg:'#fb923c',t:'13%',l:'75%',a:'confFall3',d:'3.5s',dl:'0.9s',r:'35deg'},
+                {w:6,h:9,bg:'#38bdf8',t:'10%',l:'5%',a:'confFall1',d:'2.4s',dl:'0.1s',r:'50deg'},
+                {w:7,h:5,bg:'#34d399',t:'2%',l:'65%',a:'confFall2',d:'3.6s',dl:'1.4s',r:'25deg'},
+              ].map((c,i) => (
+                <div key={i} style={{position:'absolute',width:c.w,height:c.h,background:c.bg,borderRadius:c.w===c.h?'50%':'2px',top:c.t,left:c.l,animation:`${c.a} ${c.d} linear infinite ${c.dl}`,transform:`rotate(${c.r})`}}/>
+              ))}
+            </div>
+
+            {/* Glow ring */}
+            <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:220,height:220,borderRadius:'50%',background:'radial-gradient(circle,rgba(6,182,212,.15),transparent 70%)',animation:'glowPulse 2s ease-in-out infinite',pointerEvents:'none'}}/>
+
             <div style={{position:'relative',zIndex:1}}>
-              <div style={{width:80,height:80,borderRadius:'50%',background:'rgba(74,222,128,.12)',border:'2px solid rgba(74,222,128,.25)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px'}}>
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              {/* Trophy circle */}
+              <div style={{width:100,height:100,borderRadius:'50%',background:'linear-gradient(145deg,#06b6d4,#0891b2)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px',boxShadow:'0 0 30px rgba(6,182,212,.3), 0 0 60px rgba(6,182,212,.15)',animation:'trophyBounce 1.5s ease-in-out infinite'}}>
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
               </div>
-              <div style={{display:'inline-block',fontSize:10,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',color:'#4ade80',background:'rgba(74,222,128,.1)',border:'1px solid rgba(74,222,128,.2)',padding:'5px 16px',borderRadius:8,marginBottom:16}}>✓ Fully Qualified</div>
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:900,color:'#fff',marginBottom:8}}>Today's Quota Complete!</div>
-              <div style={{fontSize:14,color:'rgba(200,220,255,.5)',lineHeight:1.7,marginBottom:32,maxWidth:440,margin:'0 auto 32px'}}>
-                You've watched all {done} required videos today. Your commissions are fully qualified. Come back tomorrow for your next session.
+
+              {/* Badge */}
+              <div style={{display:'inline-block',fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#fff',background:'linear-gradient(135deg,#06b6d4,#0891b2)',padding:'6px 20px',borderRadius:20,marginBottom:16,boxShadow:'0 2px 10px rgba(6,182,212,.3)',animation:'badgeSlide .6s ease-out'}}>Fully qualified</div>
+
+              {/* Title */}
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:900,color:'#0c4a6e',marginBottom:8,animation:'fadeUp .8s ease-out'}}>Today's Quota Complete!</div>
+              <div style={{fontSize:14,color:'#0e7490',lineHeight:1.7,maxWidth:420,margin:'0 auto 28px',opacity:.7,animation:'fadeUp 1s ease-out'}}>
+                You've watched all {done} required videos today. Your commissions are fully qualified. Come back tomorrow!
               </div>
-              <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap',marginBottom:32}}>
-                {[{v:done,l:'Videos Watched',c:'#4ade80'},{v:`${done*30}s`,l:'Watch Time',c:'#38bdf8'},{v:d.streak_days||0,l:'Day Streak',c:'#fbbf24'},{v:`Tier ${d.tier||1}`,l:'Your Level',c:'#a78bfa'}].map((s,i)=>(
-                  <div key={i} style={{background:'rgba(255,255,255,.04)',border:'1px solid rgba(255,255,255,.08)',borderRadius:10,padding:'16px 20px',minWidth:90,textAlign:'center'}}>
+
+              {/* Stats */}
+              <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:24,animation:'fadeUp 1.2s ease-out'}}>
+                {[
+                  {v:done,l:'Watched',c:'#06b6d4'},
+                  {v:`${Math.floor(done*30/60)}m ${done*30%60>0?(done*30%60)+'s':''}`.trim(),l:'Watch Time',c:'#38bdf8'},
+                  {v:d.streak_days||0,l:'Streak',c:'#f59e0b'},
+                  {v:`Tier ${d.tier||1}`,l:'Level',c:'#8b5cf6'},
+                ].map((s,i)=>(
+                  <div key={i} style={{background:'#fff',border:'1px solid rgba(6,182,212,.12)',borderRadius:12,padding:'14px 8px',textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
                     <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:s.c}}>{s.v}</div>
-                    <div style={{fontSize:9,fontWeight:700,color:'rgba(200,220,255,.3)',textTransform:'uppercase',letterSpacing:1,marginTop:4}}>{s.l}</div>
+                    <div style={{fontSize:9,fontWeight:700,textTransform:'uppercase',letterSpacing:.5,color:'#67e8f9',marginTop:3}}>{s.l}</div>
                   </div>
                 ))}
               </div>
-              <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:8,fontSize:15,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:10,padding:'14px 36px',textDecoration:'none',boxShadow:'0 4px 16px rgba(14,165,233,.3)'}}>← Back to Dashboard</Link>
+
+              {/* 8 completed circles */}
+              <div style={{display:'flex',gap:8,justifyContent:'center',marginBottom:28,animation:'fadeUp 1.4s ease-out'}}>
+                {Array.from({length:done}).map((_,i)=>(
+                  <div key={i} style={{width:32,height:32,borderRadius:'50%',background:'linear-gradient(135deg,#06b6d4,#0891b2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff',boxShadow:'0 2px 8px rgba(6,182,212,.3)'}}>✓</div>
+                ))}
+              </div>
+
+              {/* Streak message */}
+              {(d.streak_days||0) > 1 && (
+                <div style={{background:'#fff',borderRadius:12,padding:'14px 20px',border:'1px solid rgba(6,182,212,.1)',marginBottom:24,display:'inline-flex',alignItems:'center',gap:10,boxShadow:'0 2px 8px rgba(0,0,0,.03)',animation:'fadeUp 1.6s ease-out'}}>
+                  <div style={{width:36,height:36,borderRadius:'50%',background:'linear-gradient(135deg,#fef3c7,#fde68a)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:800,color:'#b45309',flexShrink:0}}>{d.streak_days}</div>
+                  <div style={{textAlign:'left'}}>
+                    <div style={{fontSize:13,fontWeight:700,color:'#0c4a6e'}}>{d.streak_days} day streak! Keep it going!</div>
+                    <div style={{fontSize:11,color:'#22d3ee',marginTop:1}}>Top earners never miss a day.</div>
+                  </div>
+                </div>
+              )}
+
+              <div style={{animation:'fadeUp 1.8s ease-out'}}>
+                <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:8,fontSize:15,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#06b6d4,#0891b2)',borderRadius:12,padding:'14px 36px',textDecoration:'none',boxShadow:'0 4px 16px rgba(6,182,212,.3)'}}>← Back to Dashboard</Link>
+              </div>
             </div>
           </div>
         </div>
-        <style>{`.cmp-orb{position:absolute;border-radius:50%;pointer-events:none;z-index:0}.co1{width:200px;height:200px;top:-60px;right:10%;background:radial-gradient(circle,rgba(74,222,128,.2),transparent 70%);animation:cPulse 4s ease-in-out infinite}.co2{width:150px;height:150px;bottom:-40px;left:15%;background:radial-gradient(circle,rgba(14,165,233,.2),transparent 70%);animation:cPulse 5s ease-in-out 1s infinite}.co3{width:120px;height:120px;top:20%;left:5%;background:radial-gradient(circle,rgba(99,102,241,.15),transparent 70%);animation:cPulse 6s ease-in-out 2s infinite}.cmp-line{position:absolute;height:1.5px;background:linear-gradient(90deg,transparent,rgba(74,222,128,.2),transparent);pointer-events:none;z-index:0}.cl1{width:60%;top:30%;left:20%;animation:cSlide 8s linear infinite}.cl2{width:40%;top:70%;left:35%;animation:cSlide 10s linear 2s infinite}`}</style>
       </AppLayout>
     );
   }
