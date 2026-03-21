@@ -2907,6 +2907,7 @@ async def crypto_create_checkout(request: Request, db: Session = Depends(get_db)
     try:
         from .database import CryptoPaymentOrder
         from .crypto_payments import TREASURY_WALLET, PRODUCT_PRICES, ORDER_EXPIRY_MINUTES
+        from decimal import Decimal
         from datetime import datetime, timedelta
         import json as _json
 
