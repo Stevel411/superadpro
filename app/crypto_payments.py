@@ -50,7 +50,6 @@ PRODUCT_PRICES = {
     "email_boost_5000":   Decimal("19.00"),
     "email_boost_10000":  Decimal("29.00"),
     "email_boost_50000":  Decimal("99.00"),
-    "test_product":       Decimal("1.00"),  # TEMPORARY — remove after testing
 }
 
 
