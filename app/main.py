@@ -7924,15 +7924,74 @@ def cron_process_renewals(
 
 
 @app.get("/cron/process-renewals")
-def cron_process_renewals_ping(request: Request):
-    """Health check — confirm cron endpoint is reachable."""
+def cron_process_renewals_get(request: Request, secret: str = "", db: Session = Depends(get_db)):
+    """GET version of renewal cron — auth via ?secret= query param for cron-job.org."""
     from fastapi.responses import JSONResponse
-    return JSONResponse({
-        "status":    "ready",
-        "endpoint":  "POST /cron/process-renewals",
-        "auth":      "Bearer token required (CRON_SECRET env var)",
-        "schedule":  "Daily at 00:05 UTC",
-    })
+    from datetime import datetime
+    cron_secret = os.environ.get("CRON_SECRET", "")
+    if not cron_secret or secret != cron_secret:
+        return JSONResponse({"error": "Unauthorised"}, status_code=401)
+    try:
+        results = process_auto_renewals(db)
+        return {"ok": True, "renewed": len(results.get("renewed", [])), "failed": len(results.get("failed", []))}
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.get("/cron/poll-payments")
+def cron_poll_payments_get(request: Request, secret: str = "", db: Session = Depends(get_db)):
+    """GET version of crypto poll — auth via ?secret= query param for cron-job.org."""
+    from fastapi.responses import JSONResponse
+    from .database import CryptoPaymentOrder
+    from .crypto_payments import get_recent_usdt_transfers, TREASURY_WALLET
+    from decimal import Decimal
+    from datetime import datetime
+
+    cron_secret = os.environ.get("CRON_SECRET", "")
+    if not cron_secret or secret != cron_secret:
+        return JSONResponse({"error": "Unauthorised"}, status_code=401)
+
+    try:
+        pending = db.query(CryptoPaymentOrder).filter(
+            CryptoPaymentOrder.status == "pending",
+            CryptoPaymentOrder.expires_at > datetime.utcnow(),
+        ).all()
+        if not pending:
+            return {"ok": True, "message": "No pending orders", "matched": 0}
+
+        amount_map = {}
+        for o in pending:
+            key = str(o.unique_amount.quantize(Decimal("0.000001")))
+            amount_map[key] = o
+
+        try:
+            transfers = get_recent_usdt_transfers(from_block="latest")
+        except Exception as e:
+            return JSONResponse({"error": str(e)}, status_code=503)
+
+        matched = 0
+        for t in transfers:
+            amount_key = str(t["amount_usdt"].quantize(Decimal("0.000001")))
+            if amount_key in amount_map:
+                order = amount_map[amount_key]
+                if order.status != "pending":
+                    continue
+                order.status = "confirmed"
+                order.tx_hash = t["tx_hash"]
+                order.from_address = t["from_address"]
+                order.confirmed_at = datetime.utcnow()
+                db.flush()
+                user = db.query(User).filter(User.id == order.user_id).first()
+                if user:
+                    import json as _json
+                    meta = _json.loads(order.product_meta) if order.product_meta else {}
+                    _crypto_activate_product(db, user, order, meta)
+                    matched += 1
+
+        db.commit()
+        return {"ok": True, "pending": len(pending), "matched": matched}
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 
 # ═══════════════════════════════════════════════════════════════
