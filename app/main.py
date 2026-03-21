@@ -3203,6 +3203,11 @@ def _crypto_activate_product(db, user, order, meta):
                                      affiliate_id)
         return {"message": "Product purchased!"}
 
+    # ── Test Product (TEMPORARY) ──
+    elif product_key == "test_product":
+        logger.info(f"TEST PRODUCT activated for user {user.id} — crypto payment confirmed!")
+        return {"message": "Test product confirmed!"}
+
     return {"message": "Payment confirmed!"}
 
 
