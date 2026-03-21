@@ -2774,16 +2774,19 @@ def _stripe_process_supermarket(db, user, product_id, session_id, affiliate_id=N
     p.total_revenue = (p.total_revenue or Decimal("0")) + (p.price or Decimal("0"))
     db.commit()
 
-def _stripe_activate_membership(db, user, tier, subscription_id):
-    """Activate or upgrade membership after Stripe payment."""
-    from .database import GRID_TIER_NAMES
+def _activate_membership(db, user, tier, source="stripe", subscription_id=None):
+    """
+    Shared membership activation — used by BOTH Stripe and Crypto.
+    Handles: activation, payment record, sponsor commission, renewal record, welcome email.
+    """
     from datetime import datetime, timedelta
+    from decimal import Decimal
     import uuid
 
-    from decimal import Decimal
-    fee = Decimal("30.00") if tier == "pro" else Decimal("20.00")
+    # Pricing — single source of truth
+    MEMBERSHIP_PRICES = {"pro": Decimal("35.00"), "basic": Decimal("20.00")}
+    fee = MEMBERSHIP_PRICES.get(tier, Decimal("20.00"))
     sponsor_share = fee * Decimal("0.50")  # 50% to sponsor
-    company_share = fee * Decimal("0.50")  # 50% to company
 
     # Activate user
     user.is_active = True
@@ -2792,14 +2795,14 @@ def _stripe_activate_membership(db, user, tier, subscription_id):
     if subscription_id:
         user.stripe_subscription_id = subscription_id
 
-    # Record payment (idempotent — skip if already activated)
+    # Record payment (idempotent — skip if already activated this cycle)
     existing = db.query(Payment).filter(
         Payment.from_user_id == user.id,
         Payment.payment_type == "membership",
-        Payment.status == "confirmed"
+        Payment.status == "confirmed",
     ).first()
     if not existing:
-        tx_ref = f"stripe_{uuid.uuid4().hex[:16]}"
+        tx_ref = f"{source}_{uuid.uuid4().hex[:16]}"
         payment = Payment(
             from_user_id=user.id, to_user_id=None,
             amount_usdt=fee, payment_type="membership",
@@ -2812,14 +2815,14 @@ def _stripe_activate_membership(db, user, tier, subscription_id):
     if user.sponsor_id:
         sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
         if sponsor:
-            sponsor.balance = (sponsor.balance or 0) + sponsor_share
-            sponsor.total_earned = (sponsor.total_earned or 0) + sponsor_share
+            sponsor.balance = Decimal(str(sponsor.balance or 0)) + sponsor_share
+            sponsor.total_earned = Decimal(str(sponsor.total_earned or 0)) + sponsor_share
             sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
             comm = Commission(
                 to_user_id=sponsor.id, from_user_id=user.id,
                 amount_usdt=sponsor_share, commission_type="membership_sponsor",
                 package_tier=0,
-                notes=f"Membership commission from {user.username}",
+                notes=f"Membership commission from {user.username} ({source})",
                 status="pending",
                 paid_at=datetime.utcnow(),
             )
@@ -2827,7 +2830,7 @@ def _stripe_activate_membership(db, user, tier, subscription_id):
 
     # Create renewal record
     try:
-        initialise_renewal_record(db, user.id, source="stripe")
+        initialise_renewal_record(db, user.id, source=source)
     except Exception:
         pass
 
@@ -2839,6 +2842,12 @@ def _stripe_activate_membership(db, user, tier, subscription_id):
         pass
 
     db.commit()
+    return {"message": f"{tier.title()} membership activated! Expires {user.membership_expires_at.strftime('%d %b %Y')}."}
+
+
+def _stripe_activate_membership(db, user, tier, subscription_id):
+    """Stripe membership activation — delegates to shared function."""
+    return _activate_membership(db, user, tier, source="stripe", subscription_id=subscription_id)
 
 
 def _stripe_renew_membership(db, user, tier, subscription_id):
@@ -2846,7 +2855,7 @@ def _stripe_renew_membership(db, user, tier, subscription_id):
     from datetime import datetime, timedelta
     from decimal import Decimal
     import uuid
-    fee = Decimal("30.00") if tier == "pro" else Decimal("20.00")
+    fee = Decimal("35.00") if tier == "pro" else Decimal("20.00")
     user.is_active = True
     user.membership_expires_at = datetime.utcnow() + timedelta(days=31)
     tx_ref = f"stripe_renew_{uuid.uuid4().hex[:12]}"
@@ -3146,36 +3155,7 @@ def _crypto_activate_product(db, user, order, meta):
     # ── Membership ──
     if order.product_type == "membership":
         tier = "pro" if "pro" in product_key else "basic"
-        fee = order.base_amount
-        sponsor_share = fee * Decimal("0.50")
-
-        user.is_active = True
-        user.membership_tier = tier
-        user.membership_expires_at = datetime.utcnow() + timedelta(days=31)
-
-        # Credit sponsor commission
-        if user.sponsor_id:
-            sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
-            if sponsor:
-                sponsor.balance = (sponsor.balance or 0) + sponsor_share
-                sponsor.total_earned = (sponsor.total_earned or 0) + sponsor_share
-                sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
-                comm = Commission(
-                    to_user_id=sponsor.id, from_user_id=user.id,
-                    amount_usdt=sponsor_share, commission_type="membership_sponsor",
-                    package_tier=0,
-                    notes=f"Crypto membership commission from {user.username}",
-                    status="pending", paid_at=datetime.utcnow(),
-                )
-                db.add(comm)
-
-        try:
-            initialise_renewal_record(db, user.id, source="crypto")
-        except Exception:
-            pass
-
-        return {"message": f"{tier.title()} membership activated! Expires {user.membership_expires_at.strftime('%d %b %Y')}."}
-
+        return _activate_membership(db, user, tier, source="crypto")
     # ── Grid / Campaign Tier ──
     elif order.product_type == "grid":
         package_tier = int(product_key.split("_")[1])
