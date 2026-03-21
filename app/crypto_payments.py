@@ -149,7 +149,7 @@ def check_usdt_transfer(tx_hash: str) -> dict:
     return {"confirmed": False, "error": "No USDT/USDC transfer found in transaction"}
 
 
-def get_recent_usdt_transfers(from_block: str = "latest", page_size: int = 100) -> list:
+def get_recent_usdt_transfers(from_block: str = "recent", page_size: int = 100) -> list:
     """
     Get recent USDT and USDC transfers TO the treasury wallet using Alchemy's
     alchemy_getAssetTransfers API. Watches both stablecoin contracts.
@@ -158,12 +158,27 @@ def get_recent_usdt_transfers(from_block: str = "latest", page_size: int = 100) 
     """
     url = get_alchemy_url()
     
+    # Get current block number first, then look back ~300 blocks (~10 minutes on Polygon)
+    if from_block == "recent":
+        try:
+            block_resp = requests.post(url, json={
+                "jsonrpc": "2.0", "id": 0, "method": "eth_blockNumber", "params": []
+            }, timeout=10)
+            current_block = int(block_resp.json().get("result", "0x0"), 16)
+            from_block_hex = hex(max(current_block - 300, 0))
+        except Exception:
+            from_block_hex = "0x0"
+    elif from_block == "earliest":
+        from_block_hex = "0x0"
+    else:
+        from_block_hex = from_block
+    
     resp = requests.post(url, json={
         "jsonrpc": "2.0",
         "id": 1,
         "method": "alchemy_getAssetTransfers",
         "params": [{
-            "fromBlock": "0x0" if from_block == "earliest" else from_block,
+            "fromBlock": from_block_hex,
             "toBlock": "latest",
             "toAddress": TREASURY_WALLET.lower(),
             "contractAddresses": ACCEPTED_TOKENS,

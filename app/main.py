@@ -3241,7 +3241,7 @@ async def crypto_poll_payments(request: Request, db: Session = Depends(get_db)):
 
     # Fetch recent transfers from Alchemy
     try:
-        transfers = get_recent_usdt_transfers(from_block="latest")
+        transfers = get_recent_usdt_transfers(from_block="recent")
     except Exception as e:
         logger.error(f"Alchemy poll failed: {e}")
         return JSONResponse({"error": str(e)}, status_code=503)
@@ -7977,7 +7977,7 @@ def cron_poll_payments_get(request: Request, secret: str = "", db: Session = Dep
                 sender_map[key].append(o)
 
         try:
-            transfers = get_recent_usdt_transfers(from_block="latest")
+            transfers = get_recent_usdt_transfers(from_block="recent")
         except Exception as e:
             return JSONResponse({"error": str(e)}, status_code=503)
 
