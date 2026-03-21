@@ -3312,50 +3312,54 @@ def debug_transfers(secret: str = "", db: Session = Depends(get_db)):
     if secret != os.environ.get("CRON_SECRET", ""):
         return JSONResponse({"error": "Forbidden"}, status_code=403)
     try:
-        from .crypto_payments import get_recent_usdt_transfers, TREASURY_WALLET, ACCEPTED_TOKENS
+        from .crypto_payments import TREASURY_WALLET, ACCEPTED_TOKENS
         from .database import CryptoPaymentOrder
-        
-        # Also make a raw eth_getLogs call to see the actual response
         import requests as _req
-        from .crypto_payments import get_alchemy_url
-        _url = get_alchemy_url()
-        
-        # Get current block
-        _br = _req.post(_url, json={"jsonrpc":"2.0","id":0,"method":"eth_blockNumber","params":[]}, timeout=10)
-        _block = int(_br.json().get("result","0x0"),16)
-        _from = hex(max(_block - 100000, 0))
-        
-        transfer_topic = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
-        treasury_padded = "0x" + TREASURY_WALLET[2:].lower().zfill(64)
-        
-        _raw = _req.post(_url, json={
-            "jsonrpc":"2.0","id":1,"method":"eth_getLogs",
-            "params":[{
-                "fromBlock": _from,
-                "toBlock": "latest",
-                "address": ACCEPTED_TOKENS,
-                "topics": [transfer_topic, None, treasury_padded]
-            }]
-        }, timeout=20)
-        _raw_data = _raw.json()
-        _raw_logs = _raw_data.get("result", [])
-        _raw_error = _raw_data.get("error", None)
-        
-        transfers = get_recent_usdt_transfers(from_block="recent")
+
+        alchemy_key = os.environ.get("ALCHEMY_API_KEY", "MISSING")
+        alchemy_url = f"https://polygon-mainnet.g.alchemy.com/v2/{alchemy_key}"
+
+        # Step 1: Raw block number call
+        try:
+            r1 = _req.post(alchemy_url, json={"jsonrpc":"2.0","id":1,"method":"eth_blockNumber","params":[]}, timeout=10)
+            r1_status = r1.status_code
+            r1_text = r1.text[:300]
+            r1_block = int(r1.json().get("result", "0x0"), 16) if r1.status_code == 200 and r1.text else 0
+        except Exception as e:
+            r1_status = -1
+            r1_text = str(e)
+            r1_block = 0
+
+        # Step 2: Raw getAssetTransfers call
+        from_hex = hex(max(r1_block - 50000, 0)) if r1_block else "0x0"
+        try:
+            r2 = _req.post(alchemy_url, json={
+                "jsonrpc":"2.0","id":2,"method":"alchemy_getAssetTransfers",
+                "params":[{
+                    "fromBlock": from_hex,
+                    "toBlock": "latest",
+                    "toAddress": TREASURY_WALLET.lower(),
+                    "contractAddresses": ACCEPTED_TOKENS,
+                    "category": ["erc20"],
+                    "withMetadata": True,
+                    "maxCount": "0x10",
+                    "order": "desc",
+                }]
+            }, timeout=15)
+            r2_status = r2.status_code
+            r2_text = r2.text[:500]
+        except Exception as e:
+            r2_status = -1
+            r2_text = str(e)
+
         pending = db.query(CryptoPaymentOrder).filter(CryptoPaymentOrder.status == "pending").all()
-        pending_info = [{"id": o.id, "user_id": o.user_id, "from_address": o.from_address,
-                         "base_amount": str(o.base_amount), "product_key": o.product_key} for o in pending]
+        pending_info = [{"id": o.id, "from_address": o.from_address, "amount": str(o.base_amount)} for o in pending]
+
         return {
-            "treasury": TREASURY_WALLET,
-            "treasury_padded": treasury_padded,
-            "accepted_tokens": ACCEPTED_TOKENS,
-            "current_block": _block,
-            "from_block": _from,
-            "raw_logs_count": len(_raw_logs) if isinstance(_raw_logs, list) else 0,
-            "raw_error": _raw_error,
-            "raw_response_preview": str(_raw_data)[:500],
-            "transfers_found": len(transfers),
-            "transfers": [{"tx": t["tx_hash"][:16] if t["tx_hash"] else "?", "from": t["from_address"], "amount": str(t["amount_usdt"]), "token": t.get("token", "?")} for t in transfers],
+            "alchemy_key_prefix": alchemy_key[:6] + "..." if len(alchemy_key) > 6 else alchemy_key,
+            "alchemy_key_length": len(alchemy_key),
+            "step1_blockNumber": {"status": r1_status, "block": r1_block, "response": r1_text[:200]},
+            "step2_getAssetTransfers": {"status": r2_status, "response": r2_text[:300]},
             "pending_orders": pending_info,
         }
     except Exception as e:
