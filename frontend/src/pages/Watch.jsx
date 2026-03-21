@@ -77,7 +77,7 @@ var CSS = `
   font-size: 11px; font-weight: 700;
   transition: all .3s;
 }
-.dot-done { background: linear-gradient(135deg,#0ea5e9,#38bdf8); color: #fff; box-shadow: 0 2px 8px rgba(14,165,233,.3); animation: dotPop .3s ease; }
+.dot-done { background: linear-gradient(135deg,#0ea5e9,#38bdf8); color: #fff; box-shadow: 0 2px 8px rgba(14,165,233,.3); }
 .dot-current { background: rgba(56,189,248,.1); border: 2px solid #38bdf8; color: #0ea5e9; }
 .dot-empty { background: #f1f5f9; border: 2px solid #e2e8f0; color: #cbd5e1; }
 
