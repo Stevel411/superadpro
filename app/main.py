@@ -424,6 +424,7 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "avatar_url": user.avatar_url or None,
         "country": user.country or "",
         "wallet_address": user.wallet_address or "",
+        "sending_wallet": getattr(user, "sending_wallet", "") or "",
         "member_id": getattr(user, "member_id", None),
     }
 
@@ -2899,25 +2900,30 @@ def _stripe_process_grid(db, user, package_tier, price_usd, session_id):
 @app.post("/api/crypto/create-checkout")
 async def crypto_create_checkout(request: Request, db: Session = Depends(get_db),
                                   user: User = Depends(get_current_user)):
-    """Create a crypto payment order. Returns wallet address + unique amount."""
+    """Create a crypto payment order. Matches by sender wallet address + approximate amount."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
     from .database import CryptoPaymentOrder
-    from .crypto_payments import (
-        TREASURY_WALLET, PRODUCT_PRICES, ORDER_EXPIRY_MINUTES,
-        generate_unique_amount, usdt_to_raw
-    )
+    from .crypto_payments import TREASURY_WALLET, PRODUCT_PRICES, ORDER_EXPIRY_MINUTES
     from datetime import datetime, timedelta
     import json as _json
 
     body = await request.json()
-    product_key = body.get("product_key", "")  # e.g. "membership_basic", "grid_3"
-    product_meta = body.get("meta", {})        # optional extra data
+    product_key = body.get("product_key", "")
+    product_meta = body.get("meta", {})
+    from_address = body.get("from_address", "").strip()
+
+    # Validate sender wallet address
+    if not from_address or len(from_address) < 40 or not from_address.startswith("0x"):
+        return JSONResponse({"error": "Please enter a valid Polygon wallet address (starts with 0x)"}, status_code=400)
+
+    # Save sending wallet to user account for future payments
+    user.sending_wallet = from_address
+    db.flush()
 
     # Validate product
     if product_key not in PRODUCT_PRICES:
-        # Check if it's a course or supermarket (dynamic pricing)
         if product_key.startswith("course_"):
             course_id = int(product_key.split("_")[1])
             from .database import MemberCourse
@@ -2950,48 +2956,36 @@ async def crypto_create_checkout(request: Request, db: Session = Depends(get_db)
     if base_price <= 0:
         return JSONResponse({"error": "Invalid price"}, status_code=400)
 
-    # Expire any old pending orders for this user + product
-    db.query(CryptoPaymentOrder).filter(
+    # Block duplicate pending orders — same user, same product, same sender
+    existing_pending = db.query(CryptoPaymentOrder).filter(
         CryptoPaymentOrder.user_id == user.id,
         CryptoPaymentOrder.product_key == product_key,
         CryptoPaymentOrder.status == "pending",
-    ).update({"status": "cancelled"})
-    db.flush()
+    ).first()
+    if existing_pending:
+        existing_pending.status = "cancelled"
+        db.flush()
 
-    # Create order with placeholder amount first (to get the ID)
+    # Create order — amount is the round base price, matching by sender address
     order = CryptoPaymentOrder(
         user_id=user.id,
         product_type=product_type,
         product_key=product_key,
         product_meta=_json.dumps(product_meta) if product_meta else None,
         base_amount=base_price,
-        unique_amount=base_price,  # temporary — will update
+        unique_amount=base_price,  # round amount — no more micro-decimals
+        from_address=from_address,
         status="pending",
         expires_at=datetime.utcnow() + timedelta(minutes=ORDER_EXPIRY_MINUTES),
     )
     db.add(order)
-    db.flush()  # get the ID
-
-    # Now generate the unique amount using the order ID
-    unique_amount = generate_unique_amount(base_price, user.id, order.id)
-
-    # Ensure uniqueness — if collision, try again with offset
-    existing = db.query(CryptoPaymentOrder).filter(
-        CryptoPaymentOrder.unique_amount == unique_amount,
-        CryptoPaymentOrder.status == "pending",
-        CryptoPaymentOrder.id != order.id,
-    ).first()
-    if existing:
-        unique_amount = generate_unique_amount(base_price, user.id, order.id + 10000)
-
-    order.unique_amount = unique_amount
     db.commit()
+    db.refresh(order)
 
     return {
         "order_id": order.id,
         "wallet_address": TREASURY_WALLET,
-        "amount_usdt": str(unique_amount),
-        "amount_raw": usdt_to_raw(unique_amount),
+        "amount_usdt": str(base_price.quantize(Decimal("0.01"))),
         "chain": "Polygon",
         "chain_id": 137,
         "token": "USDT",
@@ -3233,11 +3227,14 @@ async def crypto_poll_payments(request: Request, db: Session = Depends(get_db)):
     if not pending:
         return {"matched": 0, "message": "No pending orders"}
 
-    # Build lookup by unique amount
-    amount_map = {}
+    # Build lookup by sender wallet address (lowercased)
+    sender_map = {}
     for o in pending:
-        key = str(o.unique_amount.quantize(Decimal("0.000001")))
-        amount_map[key] = o
+        if o.from_address:
+            key = o.from_address.lower()
+            if key not in sender_map:
+                sender_map[key] = []
+            sender_map[key].append(o)
 
     # Fetch recent transfers from Alchemy
     try:
@@ -3248,16 +3245,24 @@ async def crypto_poll_payments(request: Request, db: Session = Depends(get_db)):
 
     matched = 0
     for t in transfers:
-        amount_key = str(t["amount_usdt"].quantize(Decimal("0.000001")))
-        if amount_key in amount_map:
-            order = amount_map[amount_key]
-            # Verify not already used
+        sender = t["from_address"].lower()
+        if sender not in sender_map:
+            continue
+
+        # Check each pending order from this sender
+        for order in sender_map[sender]:
             if order.status != "pending":
                 continue
 
+            # Approximate amount match — within $1.00 of expected
+            tx_amount = t["amount_usdt"]
+            expected = Decimal(str(order.base_amount))
+            if abs(tx_amount - expected) > Decimal("1.00"):
+                continue
+
+            # Match found — sender address + approximate amount
             order.status = "confirmed"
             order.tx_hash = t["tx_hash"]
-            order.from_address = t["from_address"]
             order.confirmed_at = datetime.utcnow()
             db.flush()
 
@@ -3268,6 +3273,7 @@ async def crypto_poll_payments(request: Request, db: Session = Depends(get_db)):
                 meta = _json.loads(order.product_meta) if order.product_meta else {}
                 _crypto_activate_product(db, user, order, meta)
                 matched += 1
+            break  # One transfer matches one order
 
     db.commit()
     return {"matched": matched, "pending_count": len(pending)}
@@ -7959,10 +7965,13 @@ def cron_poll_payments_get(request: Request, secret: str = "", db: Session = Dep
         if not pending:
             return {"ok": True, "message": "No pending orders", "matched": 0}
 
-        amount_map = {}
+        sender_map = {}
         for o in pending:
-            key = str(o.unique_amount.quantize(Decimal("0.000001")))
-            amount_map[key] = o
+            if o.from_address:
+                key = o.from_address.lower()
+                if key not in sender_map:
+                    sender_map[key] = []
+                sender_map[key].append(o)
 
         try:
             transfers = get_recent_usdt_transfers(from_block="latest")
@@ -7971,14 +7980,18 @@ def cron_poll_payments_get(request: Request, secret: str = "", db: Session = Dep
 
         matched = 0
         for t in transfers:
-            amount_key = str(t["amount_usdt"].quantize(Decimal("0.000001")))
-            if amount_key in amount_map:
-                order = amount_map[amount_key]
+            sender = t["from_address"].lower()
+            if sender not in sender_map:
+                continue
+            for order in sender_map[sender]:
                 if order.status != "pending":
+                    continue
+                tx_amount = t["amount_usdt"]
+                expected = Decimal(str(order.base_amount))
+                if abs(tx_amount - expected) > Decimal("1.00"):
                     continue
                 order.status = "confirmed"
                 order.tx_hash = t["tx_hash"]
-                order.from_address = t["from_address"]
                 order.confirmed_at = datetime.utcnow()
                 db.flush()
                 user = db.query(User).filter(User.id == order.user_id).first()
@@ -7987,6 +8000,7 @@ def cron_poll_payments_get(request: Request, secret: str = "", db: Session = Dep
                     meta = _json.loads(order.product_meta) if order.product_meta else {}
                     _crypto_activate_product(db, user, order, meta)
                     matched += 1
+                break
 
         db.commit()
         return {"ok": True, "pending": len(pending), "matched": matched}

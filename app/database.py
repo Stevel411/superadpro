@@ -125,6 +125,7 @@ class User(Base):
     pass_up_sponsor_id  = Column(Integer, ForeignKey("users.id"), nullable=True)  # permanent pass-up chain
     course_sale_count   = Column(Integer, default=0)              # total personally referred course sales (any tier)
     wallet_address      = Column(String, nullable=True)
+    sending_wallet      = Column(String, nullable=True)    # wallet they send crypto payments FROM
     is_admin            = Column(Boolean, default=False)
     is_active           = Column(Boolean, default=False)
     membership_tier     = Column(String, default="basic")    # basic ($20/mo) or pro ($30/mo)
@@ -1175,6 +1176,7 @@ def run_migrations():
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS wallet_address VARCHAR",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS sending_wallet VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT FALSE",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS balance FLOAT DEFAULT 0.0",
