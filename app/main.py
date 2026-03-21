@@ -14699,11 +14699,8 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
         db.add(watch)
         campaign.views_delivered = (campaign.views_delivered or 0) + 1
         quota.today_watched = (quota.today_watched or 0) + 1
-        earn = Decimal("0.02")
-        user.balance = Decimal(str(user.balance or 0)) + earn
-        user.total_earned = Decimal(str(user.total_earned or 0)) + earn
         db.commit()
-        return {"ok": True, "earned": 0.02}
+        return {"ok": True, "qualified": True}
     except Exception as e:
         import traceback
         tb = traceback.format_exc()
