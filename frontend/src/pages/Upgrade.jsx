@@ -97,7 +97,7 @@ export default function Upgrade() {
                       onMouseOut={function(e) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}
                     >
                       <Coins size={16} />
-                      Pay with Crypto (USDT)
+                      Pay with Crypto (USDT / USDC)
                     </button>
                   </div>
                 )}

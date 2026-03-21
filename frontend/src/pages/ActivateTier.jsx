@@ -107,7 +107,7 @@ export default function ActivateTier() {
           onMouseOut={function(e){ e.currentTarget.style.borderColor='#e2e8f0'; e.currentTarget.style.color='#1e293b'; }}
         >
           <Coins size={18} />
-          Pay with Crypto (USDT)
+          Pay with Crypto (USDT / USDC)
         </button>
 
         <div style={{padding:'10px 14px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:10,marginBottom:24,fontSize:12,color:'#991b1b',lineHeight:1.5,textAlign:'center'}}>

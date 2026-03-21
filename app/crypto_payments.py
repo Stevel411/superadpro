@@ -28,8 +28,10 @@ logger = logging.getLogger("superadpro.crypto")
 # ── Constants ────────────────────────────────────────────────
 TREASURY_WALLET = "0x71746f1634B0FBB3981B9B84EbE1A1a6f2430467"
 USDT_CONTRACT   = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
+USDC_CONTRACT   = "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"  # Native USDC on Polygon
+ACCEPTED_TOKENS = [USDT_CONTRACT, USDC_CONTRACT]
 POLYGON_CHAIN_ID = 137
-USDT_DECIMALS    = 6  # USDT on Polygon uses 6 decimal places
+STABLECOIN_DECIMALS = 6  # Both USDT and USDC on Polygon use 6 decimals
 
 # Payment order expires after 30 minutes
 ORDER_EXPIRY_MINUTES = 30
@@ -117,12 +119,14 @@ def check_usdt_transfer(tx_hash: str) -> dict:
     if receipt.get("status") != "0x1":
         return {"confirmed": False, "error": "Transaction failed"}
     
-    # Parse USDT Transfer event from logs
+    # Parse Transfer event from logs — accept both USDT and USDC
     # Transfer(address,address,uint256) event signature
     transfer_topic = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+    accepted = {c.lower() for c in ACCEPTED_TOKENS}
     
     for log in receipt.get("logs", []):
-        if (log.get("address", "").lower() == USDT_CONTRACT.lower() and
+        log_contract = log.get("address", "").lower()
+        if (log_contract in accepted and
             len(log.get("topics", [])) >= 3 and
             log["topics"][0] == transfer_topic):
             
@@ -130,6 +134,7 @@ def check_usdt_transfer(tx_hash: str) -> dict:
             to_addr   = "0x" + log["topics"][2][-40:]
             raw_amount = int(log["data"], 16)
             amount_usdt = raw_to_usdt(raw_amount)
+            token = "USDC" if log_contract == USDC_CONTRACT.lower() else "USDT"
             
             return {
                 "confirmed": True,
@@ -138,17 +143,18 @@ def check_usdt_transfer(tx_hash: str) -> dict:
                 "amount_usdt": amount_usdt,
                 "block_number": int(receipt["blockNumber"], 16),
                 "tx_hash": tx_hash,
+                "token": token,
             }
     
-    return {"confirmed": False, "error": "No USDT transfer found in transaction"}
+    return {"confirmed": False, "error": "No USDT/USDC transfer found in transaction"}
 
 
 def get_recent_usdt_transfers(from_block: str = "latest", page_size: int = 100) -> list:
     """
-    Get recent USDT transfers TO the treasury wallet using Alchemy's
-    alchemy_getAssetTransfers API.
+    Get recent USDT and USDC transfers TO the treasury wallet using Alchemy's
+    alchemy_getAssetTransfers API. Watches both stablecoin contracts.
     
-    Returns list of transfers with: tx_hash, from_address, amount_usdt, block_number
+    Returns list of transfers with: tx_hash, from_address, amount_usdt, block_number, token
     """
     url = get_alchemy_url()
     
@@ -160,7 +166,7 @@ def get_recent_usdt_transfers(from_block: str = "latest", page_size: int = 100) 
             "fromBlock": "0x0" if from_block == "earliest" else from_block,
             "toBlock": "latest",
             "toAddress": TREASURY_WALLET.lower(),
-            "contractAddresses": [USDT_CONTRACT],
+            "contractAddresses": ACCEPTED_TOKENS,
             "category": ["erc20"],
             "withMetadata": True,
             "maxCount": hex(page_size),
@@ -173,12 +179,15 @@ def get_recent_usdt_transfers(from_block: str = "latest", page_size: int = 100) 
     
     results = []
     for t in transfers:
+        raw_contract = (t.get("rawContract", {}).get("address", "") or "").lower()
+        token = "USDC" if raw_contract == USDC_CONTRACT.lower() else "USDT"
         results.append({
             "tx_hash": t.get("hash"),
             "from_address": t.get("from"),
             "amount_usdt": Decimal(str(t.get("value", 0))),
             "block_number": int(t.get("blockNum", "0x0"), 16),
             "timestamp": t.get("metadata", {}).get("blockTimestamp"),
+            "token": token,
         })
     
     return results

@@ -210,7 +210,7 @@ export default function CryptoCheckout({ productKey, productLabel, meta, onSucce
               <div style={{ textAlign: 'center', padding: '12px 0 16px', background: '#f0fdfa', borderRadius: 10, border: '1px solid #ccfbf1', marginBottom: 16 }}>
                 <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0e7490', marginBottom: 6 }}>Send exactly</div>
                 <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 32, fontWeight: 800, color: '#0c4a6e' }}>
-                  {order.amount_usdt} <span style={{ fontSize: 16, color: '#06b6d4', fontWeight: 700 }}>USDT</span>
+                  {order.amount_usdt} <span style={{ fontSize: 16, color: '#06b6d4', fontWeight: 700 }}>USDT / USDC</span>
                 </div>
                 <div style={{ marginTop: 8 }}>
                   <button onClick={() => copyText(order.amount_usdt, 'amount')}
@@ -240,7 +240,7 @@ export default function CryptoCheckout({ productKey, productLabel, meta, onSucce
                 </div>
                 <div style={{ flex: 1, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '8px 10px', fontSize: 11, color: '#166534', lineHeight: 1.5 }}>
                   <strong style={{ display: 'block', marginBottom: 2 }}>Network</strong>
-                  Send USDT on <strong>Polygon</strong> only. Other networks = lost funds.
+                  Send USDT or USDC on <strong>Polygon</strong> only. Other networks = lost funds.
                 </div>
               </div>
 
