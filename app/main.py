@@ -2919,8 +2919,11 @@ async def crypto_create_checkout(request: Request, db: Session = Depends(get_db)
         return JSONResponse({"error": "Please enter a valid Polygon wallet address (starts with 0x)"}, status_code=400)
 
     # Save sending wallet to user account for future payments
-    user.sending_wallet = from_address
-    db.flush()
+    try:
+        user.sending_wallet = from_address
+        db.flush()
+    except Exception:
+        db.rollback()  # column might not exist yet
 
     # Validate product
     if product_key not in PRODUCT_PRICES:

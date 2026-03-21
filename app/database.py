@@ -1129,7 +1129,7 @@ class CryptoPaymentOrder(Base):
     product_meta    = Column(Text, nullable=True)           # JSON: extra info (course_id, tier, etc.)
     # Payment
     base_amount     = Column(Numeric(18, 6), nullable=False)  # e.g. 20.000000
-    unique_amount   = Column(Numeric(18, 6), nullable=False, unique=True)  # e.g. 20.004200
+    unique_amount   = Column(Numeric(18, 6), nullable=False)  # base price — matching by sender address now
     # Status
     status          = Column(String(20), default="pending")  # pending / confirmed / expired / cancelled
     tx_hash         = Column(String(100), nullable=True)
@@ -1686,6 +1686,15 @@ try:
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_crypto_orders_user ON crypto_payment_orders(user_id)"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_crypto_orders_status ON crypto_payment_orders(status)"))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_crypto_orders_amount ON crypto_payment_orders(unique_amount)"))
+        # Drop unique constraint on unique_amount — matching is now by sender wallet address
+        try:
+            conn.execute(text("ALTER TABLE crypto_payment_orders DROP CONSTRAINT IF EXISTS crypto_payment_orders_unique_amount_key"))
+        except Exception:
+            pass
+        try:
+            conn.execute(text("DROP INDEX IF EXISTS ix_crypto_payment_orders_unique_amount"))
+        except Exception:
+            pass
 
         conn.commit()
         print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 + R2 + courses confirmed")
