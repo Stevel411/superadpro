@@ -165,7 +165,7 @@ def get_recent_usdt_transfers(from_block: str = "recent", page_size: int = 100) 
                 "jsonrpc": "2.0", "id": 0, "method": "eth_blockNumber", "params": []
             }, timeout=10)
             current_block = int(block_resp.json().get("result", "0x0"), 16)
-            from_block_hex = hex(max(current_block - 5000, 0))
+            from_block_hex = hex(max(current_block - 100000, 0))
         except Exception:
             from_block_hex = "0x0"
     elif from_block == "earliest":
