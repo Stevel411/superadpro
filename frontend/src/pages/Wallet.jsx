@@ -73,7 +73,25 @@ export default function Wallet() {
       {/* Row 1: 3 columns */}
       <div className="grid-3-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18, marginBottom: 18, alignItems: 'stretch' }}>
         {/* Col 1: Withdraw */}
-        <Card title="Withdraw USDC" dotColor="#16a34a">
+        <Card title="Withdraw USDT" dotColor="#16a34a">
+          {/* Withdrawal info notice */}
+          <div style={{ padding: '12px 14px', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 10, marginBottom: 14 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#0369a1', marginBottom: 8 }}>Before you withdraw:</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ display: 'flex', gap: 8, fontSize: 12, color: '#0c4a6e', lineHeight: 1.5 }}>
+                <span style={{ flexShrink: 0 }}>💰</span>
+                <span>Withdrawals are paid in <strong>USDT on the Polygon network</strong></span>
+              </div>
+              <div style={{ display: 'flex', gap: 8, fontSize: 12, color: '#0c4a6e', lineHeight: 1.5 }}>
+                <span style={{ flexShrink: 0 }}>👛</span>
+                <span>Your wallet must support <strong>Polygon</strong> (MetaMask, Trust Wallet, and Coinbase Wallet all support it)</span>
+              </div>
+              <div style={{ display: 'flex', gap: 8, fontSize: 12, color: '#991b1b', lineHeight: 1.5 }}>
+                <span style={{ flexShrink: 0 }}>⚠️</span>
+                <span><strong>Sending to the wrong network will result in lost funds.</strong> Make sure your wallet address is on the Polygon network.</span>
+              </div>
+            </div>
+          </div>
           {/* KYC gate */}
           {d.kyc_status !== 'approved' && (
             <div style={{ padding: '12px 14px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 10, marginBottom: 14 }}>
@@ -96,7 +114,7 @@ export default function Wallet() {
             d.balance >= 10 ? (
               <form method="POST" action="/withdraw" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div>
-                  <label style={labelStyle}>Amount (USDC)</label>
+                  <label style={labelStyle}>Amount (USDT)</label>
                   <input style={inputStyle} type="number" name="amount" min="10" max={d.balance} step="0.01" placeholder="0.00" required />
                 </div>
                 {user?.totp_enabled && (
@@ -111,22 +129,22 @@ export default function Wallet() {
                   <div style={{ fontSize: 13, color: '#3d5068' }}>💰 Min <strong>$10</strong> · 🏷️ Fee <strong>$1.00</strong></div>
                 </div>
                 <div style={{ marginTop: 10, padding: '10px 12px', background: 'rgba(22,163,74,.06)', border: '1px solid rgba(22,163,74,.18)', borderRadius: 10, fontSize: 13, color: '#16a34a' }}>
-                  ⚡ Sent automatically as USDC on Base chain.
+                  ⚡ Sent automatically as USDT on the Polygon network.
                 </div>
               </form>
             ) : (
               <div style={{ textAlign: 'center', padding: '16px 0' }}>
                 <div style={{ fontSize: 36, marginBottom: 10 }}>◎</div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#3d5068', marginBottom: 6 }}>Minimum $10 USDC to withdraw</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#3d5068', marginBottom: 6 }}>Minimum $10 USDT to withdraw</div>
                 <div style={{ fontSize: 13, color: '#7b91a8', marginBottom: 16 }}>Your balance is ${d.balance?.toFixed(2)}.</div>
-                <div style={{ fontSize: 12, color: '#7b91a8', marginTop: 8 }}>Minimum withdrawal is <strong style={{ color: '#3d5068' }}>$10 USDC</strong></div>
+                <div style={{ fontSize: 12, color: '#7b91a8', marginTop: 8 }}>Minimum withdrawal is <strong style={{ color: '#3d5068' }}>$10 USDT</strong></div>
               </div>
             )
           ) : (
             <div style={{ textAlign: 'center', padding: '16px 0' }}>
               <div style={{ fontSize: 36, marginBottom: 10 }}>💳</div>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#3d5068', marginBottom: 6 }}>No wallet address set</div>
-              <div style={{ fontSize: 13, color: '#7b91a8', marginBottom: 16 }}>Add your Base chain wallet address in Account settings.</div>
+              <div style={{ fontSize: 13, color: '#7b91a8', marginBottom: 16 }}>Add your Polygon wallet address in Account settings.</div>
               <Link to="/account" style={btnPrimary}>Go to Account Settings</Link>
             </div>
           )}
@@ -231,7 +249,7 @@ export default function Wallet() {
           ) : null}>
           {renewal.has_renewal ? (<>
             {renewal.in_grace_period && (
-              <div style={{ background: '#fef2f2', border: '1px solid rgba(220,38,38,.2)', borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 13, color: '#dc2626', fontWeight: 600 }}>⚠ Balance insufficient at renewal — top up to $20 USDC.</div>
+              <div style={{ background: '#fef2f2', border: '1px solid rgba(220,38,38,.2)', borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 13, color: '#dc2626', fontWeight: 600 }}>⚠ Balance insufficient at renewal — top up to $20 USDT.</div>
             )}
             {renewal.status === 'warning' && !renewal.in_grace_period && (
               <div style={{ background: '#fefce8', border: '1px solid rgba(234,179,8,.25)', borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 13, color: '#b45309', fontWeight: 600 }}>⏱ Renewal in {renewal.days_remaining} day{renewal.days_remaining !== 1 ? 's' : ''} — {renewal.can_afford ? "you're covered ✓" : 'top up needed'}</div>
@@ -255,14 +273,14 @@ export default function Wallet() {
 
         {/* Send Funds */}
         <Card title="Send Funds to a Member" dotColor="#0ea5e9">
-          <p style={{ fontSize: 14, color: '#3d5068', marginBottom: 16 }}>Transfer USDC to any active member using their member ID (e.g. SAP-00042). Instant and fee-free.</p>
+          <p style={{ fontSize: 14, color: '#3d5068', marginBottom: 16 }}>Transfer USDT to any active member using their member ID (e.g. SAP-00042). Instant and fee-free.</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
               <label style={{ ...labelStyle, fontSize: 11 }}>Recipient Member ID</label>
               <input id="p2pRecipient" type="text" placeholder="e.g. SAP-00042" autoComplete="off" style={p2pInputStyle} />
             </div>
             <div>
-              <label style={{ ...labelStyle, fontSize: 11 }}>Amount (USDC)</label>
+              <label style={{ ...labelStyle, fontSize: 11 }}>Amount (USDT)</label>
               <input id="p2pAmount" type="number" placeholder="e.g. 20.00" min="1" max="500" step="0.01" style={p2pInputStyle} />
             </div>
           </div>
