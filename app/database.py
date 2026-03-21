@@ -1263,6 +1263,9 @@ def run_migrations():
         "ALTER TABLE short_links ADD COLUMN IF NOT EXISTS device_redirect_json TEXT",
         "ALTER TABLE short_links ADD COLUMN IF NOT EXISTS password_hash VARCHAR",
         "ALTER TABLE short_links ADD COLUMN IF NOT EXISTS tags_json TEXT",
+        # Crypto payment matching now uses sender wallet address — drop unique on amount
+        "ALTER TABLE crypto_payment_orders DROP CONSTRAINT IF EXISTS crypto_payment_orders_unique_amount_key",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS sending_wallet VARCHAR",
     ]
     results = []
     with engine.connect() as conn:
