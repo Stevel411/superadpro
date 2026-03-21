@@ -3306,6 +3306,30 @@ async def crypto_treasury_balance(request: Request, user: User = Depends(get_cur
         return JSONResponse({"error": str(e)}, status_code=503)
 
 
+@app.get("/admin/debug-transfers")
+def debug_transfers(secret: str = "", db: Session = Depends(get_db)):
+    """TEMPORARY debug — shows raw Alchemy transfer data."""
+    if secret != os.environ.get("CRON_SECRET", ""):
+        return JSONResponse({"error": "Forbidden"}, status_code=403)
+    try:
+        from .crypto_payments import get_recent_usdt_transfers, TREASURY_WALLET, ACCEPTED_TOKENS
+        from .database import CryptoPaymentOrder
+        transfers = get_recent_usdt_transfers(from_block="recent")
+        pending = db.query(CryptoPaymentOrder).filter(CryptoPaymentOrder.status == "pending").all()
+        pending_info = [{"id": o.id, "user_id": o.user_id, "from_address": o.from_address,
+                         "base_amount": str(o.base_amount), "product_key": o.product_key} for o in pending]
+        return {
+            "treasury": TREASURY_WALLET,
+            "accepted_tokens": ACCEPTED_TOKENS,
+            "transfers_found": len(transfers),
+            "transfers": [{"tx": t["tx_hash"][:16], "from": t["from_address"], "amount": str(t["amount_usdt"]), "token": t.get("token", "?")} for t in transfers],
+            "pending_orders": pending_info,
+        }
+    except Exception as e:
+        import traceback
+        return {"error": str(e), "trace": traceback.format_exc()}
+
+
 
 
 @app.post("/api/stripe/create-course-checkout")
