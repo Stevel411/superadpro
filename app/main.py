@@ -3347,10 +3347,13 @@ def debug_transfers(secret: str = "", db: Session = Depends(get_db)):
                 }]
             }, timeout=15)
             r2_status = r2.status_code
-            r2_text = r2.text[:500]
+            r2_data = r2.json() if r2.status_code == 200 else {}
+            r2_transfers = r2_data.get("result", {}).get("transfers", [])
+            r2_parsed = [{"from": t.get("from","?"), "to": t.get("to","?"), "value": t.get("value",0), "hash": t.get("hash","?")[:20], "asset": t.get("asset","?")} for t in r2_transfers]
         except Exception as e:
             r2_status = -1
-            r2_text = str(e)
+            r2_parsed = []
+            r2_data = {"error": str(e)}
 
         pending = db.query(CryptoPaymentOrder).filter(CryptoPaymentOrder.status == "pending").all()
         pending_info = [{"id": o.id, "from_address": o.from_address, "amount": str(o.base_amount)} for o in pending]
@@ -3359,7 +3362,7 @@ def debug_transfers(secret: str = "", db: Session = Depends(get_db)):
             "alchemy_key_prefix": alchemy_key[:6] + "..." if len(alchemy_key) > 6 else alchemy_key,
             "alchemy_key_length": len(alchemy_key),
             "step1_blockNumber": {"status": r1_status, "block": r1_block, "response": r1_text[:200]},
-            "step2_getAssetTransfers": {"status": r2_status, "response": r2_text[:300]},
+            "step2_getAssetTransfers": {"status": r2_status, "count": len(r2_parsed), "transfers": r2_parsed},
             "pending_orders": pending_info,
         }
     except Exception as e:
