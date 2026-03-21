@@ -406,28 +406,21 @@ def _find_overspill_placement(
 # ── Withdrawal request ────────────────────────────────────────
 
 def request_withdrawal(db: Session, user_id: int, amount: float) -> dict:
-    """User requests withdrawal — auto-processed on Base chain with $1 fee."""
+    """User requests withdrawal — validates security, then auto-sends USDT on Polygon."""
     from decimal import Decimal as D
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         return {"success": False, "error": "User not found"}
 
     amount_d = D(str(amount))
-    fee = D("1.00")
-    min_withdrawal = D("10.00")
 
-    if amount_d < min_withdrawal:
-        return {"success": False, "error": f"Minimum withdrawal is ${min_withdrawal} USDT"}
+    # Run full security validation
+    from .withdrawals import validate_withdrawal, WITHDRAWAL_FEE
+    validation = validate_withdrawal(db, user, amount_d)
+    if not validation["valid"]:
+        return {"success": False, "error": validation["error"]}
 
-    if user.balance < amount_d:
-        return {"success": False, "error": f"Insufficient balance. Available: ${user.balance:.2f}"}
-
-    if not user.wallet_address:
-        return {"success": False, "error": "No withdrawal wallet set — add your wallet in Account settings"}
-
-    net_amount = amount_d - fee
-    if net_amount <= 0:
-        return {"success": False, "error": f"Amount after ${fee} fee is zero"}
+    net_amount = amount_d - WITHDRAWAL_FEE
 
     # Atomic balance deduction — prevents race condition double-spend
     from sqlalchemy import text
@@ -448,7 +441,7 @@ def request_withdrawal(db: Session, user_id: int, amount: float) -> dict:
     db.commit()
     db.refresh(withdrawal)
 
-    # Auto-process: send USDC on Base chain immediately
+    # Auto-process: send USDT on Polygon immediately
     try:
         from .withdrawals import process_withdrawal
         proc_result = process_withdrawal(db, withdrawal.id)
@@ -456,18 +449,17 @@ def request_withdrawal(db: Session, user_id: int, amount: float) -> dict:
             db.refresh(user)
             return {
                 "success":    True,
-                "message":    f"${net_amount:.2f} USDC sent to your wallet (${fee} fee deducted)",
+                "message":    f"${net_amount:.2f} USDT sent to your wallet on Polygon (${WITHDRAWAL_FEE} fee deducted)",
                 "tx_hash":    proc_result["tx_hash"],
                 "net_amount": float(net_amount),
-                "fee":        float(fee),
+                "fee":        float(WITHDRAWAL_FEE),
                 "remaining":  float(user.balance),
             }
         else:
-            # On-chain send failed — withdrawal stays pending for manual review
             db.refresh(user)
             return {
                 "success": True,
-                "message": f"Withdrawal of ${amount_d:.2f} queued — auto-send failed, will retry shortly",
+                "message": f"Withdrawal of ${amount_d:.2f} queued — will retry automatically",
                 "remaining": float(user.balance),
             }
     except Exception as e:
