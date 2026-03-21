@@ -76,7 +76,7 @@ export function Legal() {
 
         <LegalSection title="Terms of Service">
           <p style={p}>By using SuperAdPro, you agree to these terms. SuperAdPro is a video advertising and affiliate marketing platform. Members earn commissions by referring others and participating in campaign grids.</p>
-          <p style={p}>Membership fees are non-refundable after the billing period begins. We reserve the right to terminate accounts that violate our policies. Continued use of the platform constitutes acceptance of these terms.</p>
+          <p style={p}>All purchases are final and non-refundable. This includes membership fees, campaign tiers, courses, and digital products. Commissions are paid instantly upon purchase and cannot be reversed. We reserve the right to terminate accounts that violate our policies. Continued use of the platform constitutes acceptance of these terms.</p>
         </LegalSection>
 
         <LegalSection title="Earnings Disclaimer">

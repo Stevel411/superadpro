@@ -226,7 +226,7 @@ export default function SuperMarketCreate() {
                     <div>2. No illegal, harmful, or misleading material</div>
                     <div>3. You indemnify SuperAdPro from product claims</div>
                     <div>4. Products reviewed by AI + admin before publishing</div>
-                    <div>5. 30-day refund policy — commissions deducted</div>
+                    <div>5. All sales are final — no refunds</div>
                   </div>
                 </div>
                 <label style={{display:'flex',alignItems:'flex-start',gap:10,cursor:'pointer',padding:'14px 16px',borderRadius:12,border:agreedTerms?'2px solid #0ea5e9':'2px solid #e8ecf2',background:agreedTerms?'rgba(14,165,233,.02)':'transparent',transition:'all .15s'}}>

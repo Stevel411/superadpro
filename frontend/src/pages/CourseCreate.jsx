@@ -214,7 +214,7 @@ export default function CourseCreate() {
                     <div>3. Income/business courses require appropriate disclaimers</div>
                     <div>4. You indemnify SuperAdPro from content claims</div>
                     <div>5. Courses undergo AI scan + admin review before publishing</div>
-                    <div>6. 30-day refund policy — commissions deducted</div>
+                    <div>6. All sales are final — no refunds</div>
                   </div>
                 </div>
 

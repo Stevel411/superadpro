@@ -107,7 +107,7 @@ export default function Upgrade() {
         </div>
 
         <p style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', marginTop: 24 }}>
-          Secure payment via Stripe or USDT on Polygon {"\u00B7"} Cancel anytime {"\u00B7"} No contracts
+          Secure payment via Stripe or USDT on Polygon {"\u00B7"} All sales are final {"\u00B7"} No refunds
         </p>
       </div>
 

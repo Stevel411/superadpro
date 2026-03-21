@@ -269,6 +269,11 @@ export default function CryptoCheckout({ productKey, productLabel, meta, onSucce
             </div>
           </div>
 
+          {/* No refund notice */}
+          <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 12px', marginBottom: 20, fontSize: 11, color: '#991b1b', lineHeight: 1.5, textAlign: 'center' }}>
+            <strong>All sales are final.</strong> Crypto transactions are irreversible. No refunds are offered on any purchases.
+          </div>
+
           {/* Waiting for payment */}
           <div style={{ textAlign: 'center', padding: '16px 0 8px' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 10, padding: '12px 20px', marginBottom: 12 }}>
