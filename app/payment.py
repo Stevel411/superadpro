@@ -4,12 +4,24 @@
 # ═══════════════════════════════════════════════════════════════
 import os
 import logging
+from web3 import Web3
 from sqlalchemy.orm import Session
 from .database import User, Payment, Commission, Withdrawal, GRID_PACKAGES, MembershipRenewal, P2PTransfer
 from .grid import place_member_in_grid, get_or_create_active_grid
 from datetime import datetime
 
 logger = logging.getLogger("superadpro.payment")
+
+# Legacy Base chain config — only used by old verify_transaction functions
+# These will fail gracefully if env vars aren't set (which they aren't)
+_BASE_RPC_URL = os.getenv("BASE_RPC_URL", "https://mainnet.base.org")
+USDT_CONTRACT = os.getenv("USDT_CONTRACT", "0x0000000000000000000000000000000000000000")
+COMPANY_WALLET = os.getenv("COMPANY_WALLET", "0x0000000000000000000000000000000000000000")
+
+try:
+    w3 = Web3(Web3.HTTPProvider(_BASE_RPC_URL))
+except Exception:
+    w3 = None
 
 USDT_ABI = [
     {
