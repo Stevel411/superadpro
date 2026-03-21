@@ -94,7 +94,7 @@ export function Legal() {
         </LegalSection>
 
         <LegalSection title="Cryptocurrency & Payments">
-          <p style={p}>All earnings are paid in USDT on the Base blockchain. Cryptocurrency transactions are irreversible. SuperAdPro is not responsible for losses due to incorrect wallet addresses provided by members. Exchange rates and network fees are the responsibility of the member.</p>
+          <p style={p}>All earnings are paid in USDT on the Polygon blockchain. Cryptocurrency transactions are irreversible. SuperAdPro is not responsible for losses due to incorrect wallet addresses provided by members. Exchange rates and network fees are the responsibility of the member.</p>
         </LegalSection>
 
         <LegalSection title="Identity Verification (KYC) Policy">

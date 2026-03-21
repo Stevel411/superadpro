@@ -172,8 +172,8 @@ export default function Account() {
         </Card>
 
         <Card title="Withdrawal Wallet">
-          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Wallet Address (USDC on Base)</label><input value={walletAddr} onChange={function(e){setWalletAddr(e.target.value);}} placeholder="0x..." style={Object.assign({},iS,{fontFamily:'monospace',fontSize:11})} onFocus={foc} onBlur={blu}/></div>
-          <div style={{padding:'10px 12px',background:'#f8f9fb',border:'1px solid #e8ecf2',borderRadius:8,marginBottom:12,fontSize:10,color:'#64748b',lineHeight:1.6}}>Coinbase · MetaMask · Trust Wallet · Rainbow — any USDC on Base wallet.</div>
+          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Wallet Address (USDT on Polygon)</label><input value={walletAddr} onChange={function(e){setWalletAddr(e.target.value);}} placeholder="0x..." style={Object.assign({},iS,{fontFamily:'monospace',fontSize:11})} onFocus={foc} onBlur={blu}/></div>
+          <div style={{padding:'10px 12px',background:'#f8f9fb',border:'1px solid #e8ecf2',borderRadius:8,marginBottom:12,fontSize:10,color:'#64748b',lineHeight:1.6}}>Coinbase · MetaMask · Trust Wallet · Rainbow — any wallet that supports USDT on Polygon.</div>
           <button onClick={saveWallet} disabled={savingWallet} style={Object.assign({},btnS,{background:'#0ea5e9',marginTop:'auto'})}>{savingWallet?'Saving...':'Save Wallet'}</button>
         </Card>
       </div>
