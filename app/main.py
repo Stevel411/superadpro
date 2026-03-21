@@ -2860,9 +2860,8 @@ def _stripe_renew_membership(db, user, tier, subscription_id):
 
 
 def _stripe_process_grid(db, user, package_tier, price_usd, session_id):
-    """Place member in grid after Stripe campaign tier payment."""
-    from .grid import place_member_in_grid
-    from .database import GRID_PACKAGES
+    """Process campaign tier purchase after Stripe payment — full commission chain."""
+    from .grid import process_tier_purchase
     import uuid
 
     # Record payment
@@ -2875,41 +2874,11 @@ def _stripe_process_grid(db, user, package_tier, price_usd, session_id):
     db.add(payment)
     db.flush()
 
-    # Place in grid
-    sponsor_id = user.sponsor_id
-    if not sponsor_id:
-        admin = db.query(User).filter(User.is_admin == True).first()
-        sponsor_id = admin.id if admin else 1
-
-    result = place_member_in_grid(
-        db=db, member_id=user.id, owner_id=sponsor_id, package_tier=package_tier,
-    )
+    # Full commission processing: 40% direct, 50% uni-level (8 levels), 5% platform, 5% bonus
+    # Plus spillover fill into all upline grids at this tier
+    result = process_tier_purchase(db=db, buyer_id=user.id, package_tier=package_tier)
     if not result["success"]:
-        from .payment import _find_overspill_placement
-        result = _find_overspill_placement(db, user.id, sponsor_id, package_tier)
-
-    # Distribute commissions (40/50/5/5 split)
-    from decimal import Decimal
-    price = Decimal(str(GRID_PACKAGES.get(package_tier, price_usd)))
-    direct_share   = price * Decimal("0.40")
-    upline_share   = price * Decimal("0.50")
-    bonus_pool     = price * Decimal("0.05")
-    company_share  = price * Decimal("0.05")
-
-    if user.sponsor_id:
-        sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
-        if sponsor:
-            sponsor.balance     = (sponsor.balance or 0) + direct_share
-            sponsor.total_earned = (sponsor.total_earned or 0) + direct_share
-            sponsor.grid_earnings = (sponsor.grid_earnings or 0) + direct_share
-            comm = Commission(
-                to_user_id=sponsor.id, from_user_id=user.id,
-                amount_usdt=direct_share, commission_type="grid_direct",
-                package_tier=package_tier,
-                notes=f"Grid Tier {package_tier} direct commission",
-                status="pending",
-            )
-            db.add(comm)
+        logger.error(f"Grid purchase failed for user {user.id} tier {package_tier}: {result.get('error')}")
 
     db.commit()
 
@@ -3210,34 +3179,14 @@ def _crypto_activate_product(db, user, order, meta):
     # ── Grid / Campaign Tier ──
     elif order.product_type == "grid":
         package_tier = int(product_key.split("_")[1])
-        price = order.base_amount
 
-        from .grid import place_member_in_grid
-        from .database import GRID_PACKAGES
+        from .grid import process_tier_purchase
 
-        sponsor_id = user.sponsor_id
-        if not sponsor_id:
-            admin = db.query(User).filter(User.is_admin == True).first()
-            sponsor_id = admin.id if admin else 1
-
-        result = place_member_in_grid(db=db, member_id=user.id, owner_id=sponsor_id, package_tier=package_tier)
-
-        # Commission split 40/50/5/5
-        direct_share  = price * Decimal("0.40")
-        if user.sponsor_id:
-            sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
-            if sponsor:
-                sponsor.balance = (sponsor.balance or 0) + direct_share
-                sponsor.total_earned = (sponsor.total_earned or 0) + direct_share
-                sponsor.grid_earnings = (sponsor.grid_earnings or 0) + direct_share
-                comm = Commission(
-                    to_user_id=sponsor.id, from_user_id=user.id,
-                    amount_usdt=direct_share, commission_type="grid_direct",
-                    package_tier=package_tier,
-                    notes=f"Crypto Grid Tier {package_tier} direct commission",
-                    status="pending",
-                )
-                db.add(comm)
+        # Full commission processing: 40% direct, 50% uni-level (8 levels), 5% platform, 5% bonus
+        # Plus spillover fill into all upline grids at this tier
+        result = process_tier_purchase(db=db, buyer_id=user.id, package_tier=package_tier)
+        if not result["success"]:
+            logger.error(f"Crypto grid purchase failed for user {user.id} tier {package_tier}: {result.get('error')}")
 
         return {"message": f"Campaign Tier {package_tier} activated!"}
 
