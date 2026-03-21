@@ -2904,98 +2904,103 @@ async def crypto_create_checkout(request: Request, db: Session = Depends(get_db)
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    from .database import CryptoPaymentOrder
-    from .crypto_payments import TREASURY_WALLET, PRODUCT_PRICES, ORDER_EXPIRY_MINUTES
-    from datetime import datetime, timedelta
-    import json as _json
-
-    body = await request.json()
-    product_key = body.get("product_key", "")
-    product_meta = body.get("meta", {})
-    from_address = body.get("from_address", "").strip()
-
-    # Validate sender wallet address
-    if not from_address or len(from_address) < 40 or not from_address.startswith("0x"):
-        return JSONResponse({"error": "Please enter a valid Polygon wallet address (starts with 0x)"}, status_code=400)
-
-    # Save sending wallet to user account for future payments
     try:
-        user.sending_wallet = from_address
-        db.flush()
-    except Exception:
-        db.rollback()  # column might not exist yet
+        from .database import CryptoPaymentOrder
+        from .crypto_payments import TREASURY_WALLET, PRODUCT_PRICES, ORDER_EXPIRY_MINUTES
+        from datetime import datetime, timedelta
+        import json as _json
 
-    # Validate product
-    if product_key not in PRODUCT_PRICES:
-        if product_key.startswith("course_"):
-            course_id = int(product_key.split("_")[1])
-            from .database import MemberCourse
-            course = db.query(MemberCourse).filter(MemberCourse.id == course_id).first()
-            if not course:
-                return JSONResponse({"error": "Course not found"}, status_code=404)
-            base_price = Decimal(str(course.price or 0))
-            product_type = "course"
-        elif product_key.startswith("supermarket_"):
-            prod_id = int(product_key.split("_")[1])
-            from .database import DigitalProduct
-            product = db.query(DigitalProduct).filter(DigitalProduct.id == prod_id).first()
-            if not product:
-                return JSONResponse({"error": "Product not found"}, status_code=404)
-            base_price = Decimal(str(product.price or 0))
-            product_type = "supermarket"
+        body = await request.json()
+        product_key = body.get("product_key", "")
+        product_meta = body.get("meta", {})
+        from_address = body.get("from_address", "").strip()
+
+        # Validate sender wallet address
+        if not from_address or len(from_address) < 40 or not from_address.startswith("0x"):
+            return JSONResponse({"error": "Please enter a valid Polygon wallet address (starts with 0x)"}, status_code=400)
+
+        # Save sending wallet to user account for future payments (safe — ignore if column missing)
+        try:
+            from sqlalchemy import text as _text
+            db.execute(_text("UPDATE users SET sending_wallet = :w WHERE id = :uid"), {"w": from_address, "uid": user.id})
+            db.flush()
+        except Exception:
+            pass
+
+        # Validate product
+        if product_key not in PRODUCT_PRICES:
+            if product_key.startswith("course_"):
+                course_id = int(product_key.split("_")[1])
+                from .database import MemberCourse
+                course = db.query(MemberCourse).filter(MemberCourse.id == course_id).first()
+                if not course:
+                    return JSONResponse({"error": "Course not found"}, status_code=404)
+                base_price = Decimal(str(course.price or 0))
+                product_type = "course"
+            elif product_key.startswith("supermarket_"):
+                prod_id = int(product_key.split("_")[1])
+                from .database import DigitalProduct
+                product = db.query(DigitalProduct).filter(DigitalProduct.id == prod_id).first()
+                if not product:
+                    return JSONResponse({"error": "Product not found"}, status_code=404)
+                base_price = Decimal(str(product.price or 0))
+                product_type = "supermarket"
+            else:
+                return JSONResponse({"error": f"Unknown product: {product_key}"}, status_code=400)
         else:
-            return JSONResponse({"error": f"Unknown product: {product_key}"}, status_code=400)
-    else:
-        base_price = PRODUCT_PRICES[product_key]
-        if product_key.startswith("membership"):
-            product_type = "membership"
-        elif product_key.startswith("grid"):
-            product_type = "grid"
-        elif product_key.startswith("email_boost"):
-            product_type = "email_boost"
-        else:
-            product_type = "other"
+            base_price = PRODUCT_PRICES[product_key]
+            if product_key.startswith("membership"):
+                product_type = "membership"
+            elif product_key.startswith("grid"):
+                product_type = "grid"
+            elif product_key.startswith("email_boost"):
+                product_type = "email_boost"
+            else:
+                product_type = "other"
 
-    if base_price <= 0:
-        return JSONResponse({"error": "Invalid price"}, status_code=400)
+        if base_price <= 0:
+            return JSONResponse({"error": "Invalid price"}, status_code=400)
 
-    # Block duplicate pending orders — same user, same product, same sender
-    existing_pending = db.query(CryptoPaymentOrder).filter(
-        CryptoPaymentOrder.user_id == user.id,
-        CryptoPaymentOrder.product_key == product_key,
-        CryptoPaymentOrder.status == "pending",
-    ).first()
-    if existing_pending:
-        existing_pending.status = "cancelled"
+        # Cancel any existing pending orders for this user + product
+        db.query(CryptoPaymentOrder).filter(
+            CryptoPaymentOrder.user_id == user.id,
+            CryptoPaymentOrder.product_key == product_key,
+            CryptoPaymentOrder.status == "pending",
+        ).update({"status": "cancelled"})
         db.flush()
 
-    # Create order — amount is the round base price, matching by sender address
-    order = CryptoPaymentOrder(
-        user_id=user.id,
-        product_type=product_type,
-        product_key=product_key,
-        product_meta=_json.dumps(product_meta) if product_meta else None,
-        base_amount=base_price,
-        unique_amount=base_price,  # round amount — no more micro-decimals
-        from_address=from_address,
-        status="pending",
-        expires_at=datetime.utcnow() + timedelta(minutes=ORDER_EXPIRY_MINUTES),
-    )
-    db.add(order)
-    db.commit()
-    db.refresh(order)
+        # Create order — amount is the round base price, matching by sender address
+        order = CryptoPaymentOrder(
+            user_id=user.id,
+            product_type=product_type,
+            product_key=product_key,
+            product_meta=_json.dumps(product_meta) if product_meta else None,
+            base_amount=base_price,
+            unique_amount=base_price,
+            from_address=from_address,
+            status="pending",
+            expires_at=datetime.utcnow() + timedelta(minutes=ORDER_EXPIRY_MINUTES),
+        )
+        db.add(order)
+        db.commit()
+        db.refresh(order)
 
-    return {
-        "order_id": order.id,
-        "wallet_address": TREASURY_WALLET,
-        "amount_usdt": str(base_price.quantize(Decimal("0.01"))),
-        "chain": "Polygon",
-        "chain_id": 137,
-        "token": "USDT",
-        "token_contract": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-        "expires_at": order.expires_at.isoformat(),
-        "expires_in_seconds": ORDER_EXPIRY_MINUTES * 60,
-    }
+        return {
+            "order_id": order.id,
+            "wallet_address": TREASURY_WALLET,
+            "amount_usdt": str(base_price.quantize(Decimal("0.01"))),
+            "chain": "Polygon",
+            "chain_id": 137,
+            "token": "USDT",
+            "token_contract": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+            "expires_at": order.expires_at.isoformat(),
+            "expires_in_seconds": ORDER_EXPIRY_MINUTES * 60,
+        }
+    except Exception as e:
+        import traceback
+        logger.error(f"Crypto checkout error: {e}\n{traceback.format_exc()}")
+        db.rollback()
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 
 @app.get("/api/crypto/order/{order_id}")
