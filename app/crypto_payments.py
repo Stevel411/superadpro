@@ -151,21 +151,21 @@ def check_usdt_transfer(tx_hash: str) -> dict:
 
 def get_recent_usdt_transfers(from_block: str = "recent", page_size: int = 100) -> list:
     """
-    Get recent USDT and USDC transfers TO the treasury wallet using Alchemy's
-    alchemy_getAssetTransfers API. Watches both stablecoin contracts.
+    Get recent USDT and USDC transfers TO the treasury wallet using eth_getLogs.
+    Uses the standard ERC-20 Transfer event — works on ALL Alchemy tiers.
     
     Returns list of transfers with: tx_hash, from_address, amount_usdt, block_number, token
     """
     url = get_alchemy_url()
     
-    # Get current block number first, then look back ~300 blocks (~10 minutes on Polygon)
+    # Get current block number, then look back ~5000 blocks (~30 min on Polygon)
     if from_block == "recent":
         try:
             block_resp = requests.post(url, json={
                 "jsonrpc": "2.0", "id": 0, "method": "eth_blockNumber", "params": []
             }, timeout=10)
             current_block = int(block_resp.json().get("result", "0x0"), 16)
-            from_block_hex = hex(max(current_block - 50000, 0))
+            from_block_hex = hex(max(current_block - 5000, 0))
         except Exception:
             from_block_hex = "0x0"
     elif from_block == "earliest":
@@ -173,48 +173,63 @@ def get_recent_usdt_transfers(from_block: str = "recent", page_size: int = 100) 
     else:
         from_block_hex = from_block
     
+    # ERC-20 Transfer(address from, address to, uint256 value) event signature
+    transfer_topic = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+    
+    # Treasury address padded to 32 bytes for topic filter (the "to" field = topic[2])
+    treasury_padded = "0x" + TREASURY_WALLET[2:].lower().zfill(64)
+    
+    # Query logs from both USDT and USDC contracts where "to" = treasury
     resp = requests.post(url, json={
         "jsonrpc": "2.0",
         "id": 1,
-        "method": "alchemy_getAssetTransfers",
+        "method": "eth_getLogs",
         "params": [{
             "fromBlock": from_block_hex,
             "toBlock": "latest",
-            "toAddress": TREASURY_WALLET.lower(),
-            "contractAddresses": ACCEPTED_TOKENS,
-            "category": ["erc20"],
-            "withMetadata": True,
-            "maxCount": hex(page_size),
-            "order": "desc",
+            "address": ACCEPTED_TOKENS,
+            "topics": [
+                transfer_topic,   # topic[0] = Transfer event
+                None,              # topic[1] = from address (any)
+                treasury_padded,   # topic[2] = to address (our treasury)
+            ]
         }]
     }, timeout=15)
     
     if resp.status_code != 200:
-        logger.error(f"Alchemy API returned status {resp.status_code}: {resp.text[:200]}")
+        logger.error(f"eth_getLogs returned status {resp.status_code}: {resp.text[:200]}")
         return []
     
     try:
         data = resp.json()
-    except Exception as e:
-        logger.error(f"Alchemy API returned non-JSON response: {resp.text[:200]}")
+    except Exception:
+        logger.error(f"eth_getLogs returned non-JSON: {resp.text[:200]}")
         return []
     
     if "error" in data:
-        logger.error(f"Alchemy API error: {data['error']}")
+        logger.error(f"eth_getLogs error: {data['error']}")
         return []
     
-    transfers = data.get("result", {}).get("transfers", [])
+    logs = data.get("result", [])
     
     results = []
-    for t in transfers:
-        raw_contract = (t.get("rawContract", {}).get("address", "") or "").lower()
-        token = "USDC" if raw_contract == USDC_CONTRACT.lower() else "USDT"
+    for log in logs:
+        contract_addr = log.get("address", "").lower()
+        topics = log.get("topics", [])
+        if len(topics) < 3:
+            continue
+        
+        from_addr = "0x" + topics[1][-40:]
+        raw_amount = int(log.get("data", "0x0"), 16)
+        amount = Decimal(str(raw_amount)) / Decimal("1000000")  # 6 decimals
+        token = "USDC" if contract_addr == USDC_CONTRACT.lower() else "USDT"
+        
         results.append({
-            "tx_hash": t.get("hash"),
-            "from_address": t.get("from"),
-            "amount_usdt": Decimal(str(t.get("value", 0))),
-            "block_number": int(t.get("blockNum", "0x0"), 16),
-            "timestamp": t.get("metadata", {}).get("blockTimestamp"),
+            "tx_hash": log.get("transactionHash"),
+            "from_address": from_addr,
+            "amount_usdt": amount,
+            "block_number": int(log.get("blockNumber", "0x0"), 16),
+            "timestamp": None,
             "token": token,
         })
     
