@@ -189,7 +189,20 @@ def get_recent_usdt_transfers(from_block: str = "recent", page_size: int = 100) 
         }]
     }, timeout=15)
     
-    data = resp.json()
+    if resp.status_code != 200:
+        logger.error(f"Alchemy API returned status {resp.status_code}: {resp.text[:200]}")
+        return []
+    
+    try:
+        data = resp.json()
+    except Exception as e:
+        logger.error(f"Alchemy API returned non-JSON response: {resp.text[:200]}")
+        return []
+    
+    if "error" in data:
+        logger.error(f"Alchemy API error: {data['error']}")
+        return []
+    
     transfers = data.get("result", {}).get("transfers", [])
     
     results = []
