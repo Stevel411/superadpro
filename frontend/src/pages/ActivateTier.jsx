@@ -110,6 +110,10 @@ export default function ActivateTier() {
           Pay with Crypto (USDT)
         </button>
 
+        <div style={{padding:'10px 14px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:10,marginBottom:24,fontSize:12,color:'#991b1b',lineHeight:1.5,textAlign:'center'}}>
+          <strong>All sales are final.</strong> Campaign tier purchases are non-refundable. Commissions are paid instantly upon purchase and cannot be reversed.
+        </div>
+
         {cryptoCheckout && (
           <CryptoCheckout
             productKey={'grid_' + n}
