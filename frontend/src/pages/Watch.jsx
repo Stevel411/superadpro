@@ -72,9 +72,9 @@ var CSS = `
 .mark-btn.disabled { background: #e2e8f0; color: #94a3b8; cursor: default; box-shadow: none; }
 
 .dot-item {
-  width: 34px; height: 34px; border-radius: 50%;
+  flex: 1; aspect-ratio: 1; max-width: 38px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700; flex-shrink: 0;
+  font-size: 11px; font-weight: 700;
   transition: all .3s;
 }
 .dot-done { background: linear-gradient(135deg,#0ea5e9,#38bdf8); color: #fff; box-shadow: 0 2px 8px rgba(14,165,233,.3); animation: dotPop .3s ease; }
@@ -184,10 +184,11 @@ export default function Watch() {
     if (!url) return '';
     if (url.includes('vimeo')) {
       const sep = url.includes('?') ? '&' : '?';
-      return `${url}${sep}autoplay=1&muted=1&controls=0&title=0&byline=0&portrait=0`;
+      return `${url}${sep}autoplay=1&muted=1&controls=0&title=0&byline=0&portrait=0&api=1`;
     }
     const sep = url.includes('?') ? '&' : '?';
-    return `${url}${sep}autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&enablejsapi=1`;
+    const origin = encodeURIComponent(window.location.origin);
+    return `${url}${sep}autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&enablejsapi=1&origin=${origin}&widget_referrer=${origin}`;
   };
 
   if (loading) return (
@@ -244,7 +245,7 @@ export default function Watch() {
   };
 
   const ProgressDots = () => (
-    <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+    <div style={{display:'flex',gap:6}}>
       {Array.from({length:limit}).map((_,i) => (
         <div key={i} className={'dot-item ' + (i < watched ? 'dot-done' : i === watched ? 'dot-current' : 'dot-empty')}>
           {i < watched ? '✓' : i + 1}
