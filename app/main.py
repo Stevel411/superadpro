@@ -4601,6 +4601,50 @@ def admin_api_commissions(
         } for c in comms]
     }
 
+@app.get("/admin/test-crypto")
+def admin_test_crypto(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """TEMPORARY — admin-only page to create a $1 test crypto checkout."""
+    if not user or not user.is_admin:
+        return RedirectResponse(url="/", status_code=302)
+    from .database import CryptoPaymentOrder
+    from .crypto_payments import TREASURY_WALLET, PRODUCT_PRICES, generate_unique_amount
+    from datetime import datetime, timedelta
+    from decimal import Decimal
+    import json as _json
+
+    base = PRODUCT_PRICES.get("test_product", Decimal("1.00"))
+    unique = generate_unique_amount(base)
+    order = CryptoPaymentOrder(
+        user_id=user.id,
+        product_key="test_product",
+        product_type="other",
+        base_amount=base,
+        unique_amount=unique,
+        expected_amount=unique,
+        wallet_address=TREASURY_WALLET,
+        status="pending",
+        expires_at=datetime.utcnow() + timedelta(minutes=30),
+    )
+    db.add(order)
+    db.commit()
+    db.refresh(order)
+
+    return HTMLResponse(f"""
+    <html><body style="font-family:system-ui;max-width:600px;margin:60px auto;padding:20px;text-align:center">
+    <h1 style="color:#06b6d4">Crypto Test Checkout</h1>
+    <p>Order #{order.id} created. Send exactly:</p>
+    <h2 style="color:#0c4a6e;font-size:36px">{unique} USDT</h2>
+    <p>To wallet:</p>
+    <code style="font-size:14px;background:#f1f5f9;padding:8px 16px;border-radius:8px;display:block;margin:12px 0;word-break:break-all">{TREASURY_WALLET}</code>
+    <p style="color:#64748b">Network: <strong>Polygon</strong></p>
+    <p style="color:#ef4444;font-weight:700">Send the EXACT amount — the micro-cents are what match your payment to this order.</p>
+    <hr style="margin:24px 0;border:none;border-top:1px solid #e2e8f0">
+    <p style="color:#94a3b8;font-size:13px">The cron job polls every 2 minutes. Once detected, this order will auto-confirm.<br>
+    Check status: <a href="/api/crypto/order/{order.id}">/api/crypto/order/{order.id}</a></p>
+    </body></html>
+    """)
+
+
 @app.get("/admin/api/withdrawals")
 def admin_api_withdrawals(
     user: User = Depends(get_current_user),
