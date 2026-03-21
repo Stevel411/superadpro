@@ -8549,14 +8549,15 @@ def fix_upline_earnings(secret: str, db: Session = Depends(get_db)):
     db.commit()
     return {"fixed": len(results), "details": results}
 
-# ── Hot wallet balance check ──
+# ── Treasury wallet balance check ──
 @app.get("/admin/hot-wallet-balance")
 def hot_wallet_balance(secret: str):
     if secret != "superadpro-owner-2026":
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
-    from app.withdrawals import get_hot_wallet_usdc_balance, HOT_WALLET_ADDRESS
-    balance = get_hot_wallet_usdc_balance()
-    return {"address": HOT_WALLET_ADDRESS, "usdc_balance": float(balance)}
+    from app.withdrawals import get_treasury_usdt_balance, get_treasury_pol_balance, TREASURY_ADDRESS
+    usdt = get_treasury_usdt_balance()
+    pol = get_treasury_pol_balance()
+    return {"address": TREASURY_ADDRESS, "usdt_balance": float(usdt), "pol_balance": float(pol), "chain": "Polygon"}
 
 # ── Retry pending withdrawals ──
 @app.get("/admin/process-pending-withdrawals")

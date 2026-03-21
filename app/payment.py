@@ -1,22 +1,15 @@
 # ═══════════════════════════════════════════════════════════════
-# SuperAdPro — Payment & Blockchain Verification
-# Base Chain USDT — 8×8 Grid Commission Distribution
+# SuperAdPro — Payment & Commission Processing
+# Polygon PoS — USDT — All commission streams
 # ═══════════════════════════════════════════════════════════════
 import os
-from web3 import Web3
-from dotenv import load_dotenv
+import logging
 from sqlalchemy.orm import Session
 from .database import User, Payment, Commission, Withdrawal, GRID_PACKAGES, MembershipRenewal, P2PTransfer
 from .grid import place_member_in_grid, get_or_create_active_grid
 from datetime import datetime
 
-load_dotenv()
-
-BASE_RPC_URL          = os.getenv("BASE_RPC_URL")
-USDT_CONTRACT         = os.getenv("USDT_CONTRACT")
-COMPANY_WALLET        = os.getenv("COMPANY_WALLET")
-
-w3 = Web3(Web3.HTTPProvider(BASE_RPC_URL))
+logger = logging.getLogger("superadpro.payment")
 
 USDT_ABI = [
     {
