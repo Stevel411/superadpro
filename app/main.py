@@ -320,6 +320,9 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         })
     activity.sort(key=lambda x: x["date"] or datetime.min, reverse=True)
     activity = activity[:6]
+    # Serialize dates for JSON
+    for a in activity:
+        a["date"] = a["date"].isoformat() if a.get("date") else None
 
     # Course stats
     course_sale_count = user.course_sale_count or 0
