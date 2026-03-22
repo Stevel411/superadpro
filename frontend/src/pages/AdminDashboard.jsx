@@ -417,7 +417,7 @@ function WithdrawalsTab() {
 function KYCTab() {
   var [pending, setPending] = useState([]);
   var [msg, setMsg] = useState('');
-  useEffect(function() { apiGet('/admin/api/kyc-pending').then(function(d) { setPending(d.pending || []); }).catch(function(){}); }, []);
+  useEffect(function() { apiGet('/admin/api/kyc-pending').then(function(d) { setPending(Array.isArray(d) ? d : d.pending || []); }).catch(function(){}); }, []);
 
   function reviewKYC(userId, action) {
     apiPost('/admin/api/kyc-review/' + userId, {action: action}).then(function(r) {
