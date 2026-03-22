@@ -3395,15 +3395,33 @@ def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
         # Delete all non-admin users
         test_users = db.query(User).filter(User.id != admin.id).all()
         deleted = []
-        for u in test_users:
-            deleted.append(u.username)
-            # Clean up related records
-            db.query(CryptoPaymentOrder).filter(CryptoPaymentOrder.user_id == u.id).delete()
+        user_ids = [u.id for u in test_users]
+        
+        if user_ids:
+            # Clean up ALL related tables with user_id foreign keys
+            from sqlalchemy import text as _text
+            related_tables = [
+                "crypto_payment_orders", "commissions", "linkhub_profiles", "linkhub_links",
+                "video_watches", "grid_positions", "grid_memberships", "member_courses",
+                "course_enrollments", "course_sales", "short_links", "short_link_clicks",
+                "ad_board_ads", "funnel_pages", "digital_products", "nurture_sequences",
+                "nurture_emails", "lead_entries", "withdrawal_requests",
+            ]
+            for table in related_tables:
+                try:
+                    db.execute(_text(f"DELETE FROM {table} WHERE user_id IN :ids"), {"ids": tuple(user_ids)})
+                except Exception:
+                    pass
+            # Also clean commissions by earner or source
             try:
-                db.query(Commission).filter((Commission.earner_id == u.id) | (Commission.source_user_id == u.id)).delete()
+                db.execute(_text("DELETE FROM commissions WHERE earner_id IN :ids OR source_user_id IN :ids"), {"ids": tuple(user_ids)})
             except Exception:
                 pass
-            db.delete(u)
+            db.flush()
+
+            for u in test_users:
+                deleted.append(u.username)
+                db.delete(u)
 
         # Reset admin balances
         admin.balance = 0
