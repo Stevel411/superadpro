@@ -3387,71 +3387,75 @@ def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
     if secret != os.environ.get("CRON_SECRET", ""):
         return JSONResponse({"error": "Forbidden"}, status_code=403)
     try:
-        from .database import CryptoPaymentOrder, Commission
-        admin = db.query(User).filter(User.username == "SuperAdPro").first()
-        if not admin:
-            return {"error": "Admin account not found"}
+        from sqlalchemy import text as _text
+        from .database import engine
 
-        # Delete all non-admin users
-        test_users = db.query(User).filter(User.id != admin.id).all()
-        deleted = []
-        user_ids = [u.id for u in test_users]
-        
-        if user_ids:
-            # Clean up ALL related tables with user_id foreign keys
-            from sqlalchemy import text as _text
-            related_tables = [
-                "crypto_payment_orders", "commissions", "linkhub_profiles", "linkhub_links",
-                "video_watches", "grid_positions", "grid_memberships", "member_courses",
-                "course_enrollments", "course_sales", "short_links", "short_link_clicks",
-                "ad_board_ads", "funnel_pages", "digital_products", "nurture_sequences",
-                "nurture_emails", "lead_entries", "withdrawal_requests",
-            ]
-            for table in related_tables:
+        with engine.connect() as conn:
+            # Get admin ID
+            r = conn.execute(_text("SELECT id FROM users WHERE username = 'SuperAdPro'"))
+            row = r.fetchone()
+            if not row:
+                return {"error": "Admin not found"}
+            admin_id = row[0]
+
+            # Get test user IDs
+            r2 = conn.execute(_text("SELECT id, username FROM users WHERE id != :aid"), {"aid": admin_id})
+            test_users = r2.fetchall()
+            deleted = [u[1] for u in test_users]
+            user_ids = [u[0] for u in test_users]
+
+            if user_ids:
+                ids_str = ",".join(str(i) for i in user_ids)
+                # Clean all FK-linked tables
+                tables_with_user_id = [
+                    "crypto_payment_orders", "linkhub_profiles", "linkhub_links",
+                    "video_watches", "grid_positions", "grid_memberships",
+                    "course_enrollments", "course_sales", "short_links",
+                    "ad_board_ads", "funnel_pages", "digital_products",
+                    "nurture_sequences", "nurture_emails", "lead_entries",
+                    "withdrawal_requests", "member_courses",
+                ]
+                for table in tables_with_user_id:
+                    try:
+                        conn.execute(_text(f"DELETE FROM {table} WHERE user_id IN ({ids_str})"))
+                    except Exception:
+                        pass
+                # Commissions
                 try:
-                    db.execute(_text(f"DELETE FROM {table} WHERE user_id IN :ids"), {"ids": tuple(user_ids)})
-                    db.flush()
+                    conn.execute(_text(f"DELETE FROM commissions WHERE earner_id IN ({ids_str}) OR source_user_id IN ({ids_str})"))
                 except Exception:
-                    db.rollback()
-            # Also clean commissions by earner or source
+                    pass
+                # Short link clicks (has link_id not user_id)
+                try:
+                    conn.execute(_text(f"DELETE FROM short_link_clicks WHERE link_id IN (SELECT id FROM short_links WHERE user_id IN ({ids_str}))"))
+                except Exception:
+                    pass
+                # Delete users
+                conn.execute(_text(f"DELETE FROM users WHERE id IN ({ids_str})"))
+
+            # Reset admin balances
+            conn.execute(_text("""
+                UPDATE users SET 
+                    balance=0, total_earned=0, total_withdrawn=0,
+                    grid_earnings=0, level_earnings=0, upline_earnings=0,
+                    course_earnings=0, marketplace_earnings=0, bonus_earnings=0,
+                    personal_referrals=0, total_team=0, course_sale_count=0
+                WHERE id = :aid
+            """), {"aid": admin_id})
+
+            # Clear all crypto orders and commissions
+            conn.execute(_text("DELETE FROM crypto_payment_orders"))
             try:
-                db.execute(_text("DELETE FROM commissions WHERE earner_id IN :ids OR source_user_id IN :ids"), {"ids": tuple(user_ids)})
+                conn.execute(_text("DELETE FROM commissions"))
             except Exception:
                 pass
-            db.flush()
 
-            for u in test_users:
-                deleted.append(u.username)
-                db.delete(u)
+            conn.commit()
 
-        # Reset admin balances
-        admin.balance = 0
-        admin.total_earned = 0
-        admin.total_withdrawn = 0
-        admin.grid_earnings = 0
-        admin.level_earnings = 0
-        admin.upline_earnings = 0
-        admin.course_earnings = 0
-        admin.marketplace_earnings = 0
-        admin.bonus_earnings = 0
-        admin.personal_referrals = 0
-        admin.total_team = 0
-        admin.course_sale_count = 0
-
-        # Clear all crypto payment orders
-        db.query(CryptoPaymentOrder).delete()
-
-        # Clear all commissions
-        try:
-            db.query(Commission).delete()
-        except Exception:
-            pass
-
-        db.commit()
-        return {"ok": True, "deleted_users": deleted, "admin_reset": True, "message": "All test data cleared"}
+        return {"ok": True, "deleted_users": deleted, "admin_reset": True, "message": "All test data cleared. Fresh start."}
     except Exception as e:
-        db.rollback()
-        return {"error": str(e)}
+        import traceback
+        return {"error": str(e), "trace": traceback.format_exc()}
 
 
 
