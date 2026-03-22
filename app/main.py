@@ -3421,12 +3421,20 @@ def debug_transfers(secret: str = "", db: Session = Depends(get_db)):
         pending = db.query(CryptoPaymentOrder).filter(CryptoPaymentOrder.status == "pending").all()
         pending_info = [{"id": o.id, "from_address": o.from_address, "amount": str(o.base_amount)} for o in pending]
 
+        # Check commissions and admin state
+        all_comms = db.query(Commission).order_by(Commission.created_at.desc()).limit(10).all()
+        comm_info = [{"id": c.id, "to": c.to_user_id, "from": c.from_user_id, "amount": str(c.amount_usdt), "type": c.commission_type, "date": str(c.created_at)} for c in all_comms]
+        admin = db.query(User).filter(User.username == "SuperAdPro").first()
+        admin_info = {"balance": str(admin.balance), "total_earned": str(admin.total_earned), "referrals": admin.personal_referrals, "team": admin.total_team} if admin else {}
+
         return {
             "alchemy_key_prefix": alchemy_key[:6] + "..." if len(alchemy_key) > 6 else alchemy_key,
             "alchemy_key_length": len(alchemy_key),
             "step1_blockNumber": {"status": r1_status, "block": r1_block, "response": r1_text[:200]},
             "step2_getAssetTransfers": {"status": r2_status, "count": len(r2_parsed), "transfers": r2_parsed},
             "pending_orders": pending_info,
+            "commissions": comm_info,
+            "admin": admin_info,
         }
     except Exception as e:
         import traceback
