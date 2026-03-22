@@ -3381,6 +3381,60 @@ def debug_transfers(secret: str = "", db: Session = Depends(get_db)):
         return {"error": str(e), "trace": traceback.format_exc()}
 
 
+@app.post("/admin/reset-test-data")
+def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
+    """TEMPORARY — Delete all users except SuperAdPro admin, reset admin balances, clear orders."""
+    if secret != os.environ.get("CRON_SECRET", ""):
+        return JSONResponse({"error": "Forbidden"}, status_code=403)
+    try:
+        from .database import CryptoPaymentOrder, Commission
+        admin = db.query(User).filter(User.username == "SuperAdPro").first()
+        if not admin:
+            return {"error": "Admin account not found"}
+
+        # Delete all non-admin users
+        test_users = db.query(User).filter(User.id != admin.id).all()
+        deleted = []
+        for u in test_users:
+            deleted.append(u.username)
+            # Clean up related records
+            db.query(CryptoPaymentOrder).filter(CryptoPaymentOrder.user_id == u.id).delete()
+            try:
+                db.query(Commission).filter((Commission.earner_id == u.id) | (Commission.source_user_id == u.id)).delete()
+            except Exception:
+                pass
+            db.delete(u)
+
+        # Reset admin balances
+        admin.balance = 0
+        admin.total_earned = 0
+        admin.total_withdrawn = 0
+        admin.grid_earnings = 0
+        admin.level_earnings = 0
+        admin.upline_earnings = 0
+        admin.course_earnings = 0
+        admin.marketplace_earnings = 0
+        admin.bonus_earnings = 0
+        admin.personal_referrals = 0
+        admin.total_team = 0
+        admin.course_sale_count = 0
+
+        # Clear all crypto payment orders
+        db.query(CryptoPaymentOrder).delete()
+
+        # Clear all commissions
+        try:
+            db.query(Commission).delete()
+        except Exception:
+            pass
+
+        db.commit()
+        return {"ok": True, "deleted_users": deleted, "admin_reset": True, "message": "All test data cleared"}
+    except Exception as e:
+        db.rollback()
+        return {"error": str(e)}
+
+
 
 
 @app.post("/api/stripe/create-course-checkout")
