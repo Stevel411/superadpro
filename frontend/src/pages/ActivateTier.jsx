@@ -75,40 +75,46 @@ export default function ActivateTier() {
           </div>
         </div>
 
-        {/* PAY BUTTON — right after the hero */}
+        {/* PAY BUTTONS */}
         {error && (
           <div style={{padding:'12px 16px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:10,marginBottom:12,fontSize:13,fontWeight:600,color:'#dc2626'}}>{error}</div>
         )}
 
-        <button onClick={handlePayment} disabled={paying} style={{
-          display:'flex',alignItems:'center',justifyContent:'center',gap:10,
-          width:'100%', padding:16, borderRadius:12,
-          fontSize:16, fontWeight:800, border:'none', cursor:paying?'wait':'pointer',
-          fontFamily:'inherit', marginBottom:10,
-          background:paying?'#94a3b8':'linear-gradient(135deg, #0ea5e9, #38bdf8)',
-          color:'#fff',
-          boxShadow:paying?'none':'0 4px 16px rgba(14,165,233,0.3)',
-          transition:'all 0.2s',
-        }}>
-          <CreditCard size={18} />
-          {paying ? 'Creating payment...' : `Pay with Card — $${t.price.toLocaleString()}`}
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+          {/* Crypto button FIRST — bright purple */}
+          <button onClick={function(){ setCryptoCheckout(true); }} style={{
+            display:'flex',alignItems:'center',justifyContent:'center',gap:10,
+            width:'100%', padding:16, borderRadius:12,
+            fontSize:16, fontWeight:800, border:'none', cursor:'pointer',
+            fontFamily:'inherit',
+            background:'linear-gradient(135deg,#8b5cf6,#7c3aed,#6d28d9)',
+            color:'#fff',
+            boxShadow:'0 4px 0 #5b21b6,0 6px 20px rgba(124,58,237,.3)',
+            letterSpacing:0.3, transition:'all 0.2s',
+          }}>
+            <Coins size={18} />
+            {"\u26A1"} Pay with Crypto (USDT / USDC)
+          </button>
 
-        <button onClick={function(){ setCryptoCheckout(true); }} style={{
-          display:'flex',alignItems:'center',justifyContent:'center',gap:10,
-          width:'100%', padding:16, borderRadius:12,
-          fontSize:16, fontWeight:800, cursor:'pointer',
-          fontFamily:'inherit', marginBottom:24,
-          background:'#fff', color:'#1e293b',
-          border:'2px solid #e2e8f0',
-          transition:'all 0.2s',
-        }}
-          onMouseOver={function(e){ e.currentTarget.style.borderColor='#8b5cf6'; e.currentTarget.style.color='#7c3aed'; }}
-          onMouseOut={function(e){ e.currentTarget.style.borderColor='#e2e8f0'; e.currentTarget.style.color='#1e293b'; }}
-        >
-          <Coins size={18} />
-          Pay with Crypto (USDT / USDC)
-        </button>
+          {/* Card button SECOND — outline style */}
+          <button onClick={handlePayment} disabled={paying} style={{
+            display:'flex',alignItems:'center',justifyContent:'center',gap:10,
+            width:'100%', padding:15, borderRadius:12,
+            fontSize:15, fontWeight:700, cursor:paying?'wait':'pointer',
+            fontFamily:'inherit',
+            background:'#fff', color:'#64748b',
+            border:'1.5px solid #e2e8f0',
+            transition:'all 0.2s',
+          }}
+            onMouseOver={function(e){ e.currentTarget.style.borderColor='#0ea5e9'; e.currentTarget.style.color='#0ea5e9'; }}
+            onMouseOut={function(e){ e.currentTarget.style.borderColor='#e2e8f0'; e.currentTarget.style.color='#64748b'; }}
+          >
+            <CreditCard size={17} />
+            {paying ? 'Creating payment...' : `\uD83D\uDCB3 Pay with Card — $${t.price.toLocaleString()}`}
+          </button>
+
+          <div style={{textAlign:'center',fontSize:10,color:'#94a3b8'}}>{"\uD83D\uDD12"} Secure payment · Instant activation</div>
+        </div>
 
         <div style={{padding:'10px 14px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:10,marginBottom:24,fontSize:12,color:'#991b1b',lineHeight:1.5,textAlign:'center'}}>
           <strong>All sales are final.</strong> Campaign tier purchases are non-refundable. Commissions are paid instantly upon purchase and cannot be reversed.
