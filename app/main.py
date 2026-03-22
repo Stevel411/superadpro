@@ -3409,8 +3409,9 @@ def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
         if user_ids:
             ids_str = ",".join(str(i) for i in user_ids)
             tables_with_user_id = [
-                "crypto_payment_orders", "linkhub_profiles", "linkhub_links",
-                "video_watches", "grid_positions", "grid_memberships",
+                "linkhub_links", "linkhub_profiles",
+                "crypto_payment_orders", "video_watches",
+                "grid_positions", "grid_memberships",
                 "course_enrollments", "course_sales", "short_links",
                 "ad_board_ads", "funnel_pages", "digital_products",
                 "nurture_sequences", "nurture_emails", "lead_entries",
