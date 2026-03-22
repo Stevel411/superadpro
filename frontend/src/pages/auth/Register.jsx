@@ -113,10 +113,19 @@ export default function Register() {
             <input value={form.confirm_password} onChange={set('confirm_password')} type="password" placeholder="Re-enter password" autoComplete="new-password" style={{ ...styles.input, borderColor: form.confirm_password && form.confirm_password !== form.password ? 'rgba(239,68,68,.5)' : 'rgba(255,255,255,.1)' }} />
           </div>
 
-          {!refCode && (
+          {refCode ? (
             <div style={styles.field}>
-              <label style={styles.label}>Referral Code <span style={{ color: 'rgba(255,255,255,.3)', fontWeight: 400 }}>(optional)</span></label>
-              <input value={form.ref} onChange={set('ref')} placeholder="sponsor_username" style={styles.input} />
+              <label style={styles.label}>Your Sponsor</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <input value={form.ref} readOnly style={{ ...styles.input, opacity: 0.6, cursor: 'default', flex: 1 }} />
+                <div style={{ fontSize: 12, color: '#10b981', fontWeight: 700, whiteSpace: 'nowrap' }}>✓ Verified</div>
+              </div>
+            </div>
+          ) : (
+            <div style={styles.field}>
+              <label style={styles.label}>Sponsor Username <span style={{ color: 'rgba(255,255,255,.3)', fontWeight: 400 }}>(who referred you?)</span></label>
+              <input value={form.ref} onChange={set('ref')} placeholder="Enter your sponsor's username" required style={styles.input} />
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,.3)', marginTop: 4, lineHeight: 1.4 }}>Every member needs a sponsor. If you don't have one, ask the person who told you about SuperAdPro for their username.</div>
             </div>
           )}
 

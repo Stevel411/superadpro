@@ -154,7 +154,11 @@ function RegisterModal({open,onClose,onSwitchToLogin,sponsor}){
           <div><label style={lS}>Password</label><input style={iS} type="password" value={form.password} onChange={set('password')} placeholder="Min. 8 chars" required minLength={8}/></div>
           <div><label style={lS}>Confirm</label><input style={iS} type="password" value={form.confirm_password} onChange={set('confirm_password')} placeholder="Repeat" required/></div>
         </div>
-        {sponsor&&<div style={{marginBottom:14}}><label style={lS}>Referred by</label><input style={{...iS,opacity:.55,cursor:'default'}} value={sponsor} readOnly/></div>}
+        {sponsor ? (
+          <div style={{marginBottom:14}}><label style={lS}>Your Sponsor</label><div style={{display:'flex',alignItems:'center',gap:10}}><input style={{...iS,opacity:.55,cursor:'default',flex:1}} value={sponsor} readOnly/><div style={{fontSize:12,color:'#10b981',fontWeight:700,whiteSpace:'nowrap'}}>✓ Verified</div></div></div>
+        ) : (
+          <div style={{marginBottom:14}}><label style={lS}>Sponsor Username</label><input style={iS} value={form.ref} onChange={set('ref')} placeholder="Who referred you?" required/><div style={{fontSize:10,color:'rgba(148,163,184,.4)',marginTop:3}}>Enter the username of the person who told you about SuperAdPro</div></div>
+        )}
         <div style={{display:'flex',alignItems:'flex-start',gap:10,marginBottom:18,fontSize:13,color:'rgba(148,163,184,.6)',lineHeight:1.5}}>
           <input type="checkbox" checked={terms} onChange={function(e){setTerms(e.target.checked);}} style={{width:14,height:14,flexShrink:0,marginTop:1,accentColor:'#38bdf8',cursor:'pointer'}}/>
           <div>I agree to the <a href="/legal" target="_blank" style={{color:'rgba(0,212,255,.8)',textDecoration:'none'}}>Terms of Service</a> and <a href="/legal" target="_blank" style={{color:'rgba(0,212,255,.8)',textDecoration:'none'}}>Privacy Policy</a>.</div>
